@@ -114,7 +114,7 @@
         ]
       },
       "deb": {
-        "include": "scripts/installer.sh"
+        "afterInstall": "scripts/installer.sh"
       },
       "options": {
         "outputPath": "dist/apps/desktop",
@@ -270,7 +270,7 @@
           ]
         },
         "deb": {
-          "include": "scripts/installer.sh"
+          "afterInstall": "scripts/installer.sh"
         }
       }
     },
@@ -374,7 +374,7 @@
           ]
         },
         "deb": {
-          "include": "scripts/installer.sh"
+          "afterInstall": "scripts/installer.sh"
         }
       }
     },
