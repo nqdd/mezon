@@ -1569,6 +1569,10 @@ input {
 }
 
 
+.text-entity-link, .text-entity-emoji {
+  user-select: all;
+}
+
 .text-entity-emoji, .text-entity-link, .text-entity-link.mention {
   color: var(--mention-color);
   background-color: var(--mention-primary);

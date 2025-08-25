@@ -765,7 +765,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		// const onlyMention = filterMentionsWithAtSign(newMentions);
 		// const convertToMarkUpString = formatMentionsToString(onlyMention);
 		// const convertToPlainTextString = getDisplayMention(onlyMention);
-		const rolesClan = selectAllRolesClan(store.getState());
+		// const rolesClan = selectAllRolesClan(store.getState());
 
 		// const mentionUpdated = convertMentionOnfile(rolesClan, convertToPlainTextString, onlyMention as MentionItem[]);
 		// setDisplayPlaintext(convertToPlainTextString);
