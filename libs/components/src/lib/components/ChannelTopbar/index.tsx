@@ -12,6 +12,7 @@ import {
 	groupCallActions,
 	pinMessageActions,
 	searchMessagesActions,
+	selectAllAccount,
 	selectChannelById,
 	selectCloseMenu,
 	selectCurrentChannel,
@@ -115,17 +116,34 @@ const TopBarChannelText = memo(() => {
 		closeMenu();
 	};
 	const currentDmGroup = useSelector(selectCurrentDM);
+	const userProfile = useSelector(selectAllAccount);
 	const channelDmGroupLabel = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			return currentDmGroup?.channel_label || currentDmGroup?.usernames?.join(',');
 		}
 		return currentDmGroup?.channel_label;
 	}, [currentDmGroup?.channel_label, currentDmGroup?.type, currentDmGroup?.usernames]);
+	const dmUserAvatar = useMemo(() => {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
+		}
+		
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
+			const currentUserId = userProfile?.user?.id;
+			const otherUserId = currentDmGroup.user_id.find(id => id !== currentUserId);
+			if (otherUserId && currentDmGroup.channel_avatar) {
+				const otherUserAvatar = currentDmGroup.channel_avatar.find(
+					(avatar): avatar is string =>
+						typeof avatar === "string" && !avatar.includes(currentUserId || "")
+				);
+				return otherUserAvatar || currentDmGroup.channel_avatar[0];
+			}
+		}
+	}, [currentDmGroup, userProfile?.user?.id]);
 
 	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(currentDmGroup?.channel_id || '')(state));
 	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(currentDmGroup?.channel_id || '')(state));
 
-	// Use custom hook for edit group modal
 	const editGroupModal = useEditGroupModal({
 		channelId: currentDmGroup?.channel_id,
 		currentGroupName: channelDmGroupLabel || '',
@@ -177,7 +195,7 @@ const TopBarChannelText = memo(() => {
 					<div className="flex items-center gap-3 flex-1 overflow-hidden">
 						<DmTopbarAvatar
 							isGroup={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP}
-								avatar={currentDmGroup?.topic} 
+								avatar={dmUserAvatar} 
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
 
