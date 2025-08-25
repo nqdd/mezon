@@ -907,7 +907,6 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 					if (onSend && (html.trim() || hasFilesToSend)) {
 						const formattedText = parseHtmlAsFormattedText(html, true, false) as FormattedText;
 						onSend(formattedText);
-            console.log('onSend');
 						setHtml("");
 						if (inputRef.current) {
 							inputRef.current.innerHTML = "";
