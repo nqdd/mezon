@@ -298,7 +298,7 @@ const ControlBar = ({
 	}, [showSoundPanel]);
 
 	const handleEmojiSelect = useCallback(
-		(emoji: string, emojiId: string) => {
+		(emojiId: string, emoji: string) => {
 			sendEmojiReaction(emoji, emojiId);
 		},
 		[sendEmojiReaction]
