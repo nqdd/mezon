@@ -23,7 +23,7 @@ export const style = (colors: Attributes) =>
 			zIndex: 10
 		},
 		buttonCircle: {
-			backgroundColor: colors.border,
+			backgroundColor: colors.primary,
 			padding: size.s_8,
 			borderRadius: size.s_22
 		},

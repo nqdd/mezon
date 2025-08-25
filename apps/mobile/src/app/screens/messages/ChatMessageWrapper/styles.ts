@@ -29,8 +29,7 @@ export const style = (colors: Attributes) =>
 			flex: 1
 		},
 		content: {
-			flex: 1,
-			backgroundColor: colors.primary
+			flex: 1
 		},
 		actions: {
 			flexDirection: 'row',

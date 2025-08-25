@@ -172,7 +172,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		}
 		const timer = setTimeout(() => {
 			startCall(isVideoCall, isAnswerCall);
-		}, 2000);
+		}, 1000);
 
 		return () => {
 			clearTimeout(timer);
@@ -204,7 +204,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 							}}
 							style={styles.buttonCircle}
 						>
-							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} />
+							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} color={themeValue.white} />
 						</TouchableOpacity>
 					</View>
 					{isConnected !== null && <ConnectionState isConnected={isConnected} />}
@@ -269,18 +269,18 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 								{localMediaControl?.camera ? (
 									<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
 								) : (
-									<MezonIconCDN icon={IconCDN.videoSlashIcon} width={size.s_24} height={size.s_24} color={themeValue.white} />
+									<MezonIconCDN icon={IconCDN.videoSlashIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
 								)}
 							</TouchableOpacity>
 							<TouchableOpacity onPress={toggleAudio} style={[styles.menuIcon, localMediaControl?.mic && styles.menuIconActive]}>
 								{localMediaControl?.mic ? (
 									<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
 								) : (
-									<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.white} />
+									<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
 								)}
 							</TouchableOpacity>
 							<TouchableOpacity onPress={() => {}} style={styles.menuIcon}>
-								<MezonIconCDN icon={IconCDN.chatIcon} />
+								<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />
 							</TouchableOpacity>
 
 							<TouchableOpacity onPress={onCancelCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>

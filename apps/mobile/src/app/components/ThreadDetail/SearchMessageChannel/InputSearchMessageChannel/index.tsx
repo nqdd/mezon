@@ -109,12 +109,12 @@ const InputSearchMessageChannel = ({
 		<View style={styles.wrapper}>
 			<TouchableOpacity onPress={onGoBack} style={{ height: '100%', paddingRight: size.s_10 }}>
 				<View style={{ alignSelf: 'center', justifyContent: 'center', flex: 1 }}>
-					<MezonIconCDN icon={IconCDN.backArrowLarge} width={20} height={20} color={'#c7c7c7'} />
+					<MezonIconCDN icon={IconCDN.backArrowLarge} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				</View>
 			</TouchableOpacity>
 			<View style={styles.searchBox}>
 				<View style={{ marginRight: size.s_6 }}>
-					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={20} height={20} color={'#c7c7c7'} />
+					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				</View>
 				{shouldShowBadge ? (
 					<View

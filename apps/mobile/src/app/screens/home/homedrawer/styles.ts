@@ -552,7 +552,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			right: size.s_10,
 			bottom: size.s_28,
-			backgroundColor: colors.border,
+			backgroundColor: colors.secondary,
 			borderColor: colors.textDisabled,
 			borderWidth: 1,
 			width: size.s_40,
@@ -837,7 +837,7 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			justifyContent: 'center',
 			alignItems: 'center',
-			backgroundColor: colors.secondaryLight,
+			backgroundColor: colors.secondary,
 			paddingVertical: size.s_10,
 			marginBottom: size.s_6,
 			borderRadius: size.s_10

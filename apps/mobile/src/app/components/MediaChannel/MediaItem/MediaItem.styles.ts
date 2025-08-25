@@ -6,7 +6,8 @@ const styles = StyleSheet.create({
 		position: 'relative',
 		width: '100%',
 		height: '100%',
-		backgroundColor: '#313338',
+		borderWidth: 1,
+		borderColor: 'rgba(78,78,78,0.4)',
 		borderRadius: size.s_10,
 		overflow: 'hidden'
 	},

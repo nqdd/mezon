@@ -14,7 +14,6 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 
 		container: {
-			backgroundColor: colors.primary,
 			flex: 1
 		},
 
