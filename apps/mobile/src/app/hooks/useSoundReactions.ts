@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { getStore, selectEntitesUserClans } from '@mezon/store-mobile';
+import { getStore, selectAllUsesInAllClansEntities } from '@mezon/store-mobile';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface ActiveSoundReaction {
@@ -14,10 +14,10 @@ export function useSoundReactions() {
 
     const handleSoundReaction = useCallback((participantId: string, soundId: string) => {
         const store = getStore();
-        const clanMembersEntities = selectEntitesUserClans(store.getState());
+        const clanMembersEntities = selectAllUsesInAllClansEntities(store.getState());
 
         const userInfo = clanMembersEntities[participantId];
-        const username = userInfo?.user?.username || null;
+        const username = userInfo?.username || null;
         if (!username) {
             return;
         }
