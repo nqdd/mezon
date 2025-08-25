@@ -3,7 +3,7 @@ import { useMezon } from '@mezon/transport';
 import { getSrcEmoji, getSrcSound } from '@mezon/utils';
 import { VoiceReactionSend } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Easing, View } from 'react-native';
+import { Animated, Dimensions, Easing, Platform, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Sound from 'react-native-sound';
 import { style } from '../styles';
@@ -221,7 +221,10 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 					return;
 				}
 
-				sound.setVolume(0.3);
+				if (Platform.OS === 'ios') {
+					sound.setNumberOfLoops(0);
+				}
+				sound.setVolume(1.0);
 				soundRefs.current.set(soundId, sound);
 
 				sound.play((success) => {
