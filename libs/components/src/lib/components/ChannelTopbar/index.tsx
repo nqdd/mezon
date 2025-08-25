@@ -124,6 +124,10 @@ const TopBarChannelText = memo(() => {
 		return currentDmGroup?.channel_label;
 	}, [currentDmGroup?.channel_label, currentDmGroup?.type, currentDmGroup?.usernames]);
 	const dmUserAvatar = useMemo(() => {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
+		}
+		
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
 			const currentUserId = userProfile?.user?.id;
 			const otherUserId = currentDmGroup.user_id.find(id => id !== currentUserId);
@@ -135,7 +139,6 @@ const TopBarChannelText = memo(() => {
 				return otherUserAvatar || currentDmGroup.channel_avatar[0];
 			}
 		}
-		return currentDmGroup?.topic;
 	}, [currentDmGroup, userProfile?.user?.id]);
 
 	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(currentDmGroup?.channel_id || '')(state));
