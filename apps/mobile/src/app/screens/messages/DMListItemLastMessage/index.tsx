@@ -94,14 +94,16 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		(e: any) => {
 			try {
 				const lines = e?.nativeEvent?.lines;
-				if (lines?.length > 1) {
-					const visibleLineText = lines?.[0]?.text;
-					const idx = findLastVisibleIndex(visibleLineText, formatEmojiInText);
-					setLastTextIndex(idx);
-					setIsEllipsized(true);
-				} else {
-					setIsEllipsized(false);
-				}
+				if (!lines?.length) return;
+
+				const visibleLineText = lines?.[0]?.text;
+				const idx = findLastVisibleIndex(visibleLineText, formatEmojiInText);
+
+				setLastTextIndex((prev) => (prev !== idx ? idx : prev));
+
+				const shouldEllipsize = idx < formatEmojiInText?.length;
+
+				setIsEllipsized((prev) => (prev !== shouldEllipsize ? shouldEllipsize : prev));
 			} catch (error) {
 				console.error('Error handling text layout:', error);
 				setIsEllipsized(false);
