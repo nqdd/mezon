@@ -1,5 +1,5 @@
 import { IS_TABLET } from '@mezon/mobile-components';
-import { Attributes, baseColor, Colors, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTablet: boolean) =>
@@ -20,7 +20,7 @@ export const style = (colors: Attributes, isTablet: boolean) =>
 			alignItems: 'center'
 		},
 		channelListSearchWrapperInput: {
-			backgroundColor: Colors.tertiaryWeight,
+			backgroundColor: '#1E1E1E',
 			flex: 1,
 			borderRadius: size.s_16,
 			alignItems: 'center',

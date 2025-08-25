@@ -1,5 +1,3 @@
-import { ThemeModeBase } from '../hooks/useTheme';
-
 export type HexColor = `#${string}`;
 type Colors = { [key: string]: HexColor };
 export type Attributes = {
@@ -45,7 +43,7 @@ export type Attributes = {
 	textSuccess: HexColor;
 };
 
-type ThemeColor = Record<ThemeModeBase, Attributes>;
+type ThemeColor = Record<any, Attributes>;
 
 export const baseColor = {
 	blurple: '#5e65de',
@@ -63,7 +61,12 @@ export const baseColor = {
 	bgButtonSecondary: '#4E5057',
 	bgSuccess: '#16A34A',
 	bgDanger: '#DA373C',
-	bgDeepLavender: '#505cdc'
+	bgDeepLavender: '#505cdc',
+	link: '#007AFF',
+	azureBlue: '#4173c3',
+	goldenrodYellow: '#f2b13a',
+	caribbeanGreen: '#1FA07C',
+	pink: '#e148c7'
 } satisfies Colors;
 
 export const brandColors = {

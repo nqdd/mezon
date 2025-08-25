@@ -73,7 +73,7 @@ export const style = (colors: Attributes) =>
 			alignSelf: 'center'
 		},
 		titleConfirm: {
-			color: colors.primary,
+			color: colors.text,
 			marginVertical: size.s_10,
 			fontSize: size.s_18,
 			textAlign: 'center'

@@ -20,12 +20,13 @@ import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
 import { ConnectionState } from './ConnectionState';
 import { style } from './styles';
+const { AudioModule } = NativeModules;
 
 interface IDirectMessageCallProps {
 	route: any;
 }
 
-export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
+export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) => {
 	const { themeValue } = useTheme();
 	const dispatch = useAppDispatch();
 	const styles = style(themeValue);
@@ -40,6 +41,16 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 	const isRemoteVideo = useSelector(selectRemoteVideo);
 	const navigation = useNavigation<any>();
 	const [isMirror, setIsMirror] = useState<boolean>(true);
+
+	useEffect(() => {
+		if (!isAnswerCall) {
+			try {
+				AudioModule.playDialtone();
+			} catch (e) {
+				console.error('e', e);
+			}
+		}
+	}, [isAnswerCall]);
 
 	const {
 		callState,
@@ -281,4 +292,26 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 			)}
 		</View>
 	);
+});
+
+export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
+	const dispatch = useAppDispatch();
+
+	const [isReady, setIsReady] = useState<boolean>(false);
+
+	useEffect(() => {
+		let timer: NodeJS.Timeout;
+		if (!route.params?.isAnswerCall) {
+			dispatch(DMCallActions.removeAll());
+			timer = setTimeout(() => {
+				setIsReady(true);
+			}, 500);
+		}
+		return () => {
+			timer && clearTimeout(timer);
+		};
+	}, [route.params?.isAnswerCall]);
+
+	if (!isReady) return null;
+	return <DirectMessageCallMain route={route} />;
 });

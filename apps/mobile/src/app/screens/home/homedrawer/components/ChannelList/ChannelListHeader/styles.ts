@@ -1,4 +1,4 @@
-import { Attributes, Colors, Fonts, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -34,7 +34,7 @@ export const style = (colors: Attributes) =>
 		},
 
 		textInfo: {
-			color: Colors.gray72,
+			color: baseColor.gray,
 			fontSize: Fonts.size.h9
 		},
 		actions: {
