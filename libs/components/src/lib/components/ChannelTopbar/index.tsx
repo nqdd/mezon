@@ -12,6 +12,7 @@ import {
 	groupCallActions,
 	pinMessageActions,
 	searchMessagesActions,
+	selectAllAccount,
 	selectChannelById,
 	selectCloseMenu,
 	selectCurrentChannel,
@@ -115,7 +116,7 @@ const TopBarChannelText = memo(() => {
 		closeMenu();
 	};
 	const currentDmGroup = useSelector(selectCurrentDM);
-	const userProfile = useSelector(selectSession);
+	const userProfile = useSelector(selectAllAccount);
 	const channelDmGroupLabel = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			return currentDmGroup?.channel_label || currentDmGroup?.usernames?.join(',');
@@ -124,16 +125,18 @@ const TopBarChannelText = memo(() => {
 	}, [currentDmGroup?.channel_label, currentDmGroup?.type, currentDmGroup?.usernames]);
 	const dmUserAvatar = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
-			const otherUserId = currentDmGroup.user_id.find(id => id !== userProfile?.user_id);
+			const currentUserId = userProfile?.user?.id;
+			const otherUserId = currentDmGroup.user_id.find(id => id !== currentUserId);
 			if (otherUserId && currentDmGroup.channel_avatar) {
-				const otherUserAvatar = currentDmGroup.channel_avatar.find(avatar =>
-					avatar && !avatar.includes(userProfile?.user_id || '')
+				const otherUserAvatar = currentDmGroup.channel_avatar.find(
+					(avatar): avatar is string =>
+						typeof avatar === "string" && !avatar.includes(currentUserId || "")
 				);
 				return otherUserAvatar || currentDmGroup.channel_avatar[0];
 			}
 		}
 		return currentDmGroup?.topic;
-	}, [currentDmGroup, userProfile?.user_id]);
+	}, [currentDmGroup, userProfile?.user?.id]);
 
 	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(currentDmGroup?.channel_id || '')(state));
 	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(currentDmGroup?.channel_id || '')(state));
