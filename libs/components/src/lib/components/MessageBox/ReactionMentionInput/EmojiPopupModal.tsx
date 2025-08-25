@@ -38,7 +38,7 @@ export const useEmojiPopupModal = (props: EmojiPopupModalProps): EmojiPopupModal
 				onClick={(e) => {
 					e.stopPropagation();
 				}}
-				className="fixed top-0 z-50 flex items-end justify-end"
+				className="fixed top-0 z-20 flex items-end justify-end"
 				onMouseDown={(e) => {
 					e.stopPropagation();
 				}}
