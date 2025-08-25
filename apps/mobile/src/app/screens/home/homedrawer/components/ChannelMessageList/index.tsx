@@ -21,7 +21,7 @@ export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolea
 
 	return (
 		<View style={[styles.wrapperLoadMore, isLoadMoreTop ? { top: 0 } : { bottom: 0 }]}>
-			<Flow size={size.s_30} color={themeValue.tertiary} />
+			<Flow size={size.s_30} color={themeValue.text} />
 		</View>
 	);
 };

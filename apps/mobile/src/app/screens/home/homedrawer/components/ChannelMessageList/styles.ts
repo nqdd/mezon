@@ -14,7 +14,7 @@ export const style = (colors: Attributes) =>
 		wrapperLoadMore: {
 			position: 'absolute',
 			left: 0,
-			backgroundColor: colors.primary,
+			backgroundColor: 'transparent',
 			height: size.s_40,
 			width: '100%',
 			paddingVertical: size.s_20,

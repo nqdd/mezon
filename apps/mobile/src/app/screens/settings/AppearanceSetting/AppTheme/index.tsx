@@ -56,6 +56,17 @@ export default function AppThemeSetting({ navigation }: SettingScreenProps<AppTh
 					),
 					value: ThemeModeBase.SUNRISE,
 					title: t('fields.sunrise')
+				},
+				{
+					element: (
+						<BoxGradientSelector
+							color={themeColors.redDark.primary}
+							colorSecond={themeColors.redDark.secondary}
+							border={themeColors.redDark.border}
+						/>
+					),
+					value: ThemeModeBase.REDDARK,
+					title: t('fields.readDark')
 				}
 			] satisfies IMezonSlideOptionsData[],
 		[]
