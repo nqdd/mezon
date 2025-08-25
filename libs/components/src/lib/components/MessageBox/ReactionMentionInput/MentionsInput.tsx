@@ -302,7 +302,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 			config.trigger.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 		).join('|');
 
-		return new RegExp(`(^|\\s)(${triggers})[\\w.-]*$`, 'gi');
+		return new RegExp(`(^|\\s)(${triggers})[\\w\\u00C0-\\u024F\\u1E00-\\u1EFF.\\s-]*$`, 'gi');
 	}, [mentionConfigs]);
 
 	const addToHistory = useCallback((htmlValue: string) => {
@@ -672,6 +672,19 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		});
 	}, [onChange, setHtml]);
 
+	const handleSuggestionsChange = useCallback((count: number, isLoading: boolean) => {
+		if (activeMentionContext) {
+			setActiveMentionContext(prev => prev ? {
+				...prev,
+				mentionState: {
+					...prev.mentionState,
+					isActive: count > 0 || isLoading,
+					isLoading,
+				}
+			} : null);
+		}
+	}, [activeMentionContext]);
+
 	const handleMentionSelect = useCallback(
 		(suggestion: MentionData) => {
 			if (!inputRef.current || !activeMentionContext) {
@@ -975,6 +988,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 						mentionState: activeMentionContext.mentionState,
 						onSelect: handleMentionSelect,
 						onMouseEnter: handleSuggestionMouseEnter,
+						onSuggestionsChange: handleSuggestionsChange,
 						suggestionsClassName,
 						suggestionStyle,
 						triggerSelection,
@@ -989,6 +1003,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		children,
 		handleMentionSelect,
 		handleSuggestionMouseEnter,
+		handleSuggestionsChange,
 		suggestionsClassName,
 		suggestionStyle,
 		triggerSelection
@@ -1016,7 +1031,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		return (
 			<div
 				ref={refs.setFloating}
-				className="mention-popover-container bg-ping-member mt-[-5px]"
+				className="mention-popover-container bg-ping-member mt-[-5px] z-[999]"
 				style={{
 					...floatingStyles,
 					borderRadius: '8px',

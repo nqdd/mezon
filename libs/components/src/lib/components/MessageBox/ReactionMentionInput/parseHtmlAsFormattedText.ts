@@ -227,7 +227,7 @@ function getCleanUrlAndTrailing(match: string, fullText: string, matchIndex: num
   return { cleanMatch, trailingPunctuation };
 }
 
-const LINK_TEMPLATE = /(?:\w+:)?\/\/\S+/gi;
+const LINK_TEMPLATE = /(?:\w+:)?\/\/[^\s<>]+/gi;
 
 
 export default function parseHtmlAsFormattedText(
@@ -297,7 +297,7 @@ function parseMarkdown(html: string) {
   parsedHtml = parsedHtml.replace(/<\/div>/g, '');
 
   // Pre
-  parsedHtml = parsedHtml.replace(/^`{3}[\n\r]?(.*?)[\n\r]?`{3}/gms, '<pre>$1</pre>');
+  parsedHtml = parsedHtml.replace(/`{3}([\s\S]*?)`{3}/g, '<pre>$1</pre>');
   // parsedHtml = parsedHtml.replace(/[`]{3}([^`]+)[`]{3}/g, '<pre>$1</pre>');
 
   // Code
@@ -373,7 +373,15 @@ function parseMarkdownLinks(html: string) {
     if (parts[i]) {
       const partText = parts[i];
       parts[i] = partText.replace(LINK_TEMPLATE, (match, offset) => {
-        const { cleanMatch, trailingPunctuation } = getCleanUrlAndTrailing(match, partText, offset);
+        const decodedMatch = match
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(parseInt(num, 10)))
+          .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+
+        const { cleanMatch, trailingPunctuation } = getCleanUrlAndTrailing(decodedMatch, partText, offset);
         if (isUrl(cleanMatch)) {
           return `<a href="${cleanMatch}" target="_blank">${cleanMatch}</a>${trailingPunctuation}`;
         }
