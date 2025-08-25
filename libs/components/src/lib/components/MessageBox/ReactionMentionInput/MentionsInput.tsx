@@ -837,9 +837,9 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent<HTMLDivElement>) => {
-			const { isComposing } = e as any;
+			const isComposing = (e.nativeEvent as any)?.isComposing || (e as any).isComposing;
 
-			if (disabled) {
+			if (disabled || isComposing) {
 				return;
 			}
 
@@ -926,47 +926,11 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 						handled = true;
 						break;
 					}
-					case "i": {
-						e.preventDefault();
-						document.execCommand("italic", false);
-						handled = true;
-						break;
-					}
-					case "u": {
-						e.preventDefault();
-						document.execCommand("underline", false);
-						handled = true;
-						break;
-					}
+					case "i":
+					case "u":
 					case "s": {
+						//  Update: italic, underline, strike format later
 						e.preventDefault();
-						document.execCommand("strikeThrough", false);
-						handled = true;
-						break;
-					}
-					case "m": {
-						e.preventDefault();
-						insertHtmlInSelection('<code class="text-entity-code" dir="auto"></code>');
-						handled = true;
-						break;
-					}
-					case "p": {
-						e.preventDefault();
-						insertHtmlInSelection('<span data-entity-type="spoiler"></span>');
-						handled = true;
-						break;
-					}
-					case "k": {
-						e.preventDefault();
-						const selectedText = window.getSelection()?.toString() || "";
-						if (selectedText) {
-							const url = prompt("Enter URL:");
-							if (url) {
-								insertHtmlInSelection(
-									`<a href="${url}" class="text-entity-link" dir="auto">${selectedText}</a>`,
-								);
-							}
-						}
 						handled = true;
 						break;
 					}
