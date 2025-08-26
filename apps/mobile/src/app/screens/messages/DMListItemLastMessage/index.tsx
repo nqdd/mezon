@@ -1,6 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { ETokenMessage, IExtendedMessage, getSrcEmoji } from '@mezon/utils';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import ImageNative from '../../../components/ImageNative';
 import { style } from './styles';
@@ -33,32 +33,6 @@ const isHeadingText = (text?: string) => {
 };
 
 const EMOJI_KEY = '[ICON_EMOJI]';
-const findLastVisibleIndex = (lineText: string, formatted: string) => {
-	let iFormatted = 0;
-	let iLine = 0;
-	let lastIndex = 0;
-
-	while (iLine < lineText?.length && iFormatted < formatted?.length) {
-		if (formatted?.startsWith(EMOJI_KEY, iFormatted)) {
-			const end = formatted?.indexOf(EMOJI_KEY, iFormatted + EMOJI_KEY.length);
-			if (end === -1) break;
-			iFormatted = end + EMOJI_KEY.length;
-			iLine++;
-			lastIndex = iFormatted;
-		} else {
-			if (lineText?.[iLine] === formatted?.[iFormatted]) {
-				lastIndex = iFormatted + 1;
-				iFormatted++;
-				iLine++;
-			} else {
-				break;
-			}
-		}
-	}
-
-	return lastIndex;
-};
-
 export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleText?: any }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -87,32 +61,7 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		return formattedContent;
 	}, [elements, t]);
 
-	const [isEllipsized, setIsEllipsized] = useState(false);
-	const [lastTextIndex, setLastTextIndex] = useState<number | null>(null);
-
-	const handleTextLayout = useCallback(
-		(e: any) => {
-			try {
-				const lines = e?.nativeEvent?.lines;
-				if (!lines?.length) return;
-
-				const visibleLineText = lines?.[0]?.text;
-				const idx = findLastVisibleIndex(visibleLineText, formatEmojiInText);
-
-				setLastTextIndex((prev) => (prev !== idx ? idx : prev));
-
-				const shouldEllipsize = idx < formatEmojiInText?.length;
-
-				setIsEllipsized((prev) => (prev !== shouldEllipsize ? shouldEllipsize : prev));
-			} catch (error) {
-				console.error('Error handling text layout:', error);
-				setIsEllipsized(false);
-			}
-		},
-		[formatEmojiInText]
-	);
-
-	const convertTextToEmoji = useCallback(() => {
+	const convertTextToEmoji = () => {
 		const parts = [];
 		let startIndex = 0;
 		let endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
@@ -153,9 +102,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 			if (endIndex !== -1) {
 				const emojiUrl = formatEmojiInText.slice(startIndex, endIndex);
-				if (!isEllipsized || endIndex < lastTextIndex) {
-					parts.push(<ImageNative key={`${emojiUrl}_dm_item_last_${endIndex}`} style={styles.emoji} url={emojiUrl} resizeMode="contain" />);
-				}
+				parts.push(
+					<Text key={`${emojiUrl}_dm_item_last_${endIndex}`}>
+						<ImageNative style={styles.emoji} url={emojiUrl} resizeMode="contain" />
+					</Text>
+				);
 				startIndex = endIndex + EMOJI_KEY.length;
 				endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
 			}
@@ -170,11 +121,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		}
 
 		return parts;
-	}, [formatEmojiInText, lastTextIndex, isEllipsized, props?.styleText, styles.emoji, styles.message]);
+	};
 
 	return (
 		<View style={styles.container}>
-			<Text numberOfLines={1} ellipsizeMode="tail" onTextLayout={handleTextLayout} style={[styles.message, props?.styleText]}>
+			<Text numberOfLines={1} ellipsizeMode="tail" style={[styles.message, props?.styleText]}>
 				{convertTextToEmoji()}
 			</Text>
 		</View>
