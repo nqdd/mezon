@@ -102,7 +102,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 			if (endIndex !== -1) {
 				const emojiUrl = formatEmojiInText.slice(startIndex, endIndex);
-				parts.push(<ImageNative key={`${emojiUrl}_dm_item_last_${endIndex}`} style={styles.emoji} url={emojiUrl} resizeMode="contain" />);
+				parts.push(
+					<Text key={`${emojiUrl}_dm_item_last_${endIndex}`}>
+						<ImageNative style={styles.emoji} url={emojiUrl} resizeMode="contain" />
+					</Text>
+				);
 				startIndex = endIndex + EMOJI_KEY.length;
 				endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
 			}
@@ -121,7 +125,7 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 	return (
 		<View style={styles.container}>
-			<Text numberOfLines={1} style={[styles.dmMessageContainer, props?.styleText]}>
+			<Text numberOfLines={1} ellipsizeMode="tail" style={[styles.message, props?.styleText]}>
 				{convertTextToEmoji()}
 			</Text>
 		</View>
