@@ -268,7 +268,7 @@ const ControlBar = ({
 				console.error('PiP error:', err);
 			}
 		} else {
-			toast.warning('Select your focus video first !');
+			toast.warning('Please select a video track to popout !');
 		}
 	}, [dispatch]);
 

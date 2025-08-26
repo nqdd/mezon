@@ -44,6 +44,7 @@ export interface MentionProps {
 	onMouseEnter?: (index: number) => void;
 	triggerSelection?: boolean;
 	onSelectionTriggered?: () => void;
+	onSuggestionsChange?: (count: number, isLoading: boolean) => void;
 }
 
 export default function Mention({
@@ -65,6 +66,7 @@ export default function Mention({
 	onMouseEnter,
 	triggerSelection,
 	onSelectionTriggered,
+	onSuggestionsChange,
 }: MentionProps) {
 	const [suggestions, setSuggestions] = useState<MentionData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +78,9 @@ export default function Mention({
 			abortControllerRef.current.abort();
 		}
 
+    console.log(query);
+
+
 		if (Array.isArray(data)) {
 			const queryLower = query.toLowerCase();
 			const filtered: MentionData[] = [];
@@ -86,13 +91,15 @@ export default function Mention({
 				const display = item.display?.toLowerCase() || '';
 				const username = (item as any).username?.toLowerCase() || '';
 				const displayName = (item as any).displayName?.toLowerCase() || '';
+				const subText = (item as any).subText?.toLowerCase() || '';
 
-				if (display.includes(queryLower) || username.includes(queryLower) || displayName.includes(queryLower)) {
+				if (display.includes(queryLower) || username.includes(queryLower) || displayName.includes(queryLower) || subText.includes(queryLower)) {
 					filtered.push(item);
 				}
 			}
 
 			setSuggestions(filtered);
+			onSuggestionsChange?.(filtered.length, false);
 			return;
 		}
 
@@ -100,22 +107,26 @@ export default function Mention({
 			try {
 				setIsLoading(true);
 				abortControllerRef.current = new AbortController();
-
 				const result = data(query);
 				if (result instanceof Promise) {
 					const resolved = await result;
 					if (!abortControllerRef.current?.signal.aborted) {
-						setSuggestions(resolved.slice(0, 10));
+						const slicedResults = resolved.slice(0, 10);
+						setSuggestions(slicedResults);
+						onSuggestionsChange?.(slicedResults.length, false);
 					}
 				} else {
 					if (!abortControllerRef.current?.signal.aborted) {
-						setSuggestions(result.slice(0, 10));
+						const slicedResults = result.slice(0, 10);
+						setSuggestions(slicedResults);
+						onSuggestionsChange?.(slicedResults.length, false);
 					}
 				}
 			} catch (error) {
 				if (error instanceof Error && error.name !== 'AbortError') {
 					console.error('Error loading mention suggestions:', error);
 					setSuggestions([]);
+					onSuggestionsChange?.(0, false);
 				}
 			} finally {
 				if (!abortControllerRef.current?.signal.aborted) {
@@ -152,6 +163,7 @@ export default function Mention({
 			}
 			setSuggestions([]);
 			setIsLoading(false);
+			onSuggestionsChange?.(0, false);
 		}
 
 		return () => {
