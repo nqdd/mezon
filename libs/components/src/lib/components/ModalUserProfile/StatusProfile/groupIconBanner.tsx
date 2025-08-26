@@ -39,6 +39,8 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 
 	const buttonFriendProps = useMemo(() => {
 		switch (checkAddFriend) {
+			case EStateFriend.BLOCK:
+				return null;
 			case EStateFriend.FRIEND:
 				return [
 					{
@@ -141,7 +143,7 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 					<Icons.Transaction className="size-4 iconWhiteImportant" />
 				</span>
 			</div>
-			{buttonFriendProps.map((button, index) => (
+			{buttonFriendProps?.map((button, index) => (
 				<div
 					className={`p-2 rounded-full bg-buttonMore hover:bg-buttonMoreHover relative h-fit cursor-pointer  ${checkAddFriend === EStateFriend.MY_PENDING || checkAddFriend === EStateFriend.OTHER_PENDING ? `p-2 rounded-full bg-[#4e5058] relative h-fit` : ''}`}
 					onClick={(e) => handleOnClickButtonFriend(e, index)}
