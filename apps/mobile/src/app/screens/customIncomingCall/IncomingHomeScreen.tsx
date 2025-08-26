@@ -25,6 +25,7 @@ import { useSendSignaling } from '../../components/CallingGroupModal';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { DirectMessageCallMain } from '../messages/DirectMessageCall';
 
+import { registerGlobals } from '@livekit/react-native';
 import Sound from 'react-native-sound';
 import ChannelVoicePopup from '../home/homedrawer/components/ChannelVoicePopup';
 import LOTTIE_PHONE_DECLINE from './phone-decline.json';
@@ -34,6 +35,7 @@ import { style } from './styles';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import BG_CALLING from './bgCalling.png';
+registerGlobals();
 const AVATAR_DEFAULT = `${process.env.NX_BASE_IMG_URL}/1775731152322039808/1820659489792069632/mezon_logo.png`;
 const IncomingHomeScreen = memo((props: any) => {
 	const { themeValue } = useTheme();

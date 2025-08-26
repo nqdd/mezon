@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import BottomSheetRootListener from '../../components/BottomSheetRootListener';
-import ModalRootListener from '../../components/ModalRootListener';
 import ChannelMessageListener from '../../screens/home/homedrawer/ChannelMessageListener';
 import ChannelMessageReactionListener from '../../screens/home/homedrawer/ChannelMessageReactionListener';
 import ChannelVoicePopup from '../../screens/home/homedrawer/components/ChannelVoicePopup';

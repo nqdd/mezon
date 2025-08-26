@@ -1,7 +1,6 @@
 import { ActionEmitEvent, isEmpty } from '@mezon/mobile-components';
 import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
 import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { AppState, DeviceEventEmitter, NativeModules, Platform, View } from 'react-native';
@@ -17,7 +16,6 @@ const CallingModalWrapper = () => {
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const dispatch = useAppDispatch();
 	const appStateRef = useRef(AppState.currentState);
-	const navigation = useNavigation<any>();
 	const { sendSignalingToParticipants } = useSendSignaling();
 
 	const handleAppStateChangeListener = useCallback((nextAppState: typeof AppState.currentState) => {
