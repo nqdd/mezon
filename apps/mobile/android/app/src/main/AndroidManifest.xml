@@ -140,6 +140,13 @@
             <data android:scheme="http" android:host="mezon.ai" android:pathPrefix="/invite" />
         </intent-filter>
 
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" android:host="mezon.ai" android:pathPrefix="/chat" />
+            <data android:scheme="http" android:host="mezon.ai" android:pathPrefix="/chat" />
+        </intent-filter>
 
         <intent-filter android:label="filter_react_native">
             <action android:name="android.intent.action.VIEW" />
@@ -212,7 +219,7 @@
         tools:replace="android:value" />
       <meta-data
       android:name="com.google.android.geo.API_KEY"
-      android:value="AIzaSyDYY_IWJQEc42Dx1Ly0-YfvDNNAQtQ1t2s"/>
+      android:value=""/>
       <provider
         android:name="androidx.core.content.FileProvider"
         android:authorities="${applicationId}.fileprovider"
