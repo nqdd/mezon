@@ -96,8 +96,8 @@ export function MyVideoConference({
 	const room = useRoomContext();
 
 	useEffect(() => {
-		const handleDisconnected = () => {
-			onLeaveRoom();
+		const handleDisconnected = async () => {
+			await handleReconnectedRoom();
 		};
 		const handleLocalTrackUnpublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
 			if (publication.source === Track.Source.ScreenShare) {
@@ -111,11 +111,19 @@ export function MyVideoConference({
 			}
 		};
 		const handleReconnectedRoom = async () => {
-			try {
-				onJoinRoom && onJoinRoom();
-			} catch (error) {
-				console.error('error: ', error);
-				onLeaveRoom();
+			const maxAttempts = 3;
+
+			for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+				try {
+					if (onJoinRoom) {
+						await onJoinRoom();
+					}
+					return;
+				} catch (error) {
+					if (attempt === maxAttempts) {
+						onLeaveRoom();
+					}
+				}
 			}
 		};
 
