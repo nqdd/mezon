@@ -8,7 +8,6 @@ import {
 	selectCurrentChannel,
 	selectDirectById,
 	selectFriendById,
-	selectFriendStatus,
 	selectIsShowCreateThread,
 	selectMemberClanByUserId,
 	selectThreadCurrentChannel,
@@ -117,8 +116,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				}
 			</div>
 
-
-				<ModalEditGroup
+			<ModalEditGroup
 				isOpen={editGroupModal.isEditModalOpen}
 				onClose={editGroupModal.closeEditModal}
 				onSave={editGroupModal.handleSave}
@@ -126,7 +124,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				groupName={editGroupModal.groupName}
 				onGroupNameChange={editGroupModal.setGroupName}
 				imagePreview={editGroupModal.imagePreview}
-					className="z-[200]"
+				className="z-[200]"
 				isLoading={updateDmGroupLoading}
 				error={updateDmGroupError}
 			/>
@@ -212,9 +210,10 @@ const WelComeDm = (props: WelComeDmProps) => {
 	const { name = '', username = '', avatar = '', classNameSubtext, showName, isDmGroup, onEditGroup } = props;
 
 	const userID = useSelector(selectUserIdCurrentDm);
-	const checkAddFriend = useSelector(selectFriendStatus(userID[0] || ''));
-
-
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID[0]));
+	const checkAddFriend = useMemo(() => {
+		return infoFriend?.state;
+	}, [infoFriend]);
 
 	return (
 		<>
