@@ -6,11 +6,16 @@ export const style = (colors: Attributes) =>
 		container: {
 			flexDirection: 'row',
 			flex: 1,
-			overflow: 'hidden'
+			overflow: 'hidden',
+			height: size.s_16,
+			flexWrap: 'nowrap'
 		},
 		message: {
 			fontSize: size.small,
-			color: colors.text
+			color: colors.text,
+			lineHeight: size.s_16,
+			overflow: 'hidden',
+			width: '100%'
 		},
 		emoji: {
 			height: size.s_12,
