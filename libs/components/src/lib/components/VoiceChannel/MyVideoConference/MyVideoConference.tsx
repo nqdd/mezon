@@ -122,6 +122,8 @@ export function MyVideoConference({
 					} catch (error) {
 						if (attempt === maxAttempts) {
 							onLeaveRoom();
+						} else {
+							await new Promise((resolve) => setTimeout(resolve, 2000));
 						}
 					}
 				}
