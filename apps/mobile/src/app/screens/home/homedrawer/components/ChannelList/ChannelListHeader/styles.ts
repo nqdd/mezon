@@ -53,11 +53,11 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			flexDirection: 'row',
 			justifyContent: 'center',
+			overflow: 'hidden',
 			alignItems: 'center',
 			height: size.s_36,
 			gap: size.s_8,
 			borderRadius: size.s_20,
-			backgroundColor: colors.primary,
 			borderWidth: 1,
 			borderColor: colors.secondaryLight
 		},
