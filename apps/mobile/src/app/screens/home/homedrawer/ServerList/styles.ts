@@ -3,10 +3,6 @@ import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
-		wrapperServerList: {
-			paddingTop: size.s_20
-		},
-
 		wrapperLogo: {
 			alignSelf: 'center',
 			marginHorizontal: size.s_10,
