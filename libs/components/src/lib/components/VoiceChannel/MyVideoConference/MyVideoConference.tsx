@@ -146,13 +146,6 @@ export function MyVideoConference({
 				await onJoinRoom();
 			}
 		};
-		const handleReconnectingRoom = async () => {
-			try {
-				onJoinRoom && onJoinRoom();
-			} catch (error) {
-				console.error('error: ', error);
-			}
-		};
 
 		const handleUserDisconnect = (participant: RemoteParticipant) => {
 			if (focusTrack && focusTrack?.participant.sid === participant.sid) {
@@ -166,7 +159,6 @@ export function MyVideoConference({
 		};
 		room?.on('disconnected', handleDisconnected);
 		room?.on('localTrackUnpublished', handleLocalTrackUnpublished);
-		room?.on('reconnecting', handleReconnectingRoom);
 		room?.on('reconnected', handleReconnectedRoom);
 		room?.on('participantDisconnected', handleUserDisconnect);
 		room?.on('trackUnpublished', handleTrackUnpublish);
