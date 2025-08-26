@@ -5,6 +5,7 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapperLogo: {
 			alignSelf: 'center',
+			marginTop: size.s_6,
 			marginHorizontal: size.s_10,
 			paddingBottom: size.s_6
 		},
