@@ -203,7 +203,7 @@ export const themeColors: ThemeColor = {
 		textSuccess: '#00d4aa'
 	},
 	redDark: {
-		primary: '#370101',
+		primary: '#610101',
 		primaryGradiant: '#700303',
 		secondary: '#2B1011',
 		tertiary: '#141319',
@@ -215,8 +215,8 @@ export const themeColors: ThemeColor = {
 		textStrong: '#dfe0e4',
 		textDisabled: '#7b7b83',
 		textNormal: '#898993',
-		secondaryWeight: '#3c1315',
-		secondaryLight: '#3a1d1f',
+		secondaryWeight: '#67171a',
+		secondaryLight: '#70393c',
 		white: '#FFFFFF',
 		black: '#000000',
 		bgInputPrimary: '#2a2e31',

@@ -22,7 +22,6 @@ export const ListenerLoader = memo(() => {
 			<StreamingWrapper />
 			<ChannelVoicePopup />
 			<BottomSheetRootListener />
-			<ModalRootListener />
 			<ChannelMessageListener />
 			<ChannelMessageReactionListener />
 		</>

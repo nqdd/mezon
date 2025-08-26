@@ -3,17 +3,15 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllAccount, selectRemoteVideo, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { memo, useEffect, useState } from 'react';
-import { BackHandler, DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import Images from '../../../../assets/Images';
-import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -39,7 +37,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	const [isShowControl, setIsShowControl] = useState<boolean>(true);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
 	const isRemoteVideo = useSelector(selectRemoteVideo);
-	const navigation = useNavigation<any>();
 	const [isMirror, setIsMirror] = useState<boolean>(true);
 
 	useEffect(() => {
@@ -92,11 +89,10 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 
 	const onCancelCall = async () => {
 		try {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			if (Platform.OS === 'ios') {
 				RNCallKeep.endAllCalls();
 			}
-			await handleEndCall({ isCancelGoBack: false });
+			await handleEndCall({});
 			if (!timeStartConnected?.current) {
 				await dispatch(
 					DMCallActions.updateCallLog({
@@ -111,6 +107,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					})
 				);
 			}
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		} catch (err) {
 			/* empty */
 		}
@@ -142,7 +139,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 						})
 					);
 				}
-				handleEndCall({ isCancelGoBack: dataType === WebrtcSignalingType.WEBRTC_SDP_TIMEOUT });
+				handleEndCall({});
 				if (dataType === WebrtcSignalingType.WEBRTC_SDP_JOINED_OTHER_CALL) {
 					Toast.show({
 						type: 'error',
@@ -154,7 +151,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 						BackHandler.exitApp();
 						return;
 					}
-					navigation.goBack();
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				}
 			}
 		}
@@ -193,14 +190,18 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
 						<TouchableOpacity
 							onPress={() => {
-								const data = {
-									children: (
-										<MezonConfirm onConfirm={onCancelCall} title="End Call" confirmText="Yes, End Call">
-											<Text style={styles.titleConfirm}>Are you sure you want to end the call?</Text>
-										</MezonConfirm>
-									)
-								};
-								DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+								Alert.alert('End Call', 'Are you sure you want to end the call?', [
+									{
+										text: 'Cancel',
+										style: 'cancel'
+									},
+									{
+										text: 'OK',
+										onPress: () => {
+											onCancelCall();
+										}
+									}
+								]);
 							}}
 							style={styles.buttonCircle}
 						>
@@ -292,26 +293,4 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 			)}
 		</View>
 	);
-});
-
-export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
-	const dispatch = useAppDispatch();
-
-	const [isReady, setIsReady] = useState<boolean>(false);
-
-	useEffect(() => {
-		let timer: NodeJS.Timeout;
-		if (!route.params?.isAnswerCall) {
-			dispatch(DMCallActions.removeAll());
-			timer = setTimeout(() => {
-				setIsReady(true);
-			}, 500);
-		}
-		return () => {
-			timer && clearTimeout(timer);
-		};
-	}, [route.params?.isAnswerCall]);
-
-	if (!isReady) return null;
-	return <DirectMessageCallMain route={route} />;
 });

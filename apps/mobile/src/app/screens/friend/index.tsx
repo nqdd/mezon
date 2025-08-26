@@ -1,10 +1,11 @@
 import { useDirect, useFriends } from '@mezon/core';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, getStore, selectDirectsOpenlist } from '@mezon/store-mobile';
+import { DMCallActions, FriendsEntity, getStore, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
 import { User } from 'mezon-js';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, Text, TextInput, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -15,6 +16,7 @@ import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { normalizeString } from '../../utils/helpers';
 import { checkNotificationPermissionAndNavigate } from '../../utils/notificationPermissionHelper';
+import { DirectMessageCallMain } from '../messages/DirectMessageCall';
 import { style } from './styles';
 
 export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => {
@@ -29,6 +31,7 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 		return allUser.filter((user) => user.state === 0);
 	}, [allUser]);
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const dispatch = useAppDispatch();
 
 	const navigateToRequestFriendScreen = () => {
 		navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.REQUEST_FRIEND });
@@ -90,14 +93,16 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 				return userIds[0] === user?.user?.id;
 			});
 			if (directMessage?.id) {
-				navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-					screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-					params: {
-						receiverId: user?.user?.id,
-						receiverAvatar: user?.user?.avatar_url,
-						directMessageId: directMessage?.id
-					}
-				});
+				dispatch(DMCallActions.removeAll());
+				const params = {
+					receiverId: user?.user?.id,
+					receiverAvatar: user?.user?.avatar_url,
+					directMessageId: directMessage?.id
+				};
+				const dataModal = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 				return;
 			}
 			const response = await createDirectMessageWithUser(
@@ -107,14 +112,16 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 				user?.user?.avatar_url
 			);
 			if (response?.channel_id) {
-				navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-					screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-					params: {
-						receiverId: user?.user?.id,
-						receiverAvatar: user?.user?.avatar_url,
-						directMessageId: response?.channel_id
-					}
-				});
+				dispatch(DMCallActions.removeAll());
+				const params = {
+					receiverId: user?.user?.id,
+					receiverAvatar: user?.user?.avatar_url,
+					directMessageId: response?.channel_id
+				};
+				const dataModal = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 			}
 		},
 		[createDirectMessageWithUser, navigation, store]

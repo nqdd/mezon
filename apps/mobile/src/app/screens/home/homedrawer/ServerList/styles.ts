@@ -5,9 +5,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapperLogo: {
 			alignSelf: 'center',
-			marginTop: size.s_6,
-			marginHorizontal: size.s_10,
-			paddingBottom: size.s_6
+			paddingVertical: size.s_6,
+			paddingHorizontal: size.s_10
 		},
 
 		badge: {
@@ -21,7 +20,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			bottom: 0,
-			right: -5
+			right: 0
 		},
 
 		badgeText: {

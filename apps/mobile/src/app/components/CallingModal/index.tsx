@@ -1,4 +1,4 @@
-import { load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { size, ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllUserClans, selectIsInCall, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
@@ -6,13 +6,13 @@ import { useNavigation } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../assets/lottie';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import { DirectMessageCallMain } from '../../screens/messages/DirectMessageCall';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { style } from './styles';
 
@@ -92,16 +92,17 @@ const CallingModal = () => {
 		stopAndReleaseSound();
 		Vibration.cancel();
 		setIsVisible(false);
-		navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-			screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-			params: {
-				receiverId: signalingData?.[signalingData?.length - 1]?.callerId,
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-expect-error
-				receiverAvatar: callerInfo?.user?.avatar_url || '',
-				isAnswerCall: true
-			}
-		});
+		const params = {
+			receiverId: signalingData?.[signalingData?.length - 1]?.callerId,
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-expect-error
+			receiverAvatar: callerInfo?.user?.avatar_url || '',
+			isAnswerCall: true
+		};
+		const data = {
+			children: <DirectMessageCallMain route={{ params }} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const onDeniedCall = async () => {
