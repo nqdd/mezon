@@ -1,64 +1,66 @@
 import { useEmojiSuggestionContext, useGifsStickersEmoji, useReference } from '@mezon/core';
 import {
-  ChannelsEntity,
-  channelMembersActions,
-  emojiSuggestionActions,
-  getStore,
-  quickMenuActions,
-  referencesActions,
-  selectAddEmojiState,
-  selectAllAccount,
-  selectAllChannels,
-  selectAllHashtagDm,
-  selectAllRolesClan,
-  selectAnonymousMode,
-  selectAttachmentByChannelId,
-  selectCloseMenu,
-  selectCurrentTopicId,
-  selectDataReferences,
-  selectEmojiObjSuggestion,
-  selectIdMessageRefEdit,
-  selectOpenEditMessageState,
-  selectOpenThreadMessageState,
-  selectQuickMenuByChannelId,
-  selectReactionRightState,
-  selectStatusMenu,
-  threadsActions,
-  useAppDispatch,
-  useAppSelector
+	ChannelsEntity,
+	channelMembersActions,
+	emojiSuggestionActions,
+	getStore,
+	quickMenuActions,
+	referencesActions,
+	selectAddEmojiState,
+	selectAllAccount,
+	selectAllChannels,
+	selectAllHashtagDm,
+	selectAllRolesClan,
+	selectAnonymousMode,
+	selectAttachmentByChannelId,
+	selectCloseMenu,
+	selectCurrentTopicId,
+	selectDataReferences,
+	selectEmojiObjSuggestion,
+	selectIdMessageRefEdit,
+	selectOpenEditMessageState,
+	selectOpenThreadMessageState,
+	selectQuickMenuByChannelId,
+	selectReactionRightState,
+	selectStatusMenu,
+	threadsActions,
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
 import {
-  CHANNEL_INPUT_ID,
-  CREATING_TOPIC,
-  ChannelMembersEntity,
-  GENERAL_INPUT_ID,
-  ID_MENTION_HERE,
-  IEmojiOnMessage,
-  IHashtagOnMessage,
-  ILongPressType,
-  IMarkdownOnMessage,
-  IMentionOnMessage,
-  IMessageWithUser,
-  MIN_THRESHOLD_CHARS,
-  MentionReactInputProps,
-  QUICK_MENU_TYPE,
-  RECENT_EMOJI_CATEGORY,
-  RequestInput,
-  SubPanelName,
-  TITLE_MENTION_HERE,
-  ThreadStatus,
-  addMention,
-  adjustPos,
-  blankReferenceObj,
-  checkIsThread,
-  extractCanvasIdsFromText,
-  filterEmptyArrays,
-  processBoldEntities,
-  processEntitiesDirectly,
-  processMarkdownEntities,
-  searchMentionsHashtag,
-  threadError
+	CHANNEL_INPUT_ID,
+	CREATING_TOPIC,
+	ChannelMembersEntity,
+	GENERAL_INPUT_ID,
+	ID_MENTION_HERE,
+	IEmojiOnMessage,
+	IHashtagOnMessage,
+	ILongPressType,
+	IMarkdownOnMessage,
+	IMentionOnMessage,
+	IMessageWithUser,
+	MIN_THRESHOLD_CHARS,
+	MentionReactInputProps,
+	QUICK_MENU_TYPE,
+	RECENT_EMOJI_CATEGORY,
+	RequestInput,
+	SubPanelName,
+	TITLE_MENTION_HERE,
+	ThreadStatus,
+	addMention,
+	adjustPos,
+	blankReferenceObj,
+	checkIsThread,
+	extractCanvasIdsFromText,
+	filterEmptyArrays,
+	generateE2eId,
+	processBoldEntities,
+	processEntitiesDirectly,
+	processMarkdownEntities,
+	searchMentionsHashtag,
+	threadError
 } from '@mezon/utils';
+import { EmojiActionToolbarE2E } from 'libs/components/src/lib/components/MessageBox/ReactionMentionInput/components/ChatBoxToolbarWrapper';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { ReactElement, RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -79,6 +81,13 @@ const slashCommands = [
 		description: 'Send an ephemeral message (only visible to selected user)'
 	}
 ];
+
+const EMOJI_ACTION_TOOLBAR_E2E: EmojiActionToolbarE2E = {
+	gif: 'chat.mention.gif',
+	sticker: 'chat.mention.sticker',
+	emoji: 'chat.mention.emoji',
+	mic: 'chat.mention.voice'
+};
 
 /**
  * Custom hook to search and filter emojis based on user input
@@ -973,6 +982,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					maxHistorySize={50}
 					hasFilesToSend={attachmentData.length > 0}
 					currentChannelId={props.currentChannelId}
+					dataE2E={generateE2eId('chat.mention.input')}
+
 				>
 					<Mention
 						trigger="@"
@@ -1106,6 +1117,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				mode={props.mode || ChannelStreamMode.STREAM_MODE_CHANNEL}
 				isTopic={props.isTopic || false}
 				onEmojiSelect={insertEmojiDirectly}
+				dataE2E={EMOJI_ACTION_TOOLBAR_E2E}
 			/>
 			{draftRequest?.content && draftRequest.content.length > MIN_THRESHOLD_CHARS && (
 				<div className="w-16 text-red-300 bottom-0 right-0 absolute">{MIN_THRESHOLD_CHARS - draftRequest.content.length}</div>

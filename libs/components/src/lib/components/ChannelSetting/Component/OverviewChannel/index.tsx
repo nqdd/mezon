@@ -394,7 +394,6 @@ const BottomBlock = ({
 				<Dropdown.Item
 					key={index}
 					onClick={() => {
-						console.log('Hêr');
 						setHideTimeDropdown(item);
 					}}
 					className="truncate !bg-var(--theme-setting-nav) bg-item-hover"

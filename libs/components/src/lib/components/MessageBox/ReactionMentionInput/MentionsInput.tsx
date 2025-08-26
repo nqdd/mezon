@@ -75,6 +75,7 @@ export interface MentionsInputProps {
 	hasFilesToSend?: boolean;
   setCaretToEnd?: boolean;
 	currentChannelId?: string;
+	dataE2E?: string;
 }
 
 export interface MentionsInputHandle {
@@ -245,6 +246,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 	hasFilesToSend = false,
 	setCaretToEnd = false,
 	currentChannelId,
+	dataE2E
 }, ref) => {
 	const inputRef = useRef<HTMLDivElement>(null);
 
@@ -1069,6 +1071,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 				style={{
 					outline: 'none'
 				}}
+				data-e2e={dataE2E}
 			/>
 			{activeMentionContext && createPortal(tooltipOverlay, document.body) as React.ReactElement}
 		</div>

@@ -1,7 +1,7 @@
 import { CustomCookieConsent } from '@mezon/components';
 import mezonPackage from '@mezon/package-js';
 import { Icons, Image } from '@mezon/ui';
-import { Platform, getPlatform } from '@mezon/utils';
+import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Footer from './footer';
@@ -124,7 +124,10 @@ function MezonPage() {
 						className={`bg-white max-md:pb-0 max-md:mt-[36px] md:mt-[100px] md:pb-[50px] flex flex-col gap-[48px] max-md:gap-[32px] md:px-[32px] transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
 					>
 						<div className="flex flex-col gap-5 items-center">
-							<div className="text-black text-6xl max-w-[1000px] font-bold leading-relaxed text-center max-md:text-4xl max-sm:text-3xl">
+							<div
+								className="text-black text-6xl max-w-[1000px] font-bold leading-relaxed text-center max-md:text-4xl max-sm:text-3xl"
+								data-e2e={generateE2eId('homepage.main_page.heading.title')}
+							>
 								The <HighLightText content="Live" />, <HighLightText content="Work" />, and <HighLightText content="Play Platform" />{' '}
 								the best <HighLightText content="Discord" /> Alternative
 							</div>
