@@ -4,7 +4,6 @@ import { ActionEmitEvent, sessionConstraints } from '@mezon/mobile-components';
 import { DMCallActions, RootState, audioCallActions, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { IMessageSendPayload, IMessageTypeCallLog, sleep } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -17,7 +16,6 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import NotificationPreferences from '../utils/NotificationPreferences';
 import { usePermission } from './useRequestPermission';
-const { AudioModule } = NativeModules;
 
 const RTCConfig = {
 	iceServers: [
@@ -70,7 +68,6 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 	const { requestMicrophonePermission, requestCameraPermission } = usePermission();
 	const mezon = useMezon();
 	const dispatch = useAppDispatch();
-	const navigation = useNavigation<any>();
 	const endCallTimeout = useRef<NodeJS.Timeout | null>(null);
 	const timeStartConnected = useRef<any>(null);
 	const [localMediaControl, setLocalMediaControl] = useState<MediaControl>({
@@ -85,6 +82,24 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode: mode });
 	const { userProfile } = useAuth();
 	const sessionUser = useSelector((state: RootState) => state.auth?.session);
+	const dialToneRef = useRef<Sound | null>(null);
+
+	const playDialToneIOS = () => {
+		Sound.setCategory('Playback');
+		const sound = new Sound('dialtone.mp3', Sound.MAIN_BUNDLE, (error) => {
+			if (error) {
+				console.error('failed to load the sound', error);
+				return;
+			}
+			sound.play((success) => {
+				if (!success) {
+					console.error('Sound playback failed');
+				}
+			});
+			sound.setNumberOfLoops(-1);
+			dialToneRef.current = sound;
+		});
+	};
 
 	const stopAllTracks = useCallback(() => {
 		if (callState.localStream) {
@@ -598,7 +613,17 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 
 	const stopDialTone = () => {
 		try {
-			AudioModule.stopDialtone();
+			if (Platform.OS === 'android') {
+				const { AudioModule } = NativeModules;
+				AudioModule.stopDialTone();
+			} else {
+				if (dialToneRef.current) {
+					dialToneRef.current.pause();
+					dialToneRef.current.stop();
+					dialToneRef.current.release();
+					dialToneRef.current = null;
+				}
+			}
 		} catch (e) {
 			console.error('Failed to stop dialtone', e);
 		}
@@ -660,6 +685,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		toggleSpeaker,
 		switchCamera,
 		handleSignalingMessage,
-		handleToggleIsConnected
+		handleToggleIsConnected,
+		playDialToneIOS
 	};
 }

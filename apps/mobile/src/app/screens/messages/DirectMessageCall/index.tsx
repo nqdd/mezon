@@ -18,7 +18,6 @@ import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
 import { ConnectionState } from './ConnectionState';
 import { style } from './styles';
-const { AudioModule } = NativeModules;
 
 interface IDirectMessageCallProps {
 	route: any;
@@ -39,16 +38,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	const isRemoteVideo = useSelector(selectRemoteVideo);
 	const [isMirror, setIsMirror] = useState<boolean>(true);
 
-	useEffect(() => {
-		if (!isAnswerCall) {
-			try {
-				AudioModule.playDialtone();
-			} catch (e) {
-				console.error('e', e);
-			}
-		}
-	}, [isAnswerCall]);
-
 	const {
 		callState,
 		localMediaControl,
@@ -61,7 +50,8 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		toggleVideo,
 		handleSignalingMessage,
 		switchCamera,
-		handleToggleIsConnected
+		handleToggleIsConnected,
+		playDialToneIOS
 	} = useWebRTCCallMobile({
 		dmUserId: receiverId,
 		userId: userProfile?.user?.id as string,
@@ -71,6 +61,21 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		callerName: userProfile?.user?.username,
 		callerAvatar: userProfile?.user?.avatar_url
 	});
+
+	useEffect(() => {
+		if (!isAnswerCall) {
+			try {
+				if (Platform.OS === 'ios') {
+					playDialToneIOS();
+				} else {
+					const { CustomAudioModule } = NativeModules;
+					CustomAudioModule.playDialTone();
+				}
+			} catch (e) {
+				console.error('e', e);
+			}
+		}
+	}, [isAnswerCall]);
 
 	const initSpeakerConfig = async () => {
 		if (Platform.OS === 'android') {
