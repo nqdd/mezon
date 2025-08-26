@@ -143,6 +143,7 @@ import {
 	StickerUpdateEvent,
 	StreamingJoinedEvent,
 	StreamingLeavedEvent,
+	UnblockFriend,
 	UnmuteEvent,
 	UnpinMessageEvent,
 	UserChannelAddedEvent,
@@ -1884,7 +1885,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onblockfriend = useCallback(
 		(blockFriend: BlockFriend) => {
-			if (!blockFriend.user_id) {
+			if (!blockFriend?.user_id) {
 				return;
 			}
 			dispatch(
@@ -1892,6 +1893,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					userId: blockFriend.user_id,
 					friendState: EStateFriend.BLOCK,
 					sourceId: blockFriend.user_id
+				})
+			);
+		},
+		[dispatch]
+	);
+
+	const onunblockfriend = useCallback(
+		(unblockFriend: UnblockFriend) => {
+			if (!unblockFriend?.user_id) {
+				return;
+			}
+			dispatch(
+				friendsActions.updateFriendState({
+					userId: unblockFriend.user_id,
+					friendState: EStateFriend.FRIEND,
+					sourceId: unblockFriend.user_id
 				})
 			);
 		},
@@ -2091,6 +2108,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			socket.onblockfriend = onblockfriend;
 
+			socket.onunblockfriend = onunblockfriend;
+
 			socket.onmarkasread = onMarkAsRead;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2144,7 +2163,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			onJoinChannelAppEvent,
 			onsdtopicevent,
 			onUnpinMessageEvent,
-			onblockfriend
+			onblockfriend,
+			onunblockfriend
 		]
 	);
 
@@ -2273,6 +2293,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			socket.onunpinmessageevent = () => {};
 			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			socket.onblockfriend = () => {};
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			socket.onunblockfriend = () => {};
 		};
 	}, [
 		onchannelmessage,
@@ -2325,7 +2347,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		onJoinChannelAppEvent,
 		onsdtopicevent,
 		onUnpinMessageEvent,
-		onblockfriend
+		onblockfriend,
+		onunblockfriend
 	]);
 
 	const value = React.useMemo<ChatContextValue>(

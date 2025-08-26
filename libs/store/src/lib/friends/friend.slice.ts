@@ -169,6 +169,18 @@ export const sendRequestBlockFriend = createAsyncThunk('friends/requestBlockFrie
 	return response;
 });
 
+export const sendRequestUnblockFriend = createAsyncThunk(
+	'friends/requestUnblockFriends',
+	async ({ ids, usernames }: requestAddFriendParam, thunkAPI) => {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const response = await mezon.client.unblockFriends(mezon.session, ids, usernames);
+		if (!response) {
+			return thunkAPI.rejectWithValue([]);
+		}
+		return response;
+	}
+);
+
 export const initialFriendsState: FriendsState = friendsAdapter.getInitialState({
 	loadingStatus: 'not loaded',
 	friends: [],
@@ -267,7 +279,8 @@ export const friendsActions = {
 	fetchListFriends,
 	sendRequestAddFriend,
 	sendRequestDeleteFriend,
-	sendRequestBlockFriend
+	sendRequestBlockFriend,
+	sendRequestUnblockFriend
 };
 
 const { selectAll } = friendsAdapter.getSelectors();
