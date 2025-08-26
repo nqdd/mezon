@@ -13,12 +13,11 @@ import {
 	useAppDispatch
 } from '@mezon/store-mobile';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiSystemMessage } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, Pressable, Text, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -201,8 +200,12 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			},
 			{
 				title: t('iconTitle.qrcode'),
-				icon: <MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.text} />,
-				onPress: handleShowQRModal
+				icon: !currentInviteLink ? (
+					<Chase color={themeValue.text} size={size.s_24} />
+				) : (
+					<MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.text} />
+				),
+				onPress: () => (!currentInviteLink ? null : handleShowQRModal())
 			}
 		];
 		return iconList;
@@ -245,27 +248,30 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 						/>
 					</View>
 
-					<FlashList
-						data={userInviteList}
-						extraData={sentIdList}
-						keyExtractor={(item) => `${item?.id}_item_invite`}
-						ItemSeparatorComponent={() => {
-							return <SeparatorWithLine style={{ backgroundColor: themeValue.border }} />;
-						}}
-						estimatedItemSize={size.s_60}
-						style={styles.inviteList}
-						renderItem={({ item, index }) => {
-							return (
-								<FriendListItem
-									key={`friend_item_${item?.id}_${index}`}
-									dmGroup={item}
-									user={item}
-									onPress={handleSendInVite}
-									isSent={sentIdList.includes(item?.id)}
-								/>
-							);
-						}}
-					/>
+					{!!currentInviteLink && (
+						<FlatList
+							data={userInviteList}
+							extraData={sentIdList}
+							initialNumToRender={5}
+							keyExtractor={(item) => `${item?.id}_item_invite`}
+							ItemSeparatorComponent={() => {
+								return <SeparatorWithLine style={{ backgroundColor: themeValue.border }} />;
+							}}
+							style={styles.inviteList}
+							renderItem={({ item, index }) => {
+								return (
+									<FriendListItem
+										key={`friend_item_${item?.id}_${index}`}
+										dmGroup={item}
+										user={item}
+										onPress={handleSendInVite}
+										isSent={sentIdList.includes(item?.id)}
+										isReady={!!currentInviteLink}
+									/>
+								);
+							}}
+						/>
+					)}
 				</>
 			)}
 		</View>
