@@ -1,20 +1,13 @@
-import { load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { selectTypingUsersById } from '@mezon/store-mobile';
 import LottieView from 'lottie-react-native';
-import { ChannelStreamMode } from 'mezon-js';
 import React, { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../../../../assets/lottie';
 import { style } from './styles';
-
-interface IProps {
-	channelId: string;
-	isDM: boolean;
-	mode: ChannelStreamMode;
-	isPublic: boolean;
-}
 
 export const MessageUserTyping = React.memo(({ channelId, isDM, mode, isPublic }: IProps) => {
 	const { themeValue, themeBasic } = useTheme();
@@ -36,8 +29,15 @@ export const MessageUserTyping = React.memo(({ channelId, isDM, mode, isPublic }
 	if (!typingLabel) {
 		return null;
 	}
+
 	return (
-		<View style={styles.typingContainer}>
+		<View style={[styles.typingContainer, { overflow: 'visible', backgroundColor: 'transparent' }]}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={StyleSheet.absoluteFillObject}
+			/>
 			<LottieView source={themeBasic === ThemeModeBase.DARK ? TYPING_DARK_MODE : TYPING_LIGHT_MODE} autoPlay loop style={styles.threeDot} />
 			<Text style={styles.typingLabel} numberOfLines={1}>
 				{typingLabel}

@@ -30,11 +30,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useMezon } from '@mezon/transport';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Platform, Pressable, TextInput, View } from 'react-native';
+import { DeviceEventEmitter, Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { TriggersConfig, useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { ClipboardImagePreview } from '../../../../../../components/ClipboardImagePreview';
@@ -612,6 +613,12 @@ export const ChatBoxBottomBar = memo(
 
 		return (
 			<View style={styles.container}>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<View style={[styles.suggestions]}>
 					{triggers?.mention?.keyword !== undefined && (
 						<Suggestions {...triggers.mention} listMentions={listMentions} isEphemeralMode={isEphemeralMode} />
