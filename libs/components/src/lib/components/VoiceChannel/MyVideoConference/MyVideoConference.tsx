@@ -118,9 +118,6 @@ export function MyVideoConference({
 				for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 					try {
 						await room?.connect(url, token);
-						if (onJoinRoom) {
-							await onJoinRoom();
-						}
 						return;
 					} catch (error) {
 						if (attempt === maxAttempts) {
