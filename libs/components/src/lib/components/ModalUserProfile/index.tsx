@@ -12,7 +12,15 @@ import {
 	useUserById,
 	useUserMetaById
 } from '@mezon/core';
-import { EStateFriend, selectAccountCustomStatus, selectAllAccount, selectCurrentUserId, selectFriendStatus } from '@mezon/store';
+import {
+	EStateFriend,
+	RootState,
+	selectAccountCustomStatus,
+	selectAllAccount,
+	selectCurrentUserId,
+	selectFriendById,
+	useAppSelector
+} from '@mezon/store';
 import { ChannelMembersEntity, IMessageWithUser, saveParseUserStatus } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -150,7 +158,10 @@ const ModalUserProfile = ({
 
 		getColor();
 	}, [userProfile?.user?.avatar_url, isFooterProfile, userID, message?.avatar, userById?.user?.avatar_url]);
-	const checkAddFriend = useSelector(selectFriendStatus(userById?.user?.id || ''));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userById?.user?.id || ''));
+	const checkAddFriend = useMemo(() => {
+		return infoFriend?.state;
+	}, [infoFriend]);
 	const checkUser = useMemo(() => userProfile?.user?.id === userID, [userID, userProfile?.user?.id]);
 
 	const { setIsShowSettingFooterStatus, setIsShowSettingFooterInitTab } = useSettingFooter();
