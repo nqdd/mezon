@@ -210,7 +210,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 	const { name = '', username = '', avatar = '', classNameSubtext, showName, isDmGroup, onEditGroup } = props;
 
 	const userID = useSelector(selectUserIdCurrentDm);
-	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID[0]));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID?.[0] || ''));
 	const checkAddFriend = useMemo(() => {
 		return infoFriend?.state;
 	}, [infoFriend]);
