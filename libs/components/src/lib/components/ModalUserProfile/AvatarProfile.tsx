@@ -63,7 +63,6 @@ const AvatarProfile = ({
 		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]">
 			<div className="relative h-fit">
 				<AvatarImage
-					dataE2EId={identifierE2E}
 					alt={username || ''}
 					username={username}
 					className={`w-[90px] h-[90px] min-w-[90px] min-h-[90px] xl:w-[90px] xl:h-[90px] rounded-[50px] border-[6px] border-color-avatar object-cover my-0 ${styleAvatar}`}
@@ -71,6 +70,7 @@ const AvatarProfile = ({
 					src={avatar}
 					isAnonymous={isAnonymous}
 					classNameText="!text-5xl"
+					dataE2EId={identifierE2E}
 				/>
 				<div className="absolute bottom-1 right-2">
 					<UserStatusIcon status={statusOnline} />
