@@ -47,11 +47,23 @@ export function useImage() {
 		[dispatch]
 	);
 
-	const getImageAsBase64OrFile = async (imageUrl: string, type?: string) => {
+	type GetImageOptions = { forSharing?: boolean };
+	const getImageAsBase64OrFile = async (imageUrl: string, type?: string, options?: GetImageOptions) => {
 		try {
 			let base64Data: string;
 			let filePath: string;
 			let extension = type || 'png';
+
+			const useOutgoingShareDir = options?.forSharing === true;
+			const baseDir = RNFetchBlob.fs.dirs.CacheDir + (useOutgoingShareDir ? '/outgoing_share' : '');
+			if (useOutgoingShareDir) {
+				try {
+					const exists = await RNFetchBlob.fs.exists(baseDir);
+					if (!exists) await RNFetchBlob.fs.mkdir(baseDir);
+				} catch (e) {
+					console.error('Error creating directory:', e);
+				}
+			}
 
 			if (imageUrl.startsWith('data:image/')) {
 				const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, '');
@@ -59,10 +71,10 @@ export function useImage() {
 					const mimeMatch = imageUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,/);
 					if (mimeMatch?.[1]) extension = mimeMatch[1];
 				}
-				filePath = `${RNFetchBlob.fs.dirs.CacheDir}/image_${Date.now()}.${extension}`;
+				filePath = `${baseDir || RNFetchBlob.fs.dirs.CacheDir}/image_${Date.now()}.${extension}`;
 				await RNFetchBlob.fs.writeFile(filePath, base64Data, 'base64');
 			} else {
-				filePath = `${RNFetchBlob.fs.dirs.CacheDir}/image_${Date.now()}.${extension}`;
+				filePath = `${baseDir || RNFetchBlob.fs.dirs.CacheDir}/image_${Date.now()}.${extension}`;
 				const res = await RNFetchBlob.config({ path: filePath }).fetch('GET', imageUrl);
 				base64Data = await RNFetchBlob.fs.readFile(res.path(), 'base64');
 			}

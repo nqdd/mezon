@@ -29,7 +29,8 @@
         "copyLink": "Copy Link",
         "shareLink": "Share Link",
         "copyLinkSuccess": "Copied link to clipboard",
-        "copyImage": "Copy Image"
+        "copyImage": "Copy Image",
+        "shareImage": "Share Image"
     },
     "chatBox": {
         "replyingTo": "Replying to",
@@ -50,7 +51,9 @@
         "markMessageUnread": "Message has been unread",
         "markMessageUnreadFailed": "Failed to unread message",
         "copyImage": "Copied image",
-        "copyImageFailed": "Failed to copy image: {{error}}"
+        "copyImageFailed": "Failed to copy image: {{error}}",
+        "shareImageFailed": "Failed to share image: {{error}}",
+        "shareImageSuccess": "Image shared successfully"
     },
     "directMessage": {
         "you": "You"

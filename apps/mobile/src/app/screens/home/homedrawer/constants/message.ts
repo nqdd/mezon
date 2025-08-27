@@ -50,6 +50,11 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			type: EMessageActionType.CopyImage
 		},
 		{
+			id: 22,
+			title: t('message:actions.shareImage'),
+			type: EMessageActionType.ShareImage
+		},
+		{
 			id: 19,
 			title: t('message:actions.markUnRead'),
 			type: EMessageActionType.MarkUnRead
