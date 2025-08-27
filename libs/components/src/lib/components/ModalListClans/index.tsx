@@ -1,7 +1,7 @@
 import { useCustomNavigate } from '@mezon/core';
 import { appActions, getStore, selectBadgeCountByClanId, selectIsUseProfileDM, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { IClan, createImgproxyUrl } from '@mezon/utils';
+import { IClan, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import { memo, useState, useTransition } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -78,7 +78,10 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: Sideba
 						/>
 					) : (
 						option?.clan_name && (
-							<div className="w-[40px] h-[40px] bg-add-clan-hover theme-base-color rounded-xl flex justify-center items-center text-theme-primary text-theme-primary-hover hover:text-white text-[20px] clan">
+							<div
+								className="w-[40px] h-[40px] bg-add-clan-hover theme-base-color rounded-xl flex justify-center items-center text-theme-primary text-theme-primary-hover hover:text-white text-[20px] clan"
+								data-e2e={generateE2eId('clan_page.side_bar.clan_item.name')}
+							>
 								{(option?.clan_name || '').charAt(0).toUpperCase()}
 							</div>
 						)

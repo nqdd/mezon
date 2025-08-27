@@ -372,7 +372,7 @@ const SidebarMenu = memo(
 								className="flex items-center justify-between text-theme-primary group"
 								onClick={openCreateClanModal}
 								title="Create CLans"
-								data-e2e={generateE2eId('clan_page.side_bar.button.add_channel')}
+								data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
 							>
 								<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
 									<p className="text-2xl font-semibold ">+</p>
