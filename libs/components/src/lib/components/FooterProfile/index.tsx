@@ -302,9 +302,9 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 					<Icons.MicIcon className="ml-auto w-[18px] h-[18px] opacity-80 text-[#f00] bg-item-hover hidden" />
 					<Icons.HeadPhoneICon className="ml-auto w-[18px] h-[18px] opacity-80 text-theme-primary  bg-item-hover hidden" />
 					<div
-						data-e2e={generateE2eId(`user_setting.profile.button_setting`)}
 						onClick={openSetting}
 						className="cursor-pointer ml-auto p-1 group/setting opacity-80  text-theme-primary bg-item-hover hover:rounded-md "
+						data-e2e={generateE2eId(`user_setting.profile.button_setting`)}
 					>
 						<Icons.SettingProfile className="w-5 h-5  group-hover/setting:rotate-180 duration-500" />
 					</div>

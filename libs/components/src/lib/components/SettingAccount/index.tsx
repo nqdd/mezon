@@ -81,9 +81,9 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div className="font-semibold text-lg">{userProfile?.user?.display_name}</div>
 					</div>
 					<div
-						data-e2e={generateE2eId(`user_setting.account.edit_profile`)}
 						className="mt-8 btn-primary btn-primary-hover  h-fit px-4 py-2 rounded-lg cursor-pointer  w-fit text-center"
 						onClick={handleClick}
+						data-e2e={generateE2eId(`user_setting.account.edit_profile`)}
 					>
 						Edit User Profile
 					</div>
@@ -95,9 +95,9 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>{userProfile?.user?.display_name || "You haven't added a display name yet."}</p>
 						</div>
 						<div
-							data-e2e={generateE2eId(`user_setting.account.edit_display_name`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover"
 							onClick={handleClick}
+							data-e2e={generateE2eId(`user_setting.account.edit_display_name`)}
 						>
 							Edit
 						</div>
@@ -108,9 +108,9 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>{userProfile?.user?.username}</p>
 						</div>
 						<div
-							data-e2e={generateE2eId(`user_setting.account.edit_username`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover	"
 							onClick={handleClick}
+							data-e2e={generateE2eId(`user_setting.account.edit_username`)}
 						>
 							Edit
 						</div>
@@ -123,9 +123,9 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>Password</p>
 						</div>
 						<div
-							data-e2e={generateE2eId(`user_setting.account.set_password`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover "
 							onClick={handleOpenSetPassword}
+							data-e2e={generateE2eId(`user_setting.account.set_password`)}
 						>
 							Set Password
 						</div>

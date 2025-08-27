@@ -21,8 +21,8 @@ export const AvatarImage = ({ username, src, srcImgProxy, alt, className = '', i
 	if ((!src && !username) || isAnonymous)
 		return (
 			<div
-				data-e2e={generateE2eId('user_setting.profile.avatar_image', dataE2EId)}
 				className={`flex items-center justify-center size-10 rounded-full bg-white ${computedClassName}`}
+				data-e2e={generateE2eId('user_setting.profile.avatar_image', dataE2EId)}
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" className="w-[80%] h-[80%]" viewBox="0 0 87.52 112.55000000000001" x="0px" y="0px">
 					<path
@@ -44,12 +44,12 @@ export const AvatarImage = ({ username, src, srcImgProxy, alt, className = '', i
 	if (srcImgProxy && src && isError) {
 		return (
 			<img
-				data-e2e={generateE2eId('user_setting.profile.avatar_image', dataE2EId)}
 				loading="lazy"
 				className={computedClassName}
 				src={src}
 				alt={alt}
 				{...rest}
+				data-e2e={generateE2eId('user_setting.profile.avatar_image', dataE2EId)}
 			/>
 		);
 	}
