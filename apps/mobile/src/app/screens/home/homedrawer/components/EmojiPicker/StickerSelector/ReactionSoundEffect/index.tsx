@@ -5,6 +5,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { ScrollView } from 'react-native-gesture-handler';
+import EmptySticker from '../EmptySticker';
 import Sticker from '../Sticker';
 import { style } from '../styles';
 
@@ -73,6 +74,10 @@ const StickerSelector = ({ onSelected }: StickerSelectorProps) => {
 			setSelectedCategory(null);
 		};
 	}, []);
+
+	if (!clanSoundEffect?.length) {
+		return <EmptySticker isAudio />;
+	}
 
 	return (
 		<ScrollView style={{ paddingHorizontal: size.s_10, paddingBottom: size.s_10 }}>

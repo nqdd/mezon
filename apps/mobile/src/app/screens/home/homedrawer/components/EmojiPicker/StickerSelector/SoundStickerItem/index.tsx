@@ -67,6 +67,8 @@ const RenderAudioItem = React.memo(({ audioURL }: { audioURL: string }) => {
 		}
 	};
 
+	if (!audioURL) return null;
+
 	return (
 		<TouchableOpacity onPress={isPlaying ? pauseSound : playSound} activeOpacity={0.6} style={styles.container}>
 			<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>

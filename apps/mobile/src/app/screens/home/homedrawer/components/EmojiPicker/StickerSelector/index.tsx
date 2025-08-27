@@ -8,6 +8,7 @@ import FastImage from 'react-native-fast-image';
 import { ScrollView } from 'react-native-gesture-handler';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
+import EmptySticker from './EmptySticker';
 import Sticker from './Sticker';
 import { style } from './styles';
 
@@ -87,6 +88,10 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 	useEffect(() => {
 		setSelectedCategory(null);
 	}, [mediaType]);
+
+	if (!filteredStickers?.length) {
+		return <EmptySticker isAudio={isAudio} />;
+	}
 
 	return (
 		<ScrollView
