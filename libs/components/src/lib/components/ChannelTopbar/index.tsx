@@ -130,11 +130,10 @@ const TopBarChannelText = memo(() => {
 
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
 			const currentUserId = userProfile?.user?.id;
-			const otherUserId = currentDmGroup.user_id.find(id => id !== currentUserId);
+			const otherUserId = currentDmGroup.user_id.find((id) => id !== currentUserId);
 			if (otherUserId && currentDmGroup.channel_avatar) {
 				const otherUserAvatar = currentDmGroup.channel_avatar.find(
-					(avatar): avatar is string =>
-						typeof avatar === "string" && !avatar.includes(currentUserId || "")
+					(avatar): avatar is string => typeof avatar === 'string' && !avatar.includes(currentUserId || '')
 				);
 				return otherUserAvatar || currentDmGroup.channel_avatar[0];
 			}
@@ -155,8 +154,6 @@ const TopBarChannelText = memo(() => {
 			editGroupModal.openEditModal();
 		}
 	}, [currentDmGroup?.type, editGroupModal]);
-
-
 
 	const handleCloseCanvas = () => {
 		dispatch(appActions.setIsShowCanvas(false));
@@ -414,7 +411,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 			{avatar ? (
 				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" />
 			) : (
-					<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
+				<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
 					{avatarName}
 				</div>
 			)}
@@ -677,7 +674,7 @@ function FileButton() {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={fileRef}>
+		<div className="relative leading-5 h-5" ref={fileRef} data-e2e={generateE2eId('chat.channel_message.header.button.file')}>
 			<button
 				title="Files"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -705,7 +702,7 @@ function CanvasButton({ onClick }: { onClick?: () => void }) {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={canvasRef}>
+		<div className="relative leading-5 h-5" ref={canvasRef} data-e2e={generateE2eId('chat.channel_message.header.button.canvas')}>
 			<button
 				content="Canvas"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -731,7 +728,7 @@ function ThreadButton() {
 	};
 
 	return (
-		<div className="relative leading-5 h-5" ref={threadRef}>
+		<div className="relative leading-5 h-5" ref={threadRef} data-e2e={generateE2eId('chat.channel_message.header.button.thread')}>
 			<button
 				title="Threads"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -789,7 +786,7 @@ function MuteButton() {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={notiRef}>
+		<div className="relative leading-5 h-5" ref={notiRef} data-e2e={generateE2eId('chat.channel_message.header.button.mute')}>
 			<button
 				title="Notification Settings"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -828,7 +825,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 	};
 
 	return (
-		<div className="relative leading-5 h-5" ref={pinRef}>
+		<div className="relative leading-5 h-5" ref={pinRef} data-e2e={generateE2eId('chat.channel_message.header.button.pin')}>
 			<button
 				title="Pinned Messages"
 				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover`}
@@ -896,7 +893,7 @@ function ChatButton({ closeMenuOnMobile }: { closeMenuOnMobile?: () => void }) {
 		closeMenuOnMobile?.();
 	};
 	return (
-		<div className="relative leading-5 h-5">
+		<div className="relative leading-5 h-5" data-e2e={generateE2eId('chat.channel_message.header.button.chat')}>
 			<button title="Show Chat" onClick={handleClick} className="text-theme-primary text-theme-primary-hover">
 				<Icons.Chat defaultSize="size-5" />
 			</button>

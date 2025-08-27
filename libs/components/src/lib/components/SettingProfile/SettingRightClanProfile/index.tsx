@@ -1,4 +1,5 @@
 import { selectAllClans } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
@@ -21,6 +22,7 @@ const SettingRightClan: React.FC<SettingUserClanProfileEditProps> = ({ clanId })
 			<p className="mt-[20px] font-bold text-sm  tracking-wide">CHOOSE A CLAN</p>
 
 			<Select
+				data-e2e={generateE2eId(`user_setting.profile.clan_profile.select`)}
 				classNames={{
 					menuList: () => 'thread-scroll'
 				}}
