@@ -470,7 +470,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		groupAvatar: {
-			backgroundColor: Colors.orange,
+			backgroundColor: baseColor.orange,
 			width: size.s_50,
 			height: size.s_50,
 			borderRadius: 50,

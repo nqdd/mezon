@@ -38,6 +38,8 @@ export const style = (colors: Attributes) =>
 			overflow: 'hidden'
 		},
 		groupAvatar: {
+			width: size.s_50,
+			height: size.s_50,
 			backgroundColor: baseColor.orange,
 			borderRadius: 50,
 			justifyContent: 'center',
