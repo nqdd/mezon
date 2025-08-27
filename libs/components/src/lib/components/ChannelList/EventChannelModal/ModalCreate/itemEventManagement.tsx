@@ -223,7 +223,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				<div className="flex justify-between gap-4 select-text">
 					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'}`}>
 						<p className="hover:underline font-bold  text-base">{topic}</p>
-						<div className="break-all max-h-[75px] eventDescriptionTruncate">
+						<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap">
 							{isReviewEvent ? reviewDescription : event?.description}
 						</div>
 					</div>
