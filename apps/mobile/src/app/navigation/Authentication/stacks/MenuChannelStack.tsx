@@ -92,7 +92,7 @@ export function MenuChannelStacks({}: any) {
 				options={{
 					headerTitle: '',
 					headerStyle: {
-						backgroundColor: themeValue.charcoal
+						backgroundColor: themeValue?.primary
 					},
 					headerTintColor: themeValue.white,
 					headerLeftLabelVisible: false

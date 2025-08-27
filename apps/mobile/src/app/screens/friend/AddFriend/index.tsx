@@ -10,7 +10,6 @@ import { EFriendItemAction, FriendItem } from '../../../components/FriendItem';
 import { UserInformationBottomSheet } from '../../../components/UserInformationBottomSheet';
 import { EFriendRequest } from '../RequestFriend';
 import { EmptyFriendRequest } from '../RequestFriend/EmptyFriendRequest';
-import { EAddFriendWays } from '../enum';
 import { AddFriendModal } from './components/AddFriendModal';
 import { style } from './styles';
 
@@ -20,7 +19,7 @@ export const AddFriendScreen = () => {
 	const { friends, acceptFriend, deleteFriend } = useFriends();
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const { t } = useTranslation('friends');
-	const [currentAddFriendType, setCurrentAddFriendType] = useState<EAddFriendWays | null>(null);
+	const [currentAddFriendShow, setCurrentAddFriendShow] = useState<boolean>(false);
 	const receivedFriendRequestList = useMemo(() => {
 		return friends.filter((friend) => friend.state === 2);
 	}, [friends]);
@@ -44,19 +43,6 @@ export const AddFriendScreen = () => {
 		[acceptFriend, deleteFriend]
 	);
 
-	const waysToAddFriendList = useMemo(() => {
-		return [
-			// {
-			// 	title: t('addFriend.findYourFriend'),
-			// 	type: EAddFriendWays.FindFriend
-			// },
-			{
-				title: t('addFriend.addByUserName'),
-				type: EAddFriendWays.UserName
-			}
-		];
-	}, [t]);
-
 	const onClose = useCallback(() => {
 		setSelectedUser(null);
 	}, []);
@@ -68,19 +54,9 @@ export const AddFriendScreen = () => {
 	return (
 		<View style={styles.addFriendContainer}>
 			<View style={styles.groupWrapper}>
-				<FlatList
-					data={waysToAddFriendList}
-					keyExtractor={(item) => item.type.toString()}
-					ItemSeparatorComponent={SeparatorWithLine}
-					renderItem={({ item }) => (
-						<TouchableOpacity onPress={() => setCurrentAddFriendType(item.type)} style={styles.addFriendItem} key={item.type}>
-							<Text style={styles.addFriendText}>{item.title}</Text>
-						</TouchableOpacity>
-					)}
-					initialNumToRender={1}
-					maxToRenderPerBatch={1}
-					windowSize={2}
-				/>
+				<TouchableOpacity onPress={() => setCurrentAddFriendShow(true)} style={styles.addFriendItem}>
+					<Text style={styles.addFriendText}>{t('addFriend.addByUserName')}</Text>
+				</TouchableOpacity>
 			</View>
 			{receivedFriendRequestList?.length > 0 && <Text style={styles.whiteText}>{t('addFriend.incomingFriendRequest')}</Text>}
 			<FlatList
@@ -95,7 +71,7 @@ export const AddFriendScreen = () => {
 				ListEmptyComponent={renderEmptyFriendRequest}
 			/>
 
-			<AddFriendModal type={currentAddFriendType} onClose={() => setCurrentAddFriendType(null)} />
+			<AddFriendModal isShow={currentAddFriendShow} onClose={() => setCurrentAddFriendShow(false)} />
 			<UserInformationBottomSheet user={selectedUser} onClose={onClose} showAction={false} showRole={false} />
 		</View>
 	);
