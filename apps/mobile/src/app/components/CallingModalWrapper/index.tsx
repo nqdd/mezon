@@ -39,7 +39,7 @@ const CallingModalWrapper = () => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
 		if (latestSignalingEntry?.signalingData?.data_type === WebrtcSignalingType.WEBRTC_SDP_OFFER) {
 			// RNNotificationCall.declineCall('6cb67209-4ef9-48c0-a8dc-2cec6cd6261d');
-		} else {
+		} else if (Platform.OS === 'ios') {
 			getDataCall();
 		}
 	}, [signalingData]);
@@ -163,7 +163,7 @@ const CallingModalWrapper = () => {
 		}
 	};
 
-	if (!signalingData?.length) {
+	if (!signalingData?.length || appStateRef.current !== 'active') {
 		return <View />;
 	}
 

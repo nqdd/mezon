@@ -68,8 +68,8 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 				if (Platform.OS === 'ios') {
 					playDialToneIOS();
 				} else {
-					const { CustomAudioModule } = NativeModules;
-					CustomAudioModule.playDialTone();
+					const { AudioSessionModule } = NativeModules;
+					AudioSessionModule.playDialTone();
 				}
 			} catch (e) {
 				console.error('e', e);
