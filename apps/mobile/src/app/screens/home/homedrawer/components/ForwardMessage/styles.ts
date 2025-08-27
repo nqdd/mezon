@@ -1,5 +1,6 @@
 import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export const styles = StyleSheet.create({
 	listContainer: {
@@ -31,10 +32,10 @@ export const styles = StyleSheet.create({
 		backgroundColor: '#676b73'
 	},
 	groupAvatar: {
-		backgroundColor: baseColor.orange,
-		width: size.s_34,
-		height: size.s_34,
-		borderRadius: 50,
+		backgroundColor: Colors.orange,
+		width: size.s_24,
+		height: size.s_24,
+		borderRadius: size.s_12,
 		justifyContent: 'center',
 		alignItems: 'center'
 	}

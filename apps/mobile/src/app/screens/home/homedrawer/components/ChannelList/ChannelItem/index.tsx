@@ -3,7 +3,8 @@ import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { IChannel } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback } from 'react';
-import { ActivityIndicator, DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import BuzzBadge from '../../../../../../components/BuzzBadge/BuzzBadge';
 import ChannelMenu from '../../ChannelMenu';
 import { ChannelBadgeUnread } from '../ChannelBadgeUnread';
@@ -60,6 +61,14 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 				}
 			]}
 		>
+			{!isActive && (
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
+			)}
 			<View style={[styles.channelListItem]}>
 				{(isUnRead || Number(numberNotification || 0) > 0) && <View style={styles.dotIsNew} />}
 

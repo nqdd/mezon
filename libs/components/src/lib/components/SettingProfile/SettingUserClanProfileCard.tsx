@@ -45,7 +45,7 @@ const SettingUserClanProfileCard = (props: propProfilesform) => {
 
 			<div style={{ backgroundColor: color }} className="h-[105px] rounded-tr-[10px] rounded-tl-[10px] "></div>
 			<AvatarProfile
-				avatar={profiles.urlImage}
+				avatar={profiles.urlImage || userProfile?.user?.avatar_url || ''}
 				username={userProfile?.user?.username}
 				userToDisplay={true}
 				customStatus={userStatusProfile}

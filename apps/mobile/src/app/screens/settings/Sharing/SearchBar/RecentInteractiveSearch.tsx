@@ -1,5 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { ClansEntity, DirectEntity } from '@mezon/store-mobile';
+import { createImgproxyUrl } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -8,6 +9,7 @@ import { Platform, StatusBar, Text, TextInput, TouchableOpacity, View } from 're
 import FastImage from 'react-native-fast-image';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import Images from '../../../../../assets/Images';
+import ImageNative from '../../../../components/ImageNative';
 import MezonAvatar from '../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
@@ -89,6 +91,11 @@ export const RecentInteractiveSearch = React.memo(
 				{ type: FilterType.CHANNEL as const, icon: IconCDN.channelText, label: t('channels') }
 			],
 			[t]
+		);
+
+		const isGroupDMAvatar = useMemo(
+			() => selectedChannel?.topic && !selectedChannel?.topic?.includes('avatar-group.png'),
+			[selectedChannel?.topic]
 		);
 
 		const filterLabelMap: Record<FilterType, string> = useMemo(
@@ -214,14 +221,24 @@ export const RecentInteractiveSearch = React.memo(
 						{selectedChannel ? (
 							<View style={styles.iconLeftInput}>
 								{selectedChannel?.type === ChannelType.CHANNEL_TYPE_GROUP ? (
-									<FastImage
-										source={Images.AVATAR_GROUP}
-										style={{
-											width: size.s_18,
-											height: size.s_18,
-											borderRadius: size.s_18
-										}}
-									/>
+									isGroupDMAvatar ? (
+										<View style={styles.groupAvatarWrapper}>
+											<ImageNative
+												url={createImgproxyUrl(selectedChannel?.topic ?? '')}
+												style={{ width: '100%', height: '100%' }}
+												resizeMode={'cover'}
+											/>
+										</View>
+									) : (
+										<FastImage
+											source={Images.AVATAR_GROUP}
+											style={{
+												width: size.s_18,
+												height: size.s_18,
+												borderRadius: size.s_18
+											}}
+										/>
+									)
 								) : (
 									<MezonAvatar
 										avatarUrl={selectedChannel?.channel_avatar?.[0] || clans?.[selectedChannel?.clan_id]?.logo}

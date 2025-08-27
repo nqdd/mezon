@@ -10,10 +10,11 @@ import {
 } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
+import ImageNative from 'apps/mobile/src/app/components/ImageNative';
 import { ChannelType } from 'mezon-js';
 import React, { memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Circle } from 'react-native-animated-spinkit';
+import { Flow } from 'react-native-animated-spinkit';
 import FastImage from 'react-native-fast-image';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
@@ -56,8 +57,21 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 				);
 			case ChannelType.CHANNEL_TYPE_GROUP:
 				return (
-					<View style={styles.groupAvatar}>
-						<MezonIconCDN icon={IconCDN.userGroupIcon} />
+					<View style={styles.avatarWrapper}>
+						{dm?.topic && !dm?.topic?.includes('avatar-group.png') ? (
+							<View style={styles.groupAvatarWrapper}>
+								<ImageNative
+									url={createImgproxyUrl(dm?.topic ?? '')}
+									style={{ width: '100%', height: '100%' }}
+									resizeMode={'cover'}
+								/>
+							</View>
+						) : (
+							<View style={styles.groupAvatar}>
+								<MezonIconCDN icon={IconCDN.userGroupIcon} />
+							</View>
+						)}
+
 						{numUnread > 0 && (
 							<View style={styles.badge}>
 								<Text style={styles.badgeText}>{numUnread}</Text>
@@ -96,7 +110,7 @@ export const UnreadDMBadgeList = React.memo(() => {
 		<View style={[styles.container, !!unReadDM?.length && styles.containerBottom]}>
 			{!isLoading && (
 				<View style={{ paddingVertical: size.s_20 }}>
-					<Circle color={themeValue.textDisabled} size={size.s_42} />
+					<Flow color={themeValue.textDisabled} size={size.s_30} />
 				</View>
 			)}
 			{!!unReadDM?.length &&

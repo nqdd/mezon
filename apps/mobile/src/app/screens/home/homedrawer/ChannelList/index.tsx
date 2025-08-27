@@ -13,7 +13,7 @@ import {
 import { ICategoryChannel } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Platform, RefreshControl, View } from 'react-native';
+import { FlatList, Platform, RefreshControl, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import useTabletLandscape from '../../../../hooks/useTabletLandscape';
@@ -128,12 +128,13 @@ const ChannelList = () => {
 	}, []);
 
 	return (
-		<LinearGradient
-			start={{ x: 1, y: 0 }}
-			end={{ x: 0, y: 0 }}
-			colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
-			style={styles.mainList}
-		>
+		<View style={styles.mainList}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<ChannelListScroll data={data} flashListRef={flashListRef} />
 			<FlatList
 				ref={flashListRef}
@@ -160,7 +161,7 @@ const ChannelList = () => {
 			/>
 			{!isTabletLandscape && <View style={{ height: 80 }} />}
 			<ButtonNewUnread />
-		</LinearGradient>
+		</View>
 	);
 };
 

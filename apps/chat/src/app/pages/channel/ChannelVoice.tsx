@@ -160,6 +160,8 @@ const ChannelVoice = memo(
 						>
 							<div className="flex-1 relative flex overflow-hidden">
 								<MyVideoConference
+									token={token}
+									url={serverUrl}
 									channelLabel={currentChannel?.channel_label as string}
 									onLeaveRoom={handleLeaveRoom}
 									onFullScreen={handleFullScreen}
