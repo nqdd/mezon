@@ -24,5 +24,6 @@ export enum EMessageActionType {
 	TopicDiscussion,
 	MarkMessage,
 	QuickMenu,
-	CopyImage
+	CopyImage,
+	ShareImage
 }

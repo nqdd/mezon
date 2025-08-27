@@ -47,6 +47,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, DeviceEventEmitter, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
+import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
@@ -470,6 +471,61 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		}
 	};
 
+	const handleActionShareImage = async () => {
+		try {
+			dispatch(appActions.setLoadingMainMobile(true));
+			const url = message?.attachments?.[0]?.url;
+			const filetype = message?.attachments?.[0]?.filetype;
+			const filename = message?.attachments?.[0]?.filename || 'image';
+
+			if (!url) {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('toast.shareImageFailed', { error: 'No image URL found' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+					}
+				});
+				return;
+			}
+
+			const type = filetype?.split?.('/');
+			const imageData = await getImageAsBase64OrFile(url, type?.[1], { forSharing: true });
+
+			if (!imageData || !imageData.filePath) {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('toast.shareImageFailed', { error: 'Failed to process image' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+					}
+				});
+				return;
+			}
+
+			const shareOptions = {
+				url: `file://${imageData.filePath}`,
+				type: filetype || 'image/png',
+				filename: filename
+			};
+
+			await Share.open(shareOptions);
+		} catch (error) {
+			if (error?.message !== 'User did not share') {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('toast.shareImageFailed', { error: 'Unknown error' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+					}
+				});
+			}
+		} finally {
+			dispatch(appActions.setLoadingMainMobile(false));
+			onClose();
+		}
+	};
+
 	const implementAction = (type: EMessageActionType) => {
 		switch (type) {
 			case EMessageActionType.GiveACoffee:
@@ -532,6 +588,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.CopyImage:
 				handleActionCopyImage();
 				break;
+			case EMessageActionType.ShareImage:
+				handleActionShareImage();
+				break;
 			default:
 				break;
 		}
@@ -579,6 +638,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				return <MezonIconCDN icon={IconCDN.quickAction} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CopyImage:
 				return <MezonIconCDN icon={IconCDN.imageIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+			case EMessageActionType.ShareImage:
+				return <MezonIconCDN icon={IconCDN.shareIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			default:
 				return <View />;
 		}
@@ -601,7 +662,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isMessageSystem;
 		const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
 		const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
-		const isHideCopyImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
+		const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
 
 		const isShowForwardAll = () => {
 			if (messagePosition === -1) return false;
@@ -622,7 +683,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			(isMyMessage || isMessageSystem || isAnonymous) && EMessageActionType.GiveACoffee,
 			isHideTopicDiscussion && EMessageActionType.TopicDiscussion,
 			isDM && EMessageActionType.QuickMenu,
-			isHideCopyImage && EMessageActionType.CopyImage
+			isHideActionImage && EMessageActionType.CopyImage,
+			isHideActionImage && EMessageActionType.ShareImage
 		];
 
 		let availableMessageActions: IMessageAction[] = [];
@@ -638,7 +700,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const mediaList =
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
-			message?.content?.embed?.some((embed) => embed?.image)
+				message?.content?.embed?.some((embed) => embed?.image)
 				? []
 				: [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink];
 
