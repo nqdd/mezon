@@ -18,7 +18,7 @@ export interface UseEditGroupModalReturn {
 	openEditModal: () => void;
 	closeEditModal: () => void;
 	setGroupName: (name: string) => void;
-	handleImageUpload: (file: File) => void;
+	handleImageUpload: (file: File | null) => void;
 	handleSave: () => Promise<void>;
 	
 	hasChanges: boolean;
@@ -34,15 +34,17 @@ export const useEditGroupModal = ({
 	
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [groupName, setGroupName] = useState(currentGroupName);
-	const [imagePreview, setImagePreview] = useState(currentAvatar);
+	const [imagePreview, setImagePreview] = useState<string>(currentAvatar);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [isAvatarRemoved, setIsAvatarRemoved] = useState<boolean>(false);
 
-	const hasChanges = groupName.trim() !== currentGroupName || selectedFile !== null;
+	const hasChanges = groupName.trim() !== currentGroupName || selectedFile !== null || isAvatarRemoved;
 
 	const openEditModal = useCallback(() => {
 		setGroupName(currentGroupName);
 		setImagePreview(currentAvatar);
 		setSelectedFile(null);
+		setIsAvatarRemoved(false);
 		setIsEditModalOpen(true);
 	}, [currentGroupName, currentAvatar]);
 
@@ -50,8 +52,17 @@ export const useEditGroupModal = ({
 		setIsEditModalOpen(false);
 	}, []);
 
-	const handleImageUpload = useCallback((file: File) => {
+	const handleImageUpload = useCallback((file: File | null) => {
+		if (file === null) {
+
+			setImagePreview('');
+			setSelectedFile(null);
+			setIsAvatarRemoved(true);
+			return;
+		}
+
 		setImagePreview('');
+		setIsAvatarRemoved(false);
 
 		const reader = new FileReader();
 		reader.onload = (e) => {
@@ -76,11 +87,12 @@ export const useEditGroupModal = ({
 
 		const hasNameChanged = value !== currentGroupName;
 		const hasImageChanged = selectedFile !== null;
-
-		if ((hasNameChanged || hasImageChanged) && channelId) {
+		if ((hasNameChanged || hasImageChanged || isAvatarRemoved) && channelId) {
 			let avatarUrl = currentAvatar;
 
-			if (selectedFile) {
+			if (isAvatarRemoved) {
+				avatarUrl = '';
+			} else if (selectedFile) {
 				try {
 					const client = clientRef.current;
 					const session = sessionRef.current;
@@ -109,13 +121,13 @@ export const useEditGroupModal = ({
 
 			const payload: { channel_id: string; channel_label?: string; topic?: string } = { channel_id: channelId };
 			if (hasNameChanged) payload.channel_label = value;
-			if (hasImageChanged) payload.topic = avatarUrl;
+			if (hasImageChanged || isAvatarRemoved) payload.topic = avatarUrl;
 			
 			dispatch(directActions.updateDmGroup(payload));
 		}
 
 		closeEditModal();
-	}, [groupName, selectedFile, currentGroupName, currentAvatar, channelId, dispatch, closeEditModal]);
+	}, [groupName, selectedFile, isAvatarRemoved, currentGroupName, currentAvatar, channelId, dispatch, closeEditModal]);
 
 	return {
 		isEditModalOpen,
