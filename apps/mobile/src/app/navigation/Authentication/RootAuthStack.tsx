@@ -153,15 +153,6 @@ export const RootAuthStack = memo(
 							animationEnabled: Platform.OS === 'ios'
 						}}
 					/>
-
-					<RootStack.Screen
-						name={APP_SCREEN.VIDEO_DETAIL}
-						component={RenderVideoDetail}
-						options={{
-							headerShown: false,
-							headerShadowVisible: false
-						}}
-					/>
 					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
 					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen
