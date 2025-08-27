@@ -84,7 +84,13 @@ const SettingRightUser = ({
 	const [openModalEditor, closeModalEditor] = useModal(
 		() =>
 			imageObject ? (
-				<ImageEditor setImageCropped={setImageCropped} setImageObject={setImageObject} onClose={closeModalEditor} imageSource={imageObject} />
+				<ImageEditor
+					setImageCropped={setImageCropped}
+					setImageObject={setImageObject}
+					onClose={closeModalEditor}
+					imageSource={imageObject}
+					dataE2EId="edit_avatar_profile"
+				/>
 			) : null,
 		[imageObject]
 	);
