@@ -1,6 +1,5 @@
 import { Attributes, baseColor, Fonts, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 export const style = (colors: Attributes, isMsgReply = false) =>
 	StyleSheet.create({
@@ -14,7 +13,6 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 			width: '100%',
 			justifyContent: 'center',
 			alignItems: 'center'
-			// backgroundColor: baseColor.blurple
 		},
 
 		altText: {
@@ -38,6 +36,6 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 		},
 		textAvatarMessageBoxDefault: {
 			fontSize: isMsgReply ? size.h8 : size.h7,
-			color: Colors.white
+			color: baseColor.white
 		}
 	});

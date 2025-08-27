@@ -258,7 +258,7 @@ export const style = (colors: Attributes) =>
 			paddingVertical: size.s_10,
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center',
+			alignItems: 'center'
 		},
 		friendItemWrapperInvited: {
 			opacity: 0.6
@@ -470,7 +470,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		groupAvatar: {
-			backgroundColor: Colors.orange,
+			backgroundColor: baseColor.orange,
 			width: size.s_50,
 			height: size.s_50,
 			borderRadius: 50,

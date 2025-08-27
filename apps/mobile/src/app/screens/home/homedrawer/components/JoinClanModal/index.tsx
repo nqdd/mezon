@@ -9,7 +9,7 @@ import {
 	setDefaultChannelLoader,
 	validLinkInviteRegex
 } from '@mezon/mobile-components';
-import { size } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import { channelsActions, clansActions, getStoreAsync } from '@mezon/store-mobile';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +28,7 @@ const JoinClanModal = ({ visible, setVisible }: JoinClanModalProps) => {
 	const { inviteUser } = useInvite();
 	const [isValidInvite, setIsValidInvite] = useState<boolean>(true);
 	const { t } = useTranslation(['userEmptyClan']);
+	const { themeValue } = useTheme();
 
 	const joinChannel = async () => {
 		setIsValidInvite(validLinkInviteRegex.test(inviteLink));
@@ -65,8 +66,8 @@ const JoinClanModal = ({ visible, setVisible }: JoinClanModalProps) => {
 			<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
 				<View style={{ width: '100%', height: '100%', paddingHorizontal: size.s_10, paddingVertical: size.s_10, position: 'relative' }}>
 					<View style={{ marginBottom: size.s_40 }}>
-						<Text style={styles.title}>{t('joinClan.joinExistClan')}</Text>
-						<Text style={styles.description}>{t('joinClan.enterInvite')}</Text>
+						<Text style={[styles.title, { color: themeValue.text }]}>{t('joinClan.joinExistClan')}</Text>
+						<Text style={[styles.description, { color: themeValue.textDisabled }]}>{t('joinClan.enterInvite')}</Text>
 					</View>
 					<View>
 						<MezonInput
@@ -76,7 +77,7 @@ const JoinClanModal = ({ visible, setVisible }: JoinClanModalProps) => {
 							value={inviteLink}
 						/>
 						{!isValidInvite && <ErrorInput errorMessage={t('joinClan.errorMessage')} />}
-						<Text style={styles.textExample}>{t('joinClan.linkInviteEx')}</Text>
+						<Text style={[styles.textExample, { color: themeValue.textDisabled }]}>{t('joinClan.linkInviteEx')}</Text>
 					</View>
 					<TouchableOpacity onPress={() => joinChannel()} style={styles.btnInvite}>
 						<Text style={styles.textInviteBtn}>{t('joinClan.joinInviteLink')}</Text>
