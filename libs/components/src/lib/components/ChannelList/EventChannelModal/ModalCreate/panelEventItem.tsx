@@ -1,7 +1,7 @@
 import { useAuth, usePermissionChecker } from '@mezon/core';
 import { EventManagementEntity, selectUserMaxPermissionLevel } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Coords } from '../../../ChannelLink';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
@@ -19,6 +19,7 @@ type PanelEventItemProps = {
 
 function PanelEventItem(props: PanelEventItemProps) {
 	const { coords, event, onHandle, setOpenModalDelEvent, setOpenModalUpdateEvent, onClose, onTrigerEventUpdateId, handleCopyLink } = props;
+	const containerRef = useRef<HTMLDivElement | null>(null);
 	const { userProfile } = useAuth();
 	const [isClanOwner, hasClanPermission, hasAdminPermission] = usePermissionChecker([
 		EPermission.clanOwner,
@@ -26,6 +27,20 @@ function PanelEventItem(props: PanelEventItemProps) {
 		EPermission.administrator
 	]);
 	const userMaxPermissionLevel = useSelector(selectUserMaxPermissionLevel);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (!containerRef.current) return;
+			if (event.target instanceof Node && !containerRef.current.contains(event.target)) {
+				onClose();
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside, true);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside, true);
+		};
+	}, [onClose]);
 
 	const canModifyEvent = useMemo(() => {
 		if (isClanOwner || hasClanPermission || hasAdminPermission) {
@@ -55,6 +70,7 @@ function PanelEventItem(props: PanelEventItemProps) {
 	};
 	return (
 		<div
+			ref={containerRef}
 			className="fixed dark:bg-bgProfileBody bg-gray-100 rounded-sm shadow z-10 w-[200px] py-[10px] px-[10px]"
 			style={{
 				left: coords.mouseX + 10,
