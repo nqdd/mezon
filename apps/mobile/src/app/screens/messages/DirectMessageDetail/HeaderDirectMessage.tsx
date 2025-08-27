@@ -3,6 +3,7 @@ import { useChatSending, useSeenMessagePool } from '@mezon/core';
 import { ActionEmitEvent, IOption } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
+	DMCallActions,
 	directActions,
 	directMetaActions,
 	getStore,
@@ -30,6 +31,7 @@ import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { ConfirmBuzzMessageModal } from '../../home/homedrawer/components/ConfirmBuzzMessage';
 import { OptionChannelHeader } from '../../home/homedrawer/components/HeaderOptions';
 import HeaderTooltip from '../../home/homedrawer/components/HeaderTooltip';
+import { DirectMessageCallMain } from '../DirectMessageCall';
 import { UserStatusDM } from '../UserStatusDM';
 
 interface HeaderProps {
@@ -190,14 +192,16 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			);
 			return;
 		}
-		navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-			screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-			params: {
-				receiverId: currentDmGroup?.user_id?.[0],
-				receiverAvatar: dmAvatar,
-				directMessageId
-			}
-		});
+		dispatch(DMCallActions.removeAll());
+		const params = {
+			receiverId: currentDmGroup?.user_id?.[0],
+			receiverAvatar: dmAvatar,
+			directMessageId
+		};
+		const dataModal = {
+			children: <DirectMessageCallMain route={{ params }} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 	};
 
 	const headerOptions: IOption[] = [

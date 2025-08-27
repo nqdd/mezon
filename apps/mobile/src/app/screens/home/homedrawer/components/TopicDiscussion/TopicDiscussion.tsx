@@ -5,9 +5,10 @@ import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect } from 'react';
-import { DeviceEventEmitter, Platform, StatusBar, View } from 'react-native';
+import { DeviceEventEmitter, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import ChannelMessages from '../../ChannelMessages';
@@ -93,6 +94,12 @@ export default function TopicDiscussion() {
 	return (
 		<View style={styles.channelView}>
 			<StatusBarHeight />
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<KeyboardAvoidingView
 				style={styles.channelView}
 				behavior={'padding'}

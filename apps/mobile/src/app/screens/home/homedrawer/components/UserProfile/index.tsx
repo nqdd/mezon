@@ -3,6 +3,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	ChannelsEntity,
+	DMCallActions,
 	EStateFriend,
 	RolesClanEntity,
 	directActions,
@@ -30,6 +31,7 @@ import { IconCDN } from '../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
 import { getUserStatusByMetadata } from '../../../../../utils/helpers';
 import { checkNotificationPermissionAndNavigate } from '../../../../../utils/notificationPermissionHelper';
+import { DirectMessageCallMain } from '../../../../messages/DirectMessageCall';
 import { style } from './UserProfile.styles';
 import EditUserProfileBtn from './component/EditUserProfileBtn';
 import { PendingContent } from './component/PendingContent';
@@ -238,14 +240,15 @@ const UserProfile = React.memo(
 					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
 				});
 				if (directMessage?.id) {
-					navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-						screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-						params: {
-							receiverId: userId,
-							receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
-							directMessageId: directMessage?.id
-						}
-					});
+					const params = {
+						receiverId: userId,
+						receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
+						directMessageId: directMessage?.id
+					};
+					const data = {
+						children: <DirectMessageCallMain route={{ params }} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 					return;
 				}
 				const response = await createDirectMessageWithUser(
@@ -255,14 +258,16 @@ const UserProfile = React.memo(
 					message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url
 				);
 				if (response?.channel_id) {
-					navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-						screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-						params: {
-							receiverId: userId,
-							receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
-							directMessageId: response?.channel_id
-						}
-					});
+					dispatch(DMCallActions.removeAll());
+					const params = {
+						receiverId: userId,
+						receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
+						directMessageId: response?.channel_id
+					};
+					const data = {
+						children: <DirectMessageCallMain route={{ params }} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				}
 			},
 			[
@@ -299,22 +304,6 @@ const UserProfile = React.memo(
 				action: () => handleCallUser(userId || user?.id),
 				isShow: (!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById
 			},
-			// {
-			// 	id: 3,
-			// 	text: t('userAction.videoCall'),
-			// 	icon: <MezonIconCDN icon={IconCDN.videoIcon} color={themeValue.text} />,
-			// 	action: () => {
-			// 		navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-			// 			screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-			// 			params: {
-			// 				receiverId: userById?.user?.id,
-			// 				receiverAvatar: userById?.user?.avatar_url,
-			// 				isVideoCall: true
-			// 			}
-			// 		});
-			// 	},
-			// 	isShow: !!targetUser && ![EFriendState.ReceivedRequestFriend, EFriendState.SentRequestFriend].includes(targetUser?.state)
-			// },
 			{
 				id: 4,
 				text: t('userAction.addFriend'),
