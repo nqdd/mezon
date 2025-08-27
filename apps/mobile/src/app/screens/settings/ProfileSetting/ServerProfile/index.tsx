@@ -200,6 +200,9 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 					label={t('fields.clanName.label')}
 					errorMessage={isDuplicateClanNickname ? 'The nick name already exists in the clan. Please enter another nick name.' : ''}
 					isValid={!isDuplicateClanNickname}
+					inputWrapperStyle={{
+						backgroundColor: themeValue.primary
+					}}
 				/>
 			</View>
 
