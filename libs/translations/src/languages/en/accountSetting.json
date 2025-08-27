@@ -41,7 +41,7 @@
     "toast": {
         "deleteAccount": {
             "success": "Account deleted successfully",
-            "error": "Failed to delete account"
+            "error": "You are the owner of the clan"
         }
     }
 }

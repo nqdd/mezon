@@ -41,7 +41,7 @@
     "toast": {
         "deleteAccount": {
             "success": "Xóa tài khoản thành công",
-            "error": "Xóa tài khoản thất bại"
+            "error": "Bạn là chủ của clan"
         }
     }
 }
