@@ -1,6 +1,10 @@
 name: PR Automation Tests
 
 on:
+  pull_request:
+    branches:
+      - develop
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
@@ -114,8 +118,11 @@ jobs:
         working-directory: ./mezon-automation
         run: |
           cat > .env << EOF
-          BASE_URL=http://127.0.0.1:${{ env.MEZON_PORT }}
-          WORKERS=1
+          BASE_URL=http://127.0.0.1:${{ env.MEZON_PORT }}/
+          NODE_ENV=development
+          API_URL=http://127.0.0.1:${{ env.MEZON_PORT }}/api
+          SKIP_LOGIN=true
+          WORKERS=4
           EOF
 
       - name: Run automation tests
