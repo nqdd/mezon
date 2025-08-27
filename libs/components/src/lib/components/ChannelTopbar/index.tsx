@@ -44,7 +44,7 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl } from '@mezon/utils';
+import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
 import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -207,6 +207,7 @@ const TopBarChannelText = memo(() => {
 									} font-medium bg-transparent outline-none leading-10 text-theme-primary max-w-[250px] min-w-0`}
 								onClick={handleOpenEditModal}
 								title={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP ? 'Click to edit group' : channelDmGroupLabel}
+								data-e2e={generateE2eId(`chat.direct_message.chat_item.namegroup`)}
 							>
 								{channelDmGroupLabel}
 							</div>
@@ -614,7 +615,11 @@ const DmTopbarTools = memo(() => {
 
 					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
-						<button title="Show Member List" onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}>
+						<button
+							title="Show Member List"
+							onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}
+							data-e2e={generateE2eId(`chat.direct_message.member_list.button`)}
+						>
 							<span>
 								<Icons.MemberList defaultSize="size-5" />
 							</span>
@@ -907,7 +912,7 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 					/>
 				</div>
 			)}
-			<span title="Add friends to DM">
+			<span title="Add friends to DM" data-e2e={generateE2eId(`chat.direct_message.create_group.button`)}>
 				<Icons.IconAddFriendDM defaultSize="size-5" />
 			</span>
 		</div>
