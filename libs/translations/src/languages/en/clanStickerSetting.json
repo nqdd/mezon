@@ -14,5 +14,14 @@
     "toast": {
         "errorUpdating": "Error updating",
         "errorSizeLimit": "Image size limit exceeded"
+    },
+    "empty": {
+        "tip": "TIP",
+        "voiceSticker": {
+            "title": "No sound effect found"
+        },
+        "sticker": {
+            "title": "No sticker found"
+        }
     }
 }

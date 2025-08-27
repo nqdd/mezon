@@ -3,14 +3,10 @@ import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
-		wrapperServerList: {
-			paddingTop: size.s_20
-		},
-
 		wrapperLogo: {
 			alignSelf: 'center',
-			marginHorizontal: size.s_10,
-			paddingBottom: size.s_6
+			paddingVertical: size.s_6,
+			paddingHorizontal: size.s_10
 		},
 
 		badge: {
@@ -24,7 +20,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			bottom: 0,
-			right: -5
+			right: 0
 		},
 
 		badgeText: {

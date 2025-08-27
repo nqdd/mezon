@@ -11,7 +11,15 @@ import {
 } from '@livekit/components-react';
 import { useAppDispatch, voiceActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { LocalParticipant, LocalTrackPublication, RemoteParticipant, RemoteTrackPublication, RoomEvent, Track } from 'livekit-client';
+import {
+	DisconnectReason,
+	LocalParticipant,
+	LocalTrackPublication,
+	RemoteParticipant,
+	RemoteTrackPublication,
+	RoomEvent,
+	Track
+} from 'livekit-client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NotificationTooltip } from '../../NotificationList/NotificationTooltip';
 import ControlBar from '../ControlBar/ControlBar';
@@ -24,6 +32,8 @@ import { useSoundReactions } from './Reaction/useSoundReactions';
 
 interface MyVideoConferenceProps {
 	channelLabel?: string;
+	url?: string;
+	token: string;
 	onLeaveRoom: () => void;
 	onFullScreen: () => void;
 	onJoinRoom?: () => void;
@@ -43,7 +53,9 @@ export function MyVideoConference({
 	isShowChatVoice,
 	onToggleChat,
 	currentChannel,
-	onJoinRoom
+	onJoinRoom,
+	url,
+	token
 }: MyVideoConferenceProps) {
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	const [isGridView, setIsGridView] = useState<boolean>(true);
@@ -96,8 +108,26 @@ export function MyVideoConference({
 	const room = useRoomContext();
 
 	useEffect(() => {
-		const handleDisconnected = () => {
-			onLeaveRoom();
+		const handleDisconnected = async (reason?: DisconnectReason) => {
+			if (reason === DisconnectReason.SERVER_SHUTDOWN || reason === DisconnectReason.CLIENT_INITIATED) {
+				await onLeaveRoom();
+			} else {
+				if (!url) return;
+				const maxAttempts = 3;
+
+				for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+					try {
+						await room?.connect(url, token);
+						return;
+					} catch (error) {
+						if (attempt === maxAttempts) {
+							onLeaveRoom();
+						} else {
+							await new Promise((resolve) => setTimeout(resolve, 2000));
+						}
+					}
+				}
+			}
 		};
 		const handleLocalTrackUnpublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
 			if (publication.source === Track.Source.ScreenShare) {
@@ -111,11 +141,8 @@ export function MyVideoConference({
 			}
 		};
 		const handleReconnectedRoom = async () => {
-			try {
-				onJoinRoom && onJoinRoom();
-			} catch (error) {
-				console.error('error: ', error);
-				onLeaveRoom();
+			if (onJoinRoom) {
+				await onJoinRoom();
 			}
 		};
 

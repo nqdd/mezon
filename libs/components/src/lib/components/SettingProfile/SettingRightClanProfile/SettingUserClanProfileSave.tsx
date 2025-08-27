@@ -1,5 +1,6 @@
 import { getSelectedRoleId } from '@mezon/store';
 import { ButtonLoading } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { useSelector } from 'react-redux';
 
 export type ModalSettingSave = {
@@ -28,6 +29,7 @@ export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProp
 					onClick={() => {
 						PropsSave.handleClose();
 					}}
+					data-e2e={generateE2eId('user_setting.profile.clan_profile.button_reset')}
 				>
 					Reset
 				</button>
@@ -35,6 +37,7 @@ export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProp
 					className="ml-auto btn-primary btn-primary-hover  rounded-lg px-4 py-1.5 text-nowrap "
 					label="Save Changes"
 					onClick={handleSaveChanges}
+					data-e2e={generateE2eId('user_setting.profile.clan_profile.button_save_changes')}
 				/>
 			</div>
 		</div>

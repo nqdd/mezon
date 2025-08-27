@@ -5,6 +5,7 @@ import { createStackNavigator, StackCardInterpolatedStyle, StackCardInterpolatio
 import { Dimensions, Platform, View } from 'react-native';
 import CallingModalGroupWrapper from '../../components/CallingModalGroupWrapper';
 import CallingModalWrapper from '../../components/CallingModalWrapper';
+import ModalRootListener from '../../components/ModalRootListener';
 import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
 import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
 import { RenderVideoDetail } from '../../screens/home/homedrawer/components/RenderVideoDetail';
@@ -153,15 +154,6 @@ export const RootAuthStack = memo(
 							animationEnabled: Platform.OS === 'ios'
 						}}
 					/>
-
-					<RootStack.Screen
-						name={APP_SCREEN.VIDEO_DETAIL}
-						component={RenderVideoDetail}
-						options={{
-							headerShown: false,
-							headerShadowVisible: false
-						}}
-					/>
 					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
 					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen
@@ -182,6 +174,7 @@ export const RootAuthStack = memo(
 				<CallingModalGroupWrapper />
 				<ChannelRouterListener />
 				<ListenerLoader />
+				<ModalRootListener />
 				<BadgeAppIconLoader />
 			</View>
 		);

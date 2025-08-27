@@ -1,8 +1,16 @@
 import { useEscapeKeyClose, useMemberCustomStatus, useMemberStatus, useOnClickOutside, useSettingFooter, useUserById } from '@mezon/core';
-import { ChannelMembersEntity, selectCurrentClan, selectCurrentUserId, selectFriendStatus, selectModeResponsive, useAppSelector } from '@mezon/store';
+import {
+	ChannelMembersEntity,
+	RootState,
+	selectCurrentClan,
+	selectCurrentUserId,
+	selectFriendById,
+	selectModeResponsive,
+	useAppSelector
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EUserSettings, INotification, ModeResponsive } from '@mezon/utils';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { OpenModalProps } from '../ModalUserProfile';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
@@ -51,7 +59,10 @@ const UserProfileModalInner = ({
 	const userProfileRef = useRef<HTMLDivElement | null>(null);
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const userById = useUserById(userId);
-	const checkAddFriend = useSelector(selectFriendStatus(userById?.user?.id || userId || ''));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userById?.user?.id || userId || ''));
+	const checkAddFriend = useMemo(() => {
+		return infoFriend?.state;
+	}, [infoFriend]);
 	const userCustomStatus = useMemberCustomStatus(userId || '', isDM);
 	const [openGroupIconBanner, setGroupIconBanner] = useState<OpenModalProps>(initOpenModal);
 	const [activeTab, setActiveTab] = useState<string>(typeTab.ABOUT_ME);

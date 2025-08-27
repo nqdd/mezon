@@ -340,6 +340,8 @@ Mezon is built on top of amazing open-source technologies:
 -   [livekit](https://livekit.io) - Livekit
 -   [imgproxy](https://imgproxy.net) - imgproxy
 -   [minio](https://min.io) - minio
+-   [Ory Hydra](https://www.ory.sh/hydra) - OAuth 2.0 and OpenID Connect server
+-   [Snowflake](https://github.com/bwmarrin/snowflake) - A very simple Twitter snowflake generator
 -   [React](https://reactjs.org/) - UI framework
 -   [Nx](https://nx.dev/) - Monorepo tooling
 -   And many other fantastic open-source projects

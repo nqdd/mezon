@@ -1,15 +1,15 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectAllAccount, selectDmGroupCurrent } from '@mezon/store-mobile';
+import { DMCallActions, selectAllAccount, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
 import { IMessageCallLog, IMessageTypeCallLog } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
-import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
+import { DirectMessageCallMain } from '../../../../messages/DirectMessageCall';
 import { style } from './styles';
 
 interface MessageCallLogProps {
@@ -23,26 +23,27 @@ interface MessageCallLogProps {
 export const MessageCallLog = memo(({ contentMsg, senderId, channelId, callLog, username }: MessageCallLogProps) => {
 	const { callLogType, isVideo = false } = callLog || {};
 	const { themeValue } = useTheme();
-	const navigation = useNavigation<any>();
 	const styles = style(themeValue);
 	const userProfile = useSelector(selectAllAccount);
 	const isMe = useMemo(() => userProfile?.user?.id === senderId, [userProfile?.user?.id, senderId]);
 	const { t } = useTranslation('message');
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
+	const dispatch = useAppDispatch();
 
 	const onCallBack = () => {
+		dispatch(DMCallActions.removeAll());
 		const receiverId = currentDmGroup?.user_id?.[0];
 		if (receiverId) {
 			const receiverAvatar = currentDmGroup?.channel_avatar?.[0];
-
-			navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-				screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-				params: {
-					receiverId: receiverId as string,
-					receiverAvatar: receiverAvatar as string,
-					directMessageId: channelId as string
-				}
-			});
+			const params = {
+				receiverId: receiverId as string,
+				receiverAvatar: receiverAvatar as string,
+				directMessageId: channelId as string
+			};
+			const data = {
+				children: <DirectMessageCallMain route={{ params }} />
+			};
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		}
 	};
 

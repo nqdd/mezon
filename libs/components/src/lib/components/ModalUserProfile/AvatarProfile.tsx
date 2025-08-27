@@ -19,6 +19,7 @@ type AvatarProfileProps = {
 	activityByUserId?: ApiUserActivity;
 	userStatus?: { status?: boolean; isMobile?: boolean };
 	statusOnline?: EUserStatus;
+	identifierE2E?: string;
 };
 
 const AvatarProfile = ({
@@ -32,7 +33,8 @@ const AvatarProfile = ({
 	isFooterProfile,
 	activityByUserId,
 	userStatus,
-	statusOnline
+	statusOnline,
+	identifierE2E
 }: AvatarProfileProps) => {
 	const currentClanId = useSelector(selectCurrentClanId);
 
@@ -68,6 +70,7 @@ const AvatarProfile = ({
 					src={avatar}
 					isAnonymous={isAnonymous}
 					classNameText="!text-5xl"
+					dataE2EId={identifierE2E}
 				/>
 				<div className="absolute bottom-1 right-2">
 					<UserStatusIcon status={statusOnline} />

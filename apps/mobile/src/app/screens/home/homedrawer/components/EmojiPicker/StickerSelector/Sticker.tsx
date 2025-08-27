@@ -1,10 +1,11 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { emojiRecentActions, useAppDispatch } from '@mezon/store-mobile';
 import { FOR_SALE_CATE } from '@mezon/utils';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, FlatList, ListRenderItem, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, ListRenderItem, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
@@ -26,36 +27,43 @@ const ITEM_MARGIN = 8;
 
 const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	return (
-		<TouchableOpacity onPress={() => onPress(item)} style={[isAudio ? styles.audioContent : styles.content, { margin: ITEM_MARGIN / 2 }]}>
+		<>
 			{isAudio ? (
 				<>
-					<RenderAudioItem audioURL={item?.source} />
-					<Text style={styles.soundName} numberOfLines={1}>
-						{item?.shortname}
-					</Text>
+					{item?.source && (
+						<TouchableOpacity onPress={() => onPress(item)} style={[styles.audioContent, { margin: ITEM_MARGIN / 2 }]}>
+							<RenderAudioItem audioURL={item?.source} />
+							<Text style={styles.soundName} numberOfLines={1}>
+								{item?.shortname}
+							</Text>
+						</TouchableOpacity>
+					)}
 				</>
 			) : (
-				<FastImage
-					source={{
-						uri: item?.source ? item?.source : `${process.env.NX_BASE_IMG_URL}/stickers/${item?.id}.webp`,
-						cache: FastImage.cacheControl.immutable,
-						priority: FastImage.priority.high
-					}}
-					style={{ height: '100%', width: '100%' }}
-				/>
+				<TouchableOpacity onPress={() => onPress(item)} style={[styles.content, { margin: ITEM_MARGIN / 2 }]}>
+					<FastImage
+						source={{
+							uri: item?.source ? item?.source : `${process.env.NX_BASE_IMG_URL}/stickers/${item?.id}.webp`,
+							cache: FastImage.cacheControl.immutable,
+							priority: FastImage.priority.high
+						}}
+						style={{ height: '100%', width: '100%' }}
+					/>
+					{item?.is_for_sale && !item?.source && (
+						<View style={styles.wrapperIconLocked}>
+							<MezonIconCDN icon={IconCDN.lockIcon} color={'#e1e1e1'} width={size.s_30} height={size.s_30} />
+						</View>
+					)}
+				</TouchableOpacity>
 			)}
-			{item?.is_for_sale && !item?.source && (
-				<View style={styles.wrapperIconLocked}>
-					<MezonIconCDN icon={IconCDN.lockIcon} color={'#e1e1e1'} width={size.s_30} height={size.s_30} />
-				</View>
-			)}
-		</TouchableOpacity>
+		</>
 	);
 });
 
 export default memo(function Sticker({ stickerList, categoryName, onClickSticker, isAudio, forSale }: ISticker) {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
+	const widthScreen = useWindowDimensions().width;
+	const styles = style(themeValue, widthScreen);
 	const { t } = useTranslation(['token']);
 	const dispatch = useAppDispatch();
 	const [isExpanded, setIsExpanded] = useState(!(categoryName === FOR_SALE_CATE && forSale));

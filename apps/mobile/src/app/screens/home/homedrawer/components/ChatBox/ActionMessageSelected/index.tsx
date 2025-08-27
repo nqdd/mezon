@@ -1,8 +1,9 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme, verticalScale } from '@mezon/mobile-ui';
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
@@ -45,6 +46,12 @@ export const ActionMessageSelected = memo(({ messageActionNeedToResolve, onClose
 						borderBottomColor: themeValue.border
 					}}
 				>
+					<LinearGradient
+						start={{ x: 1, y: 0 }}
+						end={{ x: 0, y: 0 }}
+						colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+						style={[StyleSheet.absoluteFillObject]}
+					/>
 					<Pressable onPress={() => handleCloseMessageAction(EMessageActionType.Reply)} style={{ padding: size.tiny }}>
 						<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
 					</Pressable>

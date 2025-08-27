@@ -8,7 +8,7 @@ export interface ModalEditGroupProps {
 	onClose: () => void;
 	onSave: () => void;
 	onCancel?: () => void;
-	onImageUpload?: (file: File) => void;
+	onImageUpload?: (file: File | null) => void;
 	groupName: string;
 	onGroupNameChange: (name: string) => void;
 	imagePreview?: string;
@@ -143,6 +143,15 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 						<p className="text-xs text-theme-primary font-medium">
 							Click to upload an image
 						</p>
+						{imagePreview && (
+							<button
+								type="button"
+								onClick={() => onImageUpload?.(null)}
+								className="text-xs text-[#f23f42] hover:text-[#d73c3f] font-medium transition-colors duration-150"
+							>
+								Remove Avatar
+							</button>
+						)}
 					</div>
 
 					<div className="space-y-2">

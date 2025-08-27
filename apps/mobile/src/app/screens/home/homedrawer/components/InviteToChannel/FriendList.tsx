@@ -4,6 +4,7 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	DirectEntity,
 	FriendsEntity,
+	clansActions,
 	fetchSystemMessageByClanId,
 	getStore,
 	selectAllFriends,
@@ -13,12 +14,11 @@ import {
 	useAppDispatch
 } from '@mezon/store-mobile';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiSystemMessage } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, Pressable, Text, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -90,7 +90,8 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 					channel_label: itemDM?.channel_label ?? itemDM?.usernames?.[0] ?? `${itemDM?.creator_name}'s Group`,
 					channel_avatar: itemDM?.channel_avatar,
 					type: itemDM?.type,
-					id: itemDM?.channel_id
+					id: itemDM?.channel_id,
+					topic: itemDM?.topic
 				});
 			}
 		});
@@ -101,6 +102,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 	const userInviteList = useMemo(() => {
 		return userListInvite?.filter((dm) => normalizeString(dm?.channel_label).includes(normalizeString(searchUserText)));
 	}, [searchUserText, userListInvite]);
+	console.log('log  => userInviteList', userInviteList);
 
 	const addInviteLinkToClipboard = useCallback(() => {
 		Clipboard.setString(currentInviteLink || currentInviteLinkRef?.current);
@@ -166,6 +168,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			const linkInvite = process.env.NX_CHAT_APP_REDIRECT_URI + '/invite/' + response.invite_link;
 			setCurrentInviteLink(linkInvite);
 			currentInviteLinkRef.current = linkInvite;
+			dispatch(clansActions.joinClan({ clanId: '0' }));
 		} catch (e) {
 			Toast.show({ type: 'error', text1: 'Fail to create invite link. Try again' });
 		}
@@ -199,8 +202,12 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			},
 			{
 				title: t('iconTitle.qrcode'),
-				icon: <MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.text} />,
-				onPress: handleShowQRModal
+				icon: !currentInviteLink ? (
+					<Chase color={themeValue.text} size={size.s_24} />
+				) : (
+					<MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.text} />
+				),
+				onPress: () => (!currentInviteLink ? null : handleShowQRModal())
 			}
 		];
 		return iconList;
@@ -243,27 +250,30 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 						/>
 					</View>
 
-					<FlashList
-						data={userInviteList}
-						extraData={sentIdList}
-						keyExtractor={(item) => `${item?.id}_item_invite`}
-						ItemSeparatorComponent={() => {
-							return <SeparatorWithLine style={{ backgroundColor: themeValue.border }} />;
-						}}
-						estimatedItemSize={size.s_60}
-						style={styles.inviteList}
-						renderItem={({ item, index }) => {
-							return (
-								<FriendListItem
-									key={`friend_item_${item?.id}_${index}`}
-									dmGroup={item}
-									user={item}
-									onPress={handleSendInVite}
-									isSent={sentIdList.includes(item?.id)}
-								/>
-							);
-						}}
-					/>
+					{!!currentInviteLink && (
+						<FlatList
+							data={userInviteList}
+							extraData={sentIdList}
+							initialNumToRender={5}
+							keyExtractor={(item) => `${item?.id}_item_invite`}
+							ItemSeparatorComponent={() => {
+								return <SeparatorWithLine style={{ backgroundColor: themeValue.border }} />;
+							}}
+							style={styles.inviteList}
+							renderItem={({ item, index }) => {
+								return (
+									<FriendListItem
+										key={`friend_item_${item?.id}_${index}`}
+										dmGroup={item}
+										user={item}
+										onPress={handleSendInVite}
+										isSent={sentIdList.includes(item?.id)}
+										isReady={!!currentInviteLink}
+									/>
+								);
+							}}
+						/>
+					)}
 				</>
 			)}
 		</View>

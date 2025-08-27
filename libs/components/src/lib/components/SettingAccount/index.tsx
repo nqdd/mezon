@@ -1,6 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { authActions, selectRegisteringStatus, useAppDispatch } from '@mezon/store';
-import { createImgproxyUrl } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -83,6 +83,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 					<div
 						className="mt-8 btn-primary btn-primary-hover  h-fit px-4 py-2 rounded-lg cursor-pointer  w-fit text-center"
 						onClick={handleClick}
+						data-e2e={generateE2eId(`user_setting.account.edit_profile`)}
 					>
 						Edit User Profile
 					</div>
@@ -96,6 +97,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover"
 							onClick={handleClick}
+							data-e2e={generateE2eId(`user_setting.account.edit_display_name`)}
 						>
 							Edit
 						</div>
@@ -108,6 +110,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover	"
 							onClick={handleClick}
+							data-e2e={generateE2eId(`user_setting.account.edit_username`)}
 						>
 							Edit
 						</div>
@@ -122,6 +125,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover "
 							onClick={handleOpenSetPassword}
+							data-e2e={generateE2eId(`user_setting.account.set_password`)}
 						>
 							Set Password
 						</div>

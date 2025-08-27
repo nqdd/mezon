@@ -62,7 +62,7 @@ export function useFriends() {
 			};
 			const response = await dispatch(friendsActions.sendRequestBlockFriend(body));
 
-			if (response?.meta?.requestStatus === 'fulfilled') {
+			if (response?.meta?.requestStatus === 'fulfilled' && currentUserId) {
 				dispatch(
 					friendsActions.updateFriendState({
 						userId: id,
@@ -83,13 +83,20 @@ export function useFriends() {
 				usernames: [username],
 				ids: [id]
 			};
-			const response = await dispatch(friendsActions.sendRequestDeleteFriend(body));
-			if (response?.meta?.requestStatus === 'fulfilled') {
+			const response = await dispatch(friendsActions.sendRequestUnblockFriend(body));
+			if (response?.meta?.requestStatus === 'fulfilled' && currentUserId) {
+				dispatch(
+					friendsActions.updateFriendState({
+						userId: id,
+						friendState: EStateFriend.FRIEND,
+						sourceId: currentUserId
+					})
+				);
 				return true;
 			}
 			return false;
 		},
-		[dispatch]
+		[currentUserId, dispatch]
 	);
 
 	const filteredFriends = useCallback(
@@ -122,16 +129,6 @@ export function useFriends() {
 			filteredFriends,
 			numberMemberInDmGroup
 		}),
-		[
-			friends,
-			quantityPendingRequest,
-			addFriend,
-			acceptFriend,
-			deleteFriend,
-			blockFriend,
-			unBlockFriend,
-			filteredFriends,
-			numberMemberInDmGroup
-		]
+		[friends, quantityPendingRequest, addFriend, acceptFriend, deleteFriend, blockFriend, unBlockFriend, filteredFriends, numberMemberInDmGroup]
 	);
 }

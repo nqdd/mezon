@@ -42,6 +42,7 @@ import MezonConfirm from '../../componentUI/MezonConfirm';
 import LoadingModal from '../../components/LoadingModal/LoadingModal';
 import { useCheckUpdatedVersion } from '../../hooks/useCheckUpdatedVersion';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
+import { DirectMessageCallMain } from '../../screens/messages/DirectMessageCall';
 import { Sharing } from '../../screens/settings/Sharing';
 import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex, getQueryParam } from '../../utils/helpers';
 import { isShowNotification, navigateToNotification } from '../../utils/pushNotificationHelpers';
@@ -204,15 +205,16 @@ export const AuthenticationLoader = () => {
 			);
 			timer = setTimeout(() => {
 				dispatch(appActions.setLoadingMainMobile(false));
-				navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-					screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-					params: {
-						receiverId: payload?.callerId,
-						receiverAvatar: payload?.callerAvatar,
-						directMessageId: payload?.channelId,
-						isAnswerCall: true
-					}
-				});
+				const params = {
+					receiverId: payload?.callerId,
+					receiverAvatar: payload?.callerAvatar,
+					directMessageId: payload?.channelId,
+					isAnswerCall: true
+				};
+				const data = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			}, 1000);
 		});
 

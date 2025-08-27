@@ -18,7 +18,6 @@ export interface AccountState {
 	account?: IAccount | null;
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
-	logo?: string;
 	cache?: CacheMetadata;
 }
 
@@ -119,7 +118,9 @@ export const accountSlice = createSlice({
 			}
 		},
 		setLogoCustom(state, action: PayloadAction<string | undefined>) {
-			state.logo = action.payload;
+			if (state.userProfile) {
+				state.userProfile.logo = action.payload;
+			}
 		},
 		setWalletValue(state, action: PayloadAction<number>) {
 			if (state.userProfile?.wallet) {
@@ -155,10 +156,10 @@ export const accountSlice = createSlice({
 		setUpdateAccount(state, action: PayloadAction<IUserAccount>) {
 			state.userProfile = {
 				...state.userProfile,
+				...action.payload,
 				user: { ...state.userProfile?.user, ...action.payload.user },
 				encrypt_private_key: action.payload.encrypt_private_key
 			};
-			state.logo = action.payload.logo;
 		}
 	},
 	extraReducers: (builder) => {
@@ -170,7 +171,6 @@ export const accountSlice = createSlice({
 				const { fromCache, ...profileData } = action.payload;
 				if (!fromCache) {
 					state.userProfile = profileData;
-					state.logo = profileData.logo;
 					state.cache = createCacheMetadata();
 				}
 
@@ -204,4 +204,4 @@ export const selectAccountMetadata = createSelector(getAccountState, (state: Acc
 
 export const selectAccountCustomStatus = createSelector(selectAccountMetadata, (metadata) => metadata?.status || '');
 
-export const selectLogoCustom = createSelector(getAccountState, (state) => state.logo);
+export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);

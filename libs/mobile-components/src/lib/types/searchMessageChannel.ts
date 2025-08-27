@@ -1,10 +1,11 @@
 import { SearchMessageEntity } from '@mezon/store-mobile';
+import React from 'react';
 
 export interface IOption {
 	title: string;
 	content: string;
 	value: string;
-	icon?: JSX.Element;
+	icon?: React.ReactElement;
 }
 export interface IOptionSearchProps {
 	option: IOption;
