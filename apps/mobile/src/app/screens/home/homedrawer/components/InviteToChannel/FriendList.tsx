@@ -4,6 +4,7 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	DirectEntity,
 	FriendsEntity,
+	clansActions,
 	fetchSystemMessageByClanId,
 	getStore,
 	selectAllFriends,
@@ -167,6 +168,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			const linkInvite = process.env.NX_CHAT_APP_REDIRECT_URI + '/invite/' + response.invite_link;
 			setCurrentInviteLink(linkInvite);
 			currentInviteLinkRef.current = linkInvite;
+			dispatch(clansActions.joinClan({ clanId: '0' }));
 		} catch (e) {
 			Toast.show({ type: 'error', text1: 'Fail to create invite link. Try again' });
 		}

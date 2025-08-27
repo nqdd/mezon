@@ -51,7 +51,6 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 				isActive && styles.channelListItemActive,
 				isActive && {
 					backgroundColor: themeBasic === ThemeModeBase.LIGHT ? themeValue.secondaryWeight : themeValue.secondaryLight,
-					opacity: 0.9,
 					shadowColor: themeValue.primary,
 					shadowOffset: { width: 0, height: 2 },
 					shadowOpacity: 0.25,

@@ -6,11 +6,13 @@ import {
 	selectAllChannelMembers,
 	selectAllChannelsByUser,
 	selectAllUsersByUser,
+	selectDirectsOpenlist,
 	selectTotalResultSearchMessage,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { IChannel, SearchItemProps, compareObjects, normalizeString } from '@mezon/utils';
+import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -87,6 +89,11 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 		return selectAllUsersByUser(store.getState()) || [];
 	}, [nameChannel, store]);
 
+	const allDirectMessages = useMemo(() => {
+		if (nameChannel) return [];
+		return selectDirectsOpenlist(store.getState() as any)?.filter((dm) => Number(dm?.type) === ChannelType.CHANNEL_TYPE_GROUP) || [];
+	}, [nameChannel, store]);
+
 	const filterAndSortMembers = useCallback((members, searchTerm) => {
 		if (!searchTerm) return members;
 
@@ -107,12 +114,23 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 		return filterAndSortMembers(allMembers, searchText);
 	}, [nameChannel, channelMembers, allUsers, searchText, filterAndSortMembers]);
 
+	const dmGroupsSearch = useMemo(() => {
+		if (nameChannel) return [];
+		if (!searchText) return allDirectMessages;
+		return (
+			allDirectMessages?.filter((dmGroup) => {
+				const groupLabel = dmGroup?.channel_label || dmGroup?.usernames?.[0] || '';
+				return normalizeString(groupLabel)?.toLowerCase().includes(normalizeString(searchText)?.toLowerCase());
+			}) || []
+		).sort((a: SearchItemProps, b: SearchItemProps) => compareObjects(a, b, searchText, 'channel_label'));
+	}, [searchText, nameChannel, allDirectMessages]);
+
 	const TabList = useMemo(() => {
 		const data = [
 			{
 				title: t('members'),
-				quantitySearch: searchText && membersSearch?.length,
-				display: !userMention && !!membersSearch?.length,
+				quantitySearch: searchText && (membersSearch?.length + dmGroupsSearch?.length),
+				display: !userMention && (!!membersSearch?.length || !!dmGroupsSearch?.length),
 				index: ACTIVE_TAB.MEMBER
 			}
 		];
@@ -132,7 +150,17 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 			});
 		}
 		return data?.filter((tab) => tab?.display);
-	}, [t, searchText, membersSearch?.length, userMention, channelsSearch?.length, totalResult, isSearchMessage, nameChannel]);
+	}, [
+		t,
+		searchText,
+		membersSearch?.length,
+		dmGroupsSearch?.length,
+		userMention,
+		channelsSearch?.length,
+		totalResult,
+		isSearchMessage,
+		nameChannel
+	]);
 
 	const handelHeaderTabChange = useCallback((index: number) => {
 		setActiveTab(index);
@@ -147,7 +175,7 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 			case ACTIVE_TAB.MESSAGES:
 				return <MessagesSearchTab typeSearch={typeSearch} currentChannel={currentChannel} />;
 			case ACTIVE_TAB.MEMBER:
-				return <MembersSearchTab listMemberSearch={membersSearch} />;
+				return <MembersSearchTab listMemberSearch={membersSearch} listDMGroupSearch={dmGroupsSearch} />;
 			case ACTIVE_TAB.CHANNEL:
 				return <ChannelsSearchTab listChannelSearch={channelsSearch} />;
 			default:

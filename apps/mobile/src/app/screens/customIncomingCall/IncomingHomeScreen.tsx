@@ -1,4 +1,3 @@
-import { registerGlobals } from '@livekit/react-native';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
@@ -24,8 +23,9 @@ import { Bounce } from 'react-native-animated-spinkit';
 import { useSelector } from 'react-redux';
 import { useSendSignaling } from '../../components/CallingGroupModal';
 import NotificationPreferences from '../../utils/NotificationPreferences';
-import { DirectMessageCall } from '../messages/DirectMessageCall';
+import { DirectMessageCallMain } from '../messages/DirectMessageCall';
 
+import { registerGlobals } from '@livekit/react-native';
 import Sound from 'react-native-sound';
 import ChannelVoicePopup from '../home/homedrawer/components/ChannelVoicePopup';
 import LOTTIE_PHONE_DECLINE from './phone-decline.json';
@@ -260,7 +260,7 @@ const IncomingHomeScreen = memo((props: any) => {
 		}
 	};
 	if (isInCall) {
-		return <DirectMessageCall route={{ params }} />;
+		return <DirectMessageCallMain route={{ params }} />;
 	}
 
 	return (
