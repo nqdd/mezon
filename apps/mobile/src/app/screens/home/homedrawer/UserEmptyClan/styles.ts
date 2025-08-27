@@ -7,13 +7,11 @@ export const styles = StyleSheet.create({
 		width: '82%',
 		borderTopLeftRadius: 20,
 		overflow: 'hidden',
-		backgroundColor: '#242427',
 		paddingHorizontal: size.s_20,
 		paddingVertical: size.s_10
 	},
 	headerText: {
 		fontSize: size.s_20,
-		color: 'white',
 		fontWeight: '600'
 	},
 	imageBg: {
@@ -23,13 +21,11 @@ export const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: size.label,
-		color: 'white',
 		fontWeight: '700',
 		textAlign: 'center'
 	},
 	description: {
 		fontSize: size.s_15,
-		color: '#c7c7c7',
 		fontWeight: '500',
 		textAlign: 'center'
 	},

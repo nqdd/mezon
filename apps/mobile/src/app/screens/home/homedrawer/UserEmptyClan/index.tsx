@@ -1,9 +1,10 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { RootState, selectAllClans } from '@mezon/store-mobile';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import Images from '../../../../../assets/Images';
 import CreateClanModal from '../components/CreateClanModal';
@@ -16,6 +17,7 @@ const UserEmptyClan = () => {
 	const [isVisibleJoinClanModal, setIsVisibleJoinClanModal] = useState<boolean>(false);
 	const { t } = useTranslation('userEmptyClan');
 	const [showClanEmpty, setShowClanEmpty] = useState(false);
+	const { themeValue } = useTheme();
 
 	useEffect(() => {
 		const splashTask = setTimeout(() => {
@@ -36,11 +38,17 @@ const UserEmptyClan = () => {
 	if (clansLoadingStatus === 'loaded' && !clans?.length) {
 		return (
 			<View style={styles.wrapper}>
-				<Text style={styles.headerText}>{t('emptyClans.clans')}</Text>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
+				<Text style={[styles.headerText, { color: themeValue?.text }]}>{t('emptyClans.clans')}</Text>
 				<Image style={styles.imageBg} source={Images.CHAT_PANA} />
 				<View>
-					<Text style={styles.title}>{t('emptyClans.readyChat')}</Text>
-					<Text style={styles.description}>{t('emptyClans.buildYourCommunity')}</Text>
+					<Text style={[styles.title, { color: themeValue?.text }]}>{t('emptyClans.readyChat')}</Text>
+					<Text style={[styles.description, { color: themeValue?.textDisabled }]}>{t('emptyClans.buildYourCommunity')}</Text>
 				</View>
 				<View
 					style={{
@@ -48,10 +56,10 @@ const UserEmptyClan = () => {
 					}}
 				>
 					<TouchableOpacity onPress={() => setIsVisibleJoinClanModal(!isVisibleJoinClanModal)} style={styles.joinClan}>
-						<Text style={styles.textJoinClan}>{t('emptyClans.joinClan')}</Text>
+						<Text style={[styles.textJoinClan, { color: baseColor.white }]}>{t('emptyClans.joinClan')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={onCreateClanModal} style={styles.createClan}>
-						<Text style={styles.textCreateClan}>{t('emptyClans.createClan')}</Text>
+						<Text style={[styles.textCreateClan, { color: themeValue?.text }]}>{t('emptyClans.createClan')}</Text>
 					</TouchableOpacity>
 				</View>
 				<JoinClanModal visible={isVisibleJoinClanModal} setVisible={(value) => setIsVisibleJoinClanModal(value)} />

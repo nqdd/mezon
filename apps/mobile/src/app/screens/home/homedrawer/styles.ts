@@ -258,7 +258,7 @@ export const style = (colors: Attributes) =>
 			paddingVertical: size.s_10,
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center',
+			alignItems: 'center'
 		},
 		friendItemWrapperInvited: {
 			opacity: 0.6
