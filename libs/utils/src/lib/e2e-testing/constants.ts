@@ -60,10 +60,14 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		side_bar: {
+			clan_item: {
+				name: ''
+			},
 			channel_list: {
 				category: ''
 			},
 			button: {
+				add_clan: '',
 				add_channel: ''
 			}
 		},
@@ -132,6 +136,22 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		channel_message: {
+			header: {
+				left_container: '',
+				right_container: '',
+				text: {
+					channel_name: ''
+				},
+				button: {
+					file: '',
+					mute: '',
+					inbox: '',
+					pin: '',
+					canvas: '',
+					thread: '',
+					chat: ''
+				}
+			},
 			actions: {
 				add_reaction: '',
 				give_a_coffee: '',
