@@ -332,7 +332,7 @@ export const updateUser = createAsyncThunk(
 				body.dob = dob;
 			}
 
-			if (logo && logo !== currentUser?.logo) {
+			if (logo !== currentUser?.logo) {
 				body.logo = logo;
 			}
 

@@ -274,7 +274,8 @@ const ModalConfirmPin = ({ onClose, onBack, pin, userProfile }: ModalProps & { p
 							display_name: userProfile?.user?.display_name as string,
 							about_me: userProfile?.user?.about_me as string,
 							dob: userProfile?.user?.dob as string,
-							encrypt_private_key: encryptWithPIN
+							encrypt_private_key: encryptWithPIN,
+							logo: userProfile?.logo || ''
 						})
 					);
 					if (!directMessageValue?.e2ee) {
