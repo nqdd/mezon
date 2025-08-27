@@ -82,16 +82,14 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={size.s_20} height={size.s_20} />
 					}
 				});
+			} else if (response?.meta?.requestStatus === 'rejected') {
+				Toast.show({
+					type: 'error',
+					text1: t('toast.deleteAccount.error')
+				});
 			}
 		} catch (error) {
 			console.error('Delete account failed:', error);
-			Toast.show({
-				type: 'error',
-				props: {
-					text2: t('toast.deleteAccount.error'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={size.s_20} height={size.s_20} />
-				}
-			});
 		}
 	};
 

@@ -88,6 +88,7 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 	} catch (error) {
 		//Todo: check clan owner before deleting account
 		toast.error('Error: You are the owner of the clan');
+		throw error;
 		// captureSentryError(error, 'account/deleteaccount');
 		// return thunkAPI.rejectWithValue(error);
 	}
