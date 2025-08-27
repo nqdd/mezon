@@ -186,7 +186,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 											<>
 												<span>{'>'}</span>
 												<span className="truncate max-w-[130px] overflow-hidden whitespace-nowrap">
-													{`#${message.channel_label}`}
+													{`${message.channel_label}`}
 												</span>
 											</>
 										)}
