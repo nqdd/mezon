@@ -195,6 +195,9 @@ const LocationModal = (props: LocationModalProps) => {
 			</div>
 			{choiceSpeaker && (
 				<Select
+					classNames={{
+						menuList: () => 'thread-scroll'
+					}}
 					options={options}
 					value={options.find((option) => option.value === contentSubmit.voiceChannel)}
 					onChange={handleChangeVoice}
@@ -224,12 +227,16 @@ const LocationModal = (props: LocationModalProps) => {
 					</div>
 
 					<Select
+						classNames={{
+							menuList: () => 'thread-scroll'
+						}}
 						options={optionsTextChannel}
 						value={isClear ? null : selectedOption}
 						onChange={handleSelectChannelAudience}
 						styles={customStyles}
 						placeholder="Search channels..."
 						filterOption={memoizedFilterOption}
+						menuPlacement="top"
 					/>
 					{showClearButton && (
 						<div className="flex justify-end mt-1">

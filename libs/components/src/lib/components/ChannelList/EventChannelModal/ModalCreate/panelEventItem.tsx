@@ -71,7 +71,7 @@ function PanelEventItem(props: PanelEventItemProps) {
 	return (
 		<div
 			ref={containerRef}
-			className="fixed dark:bg-bgProfileBody bg-gray-100 rounded-sm shadow z-10 w-[200px] py-[10px] px-[10px]"
+			className="fixed bg-option-theme rounded-sm shadow z-10 w-[200px] py-[10px] px-[10px]"
 			style={{
 				left: coords.mouseX + 10,
 				top: coords.distanceToBottom > 150 ? coords.mouseY : '',
