@@ -164,6 +164,38 @@ export const DATA_E2E_IDENTIFIER = {
 				create_channel: ''
 			}
 		}
+	},
+	user_setting: {
+		account: {
+			exit_setting: '',
+			edit_profile: '',
+			edit_display_name: '',
+			edit_username: '',
+			set_password: ''
+		},
+		profile: {
+			button_setting: '',
+			tab_profile: '',
+			user_profile: {
+				button: ''
+			},
+			clan_profile: {
+				image_editor: {
+					modal: '',
+					button_reset: '',
+					button_cancel: '',
+					button_apply: ''
+				},
+				button: '',
+				select: '',
+				input_nickname: '',
+				button_remove_avatar: '',
+				button_change_avatar: '',
+				button_reset: '',
+				button_save_changes: ''
+			},
+			avatar_image: ''
+		}
 	}
 };
 

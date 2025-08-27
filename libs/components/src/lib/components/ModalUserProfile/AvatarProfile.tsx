@@ -19,6 +19,7 @@ type AvatarProfileProps = {
 	activityByUserId?: ApiUserActivity;
 	userStatus?: { status?: boolean; isMobile?: boolean };
 	statusOnline?: EUserStatus;
+	identifierE2E?: string;
 };
 
 const AvatarProfile = ({
@@ -32,7 +33,8 @@ const AvatarProfile = ({
 	isFooterProfile,
 	activityByUserId,
 	userStatus,
-	statusOnline
+	statusOnline,
+	identifierE2E
 }: AvatarProfileProps) => {
 	const currentClanId = useSelector(selectCurrentClanId);
 
@@ -61,6 +63,7 @@ const AvatarProfile = ({
 		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]">
 			<div className="relative h-fit">
 				<AvatarImage
+					dataE2EId={identifierE2E}
 					alt={username || ''}
 					username={username}
 					className={`w-[90px] h-[90px] min-w-[90px] min-h-[90px] xl:w-[90px] xl:h-[90px] rounded-[50px] border-[6px] border-color-avatar object-cover my-0 ${styleAvatar}`}

@@ -51,6 +51,7 @@ const SettingUserClanProfileCard = (props: propProfilesform) => {
 				customStatus={userStatusProfile}
 				userID={userProfile?.user?.id}
 				userStatus={userStatus}
+				identifierE2E="avatar_clan_profile"
 			/>
 
 			<div className="p-4 flex flex-col gap-4">

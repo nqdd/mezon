@@ -1,6 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { authActions, selectRegisteringStatus, useAppDispatch } from '@mezon/store';
-import { createImgproxyUrl } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -81,6 +81,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div className="font-semibold text-lg">{userProfile?.user?.display_name}</div>
 					</div>
 					<div
+						data-e2e={generateE2eId(`user_setting.account.edit_profile`)}
 						className="mt-8 btn-primary btn-primary-hover  h-fit px-4 py-2 rounded-lg cursor-pointer  w-fit text-center"
 						onClick={handleClick}
 					>
@@ -94,6 +95,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>{userProfile?.user?.display_name || "You haven't added a display name yet."}</p>
 						</div>
 						<div
+							data-e2e={generateE2eId(`user_setting.account.edit_display_name`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover"
 							onClick={handleClick}
 						>
@@ -106,6 +108,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>{userProfile?.user?.username}</p>
 						</div>
 						<div
+							data-e2e={generateE2eId(`user_setting.account.edit_username`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover	"
 							onClick={handleClick}
 						>
@@ -120,6 +123,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 							<p>Password</p>
 						</div>
 						<div
+							data-e2e={generateE2eId(`user_setting.account.set_password`)}
 							className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover "
 							onClick={handleOpenSetPassword}
 						>

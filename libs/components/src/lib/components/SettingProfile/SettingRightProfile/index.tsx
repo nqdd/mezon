@@ -1,5 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { selectCurrentClanId, selectIsShowSettingFooter } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import SettingRightClan from '../SettingRightClanProfile';
@@ -42,6 +43,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 				<h1 className="text-xl font-semibold tracking-wider text-theme-primary-active">Profiles</h1>
 				<div className="flex flex-row gap-4 mt-6 mb-4">
 					<button
+						data-e2e={generateE2eId(`user_setting.profile.user_profile.button`)}
 						onClick={handleUserSettingsClick}
 						className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.USER_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
 					>
@@ -50,6 +52,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 
 					{!isDM || !isShowSettingFooter.isUserProfile ? (
 						<button
+							data-e2e={generateE2eId(`user_setting.profile.clan_profile.button`)}
 							onClick={handleClanProfileClick}
 							className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.CLAN_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
 						>
