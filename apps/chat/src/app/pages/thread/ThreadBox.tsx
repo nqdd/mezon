@@ -370,6 +370,7 @@ const ThreadBox = () => {
 							onChange={handleChangeNameThread}
 							onKeyDown={onKeyDown}
 							value={nameValueThread ?? ''}
+							indetiferIdxE2E="thread_box"
 							label="Thread Name"
 							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : 'Enter Thread Name'}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
@@ -386,7 +387,7 @@ const ThreadBox = () => {
 				<div
 					className={`${
 						checkAttachment ? 'px-3 mx-4 pb-1 pt-5 rounded-t-lg border-b-[1px] border-color-primary' : ''
-					} bg-item-theme max-h-full`}
+						} bg-item-theme max-h-full`}
 				>
 					<div className={`max-h-full flex gap-6 overflow-y-hidden overflow-x-auto thread-scroll`}>
 						{attachmentFilteredByChannelId?.files?.map((item: ApiMessageAttachment, index: number) => {
@@ -420,6 +421,7 @@ const ThreadBox = () => {
 							channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 						})}
 						isThread={true}
+						indetiferIdxE2E="mention_thread"
 					/>
 				</div>
 			</div>
