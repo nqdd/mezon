@@ -6,19 +6,22 @@ export const style = (colors: Attributes) =>
 		container: {
 			flexDirection: 'row',
 			flex: 1,
-			overflow: 'hidden',
-			height: size.s_16,
-			flexWrap: 'nowrap'
+			overflow: 'hidden'
 		},
 		message: {
 			fontSize: size.small,
 			color: colors.text,
-			lineHeight: size.s_16,
-			overflow: 'hidden',
-			width: '100%'
+			overflow: 'hidden'
 		},
 		emoji: {
 			height: size.s_12,
-			width: size.s_12
+			width: size.s_12,
+			flexShrink: 0
+		},
+		emojiWrap: {
+			height: size.s_16,
+			width: size.s_12,
+			justifyContent: 'center',
+			overflow: 'hidden',
 		}
 	});

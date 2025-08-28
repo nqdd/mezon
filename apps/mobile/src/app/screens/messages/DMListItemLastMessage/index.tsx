@@ -91,7 +91,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 			const textPart = formatEmojiInText.slice(startIndex, endIndex);
 			if (textPart) {
 				parts.push(
-					<Text key={`${endIndex}_${textPart}`} style={[styles.message, props?.styleText && props?.styleText]}>
+					<Text
+						numberOfLines={1}
+						key={`${endIndex}_${textPart}`}
+						style={[styles.message, props?.styleText && props?.styleText]}
+					>
 						{startIndex === 0 ? textPart?.trimStart() : textPart}
 					</Text>
 				);
@@ -103,9 +107,9 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 			if (endIndex !== -1) {
 				const emojiUrl = formatEmojiInText.slice(startIndex, endIndex);
 				parts.push(
-					<Text key={`${emojiUrl}_dm_item_last_${endIndex}`}>
+					<View style={styles.emojiWrap} key={`${emojiUrl}_dm_item_last_${endIndex}`}>
 						<ImageNative style={styles.emoji} url={emojiUrl} resizeMode="contain" />
-					</Text>
+					</View>
 				);
 				startIndex = endIndex + EMOJI_KEY.length;
 				endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
@@ -114,7 +118,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 		if (startIndex < formatEmojiInText.length) {
 			parts.push(
-				<Text key={`${endIndex}_${formatEmojiInText.slice(startIndex)}`} style={[styles.message, props?.styleText && props?.styleText]}>
+				<Text
+					numberOfLines={1}
+					key={`${endIndex}_${formatEmojiInText.slice(startIndex)}`}
+					style={[styles.message, props?.styleText && props?.styleText, { flex: 1 }]}
+				>
 					{formatEmojiInText.slice(startIndex)}
 				</Text>
 			);
@@ -123,11 +131,5 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		return parts;
 	};
 
-	return (
-		<View style={styles.container}>
-			<Text numberOfLines={1} ellipsizeMode="tail" style={[styles.message, props?.styleText]}>
-				{convertTextToEmoji()}
-			</Text>
-		</View>
-	);
+	return <View style={styles.container}>{convertTextToEmoji()}</View>;
 };
