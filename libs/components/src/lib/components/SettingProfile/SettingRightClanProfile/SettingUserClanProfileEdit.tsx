@@ -7,6 +7,7 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { useDebouncedCallback } from 'use-debounce';
 import { ModalSettingSave } from '../../ClanSettings/SettingRoleManagement';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
@@ -107,7 +108,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 		}
 		if (file.type === fileTypeImage[2]) {
 			if (file.size > MAX_FILE_SIZE_1MB) {
-				dispatch(toastActions.addToastError({ message: 'File size exceeds 1MB limit' }));
+				toast.error('File size exceeds 1MB limit');
 				return;
 			}
 			if (!clientRef.current || !sessionRef.current) {
