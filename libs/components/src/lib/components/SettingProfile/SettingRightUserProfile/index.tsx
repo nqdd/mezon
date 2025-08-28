@@ -18,6 +18,7 @@ import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { Coords } from '../../ChannelLink';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
 import PanelClan from '../../PanelClan';
@@ -122,7 +123,7 @@ const SettingRightUser = ({
 		}
 		if (file.type === fileTypeImage[2]) {
 			if (file.size > MAX_FILE_SIZE_1MB) {
-				dispatch(toastActions.addToastError({ message: 'File size exceeds 1MB limit' }));
+				toast.error('File size exceeds 1MB limit');
 				return;
 			}
 			if (!clientRef.current || !sessionRef.current) {
