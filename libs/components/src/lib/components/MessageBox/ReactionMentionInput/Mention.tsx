@@ -194,22 +194,9 @@ export default function Mention({
 	}, [triggerSelection, mentionState?.isActive, mentionState?.selectedIndex, suggestions, handleSelect, onSelectionTriggered]);
 
 
-  if (suggestions.length <= 0) {
-		return null;
-	}
-
-	if (isLoading) {
-		return (
-			<div
-				className={`mention-dropdown ${suggestionsClassName}`}
-				style={suggestionStyle}
-			>
-				<div className="mention-item mention-loading">Loading...</div>
-			</div>
-		);
-	}
-
-
+    if (suggestions.length <= 0) {
+      return null;
+    }
 
   	return (
 		<div className={`mention-dropdown thread-scroll ${className} ${suggestionsClassName}`} style={{ ...style, ...suggestionStyle }}>
