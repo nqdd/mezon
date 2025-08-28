@@ -692,7 +692,7 @@ export const RenderTextMarkdownContent = ({
 		textParts.push(renderTextPalainContain(themeValue, embedNotificationMessage, lastIndex, isUnReadChannel, isLastMessage, isBuzzMessage, true));
 	}
 
-	if (isEdited && textParts?.length && !markdownBlackParts?.length) {
+	if (isEdited && textParts?.length > 0 && !markdownBlackParts?.length) {
 		textParts.push(
 			<Text key={`edited-${textParts}`} style={(themeValue ? markdownStyles(themeValue).editedText : {})}>
 				{` ${translate('edited')}`}
@@ -731,7 +731,7 @@ export const RenderTextMarkdownContent = ({
 					{textParts?.length > 0 && <Text key={`textParts${t}_${lastIndex}`}>{textParts}</Text>}
 					{markdownBlackParts?.length > 0 && markdownBlackParts.map((item) => item)}
 				</View>
-				{isEdited && markdownBlackParts?.length && (
+				{isEdited && markdownBlackParts?.length > 0 && (
 					<View>
 						<Text key={`edited-${textParts}`} style={themeValue ? markdownStyles(themeValue).editedText : {}}>
 							{translate('edited')}
