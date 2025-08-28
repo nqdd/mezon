@@ -143,7 +143,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 						<p className="text-xs text-theme-primary font-medium">
 							Click to upload an image
 						</p>
-						{imagePreview && (
+						{imagePreview && !imagePreview.includes('assets/images/avatar-group.png') && (
 							<button
 								type="button"
 								onClick={() => onImageUpload?.(null)}

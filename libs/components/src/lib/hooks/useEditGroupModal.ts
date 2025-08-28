@@ -31,16 +31,18 @@ export const useEditGroupModal = ({
 }: UseEditGroupModalProps): UseEditGroupModalReturn => {
 	const dispatch = useAppDispatch();
 	const { sessionRef, clientRef } = useMezon();
-	
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [groupName, setGroupName] = useState(currentGroupName);
-	const [avatarState, setAvatarState] = useState({
-		preview: currentAvatar,
-		file: null as File | null,
-		action: 'none' as 'none' | 'upload' | 'remove'
-	});
+	const [groupName, setGroupName] = useState('');
+	const [avatarState, setAvatarState] = useState<{
+		preview: string;
+		file: File | null;
+		action: 'none' | 'upload' | 'remove';
+	} | null>(null);
 
-	const hasChanges = groupName.trim() !== currentGroupName || avatarState.action !== 'none';
+	const hasChanges = Boolean(isEditModalOpen && (
+		groupName.trim() !== currentGroupName || 
+		(avatarState && avatarState.action !== 'none')
+	));
 
 	const openEditModal = useCallback(() => {
 		setGroupName(currentGroupName);
@@ -57,6 +59,8 @@ export const useEditGroupModal = ({
 	}, []);
 
 	const handleImageUpload = useCallback((file: File | null) => {
+		if (!avatarState) return; 
+		
 		if (file === null) {
 			setAvatarState({
 				preview: '',
@@ -78,7 +82,7 @@ export const useEditGroupModal = ({
 			}
 		};
 		reader.readAsDataURL(file);
-	}, []);
+	}, [avatarState]);
 
 	const handleSave = useCallback(async () => {
 		const value = groupName.trim();
@@ -89,6 +93,8 @@ export const useEditGroupModal = ({
 			return;
 		}
 
+		if (!avatarState) return; 
+		
 		const hasNameChanged = value !== currentGroupName;
 
 		if ((hasNameChanged || avatarState.action !== 'none') && channelId) {
@@ -136,8 +142,8 @@ export const useEditGroupModal = ({
 	return {
 		isEditModalOpen,
 		groupName,
-		imagePreview: avatarState.preview,
-		selectedFile: avatarState.file,
+		imagePreview: avatarState?.preview || '',
+		selectedFile: avatarState?.file || null,
 		
 		openEditModal,
 		closeEditModal,
