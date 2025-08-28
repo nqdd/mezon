@@ -305,6 +305,7 @@ const TopicDiscussionBox = () => {
 									isTopic
 									handleConvertToFile={onConvertToFiles}
 									currentChannelId={currentInputChannelId}
+									indetiferIdxE2E="mention_topic"
 								/>
 							</div>
 						</div>

@@ -421,6 +421,7 @@ const ThreadBox = () => {
 							channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 						})}
 						isThread={true}
+						indetiferIdxE2E="mention_thread"
 					/>
 				</div>
 			</div>

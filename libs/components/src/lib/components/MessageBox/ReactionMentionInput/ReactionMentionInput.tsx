@@ -1028,12 +1028,12 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
                 focused ? 'bg-[var(--bg-item-hover)] text-white' : ''
               }`}>
 								<SuggestItem
-                  valueHightLight={search}
-                  display={suggestion.display}
-                  symbol="#"
-                  subText={(suggestion).subText}
-                  channelId={suggestion.id}
-				  indetiferE2E='text_channel'
+									valueHightLight={search}
+									display={suggestion.display}
+									symbol="#"
+									subText={(suggestion).subText}
+									channelId={suggestion.id}
+									indetiferE2E='text_channel'
 								/>
 							</div>
 						)}
