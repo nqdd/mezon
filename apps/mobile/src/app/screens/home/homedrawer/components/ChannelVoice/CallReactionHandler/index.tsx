@@ -209,13 +209,18 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 
 	const playSound = useCallback((soundUrl: string, soundId: string) => {
 		try {
+			if (!soundUrl) {
+				console.warn('Invalid sound URL');
+				return;
+			}
 			const currentSound = soundRefs.current.get(soundId);
 			if (currentSound) {
 				currentSound.pause();
 				currentSound.setCurrentTime(0);
+				soundRefs?.current?.delete?.(soundId);
 			}
-
-			const sound = new Sound(soundUrl, Sound.MAIN_BUNDLE, (error) => {
+			Sound.setCategory('Playback', true);
+			const sound = new Sound(soundUrl, null, (error) => {
 				if (error) {
 					console.error('Failed to load sound reaction:', error);
 					return;

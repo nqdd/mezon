@@ -10,7 +10,6 @@ import SearchMessageDm from '../../../components/ThreadDetail/SearchMessageDm/Se
 import { ChannelPermissionSetting } from '../../../screens/channelPermissionSetting';
 import { AdvancedPermissionOverrides } from '../../../screens/channelPermissionSetting/AdvancedPermissionOverrides';
 import { QuickAction } from '../../../screens/channelPermissionSetting/QuickAction';
-import { DirectMessageCall } from '../../../screens/messages/DirectMessageCall';
 import { APP_SCREEN } from '../../ScreenTypes';
 
 // eslint-disable-next-line no-empty-pattern
@@ -93,17 +92,10 @@ export function MenuChannelStacks({}: any) {
 				options={{
 					headerTitle: '',
 					headerStyle: {
-						backgroundColor: themeValue.charcoal
+						backgroundColor: themeValue?.primary
 					},
 					headerTintColor: themeValue.white,
 					headerLeftLabelVisible: false
-				}}
-			/>
-			<Stack.Screen
-				name={APP_SCREEN.MENU_CHANNEL.CALL_DIRECT}
-				component={DirectMessageCall}
-				options={{
-					headerShown: false
 				}}
 			/>
 		</Stack.Navigator>

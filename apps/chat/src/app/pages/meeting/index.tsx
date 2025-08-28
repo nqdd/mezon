@@ -223,6 +223,8 @@ export default function PreJoinCalling() {
 					className="h-full flex-1 flex"
 				>
 					<MyVideoConference
+						token={getExternalToken}
+						url={serverUrl}
 						isExternalCalling={true}
 						channelLabel={'Private Room'}
 						onLeaveRoom={handleLeaveRoom}

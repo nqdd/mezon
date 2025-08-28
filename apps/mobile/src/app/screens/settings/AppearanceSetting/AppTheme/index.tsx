@@ -66,7 +66,7 @@ export default function AppThemeSetting({ navigation }: SettingScreenProps<AppTh
 						/>
 					),
 					value: ThemeModeBase.REDDARK,
-					title: t('fields.readDark')
+					title: t('fields.redDark')
 				}
 			] satisfies IMezonSlideOptionsData[],
 		[]

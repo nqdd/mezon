@@ -1,24 +1,25 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { Metrics, size } from '@mezon/mobile-ui';
-import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, DeviceEventEmitter, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
 import { createThumbnail } from 'react-native-create-thumbnail';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ImageNative from '../../../../../components/ImageNative';
-import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
+import { RenderVideoDetail } from '../RenderVideoDetail';
 
 const widthMedia = Metrics.screenWidth - 150;
 export const RenderVideoChat = React.memo(
 	({ videoURL, onLongPress }: { videoURL: string; onLongPress: () => void }) => {
-		const navigation = useNavigation<any>();
 		const [thumbPath, setThumbPath] = useState('');
 
 		const handlePlayVideo = () => {
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false
 			});
-			navigation.navigate(APP_SCREEN.VIDEO_DETAIL, { videoURL });
+			const data = {
+				children: <RenderVideoDetail route={{ params: { videoURL } }} />
+			};
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		};
 
 		useEffect(() => {

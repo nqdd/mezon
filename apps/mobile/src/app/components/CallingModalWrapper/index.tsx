@@ -1,13 +1,12 @@
 import { ActionEmitEvent, isEmpty } from '@mezon/mobile-components';
 import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
 import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { AppState, DeviceEventEmitter, NativeModules, Platform, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import { DirectMessageCallMain } from '../../screens/messages/DirectMessageCall';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { useSendSignaling } from '../CallingGroupModal';
 import CallingModal from '../CallingModal';
@@ -17,7 +16,6 @@ const CallingModalWrapper = () => {
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const dispatch = useAppDispatch();
 	const appStateRef = useRef(AppState.currentState);
-	const navigation = useNavigation<any>();
 	const { sendSignalingToParticipants } = useSendSignaling();
 
 	const handleAppStateChangeListener = useCallback((nextAppState: typeof AppState.currentState) => {
@@ -101,15 +99,16 @@ const CallingModalWrapper = () => {
 				if (Platform.OS === 'ios') {
 					await sleep(100);
 					dispatch(appActions.setLoadingMainMobile(false));
-					navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-						screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-						params: {
-							receiverId: data?.callerId,
-							receiverAvatar: data?.callerAvatar,
-							directMessageId: data?.channelId,
-							isAnswerCall: true
-						}
-					});
+					const params = {
+						receiverId: data?.callerId,
+						receiverAvatar: data?.callerAvatar,
+						directMessageId: data?.channelId,
+						isAnswerCall: true
+					};
+					const dataModal = {
+						children: <DirectMessageCallMain route={{ params }} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 					await clearUpStorageCalling();
 					const VoIPManager = NativeModules?.VoIPManager;
 					await VoIPManager.endCurrentCallKeep();

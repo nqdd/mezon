@@ -69,7 +69,8 @@ export const customStyles = {
 	menuList: (provided: any) => ({
 		...provided,
 		maxHeight: 250,
-	}),
+		overflowY: 'auto'
+	})
 };
 
 const ModalNotificationSetting = (props: ModalParam) => {
@@ -96,7 +97,6 @@ const ModalNotificationSetting = (props: ModalParam) => {
 		});
 		return settingsCopy;
 	}, [channelCategorySettings]);
-	console.log('danh sach channelCategorySettings:', sortedChannelCategorySettings);
 	const handleNotificationClanChange = (event: any, notification: number) => {
 		dispatch(defaultNotificationActions.setDefaultNotificationClan({ clan_id: currentClan?.id, notification_type: notification }));
 	};
@@ -256,11 +256,10 @@ const ModalNotificationSetting = (props: ModalParam) => {
 							value={selectedOption}
 							placeholder="Select or create an option..."
 							styles={customStyles}
-
 							classNames={{
 								menuList: () => 'thread-scroll'
 							}}
-							menuPlacement="top" 
+							menuPlacement="top"
 						/>
 					</div>
 					<div className={`mt-4 overflow-visible bg-theme-setting-primary `}>

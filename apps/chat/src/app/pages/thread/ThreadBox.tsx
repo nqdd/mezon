@@ -107,11 +107,13 @@ const ThreadBox = () => {
 
 	const createThread = useCallback(
 		async (value: ThreadValue, messageContent?: IMessageSendPayload) => {
+			const idParent = currentChannel?.parent_id !== '0' ? currentChannel?.parent_id : (currentChannelId as string);
+
 			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
 				toast('Thread name must be longer than 3 characters');
 				return;
 			}
-			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: currentChannelId as string }));
+			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
 			if (isDuplicate?.payload) {
 				toast('Thread name already exists');
 				return;
@@ -127,7 +129,7 @@ const ThreadBox = () => {
 				clan_id: currentClanId?.toString(),
 				channel_label: value.nameValueThread,
 				channel_private: value.isPrivate,
-				parent_id: currentChannelId as string,
+				parent_id: idParent,
 				category_id: currentChannel?.category_id,
 				type: ChannelType.CHANNEL_TYPE_THREAD,
 				lastSeenTimestamp: timestamp,

@@ -60,10 +60,14 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		side_bar: {
+			clan_item: {
+				name: ''
+			},
 			channel_list: {
 				category: ''
 			},
 			button: {
+				add_clan: '',
 				add_channel: ''
 			}
 		},
@@ -132,6 +136,22 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		channel_message: {
+			header: {
+				left_container: '',
+				right_container: '',
+				text: {
+					channel_name: ''
+				},
+				button: {
+					file: '',
+					mute: '',
+					inbox: '',
+					pin: '',
+					canvas: '',
+					thread: '',
+					chat: ''
+				}
+			},
 			actions: {
 				add_reaction: '',
 				give_a_coffee: '',
@@ -163,6 +183,38 @@ export const DATA_E2E_IDENTIFIER = {
 				download_app: '',
 				create_channel: ''
 			}
+		}
+	},
+	user_setting: {
+		account: {
+			exit_setting: '',
+			edit_profile: '',
+			edit_display_name: '',
+			edit_username: '',
+			set_password: ''
+		},
+		profile: {
+			button_setting: '',
+			tab_profile: '',
+			user_profile: {
+				button: ''
+			},
+			clan_profile: {
+				image_editor: {
+					modal: '',
+					button_reset: '',
+					button_cancel: '',
+					button_apply: ''
+				},
+				button: '',
+				select: '',
+				input_nickname: '',
+				button_remove_avatar: '',
+				button_change_avatar: '',
+				button_reset: '',
+				button_save_changes: ''
+			},
+			avatar_image: ''
 		}
 	}
 };

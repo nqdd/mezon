@@ -18,6 +18,7 @@ import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { Coords } from '../../ChannelLink';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
 import PanelClan from '../../PanelClan';
@@ -62,7 +63,7 @@ const SettingRightUser = ({
 
 	const handleUpdateUser = async () => {
 		if (name || urlImage || valueDisplayName || editAboutUser || dob) {
-			await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, logo);
+			await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, userProfile?.logo || '');
 			if (currentChannelId && currentClanId) {
 				await dispatch(
 					channelMembersActions.fetchChannelMembers({
@@ -84,7 +85,13 @@ const SettingRightUser = ({
 	const [openModalEditor, closeModalEditor] = useModal(
 		() =>
 			imageObject ? (
-				<ImageEditor setImageCropped={setImageCropped} setImageObject={setImageObject} onClose={closeModalEditor} imageSource={imageObject} />
+				<ImageEditor
+					setImageCropped={setImageCropped}
+					setImageObject={setImageObject}
+					onClose={closeModalEditor}
+					imageSource={imageObject}
+					dataE2EId="edit_avatar_profile"
+				/>
 			) : null,
 		[imageObject]
 	);
@@ -116,7 +123,7 @@ const SettingRightUser = ({
 		}
 		if (file.type === fileTypeImage[2]) {
 			if (file.size > MAX_FILE_SIZE_1MB) {
-				dispatch(toastActions.addToastError({ message: 'File size exceeds 1MB limit' }));
+				toast.error('File size exceeds 1MB limit');
 				return;
 			}
 			if (!clientRef.current || !sessionRef.current) {

@@ -9,7 +9,6 @@ import {
 	selectChannelFirst,
 	selectMeetRoomByEventId,
 	selectMemberClanByUserId,
-	toastActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -22,6 +21,7 @@ import Tooltip from 'rc-tooltip';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 import { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
@@ -107,7 +107,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 	const handleCopyLink = useCallback(() => {
 		navigator.clipboard.writeText(link).catch((err) => {
-			dispatch(toastActions.addToastError({ message: err?.message || 'Failed to copy link.' }));
+			toast.error(err?.message || 'Failed to copy link.');
 		});
 	}, [link]);
 
@@ -223,7 +223,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				<div className="flex justify-between gap-4 select-text">
 					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'}`}>
 						<p className="hover:underline font-bold  text-base">{topic}</p>
-						<div className="break-all max-h-[75px] eventDescriptionTruncate">
+						<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap">
 							{isReviewEvent ? reviewDescription : event?.description}
 						</div>
 					</div>

@@ -69,7 +69,7 @@ const ListMemberInviteItem = (props: ItemPorp) => {
 		<ItemInviteDM
 			channelID={dmGroup.channel_id}
 			type={Number(dmGroup.type)}
-			avatar={dmGroup.channel_avatar?.at(0)}
+			avatar={dmGroup.type === ChannelType.CHANNEL_TYPE_GROUP ? (dmGroup.topic || 'assets/images/avatar-group.png') : dmGroup.channel_avatar?.at(0)}
 			label={dmGroup.channel_label}
 			isInviteSent={isInviteSent}
 			onHandle={() => handleButtonClick(dmGroup.channel_id || '', dmGroup.type || 0)}
@@ -106,8 +106,8 @@ const ItemInviteDM = (props: ItemInviteDMProps) => {
 				alt={username}
 				username={username}
 				className="min-w-10 min-h-10 max-w-10 max-h-10"
-				srcImgProxy={type === ChannelType.CHANNEL_TYPE_GROUP ? 'assets/images/avatar-group.png' : createImgproxyUrl(avatar ?? '')}
-				src={type === ChannelType.CHANNEL_TYPE_GROUP ? 'assets/images/avatar-group.png' : avatar}
+				srcImgProxy={createImgproxyUrl(avatar ?? '')}
+				src={avatar}
 			/>
 			<p style={{ marginRight: 'auto' }} className="px-[10px] flex-1 overflow-hidden text truncate text-theme-primary-active">
 				{label}

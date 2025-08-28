@@ -1,17 +1,15 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
-import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import Video from 'react-native-video';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
-import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 
 export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 	const videoURL = route?.params?.videoURL as string;
 	const videoRef = useRef(null);
-	const navigation = useNavigation<any>();
 	const [isBuffering, setIsBuffering] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isReadyDisplay, setIsReadyDisplay] = useState(false);
@@ -26,7 +24,7 @@ export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 	}, []);
 
 	const handleClose = () => {
-		navigation.goBack();
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
 	const onError = () => {
@@ -38,8 +36,7 @@ export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 	};
 
 	return (
-		<View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', paddingVertical: size.s_50, justifyContent: 'center', alignItems: 'center' }}>
-			<StatusBarHeight />
+		<View style={{ flex: 1, backgroundColor: 'black', paddingVertical: size.s_50, justifyContent: 'center', alignItems: 'center' }}>
 			{!!videoURL && isReadyDisplay && (
 				<Video
 					ref={videoRef}
@@ -70,15 +67,16 @@ export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 						setIsPlaying(true);
 						setIsBuffering(false);
 					}}
+					enterPictureInPictureOnLeave={true}
 					ignoreSilentSwitch="ignore"
 					mixWithOthers="mix"
 					preventsDisplaySleepDuringVideoPlayback={true}
-					playWhenInactive={false}
-					playInBackground={false}
+					playWhenInactive={true}
+					playInBackground={true}
 					controlsStyles={{
 						hidePosition: false,
 						hidePlayPause: false,
-						hideForward: false,
+						hideForward: true,
 						hideRewind: false,
 						hideNext: false,
 						hidePrevious: false,
