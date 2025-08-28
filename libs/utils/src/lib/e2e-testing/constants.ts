@@ -228,6 +228,17 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			avatar_image: ''
 		}
+	},
+	common: {
+		friend_list: {
+			username: ''
+		},
+		item_pin_message: {
+			username: ''
+		},
+		delete_pin_message: {
+			username: ''
+		}
 	}
 };
 
