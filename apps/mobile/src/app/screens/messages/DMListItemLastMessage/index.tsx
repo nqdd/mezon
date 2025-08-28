@@ -78,7 +78,7 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 				if (headingContent.length > 0) {
 					parts.push(
-						<Text key="heading" style={[styles.message, props?.styleText && props?.styleText, { fontWeight: 'bold' }]}>
+						<Text key="heading" numberOfLines={1} style={[styles.message, props?.styleText && props?.styleText, { fontWeight: 'bold' }]}>
 							{headingContent}
 						</Text>
 					);
