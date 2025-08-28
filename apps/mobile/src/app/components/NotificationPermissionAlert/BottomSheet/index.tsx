@@ -53,7 +53,7 @@ export const NotificationBottomSheet: React.FC<BottomSheetProps> = ({ onDismiss,
 			<View style={style.content}>
 				<View style={style.header}>
 					<View style={style.iconContainer}>
-						<Text style={style.bellIcon}>🔔</Text>
+						<Text style={style.bellIcon}>{'🔔'}</Text>
 					</View>
 					<Text style={style.title}>{t('permissionAlert.turnOnNotifications')}</Text>
 					<Text style={style.subtitle}>{t('permissionAlert.permissionDescription')}</Text>
