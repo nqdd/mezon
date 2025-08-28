@@ -29,6 +29,7 @@ const FriendsPage = () => {
 	const [showRequestFailedPopup, setShowRequestFailedPopup] = useState(false);
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
 	const [textSearch, setTextSearch] = useState('');
+	const [isInvalidInput, setIsInvalidInput] = useState(false);
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
 	const blockedUsers = useSelector(selectBlockedUsers);
 
@@ -51,6 +52,10 @@ const FriendsPage = () => {
 	}, []);
 
 	const handleChange = (key: string, value: string) => {
+		const isValidInput = /^[a-zA-Z0-9_.]*$/.test(value);
+
+		setIsInvalidInput(!isValidInput && value !== '');
+
 		switch (key) {
 			case 'username':
 				if ((value || '').trim()) {
@@ -73,6 +78,7 @@ const FriendsPage = () => {
 			usernames: [],
 			ids: []
 		});
+		setIsInvalidInput(false);
 	};
 
 	const toggleRequestFailedPopup = () => {
@@ -210,6 +216,11 @@ const FriendsPage = () => {
 								<div className="relative group">
 									<InputField
 										onChange={(e) => handleChange('username', e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter' && requestAddFriend.usernames?.length) {
+												handleAddFriend();
+											}
+										}}
 										type="text"
 										className={`mb-2 bg-input-secondary rounded-lg mt-1 py-3 pr-[90px] md:pr-[140px] ${isAlreadyFriend ? 'border border-red-600 outline-none' : 'focus:outline focus:outline-1 dark:outline-[#00a8fc] outline-[#006ce7]'}`}
 										value={requestAddFriend.usernames}
@@ -220,12 +231,15 @@ const FriendsPage = () => {
 									{isAlreadyFriend && (
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">You're already friends with that user!</div>
 									)}
+									{isInvalidInput && (
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">Please only use numbers, letters, underscores _ or full stops.</div>
+									)}
 									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
 										You can add friends with their Mezon usernames
 									</div>
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
-										disabled={!requestAddFriend.usernames?.length}
+										disabled={!requestAddFriend.usernames?.length || isInvalidInput}
 										onClick={handleAddFriend}
 									>
 										<span className="hidden md:inline">Send Friend Request</span>

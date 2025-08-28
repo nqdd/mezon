@@ -187,6 +187,7 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 						<button
 							className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
 							onClick={() => handleOpenCreateChannelModal(category)}
+							data-e2e={generateE2eId('clan_page.side_bar.button.add_channel')}
 						>
 							<Icons.Plus />
 						</button>

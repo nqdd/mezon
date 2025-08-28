@@ -2,7 +2,7 @@ import { useAuth, useClanProfileSetting } from '@mezon/core';
 import { checkDuplicateClanNickName, selectUserClanProfileByClanID, toastActions, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { InputField } from '@mezon/ui';
-import { ImageSourceObject, MAX_FILE_SIZE_1MB, fileTypeImage } from '@mezon/utils';
+import { ImageSourceObject, MAX_FILE_SIZE_1MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -69,7 +69,13 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 	const [openModalEditor, closeModalEditor] = useModal(
 		() =>
 			imageObject ? (
-				<ImageEditor setImageCropped={setImageCropped} setImageObject={setImageObject} onClose={closeModalEditor} imageSource={imageObject} />
+				<ImageEditor
+					setImageCropped={setImageCropped}
+					setImageObject={setImageObject}
+					onClose={closeModalEditor}
+					imageSource={imageObject}
+					dataE2EId="edit_avatar_clan_profile"
+				/>
 			) : null,
 		[imageObject]
 	);
@@ -212,6 +218,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 						</label>
 						<br />
 						<InputField
+							data-e2e={generateE2eId(`user_setting.profile.clan_profile.input_nickname`)}
 							id="inputField"
 							onChange={handleDisplayName}
 							type="text"
@@ -229,7 +236,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 					<div className="mt-[20px]">
 						<p className="font-bold tracking-wide text-sm">AVATAR</p>
 						<div className="flex mt-[10px] gap-x-5">
-							<label>
+							<label data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_change_avatar`)}>
 								<div className="text-[14px] font-medium btn-primary btn-primary-hover rounded-lg p-[8px] pr-[10px] pl-[10px] cursor-pointer ">
 									Change avatar
 								</div>
@@ -238,6 +245,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 							<button
 								className="border-theme-primary rounded-lg p-[8px] pr-[10px] pl-[10px] text-nowrap text-[14px] font-medium "
 								onClick={handleRemoveButtonClick}
+								data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_remove_avatar`)}
 							>
 								Remove avatar
 							</button>

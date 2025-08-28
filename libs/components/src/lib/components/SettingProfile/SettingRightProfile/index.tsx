@@ -1,5 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { selectCurrentClanId, selectIsShowSettingFooter } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import SettingRightClan from '../SettingRightClanProfile';
@@ -44,6 +45,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 					<button
 						onClick={handleUserSettingsClick}
 						className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.USER_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
+						data-e2e={generateE2eId(`user_setting.profile.user_profile.button`)}
 					>
 						User Profile
 					</button>
@@ -52,6 +54,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 						<button
 							onClick={handleClanProfileClick}
 							className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.CLAN_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
+							data-e2e={generateE2eId(`user_setting.profile.clan_profile.button`)}
 						>
 							Clan Profiles
 						</button>

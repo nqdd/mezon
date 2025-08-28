@@ -1,5 +1,6 @@
 import { selectCurrentClan, topicsActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import Tooltip from 'rc-tooltip';
 import { memo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -55,10 +56,11 @@ export const NotificationTooltip = memo(({ isGridView, isShowMember }: Notificat
 				title="Inbox"
 				className={`focus-visible:outline-none relative ${
 					(isGridView && !isShowMember) || (isGridView && isShowMember) || (isShowMember && !isGridView)
-					? 'text-theme-primary text-theme-primary-hover'
+						? 'text-theme-primary text-theme-primary-hover'
 						: 'text-theme-primary text-theme-primary-hover'
 				}`}
 				onContextMenu={(e) => e.preventDefault()}
+				data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
 			>
 				<Icons.Inbox defaultSize="size-5" />
 				{(currentClan?.badge_count ?? 0) > 0 && <RedDot />}
