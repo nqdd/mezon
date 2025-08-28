@@ -12,7 +12,7 @@ import {
 } from '@mezon/store';
 import { MentionReactInputProps } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { widthMessageViewChat, widthMessageViewChatThread, widthSearchMessage, widthThumbnailAttachment } from '../CustomWidth';
 import { MentionReactBase } from '../ReactionMentionInput';
@@ -51,6 +51,17 @@ const ClanMentionReactInput = memo((props: MentionReactInputProps) => {
 		);
 	}, [isSearchMessage, isShowCreateThread, isShowMemberList]);
 
+	const prefixDataE2E = useMemo(() => {
+		const { isThread, isTopic } = props || {};
+		if (isThread) {
+			return 'mention_thread';
+		}
+		if (isTopic) {
+			return 'mention_topic';
+		}
+		return 'mention_clan';
+	}, [props.isThread, props.isTopic]);
+
 	return (
 		<MentionReactBase
 			{...props}
@@ -73,6 +84,7 @@ const ClanMentionReactInput = memo((props: MentionReactInputProps) => {
 			membersOfParent={membersOfParent || []}
 			dataReferences={dataReferences}
 			dataReferencesTopic={dataReferencesTopic}
+			prefixDataE2E={prefixDataE2E}
 		/>
 	);
 });
