@@ -1,13 +1,13 @@
 import {
-  ChannelsEntity,
-  selectAllChannelsByUser,
-  selectAllHashtagDm,
-  selectChannelById,
-  selectNumberMemberVoiceChannel,
-  useAppSelector
+	ChannelsEntity,
+	selectAllChannelsByUser,
+	selectAllHashtagDm,
+	selectChannelById,
+	selectNumberMemberVoiceChannel,
+	useAppSelector
 } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
-import { SearchItemProps, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
+import { SearchItemProps, createImgproxyUrl, generateE2eId, getSrcEmoji } from '@mezon/utils';
 import { ChannelType, HashtagDm } from 'mezon-js';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -31,6 +31,7 @@ type SuggestItemProps = {
 	count?: number;
 	isUnread?: boolean;
 	color?: string;
+	indetiferE2E?: string;
 };
 
 const SuggestItem = ({
@@ -48,7 +49,8 @@ const SuggestItem = ({
 	channel,
 	count,
 	isUnread,
-	color
+	color,
+	indetiferE2E
 }: SuggestItemProps) => {
 	const allChannels = useSelector(selectAllChannelsByUser);
 	const getChannel = allChannels.find((channel) => {
@@ -137,7 +139,7 @@ const SuggestItem = ({
 
 	return (
 		<div className={`flex flex-row items-center h-[24px] w-full ${wrapSuggestItemStyle ?? 'justify-between'}`}>
-			<div className="flex flex-row items-center gap-2 py-[3px] text-theme-primary text-theme-primary-hover">
+			<div className="flex flex-row items-center gap-2 py-[3px] text-theme-primary text-theme-primary-hover" data-e2e={generateE2eId('chat.suggest_item', indetiferE2E)}>
 				{showAvatar && (
 					<div>
 						{color ? (
