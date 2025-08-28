@@ -1,9 +1,9 @@
 import { useFriends } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, FriendsEntity, appActions, channelUsersActions, directActions, useAppDispatch } from '@mezon/store-mobile';
+import { DirectEntity, FriendsEntity, appActions, channelUsersActions, directActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { ChannelType, User } from 'mezon-js';
 import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -32,6 +32,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const dispatch = useAppDispatch();
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [selectedFriendDefault, setSelectedFriendDefault] = useState<string[]>([]);
+	const currentDirectMessage = useRef(useAppSelector((state) => selectDirectById(state, directMessage?.id)));
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser.filter((user) => user.state === 0);
@@ -56,17 +57,20 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	}, []);
 
 	useEffect(() => {
-		if (directMessage?.id) {
-			setSelectedFriendDefault(directMessage?.user_id || []);
+		if (currentDirectMessage.current?.id) {
+			setSelectedFriendDefault(currentDirectMessage.current?.user_id || []);
 		}
-	}, [directMessage]);
+	}, [currentDirectMessage]);
 
 	const onSelectedChange = useCallback((friendIdSelected: string[]) => {
 		setFriendIdSelectedList(friendIdSelected);
 	}, []);
 
 	const handleMenuThreadBack = () => {
-		navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, { screen: APP_SCREEN.MENU_THREAD.BOTTOM_SHEET, params: { directMessage } });
+		navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
+			screen: APP_SCREEN.MENU_THREAD.BOTTOM_SHEET,
+			params: { directMessage: currentDirectMessage.current }
+		});
 	};
 
 	const handleAddMemberToGroupChat = async (listAdd: ApiCreateChannelDescRequest) => {
