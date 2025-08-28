@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	AttachmentEntity,
 	getStore,
@@ -12,6 +12,7 @@ import { convertTimeString, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
+import Share from 'react-native-share';
 import { useSelector } from 'react-redux';
 import MezonClanAvatar from '../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -26,9 +27,10 @@ interface IRenderFooterModalProps {
 	onImageSaved?: () => void;
 	onLoading?: (isLoading: boolean) => void;
 	onImageCopy?: (error?: string) => void;
+	onImageShare?: (error?: string) => void;
 }
 
-export const RenderHeaderModal = React.memo(({ onClose, imageSelected, onImageSaved, onLoading, onImageCopy }: IRenderFooterModalProps) => {
+export const RenderHeaderModal = React.memo(({ onClose, imageSelected, onImageSaved, onLoading, onImageCopy, onImageShare }: IRenderFooterModalProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const uploader = useAppSelector((state) => selectMemberClanByUserId2(state, imageSelected?.uploader || ''));
@@ -71,6 +73,42 @@ export const RenderHeaderModal = React.memo(({ onClose, imageSelected, onImageSa
 			onImageCopy(error);
 		}
 		onLoading(false);
+	};
+
+	const handleShareImage = async () => {
+		if (!imageSelected?.url) return;
+		onLoading(true);
+
+		try {
+			const { url, filetype, filename } = imageSelected;
+			const filenameToUse = filename || 'image';
+
+			if (!url) {
+				onImageShare?.('No image URL found');
+				return;
+			}
+
+			const type = filetype?.split?.('/');
+			const imageData = await getImageAsBase64OrFile(url, type?.[1], { forSharing: true });
+
+			if (!imageData || !imageData.filePath) {
+				onImageShare?.('Failed to process image');
+				return;
+			}
+
+			const shareOptions = {
+				url: `file://${imageData.filePath}`,
+				type: filetype || 'image/png',
+				filename: filenameToUse,
+			};
+
+			await Share.open(shareOptions);
+		} catch (error) {
+			if (error?.message !== 'User did not share') onImageShare?.('Unknown error');
+		} finally {
+			onLoading(false);
+			onClose();
+		}
 	};
 
 	const handleForwardMessage = async () => {
@@ -136,6 +174,9 @@ export const RenderHeaderModal = React.memo(({ onClose, imageSelected, onImageSa
 			<View style={styles.option}>
 				<TouchableOpacity onPress={handleCopyImage}>
 					<MezonIconCDN icon={IconCDN.copyIcon} color={'white'} height={size.s_20} width={size.s_20} />
+				</TouchableOpacity>
+				<TouchableOpacity onPress={handleShareImage}>
+					<MezonIconCDN icon={IconCDN.shareIcon} color={baseColor.white} height={size.s_20} width={size.s_20} />
 				</TouchableOpacity>
 				<TouchableOpacity onPress={handleForwardMessage}>
 					<MezonIconCDN icon={IconCDN.arrowAngleRightUpIcon} color={'white'} height={size.s_20} width={size.s_20} />
