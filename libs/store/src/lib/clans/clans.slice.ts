@@ -257,8 +257,12 @@ export const transferClan = createAsyncThunk('clans/transferClan', async (body: 
 			new_owner_id: body.new_clan_owner
 		});
 		if (response) {
-			thunkAPI.dispatch(fetchClans({ noCache: true }));
+			return {
+				clanId: body.clanId,
+				new_clan_owner: body.new_clan_owner
+			};
 		}
+		return null;
 	} catch (error) {
 		captureSentryError(error, 'clans/deleteClans');
 		return thunkAPI.rejectWithValue(error);
@@ -438,6 +442,12 @@ export const clansSlice = createSlice({
 		},
 		updateClansOrder: (state, action: PayloadAction<string[]>) => {
 			state.clansOrder = action.payload;
+		},
+		updateClanOwner: (state, action: PayloadAction<{ clanId: string; newOwnerId: string }>) => {
+			clansAdapter.updateOne(state, {
+				id: action.payload.clanId,
+				changes: { creator_id: action.payload.newOwnerId }
+			});
 		},
 
 		createClanGroup: (state, action: PayloadAction<{ clanIds: string[]; name?: string }>) => {
@@ -677,6 +687,14 @@ export const clansSlice = createSlice({
 		builder.addCase(deleteClan.rejected, (state: ClansState, action) => {
 			state.loadingStatus = 'error';
 			state.error = action.error.message;
+		});
+		builder.addCase(transferClan.fulfilled, (state: ClansState, action) => {
+			if (!action.payload) return;
+			const { clanId, new_clan_owner } = action.payload;
+			clansAdapter.updateOne(state, {
+				id: clanId,
+				changes: { creator_id: new_clan_owner }
+			});
 		});
 	}
 });

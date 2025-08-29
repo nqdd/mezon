@@ -83,7 +83,7 @@ const PanelMemberTable = ({ coords, member, onClose, onOpenProfile, kichMember, 
 
 				{!isSelf && <ItemPanelMember children="Message" onClick={handleDirectMessageWithUser} />}
 				{isClanOwner && !isSelf && <ItemPanelMember danger children="Transfer Owner" onClick={handleTransferOwner} />}
-				{kichMember && !isSelf && <ItemPanelMember danger children="Remove Member" onClick={handleRemoveMember} />}
+				{kichMember && !isSelf && !isClanOwner && <ItemPanelMember danger children="Remove Member" onClick={handleRemoveMember} />}
 			</GroupPanelMember>
 		</div>
 	);
