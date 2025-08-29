@@ -592,11 +592,20 @@ export const displayNativeCalling = async (data: any) => {
 				autoCancel: true,
 				timeoutAfter: 30000,
 				loopSound: true,
+				groupSummary: false,
+				groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
 				vibrationPattern: [300, 500, 300, 500],
+				lightUpScreen: true,
+				color: '#7029c1',
 				pressAction: {
 					id: 'default',
 					launchActivity: 'com.mezon.mobile.CallActivity',
-					launchActivityFlags: [AndroidLaunchActivityFlag.NEW_TASK, AndroidLaunchActivityFlag.CLEAR_TASK]
+					launchActivityFlags: [
+						AndroidLaunchActivityFlag.SINGLE_TOP,
+						AndroidLaunchActivityFlag.NEW_TASK,
+						AndroidLaunchActivityFlag.CLEAR_TASK
+					],
+					mainComponent: 'ComingCallApp'
 				},
 				actions: [
 					{
@@ -604,19 +613,39 @@ export const displayNativeCalling = async (data: any) => {
 						pressAction: {
 							id: 'accept',
 							launchActivity: 'com.mezon.mobile.CallActivity',
-							launchActivityFlags: [AndroidLaunchActivityFlag.NEW_TASK, AndroidLaunchActivityFlag.CLEAR_TASK]
-						}
+							launchActivityFlags: [
+								AndroidLaunchActivityFlag.SINGLE_TOP,
+								AndroidLaunchActivityFlag.NEW_TASK,
+								AndroidLaunchActivityFlag.CLEAR_TASK
+							],
+							mainComponent: 'ComingCallApp'
+						},
+						icon: 'ic_answer'
 					},
 					{
 						title: 'Decline',
 						pressAction: {
-							id: 'reject'
-						}
+							id: 'reject',
+							launchActivity: 'com.mezon.mobile.CallActivity',
+							launchActivityFlags: [
+								AndroidLaunchActivityFlag.SINGLE_TOP,
+								AndroidLaunchActivityFlag.NEW_TASK,
+								AndroidLaunchActivityFlag.CLEAR_TASK
+							],
+							mainComponent: 'ComingCallApp'
+						},
+						icon: 'ic_decline'
 					}
 				],
 				fullScreenAction: {
 					id: 'default',
-					launchActivity: 'com.mezon.mobile.CallActivity'
+					launchActivity: 'com.mezon.mobile.CallActivity',
+					launchActivityFlags: [
+						AndroidLaunchActivityFlag.SINGLE_TOP,
+						AndroidLaunchActivityFlag.NEW_TASK,
+						AndroidLaunchActivityFlag.CLEAR_TASK
+					],
+					mainComponent: 'ComingCallApp'
 				}
 			}
 		});
