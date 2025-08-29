@@ -76,7 +76,9 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 				console.error('e', e);
 			}
 		}
+		notifee.stopForegroundService();
 		notifee.cancelNotification('incoming-call', 'incoming-call');
+		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 		save(IS_ANSWER_CALL_FROM_NATIVE, false);
 	}, [isAnswerCall]);
 

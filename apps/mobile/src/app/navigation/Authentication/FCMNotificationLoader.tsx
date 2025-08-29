@@ -120,7 +120,9 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 					if (detail.pressAction?.id === 'accept') {
 						save(IS_ANSWER_CALL_FROM_NATIVE, true);
 					}
+					notifee.stopForegroundService();
 					notifee.cancelNotification('incoming-call', 'incoming-call');
+					notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 				}
 				// const { notification, pressAction, input } = detail;
 				if (type === EventType.PRESS && detail) {
@@ -142,7 +144,9 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 					if (detail.pressAction?.id === 'accept') {
 						save(IS_ANSWER_CALL_FROM_NATIVE, true);
 					}
+					notifee.stopForegroundService();
 					notifee.cancelNotification('incoming-call', 'incoming-call');
+					notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 				}
 				switch (type) {
 					case EventType.DISMISSED:
