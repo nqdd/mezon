@@ -1,5 +1,5 @@
 import { Button } from '@mezon/ui';
-import { ValidateSpecialCharacters } from '@mezon/utils';
+import { generateE2eId, ValidateSpecialCharacters } from '@mezon/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 
@@ -180,6 +180,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 									: 'focus:ring-2 focus:ring-[#5865f2] '
 							}`}
 							maxLength={100}
+							data-e2e={generateE2eId(`chat.direct_message.edit_group.input`)}	
 						/>
 						{validationError && (
 							<div className="flex items-center space-x-1 text-xs text-[#f23f42] mt-2">
@@ -219,6 +220,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 								? 'bg-[#5865f2] hover:bg-[#4752c4] text-white shadow-lg hover:shadow-xl transform hover:scale-[1.02]'
 								: 'bg-[#4e5058] text-[#87898c] cursor-not-allowed'
 						}`}
+						data-e2e={generateE2eId(`chat.direct_message.edit_group.save_button`)}
 					>
 						{isLoading ? (
 							<div className="flex items-center space-x-2">
