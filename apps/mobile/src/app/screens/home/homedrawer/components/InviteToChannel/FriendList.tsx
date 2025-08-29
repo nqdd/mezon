@@ -268,7 +268,6 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 										user={item}
 										onPress={handleSendInVite}
 										isSent={sentIdList.includes(item?.id)}
-										isReady={!!currentInviteLink}
 									/>
 								);
 							}}
