@@ -96,18 +96,6 @@ export const DATA_E2E_IDENTIFIER = {
 					cancel: ''
 				}
 			}
-		},
-		settings: {
-			sidebar: {
-				delete: ''
-			},
-			modal: {
-				delete_clan: {
-					input: '',
-					confirm: '',
-					cancel: ''
-				}
-			}
 		}
 	},
 	chat: {
@@ -176,8 +164,7 @@ export const DATA_E2E_IDENTIFIER = {
 				topic_discussion: '',
 				forward_message: '',
 				delete_message: ''
-			},
-			thread_name_input: ''
+			}
 		},
 		mention: {
 			input: '',
@@ -186,9 +173,7 @@ export const DATA_E2E_IDENTIFIER = {
 			gif: '',
 			emoji: '',
 			sticker: ''
-		},
-		suggest_item: '',
-
+		}
 	},
 	onboarding: {
 		chat: {
@@ -230,17 +215,6 @@ export const DATA_E2E_IDENTIFIER = {
 				button_save_changes: ''
 			},
 			avatar_image: ''
-		}
-	},
-	common: {
-		friend_list: {
-			username: ''
-		},
-		item_pin_message: {
-			username: ''
-		},
-		delete_pin_message: {
-			username: ''
 		}
 	}
 };

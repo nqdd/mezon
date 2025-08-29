@@ -2,7 +2,7 @@ import { usePermissionChecker } from '@mezon/core';
 import type { RootState } from '@mezon/store';
 import { authActions, selectAllAccount, selectCurrentClan, selectIsCommunityEnabled, useAppDispatch } from '@mezon/store';
 import { LogoutModal } from '@mezon/ui';
-import { EPermission, generateE2eId } from '@mezon/utils';
+import { EPermission } from '@mezon/utils';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ItemObjProps, ItemSetting, sideBarListItem } from '../ItemObj';
@@ -85,7 +85,6 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 					<button
 						className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left hover:bg-[#f67e882a]`}
 						onClick={setIsShowDeletePopup}
-						data-e2e={generateE2eId('clan_page.settings.sidebar.delete')}
 					>
 						Delete clan
 					</button>

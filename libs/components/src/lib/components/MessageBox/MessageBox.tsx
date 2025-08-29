@@ -178,7 +178,6 @@ const MessageBox = (props: MessageBoxProps): ReactElement => {
 							hasPermissionEdit={canSendMessage}
 							voiceLongPress={voiceLongPressHandlers}
 							isRecording={isRecording}
-							indetiferIdxE2E="mention_clan"
 						/>
 					</div>
 				</div>
