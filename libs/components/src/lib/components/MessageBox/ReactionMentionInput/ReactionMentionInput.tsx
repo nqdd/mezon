@@ -1135,6 +1135,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				isRecording={!!props.isRecording}
 				mode={props.mode || ChannelStreamMode.STREAM_MODE_CHANNEL}
 				isTopic={props.isTopic || false}
+				isThreadbox={props.isThreadbox || false}
 				onEmojiSelect={insertEmojiDirectly}
 				dataE2E={EMOJI_ACTION_TOOLBAR_E2E}
 			/>
