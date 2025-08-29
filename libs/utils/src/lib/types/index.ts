@@ -1423,6 +1423,7 @@ export type MentionReactInputProps = {
 	hasPermissionEdit?: boolean;
 	voiceLongPress?: ILongPressType;
 	isRecording?: boolean;
+	dataE2E?: string;
 };
 
 export type IOtherCall = {

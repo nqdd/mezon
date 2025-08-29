@@ -44,6 +44,7 @@ import {
 	UploadLimitReason,
 	adjustPos,
 	filterEmptyArrays,
+	generateE2eId,
 	parseHtmlAsFormattedText,
 	processFile,
 	processMarkdownEntities
@@ -69,7 +70,6 @@ const ThreadBox = () => {
 	const currentInputChannelId = threadCurrentChannel?.channel_id || CREATING_THREAD;
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
 	const { setOverUploadingState } = useDragAndDrop();
-	const appearanceTheme = useSelector(selectTheme);
 	const { messageThreadError, isPrivate, nameValueThread, valueThread } = useThreads();
 	const [undoHistory, setUndoHistory] = useState<HistoryItem[]>([]);
 	const [redoHistory, setRedoHistory] = useState<HistoryItem[]>([]);
@@ -373,6 +373,7 @@ const ThreadBox = () => {
 							label="Thread Name"
 							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : 'Enter Thread Name'}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
+							dataE2E={generateE2eId('', 'thread_box')}
 						/>
 						{!openThreadMessageState && <PrivateThread title="Private Thread" label="Only people you invite and moderators can see" />}
 						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
@@ -420,6 +421,7 @@ const ThreadBox = () => {
 							channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 						})}
 						isThread={true}
+						dataE2E={generateE2eId('', 'mention_thread')}
 					/>
 				</div>
 			</div>
