@@ -1,5 +1,5 @@
 import { selectNameThreadError, threadsActions, useAppDispatch } from '@mezon/store';
-import { ValidateSpecialCharacters, generateE2eId, threadError } from '@mezon/utils';
+import { ValidateSpecialCharacters, threadError } from '@mezon/utils';
 import { KeyboardEvent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -11,10 +11,9 @@ interface ThreadNameTextFieldProps {
 	onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => Promise<void>;
 	error?: string;
 	className?: string;
-	indetiferIdxE2E?: string;
 }
 
-const ThreadNameTextField = ({ label, error, placeholder, value, className, onChange, onKeyDown, indetiferIdxE2E }: ThreadNameTextFieldProps) => {
+const ThreadNameTextField = ({ label, error, placeholder, value, className, onChange, onKeyDown }: ThreadNameTextFieldProps) => {
 	const dispatch = useAppDispatch();
 	const nameThreadError = useSelector(selectNameThreadError);
 	const [checkValidate, setCheckValidate] = useState(false);
@@ -49,7 +48,6 @@ const ThreadNameTextField = ({ label, error, placeholder, value, className, onCh
 				className={className}
 				onKeyDown={handleKeyDown}
 				maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
-				data-e2e={generateE2eId('chat.channel_message.thread_name_input', indetiferIdxE2E)}
 			/>
 			{nameThreadError && <span className="text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
 			{checkValidate && (
