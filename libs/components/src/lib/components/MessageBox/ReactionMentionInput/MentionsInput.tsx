@@ -809,11 +809,10 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
       .join('')
       .replace(/\u200b+/g, '\u200b');
 
-      insertHtmlInSelection(newHtml)
+      insertHtmlInSelection(newHtml);
       inputRef.current?.dispatchEvent(new Event('input', { bubbles: true }));
-      setHtml(newHtml);
-      onChange?.(newHtml);
-
+      setHtml(e.currentTarget.innerHTML);
+      onChange?.(e.currentTarget.innerHTML);
       debouncedDetectMention();
 
 		},
