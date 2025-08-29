@@ -614,8 +614,8 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 	const stopDialTone = () => {
 		try {
 			if (Platform.OS === 'android') {
-				const { AudioModule } = NativeModules;
-				AudioModule.stopDialTone();
+				const { AudioSessionModule } = NativeModules;
+				AudioSessionModule.stopDialTone();
 			} else {
 				if (dialToneRef.current) {
 					dialToneRef.current.pause();
