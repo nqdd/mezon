@@ -6,9 +6,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 	label?: React.ReactNode;
 	className?: string;
 	disabled?: boolean;
+	dataE2E?: string;
 }
 
-const ButtonLoading: React.FC<ButtonProps> = ({ onClick, label, className = '', disabled = false, ...rest }) => {
+const ButtonLoading: React.FC<ButtonProps> = ({ onClick, label, className = '', disabled = false, dataE2E, ...rest }) => {
 	const [loading, setLoading] = useState(false);
 
 	const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -25,7 +26,7 @@ const ButtonLoading: React.FC<ButtonProps> = ({ onClick, label, className = '', 
 	};
 
 	return (
-		<Button {...rest} onClick={handleClick} disabled={disabled || loading} className={className}>
+		<Button {...rest} onClick={handleClick} disabled={disabled || loading} className={className} data-e2e={dataE2E}>
 			{loading ? <Icons.IconLoadingTyping bgFill="mx-auto" /> : label}
 		</Button>
 	);

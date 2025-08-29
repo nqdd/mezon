@@ -184,7 +184,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 						<Button
 							className="text-contentBrandLight px-4 py-2 background-transparent font-semibold text-sm outline-none focus:outline-none rounded-lg"
 							onClick={onClose}
-							data-e2e={generateE2eId('clan_page.modal.create_clan.button.cancel')}
+							dataE2E={generateE2eId('clan_page.modal.create_clan.button.cancel')}
 						>
 							Back
 						</Button>
@@ -193,7 +193,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 							onClick={handleCreateClan}
 							label="Create"
 							disabled={checkvalidate !== EValidateListMessage.VALIDATED}
-							data-e2e={generateE2eId('clan_page.modal.create_clan.button.confirm')}
+							dataE2E={generateE2eId('clan_page.modal.create_clan.button.confirm')}
 						/>
 					</div>
 				</div>
