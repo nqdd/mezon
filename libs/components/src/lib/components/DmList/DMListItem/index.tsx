@@ -9,7 +9,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity, EUserStatus } from '@mezon/utils';
+import { ChannelMembersEntity, EUserStatus, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -101,7 +101,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			}}
 		>
 			<DmItemProfile
-				avatar={isTypeDMGroup ? (directMessage?.topic || 'assets/images/avatar-group.png') : (directMessage?.channel_avatar?.at(0) ?? '')}
+				avatar={isTypeDMGroup ? directMessage?.topic || 'assets/images/avatar-group.png' : (directMessage?.channel_avatar?.at(0) ?? '')}
 				name={directMessage?.channel_label || ''}
 				number={(directMessage?.user_id?.length || 0) + 1}
 				isTypeDMGroup={isTypeDMGroup}
@@ -121,6 +121,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			<button
 				className={`group-hover/itemListDm:opacity-100 opacity-0 absolute right-2 text-gray-500 text-2xl hover:text-red-500 top-[6px]`}
 				onClick={(e) => handleCloseClick(e)}
+				data-e2e={generateE2eId(`chat.direct_message.chat_item.close_dm_button`)}
 			>
 				&times;
 			</button>
@@ -173,7 +174,9 @@ const DmItemProfile = ({
 			)}
 
 			<div className="flex flex-col justify-center ">
-				<span className="one-line text-start">{name}</span>
+				<span className="one-line text-start" data-e2e={generateE2eId(`chat.direct_message.chat_item.username`)}>
+					{name}
+				</span>
 				{isTypeDMGroup && <p className="opacity-60 text-xs text-start">{number} Members</p>}
 			</div>
 		</div>

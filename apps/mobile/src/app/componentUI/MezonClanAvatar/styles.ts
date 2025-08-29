@@ -13,7 +13,6 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 			width: '100%',
 			justifyContent: 'center',
 			alignItems: 'center'
-			// backgroundColor: baseColor.blurple
 		},
 
 		altText: {
@@ -36,7 +35,7 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 			alignItems: 'center'
 		},
 		textAvatarMessageBoxDefault: {
-			fontSize: isMsgReply ? size.h8 : size.h4,
-			color: 'white'
+			fontSize: isMsgReply ? size.h8 : size.h7,
+			color: baseColor.white
 		}
 	});

@@ -1,11 +1,11 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { AttachmentEntity, selectAllListAttachmentByChannel, sleep } from '@mezon/store-mobile';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Dimensions, Text, View, useWindowDimensions } from 'react-native';
+import { DeviceEventEmitter, Dimensions, Text, useWindowDimensions, View } from 'react-native';
 import GalleryAwesome, { GalleryRef, RenderItemInfo } from 'react-native-awesome-gallery';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -33,7 +33,7 @@ const TIME_TO_SHOW_SAVE_IMAGE_SUCCESS = 3000;
 export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const { width, height } = useWindowDimensions();
 	const { imageSelected, channelId } = props;
-	const { t } = useTranslation('common');
+	const { t } = useTranslation(['common', 'message']);
 	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(null);
 	const [visibleToolbarConfig, setVisibleToolbarConfig] = useState<IVisibleToolbarConfig>({ showHeader: true, showFooter: false });
 	const [currentScale, setCurrentScale] = useState(1);
@@ -191,6 +191,26 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		}
 	}, []);
 
+	const onImageShare = useCallback((error?: string) => {
+		if (!error) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('message:toast.shareImageSuccess'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.shareIcon} color={baseColor.green} />
+				}
+			});
+		} else {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('message:toast.shareImageFailed', { error }),
+					leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+				}
+			});
+		}
+	}, []);
+
 	useEffect(() => {
 		if (visibleToolbarConfig.showFooter) {
 			clearTimeout(footerTimeoutRef.current);
@@ -224,6 +244,7 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 					onImageSaved={onImageSaved}
 					onLoading={onLoading}
 					onImageCopy={onImageCopy}
+					onImageShare={onImageShare}
 				/>
 			)}
 			<GalleryAwesome

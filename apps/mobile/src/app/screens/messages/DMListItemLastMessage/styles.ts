@@ -8,16 +8,20 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			overflow: 'hidden'
 		},
-		dmMessageContainer: {
-			flexShrink: 1
-		},
 		message: {
 			fontSize: size.small,
-			color: colors.text
+			color: colors.text,
+			overflow: 'hidden'
 		},
 		emoji: {
 			height: size.s_12,
 			width: size.s_12,
-			alignSelf: 'baseline'
+			flexShrink: 0
+		},
+		emojiWrap: {
+			height: size.s_16,
+			width: size.s_12,
+			justifyContent: 'center',
+			overflow: 'hidden',
 		}
 	});

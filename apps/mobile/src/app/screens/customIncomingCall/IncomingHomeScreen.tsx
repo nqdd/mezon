@@ -1,5 +1,4 @@
-import { registerGlobals } from '@livekit/react-native';
-import { ActionEmitEvent } from '@mezon/mobile-components';
+import { ActionEmitEvent, IS_ANSWER_CALL_FROM_NATIVE, load } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
@@ -7,7 +6,7 @@ import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
 import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import * as React from 'react';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import {
 	BackHandler,
 	DeviceEventEmitter,
@@ -24,8 +23,10 @@ import { Bounce } from 'react-native-animated-spinkit';
 import { useSelector } from 'react-redux';
 import { useSendSignaling } from '../../components/CallingGroupModal';
 import NotificationPreferences from '../../utils/NotificationPreferences';
-import { DirectMessageCall } from '../messages/DirectMessageCall';
+import { DirectMessageCallMain } from '../messages/DirectMessageCall';
 
+import { registerGlobals } from '@livekit/react-native';
+import notifee from '@notifee/react-native';
 import Sound from 'react-native-sound';
 import ChannelVoicePopup from '../home/homedrawer/components/ChannelVoicePopup';
 import LOTTIE_PHONE_DECLINE from './phone-decline.json';
@@ -43,13 +44,29 @@ const IncomingHomeScreen = memo((props: any) => {
 	const dispatch = useAppDispatch();
 	const [isInCall, setIsInCall] = React.useState(false);
 	const [isInGroupCall, setIsInGroupCall] = React.useState(false);
-	const [dataCalling, setDataCalling] = React.useState(false);
+	const [dataCalling, setDataCalling] = React.useState<any>();
 	const userId = useSelector(selectCurrentUserId);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const mezon = useMezon();
 	const ringtoneRef = useRef<Sound | null>(null);
 	const { sendSignalingToParticipants } = useSendSignaling();
 	const [dataCallGroup, setDataCallGroup] = React.useState<any>(null);
+	const isForceAnswer = useMemo(() => {
+		return load(IS_ANSWER_CALL_FROM_NATIVE);
+	}, []);
+
+	const onKillApp = () => {
+		try {
+			if (Platform.OS === 'android') {
+				NativeModules?.DeviceUtils?.killApp();
+				BackHandler.exitApp();
+			} else {
+				BackHandler.exitApp();
+			}
+		} catch (e) {
+			BackHandler.exitApp();
+		}
+	};
 
 	const getDataCall = async () => {
 		try {
@@ -110,6 +127,7 @@ const IncomingHomeScreen = memo((props: any) => {
 	};
 
 	useEffect(() => {
+		notifee.cancelNotification('incoming-call', 'incoming-call');
 		const timer = setTimeout(() => {
 			if (!isInCall && !isInGroupCall) {
 				onDeniedCall();
@@ -121,7 +139,7 @@ const IncomingHomeScreen = memo((props: any) => {
 
 	useEffect(() => {
 		let timer;
-		if (props?.isForceAnswer && signalingData?.[signalingData?.length - 1]?.callerId) {
+		if (isForceAnswer && signalingData?.[signalingData?.length - 1]?.callerId) {
 			timer = setTimeout(() => {
 				onJoinCall();
 			}, 1000);
@@ -133,7 +151,7 @@ const IncomingHomeScreen = memo((props: any) => {
 			!isInCall
 		) {
 			stopAndReleaseSound();
-			BackHandler.exitApp();
+			onKillApp();
 		}
 
 		return () => {
@@ -141,18 +159,22 @@ const IncomingHomeScreen = memo((props: any) => {
 				clearTimeout(timer);
 			}
 		};
-	}, [isInCall, props?.isForceAnswer, signalingData]);
+	}, [isForceAnswer, isInCall, signalingData]);
 
 	useEffect(() => {
 		if (props && props?.payload) {
 			playVibration();
 			getDataCall();
 		}
+
+		return () => {
+			stopAndReleaseSound();
+		};
 	}, [props]);
 
 	const params = {
 		receiverId: signalingData?.[signalingData?.length - 1]?.callerId,
-		receiverAvatar: props?.avatar || '',
+		receiverAvatar: props?.avatar || dataCalling?.callerAvatar || '',
 		isAnswerCall: true,
 		isFromNative: true
 	};
@@ -175,12 +197,12 @@ const IncomingHomeScreen = memo((props: any) => {
 				dataCallGroup?.groupId || '',
 				userId || ''
 			);
-			BackHandler.exitApp();
+			onKillApp();
 			return;
 		}
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
 		if (!latestSignalingEntry || !mezon.socketRef.current) {
-			BackHandler.exitApp();
+			onKillApp();
 			return;
 		}
 
@@ -192,7 +214,7 @@ const IncomingHomeScreen = memo((props: any) => {
 			userId
 		);
 		dispatch(DMCallActions.removeAll());
-		BackHandler.exitApp();
+		onKillApp();
 	};
 
 	const onJoinCall = async () => {
@@ -260,11 +282,20 @@ const IncomingHomeScreen = memo((props: any) => {
 		}
 	};
 	if (isInCall) {
-		return <DirectMessageCall route={{ params }} />;
+		return <DirectMessageCallMain route={{ params }} />;
 	}
 
 	return (
-		<ImageBackground source={BG_CALLING} style={styles.container}>
+		<ImageBackground
+			source={BG_CALLING}
+			style={[
+				styles.container,
+				isInGroupCall && {
+					paddingVertical: 0,
+					paddingHorizontal: 0
+				}
+			]}
+		>
 			<ChannelVoicePopup isFromNativeCall={true} />
 			{/* Caller Info */}
 			<View style={styles.headerCall}>
@@ -279,7 +310,12 @@ const IncomingHomeScreen = memo((props: any) => {
 			</View>
 
 			{/* Decline and Answer Buttons */}
-			{!props?.isForceAnswer ? (
+			{isForceAnswer && dataCallGroup === null ? (
+				<View style={styles.wrapperConnecting}>
+					<Bounce size={size.s_80} color="#fff" />
+					<Text style={styles.callerName}>Connecting...</Text>
+				</View>
+			) : (
 				<View style={styles.buttonContainer}>
 					<TouchableOpacity onPress={onDeniedCall}>
 						{/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
@@ -290,11 +326,6 @@ const IncomingHomeScreen = memo((props: any) => {
 					<TouchableOpacity onPress={onJoinCall}>
 						<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
 					</TouchableOpacity>
-				</View>
-			) : (
-				<View style={styles.wrapperConnecting}>
-					<Bounce size={size.s_80} color="#fff" />
-					<Text style={styles.callerName}>Connecting...</Text>
 				</View>
 			)}
 		</ImageBackground>

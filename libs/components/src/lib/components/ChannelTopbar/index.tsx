@@ -44,7 +44,7 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl } from '@mezon/utils';
+import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
 import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -127,14 +127,13 @@ const TopBarChannelText = memo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
 		}
-		
+
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
 			const currentUserId = userProfile?.user?.id;
-			const otherUserId = currentDmGroup.user_id.find(id => id !== currentUserId);
+			const otherUserId = currentDmGroup.user_id.find((id) => id !== currentUserId);
 			if (otherUserId && currentDmGroup.channel_avatar) {
 				const otherUserAvatar = currentDmGroup.channel_avatar.find(
-					(avatar): avatar is string =>
-						typeof avatar === "string" && !avatar.includes(currentUserId || "")
+					(avatar): avatar is string => typeof avatar === 'string' && !avatar.includes(currentUserId || '')
 				);
 				return otherUserAvatar || currentDmGroup.channel_avatar[0];
 			}
@@ -155,8 +154,6 @@ const TopBarChannelText = memo(() => {
 			editGroupModal.openEditModal();
 		}
 	}, [currentDmGroup?.type, editGroupModal]);
-
-
 
 	const handleCloseCanvas = () => {
 		dispatch(appActions.setIsShowCanvas(false));
@@ -195,20 +192,32 @@ const TopBarChannelText = memo(() => {
 					<div className="flex items-center gap-3 flex-1 overflow-hidden">
 						<DmTopbarAvatar
 							isGroup={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP}
-								avatar={dmUserAvatar} 
+								avatar={dmUserAvatar}
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
 
 							<div
 								key={`${channelDmGroupLabel}_${currentDmGroup?.channel_id as string}_display`}
-								className={`overflow-hidden whitespace-nowrap text-ellipsis none-draggable-area ${currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP
-									? 'cursor-pointer hover:text-theme-primary-active transition-colors'
+								className={`flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis none-draggable-area group ${currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP
+									? 'cursor-pointer hover:text-theme-primary-active transition-colors bg-item-theme-hover rounded-lg px-2'
 									: 'pointer-events-none cursor-default'
 									} font-medium bg-transparent outline-none leading-10 text-theme-primary max-w-[250px] min-w-0`}
 								onClick={handleOpenEditModal}
 								title={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP ? 'Click to edit group' : channelDmGroupLabel}
+								data-e2e={generateE2eId(`chat.direct_message.chat_item.namegroup`)}
 							>
-								{channelDmGroupLabel}
+								<span className="truncate">{channelDmGroupLabel}</span>
+								{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
+									<svg
+										className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0"
+										viewBox="0 0 16 16"
+										fill="currentColor"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path d="M8.29289 3.70711L1 11V15H5L12.2929 7.70711L8.29289 3.70711Z" />
+										<path d="M9.70711 2.29289L13.7071 6.29289L15.1716 4.82843C15.702 4.29799 16 3.57857 16 2.82843C16 1.26633 14.7337 0 13.1716 0C12.4214 0 11.702 0.297995 11.1716 0.828428L9.70711 2.29289Z" />
+									</svg>
+								)}
 							</div>
 					</div>
 				)}
@@ -402,7 +411,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 			{avatar ? (
 				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" />
 			) : (
-					<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
+				<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
 					{avatarName}
 				</div>
 			)}
@@ -614,7 +623,11 @@ const DmTopbarTools = memo(() => {
 
 					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
-						<button title="Show Member List" onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}>
+						<button
+							title="Show Member List"
+							onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}
+							data-e2e={generateE2eId(`chat.direct_message.member_list.button`)}
+						>
 							<span>
 								<Icons.MemberList defaultSize="size-5" />
 							</span>
@@ -661,7 +674,7 @@ function FileButton() {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={fileRef}>
+		<div className="relative leading-5 h-5" ref={fileRef} data-e2e={generateE2eId('chat.channel_message.header.button.file')}>
 			<button
 				title="Files"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -689,7 +702,7 @@ function CanvasButton({ onClick }: { onClick?: () => void }) {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={canvasRef}>
+		<div className="relative leading-5 h-5" ref={canvasRef} data-e2e={generateE2eId('chat.channel_message.header.button.canvas')}>
 			<button
 				content="Canvas"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -715,7 +728,7 @@ function ThreadButton() {
 	};
 
 	return (
-		<div className="relative leading-5 h-5" ref={threadRef}>
+		<div className="relative leading-5 h-5" ref={threadRef} data-e2e={generateE2eId('chat.channel_message.header.button.thread')}>
 			<button
 				title="Threads"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -773,7 +786,7 @@ function MuteButton() {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={notiRef}>
+		<div className="relative leading-5 h-5" ref={notiRef} data-e2e={generateE2eId('chat.channel_message.header.button.mute')}>
 			<button
 				title="Notification Settings"
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
@@ -812,7 +825,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 	};
 
 	return (
-		<div className="relative leading-5 h-5" ref={pinRef}>
+		<div className="relative leading-5 h-5" ref={pinRef} data-e2e={generateE2eId('chat.channel_message.header.button.pin')}>
 			<button
 				title="Pinned Messages"
 				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover`}
@@ -880,7 +893,7 @@ function ChatButton({ closeMenuOnMobile }: { closeMenuOnMobile?: () => void }) {
 		closeMenuOnMobile?.();
 	};
 	return (
-		<div className="relative leading-5 h-5">
+		<div className="relative leading-5 h-5" data-e2e={generateE2eId('chat.channel_message.header.button.chat')}>
 			<button title="Show Chat" onClick={handleClick} className="text-theme-primary text-theme-primary-hover">
 				<Icons.Chat defaultSize="size-5" />
 			</button>
@@ -907,7 +920,7 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 					/>
 				</div>
 			)}
-			<span title="Add friends to DM">
+			<span title="Add friends to DM" data-e2e={generateE2eId(`chat.direct_message.create_group.button`)}>
 				<Icons.IconAddFriendDM defaultSize="size-5" />
 			</span>
 		</div>

@@ -1,3 +1,5 @@
+import { generateE2eId } from '@mezon/utils';
+
 type ItemPanelMemberProps = {
 	children: string;
 	danger?: boolean;
@@ -6,9 +8,13 @@ type ItemPanelMemberProps = {
 
 const ItemPanelMember = ({ children, danger, onClick }: ItemPanelMemberProps) => {
 	return (
-		<button onClick={onClick} className="flex items-center w-full justify-between rounded-md hover:bg-[#f67e882a]  pr-2">
+		<button
+			onClick={onClick}
+			className="flex items-center w-full rounded-lg justify-between  bg-item-theme-hover  pr-2"
+			data-e2e={generateE2eId(`chat.direct_message.menu.leave_group.button`)}
+		>
 			<li
-				className={`text-[14px]  ${danger ? 'text-colorDanger ' : 'text-theme-primary '} font-medium w-full py-[6px] px-[13px] text-left cursor-pointer list-none`}
+				className={`text-[14px]  ${danger ? 'text-colorDanger ' : 'text-theme-primary text-theme-primary-hover'} font-medium w-full p-[10px]  text-left cursor-pointer list-none`}
 			>
 				{children}
 			</li>

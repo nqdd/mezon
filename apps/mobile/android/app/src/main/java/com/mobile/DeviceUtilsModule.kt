@@ -10,6 +10,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.os.Process
 
 class DeviceUtilsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -37,5 +38,10 @@ class DeviceUtilsModule(reactContext: ReactApplicationContext) : ReactContextBas
         } catch (e: Exception) {
             promise.reject("ERROR", e)
         }
+    }
+
+    @ReactMethod
+    fun killApp() {
+        Process.killProcess(Process.myPid())
     }
 }

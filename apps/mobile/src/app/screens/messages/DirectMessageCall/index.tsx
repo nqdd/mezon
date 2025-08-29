@@ -1,26 +1,24 @@
 import { RTCView } from '@livekit/react-native-webrtc';
-import { ActionEmitEvent } from '@mezon/mobile-components';
+import { ActionEmitEvent, IS_ANSWER_CALL_FROM_NATIVE, save } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllAccount, selectRemoteVideo, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
+import notifee from '@notifee/react-native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { memo, useEffect, useState } from 'react';
-import { BackHandler, DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
 import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import Images from '../../../../assets/Images';
-import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
 import { ConnectionState } from './ConnectionState';
 import { style } from './styles';
-const { AudioModule } = NativeModules;
 
 interface IDirectMessageCallProps {
 	route: any;
@@ -39,18 +37,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	const [isShowControl, setIsShowControl] = useState<boolean>(true);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
 	const isRemoteVideo = useSelector(selectRemoteVideo);
-	const navigation = useNavigation<any>();
 	const [isMirror, setIsMirror] = useState<boolean>(true);
-
-	useEffect(() => {
-		if (!isAnswerCall) {
-			try {
-				AudioModule.playDialtone();
-			} catch (e) {
-				console.error('e', e);
-			}
-		}
-	}, [isAnswerCall]);
 
 	const {
 		callState,
@@ -64,7 +51,8 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		toggleVideo,
 		handleSignalingMessage,
 		switchCamera,
-		handleToggleIsConnected
+		handleToggleIsConnected,
+		playDialToneIOS
 	} = useWebRTCCallMobile({
 		dmUserId: receiverId,
 		userId: userProfile?.user?.id as string,
@@ -74,6 +62,23 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		callerName: userProfile?.user?.username,
 		callerAvatar: userProfile?.user?.avatar_url
 	});
+
+	useEffect(() => {
+		if (!isAnswerCall) {
+			try {
+				if (Platform.OS === 'ios') {
+					playDialToneIOS();
+				} else {
+					const { AudioSessionModule } = NativeModules;
+					AudioSessionModule.playDialTone();
+				}
+			} catch (e) {
+				console.error('e', e);
+			}
+		}
+		notifee.cancelNotification('incoming-call', 'incoming-call');
+		save(IS_ANSWER_CALL_FROM_NATIVE, false);
+	}, [isAnswerCall]);
 
 	const initSpeakerConfig = async () => {
 		if (Platform.OS === 'android') {
@@ -92,11 +97,10 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 
 	const onCancelCall = async () => {
 		try {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			if (Platform.OS === 'ios') {
 				RNCallKeep.endAllCalls();
 			}
-			await handleEndCall({ isCancelGoBack: false });
+			await handleEndCall({});
 			if (!timeStartConnected?.current) {
 				await dispatch(
 					DMCallActions.updateCallLog({
@@ -111,6 +115,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					})
 				);
 			}
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		} catch (err) {
 			/* empty */
 		}
@@ -142,7 +147,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 						})
 					);
 				}
-				handleEndCall({ isCancelGoBack: dataType === WebrtcSignalingType.WEBRTC_SDP_TIMEOUT });
+				handleEndCall({});
 				if (dataType === WebrtcSignalingType.WEBRTC_SDP_JOINED_OTHER_CALL) {
 					Toast.show({
 						type: 'error',
@@ -151,10 +156,15 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					});
 					if (isFromNative) {
 						InCallManager.stop();
-						BackHandler.exitApp();
+						if (Platform.OS === 'android') {
+							NativeModules?.DeviceUtils?.killApp();
+							BackHandler.exitApp();
+						} else {
+							BackHandler.exitApp();
+						}
 						return;
 					}
-					navigation.goBack();
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				}
 			}
 		}
@@ -193,14 +203,18 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
 						<TouchableOpacity
 							onPress={() => {
-								const data = {
-									children: (
-										<MezonConfirm onConfirm={onCancelCall} title="End Call" confirmText="Yes, End Call">
-											<Text style={styles.titleConfirm}>Are you sure you want to end the call?</Text>
-										</MezonConfirm>
-									)
-								};
-								DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+								Alert.alert('End Call', 'Are you sure you want to end the call?', [
+									{
+										text: 'Cancel',
+										style: 'cancel'
+									},
+									{
+										text: 'OK',
+										onPress: () => {
+											onCancelCall();
+										}
+									}
+								]);
 							}}
 							style={styles.buttonCircle}
 						>
@@ -292,26 +306,4 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 			)}
 		</View>
 	);
-});
-
-export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
-	const dispatch = useAppDispatch();
-
-	const [isReady, setIsReady] = useState<boolean>(false);
-
-	useEffect(() => {
-		let timer: NodeJS.Timeout;
-		if (!route.params?.isAnswerCall) {
-			dispatch(DMCallActions.removeAll());
-			timer = setTimeout(() => {
-				setIsReady(true);
-			}, 500);
-		}
-		return () => {
-			timer && clearTimeout(timer);
-		};
-	}, [route.params?.isAnswerCall]);
-
-	if (!isReady) return null;
-	return <DirectMessageCallMain route={route} />;
 });

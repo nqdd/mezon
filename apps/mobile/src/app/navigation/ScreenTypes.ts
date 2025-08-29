@@ -212,12 +212,6 @@ export type MenuChannelStackParamList = {
 		channelId: string;
 		canvasId: string;
 	};
-	[APP_SCREEN.MENU_CHANNEL.CALL_DIRECT]: {
-		receiverId: string;
-		receiverAvatar?: string;
-		isVideoCall?: string;
-		directMessageId?: string;
-	};
 	[APP_SCREEN.MENU_CHANNEL.QUICK_ACTION]: {
 		channelId: string;
 	};

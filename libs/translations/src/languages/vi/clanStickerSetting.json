@@ -14,5 +14,14 @@
     "toast": {
         "errorUpdating": "Lỗi cập nhật",
         "errorSizeLimit": "Kích thước ảnh quá lớn"
+    },
+    "empty": {
+        "tip": "MẸO",
+        "voiceSticker": {
+            "title": "Chưa có hiệu ứng âm thanh nào"
+        },
+        "sticker": {
+            "title": "Chưa có nhãn dán nào"
+        }
     }
 }

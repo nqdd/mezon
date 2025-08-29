@@ -18,7 +18,7 @@ export interface UseEditGroupModalReturn {
 	openEditModal: () => void;
 	closeEditModal: () => void;
 	setGroupName: (name: string) => void;
-	handleImageUpload: (file: File) => void;
+	handleImageUpload: (file: File | null) => void;
 	handleSave: () => Promise<void>;
 	
 	hasChanges: boolean;
@@ -31,18 +31,26 @@ export const useEditGroupModal = ({
 }: UseEditGroupModalProps): UseEditGroupModalReturn => {
 	const dispatch = useAppDispatch();
 	const { sessionRef, clientRef } = useMezon();
-	
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-	const [groupName, setGroupName] = useState(currentGroupName);
-	const [imagePreview, setImagePreview] = useState(currentAvatar);
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [groupName, setGroupName] = useState('');
+	const [avatarState, setAvatarState] = useState<{
+		preview: string;
+		file: File | null;
+		action: 'none' | 'upload' | 'remove';
+	} | null>(null);
 
-	const hasChanges = groupName.trim() !== currentGroupName || selectedFile !== null;
+	const hasChanges = Boolean(isEditModalOpen && (
+		groupName.trim() !== currentGroupName || 
+		(avatarState && avatarState.action !== 'none')
+	));
 
 	const openEditModal = useCallback(() => {
 		setGroupName(currentGroupName);
-		setImagePreview(currentAvatar);
-		setSelectedFile(null);
+		setAvatarState({
+			preview: currentAvatar,
+			file: null,
+			action: 'none'
+		});
 		setIsEditModalOpen(true);
 	}, [currentGroupName, currentAvatar]);
 
@@ -50,20 +58,31 @@ export const useEditGroupModal = ({
 		setIsEditModalOpen(false);
 	}, []);
 
-	const handleImageUpload = useCallback((file: File) => {
-		setImagePreview('');
+	const handleImageUpload = useCallback((file: File | null) => {
+		if (!avatarState) return; 
+		
+		if (file === null) {
+			setAvatarState({
+				preview: '',
+				file: null,
+				action: 'remove'
+			});
+			return;
+		}
 
 		const reader = new FileReader();
 		reader.onload = (e) => {
 			const result = e.target?.result as string;
 			if (result) {
-				setImagePreview(result);
+				setAvatarState({
+					preview: result,
+					file: file,
+					action: 'upload'
+				});
 			}
 		};
 		reader.readAsDataURL(file);
-
-		setSelectedFile(file);
-	}, []);
+	}, [avatarState]);
 
 	const handleSave = useCallback(async () => {
 		const value = groupName.trim();
@@ -74,13 +93,16 @@ export const useEditGroupModal = ({
 			return;
 		}
 
+		if (!avatarState) return; 
+		
 		const hasNameChanged = value !== currentGroupName;
-		const hasImageChanged = selectedFile !== null;
 
-		if ((hasNameChanged || hasImageChanged) && channelId) {
+		if ((hasNameChanged || avatarState.action !== 'none') && channelId) {
 			let avatarUrl = currentAvatar;
 
-			if (selectedFile) {
+			if (avatarState.action === 'remove') {
+				avatarUrl = '';
+			} else if (avatarState.action === 'upload' && avatarState.file) {
 				try {
 					const client = clientRef.current;
 					const session = sessionRef.current;
@@ -90,11 +112,11 @@ export const useEditGroupModal = ({
 						return;
 					}
 
-					const ext = selectedFile.name.split('.').pop() || 'jpg';
+					const ext = avatarState.file.name.split('.').pop() || 'jpg';
 					const unique = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 					const path = `dm-group-avatar/${channelId || 'temp'}/${unique}.${ext}`;
 
-					const attachment = await handleUploadEmoticon(client, session, path, selectedFile);
+					const attachment = await handleUploadEmoticon(client, session, path, avatarState.file);
 
 					if (attachment && attachment.url) {
 						avatarUrl = attachment.url;
@@ -109,19 +131,19 @@ export const useEditGroupModal = ({
 
 			const payload: { channel_id: string; channel_label?: string; topic?: string } = { channel_id: channelId };
 			if (hasNameChanged) payload.channel_label = value;
-			if (hasImageChanged) payload.topic = avatarUrl;
+			if (avatarState.action !== 'none') payload.topic = avatarUrl;
 			
 			dispatch(directActions.updateDmGroup(payload));
 		}
 
 		closeEditModal();
-	}, [groupName, selectedFile, currentGroupName, currentAvatar, channelId, dispatch, closeEditModal]);
+	}, [groupName, avatarState, currentGroupName, currentAvatar, channelId, dispatch, closeEditModal]);
 
 	return {
 		isEditModalOpen,
 		groupName,
-		imagePreview,
-		selectedFile,
+		imagePreview: avatarState?.preview || '',
+		selectedFile: avatarState?.file || null,
 		
 		openEditModal,
 		closeEditModal,

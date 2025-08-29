@@ -9,7 +9,7 @@ const HomeDefaultWrapper = React.memo((props: any) => {
 	const { themeValue, themeBasic } = useTheme();
 
 	useFocusEffect(() => {
-		const statusBarStyle = themeBasic === ThemeModeBase.DARK ? 'light-content' : 'dark-content';
+		const statusBarStyle = themeBasic === ThemeModeBase.DARK || themeBasic === ThemeModeBase.REDDARK ? 'light-content' : 'dark-content';
 		if (Platform.OS === 'android') {
 			StatusBar.setBackgroundColor(themeValue.primary);
 		}

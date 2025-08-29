@@ -190,7 +190,7 @@ export const CreateNewChannelModal = () => {
 
 							<div className=" text-sm">Kindly set up a channel of your choice.</div>
 						</div>
-						<div className={`flex flex-col gap-3 w-full max-h-[450px] pr-2 overflow-y-scroll app-scroll`}>
+						<div className={`flex flex-col gap-3 w-full`}>
 							<div className="Frame407 self-stretch flex-col items-center gap-2 flex">
 								<ChannelLableModal labelProp="Choose channel's type:" />
 								<div

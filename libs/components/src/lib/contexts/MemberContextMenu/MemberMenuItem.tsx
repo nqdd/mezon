@@ -13,7 +13,7 @@ export const MemberMenuItem: FC<MemberMenuItemProps> = ({ label, onClick, isWarn
 	return (
 		<Item
 			onClick={onClick}
-			className="flex truncate justify-between  items-center w-full  font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1"
+			className="flex truncate justify-between items-center w-full  font-sans text-sm font-medium text-theme-primary text-theme-primary-hover"
 			onMouseEnter={() => {
 				if (setWarningStatus) {
 					if (isWarning) {

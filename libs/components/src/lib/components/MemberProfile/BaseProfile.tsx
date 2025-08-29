@@ -1,4 +1,4 @@
-import { createImgproxyUrl, EUserStatus } from '@mezon/utils';
+import { createImgproxyUrl, EUserStatus, generateE2eId } from '@mezon/utils';
 import { ReactNode } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { UserStatusIconClan } from './IconStatus';
@@ -35,7 +35,11 @@ const BaseProfile = ({
 			)}
 
 			<div className="flex flex-col justify-center ">
-				{(displayName || name) && <span className="one-line text-start">{displayName || name}</span>}
+				{(displayName || name) && (
+					<span className="one-line text-start" data-e2e={generateE2eId(`chat.direct_message.chat_item.username`)}>
+						{displayName || name}
+					</span>
+				)}
 				{status && <span className="text-[11px] text-left text-theme-primary opacity-60 line-clamp-1 ">{status}</span>}
 			</div>
 		</div>

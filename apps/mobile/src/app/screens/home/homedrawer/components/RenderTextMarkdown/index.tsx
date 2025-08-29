@@ -552,6 +552,20 @@ export const RenderTextMarkdownContent = ({
 						break;
 					case EBacktickType.VOICE_LINK:
 					case EBacktickType.LINK: {
+						if (isYouTubeLink(contentInElement || '')) {
+							const videoId = extractYoutubeVideoId(contentInElement);
+							markdownBlackParts.push(
+								<RenderYoutubeVideo
+									videoKey={`youtube-${index}`}
+									videoId={videoId}
+									contentInElement={contentInElement}
+									onPress={() => openUrl(contentInElement, null)}
+									onLongPress={() => handleLongPressLink?.(contentInElement)}
+									linkStyle={themeValue ? markdownStyles(themeValue).link : {}}
+								/>
+							);
+							break;
+						}
 						const { clanId, channelId, canvasId } = extractIds(contentInElement);
 
 						const basePath = '/chat/clans/';
@@ -692,6 +706,14 @@ export const RenderTextMarkdownContent = ({
 		textParts.push(renderTextPalainContain(themeValue, embedNotificationMessage, lastIndex, isUnReadChannel, isLastMessage, isBuzzMessage, true));
 	}
 
+	if (isEdited && textParts?.length > 0 && !markdownBlackParts?.length) {
+		textParts.push(
+			<Text key={`edited-${textParts}`} style={(themeValue ? markdownStyles(themeValue).editedText : {})}>
+				{` ${translate('edited')}`}
+			</Text>
+		);
+	}
+
 	return (
 		<View
 			style={{
@@ -723,7 +745,7 @@ export const RenderTextMarkdownContent = ({
 					{textParts?.length > 0 && <Text key={`textParts${t}_${lastIndex}`}>{textParts}</Text>}
 					{markdownBlackParts?.length > 0 && markdownBlackParts.map((item) => item)}
 				</View>
-				{isEdited && (
+				{isEdited && markdownBlackParts?.length > 0 && (
 					<View>
 						<Text key={`edited-${textParts}`} style={themeValue ? markdownStyles(themeValue).editedText : {}}>
 							{translate('edited')}

@@ -1,4 +1,5 @@
 import { Icons, Image } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { RefObject, memo, useEffect, useRef, useState } from 'react';
 
 interface LayoutProps {
@@ -101,7 +102,10 @@ const Layout = memo((props: LayoutProps) => {
 					className={`w-10/12 max-lg:w-full max-md:px-[16px] py-[96px] max-md:py-[48px] ${sideBarIsOpen ? 'unset' : 'relative'} ${sideBarIsOpen ? 'overflow-hidden' : ''}`}
 				>
 					<div className="flex flex-col items-center gap-[15px] max-lg:pb-[30px] pb-[45px] text-center">
-						<h2 className="tracking-[-.02em] text-center font-semibold text-[36px] leading-[44px] text-[#F4F7F9] md:px-[32px] text-black">
+						<h2
+							className="tracking-[-.02em] text-center font-semibold text-[36px] leading-[44px] text-[#F4F7F9] md:px-[32px] text-black"
+							data-e2e={generateE2eId('homepage.layout.title.features')}
+						>
 							Our features
 						</h2>
 						<div

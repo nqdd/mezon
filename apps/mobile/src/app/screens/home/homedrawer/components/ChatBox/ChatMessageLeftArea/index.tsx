@@ -38,7 +38,8 @@ export const ChatMessageLeftArea = memo(
 			return (
 				<View
 					style={{
-						flexDirection: 'row'
+						flexDirection: 'row',
+						zIndex: 10
 					}}
 				>
 					{isAvailableSending && !isShowAttachControl ? (

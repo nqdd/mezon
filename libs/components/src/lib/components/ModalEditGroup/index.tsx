@@ -8,7 +8,7 @@ export interface ModalEditGroupProps {
 	onClose: () => void;
 	onSave: () => void;
 	onCancel?: () => void;
-	onImageUpload?: (file: File) => void;
+	onImageUpload?: (file: File | null) => void;
 	groupName: string;
 	onGroupNameChange: (name: string) => void;
 	imagePreview?: string;
@@ -36,6 +36,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 	error = null
 }) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const groupNameInputRef = useRef<HTMLInputElement>(null);
 	const [validationError, setValidationError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -50,6 +51,14 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 			setValidationError(null);
 		}
 	}, [groupName]);
+
+	useEffect(() => {
+		if (isOpen && groupNameInputRef.current) {
+			const input = groupNameInputRef.current;
+			input.focus();
+			input.setSelectionRange(input.value.length, input.value.length);
+		}
+	}, [isOpen]);
 
 	const handleImageClick = () => {
 		fileInputRef.current?.click();
@@ -114,7 +123,6 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 									</svg>
 								</div>
 							)}
-							
 							<div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
 								<div className="bg-[#313338] rounded-full p-2 shadow-lg">
 									<svg
@@ -143,6 +151,15 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 						<p className="text-xs text-theme-primary font-medium">
 							Click to upload an image
 						</p>
+						{imagePreview && !imagePreview.includes('assets/images/avatar-group.png') && (
+							<button
+								type="button"
+								onClick={() => onImageUpload?.(null)}
+								className="text-xs text-[#f23f42] hover:text-[#d73c3f] font-medium transition-colors duration-150"
+							>
+								Remove Avatar
+							</button>
+						)}
 					</div>
 
 					<div className="space-y-2">
@@ -150,13 +167,16 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 							Group Name
 						</label>
 						<input
+							ref={groupNameInputRef}
 							type="text"
-							value={groupName}
-							onChange={(e) => onGroupNameChange(e.target.value)}
+							defaultValue={groupName}
+							onChange={(e) => {
+                onGroupNameChange(e.target.value)
+              }}
 							placeholder="Enter group name"
 							className={`w-full px-3 py-2.5 text-theme-primary  border-0 rounded bg-input-theme focus:outline-none transition-all duration-150 ${
-								validationError 
-									? 'ring-2 ring-[#f23f42] ' 
+								validationError
+									? 'ring-2 ring-[#f23f42]'
 									: 'focus:ring-2 focus:ring-[#5865f2] '
 							}`}
 							maxLength={100}

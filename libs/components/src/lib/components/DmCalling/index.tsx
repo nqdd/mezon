@@ -185,6 +185,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const menuDevice = useMemo(() => {
 		const menuItems: ReactElement[] = [
 			<DeviceSelector
+				key={'output-device-speaker'}
 				deviceList={audioOutputDevicesList}
 				currentDevice={currentOutputDevice}
 				icon={<Icons.Speaker defaultFill={'text-white ml-2'} />}
@@ -192,6 +193,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 			/>,
 
 			<DeviceSelector
+				key={'input-device-mic'}
 				deviceList={audioInputDevicesList}
 				currentDevice={currentInputDevice}
 				icon={<Icons.MicEnable className={'h-5 w-5 text-white ml-2'} />}

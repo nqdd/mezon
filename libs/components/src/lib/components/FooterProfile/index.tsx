@@ -20,7 +20,7 @@ import {
 	userClanProfileActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ESummaryInfo, EUserStatus, ONE_MINUTE, TypeMessage, createImgproxyUrl, formatMoney, saveParseUserStatus } from '@mezon/utils';
+import { ESummaryInfo, EUserStatus, ONE_MINUTE, TypeMessage, createImgproxyUrl, formatMoney, generateE2eId, saveParseUserStatus } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -304,6 +304,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 					<div
 						onClick={openSetting}
 						className="cursor-pointer ml-auto p-1 group/setting opacity-80  text-theme-primary bg-item-hover hover:rounded-md "
+						data-e2e={generateE2eId(`user_setting.profile.button_setting`)}
 					>
 						<Icons.SettingProfile className="w-5 h-5  group-hover/setting:rotate-180 duration-500" />
 					</div>

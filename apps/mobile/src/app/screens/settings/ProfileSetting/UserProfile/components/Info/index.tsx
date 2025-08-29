@@ -25,6 +25,9 @@ export default function DetailInfo({ value, onChange }: IDetailInfoProps) {
 				value={value?.displayName}
 				onTextChange={(newValue) => onChange({ displayName: newValue })}
 				placeHolder={value?.username}
+				inputWrapperStyle={{
+					backgroundColor: themeValue.primary
+				}}
 				maxCharacter={32}
 				label={t('fields.displayName.label')}
 			/>
@@ -36,6 +39,9 @@ export default function DetailInfo({ value, onChange }: IDetailInfoProps) {
 				textarea
 				placeHolder=""
 				label={t('fields.bio.label')}
+				inputWrapperStyle={{
+					backgroundColor: themeValue.primary
+				}}
 			/>
 		</View>
 	);
