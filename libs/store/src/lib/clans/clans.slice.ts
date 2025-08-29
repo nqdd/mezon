@@ -249,6 +249,22 @@ export const deleteClan = createAsyncThunk('clans/deleteClans', async (body: Cha
 	}
 });
 
+export const transferClan = createAsyncThunk('clans/transferClan', async (body: { clanId: string; new_clan_owner: string }, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const response = await mezon.client.transferOwnership(mezon.session, {
+			clan_id: body.clanId,
+			new_owner_id: body.new_clan_owner
+		});
+		if (response) {
+			thunkAPI.dispatch(fetchClans({ noCache: true }));
+		}
+	} catch (error) {
+		captureSentryError(error, 'clans/deleteClans');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
+
 type removeClanUsersPayload = {
 	clanId: string;
 	userIds: string[];
@@ -697,7 +713,8 @@ export const clansActions = {
 	changeCurrentClan,
 	updateUser,
 	deleteClan,
-	joinClan
+	joinClan,
+	transferClan
 };
 
 /*
