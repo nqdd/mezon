@@ -197,6 +197,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								? ((friend?.user?.metadata as MetaDateStatusUser)?.status as EUserStatus) || EUserStatus.ONLINE
 								: EUserStatus.INVISIBLE
 						}}
+						dataE2e={generateE2eId(`common.friend_list.username`)}
 					/>
 				</div>
 				<div className="w-20" onClick={(e) => e.stopPropagation()}>
