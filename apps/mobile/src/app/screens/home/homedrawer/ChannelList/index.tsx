@@ -87,7 +87,7 @@ const ChannelList = () => {
 			} else if (index === 1) {
 				return <ChannelListHeader key={`header-${index}`} />;
 			} else if (index === 2) {
-				return <ChannelOnboarding key={`onBoarding-${index}`} clan={currentClan} />;
+				return <ChannelOnboarding key={`onBoarding-${index}`} />;
 			} else if (item.channels) {
 				return <ChannelListSection data={item} />;
 			} else {
@@ -100,7 +100,7 @@ const ChannelList = () => {
 				);
 			}
 		},
-		[currentChannelId, currentClan]
+		[currentChannelId]
 	);
 
 	const keyExtractor = useCallback((item, index) => {

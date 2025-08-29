@@ -1,5 +1,4 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { ClansEntity } from '@mezon/store-mobile';
 import MezonIconCDN from 'apps/mobile/src/app/componentUI/MezonIconCDN';
 import { IconCDN } from 'apps/mobile/src/app/constants/icon_cdn';
 import React, { memo } from 'react';
@@ -9,7 +8,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { style } from './styles';
 
 export interface OnboardingBottomSheetProps {
-	clan: ClansEntity;
 	actionList?: OnboardingItemProps[];
 	finishedStep?: number;
 	allSteps?: number;
@@ -22,7 +20,7 @@ export interface OnboardingItemProps {
 	onPress?: () => void;
 }
 
-export const OnboardingBottomSheet = memo(({ clan, actionList, finishedStep, allSteps }: OnboardingBottomSheetProps) => {
+export const OnboardingBottomSheet = memo(({ actionList, finishedStep, allSteps }: OnboardingBottomSheetProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['onBoardingClan']);

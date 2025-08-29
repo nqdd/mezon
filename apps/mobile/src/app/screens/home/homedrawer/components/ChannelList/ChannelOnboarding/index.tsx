@@ -1,10 +1,10 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
-	ClansEntity,
 	getStoreAsync,
 	selectAllChannels,
 	selectChannelById2,
+	selectCurrentClan,
 	selectCurrentUserId,
 	selectLastMessageByChannelId,
 	selectMembersClanCount,
@@ -27,10 +27,11 @@ import { style } from './styles';
 
 const NUM_OF_STEP = 3;
 
-export const ChannelOnboarding = memo(({ clan }: { clan: ClansEntity }) => {
+export const ChannelOnboarding = memo(() => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['onBoardingClan']);
+	const clan = useSelector(selectCurrentClan);
 	const welcomeChannel = useSelector((state) => selectWelcomeChannelByClanId(state, clan?.id as string));
 	const numberMemberClan = useSelector(selectMembersClanCount);
 	const numberChannel = useSelector(selectAllChannels);
@@ -113,10 +114,10 @@ export const ChannelOnboarding = memo(({ clan }: { clan: ClansEntity }) => {
 		await sleep(500);
 		const data = {
 			heightFitContent: true,
-			children: <OnboardingBottomSheet clan={clan} actionList={listOnboardWillShow} finishedStep={availableStep} allSteps={NUM_OF_STEP} />
+			children: <OnboardingBottomSheet actionList={listOnboardWillShow} finishedStep={availableStep} allSteps={NUM_OF_STEP} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-	}, [availableStep, clan, listOnboardWillShow]);
+	}, [availableStep, listOnboardWillShow]);
 
 	return (
 		<View>
