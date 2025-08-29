@@ -8,6 +8,8 @@ jobs:
     runs-on: mezon-build-linux
     name: Build Mezon FE
     environment: prod
+    env:
+      NODE_ENV: 'prod'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
