@@ -37,7 +37,7 @@ export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProp
 					className="ml-auto btn-primary btn-primary-hover  rounded-lg px-4 py-1.5 text-nowrap "
 					label="Save Changes"
 					onClick={handleSaveChanges}
-					data-e2e={generateE2eId('user_setting.profile.clan_profile.button_save_changes')}
+					dataE2E={generateE2eId('user_setting.profile.clan_profile.button_save_changes')}
 				/>
 			</div>
 		</div>
