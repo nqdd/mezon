@@ -49,6 +49,18 @@ const CallingModal = () => {
 	};
 
 	useEffect(() => {
+		if (isInCall || !isVisible) {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		}
+
+		return () => {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		};
+	}, [isInCall, isVisible]);
+
+	useEffect(() => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
 		const dataType = latestSignalingEntry?.signalingData?.data_type;
 		if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER) {
@@ -120,9 +132,7 @@ const CallingModal = () => {
 	};
 
 	const clearUpStorageCalling = async () => {
-		if (Platform.OS === 'android') {
-			await NotificationPreferences.clearValue('notificationDataCalling');
-		} else {
+		if (Platform.OS === 'ios') {
 			const VoIPManager = NativeModules?.VoIPManager;
 			if (VoIPManager) {
 				await VoIPManager.clearStoredNotificationData();

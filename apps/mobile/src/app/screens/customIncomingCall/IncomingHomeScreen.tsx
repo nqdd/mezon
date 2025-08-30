@@ -64,6 +64,7 @@ const IncomingHomeScreen = memo((props: any) => {
 				BackHandler.exitApp();
 			}
 		} catch (e) {
+			console.error('log  => onKillApp', e);
 			BackHandler.exitApp();
 		}
 	};
@@ -127,7 +128,9 @@ const IncomingHomeScreen = memo((props: any) => {
 	};
 
 	useEffect(() => {
+		notifee.stopForegroundService();
 		notifee.cancelNotification('incoming-call', 'incoming-call');
+		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 		const timer = setTimeout(() => {
 			if (!isInCall && !isInGroupCall) {
 				onDeniedCall();
@@ -231,9 +234,9 @@ const IncomingHomeScreen = memo((props: any) => {
 			stopAndReleaseSound();
 			return;
 		}
+		dispatch(DMCallActions.setIsInCall(true));
 		if (!signalingData?.[signalingData?.length - 1]?.callerId) return;
 		stopAndReleaseSound();
-		dispatch(DMCallActions.setIsInCall(true));
 		setIsInCall(true);
 	};
 
@@ -246,12 +249,16 @@ const IncomingHomeScreen = memo((props: any) => {
 	};
 
 	const stopAndReleaseSound = () => {
-		Vibration.cancel();
-		if (ringtoneRef.current) {
-			ringtoneRef.current.pause();
-			ringtoneRef.current.stop();
-			ringtoneRef.current.release();
-			ringtoneRef.current = null;
+		try {
+			if (ringtoneRef.current) {
+				ringtoneRef.current.pause();
+				ringtoneRef.current.stop();
+				ringtoneRef.current.release();
+				ringtoneRef.current = null;
+			}
+			Vibration.cancel();
+		} catch (e) {
+			console.error('log  => topAndReleaseSound', e);
 		}
 	};
 
