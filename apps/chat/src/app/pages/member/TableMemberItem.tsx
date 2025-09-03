@@ -1,4 +1,4 @@
-import { AvatarImage, Coords, DeleteClanModal, ModalRemoveMemberClan, PanelMemberTable, UserProfileModalInner } from '@mezon/components';
+import { AvatarImage, Coords, ModalRemoveMemberClan, PanelMemberTable, TransferOwnerModal, UserProfileModalInner } from '@mezon/components';
 import { useChannelMembersActions, useMemberContext, useOnClickOutside, usePermissionChecker, useRoles } from '@mezon/core';
 import {
 	RolesClanEntity,
@@ -18,6 +18,7 @@ import Tooltip from 'rc-tooltip';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import RoleNameCard from './RoleNameCard';
 
 type TableMemberItemProps = {
@@ -105,22 +106,15 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	}, [userId, username, avatar]);
 	const dispatch = useAppDispatch();
 	const handleTransferOwner = async () => {
-		dispatch(clansActions.transferClan({ clanId: currentClan?.clan_id || '', new_clan_owner: userId || '' }));
+		const response = await dispatch(clansActions.transferClan({ clanId: currentClan?.clan_id || '', new_clan_owner: userId || '' }));
+		if (response) {
+			toast.success('Transferred successfully!');
+		}
+		closeTransfer();
 	};
 
-	const [openConfirmTransfer, closeTransfer] = useModal(() => {
-		return (
-			<DeleteClanModal
-				onClose={closeTransfer}
-				buttonLabel="Transfer clan"
-				title={`Transfer '${currentClan?.clan_name}' to ${displayName || username}`}
-				onClick={handleTransferOwner}
-			/>
-		);
-	}, []);
-
-	const [openPanelMember, closePanelMember] = useModal(() => {
-		const member: ChannelMembersEntity = {
+	const member: ChannelMembersEntity = useMemo(() => {
+		return {
 			id: userId,
 			user_id: userId,
 			user: {
@@ -130,6 +124,13 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				avatar_url: avatar
 			}
 		};
+	}, []);
+
+	const [openConfirmTransfer, closeTransfer] = useModal(() => {
+		return <TransferOwnerModal onClose={closeTransfer} onClick={handleTransferOwner} member={member} />;
+	}, []);
+
+	const [openPanelMember, closePanelMember] = useModal(() => {
 		return (
 			<PanelMemberTable
 				coords={coords}
