@@ -11,14 +11,23 @@
  * */
 
 export const DATA_E2E_IDENTIFIER = {
+	base_profile: {
+		display_name: ''
+	},
+	mention: {
+		input: '',
+		selected_file: '',
+	},
+	discussion: {
+		box: {
+			thread: '',
+			topic: ''
+		}
+	},
+	
 	homepage: {
 		header: {
-			link: {
-				home: '',
-				features: '',
-				developers: '',
-				overview: ''
-			},
+			link: '',
 			button: {
 				login: '',
 				menu: ''

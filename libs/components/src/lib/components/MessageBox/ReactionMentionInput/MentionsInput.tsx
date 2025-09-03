@@ -1,5 +1,5 @@
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
-import { ID_MENTION_HERE } from '@mezon/utils';
+import { generateE2eId, ID_MENTION_HERE } from '@mezon/utils';
 import type React from 'react';
 import { Children, cloneElement, forwardRef, isValidElement, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -77,7 +77,6 @@ export interface MentionsInputProps {
 	hasFilesToSend?: boolean;
   setCaretToEnd?: boolean;
 	currentChannelId?: string;
-	dataE2E?: string;
 }
 
 export interface MentionsInputHandle {
@@ -247,7 +246,6 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 	hasFilesToSend = false,
 	setCaretToEnd = false,
 	currentChannelId,
-	dataE2E
 }, ref) => {
 	const inputRef = useRef<HTMLDivElement>(null);
 
@@ -1080,7 +1078,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 				style={{
 					outline: 'none'
 				}}
-				data-e2e={dataE2E}
+				data-e2e={generateE2eId('mention.input')}
 			/>
 			{activeMentionContext && createPortal(tooltipOverlay, document.body) as React.ReactElement}
 		</div>
