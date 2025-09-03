@@ -1,5 +1,5 @@
 import { getShowName, useColorsRoleById, useGetPriorityNameFromUserClan, useNotification } from '@mezon/core';
-import { messagesActions, selectChannelById, selectClanById, selectMemberDMByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
+import { getFirstMessageOfTopic, messagesActions, selectChannelById, selectClanById, selectMemberDMByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
 import {
 	DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR,
 	IMentionOnMessage,
@@ -7,6 +7,7 @@ import {
 	INotification,
 	NotificationCategory,
 	TOPBARS_MAX_WIDTH,
+	TypeMessage,
 	addMention,
 	convertTimeString,
 	createImgproxyUrl
@@ -56,17 +57,49 @@ function AllNotificationItem({ notify }: NotifyMentionProps) {
 	const clanId = parseNotify.content.clan_id;
 	const mode = parseNotify?.content?.mode - 1;
 
-	const handleClickJump = useCallback(() => {
-		dispatch(
-			messagesActions.jumpToMessage({
-				clanId: clanId || '',
-				messageId: messageId,
-				channelId: channelId,
-				mode: mode,
-				navigate
-			})
+	const topicId = useMemo(() => {
+		if (parseNotify.content) {
+			return parseNotify.content.topic_id;
+		}
+	}, [parseNotify.content.topic_id]);
+
+	const isTopic = useMemo(() => {
+		return (
+			Number(topicId) !== 0 ||
+			parseNotify?.content?.code === TypeMessage.Topic ||
+			parseNotify?.message?.code === TypeMessage.Topic
 		);
-	}, [dispatch]);
+	}, [topicId, parseNotify?.content?.code, parseNotify?.message?.code]);
+
+	const handleClickJump = useCallback(async () => {
+		if (isTopic && topicId) {
+			const topicDetailResponse = await dispatch(getFirstMessageOfTopic(topicId));
+			const channelPath = `/chat/clans/${clanId}/channels/${channelId}`;
+			if (navigate) {
+				navigate(channelPath);
+				const topicData = topicDetailResponse.payload as any;
+				const parentMessageId = topicData?.message_id || messageId;
+				dispatch(
+					messagesActions.jumpToMessage({
+						clanId: clanId || '',
+						messageId: parentMessageId,
+						channelId: channelId,
+						mode: mode
+					})
+				);
+			}
+		} else {
+			dispatch(
+				messagesActions.jumpToMessage({
+					clanId: clanId || '',
+					messageId: messageId,
+					channelId: channelId,
+					mode: mode,
+					navigate
+				})
+			);
+		}
+	}, [dispatch, messageId, channelId, clanId, mode, navigate]);
 
 	const { deleteNotify } = useNotification();
 	const handleDeleteNotification = (

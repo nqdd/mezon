@@ -1,6 +1,6 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
-import { messagesActions, useAppDispatch } from '@mezon/store';
-import { IMentionOnMessage, IMessageWithUser, INotification, TOPBARS_MAX_WIDTH, addMention, createImgproxyUrl } from '@mezon/utils';
+import { getFirstMessageOfTopic, messagesActions, useAppDispatch } from '@mezon/store';
+import { IMentionOnMessage, IMessageWithUser, INotification, TOPBARS_MAX_WIDTH, TypeMessage, addMention, createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -57,17 +57,49 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 		}
 	}, [parseNotify.content.clan_id]);
 
-	const handleClickJump = useCallback(() => {
-		dispatch(
-			messagesActions.jumpToMessage({
-				clanId: clanId || '',
-				messageId: messageId,
-				channelId: channelId,
-				mode: parseNotify?.content?.mode - 1,
-				navigate
-			})
+	const topicId = useMemo(() => {
+		if (parseNotify.content) {
+			return parseNotify.content.topic_id;
+		}
+	}, [parseNotify.content.topic_id]);
+
+	const isTopic = useMemo(() => {
+		return (
+			Number(topicId) !== 0 ||
+			parseNotify?.content?.code === TypeMessage.Topic ||
+			parseNotify?.message?.code === TypeMessage.Topic
 		);
-	}, [dispatch, messageId, notify.id]);
+	}, [topicId, parseNotify?.content?.code, parseNotify?.message?.code]);
+
+	const handleClickJump = useCallback(async () => {
+		if (isTopic && topicId) {
+			const topicDetailResponse = await dispatch(getFirstMessageOfTopic(topicId));
+			const channelPath = `/chat/clans/${clanId}/channels/${channelId}`;
+			if (navigate) {
+				navigate(channelPath);
+				const topicData = topicDetailResponse.payload as any;
+				const parentMessageId = topicData?.message_id || messageId;
+				dispatch(
+					messagesActions.jumpToMessage({
+						clanId: clanId || '',
+						messageId: parentMessageId,
+						channelId: channelId,
+						mode: parseNotify?.content?.mode - 1
+					})
+				);
+			}
+		} else {
+			dispatch(
+				messagesActions.jumpToMessage({
+					clanId: clanId || '',
+					messageId: messageId,
+					channelId: channelId,
+					mode: parseNotify?.content?.mode - 1,
+					navigate
+				})
+			);
+		}
+	}, [dispatch, messageId, channelId, clanId, parseNotify?.content?.mode, navigate]);
 
 	return (
 		<div className=" bg-transparent rounded-[8px] relative group">
