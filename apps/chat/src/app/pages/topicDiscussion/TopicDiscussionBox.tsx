@@ -231,6 +231,7 @@ const TopicDiscussionBox = () => {
 			onDragLeave={handleDragLeave}
 			onDrop={handleDrop}
 			className="relative flex flex-col h-full"
+			data-e2e={generateE2eId('discussion.box.topic')}
 		>
 			{topicDraggingState && (
 				<div className="absolute inset-0 bg-blue-500 bg-opacity-20 border-2 border-dashed border-blue-500 rounded-lg z-50 flex items-center justify-center">
@@ -306,7 +307,6 @@ const TopicDiscussionBox = () => {
 									isTopic
 									handleConvertToFile={onConvertToFiles}
 									currentChannelId={currentInputChannelId}
-									dataE2E={generateE2eId('', 'mention_topic')}
 								/>
 							</div>
 						</div>
