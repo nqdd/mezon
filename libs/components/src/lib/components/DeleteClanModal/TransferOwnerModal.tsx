@@ -1,6 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { selectCurrentClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
-import { Button, ButtonLoading, Modal } from '@mezon/ui';
+import { Button, ButtonLoading, Icons, Modal } from '@mezon/ui';
 import { ChannelMembersEntity } from '@mezon/utils';
 import { useState } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -34,7 +34,7 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 					<p className="inline-block font-medium underline">{member?.clan_nick || member.user?.display_name || member?.user?.username}</p>
 				</div>
 				<div className="flex gap-3">
-					<div className="flex flex-col items-center justify-center gap-3 w-40">
+					<div className="flex flex-col items-center justify-center gap-3 w-40 opacity-75">
 						<AvatarImage
 							username={dataInClan?.clan_nick || dataInClan.user?.display_name || dataInClan?.user?.username}
 							srcImgProxy={dataInClan?.clan_avatar || dataInClan?.user?.avatar_url}
@@ -49,7 +49,7 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 					<div className="font-extrabold text-white text-3xl mt-6">
 						<IconTransfer />
 					</div>
-					<div className="flex flex-col items-center justify-center gap-3 w-40">
+					<div className="flex flex-col items-center justify-center gap-3 w-40 relative">
 						<AvatarImage
 							username={member?.clan_nick || member.user?.display_name || member?.user?.username}
 							srcImgProxy={member?.clan_avatar || member?.user?.avatar_url}
@@ -58,6 +58,7 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 							className="w-20 h-20 rounded-full"
 						/>
 						<p className="text-lg font-semibold">{member?.clan_nick || member.user?.display_name || member?.user?.username}</p>
+						<Icons.OwnerIcon className="absolute -top-6 w-4 h-5" />
 					</div>
 				</div>
 
