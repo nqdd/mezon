@@ -102,7 +102,6 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 	const userInviteList = useMemo(() => {
 		return userListInvite?.filter((dm) => normalizeString(dm?.channel_label).includes(normalizeString(searchUserText)));
 	}, [searchUserText, userListInvite]);
-	console.log('log  => userInviteList', userInviteList);
 
 	const addInviteLinkToClipboard = useCallback(() => {
 		Clipboard.setString(currentInviteLink || currentInviteLinkRef?.current);
