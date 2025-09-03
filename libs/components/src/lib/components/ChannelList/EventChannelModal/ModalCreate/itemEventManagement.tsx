@@ -143,6 +143,17 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 		return eventIsUpcomming ? 'text-purple-500' : eventIsOngoing ? 'text-green-500' : '';
 	}, [event?.event_status]);
 
+	const timeUntilEvent = useMemo(() => {
+		if (!eventIsUpcomming || !event?.start_time) return null;
+
+		const startTime = new Date(event.start_time).getTime();
+		const currentTime = new Date().getTime();
+		const diffInMs = startTime - currentTime;
+		const diffInMinutes = Math.ceil(diffInMs / (1000 * 60));
+		if (diffInMinutes === 1) return '1 minute left. Join in!';
+		return `${diffInMinutes} minutes left. Join in!`;
+	}, [eventIsUpcomming, event?.start_time]);
+
 	const { toChannelPage, navigate } = useAppNavigation();
 
 	const redirectToVoice = () => {
@@ -196,7 +207,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
 						<p className={`font-semibold ${cssEventStatus}`}>
 							{eventIsUpcomming
-								? '10 minutes left. Join in!'
+								? timeUntilEvent
 								: eventIsOngoing
 									? 'Event is taking place!'
 									: timeFomat(event?.start_time || start)}
