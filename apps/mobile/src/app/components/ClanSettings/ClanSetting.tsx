@@ -139,14 +139,18 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 		{
 			title: t('menu.userManagement.transferOwnership', 'Transfer ownership'),
 			onPress: () => {
-				const ownerUser = (members || [])
-					.find((m: User) => m?.user?.id === currentClan?.creator_id)?.user;
-				const data = {
-					snapPoints: ['90%'],
-					disableScrollView: true,
-					children: <TransferClanOwnership currentOwner={ownerUser} />
-				};
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+				try {
+					const ownerUser = (members || [])
+						.find((m: User) => m?.user?.id === currentClan?.creator_id)?.user;
+					const data = {
+						snapPoints: ['90%'],
+						disableScrollView: true,
+						children: <TransferClanOwnership currentOwner={ownerUser} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+				} catch (error) {
+					console.error('Error:', error.message);
+				}
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.transferOwnershipIcon} color={themeValue.text} />,

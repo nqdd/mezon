@@ -28,11 +28,11 @@
             "role": "Vai trò",
             "invite": "Lời mời",
             "bans": "Chặn",
-            "transferOwnership": "Chuyển quyền sở hữu"
+            "transferOwnership": "Chuyển Quyền Sở Hữu"
         }
     },
     "transferOwnership": {
-        "title": "Chuyển quyền sở hữu",
+        "title": "Chuyển Quyền Sở Hữu",
         "searchPlaceholder": "Tìm kiếm thành viên",
         "empty": "Không tìm thấy thành viên nào",
         "confirmTitle": "Chuyển quyền sở hữu clan",

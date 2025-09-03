@@ -63,7 +63,6 @@ export default function TransferClanOwnership({ currentOwner }: { currentOwner?:
                     <MezonConfirm
                         title={t('transferOwnership.confirmTitle', 'Transfer clan owner')}
                         confirmText={t('transferOwnership.confirm', 'Transfer')}
-                        isDanger
                         onConfirm={async () => {
                             try {
                                 DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });

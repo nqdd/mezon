@@ -28,11 +28,11 @@
             "role": "Roles",
             "invite": "Invites",
             "bans": "Bans",
-            "transferOwnership": "Transfer ownership"
+            "transferOwnership": "Transfer Ownership"
         }
     },
     "transferOwnership": {
-        "title": "Transfer ownership",
+        "title": "Transfer Ownership",
         "searchPlaceholder": "Search members",
         "empty": "No members found",
         "confirmTitle": "Transfer clan owner",

@@ -1,7 +1,7 @@
 import { Attributes, size, useTheme } from '@mezon/mobile-ui';
 import MezonIconCDN from 'apps/mobile/src/app/componentUI/MezonIconCDN';
 import { IconCDN } from 'apps/mobile/src/app/constants/icon_cdn';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 
@@ -21,42 +21,48 @@ export default function TransferClanContent({
 
     useEffect(() => {
         const createEnergyWave = () => {
-            dashAnimations.forEach(anim => anim.setValue(0));
-            arrowAnimation.setValue(0);
+            try {
+                dashAnimations.forEach(anim => anim.setValue(0));
+                arrowAnimation.setValue(0);
 
-            const dashAnimationsSequence = dashAnimations.map((anim, index) =>
-                Animated.sequence([
-                    Animated.delay(index * 150),
-                    Animated.timing(anim, {
+                const dashAnimationsSequence = dashAnimations.map((anim, index) =>
+                    Animated.sequence([
+                        Animated.delay(index * 150),
+                        Animated.timing(anim, {
+                            toValue: 1,
+                            duration: 600,
+                            useNativeDriver: true,
+                        }),
+                        Animated.timing(anim, {
+                            toValue: 0,
+                            duration: 600,
+                            useNativeDriver: true,
+                        }),
+                    ])
+                );
+
+                const arrowSequence = Animated.sequence([
+                    Animated.delay(1200),
+                    Animated.timing(arrowAnimation, {
                         toValue: 1,
                         duration: 600,
                         useNativeDriver: true,
                     }),
-                    Animated.timing(anim, {
+                    Animated.timing(arrowAnimation, {
                         toValue: 0,
                         duration: 600,
                         useNativeDriver: true,
                     }),
-                ])
-            );
+                ]);
 
-            const arrowSequence = Animated.sequence([
-                Animated.delay(1200),
-                Animated.timing(arrowAnimation, {
-                    toValue: 1,
-                    duration: 600,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(arrowAnimation, {
-                    toValue: 0,
-                    duration: 600,
-                    useNativeDriver: true,
-                }),
-            ]);
-
-            Animated.parallel([...dashAnimationsSequence, arrowSequence]).start(() => {
-                setTimeout(createEnergyWave, 2000);
-            });
+                Animated.parallel([...dashAnimationsSequence, arrowSequence]).start(() => {
+                    setTimeout(createEnergyWave, 2000);
+                });
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Fallback: try to restart animation after a delay
+                setTimeout(createEnergyWave, 3000);
+            }
         };
 
         createEnergyWave();
@@ -69,10 +75,25 @@ export default function TransferClanContent({
 
     const styles = style(themeValue);
 
-    const currentOwnerName = currentOwner?.display_name || currentOwner?.username || 'Owner';
-    const currentOwnerAvatar = currentOwner?.avatar || currentOwner?.avatar_url;
-    const newOwnerName = newOwner?.user?.display_name || newOwner?.user?.username || newOwner?.display_name || newOwner?.username || 'New owner';
-    const newOwnerAvatar = newOwner?.user?.avatar || newOwner?.user?.avatar_url || newOwner?.avatar || newOwner?.avatar_url;
+    const currentOwnerName = useMemo(() =>
+        currentOwner?.display_name || currentOwner?.username || 'Owner',
+        [currentOwner?.display_name, currentOwner?.username]
+    );
+
+    const currentOwnerAvatar = useMemo(() =>
+        currentOwner?.avatar || currentOwner?.avatar_url,
+        [currentOwner?.avatar, currentOwner?.avatar_url]
+    );
+
+    const newOwnerName = useMemo(() =>
+        newOwner?.user?.display_name || newOwner?.user?.username || newOwner?.display_name || newOwner?.username || 'New owner',
+        [newOwner?.user?.display_name, newOwner?.user?.username, newOwner?.display_name, newOwner?.username]
+    );
+
+    const newOwnerAvatar = useMemo(() =>
+        newOwner?.user?.avatar || newOwner?.user?.avatar_url || newOwner?.avatar || newOwner?.avatar_url,
+        [newOwner?.user?.avatar, newOwner?.user?.avatar_url, newOwner?.avatar, newOwner?.avatar_url]
+    );
 
     return (
         <View style={styles.container}>
