@@ -175,5 +175,6 @@ export enum IconCDN {
 	chatImage = require('./iconPNG/chatImage.png'),
 	addFriendImage = require('./iconPNG/addFriendImage.png'),
 	createImage = require('./iconPNG/createImage.png'),
-	magicIcon = require('./iconPNG/magicIcon.png')
+	magicIcon = require('./iconPNG/magicIcon.png'),
+	errorPage = require('./iconPNG/errorPage.png')
 }

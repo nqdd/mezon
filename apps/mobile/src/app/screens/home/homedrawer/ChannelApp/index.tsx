@@ -2,6 +2,7 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getAuthState } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
+import WebviewBase from 'apps/mobile/src/app/components/WebviewBase';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { Wave } from 'react-native-animated-spinkit';
@@ -169,13 +170,9 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 				<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} />
 				<Text style={styles.buttonText}>Close</Text>
 			</TouchableOpacity>
-
-			<WebView
-				ref={webviewRef}
-				source={{
-					uri: uri
-				}}
-				originWhitelist={['*']}
+			<WebviewBase 
+				url={uri}
+				incognito={true}
 				style={styles.container}
 				injectedJavaScriptBeforeContentLoaded={injectedJS}
 				injectedJavaScript={injectedDataJS}
@@ -186,6 +183,10 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 					await sleep(500);
 					setLoading(false);
 				}}
+				onRefresh={() => {
+					setLoading(true)
+				}}
+				onGoBack={onClose}
 			/>
 		</Modal>
 	);
