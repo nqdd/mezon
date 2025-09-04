@@ -1,5 +1,5 @@
 import { getShowName, useColorsRoleById, useGetPriorityNameFromUserClan, useNotification } from '@mezon/core';
-import { getFirstMessageOfTopic, messagesActions, selectChannelById, selectClanById, selectCurrentChannelId, selectCurrentClanId, selectMemberDMByUserId, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import { selectChannelById, selectClanById, selectMemberDMByUserId, useAppSelector } from '@mezon/store';
 import {
 	DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR,
 	IMentionOnMessage,
@@ -13,8 +13,8 @@ import {
 	createImgproxyUrl
 } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
-import { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useNotificationJump } from '../../hooks/useNotificationJump';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import MessageAttachment from '../MessageWithUser/MessageAttachment';
 import { MessageLine } from '../MessageWithUser/MessageLine';
@@ -49,11 +49,7 @@ function convertContentToObject(notify: any) {
 }
 
 function AllNotificationItem({ notify }: NotifyMentionProps) {
-	const navigate = useNavigate();
 	const parseNotify = useMemo(() => convertContentToObject(notify), [notify]);
-	const dispatch = useAppDispatch();
-	const currentClanId = useAppSelector(selectCurrentClanId);
-	const currentChannelId = useAppSelector(selectCurrentChannelId);
 	const messageId = parseNotify.content.message_id;
 	const channelId = parseNotify.content.channel_id;
 	const clanId = parseNotify.content.clan_id;
@@ -73,42 +69,14 @@ function AllNotificationItem({ notify }: NotifyMentionProps) {
 		);
 	}, [topicId, parseNotify?.content?.code, parseNotify?.message?.code]);
 
-	const handleClickJump = useCallback(async () => {
-		if (isTopic && topicId) {
-			const isClanChanged = currentClanId !== clanId;
-			const isChannelChanged = currentChannelId !== channelId;
-
-			const channelPath = `/chat/clans/${clanId}/channels/${channelId}`;
-
-			if (isClanChanged || isChannelChanged) {
-				if (navigate) {
-					await navigate(channelPath);
-						dispatch(topicsActions.setIsShowCreateTopic(true));
-						dispatch(topicsActions.setCurrentTopicId(topicId));
-						dispatch(getFirstMessageOfTopic(topicId));
-							dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
-				}
-			} else {
-				if (navigate) {
-					navigate(channelPath);
-				}
-				dispatch(topicsActions.setIsShowCreateTopic(true));
-				dispatch(topicsActions.setCurrentTopicId(topicId));
-				dispatch(getFirstMessageOfTopic(topicId));
-				dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
-			}
-		} else {
-			dispatch(
-				messagesActions.jumpToMessage({
-					clanId: clanId || '',
-					messageId: messageId,
-					channelId: channelId,
-					mode: mode,
-					navigate
-				})
-			);
-		}
-	}, [dispatch, messageId, channelId, clanId, mode, navigate, isTopic, topicId, currentClanId, currentChannelId]);
+	const { handleClickJump } = useNotificationJump({
+		messageId,
+		channelId,
+		clanId,
+		topicId,
+		isTopic,
+		mode
+	});
 
 	const { deleteNotify } = useNotification();
 	const handleDeleteNotification = (
