@@ -35,12 +35,6 @@ export function useChannels() {
 					await new Promise(resolve => setTimeout(resolve, 100));
 				}
 			}
-
-			for (const thread of allThreadsInChannel) {
-				await dispatch(channelsActions.deleteChannel({ channelId: thread.id, clanId }));
-				await dispatch(threadsActions.remove(thread.id));
-				await dispatch(threadsActions.removeThreadFromCache({ channelId, threadId: thread.id }));
-			}
 		}
 
 		await dispatch(channelsActions.deleteChannel({ channelId, clanId: clanId as string }));
