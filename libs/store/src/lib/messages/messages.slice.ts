@@ -37,7 +37,7 @@ import { resetChannelBadgeCount } from '../badge/badgeHelpers';
 import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
-import { selectClansLoadingStatus } from '../clans/clans.slice';
+import { selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import { MezonValueContext, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
@@ -197,6 +197,14 @@ export const fetchMessagesCached = async (
 	noCache = false
 ) => {
 	const state = getState();
+
+	const clanExists = clanId === '0' || !!selectClanById(clanId)(state);
+	if (!clanExists) {
+		return {
+			messages: [],
+			fromCache: true
+		};
+	}
 	const channelData = state[MESSAGES_FEATURE_KEY].channelMessages[channelId];
 	const apiKey = createApiKey('fetchMessages', clanId, channelId, messageId || '', direction || 1, topicId || '');
 	const shouldForceCall = shouldForceApiCall(apiKey, channelData?.cache, noCache);
