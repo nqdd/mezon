@@ -159,7 +159,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		);
 	}, [currentUser?.user_id, infoFriend, userProfile?.user?.id]);
 
-	const shouldShowMenu = currentHandlers && !isSelf;
+	// keep menu mounted; gate items with currentHandlers and not self
 
 	const contextValue: DirectMessageContextMenuContextType = {
 		setCurrentHandlers,
@@ -176,120 +176,116 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		<DirectMessageContextMenuContext.Provider value={contextValue}>
 			{children}
 
-			{shouldShowMenu && (
-				<Menu id={contextMenuId} style={menuStyles} className="z-50 rounded-lg border-theme-primary" animation={false}>
-					{currentHandlers && (
-						<>
-							{isDm && (
-								<MemberMenuItem label="Profile" onClick={currentHandlers.handleViewProfile} setWarningStatus={setWarningStatus} />
-							)}
+			<Menu id={contextMenuId} style={menuStyles} className="z-50 rounded-lg border-theme-primary" animation={false}>
+				{currentHandlers && !isSelf && (
+					<>
+						{isDm && <MemberMenuItem label="Profile" onClick={currentHandlers.handleViewProfile} setWarningStatus={setWarningStatus} />}
 
-							{channelId && (
-								<MemberMenuItem label="Mark as Read" onClick={currentHandlers.handleMarkAsRead} setWarningStatus={setWarningStatus} />
-							)}
+						{channelId && (
+							<MemberMenuItem label="Mark as Read" onClick={currentHandlers.handleMarkAsRead} setWarningStatus={setWarningStatus} />
+						)}
 
-							{!isDm && !isDmGroup && (
-								<MemberMenuItem label="Message" onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
-							)}
+						{!isDm && !isDmGroup && (
+							<MemberMenuItem label="Message" onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
+						)}
 
-							{!isDmGroup && infoFriend?.state !== EStateFriend.BLOCK && (
-								<>
-									{infoFriend?.state !== EStateFriend.FRIEND &&
-										infoFriend?.state !== EStateFriend.MY_PENDING &&
-										infoFriend?.state !== EStateFriend.OTHER_PENDING && (
-											<MemberMenuItem
-												label="Add Friend"
-												onClick={currentHandlers.handleAddFriend}
-												setWarningStatus={setWarningStatus}
-											/>
-										)}
-
-									{infoFriend?.state === EStateFriend.FRIEND && (
+						{!isDmGroup && infoFriend?.state !== EStateFriend.BLOCK && (
+							<>
+								{infoFriend?.state !== EStateFriend.FRIEND &&
+									infoFriend?.state !== EStateFriend.MY_PENDING &&
+									infoFriend?.state !== EStateFriend.OTHER_PENDING && (
 										<MemberMenuItem
-											label="Remove Friend"
-											onClick={currentHandlers.handleRemoveFriend}
-											isWarning={true}
+											label="Add Friend"
+											onClick={currentHandlers.handleAddFriend}
 											setWarningStatus={setWarningStatus}
 										/>
 									)}
-								</>
-							)}
 
-							{!isDmGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && (
-								<MemberMenuItem
-									label={didIBlockUser ? 'Unblock' : 'Block'}
-									onClick={didIBlockUser ? currentHandlers.handleUnblockFriend : currentHandlers.handleBlockFriend}
-									isWarning={!didIBlockUser}
-									setWarningStatus={setWarningStatus}
-								/>
-							)}
-
-							{contextMenuId !== DMCT_GROUP_CHAT_ID &&
-								channelId &&
-								(shouldShowUnmute ? (
+								{infoFriend?.state === EStateFriend.FRIEND && (
 									<MemberMenuItem
-										label={nameChildren}
-										onClick={currentHandlers.handleUnmute}
-										rightElement={mutedUntilText ? <span className="ml-2 text-xs">{mutedUntilText}</span> : undefined}
+										label="Remove Friend"
+										onClick={currentHandlers.handleRemoveFriend}
+										isWarning={true}
 										setWarningStatus={setWarningStatus}
 									/>
-								) : shouldShowMuteSubmenu ? (
-									<Submenu
-										label={
-											<span
-												className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1 "
-												style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 6 }}
-											>
-												{nameChildren}
-											</span>
-										}
-									>
-										<MemberMenuItem
-											label="For 15 Minutes"
-											onClick={() => currentHandlers.handleMute(FOR_15_MINUTES)}
-											setWarningStatus={setWarningStatus}
-										/>
-										<MemberMenuItem
-											label="For 1 Hour"
-											onClick={() => currentHandlers.handleMute(FOR_1_HOUR)}
-											setWarningStatus={setWarningStatus}
-										/>
-										<MemberMenuItem
-											label="For 3 Hour"
-											onClick={() => currentHandlers.handleMute(FOR_3_HOURS)}
-											setWarningStatus={setWarningStatus}
-										/>
-										<MemberMenuItem
-											label="For 8 Hour"
-											onClick={() => currentHandlers.handleMute(FOR_8_HOURS)}
-											setWarningStatus={setWarningStatus}
-										/>
-										<MemberMenuItem
-											label="For 24 Hour"
-											onClick={() => currentHandlers.handleMute(FOR_24_HOURS)}
-											setWarningStatus={setWarningStatus}
-										/>
-										<MemberMenuItem
-											label="Until I turn it back on"
-											onClick={() => currentHandlers.handleMute()}
-											setWarningStatus={setWarningStatus}
-										/>
-									</Submenu>
-								) : null)}
-							{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
-								<ItemPanelMember children={'Edit Group'} onClick={currentHandlers.handleEditGroup} />
-							)}
-							{contextMenuId === DMCT_GROUP_CHAT_ID && isOwnerClanOrGroup && (
-								<ItemPanelMember children="Remove From Group" onClick={currentHandlers.handleRemoveFromGroup} danger />
-							)}
+								)}
+							</>
+						)}
 
-							{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
-								<ItemPanelMember children={'Leave Group'} danger onClick={currentHandlers.handleLeaveGroup} />
-							)}
-						</>
-					)}
-				</Menu>
-			)}
+						{!isDmGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && (
+							<MemberMenuItem
+								label={didIBlockUser ? 'Unblock' : 'Block'}
+								onClick={didIBlockUser ? currentHandlers.handleUnblockFriend : currentHandlers.handleBlockFriend}
+								isWarning={!didIBlockUser}
+								setWarningStatus={setWarningStatus}
+							/>
+						)}
+
+						{contextMenuId !== DMCT_GROUP_CHAT_ID &&
+							channelId &&
+							(shouldShowUnmute ? (
+								<MemberMenuItem
+									label={nameChildren}
+									onClick={currentHandlers.handleUnmute}
+									rightElement={mutedUntilText ? <span className="ml-2 text-xs">{mutedUntilText}</span> : undefined}
+									setWarningStatus={setWarningStatus}
+								/>
+							) : shouldShowMuteSubmenu ? (
+								<Submenu
+									label={
+										<span
+											className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover  "
+											style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 6 }}
+										>
+											{nameChildren}
+										</span>
+									}
+								>
+									<MemberMenuItem
+										label="For 15 Minutes"
+										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES)}
+										setWarningStatus={setWarningStatus}
+									/>
+									<MemberMenuItem
+										label="For 1 Hour"
+										onClick={() => currentHandlers.handleMute(FOR_1_HOUR)}
+										setWarningStatus={setWarningStatus}
+									/>
+									<MemberMenuItem
+										label="For 3 Hour"
+										onClick={() => currentHandlers.handleMute(FOR_3_HOURS)}
+										setWarningStatus={setWarningStatus}
+									/>
+									<MemberMenuItem
+										label="For 8 Hour"
+										onClick={() => currentHandlers.handleMute(FOR_8_HOURS)}
+										setWarningStatus={setWarningStatus}
+									/>
+									<MemberMenuItem
+										label="For 24 Hour"
+										onClick={() => currentHandlers.handleMute(FOR_24_HOURS)}
+										setWarningStatus={setWarningStatus}
+									/>
+									<MemberMenuItem
+										label="Until I turn it back on"
+										onClick={() => currentHandlers.handleMute()}
+										setWarningStatus={setWarningStatus}
+									/>
+								</Submenu>
+							) : null)}
+						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
+							<ItemPanelMember children={'Edit Group'} onClick={currentHandlers.handleEditGroup} />
+						)}
+						{contextMenuId === DMCT_GROUP_CHAT_ID && isOwnerClanOrGroup && (
+							<ItemPanelMember children="Remove From Group" onClick={currentHandlers.handleRemoveFromGroup} danger />
+						)}
+
+						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
+							<ItemPanelMember children={'Leave Group'} danger onClick={currentHandlers.handleLeaveGroup} />
+						)}
+					</>
+				)}
+			</Menu>
 
 			<ModalEditGroup
 				isOpen={editGroupModal.isEditModalOpen}
