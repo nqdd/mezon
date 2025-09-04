@@ -92,6 +92,8 @@ export const deleteWebhookById = createAsyncThunk(
 			thunkAPI.dispatch(webhookActions.removeOneWebhook({ clanId: data.webhook.clan_id || '', webhookId: data.webhook.id || '' }));
 			if (!response) {
 				thunkAPI.rejectWithValue({});
+			} else {
+				thunkAPI.dispatch(fetchWebhooks({ channelId: data.channelId, clanId: data.clanId, noCache: true }));
 			}
 		} catch (error) {
 			captureSentryError(error, 'integration/deleteWebhook');
