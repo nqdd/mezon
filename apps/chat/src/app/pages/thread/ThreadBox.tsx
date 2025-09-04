@@ -46,6 +46,7 @@ import {
 	UploadLimitReason,
 	adjustPos,
 	filterEmptyArrays,
+	generateE2eId,
 	parseHtmlAsFormattedText,
 	processFile,
 	processMarkdownEntities
@@ -392,6 +393,7 @@ const ThreadBox = () => {
 							label="Thread Name"
 							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : 'Enter Thread Name'}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
+							dataE2E={generateE2eId('', 'thread_box')}
 						/>
 						{!openThreadMessageState && <PrivateThread title="Private Thread" label="Only people you invite and moderators can see" />}
 						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
@@ -441,6 +443,7 @@ const ThreadBox = () => {
 									channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 								})}
 								isThread={true}
+								dataE2E={generateE2eId('', 'mention_thread')}
 							/>
 						</div>
 					) : (

@@ -560,8 +560,7 @@ export const displayNativeCalling = async (data: any) => {
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
-
-		if (dataObj?.offer === 'CANCEL_CALL') {
+		if (dataObj?.offer === 'CANCEL_CALL' || !dataObj?.callerName) {
 			await notifee.cancelNotification(notificationId, notificationId);
 			return;
 		}
@@ -571,7 +570,8 @@ export const displayNativeCalling = async (data: any) => {
 			importance: AndroidImportance.HIGH,
 			visibility: AndroidVisibility.PUBLIC,
 			sound: 'ringing',
-			vibration: true
+			vibration: true,
+			bypassDnd: true
 		});
 		await notifee.displayNotification({
 			id: notificationId,
@@ -592,11 +592,20 @@ export const displayNativeCalling = async (data: any) => {
 				autoCancel: true,
 				timeoutAfter: 30000,
 				loopSound: true,
+				groupSummary: false,
+				groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
 				vibrationPattern: [300, 500, 300, 500],
+				lightUpScreen: true,
+				color: '#7029c1',
 				pressAction: {
 					id: 'default',
 					launchActivity: 'com.mezon.mobile.CallActivity',
-					launchActivityFlags: [AndroidLaunchActivityFlag.NEW_TASK, AndroidLaunchActivityFlag.CLEAR_TASK]
+					launchActivityFlags: [
+						AndroidLaunchActivityFlag.SINGLE_TOP,
+						AndroidLaunchActivityFlag.NEW_TASK,
+						AndroidLaunchActivityFlag.CLEAR_TOP
+					],
+					mainComponent: 'ComingCallApp'
 				},
 				actions: [
 					{
@@ -604,23 +613,47 @@ export const displayNativeCalling = async (data: any) => {
 						pressAction: {
 							id: 'accept',
 							launchActivity: 'com.mezon.mobile.CallActivity',
-							launchActivityFlags: [AndroidLaunchActivityFlag.NEW_TASK, AndroidLaunchActivityFlag.CLEAR_TASK]
-						}
+							launchActivityFlags: [
+								AndroidLaunchActivityFlag.SINGLE_TOP,
+								AndroidLaunchActivityFlag.NEW_TASK,
+								AndroidLaunchActivityFlag.CLEAR_TASK,
+								AndroidLaunchActivityFlag.TASK_ON_HOME
+							],
+							mainComponent: 'ComingCallApp'
+						},
+						icon: 'ic_answer'
 					},
 					{
 						title: 'Decline',
 						pressAction: {
-							id: 'reject'
-						}
+							id: 'reject',
+							launchActivity: 'com.mezon.mobile.CallActivity',
+							launchActivityFlags: [
+								AndroidLaunchActivityFlag.SINGLE_TOP,
+								AndroidLaunchActivityFlag.NEW_TASK,
+								AndroidLaunchActivityFlag.CLEAR_TASK,
+								AndroidLaunchActivityFlag.TASK_ON_HOME
+							],
+							mainComponent: 'ComingCallApp'
+						},
+						icon: 'ic_decline'
 					}
 				],
 				fullScreenAction: {
-					id: 'default',
-					launchActivity: 'com.mezon.mobile.CallActivity'
+					id: `incoming_call_fullscreen`,
+					launchActivity: 'com.mezon.mobile.CallActivity',
+					launchActivityFlags: [
+						AndroidLaunchActivityFlag.SINGLE_TOP,
+						AndroidLaunchActivityFlag.NEW_TASK,
+						AndroidLaunchActivityFlag.CLEAR_TASK,
+						AndroidLaunchActivityFlag.TASK_ON_HOME
+					],
+					mainComponent: 'ComingCallApp'
 				}
 			}
 		});
 	} catch (e) {
-		console.error('log  => e displayCalling', e);
+		await notifee.cancelNotification(notificationId, notificationId);
+		console.error('log => e displayCalling', e);
 	}
 };
