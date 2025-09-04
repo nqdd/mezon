@@ -1,4 +1,3 @@
-
 import { useAppParams } from '@mezon/core';
 import {
 	ChannelMembersEntity,
@@ -38,7 +37,6 @@ import { useMenuStyles } from './useMenuStyles';
 import { useNotificationSettings } from './useNotificationSettings';
 import { useProfileModal } from './useProfileModal';
 
-
 const DirectMessageContextMenuContext = createContext<DirectMessageContextMenuContextType | undefined>(undefined);
 
 export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps> = ({
@@ -57,7 +55,6 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 
 	const getChannelId = currentUser?.channelId || currentUser?.channel_id;
 	const getChannelType = currentUser?.type;
-	const getChannelE2ee = currentUser?.e2ee;
 	const isDmGroup = getChannelType === ChannelType.CHANNEL_TYPE_GROUP;
 	const isDm = getChannelType === ChannelType.CHANNEL_TYPE_DM;
 	const channelId = getChannelId;
@@ -144,8 +141,14 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	});
 
 	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_id?.includes(userProfile?.user?.id);
-	const isMuted = notificationSettings?.active !== EMuteState.UN_MUTE;
-	const hasMuteTime = notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
+
+	const isDefaultSetting = !notificationSettings?.id || notificationSettings?.id === '0';
+	const isMuted = !isDefaultSetting && notificationSettings?.active === EMuteState.MUTED;
+	const hasMuteTime = !isDefaultSetting && notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
+	const shouldShowUnmute = isMuted || hasMuteTime;
+
+	const shouldShowMuteSubmenu = !isMuted && !hasMuteTime;
+
 	const isOwnerClanOrGroup = userProfile?.user?.id && dataMemberCreate?.createId && userProfile?.user?.id === dataMemberCreate.createId;
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_id?.[0] || ''));
 	const didIBlockUser = useMemo(() => {
@@ -223,19 +226,19 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 
 							{contextMenuId !== DMCT_GROUP_CHAT_ID &&
 								channelId &&
-								(isMuted || hasMuteTime ? (
+								(shouldShowUnmute ? (
 									<MemberMenuItem
 										label={nameChildren}
 										onClick={currentHandlers.handleUnmute}
 										rightElement={mutedUntilText ? <span className="ml-2 text-xs">{mutedUntilText}</span> : undefined}
 										setWarningStatus={setWarningStatus}
 									/>
-								) : (
+								) : shouldShowMuteSubmenu ? (
 									<Submenu
 										label={
 											<span
 												className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1 "
-												style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 8 }}
+												style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 6 }}
 											>
 												{nameChildren}
 											</span>
@@ -272,7 +275,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 											setWarningStatus={setWarningStatus}
 										/>
 									</Submenu>
-								))}
+								) : null)}
 							{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
 								<ItemPanelMember children={'Edit Group'} onClick={currentHandlers.handleEditGroup} />
 							)}
@@ -288,7 +291,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 				</Menu>
 			)}
 
-				<ModalEditGroup
+			<ModalEditGroup
 				isOpen={editGroupModal.isEditModalOpen}
 				onClose={editGroupModal.closeEditModal}
 				onSave={editGroupModal.handleSave}
@@ -296,10 +299,10 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 				groupName={editGroupModal.groupName}
 				onGroupNameChange={editGroupModal.setGroupName}
 				imagePreview={editGroupModal.imagePreview}
-					className="z-[200]"
+				className="z-[200]"
 				isLoading={updateDmGroupLoading}
 				error={updateDmGroupError}
-				/>
+			/>
 		</DirectMessageContextMenuContext.Provider>
 	);
 };
@@ -313,4 +316,3 @@ export const useDirectMessageContextMenu = () => {
 };
 
 export * from './types';
-
