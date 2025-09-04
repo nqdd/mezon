@@ -586,7 +586,7 @@ export const jumpToMessage = createAsyncThunk(
 							isFetchingLatestMessages,
 							viewingOlder: true,
 							isClearMessage: true,
-							topicId: topicId  // ADD topicId để fetch đúng messages context
+							topicId: topicId  
 						})
 					)
 					.unwrap();
