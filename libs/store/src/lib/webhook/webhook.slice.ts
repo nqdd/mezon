@@ -67,6 +67,7 @@ export const generateWebhook = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await mezon.client.generateWebhookLink(mezon.session, data.request);
 			if (response) {
+				thunkAPI.dispatch(fetchWebhooks({ channelId: data.channelId, clanId: data.clanId, noCache: true }));
 				toast.success(`Generated ${response.hook_name} successfully !`);
 			} else {
 				thunkAPI.rejectWithValue({});
