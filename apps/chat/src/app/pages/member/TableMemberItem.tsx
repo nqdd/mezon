@@ -1,4 +1,4 @@
-import { AvatarImage, Coords, ModalRemoveMemberClan, PanelMemberTable, TransferOwnerModal, UserProfileModalInner } from '@mezon/components';
+import { AvatarImage, Coords, ModalRemoveMemberClan, PanelMemberTable, UserProfileModalInner } from '@mezon/components';
 import { useChannelMembersActions, useMemberContext, useOnClickOutside, usePermissionChecker, useRoles } from '@mezon/core';
 import {
 	RolesClanEntity,
@@ -20,6 +20,7 @@ import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import RoleNameCard from './RoleNameCard';
+import TransferOwnerModal from './TransferOwnerModal';
 
 type TableMemberItemProps = {
 	userId: string;

@@ -1,9 +1,9 @@
+import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
 import { selectCurrentClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
 import { Button, ButtonLoading, Icons, Modal } from '@mezon/ui';
 import { ChannelMembersEntity } from '@mezon/utils';
 import { useState } from 'react';
-import { AvatarImage } from '../AvatarImage/AvatarImage';
 
 type TransferOwnerProps = {
 	onClose: () => void;
