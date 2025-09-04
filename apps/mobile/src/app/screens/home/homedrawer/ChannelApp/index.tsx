@@ -2,14 +2,13 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getAuthState } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
-import WebviewBase from 'apps/mobile/src/app/components/WebviewBase';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Dimensions, Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { Wave } from 'react-native-animated-spinkit';
-import WebView from 'react-native-webview';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../components/StatusBarHeight/StatusBarHeight';
+import WebviewBase from '../../../../components/WebviewBase';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import { style } from './styles';
 
@@ -20,7 +19,6 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
 	const [loading, setLoading] = useState(true);
-	const webviewRef = useRef<WebView>(null);
 	const [orientation, setOrientation] = useState<'Portrait' | 'Landscape'>('Portrait');
 
 	useEffect(() => {
@@ -170,7 +168,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 				<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} />
 				<Text style={styles.buttonText}>Close</Text>
 			</TouchableOpacity>
-			<WebviewBase 
+			<WebviewBase
 				url={uri}
 				incognito={true}
 				style={styles.container}
@@ -184,7 +182,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 					setLoading(false);
 				}}
 				onRefresh={() => {
-					setLoading(true)
+					setLoading(true);
 				}}
 				onGoBack={onClose}
 			/>

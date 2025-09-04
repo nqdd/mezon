@@ -105,7 +105,10 @@ export function CanvasScreen({ navigation, route }: MenuChannelScreenProps<Scree
 					<Chase color={'#cdcdcd'} />
 				</View>
 			)}
-			<StatusBar barStyle={themeBasic === ThemeModeBase.LIGHT ? 'dark-content' : 'light-content'} backgroundColor={themeValue.charcoal} />
+			<StatusBar
+				barStyle={themeBasic === ThemeModeBase.LIGHT ? 'dark-content' : 'light-content'}
+				backgroundColor={themeValue?.primaryGradiant || themeValue.charcoal}
+			/>
 			<WebviewBase
 				url={uri}
 				incognito={true}
