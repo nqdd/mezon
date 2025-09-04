@@ -55,19 +55,12 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 		}
 	}, [parseNotify.content.clan_id]);
 
-	const topicId = useMemo(() => {
-		if (parseNotify.content) {
-			return parseNotify.content.topic_id;
-		}
-	}, [parseNotify.content.topic_id]);
+	const topicId = parseNotify?.content?.topic_id;
 
-	const isTopic = useMemo(() => {
-		return (
-			Number(topicId) !== 0 ||
-			parseNotify?.content?.code === TypeMessage.Topic ||
-			parseNotify?.message?.code === TypeMessage.Topic
-		);
-	}, [topicId, parseNotify?.content?.code, parseNotify?.message?.code]);
+	const isTopic =
+		Number(topicId) !== 0 ||
+		parseNotify?.content?.code === TypeMessage.Topic ||
+		parseNotify?.message?.code === TypeMessage.Topic;
 
 	const { handleClickJump } = useNotificationJump({
 		messageId,
@@ -75,8 +68,9 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 		clanId,
 		topicId,
 		isTopic,
-		mode: parseNotify?.content?.mode - 1
+		mode: (parseNotify?.content?.mode ?? 1) - 1,
 	});
+
 
 	return (
 		<div className=" bg-transparent rounded-[8px] relative group">

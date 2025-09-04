@@ -55,19 +55,12 @@ function AllNotificationItem({ notify }: NotifyMentionProps) {
 	const clanId = parseNotify.content.clan_id;
 	const mode = parseNotify?.content?.mode - 1;
 
-	const topicId = useMemo(() => {
-		if (parseNotify.content) {
-			return parseNotify.content.topic_id;
-		}
-	}, [parseNotify.content.topic_id]);
+	const topicId = parseNotify?.content?.topic_id;
 
-	const isTopic = useMemo(() => {
-		return (
-			Number(topicId) !== 0 ||
-			parseNotify?.content?.code === TypeMessage.Topic ||
-			parseNotify?.message?.code === TypeMessage.Topic
-		);
-	}, [topicId, parseNotify?.content?.code, parseNotify?.message?.code]);
+	const isTopic =
+		Number(topicId) !== 0 ||
+		parseNotify?.content?.code === TypeMessage.Topic ||
+		parseNotify?.message?.code === TypeMessage.Topic;
 
 	const { handleClickJump } = useNotificationJump({
 		messageId,
@@ -75,8 +68,9 @@ function AllNotificationItem({ notify }: NotifyMentionProps) {
 		clanId,
 		topicId,
 		isTopic,
-		mode
+		mode,
 	});
+
 
 	const { deleteNotify } = useNotification();
 	const handleDeleteNotification = (
