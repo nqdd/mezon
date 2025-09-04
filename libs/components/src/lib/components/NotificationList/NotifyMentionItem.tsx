@@ -1,5 +1,5 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
-import { getFirstMessageOfTopic, messagesActions, useAppDispatch } from '@mezon/store';
+import { getFirstMessageOfTopic, messagesActions, selectCurrentChannelId, selectCurrentClanId, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
 import { IMentionOnMessage, IMessageWithUser, INotification, TOPBARS_MAX_WIDTH, TypeMessage, addMention, createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { useCallback, useMemo } from 'react';
@@ -39,6 +39,8 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 	const navigate = useNavigate();
 	const parseNotify = convertContentToObject(notify);
 	const dispatch = useAppDispatch();
+	const currentClanId = useAppSelector(selectCurrentClanId);
+	const currentChannelId = useAppSelector(selectCurrentChannelId);
 	const messageId = useMemo(() => {
 		if (parseNotify.content) {
 			return parseNotify.content.message_id;
@@ -73,20 +75,27 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 
 	const handleClickJump = useCallback(async () => {
 		if (isTopic && topicId) {
-			const topicDetailResponse = await dispatch(getFirstMessageOfTopic(topicId));
+			const isClanChanged = currentClanId !== clanId;
+			const isChannelChanged = currentChannelId !== channelId;
+
 			const channelPath = `/chat/clans/${clanId}/channels/${channelId}`;
-			if (navigate) {
-				navigate(channelPath);
-				const topicData = topicDetailResponse.payload as any;
-				const parentMessageId = topicData?.message_id || messageId;
-				dispatch(
-					messagesActions.jumpToMessage({
-						clanId: clanId || '',
-						messageId: parentMessageId,
-						channelId: channelId,
-						mode: parseNotify?.content?.mode - 1
-					})
-				);
+
+			if (isClanChanged || isChannelChanged) {
+				if (navigate) {
+					await navigate(channelPath);
+						dispatch(topicsActions.setIsShowCreateTopic(true));
+						dispatch(topicsActions.setCurrentTopicId(topicId));
+						dispatch(getFirstMessageOfTopic(topicId));
+							dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
+				}
+			} else {
+				if (navigate) {
+					navigate(channelPath);
+				}
+				dispatch(topicsActions.setIsShowCreateTopic(true));
+				dispatch(topicsActions.setCurrentTopicId(topicId));
+				dispatch(getFirstMessageOfTopic(topicId));
+				dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
 			}
 		} else {
 			dispatch(
@@ -99,7 +108,7 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 				})
 			);
 		}
-	}, [dispatch, messageId, channelId, clanId, parseNotify?.content?.mode, navigate]);
+	}, [dispatch, messageId, channelId, clanId, parseNotify?.content?.mode, navigate, isTopic, topicId, currentClanId, currentChannelId]);
 
 	return (
 		<div className=" bg-transparent rounded-[8px] relative group">
