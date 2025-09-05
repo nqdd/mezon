@@ -45,6 +45,8 @@ export const style = (colors: Attributes) =>
 		},
 		containerConversation: {
 			margin: size.s_10,
+			borderWidth: 1,
+			borderColor: colors.secondary,
 			shadowColor: '#000',
 			shadowOffset: {
 				width: 0,
