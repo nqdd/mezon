@@ -2,7 +2,9 @@ import { AvatarImage, Coords, ModalRemoveMemberClan, PanelMemberTable, UserProfi
 import { useChannelMembersActions, useMemberContext, useOnClickOutside, usePermissionChecker, useRoles } from '@mezon/core';
 import {
 	RolesClanEntity,
+	clansActions,
 	selectCurrentChannelId,
+	selectCurrentClan,
 	selectCurrentClanId,
 	selectRolesClanEntities,
 	selectUserMaxPermissionLevel,
@@ -16,7 +18,9 @@ import Tooltip from 'rc-tooltip';
 import { MouseEvent, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import RoleNameCard from './RoleNameCard';
+import TransferOwnerModal from './TransferOwnerModal';
 
 type TableMemberItemProps = {
 	userId: string;
@@ -101,9 +105,17 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 			/>
 		);
 	}, [userId, username, avatar]);
+	const dispatch = useAppDispatch();
+	const handleTransferOwner = async () => {
+		const response = await dispatch(clansActions.transferClan({ clanId: currentClan?.clan_id || '', new_clan_owner: userId || '' }));
+		if (response) {
+			toast.success('Transferred successfully!');
+		}
+		closeTransfer();
+	};
 
-	const [openPanelMember, closePanelMember] = useModal(() => {
-		const member: ChannelMembersEntity = {
+	const member: ChannelMembersEntity = useMemo(() => {
+		return {
 			id: userId,
 			user_id: userId,
 			user: {
@@ -113,6 +125,13 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				avatar_url: avatar
 			}
 		};
+	}, []);
+
+	const [openConfirmTransfer, closeTransfer] = useModal(() => {
+		return <TransferOwnerModal onClose={closeTransfer} onClick={handleTransferOwner} member={member} />;
+	}, []);
+
+	const [openPanelMember, closePanelMember] = useModal(() => {
 		return (
 			<PanelMemberTable
 				coords={coords}
@@ -121,6 +140,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				onOpenProfile={openUserProfile}
 				kichMember={hasClanPermission}
 				handleRemoveMember={handleClickRemoveMember}
+				handleTransferOwner={openConfirmTransfer}
 			/>
 		);
 	}, [coords, openUserProfile, hasClanPermission]);
@@ -148,6 +168,8 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	const [openModalRemoveMember, closeModalRemoveMember] = useModal(() => {
 		return <ModalRemoveMemberClan username={username} onClose={closeModalRemoveMember} onRemoveMember={handleRemoveMember} />;
 	}, [username, handleRemoveMember]);
+
+	const currentClan = useSelector(selectCurrentClan);
 
 	return (
 		<div
