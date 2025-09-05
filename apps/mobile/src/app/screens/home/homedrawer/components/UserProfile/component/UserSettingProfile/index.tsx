@@ -14,13 +14,12 @@ import { EPermission } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import MezonConfirm from 'apps/mobile/src/app/componentUI/MezonConfirm';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
-import { MezonModal } from '../../../../../../../componentUI/MezonModal';
 import { IconCDN } from '../../../../../../../constants/icon_cdn';
 import { APP_SCREEN, AppStackScreenProps } from '../../../../../../../navigation/ScreenTypes';
 import { EActionSettingUserProfile, IProfileSetting } from '../../../../../../ManageUserScreen/types';
@@ -29,13 +28,11 @@ import { style } from './UserSettingProfile.style';
 
 interface IUserSettingProfileProps {
 	user: ChannelMembersEntity;
-	showKickUserModal?: boolean;
 	showActionOutside?: boolean;
 }
 
 const UserSettingProfile = ({
 	user,
-	showKickUserModal = false,
 	showActionOutside = true
 }: IUserSettingProfileProps) => {
 	const dispatch = useAppDispatch();
@@ -43,7 +40,6 @@ const UserSettingProfile = ({
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation('clanOverviewSetting');
-	const [visibleKickUserModal, setVisibleKickUserModal] = useState<boolean>(showKickUserModal);
 	const { userProfile } = useAuth();
 	const { removeMemberClan } = useChannelMembersActions();
 	const currentClan = useSelector(selectCurrentClan);
@@ -69,10 +65,6 @@ const UserSettingProfile = ({
 
 	const dangerActions = [EActionSettingUserProfile.Kick, EActionSettingUserProfile.ThreadRemove, EActionSettingUserProfile.TransferOwnership];
 
-	useEffect(() => {
-		setVisibleKickUserModal(showKickUserModal);
-	}, [showKickUserModal]);
-
 
 	const handleSettingUserProfile = useCallback((action?: EActionSettingUserProfile) => {
 		switch (action) {
@@ -82,7 +74,7 @@ const UserSettingProfile = ({
 			case EActionSettingUserProfile.TimeOut:
 				break;
 			case EActionSettingUserProfile.Kick:
-				setVisibleKickUserModal(true);
+				confirmKickUserClan();
 				break;
 			case EActionSettingUserProfile.Ban:
 				break;
@@ -154,6 +146,14 @@ const UserSettingProfile = ({
 		return settingList;
 	}, [themeValue.text, handleSettingUserProfile, hasAdminPermission, isItMe, isThatClanOwner, hasClanOwnerPermission, isThread, isUserInThread, t]);
 
+	const confirmKickUserClan = useCallback(() => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		const data = {
+			children: <KickUserClanModal onRemoveUserClan={handleRemoveUserClans} user={user} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [user]);
+
 	const navigateToManageUser = useCallback(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
@@ -173,7 +173,7 @@ const UserSettingProfile = ({
 	const handleRemoveUserClans = useCallback(async () => {
 		if (user) {
 			try {
-				setVisibleKickUserModal(false);
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				const userIds = [user.user?.id ?? ''];
 				const response = await removeMemberClan({ clanId: currentClanId as string, channelId: currentChannelId as string, userIds });
 				if (response) {
@@ -254,7 +254,6 @@ const UserSettingProfile = ({
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
-
 	return (
 		<View>
 			{/* short profile */}
@@ -282,17 +281,6 @@ const UserSettingProfile = ({
 					})}
 				</View>
 			)}
-
-			<MezonModal
-				title={t('modal.kickUserClan.title')}
-				visible={visibleKickUserModal}
-				visibleChange={(visible) => {
-					setVisibleKickUserModal(visible);
-				}}
-			>
-				<KickUserClanModal onRemoveUserClan={handleRemoveUserClans} user={user} />
-			</MezonModal>
-
 		</View>
 	);
 };

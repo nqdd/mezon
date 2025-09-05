@@ -1,7 +1,7 @@
-import { size, verticalScale } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (themeValue: any) =>
+export const style = (themeValue: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
@@ -95,13 +95,13 @@ export const style = (themeValue: any) =>
 		},
 		actionText: {
 			fontSize: verticalScale(14),
-			color: '#ff6b6b'
+			color: baseColor.red
 		},
 		roleCircle: {
 			height: size.s_12,
 			width: size.s_12,
 			borderRadius: size.s_12,
-			backgroundColor: '#008ECC'
+			backgroundColor: themeValue.bgInfor
 		},
 		roleInfo: {
 			flexDirection: 'row',

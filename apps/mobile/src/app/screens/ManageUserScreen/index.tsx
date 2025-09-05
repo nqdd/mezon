@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import KickUserClanModal from '../home/homedrawer/components/UserProfile/component/KickUserClanModal';
 import { ManageUser } from './ManageUser';
 import { EActionSettingUserProfile, IProfileSetting } from './types';
 
@@ -53,7 +54,7 @@ const ManageUserScreen = ({ route }: ManageUserScreenProps) => {
 	const handleActionSettings = useCallback((action?: EActionSettingUserProfile) => {
 		switch (action) {
 			case EActionSettingUserProfile.Kick:
-				handleRemoveUserClans();
+				confirmKickUserClan();
 				break;
 			case EActionSettingUserProfile.TransferOwnership:
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -87,9 +88,18 @@ const ManageUserScreen = ({ route }: ManageUserScreenProps) => {
 		return settingList;
 	}, [themeValue.text, handleActionSettings, hasAdminPermission, isItMe, isThatClanOwner, hasClanOwnerPermission, isThread, isUserInThread, t]);
 
+	const confirmKickUserClan = useCallback(() => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		const data = {
+			children: <KickUserClanModal onRemoveUserClan={handleRemoveUserClans} user={user} />,
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [user]);
+
 	const handleRemoveUserClans = useCallback(async () => {
 		if (user) {
 			try {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				const userIds = [user.user?.id ?? ''];
 				const response = await removeMemberClan({ clanId: currentClanId as string, channelId: currentChannelId as string, userIds });
 				if (response) {
