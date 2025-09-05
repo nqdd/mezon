@@ -3,6 +3,7 @@ import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentChannel } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, DimensionValue, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -112,6 +113,7 @@ export default memo(
 		const currentChannel = useSelector(selectCurrentChannel);
 		const { sessionRef, clientRef } = useMezon();
 		const timerRef = useRef<any>(null);
+		const { t } = useTranslation(['profile']);
 
 		useEffect(() => {
 			setImage(defaultValue);
@@ -195,7 +197,7 @@ export default memo(
 								imageWidth={imageWidth}
 							/>
 						) : (
-							<Text style={styles.textPlaceholder}>Choose an image</Text>
+							<Text style={styles.textPlaceholder}>{t('chooseImage')}</Text>
 						)}
 					</View>
 				</View>

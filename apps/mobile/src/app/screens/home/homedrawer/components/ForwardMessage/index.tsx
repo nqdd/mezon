@@ -292,7 +292,7 @@ const ForwardMessageScreen = () => {
 				onPress={handleForward}
 			>
 				<Text style={styles.btnText}>
-					{'Send'}
+					{t('buzz.confirmText')}
 					{count}
 				</Text>
 			</TouchableOpacity>

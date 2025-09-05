@@ -42,6 +42,7 @@
     "quit": "Thoát",
     "menu": "Danh mục",
     "walletManagement": "Quản lý ví",
-    "setPassword": "Đặt mật khẩu"
+    "setPassword": "Đặt mật khẩu",
+    "myQRCode": "Mã QR của tôi"
   }
 }
