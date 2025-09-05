@@ -70,9 +70,6 @@
   "modal": {
     "kickUserClan": {
       "title": "Bạn có chắc chắn?"
-    },
-    "transferOwnership": {
-      "title": "Chuyển quyền sở hữu"
     }
   }
 }

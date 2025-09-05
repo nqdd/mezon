@@ -21,7 +21,9 @@
     "filterByUser": "Lọc theo người dùng",
     "filterByAction": "Lọc theo hành động",
     "sound": "Hiệu ứng âm thanh",
-    "createSound": "Tạo hiệu ứng âm thanh"
+    "createSound": "Tạo hiệu ứng âm thanh",
+    "transferOwnership": "Chuyển quyền sở hữu",
+    "manageUser": "Quản lý người dùng"
   },
   "menuChannelStack": {
     "channelSetting": "Cài đặt kênh",
