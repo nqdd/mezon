@@ -38,7 +38,7 @@ const classifyAttachments = (attachments: ApiMessageAttachment[]) => {
 	(attachments || [])?.forEach?.((attachment) => {
 		if (attachment.filetype?.indexOf('video/mp4') !== -1 && !isSecureTenorUrl(attachment.url)) {
 			videos.push(attachment);
-		} else if (fileTypeImage.includes(attachment?.filetype)) {
+		} else if (attachment.filetype?.includes('image/')) {
 			images.push(attachment);
 		} else {
 			documents.push(attachment);
@@ -55,7 +55,7 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 	const [videos, setVideos] = useState<ApiMessageAttachment[]>([]);
 	const [images, setImages] = useState<ApiMessageAttachment[]>([]);
 	const [documents, setDocuments] = useState<ApiMessageAttachment[]>([]);
-	const visibleImages = useMemo(() => images?.reverse()?.slice(0, images?.length > 4 ? 3 : 4), [images]);
+	const visibleImages = useMemo(() => images?.slice(0, images?.length > 4 ? 3 : 4), [images]);
 	const remainingImagesCount = useMemo(() => images?.length - visibleImages?.length || 0, [images, visibleImages]);
 
 	useEffect(() => {

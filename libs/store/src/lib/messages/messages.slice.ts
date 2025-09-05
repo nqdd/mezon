@@ -567,7 +567,10 @@ type JumpToMessageArgs = {
  */
 export const jumpToMessage = createAsyncThunk(
 	'messages/jumpToMessage',
-	async ({ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs, thunkAPI) => {
+	async (
+		{ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs,
+		thunkAPI
+	) => {
 		try {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(true));
 			thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: 'temp', navigate: false }));

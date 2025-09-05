@@ -72,7 +72,7 @@ const RenderImageChat = React.memo(({ image, index, disable, onPress, onLongPres
 	const [loadError, setLoadError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [imageOriginal, setImageOriginal] = useState<ImageProps | null>(null);
-	const MAX_RETRY_COUNT = 2;
+	const MAX_RETRY_COUNT = 1;
 
 	const handleImageError = useCallback(
 		(error: any) => {

@@ -161,7 +161,6 @@ const MessageBox = (props: MessageBoxProps): ReactElement => {
 					currentClanId={currentClanId || ''}
 					currentChannelId={currentChannelId || ''}
 					hasPermissionEdit={canSendMessage}
-					dataE2E={generateE2eId('chat.mention.selected_file')}
 				/>
 
 				<div className={`w-[calc(100%_-_50px)] bg-theme-surface gap-3 flex items-center rounded-e-md`}>
@@ -178,7 +177,6 @@ const MessageBox = (props: MessageBoxProps): ReactElement => {
 							hasPermissionEdit={canSendMessage}
 							voiceLongPress={voiceLongPressHandlers}
 							isRecording={isRecording}
-							dataE2E={generateE2eId('', 'mention_clan')}
 						/>
 					</div>
 				</div>

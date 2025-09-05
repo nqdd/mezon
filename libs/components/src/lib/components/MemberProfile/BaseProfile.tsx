@@ -1,4 +1,4 @@
-import { createImgproxyUrl, EUserStatus } from '@mezon/utils';
+import { createImgproxyUrl, EUserStatus, generateE2eId } from '@mezon/utils';
 import { ReactNode } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { UserStatusIconClan } from './IconStatus';
@@ -10,7 +10,6 @@ const BaseProfile = ({
 	hideIcon = false,
 	userMeta,
 	displayName,
-	dataE2E
 }: {
 	avatar: string;
 	name?: string;
@@ -18,7 +17,6 @@ const BaseProfile = ({
 	status?: string;
 	hideIcon?: boolean;
 	userMeta?: { status: string; user_status: EUserStatus };
-	dataE2E?: string;
 }) => {
 	return (
 		<div className={`relative h-10 flex gap-3 items-center text-theme-primary`}>
@@ -38,7 +36,7 @@ const BaseProfile = ({
 
 			<div className="flex flex-col justify-center ">
 				{(displayName || name) && (
-					<span className="one-line text-start" data-e2e={dataE2E}>
+					<span className="one-line text-start" data-e2e={generateE2eId('base_profile.display_name')}>
 						{displayName || name}
 					</span>
 				)}
