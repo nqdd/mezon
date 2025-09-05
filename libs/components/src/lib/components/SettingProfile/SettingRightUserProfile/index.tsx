@@ -283,6 +283,7 @@ const SettingRightUser = ({
 							placeholder={valueDisplayName || name}
 							value={valueDisplayName}
 							maxLength={32}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.input.display_name`)}
 						/>
 					</div>
 
@@ -388,6 +389,7 @@ const SettingRightUser = ({
 							onClick={() => {
 								handleClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.reset`)}
 						>
 							Reset
 						</button>
@@ -398,6 +400,7 @@ const SettingRightUser = ({
 								handleUpdateUser();
 								handleSaveClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
 							Save Changes
 						</button>
