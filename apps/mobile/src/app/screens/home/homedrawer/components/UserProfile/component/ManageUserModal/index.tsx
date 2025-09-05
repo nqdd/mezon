@@ -47,7 +47,7 @@ export const ManageUserModal = memo<IManageUserModalProp>(({ user, visible, oncl
 
 	const styles = useMemo(
 		() => ({
-			container: { flex: 1, backgroundColor: themeValue?.charcoal, paddingTop: size.s_40 },
+			container: { flex: 1, backgroundColor: themeValue?.primary, paddingTop: size.s_40 },
 			headerContainer: {
 				flexDirection: 'row' as const,
 				alignItems: 'center' as const,
@@ -469,7 +469,7 @@ export const ManageUserModal = memo<IManageUserModalProp>(({ user, visible, oncl
 												color: baseColor.red
 											}}
 										>
-											{item.label} {user?.user?.username}
+											{item.label}
 										</Text>
 									</Pressable>
 								))}
