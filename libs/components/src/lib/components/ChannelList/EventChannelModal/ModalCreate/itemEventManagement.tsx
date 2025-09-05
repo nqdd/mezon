@@ -19,6 +19,7 @@ import { ChannelType } from 'mezon-js';
 import { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -72,7 +73,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const isChannelEvent = textChannelId && textChannelId !== '0';
 	const isPrivateEvent = !isChannelEvent && ((!isReviewEvent && event?.is_private) || (isReviewEvent && isPrivate));
 	const isClanEvent = !isChannelEvent && ((!isReviewEvent && !event?.is_private) || (isReviewEvent && !isPrivate));
-
+	const { t } = useTranslation(['eventMenu']);
 	const dispatch = useAppDispatch();
 	const channelFirst = useSelector(selectChannelFirst);
 	const channelVoice = useAppSelector((state) => selectChannelById(state, voiceChannel ?? '')) || {};
@@ -150,8 +151,8 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 		const currentTime = new Date().getTime();
 		const diffInMs = startTime - currentTime;
 		const diffInMinutes = Math.ceil(diffInMs / (1000 * 60));
-		if (diffInMinutes === 1) return '1 minute left. Join in!';
-		return `${diffInMinutes} minutes left. Join in!`;
+		if (diffInMinutes === 1) return t("countdown.joinIn_one");
+		return t("countdown.joinIn_other", { count: diffInMinutes });
 	}, [eventIsUpcomming, event?.start_time]);
 
 	const { toChannelPage, navigate } = useAppNavigation();
@@ -209,7 +210,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							{eventIsUpcomming
 								? timeUntilEvent
 								: eventIsOngoing
-									? 'Event is taking place!'
+									? t('countdown.joinNow')
 									: timeFomat(event?.start_time || start)}
 						</p>
 						{isClanEvent && <p className="bg-blue-500 text-white rounded-sm px-1 text-center">Clan Event</p>}
@@ -327,7 +328,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 								className="flex gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary "
 								onClick={() => setOpenModalDelEvent(true)}
 							>
-								End event
+								{t('dashboard.endEvent')}
 							</button>
 						) : !eventIsOngoing ? (
 							<button
@@ -336,7 +337,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							>
 								{isInterested ? <Icons.MuteBell defaultSize="size-4 text-white" /> : <Icons.Bell className="size-4 text-white" />}
 								<span className="whitespace-nowrap">
-									{event.user_ids?.length} {isInterested ? 'UnInterested' : 'Interested'}
+										{event.user_ids?.length} {isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}
 								</span>
 							</button>
 						) : (
@@ -375,7 +376,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					</span>
 				) : isClanEvent ? (
 					<span className="flex flex-row">
-						<p className="">This event is open to everyone in the clan.</p>
+								<p className="">{t('dashboard.noti')}</p>
 					</span>
 				) : null}
 			</div>
