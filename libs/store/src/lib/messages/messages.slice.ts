@@ -561,8 +561,8 @@ type JumpToMessageArgs = {
 	noCache?: boolean;
 	isFetchingLatestMessages?: boolean;
 	mode?: number;
-	topicId?: string;
 	navigate?: (path: string) => void;
+	topicId?: string;
 };
 /**
  * Jump to message by message id
@@ -597,7 +597,7 @@ export const jumpToMessage = createAsyncThunk(
 							isFetchingLatestMessages,
 							viewingOlder: true,
 							isClearMessage: true,
-							topicId: topicId
+							topicId: topicId 
 						})
 					)
 					.unwrap();
