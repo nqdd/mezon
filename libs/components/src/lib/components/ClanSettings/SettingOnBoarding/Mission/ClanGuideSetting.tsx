@@ -100,9 +100,7 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 						gap={16}
 						icon={<Icons.RuleIcon className="text-theme-primary" />}
 						className="px-3"
-						description={
-							<div className="h-full flex items-center text-base text-theme-primary font-bold">Read the Rules </div>
-						}
+						description={<div className="h-full flex items-center text-base text-theme-primary font-bold">Read the Rules </div>}
 					/>
 
 					<button
@@ -174,7 +172,7 @@ const OwnerGreeting = () => {
 				<div className="flex  gap-3">
 					<div className="w-12 relative">
 						<img
-							src={clanOwner?.clan_avatar ?? clanOwner.user?.avatar_url}
+							src={clanOwner?.clan_avatar || clanOwner.user?.avatar_url}
 							className="w-12 aspect-square rounded-full absolute bottom-0 left-0"
 						/>
 					</div>
@@ -210,7 +208,7 @@ const MissionItem = ({ mission, temp, setOpenModalSaveChanges }: MissionItemProp
 				tempId={temp}
 			/>
 		);
-	});
+	}, [mission]);
 
 	return (
 		<GuideItemLayout
@@ -258,7 +256,7 @@ const RuleItem = ({ rule, temp, setOpenModalSaveChanges }: RuleItemProps) => {
 				tempId={temp}
 			/>
 		);
-	});
+	}, [rule]);
 
 	return (
 		<GuideItemLayout

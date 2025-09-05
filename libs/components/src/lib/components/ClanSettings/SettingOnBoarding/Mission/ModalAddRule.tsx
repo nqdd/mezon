@@ -1,6 +1,8 @@
 import { editOnboarding, EGuideType, onboardingActions, useAppDispatch } from '@mezon/store';
+import { handleUploadEmoticon, useMezon } from '@mezon/transport';
+import { Snowflake } from '@theinternetfolks/snowflake';
 import { ApiOnboardingItem } from 'mezon-js/api.gen';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
 
 const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; ruleEdit?: ApiOnboardingItem; tempId?: number }) => {
@@ -16,8 +18,36 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 	const handleChangeRuleDescription = (e: ChangeEvent<HTMLInputElement>) => {
 		setRuleDescription(e.target.value);
 	};
-	const handleAddRules = () => {
+
+	const hasChanges = useMemo(() => {
 		if (ruleEdit?.id) {
+			if (ruleTitle !== ruleEdit?.title) {
+				return true;
+			}
+			if (ruleDescription !== ruleEdit?.content) {
+				return true;
+			}
+
+			return !!file;
+		}
+		return ruleTitle;
+	}, [ruleTitle, ruleDescription, ruleEdit?.id, ruleEdit, file]);
+	const { sessionRef, clientRef } = useMezon();
+
+	const handleAddRules = async () => {
+		if (!hasChanges) return;
+		if (ruleEdit?.id) {
+			let image_url = ruleEdit?.image_url;
+			if (file) {
+				if (clientRef.current && sessionRef.current) {
+					const id = Snowflake.generate();
+					const path = 'onboarding/' + id + '.webp';
+					const uploadResponse = await handleUploadEmoticon(clientRef.current, sessionRef.current, path, file);
+					if (uploadResponse) {
+						image_url = uploadResponse?.url;
+					}
+				}
+			}
 			dispatch(
 				editOnboarding({
 					clan_id: ruleEdit?.clan_id as string,
@@ -25,7 +55,8 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 					content: {
 						title: ruleTitle,
 						content: ruleDescription,
-						guide_type: EGuideType.RULE
+						guide_type: EGuideType.RULE,
+						image_url
 					}
 				})
 			);

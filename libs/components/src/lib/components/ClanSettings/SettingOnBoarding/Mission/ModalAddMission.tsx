@@ -12,7 +12,6 @@ import { ChannelStatusEnum } from '@mezon/utils';
 import { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import GuideItemLayout from '../GuideItemLayout';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
 type TypeMission = {
 	id: number;
@@ -59,7 +58,24 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		setMissionChannel(e.target.value);
 	};
 
+	const hasChanges = useMemo(() => {
+		if (missionEdit?.id) {
+			if (title !== missionEdit?.title && title.length >= 7) {
+				return true;
+			}
+			if (missionChannel !== missionEdit?.channel_id) {
+				return true;
+			}
+			if (mission !== missionEdit?.task_type) {
+				return true;
+			}
+			return false;
+		}
+		return title.length >= 7;
+	}, [title, mission, missionChannel, missionEdit?.id, missionEdit]);
+
 	const handleAddTask = () => {
+		if (!hasChanges) return;
 		if (missionEdit?.id) {
 			dispatch(
 				editOnboarding({
@@ -93,6 +109,8 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 	const handleRemoveTask = () => {
 		if (!missionEdit) {
+			setTitle('');
+			setMissionChannel(listMissionChannel[0]?.id || '');
 			return;
 		}
 		if (tempId !== undefined) {
@@ -153,15 +171,6 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
 
-				<GuideItemLayout
-					className="!p-0"
-					background="bg-transparent hover:bg-transparent"
-					title="Upload a custom thumbnail"
-					description="72x72 minimum. 1:1 aspect ratio. PNG, JPG"
-				/>
-
-				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
-
 				<div className="flex flex-col">
 					<h1 className="text-base font-semibold text-gray-800 dark:text-white">
 						This task is complete when: <span className="text-red-500">*</span>
@@ -177,7 +186,10 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 								name="mission"
 								checked={mission === missions.id}
 							/>
-							<label htmlFor={missions.name} className={`text-base font-medium ${mission === missions.id ? 'text-indigo-600 dark:text-white' : 'text-gray-700 dark:text-gray-400'}`}>
+							<label
+								htmlFor={missions.name}
+								className={`text-base font-medium ${mission === missions.id ? 'text-indigo-600 dark:text-white' : 'text-gray-700 dark:text-gray-400'}`}
+							>
 								{missions.description}
 							</label>
 						</div>
