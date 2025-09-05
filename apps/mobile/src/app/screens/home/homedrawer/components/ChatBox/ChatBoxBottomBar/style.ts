@@ -75,6 +75,7 @@ export const style = (colors: Attributes) =>
 			left: 0,
 			right: 0,
 			maxHeight: size.s_615,
+			backgroundColor: Platform.OS === 'android' ? 'transparent' : colors.primary,
 			borderTopColor: colors.secondaryLight,
 			borderRadius: size.s_8,
 			overflow: 'hidden',
