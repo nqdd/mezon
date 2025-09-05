@@ -333,7 +333,7 @@ const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onC
 					hightLightIcon
 					icon={<Icons.People className="w-6 text-theme-primary" />}
 					title="Questions"
-					description="7 of 7 public channels are assignable through Questions and Default Channels."
+					description="Public channels are assignable through Questions."
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div

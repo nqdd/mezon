@@ -1,5 +1,5 @@
 import { Icons } from '@mezon/ui';
-import { ChangeEvent, HTMLInputTypeAttribute, ReactNode, useState } from 'react';
+import { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from 'react';
 
 const ModalControlRule = ({
 	children,
@@ -67,12 +67,8 @@ export const ControlInput = ({
 	message?: string;
 	note?: string;
 }) => {
-	const [firstTyping, setFirstTyping] = useState(false);
 	const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
 		onChange(e);
-		if (!firstTyping) {
-			setFirstTyping(true);
-		}
 	};
 	return (
 		<div className="flex flex-col gap-2">
@@ -88,9 +84,7 @@ export const ControlInput = ({
 					className="w-full p-[10px] outline-none rounded bg-gray-100 dark:bg-borderDefault text-gray-800 dark:text-white border border-gray-200 dark:border-transparent focus:ring-2 focus:ring-indigo-200 dark:focus:ring-blue-500 focus:border-indigo-300 dark:focus:border-blue-500 z-10"
 				/>
 				{note && <span className="text-xs mt-1 font-light text-gray-500 dark:text-gray-400 animate-move_down">{note}</span>}
-				{firstTyping && required && message && value.length < 7 && (
-					<span className="text-red-500 text-xs mt-1 font-light animate-move_down ">{message}</span>
-				)}
+				{required && message && <span className="text-red-500 text-xs mt-1 font-light animate-move_down ">{message}</span>}
 			</div>
 		</div>
 	);

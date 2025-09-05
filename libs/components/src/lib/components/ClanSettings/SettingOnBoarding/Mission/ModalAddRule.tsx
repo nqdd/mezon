@@ -10,10 +10,20 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 	const [ruleDescription, setRuleDescription] = useState(ruleEdit?.content || '');
 	const [ruleImage, setRuleImage] = useState<null | string>(ruleEdit?.image_url || null);
 	const [file, setFile] = useState<null | File>(null);
+	const [error, setError] = useState('');
 	const dispatch = useAppDispatch();
 
 	const handleChangeRuleTitle = (e: ChangeEvent<HTMLInputElement>) => {
 		setRuleTitle(e.target.value);
+		if (!e.target.value.length) {
+			setError('This field is required.');
+			return;
+		}
+		if (e.target.value.length < 7) {
+			setError('Rule title must be at least 7 characters');
+		} else {
+			setError('');
+		}
 	};
 	const handleChangeRuleDescription = (e: ChangeEvent<HTMLInputElement>) => {
 		setRuleDescription(e.target.value);
@@ -35,7 +45,18 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 	const { sessionRef, clientRef } = useMezon();
 
 	const handleAddRules = async () => {
-		if (!hasChanges) return;
+		if (!ruleTitle) {
+			setError('This field is required.');
+			return;
+		}
+		if (ruleTitle.length < 7) {
+			setError('Rule title must be at least 7 characters');
+			return;
+		}
+		if (!hasChanges) {
+			ruleEdit?.id && onClose();
+			return;
+		}
 		if (ruleEdit?.id) {
 			let image_url = ruleEdit?.image_url;
 			if (file) {
@@ -80,6 +101,10 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 
 	const handleRemoveRule = () => {
 		if (!ruleEdit) {
+			setRuleTitle('');
+			setRuleDescription('');
+			setRuleImage(null);
+			setFile(null);
 			return;
 		}
 		if (tempId !== undefined) {
@@ -122,6 +147,7 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 					onChange={handleChangeRuleTitle}
 					value={ruleTitle}
 					required
+					message={error}
 				/>
 
 				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
@@ -131,7 +157,6 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 					title="Give this resource a description"
 					onChange={handleChangeRuleDescription}
 					value={ruleDescription}
-					required
 				/>
 				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
 

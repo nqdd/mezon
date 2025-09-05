@@ -39,15 +39,25 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 	const currentClanId = useSelector(selectCurrentClanId);
 	const allChannel = useAppSelector(selectAllChannels);
 	const listMissionChannel = useMemo(() => {
-		return allChannel.filter((channel) => channel.channel_private !== ChannelStatusEnum.isPrivate);
+		return allChannel.filter((channel) => channel.channel_private !== ChannelStatusEnum.isPrivate && channel.id);
 	}, [allChannel]);
 
 	const [title, setTitle] = useState(missionEdit?.title || '');
 	const [missionChannel, setMissionChannel] = useState(missionEdit?.channel_id || listMissionChannel[0]?.id || '');
 	const [mission, setMission] = useState<ETypeMission>(missionEdit?.task_type || ETypeMission.SEND_MESSAGE);
+	const [error, setError] = useState('');
 	const dispatch = useAppDispatch();
 	const handleChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
 		setTitle(e.target.value);
+		if (!e.target.value.length) {
+			setError('This field is required.');
+			return;
+		}
+		if (e.target.value.length < 7) {
+			setError('Actions must be at least 7 characters');
+		} else {
+			setError('');
+		}
 	};
 
 	const handleSetMission = (value: number) => {
@@ -60,7 +70,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 	const hasChanges = useMemo(() => {
 		if (missionEdit?.id) {
-			if (title !== missionEdit?.title && title.length >= 7) {
+			if (title !== missionEdit?.title) {
 				return true;
 			}
 			if (missionChannel !== missionEdit?.channel_id) {
@@ -75,7 +85,19 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 	}, [title, mission, missionChannel, missionEdit?.id, missionEdit]);
 
 	const handleAddTask = () => {
-		if (!hasChanges) return;
+		if (!title) {
+			setError('This field is required.');
+			return;
+		}
+		if (title.length < 7) {
+			setError('Actions must be at least 7 characters');
+			return;
+		}
+
+		if (!hasChanges) {
+			missionEdit?.id && onClose();
+			return;
+		}
 		if (missionEdit?.id) {
 			dispatch(
 				editOnboarding({
@@ -111,6 +133,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		if (!missionEdit) {
 			setTitle('');
 			setMissionChannel(listMissionChannel[0]?.id || '');
+			setMission(ETypeMission.SEND_MESSAGE);
 			return;
 		}
 		if (tempId !== undefined) {
@@ -137,9 +160,9 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 			bottomLeftBtn={missionEdit ? 'Remove' : undefined}
 			bottomLeftBtnFunction={handleRemoveTask}
 		>
-			<div className="flex flex-col ">
+			<div className="flex flex-col pb-3">
 				<ControlInput
-					message="Actions must be at least 7 characters"
+					message={error}
 					placeholder="Ex. Post a photo of your pet"
 					title="What should the new member do?"
 					onChange={handleChangeTitle}

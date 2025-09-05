@@ -145,11 +145,6 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 						<Icons.AddIcon className="w-4 h-4" /> Add a resource
 					</button>
 				</div>
-				<div className="w-full h-[1px] my-8 bg-gray-300 dark:bg-channelTextLabel"></div>
-				<SectionDescription
-					title="Clan Guide Banner"
-					description="The recommended minimum size is 1920x480 and recommended aspect ratio is 4:1."
-				/>
 			</div>
 		</div>
 	);
