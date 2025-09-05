@@ -55,9 +55,9 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 	);
 
 	const activeRoleOfUser = useMemo(() => {
-		if (!rolesClan || !user?.role_id) return [];
-		return rolesClan.filter((role) => user.role_id.includes(role?.id));
-	}, [rolesClan, user?.role_id]);
+		if (!rolesClan) return [];
+		return rolesClan.filter((role) => selectedRole.includes(role?.id));
+	}, [rolesClan, selectedRole]);
 
 	const editableRoleList = useMemo(() => {
 		if (!rolesClan) return [];
