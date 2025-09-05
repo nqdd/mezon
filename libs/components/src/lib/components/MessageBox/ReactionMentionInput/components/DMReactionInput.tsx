@@ -39,7 +39,6 @@ const DMReactionInput = memo((props: DMReactionInputProps) => {
 			draftRequest={draftRequest}
 			updateDraft={updateDraft}
 			currentDmGroupId={props.currentChannelId as string}
-			dataE2E={generateE2eId('', 'direct_message')}
 		/>
 	);
 });

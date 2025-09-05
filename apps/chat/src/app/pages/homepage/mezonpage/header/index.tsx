@@ -16,7 +16,6 @@ interface NavLinkProps {
 	href: string;
 	section: string;
 	label: string;
-	dataE2E?: string;
 }
 
 const HeaderMezon = memo((props: HeaderProps) => {
@@ -54,12 +53,12 @@ const HeaderMezon = memo((props: HeaderProps) => {
 		handleScroll();
 	}, [sideBarIsOpen, handleScroll]);
 
-	const NavLink: React.FC<NavLinkProps> = ({ href, section, label, dataE2E }) => (
+	const NavLink: React.FC<NavLinkProps> = ({ href, section, label }) => (
 		<a
 			href={href}
 			onClick={(event) => scrollToSection(section, event)}
 			className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
-			data-e2e={dataE2E}
+			data-e2e={generateE2eId('homepage.header.link')}
 		>
 			{label}
 		</a>
@@ -79,15 +78,15 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							<Image src={`assets/logo.png`} width={120} height={35} className="object-cover" />
 						</Link>
 						<div className="hidden lg:flex items-center gap-3 lg:max-xl:gap-[0.05rem]">
-							<NavLink href="#home" section="home" label="Home" dataE2E={generateE2eId('homepage.header.link.home')} />
-							<NavLink href="#overview" section="overview" label="Overview" dataE2E={generateE2eId('homepage.header.link.overview')} />
-							<NavLink href="#feature" section="feature" label="Features" dataE2E={generateE2eId('homepage.header.link.features')} />
+							<NavLink href="#home" section="home" label="Home"/>
+							<NavLink href="#overview" section="overview" label="Overview"/>
+							<NavLink href="#feature" section="feature" label="Features"/>
 							<a
 								href={'developers/applications'}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
-								data-e2e={generateE2eId('homepage.header.link.developers')}
+								data-e2e={generateE2eId('homepage.header.link')}
 							>
 								Developers
 							</a>

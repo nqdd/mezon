@@ -1,17 +1,16 @@
 import { useDragAndDrop } from '@mezon/core';
 import { referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitReason, processFile } from '@mezon/utils';
+import { MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitReason, generateE2eId, processFile } from '@mezon/utils';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 
 export type FileSelectionButtonProps = {
 	currentClanId: string;
 	currentChannelId: string;
 	hasPermissionEdit: boolean;
-	dataE2E?: string;
 };
 
-function FileSelectionButton({ currentClanId, currentChannelId, hasPermissionEdit, dataE2E }: FileSelectionButtonProps) {
+function FileSelectionButton({ currentClanId, currentChannelId, hasPermissionEdit }: FileSelectionButtonProps) {
 	const dispatch = useAppDispatch();
 	const uploadedAttachmentsInChannel = useAppSelector((state) => selectAttachmentByChannelId(state, currentChannelId))?.files || [];
 	const { setOverUploadingState } = useDragAndDrop();
@@ -40,7 +39,7 @@ function FileSelectionButton({ currentClanId, currentChannelId, hasPermissionEdi
 		}
 	};
 	return (
-		<label className="pl-3 flex items-center h-11" data-e2e={dataE2E}>
+		<label className="pl-3 flex items-center h-11" data-e2e={generateE2eId('mention.selected_file')}>
 			<input id="preview_img" type="file" onChange={handleChange} className="w-full hidden" multiple />
 			<div className="flex flex-row h-6 w-6 items-center justify-center cursor-pointer text-theme-primary text-theme-primary-hover">
 				<Icons.AddCircle className="" />
