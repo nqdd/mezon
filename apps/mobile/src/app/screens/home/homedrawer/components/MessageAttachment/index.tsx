@@ -38,7 +38,7 @@ const classifyAttachments = (attachments: ApiMessageAttachment[]) => {
 	(attachments || [])?.forEach?.((attachment) => {
 		if (attachment.filetype?.indexOf('video/mp4') !== -1 && !isSecureTenorUrl(attachment.url)) {
 			videos.push(attachment);
-		} else if (fileTypeImage.includes(attachment?.filetype)) {
+		} else if (attachment.filetype?.includes('image/')) {
 			images.push(attachment);
 		} else {
 			documents.push(attachment);
