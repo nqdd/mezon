@@ -248,6 +248,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 	currentChannelId,
 }, ref) => {
 	const inputRef = useRef<HTMLDivElement>(null);
+	const popoverRef = useRef<HTMLDivElement>(null);
 
 
 	const [html, setHtml] = useState(value);
@@ -299,12 +300,33 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		}, [currentChannelId]);
 
 	useEffect(() => {
+		const handleGlobalKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && activeMentionContext) {
+				e.preventDefault();
+				setActiveMentionContext(null);
+			}
+		};
+
+		const handleClickOutside = (e: MouseEvent) => {
+			if (activeMentionContext && popoverRef.current && inputRef.current) {
+				const target = e.target as Node;
+				if (!popoverRef.current.contains(target) && !inputRef.current.contains(target)) {
+					setActiveMentionContext(null);
+				}
+			}
+		};
+
+		document.addEventListener('keydown', handleGlobalKeyDown);
+		document.addEventListener('mousedown', handleClickOutside);
+
 		return () => {
 			if (detectMentionTimeoutRef.current) {
 				clearTimeout(detectMentionTimeoutRef.current);
 			}
+			document.removeEventListener('keydown', handleGlobalKeyDown);
+			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, []);
+	}, [activeMentionContext]);
 
 	// Build regex for all triggersx
 	const buildTriggerRegex = useCallback(() => {
@@ -1039,7 +1061,10 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 	const tooltipOverlay = useMemo(() => {
 		return (
 			<div
-				ref={refs.setFloating}
+				ref={(node) => {
+					refs.setFloating(node);
+					(popoverRef as any).current = node;
+				}}
 				className="mention-popover-container bg-ping-member mt-[-5px] z-[999]"
 				style={{
 					...floatingStyles,
