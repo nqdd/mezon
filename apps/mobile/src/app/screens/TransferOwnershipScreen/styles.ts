@@ -3,6 +3,11 @@ import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
+		container: {
+			flex: 1,
+			backgroundColor: colors.primary,
+			paddingHorizontal: size.s_20,
+		},
 		transferVisual: {
 			position: 'relative',
 			flexDirection: 'row',

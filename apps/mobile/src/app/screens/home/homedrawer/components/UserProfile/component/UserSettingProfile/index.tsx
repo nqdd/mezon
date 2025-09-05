@@ -4,7 +4,6 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	ChannelMembersEntity,
 	channelUsersActions,
-	clansActions,
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectCurrentClanId,
@@ -14,7 +13,6 @@ import {
 import { EPermission } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import MezonConfirm from 'apps/mobile/src/app/componentUI/MezonConfirm';
-import { ERequestStatus } from 'apps/mobile/src/app/screens/channelPermissionSetting/types/channelPermission.enum';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,40 +23,18 @@ import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
 import { MezonModal } from '../../../../../../../componentUI/MezonModal';
 import { IconCDN } from '../../../../../../../constants/icon_cdn';
 import { APP_SCREEN, AppStackScreenProps } from '../../../../../../../navigation/ScreenTypes';
+import { EActionSettingUserProfile, IProfileSetting } from '../../../../../../ManageUserScreen/types';
 import KickUserClanModal from '../KickUserClanModal';
-import { ManageUserModal } from '../ManageUserModal';
-import TransferOwnershipModal from '../TransferOwnershipModal';
 import { style } from './UserSettingProfile.style';
-
-export enum EActionSettingUserProfile {
-	Manage = 'Manage',
-	TimeOut = 'Timeout',
-	Kick = 'Kick',
-	Ban = 'Ban',
-	ThreadRemove = 'ThreadRemove',
-	TransferOwnership = 'TransferOwnership'
-}
 
 interface IUserSettingProfileProps {
 	user: ChannelMembersEntity;
-	showManagementUserModal?: boolean;
-	onShowManagementUserModalChange?: (isVisible: boolean) => void;
 	showKickUserModal?: boolean;
 	showActionOutside?: boolean;
 }
 
-export interface IProfileSetting {
-	label: string;
-	value: EActionSettingUserProfile;
-	icon: React.JSX.Element;
-	action: (action?: EActionSettingUserProfile) => void;
-	isShow: boolean;
-}
-
 const UserSettingProfile = ({
 	user,
-	showManagementUserModal = false,
-	onShowManagementUserModalChange,
 	showKickUserModal = false,
 	showActionOutside = true
 }: IUserSettingProfileProps) => {
@@ -68,8 +44,6 @@ const UserSettingProfile = ({
 	const styles = style(themeValue);
 	const { t } = useTranslation('clanOverviewSetting');
 	const [visibleKickUserModal, setVisibleKickUserModal] = useState<boolean>(showKickUserModal);
-	const [visibleManageUserModal, setVisibleManageUserModal] = useState<boolean>(showManagementUserModal);
-	const [visibleTransferOwnershipModal, setVisibleTransferOwnershipModal] = useState<boolean>(false);
 	const { userProfile } = useAuth();
 	const { removeMemberClan } = useChannelMembersActions();
 	const currentClan = useSelector(selectCurrentClan);
@@ -93,21 +67,17 @@ const UserSettingProfile = ({
 		return memberIds.includes(user.user.id);
 	}, [isThread, memberIds, user?.user?.id]);
 
-	const dangerActions = [EActionSettingUserProfile.Kick, EActionSettingUserProfile.ThreadRemove];
+	const dangerActions = [EActionSettingUserProfile.Kick, EActionSettingUserProfile.ThreadRemove, EActionSettingUserProfile.TransferOwnership];
 
 	useEffect(() => {
 		setVisibleKickUserModal(showKickUserModal);
 	}, [showKickUserModal]);
 
-	useEffect(() => {
-		setVisibleManageUserModal(showManagementUserModal);
-	}, [showManagementUserModal]);
 
 	const handleSettingUserProfile = useCallback((action?: EActionSettingUserProfile) => {
 		switch (action) {
 			case EActionSettingUserProfile.Manage:
-				setVisibleManageUserModal(true);
-				onShowManagementUserModalChange?.(true);
+				navigateToManageUser();
 				break;
 			case EActionSettingUserProfile.TimeOut:
 				break;
@@ -120,7 +90,7 @@ const UserSettingProfile = ({
 				confirmRemoveFromThread();
 				break;
 			case EActionSettingUserProfile.TransferOwnership:
-				setVisibleTransferOwnershipModal(true);
+				navigateToTransferOwnership();
 				break;
 			default:
 				break;
@@ -183,6 +153,22 @@ const UserSettingProfile = ({
 		];
 		return settingList;
 	}, [themeValue.text, handleSettingUserProfile, hasAdminPermission, isItMe, isThatClanOwner, hasClanOwnerPermission, isThread, isUserInThread, t]);
+
+	const navigateToManageUser = useCallback(() => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
+			screen: APP_SCREEN.MENU_CLAN.MANAGE_USER,
+			params: { user }
+		});
+	}, [navigation, user]);
+
+	const navigateToTransferOwnership = useCallback(() => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
+			screen: APP_SCREEN.MENU_CLAN.TRANSFER_OWNERSHIP,
+			params: { user }
+		});
+	}, [navigation, user]);
 
 	const handleRemoveUserClans = useCallback(async () => {
 		if (user) {
@@ -250,39 +236,6 @@ const UserSettingProfile = ({
 
 	const handleCloseRemoveFromThread = () => DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 
-	const handleTransferOwnership = useCallback(async (newOwnerId: string) => {
-		if (!currentClanId || !newOwnerId) return;
-
-		try {
-			const response = await dispatch(clansActions.transferClan({ 
-				clanId: currentClanId, 
-				new_clan_owner: newOwnerId 
-			}));
-			
-			if (response?.meta?.requestStatus === ERequestStatus.Fulfilled) {
-				Toast.show({
-					type: 'success',
-					props: {
-						text2: t('permissions.toast.transferOwnershipSuccess'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
-					}
-				});
-				setVisibleTransferOwnershipModal(false);
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-				navigation.navigate(APP_SCREEN.HOME);
-			} else {
-				throw new Error();
-			}
-		} catch (error) {
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: t('permissions.toast.transferOwnershipFailed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} />
-				}
-			});
-		}
-	}, [currentClanId, dispatch, t, navigation]);
 
 	const confirmRemoveFromThread = () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -301,11 +254,6 @@ const UserSettingProfile = ({
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
-	function handleUserModalClose() {
-		setVisibleTransferOwnershipModal(false);
-		setVisibleManageUserModal(false);
-		onShowManagementUserModalChange?.(false);
-	}
 
 	return (
 		<View>
@@ -345,20 +293,6 @@ const UserSettingProfile = ({
 				<KickUserClanModal onRemoveUserClan={handleRemoveUserClans} user={user} />
 			</MezonModal>
 
-			<MezonModal
-				title={t('modal.transferOwnership.title')}
-				visible={visibleTransferOwnershipModal}
-				visibleChange={(visible) => {
-					setVisibleTransferOwnershipModal(visible);
-				}}
-			>
-				<TransferOwnershipModal onTransferOwnership={handleTransferOwnership} user={user} onClose={handleUserModalClose} />
-			</MezonModal>
-
-			{/* from setting */}
-			{visibleManageUserModal && (
-				<ManageUserModal visible={visibleManageUserModal} user={user} onclose={handleUserModalClose} profileSetting={profileSetting} />
-			)}
 		</View>
 	);
 };
