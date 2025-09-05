@@ -553,6 +553,7 @@ type JumpToMessageArgs = {
 	noCache?: boolean;
 	isFetchingLatestMessages?: boolean;
 	mode?: number;
+	topicId?: string;
 	navigate?: (path: string) => void;
 };
 /**
@@ -566,7 +567,10 @@ type JumpToMessageArgs = {
  */
 export const jumpToMessage = createAsyncThunk(
 	'messages/jumpToMessage',
-	async ({ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode }: JumpToMessageArgs, thunkAPI) => {
+	async (
+		{ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs,
+		thunkAPI
+	) => {
 		try {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(true));
 			thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: 'temp', navigate: false }));
@@ -584,7 +588,8 @@ export const jumpToMessage = createAsyncThunk(
 							direction: Direction_Mode.AROUND_TIMESTAMP,
 							isFetchingLatestMessages,
 							viewingOlder: true,
-							isClearMessage: true
+							isClearMessage: true,
+							topicId: topicId
 						})
 					)
 					.unwrap();
