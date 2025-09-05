@@ -42,6 +42,7 @@
         "quit": "Quit",
         "menu": "Menu",
         "walletManagement": "Wallet Management",
-        "setPassword": "Set Password"
+        "setPassword": "Set Password",
+        "myQRCode": "My QR Code"
     }
 }
