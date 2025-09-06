@@ -2,7 +2,8 @@ import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectChannelById2, selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, NativeModules, Platform, View } from 'react-native';
+import { AppState, NativeModules, Platform, StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
 import { ReactionChannelInfo } from '../../../../../../../../../libs/components/src/lib/components/VoiceChannel/MyVideoConference/Reaction/types';
@@ -214,8 +215,7 @@ function ChannelVoice({
 				style={[
 					{
 						width: isAnimationComplete ? '100%' : size.s_100 * 2,
-						height: isAnimationComplete ? '100%' : size.s_150,
-						backgroundColor: isAnimationComplete ? themeValue?.primary : themeValue?.secondary
+						height: isAnimationComplete ? '100%' : size.s_150
 					},
 					!isAnimationComplete && {
 						borderWidth: 1,
@@ -225,6 +225,12 @@ function ChannelVoice({
 					}
 				]}
 			>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<LiveKitRoom serverUrl={serverUrl} token={token} connect={true}>
 					<HeaderRoomView
 						channelId={channelId}

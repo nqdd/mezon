@@ -925,7 +925,7 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 					/>
 				</div>
 			)}
-			<span title="Add friends to DM" data-e2e={generateE2eId(`chat.direct_message.create_group.button`)}>
+			<span title="Add friends to DM" data-e2e={generateE2eId(`chat.direct_message.button.add_user`)}>
 				<Icons.IconAddFriendDM defaultSize="size-5" />
 			</span>
 		</div>

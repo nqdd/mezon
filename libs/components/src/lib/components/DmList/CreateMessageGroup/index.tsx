@@ -300,7 +300,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 						disabled={selectedFriends.length === 0}
 						onClick={handleCreateDM}
 						className="h-[38px] w-full text-sm text-white bg-buttonPrimary  hover:bg-bgSelectItemHover rounded"
-						data-e2e={generateE2eId(`chat.direct_message.create_group.button`)}
+						data-e2e={generateE2eId(`chat.direct_message.button.create_group`)}
 					>
 						{currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP
 							? 'Add to Group Chat'

@@ -11,14 +11,28 @@
  * */
 
 export const DATA_E2E_IDENTIFIER = {
+	avatar: {
+		image: ''
+	},
+	button: {
+		base: ''
+	},
+	base_profile: {
+		display_name: ''
+	},
+	mention: {
+		input: '',
+		selected_file: '',
+	},
+	discussion: {
+		box: {
+			thread: '',
+			topic: ''
+		}
+	},
 	homepage: {
 		header: {
-			link: {
-				home: '',
-				features: '',
-				developers: '',
-				overview: ''
-			},
+			link: '',
 			button: {
 				login: '',
 				menu: ''
@@ -97,11 +111,7 @@ export const DATA_E2E_IDENTIFIER = {
 				}
 			},
 			create_channel: {
-				type: {
-					text: '',
-					voice: '',
-					stream: ''
-				},
+				type: '',
 				input: {
 					channel_name: ''
 				},
@@ -146,13 +156,15 @@ export const DATA_E2E_IDENTIFIER = {
 				text_area: '',
 				namegroup: ''
 			},
-			create_group: {
-				button: ''
+			button: {
+				add_user: '',
+				create_group: '',
+				button_plus: ''
 			},
 			edit_group: {
 				button: '',
 				input: '',
-				save_button: '', 
+				save_button: ''
 			},
 			leave_group: {
 				button: ''
@@ -209,7 +221,9 @@ export const DATA_E2E_IDENTIFIER = {
 				forward_message: '',
 				delete_message: ''
 			},
-			thread_name_input: ''
+			thread_name_input: {
+				thread_box: ''
+			}
 		},
 		mention: {
 			input: '',
@@ -223,12 +237,7 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	onboarding: {
 		chat: {
-			container: {
-				invite_member: '',
-				send_first_message: '',
-				download_app: '',
-				create_channel: ''
-			}
+			guide_sections: ''
 		}
 	},
 	user_setting: {
@@ -237,7 +246,8 @@ export const DATA_E2E_IDENTIFIER = {
 			edit_profile: '',
 			edit_display_name: '',
 			edit_username: '',
-			set_password: ''
+			set_password: '',
+			tab_account: ''
 		},
 		profile: {
 			button_setting: '',
@@ -246,12 +256,6 @@ export const DATA_E2E_IDENTIFIER = {
 				button: ''
 			},
 			clan_profile: {
-				image_editor: {
-					modal: '',
-					button_reset: '',
-					button_cancel: '',
-					button_apply: ''
-				},
 				button: '',
 				select: '',
 				input_nickname: '',
@@ -260,7 +264,6 @@ export const DATA_E2E_IDENTIFIER = {
 				button_reset: '',
 				button_save_changes: ''
 			},
-			avatar_image: ''
 		}
 	},
 	common: {
@@ -277,8 +280,8 @@ export const DATA_E2E_IDENTIFIER = {
 };
 type DotNestedKeys<T> = T extends object
 	? {
-			[K in Extract<keyof T, string>]: T[K] extends object ? K | `${K}.${DotNestedKeys<T[K]>}` : K;
-		}[Extract<keyof T, string>]
+		[K in Extract<keyof T, string>]: T[K] extends object ? K | `${K}.${DotNestedKeys<T[K]>}` : K;
+	}[Extract<keyof T, string>]
 	: never;
 
 export type E2eKeyType = DotNestedKeys<typeof DATA_E2E_IDENTIFIER>;
