@@ -1078,10 +1078,12 @@ export const ArrowRight: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4
 	);
 };
 
-export const LongCorner: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5' }) => {
+export const LongCorner: React.FC<IconProps> = ({ className = '' }) => {
 	return (
-		<svg width="12" height="36" viewBox="0 0 12 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M1 1V31.6667C1 33.5076 2.49238 35 4.33333 35H11" stroke="#6A6A6A" strokeWidth="1.5" strokeLinecap="round" />
+		<svg width="13" height="34" viewBox="0 0 2 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+			<g id="Interface / Line_L">
+				<path id="Vector" d="M1 23V1" stroke="#6A6A6A" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+			</g>
 		</svg>
 	);
 };

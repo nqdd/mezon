@@ -1,8 +1,8 @@
 import { useParticipants, useTracks, VideoTrack } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectIsPiPMode, selectMemberClanByUserName, useAppSelector } from '@mezon/store-mobile';
-import { Track } from 'livekit-client';
-import React, { memo, useMemo } from 'react';
+import { Participant, Track } from 'livekit-client';
+import React, { memo, useMemo, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
@@ -159,26 +159,34 @@ const ParticipantItem = memo(
 
 const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions }) => {
 	const participants = useParticipants();
-	const sortedParticipants = useMemo(() => {
-		return [...participants].sort((a, b) => {
-			const aScreenShare = a.isScreenShareEnabled ? 1 : 0;
-			const bScreenShare = b.isScreenShareEnabled ? 1 : 0;
-			let aSpeaking = 0;
-			let bSpeaking = 0;
-			if (participants?.length > 8) {
-				aSpeaking = a.isSpeaking ? 1 : 0;
-				bSpeaking = b.isSpeaking ? 1 : 0;
-			}
-
-			if (aScreenShare !== bScreenShare) {
-				return bScreenShare - aScreenShare;
-			}
-			return bSpeaking - aSpeaking;
-		});
-	}, [participants]);
-
 	const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare, Track.Source.ScreenShareAudio]);
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
+
+	const sortedParticipantsRef = useRef<Participant[]>([]);
+
+	const sortedParticipants = useMemo(() => {
+		try {
+			const sortBySpeaking = participants?.length >= 10;
+			const currentSids = new Set(participants?.map((p) => p?.sid)?.filter(Boolean));
+
+			const remaining = sortedParticipantsRef?.current?.filter((p) => currentSids?.has?.(p?.sid)) ?? [];
+
+			const remainingSet = new Set(remaining?.map?.((p) => p?.sid));
+			const newOnes = participants?.filter((p) => !remainingSet.has(p?.sid)) ?? [];
+
+			const combined = [...remaining, ...newOnes];
+
+			const sorted = combined.sort((a, b) => {
+				const score = (p: Participant) => (p?.isScreenShareEnabled ? 2 : 0) + (sortBySpeaking && p?.isSpeaking ? 1 : 0);
+				return score(b) - score(a);
+			});
+
+			sortedParticipantsRef.current = sorted;
+			return sorted;
+		} catch (e) {
+			return participants;
+		}
+	}, [participants]);
 
 	return (
 		<ScrollView

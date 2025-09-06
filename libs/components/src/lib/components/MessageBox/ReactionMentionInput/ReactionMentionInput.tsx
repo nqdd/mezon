@@ -86,12 +86,6 @@ const slashCommands: SlashCommand[] = [
 	}
 ];
 
-const EMOJI_ACTION_TOOLBAR_E2E: EmojiActionToolbarE2E = {
-	gif: 'chat.mention.gif',
-	sticker: 'chat.mention.sticker',
-	emoji: 'chat.mention.emoji',
-	mic: 'chat.mention.voice'
-};
 
 /**
  * Custom hook to search and filter emojis based on user input
@@ -125,7 +119,6 @@ export interface MentionReactBaseProps extends MentionReactInputProps {
 	dataReferences?: ApiMessageRef;
 	dataReferencesTopic?: ApiMessageRef;
 	currentDmGroupId?: string;
-	dataE2E?: string;
 }
 
 export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElement => {
@@ -142,7 +135,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		valueThread,
 		draftRequest,
 		updateDraft,
-		dataE2E
 	} = props;
 
 	const dispatch = useAppDispatch();
@@ -985,7 +977,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					maxHistorySize={50}
 					hasFilesToSend={attachmentData.length > 0}
 					currentChannelId={props.currentChannelId}
-					dataE2E={generateE2eId('chat.mention.input', dataE2E)}
 				>
 					<Mention
 						trigger="@"
@@ -1138,7 +1129,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				isTopic={props.isTopic || false}
 				isThreadbox={props.isThreadbox || false}
 				onEmojiSelect={insertEmojiDirectly}
-				dataE2E={EMOJI_ACTION_TOOLBAR_E2E}
 			/>
 			{draftRequest?.content && draftRequest.content.length > MIN_THRESHOLD_CHARS && (
 				<div className="w-16 text-red-300 bottom-0 right-0 absolute">{MIN_THRESHOLD_CHARS - draftRequest.content.length}</div>

@@ -122,6 +122,7 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			onPress: () => {
 				const data = {
 					snapPoints: ['70%', '90%'],
+					disableScrollView: true,
 					children: <InviteToChannel isUnknownChannel={false} />
 				};
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });

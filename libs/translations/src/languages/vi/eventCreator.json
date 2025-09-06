@@ -85,7 +85,10 @@
     "actions": {
         "next": "Tiếp theo",
         "create": "Tạo sự kiện",
-        "edit": "Cập nhật sự kiện"
+        "edit": "Cập nhật sự kiện",
+        "event_one": "1 Sự kiện",
+        "event_other": "{{count}} Sự kiện",
+        "noEvent": "Sự kiện"
     },
     "notify": {
         "locationBlank": "Cần có một địa điểm",

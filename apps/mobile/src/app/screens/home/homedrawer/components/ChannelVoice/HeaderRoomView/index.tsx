@@ -187,12 +187,12 @@ const HeaderRoomView = memo(({ channelId, clanId, onPressMinimizeRoom, isGroupCa
 			<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
 				{!isGroupCall && (
 					<TouchableOpacity onPress={handleOpenEmojiPicker} style={[styles.buttonCircle]}>
-						<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.white} />
+						<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_20} width={size.s_20} color={themeValue.white} />
 					</TouchableOpacity>
 				)}
 				{!isGroupCall && (
 					<TouchableOpacity onPress={handleOpenSoundEffect} style={[styles.buttonCircle]}>
-						<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_24} width={size.s_24} color={themeValue.white} />
+						<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_20} width={size.s_20} color={themeValue.white} />
 					</TouchableOpacity>
 				)}
 				<SwitchCamera />
