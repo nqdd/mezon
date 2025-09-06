@@ -70,16 +70,8 @@ export const processEntitiesDirectly = (
         markdown.push({ s, e, type: EBacktickType.BOLD });
         break;
 
-      case 'MessageEntityItalic':
-        markdown.push({ s, e, type: EBacktickType.SINGLE });
-        break;
-
       case 'MessageEntityUnderline':
         markdown.push({ s, e, type: EBacktickType.CODE });
-        break;
-
-      case 'MessageEntityStrike':
-        markdown.push({ s, e, type: EBacktickType.SINGLE });
         break;
 
       case 'MessageEntityCode':
@@ -88,14 +80,6 @@ export const processEntitiesDirectly = (
 
       case 'MessageEntityPre':
         markdown.push({ s, e, type: EBacktickType.PRE });
-        break;
-
-      case 'MessageEntitySpoiler':
-        markdown.push({ s, e, type: EBacktickType.SINGLE });
-        break;
-
-      case 'MessageEntityBlockquote':
-        markdown.push({ s, e, type: EBacktickType.SINGLE });
         break;
 
       case 'MessageEntityTextUrl':
