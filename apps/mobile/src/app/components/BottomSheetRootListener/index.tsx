@@ -70,8 +70,7 @@ const useBottomSheetState = () => {
 
 	return {
 		...state,
-		setAll: (updates: Partial<BottomSheetState>) =>
-			setState((prev) => ({ ...prev, ...updates })),
+		setAll: (updates: Partial<BottomSheetState>) => setState((prev) => ({ ...prev, ...updates })),
 		clearDataBottomSheet
 	};
 };
@@ -124,10 +123,7 @@ const BottomSheetRootListener = () => {
 		ref?.current?.present();
 	};
 
-	const {
-		percentSnapPoints,
-		onContentLayout,
-	} = useFitContentSnapPoints({ snapPoints, maxHeightPercent, snapPointsWithFitContent });
+	const { percentSnapPoints, onContentLayout } = useFitContentSnapPoints({ snapPoints, maxHeightPercent, snapPointsWithFitContent });
 
 	useEffect(() => {
 		const bottomSheetListener = DeviceEventEmitter.addListener(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, ({ isDismiss, data }) => {
@@ -181,20 +177,19 @@ const BottomSheetRootListener = () => {
 				hiddenHeaderIndicator
 					? null
 					: () => {
-						return <View style={styles.handleIndicator} />;
-					}
+							return <View style={styles.handleIndicator} />;
+						}
 			}
 		>
 			{renderHeader()}
-			{children && (
-				disableScrollView ? (
+			{children &&
+				(disableScrollView ? (
 					<View onLayout={onContentLayout}>{children}</View>
 				) : (
 					<BottomSheetScrollView bounces={false}>
 						<View onLayout={onContentLayout}>{children}</View>
 					</BottomSheetScrollView>
-				)
-			)}
+				))}
 		</OriginalBottomSheet>
 	);
 };
