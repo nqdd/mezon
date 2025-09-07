@@ -52,14 +52,12 @@ import {
   checkIsThread,
   extractCanvasIdsFromText,
   filterEmptyArrays,
-  generateE2eId,
   processBoldEntities,
   processEntitiesDirectly,
   processMarkdownEntities,
   searchMentionsHashtag,
   threadError
 } from '@mezon/utils';
-import { EmojiActionToolbarE2E } from 'libs/components/src/lib/components/MessageBox/ReactionMentionInput/components/ChatBoxToolbarWrapper';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { ReactElement, RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -982,6 +980,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						trigger="@"
 						title="MEMBERS"
 						data={handleSearchUserMention}
+            allowSpaceInQuery={true}
+						allowedCharacters="._-"
 						renderSuggestion={(
 							suggestion: any,
 							search: string,
@@ -1020,6 +1020,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						title="TEXT CHANNELS"
 						displayPrefix="#"
 						data={hashtagData}
+						allowSpaceInQuery={true}
+						allowedCharacters="._-"
 						renderSuggestion={(suggestion, search, _highlightedDisplay, _index, focused) => (
 							<div
 								key={suggestion.id}
@@ -1043,6 +1045,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						trigger=":"
 						markup="::[__display__](__id__)"
 						data={queryEmojis}
+						allowSpaceInQuery={false}
+						allowedCharacters="?!+_-"
 						displayTransform={(_id: any, display: any) => {
 							return `${display}`;
 						}}
@@ -1074,6 +1078,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						trigger="/"
 						title="COMMANDS"
 						data={handleSearchSlashCommands}
+            allowSpaceInQuery={true}
 						displayTransform={(_id: any, display: any) => {
 							return `/${display}`;
 						}}
