@@ -417,7 +417,8 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 											isActive={currentChannelId === item.id}
 											thread={item}
 											notLastThread={
-												(data[virtualRow.index + 1] && (data[virtualRow.index + 1] as IChannel))?.parent_id !== '0' &&
+												data[virtualRow.index + 1] &&
+												(data[virtualRow.index + 1] as IChannel)?.parent_id !== '0' &&
 												!(data[virtualRow.index + 1] as ICategoryChannel)?.channels
 											}
 										/>
