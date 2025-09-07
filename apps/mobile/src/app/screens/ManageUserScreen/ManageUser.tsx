@@ -257,22 +257,14 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 					<View style={styles.userInfo}>
 						<MezonAvatar avatarUrl={user?.user?.avatar_url || ''} username={user?.user?.username || ''} />
 						<View>
-							{user?.user?.display_name ? (
-								<Text style={styles.displayName}>
-									{user?.user?.display_name}
-								</Text>
-							) : null}
-							<Text style={styles.username}>
-								{user?.user?.username}
-							</Text>
+							{user?.user?.display_name ? <Text style={styles.displayName}>{user?.user?.display_name}</Text> : null}
+							<Text style={styles.username}>{user?.user?.username}</Text>
 						</View>
 					</View>
 				</View>
 
 				<View style={styles.rolesSection}>
-					<Text style={styles.sectionTitle}>
-						{t('manage.roles')}
-					</Text>
+					<Text style={styles.sectionTitle}>{t('manage.roles')}</Text>
 					<View style={styles.roleListContainer}>
 						{roleList.map((role) => {
 							const isDisable = isLoading || role?.disabled;
@@ -301,10 +293,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 											<View style={styles.roleInfo}>
 												<View style={[styles.roleCircle, role?.color && { backgroundColor: role?.color }]}></View>
 												<Text
-													style={[
-														styles.roleTitle,
-														{ color: isDisable ? themeValue.textDisabled : themeValue.white }
-													]}
+													style={[styles.roleTitle, { color: isDisable ? themeValue.textDisabled : themeValue.white }]}
 													numberOfLines={1}
 												>
 													{role?.title}
@@ -318,21 +307,14 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 
 							return (
 								<View key={role?.id} style={styles.roleDisplayContainer}>
-									<Text style={styles.roleTitle}>
-										{role?.title}
-									</Text>
+									<Text style={styles.roleTitle}>{role?.title}</Text>
 								</View>
 							);
 						})}
 
 						<TouchableOpacity onPress={handleToggleEditMode} disabled={isLoading}>
 							<View style={styles.editButtonContainer}>
-								<Text
-									style={[
-										styles.editButtonText,
-										{ color: isLoading ? '#c7c7c7' : baseColor.blurple }
-									]}
-								>
+								<Text style={[styles.editButtonText, { color: isLoading ? '#c7c7c7' : baseColor.blurple }]}>
 									{editMode ? t('manage.cancel') : t('manage.editRoles')}
 								</Text>
 							</View>
@@ -342,9 +324,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 
 				{hasActionableSettings && (
 					<View style={styles.actionsSection}>
-						<Text style={styles.sectionTitle}>
-							Actions
-						</Text>
+						<Text style={styles.sectionTitle}>Actions</Text>
 
 						<View style={styles.roleListContainer}>
 							{actionableProfileSettings.map((item, index) => (
@@ -354,9 +334,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 									style={styles.actionItemContainer}
 								>
 									{item.icon}
-									<Text style={styles.actionText}>
-										{item.label}
-									</Text>
+									<Text style={styles.actionText}>{item.label}</Text>
 								</Pressable>
 							))}
 						</View>
