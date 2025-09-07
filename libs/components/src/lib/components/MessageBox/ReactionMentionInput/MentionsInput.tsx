@@ -328,15 +328,43 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		};
 	}, [activeMentionContext]);
 
-	// Build regex for all triggersx
-	const buildTriggerRegex = useCallback(() => {
+	const triggerRegex = useMemo(() => {
 		if (mentionConfigs.length === 0) return null;
 
-		const triggers = mentionConfigs.map(config =>
-			config.trigger.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-		).join('|');
+		const triggerGroups = new Map<string, string[]>();
 
-		return new RegExp(`(^|\\s)(${triggers})[\\w\\u00C0-\\u024F\\u1E00-\\u1EFF.\\s-]*$`, 'gi');
+		mentionConfigs.forEach(config => {
+			const escapedTrigger = config.trigger.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			let charClass = '\\w\\u00C0-\\u024F\\u1E00-\\u1EFF.-'; // Base characters
+			if (config.allowedCharacters) {
+				const escapedChars = config.allowedCharacters.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				charClass += escapedChars;
+			}
+			let pattern;
+			if (config.allowSpaceInQuery) {
+				pattern = `(${escapedTrigger})(?:[${charClass}][${charClass}\\s]*)?`;
+			} else {
+				pattern = `(${escapedTrigger})(?:[${charClass}]+)?`;
+			}
+
+			if (!triggerGroups.has(pattern)) {
+				triggerGroups.set(pattern, []);
+			}
+			triggerGroups.get(pattern)!.push(pattern);
+		});
+
+		const regexParts: string[] = [];
+
+		triggerGroups.forEach((patterns, _key) => {
+			if (patterns.length > 0) {
+				regexParts.push(...patterns);
+			}
+		});
+
+		if (regexParts.length === 0) return null;
+
+		const combinedPattern = `(^|\\s)(${regexParts.join('|')})$`;
+		return new RegExp(combinedPattern, 'gi');
 	}, [mentionConfigs]);
 
 	const addToHistory = useCallback((htmlValue: string) => {
@@ -414,13 +442,10 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 	}, [enableUndoRedo, redoHistory.length]);
 
 	const detectMention = useCallback(async () => {
-		if (!inputRef.current || mentionConfigs.length === 0) {
+		if (!inputRef.current || mentionConfigs.length === 0 || !triggerRegex) {
 			setActiveMentionContext(null);
 			return;
 		}
-
-		const triggerRegex = buildTriggerRegex();
-		if (!triggerRegex) return;
 
 		const htmlBeforeSelection = getHtmlBeforeSelection(inputRef.current);
 		const prepared = prepareForRegExp(htmlBeforeSelection);
@@ -458,7 +483,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 		}
 
 		setActiveMentionContext(null);
-	}, [mentionConfigs, buildTriggerRegex]);
+	}, [mentionConfigs, triggerRegex]);
 
 	const debouncedDetectMention = useCallback(() => {
 		if (detectMentionTimeoutRef.current) {
@@ -810,30 +835,47 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(({
 			const htmlContent = e.clipboardData.getData('text/html');
 			const plainText = e.clipboardData.getData('text/plain');
 
-      let pastedFormattedText = htmlContent ? parseHtmlAsFormattedText(
-        preparePastedHtml(htmlContent), undefined, true,
-      ) : undefined;
+			const containsMentionEntities = htmlContent && (
+				htmlContent.includes('data-entity-type="MessageEntityMentionName"') ||
+				htmlContent.includes('data-entity-type="MessageEntityMentionRole"') ||
+				htmlContent.includes('data-entity-type="MessageEntityCustomEmoji"') ||
+				htmlContent.includes('data-entity-type="MessageEntityHashtag"') ||
+				htmlContent.includes('data-document-id=')
+			);
 
+			let contentToInsert: string;
 
-      if (!plainText) {
-        return;
-      }
+			if (containsMentionEntities && htmlContent) {
+				const cleanedHtml = preparePastedHtml(htmlContent);
+				contentToInsert = cleanedHtml;
+			} else if (htmlContent) {
+				let pastedFormattedText = parseHtmlAsFormattedText(
+					preparePastedHtml(htmlContent), undefined, true,
+				);
 
+				if (pastedFormattedText?.entities?.length) {
+					contentToInsert = (renderText(pastedFormattedText.text, ['escape_html', 'br_html']) as string[])
+						.join('')
+						.replace(/\u200b+/g, '\u200b');
+				} else {
+					contentToInsert = (renderText(plainText || '', ['escape_html', 'br_html']) as string[])
+						.join('')
+						.replace(/\u200b+/g, '\u200b');
+				}
+			} else {
+				if (!plainText) {
+					return;
+				}
+				contentToInsert = (renderText(plainText, ['escape_html', 'br_html']) as string[])
+					.join('')
+					.replace(/\u200b+/g, '\u200b');
+			}
 
-      const textToPaste = pastedFormattedText?.entities?.length ? pastedFormattedText : { text: plainText };
-      const hasText = textToPaste && textToPaste.text;
-
-      if(!hasText) return;
-
-      const newHtml = (renderText(textToPaste.text, ['escape_html', 'br_html']) as string[])
-      .join('')
-      .replace(/\u200b+/g, '\u200b');
-
-      insertHtmlInSelection(newHtml);
-      inputRef.current?.dispatchEvent(new Event('input', { bubbles: true }));
-      setHtml(e.currentTarget.innerHTML);
-      onChange?.(e.currentTarget.innerHTML);
-      debouncedDetectMention();
+			insertHtmlInSelection(contentToInsert);
+			inputRef.current?.dispatchEvent(new Event('input', { bubbles: true }));
+			setHtml(e.currentTarget.innerHTML);
+			onChange?.(e.currentTarget.innerHTML);
+			debouncedDetectMention();
 
 		},
 		[disabled, onChange, debouncedDetectMention, onHandlePaste],
