@@ -1,23 +1,38 @@
-import { getCurrentChatData, useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
+import {
+  FloatingFocusManager,
+  FloatingPortal,
+  autoUpdate,
+  flip,
+  offset,
+  shift,
+  useClick,
+  useDismiss,
+  useFloating,
+  useInteractions,
+  useRole
+} from '@floating-ui/react';
+import { getCurrentChatData, useEscapeKeyClose } from '@mezon/core';
 import {
   AttachmentEntity,
   attachmentActions,
-  selectAllListAttachmentByChannel,
+  galleryActions,
+  getStore,
   selectCurrentChannel,
   selectCurrentChannelId,
   selectCurrentClanId,
   selectCurrentDM,
+  selectGalleryAttachmentsByChannel,
+  selectGalleryPaginationByChannel,
   useAppDispatch,
   useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IImageWindowProps, createImgproxyUrl, getAttachmentDataForWindow } from '@mezon/utils';
+import { ETypeLinkMedia, IImageWindowProps, LoadMoreDirection, createImgproxyUrl, formatGalleryDate, getAttachmentDataForWindow } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { ChannelStreamMode } from 'mezon-js';
-import { RefObject, Suspense, lazy, useCallback, useRef, useState } from 'react';
+import { RefObject, Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useVirtualizer } from '../virtual-core/useVirtualizer';
+import InfiniteScroll from './InfiniteScroll';
 
 const DatePickerWrapper = lazy(() => import('../ChannelList/EventChannelModal/ModalCreate/DatePickerWrapper'));
 
@@ -48,9 +63,8 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
 	const currentClanId = useSelector(selectCurrentClanId) ?? '';
-	const currentChannel = useSelector(selectCurrentChannel);
-	const currentDM = useSelector(selectCurrentDM);
-	const attachments = useAppSelector((state) => selectAllListAttachmentByChannel(state, currentChannelId));
+	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
+	const paginationState = useAppSelector((state) => selectGalleryPaginationByChannel(state, currentChannelId));
 
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [endDate, setEndDate] = useState<Date | null>(null);
@@ -58,31 +72,141 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 	const modalRef = useRef<HTMLDivElement>(null);
 
+	const { refs, floatingStyles, context } = useFloating({
+		open: isDateDropdownOpen,
+		onOpenChange: setIsDateDropdownOpen,
+		middleware: [offset(5), flip(), shift({ padding: 5 })],
+		whileElementsMounted: autoUpdate
+	});
+
+	const click = useClick(context);
+	const dismiss = useDismiss(context, {
+		enabled: false
+	});
+	const role = useRole(context);
+
+	const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss, role]);
+
+	useEffect(() => {
+		if (!isDateDropdownOpen) return;
+
+		const handleClickOutside = (event: MouseEvent) => {
+			const target = event.target as Element;
+
+			if (target.closest('.react-datepicker') ||
+			    target.closest('.react-datepicker-popper') ||
+			    target.closest('[class*="react-datepicker"]')) {
+				return;
+			}
+
+			if (target.closest('[data-floating-dropdown="true"]')) {
+				return;
+			}
+
+			const referenceElement = refs.reference.current;
+			if (referenceElement && 'contains' in referenceElement && referenceElement.contains(target as Node)) {
+				return;
+			}
+
+			setIsDateDropdownOpen(false);
+		};
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setIsDateDropdownOpen(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [isDateDropdownOpen, refs.floating, refs.reference]);
+
 	useEscapeKeyClose(modalRef, onClose);
-	useOnClickOutside(modalRef, onClose, rootRef);
 
-	const filteredAttachments =
-		attachments?.filter((attachment) => {
-			if (!attachment.create_time) return true;
-
-			const attachmentDate = new Date(attachment.create_time);
-
-			if (startDate && attachmentDate < startDate) {
-				return false;
+	const handleLoadMoreAttachments = useCallback(
+		async (direction: 'before' | 'after') => {
+			if (paginationState.isLoading || !currentChannelId) {
+				return;
 			}
 
-			if (endDate) {
-				const endOfDay = new Date(endDate);
-				endOfDay.setHours(23, 59, 59, 999);
-				if (attachmentDate > endOfDay) {
-					return false;
-				}
+			if (direction === 'before' && !paginationState.hasMoreBefore) {
+				return;
+			}
+			if (direction === 'after' && !paginationState.hasMoreAfter) {
+				return;
 			}
 
-			return true;
-		}) || [];
+			dispatch(galleryActions.setGalleryLoading({ channelId: currentChannelId, isLoading: true }));
 
-	const groupedAttachments = filteredAttachments.reduce(
+			try {
+				const timestamp = direction === 'before' ? attachments?.[attachments.length - 1]?.create_time : attachments?.[0]?.create_time;
+				const timestampNumber = timestamp ? Math.floor(new Date(timestamp).getTime() / 1000) : undefined;
+
+				const startTimestamp = startDate ? Math.floor(startDate.getTime() / 1000) : undefined;
+				const endTimestamp = endDate ? Math.floor(endDate.getTime() / 1000) : undefined;
+
+				await dispatch(
+					galleryActions.fetchGalleryAttachments({
+						clanId: currentClanId,
+						channelId: currentChannelId,
+						limit: paginationState.limit,
+						direction,
+						...(direction === 'before' ? { before: timestampNumber } : { after: timestampNumber }),
+						...(startTimestamp && { after: startTimestamp }),
+						...(endTimestamp && { before: endTimestamp })
+					})
+				);
+			} catch (error) {
+				console.error('Error loading more attachments:', error);
+				dispatch(galleryActions.setGalleryLoading({ channelId: currentChannelId, isLoading: false }));
+			}
+		},
+		[
+			paginationState.isLoading,
+			paginationState.limit,
+			paginationState.hasMoreBefore,
+			paginationState.hasMoreAfter,
+			currentChannelId,
+			currentClanId,
+			attachments,
+			startDate,
+			endDate,
+			dispatch
+		]
+	);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			const target = event.target as Element;
+
+			if (
+				target.closest('[data-floating-dropdown="true"]') ||
+				target.closest('.react-datepicker') ||
+				target.closest('.react-datepicker-popper')
+			) {
+				return;
+			}
+
+			if (modalRef.current?.contains(target as Node)) {
+				return;
+			}
+
+			if (rootRef?.current?.contains(target as Node)) {
+				return;
+			}
+
+			onClose();
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, [onClose, rootRef]);
+
+	const groupedAttachments = (attachments || []).reduce(
 		(groups, attachment) => {
 			if (!attachment.create_time) return groups;
 
@@ -102,7 +226,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		{} as Record<string, { date: Date; attachments: AttachmentEntity[] }>
 	);
 
-	const sortedDateGroups = Object.entries(groupedAttachments).sort(([, a], [, b]) => b.date.getTime() - a.date.getTime());
+	const sortedDateGroups = Object.entries(groupedAttachments);
 
 	const virtualData: VirtualDataItem[] = sortedDateGroups.flatMap(([dateKey, group]) => {
 		const items: VirtualDataItem[] = [];
@@ -122,43 +246,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 	const formatDate = useCallback(
 		(date: Date) => {
-			const currentLanguage = i18n.language;
-
-			if (currentLanguage === 'vi') {
-				const months = [
-					'Tháng 1',
-					'Tháng 2',
-					'Tháng 3',
-					'Tháng 4',
-					'Tháng 5',
-					'Tháng 6',
-					'Tháng 7',
-					'Tháng 8',
-					'Tháng 9',
-					'Tháng 10',
-					'Tháng 11',
-					'Tháng 12'
-				];
-				return `Ngày ${date.getDate()} ${months[date.getMonth()]}`;
-			} else {
-				const months = [
-					'January',
-					'February',
-					'March',
-					'April',
-					'May',
-					'June',
-					'July',
-					'August',
-					'September',
-					'October',
-					'November',
-					'December'
-				];
-				const day = date.getDate();
-				const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th';
-				return `${months[date.getMonth()]} ${day}${suffix}`;
-			}
+			return formatGalleryDate(date, i18n.language);
 		},
 		[i18n.language]
 	);
@@ -171,14 +259,40 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		setEndDate(date);
 	}, []);
 
+	const handleApplyDateFilter = useCallback(() => {
+		if (currentChannelId && currentClanId) {
+			const startTimestamp = startDate ? Math.floor(startDate.getTime() / 1000) : undefined;
+			const endTimestamp = endDate ? Math.floor(new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59).getTime() / 1000) : undefined;
+
+			dispatch(galleryActions.clearGalleryChannel({ channelId: currentChannelId }));
+			dispatch(
+				galleryActions.fetchGalleryAttachments({
+					clanId: currentClanId,
+					channelId: currentChannelId,
+					limit: 50,
+					direction: 'initial',
+					...(startTimestamp && { after: startTimestamp }),
+					...(endTimestamp && { before: endTimestamp })
+				})
+			);
+		}
+		setIsDateDropdownOpen(false);
+	}, [currentChannelId, currentClanId, startDate, endDate, dispatch]);
+
 	const clearDateFilter = useCallback(() => {
 		setStartDate(null);
 		setEndDate(null);
-	}, []);
-
-	const toggleDateDropdown = useCallback(() => {
-		setIsDateDropdownOpen(!isDateDropdownOpen);
-	}, [isDateDropdownOpen]);
+		if (currentChannelId && currentClanId) {
+			dispatch(
+				galleryActions.fetchGalleryAttachments({
+					clanId: currentClanId,
+					channelId: currentChannelId,
+					limit: 50,
+					direction: 'initial'
+				})
+			);
+		}
+	}, [currentChannelId, currentClanId, dispatch]);
 
 	const getDateRangeText = useCallback(() => {
 		if (!startDate && !endDate) return 'Sent Date';
@@ -190,76 +304,140 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		return 'Sent Date';
 	}, [startDate, endDate]);
 
-	const handleImageClick = useCallback(
-		(attachment: AttachmentEntity) => {
-			const enhancedAttachmentData = {
-				...attachment,
-				create_time: attachment.create_time || new Date().toISOString()
-			};
+	const handleImageClick = useCallback(async (attachment: AttachmentEntity) => {
+		const state = getStore()?.getState();
+		const currentClanId = selectCurrentClanId(state);
+		const currentDm = selectCurrentDM(state);
+		const currentChannel = selectCurrentChannel(state);
+		const currentChannelId = currentChannel?.id;
+		const currentDmGroupId = currentDm?.id;
+		const attachmentData = attachment;
+		if (!attachmentData) return;
+		const enhancedAttachmentData = {
+			...attachmentData,
+			create_time: attachmentData.create_time || new Date().toISOString()
+		};
 
-			if (isElectron()) {
-				const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
-				const listAttachmentsByChannel = attachments;
+		if (isElectron()) {
+      const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
+      const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
 
-				const currentImageUploader = currentChatUsersEntities?.[(attachment as any).sender_id as string];
+        const messageTimestamp = enhancedAttachmentData.create_time ? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000) : undefined;
+        const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
 
-				if (listAttachmentsByChannel) {
-					const imageListWithUploaderInfo = getAttachmentDataForWindow(listAttachmentsByChannel, currentChatUsersEntities);
-					const selectedImageIndex = listAttachmentsByChannel.findIndex((image) => image.url === enhancedAttachmentData.url);
-					const channelImagesData: IImageWindowProps = {
-						channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDM?.channel_label) as string,
-						images: imageListWithUploaderInfo,
-						selectedImageIndex: selectedImageIndex
-					};
+       const data = await dispatch(attachmentActions.fetchChannelAttachments({
+          clanId,
+          channelId,
+          limit: 50,
+          before: beforeTimestamp
+          })
+        ).unwrap();
+        const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
+        const currentImageUploader = currentChatUsersEntities?.[attachmentData.uploader as string];
+        const listAttachmentsByChannel = data?.attachments?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+        .map((attachmentRes) => ({
+          ...attachmentRes,
+          id: attachmentRes.id || '',
+          channelId,
+          clanId
+        }))
+        .sort((a, b) => {
+          if (a.create_time && b.create_time) {
+            return Date.parse(b.create_time) - Date.parse(a.create_time);
+          }
+          return 0;
+        });
+         if(!listAttachmentsByChannel) return;
+          window.electron.openImageWindow({
+            ...enhancedAttachmentData,
+            url: createImgproxyUrl(enhancedAttachmentData.url || '', {
+              width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
+              height: enhancedAttachmentData.height ? (enhancedAttachmentData.height > 900 ? 900 : enhancedAttachmentData.height) : 0,
+              resizeType: 'fit'
+            }),
+            uploaderData: {
+              name:
+                currentImageUploader?.clan_nick ||
+                currentImageUploader?.user?.display_name ||
+                currentImageUploader?.user?.username ||
+                'Anonymous',
+              avatar: (currentImageUploader?.clan_avatar ||
+                currentImageUploader?.user?.avatar_url ||
+                window.location.origin + '/assets/images/anonymous-avatar.png') as string
+            },
+            realUrl: enhancedAttachmentData.url || '',
+            channelImagesData: {
+              channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
+              images: [],
+              selectedImageIndex: 0
+            }
+          });
 
-					window.electron.openImageWindow({
-						...enhancedAttachmentData,
-						url: createImgproxyUrl(enhancedAttachmentData.url || '', {
-							width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
-							height: enhancedAttachmentData.height
-								? (enhancedAttachmentData.width || 0) > 1600
-									? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
-									: enhancedAttachmentData.height
-								: 0,
-							resizeType: 'fill'
-						}),
-						uploaderData: {
-							name:
-								currentImageUploader?.clan_nick ||
-								currentImageUploader?.user?.display_name ||
-								currentImageUploader?.user?.username ||
-								'Anonymous',
-							avatar: (currentImageUploader?.clan_avatar ||
-								currentImageUploader?.user?.avatar_url ||
-								window.location.origin + '/assets/images/anonymous-avatar.png') as string
-						},
-						realUrl: enhancedAttachmentData.url || '',
-						channelImagesData
-					});
-					return;
-				}
-			} else {
-				dispatch(
-					attachmentActions.setCurrentAttachment({
-						id: enhancedAttachmentData.message_id as string,
-						uploader: (enhancedAttachmentData as any).sender_id,
-						create_time: enhancedAttachmentData.create_time
-					})
-				);
+          if (listAttachmentsByChannel) {
+            const imageListWithUploaderInfo = getAttachmentDataForWindow(listAttachmentsByChannel, currentChatUsersEntities);
+            const selectedImageIndex = listAttachmentsByChannel.findIndex((image) => image.url === enhancedAttachmentData.url);
+            const channelImagesData: IImageWindowProps = {
+              channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
+              images: imageListWithUploaderInfo,
+              selectedImageIndex: selectedImageIndex
+            };
 
-				dispatch(attachmentActions.setOpenModalAttachment(true));
-				dispatch(attachmentActions.setAttachment(enhancedAttachmentData.url));
-				dispatch(attachmentActions.setMode(ChannelStreamMode.STREAM_MODE_CHANNEL));
+            window.electron.openImageWindow({
+              ...enhancedAttachmentData,
+              url: createImgproxyUrl(enhancedAttachmentData.url || '', {
+                width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
+                height: enhancedAttachmentData.height
+                  ? (enhancedAttachmentData.width || 0) > 1600
+                    ? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
+                    : enhancedAttachmentData.height
+                  : 0,
+                resizeType: 'fill'
+              }),
+              uploaderData: {
+                name:
+                  currentImageUploader?.clan_nick ||
+                  currentImageUploader?.user?.display_name ||
+                  currentImageUploader?.user?.username ||
+                  'Anonymous',
+                avatar: (currentImageUploader?.clan_avatar ||
+                  currentImageUploader?.user?.avatar_url ||
+                  window.location.origin + '/assets/images/anonymous-avatar.png') as string
+              },
+              realUrl: enhancedAttachmentData.url || '',
+              channelImagesData
+            });
+            return;
+          }
 
-				if (currentClanId && currentChannelId) {
-					const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
-					const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentChannelId as string);
-					dispatch(attachmentActions.fetchChannelAttachments({ clanId, channelId }));
-				}
-			}
-		},
-		[dispatch, attachments, currentChannelId, currentClanId, currentChannel, currentDM]
-	);
+		}
+
+		dispatch(
+			attachmentActions.setCurrentAttachment({
+				id: enhancedAttachmentData.message_id as string,
+				uploader: enhancedAttachmentData.uploader ,
+				create_time: enhancedAttachmentData.create_time
+			})
+		);
+
+		dispatch(attachmentActions.setOpenModalAttachment(true));
+		dispatch(attachmentActions.setAttachment(enhancedAttachmentData.url));
+
+		if ((currentClanId && currentChannelId) || currentDmGroupId) {
+			const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
+			const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
+			const messageTimestamp = enhancedAttachmentData.create_time ? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000) : undefined;
+			const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
+
+			dispatch(attachmentActions.fetchChannelAttachments({
+				clanId,
+				channelId,
+				state: undefined,
+				limit: 50,
+				before: beforeTimestamp
+			}));
+		}
+
+	}, []);
 
 	return (
 		<div
@@ -273,55 +451,69 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						<Icons.ImageThumbnail defaultSize="w-4 h-4" />
 						<span className="text-base font-semibold cursor-default">Gallery</span>
 					</div>
-					<div className="relative flex-1 max-w-md mx-4">
+					<div className="flex-1 max-w-md mx-4">
 						<button
-							onClick={toggleDateDropdown}
-							className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors"
+							ref={refs.setReference}
+							{...getReferenceProps()}
+							className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none"
 						>
 							<span>{getDateRangeText()}</span>
 							<Icons.ArrowDown className={`w-3 h-3 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`} />
 						</button>
 
 						{isDateDropdownOpen && (
-							<div className="absolute top-full mt-1 left-0 right-0 bg-theme-surface rounded-lg shadow-lg z-10 p-4">
-								<div className="space-y-4">
-									<div>
-										<label className="block text-xs font-medium text-theme-secondary mb-2">From Date</label>
-										<Suspense fallback={<DatePickerPlaceholder />}>
-											<DatePickerWrapper
-												className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
-												wrapperClassName="w-full"
-												selected={startDate || new Date()}
-												onChange={handleStartDateChange}
-												dateFormat="dd/MM/yyyy"
-											/>
-										</Suspense>
+							<FloatingPortal>
+								<FloatingFocusManager context={context} modal={false}>
+									<div
+										ref={refs.setFloating}
+										style={floatingStyles}
+										{...getFloatingProps()}
+										className="bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]"
+										data-floating-dropdown="true"
+									>
+										<div className="space-y-4">
+											<div>
+												<label className="block text-xs font-medium text-theme-secondary mb-2">From Date</label>
+												<Suspense fallback={<DatePickerPlaceholder />}>
+													<DatePickerWrapper
+														className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
+														wrapperClassName="w-full"
+														selected={startDate || new Date()}
+														onChange={handleStartDateChange}
+														dateFormat="dd/MM/yyyy"
+													/>
+												</Suspense>
+											</div>
+											<div>
+												<label className="block text-xs font-medium text-theme-secondary mb-2">To Date</label>
+												<Suspense fallback={<DatePickerPlaceholder />}>
+													<DatePickerWrapper
+														className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
+														wrapperClassName="w-full"
+														selected={endDate || new Date()}
+														onChange={handleEndDateChange}
+														dateFormat="dd/MM/yyyy"
+													/>
+												</Suspense>
+											</div>
+											<div className="flex justify-between items-center">
+												<button
+													onClick={clearDateFilter}
+													className="text-theme-secondary text-xs focus:outline-none hover:underline"
+												>
+													Clear all
+												</button>
+												<button
+													onClick={handleApplyDateFilter}
+													className="btn-primary btn-primary-hover text-white px-3 py-1 text-xs rounded"
+												>
+													Apply
+												</button>
+											</div>
+										</div>
 									</div>
-									<div>
-										<label className="block text-xs font-medium text-theme-secondary mb-2">To Date</label>
-										<Suspense fallback={<DatePickerPlaceholder />}>
-											<DatePickerWrapper
-												className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
-												wrapperClassName="w-full"
-												selected={endDate || new Date()}
-												onChange={handleEndDateChange}
-												dateFormat="dd/MM/yyyy"
-											/>
-										</Suspense>
-									</div>
-									<div className="flex justify-between items-center">
-										<button onClick={clearDateFilter} className="text-theme-secondary hover:text-theme-primary text-xs underline">
-											Clear all
-										</button>
-										<button
-											onClick={toggleDateDropdown}
-											className="px-3 py-1 bg-theme-primary text-white text-xs rounded hover:bg-theme-primary-active"
-										>
-											Apply
-										</button>
-									</div>
-								</div>
-							</div>
+								</FloatingFocusManager>
+							</FloatingPortal>
 						)}
 					</div>
 					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">
@@ -348,7 +540,15 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 							)}
 						</div>
 					) : (
-						<VirtualizedGalleryContent virtualData={virtualData} handleImageClick={handleImageClick} formatDate={formatDate} />
+						<GalleryContent
+							virtualData={virtualData}
+							handleImageClick={handleImageClick}
+							formatDate={formatDate}
+							onLoadMore={handleLoadMoreAttachments}
+							isLoading={paginationState.isLoading}
+							hasMoreBefore={paginationState.hasMoreBefore}
+							hasMoreAfter={paginationState.hasMoreAfter}
+						/>
 					)}
 				</div>
 			</div>
@@ -356,101 +556,105 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	);
 }
 
-interface VirtualizedGalleryContentProps {
+interface GalleryContentProps {
 	virtualData: VirtualDataItem[];
 	handleImageClick: (attachment: AttachmentEntity) => void;
 	formatDate: (date: Date) => string;
+	onLoadMore?: (direction: 'before' | 'after') => void;
+	isLoading?: boolean;
+	hasMoreBefore?: boolean;
+	hasMoreAfter?: boolean;
 }
 
-const VirtualizedGalleryContent = ({ virtualData, handleImageClick, formatDate }: VirtualizedGalleryContentProps) => {
-	const parentRef = useRef<HTMLDivElement>(null);
+const GalleryContent = ({
+	virtualData,
+	handleImageClick,
+	formatDate,
+	onLoadMore,
+	isLoading = false,
+	hasMoreBefore = false,
+	hasMoreAfter = false
+}: GalleryContentProps) => {
+	const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-	const virtualizer = useVirtualizer({
-		count: virtualData.length,
-		getScrollElement: () => parentRef.current,
-		estimateSize: (index) => {
-			const item = virtualData[index];
-			if (item.type === 'dateHeader') return 40;
-			if (item.type === 'imagesGrid') {
-				const numRows = Math.ceil(item.attachments.length / 3);
-				return numRows * 120 + (numRows - 1) * 12;
-			}
-			return 36;
+
+
+	useEffect(() => {
+		if (isLoadingMore && !isLoading) {
+			setIsLoadingMore(false);
 		}
-	});
+	}, [isLoading, isLoadingMore]);
 
-	const items = virtualizer.getVirtualItems();
+
 
 	return (
-		<div ref={parentRef} className="h-full overflow-y-auto thread-scroll">
-			<div
-				style={{
-					height: virtualizer.getTotalSize(),
-					width: '100%',
-					position: 'relative'
-				}}
-			>
-				<div
-					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						width: '100%',
-						transform: `translateY(${items[0]?.start ?? 0}px)`
-					}}
-				>
-					{items.map((virtualRow) => {
-						const item = virtualData[virtualRow.index];
-
-						if (item.type === 'dateHeader') {
-							return (
-								<div
-									key={virtualRow.key}
-									data-index={virtualRow.index}
-									ref={virtualizer.measureElement}
-									className="flex items-center gap-3 mb-3"
-								>
-									<h3 className="text-base font-semibold text-theme-primary">{formatDate(item.date)}</h3>
-									<div className="flex-1 h-px bg-theme-border"></div>
-									<span className="text-xs text-theme-secondary">{item.count} files</span>
-								</div>
-							);
-						}
-
-						if (item.type === 'imagesGrid') {
-							return (
-								<div
-									key={virtualRow.key}
-									data-index={virtualRow.index}
-									ref={virtualizer.measureElement}
-									className="grid grid-cols-3 gap-3 mb-6"
-								>
-									{item.attachments.map((attachment: AttachmentEntity, index: number) => (
-										<div
-											key={attachment.url || `${item.dateKey}-${index}`}
-											className="aspect-square relative group cursor-pointer rounded-lg overflow-hidden border border-theme-border hover:border-theme-primary transition-all duration-200 hover:shadow-lg"
-											onClick={() => handleImageClick(attachment)}
-										>
-											<div className="absolute inset-0 bg-gray-300 dark:bg-gray-600"></div>
-											<img
-												src={createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })}
-												alt={attachment.filename || 'Media'}
-												className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 relative z-10"
-											/>
-											<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 z-20" />
-											<div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
-												<p className="text-white text-xs truncate">{attachment.filename || 'Image'}</p>
-											</div>
-										</div>
-									))}
-								</div>
-							);
-						}
-
-						return null;
-					})}
+		<InfiniteScroll
+			className="h-full overflow-y-auto thread-scroll"
+			items={virtualData}
+      itemSelector=".gallery-item"
+			onLoadMore={({ direction }) => {
+				if (isLoadingMore || isLoading) {
+					return;
+				}
+				if (!onLoadMore) return;
+				setIsLoadingMore(true);
+				onLoadMore(direction === LoadMoreDirection.Backwards ? 'before' : 'after');
+			}}
+		>
+			{hasMoreBefore && (isLoadingMore || isLoading) && (
+				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
+					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+					Loading older images...
 				</div>
+			)}
+
+			<div className="px-4 py-4 space-y-6">
+				{virtualData.map((item, index) => {
+					if (item.type === 'dateHeader') {
+						return (
+							<div key={`${item.dateKey}-header`} className="flex items-center gap-3">
+								<h3 className="text-base font-semibold text-theme-primary">{formatDate(item.date)}</h3>
+								<div className="flex-1 h-px bg-theme-border"></div>
+								<span className="text-xs text-theme-secondary">{item.count} files</span>
+							</div>
+						);
+					}
+
+					if (item.type === 'imagesGrid') {
+						return (
+							<div key={`${item.dateKey}-grid`} className="gallery-item grid grid-cols-3 gap-3">
+								{item.attachments.map((attachment: AttachmentEntity, attachmentIndex: number) => (
+									<div
+										key={attachment.url || `${item.dateKey}-${attachmentIndex}`}
+										className="aspect-square relative group cursor-pointer rounded-lg overflow-hidden border border-theme-border hover:border-theme-primary transition-all duration-200 hover:shadow-lg"
+										onClick={() => handleImageClick(attachment)}
+									>
+										<div className="absolute inset-0 bg-gray-300 dark:bg-gray-600"></div>
+										<img
+											src={createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })}
+											alt={attachment.filename || 'Media'}
+											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 relative z-10"
+										/>
+										<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 z-20" />
+										<div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
+											<p className="text-white text-xs truncate">{attachment.filename || 'Image'}</p>
+										</div>
+									</div>
+								))}
+							</div>
+						);
+					}
+
+					return null;
+				})}
 			</div>
-		</div>
+
+			{hasMoreAfter && (isLoadingMore || isLoading) && (
+				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
+					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+					Loading newer images...
+				</div>
+			)}
+		</InfiniteScroll>
 	);
 };

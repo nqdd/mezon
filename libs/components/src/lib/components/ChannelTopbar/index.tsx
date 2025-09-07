@@ -4,17 +4,16 @@ import {
   DirectEntity,
   RootState,
   appActions,
-  attachmentActions,
   audioCallActions,
   canvasAPIActions,
   channelsActions,
+  galleryActions,
   getStore,
   getStoreAsync,
   groupCallActions,
   pinMessageActions,
   searchMessagesActions,
   selectAllAccount,
-  selectAllListAttachmentByChannel,
   selectChannelById,
   selectCloseMenu,
   selectCurrentChannel,
@@ -23,6 +22,7 @@ import {
   selectCurrentDM,
   selectDefaultNotificationCategory,
   selectDefaultNotificationClan,
+  selectGalleryAttachmentsByChannel,
   selectIsInCall,
   selectIsPinModalVisible,
   selectIsShowChatStream,
@@ -937,16 +937,18 @@ function GalleryButton() {
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
 	const currentClanId = useSelector(selectCurrentClanId) ?? '';
-	const attachments = useAppSelector((state) => selectAllListAttachmentByChannel(state, currentChannelId));
+	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
 
 	const galleryRef = useRef<HTMLDivElement | null>(null);
 
 	const handleShowGallery = async () => {
 		if (!isShowGallery && (!attachments || attachments.length === 0)) {
 			await dispatch(
-				attachmentActions.fetchChannelAttachments({
+				galleryActions.fetchGalleryAttachments({
 					clanId: currentClanId,
-					channelId: currentChannelId
+					channelId: currentChannelId,
+					limit: 50,
+					direction: 'initial'
 				})
 			);
 		}
