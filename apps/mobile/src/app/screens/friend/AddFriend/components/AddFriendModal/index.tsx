@@ -36,7 +36,7 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 	const inputRef = useRef<TextInput>(null);
 
 	useEffect(() => {
-		if (statusSentMobile !== null) {
+		if (statusSentMobile !== null && visibleModal) {
 			if (statusSentMobile?.isSuccess) {
 				Toast.show({
 					type: 'success',
@@ -57,7 +57,7 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 			}
 			dispatch(friendsActions.setSentStatusMobile(null));
 		}
-	}, [statusSentMobile]);
+	}, [statusSentMobile, visibleModal]);
 
 	useEffect(() => {
 		setVisibleModal(isShow);
