@@ -62,7 +62,7 @@
         "administrator": "Allows members to manage entire clan (just lower than owner permission).",
         "view-channel": "Allows members to view public channels.",
         "manage-channel": "Allows members to create, edit, or delete channels.",
-        "manage-clan": "Allow members to change this clan name, view all invites, add apps to this clan.",
+        "manage-clan": "Allows users to control clan settings, manage roles and channels, and oversee member activities, ensuring effective administration and a well-organized community.",
         "manage-thread": "Allows members to create, edit, delete threads in the channel (including private threads).",
         "send-message": "Allow members to send messages in public channels (including threads and topics within those channels).",
         "delete-message": "Allows members to delete messages in public channels (including threads and topics within those channels).",
