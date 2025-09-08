@@ -260,7 +260,8 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 					name,
 					fileData: filePath,
 					width: image?.width,
-					height: image?.height
+					height: image?.height,
+					thumbnailPreview: image?.uri + '?thumbnail=true&quality=low'
 				};
 
 				onPickGallery(fileFormat);

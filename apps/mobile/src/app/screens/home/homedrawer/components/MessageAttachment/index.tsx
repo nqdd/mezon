@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import { attachmentActions, useAppDispatch } from '@mezon/store-mobile';
 import { fileTypeImage, notImplementForGifOrStickerSendFromPanel } from '@mezon/utils';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
@@ -113,11 +113,21 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 	};
 
 	return (
-		<View>
-			{videos?.length > 0 &&
-				videos.map((video, index) => (
-					<RenderVideoChat key={`${video?.url}_${index}`} videoURL={video?.url} onLongPress={() => onLongPressImage(video)} />
-				))}
+		<View style={{ gap: size.s_10 }}>
+			<View style={styles.gridContainer}>
+				{videos?.length > 0 &&
+					videos?.map((video, index) => (
+						<RenderVideoChat
+							key={`${video?.url}_${index}`}
+							videoURL={video?.url}
+							onLongPress={() => onLongPressImage(video)}
+							isMultiple={videos?.length >= 2}
+							thumbnailPreview={video?.thumbnail}
+							widthThumbnail={video?.width}
+							heightThumbnail={video?.height}
+						/>
+					))}
+			</View>
 			<View style={styles.gridContainer}>
 				{visibleImages?.length > 0 &&
 					visibleImages?.map((image, index) => {
