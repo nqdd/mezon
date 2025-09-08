@@ -96,6 +96,23 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const getPrivateMeetingRoom = useAppSelector((state) => selectMeetRoomByEventId(state, event?.id as string));
 	const eventIsUpcomming = event?.event_status === EEventStatus.UPCOMING;
 	const eventIsOngoing = event?.event_status === EEventStatus.ONGOING;
+
+	const actualEventStatus = useMemo(() => {
+		if (!event?.start_time) return { isUpcoming: eventIsUpcomming, isOngoing: eventIsOngoing };
+
+		const startTime = new Date(event.start_time).getTime();
+		const currentTime = Date.now();
+		const endTime = event.end_time ? new Date(event.end_time).getTime() : startTime + (2 * 60 * 60 * 1000);
+
+		const isActuallyUpcoming = currentTime < startTime;
+		const isActuallyOngoing = currentTime >= startTime && currentTime <= endTime;
+
+		return {
+			isUpcoming: isActuallyUpcoming,
+			isOngoing: isActuallyOngoing
+		};
+	}, [event?.start_time, event?.end_time, eventIsUpcomming, eventIsOngoing]);
+
 	const externalLink = event?.meet_room?.external_link || getPrivateMeetingRoom?.external_link;
 	const hasLink = Boolean(externalLink);
 
@@ -139,21 +156,25 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 	const panelRef = useRef(null);
 	useOnClickOutside(panelRef, () => setOpenPanel(false));
-
-	const cssEventStatus = useMemo(() => {
-		return eventIsUpcomming ? 'text-purple-500' : eventIsOngoing ? 'text-green-500' : '';
-	}, [event?.event_status]);
-
 	const timeUntilEvent = useMemo(() => {
-		if (!eventIsUpcomming || !event?.start_time) return null;
+		if (!event?.start_time || !actualEventStatus.isUpcoming) return null;
 
 		const startTime = new Date(event.start_time).getTime();
-		const currentTime = new Date().getTime();
-		const diffInMs = startTime - currentTime;
-		const diffInMinutes = Math.ceil(diffInMs / (1000 * 60));
-		if (diffInMinutes === 1) return t("countdown.joinIn_one");
-		return t("countdown.joinIn_other", { count: diffInMinutes });
-	}, [eventIsUpcomming, event?.start_time]);
+		const currentTime = Date.now();
+		const timeDiff = startTime - currentTime;
+		const minutesLeft = Math.ceil(timeDiff / (1000 * 60));
+		if (minutesLeft <= 10 && minutesLeft > 0) {
+			return minutesLeft === 1 ? t("countdown.joinIn_one") : t("countdown.joinIn_other", { count: minutesLeft });
+		}
+
+		return null;
+	}, [event?.start_time, actualEventStatus.isUpcoming, t]);
+
+	const cssEventStatus = useMemo(() => {
+		if (actualEventStatus.isOngoing) return 'text-green-500';
+		if (actualEventStatus.isUpcoming && timeUntilEvent) return 'text-purple-500';
+		return '';
+	}, [actualEventStatus.isOngoing, actualEventStatus.isUpcoming, timeUntilEvent]);
 
 	const { toChannelPage, navigate } = useAppNavigation();
 
@@ -207,9 +228,9 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					<div className="flex items-center gap-x-2 mb-4">
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
 						<p className={`font-semibold ${cssEventStatus}`}>
-							{eventIsUpcomming
-								? timeUntilEvent
-								: eventIsOngoing
+							{actualEventStatus.isUpcoming
+								? (timeUntilEvent || timeFomat(event?.start_time || start))
+								: actualEventStatus.isOngoing
 									? t('countdown.joinNow')
 									: timeFomat(event?.start_time || start)}
 						</p>
@@ -323,14 +344,14 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							</button>
 						)}
 
-						{eventIsOngoing && isClanOwner ? (
+						{actualEventStatus.isOngoing && isClanOwner ? (
 							<button
 								className="flex gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary "
 								onClick={() => setOpenModalDelEvent(true)}
 							>
 								{t('dashboard.endEvent')}
 							</button>
-						) : !eventIsOngoing ? (
+						) : !actualEventStatus.isOngoing ? (
 							<button
 								onClick={handleToggleUserEvent}
 								className="flex items-center gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary"
