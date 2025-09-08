@@ -666,8 +666,7 @@ export const displayNativeCalling = async (data: any) => {
 				}
 			}
 		});
-	} catch (e) {
-		await notifee.cancelNotification(notificationId, notificationId);
-		console.error('log => e displayCalling', e);
+	} catch (error) {
+		console.error('Error displaying call notification:', error);
 	}
 };

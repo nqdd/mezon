@@ -3,7 +3,7 @@ import { getTagByIdOnStored } from '@mezon/core';
 import { ChannelsEntity, getStore, selectCanvasIdsByChannelId, selectGmeetVoice } from '@mezon/store';
 import { EBacktickType, ETokenMessage, IExtendedMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { CanvasHashtag, ChannelHashtag, EmojiMarkup, MarkdownContent, MentionUser, PlainText } from '../../components';
 
 interface RenderContentProps {
@@ -110,7 +110,16 @@ const formatMarkdownHeadings = (text: string, isReply: boolean): React.ReactNode
 					break;
 			}
 		} else {
-			formattedLines.push(line + '\n');
+			const lastElement = formattedLines[formattedLines.length - 1];
+			const isAfterHeading = lastElement && typeof lastElement === 'object' &&
+				React.isValidElement(lastElement) &&
+				['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(lastElement.type as string);
+
+			if (isAfterHeading && line.trim()) {
+				formattedLines.push(<span key={`inline-${index}`}>{line}</span>);
+			} else {
+				formattedLines.push(line + '\n');
+			}
 		}
 	});
 
