@@ -242,8 +242,6 @@ export const updateDmGroup = createAsyncThunk(
 						...(typeof body.topic !== 'undefined' ? { topic: body.topic } : {})
 					})
 				);
-
-				thunkAPI.dispatch(directActions.fetchDirectMessage({ noCache: true }));
 			}
 
 			return response;
