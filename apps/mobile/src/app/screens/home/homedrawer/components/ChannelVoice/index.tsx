@@ -2,7 +2,7 @@ import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectChannelById2, selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, NativeModules, Platform, StyleSheet, View } from 'react-native';
+import { AppState, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import { useSoundReactions } from '../../../../../hooks/useSoundReactions';
 import { CallReactionHandler } from './CallReactionHandler';
 import HeaderRoomView from './HeaderRoomView';
 import RoomView from './RoomView';
+const { PipModule } = NativeModules;
 
 const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule } = NativeModules;
 
@@ -177,30 +178,50 @@ function ChannelVoice({
 		};
 	}, []);
 
+	const checkPipSupport = async () => {
+		try {
+			if (Platform.OS !== 'android' || !PipModule?.isPipSupported) {
+				return false;
+			}
+			return await PipModule.isPipSupported();
+		} catch (error) {
+			console.error('Error checking PiP support:', error);
+			return false;
+		}
+	};
+
 	useEffect(() => {
-		const subscription = AppState.addEventListener('change', async (state) => {
-			if (isRequestingPermission?.current || Platform.OS === 'ios') {
-				return;
-			}
-			if (state === 'background') {
-				if (Platform.OS === 'android') {
-					const isPipSupported = await NativeModules.PipModule.isPipSupported();
-					if (isPipSupported) {
-						NativeModules.PipModule.enablePipMode();
-						dispatch(voiceActions.setPiPModeMobile(true));
-					}
-				}
-			} else {
-				if (Platform.OS === 'android') {
-					dispatch(voiceActions.setPiPModeMobile(false));
-				}
-			}
-		});
+		if (Platform.OS === 'android') {
+			checkPipSupport();
+		}
+		const subscription =
+			Platform.OS === 'ios'
+				? null
+				: AppState.addEventListener('change', async (state) => {
+						try {
+							if (isRequestingPermission?.current) {
+								return;
+							}
+							if (state === 'background') {
+								StatusBar.setTranslucent(false);
+								PipModule?.enterPipMode?.();
+								dispatch(voiceActions.setPiPModeMobile(true));
+							} else {
+								StatusBar.setTranslucent(true);
+								PipModule?.exitPipMode?.();
+								dispatch(voiceActions.setPiPModeMobile(false));
+							}
+						} catch (e) {
+							StatusBar.setTranslucent(true);
+							dispatch(voiceActions.setPiPModeMobile(false));
+						}
+					});
 		return () => {
 			if (Platform.OS === 'android') {
+				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}
-			subscription.remove();
+			subscription && subscription.remove();
 		};
 	}, [dispatch]);
 

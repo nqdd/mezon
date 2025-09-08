@@ -19,6 +19,7 @@ export interface IFile {
 	fileData: any;
 	height?: number;
 	width?: number;
+	thumbnailPreview?: string;
 }
 
 interface IMezonImagePickerProps {

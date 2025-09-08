@@ -36,6 +36,7 @@ import { ChatBox } from '../../../screens/home/homedrawer/ChatBox';
 import MessageItem from '../../../screens/home/homedrawer/MessageItem';
 import PanelKeyboard from '../../../screens/home/homedrawer/PanelKeyboard';
 import { EMessageActionType } from '../../../screens/home/homedrawer/enums';
+import { checkNotificationPermissionMiddleware } from '../../../utils/notificationPermissionHelper';
 import StatusBarHeight from '../../StatusBarHeight/StatusBarHeight';
 import { style } from './CreateThreadForm.style';
 import HeaderLeftThreadForm from './HeaderLeftThreadForm';
@@ -149,11 +150,12 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 									clanId: currentClanId
 								})
 							);
+							dispatch(appActions.setLoadingMainMobile(false));
+							await checkNotificationPermissionMiddleware({ showBottomSheet: true });
 						}
 					} catch (error) {
-						console.error('Error creating thread:', error);
-					} finally {
 						dispatch(appActions.setLoadingMainMobile(false));
+						console.error('Error creating thread:', error);
 					}
 				} else {
 					await sendMessageThread(content, mentions, attachments, references, threadCurrentChannel);

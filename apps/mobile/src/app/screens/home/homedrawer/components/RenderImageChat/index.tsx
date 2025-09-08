@@ -178,20 +178,8 @@ const ImageRenderer = React.memo(
 		const photoSize = useMemo(() => {
 			if (imageSize?.width) {
 				return {
-					width: isUploading
-						? isMultiple
-							? widthMedia / 2
-							: widthMedia
-						: isMultiple
-							? widthMedia / 2
-							: Math.min(imageSize.width, widthMedia),
-					height: isUploading
-						? isMultiple
-							? heightMedia / 2
-							: heightMedia
-						: isMultiple
-							? heightMedia / 2
-							: (imageSize.height * Math.min(imageSize.width, widthMedia)) / imageSize.width
+					width: isMultiple ? widthMedia / 2 : Math.min(imageSize.width, widthMedia),
+					height: isMultiple ? heightMedia / 2 : (imageSize.height * Math.min(imageSize.width, widthMedia)) / imageSize.width
 				};
 			} else {
 				return {
@@ -290,4 +278,3 @@ const ImageRenderer = React.memo(
 );
 
 export { RenderImageChat };
-

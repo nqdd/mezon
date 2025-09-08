@@ -58,36 +58,36 @@ export const style = (colors: Attributes) =>
 			elevation: 6
 		},
 		header: {
-			paddingHorizontal: 20,
-			paddingVertical: 16
+			paddingHorizontal: size.s_20,
+			paddingVertical: size.s_16
 		},
 		headerTitle: {
-			fontSize: 20,
+			fontSize: size.s_20,
 			fontWeight: '700',
 			color: colors.text
 		},
 		conversationsList: {
-			paddingBottom: 20
+			paddingBottom: size.s_20
 		},
 		conversationCard: {
-			paddingHorizontal: 20,
-			paddingVertical: 16,
+			paddingHorizontal: size.s_20,
+			paddingVertical: size.s_16,
 			flexDirection: 'row',
 			alignItems: 'center'
 		},
 		avatarContainer: {
 			position: 'relative',
-			marginRight: 16
+			marginRight: size.s_16
 		},
 		avatar: {
-			width: 50,
-			height: 50,
-			borderRadius: 25
+			width: size.s_50,
+			height: size.s_50,
+			borderRadius: size.s_50
 		},
 		onlineIndicator: {
 			position: 'absolute',
-			bottom: 2,
-			right: 2,
+			bottom: size.s_2,
+			right: size.s_2,
 			width: 14,
 			height: 14,
 			borderRadius: 7,
@@ -103,22 +103,22 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			alignItems: 'center',
-			marginBottom: 4
+			marginBottom: size.s_4
 		},
 		userName: {
-			fontSize: 16,
+			fontSize: size.s_16,
 			fontWeight: '600',
 			color: colors.text,
 			flex: 1,
-			marginRight: 8
+			marginRight: size.s_8
 		},
 		timestamp: {
-			fontSize: 12,
+			fontSize: size.s_12,
 			color: colors.textDisabled,
 			fontWeight: '500'
 		},
 		lastMessage: {
-			fontSize: 14,
+			fontSize: size.s_14,
 			color: colors.textDisabled,
 			lineHeight: 20
 		}
