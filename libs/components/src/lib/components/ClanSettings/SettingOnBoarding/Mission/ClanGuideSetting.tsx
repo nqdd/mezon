@@ -100,9 +100,7 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 						gap={16}
 						icon={<Icons.RuleIcon className="text-theme-primary" />}
 						className="px-3"
-						description={
-							<div className="h-full flex items-center text-base text-theme-primary font-bold">Read the Rules </div>
-						}
+						description={<div className="h-full flex items-center text-base text-theme-primary font-bold">Read the Rules </div>}
 					/>
 
 					<button
@@ -224,7 +222,7 @@ const MissionItem = ({ mission, temp, setOpenModalSaveChanges }: MissionItemProp
 				<span>
 					{' '}
 					{titleMission[mission?.task_type ? mission?.task_type - 1 : 0]}{' '}
-					<span className="font-semibold text-gray-800 dark:text-white">#{channelById.channel_label}</span>{' '}
+					<span className="font-semibold text-gray-800 dark:text-white">#{channelById?.channel_label}</span>{' '}
 				</span>
 			}
 			action={

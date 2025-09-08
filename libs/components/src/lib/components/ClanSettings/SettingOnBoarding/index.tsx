@@ -171,7 +171,9 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					showOnboardingHighlight={showOnboardingHighlight}
 				/>
 			)}
-			{currentPage === EOnboardingStep.QUESTION && <Questions handleGoToPage={handleGoToPage} />}
+			{currentPage === EOnboardingStep.QUESTION && (
+				<Questions handleGoToPage={handleGoToPage} setOpenModalSaveChanges={setOpenModalSaveChanges} />
+			)}
 			{currentPage === EOnboardingStep.MISSION && (
 				<MemberProvider>
 					<div className="flex flex-col gap-8">
