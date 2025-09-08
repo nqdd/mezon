@@ -3,7 +3,7 @@ import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import { RenderItemInfo } from 'react-native-awesome-gallery';
-import ImageNative from '../ImageNative';
+import FastImage from 'react-native-fast-image';
 
 export const ItemImageModal = React.memo(({ item, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
 	const [dims, setDims] = useState(Dimensions.get('window'));
@@ -22,5 +22,15 @@ export const ItemImageModal = React.memo(({ item, setImageDimensions }: RenderIt
 	if (!ready) {
 		return <View />;
 	}
-	return <ImageNative url={item?.url} style={(StyleSheet.absoluteFillObject, { width: dims.width, height: dims.height })} resizeMode="contain" />;
+	return (
+		<FastImage
+			source={{ uri: item?.url }}
+			style={(StyleSheet.absoluteFillObject, { width: dims.width, height: dims.height })}
+			resizeMode="contain"
+			onLoad={(event) => {
+				const { width = dims.width, height = dims.height } = event.nativeEvent;
+				setImageDimensions({ width, height });
+			}}
+		/>
+	);
 });

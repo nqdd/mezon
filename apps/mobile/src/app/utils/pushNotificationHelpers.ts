@@ -5,10 +5,12 @@ import {
 	save,
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
+	STORAGE_IS_CANCEL_CALL_IN_CACHE,
 	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
 	STORAGE_MY_USER_ID
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
+import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import {
 	AndroidBadgeIconType,
@@ -556,50 +558,26 @@ export const getVoIPToken = async () => {
 	}
 };
 
-let pendingCallNotification: NodeJS.Timeout | null = null;
-let lastCallData: any = null;
-
 export const displayNativeCalling = async (data: any) => {
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
-		lastCallData = dataObj;
-
-		if (pendingCallNotification) {
-			clearTimeout(pendingCallNotification);
-			pendingCallNotification = null;
-		}
-
-		if (dataObj?.offer === 'CANCEL_CALL') {
+		if (dataObj?.offer === 'CANCEL_CALL' || !dataObj?.callerName) {
+			save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'true');
+			setTimeout(() => {
+				save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
+			}, 700);
 			await notifee.cancelNotification(notificationId, notificationId);
-			lastCallData = null;
 			return;
 		}
 
-		if (!dataObj?.callerName) {
-			await notifee.cancelNotification(notificationId, notificationId);
-			lastCallData = null;
+		await sleep(500); // wait for 0.5s to see if a newer call or cancellation arrives
+		const isCancelCallInCache = load(STORAGE_IS_CANCEL_CALL_IN_CACHE);
+		if (isCancelCallInCache === 'true') {
+			// A newer call or cancellation arrived during our delay
 			return;
 		}
-
-		pendingCallNotification = setTimeout(async () => {
-			if (lastCallData?.offer === 'CANCEL_CALL' || !lastCallData?.callerName) {
-				await notifee.cancelNotification(notificationId, notificationId);
-				lastCallData = null;
-				return;
-			}
-
-			await displayCallNotification(lastCallData, notificationId);
-			lastCallData = null;
-		}, 500);
-	} catch (e) {
-		await notifee.cancelNotification(notificationId, notificationId);
-		console.error('log => e displayCalling', e);
-	}
-};
-
-const displayCallNotification = async (dataObj: any, notificationId: string) => {
-	try {
+		save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
 		const channel = await notifee.createChannel({
 			id: 'calls',
 			name: 'Incoming Calls',
