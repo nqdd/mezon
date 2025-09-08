@@ -57,7 +57,6 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 	const [documents, setDocuments] = useState<ApiMessageAttachment[]>([]);
 	const visibleImages = useMemo(() => images?.reverse()?.slice(0, images?.length > 4 ? 3 : 4), [images]);
 	const remainingImagesCount = useMemo(() => images?.length - visibleImages?.length || 0, [images, visibleImages]);
-	const visibleVideos = useMemo(() => videos?.reverse(), [videos]);
 
 	useEffect(() => {
 		const { videos, images, documents } = classifyAttachments(attachments ?? []);
@@ -116,14 +115,16 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 	return (
 		<View style={{ gap: size.s_10 }}>
 			<View style={styles.gridContainer}>
-				{visibleVideos?.length > 0 &&
-					visibleVideos?.map((video, index) => (
+				{videos?.length > 0 &&
+					videos?.map((video, index) => (
 						<RenderVideoChat
 							key={`${video?.url}_${index}`}
 							videoURL={video?.url}
 							onLongPress={() => onLongPressImage(video)}
 							isMultiple={videos?.length >= 2}
 							thumbnailPreview={video?.thumbnail}
+							widthThumbnail={video?.width}
+							heightThumbnail={video?.height}
 						/>
 					))}
 			</View>
