@@ -53,7 +53,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				first: 32,
 				assetType: 'All',
 				...(!!after && { after: after }),
-				include: ['filename', 'fileSize', 'fileExtension', 'imageSize', 'orientation'],
+				include: ['filename', 'fileSize', 'fileExtension', 'imageSize', 'orientation', 'playableDuration'],
 				groupTypes: 'All'
 			});
 
