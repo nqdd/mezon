@@ -2,8 +2,6 @@ name: Mezon FE - E2E Validation
 
 on:
   workflow_dispatch:
-  push:
-    branches: [develop]
   pull_request:
     branches: [develop]
     types: [opened, synchronize, reopened]
