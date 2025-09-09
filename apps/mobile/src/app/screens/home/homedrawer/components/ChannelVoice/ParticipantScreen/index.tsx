@@ -38,7 +38,7 @@ const ParticipantItem = memo(
 		const renderSoundEffectIcon = () => {
 			return (
 				<View style={styles.soundEffectIcon}>
-					<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_16} width={size.s_16} color={themeValue.textStrong} />
+					<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_16} width={size.s_16} color="#fff" />
 				</View>
 			);
 		};
