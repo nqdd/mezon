@@ -196,7 +196,7 @@ function MyApp() {
 				{previewMode && <PreviewOnboardingMode />}
 				{openPopupForward && <ForwardMessageModal />}
 				<SidebarMenu openCreateClanModal={openCreateClanModal} openDiscoverPage={openDiscoverPage} />
-				<Topbar isHidden={currentClanId !== '0' ? !currentChannel?.id : !directId} />
+				<Topbar isHidden={currentClanId !== '0' ? false : !directId} />
 				<MainContent />
 
 				<FooterProfile
