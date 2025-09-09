@@ -196,7 +196,7 @@ function MyApp() {
 				{previewMode && <PreviewOnboardingMode />}
 				{openPopupForward && <ForwardMessageModal />}
 				<SidebarMenu openCreateClanModal={openCreateClanModal} openDiscoverPage={openDiscoverPage} />
-				<Topbar isHidden={currentClanId !== '0' ? !currentChannel?.id : !directId} />
+				<Topbar isHidden={currentClanId !== '0' ? false : !directId} />
 				<MainContent />
 
 				<FooterProfile
@@ -343,7 +343,11 @@ const SidebarMenu = memo(
 						<ClansList />
 						<div className="mt-3">
 							<NavLinkComponent>
-								<div className="flex items-center justify-between text-theme-primary group" onClick={openDiscoverPage} title="Discover">
+								<div
+									className="flex items-center justify-between text-theme-primary group"
+									onClick={openDiscoverPage}
+									title="Discover"
+								>
 									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
 										<svg
 											className="text-theme-primary-active size-5"
