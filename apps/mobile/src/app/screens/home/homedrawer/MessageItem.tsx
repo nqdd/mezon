@@ -179,7 +179,6 @@ const MessageItem = React.memo(
 				}
 				const data = {
 					snapPoints: ['55%', '85%'],
-					snapPointsWithFitContent: true,
 					maxHeightPercent: '90%',
 					children: <ContainerMessageActionModal message={targetMessage} mode={mode} senderDisplayName={senderDisplayName} />
 				};
@@ -232,7 +231,6 @@ const MessageItem = React.memo(
 			dispatch(setSelectedMessage(message));
 			const data = {
 				snapPoints: ['55%', '85%'],
-				snapPointsWithFitContent: true,
 				maxHeightPercent: '90%',
 				children: <ContainerMessageActionModal message={message} mode={mode} senderDisplayName={senderDisplayName} />
 			};
@@ -428,7 +426,6 @@ const MessageItem = React.memo(
 									openEmojiPicker={() => {
 										const data = {
 											snapPoints: ['75%'],
-											disableScrollView: true,
 											children: (
 												<ContainerMessageActionModal
 													message={message}
