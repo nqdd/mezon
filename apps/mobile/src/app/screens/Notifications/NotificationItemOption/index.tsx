@@ -1,6 +1,6 @@
-import { useNotification } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import { deleteNotify } from '@mezon/store-mobile';
 import { INotification, NotificationCategory } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,13 +26,12 @@ const mappingCategory = (selectedTab: string) => {
 export default memo(function NotificationItemOption({ currentNotify, currentCategory }: { currentNotify: INotification; currentCategory: string }) {
 	const { t } = useTranslation(['notification']);
 	const { themeValue } = useTheme();
-	const { deleteNotify } = useNotification();
 
 	const handleDeleteNotify = useCallback(() => {
 		const category = mappingCategory(currentCategory);
-		currentNotify?.id && deleteNotify(currentNotify.id, category);
+		currentNotify?.id && deleteNotify({ ids: [currentNotify.id], category });
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-	}, [currentCategory, currentNotify?.id, deleteNotify]);
+	}, [currentCategory, currentNotify?.id]);
 
 	const menu = useMemo(
 		() =>
