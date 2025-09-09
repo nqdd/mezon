@@ -100,7 +100,6 @@ const RoomView = ({
 	const handleOpenEmojiPicker = () => {
 		const data = {
 			snapPoints: ['45%', '75%'],
-			disableScrollView: true,
 			children: (
 				<ContainerMessageActionModal
 					message={undefined}

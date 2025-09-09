@@ -1,7 +1,7 @@
 import { useParticipants, useTracks, VideoTrack } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectIsPiPMode, selectMemberClanByUserName, useAppSelector } from '@mezon/store-mobile';
-import { Participant, Track } from 'livekit-client';
+import { Participant, RoomEvent, Track } from 'livekit-client';
 import React, { memo, useMemo, useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
@@ -38,7 +38,7 @@ const ParticipantItem = memo(
 		const renderSoundEffectIcon = () => {
 			return (
 				<View style={styles.soundEffectIcon}>
-					<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_16} width={size.s_16} color={themeValue.textStrong} />
+					<MezonIconCDN icon={IconCDN.activityIcon} height={size.s_16} width={size.s_16} color="#fff" />
 				</View>
 			);
 		};
@@ -159,7 +159,15 @@ const ParticipantItem = memo(
 
 const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions }) => {
 	const participants = useParticipants();
-	const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare, Track.Source.ScreenShareAudio]);
+	const tracks = useTracks(
+		[
+			{ source: Track.Source.Camera, withPlaceholder: true },
+			{ source: Track.Source.Microphone, withPlaceholder: false },
+			{ source: Track.Source.ScreenShare, withPlaceholder: false },
+			{ source: Track.Source.ScreenShareAudio, withPlaceholder: false }
+		],
+		{ updateOnlyOn: [RoomEvent.ActiveSpeakersChanged], onlySubscribed: false }
+	);
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 
 	const sortedParticipantsRef = useRef<Participant[]>([]);
