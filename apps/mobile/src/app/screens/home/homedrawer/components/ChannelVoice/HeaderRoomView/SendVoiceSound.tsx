@@ -20,7 +20,7 @@ const SendVoiceSound = memo(({ channelId }: SendVoiceSoundProps) => {
 	const handleSoundSelect = useCallback(
 		async (soundId: string) => {
 			try {
-				if (!socketRef.current || channelId) return;
+				if (!socketRef.current || !channelId) return;
 				await socketRef.current.writeVoiceReaction([`sound:${soundId}`], channelId);
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			} catch (error) {
