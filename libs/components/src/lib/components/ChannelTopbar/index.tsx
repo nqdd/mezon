@@ -373,7 +373,9 @@ const ChannelTopbarTools = memo(
 				{!isStream ? (
 					<div className="items-center gap-2 flex">
 						<div className="relative items-center gap-4 hidden sbm:flex sbm:flex-row-reverse">
-							<InboxButton />
+							<div className="relative leading-5 h-5 border-left-theme-primary pl-4">
+								<InboxButton />
+							</div>
 							<FileButton />
 							<GalleryButton />
 							<MuteButton />
@@ -852,7 +854,15 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 }
 
 export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
-	return <NotificationTooltip />;
+	return (
+		<button
+			title="Inbox"
+			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+			data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
+		>
+			<NotificationTooltip />
+		</button>
+	);
 }
 
 export function RedDot() {
@@ -973,6 +983,5 @@ function GalleryButton() {
 		</div>
 	);
 }
-
 
 export default ChannelTopbar;
