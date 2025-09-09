@@ -162,13 +162,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		[formattedImageList, setTimeoutHideFooter, visibleToolbarConfig?.showFooter]
 	);
 
-	const renderItem = useCallback(
-		({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
-			setImageDimensions({ width: item?.width < width ? item?.width : width || width, height: item?.height < height ? item?.height : height });
-			return <ItemImageModal key={index} item={item} />;
-		},
-		[height, width]
-	);
+	const renderItem = useCallback(({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
+		return <ItemImageModal index={index} item={item} setImageDimensions={setImageDimensions} />;
+	}, []);
 
 	const onImageSaved = useCallback(() => {
 		setShowSavedImage(true);
