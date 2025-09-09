@@ -184,6 +184,7 @@ const SearchedItem = ({ searchMessage, searchChannel, user }: ISearchedItemProps
 				}
 				isSearchMessage={true}
 				user={user}
+				previousMessage={undefined}
 			/>
 		</div>
 	);

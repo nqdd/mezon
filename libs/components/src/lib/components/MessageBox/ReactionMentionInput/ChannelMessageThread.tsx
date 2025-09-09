@@ -29,6 +29,7 @@ const ChannelMessageThread = (props: ChannelMessageThreadProps) => {
 					isMention={true}
 					isShowFull={true}
 					user={user}
+						previousMessage={undefined}
 				/>
 			)}
 		</div>

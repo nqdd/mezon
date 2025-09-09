@@ -150,6 +150,7 @@ export const ChannelMessage: ChannelMessageComponent = ({
 			observeIntersectionForLoading={observeIntersectionForLoading}
 			user={user}
 			isSelected={isSelected}
+						previousMessage={previousMessage}
 		/>
 	);
 };

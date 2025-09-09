@@ -61,6 +61,7 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 								isMention={true}
 								isShowFull={true}
 								user={currentClanUser}
+								previousMessage={undefined}
 							/>
 						</ColorRoleProvider>
 					</div>

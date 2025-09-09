@@ -144,6 +144,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 									isShowFull={true}
 									user={currentClanUser}
 									isSearchMessage={true}
+										previousMessage={undefined}
 								/>
 							)}
 						</ColorRoleProvider>
