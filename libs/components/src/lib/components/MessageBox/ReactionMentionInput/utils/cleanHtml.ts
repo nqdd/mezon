@@ -35,10 +35,24 @@ export function preparePastedHtml(html: string) {
     if (node.dataset.alt) node.setAttribute('alt', node.dataset.alt);
     switch (node.dataset.entityType) {
       case ApiMessageEntityTypes.MentionName:
-        node.replaceWith(node.textContent || '');
+      case ApiMessageEntityTypes.MentionRole:
+      case ApiMessageEntityTypes.Hashtag:
+        if (node.dataset.userId && !node.getAttribute('data-user-id')) {
+          node.setAttribute('data-user-id', node.dataset.userId);
+        }
+        if (node.dataset.id && !node.getAttribute('data-id')) {
+          node.setAttribute('data-id', node.dataset.id);
+        }
+        node.setAttribute('contenteditable', 'false');
         break;
       case ApiMessageEntityTypes.CustomEmoji:
-        node.textContent = node.dataset.alt || '';
+        if (node.dataset.documentId && !node.getAttribute('data-document-id')) {
+          node.setAttribute('data-document-id', node.dataset.documentId);
+        }
+        if (node.dataset.alt) {
+          node.textContent = node.dataset.alt;
+        }
+        node.setAttribute('contenteditable', 'false');
         break;
     }
   });

@@ -1,6 +1,5 @@
 import { TrackReference, VideoTrack, useParticipants } from '@livekit/react-native';
 import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
-import { ActiveSoundReaction } from '@mezon/components';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, size, useTheme } from '@mezon/mobile-ui';
 import {
@@ -20,6 +19,7 @@ import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../../../../../assets/lottie';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
+import { ActiveSoundReaction } from '../../../../../../hooks/useSoundReactions';
 import { ContainerMessageActionModal } from '../../MessageItemBS/ContainerMessageActionModal';
 import ControlBottomBar from '../ControlBottomBar';
 import FocusedScreenPopup from '../FocusedScreenPopup';
@@ -90,8 +90,8 @@ const RoomView = ({
 	useEffect(() => {
 		const subscription = focusedScreenShare
 			? Dimensions.addEventListener('change', () => {
-				setIsHiddenControl((prevState) => !prevState);
-			})
+					setIsHiddenControl((prevState) => !prevState);
+				})
 			: null;
 
 		return () => subscription?.remove();
@@ -100,7 +100,6 @@ const RoomView = ({
 	const handleOpenEmojiPicker = () => {
 		const data = {
 			snapPoints: ['45%', '75%'],
-			disableScrollView: true,
 			children: (
 				<ContainerMessageActionModal
 					message={undefined}
