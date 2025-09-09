@@ -66,9 +66,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				: [];
 	}, [attachments, imageSelected]);
 
-	const onClose = () => {
-		if (currentScaleRef?.current === 1) DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	};
+	const onClose = useCallback(() => {
+		if (Math.floor(currentScaleRef?.current) === 1) DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	}, []);
 
 	const updateToolbarConfig = useCallback(
 		(newValue: Partial<IVisibleToolbarConfig>) => {
@@ -88,11 +88,11 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				console.error('Error finding image index:', error);
 			}
 		}
-	}, [formattedImageList]);
+	}, [currentImage?.url, formattedImageList]);
 
 	const onIndexChange = useCallback(
 		(newIndex: number) => {
-			if (formattedImageList?.[newIndex]?.id !== currentImage?.id) {
+			if (formattedImageList?.[newIndex]?.id !== currentImage?.id && !!currentImage?.id) {
 				setCurrentImage(formattedImageList[newIndex]);
 				ref.current?.reset();
 			}
@@ -108,18 +108,18 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		}, TIME_TO_HIDE_THUMBNAIL);
 	}, [updateToolbarConfig]);
 
-	const onTap = () => {
+	const onTap = useCallback(() => {
 		updateToolbarConfig({
 			showHeader: !visibleToolbarConfig.showHeader,
 			showFooter: !visibleToolbarConfig.showHeader
 		});
-	};
+	}, [updateToolbarConfig, visibleToolbarConfig?.showHeader]);
 
 	const clearTimeoutFooter = () => {
 		footerTimeoutRef.current && clearTimeout(footerTimeoutRef.current);
 	};
 
-	const onPanStart = () => {
+	const onPanStart = useCallback(() => {
 		clearTimeoutFooter();
 		if (visibleToolbarConfig.showFooter) {
 			setTimeoutHideFooter();
@@ -130,17 +130,20 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 			setTimeoutHideFooter();
 			return;
 		}
-	};
+	}, [setTimeoutHideFooter, updateToolbarConfig, visibleToolbarConfig?.showFooter]);
 
-	const onDoubleTap = (toScale: number) => {
-		if (toScale > ORIGIN_SCALE) {
-			clearTimeoutFooter();
-			updateToolbarConfig({
-				showHeader: false,
-				showFooter: false
-			});
-		}
-	};
+	const onDoubleTap = useCallback(
+		(toScale: number) => {
+			if (toScale > ORIGIN_SCALE) {
+				clearTimeoutFooter();
+				updateToolbarConfig({
+					showHeader: false,
+					showFooter: false
+				});
+			}
+		},
+		[updateToolbarConfig]
+	);
 
 	const onImageThumbnailChange = useCallback(
 		(image: AttachmentEntity) => {
@@ -159,9 +162,13 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		[formattedImageList, setTimeoutHideFooter, visibleToolbarConfig?.showFooter]
 	);
 
-	const renderItem = ({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
-		return <ItemImageModal index={index} item={item} setImageDimensions={setImageDimensions} />;
-	};
+	const renderItem = useCallback(
+		({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
+			setImageDimensions({ width: item?.width < width ? item?.width : width || width, height: item?.height < height ? item?.height : height });
+			return <ItemImageModal key={index} item={item} />;
+		},
+		[height, width]
+	);
 
 	const onImageSaved = useCallback(() => {
 		setShowSavedImage(true);
@@ -251,6 +258,7 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 			<GalleryAwesome
 				ref={ref}
 				style={{ flex: 1 }}
+				numToRender={1}
 				containerDimensions={{ height, width }}
 				initialIndex={initialIndex === -1 ? 0 : initialIndex}
 				data={formattedImageList}
