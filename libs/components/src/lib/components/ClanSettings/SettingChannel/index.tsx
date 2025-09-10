@@ -95,15 +95,15 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 		return listChannel.slice(start, end);
 	}, [listChannel, currentPage, pageSize]);
 	return (
-		<div className='h-full w-full flex flex-col gap-1 flex-1'>
-			<div className='flex flex-row justify-between items-center px-4 h-12 shadow border-b-theme-primary'>
-				<div className='flex-1 text-xs font-bold uppercase p-1'>Name</div>
-				<div className='flex-1 text-xs font-bold uppercase p-1'>Members</div>
-				<div className='flex-1 text-xs font-bold uppercase p-1'>Messages count</div>
-				<div className='flex-1 text-xs font-bold uppercase p-1'>Last Sent</div>
-				<div className='pr-1 text-xs font-bold uppercase p-1'>Creator</div>
+		<div className="h-full w-full flex flex-col gap-1 flex-1">
+			<div className="flex flex-row justify-between items-center px-4 h-12 shadow border-b-theme-primary">
+				<div className="flex-1 text-xs font-bold uppercase p-1">Name</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">Members</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">Messages count</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">Last Sent</div>
+				<div className="pr-1 text-xs font-bold uppercase p-1">Creator</div>
 			</div>
-			<div className='flex-1'>
+			<div className="flex-1">
 				<AnchorScroll anchorId={clanId} ref={parentRef} className={['hide-scrollbar']} classNameChild={['!justify-start']}>
 					{channelListCut.map((channel) => (
 						<RenderChannelAndThread
@@ -115,12 +115,12 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 							searchFilter={searchFilter}
 						/>
 					))}
-					<div className='flex flex-row justify-between items-center px-4 h-[54px] border-t-theme-primary mt-0'>
+					<div className="flex flex-row justify-between items-center px-4 h-[54px] border-t-theme-primary mt-0">
 						<div className={'flex flex-row items-center '}>
 							Show
 							<Menu menu={menu}>
 								<div className={'flex flex-row items-center justify-center text-center border-theme-primary rounded mx-1 px-3 w-12'}>
-									<span className='mr-1'>{pageSize}</span>
+									<span className="mr-1">{pageSize}</span>
 									<Icons.ArrowDown />
 								</div>
 							</Menu>
@@ -173,8 +173,8 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 	}, [channelParent.channel_type]);
 
 	return (
-		<div className='flex flex-col border-b-[1px] border-b-theme-primary last:border-b-0'>
-			<div className='relative' onClick={handleFetchThreads}>
+		<div className="flex flex-col border-b-[1px] border-b-theme-primary last:border-b-0">
+			<div className="relative" onClick={handleFetchThreads}>
 				<ItemInfor
 					creatorId={channelParent.creator_id as string}
 					label={channelParent?.channel_label as string}
@@ -192,12 +192,12 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 						onClick={toggleThreadsList}
 						className={`absolute top-4 right-2 cursor-pointer transition duration-100 ease-in-out ${showThreadsList ? '' : '-rotate-90'}`}
 					>
-						<Icons.ArrowDown defaultSize='h-6 w-6 dark:text-[#b5bac1] text-black' />
+						<Icons.ArrowDown defaultSize="h-6 w-6 dark:text-[#b5bac1] text-black" />
 					</div>
 				)}
 			</div>
 			{showThreadsList && !searchFilter && (
-				<div className='flex flex-col pl-8'>
+				<div className="flex flex-col pl-8">
 					{threadsList?.length > 0 ? (
 						threadsList?.map((thread) => (
 							<ItemInfor
@@ -272,16 +272,16 @@ const ItemInfor = ({
 	const [openModalAllMember, closeModalAllMember] = useModal(() => {
 		return (
 			<div
-				className='fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-75 z-30'
+				className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-75 z-30"
 				onClick={closeModalAllMember}
 			>
 				<div
-					className='w-450 max-h-[80vh] min-h-250  rounded-lg flex flex-col gap-2 p-4 overflow-y-auto hide-scrollbar bg-theme-setting-primary text-theme-primary'
+					className="w-450 max-h-[80vh] min-h-250  rounded-lg flex flex-col gap-2 p-4 overflow-y-auto hide-scrollbar bg-theme-setting-primary text-theme-primary"
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className='font-semibold pb-3 '>List Member</div>
+					<div className="font-semibold pb-3 ">List Member</div>
 					{userIds.map((member) => (
-						<div className='flex gap-3'>
+						<div className="flex gap-3">
 							<AvatarUserShort id={member} key={member} showName={true} />
 						</div>
 					))}
@@ -305,12 +305,12 @@ const ItemInfor = ({
 			className={`w-full py-1 relative before:content-[" "] before:w-full before:h-[0.08px]  before:absolute before:top-0 before:left-0 group text-theme-primary `}
 			onContextMenu={handleCopyChannelId}
 		>
-			<div className='cursor-pointer px-3 py-2 pr-12 flex gap-3 items-center w-full bg-item-hover'>
-				<div className='h-6 w-6'>
+			<div className="cursor-pointer px-3 py-2 pr-12 flex gap-3 items-center w-full bg-item-hover">
+				<div className="h-6 w-6">
 					{!isVoice &&
 						(isThread ? (
 							privateChannel ? (
-								<Icons.ThreadIconLocker className='w-5 h-5 ' />
+								<Icons.ThreadIconLocker className="w-5 h-5 " />
 							) : (
 								<Icons.ThreadIcon />
 							)
@@ -323,9 +323,9 @@ const ItemInfor = ({
 					{isVoice && <Icons.Speaker />}
 				</div>
 				<div className={`flex-1 box-border flex overflow-hidden`}>
-					<span className='truncate pr-8'>{label}</span>
+					<span className="truncate pr-8">{label}</span>
 				</div>
-				<div className='flex-1 flex ' onClick={handleShowAllMemberList}>
+				<div className="flex-1 flex " onClick={handleShowAllMemberList}>
 					{privateChannel || isThread ? (
 						<AvatarGroup>
 							{userIds.slice(0, 3).map((member) => (
@@ -347,13 +347,13 @@ const ItemInfor = ({
 					) : null}
 				</div>
 
-				<div className='overflow-hidden flex w-12 items-center justify-center'>
+				<div className="overflow-hidden flex w-12 items-center justify-center">
 					{(creatorChannel?.clan_avatar || creatorChannel?.user?.avatar_url) && (
 						<img
 							title={creatorChannel?.clan_nick || creatorChannel?.user?.display_name || creatorChannel?.user?.username}
 							src={imgCreator}
-							className='w-8 h-8 object-cover rounded-full'
-							alt=''
+							className="w-8 h-8 object-cover rounded-full"
+							alt=""
 						/>
 					)}
 				</div>
@@ -370,12 +370,12 @@ export const AvatarUserShort = ({ id, showName = false }: { id: string; showName
 	const avatarUrl = getAvatarForPrioritize(clanAvatar, userAvatar) || 'assets/avatar-user.svg';
 
 	return (
-		<div className='flex items-center gap-3'>
+		<div className="flex items-center gap-3">
 			<img
 				src={createImgproxyUrl(avatarUrl, { width: 24, height: 24, resizeType: 'fit' })}
-				className='rounded-full h-6 aspect-square object-cover'
+				className="rounded-full h-6 aspect-square object-cover"
 			/>
-			{showName ? <div className=''>{member?.clan_nick || member?.user?.display_name || member?.user?.username}</div> : null}
+			{showName ? <div className="">{member?.clan_nick || member?.user?.display_name || member?.user?.username}</div> : null}
 		</div>
 	);
 };

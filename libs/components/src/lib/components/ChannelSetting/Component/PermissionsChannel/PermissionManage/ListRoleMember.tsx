@@ -71,9 +71,9 @@ const ListRoleMember = memo((props: ListRoleMemberProps) => {
 	};
 
 	return (
-		<div className='basis-1/3'>
+		<div className="basis-1/3">
 			<HeaderAddRoleMember listManageNotInChannel={listManageNotInChannel} usersClan={usersClan} channelId={channelId} />
-			<div className='mt-2'>
+			<div className="mt-2">
 				{listManageInChannel.map((item) => (
 					<div
 						key={item.id}
@@ -127,27 +127,27 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		await dispatch(channelUsersActions.addChannelUsers(body));
 	};
 	return (
-		<div ref={panelRef} className='flex justify-between items-center relative' onClick={() => setShowPopup(!showPopup)}>
-			<h4 className='uppercase font-bold text-xs text-theme-primary-active'>Roles/Members</h4>
-			{channel?.channel_private === 1 && <Icons.PlusIcon defaultSize='size-4  cursor-pointer' />}
+		<div ref={panelRef} className="flex justify-between items-center relative" onClick={() => setShowPopup(!showPopup)}>
+			<h4 className="uppercase font-bold text-xs text-theme-primary-active">Roles/Members</h4>
+			{channel?.channel_private === 1 && <Icons.PlusIcon defaultSize="size-4  cursor-pointer" />}
 			{showPopup && (
 				<div
-					className='absolute bottom-5 w-64 rounded-lg overflow-hidden bg-theme-setting-primary border-theme-primary'
+					className="absolute bottom-5 w-64 rounded-lg overflow-hidden bg-theme-setting-primary border-theme-primary"
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className=' flex gap-x-1 p-4 text-sm bg-theme-setting-nav'>
-						<p className='font-bold text-theme-primary-active'>ADD:</p>
-						<input type='text' className='bg-transparent outline-none font-medium' placeholder='Role/Member' />
+					<div className=" flex gap-x-1 p-4 text-sm bg-theme-setting-nav">
+						<p className="font-bold text-theme-primary-active">ADD:</p>
+						<input type="text" className="bg-transparent outline-none font-medium" placeholder="Role/Member" />
 					</div>
 					<div
-						className=' p-2 h-64 overflow-y-scroll hide-scrollbar text-theme-primary text-theme-primary-hover'
+						className=" p-2 h-64 overflow-y-scroll hide-scrollbar text-theme-primary text-theme-primary-hover"
 						onClick={() => setShowPopup(!showPopup)}
 					>
 						{Boolean(listManageNotInChannel.length) && (
 							<div>
-								<p className='px-3 py-2 uppercase text-[11px] font-bold'>Role</p>
+								<p className="px-3 py-2 uppercase text-[11px] font-bold">Role</p>
 								{listManageNotInChannel.map((item) => (
-									<div key={item.id} className='rounded px-3 py-2 font-semibold bg-item-hover' onClick={() => addRole(item.id)}>
+									<div key={item.id} className="rounded px-3 py-2 font-semibold bg-item-hover" onClick={() => addRole(item.id)}>
 										{item.title}
 									</div>
 								))}
@@ -155,7 +155,7 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 						)}
 						{Boolean(usersClan.length) && (
 							<div>
-								<p className='px-3 py-2 uppercase text-[11px] font-bold'>Member</p>
+								<p className="px-3 py-2 uppercase text-[11px] font-bold">Member</p>
 								{usersClan.map((item) => (
 									<div key={item.id} onClick={() => addUser(item.id)}>
 										<ItemUser
@@ -189,15 +189,15 @@ const ItemUser = (props: ItemUserProps) => {
 	const namePrioritize = getNameForPrioritize(clanName, displayName, username);
 	const avatarPrioritize = getAvatarForPrioritize(avatarClan, avatar);
 	return (
-		<div className='rounded px-3 py-2 font-semibold dark:hover:bg-bgModifierHover hover:bg-bgLightModeButton dark:hover:text-white hover:text-black flex items-center gap-x-2'>
+		<div className="rounded px-3 py-2 font-semibold dark:hover:bg-bgModifierHover hover:bg-bgLightModeButton dark:hover:text-white hover:text-black flex items-center gap-x-2">
 			<AvatarImage
 				alt={username}
 				username={username}
-				className='min-w-8 min-h-8 max-w-8 max-h-8'
+				className="min-w-8 min-h-8 max-w-8 max-h-8"
 				srcImgProxy={createImgproxyUrl(avatarPrioritize ?? '')}
 				src={avatarPrioritize}
 			/>
-			<p className='font-medium'>{namePrioritize}</p>
+			<p className="font-medium">{namePrioritize}</p>
 		</div>
 	);
 };
