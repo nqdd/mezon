@@ -71,6 +71,7 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 	return (
 		<div
 			key={pinMessage.id}
+			id={`msg-${pinMessage.id}`}
 			className="relative flex flex-row justify-between  py-3 px-3 mx-2 w-widthPinMess cursor-default rounded overflow-hidden border-theme-primary bg-item-theme group/item-pinMess"
 		>
 			<div className="flex items-start gap-2 w-full ">
