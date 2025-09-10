@@ -34,7 +34,7 @@ Mezon is great for playing games and chilling with friends, or even building a w
 
 ### ✨ Key Features
 
--   **🔒 Security First** - End-to-end encryption, XSS protection, zero-knowledge architecture
+-   **🔒 Security First** - End-to-end encryption, XSS protection, zero-knowledge architecture, GitLeaks scanning
 -   **⚡ High Performance** - Sub-millisecond response times, millions of concurrent connections
 -   **🌐 Cross-Platform** - Web, Desktop (Windows/macOS/Linux), Mobile (iOS/Android)
 -   **🤖 AI-Powered** - Built-in content moderation, real-time translation, meeting summaries

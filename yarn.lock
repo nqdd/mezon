@@ -10147,6 +10147,11 @@ github-from-package@0.0.0:
   resolved "https://registry.yarnpkg.com/github-from-package/-/github-from-package-0.0.0.tgz#97fb5d96bfde8973313f20e8288ef9a167fa64ce"
   integrity sha512-SyHy3T1v2NUXn29OsWdxmK6RwHD+vkj3v8en8AOBZ1wBQ/hCAQ5bAQTD02kW4W9tUp/3Qh6J8r9EvntiyCmOOw==
 
+gitleaks@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/gitleaks/-/gitleaks-1.0.0.tgz#abab0ca4458f391b4c3ccef779d61af52567d95b"
+  integrity sha512-mTtKkWCAeHnTiBmRzjKnot8D8zX/JVDuRffuvSCr+z93vuBXygeifGZ7lXOB8Hjxto+DikSoF0XXfxntd1BZSQ==
+
 glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/glob-parent/-/glob-parent-5.1.2.tgz#869832c58034fe68a4093c17dc15e8340d8401c4"
@@ -13213,17 +13218,17 @@ mezon-active-windows@0.1.38:
   dependencies:
     node-addon-api "^1.7.2"
 
-mezon-js-protobuf@1.8.26:
-  version "1.8.26"
-  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.8.26.tgz#2ca8fca3b653b6387e90109ca4163afbebb77500"
-  integrity sha512-4AnJkolTIC4pQrSU6b5Cxfz0oYa6aOccBQv1iiSbA8NFk6c3vA7IvBQgyCQiNt9ZdYUAGLqVngYA54WKRz2I4Q==
+mezon-js-protobuf@1.8.30:
+  version "1.8.30"
+  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.8.30.tgz#a7be2addb58ac0817b79f107366bd65dff76d343"
+  integrity sha512-DMBHvqnBGD6ng4PaUQ/EC6mH5zL+yR1e8tYZcKATpt7adpXIg9WnNCLUq7YhyuHKKqrtN2oOXZiO7abRyJoPuQ==
   dependencies:
     "@scarf/scarf" "^1.1.1"
 
-mezon-js@2.12.61:
-  version "2.12.61"
-  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.61.tgz#b4e405ab76e1c1830152757513774aed568ef1fa"
-  integrity sha512-7bna3YNXHY0rNE89U7Q/iYjV0FpzaLQtIFcRdC6ENn44NyiBCFyNzRWw051pS0+5UBWTCjFkDmpTWtEHFntAbQ==
+mezon-js@2.12.75:
+  version "2.12.75"
+  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.75.tgz#c5336a3e109b497c4c0cc84fcf8f300e012a56ea"
+  integrity sha512-TSEeOLski1Z0VER/G3BdDjZNUcJmG/JQcdKnfZmOUSH0m5rkMdo4LfJp4crXfe3IgNCOpihf3ywRypalikNNFQ==
   dependencies:
     "@scarf/scarf" "^1.1.1"
     base64-arraybuffer "^1.0.2"
