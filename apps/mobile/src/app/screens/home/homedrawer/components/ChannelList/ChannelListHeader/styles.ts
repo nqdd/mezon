@@ -73,5 +73,21 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.primary,
 			width: size.s_36,
 			height: size.s_36
+		},
+		dot: {
+			width: size.s_4,
+			height: size.s_4,
+			borderRadius: size.s_4,
+			backgroundColor: colors.textDisabled,
+			marginHorizontal: size.s_8
+		},
+		row: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		navigationBar: {
+			marginTop: size.s_10,
+			flexDirection: 'row',
+			gap: size.s_8
 		}
 	});

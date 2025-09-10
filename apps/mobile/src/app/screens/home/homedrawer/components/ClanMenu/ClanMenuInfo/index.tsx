@@ -22,12 +22,12 @@ export default function ClanMenuInfo({ clan }: ClanMenuInfoProps) {
 		<View style={styles.info}>
 			{clan?.is_community && <MezonBadge title={t('common.community')} />}
 			<View style={styles.inlineInfo}>
-				<MezonIconCDN icon={IconCDN.circleIcon} height={10} width={10} color='green' />
+				<MezonIconCDN icon={IconCDN.circleIcon} height={10} width={10} color="green" />
 				<Text style={styles.inlineText}>{`${onlineMembers} ${t('info.online')}`}</Text>
 			</View>
 
 			<View style={styles.inlineInfo}>
-				<MezonIconCDN icon={IconCDN.circleIcon} height={10} width={10} color='gray' />
+				<MezonIconCDN icon={IconCDN.circleIcon} height={10} width={10} color="gray" />
 				<Text style={styles.inlineText}>{`${members} ${t('info.members')}`}</Text>
 			</View>
 		</View>
