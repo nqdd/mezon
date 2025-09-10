@@ -1,13 +1,6 @@
 import { useExpandedGroupDragAndDrop } from '@mezon/core';
-import {
-	ClanGroup as ClanGroupType,
-	RootState,
-	clansActions,
-	selectBadgeCountByClanId,
-	selectClanView,
-	selectClansEntities,
-	selectCurrentClanId
-} from '@mezon/store';
+import type { ClanGroup as ClanGroupType, RootState } from '@mezon/store';
+import { clansActions, selectBadgeCountByClanId, selectClanView, selectClansEntities, selectCurrentClanId } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import SidebarClanItem from '../ModalListClans';
@@ -101,7 +94,7 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 		dispatch(
 			clansActions.removeClanFromGroup({
 				groupId: group.id,
-				clanId: clanId
+				clanId
 			})
 		);
 	};

@@ -19,8 +19,8 @@ import {
 	useWebRTCStream
 } from '@mezon/components';
 import { useAppParams, useAuth, useClanGroupDragAndDrop, useMenu, useReference } from '@mezon/core';
+import type { ClanGroupItem } from '@mezon/store';
 import {
-	ClanGroupItem,
 	accountActions,
 	clansActions,
 	e2eeActions,
