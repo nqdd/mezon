@@ -70,11 +70,11 @@ const SidebarLogoItem = ({ onToggleUnreadList, isUnreadListOpen }: SidebarLogoIt
 			<button
 				onClick={() => {
 					setModeResponsive(ModeResponsive.MODE_DM);
-					if (unreadDMs?.length || 0) {
+
+					if (unreadDMs?.length || isUnreadListOpen) {
 						onToggleUnreadList?.();
-					} else {
-						navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
 					}
+					navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
 				}}
 				draggable="false"
 			>
