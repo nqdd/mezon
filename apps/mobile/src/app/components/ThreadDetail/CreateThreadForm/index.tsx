@@ -156,6 +156,8 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					} catch (error) {
 						dispatch(appActions.setLoadingMainMobile(false));
 						console.error('Error creating thread:', error);
+					} finally {
+						dispatch(appActions.setLoadingMainMobile(false));
 					}
 				} else {
 					await sendMessageThread(content, mentions, attachments, references, threadCurrentChannel);
