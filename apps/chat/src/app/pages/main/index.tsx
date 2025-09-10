@@ -325,6 +325,13 @@ const SidebarMenu = memo(
 		const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
 		const unreadList = useSelector(selectDirectsUnreadlist);
 
+		const handleClanClick = () => {
+			if (unreadList.length > 0) {
+				setShowDmUnreadList(true);
+				setHasUserToggled(false);
+			}
+		};
+
 		useEffect(() => {
 			const handleSizeWidth = () => {
 				if (window.innerWidth < 480) {
@@ -408,7 +415,7 @@ const SidebarMenu = memo(
 					</div>
 
 					<div className="pb-12">
-						<ClansList />
+						<ClansList onClanClick={handleClanClick} />
 						<div className="mt-3">
 							<NavLinkComponent>
 								<div
@@ -463,7 +470,7 @@ const SidebarMenu = memo(
 	() => true
 );
 
-const ClansList = memo(() => {
+const ClansList = memo(({ onClanClick }: { onClanClick?: () => void }) => {
 	const dispatch = useAppDispatch();
 	const orderedClansWithGroups = useSelector(selectOrderedClansWithGroups);
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -586,6 +593,7 @@ const ClansList = memo(() => {
 										className={`transition-all duration-200 ${draggingThis ? 'opacity-30' : ''} ${
 											isGroupIntentTarget && dropZone === 'center' ? 'animate-pulse' : ''
 										}`}
+										onClanClick={onClanClick}
 									/>
 								) : item.type === 'group' && 'group' in item && item.group ? (
 									<div onMouseEnter={(e) => handleItemMouseEnter(e, item.id)} onMouseMove={(e) => handleItemMouseEnter(e, item.id)}>
@@ -597,6 +605,7 @@ const ClansList = memo(() => {
 											isGroupIntent={isGroupIntentTarget}
 											onMouseDown={(e) => handleMouseDown(e, item.id)}
 											onClanMouseDown={handleClanMouseDown}
+											onClanClick={onClanClick}
 										/>
 									</div>
 								) : null}

@@ -39,9 +39,10 @@ export type ClanGroupProps = {
 	className?: string;
 	isGroupIntent?: boolean;
 	onClanMouseDown?: (e: React.MouseEvent<HTMLDivElement>, clanId: string, fromGroup: { groupId: string; clanId: string }) => void;
+	onClanClick?: () => void;
 };
 
-const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIntent, onClanMouseDown }: ClanGroupProps) => {
+const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIntent, onClanMouseDown, onClanClick }: ClanGroupProps) => {
 	const dispatch = useDispatch();
 	const allClansEntities = useSelector(selectClansEntities);
 
@@ -151,6 +152,7 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 										active={isActive(clan.id)}
 										className="scale-100 hover:scale-105 transition-transform duration-200"
 										onMouseDown={(e) => handleClanMouseDown(e, clan)}
+										onClanClick={onClanClick}
 									/>
 
 									{!expandedGroupDragAndDrop.draggingState.isDragging && (

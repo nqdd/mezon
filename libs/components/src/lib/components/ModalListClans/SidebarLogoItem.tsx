@@ -73,9 +73,8 @@ const SidebarLogoItem = ({ onToggleUnreadList, isUnreadListOpen }: SidebarLogoIt
 
 					if (unreadDMs?.length || isUnreadListOpen) {
 						onToggleUnreadList?.();
-					} else {
-						navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
 					}
+					navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
 				}}
 				draggable="false"
 			>
