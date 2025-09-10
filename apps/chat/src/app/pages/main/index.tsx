@@ -351,22 +351,16 @@ const SidebarMenu = memo(
 			};
 		}, []);
 
-		// Auto show unread list when there are NEW unread messages
 		useEffect(() => {
 			const currentUnreadCount = unreadList.length;
 
-			// Phát hiện tin nhắn mới (số lượng unread tăng lên)
 			if (currentUnreadCount > previousUnreadCount && currentUnreadCount > 0) {
 				setShowDmUnreadList(true);
-				// Reset hasUserToggled khi có tin nhắn mới để cho phép auto behavior
 				setHasUserToggled(false);
-			}
-			// Auto-hide khi không còn unread messages
-			else if (currentUnreadCount === 0 && showDmUnreadList) {
+			} else if (currentUnreadCount === 0 && showDmUnreadList) {
 				setShowDmUnreadList(false);
 			}
 
-			// Cập nhật previous count
 			setPreviousUnreadCount(currentUnreadCount);
 		}, [unreadList.length, previousUnreadCount, showDmUnreadList]);
 
