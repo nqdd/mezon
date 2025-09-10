@@ -242,12 +242,15 @@ export default MyApp;
 
 type ShowModal = () => void;
 
-const DirectUnreadList = memo(() => {
+const DirectUnreadList = memo(({ onClose }: { onClose?: () => void }) => {
 	const listUnreadDM = useSelector(selectDirectsUnreadlist);
 	const [listDmRender, setListDmRender] = useState(listUnreadDM);
+	const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
+	const [isVisible, setIsVisible] = useState(false);
 	const countUnreadRender = useRef(listDmRender.map((channel) => channel.id));
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
 	useEffect(() => {
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
@@ -264,11 +267,50 @@ const DirectUnreadList = memo(() => {
 		}
 	}, [listUnreadDM]);
 
+	useEffect(() => {
+		setHiddenItems(new Set());
+		setTimeout(() => setIsVisible(true), 50);
+	}, []);
+
+	const handleItemClick = (itemId: string) => {
+		setHiddenItems((prev) => new Set(prev).add(itemId));
+
+		const visibleItems = listDmRender.filter((item) => !hiddenItems.has(item.id) && item.id !== itemId);
+		if (visibleItems.length === 0) {
+			setTimeout(() => {
+				onClose?.();
+			}, 300);
+		}
+	};
+
+	const visibleItems = listDmRender.filter((item) => !hiddenItems.has(item.id));
+
 	return (
-		!!listDmRender?.length &&
-		listDmRender.map((dmGroupChatUnread) => (
-			<DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} checkMoveOut={countUnreadRender.current} />
-		))
+		<div
+			className={`transition-all duration-300 ease-out overflow-visible origin-top transform ${
+				isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'
+			}`}
+		>
+			{!!visibleItems?.length &&
+				visibleItems.map((dmGroupChatUnread, index) => (
+					<div
+						key={dmGroupChatUnread.id}
+						className={`transition-all duration-200 ease-out transform ${
+							isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+						}`}
+						style={{
+							transitionDelay: isVisible ? `${index * 50}ms` : '0ms'
+						}}
+					>
+						<DirectUnread
+							directMessage={dmGroupChatUnread}
+							checkMoveOut={countUnreadRender.current}
+							onMemberClick={() => handleItemClick(dmGroupChatUnread.id)}
+							isHiding={hiddenItems.has(dmGroupChatUnread.id)}
+						/>
+					</div>
+				))}
+		</div>
 	);
 });
 
@@ -279,6 +321,9 @@ const SidebarMenu = memo(
 		const { setCloseMenu, setStatusMenu } = useMenu();
 		const [isAtTop, setIsAtTop] = useState(true);
 		const [showDmUnreadList, setShowDmUnreadList] = useState(false);
+		const [hasUserToggled, setHasUserToggled] = useState(false);
+		const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
+		const unreadList = useSelector(selectDirectsUnreadlist);
 
 		useEffect(() => {
 			const handleSizeWidth = () => {
@@ -305,6 +350,25 @@ const SidebarMenu = memo(
 				window.removeEventListener('resize', handleResize);
 			};
 		}, []);
+
+		// Auto show unread list when there are NEW unread messages
+		useEffect(() => {
+			const currentUnreadCount = unreadList.length;
+
+			// Phát hiện tin nhắn mới (số lượng unread tăng lên)
+			if (currentUnreadCount > previousUnreadCount && currentUnreadCount > 0) {
+				setShowDmUnreadList(true);
+				// Reset hasUserToggled khi có tin nhắn mới để cho phép auto behavior
+				setHasUserToggled(false);
+			}
+			// Auto-hide khi không còn unread messages
+			else if (currentUnreadCount === 0 && showDmUnreadList) {
+				setShowDmUnreadList(false);
+			}
+
+			// Cập nhật previous count
+			setPreviousUnreadCount(currentUnreadCount);
+		}, [unreadList.length, previousUnreadCount, showDmUnreadList]);
 
 		const handleMenu = (event: MouseEvent) => {
 			const elementClick = event.target as HTMLDivElement;
@@ -338,8 +402,14 @@ const SidebarMenu = memo(
 					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
 					<div className={`flex flex-col items-center sticky top-0 z-10 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
-						<SidebarLogoItem onToggleUnreadList={() => setShowDmUnreadList((prev) => !prev)} isUnreadListOpen={showDmUnreadList} />
-						{showDmUnreadList && <DirectUnreadList />}
+						<SidebarLogoItem
+							onToggleUnreadList={() => {
+								setShowDmUnreadList((prev) => !prev);
+								setHasUserToggled(true);
+							}}
+							isUnreadListOpen={showDmUnreadList}
+						/>
+						{showDmUnreadList && <DirectUnreadList onClose={() => setShowDmUnreadList(false)} />}
 						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
 					</div>
 
