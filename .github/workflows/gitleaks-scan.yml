@@ -2,7 +2,7 @@ name: GitLeaks Scan
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, feature/gitleaks-implementation]
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
