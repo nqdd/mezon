@@ -1,49 +1,49 @@
 import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
 import {
-	DMCallActions,
-	DirectEntity,
-	RootState,
-	appActions,
-	audioCallActions,
-	canvasAPIActions,
-	channelsActions,
-	galleryActions,
-	getStore,
-	getStoreAsync,
-	groupCallActions,
-	pinMessageActions,
-	searchMessagesActions,
-	selectAllAccount,
-	selectChannelById,
-	selectCloseMenu,
-	selectCurrentChannel,
-	selectCurrentChannelId,
-	selectCurrentClanId,
-	selectCurrentDM,
-	selectDefaultNotificationCategory,
-	selectDefaultNotificationClan,
-	selectGalleryAttachmentsByChannel,
-	selectIsInCall,
-	selectIsPinModalVisible,
-	selectIsShowChatStream,
-	selectIsShowCreateThread,
-	selectIsShowCreateTopic,
-	selectIsShowMemberList,
-	selectIsShowMemberListDM,
-	selectIsShowPinBadgeByChannelId,
-	selectIsThreadModalVisible,
-	selectIsUseProfileDM,
-	selectNotifiSettingsEntitiesById,
-	selectSession,
-	selectStatusMenu,
-	selectUpdateDmGroupError,
-	selectUpdateDmGroupLoading,
-	threadsActions,
-	toastActions,
-	topicsActions,
-	useAppDispatch,
-	useAppSelector,
-	voiceActions
+  DMCallActions,
+  DirectEntity,
+  RootState,
+  appActions,
+  audioCallActions,
+  canvasAPIActions,
+  channelsActions,
+  galleryActions,
+  getStore,
+  getStoreAsync,
+  groupCallActions,
+  pinMessageActions,
+  searchMessagesActions,
+  selectAllAccount,
+  selectChannelById,
+  selectCloseMenu,
+  selectCurrentChannel,
+  selectCurrentChannelId,
+  selectCurrentClanId,
+  selectCurrentDM,
+  selectDefaultNotificationCategory,
+  selectDefaultNotificationClan,
+  selectGalleryAttachmentsByChannel,
+  selectIsInCall,
+  selectIsPinModalVisible,
+  selectIsShowChatStream,
+  selectIsShowCreateThread,
+  selectIsShowCreateTopic,
+  selectIsShowMemberList,
+  selectIsShowMemberListDM,
+  selectIsShowPinBadgeByChannelId,
+  selectIsThreadModalVisible,
+  selectIsUseProfileDM,
+  selectNotifiSettingsEntitiesById,
+  selectSession,
+  selectStatusMenu,
+  selectUpdateDmGroupError,
+  selectUpdateDmGroupLoading,
+  threadsActions,
+  toastActions,
+  topicsActions,
+  useAppDispatch,
+  useAppSelector,
+  voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
@@ -403,10 +403,12 @@ const ChannelTopbarTools = memo(
 				{!isStream ? (
 					<div className="items-center gap-2 flex">
 						<div className="relative items-center gap-4 hidden sbm:flex sbm:flex-row-reverse">
+							<div className="relative leading-5 h-5 border-left-theme-primary pl-4">
+								<InboxButton />
+							</div>
 							<FileButton />
 							<GalleryButton />
 							<MuteButton />
-							<InboxButton />
 							<PinButton mode={ChannelStreamMode.STREAM_MODE_CHANNEL} styleCss={'text-theme-primary text-theme-primary-hover'} />
 							<div onClick={setTurnOffThreadMessage}>
 								<ChannelListButton />
@@ -882,7 +884,15 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 }
 
 export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
-	return <NotificationTooltip />;
+	return (
+		<button
+			title="Inbox"
+			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+			data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
+		>
+			<NotificationTooltip />
+		</button>
+	);
 }
 
 export function RedDot() {

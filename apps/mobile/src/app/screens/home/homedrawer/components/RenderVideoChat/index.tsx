@@ -1,8 +1,9 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { Metrics, size } from '@mezon/mobile-ui';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, DeviceEventEmitter, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, Image, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
 import { createThumbnail } from 'react-native-create-thumbnail';
+import FastImage from 'react-native-fast-image';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { getAspectRatioSize, useImageResolution } from 'react-native-zoom-toolkit';
 import ImageNative from '../../../../../components/ImageNative';
@@ -117,7 +118,15 @@ export const RenderVideoChat = React.memo(
 
 			return (
 				<>
-					<ImageNative url={thumbnailPreview || ''} style={styles.video} resizeMode={isMultiple ? 'cover' : 'contain'}></ImageNative>
+					{Platform.OS === 'android' ? (
+						<FastImage
+							source={{ uri: thumbnailPreview || '', cache: FastImage.cacheControl.immutable }}
+							style={styles.video}
+							resizeMode={isMultiple ? 'cover' : 'contain'}
+						/>
+					) : (
+						<Image source={{ uri: thumbnailPreview || '' }} style={styles.video} />
+					)}
 					<View style={styles.iconFlagVideo}>
 						<Entypo size={size.s_16} name="video" style={{ color: '#ffffff' }} />
 					</View>
