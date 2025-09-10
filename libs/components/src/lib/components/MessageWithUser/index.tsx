@@ -18,7 +18,7 @@ import {
 import classNames from 'classnames';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { ApiMessageMention } from 'mezon-js/api.gen';
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import CallLogMessage from '../CallLogMessage/CallLogMessage';
 import { EmbedMessageWrap } from '../EmbedMessage/EmbedMessageWrap';
@@ -62,6 +62,7 @@ export type MessageWithUserProps = {
 	observeIntersectionForLoading?: ObserveFn;
 	user: UsersClanEntity;
 	isSelected?: boolean;
+	previousMessage?: MessagesEntity;
 };
 
 function MessageWithUser({
@@ -82,7 +83,8 @@ function MessageWithUser({
 	isTopic,
 	user,
 	observeIntersectionForLoading,
-	isSelected
+	isSelected,
+	previousMessage
 }: Readonly<MessageWithUserProps>) {
 	const dispatch = useAppDispatch();
 	const userId = user?.user?.id as string;
@@ -92,6 +94,21 @@ function MessageWithUser({
 	const checkAnonymous = message?.sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID;
 	const checkAnonymousOnReplied = message?.references && message?.references[0]?.message_sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID;
 	const showMessageHead = !(message?.references?.length === 0 && isCombine && !isShowFull);
+
+
+	const shouldShowForwardedText = useMemo(() => {
+		if (!message?.content?.fwd) return false;
+
+		if (!previousMessage) return true;
+
+		if (!previousMessage?.content?.fwd) return true;
+
+		const timeDiff = Date.parse(message.create_time) - Date.parse(previousMessage.create_time);
+		const isDifferentSender = message.sender_id !== previousMessage.sender_id;
+		const isTimeGap = timeDiff > 600000; 
+
+		return isDifferentSender || isTimeGap;
+	}, [message, previousMessage]);
 
 	const checkReplied = userId && message?.references && message?.references[0]?.message_sender_id === userId;
 
@@ -268,10 +285,10 @@ function MessageWithUser({
 						{!!message?.content?.fwd && (
 							<div
 								style={{ height: `${!isCombine ? 'calc(100% - 50px)' : '100%'}` }}
-								className="border-l-4  rounded absolute left-[58px] bottom-0"
+								className="border-l-4 border-[var(--text-theme-primary)]  rounded absolute left-[58px] bottom-0"
 							></div>
 						)}
-						{!!message?.content?.fwd && (
+						{!!message?.content?.fwd && shouldShowForwardedText && (
 							<div className="flex gap-1 items-center italic font-medium w-full text-theme-primary opacity-60">
 								<Icons.ForwardRightClick defaultSize="w-4 h-4" />
 								<p>Forwarded</p>
