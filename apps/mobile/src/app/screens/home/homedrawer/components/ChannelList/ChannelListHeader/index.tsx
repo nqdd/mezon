@@ -91,18 +91,22 @@ const ChannelListHeader = () => {
 						<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
 							{`${members} ${t('info.members')}`}
 						</Text>
-						<View
-							style={{
-								width: size.s_4,
-								height: size.s_4,
-								borderRadius: size.s_4,
-								backgroundColor: themeValue.textDisabled,
-								marginHorizontal: size.s_8
-							}}
-						/>
-						<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
-							{t('common.community')}
-						</Text>
+						{currentClan?.is_community && (
+							<View
+								style={{
+									width: size.s_4,
+									height: size.s_4,
+									borderRadius: size.s_4,
+									backgroundColor: themeValue.textDisabled,
+									marginHorizontal: size.s_8
+								}}
+							/>
+						)}
+						{currentClan?.is_community && (
+							<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
+								{t('common.community')}
+							</Text>
+						)}
 					</View>
 				</TouchableOpacity>
 			)}
