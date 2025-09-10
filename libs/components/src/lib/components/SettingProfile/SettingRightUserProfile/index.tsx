@@ -270,7 +270,7 @@ const SettingRightUser = ({
 		<>
 			<div className="flex-1 flex z-0 gap-x-8 sbm:flex-row flex-col">
 				<div className="flex-1 ">
-					<div>
+					<div data-e2e={generateE2eId(`user_setting.profile.user_profile.input.display_name`)}>
 						<label htmlFor="inputField" className="font-semibold tracking-wide text-sm">
 							DISPLAY NAME
 						</label>
