@@ -271,15 +271,15 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	};
 
 	const optionsMenu: IMezonMenuItemProps[] = [
-		{
-			onPress: handleEnableOrDisableE2EE,
-			title: messageInfo?.e2ee ? t('menu.disableE2EE') : t('menu.enableE2EE'),
-			icon: messageInfo?.e2ee ? (
-				<MezonIconCDN icon={IconCDN.lockUnlockIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
-			) : (
-				<MezonIconCDN icon={IconCDN.lockIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
-			)
-		},
+		// {
+		// 	onPress: handleEnableOrDisableE2EE,
+		// 	title: messageInfo?.e2ee ? t('menu.disableE2EE') : t('menu.enableE2EE'),
+		// 	icon: messageInfo?.e2ee ? (
+		// 		<MezonIconCDN icon={IconCDN.lockUnlockIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
+		// 	) : (
+		// 		<MezonIconCDN icon={IconCDN.lockIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
+		// 	)
+		// },
 		{
 			title: isDmUnmute ? t('menu.muteConversation') : t('menu.unMuteConversation'),
 			onPress: () => {
