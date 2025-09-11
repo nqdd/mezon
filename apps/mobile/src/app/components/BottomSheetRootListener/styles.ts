@@ -13,7 +13,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			alignItems: 'center',
-			paddingBottom: size.s_10
+			paddingVertical: size.s_10
 		},
 
 		section: {

@@ -7,8 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -45,7 +44,7 @@ const NotificationTopicItem = React.memo(({ notify, onPressNotify }: NotifyProps
 		if (Array.isArray(usernames) && usernames.length > 0) {
 			setSubjectTopic(`${usernames[0]} ${t('andYou')}`);
 		} else {
-			setSubjectTopic(t('someoneAndYou'));
+			setSubjectTopic(t('topicAndYou'));
 		}
 	}, [usernames, userIds, t]);
 
