@@ -5,7 +5,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapperOption: {
 			paddingHorizontal: horizontalScale(10),
-			paddingVertical: verticalScale(10)
+			paddingVertical: verticalScale(10),
+			marginBottom: verticalScale(30)
 		},
 		optionContainer: {
 			backgroundColor: '#3e4247',

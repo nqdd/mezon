@@ -7,9 +7,10 @@ export type SelectFieldConfig<T> = {
 	onChange: (value: string) => void;
 	errorMessage?: string;
 	options?: any[];
+	className?: string;
 };
 
-const SelectField = <T,>({ label, options, value, onChange, errorMessage }: SelectFieldConfig<T>) => {
+const SelectField = <T,>({ label, options, value, onChange, errorMessage, className }: SelectFieldConfig<T>) => {
 	const selectedOption = useMemo(() => {
 		return options?.find((option) => option.value === value)?.label || '-- Select --';
 	}, [options, value]);
@@ -24,7 +25,7 @@ const SelectField = <T,>({ label, options, value, onChange, errorMessage }: Sele
 				<Menu.Item
 					key={index}
 					onClick={() => handleOptionClick(option.value)}
-					className={`truncate px-3 py-2 rounded-md hover:bg-[#f3f4f6] dark:hover:bg-[#3f4147] cursor-pointer transition-colors duration-150 ${value === option.value
+					className={`truncate px-3 py-2 rounded-md hover:bg-[#f3f4f6] dark:hover:bg-[#3f4147] cursor-pointer transition-colors duration-150 ${className} ${value === option.value
 						? 'bg-[#e5e7eb] dark:bg-[#313338] text-[#1f2937] dark:text-white font-medium'
 						: 'text-[#374151] dark:text-[#d1d5db]'
 						}`}
