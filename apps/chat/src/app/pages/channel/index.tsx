@@ -281,7 +281,7 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 					channel_id: currentChannelAppId,
 					display_name: userProfile?.user?.display_name ?? '',
 					state: ParticipantMeetState.LEAVE,
-					room_name: currentChannelAppId || ''
+					room_name: currentChannelAppId
 				})
 			);
 		}
