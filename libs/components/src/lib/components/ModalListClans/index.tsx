@@ -1,12 +1,13 @@
 import { useCustomNavigate } from '@mezon/core';
 import { appActions, getStore, selectBadgeCountByClanId, selectIsUseProfileDM, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { IClan, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import type { IClan } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import { memo, useState, useTransition } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import NavLinkComponent from '../NavLink';
 import PanelClan from '../PanelClan';
 
