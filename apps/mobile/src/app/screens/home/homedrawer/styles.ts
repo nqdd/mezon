@@ -678,7 +678,7 @@ export const style = (colors: Attributes) =>
 		},
 		messageDeleteReplyText: {
 			fontSize: size.small,
-			color: colors.tertiary,
+			color: colors.text,
 			overflow: 'hidden',
 			width: '80%',
 			fontStyle: 'italic'
