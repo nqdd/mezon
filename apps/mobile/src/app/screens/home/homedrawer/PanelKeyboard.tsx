@@ -19,8 +19,6 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	const bottomPickerRef = useRef<BottomSheetModal>(null);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 
-	console.log('typeKeyboardBottomSheet', typeKeyboardBottomSheet);
-
 	const onShowKeyboardBottomSheet = useCallback(async (isShow: boolean, type?: string) => {
 		const keyboardHeight = Platform.OS === 'ios' ? 365 : 300;
 		if (isShow) {
