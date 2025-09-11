@@ -188,8 +188,6 @@ export const fetchChannelsCached = async (
 
 	const shouldForceCall = shouldForceApiCall(apiKey, clanData?.channelsCache, noCache);
 
-	console.log(shouldForceCall, 'shouldForceCall');
-
 	if (!shouldForceCall && clanData?.entities?.ids?.length > 0) {
 		const channels = selectCachedChannelsByClan(currentState, clanId);
 		return {
@@ -213,8 +211,6 @@ export const fetchChannelsCached = async (
 		() => ensuredMezon.client.listChannelDescs(ensuredMezon.session, limit, state, '', clanId, channelType),
 		'channel_desc_list'
 	);
-
-	console.log(response, 'response');
 
 	markApiFirstCalled(apiKey);
 
