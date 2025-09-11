@@ -1,6 +1,7 @@
 import { AvatarImage } from '@mezon/components';
 import { useCustomNavigate } from '@mezon/core';
-import { DMMetaEntity, directActions, directMetaActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store';
+import type { DMMetaEntity } from '@mezon/store';
+import { directActions, directMetaActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useMemo } from 'react';

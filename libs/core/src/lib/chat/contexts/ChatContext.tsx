@@ -669,12 +669,16 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				badge_count = channel?.count_mess_unread || 0;
 			}
 
-			resetChannelBadgeCount(dispatch, {
-				clanId: clan_id,
-				channelId: channel_id,
-				badgeCount: badge_count,
-				messageId: message_id
-			});
+			resetChannelBadgeCount(
+				dispatch,
+				{
+					clanId: clan_id,
+					channelId: channel_id,
+					badgeCount: badge_count,
+					messageId: message_id
+				},
+				store
+			);
 		},
 		[dispatch]
 	);
