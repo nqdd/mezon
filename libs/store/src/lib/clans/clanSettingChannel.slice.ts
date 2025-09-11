@@ -1,11 +1,14 @@
-import { LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState } from '@reduxjs/toolkit';
+import type { LoadingStatus } from '@mezon/utils';
+import type { EntityState } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 
 import { captureSentryError } from '@mezon/logger';
-import { ApiChannelSettingItem } from 'mezon-js/dist/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ensureSession, getMezonCtx, MezonValueContext } from '../helpers';
-import { RootState } from '../store';
+import type { ApiChannelSettingItem } from 'mezon-js/dist/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const SETTING_CLAN_CHANNEL = 'settingClanChannel';
 
@@ -128,8 +131,8 @@ export const fetchChannelSettingInClan = createAsyncThunk(
 			}
 
 			return {
-				parentId: parentId,
-				response: response,
+				parentId,
+				response,
 				typeFetch
 			};
 		} catch (error) {
@@ -146,11 +149,11 @@ export const settingClanChannelSlice = createSlice({
 	extraReducers(builder) {
 		builder
 			.addCase(fetchChannelSettingInClan.fulfilled, (state: SettingClanChannelState, actions) => {
-				const { fromCache, response } = actions.payload;
+				const { fromCache, response, typeFetch } = actions.payload;
 
 				if (!fromCache && response) {
 					state.loadingStatus = 'loaded';
-					switch (actions.payload.typeFetch) {
+					switch (typeFetch) {
 						case ETypeFetchChannelSetting.FETCH_CHANNEL:
 							channelSettingAdapter.setAll(state, response.channel_setting_list || []);
 							break;

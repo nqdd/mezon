@@ -90,23 +90,14 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 		const hasActiveMuteTime =
 			!isDefaultSetting && notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
 		const shouldShowUnmute = isCurrentlyMuted || hasActiveMuteTime;
-		const shouldShowMute = !isCurrentlyMuted && !hasActiveMuteTime;
 
-		if (shouldShowUnmute) {
-			setNameChildren(`UnMute`);
-		} else if (shouldShowMute) {
-			setNameChildren(`Mute`);
-		} else {
-			setNameChildren(`Mute`);
-		}
+		setNameChildren(shouldShowUnmute ? `UnMute` : `Mute`);
 
-		if (hasActiveMuteTime && notificationSettings?.time_mute) {
-			const timeMute = new Date(notificationSettings.time_mute);
-			const formattedDate = format(timeMute, 'dd/MM, HH:mm');
-			setMutedUntilText(`Muted until ${formattedDate}`);
-		} else {
-			setMutedUntilText('');
-		}
+		setMutedUntilText(
+			hasActiveMuteTime && notificationSettings?.time_mute
+				? `Muted until ${format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm')}`
+				: ''
+		);
 	}, [notificationSettings, dispatch, getChannelId]);
 
 	return {

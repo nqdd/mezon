@@ -1,54 +1,54 @@
 import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import type { DirectEntity, RootState } from '@mezon/store';
 import {
-  DMCallActions,
-  DirectEntity,
-  RootState,
-  appActions,
-  audioCallActions,
-  canvasAPIActions,
-  channelsActions,
-  galleryActions,
-  getStore,
-  getStoreAsync,
-  groupCallActions,
-  pinMessageActions,
-  searchMessagesActions,
-  selectAllAccount,
-  selectChannelById,
-  selectCloseMenu,
-  selectCurrentChannel,
-  selectCurrentChannelId,
-  selectCurrentClanId,
-  selectCurrentDM,
-  selectDefaultNotificationCategory,
-  selectDefaultNotificationClan,
-  selectGalleryAttachmentsByChannel,
-  selectIsInCall,
-  selectIsPinModalVisible,
-  selectIsShowChatStream,
-  selectIsShowCreateThread,
-  selectIsShowCreateTopic,
-  selectIsShowMemberList,
-  selectIsShowMemberListDM,
-  selectIsShowPinBadgeByChannelId,
-  selectIsThreadModalVisible,
-  selectIsUseProfileDM,
-  selectNotifiSettingsEntitiesById,
-  selectSession,
-  selectStatusMenu,
-  selectUpdateDmGroupError,
-  selectUpdateDmGroupLoading,
-  threadsActions,
-  toastActions,
-  topicsActions,
-  useAppDispatch,
-  useAppSelector,
-  voiceActions
+	DMCallActions,
+	appActions,
+	audioCallActions,
+	canvasAPIActions,
+	channelsActions,
+	galleryActions,
+	getStore,
+	getStoreAsync,
+	groupCallActions,
+	pinMessageActions,
+	searchMessagesActions,
+	selectAllAccount,
+	selectChannelById,
+	selectCloseMenu,
+	selectCurrentChannel,
+	selectCurrentChannelId,
+	selectCurrentClanId,
+	selectCurrentDM,
+	selectDefaultNotificationCategory,
+	selectDefaultNotificationClan,
+	selectGalleryAttachmentsByChannel,
+	selectIsInCall,
+	selectIsPinModalVisible,
+	selectIsShowChatStream,
+	selectIsShowCreateThread,
+	selectIsShowCreateTopic,
+	selectIsShowMemberList,
+	selectIsShowMemberListDM,
+	selectIsShowPinBadgeByChannelId,
+	selectIsThreadModalVisible,
+	selectIsUseProfileDM,
+	selectNotifiSettingsEntitiesById,
+	selectSession,
+	selectStatusMenu,
+	selectUpdateDmGroupError,
+	selectUpdateDmGroupLoading,
+	threadsActions,
+	toastActions,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector,
+	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
@@ -93,9 +93,15 @@ const ChannelTopbar = memo(() => {
 
 const TopBarChannelText = memo(() => {
 	const channel = useSelector(selectCurrentChannel);
-	const memberPath = `/chat/clans/${channel?.clan_id}/member-safety`;
-	const channelPath = `/chat/clans/${channel?.clan_id}/channel-setting`;
-	const { isMemberPath, isChannelPath } = usePathMatch({ isMemberPath: memberPath, isChannelPath: channelPath });
+	const currentClanId = useSelector(selectCurrentClanId);
+	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
+	const channelPath = `/chat/clans/${currentClanId}/channel-setting`;
+	const guidePath = `/chat/clans/${currentClanId}/guide`;
+	const { isMemberPath, isChannelPath, isGuidePath } = usePathMatch({
+		isMemberPath: memberPath,
+		isChannelPath: channelPath,
+		isGuidePath: guidePath
+	});
 	const channelParent =
 		useAppSelector((state) => selectChannelById(state, (channel?.parent_id ? (channel.parent_id as string) : '') ?? '')) || null;
 	const { setStatusMenu } = useMenu();
@@ -162,36 +168,55 @@ const TopBarChannelText = memo(() => {
 		dispatch(appActions.setIsShowCanvas(false));
 		closeMenu();
 	};
+
+	const pagePathTitle = useMemo(() => {
+		if (isChannelPath) {
+			return 'Channels';
+		}
+		if (isMemberPath) {
+			return 'Members';
+		}
+		if (isGuidePath) {
+			return 'Guide Clan';
+		}
+		return '';
+	}, [isChannelPath, isGuidePath, isMemberPath]);
+
 	return (
 		<>
 			<div className="flex relative flex-1 min-w-0 items-center gap-2  text-theme-primary">
 				<div className="flex sbm:hidden pl-3 px-2 text-theme-primary" onClick={openMenu} role="button">
 					<Icons.OpenMenu />
 				</div>
-				{channel ? (
-					isMemberPath || isChannelPath ? (
-						<p className="text-base font-semibold truncate max-sbm:max-w-[180px]">{isChannelPath ? 'Channels' : 'Members'}</p>
-					) : (
-						<>
-							{channelParent && (
-								<div className="flex gap-1 items-center truncate max-sbm:hidden" onClick={handleNavigateToParent}>
-									<ChannelTopbarLabel
-										isPrivate={!!channelParent?.channel_private}
-										label={channelParent?.channel_label || ''}
-										type={channelParent?.type || ChannelType.CHANNEL_TYPE_CHANNEL}
-									/>
-									<Icons.ArrowRight />
-								</div>
-							)}
-							<ChannelTopbarLabel
-								isPrivate={!!channel?.channel_private}
-								label={channel?.channel_label || ''}
-								type={channel?.type || ChannelType.CHANNEL_TYPE_CHANNEL}
-								onClick={handleCloseCanvas}
-							/>
-						</>
-					)
+
+				{pagePathTitle ? (
+					<p className="text-base font-semibold truncate max-sbm:max-w-[180px]">{pagePathTitle}</p>
 				) : (
+					<>
+						{!!channel && (
+							<>
+								{channelParent && (
+									<div className="flex gap-1 items-center truncate max-sbm:hidden" onClick={handleNavigateToParent}>
+										<ChannelTopbarLabel
+											isPrivate={!!channelParent?.channel_private}
+											label={channelParent?.channel_label || ''}
+											type={channelParent?.type || ChannelType.CHANNEL_TYPE_CHANNEL}
+										/>
+										<Icons.ArrowRight />
+									</div>
+								)}
+								<ChannelTopbarLabel
+									isPrivate={!!channel?.channel_private}
+									label={channel?.channel_label || ''}
+									type={channel?.type || ChannelType.CHANNEL_TYPE_CHANNEL}
+									onClick={handleCloseCanvas}
+								/>
+							</>
+						)}
+					</>
+				)}
+
+				{currentClanId === '0' && (
 					<div className="flex items-center gap-3 flex-1 overflow-hidden">
 						<DmTopbarAvatar
 							isGroup={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP}
@@ -227,17 +252,22 @@ const TopBarChannelText = memo(() => {
 				)}
 			</div>
 			<div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-				{channel ? (
-					<ChannelTopbarTools
-						isPagePath={!!isMemberPath || !!isChannelPath}
-						isStream={channel?.type === ChannelType.CHANNEL_TYPE_STREAMING}
-						isVoice={channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE}
-						isApp={channel?.type === ChannelType.CHANNEL_TYPE_APP}
-						isThread={!!(channel?.parent_id !== '0' && channel?.parent_id)}
-					/>
-				) : (
-					<DmTopbarTools />
+				{!pagePathTitle && (
+					<>
+						{channel ? (
+							<ChannelTopbarTools
+								isPagePath={!!isMemberPath || !!isChannelPath}
+								isStream={channel?.type === ChannelType.CHANNEL_TYPE_STREAMING}
+								isVoice={channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE}
+								isApp={channel?.type === ChannelType.CHANNEL_TYPE_APP}
+								isThread={!!(channel?.parent_id !== '0' && channel?.parent_id)}
+							/>
+						) : (
+							<DmTopbarTools />
+						)}
+					</>
 				)}
+
 				{!isMemberPath && <SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />}
 			</div>
 
@@ -373,10 +403,12 @@ const ChannelTopbarTools = memo(
 				{!isStream ? (
 					<div className="items-center gap-2 flex">
 						<div className="relative items-center gap-4 hidden sbm:flex sbm:flex-row-reverse">
+							<div className="relative leading-5 h-5 border-left-theme-primary pl-4">
+								<InboxButton />
+							</div>
 							<FileButton />
 							<GalleryButton />
 							<MuteButton />
-							<InboxButton />
 							<PinButton mode={ChannelStreamMode.STREAM_MODE_CHANNEL} styleCss={'text-theme-primary text-theme-primary-hover'} />
 							<div onClick={setTurnOffThreadMessage}>
 								<ChannelListButton />
@@ -432,7 +464,7 @@ const DmTopbarTools = memo(() => {
 	const userProfile = useSelector(selectSession);
 	const { setStatusMenu } = useMenu();
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
-	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode: mode });
+	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode });
 	const isInCall = useSelector(selectIsInCall);
 	const isGroupCallActive = useSelector((state: RootState) => state.groupCall?.isGroupCallActive || false);
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
@@ -852,7 +884,14 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 }
 
 export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
-	return <NotificationTooltip />;
+	return (
+		<div
+			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+			data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
+		>
+			<NotificationTooltip />
+		</div>
+	);
 }
 
 export function RedDot() {
@@ -973,6 +1012,5 @@ function GalleryButton() {
 		</div>
 	);
 }
-
 
 export default ChannelTopbar;

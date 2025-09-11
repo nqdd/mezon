@@ -245,6 +245,12 @@ export const notificationSettingSlice = createSlice({
 				...action.payload
 			};
 			NotificationSettingsAdapter.upsertOne(state, notificationEntity);
+			if (state?.byChannels?.[channel_id]) {
+				state.byChannels[channel_id].notificationSetting = notificationEntity as any;
+				state.byChannels[channel_id].cache = createCacheMetadata();
+			} else {
+				state.byChannels[channel_id] = getInitialChannelState();
+			}
 		},
 		removeNotiSetting: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;

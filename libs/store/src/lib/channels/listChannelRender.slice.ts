@@ -493,6 +493,25 @@ export const selectListChannelRenderByClanId = createSelector([getListChannelRen
 	return state.listChannelRender[clanId];
 });
 
+export const selectAllThreadUnreadBehind = createSelector(
+	[
+		getListChannelRenderState,
+		(state, clanId?: string) => clanId,
+		(_, __, channelId?: string) => channelId,
+		(_, __, ___, threadId?: string) => threadId
+	],
+	(state, clanId, channelId, threadId) => {
+		if (!clanId || !state.listChannelRender[clanId]) {
+			return undefined;
+		}
+		const list = state.listChannelRender[clanId];
+		const index = list.findIndex((c) => c.id === threadId);
+
+		const result = list.slice(index + 1).filter((channel) => (channel as IChannel)?.parent_id === channelId);
+		return result;
+	}
+);
+
 export const selectListOrderChannel = createSelector(getListChannelRenderState, (state) => {
 	return state.listOrderChannelByCate;
 });

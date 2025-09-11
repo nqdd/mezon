@@ -253,7 +253,13 @@ export const DATA_E2E_IDENTIFIER = {
 			button_setting: '',
 			tab_profile: '',
 			user_profile: {
-				button: ''
+				input: {
+					display_name: ''
+				},
+				button: {
+					reset: '',
+					save_changes: ''
+				}
 			},
 			clan_profile: {
 				button: '',

@@ -8,8 +8,9 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ApiOnboardingItem, OnboardingAnswer } from 'mezon-js/api.gen';
-import { ChangeEvent, useEffect, useState } from 'react';
+import type { ApiOnboardingItem, OnboardingAnswer } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { EOnboardingStep } from '..';
@@ -18,9 +19,10 @@ import ModalControlRule, { ControlInput } from '../ModalControlRule';
 
 interface IQuestionsProps {
 	handleGoToPage: (page: EOnboardingStep) => void;
+	setOpenModalSaveChanges?: (isOpen: boolean) => void;
 }
 
-const Questions = ({ handleGoToPage }: IQuestionsProps) => {
+const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps) => {
 	const [showChannelNotAssigned, setShowChannelNotAssigned] = useState(false);
 
 	const toggleChannelNotAssigned = () => {
@@ -45,6 +47,12 @@ const Questions = ({ handleGoToPage }: IQuestionsProps) => {
 	const currentClanId = useSelector(selectCurrentClanId);
 	const onboardingByClan = useAppSelector((state) => selectOnboardingByClan(state, currentClanId as string));
 
+	const checkQuestionValid = useMemo(() => formOnboarding.questions.some((question) => question.title), [formOnboarding.questions]);
+
+	useEffect(() => {
+		setOpenModalSaveChanges && setOpenModalSaveChanges(checkQuestionValid);
+	}, [checkQuestionValid]);
+
 	return (
 		<div className="flex flex-col gap-8">
 			<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
@@ -57,13 +65,6 @@ const Questions = ({ handleGoToPage }: IQuestionsProps) => {
 					<div className="font-medium text-gray-700 dark:text-channelTextLabel">
 						Create questions to help members pick additional channels and roles. Their channel list will be customised based on their
 						answers.
-					</div>
-					<div className="flex gap-2 items-center">
-						<div className="cursor-pointer text-indigo-500 hover:underline">See examples</div>
-						<div className="w-1 h-1 rounded-full bg-gray-600" />
-						<div className="cursor-pointer text-indigo-500 hover:underline">Preview</div>
-						<div className="w-1 h-1 rounded-full bg-gray-600" />
-						<div className="cursor-pointer text-indigo-500 hover:underline">Switch to Advanced Mode</div>
 					</div>
 				</div>
 				<div>
@@ -120,6 +121,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 	const [titleQuestion, setTitleQuestion] = useState(question?.title || '');
 	const [answers, setAnswer] = useState<OnboardingAnswer[]>(question?.answers || []);
 	const [indexEditAnswer, setIndexEditAnswer] = useState<number | undefined>(undefined);
+	const [error, setError] = useState('');
 	const dispatch = useAppDispatch();
 
 	const handleAddAnswers = (answer: OnboardingAnswer, edit?: number) => {
@@ -138,18 +140,20 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 			const newAnswers = [...answers];
 			newAnswers.splice(indexEditAnswer, 1);
 			setAnswer(newAnswers);
-			dispatch(
-				onboardingActions.editOnboarding({
-					clan_id: question.clan_id as string,
-					idOnboarding: question.id as string,
-					content: {
-						...question,
-						title: titleQuestion,
-						answers: newAnswers,
-						task_type: EGuideType.QUESTION
-					}
-				})
-			);
+			if (question.id) {
+				dispatch(
+					onboardingActions.editOnboarding({
+						clan_id: question.clan_id as string,
+						idOnboarding: question.id as string,
+						content: {
+							...question,
+							title: titleQuestion,
+							answers: newAnswers,
+							task_type: EGuideType.QUESTION
+						}
+					})
+				);
+			}
 		}
 		handleCloseEditAnswer();
 	};
@@ -172,6 +176,11 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 		[titleQuestion, answers.length, indexEditAnswer]
 	);
 
+	const openPopupAnswer = useCallback(() => {
+		setIndexEditAnswer(undefined);
+		openAnswerPopup();
+	}, [openAnswerPopup]);
+
 	useEffect(() => {
 		if (indexEditAnswer !== undefined) {
 			openAnswerPopup();
@@ -192,13 +201,18 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 	};
 
 	const handleAddQuestion = () => {
+		if (!titleQuestion) {
+			setError('Question is required.');
+			return;
+		}
+		setError('');
 		toggleExpand();
 		if (tempId !== undefined) {
 			dispatch(
 				onboardingActions.addQuestion({
 					data: {
 						title: titleQuestion,
-						answers: answers,
+						answers,
 						guide_type: EGuideType.QUESTION
 					},
 					update: tempId
@@ -213,7 +227,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 				content: {
 					...question,
 					title: titleQuestion,
-					answers: answers,
+					answers,
 					task_type: EGuideType.QUESTION
 				}
 			})
@@ -241,8 +255,17 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 		}
 	};
 
+	const handleOpenWrap = () => {
+		if (!isExpanded) {
+			setIsExpanded(true);
+		}
+	};
+
 	return (
-		<div className="flex flex-col gap-6 bg-white dark:bg-bgSecondary p-4 rounded-lg border border-gray-200 dark:border-transparent">
+		<div
+			className="flex flex-col gap-6 bg-white dark:bg-bgSecondary p-4 rounded-lg border border-gray-200 dark:border-transparent"
+			onClick={handleOpenWrap}
+		>
 			<div className="flex flex-col gap-2">
 				<div className="flex justify-between items-center">
 					<div className="uppercase text-xs font-medium text-gray-700 dark:text-channelTextLabel">Question {index + 1}</div>
@@ -256,13 +279,16 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 					</div>
 				</div>
 				{isExpanded ? (
-					<input
-						className="text-[20px] bg-gray-100 dark:bg-bgTertiary text-gray-800 dark:text-white font-semibold outline-none focus:outline-indigo-500 dark:focus:outline-blue-500 rounded-lg p-[10px]"
-						type="text"
-						placeholder="Enter a question..."
-						value={titleQuestion}
-						onChange={handleQuestionOnchange}
-					/>
+					<>
+						<input
+							className="text-[20px] bg-gray-100 dark:bg-bgTertiary text-gray-800 dark:text-white font-semibold outline-none focus:outline-indigo-500 dark:focus:outline-blue-500 rounded-lg p-[10px]"
+							type="text"
+							placeholder="Enter a question..."
+							value={titleQuestion}
+							onChange={handleQuestionOnchange}
+						/>
+						{error && <p className="text-red-500">{error}</p>}
+					</>
 				) : (
 					<div className="text-gray-800 dark:text-white text-xl font-semibold truncate">{titleQuestion}</div>
 				)}
@@ -270,7 +296,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 			{isExpanded && (
 				<>
 					<div className="flex flex-col gap-2">
-						<div className="text-gray-700 dark:text-channelTextLabel">Available answers - 0 of 50</div>
+						<div className="text-gray-700 dark:text-channelTextLabel">Available answers - {answers.length} of 50</div>
 						<div className="flex gap-1 gap-y-2 flex-wrap">
 							{answers.map((answer, index) => (
 								<GuideItemLayout
@@ -283,28 +309,14 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 								/>
 							))}
 							<GuideItemLayout
-								onClick={openAnswerPopup}
+								onClick={openPopupAnswer}
 								icon={<Icons.CirclePlusFill className="w-5" />}
 								title={'Add an Answer'}
 								className="w-fit hover:bg-transparent rounded-xl text-gray-800 dark:text-white justify-center items-center p-4 border-2 border-gray-300 dark:border-[#4e5058] hover:border-indigo-400 dark:hover:border-[#7d808c] border-dashed font-medium flex gap-2"
 							/>
 						</div>
 					</div>
-					<div className="flex justify-between">
-						<div className="flex gap-6">
-							<div className="flex items-center gap-2">
-								<input type="checkbox" name="multiple-answer" className="w-5 h-5 accent-indigo-500" />
-								<label htmlFor="multiple-answer" className="text-gray-700 dark:text-channelTextLabel">
-									Allow multiple answers
-								</label>
-							</div>
-							<div className="flex items-center gap-2">
-								<input type="checkbox" name="required" className="w-5 h-5 accent-indigo-500" />
-								<label htmlFor="required" className="text-gray-700 dark:text-channelTextLabel">
-									Required
-								</label>
-							</div>
-						</div>
+					<div className="flex justify-end">
 						<div
 							className="rounded-md w-28 h-9 bg-indigo-500 hover:bg-indigo-600 dark:bg-primary dark:hover:bg-blue-600 text-white flex items-center font-semibold justify-center transition-colors cursor-pointer"
 							onClick={handleAddQuestion}

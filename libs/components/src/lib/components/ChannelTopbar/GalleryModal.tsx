@@ -1,42 +1,45 @@
 import {
-  FloatingFocusManager,
-  FloatingPortal,
-  autoUpdate,
-  flip,
-  offset,
-  shift,
-  useClick,
-  useDismiss,
-  useFloating,
-  useInteractions,
-  useRole
+	FloatingFocusManager,
+	FloatingPortal,
+	autoUpdate,
+	flip,
+	offset,
+	shift,
+	useClick,
+	useDismiss,
+	useFloating,
+	useInteractions,
+	useRole
 } from '@floating-ui/react';
 import { getCurrentChatData, useEscapeKeyClose } from '@mezon/core';
+import type { AttachmentEntity } from '@mezon/store';
 import {
-  AttachmentEntity,
-  attachmentActions,
-  galleryActions,
-  getStore,
-  selectCurrentChannel,
-  selectCurrentChannelId,
-  selectCurrentClanId,
-  selectCurrentDM,
-  selectGalleryAttachmentsByChannel,
-  selectGalleryPaginationByChannel,
-  useAppDispatch,
-  useAppSelector
+	attachmentActions,
+	galleryActions,
+	getStore,
+	selectCurrentChannel,
+	selectCurrentChannelId,
+	selectCurrentClanId,
+	selectCurrentDM,
+	selectGalleryAttachmentsByChannel,
+	selectGalleryPaginationByChannel,
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ETypeLinkMedia, IImageWindowProps, LoadMoreDirection, createImgproxyUrl, formatGalleryDate, getAttachmentDataForWindow } from '@mezon/utils';
+import type { IImageWindowProps } from '@mezon/utils';
+import { ETypeLinkMedia, LoadMoreDirection, createImgproxyUrl, formatGalleryDate, getAttachmentDataForWindow } from '@mezon/utils';
+import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import isElectron from 'is-electron';
-import { RefObject, Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import InfiniteScroll from './InfiniteScroll';
 
 const DatePickerWrapper = lazy(() => import('../ChannelList/EventChannelModal/ModalCreate/DatePickerWrapper'));
 
-const DatePickerPlaceholder = () => <div className="w-full h-[32px] bg-theme-surface animate-pulse rounded"></div>;
+const DatePickerPlaceholder = () => <div className='w-full h-[32px] bg-theme-surface animate-pulse rounded'></div>;
 
 interface DateHeaderItem {
 	type: 'dateHeader';
@@ -69,6 +72,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [endDate, setEndDate] = useState<Date | null>(null);
 	const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+	const [dateValidationError, setDateValidationError] = useState<string | null>(null);
 
 	const modalRef = useRef<HTMLDivElement>(null);
 
@@ -93,9 +97,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as Element;
 
-			if (target.closest('.react-datepicker') ||
-			    target.closest('.react-datepicker-popper') ||
-			    target.closest('[class*="react-datepicker"]')) {
+			if (target.closest('.react-datepicker') || target.closest('.react-datepicker-popper') || target.closest('[class*="react-datepicker"]')) {
 				return;
 			}
 
@@ -127,6 +129,30 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 	useEscapeKeyClose(modalRef, onClose);
 
+	const calculateTimestamps = useCallback((startDate: Date | null, endDate: Date | null) => {
+		let startTimestamp: number | undefined;
+		let endTimestamp: number | undefined;
+
+		if (startDate && endDate && isSameDay(startDate, endDate)) {
+			const dayStart = startOfDay(startDate);
+			const dayEnd = endOfDay(startDate);
+			startTimestamp = getUnixTime(dayStart);
+			endTimestamp = getUnixTime(dayEnd);
+		} else {
+			if (startDate) {
+				const dayStart = startOfDay(startDate);
+				startTimestamp = getUnixTime(dayStart);
+			}
+
+			if (endDate) {
+				const dayEnd = endOfDay(endDate);
+				endTimestamp = getUnixTime(dayEnd);
+			}
+		}
+
+		return { startTimestamp, endTimestamp };
+	}, []);
+
 	const handleLoadMoreAttachments = useCallback(
 		async (direction: 'before' | 'after') => {
 			if (paginationState.isLoading || !currentChannelId) {
@@ -146,8 +172,37 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 				const timestamp = direction === 'before' ? attachments?.[attachments.length - 1]?.create_time : attachments?.[0]?.create_time;
 				const timestampNumber = timestamp ? Math.floor(new Date(timestamp).getTime() / 1000) : undefined;
 
-				const startTimestamp = startDate ? Math.floor(startDate.getTime() / 1000) : undefined;
-				const endTimestamp = endDate ? Math.floor(endDate.getTime() / 1000) : undefined;
+				const { startTimestamp, endTimestamp } = calculateTimestamps(startDate, endDate);
+
+				let beforeParam: number | undefined;
+				let afterParam: number | undefined;
+
+				if (startDate || endDate) {
+					if (direction === 'before') {
+						beforeParam = timestampNumber;
+						if (startTimestamp && timestampNumber && timestampNumber < startTimestamp) {
+							beforeParam = startTimestamp;
+						}
+					} else {
+						afterParam = timestampNumber;
+						if (endTimestamp && timestampNumber && timestampNumber > endTimestamp) {
+							afterParam = endTimestamp;
+						}
+					}
+
+					if (startTimestamp && (!afterParam || afterParam < startTimestamp)) {
+						afterParam = startTimestamp;
+					}
+					if (endTimestamp && (!beforeParam || beforeParam > endTimestamp)) {
+						beforeParam = endTimestamp;
+					}
+				} else {
+					if (direction === 'before') {
+						beforeParam = timestampNumber;
+					} else {
+						afterParam = timestampNumber;
+					}
+				}
 
 				await dispatch(
 					galleryActions.fetchGalleryAttachments({
@@ -155,9 +210,8 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						channelId: currentChannelId,
 						limit: paginationState.limit,
 						direction,
-						...(direction === 'before' ? { before: timestampNumber } : { after: timestampNumber }),
-						...(startTimestamp && { after: startTimestamp }),
-						...(endTimestamp && { before: endTimestamp })
+						...(beforeParam && { before: beforeParam }),
+						...(afterParam && { after: afterParam })
 					})
 				);
 			} catch (error) {
@@ -175,7 +229,8 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 			attachments,
 			startDate,
 			endDate,
-			dispatch
+			dispatch,
+			calculateTimestamps
 		]
 	);
 
@@ -206,43 +261,49 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [onClose, rootRef]);
 
-	const groupedAttachments = (attachments || []).reduce(
-		(groups, attachment) => {
-			if (!attachment.create_time) return groups;
+	const virtualData: VirtualDataItem[] = useMemo(() => {
+		if (!attachments || attachments.length === 0) {
+			return [];
+		}
 
-			const date = new Date(attachment.create_time);
-			const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+		const groupedAttachments = attachments.reduce(
+			(groups, attachment) => {
+				if (!attachment.create_time) return groups;
 
-			if (!groups[dateKey]) {
-				groups[dateKey] = {
-					date: date,
-					attachments: []
-				};
-			}
+				const date = new Date(attachment.create_time);
+				const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-			groups[dateKey].attachments.push(attachment);
-			return groups;
-		},
-		{} as Record<string, { date: Date; attachments: AttachmentEntity[] }>
-	);
+				if (!groups[dateKey]) {
+					groups[dateKey] = {
+						date,
+						attachments: []
+					};
+				}
 
-	const sortedDateGroups = Object.entries(groupedAttachments);
+				groups[dateKey].attachments.push(attachment);
+				return groups;
+			},
+			{} as Record<string, { date: Date; attachments: AttachmentEntity[] }>
+		);
 
-	const virtualData: VirtualDataItem[] = sortedDateGroups.flatMap(([dateKey, group]) => {
-		const items: VirtualDataItem[] = [];
-		items.push({
-			type: 'dateHeader',
-			dateKey,
-			date: group.date,
-			count: group.attachments.length
+		const sortedDateGroups = Object.entries(groupedAttachments);
+
+		return sortedDateGroups.flatMap(([dateKey, group]) => {
+			const items: VirtualDataItem[] = [];
+			items.push({
+				type: 'dateHeader',
+				dateKey,
+				date: group.date,
+				count: group.attachments.length
+			});
+			items.push({
+				type: 'imagesGrid',
+				dateKey,
+				attachments: group.attachments
+			});
+			return items;
 		});
-		items.push({
-			type: 'imagesGrid',
-			dateKey,
-			attachments: group.attachments
-		});
-		return items;
-	});
+	}, [attachments]);
 
 	const formatDate = useCallback(
 		(date: Date) => {
@@ -251,38 +312,77 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		[i18n.language]
 	);
 
-	const handleStartDateChange = useCallback((date: Date) => {
-		setStartDate(date);
+	const validateDateRange = useCallback((start: Date | null, end: Date | null): string | null => {
+		if (!start && !end) return null;
+		if (start && !end) return null;
+		if (!start && end) return null;
+
+		if (start && end) {
+			const startDay = startOfDay(start);
+			const endDay = startOfDay(end);
+
+			if (startDay.getTime() > endDay.getTime()) {
+				return 'Start date must be before or equal to end date';
+			}
+		}
+
+		return null;
 	}, []);
 
-	const handleEndDateChange = useCallback((date: Date) => {
-		setEndDate(date);
-	}, []);
+	const handleStartDateChange = useCallback(
+		(date: Date) => {
+			setStartDate(date);
+			const error = validateDateRange(date, endDate);
+			setDateValidationError(error);
+		},
+		[endDate, validateDateRange]
+	);
+
+	const handleEndDateChange = useCallback(
+		(date: Date) => {
+			setEndDate(date);
+			const error = validateDateRange(startDate, date);
+			setDateValidationError(error);
+		},
+		[startDate, validateDateRange]
+	);
 
 	const handleApplyDateFilter = useCallback(() => {
-		if (currentChannelId && currentClanId) {
-			const startTimestamp = startDate ? Math.floor(startDate.getTime() / 1000) : undefined;
-			const endTimestamp = endDate ? Math.floor(new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59).getTime() / 1000) : undefined;
-
-			dispatch(galleryActions.clearGalleryChannel({ channelId: currentChannelId }));
-			dispatch(
-				galleryActions.fetchGalleryAttachments({
-					clanId: currentClanId,
-					channelId: currentChannelId,
-					limit: 50,
-					direction: 'initial',
-					...(startTimestamp && { after: startTimestamp }),
-					...(endTimestamp && { before: endTimestamp })
-				})
-			);
+		const validationError = validateDateRange(startDate, endDate);
+		if (validationError) {
+			setDateValidationError(validationError);
+			return;
 		}
+
+		if (!currentChannelId || !currentClanId) {
+			return;
+		}
+
+		const { startTimestamp, endTimestamp } = calculateTimestamps(startDate, endDate);
+
+		dispatch(galleryActions.clearGalleryChannel({ channelId: currentChannelId }));
+		dispatch(galleryActions.resetGalleryPagination({ channelId: currentChannelId }));
+		dispatch(
+			galleryActions.fetchGalleryAttachments({
+				clanId: currentClanId,
+				channelId: currentChannelId,
+				limit: 50,
+				direction: 'initial',
+				...(startTimestamp && { after: startTimestamp }),
+				...(endTimestamp && { before: endTimestamp })
+			})
+		);
+
+		setDateValidationError(null);
 		setIsDateDropdownOpen(false);
-	}, [currentChannelId, currentClanId, startDate, endDate, dispatch]);
+	}, [currentChannelId, currentClanId, startDate, endDate, dispatch, validateDateRange, calculateTimestamps]);
 
 	const clearDateFilter = useCallback(() => {
 		setStartDate(null);
 		setEndDate(null);
+		setDateValidationError(null);
 		if (currentChannelId && currentClanId) {
+			dispatch(galleryActions.resetGalleryPagination({ channelId: currentChannelId }));
 			dispatch(
 				galleryActions.fetchGalleryAttachments({
 					clanId: currentClanId,
@@ -296,166 +396,184 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 	const getDateRangeText = useCallback(() => {
 		if (!startDate && !endDate) return 'Sent Date';
-		if (startDate && !endDate) return `From ${startDate.getDate()}/${startDate.getMonth() + 1}`;
-		if (!startDate && endDate) return `To ${endDate.getDate()}/${endDate.getMonth() + 1}`;
+
+		const formatDateText = (date: Date) => format(date, 'dd/MM/yyyy');
+
+		if (startDate && !endDate) return `From ${formatDateText(startDate)}`;
+		if (!startDate && endDate) return `To ${formatDateText(endDate)}`;
+
 		if (startDate && endDate) {
-			return `${startDate.getDate()}/${startDate.getMonth() + 1} - ${endDate.getDate()}/${endDate.getMonth() + 1}`;
+			if (isSameDay(startDate, endDate)) {
+				return formatDateText(startDate);
+			}
+
+			return `${formatDateText(startDate)} - ${formatDateText(endDate)}`;
 		}
+
 		return 'Sent Date';
 	}, [startDate, endDate]);
 
-	const handleImageClick = useCallback(async (attachment: AttachmentEntity) => {
-		const state = getStore()?.getState();
-		const currentClanId = selectCurrentClanId(state);
-		const currentDm = selectCurrentDM(state);
-		const currentChannel = selectCurrentChannel(state);
-		const currentChannelId = currentChannel?.id;
-		const currentDmGroupId = currentDm?.id;
-		const attachmentData = attachment;
-		if (!attachmentData) return;
-		const enhancedAttachmentData = {
-			...attachmentData,
-			create_time: attachmentData.create_time || new Date().toISOString()
-		};
+	const handleImageClick = useCallback(
+		async (attachment: AttachmentEntity) => {
+			const state = getStore()?.getState();
+			const currentClanId = selectCurrentClanId(state);
+			const currentDm = selectCurrentDM(state);
+			const currentChannel = selectCurrentChannel(state);
+			const currentChannelId = currentChannel?.id;
+			const currentDmGroupId = currentDm?.id;
+			const attachmentData = attachment;
+			if (!attachmentData) return;
+			const enhancedAttachmentData = {
+				...attachmentData,
+				create_time: attachmentData.create_time || new Date().toISOString()
+			};
 
-		if (isElectron()) {
-      const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
-      const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
+			if (isElectron()) {
+				const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
+				const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
 
-        const messageTimestamp = enhancedAttachmentData.create_time ? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000) : undefined;
-        const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
+				const messageTimestamp = enhancedAttachmentData.create_time
+					? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000)
+					: undefined;
+				const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
 
-       const data = await dispatch(attachmentActions.fetchChannelAttachments({
-          clanId,
-          channelId,
-          limit: 50,
-          before: beforeTimestamp
-          })
-        ).unwrap();
-        const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
-        const currentImageUploader = currentChatUsersEntities?.[attachmentData.uploader as string];
-        const listAttachmentsByChannel = data?.attachments?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
-        .map((attachmentRes) => ({
-          ...attachmentRes,
-          id: attachmentRes.id || '',
-          channelId,
-          clanId
-        }))
-        .sort((a, b) => {
-          if (a.create_time && b.create_time) {
-            return Date.parse(b.create_time) - Date.parse(a.create_time);
-          }
-          return 0;
-        });
-         if(!listAttachmentsByChannel) return;
-          window.electron.openImageWindow({
-            ...enhancedAttachmentData,
-            url: createImgproxyUrl(enhancedAttachmentData.url || '', {
-              width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
-              height: enhancedAttachmentData.height ? (enhancedAttachmentData.height > 900 ? 900 : enhancedAttachmentData.height) : 0,
-              resizeType: 'fit'
-            }),
-            uploaderData: {
-              name:
-                currentImageUploader?.clan_nick ||
-                currentImageUploader?.user?.display_name ||
-                currentImageUploader?.user?.username ||
-                'Anonymous',
-              avatar: (currentImageUploader?.clan_avatar ||
-                currentImageUploader?.user?.avatar_url ||
-                window.location.origin + '/assets/images/anonymous-avatar.png') as string
-            },
-            realUrl: enhancedAttachmentData.url || '',
-            channelImagesData: {
-              channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
-              images: [],
-              selectedImageIndex: 0
-            }
-          });
+				const data = await dispatch(
+					attachmentActions.fetchChannelAttachments({
+						clanId,
+						channelId,
+						limit: 50,
+						before: beforeTimestamp
+					})
+				).unwrap();
+				const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
+				const currentImageUploader = currentChatUsersEntities?.[attachmentData.uploader as string];
+				const listAttachmentsByChannel = data?.attachments
+					?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+					.map((attachmentRes) => ({
+						...attachmentRes,
+						id: attachmentRes.id || '',
+						channelId,
+						clanId
+					}))
+					.sort((a, b) => {
+						if (a.create_time && b.create_time) {
+							return Date.parse(b.create_time) - Date.parse(a.create_time);
+						}
+						return 0;
+					});
+				if (!listAttachmentsByChannel) return;
+				window.electron.openImageWindow({
+					...enhancedAttachmentData,
+					url: createImgproxyUrl(enhancedAttachmentData.url || '', {
+						width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
+						height: enhancedAttachmentData.height ? (enhancedAttachmentData.height > 900 ? 900 : enhancedAttachmentData.height) : 0,
+						resizeType: 'fit'
+					}),
+					uploaderData: {
+						name:
+							currentImageUploader?.clan_nick ||
+							currentImageUploader?.user?.display_name ||
+							currentImageUploader?.user?.username ||
+							'Anonymous',
+						avatar: (currentImageUploader?.clan_avatar ||
+							currentImageUploader?.user?.avatar_url ||
+							`${window.location.origin}/assets/images/anonymous-avatar.png`) as string
+					},
+					realUrl: enhancedAttachmentData.url || '',
+					channelImagesData: {
+						channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
+						images: [],
+						selectedImageIndex: 0
+					}
+				});
 
-          if (listAttachmentsByChannel) {
-            const imageListWithUploaderInfo = getAttachmentDataForWindow(listAttachmentsByChannel, currentChatUsersEntities);
-            const selectedImageIndex = listAttachmentsByChannel.findIndex((image) => image.url === enhancedAttachmentData.url);
-            const channelImagesData: IImageWindowProps = {
-              channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
-              images: imageListWithUploaderInfo,
-              selectedImageIndex: selectedImageIndex
-            };
+				if (listAttachmentsByChannel) {
+					const imageListWithUploaderInfo = getAttachmentDataForWindow(listAttachmentsByChannel, currentChatUsersEntities);
+					const selectedImageIndex = listAttachmentsByChannel.findIndex((image) => image.url === enhancedAttachmentData.url);
+					const channelImagesData: IImageWindowProps = {
+						channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
+						images: imageListWithUploaderInfo,
+						selectedImageIndex
+					};
 
-            window.electron.openImageWindow({
-              ...enhancedAttachmentData,
-              url: createImgproxyUrl(enhancedAttachmentData.url || '', {
-                width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
-                height: enhancedAttachmentData.height
-                  ? (enhancedAttachmentData.width || 0) > 1600
-                    ? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
-                    : enhancedAttachmentData.height
-                  : 0,
-                resizeType: 'fill'
-              }),
-              uploaderData: {
-                name:
-                  currentImageUploader?.clan_nick ||
-                  currentImageUploader?.user?.display_name ||
-                  currentImageUploader?.user?.username ||
-                  'Anonymous',
-                avatar: (currentImageUploader?.clan_avatar ||
-                  currentImageUploader?.user?.avatar_url ||
-                  window.location.origin + '/assets/images/anonymous-avatar.png') as string
-              },
-              realUrl: enhancedAttachmentData.url || '',
-              channelImagesData
-            });
-            return;
-          }
+					window.electron.openImageWindow({
+						...enhancedAttachmentData,
+						url: createImgproxyUrl(enhancedAttachmentData.url || '', {
+							width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
+							height: enhancedAttachmentData.height
+								? (enhancedAttachmentData.width || 0) > 1600
+									? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
+									: enhancedAttachmentData.height
+								: 0,
+							resizeType: 'fill'
+						}),
+						uploaderData: {
+							name:
+								currentImageUploader?.clan_nick ||
+								currentImageUploader?.user?.display_name ||
+								currentImageUploader?.user?.username ||
+								'Anonymous',
+							avatar: (currentImageUploader?.clan_avatar ||
+								currentImageUploader?.user?.avatar_url ||
+								`${window.location.origin}/assets/images/anonymous-avatar.png`) as string
+						},
+						realUrl: enhancedAttachmentData.url || '',
+						channelImagesData
+					});
+					return;
+				}
+			}
 
-		}
+			dispatch(
+				attachmentActions.setCurrentAttachment({
+					id: enhancedAttachmentData.message_id as string,
+					uploader: enhancedAttachmentData.uploader,
+					create_time: enhancedAttachmentData.create_time
+				})
+			);
 
-		dispatch(
-			attachmentActions.setCurrentAttachment({
-				id: enhancedAttachmentData.message_id as string,
-				uploader: enhancedAttachmentData.uploader ,
-				create_time: enhancedAttachmentData.create_time
-			})
-		);
+			dispatch(attachmentActions.setOpenModalAttachment(true));
+			dispatch(attachmentActions.setAttachment(enhancedAttachmentData.url));
 
-		dispatch(attachmentActions.setOpenModalAttachment(true));
-		dispatch(attachmentActions.setAttachment(enhancedAttachmentData.url));
+			if ((currentClanId && currentChannelId) || currentDmGroupId) {
+				const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
+				const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
+				const messageTimestamp = enhancedAttachmentData.create_time
+					? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000)
+					: undefined;
+				const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
 
-		if ((currentClanId && currentChannelId) || currentDmGroupId) {
-			const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
-			const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
-			const messageTimestamp = enhancedAttachmentData.create_time ? Math.floor(new Date(enhancedAttachmentData.create_time).getTime() / 1000) : undefined;
-			const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
-
-			dispatch(attachmentActions.fetchChannelAttachments({
-				clanId,
-				channelId,
-				state: undefined,
-				limit: 50,
-				before: beforeTimestamp
-			}));
-		}
-
-	}, []);
+				dispatch(
+					attachmentActions.fetchChannelAttachments({
+						clanId,
+						channelId,
+						state: undefined,
+						limit: 50,
+						before: beforeTimestamp
+					})
+				);
+			}
+		},
+		[dispatch]
+	);
 
 	return (
 		<div
 			ref={modalRef}
 			tabIndex={-1}
-			className="absolute top-8 right-0 rounded-md dark:shadow-shadowBorder shadow-shadowInbox z-[9999] origin-top-right"
+			className='absolute top-8 right-0 rounded-md dark:shadow-shadowBorder shadow-shadowInbox z-[9999] origin-top-right'
 		>
-			<div className="flex bg-theme-setting-primary flex-col rounded-md min-h-[400px] md:w-[480px] max-h-[80vh] lg:w-[540px] shadow-sm overflow-hidden">
-				<div className="bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12">
-					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
-						<Icons.ImageThumbnail defaultSize="w-4 h-4" />
-						<span className="text-base font-semibold cursor-default">Gallery</span>
+			<div className='flex bg-theme-setting-primary flex-col rounded-md min-h-[400px] md:w-[480px] max-h-[80vh] lg:w-[540px] shadow-sm overflow-hidden'>
+				<div className='bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12'>
+					<div className='flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4'>
+						<Icons.ImageThumbnail defaultSize='w-4 h-4' />
+						<span className='text-base font-semibold cursor-default'>Gallery</span>
 					</div>
-					<div className="flex-1 max-w-md mx-4">
+					<div className='flex-1 max-w-md mx-4'>
 						<button
 							ref={refs.setReference}
 							{...getReferenceProps()}
-							className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none"
+							className='flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none'
 						>
 							<span>{getDateRangeText()}</span>
 							<Icons.ArrowDown className={`w-3 h-3 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`} />
@@ -468,44 +586,62 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 										ref={refs.setFloating}
 										style={floatingStyles}
 										{...getFloatingProps()}
-										className="bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]"
-										data-floating-dropdown="true"
+										className='bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]'
+										data-floating-dropdown='true'
 									>
-										<div className="space-y-4">
+										<div className='space-y-4'>
 											<div>
-												<label className="block text-xs font-medium text-theme-secondary mb-2">From Date</label>
+												<label className='block text-xs font-medium text-theme-secondary mb-2'>From Date</label>
 												<Suspense fallback={<DatePickerPlaceholder />}>
 													<DatePickerWrapper
-														className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
-														wrapperClassName="w-full"
+														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
+															dateValidationError ? 'border-red-500' : 'border-theme-primary'
+														}`}
+														wrapperClassName='w-full'
 														selected={startDate || new Date()}
 														onChange={handleStartDateChange}
-														dateFormat="dd/MM/yyyy"
+														dateFormat='dd/MM/yyyy'
+														minDate={endDate ? undefined : new Date(2020, 0, 1)}
 													/>
 												</Suspense>
 											</div>
 											<div>
-												<label className="block text-xs font-medium text-theme-secondary mb-2">To Date</label>
+												<label className='block text-xs font-medium text-theme-secondary mb-2'>To Date</label>
 												<Suspense fallback={<DatePickerPlaceholder />}>
 													<DatePickerWrapper
-														className="w-full bg-theme-surface border border-theme-primary rounded px-3 py-2 text-sm text-theme-primary outline-none"
-														wrapperClassName="w-full"
+														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
+															dateValidationError ? 'border-red-500' : 'border-theme-primary'
+														}`}
+														wrapperClassName='w-full'
 														selected={endDate || new Date()}
 														onChange={handleEndDateChange}
-														dateFormat="dd/MM/yyyy"
+														dateFormat='dd/MM/yyyy'
+														minDate={startDate || undefined}
 													/>
 												</Suspense>
 											</div>
-											<div className="flex justify-between items-center">
+
+											{dateValidationError && (
+												<div className='text-red-500 text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded px-2 py-1'>
+													{dateValidationError}
+												</div>
+											)}
+
+											<div className='flex justify-between items-center'>
 												<button
 													onClick={clearDateFilter}
-													className="text-theme-secondary text-xs focus:outline-none hover:underline"
+													className='text-theme-secondary text-xs focus:outline-none hover:underline'
 												>
 													Clear all
 												</button>
 												<button
 													onClick={handleApplyDateFilter}
-													className="btn-primary btn-primary-hover text-white px-3 py-1 text-xs rounded"
+													disabled={!!dateValidationError}
+													className={`px-3 py-1 text-xs rounded transition-colors ${
+														dateValidationError
+															? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+															: 'btn-primary btn-primary-hover text-white'
+													}`}
 												>
 													Apply
 												</button>
@@ -516,24 +652,24 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 							</FloatingPortal>
 						)}
 					</div>
-					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">
+					<div className='flex flex-row items-center gap-4 text-theme-primary-hover'>
 						<button onClick={onClose}>
-							<Icons.Close defaultSize="w-4 h-4" />
+							<Icons.Close defaultSize='w-4 h-4' />
 						</button>
 					</div>
 				</div>
 
-				<div className="flex flex-col gap-4 py-4 px-[16px] min-h-full flex-1 overflow-hidden">
+				<div className='flex flex-col gap-4 py-4 px-[16px] min-h-full flex-1 overflow-hidden'>
 					{virtualData.length === 0 ? (
-						<div className="flex flex-col items-center justify-center h-64 text-center">
-							<Icons.ImageThumbnail defaultSize="w-12 h-12" className="text-theme-secondary opacity-50 mb-4" />
-							<p className="text-theme-secondary text-sm">
+						<div className='flex flex-col items-center justify-center h-64 text-center'>
+							<Icons.ImageThumbnail defaultSize='w-12 h-12' className='text-theme-secondary opacity-50 mb-4' />
+							<p className='text-theme-secondary text-sm'>
 								{startDate || endDate ? 'No media files found for the selected date range' : 'No media files found'}
 							</p>
 							{(startDate || endDate) && (
 								<button
 									onClick={clearDateFilter}
-									className="text-theme-primary hover:text-theme-primary-active text-sm underline mt-2"
+									className='text-theme-primary hover:text-theme-primary-active text-sm underline mt-2'
 								>
 									Clear date filter
 								</button>
@@ -566,6 +702,99 @@ interface GalleryContentProps {
 	hasMoreAfter?: boolean;
 }
 
+interface ImageWithLoadingProps {
+	src: string;
+	alt: string;
+	className?: string;
+	onClick?: () => void;
+	cacheKey?: string;
+}
+
+const ImageWithLoading = React.memo<ImageWithLoadingProps>(
+	({ src, alt, className, onClick, cacheKey }) => {
+		const [isLoading, setIsLoading] = useState(true);
+		const [hasError, setHasError] = useState(false);
+
+		useEffect(() => {
+			setIsLoading(true);
+			setHasError(false);
+		}, [src, cacheKey]);
+
+		const handleLoad = () => {
+			setIsLoading(false);
+		};
+
+		const handleError = () => {
+			setIsLoading(false);
+			setHasError(true);
+		};
+
+		return (
+			<div className='aspect-square relative cursor-pointer' onClick={onClick}>
+				{isLoading && (
+					<div className='absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+						<svg
+							className='w-8 h-8 text-gray-400 dark:text-gray-500'
+							fill='currentColor'
+							viewBox='0 0 20 20'
+							xmlns='http://www.w3.org/2000/svg'
+						>
+							<path
+								fillRule='evenodd'
+								d='M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z'
+								clipRule='evenodd'
+							/>
+						</svg>
+					</div>
+				)}
+
+				{hasError && (
+					<div className='absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center'>
+						<div className='text-center'>
+							<svg
+								className='w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-1'
+								fill='none'
+								stroke='currentColor'
+								viewBox='0 0 24 24'
+								xmlns='http://www.w3.org/2000/svg'
+							>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									strokeWidth={2}
+									d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z'
+								/>
+							</svg>
+							<span className='text-xs text-gray-500'>Error</span>
+						</div>
+					</div>
+				)}
+
+				<img
+					src={src}
+					alt={alt}
+					className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+					onLoad={handleLoad}
+					onError={handleError}
+				/>
+			</div>
+		);
+	},
+	(prevProps, nextProps) => {
+		if (prevProps.cacheKey && nextProps.cacheKey) {
+			return prevProps.cacheKey === nextProps.cacheKey;
+		}
+		return (
+			prevProps.src === nextProps.src &&
+			prevProps.alt === nextProps.alt &&
+			prevProps.className === nextProps.className &&
+			prevProps.cacheKey === nextProps.cacheKey
+		);
+	}
+);
+
+ImageWithLoading.displayName = 'ImageWithLoading';
+
 const GalleryContent = ({
 	virtualData,
 	handleImageClick,
@@ -576,8 +805,40 @@ const GalleryContent = ({
 	hasMoreAfter = false
 }: GalleryContentProps) => {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const userActiveScroll = useRef<boolean>(false);
+	const lastVirtualDataLength = useRef<number>(0);
 
+	useEffect(() => {
+		const handleScroll = () => {
+			userActiveScroll.current = true;
+		};
 
+		const handleWheel = () => {
+			userActiveScroll.current = true;
+		};
+
+		const handleTouchStart = () => {
+			userActiveScroll.current = true;
+		};
+
+		const container = scrollContainerRef.current;
+		if (container) {
+			container.addEventListener('scroll', handleScroll, { passive: true });
+			container.addEventListener('wheel', handleWheel, { passive: true });
+			container.addEventListener('touchstart', handleTouchStart, { passive: true });
+
+			return () => {
+				container.removeEventListener('scroll', handleScroll);
+				container.removeEventListener('wheel', handleWheel);
+				container.removeEventListener('touchstart', handleTouchStart);
+			};
+		}
+	}, []);
+
+	useEffect(() => {
+		lastVirtualDataLength.current = virtualData.length;
+	}, [virtualData.length]);
 
 	useEffect(() => {
 		if (isLoadingMore && !isLoading) {
@@ -585,13 +846,15 @@ const GalleryContent = ({
 		}
 	}, [isLoading, isLoadingMore]);
 
-
-
 	return (
 		<InfiniteScroll
-			className="h-full overflow-y-auto thread-scroll"
+			ref={scrollContainerRef}
+			className='h-full overflow-y-auto thread-scroll'
 			items={virtualData}
-      itemSelector=".gallery-item"
+			itemSelector='.gallery-item'
+			cacheBuster={virtualData.length}
+			noScrollRestore={false}
+			noScrollRestoreOnTop={false}
 			onLoadMore={({ direction }) => {
 				if (isLoadingMore || isLoading) {
 					return;
@@ -602,45 +865,39 @@ const GalleryContent = ({
 			}}
 		>
 			{hasMoreBefore && (isLoadingMore || isLoading) && (
-				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
-					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+				<div className='flex items-center justify-center py-4 text-theme-secondary text-sm'>
+					<div className='animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2'></div>
 					Loading older images...
 				</div>
 			)}
 
-			<div className="px-4 py-4 space-y-6">
-				{virtualData.map((item, index) => {
+			<div className='px-4 py-4 space-y-6'>
+				{virtualData.map((item, _index) => {
 					if (item.type === 'dateHeader') {
 						return (
-							<div key={`${item.dateKey}-header`} className="flex items-center gap-3">
-								<h3 className="text-base font-semibold text-theme-primary">{formatDate(item.date)}</h3>
-								<div className="flex-1 h-px bg-theme-border"></div>
-								<span className="text-xs text-theme-secondary">{item.count} files</span>
+							<div key={`${item.dateKey}-header`} className='flex items-center gap-3'>
+								<h3 className='text-base font-semibold text-theme-primary'>{formatDate(item.date)}</h3>
+								<div className='flex-1 h-px bg-theme-border'></div>
+								<span className='text-xs text-theme-secondary'>{item.count} files</span>
 							</div>
 						);
 					}
 
 					if (item.type === 'imagesGrid') {
 						return (
-							<div key={`${item.dateKey}-grid`} className="gallery-item grid grid-cols-3 gap-3">
-								{item.attachments.map((attachment: AttachmentEntity, attachmentIndex: number) => (
-									<div
-										key={attachment.url || `${item.dateKey}-${attachmentIndex}`}
-										className="aspect-square relative group cursor-pointer rounded-lg overflow-hidden border border-theme-border hover:border-theme-primary transition-all duration-200 hover:shadow-lg"
-										onClick={() => handleImageClick(attachment)}
-									>
-										<div className="absolute inset-0 bg-gray-300 dark:bg-gray-600"></div>
-										<img
+							<div key={`${item.dateKey}-grid`} className='gallery-item grid grid-cols-3 gap-3'>
+								{item.attachments.map((attachment: AttachmentEntity, attachmentIndex: number) => {
+									const cacheKey = attachment.id || attachment.message_id || `${item.dateKey}-${attachment.url}-${attachmentIndex}`;
+									return (
+										<ImageWithLoading
+											key={cacheKey}
+											cacheKey={cacheKey}
 											src={createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })}
 											alt={attachment.filename || 'Media'}
-											className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 relative z-10"
+											onClick={() => handleImageClick(attachment)}
 										/>
-										<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 z-20" />
-										<div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
-											<p className="text-white text-xs truncate">{attachment.filename || 'Image'}</p>
-										</div>
-									</div>
-								))}
+									);
+								})}
 							</div>
 						);
 					}
@@ -650,8 +907,8 @@ const GalleryContent = ({
 			</div>
 
 			{hasMoreAfter && (isLoadingMore || isLoading) && (
-				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
-					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+				<div className='flex items-center justify-center py-4 text-theme-secondary text-sm'>
+					<div className='animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2'></div>
 					Loading newer images...
 				</div>
 			)}
