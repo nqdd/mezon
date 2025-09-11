@@ -12,7 +12,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
 import RenderAudioChat from '../../../../screens/home/homedrawer/components/RenderAudioChat/RenderAudioChat';
 import { style } from './styles';
 
@@ -80,7 +80,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 			}
 
 			const id = Snowflake.generate();
-			const path = 'sounds/' + id + '.' + audioFile.name.split('.').pop();
+			const path = `sounds/${id}.${audioFile.name.split('.').pop()}`;
 
 			const base64 = await RNFS.readFile(audioUrl, 'base64');
 			const arrayBuffer = BufferMobile.from(base64, 'base64');
@@ -89,7 +89,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 
 			if (attachment && attachment.url) {
 				const request = {
-					id: id,
+					id,
 					category: 'Among Us',
 					clan_id: currentClanId,
 					shortname: soundName.trim(),

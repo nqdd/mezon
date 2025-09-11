@@ -4,7 +4,8 @@ import React, { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps, reserve } from '../../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
+import MezonMenu from '../../../componentUI/MezonMenu';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { style } from './NotificationOption.styles';
 interface INotificationOptionProps {

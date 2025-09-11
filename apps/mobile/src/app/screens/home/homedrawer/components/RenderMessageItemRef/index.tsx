@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { MessagesEntity } from '@mezon/store-mobile';
+import type { MessagesEntity } from '@mezon/store-mobile';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';

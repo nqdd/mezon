@@ -8,7 +8,8 @@ import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MessageNotification from '../MessageNotification';
-import { ENotifyBsToShow, NotifyProps } from '../types';
+import type { NotifyProps } from '../types';
+import { ENotifyBsToShow } from '../types';
 import { style } from './NotificationMentionItem.styles';
 
 export function parseObject(obj: any) {
