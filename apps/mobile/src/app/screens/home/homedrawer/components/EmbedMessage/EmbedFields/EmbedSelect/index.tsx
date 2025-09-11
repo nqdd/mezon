@@ -121,7 +121,8 @@ export const EmbedSelect = memo(({ select, messageId, buttonId }: EmbedSelectPro
 			/>
 			{!!selectedOptions?.length && (
 				<View style={styles.selectGroup}>
-					{!!selectedOptions?.length && selectedOptions?.map((option) => <SelectOptionItem option={option} />)}
+					{!!selectedOptions?.length &&
+						selectedOptions?.map((option, index) => <SelectOptionItem key={`${option?.title}_${index}`} option={option} />)}
 				</View>
 			)}
 		</View>

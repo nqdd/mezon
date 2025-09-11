@@ -143,7 +143,7 @@ const ModalAddApp = memo(({ applicationId, handleOpenModal }: ModalAddAppProps) 
 				</div>
 			)}
 			<HeaderModal name={appDetail?.appname || ''} username={account?.user?.username} />
-			<SelectField {...clanConfig} />
+			<SelectField className='uppercase' {...clanConfig} />
 			{clanValue && <SelectField {...categoryConfig} />}
 			<TextField label="Channel Name" value={labelValue} onChange={(v) => setLabelValue(v)} placeholder={appDetail?.appname || ''} />
 			<FooterModal name={appDetail?.appname || ''} />

@@ -51,7 +51,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'flex-start',
 			alignSelf: 'flex-start',
 			marginBottom: 10,
-			borderLeftColor: colors.borderDim,
+			borderLeftColor: colors.border,
 			borderLeftWidth: 3,
 			paddingLeft: 8,
 			fontSize: size.medium

@@ -120,7 +120,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 			)}
 			<View style={styles.audioFile}>
 				<View style={styles.inputContainer}>
-					<MezonInput label={t('content.audioFile')} disabled placeHolder="Choose an audio file" value={audioFile?.name || ''} />
+					<MezonInput label={t('content.audioFile')} disabled placeHolder={t('content.chooseAudioFile')} value={audioFile?.name || ''} />
 				</View>
 				<Pressable style={styles.uploadButton} onPress={onAudioPick} ref={buttonRef}>
 					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color={themeValue.textStrong} />
@@ -128,7 +128,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 			</View>
 			<MezonInput label={t('content.audioName')} placeHolder="Ex.cathug" maxCharacter={30} onTextChange={setSoundName} />
 			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef}>
-				<Text style={styles.buttonTitle}>{'Upload'}</Text>
+				<Text style={styles.buttonTitle}>{t('button.uploadDetailScreen')}</Text>
 			</Pressable>
 		</View>
 	);

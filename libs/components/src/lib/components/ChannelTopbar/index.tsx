@@ -1,8 +1,7 @@
 import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
-	DirectEntity,
-	RootState,
 	appActions,
 	audioCallActions,
 	canvasAPIActions,
@@ -46,9 +45,10 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
@@ -403,10 +403,12 @@ const ChannelTopbarTools = memo(
 				{!isStream ? (
 					<div className="items-center gap-2 flex">
 						<div className="relative items-center gap-4 hidden sbm:flex sbm:flex-row-reverse">
+							<div className="relative leading-5 h-5 border-left-theme-primary pl-4">
+								<InboxButton />
+							</div>
 							<FileButton />
 							<GalleryButton />
 							<MuteButton />
-							<InboxButton />
 							<PinButton mode={ChannelStreamMode.STREAM_MODE_CHANNEL} styleCss={'text-theme-primary text-theme-primary-hover'} />
 							<div onClick={setTurnOffThreadMessage}>
 								<ChannelListButton />
@@ -462,7 +464,7 @@ const DmTopbarTools = memo(() => {
 	const userProfile = useSelector(selectSession);
 	const { setStatusMenu } = useMenu();
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
-	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode: mode });
+	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode });
 	const isInCall = useSelector(selectIsInCall);
 	const isGroupCallActive = useSelector((state: RootState) => state.groupCall?.isGroupCallActive || false);
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
@@ -882,7 +884,14 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 }
 
 export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
-	return <NotificationTooltip />;
+	return (
+		<div
+			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+			data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
+		>
+			<NotificationTooltip />
+		</div>
+	);
 }
 
 export function RedDot() {
