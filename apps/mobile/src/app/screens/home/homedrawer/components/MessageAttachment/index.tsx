@@ -2,7 +2,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { attachmentActions, useAppDispatch } from '@mezon/store-mobile';
 import { notImplementForGifOrStickerSendFromPanel } from '@mezon/utils';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import { ImageListModal } from '../../../../../components/ImageListModal';

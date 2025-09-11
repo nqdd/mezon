@@ -17,7 +17,8 @@ import {
 	topicsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { INotification, NotificationCategory, NotificationEntity, sleep, sortNotificationsByDate, TypeMessage } from '@mezon/utils';
+import type { INotification, NotificationEntity } from '@mezon/utils';
+import { NotificationCategory, sleep, sortNotificationsByDate, TypeMessage } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode } from 'mezon-js';
@@ -259,7 +260,7 @@ const Notifications = () => {
 			await dispatch(
 				fetchListNotification({
 					clanId: currentClanId,
-					category: category,
+					category,
 					notificationId: ''
 				})
 			);

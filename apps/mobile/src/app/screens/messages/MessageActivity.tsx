@@ -2,7 +2,7 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectAllActivities, selectAllFriends, selectAllUserDM } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, FlatList, Text, View, Easing } from 'react-native';
+import { Animated, Easing, FlatList, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import ImageNative from '../../components/ImageNative';
 import { style } from './styles';
@@ -123,7 +123,7 @@ function MessageActivity() {
 				initialNumToRender={2}
 				contentContainerStyle={{ paddingLeft: size.s_18 }}
 				pagingEnabled={false}
-				decelerationRate='fast'
+				decelerationRate="fast"
 				showsHorizontalScrollIndicator={false}
 				snapToInterval={size.s_220}
 			/>

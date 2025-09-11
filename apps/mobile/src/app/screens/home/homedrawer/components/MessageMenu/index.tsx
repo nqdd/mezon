@@ -1,8 +1,8 @@
 import { useAuth, useFriends } from '@mezon/core';
 import { ActionEmitEvent, ENotificationActive, ENotificationChannelId } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
 	EStateFriend,
 	channelsActions,
 	deleteChannel,
@@ -22,8 +22,9 @@ import {
 import { createImgproxyUrl, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import ImageNative from 'apps/mobile/src/app/components/ImageNative';
-import { ApiUpdateChannelDescRequest, ChannelType } from 'mezon-js';
-import { ApiMarkAsReadRequest } from 'mezon-js/api.gen';
+import type { ApiUpdateChannelDescRequest } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
+import type { ApiMarkAsReadRequest } from 'mezon-js/api.gen';
 import React, { memo, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
@@ -33,7 +34,8 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import MezonMenu from '../../../../../componentUI/MezonMenu';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { style } from './styles';
 
