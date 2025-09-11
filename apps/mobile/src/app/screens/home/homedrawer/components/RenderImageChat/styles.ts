@@ -27,7 +27,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: verticalScale(5)
 		},
 		moreText: {
-			color: colors.white,
+			color: '#fff',
 			fontSize: 20,
 			fontWeight: 'bold'
 		}
