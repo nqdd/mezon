@@ -38,11 +38,6 @@ export const getCommunityInfo = createAsyncThunk(
             if (!clan) {
                 return thunkAPI.rejectWithValue('Clan not found');
             }
-            console.log('isEnabled:', clan.is_community);
-            console.log('communityBanner:', clan.community_banner);
-            console.log('about:', clan.about);
-            console.log('description:', clan.description);
-            console.log('short_url:', clan.short_url);
             return {
                 clan_id,
                 isCommunityEnabled: clan.is_community || false,
