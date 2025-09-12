@@ -1,10 +1,11 @@
 import { selectCurrentChannelId, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { ModalOverData } from '../../../ModalValidateFile/ModalOverData';
+import { ELimitSize } from '../../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 
 type ClanBannerBackgroundProps = {
 	onUpload: (urlImage: string) => void;
@@ -18,6 +19,8 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 
 	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
+
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
@@ -36,9 +39,14 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
+		if (file.size > MAX_FILE_SIZE_10MB) {
+			setOpenModal(true);
+			e.target.value = null;
+			return;
+		}
 
 		if (!fileTypeImage.includes(file.type)) {
-			setOpenModal(true);
+			setOpenTypeModal(true);
 			e.target.value = null;
 			return;
 		}
@@ -93,7 +101,8 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 				</div>
 			</div>
 
-			<ModalOverData onClose={() => setOpenModal(false)} open={openModal} />
+			<ModalOverData size={ELimitSize.MB_10} onClose={() => setOpenModal(false)} open={openModal} />
+			<ModalErrorTypeUpload onClose={() => setOpenTypeModal(false)} open={openTypeModal} />
 		</div>
 	);
 };

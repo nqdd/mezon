@@ -4,7 +4,9 @@ import { ModalLayout } from '../../components';
 export enum ELimitSize {
 	MB = '1 MB',
 	KB_512 = '512 KB',
-	KB_256 = '256 KB'
+	KB_256 = '256 KB',
+	MB_10 = '10 MB',
+	MB_8 = '8 MB'
 }
 
 type ModalValidateFileProps = {
