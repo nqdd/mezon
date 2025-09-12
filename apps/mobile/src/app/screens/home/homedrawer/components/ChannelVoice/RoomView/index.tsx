@@ -203,6 +203,7 @@ const RoomView = ({
 					setFocusedScreenShare={setFocusedScreenShareProp}
 					activeSoundReactions={activeSoundReactions}
 					isGroupCall={isGroupCall}
+					clanId={clanId}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (
