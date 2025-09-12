@@ -365,8 +365,11 @@ const SettingRightUser = ({
 						isLoading={isLoading}
 						profiles={editProfile}
 						qrProfile={
-							<div className="p-4 rounded-lg bg-white">
+							<div className="p-4 rounded-lg bg-white flex items-center justify-center relative">
 								<QRCode level="H" value={qrCodeProfile} className="w-full h-full" />
+								<div className="absolute p-2 rounded-md">
+									<img src="./assets/images/icon-logo-mezon.svg" />
+								</div>
 							</div>
 						}
 					/>
