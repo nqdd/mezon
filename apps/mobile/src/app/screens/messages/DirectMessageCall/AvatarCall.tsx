@@ -92,14 +92,6 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 		})
 	});
 
-	// Determine status text based on connection state
-	const getStatusText = () => {
-		if (isConnected) {
-			return 'Connected';
-		}
-		return isAnswerCall ? 'Connecting...' : 'Ringing...';
-	};
-
 	return (
 		<View style={styles.container}>
 			<View style={styles.profileContainer}>
@@ -117,16 +109,18 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 				/>
 			</View>
 			{!!receiverName && <Text style={[styles.name, { color: themeValue.text }]}>{receiverName}</Text>}
-			<Text
-				style={[
-					styles.status,
-					{
-						color: isConnected ? '#4CAF50' : themeValue.textDisabled
-					}
-				]}
-			>
-				{getStatusText()}
-			</Text>
+			{!isConnected && (
+				<Text
+					style={[
+						styles.status,
+						{
+							color: themeValue.textDisabled
+						}
+					]}
+				>
+					{isAnswerCall ? 'Connecting...' : 'Ringing...'}
+				</Text>
+			)}
 		</View>
 	);
 };
@@ -157,7 +151,7 @@ const styles = StyleSheet.create({
 		alignSelf: 'center'
 	},
 	avatarConnected: {
-		borderWidth: 3,
+		borderWidth: size.s_4,
 		borderColor: '#4CAF50'
 	}
 });

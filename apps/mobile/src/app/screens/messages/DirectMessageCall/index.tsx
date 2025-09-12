@@ -246,7 +246,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 			<View style={{ flex: 1 }}>
 				{callState.remoteStream && isRemoteVideo && isConnected ? (
 					<View style={{ flex: 1 }}>
-						<RTCView streamURL={callState?.remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={false} objectFit={'contain'} />
+						<RTCView streamURL={callState?.remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={false} objectFit={'cover'} />
 					</View>
 				) : (
 					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
