@@ -1,7 +1,9 @@
 import { Button } from '@mezon/ui';
-import { generateE2eId, ValidateSpecialCharacters } from '@mezon/utils';
+import { fileTypeImage, generateE2eId, MAX_FILE_SIZE_8MB, ValidateSpecialCharacters } from '@mezon/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
+import { ELimitSize } from '../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../ModalValidateFile/ModalOverData';
 
 export interface ModalEditGroupProps {
 	isOpen: boolean;
@@ -38,7 +40,8 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const groupNameInputRef = useRef<HTMLInputElement>(null);
 	const [validationError, setValidationError] = useState<string | null>(null);
-
+	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
 	useEffect(() => {
 		if (groupName.trim()) {
 			const regex = ValidateSpecialCharacters();
@@ -66,6 +69,15 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
+		if (!file) return;
+		if (file.size > MAX_FILE_SIZE_8MB) {
+			setOpenModal(true);
+			return;
+		}
+		if (!fileTypeImage.includes(file.type)) {
+			setOpenTypeModal(true);
+			return;
+		}
 		if (file && onImageUpload) {
 			onImageUpload(file);
 		}
@@ -79,7 +91,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 
 	const [showModal, hideModal] = useModal(
 		() => (
-			<div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+			<div className="fixed inset-0 z-[10] flex items-center justify-center">
 				<div className="absolute inset-0 bg-black/50" onClick={onClose} />
 				<div
 					className={`relative flex flex-col bg-theme-setting-primary rounded-lg shadow-2xl overflow-hidden max-w-[440px] w-full mx-4 ${className}`}
@@ -213,9 +225,26 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 						</Button>
 					</div>
 				</div>
+				<ModalErrorTypeUpload open={openTypeModal} onClose={() => setOpenTypeModal(false)} />
+
+				<ModalOverData open={openModal} onClose={() => setOpenModal(false)} size={ELimitSize.MB_8} />
 			</div>
 		),
-		[groupName, imagePreview, validationError, className, onGroupNameChange, onImageUpload, onCancel, onSave, onClose, isLoading, error]
+		[
+			groupName,
+			imagePreview,
+			openTypeModal,
+			openModal,
+			validationError,
+			className,
+			onGroupNameChange,
+			onImageUpload,
+			onCancel,
+			onSave,
+			onClose,
+			isLoading,
+			error
+		]
 	);
 
 	useEffect(() => {
