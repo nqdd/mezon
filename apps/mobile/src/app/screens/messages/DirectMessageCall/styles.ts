@@ -59,11 +59,11 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			position: 'relative',
-			width: size.s_50,
-			height: size.s_50,
+			width: size.s_50 + size.s_4,
+			height: size.s_50 + size.s_4,
 			backgroundColor: colors.badgeHighlight,
 			opacity: 0.5,
-			borderRadius: size.s_30
+			borderRadius: size.s_100
 		},
 		menuIconActive: {
 			backgroundColor: colors.white,
@@ -108,7 +108,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			width: size.s_140,
 			height: size.s_165,
-			top: 0,
+			top: size.s_10,
 			right: size.s_10,
 			borderRadius: size.s_10,
 			overflow: 'hidden',

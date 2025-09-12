@@ -8,89 +8,76 @@ interface IAvatarCallProps {
 	receiverName: string;
 	receiverAvatar: string;
 	isAnswerCall: boolean;
-	isConnected?: boolean; // Add isConnected prop
+	isConnected?: boolean;
 }
 
+const RING_CONFIG = [
+	{ baseSize: 50, delay: 0 },
+	{ baseSize: 160, delay: 0.25 },
+	{ baseSize: 180, delay: 0.5 }
+];
+
 const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConnected = false }: IAvatarCallProps) => {
-	const ring1 = useRef(new Animated.Value(0)).current;
-	const ring2 = useRef(new Animated.Value(0)).current;
-	const ring3 = useRef(new Animated.Value(0)).current;
-	const animationRefs = useRef<Animated.CompositeAnimation[]>([]);
+	const ringAnimation = useRef(new Animated.Value(0)).current;
+	const animationRef = useRef<Animated.CompositeAnimation | null>(null);
 
 	const { themeValue } = useTheme();
 
 	useEffect(() => {
-		const createRingAnimation = (animValue, delay = 0) => {
-			return Animated.loop(
-				Animated.sequence([
-					Animated.delay(delay),
-					Animated.timing(animValue, {
-						toValue: 1,
-						duration: 2000,
-						useNativeDriver: true
-					}),
-					Animated.timing(animValue, {
-						toValue: 0,
-						duration: 0,
-						useNativeDriver: true
-					})
-				])
-			);
-		};
-
-		// Only start animations if not connected
 		if (!isConnected) {
-			// Start animations with staggered delays
-			const animation1 = createRingAnimation(ring1, 0);
-			const animation2 = createRingAnimation(ring2, 500);
-			const animation3 = createRingAnimation(ring3, 1000);
+			const animation = Animated.loop(
+				Animated.timing(ringAnimation, {
+					toValue: 1,
+					duration: 3500,
+					useNativeDriver: true
+				})
+			);
 
-			// Store animation references
-			animationRefs.current = [animation1, animation2, animation3];
-
-			animation1.start();
-			animation2.start();
-			animation3.start();
+			animationRef.current = animation;
+			animation.start();
 		} else {
-			// Stop all animations when connected
-			animationRefs.current.forEach((animation) => {
-				animation.stop();
-			});
-
-			// Reset animation values to 0
-			ring1.setValue(0);
-			ring2.setValue(0);
-			ring3.setValue(0);
+			// Stop animation when connected
+			if (animationRef.current) {
+				animationRef.current.stop();
+			}
+			ringAnimation.setValue(0);
 		}
 
 		return () => {
-			// Cleanup animations
-			animationRefs.current.forEach((animation) => {
-				animation.stop();
-			});
-		};
-	}, [isConnected, ring1, ring2, ring3]);
-
-	const createRingStyle = (animValue, baseSize) => ({
-		position: 'absolute',
-		width: baseSize,
-		height: baseSize,
-		borderRadius: baseSize / 2,
-		borderWidth: 2,
-		borderColor: 'rgba(255, 255, 255, 0.3)',
-		transform: [
-			{
-				scale: animValue.interpolate({
-					inputRange: [0, 1],
-					outputRange: [1, 2.5]
-				})
+			if (animationRef.current) {
+				animationRef.current.stop();
 			}
-		],
-		opacity: animValue.interpolate({
-			inputRange: [0, 0.7, 1],
-			outputRange: [0.8, 0.4, 0]
-		})
-	});
+		};
+	}, [isConnected, ringAnimation]);
+
+	const createRingStyle = (baseSize: number, delay: number) => {
+		const delayedValue = ringAnimation.interpolate({
+			inputRange: [0, delay, delay + 0.4, 1],
+			outputRange: [0, 0, 1, 1],
+			extrapolate: 'clamp'
+		});
+
+		return {
+			position: 'absolute' as const,
+			width: baseSize,
+			height: baseSize,
+			borderRadius: baseSize / 2,
+			borderWidth: 2,
+			borderColor: 'rgba(255, 255, 255, 0.3)',
+			transform: [
+				{
+					scale: delayedValue.interpolate({
+						inputRange: [0, 1],
+						outputRange: [1, 2.8]
+					})
+				}
+			],
+			opacity: delayedValue.interpolate({
+				inputRange: [0, 0.1, 0.6, 1],
+				outputRange: [0, 0.8, 0.3, 0]
+			})
+		};
+	};
 
 	return (
 		<View style={styles.container}>
@@ -98,9 +85,9 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 				{/* Only show rings when not connected */}
 				{!isConnected && (
 					<>
-						<Animated.View style={createRingStyle(ring3, 180) as any} />
-						<Animated.View style={createRingStyle(ring2, 160) as any} />
-						<Animated.View style={createRingStyle(ring1, 120) as any} />
+						{RING_CONFIG.map((ring, index) => (
+							<Animated.View key={index} style={createRingStyle(ring.baseSize, ring.delay)} />
+						))}
 					</>
 				)}
 				<FastImage

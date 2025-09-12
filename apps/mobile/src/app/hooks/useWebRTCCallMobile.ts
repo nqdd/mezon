@@ -342,7 +342,6 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 					channelId,
 					userId
 				);
-
 				setCallState({
 					localStream: stream,
 					remoteStream: null
@@ -352,6 +351,15 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 					camera: !!constraints?.video
 				}));
 				peerConnection.current = pc;
+				if (isVideoCall && constraints?.video) {
+					await mezon.socketRef.current?.forwardWebrtcSignaling(
+						dmUserId,
+						WebrtcSignalingType.WEBRTC_SDP_STATUS_REMOTE_MEDIA,
+						`{"cameraEnabled": ${true}}`,
+						channelId,
+						userId
+					);
+				}
 			} else {
 				// if is answer call, need to cancel call native on mobile
 				await cancelCallFCMMobile(userId);
