@@ -1,14 +1,15 @@
 import { useEscapeKey } from '@mezon/core';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitReason } from '@mezon/utils';
+import { MAX_FILE_ATTACHMENTS, UploadLimitReason } from '@mezon/utils';
 import { useMemo } from 'react';
 
 interface ITooManyUploadProps {
 	togglePopup: () => void;
 	limitReason: UploadLimitReason;
+	limitSize: number;
 }
 
-const TooManyUpload = ({ togglePopup, limitReason }: ITooManyUploadProps) => {
+const TooManyUpload = ({ togglePopup, limitReason, limitSize }: ITooManyUploadProps) => {
 	useEscapeKey(togglePopup);
 	const { title, content } = useMemo(() => {
 		if (limitReason === UploadLimitReason.COUNT) {
@@ -19,7 +20,7 @@ const TooManyUpload = ({ togglePopup, limitReason }: ITooManyUploadProps) => {
 		}
 		return {
 			title: 'Upload size limit exceeded!',
-			content: `Maximum allowed size is ${Math.round(MAX_FILE_SIZE / 1024 / 1024)}MB`
+			content: `Maximum allowed size is ${Math.round(limitSize / 1024 / 1024)}MB`
 		};
 	}, [limitReason]);
 	return (

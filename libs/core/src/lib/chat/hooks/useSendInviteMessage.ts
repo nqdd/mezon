@@ -1,5 +1,6 @@
 import { useMezon } from '@mezon/transport';
-import { EBacktickType, IMessageSendPayload, processText } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { EBacktickType, processText, sleep } from '@mezon/utils';
 import React, { useMemo } from 'react';
 
 export function useSendInviteMessage() {
@@ -33,7 +34,7 @@ export function useSendInviteMessage() {
 				console.error(client, session, socket, channel_id);
 				throw new Error('Client is not initialized');
 			}
-
+			await sleep(100);
 			await socket.writeChatMessage('0', channel_id, channelMode, false, content, [], [], [], undefined, undefined, undefined, code);
 		},
 		[sessionRef, clientRef, socketRef]
