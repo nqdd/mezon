@@ -265,7 +265,8 @@ export const DATA_E2E_IDENTIFIER = {
 			tab_profile: '',
 			user_profile: {
 				input: {
-					display_name: ''
+					display_name: '',
+					about_me: ''
 				},
 				button: {
 					reset: '',

@@ -309,6 +309,7 @@ const SettingRightUser = ({
 								value={editAboutUser}
 								rows={4}
 								maxLength={128}
+								data-e2e={generateE2eId('user_setting.profile.user_profile.input.about_me')}
 							></textarea>
 							<div className="w-full flex justify-end">
 								<span className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}>
