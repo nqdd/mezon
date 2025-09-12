@@ -1,3 +1,4 @@
+import { getStore, selectDirectById } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 import type { IMessageSendPayload } from '@mezon/utils';
 import { EBacktickType, processText, sleep } from '@mezon/utils';
@@ -34,7 +35,13 @@ export function useSendInviteMessage() {
 				console.error(client, session, socket, channel_id);
 				throw new Error('Client is not initialized');
 			}
-			await sleep(100);
+
+			const store = getStore();
+			const foundDM = selectDirectById(store.getState(), channel_id);
+			if (!foundDM) {
+				await sleep(100);
+			}
+
 			await socket.writeChatMessage('0', channel_id, channelMode, false, content, [], [], [], undefined, undefined, undefined, code);
 		},
 		[sessionRef, clientRef, socketRef]
