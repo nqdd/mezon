@@ -4,14 +4,15 @@ import {
 	notificationActions,
 	selectAllUserClans,
 	selectIsShowInbox,
-	selectMemberClanByUserId,
+	selectMemberClanByUserId2,
 	threadsActions,
 	topicsActions,
-	useAppDispatch
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
-import { ApiChannelMessageHeader, ApiSdTopic } from 'mezon-js/dist/api.gen';
+import type { ApiChannelMessageHeader, ApiSdTopic } from 'mezon-js/dist/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +59,7 @@ function TopicNotificationItem({ topic }: TopicProps) {
 		subject: subjectTopic,
 		senderId: topic?.last_sent_message?.sender_id,
 		lastMessageTopic: topic?.last_sent_message,
-		topic: topic
+		topic
 	};
 
 	return (
@@ -97,7 +98,7 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: IMe
 	}, [lastMessageTopic]);
 
 	const { priorityAvatar } = useGetPriorityNameFromUserClan(senderId || '');
-	const lastSentUser = useSelector(selectMemberClanByUserId(lastMessageTopic?.sender_id ?? ''));
+	const lastSentUser = useAppSelector((state) => selectMemberClanByUserId2(state, lastMessageTopic?.sender_id as string));
 
 	return (
 		<div className="flex flex-col p-2 bg-item-theme rounded-lg">
@@ -138,7 +139,11 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: IMe
 					</div>
 					<div>
 						<div className="text-[13px] w-fit max-w-full break-words whitespace-normal">
-							<b className="font-semibold">{lastSentUser ? lastSentUser?.user?.username : 'Sender'}</b>:{' '}
+							<b className="font-semibold">
+								{lastSentUser
+									? lastSentUser?.clan_nick || lastSentUser?.user?.display_name || lastSentUser?.user?.username
+									: 'Sender'}
+							</b>
 							{lastMsgTopic ? lastMsgTopic?.t : 'Unreachable message'}
 						</div>
 					</div>
