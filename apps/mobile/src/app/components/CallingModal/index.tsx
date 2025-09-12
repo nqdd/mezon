@@ -30,7 +30,7 @@ const CallingModal = () => {
 	const usersClan = useSelector(selectAllUserClans);
 	const mezon = useMezon();
 	const { t } = useTranslation('message');
-	const [callerInfo, setCallerInfo] = useState({});
+	const [callerInfo, setCallerInfo] = useState<any>({});
 
 	useEffect(() => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
@@ -130,9 +130,8 @@ const CallingModal = () => {
 		setIsVisible(false);
 		const params = {
 			receiverId: signalingData?.[signalingData?.length - 1]?.callerId,
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-expect-error
 			receiverAvatar: callerInfo?.avatar || callerInfo?.user?.avatar_url || '',
+			receiverName: callerInfo?.name || callerInfo?.user?.display_name || callerInfo?.user?.username || '',
 			isAnswerCall: true
 		};
 		const data = {
@@ -188,8 +187,6 @@ const CallingModal = () => {
 				</View>
 
 				<Text numberOfLines={1} style={styles.username}>
-					{/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-					{/* @ts-expect-error */}
 					{callerInfo?.name || callerInfo?.user?.username || ''}
 				</Text>
 			</View>
