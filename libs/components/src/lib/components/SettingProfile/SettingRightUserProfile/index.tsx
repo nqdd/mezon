@@ -12,18 +12,21 @@ import {
 } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { DeleteAccountModal, Icons, InputField } from '@mezon/ui';
-import { ImageSourceObject, MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
+import type { ImageSourceObject } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Coords } from '../../ChannelLink';
+import type { Coords } from '../../ChannelLink';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
 import PanelClan from '../../PanelClan';
 import ImageEditor from '../ImageEditor/ImageEditor';
-import PreviewSetting, { Profilesform } from '../SettingUserClanProfileCard';
+import type { Profilesform } from '../SettingUserClanProfileCard';
+import PreviewSetting from '../SettingUserClanProfileCard';
 import { processImage } from '../helper';
 
 const SettingRightUser = ({
@@ -85,12 +88,7 @@ const SettingRightUser = ({
 	const [openModalEditor, closeModalEditor] = useModal(
 		() =>
 			imageObject ? (
-				<ImageEditor
-					setImageCropped={setImageCropped}
-					setImageObject={setImageObject}
-					onClose={closeModalEditor}
-					imageSource={imageObject}
-				/>
+				<ImageEditor setImageCropped={setImageCropped} setImageObject={setImageObject} onClose={closeModalEditor} imageSource={imageObject} />
 			) : null,
 		[imageObject]
 	);
@@ -218,7 +216,7 @@ const SettingRightUser = ({
 						avatar_url: urlImage,
 						display_name: valueDisplayName,
 						about_me: editAboutUser,
-						dob: dob,
+						dob,
 						logo: attachment.url
 					})
 				);
