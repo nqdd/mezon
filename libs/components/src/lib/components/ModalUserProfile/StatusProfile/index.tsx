@@ -184,19 +184,23 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			<div className="max-md:relative">
 				<ItemStatus
 					children={`Balance: ${formatNumber(Number(tokenInWallet), 'vi-VN', 'VND')}`}
-					startIcon={<Icons.Check className="text-theme-primary" />}
+					startIcon={<Icons.Check className="text-theme-primary w-5 h-5" />}
 					disabled={true}
 				/>
-				<ItemStatus onClick={handleSendToken} children="Transfer Funds" startIcon={<Icons.SendMoney className="text-theme-primary" />} />
+				<ItemStatus
+					onClick={handleSendToken}
+					children="Transfer Funds"
+					startIcon={<Icons.SendMoney className="text-theme-primary w-5 h-5 mr-[1px]" />}
+				/>
 				<ItemStatus
 					onClick={handleOpenHistoryModal}
 					children="History Transaction"
-					startIcon={<Icons.History className="text-theme-primary" />}
+					startIcon={<Icons.History className="text-theme-primary w-5 h-5 mr-[1px]" />}
 				/>
 				<ItemStatus
 					onClick={handleCustomStatus}
 					children={`${userCustomStatus ? 'Edit' : 'Set'} Custom Status`}
-					startIcon={<Icons.SmilingFace className="text-theme-primary" />}
+					startIcon={<Icons.SmilingFace className="text-theme-primary w-5 h-5" />}
 				/>
 				<Menu
 					trigger="click"
@@ -208,7 +212,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					}}
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
 				>
-					<div className="capitalize text-theme-primary">
+					<div className="capitalize ml-[1px] text-theme-primary">
 						<ItemStatus children={status} dropdown startIcon={statusIcon(status)} />
 					</div>
 				</Menu>
