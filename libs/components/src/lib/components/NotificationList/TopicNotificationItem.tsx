@@ -4,11 +4,10 @@ import {
 	notificationActions,
 	selectAllUserClans,
 	selectIsShowInbox,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	threadsActions,
 	topicsActions,
-	useAppDispatch,
-	useAppSelector
+	useAppDispatch
 } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
@@ -77,7 +76,7 @@ function TopicNotificationItem({ topic }: TopicProps) {
 
 export default TopicNotificationItem;
 
-interface IMentionTabContent {
+interface ITopicTabContent {
 	messageReplied?: ApiChannelMessageHeader;
 	subject?: string;
 	senderId?: string;
@@ -85,7 +84,7 @@ interface IMentionTabContent {
 	topic?: ApiSdTopic;
 }
 
-function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: IMentionTabContent) {
+function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: ITopicTabContent) {
 	const messageRl = useMemo(() => {
 		return messageReplied?.content ? safeJSONParse(messageReplied?.content) : null;
 	}, [messageReplied]);
@@ -98,7 +97,7 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: IMe
 	}, [lastMessageTopic]);
 
 	const { priorityAvatar } = useGetPriorityNameFromUserClan(senderId || '');
-	const lastSentUser = useAppSelector((state) => selectMemberClanByUserId2(state, lastMessageTopic?.sender_id as string));
+	const lastSentUser = useSelector(selectMemberClanByUserId(lastMessageTopic?.sender_id ?? ''));
 
 	return (
 		<div className="flex flex-col p-2 bg-item-theme rounded-lg">
@@ -139,11 +138,7 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: IMe
 					</div>
 					<div>
 						<div className="text-[13px] w-fit max-w-full break-words whitespace-normal">
-							<b className="font-semibold">
-								{lastSentUser
-									? lastSentUser?.clan_nick || lastSentUser?.user?.display_name || lastSentUser?.user?.username
-									: 'Sender'}
-							</b>
+							<b className="font-semibold">{lastSentUser ? lastSentUser?.user?.username : 'Sender'}</b>:{' '}
 							{lastMsgTopic ? lastMsgTopic?.t : 'Unreachable message'}
 						</div>
 					</div>
