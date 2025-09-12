@@ -6,18 +6,18 @@ import { IMessageTypeCallLog } from '@mezon/utils';
 import notifee from '@notifee/react-native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { memo, useEffect, useState } from 'react';
-import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
-import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import Images from '../../../../assets/Images';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
-import { ConnectionState } from './ConnectionState';
+import AvatarCall from './AvatarCall';
 import { style } from './styles';
 
 interface IDirectMessageCallProps {
@@ -28,15 +28,17 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	const { themeValue } = useTheme();
 	const dispatch = useAppDispatch();
 	const styles = style(themeValue);
-	const { receiverId, directMessageId } = route.params;
-	const receiverAvatar = route.params?.receiverAvatar;
-	const isVideoCall = route.params?.isVideoCall;
-	const isAnswerCall = route.params?.isAnswerCall;
-	const isFromNative = route.params?.isFromNative;
+	const { receiverId, directMessageId } = route?.params || {};
+	const receiverAvatar = route?.params?.receiverAvatar;
+	const receiverName = route?.params?.receiverName;
+	const isVideoCall = route?.params?.isVideoCall;
+	const isAnswerCall = route?.params?.isAnswerCall;
+	const isFromNative = route?.params?.isFromNative;
 	const userProfile = useSelector(selectAllAccount);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
 	const isRemoteVideo = useSelector(selectRemoteVideo);
 	const [isMirror, setIsMirror] = useState<boolean>(true);
+	const { t } = useTranslation(['dmMessage']);
 
 	const {
 		callState,
@@ -194,7 +196,12 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	return (
 		<View style={styles.container}>
 			{!isFromNative && <StatusBarHeight />}
-
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<View style={[styles.menuHeader]}>
 				<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
 					<TouchableOpacity
@@ -214,10 +221,9 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 						}}
 						style={styles.buttonCircle}
 					>
-						<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.white} />
+						<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.white} height={size.s_24} width={size.s_24} />
 					</TouchableOpacity>
 				</View>
-				{isConnected !== null && <ConnectionState isConnected={isConnected} />}
 				<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
 					{callState.localStream && localMediaControl?.camera && (
 						<View>
@@ -227,70 +233,55 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 						</View>
 					)}
 					<View>
-						<TouchableOpacity
-							onPress={toggleSpeaker}
-							style={[styles.buttonCircle, localMediaControl.speaker && styles.buttonCircleActive]}
-						>
-							<MezonIconCDN
-								icon={localMediaControl.speaker ? IconCDN.channelVoice : IconCDN.voiceLowIcon}
-								color={localMediaControl.speaker ? themeValue.secondaryLight : themeValue.white}
-							/>
-						</TouchableOpacity>
-					</View>
-				</View>
-			</View>
-
-			<TouchableOpacity activeOpacity={1} style={[styles.main]}>
-				<View style={{ flex: 1 }}>
-					{callState.remoteStream && isRemoteVideo ? (
-						<View style={styles.card}>
-							<RTCView streamURL={callState.remoteStream.toURL()} style={{ flex: 1 }} mirror={true} objectFit={'cover'} />
-						</View>
-					) : (
-						<View style={[styles.card, styles.cardNoVideo]}>
-							<FastImage source={receiverAvatar ? { uri: receiverAvatar } : Images.ANONYMOUS_AVATAR} style={styles.avatar} />
-						</View>
-					)}
-					{callState.localStream && localMediaControl?.camera ? (
-						<View style={styles.card}>
-							<RTCView streamURL={callState.localStream.toURL()} style={{ flex: 1 }} mirror={isMirror} objectFit={'cover'} />
-						</View>
-					) : (
-						<View style={[styles.card, styles.cardNoVideo]}>
-							<FastImage source={{ uri: userProfile?.user?.avatar_url }} style={styles.avatar} />
-						</View>
-					)}
-				</View>
-			</TouchableOpacity>
-			<View style={[styles.menuFooter]}>
-				<View style={{ borderRadius: size.s_40, backgroundColor: themeValue.primary }}>
-					<View
-						style={{
-							gap: size.s_30,
-							flexDirection: 'row',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							padding: size.s_14
-						}}
-					>
-						<TouchableOpacity onPress={toggleVideo} style={[styles.menuIcon, localMediaControl?.camera && styles.menuIconActive]}>
+						<TouchableOpacity style={[styles.buttonCircle, localMediaControl?.camera && styles.buttonCircleActive]} onPress={toggleVideo}>
 							{localMediaControl?.camera ? (
 								<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
 							) : (
 								<MezonIconCDN icon={IconCDN.videoSlashIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
 							)}
 						</TouchableOpacity>
-						<TouchableOpacity onPress={toggleAudio} style={[styles.menuIcon, localMediaControl?.mic && styles.menuIconActive]}>
-							{localMediaControl?.mic ? (
-								<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
-							) : (
-								<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
-							)}
-						</TouchableOpacity>
-						<TouchableOpacity onPress={onCancelCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>
-							<MezonIconCDN icon={IconCDN.phoneCallIcon} />
-						</TouchableOpacity>
 					</View>
+				</View>
+			</View>
+			<View style={{ flex: 1 }}>
+				{callState.remoteStream && isRemoteVideo && isConnected ? (
+					<View style={{ flex: 1 }}>
+						<RTCView streamURL={callState?.remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={false} objectFit={'contain'} />
+					</View>
+				) : (
+					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
+				)}
+				{callState.localStream && localMediaControl?.camera && isConnected && (
+					<View style={styles.cardMyVideoCall}>
+						<RTCView streamURL={callState?.localStream?.toURL?.()} style={{ flex: 1 }} mirror={isMirror} objectFit={'cover'} />
+					</View>
+				)}
+			</View>
+			<View style={[styles.menuFooter]}>
+				<View>
+					<TouchableOpacity onPress={toggleSpeaker} style={[styles.menuIcon, localMediaControl?.speaker && styles.menuIconActive]}>
+						<MezonIconCDN
+							icon={localMediaControl.speaker ? IconCDN.channelVoice : IconCDN.voiceLowIcon}
+							color={localMediaControl.speaker ? themeValue.secondaryLight : themeValue.white}
+						/>
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>{t('speaker')}</Text>
+				</View>
+				<View>
+					<TouchableOpacity onPress={onCancelCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong, opacity: 1 }}>
+						<MezonIconCDN icon={IconCDN.phoneCallIcon} />
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>{t('end')}</Text>
+				</View>
+				<View>
+					<TouchableOpacity onPress={toggleAudio} style={[styles.menuIcon, localMediaControl?.mic && styles.menuIconActive]}>
+						{localMediaControl?.mic ? (
+							<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
+						) : (
+							<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
+						)}
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>Mic</Text>
 				</View>
 			</View>
 		</View>

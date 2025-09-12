@@ -232,10 +232,26 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		if (isVideoCall) {
 			haveCameraPermission = await requestCameraPermission();
 			if (!haveCameraPermission) {
-				Toast.show({
-					type: 'error',
-					text1: 'Camera is not available'
-				});
+				Alert.alert('Camera is not available', 'Allow Mezon access to your camera', [
+					{
+						text: 'Cancel',
+						style: 'cancel'
+					},
+					{
+						text: 'OK',
+						onPress: () => {
+							try {
+								if (Platform.OS === 'ios') {
+									Linking.openURL('app-settings:');
+								} else {
+									Linking.openSettings();
+								}
+							} catch (error) {
+								console.error('Error opening app settings:', error);
+							}
+						}
+					}
+				]);
 			}
 		}
 		setLocalMediaControl((prev) => ({
@@ -333,7 +349,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 				});
 				setLocalMediaControl((prev) => ({
 					...prev,
-					camera: isVideoCall
+					camera: !!constraints?.video
 				}));
 				peerConnection.current = pc;
 			} else {

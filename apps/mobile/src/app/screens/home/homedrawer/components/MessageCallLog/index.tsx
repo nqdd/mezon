@@ -36,8 +36,10 @@ export const MessageCallLog = memo(({ contentMsg, senderId, channelId, callLog, 
 		const receiverId = currentDmGroup?.user_id?.[0];
 		if (receiverId) {
 			const receiverAvatar = currentDmGroup?.channel_avatar?.[0];
+			const receiverName = currentDmGroup?.channel_label;
 			const params = {
 				receiverId: receiverId as string,
+				receiverName: receiverName as string,
 				receiverAvatar: receiverAvatar as string,
 				directMessageId: channelId as string
 			};

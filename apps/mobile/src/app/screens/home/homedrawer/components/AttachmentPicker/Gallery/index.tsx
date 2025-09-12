@@ -209,10 +209,11 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 		}
 	};
 
-	const renderItem = ({ item }) => {
+	const renderItem = ({ item, index }) => {
 		return (
 			<GalleryItem
 				item={item}
+				index={index}
 				themeValue={themeValue}
 				isDisableSelectAttachment={isDisableSelectAttachment}
 				attachmentFilteredByChannelId={attachmentFilteredByChannelId}
@@ -224,24 +225,24 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	};
 
 	const handleGalleryPress = useCallback(
-		async (file: PhotoIdentifier) => {
+		async (file: PhotoIdentifier, index: number) => {
 			try {
 				const image = file?.node?.image;
 				const type = file?.node?.type;
-				const name = file?.node?.image?.filename || file?.node?.image?.uri;
+				const name = (file?.node?.image?.filename || file?.node?.image?.uri) + index;
 				const size = file?.node?.image?.fileSize;
 
 				// Determine if this is an image file based on type
 				const isImage = type && fileTypeImage.includes(type);
 				const maxAllowedSize = isImage ? MAX_IMAGE_FILE_SIZE : MAX_FILE_SIZE;
-				
+
 				if (size && size >= maxAllowedSize) {
 					const fileTypeText = isImage ? t('common:image') : t('common:files');
 					const maxSizeMB = Math.round(maxAllowedSize / 1024 / 1024);
 					Toast.show({
 						type: 'error',
 						text1: t('sharing:fileTooLarge'),
-						text2: t('sharing:fileSizeExceeded', { fileType: fileTypeText, maxSize: maxSizeMB }),
+						text2: t('sharing:fileSizeExceeded', { fileType: fileTypeText, maxSize: maxSizeMB })
 					});
 					return;
 				}
@@ -263,12 +264,12 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				const fileFormat: IFile = {
 					uri: filePath,
 					type: Platform.OS === 'ios' ? `${file?.node?.type}/${image?.extension}` : file?.node?.type,
-					size: size,
+					size,
 					name,
 					fileData: filePath,
 					width: image?.width,
 					height: image?.height,
-					thumbnailPreview: image?.uri + '?thumbnail=true&quality=low'
+					thumbnailPreview: `${image?.uri}?thumbnail=true&quality=low`
 				};
 
 				onPickGallery(fileFormat);
