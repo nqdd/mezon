@@ -8,7 +8,8 @@ import {
 	selectLogoCustom,
 	selectTheme,
 	toastActions,
-	useAppDispatch
+	useAppDispatch,
+	usersClanActions
 } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { DeleteAccountModal, Icons, InputField } from '@mezon/ui';
@@ -67,6 +68,16 @@ const SettingRightUser = ({
 	const handleUpdateUser = async () => {
 		if (name || urlImage || valueDisplayName || editAboutUser || dob) {
 			await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, userProfile?.logo || '');
+			if (currentClanId && userProfile?.user?.id) {
+				await dispatch(
+					usersClanActions.updateUserDisplayName({
+						clanId: currentClanId,
+						userId: userProfile.user.id,
+						displayName: valueDisplayName.trim(),
+						avatarUrl: urlImage
+					})
+				);
+			}
 			if (currentChannelId && currentClanId) {
 				await dispatch(
 					channelMembersActions.fetchChannelMembers({
