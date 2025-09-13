@@ -5091,10 +5091,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
-  version "22.15.29"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.29.tgz#c75999124a8224a3f79dd8b6ccfb37d74098f678"
-  integrity sha512-LNdjOkUDlU1RZb8e1kOIUpN1qQUlzGkEtbVNo53vbrwDg5om6oduhm4SiUaPW5ASTXhAiP0jInWG8Qx9fVlOeQ==
+"@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0", "@types/node@^22.7.7":
+  version "22.16.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.16.4.tgz#00c763ad4d4e45f62d5a270c040ae1a799c7e38a"
+  integrity sha512-PYRhNtZdm2wH/NT2k/oAJ6/f2VD2N2Dag0lGlx2vWgMSJXGNmlce5MiTQzoWAiIJtso30mjnfQCOKVH+kAQC/g==
   dependencies:
     undici-types "~6.21.0"
 
@@ -5111,13 +5111,6 @@
   integrity sha512-WW2o4gTmREtSnqKty9nhqF/vA0GKd0V/rbC0OyjSk9Bz6bzlsXKT+i7WDdS/a0z74rfT2PO4dArVCSnapNLA5Q==
   dependencies:
     undici-types "~5.26.4"
-
-"@types/node@^22.7.7":
-  version "22.16.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.16.4.tgz#00c763ad4d4e45f62d5a270c040ae1a799c7e38a"
-  integrity sha512-PYRhNtZdm2wH/NT2k/oAJ6/f2VD2N2Dag0lGlx2vWgMSJXGNmlce5MiTQzoWAiIJtso30mjnfQCOKVH+kAQC/g==
-  dependencies:
-    undici-types "~6.21.0"
 
 "@types/parse-json@^4.0.0":
   version "4.0.2"
@@ -8702,10 +8695,10 @@ electron-updater@^6.6.2:
     semver "^7.6.3"
     tiny-typed-emitter "^2.1.0"
 
-electron@^37.2.2:
-  version "37.2.2"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-37.2.2.tgz#d5bf39bdf016368736101148d2b40996f64e3c25"
-  integrity sha512-qEIUs+3elu7wOfzLEtLz4Innfe+8nQyhLh9qjrJY0d0MxdRolLMDUD9QwAQ743vDZ+bUg+gqwigzP7kV78S3hA==
+electron@^37.3.1:
+  version "37.3.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-37.3.1.tgz#92d0299593c4302dcdf3305af917c60dad69719f"
+  integrity sha512-7DhktRLqhe6OJh/Bo75bTI0puUYEmIwSzMinocgO63mx3MVjtIn2tYMzLmAleNIlud2htkjpsMG2zT4PiTCloA==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^22.7.7"
@@ -13213,17 +13206,17 @@ mezon-active-windows@0.1.38:
   dependencies:
     node-addon-api "^1.7.2"
 
-mezon-js-protobuf@1.8.26:
-  version "1.8.26"
-  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.8.26.tgz#2ca8fca3b653b6387e90109ca4163afbebb77500"
-  integrity sha512-4AnJkolTIC4pQrSU6b5Cxfz0oYa6aOccBQv1iiSbA8NFk6c3vA7IvBQgyCQiNt9ZdYUAGLqVngYA54WKRz2I4Q==
+mezon-js-protobuf@1.8.32:
+  version "1.8.32"
+  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.8.32.tgz#54831d8ddcef70d9e7e1cb8235a8120d18c5a4e7"
+  integrity sha512-ArMJrIDLw+VgHnMVMqKp6GP9Nwjub+M43lq0jegw/fN+PAYYGCVzePAhf/alUtj3ADZlE7pxz7Gcid8q22EMAg==
   dependencies:
     "@scarf/scarf" "^1.1.1"
 
-mezon-js@2.12.61:
-  version "2.12.61"
-  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.61.tgz#b4e405ab76e1c1830152757513774aed568ef1fa"
-  integrity sha512-7bna3YNXHY0rNE89U7Q/iYjV0FpzaLQtIFcRdC6ENn44NyiBCFyNzRWw051pS0+5UBWTCjFkDmpTWtEHFntAbQ==
+mezon-js@2.12.78:
+  version "2.12.78"
+  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.78.tgz#93cb2d741e1e52f5d508cef951f253bee8bbb92b"
+  integrity sha512-k5BAa46T0whfklMCRkoc0+57TXdOpMxJAKDemqOwu/b404zesJmmfiEDgtm7lraLJRWFWhrestbW3NM12SHr+g==
   dependencies:
     "@scarf/scarf" "^1.1.1"
     base64-arraybuffer "^1.0.2"
