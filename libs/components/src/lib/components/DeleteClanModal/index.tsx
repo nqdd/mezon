@@ -2,6 +2,7 @@ import { selectCurrentClan } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 interface DeleteClanModalProps {
 	onClose: () => void;
@@ -13,7 +14,7 @@ interface DeleteClanModalProps {
 const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, buttonLabel, onClick }) => {
 	const currentClan = useSelector(selectCurrentClan);
 	const [inputValue, setInputValue] = useState('');
-	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState(true);
+	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState(false);
 
 	const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(e.target.value);
@@ -25,11 +26,13 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+		e.preventDefault();
 		if (inputValueIsMatchClanName && onClick) {
 			onClick();
+			onClose();
+			return;
 		}
-		onClose();
+		toast.error('Incorrect clan name.');
 	};
 	return (
 		<div className="fixed inset-0 flex items-center justify-center z-50 ">
@@ -66,7 +69,7 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 					</div>
 					<div
 						onClick={handleSubmit}
-						className="bg-[#da373c] text-white hover:bg-[#a12828] rounded-md px-4 py-2 cursor-pointer"
+						className={`bg-[#da373c] text-white  rounded-md px-4 py-2 cursor-pointer ${!inputValue ? '!cursor-default opacity-70 ' : 'hover:bg-[#a12828]'}`}
 						data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.confirm')}
 					>
 						{buttonLabel}
