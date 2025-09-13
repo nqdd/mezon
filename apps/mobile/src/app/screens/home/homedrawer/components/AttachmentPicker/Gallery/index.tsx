@@ -210,10 +210,11 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 		}
 	};
 
-	const renderItem = ({ item }) => {
+	const renderItem = ({ item, index }) => {
 		return (
 			<GalleryItem
 				item={item}
+				index={index}
 				themeValue={themeValue}
 				isDisableSelectAttachment={isDisableSelectAttachment}
 				attachmentFilteredByChannelId={attachmentFilteredByChannelId}
@@ -225,11 +226,11 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	};
 
 	const handleGalleryPress = useCallback(
-		async (file: PhotoIdentifier) => {
+		async (file: PhotoIdentifier, index: number) => {
 			try {
 				const image = file?.node?.image;
 				const type = file?.node?.type;
-				const name = file?.node?.image?.filename || file?.node?.image?.uri;
+				const name = (file?.node?.image?.filename || file?.node?.image?.uri) + index;
 				const size = file?.node?.image?.fileSize;
 
 				// Determine if this is an image file based on type

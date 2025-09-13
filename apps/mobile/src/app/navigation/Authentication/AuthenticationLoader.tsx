@@ -204,6 +204,7 @@ export const AuthenticationLoader = () => {
 				const params = {
 					receiverId: payload?.callerId,
 					receiverAvatar: payload?.callerAvatar,
+					receiverName: payload?.callerName,
 					directMessageId: payload?.channelId,
 					isAnswerCall: true
 				};

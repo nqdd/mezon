@@ -1,10 +1,11 @@
 import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import ModalValidateFile from '../../../ModalValidateFile';
+import { ELimitSize } from '../../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 
 type ClanLogoNameProps = {
 	onUpload: (url: string) => void;
@@ -22,6 +23,8 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 	const [clanName, setClanName] = useState<string | undefined>(currentClan?.clan_name ?? '');
 	const [checkValidate, setCheckValidate] = useState(!ValidateSpecialCharacters().test(currentClan?.clan_name || ''));
 	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openSizeModal, setOpenSizeModal] = useState<boolean>(false);
+
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleFile = (e: any) => {
@@ -30,7 +33,10 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 		const client = clientRef.current;
 
 		if (!file) return;
-
+		if (file.size > MAX_FILE_SIZE_1MB) {
+			setOpenSizeModal(true);
+			return;
+		}
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
@@ -141,14 +147,8 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 					</p>
 				)}
 			</div>
-			{openModal && (
-				<ModalValidateFile
-					onClose={() => setOpenModal(false)}
-					image="assets/images/qr-mezon.png"
-					title="Only image files are allowed"
-					content="Just upload type file (JPEG, PNG), please!"
-				/>
-			)}
+			<ModalErrorTypeUpload open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalOverData size={ELimitSize.MB} open={openSizeModal} onClose={() => setOpenSizeModal(false)} />
 		</div>
 	);
 };

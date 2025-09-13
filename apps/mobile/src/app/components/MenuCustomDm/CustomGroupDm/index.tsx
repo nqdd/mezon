@@ -12,7 +12,7 @@ import MezonInput from '../../../componentUI/MezonInput';
 import { IconCDN } from '../../../constants/icon_cdn';
 import style from '../MenuCustomDm.styles';
 
-const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: string; channelLabel: string, currentAvatar: string }) => {
+const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: string; channelLabel: string; currentAvatar: string }) => {
 	const [nameGroup, setNameGroup] = useState<string>(channelLabel || '');
 	const nameGroupRef = useRef(nameGroup);
 	const { t } = useTranslation(['menuCustomDM']);
@@ -73,12 +73,16 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 		setAvatarUrl('');
 	};
 
+	const shouldDisableRemoveAvatar = !avatarUrl || avatarUrl.includes('avatar-group.png');
+
 	const defaultAvatar = () => {
 		if (avatarUrl && !avatarUrl.includes('avatar-group.png')) return undefined;
-		return <View style={styles.defaultAvatar}>
-			<MezonIconCDN icon={IconCDN.groupIcon} color={baseColor.white} />
-		</View>
-	}
+		return (
+			<View style={styles.defaultAvatar}>
+				<MezonIconCDN icon={IconCDN.groupIcon} color={baseColor.white} />
+			</View>
+		);
+	};
 
 	return (
 		<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10 }}>
@@ -95,8 +99,8 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 					autoCloseBottomSheet={false}
 				/>
 
-				<TouchableOpacity onPress={handleRemoveAvatar}>
-					<Text style={styles.removeAvatarText}>{t('removeAvatar')}</Text>
+				<TouchableOpacity onPress={handleRemoveAvatar} disabled={shouldDisableRemoveAvatar}>
+					<Text style={[styles.removeAvatarText, shouldDisableRemoveAvatar && { opacity: 0.5 }]}>{t('removeAvatar')}</Text>
 				</TouchableOpacity>
 			</View>
 			<Text style={styles.labelInput}>{t('groupName')}</Text>
