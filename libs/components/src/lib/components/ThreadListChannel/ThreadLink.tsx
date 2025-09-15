@@ -7,15 +7,13 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { IChannel } from '@mezon/utils';
-import { generateE2eId } from '@mezon/utils';
+import { IChannel, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useImperativeHandle, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { Link } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
-import type { Coords } from '../ChannelLink';
-import { classes } from '../ChannelLink';
+import { Coords, classes } from '../ChannelLink';
 import SettingChannel from '../ChannelSetting';
 import { DeleteModal } from '../ChannelSetting/Component/Modal/deleteChannelModal';
 import EventSchedule from '../EventSchedule';

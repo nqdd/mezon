@@ -1,6 +1,6 @@
 import { useAppNavigation, useEscapeKeyClose, useOnClickOutside, usePermissionChecker, useReference } from '@mezon/core';
-import type { ChannelsEntity } from '@mezon/store';
 import {
+	ChannelsEntity,
 	hasGrandchildModal,
 	searchMessagesActions,
 	selectCurrentChannel,
@@ -13,8 +13,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EOverriddenPermission, LIMIT, checkIsThread, generateE2eId } from '@mezon/utils';
-import type { RefObject } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import EmptyThread from './EmptyThread';
@@ -39,7 +38,7 @@ const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
 
 	const setIsShowCreateThread = useCallback(
 		(isShowCreateThread: boolean, channelId?: string) => {
-			channelId && dispatch(threadsActions.setIsShowCreateThread({ channelId, isShowCreateThread }));
+			channelId && dispatch(threadsActions.setIsShowCreateThread({ channelId: channelId, isShowCreateThread }));
 			dispatch(topicsActions.setIsShowCreateTopic(false));
 		},
 		[currentChannel]
