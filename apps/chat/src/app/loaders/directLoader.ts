@@ -5,7 +5,7 @@ import { waitForSocketConnection } from './socketUtils';
 
 export const directLoader: CustomLoaderFunction = async ({ dispatch }) => {
 	await dispatch(waitForSocketConnection());
-	dispatch(emojiSuggestionActions.fetchEmoji({}));
+	dispatch(emojiSuggestionActions.fetchEmoji({ clanId: '', noCache: false }));
 	dispatch(channelsActions.setModeResponsive({ clanId: '0', mode: ModeResponsive.MODE_DM }));
 	dispatch(directActions.follower());
 	dispatch(topicsActions.setFocusTopicBox(false));

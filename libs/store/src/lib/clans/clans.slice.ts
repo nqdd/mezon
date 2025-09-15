@@ -12,7 +12,6 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
 import { usersClanActions } from '../clanMembers/clan.members';
-import { emojiSuggestionActions } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
@@ -20,7 +19,6 @@ import { defaultNotificationCategoryActions } from '../notificationSetting/notif
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
 import { policiesActions } from '../policies/policies.slice';
 import { rolesClanActions } from '../roleclan/roleclan.slice';
-import { settingClanStickerActions, soundEffectActions } from '../settingSticker/settingSticker.slice';
 import type { RootState } from '../store';
 import { usersStreamActions } from '../stream/usersStream.slice';
 import { voiceActions } from '../voice/voice.slice';
@@ -116,10 +114,6 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 				thunkAPI.dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId }));
 				thunkAPI.dispatch(defaultNotificationActions.getDefaultNotificationClan({ clanId }));
 				thunkAPI.dispatch(channelsActions.setStatusChannelFetch(clanId));
-				thunkAPI.dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true }));
-				thunkAPI.dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true }));
-				thunkAPI.dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true }));
-
 				thunkAPI.dispatch(
 					voiceActions.fetchVoiceChannelMembers({
 						clanId: clanId ?? '',
