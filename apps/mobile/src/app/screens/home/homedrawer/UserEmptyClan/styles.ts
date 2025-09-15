@@ -3,13 +3,11 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 	wrapper: {
-		position: 'absolute',
-		width: '100%',
 		height: '100%',
 		overflow: 'hidden',
+		flexShrink: 1,
 		paddingHorizontal: size.s_20,
-		paddingVertical: size.s_10,
-		zIndex: 2
+		paddingVertical: size.s_10
 	},
 	headerText: {
 		fontSize: size.s_20,
@@ -18,7 +16,8 @@ export const styles = StyleSheet.create({
 	imageBg: {
 		width: '90%',
 		height: '35%',
-		marginVertical: size.s_30
+		marginVertical: size.s_30,
+		alignSelf: 'center'
 	},
 	title: {
 		fontSize: size.label,
