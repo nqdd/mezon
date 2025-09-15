@@ -122,6 +122,14 @@ export const DATA_E2E_IDENTIFIER = {
 					confirm: '',
 					cancel: ''
 				}
+			},
+			invite_people: {
+				search_input: '',
+				user_item: {
+					button: { invite: '' }
+				},
+				url_invite: '',
+				container: ''
 			}
 		},
 		settings: {

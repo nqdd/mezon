@@ -1,6 +1,6 @@
 import { useSendInviteMessage, useSilentSendMess } from '@mezon/core';
 import { DirectEntity, getStore, selectDirectById } from '@mezon/store';
-import { UsersClanEntity, createImgproxyUrl } from '@mezon/utils';
+import { UsersClanEntity, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -101,7 +101,11 @@ type ItemInviteDMProps = {
 const ItemInviteDM = (props: ItemInviteDMProps) => {
 	const { channelID = '', type = '', avatar = '', label = '', isInviteSent = false, username = '', onHandle } = props;
 	return (
-		<div key={channelID} className="flex items-center justify-between h-fit group rounded-lg bg-item-hover p-1">
+		<div
+			key={channelID}
+			className="flex items-center justify-between h-fit group rounded-lg bg-item-hover p-1"
+			data-e2e={generateE2eId('clan_page.modal.invite_people.user_item')}
+		>
 			<AvatarImage
 				alt={username}
 				username={username}
@@ -113,6 +117,7 @@ const ItemInviteDM = (props: ItemInviteDMProps) => {
 				{label}
 			</p>
 			<button
+				data-e2e={generateE2eId('clan_page.modal.invite_people.user_item.button.invite')}
 				onClick={onHandle}
 				disabled={isInviteSent}
 				className={
