@@ -2,12 +2,12 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { directActions, useAppDispatch } from '@mezon/store-mobile';
 import { ValidateSpecialCharacters } from '@mezon/utils';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
-import MezonImagePicker from '../../../componentUI/MezonImagePicker';
+import MezonImagePicker, { IMezonImagePickerHandler } from '../../../componentUI/MezonImagePicker';
 import MezonInput from '../../../componentUI/MezonInput';
 import { IconCDN } from '../../../constants/icon_cdn';
 import style from '../MenuCustomDm.styles';
@@ -23,6 +23,7 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 	const hasNameChanged = !!trimmedName && trimmedName !== (channelLabel || '');
 	const hasImageChanged = avatarUrl !== (currentAvatar || '');
 	const canSave = hasNameChanged || hasImageChanged;
+	const avatarPickerRef = useRef<IMezonImagePickerHandler>(null);
 
 	useEffect(() => {
 		nameGroupRef.current = nameGroup;
@@ -68,10 +69,10 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 		handleSave(nameGroupRef?.current);
 	};
 
-	const handleRemoveAvatar = () => {
+	const handleRemoveAvatar = useCallback(() => {
 		if (!avatarUrl) return;
 		setAvatarUrl('');
-	};
+	}, [avatarUrl]);
 
 	const shouldDisableRemoveAvatar = !avatarUrl || avatarUrl.includes('avatar-group.png');
 
@@ -84,11 +85,20 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 		);
 	};
 
+	const handleAvatarPicker = useCallback(() => {
+		if (shouldDisableRemoveAvatar) {
+			avatarPickerRef?.current?.openSelector();
+		} else {
+			handleRemoveAvatar();
+		}
+	}, [shouldDisableRemoveAvatar, handleRemoveAvatar]);
+
 	return (
 		<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10 }}>
 			<Text style={styles.headerCustomGroup}>{t('customiseGroup')}</Text>
 			<View style={{ paddingVertical: size.s_20, alignItems: 'center' }}>
 				<MezonImagePicker
+					ref={avatarPickerRef}
 					defaultValue={avatarUrl}
 					rounded
 					height={size.s_60}
@@ -98,9 +108,8 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 					localValue={defaultAvatar()}
 					autoCloseBottomSheet={false}
 				/>
-
-				<TouchableOpacity onPress={handleRemoveAvatar} disabled={shouldDisableRemoveAvatar}>
-					<Text style={[styles.removeAvatarText, shouldDisableRemoveAvatar && { opacity: 0.5 }]}>{t('removeAvatar')}</Text>
+				<TouchableOpacity onPress={handleAvatarPicker}>
+					<Text style={styles.removeAvatarText}>{shouldDisableRemoveAvatar ? t('uploadImage') : t('removeAvatar')}</Text>
 				</TouchableOpacity>
 			</View>
 			<Text style={styles.labelInput}>{t('groupName')}</Text>
