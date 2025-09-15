@@ -744,6 +744,7 @@ function CanvasButton({ onClick }: { onClick?: () => void }) {
 				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
 				onClick={handleShowCanvas}
 				onContextMenu={(e) => e.preventDefault()}
+				title="Canvas"
 			>
 				<Icons.CanvasIcon defaultSize="size-5" />
 			</button>

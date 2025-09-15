@@ -1,9 +1,8 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
+import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
-	FriendsEntity,
 	channelsActions,
 	friendsActions,
-	requestAddFriendParam,
 	selectBlockedUsers,
 	selectCloseMenu,
 	selectCurrentTabStatus,
@@ -163,6 +162,7 @@ const FriendsPage = () => {
 								<button
 									className={`px-3 py-[6px] font-medium rounded-lg text-theme-primary text-theme-primary-hover shadow-none border-none bg-button-hover ${currentTabStatus === tab.value && !openModalAddFriend ? 'bg-active-button text-theme-primary-active' : ''} ${tab.value === 'pending' && quantityPendingRequest !== 0 ? 'pr-[30px]' : ''}`}
 									tabIndex={index}
+									title={tab.title}
 									onClick={() => handleChangeTab(tab.value)}
 								>
 									{tab.title}
@@ -232,7 +232,9 @@ const FriendsPage = () => {
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">You're already friends with that user!</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">Please only use numbers, letters, underscores _ or full stops.</div>
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">
+											Please only use numbers, letters, underscores _ or full stops.
+										</div>
 									)}
 									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
 										You can add friends with their Mezon usernames
