@@ -133,7 +133,7 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		if (!search) {
 			return listManageNotInChannel;
 		}
-		return listManageNotInChannel.filter((role) => role.title?.includes(search));
+		return listManageNotInChannel.filter((role) => role.title?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()));
 	}, [search]);
 
 	const listMemberCanAdd = useMemo(() => {
@@ -141,7 +141,10 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 			return usersClan;
 		}
 		return usersClan.filter(
-			(user) => user.clan_nick?.includes(search) || user.user?.display_name?.includes(search) || user.user?.username?.includes(search)
+			(user) =>
+				user.clan_nick?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()) ||
+				user.user?.display_name?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()) ||
+				user.user?.username?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase())
 		);
 	}, [search]);
 
