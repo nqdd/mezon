@@ -1,7 +1,7 @@
 import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ELimitSize } from '../../../ModalValidateFile';
@@ -137,6 +137,7 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 						value={clanName}
 						onChange={(e) => handleChangeClanName(e.target.value)}
 						className=" outline-none w-full h-10 p-[10px] bg-theme-input text-base rounded placeholder:text-sm"
+						data-e2e={generateE2eId('clan_page.settings.overview.input.clan_name')}
 						placeholder="Support has arrived!"
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 					/>

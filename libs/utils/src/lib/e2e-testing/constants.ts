@@ -134,6 +134,11 @@ export const DATA_E2E_IDENTIFIER = {
 					confirm: '',
 					cancel: ''
 				}
+			},
+			overview: {
+				input: {
+					clan_name: ''
+				}
 			}
 		},
 		channel_list: {
