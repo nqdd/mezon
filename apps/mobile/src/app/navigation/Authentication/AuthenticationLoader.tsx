@@ -351,7 +351,7 @@ export const AuthenticationLoader = () => {
 		<>
 			<LoadingModal isVisible={isLoadingMain} />
 			<ExpiredSessionModal />
-			{!!fileShared && !isLoadingMain && <Sharing data={fileShared} onClose={onCloseFileShare} />}
+			{!!fileShared && <Sharing data={fileShared} onClose={onCloseFileShare} />}
 		</>
 	);
 };

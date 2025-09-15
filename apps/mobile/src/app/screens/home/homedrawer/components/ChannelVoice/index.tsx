@@ -11,9 +11,7 @@ import { useSoundReactions } from '../../../../../hooks/useSoundReactions';
 import { CallReactionHandler } from './CallReactionHandler';
 import HeaderRoomView from './HeaderRoomView';
 import RoomView from './RoomView';
-const { PipModule } = NativeModules;
-
-const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule } = NativeModules;
+const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule, PipModule } = NativeModules;
 
 // Audio output types
 export type AudioOutput = {
@@ -115,6 +113,7 @@ function ChannelVoice({
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 	const dispatch = useAppDispatch();
 	const isRequestingPermission = useRef(false);
+	const timeoutRef = useRef(null);
 	const channelId = useMemo(() => {
 		return voiceInfo?.channelId;
 	}, [voiceInfo]);
@@ -130,6 +129,9 @@ function ChannelVoice({
 				isRequestingPermission.current = true;
 				await request(PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
 				await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+				timeoutRef.current = setTimeout(() => {
+					isRequestingPermission.current = false;
+				}, 2000);
 			} catch (error) {
 				console.error('Permission request failed:', error);
 			} finally {
@@ -171,22 +173,7 @@ function ChannelVoice({
 		};
 	}, []);
 
-	const checkPipSupport = async () => {
-		try {
-			if (Platform.OS !== 'android' || !PipModule?.isPipSupported) {
-				return false;
-			}
-			return await PipModule.isPipSupported();
-		} catch (error) {
-			console.error('Error checking PiP support:', error);
-			return false;
-		}
-	};
-
 	useEffect(() => {
-		if (Platform.OS === 'android') {
-			checkPipSupport();
-		}
 		const subscription =
 			Platform.OS === 'ios'
 				? null
@@ -211,9 +198,11 @@ function ChannelVoice({
 					});
 		return () => {
 			if (Platform.OS === 'android') {
+				PipModule?.exitPipMode?.();
 				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}
+			timeoutRef?.current && clearTimeout(timeoutRef.current);
 			subscription && subscription.remove();
 		};
 	}, [dispatch]);
