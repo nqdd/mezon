@@ -144,6 +144,9 @@ export const DATA_E2E_IDENTIFIER = {
 					stream: ''
 				},
 				name: ''
+			},
+			thread_item: {
+				name: ''
 			}
 		}
 	},
@@ -204,7 +207,15 @@ export const DATA_E2E_IDENTIFIER = {
 					inbox: '',
 					pin: '',
 					canvas: '',
-					thread: '',
+					thread: {
+						modal: {
+							thread_management: {
+								button: {
+									create_thread: ''
+								}
+							}
+						}
+					},
 					chat: ''
 				}
 			},
@@ -222,7 +233,8 @@ export const DATA_E2E_IDENTIFIER = {
 				delete_message: ''
 			},
 			thread_name_input: {
-				thread_box: ''
+				thread_box: '',
+				thread_private_checkbox: ''
 			}
 		},
 		mention: {
