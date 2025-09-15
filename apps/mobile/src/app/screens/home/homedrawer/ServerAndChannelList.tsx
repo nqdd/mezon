@@ -19,10 +19,10 @@ const ChannelListWrapper = React.memo(
 		}, []);
 		if (!showChannelList) return null;
 		return (
-			<>
+			<View style={{ flex: 1 }}>
 				<UserEmptyClan />
 				<ChannelList />
-			</>
+			</View>
 		);
 	},
 	() => true

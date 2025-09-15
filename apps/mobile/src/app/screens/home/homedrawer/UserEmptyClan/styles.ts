@@ -3,12 +3,13 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 	wrapper: {
+		position: 'absolute',
+		width: '100%',
 		height: '100%',
-		width: '82%',
-		borderTopLeftRadius: 20,
 		overflow: 'hidden',
 		paddingHorizontal: size.s_20,
-		paddingVertical: size.s_10
+		paddingVertical: size.s_10,
+		zIndex: 2
 	},
 	headerText: {
 		fontSize: size.s_20,
