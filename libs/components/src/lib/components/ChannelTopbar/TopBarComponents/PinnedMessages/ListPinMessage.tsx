@@ -32,8 +32,6 @@ const ListPinMessage = ({
 		listPinMessages = clanChannelId;
 	}
 
-	console.log(listPinMessages, 'listPinMessages');
-
 	return (
 		<div className="min-h-36">
 			{!listPinMessages?.length ? (

@@ -151,8 +151,6 @@ export const fetchDirectMessage = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await fetchChannelsCached(thunkAPI.getState as () => RootState, mezon, 500, 1, '', channelType, noCache);
-			console.log(response, 'response');
-
 			if (!response.channeldesc) {
 				thunkAPI.dispatch(directActions.setAll([]));
 				return [];

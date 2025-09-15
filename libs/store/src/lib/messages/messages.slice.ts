@@ -190,43 +190,8 @@ export const fetchMessagesCached = async (
 ) => {
 	const state = getState();
 
-	const clansLoadingStatus = selectClansLoadingStatus(state);
 	const clanExists = clanId === '0' || !!selectClanById(clanId)(state);
-
-	// If clans are still loading, wait for them to complete
-	if (!clanExists && clansLoadingStatus === 'loading') {
-		// Simple wait approach - wait for clans to load with timeout
-		let waitCount = 0;
-		const maxWait = 20; // Max 2 seconds (20 * 100ms)
-
-		while (waitCount < maxWait) {
-			await new Promise((resolve) => setTimeout(resolve, 100));
-
-			const updatedState = getState();
-			const updatedClansStatus = selectClansLoadingStatus(updatedState);
-
-			// If clans finished loading, break and continue
-			if (updatedClansStatus !== 'loading') {
-				break;
-			}
-
-			waitCount++;
-		}
-
-		// Re-check clan existence after waiting
-		const finalState = getState();
-		const finalClanExists = clanId === '0' || !!selectClanById(clanId)(finalState);
-
-		if (!finalClanExists) {
-			return {
-				messages: [],
-				fromCache: true
-			};
-		}
-	}
-
-	// If clans have finished loading but clan doesn't exist, return empty
-	if (!clanExists && clansLoadingStatus !== 'loading') {
+	if (!clanExists) {
 		return {
 			messages: [],
 			fromCache: true
