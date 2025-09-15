@@ -1,0 +1,12 @@
+{
+  "buttons": {
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "reset": "Đặt lại",
+    "close": "Đóng"
+  },
+  "form": {
+    "required": "Trường bắt buộc",
+    "error": "Lỗi"
+  }
+}

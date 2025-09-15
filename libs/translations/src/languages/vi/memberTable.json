@@ -1,0 +1,10 @@
+{
+  "headers": {
+    "name": "Tên",
+    "memberSince": "Thành viên từ",
+    "joinedMezon": "Tham gia Mezon",
+    "roles": "Vai trò",
+    "signals": "Tín hiệu"
+  },
+  "error": "Lỗi"
+}

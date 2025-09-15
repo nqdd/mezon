@@ -40,6 +40,7 @@ import { format } from 'date-fns';
 import { ChannelType, NotificationType } from 'mezon-js';
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Coords } from '../ChannelLink';
@@ -90,6 +91,29 @@ export const getNotificationLabel = (value: NotificationType) => {
 };
 
 const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onDeleteChannel, rootRef, selectedChannel, isUnread }: PanelChannel) => {
+	const { t } = useTranslation('channelMenu');
+	
+	const notiLabelsTranslated: Record<number, string> = {
+		[NotificationType.ALL_MESSAGE]: t('menu.notification.all'),
+		[NotificationType.MENTION_MESSAGE]: t('menu.notification.onlyMention'),
+		[NotificationType.NOTHING_MESSAGE]: t('menu.notification.nothing')
+	};
+
+	const notificationTypesListTranslated = [
+		{
+			label: t('menu.notification.all'),
+			value: NotificationType.ALL_MESSAGE
+		},
+		{
+			label: t('menu.notification.onlyMention'),
+			value: NotificationType.MENTION_MESSAGE
+		},
+		{
+			label: t('menu.notification.nothing'),
+			value: NotificationType.NOTHING_MESSAGE
+		}
+	];
+	
 	const currentChannel = useAppSelector((state) => selectChannelById(state, selectedChannel ?? '')) || {};
 
 	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channel?.id || ''));
@@ -165,9 +189,9 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 		<ModalConfirm
 			handleCancel={handleCloseModalConfirm}
 			handleConfirm={handleLeaveChannel}
-			title="Leave Thread"
-			buttonName="Leave thread"
-			message={`You can't receive message from thread when leave this thread`}
+			title={t('modalConFirmLeaveThread.title')}
+			buttonName={t('modalConFirmLeaveThread.yesButton')}
+			message={t('modalConFirmLeaveThread.textConfirm')}
 		/>
 	));
 
@@ -252,16 +276,16 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 	useEffect(() => {
 		if (getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0') {
 			if (channel.parent_id === '0' || !channel.parent_id) {
-				setNameChildren('Mute Channel');
+				setNameChildren(t('menu.notification.muteChannelStatus'));
 			} else {
-				setNameChildren('Mute Thread');
+				setNameChildren(t('menu.notification.muteThreadStatus'));
 			}
 			setmutedUntil('');
 		} else {
 			if (channel.parent_id === '0' || !channel.parent_id) {
-				setNameChildren('Unmute Channel');
+				setNameChildren(t('menu.notification.unmuteChannelStatus'));
 			} else {
-				setNameChildren('Unmute Thread');
+				setNameChildren(t('menu.notification.unmuteThreadStatus'));
 			}
 			if (getNotificationChannelSelected?.time_mute) {
 				const timeMute = new Date(getNotificationChannelSelected.time_mute);
@@ -269,7 +293,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 				if (timeMute > currentTime) {
 					const timeDifference = timeMute.getTime() - currentTime.getTime();
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
-					setmutedUntil(`Muted until ${formattedDate}`);
+					setmutedUntil(`${t('menu.notification.mutedUntil')} ${formattedDate}`);
 
 					setTimeout(() => {
 						const body = {
@@ -285,11 +309,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			}
 		}
 		if (defaultNotificationCategory?.notification_setting_type) {
-			setDefaultNotifiName(notiLabels[defaultNotificationCategory?.notification_setting_type]);
+			setDefaultNotifiName(notiLabelsTranslated[defaultNotificationCategory?.notification_setting_type]);
 		} else if (defaultNotificationClan?.notification_setting_type) {
-			setDefaultNotifiName(notiLabels[defaultNotificationClan.notification_setting_type]);
+			setDefaultNotifiName(notiLabelsTranslated[defaultNotificationClan.notification_setting_type]);
 		}
-	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan]);
+	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan, notiLabelsTranslated]);
 	const [hasClanOwnerPermission, hasAdminPermission, canManageThread, canManageChannel] = usePermissionChecker(
 		[EPermission.clanOwner, EPermission.administrator, EOverriddenPermission.manageThread, EPermission.manageChannel],
 		channel?.channel_id ?? ''
@@ -326,7 +350,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 		if (statusMarkAsReadChannel === 'success' || statusMarkAsReadChannel === 'error') {
 			setIsShowPanelChannel(false);
 		}
-	}, [statusMarkAsReadChannel]);
+	}, [statusMarkAsReadChannel, t]);
 
 	const shouldShowNotificationSettings =
 		channel &&
@@ -338,20 +362,20 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel children="For 15 Minutes" onClick={() => handleScheduleMute(FOR_15_MINUTES)} />,
-			<ItemPanel children="For 1 Hour" onClick={() => handleScheduleMute(FOR_1_HOUR)} />,
-			<ItemPanel children="For 3 Hour" onClick={() => handleScheduleMute(FOR_3_HOURS)} />,
-			<ItemPanel children="For 8 Hour" onClick={() => handleScheduleMute(FOR_8_HOURS)} />,
-			<ItemPanel children="For 24 Hour" onClick={() => handleScheduleMute(FOR_24_HOURS)} />,
-			<ItemPanel children="Until I turn it back on" onClick={() => handleScheduleMute(Infinity)} />
+			<ItemPanel children={t('menu.notification.for15Minutes')} onClick={() => handleScheduleMute(FOR_15_MINUTES)} />,
+			<ItemPanel children={t('menu.notification.for1Hour')} onClick={() => handleScheduleMute(FOR_1_HOUR)} />,
+			<ItemPanel children={t('menu.notification.for3Hours')} onClick={() => handleScheduleMute(FOR_3_HOURS)} />,
+			<ItemPanel children={t('menu.notification.for8Hours')} onClick={() => handleScheduleMute(FOR_8_HOURS)} />,
+			<ItemPanel children={t('menu.notification.for24Hours')} onClick={() => handleScheduleMute(FOR_24_HOURS)} />,
+			<ItemPanel children={t('menu.notification.untilTurnedBackOn')} onClick={() => handleScheduleMute(Infinity)} />
 		];
 		return <>{menuItems}</>;
-	}, []);
+	}, [t]);
 
 	const menuNoti = useMemo(() => {
 		const menuItems = [
 			<ItemPanel
-				children="Use Category Default"
+				children={t('menu.notification.useCategoryDefault')}
 				type="radio"
 				name="NotificationSetting"
 				defaultNotifi={true}
@@ -364,7 +388,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			/>
 		];
 
-		notificationTypesList.map((notification) =>
+		notificationTypesListTranslated.map((notification) =>
 			menuItems.push(
 				<ItemPanel
 					children={notification.label}
@@ -379,7 +403,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 		);
 
 		return <>{menuItems}</>;
-	}, [notificationTypesList]);
+	}, [notificationTypesListTranslated, t]);
 
 	const handleOpenMenuMute = useCallback((visible: boolean) => {
 		menuOpenMute.current = visible;
@@ -399,12 +423,12 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 					onClick={statusMarkAsReadChannel === 'pending' ? undefined : () => handleMarkAsReadChannel(channel)}
 					disabled={statusMarkAsReadChannel === 'pending'}
 				>
-					{statusMarkAsReadChannel === 'pending' ? 'Processing...' : 'Mark As Read'}
+					{statusMarkAsReadChannel === 'pending' ? t('menu.notification.processing') : t('menu.watchMenu.markAsRead')}
 				</ItemPanel>
 			</GroupPanels>
 			<GroupPanels>
 				<ItemPanel
-					children="Copy link"
+					children={t('menu.inviteMenu.copyLink')}
 					onClick={() => {
 						copyChannelLink(currentClan?.id as string, channel.id);
 						handClosePannel();
@@ -413,8 +437,8 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			</GroupPanels>
 			{channel.type === typeChannel.voice && (
 				<GroupPanels>
-					<ItemPanel children="Open Chat" />
-					<ItemPanel children="Hide Names" type="checkbox" />
+					<ItemPanel children={t('menu.organizationMenu.openChat')} />
+					<ItemPanel children={t('menu.organizationMenu.hideNames')} type="checkbox" />
 				</GroupPanels>
 			)}
 			{channel.parent_id === '0' || !channel.parent_id ? (
@@ -449,25 +473,25 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<ItemPanel children="Notification Settings" dropdown="change here" />
+									<ItemPanel children={t('menu.notification.notification')} dropdown="change here" />
 								</div>
 							</Menu>
 						)}
 						{isFavorite ? (
-							<ItemPanel children="Unmark Favorite" onClick={removeFavoriteChannel} />
+							<ItemPanel children={t('menu.inviteMenu.unMarkFavorite')} onClick={removeFavoriteChannel} />
 						) : (
-							<ItemPanel children="Mark Favorite" onClick={maskFavoriteChannel} />
+							<ItemPanel children={t('menu.inviteMenu.markFavorite')} onClick={maskFavoriteChannel} />
 						)}
 					</GroupPanels>
 
 					{canManageChannel && (
 						<GroupPanels>
-							<ItemPanel onClick={handleEditChannel} children="Edit Channel" />
-							{channel.type === typeChannel.text && <ItemPanel children="Create Text Channel" onClick={handleOpenCreateChannelModal} />}
+							<ItemPanel onClick={handleEditChannel} children={t('menu.organizationMenu.edit')} />
+							{channel.type === typeChannel.text && <ItemPanel children={t('menu.organizationMenu.createTextChannel')} onClick={handleOpenCreateChannelModal} />}
 							{channel.type === typeChannel.voice && (
-								<ItemPanel children="Create Voice Channel" onClick={handleOpenCreateChannelModal} />
+								<ItemPanel children={t('menu.organizationMenu.createVoiceChannel')} onClick={handleOpenCreateChannelModal} />
 							)}
-							{welcomeChannelId !== channel.id && <ItemPanel onClick={handleDeleteChannel} children="Delete Channel" danger />}
+							{welcomeChannelId !== channel.id && <ItemPanel onClick={handleDeleteChannel} children={t('menu.organizationMenu.deleteChannel')} danger />}
 						</GroupPanels>
 					)}
 				</>
@@ -503,20 +527,20 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<ItemPanel children="Notification Settings" dropdown="change here" />
+									<ItemPanel children={t('menu.notification.notification')} dropdown="change here" />
 								</div>
 							</Menu>
 						)}
 						{currentChannel?.creator_id !== currentUserId && (
-							<ItemPanel onClick={handleOpenModalConfirm} children="Leave Thread" danger />
+							<ItemPanel onClick={handleOpenModalConfirm} children={t('menu.manageThreadMenu.leaveThread')} danger />
 						)}
 					</GroupPanels>
 
 					{hasManageThreadPermission && (
 						<GroupPanels>
-							<ItemPanel onClick={handleEditChannel} children="Edit Thread" />
-							{!isThread && <ItemPanel children="Create Thread" />}
-							<ItemPanel onClick={handleDeleteChannel} children="Delete Thread" danger />
+							<ItemPanel onClick={handleEditChannel} children={t('menu.manageThreadMenu.editThread')} />
+							{!isThread && <ItemPanel children={t('menu.organizationMenu.createThread')} />}
+							<ItemPanel onClick={handleDeleteChannel} children={t('menu.manageThreadMenu.deleteThread')} danger />
 						</GroupPanels>
 					)}
 				</>

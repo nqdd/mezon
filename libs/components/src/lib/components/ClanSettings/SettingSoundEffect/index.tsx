@@ -1,5 +1,5 @@
+import type { MediaType } from '@mezon/store';
 import {
-	MediaType,
 	selectAllAccount,
 	selectAudioByClanId,
 	selectCurrentClan,
@@ -11,7 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ClanSticker } from 'mezon-js';
+import type { ClanSticker } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ModalUploadSound from './ModalUploadSound';
@@ -26,11 +26,10 @@ export type SoundType = {
 	creator_id?: string;
 };
 
-
 const isAudioFile = (url: string): boolean => {
 	const lowerUrl = url.toLowerCase();
 	return lowerUrl.endsWith('.mp3') || lowerUrl.endsWith('.wav') || lowerUrl.endsWith('.mpeg');
-}
+};
 
 const SettingSoundEffect = () => {
 	const [showModal, setShowModal] = useState(false);
@@ -45,12 +44,11 @@ const SettingSoundEffect = () => {
 
 	const isClanOwner = currentClan?.creator_id === userProfile?.user?.id;
 
-
-	const soundList: SoundType[] = sounds.map(sound => ({
+	const soundList: SoundType[] = sounds.map((sound) => ({
 		id: sound.id || '',
 		name: sound.shortname || '',
 		url: sound.source || '',
-		creator_id: sound.creator_id || '',
+		creator_id: sound.creator_id || ''
 	}));
 
 	useEffect(() => {
@@ -70,15 +68,17 @@ const SettingSoundEffect = () => {
 
 	const handleDeleteSound = async (soundId: string, soundName: string) => {
 		try {
-			await dispatch(soundEffectActions.deleteSound({
-				soundId: soundId,
-				clan_id: currentClanId,
-				soundLabel: soundName
-			}));
+			await dispatch(
+				soundEffectActions.deleteSound({
+					soundId,
+					clan_id: currentClanId,
+					soundLabel: soundName
+				})
+			);
 
 			dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true }));
 		} catch (error) {
-			console.error("Error deleting sound:", error);
+			console.error('Error deleting sound:', error);
 		}
 	};
 
@@ -93,7 +93,8 @@ const SettingSoundEffect = () => {
 					<span>UPLOAD INSTRUCTIONS</span>
 				</div>
 				<p className="text-theme-primary">
-					Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for sound effects. Sound effects will be used in clan notifications or events.
+					Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for sound effects. Sound effects will be used in clan
+					notifications or events.
 				</p>
 			</div>
 			<div className="flex p-4 bg-theme-setting-nav rounded-lg shadow-sm hover:shadow-md transition duration-200  border-theme-primary">
@@ -103,10 +104,14 @@ const SettingSoundEffect = () => {
 					</div>
 					<p className="text-xs mt-1 text-theme-primary">Personalize sound effects for your clan!</p>
 				</div>
-				<button className=" rounded-lg py-2.5 px-4 btn-primary btn-primary-hover font-semibold  transition duration-200 shadow-sm hover:shadow-md capitalize" onClick={() => { setSelectedSound(null); setShowModal(true); }}>
-					<span className="flex items-center gap-2">
-						Upload sound
-					</span>
+				<button
+					className=" rounded-lg py-2.5 px-4 btn-primary btn-primary-hover font-semibold  transition duration-200 shadow-sm hover:shadow-md capitalize"
+					onClick={() => {
+						setSelectedSound(null);
+						setShowModal(true);
+					}}
+				>
+					<span className="flex items-center gap-2">Upload sound</span>
 				</button>
 			</div>
 			<div className="flex flex-col gap-4">
@@ -122,7 +127,10 @@ const SettingSoundEffect = () => {
 						</div>
 					)}
 					{soundList.map((sound) => (
-						<div key={sound.id} className="flex flex-col w-full p-4 border rounded-lg bg-theme-setting-nav shadow-sm hover:shadow-md transition duration-200 border-theme-primary">
+						<div
+							key={sound.id}
+							className="flex flex-col w-full p-4 border rounded-lg bg-theme-setting-nav shadow-sm hover:shadow-md transition duration-200 border-theme-primary"
+						>
 							<div className="flex items-center justify-between mb-3">
 								<p className="font-semibold truncate w-full text-center text-theme-primary-active">{sound.name}</p>
 								{canManageSound(sound.creator_id || '') && (
@@ -143,14 +151,21 @@ const SettingSoundEffect = () => {
 								)}
 							</div>
 							<audio controls src={sound.url} className="w-full rounded-full border dark:border-borderDivider border-gray-200 mb-2" />
-							{sound.creator_id && (
-								<CreatorInfo creatorId={sound.creator_id} />
-							)}
+							{sound.creator_id && <CreatorInfo creatorId={sound.creator_id} />}
 						</div>
 					))}
 				</div>
 			</div>
-			{showModal && <ModalUploadSound sound={selectedSound} onSuccess={handleUploadSuccess} onClose={() => { setShowModal(false); setSelectedSound(null); }} />}
+			{showModal && (
+				<ModalUploadSound
+					sound={selectedSound}
+					onSuccess={handleUploadSuccess}
+					onClose={() => {
+						setShowModal(false);
+						setSelectedSound(null);
+					}}
+				/>
+			)}
 		</div>
 	);
 };
@@ -162,11 +177,7 @@ const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
 
 	return (
 		<div className="flex items-center justify-center gap-1 mt-1">
-			<img
-				className="w-4 h-4 rounded-full select-none object-cover"
-				src={creator?.user?.avatar_url ?? process.env.NX_LOGO_MEZON}
-				alt=""
-			/>
+			<img className="w-4 h-4 rounded-full select-none object-cover" src={creator?.user?.avatar_url ?? process.env.NX_LOGO_MEZON} alt="" />
 			<p className="text-xs text-theme-primary max-w-20 truncate">{creator?.user?.username}</p>
 		</div>
 	);

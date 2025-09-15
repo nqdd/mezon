@@ -4,6 +4,7 @@ import { authActions, selectAllAccount, selectCurrentClan, selectIsCommunityEnab
 import { LogoutModal } from '@mezon/ui';
 import { EPermission, generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ItemObjProps, ItemSetting, sideBarListItem } from '../ItemObj';
 import SettingItem from '../SettingItem';
@@ -16,12 +17,37 @@ type SettingSidebarProps = {
 };
 
 const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDeletePopup }: SettingSidebarProps) => {
+	const { t } = useTranslation('clanSettings');
 	const [selectedButton, setSelectedButton] = useState<string | null>(currentSetting);
 	const currentClan = useSelector(selectCurrentClan);
 	const [isClanOwner, hasClanPermission] = usePermissionChecker([EPermission.clanOwner, EPermission.manageClan]);
 	const userProfile = useSelector(selectAllAccount);
 	const clanId = currentClan?.clan_id;
 	const isCommunityEnabled = useSelector((state: RootState) => (clanId ? selectIsCommunityEnabled(state, clanId) : false));
+
+	const getTranslatedItemName = (item: ItemObjProps) => {
+		const translationMap: Record<string, string> = {
+			[ItemSetting.OVERVIEW]: t('sidebar.items.overview'),
+			[ItemSetting.ROLES]: t('sidebar.items.roles'),
+			[ItemSetting.EMOJI]: t('sidebar.items.emoji'),
+			[ItemSetting.IMAGE_STICKERS]: t('sidebar.items.imageStickers'),
+			[ItemSetting.VOIDE_STICKERS]: t('sidebar.items.voiceStickers'),
+			[ItemSetting.CATEGORY_ORDER]: t('sidebar.items.categoryOrder'),
+			[ItemSetting.INTEGRATIONS]: t('sidebar.items.integrations'),
+			[ItemSetting.AUDIT_LOG]: t('sidebar.items.auditLog'),
+			[ItemSetting.ON_BOARDING]: t('sidebar.items.onboarding'),
+			[ItemSetting.ON_COMUNITY]: t('sidebar.items.enableCommunity')
+		};
+		return translationMap[item.id] || item.name;
+	};
+
+	const getTranslatedSectionTitle = (title: string) => {
+		const sectionMap: Record<string, string> = {
+			'Apps': t('sidebar.sectionTitles.apps'),
+			'Moderation': t('sidebar.sectionTitles.moderation')
+		};
+		return sectionMap[title] || title;
+	};
 
 	const sideBarListItemWithPermissions = sideBarListItem.map((sidebarItem) => {
 		let filteredListItem = sidebarItem.listItem.filter((item) => {
@@ -35,7 +61,7 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 		});
 
 		filteredListItem = filteredListItem.map((item) =>
-			item.id === ItemSetting.ON_COMUNITY && isCommunityEnabled ? { ...item, name: 'Community Overview' } : item
+			item.id === ItemSetting.ON_COMUNITY && isCommunityEnabled ? { ...item, name: t('sidebar.communityOverview') } : item
 		);
 
 		return {
@@ -67,12 +93,12 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 				{sideBarListItemWithPermissions.map((sidebarItem) => (
 					<div key={sidebarItem.title} className={`${sidebarItem.listItem.length > 0 ? 'mt-[5px] border-b-theme-primary' : ''}`}>
 						{sidebarItem.title && sidebarItem.listItem.length > 0 && (
-							<p className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase ">{sidebarItem.title}</p>
+							<p className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase ">{getTranslatedSectionTitle(sidebarItem.title)}</p>
 						)}
 						{sidebarItem.listItem.map((setting) => (
 							<SettingItem
 								key={setting.id}
-								name={setting.name}
+								name={getTranslatedItemName(setting)}
 								active={selectedButton === setting.id}
 								onClick={() => handleClickButtonSidebar(setting)}
 								handleMenu={handleMenu}
@@ -87,7 +113,7 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 						onClick={setIsShowDeletePopup}
 						data-e2e={generateE2eId('clan_page.settings.sidebar.delete')}
 					>
-						Delete clan
+						{t('sidebar.deleteClan')}
 					</button>
 				)}
 				{openModal && <LogoutModal handleLogOut={handleLogOut} onClose={handleCloseModal} />}

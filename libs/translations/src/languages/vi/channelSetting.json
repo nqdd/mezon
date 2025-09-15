@@ -3,14 +3,26 @@
         "channelName": {
             "title": "Tên kênh",
             "placeholder": "Nhập tên kênh",
-            "errorMessage": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -)."
+            "errorMessage": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+            "duplicateError": "Tên kênh đã tồn tại trong danh mục. Vui lòng nhập tên khác."
         },
         "threadName": {
             "title": "Tên chủ đề",
-            "placeholder": "Nhập tên chủ đề"
+            "placeholder": "Nhập tên chủ đề",
+            "errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+            "duplicateError": "Tên chủ đề đã tồn tại trong kênh. Vui lòng nhập tên khác."
         },
         "channelDescription": {
-            "title": "Mô tả của kênh"
+            "title": "Mô tả của kênh",
+            "placeholder": "Hãy cho mọi người biết cách sử dụng kênh này!"
+        },
+        "threadDescription": {
+            "title": "Mô tả chủ đề",
+            "placeholder": "Hãy cho mọi người biết cách sử dụng chủ đề này!"
+        },
+        "appUrl": {
+            "title": "Đường dẫn ứng dụng",
+            "invalidError": "Vui lòng nhập URL hợp lệ (ví dụ: https://example.com)."
         },
         "channelCategory": {
             "title": "Danh mục kênh"
@@ -82,6 +94,17 @@
             "systemChannel": "Không thể xóa kênh hệ thống",
             "error": "Xóa kênh lỗi: {{error}}"
         },
+        "deleteThread": {
+            "content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
+            "confirmText": "Xóa chủ đề",
+            "title": "Xóa chủ đề"
+        },
+        "deleteChannel": {
+            "content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
+            "confirmText": "Xóa kênh",
+            "title": "Xóa kênh"
+        },
+        "cancel": "Hủy",
         "leave": {
             "content": "Bạn có chắc chắn muốn rời kênh #{{channelName}} không? Hành động này không thể khôi phục.",
             "confirmText": "Rời",
@@ -138,21 +161,33 @@
             "success": "Lưu thành công",
             "failed": "Lưu thất bại"
         },
-        "roleAndMemberEmpty": "Chưa có vai trò và thành viên để thiết lập quyền riêng"
+        "roleAndMemberEmpty": "Chưa có vai trò và thành viên để thiết lập quyền riêng",
+        "header": {
+            "title": "Quyền hạn kênh",
+            "description": "Sử dụng quyền hạn để tùy chỉnh ai có thể làm gì trong kênh này.",
+            "syncedWithCategory": "Quyền hạn được đồng bộ với danh mục:"
+        }
     },
     "quickAction": {
-        "title": "Cài đặt tác vụ",
+        "title": "Tác vụ nhanh",
+        "description": "Quản lý tin nhắn nhanh và menu nhanh cho kênh này",
         "keyTitle": "Nhập từ khóa (VD: xinchao): ",
         "valueTitle": "Nhập nội dung (VD: Chào buổi sáng, chúc bạn có một ngày mới tốt lành !)",
         "save": "LƯU",
         "cancel": "HỦY",
         "create": "Tạo",
+        "update": "Cập nhật",
+        "delete": "Xóa",
         "deleteModal": "XÓA TÁC VỤ",
-        "deleteTitle": "Bạn có chắc chắn muốn xóa /{{key}} không ? Hành động này sẽ không thể hoàn tác được !",
+        "deleteTitle": "Bạn có chắc chắn muốn xóa {{command}} không? Hành động này không thể hoàn tác.",
         "flashMessage": "Tin nhắn nhanh",
+        "flashMessages": "Tin nhắn nhanh",
         "quickMenu": "Menu nhanh",
+        "quickMenus": "Menu nhanh",
         "menuName": "Tên menu",
+        "commandName": "Tên lệnh",
         "menuNameHelper": "Tên cho mục menu nhanh này",
+        "commandNameHelper": "Tên mà người dùng sẽ nhập sau dấu gạch chéo",
         "botEventTrigger": "Kích hoạt sự kiện Bot",
         "botEventDescription": "Menu nhanh này sẽ tự động kích hoạt một sự kiện bot khi được chọn.",
         "createQuickMenu": "Tạo Menu Nhanh",
@@ -162,10 +197,59 @@
         "emptyFlashMessage": "Chưa có tin nhắn nhanh nào",
         "emptyFlashMessageDescription": "Bắt đầu bằng cách tạo lệnh tin nhắn nhanh đầu tiên của bạn",
         "emptyQuickMenu": "Chưa có menu nhanh nào",
-        "emptyQuickMenuDescription": "Bắt đầu bằng cách tạo menu nhanh đầu tiên của bạn"
+        "emptyQuickMenuDescription": "Bắt đầu bằng cách tạo menu nhanh đầu tiên của bạn",
+        "addFlashMessage": "Thêm Tin Nhắn Nhanh",
+        "addQuickMenu": "Thêm Menu Nhanh",
+        "editCommand": "Chỉnh sửa lệnh",
+        "deleteCommand": "Xóa lệnh",
+        "triggersBot": "Kích hoạt sự kiện bot",
+        "messageContent": "Nội dung tin nhắn",
+        "messageContentPlaceholder": "Tin nhắn sẽ được gửi nhanh",
+        "messageContentDescription": "Nội dung tin nhắn sẽ được gửi khi sử dụng lệnh tin nhắn nhanh này",
+        "menuAction": "Hành động menu",
+        "menuActionPlaceholder": "Hành động sẽ được thực hiện",
+        "menuActionDescription": "Hành động sẽ được thực hiện khi menu nhanh này được chọn"
     },
     "changeCategory": {
         "title": "Thay đổi danh mục",
         "label": "CHUYỂN TỪ {{currentChannel}} TỚI"
+    },
+    "overview": {
+        "title": "Tổng quan",
+        "ageRestricted": {
+            "title": "Kênh hạn chế độ tuổi",
+            "description": "Người dùng sẽ cần xác nhận họ đủ tuổi hợp pháp để xem nội dung trong kênh này. Các kênh hạn chế độ tuổi được miễn trừ bộ lọc nội dung rõ ràng."
+        },
+        "e2ee": {
+            "title": "Mã hóa đầu cuối",
+            "description": "Bật mã hóa đầu cuối cho kênh này để bảo mật tất cả tin nhắn."
+        }
+    },
+    "tabs": {
+        "overview": "Tổng quan",
+        "permissions": "Quyền hạn",
+        "invites": "Lời mời",
+        "integrations": "Tích hợp",
+        "category": "Danh mục", 
+        "quickMenu": "Menu nhanh"
+    },
+    "categoryManagement": {
+        "title": "Danh mục",
+        "channelName": "Tên kênh",
+        "category": "Danh mục"
+    },
+    "unsavedChanges": {
+        "warning": "Cẩn thận - bạn có thay đổi chưa được lưu!",
+        "reset": "Đặt lại",
+        "saveChanges": "Lưu thay đổi"
+    },
+    "addMembersRoles": {
+        "title": "Thêm thành viên hoặc vai trò",
+        "placeholder": "VD: Quản trị viên, @wumpus",
+        "instruction": "Thêm thành viên riêng lẻ bằng cách bắt đầu với @ hoặc nhập tên vai trò",
+        "roles": "Vai trò",
+        "members": "Thành viên",
+        "cancel": "Hủy",
+        "done": "Hoàn thành"
     }
 }

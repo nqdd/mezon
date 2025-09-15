@@ -1,0 +1,12 @@
+{
+  "buttons": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "reset": "Reset",
+    "close": "Close"
+  },
+  "form": {
+    "required": "Required field",
+    "error": "Error"
+  }
+}

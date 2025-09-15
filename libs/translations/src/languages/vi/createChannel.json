@@ -1,0 +1,34 @@
+{
+    "header": {
+        "title": "TẠO KÊNH MỚI TRONG"
+    },
+    "channelType": {
+        "text": "Văn bản",
+        "voice": "Thoại", 
+        "forum": "Diễn đàn",
+        "announcement": "Thông báo",
+        "apps": "Ứng dụng",
+        "stream": "Phát trực tiếp",
+        "descriptions": {
+            "text": "Gửi tin nhắn, hình ảnh, GIF, emoji, ý kiến và trò đùa",
+            "voice": "Trò chuyện cùng nhau bằng thoại, video và chia sẻ màn hình", 
+            "forum": "Tạo không gian cho các cuộc thảo luận có tổ chức",
+            "announcement": "Cập nhật quan trọng cho mọi người trong và ngoài clan",
+            "apps": "Ứng dụng",
+            "stream": "Chia sẻ hoạt động sở thích"
+        }
+    },
+    "validation": {
+        "invalidName": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+        "duplicateName": "Tên kênh đã tồn tại trong danh mục. Vui lòng nhập tên khác."
+    },
+    "privacy": {
+        "private": "Kênh riêng tư",
+        "description": "Chỉ những thành viên và vai trò được chọn mới có thể xem kênh này."
+    },
+    "buttons": {
+        "cancel": "Hủy",
+        "create": "Tạo kênh",
+        "creating": "Đang tạo"
+    }
+}

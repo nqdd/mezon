@@ -1,14 +1,53 @@
 {
-  "title": "Tùy chỉnh clan của bạn",
-  "subTitle": "Tạo cho clan mới của bạn một phong cách riêng với tên và biểu tượng. Bạn luôn có thể thay đổi nó sau này.",
-  "clanName": "Tên clan",
-  "createServer": "Tạo clan",
-  "byCreatingClan":"Bằng cách tạo clan, bạn đồng ý với điều khoản sử dụng của Mezon",
-  "upload": "TẢI LÊN",
-  "addClan": "Tạo clan",
-  "placeholderClan": "Nhập vào tên clan",
-  "errorMessage": "Vui lòng nhập tên clan hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
-  "duplicateNameMessage" : "Tên clan đã tồn tại. Vui lòng chọn tên khác.",
-  "commutityGuide" : "Quy tắc cộng đồng.",
-  "busy": "Đang bận"
+	"title": "Tùy chỉnh clan của bạn",
+	"subTitle": "Tạo cho clan mới của bạn một phong cách riêng với tên và biểu tượng. Bạn luôn có thể thay đổi nó sau này.",
+	"clanName": "Tên clan",
+	"createServer": "Tạo clan",
+	"byCreatingClan": "Bằng cách tạo clan, bạn đồng ý với điều khoản sử dụng của Mezon",
+	"upload": "TẢI LÊN",
+	"addClan": "Tạo clan",
+	"placeholderClan": "Nhập vào tên clan",
+	"errorMessage": "Vui lòng nhập tên clan hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+	"duplicateNameMessage": "Tên clan đã tồn tại. Vui lòng chọn tên khác.",
+	"commutityGuide": "Quy tắc cộng đồng.",
+	"busy": "Đang bận",
+	"findOrStartConversation": "Tìm  hoặc bắt đầu cuộc trò chuyện",
+	"createCategoryModal": {
+		"title": "Tạo danh mục",
+		"nameLabel": "Tên danh mục là gì?",
+		"namePlaceholder": "Nhập tên danh mục",
+		"privateCategory": "Danh mục riêng tư",
+		"privateDescription": "Bằng cách tạo danh mục riêng tư, chỉ những thành viên và vai trò được chọn mới có thể xem danh mục này. Các kênh đồng bộ trong danh mục này sẽ tự động khớp với cài đặt này",
+		"invalidName": "Vui lòng nhập tên danh mục hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+		"duplicateName": "Tên danh mục đã tồn tại trong clan. Vui lòng nhập tên khác.",
+		"cancel": "Hủy",
+		"create": "Tạo danh mục"
+	},
+	"leaveClanModal": {
+		"title": "Rời {{clanName}}",
+		"description": "Bạn có chắc muốn rời khỏi <strong>{{clanName}}</strong>? Bạn sẽ không thể tham gia lại máy chủ này trừ khi được mời lại.",
+		"cancel": "Hủy"
+	},
+	"categoryOverview": {
+		"categoryName": "Tên danh mục",
+		"categoryNamePlaceholder": "Nhập tên danh mục của bạn tại đây...",
+		"hasWelcomeChannelError": "Danh mục này có kênh chào mừng",
+		"deleteCategory": "Xóa danh mục",
+		"deleteCategoryButton": "Xóa danh mục",
+		"cannotBeUndone": "Hành động này không thể hoàn tác",
+		"categoryLabel": "Danh mục"
+	},
+	"createClanModal": {
+		"title": "Tùy chỉnh Clan của bạn",
+		"description": "Tạo cho clan mới của bạn một phong cách riêng với tên và biểu tượng. Bạn luôn có thể thay đổi nó sau này.",
+		"upload": "Tải lên",
+		"clanName": "TÊN CLAN",
+		"placeholder": "Nhập tên clan",
+		"invalidName": "Vui lòng nhập tên clan hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+		"duplicateName": "Tên clan đã tồn tại. Vui lòng chọn tên khác.",
+		"agreement": "Bằng cách tạo clan, bạn đồng ý với",
+		"communityGuidelines": "Quy tắc cộng đồng",
+		"back": "Quay lại",
+		"create": "Tạo"
+	}
 }

@@ -1,8 +1,9 @@
 import { captureSentryError } from '@mezon/logger';
 import { createClient } from '@mezon/transport';
-import { IInvite, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiInviteUserRes, ApiLinkInviteUser } from 'mezon-js/api.gen';
+import type { IInvite, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiInviteUserRes, ApiLinkInviteUser } from 'mezon-js/api.gen';
 import { ensureSession, getMezonCtx } from '../helpers';
 
 export const INVITE_FEATURE_KEY = 'invite';
@@ -35,9 +36,9 @@ export const createLinkInviteUser = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body = {
-				channel_id: channel_id,
-				clan_id: clan_id,
-				expiry_time: expiry_time
+				channel_id,
+				clan_id,
+				expiry_time
 			};
 			const response = await mezon.client.createLinkInviteUser(mezon.session, body);
 			if (!response) {
@@ -59,6 +60,8 @@ export const inviteUser = createAsyncThunk('invite/inviteUser', async ({ inviteI
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const response = await mezon.client.inviteUser(mezon.session, inviteId);
+		console.log(response, 'response');
+
 		if (!response?.clan_id) {
 			captureSentryError('Can not join clan', 'invite/inviteUser');
 			return thunkAPI.rejectWithValue('Can not join clan');

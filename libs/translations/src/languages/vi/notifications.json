@@ -1,0 +1,18 @@
+{
+  "empty": {
+    "forYou": {
+      "title": "Chưa có gì ở đây",
+      "description": "Quay lại để nhận thông báo về sự kiện, phát trực tiếp và nhiều hơn nữa."
+    },
+    "messages": {
+      "title": "Bạn đã xem hết rồi!",
+      "protip": "Mẹo:",
+      "description": "Mở hộp thư bằng cách nhấn CTRL+I và đánh dấu tin nhắn đầu tiên là đã đọc bằng CTRL+Shift+E."
+    },
+    "mentions": {
+      "title": "Bạn đã xem hết mọi thứ!",
+      "protip": "Mẹo:",
+      "description": "Mỗi khi ai đó nhắc đến bạn, nó sẽ được lưu ở đây trong 7 ngày."
+    }
+  }
+}

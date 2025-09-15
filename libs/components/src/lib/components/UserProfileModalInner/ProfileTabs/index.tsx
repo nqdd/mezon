@@ -1,23 +1,27 @@
+import { useTranslation } from 'react-i18next';
+
 type ProfileTabsProps = {
 	activeTab: string;
 	onActiveTabChange: (tabId: string) => void;
 };
 
 export const typeTab = {
-	ABOUT_ME: 'About Me',
-	ACTIVITY: 'Activity',
-	MUTUAL_FRIENDS: 'Mutual Friends',
-	MUTUAL_SERVERS: 'Mutual Clans'
+	ABOUT_ME: 'aboutMe',
+	ACTIVITY: 'activity', 
+	MUTUAL_FRIENDS: 'mutualFriends',
+	MUTUAL_SERVERS: 'mutualServers'
 };
 
-const profileTabs = [
-	{ id: typeTab.ABOUT_ME, name: typeTab.ABOUT_ME },
-	{ id: typeTab.ACTIVITY, name: typeTab.ACTIVITY },
-	{ id: typeTab.MUTUAL_FRIENDS, name: typeTab.MUTUAL_FRIENDS },
-	{ id: typeTab.MUTUAL_SERVERS, name: typeTab.MUTUAL_SERVERS }
-];
-
 const ProfileTabs = ({ activeTab, onActiveTabChange }: ProfileTabsProps) => {
+	const { t } = useTranslation('common');
+	
+	const profileTabs = [
+		{ id: typeTab.ABOUT_ME, name: t('userProfile.aboutMe') },
+		{ id: typeTab.ACTIVITY, name: t('userProfile.activity') },
+		{ id: typeTab.MUTUAL_FRIENDS, name: t('userProfile.mutualFriends') },
+		{ id: typeTab.MUTUAL_SERVERS, name: t('userProfile.mutualServers') }
+	];
+
 	const handleClickTab = (tabId: string) => {
 		onActiveTabChange(tabId);
 	};

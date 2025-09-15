@@ -1,0 +1,10 @@
+{
+  "headers": {
+    "name": "Name",
+    "memberSince": "Member since",
+    "joinedMezon": "Joined Mezon",
+    "roles": "Roles",
+    "signals": "Signals"
+  },
+  "error": "Error"
+}
