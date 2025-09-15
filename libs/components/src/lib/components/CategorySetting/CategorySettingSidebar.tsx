@@ -61,7 +61,7 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 				))}
 				<div className={'border-t-[0.08px] dark:border-borderDividerLight border-bgModifierHoverLight'}></div>
 				<button
-					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left dark:hover:bg-bgHover hover:bg-bgModifierHoverLight ${hasWelcomeChannel ? '!text-bgTertiary' : ''}`}
+					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left hover:bg-[#f67e882a] ${hasWelcomeChannel ? 'text-red-500' : ''}`}
 					onClick={openModalDeleteCategory}
 				>
 					Delete Category
