@@ -162,7 +162,6 @@ const FriendsPage = () => {
 								<button
 									className={`px-3 py-[6px] font-medium rounded-lg text-theme-primary text-theme-primary-hover shadow-none border-none bg-button-hover ${currentTabStatus === tab.value && !openModalAddFriend ? 'bg-active-button text-theme-primary-active' : ''} ${tab.value === 'pending' && quantityPendingRequest !== 0 ? 'pr-[30px]' : ''}`}
 									tabIndex={index}
-									title={tab.title}
 									onClick={() => handleChangeTab(tab.value)}
 								>
 									{tab.title}
