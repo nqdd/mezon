@@ -2,7 +2,7 @@ import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, BackHandler, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
@@ -141,6 +141,20 @@ function ChannelVoice({
 	};
 
 	useEffect(() => {
+		const handleBackPress = () => {
+			if (isAnimationComplete) {
+				onPressMinimizeRoom();
+				return true;
+			}
+			return false;
+		};
+
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+		return () => backHandler.remove();
+	}, [isAnimationComplete]);
+
+	useEffect(() => {
 		checkPermissions();
 		const activateKeepAwake = async (platform: string) => {
 			try {
@@ -173,7 +187,17 @@ function ChannelVoice({
 		};
 	}, []);
 
+	const setupPipMode = async () => {
+		if (Platform.OS === 'android') {
+			try {
+				await PipModule?.setupDefaultPipMode?.();
+			} catch (error) {
+				console.error('Error entering PiP mode:', error);
+			}
+		}
+	};
 	useEffect(() => {
+		setupPipMode();
 		const subscription =
 			Platform.OS === 'ios'
 				? null
@@ -188,7 +212,7 @@ function ChannelVoice({
 								dispatch(voiceActions.setPiPModeMobile(true));
 							} else {
 								StatusBar.setTranslucent(true);
-								PipModule?.exitPipMode?.();
+								PipModule?.showStatusBar?.();
 								dispatch(voiceActions.setPiPModeMobile(false));
 							}
 						} catch (e) {
@@ -199,6 +223,7 @@ function ChannelVoice({
 		return () => {
 			if (Platform.OS === 'android') {
 				PipModule?.exitPipMode?.();
+				PipModule?.showStatusBar?.();
 				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}
