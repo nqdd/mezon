@@ -3,7 +3,7 @@ import { selectCurrentChannelId, selectCurrentClanId, selectTheme } from '@mezon
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { TextArea, TimePicker } from '@mezon/ui';
 import type { ContenSubmitEventProps } from '@mezon/utils';
-import { ERepeatType, fileTypeImage } from '@mezon/utils';
+import { ERepeatType, MAX_FILE_SIZE_1MB, fileTypeImage } from '@mezon/utils';
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
@@ -164,14 +164,14 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
-		const allowedTypes = fileTypeImage;
-		if (!allowedTypes.includes(file.type)) {
+
+		if (!fileTypeImage.includes(file.type)) {
 			setOpenModalType(true);
 			e.target.value = null;
 			return;
 		}
 
-		if (sizeImage > 1000000) {
+		if (sizeImage > MAX_FILE_SIZE_1MB) {
 			setOpenModal(true);
 			e.target.value = null;
 			return;
