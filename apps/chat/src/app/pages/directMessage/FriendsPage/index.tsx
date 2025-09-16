@@ -1,9 +1,8 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
+import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
-	FriendsEntity,
 	channelsActions,
 	friendsActions,
-	requestAddFriendParam,
 	selectBlockedUsers,
 	selectCloseMenu,
 	selectCurrentTabStatus,
@@ -152,7 +151,7 @@ const FriendsPage = () => {
 				<div className={`gap-3 flex overflow-x-scroll hide-scrollbar ${closeMenuMobile ? 'ml-7' : ''}`}>
 					<div className="flex flex-row gap-2 items-center text-theme-primary-active font-medium">
 						<Icons.IconFriends />
-						Friend
+						Friends
 					</div>
 					<div className="flex flex-row gap-2 items-center text-theme-primary">
 						<Icons.DotIcon className="w-1 h-1" />
@@ -191,10 +190,22 @@ const FriendsPage = () => {
 								<div className="relative">
 									<InputField
 										type="text"
+										value={textSearch}
 										onChange={(e) => setTextSearch(e.target.value)}
 										placeholder="Search"
-										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] "
+										needOutline={true}
+										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] focus:outline focus:outline-1  outline-[#006ce7] "
 									/>
+									{Boolean(textSearch) && (
+										<div
+											className="absolute top-2.5 right-12 text-theme-primary cursor-pointer select-none text-[25px] px-2 leading-none hover:text-red-500"
+											onClick={() => setTextSearch('')}
+											aria-label="Clear search"
+											title="Clear search"
+										>
+											×
+										</div>
+									)}
 									<div className="absolute top-3 right-5 text-theme-primary">
 										<Icons.Search />
 									</div>
@@ -232,7 +243,9 @@ const FriendsPage = () => {
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">You're already friends with that user!</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">Please only use numbers, letters, underscores _ or full stops.</div>
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">
+											Please only use numbers, letters, underscores _ or full stops.
+										</div>
 									)}
 									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
 										You can add friends with their Mezon usernames
