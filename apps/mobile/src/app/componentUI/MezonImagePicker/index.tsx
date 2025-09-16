@@ -5,7 +5,7 @@ import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, DimensionValue, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { openPicker } from 'react-native-image-crop-picker';
+import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useSelector } from 'react-redux';
 import MezonClanAvatar from '../MezonClanAvatar';
@@ -154,7 +154,8 @@ export default memo(
 					finalFile = selectedFile;
 				} else {
 					// For other images, apply cropping and compression
-					finalFile = await openPicker({
+					finalFile = await openCropper({
+						path: selectedFile.path,
 						mediaType: 'photo',
 						includeBase64: true,
 						cropping: true,

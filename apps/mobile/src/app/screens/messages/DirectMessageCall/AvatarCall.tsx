@@ -63,7 +63,7 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 			height: baseSize,
 			borderRadius: baseSize / 2,
 			borderWidth: 2,
-			borderColor: 'rgba(255, 255, 255, 0.3)',
+			borderColor: themeValue.borderDim,
 			transform: [
 				{
 					scale: delayedValue.interpolate({
