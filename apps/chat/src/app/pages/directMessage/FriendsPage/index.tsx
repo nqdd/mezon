@@ -1,9 +1,8 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
+import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
-	FriendsEntity,
 	channelsActions,
 	friendsActions,
-	requestAddFriendParam,
 	selectBlockedUsers,
 	selectCloseMenu,
 	selectCurrentTabStatus,
@@ -127,6 +126,35 @@ const FriendsPage = () => {
 			return nameStart.localeCompare(nameNext);
 		});
 
+	const getEmptyStateMessage = (tab: string) => {
+		if (textSearch.trim()) {
+			switch (tab) {
+				case 'all':
+					return 'No friends match your search. Try another name.';
+				case 'online':
+					return 'No one online matches your search. Try another name.';
+				case 'pending':
+					return 'No requests match your search. Double-check the name or try again.';
+				case 'block':
+					return 'No blocked users match your search. Try another name.';
+				default:
+					return 'No friends found';
+			}
+		}
+		switch (tab) {
+			case 'all':
+				return "Looks a little empty here! Let's get this party started by adding a few friends.";
+			case 'online':
+				return "It's quiet right now! Why not start a conversation and see who's around?";
+			case 'pending':
+				return "This is where you'll find friend requests you've sent and received.";
+			case 'block':
+				return "You haven't blocked anyone yet.";
+			default:
+				return 'No friends found';
+		}
+	};
+
 	const { setStatusMenu } = useMenu();
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
@@ -204,7 +232,15 @@ const FriendsPage = () => {
 								</span>
 							</div>
 							<div className="px-8 overflow-hidden flex flex-1 pb-4">
-								<FriendList listFriendFilter={listFriendFilter} />
+								{listFriendFilter.length > 0 ? (
+									<FriendList listFriendFilter={listFriendFilter} />
+								) : (
+									<div className="flex w-full text-theme-primary flex-col items-center justify-center h-full">
+										<div className="flex w-2/3 text-center justify-center mb-[120px]">
+											{getEmptyStateMessage(currentTabStatus)}
+										</div>
+									</div>
+								)}
 							</div>
 						</>
 					)}
@@ -232,7 +268,9 @@ const FriendsPage = () => {
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">You're already friends with that user!</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">Please only use numbers, letters, underscores _ or full stops.</div>
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">
+											Please only use numbers, letters, underscores _ or full stops.
+										</div>
 									)}
 									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
 										You can add friends with their Mezon usernames
