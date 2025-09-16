@@ -103,7 +103,7 @@ export function MyVideoConference({
 	useEffect(() => {
 		const handleDisconnected = async (reason?: DisconnectReason) => {
 			if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
-				dispatch(voiceActions.resetVoiceSettings());
+				dispatch(voiceActions.resetVoiceControl());
 				return;
 			}
 			if (

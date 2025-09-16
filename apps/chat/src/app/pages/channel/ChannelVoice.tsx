@@ -107,7 +107,7 @@ const ChannelVoice = memo(
 
 		const handleLeaveRoom = useCallback(async () => {
 			if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
-			dispatch(voiceActions.resetVoiceSettings());
+			dispatch(voiceActions.resetVoiceControl());
 			await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId);
 		}, [voiceInfo, voiceInfo?.roomId]);
 
