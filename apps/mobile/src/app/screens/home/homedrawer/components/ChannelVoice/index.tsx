@@ -2,7 +2,7 @@ import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, BackHandler, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
@@ -11,9 +11,7 @@ import { useSoundReactions } from '../../../../../hooks/useSoundReactions';
 import { CallReactionHandler } from './CallReactionHandler';
 import HeaderRoomView from './HeaderRoomView';
 import RoomView from './RoomView';
-const { PipModule } = NativeModules;
-
-const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule } = NativeModules;
+const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule, PipModule } = NativeModules;
 
 // Audio output types
 export type AudioOutput = {
@@ -115,6 +113,7 @@ function ChannelVoice({
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 	const dispatch = useAppDispatch();
 	const isRequestingPermission = useRef(false);
+	const timeoutRef = useRef(null);
 	const channelId = useMemo(() => {
 		return voiceInfo?.channelId;
 	}, [voiceInfo]);
@@ -130,6 +129,9 @@ function ChannelVoice({
 				isRequestingPermission.current = true;
 				await request(PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
 				await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+				timeoutRef.current = setTimeout(() => {
+					isRequestingPermission.current = false;
+				}, 2000);
 			} catch (error) {
 				console.error('Permission request failed:', error);
 			} finally {
@@ -137,6 +139,20 @@ function ChannelVoice({
 			}
 		}
 	};
+
+	useEffect(() => {
+		const handleBackPress = () => {
+			if (isAnimationComplete) {
+				onPressMinimizeRoom();
+				return true;
+			}
+			return false;
+		};
+
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+		return () => backHandler.remove();
+	}, [isAnimationComplete]);
 
 	useEffect(() => {
 		checkPermissions();
@@ -171,22 +187,17 @@ function ChannelVoice({
 		};
 	}, []);
 
-	const checkPipSupport = async () => {
-		try {
-			if (Platform.OS !== 'android' || !PipModule?.isPipSupported) {
-				return false;
+	const setupPipMode = async () => {
+		if (Platform.OS === 'android') {
+			try {
+				await PipModule?.setupDefaultPipMode?.();
+			} catch (error) {
+				console.error('Error entering PiP mode:', error);
 			}
-			return await PipModule.isPipSupported();
-		} catch (error) {
-			console.error('Error checking PiP support:', error);
-			return false;
 		}
 	};
-
 	useEffect(() => {
-		if (Platform.OS === 'android') {
-			checkPipSupport();
-		}
+		setupPipMode();
 		const subscription =
 			Platform.OS === 'ios'
 				? null
@@ -201,7 +212,7 @@ function ChannelVoice({
 								dispatch(voiceActions.setPiPModeMobile(true));
 							} else {
 								StatusBar.setTranslucent(true);
-								PipModule?.exitPipMode?.();
+								PipModule?.showStatusBar?.();
 								dispatch(voiceActions.setPiPModeMobile(false));
 							}
 						} catch (e) {
@@ -211,9 +222,12 @@ function ChannelVoice({
 					});
 		return () => {
 			if (Platform.OS === 'android') {
+				PipModule?.exitPipMode?.();
+				PipModule?.showStatusBar?.();
 				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}
+			timeoutRef?.current && clearTimeout(timeoutRef.current);
 			subscription && subscription.remove();
 		};
 	}, [dispatch]);
