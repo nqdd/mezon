@@ -1,6 +1,9 @@
 import { Icons } from '@mezon/ui';
+import { useTranslation } from 'react-i18next';
 
 const SearchCanvas = ({ setKeywordSearch }: { setKeywordSearch: React.Dispatch<React.SetStateAction<string>> }) => {
+	const { t } = useTranslation('channelMenu');
+
 	const hanldeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setKeywordSearch(event.target.value.trim());
 	};
@@ -9,7 +12,7 @@ const SearchCanvas = ({ setKeywordSearch }: { setKeywordSearch: React.Dispatch<R
 			<div className={`transition-all duration-300 w-56 h-6 pl-4 pr-2 py-3 bg-theme-input rounded items-center inline-flex`}>
 				<input
 					type="text"
-					placeholder="Search for Canvas Name"
+					placeholder={t('menu.thread.searchCanvas')}
 					className=" outline-none bg-transparent w-full placeholder:text-sm text-sm"
 					onChange={(event) => hanldeChange(event)}
 				/>

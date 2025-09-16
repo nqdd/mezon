@@ -59,5 +59,9 @@
         "noConfirm": "Không",
         "yesConfirm": "Có"
     },
-    "removeAccount": "Xóa tài khoản"
+    "removeAccount": "Xóa tài khoản",
+    "channelSetting": {
+        "recentChannels": "Kênh gần đây",
+        "searchByChannelLabel": "Tìm kiếm theo nhãn kênh"
+    }
 }

@@ -1,7 +1,9 @@
 import { useMemberContext } from '@mezon/core';
 import { Icons } from '@mezon/ui';
+import { useTranslation } from 'react-i18next';
 
 const MemberTopBar = () => {
+	const { t } = useTranslation('memberTable');
 	const { searchQuery, setSearchQuery, isSort, setIsSort } = useMemberContext();
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,7 +16,7 @@ const MemberTopBar = () => {
 
 	return (
 		<div className="flex flex-row justify-between items-center py-2 px-4 border-b-theme-primary">
-			<h2 className="text-base font-semibold">Recent Members</h2>
+			<h2 className="text-base font-semibold">{t('topBar.recentMembers')}</h2>
 			<div className="flex flex-row items-center gap-2">
 				<div className="relative">
 					<div
@@ -22,7 +24,7 @@ const MemberTopBar = () => {
 					>
 						<input
 							type="text"
-							placeholder="Search by clannick, display name or username"
+							placeholder={t('topBar.searchPlaceholder')}
 							className=" outline-none bg-transparent  w-full"
 							value={searchQuery}
 							onChange={handleSearchChange}
@@ -38,7 +40,7 @@ const MemberTopBar = () => {
 						onClick={toggleSortOrder}
 					>
 						<Icons.ConvertAccount className="rotate-90 mr-1 text-white" />
-						<span>Sort</span>
+						<span>{t('topBar.sort')}</span>
 					</button>
 				</div>
 			</div>

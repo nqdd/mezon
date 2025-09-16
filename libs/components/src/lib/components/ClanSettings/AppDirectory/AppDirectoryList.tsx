@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import AppDirectoryItem from './AppDirectoryItem';
 import { ListGaming } from './listAppDirectory';
 
@@ -13,25 +14,27 @@ export interface IAppDirectoryItem {
 	botNumber: number;
 }
 
-const listAppDirectory: IAppDirectoryList[] = [
-	{
-		cate: 'Gaming Companion Apps',
-		listAppDirectory: ListGaming
-	},
-	{
-		cate: 'Popular & Trending Apps',
-		listAppDirectory: ListGaming
-	},
-	{
-		cate: 'Server Mini-Games',
-		listAppDirectory: ListGaming
-	},
-	{
-		cate: 'Role-Playing Favorites',
-		listAppDirectory: ListGaming
-	}
-];
 const AppDirectoryList = () => {
+	const { t } = useTranslation('clanSettings');
+	
+	const listAppDirectory: IAppDirectoryList[] = [
+		{
+			cate: t('appDirectory.categories.gamingCompanion'),
+			listAppDirectory: ListGaming
+		},
+		{
+			cate: t('appDirectory.categories.popularTrending'),
+			listAppDirectory: ListGaming
+		},
+		{
+			cate: t('appDirectory.categories.serverMiniGames'),
+			listAppDirectory: ListGaming
+		},
+		{
+			cate: t('appDirectory.categories.rolePlayingFavorites'),
+			listAppDirectory: ListGaming
+		}
+	];
 	return (
 		<>
 			{listAppDirectory.map((listAppDirectByCate) => (

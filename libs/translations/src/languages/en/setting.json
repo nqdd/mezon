@@ -59,5 +59,9 @@
         "noConfirm": "No",
         "yesConfirm": "Yes"
     },
-    "removeAccount": "Remove Account"
+    "removeAccount": "Remove Account",
+    "channelSetting": {
+        "recentChannels": "Recent Channels",
+        "searchByChannelLabel": "Search by channel label"
+    }
 }

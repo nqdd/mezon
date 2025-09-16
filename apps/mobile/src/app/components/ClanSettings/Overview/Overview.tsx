@@ -14,7 +14,7 @@ import {
 	updateSystemMessage,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { EPermission } from '@mezon/utils';
+import { EPermission, MAX_FILE_SIZE_10MB } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
 import type { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
@@ -428,6 +428,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 					onLoad={handleLoad}
 					showHelpText
 					autoUpload
+					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
 
 				{banner && (

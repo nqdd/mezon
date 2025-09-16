@@ -1,14 +1,15 @@
-import { BrowserWindow, Menu, MenuItemConstructorOptions, Notification, app, screen, shell } from 'electron';
+import type { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, Menu, Notification, app, dialog, screen, shell } from 'electron';
+import log from 'electron-log/main';
 import { autoUpdater } from 'electron-updater';
 import activeWindows from 'mezon-active-windows';
 import { join } from 'path';
-import { format } from 'url';
-import { rendererAppName, rendererAppPort } from './constants';
-
 import ua from 'universal-analytics';
+import { format } from 'url';
 import tray from '../Tray';
 import { EActivityCoding, EActivityGaming, EActivityMusic } from './activities';
 import setupAutoUpdates from './autoUpdates';
+import { rendererAppName, rendererAppPort } from './constants';
 import { ACTIVE_WINDOW, TRIGGER_SHORTCUT } from './events/constants';
 import setupRequestPermission from './requestPermission';
 import { initBadge } from './services/badge';
@@ -19,9 +20,18 @@ const ACTIVITY_CODING = Object.values(EActivityCoding);
 const ACTIVITY_MUSIC = Object.values(EActivityMusic);
 const ACTIVITY_GAMING = Object.values(EActivityGaming);
 
-const IMAGE_WINDOW_KEY = 'IMAGE_WINDOW_KEY';
+const _IMAGE_WINDOW_KEY = 'IMAGE_WINDOW_KEY';
 
 const isMac = process.platform === 'darwin';
+
+dialog.showErrorBox = function (title, content) {
+	log.error(`[Disabled Dialog] Error: ${title}\n${content}`);
+};
+
+dialog.showOpenDialog = function (...args) {
+	log.error('[Disabled Dialog] showOpenDialog called:', args);
+	return Promise.resolve({ canceled: true, filePaths: [] });
+};
 
 export default class App {
 	// Keep a global reference of the window object, if you don't, the window will
@@ -98,8 +108,8 @@ export default class App {
 
 		// Create the browser window.
 		App.mainWindow = new BrowserWindow({
-			width: width,
-			height: height,
+			width,
+			height,
 			show: false,
 			frame: false,
 			titleBarOverlay: false,
@@ -161,8 +171,8 @@ export default class App {
 		}
 
 		// Protocol handler for osx
-		App.application.on('open-url', function (event, url) {
-			event.preventDefault();
+		App.application.on('open-url', function (_event, url) {
+			_event.preventDefault();
 
 			if (url) {
 				const index = url.indexOf('=');
@@ -192,7 +202,7 @@ export default class App {
 		});
 
 		// Emitted when the window is closed.
-		App.mainWindow.on('close', (event) => {
+		App.mainWindow.on('close', (_event) => {
 			if (forceQuit.isEnabled) {
 				app.exit(0);
 				forceQuit.disable();
@@ -213,7 +223,7 @@ export default class App {
 	private static generateQueryString(params: Record<string, string>): string {
 		return Object.keys(params)
 			.map((key) => {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+				return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
 			})
 			.join('&');
 	}
@@ -335,7 +345,7 @@ export default class App {
 								new Notification({
 									icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
 									title: 'Checking for updates..',
-									body: body
+									body
 								}).show();
 							});
 						}

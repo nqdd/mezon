@@ -13,12 +13,17 @@ import {
 import { Menu } from '@mezon/ui';
 import { ENotificationTypes, FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
 import { format } from 'date-fns';
-import { ReactElement, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { notificationTypesList } from '../../../PanelChannel';
+import { createNotificationTypesListTranslated } from '../../../PanelChannel';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
 
 const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRef?: RefObject<HTMLElement> }) => {
+	const { t } = useTranslation('channelTopbar');
+	const tChannelMenu = useTranslation('channelMenu').t;
+	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannel?.id || ''));
 	const dispatch = useAppDispatch();
@@ -32,17 +37,17 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 
 	useEffect(() => {
 		if (getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0') {
-			setNameChildren('Mute Channel');
+			setNameChildren(t('notificationSetting.muteChannel'));
 			setmutedUntil('');
 		} else {
-			setNameChildren('Unmute Channel');
+			setNameChildren(t('notificationSetting.unmuteChannel'));
 			if (getNotificationChannelSelected?.time_mute) {
 				const timeMute = new Date(getNotificationChannelSelected.time_mute);
 				const currentTime = new Date();
 				if (timeMute > currentTime) {
 					const timeDifference = timeMute.getTime() - currentTime.getTime();
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
-					setmutedUntil(`Muted until ${formattedDate}`);
+					setmutedUntil(t('notificationSetting.mutedUntil', { date: formattedDate }));
 
 					setTimeout(() => {
 						const body = {
@@ -87,7 +92,7 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 			channel_id: currentChannelId || '',
 			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
 			clan_id: currentClanId || '',
-			active: active
+			active
 		};
 		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
 	};
@@ -120,23 +125,23 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 
 	const menu = useMemo(() => {
 		const listItem: { key: number; label: string }[] = [
-			{ key: FOR_15_MINUTES, label: 'For 15 Minutes' },
-			{ key: FOR_1_HOUR, label: 'For 1 Hour' },
+			{ key: FOR_15_MINUTES, label: t('notificationSetting.muteOptions.for15Minutes') },
+			{ key: FOR_1_HOUR, label: t('notificationSetting.muteOptions.for1Hour') },
 			{
 				key: FOR_3_HOURS,
-				label: 'For 3 Hours'
+				label: t('notificationSetting.muteOptions.for3Hours')
 			},
 			{
 				key: FOR_8_HOURS,
-				label: 'For 8 Hours'
+				label: t('notificationSetting.muteOptions.for8Hours')
 			},
 			{
 				key: FOR_24_HOURS,
-				label: 'For 24 Hours'
+				label: t('notificationSetting.muteOptions.for24Hours')
 			},
 			{
 				key: Infinity,
-				label: 'Until I turn it back on'
+				label: t('notificationSetting.muteOptions.untilTurnedBackOn')
 			}
 		];
 		const menuItems: ReactElement[] = [];
@@ -187,7 +192,7 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 					)}
 				</div>
 				<ItemPanel
-					children="Use Category Default"
+					children={t('notificationSetting.useCategoryDefault')}
 					type="radio"
 					name="NotificationSetting"
 					defaultNotifi={true}

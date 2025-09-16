@@ -1,5 +1,6 @@
 import { Icons } from '@mezon/ui';
 import { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ChannelTopBar = ({
 	searchQuery,
@@ -8,9 +9,10 @@ const ChannelTopBar = ({
 	searchQuery?: string;
 	handleSearchChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }) => {
+	const { t } = useTranslation('setting');
 	return (
 		<div className="flex flex-row justify-between items-center py-2 px-4 border-b-theme-primary flex-1">
-			<h2 className="text-base font-semibold">Recent Channels</h2>
+			<h2 className="text-base font-semibold">{t('channelSetting.recentChannels')}</h2>
 			<div className="flex flex-row items-center gap-2">
 				<div className="relative">
 					<div
@@ -18,7 +20,7 @@ const ChannelTopBar = ({
 					>
 						<input
 							type="text"
-							placeholder="Search by channel label"
+							placeholder={t('channelSetting.searchByChannelLabel')}
 							className=" outline-none bg-transparent  w-full"
 							value={searchQuery}
 							onChange={handleSearchChange}

@@ -1,6 +1,7 @@
 import { useAuth } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { appActions, clansActions, selectLogoCustom, useAppDispatch } from '@mezon/store-mobile';
+import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -43,6 +44,7 @@ export const DirectMessageLogo = memo(() => {
 				localValue={!logoCustom && <MezonIconCDN icon={IconCDN.logoMezon} width={size.s_50} height={size.s_50} useOriginalColor={true} />}
 				onLoad={handleOnLoad}
 				autoUpload
+				imageSizeLimit={MAX_FILE_SIZE_1MB}
 			/>
 		</View>
 	);

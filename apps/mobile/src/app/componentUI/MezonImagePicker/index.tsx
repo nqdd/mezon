@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, DimensionValue, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonClanAvatar from '../MezonClanAvatar';
 import { style as _style } from './styles';
@@ -47,6 +48,7 @@ interface IMezonImagePickerProps {
 	imageWidth?: number;
 	imageHeight?: number;
 	autoCloseBottomSheet?: boolean;
+	imageSizeLimit?: number;
 }
 
 export interface IMezonImagePickerHandler {
@@ -104,7 +106,8 @@ export default memo(
 			onPressAvatar,
 			imageHeight,
 			imageWidth,
-			autoCloseBottomSheet = true
+			autoCloseBottomSheet = true,
+			imageSizeLimit
 		}: IMezonImagePickerProps,
 		ref
 	) {
@@ -145,6 +148,15 @@ export default memo(
 					includeBase64: true,
 					cropping: false
 				});
+
+				if (!!imageSizeLimit && selectedFile.size > imageSizeLimit) {
+					const maxSizeMB = Math.round(imageSizeLimit / 1024 / 1024);
+					Toast.show({
+						type: 'error',
+						text1: t('imageSizeLimit', { size: maxSizeMB })
+					});
+					return;
+				}
 
 				const isGif = selectedFile.mime === 'image/gif';
 

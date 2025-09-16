@@ -13,7 +13,7 @@
     },
     "toast": {
         "errorUpdating": "Error updating",
-        "errorSizeLimit": "Image size limit exceeded"
+        "errorSizeLimit": "Image size limit exceeded 512KB"
     },
     "empty": {
         "tip": "TIP",

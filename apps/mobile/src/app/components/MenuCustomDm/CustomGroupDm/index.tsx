@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { directActions, useAppDispatch } from '@mezon/store-mobile';
-import { ValidateSpecialCharacters } from '@mezon/utils';
+import { MAX_FILE_SIZE_8MB, ValidateSpecialCharacters } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
@@ -107,6 +107,7 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 					onLoad={(url) => setAvatarUrl(url)}
 					localValue={defaultAvatar()}
 					autoCloseBottomSheet={false}
+					imageSizeLimit={MAX_FILE_SIZE_8MB}
 				/>
 				<TouchableOpacity onPress={handleAvatarPicker}>
 					<Text style={styles.removeAvatarText}>{shouldDisableRemoveAvatar ? t('uploadImage') : t('removeAvatar')}</Text>

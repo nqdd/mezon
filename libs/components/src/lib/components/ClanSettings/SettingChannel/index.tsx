@@ -15,6 +15,7 @@ import { ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiChannelSettingItem } from 'mezon-js/api.gen';
 import type { ReactElement } from 'react';
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { AnchorScroll } from '../../AnchorScroll/AnchorScroll';
@@ -28,6 +29,7 @@ type ListChannelSettingProp = {
 };
 
 const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }: ListChannelSettingProp) => {
+	const { t } = useTranslation('channelSetting');
 	const parentRef = useRef(null);
 	const dispatch = useAppDispatch();
 
@@ -78,7 +80,7 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 			</Menu.Item>
 		];
 		return <>{itemMenu}</>;
-	}, []);
+	}, [handleChangePageSize]);
 
 	const channelListCut = useMemo(() => {
 		if (!listChannel) return [];
@@ -97,11 +99,11 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 	return (
 		<div className="h-full w-full flex flex-col gap-1 flex-1">
 			<div className="flex flex-row justify-between items-center px-4 h-12 shadow border-b-theme-primary">
-				<div className="flex-1 text-xs font-bold uppercase p-1">Name</div>
-				<div className="flex-1 text-xs font-bold uppercase p-1">Members</div>
-				<div className="flex-1 text-xs font-bold uppercase p-1">Messages count</div>
-				<div className="flex-1 text-xs font-bold uppercase p-1">Last Sent</div>
-				<div className="pr-1 text-xs font-bold uppercase p-1">Creator</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">{t('table.columnHeaders.name')}</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">{t('table.columnHeaders.members')}</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">{t('table.columnHeaders.messagesCount')}</div>
+				<div className="flex-1 text-xs font-bold uppercase p-1">{t('table.columnHeaders.lastSent')}</div>
+				<div className="pr-1 text-xs font-bold uppercase p-1">{t('table.columnHeaders.creator')}</div>
 			</div>
 			<div className="flex-1">
 				<AnchorScroll anchorId={clanId} ref={parentRef} className={['hide-scrollbar']} classNameChild={['!justify-start']}>
@@ -117,14 +119,14 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 					))}
 					<div className="flex flex-row justify-between items-center px-4 h-[54px] border-t-theme-primary mt-0">
 						<div className={'flex flex-row items-center '}>
-							Show
+							{t('table.pagination.show')}
 							<Menu menu={menu}>
 								<div className={'flex flex-row items-center justify-center text-center border-theme-primary rounded mx-1 px-3 w-12'}>
 									<span className="mr-1">{pageSize}</span>
 									<Icons.ArrowDown />
 								</div>
 							</Menu>
-							channel of {countChannel}
+							{t('table.pagination.channelOf')} {countChannel}
 						</div>
 						<Pagination totalPages={Math.ceil((countChannel || 0) / pageSize)} currentPage={currentPage} onPageChange={onPageChange} />
 					</div>
@@ -143,6 +145,7 @@ interface IRenderChannelAndThread {
 }
 
 const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, searchFilter }: IRenderChannelAndThread) => {
+	const { t } = useTranslation('channelSetting');
 	const dispatch = useAppDispatch();
 	const threadsList = useSelector(selectThreadsListByParentId(channelParent.id as string));
 
@@ -216,7 +219,7 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 						<div
 							className={`w-full py-4 relative before:content-[" "] before:w-full before:h-[0.08px]  before:absolute before:top-0 before:left-0 group text-textPrimaryLight dark:text-textPrimary`}
 						>
-							There is no threads in this channel
+							{t('table.threads.noThreads')}
 						</div>
 					)}
 				</div>
@@ -231,7 +234,7 @@ const ItemInfor = ({
 	creatorId,
 	privateChannel,
 	userIds,
-	onClick,
+	onClick: _onClick,
 	channelId,
 	isVoice,
 	messageCount,
@@ -248,6 +251,7 @@ const ItemInfor = ({
 	messageCount?: number | string;
 	lastMessage?: ApiChannelMessageHeader;
 }) => {
+	const { t } = useTranslation('channelSetting');
 	const creatorChannel = useSelector(selectMemberClanByUserId(creatorId));
 
 	const handleCopyChannelId = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -279,7 +283,7 @@ const ItemInfor = ({
 					className="w-450 max-h-[80vh] min-h-250  rounded-lg flex flex-col gap-2 p-4 overflow-y-auto hide-scrollbar bg-theme-setting-primary text-theme-primary"
 					onClick={(e) => e.stopPropagation()}
 				>
-					<div className="font-semibold pb-3 ">List Member</div>
+					<div className="font-semibold pb-3 ">{t('table.memberModal.listMember')}</div>
 					{userIds.map((member) => (
 						<div className="flex gap-3">
 							<AvatarUserShort id={member} key={member} showName={true} />
@@ -334,7 +338,7 @@ const ItemInfor = ({
 							{userIds.length > 3 && <AvatarCount number={userIds.length - 3} />}
 						</AvatarGroup>
 					) : (
-						<p className={`italic text-xs ${isThread ? '-ml-8' : ''}`}>(All Members)</p>
+						<p className={`italic text-xs ${isThread ? '-ml-8' : ''}`}>{t('table.members.allMembers')}</p>
 					)}
 				</div>
 				<div className={`flex-1 font-semibold ${isThread ? '-ml-8' : ''}`}>{mumberformatter.format(Number(messageCount || 0))}</div>
@@ -374,6 +378,7 @@ export const AvatarUserShort = ({ id, showName = false }: { id: string; showName
 			<img
 				src={createImgproxyUrl(avatarUrl, { width: 24, height: 24, resizeType: 'fit' })}
 				className="rounded-full h-6 aspect-square object-cover"
+				alt="User avatar"
 			/>
 			{showName ? <div className="">{member?.clan_nick || member?.user?.display_name || member?.user?.username}</div> : null}
 		</div>

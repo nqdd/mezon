@@ -9,7 +9,7 @@ import { ApiClanStickerAddRequest } from 'mezon-js/api.gen';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
-import { openPicker } from 'react-native-image-crop-picker';
+import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import { WebView } from 'react-native-webview';
 import { useSelector } from 'react-redux';
@@ -141,21 +141,37 @@ export function StickerSetting({ navigation }) {
 
 	const handleUploadSticker = async () => {
 		try {
-			const croppedFile = await openPicker({
+			const selectedFile = await openPicker({
 				mediaType: 'photo',
 				includeBase64: true,
-				cropping: true,
-				compressImageQuality: QUALITY_IMAGE_UPLOAD,
-				width: 320,
-				height: 320
+				cropping: false
 			});
 
-			if (Number(croppedFile?.size) > Number(LIMIT_SIZE_UPLOAD_IMG / 2)) {
+			if (Number(selectedFile?.size) > Number(LIMIT_SIZE_UPLOAD_IMG / 2)) {
 				Toast.show({
 					type: 'error',
 					text1: t('toast.errorSizeLimit')
 				});
 				return;
+			}
+
+			const isGif = selectedFile.mime === 'image/gif';
+
+			let croppedFile;
+			if (isGif) {
+				// For GIFs, don't crop to preserve animation
+				croppedFile = selectedFile;
+			} else {
+				// For other images, apply cropping and compression
+				croppedFile = await openCropper({
+					path: selectedFile.path,
+					mediaType: 'photo',
+					includeBase64: true,
+					cropping: true,
+					compressImageQuality: QUALITY_IMAGE_UPLOAD,
+					width: 320,
+					height: 320
+				});
 			}
 
 			const data = {

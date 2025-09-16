@@ -12,15 +12,17 @@ export const searchFieldName: Record<string, string> = {
 	'&': 'has'
 };
 
+export const getSearchOptions = (t: (key: string) => string) => [
+	{ title: '>', content: t('searchOptionsData.fromUserShort'), value: 'username' },
+	{ title: '~', content: t('searchOptionsData.mentionsUserShort'), value: 'mentions' },
+	{ title: '&', content: t('searchOptionsData.hasContentShort'), value: 'has' }
+];
+
+// Keep the original for backward compatibility but deprecated
 export const searchOptions = [
 	{ title: '>', content: 'user (from:)', value: 'username' },
 	{ title: '~', content: 'user (mentions:)', value: 'mentions' },
 	{ title: '&', content: 'link, embed or file (has:)', value: 'has' }
-	// { title: 'before:', content: 'specific data', value: 'before' },
-	// { title: 'after:', content: 'specific data', value: 'after' }
-	// { title: 'during:', content: 'specific data', value: 'username' },
-	// { title: 'after:', content: 'specific data', value: 'username' },
-	// { title: 'pinned:', content: 'true or false', value: 'username' }
 ];
 
 export const hasKeySearch = (value: string) => {

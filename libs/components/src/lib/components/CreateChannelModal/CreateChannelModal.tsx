@@ -13,19 +13,21 @@ import {
 } from '@mezon/store';
 import { AlertTitleTextWarning, Icons } from '@mezon/ui';
 import { ChannelType } from 'mezon-js';
-import { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ChannelLableModal } from './ChannelLabel';
-import { ChannelNameModalRef, ChannelNameTextField } from './ChannelNameTextField';
+import type { ChannelNameModalRef } from './ChannelNameTextField';
+import { ChannelNameTextField } from './ChannelNameTextField';
 import { ChannelTypeComponent } from './ChannelType';
 import { CreateChannelButton } from './CreateChannelButton';
 
-import { generateE2eId } from '@mezon/utils';
 import { ChannelStatusModal } from './ChannelStatus';
 
 export const CreateNewChannelModal = () => {
+	const { t } = useTranslation('createChannel');
 	const dispatch = useAppDispatch();
 	const InputRef = useRef<ChannelNameModalRef>(null);
 	const [isInputError, setIsInputError] = useState<boolean>(true);
@@ -176,7 +178,7 @@ export const CreateNewChannelModal = () => {
 					<div className="self-stretch px-5 pt-8 flex-col justify-start items-start gap-3 flex">
 						<div className="self-stretch h-14 flex-col justify-center items-start gap-1 flex">
 							<div className="flex flex-col items-start gap-x-2 sm:flex-row sm:items-center w-full relative">
-								<ChannelLableModal labelProp="CREATE A NEW CHANNEL IN" />
+								<ChannelLableModal labelProp={t('header.title')} />
 								<span>
 									<p className="self-stretch  text-sm font-bold leading-normal uppercase text-cyan-500">
 										{currentCategory?.category_name || channelWelcome?.category_name}
