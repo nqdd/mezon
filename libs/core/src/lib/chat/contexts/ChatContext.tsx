@@ -1826,6 +1826,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			return;
 		}
 		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+			dispatch(DMCallActions.removeAll());
+			dispatch(audioCallActions.reset());
 			dispatch(DMCallActions.cancelCall({}));
 			dispatch(audioCallActions.startDmCall({}));
 			dispatch(audioCallActions.setUserCallId(''));
