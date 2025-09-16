@@ -1,6 +1,7 @@
 import { selectLoadingStatus } from '@mezon/store';
 import { Loading } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface CreateChannelProps {
@@ -10,6 +11,7 @@ interface CreateChannelProps {
 }
 
 export const CreateChannelButton: React.FC<CreateChannelProps> = ({ checkInputError, onClickCancel, onClickCreate }) => {
+	const { t } = useTranslation('createChannel');
 	const isLoading = useSelector(selectLoadingStatus);
 	return (
 		<div
@@ -23,7 +25,7 @@ export const CreateChannelButton: React.FC<CreateChannelProps> = ({ checkInputEr
 				className="Text  px-4 py-2 rounded-lg hover:underline text-xs leading-normal font-semibold"
 				data-e2e={generateE2eId('clan_page.modal.create_channel.button.cancel')}
 			>
-				Cancel
+				{t('buttons.cancel')}
 			</button>
 
 			<button
@@ -34,10 +36,10 @@ export const CreateChannelButton: React.FC<CreateChannelProps> = ({ checkInputEr
 			>
 				{isLoading === 'loading' ? (
 					<>
-						<Loading /> <span>Creating</span>
+						<Loading /> <span>{t('buttons.creating')}</span>
 					</>
 				) : (
-					<span>Create Channel</span>
+					<span>{t('buttons.create')}</span>
 				)}
 			</button>
 		</div>

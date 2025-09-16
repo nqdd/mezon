@@ -3,6 +3,7 @@
 import { Icons } from '@mezon/ui';
 import type React from 'react';
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import FormError from './FormError';
 
 interface PasswordInputProps {
@@ -16,6 +17,7 @@ interface PasswordInputProps {
 }
 
 const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFocus }: PasswordInputProps) => {
+	const { t } = useTranslation('common');
 	const [showPassword, setShowPassword] = useState(false);
 
 	const togglePasswordVisibility = () => {
@@ -41,7 +43,7 @@ const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFo
 						focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 `}
 					readOnly={isLoading}
 					autoComplete="off"
-					placeholder={label === 'Password' ? 'Enter your password' : 'Confirm your password'}
+					placeholder={label === 'Password' ? t('enterPassword') : t('confirmPassword')}
 					onFocus={onFocus}
 				/>
 				<button

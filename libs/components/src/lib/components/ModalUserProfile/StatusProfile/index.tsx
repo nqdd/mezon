@@ -1,6 +1,6 @@
 import { useAuth, useMemberCustomStatus } from '@mezon/core';
+import type { ChannelMembersEntity } from '@mezon/store';
 import {
-	ChannelMembersEntity,
 	accountActions,
 	authActions,
 	clanMembersMetaActions,
@@ -18,7 +18,9 @@ import { Icons, Menu } from '@mezon/ui';
 import { EUserStatus, formatNumber } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { Session } from 'mezon-js';
-import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -36,6 +38,7 @@ type StatusProfileProps = {
 	onClose: () => void;
 };
 const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps) => {
+	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 	const allAccount = useSelector(selectOthersSession);
 	const user = userById?.user;
@@ -80,8 +83,8 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
 		dispatch(
 			userStatusActions.updateUserStatus({
-				status: status,
-				minutes: minutes,
+				status,
+				minutes,
 				until_turn_on: untilTurnOn
 			})
 		);
@@ -139,7 +142,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			openModalAddAccount();
 			modalRef.current = true;
 		}
-	}, []);
+	}, [modalRef, openModalAddAccount]);
 
 	const handleCloseModalAddAccount = () => {
 		closeModalAddAccount();
@@ -149,7 +152,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	const menuStatus = useMemo(() => {
 		const menuItems: ReactElement[] = [
 			<ItemStatus
-				children="Online"
+				children={t('statusProfile.statusOptions.online')}
 				startIcon={<Icons.OnlineStatus />}
 				onClick={() => {
 					updateUserStatus('Online', 0, true);
@@ -157,46 +160,61 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					onClose();
 				}}
 			/>,
-			<div className="w-full border-b-theme-primary opacity-70 text-center my-2"></div>,
 			<ItemStatusUpdate
 				modalRef={modalRef}
-				children="Idle"
+				children={t('statusProfile.statusOptions.idle')}
 				startIcon={<Icons.DarkModeIcon className="text-[#F0B232] -rotate-90" />}
 				dropdown
 				onClick={onClose}
 			/>,
-			<ItemStatusUpdate onClick={onClose} modalRef={modalRef} children="Do Not Disturb" startIcon={<Icons.MinusCircleIcon />} dropdown />,
-			<ItemStatusUpdate onClick={onClose} modalRef={modalRef} children="Invisible" startIcon={<Icons.OfflineStatus />} dropdown />
+			<ItemStatusUpdate
+				onClick={onClose}
+				modalRef={modalRef}
+				children={t('statusProfile.statusOptions.doNotDisturb')}
+				startIcon={<Icons.MinusCircleIcon />}
+				dropdown
+			/>,
+			<ItemStatusUpdate
+				onClick={onClose}
+				modalRef={modalRef}
+				children={t('statusProfile.statusOptions.invisible')}
+				startIcon={<Icons.OfflineStatus />}
+				dropdown
+			/>
 		];
 		return <>{menuItems}</>;
-	}, []);
+	}, [modalRef, onClose, updateUserStatus, t]);
 	const handleChangeVisible = (visible: boolean) => {
 		modalRef.current = visible;
 	};
 
 	const menuAccount = useMemo(() => {
 		if (!allAccount) {
-			return (<ItemStatus children="Manage Accounts" onClick={handleOpenSwitchAccount} />) as ReactElement;
+			return (<ItemStatus children={t('statusProfile.manageAccounts')} onClick={handleOpenSwitchAccount} />) as ReactElement;
 		}
 		return (<ItemProfile username={allAccount?.username} onClick={handleSwitchAccount} />) as ReactElement;
-	}, [allAccount]);
+	}, [allAccount, handleOpenSwitchAccount, handleSwitchAccount, t]);
 	return (
 		<>
 			<div className="max-md:relative">
 				<ItemStatus
-					children={`Balance: ${formatNumber(Number(tokenInWallet), 'vi-VN', 'VND')}`}
+					children={`${t('statusProfile.balance')}: ${formatNumber(Number(tokenInWallet), 'vi-VN', 'VND')}`}
 					startIcon={<Icons.Check className="text-theme-primary" />}
 					disabled={true}
 				/>
-				<ItemStatus onClick={handleSendToken} children="Transfer Funds" startIcon={<Icons.SendMoney className="text-theme-primary" />} />
+				<ItemStatus
+					onClick={handleSendToken}
+					children={t('statusProfile.transferFunds')}
+					startIcon={<Icons.SendMoney className="text-theme-primary" />}
+				/>
 				<ItemStatus
 					onClick={handleOpenHistoryModal}
-					children="History Transaction"
+					children={t('statusProfile.historyTransaction.title')}
 					startIcon={<Icons.History className="text-theme-primary" />}
 				/>
 				<ItemStatus
 					onClick={handleCustomStatus}
-					children={`${userCustomStatus ? 'Edit' : 'Set'} Custom Status`}
+					children={userCustomStatus ? t('statusProfile.editCustomStatus') : t('statusProfile.setCustomStatus')}
 					startIcon={<Icons.SmilingFace className="text-theme-primary" />}
 				/>
 				<Menu
@@ -209,7 +227,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					}}
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
 				>
-					<div className="capitalize text-theme-primary">
+					<div className="capitalize ml-[1px] text-theme-primary">
 						<ItemStatus children={status} dropdown startIcon={statusIcon(status)} />
 					</div>
 				</Menu>
@@ -219,17 +237,22 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				<Menu
 					menu={menuAccount}
 					trigger="click"
+					placement="bottomRight"
+					align={{
+						offset: [0, 10],
+						points: ['br']
+					}}
 					className="bg-theme-setting-primary border-none ml-2 py-[6px] px-[8px] w-[100px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full"
 				>
 					<div>
-						<ItemStatus children="Switch Accounts" dropdown startIcon={<Icons.ConvertAccount />} />
+						<ItemStatus children={t('statusProfile.switchAccounts')} dropdown startIcon={<Icons.ConvertAccount />} />
 					</div>
 				</Menu>
 			)}
 
 			<ButtonCopy
 				copyText={userProfile?.user?.id || ''}
-				title="Copy User ID"
+				title={t('statusProfile.copyUserId')}
 				className=" px-2 py-[6px] text-theme-primary-hover bg-item-theme-hover"
 			/>
 			{isShowModalHistory && <HistoryTransaction onClose={handleCloseHistoryModal} />}
@@ -246,6 +269,7 @@ const AddAccountModal = ({
 	handleCloseModalAddAccount: () => void;
 	handleSetAccount: (email: string, password: string) => void;
 }) => {
+	const { t } = useTranslation('userProfile');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
@@ -266,7 +290,8 @@ const AddAccountModal = ({
 		>
 			<form className="space-y-2 bg-theme-surface p-12 rounded-lg w-[400px]">
 				<label htmlFor="email" className="block text-sm font-medium text-theme-primary">
-					Email<span className="text-red-500">*</span>
+					{t('statusProfile.addAccountModal.email')}
+					<span className="text-red-500">*</span>
 				</label>
 				<div className="space-y-2">
 					<input
@@ -275,13 +300,14 @@ const AddAccountModal = ({
 						id="email"
 						className="w-full px-3 py-2 rounded-md border-theme-primary focus:outline-none focus:ring-2 focus:ring-blue-500 bg-input-secondary text-theme-message"
 						type="email"
-						placeholder="Enter your email"
+						placeholder={t('statusProfile.addAccountModal.emailPlaceholder')}
 					/>
 				</div>
 				<div className="min-h-[20px]"></div>
 				<div className="space-y-2">
 					<label htmlFor="password" className="block text-sm font-medium text-theme-primary">
-						Password<span className="text-red-500">*</span>
+						{t('statusProfile.addAccountModal.password')}
+						<span className="text-red-500">*</span>
 					</label>
 					<div className="relative">
 						<input
@@ -295,7 +321,7 @@ const AddAccountModal = ({
 
 						focus:outline-none focus:ring-2 focus:ring-blue-500  "
 							autoComplete="off"
-							placeholder="Enter your password"
+							placeholder={t('statusProfile.addAccountModal.passwordPlaceholder')}
 						/>
 						<button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-primary">
 							<svg
@@ -328,7 +354,7 @@ const AddAccountModal = ({
 						className="w-full px-4 py-2 font-medium focus:outline-none  cursor-pointer  rounded-lg  text-[16px] leading-[24px] hover:underline text-theme-primary   whitespace-nowrap"
 						onClick={handleCloseModalAddAccount}
 					>
-						Cancel
+						{t('statusProfile.addAccountModal.cancel')}
 					</button>
 					<button
 						onClick={handleAddAccount}
@@ -340,7 +366,7 @@ const AddAccountModal = ({
               disabled:opacity-50 disabled:cursor-not-allowed
             `}
 					>
-						Log In
+						{t('statusProfile.addAccountModal.logIn')}
 					</button>
 				</div>
 			</form>

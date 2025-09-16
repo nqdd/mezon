@@ -32,6 +32,7 @@ import {
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../components';
 import MessageContent from '../MessageWithUser/MessageContent';
@@ -45,6 +46,7 @@ type ObjectSend = {
 	isPublic: boolean;
 };
 const ForwardMessageModal = () => {
+	const { t } = useTranslation('forwardMessage');
 	const dispatch = useAppDispatch();
 	const dmGroupChatList = useSelector(selectAllDirectMessages);
 	const listChannels = useSelector(selectAllChannelsByUser);
@@ -300,13 +302,13 @@ const ForwardMessageModal = () => {
 		<ModalLayout onClose={handleCloseModal}>
 			<div className="bg-theme-setting-primary w-[550px] text-theme-primary pt-4 rounded">
 				<div>
-					<h1 className=" text-xl font-semibold text-center">Forward Message</h1>
+					<h1 className=" text-xl font-semibold text-center">{t('modal.title')}</h1>
 				</div>
 				<div className="px-4 pt-4">
 					<input
 						type="text"
 						className=" bg-theme-input outline-none w-full h-10 p-[10px] border-theme-primary text-base rounded-lg "
-						placeholder="Search"
+						placeholder={t('modal.searchPlaceholder')}
 						onChange={(e) => setSearchText(e.target.value)}
 						onKeyDown={(e) => handleInputKeyDown(e)}
 					/>
@@ -319,13 +321,13 @@ const ForwardMessageModal = () => {
 									selectedObjectIdSends={selectedObjectIdSends}
 									handleToggle={handleToggle}
 								/>
-								{isNoResult && <span className=" flex flex-row justify-center ">Can't seem to find what you're looking for?</span>}
+								{isNoResult && <span className=" flex flex-row justify-center ">{t('modal.noResults')}</span>}
 							</>
 						) : (
 							<>
 								{normalizedSearchText.startsWith('@') && (
 									<>
-										<span className=" text-left opacity-60 text-[11px] pb-1 uppercase">Search friend and users</span>
+										<span className=" text-left opacity-60 text-[11px] pb-1 uppercase">{t('modal.searchFriendsUsers')}</span>
 										<ListSearchForwardMessage
 											listSearch={addPropsIntoListMember}
 											searchText={searchText.slice(1)}
@@ -336,7 +338,7 @@ const ForwardMessageModal = () => {
 								)}
 								{normalizedSearchText.startsWith('#') && (
 									<>
-										<span className=" text-left opacity-60 text-[11px] pb-1 uppercase">Searching channel</span>
+										<span className=" text-left opacity-60 text-[11px] pb-1 uppercase">{t('modal.searchingChannel')}</span>
 										<ListSearchForwardMessage
 											listSearch={listChannelSearch}
 											searchText={normalizedSearchText.slice(1)}
@@ -352,13 +354,13 @@ const ForwardMessageModal = () => {
 				<div className="px-4">
 					<div className="mb-2 block">
 						<label htmlFor="clearAfter" className="text-xs uppercase font-semibold text-theme-primary">
-							Shared content
+							{t('modal.sharedContent')}
 						</label>
 					</div>
 					<div className={`h-20 overflow-y-auto  p-[5px] thread-scroll rounded-lg border-theme-primary bg-item-theme`}>
 						<MessageContent message={selectedMessage} />
 					</div>
-					<FooterButtonsModal onClose={handleCloseModal} sentToMessage={handleForward} />
+					<FooterButtonsModal onClose={handleCloseModal} sentToMessage={handleForward} t={t} />
 				</div>
 			</div>
 		</ModalLayout>
@@ -369,10 +371,11 @@ export default ForwardMessageModal;
 type FooterButtonsModalProps = {
 	onClose: () => void;
 	sentToMessage: () => Promise<void>;
+	t: (key: string) => string;
 };
 
 const FooterButtonsModal = (props: FooterButtonsModalProps) => {
-	const { onClose, sentToMessage } = props;
+	const { onClose, sentToMessage, t } = props;
 	return (
 		<div className="flex justify-end p-4 rounded-b gap-4">
 			<button
@@ -380,13 +383,13 @@ const FooterButtonsModal = (props: FooterButtonsModalProps) => {
 				type="button"
 				onClick={onClose}
 			>
-				Cancel
+				{t('modal.cancel')}
 			</button>
 			<button
 				onClick={sentToMessage}
 				className="py-2 h-10 px-4 rounded text-white bg-bgSelectItem hover:!bg-bgSelectItemHover focus:ring-transparent"
 			>
-				Send
+				{t('modal.send')}
 			</button>
 		</div>
 	);

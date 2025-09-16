@@ -3,14 +3,15 @@ import { checkDuplicateClanNickName, selectUserClanProfileByClanID, toastActions
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { InputField } from '@mezon/ui';
 import type { ImageSourceObject } from '@mezon/utils';
-import { MAX_FILE_SIZE_1MB, fileTypeImage, generateE2eId } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
 import { useDebouncedCallback } from 'use-debounce';
 import type { ModalSettingSave } from '../../ClanSettings/SettingRoleManagement';
+import { ELimitSize } from '../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
 import ImageEditor from '../ImageEditor/ImageEditor';
 import PreviewSetting from '../SettingUserClanProfileCard';
@@ -26,6 +27,7 @@ interface SettingUserClanProfileEditProps {
 const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({ flagOption, clanId, setFlagOption }) => {
 	const { userProfile } = useAuth();
 	const { sessionRef, clientRef } = useMezon();
+	const { t } = useTranslation('profileSetting');
 	const userClansProfile = useSelector(selectUserClanProfileByClanID(clanId ?? '', userProfile?.user?.id ?? ''));
 	const [draftProfile, setDraftProfile] = useState(userClansProfile);
 	const [openModal, setOpenModal] = useState(false);
@@ -101,20 +103,17 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 			setOpenModalType(true);
 			return;
 		}
+		if (file.size > MAX_FILE_SIZE_10MB) {
+			setOpenModal(true);
+			return;
+		}
 		if (file.type === fileTypeImage[2]) {
-			if (file.size > MAX_FILE_SIZE_1MB) {
-				toast.error('File size exceeds 1MB limit');
-				return;
-			}
 			if (!clientRef.current || !sessionRef.current) {
 				dispatch(toastActions.addToastError({ message: 'Client or session is not initialized' }));
 				return;
 			}
 			setIsLoading(true);
-			// let imageAvatarResize = file;
-			// if (!file.name.endsWith('.gif')) {
-			// 	imageAvatarResize = (await resizeFileImage(file, 120, 120, 'file', 80, 80)) as File;
-			// }
+
 			const attachment = await handleUploadFile(
 				clientRef.current,
 				sessionRef.current,
@@ -210,7 +209,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 				<div className="flex-1 ">
 					<div className="mt-[20px]">
 						<label htmlFor="inputField" className=" font-bold tracking-wide text-sm">
-							CLAN NICKNAME
+							{t('clanNickname')}
 						</label>
 						<br />
 						<InputField
@@ -223,18 +222,14 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 							value={displayName}
 							maxLength={32}
 						/>
-						{checkValidate && (
-							<p className="text-[#e44141] text-xs italic font-thin">
-								The nick name already exists in the clan. <br /> Please enter another nick name.
-							</p>
-						)}
+						{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{t('nickNameExistsError')}</p>}
 					</div>
 					<div className="mt-[20px]">
-						<p className="font-bold tracking-wide text-sm">AVATAR</p>
+						<p className="font-bold tracking-wide text-sm">{t('avatar')}</p>
 						<div className="flex mt-[10px] gap-x-5">
 							<label data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_change_avatar`)}>
 								<div className="text-[14px] font-medium btn-primary btn-primary-hover rounded-lg p-[8px] pr-[10px] pl-[10px] cursor-pointer ">
-									Change avatar
+									{t('changeAvatar')}
 								</div>
 								<input type="file" onChange={handleFile} className="hidden" />
 							</label>
@@ -243,13 +238,13 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 								onClick={handleRemoveButtonClick}
 								data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_remove_avatar`)}
 							>
-								Remove avatar
+								{t('removeAvatar')}
 							</button>
 						</div>
 					</div>
 				</div>
 				<div className="flex-1">
-					<p className="mt-[20px] font-bold tracking-wide text-sm">PREVIEW</p>
+					<p className="mt-[20px] font-bold tracking-wide text-sm">{t('preview')}</p>
 					<PreviewSetting
 						profiles={editProfile}
 						currentDisplayName={!displayName ? userProfile?.user?.display_name : ''}
@@ -259,10 +254,8 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 			</div>
 
 			<SettingUserClanProfileSave PropsSave={saveProfile} />
-
+			<ModalOverData size={ELimitSize.MB_10} open={openModal} onClose={() => setOpenModal(false)} />
 			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
-
-			<ModalOverData open={openModal} onClose={() => setOpenModal(false)} />
 		</>
 	);
 };

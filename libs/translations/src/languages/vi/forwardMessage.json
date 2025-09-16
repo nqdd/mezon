@@ -1,0 +1,12 @@
+{
+  "modal": {
+    "title": "Chuyển tiếp tin nhắn",
+    "searchPlaceholder": "Tìm kiếm",
+    "noResults": "Không thể tìm thấy những gì bạn đang tìm kiếm?",
+    "searchFriendsUsers": "Tìm kiếm bạn bè và người dùng",
+    "searchingChannel": "Tìm kiếm kênh",
+    "sharedContent": "Nội dung được chia sẻ",
+    "cancel": "Hủy",
+    "send": "Gửi"
+  }
+}

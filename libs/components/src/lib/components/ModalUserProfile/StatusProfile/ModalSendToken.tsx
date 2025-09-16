@@ -1,9 +1,11 @@
-import { FriendsEntity, ISendTokenDetailType, selectAllFriends, selectAllUsersByUser, UsersEntity } from '@mezon/store';
+import type { FriendsEntity, ISendTokenDetailType, UsersEntity } from '@mezon/store';
+import { selectAllFriends, selectAllUsersByUser } from '@mezon/store';
 import { ButtonLoading, Icons } from '@mezon/ui';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
+import Dropdown from 'rc-dropdown';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AvatarImage, ModalLayout, useVirtualizer } from '../../../components';
+import { AvatarImage, ModalLayout } from '../../../components';
 
 type ModalSendTokenProps = {
 	onClose: () => void;
@@ -48,9 +50,9 @@ const ModalSendToken = ({
 	infoSendToken,
 	isButtonDisabled
 }: ModalSendTokenProps) => {
+	const { t } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile' });
 	const usersClan = useSelector(selectAllUsersByUser);
 	const friends = useSelector(selectAllFriends);
-	const dropdownRef = useRef<HTMLDivElement>(null);
 	const [searchTerm, setSearchTerm] = useState(infoSendToken?.receiver_name || '');
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [tokenNumber, setTokenNumber] = useState('');
@@ -61,33 +63,22 @@ const ModalSendToken = ({
 			setSearchTerm('');
 			setToken(0);
 		};
-	}, []);
-
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-				setIsDropdownOpen(false);
-			}
-		};
-
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
-	}, [dropdownRef]);
+	}, [setToken]);
 
 	const handleChangeSearchTerm = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		setSearchTerm(value);
-		setIsDropdownOpen(true);
 		setSelectedUserId('');
 	};
 
-	const handleSelectUser = (id: string, name: string) => {
-		setSearchTerm(name);
-		setIsDropdownOpen(false);
-		setSelectedUserId(id);
-	};
+	const handleSelectUser = useCallback(
+		(id: string, name: string) => {
+			setSearchTerm(name);
+			setIsDropdownOpen(false);
+			setSelectedUserId(id);
+		},
+		[setSelectedUserId]
+	);
 
 	const handleChangeSendToken = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/[^0-9]/g, '');
@@ -134,18 +125,60 @@ const ModalSendToken = ({
 
 	const mergedUsers = mergeUniqueUsers(usersClan, friends);
 
-	const filteredUsers = mergedUsers.filter(
-		(user) =>
-			(user.username?.toLowerCase().includes(searchTerm.toLowerCase()) || user.search_key?.includes(searchTerm.toLowerCase())) &&
-			user.id !== userId
+	const filteredUsers = mergedUsers.filter((user) =>
+		searchTerm.length === 0
+			? user.id !== userId // Hiển thị tất cả users nếu chưa search
+			: (user.username?.toLowerCase().includes(searchTerm.toLowerCase()) || user.search_key?.includes(searchTerm.toLowerCase())) &&
+				user.id !== userId
 	);
 
-	const rowVirtualizer = useVirtualizer({
-		count: filteredUsers?.length,
-		getScrollElement: () => dropdownRef.current,
-		estimateSize: () => 48,
-		overscan: 5
-	});
+	const dropdownMenu = (
+		<div className="bg-theme-surface rounded-xl shadow-lg max-h-48 overflow-y-auto thread-scroll text-theme-primary min-w-[400px]">
+			<div
+				style={{
+					height: `${filteredUsers.length * 48}px`,
+					width: '100%',
+					position: 'relative'
+				}}
+			>
+				{filteredUsers.length > 0 ? (
+					filteredUsers.map((user, index) => (
+						<div
+							key={user.id}
+							style={{
+								position: 'absolute',
+								top: index * 48,
+								left: 0,
+								width: '100%',
+								height: '48px'
+							}}
+						>
+							<div
+								onClick={() => handleSelectUser(user.id, user.username)}
+								className="flex items-center gap-3 p-3 bg-item-theme-hover cursor-pointer transition-colors h-12"
+							>
+								<AvatarImage
+									alt={user?.username ?? ''}
+									username={user?.username ?? ''}
+									srcImgProxy={createImgproxyUrl(user.avatar_url ?? '', {
+										width: 100,
+										height: 100,
+										resizeType: 'fit'
+									})}
+									src={user.avatar_url}
+									className="w-8 h-8"
+									classNameText="text-xs w-8 h-8"
+								/>
+								<span className="font-medium">{user.username}</span>
+							</div>
+						</div>
+					))
+				) : (
+					<div className="p-4 text-center">No users found</div>
+				)}
+			</div>
+		</div>
+	);
 
 	useEffect(() => {
 		const user = filteredUsers.find((user) => user.id === selectedUserId);
@@ -157,7 +190,7 @@ const ModalSendToken = ({
 		}
 
 		setTokenNumber(formatNumber(Number(token), 'vi-VN'));
-	}, [token, selectedUserId]);
+	}, [token, selectedUserId, filteredUsers, handleSelectUser]);
 
 	const handleSendToken = () => {
 		const userData = mergedUsers.find((user) => user.id === selectedUserId);
@@ -175,8 +208,8 @@ const ModalSendToken = ({
 							<Icons.DollarIcon className="w-5 h-5" defaultFill="text-white" />
 						</div>
 						<div>
-							<h1 className="text-theme-primary text-lg font-semibold">Send Tokens</h1>
-							<p className="text-theme-secondary">Transfer tokens to another user</p>
+							<h1 className="text-theme-primary text-lg font-semibold">{t('sendTokenModal.title')}</h1>
+							<p className="text-theme-secondary">{t('sendTokenModal.description')}</p>
 						</div>
 					</div>
 					<button onClick={onClose} className="text-theme-primary text-theme-primary-hover transition-colors">
@@ -186,99 +219,56 @@ const ModalSendToken = ({
 
 				<div className="p-6 space-y-6 border-t-theme-primary">
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">To</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.to')}</p>
 						<div className="relative">
-							<input
-								type="text"
-								placeholder="Search users..."
-								className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
-								value={searchTerm}
-								onClick={() => setIsDropdownOpen(true)}
-								onChange={handleChangeSearchTerm}
-								disabled={sendTokenInputsState.isUserSelectionDisabled}
-								autoFocus={!searchTerm}
-							/>
-							{isDropdownOpen && (
-								<div
-									className="absolute z-20 w-full mt-2 base-theme-color border-b-theme-primary rounded-xl shadow-lg max-h-48 overflow-y-auto thread-scroll text-theme-primary bg-theme-surface "
-									ref={dropdownRef}
-								>
-									<div
-										style={{
-											height: `${rowVirtualizer.getTotalSize()}px`,
-											width: '100%',
-											position: 'relative'
-										}}
-									>
-										{filteredUsers.length > 0 &&
-											rowVirtualizer.getVirtualItems().map((virtualRow) => {
-												const user = filteredUsers[virtualRow.index];
-
-												return (
-													<div
-														key={virtualRow.index}
-														style={{
-															position: 'absolute',
-															top: 0,
-															left: 0,
-															width: '100%',
-															height: `${virtualRow.size}px`,
-															transform: `translateY(${virtualRow.start}px)`
-														}}
-													>
-														<div
-															onClick={() => handleSelectUser(user.id, user.username)}
-															className="flex items-center gap-3 p-3 bg-item-theme-hover cursor-pointer transition-colors"
-														>
-															<AvatarImage
-																alt={user?.username ?? ''}
-																username={user?.username ?? ''}
-																srcImgProxy={createImgproxyUrl(user.avatar_url ?? '', {
-																	width: 100,
-																	height: 100,
-																	resizeType: 'fit'
-																})}
-																src={user.avatar_url}
-																className="w-8 h-8"
-																classNameText="text-xs w-8 h-8"
-															/>
-															<span className=" font-medium">{user.username}</span>
-														</div>
-													</div>
-												);
-											})}
-										{filteredUsers.length === 0 && <div className="p-4 text-center text-">No users found</div>}
-									</div>
-								</div>
-							)}
+							<Dropdown
+								overlay={dropdownMenu}
+								trigger={['click']}
+								placement="bottomLeft"
+								visible={isDropdownOpen}
+								onVisibleChange={(visible) => setIsDropdownOpen(visible)}
+							>
+								<input
+									type="text"
+									placeholder="Search users..."
+									className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
+									value={searchTerm}
+									onClick={() => setIsDropdownOpen(true)}
+									onChange={handleChangeSearchTerm}
+									disabled={sendTokenInputsState.isUserSelectionDisabled}
+									autoFocus={!searchTerm}
+								/>
+							</Dropdown>
 							{userSearchError && <p className="text-red-500 text-sm mt-2">{userSearchError}</p>}
 						</div>
 					</div>
 
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">Amount</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.amount')}</p>
 						<div className="relative">
 							<input
 								ref={amountRef}
 								type="text"
 								value={tokenNumber}
 								className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
-								placeholder="0"
+								placeholder={t('sendTokenModal.placeholders.amountPlaceholder')}
 								onChange={handleChangeSendToken}
 								disabled={sendTokenInputsState.isSendTokenInputDisabled}
 							/>
-							<span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-theme-primary font-medium">VND</span>
+							<span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-theme-primary font-medium">
+								{t('sendTokenModal.currency')}
+							</span>
 						</div>
 						{error && <p className="text-red-500 text-sm">{error}</p>}
 					</div>
 
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">Note (Optional)</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.note')}</p>
 						<input
 							type="text"
 							defaultValue={noteSendToken}
 							className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
-							placeholder="Add a note..."
+							placeholder={t('sendTokenModal.placeholders.notePlaceholder')}
 							onChange={handleChangeNote}
 						/>
 					</div>
@@ -290,13 +280,13 @@ const ModalSendToken = ({
 						type="button"
 						onClick={onClose}
 					>
-						Cancel
+						{t('sendTokenModal.buttons.cancel')}
 					</button>
 					<ButtonLoading
 						className="flex-1 h-12 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 hover:text-white  text-white font-medium"
 						onClick={handleSendToken}
 						disabled={isButtonDisabled || !selectedUserId || token <= 0}
-						label="Send Tokens"
+						label={t('sendTokenModal.buttons.sendTokens')}
 					/>
 				</div>
 			</div>

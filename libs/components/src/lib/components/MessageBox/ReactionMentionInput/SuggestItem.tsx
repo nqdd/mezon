@@ -1,14 +1,10 @@
-import {
-  ChannelsEntity,
-  selectAllChannelsByUser,
-  selectAllHashtagDm,
-  selectChannelById,
-  selectNumberMemberVoiceChannel,
-  useAppSelector
-} from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { selectAllChannelsByUser, selectAllHashtagDm, selectChannelById, selectNumberMemberVoiceChannel, useAppSelector } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
-import { SearchItemProps, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
-import { ChannelType, HashtagDm } from 'mezon-js';
+import type { SearchItemProps } from '@mezon/utils';
+import { createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
+import type { HashtagDm } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -111,7 +107,7 @@ const SuggestItem = ({
 		}
 
 		if (type === ChannelType.CHANNEL_TYPE_APP) {
-			return <Icons.AppChannelIcon className={'w-5 h-5'}  />;
+			return <Icons.AppChannelIcon className={'w-5 h-5'} />;
 		}
 
 		return null;
@@ -160,7 +156,7 @@ const SuggestItem = ({
 				{channelIcon}
 
 				{display && (
-					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`} style={{ color: color }}>
+					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`} style={{ color }}>
 						<span
 							className={`${isUnread || (count && count > 0) ? 'text-theme-primary-active font-semibold' : 'font-medium text-theme-primary '}`}
 						>

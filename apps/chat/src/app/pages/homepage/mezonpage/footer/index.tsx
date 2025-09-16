@@ -1,6 +1,7 @@
 import { Icons, Image } from '@mezon/ui';
 import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DropdownButton } from '..';
 interface FooterProps {
 	downloadUrl: string;
@@ -8,6 +9,7 @@ interface FooterProps {
 	portableUrl: string;
 }
 const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
+	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -55,7 +57,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 									<div className="text-[22.15px] leading-[26.58px] font-semibold text-[#FFFFFF]">mezon</div>
 								</div>
 								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									Mezon is great for playing games and chilling with friends, or even building a worldwide community.{' '}
+									{t('footer.description')}
 								</div>
 							</div>
 							<div className="flex gap-[32px] max-lg:flex-col">
@@ -66,7 +68,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Executive Summary
+										{t('footer.links.executiveSummary')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/problem-statement"
@@ -74,7 +76,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Problem Statement
+										{t('footer.links.problemStatement')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/solution"
@@ -82,7 +84,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Solution
+										{t('footer.links.solution')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/blockchain-economy"
@@ -90,7 +92,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Blockhain & Token Economy
+										{t('footer.links.blockchainEconomy')}
 									</a>
 									<a
 										href="https://mezon.ai/developers"
@@ -98,7 +100,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Developer API Integration
+										{t('footer.links.developerApi')}
 									</a>
 								</div>
 								<div className="flex flex-col gap-[12px]">
@@ -108,7 +110,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										rel="noreferrer"
 										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
 									>
-										Technical Architecture
+										{t('footer.links.technicalArchitecture')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/readmap"
@@ -116,7 +118,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Product roadmap
+										{t('footer.links.productRoadmap')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/tokenomics"
@@ -124,8 +126,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										{' '}
-										Tokenomics
+										{t('footer.links.tokenomics')}
 									</a>
 									<a
 										href="https://mezon.ai/blogs/team"
@@ -133,13 +134,13 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										target="_blank"
 										rel="noreferrer"
 									>
-										Team
+										{t('footer.links.team')}
 									</a>
 								</div>
 							</div>
 						</div>
 						<div className="flex flex-col gap-[16px]">
-							<div className="text-[14px] leading-[20px] font-semibold text-[#F5F5F6]">Get the app</div>{' '}
+							<div className="text-[14px] leading-[20px] font-semibold text-[#F5F5F6]">{t('footer.getTheApp')}</div>{' '}
 							<div className="flex flex-col gap-[16px]">
 								<a
 									href="https://apps.apple.com/vn/app/mezon/id6502750046"
@@ -219,6 +220,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										dropdownRef={dropdownRef}
 										downloadUrl={downloadUrl}
 										onDownloadClick={trackFooterDownloadEvent}
+									t={t}
 									/>
 								)}
 							</div>
@@ -229,7 +231,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 			<div className="bg-[#0B0E2D] py-[48px] max-md:py-[24px] flex flex-col items-center">
 				<div className="w-10/12 px-[32px] max-md:px-[16px] flex items-center gap-[32px] justify-between max-lg:gap-[24px] max-lg:w-full max-lg:flex-col-reverse max-lg:items-start">
 					<div className="text-[16px] leading-[24px] font-normal text-[#7C92AF]" data-e2e={generateE2eId('homepage.footer.text.copyright')}>
-						© 2024 Mezon. All rights reserved.
+						{t('footer.copyright')}
 					</div>
 					<div className="flex items-center gap-[24px]">
 						<a href="https://www.linkedin.com/company/106435035" target="_blank" rel="noreferrer">

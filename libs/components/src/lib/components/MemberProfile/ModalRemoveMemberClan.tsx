@@ -1,5 +1,6 @@
 import { selectCurrentClan } from '@mezon/store';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../components';
 
@@ -10,6 +11,7 @@ type ModalRemoveMemberClanProps = {
 };
 
 const ModalRemoveMemberClan = ({ username, onClose, onRemoveMember }: ModalRemoveMemberClanProps) => {
+	const { t } = useTranslation('modalControls');
 	const [value, setValue] = useState<string>('');
 	const currentClan = useSelector(selectCurrentClan);
 
@@ -26,16 +28,20 @@ const ModalRemoveMemberClan = ({ username, onClose, onRemoveMember }: ModalRemov
 		<ModalLayout onClose={onClose}>
 			<div className="bg-theme-setting-primary pt-4 rounded w-[440px]">
 				<div className="px-4">
-					<h1 className="text-theme-primary-active text-xl font-semibold">{`Kick ${username} from ${currentClan?.clan_name || 'clan'}`}</h1>
+					<h1 className="text-theme-primary-active text-xl font-semibold">
+						{t('kickMember.title', { username, clanName: currentClan?.clan_name || 'clan' })}
+					</h1>
 				</div>
 				<div className="px-4">
 					<div className="block">
-						<p className="text-theme-primary text-base font-normal">{`Are you sure you want to kick @${username} from ${currentClan?.clan_name || 'the clan'}? They will be able to rejoin again with a new invite.`}</p>
+						<p className="text-theme-primary text-base font-normal">
+							{t('kickMember.description', { username, clanName: currentClan?.clan_name || 'the clan' })}
+						</p>
 					</div>
 				</div>
 				<div className="px-4">
 					<div className="mb-2 block">
-						<p className="text-theme-primary text-xs uppercase font-semibold">Reason for Kick</p>
+						<p className="text-theme-primary text-xs uppercase font-semibold">{t('kickMember.reasonLabel')}</p>
 					</div>
 					<textarea
 						rows={2}
@@ -50,13 +56,13 @@ const ModalRemoveMemberClan = ({ username, onClose, onRemoveMember }: ModalRemov
 						type="button"
 						onClick={onClose}
 					>
-						Cancel
+						{t('buttons.cancel')}
 					</button>
 					<button
 						onClick={handleSave}
 						className="w-20 py-2.5 h-10 text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:bg-red-700 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-800 shadow-sm hover:shadow-md"
 					>
-						Kick
+						{t('buttons.kick')}
 					</button>
 				</div>
 			</div>

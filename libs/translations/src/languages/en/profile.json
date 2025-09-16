@@ -29,5 +29,6 @@
     "qr_transfer": "QR Transfer",
     "changeAvatar": "Change Avatar",
     "removeAvatar": "Remove Avatar",
-    "chooseImage": "Choose an image"
+    "chooseImage": "Choose an image",
+    "imageSizeLimit": "Image size limit exceeded {{size}}MB"
 }

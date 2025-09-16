@@ -1,7 +1,10 @@
 import { ColorRoleProvider, useAppParams, useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
-import { PinMessageEntity, pinMessageActions, selectCurrentChannel, useAppDispatch } from '@mezon/store';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { RefObject, useRef, useState } from 'react';
+import type { PinMessageEntity } from '@mezon/store';
+import { pinMessageActions, selectCurrentChannel, useAppDispatch } from '@mezon/store';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { RefObject } from 'react';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { ModalDeletePinMess } from './DeletePinMessPopup';
@@ -20,6 +23,7 @@ export type UnpinMessageObject = {
 };
 
 const PinnedMessages = ({ onClose, rootRef, mode }: PinnedMessagesProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const modalRef = useRef<HTMLDivElement>(null);
 	const dispatch = useAppDispatch();
 
@@ -81,7 +85,7 @@ const PinnedMessages = ({ onClose, rootRef, mode }: PinnedMessagesProps) => {
 			<div className="flex flex-col rounded-md w-[420px] max-h-[80vh] overflow-hidden shadow-shadowBorder bg-theme-setting-primary">
 				<div className=" flex flex-row items-center justify-between p-[16px] h-12 border-b-theme-primary bg-theme-setting-nav">
 					<div className="flex flex-row items-center pr-[16px] gap-4 bg-theme-primary-nav">
-						<span className="text-base font-medium cursor-default ">Pinned Messages</span>
+						<span className="text-base font-medium cursor-default ">{t('modals.pinnedMessages.title')}</span>
 					</div>
 				</div>
 				<div className={`flex flex-col flex-1 overflow-y-auto thread-scroll`}>

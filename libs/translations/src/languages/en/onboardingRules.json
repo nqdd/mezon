@@ -1,0 +1,18 @@
+{
+  "editResources": "Edit Resources",
+  "form": {
+    "nameTitle": "Give this resource a name",
+    "namePlaceholder": "#rules might be Rules",
+    "descriptionTitle": "Give this resource a description",
+    "descriptionPlaceholder": "Ex.Rule for the clan",
+    "imageTitle": "Rules Image",
+    "browse": "Browse",
+    "required": "This field is required.",
+    "minCharacters": "Rule title must be at least 7 characters"
+  },
+  "buttons": {
+    "remove": "Remove",
+    "save": "Save",
+    "add": "Add"
+  }
+}

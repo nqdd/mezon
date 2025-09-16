@@ -1,7 +1,10 @@
 import { Button } from '@mezon/ui';
-import { generateE2eId, ValidateSpecialCharacters } from '@mezon/utils';
+import { fileTypeImage, generateE2eId, MAX_FILE_SIZE_8MB, ValidateSpecialCharacters } from '@mezon/utils';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
+import { ELimitSize } from '../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../ModalValidateFile/ModalOverData';
 
 export interface ModalEditGroupProps {
 	isOpen: boolean;
@@ -35,22 +38,24 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 	isLoading = false,
 	error = null
 }) => {
+	const { t } = useTranslation('directMessage');
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const groupNameInputRef = useRef<HTMLInputElement>(null);
 	const [validationError, setValidationError] = useState<string | null>(null);
-
+	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
 	useEffect(() => {
 		if (groupName.trim()) {
 			const regex = ValidateSpecialCharacters();
 			if (!regex.test(groupName)) {
-				setValidationError('Please enter a valid group name ( only words, numbers, _ or -).');
+				setValidationError(t('editGroup.validationError'));
 			} else {
 				setValidationError(null);
 			}
 		} else {
 			setValidationError(null);
 		}
-	}, [groupName]);
+	}, [groupName, t]);
 
 	useEffect(() => {
 		if (isOpen && groupNameInputRef.current) {
@@ -66,6 +71,15 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
+		if (!file) return;
+		if (file.size > MAX_FILE_SIZE_8MB) {
+			setOpenModal(true);
+			return;
+		}
+		if (!fileTypeImage.includes(file.type)) {
+			setOpenTypeModal(true);
+			return;
+		}
 		if (file && onImageUpload) {
 			onImageUpload(file);
 		}
@@ -79,13 +93,13 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 
 	const [showModal, hideModal] = useModal(
 		() => (
-			<div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+			<div className="fixed inset-0 z-[10] flex items-center justify-center">
 				<div className="absolute inset-0 bg-black/50" onClick={onClose} />
 				<div
 					className={`relative flex flex-col bg-theme-setting-primary rounded-lg shadow-2xl overflow-hidden max-w-[440px] w-full mx-4 ${className}`}
 				>
 					<div className="flex items-center justify-between px-4 py-4 bg-theme-setting-nav">
-						<h2 className="font-semibold text-xl text-theme-primary select-none">Edit Group</h2>
+						<h2 className="font-semibold text-xl text-theme-primary select-none">{t('editGroup.title')}</h2>
 						<button
 							className="w-8 h-8 rounded-full flex items-center justify-center text-theme-primary bg-item-hover transition-all duration-150 ease-out"
 							onClick={onClose}
@@ -129,20 +143,22 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 								</div>
 							</div>
 							<input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-							<p className="text-xs text-theme-primary font-medium">Click to upload an image</p>
+							<p className="text-xs text-theme-primary font-medium">{t('editGroup.uploadImageText')}</p>
 							{imagePreview && !imagePreview.includes('assets/images/avatar-group.png') && (
 								<button
 									type="button"
 									onClick={() => onImageUpload?.(null)}
 									className="text-xs text-[#f23f42] hover:text-[#d73c3f] font-medium transition-colors duration-150"
 								>
-									Remove Avatar
+									{t('editGroup.removeAvatar')}
 								</button>
 							)}
 						</div>
 
 						<div className="space-y-2">
-							<label className="block text-xs font-bold uppercase text-theme-primary tracking-wide">Group Name</label>
+							<label className="block text-xs font-bold uppercase text-theme-primary tracking-wide">
+								{t('editGroup.groupNameLabel')}
+							</label>
 							<input
 								ref={groupNameInputRef}
 								type="text"
@@ -150,7 +166,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 								onChange={(e) => {
 									onGroupNameChange(e.target.value);
 								}}
-								placeholder="Enter group name"
+								placeholder={t('editGroup.groupNamePlaceholder')}
 								className={`w-full px-3 py-2.5 text-theme-primary  border-0 rounded bg-input-theme focus:outline-none transition-all duration-150 ${
 									validationError ? 'ring-2 ring-[#f23f42]' : 'focus:ring-2 focus:ring-[#5865f2] '
 								}`}
@@ -191,7 +207,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 							className="px-4 py-2 text-theme-primary text-theme-primary-hover hover:underline transition-all duration-150 font-medium"
 							variant="ghost"
 						>
-							Cancel
+							{t('editGroup.cancel')}
 						</Button>
 						<Button
 							onClick={onSave}
@@ -205,17 +221,34 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 							{isLoading ? (
 								<div className="flex items-center space-x-2">
 									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-									<span>Saving...</span>
+									<span>{t('editGroup.saving')}</span>
 								</div>
 							) : (
-								'Save'
+								t('editGroup.save')
 							)}
 						</Button>
 					</div>
 				</div>
+				<ModalErrorTypeUpload open={openTypeModal} onClose={() => setOpenTypeModal(false)} />
+
+				<ModalOverData open={openModal} onClose={() => setOpenModal(false)} size={ELimitSize.MB_8} />
 			</div>
 		),
-		[groupName, imagePreview, validationError, className, onGroupNameChange, onImageUpload, onCancel, onSave, onClose, isLoading, error]
+		[
+			groupName,
+			imagePreview,
+			openTypeModal,
+			openModal,
+			validationError,
+			className,
+			onGroupNameChange,
+			onImageUpload,
+			onCancel,
+			onSave,
+			onClose,
+			isLoading,
+			error
+		]
 	);
 
 	useEffect(() => {

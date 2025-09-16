@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { GuideItemLayout } from '@mezon/components';
 import { useAppNavigation } from '@mezon/core';
+import { useTranslation } from 'react-i18next';
 import {
 	ETypeMission,
 	fetchOnboarding,
@@ -25,6 +26,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 function GuideBody() {
+	const { t } = useTranslation('common');
 	const onboadingMode = useSelector(selectOnboardingMode);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const { navigate, toChannelPage } = useAppNavigation();
@@ -91,7 +93,7 @@ function GuideBody() {
 			<div className="flex gap-6">
 				<div className="flex-1 flex flex-col gap-2">
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Questions</p>
+						<p className="p-2 text-xl font-bold ">{t('guide.questions')}</p>
 						<div className=" flex flex-col gap-2 rounded-lg relative shadow-sm dark:shadow-none">
 							{onboardingItem?.question.length > 0 ? (
 								<>
@@ -112,7 +114,7 @@ function GuideBody() {
 								<>
 									{(!onboadingMode || (onboadingMode && formOnboarding?.questions?.length === 0)) && (
 										<div className="flex gap-2 h-20 p-4 w-full text-lg items-center font-semibold justify-between bg-item-theme rounded-lg shadow-sm">
-											You don't have any questions. Setting questions for this clan first !!
+											{t('guide.noQuestions')}
 										</div>
 									)}
 								</>
@@ -120,7 +122,7 @@ function GuideBody() {
 						</div>
 					</div>
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Resources</p>
+						<p className="p-2 text-xl font-bold ">{t('guide.resources')}</p>
 						{onboardingItem?.rule?.length > 0 ? (
 							onboardingItem.rule.map((rule) => (
 								<GuideItemLayout
@@ -142,7 +144,7 @@ function GuideBody() {
 							<>
 								{(!onboadingMode || (onboadingMode && formOnboarding?.rules?.length === 0)) && (
 									<div className="flex gap-2 h-20 p-4 w-full text-lg items-center  font-semibold justify-between  rounded-lg shadow-sm bg-item-theme">
-										You don't have any rule. Setting rule for this clan first !!
+										{t('guide.noRules')}
 									</div>
 								)}
 							</>
@@ -164,7 +166,7 @@ function GuideBody() {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Missions </p>
+						<p className="p-2 text-xl font-bold ">{t('guide.missions')} </p>
 						{onboardingItem?.mission?.length > 0 ? (
 							onboardingItem.mission.map((mission, index) => (
 								<GuideItemMission
@@ -178,7 +180,7 @@ function GuideBody() {
 							<>
 								{(!onboadingMode || (onboadingMode && formOnboarding?.task?.length === 0)) && (
 									<div className="flex gap-2 h-20 p-4 w-full text-lg items-center  font-semibold justify-between  rounded-lg shadow-sm bg-item-theme">
-										You don't have any mission. Setting mision for this clan first !!
+										{t('guide.noMissions')}
 									</div>
 								)}
 							</>
@@ -191,8 +193,8 @@ function GuideBody() {
 					</div>
 				</div>
 				<div className="mt-8 flex flex-col gap-2 h-20 p-4 w-[300px] bg-item-theme text-base justify-between  rounded-lg shadow-sm ">
-					<div className="font-bold ">About</div>
-					<div className=" text-xs">Members online</div>
+					<div className="font-bold ">{t('guide.about')}</div>
+					<div className=" text-xs">{t('guide.membersOnline')}</div>
 				</div>
 			</div>
 		</div>

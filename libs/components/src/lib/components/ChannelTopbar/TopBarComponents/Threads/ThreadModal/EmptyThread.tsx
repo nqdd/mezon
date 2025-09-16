@@ -3,12 +3,14 @@ import { selectCurrentChannelId } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EOverriddenPermission } from '@mezon/utils';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 type EmptyThreadProps = {
 	onClick: () => void;
 };
 
 const EmptyThread = ({ onClick }: EmptyThreadProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannelId ?? '');
 	const handleCreateThread = () => {
@@ -21,14 +23,14 @@ const EmptyThread = ({ onClick }: EmptyThreadProps) => {
 				<Icons.ThreadEmpty className="w-9 h-9 " />
 				<Icons.EmptyUnreadStyle className="w-[104px] h-[80px] absolute top-0 left-[-10px]" />
 			</button>
-			<h2 className="text-2xl font-semibold mb-2">There are no threads.</h2>
-			<p className="text-base  text-center">Stay focused on a conversation with a thread - a temporary text channel.</p>
+			<h2 className="text-2xl font-semibold mb-2">{t('threads.emptyTitle')}</h2>
+			<p className="text-base  text-center">{t('threads.emptyDescription')}</p>
 			{canManageThread && (
 				<button
 					onClick={handleCreateThread}
 					className=" py-2 px-3 mt-6 h-10 font-medium text-sm rounded-lg focus:ring-transparent btn-primary btn-primary-hover"
 				>
-					Create Thread
+					{t('threads.createThread')}
 				</button>
 			)}
 		</div>

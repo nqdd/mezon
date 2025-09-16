@@ -1,10 +1,12 @@
 import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ModalErrorTypeUpload } from '../../../ModalValidateFile/ModalOverData';
+import { ELimitSize } from '../../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 
 type ClanLogoNameProps = {
 	onUpload: (url: string) => void;
@@ -12,6 +14,7 @@ type ClanLogoNameProps = {
 };
 
 const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
+	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
 	const currentClan = useSelector(selectCurrentClan);
 
@@ -22,6 +25,8 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 	const [clanName, setClanName] = useState<string | undefined>(currentClan?.clan_name ?? '');
 	const [checkValidate, setCheckValidate] = useState(!ValidateSpecialCharacters().test(currentClan?.clan_name || ''));
 	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openSizeModal, setOpenSizeModal] = useState<boolean>(false);
+
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleFile = (e: any) => {
@@ -30,7 +35,10 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 		const client = clientRef.current;
 
 		if (!file) return;
-
+		if (file.size > MAX_FILE_SIZE_1MB) {
+			setOpenSizeModal(true);
+			return;
+		}
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
@@ -110,38 +118,35 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 								<Icons.SelectFileIcon />
 							</div>
 						</div>
-						<p className="text-[10px] mt-[10px]">Minimum Size: 128x128</p>
+						<p className="text-[10px] mt-[10px]">{t('clanLogo.minimumSize')}</p>
 					</div>
 				</div>
 				<div className="flex flex-3 flex-col ml-[10px]">
-					<p className="text-sm mb-2">We recommend an image of at least 512x512 for the clan.</p>
+					<p className="text-sm mb-2">{t('clanLogo.recommendedSize')}</p>
 					<button
 						onClick={handleOpenFile}
 						className="h-10 text-theme-primary-active text-sm w-fit flex items-center px-2 justify-center mt-2 rounded-lg btn-primary btn-primary-hover"
 					>
-						Upload Image
+						{t('clanLogo.uploadImage')}
 					</button>
 				</div>
 			</div>
 			<div className="flex flex-1 flex-col">
-				<h3 className="text-xs font-bold uppercase mb-2">Clan Name</h3>
+				<h3 className="text-xs font-bold uppercase mb-2">{t('clanLogo.clanName')}</h3>
 				<div className="w-full">
 					<input
 						type="text"
 						value={clanName}
 						onChange={(e) => handleChangeClanName(e.target.value)}
 						className=" outline-none w-full h-10 p-[10px] bg-theme-input text-base rounded placeholder:text-sm"
-						placeholder="Support has arrived!"
+						placeholder={t('clanLogo.namePlaceholder')}
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 					/>
 				</div>
-				{checkValidate && (
-					<p className="text-[#e44141] text-xs italic font-thin">
-						Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).
-					</p>
-				)}
+				{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{t('clanLogo.validationError')}</p>}
 			</div>
 			<ModalErrorTypeUpload open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalOverData size={ELimitSize.MB} open={openSizeModal} onClose={() => setOpenSizeModal(false)} />
 		</div>
 	);
 };

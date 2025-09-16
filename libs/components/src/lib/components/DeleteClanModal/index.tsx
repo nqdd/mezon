@@ -1,6 +1,7 @@
 import { selectCurrentClan } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface DeleteClanModalProps {
@@ -11,9 +12,10 @@ interface DeleteClanModalProps {
 }
 
 const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, buttonLabel, onClick }) => {
+	const { t } = useTranslation('deleteClan');
 	const currentClan = useSelector(selectCurrentClan);
 	const [inputValue, setInputValue] = useState('');
-	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState(true);
+	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState(false);
 
 	const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(e.target.value);
@@ -25,11 +27,12 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+		e.preventDefault();
 		if (inputValueIsMatchClanName && onClick) {
 			onClick();
+			onClose();
+			return;
 		}
-		onClose();
 	};
 	return (
 		<div className="fixed inset-0 flex items-center justify-center z-50 ">
@@ -38,10 +41,10 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 				<div className="top-block p-[16px]  flex flex-col gap-[15px]">
 					<div className="text-xl font-semibold text-theme-primary-active">{title}</div>
 					<div className="bg-[#f0b132] text-theme-message rounded-sm p-[10px]">
-						Are you sure you want to delete this clan? This action cannot be undone.
+						{t('confirmMessage')}
 					</div>
 					<div className="mb-[15px]">
-						<div className=" text-base">Enter clan name</div>
+						<div className=" text-base">{t('enterClanName')}</div>
 						<input
 							type="text"
 							className="w-full bg-input-secondary border-theme-primary text-theme-message rounded-lg outline-none p-[10px] my-[7px]"
@@ -50,7 +53,7 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 							data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.input')}
 						/>
 						{!inputValueIsMatchClanName ? (
-							<div className="text-[#fa777c] text-xs font-semibold">You didn't enter the clan name correctly</div>
+							<div className="text-[#fa777c] text-xs font-semibold">{t('incorrectName')}</div>
 						) : (
 							''
 						)}
@@ -62,11 +65,11 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 						className="cursor-pointer hover:underline"
 						data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.cancel')}
 					>
-						Cancel
+						{t('cancel')}
 					</div>
 					<div
 						onClick={handleSubmit}
-						className="bg-[#da373c] text-white hover:bg-[#a12828] rounded-md px-4 py-2 cursor-pointer"
+						className={`bg-[#da373c] text-white  rounded-md px-4 py-2 cursor-pointer ${!inputValueIsMatchClanName ? '!cursor-default opacity-70 ' : 'hover:bg-[#a12828]'}`}
 						data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.confirm')}
 					>
 						{buttonLabel}

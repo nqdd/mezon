@@ -4,6 +4,7 @@ import { DOWNLOAD_FILE, EFailAttachment, convertTimeString, electronBridge } fro
 import isElectron from 'is-electron';
 import { ChannelStreamMode } from 'mezon-js';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RenderAttachmentThumbnail } from '../../../ThumbnailAttachmentRender';
 
 type FileItemProps = {
@@ -12,6 +13,7 @@ type FileItemProps = {
 };
 
 const FileItem = ({ attachmentData, mode }: FileItemProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const userSendAttachment = useAppSelector(selectMemberClanByUserId(attachmentData?.uploader ?? ''));
 	const username = userSendAttachment?.user?.username;
 	const attachmentSendTime = convertTimeString(attachmentData?.create_time as string);
@@ -82,7 +84,7 @@ const FileItem = ({ attachmentData, mode }: FileItemProps) => {
 		>
 			<div className="flex items-center">{thumbnailAttachment}</div>
 			{attachmentData.filename === EFailAttachment.FAIL_ATTACHMENT ? (
-				<div className="text-red-500">Attachment failed to load.</div>
+				<div className="text-red-500">{t('fileItem.attachmentFailed')}</div>
 			) : (
 				hideTheInformationFile && (
 					<>
@@ -90,11 +92,11 @@ const FileItem = ({ attachmentData, mode }: FileItemProps) => {
 							<p className="text-blue-500 hover:underline w-fit one-line">{attachmentData?.filename ?? 'File'}</p>
 							{hoverShowOptButtonStatus ? (
 								<span>
-									Download <span className="font-medium uppercase">{fileType}</span>
+									{t('fileItem.download')} <span className="font-medium uppercase">{fileType}</span>
 								</span>
 							) : (
 								<p className=" w-fit one-line">
-									Shared by {username} <span className="text-sm ">{attachmentSendTime}</span>
+									{t('fileItem.sharedBy', { username, time: attachmentSendTime })}
 								</p>
 							)}
 						</div>

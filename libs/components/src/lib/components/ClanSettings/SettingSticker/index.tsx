@@ -2,12 +2,14 @@ import { selectCurrentClanId, selectStickersByClanId, settingClanStickerActions,
 import { Button, Icons } from '@mezon/ui';
 import { ClanSticker } from 'mezon-js';
 import { RefObject, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../../components';
 import ModalSticker, { EGraphicType } from './ModalEditSticker';
 import SettingStickerItem from './SettingStickerItem';
 
 const SettingSticker = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) => {
+	const { t } = useTranslation('clanSettings');
 	const [showModalSticker, setShowModalSticker] = useState<boolean>(false);
 	const [editSticker, setEditSticker] = useState<ClanSticker | null>(null);
 	const currentClanId = useSelector(selectCurrentClanId) || '';
@@ -36,19 +38,18 @@ const SettingSticker = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> })
 		<>
 			<div className="flex flex-col gap-6 pb-[40px] text-sm">
 				<div className="flex flex-col gap-2 pb-6 border-b-theme-primary">
-					<p className="font-bold text-xs uppercase text-theme-primary-active"> UPLOAD INSTRUCTIONS </p>
+					<p className="font-bold text-xs uppercase text-theme-primary-active">{t('stickers.uploadInstructions')}</p>
 					<p>
-						Stickers can be static (PNG) or animated (APNG, GIF). Stickers must be exactly 320 x 320 pixels and no larger than 512KB. We
-						will automatically resize static PNG and animated GIF stickers for you.
+						{t('stickers.description')}
 					</p>
 				</div>
 				<div className="flex p-4 bg-theme-setting-nav rounded-lg shadow-sm hover:shadow-md transition duration-200  border-theme-primary">
 					<div className="flex-1 w-full flex flex-col ">
-						<p className="text-base font-bold text-theme-primary-active">Upload it here!</p>
-						<p className="text-xs ">Let's customize the amazing stickers with your interest</p>
+						<p className="text-base font-bold text-theme-primary-active">{t('stickers.uploadHere')}</p>
+						<p className="text-xs ">{t('stickers.customizeMessage')}</p>
 					</div>
 					<Button className="px-2 btn-primary btn-primary-hover rounded-lg" onClick={handleOpenModalUpload}>
-						upload sticker
+						{t('stickers.uploadSticker')}
 					</Button>
 				</div>
 				<div className="w-full flex flex-wrap gap-y-5 lg:gap-x-[calc((100%_-_116px_*_5)/4)] max-sbm:justify-evenly md:gap-x-[calc((100%_-_116px_*_4)/3)] gap-x-[calc((100%_-_116px_*_3)/2)]">

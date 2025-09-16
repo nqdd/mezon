@@ -73,6 +73,7 @@ import {
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import DynamicContextMenu from './DynamicContextMenu';
@@ -116,6 +117,7 @@ function MessageContextMenu({
 	openPinMessageModal,
 	openDeleteMessageModal
 }: MessageContextMenuProps) {
+	const { t } = useTranslation('contextMenu');
 	const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 	const { setOpenThreadMessageState } = useReference();
 	const dmGroupChatList = useSelector(selectAllDirectMessages);
@@ -209,7 +211,7 @@ function MessageContextMenu({
 			content,
 			is_default: true,
 			...(id && { id }),
-			title: defaultCanvas?.title || 'Note',
+			title: defaultCanvas?.title || t('note'),
 			status: defaultCanvas ? 0 : EEventAction.CREATED
 		});
 
@@ -272,7 +274,7 @@ function MessageContextMenu({
 		}
 
 		dispatch(createEditCanvas(createCanvasBody(formattedString, defaultCanvas?.id)));
-	}, [dispatch, message, currentChannel, currentClanId, defaultCanvas]);
+	}, [dispatch, message, currentChannel, currentClanId, defaultCanvas, t]);
 
 	const appearanceTheme = useSelector(selectTheme);
 
@@ -424,9 +426,9 @@ function MessageContextMenu({
 		try {
 			dispatch(notificationActions.markMessageNotify(message));
 		} catch (error) {
-			toast.error('Failed to note this message');
+			toast.error(t('errors.failedToNoteMessage'));
 		}
-	}, [dispatch, message]);
+	}, [dispatch, message, t]);
 
 	const handleMarkUnread = useCallback(async () => {
 		try {
@@ -447,9 +449,9 @@ function MessageContextMenu({
 				})
 			);
 		} catch (error) {
-			toast.error('Failed to note this message');
+			toast.error(t('errors.failedToNoteMessage'));
 		}
-	}, [dispatch, message]);
+	}, [dispatch, message, t]);
 
 	const handleSlashCommands = useCallback(async () => {
 		// ignore
@@ -468,7 +470,7 @@ function MessageContextMenu({
 				try {
 					sendChatMessage(payload, [], [], undefined, false, false);
 				} catch (error) {
-					console.error('Error sending slash command message:', error);
+					console.error(t('errors.errorSendingSlashCommand'), error);
 					toast.error(`Failed to execute command "${command.menu_name}"`);
 				}
 			}
@@ -593,7 +595,7 @@ function MessageContextMenu({
 		builder.when(checkPos, (builder) => {
 			builder.addMenuItem(
 				'addReaction', // id
-				'Add Reaction', // label
+				t('addReaction'), // label
 				handleItemClick,
 				<Icons.RightArrowRightClick />
 			);
@@ -607,7 +609,7 @@ function MessageContextMenu({
 			(builder) => {
 				builder.addMenuItem(
 					'giveAcoffee', // id
-					'Give A Coffee', // label
+					t('giveACoffee'), // label
 
 					async () => {
 						try {
@@ -645,7 +647,7 @@ function MessageContextMenu({
 								);
 							}
 						} catch (error) {
-							console.error('Failed to give cofffee message', error);
+							console.error(t('errors.failedToGiveCoffee'), error);
 						}
 					},
 					<Icons.DollarIconRightClick defaultSize="w-4 h-4" />
@@ -656,12 +658,12 @@ function MessageContextMenu({
 		builder.when(enableEditMessageItem, (builder) => {
 			builder.addMenuItem(
 				'editMessage',
-				'Edit Message',
+				t('editMessage'),
 				async () => {
 					try {
 						handleEditMessage();
 					} catch (error) {
-						console.error('Failed to edit message', error);
+						console.error(t('errors.failedToEditMessage'), error);
 					}
 				},
 
@@ -670,10 +672,10 @@ function MessageContextMenu({
 		});
 
 		builder.when(!isTopic && pinMessageStatus === true, (builder) => {
-			builder.addMenuItem('pinMessage', 'Pin Message', openPinMessageModal, <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem('pinMessage', t('pinMessage'), openPinMessageModal, <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
 		});
 		builder.when(!isTopic && pinMessageStatus === false, (builder) => {
-			builder.addMenuItem('unPinMessage', 'Unpin Message', () => handleUnPinMessage(), <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem('unPinMessage', t('unpinMessage'), () => handleUnPinMessage(), <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
 		});
 
 		builder.when(
@@ -682,7 +684,7 @@ function MessageContextMenu({
 			(builder) => {
 				builder.addMenuItem(
 					'reply',
-					'Reply',
+					t('reply'),
 					() => handleReplyMessage(),
 
 					<Icons.ReplyRightClick defaultSize="w-4 h-4" />
@@ -691,18 +693,18 @@ function MessageContextMenu({
 		);
 
 		builder.when(enableCreateThreadItem, (builder) => {
-			builder.addMenuItem('createThread', 'Create Thread', () => handleCreateThread(), <Icons.ThreadIconRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem('createThread', t('createThread'), () => handleCreateThread(), <Icons.ThreadIconRightClick defaultSize="w-4 h-4" />);
 		});
 
 		builder.when(checkPos, (builder) => {
 			builder.addMenuItem(
 				'copyText',
-				'Copy Text',
+				t('copyText'),
 				async () => {
 					try {
 						await handleCopyLink(message?.content?.t ?? '');
 					} catch (error) {
-						console.error('Failed to copy text', error);
+						console.error(t('errors.failedToCopyText'), error);
 					}
 				},
 				<Icons.CopyTextRightClick />
@@ -712,7 +714,7 @@ function MessageContextMenu({
 		builder.when(checkPos && quickMenuItems?.length > 0, (builder) => {
 			builder.addMenuItem(
 				'slashCommands',
-				'Slash Commands',
+				t('slashCommands'),
 				handleSlashCommands,
 				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path
@@ -733,7 +735,7 @@ function MessageContextMenu({
 		builder.when(checkPos, (builder) => {
 			builder.addMenuItem(
 				'addToInbox',
-				'Add To Inbox',
+				t('addToInbox'),
 				handleMarkMessageNoti,
 				<svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path
@@ -747,7 +749,7 @@ function MessageContextMenu({
 		builder.when(checkPos, (builder) => {
 			builder.addMenuItem(
 				'markUnread',
-				'Mark Unread',
+				t('markUnread'),
 				handleMarkUnread,
 				<svg height="16px" width="16px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 					<path d="M410.9,0H85.1C72.3,0,61.8,10.4,61.8,23.3V512L248,325.8L434.2,512V23.3C434.2,10.4,423.8,0,410.9,0z" fill="currentColor" />
@@ -759,25 +761,25 @@ function MessageContextMenu({
 			!isTopic &&
 			canSendMessage &&
 			builder.when(checkPos && hasPermissionCreateTopic, (builder) => {
-				builder.addMenuItem('topicDiscussion', 'Topic Discussion', handleCreateTopic, <Icons.TopicIcon defaultSize="w-4 h-4" />);
+				builder.addMenuItem('topicDiscussion', t('topicDiscussion'), handleCreateTopic, <Icons.TopicIcon defaultSize="w-4 h-4" />);
 			});
 
 		builder.when(checkPos, (builder) => {
-			builder.addMenuItem('forwardMessage', 'Forward Message', () => handleForwardMessage(), <Icons.ForwardRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem('forwardMessage', t('forwardMessage'), () => handleForwardMessage(), <Icons.ForwardRightClick defaultSize="w-4 h-4" />);
 		});
 
 		isShowForwardAll &&
 			builder.when(checkPos, (builder) => {
 				builder.addMenuItem(
 					'forwardAll',
-					'Forward All Message',
+					t('forwardAllMessage'),
 					() => handleForwardAllMessage(),
 					<Icons.ForwardRightClick defaultSize="w-4 h-4" />
 				);
 			});
 
 		builder.when(enableDelMessageItem, (builder) => {
-			builder.addMenuItem('deleteMessage', 'Delete Message', openDeleteMessageModal, <Icons.DeleteMessageRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem('deleteMessage', t('deleteMessage'), openDeleteMessageModal, <Icons.DeleteMessageRightClick defaultSize="w-4 h-4" />);
 		});
 
 		// builder.when(enableReportMessageItem, (builder) => {
@@ -792,41 +794,41 @@ function MessageContextMenu({
 		// });
 
 		builder.when(enableCopyLinkItem, (builder) => {
-			builder.addMenuItem('copyLink', 'Copy Link', async () => {
+			builder.addMenuItem('copyLink', t('copyLink'), async () => {
 				try {
 					await handleCopyLink(urlImage);
 				} catch (error) {
-					console.error('Failed to copy link:', error);
+					console.error(t('errors.failedToCopyLink'), error);
 				}
 			});
 		});
 
 		builder.when(enableOpenLinkItem, (builder) => {
-			builder.addMenuItem('openLink', 'Open Link', async () => {
+			builder.addMenuItem('openLink', t('openLink'), async () => {
 				try {
 					await handleOpenLink(urlImage);
 				} catch (error) {
-					console.error('Failed to copy image:', error);
+					console.error(t('errors.failedToCopyImage'), error);
 				}
 			});
 		});
 
 		builder.when(enableCopyImageItem, (builder) => {
-			builder.addMenuItem('copyImage', 'Copy Image', async () => {
+			builder.addMenuItem('copyImage', t('copyImage'), async () => {
 				try {
 					await handleCopyImage(urlImage);
 				} catch (error) {
-					console.error('Failed to copy image:', error);
+					console.error(t('errors.failedToCopyImage'), error);
 				}
 			});
 		});
 
 		builder.when(enableSaveImageItem, (builder) => {
-			builder.addMenuItem('saveImage', 'Save Image', async () => {
+			builder.addMenuItem('saveImage', t('saveImage'), async () => {
 				try {
 					handleSaveImage(urlImage);
 				} catch (error) {
-					console.error('Failed to save image:', error);
+					console.error(t('errors.failedToSaveImage'), error);
 				}
 			});
 		});

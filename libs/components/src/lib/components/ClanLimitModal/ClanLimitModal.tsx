@@ -1,6 +1,7 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { resetClanLimitModalTrigger, useAppDispatch, useAppSelector } from '@mezon/store';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 
 export interface ClanLimitModalProps {
@@ -9,6 +10,7 @@ export interface ClanLimitModalProps {
 }
 
 const ClanLimitModalContent = ({ type, clanCount, onClose }: ClanLimitModalProps & { onClose: () => void }) => {
+	const { t } = useTranslation('common');
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const handleOverlayClick = useCallback(
@@ -39,10 +41,10 @@ const ClanLimitModalContent = ({ type, clanCount, onClose }: ClanLimitModalProps
 	}, [handleEnterKey]);
 
 	const isCreateType = type === 'create';
-	const title = isCreateType ? 'Clan Creation Limit Reached' : 'Clan Join Limit Reached';
+	const title = isCreateType ? t('clanLimitModal.createTitle') : t('clanLimitModal.joinTitle');
 	const bodyText = isCreateType
-		? `You've reached the maximum number of clans you can create on your account (${clanCount} clans). To create a new one, you'll need to delete or leaving one of your existing clans.`
-		: `You've reached the maximum number of clans you can join on your account (${clanCount} clans). To join this new clan, you'll need to delete or leaving one of your existing clans.`;
+		? t('clanLimitModal.createMessage', { count: clanCount })
+		: t('clanLimitModal.joinMessage', { count: clanCount });
 
 	return (
 		<div ref={modalRef} tabIndex={-1} className='fixed inset-0 flex items-center justify-center z-50' onClick={handleOverlayClick}>
@@ -57,7 +59,7 @@ const ClanLimitModalContent = ({ type, clanCount, onClose }: ClanLimitModalProps
 						onClick={onClose}
 						className='btn-primary btn-primary-hover text-white rounded-lg px-[25px] py-[8px] cursor-pointer transition-colors'
 					>
-						Okay
+						{t('clanLimitModal.okay')}
 					</button>
 				</div>
 			</div>
