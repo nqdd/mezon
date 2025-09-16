@@ -26,6 +26,23 @@
     "removeAllReactions": "Remove All Reactions",
     "loadingCommands": "Loading commands...",
     "noCommandsFound": "No commands found",
+    "member": {
+        "profile": "Profile",
+        "message": "Message",
+        "addFriend": "Add Friend",
+        "removeFriend": "Remove Friend",
+        "kick": "Kick",
+        "removeFromThread": "Remove {{username}} from thread"
+    },
+    "removeLogo": "Remove Logo",
+    "processing": "Processing...",
+    "markAsRead": "Mark As Read",
+    "notificationSettings": "Notification Settings",
+    "changeHere": "change here",
+    "hideMutedChannels": "Hide Muted Channels",
+    "privacySettings": "Privacy Settings",
+    "editClanProfile": "Edit Clan Profile",
+    "leaveClan": "Leave Clan",
     "errors": {
         "failedToNoteMessage": "Failed to note this message",
         "failedToEditMessage": "Failed to edit message",

@@ -1,4 +1,11 @@
 {
+  "inbox": "Hộp thư",
+  "tabs": {
+    "forYou": "Dành cho bạn",
+    "messages": "Tin nhắn",
+    "mentions": "Nhắc đến",
+    "topics": "Chủ đề"
+  },
   "empty": {
     "forYou": {
       "title": "Chưa có gì ở đây",

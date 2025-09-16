@@ -3,10 +3,16 @@
     "cancel": "Hủy",
     "save": "Lưu",
     "reset": "Đặt lại",
-    "close": "Đóng"
+    "close": "Đóng",
+    "kick": "Đuổi"
   },
   "form": {
     "required": "Trường bắt buộc",
     "error": "Lỗi"
+  },
+  "kickMember": {
+    "title": "Đuổi {{username}} khỏi {{clanName}}",
+    "description": "Bạn có chắc chắn muốn đuổi @{{username}} khỏi {{clanName}}? Họ sẽ có thể tham gia lại với lời mời mới.",
+    "reasonLabel": "Lý do đuổi"
   }
 }

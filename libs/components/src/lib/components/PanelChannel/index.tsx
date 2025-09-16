@@ -1,8 +1,7 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker } from '@mezon/core';
+import type { SetMuteNotificationPayload, SetNotificationPayload } from '@mezon/store';
 import {
-	SetMuteNotificationPayload,
-	SetNotificationPayload,
 	channelsActions,
 	clansActions,
 	hasGrandchildModal,
@@ -24,6 +23,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
+import type { IChannel } from '@mezon/utils';
 import {
 	ENotificationTypes,
 	EOverriddenPermission,
@@ -33,17 +33,17 @@ import {
 	FOR_24_HOURS,
 	FOR_3_HOURS,
 	FOR_8_HOURS,
-	IChannel,
 	copyChannelLink
 } from '@mezon/utils';
 import { format } from 'date-fns';
 import { ChannelType, NotificationType } from 'mezon-js';
-import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useModal } from 'react-modal-hook';
+import type { RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import ModalConfirm from '../ModalConfirm';
 import GroupPanels from './GroupPanels';
 import ItemPanel from './ItemPanel';
@@ -64,12 +64,15 @@ const typeChannel = {
 	thread: ChannelType.CHANNEL_TYPE_THREAD,
 	voice: ChannelType.CHANNEL_TYPE_GMEET_VOICE
 };
+// Legacy constants - use translated versions in components
+// TODO: Deprecated - use createNotiLabelsTranslated instead
 export const notiLabels: Record<number, string> = {
 	[NotificationType.ALL_MESSAGE]: 'All',
 	[NotificationType.MENTION_MESSAGE]: 'Only @mention',
 	[NotificationType.NOTHING_MESSAGE]: 'Nothing'
 };
 
+// TODO: Deprecated - use createNotificationTypesListTranslated instead
 export const notificationTypesList = [
 	{
 		label: 'All',
@@ -85,35 +88,43 @@ export const notificationTypesList = [
 	}
 ];
 
-export const getNotificationLabel = (value: NotificationType) => {
+// Factory functions for translated versions
+export const createNotiLabelsTranslated = (t: (key: string) => string): Record<number, string> => ({
+	[NotificationType.ALL_MESSAGE]: t('menu.notification.all'),
+	[NotificationType.MENTION_MESSAGE]: t('menu.notification.onlyMention'),
+	[NotificationType.NOTHING_MESSAGE]: t('menu.notification.nothing')
+});
+
+export const createNotificationTypesListTranslated = (t: (key: string) => string) => [
+	{
+		label: t('menu.notification.all'),
+		value: NotificationType.ALL_MESSAGE
+	},
+	{
+		label: t('menu.notification.onlyMention'),
+		value: NotificationType.MENTION_MESSAGE
+	},
+	{
+		label: t('menu.notification.nothing'),
+		value: NotificationType.NOTHING_MESSAGE
+	}
+];
+
+export const getNotificationLabel = (value: NotificationType, t?: (key: string) => string) => {
+	if (t) {
+		const notificationType = createNotificationTypesListTranslated(t).find((type) => type.value === value);
+		return notificationType ? notificationType.label : null;
+	}
 	const notificationType = notificationTypesList.find((type) => type.value === value);
 	return notificationType ? notificationType.label : null;
 };
 
 const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onDeleteChannel, rootRef, selectedChannel, isUnread }: PanelChannel) => {
 	const { t } = useTranslation('channelMenu');
-	
-	const notiLabelsTranslated: Record<number, string> = {
-		[NotificationType.ALL_MESSAGE]: t('menu.notification.all'),
-		[NotificationType.MENTION_MESSAGE]: t('menu.notification.onlyMention'),
-		[NotificationType.NOTHING_MESSAGE]: t('menu.notification.nothing')
-	};
 
-	const notificationTypesListTranslated = [
-		{
-			label: t('menu.notification.all'),
-			value: NotificationType.ALL_MESSAGE
-		},
-		{
-			label: t('menu.notification.onlyMention'),
-			value: NotificationType.MENTION_MESSAGE
-		},
-		{
-			label: t('menu.notification.nothing'),
-			value: NotificationType.NOTHING_MESSAGE
-		}
-	];
-	
+	const notiLabelsTranslated = createNotiLabelsTranslated(t);
+	const notificationTypesListTranslated = createNotificationTypesListTranslated(t);
+
 	const currentChannel = useAppSelector((state) => selectChannelById(state, selectedChannel ?? '')) || {};
 
 	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channel?.id || ''));
@@ -238,7 +249,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			channel_id: channel.channel_id || '',
 			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
 			clan_id: currentClan?.clan_id || '',
-			active: active,
+			active,
 			is_current_channel: channel.channel_id === currentChannelId
 		};
 		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
@@ -487,11 +498,15 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 					{canManageChannel && (
 						<GroupPanels>
 							<ItemPanel onClick={handleEditChannel} children={t('menu.organizationMenu.edit')} />
-							{channel.type === typeChannel.text && <ItemPanel children={t('menu.organizationMenu.createTextChannel')} onClick={handleOpenCreateChannelModal} />}
+							{channel.type === typeChannel.text && (
+								<ItemPanel children={t('menu.organizationMenu.createTextChannel')} onClick={handleOpenCreateChannelModal} />
+							)}
 							{channel.type === typeChannel.voice && (
 								<ItemPanel children={t('menu.organizationMenu.createVoiceChannel')} onClick={handleOpenCreateChannelModal} />
 							)}
-							{welcomeChannelId !== channel.id && <ItemPanel onClick={handleDeleteChannel} children={t('menu.organizationMenu.deleteChannel')} danger />}
+							{welcomeChannelId !== channel.id && (
+								<ItemPanel onClick={handleDeleteChannel} children={t('menu.organizationMenu.deleteChannel')} danger />
+							)}
 						</GroupPanels>
 					)}
 				</>

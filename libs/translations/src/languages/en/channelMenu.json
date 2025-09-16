@@ -38,9 +38,9 @@
         "thread": {
           "title": "",
           "threads": "Threads",
-          "searchThreads": "Search Thread",
+          "searchThreads": "Search for Thread Name",
           "searchFiles": "Search Files",
-          "searchCanvas": "Search for Canvas name"
+          "searchCanvas": "Search for Canvas Name"
         },
         "organizationMenu": {
             "title": "",

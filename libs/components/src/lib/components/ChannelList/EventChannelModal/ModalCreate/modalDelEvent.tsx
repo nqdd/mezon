@@ -1,6 +1,7 @@
 import { useEventManagement, useOnClickOutside } from '@mezon/core';
 import { EventManagementEntity } from '@mezon/store';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ModalDelEventProps = {
 	event: EventManagementEntity | undefined;
@@ -10,6 +11,7 @@ type ModalDelEventProps = {
 const ModalDelEvent = (props: ModalDelEventProps) => {
 	const { event, setOpenModalDelEvent } = props;
 	const { deleteEventManagement } = useEventManagement();
+	const { t } = useTranslation('eventCreator');
 
 	const handleDeleteEvent = async () => {
 		await deleteEventManagement(event?.clan_id || '', event?.id || '', event?.creator_id || '', event?.title || '');
@@ -51,15 +53,15 @@ const ModalDelEvent = (props: ModalDelEventProps) => {
 			>
 				<div className=" w-[440px]">
 					<div className="p-4 pb-0">
-						<h3 className="font-bold pb-4 text-xl">Cancel Event?</h3>
-						<p className="pb-4">Are you sure you want to cancel this event?</p>
+						<h3 className="font-bold pb-4 text-xl">{t('actions.cancelEventQuestion')}</h3>
+						<p className="pb-4">{t('actions.confirmCancelEvent')}</p>
 					</div>
 					<div className="w-full  p-4 flex justify-end gap-x-4 font-medium">
 						<button onClick={closeModal} className="px-4 py-2 hover:underline rounded">
-							Never Mind
+							{t('actions.neverMind')}
 						</button>
 						<button onClick={handleDeleteEvent} className="px-4 py-2 bg-[#DA363C] rounded hover:bg-opacity-85 text-white">
-							Cancel Event
+							{t('actions.cancelEvent')}
 						</button>
 					</div>
 				</div>

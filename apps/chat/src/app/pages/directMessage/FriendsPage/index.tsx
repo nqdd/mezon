@@ -27,7 +27,7 @@ const FriendsPage = () => {
 	];
 
 	const getTranslatedTabName = (tabValue: string) => {
-		const tab = tabData.find(tab => tab.value === tabValue);
+		const tab = tabData.find((tab) => tab.value === tabValue);
 		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
 	};
 	const { friends, quantityPendingRequest, addFriend } = useFriends();
@@ -232,7 +232,6 @@ const FriendsPage = () => {
 										value={requestAddFriend.usernames}
 										placeholder={t('addFriendModal.placeholder')}
 										needOutline={true}
-										title={t('addFriendModal.tooltip')}
 									/>
 									{isAlreadyFriend && (
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.alreadyFriends')}</div>
@@ -240,9 +239,6 @@ const FriendsPage = () => {
 									{isInvalidInput && (
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.invalidInput')}</div>
 									)}
-									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
-										{t('addFriendModal.tooltip')}
-									</div>
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
 										disabled={!requestAddFriend.usernames?.length || isInvalidInput}

@@ -1,9 +1,9 @@
 {
-  "title": "Chuyển quyền sở hữu Clan",
-  "description": "Điều này sẽ chuyển quyền sở hữu của {clanName} cho {memberName}",
-  "confirmation": "Tôi xác nhận rằng bằng cách chuyển quyền sở hữu clan này cho {memberName}, nó chính thức thuộc về họ.",
-  "buttons": {
-    "transfer": "Chuyển quyền sở hữu",
-    "cancel": "Hủy"
-  }
+	"title": "Chuyển quyền sở hữu Clan",
+	"description": "Điều này sẽ chuyển quyền sở hữu của {{clanName}} cho {{memberName}}",
+	"confirmation": "Tôi xác nhận rằng bằng cách chuyển quyền sở hữu clan này cho {{memberName}}, nó chính thức thuộc về họ.",
+	"buttons": {
+		"transfer": "Chuyển quyền sở hữu",
+		"cancel": "Hủy"
+	}
 }

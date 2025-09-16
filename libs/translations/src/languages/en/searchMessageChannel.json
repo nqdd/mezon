@@ -1,21 +1,21 @@
 {
-  "searchPlaceholder": "Search",
-  "searchFor": "Search for:",
-  "enter": "Enter",
-  "searchOptions": "Search options",
-  "fromUser": "From user",
-  "emptySearch": {
-    "title": "We searched far and wide. Unfortunately, no results were found."
-  },
-  "learnMore": "Learn More",
-  "searchOptionsData": {
-    "fromUserShort": "user (from:)",
-    "mentionsUserShort": "user (mentions:)",
-    "hasContentShort": "link, embed or file (has:)"
-  },
-  "prefixes": {
-    "from": "from:",
-    "mentions": "mentions:",
-    "has": "has:"
-  }
+	"searchPlaceholder": "Search",
+	"searchFor": "Search for:",
+	"enter": "Enter",
+	"searchOptions": "Search options",
+	"fromUser": "From user",
+	"emptySearch": {
+		"title": "We searched far and wide. Unfortunately, no results were found."
+	},
+	"learnMore": "Learn More",
+	"searchOptionsData": {
+		"fromUserShort": "search by message sender",
+		"mentionsUserShort": "search by mentioned user",
+		"hasContentShort": "search by content with attachments"
+	},
+	"prefixes": {
+		"from": "from:",
+		"mentions": "mentions:",
+		"has": "has:"
+	}
 }

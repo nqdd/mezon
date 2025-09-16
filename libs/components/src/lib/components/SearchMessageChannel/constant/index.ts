@@ -16,11 +16,6 @@ export const getSearchOptions = (t: (key: string) => string) => [
 	{ title: '>', content: t('searchOptionsData.fromUserShort'), value: 'username' },
 	{ title: '~', content: t('searchOptionsData.mentionsUserShort'), value: 'mentions' },
 	{ title: '&', content: t('searchOptionsData.hasContentShort'), value: 'has' }
-	// { title: 'before:', content: 'specific data', value: 'before' },
-	// { title: 'after:', content: 'specific data', value: 'after' }
-	// { title: 'during:', content: 'specific data', value: 'username' },
-	// { title: 'after:', content: 'specific data', value: 'username' },
-	// { title: 'pinned:', content: 'true or false', value: 'username' }
 ];
 
 // Keep the original for backward compatibility but deprecated

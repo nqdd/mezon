@@ -253,5 +253,27 @@
         "members": "Members",
         "cancel": "Cancel",
         "done": "Done"
+    },
+    "table": {
+        "columnHeaders": {
+            "name": "Name",
+            "members": "Members",
+            "messagesCount": "Messages count",
+            "lastSent": "Last Sent",
+            "creator": "Creator"
+        },
+        "pagination": {
+            "show": "Show",
+            "channelOf": "channel of"
+        },
+        "memberModal": {
+            "listMember": "List Member"
+        },
+        "threads": {
+            "noThreads": "There is no threads in this channel"
+        },
+        "members": {
+            "allMembers": "(All Members)"
+        }
     }
 }

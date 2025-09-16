@@ -61,6 +61,7 @@ import {
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { ReactElement, RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Mention, { type MentionData } from './Mention';
 import MentionsInput, { type FormattedText, type MentionsInputHandle } from './MentionsInput';
@@ -76,11 +77,12 @@ interface SlashCommand extends MentionData {
 	action_msg?: string;
 }
 
-const slashCommands: SlashCommand[] = [
+// This needs to be a function that accepts t function to be dynamic
+const createSlashCommands = (t: (key: string) => string): SlashCommand[] => [
 	{
 		id: 'ephemeral',
 		display: 'ephemeral',
-		description: 'Send an ephemeral message (only visible to selected user)'
+		description: t('slashCommands.ephemeral.description')
 	}
 ];
 
@@ -120,6 +122,7 @@ export interface MentionReactBaseProps extends MentionReactInputProps {
 }
 
 export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElement => {
+	const { t } = useTranslation('messageBox');
 	const editorRef = useRef<MentionsInputHandle | null>(null);
 	const editorElementRef = useRef<HTMLDivElement | null>(null); // For legacy hooks compatibility
 	const containerRef = useRef<HTMLDivElement | null>(null);
@@ -868,7 +871,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		(search: string): SlashCommand[] => {
 			const store = getStore();
 			const channelQuickMenuItems = selectQuickMenuByChannelId(store.getState(), props.currentChannelId || '');
-			const builtInCommands = slashCommands.filter((cmd) => cmd.display.toLowerCase().includes(search.toLowerCase()));
+			const builtInCommands = createSlashCommands(t).filter((cmd) => cmd.display.toLowerCase().includes(search.toLowerCase()));
 
 			const quickMenuCommands: SlashCommand[] = channelQuickMenuItems
 				.filter((item) => item.menu_name?.toLowerCase().includes(search.toLowerCase()) && item.menu_type === QUICK_MENU_TYPE.FLASH_MESSAGE)
@@ -914,12 +917,12 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					return generateCommandsList(search);
 				} catch (error) {
 					console.error('Error fetching commands:', error);
-					const builtInCommands = slashCommands.filter((cmd) => cmd.display.toLowerCase().includes(search.toLowerCase()));
+					const builtInCommands = createSlashCommands(t).filter((cmd) => cmd.display.toLowerCase().includes(search.toLowerCase()));
 					return builtInCommands;
 				}
 			}
 		},
-		[props.currentChannelId, generateCommandsList, dispatch]
+		[props.currentChannelId, generateCommandsList, dispatch, t]
 	);
 
 	const handleSlashCommandSelect = useCallback(
@@ -966,7 +969,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						paddingRight: '8px'
 					}}
 				>
-					{ephemeralTargetUserId ? `Ephemeral message to ${ephemeralTargetUserDisplay}...` : 'Write your thoughts here...'}
+					{ephemeralTargetUserId ? t('ephemeralMessage', { username: ephemeralTargetUserDisplay }) : t('placeholder')}
 				</span>
 				<MentionsInput
 					id={CHANNEL_INPUT_ID}
@@ -974,7 +977,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					value={draftRequest?.valueTextInput ?? ''}
 					onChange={onChangeMentionInput}
 					onKeyDown={onKeyDown}
-					placeholder={ephemeralTargetUserId ? `Ephemeral message to ${ephemeralTargetUserDisplay}...` : 'Write your thoughts here...'}
+					placeholder={ephemeralTargetUserId ? t('ephemeralMessage', { username: ephemeralTargetUserDisplay }) : t('placeholder')}
 					className={`mentions min-h-11 text-theme-message rounded-lg`}
 					style={{
 						padding: props.isThread && !threadCurrentChannel ? '10px' : '9px 120px 9px 9px',
@@ -994,7 +997,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				>
 					<Mention
 						trigger="@"
-						title="MEMBERS"
+						title={t('mentionCategories.members')}
 						data={handleSearchUserMention}
             allowSpaceInQuery={true}
 						allowedCharacters="._-"
@@ -1016,11 +1019,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 										valueHightLight={search}
 										wrapSuggestItemStyle="justify-between w-full"
 										subText={
-											suggestion.display === TITLE_MENTION_HERE
-												? 'Notify everyone who has permission to see this channel'
-												: (suggestion.username ?? '')
+											suggestion.display === TITLE_MENTION_HERE ? t('suggestions.notifyEveryone') : (suggestion.username ?? '')
 										}
-										subTextStyle={(suggestion.display === TITLE_MENTION_HERE ? 'normal-case' : 'lowercase') + ' text-xs'}
+										subTextStyle={`${suggestion.display === TITLE_MENTION_HERE ? 'normal-case' : 'lowercase'} text-xs`}
 										showAvatar={suggestion.display !== TITLE_MENTION_HERE}
 										display={suggestion.display}
 										color={suggestion.color}
@@ -1033,7 +1034,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					/>
 					<Mention
 						trigger="#"
-						title="TEXT CHANNELS"
+						title={t('mentionCategories.textChannels')}
 						displayPrefix="#"
 						data={hashtagData}
 						allowSpaceInQuery={true}
@@ -1057,7 +1058,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						markup="#[__display__](__id__)"
 					/>
 					<Mention
-						title="EMOJI MATCHING"
+						title={t('mentionCategories.emojiMatching')}
 						trigger=":"
 						markup="::[__display__](__id__)"
 						data={queryEmojis}
@@ -1092,9 +1093,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					/>
 					<Mention
 						trigger="/"
-						title="COMMANDS"
+						title={t('mentionCategories.commands')}
 						data={handleSearchSlashCommands}
-            allowSpaceInQuery={true}
+						allowSpaceInQuery={true}
 						displayTransform={(_id: any, display: any) => {
 							return `/${display}`;
 						}}
@@ -1122,7 +1123,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 												strokeDashoffset="30"
 											/>
 										</svg>
-										<span>Loading commands...</span>
+										<span>{t('suggestions.loadingCommands')}</span>
 									</div>
 								);
 							}

@@ -1,11 +1,11 @@
 {
 	"title": {
 		"part1": "Nền tảng",
-		"live": "Sống",
+		"live": "Kết nối",
 		"work": "Làm việc",
 		"and": "và",
-		"playPlatform": "Chơi",
-		"theBest": "tốt nhất thay thế cho",
+		"playPlatform": "Giải trí",
+		"theBest": "sự thay thế tuyệt vời cho",
 		"discord": "Discord",
 		"alternative": ""
 	},
@@ -26,7 +26,7 @@
 		"overview": "Tổng quan",
 		"features": "Tính năng",
 		"developers": "Nhà phát triển",
-		"botsApps": "Bot/Ứng dụng",
+		"botsApps": "Bots/Apps",
 		"documents": "Tài liệu",
 		"discover": "Khám phá",
 		"blogs": "Blog",

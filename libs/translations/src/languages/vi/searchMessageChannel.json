@@ -1,21 +1,21 @@
 {
-  "searchPlaceholder": "Tìm kiếm",
-  "searchFor": "Tìm kiếm:",
-  "enter": "Enter",
-  "searchOptions": "Tùy chọn tìm kiếm",
-  "fromUser": "Từ người dùng",
-  "emptySearch": {
-    "title": "Chúng tôi đã tìm kiếm khắp nơi. Thật không may, không tìm thấy kết quả nào."
-  },
-  "learnMore": "Tìm hiểu thêm",
-  "searchOptionsData": {
-    "fromUserShort": "người dùng (từ:)",
-    "mentionsUserShort": "người dùng (nhắc đến:)",
-    "hasContentShort": "liên kết, nhúng hoặc tệp (có:)"
-  },
-  "prefixes": {
-    "from": "từ:",
-    "mentions": "nhắc đến:",
-    "has": "có:"
-  }
+	"searchPlaceholder": "Tìm kiếm",
+	"searchFor": "Tìm kiếm:",
+	"enter": "Enter",
+	"searchOptions": "Tùy chọn tìm kiếm",
+	"fromUser": "Từ người dùng",
+	"emptySearch": {
+		"title": "Chúng tôi đã tìm kiếm khắp nơi. Thật không may, không tìm thấy kết quả nào."
+	},
+	"learnMore": "Tìm hiểu thêm",
+	"searchOptionsData": {
+		"fromUserShort": "tìm kiếm theo người gửi",
+		"mentionsUserShort": "tìm kiếm theo người được nhắc đến",
+		"hasContentShort": "tìm kiếm theo nội dung có tệp đính kèm"
+	},
+	"prefixes": {
+		"from": "từ:",
+		"mentions": "nhắc đến:",
+		"has": "có:"
+	}
 }

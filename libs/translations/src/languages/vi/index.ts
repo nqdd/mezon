@@ -9,8 +9,10 @@ import categoryCreator from './categoryCreator.json';
 import categoryMenu from './categoryMenu.json';
 import categorySetting from './categorySetting.json';
 import channelCreator from './channelCreator.json';
+import channelList from './channelList.json';
 import channelMenu from './channelMenu.json';
 import channelSetting from './channelSetting.json';
+import channelTopbar from './channelTopbar.json';
 import channelVoice from './channelVoice.json';
 import chatWelcome from './chatWelcome.json';
 import clan from './clan.json';
@@ -40,6 +42,7 @@ import friends from './friends.json';
 import friendsPage from './friendsPage.json';
 import homepage from './homepage.json';
 import integrations from './integrations.json';
+import invitation from './invitation.json';
 import inviteToChannel from './inviteToChannel.json';
 import leaveGroup from './leaveGroup.json';
 import linkMessageInvite from './linkMessageInvite.json';
@@ -47,6 +50,7 @@ import media from './media.json';
 import memberTable from './memberTable.json';
 import menuCustomDM from './menuCustomDM.json';
 import message from './message.json';
+import messageBox from './messageBox.json';
 import modalControls from './modalControls.json';
 import notification from './notification.json';
 import notificationSetting from './notificationSetting.json';
@@ -72,6 +76,7 @@ import userEmptyClan from './userEmptyClan.json';
 import userProfile from './userProfile.json';
 
 export default {
+	invitation,
 	inviteToChannel,
 	notification,
 	message,
@@ -105,6 +110,8 @@ export default {
 	eventCreator,
 	channelMenu,
 	channelSetting,
+	channelTopbar,
+	messageBox,
 	createChannel,
 	appearanceSetting,
 	appThemeSetting,
@@ -128,6 +135,7 @@ export default {
 	ageRestricted,
 	recordChatMessage,
 	channelVoice,
+	channelList,
 	token,
 	qrScanner,
 	clanSoundSetting,

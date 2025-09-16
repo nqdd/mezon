@@ -1,4 +1,5 @@
 import { selectIsPrivate, threadsActions, useAppDispatch } from '@mezon/store';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 type PrivateThreadProps = {
@@ -7,6 +8,7 @@ type PrivateThreadProps = {
 };
 
 const PrivateThread = ({ label, title }: PrivateThreadProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const isPrivate = useSelector(selectIsPrivate);
 
@@ -24,7 +26,7 @@ const PrivateThread = ({ label, title }: PrivateThreadProps) => {
 					{label}
 				</label>
 			</div>
-			{isPrivate === 1 && <span className="text-xs text-theme-primary mt-2">You can invite new people by @mentioning them.</span>}
+			{isPrivate === 1 && <span className="text-xs text-theme-primary mt-2">{t('createThread.inviteMessage')}</span>}
 		</div>
 	);
 };

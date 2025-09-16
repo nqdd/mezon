@@ -251,5 +251,27 @@
         "members": "Thành viên",
         "cancel": "Hủy",
         "done": "Hoàn thành"
+    },
+    "table": {
+        "columnHeaders": {
+            "name": "Tên",
+            "members": "Thành viên",
+            "messagesCount": "Số tin nhắn",
+            "lastSent": "Gửi gần nhất",
+            "creator": "Người tạo"
+        },
+        "pagination": {
+            "show": "Hiển thị",
+            "channelOf": "kênh trong số"
+        },
+        "memberModal": {
+            "listMember": "Danh sách thành viên"
+        },
+        "threads": {
+            "noThreads": "Không có chủ đề nào trong kênh này"
+        },
+        "members": {
+            "allMembers": "(Tất cả thành viên)"
+        }
     }
 }

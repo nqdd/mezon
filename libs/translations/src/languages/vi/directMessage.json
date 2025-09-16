@@ -14,6 +14,17 @@
 		"createGroupChat": "Tạo nhóm chat",
 		"noFriendsFound": "Không tìm thấy bạn bè nào chưa có trong cuộc trò chuyện này."
 	},
+	"editGroup": {
+		"title": "Chỉnh sửa nhóm",
+		"uploadImageText": "Nhấp để tải lên hình ảnh",
+		"removeAvatar": "Xóa ảnh đại diện",
+		"groupNameLabel": "Tên nhóm",
+		"groupNamePlaceholder": "Nhập tên nhóm",
+		"validationError": "Vui lòng nhập tên nhóm hợp lệ (chỉ từ, số, _ hoặc -).",
+		"cancel": "Hủy",
+		"save": "Lưu",
+		"saving": "Đang lưu..."
+	},
 	"contextMenu": {
 		"editGroup": "Chỉnh sửa nhóm",
 		"addFriend": "Thêm bạn",

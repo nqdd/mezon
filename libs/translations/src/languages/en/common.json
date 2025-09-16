@@ -36,6 +36,8 @@
     "appearance": "Appearance",
     "theme": "Theme",
     "todayAt": "Today at",
+    "today": "Today",
+    "yesterdayAt": "Yesterday at",
     "sampleMessage": "Look at me I'm a beautiful butterfly",
     "switchingTheme": "Switching theme...",
     "settingsSaved": "Settings saved!",

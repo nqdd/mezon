@@ -6,7 +6,8 @@ import { EPermission, generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ItemObjProps, ItemSetting, sideBarListItem } from '../ItemObj';
+import type { ItemObjProps } from '../ItemObj';
+import { ItemSetting, sideBarListItem } from '../ItemObj';
 import SettingItem from '../SettingItem';
 
 type SettingSidebarProps = {
@@ -43,8 +44,8 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 
 	const getTranslatedSectionTitle = (title: string) => {
 		const sectionMap: Record<string, string> = {
-			'Apps': t('sidebar.sectionTitles.apps'),
-			'Moderation': t('sidebar.sectionTitles.moderation')
+			Apps: t('sidebar.sectionTitles.apps'),
+			Moderation: t('sidebar.sectionTitles.moderation')
 		};
 		return sectionMap[title] || title;
 	};
@@ -93,7 +94,9 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 				{sideBarListItemWithPermissions.map((sidebarItem) => (
 					<div key={sidebarItem.title} className={`${sidebarItem.listItem.length > 0 ? 'mt-[5px] border-b-theme-primary' : ''}`}>
 						{sidebarItem.title && sidebarItem.listItem.length > 0 && (
-							<p className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase ">{getTranslatedSectionTitle(sidebarItem.title)}</p>
+							<p className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase ">
+								{getTranslatedSectionTitle(sidebarItem.title)}
+							</p>
 						)}
 						{sidebarItem.listItem.map((setting) => (
 							<SettingItem

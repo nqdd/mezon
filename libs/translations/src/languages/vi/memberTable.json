@@ -1,10 +1,19 @@
 {
-  "headers": {
-    "name": "Tên",
-    "memberSince": "Thành viên từ",
-    "joinedMezon": "Tham gia Mezon",
-    "roles": "Vai trò",
-    "signals": "Tín hiệu"
-  },
-  "error": "Lỗi"
+	"headers": {
+		"name": "Tên",
+		"memberSince": "Thành viên từ",
+		"joinedMezon": "Tham gia Mezon",
+		"roles": "Vai trò",
+		"signals": "Tín hiệu"
+	},
+	"topBar": {
+		"recentMembers": "Thành viên gần đây",
+		"searchPlaceholder": "Tìm kiếm",
+		"sort": "Sắp xếp"
+	},
+	"error": "Lỗi",
+	"profile": "Hồ sơ",
+	"message": "Tin nhắn",
+	"transferOwnership": "Chuyển quyền sở hữu",
+	"removeMember": "Xóa thành viên"
 }

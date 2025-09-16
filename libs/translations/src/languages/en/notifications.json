@@ -1,4 +1,11 @@
 {
+  "inbox": "Inbox",
+  "tabs": {
+    "forYou": "For you",
+    "messages": "Messages",
+    "mentions": "Mentions",
+    "topics": "Topics"
+  },
   "empty": {
     "forYou": {
       "title": "Nothing here yet",
