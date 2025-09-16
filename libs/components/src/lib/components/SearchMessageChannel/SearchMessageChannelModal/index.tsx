@@ -1,10 +1,11 @@
 import { selectAllUserClans } from '@mezon/store';
 import { UsersClanEntity } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import SelectGroup from '../SelectGroup';
 import SelectItem from '../SelectItem';
-import { searchOptions } from '../constant';
+import { getSearchOptions, searchOptions } from '../constant';
 
 type SearchMessageChannelModalProps = {
 	valueDisplay?: string;
@@ -23,6 +24,8 @@ const SearchMessageChannelModal = ({
 	onClickSearchOptions,
 	theme
 }: SearchMessageChannelModalProps) => {
+	const { t } = useTranslation('searchMessageChannel');
+	const translatedSearchOptions = getSearchOptions(t);
 	const usersClan = useSelector(selectAllUserClans);
 
 	const userClanSearch = useMemo(() => {
@@ -37,7 +40,7 @@ const SearchMessageChannelModal = ({
 	}, [usersClan, valueDisplay]);
 
 	const [index, setIndex] = useState(0);
-	const totalOptions = searchOptions.length;
+	const totalOptions = translatedSearchOptions.length;
 
 	const handleKeyDown = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowDown') {
@@ -47,7 +50,7 @@ const SearchMessageChannelModal = ({
 			setIndex((prevIndex) => (prevIndex - 1 + totalOptions) % totalOptions);
 			e.preventDefault();
 		} else if (e.key === 'Enter') {
-			const selectedItem = searchOptions[index];
+			const selectedItem = translatedSearchOptions[index];
 			if (selectedItem) {
 				onClickSearchOptions(selectedItem.title);
 			}
@@ -71,19 +74,19 @@ const SearchMessageChannelModal = ({
 				<div className="first:mt-0 mt-3 p-3 rounded-t border-theme-primary last:border-b-0 last:bottom-b-0">
 					<div className="flex items-center justify-between">
 						<div className="flex flex-row items-center flex-1 overflow-x-hidden">
-							<h3 className="text-xs font-medium  uppercase mr-1 flex-shrink-0">Search for:</h3>
+							<h3 className="text-xs font-medium  uppercase mr-1 flex-shrink-0">{t('searchFor')}</h3>
 							<p className="text-sm font-semibold  w-full mr-[10px] whitespace-normal text-ellipsis overflow-x-hidden">
 								{valueDisplay}
 							</p>
 						</div>
-						<button className="px-1 h-5 w-10 text-xs font-semibold rounded bg-borderDividerLight">Enter</button>
+						<button className="px-1 h-5 w-10 text-xs font-semibold rounded bg-borderDividerLight">{t('enter')}</button>
 					</div>
 				</div>
 			)}
 
 			{!hasKeySearch && !isShowSearchOptions && (
-				<SelectGroup groupName="Search options" isSearch>
-					{searchOptions.map((searchItem, idx) => (
+				<SelectGroup groupName={t('searchOptions')} isSearch>
+					{translatedSearchOptions.map((searchItem, idx) => (
 						<SelectItem
 							key={idx}
 							onClick={() => onClickSearchOptions(searchItem.title ?? '')}
@@ -96,9 +99,9 @@ const SearchMessageChannelModal = ({
 			)}
 
 			{!hasKeySearch && valueInputSearch && userClanSearch.length > 0 && (
-				<SelectGroup groupName="From user">
+				<SelectGroup groupName={t('fromUser')}>
 					{userClanSearch.map((item) => (
-						<SelectItem key={item.id} title="from: " content={item.user?.username} />
+						<SelectItem key={item.id} title={t('prefixes.from')} content={item.user?.username} />
 					))}
 				</SelectGroup>
 			)}

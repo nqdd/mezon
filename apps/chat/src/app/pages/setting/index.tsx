@@ -8,7 +8,8 @@ import {
 	SettingRightProfile
 } from '@mezon/components';
 import { useEscapeKeyClose, useSettingFooter } from '@mezon/core';
-import { selectIsShowSettingFooter, showSettingFooterProps } from '@mezon/store';
+import type { showSettingFooterProps } from '@mezon/store';
+import { selectIsShowSettingFooter } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EUserSettings } from '@mezon/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';

@@ -12,6 +12,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import EmptyCanvas from './EmptyCanvas';
 import GroupCanvas from './GroupCanvas';
@@ -24,6 +25,7 @@ type CanvasProps = {
 };
 
 const CanvasModal = ({ onClose, rootRef }: CanvasProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -99,12 +101,12 @@ const CanvasModal = ({ onClose, rootRef }: CanvasProps) => {
 				<div className="flex flex-row items-center bg-theme-setting-nav border-b-theme-primary justify-between p-[16px] h-12 ">
 					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
 						<Icons.CanvasIcon />
-						<span className="text-base font-semibold cursor-default ">Canvas</span>
+						<span className="text-base font-semibold cursor-default ">{t('modals.canvas.title')}</span>
 					</div>
 					<SearchCanvas setKeywordSearch={setKeywordSearch} />
 					<div className="flex flex-row items-center gap-4">
 						<button onClick={handleCreateCanvas} className="px-3 h-6 rounded-lg btn-primary btn-primary-hover text-sm">
-							Create
+							{t('modals.canvas.create')}
 						</button>
 						<button onClick={onClose} className="text-theme-primary text-theme-primary-hover">
 							<Icons.Close defaultSize="w-4 h-4 " />

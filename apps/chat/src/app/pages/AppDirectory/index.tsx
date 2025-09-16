@@ -2,6 +2,7 @@ import { AppDirectoryList } from '@mezon/components';
 import { selectTheme } from '@mezon/store';
 import { Button, Icons, Image } from '@mezon/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,30 +12,31 @@ interface ICategoryArr {
 }
 
 const AppDirectory = () => {
+	const { t } = useTranslation('common');
 	const categoryArr: ICategoryArr[] = [
 		{
 			icon: <Icons.GlobalIcon />,
-			title: 'All'
+			title: t('appDirectory.categories.all')
 		},
 		{
 			icon: <Icons.TVIcon />,
-			title: 'Entertainment'
+			title: t('appDirectory.categories.entertainment')
 		},
 		{
 			icon: <Icons.GamingConsoleIcon />,
-			title: 'Games'
+			title: t('appDirectory.categories.games')
 		},
 		{
 			icon: <Icons.ToolIcon />,
-			title: 'Moderation and Tools'
+			title: t('appDirectory.categories.moderation')
 		},
 		{
 			icon: <Icons.IconFriends />,
-			title: 'Social'
+			title: t('appDirectory.categories.social')
 		},
 		{
 			icon: <Icons.UtilitiesIcon />,
-			title: 'Utilities'
+			title: t('appDirectory.categories.utilities')
 		}
 	];
 	const appearanceTheme = useSelector(selectTheme);
@@ -71,10 +73,10 @@ const AppDirectory = () => {
 									className="w-10 aspect-square object-cover"
 								/>
 								<div className="uppercase font-bold tracking-wide text-[20px] dark:text-textDarkTheme text-textLightTheme">Mezon</div>
-								<div className="font-semibold">App Directory</div>
+								<div className="font-semibold">{t('appDirectory.title')}</div>
 							</div>
 							<div className="heading uppercase text-[44px] font-extrabold dark:text-textDarkTheme text-textLightTheme max-lg:text-center">
-								Customise your clan with Apps
+								{t('appDirectory.heading')}
 							</div>
 							<div
 								className="search-bar relative w-full pr-[16px] flex dark:bg-[#1e1f22] bg-bgLightModeThird items-center rounded-md"
@@ -84,7 +86,7 @@ const AppDirectory = () => {
 									value={inputValue}
 									onChange={inputOnchange}
 									type="text"
-									placeholder="Search thousands of apps"
+									placeholder={t('appDirectory.searchPlaceholder')}
 									className="dark:bg-[#1e1f22] bg-bgLightModeThird flex-1 dark:text-textDarkTheme text-textLightTheme p-[12px] text-[16px] outline-none rounded-l-md"
 								/>
 
@@ -93,14 +95,14 @@ const AppDirectory = () => {
 										<Icons.SearchIcon className="dark:text-[#626365] text-textLightTheme w-[25px] cursor-pointer" />
 									) : (
 										<div className="flex gap-3 items-center">
-											<div className="text-[#626365] text-[12px]">'ENTER' to Search</div>
+											<div className="text-[#626365] text-[12px]">{t('appDirectory.enterToSearch')}</div>
 											<Icons.CloseIcon onClick={() => setInputValue('')} className="text-[#626365] w-[25px] cursor-pointer" />
 										</div>
 									)}
 								</div>
 							</div>
 						</div>
-						<div className="text-blue-500 hover:underline cursor-pointer absolute right-8 top-0">Learn More</div>
+						<div className="text-blue-500 hover:underline cursor-pointer absolute right-8 top-0">{t('appDirectory.learnMore')}</div>
 						<div className="block1-right w-fit flex flex-col justify-end">
 							<Image
 								src={`assets/images/app-directory-banner.svg`}
@@ -123,12 +125,12 @@ const AppDirectory = () => {
 					<div className="block3 flex max-lg:flex-col-reverse">
 						<div className="b3-left w-[45%] max-lg:w-full p-[32px] flex flex-col gap-[32px] justify-between dark:bg-[#232428] bg-[#ebedef] rounded-l-md max-lg:rounded-b-md">
 							<div className="flex flex-col justify-between gap-[16px]">
-								<div className="uppercase text-[11px] font-semibold">Listen Together</div>
-								<div className="text-[32px]">Rythm</div>
-								<div>Listen to music together with your friends anywhere on Mezon .</div>
+								<div className="uppercase text-[11px] font-semibold">{t('appDirectory.featured.listenTogether')}</div>
+								<div className="text-[32px]">{t('appDirectory.featured.rythm')}</div>
+								<div>{t('appDirectory.featured.description')}</div>
 							</div>
 							<div className="py-2 px-3 text-white bg-blue-600 hover:bg-blue-800 w-fit rounded-sm font-semibold cursor-pointer">
-								View app
+								{t('appDirectory.viewApp')}
 							</div>
 						</div>
 						<div className="b3-right w-[55%] max-lg:w-full">
@@ -149,11 +151,11 @@ const AppDirectory = () => {
 						<Icons.AppDirectoryFooterRobot />
 					</div>
 					<div className="flex flex-col justify-center flex-1">
-						<p className="text-base font-semibold">New too apps ?</p>
-						<p className="text-sm">Check out our starter guide to get familiar with all the cool things apps can do!</p>
+						<p className="text-base font-semibold">{t('appDirectory.footer.title')}</p>
+						<p className="text-sm">{t('appDirectory.footer.description')}</p>
 					</div>
 					<div className="px-8 items-center flex">
-						<Button>Learn More</Button>
+						<Button>{t('appDirectory.learnMore')}</Button>
 					</div>
 				</div>
 			</div>

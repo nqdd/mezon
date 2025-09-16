@@ -1,0 +1,52 @@
+{
+  "modal": {
+    "title": "Invite friends to {{target}}",
+    "privateEvent": "Private Event",
+    "privateRoom": "private room",
+    "clanInvite": "clan invite",
+    "sendLinkText": "Or, send a {{type}} link to a friend",
+    "expiresIn": "Your invite link expires in {{time}}"
+  },
+  "expiration": {
+    "30minutes": "30 minutes",
+    "1hour": "1 hour",
+    "6hours": "6 hours",
+    "12hours": "12 hours",
+    "1day": "1 day",
+    "7days": "7 days",
+    "never": "Never"
+  },
+  "maxUses": {
+    "noLimit": "No limit",
+    "1use": "1 use",
+    "5uses": "5 uses",
+    "10uses": "10 uses",
+    "25uses": "25 uses",
+    "50uses": "50 uses",
+    "100uses": "100 uses"
+  },
+  "generateLink": {
+    "expireAfter": "Expire After",
+    "maxNumberOfUses": "Max Number of Uses"
+  },
+  "buttons": {
+    "copy": "Copy",
+    "copyQR": "Copy QR",
+    "editInviteLink": "Edit invite link.",
+    "cancel": "Cancel",
+    "generateNewLink": "Generate a New Link",
+    "invite": "Invite",
+    "sent": "Sent"
+  },
+  "searchPlaceholder": "Search for friends",
+  "privateChannelDescription": "This channel is private, only select members and roles can view this channel.",
+  "noResults": "No result",
+  "messages": {
+    "qrCopiedSuccess": " Copied QR successfully !!"
+  },
+  "errors": {
+    "createInviteLink": "Error when create invite link",
+    "copyToClipboard": "Unable to copy to clipboard",
+    "copyFailed": "Copy failed"
+  }
+}

@@ -1,6 +1,7 @@
 import { Icons, Image } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
-import { RefObject, memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, type RefObject } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface LayoutProps {
 	sideBarIsOpen: boolean;
@@ -8,6 +9,7 @@ interface LayoutProps {
 
 const Layout = memo((props: LayoutProps) => {
 	const { sideBarIsOpen } = props;
+	const { t } = useTranslation('homepage');
 	return (
 		<div>
 			<section id="overview" className="flex flex-col items-center relative bg-[url('/assets/pattern.png')]">
@@ -17,10 +19,10 @@ const Layout = memo((props: LayoutProps) => {
 					className={`w-10/12 pt-[50px] pb-[50px] flex flex-col gap-[64px] max-md:gap-[32px] max-lg:w-full max-lg:pt-[48px] max-lg:pb-[48px] max-md:px-[16px] ${sideBarIsOpen ? 'unset' : 'relative'}`}
 				>
 					<div className="md:px-[32px] flex flex-col gap-[20px] text-center">
-						<div className="text-[36px] leading-[44px] font-semibold text-[#ffffff]">Overview </div>
+						<div className="text-[36px] leading-[44px] font-semibold text-[#ffffff]">{t('layout.overview.title')}</div>
 						<div className="text-[20px] leading-[30px] font-normal text-white">
-							<span className="text-[#8D5BDF]">Mezon</span> is a new way to communicate with your team.
-							<br /> It's faster, better organized, better for WFH.{' '}
+							<span className="text-[#8D5BDF]">Mezon</span> {t('layout.overview.subtitle')}
+							<br /> {t('layout.overview.description')}
 						</div>
 					</div>
 					<div className="md:px-[32px] flex items-stretch gap-[64px] max-lg:flex-col max-lg:gap-[32px]">
@@ -36,14 +38,12 @@ const Layout = memo((props: LayoutProps) => {
 									backgroundClip: 'text'
 								}}
 							>
-								Workstation
+								{t('layout.cards.workstation.title')}
 							</div>
 							<Image src={`assets/workstation.png`} className="w-[100px] h-[100px]" />
 							<div className="flex flex-col items-center gap-[20px] text-center flex-grow">
 								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									A digital workspace that streamlines communication, collaboration, and task management by integrating with various
-									systems and tools. It provides structured spaces for teams, projects, and departments while ensuring seamless
-									access to information and workflows
+									{t('layout.cards.workstation.description')}
 								</div>
 							</div>
 						</AnimatedSection>
@@ -60,15 +60,11 @@ const Layout = memo((props: LayoutProps) => {
 									backgroundClip: 'text'
 								}}
 							>
-								Ecosystem
+								{t('layout.cards.ecosystem.title')}
 							</div>
 							<Image src={`assets/ecosytem.png`} className="w-[100px] h-[100px]" />
 							<div className="flex flex-col items-center gap-[20px] text-center flex-grow">
-								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									A dynamic digital environment that combines work and social elements, offering interactive and recreational
-									features. It supports virtual transactions, engagement activities, and community-building to enhance user
-									experience.
-								</div>
+								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">{t('layout.cards.ecosystem.description')}</div>
 							</div>
 						</AnimatedSection>
 						<AnimatedSection
@@ -83,14 +79,11 @@ const Layout = memo((props: LayoutProps) => {
 									backgroundClip: 'text'
 								}}
 							>
-								AI Agent
+								{t('layout.cards.aiAgent.title')}
 							</div>
 							<Image src={`assets/aiagent.png`} className="w-[100px] h-[100px]" />
 							<div className="flex flex-col items-center gap-[20px] text-center flex-grow">
-								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									An intelligent system that automates tasks, assists with information management, and optimizes workflows. It
-									enhances productivity through features like reminders, monitoring, and automated communication.
-								</div>
+								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">{t('layout.cards.aiAgent.description')}</div>
 							</div>
 						</AnimatedSection>
 					</div>
@@ -106,7 +99,7 @@ const Layout = memo((props: LayoutProps) => {
 							className="tracking-[-.02em] text-center font-semibold text-[36px] leading-[44px] text-[#F4F7F9] md:px-[32px] text-black"
 							data-e2e={generateE2eId('homepage.layout.title.features')}
 						>
-							Our features
+							{t('layout.features.title')}
 						</h2>
 						<div
 							className="text-[26px] leading-[30px] font-light text-transparent text-center"
@@ -116,7 +109,7 @@ const Layout = memo((props: LayoutProps) => {
 								backgroundClip: 'text'
 							}}
 						>
-							Comprehensive Communication Tools
+							{t('layout.features.subtitle')}
 						</div>
 					</div>
 					<div className="flex flex-col items-center gap-[15px] text-cente h-100">
@@ -141,10 +134,13 @@ const Layout = memo((props: LayoutProps) => {
 											backgroundClip: 'text'
 										}}
 									>
-										<span className="text-[30px] leading-[48px] max-lg:text-[26px] font-bold">Mezon Mainnet </span>
+										<span className="text-[30px] leading-[48px] max-lg:text-[26px] font-bold">
+											{t('layout.featureCards.mezonMainnet.title')}
+										</span>
 										<br></br>
 										<span className="md:mt-5 mt-10 text-[26px]  max-lg:text-[18px] font-normal leading-[24px]">
-											The Zero-Fee, High-Speed Layer 1 <br></br>Blockchain
+											{t('layout.featureCards.mezonMainnet.subtitle')} <br></br>
+											{t('layout.featureCards.mezonMainnet.description')}
 										</span>
 									</div>
 								</AnimatedSection>
@@ -161,9 +157,13 @@ const Layout = memo((props: LayoutProps) => {
 											backgroundClip: 'text'
 										}}
 									>
-										<span className="text-[30px] max-lg:text-[26px] font-bold">Advanced Developer </span>
+										<span className="text-[30px] max-lg:text-[26px] font-bold">
+											{t('layout.featureCards.developerApi.title')}
+										</span>
 										<br></br>
-										<span className="md:mt-5 mt-10 text-[26px] max-lg:text-[18px] font-normal leading-[24px]">API Platform</span>
+										<span className="md:mt-5 mt-10 text-[26px] max-lg:text-[18px] font-normal leading-[24px]">
+											{t('layout.featureCards.developerApi.subtitle')}
+										</span>
 									</div>
 								</AnimatedSection>
 							</div>
@@ -182,12 +182,12 @@ const Layout = memo((props: LayoutProps) => {
 											backgroundClip: 'text'
 										}}
 									>
-										{' '}
-										<span className="text-[45px] leading-[48px] max-lg:text-[26px] font-bold mr-20 max-lg:mr-2.5">Gaming</span>
+										<span className="text-[45px] leading-[48px] max-lg:text-[26px] font-bold mr-20 max-lg:mr-2.5">
+											{t('layout.featureCards.gaming.title')}
+										</span>
 										<br></br>
 										<span className="md:mt-5 mt-10 text-[26px] max-lg:text-[18px] font-normal leading-[24px]">
-											{' '}
-											& Entertainment
+											{t('layout.featureCards.gaming.subtitle')}
 										</span>
 									</div>
 								</AnimatedSection>
@@ -204,12 +204,12 @@ const Layout = memo((props: LayoutProps) => {
 											backgroundClip: 'text'
 										}}
 									>
-										{' '}
-										<span className="text-[30px] leading-[48px] max-lg:text-[26px] font-bold">Customizable</span>
+										<span className="text-[30px] leading-[48px] max-lg:text-[26px] font-bold">
+											{t('layout.featureCards.customizable.title')}
+										</span>
 										<br></br>
 										<span className="md:mt-5 mt-10 text-[26px] max-lg:text-[18px] font-normal leading-[24px] ml-10">
-											{' '}
-											& Scalable Platform
+											{t('layout.featureCards.customizable.subtitle')}
 										</span>
 									</div>
 								</AnimatedSection>
@@ -274,7 +274,7 @@ const IconCard: React.FC<IconCardProps> = ({ icon, label }) => {
 	);
 };
 
-const IconGrid: React.FC = () => {
+const _IconGrid: React.FC = () => {
 	const items = [
 		{ icon: <Icons.MessageSquareIcon className="max-md:w-5" />, label: 'Text' },
 		{ icon: <Icons.VoiceIcon className="max-md:w-5" />, label: 'Voice' },
@@ -312,13 +312,14 @@ export const useIntersectionObserver = (elementRef: RefObject<Element>, options:
 			}
 		}, options);
 
-		if (elementRef.current) {
-			observer.observe(elementRef.current);
+		const currentElement = elementRef.current;
+		if (currentElement) {
+			observer.observe(currentElement);
 		}
 
 		return () => {
-			if (elementRef.current) {
-				observer.unobserve(elementRef.current);
+			if (currentElement) {
+				observer.unobserve(currentElement);
 			}
 		};
 	}, [elementRef, options, hasAnimated]);

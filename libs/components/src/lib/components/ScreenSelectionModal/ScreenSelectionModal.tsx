@@ -1,23 +1,26 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { useAppDispatch, voiceActions } from '@mezon/store';
 import { memo, useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ScreenListItems from './ScreenListItems';
 
-const TABS = [
-	{ label: 'Application', value: 'window' },
-	{ label: 'Entire Screen', value: 'screen' },
-	{ label: 'Device', value: 'Device' }
-];
 
 type ScreenSelectionModalProps = {
 	onClose: () => void;
 };
 
 const ScreenSelectionModal = memo(({ onClose }: ScreenSelectionModalProps) => {
+	const { t } = useTranslation('screenShare');
 	const modalRef = useRef<HTMLDivElement>(null);
 	const dispatch = useAppDispatch();
 	const [currentTab, setCurrentTab] = useState(0);
 	const [audio, setAudio] = useState(false);
+
+	const TABS = [
+		{ label: t('applicationWindow'), value: 'window' },
+		{ label: t('entireScreen'), value: 'screen' },
+		{ label: 'Device', value: 'Device' }
+	];
 
 	const handleClose = useCallback(() => {
 		dispatch(voiceActions.setShowSelectScreenModal(false));
@@ -51,7 +54,7 @@ const ScreenSelectionModal = memo(({ onClose }: ScreenSelectionModalProps) => {
 						</button>
 					))}
 					<div className="flex-1 items-center justify-end flex gap-2">
-						<p className="inline-block text-sm font-semibold">Share Audio</p>
+						<p className="inline-block text-sm font-semibold">{t('shareAudio')}</p>
 						<input
 							type="checkbox"
 							checked={audio}

@@ -10,7 +10,9 @@ import {
 import { Icons } from '@mezon/ui';
 import { TypeMessage, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ReactNode, memo, useEffect, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import { memo, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ModalInvite from '../ListMemberInvite/modalInvite';
@@ -19,6 +21,7 @@ export type OnBoardWelcomeProps = {
 };
 
 export function OnBoardWelcome({ nextMessageId }: OnBoardWelcomeProps) {
+	const { t } = useTranslation('chatWelcome');
 	const numberMemberClan = useAppSelector(selectMembersClanCount);
 	const numberChannel = useSelector(selectAllChannels);
 	const currentChannel = useSelector(selectCurrentChannel);
@@ -61,65 +64,43 @@ export function OnBoardWelcome({ nextMessageId }: OnBoardWelcomeProps) {
 						<img src={currentClan?.banner} />
 					) : (
 						<div className="w-full h-28 font-bold text-2xl text-theme-primary rounded-lg flex items-center justify-center">
-							<p className="[text-shadow:_0_1px_2px_#ffffff]">Click Launch App To Start</p>
+							<p className="[text-shadow:_0_1px_2px_#ffffff]">{t('onboard.clickLaunchToStart')}</p>
 						</div>
 					)}
 				</div>
 			) : (
 				<>
-					<Onboarditem
-						icon={<Icons.AddPerson />}
-						title="Invite your friends"
-						tick={numberMemberClan > 1}
-						onClick={openInviteClanModal}
-					/>
-					<Onboarditem
-						icon={<Icons.Sent />}
-						title="Send your first message"
-						tick={checkLastMessage}
-						onClick={handleSendMessage}
-					/>
-					<Onboarditem
-						icon={<Icons.Download />}
-						title="Download the Mezon App"
-						tick={true}
-						onClick={handleSendMessage}
-					/>
-					<Onboarditem
-						icon={<Icons.Hashtag />}
-						title="Create your channel"
-						tick={numberChannel.length > 1}
-						onClick={handleCreateChannel}
-					/>
+					<Onboarditem icon={<Icons.AddPerson />} title={t('onboard.inviteFriends')} tick={numberMemberClan > 1} onClick={openInviteClanModal} />
+					<Onboarditem icon={<Icons.Sent />} title={t('onboard.sendFirstMessage')} tick={checkLastMessage} onClick={handleSendMessage} />
+					<Onboarditem icon={<Icons.Download />} title={t('onboard.downloadApp')} tick={true} onClick={handleSendMessage} />
+					<Onboarditem icon={<Icons.Hashtag />} title={t('onboard.createChannel')} tick={numberChannel.length > 1} onClick={handleCreateChannel} />
 				</>
 			)}
 		</div>
 	);
 }
 
-const Onboarditem = memo(
-	({ icon, title, tick, onClick }: { icon: ReactNode; title: string; tick: boolean; onClick: () => void }) => {
-		const handleOnClickItem = () => {
-			if (!tick) {
-				onClick();
-			}
-		};
-		return (
-			<div
-				className="w-[400px] gap-4 h-[72px] items-center flex p-4 text-sm font-semibold text-theme-primary-active text-theme-primary-hover bg-item-hover bg-item-theme rounded-lg hover:cursor-pointer"
-				onClick={handleOnClickItem}
-				data-e2e={generateE2eId('onboarding.chat.guide_sections')}
-			>
-				{icon}
-				<div className="flex-1 ">{title}</div>
-				{tick ? (
-					<div className="flex items-center justify-center rounded-full aspect-square h-8 bg-green-600">
-						<Icons.Tick fill="white" />
-					</div>
-				) : (
-					<Icons.ArrowRight />
-				)}
-			</div>
-		);
-	}
-);
+const Onboarditem = memo(({ icon, title, tick, onClick }: { icon: ReactNode; title: string; tick: boolean; onClick: () => void }) => {
+	const handleOnClickItem = () => {
+		if (!tick) {
+			onClick();
+		}
+	};
+	return (
+		<div
+			className="w-[400px] gap-4 h-[72px] items-center flex p-4 text-sm font-semibold text-theme-primary-active text-theme-primary-hover bg-item-hover bg-item-theme rounded-lg hover:cursor-pointer"
+			onClick={handleOnClickItem}
+			data-e2e={generateE2eId('onboarding.chat.guide_sections')}
+		>
+			{icon}
+			<div className="flex-1 ">{title}</div>
+			{tick ? (
+				<div className="flex items-center justify-center rounded-full aspect-square h-8 bg-green-600">
+					<Icons.Tick fill="white" />
+				</div>
+			) : (
+				<Icons.ArrowRight />
+			)}
+		</div>
+	);
+});

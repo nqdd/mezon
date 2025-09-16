@@ -1,0 +1,25 @@
+{
+  "inbox": "Inbox",
+  "tabs": {
+    "forYou": "For you",
+    "messages": "Messages",
+    "mentions": "Mentions",
+    "topics": "Topics"
+  },
+  "empty": {
+    "forYou": {
+      "title": "Nothing here yet",
+      "description": "Come back for notifications on events, streams, and more."
+    },
+    "messages": {
+      "title": "You're all caught up!",
+      "protip": "Protip:",
+      "description": "Open the Inbox by pressing CTRL+I, and mark your top message as read with CTRL+Shift+E."
+    },
+    "mentions": {
+      "title": "You made it through everything!",
+      "protip": "Protip:",
+      "description": "Whenever someone mentions you it will be saved here for 7 days."
+    }
+  }
+}
