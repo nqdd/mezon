@@ -13,6 +13,7 @@ import {
 	selectIsShowChatVoice,
 	selectIsShowSettingFooter,
 	selectShowModelEvent,
+	selectStatusInVoice,
 	selectStatusMenu,
 	selectTokenJoinVoice,
 	selectVoiceFullScreen,
@@ -74,7 +75,14 @@ const ChannelVoice = memo(
 				).unwrap();
 
 				if (result) {
-					await participantMeetState(ParticipantMeetState.JOIN, currentChannel?.clan_id as string, currentChannel?.channel_id as string);
+					const meInVoice = selectStatusInVoice(store.getState(), userProfile?.user?.id || '');
+					if (!meInVoice) {
+						await participantMeetState(
+							ParticipantMeetState.JOIN,
+							currentChannel?.clan_id as string,
+							currentChannel?.channel_id as string
+						);
+					}
 					dispatch(voiceActions.setJoined(true));
 					dispatch(voiceActions.setToken(result));
 					dispatch(
