@@ -18,6 +18,5 @@
     "copyImage": "Copied Image",
     "copyImageFailed": "Failed to copy image: {{error}}",
     "enable": "Enable",
-    "poorConnection": "Poor connection",
-    "descPoorConnection": "Try moving to get better signal"
+    "poorConnection": "You are currently offline."
 }
