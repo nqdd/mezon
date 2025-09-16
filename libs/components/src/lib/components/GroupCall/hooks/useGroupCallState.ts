@@ -102,7 +102,7 @@ export const useGroupCallState = (): GroupCallStateHookReturn => {
 
 	const endGroupCall = useCallback(() => {
 		dispatch(groupCallActions.endGroupCall());
-		dispatch(voiceActions.resetVoiceSettings());
+		dispatch(voiceActions.resetVoiceControl());
 	}, [dispatch]);
 
 	const setLoading = useCallback(
