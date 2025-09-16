@@ -49,5 +49,10 @@
 		"communityGuidelines": "Quy tắc cộng đồng",
 		"back": "Quay lại",
 		"create": "Tạo"
+	},
+	"limitModal": {
+		"title": "Đã đạt giới hạn!",
+		"message": "Bạn đã tham gia 50 clan. Bạn cần rời khỏi một clan trước khi có thể tham gia hoặc tạo clan khác.",
+		"okayButton": "Đồng ý"
 	}
 }

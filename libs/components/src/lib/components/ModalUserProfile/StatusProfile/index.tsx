@@ -160,7 +160,6 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					onClose();
 				}}
 			/>,
-			<div className="w-full border-b-theme-primary opacity-70 text-center my-2"></div>,
 			<ItemStatusUpdate
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.idle')}
@@ -228,7 +227,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					}}
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
 				>
-					<div className="capitalize text-theme-primary">
+					<div className="capitalize ml-[1px] text-theme-primary">
 						<ItemStatus children={status} dropdown startIcon={statusIcon(status)} />
 					</div>
 				</Menu>
@@ -238,6 +237,11 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				<Menu
 					menu={menuAccount}
 					trigger="click"
+					placement="bottomRight"
+					align={{
+						offset: [0, 10],
+						points: ['br']
+					}}
 					className="bg-theme-setting-primary border-none ml-2 py-[6px] px-[8px] w-[100px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full"
 				>
 					<div>

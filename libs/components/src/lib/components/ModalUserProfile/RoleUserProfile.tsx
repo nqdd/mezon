@@ -1,6 +1,6 @@
 import { usePermissionChecker, useRoles, UserRestrictionZone } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	selectAllRolesClan,
 	selectCurrentClan,
 	selectCurrentClanId,
@@ -14,7 +14,8 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID } from '@mezon/utils';
-import { ChangeEvent, Dispatch, SetStateAction, useMemo, useState } from 'react';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
@@ -139,9 +140,9 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 				</div>
 			)}
 			<UserRestrictionZone policy={hasPermissionEditRole}>
-				<div className="relative flex items-center justify-center">
+				<div className="relative flex items-center justify-center border-theme-primary mt-1">
 					{isVisible ? (
-						<div className="absolute bottom-8 dark:bg-transparent bg-transparent p-0 max-h-60 w-[300px]">
+						<div className="absolute bottom-8 dark:bg-transparent bg-transparent p-0 max-h-60 w-full">
 							<AddRolesComp addRole={addRole} filteredListRoleBySearch={filteredListRoleBySearch} setSearchTerm={setSearchTerm} />
 						</div>
 					) : null}
@@ -243,7 +244,10 @@ const RoleClanItem = ({
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			)}
-			<span className="text-xs font-medium">{role.title}</span>
+			<span className="text-xs font-medium truncate overflow-hidden max-w-[120px] whitespace-nowrap" title={role.title}>
+				{' '}
+				{role.title}{' '}
+			</span>
 		</span>
 	);
 };

@@ -7,15 +7,16 @@ import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
+import type { CameraOptions } from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
-import { CameraOptions } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonButton from '../../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
-import { IFile } from '../../../../../componentUI/MezonImagePicker';
+import type { IFile } from '../../../../../componentUI/MezonImagePicker';
 import MezonInput from '../../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../../constants/icon_cdn';
+import useCheckClanLimit from '../../../../../hooks/useCheckClanLimit';
 import { validInput } from '../../../../../utils/validate';
 import { style } from './CreateClanModal.styles';
 
@@ -30,12 +31,17 @@ const CreateClanModal = memo(() => {
 	const { t } = useTranslation(['clan']);
 	const { sessionRef, clientRef } = useMezon();
 	const { createClans } = useClans();
+	const { checkClanLimit } = useCheckClanLimit();
 
 	const onClose = () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
 	const handleCreateClan = async () => {
+		const isClanLimit = checkClanLimit();
+		if (isClanLimit) {
+			return;
+		}
 		const store = await getStoreAsync();
 		const isDuplicate = await store.dispatch(checkDuplicateNameClan(nameClan.trim()));
 		if (isDuplicate?.payload) {

@@ -1,5 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { MAX_FILE_SIZE_10MB } from '@mezon/utils';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, View } from 'react-native';
@@ -19,7 +20,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { color } = useMixImageColor(avatar);
-	const avatarPickerRef = useRef<IMezonImagePickerHandler>();
+	const avatarPickerRef = useRef<IMezonImagePickerHandler>(null);
 	const { t } = useTranslation(['profile']);
 
 	const handleOnload = useCallback(
@@ -81,6 +82,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					style={{ borderWidth: 0, borderRadius: 0 }}
 					penPosition={{ right: 10, top: 10 }}
 					disabled={true}
+					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
 			</View>
 
@@ -99,6 +101,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					onPressAvatar={openAvatarBS}
 					imageHeight={400}
 					imageWidth={400}
+					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
 
 				<View style={[styles.onLineStatus]}></View>
