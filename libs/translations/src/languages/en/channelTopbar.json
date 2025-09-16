@@ -1,0 +1,132 @@
+{
+  "pageTitle": {
+    "channels": "Channels",
+    "members": "Members",
+    "guideClan": "Guide Clan"
+  },
+  "tooltips": {
+    "clickToEdit": "Click to edit group",
+    "startVoiceCall": "Start voice call",
+    "startVideoCall": "Start Video Call",
+    "showMemberList": "Show Member List",
+    "showUserProfile": "Show User Profile",
+    "files": "Files",
+    "canvas": "Canvas",
+    "threads": "Threads",
+    "notificationSettings": "Notification Settings",
+    "pinnedMessages": "Pinned Messages",
+    "members": "Members",
+    "showChat": "Show Chat",
+    "addFriendsToDM": "Add friends to DM",
+    "gallery": "Gallery"
+  },
+  "callMessages": {
+    "startedVoiceCall": "Started voice call",
+    "startedVideoCall": "Started video call"
+  },
+  "toastMessages": {
+    "groupChannelIdMissing": "Group channel ID is missing",
+    "dmChannelIdMissing": "Direct message channel ID is missing",
+    "youAreOnAnotherCall": "You are on another call"
+  },
+  "pinnedMessages": {
+    "emptyTitle": "This channel doesn't have any pinned messages... yet.",
+    "protip": "PROTIP:",
+    "emptyDescription": "Users with 'Manage Messages' permission can pin a message from its context menu.",
+    "unpinMessage": "Unpin Message",
+    "unpinConfirmation": "You sure you want to remove this pinned message?",
+    "cancel": "Cancel",
+    "unpinIt": "Unpin it"
+  },
+  "threads": {
+    "emptyTitle": "There are no threads.",
+    "emptyDescription": "Stay focused on a conversation with a thread - a temporary text channel.",
+    "createThread": "Create Thread"
+  },
+  "canvas": {
+    "emptyTitle": "There are no canvas.",
+    "emptyDescription": "Stay focused on a conversation with a canvas - a temporary text channel.",
+    "createCanvas": "Create Canvas"
+  },
+  "files": {
+    "emptyTitle": "There are no files.",
+    "emptyDescription": "Stay focused on a conversation with a file - a temporary text channel.",
+    "searchPlaceholder": "Search for File Name"
+  },
+  "fileItem": {
+    "download": "Download",
+    "sharedBy": "Shared by {{username}} {{time}}",
+    "attachmentFailed": "Attachment failed to load."
+  },
+  "notificationSetting": {
+    "muteChannel": "Mute Channel",
+    "unmuteChannel": "Unmute Channel",
+    "mutedUntil": "Muted until {{date}}",
+    "useCategoryDefault": "Use Category Default",
+    "muteOptions": {
+      "for15Minutes": "For 15 Minutes",
+      "for1Hour": "For 1 Hour",
+      "for3Hours": "For 3 Hours",
+      "for8Hours": "For 8 Hours",
+      "for24Hours": "For 24 Hours",
+      "untilTurnedBackOn": "Until I turn it back on"
+    }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "sentDate": "Sent Date",
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "dateRange": {
+      "from": "From {{date}}",
+      "to": "To {{date}}",
+      "range": "{{startDate}} - {{endDate}}"
+    },
+    "validation": {
+      "startDateBeforeEnd": "Start date must be before or equal to end date"
+    },
+    "buttons": {
+      "clearAll": "Clear all",
+      "apply": "Apply",
+      "clearDateFilter": "Clear date filter"
+    },
+    "emptyState": {
+      "noMediaFiles": "No media files found",
+      "noMediaFilesDateRange": "No media files found for the selected date range"
+    },
+    "loading": {
+      "olderImages": "Loading older images...",
+      "newerImages": "Loading newer images..."
+    },
+    "filesCount": "{{count}} files",
+    "imageError": "Error"
+  },
+  "modals": {
+    "threads": {
+      "title": "Threads",
+      "create": "Create",
+      "results": "Results"
+    },
+    "canvas": {
+      "title": "Canvas",
+      "create": "Create"
+    },
+    "files": {
+      "title": "File"
+    },
+    "pinnedMessages": {
+      "title": "Pinned Messages"
+    }
+  },
+  "createThread": {
+    "newThread": "New Thread",
+    "inviteMessage": "You can invite new people by @mentioning them.",
+    "validation": {
+      "invalidChannelName": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -)."
+    },
+    "threadName": "Thread Name",
+    "enterThreadName": "Enter Thread Name",
+    "privateThread": "Private Thread",
+    "privateThreadDescription": "Only people you invite and moderators can see"
+  }
+}

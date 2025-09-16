@@ -1,0 +1,34 @@
+{
+    "header": {
+        "title": "CREATE A NEW CHANNEL IN"
+    },
+    "channelType": {
+        "text": "Text",
+        "voice": "Voice", 
+        "forum": "Forum",
+        "announcement": "Announcement",
+        "apps": "Apps",
+        "stream": "Stream",
+        "descriptions": {
+            "text": "Send messages, images, GIFs, emoji, opinions, and puns",
+            "voice": "Hang out together with voice, video, and screen share", 
+            "forum": "Create a space for organized discussions",
+            "announcement": "Important updates for people in and out of the clan",
+            "apps": "Apps",
+            "stream": "Sharing hobbies activity"
+        }
+    },
+    "validation": {
+        "invalidName": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).",
+        "duplicateName": "The channel name already exists in the category. Please enter another name."
+    },
+    "privacy": {
+        "private": "Private Channel",
+        "description": "Only selected members and roles will be able to view this channel."
+    },
+    "buttons": {
+        "cancel": "Cancel",
+        "create": "Create Channel",
+        "creating": "Creating"
+    }
+}

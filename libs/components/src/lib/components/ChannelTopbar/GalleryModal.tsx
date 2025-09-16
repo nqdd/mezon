@@ -28,7 +28,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IImageWindowProps } from '@mezon/utils';
-import { ETypeLinkMedia, LoadMoreDirection, createImgproxyUrl, formatGalleryDate, getAttachmentDataForWindow } from '@mezon/utils';
+import { ETypeLinkMedia, LoadMoreDirection, convertDateStringI18n, createImgproxyUrl, getAttachmentDataForWindow } from '@mezon/utils';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import isElectron from 'is-electron';
 import type { RefObject } from 'react';
@@ -39,7 +39,7 @@ import InfiniteScroll from './InfiniteScroll';
 
 const DatePickerWrapper = lazy(() => import('../ChannelList/EventChannelModal/ModalCreate/DatePickerWrapper'));
 
-const DatePickerPlaceholder = () => <div className='w-full h-[32px] bg-theme-surface animate-pulse rounded'></div>;
+const DatePickerPlaceholder = () => <div className="w-full h-[32px] bg-theme-surface animate-pulse rounded"></div>;
 
 interface DateHeaderItem {
 	type: 'dateHeader';
@@ -62,7 +62,7 @@ interface GalleryModalProps {
 }
 
 export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
-	const { i18n } = useTranslation();
+	const { t, i18n } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
 	const currentClanId = useSelector(selectCurrentClanId) ?? '';
@@ -307,27 +307,30 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 	const formatDate = useCallback(
 		(date: Date) => {
-			return formatGalleryDate(date, i18n.language);
+			return convertDateStringI18n(date.toISOString(), t, i18n.language, { dateOnly: true });
 		},
-		[i18n.language]
+		[t, i18n.language]
 	);
 
-	const validateDateRange = useCallback((start: Date | null, end: Date | null): string | null => {
-		if (!start && !end) return null;
-		if (start && !end) return null;
-		if (!start && end) return null;
+	const validateDateRange = useCallback(
+		(start: Date | null, end: Date | null): string | null => {
+			if (!start && !end) return null;
+			if (start && !end) return null;
+			if (!start && end) return null;
 
-		if (start && end) {
-			const startDay = startOfDay(start);
-			const endDay = startOfDay(end);
+			if (start && end) {
+				const startDay = startOfDay(start);
+				const endDay = startOfDay(end);
 
-			if (startDay.getTime() > endDay.getTime()) {
-				return 'Start date must be before or equal to end date';
+				if (startDay.getTime() > endDay.getTime()) {
+					return t('gallery.validation.startDateBeforeEnd');
+				}
 			}
-		}
 
-		return null;
-	}, []);
+			return null;
+		},
+		[t]
+	);
 
 	const handleStartDateChange = useCallback(
 		(date: Date) => {
@@ -395,23 +398,26 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	}, [currentChannelId, currentClanId, dispatch]);
 
 	const getDateRangeText = useCallback(() => {
-		if (!startDate && !endDate) return 'Sent Date';
+		if (!startDate && !endDate) return t('gallery.sentDate');
 
 		const formatDateText = (date: Date) => format(date, 'dd/MM/yyyy');
 
-		if (startDate && !endDate) return `From ${formatDateText(startDate)}`;
-		if (!startDate && endDate) return `To ${formatDateText(endDate)}`;
+		if (startDate && !endDate) return t('gallery.dateRange.from', { date: formatDateText(startDate) });
+		if (!startDate && endDate) return t('gallery.dateRange.to', { date: formatDateText(endDate) });
 
 		if (startDate && endDate) {
 			if (isSameDay(startDate, endDate)) {
 				return formatDateText(startDate);
 			}
 
-			return `${formatDateText(startDate)} - ${formatDateText(endDate)}`;
+			return t('gallery.dateRange.range', {
+				startDate: formatDateText(startDate),
+				endDate: formatDateText(endDate)
+			});
 		}
 
-		return 'Sent Date';
-	}, [startDate, endDate]);
+		return t('gallery.sentDate');
+	}, [startDate, endDate, t]);
 
 	const handleImageClick = useCallback(
 		async (attachment: AttachmentEntity) => {
@@ -561,19 +567,19 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 		<div
 			ref={modalRef}
 			tabIndex={-1}
-			className='absolute top-8 right-0 rounded-md dark:shadow-shadowBorder shadow-shadowInbox z-[9999] origin-top-right'
+			className="absolute top-8 right-0 rounded-md dark:shadow-shadowBorder shadow-shadowInbox z-[9999] origin-top-right"
 		>
-			<div className='flex bg-theme-setting-primary flex-col rounded-md min-h-[400px] md:w-[480px] max-h-[80vh] lg:w-[540px] shadow-sm overflow-hidden'>
-				<div className='bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12'>
-					<div className='flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4'>
-						<Icons.ImageThumbnail defaultSize='w-4 h-4' />
-						<span className='text-base font-semibold cursor-default'>Gallery</span>
+			<div className="flex bg-theme-setting-primary flex-col rounded-md min-h-[400px] md:w-[480px] max-h-[80vh] lg:w-[540px] shadow-sm overflow-hidden">
+				<div className="bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12">
+					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
+						<Icons.ImageThumbnail defaultSize="w-4 h-4" />
+						<span className="text-base font-semibold cursor-default">{t('gallery.title')}</span>
 					</div>
-					<div className='flex-1 max-w-md mx-4'>
+					<div className="flex-1 max-w-md mx-4">
 						<button
 							ref={refs.setReference}
 							{...getReferenceProps()}
-							className='flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none'
+							className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none"
 						>
 							<span>{getDateRangeText()}</span>
 							<Icons.ArrowDown className={`w-3 h-3 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`} />
@@ -586,53 +592,53 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 										ref={refs.setFloating}
 										style={floatingStyles}
 										{...getFloatingProps()}
-										className='bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]'
-										data-floating-dropdown='true'
+										className="bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]"
+										data-floating-dropdown="true"
 									>
-										<div className='space-y-4'>
+										<div className="space-y-4">
 											<div>
-												<label className='block text-xs font-medium text-theme-secondary mb-2'>From Date</label>
+												<label className="block text-xs font-medium text-theme-secondary mb-2">{t('gallery.fromDate')}</label>
 												<Suspense fallback={<DatePickerPlaceholder />}>
 													<DatePickerWrapper
 														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
 															dateValidationError ? 'border-red-500' : 'border-theme-primary'
 														}`}
-														wrapperClassName='w-full'
+														wrapperClassName="w-full"
 														selected={startDate || new Date()}
 														onChange={handleStartDateChange}
-														dateFormat='dd/MM/yyyy'
+														dateFormat="dd/MM/yyyy"
 														minDate={endDate ? undefined : new Date(2020, 0, 1)}
 													/>
 												</Suspense>
 											</div>
 											<div>
-												<label className='block text-xs font-medium text-theme-secondary mb-2'>To Date</label>
+												<label className="block text-xs font-medium text-theme-secondary mb-2">{t('gallery.toDate')}</label>
 												<Suspense fallback={<DatePickerPlaceholder />}>
 													<DatePickerWrapper
 														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
 															dateValidationError ? 'border-red-500' : 'border-theme-primary'
 														}`}
-														wrapperClassName='w-full'
+														wrapperClassName="w-full"
 														selected={endDate || new Date()}
 														onChange={handleEndDateChange}
-														dateFormat='dd/MM/yyyy'
+														dateFormat="dd/MM/yyyy"
 														minDate={startDate || undefined}
 													/>
 												</Suspense>
 											</div>
 
 											{dateValidationError && (
-												<div className='text-red-500 text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded px-2 py-1'>
+												<div className="text-red-500 text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded px-2 py-1">
 													{dateValidationError}
 												</div>
 											)}
 
-											<div className='flex justify-between items-center'>
+											<div className="flex justify-between items-center">
 												<button
 													onClick={clearDateFilter}
-													className='text-theme-secondary text-xs focus:outline-none hover:underline'
+													className="text-theme-secondary text-xs focus:outline-none hover:underline"
 												>
-													Clear all
+													{t('gallery.buttons.clearAll')}
 												</button>
 												<button
 													onClick={handleApplyDateFilter}
@@ -643,7 +649,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 															: 'btn-primary btn-primary-hover text-white'
 													}`}
 												>
-													Apply
+													{t('gallery.buttons.apply')}
 												</button>
 											</div>
 										</div>
@@ -652,26 +658,26 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 							</FloatingPortal>
 						)}
 					</div>
-					<div className='flex flex-row items-center gap-4 text-theme-primary-hover'>
+					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">
 						<button onClick={onClose}>
-							<Icons.Close defaultSize='w-4 h-4' />
+							<Icons.Close defaultSize="w-4 h-4" />
 						</button>
 					</div>
 				</div>
 
-				<div className='flex flex-col gap-4 py-4 px-[16px] min-h-full flex-1 overflow-hidden'>
+				<div className="flex flex-col gap-4 py-4 px-[16px] min-h-full flex-1 overflow-hidden">
 					{virtualData.length === 0 ? (
-						<div className='flex flex-col items-center justify-center h-64 text-center'>
-							<Icons.ImageThumbnail defaultSize='w-12 h-12' className='text-theme-secondary opacity-50 mb-4' />
-							<p className='text-theme-secondary text-sm'>
-								{startDate || endDate ? 'No media files found for the selected date range' : 'No media files found'}
+						<div className="flex flex-col items-center justify-center h-64 text-center">
+							<Icons.ImageThumbnail defaultSize="w-12 h-12" className="text-theme-secondary opacity-50 mb-4" />
+							<p className="text-theme-secondary text-sm">
+								{startDate || endDate ? t('gallery.emptyState.noMediaFilesDateRange') : t('gallery.emptyState.noMediaFiles')}
 							</p>
 							{(startDate || endDate) && (
 								<button
 									onClick={clearDateFilter}
-									className='text-theme-primary hover:text-theme-primary-active text-sm underline mt-2'
+									className="text-theme-primary hover:text-theme-primary-active text-sm underline mt-2"
 								>
-									Clear date filter
+									{t('gallery.buttons.clearDateFilter')}
 								</button>
 							)}
 						</div>
@@ -684,6 +690,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 							isLoading={paginationState.isLoading}
 							hasMoreBefore={paginationState.hasMoreBefore}
 							hasMoreAfter={paginationState.hasMoreAfter}
+							t={t}
 						/>
 					)}
 				</div>
@@ -700,6 +707,7 @@ interface GalleryContentProps {
 	isLoading?: boolean;
 	hasMoreBefore?: boolean;
 	hasMoreAfter?: boolean;
+	t: (key: string, options?: any) => string;
 }
 
 interface ImageWithLoadingProps {
@@ -708,10 +716,11 @@ interface ImageWithLoadingProps {
 	className?: string;
 	onClick?: () => void;
 	cacheKey?: string;
+	t?: (key: string, options?: any) => string;
 }
 
 const ImageWithLoading = React.memo<ImageWithLoadingProps>(
-	({ src, alt, className, onClick, cacheKey }) => {
+	({ src, alt, className, onClick, cacheKey, t }) => {
 		const [isLoading, setIsLoading] = useState(true);
 		const [hasError, setHasError] = useState(false);
 
@@ -730,42 +739,42 @@ const ImageWithLoading = React.memo<ImageWithLoadingProps>(
 		};
 
 		return (
-			<div className='aspect-square relative cursor-pointer' onClick={onClick}>
+			<div className="aspect-square relative cursor-pointer" onClick={onClick}>
 				{isLoading && (
-					<div className='absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+					<div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
 						<svg
-							className='w-8 h-8 text-gray-400 dark:text-gray-500'
-							fill='currentColor'
-							viewBox='0 0 20 20'
-							xmlns='http://www.w3.org/2000/svg'
+							className="w-8 h-8 text-gray-400 dark:text-gray-500"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
 						>
 							<path
-								fillRule='evenodd'
-								d='M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z'
-								clipRule='evenodd'
+								fillRule="evenodd"
+								d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+								clipRule="evenodd"
 							/>
 						</svg>
 					</div>
 				)}
 
 				{hasError && (
-					<div className='absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center'>
-						<div className='text-center'>
+					<div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+						<div className="text-center">
 							<svg
-								className='w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-1'
-								fill='none'
-								stroke='currentColor'
-								viewBox='0 0 24 24'
-								xmlns='http://www.w3.org/2000/svg'
+								className="w-8 h-8 text-gray-400 dark:text-gray-500 mx-auto mb-1"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
 							>
 								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
+									strokeLinecap="round"
+									strokeLinejoin="round"
 									strokeWidth={2}
-									d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z'
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
 								/>
 							</svg>
-							<span className='text-xs text-gray-500'>Error</span>
+							<span className="text-xs text-gray-500">{t?.('gallery.imageError') || 'Error'}</span>
 						</div>
 					</div>
 				)}
@@ -788,7 +797,8 @@ const ImageWithLoading = React.memo<ImageWithLoadingProps>(
 			prevProps.src === nextProps.src &&
 			prevProps.alt === nextProps.alt &&
 			prevProps.className === nextProps.className &&
-			prevProps.cacheKey === nextProps.cacheKey
+			prevProps.cacheKey === nextProps.cacheKey &&
+			prevProps.t === nextProps.t
 		);
 	}
 );
@@ -802,7 +812,8 @@ const GalleryContent = ({
 	onLoadMore,
 	isLoading = false,
 	hasMoreBefore = false,
-	hasMoreAfter = false
+	hasMoreAfter = false,
+	t
 }: GalleryContentProps) => {
 	const [isLoadingMore, setIsLoadingMore] = useState(false);
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -849,9 +860,9 @@ const GalleryContent = ({
 	return (
 		<InfiniteScroll
 			ref={scrollContainerRef}
-			className='h-full overflow-y-auto thread-scroll'
+			className="h-full overflow-y-auto thread-scroll"
 			items={virtualData}
-			itemSelector='.gallery-item'
+			itemSelector=".gallery-item"
 			cacheBuster={virtualData.length}
 			noScrollRestore={false}
 			noScrollRestoreOnTop={false}
@@ -865,27 +876,27 @@ const GalleryContent = ({
 			}}
 		>
 			{hasMoreBefore && (isLoadingMore || isLoading) && (
-				<div className='flex items-center justify-center py-4 text-theme-secondary text-sm'>
-					<div className='animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2'></div>
-					Loading older images...
+				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
+					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+					{t('gallery.loading.olderImages')}
 				</div>
 			)}
 
-			<div className='px-4 py-4 space-y-6'>
+			<div className="px-4 py-4 space-y-6">
 				{virtualData.map((item, _index) => {
 					if (item.type === 'dateHeader') {
 						return (
-							<div key={`${item.dateKey}-header`} className='flex items-center gap-3'>
-								<h3 className='text-base font-semibold text-theme-primary'>{formatDate(item.date)}</h3>
-								<div className='flex-1 h-px bg-theme-border'></div>
-								<span className='text-xs text-theme-secondary'>{item.count} files</span>
+							<div key={`${item.dateKey}-header`} className="flex items-center gap-3">
+								<h3 className="text-base font-semibold text-theme-primary">{formatDate(item.date)}</h3>
+								<div className="flex-1 h-px bg-theme-border"></div>
+								<span className="text-xs text-theme-secondary">{t('gallery.filesCount', { count: item.count })}</span>
 							</div>
 						);
 					}
 
 					if (item.type === 'imagesGrid') {
 						return (
-							<div key={`${item.dateKey}-grid`} className='gallery-item grid grid-cols-3 gap-3'>
+							<div key={`${item.dateKey}-grid`} className="gallery-item grid grid-cols-3 gap-3">
 								{item.attachments.map((attachment: AttachmentEntity, attachmentIndex: number) => {
 									const cacheKey = attachment.id || attachment.message_id || `${item.dateKey}-${attachment.url}-${attachmentIndex}`;
 									return (
@@ -895,6 +906,7 @@ const GalleryContent = ({
 											src={createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })}
 											alt={attachment.filename || 'Media'}
 											onClick={() => handleImageClick(attachment)}
+											t={t}
 										/>
 									);
 								})}
@@ -907,9 +919,9 @@ const GalleryContent = ({
 			</div>
 
 			{hasMoreAfter && (isLoadingMore || isLoading) && (
-				<div className='flex items-center justify-center py-4 text-theme-secondary text-sm'>
-					<div className='animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2'></div>
-					Loading newer images...
+				<div className="flex items-center justify-center py-4 text-theme-secondary text-sm">
+					<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-theme-primary mr-2"></div>
+					{t('gallery.loading.newerImages')}
 				</div>
 			)}
 		</InfiniteScroll>

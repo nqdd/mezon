@@ -152,5 +152,15 @@
         "sender": "Sender",
         "locationOf": "{{name}}'s location"
     },
-    "sharedBy": "Shared by {{username}}"
+    "sharedBy": "Shared by {{username}}",
+    "systemMessages": {
+        "pinned": "pinned",
+        "aMessage": "a message",
+        "toThisChannel": "to this channel. See",
+        "allPinned": "all pinned",
+        "messages": "messages.",
+        "startedAThread": "started a thread:",
+        "seeAllThreads": "See",
+        "allThreads": "all threads"
+    }
 }

@@ -28,6 +28,7 @@ import {
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../components';
 import { ListGroupSearchModal } from './ListGroupSeacrhModal';
@@ -37,6 +38,7 @@ export type SearchModalProps = {
 };
 
 function SearchModal({ onClose }: SearchModalProps) {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const allClanUsersEntitiesRef = useRef(useSelector(selectEntitesUserClans));
 	const dmGroupChatListRef = useRef(useAppSelector(selectAllDirectMessages));
@@ -327,7 +329,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 				<div className="flex flex-col">
 					<InputField
 						type="text"
-						placeholder="Where would you like to go?"
+						placeholder={t('searchModal.placeholder')}
 						className="py-[18px] text-[16px] mt-2 mb-[15px] bg-input-secondary rounded-lg text-theme-message border-theme-primary"
 						onChange={(e) => debouncedSetSearchText(e.target.value)}
 						autoFocus
@@ -348,10 +350,11 @@ function SearchModal({ onClose }: SearchModalProps) {
 export default memo(SearchModal);
 
 const FooterNoteModal = memo(() => {
+	const { t } = useTranslation('common');
 	return (
 		<div className="pt-2">
 			<span className="text-[13px] font-medium text-theme-primary">
-				<span className="text-[#2DC770] opacity-100 font-bold">PROTIP: </span>Start searches with @, # to narrow down results.
+				<span className="text-[#2DC770] opacity-100 font-bold">{t('searchModal.protip')} </span>{t('searchModal.protipDescription')}
 			</span>
 		</div>
 	);

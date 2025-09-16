@@ -1,0 +1,30 @@
+{
+  "missions": {
+    "sendMessage": {
+      "description": "Member sends a message in the channel",
+      "name": "mission1"
+    },
+    "visit": {
+      "description": "Member visits the channel",
+      "name": "mission2"
+    },
+    "doSomething": {
+      "description": "Reading this mission",
+      "name": "mission3"
+    }
+  },
+  "form": {
+    "title": "What should the new member do?",
+    "placeholder": "Ex. Post a photo of your pet",
+    "channelTitle": "Where should they do it?",
+    "channelNote": "Channels must be viewable by @everyone (public channel)",
+    "completeWhen": "This task is complete when:",
+    "required": "This field is required.",
+    "minCharacters": "Actions must be at least 7 characters"
+  },
+  "buttons": {
+    "remove": "Remove",
+    "save": "Save",
+    "add": "Add"
+  }
+}

@@ -1,5 +1,5 @@
 import { ActionEmitEvent, getUpdateOrAddClanChannelCache, save, STORAGE_CLAN_ID, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	channelsActions,
 	clansActions,
@@ -20,17 +20,17 @@ import {
 import type { INotification, NotificationEntity } from '@mezon/utils';
 import { NotificationCategory, sleep, sortNotificationsByDate, TypeMessage } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, DeviceEventEmitter, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import BadgeFriendRequestNoti from './BadgeFriendRequestNoti';
 import EmptyNotification from './EmptyNotification';
 import NotificationItem from './NotificationItem';
 import NotificationItemOption from './NotificationItemOption';
@@ -355,7 +355,35 @@ const Notifications = () => {
 			}
 		};
 	}, []);
-
+	const notificationMenu = useMemo(
+		() => [
+			{
+				type: InboxType.MENTIONS,
+				title: t('tabNotify.mention'),
+				icon: IconCDN.atIcon,
+				onPress: () => handleTabChange(InboxType.MENTIONS)
+			},
+			{
+				type: InboxType.MESSAGES,
+				title: t('tabNotify.messages'),
+				icon: IconCDN.chatIcon,
+				onPress: () => handleTabChange(InboxType.MESSAGES)
+			},
+			{
+				type: InboxType.TOPICS,
+				title: t('tabNotify.topics'),
+				icon: IconCDN.discussionIcon,
+				onPress: () => handleTabChange(InboxType.TOPICS)
+			},
+			{
+				type: InboxType.INDIVIDUAL,
+				title: t('tabNotify.forYou'),
+				icon: IconCDN.bellIcon,
+				onPress: () => handleTabChange(InboxType.INDIVIDUAL)
+			}
+		],
+		[]
+	);
 	return (
 		<View style={styles.notifications}>
 			<LinearGradient
@@ -364,7 +392,7 @@ const Notifications = () => {
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<View style={styles.notificationsHeader}>
+			<View>
 				{isTabletLandscape && (
 					<Pressable onPress={handleGoback}>
 						<View style={styles.notificationHeaderIcon}>
@@ -372,25 +400,65 @@ const Notifications = () => {
 						</View>
 					</Pressable>
 				)}
-				<Text style={styles.notificationHeaderTitle}>{t('headerTitle')}</Text>
-				<Pressable onPress={() => openBottomSheet(ENotifyBsToShow.notification)}>
-					<View style={styles.notificationHeaderIcon}>
-						<MezonIconCDN icon={IconCDN.moreHorizontalIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
-					</View>
-				</Pressable>
+				<View style={styles.wrapperTitleHeader}>
+					<Text style={styles.notificationHeaderTitle}>{t('headerTitle')}</Text>
+					<BadgeFriendRequestNoti />
+				</View>
+				<ScrollView horizontal style={styles.wrapperTabType} showsHorizontalScrollIndicator={false}>
+					{notificationMenu.map((item, index) => (
+						<Pressable
+							key={index}
+							onPress={item.onPress}
+							style={[
+								styles.itemTabType,
+								{
+									backgroundColor: selectedTabs === item.type ? baseColor.blurple : themeValue.secondaryLight,
+									borderColor: selectedTabs === item.type ? baseColor.blurple : themeValue.borderDim
+								}
+							]}
+						>
+							<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_4 }}>
+								<MezonIconCDN
+									icon={item.icon}
+									color={selectedTabs === item.type ? 'white' : themeValue.text}
+									width={size.s_16}
+									height={size.s_16}
+								/>
+								<Text
+									style={[
+										styles.textTabType,
+										{
+											color: selectedTabs === item.type ? 'white' : themeValue.text
+										}
+									]}
+								>
+									{item.title}
+								</Text>
+							</View>
+							{/* todo: badge */}
+							{/*<View style={styles.badgeItemTabType}>*/}
+							{/*	<Text style={styles.textBadgeItemTabType}>1</Text>*/}
+							{/*</View>*/}
+						</Pressable>
+					))}
+				</ScrollView>
 			</View>
 
 			{firstLoading ? (
 				<SkeletonNotification numberSkeleton={8} />
 			) : notificationsFilter?.length ? (
-				<FlashList
+				<FlatList
 					showsVerticalScrollIndicator={false}
 					data={notificationsFilter}
 					renderItem={renderItem}
 					contentContainerStyle={{
 						paddingBottom: size.s_100 * 2
 					}}
-					estimatedItemSize={200}
+					removeClippedSubviews={true}
+					maxToRenderPerBatch={10}
+					updateCellsBatchingPeriod={50}
+					windowSize={5}
+					initialNumToRender={10}
 					keyExtractor={keyExtractor}
 					onEndReached={fetchMoreData}
 					onEndReachedThreshold={0.5}

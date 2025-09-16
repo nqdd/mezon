@@ -4,6 +4,7 @@ import { Icons } from '@mezon/ui';
 import { ContenSubmitEventProps, OptionEvent, filterOptionReactSelect } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
@@ -48,6 +49,7 @@ const LocationModal = (props: LocationModalProps) => {
 		isChannelEvent = false,
 		isPrivateEvent = false
 	} = props;
+	const { t } = useTranslation('eventCreator');
 	const [errorVoice, setErrorVoice] = useState(false);
 
 	const displaySelectAudiences = (!isEditEventAction && !choicePrivateEvent) || (isEditEventAction && isChannelEvent);
@@ -156,15 +158,15 @@ const LocationModal = (props: LocationModalProps) => {
 	return (
 		<div ref={modalRef}>
 			<div className="flex flex-col mb-4">
-				<h3 className="text-xl text-center font-semibold ">Where is your event?</h3>
-				<p className=" text-center">So no one gets lost on where to go.</p>
+				<h3 className="text-xl text-center font-semibold ">{t('screens.eventType.title')}</h3>
+				<p className=" text-center">{t('screens.eventType.subtitle')}</p>
 			</div>
 			<div className={`flex flex-col mb-4 ${errorVoice ? 'gap-y-2' : 'gap-y-4'}`}>
 				{displaySelectVoiceOrLocation && (
 					<TitleOptionEvent
 						icon={<Icons.Speaker />}
-						title="Voice Channel"
-						desc="Hang out with voice, video, Screen Share and Go Live."
+						title={t('fields.channelType.voiceChannel.title')}
+						desc={t('fields.channelType.voiceChannel.description')}
 						choose={choiceSpeaker}
 						id="Speaker"
 						onChange={voicesChannel.length > 0 ? () => handleOption(OptionEvent.OPTION_SPEAKER) : () => {}}
@@ -174,8 +176,8 @@ const LocationModal = (props: LocationModalProps) => {
 				{displaySelectVoiceOrLocation && (
 					<TitleOptionEvent
 						icon={<Icons.Location />}
-						title="Somewhere Else"
-						desc="Text channel, external link or in-person location."
+						title={t('fields.channelType.somewhere.title')}
+						desc={t('fields.channelType.somewhere.description')}
 						choose={choiceLocation}
 						id="Hashtag"
 						onChange={() => handleOption(OptionEvent.OPTION_LOCATION)}
@@ -185,8 +187,8 @@ const LocationModal = (props: LocationModalProps) => {
 				{displaySelectPrivate && (
 					<TitleOptionEvent
 						icon={<Icons.SpeakerLocked />}
-						title="Create Private Event"
-						desc="Invite-only voice & video room!"
+						title={t('fields.channelType.privateEvent.title')}
+						desc={t('fields.channelType.privateEvent.description')}
 						choose={!!choicePrivateEvent}
 						id="Private"
 						onChange={onChangePrivateEvent}
@@ -202,19 +204,19 @@ const LocationModal = (props: LocationModalProps) => {
 					value={options.find((option) => option.value === contentSubmit.voiceChannel)}
 					onChange={handleChangeVoice}
 					styles={customStyles}
-					placeholder="Search voice channels..."
+					placeholder={t('fields.channel.title')}
 					filterOption={memoizedFilterOption}
 				/>
 			)}
 			{choiceLocation && (
 				<div>
-					<h3 className="uppercase text-[11px] font-semibold  ">Enter a location</h3>
+					<h3 className="uppercase text-[11px] font-semibold  ">{t('fields.address.title')}</h3>
 					<input
 						type="text"
 						name="location"
 						value={contentSubmit.address}
 						onChange={onChangeAddress}
-						placeholder="Add a location, link or something."
+						placeholder={t('fields.address.placeholder')}
 						className={`font-[400] rounded w-full  outline-none text-[15px] border border-theme-primary px-4 py-3 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
 					/>
 				</div>
@@ -222,8 +224,8 @@ const LocationModal = (props: LocationModalProps) => {
 			{displaySelectAudiences && (
 				<>
 					<div className="flex flex-col mb-2 mt-3">
-						<h3 className="text-xl text-center font-semibold  ">Who are audiences?</h3>
-						<p className=" text-center">Choose members in the specified channel.</p>
+						<h3 className="text-xl text-center font-semibold  ">{t('screens.channelSelection.title')}</h3>
+						<p className=" text-center">{t('screens.channelSelection.description')}</p>
 					</div>
 
 					<Select
@@ -234,14 +236,14 @@ const LocationModal = (props: LocationModalProps) => {
 						value={isClear ? null : selectedOption}
 						onChange={handleSelectChannelAudience}
 						styles={customStyles}
-						placeholder="Search channels..."
+						placeholder={t('fields.channel.title')}
 						filterOption={memoizedFilterOption}
 						menuPlacement="top"
 					/>
 					{showClearButton && (
 						<div className="flex justify-end mt-1">
 							<button onClick={handleClearAudience} className="text-blue-500 hover:underline">
-								Clear audiences
+								{t('actions.clearAudiences')}
 							</button>
 						</div>
 					)}

@@ -1,65 +1,177 @@
 {
-  "userAction": {
-    "transferFunds": "Chuyển tiền",
-    "sendMessage": "Gửi tin nhắn",
-    "voiceCall": "Gọi thoại",
-    "videoCall": "Gọi video",
-    "addFriend": "Kết bạn",
-    "pending": "Đang chờ",
-    "removeFriend": "Hủy kết bạn"
-  },
-  "aboutMe": {
-    "headerTitle": "GIỚI THIỆU",
-    "roles": {
-      "headerTitle": "VAI TRÒ"
-    }
-  },
-  "kickUserClanModal": {
-    "kickFromServer": "Đuổi {{username}} khỏi clan",
-    "description": "Bạn có chắc chắn muốn đuổi {{username}} khỏi clan? Họ có thể tham gia lại bằng lời mời mới.",
-    "reasonKick": "Lí do khai trừ",
-    "buttonName": "Đuổi"
-  },
-  "transferOwnershipModal": {
-    "warning": "Điều này sẽ chuyển quyền sở hữu của <highlightClan>{{clanName}}</highlightClan> cho <highlightUser>{{username}}</highlightUser>. Hành động này không thể hoàn tác!",
-    "sectionTitle": "Chuyển quyền sở hữu",
-    "acknowledgment": "Tôi xác nhận rằng bằng cách chuyển quyền sở hữu của server này cho {{username}}, nó sẽ thuộc về họ.",
-    "transferButton": "Chuyển",
-    "confirmTitle": "Chuyển quyền sở hữu?",
-    "confirmDescription": "Bạn có chắc chắn muốn chuyển quyền sở hữu của {{clanName}} cho {{username}}? Hành động này không thể hoàn tác.",
-    "confirmButton": "Chuyển"
-  },
-  "pendingContent": {
-    "block": "Chặn",
-    "unblock": "Bỏ chặn",
-    "reportUserProfile": "Báo cáo hồ sơ người dùng",
-    "acceptFriend": "Chấp nhận kết bạn",
-    "rejectFriend": "Từ chối yêu cầu kết bạn",
-    "cancelFriendRequest": "Hủy yêu cầu kết bạn",
-    "copyUsername": "Sao chép tên người dùng",
-    "copiedUserName": "Đã sao chép {{username}}",
-    "removeFriend": "Hủy kết bạn"
-  },
-  "userInfoDM": {
-    "menu": {
-      "removeFromGroup": "Xóa khỏi nhóm",
-      "removeSuccess": "Đã xóa thành viên khỏi nhóm",
-      "removeFailed": "Xóa thành viên khỏi nhóm không thành công"
-    },
-    "mezonMemberSince": "THÀNH VIÊN MEZON TỪ"
-  },
-  "notification": {
-    "blockUser": {
-      "success": "Chặn người dùng thành công",
-      "error": "Không thể chặn người dùng"
-    },
-    "unblockUser": {
-      "success": "Bỏ chặn người dùng thành công",
-      "error": "Không thể bỏ chặn người dùng"
-    }
-  },
-  "incomingFriendRequest": "YÊU CẦU KẾT BẠN ĐANG ĐẾN",
-  "sendAddFriendSuccess": "Đã gửi yêu cầu kết bạn",
-  "accept": "Chấp nhận",
-  "ignore": "Bỏ qua"
+	"userAction": {
+		"transferFunds": "Chuyển token",
+		"sendMessage": "Gửi tin nhắn",
+		"voiceCall": "Gọi thoại",
+		"videoCall": "Gọi video",
+		"addFriend": "Kết bạn",
+		"pending": "Đang chờ",
+		"removeFriend": "Hủy kết bạn"
+	},
+	"aboutMe": {
+		"headerTitle": "GIỚI THIỆU",
+		"roles": {
+			"headerTitle": "VAI TRÒ"
+		}
+	},
+	"kickUserClanModal": {
+		"kickFromServer": "Đuổi {{username}} khỏi clan",
+		"description": "Bạn có chắc chắn muốn đuổi {{username}} khỏi clan? Họ có thể tham gia lại bằng lời mời mới.",
+		"reasonKick": "Lí do khai trừ",
+		"buttonName": "Đuổi"
+	},
+	"transferOwnershipModal": {
+		"warning": "Điều này sẽ chuyển quyền sở hữu của <highlightClan>{{clanName}}</highlightClan> cho <highlightUser>{{username}}</highlightUser>. Hành động này không thể hoàn tác!",
+		"sectionTitle": "Chuyển quyền sở hữu",
+		"acknowledgment": "Tôi xác nhận rằng bằng cách chuyển quyền sở hữu của server này cho {{username}}, nó sẽ thuộc về họ.",
+		"transferButton": "Chuyển",
+		"confirmTitle": "Chuyển quyền sở hữu?",
+		"confirmDescription": "Bạn có chắc chắn muốn chuyển quyền sở hữu của {{clanName}} cho {{username}}? Hành động này không thể hoàn tác.",
+		"confirmButton": "Chuyển"
+	},
+	"pendingContent": {
+		"block": "Chặn",
+		"unblock": "Bỏ chặn",
+		"reportUserProfile": "Báo cáo hồ sơ người dùng",
+		"acceptFriend": "Chấp nhận kết bạn",
+		"rejectFriend": "Từ chối yêu cầu kết bạn",
+		"cancelFriendRequest": "Hủy yêu cầu kết bạn",
+		"copyUsername": "Sao chép tên người dùng",
+		"copiedUserName": "Đã sao chép {{username}}",
+		"removeFriend": "Hủy kết bạn"
+	},
+	"userInfoDM": {
+		"menu": {
+			"removeFromGroup": "Xóa khỏi nhóm",
+			"removeSuccess": "Đã xóa thành viên khỏi nhóm",
+			"removeFailed": "Xóa thành viên khỏi nhóm không thành công"
+		},
+		"mezonMemberSince": "THÀNH VIÊN MEZON TỪ"
+	},
+	"notification": {
+		"blockUser": {
+			"success": "Chặn người dùng thành công",
+			"error": "Không thể chặn người dùng"
+		},
+		"unblockUser": {
+			"success": "Bỏ chặn người dùng thành công",
+			"error": "Không thể bỏ chặn người dùng"
+		}
+	},
+	"incomingFriendRequest": "YÊU CẦU KẾT BẠN ĐANG ĐẾN",
+	"sendAddFriendSuccess": "Đã gửi yêu cầu kết bạn",
+	"accept": "Chấp nhận",
+	"ignore": "Bỏ qua",
+	"labels": {
+		"aboutMe": "Giới thiệu",
+		"memberSince": "Thành viên từ",
+		"activity": "Hoạt động",
+		"unknownUser": "Người dùng không xác định",
+		"anonymous": "Ẩn danh",
+		"editProfile": "Chỉnh sửa hồ sơ",
+		"note": "GHI CHÚ",
+		"addNote": "Nhấp để thêm ghi chú",
+		"showLess": "Ẩn bớt",
+		"addRole": "Thêm vai trò",
+		"addRoles": "Thêm vai trò",
+		"removeRole": "Xóa vai trò",
+		"role": "Vai trò",
+		"nope": "Không có!",
+		"typoError": "Bạn có gõ sai không?"
+	},
+	"placeholders": {
+		"messageUser": "Gửi tin nhắn cho @{{username}}"
+	},
+	"statusProfile": {
+		"balance": "Số dư",
+		"transferFunds": "Chuyển token",
+		"editCustomStatus": "Chỉnh sửa trạng thái tùy chỉnh",
+		"setCustomStatus": "Đặt trạng thái tùy chỉnh",
+		"manageAccounts": "Quản lý tài khoản",
+		"switchAccounts": "Chuyển đổi tài khoản",
+		"copyUserId": "Sao chép ID người dùng",
+		"statusOptions": {
+			"online": "Trực tuyến",
+			"idle": "Nhàn rỗi",
+			"doNotDisturb": "Không làm phiền",
+			"invisible": "Ẩn"
+		},
+		"addAccountModal": {
+			"email": "Email",
+			"password": "Mật khẩu",
+			"emailPlaceholder": "Nhập email của bạn",
+			"passwordPlaceholder": "Nhập mật khẩu của bạn",
+			"cancel": "Hủy",
+			"logIn": "Đăng nhập"
+		},
+		"sendTokenModal": {
+			"title": "Gửi Token",
+			"description": "Chuyển token cho người dùng khác",
+			"fields": {
+				"to": "Đến",
+				"amount": "Số lượng",
+				"note": "Ghi chú (Tùy chọn)"
+			},
+			"placeholders": {
+				"searchUsers": "Tìm kiếm người dùng...",
+				"amountPlaceholder": "0",
+				"notePlaceholder": "Thêm ghi chú..."
+			},
+			"noUsersFound": "Không tìm thấy người dùng",
+			"currency": "VND",
+			"buttons": {
+				"cancel": "Hủy",
+				"sendTokens": "Gửi Token"
+			}
+		},
+		"historyTransaction": {
+			"title": "Lịch sử giao dịch",
+			"subtitle": "Xem tất cả hoạt động giao dịch của bạn",
+			"tabs": {
+				"all": "Tất cả giao dịch",
+				"sent": "Giao dịch gửi",
+				"received": "Giao dịch nhận"
+			},
+			"transactionTypes": {
+				"sent": "Đã gửi",
+				"received": "Đã nhận"
+			},
+			"emptyStates": {
+				"noTransactions": {
+					"title": "Không tìm thấy giao dịch nào",
+					"description": "Bạn chưa thực hiện giao dịch nào. Lịch sử giao dịch sẽ xuất hiện ở đây khi bạn bắt đầu gửi hoặc nhận token."
+				},
+				"noFilteredTransactions": {
+					"title": "Không tìm thấy giao dịch nào",
+					"description": "Không tìm thấy giao dịch nào cho bộ lọc đã chọn. Vui lòng thử bộ lọc khác hoặc kiểm tra lại sau."
+				}
+			},
+			"transactionItem": {
+				"idPrefix": "Giao dịch #"
+			},
+			"loading": {
+				"fetching": "Đang tải giao dịch...",
+				"fetchingMore": "Đang tải thêm giao dịch...",
+				"scrollMore": "Cuộn xuống để xem thêm",
+				"allLoaded": "Bạn đã tải tất cả {{count}} giao dịch"
+			}
+		},
+		"customStatusModal": {
+			"title": "Đặt trạng thái tùy chỉnh",
+			"whatsCookin": "Bạn đang nghĩ gì, {{name}}",
+			"placeholder": "Bạn đang nghĩ gì?",
+			"clearAfter": "Xóa sau",
+			"timeOptions": {
+				"today": "Hôm nay",
+				"fourHours": "4 giờ",
+				"oneHour": "1 giờ",
+				"thirtyMinutes": "30 phút",
+				"dontClear": "Không xóa"
+			},
+			"buttons": {
+				"cancel": "Hủy",
+				"save": "Lưu"
+			}
+		}
+	}
 }

@@ -1,17 +1,22 @@
 import { captureSentryError } from '@mezon/logger';
-import { ActiveDm, BuzzArgs, IChannel, IMessage, IUserItemActivity, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ChannelMessage, ChannelType, ChannelUpdatedEvent, UserProfileRedis, safeJSONParse } from 'mezon-js';
-import { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
+import type { BuzzArgs, IChannel, IMessage, IUserItemActivity, LoadingStatus } from '@mezon/utils';
+import { ActiveDm } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezon-js';
+import { ChannelType, safeJSONParse } from 'mezon-js';
+import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
-import { StatusUserArgs, channelMembersActions } from '../channelmembers/channel.members';
+import type { StatusUserArgs } from '../channelmembers/channel.members';
+import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
 import { hashtagDmActions } from '../channels/hashtagDm.slice';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
 import { messagesActions } from '../messages/messages.slice';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 import { directMembersMetaActions } from './direct.members.meta';
-import { DMMetaEntity, directMetaActions, selectEntitiesDirectMeta } from './directmeta.slice';
+import type { DMMetaEntity } from './directmeta.slice';
+import { directMetaActions, selectEntitiesDirectMeta } from './directmeta.slice';
 
 export const DIRECT_FEATURE_KEY = 'direct';
 
@@ -343,7 +348,7 @@ export const joinDirectMessage = createAsyncThunk<void, JoinDirectMessagePayload
 						const members = (data.payload as any)?.channel_users as members[];
 						if (type === ChannelType.CHANNEL_TYPE_DM && members?.length > 0) {
 							const userIds = members.map((member) => member?.user_id as string);
-							thunkAPI.dispatch(hashtagDmActions.fetchHashtagDm({ userIds: userIds, directId: directMessageId }));
+							thunkAPI.dispatch(hashtagDmActions.fetchHashtagDm({ userIds, directId: directMessageId }));
 						}
 					});
 				// const userIds = members?.filter((m) => m.user_id && m.user_id !== currentUserId).map((m) => m.user_id) as string[];
@@ -467,7 +472,7 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			...channel_desc,
 			id: channel_desc.channel_id || '',
 			user_id: userIds,
-			usernames: usernames,
+			usernames,
 			display_names: label,
 			channel_avatar: avatars,
 			is_online: isOnline,
@@ -532,7 +537,7 @@ export const directSlice = createSlice({
 			const { channel_id, creator_id, currentUserId, ...changes } = action.payload;
 			directAdapter.updateOne(state, {
 				id: channel_id,
-				changes: changes
+				changes
 			});
 		},
 		updateE2EE: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
@@ -549,7 +554,7 @@ export const directSlice = createSlice({
 			directAdapter.updateOne(state, {
 				id: channel_id,
 				changes: {
-					e2ee: e2ee
+					e2ee
 				}
 			});
 		},

@@ -4,9 +4,8 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
 	wrapper: {
 		height: '100%',
-		width: '82%',
-		borderTopLeftRadius: 20,
 		overflow: 'hidden',
+		flexShrink: 1,
 		paddingHorizontal: size.s_20,
 		paddingVertical: size.s_10
 	},
@@ -17,7 +16,8 @@ export const styles = StyleSheet.create({
 	imageBg: {
 		width: '90%',
 		height: '35%',
-		marginVertical: size.s_30
+		marginVertical: size.s_30,
+		alignSelf: 'center'
 	},
 	title: {
 		fontSize: size.label,

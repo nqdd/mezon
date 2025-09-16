@@ -123,23 +123,23 @@ const ControlBottomBar = ({
 		}
 	};
 
-	const startBroadcastIOS = async () => {
-		const reactTag = findNodeHandle(screenCaptureRef.current);
-		await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
-		await localParticipant.setScreenShareEnabled(true);
-	};
+	// const startBroadcastIOS = async () => {
+	// 	const reactTag = findNodeHandle(screenCaptureRef.current);
+	// 	await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
+	// 	await localParticipant.setScreenShareEnabled(true);
+	// };
 
-	const handleToggleScreenShare = async () => {
-		try {
-			if (Platform.OS === 'ios') {
-				await startBroadcastIOS();
-			} else {
-				await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
-			}
-		} catch (error) {
-			console.error('Error toggling screen share:', error);
-		}
-	};
+	// const handleToggleScreenShare = async () => {
+	// 	try {
+	// 		if (Platform.OS === 'ios') {
+	// 			await startBroadcastIOS();
+	// 		} else {
+	// 			await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error toggling screen share:', error);
+	// 	}
+	// };
 
 	const handleShowChat = () => {
 		if (!isTabletLandscape) {
@@ -192,15 +192,16 @@ const ControlBottomBar = ({
 						<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 				)}
-				{!isGroupCall && (
-					<TouchableOpacity onPress={handleToggleScreenShare} style={styles.menuIcon}>
-						{isScreenShareEnabled ? (
-							<MezonIconCDN icon={IconCDN.shareScreenIcon} color={themeValue.textStrong} />
-						) : (
-							<MezonIconCDN icon={IconCDN.shareScreenSlashIcon} color={themeValue.textStrong} />
-						)}
-					</TouchableOpacity>
-				)}
+				{/* remove */}
+				{/*{!isGroupCall && (*/}
+				{/*	<TouchableOpacity onPress={handleToggleScreenShare} style={styles.menuIcon}>*/}
+				{/*		{isScreenShareEnabled ? (*/}
+				{/*			<MezonIconCDN icon={IconCDN.shareScreenIcon} color={themeValue.textStrong} />*/}
+				{/*		) : (*/}
+				{/*			<MezonIconCDN icon={IconCDN.shareScreenSlashIcon} color={themeValue.textStrong} />*/}
+				{/*		)}*/}
+				{/*	</TouchableOpacity>*/}
+				{/*)}*/}
 				<ButtonEndCall isGroupCall={isGroupCall} channelId={channelId} clanId={clanId} />
 			</View>
 		</View>

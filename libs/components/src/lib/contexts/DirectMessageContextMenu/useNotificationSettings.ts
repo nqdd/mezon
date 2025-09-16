@@ -1,8 +1,10 @@
-import { SetMuteNotificationPayload, SetNotificationPayload, notificationSettingActions, useAppDispatch } from '@mezon/store';
+import type { SetMuteNotificationPayload, SetNotificationPayload } from '@mezon/store';
+import { notificationSettingActions, useAppDispatch } from '@mezon/store';
 import { EMuteState } from '@mezon/utils';
 import { format } from 'date-fns';
 import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface UseNotificationSettingsParams {
 	channelId?: string;
@@ -11,6 +13,7 @@ interface UseNotificationSettingsParams {
 }
 
 export function useNotificationSettings({ channelId, notificationSettings, getChannelId }: UseNotificationSettingsParams) {
+	const { t } = useTranslation('directMessage');
 	const dispatch = useAppDispatch();
 	const [mutedUntilText, setMutedUntilText] = useState<string>('');
 	const [nameChildren, setNameChildren] = useState<string>('');
@@ -26,7 +29,7 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 				channel_id: channelId,
 				notification_type: 0,
 				clan_id: '',
-				active: active,
+				active,
 				time_mute: active === EMuteState.UN_MUTE ? undefined : unmuteTimeISO,
 				is_current_channel: true,
 				is_direct: channelType === ChannelType.CHANNEL_TYPE_DM || channelType === ChannelType.CHANNEL_TYPE_GROUP
@@ -76,7 +79,7 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 			if (channelId) {
 				await dispatch(
 					notificationSettingActions.getNotificationSetting({
-						channelId: channelId
+						channelId
 					})
 				);
 			}
@@ -91,11 +94,11 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 			!isDefaultSetting && notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
 		const shouldShowUnmute = isCurrentlyMuted || hasActiveMuteTime;
 
-		setNameChildren(shouldShowUnmute ? `UnMute` : `Mute`);
+		setNameChildren(shouldShowUnmute ? t('contextMenu.unmute') : t('contextMenu.mute'));
 
 		setMutedUntilText(
 			hasActiveMuteTime && notificationSettings?.time_mute
-				? `Muted until ${format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm')}`
+				? t('contextMenu.mutedUntil', { time: format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm') })
 				: ''
 		);
 	}, [notificationSettings, dispatch, getChannelId]);

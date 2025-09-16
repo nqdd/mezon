@@ -245,7 +245,7 @@ export const voiceSlice = createSlice({
 		setFullScreen: (state, action: PayloadAction<boolean>) => {
 			state.fullScreen = action.payload;
 		},
-		resetVoiceSettings: (state) => {
+		resetVoiceControl: (state) => {
 			state.showMicrophone = false;
 			state.showCamera = false;
 			state.showScreen = false;
