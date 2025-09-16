@@ -3,6 +3,7 @@ import { appActions, selectDirectsOpenlistOrder, useAppDispatch } from '@mezon/s
 import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ export type ChannelListProps = { className?: string };
 export type CategoriesState = Record<string, boolean>;
 
 function DirectMessageList() {
+	const { t } = useTranslation('directMessage');
 	const dmGroupChatList = useSelector(selectDirectsOpenlistOrder);
 	const { quantityPendingRequest } = useFriends();
 	return (
@@ -28,7 +30,7 @@ function DirectMessageList() {
 				</div>
 
 				<div className="text-xs font-semibold tracking-wide left-sp text-theme-primary mt-6 flex flex-row items-center w-full justify-between px-2 pb-0 h-5 cursor-default text-theme-primary-hover">
-					<p>DIRECT MESSAGES</p>
+					<p>{t('directMessages')}</p>
 					<CreateMessageGroupModal />
 				</div>
 			</div>
@@ -42,6 +44,7 @@ function DirectMessageList() {
 }
 const CreateMessageGroupModal = memo(
 	() => {
+		const { t } = useTranslation('directMessage');
 		const buttonPlusRef = useRef<HTMLDivElement | null>(null);
 
 		const [openCreateMessageGroup, closeCreateMessageGroup] = useModal(
@@ -66,7 +69,7 @@ const CreateMessageGroupModal = memo(
 				className="relative cursor-pointer flex flex-row justify-end ml-0 dark:hover:bg-bgSecondary hover:bg-bgLightMode rounded-full whitespace-nowrap"
 				data-e2e={generateE2eId('chat.direct_message.button.button_plus')}
 			>
-				<span title="Create DM">
+				<span title={t('createDM')}>
 					<Icons.Plus className="w-4 h-4" />
 				</span>
 			</div>
@@ -76,6 +79,7 @@ const CreateMessageGroupModal = memo(
 );
 
 const FriendsButton = memo(({ navigateToFriend }: { navigateToFriend: boolean }) => {
+	const { t } = useTranslation('directMessage');
 	const navigate = useNavigate();
 	const pathname = useLocation().pathname;
 	const dispatch = useAppDispatch();
@@ -96,7 +100,7 @@ const FriendsButton = memo(({ navigateToFriend }: { navigateToFriend: boolean })
 			onClick={handleOpenFriendList}
 		>
 			<Icons.IconFriends />
-			Friends
+			{t('friends')}
 		</button>
 	);
 });

@@ -1,9 +1,8 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
+import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
-	FriendsEntity,
 	channelsActions,
 	friendsActions,
-	requestAddFriendParam,
 	selectBlockedUsers,
 	selectCloseMenu,
 	selectCurrentTabStatus,
@@ -13,17 +12,24 @@ import {
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityList from './ActivityList';
 import FriendList from './FriendsList';
-const tabData = [
-	{ title: 'All', value: 'all' },
-	{ title: 'Online', value: 'online' },
-	{ title: 'Pending', value: 'pending' },
-	{ title: 'Block', value: 'block' }
-];
 const FriendsPage = () => {
+	const { t } = useTranslation('friendsPage');
 	const dispatch = useAppDispatch();
+	const tabData = [
+		{ title: t('tabs.all'), value: 'all' },
+		{ title: t('tabs.online'), value: 'online' },
+		{ title: t('tabs.pending'), value: 'pending' },
+		{ title: t('tabs.block'), value: 'block' }
+	];
+
+	const getTranslatedTabName = (tabValue: string) => {
+		const tab = tabData.find((tab) => tab.value === tabValue);
+		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
+	};
 	const { friends, quantityPendingRequest, addFriend } = useFriends();
 	const [isAlreadyFriend, setIsAlreadyFriend] = useState(false);
 	const [showRequestFailedPopup, setShowRequestFailedPopup] = useState(false);
@@ -152,7 +158,7 @@ const FriendsPage = () => {
 				<div className={`gap-3 flex overflow-x-scroll hide-scrollbar ${closeMenuMobile ? 'ml-7' : ''}`}>
 					<div className="flex flex-row gap-2 items-center text-theme-primary-active font-medium">
 						<Icons.IconFriends />
-						Friend
+						{t('friend')}
 					</div>
 					<div className="flex flex-row gap-2 items-center text-theme-primary">
 						<Icons.DotIcon className="w-1 h-1" />
@@ -179,7 +185,7 @@ const FriendsPage = () => {
 						onClick={handleOpenRequestFriend}
 						className={`whitespace-nowrap  px-2 rounded-lg font-medium   ${openModalAddFriend ? ' cursor-not-allowed button-add-friend-active' : 'btn-primary btn-primary-hover '}`}
 					>
-						Add Friend
+						{t('addFriend')}
 					</Button>
 				</div>
 			</div>
@@ -192,7 +198,7 @@ const FriendsPage = () => {
 									<InputField
 										type="text"
 										onChange={(e) => setTextSearch(e.target.value)}
-										placeholder="Search"
+										placeholder={t('search')}
 										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] "
 									/>
 									<div className="absolute top-3 right-5 text-theme-primary">
@@ -200,7 +206,7 @@ const FriendsPage = () => {
 									</div>
 								</div>
 								<span className="text-[14px]  mb-4 font-bold px-[14px]">
-									{currentTabStatus.toUpperCase()} - {listFriendFilter.length}
+									{getTranslatedTabName(currentTabStatus)} - {listFriendFilter.length}
 								</span>
 							</div>
 							<div className="px-8 overflow-hidden flex flex-1 pb-4">
@@ -211,8 +217,8 @@ const FriendsPage = () => {
 					{openModalAddFriend && (
 						<div className="p-8">
 							<div className="w-full flex flex-col gap-3 border-b-theme-primary">
-								<span className="font-[700] text-theme-primary-active">ADD FRIEND</span>
-								<span className="font-[400] text-theme-primary text-[14px]">You can add friends with their Mezon usernames</span>
+								<span className="font-[700] text-theme-primary-active">{t('addFriendModal.title')}</span>
+								<span className="font-[400] text-theme-primary text-[14px]">{t('addFriendModal.description')}</span>
 								<div className="relative group">
 									<InputField
 										onChange={(e) => handleChange('username', e.target.value)}
@@ -224,32 +230,28 @@ const FriendsPage = () => {
 										type="text"
 										className={`mb-2 bg-input-secondary rounded-lg mt-1 py-3 pr-[90px] md:pr-[140px] ${isAlreadyFriend ? 'border border-red-600 outline-none' : 'focus:outline focus:outline-1 dark:outline-[#00a8fc] outline-[#006ce7]'}`}
 										value={requestAddFriend.usernames}
-										placeholder="Enter username"
+										placeholder={t('addFriendModal.placeholder')}
 										needOutline={true}
-										title="You can add friends with their Mezon usernames"
 									/>
 									{isAlreadyFriend && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">You're already friends with that user!</div>
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.alreadyFriends')}</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">Please only use numbers, letters, underscores _ or full stops.</div>
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.invalidInput')}</div>
 									)}
-									<div className="invisible group-hover:visible absolute -top-8 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded">
-										You can add friends with their Mezon usernames
-									</div>
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
 										disabled={!requestAddFriend.usernames?.length || isInvalidInput}
 										onClick={handleAddFriend}
 									>
-										<span className="hidden md:inline">Send Friend Request</span>
-										<span className="md:hidden">Add</span>
+										<span className="hidden md:inline">{t('addFriendModal.sendRequest')}</span>
+										<span className="md:hidden">{t('addFriendModal.add')}</span>
 									</Button>
 								</div>
 							</div>
 							<div className="flex flex-col items-center gap-7">
 								<Image src={`assets/images/${addFriendImg}`} width={48} height={48} className="object-cover w-[376px]" />
-								<div className="bg-theme-input text-theme-primary">Komuu is waiting on friends. You don't have to, though!</div>
+								<div className="bg-theme-input text-theme-primary">{t('addFriendModal.waitingMessage')}</div>
 							</div>
 						</div>
 					)}
@@ -264,6 +266,7 @@ const FriendsPage = () => {
 };
 
 const RequestFailedPopup = ({ togglePopup }: { togglePopup: () => void }) => {
+	const { t } = useTranslation('friendsPage');
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, togglePopup);
 	return (
@@ -271,15 +274,17 @@ const RequestFailedPopup = ({ togglePopup }: { togglePopup: () => void }) => {
 			<div onClick={togglePopup} className="fixed inset-0 bg-black opacity-50" />
 			<div className="relative z-10 w-[440px] text-center">
 				<div className="bg-theme-setting-primary dark:text-[#dbdee1] text-textLightTheme px-4 py-5 flex flex-col gap-5 items-center rounded-t-md">
-					<div className="text-textLightTheme dark:text-textDarkTheme uppercase font-semibold text-[20px]">Friend request failed</div>
-					<div>You're already friends with that user!</div>
+					<div className="text-textLightTheme dark:text-textDarkTheme uppercase font-semibold text-[20px]">
+						{t('requestFailedPopup.title')}
+					</div>
+					<div>{t('requestFailedPopup.message')}</div>
 				</div>
 				<div className="p-4 bg-theme-setting-nav rounded-b-md">
 					<div
 						onClick={togglePopup}
 						className="w-full cursor-pointer bg-[#5865f2] hover:bg-[#4752c4] text-whit rounded-sm h-[44px] flex items-center font-semibold justify-center"
 					>
-						Okay
+						{t('requestFailedPopup.okay')}
 					</div>
 				</div>
 			</div>

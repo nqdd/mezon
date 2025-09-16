@@ -1,0 +1,7 @@
+{
+  "searchActions": "Search Actions",
+  "noResults": {
+    "title": "Nope!",
+    "description": "Did you make a typo?"
+  }
+}

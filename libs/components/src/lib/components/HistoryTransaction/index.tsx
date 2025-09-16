@@ -11,26 +11,17 @@ import {
 import { Icons } from '@mezon/ui';
 import { formatNumber } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import TransactionDetail from '../HistoryTransaction/TransactionDetail';
-import {
-	API_FILTER_PARAMS,
-	CURRENCY,
-	DATE_FORMAT,
-	EMPTY_STATES,
-	FilterType,
-	HEADER,
-	LIMIT_WALLET,
-	TAB_LABELS,
-	TRANSACTION_FILTERS,
-	TRANSACTION_ITEM,
-	TRANSACTION_TYPES
-} from './constans/constans';
+import type { FilterType } from './constans/constans';
+import { API_FILTER_PARAMS, CURRENCY, DATE_FORMAT, LIMIT_WALLET, TRANSACTION_FILTERS, TRANSACTION_ITEM } from './constans/constans';
 
 interface IProps {
 	onClose: () => void;
 }
 
 const HistoryTransaction = ({ onClose }: IProps) => {
+	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 	const walletLedger = useAppSelector((state) => selectWalletLedger(state));
 	const detailLedger = useAppSelector((state) => selectDetailedger(state));
@@ -132,7 +123,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 						<p className="text-red-600 dark:text-red-400 font-semibold">
 							{`- ${formatNumber(Math.abs(amount), CURRENCY.CODE)} ${CURRENCY.SYMBOL}`}
 						</p>
-						<p className="text-xs text-gray-500 dark:text-gray-400">{TRANSACTION_TYPES.SENT}</p>
+						<p className="text-xs text-gray-500 dark:text-gray-400">{t('statusProfile.historyTransaction.transactionTypes.sent')}</p>
 					</div>
 				</div>
 			);
@@ -149,7 +140,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 				</div>
 				<div>
 					<p className="text-green-600 dark:text-green-400 font-semibold">{`+ ${formatNumber(amount, CURRENCY.CODE)} ${CURRENCY.SYMBOL}`}</p>
-					<p className="text-xs text-gray-500 dark:text-gray-400">{TRANSACTION_TYPES.RECEIVED}</p>
+					<p className="text-xs text-gray-500 dark:text-gray-400">{t('statusProfile.historyTransaction.transactionTypes.received')}</p>
 				</div>
 			</div>
 		);
@@ -162,10 +153,6 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 			dispatch(fetchDetailTransaction({ transId: transactionId })).finally(() => setIsDetailLoading(false));
 		}
 	};
-
-	const getTransactionType = (amount: number) => (amount < 0 ? TRANSACTION_TYPES.SENT : TRANSACTION_TYPES.RECEIVED);
-
-
 
 	const handleFilterChange = (filter: FilterType) => {
 		if (activeFilter !== filter) {
@@ -187,8 +174,8 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 									<Icons.HistoryTransaction className="w-9 h-9 text-white" />
 								</div>
 								<div>
-									<h4 className="text-theme-primary text-lg font-semibold">{HEADER.TITLE}</h4>
-									<p className="dark:text-gray-400 text-gray-500 text-sm">{HEADER.SUBTITLE}</p>
+									<h4 className="text-theme-primary text-lg font-semibold">{t('statusProfile.historyTransaction.title')}</h4>
+									<p className="dark:text-gray-400 text-gray-500 text-sm">{t('statusProfile.historyTransaction.subtitle')}</p>
 								</div>
 							</div>
 							<div className="flex items-center gap-2">
@@ -218,7 +205,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'dark:text-gray-400 text-gray-600  hover:bg-gray-300 hover:dark:bg-gray-100 '
 									}`}
 								>
-									{TAB_LABELS.ALL}
+									{t('statusProfile.historyTransaction.tabs.all')}
 								</button>
 								<button
 									onClick={() => handleFilterChange(TRANSACTION_FILTERS.SENT)}
@@ -228,7 +215,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'dark:text-gray-400 text-gray-600  hover:bg-gray-300 hover:dark:bg-gray-100'
 									}`}
 								>
-									{TAB_LABELS.SENT}
+									{t('statusProfile.historyTransaction.tabs.sent')}
 								</button>
 								<button
 									onClick={() => handleFilterChange(TRANSACTION_FILTERS.RECEIVED)}
@@ -238,7 +225,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'dark:text-gray-400 text-gray-600 hover:bg-gray-300 hover:dark:bg-gray-100 '
 									}`}
 								>
-									{TAB_LABELS.RECEIVED}
+									{t('statusProfile.historyTransaction.tabs.received')}
 								</button>
 							</div>
 						</div>
@@ -263,7 +250,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 							<div className="flex justify-center items-center text-xs dark:text-gray-400 text-gray-500 h-[40px]">
 								<div className="flex flex-col items-center gap-1">
 									<div className="w-4 h-4 animate-spin rounded-full border-2 mb-1 border-gray-300 border-t-blue-500"></div>
-									<span>Fetching transactions...</span>
+									<span>{t('statusProfile.historyTransaction.loading.fetching')}</span>
 								</div>
 							</div>
 						</div>
@@ -285,8 +272,8 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 								<Icons.HistoryTransaction className="w-9 h-9 text-white" />
 							</div>
 							<div>
-								<h4 className="text-theme-primary text-lg font-semibold">{HEADER.TITLE}</h4>
-								<p className="dark:text-gray-400 text-gray-500 text-sm">{HEADER.SUBTITLE}</p>
+								<h4 className="text-theme-primary text-lg font-semibold">{t('statusProfile.historyTransaction.title')}</h4>
+								<p className="dark:text-gray-400 text-gray-500 text-sm">{t('statusProfile.historyTransaction.subtitle')}</p>
 							</div>
 						</div>
 						<div className="flex items-center gap-2">
@@ -318,7 +305,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'text-theme-primary bg-item-theme-hover'
 									}`}
 								>
-									{TAB_LABELS.ALL}
+									{t('statusProfile.historyTransaction.tabs.all')}
 								</button>
 								<button
 									onClick={() => handleFilterChange(TRANSACTION_FILTERS.SENT)}
@@ -328,7 +315,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'text-theme-primary bg-item-theme-hover'
 									}`}
 								>
-									{TAB_LABELS.SENT}
+									{t('statusProfile.historyTransaction.tabs.sent')}
 								</button>
 								<button
 									onClick={() => handleFilterChange(TRANSACTION_FILTERS.RECEIVED)}
@@ -338,7 +325,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 											: 'text-theme-primary bg-item-theme-hover'
 									}`}
 								>
-									{TAB_LABELS.RECEIVED}
+									{t('statusProfile.historyTransaction.tabs.received')}
 								</button>
 							</div>
 						</div>
@@ -359,7 +346,7 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 														<div className="flex flex-col">
 															<div className="flex items-center gap-2">
 																<p className="text-theme-primary font-medium text-sm">
-																	{TRANSACTION_ITEM.ID_PREFIX}
+																	{t('statusProfile.historyTransaction.transactionItem.idPrefix')}
 																	{item.transaction_id?.slice(-TRANSACTION_ITEM.ID_LENGTH)}
 																</p>
 															</div>
@@ -384,13 +371,13 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 										</div>
 										<h3 className="text-theme-primary text-lg font-semibold mb-2">
 											{activeFilter === TRANSACTION_FILTERS.ALL
-												? EMPTY_STATES.NO_TRANSACTIONS.TITLE
-												: EMPTY_STATES.NO_FILTERED_TRANSACTIONS.TITLE}
+												? t('statusProfile.historyTransaction.emptyStates.noTransactions.title')
+												: t('statusProfile.historyTransaction.emptyStates.noFilteredTransactions.title')}
 										</h3>
 										<p className="dark:text-gray-400 text-gray-500 text-sm text-center max-w-sm">
 											{activeFilter === TRANSACTION_FILTERS.ALL
-												? EMPTY_STATES.NO_TRANSACTIONS.DESCRIPTION
-												: EMPTY_STATES.NO_FILTERED_TRANSACTIONS.DESCRIPTION}
+												? t('statusProfile.historyTransaction.emptyStates.noTransactions.description')
+												: t('statusProfile.historyTransaction.emptyStates.noFilteredTransactions.description')}
 										</p>
 									</div>
 								)
@@ -424,15 +411,15 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 								{isLoading || isLoadingMore ? (
 									<div className="flex flex-col items-center gap-1">
 										<div className="w-4 h-4 animate-spin rounded-full border-2 mb-1 border-gray-300 border-t-blue-500"></div>
-										<span>Fetching more transactions...</span>
+										<span>{t('statusProfile.historyTransaction.loading.fetchingMore')}</span>
 									</div>
 								) : hasMoreData ? (
 									<div className="flex flex-col items-center gap-1">
 										<Icons.ArrowDown className="w-4 h-4" />
-										<span>Scroll down to show more</span>
+										<span>{t('statusProfile.historyTransaction.loading.scrollMore')}</span>
 									</div>
 								) : (
-									<span>You have loaded all of {currentData.length} transactions</span>
+									<span>{t('statusProfile.historyTransaction.loading.allLoaded', { count: currentData.length })}</span>
 								)}
 							</div>
 						</div>
@@ -443,9 +430,11 @@ const HistoryTransaction = ({ onClose }: IProps) => {
 							<div className="w-16 h-16 rounded-full dark:bg-gray-800 bg-gray-100 flex items-center justify-center mb-4">
 								<Icons.EmptyType />
 							</div>
-							<h3 className="text-theme-primary text-lg font-semibold mb-2">{EMPTY_STATES.NO_TRANSACTIONS.TITLE}</h3>
+							<h3 className="text-theme-primary text-lg font-semibold mb-2">
+								{t('statusProfile.historyTransaction.emptyStates.noTransactions.title')}
+							</h3>
 							<p className="dark:text-gray-400 text-gray-500 text-sm text-center max-w-sm">
-								{EMPTY_STATES.NO_TRANSACTIONS.DESCRIPTION}
+								{t('statusProfile.historyTransaction.emptyStates.noTransactions.description')}
 							</p>
 						</div>
 					</div>

@@ -1,0 +1,32 @@
+{
+  "onboard": {
+    "clickLaunchToStart": "Nhấp Khởi chạy ứng dụng để bắt đầu",
+    "inviteFriends": "Mời bạn bè của bạn",
+    "sendFirstMessage": "Gửi tin nhắn đầu tiên của bạn",
+    "downloadApp": "Tải xuống ứng dụng Mezon",
+    "createChannel": "Tạo kênh của bạn"
+  },
+  "welcome": {
+    "welcomeToChannel": "Chào mừng đến với #{{channelName}}",
+    "startOfChannel": "Đây là nơi bắt đầu của kênh #{{channelName}} {{channelType}}",
+    "startOfThread": "Bắt đầu bởi {{username}}",
+    "welcomeToGroup": "Chào mừng đến với sự khởi đầu của nhóm {{groupName}}.",
+    "beginningOfDM": "Đây là nơi bắt đầu lịch sử tin nhắn trực tiếp của bạn với {{userName}}",
+    "editGroup": "Chỉnh sửa nhóm",
+    "private": "riêng tư",
+    "friendRequestSent": "Đã gửi cho bạn lời mời kết bạn:",
+    "addFriend": "Thêm bạn bè",
+    "removeFriend": "Hủy kết bạn",
+    "accept": "Chấp nhận",
+    "ignore": "Bỏ qua",
+    "friendRequestSentButton": "Đã gửi lời mời kết bạn",
+    "block": "Chặn",
+    "unblock": "Bỏ chặn"
+  },
+  "toast": {
+    "userBlockedSuccess": "Đã chặn người dùng thành công",
+    "failedToBlock": "Không thể chặn người dùng",
+    "userUnblockedSuccess": "Đã bỏ chặn người dùng thành công",
+    "failedToUnblock": "Không thể bỏ chặn người dùng"
+  }
+}

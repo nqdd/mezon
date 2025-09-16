@@ -5,11 +5,13 @@ import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import type { ChangeEvent } from 'react';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ELimitSize } from '../../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
 
 const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; ruleEdit?: ApiOnboardingItem; tempId?: number }) => {
+	const { t } = useTranslation('onboardingRules');
 	const [ruleTitle, setRuleTitle] = useState(ruleEdit?.title || '');
 	const [ruleDescription, setRuleDescription] = useState(ruleEdit?.content || '');
 	const [ruleImage, setRuleImage] = useState<null | string>(ruleEdit?.image_url || null);

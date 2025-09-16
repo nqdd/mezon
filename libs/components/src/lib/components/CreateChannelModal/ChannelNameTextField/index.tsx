@@ -4,6 +4,7 @@ import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
 import { ChannelLableModal } from '../ChannelLabel';
 
@@ -25,13 +26,14 @@ export type ChannelNameModalRef = {
 
 export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameModalProps>((props, ref) => {
 	const { channelNameProps, type, onChange, onCheckValidate, onHandleChangeValue, error, placeholder, shouldValidate, categoryId } = props;
+	const { t } = useTranslation('createChannel');
 	const [checkValidate, setCheckValidate] = useState(true);
 	const [checkNameChannel, setCheckNameChannel] = useState(true);
 	const theme = useAppSelector(selectTheme);
 	const dispatch = useAppDispatch();
 	const messages = {
-		INVALID_NAME: `Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).`,
-		DUPLICATE_NAME: `The channel  name already exists in the category . Please enter another name.`
+		INVALID_NAME: t('validation.invalidName'),
+		DUPLICATE_NAME: t('validation.duplicateName')
 	};
 	const [validateMessage, setValidateMesage] = useState(messages.INVALID_NAME);
 

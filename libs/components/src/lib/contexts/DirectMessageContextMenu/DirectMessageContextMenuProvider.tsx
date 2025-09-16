@@ -17,6 +17,7 @@ import { ChannelType } from 'mezon-js';
 import type { FC } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Menu, Submenu, useContextMenu } from 'react-contexify';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ModalEditGroup from '../../components/ModalEditGroup';
 import ItemPanelMember from '../../components/PanelMember/ItemPanelMember';
@@ -39,6 +40,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	contextMenuId = DIRECT_MESSAGE_CONTEXT_MENU_ID,
 	dataMemberCreate
 }) => {
+	const { t } = useTranslation('directMessage');
 	const [currentUser, setCurrentUser] = useState<ChannelMembersEntity | any>(null);
 	const [currentHandlers, setCurrentHandlers] = useState<DirectMessageContextMenuHandlers | null>(null);
 	const dispatch = useAppDispatch();
@@ -174,14 +176,28 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 			<Menu id={contextMenuId} style={menuStyles} className="z-50 rounded-lg border-theme-primary" animation={false}>
 				{currentHandlers && !isSelf && (
 					<>
-						{isDm && <MemberMenuItem label="Profile" onClick={currentHandlers.handleViewProfile} setWarningStatus={setWarningStatus} />}
+						{isDm && (
+							<MemberMenuItem
+								label={t('contextMenu.profile')}
+								onClick={currentHandlers.handleViewProfile}
+								setWarningStatus={setWarningStatus}
+							/>
+						)}
 
 						{channelId && (
-							<MemberMenuItem label="Mark as Read" onClick={currentHandlers.handleMarkAsRead} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('contextMenu.markAsRead')}
+								onClick={currentHandlers.handleMarkAsRead}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
 						{!isDm && !isDmGroup && (
-							<MemberMenuItem label="Message" onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('contextMenu.message')}
+								onClick={currentHandlers.handleMessage}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
 						{!isDmGroup && infoFriend?.state !== EStateFriend.BLOCK && (
@@ -190,7 +206,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 									infoFriend?.state !== EStateFriend.MY_PENDING &&
 									infoFriend?.state !== EStateFriend.OTHER_PENDING && (
 										<MemberMenuItem
-											label="Add Friend"
+											label={t('contextMenu.addFriend')}
 											onClick={currentHandlers.handleAddFriend}
 											setWarningStatus={setWarningStatus}
 										/>
@@ -198,7 +214,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 
 								{infoFriend?.state === EStateFriend.FRIEND && (
 									<MemberMenuItem
-										label="Remove Friend"
+										label={t('contextMenu.removeFriend')}
 										onClick={currentHandlers.handleRemoveFriend}
 										isWarning={true}
 										setWarningStatus={setWarningStatus}
@@ -209,7 +225,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 
 						{!isDmGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && (
 							<MemberMenuItem
-								label={didIBlockUser ? 'Unblock' : 'Block'}
+								label={didIBlockUser ? t('contextMenu.unblock') : t('contextMenu.block')}
 								onClick={didIBlockUser ? currentHandlers.handleUnblockFriend : currentHandlers.handleBlockFriend}
 								isWarning={!didIBlockUser}
 								setWarningStatus={setWarningStatus}
@@ -237,46 +253,46 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 									}
 								>
 									<MemberMenuItem
-										label="For 15 Minutes"
+										label={t('contextMenu.for15Minutes')}
 										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 1 Hour"
+										label={t('contextMenu.for1Hour')}
 										onClick={() => currentHandlers.handleMute(FOR_1_HOUR)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 3 Hour"
+										label={t('contextMenu.for3Hours')}
 										onClick={() => currentHandlers.handleMute(FOR_3_HOURS)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 8 Hour"
+										label={t('contextMenu.for8Hours')}
 										onClick={() => currentHandlers.handleMute(FOR_8_HOURS)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 24 Hour"
+										label={t('contextMenu.for24Hours')}
 										onClick={() => currentHandlers.handleMute(FOR_24_HOURS)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="Until I turn it back on"
+										label={t('contextMenu.untilTurnBackOn')}
 										onClick={() => currentHandlers.handleMute()}
 										setWarningStatus={setWarningStatus}
 									/>
 								</Submenu>
 							) : null)}
 						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
-							<ItemPanelMember children={'Edit Group'} onClick={currentHandlers.handleEditGroup} />
+							<ItemPanelMember children={t('contextMenu.editGroup')} onClick={currentHandlers.handleEditGroup} />
 						)}
 						{contextMenuId === DMCT_GROUP_CHAT_ID && isOwnerClanOrGroup && (
-							<ItemPanelMember children="Remove From Group" onClick={currentHandlers.handleRemoveFromGroup} danger />
+							<ItemPanelMember children={t('contextMenu.removeFromGroup')} onClick={currentHandlers.handleRemoveFromGroup} danger />
 						)}
 
 						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
-							<ItemPanelMember children={'Leave Group'} danger onClick={currentHandlers.handleLeaveGroup} />
+							<ItemPanelMember children={t('contextMenu.leaveGroup')} danger onClick={currentHandlers.handleLeaveGroup} />
 						)}
 					</>
 				)}

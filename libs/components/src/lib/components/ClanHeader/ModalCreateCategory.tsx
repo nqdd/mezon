@@ -3,6 +3,7 @@ import { Icons, InputField } from '@mezon/ui';
 import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { ModalLayout } from '../../components';
@@ -13,16 +14,13 @@ type ModalCreateCategoryProps = {
 };
 
 const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryProps) => {
+	const { t } = useTranslation('clan');
 	const [nameCate, setNameCate] = useState('');
 	const [checkCategoryName, setCheckCategoryName] = useState(true);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
 
-	const messages = {
-		INVALID_NAME: `Please enter a valid category name (max 64 characters, only words, numbers, _ or -).`,
-		DUPLICATE_NAME: `The category  name already exists in the clan . Please enter another name.`
-	};
-	const [checkValidate, setCheckValidate] = useState(messages.INVALID_NAME);
+	const [checkValidate, setCheckValidate] = useState(t('createCategoryModal.invalidName'));
 
 	const debouncedSetCategoryName = useDebouncedCallback(async (value: string) => {
 		const regex = ValidateSpecialCharacters();
@@ -37,7 +35,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 				.then((result) => {
 					if (result) {
 						setCheckCategoryName(true);
-						setCheckValidate(messages.DUPLICATE_NAME);
+						setCheckValidate(t('createCategoryModal.duplicateName'));
 						return;
 					}
 					setCheckCategoryName(false);
@@ -46,7 +44,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 			return;
 		} else {
 			setCheckCategoryName(true);
-			setCheckValidate(messages.INVALID_NAME);
+			setCheckValidate(t('createCategoryModal.invalidName'));
 		}
 	}, 300);
 
@@ -77,18 +75,18 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 		<ModalLayout onClose={onClose}>
 			<div className="w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden">
 				<div className=" flex items-center justify-between px-6 pt-4 rounded-tl-[5px] rounded-tr-[5px]">
-					<div className="text-[19px] font-bold uppercase">Create Category</div>
+					<div className="text-[19px] font-bold uppercase">{t('createCategoryModal.title')}</div>
 					<button className="flex items-center justify-center opacity-50 text-theme-primary-hover" onClick={onClose}>
 						<span className="text-4xl">×</span>
 					</button>
 				</div>
 				<div className="bg-theme-setting-primary px-6 py-4">
 					<div className="flex flex-col">
-						<span className="font-[600] text-sm ">What is category's name?</span>
+						<span className="font-[600] text-sm ">{t('createCategoryModal.nameLabel')}</span>
 						<InputField
 							type="text"
 							onChange={handleInputChange}
-							placeholder="Enter the category's name"
+							placeholder={t('createCategoryModal.namePlaceholder')}
 							className="py-[8px] border-theme-primary bg-theme-input-primary text-[14px] mt-2 mb-0 border-blue-600 border"
 							value={nameCate}
 							data-e2e={generateE2eId(`clan_page.modal.create_category.input.category_name`)}
@@ -98,7 +96,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 					<div className="flex flex-row justify-between my-2 items-center">
 						<div className="flex flex-row items-center">
 							<Icons.LockIcon />
-							<span className="text-lg font-semibold">Private Category</span>
+							<span className="text-lg font-semibold">{t('createCategoryModal.privateCategory')}</span>
 						</div>
 						<div className="relative flex flex-wrap items-center">
 							<input
@@ -118,8 +116,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 						</div>
 					</div>
 					<p className="text-sm">
-						By making a category private, only select members and roles will be able to view this category. Synced channels in this
-						category will automatically match to this setting
+						{t('createCategoryModal.privateDescription')}
 					</p>
 				</div>
 				<div className=" font-semibold text-sm flex   justify-end flex-row items-center gap-4 py-4 px-6 rounded-bl-[5px] rounded-br-[5px]">
@@ -128,7 +125,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 						className=" hover:underline text-theme-primary"
 						data-e2e={generateE2eId(`clan_page.modal.create_category.button.cancel`)}
 					>
-						Cancel
+						{t('createCategoryModal.cancel')}
 					</button>
 					<button
 						className={`px-4 py-2  btn-primary btn-primary-hover rounded-lg  ${checkValidate ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -136,7 +133,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 						disabled={checkCategoryName}
 						data-e2e={generateE2eId(`clan_page.modal.create_category.button.confirm`)}
 					>
-						Create Category
+						{t('createCategoryModal.create')}
 					</button>
 				</div>
 			</div>
