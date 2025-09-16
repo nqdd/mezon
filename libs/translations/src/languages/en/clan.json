@@ -1,14 +1,19 @@
 {
-  "title": "Customize Your Clan",
-  "subTitle": "Give your new clan a personality with a name and an icon. You can always change it later.",
-  "clanName": "Clan Name",
-  "createServer": "Create Clan",
-  "byCreatingClan":"By creating a clan, you agree to Mezon’s",
-  "upload": "UPLOAD",
-  "addClan": "Add Clan",
-  "placeholderClan": "Enter the clan name",
-  "errorMessage": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
-  "duplicateNameMessage" : "The clan name already exists. Please enter another name.",
-  "commutityGuide" : "Community Guidelines.",
-  "busy": "Busy"
+	"title": "Customize Your Clan",
+	"subTitle": "Give your new clan a personality with a name and an icon. You can always change it later.",
+	"clanName": "Clan Name",
+	"createServer": "Create Clan",
+	"byCreatingClan": "By creating a clan, you agree to Mezon’s",
+	"upload": "UPLOAD",
+	"addClan": "Add Clan",
+	"placeholderClan": "Enter the clan name",
+	"errorMessage": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
+	"duplicateNameMessage": "The clan name already exists. Please enter another name.",
+	"commutityGuide": "Community Guidelines.",
+	"busy": "Busy",
+	"limitModal": {
+		"title": "Limit Reached!",
+		"message": "You're already in 50 clans. You'll need to leave one before you can join or create another.",
+		"okayButton": "Okay"
+	}
 }
