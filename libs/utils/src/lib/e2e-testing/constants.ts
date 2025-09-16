@@ -30,6 +30,17 @@ export const DATA_E2E_IDENTIFIER = {
 			topic: ''
 		}
 	},
+	panel: {
+		panel_item: ''
+	},
+	modal: {
+		confirm_modal: {
+			button: {
+				confirm: '',
+				cancel: ''
+			}
+		}
+	},
 	homepage: {
 		header: {
 			link: '',
@@ -83,6 +94,9 @@ export const DATA_E2E_IDENTIFIER = {
 			button: {
 				add_clan: '',
 				add_channel: ''
+			},
+			panel: {
+				category_panel: ''
 			}
 		},
 		modal: {
