@@ -9,7 +9,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, nomalizeTextToLowerCase } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../../AvatarImage/AvatarImage';
@@ -133,7 +133,7 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		if (!search) {
 			return listManageNotInChannel;
 		}
-		return listManageNotInChannel.filter((role) => role.title?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()));
+		return listManageNotInChannel.filter((role) => nomalizeTextToLowerCase(role.title)?.includes(nomalizeTextToLowerCase(search)));
 	}, [search]);
 
 	const listMemberCanAdd = useMemo(() => {
@@ -142,9 +142,9 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		}
 		return usersClan.filter(
 			(user) =>
-				user.clan_nick?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()) ||
-				user.user?.display_name?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase()) ||
-				user.user?.username?.toLocaleLowerCase()?.includes(search.toLocaleLowerCase())
+				nomalizeTextToLowerCase(user?.clan_nick || '') ||
+				nomalizeTextToLowerCase(user.user?.display_name) ||
+				nomalizeTextToLowerCase(user.user?.username)
 		);
 	}, [search]);
 
