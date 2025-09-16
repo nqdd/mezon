@@ -88,7 +88,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const handleLeaveRoom = async (clanId: string, channelId: string, roomId: string) => {
 		if (channelId) {
 			await participantMeetState(ParticipantMeetState.LEAVE, clanId, channelId, roomId);
-			dispatch(voiceActions.resetVoiceSettings());
+			dispatch(voiceActions.resetVoiceControl());
 		}
 	};
 

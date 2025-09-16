@@ -6,6 +6,7 @@ import { Icons } from '@mezon/ui';
 import type { MetaDateStatusUser } from '@mezon/utils';
 import { ETabUserStatus, EUserStatus, generateE2eId } from '@mezon/utils';
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -29,6 +30,7 @@ type FriendMenuProps = {
 };
 
 const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: FriendMenuProps) => {
+	const { t } = useTranslation('friendsPage');
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -54,12 +56,12 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 	return (
 		<div ref={menuRef} className="bg-theme-contexify p-2 w-[150px] text-[14px] font-medium absolute z-50" style={menuStyle}>
 			<div className="flex flex-col gap-1">
-				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={onClose}>
-					Start Video Call
+				{/* <button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={onClose}>
+					{t('friendMenu.startVideoCall')}
 				</button>
 				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={onClose}>
-					Start Voice Call
-				</button>
+					{t('friendMenu.startVoiceCall')}
+				</button> */}
 				<button
 					className="hover:bg-[#f67e882a] p-2 rounded-[5px] w-full text-colorDanger flex"
 					onClick={() => {
@@ -67,7 +69,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 						onClose();
 					}}
 				>
-					Remove Friend
+					{t('friendMenu.removeFriend')}
 				</button>
 				<button
 					className="hover:bg-[#f67e882a] p-2 rounded-[5px] w-full text-colorDanger flex"
@@ -76,7 +78,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 						onClose();
 					}}
 				>
-					Block
+					{t('friendMenu.block')}
 				</button>
 			</div>
 		</div>
@@ -84,6 +86,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 };
 
 const FriendsListItem = ({ friend }: FriendProps) => {
+	const { t } = useTranslation('friendsPage');
 	const { createDirectMessageWithUser } = useDirect();
 	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
 	const { acceptFriend, deleteFriend, blockFriend, unBlockFriend } = useFriends();
@@ -120,10 +123,10 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		try {
 			const isBlocked = await blockFriend(username, id);
 			if (isBlocked) {
-				toast.success('User blocked successfully');
+				toast.success(t('toast.userBlockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to block user');
+			toast.error(t('toast.userBlockedFailed'));
 		}
 	};
 
@@ -131,10 +134,10 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		try {
 			const isUnblocked = await unBlockFriend(username, id);
 			if (isUnblocked) {
-				toast.success('User unblocked successfully');
+				toast.success(t('toast.userUnblockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to unblock user');
+			toast.error(t('toast.userUnblockedFailed'));
 		}
 	};
 
@@ -241,7 +244,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								className="bg-bgTertiary text-contentSecondary rounded-[6px] text-[14px] p-2 flex items-center justify-center hover:bg-bgPrimary"
 								onClick={() => handleUnblockFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
-								Unblock
+								{t('friendMenu.unblock')}
 							</button>
 						</div>
 					)}

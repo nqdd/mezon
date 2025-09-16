@@ -1,6 +1,7 @@
 import { useRoles } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectAllRolesClan } from '@mezon/store-mobile';
+import { MAX_FILE_SIZE_256KB } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -68,6 +69,7 @@ function RoleImagePicker({ roleId, disable = false }: { roleId: string; disable?
 						onLoad={handleOnLoad}
 						autoUpload
 						disabled={disable}
+						imageSizeLimit={MAX_FILE_SIZE_256KB}
 					/>
 				</View>
 			</View>

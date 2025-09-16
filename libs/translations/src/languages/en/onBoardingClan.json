@@ -1,11 +1,135 @@
 {
-    "title": "Onboarding progress",
-    "description": "Step {{step}} of {{total}}",
-    "action": {
-        "title": "Finish onboarding your clan",
-        "description": "You have finished {{step}} of {{total}} step",
-        "createChannel": "Create your channel",
-        "invite": "Invite your friends",
-        "sendMessage": "Send your first message"
-    }
+	"title": "Onboarding progress",
+	"description": "Step {{step}} of {{total}}",
+	"action": {
+		"title": "Finish onboarding your clan",
+		"description": "You have finished {{step}} of {{total}} step",
+		"createChannel": "Create your channel",
+		"invite": "Invite your friends",
+		"sendMessage": "Send your first message"
+	},
+	"modal": {
+		"title": "Onboarding Settings"
+	},
+	"buttons": {
+		"back": "Back",
+		"cancel": "Cancel",
+		"confirm": "Confirm",
+		"save": "Save",
+		"saving": "Saving...",
+		"setup": "Set up",
+		"edit": "Edit",
+		"preview": "Preview",
+		"disable": "Disable Onboarding"
+	},
+	"onboarding": {
+		"title": "Onboarding",
+		"description": "Give your members a simple starting experience with custom channels, roles and first steps.",
+		"enabledTitle": "Onboarding Is Enabled",
+		"enabledDescription": "Changes will not take effect until you save.",
+		"featuresEnabled": "Onboarding features are enabled"
+	},
+	"questions": {
+		"title": "Questions",
+		"description": "Public channels are assignable through Questions."
+	},
+	"clanGuide": {
+		"title": "Clan Guide",
+		"description": "Your Welcome Message, Banner, To-Do tasks and Resources are all set up"
+	},
+	"messages": {
+		"communityEnabledSuccess": "Community enabled successfully",
+		"changesSavedSuccess": "Changes saved successfully"
+	},
+	"errors": {
+		"needAtLeastOneItem": "Need at least one item to enable onboarding",
+		"failedToEnableCommunity": "Failed to enable community",
+		"failedToSaveChanges": "Failed to save changes",
+		"questionRequired": "Question is required."
+	},
+	"questionsPage": {
+		"title": "Questions",
+		"description": "Create questions to help members pick additional channels and roles. Their channel list will be customised based on their answers.",
+		"noChannelsMissing": "No public channels are missing from Questions and Default Channels.",
+		"channelNotAssigned": "Channel not assigned",
+		"noChannelsHere": "No channels here",
+		"preJoinQuestions": {
+			"title": "Pre-join Questions",
+			"description": "Members will be asked these questions before they join your server. Use them to assign channels and important roles. Pre-join Questions will also be available on the Channels & Roles page."
+		},
+		"addQuestion": "Add a Question",
+		"questionNumber": "Question {{number}}",
+		"enterQuestion": "Enter a question...",
+		"availableAnswers": "Available answers - {{count}} of 50",
+		"addAnswer": "Add an Answer",
+		"questionPlaceholder": "What is your question",
+		"answerTitle": "Add answer title",
+		"answerDescription": "Add answer description",
+		"enterAnswer": "Enter an answer...",
+		"enterDescription": "Enter a description... (optional)",
+		"titleRequired": "Title is required",
+		"remove": "Remove"
+	},
+	"enableOnboarding": {
+		"title": "Are you enable Onboarding?",
+		"description": "Convert to Onboarding to access additional administrative tools",
+		"subtitle": "that help you moderate and grow your Clan effectively.",
+		"button": "Enable Onboarding",
+		"note": "This action will unlock advanced onboarding features"
+	},
+	"enableCommunity": {
+		"title": "Enable Community?",
+		"description": "Transform your community into a fully-featured Community experience.",
+		"subtitle": "Access powerful administrative tools to moderate and grow your Clan effectively.",
+		"button": "Enable Community",
+		"note": "This action will unlock advanced community features"
+	},
+	"communitySettings": {
+		"title": "Community Settings",
+		"subtitle": "Manage your community information",
+		"enableTitle": "Enable Community",
+		"enableSubtitle": "Create a great space for your members to connect",
+		"loading": "Loading community settings...",
+		"banner": {
+			"title": "Community Banner",
+			"uploadTitle": "Upload Banner",
+			"uploadDescription": "Drag & drop or click to select an image",
+			"changeBanner": "Change Banner",
+			"removeBanner": "Remove Banner"
+		},
+		"description": {
+			"title": "Community Description",
+			"placeholder": "Enter a short description for your community..."
+		},
+		"about": {
+			"title": "About Community",
+			"placeholder": "Tell us about your community... What makes it special?"
+		},
+		"vanityUrl": {
+			"title": "Vanity URL",
+			"description": "Create a custom URL for your community. Use only lowercase letters, numbers, and hyphens.",
+			"placeholder": "my-awesome-community",
+			"previewLabel": "Preview URL:"
+		},
+		"buttons": {
+			"enableAndSave": "Enable & Save",
+			"saving": "Saving...",
+			"save": "Save Changes",
+			"disable": "Disable Community"
+		},
+		"messages": {
+			"aboutUpdated": "About updated!",
+			"aboutUpdateFailed": "Update about failed!",
+			"descriptionUpdated": "Description updated!",
+			"descriptionUpdateFailed": "Update description failed!",
+			"vanityUrlUpdated": "Vanity URL updated!",
+			"vanityUrlUpdateFailed": "Update vanity url failed!",
+			"communityEnabledAndSaved": "Community enabled and saved!",
+			"saveFailed": "Save failed!",
+			"changesSaved": "Changes saved!",
+			"communityDisabled": "Community disabled.",
+			"disableFailed": "Disable failed!",
+			"bannerRemoved": "Banner removed!"
+		}
+	}
 }

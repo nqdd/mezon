@@ -1,5 +1,8 @@
+import { useTranslation } from 'react-i18next';
+
 const Error = () => {
-	return <div>Error</div>;
+	const { t } = useTranslation('memberTable');
+	return <div>{t('error')}</div>;
 };
 
 export default Error;

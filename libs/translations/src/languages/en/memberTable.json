@@ -1,0 +1,19 @@
+{
+  "headers": {
+    "name": "Name",
+    "memberSince": "Member since",
+    "joinedMezon": "Joined Mezon",
+    "roles": "Roles",
+    "signals": "Signals"
+  },
+  "topBar": {
+    "recentMembers": "Recent Members",
+    "searchPlaceholder": "Search by clannick, display name or username",
+    "sort": "Sort"
+  },
+  "error": "Error",
+  "profile": "Profile",
+  "message": "Message",
+  "transferOwnership": "Transfer Ownership",
+  "removeMember": "Remove Member"
+}

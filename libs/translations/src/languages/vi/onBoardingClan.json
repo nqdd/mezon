@@ -1,12 +1,135 @@
 {
-    "title": "Hoàn thành hướng dẫn",
-    "description": "Bước {{step}} trên {{total}}",
-    "action": {
-        "title": "Hoàn thành hướng dẫn cho clan của bạn",
-        "description": "Đã hoàn thành {{step}} trên {{total}} bước",
-        "createChannel": "Tạo kênh của bạn",
-        "invite": "Mời một vài người bạn",
-        "sendMessage": "Gửi tin nhắn đầu tiên"
-    }
-
+	"title": "Hoàn thành hướng dẫn",
+	"description": "Bước {{step}} trên {{total}}",
+	"action": {
+		"title": "Hoàn thành hướng dẫn cho clan của bạn",
+		"description": "Đã hoàn thành {{step}} trên {{total}} bước",
+		"createChannel": "Tạo kênh của bạn",
+		"invite": "Mời một vài người bạn",
+		"sendMessage": "Gửi tin nhắn đầu tiên"
+	},
+	"modal": {
+		"title": "Cài đặt hướng dẫn"
+	},
+	"buttons": {
+		"back": "Quay lại",
+		"cancel": "Hủy",
+		"confirm": "Xác nhận",
+		"save": "Lưu",
+		"saving": "Đang lưu...",
+		"setup": "Thiết lập",
+		"edit": "Chỉnh sửa",
+		"preview": "Xem trước",
+		"disable": "Tắt hướng dẫn"
+	},
+	"onboarding": {
+		"title": "Hướng dẫn",
+		"description": "Tạo trải nghiệm khởi đầu đơn giản cho thành viên với các kênh, vai trò và bước đầu tùy chỉnh.",
+		"enabledTitle": "Hướng dẫn đã được bật",
+		"enabledDescription": "Các thay đổi sẽ không có hiệu lực cho đến khi bạn lưu.",
+		"featuresEnabled": "Tính năng hướng dẫn đã được bật"
+	},
+	"questions": {
+		"title": "Câu hỏi",
+		"description": "Các kênh công khai có thể được gán thông qua Câu hỏi."
+	},
+	"clanGuide": {
+		"title": "Hướng dẫn Clan",
+		"description": "Tin nhắn chào mừng, Banner, nhiệm vụ cần làm và Tài nguyên của bạn đều đã được thiết lập"
+	},
+	"messages": {
+		"communityEnabledSuccess": "Cộng đồng đã được bật thành công",
+		"changesSavedSuccess": "Thay đổi đã được lưu thành công"
+	},
+	"errors": {
+		"needAtLeastOneItem": "Cần ít nhất một mục để bật hướng dẫn",
+		"failedToEnableCommunity": "Không thể bật cộng đồng",
+		"failedToSaveChanges": "Không thể lưu thay đổi",
+		"questionRequired": "Câu hỏi là bắt buộc."
+	},
+	"questionsPage": {
+		"title": "Câu hỏi",
+		"description": "Tạo câu hỏi để giúp thành viên chọn các kênh và vai trò bổ sung. Danh sách kênh của họ sẽ được tùy chỉnh dựa trên câu trả lời của họ.",
+		"noChannelsMissing": "Không có kênh công khai nào bị thiếu từ Câu hỏi và Kênh Mặc định.",
+		"channelNotAssigned": "Kênh chưa được gán",
+		"noChannelsHere": "Không có kênh nào ở đây",
+		"preJoinQuestions": {
+			"title": "Câu hỏi Trước khi Tham gia",
+			"description": "Thành viên sẽ được hỏi những câu hỏi này trước khi họ tham gia máy chủ của bạn. Sử dụng chúng để gán kênh và vai trò quan trọng. Câu hỏi Trước khi Tham gia cũng sẽ có sẵn trên trang Kênh & Vai trò."
+		},
+		"addQuestion": "Thêm câu hỏi",
+		"questionNumber": "Câu hỏi {{number}}",
+		"enterQuestion": "Nhập câu hỏi...",
+		"availableAnswers": "Câu trả lời có sẵn - {{count}} trong số 50",
+		"addAnswer": "Thêm câu trả lời",
+		"questionPlaceholder": "Câu hỏi của bạn là gì",
+		"answerTitle": "Thêm tiêu đề câu trả lời",
+		"answerDescription": "Thêm mô tả câu trả lời",
+		"enterAnswer": "Nhập câu trả lời...",
+		"enterDescription": "Nhập mô tả... (tùy chọn)",
+		"titleRequired": "Tiêu đề là bắt buộc",
+		"remove": "Xóa"
+	},
+	"enableOnboarding": {
+		"title": "Bạn có bật Hướng dẫn không?",
+		"description": "Chuyển đổi sang Hướng dẫn để truy cập các công cụ quản trị bổ sung",
+		"subtitle": "giúp bạn kiểm duyệt và phát triển Clan của mình một cách hiệu quả.",
+		"button": "Bật Hướng dẫn",
+		"note": "Hành động này sẽ mở khóa các tính năng hướng dẫn nâng cao"
+	},
+	"enableCommunity": {
+		"title": "Bật Cộng đồng?",
+		"description": "Biến đổi cộng đồng của bạn thành trải nghiệm Cộng đồng đầy đủ tính năng.",
+		"subtitle": "Truy cập các công cụ quản trị mạnh mẽ để kiểm duyệt và phát triển Clan của bạn một cách hiệu quả.",
+		"button": "Bật Cộng đồng",
+		"note": "Hành động này sẽ mở khóa các tính năng cộng đồng nâng cao"
+	},
+	"communitySettings": {
+		"title": "Cài đặt Cộng đồng",
+		"subtitle": "Quản lý thông tin cộng đồng của bạn",
+		"enableTitle": "Bật Cộng đồng",
+		"enableSubtitle": "Tạo một không gian tuyệt vời để các thành viên kết nối",
+		"loading": "Đang tải cài đặt cộng đồng...",
+		"banner": {
+			"title": "Banner Cộng đồng",
+			"uploadTitle": "Tải lên Banner",
+			"uploadDescription": "Kéo & thả hoặc nhấp để chọn hình ảnh",
+			"changeBanner": "Thay đổi Banner",
+			"removeBanner": "Xóa Banner"
+		},
+		"description": {
+			"title": "Mô tả Cộng đồng",
+			"placeholder": "Nhập mô tả ngắn cho cộng đồng của bạn..."
+		},
+		"about": {
+			"title": "Về Cộng đồng",
+			"placeholder": "Hãy kể cho chúng tôi về cộng đồng của bạn... Điều gì làm cho nó đặc biệt?"
+		},
+		"vanityUrl": {
+			"title": "URL Tùy chỉnh",
+			"description": "Tạo URL tùy chỉnh cho cộng đồng của bạn. Chỉ sử dụng chữ thường, số và dấu gạch ngang.",
+			"placeholder": "cong-dong-tuyet-voi-cua-toi",
+			"previewLabel": "URL Xem trước:"
+		},
+		"buttons": {
+			"enableAndSave": "Bật & Lưu",
+			"saving": "Đang lưu...",
+			"save": "Lưu thay đổi",
+			"disable": "Tắt Cộng đồng"
+		},
+		"messages": {
+			"aboutUpdated": "Đã cập nhật thông tin!",
+			"aboutUpdateFailed": "Cập nhật thông tin thất bại!",
+			"descriptionUpdated": "Đã cập nhật mô tả!",
+			"descriptionUpdateFailed": "Cập nhật mô tả thất bại!",
+			"vanityUrlUpdated": "Đã cập nhật URL tùy chỉnh!",
+			"vanityUrlUpdateFailed": "Cập nhật URL tùy chỉnh thất bại!",
+			"communityEnabledAndSaved": "Đã bật cộng đồng và lưu!",
+			"saveFailed": "Lưu thất bại!",
+			"changesSaved": "Đã lưu thay đổi!",
+			"communityDisabled": "Đã tắt cộng đồng.",
+			"disableFailed": "Tắt thất bại!",
+			"bannerRemoved": "Đã xóa banner!"
+		}
+	}
 }

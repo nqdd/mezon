@@ -11,6 +11,7 @@ import {
 import { Icons, Menu } from '@mezon/ui';
 import { IChannel } from '@mezon/utils';
 import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 export type CategoryChannelProps = {
@@ -18,6 +19,7 @@ export type CategoryChannelProps = {
 };
 const SettingCategoryChannel = (props: CategoryChannelProps) => {
 	const { channel } = props;
+	const { t } = useTranslation('channelSetting');
 	const listCategory = useSelector(selectAllCategories);
 	const realTimeChannel = useAppSelector((state) => selectChannelById(state, channel.channel_id || ''));
 	const dispatch = useAppDispatch();
@@ -63,13 +65,13 @@ const SettingCategoryChannel = (props: CategoryChannelProps) => {
 	return (
 		<div className="overflow-y-auto flex flex-col flex-1 shrink bg-theme-setting-primary w-1/2 pt-[94px] pb-7 pr-[10px] pl-[40px] overflow-x-hidden min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
 			<div className="text-theme-primary text-[15px] flex flex-col gap-4">
-				<h3 className="font-bold text-xl text-theme-primary-active">Category</h3>
+				<h3 className="font-bold text-xl text-theme-primary-active">{t('categoryManagement.title')}</h3>
 
-				<p className="text-xs font-bold text-theme-primary">Channel name</p>
+				<p className="text-xs font-bold text-theme-primary">{t('categoryManagement.channelName')}</p>
 				<div className="bg-input-secondary border-theme-primary rounded-lg pl-3 py-2 w-full  outline-none text-theme-message">
 					{realTimeChannel.channel_label}
 				</div>
-				<p className="text-xs font-bold text-theme-primary mt-4">Category</p>
+				<p className="text-xs font-bold text-theme-primary mt-4">{t('categoryManagement.category')}</p>
 
 				<Menu menu={menu}>
 					<div className="w-full h-12 rounded-md border-theme-primary text-theme-message bg-input-secondary  flex flex-row px-3 justify-between items-center uppercase">

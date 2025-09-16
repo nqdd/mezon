@@ -1,0 +1,18 @@
+{
+  "buttons": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "reset": "Reset",
+    "close": "Close",
+    "kick": "Kick"
+  },
+  "form": {
+    "required": "Required field",
+    "error": "Error"
+  },
+  "kickMember": {
+    "title": "Kick {{username}} from {{clanName}}",
+    "description": "Are you sure you want to kick @{{username}} from {{clanName}}? They will be able to rejoin again with a new invite.",
+    "reasonLabel": "Reason for Kick"
+  }
+}

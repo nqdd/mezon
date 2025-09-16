@@ -2,6 +2,7 @@ import { selectIsLogin } from '@mezon/store';
 import { Icons, Image } from '@mezon/ui';
 import debounce from 'lodash.debounce';
 import { memo, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -12,6 +13,7 @@ interface SideBarProps {
 }
 
 export const SideBarMezon = memo((props: SideBarProps) => {
+	const { t } = useTranslation('homepage');
 	const isLogin = useSelector(selectIsLogin);
 	const { sideBarIsOpen, toggleSideBar, scrollToSection } = props;
 
@@ -70,21 +72,21 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					onClick={(event) => scrollToSection('home', event)}
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Home
+					{t('header.home')}
 				</a>
 				<a
 					href="#overview"
 					onClick={(event) => scrollToSection('overview', event)}
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Overview
+					{t('header.overview')}
 				</a>
 				<a
 					href="#feature"
 					onClick={(event) => scrollToSection('feature', event)}
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Features
+					{t('header.features')}
 				</a>
 				<a
 					href={'developers/applications'}
@@ -92,7 +94,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					rel="noopener noreferrer"
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Developers
+					{t('header.developers')}
 				</a>
 				<a
 					href={'https://top.mezon.ai'}
@@ -100,7 +102,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					rel="noopener noreferrer"
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Bots/Apps
+					{t('header.botsApps')}
 				</a>
 				<a
 					href={'docs/'}
@@ -108,7 +110,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					rel="noopener noreferrer"
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Documents
+					{t('header.documents')}
 				</a>
 				<a
 					href={'clans/'}
@@ -116,7 +118,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					rel="noopener noreferrer"
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Discover
+					{t('header.discover')}
 				</a>
 				<a
 					href={'blogs/'}
@@ -124,14 +126,14 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					rel="noopener noreferrer"
 					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
-					Blogs
+					{t('header.blogs')}
 				</a>
 
 				<Link
 					className="text-center px-[16px] py-[10px] rounded-[8px] bg-[#1024D4] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] focus:bg-[#281FB5] whitespace-nowrap"
 					to={'/mezon'}
 				>
-					{isLogin ? 'Open Mezon' : 'Login'}
+					{isLogin ? t('header.openMezon') : t('header.login')}
 				</Link>
 			</div>
 		</div>

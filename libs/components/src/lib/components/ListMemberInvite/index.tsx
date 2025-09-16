@@ -1,15 +1,10 @@
 import { useDMInvite } from '@mezon/core';
-import {
-	DirectEntity,
-	FriendsEntity,
-	selectAllDirectMessages,
-	selectAllFriends,
-	selectAllMembersInClan,
-	selectTheme,
-	useAppSelector
-} from '@mezon/store';
-import { UsersClanEntity } from '@mezon/utils';
-import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { DirectEntity, FriendsEntity } from '@mezon/store';
+import { selectAllDirectMessages, selectAllFriends, selectAllMembersInClan, selectTheme, useAppSelector } from '@mezon/store';
+import type { UsersClanEntity } from '@mezon/utils';
+import type { ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import ListMemberInviteItem from './ListMemberInviteItem';
@@ -20,6 +15,7 @@ export type ModalParam = {
 	isInviteExternalCalling?: boolean;
 };
 const ListMemberInvite = (props: ModalParam) => {
+	const { t } = useTranslation('invitation');
 	const appearanceTheme = useSelector(selectTheme);
 	const { isInviteExternalCalling = false } = props;
 	const { listDMInvite, listUserInvite } = useDMInvite(props.channelID);
@@ -103,14 +99,9 @@ const ListMemberInvite = (props: ModalParam) => {
 				type="text"
 				value={searchTerm}
 				onChange={handleInputChange}
-				placeholder="Search for friends"
+				placeholder={t('searchPlaceholder')}
 				className="w-full h-10 mb-1 bg-theme-input  border-theme-primary rounded-lg px-[16px] py-[13px] text-[14px] outline-none"
 			/>
-			<p className="ml-[0px] mt-1 mb-4  text-[15px] cursor-default">
-				This channel is private, only select members and roles can view this channel.
-			</p>
-
-			<hr className="border-t-theme-primary"></hr>
 			<div className={`py-[10px] cursor-default overflow-y-auto max-h-[200px] overflow-x-hidden thread-scroll `}>
 				{isInviteExternalCalling ? (
 					<div className="flex flex-col gap-3">
@@ -128,7 +119,7 @@ const ListMemberInvite = (props: ModalParam) => {
 								/>
 							))
 						) : (
-							<span>No result</span>
+							<span>{t('noResults')}</span>
 						)}
 					</div>
 				) : listDMInvite ? (

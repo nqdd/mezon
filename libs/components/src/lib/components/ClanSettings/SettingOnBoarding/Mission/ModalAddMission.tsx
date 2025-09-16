@@ -11,6 +11,7 @@ import {
 import { ChannelStatusEnum } from '@mezon/utils';
 import { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { ChangeEvent, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
 type TypeMission = {
@@ -19,21 +20,23 @@ type TypeMission = {
 	name: string;
 };
 const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void; missionEdit?: ApiOnboardingItem; tempId?: number }) => {
+	const { t } = useTranslation('onboardingMissions');
+	
 	const listTypeMisstion: TypeMission[] = [
 		{
 			id: ETypeMission.SEND_MESSAGE,
-			description: 'Member sends a message in the channel',
-			name: 'mission1'
+			description: t('missions.sendMessage.description'),
+			name: t('missions.sendMessage.name')
 		},
 		{
 			id: ETypeMission.VISIT,
-			description: 'Member visits the channel',
-			name: 'mission2'
+			description: t('missions.visit.description'),
+			name: t('missions.visit.name')
 		},
 		{
 			id: ETypeMission.DOSOMETHING,
-			description: 'Reading this mission',
-			name: 'mission3'
+			description: t('missions.doSomething.description'),
+			name: t('missions.doSomething.name')
 		}
 	];
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -50,11 +53,11 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 	const handleChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
 		setTitle(e.target.value);
 		if (!e.target.value.length) {
-			setError('This field is required.');
+			setError(t('form.required'));
 			return;
 		}
 		if (e.target.value.length < 7) {
-			setError('Actions must be at least 7 characters');
+			setError(t('form.minCharacters'));
 		} else {
 			setError('');
 		}
@@ -86,11 +89,11 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 	const handleAddTask = () => {
 		if (!title) {
-			setError('This field is required.');
+			setError(t('form.required'));
 			return;
 		}
 		if (title.length < 7) {
-			setError('Actions must be at least 7 characters');
+			setError(t('form.minCharacters'));
 			return;
 		}
 
@@ -157,14 +160,14 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		<ModalControlRule
 			onClose={onClose}
 			onSave={handleAddTask}
-			bottomLeftBtn={missionEdit ? 'Remove' : undefined}
+			bottomLeftBtn={missionEdit ? t('buttons.remove') : undefined}
 			bottomLeftBtnFunction={handleRemoveTask}
 		>
 			<div className="flex flex-col pb-3">
 				<ControlInput
 					message={error}
-					placeholder="Ex. Post a photo of your pet"
-					title="What should the new member do?"
+					placeholder={t('form.placeholder')}
+					title={t('form.title')}
 					onChange={handleChangeTitle}
 					value={title}
 					required
@@ -173,7 +176,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 				<div className="flex flex-col gap-2">
 					<h1 className="text-base font-semibold text-gray-800 dark:text-white">
-						Where should they do it? <span className="text-red-500">*</span>
+						{t('form.channelTitle')} <span className="text-red-500">*</span>
 					</h1>
 					<div className="flex flex-col">
 						<select
@@ -188,7 +191,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 							))}
 						</select>
 
-						<span className="text-xs mt-1 text-gray-500 dark:text-gray-400">Channels must be viewable by @everyone (public channel)</span>
+						<span className="text-xs mt-1 text-gray-500 dark:text-gray-400">{t('form.channelNote')}</span>
 					</div>
 				</div>
 
@@ -196,7 +199,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 				<div className="flex flex-col">
 					<h1 className="text-base font-semibold text-gray-800 dark:text-white">
-						This task is complete when: <span className="text-red-500">*</span>
+						{t('form.completeWhen')} <span className="text-red-500">*</span>
 					</h1>
 
 					{listTypeMisstion.map((missions) => (

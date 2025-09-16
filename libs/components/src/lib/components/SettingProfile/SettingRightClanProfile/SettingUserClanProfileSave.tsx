@@ -1,6 +1,7 @@
 import { getSelectedRoleId } from '@mezon/store';
 import { ButtonLoading } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 export type ModalSettingSave = {
@@ -15,6 +16,7 @@ export type SettingUserClanProfileSaveProps = {
 export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProps) => {
 	const { PropsSave } = props;
 	const clickRole = useSelector(getSelectedRoleId);
+	const { t } = useTranslation('profileSetting');
 	const handleSaveChanges = async () => {
 		await PropsSave.handleUpdateUser();
 	};
@@ -24,7 +26,7 @@ export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProp
 			data-e2e={generateE2eId('user_setting.profile.clan_profile')}
 		>
 			<div className="flex-1 flex items-center">
-				<p className="text-base">Careful - you have unsaved changes!</p>
+				<p className="text-base">{t('unsavedChangesWarning')}</p>
 			</div>
 			<div className="flex flex-row justify-end gap-3">
 				<button
@@ -34,11 +36,11 @@ export const SettingUserClanProfileSave = (props: SettingUserClanProfileSaveProp
 					}}
 					data-e2e={generateE2eId('button.base')}
 				>
-					Reset
+					{t('reset')}
 				</button>
 				<ButtonLoading
 					className="ml-auto btn-primary btn-primary-hover  rounded-lg px-4 py-1.5 text-nowrap "
-					label="Save Changes"
+					label={t('saveChanges')}
 					onClick={handleSaveChanges}
 				/>
 			</div>

@@ -88,7 +88,23 @@
         "edit": "Update Event",
         "event_one": "1 Event",
         "event_other": "{{count}} Events",
-        "noEvent": "Events"
+        "noEvent": "Events",
+        "clearAudiences": "Clear audiences",
+        "startEvent": "Start Event",
+        "editEvent": "Edit Event",
+        "cancelEvent": "Cancel Event",
+        "copyEventLink": "Copy Event Link",
+        "uploadImage": "Upload Image",
+        "neverMind": "Never Mind",
+        "cancelEventQuestion": "Cancel Event?",
+        "confirmCancelEvent": "Are you sure you want to cancel this event?",
+        "back": "Back",
+        "cancel": "Cancel"
+    },
+    "tabs": {
+        "location": "Location",
+        "eventInfo": "Event Info",
+        "review": "Review"
     },
     "notify": {
         "locationBlank": "A location is required",
@@ -98,7 +114,29 @@
     },
     "eventDetail": {
         "eventIsTaking": "Event is taking place!",
-        "tenMinutesLeft": "{{minutes}} minutes left. Join in!"
+        "tenMinutesLeft": "{{minutes}} minutes left. Join in!",
+        "eventInfo": "Event Info",
+        "interested": "Interested",
+        "personInterested": "{{count}} person is interested",
+        "createdBy": "Created by",
+        "inviteFriends": "Invite friends to event?",
+        "shareLink": "Share this link with others to grant access to this server",
+        "onlyInvitedMembers": "Only invited members can join.",
+        "openLink": "Open Link",
+        "invite": "Invite",
+        "copyLink": "Copy Link",
+        "audienceConsists": "The audience consists of members from",
+        "thread": "thread:",
+        "channel": "channel:",
+        "clanEvent": "Clan Event",
+        "channelEvent": "Channel Event",
+        "privateEvent": "Private Event",
+        "privateRoom": "Private Room",
+        "share": "Share"
+    },
+    "errorMessages": {
+        "startTimeFuture": "The start time must be in the future.",
+        "endTimeAfterStart": "The end time must be bigger than start time."
     },
     "selectUser": "Select channel to create event"
 }

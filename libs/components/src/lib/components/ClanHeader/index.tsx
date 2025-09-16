@@ -14,8 +14,9 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
-import { ApiCreateCategoryDescRequest } from 'mezon-js/api.gen';
+import type { ApiCreateCategoryDescRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,6 +42,7 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 	const dispatch = useAppDispatch();
 	const params = useParams();
 	const currentClanId = useSelector(selectCurrentClanId);
+	const { t } = useTranslation('clan');
 	const [isClanOwner, canManageClan] = usePermissionChecker([EPermission.clanOwner, EPermission.manageClan]);
 	const { removeMemberClan } = useChannelMembersActions();
 	const { userProfile } = useAuth();
@@ -165,7 +167,7 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 				<div className="contain-strict px-3 font-semibold  h-heightHeader flex items-center border-b-theme-primary ">
 					<input
 						ref={inputRef}
-						placeholder="Find or start a conversation"
+						placeholder={t('findOrStartConversation')}
 						className={`font-[500] px-[16px] rounded-lg outline-none text-[14px] w-full h-[36px] bg-theme-input color-text-secondary border-theme-primary`}
 						type="text"
 						onFocus={handleInputFocus}

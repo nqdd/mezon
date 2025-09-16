@@ -10,6 +10,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { IUserAuditLog, UsersClanEntity, createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 
@@ -65,6 +66,7 @@ const SearchMemberAuditLogModal = ({
 	currentPage,
 	selectedDate
 }: SearchMemberAuditLogProps) => {
+	const { t } = useTranslation('search');
 	const dispatch = useAppDispatch();
 	const appearanceTheme = useSelector(selectTheme);
 	const [searchTerm, setSearchTerm] = useState('');
@@ -72,7 +74,7 @@ const SearchMemberAuditLogModal = ({
 	const usersClan = useSelector(selectAllUserClans);
 
 	const users: Users[] = [
-		{ name: 'All Users', icon: <Icons.MemberList isWhite={true} />, userId: '' },
+		{ name: t('allUsers'), icon: <Icons.MemberList isWhite={true} />, userId: '' },
 		...usersClan.map((item: UsersClanEntity) => ({
 			name: item?.user?.display_name || '',
 			icon: <AvatarUser user={item} />,
@@ -109,7 +111,7 @@ const SearchMemberAuditLogModal = ({
 				<div className="relative m-2">
 					<input
 						type="text"
-						placeholder="Search Members"
+						placeholder={t('searchMembers')}
 						className={`w-full p-2 pr-10 dark:bg-bgTertiary bg-[#F0F0F0] dark:text-white text-black rounded focus:outline-none ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
@@ -146,8 +148,8 @@ const SearchMemberAuditLogModal = ({
 							))
 					) : (
 						<div className="w-full h-full text-center text-gray-400 flex flex-col justify-center items-center">
-								<div className="text-theme-primary font-medium text-xl">Nope!</div>
-							<div>Did you make a typo?</div>
+								<div className="text-theme-primary font-medium text-xl">{t('noResults.title')}</div>
+							<div>{t('noResults.description')}</div>
 						</div>
 					)}
 				</div>

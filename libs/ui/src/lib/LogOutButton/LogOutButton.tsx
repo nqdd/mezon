@@ -1,10 +1,12 @@
 import { authActions, selectAllAccount, useAppDispatch } from '@mezon/store';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Button from '../Button';
 import ButtonLoading from '../Button/ButtonLoading';
 
 export function LogOutButton() {
+	const { t } = useTranslation('common');
 	const [openModal, setOpenModal] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
@@ -25,7 +27,7 @@ export function LogOutButton() {
 				onClick={handleOpenModal}
 				className="inline-flex m-4  h-10 items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 text-sm font-medium tracking-wide text-white  duration-300"
 			>
-				<span>Log Out</span>
+				<span>{t('logOut')}</span>
 				<span className="relative only:-mx-5">
 					<svg
 						className="h-4 w-4 text-white"
@@ -54,28 +56,29 @@ interface ModalProps {
 }
 
 export const LogoutModal: React.FC<ModalProps> = ({ handleLogOut, onClose }) => {
+	const { t } = useTranslation('common');
 	return (
 		<div className="fixed  inset-0 flex items-center justify-center z-50">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
 			<div className="relative z-10 bg-theme-setting-primary p-6 rounded-[5px] text-center">
-				<h2 className="text-[30px] font-semibold mb-4  text-theme-primary">Log Out</h2>
+				<h2 className="text-[30px] font-semibold mb-4  text-theme-primary">{t('logOut')}</h2>
 				<p
 					className="text-theme-primary 
 				 mb-6 text-[16px]"
 				>
-					Are you sure you want to log out?
+					{t('confirmLogOut')}
 				</p>
 				<div className="flex justify-center mt-10 text-[14px]">
 					<Button
 						onClick={onClose}
 						className="px-4 py-2 mr-5 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:ring focus:border-blue-300"
 					>
-						Cancel
+						{t('cancel')}
 					</Button>
 					<ButtonLoading
 						onClick={handleLogOut}
 						className="px-4 py-2 rounded focus:ring bg-[#da373c] text-white hover:opacity-80"
-						label="Log Out"
+						label={t('logOut')}
 					/>
 				</div>
 			</div>
@@ -84,26 +87,26 @@ export const LogoutModal: React.FC<ModalProps> = ({ handleLogOut, onClose }) => 
 };
 
 export const DeleteAccountModal: React.FC<ModalProps> = ({ handleLogOut, onClose, isDeleting }) => {
+	const { t } = useTranslation('common');
 	return (
 		<div className="fixed  inset-0 flex items-center justify-center z-50">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
 			<div className="relative z-10 bg-theme-setting-primary p-6 rounded-lg text-center">
-				<h2 className="text-[30px] font-semibold mb-4 text-theme-primary ">Delete Account</h2>
+				<h2 className="text-[30px] font-semibold mb-4 text-theme-primary ">{t('deleteAccount')}</h2>
 				<p
 					className="text-theme-primary
 				 mb-6 text-[16px]"
 				>
-					Are you sure that you want to delete your account? This will immediately log you out of your account and you will not be able to
-					log in again.
+					{t('confirmDeleteAccount')}
 				</p>
 				<div className="flex justify-center mt-10 text-[14px]">
 					<Button
 						onClick={onClose}
 						className="px-4 py-2 mr-5 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:ring focus:border-blue-300"
 					>
-						Cancel
+						{t('cancel')}
 					</Button>
-					<ButtonLoading onClick={handleLogOut} disabled={isDeleting} className={`px-4 py-2 rounded text-white bg-red-500 hover:opacity-80 `} label="Delete" />
+					<ButtonLoading onClick={handleLogOut} disabled={isDeleting} className={`px-4 py-2 rounded text-white bg-red-500 hover:opacity-80 `} label={t('delete')} />
 				</div>
 			</div>
 		</div>
