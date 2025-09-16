@@ -25,7 +25,7 @@ const PrivateThread = ({ label, title }: PrivateThreadProps) => {
 					onChange={handleToggle}
 					id="private"
 					className="w-6 h-6 rounded-lg focus:ring-transparent cursor-pointer"
-					data-e2e={generateE2eId('chat.channel_message.thread_box.thread_private_checkbox')}
+					data-e2e={generateE2eId('chat.channel_message.thread_box.checkbox.private_thread')}
 				/>
 				<label htmlFor="private" className="text-theme-primary text-base hover:text-theme-primary cursor-pointer">
 					{label}
