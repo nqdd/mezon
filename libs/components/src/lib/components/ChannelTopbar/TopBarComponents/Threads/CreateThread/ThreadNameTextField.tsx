@@ -48,7 +48,7 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 				className={className}
 				onKeyDown={handleKeyDown}
 				maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
-				data-e2e={generateE2eId('chat.channel_message.thread_name_input.thread_box')}
+				data-e2e={generateE2eId('chat.channel_message.thread_box.thread_name_input')}
 			/>
 			{nameThreadError && <span className="text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
 			{checkValidate && (
