@@ -6,6 +6,7 @@ import {
 	audioCallActions,
 	canvasAPIActions,
 	channelsActions,
+	directActions,
 	galleryActions,
 	getStore,
 	getStoreAsync,
@@ -30,6 +31,7 @@ import {
 	selectIsShowMemberList,
 	selectIsShowMemberListDM,
 	selectIsShowPinBadgeByChannelId,
+	selectIsShowPinBadgeByDmId,
 	selectIsThreadModalVisible,
 	selectIsUseProfileDM,
 	selectNotifiSettingsEntitiesById,
@@ -840,7 +842,10 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 	const dispatch = useAppDispatch();
 	const isShowPinMessage = useSelector(selectIsPinModalVisible);
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
-	const isShowPinBadge = useSelector(selectIsShowPinBadgeByChannelId(currentChannelId));
+	const currentDM = useSelector(selectCurrentDM) ?? '';
+	const isShowPinBadge = useAppSelector(selectIsShowPinBadgeByChannelId(currentChannelId));
+	const isShowPinDMBadge = useAppSelector((state) => selectIsShowPinBadgeByDmId(state, currentDM?.id || ''));
+	const isShowPinBadgeFinal = currentChannelId ? isShowPinBadge : isShowPinDMBadge;
 
 	const pinRef = useRef<HTMLDivElement | null>(null);
 
@@ -855,8 +860,13 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 		}
 		await dispatch(pinMessageActions.fetchChannelPinMessages({ channelId: currentChannelId || currentDmGroup.id, clanId: currentClanId }));
 		dispatch(pinMessageActions.togglePinModal());
-		if (isShowPinBadge) {
+
+		if (currentChannelId && isShowPinBadge) {
 			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: currentClanId, channelId: currentChannelId, isShow: false }));
+		}
+
+		if (!currentChannelId && currentDmGroup?.id && isShowPinDMBadge) {
+			dispatch(directActions.setShowPinBadgeOfDM({ dmId: currentDmGroup.id, isShow: false }));
 		}
 	};
 
@@ -869,7 +879,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 				onContextMenu={(e) => e.preventDefault()}
 			>
 				<Icons.PinRight defaultSize="size-5" />
-				{isShowPinBadge && (
+				{isShowPinBadgeFinal && (
 					<div
 						className="absolute border-theme-primary
 		 w-[8px] h-[8px] rounded-full bg-colorDanger outline outline-1 outline-transparent
