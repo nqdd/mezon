@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Platform, Pressable, Text, View } from 'react-native';
 import { Image as ImageCompressor } from 'react-native-compressor';
 import RNFS from 'react-native-fs';
-import { Image, openPicker } from 'react-native-image-crop-picker';
+import { Image, openCropper, openPicker } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { IFile } from '../../../componentUI/MezonImagePicker';
@@ -67,20 +67,36 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 
 	const handleAddEmoji = async () => {
 		try {
-			const croppedFile = await openPicker({
+			const selectedFile = await openPicker({
 				mediaType: 'photo',
 				includeBase64: true,
-				cropping: true,
-				compressImageQuality: QUALITY_IMAGE_UPLOAD,
-				...(typeof width === 'number' && { width: width, height: width })
+				cropping: false
 			});
 
-			if (Number(croppedFile.size) > Number(LIMIT_SIZE_UPLOAD_IMG / 4)) {
+			if (Number(selectedFile.size) > Number(LIMIT_SIZE_UPLOAD_IMG / 4)) {
 				Toast.show({
 					type: 'error',
 					text1: t('toast.errorSizeLimit')
 				});
 				return;
+			}
+
+			const isGif = selectedFile.mime === 'image/gif';
+
+			let croppedFile;
+			if (isGif) {
+				// For GIFs, don't crop to preserve animation
+				croppedFile = selectedFile;
+			} else {
+				// For other images, apply cropping and compression
+				croppedFile = await openCropper({
+					path: selectedFile.path,
+					mediaType: 'photo',
+					includeBase64: true,
+					cropping: true,
+					compressImageQuality: QUALITY_IMAGE_UPLOAD,
+					...(typeof width === 'number' && { width, height: width })
+				});
 			}
 
 			const data = {

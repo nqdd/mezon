@@ -1,6 +1,6 @@
 import { useClans, usePermissionChecker } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { EPermission } from '@mezon/utils';
+import { EPermission, MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -57,6 +57,7 @@ const LogoClanSelector = () => {
 					autoUpload={true}
 					alt={currentClan?.clan_name}
 					disabled={!isHavePermission}
+					imageSizeLimit={MAX_FILE_SIZE_1MB}
 				/>
 			</View>
 
