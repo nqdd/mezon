@@ -1,5 +1,6 @@
 import { ChatContext } from '@mezon/core';
 import {
+	ActionEmitEvent,
 	getAttachmentUnique,
 	getUpdateOrAddClanChannelCache,
 	save,
@@ -29,7 +30,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-	ActivityIndicator,
+	ActivityIndicator, DeviceEventEmitter,
 	FlatList,
 	Image as ImageRN,
 	Platform,
@@ -85,6 +86,11 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		handleReconnect('Initial reconnect attempt');
 	}, [handleReconnect]);
 
+	const onCloseSharing = (isSend = false) => {
+		onClose && onClose(isSend);
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	};
+
 	useEffect(() => {
 		if (!listDM?.length) dispatch(directActions.fetchDirectMessage({ noCache: true }));
 		if (data && data?.length === 1 && (data?.[0]?.weblink || data?.[0]?.text)) setDataText(data?.[0]?.weblink || data?.[0]?.text);
@@ -120,7 +126,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	}, [listChannelsText, listDMText]);
 
 	const dataMedia = useMemo(() => {
-		return data?.filter((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
+		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
 	}, [data]);
 
 	const handleSearchResults = useCallback((results: any[]) => {
@@ -264,7 +270,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			await sendToGroup(dataSend);
 		}
 		setIsLoading(false);
-		onClose(true);
+		onCloseSharing(true);
 	};
 
 	const getSizeImage = async (media: any) => {
@@ -452,7 +458,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			>
 				<StatusBarHeight />
 				<View style={styles.header}>
-					<TouchableOpacity onPress={() => onClose()}>
+					<TouchableOpacity onPress={() => onCloseSharing()}>
 						<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_28} height={size.s_28} color={themeValue.white} />
 					</TouchableOpacity>
 					<Text style={styles.titleHeader}>{t('share')}</Text>
