@@ -524,14 +524,29 @@ export const directSlice = createSlice({
 		upsertOne: (state, action: PayloadAction<DirectEntity>) => {
 			const { entities } = state;
 			const existLabel = entities[action.payload.id]?.channel_label?.split(',');
+			const existingShowPinBadge = entities[action.payload.id]?.showPinBadge;
 			const dataUpdate = action.payload;
 			if (existLabel && existLabel?.length <= 1) {
 				dataUpdate.channel_label = entities[action.payload.id]?.channel_label;
 			}
+
+			if (existingShowPinBadge !== undefined) {
+				dataUpdate.showPinBadge = existingShowPinBadge;
+			}
 			directAdapter.upsertOne(state, dataUpdate);
 		},
 		update: directAdapter.updateOne,
-		setAll: directAdapter.setAll,
+		setAll: (state, action) => {
+			const entitiesWithPreservedBadges = action.payload.map((newEntity: DirectEntity) => {
+				const existingEntity = state.entities[newEntity.id];
+				return {
+					...newEntity,
+					showPinBadge: existingEntity?.showPinBadge || newEntity.showPinBadge
+				};
+			});
+			
+			directAdapter.setAll(state, entitiesWithPreservedBadges);
+		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
 			if (!action.payload?.channel_id) return;
 			const { channel_id, creator_id, currentUserId, ...changes } = action.payload;
@@ -915,5 +930,8 @@ export const selectBuzzStateByDirectId = createSelector(
 
 export const selectIsShowPinBadgeByDmId = createSelector(
 	[getDirectState, (state, dmId: string) => dmId],
-	(state, dmId) => state?.entities[dmId]?.showPinBadge
+	(state, dmId) => {
+		const result = state?.entities[dmId]?.showPinBadge;
+		return result;
+	}
 );

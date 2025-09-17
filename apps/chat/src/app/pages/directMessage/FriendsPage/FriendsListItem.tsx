@@ -197,10 +197,14 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 				<div className="w-20" onClick={(e) => e.stopPropagation()}>
 					{friend?.state === 0 && (
 						<div className="flex gap-3 items-center">
-							<button onClick={directMessageWithUser} className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover">
+							<button
+								title="Message"
+								onClick={directMessageWithUser}
+								className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover"
+							>
 								<Icons.IconChat />
 							</button>
-							<button onClick={handleMenuClick} className="bg-button-secondary rounded-full p-2 text-theme-primary-hover">
+							<button title="More" onClick={handleMenuClick} className="bg-button-secondary rounded-full p-2 text-theme-primary-hover">
 								<Icons.IconEditThreeDot />
 							</button>
 						</div>
@@ -208,7 +212,8 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 1 && (
 						<div className="flex gap-3 items-center">
 							<button
-								className=" rounded-full w-8 h-8 flex items-center justify-center"
+								title="Cancel"
+								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✕
@@ -218,13 +223,15 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 2 && (
 						<div className="flex gap-3 items-center">
 							<button
-								className="dark:bg-bgTertiary bg-bgLightModeButton dark:text-contentSecondary text-textLightTheme rounded-full w-8 h-8 flex items-center justify-center"
+								title="Accept"
+								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✓
 							</button>
 							<button
-								className="dark:bg-bgTertiary bg-bgLightModeButton dark:text-contentSecondary text-textLightTheme rounded-full w-8 h-8 flex items-center justify-center"
+								title="Reject"
+								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✕
