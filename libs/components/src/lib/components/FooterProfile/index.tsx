@@ -25,6 +25,7 @@ import { ESummaryInfo, ONE_MINUTE, TypeMessage, createImgproxyUrl, formatMoney, 
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -53,7 +54,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	const userStatusProfile = useSelector(selectAccountCustomStatus);
 	const statusMenu = useSelector(selectStatusMenu);
 	const myProfile = useAuth();
-
+	const { t } = useTranslation(['setting']);
 	const userCustomStatus: { status: string; user_status: EUserStatus } = useMemo(() => {
 		const metadata = myProfile.userProfile?.user?.metadata;
 		return saveParseUserStatus(metadata || '');
@@ -306,7 +307,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 						onClick={openSetting}
 						className="cursor-pointer ml-auto p-1 group/setting opacity-80  text-theme-primary bg-item-hover hover:rounded-md "
 						data-e2e={generateE2eId(`user_setting.profile.button_setting`)}
-						title="Settings"
+						title={t('setting')}
 					>
 						<Icons.SettingProfile className="w-5 h-5  group-hover/setting:rotate-180 duration-500" />
 					</div>
