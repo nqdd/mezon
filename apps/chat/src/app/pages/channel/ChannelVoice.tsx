@@ -8,12 +8,12 @@ import {
 	generateMeetToken,
 	getStore,
 	handleParticipantVoiceState,
+	selectAlreadyInVoice,
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectIsShowChatVoice,
 	selectIsShowSettingFooter,
 	selectShowModelEvent,
-	selectStatusInVoice,
 	selectStatusMenu,
 	selectTokenJoinVoice,
 	selectVoiceFullScreen,
@@ -75,7 +75,7 @@ const ChannelVoice = memo(
 				).unwrap();
 
 				if (result) {
-					const meInVoice = selectStatusInVoice(store.getState(), userProfile?.user?.id || '');
+					const meInVoice = selectAlreadyInVoice(store.getState(), userProfile?.user?.id || '', currentChannel?.channel_id as string);
 					if (!meInVoice) {
 						await participantMeetState(
 							ParticipantMeetState.JOIN,
