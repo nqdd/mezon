@@ -158,7 +158,7 @@ const FriendsPage = () => {
 				<div className={`gap-3 flex overflow-x-scroll hide-scrollbar ${closeMenuMobile ? 'ml-7' : ''}`}>
 					<div className="flex flex-row gap-2 items-center text-theme-primary-active font-medium">
 						<Icons.IconFriends />
-						{t('friend')}
+						Friends
 					</div>
 					<div className="flex flex-row gap-2 items-center text-theme-primary">
 						<Icons.DotIcon className="w-1 h-1" />
@@ -197,10 +197,21 @@ const FriendsPage = () => {
 								<div className="relative">
 									<InputField
 										type="text"
+										value={textSearch}
 										onChange={(e) => setTextSearch(e.target.value)}
 										placeholder={t('search')}
-										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] "
+										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] focus:outline focus:outline-1  outline-[#006ce7] "
 									/>
+									{Boolean(textSearch) && (
+										<div
+											className="absolute top-2.5 right-12 text-theme-primary cursor-pointer select-none text-[25px] px-2 leading-none hover:text-red-500"
+											onClick={() => setTextSearch('')}
+											aria-label="Clear search"
+											title="Clear search"
+										>
+											×
+										</div>
+									)}
 									<div className="absolute top-3 right-5 text-theme-primary">
 										<Icons.Search />
 									</div>

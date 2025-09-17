@@ -3,7 +3,8 @@ import { selectAllFriends, selectAllUsersByUser } from '@mezon/store';
 import { ButtonLoading, Icons } from '@mezon/ui';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
 import Dropdown from 'rc-dropdown';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage, ModalLayout } from '../../../components';
 
