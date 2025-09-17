@@ -453,13 +453,15 @@ const MessageItem = React.memo(
 				prevProps?.previousMessage?.id +
 				prevProps?.message?.code +
 				prevProps?.isHighlight +
-				prevProps?.message?.reactions ===
+				prevProps?.message?.reactions +
+				prevProps?.message?.references?.[0]?.content ===
 			nextProps?.message?.id +
 				nextProps?.message?.update_time +
 				nextProps?.previousMessage?.id +
 				nextProps?.message?.code +
 				nextProps?.isHighlight +
-				nextProps?.message?.reactions
+				nextProps?.message?.reactions +
+				nextProps?.message?.references?.[0]?.content
 		);
 	}
 );
