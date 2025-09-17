@@ -93,7 +93,7 @@ const CallingModal = () => {
 		const dataType = latestSignalingEntry?.signalingData?.data_type;
 		if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER) {
 			setIsVisible(true);
-			Sound.setCategory('Ambient', false);
+			Sound.setCategory(Platform.OS === 'ios' ? 'Playback' : 'Ambient', Platform.OS === 'ios');
 
 			// Initialize ringtone
 			const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {

@@ -172,7 +172,7 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 	useEffect(() => {
 		if (dataCall?.caller_id && callData) {
 			setIsVisible(true);
-			Sound.setCategory('Ambient', false);
+			Sound.setCategory(Platform.OS === 'ios' ? 'Playback' : 'Ambient', Platform.OS === 'ios');
 
 			// Initialize ringtone
 			const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {
