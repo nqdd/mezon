@@ -61,6 +61,9 @@ const ChannelVoice = memo(
 
 		const handleJoinRoom = async () => {
 			dispatch(voiceActions.setOpenPopOut(false));
+			dispatch(voiceActions.setShowScreen(false));
+			dispatch(voiceActions.setStreamScreen(null));
+			dispatch(voiceActions.setShowMicrophone(false));
 			const store = getStore();
 			const currentClan = selectCurrentClan(store.getState());
 			if (!currentClan || !currentChannel?.meeting_code) return;
