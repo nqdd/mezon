@@ -70,7 +70,7 @@ const SettingManageMembers = ({ RolesClan, hasPermissionEdit }: { RolesClan: Rol
 		<div>
 			<div className="w-full flex gap-x-3 pr-5">
 				<InputField
-					className="flex-grow text-[15px] w-full py-1 px-2 font-normal border-theme-primary bg-input-secondary focus:outline focus:outline-1  outline-[#006ce7]"
+					className="flex-grow text-[15px] w-full py-[7px] px-[16px] font-normal border-theme-primary bg-input-secondary focus:outline focus:outline-1  outline-[#006ce7]"
 					type="text"
 					needOutline={true}
 					placeholder={t('setupMember.searchMembers')}

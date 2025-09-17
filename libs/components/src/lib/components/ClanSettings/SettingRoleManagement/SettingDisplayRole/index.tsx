@@ -2,6 +2,7 @@ import type { RolesClanEntity } from '@mezon/store';
 import {
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getNewSelectedPermissions,
 	getSelectedRoleId,
 	setNameRoleNew,
@@ -48,6 +49,7 @@ export const colorArray = [
 const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: RolesClanEntity[]; hasPermissionEdit: boolean }) => {
 	const { t } = useTranslation('clanRoles');
 	const nameRole = useSelector(getNewNameRole);
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const colorRole = useSelector(getNewColorRole);
 	const selectedPermissions = useSelector(getNewSelectedPermissions);
 	const clickRole = useSelector(getSelectedRoleId);
@@ -65,12 +67,12 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 		const isSamePermissions =
 			selectedPermissions.length === permissionIds.length && selectedPermissions.every((id) => permissionIds.includes(id));
 
-		if (nameRole !== activeRole?.title || colorRole !== activeRole?.color || !isSamePermissions) {
+		if (nameRole !== activeRole?.title || colorRole !== activeRole?.color || !isSamePermissions || newRoleIcon) {
 			dispatch(toggleIsShowTrue());
 		} else {
 			dispatch(toggleIsShowFalse());
 		}
-	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch]);
+	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch, newRoleIcon]);
 
 	return (
 		<div className="grid grid-cols-1 gap-4">
