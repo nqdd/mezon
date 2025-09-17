@@ -1266,13 +1266,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						navigate(`/chat/direct/friends`);
 						return;
 					}
-					
-					const welcomeChannelId = selectWelcomeChannelByClanId(store.getState(), clanId);
+
 					const defaultChannelId = selectDefaultChannelIdByClanId(store.getState(), clanId);
-					const fallbackChannelId = allChannels.find((ch) => ch.category_id !== categoryEvent.id && !checkIsThread(ch))?.id;
-					
-					const redirectChannelId = welcomeChannelId || defaultChannelId || fallbackChannelId;
-					
+
+					const redirectChannelId = defaultChannelId;
+
 					if (redirectChannelId) {
 						navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
 					} else {
