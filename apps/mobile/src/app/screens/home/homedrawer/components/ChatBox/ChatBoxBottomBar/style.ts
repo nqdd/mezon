@@ -84,5 +84,48 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_8,
 			overflow: 'hidden',
 			zIndex: 10
+		},
+		pasteTooltip: {
+			position: 'absolute',
+			bottom: size.s_50,
+			left: 0,
+			zIndex: 1000,
+			shadowColor: baseColor.black,
+			shadowOffset: {
+				width: 0,
+				height: 12
+			},
+			shadowOpacity: 0.58,
+			shadowRadius: 16.0,
+			elevation: 24
+		},
+		tooltipContent: {
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_8,
+			paddingHorizontal: size.s_12,
+			paddingVertical: size.s_8,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			minHeight: size.s_36
+		},
+		tooltipText: {
+			color: colors.textStrong,
+			fontSize: size.small,
+			fontWeight: '500'
+		},
+		tooltipArrow: {
+			position: 'absolute',
+			bottom: -size.s_6,
+			left: '50%',
+			marginLeft: -size.s_6,
+			width: 0,
+			height: 0,
+			borderLeftWidth: size.s_6,
+			borderRightWidth: size.s_6,
+			borderTopWidth: size.s_6,
+			borderLeftColor: 'transparent',
+			borderRightColor: 'transparent',
+			borderTopColor: colors.secondaryLight
 		}
 	});
