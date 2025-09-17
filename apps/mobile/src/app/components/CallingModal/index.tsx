@@ -79,19 +79,21 @@ const CallingModal = () => {
 			stopAndReleaseSound();
 			Vibration.cancel();
 		}
+	}, [isInCall, isVisible]);
 
+	useEffect(() => {
 		return () => {
 			stopAndReleaseSound();
 			Vibration.cancel();
 		};
-	}, [isInCall, isVisible]);
+	}, []);
 
 	useEffect(() => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
 		const dataType = latestSignalingEntry?.signalingData?.data_type;
 		if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER) {
 			setIsVisible(true);
-			Sound.setCategory('Playback');
+			Sound.setCategory('Ambient', false);
 
 			// Initialize ringtone
 			const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {
