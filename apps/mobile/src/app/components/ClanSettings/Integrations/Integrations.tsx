@@ -5,13 +5,16 @@ import { EPermission } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Linking, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from '../styles';
+
+export const CHANNEL_WEBHOOK_DOCS_URL = 'https://mezon.ai/docs/mezon-channel-webhook-docs/';
+export const CLAN_WEBHOOK_DOCS_URL = 'https://mezon.ai/docs/mezon-clan-webhook-docs/';
 
 export function Integrations({ route }) {
 	const { themeValue } = useTheme();
@@ -27,7 +30,7 @@ export function Integrations({ route }) {
 		if (!canManageClan) return;
 		dispatch(fetchWebhooks({ channelId: channelId || '0', clanId: currentClanId }));
 		if (isClanSetting) dispatch(fetchClanWebhooks({ clanId: currentClanId }));
-	}, [canManageClan, channelId, currentClanId, dispatch]);
+	}, [canManageClan, channelId, currentClanId, dispatch, isClanSetting]);
 
 	const clanWebhooksMenuItem = useMemo(() => {
 		return {
@@ -38,14 +41,14 @@ export function Integrations({ route }) {
 					params: {
 						clanId: currentClanId,
 						isClanIntegration: true,
-						isClanSetting,
+						isClanSetting
 					}
 				});
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.webhookIcon} color={themeValue.text} />,
 			description: t('integration.automatedMessage')
-		}
+		};
 	}, []);
 
 	const integrationsMenu: IMezonMenuItemProps[] = [
@@ -57,7 +60,7 @@ export function Integrations({ route }) {
 					params: {
 						channelId,
 						isClanSetting,
-						clanId: currentClanId,
+						clanId: currentClanId
 					}
 				});
 			},
@@ -75,11 +78,15 @@ export function Integrations({ route }) {
 		}
 	];
 
+	const handleOpenDocs = () => {
+		navigation.navigate(APP_SCREEN.APP_BROWSER, { url: CHANNEL_WEBHOOK_DOCS_URL, title: 'Webhooks' });
+	};
+
 	return (
 		<View style={{ paddingHorizontal: size.s_10, backgroundColor: themeValue.primary, width: '100%', height: '100%' }}>
 			<Text style={styles.description}>
 				{t('integration.description')}
-				<Text style={styles.textLink} onPress={() => Linking.openURL('')}>
+				<Text style={styles.textLink} onPress={handleOpenDocs}>
 					{t('integration.learnMore')}
 				</Text>
 			</Text>
