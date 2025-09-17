@@ -122,6 +122,9 @@ export const DATA_E2E_IDENTIFIER = {
 					confirm: '',
 					cancel: ''
 				}
+			},
+			limit_creation: {
+				title: ''
 			}
 		},
 		settings: {
