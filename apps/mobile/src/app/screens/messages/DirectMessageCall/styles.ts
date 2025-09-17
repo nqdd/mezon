@@ -115,5 +115,38 @@ export const style = (colors: Attributes) =>
 			borderWidth: 1,
 			borderColor: colors.border,
 			zIndex: 20
+		},
+		mutedAudioContainer: {
+			position: 'absolute',
+			flexDirection: 'row',
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			bottom: size.s_20,
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15
+		},
+		mutedAudioAvatarContainer: {
+			flexDirection: 'row',
+			top: size.s_100 + size.s_10,
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15
+		},
+		mutedAudioText: {
+			color: colors.text,
+			fontSize: size.s_14,
 		}
 	});

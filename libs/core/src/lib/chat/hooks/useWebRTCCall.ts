@@ -67,6 +67,8 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	const [audioOutputDevicesList, setAudioOutputDevicesList] = useState<MediaDeviceInfo[]>([]);
 	const [currentInputDevice, setCurrentInputDevice] = useState<MediaDeviceInfo | null>(null);
 	const [currentOutputDevice, setCurrentOutputDevice] = useState<MediaDeviceInfo | null>(null);
+	const [isConnected, setIsConnected] = useState<boolean | null>(null);
+	const hasSyncRemoteMediaRef = useRef<boolean>(false);
 
 	useEffect(() => {
 		return () => {
@@ -76,6 +78,19 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			timeStartConnected.current = null;
 		};
 	}, [callState.localStream]);
+
+	useEffect(() => {
+		if (isConnected && !hasSyncRemoteMediaRef?.current) {
+			mezon.socketRef.current?.forwardWebrtcSignaling(
+				dmUserId,
+				WebrtcSignalingType.WEBRTC_SDP_STATUS_REMOTE_MEDIA,
+				`{"cameraEnabled": ${controlState?.cameraEnabled}, "micEnabled": ${controlState?.micEnabled}}`,
+				channelId,
+				userId
+			);
+			hasSyncRemoteMediaRef.current = true;
+		}
+	}, [channelId, dmUserId, isConnected, controlState?.cameraEnabled, controlState?.micEnabled, mezon?.socketRef, userId]);
 
 	// Initialize peer connection with proper configuration
 	const initializePeerConnection = () => {
@@ -118,6 +133,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 				dispatch(audioCallActions.setIsDialTone(false));
 				await mezon.socketRef.current?.forwardWebrtcSignaling(dmUserId, WebrtcSignalingType.WEBRTC_SDP_INIT, '', channelId, userId);
 				await cancelCallFCMMobile();
+				setIsConnected(true);
 				if (callTimeout.current) {
 					clearTimeout(callTimeout.current);
 					callTimeout.current = null;
@@ -125,6 +141,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			}
 
 			if (pc.iceConnectionState === 'disconnected') {
+				setIsConnected(null);
 				dispatch(toastActions.addToast({ message: 'Connection disconnected', type: 'warning', autoClose: 3000 }));
 				dispatch(audioCallActions.setIsJoinedCall(false));
 				handleEndCall();
@@ -227,6 +244,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 					callerName,
 					callerAvatar,
 					callerId: userId,
+					isVideoCall,
 					channelId
 				};
 				await mezon.socketRef.current?.makeCallPush(dmUserId, JSON.stringify(bodyFCMMobile), channelId, userId);
