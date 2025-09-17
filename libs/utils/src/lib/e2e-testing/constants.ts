@@ -292,6 +292,9 @@ export const DATA_E2E_IDENTIFIER = {
 				button: {
 					reset: '',
 					save_changes: ''
+				},
+				text: {
+					about_me_length: ''
 				}
 			},
 			clan_profile: {
