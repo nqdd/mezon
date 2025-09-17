@@ -1,5 +1,5 @@
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	getNewColorRole,
 	getNewNameRole,
 	getNewSelectedPermissions,
@@ -8,6 +8,7 @@ import {
 	toggleIsShowFalse,
 	toggleIsShowTrue
 } from '@mezon/store';
+import { InputField } from '@mezon/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -78,8 +79,10 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 					{t('roleManagement.roleName')}
 					<b className="text-red-600">*</b>
 				</div>
-				<input
-					className={` text-[15px] w-full  p-[7px] font-normal border-theme-primary text-theme-message bg-input-secondary rounded-lg outline-none ${!hasPermissionEdit || activeRole?.slug === `everyone-${activeRole?.clan_id}` ? 'cursor-not-allowed' : ''}`}
+
+				<InputField
+					needOutline={true}
+					className={` text-[15px] w-full  p-[7px] font-normal border-theme-primary text-theme-message bg-input-secondary rounded-lg  focus:outline focus:outline-1  outline-[#006ce7] ${!hasPermissionEdit || activeRole?.slug === `everyone-${activeRole?.clan_id}` ? 'cursor-not-allowed' : ''}`}
 					type="text"
 					value={nameRole}
 					onChange={handleDisplayName}
