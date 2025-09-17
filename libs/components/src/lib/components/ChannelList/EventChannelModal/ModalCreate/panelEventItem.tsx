@@ -2,6 +2,7 @@ import { useAuth, usePermissionChecker } from '@mezon/core';
 import { EventManagementEntity, selectUserMaxPermissionLevel } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
 import React, { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Coords } from '../../../ChannelLink';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
@@ -19,6 +20,7 @@ type PanelEventItemProps = {
 
 function PanelEventItem(props: PanelEventItemProps) {
 	const { coords, event, onHandle, setOpenModalDelEvent, setOpenModalUpdateEvent, onClose, onTrigerEventUpdateId, handleCopyLink } = props;
+	const { t } = useTranslation('eventCreator');
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const { userProfile } = useAuth();
 	const [isClanOwner, hasClanPermission, hasAdminPermission] = usePermissionChecker([
@@ -81,12 +83,12 @@ function PanelEventItem(props: PanelEventItemProps) {
 		>
 			{canModifyEvent && (
 				<>
-					<ItemPanel children="Start Event" />
-					<ItemPanel children="Edit Event" onClick={handleUpdateEvent} />
-					<ItemPanel children="Cancel Event" danger={true} onClick={handleDeleteEvent} />
+					<ItemPanel children={t('actions.startEvent')} />
+					<ItemPanel children={t('actions.editEvent')} onClick={handleUpdateEvent} />
+					<ItemPanel children={t('actions.cancelEvent')} danger={true} onClick={handleDeleteEvent} />
 				</>
 			)}
-			<ItemPanel children="Copy Event Link" onClick={handleCopyLink} />
+			<ItemPanel children={t('actions.copyEventLink')} onClick={handleCopyLink} />
 		</div>
 	);
 }

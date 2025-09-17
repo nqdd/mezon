@@ -4,16 +4,17 @@ import { Icons, Image } from '@mezon/ui';
 import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Footer from './footer';
 import HeaderMezon from './header';
 import Layout, { useIntersectionObserver } from './layouts';
 import { SideBarMezon } from './sidebar';
 
 function MezonPage() {
+	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const isWindow = platform === Platform.WINDOWS;
 	const [sideBarIsOpen, setSideBarIsOpen] = useState(false);
-	const [backgroundImage, setBackgroundImage] = useState('');
 
 	const homeRef = useRef<HTMLDivElement>(null);
 	const isVisible = useIntersectionObserver(homeRef, { threshold: 0.1 });
@@ -38,19 +39,6 @@ function MezonPage() {
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
 	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
-	const updateBackgroundImage = () => {
-		if (window.innerWidth < 768) {
-			setBackgroundImage('url(../../../assets/hero-header-bg-mobile.png)');
-		} else {
-			setBackgroundImage('url(../../../assets/hero-header-bg-desktop.png)');
-		}
-	};
-
-	const backgroundImageStyle = {
-		backgroundImage: backgroundImage,
-		backgroundRepeat: 'no-repeat',
-		backgroundPosition: 'center top'
-	};
 	const scrollToSection = (id: string, event: React.MouseEvent) => {
 		event.preventDefault();
 
@@ -99,11 +87,7 @@ function MezonPage() {
 		`;
 		document.body.appendChild(inlineScript);
 
-		updateBackgroundImage();
-		window.addEventListener('resize', updateBackgroundImage);
-
 		return () => {
-			window.removeEventListener('resize', updateBackgroundImage);
 			document.body.removeChild(externalScript);
 			document.body.removeChild(inlineScript);
 		};
@@ -128,17 +112,18 @@ function MezonPage() {
 								className="text-black text-6xl max-w-[1000px] font-bold leading-relaxed text-center max-md:text-4xl max-sm:text-3xl"
 								data-e2e={generateE2eId('homepage.main_page.heading.title')}
 							>
-								The <HighLightText content="Live" />, <HighLightText content="Work" />, and <HighLightText content="Play Platform" />{' '}
-								the best <HighLightText content="Discord" /> Alternative
+								{t('title.part1')} <HighLightText content={t('title.live')} />, <HighLightText content={t('title.work')} />,{' '}
+								{t('title.and')} <HighLightText content={t('title.playPlatform')} /> {t('title.theBest')}{' '}
+								<HighLightText content={t('title.discord')} /> {t('title.alternative')}
 							</div>
 							<div className="text-3xl max-w-[800px] leading-normal text-center flex flex-col max-md:text-2xl max-sm:text-xl">
 								<span className="text-black">
-									<HighLightText content="Mezon" /> is great for playing games and chilling with friends, or even building a
-									worldwide community.
+									<HighLightText content="Mezon" /> {t('description.part1')}
 								</span>
 								<span className="text-black">
-									Customize your own space to <HighLightText content="talk" />, <HighLightText content="play" />, and{' '}
-									<HighLightText content="hang out" />.
+									{t('description.part2')} <HighLightText content={t('description.talk')} />,{' '}
+									<HighLightText content={t('description.play')} /> {t('description.and')}{' '}
+									<HighLightText content={t('description.hangOut')} />.
 								</span>
 							</div>
 							<div className="w-3/4 h-full">
@@ -183,6 +168,7 @@ function MezonPage() {
 									dropdownRef={dropdownRef}
 									platform={Platform.MACOS}
 									onDownloadClick={trackDownloadEvent}
+									t={t}
 								/>
 							) : platform === 'Linux' ? (
 								<a
@@ -218,6 +204,7 @@ function MezonPage() {
 									downloadUrl={downloadUrl}
 									isWindow={isWindow}
 									onDownloadClick={trackDownloadEvent}
+									t={t}
 								/>
 							)}
 						</div>
@@ -254,6 +241,7 @@ interface DropdownButtonProps {
 	platform?: Platform;
 	isWindow?: boolean;
 	onDownloadClick?: (platform: string, downloadType: string) => void;
+	t?: (key: string) => string;
 }
 
 export const DropdownButton: React.FC<DropdownButtonProps> = ({
@@ -263,7 +251,8 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
 	dropdownRef,
 	downloadUrl,
 	isWindow,
-	onDownloadClick
+	onDownloadClick,
+	t = (key: string) => key
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -306,8 +295,8 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
 						<div className="bg-black py-1 max-md:py-[2px] px-[10px] max-md:px-2 w-[180px] max-md:w-[125px] flex items-center gap-[10px] rounded-md border-[1.5px] border-white">
 							<Icons.Microsoft className="w-[34px] h-[34px] max-md:w-[22px] max-md:h-[22px]" />
 							<div>
-								<div className="text-xs max-md:text-[9px]">Get it from</div>
-								<div className="max-md:text-[12px] leading-[20px] max-md:leading-[13px]">CDN Url</div>
+								<div className="text-xs max-md:text-[9px]">{t('download.getItFrom')}</div>
+								<div className="max-md:text-[12px] leading-[20px] max-md:leading-[13px]">{t('download.cdnUrl')}</div>
 							</div>
 						</div>
 					</div>
@@ -329,8 +318,8 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
 						<div className="bg-black py-1 max-md:py-[2px] px-[10px] max-md:px-2 w-[180px] max-md:w-[125px] flex items-center gap-[10px] rounded-md border-[1.5px] border-white">
 							<Icons.CDNIcon className="w-[29px] h-[29px] max-md:w-[20px] max-md:h-[20px]" />
 							<div>
-								<div className="text-xs max-md:text-[9px]">Get it from</div>
-								<div className="max-md:text-[12px] leading-[20px] max-md:leading-[13px]">CDN Url</div>
+								<div className="text-xs max-md:text-[9px]">{t('download.getItFrom')}</div>
+								<div className="max-md:text-[12px] leading-[20px] max-md:leading-[13px]">{t('download.cdnUrl')}</div>
 							</div>
 						</div>
 					</div>

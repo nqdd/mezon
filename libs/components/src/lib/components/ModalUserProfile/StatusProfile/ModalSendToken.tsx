@@ -1,8 +1,10 @@
-import { FriendsEntity, ISendTokenDetailType, selectAllFriends, selectAllUsersByUser, UsersEntity } from '@mezon/store';
+import type { FriendsEntity, ISendTokenDetailType, UsersEntity } from '@mezon/store';
+import { selectAllFriends, selectAllUsersByUser } from '@mezon/store';
 import { ButtonLoading, Icons } from '@mezon/ui';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
 import Dropdown from 'rc-dropdown';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage, ModalLayout } from '../../../components';
 
@@ -49,6 +51,7 @@ const ModalSendToken = ({
 	infoSendToken,
 	isButtonDisabled
 }: ModalSendTokenProps) => {
+	const { t } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile' });
 	const usersClan = useSelector(selectAllUsersByUser);
 	const friends = useSelector(selectAllFriends);
 	const [searchTerm, setSearchTerm] = useState(infoSendToken?.receiver_name || '');
@@ -61,7 +64,7 @@ const ModalSendToken = ({
 			setSearchTerm('');
 			setToken(0);
 		};
-	}, []);
+	}, [setToken]);
 
 	const handleChangeSearchTerm = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
@@ -69,11 +72,14 @@ const ModalSendToken = ({
 		setSelectedUserId('');
 	};
 
-	const handleSelectUser = (id: string, name: string) => {
-		setSearchTerm(name);
-		setIsDropdownOpen(false);
-		setSelectedUserId(id);
-	};
+	const handleSelectUser = useCallback(
+		(id: string, name: string) => {
+			setSearchTerm(name);
+			setIsDropdownOpen(false);
+			setSelectedUserId(id);
+		},
+		[setSelectedUserId]
+	);
 
 	const handleChangeSendToken = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/[^0-9]/g, '');
@@ -185,7 +191,7 @@ const ModalSendToken = ({
 		}
 
 		setTokenNumber(formatNumber(Number(token), 'vi-VN'));
-	}, [token, selectedUserId]);
+	}, [token, selectedUserId, filteredUsers, handleSelectUser]);
 
 	const handleSendToken = () => {
 		const userData = mergedUsers.find((user) => user.id === selectedUserId);
@@ -203,8 +209,8 @@ const ModalSendToken = ({
 							<Icons.DollarIcon className="w-5 h-5" defaultFill="text-white" />
 						</div>
 						<div>
-							<h1 className="text-theme-primary text-lg font-semibold">Send Tokens</h1>
-							<p className="text-theme-secondary">Transfer tokens to another user</p>
+							<h1 className="text-theme-primary text-lg font-semibold">{t('sendTokenModal.title')}</h1>
+							<p className="text-theme-secondary">{t('sendTokenModal.description')}</p>
 						</div>
 					</div>
 					<button onClick={onClose} className="text-theme-primary text-theme-primary-hover transition-colors">
@@ -214,7 +220,7 @@ const ModalSendToken = ({
 
 				<div className="p-6 space-y-6 border-t-theme-primary">
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">To</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.to')}</p>
 						<div className="relative">
 							<Dropdown
 								overlay={dropdownMenu}
@@ -239,29 +245,31 @@ const ModalSendToken = ({
 					</div>
 
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">Amount</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.amount')}</p>
 						<div className="relative">
 							<input
 								ref={amountRef}
 								type="text"
 								value={tokenNumber}
 								className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
-								placeholder="0"
+								placeholder={t('sendTokenModal.placeholders.amountPlaceholder')}
 								onChange={handleChangeSendToken}
 								disabled={sendTokenInputsState.isSendTokenInputDisabled}
 							/>
-							<span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-theme-primary font-medium">VND</span>
+							<span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-theme-primary font-medium">
+								{t('sendTokenModal.currency')}
+							</span>
 						</div>
 						{error && <p className="text-red-500 text-sm">{error}</p>}
 					</div>
 
 					<div className="space-y-3">
-						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">Note (Optional)</p>
+						<p className="text-theme-primary  text-sm font-medium flex items-center gap-2">{t('sendTokenModal.fields.note')}</p>
 						<input
 							type="text"
 							defaultValue={noteSendToken}
 							className="w-full h-12 px-4 pr-10 bg-input-theme border-theme-primary rounded-xl outline-none focus:ring-2  transition-all "
-							placeholder="Add a note..."
+							placeholder={t('sendTokenModal.placeholders.notePlaceholder')}
 							onChange={handleChangeNote}
 						/>
 					</div>
@@ -273,13 +281,13 @@ const ModalSendToken = ({
 						type="button"
 						onClick={onClose}
 					>
-						Cancel
+						{t('sendTokenModal.buttons.cancel')}
 					</button>
 					<ButtonLoading
 						className="flex-1 h-12 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 hover:text-white  text-white font-medium"
 						onClick={handleSendToken}
 						disabled={isButtonDisabled || !selectedUserId || token <= 0}
-						label="Send Tokens"
+						label={t('sendTokenModal.buttons.sendTokens')}
 					/>
 				</div>
 			</div>

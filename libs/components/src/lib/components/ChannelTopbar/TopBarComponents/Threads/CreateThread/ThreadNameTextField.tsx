@@ -1,6 +1,7 @@
 import { selectNameThreadError, threadsActions, useAppDispatch } from '@mezon/store';
 import { ValidateSpecialCharacters, generateE2eId, threadError } from '@mezon/utils';
 import { KeyboardEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface ThreadNameTextFieldProps {
@@ -14,6 +15,7 @@ interface ThreadNameTextFieldProps {
 }
 
 const ThreadNameTextField = ({ label, placeholder, value, className, onChange, onKeyDown }: ThreadNameTextFieldProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const nameThreadError = useSelector(selectNameThreadError);
 	const [checkValidate, setCheckValidate] = useState(false);
@@ -53,7 +55,7 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 			{nameThreadError && <span className="text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
 			{checkValidate && (
 				<span className="text-[#e44141] text-xs italic font-thin">
-					Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).
+					{t('createThread.validation.invalidChannelName')}
 				</span>
 			)}
 		</div>

@@ -4,7 +4,8 @@
     },
     "toast": {
         "saveSuccess": "Save Successfully",
-        "reject": "Reject"
+        "reject": "Reject",
+        "errorSizeLimit": "Image size limit exceeded 256KB"
     },
     "button": {
         "upload": "Upload Emoji"

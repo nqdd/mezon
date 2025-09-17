@@ -1,7 +1,7 @@
 import { Icons } from '@mezon/ui';
 import { calculateMediaDimensions, useResizeObserver } from '@mezon/utils';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { useEffect, useRef, useState } from 'react';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 export type MessageImage = {
@@ -68,7 +68,7 @@ function MessageVideo({ attachmentData, isMobile = false, isPreview = false }: M
 				src={attachmentData.url}
 				controls={showControl}
 				autoPlay={false}
-				style={isPreview ? { width: '100%', height: '100%' } : { width: width, height: height }}
+				style={isPreview ? { width: '100%', height: '100%' } : { width, height }}
 				ref={videoRef}
 				onCanPlay={(e) => handleOnCanPlay(e)}
 				className="object-contain"

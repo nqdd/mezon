@@ -2,11 +2,13 @@ import { useAccount, useAppNavigation, useAuth } from '@mezon/core';
 import { selectCurrentChannelId, selectCurrentClanId } from '@mezon/store';
 import { safeJSONParse } from 'mezon-js';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../components';
 
 const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void }) => {
+	const { t } = useTranslation('ageRestricted');
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const [dob, setDob] = useState<string>('');
 	const { userProfile } = useAuth();
@@ -52,8 +54,8 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 				<div className="bg-theme-setting-primary  pt-4 rounded flex flex-col items-center text-theme-primary w-[550px]">
 					<img src={'assets/images/cake.png'} alt="warning" width={200} height={200} />
 					<div className="text-center ml-6 mr-6">
-						<h2 className="text-2xl font-bold text-center mb-4 text-theme-primary-active">Please confirm your birthday</h2>
-						<p> To keep our users safe, we need to verify your age. We will only ask you for this once.</p>
+						<h2 className="text-2xl font-bold text-center mb-4 text-theme-primary-active">{t('confirmBirthdayTitle')}</h2>
+						<p>{t('confirmBirthdayMessage')}</p>
 					</div>
 					<input
 						type="date"
@@ -67,7 +69,7 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 							onClick={handleSubmit}
 							className="border-2 border-blue-600 rounded-lg px-6 py-2 bg-blue-600 text-white w-full"
 						>
-							Submit
+							{t('submit')}
 						</button>
 					</div>
 				</div>
@@ -90,16 +92,16 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 					<img src={'assets/images/warning.svg'} alt="warning" width={200} height={200} />
 
 					<div className="text-center mt-4">
-						<h1 className="text-3xl font-bold mb-2 text-theme-primary-active ">Age-Restricted Channel</h1>
-						<p className="mb-4">This channel contains adult content marked as age-restricted. Do you wish to proceed?</p>
+						<h1 className="text-3xl font-bold mb-2 text-theme-primary-active ">{t('title')}</h1>
+						<p className="mb-4">{t('description')}</p>
 					</div>
 
 					<div className="flex space-x-4">
 						<button className="border-2 border-theme-primary text-theme-primary-active rounded-lg px-6 py-2 y" onClick={handleCloseModal}>
-							Nope
+							{t('nope')}
 						</button>
 						<button className="border-2 border-colorDanger text-white rounded-lg px-6 py-2 bg-colorDanger " onClick={handleSaveChannelId}>
-							Continue
+							{t('continue')}
 						</button>
 					</div>
 				</div>

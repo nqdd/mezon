@@ -12,21 +12,19 @@ import {
 	subDays
 } from 'date-fns';
 import isElectron from 'is-electron';
-import { ChannelStreamMode, ChannelType, Client, Session, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiRole, ClanUserListClanUser } from 'mezon-js/api.gen';
-import { RoleUserListRoleUser } from 'mezon-js/dist/api.gen';
-import React from 'react';
+import type { Client, Session } from 'mezon-js';
+import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiRole, ClanUserListClanUser } from 'mezon-js/api.gen';
+import type { RoleUserListRoleUser } from 'mezon-js/dist/api.gen';
+import type React from 'react';
 import Resizer from 'react-image-file-resizer';
-import { MentionItem } from 'react-mentions';
+import type { MentionItem } from 'react-mentions';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
 import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
 import { Platform } from '../hooks/platform';
-import {
+import type {
 	ChannelMembersEntity,
-	EBacktickType,
-	ETokenMessage,
-	EUserStatus,
 	IAttachmentEntity,
 	IChannel,
 	IEmojiOnMessage,
@@ -46,6 +44,7 @@ import {
 	SenderInfoOptionals,
 	UsersClanEntity
 } from '../types';
+import { EBacktickType, ETokenMessage, EUserStatus } from '../types';
 import { Foreman } from './foreman';
 import { isMezonCdnUrl, isTenorUrl } from './urlSanitization';
 import { getPlatform } from './windowEnvironment';
@@ -211,7 +210,7 @@ export {
 } from './urlSanitization';
 
 export const getVoiceChannelName = (clanName?: string, channelLabel?: string) => {
-	return clanName?.replace(' ', '-') + '-' + channelLabel?.replace(' ', '-');
+	return `${clanName?.replace(' ', '-')}-${channelLabel?.replace(' ', '-')}`;
 };
 
 export const removeDuplicatesById = (array: any) => {
@@ -254,20 +253,20 @@ export const convertMarkdown = (markdown: string, type: EBacktickType): string =
 		return substring;
 	}
 	if (start) {
-		return substring + '\n';
+		return `${substring}\n`;
 	}
 	if (end) {
-		return '\n' + substring;
+		return `\n${substring}`;
 	}
-	return '\n' + substring + '\n';
+	return `\n${substring}\n`;
 };
 
 export const getSrcEmoji = (id: string) => {
-	return process.env.NX_BASE_IMG_URL + '/emojis/' + id + '.webp';
+	return `${process.env.NX_BASE_IMG_URL}/emojis/${id}.webp`;
 };
 
 export const getSrcSound = (id: string) => {
-	return process.env.NX_BASE_IMG_URL + '/sounds/' + id + '.mp3';
+	return `${process.env.NX_BASE_IMG_URL}/sounds/${id}.mp3`;
 };
 
 export const checkLastChar = (text: string) => {
@@ -442,7 +441,7 @@ export function addAttributesSearchList(data: SearchItemProps[], dataUserClan: C
 			...item,
 			clanAvatar: avatarClanFinding,
 			clanNick: clanNickFinding,
-			prioritizeName: prioritizeName
+			prioritizeName
 		};
 	});
 }
@@ -1127,7 +1126,7 @@ export const getAttachmentDataForWindow = (
 			uploaderData: {
 				avatar: (uploader?.clan_avatar ||
 					uploader?.user?.avatar_url ||
-					window.location.origin + '/assets/images/anonymous-avatar.png') as string,
+					`${window.location.origin}/assets/images/anonymous-avatar.png`) as string,
 				name: uploader?.clan_nick || uploader?.user?.display_name || uploader?.user?.username || 'Anonymous'
 			},
 			url: createImgproxyUrl(image.url || '', {
@@ -1319,4 +1318,11 @@ export const saveParseUserStatus = (metadata: string): { status: string; user_st
 export const getParentChannelIdIfHas = (channel: IChannel) => {
 	const channelId = channel?.parent_id && channel?.parent_id !== '0' ? channel?.parent_id : channel?.channel_id;
 	return channelId;
+};
+
+export const nomalizeTextToLowerCase = (string?: string) => {
+	if (!string) {
+		return '';
+	}
+	return string.toLocaleLowerCase();
 };

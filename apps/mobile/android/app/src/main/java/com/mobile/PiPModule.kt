@@ -32,7 +32,7 @@ class PipModule(private val reactContext: ReactApplicationContext) : ReactContex
 
          activity.runOnUiThread {
              try {
-                 val ratio = Rational(21, 12)
+                 val ratio = Rational(18, 12)
                   val builder = PictureInPictureParams.Builder()
                    .setAspectRatio(ratio)
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -62,7 +62,7 @@ class PipModule(private val reactContext: ReactApplicationContext) : ReactContex
 
          activity.runOnUiThread {
              try {
-                  val ratio = Rational(21, 12)
+                  val ratio = Rational(18, 12)
                   val builder = PictureInPictureParams.Builder()
                    .setAspectRatio(ratio)
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

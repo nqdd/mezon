@@ -110,9 +110,9 @@ export const style = (colors: Attributes) =>
 			height: size.s_165,
 			top: size.s_10,
 			right: size.s_10,
-			borderRadius: size.s_10,
 			overflow: 'hidden',
 			borderWidth: 1,
-			borderColor: colors.border
+			borderColor: colors.border,
+			zIndex: 20
 		}
 	});

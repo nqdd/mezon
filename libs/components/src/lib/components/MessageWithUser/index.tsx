@@ -11,7 +11,7 @@ import {
 	TypeMessage,
 	WIDTH_CHANNEL_LIST_BOX,
 	WIDTH_CLAN_SIDE_BAR,
-	convertDateString,
+	convertDateStringI18n,
 	convertTimeHour,
 	generateE2eId
 } from '@mezon/utils';
@@ -20,6 +20,7 @@ import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import type { ApiMessageMention } from 'mezon-js/api.gen';
 import type { ReactNode } from 'react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import CallLogMessage from '../CallLogMessage/CallLogMessage';
 import { EmbedMessageWrap } from '../EmbedMessage/EmbedMessageWrap';
@@ -394,7 +395,8 @@ function MessageWithUser({
 }
 
 const MessageDateDivider = ({ message }: { message: MessagesEntity }) => {
-	const messageDate = !message.create_time ? '' : convertDateString(message.create_time as string);
+	const { t, i18n } = useTranslation('common');
+	const messageDate = !message.create_time ? '' : convertDateStringI18n(message.create_time as string, t, i18n.language);
 	return (
 		<div className="mt-5 mb-2  w-full h-px flex items-center justify-center border-b-theme-primary">
 			<span className="px-4 bg-item text-theme-primary text-xs font-semibold bg-theme-primary rounded-lg ">{messageDate}</span>

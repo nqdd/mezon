@@ -1,14 +1,58 @@
 {
-  "title": "Customize Your Clan",
-  "subTitle": "Give your new clan a personality with a name and an icon. You can always change it later.",
-  "clanName": "Clan Name",
-  "createServer": "Create Clan",
-  "byCreatingClan":"By creating a clan, you agree to Mezon’s",
-  "upload": "UPLOAD",
-  "addClan": "Add Clan",
-  "placeholderClan": "Enter the clan name",
-  "errorMessage": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
-  "duplicateNameMessage" : "The clan name already exists. Please enter another name.",
-  "commutityGuide" : "Community Guidelines.",
-  "busy": "Busy"
+	"title": "Customize Your Clan",
+	"subTitle": "Give your new clan a personality with a name and an icon. You can always change it later.",
+	"clanName": "Clan Name",
+	"createServer": "Create Clan",
+	"byCreatingClan": "By creating a clan, you agree to Mezon's",
+	"upload": "UPLOAD",
+	"addClan": "Add Clan",
+	"placeholderClan": "Enter the clan name",
+	"errorMessage": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
+	"duplicateNameMessage": "The clan name already exists. Please enter another name.",
+	"commutityGuide": "Community Guidelines.",
+	"busy": "Busy",
+	"findOrStartConversation": "Find or start a conversation",
+	"createCategoryModal": {
+		"title": "Create Category",
+		"nameLabel": "What is category's name?",
+		"namePlaceholder": "Enter the category's name",
+		"privateCategory": "Private Category",
+		"privateDescription": "By making a category private, only select members and roles will be able to view this category. Synced channels in this category will automatically match to this setting",
+		"invalidName": "Please enter a valid category name (max 64 characters, only words, numbers, _ or -).",
+		"duplicateName": "The category name already exists in the clan. Please enter another name.",
+		"cancel": "Cancel",
+		"create": "Create Category"
+	},
+	"leaveClanModal": {
+		"title": "Leave {{clanName}}",
+		"description": "Are you sure you want to leave <strong>{{clanName}}</strong>? You won't be able to re-join this server unless you are re-invited.",
+		"cancel": "Cancel"
+	},
+	"categoryOverview": {
+		"categoryName": "Category Name",
+		"categoryNamePlaceholder": "Enter your category name here...",
+		"hasWelcomeChannelError": "This category has welcome channel",
+		"deleteCategory": "Delete Category",
+		"deleteCategoryButton": "Delete category",
+		"cannotBeUndone": "This cannot be undone",
+		"categoryLabel": "Category"
+	},
+	"createClanModal": {
+		"title": "Customize Your Clan",
+		"description": "Give your new clan a personality with a name and an icon. You can always change it later.",
+		"upload": "Upload",
+		"clanName": "CLAN NAME",
+		"placeholder": "Enter the clan name",
+		"invalidName": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
+		"duplicateName": "The clan name already exists. Please enter another name.",
+		"agreement": "By creating a clan, you agree to Mezon's",
+		"communityGuidelines": "Community Guidelines",
+		"back": "Back",
+		"create": "Create"
+	},
+	"limitModal": {
+		"title": "Limit Reached!",
+		"message": "You're already in 50 clans. You'll need to leave one before you can join or create another.",
+		"okayButton": "Okay"
+	}
 }

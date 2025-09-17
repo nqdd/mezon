@@ -1,0 +1,30 @@
+{
+  "missions": {
+    "sendMessage": {
+      "description": "Thành viên gửi tin nhắn trong kênh",
+      "name": "mission1"
+    },
+    "visit": {
+      "description": "Thành viên truy cập kênh",
+      "name": "mission2"
+    },
+    "doSomething": {
+      "description": "Đọc nhiệm vụ này",
+      "name": "mission3"
+    }
+  },
+  "form": {
+    "title": "Thành viên mới nên làm gì?",
+    "placeholder": "Ví dụ: Đăng ảnh thú cưng của bạn",
+    "channelTitle": "Họ nên làm điều đó ở đâu?",
+    "channelNote": "Kênh phải có thể xem được bởi @everyone (kênh công khai)",
+    "completeWhen": "Nhiệm vụ này hoàn thành khi:",
+    "required": "Trường này là bắt buộc.",
+    "minCharacters": "Hành động phải có ít nhất 7 ký tự"
+  },
+  "buttons": {
+    "remove": "Xóa",
+    "save": "Lưu",
+    "add": "Thêm"
+  }
+}

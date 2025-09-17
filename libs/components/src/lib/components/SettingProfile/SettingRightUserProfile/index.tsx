@@ -18,6 +18,7 @@ import { MAX_FILE_SIZE_10MB, createImgproxyUrl, fileTypeImage, generateE2eId } f
 import { ChannelType } from 'mezon-js';
 import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
@@ -49,6 +50,8 @@ const SettingRightUser = ({
 	dob: string;
 	logo: string;
 }) => {
+	const { t } = useTranslation('profileSetting');
+	const { t: tAccount } = useTranslation('accountSetting');
 	const [editAboutUser, setEditAboutUser] = useState(aboutMe);
 	const { sessionRef, clientRef } = useMezon();
 	const { userProfile } = useAuth();
@@ -281,7 +284,7 @@ const SettingRightUser = ({
 				<div className="flex-1 ">
 					<div data-e2e={generateE2eId(`user_setting.profile.user_profile.input.display_name`)}>
 						<label htmlFor="inputField" className="font-semibold tracking-wide text-sm">
-							DISPLAY NAME
+							{t('displayName')}
 						</label>
 						<br />
 						<InputField
@@ -296,11 +299,11 @@ const SettingRightUser = ({
 					</div>
 
 					<div className="mt-8">
-						<p className="font-semibold tracking-wide text-sm">AVATAR</p>
+						<p className="font-semibold tracking-wide text-sm">{t('avatar')}</p>
 						<div className="flex mt-[10px] gap-x-5">
 							<label>
 								<div className="font-medium btn-primary btn-primary-hover rounded-lg p-[8px] pr-[10px] pl-[10px] cursor-pointer text-[14px]">
-									Change avatar
+									{t('changeAvatar')}
 								</div>
 								<input type="file" onChange={(e) => handleFile(e)} className="w-full text-sm  hidden" />
 							</label>
@@ -308,7 +311,7 @@ const SettingRightUser = ({
 								className="bg-theme-input text-theme-primary-hover bg-secondary-button-hover border-theme-primary  font-medium rounded-lg p-[8px] pr-[10px] pl-[10px] text-nowrap text-[14px]"
 								onClick={handleRemoveButtonClick}
 							>
-								Remove avatar
+								{t('removeAvatar')}
 							</button>
 						</div>
 						<div className="mt-[30px] w-full">
@@ -334,7 +337,7 @@ const SettingRightUser = ({
 						className="mt-8 flex items-center  bg-theme-input border-theme-primary p-4 rounded-lg justify-between"
 						onContextMenu={handleMouseClick}
 					>
-						<p className="font-semibold tracking-wide text-sm">Direct Message Icon</p>
+						<p className="font-semibold tracking-wide text-sm">{t('directMessageIcon')}</p>
 						<div className="flex gap-x-5  text-theme-primary text-theme-primary-hover bg-secondary-button-hover bg-button-secondary rounded-lg border-theme-primary">
 							<label
 								htmlFor="logo"
@@ -366,13 +369,13 @@ const SettingRightUser = ({
 								className="bg-[#ee4545] text-white hover:opacity-85 font-medium rounded-lg p-[8px] pr-[10px] pl-[10px] text-nowrap text-[14px]"
 								onClick={handleOpenModalDeleteAcc}
 							>
-								Delete account
+								{tAccount('deleteAccount')}
 							</button>
 						</div>
 					</div>
 				</div>
 				<div className="flex-1 flex flex-col gap-2 relative">
-					<p className="font-semibold tracking-wide text-sm">PREVIEW</p>
+					<p className="font-semibold tracking-wide text-sm">{t('preview')}</p>
 					<PreviewSetting
 						isLoading={isLoading}
 						profiles={editProfile}
@@ -393,7 +396,7 @@ const SettingRightUser = ({
 			(editAboutUser !== aboutMe && flags) ? (
 				<div className="flex flex-row gap-2 border-theme-primary shadow-sm bg-modal-theme absolute max-w-[815px] w-full left-1/2 translate-x-[-50%] bottom-4 min-w-96 h-fit p-3 rounded-lg transform z-10">
 					<div className="flex-1 flex items-center text-nowrap">
-						<p className="text-theme-message">Careful - you have unsaved changes!</p>
+						<p className="text-theme-message">{t('unsavedChangesWarning')}</p>
 					</div>
 					<div className="flex flex-row justify-end gap-3">
 						<button
@@ -403,7 +406,7 @@ const SettingRightUser = ({
 							}}
 							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.reset`)}
 						>
-							Reset
+							{t('reset')}
 						</button>
 
 						<button
@@ -414,7 +417,7 @@ const SettingRightUser = ({
 							}}
 							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
-							Save Changes
+							{t('saveChanges')}
 						</button>
 					</div>
 				</div>

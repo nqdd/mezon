@@ -1,0 +1,18 @@
+{
+  "editResources": "Chỉnh sửa tài nguyên",
+  "form": {
+    "nameTitle": "Đặt tên cho tài nguyên này",
+    "namePlaceholder": "#rules có thể là Quy tắc",
+    "descriptionTitle": "Mô tả tài nguyên này",
+    "descriptionPlaceholder": "Ví dụ: Quy tắc cho clan",
+    "imageTitle": "Hình ảnh quy tắc",
+    "browse": "Duyệt",
+    "required": "Trường này là bắt buộc.",
+    "minCharacters": "Tiêu đề quy tắc phải có ít nhất 7 ký tự"
+  },
+  "buttons": {
+    "remove": "Xóa",
+    "save": "Lưu",
+    "add": "Thêm"
+  }
+}

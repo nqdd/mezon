@@ -15,6 +15,7 @@ import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { ModalErrorTypeUpload, ModalOverData, ModalSaveChanges } from '../../components';
 import EnableComunity from '../EnableComunityClan';
@@ -22,19 +23,20 @@ import { ELimitSize } from '../ModalValidateFile';
 
 const SettingComunity = ({
 	clanId,
-	onClose,
+	onClose: _onClose,
 	onCommunityEnabledChange
 }: {
 	clanId: string;
 	onClose?: () => void;
 	onCommunityEnabledChange?: (enabled: boolean) => void;
 }) => {
+	const { t } = useTranslation('onBoardingClan');
 	const dispatch = useAppDispatch();
 	const isEnabled = useAppSelector((state) => selectIsCommunityEnabled(state, clanId));
 	const banner = useAppSelector((state) => selectCommunityBanner(state, clanId));
 	const about = useAppSelector((state) => selectComunityAbout(state, clanId));
 	const isLoading = useAppSelector((state) => selectComunityLoading(state));
-	const error = useAppSelector((state) => selectComunityError(state));
+	const _error = useAppSelector((state) => selectComunityError(state));
 
 	useEffect(() => {
 		if (clanId) {
@@ -94,9 +96,9 @@ const SettingComunity = ({
 			try {
 				await dispatch(comunityActions.updateCommunityAbout({ clan_id: clanId, about: aboutText })).unwrap();
 				setInitialAbout(aboutText);
-				toast.success('About updated!');
+				toast.success(t('communitySettings.messages.aboutUpdated'));
 			} catch {
-				toast.error('Update about failed!');
+				toast.error(t('communitySettings.messages.aboutUpdateFailed'));
 			} finally {
 				setIsSaving(false);
 			}
@@ -119,9 +121,9 @@ const SettingComunity = ({
 			try {
 				await dispatch(comunityActions.updateCommunityDescription({ clan_id: clanId, description: descriptionText })).unwrap();
 				setInitialDescription(descriptionText);
-				toast.success('Description updated!');
+				toast.success(t('communitySettings.messages.descriptionUpdated'));
 			} catch {
-				toast.error('Update description failed!');
+				toast.error(t('communitySettings.messages.descriptionUpdateFailed'));
 			} finally {
 				setIsSaving(false);
 			}
@@ -133,9 +135,9 @@ const SettingComunity = ({
 			try {
 				await dispatch(comunityActions.updateCommunityShortUrl({ clan_id: clanId, short_url: vanityUrl })).unwrap();
 				setInitialVanityUrl(vanityUrl);
-				toast.success('Vanity URL updated!');
+				toast.success(t('communitySettings.messages.vanityUrlUpdated'));
 			} catch {
-				toast.error('Update vanity url failed!');
+				toast.error(t('communitySettings.messages.vanityUrlUpdateFailed'));
 			} finally {
 				setIsSaving(false);
 			}
@@ -200,9 +202,9 @@ const SettingComunity = ({
 			setInitialBanner(bannerUrl);
 			setIsInitialEditing(false);
 			onCommunityEnabledChange?.(true);
-			toast.success('Community enabled and saved!');
+			toast.success(t('communitySettings.messages.communityEnabledAndSaved'));
 		} catch (e) {
-			toast.error('Save failed!');
+			toast.error(t('communitySettings.messages.saveFailed'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -247,9 +249,9 @@ const SettingComunity = ({
 			setInitialBanner(bannerUrl);
 			setOpenSaveChange(false);
 			setBannerFile(null);
-			toast.success('Changes saved!');
+			toast.success(t('communitySettings.messages.changesSaved'));
 		} catch {
-			toast.error('Save failed!');
+			toast.error(t('communitySettings.messages.saveFailed'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -270,9 +272,9 @@ const SettingComunity = ({
 			setInitialBanner(null);
 			setOpenSaveChange(false);
 			onCommunityEnabledChange?.(false);
-			toast.info('Community disabled.');
+			toast.info(t('communitySettings.messages.communityDisabled'));
 		} catch {
-			toast.error('Disable failed!');
+			toast.error(t('communitySettings.messages.disableFailed'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -285,7 +287,7 @@ const SettingComunity = ({
 		if (isEnabled) {
 			await dispatch(comunityActions.updateCommunityBanner({ clan_id: clanId, bannerUrl: '' })).unwrap();
 			setInitialBanner('');
-			toast.success('Banner removed!');
+			toast.success(t('communitySettings.messages.bannerRemoved'));
 		}
 	};
 
@@ -314,7 +316,7 @@ const SettingComunity = ({
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center min-h-[500px]">
-				<div className="text-theme-primary">Loading community settings...</div>
+				<div className="text-theme-primary">{t('communitySettings.loading')}</div>
 			</div>
 		);
 	}
@@ -336,8 +338,8 @@ const SettingComunity = ({
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 							</svg>
 						</button>
-						<h2 className="text-3xl font-bold mb-2"> Enable Community</h2>
-						<p className="text-blue-100">Create a great space for your members to connect</p>
+						<h2 className="text-3xl font-bold mb-2">{t('communitySettings.enableTitle')}</h2>
+						<p className="text-blue-100">{t('communitySettings.enableSubtitle')}</p>
 					</div>
 
 					<div className="p-6 space-y-6 bg-theme-setting-primary overflow-y-auto thread-scroll" style={{ maxHeight: '75vh' }}>
@@ -351,7 +353,7 @@ const SettingComunity = ({
 										d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
 									/>
 								</svg>
-								Community Banner
+								{t('communitySettings.banner.title')}
 							</label>
 
 							<div className={`relative group ${bannerError ? 'border-2 border-red-500 rounded-xl' : ''}`}>
@@ -359,13 +361,14 @@ const SettingComunity = ({
 									<div className="relative w-full h-40 rounded-xl overflow-hidden shadow-lg">
 										<img
 											src={bannerPreview || '/placeholder.svg'}
+											alt="Community Banner"
 											className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
 										/>
 										<button
 											type="button"
 											onClick={handleRemoveBanner}
 											className="z-20 absolute top-2 right-2 bg-white/80 hover:bg-white text-red-600 rounded-full p-2 shadow transition"
-											title="Remove Banner"
+											title={t('communitySettings.banner.removeBanner')}
 										>
 											<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -376,7 +379,7 @@ const SettingComunity = ({
 												onClick={() => fileInputRef.current?.click()}
 												className="bg-indigo-400 px-6 text-white py-3 rounded-lg font-medium hover:bg-indigo-500 transition-colors duration-200 shadow-lg"
 											>
-												Change Banner
+												{t('communitySettings.banner.changeBanner')}
 											</button>
 										</div>
 									</div>
@@ -386,8 +389,8 @@ const SettingComunity = ({
 										className={`cursor-pointer w-full h-48 rounded-xl border-2 border-dashed ${bannerError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-300 flex flex-col items-center justify-center text-theme-primary hover:text-blue-500 dark:hover:text-blue-400 bg-theme-setting-primary hover:bg-blue-50 dark:hover:bg-blue-900/20`}
 									>
 										<Icons.ImageUploadIcon className="w-12 h-12 mb-3 transition-transform duration-300 hover:scale-110" />
-										<p className="text-lg font-medium">Upload Banner</p>
-										<p className="text-sm opacity-75">Drag & drop or click to select an image</p>
+										<p className="text-lg font-medium">{t('communitySettings.banner.uploadTitle')}</p>
+										<p className="text-sm opacity-75">{t('communitySettings.banner.uploadDescription')}</p>
 									</div>
 								)}
 							</div>
@@ -405,7 +408,7 @@ const SettingComunity = ({
 										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 									/>
 								</svg>
-								Community Description
+								{t('communitySettings.description.title')}
 							</label>
 							<div className="relative">
 								<textarea
@@ -414,7 +417,7 @@ const SettingComunity = ({
 									value={descriptionText}
 									onChange={handleChangeDescription}
 									onBlur={handleBlurDescription}
-									placeholder="Enter a short description for your community..."
+									placeholder={t('communitySettings.description.placeholder')}
 									maxLength={300}
 								/>
 								<div className="absolute bottom-3 right-3 text-sm bg-theme-setting-primary text-theme-primary border border-theme-primary px-2 py-1 rounded-md">
@@ -444,7 +447,7 @@ const SettingComunity = ({
 										d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 									/>
 								</svg>
-								About Community
+								{t('communitySettings.about.title')}
 							</label>
 
 							<div className="relative">
@@ -454,7 +457,7 @@ const SettingComunity = ({
 									value={aboutText}
 									onChange={handleChangeAbout}
 									onBlur={handleBlurAbout}
-									placeholder="Tell us about your community... What makes it special?"
+									placeholder={t('communitySettings.about.placeholder')}
 									maxLength={100}
 								/>
 								<div className="absolute bottom-3 right-3 text-sm  bg-theme-setting-primary text-theme-primary border border-theme-primary px-2 py-1 rounded-md">
@@ -484,11 +487,9 @@ const SettingComunity = ({
 										d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
 									/>
 								</svg>
-								Vanity URL
+								{t('communitySettings.vanityUrl.title')}
 							</label>
-							<p className="text-sm text-theme-primary opacity-75 mb-3">
-								Create a custom URL for your community. Use only lowercase letters, numbers, and hyphens.
-							</p>
+							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')}</p>
 							<div className="relative">
 								<div
 									className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
@@ -501,7 +502,7 @@ const SettingComunity = ({
 										className="flex-1 px-4 py-3 bg-transparent text-theme-primary focus:outline-none rounded-r-xl"
 										value={vanityUrl}
 										onChange={handleChangeVanityUrl}
-										placeholder="my-awesome-community"
+										placeholder={t('communitySettings.vanityUrl.placeholder')}
 										onBlur={handleBlurVanityUrl}
 										maxLength={50}
 									/>
@@ -509,7 +510,7 @@ const SettingComunity = ({
 								{vanityUrl && (
 									<div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 										<p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-1">
-											<span className="font-medium">Preview URL:</span>
+											<span className="font-medium">{t('communitySettings.vanityUrl.previewLabel')}</span>
 											<span className="truncate max-w-[300px] block">mezon.ai/clans/clan/{vanityUrl}</span>
 										</p>
 									</div>
@@ -534,10 +535,10 @@ const SettingComunity = ({
 												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
 											></path>
 										</svg>
-										Saving...
+										{t('communitySettings.buttons.saving')}
 									</div>
 								) : (
-									<div className="flex items-center gap-2">Enable & Save</div>
+									<div className="flex items-center gap-2">{t('communitySettings.buttons.enableAndSave')}</div>
 								)}
 							</button>
 						</div>
@@ -566,8 +567,8 @@ const SettingComunity = ({
 							</svg>
 						</div>
 						<div>
-							<h2 className="text-2xl font-bold">Community Settings</h2>
-							<p className="text-green-100">Manage your community information</p>
+							<h2 className="text-2xl font-bold">{t('communitySettings.title')}</h2>
+							<p className="text-green-100">{t('communitySettings.subtitle')}</p>
 						</div>
 					</div>
 				</div>
@@ -583,13 +584,14 @@ const SettingComunity = ({
 									d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
 								/>
 							</svg>
-							Community Banner
+							{t('communitySettings.banner.title')}
 						</label>
 						<div className="relative group">
 							{bannerPreview ? (
 								<div className="relative w-full h-40 rounded-xl overflow-hidden shadow-lg">
 									<img
 										src={bannerPreview || '/placeholder.svg'}
+										alt="Community Banner"
 										className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
 									/>
 									<div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none group-hover:pointer-events-auto z-10">
@@ -597,7 +599,7 @@ const SettingComunity = ({
 											onClick={() => fileInputRef.current?.click()}
 											className="bg-indigo-400 px-6 text-white py-3 rounded-lg font-medium hover:bg-indigo-500 transition-colors duration-200 shadow-lg"
 										>
-											Change Banner
+											{t('communitySettings.banner.changeBanner')}
 										</button>
 									</div>
 								</div>
@@ -608,8 +610,8 @@ const SettingComunity = ({
 								>
 									<div className="text-center">
 										<Icons.ImageUploadIcon className="w-12 h-12 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 text-theme-primary group-hover:text-blue-500" />
-										<p className="text-lg font-medium mb-2">Upload Banner</p>
-										<p className="text-sm opacity-75">Drag & drop or click to select an image</p>
+										<p className="text-lg font-medium mb-2">{t('communitySettings.banner.uploadTitle')}</p>
+										<p className="text-sm opacity-75">{t('communitySettings.banner.uploadDescription')}</p>
 									</div>
 								</div>
 							)}
@@ -628,7 +630,7 @@ const SettingComunity = ({
 									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 								/>
 							</svg>
-							Community Description
+							{t('communitySettings.description.title')}
 						</label>
 						<div className="relative">
 							<textarea
@@ -636,7 +638,7 @@ const SettingComunity = ({
 								rows={5}
 								value={descriptionText}
 								onChange={handleChangeDescription}
-								placeholder="Enter a short description for your community..."
+								placeholder={t('communitySettings.description.placeholder')}
 								maxLength={300}
 							/>
 							<div className="absolute bottom-3 right-3 text-sm bg-theme-setting-primary text-theme-primary border border-theme-primary px-2 py-1 rounded-md">
@@ -666,7 +668,7 @@ const SettingComunity = ({
 									d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
 								/>
 							</svg>
-							About Community
+							{t('communitySettings.about.title')}
 						</label>
 
 						<div className="relative">
@@ -675,7 +677,7 @@ const SettingComunity = ({
 								rows={5}
 								value={aboutText}
 								onChange={handleChangeAbout}
-								placeholder="Tell us about your community... What makes it special?"
+								placeholder={t('communitySettings.about.placeholder')}
 								maxLength={300}
 							/>
 							<div className="absolute bottom-3 right-3 text-sm  bg-theme-setting-primary text-theme-primary border border-theme-primary px-2 py-1 rounded-md">
@@ -705,11 +707,9 @@ const SettingComunity = ({
 									d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
 								/>
 							</svg>
-							Vanity URL
+							{t('communitySettings.vanityUrl.title')}
 						</label>
-						<p className="text-sm text-theme-primary opacity-75 mb-3">
-							Create a custom URL for your community. Use only lowercase letters, numbers, and hyphens.
-						</p>
+						<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')}</p>
 						<div className="relative">
 							<div
 								className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
@@ -722,14 +722,14 @@ const SettingComunity = ({
 									className="flex-1 px-4 py-3 bg-transparent text-theme-primary focus:outline-none rounded-r-xl"
 									value={vanityUrl}
 									onChange={handleChangeVanityUrl}
-									placeholder="my-awesome-community"
+									placeholder={t('communitySettings.vanityUrl.placeholder')}
 									maxLength={50}
 								/>
 							</div>
 							{vanityUrl && (
 								<div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
 									<p className="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-1">
-										<span className="font-medium">Preview URL:</span>
+										<span className="font-medium">{t('communitySettings.vanityUrl.previewLabel')}</span>
 										<span className="truncate max-w-[300px] block">mezon.ai/clans/clan/{vanityUrl}</span>
 									</p>
 								</div>
@@ -745,7 +745,7 @@ const SettingComunity = ({
 							onClick={handleDisable}
 							className="group px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
 						>
-							<div className="flex items-center gap-2">Disable Community</div>
+							<div className="flex items-center gap-2">{t('communitySettings.buttons.disable')}</div>
 						</button>
 					</div>
 				</div>

@@ -3,6 +3,7 @@ import { ChannelsEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ButtonCopy } from 'libs/components/src/lib/components';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ModalShareEventProps = {
 	channel: ChannelsEntity;
@@ -12,6 +13,7 @@ type ModalShareEventProps = {
 
 const ModalShareEvent = (props: ModalShareEventProps) => {
 	const { channel, setOpenModalShareEvent, link } = props;
+	const { t } = useTranslation('eventCreator');
 
 	const closeModal = () => {
 		setOpenModalShareEvent(false);
@@ -48,7 +50,7 @@ const ModalShareEvent = (props: ModalShareEventProps) => {
 			>
 				<div className="dark:text-white text-black w-[440px] p-4">
 					<div className="flex justify-between pb-4 font-bold text-base">
-						<h3>Invite friends to event?</h3>
+						<h3>{t('eventDetail.inviteFriends')}</h3>
 						<button title="Close" onClick={closeModal} className="dark:hover:text-white hover:text-colorTextLightMode transition">
 							✕
 						</button>
@@ -57,7 +59,7 @@ const ModalShareEvent = (props: ModalShareEventProps) => {
 						<Icons.Speaker />
 						<p>{channel.channel_label}</p>
 					</div>
-					<p className="pb-4">Share this link with others to grant access to this server</p>
+					<p className="pb-4">{t('eventDetail.shareLink')}</p>
 					<div className={`flex items-center dark:bg-black bg-gray-300 py-2 px-1 pr-2 rounded-lg border `}>
 						<input
 							type="text"

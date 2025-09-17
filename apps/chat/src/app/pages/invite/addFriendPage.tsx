@@ -4,6 +4,7 @@ import { Button, Icons } from '@mezon/ui';
 import { ChannelType, safeJSONParse } from 'mezon-js';
 import { ApiCreateChannelDescRequest, ApiIsFollowerResponse } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import QRCode from 'react-qr-code';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -14,6 +15,7 @@ enum ErrorTypeMutable {
 }
 
 export default function AddFriendPage() {
+	const { t } = useTranslation('common');
 	const [searchParams] = useSearchParams();
 	const { username } = useParams();
 	const data = searchParams.get('data');
@@ -46,7 +48,7 @@ export default function AddFriendPage() {
 				}
 
 				if (result.is_follower) {
-					toast.success('You can chat now !!');
+					toast.success(t('invite.canChatNow'));
 					setError(ErrorTypeMutable.MUTABLE);
 				} else if (dataEncode?.id) {
 					setError(ErrorTypeMutable.NOT_MUTABLE);
@@ -124,19 +126,19 @@ export default function AddFriendPage() {
 				{loading ? (
 					<>
 						<Icons.LoadingSpinner className="!w-20 !h-20" />
-						<p className="italic text-sm ">( Please wait while we verify your information. This will only take a few seconds.)</p>
+						<p className="italic text-sm ">({t('invite.verifyWait')})</p>
 					</>
 				) : (
 					!!userProfile && (
 						<div className="flex gap-3 items-center">
 							{error === ErrorTypeMutable.MUTABLE && (
 								<Button className="px-4 py-3 rounded-md btn-primary btn-primary-hover" onClick={handleGotoDm}>
-									Chat Now
+									{t('invite.chatNow')}
 								</Button>
 							)}
 							{error === ErrorTypeMutable.NOT_MUTABLE && (
 								<Button className="px-4 py-3 rounded-md btn-primary btn-primary-hover" onClick={handleAddFriend}>
-									Add Friend
+									{t('invite.addFriend')}
 								</Button>
 							)}
 						</div>

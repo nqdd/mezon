@@ -4,6 +4,7 @@ import { Icons } from '@mezon/ui';
 import { EPermission, IChannel, checkIsThread } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { EChannelSettingTab } from '.';
 import ModalConfirm from '../ModalConfirm';
@@ -15,10 +16,12 @@ export type ChannelSettingItemProps = {
 	stateMenu: boolean;
 	onCloseModal: () => void;
 	displayChannelLabel?: string;
+	getTabTranslation?: (tabKey: string) => string;
 };
 
 const ChannelSettingItem = (props: ChannelSettingItemProps) => {
-	const { onItemClick, channel, stateMenu, stateClose, displayChannelLabel } = props;
+	const { onItemClick, channel, stateMenu, stateClose, displayChannelLabel, getTabTranslation } = props;
+	const { t } = useTranslation('channelSetting');
 	const isPrivate = channel.channel_private;
 	const [selectedButton, setSelectedButton] = useState<string | null>('Overview');
 	const [showModal, setShowModal] = useState(false);
@@ -95,13 +98,14 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 					</p>
 				</div>
 
-				<ChannelSettingItemButton tabName={EChannelSettingTab.OVERVIEW} handleOnClick={handleButtonClick} selectedButton={selectedButton} />
+				<ChannelSettingItemButton tabName={EChannelSettingTab.OVERVIEW} handleOnClick={handleButtonClick} selectedButton={selectedButton} getTabTranslation={getTabTranslation} />
 				{!isThread && (
 					<>
 						<ChannelSettingItemButton
 							tabName={EChannelSettingTab.CATEGORY}
 							handleOnClick={handleButtonClick}
 							selectedButton={selectedButton}
+							getTabTranslation={getTabTranslation}
 						/>
 						{channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
 							channel.type !== ChannelType.CHANNEL_TYPE_APP &&
@@ -111,6 +115,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 									tabName={EChannelSettingTab.PREMISSIONS}
 									handleOnClick={handleButtonClick}
 									selectedButton={selectedButton}
+									getTabTranslation={getTabTranslation}
 								/>
 							)}
 					</>
@@ -120,6 +125,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 						tabName={EChannelSettingTab.INTEGRATIONS}
 						handleOnClick={handleButtonClick}
 						selectedButton={selectedButton}
+						getTabTranslation={getTabTranslation}
 					/>
 				)}
 				{canEditChannelPermissions &&
@@ -129,6 +135,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							tabName={EChannelSettingTab.QUICK_MENU}
 							handleOnClick={handleButtonClick}
 							selectedButton={selectedButton}
+							getTabTranslation={getTabTranslation}
 						/>
 					)}
 				<hr className="border-t border-solid dark:border-borderDefault my-4" />
@@ -138,16 +145,22 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 						setShowModal(true);
 					}}
 				>
-					Delete {isThread ? 'Thread' : 'Channel'}
+					{isThread ? t('fields.threadDelete.delete') : t('fields.channelDelete.delete')}
 				</button>
 			</div>
 			{showModal && (
 				<ModalConfirm
 					handleCancel={handleCloseModalShow}
 					handleConfirm={handleDeleteChannel}
-					title="delete"
+					title={isThread ? t('confirm.deleteThread.title') : t('confirm.deleteChannel.title')}
 					modalName={`${channel?.channel_label || 'Unknown Channel'}`}
-					message="This cannot be undone"
+					message={t('confirm.cancel')}
+					customTitle={
+						isThread
+							? t('confirm.deleteThread.content', { channelName: channel?.channel_label || 'Unknown Channel' })
+							: t('confirm.deleteChannel.content', { channelName: channel?.channel_label || 'Unknown Channel' })
+					}
+					buttonName={isThread ? t('confirm.deleteThread.confirmText') : t('confirm.deleteChannel.confirmText')}
 				/>
 			)}
 		</div>
@@ -158,11 +171,13 @@ export default ChannelSettingItem;
 const ChannelSettingItemButton = ({
 	tabName,
 	handleOnClick,
-	selectedButton
+	selectedButton,
+	getTabTranslation
 }: {
 	tabName: string;
 	handleOnClick: (tab: string) => void;
 	selectedButton: string | null;
+	getTabTranslation?: (tabKey: string) => string;
 }) => {
 	const handleOnClickTabChannelSetting = () => {
 		handleOnClick(tabName);
@@ -172,7 +187,7 @@ const ChannelSettingItemButton = ({
 			className={`text-theme-primary text-[16px] font-medium rounded-[5px] text-left ml-[-8px] p-2 mt-2 bg-item-theme-hover ${selectedButton === tabName ? 'bg-item-theme text-theme-primary-active' : ''}`}
 			onClick={handleOnClickTabChannelSetting}
 		>
-			{tabName}
+			{getTabTranslation ? getTabTranslation(tabName) : tabName}
 		</button>
 	);
 };

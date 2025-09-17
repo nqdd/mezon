@@ -14,6 +14,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { EOverriddenPermission, LIMIT, checkIsThread, generateE2eId } from '@mezon/utils';
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import EmptyThread from './EmptyThread';
@@ -27,6 +28,7 @@ type ThreadsProps = {
 };
 
 const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
@@ -126,7 +128,7 @@ const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
 				<div className="bg-theme-setting-nav flex flex-row items-center justify-between border-b-theme-primary p-[16px] h-12">
 					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
 						<Icons.ThreadIcon />
-						<span className="text-base font-semibold cursor-default ">Threads</span>
+						<span className="text-base font-semibold cursor-default ">{t('modals.threads.title')}</span>
 					</div>
 					<SearchThread channelId={currentChannelId} />
 					{canManageThread && (
@@ -136,7 +138,7 @@ const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
 								className=" px-3  text-center text-sm font-medium h-6 rounded-lg btn-primary btn-primary-hover"
 								data-e2e={generateE2eId('chat.channel_message.header.button.thread.modal.thread_management.button.create_thread')}
 							>
-								Create
+								{t('modals.threads.create')}
 							</button>
 							<button onClick={onClose} className="text-color-theme-hover">
 								<Icons.Close defaultSize="w-4 h-4 " />
@@ -146,7 +148,7 @@ const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
 				</div>
 				{showThreadSearch && (
 					<ul className="pb-4 pr-4 pl-4 h-[500px] overflow-y-auto app-scroll">
-						<GroupThreads preventClosePannel={preventClosePannel} title="Results" threads={threadsSearched} />
+						<GroupThreads preventClosePannel={preventClosePannel} title={t('modals.threads.results')} threads={threadsSearched} />
 					</ul>
 				)}
 				{showThreadList && (

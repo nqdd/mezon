@@ -4,15 +4,16 @@ import { fetchSystemMessageByClanId, selectClanById, selectCurrentClan, selectCu
 import { Button } from '@mezon/ui';
 import isElectron from 'is-electron';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import ListMemberInvite from '.';
 import { ModalLayout } from '../../components';
 
-const expireAfter = ['30 minutes', '1 hour', '6 hours', '12 hours', '1 day', '7 days', 'Never'];
+const expireAfterKeys = ['30minutes', '1hour', '6hours', '12hours', '1day', '7days', 'never'];
 
-const maxNumberofUses = ['No limit', '1 use', '5 uses', '10 uses', '25 uses', '50 uses', '100 uses'];
+const maxNumberofUsesKeys = ['noLimit', '1use', '5uses', '10uses', '25uses', '50uses', '100uses'];
 
 export type ModalParam = {
 	onClose: () => void;
@@ -27,8 +28,9 @@ export type ModalParam = {
 };
 
 const ModalInvite = (props: ModalParam) => {
-	const [expire, setExpire] = useState('7 days');
-	const [max, setMax] = useState('No limit');
+	const { t } = useTranslation('invitation');
+	const [expire, setExpire] = useState('7days');
+	const [max, setMax] = useState('noLimit');
 	const [modalEdit, setModalEdit] = useState(false);
 	const [modalQR, setModalQR] = useState(false);
 
@@ -51,7 +53,7 @@ const ModalInvite = (props: ModalParam) => {
 				setUrlInvite((isElectron() ? process.env.NX_CHAT_APP_REDIRECT_URI : window.location.origin) + '/invite/' + res.invite_link);
 			}
 		} catch {
-			console.log('Error when create invite link');
+			console.log(t('errors.createInviteLink'));
 		}
 	}, [channelID, effectiveClanId]);
 
@@ -68,7 +70,7 @@ const ModalInvite = (props: ModalParam) => {
 		try {
 			document.execCommand('copy');
 		} catch (err) {
-			console.error('Unable to copy to clipboard', err);
+			console.error(t('errors.copyToClipboard'), err);
 		}
 		document.body.removeChild(textArea);
 	};
@@ -97,7 +99,7 @@ const ModalInvite = (props: ModalParam) => {
 		<ModalLayout onClose={props.onClose}>
 			<div className="bg-theme-setting-primary rounded-xl flex flex-col">
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
-					<p className="font-bold text-xl text-theme-primary-active">{`Invite friends to ${isInviteExternalCalling ? 'Private Event' : clan?.clan_name}`}</p>
+					<p className="font-bold text-xl text-theme-primary-active">{t('modal.title', { target: isInviteExternalCalling ? t('modal.privateEvent') : clan?.clan_name })}</p>
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
 						onClick={props.onClose}
@@ -113,7 +115,7 @@ const ModalInvite = (props: ModalParam) => {
 					/>
 					<div className="relative ">
 						<p className="pt-4 pb-1 text-[12px] mb-12px cursor-default uppercase font-semibold text-theme-primary-active">
-							Or, send a {isInviteExternalCalling ? 'private room' : 'clan invite'} link to a friend
+							{t('modal.sendLinkText', { type: isInviteExternalCalling ? t('modal.privateRoom') : t('modal.clanInvite') })}
 						</p>
 						<input
 							type="text"
@@ -131,17 +133,17 @@ const ModalInvite = (props: ModalParam) => {
 								setShowClanListMenuContext?.();
 							}}
 						>
-							Copy
+							{t('buttons.copy')}
 						</button>
 					</div>
 					{!isInviteExternalCalling && (
 						<p className="pt-1 text-[14px] mb-12px inline-flex gap-x-2">
-							<span className="cursor-default text-theme-primary-active ">Your invite link expires in {expire} </span>
+							<span className="cursor-default text-theme-primary-active ">{t('modal.expiresIn', { time: t(`expiration.${expire}`) })} </span>
 							<span className=" text-blue-600 cursor-pointer hover:underline" onClick={() => setModalEdit(true)}>
-								Edit invite link.
+								{t('buttons.editInviteLink')}
 							</span>
 							<span className=" text-blue-600 cursor-pointer hover:underline relative group" onClick={() => setModalQR(true)}>
-								Copy QR
+								{t('buttons.copyQR')}
 							</span>
 						</p>
 					)}
@@ -160,11 +162,12 @@ interface ModalGenerateLinkOptionProps {
 }
 
 const ModalGenerateLinkOption = ({ setExpire, expire, closeModalEdit, max, setMax }: ModalGenerateLinkOptionProps) => {
+	const { t } = useTranslation('invitation');
 	return (
 		<ModalLayout onClose={closeModalEdit}>
 			<div className="bg-theme-setting-primary rounded-xl flex flex-col w-[480px] px-5 py-5 gap-2">
 				<div className="space-y-2">
-					<h3 className="text-xs font-bold text-theme-primary">Expire After</h3>
+					<h3 className="text-xs font-bold text-theme-primary">{t('generateLink.expireAfter')}</h3>
 					<select
 						name="expireAfter"
 						className={`block w-full  border  rounded p-2 font-normal text-sm tracking-wide outline-none border-none`}
@@ -173,15 +176,15 @@ const ModalGenerateLinkOption = ({ setExpire, expire, closeModalEdit, max, setMa
 						}}
 						value={expire}
 					>
-						{expireAfter.map((item) => (
+						{expireAfterKeys.map((item) => (
 							<option key={item} value={item}>
-								{item}
+								{t(`expiration.${item}`)}
 							</option>
 						))}
 					</select>
 				</div>
 				<div className="space-y-2">
-					<h3 className="text-xs font-bold text-theme-primary">Max Number of Uses</h3>
+					<h3 className="text-xs font-bold text-theme-primary">{t('generateLink.maxNumberOfUses')}</h3>
 					<select
 						name="maxNumberofUses"
 						className={`block w-full  rounded p-2 font-normal text-sm tracking-wide outline-none border-none `}
@@ -190,19 +193,19 @@ const ModalGenerateLinkOption = ({ setExpire, expire, closeModalEdit, max, setMa
 						}}
 						value={max}
 					>
-						{maxNumberofUses.map((item) => (
+						{maxNumberofUsesKeys.map((item) => (
 							<option key={item} value={item}>
-								{item}
+								{t(`maxUses.${item}`)}
 							</option>
 						))}
 					</select>
 				</div>
 				<div className="flex justify-end gap-x-4">
 					<button className="px-4 py-2 rounded-lg  border-theme-primary hover:bg-opacity-85" onClick={closeModalEdit}>
-						Cancel
+						{t('buttons.cancel')}
 					</button>
 					<button className="px-4 py-2 rounded-lg text-white bg-primary hover:bg-opacity-85" onClick={closeModalEdit}>
-						Generate a New Link
+						{t('buttons.generateNewLink')}
 					</button>
 				</div>
 			</div>
@@ -211,6 +214,7 @@ const ModalGenerateLinkOption = ({ setExpire, expire, closeModalEdit, max, setMa
 };
 
 const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: string }) => {
+	const { t } = useTranslation('invitation');
 	const currentClan = useSelector(selectCurrentClan);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -244,9 +248,9 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 				if (!blob) return;
 				try {
 					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-					toast(' Copied QR successfully !!');
+					toast(t('messages.qrCopiedSuccess'));
 				} catch (err) {
-					console.error('Copy failed', err);
+					console.error(t('errors.copyFailed'), err);
 				}
 			});
 		};
@@ -258,7 +262,7 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 				<div ref={containerRef} className="p-4 rounded-md bg-white w-fit flex flex-col items-center justify-center gap-2 pt-9 relative">
 					<div className="w-10 h-10 absolute -top-3 rounded-full flex items-center justify-center bg-white">
 						{currentClan?.logo ? (
-							<img src={currentClan?.logo} className="w-10 h-10 object-cover rounded-full border-4 border-white" />
+							<img src={currentClan?.logo} alt={currentClan?.clan_name} className="w-10 h-10 object-cover rounded-full border-4 border-white" />
 						) : (
 							<span>{currentClan?.clan_name?.charAt(0)}</span>
 						)}
@@ -267,10 +271,10 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 				</div>
 				<div className="flex items-center justify-end gap-3">
 					<button className="px-4 py-2 rounded-lg  border-theme-primary hover:bg-opacity-85" onClick={closeModalEdit}>
-						Cancel
+						{t('buttons.cancel')}
 					</button>
 					<button className="px-4 py-2 rounded-lg text-white bg-primary hover:bg-opacity-85" onClick={handleCopyQR}>
-						Copy QR
+						{t('buttons.copyQR')}
 					</button>
 				</div>
 			</div>
