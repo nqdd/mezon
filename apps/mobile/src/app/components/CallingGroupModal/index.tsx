@@ -156,9 +156,23 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 	};
 
 	useEffect(() => {
+		if (!isVisible) {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		}
+	}, [isVisible]);
+
+	useEffect(() => {
+		return () => {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		};
+	}, []);
+
+	useEffect(() => {
 		if (dataCall?.caller_id && callData) {
 			setIsVisible(true);
-			Sound.setCategory('Playback');
+			Sound.setCategory(Platform.OS === 'ios' ? 'Playback' : 'Ambient', Platform.OS === 'ios');
 
 			// Initialize ringtone
 			const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {
