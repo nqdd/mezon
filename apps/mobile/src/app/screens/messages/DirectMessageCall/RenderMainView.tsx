@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import AvatarCall from './AvatarCall';
+import CallDuration from './CallDuration';
 import RenderVideoStream from './RenderVideoStream';
 import { style } from './styles';
 
@@ -58,6 +59,11 @@ export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnecte
 							</Text>
 						</View>
 					)}
+				</View>
+			)}
+			{isConnected && (
+				<View style={{ top: callState.remoteStream && isRemoteVideo && isConnected ? 0 : size.s_100 + size.s_10 }}>
+					<CallDuration isConnected={isConnected} />
 				</View>
 			)}
 			{callState.localStream && isOnLocalCamera ? (

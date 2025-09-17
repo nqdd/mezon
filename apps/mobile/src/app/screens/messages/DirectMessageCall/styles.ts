@@ -132,7 +132,7 @@ export const style = (colors: Attributes) =>
 		},
 		mutedAudioAvatarContainer: {
 			flexDirection: 'row',
-			top: size.s_100 + size.s_20,
+			top: size.s_100 + size.s_10,
 			gap: size.s_6,
 			justifyContent: 'center',
 			alignItems: 'center',
