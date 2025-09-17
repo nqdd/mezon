@@ -175,7 +175,7 @@ const ModalSendToken = ({
 						</div>
 					))
 				) : (
-					<div className="p-4 text-center">No users found</div>
+					<div className="p-4 text-center">{t('sendTokenModal.noUsersFound')}</div>
 				)}
 			</div>
 		</div>

@@ -233,7 +233,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onvoiceleaved = useCallback(
 		(voice: VoiceLeavedEvent) => {
-			dispatch(voiceActions.remove(voice.voice_user_id));
+			dispatch(voiceActions.remove(voice));
 		},
 		[dispatch]
 	);
@@ -1843,7 +1843,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			dispatch(DMCallActions.removeAll());
 			dispatch(audioCallActions.reset());
 			dispatch(DMCallActions.cancelCall({}));
-			dispatch(audioCallActions.startDmCall({}));
+			dispatch(audioCallActions.startDmCall(null));
 			dispatch(audioCallActions.setUserCallId(''));
 			dispatch(audioCallActions.setIsJoinedCall(false));
 			dispatch(DMCallActions.setOtherCall({}));

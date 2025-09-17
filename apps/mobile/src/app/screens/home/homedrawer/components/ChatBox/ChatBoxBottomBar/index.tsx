@@ -32,13 +32,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { DeviceEventEmitter, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { TriggersConfig, useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { ClipboardImagePreview } from '../../../../../../components/ClipboardImagePreview';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
 import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
@@ -100,6 +99,14 @@ interface IChatInputProps {
 interface IEphemeralTargetUserInfo {
 	id: string;
 	display: string;
+}
+
+interface IFile {
+	uri: string;
+	name: string;
+	type: string;
+	size: number | string;
+	fileData: any;
 }
 
 export const ChatBoxBottomBar = memo(
@@ -215,17 +222,34 @@ export const ChatBoxBottomBar = memo(
 			});
 		};
 
-		const handlePasteImage = async (imageBase64: string) => {
+		const handlePasteImage = async (imageData: string) => {
 			try {
-				if (imageBase64) {
+				if (imageData) {
 					const now = Date.now();
-					const mimeType = imageBase64.split(';')?.[0]?.split(':')?.[1] || 'image/jpeg';
-					const extension = mimeType?.split('/')?.[1]?.replace('jpeg', 'jpg')?.replace('svg+xml', 'svg') || 'jpg';
+					let fileName: string;
+					let destPath: string;
+					let mimeType: string;
 
-					const fileName = `paste_image_${now}.${extension}`;
-					const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+					if (imageData.startsWith('data:image/')) {
+						// Handle base64 image data
+						mimeType = imageData.split(';')?.[0]?.split(':')?.[1] || 'image/jpeg';
+						const extension = mimeType?.split('/')?.[1]?.replace('jpeg', 'jpg')?.replace('svg+xml', 'svg') || 'jpg';
+						fileName = `paste_image_${now}.${extension}`;
+						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
 
-					await RNFS.writeFile(destPath, imageBase64.split(',')?.[1], 'base64');
+						await RNFS.writeFile(destPath, imageData.split(',')?.[1], 'base64');
+					} else if (imageData.startsWith('content://')) {
+						// Handle Android content:// URI
+						fileName = `paste_image_${now}.jpg`;
+						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+						mimeType = 'image/jpeg';
+
+						// Copy file from content URI to app cache
+						await RNFS.copyFile(imageData, destPath);
+					} else {
+						throw new Error('Unsupported image format');
+					}
+
 					const fileInfo = await RNFS.stat(destPath);
 					const filePath = `file://${fileInfo?.path}`;
 					const { width, height } = await getImageDimension(filePath);
@@ -519,34 +543,41 @@ export const ChatBoxBottomBar = memo(
 			}, 300);
 		};
 
-		const checkPasteImage = async () => {
+		const handlePasteImageFromClipboard = async () => {
 			try {
+				// Check for base64 image first
 				const imageUri = await Clipboard.getImage();
-
 				if (imageUri?.startsWith('data:image/')) {
 					const base64Data = imageUri.split(',')?.[1];
 					if (base64Data?.length > 10) {
-						setImageBase64(imageUri);
+						await handlePasteImage(imageUri);
+						// Only hide tooltip, keep image in clipboard
+						setIsShowOptionPaste(false);
+						return;
 					}
 				}
-			} catch (error) {
-				console.error('Error checking paste image:', error);
-			}
-		};
 
-		const handlePasteImageFromClipboard = async () => {
-			if (imageBase64) {
-				await handlePasteImage(imageBase64);
-				cancelPasteImage();
+				// Check for content:// path
+				const clipboardText = await Clipboard.getString();
+				if (
+					clipboardText?.startsWith('content://') &&
+					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
+				) {
+					await handlePasteImage(clipboardText);
+					// Only hide tooltip, keep image in clipboard
+					setIsShowOptionPaste(false);
+					return;
+				}
+
+				console.log('No image found in clipboard');
+			} catch (error) {
+				console.error('Error pasting image from clipboard:', error);
 			}
 		};
 		const cancelPasteImage = useCallback(() => {
-			if (Platform.OS === 'ios') {
-				Clipboard.setImage('');
-			} else if (Platform.OS === 'android') {
-				Clipboard.setString('');
-			}
+			// Only hide tooltip, don't clear clipboard
 			setImageBase64(null);
+			setIsShowOptionPaste(false);
 		}, []);
 
 		const handleInputFocus = async () => {
@@ -555,7 +586,6 @@ export const ChatBoxBottomBar = memo(
 				isShow: false,
 				mode: ''
 			});
-			await checkPasteImage();
 		};
 
 		const handleInputBlur = () => {
@@ -610,6 +640,66 @@ export const ChatBoxBottomBar = memo(
 				addEmojiPickedListener.remove();
 			};
 		}, [channelId, handleEventAfterEmojiPicked, topicChannelId]);
+
+		const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+		const isLongPressed = useRef(false);
+		const [isShowOptionPaste, setIsShowOptionPaste] = useState(false);
+
+		const handlePressIn = () => {
+			isLongPressed.current = false;
+
+			longPressTimer.current = setTimeout(() => {
+				isLongPressed.current = true;
+				onLongPress();
+			}, 500);
+		};
+
+		const handlePressOut = () => {
+			if (longPressTimer.current) {
+				clearTimeout(longPressTimer.current);
+				longPressTimer.current = null;
+			}
+
+			if (!isLongPressed.current) {
+				onRegularPress();
+			}
+
+			isLongPressed.current = false;
+		};
+
+		const onLongPress = async () => {
+			try {
+				// Check directly if clipboard contains image
+				const imageUri = await Clipboard.getImage();
+				if (imageUri?.startsWith('data:image/')) {
+					const base64Data = imageUri.split(',')?.[1];
+					if (base64Data?.length > 10) {
+						setIsShowOptionPaste(true);
+						return;
+					}
+				}
+
+				// Check if clipboard contains content:// path for images (Android)
+				const clipboardText = await Clipboard.getString();
+				if (
+					clipboardText?.startsWith('content://') &&
+					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
+				) {
+					setIsShowOptionPaste(true);
+					return;
+				}
+
+				// No image found, don't show tooltip
+				setIsShowOptionPaste(false);
+			} catch (error) {
+				console.error('Error checking clipboard for images:', error);
+				setIsShowOptionPaste(false);
+			}
+		};
+
+		const onRegularPress = () => {
+			setIsShowOptionPaste(false);
+		};
 
 		return (
 			<View style={styles.container}>
@@ -676,13 +766,16 @@ export const ChatBoxBottomBar = memo(
 							/>
 						)}
 
-						{imageBase64 && (
-							<Pressable style={{ position: 'absolute', bottom: '100%' }} onPress={handlePasteImageFromClipboard}>
-								<ClipboardImagePreview imageBase64={imageBase64} message={t('pasteImage')} onCancel={cancelPasteImage} />
-							</Pressable>
-						)}
-
 						<View style={styles.input}>
+							{isShowOptionPaste && (
+								<TouchableOpacity style={styles.pasteTooltip} onPress={handlePasteImageFromClipboard} activeOpacity={0.8}>
+									<View style={styles.tooltipContent}>
+										<Text style={styles.tooltipText}>{t('pasteOption')}</Text>
+									</View>
+									<View style={styles.tooltipArrow} />
+								</TouchableOpacity>
+							)}
+
 							<TextInput
 								ref={inputRef}
 								multiline
@@ -702,6 +795,9 @@ export const ChatBoxBottomBar = memo(
 								style={[styles.inputStyle, !textValueInputRef?.current && { height: size.s_40 }]}
 								children={RenderTextContent({ text: textValueInputRef?.current })}
 								onSelectionChange={textInputProps?.onSelectionChange}
+								onPressIn={handlePressIn}
+								onPressOut={handlePressOut}
+								contextMenuHidden={isShowOptionPaste}
 							/>
 							<View style={styles.iconEmoji}>
 								<EmojiSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />

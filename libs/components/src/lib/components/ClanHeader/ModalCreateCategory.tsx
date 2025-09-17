@@ -1,5 +1,5 @@
 import { checkDuplicateCategoryInClan, selectCurrentClanId, useAppDispatch } from '@mezon/store';
-import { Icons, InputField } from '@mezon/ui';
+import { InputField } from '@mezon/ui';
 import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useCallback, useState } from 'react';
@@ -67,10 +67,6 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 		setNameCate('');
 	};
 
-	const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.checked ? 1 : 0;
-	};
-
 	return (
 		<ModalLayout onClose={onClose}>
 			<div className="w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden">
@@ -93,31 +89,6 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 						/>
 					</div>
 					{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{checkValidate}</p>}
-					<div className="flex flex-row justify-between my-2 items-center">
-						<div className="flex flex-row items-center">
-							<Icons.LockIcon />
-							<span className="text-lg font-semibold">{t('createCategoryModal.privateCategory')}</span>
-						</div>
-						<div className="relative flex flex-wrap items-center">
-							<input
-								className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full
-	after:bg-slate-500 after:transition-all
-	checked:bg-[#5265EC] checked:after:left-4 checked:after:bg-white
-	hover:bg-slate-400 after:hover:bg-slate-600
-	checked:hover:bg-[#4654C0] checked:after:hover:bg-white
-	focus:outline-none checked:focus:bg-[#4654C0] checked:after:focus:bg-white
-	focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-slate-200 disabled:after:bg-slate-300 "
-								type="checkbox"
-								value={1}
-								id="id-c01"
-								onChange={handleToggle}
-								data-e2e={generateE2eId(`clan_page.modal.create_category.toggle.private`)}
-							/>
-						</div>
-					</div>
-					<p className="text-sm">
-						{t('createCategoryModal.privateDescription')}
-					</p>
 				</div>
 				<div className=" font-semibold text-sm flex   justify-end flex-row items-center gap-4 py-4 px-6 rounded-bl-[5px] rounded-br-[5px]">
 					<button

@@ -10,6 +10,7 @@ import {
 	selectInviteClanId,
 	selectInvitePeopleStatus,
 	selectIsShowEmptyCategory,
+	selectToOnboard,
 	settingClanStickerActions,
 	useAppDispatch
 } from '@mezon/store';
@@ -50,7 +51,7 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 	const currentClan = useSelector(selectCurrentClan);
 	const navigate = useNavigate();
 	const [openSearchModal, closeSearchModal] = useModal(() => <SearchModal onClose={closeSearchModal} />);
-
+	const toOnboard = useSelector(selectToOnboard);
 	const [openCreateCate, setOpenCreateCate] = useState(false);
 	const [isShowModalPanelClan, setIsShowModalPanelClan] = useState<boolean>(false);
 	const hasChildModal = useSelector(hasGrandchildModal);
@@ -155,11 +156,18 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 						closeModalClan();
 					}
 				}}
-				initialSetting={canManageClan ? ItemSetting.OVERVIEW : ItemSetting.EMOJI}
+				initialSetting={toOnboard ? ItemSetting.ON_BOARDING : canManageClan ? ItemSetting.OVERVIEW : ItemSetting.EMOJI}
 			/>
 		),
-		[canManageClan, hasChildModalRef, closeModalClan]
+		[canManageClan, hasChildModalRef, closeModalClan, toOnboard]
 	);
+
+	useEffect(() => {
+		if (toOnboard === null) return;
+		if (toOnboard) {
+			openServerSettingsModal();
+		}
+	}, [toOnboard]);
 
 	return (
 		<>

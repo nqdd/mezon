@@ -76,7 +76,7 @@ export const Events = memo(() => {
 	}, [currentClan?.is_onboarding, currentClan]);
 
 	const checkPreviewMode = useMemo(() => {
-		if (previewMode) {
+		if (previewMode.open && previewMode.clanId === currentClanId) {
 			return true;
 		}
 		if (selectUserProcessing) {

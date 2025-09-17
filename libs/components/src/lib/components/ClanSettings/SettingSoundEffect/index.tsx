@@ -54,13 +54,13 @@ const SettingSoundEffect = () => {
 	}));
 
 	useEffect(() => {
-		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false }));
+		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false, clanId: currentClanId }));
 	}, [dispatch, currentClanId]);
 
 	const handleUploadSuccess = (_newSound: SoundType) => {
 		setShowModal(false);
 		setSelectedSound(null);
-		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true }));
+		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true, clanId: currentClanId }));
 	};
 
 	const handleEditSound = (sound: SoundType) => {
@@ -72,13 +72,13 @@ const SettingSoundEffect = () => {
 		try {
 			await dispatch(
 				soundEffectActions.deleteSound({
-					soundId,
+					soundId: soundId,
 					clan_id: currentClanId,
 					soundLabel: soundName
 				})
 			);
 
-			dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true }));
+			dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true, clanId: currentClanId }));
 		} catch (error) {
 			console.error('Error deleting sound:', error);
 		}
