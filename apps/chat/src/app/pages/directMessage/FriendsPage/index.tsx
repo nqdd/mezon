@@ -137,28 +137,28 @@ const FriendsPage = () => {
 		if (textSearch.trim()) {
 			switch (tab) {
 				case 'all':
-					return 'No friends match your search. Try another name.';
+					return t('statusTapSearchFriends.all');
 				case 'online':
-					return 'No one online matches your search. Try another name.';
+					return t('statusTapSearchFriends.online');
 				case 'pending':
-					return 'No requests match your search. Double-check the name or try again.';
+					return t('statusTapSearchFriends.pending');
 				case 'block':
-					return 'No blocked users match your search. Try another name.';
+					return t('statusTapSearchFriends.block');
 				default:
-					return 'No friends found';
+					return t('statusTapSearchFriends.all');
 			}
 		}
 		switch (tab) {
 			case 'all':
-				return "Looks a little empty here! Let's get this party started by adding a few friends.";
+				return t('statusTapListFriends.all');
 			case 'online':
-				return "It's quiet right now! Why not start a conversation and see who's around?";
+				return t('statusTapListFriends.online');
 			case 'pending':
-				return "This is where you'll find friend requests you've sent and received.";
+				return t('statusTapListFriends.pending');
 			case 'block':
-				return "You haven't blocked anyone yet.";
+				return t('statusTapListFriends.block');
 			default:
-				return 'No friends found';
+				return t('statusTapListFriends.all');
 		}
 	};
 
