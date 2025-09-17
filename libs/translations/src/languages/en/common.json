@@ -18,8 +18,7 @@
     "copyImage": "Copied Image",
     "copyImageFailed": "Failed to copy image: {{error}}",
     "enable": "Enable",
-    "poorConnection": "Poor connection",
-    "descPoorConnection": "Try moving to get better signal",
+    "poorConnection": "You are currently offline.",
     "cancel": "Cancel",
     "delete": "Delete",
     "areYouSureYouWantTo": "Are you sure you want to {{action}} <0>{{name}}</0>?",
@@ -91,7 +90,7 @@
         "viewApp": "View app",
         "categories": {
             "all": "All",
-            "entertainment": "Entertainment", 
+            "entertainment": "Entertainment",
             "games": "Games",
             "moderation": "Moderation and Tools",
             "social": "Social",
@@ -139,7 +138,7 @@
     },
     "guide": {
         "clan": "clan",
-        "invite": "Invite", 
+        "invite": "Invite",
         "questions": "Questions",
         "resources": "Resources",
         "missions": "Missions",
