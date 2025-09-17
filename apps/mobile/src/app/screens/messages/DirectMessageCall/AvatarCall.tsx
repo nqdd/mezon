@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Images from '../../../../assets/Images';
+import CallDuration from './CallDuration';
 
 interface IAvatarCallProps {
 	receiverName: string;
@@ -96,7 +97,9 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 				/>
 			</View>
 			{!!receiverName && <Text style={[styles.name, { color: themeValue.text }]}>{receiverName}</Text>}
-			{!isConnected && (
+			{isConnected ? (
+				<CallDuration isConnected={isConnected} />
+			) : (
 				<Text
 					style={[
 						styles.status,
