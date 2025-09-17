@@ -89,7 +89,9 @@ export const DATA_E2E_IDENTIFIER = {
 				name: ''
 			},
 			channel_list: {
-				category: ''
+				category: {
+					name: ''
+				}
 			},
 			button: {
 				add_clan: '',
@@ -135,6 +137,11 @@ export const DATA_E2E_IDENTIFIER = {
 				button: {
 					confirm: '',
 					cancel: ''
+				}
+			},
+			delete_category: {
+				button: {
+					delete: ''
 				}
 			}
 		},
