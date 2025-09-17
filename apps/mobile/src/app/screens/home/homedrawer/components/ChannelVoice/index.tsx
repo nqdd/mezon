@@ -1,4 +1,5 @@
-import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@livekit/react-native';
+import type { TrackReference } from '@livekit/react-native';
+import { AudioSession, LiveKitRoom, useConnectionState } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
