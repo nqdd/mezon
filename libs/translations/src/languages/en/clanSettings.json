@@ -50,10 +50,10 @@
   "systemMessages": {
     "title": "System Messages Channel",
     "description": "This is the channel we send system event messages to. These can be turned off at any time",
-    "welcomeRandom": "Send a random welcome message when someone joins this server.",
+    "welcomeRandom": "Send a random welcome message when someone joins this clan.",
     "welcomeSticker": "Prompt members to reply to welcome messages with a sticker.",
     "boostMessage": "Send a message when someone Boosts this server.",
-    "setupTips": "Send helpful tips for server setup.",
+    "setupTips": "Send helpful tips for clan setup.",
     "auditLog": "Send a log when an action is applied to the clan"
   },
   "appDirectory": {
