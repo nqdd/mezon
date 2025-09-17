@@ -62,6 +62,9 @@ const audioCallSlice = createSlice({
 		},
 		setUserCallId(state, action) {
 			state.userCallId = action.payload;
+		},
+		reset() {
+			return initialState;
 		}
 	}
 });

@@ -102,9 +102,12 @@ export function MyVideoConference({
 
 	useEffect(() => {
 		const handleDisconnected = async (reason?: DisconnectReason) => {
+			if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
+				dispatch(voiceActions.resetVoiceControl());
+				return;
+			}
 			if (
 				reason === DisconnectReason.SERVER_SHUTDOWN ||
-				reason === DisconnectReason.DUPLICATE_IDENTITY ||
 				reason === DisconnectReason.CLIENT_INITIATED ||
 				reason === DisconnectReason.PARTICIPANT_REMOVED ||
 				reason === DisconnectReason.SIGNAL_CLOSE ||

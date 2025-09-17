@@ -1,7 +1,8 @@
 import { channelsActions, messagesActions, pinMessageActions, threadsActions, useAppDispatch } from '@mezon/store';
-import { ETokenMessage, IExtendedMessage, IMessageWithUser, TypeMessage, convertTimeString, parseThreadInfo } from '@mezon/utils';
+import { ETokenMessage, IExtendedMessage, IMessageWithUser, TypeMessage, convertTimeStringI18n, parseThreadInfo } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { MentionUser, PlainText } from '../../components';
 
@@ -44,6 +45,8 @@ const RenderContentSystem = ({ message, data, mode, isSearchMessage, isJumMessag
 	const elements = [...mentions.map((item) => ({ ...item, kindOf: ETokenMessage.MENTIONS }))].sort((a, b) => (a.s ?? 0) - (b.s ?? 0));
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
+	const { t: translateCommon, i18n } = useTranslation('common');
+	const { t: translateMessage } = useTranslation('message');
 
 	const getIdMessageToJump = useCallback(
 		(e: React.MouseEvent<HTMLDivElement | HTMLSpanElement>) => {
@@ -144,35 +147,36 @@ const RenderContentSystem = ({ message, data, mode, isSearchMessage, isJumMessag
 				{content}{' '}
 				{message.code === TypeMessage.CreatePin && (
 					<>
-						pinned{' '}
+						{translateMessage('systemMessages.pinned')}{' '}
 						<span onClick={getIdMessageToJump} className="font-semibold cursor-pointer hover:underline">
-							a message
+							{translateMessage('systemMessages.aMessage')}
 						</span>{' '}
-						to this channel. See{' '}
+						{translateMessage('systemMessages.toThisChannel')}{' '}
 						<span onClick={handleShowPinMessage} className="font-semibold cursor-pointer hover:underline">
-							all pinned
+							{translateMessage('systemMessages.allPinned')}
 						</span>{' '}
-						messages.
+						{translateMessage('systemMessages.messages')}
 					</>
 				)}
 				{message.code === TypeMessage.CreateThread &&
 					(threadId ? (
 						<>
-							started a thread:{' '}
+							{translateMessage('systemMessages.startedAThread')}{' '}
 							<span onClick={handelJumpToChannel} className="font-semibold cursor-pointer hover:underline">
 								{threadLabel}
-							</span>{' '}
-							. See{' '}
+							</span>
+							. {translateMessage('systemMessages.seeAllThreads')}{' '}
 							<span onClick={handleShowThreads} className="font-semibold cursor-pointer hover:underline">
-								all threads
-							</span>{' '}
+								{translateMessage('systemMessages.allThreads')}
+							</span>
+							.
 						</>
 					) : (
 						<>{threadContent}</>
 					))}
 			</div>
 			<div className="ml-1 max-2xl:ml-0 pt-[5px]  max-2xl:pt-0 text-theme-primary text-[10px] cursor-default">
-				{convertTimeString(message?.create_time as string)}
+				{convertTimeStringI18n(message?.create_time as string, translateCommon, i18n.language)}
 			</div>
 		</div>
 	);

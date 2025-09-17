@@ -6,6 +6,8 @@ import PushKit
 import AVFoundation
 import AVKit
 import ReactAppDependencyProvider
+import SDWebImage
+import SDWebImageWebPCoder
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -19,6 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
 
+      SDImageCodersManager.shared.addCoder(SDImageWebPCoder.shared)
       DispatchQueue.global(qos: .background).async {
         let callKeepConfig: [String: Any] = [
             "appName": "Mezon",

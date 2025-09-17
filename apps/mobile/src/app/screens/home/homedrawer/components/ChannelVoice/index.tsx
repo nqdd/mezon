@@ -207,15 +207,18 @@ function ChannelVoice({
 								return;
 							}
 							if (state === 'background') {
+								StatusBar.setHidden(true);
 								StatusBar.setTranslucent(false);
 								PipModule?.enterPipMode?.();
 								dispatch(voiceActions.setPiPModeMobile(true));
 							} else {
+								StatusBar.setHidden(false);
 								StatusBar.setTranslucent(true);
 								PipModule?.showStatusBar?.();
 								dispatch(voiceActions.setPiPModeMobile(false));
 							}
 						} catch (e) {
+							StatusBar.setHidden(false);
 							StatusBar.setTranslucent(true);
 							dispatch(voiceActions.setPiPModeMobile(false));
 						}
@@ -224,6 +227,7 @@ function ChannelVoice({
 			if (Platform.OS === 'android') {
 				PipModule?.exitPipMode?.();
 				PipModule?.showStatusBar?.();
+				StatusBar.setHidden(false);
 				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}

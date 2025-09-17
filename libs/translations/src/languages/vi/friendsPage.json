@@ -1,0 +1,45 @@
+{
+	"friend": "Bạn bè",
+	"addFriend": "Thêm bạn",
+	"search": "Tìm kiếm",
+	"tabs": {
+		"all": "Tất cả",
+		"online": "Trực tuyến",
+		"pending": "Đang chờ xử lý",
+		"block": "Chặn"
+	},
+	"addFriendModal": {
+		"title": "THÊM BẠN BÈ",
+		"description": "Bạn có thể thêm bạn bằng tên người dùng Mezon của họ",
+		"placeholder": "Nhập tên người dùng",
+		"tooltip": "Bạn có thể thêm bạn bằng tên người dùng Mezon của họ",
+		"sendRequest": "Gửi lời mời kết bạn",
+		"add": "Thêm",
+		"alreadyFriends": "Bạn đã là bạn bè với người dùng này!",
+		"invalidInput": "Vui lòng chỉ sử dụng số, chữ cái, dấu gạch dưới _ hoặc dấu chấm.",
+		"waitingMessage": "Komuu đang chờ bạn bè. Nhưng bạn không cần phải chờ!"
+	},
+	"requestFailedPopup": {
+		"title": "Gửi lời mời kết bạn thất bại",
+		"message": "Bạn đã là bạn bè với người dùng này!",
+		"okay": "Được rồi"
+	},
+	"activity": {
+		"coding": "Hoạt động - Lập trình",
+		"music": "Hoạt động - Âm nhạc",
+		"gaming": "Hoạt động - Chơi game"
+	},
+	"friendMenu": {
+		"startVideoCall": "Bắt đầu gọi video",
+		"startVoiceCall": "Bắt đầu gọi thoại",
+		"removeFriend": "Xóa bạn bè",
+		"block": "Chặn",
+		"unblock": "Bỏ chặn"
+	},
+	"toast": {
+		"userBlockedSuccess": "Đã chặn người dùng thành công",
+		"userBlockedFailed": "Không thể chặn người dùng",
+		"userUnblockedSuccess": "Đã bỏ chặn người dùng thành công",
+		"userUnblockedFailed": "Không thể bỏ chặn người dùng"
+	}
+}

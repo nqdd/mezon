@@ -1,4 +1,9 @@
 {
+    "myAccount": "My Account",
+    "editUserProfile": "Edit User Profile",
+    "noDisplayName": "You haven't added a display name yet.",
+    "edit": "Edit",
+    "password": "Password",
     "username": "Username",
     "displayName": "Display Name",
     "users": "Users",
@@ -37,6 +42,13 @@
             "notEqual": "Confirmation password doesn't match"
         },
         "notification": "Password set successfully"
+    },
+    "setPasswordModal": {
+        "title": "Set Password",
+        "description": "Please create a new password for your account",
+        "emailPlaceholder": "your.email@example.com",
+        "loading": "Loading...",
+        "close": "Close"
     },
     "toast": {
         "deleteAccount": {

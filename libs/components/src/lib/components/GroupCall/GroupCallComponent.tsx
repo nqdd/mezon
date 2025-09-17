@@ -230,7 +230,7 @@ const GroupCallComponent = memo(
 				);
 
 				groupCall.state.endGroupCall();
-				dispatch(voiceActions.resetVoiceSettings());
+				dispatch(voiceActions.resetVoiceControl());
 				groupCall.audio.stopAllAudio();
 
 				// await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId);

@@ -9,8 +9,8 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
-import { memo, useEffect, useRef, useState } from 'react';
+import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, nomalizeTextToLowerCase } from '@mezon/utils';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../../AvatarImage/AvatarImage';
 
@@ -126,6 +126,28 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		};
 		await dispatch(channelUsersActions.addChannelUsers(body));
 	};
+
+	const [search, setSearch] = useState('');
+
+	const listRoleCanAdd = useMemo(() => {
+		if (!search) {
+			return listManageNotInChannel;
+		}
+		return listManageNotInChannel.filter((role) => nomalizeTextToLowerCase(role.title)?.includes(nomalizeTextToLowerCase(search)));
+	}, [search]);
+
+	const listMemberCanAdd = useMemo(() => {
+		if (!search) {
+			return usersClan;
+		}
+		return usersClan.filter(
+			(user) =>
+				nomalizeTextToLowerCase(user?.clan_nick || '') ||
+				nomalizeTextToLowerCase(user.user?.display_name) ||
+				nomalizeTextToLowerCase(user.user?.username)
+		);
+	}, [search]);
+
 	return (
 		<div ref={panelRef} className="flex justify-between items-center relative" onClick={() => setShowPopup(!showPopup)}>
 			<h4 className="uppercase font-bold text-xs text-theme-primary-active">Roles/Members</h4>
@@ -137,26 +159,32 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 				>
 					<div className=" flex gap-x-1 p-4 text-sm bg-theme-setting-nav">
 						<p className="font-bold text-theme-primary-active">ADD:</p>
-						<input type="text" className="bg-transparent outline-none font-medium" placeholder="Role/Member" />
+						<input
+							type="text"
+							className="bg-transparent outline-none font-medium"
+							placeholder="Role/Member"
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+						/>
 					</div>
 					<div
 						className=" p-2 h-64 overflow-y-scroll hide-scrollbar text-theme-primary text-theme-primary-hover"
 						onClick={() => setShowPopup(!showPopup)}
 					>
-						{Boolean(listManageNotInChannel.length) && (
+						{Boolean(listRoleCanAdd.length) && (
 							<div>
 								<p className="px-3 py-2 uppercase text-[11px] font-bold">Role</p>
-								{listManageNotInChannel.map((item) => (
+								{listRoleCanAdd.map((item) => (
 									<div key={item.id} className="rounded px-3 py-2 font-semibold bg-item-hover" onClick={() => addRole(item.id)}>
 										{item.title}
 									</div>
 								))}
 							</div>
 						)}
-						{Boolean(usersClan.length) && (
+						{Boolean(listMemberCanAdd.length) && (
 							<div>
 								<p className="px-3 py-2 uppercase text-[11px] font-bold">Member</p>
-								{usersClan.map((item) => (
+								{listMemberCanAdd.map((item) => (
 									<div key={item.id} onClick={() => addUser(item.id)}>
 										<ItemUser
 											username={item.user?.username}

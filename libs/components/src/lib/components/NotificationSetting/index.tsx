@@ -17,6 +17,7 @@ import { Button } from '@mezon/ui';
 import { ICategoryChannel, IChannel } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Creatable from 'react-select/creatable';
 import { ModalLayout } from '../../components';
@@ -74,6 +75,7 @@ export const customStyles = {
 };
 
 const ModalNotificationSetting = (props: ModalParam) => {
+	const { t } = useTranslation('notificationSetting');
 	const currentClan = useSelector(selectCurrentClan);
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 	const currentChannel = useSelector(selectCurrentChannel);
@@ -216,7 +218,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 			<div className="flex flex-col bg-theme-setting-primary rounded-xl overflow-hidden max-w-[684px] w-screen">
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
 					<div className="flex flex-col">
-						<p className="font-bold text-xl text-theme-primary-active">Notification Setting</p>
+						<p className="font-bold text-xl text-theme-primary-active">{t('title')}</p>
 						<p>{currentClan?.clan_name}</p>
 					</div>
 					<Button
@@ -227,7 +229,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					</Button>
 				</div>
 				<div className={`px-5 py-4 max-h-[500px] overflow-y-auto hide-scrollbar`}>
-					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">CLAN NOTIFICATION SETTINGS</div>
+					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">{t('clanNotificationSettings')}</div>
 					<div className="space-y-2">
 						{notificationTypesList.map((notificationType, index) => (
 							<div key={index} className="flex items-center gap-x-3 p-[12px]  rounded text-sm">
@@ -246,15 +248,15 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					</div>
 
 					<hr className="border-zinc-500 my-4" />
-					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">NOTIFICATION OVERRIDES</div>
-					<div className="text-sm font-normal  mb-2">Add a channel to override its default notification settings</div>
+					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">{t('notificationOverrides')}</div>
+					<div className="text-sm font-normal  mb-2">{t('addChannelOverride')}</div>
 					<div className="bg-theme-setting-primary">
 						<Creatable
 							isClearable
 							onChange={handleChange}
 							options={options}
 							value={selectedOption}
-							placeholder="Select or create an option..."
+							placeholder={t('selectOrCreateOption')}
 							styles={customStyles}
 							classNames={{
 								menuList: () => 'thread-scroll'
@@ -266,11 +268,11 @@ const ModalNotificationSetting = (props: ModalParam) => {
 						<table className="w-full mt-4 hide-scrollbar overflow-hidden space-y-2">
 							<thead>
 								<tr className="grid grid-cols-7 text-theme-primary-active">
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">CHANNEL OR CATEGORY</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">ALL</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">MENTIONS</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">NOTHING</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">Mute</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">{t('headers.channelOrCategory')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.all')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.mentions')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.nothing')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.mute')}</th>
 								</tr>
 							</thead>
 							<tbody>

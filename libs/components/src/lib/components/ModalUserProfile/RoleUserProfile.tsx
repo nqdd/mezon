@@ -1,6 +1,6 @@
 import { usePermissionChecker, useRoles, UserRestrictionZone } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	selectAllRolesClan,
 	selectCurrentClan,
 	selectCurrentClanId,
@@ -14,7 +14,9 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID } from '@mezon/utils';
-import { ChangeEvent, Dispatch, SetStateAction, useMemo, useState } from 'react';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 type RoleUserProfileProps = {
@@ -22,6 +24,7 @@ type RoleUserProfileProps = {
 };
 
 const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
+	const { t } = useTranslation('userProfile');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const userById = useAppSelector((state) => selectMemberClanByUserId2(state, userID || ''));
 	const { updateRole } = useRoles();
@@ -131,7 +134,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 						onClick={handleShowAllRoles}
 					>
 						<span className="text-xs font-medium px-1" style={{ lineHeight: '15px' }}>
-							Show less
+							{t('labels.showLess')}
 						</span>
 					</span>
 				</div>
@@ -143,13 +146,9 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 							<AddRolesComp addRole={addRole} filteredListRoleBySearch={filteredListRoleBySearch} setSearchTerm={setSearchTerm} />
 						</div>
 					) : null}
-					<button
-						title="Add roles"
-						onClick={handleOpenAddRoleModal}
-						className="flex gap-x-1 rounded p-1 items-center justify-center w-full"
-					>
+					<button title={t('labels.addRoles')} onClick={handleOpenAddRoleModal} className="flex gap-x-1 rounded p-1 items-center">
 						<Icons.Plus className="size-5 select-none" />
-						<p className="text-xs m-0 font-medium select-none">Add Role</p>
+						<p className="text-xs m-0 font-medium select-none">{t('labels.addRole')}</p>
 					</button>
 				</div>
 			</UserRestrictionZone>
@@ -166,6 +165,7 @@ const AddRolesComp = ({
 	filteredListRoleBySearch: RolesClanEntity[];
 	setSearchTerm: Dispatch<SetStateAction<string>>;
 }) => {
+	const { t } = useTranslation('userProfile');
 	const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value);
 	};
@@ -176,7 +176,7 @@ const AddRolesComp = ({
 				<input
 					type="text"
 					className="w-full border-[#1d1c1c] rounded-[5px] dark:bg-[#1d1c1c] bg-bgLightModeSecond p-2 mb-2"
-					placeholder="Role"
+					placeholder={t('labels.role')}
 					onChange={handleInputChange}
 					onClick={(e) => e.stopPropagation()}
 				/>
@@ -197,8 +197,8 @@ const AddRolesComp = ({
 					))
 				) : (
 					<div className="flex flex-col py-4 gap-y-4 items-center">
-						<p className="font-medium dark:text-white text-black">Nope!</p>
-						<p className="font-normal dark:text-zinc-400 text-colorTextLightMode">Did you make a typo?</p>
+						<p className="font-medium dark:text-white text-black">{t('labels.nope')}</p>
+						<p className="font-normal dark:text-zinc-400 text-colorTextLightMode">{t('labels.typoError')}</p>
 					</div>
 				)}
 			</div>
@@ -219,6 +219,7 @@ const RoleClanItem = ({
 	hasPermissionEditRole: boolean;
 	appearanceTheme: string;
 }) => {
+	const { t } = useTranslation('userProfile');
 	const [isHovered, setIsHovered] = useState(false);
 	return (
 		<span className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-item-theme  text-theme-primary hoverIconBlackImportant">
@@ -231,7 +232,7 @@ const RoleClanItem = ({
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
 					>
-						<span title="Remove role">
+						<span title={t('labels.removeRole')}>
 							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : role.color || DEFAULT_ROLE_COLOR} />
 						</span>
 					</button>

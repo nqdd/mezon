@@ -13,7 +13,7 @@
     },
     "toast": {
         "errorUpdating": "Lỗi cập nhật",
-        "errorSizeLimit": "Kích thước ảnh quá lớn"
+        "errorSizeLimit": "Kích thước ảnh vượt quá 512KB"
     },
     "empty": {
         "tip": "MẸO",

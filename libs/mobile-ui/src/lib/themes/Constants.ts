@@ -123,7 +123,7 @@ export const themeColors: ThemeColor = {
 		tertiary: '#e1e1e1',
 		border: '#9e9eaa',
 		borderHighlight: '#e0e1e3',
-		borderDim: '#f4f4f4',
+		borderDim: '#dfdfdf',
 		borderRadio: '#4d4d54',
 		text: '#29292b',
 		textStrong: '#070709',

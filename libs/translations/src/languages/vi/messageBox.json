@@ -1,0 +1,19 @@
+{
+  "placeholder": "Viết suy nghĩ của bạn ở đây...",
+  "ephemeralMessage": "Tin nhắn tạm thời cho {{username}}...",
+  "mentionCategories": {
+    "members": "THÀNH VIÊN",
+    "textChannels": "KÊNH VĂN BẢN",
+    "emojiMatching": "KHỚP EMOJI",
+    "commands": "LỆNH"
+  },
+  "suggestions": {
+    "notifyEveryone": "Thông báo cho tất cả những người có quyền xem kênh này",
+    "loadingCommands": "Đang tải lệnh..."
+  },
+  "slashCommands": {
+    "ephemeral": {
+      "description": "Gửi tin nhắn tạm thời (chỉ hiển thị cho người dùng được chọn)"
+    }
+  }
+}

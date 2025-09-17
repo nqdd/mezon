@@ -4,7 +4,8 @@
     },
     "toast": {
         "saveSuccess": "Lưu thành công",
-        "reject": "Từ chối"
+        "reject": "Từ chối",
+        "errorSizeLimit": "Kích thước ảnh vượt quá 256 KB"
     },
     "button": {
         "upload": "Tải lên biểu tượng cảm xúc"

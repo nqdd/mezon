@@ -35,10 +35,8 @@ import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
-import { pinMessageActions, selectPinMessageByChannelId } from '../pinMessages/pinMessage.slice';
 import type { ReactionEntity } from '../reactionMessage/reactionMessage.slice';
 import type { AppDispatch, RootState } from '../store';
-import { referencesActions, selectDataReferences } from './references.slice';
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
 export const MESSAGES_FEATURE_KEY = 'messages';
@@ -924,27 +922,6 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const channelId = message.channel_id;
 	const isViewingOlderMessages = getMessagesState(getMessagesRootState(thunkAPI))?.isViewingOlderMessagesByChannelId?.[channelId];
 	const isBottom = !selectShowScrollDownButton(state, channelId);
-
-	if (message.code === TypeMessage.ChatRemove) {
-		const replyData = selectDataReferences(state, channelId);
-		const pinList = selectPinMessageByChannelId(state, channelId);
-		if (replyData && replyData.message_ref_id === message.id) {
-			thunkAPI.dispatch(referencesActions.resetAfterReply(message.channel_id));
-		}
-
-		if (pinList) {
-			const pinData = pinList.find((item) => item.message_id === message.id);
-			if (pinData) {
-				thunkAPI.dispatch(
-					pinMessageActions.removePinMessage({
-						channelId: message.channel_id,
-						pinId: pinData.id
-					})
-				);
-			}
-		}
-	}
-
 	if (isViewingOlderMessages) {
 		thunkAPI.dispatch(messagesActions.setLastMessage(message));
 		return;

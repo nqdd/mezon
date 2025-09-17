@@ -404,7 +404,7 @@ const Notifications = () => {
 					<Text style={styles.notificationHeaderTitle}>{t('headerTitle')}</Text>
 					<BadgeFriendRequestNoti />
 				</View>
-				<ScrollView horizontal style={styles.wrapperTabType} showsHorizontalScrollIndicator={false}>
+				<View style={styles.wrapperTabType}>
 					{notificationMenu.map((item, index) => (
 						<Pressable
 							key={index}
@@ -441,7 +441,7 @@ const Notifications = () => {
 							{/*</View>*/}
 						</Pressable>
 					))}
-				</ScrollView>
+				</View>
 			</View>
 
 			{firstLoading ? (

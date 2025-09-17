@@ -1,6 +1,7 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { generateE2eId } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 interface ModalConfirmProps {
 	handleCancel: () => void;
@@ -22,11 +23,12 @@ const ModalConfirm = ({
 	modalName,
 	handleConfirm,
 	buttonColor = 'bg-red-600 hover:bg-red-700',
-	message = `You won’t be able to re-join this
+	message = `You won't be able to re-join this
             server unless you are re-invited.`,
 	customModalName,
 	customTitle = ''
 }: ModalConfirmProps) => {
+	const { t } = useTranslation('common');
 	useEffect(() => {
 		const handleEnterKey = (event: KeyboardEvent) => {
 			if (event.key === 'Enter') {
@@ -57,8 +59,12 @@ const ModalConfirm = ({
 							<span>{customTitle}</span>
 						) : (
 							<span>
-								Are you sure you want to {title} {''}
-								<b className="font-semibold">{modalName}</b>? {message}
+								<Trans
+									i18nKey="areYouSureYouWantTo"
+									values={{ action: title, name: modalName }}
+									components={[<b className="font-semibold" key="0" />]}
+								/>
+								{message && ` ${message}`}
 							</span>
 						)}
 					</div>
@@ -69,7 +75,7 @@ const ModalConfirm = ({
 						className="hover:underline px-4 rounded-lg text-theme-primary text-theme-primary-hover  cursor-pointer"
 						data-e2e={generateE2eId('modal.confirm_modal.button.cancel')}
 					>
-						Cancel
+						{message || t('cancel')}
 					</div>
 					<div
 						className={`${buttonColor}  text-white rounded-lg px-[25px] py-[8px] cursor-pointer`}

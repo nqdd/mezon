@@ -85,7 +85,7 @@ const VoiceInfo = React.memo(() => {
 				dispatch(voiceActions.setJoined(false));
 				dispatch(voiceActions.setToken(''));
 			} else {
-				dispatch(voiceActions.resetVoiceSettings());
+				dispatch(voiceActions.resetVoiceControl());
 			}
 			await participantMeetState(
 				ParticipantMeetState.LEAVE,

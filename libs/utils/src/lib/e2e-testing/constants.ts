@@ -22,7 +22,7 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	mention: {
 		input: '',
-		selected_file: '',
+		selected_file: ''
 	},
 	discussion: {
 		box: {
@@ -147,6 +147,10 @@ export const DATA_E2E_IDENTIFIER = {
 					input: '',
 					confirm: '',
 					cancel: ''
+				},
+				permission: {
+					confirm: '',
+					cancel: ''
 				}
 			},
 			overview: {
@@ -268,6 +272,17 @@ export const DATA_E2E_IDENTIFIER = {
 			emoji: '',
 			sticker: ''
 		},
+		message_action_modal: {
+			button: {
+				base: ''
+			},
+			confirm_modal: {
+				button: {
+					confirm: '',
+					cancel: ''
+				}
+			}
+		},
 		suggest_item: ''
 	},
 	onboarding: {
@@ -295,6 +310,9 @@ export const DATA_E2E_IDENTIFIER = {
 				button: {
 					reset: '',
 					save_changes: ''
+				},
+				text: {
+					about_me_length: ''
 				}
 			},
 			clan_profile: {
@@ -305,7 +323,7 @@ export const DATA_E2E_IDENTIFIER = {
 				button_change_avatar: '',
 				button_reset: '',
 				button_save_changes: ''
-			},
+			}
 		}
 	},
 	common: {
@@ -315,9 +333,7 @@ export const DATA_E2E_IDENTIFIER = {
 		item_pin_message: {
 			username: ''
 		},
-		delete_pin_message: {
-			username: ''
-		}
+		pin_message: ''
 	}
 };
 type DotNestedKeys<T> = T extends object
@@ -327,4 +343,3 @@ type DotNestedKeys<T> = T extends object
 	: never;
 
 export type E2eKeyType = DotNestedKeys<typeof DATA_E2E_IDENTIFIER>;
- 

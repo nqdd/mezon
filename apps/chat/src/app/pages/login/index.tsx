@@ -5,11 +5,13 @@ import { validateEmail, validatePassword } from '@mezon/utils';
 
 import { ButtonLoading, FormError, Input, PasswordInput } from '@mezon/ui';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLoaderData } from 'react-router-dom';
 import { ILoginLoaderData } from '../../loaders/loginLoader';
 
 function Login() {
+	const { t } = useTranslation('common');
 	const { navigate } = useAppNavigation();
 	const isLogin = useSelector(selectIsLogin);
 	const { redirectTo } = useLoaderData() as ILoginLoaderData;
@@ -86,8 +88,8 @@ function Login() {
 	useEffect(() => {
 		if (showErrLoginFail) {
 			setErrors({
-				email: 'Email or password is invalid',
-				password: 'Email or password is invalid'
+				email: t('login.invalidCredentials'),
+				password: t('login.invalidCredentials')
 			});
 		}
 	}, [showErrLoginFail]);
@@ -143,12 +145,12 @@ function Login() {
 			<div className="bg-[#0b0b0b] text-white rounded-2xl shadow-lg p-14 max-w-4xl w-[800px] flex flex-row gap-8">
 				<div className="flex-1 text-left flex flex-col">
 					<div className="flex flex-col items-center">
-						<h1 className="text-2xl font-bold mb-1">WELCOME BACK</h1>
-						<p className="text-gray-400">So glad to meet you again!</p>
+						<h1 className="text-2xl font-bold mb-1">{t('login.welcomeBack')}</h1>
+						<p className="text-gray-400">{t('login.gladToMeetAgain')}</p>
 					</div>
 					<form onSubmit={handleSubmit} className="space-y-2">
 						<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
-							Email<span className="text-red-500">*</span>
+							{t('login.email')}<span className="text-red-500">*</span>
 						</label>
 						<Input
 							onFocus={handleFocus}
@@ -156,14 +158,14 @@ function Login() {
 							type="email"
 							value={email}
 							onChange={handleEmailChange}
-							placeholder="Enter your email"
+							placeholder={t('login.enterEmail')}
 							className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 text-black dark:text-white`}
 							readOnly={false}
 						/>
 						<div className="min-h-[20px]">{errors.email && <FormError message={errors.email} />}</div>
-						<PasswordInput onFocus={handleFocus} id="password" label="Password" value={password} onChange={handlePasswordChange} />
+						<PasswordInput onFocus={handleFocus} id="password" label={t('login.password')} value={password} onChange={handlePasswordChange} />
 						<div className="min-h-[20px]">{errors.password && <FormError message={errors.password} />}</div>
-						<ButtonLoading className="w-full h-10 btn-primary btn-primary-hover" disabled={disabled} label="Log In" onClick={handleSubmit} />
+						<ButtonLoading className="w-full h-10 btn-primary btn-primary-hover" disabled={disabled} label={t('login.logIn')} onClick={handleSubmit} />
 					</form>
 					<div className="mt-4 flex items-center text-gray-400">
 						<input
@@ -173,14 +175,14 @@ function Login() {
 							checked={isRemember}
 							onChange={(e) => setIsRemember(e.target.checked)}
 						/>
-						<label htmlFor="keepSignedIn">Keep me signed in</label>
+						<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
 					</div>
 				</div>
 
 				<div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
 					<QRSection loginId={loginId || ''} isExpired={hidden} reloadQR={reloadQR} />;
-					<p className="text-sm text-gray-500">Sign in by QR code</p>
-					<p className="text-xs text-gray-400">Use Mezon on mobile to scan QR</p>
+					<p className="text-sm text-gray-500">{t('login.qr.signIn')}</p>
+					<p className="text-xs text-gray-400">{t('login.qr.useMobile')}</p>
 				</div>
 			</div>
 		</div>

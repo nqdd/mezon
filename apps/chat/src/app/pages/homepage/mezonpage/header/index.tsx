@@ -3,6 +3,7 @@ import { Icons, Image } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { throttle } from 'lodash';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
@@ -19,6 +20,7 @@ interface NavLinkProps {
 }
 
 const HeaderMezon = memo((props: HeaderProps) => {
+	const { t } = useTranslation('homepage');
 	const isLogin = useSelector(selectIsLogin);
 	const { sideBarIsOpen, toggleSideBar, scrollToSection } = props;
 	const refHeader = useRef<HTMLDivElement>(null);
@@ -78,9 +80,9 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							<Image src={`assets/logo.png`} width={120} height={35} className="object-cover" />
 						</Link>
 						<div className="hidden lg:flex items-center gap-3 lg:max-xl:gap-[0.05rem]">
-							<NavLink href="#home" section="home" label="Home"/>
-							<NavLink href="#overview" section="overview" label="Overview"/>
-							<NavLink href="#feature" section="feature" label="Features"/>
+							<NavLink href="#home" section="home" label={t('header.home')}/>
+							<NavLink href="#overview" section="overview" label={t('header.overview')}/>
+							<NavLink href="#feature" section="feature" label={t('header.features')}/>
 							<a
 								href={'developers/applications'}
 								target="_blank"
@@ -88,7 +90,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
 								data-e2e={generateE2eId('homepage.header.link')}
 							>
-								Developers
+								{t('header.developers')}
 							</a>
 							<a
 								href={'https://top.mezon.ai'}
@@ -96,7 +98,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								rel="noopener noreferrer"
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
 							>
-								Bots/Apps
+								{t('header.botsApps')}
 							</a>
 							<a
 								href={'docs/'}
@@ -104,7 +106,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								rel="noopener noreferrer"
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
 							>
-								Documents
+								{t('header.documents')}
 							</a>
 							<a
 								href={'clans/'}
@@ -112,7 +114,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								rel="noopener noreferrer"
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
 							>
-								Discover
+								{t('header.discover')}
 							</a>
 							<a
 								href={'blogs/'}
@@ -120,7 +122,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								rel="noopener noreferrer"
 								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
 							>
-								Blogs
+								{t('header.blogs')}
 							</a>
 						</div>
 					</div>
@@ -131,7 +133,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							onClick={() => trackHeaderLoginClick(isLogin ? 'Open Mezon' : 'Login')}
 							data-e2e={generateE2eId('homepage.header.button.login')}
 						>
-							{isLogin ? 'Open Mezon' : 'Login'}
+							{isLogin ? t('header.openMezon') : t('header.login')}
 						</Link>
 						<Icons.HomepageMenu className="hidden w-[40px] max-lg:block cursor-pointer" onClick={toggleSideBar} />
 					</div>

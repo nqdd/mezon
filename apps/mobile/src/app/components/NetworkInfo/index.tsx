@@ -3,7 +3,7 @@ import { appActions, selectHasInternetMobile } from '@mezon/store-mobile';
 import NetInfo from '@react-native-community/netinfo';
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Platform, StyleSheet, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -13,7 +13,6 @@ const NetInfoComp = () => {
 	const dispatch = useDispatch();
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const { t } = useTranslation(['common']);
-	const [isVisible, setIsVisible] = React.useState(false);
 	const fetchWithTimeout = async (url, timeout = 8000) => {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -41,7 +40,6 @@ const NetInfoComp = () => {
 
 			if (!response.ok) {
 				dispatch(appActions.setHasInternetMobile(false));
-				setIsVisible(true);
 				return false;
 			}
 
@@ -52,15 +50,12 @@ const NetInfoComp = () => {
 			// If response time is too high (e.g., > 3 seconds), consider it a poor connection
 			if (responseTime > 8000) {
 				dispatch(appActions.setHasInternetMobile(false));
-				setIsVisible(true);
 				return false;
 			}
 			timeoutRef?.current && clearInterval(timeoutRef.current);
 			dispatch(appActions.setHasInternetMobile(true));
-			setIsVisible(false);
 			return true;
 		} catch (error) {
-			setIsVisible(true);
 			dispatch(appActions.setHasInternetMobile(false));
 			console.error('log  => error checkConnectionQuality', error);
 			return false;
@@ -79,7 +74,6 @@ const NetInfoComp = () => {
 	const handleAppStateChangeListener = async (nextAppState: string) => {
 		if (nextAppState === 'active') {
 			const state = await NetInfo.fetch();
-			setIsVisible(!state.isConnected);
 			dispatch(appActions.setHasInternetMobile(state.isConnected));
 			await checkInitConnection();
 		}
@@ -89,27 +83,14 @@ const NetInfoComp = () => {
 		checkInitConnection();
 		AppState.addEventListener('change', handleAppStateChangeListener);
 		NetInfo.addEventListener((state) => {
-			setIsVisible(!state.isConnected);
 			dispatch(appActions.setHasInternetMobile(state.isConnected));
 		});
 	}, []);
 
-	const onClose = () => {
-		setIsVisible(false);
-	};
-
-	return isVisible && !hasInternet ? (
+	return !hasInternet ? (
 		<View style={styles.container}>
-			<MezonIconCDN icon={IconCDN.noSignalIcon} useOriginalColor={true} height={size.s_30} width={size.s_30} />
-			<View>
-				<Text style={styles.text1}>{t('poorConnection')}</Text>
-				<Text numberOfLines={2} style={styles.text2}>
-					{t('descPoorConnection')}
-				</Text>
-			</View>
-			<Pressable onPress={onClose}>
-				<MezonIconCDN icon={IconCDN.closeIcon} color={'white'} height={size.s_24} width={size.s_30} />
-			</Pressable>
+			<MezonIconCDN icon={IconCDN.noSignalIcon} color={'white'} height={size.s_18} width={size.s_18} />
+			<Text style={styles.text1}>{t('poorConnection')}</Text>
 		</View>
 	) : null;
 };
@@ -121,7 +102,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'space-between',
 		padding: size.s_10,
 		gap: size.s_10,
-		paddingVertical: size.s_6,
+		paddingVertical: size.s_8,
 		position: 'absolute',
 		zIndex: 110,
 		top: Platform.OS === 'android' ? size.s_40 : size.s_60,
@@ -133,12 +114,9 @@ const styles = StyleSheet.create({
 		shadowColor: 'black', // iOS shadow
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.3,
-		shadowRadius: 4,
-		borderStartWidth: 5,
-		borderColor: '#F44336'
+		shadowRadius: 4
 	},
-	text1: { textAlign: 'left', fontSize: size.medium, fontWeight: 'bold', marginBottom: size.s_2, color: 'white' },
-	text2: { textAlign: 'left', fontSize: size.small, fontWeight: '500', color: '#999' }
+	text1: { textAlign: 'center', fontSize: size.medium, fontWeight: '600', color: 'white' }
 });
 
 export default NetInfoComp;

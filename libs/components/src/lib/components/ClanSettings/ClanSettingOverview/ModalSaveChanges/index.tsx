@@ -1,4 +1,5 @@
 import { ButtonLoading } from '@mezon/ui';
+import { useTranslation } from 'react-i18next';
 
 type ModalSaveChangesProps = {
 	onSave: () => void;
@@ -7,6 +8,7 @@ type ModalSaveChangesProps = {
 };
 
 const ModalSaveChanges = ({ onSave, onReset, isLoading }: ModalSaveChangesProps) => {
+	const { t } = useTranslation('clanSettings');
 	const handleSaveChanges = async () => {
 		await onSave();
 	};
@@ -16,13 +18,13 @@ const ModalSaveChanges = ({ onSave, onReset, isLoading }: ModalSaveChangesProps)
 			style={{ boxShadow: '0 2px 10px 0 hsl(0 calc( 1 * 0%) 0% / 0.1)' }}
 		>
 			<div className="flex flex-row justify-between items-center">
-				<h3>Careful — you have unsaved changes!</h3>
+				<h3>{t('modalSaveChanges.title')}</h3>
 				<div className="flex flex-row justify-end gap-[20px]">
 					<button onClick={onReset} className="rounded px-4 py-1.5 hover:underline">
-						Reset
+						{t('modalSaveChanges.reset')}
 					</button>
 					<ButtonLoading
-						label="Save Changes"
+						label={t('modalSaveChanges.saveChanges')}
 						onClick={handleSaveChanges}
 						className="ml-auto bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 text-white rounded-lg px-4 py-1.5 text-nowrap  w-28"
 					/>

@@ -3,9 +3,11 @@ import { selectTheme } from '@mezon/store';
 import { useTheme } from '@mezon/themes';
 import { Icons } from '@mezon/ui';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 const ThemeOptions = () => {
+	const { t } = useTranslation('common');
 	const appearanceTheme = useSelector(selectTheme);
 	const { setAppearanceTheme, systemIsDark } = useApp();
 	const [themeChosen, setThemeChosen] = useState<string>(appearanceTheme);
@@ -50,7 +52,7 @@ const ThemeOptions = () => {
 
 	return (
 		<div className="pt-10 flex flex-col gap-2">
-			<div>Theme</div>
+			<div>{t('theme')}</div>
 
 			{error && (
 				<div className="mt-2 p-3 bg-red-100 border border-red-300 rounded-md">
@@ -67,7 +69,7 @@ const ThemeOptions = () => {
 				<div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
 					<div className="flex items-center gap-2">
 						<Icons.LoadingSpinner className="w-4 h-4 text-blue-600" />
-						<p className="text-sm text-blue-700">Switching theme...</p>
+						<p className="text-sm text-blue-700">{t('switchingTheme')}</p>
 					</div>
 				</div>
 			)}
