@@ -85,6 +85,9 @@ const audioCallSlice = createSlice({
 		},
 		setCloseVoiceCall(state) {
 			state.openCall = {};
+		},
+		reset() {
+			return initialState;
 		}
 	}
 });

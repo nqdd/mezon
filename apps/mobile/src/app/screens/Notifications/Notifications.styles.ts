@@ -1,4 +1,5 @@
-import { Attributes, baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -73,7 +74,10 @@ export const style = (colors: Attributes) =>
 		wrapperTabType: {
 			marginBottom: size.s_4,
 			padding: Metrics.size.m,
-			overflow: 'visible'
+			overflow: 'visible',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between'
 		},
 		textTabType: {
 			color: colors.text,
@@ -81,9 +85,8 @@ export const style = (colors: Attributes) =>
 		},
 		itemTabType: {
 			overflow: 'visible',
-			paddingHorizontal: size.s_14,
+			paddingHorizontal: size.s_8,
 			paddingVertical: size.s_6,
-			marginRight: size.s_10,
 			borderRadius: size.s_8,
 			borderWidth: 1
 		},

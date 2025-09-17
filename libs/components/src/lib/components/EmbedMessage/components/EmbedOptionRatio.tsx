@@ -1,5 +1,5 @@
 import { embedActions, selectDataFormEmbedByMessageId } from '@mezon/store';
-import { IMessageRatioOption } from '@mezon/utils';
+import type { IMessageRatioOption } from '@mezon/utils';
 import { useCallback, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { MessageRatioButton } from '../../MessageActionsPanel/components/MessageRatio';
@@ -37,10 +37,10 @@ export function EmbedOptionRatio({ options, message_id, idRadio, max_options, di
 		(value: string) => {
 			dispatch(
 				embedActions.addEmbedValue({
-					message_id: message_id,
+					message_id,
 					data: {
 						id: idRadio,
-						value: value
+						value
 					},
 					multiple: checkMultiple,
 					onlyChooseOne: !checkMultiple
@@ -106,7 +106,7 @@ const EmbedOptionRatioItem = ({
 				<EmbedDescription description={option.description || ''} />
 			</div>
 			<MessageRatioButton
-				name={option.name ? option.name + message_id : 'ratio_button' + message_id}
+				name={option.name ? option.name + message_id : `ratio_button${message_id}`}
 				onCheckRatio={handleCheckedOptionItem}
 				checked={checked}
 				color={option.style}

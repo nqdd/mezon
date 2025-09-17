@@ -518,6 +518,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			if (!isPlayBusyTone) {
 				dispatch(audioCallActions.setIsEndTone(true));
 			}
+			dispatch(audioCallActions.reset());
 			dispatch(audioCallActions.setIsRingTone(false));
 			dispatch(audioCallActions.setIsRemoteAudio(true));
 			dispatch(audioCallActions.setIsRemoteVideo(false));
