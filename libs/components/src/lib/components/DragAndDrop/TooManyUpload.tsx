@@ -1,6 +1,6 @@
 import { useEscapeKey } from '@mezon/core';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_ATTACHMENTS, UploadLimitReason } from '@mezon/utils';
+import { MAX_FILE_ATTACHMENTS, UploadLimitReason, generateE2eId } from '@mezon/utils';
 import { useMemo } from 'react';
 
 interface ITooManyUploadProps {
@@ -24,7 +24,7 @@ const TooManyUpload = ({ togglePopup, limitReason, limitSize }: ITooManyUploadPr
 		};
 	}, [limitReason]);
 	return (
-		<div className="w-screen h-screen flex justify-center items-center fixed top-0 left-0 z-30">
+		<div className="w-screen h-screen flex justify-center items-center fixed top-0 left-0 z-30" data-e2e={generateE2eId('modal.too_many_upload')}>
 			<div className="fixed inset-0 bg-black opacity-80" onClick={togglePopup} />
 			<div className="w-[25rem] h-[15rem] bg-red-500 flex flex-row justify-center  items-center rounded-lg z-50 relative">
 				<Icons.FileAndFolder />

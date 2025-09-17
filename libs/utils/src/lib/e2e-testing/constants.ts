@@ -143,6 +143,10 @@ export const DATA_E2E_IDENTIFIER = {
 				input: {
 					clan_name: ''
 				}
+			},
+			upload: {
+				clan_logo_input: '',
+				clan_banner_input: ''
 			}
 		},
 		channel_list: {
@@ -320,6 +324,10 @@ export const DATA_E2E_IDENTIFIER = {
 			username: ''
 		},
 		pin_message: ''
+	},
+	modal: {
+		too_many_upload: '',
+		validate_file: ''
 	}
 };
 type DotNestedKeys<T> = T extends object

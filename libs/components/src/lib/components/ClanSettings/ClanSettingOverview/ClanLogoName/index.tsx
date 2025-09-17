@@ -112,7 +112,14 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 										</span>
 									)}
 								</div>
-								<input ref={fileInputRef} id="upload_logo" onChange={(e) => handleFile(e)} type="file" className="hidden" />
+								<input
+									ref={fileInputRef}
+									id="upload_logo"
+									onChange={(e) => handleFile(e)}
+									type="file"
+									className="hidden"
+									data-e2e={generateE2eId('clan_page.settings.upload.clan_logo_input')}
+								/>
 							</label>
 							<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
 								<Icons.SelectFileIcon />
