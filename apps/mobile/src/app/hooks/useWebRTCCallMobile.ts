@@ -1,11 +1,13 @@
 import { MediaStream, RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, mediaDevices } from '@livekit/react-native-webrtc';
 import { useAuth, useChatSending } from '@mezon/core';
 import { ActionEmitEvent, sessionConstraints } from '@mezon/mobile-components';
-import { DMCallActions, RootState, audioCallActions, selectDmGroupCurrent, selectRemoteVideo, useAppDispatch } from '@mezon/store-mobile';
+import type { RootState } from '@mezon/store-mobile';
+import { DMCallActions, audioCallActions, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { IMessageSendPayload, IMessageTypeCallLog, sleep } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { IMessageTypeCallLog, sleep } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, DeviceEventEmitter, Linking, NativeModules, Platform } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
@@ -70,7 +72,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 	const pendingCandidatesRef = useRef<(RTCIceCandidate | null)[]>([]);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
-	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode: mode });
+	const { sendMessage } = useChatSending({ channelOrDirect: currentDmGroup, mode });
 	const { userProfile } = useAuth();
 	const sessionUser = useSelector((state: RootState) => state.auth?.session);
 	const dialToneRef = useRef<Sound | null>(null);

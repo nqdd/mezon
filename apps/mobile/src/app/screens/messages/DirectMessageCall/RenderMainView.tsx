@@ -1,4 +1,4 @@
-import { MediaStream, RTCIceCandidate } from '@livekit/react-native-webrtc';
+import type { MediaStream, RTCIceCandidate } from '@livekit/react-native-webrtc';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectRemoteVideo } from '@mezon/store-mobile';
 import React, { memo } from 'react';
