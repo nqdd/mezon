@@ -9,7 +9,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, nomalizeTextToLowerCase } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, searchNormalizeText } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../../AvatarImage/AvatarImage';
@@ -133,7 +133,7 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		if (!search) {
 			return listManageNotInChannel;
 		}
-		return listManageNotInChannel.filter((role) => nomalizeTextToLowerCase(role.title)?.includes(nomalizeTextToLowerCase(search)));
+		return listManageNotInChannel.filter((role) => searchNormalizeText(role.title, search));
 	}, [search]);
 
 	const listMemberCanAdd = useMemo(() => {
@@ -142,9 +142,9 @@ const HeaderAddRoleMember = memo((props: HeaderAddRoleMemberProps) => {
 		}
 		return usersClan.filter(
 			(user) =>
-				nomalizeTextToLowerCase(user?.clan_nick || '') ||
-				nomalizeTextToLowerCase(user.user?.display_name) ||
-				nomalizeTextToLowerCase(user.user?.username)
+				searchNormalizeText(user?.clan_nick || '', search) ||
+				searchNormalizeText(user.user?.display_name || '', search) ||
+				searchNormalizeText(user.user?.username || '', search)
 		);
 	}, [search]);
 
