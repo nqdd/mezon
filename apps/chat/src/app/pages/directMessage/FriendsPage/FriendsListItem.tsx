@@ -60,17 +60,16 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend, ha
 	const handleCallFriend = useCallback(
 		async (hasVideo: boolean) => {
 			const response = await handleCreateDm();
-			if (response) {
-				dispatch(
-					audioCallActions.setOpenVoiceCall({
-						hasVideo,
-						channelId: response,
-						userId: friend?.user?.id
-					})
-				);
-				const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
-				navigate(directChat);
-			}
+			if (!response) return;
+			dispatch(
+				audioCallActions.setOpenVoiceCall({
+					hasVideo,
+					channelId: response,
+					userId: friend?.user?.id
+				})
+			);
+			const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
+			navigate(directChat);
 		},
 		[friend]
 	);
@@ -190,10 +189,9 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 
 	const handleNavigateDM = async () => {
 		const response = await directMessageWithUser();
-		if (response) {
-			const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
-			navigate(directChat);
-		}
+		if (!response) return;
+		const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
+		navigate(directChat);
 	};
 
 	return (
