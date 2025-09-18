@@ -33,7 +33,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 	};
 
 	useEffect(() => {
-		setActiveType(currentClanId === '0' && isShowSettingFooter.isUserProfile ? EActiveType.USER_SETTING : EActiveType.CLAN_SETTING);
+		setActiveType(EActiveType.USER_SETTING);
 		setClanId(isShowSettingFooter.clanId ? isShowSettingFooter.clanId || '' : currentClanId || '');
 	}, [isShowSettingFooter?.profileInitTab, isShowSettingFooter.clanId, currentClanId]);
 
@@ -46,7 +46,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 				<div className="flex flex-row gap-4 mt-6 mb-4">
 					<button
 						onClick={handleUserSettingsClick}
-						className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.USER_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
+						className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.USER_SETTING ? 'border-[#155EEF] text-theme-primary-active' : 'border-transparent text-theme-primary'}`}
 						data-e2e={generateE2eId(`user_setting.profile.user_profile.button`)}
 					>
 						{t('userProfile')}
@@ -55,7 +55,7 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 					{!isDM || !isShowSettingFooter.isUserProfile ? (
 						<button
 							onClick={handleClanProfileClick}
-							className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.CLAN_SETTING ? 'border-[#155EEF]' : 'border-transparent text-theme-primary-active'}`}
+							className={`pt-1 font-medium text-base tracking-wider border-b-2 ${activeType === EActiveType.CLAN_SETTING ? 'border-[#155EEF] text-theme-primary-active' : 'border-transparent text-theme-primary'}`}
 							data-e2e={generateE2eId(`user_setting.profile.clan_profile.button`)}
 						>
 							{t('clanProfiles')}
