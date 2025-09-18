@@ -1,7 +1,6 @@
 import {
 	ETypeFetchChannelSetting,
 	channelSettingActions,
-	selectMemberClanByGoogleId,
 	selectMemberClanByUserId,
 	selectThreadsListByParentId,
 	useAppDispatch,
@@ -366,10 +365,7 @@ const ItemInfor = ({
 export default ListChannelSetting;
 export const AvatarUserShort = ({ id, showName = false }: { id: string; showName?: boolean }) => {
 	const member = useAppSelector((state) => selectMemberClanByUserId(state, id));
-	const voiceClan = useAppSelector((state) => selectMemberClanByGoogleId(state, id ?? ''));
-	const clanAvatar = voiceClan?.clan_avatar || member?.clan_avatar;
-	const userAvatar = voiceClan?.user?.avatar_url || member?.user?.avatar_url;
-	const avatarUrl = getAvatarForPrioritize(clanAvatar, userAvatar) || 'assets/avatar-user.svg';
+	const avatarUrl = getAvatarForPrioritize(member?.clan_avatar, member?.user?.avatar_url) || 'assets/avatar-user.svg';
 
 	return (
 		<div className="flex items-center gap-3">

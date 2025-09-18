@@ -1,6 +1,7 @@
-import { selectMemberClanByGoogleId, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannelMember, createImgproxyUrl, getAvatarForPrioritize, useSyncEffect, useWindowSize } from '@mezon/utils';
+import type { IChannelMember } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize, useSyncEffect, useWindowSize } from '@mezon/utils';
 import { useCallback, useState } from 'react';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 
@@ -59,12 +60,9 @@ export function VoiceChannelUsers({ memberJoin = [], memberMax, isShowChat }: Vo
 }
 
 export function VoiceUserItem({ userId }: { userId: string }) {
-	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, userId));
 	const userVoice = useAppSelector((state) => selectMemberClanByUserId(state, userId));
-
-	const data = member || userVoice;
-	const username = data?.user?.username;
-	const avatar = getAvatarForPrioritize(data?.clan_avatar, data?.user?.avatar_url);
+	const username = userVoice?.user?.username;
+	const avatar = getAvatarForPrioritize(userVoice?.clan_avatar, userVoice?.user?.avatar_url);
 	const avatarUrl = createImgproxyUrl(avatar ?? '', {
 		width: 300,
 		height: 300,
@@ -73,7 +71,7 @@ export function VoiceUserItem({ userId }: { userId: string }) {
 
 	return (
 		<div className="size-14 rounded-full">
-			{data ? (
+			{userVoice ? (
 				<AvatarImage alt={username || ''} username={username} className="size-14" srcImgProxy={avatarUrl} src={avatar} />
 			) : (
 				<Icons.AvatarUser />

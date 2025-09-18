@@ -1,12 +1,11 @@
 import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
 	appActions,
-	ChannelsEntity,
 	selectCurrentClan,
 	selectIsJoin,
 	selectIsShowChatStream,
-	selectMemberClanByGoogleId,
 	selectMemberClanByUserId,
 	selectRemoteVideoStream,
 	selectStatusStream,
@@ -18,9 +17,11 @@ import {
 	videoStreamActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, getAvatarForPrioritize, IChannelMember, IStreamInfo } from '@mezon/utils';
+import type { IChannelMember, IStreamInfo } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
@@ -237,20 +238,16 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 }
 
 function UserItem({ user }: { user: IChannelMember }) {
-	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
 	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
-	const username = member ? member?.user?.username : userStream?.user?.username;
-	const clanAvatar = member ? member?.clan_avatar : userStream?.clan_avatar;
-	const avatarUrl = member ? member?.user?.avatar_url : userStream?.user?.avatar_url;
-	const avatar = getAvatarForPrioritize(clanAvatar, avatarUrl);
+	const avatar = getAvatarForPrioritize(userStream?.clan_avatar, userStream?.user?.avatar_url);
 
 	return (
 		<div className="w-14 h-14 rounded-full">
 			<div className="w-14 h-14">
-				{member || userStream ? (
+				{userStream ? (
 					<AvatarImage
-						alt={username || ''}
-						username={username}
+						alt={userStream?.user?.username || ''}
+						username={userStream?.user?.username}
 						className="min-w-14 min-h-14 max-w-14 max-h-14"
 						srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						src={avatar}
