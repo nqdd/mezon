@@ -188,7 +188,7 @@ export const voiceSlice = createSlice({
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
 			const voice = action.payload;
 			voiceAdapter.removeOne(state, voice.id);
-			if (state.listInVoiceStatus[voice.id]) {
+			if (state.listInVoiceStatus[voice?.id]) {
 				delete state.listInVoiceStatus[voice.voice_user_id];
 			}
 		},
@@ -295,7 +295,7 @@ export const voiceSlice = createSlice({
 					const { users, clanId } = action.payload;
 
 					const members: VoiceEntity[] = users.map((channelRes) => {
-						if (channelRes.user_id && channelRes.id) {
+						if (channelRes.user_id && channelRes?.id) {
 							state.listInVoiceStatus[channelRes.user_id] = channelRes.id;
 						}
 						return {
