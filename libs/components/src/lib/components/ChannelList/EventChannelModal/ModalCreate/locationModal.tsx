@@ -1,13 +1,15 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { ChannelsEntity, selectTheme } from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { selectTheme } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ContenSubmitEventProps, OptionEvent, filterOptionReactSelect } from '@mezon/utils';
+import type { ContenSubmitEventProps } from '@mezon/utils';
+import { OptionEvent, filterOptionReactSelect } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
-import { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
+import type { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
 import { customStyles } from '../../../NotificationSetting';
 
 export type LocationModalProps = {
@@ -206,6 +208,7 @@ const LocationModal = (props: LocationModalProps) => {
 					styles={customStyles}
 					placeholder={t('fields.channel.title')}
 					filterOption={memoizedFilterOption}
+					noOptionsMessage={() => t('invitation:noResults', 'No result')}
 				/>
 			)}
 			{choiceLocation && (
@@ -239,6 +242,7 @@ const LocationModal = (props: LocationModalProps) => {
 						placeholder={t('fields.channel.title')}
 						filterOption={memoizedFilterOption}
 						menuPlacement="top"
+						noOptionsMessage={() => t('invitation:noResults', 'No result')}
 					/>
 					{showClearButton && (
 						<div className="flex justify-end mt-1">

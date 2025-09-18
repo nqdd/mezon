@@ -293,6 +293,11 @@ export const settingClanStickerSlice = createSlice({
 		},
 		closeModalInChild: (state) => {
 			state.hasGrandchildModal = false;
+		},
+		invalidateCache: (state) => {
+			if (state.cache) {
+				state.cache = undefined;
+			}
 		}
 	},
 	extraReducers(builder) {
@@ -352,5 +357,6 @@ export const soundEffectActions = {
 	createSound,
 	updateSound,
 	deleteSound,
-	fetchSoundByUserId
+	fetchSoundByUserId,
+	invalidateCache: settingClanStickerSlice.actions.invalidateCache
 };

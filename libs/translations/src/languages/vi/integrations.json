@@ -19,5 +19,9 @@
     "buildWebhook": "tự xây dựng.",
     "webhookTip": "Mẹo: Nếu bạn cảm thấy token trên URL của bạn bị xâm phạm hoặc lỗi thời, hãy đặt lại và sao chép URL mới.",
     "webhook_1": "{{count}} webhook",
-    "webhook_other": "{{count}} webhook"
+    "webhook_other": "{{count}} webhook",
+    "toast": {
+        "generateSuccess": "Đã tạo {{name}} thành công !",
+        "deleteSuccess": "Đã xóa {{name}} thành công !"
+    }
 }

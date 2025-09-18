@@ -1,7 +1,8 @@
 import { channelMembersActions, selectCurrentClanId, useAppDispatch, userClanProfileActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ActivitiesType, ChannelMembersEntity, EUserStatus, IUserAccount, createImgproxyUrl } from '@mezon/utils';
-import { ApiUserActivity } from 'mezon-js/api.gen';
+import type { ChannelMembersEntity, EUserStatus, IUserAccount } from '@mezon/utils';
+import { ActivitiesType, createImgproxyUrl } from '@mezon/utils';
+import type { ApiUserActivity } from 'mezon-js/api.gen';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -71,9 +72,12 @@ const AvatarProfile = ({
 					isAnonymous={isAnonymous}
 					classNameText="!text-5xl"
 				/>
-				<div className="absolute bottom-1 right-2">
-					<UserStatusIcon status={statusOnline} />
-				</div>
+
+				{userID !== '0' && (
+					<div className="absolute bottom-1 right-2">
+						<UserStatusIcon status={statusOnline} />
+					</div>
+				)}
 			</div>
 
 			{(customStatus || (userStatus?.status && activityByUserId)) && (
