@@ -1,6 +1,6 @@
+import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
-	DirectEntity,
 	directMetaActions,
 	selectBuzzStateByDirectId,
 	selectDirectById,
@@ -9,7 +9,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity, createImgproxyUrl, EUserStatus, generateE2eId } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
+import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
