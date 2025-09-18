@@ -22,7 +22,10 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	mention: {
 		input: '',
-		selected_file: ''
+		selected_file: '',
+		text: {
+			about_me: ''
+		}
 	},
 	discussion: {
 		box: {
