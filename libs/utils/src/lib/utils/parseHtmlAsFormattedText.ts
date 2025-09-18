@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
-import { MentionItem } from 'react-mentions';
 import { isYouTubeLink } from '.';
-import { EBacktickType, ETypeMEntion, IMarkdownOnMessage } from '../types';
+import type { IMarkdownOnMessage, MentionItem } from '../types';
+import { EBacktickType, ETypeMEntion } from '../types';
 
 export enum ApiMessageEntityTypes {
 	Bold = 'MessageEntityBold',
@@ -160,7 +160,7 @@ function parseMarkdown(html: string) {
 
 	// Pre
 	parsedHtml = parsedHtml.replace(/`{3}([\s\S]*?)`{3}/g, function (match, p1) {
-		return '<pre>' + p1.replace(/\n/g, '___#new_line___') + '</pre>';
+		return `<pre>${p1.replace(/\n/g, '___#new_line___')}</pre>`;
 	});
 
 	// parsedHtml = parsedHtml.replace(/^`{3}[\n\r]?(.*?)[\n\r]?`{3}/gms, '<pre>$1</pre>');
@@ -465,4 +465,3 @@ export const processBoldEntities = (entities: MentionItem[], markdown: IMarkdown
 	}
 	return boldMarkdownArr;
 };
-

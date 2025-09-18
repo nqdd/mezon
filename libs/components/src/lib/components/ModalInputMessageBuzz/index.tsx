@@ -1,14 +1,14 @@
 import { useChatSending, useEmojiSuggestionContext, useOnClickOutside } from '@mezon/core';
-import { DirectEntity, selectTheme } from '@mezon/store';
+import type { DirectEntity } from '@mezon/store';
+import { selectTheme } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EmojiPlaces, IEmojiOnMessage, MAX_LENGTH_MESSAGE_BUZZ, RequestInput, ThemeApp, TypeMessage } from '@mezon/utils';
-import { ApiChannelDescription } from 'mezon-js/api.gen';
+import { EmojiPlaces, ThemeApp, TypeMessage, filterEmptyArrays, processEntitiesDirectly } from '@mezon/utils';
+import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Mention, MentionsInput, OnChangeHandlerFunc } from 'react-mentions';
 import { useSelector } from 'react-redux';
-import { CustomModalMentions, GifStickerEmojiPopup, SuggestItem } from '../../components';
-import lightMentionsInputStyle from './LightRmentionInputStyle';
-import darkMentionsInputStyle from './RmentionInputStyle';
+import { GifStickerEmojiPopup, SuggestItem } from '../../components';
+import Mention, { type MentionData } from '../MessageBox/ReactionMentionInput/Mention';
+import MentionsInput, { type MentionsInputHandle } from '../MessageBox/ReactionMentionInput/MentionsInput';
 
 type ModalInputMessageBuzzProps = {
 	currentChannel: DirectEntity | null;
@@ -18,9 +18,9 @@ type ModalInputMessageBuzzProps = {
 
 const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentChannel, mode, closeBuzzModal }) => {
 	const { sendMessage } = useChatSending({ channelOrDirect: currentChannel || undefined, mode });
-	const [inputRequest, setInputRequest] = useState<RequestInput>({ content: '', mentionRaw: [], valueTextInput: '' });
+	const [inputValue, setInputValue] = useState('');
 	const panelRef = useRef(null);
-	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const editorRef = useRef<MentionsInputHandle | null>(null);
 	const emojiRef = useRef<HTMLDivElement | null>(null);
 	const appearanceTheme = useSelector(selectTheme);
 	const [isShowEmojiPanel, setIsShowEmojiPanel] = useState(false);
@@ -30,58 +30,77 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 		left: 0
 	});
 
-	useEffect(() => {
-		if (textareaRef.current) {
-			const rect = textareaRef.current.getBoundingClientRect();
-			setMentionPosition({ top: rect.top + window.scrollY, left: rect.left + window.scrollX });
-		}
-	}, [textareaRef.current]);
-
 	const toggleEmojiPanel = () => {
 		setIsShowEmojiPanel(!isShowEmojiPanel);
 	};
 
 	useEffect(() => {
-		if (textareaRef.current) {
-			textareaRef.current.focus();
+		if (editorRef.current) {
+			editorRef.current.focus();
 		}
 	}, []);
 
 	const handleClosePopup = useCallback(() => {
 		closeBuzzModal();
-		setInputRequest({ content: '', mentionRaw: [], valueTextInput: '' });
-	}, [setInputRequest, closeBuzzModal]);
+		setInputValue('');
+	}, [closeBuzzModal]);
 
 	const { emojis } = useEmojiSuggestionContext();
-	const queryEmojis = (query: string, callback: (data: any[]) => void) => {
-		if (query.length === 0) return;
-		const matches = emojis
-			.filter((emoji) => emoji.shortname && emoji.shortname.indexOf(query.toLowerCase()) > -1)
-			.slice(0, 20)
-			.map((emojiDisplay) => ({ id: emojiDisplay?.id, display: emojiDisplay?.shortname }));
-		callback(matches);
-	};
+	const queryEmojis = (query: string) => {
+		if (!query || emojis.length === 0) return [];
+		const q = query.toLowerCase();
+		const matches: { id: string; display: string; src?: string }[] = [];
 
-	const handleChange: OnChangeHandlerFunc = (event, newValue, newPlainTextValue, mentions) => {
-		const newRequest: RequestInput = { content: newPlainTextValue, mentionRaw: mentions, valueTextInput: newValue };
-		setInputRequest({ ...newRequest });
-	};
-
-	const handleSendBuzzMsg = useCallback(() => {
-		const emojiArr: IEmojiOnMessage[] = [];
-		inputRequest.mentionRaw?.forEach((item) => {
-			const emoji: IEmojiOnMessage = {
-				emojiid: item.id,
-				s: item.plainTextIndex,
-				e: item.plainTextIndex + item.display.length
-			};
-			emojiArr.push(emoji);
-		});
-		if (inputRequest.content.trim()) {
-			sendMessage({ t: inputRequest.content.trim(), ej: emojiArr }, [], [], [], undefined, undefined, undefined, TypeMessage.MessageBuzz);
-			handleClosePopup();
+		for (const { id, shortname, src } of emojis) {
+			if (!shortname || !shortname.includes(q)) continue;
+			if (!id) continue;
+			matches.push({ id, display: shortname, src });
+			if (matches.length === 20) break;
 		}
-	}, [handleClosePopup, inputRequest.content, inputRequest.mentionRaw, sendMessage]);
+
+		return matches;
+	};
+
+	const handleInputChange = (value: string) => {
+		setInputValue(value);
+	};
+
+	const handleSendBuzzMsg = useCallback(async () => {
+		if (!editorRef.current) return;
+
+		// const formattedText = editorRef.current.getFormattedText();
+		const formattedText = {} as any;
+		const { text: newPlainTextValue, entities } = formattedText;
+
+		if (newPlainTextValue?.trim() === '') {
+			return;
+		}
+
+		if (entities && entities.length > 0) {
+			const { emojis: emojiList } = processEntitiesDirectly(entities, newPlainTextValue, []);
+
+			const payload = {
+				t: newPlainTextValue,
+				ej: emojiList
+			};
+
+			const removeEmptyOnPayload = filterEmptyArrays(payload);
+
+			try {
+				sendMessage(removeEmptyOnPayload, [], [], [], undefined, undefined, undefined, TypeMessage.MessageBuzz);
+				handleClosePopup();
+			} catch (error) {
+				console.error('Error sending buzz message:', error);
+			}
+		} else {
+			try {
+				sendMessage({ t: newPlainTextValue.trim() }, [], [], [], undefined, undefined, undefined, TypeMessage.MessageBuzz);
+				handleClosePopup();
+			} catch (error) {
+				console.error('Error sending buzz message:', error);
+			}
+		}
+	}, [handleClosePopup, sendMessage]);
 
 	useOnClickOutside(panelRef, handleClosePopup);
 	useOnClickOutside(emojiRef, toggleEmojiPanel);
@@ -118,8 +137,8 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 						channelOrDirect={currentChannel as ApiChannelDescription}
 						emojiAction={EmojiPlaces.EMOJI_EDITOR_BUZZ}
 						mode={mode}
-						buzzInputRequest={inputRequest}
-						setBuzzInputRequest={setInputRequest}
+						buzzInputRequest={{ content: inputValue, mentionRaw: [], valueTextInput: inputValue }}
+						setBuzzInputRequest={(request) => setInputValue(request.valueTextInput || '')}
 						toggleEmojiPanel={toggleEmojiPanel}
 					/>
 				</div>
@@ -137,34 +156,25 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 						<Icons.Smile defaultSize="w-5 h-5" />
 					</div>
 					<MentionsInput
-						inputRef={textareaRef}
-						value={inputRequest.valueTextInput ?? '{}'}
-						className={`w-[calc(100%_-_70px)] bg-theme-input border-theme-primary rounded-lg p-[10px]  customScrollLightMode ${appearanceTheme === ThemeApp.Light && 'lightModeScrollBarMention'}`}
-						onChange={handleChange}
-						forceSuggestionsAboveCursor={true}
-						style={appearanceTheme === ThemeApp.Light ? lightMentionsInputStyle : darkMentionsInputStyle}
-						customSuggestionsContainer={(children: React.ReactNode) => {
-							return <CustomModalMentions children={children} titleModalMention={'Emoji matching'} />;
-						}}
-						maxLength={MAX_LENGTH_MESSAGE_BUZZ}
+						ref={editorRef}
+						value={inputValue}
+						onChange={handleInputChange}
+						className={`w-[calc(100%_-_70px)] bg-theme-input border-theme-primary rounded-lg p-[10px] customScrollLightMode ${appearanceTheme === ThemeApp.Light && 'lightModeScrollBarMention'}`}
+						// maxLength={MAX_LENGTH_MESSAGE_BUZZ}
+						placeholder="Enter your buzz message..."
 					>
 						<Mention
 							trigger=":"
-							markup="::[__display__](__id__)"
 							data={queryEmojis}
-							displayTransform={(id: any, display: any) => {
-								return `${display}`;
-							}}
-							renderSuggestion={(suggestion) => {
-								return (
-									<SuggestItem
-										display={suggestion.display ?? ''}
-										symbol={(suggestion as any).emoji}
-										emojiId={suggestion.id as string}
-									/>
-								);
-							}}
-							className=""
+							title=""
+							displayTransform={(id: string, display: string) => `${display}`}
+							renderSuggestion={(suggestion: MentionData, search: string, highlightedDisplay: React.ReactNode) => (
+								<SuggestItem
+									display={suggestion.display ?? ''}
+									symbol={(suggestion as any).emoji}
+									emojiId={suggestion.id as string}
+								/>
+							)}
 							appendSpaceOnAdd={true}
 						/>
 					</MentionsInput>

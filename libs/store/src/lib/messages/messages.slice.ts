@@ -1603,7 +1603,7 @@ export const selectIsUserTypingInChannel = createSelector(
 	}
 );
 
-export const selectHasMoreMessageByChannelId2 = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
+export const selectHasMoreMessageByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
 	const firstMessageId = state.firstMessageId[channelId];
 	if (!firstMessageId) return true;
 
@@ -1613,7 +1613,7 @@ export const selectHasMoreMessageByChannelId2 = createSelector([getMessagesState
 	return !isFirstMessageInChannel;
 });
 
-export const selectHasMoreBottomByChannelId2 = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
+export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
 	const lastMessage = state.lastMessageByChannel[channelId];
 
 	if (!lastMessage || !lastMessage.id) return false;
@@ -1657,12 +1657,15 @@ export const selectViewportIdsByChannelId = createCachedSelector([getMessagesSta
 	return messagesState?.channelViewPortMessageIds[channelId] || emptyArray;
 });
 
-export const selectMessageIdsByChannelId2 = createSelector([selectMessageIdsByChannelId, selectViewportIdsByChannelId], (messageIds, viewportIds) => {
-	if (!viewportIds?.length) {
-		return messageIds;
+export const selectMessageViewportIdsByChannelId = createSelector(
+	[selectMessageIdsByChannelId, selectViewportIdsByChannelId],
+	(messageIds, viewportIds) => {
+		if (!viewportIds?.length) {
+			return messageIds;
+		}
+		return messageIds.filter((id) => viewportIds.includes(id));
 	}
-	return messageIds.filter((id) => viewportIds.includes(id));
-});
+);
 
 export const selectMessagesByChannel = createSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
 	return messagesState?.channelMessages?.[channelId];

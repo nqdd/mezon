@@ -1,11 +1,11 @@
-import { selectMemberClanByGoogleId, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectMemberClanByGoogleId, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons, NameComponent } from '@mezon/ui';
 import { IChannelMember, createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
 import { AvatarImage } from '../../components';
 
 function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; channelID: string; isPttList?: boolean }) {
 	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
-	const userStream = useAppSelector((state) => selectMemberClanByUserId2(state, user.user_id ?? ''));
+	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
 	const clanNick = member ? member?.clan_nick : userStream?.clan_nick;
 	const displayName = member ? member?.user?.display_name : userStream?.user?.display_name;
 	const username = member ? member?.user?.username : userStream?.user?.username;

@@ -1,4 +1,4 @@
-import { selectMemberClanByGoogleId, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectMemberClanByGoogleId, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { IChannelMember, createImgproxyUrl, getAvatarForPrioritize, useSyncEffect, useWindowSize } from '@mezon/utils';
 import { useCallback, useState } from 'react';
@@ -60,7 +60,7 @@ export function VoiceChannelUsers({ memberJoin = [], memberMax, isShowChat }: Vo
 
 export function VoiceUserItem({ userId }: { userId: string }) {
 	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, userId));
-	const userVoice = useAppSelector((state) => selectMemberClanByUserId2(state, userId));
+	const userVoice = useAppSelector((state) => selectMemberClanByUserId(state, userId));
 
 	const data = member || userVoice;
 	const username = data?.user?.username;

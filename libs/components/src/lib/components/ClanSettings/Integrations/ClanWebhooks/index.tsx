@@ -1,6 +1,6 @@
 import { generateClanWebhook, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { ApiClanWebhook, ApiGenerateClanWebhookRequest } from 'mezon-js/api.gen';
+import type { ApiClanWebhook, ApiGenerateClanWebhookRequest } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ClanWebhookItemModal from './ClanWebhookItemModal';
@@ -35,18 +35,14 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 			avatar: getRandomAvatar(),
 			clan_id: clanId
 		};
-		dispatch(generateClanWebhook({ request: newWebhookReq, clanId: clanId }));
+		dispatch(generateClanWebhook({ request: newWebhookReq, clanId }));
 	};
 
 	return (
 		<div className="pb-5">
 			<div className=" text-sm pt-5 flex flex-col text-theme-primary">
-				<span className="font-semibold">
-					{t('clanWebhookDescription')}
-				</span>
-				<span className="font-semibold text-[#00a8fc]">
-					{t('webhookTip')}
-				</span>
+				<span className="font-semibold">{t('clanWebhookDescription')}</span>
+				<span className="font-semibold text-[#00a8fc]">{t('webhookTip')}</span>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			{allClanWebhooks?.length !== 0 ? (
@@ -65,7 +61,7 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 					<div className="font-medium ">{t('noWebhooks')}</div>
 					<div
 						onClick={handleAddWebhook}
-							className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
 					>
 						{t('newClanWebhook')}
 					</div>

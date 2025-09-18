@@ -1,5 +1,5 @@
 import { useAuth, useChatReaction } from '@mezon/core';
-import { selectCurrentChannel, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectCurrentChannel, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { IMessageWithUser, getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
@@ -20,7 +20,7 @@ const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messag
 	const { userProfile } = useAuth();
 
 	const currentChannel = useSelector(selectCurrentChannel);
-	const clanProfile = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id || ''));
+	const clanProfile = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id || ''));
 
 	const handleClickEmoji = useCallback(async () => {
 		await reactionMessageDispatch({

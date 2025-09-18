@@ -1,8 +1,7 @@
 import type { Dispatch } from '@reduxjs/toolkit';
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
-import type { MentionItem } from 'react-mentions';
 import { IMAGE_MAX_FILE_SIZE, MAX_FILE_SIZE, fileTypeImage } from '../constant';
-import type { IMentionOnMessage, IRolesClan, IStartEndIndex, MentionDataProps, MentionReactInputProps, RequestInput } from '../types';
+import type { IMentionOnMessage, IRolesClan, IStartEndIndex, MentionDataProps, MentionItem, MentionReactInputProps, RequestInput } from '../types';
 
 function createFileMetadata<T>(file: File): T {
 	return {

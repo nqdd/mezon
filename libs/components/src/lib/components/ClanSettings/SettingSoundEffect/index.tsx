@@ -14,7 +14,6 @@ import { Icons } from '@mezon/ui';
 import type { ClanSticker } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import ModalUploadSound from './ModalUploadSound';
 interface ExtendedClanSticker extends ClanSticker {
 	media_type?: MediaType;
@@ -94,9 +93,7 @@ const SettingSoundEffect = () => {
 				<div className="flex items-center text-theme-primary-active gap-2 font-bold text-xs uppercase">
 					<span>{t('main.uploadInstructions')}</span>
 				</div>
-				<p className="text-theme-primary">
-					{t('main.fileRequirements')}
-				</p>
+				<p className="text-theme-primary">{t('main.fileRequirements')}</p>
 			</div>
 			<div className="flex p-4 bg-theme-setting-nav rounded-lg shadow-sm hover:shadow-md transition duration-200  border-theme-primary">
 				<div className="flex-1 w-full flex flex-col">
@@ -172,7 +169,7 @@ const SettingSoundEffect = () => {
 };
 
 const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
-	const creator = useSelector(selectMemberClanByUserId(creatorId));
+	const creator = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 
 	if (!creator) return null;
 

@@ -1,9 +1,9 @@
-import { ELoadMoreDirection, IBeforeRenderCb } from '@mezon/chat-scroll';
+import type { IBeforeRenderCb } from '@mezon/chat-scroll';
+import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { MessageContextMenuProvider, MessageWithUser, useMessageContextMenu } from '@mezon/components';
 import { useMessageObservers, usePermissionChecker } from '@mezon/core';
+import type { MessagesEntity, RootState } from '@mezon/store';
 import {
-	MessagesEntity,
-	RootState,
 	channelsActions,
 	getStore,
 	messagesActions,
@@ -12,19 +12,19 @@ import {
 	selectCurrentChannelId,
 	selectDataReferences,
 	selectFirstMessageOfCurrentTopic,
-	selectHasMoreBottomByChannelId2,
-	selectHasMoreMessageByChannelId2,
+	selectHasMoreBottomByChannelId,
+	selectHasMoreMessageByChannelId,
 	selectIdMessageRefEdit,
 	selectIdMessageToJump,
 	selectIsJumpingToPresent,
 	selectIsMessageIdExist,
 	selectLastMessageByChannelId,
 	selectLatestMessageId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageEntitiesByChannelId,
-	selectMessageIdsByChannelId2,
 	selectMessageIsLoading,
 	selectMessageNotified,
+	selectMessageViewportIdsByChannelId,
 	selectOpenEditMessageState,
 	selectScrollOffsetByChannelId,
 	selectShowScrollDownButton,
@@ -33,9 +33,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import type { BooleanToVoidFunction, ChannelMembersEntity } from '@mezon/utils';
 import {
-	BooleanToVoidFunction,
-	ChannelMembersEntity,
 	Direction_Mode,
 	EOverriddenPermission,
 	LoadMoreDirection,
@@ -58,8 +57,8 @@ import {
 	useSyncEffect
 } from '@mezon/utils';
 import classNames from 'classnames';
-import { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
-import { ApiMessageRef } from 'mezon-js/api.gen';
+import type { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
+import type { ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ChannelMessage, MemorizedChannelMessage } from './ChannelMessage';
@@ -128,7 +127,7 @@ function ChannelMessages({
 }: ChannelMessagesProps) {
 	const appearanceTheme = useSelector(selectTheme);
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const messageIds = useAppSelector((state) => selectMessageIdsByChannelId2(state, channelId));
+	const messageIds = useAppSelector((state) => selectMessageViewportIdsByChannelId(state, channelId));
 	const idMessageNotified = useSelector(selectMessageNotified);
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
@@ -177,18 +176,11 @@ function ChannelMessages({
 			}
 
 			if (direction === ELoadMoreDirection.bottom) {
-				const hasMoreBottom = selectHasMoreBottomByChannelId2(store.getState() as RootState, channelId);
+				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 				if (!hasMoreBottom || preventScrollbottom.current) {
 					dispatch(messagesActions.setViewingOlder({ channelId, status: false }));
 					return;
 				}
-			}
-
-			if (direction === ELoadMoreDirection.top) {
-				// const hasMoreTop = selectHasMoreMessageByChannelId2(store.getState() as RootState, channelId);
-				// if (!hasMoreTop) {
-				// 	return;
-				// }
 			}
 
 			if (typeof cb === 'function') {
@@ -434,7 +426,7 @@ const ScrollDownButton = memo(
 
 			dispatch(
 				channelsActions.setScrollOffset({
-					channelId: channelId,
+					channelId,
 					offset: 0
 				})
 			);
@@ -549,7 +541,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 	}) => {
 		const dispatch = useAppDispatch();
 		const user = useSelector(selectAllAccount);
-		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, user?.user?.id as string));
+		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, user?.user?.id as string));
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
 		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, channelId));
@@ -602,7 +594,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					return;
 				}
 				animateScroll({
-					container: container,
+					container,
 					element: lastMessageElement,
 					position: 'end',
 					margin: BOTTOM_FOCUS_MARGIN
@@ -674,7 +666,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 				dispatch(
 					channelsActions.setScrollOffset({
-						channelId: channelId,
+						channelId,
 						offset: scrollOffsetRef.current
 					})
 				);
@@ -847,7 +839,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!idMessageToJump?.id) return;
 
 			const scrollToMessage = (messageId: string) => {
-				const messageElement = chatRef.current?.querySelector('#msg-' + messageId);
+				const messageElement = chatRef.current?.querySelector(`#msg-${messageId}`);
 				if (messageElement) {
 					setAnchor.current = new Date().getTime();
 					userActiveScroll.current = true;
@@ -1060,7 +1052,7 @@ const LoadingSkeletonMessages = memo(
 		isTopic?: boolean;
 		topicId?: string;
 	}) => {
-		const hasMoreTop = useAppSelector((state) => selectHasMoreMessageByChannelId2(state, channelId));
+		const hasMoreTop = useAppSelector((state) => selectHasMoreMessageByChannelId(state, channelId));
 		// TODO: check hasMoreTop topic check backend alway return true
 		if (!hasMoreTop || isTopic) return null;
 		return (

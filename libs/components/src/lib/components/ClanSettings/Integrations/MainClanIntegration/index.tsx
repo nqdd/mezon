@@ -1,5 +1,5 @@
 import { Icons } from '@mezon/ui';
-import { ApiClanWebhook } from 'mezon-js/api.gen';
+import type { ApiClanWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
 interface IClanIntegrationProps {
@@ -22,9 +22,7 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 				<Icons.WebhooksIcon />
 				<div>
 					<div className="pb-[3px] font-semibold break-all text-theme-primary">{t('clanWebhooks')}</div>
-					<div className="text-[12px] text-theme-primary">
-						{t('webhook', { count: allClanWebhooks?.length || 0 })}
-					</div>
+					<div className="text-[12px] text-theme-primary">{t('webhook', { count: allClanWebhooks?.length || 0 })}</div>
 				</div>
 			</div>
 			{allClanWebhooks && allClanWebhooks?.length === 0 ? (
@@ -36,7 +34,7 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 				</div>
 			) : (
 				<div className="items-center cursor-pointer text-[14px] flex gap-[4px]">
-						<div className="text-theme-primary">{t('viewClanWebhook')}</div>
+					<div className="text-theme-primary">{t('viewClanWebhook')}</div>
 					<Icons.ArrowDown defaultSize="h-[15px] w-[15px] -rotate-90" />
 				</div>
 			)}

@@ -22,7 +22,7 @@ import {
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenThreadMessageState,
 	selectSession,
 	selectStatusMenu,
@@ -69,7 +69,7 @@ const ThreadBox = () => {
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const sessionUser = useSelector(selectSession);
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, sessionUser?.user_id as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, sessionUser?.user_id as string));
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const currentInputChannelId = threadCurrentChannel?.channel_id || CREATING_THREAD;
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
@@ -396,10 +396,14 @@ const ThreadBox = () => {
 							onKeyDown={onKeyDown}
 							value={nameValueThread ?? ''}
 							label={t('createThread.threadName')}
-							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')}
+							placeholder={
+								openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')
+							}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
 						/>
-						{!openThreadMessageState && <PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />}
+						{!openThreadMessageState && (
+							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
+						)}
 						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
 					</div>
 				</div>

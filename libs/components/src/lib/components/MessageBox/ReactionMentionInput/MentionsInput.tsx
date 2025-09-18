@@ -5,6 +5,7 @@ import React, {
 	cloneElement,
 	forwardRef,
 	isValidElement,
+	memo,
 	useCallback,
 	useEffect,
 	useImperativeHandle,
@@ -23,14 +24,6 @@ export interface User {
 	username?: string;
 	displayName: string;
 	avatar?: string;
-}
-
-export interface MentionItem {
-	display: string;
-	id: string;
-	childIndex: number;
-	index: number;
-	plainTextIndex: number;
 }
 
 export interface MessageEntity {
@@ -233,7 +226,7 @@ const positionCaretAfterEmoji = (inputEl: HTMLElement, config: any, markup: stri
 	return false;
 };
 
-const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
+const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProps>(
 	(
 		{
 			value = '',
@@ -274,9 +267,11 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 		const [inputWidth, setInputWidth] = useState(800);
 		const detectMentionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-		const mentionConfigs = Children.toArray(children)
-			.filter((child): child is React.ReactElement<MentionProps> => isValidElement(child) && typeof child.type === 'function')
-			.map((child) => child.props);
+		const mentionConfigs = useMemo(() => {
+			return Children.toArray(children)
+				.filter((child): child is React.ReactElement<MentionProps> => isValidElement(child) && typeof child.type === 'function')
+				.map((child) => child.props);
+		}, [children]);
 
 		useEffect(() => {
 			if (inputRef.current) {
@@ -753,26 +748,20 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 			[onChange, setHtml]
 		);
 
-		const handleSuggestionsChange = useCallback(
-			(count: number, isLoading: boolean) => {
-				setSuggestionsCount(count);
-				if (activeMentionContext) {
-					setActiveMentionContext((prev) =>
-						prev
-							? {
-									...prev,
-									mentionState: {
-										...prev.mentionState,
-										isActive: count > 0 || isLoading,
-										isLoading
-									}
-								}
-							: null
-					);
-				}
-			},
-			[activeMentionContext]
-		);
+		const handleSuggestionsChange = useCallback((count: number, isLoading: boolean) => {
+			setSuggestionsCount(count);
+			setActiveMentionContext((prev) => {
+				if (!prev) return null;
+				return {
+					...prev,
+					mentionState: {
+						...prev.mentionState,
+						isActive: count > 0 || isLoading,
+						isLoading
+					}
+				};
+			});
+		}, []);
 
 		const handleMentionSelect = useCallback(
 			(suggestion: MentionData) => {
@@ -810,29 +799,30 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 			[insertEmoji, insertMentionCommand, saveCaretPosition, undo, redo, canUndo, canRedo]
 		);
 
-		const handleSuggestionMouseEnter = useCallback(
-			(index: number) => {
-				if (activeMentionContext) {
-					setActiveMentionContext((prev) =>
-						prev
-							? {
-									...prev,
-									mentionState: {
-										...prev.mentionState,
-										selectedIndex: index
-									}
-								}
-							: null
-					);
-				}
-			},
-			[activeMentionContext]
-		);
+		const handleSuggestionMouseEnter = useCallback((index: number) => {
+			setActiveMentionContext((prev) => {
+				if (!prev) return null;
+				return {
+					...prev,
+					mentionState: {
+						...prev.mentionState,
+						selectedIndex: index
+					}
+				};
+			});
+		}, []);
 
 		const handlePaste = useCallback(
 			(e: React.ClipboardEvent<HTMLDivElement>) => {
 				if (!e.clipboardData || disabled) {
 					return;
+				}
+
+				if (onHandlePaste) {
+					onHandlePaste(e);
+					if (e.defaultPrevented) {
+						return;
+					}
 				}
 
 				e.preventDefault();
@@ -849,9 +839,6 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 					}
 
 					if (hasImageFiles) {
-						if (onHandlePaste) {
-							onHandlePaste(e);
-						}
 						return;
 					}
 				}
@@ -1056,9 +1043,24 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 				}
 				onKeyDown?.(e);
 			},
-			[activeMentionContext, onSend, html, messageSendKeyCombo, isMobile, disabled, onChange, onKeyDown, enableUndoRedo, undo, redo]
+			[
+				activeMentionContext,
+				onSend,
+				html,
+				messageSendKeyCombo,
+				isMobile,
+				disabled,
+				onChange,
+				onKeyDown,
+				enableUndoRedo,
+				undo,
+				redo,
+				hasFilesToSend,
+				suggestionsCount
+			]
 		);
 
+		const onSelectionTriggered = useCallback(() => setTriggerSelection(false), []);
 		const mentionContent = useMemo(() => {
 			if (!activeMentionContext) return null;
 
@@ -1076,7 +1078,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 							suggestionsClassName,
 							suggestionStyle,
 							triggerSelection,
-							onSelectionTriggered: () => setTriggerSelection(false)
+							onSelectionTriggered
 						} as MentionProps);
 					}
 				}
@@ -1090,7 +1092,8 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 			handleSuggestionsChange,
 			suggestionsClassName,
 			suggestionStyle,
-			triggerSelection
+			triggerSelection,
+			onSelectionTriggered
 		]);
 
 		const { refs, floatingStyles } = useFloating({
@@ -1109,6 +1112,7 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 		}, [activeMentionContext]);
 
 		const tooltipOverlay = useMemo(() => {
+			if (!activeMentionContext) return null;
 			return (
 				<div
 					ref={(node) => {
@@ -1122,14 +1126,13 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 						border: '1px solid var(--border-color)',
 						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
 						padding: 0,
-						width: inputWidth,
-						display: activeMentionContext ? 'block' : 'none'
+						width: inputWidth
 					}}
 				>
 					{mentionContent}
 				</div>
 			);
-		}, [mentionContent, refs.setFloating, floatingStyles, activeMentionContext, inputWidth]);
+		}, [mentionContent, refs, floatingStyles, activeMentionContext, inputWidth]);
 
 		return (
 			<div className={`mention-input ${className}`} style={{ position: 'relative', ...style }}>
@@ -1158,11 +1161,28 @@ const MentionsInput = forwardRef<MentionsInputHandle, MentionsInputProps>(
 					}}
 					data-e2e={generateE2eId('mention.input')}
 				/>
-				{activeMentionContext && (createPortal(tooltipOverlay, document.body) as React.ReactElement)}
+				{tooltipOverlay && (createPortal(tooltipOverlay, document.body) as React.ReactElement)}
 			</div>
 		);
 	}
 );
+
+MentionsInputComponent.displayName = 'MentionsInputComponent';
+
+const MentionsInput = memo(MentionsInputComponent, (prevProps, nextProps) => {
+	if (
+		prevProps.value !== nextProps.value ||
+		prevProps.disabled !== nextProps.disabled ||
+		prevProps.placeholder !== nextProps.placeholder ||
+		prevProps.currentChannelId !== nextProps.currentChannelId ||
+		prevProps.hasFilesToSend !== nextProps.hasFilesToSend ||
+		prevProps.setCaretToEnd !== nextProps.setCaretToEnd ||
+		prevProps.children !== nextProps.children
+	) {
+		return false;
+	}
+	return true;
+});
 
 MentionsInput.displayName = 'MentionsInput';
 

@@ -9,7 +9,6 @@ import {
 	selectClickedOnTopicStatus,
 	selectCurrentChannel,
 	selectCurrentClanId,
-	selectDefaultCanvasByChannelId,
 	selectIsMessageChannelIdMatched,
 	selectMessageByMessageId,
 	threadsActions,
@@ -18,12 +17,11 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { IMessageWithUser, MenuBuilder } from '@mezon/utils';
 import {
 	AMOUNT_TOKEN,
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
-	IMessageWithUser,
-	MenuBuilder,
 	SYSTEM_NAME,
 	SYSTEM_SENDER_ID,
 	SubPanelName,
@@ -84,7 +82,6 @@ const ChannelMessageOpt = ({
 	const refOpt = useRef<HTMLDivElement>(null);
 	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannel?.id ?? '');
 	const isShowIconThread = !!(currentChannel && !Snowflake.isValid(currentChannel.parent_id ?? '') && canManageThread);
-	const defaultCanvas = useAppSelector((state) => selectDefaultCanvasByChannelId(state, currentChannel?.channel_id ?? ''));
 	const replyMenu = useMenuReplyMenuBuilder(message, hasPermission);
 	const editMenu = useEditMenuBuilder(message);
 	const reactMenu = useReactMenuBuilder(message);
@@ -172,7 +169,7 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 				builder.when(
 					clanId && clanId !== '0' && realTimeMessage?.code !== TypeMessage.Topic && !doNotAllowCreateTopic && notAllowedType,
 					(builder: MenuBuilder) => {
-						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIcon2 className="w-5 h-5 " />);
+						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIconOption className="w-5 h-5 " />);
 					}
 				);
 			}
@@ -285,7 +282,6 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 		);
 	});
 }
-
 
 // Menu items plugins
 // maybe should be moved to separate files
