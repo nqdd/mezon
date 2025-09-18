@@ -11,8 +11,8 @@ import {
 	save
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
 import {
-	RootState,
 	emojiSuggestionActions,
 	getStore,
 	referencesActions,
@@ -24,7 +24,8 @@ import {
 	threadsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { IHashtagOnMessage, IMentionOnMessage, MIN_THRESHOLD_CHARS, MentionDataProps } from '@mezon/utils';
+import type { IHashtagOnMessage, IMentionOnMessage, MentionDataProps } from '@mezon/utils';
+import { MIN_THRESHOLD_CHARS } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 // eslint-disable-next-line
 import { useMezon } from '@mezon/transport';
@@ -32,8 +33,9 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { TriggersConfig, useMentions } from 'react-native-controlled-mentions';
+import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import type { TriggersConfig } from 'react-native-controlled-mentions';
+import { useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
@@ -45,12 +47,13 @@ import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
-import { IMessageActionNeedToResolve } from '../../../types';
+import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
 import EmojiSwitcher from '../../EmojiPicker/EmojiSwitcher';
 import { RenderTextContent } from '../../RenderTextContent';
 import { ChatBoxListener } from '../ChatBoxListener';
-import { ChatMessageLeftArea, IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
+import type { IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
+import { ChatMessageLeftArea } from '../ChatMessageLeftArea';
 import { ChatMessageSending } from '../ChatMessageSending';
 import { ChatBoxTyping } from './ChatBoxTyping';
 import { style } from './style';
@@ -137,9 +140,6 @@ export const ChatBoxBottomBar = memo(
 			id: '',
 			display: ''
 		});
-
-		const [imageBase64, setImageBase64] = useState<string | null>(null);
-
 		const anonymousMode = useSelector(selectAnonymousMode);
 
 		const inputRef = useRef<TextInput>(null);
@@ -201,9 +201,9 @@ export const ChatBoxBottomBar = memo(
 				if (!textValueInputRef?.current?.length && !textChange.length) {
 					textFormat = shortName?.toString();
 				} else {
-					textFormat = `${textChange?.endsWith(' ') ? textChange : textChange + ' '}${shortName?.toString()}`;
+					textFormat = `${textChange?.endsWith(' ') ? textChange : `${textChange} `}${shortName?.toString()}`;
 				}
-				await handleTextInputChange(textFormat + ' ');
+				await handleTextInputChange(`${textFormat} `);
 			},
 			[textChange]
 		);
@@ -499,8 +499,8 @@ export const ChatBoxBottomBar = memo(
 			async (text: string) => {
 				// Define the path to the file
 				const now = Date.now();
-				const filename = now + '.txt';
-				const path = RNFS.DocumentDirectoryPath + `/${filename}`;
+				const filename = `${now}.txt`;
+				const path = `${RNFS.DocumentDirectoryPath}/${filename}`;
 
 				// Write the text to the file
 				await RNFS.writeFile(path, text, 'utf8')
@@ -520,7 +520,7 @@ export const ChatBoxBottomBar = memo(
 					name: filename,
 					type: 'text/plain',
 					size: (await RNFS.stat(path)).size.toString(),
-					fileData: fileData
+					fileData
 				};
 
 				return fileFormat;
@@ -574,11 +574,6 @@ export const ChatBoxBottomBar = memo(
 				console.error('Error pasting image from clipboard:', error);
 			}
 		};
-		const cancelPasteImage = useCallback(() => {
-			// Only hide tooltip, don't clear clipboard
-			setImageBase64(null);
-			setIsShowOptionPaste(false);
-		}, []);
 
 		const handleInputFocus = async () => {
 			setModeKeyBoardBottomSheet('text');
@@ -669,7 +664,10 @@ export const ChatBoxBottomBar = memo(
 
 		const onLongPress = async () => {
 			try {
-				// Check directly if clipboard contains image
+				if (Platform.OS === 'ios') {
+					const isHasImage = await Clipboard.hasImage();
+					if (!isHasImage) return;
+				}
 				const imageUri = await Clipboard.getImage();
 				if (imageUri?.startsWith('data:image/')) {
 					const base64Data = imageUri.split(',')?.[1];

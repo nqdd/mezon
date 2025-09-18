@@ -206,7 +206,7 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 			channelId,
 			tag: channelId,
 			category: AndroidCategory.MESSAGE,
-			groupId: groupId,
+			groupId,
 			groupSummary: false,
 			groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
 			sortKey: String(Number.MAX_SAFE_INTEGER - now),
@@ -320,7 +320,7 @@ export const createLocalNotification = async (title: string, body: string, data:
 					id: `summary_${configDisplayNotificationAndroid.groupId}`,
 					title: 'New Messages',
 					body: `${groupNotifications.length} new messages`,
-					data: data,
+					data,
 					android: {
 						...configDisplayNotificationAndroid,
 						groupSummary: true,
@@ -430,7 +430,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				store.dispatch(
 					channelsActions.joinChannel({
 						clanId: clanId ?? '',
-						channelId: channelId,
+						channelId,
 						noFetchMembers: false,
 						isClearMessage: true,
 						noCache: true
@@ -450,8 +450,8 @@ export const navigateToNotification = async (store: any, notification: any, navi
 			if (clanId) {
 				const joinAndChangeClan = async (store: any, clanId: string) => {
 					await Promise.allSettled([
-						store.dispatch(clansActions.joinClan({ clanId: clanId })),
-						store.dispatch(clansActions.changeCurrentClan({ clanId: clanId, noCache: true }))
+						store.dispatch(clansActions.joinClan({ clanId })),
+						store.dispatch(clansActions.changeCurrentClan({ clanId, noCache: true }))
 					]);
 				};
 				await joinAndChangeClan(store, clanId);
@@ -558,7 +558,7 @@ export const getVoIPToken = async () => {
 	}
 };
 
-export const displayNativeCalling = async (data: any) => {
+export const displayNativeCalling = async (data: any, appInBackground = false) => {
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
@@ -583,8 +583,8 @@ export const displayNativeCalling = async (data: any) => {
 			name: 'Incoming Calls',
 			importance: AndroidImportance.HIGH,
 			visibility: AndroidVisibility.PUBLIC,
-			sound: 'ringing',
-			vibration: true,
+			sound: appInBackground ? undefined : 'ringing',
+			vibration: !appInBackground,
 			bypassDnd: true
 		});
 		await notifee.displayNotification({
@@ -597,7 +597,7 @@ export const displayNativeCalling = async (data: any) => {
 				visibility: AndroidVisibility.PUBLIC,
 				importance: AndroidImportance.HIGH,
 				smallIcon: 'ic_notification',
-				sound: 'ringing',
+				sound: appInBackground ? undefined : 'ringing',
 				tag: notificationId,
 				largeIcon: `${dataObj?.callerAvatar || dataObj?.groupAvatar || process.env.NX_LOGO_MEZON}`,
 				timestamp: Date.now(),
@@ -605,10 +605,10 @@ export const displayNativeCalling = async (data: any) => {
 				ongoing: true,
 				autoCancel: true,
 				timeoutAfter: 30000,
-				loopSound: true,
+				loopSound: !appInBackground,
 				groupSummary: false,
 				groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
-				vibrationPattern: [300, 500, 300, 500],
+				vibrationPattern: appInBackground ? undefined : [300, 500, 300, 500],
 				lightUpScreen: true,
 				color: '#7029c1',
 				pressAction: {
@@ -641,13 +641,15 @@ export const displayNativeCalling = async (data: any) => {
 						title: 'Decline',
 						pressAction: {
 							id: 'reject',
-							launchActivity: 'com.mezon.mobile.CallActivity',
-							launchActivityFlags: [
-								AndroidLaunchActivityFlag.SINGLE_TOP,
-								AndroidLaunchActivityFlag.NEW_TASK,
-								AndroidLaunchActivityFlag.CLEAR_TASK,
-								AndroidLaunchActivityFlag.TASK_ON_HOME
-							],
+							launchActivity: appInBackground ? 'com.mezon.mobile.MainActivity' : 'com.mezon.mobile.CallActivity',
+							launchActivityFlags: appInBackground
+								? []
+								: [
+										AndroidLaunchActivityFlag.SINGLE_TOP,
+										AndroidLaunchActivityFlag.NEW_TASK,
+										AndroidLaunchActivityFlag.CLEAR_TASK,
+										AndroidLaunchActivityFlag.TASK_ON_HOME
+									],
 							mainComponent: 'ComingCallApp'
 						},
 						icon: 'ic_decline'
