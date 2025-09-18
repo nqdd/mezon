@@ -323,17 +323,7 @@ export const selectEntitesUserClans = createSelector(
 	}
 );
 
-// with DM group use selector: selectMembeGroupByUserId
-/**
- * @deprecated will be removed to use selectMemberClanByUserId2
- */
-export const selectMemberClanByUserId = (userId: string) =>
-	createSelector([getUsersClanState, (state: RootState) => state.clans.currentClanId as string], (state, clanId) => {
-		const clanState = state.byClans[clanId]?.entities;
-		return clanState ? selectById(clanState, userId) : undefined;
-	});
-
-export const selectMemberClanByUserId2 = createSelector(
+export const selectMemberClanByUserId = createSelector(
 	[selectEntitesUserClans, (state, userId: string) => userId],
 	(entities, userId) => entities[userId]
 );
@@ -341,10 +331,6 @@ export const selectMemberClanByUserId2 = createSelector(
 export const selectMembersByUserIds = createSelector([selectEntitesUserClans, (_, userIds: string[]) => userIds], (entities, userIds) =>
 	userIds.map((userId) => entities[userId] ?? null)
 );
-
-export const selectMemberClanByGoogleId = createSelector([selectAllUserClans, (_, googleId: string) => googleId], (members, googleId) => {
-	return members.find((member) => member.user?.google_id === googleId);
-});
 
 export const selectMemberClanByUserName = createSelector([selectAllUserClans, (_, username: string) => username], (members, username) => {
 	return members.find((member) => member.user?.username === username);

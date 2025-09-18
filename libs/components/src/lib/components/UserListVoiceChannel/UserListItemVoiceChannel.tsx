@@ -1,18 +1,13 @@
-import { selectMemberClanByGoogleId, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons, NameComponent } from '@mezon/ui';
-import { IChannelMember, createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
+import type { IChannelMember } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
 import { AvatarImage } from '../../components';
 
 function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; channelID: string; isPttList?: boolean }) {
-	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
-	const userStream = useAppSelector((state) => selectMemberClanByUserId2(state, user.user_id ?? ''));
-	const clanNick = member ? member?.clan_nick : userStream?.clan_nick;
-	const displayName = member ? member?.user?.display_name : userStream?.user?.display_name;
-	const username = member ? member?.user?.username : userStream?.user?.username;
-	const name = getNameForPrioritize(clanNick, displayName, username);
-	const clanAvatar = member ? member?.clan_avatar : userStream?.clan_avatar;
-	const avatarUrl = member ? member?.user?.avatar_url : userStream?.user?.avatar_url;
-	const avatar = getAvatarForPrioritize(clanAvatar, avatarUrl);
+	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
+	const name = getNameForPrioritize(userStream?.clan_nick, userStream?.user?.display_name, userStream?.user?.username);
+	const avatar = getAvatarForPrioritize(userStream?.clan_avatar, userStream?.user?.avatar_url);
 
 	return (
 		<div
@@ -20,10 +15,10 @@ function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; ch
 		>
 			<div className="w-5 h-5 rounded-full scale-75">
 				<div className="w-8 h-8 mt-[-0.3rem]">
-					{member || userStream ? (
+					{userStream ? (
 						<AvatarImage
-							alt={username || ''}
-							username={username}
+							alt={userStream?.user?.username || ''}
+							username={userStream?.user?.username}
 							className="min-w-8 min-h-8 max-w-8 max-h-8"
 							srcImgProxy={createImgproxyUrl(avatar ?? '')}
 							src={avatar}
@@ -34,7 +29,7 @@ function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; ch
 				</div>
 			</div>
 			<div>
-				{member || userStream ? (
+				{userStream ? (
 					<NameComponent id={user.user_id || ''} name={name || ''} />
 				) : (
 					<p className="text-sm font-medium ">{user.participant}</p>

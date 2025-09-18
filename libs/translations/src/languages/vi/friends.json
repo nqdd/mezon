@@ -26,8 +26,8 @@
     "friends": "Bạn bè",
     "noFriendsResultsFound": "Không tìm thấy kết quả bạn bè",
     "toast": {
-        "sendAddFriendSuccess": "Yêu cầu kết bạn đã được gửi",
-        "sendAddFriendFail": "Không có ID hoặc tên người dùng hợp lệ được cung cấp."
+        "sendAddFriendSuccess": "Yêu cầu kết bạn đã được gửi thành công!",
+        "sendAddFriendFail": "Hmm, có lỗi xảy ra. Vui lòng kiểm tra lại tên người dùng có đúng không."
     },
     "you": "bạn"
 }

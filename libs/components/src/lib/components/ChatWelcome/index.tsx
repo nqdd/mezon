@@ -17,7 +17,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,10 +68,9 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				? threadCurrentChannel || currentChannel
 				: currentChannel;
 
-	const user = useSelector(selectMemberClanByUserId(selectedChannel?.creator_id as string));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, selectedChannel?.creator_id as string));
 	const preferredUserName = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
 	const classNameSubtext = 'text-theme-primary opacity-60 text-sm';
-	const showName = <span className="font-medium">{name || username}</span>;
 
 	const isChannel = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const isThread = mode === ChannelStreamMode.STREAM_MODE_THREAD;
@@ -226,7 +225,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 				alt={username}
 				username={username}
 				className="min-w-[75px] min-h-[75px] max-w-[75px] max-h-[75px] font-semibold"
-				srcImgProxy={avatar || ''}
+				srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 				src={avatar}
 				classNameText="!text-4xl font-semibold"
 			/>

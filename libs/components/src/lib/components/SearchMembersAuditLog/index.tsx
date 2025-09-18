@@ -8,7 +8,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IUserAuditLog, UsersClanEntity, createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
+import type { IUserAuditLog, UsersClanEntity } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -19,7 +20,7 @@ type AvatarUserProps = {
 };
 
 const AvatarUser = ({ user }: AvatarUserProps) => {
-	const userClan = useAppSelector(selectMemberClanByUserId(user?.id ?? ''));
+	const userClan = useAppSelector((state) => selectMemberClanByUserId(state, user?.id ?? ''));
 	const username = userClan?.user?.username;
 	const avatar = getAvatarForPrioritize(userClan?.clan_avatar, userClan?.user?.avatar_url);
 	return (
@@ -117,11 +118,7 @@ const SearchMemberAuditLogModal = ({
 						onChange={(e) => setSearchTerm(e.target.value)}
 					/>
 					<span className="absolute right-3 top-3 text-gray-400  cursor-pointer" onClick={searchTerm ? handleClearSearch : undefined}>
-						{searchTerm ? (
-							<Icons.Close defaultSize="size-4" />
-						) : (
-								<Icons.Search className="w-4 h-4 text-theme-primary" />
-						)}
+						{searchTerm ? <Icons.Close defaultSize="size-4" /> : <Icons.Search className="w-4 h-4 text-theme-primary" />}
 					</span>
 				</div>
 
@@ -148,7 +145,7 @@ const SearchMemberAuditLogModal = ({
 							))
 					) : (
 						<div className="w-full h-full text-center text-gray-400 flex flex-col justify-center items-center">
-								<div className="text-theme-primary font-medium text-xl">{t('noResults.title')}</div>
+							<div className="text-theme-primary font-medium text-xl">{t('noResults.title')}</div>
 							<div>{t('noResults.description')}</div>
 						</div>
 					)}

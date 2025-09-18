@@ -26,7 +26,7 @@ import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 import { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
-import { timeFomat } from '../timeFomatEvent';
+import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
@@ -73,13 +73,16 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const isChannelEvent = textChannelId && textChannelId !== '0';
 	const isPrivateEvent = !isChannelEvent && ((!isReviewEvent && event?.is_private) || (isReviewEvent && isPrivate));
 	const isClanEvent = !isChannelEvent && ((!isReviewEvent && !event?.is_private) || (isReviewEvent && !isPrivate));
-	const { t } = useTranslation(['eventMenu', 'eventCreator']);
+	const { t, i18n } = useTranslation(['eventMenu', 'eventCreator']);
 	const dispatch = useAppDispatch();
+
+	// Create i18n-aware time formatter
+	const formatTimeI18n = useMemo(() => createI18nTimeFormatter(i18n.language), [i18n.language]);
 	const channelFirst = useSelector(selectChannelFirst);
 	const channelVoice = useAppSelector((state) => selectChannelById(state, voiceChannel ?? '')) || {};
 	const textChannel = useAppSelector((state) => selectChannelById(state, textChannelId ?? '')) || {};
 	const isThread = textChannel?.type === ChannelType.CHANNEL_TYPE_THREAD;
-	const userCreate = useSelector(selectMemberClanByUserId(event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 	const checkOptionVoice = useMemo(() => option === OptionEvent.OPTION_SPEAKER, [option]);
 	const checkOptionLocation = useMemo(() => option === OptionEvent.OPTION_LOCATION, [option]);
@@ -229,14 +232,20 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
 						<p className={`font-semibold ${cssEventStatus}`}>
 							{actualEventStatus.isUpcoming
-								? timeUntilEvent || timeFomat(event?.start_time || start)
+								? timeUntilEvent || formatTimeI18n(event?.start_time || start)
 								: actualEventStatus.isOngoing
 									? t('countdown.joinNow')
-									: timeFomat(event?.start_time || start)}
+									: formatTimeI18n(event?.start_time || start)}
 						</p>
-						{isClanEvent && <p className="bg-blue-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.clanEvent')}</p>}
-						{isChannelEvent && <p className="bg-orange-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.channelEvent')}</p>}
-						{isPrivateEvent && <p className="bg-red-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.privateEvent')}</p>}
+						{isClanEvent && (
+							<p className="bg-blue-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.clanEvent')}</p>
+						)}
+						{isChannelEvent && (
+							<p className="bg-orange-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.channelEvent')}</p>
+						)}
+						{isPrivateEvent && (
+							<p className="bg-red-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.privateEvent')}</p>
+						)}
 					</div>
 					{event?.creator_id && (
 						<Tooltip overlay={<p style={{ width: 'max-content' }}>{`Created by ${userCreate?.user?.username}`}</p>}>
@@ -391,7 +400,8 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				) : isChannelEvent ? (
 					<span className="flex flex-row">
 						<p className="">
-							{t('eventCreator:eventDetail.audienceConsists')} {isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
+							{t('eventCreator:eventDetail.audienceConsists')}{' '}
+							{isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
 							<strong className="">{textChannel.channel_label}</strong>
 						</p>
 					</span>

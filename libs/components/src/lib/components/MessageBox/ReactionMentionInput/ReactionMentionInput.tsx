@@ -1,66 +1,69 @@
 import { useEmojiSuggestionContext, useGifsStickersEmoji, useReference } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
-  ChannelsEntity,
-  channelMembersActions,
-  emojiSuggestionActions,
-  getStore,
-  quickMenuActions,
-  referencesActions,
-  selectAddEmojiState,
-  selectAllAccount,
-  selectAllChannels,
-  selectAllHashtagDm,
-  selectAllRolesClan,
-  selectAnonymousMode,
-  selectAttachmentByChannelId,
-  selectCloseMenu,
-  selectCurrentTopicId,
-  selectDataReferences,
-  selectEmojiObjSuggestion,
-  selectIdMessageRefEdit,
-  selectOpenEditMessageState,
-  selectOpenThreadMessageState,
-  selectQuickMenuByChannelId,
-  selectReactionRightState,
-  selectStatusMenu,
-  threadsActions,
-  useAppDispatch,
-  useAppSelector
+	channelMembersActions,
+	emojiSuggestionActions,
+	getStore,
+	quickMenuActions,
+	referencesActions,
+	selectAddEmojiState,
+	selectAllAccount,
+	selectAllChannels,
+	selectAllHashtagDm,
+	selectAllRolesClan,
+	selectAnonymousMode,
+	selectAttachmentByChannelId,
+	selectCloseMenu,
+	selectCurrentTopicId,
+	selectDataReferences,
+	selectEmojiObjSuggestion,
+	selectIdMessageRefEdit,
+	selectOpenEditMessageState,
+	selectOpenThreadMessageState,
+	selectQuickMenuByChannelId,
+	selectReactionRightState,
+	selectStatusMenu,
+	threadsActions,
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
+import type {
+	ChannelMembersEntity,
+	IEmojiOnMessage,
+	IHashtagOnMessage,
+	ILongPressType,
+	IMarkdownOnMessage,
+	IMentionOnMessage,
+	IMessageWithUser,
+	MentionReactInputProps,
+	RequestInput
+} from '@mezon/utils';
 import {
-  CHANNEL_INPUT_ID,
-  CREATING_TOPIC,
-  ChannelMembersEntity,
-  ID_MENTION_HERE,
-  IEmojiOnMessage,
-  IHashtagOnMessage,
-  ILongPressType,
-  IMarkdownOnMessage,
-  IMentionOnMessage,
-  IMessageWithUser,
-  MIN_THRESHOLD_CHARS,
-  MentionReactInputProps,
-  QUICK_MENU_TYPE,
-  RECENT_EMOJI_CATEGORY,
-  RequestInput,
-  SubPanelName,
-  TITLE_MENTION_HERE,
-  ThreadStatus,
-  addMention,
-  adjustPos,
-  blankReferenceObj,
-  checkIsThread,
-  extractCanvasIdsFromText,
-  filterEmptyArrays,
-  processBoldEntities,
-  processEntitiesDirectly,
-  processMarkdownEntities,
-  searchMentionsHashtag,
-  threadError
+	CHANNEL_INPUT_ID,
+	CREATING_TOPIC,
+	ID_MENTION_HERE,
+	MIN_THRESHOLD_CHARS,
+	QUICK_MENU_TYPE,
+	RECENT_EMOJI_CATEGORY,
+	SubPanelName,
+	TITLE_MENTION_HERE,
+	ThreadStatus,
+	addMention,
+	adjustPos,
+	blankReferenceObj,
+	checkIsThread,
+	extractCanvasIdsFromText,
+	filterEmptyArrays,
+	processBoldEntities,
+	processEntitiesDirectly,
+	processMarkdownEntities,
+	searchMentionsHashtag,
+	threadError
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { ReactElement, RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ReactElement, RefObject } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Mention, { type MentionData } from './Mention';
@@ -85,7 +88,6 @@ const createSlashCommands = (t: (key: string) => string): SlashCommand[] => [
 		description: t('slashCommands.ephemeral.description')
 	}
 ];
-
 
 /**
  * Custom hook to search and filter emojis based on user input
@@ -135,7 +137,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		nameValueThread,
 		valueThread,
 		draftRequest,
-		updateDraft,
+		updateDraft
 	} = props;
 
 	const dispatch = useAppDispatch();
@@ -689,7 +691,11 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 
 	const { onKeyDown } = useKeyboardHandler({
 		editorRef: editorElementRef as RefObject<HTMLDivElement>,
-		updateDraft: updateDraft || (() => { /* no-op */ }),
+		updateDraft:
+			updateDraft ||
+			(() => {
+				/* no-op */
+			}),
 		anonymousMode,
 		isEphemeralMode,
 		setIsEphemeralMode,
@@ -785,36 +791,17 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		if (typeof props.onTyping === 'function') {
 			props.onTyping();
 		}
-		// const onlyMention = filterMentionsWithAtSign(newMentions);
-		// const convertToMarkUpString = formatMentionsToString(onlyMention);
-		// const convertToPlainTextString = getDisplayMention(onlyMention);
-		// const rolesClan = selectAllRolesClan(store.getState());
-
-		// const mentionUpdated = convertMentionOnfile(rolesClan, convertToPlainTextString, onlyMention as MentionItem[]);
-		// setDisplayPlaintext(convertToPlainTextString);
-		// setDisplayMarkup(convertToMarkUpString);
 		setMentionUpdated(mentionUpdated);
 
 		if (!isPasteMulti) {
-			// setDisplayPlaintext(convertToPlainTextString);
-			// setDisplayMarkup(convertToMarkUpString);
 			setMentionUpdated(mentionUpdated);
 		} else {
 			setDisplayPlaintext(newPlainTextValue);
 			setDisplayMarkup(newValue);
-			// const { mentionList } = processMention(
-			// 	[...(draftRequest?.mentionRaw || [])],
-			// 	rolesClan,
-			// 	props.membersOfChild as ChannelMembersEntity[],
-			// 	props.membersOfParent as ChannelMembersEntity[],
-			// 	''
-			// );
-
-			// setMentionUpdated(mentionList);
 			updateDraft?.({
 				valueTextInput: newValue,
 				content: newPlainTextValue,
-				mentionRaw: newMentions as any[] || [],
+				mentionRaw: (newMentions as any[]) || [],
 				entities: entities || []
 			});
 			setIsPasteMulti(false);
@@ -946,6 +933,63 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		[props.currentChannelId]
 	);
 
+	const { handlePaste: originalHandlePaste, handleConvertToFile } = props;
+
+	const handlePasteWithCharacterLimit = useCallback(
+		(event: React.ClipboardEvent<HTMLDivElement>) => {
+			if (!event.clipboardData) {
+				return;
+			}
+
+			const plainText = event.clipboardData.getData('text/plain');
+			const htmlContent = event.clipboardData.getData('text/html');
+
+			const items = event.clipboardData.items;
+			let hasImageFiles = false;
+
+			if (items) {
+				for (let i = 0; i < items.length; i++) {
+					if (items[i].type.indexOf('image') !== -1) {
+						hasImageFiles = true;
+						break;
+					}
+				}
+			}
+
+			if (hasImageFiles) {
+				if (originalHandlePaste) {
+					originalHandlePaste(event);
+				}
+				return;
+			}
+
+			const contentToCheck = plainText || htmlContent;
+			const currentValue = draftRequest?.content || '';
+			const newTotalLength = currentValue.length + contentToCheck.length;
+
+			if (handleConvertToFile && contentToCheck.length > MIN_THRESHOLD_CHARS) {
+				event.preventDefault();
+				handleConvertToFile(contentToCheck);
+				return;
+			}
+
+			if (handleConvertToFile && newTotalLength > MIN_THRESHOLD_CHARS) {
+				event.preventDefault();
+				const combinedContent = currentValue + contentToCheck;
+				handleConvertToFile(combinedContent);
+
+				updateDraft?.({
+					valueTextInput: '',
+					content: '',
+					mentionRaw: [],
+					entities: []
+				});
+				return;
+			}
+		},
+		[originalHandlePaste, handleConvertToFile, draftRequest?.content, updateDraft]
+	);
+
 	useClickUpToEditMessage({
 		editorRef: editorElementRef as RefObject<HTMLDivElement>,
 		currentChannelId: props.currentChannelId,
@@ -989,7 +1033,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					onSend={(formattedText: FormattedText) => {
 						handleSendWithFormattedText(formattedText, anonymousMode);
 					}}
-					onHandlePaste={props.handlePaste}
+					onHandlePaste={handlePasteWithCharacterLimit}
 					enableUndoRedo={true}
 					maxHistorySize={50}
 					hasFilesToSend={attachmentData.length > 0}
@@ -999,7 +1043,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						trigger="@"
 						title={t('mentionCategories.members')}
 						data={handleSearchUserMention}
-            allowSpaceInQuery={true}
+						allowSpaceInQuery={true}
 						allowedCharacters="._-"
 						renderSuggestion={(
 							suggestion: any,

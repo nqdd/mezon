@@ -1,6 +1,6 @@
 import { usePermissionChecker } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectCurrentUserId, selectMemberClanByUserId2, soundEffectActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { selectCurrentUserId, selectMemberClanByUserId, soundEffectActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission, createImgproxyUrl } from '@mezon/utils';
 import { ClanSticker } from 'mezon-js';
 import { Ref, forwardRef, memo, useMemo } from 'react';
@@ -31,7 +31,7 @@ const SoundItemComponent = forwardRef(({ item, onSwipeOpen, isPlaying = false, o
 	const styles = style(themeValue);
 	const { t } = useTranslation(['clanEmojiSetting']);
 	const dispatch = useAppDispatch();
-	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId2(state, item.creator_id ?? ''));
+	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId(state, item.creator_id ?? ''));
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const [hasAdminPermission, hasManageClanPermission, isClanOwner] = usePermissionChecker([
 		EPermission.administrator,

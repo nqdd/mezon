@@ -10,7 +10,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { EUserStatus, generateE2eId } from '@mezon/utils';
+import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -160,7 +160,7 @@ const DmItemProfile = ({
 				username={name}
 				className="min-w-8 min-h-8 max-w-8 max-h-8"
 				classNameText="font-semibold"
-				srcImgProxy={avatar || ''}
+				srcImgProxy={createImgproxyUrl(avatar ?? '')}
 				src={avatar}
 			/>
 			{!isTypeDMGroup && (

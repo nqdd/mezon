@@ -23,6 +23,7 @@ interface IMezonModalProps extends Pick<ModalBaseProps, 'animationType'> {
 	rightBtnText?: string;
 	onClickRightBtn?: () => void | undefined;
 	containerStyle?: ViewStyle;
+	onRequestClose?: () => void;
 }
 
 export const MezonModal = (props: IMezonModalProps) => {
@@ -44,7 +45,8 @@ export const MezonModal = (props: IMezonModalProps) => {
 		visibleBackButton = false,
 		rightBtnText,
 		onClickRightBtn,
-		containerStyle
+		containerStyle,
+		onRequestClose
 	} = props;
 
 	const setVisible = (value: boolean) => {
@@ -59,11 +61,21 @@ export const MezonModal = (props: IMezonModalProps) => {
 		}
 	};
 
+	const handleRequestClose = () => {
+		onRequestClose && onRequestClose();
+	};
+
 	const isTitleString = typeof title === 'string';
 	const isEmptyHeader = !title || !confirmText;
 
 	return (
-		<Modal visible={visible} animationType={animationType} transparent={true} supportedOrientations={['portrait', 'landscape']}>
+		<Modal
+			onRequestClose={handleRequestClose}
+			visible={visible}
+			animationType={animationType}
+			transparent={true}
+			supportedOrientations={['portrait', 'landscape']}
+		>
 			<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
 				<View style={[styles.container, containerStyle]}>
 					{rightClose ? (

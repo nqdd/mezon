@@ -1,5 +1,6 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { RefObject, useCallback, useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import ModalUserProfile from '../ModalUserProfile';
 
 type ModalFooterProfileProps = {
@@ -10,9 +11,10 @@ type ModalFooterProfileProps = {
 	userStatusProfile: string;
 	rootRef?: RefObject<HTMLElement>;
 	onCloseModal?: () => void;
+	modalControlRef?: RefObject<HTMLDivElement>;
 };
 
-const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, rootRef, onCloseModal }: ModalFooterProfileProps) => {
+const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, rootRef, onCloseModal, modalControlRef }: ModalFooterProfileProps) => {
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const handleCloseModalFooterProfile = useCallback(() => {
@@ -31,7 +33,7 @@ const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, roo
 		focusModal();
 
 		const handleWindowFocus = () => {
-			setTimeout(focusModal, 0); 
+			setTimeout(focusModal, 0);
 		};
 
 		const handleDocumentClick = (event: MouseEvent) => {
@@ -45,7 +47,7 @@ const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, roo
 				const modalElement = modalRef.current;
 				const modalRect = modalElement.getBoundingClientRect();
 				const isVisible = modalRect.width > 0 && modalRect.height > 0;
-				
+
 				if (isVisible) {
 					handleCloseModalFooterProfile();
 				}
@@ -79,6 +81,7 @@ const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, roo
 				name={name}
 				isDM={isDM}
 				userStatusProfile={userStatusProfile}
+				modalControlRef={modalControlRef}
 			/>
 		</div>
 	);
