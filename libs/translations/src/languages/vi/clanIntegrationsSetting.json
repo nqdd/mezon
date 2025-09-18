@@ -39,5 +39,15 @@
     "selectChannel": "Kênh",
     "placeholder": "Chọn một kênh",
     "create": "Tạo"
+  },
+  "toast": {
+    "addSuccess": "Tạo webhook thành công",
+    "addError": "Có lỗi khi tạo webhook",
+    "saveSuccess": "Lưu thành công",
+    "saveError": "Có lỗi khi lưu",
+    "deleteSuccess": "Xóa webhook thành công",
+    "deleteError": "Có lỗi khi xóa webhook",
+    "resetTokenSuccess": "Đặt lại token thành công",
+    "resetTokenError": "Có lỗi khi đặt lại token"
   }
 }

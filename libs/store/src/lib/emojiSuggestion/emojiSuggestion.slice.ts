@@ -49,10 +49,10 @@ const selectCachedEmoji = createSelector([(state: RootState) => state[EMOJI_SUGG
 	return entitiesState ? selectAll(entitiesState) : [];
 });
 
-export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false) => {
+export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false, clanId: string) => {
 	const state = getState();
 	const emojiData = state[EMOJI_SUGGESTION_FEATURE_KEY];
-	const apiKey = createApiKey('fetchEmoji');
+	const apiKey = createApiKey(`fetchEmoji${clanId}`);
 	const shouldForceCall = shouldForceApiCall(apiKey, emojiData?.cache, noCache);
 
 	if (!shouldForceCall) {
@@ -82,10 +82,10 @@ export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: 
 	};
 };
 
-export const fetchEmoji = createAsyncThunk('emoji/fetchEmoji', async ({ noCache = false }: { noCache?: boolean }, thunkAPI) => {
+export const fetchEmoji = createAsyncThunk('emoji/fetchEmoji', async ({ noCache = false, clanId }: { noCache?: boolean; clanId: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await fetchEmojiCached(thunkAPI.getState as () => RootState, mezon, noCache);
+		const response = await fetchEmojiCached(thunkAPI.getState as () => RootState, mezon, noCache, clanId);
 
 		if (!response?.emoji_list) {
 			throw new Error('Emoji list is undefined or null');

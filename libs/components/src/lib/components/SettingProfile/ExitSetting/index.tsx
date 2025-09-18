@@ -20,8 +20,8 @@ const ExitSetting = (props: ModalExitProps) => {
 	};
 
 	return (
-		<div className="relative w-1/12 xl:w-1/5 flex-grow hidden sbm:block">
-			<div className="fixed w-1/4 ml-5 pt-[94px]">
+		<div className="relative w-1/6 xl:w-1/4 min-w-56 flex-grow hidden sbm:block">
+			<div className="ml-[60px] pt-[94px]">
 				<div className="w-fit flex flex-col items-center gap-2 text-theme-primary text-theme-primary-hover">
 					<div
 						onClick={handleClose}
