@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // Configure audio session with proper error handling
       DispatchQueue.global(qos: .background).async {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback)
+			try AVAudioSession.sharedInstance().setCategory(.playback, options: [.mixWithOthers])
         } catch {
             print("Failed to set audio session category: \(error)")
         }

@@ -42,6 +42,7 @@
 		"onlyVisibleToRecipient": "Chỉ người nhận mới thấy được"
 	},
 	"pasteImage": "Dán Ảnh",
+	"pasteOption": "Dán",
 	"toast": {
 		"copyText": "Đã sao chép văn bản tin nhắn",
 		"attachmentIsLoading": "Tệp đính kèm đang tải, vui lòng đợi một chút",

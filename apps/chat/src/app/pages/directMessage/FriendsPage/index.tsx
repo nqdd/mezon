@@ -200,6 +200,7 @@ const FriendsPage = () => {
 										value={textSearch}
 										onChange={(e) => setTextSearch(e.target.value)}
 										placeholder={t('search')}
+										needOutline={true}
 										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] focus:outline focus:outline-1  outline-[#006ce7] "
 									/>
 									{Boolean(textSearch) && (

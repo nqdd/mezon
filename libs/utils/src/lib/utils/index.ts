@@ -1320,9 +1320,9 @@ export const getParentChannelIdIfHas = (channel: IChannel) => {
 	return channelId;
 };
 
-export const nomalizeTextToLowerCase = (string?: string) => {
-	if (!string) {
+export const searchNormalizeText = (string?: string, search?: string) => {
+	if (!string || !search) {
 		return '';
 	}
-	return string.toLocaleLowerCase();
+	return string.toLocaleLowerCase()?.includes(search?.toLocaleLowerCase());
 };

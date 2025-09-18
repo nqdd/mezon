@@ -67,10 +67,10 @@ const selectCachedSticker = createSelector([(state: RootState) => state[SETTING_
 	return entitiesState ? selectAll(entitiesState) : [];
 });
 
-export const fetchStickerByUserIdCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false) => {
+export const fetchStickerByUserIdCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false, clanId: string) => {
 	const state = getState();
 	const stickerData = state[SETTING_CLAN_STICKER];
-	const apiKey = createApiKey('fetchStickerByUserId');
+	const apiKey = createApiKey(`fetchStickerByUserId_${clanId}`);
 	const shouldForceCall = shouldForceApiCall(apiKey, stickerData?.cache, noCache);
 
 	if (!shouldForceCall) {
@@ -102,11 +102,11 @@ export const fetchStickerByUserIdCached = async (getState: () => RootState, ensu
 
 export const fetchStickerByUserId = createAsyncThunk(
 	'settingClanSticker/fetchClanSticker',
-	async ({ noCache = false }: { noCache?: boolean }, thunkAPI) => {
+	async ({ noCache = false, clanId }: { noCache?: boolean; clanId: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-			const response = await fetchStickerByUserIdCached(thunkAPI.getState as () => RootState, mezon, noCache);
+			const response = await fetchStickerByUserIdCached(thunkAPI.getState as () => RootState, mezon, noCache, clanId);
 
 			if (response) {
 				const stickersWithMediaType = response.stickers || [];
@@ -150,7 +150,7 @@ export const createSticker = createAsyncThunk(
 			const res = await mezon.client.addClanSticker(mezon.session, requestWithMediaType);
 
 			if (res) {
-				thunkAPI.dispatch(fetchStickerByUserId({ noCache: true }));
+				thunkAPI.dispatch(fetchStickerByUserId({ noCache: true, clanId: form.clanId }));
 			} else {
 				return thunkAPI.rejectWithValue({});
 			}
@@ -214,7 +214,7 @@ export const createSound = createAsyncThunk('settingClanSticker/createSound', as
 		const res = await mezon.client.addClanSticker(mezon.session, soundRequest);
 
 		if (res) {
-			thunkAPI.dispatch(fetchStickerByUserId({ noCache: true }));
+			thunkAPI.dispatch(fetchStickerByUserId({ noCache: true, clanId: form.clanId }));
 		} else {
 			return thunkAPI.rejectWithValue({});
 		}
@@ -261,22 +261,24 @@ export const deleteSound = createAsyncThunk(
 		}
 	}
 );
+export const fetchSoundByUserId = createAsyncThunk(
+	'settingClanSticker/fetchSound',
+	async ({ noCache = false, clanId }: { noCache?: boolean; clanId: string }, thunkAPI) => {
+		try {
+			await thunkAPI.dispatch(fetchStickerByUserId({ noCache, clanId }));
 
-export const fetchSoundByUserId = createAsyncThunk('settingClanSticker/fetchSound', async ({ noCache = false }: { noCache?: boolean }, thunkAPI) => {
-	try {
-		await thunkAPI.dispatch(fetchStickerByUserId({ noCache }));
+			const state = thunkAPI.getState() as { settingSticker: SettingClanStickerState };
 
-		const state = thunkAPI.getState() as { settingSticker: SettingClanStickerState };
+			const allStickers = selectAllStickerSuggestion(state);
+			const sounds = allStickers.filter((sticker) => (sticker as any).media_type === MediaType.AUDIO);
 
-		const allStickers = selectAllStickerSuggestion(state);
-		const sounds = allStickers.filter((sticker) => (sticker as any).media_type === MediaType.AUDIO);
-
-		return sounds;
-	} catch (error) {
-		captureSentryError(error, 'settingClanSticker/fetchSound');
-		return thunkAPI.rejectWithValue(error);
+			return sounds;
+		} catch (error) {
+			captureSentryError(error, 'settingClanSticker/fetchSound');
+			return thunkAPI.rejectWithValue(error);
+		}
 	}
-});
+);
 
 export const settingClanStickerSlice = createSlice({
 	name: SETTING_CLAN_STICKER,

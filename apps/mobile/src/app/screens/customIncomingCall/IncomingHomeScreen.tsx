@@ -110,7 +110,7 @@ const IncomingHomeScreen = memo((props: any) => {
 						callerId: data?.callerId
 					})
 				);
-				Sound.setCategory('Playback');
+				Sound.setCategory('Ambient', false);
 				// Initialize ringtone
 				const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {
 					if (error) {

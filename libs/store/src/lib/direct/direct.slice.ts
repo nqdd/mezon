@@ -544,7 +544,7 @@ export const directSlice = createSlice({
 					showPinBadge: existingEntity?.showPinBadge || newEntity.showPinBadge
 				};
 			});
-			
+
 			directAdapter.setAll(state, entitiesWithPreservedBadges);
 		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
@@ -928,10 +928,7 @@ export const selectBuzzStateByDirectId = createSelector(
 	(state, channelId) => state.buzzStateDirect?.[channelId]
 );
 
-export const selectIsShowPinBadgeByDmId = createSelector(
-	[getDirectState, (state, dmId: string) => dmId],
-	(state, dmId) => {
-		const result = state?.entities[dmId]?.showPinBadge;
-		return result;
-	}
-);
+export const selectIsShowPinBadgeByDmId = createSelector([getDirectState, (state, dmId: string) => dmId], (state, dmId) => {
+	const result = state?.entities[dmId]?.showPinBadge;
+	return result;
+});

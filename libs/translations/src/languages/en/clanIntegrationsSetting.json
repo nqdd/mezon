@@ -44,5 +44,15 @@
     "selectChannel": "Channel",
     "placeholder": "Select a channel",
     "create": "Create"
+  },
+  "toast": {
+    "addSuccess": "Generated webhook successfully",
+    "addError": "Error when generating webhook",
+    "saveSuccess": "Save successfully",
+    "saveError": "Error when saving",
+    "deleteSuccess": "Deleted webhook successfully",
+    "deleteError": "Error when deleting webhook",
+    "resetTokenSuccess": "Reset token successfully",
+    "resetTokenError": "Error when resetting token"
   }
 }

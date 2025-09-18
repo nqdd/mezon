@@ -1,11 +1,15 @@
 import { captureSentryError } from '@mezon/logger';
-import { AnswerByClanArgs, DONE_ONBOARDING_STATUS } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiOnboardingContent, ApiOnboardingItem, ApiOnboardingSteps } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { AnswerByClanArgs } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiOnboardingContent, ApiOnboardingItem, ApiOnboardingSteps } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { clansActions } from '../clans/clans.slice';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const ONBOARDING_FEATURE_KEY = 'ONBOARDING_FEATURE_KEY';
 
@@ -25,7 +29,11 @@ export interface RuleType extends ApiOnboardingContent {
 }
 
 export interface OnboardingState extends EntityState<ApiOnboardingSteps, string> {
-	onboardingPreviewMode: boolean;
+	onboardingPreviewMode: {
+		open: boolean;
+		clanId: string | null;
+	};
+	toOnboard: boolean | null;
 	listOnboarding: Record<
 		string,
 		OnboardingClanType & {
@@ -190,7 +198,7 @@ export const enableOnboarding = createAsyncThunk(
 
 			const response = await mezon.client.updateClanDesc(mezon.session, clan_id, {
 				is_onboarding: onboarding,
-				banner: banner
+				banner
 			});
 
 			if (!response) {
@@ -279,7 +287,11 @@ export const doneOnboarding = createAsyncThunk('onboarding/doneOnboarding', asyn
 });
 
 export const initialOnboardingState: OnboardingState = onboardingUserAdapter.getInitialState({
-	onboardingPreviewMode: false,
+	onboardingPreviewMode: {
+		open: false,
+		clanId: null
+	},
+	toOnboard: null,
 	missionDone: 0,
 	missionSum: 0,
 	guideFinished: false,
@@ -312,11 +324,21 @@ export const onboardingSlice = createSlice({
 	name: ONBOARDING_FEATURE_KEY,
 	initialState: initialOnboardingState,
 	reducers: {
-		openOnboardingPreviewMode: (state) => {
-			state.onboardingPreviewMode = true;
+		openOnboardingPreviewMode: (state, action: PayloadAction<{ clan_id: string }>) => {
+			state.onboardingPreviewMode = {
+				open: true,
+				clanId: action.payload.clan_id
+			};
 		},
 		closeOnboardingPreviewMode: (state) => {
-			state.onboardingPreviewMode = false;
+			state.onboardingPreviewMode = {
+				open: false,
+				clanId: null
+			};
+			state.toOnboard = true;
+		},
+		closeToOnboard: (state) => {
+			state.toOnboard = false;
 		},
 		doneMission: (state, action: PayloadAction<{ clan_id: string }>) => {
 			const missionDone = state.listOnboarding[action.payload.clan_id].doneMission || 0;
@@ -606,6 +628,7 @@ const { selectAll, selectEntities, selectById } = onboardingUserAdapter.getSelec
 export const getOnboardingState = (rootState: { [ONBOARDING_FEATURE_KEY]: OnboardingState }): OnboardingState => rootState[ONBOARDING_FEATURE_KEY];
 
 export const selectOnboardingMode = createSelector(getOnboardingState, (state) => state.onboardingPreviewMode);
+export const selectToOnboard = createSelector(getOnboardingState, (state) => state.toOnboard);
 
 export const selectMissionDone = createSelector([getOnboardingState, (state, clan_id: string) => clan_id], (state, clan_id) => {
 	return state.listOnboarding[clan_id]?.doneMission || 0;

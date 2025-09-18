@@ -2,8 +2,9 @@ import { selectAllChannels, selectCurrentClanId, useAppSelector } from '@mezon/s
 import { Icons, Menu } from '@mezon/ui';
 import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
-import React, { ReactElement, useMemo } from 'react';
+import type { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type SystemMessagesManagementProps = {
@@ -32,14 +33,8 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 			case ETypeUpdateSystemMessage.SETUP_TIPS:
 				setUpdateSystemMessageRequest({ ...updateSystem, setup_tips: checked ? '1' : '0' });
 				break;
-			case ETypeUpdateSystemMessage.WELCOME_STICKER:
-				setUpdateSystemMessageRequest({ ...updateSystem, welcome_sticker: checked ? '1' : '0' });
-				break;
 			case ETypeUpdateSystemMessage.WELCOME_RANDOM:
 				setUpdateSystemMessageRequest({ ...updateSystem, welcome_random: checked ? '1' : '0' });
-				break;
-			case ETypeUpdateSystemMessage.BOOTS_MESSAGE:
-				setUpdateSystemMessageRequest({ ...updateSystem, boost_message: checked ? '1' : '0' });
 				break;
 			default:
 				break;
@@ -95,16 +90,6 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 				label={t('systemMessages.welcomeRandom')}
 				value={updateSystem?.welcome_random === '1'}
 				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.WELCOME_RANDOM)}
-			/>
-			<ToggleItem
-				label={t('systemMessages.welcomeSticker')}
-				value={updateSystem?.welcome_sticker === '1'}
-				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.WELCOME_STICKER)}
-			/>
-			<ToggleItem
-				label={t('systemMessages.boostMessage')}
-				value={updateSystem?.boost_message === '1'}
-				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.BOOTS_MESSAGE)}
 			/>
 			<ToggleItem
 				label={t('systemMessages.setupTips')}
