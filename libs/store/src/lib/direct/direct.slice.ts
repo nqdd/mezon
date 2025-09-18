@@ -856,18 +856,14 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, sel
 			const found = directMetaEntities?.[dm.channel_id];
 			if (!found) return dm;
 			const updatedMetadata = {
-				...found,
+				...(found ?? {}),
 				last_sent_message: {
-					...found?.last_sent_message,
-					...(!found?.lastSentTimestamp && {
-						timestamp_seconds: found.lastSentTimestamp
-					})
+					...(found?.last_sent_message ?? {}),
+					...(found?.lastSentTimestamp ? { timestamp_seconds: found.lastSentTimestamp } : {})
 				},
 				last_seen_message: {
-					...found?.last_seen_message,
-					...(!found?.lastSeenTimestamp !== null && {
-						timestamp_seconds: found.lastSeenTimestamp
-					})
+					...(found?.last_seen_message ?? {}),
+					...(found?.lastSeenTimestamp ? { timestamp_seconds: found.lastSeenTimestamp } : {})
 				}
 			};
 			return {
