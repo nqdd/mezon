@@ -229,7 +229,7 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 								marginLeft: 0,
 								marginRight: 0,
 								fontWeight: 'bold',
-								color: disableAddButton ? '#676b73' : themeValue.textViolet
+								color: disableAddButton ? '#676b73' : baseColor.blurple
 							}}
 						>
 							{t('channelPermission.bottomSheet.add')}

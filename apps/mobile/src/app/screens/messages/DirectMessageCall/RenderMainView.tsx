@@ -51,18 +51,16 @@ export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnecte
 			) : (
 				<View>
 					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
-					{!isRemoteAudio && (
-						<View style={styles.mutedAudioAvatarContainer}>
-							<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
-							<Text style={styles.mutedAudioText}>
-								{receiverName || ''} {t('turnedMicOff')}
-							</Text>
-						</View>
-					)}
+					<View style={[styles.mutedAudioAvatarContainer, { top: size.s_150, opacity: isRemoteAudio ? 0 : 1 }]}>
+						<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+						<Text style={styles.mutedAudioText}>
+							{receiverName || ''} {t('turnedMicOff')}
+						</Text>
+					</View>
 				</View>
 			)}
 			{isConnected && (
-				<View style={{ top: callState.remoteStream && isRemoteVideo && isConnected ? 0 : size.s_100 + size.s_10 }}>
+				<View style={{ top: callState.remoteStream && isRemoteVideo ? 0 : size.s_70 }}>
 					<CallDuration isConnected={isConnected} />
 				</View>
 			)}

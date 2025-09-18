@@ -79,17 +79,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		save(IS_ANSWER_CALL_FROM_NATIVE, false);
 	}, [isAnswerCall]);
 
-	const initSpeakerConfig = async () => {
-		if (Platform.OS === 'android') {
-			const { CustomAudioModule } = NativeModules;
-			await CustomAudioModule.setSpeaker(false, null);
-			InCallManager.setSpeakerphoneOn(false);
-		} else {
-			InCallManager.setSpeakerphoneOn(false);
-			InCallManager.setForceSpeakerphoneOn(false);
-		}
-	};
-
 	const onCancelCall = async () => {
 		try {
 			if (Platform.OS === 'ios') {
@@ -184,10 +173,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 			InCallManager.stop();
 		};
 	}, [isAnswerCall, isVideoCall]);
-
-	useEffect(() => {
-		initSpeakerConfig();
-	}, []);
 
 	return (
 		<View style={styles.container}>
