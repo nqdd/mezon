@@ -237,7 +237,7 @@ export const updateDmGroup = createAsyncThunk(
 				updatePayload.topic = current.topic;
 			}
 
-			const response = await mezon.client.updateChannelDesc(mezon.session, body.channel_id, updatePayload);
+			const response = await mezon.client.updateChannelDesc(mezon.session, '0', body.channel_id, updatePayload);
 
 			if (response) {
 				thunkAPI.dispatch(
