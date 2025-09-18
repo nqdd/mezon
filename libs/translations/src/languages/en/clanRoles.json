@@ -96,6 +96,7 @@
 		"removeIcon": "Remove Icon",
 		"edit": "Edit",
 		"view": "View",
-		"delete": "Delete"
+		"delete": "Delete",
+		"roleNameIsRequired": "Role name is required"
 	}
 }

@@ -11,6 +11,7 @@ import {
 	getSelectedRoleId,
 	roleSlice,
 	selectCurrentClan,
+	selectCurrentRoleIcon,
 	setColorRoleNew,
 	setCurrentRoleIcon,
 	setNameRoleNew,
@@ -19,6 +20,7 @@ import {
 } from '@mezon/store';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { SettingUserClanProfileSave } from '../../SettingProfile/SettingRightClanProfile/SettingUserClanProfileSave';
 import SettingListRole from './SettingListRole';
 import SettingValueDisplayRole from './SettingOptionRole';
@@ -48,6 +50,7 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	const isCreateNewRole = clickRole === t('roleManagement.newRoleDefault');
 
 	const newRoleIcon = useSelector(getNewRoleIcon);
+	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 
 	const handleClose = () => {
 		if (isCreateNewRole) {
@@ -66,12 +69,17 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	};
 
 	const handleUpdateUser = async (hasChangeRole?: boolean) => {
+		if (!nameRole || nameRole.trim() === '') {
+			toast.error(t('roleManagement.roleNameIsRequired'));
+			return;
+		}
 		if (isCreateNewRole) {
 			const respond = await createRole(currentClan?.id || '', nameRole, colorRole, addUsers, addPermissions);
 			if (!hasChangeRole) dispatch(setSelectedRoleId(respond?.id || ''));
 		} else {
-			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, newRoleIcon || '');
-			dispatch(roleSlice.actions.setCurrentRoleIcon(newRoleIcon || ''));
+			const roleIcon = newRoleIcon || currentRoleIcon || '';
+			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
+			dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon));
 			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}
 	};

@@ -67,7 +67,7 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 		const isSamePermissions =
 			selectedPermissions.length === permissionIds.length && selectedPermissions.every((id) => permissionIds.includes(id));
 
-		if (nameRole !== activeRole?.title || colorRole !== activeRole?.color || !isSamePermissions || newRoleIcon) {
+		if ((nameRole !== activeRole?.title && nameRole && nameRole.trim()) || colorRole !== activeRole?.color || !isSamePermissions || newRoleIcon) {
 			dispatch(toggleIsShowTrue());
 		} else {
 			dispatch(toggleIsShowFalse());
@@ -80,6 +80,7 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 				<div className="text-xs font-bold uppercase text-theme-primary-active mb-2">
 					{t('roleManagement.roleName')}
 					<b className="text-red-600">*</b>
+					{!nameRole && <b className="text-red-600 pl-2 font-normal capitalize">{t('roleManagement.roleNameIsRequired')}</b>}
 				</div>
 
 				<InputField
