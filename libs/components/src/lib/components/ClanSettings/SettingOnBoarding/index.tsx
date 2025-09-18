@@ -13,6 +13,7 @@ import ModalSaveChanges from '../ClanSettingOverview/ModalSaveChanges';
 import GuideItemLayout from './GuideItemLayout';
 import ClanGuideSetting from './Mission/ClanGuideSetting';
 import Questions from './Questions/Questions';
+import { generateE2eId } from '@mezon/utils';
 
 export enum EOnboardingStep {
 	QUESTION,
@@ -350,6 +351,7 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 							<div
 								className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover  cursor-pointer"
 								onClick={() => handleGoToPage(EOnboardingStep.MISSION)}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.clan_guide')}
 							>
 								{t('buttons.edit')}
 							</div>

@@ -13,7 +13,7 @@ import {
 } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -395,7 +395,7 @@ const SettingComunity = ({
 								)}
 							</div>
 
-							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} data-e2e={generateE2eId('clan_page.settings.upload.community_banner_input')} />
 						</div>
 
 						<div className="space-y-4">

@@ -1,7 +1,7 @@
 import { selectCurrentClanId, selectMemberClanByUserId, settingClanStickerActions, updateClanWebhookById, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_8MB, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import type { ApiClanWebhook, ApiMessageAttachment, MezonUpdateClanWebhookByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -46,6 +46,7 @@ const ClanWebhookItemModal = ({ webhookItem }: IClanWebhookItemModalProps) => {
 					<div
 						onClick={() => setIsExpand(!isExpand)}
 						className={`cursor-pointer transition duration-100 ease-in-out ${isExpand ? '' : '-rotate-90'}`}
+						data-e2e={generateE2eId('clan_page.settings.integrations.navigate_webhook_button')}
 					>
 						<Icons.ArrowDown defaultSize="h-[30px] w-[30px] dark:text-[#b5bac1] text-black" />
 					</div>
@@ -200,7 +201,7 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 			<div ref={modalRef} tabIndex={-1} className="pt-[20px] mt-[12px] border-t dark:border-[#3b3d44]">
 				<div className="flex gap-2">
 					<div className="w-3/12 dark:text-[#b5bac1] text-textLightTheme">
-						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden />
+						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden data-e2e={generateE2eId('clan_page.settings.upload.clan_webhook_avatar_input')}  />
 						<div className="relative w-fit">
 							<div
 								onClick={() => avatarRef.current?.click()}
