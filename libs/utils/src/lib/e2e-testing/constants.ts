@@ -126,7 +126,11 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		settings: {
 			sidebar: {
-				delete: ''
+				delete: '',
+				item: ''
+			},
+			emoji: {
+				upload: ''
 			},
 			modal: {
 				delete_clan: {
@@ -146,7 +150,8 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			upload: {
 				clan_logo_input: '',
-				clan_banner_input: ''
+				clan_banner_input: '',
+				emoji_input: ''
 			}
 		},
 		channel_list: {
@@ -327,7 +332,10 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	modal: {
 		too_many_upload: '',
-		validate_file: ''
+		validate_file: {
+			title: '',
+			content: ''
+		}
 	}
 };
 type DotNestedKeys<T> = T extends object
