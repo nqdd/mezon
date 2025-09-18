@@ -1,9 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-import { ApiWebhook, ApiWebhookCreateRequest, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
+import i18n from '@mezon/translations';
+import type { LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiWebhook, ApiWebhookCreateRequest, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
-import { ensureSession, getMezonCtx, MezonValueContext } from '../helpers';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
 
 export const INTEGRATION_WEBHOOK = 'integrationWebhook';
 
@@ -52,7 +55,7 @@ export const fetchWebhooks = createAsyncThunk(
 					fromCache: true
 				};
 			}
-			return { webhooks: response.webhooks, clanId: clanId };
+			return { webhooks: response.webhooks, clanId };
 		} catch (error) {
 			captureSentryError(error, 'integration/fetchWebhooks');
 			return thunkAPI.rejectWithValue(error);
@@ -68,7 +71,7 @@ export const generateWebhook = createAsyncThunk(
 			const response = await mezon.client.generateWebhookLink(mezon.session, data.request);
 			if (response) {
 				thunkAPI.dispatch(fetchWebhooks({ channelId: data?.isClanSetting ? '0' : data?.channelId, clanId: data.clanId, noCache: true }));
-				toast.success(`Generated ${response.hook_name} successfully !`);
+				toast.success(i18n.t('integrations:toast.generateSuccess', { name: response.hook_name }));
 			} else {
 				thunkAPI.rejectWithValue({});
 			}
@@ -93,7 +96,7 @@ export const deleteWebhookById = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue({});
 			}
-			toast.success(`Deleted ${data.webhook.webhook_name} successfully !`);
+			toast.success(i18n.t('integrations:toast.deleteSuccess', { name: data.webhook.webhook_name }));
 			thunkAPI.dispatch(webhookActions.removeOneWebhook({ clanId: data.clanId, webhookId: data.webhook.id || '' }));
 		} catch (error) {
 			captureSentryError(error, 'integration/deleteWebhook');

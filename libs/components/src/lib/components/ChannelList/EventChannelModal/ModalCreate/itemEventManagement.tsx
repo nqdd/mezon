@@ -26,7 +26,7 @@ import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 import { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
-import { timeFomat } from '../timeFomatEvent';
+import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
@@ -73,8 +73,11 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const isChannelEvent = textChannelId && textChannelId !== '0';
 	const isPrivateEvent = !isChannelEvent && ((!isReviewEvent && event?.is_private) || (isReviewEvent && isPrivate));
 	const isClanEvent = !isChannelEvent && ((!isReviewEvent && !event?.is_private) || (isReviewEvent && !isPrivate));
-	const { t } = useTranslation(['eventMenu', 'eventCreator']);
+	const { t, i18n } = useTranslation(['eventMenu', 'eventCreator']);
 	const dispatch = useAppDispatch();
+
+	// Create i18n-aware time formatter
+	const formatTimeI18n = useMemo(() => createI18nTimeFormatter(i18n.language), [i18n.language]);
 	const channelFirst = useSelector(selectChannelFirst);
 	const channelVoice = useAppSelector((state) => selectChannelById(state, voiceChannel ?? '')) || {};
 	const textChannel = useAppSelector((state) => selectChannelById(state, textChannelId ?? '')) || {};
@@ -229,10 +232,10 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
 						<p className={`font-semibold ${cssEventStatus}`}>
 							{actualEventStatus.isUpcoming
-								? timeUntilEvent || timeFomat(event?.start_time || start)
+								? timeUntilEvent || formatTimeI18n(event?.start_time || start)
 								: actualEventStatus.isOngoing
 									? t('countdown.joinNow')
-									: timeFomat(event?.start_time || start)}
+									: formatTimeI18n(event?.start_time || start)}
 						</p>
 						{isClanEvent && (
 							<p className="bg-blue-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.clanEvent')}</p>
