@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { IAttachmentEntity, convertTimeString } from '@mezon/utils';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,7 @@ type ChannelFileItemProps = {
 const ChannelFileItem = memo(({ file }: ChannelFileItemProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const userSendAttachment = useAppSelector((state) => selectMemberClanByUserId2(state, file?.uploader ?? ''));
+	const userSendAttachment = useAppSelector((state) => selectMemberClanByUserId(state, file?.uploader ?? ''));
 	const username = userSendAttachment?.user?.username;
 	const { t } = useTranslation('message');
 	const attachmentSendTime = convertTimeString(file?.create_time as string);

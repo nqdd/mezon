@@ -1,8 +1,14 @@
 import { useAuth, useGetPriorityNameFromUserClan } from '@mezon/core';
 import { convertTimestampToTimeAgo } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import type { TopicDiscussionsEntity } from '@mezon/store-mobile';
-import { getStoreAsync, selectAllUserClans, selectMemberClanByUserId, topicsActions } from '@mezon/store-mobile';
+import {
+	TopicDiscussionsEntity,
+	getStoreAsync,
+	selectAllUserClans,
+	selectMemberClanByUserId,
+	topicsActions,
+	useAppSelector
+} from '@mezon/store-mobile';
 import type { INotification } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
@@ -33,7 +39,7 @@ const NotificationTopicItem = React.memo(({ notify, onPressNotify }: NotifyProps
 	const initMessage = safeJSONParse(notify?.last_sent_message?.content || '')?.t;
 	const userIds = notify?.last_sent_message?.repliers;
 	const [subjectTopic, setSubjectTopic] = useState('');
-	const lastSentUser = useSelector(selectMemberClanByUserId(notify?.last_sent_message?.sender_id ?? ''));
+	const lastSentUser = useAppSelector((state) => selectMemberClanByUserId(state, notify?.last_sent_message?.sender_id ?? ''));
 
 	const usernames = useMemo(() => {
 		return memberClan
