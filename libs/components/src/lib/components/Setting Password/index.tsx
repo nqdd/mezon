@@ -19,6 +19,14 @@ interface SetPasswordProps {
 export default function SetPassword({ onSubmit, title, description, submitButtonText, initialEmail = '', isLoading, onClose }: SetPasswordProps) {
 	const { t } = useTranslation('accountSetting');
 	const dispatch = useAppDispatch();
+
+	const translatePasswordError = useCallback(
+		(errorCode: string) => {
+			if (!errorCode) return '';
+			return t(`setPasswordAccount.error.${errorCode}`);
+		},
+		[t]
+	);
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,7 +38,7 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 
 	useEffect(() => {
 		dispatch(authActions.refreshStatus());
-	}, []);
+	}, [dispatch]);
 
 	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
@@ -49,11 +57,11 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 
 			setErrors((prev) => ({
 				...prev,
-				password: validatePassword(value),
+				password: translatePasswordError(validatePassword(value)),
 				confirmPassword: confirmPassword && value !== confirmPassword ? t('setPasswordAccount.error.notEqual') : ''
 			}));
 		},
-		[confirmPassword]
+		[confirmPassword, translatePasswordError, t]
 	);
 
 	const handleConfirmPasswordChange = useCallback(
@@ -66,14 +74,14 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 				confirmPassword: value !== password ? t('setPasswordAccount.error.notEqual') : ''
 			}));
 		},
-		[password]
+		[password, t]
 	);
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			event.preventDefault();
 			const emailError = validateEmail(email);
-			const passwordError = validatePassword(password);
+			const passwordError = translatePasswordError(validatePassword(password));
 			const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
 
 			if (emailError || passwordError || confirmError) {
@@ -89,7 +97,7 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 				onSubmit({ email, password });
 			}
 		},
-		[email, password, confirmPassword, onSubmit]
+		[email, password, confirmPassword, onSubmit, translatePasswordError, t]
 	);
 
 	const disabled =

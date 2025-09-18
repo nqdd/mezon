@@ -39,7 +39,7 @@
 	},
 	"createClanModal": {
 		"title": "Tùy chỉnh Clan của bạn",
-		"description": "Tạo cho clan mới của bạn một phong cách riêng với tên và biểu tượng. Bạn luôn có thể thay đổi nó sau này.",
+		"description": "Hãy tạo sắc màu cho clan mới của bạn bằng cách chọn một tên và biểu tượng nhé! Bạn có thể thay đổi sau nếu thích!",
 		"upload": "Tải lên",
 		"clanName": "TÊN CLAN",
 		"placeholder": "Nhập tên clan",

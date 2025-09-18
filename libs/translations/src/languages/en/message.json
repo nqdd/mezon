@@ -154,6 +154,15 @@
 		"locationOf": "{{name}}'s location"
 	},
 	"sharedBy": "Shared by {{username}}",
+	"deleteMessageModal": {
+		"title": "Delete Message",
+		"removeAttachmentTitle": "Remove Attachment",
+		"deleteMessageDescription": "Are you sure you want to delete this message?",
+		"removeAttachmentDescription": "Are you sure you want to remove the attachment from this message?",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"remove": "Remove"
+	},
 	"systemMessages": {
 		"pinned": "pinned",
 		"aMessage": "a message",

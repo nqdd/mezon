@@ -16,7 +16,8 @@ const ErrorRoutes = () => {
 			'persist:clans',
 			'hideNotificationContent',
 			'current-theme',
-			'remember_channel'
+			'remember_channel',
+			'i18nextLng'
 		]);
 
 		if (isElectron()) {

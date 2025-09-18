@@ -11,7 +11,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ContenSubmitEventProps, ERepeatType, OptionEvent, Tabs_Option } from '@mezon/utils';
+import type { ContenSubmitEventProps } from '@mezon/utils';
+import { ERepeatType, OptionEvent, Tabs_Option } from '@mezon/utils';
 import isEqual from 'lodash.isequal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -363,7 +364,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 			)}
 			<div className="flex justify-between mt-4 w-full ">
 				<button
-					className={`py-2 text-[#84ADFF] font-bold ${(currentModal === Tabs_Option.LOCATION || errorTime) && 'hidden'}`}
+					className={`px-4 py-2 text-[#84ADFF] font-bold whitespace-nowrap ${(currentModal === Tabs_Option.LOCATION || errorTime) && 'hidden'}`}
 					onClick={() => handleBack(currentModal)}
 				>
 					{t('actions.back', 'Back')}

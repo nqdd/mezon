@@ -35,7 +35,6 @@ const GlobalEventListener = () => {
 	const hasUnreadChannel = useAppSelector((state) => selectAnyUnreadChannel(state));
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout | null = null;
-
 		const reconnectSocket = () => {
 			if (timeoutId) {
 				clearTimeout(timeoutId);

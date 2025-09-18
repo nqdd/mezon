@@ -85,6 +85,7 @@ const ModalUserProfile = ({
 	modalControlRef
 }: ModalUserProfileProps) => {
 	const { t } = useTranslation('userProfile');
+
 	const userProfile = useSelector(selectAllAccount);
 	const { userId } = useAuth();
 	const { createDirectMessageWithUser } = useDirect();
@@ -283,7 +284,7 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{!checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
+					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
 						<div className="w-full items-center mt-2">
 							<input
 								type="text"
