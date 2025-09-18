@@ -3,7 +3,6 @@ import {
 	channelSettingActions,
 	selectMemberClanByGoogleId,
 	selectMemberClanByUserId,
-	selectMemberClanByUserId2,
 	selectThreadsListByParentId,
 	useAppDispatch,
 	useAppSelector
@@ -252,8 +251,7 @@ const ItemInfor = ({
 	lastMessage?: ApiChannelMessageHeader;
 }) => {
 	const { t } = useTranslation('channelSetting');
-	const creatorChannel = useSelector(selectMemberClanByUserId(creatorId));
-
+	const creatorChannel = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 	const handleCopyChannelId = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.stopPropagation();
 		e.preventDefault();
@@ -367,7 +365,7 @@ const ItemInfor = ({
 };
 export default ListChannelSetting;
 export const AvatarUserShort = ({ id, showName = false }: { id: string; showName?: boolean }) => {
-	const member = useAppSelector((state) => selectMemberClanByUserId2(state, id));
+	const member = useAppSelector((state) => selectMemberClanByUserId(state, id));
 	const voiceClan = useAppSelector((state) => selectMemberClanByGoogleId(state, id ?? ''));
 	const clanAvatar = voiceClan?.clan_avatar || member?.clan_avatar;
 	const userAvatar = voiceClan?.user?.avatar_url || member?.user?.avatar_url;

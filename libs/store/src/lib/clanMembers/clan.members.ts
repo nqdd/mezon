@@ -323,17 +323,7 @@ export const selectEntitesUserClans = createSelector(
 	}
 );
 
-// with DM group use selector: selectMembeGroupByUserId
-/**
- * @deprecated will be removed to use selectMemberClanByUserId2
- */
-export const selectMemberClanByUserId = (userId: string) =>
-	createSelector([getUsersClanState, (state: RootState) => state.clans.currentClanId as string], (state, clanId) => {
-		const clanState = state.byClans[clanId]?.entities;
-		return clanState ? selectById(clanState, userId) : undefined;
-	});
-
-export const selectMemberClanByUserId2 = createSelector(
+export const selectMemberClanByUserId = createSelector(
 	[selectEntitesUserClans, (state, userId: string) => userId],
 	(entities, userId) => entities[userId]
 );

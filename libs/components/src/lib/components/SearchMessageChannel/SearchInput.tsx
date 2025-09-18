@@ -5,7 +5,7 @@ import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } 
 import { UserMentionList } from '../UserMentionList';
 import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
-import { HasOption, SearchInputProps } from './types';
+import type { HasOption, SearchInputProps } from './types';
 
 const MentionsInput = MentionsInputComponent as any;
 const Mention = MentionComponent as any;

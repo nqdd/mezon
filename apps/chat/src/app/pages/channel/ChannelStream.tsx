@@ -7,7 +7,7 @@ import {
 	selectIsJoin,
 	selectIsShowChatStream,
 	selectMemberClanByGoogleId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectRemoteVideoStream,
 	selectStatusStream,
 	selectStreamMembersByChannelId,
@@ -238,7 +238,7 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 
 function UserItem({ user }: { user: IChannelMember }) {
 	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
-	const userStream = useAppSelector((state) => selectMemberClanByUserId2(state, user.user_id ?? ''));
+	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
 	const username = member ? member?.user?.username : userStream?.user?.username;
 	const clanAvatar = member ? member?.clan_avatar : userStream?.clan_avatar;
 	const avatarUrl = member ? member?.user?.avatar_url : userStream?.user?.avatar_url;
@@ -383,7 +383,11 @@ export default function ChannelStream({
 								? `${currentChannel.channel_label.substring(0, 20)}...`
 								: currentChannel?.channel_label}
 						</div>
-						{memberJoin.length > 0 ? <div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div> : <div className="text-gray-800 dark:text-white">No one is currently in stream</div>}
+						{memberJoin.length > 0 ? (
+							<div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div>
+						) : (
+							<div className="text-gray-800 dark:text-white">No one is currently in stream</div>
+						)}
 						<button
 							disabled={!memberJoin.length}
 							className={`bg-green-700 rounded-3xl p-2 ${memberJoin.length > 0 ? 'hover:bg-green-600' : 'opacity-50'}`}

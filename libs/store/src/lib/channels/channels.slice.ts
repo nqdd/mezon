@@ -1563,7 +1563,10 @@ export const selectChannelsEntities = createSelector(
 	(state, clanId) => state.byClans[clanId]?.entities.entities ?? {}
 );
 
-export const selectChannelById2 = createSelector([selectChannelsEntities, (state, id) => id], (channelsEntities, id) => channelsEntities[id] || null);
+export const selectChannelByChannelId = createSelector(
+	[selectChannelsEntities, (state, id) => id],
+	(channelsEntities, id) => channelsEntities[id] || null
+);
 
 export const selectChannelsEntitiesByClanId = createSelector(
 	[getChannelsState, (state: RootState, clanId: string) => clanId],

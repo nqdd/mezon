@@ -12,8 +12,9 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { convertTimeString, createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
-import { ApiAuditLog } from 'mezon-js/api.gen';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import type { ApiAuditLog } from 'mezon-js/api.gen';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 
@@ -71,7 +72,7 @@ type AuditLogItemProps = {
 
 const AuditLogItem = ({ logItem }: AuditLogItemProps) => {
 	const auditLogTime = convertTimeString(logItem?.time_log as string);
-	const userAuditLogItem = useAppSelector(selectMemberClanByUserId(logItem?.user_id ?? ''));
+	const userAuditLogItem = useAppSelector((state) => selectMemberClanByUserId(state, logItem?.user_id ?? ''));
 	const username = userAuditLogItem?.user?.username;
 	const avatar = getAvatarForPrioritize(userAuditLogItem?.clan_avatar, userAuditLogItem?.user?.avatar_url);
 	const channel = useAppSelector((state) => selectChannelById(state, logItem?.channel_id || ''));

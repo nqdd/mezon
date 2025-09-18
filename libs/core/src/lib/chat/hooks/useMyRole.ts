@@ -5,7 +5,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 
 export function useMyRole() {
 	const { userProfile } = useAuth();
-	const userById = useAppSelector(selectMemberClanByUserId(userProfile?.user?.id || ''));
+	const userById = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id || ''));
 	const RolesClan = useSelector(selectAllRolesClan);
 
 	const userRolesClan = useMemo(() => {

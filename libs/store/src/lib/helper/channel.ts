@@ -1,8 +1,9 @@
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { selectChannelById2, selectCurrentChannel } from '../channels/channels.slice';
+import { selectChannelByChannelId, selectCurrentChannel } from '../channels/channels.slice';
 import { selectClanView } from '../clans/clans.slice';
 import { selectDmGroupCurrent, selectDmGroupCurrentId } from '../direct/direct.slice';
-import { RootState, getStore } from '../store';
+import type { RootState } from '../store';
+import { getStore } from '../store';
 
 export const getActiveMode = (channelId?: string): ChannelStreamMode => {
 	const store = getStore();
@@ -10,7 +11,7 @@ export const getActiveMode = (channelId?: string): ChannelStreamMode => {
 	const isClanView = selectClanView(appState);
 	const { currentChannel, currentDm } = getCurrentChannelAndDm(appState);
 
-	const channel = channelId ? selectChannelById2(appState, channelId) : currentChannel;
+	const channel = channelId ? selectChannelByChannelId(appState, channelId) : currentChannel;
 
 	if (isClanView && channel) {
 		if (channel.type === ChannelType.CHANNEL_TYPE_THREAD) {

@@ -68,10 +68,9 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				? threadCurrentChannel || currentChannel
 				: currentChannel;
 
-	const user = useSelector(selectMemberClanByUserId(selectedChannel?.creator_id as string));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, selectedChannel?.creator_id as string));
 	const preferredUserName = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
 	const classNameSubtext = 'text-theme-primary opacity-60 text-sm';
-	const showName = <span className="font-medium">{name || username}</span>;
 
 	const isChannel = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const isThread = mode === ChannelStreamMode.STREAM_MODE_THREAD;

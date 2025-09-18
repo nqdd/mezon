@@ -1,5 +1,5 @@
 import { ColorRoleProvider, useEscapeKeyClose } from '@mezon/core';
-import { selectAllAccount, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectAllAccount, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { IMessageWithUser, KEY_KEYBOARD } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,7 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 	const { mess, channelLabel, closeModal, handlePinMessage, mode } = props;
 	const { t } = useTranslation('pinMessage');
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 
 	const handlePinMessageAndCloseModal = () => {
 		handlePinMessage();

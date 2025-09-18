@@ -2,7 +2,7 @@ import { ColorRoleProvider, useChatSending, useCurrentInbox, useDeleteMessage, u
 import {
 	selectAllAccount,
 	selectCurrentTopicId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenEditMessageState,
 	topicsActions,
 	useAppSelector
@@ -33,7 +33,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 	const { mess, closeModal, mode, isRemoveAttachmentNoContent, attachmentData, isRemoveAttachmentAction = false, isTopic } = props;
 	const { t } = useTranslation('message');
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 	const dispatch = useDispatch();
 	const current = useCurrentInbox() || undefined;
 	const modalRef = useRef<HTMLDivElement>(null);

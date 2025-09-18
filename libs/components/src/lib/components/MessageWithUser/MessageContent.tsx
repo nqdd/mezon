@@ -1,4 +1,4 @@
-import { getFirstMessageOfTopic, selectMemberClanByUserId2, threadsActions, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import { getFirstMessageOfTopic, selectMemberClanByUserId, threadsActions, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EBacktickType, ETypeLinkMedia, IExtendedMessage, IMessageWithUser, addMention, createImgproxyUrl, isValidEmojiData } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
@@ -50,7 +50,7 @@ const MessageContent = ({ message, mode, isSearchMessage, isEphemeral, isSending
 
 export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const dispatch = useAppDispatch();
-	const topicCreator = useAppSelector((state) => selectMemberClanByUserId2(state, message?.content?.cid as string));
+	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, message?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
 	const handleOpenTopic = useCallback(() => {
 		dispatch(topicsActions.setIsShowCreateTopic(true));
