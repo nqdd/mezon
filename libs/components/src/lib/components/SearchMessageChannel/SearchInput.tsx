@@ -1,13 +1,16 @@
 import { searchMentionsHashtag } from '@mezon/utils';
-import React, { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Mention, { type MentionData } from '../MessageBox/ReactionMentionInput/Mention';
-import MentionsInput from '../MessageBox/ReactionMentionInput/MentionsInput';
+import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } from 'react-mentions';
 import { UserMentionList } from '../UserMentionList';
+import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
-import type { SearchInputProps } from './types';
+import type { HasOption, SearchInputProps } from './types';
 
-const HAS_OPTIONS: MentionData[] = [
+const MentionsInput = MentionsInputComponent as any;
+const Mention = MentionComponent as any;
+
+const HAS_OPTIONS: HasOption[] = [
 	{ id: 'video', display: 'video' },
 	{ id: 'link', display: 'link' },
 	{ id: 'image', display: 'image' }
@@ -17,13 +20,13 @@ const SearchInput = ({
 	channelId,
 	mode,
 	valueInputSearch,
-	valueDisplay: _valueDisplay,
-	appearanceTheme: _appearanceTheme,
-	lightMentionsInputStyle: _lightMentionsInputStyle,
-	darkMentionsInputStyle: _darkMentionsInputStyle,
-	searchRef: _searchRef,
-	onInputClick: _onInputClick,
-	onKeyDown: _onKeyDown,
+	valueDisplay,
+	appearanceTheme,
+	lightMentionsInputStyle,
+	darkMentionsInputStyle,
+	searchRef,
+	onInputClick,
+	onKeyDown,
 	onChange,
 	setIsShowSearchOptions
 }: SearchInputProps) => {
@@ -36,112 +39,106 @@ const SearchInput = ({
 	const [valueHighlight, setValueHighlight] = useState<string>('');
 
 	const handleSearchUserMention = useCallback(
-		(search: string): MentionData[] => {
+		(search: string, callback: any) => {
 			setValueHighlight(search);
 			const results = searchMentionsHashtag(search, userListData || []);
-			const mentionResults = results.length > 0 ? results : userListData || [];
-
-			// Convert MentionDataProps[] to MentionData[]
-			return mentionResults.map((item) => ({
-				id: String(item.id),
-				display: item.display || '',
-				avatarUrl: item.avatarUrl,
-				username: item.username,
-				isRole: item.isRoleUser
-			}));
+			callback(results.length > 0 ? results : userListData || []);
 		},
 		[userListData]
 	);
 
-	const handleMentionsInputChange = useCallback(
-		(html: string) => {
-			// Create a synthetic event to match OnChangeHandlerFunc signature
-			const syntheticEvent = {
-				target: { value: html }
-			};
-			onChange(syntheticEvent, html, html, []);
-		},
-		[onChange]
+	const renderSuggestionsContainer = useCallback(
+		(children: any) => (
+			<div
+				className={`absolute left-0 top-10 pb-3 bg-theme-setting-primary ${valueInputSearch ? 'pt-0' : 'pt-3'} rounded  z-[9999] w-widthModalSearch min-h-heightModalSearch shadow`}
+			>
+				{valueInputSearch && (
+					<div className="first:mt-0 mt-3 p-3 rounded-t border-b last:border-b-0 last:bottom-b-0">
+						<div className="flex items-center justify-between">
+							<div className="flex flex-row items-center flex-1 overflow-x-hidden">
+								<h3 className="text-xs font-medium  uppercase mr-1 flex-shrink-0">{t('searchFor')}</h3>
+								<p className="text-sm font-semibold w-full mr-[10px] whitespace-normal text-ellipsis overflow-x-hidden">
+									{valueDisplay}
+								</p>
+							</div>
+							<button className="px-1 h-5 w-10 text-xs  font-semibold rounded bg-borderDividerLight ">{t('enter')}</button>
+						</div>
+					</div>
+				)}
+				<SelectGroup groupName={t('fromUser')}>{children}</SelectGroup>
+			</div>
+		),
+		[valueInputSearch, valueDisplay]
 	);
 
 	return (
 		<MentionsInput
+			inputRef={searchRef as any}
 			placeholder={t('searchPlaceholder')}
 			value={valueInputSearch ?? ''}
-			onChange={handleMentionsInputChange}
+			style={{
+				...(appearanceTheme === 'light' ? lightMentionsInputStyle : darkMentionsInputStyle),
+				suggestions: {
+					...(appearanceTheme === 'light' ? lightMentionsInputStyle.suggestions : darkMentionsInputStyle.suggestions),
+					width: '100%',
+					left: '0px'
+				}
+			}}
+			onChange={onChange}
 			className="none-draggable-area w-full mr-[10px] bg-transparent text-theme-primary rounded-md focus-visible:!border-0 focus-visible:!outline-none focus-visible:[&>*]:!outline-none"
+			allowSpaceInQuery={true}
+			singleLine={true}
+			onClick={onInputClick}
+			onKeyDown={onKeyDown}
+			customSuggestionsContainer={renderSuggestionsContainer as any}
 		>
 			{/* From user filter: > */}
 			<Mention
-				trigger="@"
-				title={t('prefixes.from')}
+				markup=">[__display__](__id__)"
+				appendSpaceOnAdd={true}
 				data={handleSearchUserMention}
+				trigger=">"
 				displayTransform={(id: string, display: string) => `from:${display}`}
-				renderSuggestion={(
-					suggestion: MentionData,
-					_search: string,
-					_highlightedDisplay: React.ReactNode,
-					_index?: number,
-					focused?: boolean
-				) => (
+				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 					<SelectItemUser
 						search={valueHighlight}
-						isFocused={focused || false}
+						isFocused={focused}
 						title={t('prefixes.from')}
 						content={suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
-				appendSpaceOnAdd={true}
+				className=""
 			/>
 
 			<Mention
-				trigger="~"
-				title={t('prefixes.mentions')}
+				markup="~[__display__](__id__)"
+				appendSpaceOnAdd={true}
 				data={handleSearchUserMention}
+				trigger="~"
 				displayTransform={(id: string, display: string) => `mentions:${display}`}
-				renderSuggestion={(
-					suggestion: MentionData,
-					_search: string,
-					_highlightedDisplay: React.ReactNode,
-					_index?: number,
-					focused?: boolean
-				) => (
+				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 					<SelectItemUser
 						search={valueHighlight}
-						isFocused={focused || false}
+						isFocused={focused}
 						title={t('prefixes.mentions')}
 						content={suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
-				appendSpaceOnAdd={true}
+				className=""
 			/>
 
 			<Mention
-				trigger="&"
-				title={t('prefixes.has')}
-				data={(query: string) => {
-					const queryLower = query.toLowerCase();
-					return HAS_OPTIONS.filter((option) => option.display.toLowerCase().includes(queryLower));
-				}}
-				displayTransform={(id: string, display: string) => `has:${display}`}
-				renderSuggestion={(
-					suggestion: MentionData,
-					search: string,
-					_highlightedDisplay: React.ReactNode,
-					_index?: number,
-					focused?: boolean
-				) => (
-					<SelectItemUser
-						search={search}
-						isFocused={focused || false}
-						title={t('prefixes.has')}
-						content={suggestion.display}
-						key={suggestion.id}
-					/>
-				)}
+				markup="&[__display__](__id__)"
 				appendSpaceOnAdd={true}
+				data={HAS_OPTIONS}
+				trigger="&"
+				displayTransform={(id: string, display: string) => `has:${display}`}
+				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
+					<SelectItemUser search={search} isFocused={focused} title={t('prefixes.has')} content={suggestion.display} key={suggestion.id} />
+				)}
+				className=""
 			/>
 		</MentionsInput>
 	);
