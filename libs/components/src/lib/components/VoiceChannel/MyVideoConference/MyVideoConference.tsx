@@ -102,16 +102,13 @@ export function MyVideoConference({
 
 	useEffect(() => {
 		const handleDisconnected = async (reason?: DisconnectReason) => {
-			if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
-				dispatch(voiceActions.resetVoiceControl());
-				return;
-			}
 			if (
 				reason === DisconnectReason.SERVER_SHUTDOWN ||
 				reason === DisconnectReason.CLIENT_INITIATED ||
 				reason === DisconnectReason.PARTICIPANT_REMOVED ||
 				reason === DisconnectReason.SIGNAL_CLOSE ||
-				reason === DisconnectReason.JOIN_FAILURE
+				reason === DisconnectReason.JOIN_FAILURE ||
+				reason === DisconnectReason.DUPLICATE_IDENTITY
 			) {
 				onLeaveRoom();
 			} else if (token) {
