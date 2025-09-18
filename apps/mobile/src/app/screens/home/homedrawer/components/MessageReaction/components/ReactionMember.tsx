@@ -1,5 +1,5 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { selectAllChannelMembers, selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
+import { selectAllChannelMembers, selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -18,7 +18,7 @@ export const ReactionMember = React.memo((props: IReactionMemberProps) => {
 	const styles = style(themeValue);
 	const { userId, onSelectUserId, channelId, count } = props;
 	const channelMemberList = useAppSelector((state) => selectAllChannelMembers(state, channelId || ''));
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, userId || ''));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, userId || ''));
 	const reactionMember = useMemo(() => {
 		if (user) {
 			return user;

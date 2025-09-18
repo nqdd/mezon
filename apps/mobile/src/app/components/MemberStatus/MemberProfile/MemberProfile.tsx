@@ -1,6 +1,6 @@
 import { IUserStatus } from '@mezon/mobile-components';
 import { baseColor, size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectMemberClanByUserId2, selectStatusInVoice, useAppSelector } from '@mezon/store-mobile';
+import { getStore, selectMemberClanByUserId, selectStatusInVoice, useAppSelector } from '@mezon/store-mobile';
 import { ChannelMembersEntity, DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useContext, useMemo } from 'react';
@@ -44,7 +44,7 @@ export function MemberProfile({
 	const userInfo: any = useMemo(() => {
 		if (!isDMThread) {
 			const store = getStore();
-			const currentClanUser = selectMemberClanByUserId2(store.getState(), (user?.id || user?.user?.id) as string);
+			const currentClanUser = selectMemberClanByUserId(store.getState(), (user?.id || user?.user?.id) as string);
 			if (currentClanUser) {
 				return currentClanUser;
 			}

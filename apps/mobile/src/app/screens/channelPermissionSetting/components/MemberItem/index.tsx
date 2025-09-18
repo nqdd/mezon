@@ -1,5 +1,5 @@
 import { useAuth, useCheckOwnerForUser } from '@mezon/core';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { channelUsersActions, useAppDispatch } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
@@ -103,7 +103,7 @@ export const MemberItem = memo(
 						<View style={{ flexDirection: 'row', gap: size.s_4, alignItems: 'center' }}>
 							<Text
 								style={{
-									fontSize: verticalScale(18),
+									fontSize: size.s_14,
 									marginLeft: 0,
 									marginRight: 0,
 									color: themeValue.white
