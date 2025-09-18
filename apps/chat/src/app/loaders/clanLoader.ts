@@ -16,7 +16,7 @@ export const clanLoader: CustomLoaderFunction = async ({ params, dispatch }) => 
 
 	await dispatch(waitForSocketConnection());
 
-	dispatch(emojiSuggestionActions.fetchEmoji({}));
+	dispatch(emojiSuggestionActions.fetchEmoji({ clanId, noCache: false }));
 	dispatch(clansActions.joinClan({ clanId }));
 	dispatch(clansActions.changeCurrentClan({ clanId }));
 	dispatch(channelsActions.setModeResponsive({ clanId, mode: ModeResponsive.MODE_CLAN }));

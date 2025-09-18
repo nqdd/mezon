@@ -1,5 +1,5 @@
 import { MemberProvider } from '@mezon/core';
-import { onboardingActions, selectCurrentClan, selectCurrentClanId, selectFormOnboarding, useAppDispatch } from '@mezon/store';
+import { onboardingActions, selectCurrentClan, selectFormOnboarding, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { Snowflake } from '@theinternetfolks/snowflake';
@@ -284,18 +284,22 @@ interface IMainIndexProps {
 
 const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
 	const { t } = useTranslation('onBoardingClan');
+	const currentClan = useSelector(selectCurrentClan);
 	const dispatch = useAppDispatch();
 	const openOnboardingPreviewMode = () => {
-		dispatch(onboardingActions.openOnboardingPreviewMode());
+		dispatch(
+			onboardingActions.openOnboardingPreviewMode({
+				clan_id: currentClan?.id || ''
+			})
+		);
 		if (onCloseSetting) {
 			onCloseSetting();
 		}
 	};
-	const currentClanId = useSelector(selectCurrentClanId);
 
 	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId as string }));
-	}, [currentClanId, dispatch]);
+		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClan?.id as string }));
+	}, [currentClan, dispatch]);
 
 	return (
 		<div className="flex flex-col gap-6 flex-1">

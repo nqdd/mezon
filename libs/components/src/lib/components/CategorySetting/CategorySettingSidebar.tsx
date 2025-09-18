@@ -1,11 +1,12 @@
 import { useCategory } from '@mezon/core';
 import { selectCurrentChannel, selectWelcomeChannelByClanId } from '@mezon/store';
-import { generateE2eId, ICategoryChannel, IChannel } from '@mezon/utils';
+import { ICategoryChannel, IChannel, generateE2eId } from '@mezon/utils';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { ItemObjProps, categorySettingList } from '../ClanSettings/ItemObj';
+import type { ItemObjProps } from '../ClanSettings/ItemObj';
+import { categorySettingList } from '../ClanSettings/ItemObj';
 import SettingItem from '../ClanSettings/SettingItem';
 import ModalConfirm from '../ModalConfirm';
 

@@ -1,5 +1,5 @@
 import { getShowName, useColorsRoleById } from '@mezon/core';
-import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, IMessageWithUser, convertTimeStringI18n } from '@mezon/utils';
+import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, IMessageWithUser, convertTimeStringI18n, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { useTranslation } from 'react-i18next';
 import getPendingNames from './usePendingNames';
@@ -56,6 +56,7 @@ const BaseMessageHead = ({
 							? (userRolesClan?.highestPermissionRoleColor ?? DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR)
 							: DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR
 				}}
+				data-e2e={generateE2eId('base_profile.display_name')}
 			>
 				{mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD ? nameShowed : priorityName}
 				{userRolesClan?.highestPermissionRoleIcon &&

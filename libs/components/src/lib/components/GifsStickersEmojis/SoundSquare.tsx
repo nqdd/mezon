@@ -69,7 +69,7 @@ function SoundSquare({ channel, mode, onClose, isTopic = false, onSoundSelect }:
 	);
 
 	useEffect(() => {
-		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false }));
+		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false, clanId: currentClanId }));
 	}, [dispatch]);
 
 	const userSounds = useMemo(() => {

@@ -16,13 +16,15 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
-import { EPermission, EUserSettings, IClan } from '@mezon/utils';
-import { ApiAccount } from 'mezon-js/dist/api.gen';
-import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { IClan } from '@mezon/utils';
+import { EPermission, EUserSettings } from '@mezon/utils';
+import type { ApiAccount } from 'mezon-js/dist/api.gen';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import ModalConfirm from '../ModalConfirm';
 import { createNotificationTypesListTranslated } from '../PanelChannel';
 import GroupPanels from '../PanelChannel/GroupPanels';
@@ -193,7 +195,6 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 						<ItemPanel children={t('hideMutedChannels')} type={'checkbox'} />
 					</GroupPanels>
 					<GroupPanels>
-						<ItemPanel children={t('privacySettings')} />
 						<ItemPanel children={t('editClanProfile')} onClick={handleOpenClanProfileSetting} />
 					</GroupPanels>
 
