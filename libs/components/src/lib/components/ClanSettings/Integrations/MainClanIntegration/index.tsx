@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { ApiClanWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
@@ -22,21 +23,20 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 				<Icons.WebhooksIcon />
 				<div>
 					<div className="pb-[3px] font-semibold break-all text-theme-primary">{t('clanWebhooks')}</div>
-					<div className="text-[12px] text-theme-primary">
-						{t('webhook', { count: allClanWebhooks?.length || 0 })}
-					</div>
+					<div className="text-[12px] text-theme-primary">{t('webhook', { count: allClanWebhooks?.length || 0 })}</div>
 				</div>
 			</div>
 			{allClanWebhooks && allClanWebhooks?.length === 0 ? (
 				<div
 					onClick={setIsOpenClanWebhooks}
 					className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
+					data-e2e={generateE2eId('clan_page.settings.integrations.create_clan_webhook_button')}
 				>
 					{t('createClanWebhook')}
 				</div>
 			) : (
 				<div className="items-center cursor-pointer text-[14px] flex gap-[4px]">
-						<div className="text-theme-primary">{t('viewClanWebhook')}</div>
+					<div className="text-theme-primary">{t('viewClanWebhook')}</div>
 					<Icons.ArrowDown defaultSize="h-[15px] w-[15px] -rotate-90" />
 				</div>
 			)}

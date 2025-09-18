@@ -1,6 +1,6 @@
 import { editOnboarding, EGuideType, onboardingActions, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
-import { fileTypeImage, MAX_FILE_SIZE_10MB } from '@mezon/utils';
+import { fileTypeImage, generateE2eId, MAX_FILE_SIZE_10MB } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import type { ChangeEvent } from 'react';
@@ -192,6 +192,7 @@ const ModalAddRules = ({ onClose, ruleEdit, tempId }: { onClose: () => void; rul
 								tabIndex={0}
 								accept=".jpg,.jpeg,.png,.gif"
 								onChange={handleAddImage}
+								data-e2e={generateE2eId('clan_page.settings.upload.onboarding_resource_input')}
 							/>
 						</button>
 						<div className="h-12 aspect-square rounded-md flex overflow-hidden bg-white dark:bg-bgSecondaryHover border border-gray-200 dark:border-transparent">

@@ -13,7 +13,7 @@ import {
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
-import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage } from '@mezon/utils';
+import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -59,6 +59,7 @@ const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebho
 					<div
 						onClick={() => setIsExpand(!isExpand)}
 						className={`cursor-pointer transition duration-100 ease-in-out ${isExpand ? '' : '-rotate-90'}`}
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.view_webhook')}
 					>
 						<Icons.ArrowDown defaultSize="h-[30px] w-[30px] dark:text-[#b5bac1] text-black" />
 					</div>
@@ -204,7 +205,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			<div ref={modalRef} tabIndex={-1} className="pt-[20px] mt-[12px] border-t dark:border-[#3b3d44]">
 				<div className="flex gap-2">
 					<div className="w-3/12 dark:text-[#b5bac1] text-textLightTheme">
-						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden />
+						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')} />
 						<div className="relative w-fit">
 							<div
 								onClick={() => avatarRef.current?.click()}
