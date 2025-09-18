@@ -1,7 +1,7 @@
 import { useAuth } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { EventManagementEntity, addUserEvent, deleteUserEvent, selectMemberClanByUserId2, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { EventManagementEntity, addUserEvent, deleteUserEvent, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EEventStatus, createImgproxyUrl, sleep } from '@mezon/utils';
 import { ApiUserEventRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -29,7 +29,7 @@ export function EventItem({ event, onPress, showActions = true, start }: IEventI
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['eventMenu']);
-	const userCreate = useAppSelector((state) => selectMemberClanByUserId2(state, event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const { userId } = useAuth();
 	const [isInterested, setIsInterested] = useState<boolean>(false);
 	const dispatch = useAppDispatch();

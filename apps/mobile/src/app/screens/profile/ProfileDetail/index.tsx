@@ -7,7 +7,7 @@ import {
 	directActions,
 	selectDirectsOpenlist,
 	selectFriendById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -61,7 +61,7 @@ export const ProfileDetail = memo(() => {
 		}
 	}, [routeRawData, username]);
 
-	const userById = useAppSelector((state) => selectMemberClanByUserId2(state, profileData?.user_id));
+	const userById = useAppSelector((state) => selectMemberClanByUserId(state, profileData?.user_id));
 	const infoFriend = useAppSelector((state) => selectFriendById(state, profileData?.user_id));
 	const listDM = useAppSelector(selectDirectsOpenlist);
 	const youSelf = useMemo(() => {

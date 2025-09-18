@@ -1,5 +1,5 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { MessagesEntity, selectMemberClanByUserId2, topicsActions, useAppDispatch } from '@mezon/store-mobile';
+import { MessagesEntity, selectMemberClanByUserId, topicsActions, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
-	const topicCreator = useSelector((state) => selectMemberClanByUserId2(state, message?.content?.cid as string));
+	const topicCreator = useSelector((state) => selectMemberClanByUserId(state, message?.content?.cid as string));
 	const { t } = useTranslation('message');
 
 	const handleOpenTopic = () => {
