@@ -98,7 +98,12 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 					</p>
 				</div>
 
-				<ChannelSettingItemButton tabName={EChannelSettingTab.OVERVIEW} handleOnClick={handleButtonClick} selectedButton={selectedButton} getTabTranslation={getTabTranslation} />
+				<ChannelSettingItemButton
+					tabName={EChannelSettingTab.OVERVIEW}
+					handleOnClick={handleButtonClick}
+					selectedButton={selectedButton}
+					getTabTranslation={getTabTranslation}
+				/>
 				{!isThread && (
 					<>
 						<ChannelSettingItemButton
@@ -120,7 +125,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							)}
 					</>
 				)}
-				{channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && hasClanPermission && (
+				{channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && hasClanPermission ||hasManageChannelPermission && (
 					<ChannelSettingItemButton
 						tabName={EChannelSettingTab.INTEGRATIONS}
 						handleOnClick={handleButtonClick}
