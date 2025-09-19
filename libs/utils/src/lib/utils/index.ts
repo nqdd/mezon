@@ -18,7 +18,6 @@ import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiRole, C
 import type { RoleUserListRoleUser } from 'mezon-js/dist/api.gen';
 import type React from 'react';
 import Resizer from 'react-image-file-resizer';
-import type { MentionItem } from 'react-mentions';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
 import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
@@ -39,6 +38,7 @@ import type {
 	IPermissonMedia,
 	IRolesClan,
 	MentionDataProps,
+	MentionItem,
 	NotificationEntity,
 	SearchItemProps,
 	SenderInfoOptionals,

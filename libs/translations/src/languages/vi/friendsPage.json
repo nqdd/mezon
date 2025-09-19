@@ -41,5 +41,17 @@
 		"userBlockedFailed": "Không thể chặn người dùng",
 		"userUnblockedSuccess": "Đã bỏ chặn người dùng thành công",
 		"userUnblockedFailed": "Không thể bỏ chặn người dùng"
+	},
+	"statusTapListFriends": {
+		"all": "Có vẻ như trống ở đây! Hãy bắt đầu với một vài bạn bè để bắt đầu cuộc trò chuyện.",
+		"online": "Đang yên tĩnh! Tại sao không bắt đầu cuộc trò chuyện và xem ai ở đây?",
+		"pending": "Đây là nơi bạn sẽ tìm thấy yêu cầu kết bạn mà bạn đã gửi và nhận.",
+		"block": "Bạn chưa chặn ai cả."
+	},
+	"statusTapSearchFriends": {
+		"all": "Không có bạn bè phù hợp với tìm kiếm của bạn. Hãy thử tên khác.",
+		"online": "Không có ai trực tuyến phù hợp với tìm kiếm của bạn. Hãy thử tên khác.",
+		"pending": "Không có yêu cầu kết bạn phù hợp với tìm kiếm của bạn. Hãy kiểm tra lại tên hoặc thử lại.",
+		"block": "Không có người dùng bị chặn phù hợp với tìm kiếm của bạn. Hãy thử tên khác."
 	}
 }

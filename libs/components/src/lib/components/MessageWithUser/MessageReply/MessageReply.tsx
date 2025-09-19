@@ -1,7 +1,8 @@
 import { getShowName, useUserById } from '@mezon/core';
 import { getStoreAsync, messagesActions, selectClanView, selectCurrentChannelId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageWithUser, createImgproxyUrl } from '@mezon/utils';
+import type { IMessageWithUser } from '@mezon/utils';
+import { MEZON_AVATAR_URL, createImgproxyUrl } from '@mezon/utils';
 
 import { useCallback, useRef } from 'react';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
@@ -45,7 +46,7 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 				);
 			}
 		},
-		[dispatch, message?.channel_id, message?.clan_id, messageIdRef]
+		[dispatch, message?.channel_id, message?.clan_id, messageIdRef, isTopic]
 	);
 
 	const markUpOnReplyParent = useRef<HTMLDivElement | null>(null);
@@ -59,6 +60,27 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 
 	const isClanView = useSelector(selectClanView);
 
+	const getAvatarProps = () => {
+		if (senderIdMessageRef === '0') {
+			return {
+				srcImgProxy: createImgproxyUrl(MEZON_AVATAR_URL, { width: 100, height: 100, resizeType: 'fit' }),
+				src: MEZON_AVATAR_URL
+			};
+		}
+
+		return {
+			srcImgProxy: createImgproxyUrl(
+				(!isClanView
+					? (message?.references?.[0]?.mesages_sender_avatar ?? '')
+					: messageSender?.clan_avatar || messageSender?.user?.avatar_url) ?? '',
+				{ width: 100, height: 100, resizeType: 'fit' }
+			),
+			src: !isClanView ? (message?.references?.[0]?.mesages_sender_avatar ?? '') : messageSender?.clan_avatar || messageSender?.user?.avatar_url
+		};
+	};
+
+	const avatarProps = getAvatarProps();
+
 	return (
 		<div className="overflow-hidden max-w-[97%]" style={{ height: 24 }} ref={markUpOnReplyParent}>
 			{message.references?.[0].message_ref_id ? (
@@ -70,17 +92,8 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 								className="w-5 h-5"
 								alt="user avatar"
 								username={messageUsernameSenderRef}
-								srcImgProxy={createImgproxyUrl(
-									(!isClanView
-										? (message?.references?.[0]?.mesages_sender_avatar ?? '')
-										: messageSender?.clan_avatar || messageSender?.user?.avatar_url) ?? '',
-									{ width: 100, height: 100, resizeType: 'fit' }
-								)}
-								src={
-									!isClanView
-										? (message?.references?.[0]?.mesages_sender_avatar ?? '')
-										: messageSender?.clan_avatar || messageSender?.user?.avatar_url
-								}
+								srcImgProxy={avatarProps.srcImgProxy}
+								src={avatarProps.src}
 								isAnonymous={isAnonymousReplied}
 							/>
 						</div>

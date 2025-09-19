@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { MessagesEntity } from '@mezon/store';
+import type { MessagesEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { TypeMessage, addMention, convertDateStringI18n } from '@mezon/utils';
-import React, { ReactNode, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageReaction } from '../../components';
 import { MessageLineSystem } from '../MessageWithUser/MessageLineSystem';
@@ -23,7 +24,14 @@ export type MessageWithSystemProps = {
 	isTopic: boolean;
 };
 
-function MessageWithSystem({ message, onContextMenu: _onContextMenu, popup: _popup, isSearchMessage, showDivider, isTopic }: Readonly<MessageWithSystemProps>) {
+function MessageWithSystem({
+	message,
+	onContextMenu: _onContextMenu,
+	popup: _popup,
+	isSearchMessage,
+	showDivider,
+	isTopic
+}: Readonly<MessageWithSystemProps>) {
 	const contentUpdatedMention = addMention(message.content, message?.mentions as any);
 	const isCustom = message.code === TypeMessage.CreateThread || message.code === TypeMessage.CreatePin;
 
@@ -79,7 +87,14 @@ interface HoverStateWrapperProps {
 	messageId?: string;
 	className?: string;
 }
-const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({ children, popup, isSearchMessage: _isSearchMessage, onContextMenu, messageId, className }) => {
+const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
+	children,
+	popup,
+	isSearchMessage: _isSearchMessage,
+	onContextMenu,
+	messageId,
+	className
+}) => {
 	const [isHover, setIsHover] = useState(false);
 	const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
 

@@ -26,7 +26,7 @@ export const StartEventModal = (props: StartEventModalProps) => {
 					<div className="gap-x-2 flex items-center">
 						<Icons.IconEvents />
 						<h4 className="font-bold">
-							{numberEventManagement === 0 && t("actions.noEvent")}
+							{numberEventManagement === 0 && t('actions.noEvent')}
 							{numberEventManagement === 1 && t('actions.event_one')}
 							{numberEventManagement > 1 && t('actions.event_other', { count: numberEventManagement })}
 						</h4>

@@ -203,13 +203,15 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	}, [showModalSendToken, infoSendToken]);
 
 	const rootRef = useRef<HTMLDivElement>(null);
-
+	const modalControlRef = useRef<HTMLDivElement>(null);
 	const isElectronUpdateAvailable = useSelector(selectIsElectronUpdateAvailable);
 	const IsElectronDownloading = useSelector(selectIsElectronDownloading);
 	const isInCall = useSelector(selectIsInCall);
 	const isJoin = useSelector(selectIsJoin);
 	const isVoiceJoined = useSelector(selectVoiceJoined);
 	const GroupCallJoined = useSelector(selectGroupCallJoined);
+
+	const [showProfile, setShowProfile] = useState(false);
 
 	const [openProfileModal, closeProfileModal] = useModal(() => {
 		return (
@@ -221,12 +223,25 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 					isDM={isDM}
 					userStatusProfile={userStatusProfile}
 					rootRef={rootRef}
-					onCloseModal={closeProfileModal}
+					modalControlRef={modalControlRef}
+					onCloseModal={() => {
+						setShowProfile(false);
+						closeProfileModal();
+					}}
 				/>
 			</div>
 		);
-	}, [userStatusProfile, rootRef.current, avatar, name]);
+	}, [userStatusProfile, rootRef.current, avatar, name, modalControlRef]);
 
+	const handleClick = () => {
+		if (!showProfile) {
+			setShowProfile(true);
+			openProfileModal();
+		} else {
+			setShowProfile(false);
+			closeProfileModal();
+		}
+	};
 	const [openSetCustomStatus, closeSetCustomStatus] = useModal(() => {
 		return <ModalCustomStatus status={userCustomStatus.status || ''} name={name} onClose={handleCloseModalCustomStatus} />;
 	}, [userCustomStatus.status]);
@@ -280,7 +295,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			 w-full group focus-visible:outline-none footer-profile  `}
 			>
 				<div className={`footer-profile h-10 flex-1 flex pl-2 items-center  text-theme-primary bg-item-hover rounded-md`}>
-					<div className="cursor-pointer flex items-center gap-3 relative flex-1" onClick={openProfileModal}>
+					<div ref={modalControlRef} className="cursor-pointer flex items-center gap-3 relative flex-1" onClick={handleClick}>
 						<AvatarImage
 							alt={''}
 							username={name}

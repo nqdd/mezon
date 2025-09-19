@@ -1,5 +1,5 @@
 import { Icons } from '@mezon/ui';
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ChannelTopBar = ({

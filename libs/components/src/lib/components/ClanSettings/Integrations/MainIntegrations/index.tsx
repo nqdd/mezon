@@ -13,8 +13,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 	return (
 		<>
 			<div className="text-sm pt-5 text-theme-primary">
-				{t('description')}{' '}
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('learnMore')}</b>
+				{t('description')} <b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('learnMore')}</b>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			<div
@@ -29,9 +28,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 					<Icons.WebhooksIcon />
 					<div>
 						<div className="pb-[3px] font-semibold break-all text-theme-primary">{t('webhooks')}</div>
-						<div className="text-[12px] text-theme-primary">
-							{t('webhook', { count: allWebhooks?.length || 0 })}
-						</div>
+						<div className="text-[12px] text-theme-primary">{t('webhook', { count: allWebhooks?.length || 0 })}</div>
 					</div>
 				</div>
 				{allWebhooks && allWebhooks?.length === 0 ? (

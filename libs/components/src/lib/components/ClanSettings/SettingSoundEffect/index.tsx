@@ -15,7 +15,6 @@ import { generateE2eId } from '@mezon/utils';
 import type { ClanSticker } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import ModalUploadSound from './ModalUploadSound';
 interface ExtendedClanSticker extends ClanSticker {
 	media_type?: MediaType;
@@ -172,7 +171,7 @@ const SettingSoundEffect = () => {
 };
 
 const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
-	const creator = useSelector(selectMemberClanByUserId(creatorId));
+	const creator = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 
 	if (!creator) return null;
 

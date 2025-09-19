@@ -1,12 +1,11 @@
-import { selectMemberClanByUserId } from '@mezon/store';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { getShowName } from './useShowName';
 
 export const useGetPriorityNameFromUserClan = (senderId: string) => {
 	const isAnonymous = useMemo(() => senderId === process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID, [senderId]);
 
-	const userClan = useSelector(selectMemberClanByUserId(senderId));
+	const userClan = useAppSelector((state) => selectMemberClanByUserId(state, senderId));
 
 	const usernameSender = useMemo(() => {
 		return userClan?.user?.username;

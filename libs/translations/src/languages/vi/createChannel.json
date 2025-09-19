@@ -26,6 +26,19 @@
         "private": "Kênh riêng tư",
         "description": "Chỉ những thành viên và vai trò được chọn mới có thể xem kênh này."
     },
+    "labels": {
+        "description": "Vui lòng thiết lập kênh theo sự lựa chọn của bạn.",
+        "chooseType": "Chọn loại kênh:",
+        "channelName": "Tên kênh là gì?",
+        "isPrivate": "Kênh riêng tư?",
+        "placeholder": "Nhập tên kênh"
+    },
+    "errors": {
+        "typeRequired": "Loại kênh là bắt buộc",
+        "nameRequired": "Tên kênh là bắt buộc",
+        "selectApp": "Vui lòng chọn một ứng dụng",
+        "validName": "Vui lòng nhập tên kênh hợp lệ"
+    },
     "buttons": {
         "cancel": "Hủy",
         "create": "Tạo kênh",

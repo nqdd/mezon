@@ -1,19 +1,19 @@
 import { useAppParams, useAttachments } from '@mezon/core';
 import {
-  attachmentActions,
-  selectAllListAttachmentByChannel,
-  selectAttachment,
-  selectCurrentAttachmentShowImage,
-  selectCurrentChannel,
-  selectCurrentChannelId,
-  selectDmGroupCurrent,
-  selectMembeGroupByUserId,
-  selectMemberClanByUserId2,
-  selectMessageIdAttachment,
-  selectModeAttachment,
-  selectModeResponsive,
-  selectOpenModalAttachment,
-  useAppSelector
+	attachmentActions,
+	selectAllListAttachmentByChannel,
+	selectAttachment,
+	selectCurrentAttachmentShowImage,
+	selectCurrentChannel,
+	selectCurrentChannelId,
+	selectDmGroupCurrent,
+	selectMembeGroupByUserId,
+	selectMemberClanByUserId,
+	selectMessageIdAttachment,
+	selectModeAttachment,
+	selectModeResponsive,
+	selectOpenModalAttachment,
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
@@ -311,7 +311,7 @@ const MessageModalImage = () => {
 const SenderUser = () => {
 	const { directId } = useAppParams();
 	const attachment = useSelector(selectCurrentAttachmentShowImage);
-	const clanUser = useAppSelector((state) => selectMemberClanByUserId2(state, attachment?.uploader as string));
+	const clanUser = useAppSelector((state) => selectMemberClanByUserId(state, attachment?.uploader as string));
 	const dmUser = useAppSelector((state) => selectMembeGroupByUserId(state, directId as string, attachment?.uploader as string));
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const user = modeResponsive === ModeResponsive.MODE_CLAN ? clanUser : dmUser;

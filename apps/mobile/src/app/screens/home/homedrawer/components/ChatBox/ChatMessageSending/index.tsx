@@ -13,7 +13,7 @@ import {
 	selectChannelById,
 	selectDmGroupCurrent,
 	selectIsShowCreateTopic,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	sendEphemeralMessage,
 	threadsActions,
 	useAppDispatch,
@@ -211,7 +211,7 @@ export const ChatMessageSending = memo(
 			}
 			if (ephemeralTargetUserId) {
 				const userProfile = selectAllAccount(store.getState());
-				const profileInTheClan = selectMemberClanByUserId2(store.getState(), userProfile?.user?.id ?? '');
+				const profileInTheClan = selectMemberClanByUserId(store.getState(), userProfile?.user?.id ?? '');
 				const priorityAvatar =
 					mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
 						? profileInTheClan?.clan_avatar

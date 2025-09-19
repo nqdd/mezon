@@ -3,7 +3,7 @@ import {
 	selectCurrentClan,
 	selectCurrentClanId,
 	selectFormOnboarding,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOnboardingByClan,
 	useAppSelector
 } from '@mezon/store';
@@ -161,7 +161,7 @@ const SectionDescription = ({ title, description }: { title: string; description
 };
 const OwnerGreeting = () => {
 	const currenClan = useSelector(selectCurrentClan);
-	const clanOwner = useAppSelector((state) => selectMemberClanByUserId2(state, currenClan?.creator_id as string));
+	const clanOwner = useAppSelector((state) => selectMemberClanByUserId(state, currenClan?.creator_id as string));
 	return (
 		<div className="p-[2px] flex items-center justify-center bg-gradient-to-br from-indigo-300 to-purple-300 dark:from-[#9e9e9e] dark:to-[#494949]">
 			<div className="w-full p-4 pt-2 flex flex-col gap-2 bg-gradient-to-br bg-theme-setting-nav rounded-md">

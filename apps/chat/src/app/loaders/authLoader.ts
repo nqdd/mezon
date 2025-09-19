@@ -1,5 +1,5 @@
+import type { AppDispatch } from '@mezon/store';
 import {
-	AppDispatch,
 	accountActions,
 	authActions,
 	clansActions,
@@ -14,8 +14,8 @@ import {
 	selectVoiceOpenPopOut,
 	usersClanActions
 } from '@mezon/store';
-import { IWithError } from '@mezon/utils';
-import { CustomLoaderFunction } from './appLoader';
+import type { IWithError } from '@mezon/utils';
+import type { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
 export interface IAuthLoaderData {
@@ -81,7 +81,7 @@ const handleLogoutWithRedirect = (dispatch: AppDispatch, initialPath: string): I
 
 async function checkInternetConnection() {
 	try {
-		const response = await fetch('https://www.google.com/favicon.ico', {
+		const response = await fetch('https://mezon.ai/assets/favicon.ico', {
 			method: 'HEAD',
 			cache: 'no-cache'
 		});

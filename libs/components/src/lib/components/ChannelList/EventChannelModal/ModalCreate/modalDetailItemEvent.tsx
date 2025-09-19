@@ -104,7 +104,7 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 	const channelVoice = useAppSelector((state) => selectChannelById(state, event?.channel_voice_id ?? '')) || {};
 
 	const currentClan = useSelector(selectCurrentClan);
-	const userCreate = useSelector(selectMemberClanByUserId(event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const time = useMemo(() => timeFomat(event?.start_time || ''), [event?.start_time]);
 
 	return (

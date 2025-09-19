@@ -4,7 +4,7 @@ import {
 	selectAnonymousMode,
 	selectCurrentTopicId,
 	selectCurrentTopicInitMessage,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	topicsActions,
 	useAppDispatch,
 	useAppSelector
@@ -32,7 +32,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 
 	const userProfile = useSelector(selectAllAccount);
 
-	const profileInTheClan = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id ?? ''));
+	const profileInTheClan = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id ?? ''));
 	const priorityAvatar =
 		mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
 			? profileInTheClan?.clan_avatar

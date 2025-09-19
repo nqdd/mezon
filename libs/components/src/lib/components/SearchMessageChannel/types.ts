@@ -1,6 +1,13 @@
-import { ChannelStreamMode } from 'mezon-js';
-import { ApiSearchMessageRequest } from 'mezon-js/api.gen';
-import { OnChangeHandlerFunc } from 'react-mentions';
+import type { MentionItem } from '@mezon/utils';
+import type { ChannelStreamMode } from 'mezon-js';
+import type { ApiSearchMessageRequest } from 'mezon-js/api.gen';
+
+export type OnChangeHandlerFunc = (
+	event: { target: { value: string } },
+	newValue: string,
+	newPlainTextValue: string,
+	mentions: MentionItem[]
+) => void;
 
 export interface SearchInputProps {
 	channelId: string;

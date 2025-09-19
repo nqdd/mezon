@@ -1,6 +1,6 @@
 import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
-import { ApiClanWebhook } from 'mezon-js/api.gen';
+import type { ApiClanWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
 interface IClanIntegrationProps {

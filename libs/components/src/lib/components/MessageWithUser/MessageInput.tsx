@@ -1,21 +1,14 @@
 import { useChannelMembers, useEditMessage, useEmojiSuggestionContext } from '@mezon/core';
+import type { MessagesEntity } from '@mezon/store';
+import { pinMessageActions, selectAllChannels, selectAllHashtagDm, selectAllRolesClan, selectCurrentChannelId, useAppDispatch } from '@mezon/store';
 import {
-  MessagesEntity,
-  pinMessageActions,
-  selectAllChannels,
-  selectAllHashtagDm,
-  selectAllRolesClan,
-  selectCurrentChannelId,
-  useAppDispatch
-} from '@mezon/store';
-import {
-  RECENT_EMOJI_CATEGORY,
-  TITLE_MENTION_HERE,
-  addMention,
-  convertMessageToHtml,
-  filterEmptyArrays,
-  processEntitiesDirectly,
-  searchMentionsHashtag
+	RECENT_EMOJI_CATEGORY,
+	TITLE_MENTION_HERE,
+	addMention,
+	convertMessageToHtml,
+	filterEmptyArrays,
+	processEntitiesDirectly,
+	searchMentionsHashtag
 } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -55,7 +48,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 	const editorRef = useRef<MentionsInputHandle | null>(null);
 	const mentionListData = UserMentionList({ channelID: channelId, channelMode: mode });
 	const rolesClan = useSelector(selectAllRolesClan);
-	useChannelMembers({ channelId: channelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
+	useChannelMembers({ channelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
 	const [showModal, closeModal] = useModal(() => {
 		return <ModalDeleteMess mess={message} closeModal={closeModal} mode={mode} />;
 	}, [message?.id]);
@@ -154,7 +147,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 
 				dispatch(
 					pinMessageActions.updatePinMessage({
-						channelId: channelId,
+						channelId,
 						pinId: message.id,
 						pinMessage: {
 							...message,
@@ -176,7 +169,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 
 				dispatch(
 					pinMessageActions.updatePinMessage({
-						channelId: channelId,
+						channelId,
 						pinId: message.id,
 						pinMessage: {
 							...message,
@@ -282,7 +275,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 												? 'Notify everyone who has permission to see this channel'
 												: ((suggestion.username as string) ?? '')
 										}
-										subTextStyle={(suggestion.display === TITLE_MENTION_HERE ? 'normal-case' : 'lowercase') + ' text-xs'}
+										subTextStyle={`${suggestion.display === TITLE_MENTION_HERE ? 'normal-case' : 'lowercase'} text-xs`}
 										showAvatar={suggestion.display !== TITLE_MENTION_HERE}
 										display={suggestion.display}
 										color={suggestion.color as string}

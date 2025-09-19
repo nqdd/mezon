@@ -16,11 +16,11 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { Platform, SIZE_PAGE_SEARCH, SearchFilter, getPlatform } from '@mezon/utils';
+import type { OnChangeHandlerFunc, SearchFilter } from '@mezon/utils';
+import { Platform, SIZE_PAGE_SEARCH, getPlatform } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiSearchMessageRequest } from 'mezon-js/api.gen';
+import type { ApiSearchMessageRequest } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { OnChangeHandlerFunc } from 'react-mentions';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { hasKeySearch, searchFieldName } from './constant';
@@ -59,7 +59,7 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 
 	const setIsShowCreateThread = useCallback(
 		(isShowCreateThread: boolean, channelId?: string) => {
-			channelId && dispatch(threadsActions.setIsShowCreateThread({ channelId: channelId, isShowCreateThread }));
+			channelId && dispatch(threadsActions.setIsShowCreateThread({ channelId, isShowCreateThread }));
 		},
 		[dispatch]
 	);
@@ -123,7 +123,7 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 				});
 			}
 			const search: ApiSearchMessageRequest = { ...searchedRequest, filters: filter };
-			dispatch(searchMessagesActions.setSearchedRequest({ channelId: channelId, value: search }));
+			dispatch(searchMessagesActions.setSearchedRequest({ channelId, value: search }));
 		},
 		[channelId, currentClanId, dispatch, searchedRequest]
 	);
@@ -167,7 +167,7 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			if (valueInputSearch && event.key === 'Enter') {
 				setIsShowSearchMessageModal(false);
 				dispatch(searchMessagesActions.setIsSearchMessage({ channelId, isSearchMessage: true }));
-				dispatch(searchMessagesActions.setCurrentPage({ channelId: channelId, page: 1 }));
+				dispatch(searchMessagesActions.setCurrentPage({ channelId, page: 1 }));
 				setIsShowCreateThread(false, currentChannel?.parent_id !== '0' ? currentChannel?.parent_id : currentChannel.channel_id);
 
 				if (isActive) dispatch(appActions.setIsShowMemberList(!isActive));

@@ -4,7 +4,7 @@ import {
 	selectAllRolesClan,
 	selectCurrentClan,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectRolesClanEntities,
 	selectTheme,
 	selectUserMaxPermissionLevel,
@@ -26,7 +26,7 @@ type RoleUserProfileProps = {
 const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 	const { t } = useTranslation('userProfile');
 	const currentClanId = useSelector(selectCurrentClanId);
-	const userById = useAppSelector((state) => selectMemberClanByUserId2(state, userID || ''));
+	const userById = useAppSelector((state) => selectMemberClanByUserId(state, userID || ''));
 	const { updateRole } = useRoles();
 	const RolesClan = useSelector(selectAllRolesClan);
 	const currentClan = useSelector(selectCurrentClan);

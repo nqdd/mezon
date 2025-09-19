@@ -1,13 +1,12 @@
-import { clansActions, selectCurrentClan, selectMemberClanByUserId, useAppDispatch } from '@mezon/store';
-import { useSelector } from 'react-redux';
+import { clansActions, selectCurrentClan, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
 import { useTranslation } from 'react-i18next';
 import GuideBody from './GuideBody';
 
 function GuideMain() {
 	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
-	const currentClan = useSelector(selectCurrentClan);
-	const clanOwner = useSelector(selectMemberClanByUserId(currentClan?.creator_id as string));
+	const currentClan = useAppSelector(selectCurrentClan);
+	const clanOwner = useAppSelector((state) => selectMemberClanByUserId(state, currentClan?.creator_id as string));
 	return (
 		<div className="w-full h-full overflow-x-hidden p-8 overflow-y-scroll text-theme-primary scrollbar-hide flex flex-col items-center">
 			<div className="flex flex-col w-[104%]">

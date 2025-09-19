@@ -13,19 +13,19 @@ export const validateEmail = (value: string) => {
 
 export const validatePassword = (value: string) => {
 	if (value.length < 8) {
-		return 'Password must be at least 8 characters';
+		return 'characters';
 	}
 	if (!/[A-Z]/.test(value)) {
-		return 'Password must contain at least 1 uppercase letter';
+		return 'uppercase';
 	}
 	if (!/[a-z]/.test(value)) {
-		return 'Password must contain at least 1 lowercase letter';
+		return 'lowercase';
 	}
 	if (!/[0-9]/.test(value)) {
-		return 'Password must contain at least 1 number';
+		return 'number';
 	}
 	if (!/[^A-Za-z0-9]/.test(value)) {
-		return 'Password must contain at least 1 special character';
+		return 'symbol';
 	}
 	return '';
 };

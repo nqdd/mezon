@@ -48,5 +48,19 @@
 		"createInviteLink": "Lỗi khi tạo liên kết mời",
 		"copyToClipboard": "Không thể sao chép vào clipboard",
 		"copyFailed": "Sao chép thất bại"
+	},
+	"acceptModal": {
+		"title": "Tham gia Clan",
+		"invitedToJoin": "Bạn đã được mời tham gia",
+		"memberCount": "{{count}} Thành viên",
+		"memberCount_plural": "{{count}} Thành viên",
+		"clanSettings": "Cài đặt Clan",
+		"customizeAnytime": "Bạn có thể tùy chỉnh những điều này bất cứ lúc nào",
+		"noThanks": "Không, cảm ơn",
+		"acceptInvite": "Chấp nhận lời mời",
+		"joining": "Đang tham gia...",
+		"toast": {
+			"alreadyMember": "Bạn đã là thành viên rồi!"
+		}
 	}
 }

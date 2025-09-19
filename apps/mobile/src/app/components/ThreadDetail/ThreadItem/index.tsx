@@ -6,7 +6,7 @@ import {
 	getStoreAsync,
 	MessagesEntity,
 	selectLastMessageIdByChannelId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageEntityById,
 	ThreadsEntity,
 	useAppSelector
@@ -35,7 +35,7 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 		(state) => selectMessageEntityById(state, thread?.channel_id as string, messageId || thread?.last_sent_message?.id) as MessagesEntity
 	);
 	const user = useAppSelector((state) =>
-		selectMemberClanByUserId2(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
+		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
 	) as IChannelMember;
 	const isTabletLandscape = useTabletLandscape();
 

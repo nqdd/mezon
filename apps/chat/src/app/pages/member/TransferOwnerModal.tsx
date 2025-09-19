@@ -1,6 +1,6 @@
 import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
-import { selectCurrentClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectCurrentClan, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Button, ButtonLoading, Icons, Modal } from '@mezon/ui';
 import { ChannelMembersEntity } from '@mezon/utils';
 import { useState } from 'react';
@@ -14,7 +14,7 @@ type TransferOwnerProps = {
 const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) => {
 	const { t } = useTranslation('transferOwner');
 	const { userProfile } = useAuth();
-	const dataInClan = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id || ''));
+	const dataInClan = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id || ''));
 	const currentClan = useAppSelector(selectCurrentClan);
 	const [checkedTransfer, setCheckedTransfer] = useState(false);
 
@@ -32,9 +32,9 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 		<Modal onClose={onClose} showModal title={t('title')}>
 			<div className="flex flex-col gap-6 p-3 items-center text-theme-primary">
 				<div className=" text-base ">
-					{t('description', { 
-						clanName: currentClan?.clan_name, 
-						memberName: member?.clan_nick || member.user?.display_name || member?.user?.username 
+					{t('description', {
+						clanName: currentClan?.clan_name,
+						memberName: member?.clan_nick || member.user?.display_name || member?.user?.username
 					})}
 				</div>
 				<div className="flex gap-3">

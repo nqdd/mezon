@@ -1,10 +1,18 @@
-import { selectCurrentClanId, selectMemberClanByUserId, settingClanStickerActions, updateClanWebhookById, useAppDispatch } from '@mezon/store';
+import {
+	selectCurrentClanId,
+	selectMemberClanByUserId,
+	settingClanStickerActions,
+	updateClanWebhookById,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import type { ApiClanWebhook, ApiMessageAttachment, MezonUpdateClanWebhookByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { ELimitSize } from '../../../../ModalValidateFile';
@@ -27,8 +35,9 @@ const convertDate = (isoDateString: string): string => {
 };
 
 const ClanWebhookItemModal = ({ webhookItem }: IClanWebhookItemModalProps) => {
+	const { t } = useTranslation('clanIntegrationsSetting');
 	const [isExpand, setIsExpand] = useState(false);
-	const webhookOwner = useSelector(selectMemberClanByUserId(webhookItem.creator_id as string));
+	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhookItem.creator_id as string));
 	return (
 		<div className="bg-theme-setting-nav border-theme-primary p-[20px] border  rounded-md mb-[20px]">
 			<div className="flex gap-[20px] items-center">
@@ -39,7 +48,10 @@ const ClanWebhookItemModal = ({ webhookItem }: IClanWebhookItemModalProps) => {
 						<div className="flex gap-1 items-center">
 							<Icons.ClockIcon className="dark:text-[#b5bac1] text-textLightTheme" />
 							<div className="dark:text-[#b5bac1] text-textLightTheme text-[13px]">
-								Created on {convertDate(webhookItem.create_time || '')} by {webhookOwner?.user?.username}
+								{t('webhooksItem.createdBy', {
+									webhookCreateTime: convertDate(webhookItem.create_time || ''),
+									webhookUserOwnerName: webhookOwner?.user?.username
+								})}
 							</div>
 						</div>
 					</div>
@@ -67,6 +79,7 @@ interface IDataForUpdate {
 }
 
 const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) => {
+	const { t } = useTranslation('clanIntegrationsSetting');
 	const dispatch = useAppDispatch();
 	const [isShowPopup, setIsShowPopup] = useState(false);
 	const openShowPopup = () => {
@@ -87,7 +100,7 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 		navigator.clipboard
 			.writeText(url)
 			.then(() => {
-				toast.success('URL copied to clipboard!');
+				toast.success(t('webhooksEdit.copied'));
 			})
 			.catch((error) => {
 				toast.error('Failed to copy URL');
@@ -216,9 +229,7 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 								onClick={() => avatarRef.current?.click()}
 							/>
 						</div>
-						<div className="text-[10px] mt-[10px] text-center">
-							Minimum Size: <b>128x128</b>
-						</div>
+						<div className="text-[10px] mt-[10px] text-center">{t('webhooksEdit.recommendImage')}</div>
 					</div>
 					<div className="w-9/12">
 						<div className="flex gap-6 w-full">
@@ -243,7 +254,7 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 									onClick={() => handleResetToken()}
 									className="mt-7 w-full text-white bg-green-700 hover:bg-green-500 flex justify-center items-center rounded-sm outline-none h-[50px]"
 								>
-									Reset Token
+									{t('webhooksEdit.resetToken')}
 								</div>
 							</div>
 						</div>
@@ -254,10 +265,10 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 									onClick={() => handleCopyUrl(webhookItem.url as string)}
 									className="font-medium px-4 py-2 btn-primary btn-primary-hover rounded-lg  cursor-pointer "
 								>
-									Copy Webhook URL
+									{t('webhooksEdit.copy')} Webhook URL
 								</div>
 								<div onClick={openShowPopup} className="font-medium text-red-500 hover:underline cursor-pointer">
-									Delete Webhook
+									{t('webhooksEdit.delete')} Webhook
 								</div>
 							</div>
 						</div>
@@ -270,10 +281,10 @@ const ExpendedClanWebhookModal = ({ webhookItem }: IExpendedClanWebhookModal) =>
 							onClick={() => handleCopyUrl(webhookItem.url as string)}
 							className="font-medium px-4 py-2 btn-primary btn-primary-hover rounded-lg  cursor-pointer"
 						>
-							Copy Clan Webhook URL
+							{t('webhooksEdit.copy')} Clan Webhook URL
 						</div>
 						<div onClick={openShowPopup} className="font-medium text-red-500 hover:underline cursor-pointer">
-							Delete Clan Webhook
+							{t('webhooksEdit.delete')} Clan Webhook
 						</div>
 					</div>
 				</div>
