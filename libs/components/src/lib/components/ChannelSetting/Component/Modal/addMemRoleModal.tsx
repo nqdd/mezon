@@ -1,6 +1,6 @@
 import { useAuth, useEscapeKeyClose } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	channelUsersActions,
 	selectAllRolesClan,
 	selectAllUserChannel,
@@ -10,9 +10,10 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { ButtonLoading, Icons, InputField } from '@mezon/ui';
-import { ChannelStatusEnum, IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiUser } from 'mezon-js/api.gen';
+import type { ApiUser } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -77,8 +78,8 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 
 	const initFilter: filterItemProps = useMemo(
 		() => ({
-			listMembersNotInChannel: listMembersNotInChannel,
-			listRolesNotAddChannel: listRolesNotAddChannel
+			listMembersNotInChannel,
+			listRolesNotAddChannel
 		}),
 		[listRolesNotAddChannel, listMembersNotInChannel]
 	);
@@ -189,17 +190,13 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 			<div className="relative z-10 p-6 bg-theme-setting-primary text-theme-primary rounded-[5px] w-[440px] text-[15px]">
 				<h2 className="text-[24px] font-semibold text-center text-theme-primary-active">{t('addMembersRoles.title')}</h2>
 				<div className="flex justify-center">
-					{isPrivate === ChannelStatusEnum.isPrivate &&
-						(channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) && (
-							<Icons.SpeakerLocked defaultSize="w-5 h-5" />
-						)}
+					{isPrivate === ChannelStatusEnum.isPrivate && channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
+						<Icons.SpeakerLocked defaultSize="w-5 h-5" />
+					)}
 					{isPrivate === ChannelStatusEnum.isPrivate && channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && (
 						<Icons.HashtagLocked defaultSize="w-5 h-5 " />
 					)}
-					{isPrivate === undefined &&
-						(channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) && (
-							<Icons.Speaker defaultSize="w-5 5-5" />
-						)}
+					{isPrivate === undefined && channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && <Icons.Speaker defaultSize="w-5 5-5" />}
 					{isPrivate === undefined && channel.type === ChannelType.CHANNEL_TYPE_STREAMING && <Icons.Stream defaultSize="w-5 5-5" />}
 					{isPrivate === undefined && channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && <Icons.Hashtag defaultSize="w-5 h-5" />}
 					<p className=" text-[16px]" style={{ wordBreak: 'break-word' }}>

@@ -159,13 +159,6 @@ function MyApp() {
 	const openModalE2ee = useSelector(selectOpenModalE2ee);
 	const hasKeyE2ee = useSelector(selectHasKeyE2ee);
 
-	useEffect(() => {
-		if (currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `https://meet.google.com/${currentChannel.meeting_code}`;
-			window.open(urlVoice, '_blank', 'noreferrer');
-		}
-	}, []);
-
 	const isShowPopupQuickMess = useSelector(selectIsShowPopupQuickMess);
 
 	const streamStyle = isShowChatStream

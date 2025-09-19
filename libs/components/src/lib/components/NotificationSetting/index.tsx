@@ -1,6 +1,6 @@
 import { useCategorizedAllChannels } from '@mezon/core';
+import type { SetDefaultNotificationPayload } from '@mezon/store';
 import {
-	SetDefaultNotificationPayload,
 	defaultNotificationActions,
 	defaultNotificationCategoryActions,
 	notificationSettingActions,
@@ -14,8 +14,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Button } from '@mezon/ui';
-import { ICategoryChannel, IChannel } from '@mezon/utils';
-import { ChannelType } from 'mezon-js';
+import type { ICategoryChannel, IChannel } from '@mezon/utils';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -104,13 +103,12 @@ const ModalNotificationSetting = (props: ModalParam) => {
 	};
 	const categorizedChannels = useCategorizedAllChannels();
 	const options = categorizedChannels.reduce<Array<{ id: string; label: string; title: string }>>((acc, category) => {
-		if ((category as IChannel).type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			acc.push({
-				id: category.id,
-				label: (category as IChannel).channel_label || category.category_name || '',
-				title: (category as ICategoryChannel).channels ? 'category' : 'channel'
-			});
-		}
+		acc.push({
+			id: category.id,
+			label: (category as IChannel).channel_label || category.category_name || '',
+			title: (category as ICategoryChannel).channels ? 'category' : 'channel'
+		});
+
 		return acc;
 	}, []);
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -152,7 +150,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 				category_id: channelCategoryId || '',
 				notification_type: notificationType,
 				clan_id: currentClan?.clan_id || '',
-				active: active
+				active
 			};
 			dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 		}
@@ -161,7 +159,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 				channel_id: channelCategoryId || '',
 				notification_type: notificationType,
 				clan_id: currentClanId || '',
-				active: active
+				active
 			};
 			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
 		}
@@ -268,9 +266,13 @@ const ModalNotificationSetting = (props: ModalParam) => {
 						<table className="w-full mt-4 hide-scrollbar overflow-hidden space-y-2">
 							<thead>
 								<tr className="grid grid-cols-7 text-theme-primary-active">
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">{t('headers.channelOrCategory')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">
+										{t('headers.channelOrCategory')}
+									</th>
 									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.all')}</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.mentions')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">
+										{t('headers.mentions')}
+									</th>
 									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.nothing')}</th>
 									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.mute')}</th>
 								</tr>

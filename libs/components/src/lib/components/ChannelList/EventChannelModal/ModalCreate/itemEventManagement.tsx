@@ -1,7 +1,6 @@
-import { ButtonCopy } from '@mezon/components';
 import { useAppNavigation, useAuth, useOnClickOutside, usePermissionChecker } from '@mezon/core';
+import type { EventManagementEntity } from '@mezon/store';
 import {
-	EventManagementEntity,
 	addUserEvent,
 	deleteUserEvent,
 	eventManagementActions,
@@ -16,7 +15,7 @@ import { Icons } from '@mezon/ui';
 import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
-import { ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,12 +23,13 @@ import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
-import { Coords } from '../../../ChannelLink';
+import type { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
 import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
+import { ButtonCopy } from 'libs/components/src/lib/components';
 
 export type ItemEventManagementProps = {
 	reviewDescription?: string;
@@ -289,15 +289,12 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					{checkOptionVoice &&
 						!isPrivateEvent &&
 						(() => {
-							const isGMeet = channelVoice.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
-							const linkProps = isGMeet
-								? { href: `https://meet.google.com/${channelVoice.meeting_code}`, rel: 'noreferrer', target: '_blank' }
-								: {
-										onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-											handleStopPropagation(e);
-											redirectToVoice();
-										}
-									};
+							const linkProps = {
+								onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+									handleStopPropagation(e);
+									redirectToVoice();
+								}
+							};
 							return (
 								<a {...linkProps} className="flex gap-x-2 cursor-pointer">
 									<Icons.Speaker />

@@ -23,7 +23,7 @@ import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import ButtonSwich from '../../ButtonSwich';
+import ButtonSwitch from '../../ButtonSwitchCustom';
 import type { Coords } from '../../ChannelLink';
 import { ELimitSize } from '../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
@@ -432,7 +432,7 @@ const SettingRightUser = ({
 									<img src="./assets/images/icon-logo-mezon.svg" className="cursor-default pointer-events-none" />
 								</div>
 
-								<ButtonSwich
+								<ButtonSwitch
 									iconDefault={<Icons.CopyIcon />}
 									iconSwitch={<Icons.Tick defaultSize="w-4 h-4" fill="currentColor" />}
 									onClick={handleCopyQR}
