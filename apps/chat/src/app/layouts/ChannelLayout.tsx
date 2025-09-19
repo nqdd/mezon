@@ -18,7 +18,7 @@ import ReactionEmojiPanel from './ReactionEmojiPanel';
 
 const ChannelLayout = () => {
 	const currentChannel = useSelector(selectCurrentChannel);
-	const isChannelVoice = currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
+	const isChannelVoice = currentChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	const isChannelStream = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
 	const closeMenu = useSelector(selectCloseMenu);
 

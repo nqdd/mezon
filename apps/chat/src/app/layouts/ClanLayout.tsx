@@ -1,8 +1,7 @@
 import { ChannelList, ClanHeader } from '@mezon/components';
 import { useApp, useGifsStickersEmoji } from '@mezon/core';
+import type { ChannelsEntity, ClansEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
-	ClansEntity,
 	appActions,
 	selectAllAccount,
 	selectCloseMenu,
@@ -64,7 +63,7 @@ const ClanEffects: React.FC<{
 		}
 	}, [isShowCreateThread, isShowCreateTopic]);
 
-	const checkTypeChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
+	const checkTypeChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	useEffect(() => {
 		if (checkTypeChannel) {
 			dispatch(voiceActions.setStatusCall(checkTypeChannel));
@@ -113,7 +112,7 @@ const ClanLayout = () => {
 				className={`flex flex-1 shrink min-w-0 gap-2 bg-theme-chat h-heightWithoutTopBar mt-[50px] ${isVoiceFullScreen ? 'z-20' : ''} ${currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING && memberPath !== currentURL ? 'bg-theme-secondary' : ''}`}
 			>
 				<div
-					className={`flex flex-col flex-1 shrink ${isShowChatStream && currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING && memberPath !== currentURL ? 'max-sm:hidden' : ''} min-w-0 bg-transparent h-heightWithoutTopBar overflow-visible ${currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? 'group' : ''}`}
+					className={`flex flex-col flex-1 shrink ${isShowChatStream && currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING && memberPath !== currentURL ? 'max-sm:hidden' : ''} min-w-0 bg-transparent h-heightWithoutTopBar overflow-visible ${currentChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ? 'group' : ''}`}
 				>
 					{(currentChannel?.type !== ChannelType.CHANNEL_TYPE_STREAMING || memberPath === currentURL) && <Outlet />}
 				</div>
