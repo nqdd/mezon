@@ -128,7 +128,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 								: t('deleteMessageModal.deleteMessageDescription')}
 						</p>
 					</div>
-					<div className="w-fit flex items-center p-4 max-w-[720px] max-h-[50vh] overflow-hidden bg-theme-secondary pointer-events-none [&_.attachment-actions]:!hidden [&_button]:!hidden [&_img]:!object-contain">
+					<div className="w-full flex flex-wrap items-start p-4 max-w-[720px] max-h-[50vh] overflow-y-auto overflow-x-hidden bg-theme-secondary pointer-events-none break-words break-all thread-scroll whitespace-pre-wrap [&_p]:!whitespace-normal [&_span]:!whitespace-normal [&_a]:!whitespace-normal [&_div]:!whitespace-normal [&_p]:break-words [&_span]:break-words [&_a]:break-words [&_code]:break-all [&_.attachment-actions]:!hidden [&_button]:!hidden [&_img]:!object-contain [&_img]:max-w-full">
 						<ColorRoleProvider>
 							{isMessageSystem ? (
 								<MessageWithSystem message={mess as IMessageWithUser} isTopic={!!isTopic} />
