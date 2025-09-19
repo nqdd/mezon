@@ -29,7 +29,8 @@
     "yes": "Yes",
     "deleteCaptionHook": "Delete Caption Hook",
     "deleteWebhookConfirmation": "Are you sure you want to delete the {{webhookName}} webhook? This action cannot be undone.",
-    "resetToken": "Reset Token"
+    "resetToken": "Reset Token",
+    "name": "Webhook name"
   },
   "webhooksEmpty": {
     "noWebhooks": "NO WEBHOOKS",
