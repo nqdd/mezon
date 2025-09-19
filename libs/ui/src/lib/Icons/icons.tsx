@@ -1894,6 +1894,7 @@ export function AvatarUser(props: React.HTMLAttributes<SVGElement>) {
 			version="1.1"
 			viewBox="0 0 128 128"
 			xmlSpace="preserve"
+			{...props}
 		>
 			<circle cx="64" cy="64" fill="#4B5F83" id="circle" r="64" />
 			<g id="icon">
