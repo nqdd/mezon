@@ -1,7 +1,9 @@
 import { useChannels, usePermissionChecker } from '@mezon/core';
-import { ChannelsEntity, selectChannelById, selectWelcomeChannelByClanId, useAppSelector } from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { selectChannelById, selectWelcomeChannelByClanId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission, IChannel, checkIsThread } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { EPermission, checkIsThread } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -70,7 +72,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 			return <Icons.Hashtag defaultSize="w-5 h-5 -mt-1 min-w-5" />;
 		}
 
-		if (channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			if (isPrivate) {
 				return <Icons.SpeakerLocked defaultSize="w-5 h-5 min-w-5" />;
 			}
@@ -98,7 +100,12 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 					</p>
 				</div>
 
-				<ChannelSettingItemButton tabName={EChannelSettingTab.OVERVIEW} handleOnClick={handleButtonClick} selectedButton={selectedButton} getTabTranslation={getTabTranslation} />
+				<ChannelSettingItemButton
+					tabName={EChannelSettingTab.OVERVIEW}
+					handleOnClick={handleButtonClick}
+					selectedButton={selectedButton}
+					getTabTranslation={getTabTranslation}
+				/>
 				{!isThread && (
 					<>
 						<ChannelSettingItemButton
@@ -120,7 +127,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							)}
 					</>
 				)}
-				{channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && hasClanPermission && (
+				{hasClanPermission && (
 					<ChannelSettingItemButton
 						tabName={EChannelSettingTab.INTEGRATIONS}
 						handleOnClick={handleButtonClick}

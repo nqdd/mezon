@@ -1,9 +1,10 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { ChannelStatusEnum, IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useRef } from 'react';
 import Button from '../Button';
-import { Hashtag, HashtagLocked, Speaker, SpeakerLocked } from '../Icons';
+import { Hashtag, HashtagLocked } from '../Icons';
 
 export type ModalProps = {
 	children: React.ReactNode;
@@ -19,7 +20,7 @@ export type ModalProps = {
 	hasChannel?: IChannel;
 	isInviteModal?: boolean;
 	className?: string;
-	classNameHeader?: string
+	classNameHeader?: string;
 };
 
 const Modal = (props: ModalProps) => {
@@ -63,12 +64,7 @@ const Modal = (props: ModalProps) => {
 									{hasChannel && (
 										<div className="inline-flex gap-x-2">
 											{hasChannel.channel_private === ChannelStatusEnum.isPrivate &&
-												hasChannel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && <SpeakerLocked defaultSize="w-5 h-5" />}
-											{hasChannel.channel_private === ChannelStatusEnum.isPrivate &&
 												hasChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL && <HashtagLocked defaultSize="w-5 h-5 " />}
-											{hasChannel.channel_private === undefined && hasChannel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && (
-												<Speaker defaultSize="w-5 5-5" />
-											)}
 											{hasChannel.channel_private === undefined && hasChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL && (
 												<Hashtag defaultSize="w-5 h-5" />
 											)}

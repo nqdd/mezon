@@ -1,6 +1,6 @@
 import { useAppNavigation, useAuth, useDirect } from '@mezon/core';
+import type { DirectEntity } from '@mezon/store';
 import {
-	DirectEntity,
 	appActions,
 	categoriesActions,
 	channelsActions,
@@ -16,15 +16,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { InputField } from '@mezon/ui';
-import {
-	SearchItemProps,
-	TypeSearch,
-	addAttributesSearchList,
-	filterListByName,
-	normalizeString,
-	removeDuplicatesById,
-	sortFilteredList
-} from '@mezon/utils';
+import type { SearchItemProps } from '@mezon/utils';
+import { TypeSearch, addAttributesSearchList, filterListByName, normalizeString, removeDuplicatesById, sortFilteredList } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
@@ -281,12 +274,6 @@ function SearchModal({ onClose }: SearchModalProps) {
 				return;
 			}
 
-			if (channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-				const urlVoice = `https://meet.google.com/${channel.meeting_code}`;
-				window.open(urlVoice, '_blank', 'noreferrer');
-				return;
-			}
-
 			dispatch(categoriesActions.setCtrlKSelectedChannelId(channel?.id ?? ''));
 			const channelUrl = toChannelPage(channel?.id ?? '', channel?.clanId ?? '');
 			dispatch(categoriesActions.setCtrlKFocusChannel({ id: channel?.id, parentId: channel?.parent_id ?? '' }));
@@ -354,7 +341,8 @@ const FooterNoteModal = memo(() => {
 	return (
 		<div className="pt-2">
 			<span className="text-[13px] font-medium text-theme-primary">
-				<span className="text-[#2DC770] opacity-100 font-bold">{t('searchModal.protip')} </span>{t('searchModal.protipDescription')}
+				<span className="text-[#2DC770] opacity-100 font-bold">{t('searchModal.protip')} </span>
+				{t('searchModal.protipDescription')}
 			</span>
 		</div>
 	);
