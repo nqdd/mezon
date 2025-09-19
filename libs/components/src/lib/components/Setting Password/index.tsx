@@ -5,18 +5,29 @@ import type { LoadingStatus } from '@mezon/utils';
 import { validateEmail, validatePassword } from '@mezon/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 interface SetPasswordProps {
-	onSubmit?: (data: { email: string; password: string }) => void;
+	onSubmit?: (data: { email: string; password: string; oldPassword?: string }) => void;
 	title?: string;
 	description?: string;
 	submitButtonText?: string;
 	initialEmail?: string;
 	isLoading?: LoadingStatus;
 	onClose?: () => void;
+	hasPassword?: boolean;
 }
 
-export default function SetPassword({ onSubmit, title, description, submitButtonText, initialEmail = '', isLoading, onClose }: SetPasswordProps) {
+export default function SetPassword({
+	onSubmit,
+	title,
+	description,
+	submitButtonText,
+	initialEmail = '',
+	isLoading,
+	onClose,
+	hasPassword
+}: SetPasswordProps) {
 	const { t } = useTranslation('accountSetting');
 	const dispatch = useAppDispatch();
 
@@ -29,6 +40,7 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 	);
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState('');
+	const [oldPassword, setOldPassword] = useState('');
 	const [confirmPassword, setConfirmPassword] = useState('');
 	const [errors, setErrors] = useState<{
 		email?: string;
@@ -64,6 +76,14 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 		[confirmPassword, translatePasswordError, t]
 	);
 
+	const handleCurrentPassword = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const value = e.target.value;
+			setOldPassword(value);
+		},
+		[confirmPassword]
+	);
+
 	const handleConfirmPasswordChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const value = e.target.value;
@@ -79,25 +99,29 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
+			if (!hasPassword && !oldPassword) {
+				toast.warn('Please fill current password.');
+				return;
+			}
 			event.preventDefault();
 			const emailError = validateEmail(email);
 			const passwordError = translatePasswordError(validatePassword(password));
 			const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
 
-			if (emailError || passwordError || confirmError) {
+			if (emailError || passwordError || confirmError || oldPassword === password) {
 				setErrors({
 					email: emailError,
-					password: passwordError,
+					password: oldPassword === password ? t('setPasswordAccount.error.samePass') : passwordError,
 					confirmPassword: confirmError
 				});
 				return;
 			}
 
 			if (onSubmit) {
-				onSubmit({ email, password });
+				onSubmit({ email, password, oldPassword });
 			}
 		},
-		[email, password, confirmPassword, onSubmit, translatePasswordError, t]
+		[email, password, confirmPassword, onSubmit, translatePasswordError, t, oldPassword]
 	);
 
 	const disabled =
@@ -121,6 +145,14 @@ export default function SetPassword({ onSubmit, title, description, submitButton
 
 				<form onSubmit={handleSubmit}>
 					<div className="space-y-4 p-6">
+						{hasPassword && (
+							<PasswordInput
+								id="current-password"
+								label={t('setPasswordAccount.currentPassword')}
+								value={oldPassword}
+								onChange={handleCurrentPassword}
+							/>
+						)}
 						<div className="space-y-2">
 							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
 								{t('setPasswordAccount.email')}
