@@ -6,7 +6,7 @@ import {
 	addUserEvent,
 	deleteUserEvent,
 	selectClanById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectUserMaxPermissionLevel,
 	useAppDispatch,
 	useAppSelector
@@ -37,7 +37,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['eventMenu']);
-	const userCreate = useAppSelector((state) => selectMemberClanByUserId2(state, event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const clans = useSelector(selectClanById(event?.clan_id || ''));
 	const { userId, userProfile } = useAuth();
 	const [isInterested, setIsInterested] = useState<boolean>(false);

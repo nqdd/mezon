@@ -2,6 +2,7 @@ import { useAuth, useChannelMembersActions, usePermissionChecker } from '@mezon/
 import {
 	categoriesActions,
 	clansActions,
+	emojiSuggestionSlice,
 	hasGrandchildModal,
 	selectCurrentClan,
 	selectCurrentClanId,
@@ -12,6 +13,8 @@ import {
 	selectIsShowEmptyCategory,
 	selectToOnboard,
 	settingClanStickerActions,
+	settingClanStickerSlice,
+	soundEffectActions,
 	useAppDispatch
 } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
@@ -118,6 +121,9 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 
 	const handleLeaveClan = async () => {
 		await removeMemberClan({ channelId: currentChannelId, clanId: currentClan?.clan_id as string, userIds: [userProfile?.user?.id as string] });
+		dispatch(emojiSuggestionSlice.actions.invalidateCache());
+		dispatch(settingClanStickerSlice.actions.invalidateCache());
+		dispatch(soundEffectActions.invalidateCache());
 		toggleLeaveClanPopup();
 		navigate('/chat/direct/friends');
 	};

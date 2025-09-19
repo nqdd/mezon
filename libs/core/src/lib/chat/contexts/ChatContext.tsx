@@ -234,6 +234,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	const onvoiceleaved = useCallback(
 		(voice: VoiceLeavedEvent) => {
 			dispatch(voiceActions.remove(voice));
+			if (voice.voice_user_id === userId) {
+				if (document.pictureInPictureEnabled) {
+					document.exitPictureInPicture();
+				}
+			}
 		},
 		[dispatch]
 	);

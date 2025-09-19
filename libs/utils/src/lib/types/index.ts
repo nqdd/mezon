@@ -34,9 +34,9 @@ import type {
 	ApiPermissionRoleChannel
 } from 'mezon-js/dist/api.gen';
 import type { HTMLInputTypeAttribute } from 'react';
-import type { MentionItem } from 'react-mentions';
 import type { ILongPressType } from '../hooks';
 import type { CanvasDataResponse } from './htmlCanvas';
+import type { MentionItem } from './message';
 import type {
 	IBoldMessage,
 	IEmojiOnMessage,

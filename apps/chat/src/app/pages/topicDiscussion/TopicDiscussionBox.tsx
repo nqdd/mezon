@@ -16,11 +16,11 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import type { IMessageSendPayload } from '@mezon/utils';
 import {
 	CREATING_TOPIC,
 	EOverriddenPermission,
 	IMAGE_MAX_FILE_SIZE,
-	IMessageSendPayload,
 	MAX_FILE_ATTACHMENTS,
 	MAX_FILE_SIZE,
 	UploadLimitReason,
@@ -107,7 +107,7 @@ const TopicDiscussionBox = () => {
 		async (content: string, anonymousMessage?: boolean) => {
 			const fileContent = new Blob([content], { type: 'text/plain' });
 			const now = Date.now();
-			const filename = now + '.txt';
+			const filename = `${now}.txt`;
 			const file = new File([fileContent], filename, { type: 'text/plain' });
 
 			if (attachmentFilteredByChannelId?.files?.length + 1 > MAX_FILE_ATTACHMENTS) {

@@ -8,7 +8,7 @@ import {
 	selectClickedOnTopicStatus,
 	selectCurrentChannel,
 	selectCurrentTopicId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageByMessageId,
 	selectQuickMenusByChannelId,
 	useAppDispatch,
@@ -118,7 +118,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		async (command: SlashCommand) => {
 			const store = getStore();
 			const userProfile = selectAllAccount(store.getState());
-			const profileInClan = selectMemberClanByUserId2(store.getState(), userProfile?.user?.id ?? '');
+			const profileInClan = selectMemberClanByUserId(store.getState(), userProfile?.user?.id ?? '');
 
 			if (command.menu_type === QUICK_MENU_TYPE.QUICK_MENU) {
 				try {

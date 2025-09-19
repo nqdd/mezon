@@ -730,7 +730,7 @@ function FileButton() {
 		<div className="relative leading-5 h-5" ref={fileRef} data-e2e={generateE2eId('chat.channel_message.header.button.file')}>
 			<button
 				title={t('tooltips.files')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowFile ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowFile}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -759,7 +759,7 @@ function CanvasButton({ onClick }: { onClick?: () => void }) {
 		<div className="relative leading-5 h-5" ref={canvasRef} data-e2e={generateE2eId('chat.channel_message.header.button.canvas')}>
 			<button
 				title={t('tooltips.canvas')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowCanvas ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowCanvas}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -786,7 +786,7 @@ function ThreadButton() {
 		<div className="relative leading-5 h-5" ref={threadRef} data-e2e={generateE2eId('chat.channel_message.header.button.thread')}>
 			<button
 				title={t('tooltips.threads')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowThread ? 'text-theme-primary-active' : ''}`}
 				onClick={handleToggleThreads}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -845,7 +845,7 @@ function MuteButton() {
 		<div className="relative leading-5 h-5" ref={notiRef} data-e2e={generateE2eId('chat.channel_message.header.button.mute')}>
 			<button
 				title={t('tooltips.notificationSettings')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowNotificationSetting ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowNotificationSetting}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -893,7 +893,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 		<div className="relative leading-5 h-5" ref={pinRef} data-e2e={generateE2eId('chat.channel_message.header.button.pin')}>
 			<button
 				title={t('tooltips.pinnedMessages')}
-				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover`}
+				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover ${isShowPinMessage ? 'text-theme-primary-active' : ''}`}
 				onClick={handleTogglePinMessage}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -952,7 +952,11 @@ function ChannelListButton() {
 	};
 	return (
 		<div className="relative leading-5 h-5">
-			<button title={t('tooltips.members')} onClick={handleClick} className="text-theme-primary text-theme-primary-hover">
+			<button
+				title={t('tooltips.members')}
+				onClick={handleClick}
+				className={`text-theme-primary text-theme-primary-hover ${isActive ? 'text-theme-primary-active' : ''}`}
+			>
 				<Icons.MemberList defaultSize="size-5" />
 			</button>
 		</div>
@@ -1034,7 +1038,7 @@ function GalleryButton() {
 		<div className="relative leading-5 h-5" ref={galleryRef}>
 			<button
 				title={t('tooltips.gallery')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowGallery ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowGallery}
 				onContextMenu={(e) => e.preventDefault()}
 			>

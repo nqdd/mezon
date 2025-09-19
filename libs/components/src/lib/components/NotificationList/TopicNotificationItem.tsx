@@ -7,7 +7,8 @@ import {
 	selectMemberClanByUserId,
 	threadsActions,
 	topicsActions,
-	useAppDispatch
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
@@ -97,7 +98,7 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: ITo
 	}, [lastMessageTopic]);
 
 	const { priorityAvatar } = useGetPriorityNameFromUserClan(senderId || '');
-	const lastSentUser = useSelector(selectMemberClanByUserId(lastMessageTopic?.sender_id ?? ''));
+	const lastSentUser = useAppSelector((state) => selectMemberClanByUserId(state, lastMessageTopic?.sender_id ?? ''));
 
 	return (
 		<div className="flex flex-col p-2 bg-item-theme rounded-lg">

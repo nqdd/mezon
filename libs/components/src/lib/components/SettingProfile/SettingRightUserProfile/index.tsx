@@ -367,6 +367,7 @@ const SettingRightUser = ({
 									id="logo"
 									onChange={handleChangeLogo}
 									className="w-full absolute top-0 left-0 h-full text-sm hidden"
+									data-e2e={generateE2eId('user_setting.profile.user_profile.upload.direct_message_icon_input')}
 								/>
 							</label>
 						</div>

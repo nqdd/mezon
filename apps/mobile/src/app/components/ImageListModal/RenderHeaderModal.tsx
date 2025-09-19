@@ -4,7 +4,7 @@ import {
 	AttachmentEntity,
 	getStore,
 	selectDmGroupCurrentId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageByMessageId,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -32,7 +32,7 @@ interface IRenderFooterModalProps {
 export const RenderHeaderModal = React.memo(({ imageSelected, onImageSaved, onLoading, onImageCopy, onImageShare }: IRenderFooterModalProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const uploader = useAppSelector((state) => selectMemberClanByUserId2(state, imageSelected?.uploader || ''));
+	const uploader = useAppSelector((state) => selectMemberClanByUserId(state, imageSelected?.uploader || ''));
 	const { downloadImage, saveImageToCameraRoll, getImageAsBase64OrFile } = useImage();
 	const currentDirectId = useSelector(selectDmGroupCurrentId);
 	const navigation = useNavigation<any>();

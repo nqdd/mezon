@@ -1,32 +1,60 @@
-export const timeFomat = (start: string) => {
+export const timeFomat = (start: string, locale?: string) => {
 	const date = new Date(start);
 	const timezoneOffsetMinutes = -date.getTimezoneOffset();
 	date.setUTCMinutes(date.getUTCMinutes() + timezoneOffsetMinutes);
-	const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	const dayName = daysOfWeek[date.getUTCDay()];
 
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	const monthName = months[date.getUTCMonth()];
+	const currentLocale = locale || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') || 'en' : 'en');
 
-	const day = date.getUTCDate();
-	const suffix = (day: number) => {
-		if (day > 3 && day < 21) return 'th'; // 4 - 20 là 'th'
-		switch (day % 10) {
-			case 1:
-				return 'st';
-			case 2:
-				return 'nd';
-			case 3:
-				return 'rd';
-			default:
-				return 'th';
-		}
+	const localeMap: Record<string, string> = {
+		vi: 'vi-VN',
+		en: 'en-US'
 	};
-	const dayWithSuffix = `${day}${suffix(day)}`;
-	const hours = date.getUTCHours().toString().padStart(2, '0');
-	const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
-	return `${dayName} ${monthName} ${dayWithSuffix} - ${hours}:${minutes}`;
+	const browserLocale = localeMap[currentLocale] || 'en-US';
+
+	try {
+		const dateFormatter = new Intl.DateTimeFormat(browserLocale, {
+			weekday: 'short',
+			month: 'short',
+			day: 'numeric',
+			timeZone: 'UTC'
+		});
+
+		const timeFormatter = new Intl.DateTimeFormat(browserLocale, {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+			timeZone: 'UTC'
+		});
+
+		const datePart = dateFormatter.format(date);
+		const timePart = timeFormatter.format(date);
+
+		return `${datePart} - ${timePart}`;
+	} catch (error) {
+		const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+		const dayName = daysOfWeek[date.getUTCDay()];
+		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		const monthName = months[date.getUTCMonth()];
+		const day = date.getUTCDate();
+		const suffix = (day: number) => {
+			if (day > 3 && day < 21) return 'th';
+			switch (day % 10) {
+				case 1:
+					return 'st';
+				case 2:
+					return 'nd';
+				case 3:
+					return 'rd';
+				default:
+					return 'th';
+			}
+		};
+		const dayWithSuffix = `${day}${suffix(day)}`;
+		const hours = date.getUTCHours().toString().padStart(2, '0');
+		const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+		return `${dayName} ${monthName} ${dayWithSuffix} - ${hours}:${minutes}`;
+	}
 };
 
 export const handleTimeISO = (fullDateStr: Date, timeStr: string) => {
@@ -48,11 +76,64 @@ export function convertToLongUTCFormat(dateString: string): string {
 	}
 	let isoString = date.toISOString();
 	if (isoString.endsWith('Z') && !isoString.endsWith('.000Z')) {
-		isoString = isoString.slice(0, -1) + '.000Z';
+		isoString = `${isoString.slice(0, -1)}.000Z`;
 	}
 
 	return isoString;
 }
+
+export const createI18nTimeFormatter = (currentLanguage: string) => {
+	return (start: string) => timeFomat(start, currentLanguage);
+};
+
+export const formatEventTime = (
+	start: string,
+	options: {
+		locale?: string;
+		includeYear?: boolean;
+		timeZone?: string;
+		format?: 'short' | 'long';
+	} = {}
+) => {
+	const { locale, includeYear = false, timeZone = 'UTC', format = 'short' } = options;
+
+	const date = new Date(start);
+	const currentLocale = locale || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') || 'en' : 'en');
+
+	const localeMap: Record<string, string> = {
+		vi: 'vi-VN',
+		en: 'en-US'
+	};
+
+	const browserLocale = localeMap[currentLocale] || 'en-US';
+
+	try {
+		const dateOptions: Intl.DateTimeFormatOptions = {
+			weekday: format === 'short' ? 'short' : 'long',
+			month: format === 'short' ? 'short' : 'long',
+			day: 'numeric',
+			...(includeYear && { year: 'numeric' }),
+			timeZone
+		};
+
+		const timeOptions: Intl.DateTimeFormatOptions = {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+			timeZone
+		};
+
+		const dateFormatter = new Intl.DateTimeFormat(browserLocale, dateOptions);
+		const timeFormatter = new Intl.DateTimeFormat(browserLocale, timeOptions);
+
+		const datePart = dateFormatter.format(date);
+		const timePart = timeFormatter.format(date);
+
+		return `${datePart} - ${timePart}`;
+	} catch (error) {
+		return timeFomat(start, currentLocale);
+	}
+};
 
 export const getCurrentTimeRounded = (addMinute?: boolean) => {
 	const now = new Date();

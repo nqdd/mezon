@@ -4,7 +4,6 @@ import { ActionEmitEvent, ENotificationActive, ENotificationChannelId } from '@m
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
-	channelUsersActions,
 	channelsActions,
 	fetchSystemMessageByClanId,
 	listChannelRenderAction,
@@ -150,43 +149,6 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
 	};
 
-	const handleConfirmLeaveChannel = useCallback(async () => {
-		try {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-			dispatch(appActions.setLoadingMainMobile(true));
-			const body = {
-				channelId: channel.id,
-				userId: currentUserId,
-				channelType: channel.type,
-				clanId: channel.clan_id
-			};
-			const response = await dispatch(channelUsersActions.removeChannelUsers(body));
-			if (response?.meta?.requestStatus === 'rejected') {
-				throw new Error(response?.meta?.requestStatus);
-			}
-			navigation.navigate(APP_SCREEN.HOME);
-		} catch (error) {
-			Toast.show({ type: 'error', text1: t('modalConFirmLeaveChannel.error', { error }) });
-		} finally {
-			dispatch(appActions.setLoadingMainMobile(false));
-		}
-	}, [channel?.channel_private, channel?.clan_id, channel?.id, channel?.type, currentUserId]);
-
-	const handlePressLeaveChannel = () => {
-		const data = {
-			children: (
-				<MezonConfirm
-					onConfirm={handleConfirmLeaveChannel}
-					title={t('modalConFirmLeaveChannel.title')}
-					confirmText={t('modalConFirmLeaveChannel.yesButton')}
-					content={t('modalConFirmLeaveChannel.textConfirm')}
-				/>
-			)
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	};
-
 	const notificationMenu: IMezonMenuItemProps[] = [
 		{
 			title: isChannel
@@ -277,15 +239,6 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				color: baseColor.redStrong
 			},
 			isShow: isCanManageChannel
-		},
-		{
-			title: t('menu.organizationMenu.leaveChannel'),
-			icon: <MezonIconCDN icon={IconCDN.leaveGroupIcon} color={baseColor.redStrong} />,
-			onPress: handlePressLeaveChannel,
-			textStyle: {
-				color: baseColor.redStrong
-			},
-			isShow: channel?.creator_id !== currentUserId && channel?.channel_private === 1
 		}
 	];
 

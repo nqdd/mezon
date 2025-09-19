@@ -1,13 +1,12 @@
 import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
 	appActions,
-	ChannelsEntity,
 	selectCurrentClan,
 	selectIsJoin,
 	selectIsShowChatStream,
-	selectMemberClanByGoogleId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectRemoteVideoStream,
 	selectStatusStream,
 	selectStreamMembersByChannelId,
@@ -18,9 +17,11 @@ import {
 	videoStreamActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, getAvatarForPrioritize, IChannelMember, IStreamInfo } from '@mezon/utils';
+import type { IChannelMember, IStreamInfo } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
@@ -237,20 +238,16 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 }
 
 function UserItem({ user }: { user: IChannelMember }) {
-	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
-	const userStream = useAppSelector((state) => selectMemberClanByUserId2(state, user.user_id ?? ''));
-	const username = member ? member?.user?.username : userStream?.user?.username;
-	const clanAvatar = member ? member?.clan_avatar : userStream?.clan_avatar;
-	const avatarUrl = member ? member?.user?.avatar_url : userStream?.user?.avatar_url;
-	const avatar = getAvatarForPrioritize(clanAvatar, avatarUrl);
+	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
+	const avatar = getAvatarForPrioritize(userStream?.clan_avatar, userStream?.user?.avatar_url);
 
 	return (
 		<div className="w-14 h-14 rounded-full">
 			<div className="w-14 h-14">
-				{member || userStream ? (
+				{userStream ? (
 					<AvatarImage
-						alt={username || ''}
-						username={username}
+						alt={userStream?.user?.username || ''}
+						username={userStream?.user?.username}
 						className="min-w-14 min-h-14 max-w-14 max-h-14"
 						srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						src={avatar}
@@ -383,7 +380,11 @@ export default function ChannelStream({
 								? `${currentChannel.channel_label.substring(0, 20)}...`
 								: currentChannel?.channel_label}
 						</div>
-						{memberJoin.length > 0 ? <div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div> : <div className="text-gray-800 dark:text-white">No one is currently in stream</div>}
+						{memberJoin.length > 0 ? (
+							<div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div>
+						) : (
+							<div className="text-gray-800 dark:text-white">No one is currently in stream</div>
+						)}
 						<button
 							disabled={!memberJoin.length}
 							className={`bg-green-700 rounded-3xl p-2 ${memberJoin.length > 0 ? 'hover:bg-green-600' : 'opacity-50'}`}
