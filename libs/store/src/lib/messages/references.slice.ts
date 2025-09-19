@@ -145,6 +145,24 @@ export const referencesSlice = createSlice({
 			}
 		},
 
+		removeAttachmentByFileName(state, action: PayloadAction<{ channelId: string; fileName: string }>) {
+			const { channelId, fileName } = action.payload;
+			const attachment = state.attachmentAfterUpload[channelId];
+
+			if (attachment) {
+				const fileIndex = attachment.files.findIndex((file) => file?.filename === fileName);
+
+				if (fileIndex >= 0) {
+					attachment.files.splice(fileIndex, 1);
+
+					// If no files are left, remove the attachment entry
+					if (attachment.files.length === 0) {
+						delete state.attachmentAfterUpload[channelId];
+					}
+				}
+			}
+		},
+
 		replaceAttachments(state, action: PayloadAction<PreSendAttachment>) {
 			const newAttachment = action.payload;
 			const { channelId, files } = newAttachment;

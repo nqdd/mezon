@@ -1,8 +1,8 @@
 import { useAuth } from '@mezon/core';
 import { ActionEmitEvent, changeClan, getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
-	ChannelsEntity,
 	directActions,
 	getStore,
 	getStoreAsync,
@@ -17,10 +17,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect } from 'react';
-import { DeviceEventEmitter, Keyboard, Linking, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, View } from 'react-native';
 import { useWebRTCStream } from '../../../components/StreamContext/StreamContext';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
-import { linkGoogleMeet } from '../../../utils/helpers';
 import JoinChannelVoiceBS from './components/ChannelVoice/JoinChannelVoiceBS';
 import JoinStreamingRoomBS from './components/StreamingRoom/JoinStreamingRoomBS';
 import UserProfile from './components/UserProfile';
@@ -76,10 +75,7 @@ const ChannelMessageListener = React.memo(() => {
 					navigation.goBack();
 				}
 
-				if (type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && channel?.meeting_code) {
-					const urlVoice = `${linkGoogleMeet}${channel?.meeting_code}`;
-					await Linking.openURL(urlVoice);
-				} else if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+				if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 					const data = {
 						heightFitContent: true,
 						children: <JoinChannelVoiceBS channel={channel} />

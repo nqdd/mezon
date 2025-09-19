@@ -12,6 +12,7 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
 import { usersClanActions } from '../clanMembers/clan.members';
+import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
@@ -19,6 +20,7 @@ import { defaultNotificationCategoryActions } from '../notificationSetting/notif
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
 import { policiesActions } from '../policies/policies.slice';
 import { rolesClanActions } from '../roleclan/roleclan.slice';
+import { settingClanStickerSlice, soundEffectActions } from '../settingSticker/settingSticker.slice';
 import type { RootState } from '../store';
 import { usersStreamActions } from '../stream/usersStream.slice';
 import { voiceActions } from '../voice/voice.slice';
@@ -118,7 +120,7 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 					voiceActions.fetchVoiceChannelMembers({
 						clanId: clanId ?? '',
 						channelId: '',
-						channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+						channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 					})
 				);
 				thunkAPI.dispatch(
@@ -255,6 +257,9 @@ export const deleteClan = createAsyncThunk('clans/deleteClans', async (body: Cha
 		const response = await mezon.client.deleteClanDesc(mezon.session, body.clanId);
 		if (response) {
 			thunkAPI.dispatch(fetchClans({ noCache: true }));
+			thunkAPI.dispatch(emojiSuggestionSlice.actions.invalidateCache());
+			thunkAPI.dispatch(settingClanStickerSlice.actions.invalidateCache());
+			thunkAPI.dispatch(soundEffectActions.invalidateCache());
 		}
 	} catch (error) {
 		captureSentryError(error, 'clans/deleteClans');
@@ -295,7 +300,6 @@ export const removeClanUsers = createAsyncThunk('clans/removeClanUsers', async (
 			return thunkAPI.rejectWithValue([]);
 		}
 		thunkAPI.dispatch(fetchClans({ noCache: true }));
-
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'clans/removeClanUsers');

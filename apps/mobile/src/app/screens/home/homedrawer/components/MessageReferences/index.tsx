@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelMembersEntity, getStore, messagesActions, selectMemberClanByUserId2, useAppDispatch } from '@mezon/store-mobile';
+import { ChannelMembersEntity, getStore, messagesActions, selectMemberClanByUserId, useAppDispatch } from '@mezon/store-mobile';
 import { safeJSONParse } from 'mezon-js';
 import { ApiMessageRef } from 'mezon-js/api.gen';
 import React, { useMemo } from 'react';
@@ -32,7 +32,7 @@ export const MessageReferences = ({ messageReferences, preventAction, channelId,
 		}
 		const store = getStore();
 		const state = store.getState();
-		const messageSender = selectMemberClanByUserId2(state, messageReferences?.message_sender_id ?? '') as unknown as ChannelMembersEntity;
+		const messageSender = selectMemberClanByUserId(state, messageReferences?.message_sender_id ?? '') as unknown as ChannelMembersEntity;
 		return messageSender?.clan_avatar || messageSender?.user?.avatar_url || '';
 	}, [messageReferences]);
 	const isEmbedMessage = useMemo(() => {

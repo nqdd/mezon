@@ -133,6 +133,35 @@ const FriendsPage = () => {
 			return nameStart.localeCompare(nameNext);
 		});
 
+	const getEmptyStateMessage = (tab: string) => {
+		if (textSearch.trim()) {
+			switch (tab) {
+				case 'all':
+					return t('statusTapSearchFriends.all');
+				case 'online':
+					return t('statusTapSearchFriends.online');
+				case 'pending':
+					return t('statusTapSearchFriends.pending');
+				case 'block':
+					return t('statusTapSearchFriends.block');
+				default:
+					return t('statusTapSearchFriends.all');
+			}
+		}
+		switch (tab) {
+			case 'all':
+				return t('statusTapListFriends.all');
+			case 'online':
+				return t('statusTapListFriends.online');
+			case 'pending':
+				return t('statusTapListFriends.pending');
+			case 'block':
+				return t('statusTapListFriends.block');
+			default:
+				return t('statusTapListFriends.all');
+		}
+	};
+
 	const { setStatusMenu } = useMenu();
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
@@ -222,7 +251,15 @@ const FriendsPage = () => {
 								</span>
 							</div>
 							<div className="px-8 overflow-hidden flex flex-1 pb-4">
-								<FriendList listFriendFilter={listFriendFilter} />
+								{listFriendFilter.length > 0 ? (
+									<FriendList listFriendFilter={listFriendFilter} />
+								) : (
+									<div className="flex w-full text-theme-primary flex-col items-center justify-center h-full">
+										<div className="flex w-2/3 text-center justify-center mb-[120px]">
+											{getEmptyStateMessage(currentTabStatus)}
+										</div>
+									</div>
+								)}
 							</div>
 						</>
 					)}

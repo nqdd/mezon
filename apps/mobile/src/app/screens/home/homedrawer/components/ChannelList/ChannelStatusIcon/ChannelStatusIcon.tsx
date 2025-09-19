@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelsEntity } from '@mezon/store-mobile';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { memo } from 'react';
@@ -13,7 +13,7 @@ export const ChannelStatusIcon = memo(({ channel, isUnRead }: { channel: Channel
 	return (
 		<>
 			{channel?.channel_private === ChannelStatusEnum.isPrivate &&
-				(channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) &&
+				channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
 				!isAgeRestrictedChannel && (
 					<MezonIconCDN
 						icon={IconCDN.channelVoiceLock}
@@ -32,15 +32,14 @@ export const ChannelStatusIcon = memo(({ channel, isUnRead }: { channel: Channel
 						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
 					/>
 				)}
-			{channel?.channel_private !== ChannelStatusEnum.isPrivate &&
-				(channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) && (
-					<MezonIconCDN
-						icon={IconCDN.channelVoice}
-						height={size.s_18}
-						width={size.s_18}
-						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
-					/>
-				)}
+			{channel?.channel_private !== ChannelStatusEnum.isPrivate && channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
+				<MezonIconCDN
+					icon={IconCDN.channelVoice}
+					height={size.s_18}
+					width={size.s_18}
+					color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
+				/>
+			)}
 			{channel?.channel_private !== ChannelStatusEnum.isPrivate &&
 				channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 				!isAgeRestrictedChannel && (

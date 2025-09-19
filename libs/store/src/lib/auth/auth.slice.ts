@@ -1,7 +1,8 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Session } from 'mezon-js';
+import type { LoadingStatus } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { Session } from 'mezon-js';
 import { clearApiCallTracker } from '../cache-metadata';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 export const AUTH_FEATURE_KEY = 'auth';
@@ -144,7 +145,15 @@ export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platfo
 	await mezon?.logOutMezon(device_id, platform, !sessionState);
 	thunkAPI.dispatch(authActions.setLogout());
 	clearApiCallTracker();
-	const restoreKey = ['persist:apps', 'persist:categories', 'persist:clans', 'current-theme', 'hideNotificationContent', 'remember_channel'];
+	const restoreKey = [
+		'persist:apps',
+		'persist:categories',
+		'persist:clans',
+		'current-theme',
+		'hideNotificationContent',
+		'remember_channel',
+		'i18nextLng'
+	];
 	if (sessionState) {
 		restoreKey.push('mezon_session');
 	}
@@ -186,14 +195,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 
 export const registrationPassword = createAsyncThunk(
 	`auth/registrationPassword`,
-	async ({ email, password }: { email: string; password: string }, thunkAPI) => {
+	async ({ email, password, oldPassword }: { email: string; password: string; oldPassword?: string }, thunkAPI) => {
 		if (!email || !password || !email.trim() || !password.trim()) {
 			return thunkAPI.rejectWithValue('Invalid input');
 		}
 
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.registrationPassword(mezon.session, email, password);
+			const response = await mezon.client.registrationPassword(mezon.session, email, password, oldPassword || '');
 
 			if (!response) {
 				return thunkAPI.rejectWithValue('Failed to register password');

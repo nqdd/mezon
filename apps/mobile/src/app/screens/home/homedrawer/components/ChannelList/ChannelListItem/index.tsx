@@ -29,7 +29,6 @@ export const ChannelListItem = React.memo(
 		const isCategoryExpanded = useAppSelector((state) => selectCategoryExpandStateByCategoryId(state, props?.data?.category_id as string));
 		const isChannelVoice = useMemo(() => {
 			return (
-				props?.data?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ||
 				props?.data?.type === ChannelType.CHANNEL_TYPE_STREAMING ||
 				props?.data?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ||
 				props?.data?.type === ChannelType.CHANNEL_TYPE_APP

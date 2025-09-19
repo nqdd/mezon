@@ -14,7 +14,7 @@ import {
 	selectAllRolesClan,
 	selectDirectsOpenlist,
 	selectFriendById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectStatusSentMobile,
 	useAppDispatch,
 	useAppSelector
@@ -74,7 +74,7 @@ const UserProfile = React.memo(
 		const styles = style(themeValue, isTabletLandscape);
 		const { userProfile } = useAuth();
 		const { t } = useTranslation(['userProfile', 'friends']);
-		const userById = useAppSelector((state) => selectMemberClanByUserId2(state, userId || user?.id));
+		const userById = useAppSelector((state) => selectMemberClanByUserId(state, userId || user?.id));
 		const userStatus = useMemberStatus(userId || user?.id);
 		const rolesClan: RolesClanEntity[] = useSelector(selectAllRolesClan);
 		const messageAvatar = useMemo(() => {

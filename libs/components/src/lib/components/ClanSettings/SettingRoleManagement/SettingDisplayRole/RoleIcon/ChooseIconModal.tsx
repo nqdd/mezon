@@ -1,17 +1,6 @@
-import { useEscapeKeyClose, useOnClickOutside, useRoles } from '@mezon/core';
+import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
 import type { RootState } from '@mezon/store';
-import {
-	getNewAddPermissions,
-	getNewColorRole,
-	getNewNameRole,
-	getRemoveMemberRoles,
-	getRemovePermissions,
-	getSelectedRoleId,
-	getStoreAsync,
-	roleSlice,
-	selectCurrentClanId,
-	selectTheme
-} from '@mezon/store';
+import { getStoreAsync, roleSlice, selectCurrentClanId, selectTheme } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_256KB, fileTypeImage, resizeFileImage } from '@mezon/utils';
@@ -40,7 +29,6 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
 	const dispatch = useDispatch();
-	const { updateRole } = useRoles();
 
 	useOnClickOutside(modalRef, onClose);
 	useEscapeKeyClose(modalRef, onClose);
@@ -71,29 +59,13 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 		const store = await getStoreAsync();
 		const state = store.getState() as RootState;
 		const currentClanId = selectCurrentClanId(state);
-		const currentRoleId = getSelectedRoleId(state);
-		const nameRoleNew = getNewNameRole(state);
-		const colorRoleNew = getNewColorRole(state);
-		const newSelectedPermissions = getNewAddPermissions(state);
-		const removeMemberRoles = getRemoveMemberRoles(state);
-		const removePermissions = getRemovePermissions(state);
 
 		setIsLoading(true);
 		const resizeFile = (await resizeFileImage(file, 64, 64, 'file')) as File;
-		const roleIcon = await handleUploadFile(clientRef.current, sessionRef.current, currentClanId || '', 'roleIcon', file.name, resizeFile);
 
-		await updateRole(
-			currentClanId || '',
-			currentRoleId || '',
-			nameRoleNew,
-			colorRoleNew,
-			[],
-			newSelectedPermissions,
-			removeMemberRoles,
-			removePermissions,
-			roleIcon.url
-		);
-		dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon?.url || ''));
+		const roleIcon = await handleUploadFile(clientRef.current, sessionRef.current, currentClanId || '', 'roleIcon', file.name, resizeFile);
+		dispatch(roleSlice.actions.setNewRoleIcon(roleIcon?.url || ''));
+
 		onClose();
 		setIsLoading(false);
 	};

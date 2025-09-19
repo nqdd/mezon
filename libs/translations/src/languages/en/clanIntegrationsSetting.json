@@ -3,11 +3,11 @@
     "channelWebhooks": "Webhooks",
     "clanWebhooks": "Clan Webhooks",
     "automatedMessage": "Automated messages and updates",
-    "description": "Customize your server with integrations. Manage webhooks, followed channels and apps, as well as Twitch and YouTube settings for creators.",
+    "description": "Customize your clan with integrations.",
     "learnMore": "Learn more about managing integrations."
   },
   "webhooks": {
-    "description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the server using internet magic.",
+    "description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the clan using internet magic.",
     "learnMore": "Learn more.",
     "buildOne": "build one yourself"
   },
@@ -29,7 +29,8 @@
     "yes": "Yes",
     "deleteCaptionHook": "Delete Caption Hook",
     "deleteWebhookConfirmation": "Are you sure you want to delete the {{webhookName}} webhook? This action cannot be undone.",
-    "resetToken": "Reset Token"
+    "resetToken": "Reset Token",
+    "name": "Webhook name"
   },
   "webhooksEmpty": {
     "noWebhooks": "NO WEBHOOKS",

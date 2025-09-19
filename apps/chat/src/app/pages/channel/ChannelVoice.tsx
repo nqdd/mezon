@@ -8,7 +8,6 @@ import {
 	generateMeetToken,
 	getStore,
 	handleParticipantVoiceState,
-	selectAlreadyInVoice,
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectIsShowChatVoice,
@@ -78,14 +77,7 @@ const ChannelVoice = memo(
 				).unwrap();
 
 				if (result) {
-					const meInVoice = selectAlreadyInVoice(store.getState(), userProfile?.user?.id || '', currentChannel?.channel_id as string);
-					if (!meInVoice) {
-						await participantMeetState(
-							ParticipantMeetState.JOIN,
-							currentChannel?.clan_id as string,
-							currentChannel?.channel_id as string
-						);
-					}
+					await participantMeetState(ParticipantMeetState.JOIN, currentChannel?.clan_id as string, currentChannel?.channel_id as string);
 					dispatch(voiceActions.setJoined(true));
 					dispatch(voiceActions.setToken(result));
 					dispatch(

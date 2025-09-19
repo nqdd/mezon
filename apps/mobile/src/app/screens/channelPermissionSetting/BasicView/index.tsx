@@ -155,7 +155,7 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 					<View style={{ paddingTop: size.s_12, paddingLeft: size.s_12 }}>
 						<Text
 							style={{
-								fontSize: verticalScale(18),
+								fontSize: size.s_16,
 								color: themeValue.white
 							}}
 						>

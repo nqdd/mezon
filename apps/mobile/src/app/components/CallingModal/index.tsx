@@ -6,7 +6,7 @@ import LottieView from 'lottie-react-native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { AppState, DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../assets/lottie';
@@ -14,6 +14,7 @@ import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { DirectMessageCallMain } from '../../screens/messages/DirectMessageCall';
 import { decompress } from '../../utils/helpers';
+import { displayNativeCalling } from '../../utils/pushNotificationHelpers';
 import { style } from './styles';
 
 const CallingModal = () => {
@@ -31,6 +32,7 @@ const CallingModal = () => {
 	const mezon = useMezon();
 	const { t } = useTranslation('message');
 	const [callerInfo, setCallerInfo] = useState<any>({});
+	const [appState, setAppState] = useState(AppState.currentState);
 
 	useEffect(() => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
@@ -118,6 +120,38 @@ const CallingModal = () => {
 		}
 	}, [isInCall, signalingData]);
 
+	useEffect(() => {
+		if (Platform.OS === 'ios') {
+			return;
+		}
+
+		const processSignaling = (currentState) => {
+			const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
+			const dataType = latestSignalingEntry?.signalingData?.data_type;
+			if (currentState === 'background') {
+				if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER && callerInfo?.name) {
+					displayCallerNotificationAndroid(latestSignalingEntry);
+				} else {
+					displayCallerNotificationAndroid(latestSignalingEntry, true);
+				}
+			} else {
+				displayNativeCalling({
+					offer: JSON.stringify({
+						offer: 'CANCEL_CALL'
+					})
+				});
+			}
+		};
+
+		const handleAppStateChange = (nextAppState) => {
+			// Only process signaling when app state actually changes
+			processSignaling(nextAppState);
+		};
+
+		const subscription = AppState.addEventListener('change', handleAppStateChange);
+		return () => subscription?.remove();
+	}, [isInCall, signalingData, callerInfo]);
+
 	const playVibration = () => {
 		const pattern = Platform.select({
 			ios: [0, 1000, 2000, 1000, 2000],
@@ -167,6 +201,25 @@ const CallingModal = () => {
 				console.error('VoIPManager is not available');
 			}
 		}
+	};
+
+	const displayCallerNotificationAndroid = async (signalingEntry, isCancelCall = false) => {
+		if (isCancelCall) {
+			displayNativeCalling({
+				offer: JSON.stringify({
+					offer: 'CANCEL_CALL'
+				})
+			});
+			return;
+		}
+		const data = {
+			offer: signalingEntry.signalingData.json_data,
+			callerName: callerInfo?.name,
+			callerAvatar: callerInfo?.avatar,
+			channelId: signalingEntry.signalingData.channel_id,
+			callerId: signalingEntry.callerId
+		};
+		displayNativeCalling({ offer: JSON.stringify(data) }, true);
 	};
 
 	if (!isVisible) {

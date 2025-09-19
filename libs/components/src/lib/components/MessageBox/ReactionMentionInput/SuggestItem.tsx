@@ -56,11 +56,7 @@ const SuggestItem = ({
 	const [specificChannel, setSpecificChannel] = useState<ChannelsEntity | HashtagDm | null>(null);
 	const numberMembersVoice = useAppSelector((state) => selectNumberMemberVoiceChannel(state, channelId as string));
 	const checkVoiceStatus = useMemo(() => {
-		if (
-			channelId !== undefined &&
-			numberMembersVoice &&
-			(specificChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || specificChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
-		) {
+		if (channelId !== undefined && numberMembersVoice && specificChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			return numberMembersVoice >= 2;
 		}
 		return false;
@@ -86,13 +82,6 @@ const SuggestItem = ({
 			if (channel_private === 1) {
 				return <Icons.ThreadIconLocker className="w-5 h-5 text-theme-primary " />;
 			}
-		}
-
-		if (type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			if (!channel_private || channel_private === 0) {
-				return <Icons.Speaker defaultSize="w-5 5-5" />;
-			}
-			return <Icons.SpeakerLocked defaultSize="w-5 h-5" />;
 		}
 
 		if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {

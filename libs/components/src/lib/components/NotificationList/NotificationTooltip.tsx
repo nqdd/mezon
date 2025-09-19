@@ -54,7 +54,7 @@ export const NotificationTooltip = memo(({ isGridView, isShowMember }: Notificat
 		>
 			<button
 				title="Inbox"
-				className={`focus-visible:outline-none relative ${
+				className={`focus-visible:outline-none relative ${visible ? 'text-theme-primary-active' : ''} ${
 					(isGridView && !isShowMember) || (isGridView && isShowMember) || (isShowMember && !isGridView)
 						? 'text-theme-primary text-theme-primary-hover'
 						: 'text-theme-primary text-theme-primary-hover'

@@ -234,6 +234,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	const onvoiceleaved = useCallback(
 		(voice: VoiceLeavedEvent) => {
 			dispatch(voiceActions.remove(voice));
+			if (voice.voice_user_id === userId) {
+				if (document.pictureInPictureEnabled) {
+					document.exitPictureInPicture();
+				}
+			}
 		},
 		[dispatch]
 	);
@@ -847,16 +852,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						);
 					}
 				}
-				if (channel_desc.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-					dispatch(
-						channelsActions.joinChat({
-							clanId: clan_id,
-							channelId: channel_desc.channel_id as string,
-							channelType: channel_desc.type as number,
-							isPublic: !channel_desc.channel_private
-						})
-					);
-				}
+				dispatch(
+					channelsActions.joinChat({
+						clanId: clan_id,
+						channelId: channel_desc.channel_id as string,
+						channelType: channel_desc.type as number,
+						isPublic: !channel_desc.channel_private
+					})
+				);
 			}
 
 			if (channel_desc.type === ChannelType.CHANNEL_TYPE_GROUP) {
@@ -1183,36 +1186,34 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			);
 			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
 
-			if (channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-				const now = Math.floor(Date.now() / 1000);
-				const extendChannelCreated = {
-					...channelCreated,
-					last_seen_message: { timestamp_seconds: 0 },
-					last_sent_message: { timestamp_seconds: now }
-				};
+			const now = Math.floor(Date.now() / 1000);
+			const extendChannelCreated = {
+				...channelCreated,
+				last_seen_message: { timestamp_seconds: 0 },
+				last_sent_message: { timestamp_seconds: now }
+			};
 
-				const isPublic = channelCreated.parent_id !== '' && channelCreated.parent_id !== '0' ? false : !channelCreated.channel_private;
-				dispatch(
-					channelsActions.joinChat({
-						clanId: channelCreated.clan_id,
-						channelId: channelCreated.channel_id,
-						channelType: channelCreated.channel_type,
-						isPublic
-					})
-				);
-				dispatch(
-					channelMetaActions.updateBulkChannelMetadata([
-						{
-							id: extendChannelCreated.channel_id,
-							lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
-							lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
-							clanId: extendChannelCreated.clan_id ?? '',
-							isMute: false,
-							senderId: ''
-						}
-					])
-				);
-			}
+			const isPublic = channelCreated.parent_id !== '' && channelCreated.parent_id !== '0' ? false : !channelCreated.channel_private;
+			dispatch(
+				channelsActions.joinChat({
+					clanId: channelCreated.clan_id,
+					channelId: channelCreated.channel_id,
+					channelType: channelCreated.channel_type,
+					isPublic
+				})
+			);
+			dispatch(
+				channelMetaActions.updateBulkChannelMetadata([
+					{
+						id: extendChannelCreated.channel_id,
+						lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
+						lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
+						clanId: extendChannelCreated.clan_id ?? '',
+						isMute: false,
+						senderId: ''
+					}
+				])
+			);
 		} else if (channelCreated.creator_id === userId) {
 			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
 			if (channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_DM && channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_GROUP) {

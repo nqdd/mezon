@@ -1,6 +1,6 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { ApiWebhook } from 'mezon-js/api.gen';
 import React from 'react';
@@ -26,7 +26,7 @@ export function WebhooksItem({ webhook, isClanIntegration, isClanSetting }: { we
 		};
 		return date.toLocaleDateString('en-GB', options);
 	};
-	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId2(state, webhook.creator_id as string));
+	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhook.creator_id as string));
 	const handleEditWebhooks = () => {
 		navigation.navigate(APP_SCREEN.MENU_CLAN.WEBHOOKS_EDIT, {
 			webhook,

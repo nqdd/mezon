@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
+import type { LoadingStatus } from '@mezon/utils';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
@@ -10,7 +10,7 @@ import { usersClanActions } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
 import { directActions } from '../direct/direct.slice';
 import { createCachedSelector, messagesActions } from '../messages/messages.slice';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 import { voiceActions } from '../voice/voice.slice';
 
 export const APP_FEATURE_KEY = 'app';
@@ -48,11 +48,30 @@ export interface AppState {
 	categoryChannelOffsets: { [key: number]: number };
 }
 
+const getInitialLanguage = (): 'en' | 'vi' => {
+	if (typeof window !== 'undefined') {
+		const storedLang = localStorage.getItem('i18nextLng');
+		if (storedLang === 'vi' || storedLang === 'en') {
+			return storedLang;
+		}
+		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		if (timezone === 'Asia/Ho_Chi_Minh' || timezone === 'Asia/Saigon') {
+			return 'vi';
+		}
+
+		const browserLang = navigator.language.toLowerCase();
+		if (browserLang.startsWith('vi')) {
+			return 'vi';
+		}
+	}
+	return 'en';
+};
+
 export const initialAppState: AppState = {
 	loadingStatus: 'not loaded',
 
 	themeApp: 'sunrise',
-	currentLanguage: 'en',
+	currentLanguage: getInitialLanguage(),
 	isShowMemberList: true,
 	isShowChatStream: false,
 	isShowChatVoice: false,
@@ -103,7 +122,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id
 			thunkAPI.dispatch(
 				messagesActions.fetchMessages({
 					clanId: clanId || '',
-					channelId: channelId,
+					channelId,
 					isFetchingLatestMessages: true,
 					isClearMessage: true,
 					noCache: true
@@ -122,7 +141,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id
 				voiceActions.fetchVoiceChannelMembers({
 					clanId: currentClanId ?? '',
 					channelId: '',
-					channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+					channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 				})
 			);
 		}

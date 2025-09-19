@@ -48,5 +48,19 @@
     "createInviteLink": "Error when create invite link",
     "copyToClipboard": "Unable to copy to clipboard",
     "copyFailed": "Copy failed"
+  },
+  "acceptModal": {
+    "title": "Join Clan",
+    "invitedToJoin": "You've been invited to join",
+    "memberCount": "{{count}} Member",
+    "memberCount_plural": "{{count}} Members",
+    "clanSettings": "Clan Settings",
+    "customizeAnytime": "You can customize these at any time",
+    "noThanks": "No Thanks",
+    "acceptInvite": "Accept Invite",
+    "joining": "Joining...",
+    "toast": {
+      "alreadyMember": "You are already a member!"
+    }
   }
 }

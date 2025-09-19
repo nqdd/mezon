@@ -212,7 +212,7 @@ function getCleanUrlAndTrailing(match: string, fullText: string, matchIndex: num
 	}
 
 	if (!isWrapped) {
-		const commonTrailingPunctuation = /[.,;:!?'"]+$/;
+		const commonTrailingPunctuation = /[.,;:!?'")]+$/;
 		const trailingMatch = match.match(commonTrailingPunctuation);
 		if (trailingMatch) {
 			cleanMatch = match.slice(0, -trailingMatch[0].length);
@@ -315,13 +315,6 @@ function parseMarkdown(html: string) {
 
 	return parsedHtml;
 }
-
-// function parseMarkdownLinks(html: string) {
-//   return html.replace(new RegExp(`\\[([^\\]]+?)]\\((${RE_LINK_TEMPLATE}+?)\\)`, 'g'), (_, text, link) => {
-//     const url = link.includes('://') ? link : link.includes('@') ? `mailto:${link}` : `https://${link}`;
-//     return `<a href="${url}">${text}</a>`;
-//   });
-// }
 
 function parseMarkdownLinks(html: string) {
 	if (!html || html.length === 0) return html;
