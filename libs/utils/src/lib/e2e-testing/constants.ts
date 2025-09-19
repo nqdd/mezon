@@ -104,7 +104,8 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			create_clan: {
 				input: {
-					clan_name: ''
+					clan_name: '',
+					upload_avatar_clan: ''
 				},
 				toggle: {
 					private: ''
@@ -240,7 +241,10 @@ export const DATA_E2E_IDENTIFIER = {
 			edit_group: {
 				button: '',
 				input: '',
-				save_button: ''
+				save_button: '',
+				upload: {
+					avatar_group_input: ''
+				}
 			},
 			leave_group: {
 				button: ''
@@ -363,6 +367,9 @@ export const DATA_E2E_IDENTIFIER = {
 				},
 				text: {
 					about_me_length: ''
+				},
+				upload: {
+					direct_message_icon_input: ''
 				}
 			},
 			clan_profile: {
