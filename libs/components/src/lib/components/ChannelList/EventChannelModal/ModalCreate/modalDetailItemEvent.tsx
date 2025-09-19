@@ -162,16 +162,8 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 						);
 					}
 
-					if (hasVoiceChannel && !isPrivateEvent) {
-						const isGMeet = channelVoice.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
-						console.log('Channel type check:', {
-							channelType: channelVoice.type,
-							GMEET_TYPE: ChannelType.CHANNEL_TYPE_GMEET_VOICE,
-							isGMeet: isGMeet
-						});
-						const linkProps = isGMeet
-							? { href: `https://meet.google.com/${channelVoice.meeting_code}`, rel: 'noreferrer', target: '_blank' }
-							: {
+					if (hasVoiceChannel && !isPrivateEvent) {						
+						const linkProps = {
 									onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
 										console.log('Voice channel clicked!');
 										handleStopPropagation(e);
