@@ -159,6 +159,12 @@ function ChannelMessages({
 	}, [channelId]);
 
 	useSyncEffect(() => {
+		if (lastMessage && preventScrollbottom.current) {
+			preventScrollbottom.current = false;
+		}
+	}, [lastMessage?.id]);
+
+	useSyncEffect(() => {
 		return () => {
 			requestIdleCallback &&
 				requestIdleCallback(() => {
@@ -235,7 +241,7 @@ function ChannelMessages({
 
 			return true;
 		},
-		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId]
+		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId, lastMessageId]
 	);
 
 	const getChatScrollBottomOffset = useCallback(() => {
@@ -662,12 +668,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					onChange(LoadMoreDirection.Forwards);
 				}
 
-				scrollOffsetRef.current = container.scrollHeight - container.scrollTop;
+				const newScrollOffset = container.scrollHeight - container.scrollTop;
+				scrollOffsetRef.current = newScrollOffset;
 
 				dispatch(
 					channelsActions.setScrollOffset({
 						channelId,
-						offset: scrollOffsetRef.current
+						offset: newScrollOffset
 					})
 				);
 			});
@@ -686,13 +693,25 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
 
 				if (isAtBottom && !isRelyMessage) return;
-				skipCalculateScroll.current = true;
-				const { scrollHeight, offsetHeight } = container;
-				const newScrollTop = scrollHeight - offsetHeight;
-				resetScroll(container, Math.ceil(newScrollTop));
-				setTimeout(() => {
-					skipCalculateScroll.current = false;
-				}, 0);
+
+				requestAnimationFrame(() => {
+					skipCalculateScroll.current = true;
+					const messagesContainer = chatRef.current;
+					const messageElements = messagesContainer?.querySelectorAll<HTMLDivElement>('.message-list-item');
+					const lastMessageElement = messageElements?.[messageElements.length - 1];
+					if (!lastMessageElement || !messagesContainer) {
+						return;
+					}
+					animateScroll({
+						container: messagesContainer,
+						element: lastMessageElement,
+						position: 'end',
+						margin: BOTTOM_FOCUS_MARGIN
+					});
+					setTimeout(() => {
+						skipCalculateScroll.current = false;
+					}, 0);
+				});
 			}
 		}, [lastMessage]);
 
