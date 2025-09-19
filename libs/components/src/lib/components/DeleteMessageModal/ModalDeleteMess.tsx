@@ -117,8 +117,8 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 			tabIndex={0}
 		>
 			<div className="w-fit h-fit bg-theme-primary rounded-lg flex flex-col justify-start items-start overflow-hidden">
-				<div className="w-full">
-					<div className="p-4 pb-0 bg-theme-primary text-center">
+				<div className="w-fit max-w-[720px] ">
+					<div className="w-full p-4 pb-0 bg-theme-primary text-center">
 						<h3 className="font-bold pb-2 text-xl text-theme-primary">
 							{isRemoveAttachmentNoContent ? t('deleteMessageModal.removeAttachmentTitle') : t('deleteMessageModal.title')}
 						</h3>
@@ -128,7 +128,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 								: t('deleteMessageModal.deleteMessageDescription')}
 						</p>
 					</div>
-					<div className="p-4 max-w-[720px] max-h-[50vh] overflow-y-auto hide-scrollbar bg-theme-secondary pointer-events-none [&_.attachment-actions]:!hidden [&_button]:!hidden">
+					<div className="w-fit flex items-center p-4 max-w-[720px] max-h-[50vh] overflow-hidden bg-theme-secondary pointer-events-none [&_.attachment-actions]:!hidden [&_button]:!hidden [&_img]:!object-contain">
 						<ColorRoleProvider>
 							{isMessageSystem ? (
 								<MessageWithSystem message={mess as IMessageWithUser} isTopic={!!isTopic} />
@@ -144,7 +144,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 									isMention={true}
 									isShowFull={true}
 									user={currentClanUser}
-									isSearchMessage={true}
+									isSearchMessage={false}
 								/>
 							)}
 						</ColorRoleProvider>
