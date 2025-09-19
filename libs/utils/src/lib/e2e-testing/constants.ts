@@ -90,7 +90,8 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			button: {
 				add_clan: '',
-				add_channel: ''
+				add_channel: '',
+				events: ''
 			},
 			panel: {
 				category_panel: '',
