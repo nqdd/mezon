@@ -328,38 +328,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			),
 			disabled
 		},
-		// {
-		// 	title: t('menu.systemMessage.boostMessage'),
-		// 	component: (
-		// 		<MezonSwitch
-		// 			disabled={disabled}
-		// 			value={systemMessage?.boost_message === '1'}
-		// 			onValueChange={(value) =>
-		// 				setUpdateSystemMessageRequest((prev) => ({
-		// 					...prev,
-		// 					boost_message: value ? '1' : '0'
-		// 				}))
-		// 			}
-		// 		/>
-		// 	),
-		// 	disabled
-		// },
-		// {
-		// 	title: t('menu.systemMessage.setupTips'),
-		// 	component: (
-		// 		<MezonSwitch
-		// 			disabled={disabled}
-		// 			value={systemMessage?.setup_tips === '1'}
-		// 			onValueChange={(value) =>
-		// 				setUpdateSystemMessageRequest((prev) => ({
-		// 					...prev,
-		// 					setup_tips: value ? '1' : '0'
-		// 				}))
-		// 			}
-		// 		/>
-		// 	),
-		// 	disabled
-		// },
 		{
 			title: t('menu.systemMessage.hideAuditLog'),
 			component: (

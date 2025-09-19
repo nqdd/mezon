@@ -65,19 +65,6 @@ export function CategoryCreator({ navigation }: MenuClanScreenProps<CreateCatego
 		navigation.goBack();
 	}
 
-	// const menuPrivate: IMezonMenuSectionProps[] = [
-	// 	{
-	// 		bottomDescription: t('fields.catePrivate.description'),
-	// 		items: [
-	// 			{
-	// 				title: t('fields.catePrivate.title'),
-	// 				component: <MezonSwitch />,
-	// 				icon: <MezonIconCDN icon={IconCDN.lockIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
-	// 			}
-	// 		]
-	// 	}
-	// ];
-
 	return (
 		<View style={styles.container}>
 			<MezonInput
@@ -87,7 +74,6 @@ export function CategoryCreator({ navigation }: MenuClanScreenProps<CreateCatego
 				errorMessage={t('fields.cateName.errorMessage')}
 				label={t('fields.cateName.title')}
 			/>
-			{/* <MezonMenu menu={menuPrivate} /> */}
 		</View>
 	);
 }
