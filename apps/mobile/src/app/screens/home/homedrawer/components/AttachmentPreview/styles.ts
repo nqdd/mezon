@@ -18,8 +18,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_6,
 			height: verticalScale(80),
 			paddingTop: size.s_10,
-			flexShrink: 0,
-			width: verticalScale(70)
+			flexShrink: 0
 		},
 		attachmentItemImage: {
 			width: verticalScale(70),

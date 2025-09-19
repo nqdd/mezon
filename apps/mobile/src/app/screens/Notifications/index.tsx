@@ -382,7 +382,7 @@ const Notifications = () => {
 				onPress: () => handleTabChange(InboxType.INDIVIDUAL)
 			}
 		],
-		[]
+		[t]
 	);
 	return (
 		<View style={styles.notifications}>
@@ -435,10 +435,6 @@ const Notifications = () => {
 									{item.title}
 								</Text>
 							</View>
-							{/* todo: badge */}
-							{/*<View style={styles.badgeItemTabType}>*/}
-							{/*	<Text style={styles.textBadgeItemTabType}>1</Text>*/}
-							{/*</View>*/}
 						</Pressable>
 					))}
 				</View>
