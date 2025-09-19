@@ -9,13 +9,17 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			width: '100%',
 			zIndex: 100,
-			bottom: verticalScale(70)
+			bottom: verticalScale(70),
+			minHeight: verticalScale(100),
+			maxHeight: verticalScale(120)
 		},
 		attachmentItem: {
 			marginRight: size.s_14,
 			borderRadius: size.s_6,
 			height: verticalScale(80),
-			paddingTop: size.s_10
+			paddingTop: size.s_10,
+			flexShrink: 0,
+			width: verticalScale(70)
 		},
 		attachmentItemImage: {
 			width: verticalScale(70),
