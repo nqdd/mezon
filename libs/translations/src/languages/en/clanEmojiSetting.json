@@ -1,4 +1,17 @@
 {
+	"modal": {
+		"uploadAFile": "Upload a file",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "File should be a PNG or GIF, 256KB max",
+		"preview": "Preview",
+		"file": "File",
+		"thisCannotBeEdited": "This cannot be edited",
+		"browse": "Browse",
+		"chooseAFile": "Choose a file",
+		"stickerName": "Emoji name",
+		"exCatHug": "Ex: cat_hug",
+		"thisIsForSale": "This is for sale",
+		"neverMind": "Never Mind"
+	},
 	"header": {
 		"save": "Save"
 	},

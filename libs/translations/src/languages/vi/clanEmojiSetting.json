@@ -1,4 +1,17 @@
 {
+	"modal": {
+		"uploadAFile": "Tải lên tệp",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "Tệp phải là PNG hoặc GIF, tối đa 256KB",
+		"preview": "Xem trước",
+		"file": "Tệp",
+		"thisCannotBeEdited": "Không thể chỉnh sửa",
+		"browse": "Duyệt",
+		"chooseAFile": "Chọn tệp",
+		"stickerName": "Tên emoji",
+		"exCatHug": "VD: cat_hug",
+		"thisIsForSale": "Đây là sản phẩm bán",
+		"neverMind": "Thôi không"
+	},
 	"header": {
 		"save": "Lưu"
 	},
