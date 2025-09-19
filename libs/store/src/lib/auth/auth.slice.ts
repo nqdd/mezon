@@ -195,14 +195,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 
 export const registrationPassword = createAsyncThunk(
 	`auth/registrationPassword`,
-	async ({ email, password }: { email: string; password: string }, thunkAPI) => {
+	async ({ email, password, oldPassword }: { email: string; password: string; oldPassword?: string }, thunkAPI) => {
 		if (!email || !password || !email.trim() || !password.trim()) {
 			return thunkAPI.rejectWithValue('Invalid input');
 		}
 
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.registrationPassword(mezon.session, email, password);
+			const response = await mezon.client.registrationPassword(mezon.session, email, password, oldPassword || '');
 
 			if (!response) {
 				return thunkAPI.rejectWithValue('Failed to register password');
