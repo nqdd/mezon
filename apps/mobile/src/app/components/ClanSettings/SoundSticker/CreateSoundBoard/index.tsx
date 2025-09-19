@@ -4,7 +4,7 @@ import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { pick, types } from '@react-native-documents/picker';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -19,17 +19,19 @@ import { style } from './styles';
 type ClanSettingsScreen = typeof APP_SCREEN.MENU_CLAN.CREATE_SOUND;
 export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettingsScreen>) {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
-	const { t } = useTranslation(['clanSoundSetting']);
 	const [audioFile, setAudioFile] = useState<any>(null);
-	const [audioUrl, setAudioUrl] = useState<string>('');
 	const [soundName, setSoundName] = useState<string>('');
+	const isDisabledUpload = useMemo(() => !audioFile || !soundName.trim(), [audioFile, soundName]);
+	const styles = style(themeValue, isDisabledUpload);
+	const { t } = useTranslation(['clanSoundSetting']);
+	const [audioUrl, setAudioUrl] = useState<string>('');
 	const buttonRef = useRef<any>(null);
 	const { sessionRef, clientRef } = useMezon();
 	const dispatch = useAppDispatch();
 	const currentClanId = useAppSelector(selectCurrentClanId);
 
 	const onAudioPick = async () => {
+		setAudioUrl('');
 		try {
 			buttonRef.current.disabled = true;
 			const res = await pick({
@@ -114,7 +116,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 				<View>
 					<Text style={styles.title}>{t('content.preview')}</Text>
 					<View style={styles.preview}>
-						<RenderAudioChat audioURL={audioUrl || ''} />
+						<RenderAudioChat audioURL={audioUrl || ''} stylesContainerCustom={styles.previewContainer} />
 					</View>
 				</View>
 			)}
@@ -123,11 +125,11 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 					<MezonInput label={t('content.audioFile')} disabled placeHolder={t('content.chooseAudioFile')} value={audioFile?.name || ''} />
 				</View>
 				<Pressable style={styles.uploadButton} onPress={onAudioPick} ref={buttonRef}>
-					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color={themeValue.textStrong} />
+					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color="white" />
 				</Pressable>
 			</View>
 			<MezonInput label={t('content.audioName')} placeHolder="Ex.cathug" maxCharacter={30} onTextChange={setSoundName} />
-			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef}>
+			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef} disabled={isDisabledUpload}>
 				<Text style={styles.buttonTitle}>{t('button.uploadDetailScreen')}</Text>
 			</Pressable>
 		</View>
