@@ -7,8 +7,6 @@ import { Platform, Pressable, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonInput from '../../componentUI/MezonInput';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
-import MezonSwitch from '../../componentUI/MezonSwitch';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
 import { validInput } from '../../utils/validate';
@@ -18,7 +16,6 @@ type CreateCategoryScreen = typeof APP_SCREEN.MENU_CLAN.CREATE_CATEGORY;
 export function CategoryCreator({ navigation }: MenuClanScreenProps<CreateCategoryScreen>) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const [isPrivate, setPrivate] = useState<boolean>(false);
 	const [categoryName, setCategoryName] = useState<string>('');
 	const dispatch = useAppDispatch();
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -68,18 +65,18 @@ export function CategoryCreator({ navigation }: MenuClanScreenProps<CreateCatego
 		navigation.goBack();
 	}
 
-	const menuPrivate: IMezonMenuSectionProps[] = [
-		{
-			bottomDescription: t('fields.catePrivate.description'),
-			items: [
-				{
-					title: t('fields.catePrivate.title'),
-					component: <MezonSwitch />,
-					icon: <MezonIconCDN icon={IconCDN.lockIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
-				}
-			]
-		}
-	];
+	// const menuPrivate: IMezonMenuSectionProps[] = [
+	// 	{
+	// 		bottomDescription: t('fields.catePrivate.description'),
+	// 		items: [
+	// 			{
+	// 				title: t('fields.catePrivate.title'),
+	// 				component: <MezonSwitch />,
+	// 				icon: <MezonIconCDN icon={IconCDN.lockIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
+	// 			}
+	// 		]
+	// 	}
+	// ];
 
 	return (
 		<View style={styles.container}>
@@ -90,7 +87,7 @@ export function CategoryCreator({ navigation }: MenuClanScreenProps<CreateCatego
 				errorMessage={t('fields.cateName.errorMessage')}
 				label={t('fields.cateName.title')}
 			/>
-			<MezonMenu menu={menuPrivate} />
+			{/* <MezonMenu menu={menuPrivate} /> */}
 		</View>
 	);
 }

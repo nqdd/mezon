@@ -89,8 +89,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			hasSystemMessageChanged =
 				systemMessage.welcome_random !== updateSystemMessageRequest.welcome_random ||
 				systemMessage.welcome_sticker !== updateSystemMessageRequest.welcome_sticker ||
-				systemMessage.boost_message !== updateSystemMessageRequest.boost_message ||
-				systemMessage.setup_tips !== updateSystemMessageRequest.setup_tips ||
 				systemMessage.channel_id !== updateSystemMessageRequest.channel_id ||
 				systemMessage.hide_audit_log !== updateSystemMessageRequest.hide_audit_log;
 		}
@@ -142,14 +140,11 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	const handleUpdateSystemMessage = async () => {
 		if (systemMessage && Object.keys(systemMessage).length > 0 && currentClan?.clan_id && updateSystemMessageRequest) {
 			const cachedMessageUpdate: ApiSystemMessage = {
-				boost_message:
-					updateSystemMessageRequest?.boost_message === systemMessage?.boost_message ? '' : updateSystemMessageRequest?.boost_message,
 				channel_id: updateSystemMessageRequest?.channel_id === systemMessage?.channel_id ? '' : updateSystemMessageRequest?.channel_id,
 				clan_id: systemMessage?.clan_id,
 				id: systemMessage?.id,
 				hide_audit_log:
 					updateSystemMessageRequest?.hide_audit_log === systemMessage?.hide_audit_log ? '' : updateSystemMessageRequest?.hide_audit_log,
-				setup_tips: updateSystemMessageRequest?.setup_tips === systemMessage?.setup_tips ? '' : updateSystemMessageRequest?.setup_tips,
 				welcome_random:
 					updateSystemMessageRequest?.welcome_random === systemMessage?.welcome_random ? '' : updateSystemMessageRequest?.welcome_random,
 				welcome_sticker:
@@ -333,38 +328,38 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			),
 			disabled
 		},
-		{
-			title: t('menu.systemMessage.boostMessage'),
-			component: (
-				<MezonSwitch
-					disabled={disabled}
-					value={systemMessage?.boost_message === '1'}
-					onValueChange={(value) =>
-						setUpdateSystemMessageRequest((prev) => ({
-							...prev,
-							boost_message: value ? '1' : '0'
-						}))
-					}
-				/>
-			),
-			disabled
-		},
-		{
-			title: t('menu.systemMessage.setupTips'),
-			component: (
-				<MezonSwitch
-					disabled={disabled}
-					value={systemMessage?.setup_tips === '1'}
-					onValueChange={(value) =>
-						setUpdateSystemMessageRequest((prev) => ({
-							...prev,
-							setup_tips: value ? '1' : '0'
-						}))
-					}
-				/>
-			),
-			disabled
-		},
+		// {
+		// 	title: t('menu.systemMessage.boostMessage'),
+		// 	component: (
+		// 		<MezonSwitch
+		// 			disabled={disabled}
+		// 			value={systemMessage?.boost_message === '1'}
+		// 			onValueChange={(value) =>
+		// 				setUpdateSystemMessageRequest((prev) => ({
+		// 					...prev,
+		// 					boost_message: value ? '1' : '0'
+		// 				}))
+		// 			}
+		// 		/>
+		// 	),
+		// 	disabled
+		// },
+		// {
+		// 	title: t('menu.systemMessage.setupTips'),
+		// 	component: (
+		// 		<MezonSwitch
+		// 			disabled={disabled}
+		// 			value={systemMessage?.setup_tips === '1'}
+		// 			onValueChange={(value) =>
+		// 				setUpdateSystemMessageRequest((prev) => ({
+		// 					...prev,
+		// 					setup_tips: value ? '1' : '0'
+		// 				}))
+		// 			}
+		// 		/>
+		// 	),
+		// 	disabled
+		// },
 		{
 			title: t('menu.systemMessage.hideAuditLog'),
 			component: (
