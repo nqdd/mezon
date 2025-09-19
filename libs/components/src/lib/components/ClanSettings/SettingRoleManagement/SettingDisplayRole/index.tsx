@@ -1,13 +1,15 @@
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getNewSelectedPermissions,
 	getSelectedRoleId,
 	setNameRoleNew,
 	toggleIsShowFalse,
 	toggleIsShowTrue
 } from '@mezon/store';
+import { InputField } from '@mezon/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -47,6 +49,7 @@ export const colorArray = [
 const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: RolesClanEntity[]; hasPermissionEdit: boolean }) => {
 	const { t } = useTranslation('clanRoles');
 	const nameRole = useSelector(getNewNameRole);
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const colorRole = useSelector(getNewColorRole);
 	const selectedPermissions = useSelector(getNewSelectedPermissions);
 	const clickRole = useSelector(getSelectedRoleId);
@@ -64,12 +67,12 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 		const isSamePermissions =
 			selectedPermissions.length === permissionIds.length && selectedPermissions.every((id) => permissionIds.includes(id));
 
-		if (nameRole !== activeRole?.title || colorRole !== activeRole?.color || !isSamePermissions) {
+		if ((nameRole !== activeRole?.title && nameRole && nameRole.trim()) || colorRole !== activeRole?.color || !isSamePermissions || newRoleIcon) {
 			dispatch(toggleIsShowTrue());
 		} else {
 			dispatch(toggleIsShowFalse());
 		}
-	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch]);
+	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch, newRoleIcon]);
 
 	return (
 		<div className="grid grid-cols-1 gap-4">
@@ -77,9 +80,12 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 				<div className="text-xs font-bold uppercase text-theme-primary-active mb-2">
 					{t('roleManagement.roleName')}
 					<b className="text-red-600">*</b>
+					{!nameRole && <b className="text-red-600 pl-2 font-normal capitalize">{t('roleManagement.roleNameIsRequired')}</b>}
 				</div>
-				<input
-					className={` text-[15px] w-full  p-[7px] font-normal border-theme-primary text-theme-message bg-input-secondary rounded-lg outline-none ${!hasPermissionEdit || activeRole?.slug === `everyone-${activeRole?.clan_id}` ? 'cursor-not-allowed' : ''}`}
+
+				<InputField
+					needOutline={true}
+					className={` text-[15px] w-full  p-[7px] font-normal border-theme-primary text-theme-message bg-input-secondary rounded-lg  focus:outline focus:outline-1  outline-[#006ce7] ${!hasPermissionEdit || activeRole?.slug === `everyone-${activeRole?.clan_id}` ? 'cursor-not-allowed' : ''}`}
 					type="text"
 					value={nameRole}
 					onChange={handleDisplayName}

@@ -62,7 +62,7 @@ type PanelChannel = {
 const typeChannel = {
 	text: ChannelType.CHANNEL_TYPE_CHANNEL,
 	thread: ChannelType.CHANNEL_TYPE_THREAD,
-	voice: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+	voice: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 };
 // Legacy constants - use translated versions in components
 // TODO: Deprecated - use createNotiLabelsTranslated instead

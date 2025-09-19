@@ -1,3 +1,4 @@
+import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import type { DetailedHTMLProps, ImgHTMLAttributes } from 'react';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ export const AvatarImage = ({ username, src, srcImgProxy, alt, className = '', i
 		setIsError(true);
 	};
 
-	if ((!src && !username) || isAnonymous)
+	if (isAnonymous)
 		return (
 			<div
 				className={`flex items-center justify-center size-10 rounded-full bg-white ${computedClassName}`}
@@ -40,6 +41,10 @@ export const AvatarImage = ({ username, src, srcImgProxy, alt, className = '', i
 				</svg>
 			</div>
 		);
+
+	if (!src && !username) {
+		return <Icons.AvatarUser className="w-5 h-5 mr-2" />;
+	}
 
 	if (srcImgProxy && src && isError) {
 		return <img loading="lazy" className={computedClassName} src={src} alt={alt} {...rest} data-e2e={generateE2eId('avatar.image')} />;

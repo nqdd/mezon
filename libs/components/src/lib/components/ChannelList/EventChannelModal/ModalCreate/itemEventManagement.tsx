@@ -1,7 +1,6 @@
-import { ButtonCopy } from '@mezon/components';
 import { useAppNavigation, useAuth, useOnClickOutside, usePermissionChecker } from '@mezon/core';
+import type { EventManagementEntity } from '@mezon/store';
 import {
-	EventManagementEntity,
 	addUserEvent,
 	deleteUserEvent,
 	eventManagementActions,
@@ -16,7 +15,7 @@ import { Icons } from '@mezon/ui';
 import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
-import { ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,12 +23,13 @@ import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
-import { Coords } from '../../../ChannelLink';
+import type { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
 import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
+import { ButtonCopy } from 'libs/components/src/lib/components';
 
 export type ItemEventManagementProps = {
 	reviewDescription?: string;
@@ -248,8 +248,16 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						)}
 					</div>
 					{event?.creator_id && (
-						<Tooltip overlay={<p style={{ width: 'max-content' }}>{`Created by ${userCreate?.user?.username}`}</p>}>
-							<div>
+						<Tooltip
+							placement="left"
+							overlay={
+								<p
+									className="text-theme-primary-active"
+									style={{ width: 'max-content' }}
+								>{`Created by ${userCreate?.user?.username}`}</p>
+							}
+						>
+							<div className="flex  items-center gap-x-4 mb-3 mr-4">
 								<AvatarImage
 									alt={userCreate?.user?.username || ''}
 									username={userCreate?.user?.username}
@@ -258,15 +266,25 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 									src={userCreate?.user?.avatar_url}
 									classNameText="text-[9px] pt-[3px]"
 								/>
+								<div
+									className="flex items-center gap-x-1 w-full justify-end px-2 py-1 rounded-full bg-theme-primary text-theme-primary-active"
+									title={t('eventCreator:eventDetail.personInterested', { count: event?.user_ids?.length })}
+								>
+									<span className="text-md">{event?.user_ids?.length}</span>
+									<Icons.MemberList defaultSize="h-4 w-4" />
+								</div>
 							</div>
 						</Tooltip>
 					)}
 				</div>
+
 				<div className="flex justify-between gap-4 select-text">
-					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'}`}>
+					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'} `}>
 						<p className="hover:underline font-bold  text-base">{topic}</p>
-						<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap">
-							{isReviewEvent ? reviewDescription : event?.description}
+						<div className="flex justify-between">
+							<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap">
+								{isReviewEvent ? reviewDescription : event?.description}
+							</div>
 						</div>
 					</div>
 					{logoRight && (
@@ -274,6 +292,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					)}
 				</div>
 			</div>
+
 			<div
 				onClick={(e) => {
 					handleStopPropagation(e);
@@ -289,15 +308,12 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					{checkOptionVoice &&
 						!isPrivateEvent &&
 						(() => {
-							const isGMeet = channelVoice.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
-							const linkProps = isGMeet
-								? { href: `https://meet.google.com/${channelVoice.meeting_code}`, rel: 'noreferrer', target: '_blank' }
-								: {
-										onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-											handleStopPropagation(e);
-											redirectToVoice();
-										}
-									};
+							const linkProps = {
+								onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+									handleStopPropagation(e);
+									redirectToVoice();
+								}
+							};
 							return (
 								<a {...linkProps} className="flex gap-x-2 cursor-pointer">
 									<Icons.Speaker />
@@ -338,7 +354,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							handleStopPropagation(e);
 						}}
 					>
-						<div className="text-theme-primary-hover" onClick={(e) => handleOpenPanel(e)}>
+						<div className="text-theme-primary-hover cursor-pointer" onClick={(e) => handleOpenPanel(e)}>
 							<Icons.IconEditThreeDot className="rotate-90" />
 						</div>
 
@@ -363,12 +379,10 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						) : !actualEventStatus.isOngoing ? (
 							<button
 								onClick={handleToggleUserEvent}
-								className="flex items-center gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary"
+								className="flex items-center gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary text-theme-primary-active"
 							>
-								{isInterested ? <Icons.MuteBell defaultSize="size-4 text-white" /> : <Icons.Bell className="size-4 text-white" />}
-								<span className="whitespace-nowrap">
-									{event.user_ids?.length} {isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}
-								</span>
+								{isInterested ? <Icons.MuteBell defaultSize="size-4" /> : <Icons.Bell className="size-4 " />}
+								<span className="whitespace-nowrap">{isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}</span>
 							</button>
 						) : (
 							<></>

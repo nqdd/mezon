@@ -233,7 +233,8 @@ const LocationModal = (props: LocationModalProps) => {
 
 					<Select
 						classNames={{
-							menuList: () => 'thread-scroll'
+							menuList: () => 'thread-scroll',
+							control: () => 'cursor-pointer'
 						}}
 						options={optionsTextChannel}
 						value={isClear ? null : selectedOption}
@@ -273,7 +274,7 @@ const TitleOptionEvent = ({
 	id: string;
 }) => {
 	return (
-		<label className="w-full bg-item-theme rounded flex justify-between items-center p-2" htmlFor={id}>
+		<label className="w-full bg-item-theme rounded flex justify-between items-center p-2 cursor-pointer" htmlFor={id}>
 			<div className={`flex items-center gap-x-2 ${choose ? 'text-theme-primary-active' : ''} `}>
 				{icon}
 				<div>

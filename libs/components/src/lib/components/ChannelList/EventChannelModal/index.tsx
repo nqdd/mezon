@@ -44,7 +44,7 @@ const EventModal = (props: EventModalProps) => {
 					</div>
 				)}
 			</div>
-			{showModalDetailEvent && <ModalDetailItemEvent />}
+			{showModalDetailEvent && <ModalDetailItemEvent onCloseAll={onClose} />}
 		</ModalLayout>
 	);
 };

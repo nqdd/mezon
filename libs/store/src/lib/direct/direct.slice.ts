@@ -81,16 +81,16 @@ export const createNewDirectMessage = createAsyncThunk(
 						topic: response.topic || 'assets/images/avatar-group.png'
 					})
 				);
-				if (response.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-					await thunkAPI.dispatch(
-						channelsActions.joinChat({
-							clanId: '0',
-							channelId: response.channel_id as string,
-							channelType: response.type as number,
-							isPublic: false
-						})
-					);
-				}
+
+				await thunkAPI.dispatch(
+					channelsActions.joinChat({
+						clanId: '0',
+						channelId: response.channel_id as string,
+						channelType: response.type as number,
+						isPublic: false
+					})
+				);
+
 				return response;
 			} else {
 				captureSentryError('no response', 'direct/createNewDirectMessage');

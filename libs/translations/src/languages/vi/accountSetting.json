@@ -1,59 +1,61 @@
 {
-    "myAccount": "Tài khoản của tôi",
-    "editUserProfile": "Chỉnh sửa hồ sơ người dùng",
-    "noDisplayName": "Bạn chưa thêm tên hiển thị nào.",
-    "edit": "Chỉnh sửa",
-    "password": "Mật khẩu",
-    "username": "Tên đăng nhập",
-    "displayName": "Tên hiển thị",
-    "users": "Người dùng",
-    "accountManagement": "Quản lý tài khoản",
-    "blockedUsers": "Người dùng bị chặn",
-    "disableAccount": "Vô hiệu hóa tài khoản",
-    "deleteAccount": "Xóa tài khoản",
-    "accountInformation": "Thông tin tài khoản",
-    "doNotHaveBlockedUser": "Không có người dùng nào bị chặn",
-    "setPassword": "Đặt mật khẩu",
-    "disableAccountAlert": {
-        "title": "Vô hiệu hoá tài khoản",
-        "description": "Bạn có chắc chắn muốn vô hiệu hoá tài khoản?",
-        "noConfirm": "Không",
-        "yesConfirm": "Có"
-    },
-    "deleteAccountAlert": {
-        "title": "Xoá tài khoản",
-        "description": "Bạn có chắc chắn muốn xoá tài khoản?",
-        "noConfirm": "Không",
-        "yesConfirm": "Có"
-    },
-    "setPasswordAccount": {
-        "title": "Đặt mật khẩu",
-        "email": "Email",
-        "password": "Mật khẩu",
-        "confirmPassword": "Xác nhận mật khẩu",
-        "confirm": "Xác nhận",
-        "description": "Mật khẩu của bạn phải có ít nhất 8 ký tự và bao gồm ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt (ví dụ: !@#$%^&*).",
-        "error": {
-            "characters": "Mật khẩu phải có ít nhất 8 ký tự",
-            "uppercase": "Mật khẩu phải chứa ít nhất 1 chữ cái viết hoa",
-            "lowercase": "Mật khẩu phải chứa ít nhất 1 chữ cái viết thường",
-            "number": "Mật khẩu phải chứa ít nhất 1 chữ số",
-            "symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
-            "notEqual": "Mật khẩu xác nhận không khớp"
-        },
-        "notification": "Đặt mật khẩu thành công"
-    },
-    "setPasswordModal": {
-        "title": "Đặt mật khẩu",
-        "description": "Vui lòng tạo mật khẩu mới cho tài khoản của bạn",
-        "emailPlaceholder": "email.cua.ban@example.com",
-        "loading": "Đang tải...",
-        "close": "Đóng"
-    },
-    "toast": {
-        "deleteAccount": {
-            "success": "Xóa tài khoản thành công",
-            "error": "Bạn là chủ của clan"
-        }
-    }
+	"myAccount": "Tài khoản của tôi",
+	"editUserProfile": "Chỉnh sửa hồ sơ người dùng",
+	"noDisplayName": "Bạn chưa thêm tên hiển thị nào.",
+	"edit": "Chỉnh sửa",
+	"password": "Mật khẩu",
+	"username": "Tên đăng nhập",
+	"displayName": "Tên hiển thị",
+	"users": "Người dùng",
+	"accountManagement": "Quản lý tài khoản",
+	"blockedUsers": "Người dùng bị chặn",
+	"disableAccount": "Vô hiệu hóa tài khoản",
+	"deleteAccount": "Xóa tài khoản",
+	"accountInformation": "Thông tin tài khoản",
+	"doNotHaveBlockedUser": "Không có người dùng nào bị chặn",
+	"setPassword": "Đặt mật khẩu",
+	"disableAccountAlert": {
+		"title": "Vô hiệu hoá tài khoản",
+		"description": "Bạn có chắc chắn muốn vô hiệu hoá tài khoản?",
+		"noConfirm": "Không",
+		"yesConfirm": "Có"
+	},
+	"deleteAccountAlert": {
+		"title": "Xoá tài khoản",
+		"description": "Bạn có chắc chắn muốn xoá tài khoản?",
+		"noConfirm": "Không",
+		"yesConfirm": "Có"
+	},
+	"setPasswordAccount": {
+		"title": "Đặt mật khẩu",
+		"email": "Email",
+		"password": "Mật khẩu",
+		"currentPassword": "Mật khẩu cũ",
+		"confirmPassword": "Xác nhận mật khẩu",
+		"confirm": "Xác nhận",
+		"description": "Mật khẩu của bạn phải có ít nhất 8 ký tự và bao gồm ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt (ví dụ: !@#$%^&*).",
+		"error": {
+			"characters": "Mật khẩu phải có ít nhất 8 ký tự",
+			"uppercase": "Mật khẩu phải chứa ít nhất 1 chữ cái viết hoa",
+			"lowercase": "Mật khẩu phải chứa ít nhất 1 chữ cái viết thường",
+			"number": "Mật khẩu phải chứa ít nhất 1 chữ số",
+			"symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
+			"notEqual": "Mật khẩu xác nhận không khớp",
+			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ"
+		},
+		"notification": "Đặt mật khẩu thành công"
+	},
+	"setPasswordModal": {
+		"title": "Đặt mật khẩu",
+		"description": "Vui lòng tạo mật khẩu mới cho tài khoản của bạn",
+		"emailPlaceholder": "email.cua.ban@example.com",
+		"loading": "Đang tải...",
+		"close": "Đóng"
+	},
+	"toast": {
+		"deleteAccount": {
+			"success": "Xóa tài khoản thành công",
+			"error": "Bạn là chủ của clan"
+		}
+	}
 }

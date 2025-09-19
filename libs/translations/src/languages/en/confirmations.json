@@ -1,9 +1,9 @@
 {
   "deleteRole": {
-    "title": "DELETE ROLE",
-    "message": "Are you sure you want to delete the new role role? This action cannot be undone",
-    "confirm": "Delete",
-    "cancel": "Cancel"
+		"title": "DELETE ROLE",
+		"message": "Are you sure you want to delete this role? This action cannot be undone",
+		"confirm": "Delete",
+		"cancel": "Cancel"
   },
   "common": {
     "areYouSure": "Are you sure?",

@@ -1,6 +1,8 @@
-import React, { DragEvent, memo, useMemo, useState } from 'react';
+import type { DragEvent } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import type { UsersStreamEntity, VoiceEntity } from '@mezon/store';
 import {
 	clansActions,
 	selectCategoryExpandStateByCategoryId,
@@ -9,18 +11,17 @@ import {
 	selectIsUnreadThreadInChannel,
 	selectStreamMembersByChannelId,
 	selectVoiceChannelMembersByChannelId,
-	useAppSelector,
-	UsersStreamEntity,
-	VoiceEntity
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ChannelThreads } from '@mezon/utils';
+import type { ChannelThreads } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import AvatarGroup, { AvatarCount } from '../../Avatar/AvatarGroup';
-import { ChannelLink, ChannelLinkRef } from '../../ChannelLink';
+import type { ChannelLinkRef } from '../../ChannelLink';
+import { ChannelLink } from '../../ChannelLink';
 import { AvatarUserShort } from '../../ClanSettings/SettingChannel';
 import UserListVoiceChannel from '../../UserListVoiceChannel';
-import { IChannelLinkPermission } from '../CategorizedChannels';
+import type { IChannelLinkPermission } from '../CategorizedChannels';
 
 export type ChannelListItemRef = {
 	channelId: string;
@@ -43,12 +44,7 @@ const ChannelLinkContent: React.FC<ChannelLinkContentProps> = ({ channel, isActi
 	const streamChannelMembers = useAppSelector((state) => selectStreamMembersByChannelId(state, channel.id));
 	const currentChannel = useSelector(selectCurrentChannel);
 	const channelMemberList = useMemo(() => {
-		if (
-			channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ||
-			channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ||
-			channel.type === ChannelType.CHANNEL_TYPE_APP
-		)
-			return voiceChannelMembers;
+		if (channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE || channel.type === ChannelType.CHANNEL_TYPE_APP) return voiceChannelMembers;
 		if (channel.type === ChannelType.CHANNEL_TYPE_STREAMING) return streamChannelMembers;
 		return [];
 	}, [channel.type, voiceChannelMembers, streamChannelMembers]);
@@ -88,7 +84,6 @@ const ChannelLinkContent: React.FC<ChannelLinkContentProps> = ({ channel, isActi
 	const renderChannelContent = useMemo(() => {
 		if (
 			channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-			channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
 			channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
 			channel.type !== ChannelType.CHANNEL_TYPE_APP &&
 			(isCategoryExpanded ||

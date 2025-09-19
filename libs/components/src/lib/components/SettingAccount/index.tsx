@@ -2,8 +2,8 @@ import { useAuth } from '@mezon/core';
 import { authActions, selectRegisteringStatus, useAppDispatch } from '@mezon/store';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
-import { useModal } from 'react-modal-hook';
 import { useTranslation } from 'react-i18next';
+import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import SetPassword from '../Setting Password';
@@ -49,9 +49,10 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 				onSubmit={async (data) => {
 					await dispatch(authActions.registrationPassword(data));
 				}}
+				hasPassword={!!userProfile?.password_setted}
 			/>
 		);
-	}, [isLoadingUpdatePassword]);
+	}, [isLoadingUpdatePassword, userProfile?.password_setted]);
 
 	const handleOpenSetPassword = () => {
 		openSetPassWordModal();
