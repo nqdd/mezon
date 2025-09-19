@@ -5,21 +5,17 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			borderTopColor: colors.border,
-			padding: size.s_16,
-			position: 'absolute',
+			padding: size.s_8,
+			position: 'relative',
 			width: '100%',
-			zIndex: 100,
-			bottom: verticalScale(70),
-			minHeight: verticalScale(100),
-			maxHeight: verticalScale(120)
+			height: size.s_100
 		},
 		attachmentItem: {
 			marginRight: size.s_14,
 			borderRadius: size.s_6,
 			height: verticalScale(80),
 			paddingTop: size.s_10,
-			flexShrink: 0,
-			width: verticalScale(70)
+			flexShrink: 0
 		},
 		attachmentItemImage: {
 			width: verticalScale(70),
