@@ -125,7 +125,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							)}
 					</>
 				)}
-				{channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && hasClanPermission ||hasManageChannelPermission && (
+				{channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && hasManageChannelPermission && (
 					<ChannelSettingItemButton
 						tabName={EChannelSettingTab.INTEGRATIONS}
 						handleOnClick={handleButtonClick}
