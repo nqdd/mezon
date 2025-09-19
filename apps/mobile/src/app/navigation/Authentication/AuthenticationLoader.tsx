@@ -126,10 +126,10 @@ export const AuthenticationLoader = () => {
 				const subpath = parts.subpath;
 				if (clanId && channelId) {
 					navigation.navigate(APP_SCREEN.CHANNEL_APP, {
-						channelId: channelId,
-						clanId: clanId,
-						code: code,
-						subpath: subpath
+						channelId,
+						clanId,
+						code,
+						subpath
 					});
 				}
 			}
@@ -321,7 +321,7 @@ export const AuthenticationLoader = () => {
 		} else {
 			const linkDirectMessageMatch = link.match(clanDirectMessageLinkRegex);
 			const channelId = linkDirectMessageMatch[1];
-			dispatch(directActions.setBuzzStateDirect({ channelId: channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
+			dispatch(directActions.setBuzzStateDirect({ channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
 		}
 	};
 
