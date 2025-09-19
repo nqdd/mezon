@@ -47,6 +47,7 @@ import {
 	permissionRoleChannelActions,
 	pinMessageActions,
 	policiesActions,
+	referencesActions,
 	resetChannelBadgeCount,
 	rolesClanActions,
 	selectAllChannels,
@@ -67,6 +68,7 @@ import {
 	selectCurrentStreamInfo,
 	selectCurrentTopicId,
 	selectCurrentUserId,
+	selectDataReferences,
 	selectDefaultChannelIdByClanId,
 	selectDmGroupCurrentId,
 	selectIsInCall,
@@ -231,7 +233,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onvoiceleaved = useCallback(
 		(voice: VoiceLeavedEvent) => {
-			dispatch(voiceActions.remove(voice.voice_user_id));
+			dispatch(voiceActions.remove(voice));
+			if (voice.voice_user_id === userId) {
+				if (document.pictureInPictureEnabled) {
+					document.exitPictureInPicture();
+				}
+			}
 		},
 		[dispatch]
 	);
@@ -433,11 +440,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(threadsActions.updateLastSentInThread({ channelId: message.channel_id, lastSentTime: timestamp }));
 				}
 				if (message?.code === TypeMessage.ChatRemove) {
+					const replyData = selectDataReferences(store.getState(), message.channel_id);
+					if (replyData && replyData.message_ref_id === message.id) {
+						dispatch(referencesActions.resetAfterReply(message.channel_id));
+					}
 					if (message.message_id) {
-						pinMessageActions.removePinMessage({
-							pinId: message.message_id,
-							channelId: message.channel_id
-						});
+						dispatch(
+							pinMessageActions.removePinMessage({
+								pinId: message.message_id,
+								channelId: message.channel_id
+							})
+						);
 					}
 				}
 				if (message?.code === TypeMessage.ChatRemove && message.sender_id !== userId) {
@@ -799,6 +812,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							listChannelRenderAction.setActiveThread({
 								channelId: channel_desc.channel_id as string,
 								clanId: channel_desc.clan_id as string
+							})
+						);
+						dispatch(
+							listChannelRenderAction.addThreadToListRender({
+								channel,
+								clanId: channel.clan_id || ''
 							})
 						);
 						if (channel_desc.channel_private === ChannelStatusEnum.isPrivate) {
@@ -1826,8 +1845,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			return;
 		}
 		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+			dispatch(DMCallActions.removeAll());
+			dispatch(audioCallActions.reset());
 			dispatch(DMCallActions.cancelCall({}));
-			dispatch(audioCallActions.startDmCall({}));
+			dispatch(audioCallActions.startDmCall(null));
 			dispatch(audioCallActions.setUserCallId(''));
 			dispatch(audioCallActions.setIsJoinedCall(false));
 			dispatch(DMCallActions.setOtherCall({}));
@@ -2403,4 +2424,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
-

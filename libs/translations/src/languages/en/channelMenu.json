@@ -17,21 +17,42 @@
             "unMuteChannel": "Unmute Channel",
             "muteThread": "Mute Thread",
             "unMuteThread": "Unmute Thread",
-            "notification": "Notification Settings"
+            "notification": "Notification Settings",
+            "for15Minutes": "For 15 Minutes",
+            "for1Hour": "For 1 Hour", 
+            "for3Hours": "For 3 Hour",
+            "for8Hours": "For 8 Hour",
+            "for24Hours": "For 24 Hour",
+            "untilTurnedBackOn": "Until I turn it back on",
+            "useCategoryDefault": "Use Category Default",
+            "all": "All",
+            "onlyMention": "Only @mention", 
+            "nothing": "Nothing",
+            "processing": "Processing...",
+            "muteChannelStatus": "Mute Channel",
+            "muteThreadStatus": "Mute Thread", 
+            "unmuteChannelStatus": "Unmute Channel",
+            "unmuteThreadStatus": "Unmute Thread",
+            "mutedUntil": "Muted until"
         },
         "thread": {
           "title": "",
           "threads": "Threads",
-          "searchThreads": "Search Thread",
+          "searchThreads": "Search for Thread Name",
           "searchFiles": "Search Files",
-          "searchCanvas": "Search for Canvas name"
+          "searchCanvas": "Search for Canvas Name"
         },
         "organizationMenu": {
             "title": "",
             "edit": "Edit Channel",
             "deleteChannel": "Delete Channel",
-            "duplicateChannel": "Duplicate Category",
-            "leaveChannel": "Leave Channel"
+            "duplicateChannel": "Duplicate Category", 
+            "leaveChannel": "Leave Channel",
+            "createTextChannel": "Create Text Channel",
+            "createVoiceChannel": "Create Voice Channel",
+            "openChat": "Open Chat",
+            "hideNames": "Hide Names",
+            "createThread": "Create Thread"
         },
         "devMode": {
             "title": "Development Mode",

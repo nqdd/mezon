@@ -26,7 +26,7 @@ import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 import { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
-import { timeFomat } from '../timeFomatEvent';
+import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
@@ -73,13 +73,16 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const isChannelEvent = textChannelId && textChannelId !== '0';
 	const isPrivateEvent = !isChannelEvent && ((!isReviewEvent && event?.is_private) || (isReviewEvent && isPrivate));
 	const isClanEvent = !isChannelEvent && ((!isReviewEvent && !event?.is_private) || (isReviewEvent && !isPrivate));
-	const { t } = useTranslation(['eventMenu']);
+	const { t, i18n } = useTranslation(['eventMenu', 'eventCreator']);
 	const dispatch = useAppDispatch();
+
+	// Create i18n-aware time formatter
+	const formatTimeI18n = useMemo(() => createI18nTimeFormatter(i18n.language), [i18n.language]);
 	const channelFirst = useSelector(selectChannelFirst);
 	const channelVoice = useAppSelector((state) => selectChannelById(state, voiceChannel ?? '')) || {};
 	const textChannel = useAppSelector((state) => selectChannelById(state, textChannelId ?? '')) || {};
 	const isThread = textChannel?.type === ChannelType.CHANNEL_TYPE_THREAD;
-	const userCreate = useSelector(selectMemberClanByUserId(event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 	const checkOptionVoice = useMemo(() => option === OptionEvent.OPTION_SPEAKER, [option]);
 	const checkOptionLocation = useMemo(() => option === OptionEvent.OPTION_LOCATION, [option]);
@@ -102,7 +105,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 		const startTime = new Date(event.start_time).getTime();
 		const currentTime = Date.now();
-		const endTime = event.end_time ? new Date(event.end_time).getTime() : startTime + (2 * 60 * 60 * 1000);
+		const endTime = event.end_time ? new Date(event.end_time).getTime() : startTime + 2 * 60 * 60 * 1000;
 
 		const isActuallyUpcoming = currentTime < startTime;
 		const isActuallyOngoing = currentTime >= startTime && currentTime <= endTime;
@@ -164,7 +167,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 		const timeDiff = startTime - currentTime;
 		const minutesLeft = Math.ceil(timeDiff / (1000 * 60));
 		if (minutesLeft <= 10 && minutesLeft > 0) {
-			return minutesLeft === 1 ? t("countdown.joinIn_one") : t("countdown.joinIn_other", { count: minutesLeft });
+			return minutesLeft === 1 ? t('countdown.joinIn_one') : t('countdown.joinIn_other', { count: minutesLeft });
 		}
 
 		return null;
@@ -229,14 +232,20 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
 						<p className={`font-semibold ${cssEventStatus}`}>
 							{actualEventStatus.isUpcoming
-								? (timeUntilEvent || timeFomat(event?.start_time || start))
+								? timeUntilEvent || formatTimeI18n(event?.start_time || start)
 								: actualEventStatus.isOngoing
 									? t('countdown.joinNow')
-									: timeFomat(event?.start_time || start)}
+									: formatTimeI18n(event?.start_time || start)}
 						</p>
-						{isClanEvent && <p className="bg-blue-500 text-white rounded-sm px-1 text-center">Clan Event</p>}
-						{isChannelEvent && <p className="bg-orange-500 text-white rounded-sm px-1 text-center">Channel Event</p>}
-						{isPrivateEvent && <p className="bg-red-500 text-white rounded-sm px-1 text-center">Private Event</p>}
+						{isClanEvent && (
+							<p className="bg-blue-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.clanEvent')}</p>
+						)}
+						{isChannelEvent && (
+							<p className="bg-orange-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.channelEvent')}</p>
+						)}
+						{isPrivateEvent && (
+							<p className="bg-red-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.privateEvent')}</p>
+						)}
 					</div>
 					{event?.creator_id && (
 						<Tooltip overlay={<p style={{ width: 'max-content' }}>{`Created by ${userCreate?.user?.username}`}</p>}>
@@ -313,10 +322,10 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							<Icons.SpeakerLocked />
 							{link ? (
 								<a href={link} target="_blank" rel="noopener noreferrer" className="cursor-pointer whitespace-normal break-words">
-									Private Room
+									{t('eventCreator:eventDetail.privateRoom')}
 								</a>
 							) : (
-								<span className="whitespace-normal break-words cursor-not-allowed">Private Room</span>
+								<span className="whitespace-normal break-words cursor-not-allowed">{t('eventCreator:eventDetail.privateRoom')}</span>
 							)}
 						</div>
 					)}
@@ -340,7 +349,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							>
 								{checkOptionVoice && <Icons.IconShareEventVoice />}
 								{checkOptionLocation && <Icons.IConShareEventLocation />}
-								Share
+								{t('eventCreator:eventDetail.share')}
 							</button>
 						)}
 
@@ -358,7 +367,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							>
 								{isInterested ? <Icons.MuteBell defaultSize="size-4 text-white" /> : <Icons.Bell className="size-4 text-white" />}
 								<span className="whitespace-nowrap">
-										{event.user_ids?.length} {isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}
+									{event.user_ids?.length} {isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}
 								</span>
 							</button>
 						) : (
@@ -370,19 +379,19 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 			<div className="flex gap-x-2 mx-4 mb-2">
 				{isPrivateEvent ? (
 					<span className="flex flex-row items-center gap-2">
-						<p className="">Only invited members can join.</p>
+						<p className="">{t('eventCreator:eventDetail.onlyInvitedMembers')}</p>
 						{hasLink && (
 							<>
 								<button onClick={handleOpenLink} className="text-blue-500 hover:underline">
-									Open Link
+									{t('eventCreator:eventDetail.openLink')}
 								</button>
 
 								<button onClick={handleInvite} className="text-blue-500 hover:underline">
-									Invite
+									{t('eventCreator:eventDetail.invite')}
 								</button>
 								<ButtonCopy
 									copyText={link}
-									title="Copy Link"
+									title={t('eventCreator:eventDetail.copyLink')}
 									className="bg-transparent flex-row-reverse hover:!bg-transparent !text-blue-500 hover:!underline"
 								/>
 							</>
@@ -391,13 +400,14 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				) : isChannelEvent ? (
 					<span className="flex flex-row">
 						<p className="">
-							{`The audience consists of members from ${isThread ? 'thread: ' : 'channel: '}`}
+							{t('eventCreator:eventDetail.audienceConsists')}{' '}
+							{isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
 							<strong className="">{textChannel.channel_label}</strong>
 						</p>
 					</span>
 				) : isClanEvent ? (
 					<span className="flex flex-row">
-								<p className="">{t('dashboard.noti')}</p>
+						<p className="">{t('dashboard.noti')}</p>
 					</span>
 				) : null}
 			</div>

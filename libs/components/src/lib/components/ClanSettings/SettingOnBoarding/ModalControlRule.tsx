@@ -1,11 +1,12 @@
 import { Icons } from '@mezon/ui';
 import { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ModalControlRule = ({
 	children,
 	onClose,
 	onSave,
-	bottomLeftBtn = 'Reset',
+	bottomLeftBtn,
 	bottomLeftBtnFunction
 }: {
 	children: ReactNode;
@@ -14,6 +15,7 @@ const ModalControlRule = ({
 	bottomLeftBtn?: string;
 	bottomLeftBtnFunction?: () => void;
 }) => {
+	const { t } = useTranslation('modalControls');
 	return (
 		<div className="fixed h-screen w-screen z-50 bg-gray-800/80 dark:bg-bgSurface dark:bg-opacity-80 top-0 left-0 flex items-center justify-center">
 			<div className="w-[440px] p-5 pt-12 pb-[72px] max-h-[90vh] bg-white dark:bg-bgSecondary rounded-md relative text-gray-700 dark:text-channelTextLabel flex shadow-lg">
@@ -28,18 +30,18 @@ const ModalControlRule = ({
 				<div className="absolute w-full p-4 flex bottom-0 left-0 justify-between bg-gray-100 dark:bg-bgSecondary600 border-t border-gray-200 dark:border-transparent">
 					<div className="flex-1 flex">
 						<div className="h-10 items-center text-red-500 cursor-pointer hover:underline flex" onClick={bottomLeftBtnFunction}>
-							{bottomLeftBtn}
+							{bottomLeftBtn || t('buttons.reset')}
 						</div>
 					</div>
 					<div className="flex text-gray-700 dark:text-white">
 						<div className="hover:underline px-4 h-10 items-center flex cursor-pointer" onClick={onClose}>
-							Cancel
+							{t('buttons.cancel')}
 						</div>
 						<div
 							className="hover:underline px-4 w-24 h-10 bg-indigo-500 hover:bg-indigo-600 dark:bg-bgSelectItem dark:hover:bg-blue-600 flex items-center justify-center rounded-md cursor-pointer text-white transition-colors"
 							onClick={onSave}
 						>
-							Save
+							{t('buttons.save')}
 						</div>
 					</div>
 				</div>

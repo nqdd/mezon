@@ -26,8 +26,8 @@
     "friends": "Friends",
     "noFriendsResultsFound": "No friends results found",
     "toast": {
-        "sendAddFriendSuccess": "Friend Request Sent",
-        "sendAddFriendFail": "No valid ID or username was provided."
+        "sendAddFriendSuccess": "Friend request sent successfully!",
+        "sendAddFriendFail": "Hm, that didn't work. Double-check that the username is correct."
     },
     "you": "you"
 }

@@ -1,7 +1,7 @@
+import type { ChannelsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	getStore,
-	selectChannelById2,
+	selectChannelByChannelId,
 	selectClanMemberMetaUserId,
 	selectClanView,
 	selectCurrentChannel,
@@ -10,11 +10,11 @@ import {
 	selectDmGroupCurrentId,
 	selectHashtagDmById,
 	selectMembeGroupByUserId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMemberDMByUserId,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
 
 export const useUserById = (userID: string | undefined): ChannelMembersEntity | undefined => {
 	return useAppSelector((state) => {
@@ -22,7 +22,7 @@ export const useUserById = (userID: string | undefined): ChannelMembersEntity | 
 		const currentDMId = selectDmGroupCurrentId(state);
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectMemberClanByUserId2(state, userID ?? '') as unknown as ChannelMembersEntity)
+			? (selectMemberClanByUserId(state, userID ?? '') as unknown as ChannelMembersEntity)
 			: (selectMembeGroupByUserId(state, currentDMId as string, userID as string) as unknown as ChannelMembersEntity);
 	});
 };
@@ -42,7 +42,7 @@ export const useUserByUserId = (userID: string | undefined): ChannelMembersEntit
 		if (!userID) return undefined;
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectMemberClanByUserId2(state, userID ?? '') as unknown as ChannelMembersEntity)
+			? (selectMemberClanByUserId(state, userID ?? '') as unknown as ChannelMembersEntity)
 			: (selectMemberDMByUserId(state, userID ?? '') as unknown as ChannelMembersEntity);
 	});
 };
@@ -52,7 +52,7 @@ export const useTagById = (tagId: string | undefined): ChannelsEntity | undefine
 		if (!tagId) return undefined;
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectChannelById2(state, tagId) as unknown as ChannelsEntity)
+			? (selectChannelByChannelId(state, tagId) as unknown as ChannelsEntity)
 			: (selectHashtagDmById(state, tagId) as unknown as ChannelsEntity);
 	});
 };
@@ -61,7 +61,7 @@ export const getTagByIdOnStored = (tagId: string | undefined): ChannelsEntity | 
 	const store = getStore();
 	if (!tagId) return undefined;
 	const isClanView = selectClanView(store.getState());
-	return isClanView ? selectChannelById2(store.getState(), tagId) : selectHashtagDmById(store.getState(), tagId);
+	return isClanView ? selectChannelByChannelId(store.getState(), tagId) : selectHashtagDmById(store.getState(), tagId);
 };
 
 export const useCurrentInbox = (): ChannelsEntity | null => {

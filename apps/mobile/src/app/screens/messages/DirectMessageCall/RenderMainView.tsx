@@ -1,0 +1,76 @@
+import { MediaStream, RTCIceCandidate } from '@livekit/react-native-webrtc';
+import { size, useTheme } from '@mezon/mobile-ui';
+import { selectRemoteAudio, selectRemoteVideo } from '@mezon/store-mobile';
+import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../constants/icon_cdn';
+import AvatarCall from './AvatarCall';
+import CallDuration from './CallDuration';
+import RenderVideoStream from './RenderVideoStream';
+import { style } from './styles';
+
+interface CallState {
+	localStream: MediaStream | null;
+	remoteStream: MediaStream | null;
+	storedIceCandidates?: RTCIceCandidate[] | null;
+}
+interface IRenderMainViewProps {
+	callState: CallState;
+	isConnected: boolean;
+	isAnswerCall: boolean;
+	isOnLocalCamera: boolean;
+	route: any;
+	isMirror: boolean;
+}
+export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnected, isMirror, isOnLocalCamera }: IRenderMainViewProps) => {
+	const { themeValue } = useTheme();
+	const isRemoteVideo = useSelector(selectRemoteVideo);
+	const isRemoteAudio = useSelector(selectRemoteAudio);
+	const receiverAvatar = route?.params?.receiverAvatar;
+	const receiverName = route?.params?.receiverName;
+	const styles = style(themeValue);
+	const { t } = useTranslation(['dmMessage']);
+
+	return (
+		<View style={{ flex: 1 }}>
+			{callState.remoteStream && isRemoteVideo && isConnected ? (
+				<View style={{ flex: 1 }}>
+					<RenderVideoStream stream={callState?.remoteStream} mirror={false} />
+					{!isRemoteAudio && (
+						<View style={styles.mutedAudioContainer}>
+							<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+							<Text style={styles.mutedAudioText}>
+								{receiverName || ''} {t('turnedMicOff')}
+							</Text>
+						</View>
+					)}
+				</View>
+			) : (
+				<View>
+					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
+					<View style={[styles.mutedAudioAvatarContainer, { top: size.s_150, opacity: isRemoteAudio ? 0 : 1 }]}>
+						<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+						<Text style={styles.mutedAudioText}>
+							{receiverName || ''} {t('turnedMicOff')}
+						</Text>
+					</View>
+				</View>
+			)}
+			{isConnected && (
+				<View style={{ top: callState.remoteStream && isRemoteVideo ? 0 : size.s_70 }}>
+					<CallDuration isConnected={isConnected} />
+				</View>
+			)}
+			{callState.localStream && isOnLocalCamera ? (
+				<View style={styles.cardMyVideoCall}>
+					<RenderVideoStream stream={callState?.localStream} mirror={isMirror} isLocal={true} />
+				</View>
+			) : (
+				<View />
+			)}
+		</View>
+	);
+});

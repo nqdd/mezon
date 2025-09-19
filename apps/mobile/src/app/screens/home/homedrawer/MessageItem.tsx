@@ -8,7 +8,7 @@ import {
 	getStoreAsync,
 	selectCurrentChannel,
 	selectDmGroupCurrent,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	setSelectedMessage,
 	useAppDispatch
 } from '@mezon/store-mobile';
@@ -113,7 +113,7 @@ const MessageItem = React.memo(
 
 		const hasIncludeMention = (() => {
 			const store = getStore();
-			const currentClanUser = selectMemberClanByUserId2(store.getState(), userId as string);
+			const currentClanUser = selectMemberClanByUserId(store.getState(), userId as string);
 
 			if (!userId) return false;
 			if (typeof message?.content?.t == 'string') {
@@ -453,13 +453,15 @@ const MessageItem = React.memo(
 				prevProps?.previousMessage?.id +
 				prevProps?.message?.code +
 				prevProps?.isHighlight +
-				prevProps?.message?.reactions ===
+				prevProps?.message?.reactions +
+				prevProps?.message?.references?.[0]?.content ===
 			nextProps?.message?.id +
 				nextProps?.message?.update_time +
 				nextProps?.previousMessage?.id +
 				nextProps?.message?.code +
 				nextProps?.isHighlight +
-				nextProps?.message?.reactions
+				nextProps?.message?.reactions +
+				nextProps?.message?.references?.[0]?.content
 		);
 	}
 );

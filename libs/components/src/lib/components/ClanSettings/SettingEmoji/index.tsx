@@ -2,12 +2,14 @@ import { selectCurrentClanId, selectEmojiByClanId, settingClanStickerActions, us
 import type { ClanEmoji } from 'mezon-js';
 import type { RefObject } from 'react';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalErrorTypeUpload, ModalLayout, ModalOverData } from '../../../components';
 import ModalSticker, { EGraphicType } from '../SettingSticker/ModalEditSticker';
 import SettingEmojiList from './SettingEmojiList';
 
 const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) => {
+	const { t } = useTranslation('clanSettings');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const [openModal, setOpenModal] = useState(false);
 	const [openModalType, setOpenModalType] = useState(false);
@@ -40,26 +42,24 @@ const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) =
 		<>
 			<div className="flex flex-col gap-3 pb-[40px] 0 text-sm">
 				<div className={'flex flex-col gap-2'}>
-					<p className={''}>
-						Add up to 250 custom emoji that anyone can use in this server. Animated GIF emoji may be used by members with Mezon Nitro
-					</p>
-					<p className={'uppercase text-xs'}>UPLOAD REQUIREMENTS</p>
+					<p className={''}>{t('emoji.description')}</p>
+					<p className={'uppercase text-xs'}>{t('emoji.uploadRequirements')}</p>
 					<ul className={'list-disc ml-[16px]'}>
-						<li>File type: JPEG, PNG, GIF</li>
-						<li>Recommended file size: 256 KB (We'll compress for you)</li>
-						<li>Recommended dimensions: 128x128</li>
-						<li>Naming: Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores</li>
+						<li>{t('emoji.requirements.fileType')}</li>
+						<li>{t('emoji.requirements.fileSize')}</li>
+						<li>{t('emoji.requirements.dimensions')}</li>
+						<li>{t('emoji.requirements.naming')}</li>
 					</ul>
 				</div>
 				<div
 					onClick={handleCreateEmoji}
 					className="h-[38px] font-semibold rounded-lg btn-primary btn-primary-hover w-28 relative flex flex-row items-center justify-center cursor-pointer"
 				>
-					Upload emoji
+					{t('emoji.uploadEmoji')}
 				</div>
 			</div>
 
-			<SettingEmojiList title={'Emoji'} emojiList={emojiList} onUpdateEmoji={handleOpenUpdateEmojiModal} />
+			<SettingEmojiList title={t('emoji.title')} emojiList={emojiList} onUpdateEmoji={handleOpenUpdateEmojiModal} />
 
 			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
 

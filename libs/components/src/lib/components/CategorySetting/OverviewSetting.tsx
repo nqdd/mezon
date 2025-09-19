@@ -4,6 +4,7 @@ import { ICategory, KEY_KEYBOARD, ValidateSpecialCharacters } from '@mezon/utils
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ApiUpdateCategoryDescRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import ModalSaveChanges from '../ClanSettings/ClanSettingOverview/ModalSaveChanges';
@@ -14,6 +15,7 @@ interface IOverViewSettingProps {
 }
 
 const OverviewSetting: React.FC<IOverViewSettingProps> = ({ category, onClose }) => {
+	const { t } = useTranslation('clan');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const [categoryNameInit, setCategoryNameInit] = useState(category?.category_name || '');
 	const [categoryName, setCategoryName] = useState(categoryNameInit);
@@ -23,10 +25,6 @@ const OverviewSetting: React.FC<IOverViewSettingProps> = ({ category, onClose })
 	}, [categoryName, category?.category_name]);
 	const dispatch = useAppDispatch();
 
-	const messages = {
-		INVALID_NAME: `Please enter a valid category name (max 64 characters, only words, numbers, _ or -).`,
-		DUPLICATE_NAME: `The category  name already exists in the clan . Please enter another name.`
-	};
 
 	const debouncedSetCategoryName = useDebouncedCallback(async (value: string) => {
 		if (categoryNameInit && value.trim() === categoryNameInit.trim()) {
@@ -45,7 +43,7 @@ const OverviewSetting: React.FC<IOverViewSettingProps> = ({ category, onClose })
 				.then(unwrapResult)
 				.then((result) => {
 					if (result) {
-						setCheckValidate(messages.DUPLICATE_NAME);
+						setCheckValidate(t('createCategoryModal.duplicateName'));
 						return;
 					}
 					setCheckValidate('');
@@ -53,7 +51,7 @@ const OverviewSetting: React.FC<IOverViewSettingProps> = ({ category, onClose })
 			return;
 		}
 
-		setCheckValidate(messages.INVALID_NAME);
+		setCheckValidate(t('createCategoryModal.invalidName'));
 	}, 300);
 
 	const handleChangeCategoryName = useCallback(
@@ -101,14 +99,14 @@ const OverviewSetting: React.FC<IOverViewSettingProps> = ({ category, onClose })
 	return (
 		<>
 			<div className="flex flex-1 flex-col">
-				<h3 className="text-xs font-bold text-theme-primary mb-2">Category Name</h3>
+				<h3 className="text-xs font-bold text-theme-primary mb-2">{t('categoryOverview.categoryName')}</h3>
 				<div className="w-full">
 					<input
 						type="text"
 						value={categoryName}
 						onChange={handleChangeCategoryName}
 						className="dark:text-[#B5BAC1] text-textLightTheme outline-none w-full h-10 p-[10px] dark:bg-bgInputDark bg-bgLightModeSecond text-base rounded placeholder:text-sm"
-						placeholder="Enter your category name here..."
+						placeholder={t('categoryOverview.categoryNamePlaceholder')}
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 						onKeyDown={handlePressEnter}
 					/>

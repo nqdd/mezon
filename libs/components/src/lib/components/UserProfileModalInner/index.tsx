@@ -11,6 +11,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { EUserSettings, INotification, ModeResponsive } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { OpenModalProps } from '../ModalUserProfile';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
@@ -56,6 +57,7 @@ const UserProfileModalInner = ({
 	status,
 	customStatus
 }: UserProfileModalInnerProps) => {
+	const { t } = useTranslation('common');
 	const userProfileRef = useRef<HTMLDivElement | null>(null);
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const userById = useUserById(userId);
@@ -178,7 +180,7 @@ const UserProfileModalInner = ({
 									className="relative flex items-center h-8 px-4 rounded-[3px] text-theme-primary text-theme-primary-hover"
 								>
 									<Icons.PenEdit />
-									<span className="text-sm font-semibold one-line text-theme-primary-active">Edit Profile</span>
+									<span className="text-sm font-semibold one-line text-theme-primary-active">{t('userProfile.editProfile')}</span>
 								</button>
 								{isOPenEditOption && (
 									<div
@@ -186,9 +188,9 @@ const UserProfileModalInner = ({
 										className={`absolute left-[calc(100%_+_10px)] top-[38px] bg-theme-setting-primary rounded-sm p-2 z-[1] mr-2 w-fit shadow-lg outline-none`}
 									>
 										{modeResponsive === ModeResponsive.MODE_CLAN && (
-											<ItemPanel children="Edit Clan Profile" onClick={handleOpenClanProfileSetting} />
+											<ItemPanel children={t('userProfile.editClanProfile')} onClick={handleOpenClanProfileSetting} />
 										)}
-										<ItemPanel children="Edit Main Profile" onClick={handleOpenUserProfileSetting} />
+										<ItemPanel children={t('userProfile.editMainProfile')} onClick={handleOpenUserProfileSetting} />
 									</div>
 								)}
 							</div>

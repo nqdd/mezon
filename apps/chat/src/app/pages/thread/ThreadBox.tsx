@@ -22,7 +22,7 @@ import {
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenThreadMessageState,
 	selectSession,
 	selectStatusMenu,
@@ -32,17 +32,19 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import {
-	CREATING_THREAD,
+import type {
 	ChannelMembersEntity,
 	HistoryItem,
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	IMarkdownOnMessage,
 	IMessageSendPayload,
-	MAX_FILE_ATTACHMENTS,
 	RequestInput,
-	ThreadValue,
+	ThreadValue
+} from '@mezon/utils';
+import {
+	CREATING_THREAD,
+	MAX_FILE_ATTACHMENTS,
 	UploadLimitReason,
 	adjustPos,
 	filterEmptyArrays,
@@ -53,8 +55,10 @@ import {
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { Fragment, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { KeyboardEvent } from 'react';
+import React, { Fragment, useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useThrottledCallback } from 'use-debounce';
@@ -62,12 +66,13 @@ import MemoizedChannelMessages from '../channel/ChannelMessages';
 import { CONSTANT } from './constant';
 
 const ThreadBox = () => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const sessionUser = useSelector(selectSession);
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, sessionUser?.user_id as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, sessionUser?.user_id as string));
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const currentInputChannelId = threadCurrentChannel?.channel_id || CREATING_THREAD;
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
@@ -77,7 +82,7 @@ const ThreadBox = () => {
 	const [redoHistory, setRedoHistory] = useState<HistoryItem[]>([]);
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
 	const { setRequestInput } = useMessageValue();
-	const request = useAppSelector((state) => selectComposeInputByChannelId(state, currentChannelId + 'true'));
+	const request = useAppSelector((state) => selectComposeInputByChannelId(state, `${currentChannelId}true`));
 	const rolesClan = useSelector(selectAllRolesClan);
 	const { membersOfChild } = useChannelMembers({ channelId: currentChannelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
 	const membersOfParent = useAppSelector((state) =>
@@ -111,17 +116,17 @@ const ThreadBox = () => {
 			const idParent = currentChannel?.parent_id !== '0' ? currentChannel?.parent_id : (currentChannelId as string);
 
 			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
-				toast('Thread name must be longer than 3 characters');
+				toast(t('createThread.toast.threadNameTooShort'));
 				return;
 			}
 			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
 			if (isDuplicate?.payload) {
-				toast('Thread name already exists');
+				toast(t('createThread.toast.threadNameExists'));
 				return;
 			}
 
 			if (!messageContent?.t && !checkAttachment) {
-				toast.warning('An Initial message is required to start a thread.');
+				toast.warning(t('createThread.toast.initialMessageRequired'));
 				return;
 			}
 
@@ -140,7 +145,7 @@ const ThreadBox = () => {
 			const thread = await dispatch(createNewChannel(body));
 			return thread.payload;
 		},
-		[checkAttachment, currentChannel?.category_id, currentChannelId, currentClanId, dispatch]
+		[checkAttachment, currentChannel?.category_id, currentChannel?.parent_id, currentChannelId, currentClanId, dispatch, t]
 	);
 
 	const handleSend = useCallback(
@@ -209,13 +214,13 @@ const ThreadBox = () => {
 			value?: ThreadValue
 		): Promise<boolean> => {
 			if (content?.t && content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-				toast.error('Message exceeds the 4000-character limit');
+				toast.error(t('createThread.toast.messageTooLong'));
 				return false;
 			}
 			await handleSend(content, mentions, attachments, references, value);
 			return true;
 		},
-		[handleSend]
+		[handleSend, t]
 	);
 
 	const handleTyping = useCallback(() => {
@@ -282,9 +287,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -304,9 +309,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -327,7 +332,7 @@ const ThreadBox = () => {
 					};
 					const checkedRequest = request ? request : emptyRequest;
 					if (checkedRequest.content.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-						toast.error(`Message exceeds the ${CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH}-character limit`);
+						toast.error(t('createThread.toast.messageLimitExceeded', { limit: CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH }));
 						event.preventDefault();
 						return;
 					}
@@ -393,11 +398,15 @@ const ThreadBox = () => {
 							onChange={handleChangeNameThread}
 							onKeyDown={onKeyDown}
 							value={nameValueThread ?? ''}
-							label="Thread Name"
-							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : 'Enter Thread Name'}
+							label={t('createThread.threadName')}
+							placeholder={
+								openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')
+							}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
 						/>
-						{!openThreadMessageState && <PrivateThread title="Private Thread" label="Only people you invite and moderators can see" />}
+						{!openThreadMessageState && (
+							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
+						)}
 						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
 					</div>
 				</div>

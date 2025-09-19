@@ -1,5 +1,5 @@
-import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	ChannelsEntity,
 	deleteClanWebhookById,
@@ -13,20 +13,18 @@ import {
 	updateWebhookBySpecificId,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { handleUploadFileMobile, useMezon } from '@mezon/transport';
-import { ChannelIsNotThread } from '@mezon/utils';
+import { useMezon } from '@mezon/transport';
+import { ChannelIsNotThread, MAX_FILE_SIZE_8MB } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ApiWebhook, MezonUpdateClanWebhookByIdBody, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Keyboard, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import RNFS from 'react-native-fs';
-import * as ImagePicker from 'react-native-image-picker';
-import { CameraOptions } from 'react-native-image-picker';
+import { DeviceEventEmitter, Keyboard, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
-import { IFile } from '../../../../../componentUI/MezonImagePicker';
+import MezonImagePicker from '../../../../../componentUI/MezonImagePicker';
 import MezonInput from '../../../../../componentUI/MezonInput';
 import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
 import MezonOption from '../../../../../componentUI/MezonOption';
@@ -85,41 +83,65 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 		}
 	}, [hasChange, getChannelSelect, webhook]);
 
-	const updateClanWebhookProcess = useCallback(async (webhookId: string, resetToken: boolean = false) => {
-		const request: MezonUpdateClanWebhookByIdBody = {
-			avatar: urlImageWebhook,
-			webhook_name: webhookName,
-			clan_id: clanId,
-			reset_token: resetToken
-		};
+	const updateClanWebhookProcess = useCallback(
+		async (webhookId: string, resetToken = false) => {
+			try {
+				const request: MezonUpdateClanWebhookByIdBody = {
+					avatar: urlImageWebhook,
+					webhook_name: webhookName,
+					clan_id: clanId,
+					reset_token: resetToken
+				};
 
-		await dispatch(
-			updateClanWebhookById({
-				request: request,
-				webhookId: webhookId,
-				clanId: clanId
-			})
-		);
-	}, [urlImageWebhook, webhookName, clanId, dispatch]);
+				const response = await dispatch(
+					updateClanWebhookById({
+						request,
+						webhookId,
+						clanId
+					})
+				);
+				if (response?.meta?.requestStatus === 'rejected') {
+					throw new Error(response?.meta?.requestStatus);
+				} else {
+					Toast.show({
+						type: 'success',
+						props: {
+							text2: t(resetToken ? 'toast.resetTokenSuccess' : 'toast.saveSuccess', { ns: 'clanIntegrationsSetting' }),
+							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
+						}
+					});
+				}
+			} catch (error) {
+				Toast.show({
+					type: 'error',
+					text1: t(resetToken ? 'toast.resetTokenError' : 'toast.saveError', { ns: 'clanIntegrationsSetting' })
+				});
+			}
+		},
+		[urlImageWebhook, webhookName, clanId, dispatch, t]
+	);
 
-	const updateWebhookProcess = useCallback(async (webhookId: string) => {
-		const request: MezonUpdateWebhookByIdBody = {
-			avatar: urlImageWebhook,
-			channel_id_update: webhookChannel?.channel_id,
-			webhook_name: webhookName,
-			channel_id: webhook?.channel_id,
-			clan_id: clanId
-		};
+	const updateWebhookProcess = useCallback(
+		async (webhookId: string) => {
+			const request: MezonUpdateWebhookByIdBody = {
+				avatar: urlImageWebhook,
+				channel_id_update: webhookChannel?.channel_id,
+				webhook_name: webhookName,
+				channel_id: webhook?.channel_id,
+				clan_id: clanId
+			};
 
-		await dispatch(
-			updateWebhookBySpecificId({
-				request: request,
-				webhookId: webhookId,
-				channelId: webhook?.channel_id,
-				clanId: clanId
-			})
-		);
-	}, [urlImageWebhook, webhookChannel?.channel_id, webhookName, webhook?.channel_id, clanId, dispatch]);
+			await dispatch(
+				updateWebhookBySpecificId({
+					request: request,
+					webhookId: webhookId,
+					channelId: webhook?.channel_id,
+					clanId: clanId
+				})
+			);
+		},
+		[urlImageWebhook, webhookChannel?.channel_id, webhookName, webhook?.channel_id, clanId, dispatch]
+	);
 
 	const handleEditWebhook = useCallback(async () => {
 		if (!hasChange) return;
@@ -138,8 +160,17 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 			isClanSetting,
 			clanId
 		});
-
-	}, [hasChange, isClanIntegration, updateClanWebhookProcess, updateWebhookProcess, webhook?.id, webhook?.channel_id, navigation, clanId, isClanSetting]);
+	}, [
+		hasChange,
+		isClanIntegration,
+		updateClanWebhookProcess,
+		updateWebhookProcess,
+		webhook?.id,
+		webhook?.channel_id,
+		navigation,
+		clanId,
+		isClanSetting
+	]);
 
 	useEffect(() => {
 		navigation.setOptions({
@@ -166,15 +197,7 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 
 			headerTitle: t('menuClanStack.webhooksEdit')
 		});
-	}, [
-		hasChange,
-		handleEditWebhook,
-		styles.textHeader,
-		t,
-		handleResetChange,
-		navigation,
-		themeValue.text
-	]);
+	}, [hasChange, handleEditWebhook, styles.textHeader, t, handleResetChange, navigation, themeValue.text]);
 
 	const channelMenu: IMezonMenuItemProps[] = useMemo(() => {
 		return [
@@ -194,51 +217,20 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 		];
 	}, [themeValue.text, webhookChannel?.channel_label, webhookChannel?.channel_id, channel]);
 
-	const menu: IMezonMenuSectionProps[] = useMemo(() => [
-		{
-			title: t('webhooksEdit.channel', { ns: 'clanIntegrationsSetting' }),
-			items: channelMenu
-		}
-	], [channelMenu, t]);
-
-	const handleChooseFiles = useCallback(async () => {
-		setHasChange(true);
-		const options = {
-			durationLimit: 10000,
-			mediaType: 'photo',
-			quality: QUALITY_IMAGE_UPLOAD
-		};
-
-		ImagePicker.launchImageLibrary(options as CameraOptions, async (response) => {
-			if (response.didCancel) {
-				console.warn('User cancelled camera');
-			} else if (response.errorCode) {
-				console.error('Camera Error: ', response.errorMessage);
-			} else {
-				const file = response.assets[0];
-				const fileData = await RNFS.readFile(file.uri, 'base64');
-				const fileFormat: IFile = {
-					uri: file?.uri,
-					name: file?.fileName,
-					type: file?.type,
-					size: file?.fileSize?.toString(),
-					fileData
-				};
-				handleFile([fileFormat][0]);
+	const menu: IMezonMenuSectionProps[] = useMemo(
+		() => [
+			{
+				title: t('webhooksEdit.channel', { ns: 'clanIntegrationsSetting' }),
+				items: channelMenu
 			}
-		});
-	}, []);
+		],
+		[channelMenu, t]
+	);
 
-	const handleFile = useCallback(async (file: IFile | any) => {
-		const session = sessionRef.current;
-		const client = clientRef.current;
-		if (!file || !client || !session) {
-			throw new Error('Client or files are not initialized');
-		}
-		const res = await handleUploadFileMobile(client, session, webhook?.clan_id, webhook?.channel_id, file.name, file);
-		if (!res?.url) return;
-		setUrlImageWebhook(res?.url);
-	}, [sessionRef, clientRef, webhook?.clan_id, webhook?.channel_id]);
+	const handleLoad = useCallback((url: string) => {
+		setHasChange(true);
+		setUrlImageWebhook(url);
+	}, []);
 
 	const handleChangeText = useCallback((value) => {
 		setHasChange(true);
@@ -264,24 +256,42 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 		setIsCopied(true);
 	}, [currentWebhook?.url, webhook?.url]);
 
-	const handleDeleteWebhook = useCallback(async (webhook: ApiWebhook) => {
-		if (isClanIntegration) {
-			await dispatch(deleteClanWebhookById({ webhook: webhook, clanId }));
-			await dispatch(fetchClanWebhooks({ clanId }));
-		} else {
-			await dispatch(deleteWebhookById({ webhook: webhook, channelId: webhook?.channel_id as string, clanId }));
-			await dispatch(fetchWebhooks({ channelId: isClanSetting ? '0' : (webhook?.channel_id ?? ''), clanId: clanId }));
-		}
+	const handleDeleteWebhook = useCallback(
+		async (webhook: ApiWebhook) => {
+			try {
+				if (isClanIntegration) {
+					await dispatch(deleteClanWebhookById({ webhook, clanId }));
+					await dispatch(fetchClanWebhooks({ clanId }));
+				} else {
+					await dispatch(deleteWebhookById({ webhook, channelId: webhook?.channel_id as string, clanId }));
+					await dispatch(fetchWebhooks({ channelId: isClanSetting ? '0' : (webhook?.channel_id ?? ''), clanId }));
+				}
 
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 
-		navigation.navigate(APP_SCREEN.MENU_CLAN.WEBHOOKS, {
-			clanId,
-			isClanSetting,
-			isClanIntegration,
-			channelId: webhook?.channel_id
-		});
-	}, [isClanIntegration, dispatch, clanId, isClanSetting, navigation]);
+				navigation.navigate(APP_SCREEN.MENU_CLAN.WEBHOOKS, {
+					clanId,
+					isClanSetting,
+					isClanIntegration,
+					channelId: webhook?.channel_id
+				});
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('toast.deleteSuccess', { ns: 'clanIntegrationsSetting' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
+					}
+				});
+			} catch (error) {
+				console.error('Error deleting webhook:', error);
+				Toast.show({
+					type: 'error',
+					text1: t('toast.deleteError', { ns: 'clanIntegrationsSetting' })
+				});
+			}
+		},
+		[isClanIntegration, t, navigation, clanId, isClanSetting, dispatch]
+	);
 
 	const handleDeletePress = useCallback(() => {
 		const data = {
@@ -305,14 +315,18 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 	}, [t, themeValue.white, webhook?.webhook_name, handleDeleteWebhook, webhook]);
 
 	return (
-		<View style={{ backgroundColor: themeValue.primary, width: '100%', height: '100%', padding: size.s_10 }}>
-			<View style={{ alignItems: 'center', justifyContent: 'center', width: '100%', height: '20%' }}>
-				<TouchableOpacity onPress={handleChooseFiles} style={styles.upload}>
-					<Image
+		<View style={styles.wrapper}>
+			<View style={styles.headerContainer}>
+				<View style={styles.upload}>
+					<MezonImagePicker
+						defaultValue={urlImageWebhook}
 						style={styles.image}
-						source={{
-							uri: urlImageWebhook
-						}}
+						onLoad={handleLoad}
+						showHelpText
+						autoUpload
+						imageSizeLimit={MAX_FILE_SIZE_8MB}
+						imageHeight={200}
+						imageWidth={200}
 					/>
 					<MezonIconCDN
 						icon={IconCDN.uploadPlusIcon}
@@ -321,7 +335,7 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 						width={size.s_20}
 						color={themeValue.white}
 					/>
-				</TouchableOpacity>
+				</View>
 				<Text style={styles.textRecommend}>{t('webhooksEdit.recommendImage', { ns: 'clanIntegrationsSetting' })}</Text>
 			</View>
 			<MezonInput label={'Name'} value={webhookName} onTextChange={handleChangeText} />
@@ -346,10 +360,7 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 				</TouchableOpacity>
 			)}
 
-			<TouchableOpacity
-				onPress={handleDeletePress}
-				style={styles.btnDelete}
-			>
+			<TouchableOpacity onPress={handleDeletePress} style={styles.btnDelete}>
 				<Text style={styles.textBtnDelete}>{t('webhooksEdit.delete', { ns: 'clanIntegrationsSetting' })}</Text>
 			</TouchableOpacity>
 		</View>

@@ -5,6 +5,7 @@ import { GROUP_CHAT_MAXIMUM_MEMBERS, createImgproxyUrl, generateE2eId } from '@m
 import { ChannelType } from 'mezon-js';
 import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
 import EmptySearchFriends from './EmptySearchFriends';
@@ -20,6 +21,7 @@ type CreateMessageGroupProps = {
 const ITEM_HEIGHT = 40;
 
 const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateMessageGroupProps) => {
+	const { t } = useTranslation('directMessage');
 	const dispatch = useAppDispatch();
 	const { navigate, toDmGroupPage } = useAppNavigation();
 	const friends = useSelector(selectAllFriends);
@@ -233,11 +235,11 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 		>
 			<div className="cursor-default text-start">
 				<div className="p-4">
-					<h3 className="text-xl text-theme-primary-active">Select Friends</h3>
-					<p className=" pt-1">{`You can add ${numberCanAdd} more friends.`}</p>
+					<h3 className="text-xl text-theme-primary-active">{t('createMessageGroup.selectFriends')}</h3>
+					<p className=" pt-1">{t('createMessageGroup.canAddMoreFriends', { count: numberCanAdd })}</p>
 					<InputField
 						type="text"
-						placeholder="Type the username of a friend"
+						placeholder={t('createMessageGroup.searchPlaceholder')}
 						className="h-[34px] text-[16px] mt-[20px] border-theme-primary "
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
@@ -303,12 +305,12 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 						data-e2e={generateE2eId(`chat.direct_message.button.create_group`)}
 					>
 						{currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP
-							? 'Add to Group Chat'
+							? t('createMessageGroup.addToGroupChat')
 							: selectedFriends.length === 0
-								? 'Create DM or Group Chat'
+								? t('createMessageGroup.createDMOrGroupChat')
 								: selectedFriends.length === 1 && currentDM?.type !== ChannelType.CHANNEL_TYPE_DM
-									? 'Create DM'
-									: 'Create Group Chat'}
+									? t('createMessageGroup.createDM')
+									: t('createMessageGroup.createGroupChat')}
 					</button>
 				</div>
 			</div>

@@ -9,9 +9,10 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EPermission, MAX_FILE_NAME_EMOJI, getSrcEmoji } from '@mezon/utils';
-import { ClanEmoji } from 'mezon-js';
-import { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
-import { ChangeEvent, useMemo, useState } from 'react';
+import type { ClanEmoji } from 'mezon-js';
+import type { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 type SettingEmojiItemProp = {
@@ -25,7 +26,7 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji }: SettingEmojiItemProp) => {
 	const dispatch = useAppDispatch();
 	const clanId = useSelector(selectCurrentClanId);
 	const [nameEmoji, setNameEmoji] = useState<string>(emoji.shortname?.slice(1, -1) || '');
-	const dataAuthor = useSelector(selectMemberClanByUserId(emoji.creator_id ?? ''));
+	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId(state, emoji.creator_id ?? ''));
 	const [hasManageClanPermission] = usePermissionChecker([EPermission.manageClan]);
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const hasDeleteOrEditPermission = useMemo(() => {
@@ -33,7 +34,7 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji }: SettingEmojiItemProp) => {
 	}, [hasManageClanPermission, currentUserId]);
 
 	const handleDelete = () => {
-		dispatch(emojiSuggestionActions.deleteEmojiSetting({ emoji: emoji, clan_id: clanId as string, label: emoji.shortname as string }));
+		dispatch(emojiSuggestionActions.deleteEmojiSetting({ emoji, clan_id: clanId as string, label: emoji.shortname as string }));
 	};
 	const handleOnMouseLeave = () => {
 		if (!focus) {
@@ -54,11 +55,11 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji }: SettingEmojiItemProp) => {
 		if (nameEmoji !== emoji.shortname && nameEmoji !== '') {
 			const request: MezonUpdateClanEmojiByIdBody = {
 				source: emoji.src,
-				shortname: ':' + nameEmoji + ':',
+				shortname: `:${nameEmoji}:`,
 				category: emoji.category,
 				clan_id: clanId as string
 			};
-			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request: request, emojiId: emoji.id || '' }));
+			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: emoji.id || '' }));
 			setFocus(false);
 			setShowEdit(false);
 		}

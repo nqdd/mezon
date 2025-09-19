@@ -1,10 +1,11 @@
 import { searchMentionsHashtag } from '@mezon/utils';
 import { memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } from 'react-mentions';
 import { UserMentionList } from '../UserMentionList';
 import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
-import { HasOption, SearchInputProps } from './types';
+import type { HasOption, SearchInputProps } from './types';
 
 const MentionsInput = MentionsInputComponent as any;
 const Mention = MentionComponent as any;
@@ -29,6 +30,7 @@ const SearchInput = ({
 	onChange,
 	setIsShowSearchOptions
 }: SearchInputProps) => {
+	const { t } = useTranslation('searchMessageChannel');
 	const userListData = UserMentionList({
 		channelID: channelId,
 		channelMode: mode
@@ -54,16 +56,16 @@ const SearchInput = ({
 					<div className="first:mt-0 mt-3 p-3 rounded-t border-b last:border-b-0 last:bottom-b-0">
 						<div className="flex items-center justify-between">
 							<div className="flex flex-row items-center flex-1 overflow-x-hidden">
-								<h3 className="text-xs font-medium  uppercase mr-1 flex-shrink-0">Search for:</h3>
+								<h3 className="text-xs font-medium  uppercase mr-1 flex-shrink-0">{t('searchFor')}</h3>
 								<p className="text-sm font-semibold w-full mr-[10px] whitespace-normal text-ellipsis overflow-x-hidden">
 									{valueDisplay}
 								</p>
 							</div>
-							<button className="px-1 h-5 w-10 text-xs  font-semibold rounded bg-borderDividerLight ">Enter</button>
+							<button className="px-1 h-5 w-10 text-xs  font-semibold rounded bg-borderDividerLight ">{t('enter')}</button>
 						</div>
 					</div>
 				)}
-				<SelectGroup groupName="From user">{children}</SelectGroup>
+				<SelectGroup groupName={t('fromUser')}>{children}</SelectGroup>
 			</div>
 		),
 		[valueInputSearch, valueDisplay]
@@ -72,7 +74,7 @@ const SearchInput = ({
 	return (
 		<MentionsInput
 			inputRef={searchRef as any}
-			placeholder="Search"
+			placeholder={t('searchPlaceholder')}
 			value={valueInputSearch ?? ''}
 			style={{
 				...(appearanceTheme === 'light' ? lightMentionsInputStyle : darkMentionsInputStyle),
@@ -101,7 +103,7 @@ const SearchInput = ({
 					<SelectItemUser
 						search={valueHighlight}
 						isFocused={focused}
-						title="from: "
+						title={t('prefixes.from')}
 						content={suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
@@ -119,7 +121,7 @@ const SearchInput = ({
 					<SelectItemUser
 						search={valueHighlight}
 						isFocused={focused}
-						title="mentions: "
+						title={t('prefixes.mentions')}
 						content={suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
@@ -134,7 +136,7 @@ const SearchInput = ({
 				trigger="&"
 				displayTransform={(id: string, display: string) => `has:${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
-					<SelectItemUser search={search} isFocused={focused} title="has: " content={suggestion.display} key={suggestion.id} />
+					<SelectItemUser search={search} isFocused={focused} title={t('prefixes.has')} content={suggestion.display} key={suggestion.id} />
 				)}
 				className=""
 			/>

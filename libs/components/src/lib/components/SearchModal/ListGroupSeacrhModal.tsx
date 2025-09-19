@@ -1,6 +1,7 @@
 import { SearchItemProps, toggleDisableHover } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ListGroupSearchModalContext } from './ListGroupSearchModalContext';
 import ListSearchModal from './ListSearchModal';
 
@@ -16,6 +17,7 @@ type ClassifiedLists = {
 	unreadList: SearchItemProps[];
 };
 export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWithoutRecent, normalizeSearchText, handleItemClick }) => {
+	const { t } = useTranslation('common');
 	const classificationList = useMemo(
 		() =>
 			listItemWithoutRecent.reduce<ClassifiedLists>(
@@ -154,7 +156,7 @@ export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWith
 			>
 				{!normalizeSearchText && listRecent.length > 0 && (
 					<>
-						<div className="text-xs font-semibold uppercase text-theme-primary py-2 text-theme-primary-active">Previous channels</div>
+						<div className="text-xs font-semibold uppercase text-theme-primary py-2 text-theme-primary-active">{t('searchModal.previousChannels')}</div>
 						<ListSearchModal
 							listSearch={listRecent}
 							focusItemId={focusItemId}
@@ -166,7 +168,7 @@ export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWith
 				)}
 				{!normalizeSearchText && mentionList.length > 0 && (
 					<>
-						<div className="text-xs font-semibold uppercase py-2 text-theme-primary-active">Mentions</div>
+						<div className="text-xs font-semibold uppercase py-2 text-theme-primary-active">{t('searchModal.mentions')}</div>
 						<ListSearchModal
 							listSearch={mentionList}
 							onItemClick={handleItemClick}
@@ -178,7 +180,7 @@ export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWith
 				)}
 				{!normalizeSearchText && unreadList.length > 0 && (
 					<>
-						<div className="text-xs font-semibold uppercase py-2 text-theme-primary-active">Unread channels</div>
+						<div className="text-xs font-semibold uppercase py-2 text-theme-primary-active">{t('searchModal.unreadChannels')}</div>
 						<ListSearchModal
 							listSearch={unreadList}
 							onItemClick={handleItemClick}
@@ -198,7 +200,7 @@ export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWith
 					/>
 				)}
 
-				{isNoResult && <span className=" flex flex-row justify-center">Can't seem to find what you're looking for?</span>}
+				{isNoResult && <span className=" flex flex-row justify-center">{t('searchModal.noResults')}</span>}
 			</div>
 		</ListGroupSearchModalContext.Provider>
 	);

@@ -1,0 +1,18 @@
+{
+  "navigation": {
+    "clanGuide": "Clan Guide",
+    "events": "Events",
+    "events_one": "{{count}} Event",
+    "events_other": "{{count}} Events",
+    "members": "Members",
+    "channels": "Channels"
+  },
+  "ongoingEvent": {
+    "title": "Ongoing Event",
+    "eventDetail": "Event detail"
+  },
+  "onboarding": {
+    "getStarted": "Get Started",
+    "of": "of"
+  }
+}

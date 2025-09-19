@@ -8,7 +8,8 @@ import {
 	SettingRightProfile
 } from '@mezon/components';
 import { useEscapeKeyClose, useSettingFooter } from '@mezon/core';
-import { selectIsShowSettingFooter, showSettingFooterProps } from '@mezon/store';
+import type { showSettingFooterProps } from '@mezon/store';
+import { selectIsShowSettingFooter } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EUserSettings } from '@mezon/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -44,8 +45,8 @@ const SettingContent = ({ isDM, isShowSettingFooter }: { isDM: boolean; isShowSe
 
 	return (
 		<div ref={modalRef} tabIndex={-1} className="z-50 flex fixed inset-0 w-screen bg-theme-setting-primary text-theme-primary">
-			<div className="flex text-gray- w-screen relative">
-				<div className={`${!menuIsOpen ? 'hidden' : 'flex'} text-gray- w-1/6 xl:w-1/4 min-w-56 relative`}>
+			<div className="flex w-screen relative">
+				<div className={`${!menuIsOpen ? 'hidden' : 'flex'} w-1/6 xl:w-1/4 min-w-56 relative`}>
 					<SettingItem onItemClick={handleSettingItemClick} initSetting={currentSetting} />
 				</div>
 				{currentSetting === EUserSettings.ACCOUNT && <SettingAccount menuIsOpen={menuIsOpen} onSettingProfile={handleSettingItemClick} />}

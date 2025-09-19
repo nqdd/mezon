@@ -1,40 +1,65 @@
 {
-    "header": {
-        "save": "Lưu"
-    },
-    "switch": {
-        "userProfile": "Cá nhân",
-        "serverProfile": "Clan"
-    },
-    "fields": {
-        "displayName": {
-            "label": "Tên hiển thị",
-            "placeholder": ""
-        },
-        "clanName": {
-            "label": "Tên clan",
-            "placeholder": ""
-        },
-        "pronouns": {
-            "label": "Danh xưng",
-            "placeholder": ""
-        },
-        "bio": {
-            "label": "Tiểu sử",
-            "placeholder": ""
-        }
-    },
-    "changedAlert": {
-        "title": "Loại bỏ thay đổi chưa được lưu?",
-        "description": "Có những thay đổi chưa được lưu, bạn có chắc muốn loại bỏ chúng?",
-        "discard": "Bỏ qua",
-        "keepEditing": "Tiếp tục chỉnh sửa"
-    },
-    "selectAClan": "Chọn một clan",
-    "searchClanPlaceholder": "Tìm kiếm clan",
-    "updateProfileSuccess": "Cập nhật hồ sơ cá nhân thành công",
-    "updateProfileError": "Cập nhật hồ sơ cá nhân thất bại",
-    "updateClanProfileSuccess": "Cập nhật hồ sơ clan thành công",
-    "emptyUsername": "Tên hiển thị không được để trống!",
-    "duplicateClannick": "Tên clan bị trùng lặp"
+	"header": {
+		"save": "Lưu"
+	},
+	"switch": {
+		"userProfile": "Cá nhân",
+		"serverProfile": "Clan"
+	},
+	"fields": {
+		"displayName": {
+			"label": "Tên hiển thị",
+			"placeholder": ""
+		},
+		"clanName": {
+			"label": "Tên clan",
+			"placeholder": ""
+		},
+		"pronouns": {
+			"label": "Danh xưng",
+			"placeholder": ""
+		},
+		"bio": {
+			"label": "Tiểu sử",
+			"placeholder": ""
+		}
+	},
+	"changedAlert": {
+		"title": "Loại bỏ thay đổi chưa được lưu?",
+		"description": "Có những thay đổi chưa được lưu, bạn có chắc muốn loại bỏ chúng?",
+		"discard": "Bỏ qua",
+		"keepEditing": "Tiếp tục chỉnh sửa"
+	},
+	"selectAClan": "Chọn một clan",
+	"searchClanPlaceholder": "Tìm kiếm clan",
+	"updateProfileSuccess": "Cập nhật hồ sơ cá nhân thành công",
+	"updateProfileError": "Cập nhật hồ sơ cá nhân thất bại",
+	"updateClanProfileSuccess": "Cập nhật hồ sơ clan thành công",
+	"emptyUsername": "Tên hiển thị không được để trống!",
+	"duplicateClannick": "Tên clan bị trùng lặp",
+	"clanNickname": "BIỆT DANH CLAN",
+	"changeAvatar": "Đổi ảnh đại diện",
+	"removeAvatar": "Xóa",
+	"avatar": "Ảnh đại diện",
+	"preview": "XEM TRƯỚC",
+	"nickNameExistsError": "Biệt danh đã tồn tại trong clan. Vui lòng nhập biệt danh khác.",
+	"unsavedChangesWarning": "Cẩn thận - bạn có thay đổi chưa được lưu!",
+	"reset": "Đặt lại",
+	"saveChanges": "Lưu thay đổi",
+	"showProfilesDescription": " Hãy thể hiện chính mình với những hồ sơ khác nhau cho mỗi clan của bạn",
+	"chooseAClan": "CHỌN MỘT CLAN",
+	"editImage": "Chỉnh sửa hình ảnh",
+	"close": "Đóng",
+	"resetChanges": "Đặt lại thay đổi",
+	"cancelEditing": "Hủy chỉnh sửa",
+	"cancel": "Hủy",
+	"applyChanges": "Áp dụng thay đổi",
+	"apply": "Áp dụng",
+	"moveImage": "Di chuyển hình ảnh",
+	"adjustZoom": "Điều chỉnh thu phóng",
+	"profiles": "Hồ sơ",
+	"userProfile": "Hồ sơ người dùng",
+	"clanProfiles": "Hồ sơ Clan",
+	"directMessageIcon": "Biểu tượng tin nhắn riêng",
+	"displayName": "TÊN HIỂN THỊ"
 }

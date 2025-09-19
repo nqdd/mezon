@@ -1,0 +1,57 @@
+{
+	"friend": "Friend",
+	"addFriend": "Add Friend",
+	"search": "Search",
+	"tabs": {
+		"all": "All",
+		"online": "Online",
+		"pending": "Pending",
+		"block": "Block"
+	},
+	"addFriendModal": {
+		"title": "ADD FRIEND",
+		"description": "You can add friends with their Mezon usernames",
+		"placeholder": "Enter username",
+		"tooltip": "You can add friends with their Mezon usernames",
+		"sendRequest": "Send Friend Request",
+		"add": "Add",
+		"alreadyFriends": "You're already friends with that user!",
+		"invalidInput": "Please only use numbers, letters, underscores _ or full stops.",
+		"waitingMessage": "Komuu is waiting on friends. You don't have to, though!"
+	},
+	"requestFailedPopup": {
+		"title": "Friend request failed",
+		"message": "You're already friends with that user!",
+		"okay": "Okay"
+	},
+	"activity": {
+		"coding": "Activity - Coding",
+		"music": "Activity - Music",
+		"gaming": "Activity - Gaming"
+	},
+	"friendMenu": {
+		"startVideoCall": "Start Video Call",
+		"startVoiceCall": "Start Voice Call",
+		"removeFriend": "Remove Friend",
+		"block": "Block",
+		"unblock": "Unblock"
+	},
+	"toast": {
+		"userBlockedSuccess": "User blocked successfully",
+		"userBlockedFailed": "Failed to block user",
+		"userUnblockedSuccess": "User unblocked successfully",
+		"userUnblockedFailed": "Failed to unblock user"
+	},
+	"statusTapListFriends": {
+		"all": "Looks a little empty here! Let's get this party started by adding a few friends.",
+		"online": "It's quiet right now! Why not start a conversation and see who's around?",
+		"pending": "This is where you'll find friend requests you've sent and received.",
+		"block": "You haven't blocked anyone yet."
+	},
+	"statusTapSearchFriends": {
+		"all": "No friends match your search. Try another name.",
+		"online": "No one online matches your search. Try another name.",
+		"pending": "No requests match your search. Double-check the name or try again.",
+		"block": "No blocked users match your search. Try another name."
+	}
+}

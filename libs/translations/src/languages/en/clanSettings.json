@@ -1,0 +1,87 @@
+{
+  "sidebar": {
+    "communityOverview": "Community Overview",
+    "deleteClan": "Delete clan",
+    "sectionTitles": {
+      "apps": "Apps",
+      "moderation": "Moderation"
+    },
+    "items": {
+      "overview": "Overview",
+      "roles": "Roles",
+      "emoji": "Emoji",
+      "imageStickers": "Image Stickers",
+      "voiceStickers": "Voice Stickers",
+      "categoryOrder": "Category Order",
+      "integrations": "Integrations",
+      "auditLog": "Audit Log",
+      "onboarding": "Onboarding",
+      "enableCommunity": "Enable Community"
+    }
+  },
+  "clanLogo": {
+    "minimumSize": "Minimum Size: 128x128",
+    "recommendedSize": "We recommend an image of at least 512x512 for the clan.",
+    "uploadImage": "Upload Image",
+    "clanName": "Clan Name",
+    "namePlaceholder": "Support has arrived!",
+    "validationError": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).",
+    "modal": {
+      "title": "Only image files are allowed",
+      "content": "Just upload type file (JPEG, PNG), please!"
+    }
+  },
+  "modalSaveChanges": {
+    "title": "Careful — you have unsaved changes!",
+    "reset": "Reset",
+    "saveChanges": "Save Changes"
+  },
+  "clanBanner": {
+    "title": "Clan Banner Background",
+    "description": "This image will display at the top of your channels list.",
+    "recommendedSize": "The recommended minimum size is 960x540 and recommended aspect ratio is 16:9.",
+    "uploadBackground": "Upload Background",
+    "chooseImage": "Choose an Image",
+    "modal": {
+      "title": "Only image files are allowed",
+      "content": "Just upload type file (JPEG, PNG), please!"
+    }
+  },
+  "systemMessages": {
+    "title": "System Messages Channel",
+    "description": "This is the channel we send system event messages to. These can be turned off at any time",
+    "welcomeRandom": "Send a random welcome message when someone joins this clan.",
+    "welcomeSticker": "Prompt members to reply to welcome messages with a sticker.",
+    "boostMessage": "Send a message when someone Boosts this server.",
+    "setupTips": "Send helpful tips for clan setup.",
+    "auditLog": "Send a log when an action is applied to the clan"
+  },
+  "appDirectory": {
+    "categories": {
+      "gamingCompanion": "Gaming Companion Apps",
+      "popularTrending": "Popular & Trending Apps",
+      "serverMiniGames": "Server Mini-Games",
+      "rolePlayingFavorites": "Role-Playing Favorites"
+    },
+    "inServers": "in {{count}} servers"
+  },
+  "emoji": {
+    "title": "Emoji",
+    "description": "Add up to 250 custom emoji that anyone can use in this server. Animated GIF emoji may be used by members with Mezon Nitro",
+    "uploadRequirements": "UPLOAD REQUIREMENTS",
+    "requirements": {
+      "fileType": "File type: JPEG, PNG, GIF",
+      "fileSize": "Recommended file size: 256 KB (We'll compress for you)",
+      "dimensions": "Recommended dimensions: 128x128",
+      "naming": "Naming: Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores"
+    },
+    "uploadEmoji": "Upload emoji"
+  },
+  "stickers": {
+    "uploadInstructions": "UPLOAD INSTRUCTIONS",
+    "description": "Stickers can be static (PNG) or animated (APNG, GIF). Stickers must be exactly 320 x 320 pixels and no larger than 512KB. We will automatically resize static PNG and animated GIF stickers for you.",
+    "uploadHere": "Upload it here!",
+    "customizeMessage": "Let's customize the amazing stickers with your interest",
+    "uploadSticker": "upload sticker"
+  }
+}

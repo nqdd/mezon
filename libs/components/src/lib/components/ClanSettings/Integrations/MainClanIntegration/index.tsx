@@ -1,5 +1,6 @@
 import { Icons } from '@mezon/ui';
-import { ApiClanWebhook } from 'mezon-js/api.gen';
+import type { ApiClanWebhook } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 
 interface IClanIntegrationProps {
 	setIsOpenClanWebhooks(): void;
@@ -7,6 +8,7 @@ interface IClanIntegrationProps {
 }
 
 const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanIntegrationProps) => {
+	const { t } = useTranslation('integrations');
 	return (
 		<div
 			onClick={() => {
@@ -19,12 +21,8 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 			<div className="flex gap-4 max-sm:gap-0 max-sbm:w-[40%] items-center">
 				<Icons.WebhooksIcon />
 				<div>
-					<div className="pb-[3px] font-semibold break-all text-theme-primary">Clan Webhooks</div>
-					<div className="text-[12px] text-theme-primary">
-						{allClanWebhooks && allClanWebhooks?.length > 1
-							? allClanWebhooks?.length + ' webhooks'
-							: allClanWebhooks?.length + ' webhook'}
-					</div>
+					<div className="pb-[3px] font-semibold break-all text-theme-primary">{t('clanWebhooks')}</div>
+					<div className="text-[12px] text-theme-primary">{t('webhook', { count: allClanWebhooks?.length || 0 })}</div>
 				</div>
 			</div>
 			{allClanWebhooks && allClanWebhooks?.length === 0 ? (
@@ -32,11 +30,11 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 					onClick={setIsOpenClanWebhooks}
 					className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
 				>
-					Create Clan Webhook
+					{t('createClanWebhook')}
 				</div>
 			) : (
 				<div className="items-center cursor-pointer text-[14px] flex gap-[4px]">
-						<div className="text-theme-primary">View Clan Webhook</div>
+					<div className="text-theme-primary">{t('viewClanWebhook')}</div>
 					<Icons.ArrowDown defaultSize="h-[15px] w-[15px] -rotate-90" />
 				</div>
 			)}

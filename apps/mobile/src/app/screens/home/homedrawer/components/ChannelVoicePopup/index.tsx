@@ -15,9 +15,12 @@ import {
 } from '@mezon/store-mobile';
 import { ParticipantMeetState, sleep } from '@mezon/utils';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, BackHandler, DeviceEventEmitter, Keyboard, PanResponder } from 'react-native';
+import { Animated, BackHandler, DeviceEventEmitter, Dimensions, Keyboard, PanResponder } from 'react-native';
 import Toast from 'react-native-toast-message';
 import ChannelVoice from '../ChannelVoice';
+
+const MINIMIZED_WIDTH = size.s_100 * 2;
+const MINIMIZED_HEIGHT = size.s_150;
 
 const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const serverUrl = process.env.NX_CHAT_APP_MEET_WS_URL || '';
@@ -32,6 +35,21 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const [isGroupCall, setIsGroupCall] = useState(false);
 	const [participantsCount, setParticipantsCount] = useState(0);
 	const { userProfile } = useAuth();
+
+	const resetPosition = useCallback(() => {
+		if (!isFullScreen.current && !isPiPMode) {
+			pan.setValue({ x: 0, y: 0 });
+		}
+	}, [isPiPMode, pan]);
+
+	useEffect(() => {
+		const subscription = Dimensions.addEventListener('change', () => {
+			resetPosition();
+		});
+		return () => {
+			subscription && subscription.remove();
+		};
+	}, [resetPosition]);
 
 	const panResponder = useRef(
 		PanResponder.create({
@@ -51,7 +69,19 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 					if (Math.abs(gestureState?.dx) > 10 || Math.abs(gestureState?.dy) > 10) {
 						isDragging.current = true;
 					}
-					Animated.event([null, { dx: pan?.x, dy: pan?.y }], { useNativeDriver: false })(e, gestureState);
+					const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+					const offsetX = (pan?.x as any)?._offset || 0;
+					const offsetY = (pan?.y as any)?._offset || 0;
+
+					const dx = Math.max(-offsetX, Math.min(screenWidth - MINIMIZED_WIDTH - offsetX, gestureState?.dx));
+					const dy = Math.max(-offsetY, Math.min(screenHeight - MINIMIZED_HEIGHT - offsetY, gestureState?.dy));
+
+					Animated.event([null, { dx: pan?.x, dy: pan?.y }], { useNativeDriver: false })(e, {
+						...gestureState,
+						dx,
+						dy
+					});
 				}
 			},
 			onPanResponderRelease: (e, gestureState) => {
@@ -88,7 +118,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const handleLeaveRoom = async (clanId: string, channelId: string, roomId: string) => {
 		if (channelId) {
 			await participantMeetState(ParticipantMeetState.LEAVE, clanId, channelId, roomId);
-			dispatch(voiceActions.resetVoiceSettings());
+			dispatch(voiceActions.resetVoiceControl());
 		}
 	};
 
@@ -214,16 +244,21 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 		<Animated.View
 			{...(!isAnimationComplete && !isPiPMode ? panResponder.panHandlers : {})}
 			style={[
-				{
+				!isPiPMode && {
 					transform: [{ translateX: pan?.x }, { translateY: pan?.y }]
 				},
 				{
 					zIndex: 99,
 					position: 'absolute',
-					width: isAnimationComplete ? '100%' : size.s_100 * 2,
-					height: isAnimationComplete ? '100%' : size.s_150
+					width: isAnimationComplete || isPiPMode ? '100%' : size.s_100 * 2,
+					height: isAnimationComplete || isPiPMode ? '100%' : size.s_150
 				},
-				isPiPMode && { top: 0, left: 0, right: 0, bottom: 0 }
+				isPiPMode && {
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0
+				}
 			]}
 		>
 			<ChannelVoice

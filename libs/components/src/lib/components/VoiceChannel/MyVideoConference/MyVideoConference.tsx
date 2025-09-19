@@ -104,11 +104,11 @@ export function MyVideoConference({
 		const handleDisconnected = async (reason?: DisconnectReason) => {
 			if (
 				reason === DisconnectReason.SERVER_SHUTDOWN ||
-				reason === DisconnectReason.DUPLICATE_IDENTITY ||
 				reason === DisconnectReason.CLIENT_INITIATED ||
 				reason === DisconnectReason.PARTICIPANT_REMOVED ||
 				reason === DisconnectReason.SIGNAL_CLOSE ||
-				reason === DisconnectReason.JOIN_FAILURE
+				reason === DisconnectReason.JOIN_FAILURE ||
+				reason === DisconnectReason.DUPLICATE_IDENTITY
 			) {
 				onLeaveRoom();
 			} else if (token) {
@@ -131,7 +131,7 @@ export function MyVideoConference({
 				onLeaveRoom();
 			}
 		};
-		const handleLocalTrackUnpublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
+		const handleLocalTrackUnpublished = async (publication: LocalTrackPublication, participant: LocalParticipant) => {
 			if (publication.source === Track.Source.ScreenShare) {
 				dispatch(voiceActions.setShowScreen(false));
 			}
@@ -140,6 +140,9 @@ export function MyVideoConference({
 			}
 			if (focusTrack && focusTrack?.participant.sid === participant.sid) {
 				layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
+				if (document.pictureInPictureEnabled) {
+					await document.exitPictureInPicture();
+				}
 			}
 		};
 		const handleReconnectedRoom = () => {
@@ -154,7 +157,7 @@ export function MyVideoConference({
 			}
 		};
 		const handleTrackUnpublish = async (publication: RemoteTrackPublication, participant: RemoteParticipant) => {
-			if (focusTrack?.publication?.trackSid === publication?.trackSid) {
+			if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureEnabled) {
 				await document.exitPictureInPicture();
 			}
 		};

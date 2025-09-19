@@ -1,7 +1,6 @@
-import { RTCView } from '@livekit/react-native-webrtc';
 import { ActionEmitEvent, IS_ANSWER_CALL_FROM_NATIVE, save } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { DMCallActions, selectAllAccount, selectRemoteVideo, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
 import notifee from '@notifee/react-native';
 import { WebrtcSignalingType } from 'mezon-js';
@@ -17,7 +16,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
-import AvatarCall from './AvatarCall';
+import { RenderMainView } from './RenderMainView';
 import { style } from './styles';
 
 interface IDirectMessageCallProps {
@@ -29,14 +28,11 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 	const dispatch = useAppDispatch();
 	const styles = style(themeValue);
 	const { receiverId, directMessageId } = route?.params || {};
-	const receiverAvatar = route?.params?.receiverAvatar;
-	const receiverName = route?.params?.receiverName;
 	const isVideoCall = route?.params?.isVideoCall;
 	const isAnswerCall = route?.params?.isAnswerCall;
 	const isFromNative = route?.params?.isFromNative;
 	const userProfile = useSelector(selectAllAccount);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
-	const isRemoteVideo = useSelector(selectRemoteVideo);
 	const [isMirror, setIsMirror] = useState<boolean>(true);
 	const { t } = useTranslation(['dmMessage']);
 
@@ -82,17 +78,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 		save(IS_ANSWER_CALL_FROM_NATIVE, false);
 	}, [isAnswerCall]);
-
-	const initSpeakerConfig = async () => {
-		if (Platform.OS === 'android') {
-			const { CustomAudioModule } = NativeModules;
-			await CustomAudioModule.setSpeaker(false, null);
-			InCallManager.setSpeakerphoneOn(false);
-		} else {
-			InCallManager.setSpeakerphoneOn(false);
-			InCallManager.setForceSpeakerphoneOn(false);
-		}
-	};
 
 	const onCancelCall = async () => {
 		try {
@@ -189,10 +174,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		};
 	}, [isAnswerCall, isVideoCall]);
 
-	useEffect(() => {
-		initSpeakerConfig();
-	}, []);
-
 	return (
 		<View style={styles.container}>
 			{!isFromNative && <StatusBarHeight />}
@@ -243,20 +224,14 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 					</View>
 				</View>
 			</View>
-			<View style={{ flex: 1 }}>
-				{callState.remoteStream && isRemoteVideo && isConnected ? (
-					<View style={{ flex: 1 }}>
-						<RTCView streamURL={callState?.remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={false} objectFit={'cover'} />
-					</View>
-				) : (
-					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
-				)}
-				{callState.localStream && localMediaControl?.camera && isConnected && (
-					<View style={styles.cardMyVideoCall}>
-						<RTCView streamURL={callState?.localStream?.toURL?.()} style={{ flex: 1 }} mirror={isMirror} objectFit={'cover'} />
-					</View>
-				)}
-			</View>
+			<RenderMainView
+				route={route}
+				callState={callState}
+				isAnswerCall={isAnswerCall}
+				isConnected={isConnected}
+				isMirror={isMirror}
+				isOnLocalCamera={localMediaControl?.camera || false}
+			/>
 			<View style={[styles.menuFooter]}>
 				<View>
 					<TouchableOpacity onPress={toggleSpeaker} style={[styles.menuIcon, localMediaControl?.speaker && styles.menuIconActive]}>

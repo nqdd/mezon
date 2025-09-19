@@ -1,8 +1,10 @@
-import { PinMessageEntity, selectMemberClanByUserId } from '@mezon/store';
-import { generateE2eId, IMessageWithUser, TOPBARS_MAX_WIDTH } from '@mezon/utils';
+import type { PinMessageEntity } from '@mezon/store';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
+import type { IMessageWithUser } from '@mezon/utils';
+import { TOPBARS_MAX_WIDTH } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { useSelector } from 'react-redux';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 import BaseProfile from '../../../MemberProfile/BaseProfile';
 import MessageAttachment from '../../../MessageWithUser/MessageAttachment';
 import { MessageLine } from '../../../MessageWithUser/MessageLine';
@@ -17,7 +19,8 @@ type ModalDeletePinMessProps = {
 };
 export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 	const { pinMessage, contentString, closeModal, handlePinMessage, attachments, modalref } = props;
-	const userSender = useSelector(selectMemberClanByUserId(pinMessage.sender_id as string));
+	const { t } = useTranslation('channelTopbar');
+	const userSender = useAppSelector((state) => selectMemberClanByUserId(state, pinMessage.sender_id as string));
 	return (
 		<div
 			ref={modalref}
@@ -25,16 +28,13 @@ export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 		>
 			<div className="w-fit h-fit bg-theme-setting-primary text-theme-primary rounded-lg flex-col justify-start  items-start gap-3 inline-flex overflow-hidden max-w-[440px]">
 				<div className="px-4 py-4">
-					<h3 className="font-semibold pb-1 text-xl">Unpin Message</h3>
-					<p>You sure you want to remove this pinned message?</p>
+					<h3 className="font-semibold pb-1 text-xl">{t('pinnedMessages.unpinMessage')}</h3>
+					<p>{t('pinnedMessages.unpinConfirmation')}</p>
 				</div>
 				<div className="px-4 pb-2 max-h-[60vh] overflow-y-auto hide-scrollbar w-full">
 					<div className="flex items-start gap-2 p-2 shadow-md rounded bg-theme-setting-secondary">
 						<div className="flex-shrink-0">
-							<BaseProfile
-								avatar={pinMessage.avatar || ''}
-								hideIcon={true}
-							/>
+							<BaseProfile avatar={pinMessage.avatar || ''} hideIcon={true} />
 						</div>
 						<div className="flex text-sm flex-col gap-1 text-left flex-1 min-w-0 pointer-events-none [&_.attachment-actions]:!hidden [&_button]:!hidden">
 							<div className="font-medium">
@@ -55,7 +55,7 @@ export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 							{attachments && (
 								<MessageAttachment
 									mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
-									message={{ ...pinMessage, attachments: attachments } as IMessageWithUser}
+									message={{ ...pinMessage, attachments } as IMessageWithUser}
 									defaultMaxWidth={TOPBARS_MAX_WIDTH}
 								/>
 							)}
@@ -64,7 +64,7 @@ export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 				</div>
 				<div className="w-full bg-theme-setting-primary p-4 flex justify-end gap-x-4">
 					<button onClick={closeModal} className="px-4 py-2 hover:underline rounded">
-						Cancel
+						{t('pinnedMessages.cancel')}
 					</button>
 					<button
 						onClick={() => {
@@ -73,7 +73,7 @@ export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 						}}
 						className="px-4 py-2 hover:bg-opacity-85 rounded bg-[#DA363C] text-white font-medium"
 					>
-						Unpin it
+						{t('pinnedMessages.unpinIt')}
 					</button>
 				</div>
 			</div>

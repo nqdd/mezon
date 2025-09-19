@@ -51,7 +51,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 				const maxSizeMB = Math.round(maxSize / 1024 / 1024);
 				const isImage = isImageFile(file as any);
 				const fileTypeText = isImage ? t('common:image') : t('common:files');
-				
+
 				Toast.show({
 					type: 'error',
 					text1: t('sharing:fileTooLarge'),
@@ -73,7 +73,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 					]
 				})
 			);
-
+			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, {});
 			timeRef.current = setTimeout(() => {
 				dispatch(appActions.setIsFromFCMMobile(false));
 			}, 2000);

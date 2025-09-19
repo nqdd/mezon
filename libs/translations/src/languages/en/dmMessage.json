@@ -38,5 +38,6 @@
     "waveWelcome": "Wave to say hi!",
     "members": "members",
     "speaker": "Speaker",
-    "end": "End"
+    "end": "End",
+    "turnedMicOff": "turned mic off"
 }

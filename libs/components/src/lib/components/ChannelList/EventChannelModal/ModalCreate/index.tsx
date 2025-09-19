@@ -11,9 +11,11 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ContenSubmitEventProps, ERepeatType, OptionEvent, Tabs_Option } from '@mezon/utils';
+import type { ContenSubmitEventProps } from '@mezon/utils';
+import { ERepeatType, OptionEvent, Tabs_Option } from '@mezon/utils';
 import isEqual from 'lodash.isequal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import {
 	convertToLongUTCFormat,
@@ -42,11 +44,12 @@ enum EventTabIndex {
 
 const ModalCreate = (props: ModalCreateProps) => {
 	const { onClose, onCloseEventModal, eventId, clearEventId } = props;
+	const { t } = useTranslation('eventCreator');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const voicesChannel = useSelector(selectVoiceChannelAll);
 	const textChannels = useSelector(selectAllTextChannel);
 
-	const tabs = ['Location', 'Event Info', 'Review'];
+	const tabs = [t('tabs.location'), t('tabs.eventInfo'), t('tabs.review')];
 	const [currentModal, setCurrentModal] = useState(0);
 	const currentEvent = useAppSelector((state) => selectEventById(state, currentClanId ?? '', eventId ?? ''));
 	// detach event type
@@ -361,10 +364,10 @@ const ModalCreate = (props: ModalCreateProps) => {
 			)}
 			<div className="flex justify-between mt-4 w-full ">
 				<button
-					className={`py-2 text-[#84ADFF] font-bold ${(currentModal === Tabs_Option.LOCATION || errorTime) && 'hidden'}`}
+					className={`px-4 py-2 text-[#84ADFF] font-bold whitespace-nowrap ${(currentModal === Tabs_Option.LOCATION || errorTime) && 'hidden'}`}
 					onClick={() => handleBack(currentModal)}
 				>
-					Back
+					{t('actions.back', 'Back')}
 				</button>
 				<div className="flex justify-end gap-x-4 w-full">
 					<button
@@ -374,7 +377,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 							clearEventId();
 						}}
 					>
-						Cancel
+						{t('actions.cancel', 'Cancel')}
 					</button>
 					{currentModal === Tabs_Option.REVIEW ? (
 						eventId !== '' ? (
@@ -383,7 +386,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 								// eslint-disable-next-line @typescript-eslint/no-empty-function
 								onClick={handleUpdate}
 							>
-								Update Event
+								{t('actions.edit')}
 							</button>
 						) : (
 							<button
@@ -392,7 +395,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 								// eslint-disable-next-line @typescript-eslint/no-empty-function
 								onClick={option === '' || errorOption ? () => {} : () => handleSubmit()}
 							>
-								Create Event
+								{t('actions.create')}
 							</button>
 						)
 					) : (
@@ -400,7 +403,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 							className={`px-4 py-2 rounded font-semibold text-white bg-primary ${(!buttonWork || errorTime || errorOption) && ' bg-opacity-50'}`}
 							onClick={() => handleNext(currentModal)}
 						>
-							Next
+							{t('actions.next')}
 						</button>
 					)}
 				</div>

@@ -1,7 +1,8 @@
 import { ColorRoleProvider, useEscapeKeyClose } from '@mezon/core';
-import { selectAllAccount, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectAllAccount, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { IMessageWithUser, KEY_KEYBOARD } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import MessageWithUser from '../MessageWithUser';
 
@@ -14,8 +15,9 @@ type ModalAddPinMessProps = {
 };
 export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 	const { mess, channelLabel, closeModal, handlePinMessage, mode } = props;
+	const { t } = useTranslation('pinMessage');
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 
 	const handlePinMessageAndCloseModal = () => {
 		handlePinMessage();
@@ -48,8 +50,8 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 			<div className="w-fit h-fit text-theme-primary bg-theme-setting-primary rounded-lg flex-col justify-start  items-start gap-3 inline-flex overflow-hidden max-w-[440px]">
 				<div className=" max-w-full">
 					<div className="p-4 pb-0">
-						<h3 className="font-semibold pb-4 text-xl text-theme-primary-active">Pin It. Pin It Good.</h3>
-						<p>Hey, just double-checking that you want to pin this message to #{channelLabel} for posterity and greatness?</p>
+						<h3 className="font-semibold pb-4 text-xl text-theme-primary-active">{t('modal.title')}</h3>
+						<p>{t('modal.description', { channelLabel })}</p>
 					</div>
 					<div className="p-4 max-h-[60vh] overflow-y-auto hide-scrollbar">
 						<ColorRoleProvider>
@@ -66,13 +68,13 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 					</div>
 					<div className="w-full  p-4 flex justify-end gap-x-4 bg-theme-setting-nav">
 						<button onClick={closeModal} className="px-4 py-2 hover:underline rounded">
-							Cancel
+							{t('modal.cancel')}
 						</button>
 						<button
 							onClick={handlePinMessageAndCloseModal}
 							className="px-4 py-2 hover:bg-opacity-80 rounded-lg btn-primary-hover btn-primary font-medium"
 						>
-							Oh yeah. Pin it
+							{t('modal.confirm')}
 						</button>
 					</div>
 				</div>

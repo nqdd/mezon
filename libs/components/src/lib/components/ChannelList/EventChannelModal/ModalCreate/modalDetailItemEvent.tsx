@@ -14,6 +14,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { timeFomat } from '../timeFomatEvent';
 
@@ -26,6 +27,7 @@ const ModalDetailItemEvent = () => {
 	const [currentTab, setCurrentTab] = useState('Events');
 	const event = useSelector(selectChooseEvent);
 	const dispatch = useAppDispatch();
+	const { t } = useTranslation('eventCreator');
 
 	const clearChooseEvent = useCallback(() => {
 		dispatch(eventManagementActions.setChooseEvent(null));
@@ -69,13 +71,13 @@ const ModalDetailItemEvent = () => {
 								className={`pb-4 ${currentTab === tabs.event ? 'dark:text-white text-black border-b border-white' : 'text-zinc-400'}`}
 								onClick={() => setCurrentTab(tabs.event)}
 							>
-								Event Info
+								{t('eventDetail.eventInfo')}
 							</h4>
 							<h4
 								className={`pb-4 ${currentTab === tabs.interest ? 'dark:text-white text-black border-b border-white' : 'text-zinc-400'}`}
 								onClick={() => setCurrentTab(tabs.interest)}
 							>
-								Interested
+								{t('eventDetail.interested')}
 							</h4>
 						</div>
 					</div>
@@ -98,10 +100,11 @@ type EventInfoDetailProps = {
 
 const EventInfoDetail = (props: EventInfoDetailProps) => {
 	const { event } = props;
+	const { t } = useTranslation('eventCreator');
 	const channelVoice = useAppSelector((state) => selectChannelById(state, event?.channel_voice_id ?? '')) || {};
 
 	const currentClan = useSelector(selectCurrentClan);
-	const userCreate = useSelector(selectMemberClanByUserId(event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const time = useMemo(() => timeFomat(event?.start_time || ''), [event?.start_time]);
 
 	return (
@@ -130,12 +133,12 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 			</div>
 			<div className="flex items-center gap-x-3">
 				<Icons.MemberList />
-				<p>{event?.user_ids?.length} person is interested</p>
+				<p>{t('eventDetail.personInterested', { count: event?.user_ids?.length || 0 })}</p>
 			</div>
 			<div className="flex items-center gap-x-3">
 				<img src={userCreate?.user?.avatar_url} alt={userCreate?.user?.avatar_url} className="size-5 rounded-full" />
 				<p>
-					Created by <span className="hover:underline">{userCreate?.user?.username}</span>
+					{t('eventDetail.createdBy')} <span className="hover:underline">{userCreate?.user?.username}</span>
 				</p>
 			</div>
 			<div className="break-all">{event?.description}</div>
@@ -149,6 +152,7 @@ type InterestedDetailProps = {
 
 const InterestedDetail = ({ userIds }: InterestedDetailProps) => {
 	const userData = useSelector((state: RootState) => selectMembersByUserIds(state, userIds));
+	const { t } = useTranslation('eventCreator');
 
 	return (
 		<div className="p-4 space-y-1 dark:text-zinc-300 text-colorTextLightMode text-base font-semibold max-h-[250px] h-[250px] hide-scrollbar overflow-auto">

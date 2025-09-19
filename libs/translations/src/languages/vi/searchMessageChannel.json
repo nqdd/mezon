@@ -1,19 +1,38 @@
 {
-  "joinChannel": "Tham gia",
-  "textChannels": "Kênh văn bản",
-  "voiceChannels": "Kênh thoại",
-  "streamingChannels": "Kênh phát trực tuyến",
-  "search": "Tìm kiếm",
-  "filterResults": "Lọc kết quả...",
-  "members": "Thành viên",
-  "channels": "Kênh",
-  "media": "Phương tiện",
-  "pins": "Ghim",
-  "in": "trong:",
-  "Messages": "Tin nhắn",
-  "filterOptions": {
-    "fromUser": "Từ một người cụ thể",
-    "mentionUser": "Đề cập ai đó"
-  },
-  "cancel": "Huỷ"
+	"joinChannel": "Tham gia",
+	"textChannels": "Kênh văn bản",
+	"voiceChannels": "Kênh thoại",
+	"streamingChannels": "Kênh phát trực tuyến",
+	"search": "Tìm kiếm",
+	"filterResults": "Lọc kết quả...",
+	"members": "Thành viên",
+	"channels": "Kênh",
+	"media": "Phương tiện",
+	"pins": "Ghim",
+	"in": "trong:",
+	"Messages": "Tin nhắn",
+	"filterOptions": {
+		"fromUser": "Từ một người cụ thể",
+		"mentionUser": "Đề cập ai đó"
+	},
+	"cancel": "Huỷ",
+	"searchPlaceholder": "Tìm kiếm",
+	"searchFor": "Tìm kiếm:",
+	"enter": "Enter",
+	"searchOptions": "Tùy chọn tìm kiếm",
+	"fromUser": "Từ người dùng",
+	"emptySearch": {
+		"title": "Chúng tôi đã tìm kiếm khắp nơi. Thật không may, không tìm thấy kết quả nào."
+	},
+	"learnMore": "Tìm hiểu thêm",
+	"searchOptionsData": {
+		"fromUserShort": "tìm kiếm theo người gửi",
+		"mentionsUserShort": "tìm kiếm theo người được nhắc đến",
+		"hasContentShort": "tìm kiếm theo nội dung có tệp đính kèm"
+	},
+	"prefixes": {
+		"from": "từ:",
+		"mentions": "nhắc đến:",
+		"has": "có:"
+	}
 }

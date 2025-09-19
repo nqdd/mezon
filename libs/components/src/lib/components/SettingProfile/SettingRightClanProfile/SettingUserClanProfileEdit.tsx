@@ -6,6 +6,7 @@ import type { ImageSourceObject } from '@mezon/utils';
 import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
@@ -26,6 +27,7 @@ interface SettingUserClanProfileEditProps {
 const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({ flagOption, clanId, setFlagOption }) => {
 	const { userProfile } = useAuth();
 	const { sessionRef, clientRef } = useMezon();
+	const { t } = useTranslation('profileSetting');
 	const userClansProfile = useSelector(selectUserClanProfileByClanID(clanId ?? '', userProfile?.user?.id ?? ''));
 	const [draftProfile, setDraftProfile] = useState(userClansProfile);
 	const [openModal, setOpenModal] = useState(false);
@@ -207,7 +209,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 				<div className="flex-1 ">
 					<div className="mt-[20px]">
 						<label htmlFor="inputField" className=" font-bold tracking-wide text-sm">
-							CLAN NICKNAME
+							{t('clanNickname')}
 						</label>
 						<br />
 						<InputField
@@ -220,18 +222,14 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 							value={displayName}
 							maxLength={32}
 						/>
-						{checkValidate && (
-							<p className="text-[#e44141] text-xs italic font-thin">
-								The nick name already exists in the clan. <br /> Please enter another nick name.
-							</p>
-						)}
+						{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{t('nickNameExistsError')}</p>}
 					</div>
 					<div className="mt-[20px]">
-						<p className="font-bold tracking-wide text-sm">AVATAR</p>
+						<p className="font-bold tracking-wide text-sm">{t('avatar')}</p>
 						<div className="flex mt-[10px] gap-x-5">
 							<label data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_change_avatar`)}>
 								<div className="text-[14px] font-medium btn-primary btn-primary-hover rounded-lg p-[8px] pr-[10px] pl-[10px] cursor-pointer ">
-									Change avatar
+									{t('changeAvatar')}
 								</div>
 								<input type="file" onChange={handleFile} className="hidden" />
 							</label>
@@ -240,13 +238,13 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 								onClick={handleRemoveButtonClick}
 								data-e2e={generateE2eId(`user_setting.profile.clan_profile.button_remove_avatar`)}
 							>
-								Remove avatar
+								{t('removeAvatar')}
 							</button>
 						</div>
 					</div>
 				</div>
 				<div className="flex-1">
-					<p className="mt-[20px] font-bold tracking-wide text-sm">PREVIEW</p>
+					<p className="mt-[20px] font-bold tracking-wide text-sm">{t('preview')}</p>
 					<PreviewSetting
 						profiles={editProfile}
 						currentDisplayName={!displayName ? userProfile?.user?.display_name : ''}

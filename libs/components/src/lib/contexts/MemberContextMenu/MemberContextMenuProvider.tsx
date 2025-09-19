@@ -1,6 +1,6 @@
 import { useAppNavigation, useDirect, useFriends, usePermissionChecker } from '@mezon/core';
+import type { ChannelMembersEntity } from '@mezon/store';
 import {
-	ChannelMembersEntity,
 	EStateFriend,
 	channelUsersActions,
 	selectAllAccount,
@@ -13,17 +13,21 @@ import {
 } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { CSSProperties, FC, createContext, useCallback, useContext, useState } from 'react';
+import type { CSSProperties, FC } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
 import { Menu, useContextMenu } from 'react-contexify';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ModalRemoveMemberClan from '../../components/MemberProfile/ModalRemoveMemberClan';
 import { MemberMenuItem } from './MemberMenuItem';
-import { MEMBER_CONTEXT_MENU_ID, MemberContextMenuContextType, MemberContextMenuHandlers, MemberContextMenuProps } from './types';
+import type { MemberContextMenuContextType, MemberContextMenuHandlers, MemberContextMenuProps } from './types';
+import { MEMBER_CONTEXT_MENU_ID } from './types';
 import { useModals } from './useModals';
 
 const MemberContextMenuContext = createContext<MemberContextMenuContextType | undefined>(undefined);
 
 export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children }) => {
+	const { t } = useTranslation('contextMenu');
 	const [currentUser, setCurrentUser] = useState<ChannelMembersEntity | null>(null);
 	const userProfile = useSelector(selectAllAccount);
 	const currentClan = useAppSelector(selectCurrentClan);
@@ -239,18 +243,26 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 				{currentHandlers && (
 					<>
 						{shouldShow('profile') && (
-							<MemberMenuItem label="Profile" onClick={currentHandlers.handleViewProfile} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('member.profile')}
+								onClick={currentHandlers.handleViewProfile}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
 						{shouldShow('message') && (
-							<MemberMenuItem label="Message" onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem label={t('member.message')} onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
 						)}
 						{shouldShow('addFriend') && (
-							<MemberMenuItem label="Add Friend" onClick={currentHandlers.handleAddFriend} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('member.addFriend')}
+								onClick={currentHandlers.handleAddFriend}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 						{shouldShow('removeFriend') && (
 							<MemberMenuItem
-								label="Remove Friend"
+								label={t('member.removeFriend')}
 								onClick={currentHandlers.handleRemoveFriend}
 								isWarning={true}
 								setWarningStatus={setWarningStatus}
@@ -258,12 +270,17 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 						)}
 
 						{!!shouldShow('kick') && (
-							<MemberMenuItem label="Kick" onClick={currentHandlers.handleKick} isWarning={true} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('member.kick')}
+								onClick={currentHandlers.handleKick}
+								isWarning={true}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
 						{!!shouldShow('removeFromThread') && (
 							<MemberMenuItem
-								label={`Remove ${currentUser?.user?.username || 'User'} from thread`}
+								label={t('member.removeFromThread', { username: currentUser?.user?.username || 'User' })}
 								onClick={currentHandlers.handleRemoveFromThread}
 								isWarning={true}
 								setWarningStatus={setWarningStatus}

@@ -1,11 +1,15 @@
-import { LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { Friend } from 'mezon-js';
+import i18n from '@mezon/translations';
+import type { LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { Friend } from 'mezon-js';
 import { toast } from 'react-toastify';
 import { selectCurrentUserId } from '../account/account.slice';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { StatusUserArgs } from '../channelmembers/channel.members';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { StatusUserArgs } from '../channelmembers/channel.members';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 export const FRIEND_FEATURE_KEY = 'friends';
 const LIMIT_FRIEND = 1000;
 
@@ -79,7 +83,7 @@ export const fetchListFriendsCached = async (
 	if (!shouldForceCall) {
 		const friends = selectCachedFriends(currentState);
 		return {
-			friends: friends,
+			friends,
 			fromCache: true
 		};
 	}
@@ -122,35 +126,38 @@ export type requestAddFriendParam = {
 	isAcceptingRequest?: boolean;
 };
 
-export const sendRequestAddFriend = createAsyncThunk('friends/requestFriends', async ({ ids, usernames, isAcceptingRequest }: requestAddFriendParam, thunkAPI) => {
-	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	await mezon.client
-		.addFriends(mezon.session, ids, usernames)
+export const sendRequestAddFriend = createAsyncThunk(
+	'friends/requestFriends',
+	async ({ ids, usernames, isAcceptingRequest }: requestAddFriendParam, thunkAPI) => {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		await mezon.client
+			.addFriends(mezon.session, ids, usernames)
 
-		.catch(function (err) {
-			err.json().then((data: any) => {
-				thunkAPI.dispatch(
-					friendsActions.setSentStatusMobile({
-						isSuccess: false
-					})
-				);
-				toast.error('Hm, that didn’t work. Double-check that the username is correct.');
+			.catch(function (err) {
+				err.json().then((data: any) => {
+					thunkAPI.dispatch(
+						friendsActions.setSentStatusMobile({
+							isSuccess: false
+						})
+					);
+					toast.error(i18n.t('friends:toast.sendAddFriendFail'));
+				});
+			})
+			.then((data) => {
+				if (data) {
+					thunkAPI.dispatch(
+						friendsActions.setSentStatusMobile({
+							isSuccess: true
+						})
+					);
+					if (!isAcceptingRequest) {
+						toast.success(i18n.t('friends:toast.sendAddFriendSuccess'));
+					}
+					thunkAPI.dispatch(friendsActions.fetchListFriends({ noCache: true }));
+				}
 			});
-		})
-		.then((data) => {
-			if (data) {
-				thunkAPI.dispatch(
-					friendsActions.setSentStatusMobile({
-						isSuccess: true
-					})
-				);
-				if (!isAcceptingRequest) {
-					toast.success('Friend request sent successfully!');
-				} 
-				thunkAPI.dispatch(friendsActions.fetchListFriends({ noCache: true }));
-			}
-		});
-});
+	}
+);
 
 export const sendRequestDeleteFriend = createAsyncThunk(
 	'friends/requestDeleteFriends',

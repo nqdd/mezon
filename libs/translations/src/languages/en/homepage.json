@@ -1,0 +1,96 @@
+{
+	"title": {
+		"part1": "The",
+		"live": "Live",
+		"work": "Work",
+		"and": "and",
+		"playPlatform": "Play Platform",
+		"theBest": "the best",
+		"discord": "Discord",
+		"alternative": "Alternative"
+	},
+	"description": {
+		"part1": "is great for playing games and chilling with friends, or even building a worldwide community.",
+		"part2": "Customize your own space to",
+		"talk": "talk",
+		"play": "play",
+		"and": "and",
+		"hangOut": "hang out"
+	},
+	"download": {
+		"getItFrom": "Get it from",
+		"cdnUrl": "CDN Url"
+	},
+	"header": {
+		"home": "Home",
+		"overview": "Overview",
+		"features": "Features",
+		"developers": "Developers",
+		"botsApps": "Bots/Apps",
+		"documents": "Documents",
+		"discover": "Discover",
+		"blogs": "Blogs",
+		"openMezon": "Open Mezon",
+		"login": "Login"
+	},
+	"layout": {
+		"overview": {
+			"title": "Overview",
+			"subtitle": "is a new way to communicate with your team.",
+			"description": "It's faster, better organized, better for WFH."
+		},
+		"features": {
+			"title": "Our features",
+			"subtitle": "Comprehensive Communication Tools"
+		},
+		"cards": {
+			"workstation": {
+				"title": "Workstation",
+				"description": "A digital workspace that streamlines communication, collaboration, and task management by integrating with various systems and tools. It provides structured spaces for teams, projects, and departments while ensuring seamless access to information and workflows"
+			},
+			"ecosystem": {
+				"title": "Ecosystem",
+				"description": "A dynamic digital environment that combines work and social elements, offering interactive and recreational features. It supports virtual transactions, engagement activities, and community-building to enhance user experience."
+			},
+			"aiAgent": {
+				"title": "AI Agent",
+				"description": "An intelligent system that automates tasks, assists with information management, and optimizes workflows. It enhances productivity through features like reminders, monitoring, and automated communication."
+			}
+		},
+		"featureCards": {
+			"mezonMainnet": {
+				"title": "Mezon Mainnet",
+				"subtitle": "The Zero-Fee, High-Speed Layer 1",
+				"description": "Blockchain"
+			},
+			"developerApi": {
+				"title": "Advanced Developer",
+				"subtitle": "API Platform"
+			},
+			"gaming": {
+				"title": "Gaming",
+				"subtitle": "& Entertainment"
+			},
+			"customizable": {
+				"title": "Customizable",
+				"subtitle": "& Scalable Platform"
+			}
+		}
+	},
+	"footer": {
+		"description": "Mezon is great for playing games and chilling with friends, or even building a worldwide community.",
+		"getTheApp": "Get the app",
+		"copyright": "© 2024 Mezon. All rights reserved.",
+		"links": {
+			"executiveSummary": "Executive Summary",
+			"problemStatement": "Problem Statement",
+			"solution": "Solution",
+			"blockchainEconomy": "Blockchain & Token Economy",
+			"developerApi": "Developer API Integration",
+			"technicalArchitecture": "Technical Architecture",
+			"productRoadmap": "Product roadmap",
+			"tokenomics": "Tokenomics",
+			"team": "Team"
+		}
+	}
+}

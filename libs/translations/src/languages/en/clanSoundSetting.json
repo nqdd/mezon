@@ -14,7 +14,16 @@
         "chooseAudioFile": "Choose an audio file"
     },
     "toast": {
-        "errorSizeLimit": "Image size limit exceeded 1MB",
+        "errorSizeLimit": "File size limit exceeded 1MB",
         "errorFileType": "Invalid file type. Only .mp3, .mpeg and .wav files are allowed."
+    },
+    "main": {
+        "uploadInstructions": "UPLOAD INSTRUCTIONS",
+        "fileRequirements": "Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for sound effects. Sound effects will be used in clan notifications or events.",
+        "uploadHere": "Upload it here!",
+        "personalizeDescription": "Personalize sound effects for your clan!",
+        "uploadSound": "Upload sound",
+        "soundEffectList": "Sound Effect List",
+        "noSoundEffects": "No sound effects yet. Click \"Upload sound\" to add!"
     }
 }

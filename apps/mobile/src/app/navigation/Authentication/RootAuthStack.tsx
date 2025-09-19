@@ -6,6 +6,7 @@ import { Dimensions, Platform, View } from 'react-native';
 import CallingModalGroupWrapper from '../../components/CallingModalGroupWrapper';
 import CallingModalWrapper from '../../components/CallingModalWrapper';
 import ModalRootListener from '../../components/ModalRootListener';
+import AppBrowser from '../../screens/auth/AppBrowser';
 import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
 import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
 import HomeDefaultWrapper from '../../screens/home/homedrawer/HomeDefaultWrapper';
@@ -154,6 +155,7 @@ export const RootAuthStack = memo(
 						}}
 					/>
 					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
+					<RootStack.Screen name={APP_SCREEN.APP_BROWSER} component={AppBrowser} />
 					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen
 						name={APP_SCREEN.PROFILE_DETAIL}
@@ -167,13 +169,13 @@ export const RootAuthStack = memo(
 					<RootStack.Screen name={APP_SCREEN.SHOP.STACK} children={(props) => <ShopStack {...props} />} />
 					<RootStack.Screen name={APP_SCREEN.INVITE_CLAN} component={InviteClanScreen} />
 				</RootStack.Navigator>
+				<ModalRootListener />
 				<FCMNotificationLoader notifyInit={notifyInit} />
 				<AuthenticationLoader />
 				<CallingModalWrapper />
 				<CallingModalGroupWrapper />
 				<ChannelRouterListener />
 				<ListenerLoader />
-				<ModalRootListener />
 				<BadgeAppIconLoader />
 			</View>
 		);

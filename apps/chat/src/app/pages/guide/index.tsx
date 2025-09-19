@@ -1,11 +1,12 @@
-import { clansActions, selectCurrentClan, selectMemberClanByUserId, useAppDispatch } from '@mezon/store';
-import { useSelector } from 'react-redux';
+import { clansActions, selectCurrentClan, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
+import { useTranslation } from 'react-i18next';
 import GuideBody from './GuideBody';
 
 function GuideMain() {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
-	const currentClan = useSelector(selectCurrentClan);
-	const clanOwner = useSelector(selectMemberClanByUserId(currentClan?.creator_id as string));
+	const currentClan = useAppSelector(selectCurrentClan);
+	const clanOwner = useAppSelector((state) => selectMemberClanByUserId(state, currentClan?.creator_id as string));
 	return (
 		<div className="w-full h-full overflow-x-hidden p-8 overflow-y-scroll text-theme-primary scrollbar-hide flex flex-col items-center">
 			<div className="flex flex-col w-[104%]">
@@ -27,7 +28,7 @@ function GuideMain() {
 				</div>
 				<div className=" flex gap-3 items-end h-28">
 					<div className="text-[32px] font-bold leading-8 ">
-						{currentClan?.clan_name ?? `${clanOwner?.user?.display_name ?? clanOwner?.user?.username}'s`} clan
+						{currentClan?.clan_name ?? `${clanOwner?.user?.display_name ?? clanOwner?.user?.username}'s ${t('guide.clan')}`}
 					</div>
 					<div className="relative h-6 w-6">
 						<svg className="absolute" role="img" width="24" height="24" viewBox="0 0 16 15.2">
@@ -58,7 +59,7 @@ function GuideMain() {
 							onClick={() => dispatch(clansActions.toggleInvitePeople({ status: true }))}
 							className="w-24 h-9 py-[2px] flex items-center justify-center rounded-lg border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover "
 						>
-							Invite
+							{t('guide.invite')}
 						</button>
 					</div>
 				</div>

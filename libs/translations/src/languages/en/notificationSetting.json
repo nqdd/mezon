@@ -29,5 +29,17 @@
   },
   "toast": {
     "error": "Error update notification: {{error}}"
+  },
+  "title": "Notification Setting",
+  "clanNotificationSettings": "CLAN NOTIFICATION SETTINGS",
+  "notificationOverrides": "NOTIFICATION OVERRIDES",
+  "addChannelOverride": "Add a channel to override its default notification settings",
+  "selectOrCreateOption": "Select or create an option...",
+  "headers": {
+    "channelOrCategory": "CHANNEL OR CATEGORY",
+    "all": "ALL",
+    "mentions": "MENTIONS",
+    "nothing": "NOTHING",
+    "mute": "Mute"
   }
 }
