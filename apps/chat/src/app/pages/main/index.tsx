@@ -410,7 +410,7 @@ const SidebarMenu = memo(
 					className={`top-0 left-0 right-0 flex flex-col items-center pt-0 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
 					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
-					<div className={`flex flex-col items-center sticky top-0 z-10 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
 						<SidebarLogoItem
 							onToggleUnreadList={() => {
 								setShowDmUnreadList((prev) => !prev);
