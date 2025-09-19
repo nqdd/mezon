@@ -44,13 +44,17 @@ const ClanSetting = (props: ModalSettingProps) => {
 	}, [currentSettingId]);
 
 	const dispatch = useAppDispatch();
-	const [canManageClan] = usePermissionChecker([EPermission.manageClan]);
+	const [canManageClan, canManagerChannel] = usePermissionChecker([EPermission.manageClan, EPermission.manageChannel]);
 
 	const handleSettingItemClick = (settingItem: ItemObjProps) => {
 		setCurrentSettingId(settingItem.id);
-		if (settingItem.id === ItemSetting.INTEGRATIONS && canManageClan) {
-			dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
-			dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+		if (settingItem.id === ItemSetting.INTEGRATIONS) {
+			if (canManageClan) {
+				dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			} else if (canManagerChannel) {
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			}
 		}
 	};
 

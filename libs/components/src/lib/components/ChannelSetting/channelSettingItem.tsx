@@ -127,7 +127,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							)}
 					</>
 				)}
-				{hasClanPermission && (
+				{hasManageChannelPermission && (
 					<ChannelSettingItemButton
 						tabName={EChannelSettingTab.INTEGRATIONS}
 						handleOnClick={handleButtonClick}
