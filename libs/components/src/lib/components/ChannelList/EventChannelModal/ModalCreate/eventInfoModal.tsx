@@ -257,7 +257,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 				<h3 className="uppercase text-[11px] font-semibold">{t('fields.eventFrequency.title')}</h3>
 				<select
 					name="frequency"
-					className={`block w-full bg-theme-input   bg-option-theme rounded p-2 font-normal text-sm tracking-wide outline-none border-none ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
+					className={`cursor-pointer block w-full bg-theme-input   bg-option-theme rounded p-2 font-normal text-sm tracking-wide outline-none border-none ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
 					value={selectedFrequency}
 					onChange={handleFrequencyChange}
 				>

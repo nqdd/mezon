@@ -31,7 +31,8 @@ export const customStyles = {
 		...provided,
 		backgroundColor: 'var(--bg-tertiary)',
 		borderRadius: '8px',
-		color: 'var(--text-secondary)'
+		color: 'var(--text-secondary)',
+		cursor: 'pointer'
 	}),
 	menu: (provided: any) => ({
 		...provided,
@@ -40,7 +41,8 @@ export const customStyles = {
 	option: (provided: any, state: any) => ({
 		...provided,
 		backgroundColor: state.isFocused ? 'var(--bg-option-active)' : '',
-		color: 'var(--text-secondary)'
+		color: 'var(--text-secondary)',
+		cursor: 'pointer'
 	}),
 	multiValue: (provided: any) => ({
 		...provided,
