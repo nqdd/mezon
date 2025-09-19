@@ -142,7 +142,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 									</div>
 								</div>
 							</div>
-							<input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+							<input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" data-e2e={generateE2eId('chat.direct_message.edit_group.upload.avatar_group_input')} />
 							<p className="text-xs text-theme-primary font-medium">{t('editGroup.uploadImageText')}</p>
 							{imagePreview && !imagePreview.includes('assets/images/avatar-group.png') && (
 								<button

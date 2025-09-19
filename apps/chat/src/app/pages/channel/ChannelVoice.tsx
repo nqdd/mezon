@@ -13,7 +13,6 @@ import {
 	selectIsShowChatVoice,
 	selectIsShowSettingFooter,
 	selectShowModelEvent,
-	selectStatusInVoice,
 	selectStatusMenu,
 	selectTokenJoinVoice,
 	selectVoiceFullScreen,
@@ -61,6 +60,9 @@ const ChannelVoice = memo(
 
 		const handleJoinRoom = async () => {
 			dispatch(voiceActions.setOpenPopOut(false));
+			dispatch(voiceActions.setShowScreen(false));
+			dispatch(voiceActions.setStreamScreen(null));
+			dispatch(voiceActions.setShowMicrophone(false));
 			const store = getStore();
 			const currentClan = selectCurrentClan(store.getState());
 			if (!currentClan || !currentChannel?.meeting_code) return;
@@ -75,14 +77,7 @@ const ChannelVoice = memo(
 				).unwrap();
 
 				if (result) {
-					const meInVoice = selectStatusInVoice(store.getState(), userProfile?.user?.id || '');
-					if (!meInVoice) {
-						await participantMeetState(
-							ParticipantMeetState.JOIN,
-							currentChannel?.clan_id as string,
-							currentChannel?.channel_id as string
-						);
-					}
+					await participantMeetState(ParticipantMeetState.JOIN, currentChannel?.clan_id as string, currentChannel?.channel_id as string);
 					dispatch(voiceActions.setJoined(true));
 					dispatch(voiceActions.setToken(result));
 					dispatch(

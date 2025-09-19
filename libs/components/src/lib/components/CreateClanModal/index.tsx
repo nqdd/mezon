@@ -169,7 +169,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 									<span className="text-[14px]">{t('createClanModal.upload')}</span>
 								</div>
 							)}
-							<input id="preview_img" type="file" onChange={(e) => handleFile(e)} className="w-full text-sm hidden" />
+							<input id="preview_img" type="file" onChange={(e) => handleFile(e)} className="w-full text-sm hidden" data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')} />
 						</label>
 						<div className="w-full">
 							<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>

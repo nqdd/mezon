@@ -13,7 +13,7 @@ import {
 } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -395,7 +395,7 @@ const SettingComunity = ({
 								)}
 							</div>
 
-							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} data-e2e={generateE2eId('clan_page.settings.upload.community_banner_input')} />
 						</div>
 
 						<div className="space-y-4">
@@ -742,8 +742,9 @@ const SettingComunity = ({
 
 					<div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
 						<button
+							disabled={openSaveChange}
 							onClick={handleDisable}
-							className="group px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+							className={`group px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ${openSaveChange ? 'opacity-50 cursor-not-allowed disabled ' : ''}`}
 						>
 							<div className="flex items-center gap-2">{t('communitySettings.buttons.disable')}</div>
 						</button>

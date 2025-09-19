@@ -3,12 +3,12 @@ import {
 	selectCurrentClan,
 	selectCurrentClanId,
 	selectFormOnboarding,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOnboardingByClan,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { titleMission } from '@mezon/utils';
+import { generateE2eId, titleMission } from '@mezon/utils';
 import { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { ReactNode, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -141,6 +141,7 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 					<button
 						className="flex items-center justify-center p-4 text-primary text-base gap-1 border-dashed border-2 border-gray-400 dark:border-channelTextLabel rounded-md hover:bg-gray-100 dark:hover:bg-bgSecondaryHover transition-colors"
 						onClick={openModalAddRules}
+						data-e2e={generateE2eId('clan_page.settings.onboarding.button.add_resources')}
 					>
 						<Icons.AddIcon className="w-4 h-4" /> Add a resource
 					</button>
@@ -160,7 +161,7 @@ const SectionDescription = ({ title, description }: { title: string; description
 };
 const OwnerGreeting = () => {
 	const currenClan = useSelector(selectCurrentClan);
-	const clanOwner = useAppSelector((state) => selectMemberClanByUserId2(state, currenClan?.creator_id as string));
+	const clanOwner = useAppSelector((state) => selectMemberClanByUserId(state, currenClan?.creator_id as string));
 	return (
 		<div className="p-[2px] flex items-center justify-center bg-gradient-to-br from-indigo-300 to-purple-300 dark:from-[#9e9e9e] dark:to-[#494949]">
 			<div className="w-full p-4 pt-2 flex flex-col gap-2 bg-gradient-to-br bg-theme-setting-nav rounded-md">

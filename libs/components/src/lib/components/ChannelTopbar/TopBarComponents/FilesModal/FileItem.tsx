@@ -1,8 +1,9 @@
-import { AttachmentEntity, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
+import type { AttachmentEntity } from '@mezon/store';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DOWNLOAD_FILE, EFailAttachment, convertTimeString, electronBridge } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { ChannelStreamMode } from 'mezon-js';
+import type { ChannelStreamMode } from 'mezon-js';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RenderAttachmentThumbnail } from '../../../ThumbnailAttachmentRender';
@@ -14,7 +15,7 @@ type FileItemProps = {
 
 const FileItem = ({ attachmentData, mode }: FileItemProps) => {
 	const { t } = useTranslation('channelTopbar');
-	const userSendAttachment = useAppSelector(selectMemberClanByUserId(attachmentData?.uploader ?? ''));
+	const userSendAttachment = useAppSelector((state) => selectMemberClanByUserId(state, attachmentData?.uploader ?? ''));
 	const username = userSendAttachment?.user?.username;
 	const attachmentSendTime = convertTimeString(attachmentData?.create_time as string);
 	const fileType = getFileExtension(attachmentData?.filetype ?? '');
@@ -35,7 +36,7 @@ const FileItem = ({ attachmentData, mode }: FileItemProps) => {
 		}
 		if (isElectron()) {
 			const fileName = !attachmentData.filename?.includes('.')
-				? attachmentData.filename + '.' + attachmentData.filetype
+				? `${attachmentData.filename}.${attachmentData.filetype}`
 				: attachmentData.filename;
 			try {
 				await electronBridge.invoke(DOWNLOAD_FILE, {
@@ -95,9 +96,7 @@ const FileItem = ({ attachmentData, mode }: FileItemProps) => {
 									{t('fileItem.download')} <span className="font-medium uppercase">{fileType}</span>
 								</span>
 							) : (
-								<p className=" w-fit one-line">
-									{t('fileItem.sharedBy', { username, time: attachmentSendTime })}
-								</p>
+								<p className=" w-fit one-line">{t('fileItem.sharedBy', { username, time: attachmentSendTime })}</p>
 							)}
 						</div>
 						{hoverShowOptButtonStatus && (

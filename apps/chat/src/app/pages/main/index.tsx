@@ -193,7 +193,7 @@ function MyApp() {
 				className={`flex h-dvh min-[480px]:pl-[72px] ${closeMenu ? (statusMenu ? 'pl-[72px]' : '') : ''} overflow-hidden text-gray-100 relative  `}
 				onClick={handleClick}
 			>
-				{previewMode && <PreviewOnboardingMode />}
+				{previewMode?.open && previewMode.clanId === currentClanId && <PreviewOnboardingMode />}
 				{openPopupForward && <ForwardMessageModal />}
 				<SidebarMenu openCreateClanModal={openCreateClanModal} openDiscoverPage={openDiscoverPage} />
 				<Topbar isHidden={currentClanId !== '0' ? false : !directId} />

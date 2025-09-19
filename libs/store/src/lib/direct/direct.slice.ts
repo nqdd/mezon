@@ -237,7 +237,7 @@ export const updateDmGroup = createAsyncThunk(
 				updatePayload.topic = current.topic;
 			}
 
-			const response = await mezon.client.updateChannelDesc(mezon.session, body.channel_id, updatePayload);
+			const response = await mezon.client.updateChannelDesc(mezon.session, '0', body.channel_id, updatePayload);
 
 			if (response) {
 				thunkAPI.dispatch(
@@ -544,7 +544,7 @@ export const directSlice = createSlice({
 					showPinBadge: existingEntity?.showPinBadge || newEntity.showPinBadge
 				};
 			});
-			
+
 			directAdapter.setAll(state, entitiesWithPreservedBadges);
 		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
@@ -847,7 +847,7 @@ export const selectUpdateDmGroupLoading = (channelId: string) =>
 export const selectUpdateDmGroupError = (channelId: string) => createSelector(getDirectState, (state) => state.updateDmGroupError[channelId] || null);
 
 export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, selectEntitiesDirectMeta, (directMessages, directMetaEntities) => {
-	return directMessages
+	return (directMessages ?? [])
 		.filter((dm) => {
 			return dm?.active === 1;
 		})
@@ -855,10 +855,21 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, sel
 			if (!dm?.channel_id) return dm;
 			const found = directMetaEntities?.[dm.channel_id];
 			if (!found) return dm;
+			const updatedMetadata = {
+				...(found ?? {}),
+				last_sent_message: {
+					...(found?.last_sent_message ?? {}),
+					...(found?.lastSentTimestamp ? { timestamp_seconds: found.lastSentTimestamp } : {})
+				},
+				last_seen_message: {
+					...(found?.last_seen_message ?? {}),
+					...(found?.lastSeenTimestamp ? { timestamp_seconds: found.lastSeenTimestamp } : {})
+				}
+			};
 			return {
 				...dm,
-				last_sent_message: { ...dm.last_sent_message, ...found.last_sent_message },
-				last_seen_message: { ...dm.last_seen_message, ...found.last_seen_message }
+				last_sent_message: { ...(dm?.last_sent_message ?? {}), ...updatedMetadata.last_sent_message },
+				last_seen_message: { ...(dm?.last_seen_message ?? {}), ...updatedMetadata.last_seen_message }
 			};
 		});
 });
@@ -928,10 +939,7 @@ export const selectBuzzStateByDirectId = createSelector(
 	(state, channelId) => state.buzzStateDirect?.[channelId]
 );
 
-export const selectIsShowPinBadgeByDmId = createSelector(
-	[getDirectState, (state, dmId: string) => dmId],
-	(state, dmId) => {
-		const result = state?.entities[dmId]?.showPinBadge;
-		return result;
-	}
-);
+export const selectIsShowPinBadgeByDmId = createSelector([getDirectState, (state, dmId: string) => dmId], (state, dmId) => {
+	const result = state?.entities[dmId]?.showPinBadge;
+	return result;
+});

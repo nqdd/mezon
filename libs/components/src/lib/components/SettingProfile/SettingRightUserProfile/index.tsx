@@ -14,10 +14,10 @@ import {
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { DeleteAccountModal, Icons, InputField } from '@mezon/ui';
 import type { ImageSourceObject } from '@mezon/utils';
-import { MAX_FILE_SIZE_10MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
@@ -65,6 +65,7 @@ const SettingRightUser = ({
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 	const currentClanId = useSelector(selectCurrentClanId) || '';
+	const sizeWarning = useRef<ELimitSize | null>(null);
 
 	const [valueDisplayName, setValueDisplayName] = useState<string>(currentDisplayName || '');
 
@@ -133,6 +134,8 @@ const SettingRightUser = ({
 			return;
 		}
 		if (file.size > MAX_FILE_SIZE_10MB) {
+			sizeWarning.current = ELimitSize.MB_10;
+			e.target.value = '';
 			setOpenModal(true);
 			return;
 		}
@@ -211,7 +214,9 @@ const SettingRightUser = ({
 			return;
 		}
 
-		if (e.target.files[0].size > 1000000) {
+		if (e.target.files[0].size > MAX_FILE_SIZE_1MB) {
+			sizeWarning.current = ELimitSize.MB;
+			e.target.value = '';
 			setOpenModal(true);
 			return;
 		}
@@ -362,6 +367,7 @@ const SettingRightUser = ({
 									id="logo"
 									onChange={handleChangeLogo}
 									className="w-full absolute top-0 left-0 h-full text-sm hidden"
+									data-e2e={generateE2eId('user_setting.profile.user_profile.upload.direct_message_icon_input')}
 								/>
 							</label>
 						</div>
@@ -427,7 +433,7 @@ const SettingRightUser = ({
 			) : null}
 			{openModalDeleteAcc && <DeleteAccountModal handleLogOut={handleDeleteAccount} onClose={handleCloseModal} isDeleting={isDeleting} />}
 
-			<ModalOverData size={ELimitSize.MB} open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalOverData size={sizeWarning.current || ELimitSize.MB} open={openModal} onClose={() => setOpenModal(false)} />
 			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
 		</>
 	);

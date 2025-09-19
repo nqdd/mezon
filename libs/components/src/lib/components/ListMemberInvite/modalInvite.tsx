@@ -29,9 +29,6 @@ export type ModalParam = {
 
 const ModalInvite = (props: ModalParam) => {
 	const { t } = useTranslation('invitation');
-	const [expire, setExpire] = useState('7days');
-	const [max, setMax] = useState('noLimit');
-	const [modalEdit, setModalEdit] = useState(false);
 	const [modalQR, setModalQR] = useState(false);
 
 	const [urlInvite, setUrlInvite] = useState('');
@@ -50,7 +47,7 @@ const ModalInvite = (props: ModalParam) => {
 			const intiveIdChannel = (channelID ? channelID : welcomeChannel.channel_id) as string;
 			const res = await createLinkInviteUser(effectiveClanId ?? '', intiveIdChannel, 10);
 			if (res && res?.invite_link) {
-				setUrlInvite((isElectron() ? process.env.NX_CHAT_APP_REDIRECT_URI : window.location.origin) + '/invite/' + res.invite_link);
+				setUrlInvite(`${isElectron() ? process.env.NX_CHAT_APP_REDIRECT_URI : window.location.origin}/invite/${res.invite_link}`);
 			}
 		} catch {
 			console.log(t('errors.createInviteLink'));
@@ -84,13 +81,8 @@ const ModalInvite = (props: ModalParam) => {
 	};
 
 	const closeModalEdit = useCallback(() => {
-		setModalEdit(false);
 		setModalQR(false);
 	}, []);
-
-	if (modalEdit) {
-		return <ModalGenerateLinkOption max={max} expire={expire} setExpire={setExpire} setMax={setMax} closeModalEdit={closeModalEdit} />;
-	}
 
 	if (modalQR) {
 		return <ModalQR closeModalEdit={closeModalEdit} data={urlInvite} />;
@@ -99,7 +91,9 @@ const ModalInvite = (props: ModalParam) => {
 		<ModalLayout onClose={props.onClose}>
 			<div className="bg-theme-setting-primary rounded-xl flex flex-col">
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
-					<p className="font-bold text-xl text-theme-primary-active">{t('modal.title', { target: isInviteExternalCalling ? t('modal.privateEvent') : clan?.clan_name })}</p>
+					<p className="font-bold text-xl text-theme-primary-active">
+						{t('modal.title', { target: isInviteExternalCalling ? t('modal.privateEvent') : clan?.clan_name })}
+					</p>
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
 						onClick={props.onClose}
@@ -116,6 +110,13 @@ const ModalInvite = (props: ModalParam) => {
 					<div className="relative ">
 						<p className="pt-4 pb-1 text-[12px] mb-12px cursor-default uppercase font-semibold text-theme-primary-active">
 							{t('modal.sendLinkText', { type: isInviteExternalCalling ? t('modal.privateRoom') : t('modal.clanInvite') })}
+							{!isInviteExternalCalling && (
+								<p className="ml-3 pt-1 text-[12px] mb-12px inline-flex gap-x-2">
+									<span className=" text-blue-600 cursor-pointer hover:underline relative group" onClick={() => setModalQR(true)}>
+										{t('buttons.copyQR')}
+									</span>
+								</p>
+							)}
 						</p>
 						<input
 							type="text"
@@ -136,17 +137,6 @@ const ModalInvite = (props: ModalParam) => {
 							{t('buttons.copy')}
 						</button>
 					</div>
-					{!isInviteExternalCalling && (
-						<p className="pt-1 text-[14px] mb-12px inline-flex gap-x-2">
-							<span className="cursor-default text-theme-primary-active ">{t('modal.expiresIn', { time: t(`expiration.${expire}`) })} </span>
-							<span className=" text-blue-600 cursor-pointer hover:underline" onClick={() => setModalEdit(true)}>
-								{t('buttons.editInviteLink')}
-							</span>
-							<span className=" text-blue-600 cursor-pointer hover:underline relative group" onClick={() => setModalQR(true)}>
-								{t('buttons.copyQR')}
-							</span>
-						</p>
-					)}
 				</div>
 			</div>
 		</ModalLayout>
@@ -227,7 +217,7 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 		const svgString = serializer.serializeToString(svg);
 
 		const img = new Image();
-		const svgBase64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+		const svgBase64 = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
 		img.src = svgBase64;
 
 		img.onload = async () => {
@@ -262,7 +252,11 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 				<div ref={containerRef} className="p-4 rounded-md bg-white w-fit flex flex-col items-center justify-center gap-2 pt-9 relative">
 					<div className="w-10 h-10 absolute -top-3 rounded-full flex items-center justify-center bg-white">
 						{currentClan?.logo ? (
-							<img src={currentClan?.logo} alt={currentClan?.clan_name} className="w-10 h-10 object-cover rounded-full border-4 border-white" />
+							<img
+								src={currentClan?.logo}
+								alt={currentClan?.clan_name}
+								className="w-10 h-10 object-cover rounded-full border-4 border-white"
+							/>
 						) : (
 							<span>{currentClan?.clan_name?.charAt(0)}</span>
 						)}

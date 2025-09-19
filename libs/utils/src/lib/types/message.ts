@@ -211,3 +211,11 @@ export type MediaContent = {
 export type MediaContainer = {
 	content: MediaContent;
 };
+
+export interface MentionItem {
+	display: string;
+	id: string;
+	childIndex: number;
+	index: number;
+	plainTextIndex: number;
+}

@@ -13,10 +13,11 @@ import {
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
-import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage } from '@mezon/utils';
+import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ELimitSize } from '../../../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../../ModalValidateFile/ModalOverData';
@@ -40,8 +41,9 @@ const convertDate = (isoDateString: string): string => {
 };
 
 const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebhookItemModalProps) => {
+	const { t } = useTranslation('clanIntegrationsSetting');
 	const [isExpand, setIsExpand] = useState(false);
-	const webhookOwner = useSelector(selectMemberClanByUserId(webhookItem.creator_id as string));
+	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhookItem.creator_id as string));
 	return (
 		<div className="bg-theme-setting-nav border-theme-primary p-[20px]  rounded-md mb-[20px]">
 			<div className="flex gap-[20px] items-center">
@@ -52,13 +54,17 @@ const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebho
 						<div className="flex gap-1 items-center">
 							<Icons.ClockIcon className="dark:text-[#b5bac1] text-textLightTheme" />
 							<div className="dark:text-[#b5bac1] text-textLightTheme text-[13px]">
-								Created on {convertDate(webhookItem.create_time || '')} by {webhookOwner?.user?.username}
+								{t('webhooksItem.createdBy', {
+									webhookCreateTime: convertDate(webhookItem.create_time || ''),
+									webhookUserOwnerName: webhookOwner?.user?.username
+								})}
 							</div>
 						</div>
 					</div>
 					<div
 						onClick={() => setIsExpand(!isExpand)}
 						className={`cursor-pointer transition duration-100 ease-in-out ${isExpand ? '' : '-rotate-90'}`}
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.view_webhook')}
 					>
 						<Icons.ArrowDown defaultSize="h-[30px] w-[30px] dark:text-[#b5bac1] text-black" />
 					</div>
@@ -82,6 +88,7 @@ interface IDataForUpdate {
 }
 
 const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IExpendedWebhookModal) => {
+	const { t } = useTranslation('clanIntegrationsSetting');
 	const dispatch = useAppDispatch();
 	const [isShowPopup, setIsShowPopup] = useState(false);
 	const [openModal, setOpenModal] = useState<boolean>(false);
@@ -101,7 +108,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 		navigator.clipboard.writeText(url);
 		dispatch(
 			toastActions.addToast({
-				message: 'Webhook URL copied to clipboard',
+				message: t('webhooksEdit.copied'),
 				type: 'success'
 			})
 		);
@@ -204,7 +211,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			<div ref={modalRef} tabIndex={-1} className="pt-[20px] mt-[12px] border-t dark:border-[#3b3d44]">
 				<div className="flex gap-2">
 					<div className="w-3/12 dark:text-[#b5bac1] text-textLightTheme">
-						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden />
+						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')} />
 						<div className="relative w-fit">
 							<div
 								onClick={() => avatarRef.current?.click()}
@@ -219,9 +226,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 								onClick={() => avatarRef.current?.click()}
 							/>
 						</div>
-						<div className="text-[10px] mt-[10px] text-center">
-							Minimum Size: <b>128x128</b>
-						</div>
+						<div className="text-[10px] mt-[10px] text-center">{t('webhooksEdit.recommendImage')}</div>
 					</div>
 					<div className="w-9/12">
 						<div className="flex gap-6 w-full">
@@ -243,7 +248,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 							</div>
 							<div className="w-1/2 dark:text-[#b5bac1] text-textLightTheme">
 								<div className="text-[12px] mb-[10px]">
-									<b>CHANNEL</b>
+									<b>{t('webhooksEdit.channel').toUpperCase()}</b>
 								</div>
 								<WebhookItemChannelDropdown
 									webhookItem={webhookItem}
@@ -262,10 +267,10 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 									onClick={() => handleCopyUrl(webhookItem.url as string)}
 									className="font-medium px-4 py-2 btn-primary btn-primary-hover rounded-lg  cursor-pointer"
 								>
-									Copy Webhook URL
+									{t('webhooksEdit.copy')} {t('webhooksEdit.webhookURL')}
 								</div>
 								<div onClick={openShowPopup} className="font-medium text-red-500 hover:underline cursor-pointer">
-									Delete Webhook
+									{t('webhooksEdit.delete')} Webhook
 								</div>
 							</div>
 						</div>
@@ -278,10 +283,10 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 							onClick={() => handleCopyUrl(webhookItem.url as string)}
 							className="font-medium px-4 py-2 btn-primary btn-primary-hover rounded-lg  cursor-pointer"
 						>
-							Copy Webhook URL
+							{t('webhooksEdit.copy')} {t('webhooksEdit.webhookURL')}
 						</div>
 						<div onClick={openShowPopup} className="font-medium text-red-500 hover:underline cursor-pointer">
-							Delete Webhook
+							{t('webhooksEdit.delete')} Webhook
 						</div>
 					</div>
 				</div>

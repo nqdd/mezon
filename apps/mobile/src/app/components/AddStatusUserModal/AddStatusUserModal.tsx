@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import MezonInput from '../../componentUI/MezonInput';
 import { MezonModal } from '../../componentUI/MezonModal';
-import MezonOption, { IMezonOptionData } from '../../componentUI/MezonOption';
+import type { IMezonOptionData } from '../../componentUI/MezonOption';
+import MezonOption from '../../componentUI/MezonOption';
 import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
 import { styles } from './AddStatusUserModal.styles';
 
@@ -78,6 +79,7 @@ export const AddStatusUserModal = ({ isVisible, setIsVisible, userCustomStatus, 
 			titleStyle={styles.titleModal}
 			rightBtnText={t('save')}
 			onClickRightBtn={handleSaveCustomStatus}
+			onRequestClose={() => setIsVisible(false)}
 		>
 			<View>
 				<MezonInput value={lineStatus} onTextChange={setLineStatus} placeHolder={t('placeholder')} textarea={true} maxCharacter={128} />

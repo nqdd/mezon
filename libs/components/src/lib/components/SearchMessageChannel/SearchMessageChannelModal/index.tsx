@@ -1,11 +1,11 @@
 import { selectAllUserClans } from '@mezon/store';
-import { UsersClanEntity } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import SelectGroup from '../SelectGroup';
 import SelectItem from '../SelectItem';
-import { getSearchOptions, searchOptions } from '../constant';
+import { getSearchOptions } from '../constant';
 
 type SearchMessageChannelModalProps = {
 	valueDisplay?: string;

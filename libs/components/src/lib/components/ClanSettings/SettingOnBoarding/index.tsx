@@ -1,5 +1,5 @@
 import { MemberProvider } from '@mezon/core';
-import { onboardingActions, selectCurrentClan, selectCurrentClanId, selectFormOnboarding, useAppDispatch } from '@mezon/store';
+import { onboardingActions, selectCurrentClan, selectFormOnboarding, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { Snowflake } from '@theinternetfolks/snowflake';
@@ -13,6 +13,7 @@ import ModalSaveChanges from '../ClanSettingOverview/ModalSaveChanges';
 import GuideItemLayout from './GuideItemLayout';
 import ClanGuideSetting from './Mission/ClanGuideSetting';
 import Questions from './Questions/Questions';
+import { generateE2eId } from '@mezon/utils';
 
 export enum EOnboardingStep {
 	QUESTION,
@@ -284,18 +285,22 @@ interface IMainIndexProps {
 
 const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
 	const { t } = useTranslation('onBoardingClan');
+	const currentClan = useSelector(selectCurrentClan);
 	const dispatch = useAppDispatch();
 	const openOnboardingPreviewMode = () => {
-		dispatch(onboardingActions.openOnboardingPreviewMode());
+		dispatch(
+			onboardingActions.openOnboardingPreviewMode({
+				clan_id: currentClan?.id || ''
+			})
+		);
 		if (onCloseSetting) {
 			onCloseSetting();
 		}
 	};
-	const currentClanId = useSelector(selectCurrentClanId);
 
 	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId as string }));
-	}, [currentClanId, dispatch]);
+		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClan?.id as string }));
+	}, [currentClan, dispatch]);
 
 	return (
 		<div className="flex flex-col gap-6 flex-1">
@@ -346,6 +351,7 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 							<div
 								className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover  cursor-pointer"
 								onClick={() => handleGoToPage(EOnboardingStep.MISSION)}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.clan_guide')}
 							>
 								{t('buttons.edit')}
 							</div>

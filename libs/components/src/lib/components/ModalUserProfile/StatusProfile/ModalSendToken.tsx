@@ -51,7 +51,7 @@ const ModalSendToken = ({
 	infoSendToken,
 	isButtonDisabled
 }: ModalSendTokenProps) => {
-	const { t } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile' });
+	const { t } = useTranslation(['userProffile', 'statusProfile'], { keyPrefix: 'statusProfile' });
 	const usersClan = useSelector(selectAllUsersByUser);
 	const friends = useSelector(selectAllFriends);
 	const [searchTerm, setSearchTerm] = useState(infoSendToken?.receiver_name || '');
@@ -175,7 +175,7 @@ const ModalSendToken = ({
 						</div>
 					))
 				) : (
-					<div className="p-4 text-center">No users found</div>
+					<div className="p-4 text-center">{t('sendTokenModal.noUsersFound')}</div>
 				)}
 			</div>
 		</div>

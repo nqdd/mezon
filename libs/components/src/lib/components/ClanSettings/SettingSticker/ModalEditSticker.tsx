@@ -3,7 +3,7 @@ import { createSticker, emojiSuggestionActions, selectCurrentClanId, updateStick
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 
 import { Button, ButtonLoading, Checkbox, Icons, InputField } from '@mezon/ui';
-import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ClanEmoji, ClanSticker } from 'mezon-js';
 import type { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
@@ -299,6 +299,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 											onChange={handleChooseFile}
 											ref={fileRef}
 											onKeyDown={handleOnEnter}
+											data-e2e={generateE2eId('clan_page.settings.upload.emoji_input')}
 										/>
 									</button>
 								)}
