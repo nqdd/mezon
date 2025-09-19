@@ -257,7 +257,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 								>{`Created by ${userCreate?.user?.username}`}</p>
 							}
 						>
-							<div className="flex  items-center gap-x-1">
+							<div className="flex  items-center gap-x-4 mb-3 mr-4">
 								<AvatarImage
 									alt={userCreate?.user?.username || ''}
 									username={userCreate?.user?.username}
