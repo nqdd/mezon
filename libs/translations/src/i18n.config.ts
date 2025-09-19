@@ -24,11 +24,16 @@ const timezoneDetector = {
 			return undefined;
 		}
 
-		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-		const vietnamTimezones = ['Asia/Ho_Chi_Minh', 'Asia/Saigon', 'Asia/Bangkok', 'Asia/Vientiane', 'Asia/Phnom_Penh'];
+		const browserLanguage = navigator.language || (navigator as Navigator & { userLanguage?: string }).userLanguage;
 
-		if (vietnamTimezones.includes(timezone)) {
-			return 'vi';
+		if (browserLanguage) {
+			const languageCode = browserLanguage.toLowerCase();
+			if (languageCode.startsWith('vi')) {
+				return 'vi';
+			}
+			if (languageCode.startsWith('en')) {
+				return 'en';
+			}
 		}
 
 		return undefined;
