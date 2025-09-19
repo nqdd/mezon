@@ -49,7 +49,7 @@ export function EmbedOptionRatio({ options, message_id, idRadio, max_options, di
 		},
 		[checkMultiple]
 	);
-	if (!options) return null;
+	if (!options || !Array.isArray(options)) return null;
 	return (
 		<>
 			{options.map((option, index) => (
