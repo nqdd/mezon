@@ -1,7 +1,6 @@
-import { useReference } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { appActions, useAppDispatch } from '@mezon/store-mobile';
-import { IMAGE_MAX_FILE_SIZE, MAX_FILE_SIZE, fileTypeImage } from '@mezon/utils';
+import { appActions, referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, fileTypeImage } from '@mezon/utils';
 import type { PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import {
 	CameraRoll,
@@ -38,13 +37,18 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	const dispatch = useAppDispatch();
 	const timerRef = useRef<any>(null);
 	const isLoadingMoreRef = useRef<boolean>(false);
-	const { removeAttachmentByIndex, attachmentFilteredByChannelId } = useReference(currentChannelId);
+	const attachmentFilteredByChannelId = useAppSelector((state) => selectAttachmentByChannelId(state, currentChannelId ?? ''));
 
 	const isDisableSelectAttachment = useMemo(() => {
 		if (!attachmentFilteredByChannelId) return false;
 		const { files } = attachmentFilteredByChannelId;
-		return files?.length >= 10;
+		return files?.length >= MAX_FILE_ATTACHMENTS;
 	}, [attachmentFilteredByChannelId]);
+
+	const selectedFilenameSet = useMemo(() => {
+		const files = attachmentFilteredByChannelId?.files || [];
+		return new Set(files.map((file) => file.filename));
+	}, [attachmentFilteredByChannelId?.files]);
 
 	const loadPhotos = useCallback(async (after = null) => {
 		if (isLoadingMoreRef?.current) return;
@@ -211,13 +215,20 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	};
 
 	const renderItem = ({ item, index }) => {
+		const baseFilename = item?.node?.image?.filename || '';
+		const fileName = baseFilename + index;
+		const isVideo = item?.node?.type?.startsWith?.('video') ?? false;
+		const isSelected = selectedFilenameSet?.has(fileName) ?? false;
+		const disabled = isDisableSelectAttachment && !isSelected;
 		return (
 			<GalleryItem
 				item={item}
 				index={index}
 				themeValue={themeValue}
-				isDisableSelectAttachment={isDisableSelectAttachment}
-				attachmentFilteredByChannelId={attachmentFilteredByChannelId}
+				isSelected={isSelected}
+				disabled={disabled}
+				fileName={fileName}
+				isVideo={isVideo}
 				onOpenCamera={onOpenCamera}
 				handleGalleryPress={handleGalleryPress}
 				handleRemove={handleRemove}
@@ -353,10 +364,9 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 
 	const handleRemove = useCallback(
 		(filename: string) => {
-			const index = attachmentFilteredByChannelId?.files?.findIndex((file) => file.filename === filename);
-			removeAttachmentByIndex(currentChannelId, index);
+			dispatch(referencesActions.removeAttachmentByFileName({ channelId: currentChannelId, fileName: filename }));
 		},
-		[attachmentFilteredByChannelId, currentChannelId, removeAttachmentByIndex]
+		[currentChannelId, dispatch]
 	);
 
 	return (
@@ -366,11 +376,11 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				numColumns={3}
 				renderItem={renderItem}
 				keyExtractor={(item, index) => `${index.toString()}_gallery_${item?.node?.id}`}
-				initialNumToRender={1}
-				maxToRenderPerBatch={1}
-				windowSize={2}
-				updateCellsBatchingPeriod={50}
-				scrollEventThrottle={16}
+				initialNumToRender={18}
+				maxToRenderPerBatch={18}
+				windowSize={7}
+				updateCellsBatchingPeriod={16}
+				scrollEventThrottle={0}
 				removeClippedSubviews={true}
 				viewabilityConfig={{
 					itemVisiblePercentThreshold: 50,
@@ -382,7 +392,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 					maxHeight: height * 0.8
 				}}
 				onEndReached={handleLoadMore}
-				onEndReachedThreshold={0.5}
+				onEndReachedThreshold={0.8}
 				ListFooterComponent={() => isLoadingMoreRef?.current && <ActivityIndicator size="small" color={themeValue.text} />}
 			/>
 		</View>
