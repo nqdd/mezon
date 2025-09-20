@@ -448,24 +448,21 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				}
 			}
 			if (clanId) {
-				const joinAndChangeClan = async (store: any, clanId: string) => {
-					await Promise.allSettled([
-						store.dispatch(clansActions.joinClan({ clanId })),
-						store.dispatch(clansActions.changeCurrentClan({ clanId, noCache: true }))
-					]);
-				};
-				await joinAndChangeClan(store, clanId);
+				store.dispatch(clansActions.joinClan({ clanId }));
+				store.dispatch(clansActions.setCurrentClanId(clanId as string));
+				save(STORAGE_CLAN_ID, clanId);
 			}
 			if (clanId && channelId !== '0' && !!channelId) {
 				const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
 				save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-				store.dispatch(channelsActions.setCurrentChannelId({ clanId, channelId }));
 			}
-			save(STORAGE_CLAN_ID, clanId);
 			if (topicId && topicId !== '0' && !!topicId) {
 				await handleOpenTopicDiscustion(store, topicId, channelId, navigation);
 			}
 			setTimeout(() => {
+				if (clanId) {
+					store.dispatch(clansActions.changeCurrentClan({ clanId, noCache: true }));
+				}
 				if (channelId !== '0' && !!channelId) {
 					DeviceEventEmitter.emit(ActionEmitEvent.SCROLL_TO_ACTIVE_CHANNEL, channelId);
 				}

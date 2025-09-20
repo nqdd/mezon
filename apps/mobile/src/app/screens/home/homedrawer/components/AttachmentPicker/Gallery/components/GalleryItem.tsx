@@ -1,7 +1,7 @@
 import { size } from '@mezon/mobile-ui';
-import { formatTimeToMMSS, PreSendAttachment } from '@mezon/utils';
-import { PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
-import React, { memo, useEffect, useState } from 'react';
+import { formatTimeToMMSS } from '@mezon/utils';
+import type { PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
@@ -12,8 +12,10 @@ interface GalleryItemProps {
 	item: any;
 	index: number;
 	themeValue: any;
-	isDisableSelectAttachment: boolean;
-	attachmentFilteredByChannelId: PreSendAttachment;
+	isSelected: boolean;
+	disabled: boolean;
+	fileName: string;
+	isVideo: boolean;
 	onOpenCamera: () => void;
 	handleGalleryPress: (file: PhotoIdentifier, index: number) => Promise<void>;
 	handleRemove: (filename: string) => void;
@@ -23,22 +25,25 @@ const GalleryItem = ({
 	item,
 	index,
 	themeValue,
-	isDisableSelectAttachment,
-	attachmentFilteredByChannelId,
+	isSelected,
+	disabled,
+	fileName,
+	isVideo,
 	onOpenCamera,
 	handleGalleryPress,
 	handleRemove
 }: GalleryItemProps) => {
-	const styles = style(themeValue);
-	const fileName = item?.node?.image?.filename + index;
-	const isVideo = item?.node?.type?.startsWith?.('video');
-	const isSelected = attachmentFilteredByChannelId?.files.some((file) => file.filename === fileName);
-	const disabled = isDisableSelectAttachment && !isSelected;
+	const styles = useMemo(() => style(themeValue), [themeValue]);
 	const [isLoadingImage, setIsLoadingImage] = useState(true);
 
-	const getDurationSec = (): number | undefined => {
+	const imageUri = useMemo(() => {
+		const uri = item?.node?.image?.uri;
+		return uri ? `${uri}?thumbnail=true&quality=low` : undefined;
+	}, [item?.node?.image?.uri]);
+
+	const durationSec = useMemo((): number | undefined => {
 		return item?.node?.image?.playableDuration ?? item?.node?.image?.duration ?? item?.node?.playableDuration ?? undefined;
-	};
+	}, [item?.node?.image?.playableDuration, item?.node?.image?.duration, item?.node?.playableDuration]);
 
 	useEffect(() => {
 		if (item?.node?.image?.uri && Platform.OS === 'ios') {
@@ -54,30 +59,24 @@ const GalleryItem = ({
 		);
 	}
 
+	const handlePickGallery = () => {
+		if (isSelected) {
+			handleRemove(fileName);
+		} else {
+			handleGalleryPress(item, index);
+		}
+	};
+
 	return (
-		<TouchableOpacity
-			style={[styles.itemGallery, disabled && styles.disable]}
-			onPress={() => {
-				if (isSelected) {
-					handleRemove(fileName);
-				} else {
-					handleGalleryPress(item, index);
-				}
-			}}
-			disabled={disabled}
-		>
+		<TouchableOpacity style={[styles.itemGallery, disabled && styles.disable]} onPress={handlePickGallery} disabled={disabled} activeOpacity={1}>
 			{Platform.OS === 'android' ? (
 				<FastImage
-					source={{ uri: `${item?.node?.image?.uri}?thumbnail=true&quality=low`, cache: FastImage.cacheControl.immutable }}
+					source={{ uri: imageUri, cache: FastImage.cacheControl.immutable }}
 					style={styles.imageGallery}
 					onLoadEnd={() => setIsLoadingImage(false)}
 				/>
 			) : (
-				<Image
-					source={{ uri: item?.node?.image?.uri + '?thumbnail=true&quality=low' }}
-					style={styles.imageGallery}
-					onLoadEnd={() => setIsLoadingImage(false)}
-				/>
+				<Image source={{ uri: imageUri }} style={styles.imageGallery} onLoadEnd={() => setIsLoadingImage(false)} />
 			)}
 			{isLoadingImage && (
 				<View style={styles.loadingContainer}>
@@ -87,7 +86,7 @@ const GalleryItem = ({
 			{isVideo && (
 				<View style={styles.videoOverlay}>
 					<MezonIconCDN icon={IconCDN.playIcon} width={size.s_8} height={size.s_8} />
-					<Text style={styles.videoDuration}> {formatTimeToMMSS(getDurationSec() ?? 0)}</Text>
+					<Text style={styles.videoDuration}> {formatTimeToMMSS(durationSec ?? 0)}</Text>
 				</View>
 			)}
 			{isSelected && (
@@ -100,4 +99,6 @@ const GalleryItem = ({
 	);
 };
 
-export default memo(GalleryItem);
+export default memo(GalleryItem, (prevProps, nextProps) => {
+	return prevProps.isSelected === nextProps.isSelected && prevProps.disabled === nextProps.disabled;
+});

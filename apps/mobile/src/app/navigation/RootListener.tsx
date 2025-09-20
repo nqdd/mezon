@@ -31,7 +31,8 @@ import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ChatContext } from '@mezon/core';
-import { IWithError, sleep } from '@mezon/utils';
+import type { IWithError } from '@mezon/utils';
+import { sleep } from '@mezon/utils';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import {
 	ActionEmitEvent,
@@ -46,7 +47,8 @@ import {
 import { useMezon } from '@mezon/transport';
 import { getAnalytics, logEvent, setAnalyticsCollectionEnabled } from '@react-native-firebase/analytics';
 import { getApp } from '@react-native-firebase/app';
-import { ChannelType, Session } from 'mezon-js';
+import type { Session } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import { AppState, DeviceEventEmitter, Platform } from 'react-native';
 import { getVoIPToken, handleFCMToken } from '../utils/pushNotificationHelpers';
 const analytics = getAnalytics(getApp());
@@ -94,7 +96,7 @@ const RootListener = () => {
 						voiceActions.fetchVoiceChannelMembers({
 							clanId: currentClanId ?? '',
 							channelId: '',
-							channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE || ChannelType.CHANNEL_TYPE_MEZON_VOICE
+							channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 						})
 					),
 					dispatch(channelsActions.fetchChannels({ clanId: currentClanId, noCache: true, isMobile: true }))

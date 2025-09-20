@@ -12,10 +12,9 @@ interface ChannelTypeProps {
 
 export const ChannelTypeComponent: React.FC<ChannelTypeProps> = ({ type, onChange, error, disable }) => {
 	const { t } = useTranslation('createChannel');
-	
+
 	const labelMap: Partial<Record<ChannelType, string>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: t('channelType.text'),
-		[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: t('channelType.voice'),
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: t('channelType.voice'),
 		[ChannelType.CHANNEL_TYPE_FORUM]: t('channelType.forum'),
 		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: t('channelType.announcement'),
@@ -28,7 +27,6 @@ export const ChannelTypeComponent: React.FC<ChannelTypeProps> = ({ type, onChang
 
 	const descriptionMap: Partial<Record<ChannelType, string>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: t('channelType.descriptions.text'),
-		[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: t('channelType.descriptions.voice'),
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: t('channelType.descriptions.voice'),
 		[ChannelType.CHANNEL_TYPE_FORUM]: t('channelType.descriptions.forum'),
 		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: t('channelType.descriptions.announcement'),
@@ -40,7 +38,6 @@ export const ChannelTypeComponent: React.FC<ChannelTypeProps> = ({ type, onChang
 	};
 	const iconMap: Partial<Record<ChannelType, JSX.Element>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: <Icons.Hashtag defaultSize="w-6 h-6" />,
-		[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_FORUM]: <Icons.Forum defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: <Icons.Announcement defaultSize="w-6 h-6" />,

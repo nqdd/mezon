@@ -93,7 +93,7 @@ const CallingModal = () => {
 	useEffect(() => {
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
 		const dataType = latestSignalingEntry?.signalingData?.data_type;
-		if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER && !isVisible) {
+		if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER) {
 			setIsVisible(true);
 			Sound.setCategory(Platform.OS === 'ios' ? 'Playback' : 'Ambient', Platform.OS === 'ios');
 
@@ -118,42 +118,39 @@ const CallingModal = () => {
 			stopAndReleaseSound();
 			Vibration.cancel();
 		}
-	}, [isInCall, isVisible, signalingData]);
+	}, [isInCall, signalingData]);
 
 	useEffect(() => {
 		if (Platform.OS === 'ios') {
 			return;
 		}
+
+		const processSignaling = (currentState) => {
+			const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
+			const dataType = latestSignalingEntry?.signalingData?.data_type;
+			if (currentState === 'background') {
+				if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER && callerInfo?.name) {
+					displayCallerNotificationAndroid(latestSignalingEntry);
+				} else {
+					displayCallerNotificationAndroid(latestSignalingEntry, true);
+				}
+			} else {
+				displayNativeCalling({
+					offer: JSON.stringify({
+						offer: 'CANCEL_CALL'
+					})
+				});
+			}
+		};
+
 		const handleAppStateChange = (nextAppState) => {
-			setAppState(nextAppState);
+			// Only process signaling when app state actually changes
+			processSignaling(nextAppState);
 		};
 
 		const subscription = AppState.addEventListener('change', handleAppStateChange);
 		return () => subscription?.remove();
-	}, []);
-
-	useEffect(() => {
-		if (Platform.OS === 'ios') {
-			return;
-		}
-		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
-		const dataType = latestSignalingEntry?.signalingData?.data_type;
-
-		// Only execute when app is in background
-		if (appState === 'background') {
-			if (!isInCall && dataType === WebrtcSignalingType.WEBRTC_SDP_OFFER && callerInfo?.name) {
-				displayCallerNotificationAndroid(latestSignalingEntry);
-			} else {
-				displayCallerNotificationAndroid(latestSignalingEntry, true);
-			}
-		} else {
-			displayNativeCalling({
-				offer: JSON.stringify({
-					offer: 'CANCEL_CALL'
-				})
-			});
-		}
-	}, [isInCall, signalingData, callerInfo, appState]);
+	}, [isInCall, signalingData, callerInfo]);
 
 	const playVibration = () => {
 		const pattern = Platform.select({

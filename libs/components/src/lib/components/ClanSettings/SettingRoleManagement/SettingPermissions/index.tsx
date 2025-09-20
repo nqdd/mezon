@@ -86,10 +86,11 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 		<div className="pr-5 h-full min-h-0 flex flex-col">
 			<div className="w-full flex">
 				<InputField
-					className="flex-grow  text-[15px] w-full p-[7px] border-theme-primary font-normal bg-input-secondary rounded-lg"
+					className="flex-grow  text-[15px] w-full p-[7px] border-theme-primary font-normal bg-input-secondary rounded-lg focus:outline focus:outline-1  outline-[#006ce7]"
 					type="text"
 					placeholder={t('roleManagement.searchPermissions')}
 					value={searchTerm}
+					needOutline={true}
 					onChange={(e) => setSearchTerm(e.target.value)}
 				/>
 			</div>

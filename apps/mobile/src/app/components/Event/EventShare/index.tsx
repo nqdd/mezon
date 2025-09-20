@@ -1,8 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, EventManagementEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	EventManagementEntity,
 	appActions,
 	getStore,
 	selectAllChannelsByUser,
@@ -12,7 +11,8 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { ChannelThreads, EBacktickType, IMessageSendPayload, normalizeString } from '@mezon/utils';
+import type { ChannelThreads, IMessageSendPayload } from '@mezon/utils';
+import { EBacktickType, normalizeString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -24,7 +24,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../componentUI/MezonInput';
 import { IconCDN } from '../../../constants/icon_cdn';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
-import { IForwardIObject } from '../../../screens/home/homedrawer/components/ForwardMessage';
+import type { IForwardIObject } from '../../../screens/home/homedrawer/components/ForwardMessage';
 import ForwardMessageItem from '../../../screens/home/homedrawer/components/ForwardMessage/ForwardMessageItem/ForwardMessageItem';
 import { style } from './styles';
 
@@ -94,11 +94,9 @@ export const ShareEventModal = memo(({ event, onConfirm }: IShareEventModalProps
 
 	const shareLink = useMemo(() => {
 		if (!channelVoice?.channel_id && !event?.meet_room?.external_link) return '';
-		return channelVoice?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE
-			? `https://meet.google.com/${channelVoice.meeting_code}`
-			: channelVoice.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
-				? `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${channelVoice.clan_id}/channels/${channelVoice.channel_id}`
-				: `${process.env.NX_CHAT_APP_REDIRECT_URI}${event?.meet_room?.external_link}`;
+		return channelVoice.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
+			? `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${channelVoice.clan_id}/channels/${channelVoice.channel_id}`
+			: `${process.env.NX_CHAT_APP_REDIRECT_URI}${event?.meet_room?.external_link}`;
 	}, [channelVoice, event?.meet_room?.external_link]);
 
 	function handleClose() {
@@ -123,7 +121,7 @@ export const ShareEventModal = memo(({ event, onConfirm }: IShareEventModalProps
 				throw new Error('Client is not initialized');
 			}
 
-			const linkType = channelVoice.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? EBacktickType.VOICE_LINK : EBacktickType.LINK;
+			const linkType = channelVoice.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ? EBacktickType.VOICE_LINK : EBacktickType.LINK;
 
 			const content: IMessageSendPayload = {
 				t: shareLink,

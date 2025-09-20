@@ -102,12 +102,7 @@ export const CreateNewChannelModal = () => {
 			);
 		}
 
-		if (
-			newChannelCreatedId &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING
-		) {
+		if (newChannelCreatedId && typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING) {
 			const channelPath = toChannelPage(channelID ?? '', currentClan?.clan_id ?? '');
 			navigate(channelPath);
 		}

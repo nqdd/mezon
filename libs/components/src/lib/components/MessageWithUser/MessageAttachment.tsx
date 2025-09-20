@@ -1,28 +1,18 @@
 import { getCurrentChatData } from '@mezon/core';
+import { attachmentActions, getStore, selectCurrentChannel, selectCurrentClanId, selectCurrentDM, useAppDispatch } from '@mezon/store';
+import type { ApiPhoto, IImageWindowProps, IMessageWithUser, ObserveFn } from '@mezon/utils';
 import {
-  attachmentActions,
-  getStore,
-  selectCurrentChannel,
-  selectCurrentClanId,
-  selectCurrentDM,
-  useAppDispatch
-} from '@mezon/store';
-import {
-  ApiPhoto,
-  EMimeTypes,
-  ETypeLinkMedia,
-  IImageWindowProps,
-  IMessageWithUser,
-  ObserveFn,
-  calculateAlbumLayout,
-  createImgproxyUrl,
-  getAttachmentDataForWindow,
-  isMediaTypeNotSupported,
-  useAppLayout
+	EMimeTypes,
+	ETypeLinkMedia,
+	calculateAlbumLayout,
+	createImgproxyUrl,
+	getAttachmentDataForWindow,
+	isMediaTypeNotSupported,
+	useAppLayout
 } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ChannelStreamMode } from 'mezon-js';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { useCallback } from 'react';
 import Album from './Album';
 import { MessageAudio } from './MessageAudio/MessageAudio';
@@ -190,42 +180,43 @@ const ImageAlbum = ({
 		const attachmentData = images.find((item) => item.url === url);
 		if (!attachmentData) return;
 
-
 		const enhancedAttachmentData = {
 			...attachmentData,
 			create_time: attachmentData.create_time || message.create_time || new Date().toISOString()
 		};
 
 		if (isElectron()) {
-      const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
-      const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
+			const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
+			const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
 
-        const messageTimestamp = message.create_time ? Math.floor(new Date(message.create_time).getTime() / 1000) : undefined;
-        const beforeTimestamp = messageTimestamp ? messageTimestamp + 1 : undefined;
-       const data = await dispatch(attachmentActions.fetchChannelAttachments({
-          clanId,
-          channelId,
-          limit: 50,
-          before: beforeTimestamp
-          })
-        ).unwrap();
+			const messageTimestamp = message.create_time ? Math.floor(new Date(message.create_time).getTime() / 1000) : undefined;
+			const beforeTimestamp = messageTimestamp ? messageTimestamp + 86400 : undefined;
+			const data = await dispatch(
+				attachmentActions.fetchChannelAttachments({
+					clanId,
+					channelId,
+					limit: 100,
+					before: beforeTimestamp
+				})
+			).unwrap();
 
-        const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
-        const listAttachmentsByChannel = data?.attachments?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
-        .map((attachmentRes) => ({
-          ...attachmentRes,
-          id: attachmentRes.id || '',
-          channelId,
-          clanId
-        }))
-        .sort((a, b) => {
-          if (a.create_time && b.create_time) {
-            return Date.parse(b.create_time) - Date.parse(a.create_time);
-          }
-          return 0;
-        });
+			const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
+			const listAttachmentsByChannel = data?.attachments
+				?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+				.map((attachmentRes) => ({
+					...attachmentRes,
+					id: attachmentRes.id || '',
+					channelId,
+					clanId
+				}))
+				.sort((a, b) => {
+					if (a.create_time && b.create_time) {
+						return Date.parse(b.create_time) - Date.parse(a.create_time);
+					}
+					return 0;
+				});
 
-        const currentImageUploader = currentChatUsersEntities?.[attachmentData.sender_id as string];
+			const currentImageUploader = currentChatUsersEntities?.[attachmentData.sender_id as string];
 
 			window.electron.openImageWindow({
 				...enhancedAttachmentData,
@@ -242,7 +233,7 @@ const ImageAlbum = ({
 						'Anonymous',
 					avatar: (currentImageUploader?.clan_avatar ||
 						currentImageUploader?.user?.avatar_url ||
-						window.location.origin + '/assets/images/anonymous-avatar.png') as string
+						`${window.location.origin}/assets/images/anonymous-avatar.png`) as string
 				},
 				realUrl: enhancedAttachmentData.url || '',
 				channelImagesData: {
@@ -258,7 +249,7 @@ const ImageAlbum = ({
 					const channelImagesData: IImageWindowProps = {
 						channelLabel: (currentChannelId ? currentChannel?.channel_label : currentDm.channel_label) as string,
 						images: imageListWithUploaderInfo,
-						selectedImageIndex: selectedImageIndex
+						selectedImageIndex
 					};
 
 					window.electron.openImageWindow({
@@ -280,7 +271,7 @@ const ImageAlbum = ({
 								'Anonymous',
 							avatar: (currentImageUploader?.clan_avatar ||
 								currentImageUploader?.user?.avatar_url ||
-								window.location.origin + '/assets/images/anonymous-avatar.png') as string
+								`${window.location.origin}/assets/images/anonymous-avatar.png`) as string
 						},
 						realUrl: enhancedAttachmentData.url || '',
 						channelImagesData
@@ -308,16 +299,17 @@ const ImageAlbum = ({
 			const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
 			const channelId = currentClanId !== '0' ? (currentChannelId as string) : (currentDmGroupId as string);
 			const messageTimestamp = message.create_time ? Math.floor(new Date(message.create_time).getTime() / 1000) : undefined;
-			const beforeTimestamp = messageTimestamp ? messageTimestamp + 1: undefined;
+			const beforeTimestamp = messageTimestamp ? messageTimestamp + 86400 : undefined;
 
-			dispatch(attachmentActions.fetchChannelAttachments({
-				clanId,
-				channelId,
-				state: undefined,
-				limit: 50,
-				before: beforeTimestamp
-			})).unwrap();
-
+			dispatch(
+				attachmentActions.fetchChannelAttachments({
+					clanId,
+					channelId,
+					state: undefined,
+					limit: 100,
+					before: beforeTimestamp
+				})
+			).unwrap();
 		}
 
 		dispatch(attachmentActions.setMessageId(message.id));

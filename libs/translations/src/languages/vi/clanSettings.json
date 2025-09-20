@@ -1,87 +1,88 @@
 {
-  "sidebar": {
-    "communityOverview": "Tổng quan cộng đồng",
-    "deleteClan": "Xóa clan",
-    "sectionTitles": {
-      "apps": "Ứng dụng",
-      "moderation": "Kiểm duyệt"
-    },
-    "items": {
-      "overview": "Tổng quan",
-      "roles": "Vai trò",
-      "emoji": "Biểu tượng cảm xúc",
-      "imageStickers": "Nhãn dán hình ảnh",
-      "voiceStickers": "Nhãn dán âm thanh",
-      "categoryOrder": "Thứ tự danh mục",
-      "integrations": "Tích hợp",
-      "auditLog": "Nhật ký kiểm tra",
-      "onboarding": "Hướng dẫn",
-      "enableCommunity": "Kích hoạt cộng đồng"
-    }
-  },
-  "clanLogo": {
-    "minimumSize": "Kích thước tối thiểu: 128x128",
-    "recommendedSize": "Chúng tôi khuyên bạn nên sử dụng hình ảnh có kích thước ít nhất 512x512 cho clan.",
-    "uploadImage": "Tải lên hình ảnh",
-    "clanName": "Tên Clan",
-    "namePlaceholder": "Hỗ trợ đã đến!",
-    "validationError": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ bao gồm từ, số, _ hoặc -).",
-    "modal": {
-      "title": "Chỉ cho phép tệp hình ảnh",
-      "content": "Chỉ tải lên tệp có định dạng (JPEG, PNG), xin cảm ơn!"
-    }
-  },
-  "modalSaveChanges": {
-    "title": "Cẩn thận — bạn có thay đổi chưa lưu!",
-    "reset": "Đặt lại",
-    "saveChanges": "Lưu thay đổi"
-  },
-  "clanBanner": {
-    "title": "Hình nền Banner Clan",
-    "description": "Hình ảnh này sẽ hiển thị ở đầu danh sách kênh của bạn.",
-    "recommendedSize": "Kích thước tối thiểu khuyến nghị là 960x540 và tỷ lệ khung hình 16:9.",
-    "uploadBackground": "Tải lên hình nền",
-    "chooseImage": "Chọn hình ảnh",
-    "modal": {
-      "title": "Chỉ cho phép tệp hình ảnh",
-      "content": "Chỉ tải lên tệp có định dạng (JPEG, PNG), xin cảm ơn!"
-    }
-  },
-  "systemMessages": {
-    "title": "Kênh tin nhắn hệ thống",
-    "description": "Đây là kênh chúng tôi gửi tin nhắn sự kiện hệ thống đến. Có thể tắt bất cứ lúc nào",
-    "welcomeRandom": "Gửi tin nhắn chào mừng ngẫu nhiên khi có người tham gia máy chủ này.",
-    "welcomeSticker": "Nhắc nhở thành viên trả lời tin nhắn chào mừng bằng nhãn dán.",
-    "boostMessage": "Gửi tin nhắn khi có người Boost máy chủ này.",
-    "setupTips": "Gửi mẹo hữu ích cho thiết lập máy chủ.",
-    "auditLog": "Gửi nhật ký khi một hành động được áp dụng cho clan"
-  },
-  "appDirectory": {
-    "categories": {
-      "gamingCompanion": "Ứng dụng đồng hành Gaming",
-      "popularTrending": "Ứng dụng phổ biến & xu hướng",
-      "serverMiniGames": "Mini-Games máy chủ",
-      "rolePlayingFavorites": "Yêu thích nhập vai"
-    },
-    "inServers": "trong {{count}} máy chủ"
-  },
-  "emoji": {
-    "title": "Biểu tượng cảm xúc",
-    "description": "Thêm tối đa 250 emoji tùy chỉnh mà mọi người có thể sử dụng trong máy chủ này. Emoji GIF động có thể được sử dụng bởi thành viên có Mezon Nitro",
-    "uploadRequirements": "YÊU CẦU TẢI LÊN",
-    "requirements": {
-      "fileType": "Loại tệp: JPEG, PNG, GIF",
-      "fileSize": "Kích thước tệp khuyến nghị: 256 KB (Chúng tôi sẽ nén cho bạn)",
-      "dimensions": "Kích thước khuyến nghị: 128x128",
-      "naming": "Đặt tên: Tên emoji phải có ít nhất 2 ký tự và chỉ có thể chứa ký tự chữ và số cùng dấu gạch dưới"
-    },
-    "uploadEmoji": "Tải lên emoji"
-  },
-  "stickers": {
-    "uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
-    "description": "Nhãn dán có thể là tĩnh (PNG) hoặc động (APNG, GIF). Nhãn dán phải có kích thước chính xác 320 x 320 pixel và không lớn hơn 512KB. Chúng tôi sẽ tự động thay đổi kích thước nhãn dán PNG tĩnh và GIF động cho bạn.",
-    "uploadHere": "Tải lên ở đây!",
-    "customizeMessage": "Hãy tùy chỉnh những nhãn dán tuyệt vời theo sở thích của bạn",
-    "uploadSticker": "tải lên nhãn dán"
-  }
+	"sidebar": {
+		"communityOverview": "Tổng quan cộng đồng",
+		"deleteClan": "Xóa clan",
+		"sectionTitles": {
+			"apps": "Ứng dụng",
+			"moderation": "Kiểm duyệt"
+		},
+		"items": {
+			"overview": "Tổng quan",
+			"roles": "Vai trò",
+			"emoji": "Biểu tượng cảm xúc",
+			"imageStickers": "Nhãn dán hình ảnh",
+			"voiceStickers": "Nhãn dán âm thanh",
+			"categoryOrder": "Thứ tự danh mục",
+			"integrations": "Tích hợp",
+			"auditLog": "Nhật ký kiểm tra",
+			"onboarding": "Hướng dẫn",
+			"enableCommunity": "Kích hoạt cộng đồng"
+		}
+	},
+	"clanLogo": {
+		"minimumSize": "Kích thước tối thiểu: 128x128",
+		"recommendedSize": "Chúng tôi khuyên bạn nên sử dụng hình ảnh có kích thước ít nhất 512x512 cho clan.",
+		"uploadImage": "Tải lên hình ảnh",
+		"clanName": "Tên Clan",
+		"namePlaceholder": "Hỗ trợ đã đến!",
+		"validationError": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ bao gồm từ, số, _ hoặc -).",
+		"modal": {
+			"title": "Chỉ cho phép tệp hình ảnh",
+			"content": "Chỉ tải lên tệp có định dạng (JPEG, PNG), xin cảm ơn!"
+		}
+	},
+	"modalSaveChanges": {
+		"title": "Cẩn thận — bạn có thay đổi chưa lưu!",
+		"reset": "Đặt lại",
+		"saveChanges": "Lưu thay đổi"
+	},
+	"clanBanner": {
+		"title": "Hình nền Banner Clan",
+		"description": "Hình ảnh này sẽ hiển thị ở đầu danh sách kênh của bạn.",
+		"recommendedSize": "Kích thước tối thiểu khuyến nghị là 960x540 và tỷ lệ khung hình 16:9.",
+		"uploadBackground": "Tải lên hình nền",
+		"chooseImage": "Chọn hình ảnh",
+		"modal": {
+			"title": "Chỉ cho phép tệp hình ảnh",
+			"content": "Chỉ tải lên tệp có định dạng (JPEG, PNG), xin cảm ơn!"
+		}
+	},
+	"systemMessages": {
+		"title": "Kênh tin nhắn hệ thống",
+		"description": "Đây là kênh chúng tôi gửi tin nhắn sự kiện hệ thống đến. Có thể tắt bất cứ lúc nào",
+		"welcomeRandom": "Gửi tin nhắn chào mừng ngẫu nhiên khi có người tham gia máy chủ này.",
+		"welcomeSticker": "Nhắc nhở thành viên trả lời tin nhắn chào mừng bằng nhãn dán.",
+		"boostMessage": "Gửi tin nhắn khi có người Boost máy chủ này.",
+		"setupTips": "Gửi mẹo hữu ích cho thiết lập máy chủ.",
+		"auditLog": "Gửi nhật ký khi một hành động được áp dụng cho clan"
+	},
+	"appDirectory": {
+		"categories": {
+			"gamingCompanion": "Ứng dụng đồng hành Gaming",
+			"popularTrending": "Ứng dụng phổ biến & xu hướng",
+			"serverMiniGames": "Mini-Games máy chủ",
+			"rolePlayingFavorites": "Yêu thích nhập vai"
+		},
+		"inServers": "trong {{count}} máy chủ"
+	},
+	"emoji": {
+		"uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
+		"title": "Biểu tượng cảm xúc",
+		"description": "Thêm tối đa 250 emoji tùy chỉnh mà mọi người có thể sử dụng trong máy chủ này. Emoji GIF động có thể được sử dụng bởi thành viên có Mezon Nitro",
+		"uploadRequirements": "YÊU CẦU TẢI LÊN",
+		"requirements": {
+			"fileType": "Loại tệp: JPEG, PNG, GIF",
+			"fileSize": "Kích thước tệp khuyến nghị: 256 KB (Chúng tôi sẽ nén cho bạn)",
+			"dimensions": "Kích thước khuyến nghị: 128x128",
+			"naming": "Đặt tên: Tên emoji phải có ít nhất 2 ký tự và chỉ có thể chứa ký tự chữ và số cùng dấu gạch dưới"
+		},
+		"uploadEmoji": "Tải lên emoji"
+	},
+	"stickers": {
+		"uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
+		"description": "Nhãn dán có thể là tĩnh (PNG) hoặc động (APNG, GIF). Nhãn dán phải có kích thước chính xác 320 x 320 pixel và không lớn hơn 512KB. Chúng tôi sẽ tự động thay đổi kích thước nhãn dán PNG tĩnh và GIF động cho bạn.",
+		"uploadHere": "Tải lên ở đây!",
+		"customizeMessage": "Hãy tùy chỉnh những nhãn dán tuyệt vời theo sở thích của bạn",
+		"uploadSticker": "tải lên nhãn dán"
+	}
 }

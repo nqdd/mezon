@@ -113,8 +113,9 @@ const ServerSettingMainRoles = (props: ModalOpenEdit) => {
 					<div className="flex items-center space-x-4 ">
 						<div className="w-full flex-grow">
 							<InputField
+								needOutline={true}
 								type="text"
-								className="rounded-lg w-full border-theme-primary  px-2 py-1 focus:outline-none bg-theme-contexify focus:border-white-500 bg-theme-input text-base"
+								className="rounded-lg w-full border-theme-primary  px-2 py-1  bg-theme-contexify focus:border-white-500 bg-theme-input text-base  focus:outline focus:outline-1  outline-[#006ce7]"
 								placeholder={t('mainRoles.searchRoles')}
 								onChange={(e) => setValueSearch(e.target.value)}
 							/>
@@ -132,7 +133,7 @@ const ServerSettingMainRoles = (props: ModalOpenEdit) => {
 							<thead>
 								<tr className="h-11">
 									<th scope="col" className="text-xs font-bold uppercase tracking-wider w-1/2 text-left">
-										{t('roles')} - {numRoles - 1}
+										{t('roles')} - {numRoles}
 									</th>
 									<th scope="col" className="text-xs font-bold uppercase tracking-wider w-1/4 text-center">
 										{t('members')}

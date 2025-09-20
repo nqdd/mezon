@@ -1,7 +1,7 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import { Attributes, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, isDisabledUpload?: boolean) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
@@ -20,7 +20,7 @@ export const style = (colors: Attributes) =>
 			aspectRatio: 1,
 			width: size.s_40,
 			borderRadius: size.s_4,
-			backgroundColor: baseColor.blurple,
+			backgroundColor: colors.bgViolet,
 			justifyContent: 'center',
 			alignItems: 'center',
 			marginBottom: size.s_10
@@ -29,7 +29,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			justifyContent: 'center',
 			alignItems: 'center',
-			backgroundColor: '#5e65ee',
+			backgroundColor: isDisabledUpload ? colors.textDisabled : colors.bgViolet,
 			height: size.s_50,
 			width: '100%',
 			bottom: size.s_30,
@@ -55,5 +55,12 @@ export const style = (colors: Attributes) =>
 			fontWeight: 'bold',
 			fontSize: size.medium,
 			marginBlock: size.s_6
+		},
+		previewContainer: {
+			width: '70%',
+			height: '50%',
+			alignItems: 'center',
+			justifyContent: 'center',
+			alignSelf: 'center'
 		}
 	});

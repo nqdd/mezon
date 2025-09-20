@@ -168,9 +168,7 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 	};
 
 	const isVoiceChannel = useMemo(() => {
-		return (
-			channelParent.channel_type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channelParent.channel_type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
-		);
+		return channelParent.channel_type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	}, [channelParent.channel_type]);
 
 	return (
