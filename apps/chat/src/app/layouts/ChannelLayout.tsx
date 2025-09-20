@@ -46,7 +46,6 @@ const ChannelLayout = () => {
 			onMouseDown={onMouseDown}
 			className={`flex flex-col ${openEmojiPanelOnTopic || subPanelActive !== SubPanelName.NONE || isFocusThreadBox ? 'z-20 relative' : 'z-0'} flex-1 shrink min-w-0 bg-transparent h-[100%] overflow-visible justify-end relative`}
 		>
-			(
 			<div
 				className={`flex flex-row ${closeMenu ? `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBarMobile' : 'h-heightWithoutTopBarMobile'}` : `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'}`} ${isChannelStream ? 'justify-center items-center mx-4' : ''}`}
 			>
@@ -63,7 +62,6 @@ const ChannelLayout = () => {
 					isShowCreateTopic={isShowCreateTopic}
 				/>
 			)}
-			)
 		</div>
 	);
 };
