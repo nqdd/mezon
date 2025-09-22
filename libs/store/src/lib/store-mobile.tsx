@@ -53,10 +53,10 @@ import { ERRORS_FEATURE_KEY, errorsReducer } from './errors/errors.slice';
 import { eventManagementReducer } from './eventManagement/eventManagement.slice';
 import { fcmReducer } from './fcm/fcm.slice';
 import { popupForwardReducer } from './forwardMessage/forwardMessage.slice';
+import { galleryReducer } from './gallery/gallery.slice';
 import { giveCoffeeReducer } from './giveCoffee/giveCoffee.slice';
 import { walletLedgerReducer } from './giveCoffee/historyTransaction.slice';
 import { EMBED_MESSAGE, embedReducer } from './messages/embedMessage.slice';
-import { notifiReactMessageReducer } from './notificationSetting/notificationReactMessage.slice';
 import { channelCategorySettingReducer, defaultNotificationCategoryReducer } from './notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingReducer } from './notificationSetting/notificationSettingChannel.slice';
 import { defaultNotificationClanReducer } from './notificationSetting/notificationSettingClan.slice';
@@ -406,6 +406,7 @@ const reducer = {
 	account: persistAccountReducer,
 	auth: persistedReducer,
 	attachments: attachmentReducer,
+	gallery: galleryReducer,
 	clans: persistedClansReducer,
 	channels: persistedChannelReducer,
 	channelmeta: persistedChannelMetaReducer,
