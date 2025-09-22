@@ -246,7 +246,7 @@ const TopicDiscussionBox = () => {
 				<div className={`relative ${isElectron() ? 'h-[calc(100%_-_50px_-_30px)]' : 'h-full'}`}>
 					<MemoizedChannelMessages
 						isPrivate={currentChannel?.channel_private}
-						channelId={currentChannelId as string}
+						channelId={currentTopicId as string}
 						clanId={currentClanId as string}
 						type={ChannelType.CHANNEL_TYPE_CHANNEL}
 						mode={mode}
