@@ -1,3 +1,4 @@
+import { useAuth } from '@mezon/core';
 import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
@@ -12,7 +13,6 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './styles';
-import { useAuth } from '@mezon/core';
 
 type LoginMode = 'otp' | 'password';
 
@@ -23,7 +23,8 @@ const LoginScreen = ({ navigation }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
-	const { t } = useTranslation('common');
+	const { t } = useTranslation(['common']);
+	const { t: tAccount } = useTranslation(['accountSetting']);
 	const dispatch = useAppDispatch();
 	const isValidEmail = (email: string) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,8 +33,27 @@ const LoginScreen = ({ navigation }) => {
 	const { authenticateEmailPassword } = useAuth();
 
 	const isEmailValid = isValidEmail(email);
-	const isPasswordValid = password.length > 0;
+	const isPasswordValid = password.length >= 8;
 	const isFormValid = loginMode === 'otp' ? isEmailValid : isEmailValid && isPasswordValid;
+
+	const validatePassword = (value: string) => {
+		if (value.length < 8) {
+			return tAccount('setPasswordAccount.error.characters');
+		}
+		if (!/[A-Z]/.test(value)) {
+			return tAccount('setPasswordAccount.error.uppercase');
+		}
+		if (!/[a-z]/.test(value)) {
+			return tAccount('setPasswordAccount.error.lowercase');
+		}
+		if (!/[0-9]/.test(value)) {
+			return tAccount('setPasswordAccount.error.number');
+		}
+		if (!/[^A-Za-z0-9]/.test(value)) {
+			return tAccount('setPasswordAccount.error.symbol');
+		}
+		return '';
+	};
 
 	const handleSendOTP = async () => {
 		try {
@@ -46,9 +66,11 @@ const LoginScreen = ({ navigation }) => {
 					navigation.navigate(APP_SCREEN.VERIFY_OTP, { email, reqId });
 				} else {
 					Toast.show({
-						type: 'error',
-						text1: 'Login Failed',
-						text2: resp?.error?.message || 'An error occurred while sending OTP'
+						type: 'success',
+						props: {
+							text2: resp?.error?.message || 'An error occurred while sending OTP',
+							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+						}
 					});
 				}
 				setIsLoading(false);
@@ -57,23 +79,49 @@ const LoginScreen = ({ navigation }) => {
 			setIsLoading(false);
 			console.error('Error sending OTP:', error);
 			Toast.show({
-				type: 'error',
-				text1: 'Login Failed',
-				text2: error?.message || 'An error occurred while sending OTP'
+				type: 'success',
+				props: {
+					text2: error?.message || 'An error occurred while sending OTP',
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+				}
 			});
 		}
 	};
 
 	const handlePasswordLogin = async () => {
+		const errorMsgPassword = validatePassword(password);
+
+		if (errorMsgPassword) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: errorMsgPassword,
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+				}
+			});
+			return;
+		}
 		if (isEmailValid && isPasswordValid) {
 			try {
 				const resp: any = await authenticateEmailPassword({ email, password });
-				console.log("log => handlePasswordLogin: ", resp);
-				console.log('Login with email:', email, 'and password', password);
+				if (!resp) {
+					Toast.show({
+						type: 'success',
+						props: {
+							text2: 'Login Failed! An error occurred during login',
+							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+						}
+					});
+				}
 			} catch (e) {
-				alert(e)
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: e?.message || 'Login Failed! An error occurred during login',
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					}
+				});
 			}
-			
 		}
 	};
 
@@ -87,7 +135,6 @@ const LoginScreen = ({ navigation }) => {
 
 	const handleSMSLogin = () => {
 		// Handle SMS login logic here
-		console.log('Login with SMS OTP');
 	};
 
 	const switchToPasswordMode = () => {
