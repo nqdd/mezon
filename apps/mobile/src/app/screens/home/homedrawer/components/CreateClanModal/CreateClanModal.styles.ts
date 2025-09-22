@@ -102,7 +102,8 @@ export const style = (colors: Attributes) =>
 			color: colors.textDisabled
 		},
 		overflowImage: {
-			overflow: 'hidden'
+			overflow: 'hidden',
+			borderRadius: size.s_100
 		},
 		image: {
 			width: '100%',

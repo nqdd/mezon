@@ -29,7 +29,9 @@
     },
     "detail": {
         "eventInfo": "Thông tin sự kiện",
-        "interested": "Quan tâm"
+        "interested": "Quan tâm",
+        "personInterested": "{{count}} người quan tâm",
+        "createdBy": "Được tạo bởi "
     },
     "share": {
         "title": "Chia sẻ sự kiện cho bạn bè",

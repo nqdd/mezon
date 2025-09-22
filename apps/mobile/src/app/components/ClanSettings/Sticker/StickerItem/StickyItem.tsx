@@ -108,7 +108,6 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 			renderRightActions={renderRightAction}
 			onSwipeableWillOpen={handleSwipeOpen}
 			enabled={hasDeleteOrEditPermission}
-			childrenContainerStyle={{ marginBottom: -size.s_10 }}
 		>
 			<View style={styles.container}>
 				<View style={styles.flexRow}>
