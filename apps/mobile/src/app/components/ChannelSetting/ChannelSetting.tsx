@@ -140,6 +140,20 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 		() =>
 			[
 				{
+					title: t('changeCategory.title'),
+					expandable: true,
+					icon: <MezonIconCDN icon={IconCDN.clipboardIcon} color={themeValue.text} />,
+					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP,
+					onPress: () => {
+						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
+							screen: APP_SCREEN.MENU_CHANNEL.CHANGE_CATEGORY,
+							params: {
+								channel
+							}
+						});
+					}
+				},
+				{
 					title: t('fields.channelPermission.permission'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.bravePermission} color={themeValue.text} />,
