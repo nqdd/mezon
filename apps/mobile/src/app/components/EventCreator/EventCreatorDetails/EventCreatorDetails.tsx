@@ -258,6 +258,8 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 								showHelpText
 								autoUpload
 								imageSizeLimit={MAX_FILE_SIZE_1MB}
+								imageHeight={400}
+								imageWidth={400}
 							/>
 						</View>
 					</View>

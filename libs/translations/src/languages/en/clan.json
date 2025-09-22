@@ -48,7 +48,10 @@
 		"agreement": "By creating a clan, you agree to Mezon's",
 		"communityGuidelines": "Community Guidelines",
 		"back": "Back",
-		"create": "Create"
+		"create": "Create",
+		"toast": {
+			"limitImageSize": "Image size must be less than {{size}}MB"
+		}
 	},
 	"limitModal": {
 		"title": "Limit Reached!",
