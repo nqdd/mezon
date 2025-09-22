@@ -38,7 +38,8 @@
 		"cancelFriendRequest": "Cancel Friend Request",
 		"copyUsername": "Copy Username",
 		"copiedUserName": "Copied {{username}}",
-		"removeFriend": "Remove Friend"
+		"removeFriend": "Remove Friend",
+		"viewFullProfile": "View Full Profile"
 	},
 	"userInfoDM": {
 		"menu": {

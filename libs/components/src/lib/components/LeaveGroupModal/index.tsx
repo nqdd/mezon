@@ -1,12 +1,5 @@
-import {
-	channelMembersActions,
-	directActions,
-	DirectEntity,
-	directMetaActions,
-	selectAllAccount,
-	selectDmGroupCurrentId,
-	useAppDispatch
-} from '@mezon/store';
+import type { DirectEntity } from '@mezon/store';
+import { channelMembersActions, directActions, directMetaActions, selectAllAccount, selectDmGroupCurrentId, useAppDispatch } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -56,9 +49,7 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 					<div className="text-xl font-semibold break-words whitespace-normal overflow-wrap-break-word">
 						{t('title', { groupName: groupWillBeLeave?.channel_label })}
 					</div>
-					<div className="text-lg break-all">
-						{t('confirmMessage', { groupName: groupWillBeLeave?.channel_label })}
-					</div>
+					<div className="text-lg break-all">{t('confirmMessage', { groupName: groupWillBeLeave?.channel_label })}</div>
 
 					<div className="flex items-center gap-[10px]">
 						<input
