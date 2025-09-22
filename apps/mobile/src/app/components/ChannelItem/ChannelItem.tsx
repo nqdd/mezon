@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelUsersEntity, clansActions, getStore, selectChannelById, selectCurrentClanId, useAppSelector } from '@mezon/store-mobile';
+import type { ChannelUsersEntity } from '@mezon/store-mobile';
+import { clansActions, getStore, selectChannelById, selectCurrentClanId, useAppSelector } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -52,9 +53,7 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 					</View>
 				</View>
 			) : null}
-			{[ChannelType.CHANNEL_TYPE_GMEET_VOICE, ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE].includes(
-				channelData?.type
-			) ? (
+			{[ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE].includes(channelData?.type) ? (
 				<View style={{ flexDirection: 'row', gap: size.s_10, alignItems: 'center', justifyContent: 'space-between' }}>
 					<View style={{ flexDirection: 'row', gap: size.s_10, alignItems: 'center' }}>
 						<IconChannel channelPrivate={channelData?.channel_private} type={channelData?.type} />

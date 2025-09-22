@@ -73,6 +73,7 @@ export const style = (colors: Attributes) =>
 		},
 		wrapperTabType: {
 			marginBottom: size.s_4,
+			gap: size.s_6,
 			padding: Metrics.size.m,
 			overflow: 'visible',
 			flexDirection: 'row',
@@ -85,10 +86,12 @@ export const style = (colors: Attributes) =>
 		},
 		itemTabType: {
 			overflow: 'visible',
-			paddingHorizontal: size.s_8,
 			paddingVertical: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
 			borderRadius: size.s_8,
-			borderWidth: 1
+			borderWidth: 1,
+			flexGrow: 1
 		},
 		badgeItemTabType: {
 			paddingHorizontal: size.s_2,

@@ -8,7 +8,7 @@ interface CopyButtonComponentProps {
 	disabled?: boolean;
 	duration?: number;
 	className?: string;
-	format?: 'text/plain' | 'text/html'; // mở rộng hỗ trợ định dạng
+	format?: 'text/plain' | 'text/html';
 	debug?: boolean;
 }
 

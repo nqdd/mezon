@@ -71,7 +71,7 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.gameControllerIcon} color={themeValue.text} />,
-			isShow: hasAdminPermission
+			isShow: hasAdminPermission || hasManageClanPermission
 		},
 		{
 			title: t('menu.settings.emoji'),

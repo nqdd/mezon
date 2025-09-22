@@ -133,8 +133,8 @@ export { default as PreCallInterface } from './components/GroupCall/PreCallInter
 export { CallControls } from './components/GroupCall/components/CallControls';
 export { CallStatus } from './components/GroupCall/components/CallStatus';
 
-export * from './components/ButtonSwich';
-export { default as ButtonCopy } from './components/ButtonSwich/CopyButtonComponent';
+export * from './components/ButtonSwitchCustom';
+export { default as ButtonCopy } from './components/ButtonSwitchCustom/CopyButtonComponent';
 export { default as CustomCookieConsent } from './components/CustomCookieConsent';
 export * from './components/DmCall';
 export { DmCallManager } from './components/DmCall/DmCallManager';

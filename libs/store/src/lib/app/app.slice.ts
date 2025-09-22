@@ -141,7 +141,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id
 				voiceActions.fetchVoiceChannelMembers({
 					clanId: currentClanId ?? '',
 					channelId: '',
-					channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+					channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 				})
 			);
 		}

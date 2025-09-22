@@ -1,7 +1,8 @@
 import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
 import { referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import React, { memo } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
@@ -41,12 +42,24 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingRight: verticalScale(20) }}>
+			<ScrollView
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				nestedScrollEnabled={true}
+				scrollEventThrottle={16}
+				bounces={false}
+				alwaysBounceHorizontal={false}
+				contentContainerStyle={{
+					paddingRight: verticalScale(20),
+					alignItems: 'center'
+				}}
+				style={{ flex: 1 }}
+			>
 				{attachmentFilteredByChannelId.files.map((attachment, index) => {
 					const isFile = !attachment?.filetype?.includes?.('video') && !attachment?.filetype?.includes?.('image');
 					const isVideo = attachment?.filetype?.includes?.('video');
 					return (
-						<View key={index + attachment.filename} style={styles.attachmentItem}>
+						<View key={`${index}_${attachment.filename}`} style={styles.attachmentItem}>
 							{isFile ? (
 								<AttachmentFilePreview attachment={attachment} />
 							) : (

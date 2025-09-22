@@ -314,8 +314,6 @@ const ChannelTopbarLabel = memo(
 						return <Icons.ThreadIcon />;
 					case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
 						return <Icons.Speaker />;
-					case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
-						return <Icons.Speaker />;
 					case ChannelType.CHANNEL_TYPE_STREAMING:
 						return <Icons.Stream />;
 					case ChannelType.CHANNEL_TYPE_APP:
@@ -330,8 +328,6 @@ const ChannelTopbarLabel = memo(
 				case ChannelType.CHANNEL_TYPE_THREAD:
 					return <Icons.ThreadIconLocker />;
 				case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
-					return <Icons.SpeakerLocked />;
-				case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
 					return <Icons.SpeakerLocked />;
 				case ChannelType.CHANNEL_TYPE_STREAMING:
 					return <Icons.Stream />;

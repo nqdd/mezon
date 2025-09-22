@@ -1,27 +1,40 @@
 {
-    "btn": {
-        "upload": "Upload Sticker",
-        "delete": "Delete"
-    },
-    "content": {
-        "description": "Add upto 250 custom stickers that anyone can use in this server.",
-        "requirements": "Upload Requirements",
-        "reqType": "•  Can be static (PNG) or animated (APNG, GIF).",
-        "reqDim": "•  Must be exactly 320 x 320 pixels.",
-        "reqSize": "•  No larger than 512KB.",
-        "available": "Sticker {{left}} SLOTS AVAILABLE"
-    },
-    "toast": {
-        "errorUpdating": "Error updating",
-        "errorSizeLimit": "Image size limit exceeded 512KB"
-    },
-    "empty": {
-        "tip": "TIP",
-        "voiceSticker": {
-            "title": "No sound effect found"
-        },
-        "sticker": {
-            "title": "No sticker found"
-        }
-    }
+	"btn": {
+		"upload": "Upload Sticker",
+		"delete": "Delete"
+	},
+	"modal": {
+		"uploadAFile": "Upload a file",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "File should be a PNG or GIF, 512KB max",
+		"preview": "Preview",
+		"file": "File",
+		"thisCannotBeEdited": "This cannot be edited",
+		"browse": "Browse",
+		"chooseAFile": "Choose a file",
+		"stickerName": "Sticker name",
+		"exCatHug": "Ex: cat_hug",
+		"thisIsForSale": "This is for sale",
+		"neverMind": "Never Mind"
+	},
+	"content": {
+		"description": "Add upto 250 custom stickers that anyone can use in this server.",
+		"requirements": "Upload Requirements",
+		"reqType": "•  Can be static (PNG) or animated (APNG, GIF).",
+		"reqDim": "•  Must be exactly 320 x 320 pixels.",
+		"reqSize": "•  No larger than 512KB.",
+		"available": "Sticker {{left}} SLOTS AVAILABLE"
+	},
+	"toast": {
+		"errorUpdating": "Error updating",
+		"errorSizeLimit": "Image size limit exceeded 512KB"
+	},
+	"empty": {
+		"tip": "TIP",
+		"voiceSticker": {
+			"title": "No sound effect found"
+		},
+		"sticker": {
+			"title": "No sticker found"
+		}
+	}
 }

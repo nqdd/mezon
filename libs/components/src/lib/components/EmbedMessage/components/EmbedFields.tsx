@@ -1,7 +1,6 @@
-import {
+import type {
 	AnimationComponent,
 	DatePickerComponent,
-	EMessageComponentType,
 	GridComponent,
 	IFieldEmbed,
 	InputComponent,
@@ -9,6 +8,7 @@ import {
 	RadioComponent,
 	SelectComponent
 } from '@mezon/utils';
+import { EMessageComponentType } from '@mezon/utils';
 import { useMemo } from 'react';
 import { MessageButton } from '../../MessageActionsPanel/components/MessageButton';
 import { MessageDatePicker } from '../../MessageActionsPanel/components/MessageDatePicker';
@@ -131,13 +131,13 @@ const InputEmbedByType = ({ messageId, senderId, component, max_options, channel
 		case EMessageComponentType.ANIMATION:
 			return (
 				<EmbedAnimation
-					url_image={component.component.url_image}
-					url_position={component.component.url_position}
-					pool={component.component.pool}
+					url_image={component.component?.url_image}
+					url_position={component.component?.url_position}
+					pool={component.component?.pool}
 					messageId={messageId}
-					duration={component.component.duration}
-					repeat={component.component.repeat}
-					isResult={component.component.isResult}
+					duration={component.component?.duration}
+					repeat={component.component?.repeat}
+					isResult={component.component?.isResult}
 					channelId={channelId}
 					observeIntersectionForLoading={observeIntersectionForLoading}
 				/>

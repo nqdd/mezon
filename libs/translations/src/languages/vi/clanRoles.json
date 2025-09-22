@@ -96,6 +96,7 @@
 		"removeIcon": "Xóa biểu tượng",
 		"edit": "Chỉnh sửa",
 		"view": "Xem",
-		"delete": "Xóa"
+		"delete": "Xóa",
+		"roleNameIsRequired": "Tên vai trò là bắt buộc"
 	}
 }
