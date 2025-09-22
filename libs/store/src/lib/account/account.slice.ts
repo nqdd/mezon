@@ -106,7 +106,7 @@ export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (
 
 		return response;
 	} catch (error) {
-		toast.error('Error: Something wrong try later.');
+		toast.error('Something wrong try later.');
 		throw error;
 	}
 });
@@ -119,7 +119,7 @@ export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: 
 
 		return response;
 	} catch (error) {
-		toast.error('Error: Something wrong try later.');
+		toast.error('Something wrong try later.');
 		throw error;
 	}
 });

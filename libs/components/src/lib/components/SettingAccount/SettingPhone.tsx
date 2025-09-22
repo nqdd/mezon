@@ -2,7 +2,7 @@ import { accountActions, useAppDispatch } from '@mezon/store';
 import { Button, FormError, Icons, Input, Menu } from '@mezon/ui';
 import type { LoadingStatus } from '@mezon/utils';
 import type { ChangeEvent, ClipboardEvent, Dispatch, KeyboardEvent, SetStateAction } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 
@@ -31,14 +31,6 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 	const dispatch = useAppDispatch();
 	const [otp, setOtp] = useState<string[]>(Array(6).fill(''));
 
-	const translatePasswordError = useCallback(
-		(errorCode: string) => {
-			if (!errorCode) return '';
-			return t(`setPhoneModal.error.${errorCode}`);
-		},
-		[t]
-	);
-
 	const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 	}, []);
@@ -50,46 +42,82 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 				setPhone(value);
 				setOpenConfirm(false);
 				setOtp(Array(6).fill(''));
+				setErrors({});
+				setCount(0);
 			}
 		},
 		[setPhone, country]
 	);
 
+	const handleSetOTP = (e: string[]) => {
+		setOtp(e);
+	};
+
 	const validatePhonePrefix = (value: string) => {
 		if (country === 'VN' && value.length === PREFIX_LENGHT_PHONE_NUMBER_VN) {
 			const vnPhoneRegex = /^(?:\+84|0)(?:3\d{8}|5\d{8}|7\d{8}|8\d{8}|9\d{8})$/;
-			if (!vnPhoneRegex.test(value)) {
-				return false;
+			if (vnPhoneRegex.test(value)) {
+				return true;
 			}
 		}
 		if (country === 'JP' && value.length >= PREFIX_LENGHT_PHONE_NUMBER_JP_US) {
 			const jpMobileRegex = /^(?:\+81|0)(?:70\d{8}|80\d{8}|90\d{8})$/;
-			if (!jpMobileRegex.test(value)) {
-				return false;
+			if (jpMobileRegex.test(value)) {
+				return true;
 			}
 		}
 		if (country === 'US' && value.length >= PREFIX_LENGHT_PHONE_NUMBER_JP_US) {
 			const usPhoneRegex = /^(?:\+1)?\d{10}$/;
-			if (!usPhoneRegex.test(value)) {
-				return false;
+			if (usPhoneRegex.test(value)) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	};
+	const [count, setCount] = useState(0);
+
+	useEffect(() => {
+		if (!openConfirm) return;
+
+		const timer = setInterval(() => {
+			setCount((prev) => {
+				if (prev <= 1) {
+					clearInterval(timer);
+					setErrors({
+						OTP: 'Invalid time OTP'
+					});
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+
+		return () => clearInterval(timer);
+	}, [openConfirm, count]);
+
+	useEffect(() => {
+		if (otp.join('').length === 6 && !errors.OTP) {
+			handleSendOTPChangePhone();
+		}
+	}, [otp, errors.OTP]);
 
 	const handleSendOTPChangePhone = async () => {
-		if (openConfirm && otp) {
+		if (otp && count > 0) {
+			if (otp.join('').length < 6) {
+				toast.warning(t('setPhoneModal.emptyOtp'));
+				return;
+			}
 			const validate = await dispatch(
 				accountActions.verifyPhone({
 					otp_code: otp.join(''),
 					req_id: validateOTP
 				})
-			);
+			).unwrap();
 			if (validate && onClose) {
 				toast.success(t('setPhoneModal.updatePhoneSuccess'));
 				onClose();
 			} else if (!validate) {
-				toast.success(t('setPhoneModal.updatePhoneFail'));
+				toast.error(t('setPhoneModal.updatePhoneFail'));
 			}
 
 			return;
@@ -104,6 +132,9 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 				})
 			).unwrap();
 			setOpenConfirm(true);
+			setErrors({});
+			setOtp(Array(6).fill(''));
+			setCount(5);
 			setValidateOTP(response.req_id);
 			return;
 		} else {
@@ -114,8 +145,7 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 			phone: t('setPhoneModal.invalidPhone')
 		});
 	};
-
-	const disabled = !!errors.phone || !!errors.OTP || isLoading === 'loading';
+	const disabled = count > 0 || !!errors.phone || isLoading === 'loading';
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
 			<div className="w-full max-w-md bg-white rounded-lg shadow-sm relative dark:bg-[#313338] dark:text-white ">
@@ -156,11 +186,11 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 						</div>
 						{openConfirm && (
 							<div className="space-y-2">
-								<OtpConfirm setOtp={setOtp} otp={otp} />
+								<OtpConfirm handleSetOTP={handleSetOTP} otp={otp} />
 							</div>
 						)}
 					</div>
-					<div className="p-6">
+					<div className="p-6 pt-2">
 						<Button
 							type="submit"
 							disabled={disabled}
@@ -175,8 +205,8 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 							{isLoading === 'loading'
 								? t('setPhoneModal.loading')
 								: openConfirm
-									? t('setPhoneModal.confirmOtp')
-									: submitButtonText || t('setPhoneModal.sendOTP')}
+									? `${t('setPhoneModal.resendOtp')} ${count ? `(${count})` : ''}`
+									: t('setPhoneModal.sendOTP')}
 						</Button>
 					</div>
 				</form>
@@ -185,15 +215,13 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 	);
 };
 
-const OtpConfirm = ({ otp, setOtp }: { otp: string[]; setOtp: Dispatch<SetStateAction<string[]>> }) => {
+const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
 	const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, ''); // chỉ số
 		if (value.length <= 1) {
 			const newOtp = [...otp];
 			newOtp[index] = value;
-			setOtp(newOtp);
-
-			// tự động focus ô tiếp theo
+			handleSetOTP(newOtp);
 			if (value && index < 5) {
 				const nextInput = document.getElementById(`otp-${index + 1}`);
 				nextInput?.focus();
@@ -217,7 +245,7 @@ const OtpConfirm = ({ otp, setOtp }: { otp: string[]; setOtp: Dispatch<SetStateA
 		for (let i = 0; i < 6; i++) {
 			newOtp[i] = pasteData[i] || '';
 		}
-		setOtp(newOtp);
+		handleSetOTP(newOtp);
 
 		// focus ô cuối có dữ liệu
 		const lastIndex = Math.min(pasteData.length - 1, 5);
@@ -226,21 +254,23 @@ const OtpConfirm = ({ otp, setOtp }: { otp: string[]; setOtp: Dispatch<SetStateA
 	};
 
 	return (
-		<div className="flex items-center justify-between gap-2">
-			{otp.map((digit, index) => (
-				<input
-					key={index}
-					id={`otp-${index}`}
-					type="text"
-					inputMode="numeric"
-					maxLength={1}
-					value={digit}
-					onChange={(e) => handleChange(index, e)}
-					onKeyDown={(e) => handleKeyDown(index, e)}
-					onPaste={handlePaste}
-					className="aspect-square rounded-md h-10 outline-none w-10 text-2xl text-center font-bold text-black"
-				/>
-			))}
+		<div className="flex flex-col">
+			<div className="flex items-center justify-between gap-2">
+				{otp.map((digit, index) => (
+					<input
+						key={index}
+						id={`otp-${index}`}
+						type="text"
+						inputMode="numeric"
+						maxLength={1}
+						value={digit}
+						onChange={(e) => handleChange(index, e)}
+						onKeyDown={(e) => handleKeyDown(index, e)}
+						onPaste={handlePaste}
+						className="aspect-square rounded-md h-10 outline-none w-10 text-2xl text-center font-bold text-black"
+					/>
+				))}
+			</div>
 		</div>
 	);
 };

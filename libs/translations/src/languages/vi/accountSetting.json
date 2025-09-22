@@ -64,7 +64,9 @@
 		"confirmOtp": "Xác nhận mã OTP",
 		"invalidPhone": "Số điện thoại không hợp lệ",
 		"updatePhoneSuccess": "Cập nhật số điện thoại thành công",
-		"updatePhoneFail": "Có lỗi xảy ra. Thử lại sau"
+		"updatePhoneFail": "Có lỗi xảy ra. Thử lại sau",
+		"emptyOtp": "Mã OTP không hợp lệ!",
+		"resendOtp": "Gửi lại mã OTP!"
 	},
 	"toast": {
 		"deleteAccount": {
