@@ -57,5 +57,17 @@
 			"success": "Xóa tài khoản thành công",
 			"error": "Bạn là chủ của clan"
 		}
+	},
+	"phoneNumberSetting": {
+		"title": "Số điện thoại",
+		"updatePhoneNumber": {
+			"newPhoneNumber": "Số điện thoại mới",
+			"nextButton": "Tiếp theo",
+			"removeButton": "Gỡ số điện thoại"
+		},
+		"verifyPhoneNumber": {
+			"description": "Nhập mã 6 chữ số mà chúng tôi đã gửi đến",
+			"verifyButton": "Xác nhận"
+		}
 	}
 }

@@ -45,6 +45,8 @@
 		"menu": "Danh mục",
 		"walletManagement": "Quản lý ví",
 		"setPassword": "Đặt mật khẩu",
-		"myQRCode": "Mã QR của tôi"
+		"myQRCode": "Mã QR của tôi",
+		"updatePhoneNumber": "Cập nhật số điện thoại",
+		"verifyPhoneNumber": "Xác thực số điện thoại"
 	}
 }

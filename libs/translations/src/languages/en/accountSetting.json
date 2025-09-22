@@ -57,5 +57,17 @@
 			"success": "Account deleted successfully",
 			"error": "You are the owner of the clan"
 		}
+	},
+	"phoneNumberSetting": {
+		"title": "Phone",
+		"updatePhoneNumber": {
+			"newPhoneNumber": "New Phone Number",
+			"nextButton": "Next",
+			"removeButton": "Remove Phone Number"
+		},
+		"verifyPhoneNumber": {
+			"description": "Enter the 6-digit code we sent to",
+			"verifyButton": "Verify"
+		}
 	}
 }

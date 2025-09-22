@@ -179,5 +179,8 @@ export enum IconCDN {
 	magicIcon = require('./iconPNG/magicIcon.png'),
 	transferOwnershipIcon = require('./iconPNG/transferOwnership.png'),
 	noSignalIcon = require('./iconPNG/noSignal.png'),
-	unlinkIcon = require('./iconPNG/unlinkIcon.png')
+	unlinkIcon = require('./iconPNG/unlinkIcon.png'),
+	vietnamFlagIcon = require('./iconPNG/vietnamFlagIcon.png'),
+	japanFlagIcon = require('./iconPNG/japanFlagIcon.png'),
+	usaFlagIcon = require('./iconPNG/usaFlagIcon.png')
 }

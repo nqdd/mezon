@@ -1,7 +1,9 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { sleep } from '@mezon/utils';
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { StyleProp, Text, TextInput, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { KeyboardType, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ErrorInput } from '../../components/ErrorInput';
 import { IconCDN } from '../../constants/icon_cdn';
 import { validInput } from '../../utils/validate';
@@ -29,6 +31,7 @@ interface IMezonInputProps {
 	isValid?: boolean;
 	defaultValue?: string;
 	forcusInput?: boolean;
+	keyboardType?: KeyboardType;
 }
 
 export default function MezonInput({
@@ -51,7 +54,8 @@ export default function MezonInput({
 	disabled = false,
 	isValid = true,
 	defaultValue = '',
-	forcusInput = false
+	forcusInput = false,
+	keyboardType = 'default'
 }: IMezonInputProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -122,6 +126,7 @@ export default function MezonInput({
 						onBlur={handleBlur}
 						editable={!disabled}
 						defaultValue={defaultValue}
+						keyboardType={keyboardType}
 					/>
 					{postfixIcon}
 
