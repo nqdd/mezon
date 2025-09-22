@@ -703,7 +703,7 @@ export const fetchChannels = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
 			const response = await fetchChannelsCached(thunkAPI.getState as () => RootState, mezon, 500, 1, clanId, channelType, Boolean(noCache));
-
+			const res = await mezon.client.listChannelDescs(mezon.session, 500, 1, '', clanId, channelType);
 			if (!response.channeldesc) {
 				return { channels: [], clanId };
 			}
