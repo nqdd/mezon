@@ -368,7 +368,7 @@ function ChannelMessages({
 						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
-						channelId={currentChannelId || channelId}
+						channelId={isTopicBox ? currentChannelId || channelId : channelId}
 						topicId={topicId}
 						mode={mode}
 						channelLabel={channelLabel}
