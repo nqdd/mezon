@@ -350,7 +350,7 @@ function ChannelMessages({
 				</DMMessageWrapper>
 			) : (
 				<ClanMessageWrapper
-					channelId={channelId}
+					channelId={currentChannelId || channelId}
 					isThreadBox={isThreadBox}
 					isTopicBox={isTopicBox}
 					userIdsFromThreadBox={userIdsFromThreadBox}
@@ -368,7 +368,7 @@ function ChannelMessages({
 						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
-						channelId={channelId}
+						channelId={currentChannelId || channelId}
 						topicId={topicId}
 						mode={mode}
 						channelLabel={channelLabel}
@@ -550,7 +550,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, user?.user?.id as string));
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
-		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, channelId));
+		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
 		const jumpToPresent = useAppSelector((state) => selectIsJumpingToPresent(state, channelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
 
