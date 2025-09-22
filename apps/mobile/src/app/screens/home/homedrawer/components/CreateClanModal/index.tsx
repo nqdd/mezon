@@ -1,11 +1,13 @@
 import { useClans } from '@mezon/core';
-import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD, save, setDefaultChannelLoader, STORAGE_CLAN_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, save, setDefaultChannelLoader, STORAGE_CLAN_ID } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { channelsActions, checkDuplicateNameClan, clansActions, getStoreAsync, selectCurrentChannel } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
+import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
+import MezonClanAvatar from 'apps/mobile/src/app/componentUI/MezonClanAvatar';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import type { CameraOptions } from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
@@ -80,8 +82,7 @@ const CreateClanModal = memo(() => {
 	const onOpen = async () => {
 		const options = {
 			durationLimit: 10000,
-			mediaType: 'photo',
-			quality: QUALITY_IMAGE_UPLOAD
+			mediaType: 'photo'
 		};
 
 		ImagePicker.launchImageLibrary(options as CameraOptions, async (response) => {
@@ -91,6 +92,13 @@ const CreateClanModal = memo(() => {
 				console.error('Camera Error: ', response.errorMessage);
 			} else {
 				const file = response.assets[0];
+				if (file?.fileSize && file?.fileSize > MAX_FILE_SIZE_1MB) {
+					Toast.show({
+						type: 'error',
+						text1: t('createClanModal.toast.limitImageSize', { size: MAX_FILE_SIZE_1MB / 1024 / 1024 })
+					});
+					return;
+				}
 				const fileData = await RNFS.readFile(file.uri, 'base64');
 				const fileFormat: IFile = {
 					uri: file?.uri,
@@ -138,7 +146,7 @@ const CreateClanModal = memo(() => {
 						</View>
 					) : (
 						<View style={[styles.uploadCreateClan, styles.overflowImage]}>
-							<Image source={{ uri: urlImage }} style={styles.image} />
+							<MezonClanAvatar image={urlImage} imageHeight={400} imageWidth={400} />
 						</View>
 					)}
 				</TouchableOpacity>
