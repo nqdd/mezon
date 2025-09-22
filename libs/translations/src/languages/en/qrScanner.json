@@ -13,5 +13,5 @@
 	"requestCameraPermission": "Request Camera Permission",
 	"myQRCode": "My QR code",
 	"selectPhotoWithQRCode": "Select a photo containing a QR code",
-	"qrCodeNotValid": "This QR code is not supported"
+	"qrCodeNotValid": "The QR code is not valid"
 }

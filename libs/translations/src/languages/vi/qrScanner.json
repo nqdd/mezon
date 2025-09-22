@@ -13,5 +13,5 @@
 	"requestCameraPermission": "Yêu cầu quyền truy cập máy ảnh",
 	"myQRCode": "Mã QR của tôi",
 	"selectPhotoWithQRCode": "Hãy chọn ảnh có chứa mã QR",
-	"qrCodeNotValid": "Mã QR này không được hỗ trợ"
+	"qrCodeNotValid": "Mã QR không hợp lệ"
 }
