@@ -1,9 +1,11 @@
 import { useFriends } from '@mezon/core';
-import { ChannelMembersEntity } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
 
 export const PopupFriend = ({ user, showPopupLeft }: { user: ChannelMembersEntity | null; showPopupLeft?: boolean }) => {
 	const { deleteFriend } = useFriends();
+	const { t } = useTranslation('userProfile');
 	return (
 		<div
 			className={`absolute top-0  rounded-lg bg-theme-surface shadow w-[165px] p-2 z-[1] ${showPopupLeft ? 'right-9' : 'sbm:left-9 right-9'}`}
@@ -13,7 +15,7 @@ export const PopupFriend = ({ user, showPopupLeft }: { user: ChannelMembersEntit
 				}
 			}}
 		>
-			<ItemPanel children="Remove Friend" />
+			<ItemPanel children={t('pendingContent.removeFriend')} />
 		</div>
 	);
 };
@@ -24,15 +26,16 @@ type PopupOptionProps = {
 };
 
 export const PopupOption = ({ showPopupLeft, isMe }: PopupOptionProps) => {
+	const { t } = useTranslation('userProfile');
 	return (
 		<div
 			className={`absolute top-0 dark:bg-bgProfileBody bg-gray-100 rounded-sm shadow w-[165px] p-2 z-[1] ${showPopupLeft ? 'right-9' : 'sbm:left-9 right-9'}`}
 		>
-			{!showPopupLeft && <ItemPanel children="View Full Profile" />}
+			{!showPopupLeft && <ItemPanel children={t('pendingContent.viewFullProfile')} />}
 			{!isMe && (
 				<>
-					<ItemPanel children="Block" danger />
-					<ItemPanel children="Report User Profile" danger />
+					<ItemPanel children={t('pendingContent.block')} danger />
+					<ItemPanel children={t('pendingContent.reportUserProfile')} danger />
 				</>
 			)}
 		</div>
