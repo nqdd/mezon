@@ -291,7 +291,7 @@ const ModalSendToken = ({
 					<ButtonLoading
 						className="flex-1 h-12 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 hover:text-white  text-white font-medium"
 						onClick={handleSendToken}
-						disabled={isButtonDisabled || !selectedUserId || token <= 0}
+						disabled={isButtonDisabled || !selectedUserId || token <= 0 || token > tokenInWallet}
 						label={t('buttons.sendTokens')}
 					/>
 				</div>
