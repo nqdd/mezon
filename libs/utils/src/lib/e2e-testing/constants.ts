@@ -138,6 +138,9 @@ export const DATA_E2E_IDENTIFIER = {
 					cancel: ''
 				}
 			},
+			limit_creation: {
+				title: ''
+			},
 			delete_category: {
 				button: {
 					delete: ''
