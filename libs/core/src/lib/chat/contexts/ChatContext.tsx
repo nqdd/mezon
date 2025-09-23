@@ -1440,13 +1440,40 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						navigate(`/chat/clans/${channelUpdated.clan_id}`);
 					}
 				}
-				dispatch(
-					listChannelRenderAction.updateChannelInListRender({
-						channelId: channelUpdated.channel_id,
-						clanId: channelUpdated.clan_id as string,
-						dataUpdate: { ...channelUpdated }
-					})
+
+				const channelExist = selectChannelByIdAndClanId(
+					store.getState() as unknown as RootState,
+					channelUpdated.clan_id as string,
+					channelUpdated.channel_id
 				);
+
+				if (channelExist) {
+					dispatch(
+						listChannelRenderAction.updateChannelInListRender({
+							channelId: channelUpdated.channel_id,
+							clanId: channelUpdated.clan_id as string,
+							dataUpdate: { ...channelUpdated }
+						})
+					);
+				} else {
+					dispatch(
+						channelsActions.add({
+							clanId: channelUpdated.clan_id as string,
+							channel: {
+								...channelUpdated,
+								active: 1,
+								id: channelUpdated.channel_id,
+								type: channelUpdated.channel_type
+							} as ChannelsEntity
+						})
+					);
+					dispatch(
+						listChannelRenderAction.addChannelToListRender({
+							...channelUpdated,
+							type: channelUpdated.channel_type
+						})
+					);
+				}
 				if (channelUpdated.channel_private !== undefined && channelUpdated.channel_private !== 0) {
 					const channel = { ...channelUpdated, type: channelUpdated.channel_type, id: channelUpdated.channel_id as string, clan_name: '' };
 					const cleanData: Record<string, string | number | boolean | string[]> = {};
