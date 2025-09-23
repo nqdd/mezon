@@ -70,7 +70,8 @@ export const directMetaSlice = createSlice({
 						id: payload.id,
 						sender_id: payload.sender_id,
 						timestamp_seconds: timestamp
-					}
+					},
+					lastSentTimestamp: timestamp
 				}
 			});
 

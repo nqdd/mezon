@@ -29,7 +29,6 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 		avatarMessageBoxDefault: {
 			width: '100%',
 			height: '100%',
-			borderRadius: size.s_50,
 			backgroundColor: colors.colorAvatarDefault,
 			justifyContent: 'center',
 			alignItems: 'center'

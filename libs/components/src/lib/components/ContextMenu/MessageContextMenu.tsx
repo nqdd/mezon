@@ -48,14 +48,13 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { ContextMenuItem, IMessageWithUser } from '@mezon/utils';
 import {
 	AMOUNT_TOKEN,
-	ContextMenuItem,
 	EEventAction,
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
 	FOR_10_MINUTES,
-	IMessageWithUser,
 	MenuBuilder,
 	ModeResponsive,
 	SHOW_POSITION,
@@ -72,7 +71,7 @@ import {
 	isPublicChannel
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -181,7 +180,7 @@ function MessageContextMenu({
 
 	const [canManageThread, canDeleteMessage, canSendMessage] = usePermissionChecker(
 		[EOverriddenPermission.manageThread, EOverriddenPermission.deleteMessage, EOverriddenPermission.sendMessage],
-		message?.channel_id ?? ''
+		currentChannel?.id ?? ''
 	);
 	const hasPermissionCreateTopic =
 		(canSendMessage && activeMode === ChannelStreamMode.STREAM_MODE_CHANNEL) ||
@@ -765,7 +764,12 @@ function MessageContextMenu({
 			});
 
 		builder.when(checkPos, (builder) => {
-			builder.addMenuItem('forwardMessage', t('forwardMessage'), () => handleForwardMessage(), <Icons.ForwardRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem(
+				'forwardMessage',
+				t('forwardMessage'),
+				() => handleForwardMessage(),
+				<Icons.ForwardRightClick defaultSize="w-4 h-4" />
+			);
 		});
 
 		isShowForwardAll &&

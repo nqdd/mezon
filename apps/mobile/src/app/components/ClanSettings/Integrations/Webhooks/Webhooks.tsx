@@ -182,11 +182,11 @@ const useWebhookDescription = (isClanIntegration: boolean, styles: any) => {
 
 		return (
 			<>
-				{baseDescription} &nbsp;
+				{baseDescription}&nbsp;
 				<Text style={styles.textLink} onPress={() => handleOpenDocs(CHANNEL_WEBHOOK_DOCS_URL)}>
 					{t('webhooks.learnMore')}
 				</Text>
-				&nbsp;or try&nbsp;
+				&nbsp;{t('webhooks.try')}&nbsp;
 				<Text style={styles.textLink} onPress={() => handleOpenDocs(CHANNEL_WEBHOOK_DOCS_URL)}>
 					{t('webhooks.buildOne')}
 				</Text>

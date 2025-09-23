@@ -26,6 +26,7 @@ type ModalSendTokenProps = {
 	};
 	infoSendToken?: ISendTokenDetailType | null;
 	isButtonDisabled: boolean;
+	tokenInWallet: number;
 };
 
 type User = {
@@ -49,7 +50,8 @@ const ModalSendToken = ({
 	note,
 	sendTokenInputsState,
 	infoSendToken,
-	isButtonDisabled
+	isButtonDisabled,
+	tokenInWallet
 }: ModalSendTokenProps) => {
 	const { t, i18n } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile.sendTokenModal' });
 	const usersClan = useSelector(selectAllUsersByUser);
@@ -77,6 +79,9 @@ const ModalSendToken = ({
 			setSearchTerm(name);
 			setIsDropdownOpen(false);
 			setSelectedUserId(id);
+			if (amountRef.current) {
+				amountRef.current.focus();
+			}
 		},
 		[setSelectedUserId]
 	);
@@ -185,13 +190,10 @@ const ModalSendToken = ({
 		const user = filteredUsers.find((user) => user.id === selectedUserId);
 		if (user) {
 			handleSelectUser(user.id, user.username);
-			if (amountRef.current) {
-				amountRef.current.focus();
-			}
 		}
 
 		setTokenNumber(formatNumber(Number(token), i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
-	}, [token, selectedUserId, filteredUsers, handleSelectUser, i18n.language]);
+	}, [token, i18n.language]);
 
 	const handleSendToken = () => {
 		const userData = mergedUsers.find((user) => user.id === selectedUserId);
@@ -261,6 +263,9 @@ const ModalSendToken = ({
 							</span>
 						</div>
 						{error && <p className="text-red-500 text-sm">{error}</p>}
+						{token > 0 && token > tokenInWallet && (
+							<p className="text-red-500 text-sm">Your amount exceeds wallet balance ({tokenInWallet.toLocaleString()} tokens)</p>
+						)}
 					</div>
 
 					<div className="space-y-3">
@@ -286,7 +291,7 @@ const ModalSendToken = ({
 					<ButtonLoading
 						className="flex-1 h-12 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 hover:text-white  text-white font-medium"
 						onClick={handleSendToken}
-						disabled={isButtonDisabled || !selectedUserId || token <= 0}
+						disabled={isButtonDisabled || !selectedUserId || token <= 0 || token > tokenInWallet}
 						label={t('buttons.sendTokens')}
 					/>
 				</div>

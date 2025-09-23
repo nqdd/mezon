@@ -327,7 +327,12 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 				</View>
 				<Text style={styles.textRecommend}>{t('webhooksEdit.recommendImage', { ns: 'clanIntegrationsSetting' })}</Text>
 			</View>
-			<MezonInput label={t('webhooksEdit.name', { ns: 'clanIntegrationsSetting' })} value={webhookName} onTextChange={handleChangeText} />
+			<MezonInput
+				titleStyle={styles.label}
+				label={t('webhooksEdit.name', { ns: 'clanIntegrationsSetting' })}
+				value={webhookName}
+				onTextChange={handleChangeText}
+			/>
 
 			{!isClanIntegration && <MezonMenu menu={menu} />}
 

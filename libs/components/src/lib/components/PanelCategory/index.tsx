@@ -1,14 +1,15 @@
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker, UserRestrictionZone } from '@mezon/core';
+import type { SetDefaultNotificationPayload } from '@mezon/store';
 import {
 	categoriesActions,
 	defaultNotificationCategoryActions,
 	selectCurrentClan,
 	selectDefaultNotificationCategory,
-	SetDefaultNotificationPayload,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
+import type { ICategoryChannel } from '@mezon/utils';
 import {
 	ACTIVE,
 	DEFAULT_ID,
@@ -19,13 +20,13 @@ import {
 	FOR_24_HOURS,
 	FOR_3_HOURS,
 	FOR_8_HOURS,
-	ICategoryChannel,
 	MUTE
 } from '@mezon/utils';
 import { format } from 'date-fns';
 import { NotificationType } from 'mezon-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Coords } from '../ChannelLink';
+import { useTranslation } from 'react-i18next';
+import type { Coords } from '../ChannelLink';
 import { notificationTypesList } from '../PanelChannel';
 import GroupPanels from '../PanelChannel/GroupPanels';
 import ItemPanel from '../PanelChannel/ItemPanel';
@@ -49,6 +50,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 	toggleCollapseCategory,
 	collapseCategory
 }) => {
+	const { t } = useTranslation('contextMenu');
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [positionTop, setPositionTop] = useState(false);
 	const [canManageCategory] = usePermissionChecker([EPermission.manageClan]);
@@ -106,7 +108,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 			category_id: category?.id,
 			notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
 			clan_id: currentClan?.clan_id || '',
-			active: active
+			active
 		};
 		dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 	};
@@ -120,7 +122,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 			if (muteTime > now) {
 				const timeDifference = muteTime.getTime() - now.getTime();
 				const formattedTimeDifference = format(muteTime, 'dd/MM, HH:mm');
-				setMuteUntil(`Muted until ${formattedTimeDifference}`);
+				setMuteUntil(t('mutedUntil', { time: formattedTimeDifference }));
 				setTimeout(() => {
 					const payload: SetDefaultNotificationPayload = {
 						category_id: category?.id,
@@ -161,20 +163,19 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel children="For 15 Minutes" onClick={() => handleScheduleMute(FOR_15_MINUTES)} />,
-			<ItemPanel children="For 1 Hour" onClick={() => handleScheduleMute(FOR_1_HOUR)} />,
-			<ItemPanel children="For 3 Hour" onClick={() => handleScheduleMute(FOR_3_HOURS)} />,
-			<ItemPanel children="For 8 Hour" onClick={() => handleScheduleMute(FOR_8_HOURS)} />,
-			<ItemPanel children="For 24 Hour" onClick={() => handleScheduleMute(FOR_24_HOURS)} />,
-			<ItemPanel children="Until I turn it back on" onClick={() => handleScheduleMute(Infinity)} />
+			<ItemPanel onClick={() => handleScheduleMute(FOR_15_MINUTES)}>{t('muteFor15Minutes')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_1_HOUR)}>{t('muteFor1Hour')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_3_HOURS)}>{t('muteFor3Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_8_HOURS)}>{t('muteFor8Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_24_HOURS)}>{t('muteFor24Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(Infinity)}>{t('muteUntilTurnedBack')}</ItemPanel>
 		];
 		return <>{menuItems}</>;
-	}, []);
+	}, [t]);
 
 	const menuNoti = useMemo(() => {
 		const menuItems = [
 			<ItemPanel
-				children="Use Clan Default"
 				type="radio"
 				name="NotificationSetting"
 				defaultNotifi={true}
@@ -183,25 +184,28 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 					defaultCategoryNotificationSetting?.notification_setting_type === ENotificationTypes.DEFAULT ||
 					defaultCategoryNotificationSetting?.notification_setting_type === undefined
 				}
-			/>
+			>
+				{t('useClanDefault')}
+			</ItemPanel>
 		];
 
 		notificationTypesList.map((notification) =>
 			menuItems.push(
 				<ItemPanel
-					children={notification.label}
 					notificationId={notification.value}
 					type="radio"
 					name="NotificationSetting"
 					key={notification.value}
 					onClick={() => handleChangeSettingType(notification.value)}
 					checked={defaultCategoryNotificationSetting?.notification_setting_type === notification.value}
-				/>
+				>
+					{notification.label}
+				</ItemPanel>
 			)
 		);
 
 		return <>{menuItems}</>;
-	}, [notificationTypesList]);
+	}, [notificationTypesList, defaultCategoryNotificationSetting?.notification_setting_type, t]);
 
 	const handleOpenMenuMute = useCallback((visible: boolean) => {
 		menuOpenMute.current = visible;
@@ -222,12 +226,14 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 					onClick={statusMarkAsReadCategory === 'pending' ? undefined : () => handleMarkAsReadCategory(category as ICategoryChannel)}
 					disabled={statusMarkAsReadCategory === 'pending'}
 				>
-					{statusMarkAsReadCategory === 'pending' ? 'Processing...' : 'Mark As Read'}
+					{statusMarkAsReadCategory === 'pending' ? t('processing') : t('markAsRead')}
 				</ItemPanel>
 			</GroupPanels>
 			<GroupPanels>
-				<ItemPanel children="Collapse Category" type={'checkbox'} checked={collapseCategory} onClick={toggleCollapseCategory} />
-				<ItemPanel children="Collapse All Categories" onClick={collapseAllCategory} />
+				<ItemPanel type={'checkbox'} checked={collapseCategory} onClick={toggleCollapseCategory}>
+					{t('collapseCategory')}
+				</ItemPanel>
+				<ItemPanel onClick={collapseAllCategory}>{t('collapseAllCategories')}</ItemPanel>
 			</GroupPanels>
 			<GroupPanels>
 				{defaultCategoryNotificationSetting?.active === ACTIVE || defaultCategoryNotificationSetting?.id === DEFAULT_ID ? (
@@ -241,11 +247,15 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 						onVisibleChange={handleOpenMenuMute}
 					>
 						<div>
-							<ItemPanel children={'Mute Category'} dropdown="change here" onClick={() => handleMuteCategory(MUTE)} />
+							<ItemPanel dropdown="change here" onClick={() => handleMuteCategory(MUTE)}>
+								{t('muteCategory')}
+							</ItemPanel>
 						</div>
 					</Menu>
 				) : (
-					<ItemPanel children={'Unmute Category'} onClick={() => handleMuteCategory(ACTIVE)} subText={muteUntil} />
+					<ItemPanel onClick={() => handleMuteCategory(ACTIVE)} subText={muteUntil}>
+						{t('unmuteCategory')}
+					</ItemPanel>
 				)}
 
 				<Menu
@@ -258,15 +268,19 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 					className=" bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 				>
 					<div>
-						<ItemPanel children="Notification Settings" dropdown="change here" />
+						<ItemPanel dropdown="change here">{t('notificationSettings')}</ItemPanel>
 					</div>
 				</Menu>
 			</GroupPanels>
 
 			<UserRestrictionZone policy={canManageCategory}>
 				<GroupPanels>
-					<ItemPanel children={'Edit Category'} onClick={openEditCategory} />
-					{!category?.channels?.length && <ItemPanel children={'Delete Category'} onClick={handleDeleteCategory} danger />}
+					<ItemPanel onClick={openEditCategory}>{t('editCategory')}</ItemPanel>
+					{!category?.channels?.length && (
+						<ItemPanel onClick={handleDeleteCategory} danger>
+							{t('deleteCategory')}
+						</ItemPanel>
+					)}
 				</GroupPanels>
 			</UserRestrictionZone>
 		</div>

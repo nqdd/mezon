@@ -1,7 +1,7 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuth, useCheckOwnerForUser } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	IUpdateChannelRequest,
 	appActions,
@@ -96,6 +96,7 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 
 				const currentChannelPrivate = isPublic ? 1 : 0;
 				const updateUpdateChannelRequest: ApiChangeChannelPrivateRequest = {
+					clan_id: channel?.clan_id,
 					channel_id: channel?.channel_id || '',
 					channel_private: currentChannelPrivate,
 					user_ids: [userId],

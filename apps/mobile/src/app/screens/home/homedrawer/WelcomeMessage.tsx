@@ -7,6 +7,7 @@ import {
 	EStateFriend,
 	friendsActions,
 	getStoreAsync,
+	selectChannelById,
 	selectDmGroupCurrent,
 	selectFriendById,
 	selectMemberClanByUserId,
@@ -29,7 +30,7 @@ interface IWelcomeMessage {
 }
 
 const useCurrentChannel = (channelId: string) => {
-	const channel = useAppSelector((state) => selectMemberClanByUserId(state, channelId));
+	const channel = useAppSelector((state) => selectChannelById(state, channelId));
 	const dmGroup = useAppSelector(selectDmGroupCurrent(channelId));
 	return channel || dmGroup;
 };
