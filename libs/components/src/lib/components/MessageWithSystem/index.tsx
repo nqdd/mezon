@@ -47,8 +47,8 @@ function MessageWithSystem({
 					className={'fullBoxText relative group'}
 				>
 					<div
-						data-e2e={generateE2eId('chat.system_message', message?.code.toString())}
 						className={`flex items-start min-h-8 relative w-full px-3 text-theme-primary pt-2 pl-5 ${isCustom ? 'pb-2' : ''}`}
+						data-e2e={generateE2eId('chat.system_message', message?.code.toString())}
 					>
 						{message?.code === TypeMessage.Welcome && <Icons.WelcomeIcon defaultSize="size-8 flex-shrink-0" />}
 						{message?.code === TypeMessage.UpcomingEvent && <Icons.UpcomingEventIcon defaultSize="size-8 flex-shrink-0" />}
@@ -120,12 +120,12 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
 	};
 	return (
 		<div
-			data-e2e={generateE2eId('chat.system_message')}
 			className={`message-list-item ${_isSearchMessage ? 'w-full' : ''}  relative message-container  ${className || ''}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 			onContextMenu={onContextMenu}
 			id={`msg-${messageId}`}
+			data-e2e={generateE2eId('chat.system_message')}
 		>
 			{children}
 			{isHover && popup && popup()}

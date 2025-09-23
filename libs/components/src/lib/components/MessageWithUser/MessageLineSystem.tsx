@@ -148,21 +148,21 @@ const RenderContentSystem = ({ message, data, mode, isSearchMessage, isJumMessag
 				{content}{' '}
 				{message.code === TypeMessage.CreatePin && (
 					<>
-						pinned{' '}
+						{translateMessage('systemMessages.pinned')}{' '}
 						<span
 							onClick={getIdMessageToJump}
-							data-e2e={generateE2eId('chat.system_message.pin_message.button.jump_to_message')}
 							className="font-semibold cursor-pointer hover:underline"
+							data-e2e={generateE2eId('chat.system_message.pin_message.button.jump_to_message')}
 						>
-							a message
+							{translateMessage('systemMessages.aMessage')}
 						</span>{' '}
-						to this channel. See{' '}
+						{translateMessage('systemMessages.toThisChannel')}{' '}
 						<span
 							onClick={handleShowPinMessage}
 							className="font-semibold cursor-pointer hover:underline"
 							data-e2e={generateE2eId('chat.system_message.pin_message.button.see_all_pinned')}
 						>
-							all pinned
+							{translateMessage('systemMessages.allPinned')}
 						</span>{' '}
 						{translateMessage('systemMessages.messages')}
 					</>
