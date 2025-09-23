@@ -1,5 +1,6 @@
 import { channelsActions, messagesActions, pinMessageActions, threadsActions, useAppDispatch } from '@mezon/store';
-import { ETokenMessage, IExtendedMessage, IMessageWithUser, TypeMessage, convertTimeStringI18n, parseThreadInfo } from '@mezon/utils';
+import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
+import { ETokenMessage, TypeMessage, convertTimeStringI18n, generateE2eId, parseThreadInfo } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -148,11 +149,19 @@ const RenderContentSystem = ({ message, data, mode, isSearchMessage, isJumMessag
 				{message.code === TypeMessage.CreatePin && (
 					<>
 						{translateMessage('systemMessages.pinned')}{' '}
-						<span onClick={getIdMessageToJump} className="font-semibold cursor-pointer hover:underline">
+						<span
+							onClick={getIdMessageToJump}
+							className="font-semibold cursor-pointer hover:underline"
+							data-e2e={generateE2eId('chat.system_message.pin_message.button.jump_to_message')}
+						>
 							{translateMessage('systemMessages.aMessage')}
 						</span>{' '}
 						{translateMessage('systemMessages.toThisChannel')}{' '}
-						<span onClick={handleShowPinMessage} className="font-semibold cursor-pointer hover:underline">
+						<span
+							onClick={handleShowPinMessage}
+							className="font-semibold cursor-pointer hover:underline"
+							data-e2e={generateE2eId('chat.system_message.pin_message.button.see_all_pinned')}
+						>
 							{translateMessage('systemMessages.allPinned')}
 						</span>{' '}
 						{translateMessage('systemMessages.messages')}
