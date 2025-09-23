@@ -1,4 +1,4 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -30,7 +30,7 @@ export const style = (colors: Attributes) =>
 			elevation: 5
 		},
 		stickyNewButtonText: {
-			color: colors.text,
+			color: baseColor.white,
 			fontWeight: 'bold',
 			fontSize: size.s_16,
 			textAlign: 'center'
