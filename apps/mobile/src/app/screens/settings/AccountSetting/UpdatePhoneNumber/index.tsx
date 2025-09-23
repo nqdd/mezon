@@ -4,6 +4,7 @@ import { accountActions, useAppDispatch } from '@mezon/store-mobile';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import MezonButton from '../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
@@ -65,29 +66,27 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 	);
 
 	const handleAddPhoneNumber = useCallback(async () => {
-		const fullPhoneNumber = `${selectedCountry.prefix}364300445`;
-
+		const fullPhoneNumber = `${selectedCountry.prefix}${phoneNumber}`;
 		try {
 			const response = await dispatch(accountActions.addPhoneNumber({ phone_number: fullPhoneNumber }));
+			const requestId = response?.payload?.req_id;
 
-			// if (response?.meta?.requestStatus === 'fulfilled' && response?.payload?.req_id) {
-			navigation.navigate('ROUTES.SETTINGS.VERIFY_PHONE_NUMBER', {
-				phoneNumber: fullPhoneNumber,
-				requestId: response?.payload?.req_id
-			});
-			resetState();
-			// } else if (response?.meta?.requestStatus === 'rejected' || !response?.payload?.req_id) {
-			// 	Toast.show({
-			// 		type: 'error',
-			// 		text1: t('phoneNumberSetting.updatePhoneNumber.failed')
-			// 	});
-			// }
+			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
+				navigation.navigate('ROUTES.SETTINGS.VERIFY_PHONE_NUMBER', {
+					phoneNumber: fullPhoneNumber,
+					requestId
+				});
+				resetState();
+			} else if (response?.meta?.requestStatus === 'rejected' || !requestId) {
+				Toast.show({
+					type: 'error',
+					text1: t('phoneNumberSetting.updatePhoneNumber.failed')
+				});
+			}
 		} catch (error) {
 			console.error('Error add phone number: ', error);
 		}
 	}, [selectedCountry.prefix, phoneNumber, t]);
-
-	console.log('re-render');
 
 	const handleRemovePhoneNumber = useCallback(() => {}, []);
 
