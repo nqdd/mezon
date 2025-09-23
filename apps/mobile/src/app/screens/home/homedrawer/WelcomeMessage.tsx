@@ -32,7 +32,7 @@ interface IWelcomeMessage {
 const useCurrentChannel = (channelId: string) => {
 	const channel = useAppSelector((state) => selectChannelById(state, channelId));
 	const dmGroup = useAppSelector(selectDmGroupCurrent(channelId));
-	return channel || dmGroup;
+	return dmGroup || channel;
 };
 
 const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
@@ -72,14 +72,14 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 	}, [currenChannel?.type]);
 
 	const stackUsers = useMemo(() => {
-		const username = currenChannel?.category_name?.split(',');
+		const username = currenChannel?.usernames;
 		if (!isDMGroup) return [];
 
 		const allUsers =
-			currenChannel?.channel_avatar?.map((avatar) => {
+			currenChannel?.channel_avatar?.map((avatar, index) => {
 				return {
 					avatarUrl: avatar,
-					username: username?.shift() || 'Anonymous'
+					username: username?.[index] || 'Anonymous'
 				};
 			}) || [];
 
@@ -232,7 +232,6 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 						</Text>
 					)}
 
-					{/* TODO: Mutual server */}
 					{!isDMGroup && !isBlockedByUser && (
 						<View style={styles.friendActions}>
 							{infoFriend?.state !== EStateFriend.BLOCK &&
