@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import { useWebRTCStream } from '../../../../../components/StreamContext/StreamContext';
 import StreamingRoom from '../StreamingRoom';
 
-const MINIMIZED_WIDTH = size.s_83 * 2;
+const MINIMIZED_WIDTH = size.s_80 * 2;
 const MINIMIZED_HEIGHT = size.s_100;
 
 const StreamingPopup = () => {
