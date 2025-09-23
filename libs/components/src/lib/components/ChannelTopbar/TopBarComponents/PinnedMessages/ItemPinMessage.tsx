@@ -71,7 +71,7 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 	return (
 		<div
 			key={pinMessage.id}
-			data-e2e={generateE2eId('common.pin_message', `msg-${pinMessage.id}`)}
+			data-e2e={generateE2eId('common.pin_message')}
 			className="relative flex flex-row justify-between  py-3 px-3 mx-2 w-widthPinMess cursor-default rounded overflow-hidden border-theme-primary bg-item-theme group/item-pinMess"
 		>
 			<div className="flex items-start gap-2 w-full ">
@@ -118,10 +118,15 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 				</div>
 			</div>
 			<div className="absolute h-fit flex gap-x-2 items-center opacity-0 right-2 top-2 group-hover/item-pinMess:opacity-100">
-				<button onClick={handleJumpMess} className="text-xs border-theme-primary rounded-lg p-1 h-fit text-theme-primary-hover">
+				<button
+					data-e2e={generateE2eId('common.pin_message.button.jump')}
+					onClick={handleJumpMess}
+					className="text-xs border-theme-primary rounded-lg p-1 h-fit text-theme-primary-hover"
+				>
 					Jump
 				</button>
 				<button
+					data-e2e={generateE2eId('common.pin_message.button.remove_pin')}
 					className=" mr-1 bg-theme-input bg-secondary-button-hover text-theme-primary-hover rounded-full w-6 h-6 items-center justify-center text-[10px] px-3 py-2 flex"
 					onClick={handleUnpinConfirm}
 				>

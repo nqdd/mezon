@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import type { MessagesEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { TypeMessage, addMention, convertDateStringI18n } from '@mezon/utils';
+import { TypeMessage, addMention, convertDateStringI18n, generateE2eId } from '@mezon/utils';
 import type { ReactNode } from 'react';
 import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +46,10 @@ function MessageWithSystem({
 					messageId={message?.id}
 					className={'fullBoxText relative group'}
 				>
-					<div className={`flex items-start min-h-8 relative w-full px-3 text-theme-primary pt-2 pl-5 ${isCustom ? 'pb-2' : ''}`}>
+					<div
+						data-e2e={generateE2eId('chat.system_message', message?.code.toString())}
+						className={`flex items-start min-h-8 relative w-full px-3 text-theme-primary pt-2 pl-5 ${isCustom ? 'pb-2' : ''}`}
+					>
 						{message?.code === TypeMessage.Welcome && <Icons.WelcomeIcon defaultSize="size-8 flex-shrink-0" />}
 						{message?.code === TypeMessage.UpcomingEvent && <Icons.UpcomingEventIcon defaultSize="size-8 flex-shrink-0" />}
 						{message?.code === TypeMessage.CreateThread && <Icons.ThreadIcon defaultSize="size-6 flex-shrink-0" />}
@@ -117,6 +120,7 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
 	};
 	return (
 		<div
+			data-e2e={generateE2eId('chat.system_message')}
 			className={`message-list-item ${_isSearchMessage ? 'w-full' : ''}  relative message-container  ${className || ''}`}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
