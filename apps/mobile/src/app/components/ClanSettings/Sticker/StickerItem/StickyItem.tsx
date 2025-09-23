@@ -53,9 +53,9 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 		);
 	};
 
-	const handleSwipeOpen = () => {
+	const handleSwipeOpen = useCallback(() => {
 		onSwipeOpen(data);
-	};
+	}, []);
 
 	const handleDeleteSticker = useCallback(async () => {
 		if (data.id) {
@@ -103,12 +103,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 	}, [sticker, stickerName]);
 
 	return (
-		<Swipeable
-			ref={ref}
-			renderRightActions={renderRightAction}
-			onSwipeableWillOpen={handleSwipeOpen}
-			enabled={hasDeleteOrEditPermission}
-		>
+		<Swipeable ref={ref} renderRightActions={renderRightAction} onSwipeableWillOpen={handleSwipeOpen} enabled={hasDeleteOrEditPermission}>
 			<View style={styles.container}>
 				<View style={styles.flexRow}>
 					<FastImage
@@ -129,7 +124,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 
 				<View style={[styles.flexRow, { justifyContent: 'flex-end' }]}>
 					<Text style={styles.text} numberOfLines={1}>
-						{user?.user?.username}
+						{user?.clan_nick || user?.user?.display_name || user?.user?.username}
 					</Text>
 					<MezonAvatar height={size.s_30} width={size.s_30} avatarUrl={user?.user?.avatar_url} username={user?.user?.username} />
 				</View>
