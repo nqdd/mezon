@@ -29,7 +29,9 @@
     },
     "detail": {
         "eventInfo": "Event Info",
-        "interested": "Interested"
+        "interested": "Interested",
+        "personInterested": "{{count}} person is interested",
+        "createdBy": "Created by "
     },
     "share": {
         "title": "Share Event to friends",

@@ -38,7 +38,8 @@
 		"cancelFriendRequest": "Hủy yêu cầu kết bạn",
 		"copyUsername": "Sao chép tên người dùng",
 		"copiedUserName": "Đã sao chép {{username}}",
-		"removeFriend": "Hủy kết bạn"
+		"removeFriend": "Hủy kết bạn",
+		"viewFullProfile": "Xem hồ sơ đầy đủ"
 	},
 	"userInfoDM": {
 		"menu": {
