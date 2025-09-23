@@ -1,17 +1,9 @@
-import {
-	getFirstMessageOfTopic,
-	selectLastSeenMessageStateByChannelId,
-	selectMemberClanByUserId,
-	threadsActions,
-	topicsActions,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import { getFirstMessageOfTopic, selectMemberClanByUserId, threadsActions, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
 import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, isValidEmojiData } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { MessageLine } from './MessageLine';
 
@@ -61,19 +53,6 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const dispatch = useAppDispatch();
 	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, message?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
-	const lastSeenMessageOfTopic = useAppSelector((state) => selectLastSeenMessageStateByChannelId(state, message?.content?.tp as string));
-	const userLastSeenInfo = useAppSelector((state) => selectMemberClanByUserId(state, lastSeenMessageOfTopic?.sender_id as string));
-
-	const lastSeenMessageText = useMemo(() => {
-		const raw = lastSeenMessageOfTopic?.content as unknown as string | { t?: string } | undefined;
-		if (!raw) return '';
-		try {
-			const parsed = typeof raw === 'string' ? (safeJSONParse(raw) as { t?: string }) : raw;
-			return typeof parsed?.t === 'string' ? parsed.t : '';
-		} catch (e) {
-			return typeof raw === 'string' ? raw : '';
-		}
-	}, [lastSeenMessageOfTopic?.content]);
 
 	const handleOpenTopic = useCallback(() => {
 		dispatch(topicsActions.setIsShowCreateTopic(true));
@@ -97,11 +76,6 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 				/>
 				<div className="font-semibold text-blue-500 group-hover:underline group-hover:decoration-solid flex-shrink-0">Creator</div>
 				<p className="flex-shrink-0">View topic</p>
-				{lastSeenMessageText && (
-					<p className="text-sm truncate whitespace-nowrap min-w-0 flex-1">
-						{` ${userLastSeenInfo?.user?.username} 👉 ${lastSeenMessageText}`}
-					</p>
-				)}
 			</div>
 			<Icons.ArrowRight className="flex-shrink-0" />
 		</div>
