@@ -23,7 +23,6 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 						}
 					}}
 					className={`mt-5 py-[20px] px-[16px] flex justify-between items-center border-theme-primary rounded-lg bg-item-theme ${allClanWebhooks?.length !== 0 ? 'cursor-pointer' : ''}`}
-					data-e2e={generateE2eId('clan_page.settings.integrations.create_clan_webhook_button')}
 				>
 					<div className="flex gap-4 max-sm:gap-0 max-sbm:w-[40%] items-center">
 						<Icons.WebhooksIcon />
@@ -37,6 +36,7 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 						<div
 							onClick={setIsOpenClanWebhooks}
 							className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
+							data-e2e={generateE2eId('clan_page.settings.integrations.create_clan_webhook_button')}
 						>
 							{t('createClanWebhook')}
 						</div>
