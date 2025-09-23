@@ -130,7 +130,11 @@
 		"enterEmailToLogin": "Nhập email của bạn để đăng nhập",
 		"passwordNotSet": "Mật khẩu chưa được đặt?",
 		"loginWithOTP": "Đăng nhập bằng OTP",
-		"login": "Đăng nhập"
+		"login": "Đăng nhập",
+		"enterPhoneToLogin": "Nhập số điện thoại của bạn để đăng nhập",
+		"phone": "Số điện thoại",
+		"invalidPhone": "Số điện thoại không hợp lệ",
+		"sendToPhone": "Gửi OTP đến số điện thoại của bạn"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",

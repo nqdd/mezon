@@ -2,8 +2,9 @@ import { useAuth } from '@mezon/core';
 import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
+import { useMezon } from '@mezon/transport';
 import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -14,11 +15,12 @@ import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './styles';
 
-type LoginMode = 'otp' | 'password';
+type LoginMode = 'otp' | 'password' | 'sms';
 
 const LoginScreen = ({ navigation }) => {
 	const styles = style();
 	const [email, setEmail] = useState('');
+	const [phone, setPhone] = useState('');
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -30,11 +32,26 @@ const LoginScreen = ({ navigation }) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return emailRegex.test(email);
 	};
+	const isValidPhone = (phone: string) => {
+		const phoneRegex = /^[+]?[\d\s-()]{10,15}$/;
+		return phoneRegex.test(phone.replace(/\s|-|\(|\)/g, ''));
+	};
 	const { authenticateEmailPassword } = useAuth();
-
+	const { clientRef } = useMezon();
 	const isEmailValid = isValidEmail(email);
+	const isPhoneValid = isValidPhone(phone);
 	const isPasswordValid = password.length >= 8;
-	const isFormValid = loginMode === 'otp' ? isEmailValid : isEmailValid && isPasswordValid;
+	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isPhoneValid : isEmailValid && isPasswordValid;
+
+	const onLoadInit = async () => {
+		if (clientRef?.current && clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST) {
+			clientRef.current.setBasePath(process.env.NX_CHAT_APP_API_GW_HOST, process.env.NX_CHAT_APP_API_GW_PORT, true);
+		}
+	};
+
+	useEffect(() => {
+		onLoadInit();
+	}, []);
 
 	const validatePassword = (value: string) => {
 		if (value.length < 8) {
@@ -88,6 +105,26 @@ const LoginScreen = ({ navigation }) => {
 		}
 	};
 
+	const handleSendPhoneOTP = async () => {
+		try {
+			if (isPhoneValid) {
+				setIsLoading(true);
+				// todo: add more logic
+				setIsLoading(false);
+			}
+		} catch (error) {
+			setIsLoading(false);
+			console.error('Error sending phone OTP:', error);
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: error?.message || 'An error occurred while sending OTP',
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+				}
+			});
+		}
+	};
+
 	const handlePasswordLogin = async () => {
 		const errorMsgPassword = validatePassword(password);
 
@@ -128,13 +165,15 @@ const LoginScreen = ({ navigation }) => {
 	const handlePrimaryAction = () => {
 		if (loginMode === 'otp') {
 			handleSendOTP();
+		} else if (loginMode === 'sms') {
+			handleSendPhoneOTP();
 		} else {
 			handlePasswordLogin();
 		}
 	};
 
 	const handleSMSLogin = () => {
-		// Handle SMS login logic here
+		setLoginMode('sms');
 	};
 
 	const switchToPasswordMode = () => {
@@ -165,17 +204,37 @@ const LoginScreen = ({ navigation }) => {
 					<Text style={styles.subtitle}>{t('login.gladToMeetAgain')}</Text>
 
 					<View style={styles.inputSection}>
-						<Text style={styles.inputLabel}>{loginMode === 'otp' ? t('login.enterEmail') : t('login.enterEmailToLogin')}</Text>
-						<TextInput
-							style={styles.emailInput}
-							placeholder={t('login.emailAddress')}
-							placeholderTextColor={styles.placeholder.color}
-							value={email}
-							onChangeText={setEmail}
-							keyboardType="email-address"
-							autoCapitalize="none"
-							autoCorrect={false}
-						/>
+						<Text style={styles.inputLabel}>
+							{loginMode === 'otp'
+								? t('login.enterEmail')
+								: loginMode === 'sms'
+									? t('login.enterPhoneToLogin')
+									: t('login.enterEmailToLogin')}
+						</Text>
+						{loginMode === 'otp' && (
+							<TextInput
+								style={styles.emailInput}
+								placeholder={t('login.emailAddress')}
+								placeholderTextColor={styles.placeholder.color}
+								value={email}
+								onChangeText={setEmail}
+								keyboardType="email-address"
+								autoCapitalize="none"
+								autoCorrect={false}
+							/>
+						)}
+						{loginMode === 'sms' && (
+							<TextInput
+								style={styles.emailInput}
+								placeholder={t('login.phone')}
+								placeholderTextColor={styles.placeholder.color}
+								value={phone}
+								onChangeText={setPhone}
+								keyboardType={'phone-pad'}
+								autoCapitalize="none"
+								autoCorrect={false}
+							/>
+						)}
 					</View>
 
 					{loginMode === 'password' && (
@@ -216,7 +275,9 @@ const LoginScreen = ({ navigation }) => {
 						{isLoading ? (
 							<ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
 						) : (
-							<Text style={[styles.otpButtonText]}>{loginMode === 'otp' ? t('login.send') : t('login.login')}</Text>
+							<Text style={[styles.otpButtonText]}>
+								{loginMode === 'otp' || loginMode === 'sms' ? t('login.send') : t('login.login')}
+							</Text>
 						)}
 					</TouchableOpacity>
 
