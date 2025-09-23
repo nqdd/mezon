@@ -377,7 +377,8 @@ export const handleFCMToken = async (): Promise<string | undefined> => {
 export const isShowNotification = (
 	currentChannelId: string | undefined,
 	currentDmId: string | undefined,
-	remoteMessage: FirebaseMessagingTypes.RemoteMessage
+	remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean }
 ): boolean => {
 	try {
 		if (!validateNotificationData(remoteMessage?.data)) {
@@ -397,14 +398,15 @@ export const isShowNotification = (
 
 		const areOnChannel = currentChannelId === channelMessageId;
 		const areOnDirectMessage = currentDmId === directMessageId;
+		const isViewingChannel = !!options?.isViewingChannel;
+		const isViewingDirectMessage = !!options?.isViewingDirectMessage;
 
-		if (areOnChannel && currentDmId) {
-			return true;
-		}
+		// If currently viewing DM but notification is for a channel the user has open in background
+		if (areOnChannel && currentDmId) return true;
 
-		if ((channelMessageId && areOnChannel) || (directMessageId && areOnDirectMessage)) {
-			return false;
-		}
+		// Suppress only when user is actively on the same destination screen
+		if (channelMessageId && areOnChannel && isViewingChannel) return false;
+		if (directMessageId && areOnDirectMessage && isViewingDirectMessage) return false;
 
 		return true;
 	} catch (error) {
