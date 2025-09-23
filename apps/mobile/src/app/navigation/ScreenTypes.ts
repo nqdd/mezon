@@ -18,6 +18,7 @@ export const APP_SCREEN = {
 	LOGIN: 'LOGIN',
 	REGISTER: 'REGISTER',
 	APP_BROWSER: 'APP_BROWSER',
+	VERIFY_OTP: 'VERIFY_OTP',
 
 	AUTHORIZE: 'AUTHORIZE',
 	BOTTOM_BAR: 'BOTTOM_BAR',
@@ -332,6 +333,7 @@ type ChannelAppParamList = {
 export type AppStackParamList = {
 	[APP_SCREEN.UN_AUTHORIZE]: undefined;
 	[APP_SCREEN.LOGIN]: undefined;
+	[APP_SCREEN.VERIFY_OTP]: undefined;
 	[APP_SCREEN.REGISTER]: undefined;
 	[APP_SCREEN.APP_BROWSER]: { url: string; title?: string };
 	[APP_SCREEN.AUTHORIZE]: undefined;
