@@ -25,7 +25,7 @@ const ButtonLoading: React.FC<ButtonProps> = ({ onClick, label, className = '', 
 	};
 
 	return (
-		<Button {...rest} onClick={handleClick} disabled={disabled || loading} className={className} >
+		<Button {...rest} onClick={handleClick} disabled={disabled || loading} className={className}>
 			{loading ? <Icons.IconLoadingTyping bgFill="mx-auto" /> : label}
 		</Button>
 	);

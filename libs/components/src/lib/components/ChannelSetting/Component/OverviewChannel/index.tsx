@@ -210,6 +210,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		setE2eeInit(isE2ee);
 
 		const updateChannel = {
+			clan_id: currentChannel.clan_id,
 			channel_id: currentChannel.channel_id || '',
 			channel_label: updatedChannelLabel,
 			category_id: currentChannel.category_id,

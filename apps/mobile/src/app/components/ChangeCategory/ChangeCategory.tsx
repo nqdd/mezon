@@ -28,6 +28,7 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 			}
 		}
 		const updateChannel = {
+			clan_id: channel?.clan_id,
 			category_id: category.id,
 			channel_id: channel?.channel_id ?? '',
 			channel_label: channel?.channel_label,

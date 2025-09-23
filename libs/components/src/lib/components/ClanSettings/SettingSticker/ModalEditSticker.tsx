@@ -236,12 +236,12 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						const newFile = new File([blob], 'blurred-watermarked.png', { type: 'image/png' });
 						resolve(newFile);
 					} else {
-						reject(new Error('Không thể chuyển canvas thành file.'));
+						reject(new Error('Cannot convert canvas to file'));
 					}
 				}, 'image/png');
 			};
 
-			img.onerror = () => reject(new Error('Không thể load ảnh.'));
+			img.onerror = () => reject(new Error('Cannot load image'));
 		});
 	}
 
@@ -340,7 +340,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						</Button>
 						<ButtonLoading
 							className="px-2 py-1 h-9 min-w-fit btn-primary btn-primary-hover rounded-lg"
-							label={(isSticker ? tStickerNs : tEmojiNs)('btn.upload')}
+							label={isSticker ? tStickerNs('btn.upload') : tEmojiNs('button.upload')}
 							disabled={validateSaveChange}
 							onClick={onSaveChange}
 						/>
