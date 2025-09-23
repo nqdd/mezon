@@ -1514,7 +1514,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(listChannelsByUserActions.upsertOne({ id: channelUpdated.channel_id, ...channelUpdated }));
 				}
 				if (channelUpdated.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
-					dispatch(channelsActions.addThreadToChannels({ clanId: channelUpdated.clan_id, channelId: channelUpdated.channel_id }));
+					dispatch(
+						channelsActions.upsertOne({
+							clanId: channelUpdated.clan_id as string,
+							channel: { ...channelUpdated, active: 1, id: channelUpdated.channel_id } as ChannelsEntity
+						})
+					);
 				}
 			}
 		},
