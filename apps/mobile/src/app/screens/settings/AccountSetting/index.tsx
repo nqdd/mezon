@@ -171,6 +171,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			},
 			{
 				title: t('phoneNumberSetting.title'),
+				description: '+84397327708',
 				type: EAccountSettingType.PhoneNumber
 			}
 		];

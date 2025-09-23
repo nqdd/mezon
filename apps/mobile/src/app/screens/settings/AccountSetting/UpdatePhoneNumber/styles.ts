@@ -1,5 +1,5 @@
 import type { Attributes } from '@mezon/mobile-ui';
-import { size } from '@mezon/mobile-ui';
+import { Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (themeValue: Attributes) =>
@@ -94,5 +94,8 @@ export const style = (themeValue: Attributes) =>
 			fontSize: size.s_14,
 			fontWeight: '600',
 			color: themeValue.text
+		},
+		errorInput: {
+			paddingHorizontal: Metrics.size.m
 		}
 	});

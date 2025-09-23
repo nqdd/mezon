@@ -1,11 +1,13 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { useTheme } from '@mezon/mobile-ui';
+import { accountActions, useAppDispatch } from '@mezon/store-mobile';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import MezonButton from '../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
+import { ErrorInput } from '../../../../components/ErrorInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import { style } from './styles';
 
@@ -28,27 +30,64 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation('accountSetting');
 	const styles = style(themeValue);
+	const dispatch = useAppDispatch();
 
 	const [selectedCountry, setSelectedCountry] = useState<ICountry>(countries[0]);
 	const [phoneNumber, setPhoneNumber] = useState<string>('');
 	const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
+	const [isValidPhoneNumber, setIsValidPhoneNumber] = useState<boolean | null>(null);
+
+	const resetState = () => {
+		setIsShowDropdown(false);
+	};
 
 	const handleCountrySelect = (country: ICountry) => {
 		setSelectedCountry(country);
 		setIsShowDropdown(false);
 	};
 
-	const toggleShowCountryDropdown = useCallback(() => {
+	const toggleShowCountryDropdown = () => {
 		setIsShowDropdown(!isShowDropdown);
-	}, [isShowDropdown]);
+	};
 
-	const handleAddPhoneNumber = useCallback(() => {
-		// Navigate to verify phone number screen for testing
-		const fullPhoneNumber = selectedCountry.prefix + phoneNumber;
-		navigation.navigate('ROUTES.SETTINGS.VERIFY_PHONE_NUMBER', {
-			phoneNumber: fullPhoneNumber
-		});
-	}, [selectedCountry, phoneNumber]);
+	const checkValidPhoneNumber = useCallback((phoneNum: string) => {
+		if (phoneNum.length === 0) return null;
+		if (phoneNum.length < 7) return false;
+		return /^\d+$/.test(phoneNum);
+	}, []);
+
+	const handlePhoneNumberChange = useCallback(
+		(value: string) => {
+			setPhoneNumber(value);
+			setIsValidPhoneNumber(checkValidPhoneNumber(value));
+		},
+		[checkValidPhoneNumber]
+	);
+
+	const handleAddPhoneNumber = useCallback(async () => {
+		const fullPhoneNumber = `${selectedCountry.prefix}364300445`;
+
+		try {
+			const response = await dispatch(accountActions.addPhoneNumber({ phone_number: fullPhoneNumber }));
+
+			// if (response?.meta?.requestStatus === 'fulfilled' && response?.payload?.req_id) {
+			navigation.navigate('ROUTES.SETTINGS.VERIFY_PHONE_NUMBER', {
+				phoneNumber: fullPhoneNumber,
+				requestId: response?.payload?.req_id
+			});
+			resetState();
+			// } else if (response?.meta?.requestStatus === 'rejected' || !response?.payload?.req_id) {
+			// 	Toast.show({
+			// 		type: 'error',
+			// 		text1: t('phoneNumberSetting.updatePhoneNumber.failed')
+			// 	});
+			// }
+		} catch (error) {
+			console.error('Error add phone number: ', error);
+		}
+	}, [selectedCountry.prefix, phoneNumber, t]);
+
+	console.log('re-render');
 
 	const handleRemovePhoneNumber = useCallback(() => {}, []);
 
@@ -88,13 +127,17 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 					<View style={{ flex: 1 }}>
 						<MezonInput
 							value={phoneNumber}
-							onTextChange={setPhoneNumber}
+							onTextChange={handlePhoneNumberChange}
 							inputStyle={styles.input}
 							inputWrapperStyle={styles.inputWrapper}
 							keyboardType="phone-pad"
 						/>
 					</View>
 				</View>
+
+				{isValidPhoneNumber === false && (
+					<ErrorInput errorMessage={t('phoneNumberSetting.updatePhoneNumber.invalidPhoneNumber')} style={styles.errorInput} />
+				)}
 
 				{isShowDropdown && renderCountrySelectDropdown()}
 			</View>
@@ -104,8 +147,8 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 					titleStyle={[styles.buttonTitle, { color: 'white' }]}
 					title={t('phoneNumberSetting.updatePhoneNumber.nextButton')}
 					onPress={handleAddPhoneNumber}
-					containerStyle={[styles.nextButton, phoneNumber ? styles.nextButtonActive : {}]}
-					disabled={!phoneNumber}
+					containerStyle={[styles.nextButton, isValidPhoneNumber ? styles.nextButtonActive : {}]}
+					disabled={!isValidPhoneNumber}
 				/>
 
 				<MezonButton

@@ -63,11 +63,15 @@
 		"updatePhoneNumber": {
 			"newPhoneNumber": "Số điện thoại mới",
 			"nextButton": "Tiếp theo",
-			"removeButton": "Gỡ số điện thoại"
+			"removeButton": "Gỡ số điện thoại",
+			"failed": "Cập nhật số điện thoại thất bại",
+			"invalidPhoneNumber": "Số điện thoại không hợp lệ"
 		},
 		"verifyPhoneNumber": {
 			"description": "Nhập mã 6 chữ số mà chúng tôi đã gửi đến",
-			"verifyButton": "Xác nhận"
+			"verifyButton": "Xác nhận",
+			"success": "Cập nhật số điện thoại thành công",
+			"failed": "Mã OTP không đúng"
 		}
 	}
 }
