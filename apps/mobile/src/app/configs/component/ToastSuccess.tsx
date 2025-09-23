@@ -36,6 +36,7 @@ export const ToastSuccess = memo((props: ToastConfigParams<any>) => {
 			]}
 			text1={data?.text1}
 			text2={data?.text2}
+			text2NumberOfLines={2}
 			renderLeadingIcon={() => <WrapperIcon>{data?.leadingIcon}</WrapperIcon>}
 			renderTrailingIcon={() => <WrapperIcon>{data?.trailingIcon}</WrapperIcon>}
 		/>

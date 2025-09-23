@@ -61,7 +61,7 @@ export const style = (colors: Attributes) =>
 		},
 		emojiItem: {
 			flexDirection: 'row',
-			width: 'auto',
+			width: '50%',
 			alignItems: 'center',
 			flexGrow: 0,
 			gap: size.s_10,
@@ -86,6 +86,6 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'flex-end',
 			flex: 1,
-			maxWidth: '70%'
+			width: '50%'
 		}
 	});
