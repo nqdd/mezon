@@ -100,6 +100,7 @@ export const fetchThreadsCached = async (
 			time: channelData.cache?.lastFetched || Date.now()
 		};
 	}
+	console.log('clanId: ', clanId);
 	const response = await mezon.client.listThreadDescs(mezon.session, channelId, LIMIT, 0, clanId, threadId, page);
 	markApiFirstCalled(apiKey);
 
@@ -118,6 +119,7 @@ const updateCacheOnThreadCreation = createAsyncThunk(
 	) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			console.log('Delete');
 			const threads = await fetchThreadsCached(thunkAPI.getState as () => RootState, mezon, channelId, clanId, undefined, undefined);
 
 			return mapToThreadEntity((threads.channeldesc as ApiChannelDescription[]) || []);
@@ -137,6 +139,7 @@ const mapToThreadEntity = (threads: ApiChannelDescription[]) => {
 export const fetchThreads = createAsyncThunk('threads/fetchThreads', async ({ channelId, clanId, noCache, page }: FetchThreadsArgs, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		console.log('Here');
 		const response = await fetchThreadsCached(thunkAPI.getState as () => RootState, mezon, channelId, clanId, undefined, page, Boolean(noCache));
 
 		if (!response.channeldesc || response.fromCache) {
@@ -190,6 +193,7 @@ export const searchedThreads = createAsyncThunk('threads/searchThreads', async (
 export const fetchThread = createAsyncThunk('threads/fetchThread', async ({ channelId, clanId, threadId, noCache }: FetchThreadsArgs, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		console.log('Fetch Thread');
 		const response = await fetchThreadsCached(
 			thunkAPI.getState as () => RootState,
 			mezon,
