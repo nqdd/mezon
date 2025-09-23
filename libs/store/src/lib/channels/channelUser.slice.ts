@@ -1,9 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { IChannelUser, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ChannelDescription, ChannelType } from 'mezon-js';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
+import type { IChannelUser, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ChannelDescription } from 'mezon-js';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
 
 export const LIST_CHANNELS_USER_FEATURE_KEY = 'listchannelbyusers';
 
@@ -189,7 +192,7 @@ export const listChannelsByUserSlice = createSlice({
 			const updateList = action.payload.map((id) => {
 				const last_sent_message = state.entities[id]?.last_sent_message;
 				return {
-					id: id,
+					id,
 					changes: {
 						count_mess_unread: 0,
 						last_seen_message: {
@@ -279,10 +282,6 @@ export const getChannelsByUserState = (rootState: { [LIST_CHANNELS_USER_FEATURE_
 
 export const selectAllChannelsByUser = createSelector(getChannelsByUserState, selectAll);
 export const selectEntitiesChannelsByUser = createSelector(getChannelsByUserState, selectEntities);
-
-export const selectGmeetVoice = createSelector(selectAllChannelsByUser, (hashtags) =>
-	hashtags.filter((hashtag) => hashtag.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE)
-);
 
 export const selectAllInfoChannels = createSelector(selectAllChannelsByUser, (channels = []) =>
 	channels?.map(({ channel_id, channel_label, channel_private, clan_name, clan_id, type, parent_id, meeting_code, id }) => ({

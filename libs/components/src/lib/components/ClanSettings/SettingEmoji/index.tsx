@@ -43,6 +43,8 @@ const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) =
 		<>
 			<div className="flex flex-col gap-3 pb-[40px] 0 text-sm">
 				<div className={'flex flex-col gap-2'}>
+					<p className="font-bold text-xs uppercase text-theme-primary-active">{t('emoji.uploadInstructions')}</p>
+
 					<p className={''}>{t('emoji.description')}</p>
 					<p className={'uppercase text-xs'}>{t('emoji.uploadRequirements')}</p>
 					<ul className={'list-disc ml-[16px]'}>

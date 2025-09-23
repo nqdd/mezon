@@ -1,13 +1,17 @@
 import { captureSentryError } from '@mezon/logger';
-import { IRolesClan, LoadingStatus, UsersClanEntity } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUpdateRoleRequest } from 'mezon-js';
-import { ApiRole, ApiRoleListEventResponse, ApiUpdateRoleOrderRequest, RoleUserListRoleUser } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { IRolesClan, LoadingStatus, UsersClanEntity } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUpdateRoleRequest } from 'mezon-js';
+import type { ApiRole, ApiRoleListEventResponse, ApiUpdateRoleOrderRequest, RoleUserListRoleUser } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { selectEntitesUserClans } from '../clanMembers/clan.members';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { PermissionUserEntity, selectAllPermissionsDefaultEntities } from '../policies/policies.slice';
-import { RootState } from '../store';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { PermissionUserEntity } from '../policies/policies.slice';
+import { selectAllPermissionsDefaultEntities } from '../policies/policies.slice';
+import type { RootState } from '../store';
 
 export const ROLES_CLAN_FEATURE_KEY = 'rolesclan';
 export const ROLE_FEATURE_KEY = 'roleId';
@@ -150,7 +154,7 @@ export const fetchRolesClan = createAsyncThunk(
 				.map(mapRolesClanToEntity);
 
 			const payload: FetchRoleClanPayload = {
-				roles: roles,
+				roles,
 				clanId: clanId || '',
 				fromCache: !!response?.fromCache
 			};
@@ -180,7 +184,7 @@ export const fetchMembersRole = createAsyncThunk('MembersRole/fetchMembersRole',
 		}
 		return {
 			roleID: roleId,
-			clanId: clanId,
+			clanId,
 			members: response.role_users
 		} as FetchReturnMembersRole & { clanId: string };
 	} catch (error) {
@@ -397,7 +401,7 @@ export const RolesClanSlice = createSlice({
 
 			RolesClanAdapter.updateOne(state, {
 				id: role.id || '',
-				changes: changes
+				changes
 			});
 		},
 		setAll: (state, action: PayloadAction<{ roles: RolesClanEntity[]; clanId: string }>) => {
@@ -552,6 +556,7 @@ export type RoleState = {
 	removePermissions: string[];
 	removeMemberRoles: string[];
 	currentRoleIcon: string;
+	newRoleIcon: string;
 };
 
 const roleStateInitialState: RoleState = {
@@ -563,7 +568,8 @@ const roleStateInitialState: RoleState = {
 	addMemberRoles: [],
 	removePermissions: [],
 	removeMemberRoles: [],
-	currentRoleIcon: ''
+	currentRoleIcon: '',
+	newRoleIcon: ''
 };
 
 export const roleSlice = createSlice({
@@ -596,6 +602,9 @@ export const roleSlice = createSlice({
 		},
 		setCurrentRoleIcon: (state, action) => {
 			state.currentRoleIcon = action.payload;
+		},
+		setNewRoleIcon: (state, action) => {
+			state.newRoleIcon = action.payload;
 		}
 	}
 });
@@ -611,7 +620,8 @@ export const {
 	setRemovePermissions,
 	setRemoveMemberRoles,
 	setSelectedPermissions,
-	setCurrentRoleIcon
+	setCurrentRoleIcon,
+	setNewRoleIcon
 } = roleSlice.actions;
 
 export const getRoleState = (rootState: { [ROLE_FEATURE_KEY]: RoleState }): RoleState => rootState[ROLE_FEATURE_KEY];
@@ -630,6 +640,8 @@ export const getNewAddMembers = (state: RootState) => state.roleId.addMemberRole
 export const getRemovePermissions = (state: RootState) => state.roleId.removePermissions;
 
 export const getRemoveMemberRoles = (state: RootState) => state.roleId.removeMemberRoles;
+
+export const getNewRoleIcon = (state: RootState) => state.roleId.newRoleIcon;
 
 export const selectCurrentRoleIcon = createSelector(getRoleState, (state) => state.currentRoleIcon);
 

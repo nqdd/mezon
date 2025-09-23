@@ -315,6 +315,8 @@ export const ChatBoxBottomBar = memo(
 			}
 		}, []);
 		const handleTextInputChange = async (text: string) => {
+			if (isShowOptionPaste) setIsShowOptionPaste(false);
+
 			const store = getStore();
 			if (text?.length > MIN_THRESHOLD_CHARS) {
 				if (convertRef.current) {
@@ -585,6 +587,7 @@ export const ChatBoxBottomBar = memo(
 
 		const handleInputBlur = () => {
 			chatMessageLeftAreaRef.current?.setAttachControlVisibility(false);
+			setIsShowOptionPaste(false);
 			if (modeKeyBoardBottomSheet === 'text') {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false,
@@ -638,15 +641,25 @@ export const ChatBoxBottomBar = memo(
 
 		const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 		const isLongPressed = useRef(false);
+		const isDoublePressed = useRef(false);
 		const [isShowOptionPaste, setIsShowOptionPaste] = useState(false);
+		const lastTap = useRef<number>(0);
+		const DOUBLE_TAP_DELAY = 1000;
+		const LONG_PRESS_DELAY = 400;
 
 		const handlePressIn = () => {
 			isLongPressed.current = false;
+			const now = Date.now();
+
+			if (now - lastTap.current < DOUBLE_TAP_DELAY && Platform.OS === 'ios') {
+				isDoublePressed.current = true;
+				lastTap.current = 0;
+			}
 
 			longPressTimer.current = setTimeout(() => {
 				isLongPressed.current = true;
 				onLongPress();
-			}, 500);
+			}, LONG_PRESS_DELAY);
 		};
 
 		const handlePressOut = () => {
@@ -659,21 +672,37 @@ export const ChatBoxBottomBar = memo(
 				onRegularPress();
 			}
 
+			if (isDoublePressed.current) {
+				handleDoubleTap();
+				isDoublePressed.current = false;
+				lastTap.current = 0;
+			} else {
+				lastTap.current = Date.now();
+			}
+
 			isLongPressed.current = false;
 		};
 
 		const onLongPress = async () => {
+			const isHasImage = await checkClipboardForImage();
+			setIsShowOptionPaste(isHasImage);
+		};
+
+		const onRegularPress = () => {
+			setIsShowOptionPaste(false);
+		};
+
+		const checkClipboardForImage = async (): Promise<boolean> => {
 			try {
 				if (Platform.OS === 'ios') {
 					const isHasImage = await Clipboard.hasImage();
-					if (!isHasImage) return;
+					if (!isHasImage) return false;
 				}
 				const imageUri = await Clipboard.getImage();
 				if (imageUri?.startsWith('data:image/')) {
 					const base64Data = imageUri.split(',')?.[1];
 					if (base64Data?.length > 10) {
-						setIsShowOptionPaste(true);
-						return;
+						return true;
 					}
 				}
 
@@ -682,21 +711,23 @@ export const ChatBoxBottomBar = memo(
 				if (
 					clipboardText?.startsWith('content://') &&
 					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
-				) {
-					setIsShowOptionPaste(true);
-					return;
-				}
-
-				// No image found, don't show tooltip
-				setIsShowOptionPaste(false);
+				)
+					return true;
 			} catch (error) {
 				console.error('Error checking clipboard for images:', error);
-				setIsShowOptionPaste(false);
+				return false;
 			}
 		};
 
-		const onRegularPress = () => {
-			setIsShowOptionPaste(false);
+		const handleDoubleTap = async () => {
+			try {
+				const hasImage = await checkClipboardForImage();
+				if (hasImage && Platform.OS === 'ios') {
+					setIsShowOptionPaste(true);
+				}
+			} catch (error) {
+				console.error('Error handling double tap:', error);
+			}
 		};
 
 		return (

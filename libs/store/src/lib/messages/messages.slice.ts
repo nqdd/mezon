@@ -192,7 +192,7 @@ export const fetchMessagesCached = async (
 	const state = getState();
 
 	let foundClan: boolean = clanId === '0' || !!selectClanById(clanId)(state);
-	if (foundClan) {
+	if (!foundClan) {
 		if (dispatch && clanId !== '0') {
 			const res = await dispatch(clansActions.fetchClans({ noCache: true })).unwrap();
 			foundClan = res?.clans?.some((item) => item.id === clanId) ?? false;
@@ -363,7 +363,6 @@ export const fetchMessages = createAsyncThunk(
 
 			if (isFetchingLatestMessages) {
 				thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
-				// thunkAPI.dispatch(messagesActions.setIsViewingOlderMessages({ channelId: chlId, isViewing: false }));
 			}
 
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
@@ -1068,10 +1067,7 @@ export const messagesSlice = createSlice({
 			// reset first message
 			state.firstMessageId[channelId] = null;
 		},
-		setIsViewingOlderMessages: (state, action: PayloadAction<{ channelId: string; isViewing: boolean }>) => {
-			const { channelId, isViewing } = action.payload;
-			state.isViewingOlderMessagesByChannelId[channelId] = isViewing;
-		},
+
 		setFirstMessageId: (state, action: PayloadAction<{ channelId: string; firstMessageId: string | null }>) => {
 			state.firstMessageId[action.payload.channelId] = action.payload.firstMessageId;
 		},

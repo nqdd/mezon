@@ -1,9 +1,9 @@
 {
   "deleteRole": {
-    "title": "XÓA VAI TRÒ",
-    "message": "Bạn có chắc chắn muốn xóa vai trò mới không? Hành động này không thể hoàn tác",
-    "confirm": "Xóa",
-    "cancel": "Hủy"
+		"title": "XÓA VAI TRÒ",
+		"message": "Bạn có chắc chắn muốn xóa vai trò này không? Hành động này không thể hoàn tác",
+		"confirm": "Xóa",
+		"cancel": "Hủy"
   },
   "common": {
     "areYouSure": "Bạn có chắc chắn?",

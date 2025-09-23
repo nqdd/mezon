@@ -63,7 +63,7 @@ export function WebhooksItem({ webhook, isClanIntegration, isClanSetting }: { we
 						})}
 					</Text>
 				</View>
-				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} />
+				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.text} />
 			</View>
 		</TouchableOpacity>
 	);

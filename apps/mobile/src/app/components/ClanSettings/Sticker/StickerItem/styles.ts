@@ -10,7 +10,6 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			backgroundColor: colors.primary,
 			paddingBottom: size.s_2,
-			marginBottom: size.s_12,
 			borderBottomColor: colors.border,
 			borderBottomWidth: 1,
 			paddingHorizontal: size.s_20,

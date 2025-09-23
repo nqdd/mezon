@@ -1,16 +1,11 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { Attributes, baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	ChannelsEntity,
-	RootState,
-	getStore,
-	selectAllChannelMembers,
-	selectAllUserClans,
-	selectChannelsEntities,
-	selectHashtagDmEntities
-} from '@mezon/store-mobile';
-import { EBacktickType, ETokenMessage, IExtendedMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
-import { TFunction } from 'i18next';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity, RootState } from '@mezon/store-mobile';
+import { getStore, selectAllChannelMembers, selectAllUserClans, selectChannelsEntities, selectHashtagDmEntities } from '@mezon/store-mobile';
+import type { IExtendedMessage } from '@mezon/utils';
+import { EBacktickType, ETokenMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
+import type { TFunction } from 'i18next';
 import { ChannelType } from 'mezon-js';
 import { useCallback } from 'react';
 import { DeviceEventEmitter, Linking, StyleSheet, Text, View } from 'react-native';
@@ -253,7 +248,7 @@ export function extractIds(url: string): { clanId: string | null; channelId: str
 }
 
 const renderChannelIcon = (channelType: number, channelId: string, themeValue: Attributes) => {
-	if (channelType === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+	if (channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 		return <CustomIcon name="voice" size={size.s_14} color={baseColor.link} style={{ marginTop: size.s_10 }} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_THREAD) {

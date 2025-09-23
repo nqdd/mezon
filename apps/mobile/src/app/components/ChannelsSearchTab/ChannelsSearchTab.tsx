@@ -1,6 +1,6 @@
 import { ChannelTypeHeader } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelUsersEntity } from '@mezon/store-mobile';
+import type { ChannelUsersEntity } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +18,7 @@ export const ChannelsSearchTab = ({ listChannelSearch }: ChannelsSearchTabProps)
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const listVoiceChannel = useMemo(
-		() =>
-			listChannelSearch?.filter(
-				(channel) => channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
-			),
+		() => listChannelSearch?.filter((channel) => channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE),
 		[listChannelSearch]
 	);
 	const listTextChannel = useMemo(
@@ -56,7 +53,7 @@ export const ChannelsSearchTab = ({ listChannelSearch }: ChannelsSearchTabProps)
 		}
 		return <ChannelItem channelData={item} />;
 	}, []);
-	const keyExtractor = useCallback((item, index) => item?.id?.toString() + `${index}_item_search_channel` + item?.title, []);
+	const keyExtractor = useCallback((item, index) => `${item?.id?.toString()}${index}_item_search_channel${item?.title}`, []);
 
 	return (
 		<View style={styles.container}>

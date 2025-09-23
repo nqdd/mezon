@@ -28,7 +28,7 @@
         "channelType": {
             "voiceChannel": {
                 "title": "Voice Channel",
-                "description": "hang out with voice, video, screenshare, and Go Live."
+                "description": "Hang out with voice, video, screenshare, and Go Live."
             },
             "somewhere": {
                 "title": "Somewhere else",
@@ -80,7 +80,7 @@
             "title": "Description",
             "description": "Tell people a little more about your event. Markdown, new lines, and links are supported."
         },
-        "cover": "Image cover"
+        "cover": "Cover Image"
     },
     "actions": {
         "next": "Next",

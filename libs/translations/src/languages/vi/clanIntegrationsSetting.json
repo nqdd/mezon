@@ -7,8 +7,13 @@
   },
   "webhooks": {
     "description": "Webhook là công cụ giúp bạn nhận tin nhắn tự động và cập nhật dữ liệu gửi đến kênh văn bản trong clan của bạn thông qua các kết nối Internet.",
-    "learnMore": "Tìm hiểu thêm.",
-    "buildOne": "tạo một cái của riêng bạn"
+    "learnMore": "Tìm hiểu thêm",
+    "try": "hoặc thử",    
+    "buildOne": "tạo một cái của riêng bạn."
+  },
+  "clanWebhooks": {
+    "description": "Webhook Clan là một cách đơn giản để đăng tin nhắn từ các ứng dụng và trang web khác cho mỗi người dùng Mezon bằng cách sử dụng công nghệ internet.",
+    "tips": "Mẹo: Nếu bạn cảm thấy token trên URL của bạn bị xâm phạm hoặc lỗi thời, hãy đặt lại và sao chép URL mới."
   },
   "webhooksEdit": {
     "title": "Chỉnh sửa webhook",
@@ -24,7 +29,8 @@
     "yes": "Có",
     "deleteCaptionHook": "Xóa tiêu đề hook",
     "deleteWebhookConfirmation": "Bạn có chắc chắn muốn xóa webhook {{webhookName}}? Hành động này không thể hoàn tác.",
-    "resetToken": "Đặt lại token"
+    "resetToken": "Đặt lại token",
+    "name": "Tên webhook"
   },
   "webhooksEmpty": {
     "noWebhooks": "KHÔNG CÓ WEBHOOK",
@@ -41,13 +47,13 @@
     "create": "Tạo"
   },
   "toast": {
-    "addSuccess": "Tạo webhook thành công",
+    "addSuccess": "Tạo webhook thành công!",
     "addError": "Có lỗi khi tạo webhook",
-    "saveSuccess": "Lưu thành công",
+    "saveSuccess": "Lưu thành công!",
     "saveError": "Có lỗi khi lưu",
-    "deleteSuccess": "Xóa webhook thành công",
+    "deleteSuccess": "Xóa webhook thành công!",
     "deleteError": "Có lỗi khi xóa webhook",
-    "resetTokenSuccess": "Đặt lại token thành công",
+    "resetTokenSuccess": "Đặt lại token thành công!",
     "resetTokenError": "Có lỗi khi đặt lại token"
   }
 }

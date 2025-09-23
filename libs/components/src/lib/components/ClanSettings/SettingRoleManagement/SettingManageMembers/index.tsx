@@ -1,15 +1,9 @@
 import { useRoles } from '@mezon/core';
-import {
-	getNewAddMembers,
-	getSelectedRoleId,
-	RolesClanEntity,
-	selectAllUserClans,
-	selectCurrentClan,
-	selectCurrentRoleIcon,
-	setAddMemberRoles
-} from '@mezon/store';
+import type { RolesClanEntity } from '@mezon/store';
+import { getNewAddMembers, getSelectedRoleId, selectAllUserClans, selectCurrentClan, selectCurrentRoleIcon, setAddMemberRoles } from '@mezon/store';
 import { Icons, InputField } from '@mezon/ui';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, UsersClanEntity } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -76,8 +70,9 @@ const SettingManageMembers = ({ RolesClan, hasPermissionEdit }: { RolesClan: Rol
 		<div>
 			<div className="w-full flex gap-x-3 pr-5">
 				<InputField
-					className="flex-grow text-[15px] w-full py-1 px-2 font-normal border-theme-primary bg-input-secondary"
+					className="flex-grow text-[15px] w-full py-[7px] px-[16px] font-normal border-theme-primary bg-input-secondary focus:outline focus:outline-1  outline-[#006ce7]"
 					type="text"
+					needOutline={true}
 					placeholder={t('setupMember.searchMembers')}
 					value={searchTerm}
 					onChange={(e) => setSearchTerm(e.target.value)}
@@ -92,21 +87,28 @@ const SettingManageMembers = ({ RolesClan, hasPermissionEdit }: { RolesClan: Rol
 				</button>
 			</div>
 			<br />
-			<ul className="flex flex-col gap-y-4 max-h-listMemberRole overflow-y-auto thread-scroll">
-				{searchResults.map((member: UsersClanEntity) => (
-					<ItemMember
-						key={member?.user?.id}
-						id={member?.user?.id}
-						username={member?.user?.username}
-						displayName={member?.user?.display_name}
-						clanName={member?.clan_nick}
-						clanAvatar={member.clan_avatar}
-						avatar={member?.user?.avatar_url}
-						isNewRole={isNewRole}
-						onRemove={() => handleRemoveMember(member?.user?.id || '')}
-					/>
-				))}
-			</ul>
+
+			{searchResults.length > 0 ? (
+				<ul className="flex flex-col gap-y-4 max-h-listMemberRole overflow-y-auto thread-scroll">
+					{searchResults.map((member: UsersClanEntity) => (
+						<ItemMember
+							key={member?.user?.id}
+							id={member?.user?.id}
+							username={member?.user?.username}
+							displayName={member?.user?.display_name}
+							clanName={member?.clan_nick}
+							clanAvatar={member.clan_avatar}
+							avatar={member?.user?.avatar_url}
+							isNewRole={isNewRole}
+							onRemove={() => handleRemoveMember(member?.user?.id || '')}
+						/>
+					))}
+				</ul>
+			) : (
+				<div className="flex justify-center items-center h-full mt-12">
+					<p className="text-theme-primary">{t('setupMember.noMembersFound')}</p>
+				</div>
+			)}
 			<AddMembersModal isOpen={openModal} onClose={handleCloseModal} RolesClan={RolesClan} />
 		</div>
 	);
@@ -143,10 +145,7 @@ const ItemMember = (props: ItemMemberProps) => {
 				<span className="font-light">{username}</span>
 			</div>
 			{!isNewRole ? (
-				<div
-					onClick={onRemove}
-					className="w-4 h-4 rounded-full flex justify-center items-center mr-5 cursor-pointer text-theme-primary-hover"
-				>
+				<div onClick={onRemove} className="w-4 h-4 rounded-full flex justify-center items-center mr-5 cursor-pointer  hover:text-red-500">
 					<Icons.Close defaultSize="size-2 " />
 				</div>
 			) : null}

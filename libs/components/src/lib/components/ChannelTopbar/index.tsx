@@ -314,8 +314,6 @@ const ChannelTopbarLabel = memo(
 						return <Icons.ThreadIcon />;
 					case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
 						return <Icons.Speaker />;
-					case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
-						return <Icons.Speaker />;
 					case ChannelType.CHANNEL_TYPE_STREAMING:
 						return <Icons.Stream />;
 					case ChannelType.CHANNEL_TYPE_APP:
@@ -330,8 +328,6 @@ const ChannelTopbarLabel = memo(
 				case ChannelType.CHANNEL_TYPE_THREAD:
 					return <Icons.ThreadIconLocker />;
 				case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
-					return <Icons.SpeakerLocked />;
-				case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
 					return <Icons.SpeakerLocked />;
 				case ChannelType.CHANNEL_TYPE_STREAMING:
 					return <Icons.Stream />;
@@ -903,6 +899,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 						className="absolute border-theme-primary
 		 w-[8px] h-[8px] rounded-full bg-colorDanger outline outline-1 outline-transparent
 		  font-bold text-[11px] flex items-center justify-center -bottom-[0.05rem] -right-[0.075rem]"
+						data-e2e={generateE2eId('chat.channel_message.header.button.pin.pin_badge')}
 					></div>
 				)}
 			</button>

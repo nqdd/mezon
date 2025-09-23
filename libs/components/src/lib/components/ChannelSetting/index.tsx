@@ -118,7 +118,7 @@ const SettingChannel = (props: ModalSettingProps) => {
 					<OverviewChannel channel={channel} onDisplayLabelChange={setDisplayChannelLabel} />
 				)}
 				{currentSetting === EChannelSettingTab.PREMISSIONS && (
-					<PermissionsChannel channel={channel} openModalAdd={openModalAdd} parentRef={modalRef} />
+					<PermissionsChannel channel={channel} openModalAdd={openModalAdd} parentRef={modalRef} clanId={channel.clan_id} />
 				)}
 				{currentSetting === EChannelSettingTab.INVITES && <InvitesChannel />}
 				{currentSetting === EChannelSettingTab.INTEGRATIONS && <IntegrationsChannel currentChannel={channel} />}

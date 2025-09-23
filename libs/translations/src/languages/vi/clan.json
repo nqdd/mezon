@@ -48,7 +48,10 @@
 		"agreement": "Bằng cách tạo clan, bạn đồng ý với",
 		"communityGuidelines": "Quy tắc cộng đồng",
 		"back": "Quay lại",
-		"create": "Tạo"
+		"create": "Tạo",
+		"toast": {
+			"limitImageSize": "Kích thước hình ảnh phải nhỏ hơn {{size}}MB"
+		}
 	},
 	"limitModal": {
 		"title": "Đã đạt giới hạn!",

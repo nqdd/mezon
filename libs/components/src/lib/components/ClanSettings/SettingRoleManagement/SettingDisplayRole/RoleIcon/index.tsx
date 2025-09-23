@@ -2,6 +2,7 @@ import { useRoles } from '@mezon/core';
 import {
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getNewSelectedPermissions,
 	getRemoveMemberRoles,
 	getRemovePermissions,
@@ -11,7 +12,7 @@ import {
 	selectCurrentRoleIcon
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,6 +22,7 @@ const RoleIcon = () => {
 	const { t } = useTranslation('clanRoles');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentRoleId = useSelector(getSelectedRoleId);
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 	const nameRoleNew = useSelector(getNewNameRole);
 	const colorRoleNew = useSelector(getNewColorRole);
@@ -34,12 +36,16 @@ const RoleIcon = () => {
 	const [openChooseIconModal, closeChooseIconModal] = useModal(() => {
 		return <ChooseIconModal onClose={closeChooseIconModal} />;
 	}, []);
+	const iconRole = useMemo<string | null>(() => newRoleIcon || currentRoleIcon || '', [newRoleIcon, currentRoleIcon]);
 
 	const handleChooseIconModal = () => {
 		openChooseIconModal();
 	};
 
 	const handleRemoveIcon = async () => {
+		dispatch(roleSlice.actions.setNewRoleIcon(''));
+		dispatch(roleSlice.actions.setCurrentRoleIcon(''));
+
 		await updateRole(
 			currentClanId || '',
 			currentRoleId || '',
@@ -51,7 +57,6 @@ const RoleIcon = () => {
 			removePermissions,
 			''
 		);
-		dispatch(roleSlice.actions.setCurrentRoleIcon(''));
 	};
 
 	return (
@@ -60,8 +65,8 @@ const RoleIcon = () => {
 			<div className="text-xs font-bold uppercase mb-2">{t('roleManagement.roleIcon')}</div>
 			<div className="text-xs mb-2">{t('roleManagement.roleIconDescription')}</div>
 			<div className={'flex items-start gap-5'}>
-				{currentRoleIcon ? (
-					<img src={currentRoleIcon} alt="" className={'w-20 h-20'} />
+				{iconRole ? (
+					<img src={iconRole || ''} alt="" className={'w-20 h-20'} />
 				) : (
 					<div className={'bg-theme-setting-nav flex justify-center items-center w-20 h-20'}>
 						<Icons.ImageUploadIcon className="w-6 h-6 text-theme-primary" />
@@ -78,7 +83,7 @@ const RoleIcon = () => {
 				>
 					{t('roleManagement.chooseImage')}
 				</button>
-				{currentRoleIcon && (
+				{iconRole && (
 					<button
 						className={
 							'flex justify-center items-center px-3 py-1 rounded border-[1px] ' +

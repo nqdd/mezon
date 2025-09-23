@@ -22,6 +22,8 @@ import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import ButtonSwitch from '../../ButtonSwitchCustom';
 import type { Coords } from '../../ChannelLink';
 import { ELimitSize } from '../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
@@ -283,6 +285,46 @@ const SettingRightUser = ({
 
 		return qrDataLink;
 	}, [userProfile]);
+
+	const containerRef = useRef<HTMLDivElement | null>(null);
+
+	const handleCopyQR = async () => {
+		if (!containerRef.current) return;
+		const svg = containerRef.current.querySelector('svg');
+		if (!svg) return;
+
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(svg);
+
+		const img = new Image();
+		const svgBase64 = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
+		img.src = svgBase64;
+
+		img.onload = async () => {
+			const border = 40;
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width + border * 2;
+			canvas.height = img.height + border * 2;
+
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return;
+
+			ctx.fillStyle = 'white';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			ctx.drawImage(img, border, border);
+
+			canvas.toBlob(async (blob) => {
+				if (!blob) return;
+				try {
+					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+					toast(t('messages.qrCopiedSuccess'));
+				} catch (err) {
+					console.error(t('errors.copyFailed'), err);
+				}
+			});
+		};
+	};
 	return (
 		<>
 			<div className="flex-1 flex z-0 gap-x-8 sbm:flex-row flex-col">
@@ -389,11 +431,18 @@ const SettingRightUser = ({
 						isLoading={isLoading}
 						profiles={editProfile}
 						qrProfile={
-							<div className="p-4 rounded-lg bg-white flex items-center justify-center relative">
+							<div className="p-4 rounded-lg bg-white flex items-center justify-center relative" ref={containerRef}>
 								<QRCode level="H" value={qrCodeProfile} className="w-full h-full" />
 								<div className="absolute p-2 rounded-md">
-									<img src="./assets/images/icon-logo-mezon.svg" />
+									<img src="./assets/images/icon-logo-mezon.svg" className="cursor-default pointer-events-none" />
 								</div>
+
+								<ButtonSwitch
+									iconDefault={<Icons.CopyIcon />}
+									iconSwitch={<Icons.Tick defaultSize="w-4 h-4" fill="currentColor" />}
+									onClick={handleCopyQR}
+									className="absolute p-4 !rounded-full text-white bg-transparent"
+								/>
 							</div>
 						}
 					/>

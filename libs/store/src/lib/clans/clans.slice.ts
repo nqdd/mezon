@@ -120,7 +120,7 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 					voiceActions.fetchVoiceChannelMembers({
 						clanId: clanId ?? '',
 						channelId: '',
-						channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+						channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 					})
 				);
 				thunkAPI.dispatch(

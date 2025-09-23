@@ -9,6 +9,7 @@ import type { ClanEmoji, ClanSticker } from 'mezon-js';
 import type { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 import { ELimitSize } from '../../ModalValidateFile';
@@ -41,6 +42,11 @@ const EMOJI_DIMENSION = {
 
 const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps) => {
 	const isSticker = type === EGraphicType.STICKER;
+	const tSticker = useTranslation('clanStickerSetting', { keyPrefix: 'modal' }).t;
+	const tEmoji = useTranslation('clanEmojiSetting', { keyPrefix: 'modal' }).t;
+	const tStickerNs = useTranslation('clanStickerSetting').t;
+	const tEmojiNs = useTranslation('clanEmojiSetting').t;
+	const t = isSticker ? tSticker : tEmoji;
 	const graphicSource = isSticker ? (graphic as ClanSticker)?.source : (graphic as ClanEmoji)?.src;
 	const [editingGraphic, setEditingGraphic] = useState<EditingGraphic>({
 		fileName: graphicSource?.split('/').pop() ?? null,
@@ -230,12 +236,12 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						const newFile = new File([blob], 'blurred-watermarked.png', { type: 'image/png' });
 						resolve(newFile);
 					} else {
-						reject(new Error('Không thể chuyển canvas thành file.'));
+						reject(new Error('Cannot convert canvas to file'));
 					}
 				}, 'image/png');
 			};
 
-			img.onerror = () => reject(new Error('Không thể load ảnh.'));
+			img.onerror = () => reject(new Error('Cannot load image'));
 		});
 	}
 
@@ -256,11 +262,11 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 				</div>
 				<div className={`w-full flex-1 flex flex-col  overflow-y-auto gap-4 relative px-5 py-4 bg-transparent hide-scrollbar`}>
 					<div className={`flex flex-col gap-2 items-center select-none `}>
-						<p className="text-2xl font-semibold text-theme-primary-active">Upload a file</p>
-						<p className="text-base">File should be APNG, PNG, or GIF (512KB max)</p>
+						<p className="text-2xl font-semibold text-theme-primary-active">{t('uploadAFile')}</p>
+						<p className="text-base">{t('fileShouldBeAPNGPNGOrGIF256KBMax')}</p>
 					</div>
 					<div className={'flex flex-col select-none '}>
-						<p className="text-xs font-bold h-6 uppercase text-theme-primary-active">PREVIEW</p>
+						<p className="text-xs font-bold h-6 uppercase text-theme-primary-active">{t('preview')}</p>
 						<div className={'flex items-center justify-center rounded-lg border-theme-primary overflow-hidden'}>
 							<div className={'relative h-56 w-[50%] flex items-center justify-center bg-item-theme '}>
 								{editingGraphic.source ? (
@@ -281,15 +287,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 					<div className={'flex flex-row gap-4 '}>
 						<div className={'w-1/2 flex flex-col gap-2'}>
 							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>
-								FILE {graphic && ' (THIS CANNOT BE EDITED)'}
+								{t('file')} {graphic && ` (${t('thisCannotBeEdited')})`}
 							</p>
 							<div
 								className={` border-theme-primary flex flex-row rounded-lg justify-between items-center py-[6px] px-3  ${editingGraphic.fileName && 'cursor-not-allowed'}`}
 							>
-								<p className="select-none flex-1 truncate">{editingGraphic.fileName ?? 'Choose a file'}</p>
+								<p className="select-none flex-1 truncate">{editingGraphic.fileName ?? t('chooseAFile')}</p>
 								{!graphic && (
 									<button className="btn-primary btn-primary-hover rounded-lg py-[2px] px-2 text-nowrap relative select-none overflow-hidden">
-										Browse
+										{t('browse')}
 										<input
 											className="absolute w-full h-full cursor-pointer top-0 right-0 z-10 opacity-0 file:cursor-pointer"
 											type="file"
@@ -306,7 +312,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 							</div>
 						</div>
 						<div className={'w-1/2 flex flex-col gap-2'}>
-							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>Sticker Name</p>
+							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>{t('stickerName')}</p>
 							<div
 								className={
 									'border-theme-primary bg-input-secondary flex flex-row rounded-lg justify-between items-center p-2 pl-3  box-border overflow-hidden'
@@ -314,7 +320,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 							>
 								<InputField
 									type="string"
-									placeholder="ex. cat hug"
+									placeholder={t('exCatHug')}
 									className={'px-[8px] bg-transparent '}
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
@@ -327,15 +333,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						<div className="flex items-center flex-1 h-full gap-2">
 							<Checkbox ref={isForSaleRef} id="sale_item" className="accent-blue-600 w-4 h-4" />
 							<label htmlFor="sale_item" className="">
-								This is for sale
+								{t('thisIsForSale')}
 							</label>
 						</div>
 						<Button className="px-2 py-1 border-none hover:underline hover:bg-transparent bg-transparent" onClick={handleCloseModal}>
-							Never Mind
+							{t('neverMind')}
 						</Button>
 						<ButtonLoading
 							className="px-2 py-1 h-9 min-w-fit btn-primary btn-primary-hover rounded-lg"
-							label="Upload"
+							label={isSticker ? tStickerNs('btn.upload') : tEmojiNs('button.upload')}
 							disabled={validateSaveChange}
 							onClick={onSaveChange}
 						/>

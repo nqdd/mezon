@@ -13,7 +13,6 @@ import {
 	updateWebhookBySpecificId,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { useMezon } from '@mezon/transport';
 import { ChannelIsNotThread, MAX_FILE_SIZE_8MB } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ApiWebhook, MezonUpdateClanWebhookByIdBody, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
@@ -36,17 +35,22 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 	const { themeValue } = useTheme();
 	const styles = useMemo(() => style(themeValue), [themeValue]);
 	const { webhook, isClanIntegration, isClanSetting } = route.params || {};
-	const { sessionRef, clientRef } = useMezon();
-	const [urlImageWebhook, setUrlImageWebhook] = useState<string>('');
-	const [webhookName, setWebhookName] = useState<string>('');
-	const [webhookChannel, setWebhookChannel] = useState<ChannelsEntity>(null);
+	const [urlImageWebhook, setUrlImageWebhook] = useState<string>(webhook?.avatar || '');
+	const [webhookName, setWebhookName] = useState<string>(webhook?.webhook_name || '');
+	const allChannel = useSelector(selectAllChannels);
+	const parentChannelsInClan = useMemo(() => allChannel?.filter((channel) => channel?.parent_id === ChannelIsNotThread.TRUE), [allChannel]);
+	const getChannelSelect = useCallback(
+		(idChannel = '') => {
+			return parentChannelsInClan?.find((channel) => channel?.channel_id === idChannel);
+		},
+		[parentChannelsInClan]
+	);
+	const [webhookChannel, setWebhookChannel] = useState<ChannelsEntity>(getChannelSelect(webhook?.channel_id));
 	const [hasChange, setHasChange] = useState<boolean>(false);
 	const clanId = useSelector(selectCurrentClanId) as string;
-	const allChannel = useSelector(selectAllChannels);
 	const currentWebhook = useSelector((state: any) => selectClanWebhooksById(state, webhook?.id));
 	const [isCopied, setIsCopied] = useState(false);
 	const { t } = useTranslation(['screenStack', 'clanIntegrationsSetting']);
-	const parentChannelsInClan = useMemo(() => allChannel?.filter((channel) => channel?.parent_id === ChannelIsNotThread.TRUE), [allChannel]);
 	const dispatch = useAppDispatch();
 
 	const channel = useMemo(() => {
@@ -56,22 +60,6 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 			icon: <MezonIconCDN icon={IconCDN.channelText} color={themeValue.text} />
 		}));
 	}, [parentChannelsInClan, themeValue.text]);
-
-	const getChannelSelect = useCallback(
-		(idChannel = '') => {
-			return parentChannelsInClan?.find((channel) => channel?.channel_id === idChannel);
-		},
-		[parentChannelsInClan]
-	);
-
-	useEffect(() => {
-		if (webhook?.avatar || webhook?.channel_id || webhook?.webhook_name) {
-			setUrlImageWebhook(webhook?.avatar);
-			setWebhookName(webhook?.webhook_name);
-			const channelSelect = getChannelSelect(webhook?.channel_id);
-			setWebhookChannel(channelSelect);
-		}
-	}, [webhook, getChannelSelect]);
 
 	const handleResetChange = useCallback(() => {
 		if (hasChange) {
@@ -133,12 +121,13 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 
 			await dispatch(
 				updateWebhookBySpecificId({
-					request: request,
-					webhookId: webhookId,
+					request,
+					webhookId,
 					channelId: webhook?.channel_id,
-					clanId: clanId
+					clanId
 				})
 			);
+			await dispatch(fetchWebhooks({ channelId: isClanSetting ? '0' : (webhook?.channel_id ?? ''), clanId }));
 		},
 		[urlImageWebhook, webhookChannel?.channel_id, webhookName, webhook?.channel_id, clanId, dispatch]
 	);
@@ -338,7 +327,12 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 				</View>
 				<Text style={styles.textRecommend}>{t('webhooksEdit.recommendImage', { ns: 'clanIntegrationsSetting' })}</Text>
 			</View>
-			<MezonInput label={'Name'} value={webhookName} onTextChange={handleChangeText} />
+			<MezonInput
+				titleStyle={styles.label}
+				label={t('webhooksEdit.name', { ns: 'clanIntegrationsSetting' })}
+				value={webhookName}
+				onTextChange={handleChangeText}
+			/>
 
 			{!isClanIntegration && <MezonMenu menu={menu} />}
 

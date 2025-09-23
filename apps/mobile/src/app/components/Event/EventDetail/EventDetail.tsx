@@ -144,13 +144,12 @@ export function EventDetail({ event }: IEventDetailProps) {
 
 					<View style={styles.inline}>
 						<MezonIconCDN icon={IconCDN.bellIcon} height={16} width={16} color={themeValue.text} />
-						<Text style={styles.smallText}>{eventInterested}</Text>
-						<Text style={styles.smallText}>{eventInterested > 1 ? 'people are interested' : 'person is interested'}</Text>
+						<Text style={styles.smallText}>{t('detail.personInterested', { count: eventInterested })}</Text>
 					</View>
 
 					<View style={styles.inline}>
 						<MezonAvatar avatarUrl={userCreate?.user?.avatar_url} username={userCreate?.user?.username} height={20} width={20} />
-						<Text style={styles.smallText}>Created by</Text>
+						<Text style={styles.smallText}>{t('detail.createdBy')}</Text>
 						<Text style={[styles.smallText, styles.highlight]}>{userCreate?.user?.username}</Text>
 					</View>
 				</View>

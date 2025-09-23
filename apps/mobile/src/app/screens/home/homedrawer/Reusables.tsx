@@ -30,7 +30,7 @@ export interface IFriendListItemProps {
 export const FriendListItem = React.memo((props: IFriendListItemProps) => {
 	const { dmGroup, user, isSent, onPress } = props;
 	const { themeValue } = useTheme();
-	const { t } = useTranslation();
+	const { t } = useTranslation(['inviteToChannel']);
 	const styles = style(themeValue);
 	const isGroupAvatar = !dmGroup?.topic?.includes('avatar-group.png');
 
@@ -58,7 +58,12 @@ export const FriendListItem = React.memo((props: IFriendListItemProps) => {
 								<Image source={Images.AVATAR_GROUP} style={styles.defaultAvatar} />
 							)
 						) : (
-							<MezonAvatar avatarUrl={dmGroup?.channel_avatar?.at(0)} username={dmGroup?.channel_label} height={size.s_40} width={size.s_40} />
+							<MezonAvatar
+								avatarUrl={dmGroup?.channel_avatar?.at(0)}
+								username={dmGroup?.channel_label}
+								height={size.s_40}
+								width={size.s_40}
+							/>
 						)}
 						<Text style={styles.friendItemName} numberOfLines={1} ellipsizeMode="tail">
 							{dmGroup?.channel_label}

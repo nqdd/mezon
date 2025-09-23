@@ -18,6 +18,7 @@ export const SoundList = ({ soundList, ListHeaderComponent }: SoundListProps) =>
 	const row = useRef<{ [key: string]: { close: () => void } }>({}).current;
 	const [currentSoundId, setCurrentSoundId] = useState<string | null>(null);
 	const currentSoundRef = useRef<Sound | null>(null);
+	let prevOpenedRow: { close: () => void };
 
 	useEffect(() => {
 		return () => {
@@ -63,10 +64,10 @@ export const SoundList = ({ soundList, ListHeaderComponent }: SoundListProps) =>
 
 	const closeRow = useCallback(
 		(id: string) => {
-			const prevOpenedRow = Object.values(row).find((r) => r !== row[id]);
-			if (prevOpenedRow) {
+			if (prevOpenedRow && prevOpenedRow !== row[id]) {
 				prevOpenedRow.close();
 			}
+			prevOpenedRow = row[id];
 		},
 		[row]
 	);
