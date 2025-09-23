@@ -14,6 +14,9 @@ export const DATA_E2E_IDENTIFIER = {
 	avatar: {
 		image: ''
 	},
+	footer_profile: {
+		avatar: ''
+	},
 	button: {
 		base: ''
 	},
@@ -372,6 +375,9 @@ export const DATA_E2E_IDENTIFIER = {
 			button_setting: '',
 			tab_profile: '',
 			user_profile: {
+				preview: {
+					avatar: ''
+				},
 				input: {
 					display_name: '',
 					about_me: ''
@@ -384,7 +390,10 @@ export const DATA_E2E_IDENTIFIER = {
 					about_me_length: ''
 				},
 				upload: {
-					direct_message_icon_input: ''
+					direct_message_icon_input: '',
+					avatar_input: {
+						apply_button: ''
+					}
 				}
 			},
 			clan_profile: {

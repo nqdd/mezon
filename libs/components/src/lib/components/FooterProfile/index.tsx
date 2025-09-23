@@ -295,7 +295,12 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			 w-full group focus-visible:outline-none footer-profile  `}
 			>
 				<div className={`footer-profile h-10 flex-1 flex pl-2 items-center  text-theme-primary bg-item-hover rounded-md`}>
-					<div ref={modalControlRef} className="cursor-pointer flex items-center gap-3 relative flex-1" onClick={handleClick}>
+					<div
+						ref={modalControlRef}
+						className="cursor-pointer flex items-center gap-3 relative flex-1"
+						onClick={handleClick}
+						data-e2e={generateE2eId('footer_profile.avatar')}
+					>
 						<AvatarImage
 							alt={''}
 							username={name}
