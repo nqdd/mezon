@@ -11,9 +11,9 @@ export const style = (colors: Attributes) =>
 			marginTop: size.s_20
 		},
 		label: {
-			fontSize: size.s_14,
+			fontSize: size.small,
 			color: colors.text,
-			fontWeight: '500',
+			fontWeight: '600',
 			marginBottom: size.s_10
 		},
 		btnLink: {
@@ -49,7 +49,7 @@ export const style = (colors: Attributes) =>
 		},
 		textBtnDelete: {
 			fontSize: size.s_14,
-			color: colors.white,
+			color: baseColor.white,
 			fontWeight: '500',
 			textAlign: 'center'
 		},

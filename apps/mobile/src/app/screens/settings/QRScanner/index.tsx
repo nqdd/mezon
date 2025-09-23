@@ -113,7 +113,18 @@ export const QRScanner = () => {
 					uri: fileUri
 				});
 
-				onNavigationScanned(res?.values?.[0]?.toString() || '');
+				const qrValue = res?.values?.[0]?.toString();
+
+				if (!qrValue || qrValue.trim() === '') {
+					Toast.show({
+						type: 'error',
+						text1: t('selectPhotoWithQRCode')
+					});
+					store.dispatch(appActions.setLoadingMainMobile(false));
+					return;
+				}
+
+				onNavigationScanned(qrValue || '');
 			}
 			store.dispatch(appActions.setLoadingMainMobile(false));
 		} catch (error) {
@@ -165,19 +176,25 @@ export const QRScanner = () => {
 						activeScreen: 'transfer',
 						formValue: value
 					});
-					// 	case login
-				} else if (value) {
+					return;
+				}
+				// 	case login
+				if (value) {
 					const decode = Snowflake.parse(value);
 					if (decode?.timestamp && Number.isInteger(Number(value))) {
 						setValueCode(value);
 					}
-				} else {
-					// 	empty
+					return;
 				}
 			} catch (e) {
 				setDoScanBarcode(true);
 				setIsNavigating(false);
 			}
+
+			Toast.show({
+				type: 'error',
+				text1: t('qrCodeNotValid')
+			});
 		} catch (error) {
 			store.dispatch(appActions.setLoadingMainMobile(false));
 			console.error('log  => error', error);

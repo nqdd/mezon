@@ -7,9 +7,10 @@
     "learnMore": "Learn more about managing integrations."
   },
   "webhooks": {
-    "description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the clan using internet magic.",
-    "learnMore": "Learn more.",
-    "buildOne": "build one yourself"
+    "description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the server using internet magic.",
+    "learnMore": "Learn more",
+    "try": "or try",
+    "buildOne": "build one yourself."
   },
   "clanWebhooks": {
     "description": "Clan Webhooks are a simple way to post messages from other apps and websites for each Mezon user using internet technology.",
@@ -47,13 +48,13 @@
     "create": "Create"
   },
   "toast": {
-    "addSuccess": "Generated webhook successfully",
+    "addSuccess": "Generated Webhook successfully!",
     "addError": "Error when generating webhook",
-    "saveSuccess": "Save successfully",
+    "saveSuccess": "Save successfully!",
     "saveError": "Error when saving",
-    "deleteSuccess": "Deleted webhook successfully",
+    "deleteSuccess": "Deleted Webhook successfully!",
     "deleteError": "Error when deleting webhook",
-    "resetTokenSuccess": "Reset token successfully",
+    "resetTokenSuccess": "Token reset successfully!",
     "resetTokenError": "Error when resetting token"
   }
 }

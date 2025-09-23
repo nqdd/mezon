@@ -153,20 +153,13 @@ const BottomSheetRootListener = () => {
 			backgroundStyle={styles.backgroundStyle}
 			backdropComponent={(prop) => <Backdrop {...prop} style={backdropStyle} />}
 			enableDynamicSizing={heightFitContent}
-			handleIndicatorStyle={styles.handleIndicator}
+			handleIndicatorStyle={hiddenHeaderIndicator ? { display: 'none' } : styles.handleIndicator}
 			style={styles.container}
 			containerStyle={containerStyle}
 			animationConfigs={{
 				duration: 200
 			}}
 			onChange={handleSheetPositionChange}
-			handleComponent={
-				hiddenHeaderIndicator
-					? null
-					: () => {
-							return <View style={styles.handleIndicator} />;
-						}
-			}
 		>
 			{renderHeader()}
 			{children && <BottomSheetScrollView bounces={false}>{children}</BottomSheetScrollView>}
