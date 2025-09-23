@@ -5,7 +5,7 @@ import {
 	searchMessagesActions,
 	selectAllAccount,
 	selectChannelById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectTheme,
 	useAppDispatch,
 	useAppSelector
@@ -37,7 +37,7 @@ type GroupedMessages = {
 const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm, isLoading }: searchMessagesProps) => {
 	const dispatch = useAppDispatch();
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 	const messageContainerRef = useRef<HTMLDivElement>(null);
 	const onPageChange = (page: number) => {
 		dispatch(searchMessagesActions.setCurrentPage({ channelId, page }));

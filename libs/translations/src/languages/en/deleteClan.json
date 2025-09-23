@@ -5,6 +5,10 @@
     "confirm": "Yes",
     "cancel": "No",
     "titleLeaveClan": "Leave clan",
-    "descriptionLeaveClan": "Are you sure you want to leave {{currentClan}}? You won’t be able to re-join this server unless you are re-invited."
-  }
+    "descriptionLeaveClan": "Are you sure you want to leave {{currentClan}}? You won't be able to re-join this server unless you are re-invited."
+  },
+  "confirmMessage": "Are you sure you want to delete this clan? This action cannot be undone.",
+  "enterClanName": "Enter clan name",
+  "incorrectName": "You didn't enter the clan name correctly",
+  "cancel": "Cancel"
 }

@@ -1,7 +1,8 @@
-import { AvatarImage, Coords, ModalRemoveMemberClan, PanelMemberTable, UserProfileModalInner } from '@mezon/components';
+import type { Coords } from '@mezon/components';
+import { AvatarImage, ModalRemoveMemberClan, PanelMemberTable, UserProfileModalInner } from '@mezon/components';
 import { useChannelMembersActions, useMemberContext, useOnClickOutside, usePermissionChecker, useRoles } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	clansActions,
 	selectCurrentChannelId,
 	selectCurrentClan,
@@ -12,10 +13,12 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
-import { ChannelMembersEntity, DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, createImgproxyUrl } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, createImgproxyUrl } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import Tooltip from 'rc-tooltip';
-import { MouseEvent, useMemo, useRef, useState } from 'react';
+import type { MouseEvent } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -98,7 +101,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 					user_id: userId,
 					user: {
 						id: userId,
-						username: username
+						username
 					}
 				}}
 				avatar={avatar}
@@ -119,7 +122,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 			id: userId,
 			user_id: userId,
 			user: {
-				username: username,
+				username,
 				id: userId,
 				display_name: displayName,
 				avatar_url: avatar
@@ -161,7 +164,10 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	const { removeMemberClan } = useChannelMembersActions();
 
 	const handleRemoveMember = async () => {
-		await removeMemberClan({ clanId: currentClanId as string, channelId: currentChannelId as string, userIds: [userId] });
+		const response = await removeMemberClan({ clanId: currentClanId as string, channelId: currentChannelId as string, userIds: [userId] });
+		if (response) {
+			toast.success('Member removed successfully');
+		}
 		closeModalRemoveMember();
 	};
 
@@ -205,7 +211,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				</span>
 			</div>
 			<div className="flex-1 p-1 text-center">
-				<span className="text-xs  font-medium uppercase">{mezonJoinTime ? mezonJoinTime + ' ago' : '-'}</span>
+				<span className="text-xs  font-medium uppercase">{mezonJoinTime ? `${mezonJoinTime} ago` : '-'}</span>
 			</div>
 			<div className="flex-2 p-1 text-center">
 				<span className={'inline-flex items-center'}>
@@ -299,7 +305,7 @@ const ListOptionRole = ({
 		await dispatch(
 			usersClanActions.addRoleIdUser({
 				id: role.id,
-				userId: userId,
+				userId,
 				clanId: currentClanId as string
 			})
 		);

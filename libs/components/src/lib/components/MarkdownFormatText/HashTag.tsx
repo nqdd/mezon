@@ -1,13 +1,6 @@
 import { useAppNavigation, useTagById } from '@mezon/core';
-import {
-	ChannelsEntity,
-	categoriesActions,
-	selectClanView,
-	selectCurrentChannel,
-	selectThreadById,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { categoriesActions, selectClanView, selectCurrentChannel, selectThreadById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback } from 'react';
@@ -38,14 +31,10 @@ const ChannelHashtag = ({ channelHastagId, isJumMessageEnabled, isTokenClickAble
 
 	const handleClick = useCallback(() => {
 		if (!channel) return;
-		if (channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `https://meet.google.com/${channel.meeting_code}`;
-			window.open(urlVoice, '_blank', 'noreferrer');
-		} else {
-			const channelUrl = toChannelPage(channel?.id, channel?.clan_id ?? '');
-			dispatch(categoriesActions.setCtrlKFocusChannel({ id: channel?.id, parentId: channel?.parent_id ?? '' }));
-			navigate(channelUrl);
-		}
+
+		const channelUrl = toChannelPage(channel?.id, channel?.clan_id ?? '');
+		dispatch(categoriesActions.setCtrlKFocusChannel({ id: channel?.id, parentId: channel?.parent_id ?? '' }));
+		navigate(channelUrl);
 	}, [channel, dispatch, navigate, toChannelPage]);
 
 	const tokenClickAble = () => {
@@ -73,9 +62,7 @@ const ChannelHashtag = ({ channelHastagId, isJumMessageEnabled, isTokenClickAble
 				style={{ textDecoration: 'none' }}
 				className={`font-medium rounded-sm  inline whitespace-nowrap cursor-pointer bg-mention color-mention${!isJumMessageEnabled ? ' hover-mention ' : `hover:none cursor-text`} `}
 			>
-				{channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? (
-					<Icons.Speaker defaultSize={`inline mt-[-0.2rem] w-4 h-4`} defaultFill="#3297FF" />
-				) : channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ? (
+				{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ? (
 					<Icons.Speaker defaultSize={`inline mt-[-0.2rem] w-4 h-4`} defaultFill="#3297FF" />
 				) : channel.type === ChannelType.CHANNEL_TYPE_STREAMING ? (
 					<Icons.Stream defaultSize={`inline mt-[-0.2rem] w-4 h-4`} defaultFill="#3297FF" />

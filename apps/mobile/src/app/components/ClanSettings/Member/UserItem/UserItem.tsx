@@ -1,6 +1,6 @@
 import { usePermissionChecker } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectAllRolesClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
+import { selectAllRolesClan, selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { EPermission, UsersClanEntity } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -18,7 +18,7 @@ interface IUserItem {
 export const UserItem = memo<IUserItem>(({ userID, onMemberSelect }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, userID));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, userID));
 	const rolesClan = useAppSelector(selectAllRolesClan);
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 	const [isManageClan] = usePermissionChecker([EPermission.manageClan]);

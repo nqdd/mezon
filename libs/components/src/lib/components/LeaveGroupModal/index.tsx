@@ -1,14 +1,8 @@
-import {
-	channelMembersActions,
-	directActions,
-	DirectEntity,
-	directMetaActions,
-	selectAllAccount,
-	selectDmGroupCurrentId,
-	useAppDispatch
-} from '@mezon/store';
+import type { DirectEntity } from '@mezon/store';
+import { channelMembersActions, directActions, directMetaActions, selectAllAccount, selectDmGroupCurrentId, useAppDispatch } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface LeaveGroupModalProps {
@@ -18,6 +12,7 @@ interface LeaveGroupModalProps {
 }
 
 function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: LeaveGroupModalProps) {
+	const { t } = useTranslation('leaveGroup');
 	const [isChecked, setIsChecked] = useState(false);
 	const dispatch = useAppDispatch();
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
@@ -52,12 +47,9 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 			<form className="relative z-10 dark:bg-[#313338] bg-bgLightModeSecond rounded-[5px] w-[500px]">
 				<div className="top-block p-[16px] dark:text-textDarkTheme text-textLightTheme flex flex-col gap-[15px]">
 					<div className="text-xl font-semibold break-words whitespace-normal overflow-wrap-break-word">
-						Leave '{groupWillBeLeave?.channel_label}'
+						{t('title', { groupName: groupWillBeLeave?.channel_label })}
 					</div>
-					<div className="text-lg break-all">
-						Are you sure you want to leave <strong>{groupWillBeLeave?.channel_label}</strong>? You won't be able to rejoin this group
-						unless you are re-invited.
-					</div>
+					<div className="text-lg break-all">{t('confirmMessage', { groupName: groupWillBeLeave?.channel_label })}</div>
 
 					<div className="flex items-center gap-[10px]">
 						<input
@@ -69,20 +61,20 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 							disabled={true} // remove when add action
 						/>
 						<label htmlFor="confirmLeaveNoNotifying" className="text-sm">
-							Leave without notifying other members
+							{t('leaveWithoutNotifying')}
 						</label>
 					</div>
 				</div>
 				<div className="bottom-block flex justify-end p-[16px]  items-center gap-[20px] font-semibold rounded-[5px]">
 					<div onClick={onClose} className=" cursor-pointer hover:underline text-theme-primary">
-						Cancel
+						{t('cancel')}
 					</div>
 					<div
 						onClick={handleLeaveAndClose}
 						className="bg-[#da373c] text-white hover:bg-[#a12828] rounded-md px-4 py-2 cursor-pointer"
 						data-e2e={generateE2eId(`chat.direct_message.leave_group.button`)}
 					>
-						Leave Group
+						{t('leaveGroup')}
 					</div>
 				</div>
 			</form>

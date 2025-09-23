@@ -17,9 +17,10 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
@@ -37,6 +38,7 @@ export type ChatWelComeProp = {
 };
 
 function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeProp) {
+	const { t } = useTranslation('chatWelcome');
 	const { directId } = useAppParams();
 	const dispatch = useAppDispatch();
 	const directChannel = useAppSelector((state) => selectDirectById(state, directId));
@@ -66,10 +68,9 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				? threadCurrentChannel || currentChannel
 				: currentChannel;
 
-	const user = useSelector(selectMemberClanByUserId(selectedChannel?.creator_id as string));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, selectedChannel?.creator_id as string));
 	const preferredUserName = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
 	const classNameSubtext = 'text-theme-primary opacity-60 text-sm';
-	const showName = <span className="font-medium">{name || username}</span>;
 
 	const isChannel = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const isThread = mode === ChannelStreamMode.STREAM_MODE_THREAD;
@@ -86,9 +87,9 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 							<WelComeChannel
 								name={currentChannel?.channel_label}
 								classNameSubtext={classNameSubtext}
-								showName={showName}
 								channelPrivate={Boolean(selectedChannel?.channel_private)}
 								isChatStream={isChatStream}
+								t={t}
 							/>
 						)}
 						{isThread && (
@@ -98,6 +99,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 								classNameSubtext={classNameSubtext}
 								username={preferredUserName}
 								isPrivate={isPrivate}
+								t={t}
 							/>
 						)}
 						{(isDm || isDmGroup) && (
@@ -106,9 +108,9 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 								username={username}
 								avatar={isDmGroup ? directChannel?.topic : avatarDM}
 								classNameSubtext={classNameSubtext}
-								showName={showName}
 								isDmGroup={isDmGroup}
 								onEditGroup={isDmGroup ? handleOpenEditModal : undefined}
+								t={t}
 							/>
 						)}
 					</>
@@ -135,13 +137,14 @@ export default ChatWelCome;
 type WelComeChannelProps = {
 	name?: string;
 	classNameSubtext: string;
-	showName: JSX.Element;
 	channelPrivate: boolean;
 	isChatStream?: boolean;
+	t: (key: string, options?: any) => string;
 };
 
 const WelComeChannel = (props: WelComeChannelProps) => {
-	const { name = '', classNameSubtext, showName, channelPrivate, isChatStream } = props;
+	const { name = '', classNameSubtext, channelPrivate, isChatStream, t } = props;
+
 	return (
 		<>
 			<div
@@ -151,11 +154,14 @@ const WelComeChannel = (props: WelComeChannelProps) => {
 			</div>
 			<div>
 				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
-					Welcome to #{name}
+					{t('welcome.welcomeToChannel', { channelName: name })}
 				</p>
 			</div>
 			<p className={classNameSubtext}>
-				This is the start of the #{showName} {channelPrivate ? 'private' : ''} channel
+				{t('welcome.startOfChannel', {
+					channelName: name,
+					channelType: channelPrivate ? t('welcome.private') : ''
+				})}
 			</p>
 		</>
 	);
@@ -167,10 +173,11 @@ type WelcomeChannelThreadProps = {
 	username?: string;
 	currentThread: ChannelsEntity | null;
 	isPrivate?: number;
+	t: (key: string, options?: any) => string;
 };
 
 const WelcomeChannelThread = (props: WelcomeChannelThreadProps) => {
-	const { name = '', classNameSubtext, username = '', currentThread, isPrivate } = props;
+	const { name = '', classNameSubtext, username = '', currentThread, isPrivate, t } = props;
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentThread?.id as string));
 	return (
 		<>
@@ -186,9 +193,7 @@ const WelcomeChannelThread = (props: WelcomeChannelThreadProps) => {
 					{isShowCreateThread ? name : currentThread?.channel_label}
 				</p>
 			</div>
-			<p className={classNameSubtext}>
-				Started by <span className="text font-medium">{username}</span>
-			</p>
+			<p className={classNameSubtext}>{t('welcome.startOfThread', { username })}</p>
 		</>
 	);
 };
@@ -199,13 +204,13 @@ type WelComeDmProps = {
 
 	avatar?: string;
 	classNameSubtext: string;
-	showName: JSX.Element;
 	isDmGroup: boolean;
 	onEditGroup?: () => void;
+	t: (key: string, options?: any) => string;
 };
 
 const WelComeDm = (props: WelComeDmProps) => {
-	const { name = '', username = '', avatar = '', classNameSubtext, showName, isDmGroup, onEditGroup } = props;
+	const { name = '', username = '', avatar = '', classNameSubtext, isDmGroup, onEditGroup, t } = props;
 
 	const userID = useSelector(selectUserIdCurrentDm);
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID?.[0] || ''));
@@ -220,7 +225,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 				alt={username}
 				username={username}
 				className="min-w-[75px] min-h-[75px] max-w-[75px] max-h-[75px] font-semibold"
-				srcImgProxy={avatar || ''}
+				srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 				src={avatar}
 				classNameText="!text-4xl font-semibold"
 			/>
@@ -232,11 +237,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 			{!isDmGroup && <p className="font-medium text-2xl text-theme-primary">{username}</p>}
 			<div className="text-base">
 				<p className={classNameSubtext}>
-					{isDmGroup ? (
-						<>Welcome to the beginning of the {showName} group.</>
-					) : (
-						<>This is the beginning of your direct message history with {showName}</>
-					)}
+					{isDmGroup ? <>{t('welcome.welcomeToGroup', { groupName: name })}</> : <>{t('welcome.beginningOfDM', { userName: name })}</>}
 				</p>
 			</div>
 			{isDmGroup && onEditGroup && (
@@ -255,10 +256,10 @@ const WelComeDm = (props: WelComeDmProps) => {
 						<path d="M8.29289 3.70711L1 11V15H5L12.2929 7.70711L8.29289 3.70711Z" />
 						<path d="M9.70711 2.29289L13.7071 6.29289L15.1716 4.82843C15.702 4.29799 16 3.57857 16 2.82843C16 1.26633 14.7337 0 13.1716 0C12.4214 0 11.702 0.297995 11.1716 0.828428L9.70711 2.29289Z" />
 					</svg>
-					Edit Group
+					{t('welcome.editGroup')}
 				</button>
 			)}
-			{!isDmGroup && <StatusFriend username={username} checkAddFriend={checkAddFriend} userID={userID[0]} />}
+			{!isDmGroup && <StatusFriend username={username} checkAddFriend={checkAddFriend} userID={userID[0]} t={t} />}
 		</>
 	);
 };
@@ -268,10 +269,11 @@ type StatusFriendProps = {
 
 	checkAddFriend?: number;
 	userID: string;
+	t: (key: string, options?: any) => string;
 };
 
 const StatusFriend = memo((props: StatusFriendProps) => {
-	const { username = '', checkAddFriend, userID } = props;
+	const { username = '', checkAddFriend, userID, t } = props;
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID));
 	const userProfile = useSelector(selectAllAccount);
 
@@ -291,15 +293,15 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 			case EStateFriend.BLOCK:
 				return [];
 			case EStateFriend.MY_PENDING:
-				return ['Accept', 'Ignore'];
+				return [t('welcome.accept'), t('welcome.ignore')];
 			case EStateFriend.OTHER_PENDING:
-				return ['Friend Request Sent'];
+				return [t('welcome.friendRequestSentButton')];
 			case EStateFriend.FRIEND:
-				return ['Remove Friend'];
+				return [t('welcome.removeFriend')];
 			default:
-				return ['Add Friend'];
+				return [t('welcome.addFriend')];
 		}
-	}, [checkAddFriend]);
+	}, [checkAddFriend, t]);
 
 	const handleOnClickButtonFriend = (index: number) => {
 		switch (checkAddFriend) {
@@ -328,10 +330,10 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 		try {
 			const isBlocked = await blockFriend(username, userID);
 			if (isBlocked) {
-				toast.success('User blocked successfully');
+				toast.success(t('toast.userBlockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to block user');
+			toast.error(t('toast.failedToBlock'));
 		}
 	};
 
@@ -339,10 +341,10 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 		try {
 			const isUnblocked = await unBlockFriend(username, userID);
 			if (isUnblocked) {
-				toast.success('User unblocked successfully');
+				toast.success(t('toast.userUnblockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to unblock user');
+			toast.error(t('toast.failedToUnblock'));
 		}
 	};
 
@@ -353,7 +355,7 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 	return (
 		<div className="flex gap-x-2 items-center text-sm">
 			{checkAddFriend === EStateFriend.MY_PENDING && (
-				<p className="dark:text-contentTertiary text-colorTextLightMode">Sent you a friend request:</p>
+				<p className="dark:text-contentTertiary text-colorTextLightMode">{t('welcome.friendRequestSent')}</p>
 			)}
 			{title.map((button, index) => (
 				<button
@@ -370,7 +372,7 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 					onClick={didIBlockUser ? handleUnblockFriend : handleBlockFriend}
 					className="rounded-lg text-theme-primary-hover border border-theme-primary bg-button-secondary px-4 py-0.5 font-medium text-theme-primary"
 				>
-					{didIBlockUser ? 'Unblock' : 'Block'}
+					{didIBlockUser ? t('welcome.unblock') : t('welcome.block')}
 				</button>
 			)}
 		</div>

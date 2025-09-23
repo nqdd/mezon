@@ -1,11 +1,14 @@
 import { captureSentryError } from '@mezon/logger';
-import { IEmoji } from '@mezon/utils';
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-import { ClanEmoji } from 'mezon-js';
-import { ApiClanEmojiCreateRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ensureSession, fetchDataWithSocketFallback, getMezonCtx, MezonValueContext } from '../helpers';
-import { RootState } from '../store';
+import type { IEmoji } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ClanEmoji } from 'mezon-js';
+import type { ApiClanEmojiCreateRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const EMOJI_SUGGESTION_FEATURE_KEY = 'suggestionEmoji';
 
@@ -49,10 +52,10 @@ const selectCachedEmoji = createSelector([(state: RootState) => state[EMOJI_SUGG
 	return entitiesState ? selectAll(entitiesState) : [];
 });
 
-export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false) => {
+export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: MezonValueContext, noCache = false, clanId: string) => {
 	const state = getState();
 	const emojiData = state[EMOJI_SUGGESTION_FEATURE_KEY];
-	const apiKey = createApiKey('fetchEmoji');
+	const apiKey = createApiKey(`fetchEmoji${clanId}`);
 	const shouldForceCall = shouldForceApiCall(apiKey, emojiData?.cache, noCache);
 
 	if (!shouldForceCall) {
@@ -82,23 +85,26 @@ export const fetchEmojiCached = async (getState: () => RootState, ensuredMezon: 
 	};
 };
 
-export const fetchEmoji = createAsyncThunk('emoji/fetchEmoji', async ({ noCache = false }: { noCache?: boolean }, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await fetchEmojiCached(thunkAPI.getState as () => RootState, mezon, noCache);
+export const fetchEmoji = createAsyncThunk(
+	'emoji/fetchEmoji',
+	async ({ noCache = false, clanId }: { noCache?: boolean; clanId: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await fetchEmojiCached(thunkAPI.getState as () => RootState, mezon, noCache, clanId);
 
-		if (!response?.emoji_list) {
-			throw new Error('Emoji list is undefined or null');
+			if (!response?.emoji_list) {
+				throw new Error('Emoji list is undefined or null');
+			}
+			return {
+				emojis: response.emoji_list,
+				fromCache: response?.fromCache
+			};
+		} catch (error) {
+			captureSentryError(error, 'emoji/fetchEmoji');
+			return thunkAPI.rejectWithValue(error);
 		}
-		return {
-			emojis: response.emoji_list,
-			fromCache: response?.fromCache
-		};
-	} catch (error) {
-		captureSentryError(error, 'emoji/fetchEmoji');
-		return thunkAPI.rejectWithValue(error);
 	}
-});
+);
 
 export const createEmojiSetting = createAsyncThunk(
 	'settingClanEmoji/createEmoji',
@@ -194,6 +200,11 @@ export const emojiSuggestionSlice = createSlice({
 			} else if (shortName !== '' && id !== '') {
 				state.emojiObjPicked[shortName] = id;
 				state.fromTopic = fromTopic;
+			}
+		},
+		invalidateCache: (state) => {
+			if (state.cache) {
+				state.cache = undefined;
 			}
 		}
 	},

@@ -1,7 +1,8 @@
 import { generateWebhook, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import { generateE2eId, IChannel } from '@mezon/utils';
 import { ApiWebhook, ApiWebhookCreateRequest } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import WebhookItemModal from './WebhookItemModal';
 
@@ -12,6 +13,7 @@ interface IWebhooksProps {
 }
 
 const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps) => {
+	const { t } = useTranslation('integrations');
 	const dispatch = useAppDispatch();
 	const webhookNames = ['Captain hook', 'Spidey bot', 'Komu Knight'];
 	const getRandomWebhookName = (): string => {
@@ -45,9 +47,9 @@ const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps
 	return (
 		<div className="pb-5">
 			<div className=" text-sm pt-5 text-theme-primary">
-				Webhooks are a simple way to post messages from other apps and websites into Mezon using internet magic.
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer"> Learn more</b> or try{' '}
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">building one yourself.</b>
+				{t('webhookDescription')}
+				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer"> {t('learnMoreWebhook')}</b> or try{' '}
+				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('buildWebhook')}</b>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			{allWebhooks?.length !== 0 ? (
@@ -55,8 +57,9 @@ const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps
 					<div
 						onClick={handleAddWebhook}
 						className="py-2 px-4 btn-primary btn-primary-hover  rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.new_webhook')}
 					>
-						New Webhook
+						{t('newWebhook')}
 					</div>
 					{allWebhooks &&
 						allWebhooks.map((webhook) => (
@@ -66,12 +69,13 @@ const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps
 			) : (
 				<div className="flex items-center flex-col gap-4">
 					<Image src={`assets/images/empty-webhook.svg`} width={48} height={48} className="clan object-cover w-[272px]" />
-					<div className="font-medium ">You have no webhooks!</div>
+					<div className="font-medium ">{t('noWebhooks')}</div>
 					<div
 						onClick={handleAddWebhook}
-							className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer"
+						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer"
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.new_webhook')}
 					>
-						New Webhook
+						{t('newWebhook')}
 					</div>
 				</div>
 			)}

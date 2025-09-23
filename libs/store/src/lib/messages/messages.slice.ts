@@ -30,15 +30,13 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
-import { selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
+import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
-import { pinMessageActions, selectPinMessageByChannelId } from '../pinMessages/pinMessage.slice';
 import type { ReactionEntity } from '../reactionMessage/reactionMessage.slice';
 import type { AppDispatch, RootState } from '../store';
-import { referencesActions, selectDataReferences } from './references.slice';
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
 export const MESSAGES_FEATURE_KEY = 'messages';
@@ -188,16 +186,23 @@ export const fetchMessagesCached = async (
 	messageId?: string,
 	direction?: number,
 	topicId?: string,
-	noCache = false
+	noCache = false,
+	dispatch?: AppDispatch
 ) => {
 	const state = getState();
 
-	const clanExists = clanId === '0' || !!selectClanById(clanId)(state);
-	if (!clanExists) {
-		return {
-			messages: [],
-			fromCache: true
-		};
+	let foundClan: boolean = clanId === '0' || !!selectClanById(clanId)(state);
+	if (!foundClan) {
+		if (dispatch && clanId !== '0') {
+			const res = await dispatch(clansActions.fetchClans({ noCache: true })).unwrap();
+			foundClan = res?.clans?.some((item) => item.id === clanId) ?? false;
+			if (!foundClan) {
+				return {
+					messages: [],
+					fromCache: true
+				};
+			}
+		}
 	}
 	const channelData = state[MESSAGES_FEATURE_KEY].channelMessages[channelId];
 	const apiKey = createApiKey('fetchMessages', clanId, channelId, messageId || '', direction || 1, topicId || '');
@@ -358,7 +363,6 @@ export const fetchMessages = createAsyncThunk(
 
 			if (isFetchingLatestMessages) {
 				thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
-				// thunkAPI.dispatch(messagesActions.setIsViewingOlderMessages({ channelId: chlId, isViewing: false }));
 			}
 
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
@@ -376,7 +380,8 @@ export const fetchMessages = createAsyncThunk(
 				messageId,
 				direction,
 				topicId,
-				noCache
+				noCache,
+				thunkAPI.dispatch as AppDispatch
 			);
 
 			const fromCache = response.fromCache || false;
@@ -924,27 +929,6 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const channelId = message.channel_id;
 	const isViewingOlderMessages = getMessagesState(getMessagesRootState(thunkAPI))?.isViewingOlderMessagesByChannelId?.[channelId];
 	const isBottom = !selectShowScrollDownButton(state, channelId);
-
-	if (message.code === TypeMessage.ChatRemove) {
-		const replyData = selectDataReferences(state, channelId);
-		const pinList = selectPinMessageByChannelId(state, channelId);
-		if (replyData && replyData.message_ref_id === message.id) {
-			thunkAPI.dispatch(referencesActions.resetAfterReply(message.channel_id));
-		}
-
-		if (pinList) {
-			const pinData = pinList.find((item) => item.message_id === message.id);
-			if (pinData) {
-				thunkAPI.dispatch(
-					pinMessageActions.removePinMessage({
-						channelId: message.channel_id,
-						pinId: pinData.id
-					})
-				);
-			}
-		}
-	}
-
 	if (isViewingOlderMessages) {
 		thunkAPI.dispatch(messagesActions.setLastMessage(message));
 		return;
@@ -1083,10 +1067,7 @@ export const messagesSlice = createSlice({
 			// reset first message
 			state.firstMessageId[channelId] = null;
 		},
-		setIsViewingOlderMessages: (state, action: PayloadAction<{ channelId: string; isViewing: boolean }>) => {
-			const { channelId, isViewing } = action.payload;
-			state.isViewingOlderMessagesByChannelId[channelId] = isViewing;
-		},
+
 		setFirstMessageId: (state, action: PayloadAction<{ channelId: string; firstMessageId: string | null }>) => {
 			state.firstMessageId[action.payload.channelId] = action.payload.firstMessageId;
 		},
@@ -1622,7 +1603,7 @@ export const selectIsUserTypingInChannel = createSelector(
 	}
 );
 
-export const selectHasMoreMessageByChannelId2 = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
+export const selectHasMoreMessageByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
 	const firstMessageId = state.firstMessageId[channelId];
 	if (!firstMessageId) return true;
 
@@ -1632,7 +1613,7 @@ export const selectHasMoreMessageByChannelId2 = createSelector([getMessagesState
 	return !isFirstMessageInChannel;
 });
 
-export const selectHasMoreBottomByChannelId2 = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
+export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
 	const lastMessage = state.lastMessageByChannel[channelId];
 
 	if (!lastMessage || !lastMessage.id) return false;
@@ -1676,12 +1657,15 @@ export const selectViewportIdsByChannelId = createCachedSelector([getMessagesSta
 	return messagesState?.channelViewPortMessageIds[channelId] || emptyArray;
 });
 
-export const selectMessageIdsByChannelId2 = createSelector([selectMessageIdsByChannelId, selectViewportIdsByChannelId], (messageIds, viewportIds) => {
-	if (!viewportIds?.length) {
-		return messageIds;
+export const selectMessageViewportIdsByChannelId = createSelector(
+	[selectMessageIdsByChannelId, selectViewportIdsByChannelId],
+	(messageIds, viewportIds) => {
+		if (!viewportIds?.length) {
+			return messageIds;
+		}
+		return messageIds.filter((id) => viewportIds.includes(id));
 	}
-	return messageIds.filter((id) => viewportIds.includes(id));
-});
+);
 
 export const selectMessagesByChannel = createSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
 	return messagesState?.channelMessages?.[channelId];

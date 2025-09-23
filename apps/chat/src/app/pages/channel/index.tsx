@@ -156,7 +156,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 
 	const previewMode = useSelector(selectOnboardingMode);
 	const showPreviewMode = useMemo(() => {
-		if (previewMode) {
+		if (previewMode?.open && previewMode.clanId === currentClan?.id) {
 			return true;
 		}
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClan?.is_onboarding;
@@ -348,7 +348,7 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 					{isShowMemberList && !isChannelMezonVoice && !isChannelStream && (
 						<div
 							onContextMenu={(event) => event.preventDefault()}
-							className={`border-l border-solid border-color-primary text-theme-primary relative overflow-y-scroll hide-scrollbar ${currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? 'hidden' : 'flex'} ${closeMenu && !statusMenu && isShowMemberList ? 'w-full' : 'w-widthMemberList'}`}
+							className={`border-l border-solid border-color-primary text-theme-primary relative overflow-y-scroll hide-scrollbar flex} ${closeMenu && !statusMenu && isShowMemberList ? 'w-full' : 'w-widthMemberList'}`}
 							id="memberList"
 						>
 							<MemberList />

@@ -1,11 +1,15 @@
 import { BaseProfile } from '@mezon/components';
 import { useAppNavigation, useDirect, useFriends } from '@mezon/core';
-import { FriendsEntity, selectCurrentTabStatus } from '@mezon/store';
+import type { FriendsEntity } from '@mezon/store';
+import { audioCallActions, selectCurrentTabStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ETabUserStatus, EUserStatus, MetaDateStatusUser, generateE2eId } from '@mezon/utils';
+import type { MetaDateStatusUser } from '@mezon/utils';
+import { ETabUserStatus, EUserStatus, generateE2eId } from '@mezon/utils';
+import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 type FriendProps = {
@@ -24,11 +28,13 @@ type FriendMenuProps = {
 	onClose: () => void;
 	onDeleteFriend: (username: string, id: string) => void;
 	onBlockFriend: (username: string, id: string) => void;
+	handleCreateDm: () => Promise<string | undefined>;
 };
 
-const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: FriendMenuProps) => {
+const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend, handleCreateDm }: FriendMenuProps) => {
 	const menuRef = useRef<HTMLDivElement>(null);
-
+	const { t } = useTranslation('friendsPage');
+	const dispatch = useDispatch();
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -49,14 +55,33 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 		boxShadow: 'rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px'
 	};
 
+	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
+
+	const handleCallFriend = useCallback(
+		async (hasVideo: boolean) => {
+			const response = await handleCreateDm();
+			if (!response) return;
+			dispatch(
+				audioCallActions.setOpenVoiceCall({
+					hasVideo,
+					channelId: response,
+					userId: friend?.user?.id
+				})
+			);
+			const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
+			navigate(directChat);
+		},
+		[friend]
+	);
+
 	return (
 		<div ref={menuRef} className="bg-theme-contexify p-2 w-[150px] text-[14px] font-medium absolute z-50" style={menuStyle}>
 			<div className="flex flex-col gap-1">
-				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={onClose}>
-					Start Video Call
+				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={() => handleCallFriend(true)}>
+					{t('friendMenu.startVideoCall')}
 				</button>
-				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={onClose}>
-					Start Voice Call
+				<button className="text-theme-primary bg-item-hover p-2 rounded-[5px] w-full flex" onClick={() => handleCallFriend(false)}>
+					{t('friendMenu.startVoiceCall')}
 				</button>
 				<button
 					className="hover:bg-[#f67e882a] p-2 rounded-[5px] w-full text-colorDanger flex"
@@ -65,7 +90,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 						onClose();
 					}}
 				>
-					Remove Friend
+					{t('friendMenu.removeFriend')}
 				</button>
 				<button
 					className="hover:bg-[#f67e882a] p-2 rounded-[5px] w-full text-colorDanger flex"
@@ -74,7 +99,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 						onClose();
 					}}
 				>
-					Block
+					{t('friendMenu.block')}
 				</button>
 			</div>
 		</div>
@@ -82,6 +107,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend }: 
 };
 
 const FriendsListItem = ({ friend }: FriendProps) => {
+	const { t } = useTranslation('friendsPage');
 	const { createDirectMessageWithUser } = useDirect();
 	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
 	const { acceptFriend, deleteFriend, blockFriend, unBlockFriend } = useFriends();
@@ -101,9 +127,9 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 
 		const response = await createDirectMessageWithUser(userID, name, friend.user?.username, avatar);
 		if (response.channel_id) {
-			const directChat = toDmGroupPageFromFriendPage(response.channel_id, Number(response.type));
-			navigate(directChat);
+			return response.channel_id;
 		}
+		return;
 	}, [friend]);
 
 	const handleAcceptFriend = (username: string, id: string) => {
@@ -118,10 +144,10 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		try {
 			const isBlocked = await blockFriend(username, id);
 			if (isBlocked) {
-				toast.success('User blocked successfully');
+				toast.success(t('toast.userBlockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to block user');
+			toast.error(t('toast.userBlockedFailed'));
 		}
 	};
 
@@ -129,10 +155,10 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		try {
 			const isUnblocked = await unBlockFriend(username, id);
 			if (isUnblocked) {
-				toast.success('User unblocked successfully');
+				toast.success(t('toast.userUnblockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to unblock user');
+			toast.error(t('toast.userUnblockedFailed'));
 		}
 	};
 
@@ -155,10 +181,18 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 				onClose={closeFriendMenu}
 				onDeleteFriend={handleDeleteFriend}
 				onBlockFriend={handleBlockFriend}
+				handleCreateDm={directMessageWithUser}
 			/>
 		),
 		[friend]
 	);
+
+	const handleNavigateDM = async () => {
+		const response = await directMessageWithUser();
+		if (!response) return;
+		const directChat = toDmGroupPageFromFriendPage(response, ChannelType.CHANNEL_TYPE_DM);
+		navigate(directChat);
+	};
 
 	return (
 		<div
@@ -167,7 +201,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		>
 			<div
 				key={friend?.user?.id}
-				onClick={directMessageWithUser}
+				onClick={handleNavigateDM}
 				className="py-2 flex justify-between group flex-1 items-center px-3 cursor-pointer rounded-lg bg-item-hover"
 			>
 				<div key={friend?.user?.id} className={'flex-1'}>
@@ -192,10 +226,10 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 				<div className="w-20" onClick={(e) => e.stopPropagation()}>
 					{friend?.state === 0 && (
 						<div className="flex gap-3 items-center">
-							<button onClick={directMessageWithUser} className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover">
+							<button onClick={handleNavigateDM} className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover">
 								<Icons.IconChat />
 							</button>
-							<button onClick={handleMenuClick} className="bg-button-secondary rounded-full p-2 text-theme-primary-hover">
+							<button title="More" onClick={handleMenuClick} className="bg-button-secondary rounded-full p-2 text-theme-primary-hover">
 								<Icons.IconEditThreeDot />
 							</button>
 						</div>
@@ -203,7 +237,8 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 1 && (
 						<div className="flex gap-3 items-center">
 							<button
-								className=" rounded-full w-8 h-8 flex items-center justify-center"
+								title="Cancel"
+								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✕
@@ -213,13 +248,15 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 2 && (
 						<div className="flex gap-3 items-center">
 							<button
-								className="dark:bg-bgTertiary bg-bgLightModeButton dark:text-contentSecondary text-textLightTheme rounded-full w-8 h-8 flex items-center justify-center"
+								title="Accept"
+								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✓
 							</button>
 							<button
-								className="dark:bg-bgTertiary bg-bgLightModeButton dark:text-contentSecondary text-textLightTheme rounded-full w-8 h-8 flex items-center justify-center"
+								title="Reject"
+								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
 								✕
@@ -232,7 +269,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								className="bg-bgTertiary text-contentSecondary rounded-[6px] text-[14px] p-2 flex items-center justify-center hover:bg-bgPrimary"
 								onClick={() => handleUnblockFriend(friend?.user?.username as string, friend?.user?.id as string)}
 							>
-								Unblock
+								{t('friendMenu.unblock')}
 							</button>
 						</div>
 					)}

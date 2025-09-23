@@ -378,11 +378,7 @@ export const createNewChannel = createAsyncThunk('channels/createNewChannel', as
 				channelsActions.add({ channel: { id: response.channel_id as string, ...response }, clanId: response.clan_id as string })
 			);
 
-			if (
-				response.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-				response.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-				response.type !== ChannelType.CHANNEL_TYPE_STREAMING
-			) {
+			if (response.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && response.type !== ChannelType.CHANNEL_TYPE_STREAMING) {
 				const isPublic = checkIsThread(response as ChannelsEntity) ? false : !response.channel_private;
 				thunkAPI.dispatch(
 					channelsActions.joinChat({
@@ -442,7 +438,7 @@ export const checkDuplicateChannelInCategory = createAsyncThunk(
 export const deleteChannel = createAsyncThunk('channels/deleteChannel', async (body: fetchChannelMembersPayload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.deleteChannelDesc(mezon.session, body.channelId);
+		const response = await mezon.client.deleteChannelDesc(mezon.session, body.clanId, body.channelId);
 		if (response) {
 			if (body.isDmGroup) {
 				return true;
@@ -475,7 +471,7 @@ export const updateChannel = createAsyncThunk('channels/updateChannel', async (b
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const state = thunkAPI.getState() as RootState;
 		const clanId = state.clans.currentClanId;
-		const response = await mezon.client.updateChannelDesc(mezon.session, body.channel_id, body);
+		const response = await mezon.client.updateChannelDesc(mezon.session, clanId as string, body.channel_id, body);
 		if (response) {
 			if (body.category_id !== '0') {
 				thunkAPI.dispatch(
@@ -599,7 +595,7 @@ export const removeFavoriteChannel = createAsyncThunk(
 	async ({ channelId, clanId }: RemoveChannelFavoriteArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.removeFavoriteChannel(mezon.session, channelId);
+			const response = await mezon.client.removeFavoriteChannel(mezon.session, clanId, channelId);
 			if (response) {
 				thunkAPI.dispatch(
 					channelsActions.removeFavorite({
@@ -1563,7 +1559,10 @@ export const selectChannelsEntities = createSelector(
 	(state, clanId) => state.byClans[clanId]?.entities.entities ?? {}
 );
 
-export const selectChannelById2 = createSelector([selectChannelsEntities, (state, id) => id], (channelsEntities, id) => channelsEntities[id] || null);
+export const selectChannelByChannelId = createSelector(
+	[selectChannelsEntities, (state, id) => id],
+	(channelsEntities, id) => channelsEntities[id] || null
+);
 
 export const selectChannelsEntitiesByClanId = createSelector(
 	[getChannelsState, (state: RootState, clanId: string) => clanId],
@@ -1623,7 +1622,7 @@ export const selectCurrentVoiceChannel = createSelector(selectChannelsEntities, 
 );
 
 export const selectVoiceChannelAll = createSelector(selectAllChannels, (channels) =>
-	channels.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
+	channels.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
 );
 export const selectAllTextChannel = createSelector(selectAllChannels, (channels) =>
 	channels.filter(

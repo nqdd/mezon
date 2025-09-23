@@ -2,6 +2,7 @@ import { useVirtualizer } from '@mezon/components';
 import { FriendsEntity, selectAllActivities, selectAllUserDM, selectTheme } from '@mezon/store';
 import { IUserItemActivity, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityListItem from './ActivityListItem';
 
@@ -28,6 +29,7 @@ const MemoizedMemberItem = memo((props: ActivityUserItemProps) => {
 });
 
 const ActivityList = ({ listFriend }: ListActivityProps) => {
+	const { t } = useTranslation('friendsPage');
 	const listUserDM = useSelector(selectAllUserDM);
 	const mergeListFriendAndListUserDM = useMemo(() => {
 		return [
@@ -134,15 +136,15 @@ const ActivityList = ({ listFriend }: ListActivityProps) => {
 							<div className="flex items-center px-4 h-full">
 								{typeof user === 'object' && 'visualCodeSeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Coding - {listActivities.codeCount}
+										{t('activity.coding')} - {listActivities.codeCount}
 									</p>
 								) : typeof user === 'object' && 'spotifySeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Music - {listActivities.spotifyCount}
+										{t('activity.music')} - {listActivities.spotifyCount}
 									</p>
 								) : typeof user === 'object' && 'lOLSeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Gaming - {listActivities.lolCount}
+										{t('activity.gaming')} - {listActivities.lolCount}
 									</p>
 								) : (
 									<MemoizedMemberItem user={user?.user} />

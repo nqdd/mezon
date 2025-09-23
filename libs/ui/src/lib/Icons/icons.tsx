@@ -442,7 +442,7 @@ export const TopicIcon: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5' }) => {
 	);
 };
 
-export function TopicIcon2(props: React.HTMLAttributes<SVGElement>) {
+export function TopicIconOption(props: React.HTMLAttributes<SVGElement>) {
 	return (
 		<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="" {...props}>
 			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -1894,6 +1894,7 @@ export function AvatarUser(props: React.HTMLAttributes<SVGElement>) {
 			version="1.1"
 			viewBox="0 0 128 128"
 			xmlSpace="preserve"
+			{...props}
 		>
 			<circle cx="64" cy="64" fill="#4B5F83" id="circle" r="64" />
 			<g id="icon">

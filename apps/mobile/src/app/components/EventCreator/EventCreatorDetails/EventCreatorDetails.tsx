@@ -1,6 +1,6 @@
 import { ActionEmitEvent, getDayName, getDayWeekName, getDayYearName, getNearTime } from '@mezon/mobile-components';
 import { Fonts, size, useTheme } from '@mezon/mobile-ui';
-import { ERepeatType, OptionEvent } from '@mezon/utils';
+import { ERepeatType, MAX_FILE_SIZE_1MB, OptionEvent } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -257,6 +257,9 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 								onLoad={handleLoad}
 								showHelpText
 								autoUpload
+								imageSizeLimit={MAX_FILE_SIZE_1MB}
+								imageHeight={400}
+								imageWidth={400}
 							/>
 						</View>
 					</View>

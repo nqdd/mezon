@@ -62,7 +62,7 @@ export const RoleItem = memo(
 						<View style={{ flexDirection: 'row', gap: size.s_4, alignItems: 'center' }}>
 							<Text
 								style={{
-									fontSize: verticalScale(18),
+									fontSize: size.s_14,
 									marginLeft: 0,
 									marginRight: 0,
 									color: themeValue.white

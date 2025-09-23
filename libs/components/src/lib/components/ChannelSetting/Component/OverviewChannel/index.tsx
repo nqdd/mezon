@@ -21,6 +21,7 @@ import { ModalSaveChanges } from 'libs/components/src/lib/components';
 import Dropdown from 'libs/ui/src/lib/DropDown';
 import { ChannelType } from 'mezon-js';
 import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -31,6 +32,7 @@ export type OverviewChannelProps = {
 
 const OverviewChannel = (props: OverviewChannelProps) => {
 	const { channel, onDisplayLabelChange } = props;
+	const { t } = useTranslation('channelSetting');
 	const appearanceTheme = useSelector(selectTheme);
 
 	const channelId = (channel?.channel_id || (channel as any)?.id || '') as string;
@@ -95,15 +97,14 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		return isThread ? 'thread' : 'channel';
 	}, [isThread]);
 
-	const parentLabel = useMemo(() => {
-		return isThread ? 'channel' : 'category';
-	}, [isThread]);
-
-	const messages = {
-		INVALID_NAME: `Please enter a valid ${label} name (max 64 characters, only words, numbers, _ or -).`,
-		DUPLICATE_NAME: `The ${label}  name already exists in the ${parentLabel} . Please enter another name.`,
-		INVALID_URL: `Please enter a valid URL (e.g., https://example.com).`
-	};
+	const messages = useMemo(
+		() => ({
+			INVALID_NAME: isThread ? t('fields.threadName.errorMessage') : t('fields.channelName.errorMessage'),
+			DUPLICATE_NAME: isThread ? t('fields.threadName.duplicateError') : t('fields.channelName.duplicateError'),
+			INVALID_URL: t('fields.appUrl.invalidError')
+		}),
+		[t, isThread]
+	);
 
 	const handleChangeTextArea = useCallback(
 		(e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -209,6 +210,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		setE2eeInit(isE2ee);
 
 		const updateChannel = {
+			clan_id: currentChannel.clan_id,
 			channel_id: currentChannel.channel_id || '',
 			channel_label: updatedChannelLabel,
 			category_id: currentChannel.category_id,
@@ -231,26 +233,47 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		}
 	}, [topic]);
 
-	const slowModeValues = [
-		'Off',
-		'5 seconds',
-		'10 seconds',
-		'15 seconds',
-		'30 seconds',
-		'1 minute',
-		'2 minutes',
-		'5 minutes',
-		'10 minutes',
-		'15 minutes',
-		'30 minutes',
-		'1 hour',
-		'2 hours',
-		'6 hours'
-	];
+	const slowModeValues = useMemo(
+		() => [
+			t('fields.channelSlowMode.slowModeOff') || 'Off',
+			t('fields.channelSlowMode._5seconds'),
+			t('fields.channelSlowMode._10seconds'),
+			t('fields.channelSlowMode._15seconds'),
+			t('fields.channelSlowMode._30seconds'),
+			t('fields.channelSlowMode._1minute'),
+			t('fields.channelSlowMode._2minutes'),
+			t('fields.channelSlowMode._5minutes'),
+			t('fields.channelSlowMode._10minutes'),
+			t('fields.channelSlowMode._15minutes'),
+			t('fields.channelSlowMode._30minutes'),
+			t('fields.channelSlowMode._1hour'),
+			t('fields.channelSlowMode._2hours'),
+			t('fields.channelSlowMode._6hours')
+		],
+		[t]
+	);
 
-	const [slowModeDropdown, setSlowDropdown] = useState(slowModeValues[0]);
-	const hideInactivityTimes = ['1 Hour', '24 Hours', '3 Days', '1 Week'];
-	const [hideTimeDropdown, setHideTimeDropdown] = useState(hideInactivityTimes[2]);
+	const hideInactivityTimes = useMemo(
+		() => [
+			t('fields.channelHideInactivity._1hour'),
+			t('fields.channelHideInactivity._24hours'),
+			t('fields.channelHideInactivity._3days'),
+			t('fields.channelHideInactivity._1Week')
+		],
+		[t]
+	);
+
+	const [slowModeDropdown, setSlowDropdown] = useState(() => slowModeValues[0]);
+	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[2]);
+
+	// Update dropdown values when translations change
+	useEffect(() => {
+		setSlowDropdown(slowModeValues[0]);
+	}, [slowModeValues]);
+
+	useEffect(() => {
+		setHideTimeDropdown(hideInactivityTimes[2]);
+	}, [hideInactivityTimes]);
 
 	const hasChange = useMemo(() => {
 		return (
@@ -282,8 +305,8 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	return (
 		<div className="overflow-y-auto flex flex-col flex-1 shrink  w-1/2 pt-[94px] sbm:pb-7 text-theme-primary bg-theme-setting-primary sbm:pr-[10px] sbm:pl-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
 			<div className=" text-[15px]">
-				<h3 className="mb-4 font-bold text-xl text-theme-primary-active">Overview</h3>
-				<p className="text-xs font-bold uppercase mb-2">{label} name</p>
+				<h3 className="mb-4 font-bold text-xl text-theme-primary-active">{t('overview.title')}</h3>
+				<p className="text-xs font-bold uppercase mb-2">{isThread ? t('fields.threadName.title') : t('fields.channelName.title')}</p>
 				<InputField
 					type="text"
 					placeholder={channelLabel}
@@ -297,7 +320,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 				{channel.type === ChannelType.CHANNEL_TYPE_APP && (
 					<>
 						<hr className="border-t-theme-primary my-10" />
-						<p className="text-xs font-bold uppercase mb-2">App URL</p>
+						<p className="text-xs font-bold uppercase mb-2">{t('fields.appUrl.title')}</p>
 						<InputField
 							disabled={true}
 							type="text"
@@ -311,10 +334,12 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 				)}
 
 				<hr className="border-t-theme-primary my-10" />
-				<p className="text-xs font-bold  uppercase mb-2">{label} Topic</p>
+				<p className="text-xs font-bold  uppercase mb-2">
+					{isThread ? t('fields.threadDescription.title') : t('fields.channelDescription.title')}
+				</p>
 				<div className="relative">
 					<TextArea
-						placeholder={`Let everyone know how to use this ${label}!`}
+						placeholder={isThread ? t('fields.threadDescription.placeholder') : t('fields.channelDescription.placeholder')}
 						className="resize-none bg-theme-input h-auto min-h-[87px] w-full overflow-y-hidden outline-none py-2 pl-3 pr-5 border-theme-primary"
 						value={topic}
 						onChange={handleChangeTextArea}
@@ -379,6 +404,7 @@ const BottomBlock = ({
 	setIsCheckForSystemMsg,
 	thisIsSystemMessageChannel
 }: IBottomBlockProps) => {
+	const { t } = useTranslation('channelSetting');
 	const logoImgSrc = useMemo(() => {
 		if (appearanceTheme === 'light') {
 			return 'assets/images/channel_setting_logo_light.svg';
@@ -409,7 +435,7 @@ const BottomBlock = ({
 			<hr className="border-t border-solid dark:border-borderDivider" />
 			<div className="flex flex-col gap-3">
 				<div className="flex justify-between">
-					<div className="font-semibold text-base text-theme-primary">Age-Restricted Channel</div>
+					<div className="font-semibold text-base text-theme-primary">{t('overview.ageRestricted.title')}</div>
 					<input
 						className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg
 						bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full
@@ -425,15 +451,12 @@ const BottomBlock = ({
 						onChange={handleCheckboxAgeRestricted}
 					/>
 				</div>
-				<div className="text-theme-primary">
-					Users will need to confirm they are of legal age to view the content in this channel. Age-restricted channels are exempt from the
-					explicit content filter.
-				</div>
+				<div className="text-theme-primary">{t('overview.ageRestricted.description')}</div>
 			</div>
 
 			<hr className="border-t border-solid dark:border-borderDivider" />
 			<div className="flex flex-col gap-2">
-				<div className="text-xs font-bold text-theme-primary">Hide After Inactivity</div>
+				<div className="text-xs font-bold text-theme-primary">{t('fields.channelHideInactivity.title')}</div>
 				<div className="w-full relative">
 					<Dropdown menu={menu} className="text-theme-message bg-input-secondary rounded-md">
 						<div className="w-full h-[50px] rounded-md border-theme-primary text-theme-message bg-input-secondary flex flex-row px-3 justify-between items-center">
@@ -444,9 +467,7 @@ const BottomBlock = ({
 						</div>
 					</Dropdown>
 				</div>
-				<div className="text-theme-primary">
-					New threads will not show in the channel list after being inactive for the specified duration.
-				</div>
+				<div className="text-theme-primary">{t('fields.channelHideInactivity.description')}</div>
 			</div>
 			<div className="flex justify-center pb-10">
 				<Image src={logoImgSrc} width={48} height={48} className="object-cover w-[280px]" />

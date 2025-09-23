@@ -2,6 +2,7 @@ import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
 import { attachmentActions, selectAllListDocumentByChannel, selectCurrentChannel, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import EmptyFile from './EmptyFile';
 import FileItem from './FileItem';
@@ -13,6 +14,7 @@ type FileModalProps = {
 };
 
 const FileModal = ({ onClose, rootRef }: FileModalProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const [keywordSearch, setKeywordSearch] = useState('');
@@ -43,7 +45,7 @@ const FileModal = ({ onClose, rootRef }: FileModalProps) => {
 				<div className=" bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12">
 					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
 						<Icons.FileIcon />
-						<span className="text-base font-semibold cursor-default ">File</span>
+						<span className="text-base font-semibold cursor-default ">{t('modals.files.title')}</span>
 					</div>
 					<SearchFile setKeywordSearch={setKeywordSearch} />
 					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">

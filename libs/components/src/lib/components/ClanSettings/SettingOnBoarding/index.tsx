@@ -1,10 +1,11 @@
 import { MemberProvider } from '@mezon/core';
-import { onboardingActions, selectCurrentClan, selectCurrentClanId, selectFormOnboarding, useAppDispatch } from '@mezon/store';
+import { onboardingActions, selectCurrentClan, selectFormOnboarding, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { ApiOnboardingContent } from 'mezon-js/api.gen';
+import type { ApiOnboardingContent } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import EnableOnboarding from '../../EnableOnboarding';
@@ -12,6 +13,7 @@ import ModalSaveChanges from '../ClanSettingOverview/ModalSaveChanges';
 import GuideItemLayout from './GuideItemLayout';
 import ClanGuideSetting from './Mission/ClanGuideSetting';
 import Questions from './Questions/Questions';
+import { generateE2eId } from '@mezon/utils';
 
 export enum EOnboardingStep {
 	QUESTION,
@@ -19,6 +21,7 @@ export enum EOnboardingStep {
 	MAIN
 }
 const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
+	const { t } = useTranslation('onBoardingClan');
 	const dispatch = useAppDispatch();
 	const currentClan = useSelector(selectCurrentClan);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +55,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 		setIsSaving(true);
 		try {
 			if (!checkCreateValidate) {
-				toast.error('You need to create at least one task, question, or rule before enabling the Onboarding!');
+				toast.error(t('errors.needAtLeastOneItem'));
 				setShowOnboardingHighlight(true);
 				setTimeout(() => setShowOnboardingHighlight(false), 2000);
 				return;
@@ -69,10 +72,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			setInitialDescription(description);
 			setInitialAbout(about);
 			setOpenModalSaveChanges(false);
-			toast.success('Community enabled successfully!');
+			toast.success(t('messages.communityEnabledSuccess'));
 		} catch (error) {
 			console.error('Error enabling community:', error);
-			toast.error('Failed to enable community. Please try again.');
+			toast.error(t('errors.failedToEnableCommunity'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -93,10 +96,11 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					return undefined;
 				}
 				const id = Snowflake.generate();
-				const path = 'onboarding/' + id + '.webp';
+				const path = `onboarding/${id}.webp`;
 				if (clientRef.current && sessionRef.current) {
 					return handleUploadEmoticon(clientRef.current, sessionRef.current, path, item.file);
 				}
+				return undefined;
 			});
 			const imageUrl = await Promise.all(uploadImageRule);
 
@@ -128,10 +132,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			setInitialDescription(description);
 			setInitialAbout(about);
 			setOpenModalSaveChanges(false);
-			toast.success('Changes saved successfully!');
+			toast.success(t('messages.changesSavedSuccess'));
 		} catch (error) {
 			console.error('Error saving changes:', error);
-			toast.error('Failed to save changes. Please try again.');
+			toast.error(t('errors.failedToSaveChanges'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -147,14 +151,6 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 		setDescription(initialDescription);
 		setAbout(initialAbout);
 	};
-	const handleChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setOpenModalSaveChanges(true);
-		setDescription(e.target.value.slice(0, 300));
-	};
-	const handleChangeAbout = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setOpenModalSaveChanges(true);
-		setAbout(e.target.value.slice(0, 300));
-	};
 
 	const isDescriptionOrAboutChanged = useMemo(() => {
 		return description !== initialDescription || about !== initialAbout;
@@ -163,13 +159,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 	const renderOnboardingContent = () => (
 		<div className="text-theme-primary text-sm">
 			{currentPage === EOnboardingStep.MAIN && (
-				<MainIndex
-					handleGoToPage={handleGoToPage}
-					isEnableOnBoarding={isCommunityEnabled}
-					toggleEnableStatus={toggleEnableStatus}
-					onCloseSetting={onClose}
-					showOnboardingHighlight={showOnboardingHighlight}
-				/>
+				<MainIndex handleGoToPage={handleGoToPage} onCloseSetting={onClose} showOnboardingHighlight={showOnboardingHighlight} />
 			)}
 			{currentPage === EOnboardingStep.QUESTION && (
 				<Questions handleGoToPage={handleGoToPage} setOpenModalSaveChanges={setOpenModalSaveChanges} />
@@ -179,7 +169,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					<div className="flex flex-col gap-8">
 						<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
 							<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary" />
-							<div className="font-semibold text-theme-primary">BACK</div>
+							<div className="font-semibold text-theme-primary">{t('buttons.back')}</div>
 						</div>
 						<ClanGuideSetting setOpenModalSaveChanges={setOpenModalSaveChanges} />
 					</div>
@@ -196,7 +186,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 						<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin  [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-[#5865F2] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-gray-200">
 							<div className="flex justify-between items-center mb-6">
-								<h3 className="text-xl font-semibold text-theme-primary-active">Onboarding Settings</h3>
+								<h3 className="text-xl font-semibold text-theme-primary-active">{t('modal.title')}</h3>
 								<button onClick={() => setIsModalOpen(false)} className=" text-theme-primary text-theme-primary-hover ">
 									<Icons.CloseIcon className="w-6 h-6" />
 								</button>
@@ -204,7 +194,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 							{renderOnboardingContent()}
 							<div className="flex justify-end gap-4 mt-6">
 								<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
-									Cancel
+									{t('buttons.cancel')}
 								</button>
 								<button
 									onClick={handleConfirm}
@@ -214,10 +204,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 									{isSaving ? (
 										<>
 											<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-											Saving...
+											{t('buttons.saving')}
 										</>
 									) : (
-										'Confirm'
+										t('buttons.confirm')
 									)}
 								</button>
 							</div>
@@ -234,7 +224,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 					<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
 						<div className="flex justify-between items-center mb-6">
-							<h3 className="text-xl font-semibold text-theme-primary">Onboarding Settings</h3>
+							<h3 className="text-xl font-semibold text-theme-primary">{t('modal.title')}</h3>
 							<button onClick={() => setIsModalOpen(false)} className=" bg-item-theme hover:text-white">
 								<Icons.CloseIcon className="w-6 h-6" />
 							</button>
@@ -242,7 +232,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 						{renderOnboardingContent()}
 						<div className="flex justify-end gap-4 mt-6">
 							<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
-								Cancel
+								{t('buttons.cancel')}
 							</button>
 							<button
 								onClick={handleConfirm}
@@ -252,10 +242,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 								{isSaving ? (
 									<>
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-										Saving...
+										{t('buttons.saving')}
 									</>
 								) : (
-									'Confirm'
+									t('buttons.confirm')
 								)}
 							</button>
 						</div>
@@ -267,14 +257,14 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 				<div className="text-theme-primary text-sm pb-10">
 					<div className="flex items-center justify-between p-4 bg-theme-setting-primary rounded-lg mb-6">
 						<div className="flex flex-col">
-							<h3 className="text-lg font-semibold text-theme-primary"> Onboarding</h3>
-							<p className="text-sm text-theme-primary">Onboarding features are enabled</p>
+							<h3 className="text-lg font-semibold text-theme-primary">{t('onboarding.title')}</h3>
+							<p className="text-sm text-theme-primary">{t('onboarding.featuresEnabled')}</p>
 						</div>
 						<button
 							onClick={() => toggleEnableStatus(false)}
 							className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
 						>
-							Disable Onboarding
+							{t('buttons.disable')}
 						</button>
 					</div>
 					{renderOnboardingContent()}
@@ -288,43 +278,46 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 };
 
 interface IMainIndexProps {
-	isEnableOnBoarding: boolean;
-	toggleEnableStatus: (enable: boolean) => void;
 	handleGoToPage: (page: EOnboardingStep) => void;
 	onCloseSetting?: () => void;
 	showOnboardingHighlight?: boolean;
 }
 
-const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
+const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
+	const { t } = useTranslation('onBoardingClan');
+	const currentClan = useSelector(selectCurrentClan);
 	const dispatch = useAppDispatch();
 	const openOnboardingPreviewMode = () => {
-		dispatch(onboardingActions.openOnboardingPreviewMode());
+		dispatch(
+			onboardingActions.openOnboardingPreviewMode({
+				clan_id: currentClan?.id || ''
+			})
+		);
 		if (onCloseSetting) {
 			onCloseSetting();
 		}
 	};
-	const currentClanId = useSelector(selectCurrentClanId);
 
 	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId as string }));
-	}, []);
+		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClan?.id as string }));
+	}, [currentClan, dispatch]);
 
 	return (
 		<div className="flex flex-col gap-6 flex-1">
 			<div className="flex flex-col gap-2">
-				<div className="text-[20px] text-theme-primary-active font-semibold">Onboarding</div>
+				<div className="text-[20px] text-theme-primary-active font-semibold">{t('onboarding.title')}</div>
 				<div className="font-medium text-theme-primary">
-					Give your members a simple starting experience with custom channels, roles and first steps.
+					{t('onboarding.description')}
 					<p className="ml-3 inline-block cursor-pointer text-blue-500 hover:underline" onClick={openOnboardingPreviewMode}>
-						Preview
+						{t('buttons.preview')}
 					</p>
 				</div>
 			</div>
 
 			<div className="text-theme-primary">
 				<GuideItemLayout
-					title="Onboarding Is Enabled"
-					description="Changes will not take effect until you save."
+					title={t('onboarding.enabledTitle')}
+					description={t('onboarding.enabledDescription')}
 					className=" bg-theme-setting-nav rounded-none rounded-t-lg "
 					noNeedHover
 				/>
@@ -334,15 +327,15 @@ const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onC
 				<GuideItemLayout
 					hightLightIcon
 					icon={<Icons.People className="w-6 text-theme-primary" />}
-					title="Questions"
-					description="Public channels are assignable through Questions."
+					title={t('questions.title')}
+					description={t('questions.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div
 							onClick={() => handleGoToPage(EOnboardingStep.QUESTION)}
 							className="px-3 py-2 flex gap-2 justify-center items-center rounded-lg btn-primary btn-primary-hover  cursor-pointer"
 						>
-							<div>Set up</div> <Icons.LongArrowRight className="w-3" />
+							<div>{t('buttons.setup')}</div> <Icons.LongArrowRight className="w-3" />
 						</div>
 					}
 				/>
@@ -350,16 +343,17 @@ const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onC
 				<GuideItemLayout
 					hightLightIcon
 					icon={<Icons.GuideIcon defaultSize="w-6  " className="text-theme-primary" />}
-					title="Clan Guide"
-					description="Your Welcome Message, Banner, To-Do tasks and Resources are all set up"
+					title={t('clanGuide.title')}
+					description={t('clanGuide.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div className="flex items-center gap-4">
 							<div
 								className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover  cursor-pointer"
 								onClick={() => handleGoToPage(EOnboardingStep.MISSION)}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.clan_guide')}
 							>
-								Edit
+								{t('buttons.edit')}
 							</div>
 						</div>
 					}

@@ -16,14 +16,17 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
-import { EPermission, EUserSettings, IClan } from '@mezon/utils';
-import { ApiAccount } from 'mezon-js/dist/api.gen';
-import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { IClan } from '@mezon/utils';
+import { EPermission, EUserSettings } from '@mezon/utils';
+import type { ApiAccount } from 'mezon-js/dist/api.gen';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import ModalConfirm from '../ModalConfirm';
-import { notificationTypesList } from '../PanelChannel';
+import { createNotificationTypesListTranslated } from '../PanelChannel';
 import GroupPanels from '../PanelChannel/GroupPanels';
 import ItemPanel from '../PanelChannel/ItemPanel';
 import { EActiveType } from '../SettingProfile/SettingRightProfile';
@@ -37,6 +40,9 @@ interface IPanelCLanProps {
 }
 
 const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMenuContext, userProfile }) => {
+	const { t } = useTranslation('contextMenu');
+	const tChannelMenu = useTranslation('channelMenu').t;
+	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [positionTop, setPositionTop] = useState(false);
 	const isOwnerOfContextClan = useIsClanOwner(clan?.clan_id || clan?.id || '');
@@ -144,7 +150,7 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 			)
 		);
 		return <>{menuItems}</>;
-	}, [notificationTypesList]);
+	}, [notificationTypesList, tChannelMenu]);
 
 	const handleCheckMenu = useCallback((visible: boolean) => {
 		checkMenuOpen.current = visible;
@@ -159,7 +165,7 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 		>
 			{userProfile ? (
 				<GroupPanels>
-					<ItemPanel children={'Remove Logo'} onClick={handleRemoveLogo}></ItemPanel>
+					<ItemPanel children={t('removeLogo')} onClick={handleRemoveLogo}></ItemPanel>
 				</GroupPanels>
 			) : (
 				<>
@@ -168,7 +174,7 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 							onClick={statusMarkAsReadClan === 'pending' ? undefined : () => handleMarkAsReadClan(clan?.id as string)}
 							disabled={statusMarkAsReadClan === 'pending'}
 						>
-							{statusMarkAsReadClan === 'pending' ? 'Processing...' : 'Mark As Read'}
+							{statusMarkAsReadClan === 'pending' ? t('processing') : t('markAsRead')}
 						</ItemPanel>
 					</GroupPanels>
 					<GroupPanels>
@@ -183,19 +189,18 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 							onVisibleChange={handleCheckMenu}
 						>
 							<div>
-								<ItemPanel children="Notification Settings" subText={notificationLabel as string} dropdown="change here" />
+								<ItemPanel children={t('notificationSettings')} subText={notificationLabel as string} dropdown={t('changeHere')} />
 							</div>
 						</Menu>
-						<ItemPanel children={'Hide Muted Channels'} type={'checkbox'} />
+						<ItemPanel children={t('hideMutedChannels')} type={'checkbox'} />
 					</GroupPanels>
 					<GroupPanels>
-						<ItemPanel children={'Privacy Settings'} />
-						<ItemPanel children={'Edit Clan Profile'} onClick={handleOpenClanProfileSetting} />
+						<ItemPanel children={t('editClanProfile')} onClick={handleOpenClanProfileSetting} />
 					</GroupPanels>
 
 					<UserRestrictionZone policy={!(isOwnerOfContextClan || canManageClan)}>
 						<GroupPanels>
-							<ItemPanel children={'Leave Clan'} danger onClick={toggleLeaveClanPopup} />
+							<ItemPanel children={t('leaveClan')} danger onClick={toggleLeaveClanPopup} />
 						</GroupPanels>
 					</UserRestrictionZone>
 				</>
@@ -206,7 +211,7 @@ const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMen
 					handleConfirm={handleLeaveClan}
 					modalName={clan?.clan_name}
 					title="leave"
-					buttonName="Leave Clan"
+					buttonName={t('leaveClan')}
 				/>
 			)}
 		</div>

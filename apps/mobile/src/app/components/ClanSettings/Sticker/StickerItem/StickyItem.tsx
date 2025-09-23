@@ -1,6 +1,6 @@
 import { useClanRestriction } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { deleteSticker, selectCurrentUserId, selectMemberClanByUserId2, updateSticker, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { deleteSticker, selectCurrentUserId, selectMemberClanByUserId, updateSticker, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import { ClanSticker } from 'mezon-js';
 import React, { Ref, forwardRef, useCallback, useMemo, useState } from 'react';
@@ -23,7 +23,7 @@ interface IStickerItem {
 export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: IStickerItem, ref: Ref<SwipeableMethods>) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, data.creator_id));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, data.creator_id));
 	const [stickerName, setStickerName] = useState<string>(data.shortname);
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation(['clanStickerSetting']);
@@ -108,7 +108,6 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 			renderRightActions={renderRightAction}
 			onSwipeableWillOpen={handleSwipeOpen}
 			enabled={hasDeleteOrEditPermission}
-			childrenContainerStyle={{ marginBottom: -size.s_10 }}
 		>
 			<View style={styles.container}>
 				<View style={styles.flexRow}>

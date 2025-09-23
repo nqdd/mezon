@@ -1,6 +1,9 @@
 import { Icons } from '@mezon/ui';
+import { useTranslation } from 'react-i18next';
 
 const SearchFile = ({ setKeywordSearch }: { setKeywordSearch: React.Dispatch<React.SetStateAction<string>> }) => {
+	const { t } = useTranslation('channelTopbar');
+
 	const hanldeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setKeywordSearch(event.target.value);
 	};
@@ -10,7 +13,7 @@ const SearchFile = ({ setKeywordSearch }: { setKeywordSearch: React.Dispatch<Rea
 			<div className={`transition-all duration-300 w-56 h-6 pl-4 pr-2 py-3 bg-theme-input rounded items-center inline-flex`}>
 				<input
 					type="text"
-					placeholder="Search for File Name"
+					placeholder={t('files.searchPlaceholder')}
 					className="text-sm placeholder:text-sm outline-none bg-transparent w-full"
 					onChange={(event) => hanldeChange(event)}
 				/>

@@ -104,7 +104,8 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 						title: title,
 						description: description,
 						channel_id: eventChannelId,
-						is_private: isPrivate
+						is_private: isPrivate,
+						logo: logo
 					}}
 					showActions={false}
 					start={startTime.toISOString()}

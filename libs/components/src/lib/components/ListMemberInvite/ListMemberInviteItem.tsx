@@ -3,6 +3,7 @@ import { DirectEntity, getStore, selectDirectById } from '@mezon/store';
 import { UsersClanEntity, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { ProcessedUser } from './dataHelper';
 
@@ -99,6 +100,7 @@ type ItemInviteDMProps = {
 };
 
 const ItemInviteDM = (props: ItemInviteDMProps) => {
+	const { t } = useTranslation('invitation');
 	const { channelID = '', type = '', avatar = '', label = '', isInviteSent = false, username = '', onHandle } = props;
 	return (
 		<div
@@ -126,7 +128,7 @@ const ItemInviteDM = (props: ItemInviteDMProps) => {
 						: 'font-sans font-normal text-[14px] group-hover:bg-green-700  hover:bg-green-900 group-hover:text-white border-theme-primary rounded-lg py-[5px] px-[18px]'
 				}
 			>
-				{isInviteSent ? 'Sent' : 'Invite'}
+				{isInviteSent ? t('buttons.sent') : t('buttons.invite')}
 			</button>
 		</div>
 	);
@@ -142,6 +144,7 @@ type ItemInviteUserProps = {
 };
 
 const ItemInviteUser = (props: ItemInviteUserProps) => {
+	const { t } = useTranslation('invitation');
 	const { userId = '', avatar = '', displayName = '', username = '', isInviteSent = false, onHandle } = props;
 	return (
 		<div key={userId} className="flex items-center justify-between h-14">
@@ -165,7 +168,7 @@ const ItemInviteUser = (props: ItemInviteUserProps) => {
 						: 'font-sans font-normal text-[14px] bg-white dark:bg-bgPrimary dark:hover:bg-green-700 hover:bg-green-700 text-textLightTheme hover:text-white dark:text-textDarkTheme border border-solid border-green-700 rounded-md py-[5px] px-[18px]'
 				}
 			>
-				{isInviteSent ? 'Sent' : 'Invite'}
+				{isInviteSent ? t('buttons.sent') : t('buttons.invite')}
 			</button>
 		</div>
 	);

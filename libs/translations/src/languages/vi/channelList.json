@@ -1,0 +1,18 @@
+{
+	"navigation": {
+		"clanGuide": "Hướng dẫn",
+		"events": "Sự kiện",
+		"events_one": "{{count}} Sự kiện",
+		"events_other": "{{count}} Sự kiện",
+		"members": "Thành viên",
+		"channels": "Kênh"
+	},
+	"ongoingEvent": {
+		"title": "Sự kiện đang diễn ra",
+		"eventDetail": "Chi tiết sự kiện"
+	},
+	"onboarding": {
+		"getStarted": "Bắt đầu",
+		"of": "trên"
+	}
+}

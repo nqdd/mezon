@@ -2,6 +2,7 @@ import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 interface ChannelTypeProps {
 	type: ChannelType;
 	onChange: (value: number) => void;
@@ -9,36 +10,34 @@ interface ChannelTypeProps {
 	disable?: boolean;
 }
 
-const labelMap: Partial<Record<ChannelType, string>> = {
-	[ChannelType.CHANNEL_TYPE_CHANNEL]: 'Text',
-	[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: 'Voice',
-	[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: 'Voice',
-	[ChannelType.CHANNEL_TYPE_FORUM]: 'Forum',
-	[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: 'Announcement',
-	[ChannelType.CHANNEL_TYPE_APP]: 'Apps',
-	[ChannelType.CHANNEL_TYPE_STREAMING]: 'Stream',
-	// 2 lines below only get index
-	[ChannelType.CHANNEL_TYPE_DM]: '',
-	[ChannelType.CHANNEL_TYPE_GROUP]: ''
-};
-
-const descriptionMap: Partial<Record<ChannelType, string>> = {
-	[ChannelType.CHANNEL_TYPE_CHANNEL]: 'Send messages, images, GIFs, emoji, opinions, and puns',
-	[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: 'Hang out together with voice, video, and screen share',
-	[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: 'Hang out together with voice, video, and screen share',
-	[ChannelType.CHANNEL_TYPE_FORUM]: 'Create a space for organized discussions',
-	[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: 'Important updates for people in and out of the clan',
-	[ChannelType.CHANNEL_TYPE_APP]: 'Apps',
-	[ChannelType.CHANNEL_TYPE_STREAMING]: 'Sharing hobbies activity',
-	// 2 lines below only get index
-	[ChannelType.CHANNEL_TYPE_DM]: '',
-	[ChannelType.CHANNEL_TYPE_GROUP]: ''
-};
-
 export const ChannelTypeComponent: React.FC<ChannelTypeProps> = ({ type, onChange, error, disable }) => {
+	const { t } = useTranslation('createChannel');
+
+	const labelMap: Partial<Record<ChannelType, string>> = {
+		[ChannelType.CHANNEL_TYPE_CHANNEL]: t('channelType.text'),
+		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: t('channelType.voice'),
+		[ChannelType.CHANNEL_TYPE_FORUM]: t('channelType.forum'),
+		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: t('channelType.announcement'),
+		[ChannelType.CHANNEL_TYPE_APP]: t('channelType.apps'),
+		[ChannelType.CHANNEL_TYPE_STREAMING]: t('channelType.stream'),
+		// 2 lines below only get index
+		[ChannelType.CHANNEL_TYPE_DM]: '',
+		[ChannelType.CHANNEL_TYPE_GROUP]: ''
+	};
+
+	const descriptionMap: Partial<Record<ChannelType, string>> = {
+		[ChannelType.CHANNEL_TYPE_CHANNEL]: t('channelType.descriptions.text'),
+		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: t('channelType.descriptions.voice'),
+		[ChannelType.CHANNEL_TYPE_FORUM]: t('channelType.descriptions.forum'),
+		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: t('channelType.descriptions.announcement'),
+		[ChannelType.CHANNEL_TYPE_APP]: t('channelType.descriptions.apps'),
+		[ChannelType.CHANNEL_TYPE_STREAMING]: t('channelType.descriptions.stream'),
+		// 2 lines below only get index
+		[ChannelType.CHANNEL_TYPE_DM]: '',
+		[ChannelType.CHANNEL_TYPE_GROUP]: ''
+	};
 	const iconMap: Partial<Record<ChannelType, JSX.Element>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: <Icons.Hashtag defaultSize="w-6 h-6" />,
-		[ChannelType.CHANNEL_TYPE_GMEET_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_FORUM]: <Icons.Forum defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_ANNOUNCEMENT]: <Icons.Announcement defaultSize="w-6 h-6" />,

@@ -2,8 +2,10 @@ import { selectAllChannels, selectCurrentClanId, useAppSelector } from '@mezon/s
 import { Icons, Menu } from '@mezon/ui';
 import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
-import React, { ReactElement, useMemo } from 'react';
+import type { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type SystemMessagesManagementProps = {
 	updateSystem: ApiSystemMessage | null;
@@ -12,6 +14,7 @@ type SystemMessagesManagementProps = {
 };
 
 const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest, channelSelectedId }: SystemMessagesManagementProps) => {
+	const { t } = useTranslation('clanSettings');
 	const channelsList = useAppSelector(selectAllChannels);
 	const currentClanId = useAppSelector(selectCurrentClanId);
 	const selectedChannel = useMemo(() => {
@@ -30,14 +33,8 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 			case ETypeUpdateSystemMessage.SETUP_TIPS:
 				setUpdateSystemMessageRequest({ ...updateSystem, setup_tips: checked ? '1' : '0' });
 				break;
-			case ETypeUpdateSystemMessage.WELCOME_STICKER:
-				setUpdateSystemMessageRequest({ ...updateSystem, welcome_sticker: checked ? '1' : '0' });
-				break;
 			case ETypeUpdateSystemMessage.WELCOME_RANDOM:
 				setUpdateSystemMessageRequest({ ...updateSystem, welcome_random: checked ? '1' : '0' });
-				break;
-			case ETypeUpdateSystemMessage.BOOTS_MESSAGE:
-				setUpdateSystemMessageRequest({ ...updateSystem, boost_message: checked ? '1' : '0' });
 				break;
 			default:
 				break;
@@ -75,7 +72,7 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 	}, [channelsList, selectedChannel?.id]);
 	return (
 		<div className={'border-t-theme-primary mt-10 pt-10 flex flex-col '}>
-			<h3 className="text-sm font-bold uppercase mb-2">System Messages Channel</h3>
+			<h3 className="text-sm font-bold uppercase mb-2">{t('systemMessages.title')}</h3>
 			<Menu menu={menu} className={'h-fit max-h-[200px] text-xs overflow-y-scroll customSmallScrollLightMode bg-theme-input px-2 z-20'}>
 				<div className="w-full h-10 rounded-md flex flex-row p-3 justify-between items-center uppercase text-sm border border-theme-primary bg-theme-input ">
 					<div className={' flex flex-row items-center'}>
@@ -88,29 +85,19 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 					</div>
 				</div>
 			</Menu>
-			<p className={'text-sm py-2'}>This is the channel we send system event messages to. These can be turned off at any time</p>
+			<p className={'text-sm py-2'}>{t('systemMessages.description')}</p>
 			<ToggleItem
-				label={'Send a random welcome message when someone joins this server.'}
+				label={t('systemMessages.welcomeRandom')}
 				value={updateSystem?.welcome_random === '1'}
 				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.WELCOME_RANDOM)}
 			/>
 			<ToggleItem
-				label={'Prompt members to reply to welcome messages with a sticker.'}
-				value={updateSystem?.welcome_sticker === '1'}
-				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.WELCOME_STICKER)}
-			/>
-			<ToggleItem
-				label={'Send a message when someone Boosts this server.'}
-				value={updateSystem?.boost_message === '1'}
-				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.BOOTS_MESSAGE)}
-			/>
-			<ToggleItem
-				label={'Send helpful tips for server setup.'}
+				label={t('systemMessages.setupTips')}
 				value={updateSystem?.setup_tips === '1'}
 				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.SETUP_TIPS)}
 			/>
 			<ToggleItem
-				label={'Send a log when an action is applied to the clan'}
+				label={t('systemMessages.auditLog')}
 				value={updateSystem?.hide_audit_log !== '1'}
 				handleToggle={(e) => handleToggleSetting(e, ETypeUpdateSystemMessage.HIDE_AUDIT_LOG)}
 			/>

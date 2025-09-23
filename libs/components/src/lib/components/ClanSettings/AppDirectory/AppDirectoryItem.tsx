@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { useTranslation } from 'react-i18next';
 import { IAppDirectoryItem } from './AppDirectoryList';
 
 interface AppDirectoryItemProps {
@@ -6,6 +7,7 @@ interface AppDirectoryItemProps {
 }
 
 const AppDirectoryItem: React.FC<AppDirectoryItemProps> = ({ appDirectory }) => {
+	const { t } = useTranslation('clanSettings');
 	return (
 		<div className="p-4 h-[164px] flex-1 flex flex-col rounded-md dark:bg-[#2b2d31] bg-bgLightModeThird cursor-pointer dark:hover:bg-[#232428] hover:bg-bgLightModeButton">
 			<div className="h-12 flex gap-4">
@@ -24,7 +26,7 @@ const AppDirectoryItem: React.FC<AppDirectoryItemProps> = ({ appDirectory }) => 
 			</div>
 			<div className="pt-4 flex text-xs gap-2">
 				<Icons.CompassIcon height="16px" width="16px" />
-				<p>in {appDirectory.botNumber} servers</p>
+				<p>{t('appDirectory.inServers', { count: appDirectory.botNumber })}</p>
 			</div>
 		</div>
 	);

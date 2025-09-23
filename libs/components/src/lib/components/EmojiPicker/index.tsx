@@ -1,34 +1,32 @@
 import { useChatReaction, useEmojiSuggestionContext, useEscapeKeyClose, useGifsStickersEmoji, usePermissionChecker } from '@mezon/core';
 import {
-  emojiRecentActions,
-  emojiSuggestionActions,
-  referencesActions,
-  selectAddEmojiState,
-  selectCurrentChannel,
-  selectMessageByMessageId,
-  selectModeResponsive,
-  selectThreadCurrentChannel,
-  useAppDispatch,
-  useAppSelector
+	emojiRecentActions,
+	emojiSuggestionActions,
+	referencesActions,
+	selectAddEmojiState,
+	selectCurrentChannel,
+	selectMessageByMessageId,
+	selectModeResponsive,
+	selectThreadCurrentChannel,
+	useAppDispatch,
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { IEmoji, MentionItem, RequestInput } from '@mezon/utils';
 import {
-  EEmojiCategory,
-  EPermission,
-  EmojiPlaces,
-  FOR_SALE_CATE,
-  IEmoji,
-  MAX_LENGTH_MESSAGE_BUZZ,
-  ModeResponsive,
-  RECENT_EMOJI_CATEGORY,
-  RequestInput,
-  SubPanelName,
-  getIdSaleItemFromSource,
-  getSrcEmoji,
-  isPublicChannel
+	EEmojiCategory,
+	EPermission,
+	EmojiPlaces,
+	FOR_SALE_CATE,
+	MAX_LENGTH_MESSAGE_BUZZ,
+	ModeResponsive,
+	RECENT_EMOJI_CATEGORY,
+	SubPanelName,
+	getIdSaleItemFromSource,
+	getSrcEmoji,
+	isPublicChannel
 } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { MentionItem } from 'react-mentions';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ModalBuyItem from '../GifsStickersEmojis/ModalBuyItem';
@@ -169,7 +167,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 					setBuzzInputRequest({
 						content: (buzzInputRequest?.content ?? '') + emojiPicked,
 						// mentionRaw: [...buzzInputRequestMentionArr, newEmoji],
-						valueTextInput: (buzzInputRequest?.valueTextInput ?? '') + `::[${emojiPicked}](${emojiId})`
+						valueTextInput: `${buzzInputRequest?.valueTextInput ?? ''}::[${emojiPicked}](${emojiId})`
 					});
 				}
 				if (toggleEmojiPanel) {

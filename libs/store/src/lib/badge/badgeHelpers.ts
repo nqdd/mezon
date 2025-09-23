@@ -6,7 +6,7 @@ import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listChannelRenderAction } from '../channels/listChannelRender.slice';
-import { selectMemberClanByUserId2 } from '../clanMembers/clan.members';
+import { selectMemberClanByUserId } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
 import { directActions } from '../direct/direct.slice';
 import { directMetaActions } from '../direct/directmeta.slice';
@@ -141,7 +141,7 @@ export interface DecreaseChannelBadgeParams {
 
 const isMessageMentionOrReply = (msg: ChannelMessage, currentUserId: string, store: Store): boolean => {
 	const state = store?.getState?.();
-	const currentClanUser = state ? selectMemberClanByUserId2(state, currentUserId) : undefined;
+	const currentClanUser = state ? selectMemberClanByUserId(state, currentUserId) : undefined;
 
 	const hasMention = (() => {
 		if (!currentUserId) return false;

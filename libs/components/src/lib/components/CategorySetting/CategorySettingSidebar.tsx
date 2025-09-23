@@ -1,10 +1,12 @@
 import { useCategory } from '@mezon/core';
 import { selectCurrentChannel, selectWelcomeChannelByClanId } from '@mezon/store';
-import { ICategoryChannel, IChannel } from '@mezon/utils';
+import { ICategoryChannel, IChannel, generateE2eId } from '@mezon/utils';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { ItemObjProps, categorySettingList } from '../ClanSettings/ItemObj';
+import type { ItemObjProps } from '../ClanSettings/ItemObj';
+import { categorySettingList } from '../ClanSettings/ItemObj';
 import SettingItem from '../ClanSettings/SettingItem';
 import ModalConfirm from '../ModalConfirm';
 
@@ -16,6 +18,7 @@ interface ICategorySettingSidebarProps {
 }
 
 const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClickItem, handleMenu, currentSetting, category }) => {
+	const { t } = useTranslation('clan');
 	const [showModal, setShowModal] = useState(false);
 	const { handleDeleteCategory } = useCategory();
 	const currenChannel = useSelector(selectCurrentChannel);
@@ -26,7 +29,7 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 
 	const openModalDeleteCategory = () => {
 		if (hasWelcomeChannel) {
-			toast.error('This category has welcome channel');
+			toast.error(t('categoryOverview.hasWelcomeChannelError'));
 			return;
 		}
 		setShowModal(true);
@@ -61,10 +64,11 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 				))}
 				<div className={'border-t-[0.08px] dark:border-borderDividerLight border-bgModifierHoverLight'}></div>
 				<button
-					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left dark:hover:bg-bgHover hover:bg-bgModifierHoverLight ${hasWelcomeChannel ? '!text-bgTertiary' : ''}`}
+					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left hover:bg-[#f67e882a] ${hasWelcomeChannel ? 'text-red-500' : ''}`}
 					onClick={openModalDeleteCategory}
+					data-e2e={generateE2eId('clan_page.modal.delete_category.button.delete')}
 				>
-					Delete Category
+					{t('categoryOverview.deleteCategory')}
 				</button>
 				{showModal && (
 					<ModalConfirm
@@ -72,9 +76,9 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 						modalName={category?.category_name || ''}
 						handleConfirm={confirmDeleteCategory}
 						title="delete"
-						buttonName="Delete category"
-						message="This cannot be undone"
-						customModalName="Category"
+						buttonName={t('categoryOverview.deleteCategoryButton')}
+						message={t('categoryOverview.cannotBeUndone')}
+						customModalName={t('categoryOverview.categoryLabel')}
 					/>
 				)}
 			</div>

@@ -26,18 +26,7 @@ const RenderAudioChat = React.memo(
 
 		useEffect(() => {
 			recordingWaveRef?.current?.reset();
-			// Configure Sound for iOS
-			if (Platform.OS === 'ios') {
-				Sound.setCategory('Playback', true); // Allow mixing with other audio
-				Sound.setMode('Default');
-			} else {
-				// Only use InCallManager for Android
-				InCallManager.setSpeakerphoneOn(true);
-				InCallManager.setForceSpeakerphoneOn(true);
-			}
-
 			return () => {
-				// Cleanup
 				if (Platform.OS === 'android') {
 					InCallManager.setSpeakerphoneOn(false);
 					InCallManager.setForceSpeakerphoneOn(false);
@@ -64,6 +53,7 @@ const RenderAudioChat = React.memo(
 
 			return () => {
 				if (newSound) {
+					newSound.stop();
 					newSound.release();
 				}
 			};
@@ -71,6 +61,13 @@ const RenderAudioChat = React.memo(
 
 		const playSound = () => {
 			if (sound) {
+				if (Platform.OS === 'ios') {
+					Sound.setCategory('Playback', true);
+				}
+				if (Platform.OS === 'android') {
+					InCallManager.setSpeakerphoneOn(true);
+					InCallManager.setForceSpeakerphoneOn(true);
+				}
 				sound.play((success) => {
 					if (success) {
 						sound.setCurrentTime(0);

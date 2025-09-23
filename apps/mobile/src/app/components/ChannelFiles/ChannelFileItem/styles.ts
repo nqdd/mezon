@@ -15,18 +15,22 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center'
 		},
+		content: {
+			flex: 1
+		},
 		fileName: {
 			color: colors.textStrong,
 			maxWidth: '90%'
 		},
 		footer: {
+			flex: 1,
 			flexDirection: 'row',
-			gap: size.s_10
+			gap: size.s_10,
+			justifyContent: 'space-between'
 		},
 		footerTitle: {
 			color: colors.text,
-			fontSize: size.small,
-			maxWidth: '70%'
+			fontSize: size.small
 		},
 		footerTime: {
 			color: colors.textDisabled,

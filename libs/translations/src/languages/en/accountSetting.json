@@ -1,47 +1,61 @@
 {
-    "username": "Username",
-    "displayName": "Display Name",
-    "users": "Users",
-    "accountManagement": "Account Management",
-    "blockedUsers": "Blocked Users",
-    "disableAccount": "Disable Account",
-    "deleteAccount": "Delete Account",
-    "accountInformation": "Account Information",
-    "doNotHaveBlockedUser": "You don't have any blocked users",
-    "setPassword": "Set Password",
-    "disableAccountAlert": {
-        "title": "Disable account",
-        "description": "Are you sure you want to disable your account?",
-        "noConfirm": "No",
-        "yesConfirm": "Yes"
-    },
-    "deleteAccountAlert": {
-        "title": "Delete account",
-        "description": "Are you sure you want to delete your account?",
-        "noConfirm": "No",
-        "yesConfirm": "Yes"
-    },
-    "setPasswordAccount": {
-        "title": "Set Password",
-        "email": "Email",
-        "password": "Password",
-        "confirmPassword": "Confirm Password",
-        "confirm": "Confirm",
-        "description": "Your password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&*).",
-        "error": {
-            "characters": "Password must be at least 8 characters",
-            "uppercase": "Password must contain at least 1 uppercase letter",
-            "lowercase": "Password must contain at least 1 lowercase letter",
-            "number": "Password must contain at least 1 number",
-            "symbol": "Password must contain at least 1 special character",
-            "notEqual": "Confirmation password doesn't match"
-        },
-        "notification": "Password set successfully"
-    },
-    "toast": {
-        "deleteAccount": {
-            "success": "Account deleted successfully",
-            "error": "You are the owner of the clan"
-        }
-    }
+	"myAccount": "My Account",
+	"editUserProfile": "Edit User Profile",
+	"noDisplayName": "You haven't added a display name yet.",
+	"edit": "Edit",
+	"password": "Password",
+	"username": "Username",
+	"displayName": "Display Name",
+	"users": "Users",
+	"accountManagement": "Account Management",
+	"blockedUsers": "Blocked Users",
+	"disableAccount": "Disable Account",
+	"deleteAccount": "Delete Account",
+	"accountInformation": "Account Information",
+	"doNotHaveBlockedUser": "You don't have any blocked users",
+	"setPassword": "Set Password",
+	"disableAccountAlert": {
+		"title": "Disable account",
+		"description": "Are you sure you want to disable your account?",
+		"noConfirm": "No",
+		"yesConfirm": "Yes"
+	},
+	"deleteAccountAlert": {
+		"title": "Delete account",
+		"description": "Are you sure you want to delete your account?",
+		"noConfirm": "No",
+		"yesConfirm": "Yes"
+	},
+	"setPasswordAccount": {
+		"title": "Set Password",
+		"email": "Email",
+		"password": "Password",
+		"currentPassword": "Current Password",
+		"confirmPassword": "Confirm Password",
+		"confirm": "Confirm",
+		"description": "Your password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&*).",
+		"error": {
+			"characters": "Password must be at least 8 characters",
+			"uppercase": "Password must contain at least 1 uppercase letter",
+			"lowercase": "Password must contain at least 1 lowercase letter",
+			"number": "Password must contain at least 1 number",
+			"symbol": "Password must contain at least 1 special character",
+			"notEqual": "Confirmation password doesn't match",
+			"samePass": "The new password cannot be the same as the old password"
+		},
+		"notification": "Password set successfully"
+	},
+	"setPasswordModal": {
+		"title": "Set Password",
+		"description": "Please create a new password for your account",
+		"emailPlaceholder": "your.email@example.com",
+		"loading": "Loading...",
+		"close": "Close"
+	},
+	"toast": {
+		"deleteAccount": {
+			"success": "Account deleted successfully",
+			"error": "You are the owner of the clan"
+		}
+	}
 }

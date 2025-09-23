@@ -12,18 +12,14 @@ import {
 	useUserById,
 	useUserMetaById
 } from '@mezon/core';
-import {
-	EStateFriend,
-	RootState,
-	selectAccountCustomStatus,
-	selectAllAccount,
-	selectCurrentUserId,
-	selectFriendById,
-	useAppSelector
-} from '@mezon/store';
-import { ChannelMembersEntity, IMessageWithUser, saveParseUserStatus } from '@mezon/utils';
+import type { RootState } from '@mezon/store';
+import { EStateFriend, selectAccountCustomStatus, selectAllAccount, selectCurrentUserId, selectFriendById, useAppSelector } from '@mezon/store';
+import type { ChannelMembersEntity, IMessageWithUser } from '@mezon/utils';
+import { saveParseUserStatus } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { getColorAverageFromURL } from '../SettingProfile/AverageColor';
 import AvatarProfile from './AvatarProfile';
@@ -55,6 +51,7 @@ type ModalUserProfileProps = {
 	rootRef?: RefObject<HTMLElement>;
 	isUserRemoved?: boolean;
 	checkAnonymous?: boolean;
+	modalControlRef?: RefObject<HTMLDivElement>;
 };
 
 export type OpenModalProps = {
@@ -63,9 +60,9 @@ export type OpenModalProps = {
 };
 
 enum ETileDetail {
-	AboutMe = 'About me',
-	MemberSince = 'Member Since',
-	Actitity = 'Activity'
+	AboutMe = 'aboutMe',
+	MemberSince = 'memberSince',
+	Actitity = 'activity'
 }
 
 const ModalUserProfile = ({
@@ -84,8 +81,11 @@ const ModalUserProfile = ({
 	onClose,
 	rootRef,
 	isUserRemoved,
-	checkAnonymous
+	checkAnonymous,
+	modalControlRef
 }: ModalUserProfileProps) => {
+	const { t } = useTranslation('userProfile');
+
 	const userProfile = useSelector(selectAllAccount);
 	const { userId } = useAuth();
 	const { createDirectMessageWithUser } = useDirect();
@@ -173,7 +173,10 @@ const ModalUserProfile = ({
 
 	const profileRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(rootRef || profileRef, onClose);
-	useOnClickOutside(rootRef || profileRef, () => {
+	useOnClickOutside(rootRef || profileRef, (event) => {
+		if (modalControlRef?.current && modalControlRef.current.contains(event.target as Node)) {
+			return;
+		}
 		if (!modalRef.current) onClose();
 	});
 
@@ -223,7 +226,7 @@ const ModalUserProfile = ({
 		[userById, content]
 	);
 	return (
-		<div tabIndex={-1} ref={profileRef} className={'outline-none ' + classWrapper} onClick={() => setOpenModal(initOpenModal)}>
+		<div tabIndex={-1} ref={profileRef} className={`outline-none ${classWrapper}`} onClick={() => setOpenModal(initOpenModal)}>
 			<div
 				className={`${classBanner ? classBanner : 'rounded-tl-lg bg-indigo-400 rounded-tr-lg h-[105px]'} flex justify-end gap-x-2 p-2 `}
 				style={{ backgroundColor: color }}
@@ -256,20 +259,24 @@ const ModalUserProfile = ({
 					<div>
 						<p className="font-semibold tracking-wider text-xl one-line text-theme-primary-active my-0">
 							{isUserRemoved
-								? 'Unknown User'
+								? t('labels.unknownUser')
 								: checkAnonymous
-									? 'Anonymous'
+									? t('labels.anonymous')
 									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username}
 						</p>
-						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0">{isUserRemoved ? 'Unknown User' : usernameShow}</p>
+						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0">
+							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
+						</p>
 					</div>
 
 					{checkAddFriend === EStateFriend.MY_PENDING && !showPopupLeft && <PendingFriend user={userById as ChannelMembersEntity} />}
 
 					{mode !== 4 && mode !== 3 && !isFooterProfile && (
-						<UserDescription title={ETileDetail.AboutMe} detail={userById?.user?.about_me as string} />
+						<UserDescription title={t(`labels.${ETileDetail.AboutMe}`)} detail={userById?.user?.about_me as string} />
 					)}
-					{mode !== 4 && mode !== 3 && !isFooterProfile && <UserDescription title={ETileDetail.MemberSince} detail={timeFormatted} />}
+					{mode !== 4 && mode !== 3 && !isFooterProfile && (
+						<UserDescription title={t(`labels.${ETileDetail.MemberSince}`)} detail={timeFormatted} />
+					)}
 
 					{isFooterProfile ? (
 						<StatusProfile userById={userById as ChannelMembersEntity} isDM={isDM} modalRef={modalRef} onClose={onClose} />
@@ -277,12 +284,12 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{!checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
+					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
 						<div className="w-full items-center mt-2">
 							<input
 								type="text"
 								className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-								placeholder={`Message @${placeholderUserName}`}
+								placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
 								value={content}
 								onKeyPress={handleOnKeyPress}
 								onChange={handleContent}
@@ -297,7 +304,7 @@ const ModalUserProfile = ({
 					)}
 					{!isFooterProfile && checkUser && (
 						<button className="rounded bg-outside-footer py-2 hover:bg-opacity-50 mt-2" onClick={openSetting}>
-							Edit Profile
+							{t('labels.editProfile')}
 						</button>
 					)}
 				</div>

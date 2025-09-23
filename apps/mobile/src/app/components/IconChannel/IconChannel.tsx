@@ -24,12 +24,6 @@ function IconChannel({ channelPrivate, type }: { channelPrivate: number; type })
 					<MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				);
 
-			case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
-				return isChannelPrivate ? (
-					<MezonIconCDN icon={IconCDN.channelVoiceLock} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				) : (
-					<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				);
 			case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
 				return isChannelPrivate ? (
 					<MezonIconCDN icon={IconCDN.channelVoiceLock} width={size.s_20} height={size.s_20} color={themeValue.text} />

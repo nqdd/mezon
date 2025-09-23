@@ -1,6 +1,6 @@
 import { useAppNavigation, useAuth, useDirect } from '@mezon/core';
+import type { DirectEntity } from '@mezon/store';
 import {
-	DirectEntity,
 	appActions,
 	categoriesActions,
 	channelsActions,
@@ -16,18 +16,12 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { InputField } from '@mezon/ui';
-import {
-	SearchItemProps,
-	TypeSearch,
-	addAttributesSearchList,
-	filterListByName,
-	normalizeString,
-	removeDuplicatesById,
-	sortFilteredList
-} from '@mezon/utils';
+import type { SearchItemProps } from '@mezon/utils';
+import { TypeSearch, addAttributesSearchList, filterListByName, normalizeString, removeDuplicatesById, sortFilteredList } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../components';
 import { ListGroupSearchModal } from './ListGroupSeacrhModal';
@@ -37,6 +31,7 @@ export type SearchModalProps = {
 };
 
 function SearchModal({ onClose }: SearchModalProps) {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const allClanUsersEntitiesRef = useRef(useSelector(selectEntitesUserClans));
 	const dmGroupChatListRef = useRef(useAppSelector(selectAllDirectMessages));
@@ -279,12 +274,6 @@ function SearchModal({ onClose }: SearchModalProps) {
 				return;
 			}
 
-			if (channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-				const urlVoice = `https://meet.google.com/${channel.meeting_code}`;
-				window.open(urlVoice, '_blank', 'noreferrer');
-				return;
-			}
-
 			dispatch(categoriesActions.setCtrlKSelectedChannelId(channel?.id ?? ''));
 			const channelUrl = toChannelPage(channel?.id ?? '', channel?.clanId ?? '');
 			dispatch(categoriesActions.setCtrlKFocusChannel({ id: channel?.id, parentId: channel?.parent_id ?? '' }));
@@ -327,7 +316,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 				<div className="flex flex-col">
 					<InputField
 						type="text"
-						placeholder="Where would you like to go?"
+						placeholder={t('searchModal.placeholder')}
 						className="py-[18px] text-[16px] mt-2 mb-[15px] bg-input-secondary rounded-lg text-theme-message border-theme-primary"
 						onChange={(e) => debouncedSetSearchText(e.target.value)}
 						autoFocus
@@ -348,10 +337,12 @@ function SearchModal({ onClose }: SearchModalProps) {
 export default memo(SearchModal);
 
 const FooterNoteModal = memo(() => {
+	const { t } = useTranslation('common');
 	return (
 		<div className="pt-2">
 			<span className="text-[13px] font-medium text-theme-primary">
-				<span className="text-[#2DC770] opacity-100 font-bold">PROTIP: </span>Start searches with @, # to narrow down results.
+				<span className="text-[#2DC770] opacity-100 font-bold">{t('searchModal.protip')} </span>
+				{t('searchModal.protipDescription')}
 			</span>
 		</div>
 	);

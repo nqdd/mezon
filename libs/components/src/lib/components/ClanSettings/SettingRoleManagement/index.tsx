@@ -1,22 +1,26 @@
 import { useRoles } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	getIsShow,
 	getNewAddMembers,
 	getNewAddPermissions,
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getRemovePermissions,
 	getSelectedRoleId,
+	roleSlice,
 	selectCurrentClan,
 	selectCurrentRoleIcon,
 	setColorRoleNew,
+	setCurrentRoleIcon,
 	setNameRoleNew,
 	setSelectedPermissions,
 	setSelectedRoleId
 } from '@mezon/store';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { SettingUserClanProfileSave } from '../../SettingProfile/SettingRightClanProfile/SettingUserClanProfileSave';
 import SettingListRole from './SettingListRole';
 import SettingValueDisplayRole from './SettingOptionRole';
@@ -44,6 +48,8 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	const currentClan = useSelector(selectCurrentClan);
 	const isChange = useSelector(getIsShow);
 	const isCreateNewRole = clickRole === t('roleManagement.newRoleDefault');
+
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 
 	const handleClose = () => {
@@ -51,21 +57,30 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 			props.handleClose();
 		} else {
 			const activeRole = rolesClan.find((role) => role.id === clickRole);
+
 			const permissions = activeRole?.permission_list?.permissions;
 			const permissionIds = permissions ? permissions.filter((permission) => permission.active === 1).map((permission) => permission.id) : [];
-
 			dispatch(setNameRoleNew(activeRole?.title));
 			dispatch(setColorRoleNew(activeRole?.color));
 			dispatch(setSelectedPermissions(permissionIds));
+			dispatch(setCurrentRoleIcon(activeRole?.role_icon || ''));
+			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}
 	};
 
 	const handleUpdateUser = async (hasChangeRole?: boolean) => {
+		if (!nameRole || nameRole.trim() === '') {
+			toast.error(t('roleManagement.roleNameIsRequired'));
+			return;
+		}
 		if (isCreateNewRole) {
 			const respond = await createRole(currentClan?.id || '', nameRole, colorRole, addUsers, addPermissions);
 			if (!hasChangeRole) dispatch(setSelectedRoleId(respond?.id || ''));
 		} else {
-			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, currentRoleIcon || '');
+			const roleIcon = newRoleIcon || currentRoleIcon || '';
+			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
+			dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon));
+			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}
 	};
 

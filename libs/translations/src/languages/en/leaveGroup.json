@@ -1,0 +1,7 @@
+{
+  "title": "Leave '{groupName}'",
+  "confirmMessage": "Are you sure you want to leave {groupName}? You won't be able to rejoin this group unless you are re-invited.",
+  "leaveWithoutNotifying": "Leave without notifying other members",
+  "cancel": "Cancel",
+  "leaveGroup": "Leave Group"
+}

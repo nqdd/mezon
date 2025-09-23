@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import ImageNative from '../../components/ImageNative';
 import { IconCDN } from '../../constants/icon_cdn';
+import useCheckClanLimit from '../../hooks/useCheckClanLimit';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { style } from './styles';
 
@@ -22,6 +23,7 @@ const InviteClanScreen = ({ route }: { route: any }) => {
 	const navigation = useNavigation<any>();
 	const { t } = useTranslation('linkMessageInvite');
 	const selectInvite = useAppSelector(selectInviteById(code || ''));
+	const { checkClanLimit } = useCheckClanLimit();
 
 	const fetchInviteData = useCallback(() => {
 		if (code && !selectInvite) {
@@ -37,6 +39,12 @@ const InviteClanScreen = ({ route }: { route: any }) => {
 		const store = await getStoreAsync();
 		try {
 			store.dispatch(appActions.setLoadingMainMobile(true));
+			const isClanLimit = checkClanLimit();
+			if (isClanLimit) {
+				onDismiss();
+				store.dispatch(appActions.setLoadingMainMobile(false));
+				return;
+			}
 			const res = await inviteUser(code || '');
 			if (res?.clan_id) {
 				requestAnimationFrame(async () => {

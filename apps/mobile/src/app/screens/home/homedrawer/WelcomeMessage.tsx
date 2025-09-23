@@ -7,10 +7,10 @@ import {
 	EStateFriend,
 	friendsActions,
 	getStoreAsync,
-	selectChannelById2,
+	selectChannelById,
 	selectDmGroupCurrent,
 	selectFriendById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { ChannelStatusEnum, IChannel, createImgproxyUrl } from '@mezon/utils';
@@ -30,7 +30,7 @@ interface IWelcomeMessage {
 }
 
 const useCurrentChannel = (channelId: string) => {
-	const channel = useAppSelector((state) => selectChannelById2(state, channelId));
+	const channel = useAppSelector((state) => selectChannelById(state, channelId));
 	const dmGroup = useAppSelector(selectDmGroupCurrent(channelId));
 	return channel || dmGroup;
 };
@@ -97,7 +97,7 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 		return allUsers;
 	}, [currenChannel?.category_name, currenChannel?.channel_avatar, isDMGroup]);
 
-	const creatorUser = useAppSelector((state) => selectMemberClanByUserId2(state, currenChannel?.creator_id));
+	const creatorUser = useAppSelector((state) => selectMemberClanByUserId(state, currenChannel?.creator_id));
 
 	const groupDMAvatar = useMemo(() => {
 		const isAvatar = currenChannel?.topic && !currenChannel?.topic?.includes('avatar-group.png');
@@ -277,7 +277,7 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label}</Text>
 					<View style={{ flexDirection: 'row' }}>
 						<Text style={styles.subTitleWelcomeMessage}>{'Started by '}</Text>
-						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || 'Anonymous'}</Text>
+						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.clan_nick || creatorUser?.user?.display_name || creatorUser?.user?.username || 'Anonymous'}</Text>
 					</View>
 				</View>
 			)}

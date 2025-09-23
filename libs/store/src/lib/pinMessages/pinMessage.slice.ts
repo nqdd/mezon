@@ -1,10 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { IMessageWithUser, IPinMessage, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiPinMessage, ApiPinMessageRequest } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IMessageWithUser, IPinMessage, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiPinMessage, ApiPinMessageRequest } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const PIN_MESSAGE_FEATURE_KEY = 'pinmessages';
 
@@ -137,9 +140,9 @@ export const setChannelPinMessage = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body: ApiPinMessageRequest = {
-				clan_id: clan_id,
-				channel_id: channel_id,
-				message_id: message_id
+				clan_id,
+				channel_id,
+				message_id
 			};
 			const response = await mezon.client.createPinMessage(mezon.session, body);
 			if (!response) {
@@ -259,6 +262,7 @@ export const pinMessageSlice = createSlice({
 			if (!state.byChannels[channelId]) {
 				return;
 			}
+
 			const pinList = state.byChannels[channelId].pinMessages?.filter((pin) => pin.message_id !== pinId);
 			state.byChannels[channelId].pinMessages = pinList;
 			state.byChannels[channelId].cache = createCacheMetadata(CHANNEL_PIN_MESSAGES_CACHED_TIME);

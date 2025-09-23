@@ -13,19 +13,21 @@ import {
 } from '@mezon/store';
 import { AlertTitleTextWarning, Icons } from '@mezon/ui';
 import { ChannelType } from 'mezon-js';
-import { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ChannelLableModal } from './ChannelLabel';
-import { ChannelNameModalRef, ChannelNameTextField } from './ChannelNameTextField';
+import type { ChannelNameModalRef } from './ChannelNameTextField';
+import { ChannelNameTextField } from './ChannelNameTextField';
 import { ChannelTypeComponent } from './ChannelType';
 import { CreateChannelButton } from './CreateChannelButton';
 
-import { generateE2eId } from '@mezon/utils';
 import { ChannelStatusModal } from './ChannelStatus';
 
 export const CreateNewChannelModal = () => {
+	const { t } = useTranslation('createChannel');
 	const dispatch = useAppDispatch();
 	const InputRef = useRef<ChannelNameModalRef>(null);
 	const [isInputError, setIsInputError] = useState<boolean>(true);
@@ -58,21 +60,21 @@ export const CreateNewChannelModal = () => {
 	};
 	const handleSubmit = async () => {
 		if (channelType === -1) {
-			setIsErrorType("Channel's type is required");
+			setIsErrorType(t('errors.typeRequired'));
 			return;
 		}
 		if (channelType !== ChannelType.CHANNEL_TYPE_APP && channelName === '') {
-			setIsErrorName("Channel's name is required");
+			setIsErrorName(t('errors.nameRequired'));
 			return;
 		}
 
 		if (isAppChannel && !selectedApp) {
-			setIsErrorAppUrl('Please select an application');
+			setIsErrorAppUrl(t('errors.selectApp'));
 			return;
 		}
 
 		if (!validate) {
-			setIsErrorName('Please enter a valid channel name');
+			setIsErrorName(t('errors.validName'));
 			return;
 		}
 
@@ -100,12 +102,7 @@ export const CreateNewChannelModal = () => {
 			);
 		}
 
-		if (
-			newChannelCreatedId &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING
-		) {
+		if (newChannelCreatedId && typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING) {
 			const channelPath = toChannelPage(channelID ?? '', currentClan?.clan_id ?? '');
 			navigate(channelPath);
 		}
@@ -176,7 +173,7 @@ export const CreateNewChannelModal = () => {
 					<div className="self-stretch px-5 pt-8 flex-col justify-start items-start gap-3 flex">
 						<div className="self-stretch h-14 flex-col justify-center items-start gap-1 flex">
 							<div className="flex flex-col items-start gap-x-2 sm:flex-row sm:items-center w-full relative">
-								<ChannelLableModal labelProp="CREATE A NEW CHANNEL IN" />
+								<ChannelLableModal labelProp={t('header.title')} />
 								<span>
 									<p className="self-stretch  text-sm font-bold leading-normal uppercase text-cyan-500">
 										{currentCategory?.category_name || channelWelcome?.category_name}
@@ -189,11 +186,11 @@ export const CreateNewChannelModal = () => {
 								</div>
 							</div>
 
-							<div className=" text-sm">Kindly set up a channel of your choice.</div>
+							<div className=" text-sm">{t('labels.description')}</div>
 						</div>
 						<div className={`flex flex-col gap-3 w-full`}>
 							<div className="Frame407 self-stretch flex-col items-center gap-2 flex">
-								<ChannelLableModal labelProp="Choose channel's type:" />
+								<ChannelLableModal labelProp={t('labels.chooseType')} />
 								<div
 									className={`Frame405 self-stretch  flex-col justify-start items-start gap-2 flex sm:max-h-[200px] lg:h-fit lg:max-h-fit overflow-y-scroll max-xl:h-auto app-scroll`}
 								>
@@ -222,16 +219,16 @@ export const CreateNewChannelModal = () => {
 									onChange={handleChannelNameChange}
 									onCheckValidate={checkValidate}
 									type={channelType}
-									channelNameProps="What is channel's name?"
+									channelNameProps={t('labels.channelName')}
 									error={isErrorName}
 									onHandleChangeValue={handleChangeValue}
-									placeholder={"Enter the channel's name"}
+									placeholder={t('labels.placeholder')}
 									shouldValidate={true}
 									categoryId={currentCategory?.category_id || channelWelcome?.category_id}
 								/>
 							)}
 							{channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (
-								<ChannelStatusModal onChangeValue={onChangeToggle} channelNameProps="Is private channel?" />
+								<ChannelStatusModal onChangeValue={onChangeToggle} channelNameProps={t('labels.isPrivate')} />
 							)}
 						</div>
 					</div>

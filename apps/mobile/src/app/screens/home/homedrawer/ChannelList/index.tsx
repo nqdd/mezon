@@ -10,7 +10,7 @@ import {
 	useAppSelector,
 	voiceActions
 } from '@mezon/store-mobile';
-import { ICategoryChannel } from '@mezon/utils';
+import type { ICategoryChannel } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Platform, RefreshControl, StyleSheet, View } from 'react-native';
@@ -52,7 +52,7 @@ const ChannelList = () => {
 				voiceActions.fetchVoiceChannelMembers({
 					clanId: currentClan?.clan_id ?? '',
 					channelId: '',
-					channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE || ChannelType.CHANNEL_TYPE_MEZON_VOICE
+					channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 				})
 			)
 		];

@@ -8,7 +8,7 @@ import {
 	selectClickedOnTopicStatus,
 	selectCurrentChannel,
 	selectCurrentTopicId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageByMessageId,
 	selectQuickMenusByChannelId,
 	useAppDispatch,
@@ -118,7 +118,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		async (command: SlashCommand) => {
 			const store = getStore();
 			const userProfile = selectAllAccount(store.getState());
-			const profileInClan = selectMemberClanByUserId2(store.getState(), userProfile?.user?.id ?? '');
+			const profileInClan = selectMemberClanByUserId(store.getState(), userProfile?.user?.id ?? '');
 
 			if (command.menu_type === QUICK_MENU_TYPE.QUICK_MENU) {
 				try {
@@ -307,13 +307,9 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						className=" border-none bg-theme-contexify"
 					>
 						<div>
-							<Item
-								key={index}
-								onClick={item.handleItemClick}
-								disabled={item.disabled}
-								data-e2e={generateE2eId('chat.message_action_modal.button.base')}
-							>
+							<Item key={index} onClick={item.handleItemClick} disabled={item.disabled}>
 								<div
+									data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 									className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542] hover:text-[#FFFFFF] ' : 'text-theme-primary text-theme-primary-hover'}`}
 								>
 									<span>Add Reaction</span>
@@ -325,7 +321,6 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 			} else if (!lableSlashCommands) {
 				elements.push(
 					<Item
-						data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 						key={item.label}
 						onClick={item.handleItemClick}
 						disabled={item.disabled}
@@ -341,6 +336,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						}}
 					>
 						<div
+							data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 							className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542]  ' : 'text-theme-primary text-theme-primary-hover'}`}
 						>
 							<span>{item.label}</span>
@@ -354,12 +350,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				elements.push(
 					<Submenu label={item.label}>
 						{item.subMenuItems?.map((subMenuItem) => (
-							<Item
-								key={subMenuItem.id}
-								onClick={subMenuItem.handleItemClick}
-								disabled={subMenuItem.disabled}
-								data-e2e={generateE2eId('chat.message_action_modal.button.base')}
-							>
+							<Item key={subMenuItem.id} onClick={subMenuItem.handleItemClick} disabled={subMenuItem.disabled}>
 								{subMenuItem.label}
 							</Item>
 						))}
@@ -398,7 +389,6 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				id={menuId}
 				style={className}
 				className="z-50 rounded-lg  text-theme-primary text-theme-primary-hover border-theme-primary "
-				data-e2e={generateE2eId(`chat.message_action_modal`)}
 			>
 				{checkPos && (
 					<ReactionPart emojiList={firstFourElements} messageId={messageId} isOption={false} message={message} isTopic={!!isTopic} />

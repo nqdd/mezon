@@ -1,65 +1,178 @@
 {
-  "userAction": {
-    "transferFunds": "Transfer Funds",
-    "sendMessage": "Message",
-    "voiceCall": "Call",
-    "videoCall": "Video Call",
-    "addFriend": "Add Friend",
-    "pending": "Pending",
-    "removeFriend": "Remove Friend"
-  },
-  "aboutMe": {
-    "headerTitle": "ABOUT ME",
-    "roles": {
-      "headerTitle": "ROLES"
-    }
-  },
-  "kickUserClanModal": {
-    "kickFromServer": "Kick {{username}} from Clan",
-    "description": "Are you sure you want to kick {{username}} from the clan? They will be able to rejoin again with a new invite.",
-    "reasonKick": "Reason for kick",
-    "buttonName": "Kick"
-  },
-  "transferOwnershipModal": {
-    "warning": "This will transfer ownership of <highlightClan>{{clanName}}</highlightClan> to <highlightUser>{{username}}</highlightUser>. This cannot be undone!",
-    "sectionTitle": "Transfer Ownership",
-    "acknowledgment": "I acknowledge that by transferring ownership of this server to {{username}}, it officially belongs to them.",
-    "transferButton": "Transfer",
-    "confirmTitle": "Transfer Ownership?",
-    "confirmDescription": "Are you sure you want to transfer ownership of {{clanName}} to {{username}}? This action cannot be undone.",
-    "confirmButton": "Transfer"
-  },
-  "pendingContent": {
-    "block": "Block",
-    "unblock": "Unblock",
-    "reportUserProfile": "Report User Profile",
-    "acceptFriend": "Accept Friend",
-    "rejectFriend": "Ignore Friend Request",
-    "cancelFriendRequest": "Cancel Friend Request",
-    "copyUsername": "Copy Username",
-    "copiedUserName": "Copied {{username}}",
-    "removeFriend": "Remove Friend"
-  },
-  "userInfoDM": {
-    "menu": {
-      "removeFromGroup": "Remove From Group",
-      "removeSuccess": "Removed from Group",
-      "removeFailed": "Failed to remove from Group"
-    },
-    "mezonMemberSince": "MEZON MEMBER SINCE"
-  },
-  "notification": {
-    "blockUser": {
-      "success": "User blocked successfully",
-      "error": "Failed to block user"
-    },
-    "unblockUser": {
-      "success": "User unblocked successfully",
-      "error": "Failed to unblock user"
-    }
-  },
-  "incomingFriendRequest": "INCOMING FRIEND REQUEST",
-  "sendAddFriendSuccess": "Friend Request Sent",
-  "accept": "Accept",
-  "ignore": "Ignore"
+	"userAction": {
+		"transferFunds": "Transfer Funds",
+		"sendMessage": "Message",
+		"voiceCall": "Call",
+		"videoCall": "Video Call",
+		"addFriend": "Add Friend",
+		"pending": "Pending",
+		"removeFriend": "Remove Friend"
+	},
+	"aboutMe": {
+		"headerTitle": "ABOUT ME",
+		"roles": {
+			"headerTitle": "ROLES"
+		}
+	},
+	"kickUserClanModal": {
+		"kickFromServer": "Kick {{username}} from Clan",
+		"description": "Are you sure you want to kick {{username}} from the clan? They will be able to rejoin again with a new invite.",
+		"reasonKick": "Reason for kick",
+		"buttonName": "Kick"
+	},
+	"transferOwnershipModal": {
+		"warning": "This will transfer ownership of <highlightClan>{{clanName}}</highlightClan> to <highlightUser>{{username}}</highlightUser>. This cannot be undone!",
+		"sectionTitle": "Transfer Ownership",
+		"acknowledgment": "I acknowledge that by transferring ownership of this server to {{username}}, it officially belongs to them.",
+		"transferButton": "Transfer",
+		"confirmTitle": "Transfer Ownership?",
+		"confirmDescription": "Are you sure you want to transfer ownership of {{clanName}} to {{username}}? This action cannot be undone.",
+		"confirmButton": "Transfer"
+	},
+	"pendingContent": {
+		"block": "Block",
+		"unblock": "Unblock",
+		"reportUserProfile": "Report User Profile",
+		"acceptFriend": "Accept Friend",
+		"rejectFriend": "Ignore Friend Request",
+		"cancelFriendRequest": "Cancel Friend Request",
+		"copyUsername": "Copy Username",
+		"copiedUserName": "Copied {{username}}",
+		"removeFriend": "Remove Friend",
+		"viewFullProfile": "View Full Profile"
+	},
+	"userInfoDM": {
+		"menu": {
+			"removeFromGroup": "Remove From Group",
+			"removeSuccess": "Removed from Group",
+			"removeFailed": "Failed to remove from Group"
+		},
+		"mezonMemberSince": "MEZON MEMBER SINCE"
+	},
+	"notification": {
+		"blockUser": {
+			"success": "User blocked successfully",
+			"error": "Failed to block user"
+		},
+		"unblockUser": {
+			"success": "User unblocked successfully",
+			"error": "Failed to unblock user"
+		}
+	},
+	"incomingFriendRequest": "INCOMING FRIEND REQUEST",
+	"sendAddFriendSuccess": "Friend Request Sent",
+	"accept": "Accept",
+	"ignore": "Ignore",
+	"labels": {
+		"aboutMe": "About me",
+		"memberSince": "Member Since",
+		"activity": "Activity",
+		"unknownUser": "Unknown User",
+		"anonymous": "Anonymous",
+		"editProfile": "Edit Profile",
+		"note": "NOTE",
+		"addNote": "Click to add a note",
+		"showLess": "Show less",
+		"addRole": "Add Role",
+		"addRoles": "Add roles",
+		"removeRole": "Remove role",
+		"role": "Role",
+		"nope": "Nope!",
+		"typoError": "Did you make a typo?"
+	},
+	"placeholders": {
+		"messageUser": "Message @{{username}}"
+	},
+	"statusProfile": {
+		"balance": "Balance",
+		"transferFunds": "Transfer Funds",
+		"editCustomStatus": "Edit Custom Status",
+		"setCustomStatus": "Set Custom Status",
+		"manageAccounts": "Manage Accounts",
+		"switchAccounts": "Switch Accounts",
+		"copyUserId": "Copy User ID",
+		"statusOptions": {
+			"online": "Online",
+			"idle": "Idle",
+			"doNotDisturb": "Do Not Disturb",
+			"invisible": "Invisible"
+		},
+		"addAccountModal": {
+			"email": "Email",
+			"password": "Password",
+			"emailPlaceholder": "Enter your email",
+			"passwordPlaceholder": "Enter your password",
+			"cancel": "Cancel",
+			"logIn": "Log In"
+		},
+		"sendTokenModal": {
+			"title": "Send Tokens",
+			"description": "Transfer tokens to another user",
+			"fields": {
+				"to": "To",
+				"amount": "Amount",
+				"note": "Note (Optional)"
+			},
+			"placeholders": {
+				"searchUsers": "Search users...",
+				"amountPlaceholder": "0",
+				"notePlaceholder": "Add a note..."
+			},
+			"noUsersFound": "No users found",
+			"currency": "VND",
+			"buttons": {
+				"cancel": "Cancel",
+				"sendTokens": "Send Tokens"
+			}
+		},
+		"historyTransaction": {
+			"title": "Transaction History",
+			"subtitle": "View all your transaction activities",
+			"tabs": {
+				"all": "All Transactions",
+				"sent": "Sent Transactions",
+				"received": "Received Transactions"
+			},
+			"transactionTypes": {
+				"sent": "Sent",
+				"received": "Received"
+			},
+			"emptyStates": {
+				"noTransactions": {
+					"title": "Can't find any transaction",
+					"description": "You haven't made any transactions yet. Your transaction history will appear here once you start sending or receiving tokens."
+				},
+				"noFilteredTransactions": {
+					"title": "Can't find any transaction",
+					"description": "No transactions found for the selected filter. Please try a different filter or check back later."
+				}
+			},
+			"transactionItem": {
+				"idPrefix": "Transaction #"
+			},
+			"loading": {
+				"fetching": "Fetching transactions...",
+				"fetchingMore": "Fetching more transactions...",
+				"scrollMore": "Scroll down to show more",
+				"allLoaded": "You have loaded all of {{count}} transactions"
+			}
+		},
+		"customStatusModal": {
+			"title": "Set a custom status",
+			"whatsCookin": "What's cookin', {{name}}",
+			"placeholder": "What's on your mind?",
+			"clearAfter": "Clear after",
+			"timeOptions": {
+				"today": "Today",
+				"fourHours": "4 hours",
+				"oneHour": "1 hour",
+				"thirtyMinutes": "30 minutes",
+				"dontClear": "Don't clear"
+			},
+			"buttons": {
+				"cancel": "Cancel",
+				"save": "Save"
+			}
+		}
+	}
 }

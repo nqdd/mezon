@@ -1,6 +1,8 @@
 import { generateClanWebhook, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { ApiClanWebhook, ApiGenerateClanWebhookRequest } from 'mezon-js/api.gen';
+import { generateE2eId } from '@mezon/utils';
+import type { ApiClanWebhook, ApiGenerateClanWebhookRequest } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ClanWebhookItemModal from './ClanWebhookItemModal';
 
@@ -9,6 +11,7 @@ interface IClanWebhooksProps {
 }
 
 const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
+	const { t } = useTranslation('integrations');
 	const dispatch = useAppDispatch();
 	const webhookNames = ['Captain hook', 'Spidey bot', 'Komu Knight'];
 	const getRandomWebhookName = (): string => {
@@ -33,18 +36,14 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 			avatar: getRandomAvatar(),
 			clan_id: clanId
 		};
-		dispatch(generateClanWebhook({ request: newWebhookReq, clanId: clanId }));
+		dispatch(generateClanWebhook({ request: newWebhookReq, clanId }));
 	};
 
 	return (
 		<div className="pb-5">
 			<div className=" text-sm pt-5 flex flex-col text-theme-primary">
-				<span className="font-semibold">
-					Clan Webhooks are a simple way to post messages from other apps and websites for each Mezon user using internet technology.
-				</span>
-				<span className="font-semibold text-[#00a8fc]">
-					Tip: If you feel the token on your URL is compromised or outdated, reset it and copy the new URL.
-				</span>
+				<span className="font-semibold">{t('clanWebhookDescription')}</span>
+				<span className="font-semibold text-[#00a8fc]">{t('webhookTip')}</span>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			{allClanWebhooks?.length !== 0 ? (
@@ -52,20 +51,22 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 					<div
 						onClick={handleAddWebhook}
 						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						data-e2e={generateE2eId('clan_page.settings.integrations.new_clan_webhook_button')}
 					>
-						New Clan Webhook
+						{t('newClanWebhook')}
 					</div>
 					{allClanWebhooks && allClanWebhooks.map((webhook) => <ClanWebhookItemModal webhookItem={webhook} key={webhook.id} />)}
 				</>
 			) : (
 				<div className="flex items-center flex-col gap-4">
 					<Image src={`assets/images/empty-webhook.svg`} width={48} height={48} className="clan object-cover w-[272px]" />
-					<div className="font-medium ">You have no webhooks!</div>
+					<div className="font-medium ">{t('noWebhooks')}</div>
 					<div
 						onClick={handleAddWebhook}
-							className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						data-e2e={generateE2eId('clan_page.settings.integrations.new_clan_webhook_button')}
 					>
-						New Clan Webhook
+						{t('newClanWebhook')}
 					</div>
 				</div>
 			)}

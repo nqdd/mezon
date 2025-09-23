@@ -18,7 +18,6 @@ import ReactionEmojiPanel from './ReactionEmojiPanel';
 
 const ChannelLayout = () => {
 	const currentChannel = useSelector(selectCurrentChannel);
-	const isChannelVoice = currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
 	const isChannelStream = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
 	const closeMenu = useSelector(selectCloseMenu);
 
@@ -47,27 +46,21 @@ const ChannelLayout = () => {
 			onMouseDown={onMouseDown}
 			className={`flex flex-col ${openEmojiPanelOnTopic || subPanelActive !== SubPanelName.NONE || isFocusThreadBox ? 'z-20 relative' : 'z-0'} flex-1 shrink min-w-0 bg-transparent h-[100%] overflow-visible justify-end relative`}
 		>
-			{isChannelVoice ? (
-				<ChannelLayoutVoice channelLabel={currentChannel.channel_label} meetingCode={currentChannel.meeting_code} />
-			) : (
-				<>
-					<div
-						className={`flex flex-row ${closeMenu ? `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBarMobile' : 'h-heightWithoutTopBarMobile'}` : `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'}`} ${isChannelStream ? 'justify-center items-center mx-4' : ''}`}
-					>
-						<Outlet />
-					</div>
-					{shouldRender && (
-						<ReactionEmojiPanel
-							isFocusTopicOrThreadBox={isFocusTopicBox || isFocusThreadBox}
-							openEmojiRightPanel={openEmojiRightPanel}
-							openEmojiBottomPanel={openEmojiBottomPanel}
-							openEmojiPanelOnTopicOrThreadBox={openEmojiPanelOnTopic || openEmojiPanelOnThreadBox}
-							closeMenu={closeMenu}
-							currentChannelId={currentChannel?.channel_id ?? ''}
-							isShowCreateTopic={isShowCreateTopic}
-						/>
-					)}
-				</>
+			<div
+				className={`flex flex-row ${closeMenu ? `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBarMobile' : 'h-heightWithoutTopBarMobile'}` : `${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'}`} ${isChannelStream ? 'justify-center items-center mx-4' : ''}`}
+			>
+				<Outlet />
+			</div>
+			{shouldRender && (
+				<ReactionEmojiPanel
+					isFocusTopicOrThreadBox={isFocusTopicBox || isFocusThreadBox}
+					openEmojiRightPanel={openEmojiRightPanel}
+					openEmojiBottomPanel={openEmojiBottomPanel}
+					openEmojiPanelOnTopicOrThreadBox={openEmojiPanelOnTopic || openEmojiPanelOnThreadBox}
+					closeMenu={closeMenu}
+					currentChannelId={currentChannel?.channel_id ?? ''}
+					isShowCreateTopic={isShowCreateTopic}
+				/>
 			)}
 		</div>
 	);

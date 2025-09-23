@@ -1,0 +1,9 @@
+{
+  "searchMembers": "Tìm kiếm thành viên",
+  "searchActions": "Tìm kiếm hành động",
+  "allUsers": "Tất cả người dùng",
+  "noResults": {
+    "title": "Không có!",
+    "description": "Bạn có gõ sai không?"
+  }
+}

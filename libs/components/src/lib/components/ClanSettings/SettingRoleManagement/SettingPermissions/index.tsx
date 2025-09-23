@@ -1,6 +1,6 @@
 import { useClanOwner, useUserPolicy } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	getNewColorRole,
 	getNewNameRole,
 	getNewSelectedPermissions,
@@ -83,19 +83,20 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 	};
 
 	return (
-		<div className="pr-5">
+		<div className="pr-5 h-full min-h-0 flex flex-col">
 			<div className="w-full flex">
 				<InputField
-					className="flex-grow  text-[15px] w-full p-[7px] border-theme-primary font-normal bg-input-secondary rounded-lg"
+					className="flex-grow  text-[15px] w-full p-[7px] border-theme-primary font-normal bg-input-secondary rounded-lg focus:outline focus:outline-1  outline-[#006ce7]"
 					type="text"
 					placeholder={t('roleManagement.searchPermissions')}
 					value={searchTerm}
+					needOutline={true}
 					onChange={(e) => setSearchTerm(e.target.value)}
 				/>
 			</div>
 			<br />
-			<div>
-				<ul className="flex flex-col gap-y-[10px]">
+			<div className="flex-1 min-h-0 overflow-hidden">
+				<ul className="flex flex-col gap-y-[10px] overflow-y-auto thread-scroll max-h-[50vh] sm:max-h-[55vh] md:max-h-[60vh] lg:max-h-[65vh] xl:max-h-[70vh] pr-2.">
 					{searchResults.map((permission) => (
 						<li
 							key={permission.id}

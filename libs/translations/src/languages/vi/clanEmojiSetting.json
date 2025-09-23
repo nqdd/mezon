@@ -1,21 +1,35 @@
 {
-    "header": {
-        "save": "Lưu"
-    },
-    "toast": {
-        "saveSuccess": "Lưu thành công",
-        "reject": "Từ chối"
-    },
-    "button": {
-        "upload": "Tải lên biểu tượng cảm xúc"
-    },
-    "description": {
-        "descriptions": "Thêm emoji tùy chỉnh mà tất cả người dùng trong clan này đều có thể sử dụng. Các thành viên đăng kí Mezon Nitro có thể sử dụng được các emoji GIF động.",
-        "requirements": "YÊU CẦU TẢI LÊN",
-        "requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của emoji phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
-    },
-    "emojiList": {
-        "slotsDetails": "DANH SÁCH EMOJI",
-        "delete": "XÓA"
-    }
+	"modal": {
+		"uploadAFile": "Tải lên tệp",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "Tệp phải là PNG hoặc GIF, tối đa 256KB",
+		"preview": "Xem trước",
+		"file": "Tệp",
+		"thisCannotBeEdited": "Không thể chỉnh sửa",
+		"browse": "Duyệt",
+		"chooseAFile": "Chọn tệp",
+		"stickerName": "Tên emoji",
+		"exCatHug": "VD: cat_hug",
+		"thisIsForSale": "Đây là sản phẩm bán",
+		"neverMind": "Thôi không"
+	},
+	"header": {
+		"save": "Lưu"
+	},
+	"toast": {
+		"saveSuccess": "Lưu thành công",
+		"reject": "Từ chối",
+		"errorSizeLimit": "Kích thước ảnh vượt quá 256 KB"
+	},
+	"button": {
+		"upload": "Tải lên biểu tượng cảm xúc"
+	},
+	"description": {
+		"descriptions": "Thêm emoji tùy chỉnh mà tất cả người dùng trong clan này đều có thể sử dụng. Mọi thành viên trong Mezon đều có thể sử dụng được các emoji GIF động.",
+		"requirements": "YÊU CẦU TẢI LÊN",
+		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của emoji phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
+	},
+	"emojiList": {
+		"slotsDetails": "DANH SÁCH EMOJI",
+		"delete": "Xóa"
+	}
 }

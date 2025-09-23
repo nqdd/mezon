@@ -1,9 +1,10 @@
 import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
-import { selectCurrentClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
+import { selectCurrentClan, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Button, ButtonLoading, Icons, Modal } from '@mezon/ui';
 import { ChannelMembersEntity } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type TransferOwnerProps = {
 	onClose: () => void;
@@ -11,8 +12,9 @@ type TransferOwnerProps = {
 	member: ChannelMembersEntity;
 };
 const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) => {
+	const { t } = useTranslation('transferOwner');
 	const { userProfile } = useAuth();
-	const dataInClan = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id || ''));
+	const dataInClan = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id || ''));
 	const currentClan = useAppSelector(selectCurrentClan);
 	const [checkedTransfer, setCheckedTransfer] = useState(false);
 
@@ -27,11 +29,13 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 		onClick();
 	};
 	return (
-		<Modal onClose={onClose} showModal title="Transfer Clan Ownership">
+		<Modal onClose={onClose} showModal title={t('title')}>
 			<div className="flex flex-col gap-6 p-3 items-center text-theme-primary">
 				<div className=" text-base ">
-					This will transfer ownership of <p className="inline-block font-medium text-white">{currentClan?.clan_name}</p> to{' '}
-					<p className="inline-block font-medium underline">{member?.clan_nick || member.user?.display_name || member?.user?.username}</p>
+					{t('description', {
+						clanName: currentClan?.clan_name,
+						memberName: member?.clan_nick || member.user?.display_name || member?.user?.username
+					})}
 				</div>
 				<div className="flex gap-3">
 					<div className="flex flex-col items-center justify-center gap-3 w-40 opacity-75">
@@ -71,8 +75,7 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 						onChange={handleCheckInput}
 					/>
 					<label htmlFor="confirm-transfer" className="ml-2">
-						I acknowledge that by transferring ownership of this clan to{' '}
-						{member?.clan_nick || member.user?.display_name || member?.user?.username}, it officially belongs to them.
+						{t('confirmation', { memberName: member?.clan_nick || member.user?.display_name || member?.user?.username })}
 					</label>
 				</div>
 
@@ -80,11 +83,11 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 					<ButtonLoading
 						className="bg-[#da373c] text-white hover:bg-[#a12828] rounded-md px-4 py-2 cursor-pointer"
 						onClick={handleOnTransferOwner}
-						label={'Transfer Ownership'}
+						label={t('buttons.transfer')}
 						disabled={!checkedTransfer}
 					></ButtonLoading>
 					<Button onClick={onClose} className="bg-bgSecondary px-4 py-2 rounded-md">
-						Cancel
+						{t('buttons.cancel')}
 					</Button>
 				</div>
 			</div>

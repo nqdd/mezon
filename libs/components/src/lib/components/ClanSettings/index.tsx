@@ -3,6 +3,7 @@ import {
 	deleteClan,
 	fetchClanWebhooks,
 	fetchWebhooks,
+	onboardingActions,
 	selectCloseMenu,
 	selectCurrentChannel,
 	selectCurrentClan,
@@ -20,7 +21,8 @@ import { ExitSetting } from '../SettingProfile';
 import AuditLog from './AuditLog';
 import ClanSettingOverview from './ClanSettingOverview';
 import Integrations from './Integrations';
-import { ItemObjProps, ItemSetting, listItemSetting } from './ItemObj';
+import type { ItemObjProps } from './ItemObj';
+import { ItemSetting, listItemSetting } from './ItemObj';
 import CategoryOrderSetting from './OrderCategorySetting';
 import SettingEmoji from './SettingEmoji';
 import ServerSettingMainRoles from './SettingMainRoles';
@@ -42,13 +44,17 @@ const ClanSetting = (props: ModalSettingProps) => {
 	}, [currentSettingId]);
 
 	const dispatch = useAppDispatch();
-	const [canManageClan] = usePermissionChecker([EPermission.manageClan]);
+	const [canManageClan, canManagerChannel] = usePermissionChecker([EPermission.manageClan, EPermission.manageChannel]);
 
 	const handleSettingItemClick = (settingItem: ItemObjProps) => {
 		setCurrentSettingId(settingItem.id);
-		if (settingItem.id === ItemSetting.INTEGRATIONS && canManageClan) {
-			dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
-			dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+		if (settingItem.id === ItemSetting.INTEGRATIONS) {
+			if (canManageClan) {
+				dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			} else if (canManagerChannel) {
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			}
 		}
 	};
 
@@ -92,6 +98,9 @@ const ClanSetting = (props: ModalSettingProps) => {
 		if (currentSettingId === ItemSetting.DELETE_SERVER) {
 			setIsShowDeletePopup(true);
 		}
+		if (currentSettingId === ItemSetting.ON_BOARDING) {
+			dispatch(onboardingActions.closeToOnboard());
+		}
 	}, [currentSettingId]);
 
 	const modalRef = useRef<HTMLDivElement>(null);
@@ -120,7 +129,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 					<SettingSidebar
 						onClickItem={handleSettingItemClick}
 						handleMenu={(value: boolean) => setMenu(value)}
-						currentSetting={currentSetting?.id || ''}
+						currentSetting={currentSettingId}
 						setIsShowDeletePopup={() => setIsShowDeletePopup(true)}
 					/>
 				</div>

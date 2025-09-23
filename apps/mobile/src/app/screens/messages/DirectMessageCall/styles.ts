@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
@@ -110,9 +111,42 @@ export const style = (colors: Attributes) =>
 			height: size.s_165,
 			top: size.s_10,
 			right: size.s_10,
-			borderRadius: size.s_10,
 			overflow: 'hidden',
 			borderWidth: 1,
-			borderColor: colors.border
+			borderColor: colors.border,
+			zIndex: 20
+		},
+		mutedAudioContainer: {
+			position: 'absolute',
+			flexDirection: 'row',
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			bottom: size.s_20,
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15
+		},
+		mutedAudioAvatarContainer: {
+			flexDirection: 'row',
+			top: size.s_100 + size.s_10,
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15
+		},
+		mutedAudioText: {
+			color: colors.text,
+			fontSize: size.s_14,
 		}
 	});

@@ -27,7 +27,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
 import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
@@ -55,7 +55,6 @@ export const AuthenticationLoader = () => {
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
 	const dispatch = useDispatch();
-	const [fileShared, setFileShared] = useState<any>();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
 
@@ -127,10 +126,10 @@ export const AuthenticationLoader = () => {
 				const subpath = parts.subpath;
 				if (clanId && channelId) {
 					navigation.navigate(APP_SCREEN.CHANNEL_APP, {
-						channelId: channelId,
-						clanId: clanId,
-						code: code,
-						subpath: subpath
+						channelId,
+						clanId,
+						code,
+						subpath
 					});
 				}
 			}
@@ -148,7 +147,7 @@ export const AuthenticationLoader = () => {
 			if (username) {
 				const dataParam = getQueryParam(path, 'data');
 				navigation.navigate(APP_SCREEN.PROFILE_DETAIL, {
-					username: username,
+					username,
 					data: dataParam || undefined
 				});
 			}
@@ -322,7 +321,7 @@ export const AuthenticationLoader = () => {
 		} else {
 			const linkDirectMessageMatch = link.match(clanDirectMessageLinkRegex);
 			const channelId = linkDirectMessageMatch[1];
-			dispatch(directActions.setBuzzStateDirect({ channelId: channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
+			dispatch(directActions.setBuzzStateDirect({ channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
 		}
 	};
 
@@ -330,9 +329,21 @@ export const AuthenticationLoader = () => {
 		try {
 			ReceiveSharingIntent.getReceivedFiles(
 				(files: any) => {
-					setFileShared(files);
+					try {
+						console.warn('log => files getReceivedFiles: ', files);
+						// Timeout to wait modal ready if the app was opened from sharing
+						setTimeout(() => {
+							const data = {
+								children: <Sharing data={files} />
+							};
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+						}, 500);
+					} catch (error) {
+						console.error('log => error OPEN ON_TRIGGER_MODAL: ', error);
+					}
 				},
 				(error: any) => {
+					console.error('log => error ReceiveSharingIntent: ', error);
 					/* empty */
 				},
 				'mezon.mobile.sharing'
@@ -342,16 +353,10 @@ export const AuthenticationLoader = () => {
 		}
 	};
 
-	const onCloseFileShare = useCallback(() => {
-		setFileShared(undefined);
-		navigation.goBack();
-	}, []);
-
 	return (
 		<>
 			<LoadingModal isVisible={isLoadingMain} />
 			<ExpiredSessionModal />
-			{!!fileShared && !isLoadingMain && <Sharing data={fileShared} onClose={onCloseFileShare} />}
 		</>
 	);
 };
