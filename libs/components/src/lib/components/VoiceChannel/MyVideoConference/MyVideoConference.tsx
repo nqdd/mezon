@@ -140,7 +140,7 @@ export function MyVideoConference({
 			}
 			if (focusTrack && focusTrack?.participant.sid === participant.sid) {
 				layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
-				if (document.pictureInPictureEnabled) {
+				if (document.pictureInPictureElement) {
 					await document.exitPictureInPicture();
 				}
 			}
@@ -157,7 +157,7 @@ export function MyVideoConference({
 			}
 		};
 		const handleTrackUnpublish = async (publication: RemoteTrackPublication, participant: RemoteParticipant) => {
-			if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureEnabled) {
+			if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureElement) {
 				await document.exitPictureInPicture();
 			}
 		};

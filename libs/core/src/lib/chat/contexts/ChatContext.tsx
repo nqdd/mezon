@@ -235,7 +235,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		(voice: VoiceLeavedEvent) => {
 			dispatch(voiceActions.remove(voice));
 			if (voice.voice_user_id === userId) {
-				if (document.pictureInPictureEnabled) {
+				if (document.pictureInPictureElement) {
 					document.exitPictureInPicture();
 				}
 			}
@@ -602,8 +602,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
-				// Fecth 2 API
-				dispatch(friendsActions.fetchListFriends({ noCache: true }));
 			}
 
 			if (isLinuxDesktop) {
