@@ -73,7 +73,6 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 
 	const now = timestamp || Date.now() / 1000;
 	const currentClanBadge = store ? getCurrentClanBadgeCount(store, clanId) : 0;
-
 	if (clanId !== '0') {
 		dispatch(listChannelRenderAction.removeBadgeFromChannel({ clanId, channelId }));
 		dispatch(
@@ -95,14 +94,15 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 
 		if (badgeCount !== undefined && badgeCount > 0) {
 			const actualDecrement = Math.min(badgeCount, currentClanBadge);
-			if (actualDecrement > 0) {
-				dispatch(
-					clansActions.updateClanBadgeCount({
-						clanId,
-						count: actualDecrement * -1
-					})
-				);
-			}
+			dispatch(
+				clansActions.updateClanBadgeCount({
+					clanId,
+					count: actualDecrement > 0 ? actualDecrement * -1 : 0,
+					isReset: actualDecrement <= 0
+				})
+			);
+		} else {
+			console.warn('Invalid params for resetChannelBadgeCount:', params);
 		}
 	} else {
 		dispatch(directActions.removeBadgeDirect({ channelId }));
