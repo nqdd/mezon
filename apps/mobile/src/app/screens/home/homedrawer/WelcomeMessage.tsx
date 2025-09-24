@@ -79,7 +79,7 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 			currenChannel?.channel_avatar?.map((avatar) => {
 				return {
 					avatarUrl: avatar,
-					username: username?.shift() || 'Anonymous'
+					username: username?.shift()
 				};
 			}) || [];
 
@@ -277,7 +277,7 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label}</Text>
 					<View style={{ flexDirection: 'row' }}>
 						<Text style={styles.subTitleWelcomeMessage}>{'Started by '}</Text>
-						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.clan_nick || creatorUser?.user?.display_name || creatorUser?.user?.username || 'Anonymous'}</Text>
+						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || ''}</Text>
 					</View>
 				</View>
 			)}

@@ -18,7 +18,6 @@ import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect } from 'react';
 import { DeviceEventEmitter, Keyboard, View } from 'react-native';
-import { useWebRTCStream } from '../../../components/StreamContext/StreamContext';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import JoinChannelVoiceBS from './components/ChannelVoice/JoinChannelVoiceBS';
 import JoinStreamingRoomBS from './components/StreamingRoom/JoinStreamingRoomBS';
@@ -28,7 +27,6 @@ const ChannelMessageListener = React.memo(() => {
 	const store = getStore();
 	const navigation = useNavigation<any>();
 	const dispatch = useAppDispatch();
-	const { handleChannelClick, disconnect } = useWebRTCStream();
 	const { userProfile } = useAuth();
 
 	const onMention = useCallback(
@@ -108,7 +106,7 @@ const ChannelMessageListener = React.memo(() => {
 				/* empty */
 			}
 		},
-		[disconnect, dispatch, handleChannelClick, navigation, store, userProfile?.user?.id, userProfile?.user?.username]
+		[dispatch, navigation, store, userProfile?.user?.id, userProfile?.user?.username]
 	);
 
 	useEffect(() => {

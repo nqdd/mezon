@@ -2,7 +2,6 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { Metrics, size } from '@mezon/mobile-ui';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, DeviceEventEmitter, Image, NativeModules, Platform, TouchableOpacity, View } from 'react-native';
-import { createThumbnail } from 'react-native-create-thumbnail';
 import FastImage from 'react-native-fast-image';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { getAspectRatioSize, useImageResolution } from 'react-native-zoom-toolkit';
@@ -37,6 +36,16 @@ export const RenderVideoChat = React.memo(
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		};
 
+		const generateThumbnailIOS = async (videoPath = '') => {
+			try {
+				const thumbnail = await NativeModules.VideoThumbnailModule.getThumbnail(videoPath);
+				setThumbPath(thumbnail?.uri || '');
+			} catch (error) {
+				console.error('Error generating thumbnail:', error, videoPath);
+				throw error;
+			}
+		};
+
 		useEffect(() => {
 			if (videoURL) {
 				if (isUploading && thumbnailPreview) {
@@ -64,18 +73,7 @@ export const RenderVideoChat = React.memo(
 						setThumbPath('');
 					}
 				} else {
-					createThumbnail({ url: videoURL, timeStamp: 1000 })
-						.then((response) => {
-							if (response?.path) {
-								setThumbPath(response.path);
-							} else {
-								setThumbPath('');
-							}
-						})
-						.catch((error) => {
-							console.error('Error creating thumbnail:', error);
-							setThumbPath('');
-						});
+					generateThumbnailIOS(videoURL);
 				}
 			}
 		}, [isUploading, thumbnailPreview, videoURL]);
@@ -140,7 +138,12 @@ export const RenderVideoChat = React.memo(
 					renderThumbnailPreview()
 				) : (
 					<TouchableOpacity onPress={handlePlayVideo} onLongPress={onLongPress} style={styles.videoContainer}>
-						<ImageNative url={thumbPath || ''} style={styles.video} resizeMode={isMultiple ? 'cover' : 'contain'} />
+						{Platform.OS === 'android' ? (
+							<ImageNative url={thumbPath || ''} style={styles.video} resizeMode={isMultiple ? 'cover' : 'contain'} />
+						) : (
+							<Image source={{ uri: thumbPath || '' }} style={styles.video} resizeMode={isMultiple ? 'cover' : 'contain'} />
+						)}
+
 						<View style={styles.iconPlayVideo}>
 							<Entypo size={size.s_40} name="controller-play" style={{ color: '#eaeaea' }} />
 						</View>
