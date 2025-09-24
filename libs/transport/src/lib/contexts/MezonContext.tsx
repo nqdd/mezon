@@ -1,6 +1,6 @@
 import { Client, Session, Socket } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
-import { ApiConfirmLoginRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
 import React, { useCallback } from 'react';
 import { CreateMezonClientOptions, createClient as createMezonClient } from '../mezon';
 
@@ -125,6 +125,8 @@ export type MezonContextValue = {
 	checkLoginRequest: (LoginRequest: ApiConfirmLoginRequest) => Promise<Session | null>;
 	confirmLoginRequest: (ConfirmRequest: ApiConfirmLoginRequest) => Promise<Session | null>;
 	authenticateEmail: (email: string, password: string) => Promise<Session>;
+	authenticateEmailOTPRequest: (email: string) => Promise<ApiLinkAccountConfirmRequest>;
+	confirmEmailOTP: (data: ApiLinkAccountConfirmRequest) => Promise<Session>;
 
 	logOutMezon: (device_id?: string, platform?: string, clearSession?: boolean) => Promise<void>;
 	refreshSession: (session: Sessionlike) => Promise<Session | undefined>;
@@ -230,6 +232,41 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 				throw new Error('Mezon client not initialized');
 			}
 			const session = await clientRef.current.authenticateEmail(email, password);
+			sessionRef.current = session;
+
+			const config = extractAndSaveConfig(session);
+			if (config) {
+				clientRef.current.setBasePath(config.host, config.port, config.useSSL);
+			}
+
+			const socket = await createSocket();
+			socketRef.current = socket;
+
+			if (!socketRef.current) {
+				return session;
+			}
+
+			await socketRef.current.connect(session, true, isFromMobile ? '1' : '0');
+			return session;
+		},
+		[createSocket, isFromMobile]
+	);
+
+	const authenticateEmailOTPRequest = useCallback(async (email: string) => {
+		if (!clientRef.current) {
+			throw new Error('Mezon client not initialized');
+		}
+
+		return await clientRef.current.authenticateEmailOTPRequest(email);
+	}, []);
+
+	const confirmEmailOTP = useCallback(
+		async (data: ApiLinkAccountConfirmRequest) => {
+			if (!clientRef.current) {
+				throw new Error('Mezon client not initialized');
+			}
+
+			const session = await clientRef.current.confirmEmailOTP(data);
 			sessionRef.current = session;
 
 			const config = extractAndSaveConfig(session);
@@ -437,7 +474,9 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			reconnectWithTimeout,
 			authenticateMezon,
 			authenticateEmail,
-			connectWithSession
+			connectWithSession,
+			authenticateEmailOTPRequest,
+			confirmEmailOTP
 		}),
 		[
 			clientRef,
@@ -453,7 +492,9 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			reconnectWithTimeout,
 			authenticateMezon,
 			authenticateEmail,
-			connectWithSession
+			connectWithSession,
+			authenticateEmailOTPRequest,
+			confirmEmailOTP
 		]
 	);
 
