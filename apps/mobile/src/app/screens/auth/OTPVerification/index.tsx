@@ -60,6 +60,16 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		return () => clearInterval(timer);
 	}, []);
 
+	const fillOtp = (otp: string) => {
+		const otps = otp.split('');
+		otps.forEach((digit, index) => {
+			if (inputRefs.current[index]) {
+				inputRefs.current[index].setNativeProps({ text: digit });
+			}
+		});
+		setOtp(otps);
+	};
+
 	const isValidOTP = otp?.every?.((digit) => digit !== '') && otp?.join?.('')?.length === 6;
 
 	const handleVerifyOTP = async (otpConfirm) => {
@@ -136,6 +146,11 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	};
 
 	const handleOtpChange = (value: string, index: number) => {
+		if (value.length === 6) {
+			fillOtp(value);
+			handleVerifyOTP(value);
+			return;
+		}
 		if (isError) {
 			setIsError(false);
 		}
@@ -207,7 +222,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 								onChangeText={(value) => handleOtpChange(value, index)}
 								onKeyPress={(e) => handleKeyPress(e, index)}
 								keyboardType="number-pad"
-								maxLength={1}
+								maxLength={6}
 								autoFocus={index === 0}
 								autoComplete={'sms-otp'}
 								textContentType={'oneTimeCode'}

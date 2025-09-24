@@ -8,6 +8,7 @@ class VideoPlayerView: UIView {
 	private var playerViewController: AVPlayerViewController?
 	private var player: AVPlayer?
 	private var playerItem: AVPlayerItem?
+	private var activityIndicator: UIActivityIndicatorView!
 	private static let cacheDirectory = "VideoCache"
 	private static let maxCacheSize: Int64 = 100 * 1024 * 1024 // 100MB in bytes
 	
@@ -20,13 +21,49 @@ class VideoPlayerView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupCache()
+		setupActivityIndicator()
 		setupPlayerViewController()
 	}
 	
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 		setupCache()
+		setupActivityIndicator()
 		setupPlayerViewController()
+	}
+	
+	// MARK: - Activity Indicator Setup
+	private func setupActivityIndicator() {
+		if #available(iOS 13.0, *) {
+			activityIndicator = UIActivityIndicatorView(style: .large)
+		} else {
+			activityIndicator = UIActivityIndicatorView(style: .whiteLarge)
+		}
+		
+		activityIndicator.color = .white
+		activityIndicator.hidesWhenStopped = true
+		activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+		
+		addSubview(activityIndicator)
+		
+		NSLayoutConstraint.activate([
+			activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
+			activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor)
+		])
+	}
+	
+	private func showLoading() {
+		DispatchQueue.main.async { [weak self] in
+			self?.activityIndicator.startAnimating()
+			// Bring activity indicator to front
+			self?.bringSubviewToFront(self?.activityIndicator ?? UIView())
+		}
+	}
+	
+	private func hideLoading() {
+		DispatchQueue.main.async { [weak self] in
+			self?.activityIndicator.stopAnimating()
+		}
 	}
 	
 	private func setupCache() {
@@ -145,12 +182,7 @@ class VideoPlayerView: UIView {
 		playerViewController?.showsPlaybackControls = true
 		playerViewController?.allowsPictureInPicturePlayback = true
 		
-		// Remove the activity indicator
 		if let playerVC = playerViewController {
-			// Hide the loading spinner
-			playerVC.setValue(false, forKey: "showsPlaybackControls")
-			playerVC.setValue(true, forKey: "showsPlaybackControls")
-			
 			addSubview(playerVC.view)
 			playerVC.view.frame = bounds
 			playerVC.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -170,6 +202,9 @@ class VideoPlayerView: UIView {
 		}
 		
 		print("VideoPlayerView: Setting up player with URL - \(url)")
+		
+		// Show loading indicator when starting to load video
+		showLoading()
 		
 		// Clean up previous player
 		cleanupPlayer()
@@ -209,13 +244,15 @@ class VideoPlayerView: UIView {
 			DispatchQueue.main.async {
 				if let error = error {
 					print("VideoPlayerView: Download error - \(error.localizedDescription)")
-					// Fallback to direct streaming if download fails
+					// Hide loading on error and fallback to direct streaming
+					self?.hideLoading()
 					self?.playVideo(url: url)
 					return
 				}
 				
 				guard let tempURL = tempURL else {
 					print("VideoPlayerView: No temp URL received")
+					self?.hideLoading()
 					self?.playVideo(url: url)
 					return
 				}
@@ -247,7 +284,8 @@ class VideoPlayerView: UIView {
 					
 				} catch {
 					print("VideoPlayerView: Cache error - \(error.localizedDescription)")
-					// Fallback to direct streaming
+					// Hide loading on error and fallback to direct streaming
+					self?.hideLoading()
 					self?.playVideo(url: url)
 				}
 			}
@@ -276,8 +314,10 @@ class VideoPlayerView: UIView {
 					self?.createPlayerItem(with: asset)
 				case .failed:
 					print("VideoPlayerView: Asset loading failed - \(error?.localizedDescription ?? "Unknown error")")
+					self?.hideLoading()
 				case .cancelled:
 					print("VideoPlayerView: Asset loading cancelled")
+					self?.hideLoading()
 				default:
 					print("VideoPlayerView: Asset loading status: \(status)")
 				}
@@ -295,6 +335,7 @@ class VideoPlayerView: UIView {
 			// Add observers
 			playerItem.addObserver(self, forKeyPath: "status", options: [.new, .initial], context: nil)
 			playerItem.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
+			playerItem.addObserver(self, forKeyPath: "playbackBufferEmpty", options: [.new], context: nil)
 		}
 		
 		player = AVPlayer(playerItem: playerItem)
@@ -315,6 +356,7 @@ class VideoPlayerView: UIView {
 		if let previousItem = playerItem {
 			previousItem.removeObserver(self, forKeyPath: "status")
 			previousItem.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp")
+			previousItem.removeObserver(self, forKeyPath: "playbackBufferEmpty")
 		}
 		
 		playerItem = nil
@@ -330,12 +372,15 @@ class VideoPlayerView: UIView {
 				switch playerItem.status {
 				case .readyToPlay:
 					print("VideoPlayerView: Player ready to play")
+					// Hide loading when player is ready
+					hideLoading()
 					// Auto play immediately when ready
 					player?.play()
 				case .failed:
 					if let error = playerItem.error {
 						print("VideoPlayerView: Player failed with error - \(error.localizedDescription)")
 					}
+					hideLoading()
 				case .unknown:
 					print("VideoPlayerView: Player status unknown")
 				@unknown default:
@@ -345,7 +390,14 @@ class VideoPlayerView: UIView {
 		case "playbackLikelyToKeepUp":
 			if let playerItem = playerItem, playerItem.isPlaybackLikelyToKeepUp {
 				print("VideoPlayerView: Playback likely to keep up - starting playback")
+				hideLoading()
 				player?.play()
+			}
+		case "playbackBufferEmpty":
+			if let playerItem = playerItem, playerItem.isPlaybackBufferEmpty {
+				print("VideoPlayerView: Playback buffer empty - showing loading")
+				// Show loading when buffer is empty (rebuffering)
+				showLoading()
 			}
 		default:
 			break

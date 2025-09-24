@@ -211,7 +211,7 @@ const LoginScreen = ({ navigation }) => {
 									? t('login.enterPhoneToLogin')
 									: t('login.enterEmailToLogin')}
 						</Text>
-						{loginMode === 'otp' && (
+						{(loginMode === 'otp' || loginMode === 'password') && (
 							<TextInput
 								style={styles.emailInput}
 								placeholder={t('login.emailAddress')}
