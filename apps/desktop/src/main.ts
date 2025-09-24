@@ -1,8 +1,8 @@
 import { BrowserWindow, app, clipboard, desktopCapturer, dialog, ipcMain, nativeImage, screen, shell } from 'electron';
 import log from 'electron-log/main';
 import fs from 'fs';
-import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ChannelStreamMode } from 'mezon-js';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import App from './app/app';
 import {
 	ACTION_SHOW_IMAGE,
@@ -242,6 +242,76 @@ ipcMain.on(TITLE_BAR_ACTION, (event, action, _data) => {
 	handleWindowAction(App.mainWindow, action);
 });
 
+async function copyBlobToClipboardElectron(blob: Buffer | null) {
+	if (!blob) {
+		return false;
+	}
+
+	try {
+		const image = nativeImage.createFromBuffer(blob);
+
+		if (image.isEmpty()) {
+			return false;
+		}
+
+		const size = image.getSize();
+		let finalImage = image;
+		const maxDimension = 4096;
+		if (size.width > maxDimension || size.height > maxDimension) {
+			const scale = Math.min(maxDimension / size.width, maxDimension / size.height);
+			const newWidth = Math.floor(size.width * scale);
+			const newHeight = Math.floor(size.height * scale);
+
+			finalImage = image.resize({
+				width: newWidth,
+				height: newHeight,
+				quality: 'good'
+			});
+		}
+
+		clipboard.writeImage(finalImage);
+		return true;
+	} catch (error) {
+		return false;
+	}
+}
+
+const copyImageToClipboardElectron = async (imageUrl?: string) => {
+	if (!imageUrl) return false;
+
+	try {
+		const controller = new AbortController();
+		const response = await fetch(imageUrl, {
+			signal: controller.signal
+		});
+
+		if (!response.ok) {
+			return;
+		}
+
+		const contentLength = response.headers.get('content-length');
+		if (contentLength && parseInt(contentLength) > 50 * 1024 * 1024) {
+			return;
+		}
+		const blob = await response.blob();
+		const arrayBuffer = await blob.arrayBuffer();
+		const buffer = Buffer.from(arrayBuffer);
+
+		return await copyBlobToClipboardElectron(buffer);
+	} catch (error) {
+		return false;
+	}
+};
+
+const handleCopyImageElectron = async (urlData: string) => {
+	try {
+		const result = await copyImageToClipboardElectron(urlData);
+		return result;
+	} catch (error) {
+		return false;
+	}
+};
+
 ipcMain.handle(ACTION_SHOW_IMAGE, async (event, action, _data) => {
 	const win = BrowserWindow.getFocusedWindow();
 	const fileURL = action?.payload?.fileURL;
@@ -255,20 +325,11 @@ ipcMain.handle(ACTION_SHOW_IMAGE, async (event, action, _data) => {
 		}
 		case 'copyImage': {
 			try {
-				const blobImage = await fetch(fileURL).then((response) => response.blob());
-				const base64data = await blobImage.arrayBuffer();
-				const uint8Array = new Uint8Array(base64data);
-				const buffer = Buffer.from(uint8Array);
-
-				const image = nativeImage.createFromBuffer(buffer);
-				if (image.isEmpty()) {
-					break;
-				}
-				clipboard.writeImage(image);
+				const success = await handleCopyImageElectron(fileURL);
+				return { success };
 			} catch (error) {
-				console.error(error);
+				return { success: false, error: error.message };
 			}
-			break;
 		}
 		case 'openLink': {
 			shell.openExternal(cleanedWebpOnUrl);

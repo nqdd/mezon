@@ -109,9 +109,10 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 
 	const handleSaveChannelSetting = async () => {
 		const isCheckNameChannelValue =
-			!!channelsClan?.length && channelsClan?.some((channel) => channel?.channel_label === currentSettingValue?.channelName);
+			!!channelsClan?.length && channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
 		setIsCheckDuplicateNameChannel(isCheckNameChannelValue);
 		const updateChannel = {
+			clan_id: channel?.clan_id,
 			channel_id: channel?.channel_id || '',
 			channel_label: currentSettingValue?.channelName,
 			category_id: channel?.category_id,
@@ -138,6 +139,20 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 	const permissionMenu = useMemo(
 		() =>
 			[
+				{
+					title: t('changeCategory.title'),
+					expandable: true,
+					icon: <MezonIconCDN icon={IconCDN.clipboardIcon} color={themeValue.text} />,
+					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP,
+					onPress: () => {
+						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
+							screen: APP_SCREEN.MENU_CHANNEL.CHANGE_CATEGORY,
+							params: {
+								channel
+							}
+						});
+					}
+				},
 				{
 					title: t('fields.channelPermission.permission'),
 					expandable: true,

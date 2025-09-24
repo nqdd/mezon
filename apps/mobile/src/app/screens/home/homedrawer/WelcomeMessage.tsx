@@ -7,12 +7,14 @@ import {
 	EStateFriend,
 	friendsActions,
 	getStoreAsync,
+	selectChannelById,
 	selectDmGroupCurrent,
 	selectFriendById,
 	selectMemberClanByUserId,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelStatusEnum, IChannel, createImgproxyUrl } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,9 +31,9 @@ interface IWelcomeMessage {
 }
 
 const useCurrentChannel = (channelId: string) => {
-	const channel = useAppSelector((state) => selectMemberClanByUserId(state, channelId));
+	const channel = useAppSelector((state) => selectChannelById(state, channelId));
 	const dmGroup = useAppSelector(selectDmGroupCurrent(channelId));
-	return channel || dmGroup;
+	return dmGroup || channel;
 };
 
 const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
@@ -71,14 +73,14 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 	}, [currenChannel?.type]);
 
 	const stackUsers = useMemo(() => {
-		const username = currenChannel?.category_name?.split(',');
+		const username = currenChannel?.usernames;
 		if (!isDMGroup) return [];
 
 		const allUsers =
-			currenChannel?.channel_avatar?.map((avatar) => {
+			currenChannel?.channel_avatar?.map((avatar, index) => {
 				return {
 					avatarUrl: avatar,
-					username: username?.shift() || 'Anonymous'
+					username: username?.[index]
 				};
 			}) || [];
 
@@ -227,11 +229,10 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 						<Text style={styles.subTitleWelcomeMessageCenter}>{"Welcome to your new group! Invite friends whenever you're ready"}</Text>
 					) : (
 						<Text style={styles.subTitleWelcomeMessage}>
-							{'This is the very beginning of your legendary conversation with ' + userName}
+							{`This is the very beginning of your legendary conversation with ${userName}`}
 						</Text>
 					)}
 
-					{/* TODO: Mutual server */}
 					{!isDMGroup && !isBlockedByUser && (
 						<View style={styles.friendActions}>
 							{infoFriend?.state !== EStateFriend.BLOCK &&
@@ -268,15 +269,15 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 				</View>
 			) : isChannel ? (
 				<View>
-					<Text style={styles.titleWelcomeMessage}>{'Welcome to #' + currenChannel?.channel_label}</Text>
-					<Text style={styles.subTitleWelcomeMessage}>{'This is the start of the #' + currenChannel?.channel_label}</Text>
+					<Text style={styles.titleWelcomeMessage}>{`Welcome to #${currenChannel?.channel_label}`}</Text>
+					<Text style={styles.subTitleWelcomeMessage}>{`This is the start of the #${currenChannel?.channel_label}`}</Text>
 				</View>
 			) : (
 				<View>
 					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label}</Text>
 					<View style={{ flexDirection: 'row' }}>
 						<Text style={styles.subTitleWelcomeMessage}>{'Started by '}</Text>
-						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || 'Anonymous'}</Text>
+						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || ''}</Text>
 					</View>
 				</View>
 			)}

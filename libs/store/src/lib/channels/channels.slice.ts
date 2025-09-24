@@ -30,7 +30,7 @@ import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChann
 import { channelMembersActions } from '../channelmembers/channel.members';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { messagesActions } from '../messages/messages.slice';
+import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { selectEntiteschannelCategorySetting } from '../notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import { overriddenPoliciesActions } from '../policies/overriddenPolicies.slice';
@@ -774,6 +774,13 @@ export const fetchChannels = createAsyncThunk(
 
 			const meta = channels.map((ch) => extractChannelMeta(ch));
 			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata(meta));
+
+			const currentState = thunkAPI.getState() as RootState;
+			const queuedMessages = currentState.messages.queuedLastSeenMessages;
+			if (queuedMessages.length > 0) {
+				thunkAPI.dispatch(processQueuedLastSeenMessages());
+			}
+
 			return { channels, clanId };
 		} catch (error) {
 			captureSentryError(error, 'channels/fetchChannels');
