@@ -3,7 +3,7 @@ import { join } from 'path';
 import App from '../../app/app';
 import image_window_css from './image-window-css';
 
-import { ApiChannelAttachment } from 'mezon-js/api.gen';
+import type { ApiChannelAttachment } from 'mezon-js/api.gen';
 import { escapeHtml, sanitizeUrl } from '../../app/utils';
 import menu from '../menu-context';
 
@@ -205,7 +205,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
       </button>
     </div>
   </div>
-  <div id="toast" class="toast">Image copied</div>
+  <div id="toast" class="toast">Copied to clipboard</div>
 </div>
 
 </body>
@@ -222,7 +222,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 	// 	})
 	// );
 
-	popupWindow.loadURL('data:text/html;charset=UTF-8,' + encodeURIComponent(imageViewerHtml));
+	popupWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(imageViewerHtml)}`);
 
 	// Add IPC handlers for window controls
 	ipcMain.removeHandler('minimize-window');
@@ -580,7 +580,17 @@ menu.addEventListener('click', async (e) => {
 
 				switch (action) {
 					case 'copyImage': {
-						window.electron.handleActionShowImage(action, currentImageUrl.realUrl );
+						window.electron.handleActionShowImage(action, currentImageUrl.realUrl)
+							.then((result) => {
+								if (result?.success) {
+									showToast();
+								} else {
+									console.error('Copy failed:', result?.error || 'Unknown error');
+								}
+							})
+							.catch((error) => {
+								console.error('Copy failed:', error);
+							});
 						break;
 					}
           default :

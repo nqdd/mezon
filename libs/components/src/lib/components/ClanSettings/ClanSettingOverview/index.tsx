@@ -1,7 +1,7 @@
 import { useClans } from '@mezon/core';
 import { createSystemMessage, fetchSystemMessageByClanId, selectCurrentClan, updateSystemMessage, useAppDispatch } from '@mezon/store';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
+import type { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ClanBannerBackground from './ClanBannerBackground';
@@ -23,6 +23,7 @@ const ClanSettingOverview = () => {
 
 	const [systemMessage, setSystemMessage] = useState<ApiSystemMessage | null>(null);
 	const [updateSystemMessageRequest, setUpdateSystemMessageRequest] = useState<ApiSystemMessageRequest | null>(null);
+	const [resetTrigger, setResetTrigger] = useState<boolean>(false);
 
 	const dispatch = useAppDispatch();
 
@@ -132,6 +133,7 @@ const ClanSettingOverview = () => {
 	};
 
 	const handleReset = () => {
+		setResetTrigger(true);
 		setClanRequest({
 			banner: currentClan?.banner ?? '',
 			clan_name: currentClan?.clan_name ?? '',
@@ -142,9 +144,18 @@ const ClanSettingOverview = () => {
 		});
 		setUpdateSystemMessageRequest(systemMessage);
 	};
+
+	const handleResetComplete = () => {
+		setResetTrigger(false);
+	};
 	return (
 		<div className="h-full pb-10">
-			<ClanLogoName onUpload={handleUploadLogo} onGetClanName={handleChangeName} />
+			<ClanLogoName
+				onUpload={handleUploadLogo}
+				onGetClanName={handleChangeName}
+				resetTrigger={resetTrigger}
+				onResetComplete={handleResetComplete}
+			/>
 			<ClanBannerBackground onUpload={handleUploadBackground} urlImage={clanRequest?.banner} />
 			{systemMessage && (
 				<SystemMessagesManagement
