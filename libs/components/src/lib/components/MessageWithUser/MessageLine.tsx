@@ -218,7 +218,15 @@ export const MessageLine = ({
 		...lkm,
 		...lkym,
 		...vkm
-	].sort((a, b) => (a.s ?? 0) - (b.s ?? 0));
+	]
+		.sort((a, b) => (a.s ?? 0) - (b.s ?? 0))
+		.filter((element, index, sortedArray) => {
+			if (index === 0) return true;
+			const prevElement = sortedArray[index - 1];
+			const currentStart = element.s ?? 0;
+			const prevEnd = prevElement.e ?? 0;
+			return currentStart >= prevEnd;
+		});
 
 	let lastindex = 0;
 	const content2 = (() => {
