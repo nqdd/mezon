@@ -953,6 +953,7 @@ function ChannelListButton() {
 				title={t('tooltips.members')}
 				onClick={handleClick}
 				className={`text-theme-primary text-theme-primary-hover ${isActive ? 'text-theme-primary-active' : ''}`}
+				data-e2e={generateE2eId('chat.channel_message.header.button.member')}
 			>
 				<Icons.MemberList defaultSize="size-5" />
 			</button>

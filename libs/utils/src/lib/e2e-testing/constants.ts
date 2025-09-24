@@ -14,6 +14,10 @@ export const DATA_E2E_IDENTIFIER = {
 	avatar: {
 		image: ''
 	},
+	footer_profile: {
+		avatar: '',
+		name: ''
+	},
 	button: {
 		base: ''
 	},
@@ -91,13 +95,17 @@ export const DATA_E2E_IDENTIFIER = {
 			button: {
 				add_clan: '',
 				add_channel: '',
-				events: ''
+				events: '',
+				members: ''
 			},
 			panel: {
 				category_panel: '',
 				add_channel: '',
 				events: ''
 			}
+		},
+		member_list: {
+			user_info: ''
 		},
 		modal: {
 			create_category: {
@@ -306,6 +314,7 @@ export const DATA_E2E_IDENTIFIER = {
 					file: '',
 					mute: '',
 					inbox: '',
+					member: '',
 					pin: {
 						pin_badge: ''
 					},
@@ -341,6 +350,14 @@ export const DATA_E2E_IDENTIFIER = {
 				},
 				checkbox: {
 					private_thread: ''
+				}
+			},
+			mention_user: '',
+			member_list: {
+				item: {
+					actions: {
+						view_profile: ''
+					}
 				}
 			}
 		},
@@ -391,6 +408,9 @@ export const DATA_E2E_IDENTIFIER = {
 			button_setting: '',
 			tab_profile: '',
 			user_profile: {
+				preview: {
+					avatar: ''
+				},
 				input: {
 					display_name: '',
 					about_me: ''
@@ -403,7 +423,10 @@ export const DATA_E2E_IDENTIFIER = {
 					about_me_length: ''
 				},
 				upload: {
-					direct_message_icon_input: ''
+					direct_message_icon_input: '',
+					avatar_input: {
+						apply_button: ''
+					}
 				}
 			},
 			clan_profile: {
