@@ -155,6 +155,9 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		settings: {
+			button: {
+				exit: ''
+			},
 			integrations: {
 				create_clan_webhook_button: '',
 				new_clan_webhook_button: '',
@@ -224,6 +227,9 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			panel: {
 				item: ''
+			},
+			settings: {
+				overview: ''
 			}
 		}
 	},
