@@ -687,33 +687,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				lastMessage?.create_time &&
 				new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500
 			) {
-				const isRelyMessage = lastMessage?.references?.length && lastMessage?.references?.length > 0;
-				const isAtBottom =
-					chatRef?.current &&
-					Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
-
-				if (isAtBottom && !isRelyMessage) return;
-
 				requestAnimationFrame(() => {
 					skipCalculateScroll.current = true;
-					const messagesContainer = chatRef.current;
-					const messageElements = messagesContainer?.querySelectorAll<HTMLDivElement>('.message-list-item');
-					const lastMessageElement = messageElements?.[messageElements.length - 1];
-					if (!lastMessageElement || !messagesContainer) {
-						return;
-					}
-					animateScroll({
-						container: messagesContainer,
-						element: lastMessageElement,
-						position: 'end',
-						margin: BOTTOM_FOCUS_MARGIN
-					});
+					const { scrollHeight, offsetHeight } = container;
+					const newScrollTop = scrollHeight - offsetHeight;
+					resetScroll(container, Math.ceil(newScrollTop));
 					setTimeout(() => {
 						skipCalculateScroll.current = false;
 					}, 0);
 				});
 			}
-		}, [lastMessage]);
+		}, [lastMessage, user?.user?.id]);
 
 		useLayoutEffectWithPrevDeps(
 			([prevMessageIds, prevIsViewportNewest]) => {
