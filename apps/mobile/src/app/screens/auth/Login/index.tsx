@@ -3,8 +3,8 @@ import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useEffect, useState } from 'react';
+import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -13,6 +13,8 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
+import type { ICountry } from '../../home/homedrawer/components/CountryDropdown';
+import { CountryDropdown, countries } from '../../home/homedrawer/components/CountryDropdown';
 import { style } from './styles';
 
 type LoginMode = 'otp' | 'password' | 'sms';
@@ -42,6 +44,17 @@ const LoginScreen = ({ navigation }) => {
 	const isPhoneValid = isValidPhone(phone);
 	const isPasswordValid = password.length >= 8;
 	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isPhoneValid : isEmailValid && isPasswordValid;
+	const [selectedCountry, setSelectedCountry] = useState<ICountry>(countries[0]);
+	const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
+
+	const toggleShowCountryDropdown = useCallback(() => {
+		setIsShowDropdown((s) => !s);
+	}, []);
+
+	const handleCountrySelect = useCallback((country: ICountry) => {
+		setSelectedCountry(country);
+		setIsShowDropdown(false);
+	}, []);
 
 	const onLoadInit = async () => {
 		if (clientRef?.current && clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST) {
@@ -224,16 +237,27 @@ const LoginScreen = ({ navigation }) => {
 							/>
 						)}
 						{loginMode === 'sms' && (
-							<TextInput
-								style={styles.emailInput}
-								placeholder={t('login.phone')}
-								placeholderTextColor={styles.placeholder.color}
-								value={phone}
-								onChangeText={setPhone}
-								keyboardType={'phone-pad'}
-								autoCapitalize="none"
-								autoCorrect={false}
-							/>
+							<>
+								<View style={styles.phoneRow}>
+									<TouchableOpacity style={styles.countryButton} onPress={toggleShowCountryDropdown} activeOpacity={0.8}>
+										<MezonIconCDN icon={selectedCountry.icon} useOriginalColor customStyle={styles.flagIcon} />
+										<Text style={styles.countryPrefix}>{selectedCountry.prefix}</Text>
+									</TouchableOpacity>
+
+									<TextInput
+										style={styles.phoneInput}
+										placeholder={t('login.phone')}
+										placeholderTextColor={styles.placeholder.color}
+										value={phone}
+										onChangeText={setPhone}
+										keyboardType={'phone-pad'}
+										autoCapitalize="none"
+										autoCorrect={false}
+									/>
+								</View>
+
+								<CountryDropdown isVisible={isShowDropdown} onCountrySelect={handleCountrySelect} selectedCountry={selectedCountry} />
+							</>
 						)}
 					</View>
 

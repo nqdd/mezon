@@ -1,4 +1,4 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = () =>
@@ -10,7 +10,7 @@ export const style = () =>
 		content: {
 			flex: 1,
 			justifyContent: 'center',
-			alignItems: 'center',
+			alignItems: 'center'
 		},
 		title: {
 			fontSize: size.s_26,
@@ -118,5 +118,32 @@ export const style = () =>
 			color: '#e0e7ff',
 			textTransform: 'uppercase',
 			marginHorizontal: size.s_4
+		},
+		phoneRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			backgroundColor: '#000000',
+			height: size.s_50,
+			borderRadius: size.s_8
+		},
+		countryButton: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			padding: size.s_12,
+			borderRightWidth: 2,
+			borderRightColor: '#5a62f4'
+		},
+		flagIcon: {
+			marginRight: size.s_6
+		},
+		countryPrefix: {
+			fontSize: size.s_16,
+			color: 'white'
+		},
+		phoneInput: {
+			flex: 1,
+			fontSize: size.s_16,
+			color: 'white',
+			padding: size.s_12
 		}
 	});

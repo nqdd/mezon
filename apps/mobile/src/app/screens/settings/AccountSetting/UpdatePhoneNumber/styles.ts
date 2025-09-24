@@ -10,10 +10,8 @@ export const style = (themeValue: Attributes) =>
 			padding: size.s_20
 		},
 		contentContainer: {
-			marginBottom: size.s_32
-		},
-		buttonContainer: {
-			gap: size.s_12
+			marginBottom: size.s_32,
+			position: 'relative'
 		},
 		label: {
 			fontSize: size.s_12,
@@ -43,44 +41,6 @@ export const style = (themeValue: Attributes) =>
 			fontSize: size.s_14,
 			color: themeValue.text
 		},
-		dropdownContainer: {
-			position: 'absolute',
-			top: '100%',
-			left: 0,
-			right: 0,
-			backgroundColor: themeValue.secondary,
-			borderRadius: size.s_8,
-			borderWidth: 0,
-			borderColor: themeValue.border,
-			zIndex: 1000,
-			width: '50%',
-			maxWidth: size.s_220,
-			marginTop: size.s_4
-		},
-		dropdownItem: {
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
-			gap: size.s_8,
-			paddingHorizontal: size.s_12,
-			paddingVertical: size.s_8,
-			borderBottomWidth: 1,
-			borderBottomColor: themeValue.border,
-			justifyContent: 'space-between'
-		},
-		dropdownItemContent: {
-			display: 'flex',
-			flexDirection: 'row',
-			alignItems: 'center',
-			gap: size.s_4
-		},
-		dropdownText: {
-			fontSize: size.s_14,
-			color: themeValue.text
-		},
-		customStyleFlagIcon: {
-			marginRight: size.s_6
-		},
 		nextButton: {
 			backgroundColor: themeValue.textDisabled
 		},
@@ -93,9 +53,12 @@ export const style = (themeValue: Attributes) =>
 		buttonTitle: {
 			fontSize: size.s_14,
 			fontWeight: '600',
-			color: themeValue.text
+			color: 'white'
 		},
 		errorInput: {
 			paddingHorizontal: Metrics.size.m
+		},
+		customStyleFlagIcon: {
+			marginRight: size.s_6
 		}
 	});

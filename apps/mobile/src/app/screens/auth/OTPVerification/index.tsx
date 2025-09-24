@@ -2,7 +2,7 @@ import { useAuth } from '@mezon/core';
 import { baseColor } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
-import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
+import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -17,7 +17,8 @@ interface OTPVerificationScreenProps {
 	navigation: any;
 	route: {
 		params: {
-			email: string;
+			email?: string;
+			phoneNumber?: string;
 			reqId: string;
 		};
 	};
@@ -26,7 +27,7 @@ interface OTPVerificationScreenProps {
 const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigation, route }) => {
 	const styles = style();
 	const { t } = useTranslation('common');
-	const { email, reqId } = route.params;
+	const { reqId, email = '', phoneNumber = '' } = route.params;
 	const { confirmEmailOTP } = useAuth();
 
 	const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
@@ -117,10 +118,16 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const isValidOTP = otp?.every?.((digit) => digit !== '') && otp?.join?.('')?.length === 6;
 
 	const handleVerifyOTP = async (otpConfirm) => {
+		let resp: any;
 		try {
 			if (otpConfirm?.length === 6) {
 				setIsLoading(true);
-				const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+				if (route.params?.email) {
+					resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+				} else {
+					// todo: add more logic
+				}
+
 				if (!resp) {
 					Toast.show({
 						type: 'success',
@@ -172,10 +179,6 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		navigation.goBack();
 	};
 
-	const handleGetHelp = () => {
-		// Handle get help logic here
-	};
-
 	const handleOtpChange = (value: string, index: number) => {
 		try {
 			if (value.length === 6) {
@@ -188,29 +191,25 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			}
 			const newOtp = [...otp];
 
-			// Handle backspace
 			if (value === '') {
 				newOtp[index] = '';
 				setOtp(newOtp);
 				inputRefs.current[index - 1]?.focus();
 				return;
 			}
-			// Handle normal input
+
 			if (value.length >= 1 && /^\d*$/.test(value)) {
 				const valueLastest = value[value.length - 1];
 				newOtp[index] = valueLastest;
 				setOtp(newOtp);
 
-				// Auto focus next input if current is filled
 				if (valueLastest !== '' && index < 6 - 1) {
 					inputRefs.current[index + 1]?.focus();
 				}
 
-				// Check if OTP is complete
 				if (newOtp.every((digit) => digit !== '')) {
 					if (isResendEnabled) return;
 					handleVerifyOTP(newOtp.join(''));
-					// onComplete?.(newOtp.join(''));
 				}
 			}
 		} catch (error) {
@@ -245,7 +244,9 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						{otp.map((digit, index) => (
 							<TextInput
 								key={index}
-								ref={(ref) => (inputRefs.current[index] = ref)}
+								ref={(ref: TextInput | null) => {
+									inputRefs.current[index] = ref;
+								}}
 								style={[
 									styles.input,
 									digit !== '' ? styles.inputFilled : styles.inputEmpty,
@@ -258,8 +259,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 								keyboardType="number-pad"
 								maxLength={6}
 								autoFocus={index === 0}
-								autoComplete={'sms-otp'}
-								textContentType={'oneTimeCode'}
+								textContentType={Platform.OS === 'ios' ? 'oneTimeCode' : undefined}
+								autoComplete={Platform.OS === 'android' ? 'sms-otp' : undefined}
 								selectTextOnFocus={true}
 							/>
 						))}

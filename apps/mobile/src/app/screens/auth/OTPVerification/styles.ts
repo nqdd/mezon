@@ -47,7 +47,7 @@ export const style = () =>
 			width: '100%',
 			gap: size.s_4,
 			flexDirection: 'row',
-			justifyContent: 'space-between',
+			justifyContent: 'center',
 			alignItems: 'center'
 		},
 		otpInput: {
@@ -124,7 +124,7 @@ export const style = () =>
 			height: size.s_48,
 			borderRadius: size.s_8,
 			textAlign: 'center',
-			fontSize: size.s_18,
+			fontSize: size.s_24,
 			fontWeight: '600',
 			backgroundColor: '#ffffff'
 		},
