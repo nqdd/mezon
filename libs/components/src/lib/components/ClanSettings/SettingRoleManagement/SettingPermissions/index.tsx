@@ -96,7 +96,7 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 			</div>
 			<br />
 			<div className="flex-1 min-h-0 overflow-hidden">
-				<ul className="flex flex-col gap-y-[10px] overflow-y-auto thread-scroll max-h-[50vh] sm:max-h-[55vh] md:max-h-[60vh] lg:max-h-[65vh] xl:max-h-[70vh] pr-2.">
+				<ul className="flex max-[1600px]:pb-10 flex-col gap-y-[10px] overflow-y-auto thread-scroll max-h-[50vh]  max-2xl:max-h-[calc(70vh-52px)] pr-2 2xl:max-h-[calc(70vh)]">
 					{searchResults.map((permission) => (
 						<li
 							key={permission.id}
