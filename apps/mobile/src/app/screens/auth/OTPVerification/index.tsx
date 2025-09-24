@@ -5,7 +5,7 @@ import { useAppDispatch } from '@mezon/store-mobile';
 import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -38,6 +38,9 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const [isError, setIsError] = useState(false);
 	const dispatch = useAppDispatch();
 
+	const countdownStartTime = useRef<number>(Date.now());
+	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
 	useEffect(() => {
 		if (reqId) {
 			setReqIdSent(reqId);
@@ -45,19 +48,60 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		}
 	}, [reqId]);
 
-	useEffect(() => {
-		const timer = setInterval(() => {
-			setCountdown((prevCountdown) => {
-				if (prevCountdown <= 1) {
-					setIsResendEnabled(true);
-					clearInterval(timer);
-					return 0;
-				}
-				return prevCountdown - 1;
-			});
-		}, 1000);
+	const startCountdown = () => {
+		countdownStartTime.current = Date.now();
+		setCountdown(59);
+		setIsResendEnabled(false);
 
-		return () => clearInterval(timer);
+		if (timerRef.current) {
+			clearInterval(timerRef.current);
+		}
+
+		timerRef.current = setInterval(() => {
+			const elapsed = Math.floor((Date.now() - countdownStartTime.current) / 1000);
+			const remaining = Math.max(59 - elapsed, 0);
+
+			setCountdown(remaining);
+
+			if (remaining <= 0) {
+				setIsResendEnabled(true);
+				if (timerRef.current) {
+					clearInterval(timerRef.current);
+					timerRef.current = null;
+				}
+			}
+		}, 1000);
+	};
+
+	// Handle app state changes
+	useEffect(() => {
+		const handleAppStateChange = (nextAppState: string) => {
+			if (nextAppState === 'active' && !isResendEnabled) {
+				// App came to foreground, recalculate countdown
+				const elapsed = Math.floor((Date.now() - countdownStartTime.current) / 1000);
+				const remaining = Math.max(59 - elapsed, 0);
+
+				setCountdown(remaining);
+
+				if (remaining <= 0) {
+					setIsResendEnabled(true);
+					if (timerRef.current) {
+						clearInterval(timerRef.current);
+						timerRef.current = null;
+					}
+				}
+			}
+		};
+
+		const subscription = AppState.addEventListener('change', handleAppStateChange);
+		startCountdown();
+
+		return () => {
+			subscription?.remove();
+			if (timerRef.current) {
+				clearInterval(timerRef.current);
+			}
+		};
 	}, []);
 
 	const fillOtp = (otp: string) => {
@@ -110,23 +154,10 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 			const reqId = payload?.req_id;
 			if (reqId) {
+				inputRefs?.current?.[0]?.focus();
 				setReqIdSent(reqId);
-				// Reset countdown and disable resend
-				setCountdown(59);
-				setIsResendEnabled(false);
 				setOtp(new Array(6).fill(''));
-
-				// Restart countdown
-				const timer = setInterval(() => {
-					setCountdown((prevCountdown) => {
-						if (prevCountdown <= 1) {
-							setIsResendEnabled(true);
-							clearInterval(timer);
-							return 0;
-						}
-						return prevCountdown - 1;
-					});
-				}, 1000);
+				startCountdown();
 			} else {
 				Toast.show({
 					type: 'error',
@@ -146,47 +177,50 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	};
 
 	const handleOtpChange = (value: string, index: number) => {
-		if (value.length === 6) {
-			fillOtp(value);
-			handleVerifyOTP(value);
-			return;
-		}
-		if (isError) {
-			setIsError(false);
-		}
-		const newOtp = [...otp];
-
-		// Handle backspace
-		if (value === '' && index > 0) {
-			newOtp[index] = '';
-			setOtp(newOtp);
-			// Focus previous input
-			inputRefs.current[index - 1]?.focus();
-			return;
-		}
-
-		// Handle normal input
-		if (value.length <= 1 && /^\d*$/.test(value)) {
-			newOtp[index] = value;
-			setOtp(newOtp);
-
-			// Auto focus next input if current is filled
-			if (value !== '' && index < 6 - 1) {
-				inputRefs.current[index + 1]?.focus();
+		try {
+			if (value.length === 6) {
+				fillOtp(value);
+				handleVerifyOTP(value);
+				return;
 			}
-
-			// Check if OTP is complete
-			if (newOtp.every((digit) => digit !== '')) {
-				if (isResendEnabled) return;
-				handleVerifyOTP(newOtp.join(''));
-				// onComplete?.(newOtp.join(''));
+			if (isError) {
+				setIsError(false);
 			}
+			const newOtp = [...otp];
+
+			// Handle backspace
+			if (value === '') {
+				newOtp[index] = '';
+				setOtp(newOtp);
+				inputRefs.current[index - 1]?.focus();
+				return;
+			}
+			// Handle normal input
+			if (value.length >= 1 && /^\d*$/.test(value)) {
+				const valueLastest = value[value.length - 1];
+				newOtp[index] = valueLastest;
+				setOtp(newOtp);
+
+				// Auto focus next input if current is filled
+				if (valueLastest !== '' && index < 6 - 1) {
+					inputRefs.current[index + 1]?.focus();
+				}
+
+				// Check if OTP is complete
+				if (newOtp.every((digit) => digit !== '')) {
+					if (isResendEnabled) return;
+					handleVerifyOTP(newOtp.join(''));
+					// onComplete?.(newOtp.join(''));
+				}
+			}
+		} catch (error) {
+			console.error('handleOtpChange error', error);
 		}
 	};
 
 	const handleKeyPress = (e: any, index: number) => {
 		if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
-			inputRefs?.current?.[index]?.focus();
+			inputRefs?.current?.[index - 1]?.focus();
 		}
 	};
 
