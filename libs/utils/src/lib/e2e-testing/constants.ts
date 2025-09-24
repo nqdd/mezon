@@ -146,6 +146,9 @@ export const DATA_E2E_IDENTIFIER = {
 				url_invite: '',
 				container: ''
 			},
+			limit_creation: {
+				title: ''
+			},
 			delete_category: {
 				button: {
 					delete: ''
