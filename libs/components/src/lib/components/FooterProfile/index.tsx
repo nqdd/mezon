@@ -314,7 +314,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							<UserStatusIconDM status={userCustomStatus?.user_status} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">
-							<p className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary">{name}</p>
+							<p className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary" data-e2e={generateE2eId('footer_profile.name')}>{name}</p>
 							<p className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]">
 								{userCustomStatus.status}
 							</p>

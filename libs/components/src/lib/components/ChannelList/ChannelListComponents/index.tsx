@@ -152,7 +152,7 @@ export const Events = memo(() => {
 				onClick={handleClose}
 				className={`self-stretch inline-flex cursor-pointer px-2 rounded-lg h-[34px] ${isMemberPath ? 'bg-button-secondary border-theme-primary text-theme-primary-active' : ''} bg-item-hover text-theme-primary text-theme-primary-hover`}
 			>
-				<div className="grow w-5 flex-row items-center gap-2 flex">
+				<div className="grow w-5 flex-row items-center gap-2 flex" data-e2e={generateE2eId('clan_page.side_bar.button.members')}>
 					<div className="w-5 h-5 relative flex flex-row items-center">
 						<div className="w-5 h-5 ">
 							<Icons.MemberList defaultSize="w-5 h-5" />
