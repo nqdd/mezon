@@ -235,7 +235,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		(voice: VoiceLeavedEvent) => {
 			dispatch(voiceActions.remove(voice));
 			if (voice.voice_user_id === userId) {
-				if (document.pictureInPictureEnabled) {
+				if (document.pictureInPictureElement) {
 					document.exitPictureInPicture();
 				}
 			}
@@ -602,8 +602,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
-				// Fecth 2 API
-				dispatch(friendsActions.fetchListFriends({ noCache: true }));
 			}
 
 			if (isLinuxDesktop) {
@@ -1516,7 +1514,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(listChannelsByUserActions.upsertOne({ id: channelUpdated.channel_id, ...channelUpdated }));
 				}
 				if (channelUpdated.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
-					dispatch(channelsActions.addThreadToChannels({ clanId: channelUpdated.clan_id, channelId: channelUpdated.channel_id }));
+					dispatch(
+						channelsActions.upsertOne({
+							clanId: channelUpdated.clan_id as string,
+							channel: { ...channelUpdated, active: 1, id: channelUpdated.channel_id } as ChannelsEntity
+						})
+					);
 				}
 			}
 		},
