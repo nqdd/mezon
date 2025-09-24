@@ -3,7 +3,7 @@ import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
+import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -211,7 +211,7 @@ const LoginScreen = ({ navigation }) => {
 									? t('login.enterPhoneToLogin')
 									: t('login.enterEmailToLogin')}
 						</Text>
-						{loginMode === 'otp' && (
+						{(loginMode === 'otp' || loginMode === 'password') && (
 							<TextInput
 								style={styles.emailInput}
 								placeholder={t('login.emailAddress')}
