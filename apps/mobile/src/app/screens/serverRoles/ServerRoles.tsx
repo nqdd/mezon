@@ -76,7 +76,7 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 
 			<View style={styles.roles}>
 				<Text style={styles.normalText}>
-					{t('roles')} - {allClanRoles?.length - 1 || '0'}
+					{t('roles')} - {allClanRoles?.length || '0'}
 				</Text>
 				{allClanRoles.length ? (
 					<View style={styles.listRolePanel}>
