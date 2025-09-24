@@ -57,6 +57,7 @@
 	"muteFor8Hours": "8 giờ",
 	"muteFor24Hours": "24 giờ",
 	"muteUntilTurnedBack": "Cho đến khi tôi bật lại",
+	"imageCopiedToClipboard": "Đã sao chép hình ảnh",
 	"errors": {
 		"failedToNoteMessage": "Không thể ghi chú tin nhắn này",
 		"failedToEditMessage": "Không thể chỉnh sửa tin nhắn",
