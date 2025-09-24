@@ -558,6 +558,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, channelId));
 
+		const topicCreatorOfInitMsg = useAppSelector((state) =>
+			selectMemberClanByUserId(state, (firstMsgOfThisTopic?.message?.sender_id as string) || '')
+		);
+
 		const getIsEditing = useCallback(
 			(messageId: string) => {
 				return channelDraftMessage?.message_id === messageId ? openEditMessageState : openEditMessageState && idMessageRefEdit === messageId;
@@ -832,8 +836,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!firstMsgOfThisTopic?.message) {
 				return firstMsgOfThisTopic as MessagesEntity;
 			}
-			return convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
-		}, [firstMsgOfThisTopic]);
+			const baseEntity = convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
+			return {
+				...baseEntity,
+				avatar: baseEntity.avatar || topicCreatorOfInitMsg?.user?.avatar_url || baseEntity.avatar,
+				clan_avatar: baseEntity.clan_avatar || (topicCreatorOfInitMsg as any)?.clan_avatar || baseEntity.clan_avatar,
+				username: baseEntity.username || topicCreatorOfInitMsg?.user?.username || baseEntity.username
+			} as MessagesEntity;
+		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
 
 		const msgIdJumpHightlight = useRef<string | null>(null);
 
@@ -963,7 +973,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 									allowDisplayShortProfile={true}
 									message={convertedFirstMsgOfThisTopic}
 									mode={mode}
-									user={currentClanUser}
+									user={topicCreatorOfInitMsg}
 								/>
 							</div>
 						)}
