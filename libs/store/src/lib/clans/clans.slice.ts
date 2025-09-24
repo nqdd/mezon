@@ -379,13 +379,10 @@ export const updateUser = createAsyncThunk(
 			}
 
 			if (Object.keys(body).length === 0) {
-				console.log('updateUser: No changes detected, skipping API call');
 				return true;
 			}
 
-			console.log('updateUser: Calling API with body:', body);
 			const response = await mezon.client.updateAccount(mezon.session, body as ApiUpdateAccountRequest);
-			console.log('updateUser: API response:', response);
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
