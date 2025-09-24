@@ -3,7 +3,7 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectCurrentUserId, selectMemberClanByUserId, soundEffectActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission, createImgproxyUrl } from '@mezon/utils';
 import { ClanSticker } from 'mezon-js';
-import { Ref, forwardRef, memo, useMemo } from 'react';
+import { Ref, forwardRef, memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -51,16 +51,14 @@ const SoundItemComponent = forwardRef(({ item, onSwipeOpen, isPlaying = false, o
 					soundLabel: item?.shortname
 				})
 			);
-
-			dispatch(soundEffectActions.fetchSoundByUserId({ noCache: true }));
 		} catch (error) {
 			console.error('Error deleting sound:', error);
 		}
 	};
 
-	const handleSwipableWillOpen = () => {
+	const handleSwipableWillOpen = useCallback(() => {
 		onSwipeOpen(item);
-	};
+	}, []);
 
 	const handlePressPlay = () => {
 		onPressPlay?.(item);
@@ -100,7 +98,7 @@ const SoundItemComponent = forwardRef(({ item, onSwipeOpen, isPlaying = false, o
 				{dataAuthor?.user?.avatar_url && (
 					<View style={styles.user}>
 						<Text numberOfLines={1} style={styles.title}>
-							{dataAuthor?.user?.username}
+							{dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username}
 						</Text>
 						{dataAuthor?.user?.avatar_url ? (
 							<FastImage
