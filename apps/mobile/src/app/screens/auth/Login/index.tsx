@@ -143,7 +143,7 @@ const LoginScreen = ({ navigation }) => {
 					navigation.navigate(APP_SCREEN.VERIFY_OTP, { email, reqId });
 				} else {
 					Toast.show({
-						type: 'error',
+						type: 'success',
 						props: {
 							text2: resp?.error?.message || 'An error occurred while sending OTP',
 							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
@@ -192,7 +192,7 @@ const LoginScreen = ({ navigation }) => {
 			setIsLoading(false);
 			console.error('Error sending phone OTP:', error);
 			Toast.show({
-				type: 'error',
+				type: 'success',
 				props: {
 					text2: error?.message || 'An error occurred while sending OTP',
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
