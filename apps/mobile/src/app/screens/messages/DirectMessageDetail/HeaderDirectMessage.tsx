@@ -17,7 +17,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl, sleep } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { BackHandler, DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
@@ -126,13 +126,15 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			navigation.goBack();
 		}
 		return true;
-	}, [from, navigation]);
-
-	useEffect(() => {
-		const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBack);
-
-		return () => backHandler.remove();
 	}, []);
+
+	useFocusEffect(
+		useCallback(() => {
+			const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBack);
+
+			return () => backHandler.remove();
+		}, [])
+	);
 
 	const goToCall = (isVideo = false) => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
