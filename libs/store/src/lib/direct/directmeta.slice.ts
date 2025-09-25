@@ -1,9 +1,11 @@
-import { ActiveDm, IChannel, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ChannelMessage } from 'mezon-js';
-import { ApiChannelMessageHeader } from 'mezon-js/api.gen';
-import { MessagesEntity } from '../messages/messages.slice';
-import { DirectEntity } from './direct.slice';
+import type { IChannel, LoadingStatus } from '@mezon/utils';
+import { ActiveDm } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ChannelMessage } from 'mezon-js';
+import type { ApiChannelMessageHeader } from 'mezon-js/api.gen';
+import type { MessagesEntity } from '../messages/messages.slice';
+import type { DirectEntity } from './direct.slice';
 
 export const DIRECT_META_FEATURE_KEY = 'directmeta';
 
@@ -34,7 +36,8 @@ function extractDMMeta(channel: DirectEntity): DMMetaEntity {
 	return {
 		id: channel.id,
 		lastSeenTimestamp: isNaN(lastSeenTimestamp) ? lastSentTimestamp - 1 : lastSeenTimestamp,
-		lastSentTimestamp: lastSentTimestamp,
+		lastSentTimestamp,
+		last_sent_message: channel?.last_sent_message,
 		count_mess_unread: Number(channel.count_mess_unread || 0),
 		active: channel.active,
 		channel_label: channel.channel_label,
@@ -70,8 +73,7 @@ export const directMetaSlice = createSlice({
 						id: payload.id,
 						sender_id: payload.sender_id,
 						timestamp_seconds: timestamp
-					},
-					lastSentTimestamp: timestamp
+					}
 				}
 			});
 

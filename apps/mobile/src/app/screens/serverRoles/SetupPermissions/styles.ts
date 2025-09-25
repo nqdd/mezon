@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -34,7 +35,9 @@ export const style = (colors: Attributes) =>
 			textAlign: 'center',
 			fontWeight: 'bold',
 			fontSize: size.s_18,
-			color: colors.white
+			color: colors.white,
+			maxWidth: '50%',
+			alignSelf: 'center'
 		},
 		backButton: {
 			padding: size.s_16

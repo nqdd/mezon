@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -91,16 +92,19 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		roleItem: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: 8,
+			gap: size.s_8,
 			backgroundColor: colors.charcoal,
-			minWidth: 80,
+			minWidth: size.s_80,
+			maxWidth: size.s_200,
 			padding: size.s_6,
-			borderRadius: 8
+			borderRadius: size.s_8,
+			overflow: 'hidden'
 		},
 		textRole: {
 			color: colors.white,
 			fontSize: size.medium,
-			fontWeight: '400'
+			fontWeight: '400',
+			maxWidth: '85%'
 		},
 		title: {
 			color: colors.white,

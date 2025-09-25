@@ -120,6 +120,7 @@ export const style = () =>
 		},
 		input: {
 			width: size.s_48,
+			paddingHorizontal: size.s_16,
 			height: size.s_48,
 			borderRadius: size.s_8,
 			textAlign: 'center',

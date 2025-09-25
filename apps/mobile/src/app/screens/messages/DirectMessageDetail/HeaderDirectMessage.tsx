@@ -1,6 +1,7 @@
-import { CallSignalingData } from '@mezon/components';
+import type { CallSignalingData } from '@mezon/components';
 import { useChatSending, useSeenMessagePool } from '@mezon/core';
-import { ActionEmitEvent, IOption } from '@mezon/mobile-components';
+import type { IOption } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
 	DMCallActions,
@@ -20,7 +21,7 @@ import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgprox
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { useSendSignaling } from '../../../components/CallingGroupModal';
@@ -122,10 +123,17 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		});
 		if (APP_SCREEN.MESSAGES.NEW_GROUP === from) {
 			navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-			return;
+		} else {
+			navigation.goBack();
 		}
-		navigation.goBack();
+		return true;
 	}, [from, navigation]);
+
+	useEffect(() => {
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBack);
+
+		return () => backHandler.remove();
+	}, []);
 
 	const goToCall = (isVideo = false) => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {

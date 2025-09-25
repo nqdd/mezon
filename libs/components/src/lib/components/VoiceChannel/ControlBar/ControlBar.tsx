@@ -35,7 +35,7 @@ import { TrackToggle } from './TrackToggle/TrackToggle';
 interface ControlBarProps extends React.HTMLAttributes<HTMLDivElement> {
 	onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
 	saveUserChoices?: boolean;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	isExternalCalling?: boolean;
 	currentChannel?: ReactionChannelInfo;
@@ -151,6 +151,10 @@ const ControlBar = ({
 			dispatch(voiceActions.setStreamScreen(null));
 		}
 	}, [dispatch, showScreen]);
+
+	const handleLeaveRoom = useCallback(() => {
+		onLeaveRoom(true);
+	}, [onLeaveRoom]);
 
 	useEffect(() => {
 		const publishScreenTrack = async () => {
@@ -449,7 +453,7 @@ const ControlBar = ({
 					))}
 				{visibleControls.leave && (
 					<div
-						onClick={onLeaveRoom}
+						onClick={handleLeaveRoom}
 						className="w-14 aspect-square max-md:w-10 bg-[#da373c] hover:bg-[#a12829] cursor-pointer rounded-full flex justify-center items-center"
 					>
 						<Icons.EndCall className="w-6 aspect-square max-md:w-4" />

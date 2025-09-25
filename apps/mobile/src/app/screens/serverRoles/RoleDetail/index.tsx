@@ -13,7 +13,8 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../componentUI/MezonInput';
 import { SeparatorWithLine } from '../../../components/Common';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import RoleCoLourComponent from '../RoleCoLourComponent/RoleCoLourComponent';
 import RoleImagePicker from '../RoleImagePicker';
 import { style } from './styles';
@@ -22,6 +23,8 @@ enum EActionType {
 	permissions,
 	members
 }
+
+const MAX_ROLE_NAME = 64;
 
 type RoleDetailScreen = typeof APP_SCREEN.MENU_CLAN.ROLE_DETAIL;
 export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetailScreen>) => {
@@ -38,6 +41,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 
 	const isNotChange = useMemo(() => {
+		if (!currentRoleName) return true;
 		return isEqual(originRoleName, currentRoleName);
 	}, [originRoleName, currentRoleName]);
 
@@ -62,18 +66,21 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 					title={t('roleDetail.confirmSaveTitle')}
 					confirmText={t('roleDetail.yes')}
 					content={t('roleDetail.confirmSaveContent')}
+					onCancel={() => navigation?.goBack()}
 				/>
 			)
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, [isNotChange, navigation]);
+	}, [isNotChange, navigation, currentRoleName]);
 
 	useEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerTitle: () => (
-				<View>
-					<Text style={styles.headerTitle}>{clanRole?.title}</Text>
+				<View style={styles.center}>
+					<Text style={styles.headerTitle} numberOfLines={1}>
+						{clanRole?.title}
+					</Text>
 					<Text style={styles.headerText}>{t('roleDetail.role')}</Text>
 				</View>
 			),
@@ -89,17 +96,15 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 			},
 			headerLeft: () => {
 				return (
-					<TouchableOpacity onPress={handleBack}>
-						<View style={styles.backButton}>
-							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
-						</View>
+					<TouchableOpacity style={styles.backButton} onPress={handleBack}>
+						<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
 					</TouchableOpacity>
 				);
 			}
 		});
-	}, [clanRole?.title, isNotChange, navigation, t, themeValue?.text, themeValue.white]);
+	}, [clanRole?.title, isNotChange, navigation, t, themeValue?.text, themeValue.white, currentRoleName]);
 
-	const handleSave = async () => {
+	const handleSave = useCallback(async () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		const response = await updateRole(clanRole.clan_id, clanRole.id, currentRoleName, clanRole?.color || '', [], [], [], []);
 		if (response) {
@@ -120,7 +125,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 				}
 			});
 		}
-	};
+	}, [clanRole.clan_id, clanRole?.color, clanRole.id, currentRoleName, navigation, t, updateRole]);
 
 	const deleteRole = async () => {
 		Alert.alert('Delete Role', 'Are you sure you want to delete this role?', [
@@ -195,6 +200,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 						placeHolder={t('roleDetail.roleName')}
 						label={t('roleDetail.roleName')}
 						disabled={!isCanEditRole || isEveryoneRole}
+						maxCharacter={MAX_ROLE_NAME}
 					/>
 				</View>
 
