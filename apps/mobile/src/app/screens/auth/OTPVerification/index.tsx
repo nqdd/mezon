@@ -74,11 +74,9 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		}, 1000);
 	};
 
-	// Handle app state changes
 	useEffect(() => {
 		const handleAppStateChange = (nextAppState: string) => {
 			if (nextAppState === 'active' && !isResendEnabled) {
-				// App came to foreground, recalculate countdown
 				const elapsed = Math.floor((Date.now() - countdownStartTime.current) / 1000);
 				const remaining = Math.max(59 - elapsed, 0);
 
@@ -260,7 +258,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 								maxLength={6}
 								autoFocus={index === 0}
 								textContentType={Platform.OS === 'ios' ? 'oneTimeCode' : undefined}
-								autoComplete={Platform.OS === 'android' ? 'sms-otp' : undefined}
+								autoComplete={phoneNumber ? 'sms-otp' : undefined}
 								selectTextOnFocus={true}
 							/>
 						))}
@@ -282,11 +280,6 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 							<TouchableOpacity onPress={handleChangeEmail}>
 								<Text style={styles.linkText}>{t('otpVerify.changeEmail')}</Text>
 							</TouchableOpacity>
-							{/*todo: add get help*/}
-							{/*<Text style={styles.orText}>{t('otpVerify.or')}</Text>*/}
-							{/*<TouchableOpacity onPress={handleGetHelp}>*/}
-							{/*	<Text style={styles.linkText}>{t('otpVerify.getHelp')}</Text>*/}
-							{/*</TouchableOpacity>*/}
 						</View>
 					</View>
 				</View>
