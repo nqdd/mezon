@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import useTabletLandscape from 'apps/mobile/src/app/hooks/useTabletLandscape';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
 import { style } from './styles';
 
 interface IReasonPopupProps {
