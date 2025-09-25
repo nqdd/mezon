@@ -91,9 +91,13 @@ const ModalInvite = (props: ModalParam) => {
 		<ModalLayout onClose={props.onClose}>
 			<div className="bg-theme-setting-primary rounded-xl flex flex-col">
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
-					<p className="font-bold text-xl text-theme-primary-active">
+					<p
+						title={clan?.clan_name}
+						className="font-bold text-xl text-theme-primary-active truncate overflow-hidden whitespace-nowrap max-w-[400px]"
+					>
 						{t('modal.title', { target: isInviteExternalCalling ? t('modal.privateEvent') : clan?.clan_name })}
 					</p>
+
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
 						onClick={props.onClose}

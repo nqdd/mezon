@@ -558,6 +558,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, channelId));
 
+		const topicCreatorOfInitMsg = useAppSelector((state) =>
+			selectMemberClanByUserId(state, (firstMsgOfThisTopic?.message?.sender_id as string) || '')
+		);
+
 		const getIsEditing = useCallback(
 			(messageId: string) => {
 				return channelDraftMessage?.message_id === messageId ? openEditMessageState : openEditMessageState && idMessageRefEdit === messageId;
@@ -687,33 +691,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				lastMessage?.create_time &&
 				new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500
 			) {
-				const isRelyMessage = lastMessage?.references?.length && lastMessage?.references?.length > 0;
-				const isAtBottom =
-					chatRef?.current &&
-					Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
-
-				if (isAtBottom && !isRelyMessage) return;
-
 				requestAnimationFrame(() => {
 					skipCalculateScroll.current = true;
-					const messagesContainer = chatRef.current;
-					const messageElements = messagesContainer?.querySelectorAll<HTMLDivElement>('.message-list-item');
-					const lastMessageElement = messageElements?.[messageElements.length - 1];
-					if (!lastMessageElement || !messagesContainer) {
-						return;
-					}
-					animateScroll({
-						container: messagesContainer,
-						element: lastMessageElement,
-						position: 'end',
-						margin: BOTTOM_FOCUS_MARGIN
-					});
+					const { scrollHeight, offsetHeight } = container;
+					const newScrollTop = scrollHeight - offsetHeight;
+					resetScroll(container, Math.ceil(newScrollTop));
 					setTimeout(() => {
 						skipCalculateScroll.current = false;
 					}, 0);
 				});
 			}
-		}, [lastMessage]);
+		}, [lastMessage, user?.user?.id]);
 
 		useLayoutEffectWithPrevDeps(
 			([prevMessageIds, prevIsViewportNewest]) => {
@@ -848,8 +836,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!firstMsgOfThisTopic?.message) {
 				return firstMsgOfThisTopic as MessagesEntity;
 			}
-			return convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
-		}, [firstMsgOfThisTopic]);
+			const baseEntity = convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
+			return {
+				...baseEntity,
+				avatar: baseEntity.avatar || topicCreatorOfInitMsg?.user?.avatar_url || baseEntity.avatar,
+				clan_avatar: baseEntity.clan_avatar || (topicCreatorOfInitMsg as any)?.clan_avatar || baseEntity.clan_avatar,
+				username: baseEntity.username || topicCreatorOfInitMsg?.user?.username || baseEntity.username
+			} as MessagesEntity;
+		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
 
 		const msgIdJumpHightlight = useRef<string | null>(null);
 
@@ -979,7 +973,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 									allowDisplayShortProfile={true}
 									message={convertedFirstMsgOfThisTopic}
 									mode={mode}
-									user={currentClanUser}
+									user={topicCreatorOfInitMsg}
 								/>
 							</div>
 						)}

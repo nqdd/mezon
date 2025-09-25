@@ -117,6 +117,7 @@ export interface MessagesState {
 	isViewingOlderMessagesByChannelId: Record<string, boolean>;
 	directMessageUnread: Record<string, ChannelMessage[]>;
 	isLoadingJumpMessage?: boolean;
+	queuedLastSeenMessages: UpdateMessageArgs[];
 }
 export type FetchMessagesMeta = {
 	arg: {
@@ -648,7 +649,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 			const channelsLoadingStatus = selectLoadingStatus(state);
 			const clansLoadingStatus = selectClansLoadingStatus(state);
 			if (channelsLoadingStatus === 'loading' || clansLoadingStatus === 'loading') {
+				thunkAPI.dispatch(messagesActions.queueLastSeenMessage({ clanId, channelId, messageId, mode, badge_count, message_time }));
 				return;
+			}
+
+			const queuedMessages = (thunkAPI.getState() as RootState).messages.queuedLastSeenMessages;
+			if (queuedMessages.length > 0) {
+				thunkAPI.dispatch(processQueuedLastSeenMessages());
 			}
 
 			const response = await mezon.socketRef.current?.writeLastSeenMessage(
@@ -691,6 +698,21 @@ export const updateLastSeenMessage = createAsyncThunk(
 		}
 	}
 );
+
+export const processQueuedLastSeenMessages = createAsyncThunk('messages/processQueuedLastSeenMessages', async (_, thunkAPI) => {
+	const state = thunkAPI.getState() as RootState;
+	const queuedMessages = state.messages.queuedLastSeenMessages;
+
+	if (queuedMessages.length === 0) {
+		return;
+	}
+
+	thunkAPI.dispatch(messagesActions.clearQueuedLastSeenMessages());
+
+	for (const queuedMessage of queuedMessages) {
+		await thunkAPI.dispatch(updateLastSeenMessage(queuedMessage));
+	}
+});
 
 type SendMessagePayload = {
 	clanId: string;
@@ -1037,7 +1059,8 @@ export const initialMessagesState: MessagesState = {
 	idMessageToJump: null,
 	directMessageUnread: {},
 	channelViewPortMessageIds: {},
-	isLoadingJumpMessage: false
+	isLoadingJumpMessage: false,
+	queuedLastSeenMessages: []
 };
 
 export type SetCursorChannelArgs = {
@@ -1385,6 +1408,21 @@ export const messagesSlice = createSlice({
 			if (state.channelMessages[channelId]?.cache) {
 				state.channelMessages[channelId].cache = undefined;
 			}
+		},
+		invalidateAllCache: (state) => {
+			Object.keys(state.channelMessages).forEach((channelId) => {
+				if (state.channelMessages[channelId]?.cache) {
+					state.channelMessages[channelId].cache = undefined;
+				}
+			});
+		},
+
+		queueLastSeenMessage: (state, action: PayloadAction<UpdateMessageArgs>) => {
+			state.queuedLastSeenMessages.push(action.payload);
+		},
+
+		clearQueuedLastSeenMessages: (state) => {
+			state.queuedLastSeenMessages = [];
 		}
 	},
 	extraReducers: (builder) => {
@@ -1406,7 +1444,13 @@ export const messagesSlice = createSlice({
 
 					if (!action?.payload?.messages?.length) return;
 
-					const isNew = channelId && action.payload.messages.some(({ id }) => !state.channelMessages?.[channelId]?.entities?.[id]);
+					const isNew =
+						channelId &&
+						action.payload.messages.some(({ id, avatar }) => {
+							const existingMessage = state.channelMessages?.[channelId]?.entities?.[id];
+							return !existingMessage || existingMessage.avatar !== avatar;
+						});
+
 					if (!direction && (!isNew || !channelId) && (!isClearMessage || (isClearMessage && fromCache)) && !foundE2ee) {
 						return;
 					}
@@ -1422,7 +1466,6 @@ export const messagesSlice = createSlice({
 
 					direction = direction || Direction_Mode.BEFORE_TIMESTAMP;
 
-					// remove all messages if ís fetching latest messages and is viewing older messages
 					if (toPresent) {
 						handleRemoveManyMessages(state, channelId);
 					}
@@ -1515,6 +1558,7 @@ export const messagesActions = {
 	sendEphemeralMessage,
 	fetchMessages,
 	updateLastSeenMessage,
+	processQueuedLastSeenMessages,
 	updateTypingUsers,
 	sendTypingUser,
 	loadMoreMessage,
