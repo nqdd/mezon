@@ -715,7 +715,16 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(clansActions.updateClanBadgeCount({ clanId: user?.clan_id || '', count: -user.badge_counts[index] }));
 				if (userID === userId) {
 					if (channelId === user.channel_id) {
-						navigate(`/chat/clans/${clanId}`);
+						if (user.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
+							const parentChannelId = currentChannel?.parent_id;
+							if (parentChannelId) {
+								navigate(`/chat/clans/${clanId}/channels/${parentChannelId}`);
+							} else {
+								navigate(`/chat/clans/${clanId}`);
+							}
+						} else {
+							navigate(`/chat/clans/${clanId}`);
+						}
 					}
 					if (directId === user.channel_id) {
 						navigate(`/chat/direct/friends`);
