@@ -134,7 +134,7 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 			setOpenConfirm(true);
 			setErrors({});
 			setOtp(Array(6).fill(''));
-			setCount(5);
+			setCount(60);
 			setValidateOTP(response.req_id);
 			return;
 		} else {
@@ -158,7 +158,7 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 				</button>
 
 				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="text-xl font-semibold text-gray-900 dark:text-white">{title || t('setPhoneModal.title')}</div>
+					<div className="text-xl font-semibold text-gray-900 dark:text-white">{title || t('setPhoneNumber')}</div>
 					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{description || t('setPhoneModal.description')}</p>
 				</div>
 

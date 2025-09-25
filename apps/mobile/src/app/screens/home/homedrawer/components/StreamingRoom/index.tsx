@@ -110,7 +110,7 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 								}}
 							>
 								<TouchableOpacity onPress={handleShowChat} style={styles.menuIcon}>
-									<MezonIconCDN icon={IconCDN.chatIcon} />
+									<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />
 								</TouchableOpacity>
 
 								<TouchableOpacity onPress={handleEndCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>

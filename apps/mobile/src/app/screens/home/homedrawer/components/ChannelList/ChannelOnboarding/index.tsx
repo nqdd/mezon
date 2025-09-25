@@ -3,10 +3,10 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	getStoreAsync,
 	selectAllChannels,
+	selectChannelById,
 	selectCurrentClan,
 	selectCurrentUserId,
 	selectLastMessageByChannelId,
-	selectMemberClanByUserId,
 	selectMembersClanCount,
 	selectWelcomeChannelByClanId,
 	useAppSelector
@@ -59,7 +59,7 @@ export const ChannelOnboarding = memo(() => {
 				onPress: async () => {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 					const store = await getStoreAsync();
-					const channel = selectMemberClanByUserId(store.getState(), welcomeChannel);
+					const channel = selectChannelById(store.getState(), welcomeChannel);
 
 					navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
 						screen: APP_SCREEN.MENU_CLAN.CREATE_CHANNEL,
@@ -98,7 +98,7 @@ export const ChannelOnboarding = memo(() => {
 				onPress: async () => {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 					const store = await getStoreAsync();
-					const channel = selectMemberClanByUserId(store.getState(), welcomeChannel);
+					const channel = selectChannelById(store.getState(), welcomeChannel);
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel });
 				}
 			}

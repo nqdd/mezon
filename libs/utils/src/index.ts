@@ -13,5 +13,6 @@ export * from './lib/errors';
 export * from './lib/fasterdom';
 export * from './lib/helper';
 export * from './lib/hooks';
+export * from './lib/toast';
 export * from './lib/types';
 export * from './lib/utils';

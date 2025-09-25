@@ -96,7 +96,8 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 						props: {
 							text2: t(resetToken ? 'toast.resetTokenSuccess' : 'toast.saveSuccess', { ns: 'clanIntegrationsSetting' }),
 							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
-						}
+						},
+						text2Style: { fontSize: size.small }
 					});
 				}
 			} catch (error) {
@@ -269,7 +270,8 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 					props: {
 						text2: t('toast.deleteSuccess', { ns: 'clanIntegrationsSetting' }),
 						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
-					}
+					},
+					text2Style: { fontSize: size.small }
 				});
 			} catch (error) {
 				console.error('Error deleting webhook:', error);

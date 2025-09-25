@@ -11,9 +11,11 @@ import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/
 type ClanLogoNameProps = {
 	onUpload: (url: string) => void;
 	onGetClanName: (clanName: string) => void;
+	resetTrigger?: boolean;
+	onResetComplete?: () => void;
 };
 
-const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
+const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }: ClanLogoNameProps) => {
 	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
 	const currentClan = useSelector(selectCurrentClan);
@@ -90,6 +92,14 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 			setCheckValidate(false);
 		}
 	}, [clanName]);
+
+	useEffect(() => {
+		if (resetTrigger) {
+			setUrlLogo(currentClan?.logo ?? '');
+			setClanName(currentClan?.clan_name ?? '');
+			onResetComplete?.();
+		}
+	}, [resetTrigger, currentClan?.logo, currentClan?.clan_name, onResetComplete]);
 
 	return (
 		<div className="flex sbm:flex-row flex-col gap-[10px]">
