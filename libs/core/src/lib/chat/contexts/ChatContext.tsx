@@ -235,7 +235,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		(voice: VoiceLeavedEvent) => {
 			dispatch(voiceActions.remove(voice));
 			if (voice.voice_user_id === userId) {
-				if (document.pictureInPictureEnabled) {
+				if (document.pictureInPictureElement) {
 					document.exitPictureInPicture();
 				}
 			}
@@ -602,8 +602,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
-				// Fecth 2 API
-				dispatch(friendsActions.fetchListFriends({ noCache: true }));
 			}
 
 			if (isLinuxDesktop) {
@@ -1442,13 +1440,40 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						navigate(`/chat/clans/${channelUpdated.clan_id}`);
 					}
 				}
-				dispatch(
-					listChannelRenderAction.updateChannelInListRender({
-						channelId: channelUpdated.channel_id,
-						clanId: channelUpdated.clan_id as string,
-						dataUpdate: { ...channelUpdated }
-					})
+
+				const channelExist = selectChannelByIdAndClanId(
+					store.getState() as unknown as RootState,
+					channelUpdated.clan_id as string,
+					channelUpdated.channel_id
 				);
+
+				if (channelExist) {
+					dispatch(
+						listChannelRenderAction.updateChannelInListRender({
+							channelId: channelUpdated.channel_id,
+							clanId: channelUpdated.clan_id as string,
+							dataUpdate: { ...channelUpdated }
+						})
+					);
+				} else {
+					dispatch(
+						channelsActions.add({
+							clanId: channelUpdated.clan_id as string,
+							channel: {
+								...channelUpdated,
+								active: 1,
+								id: channelUpdated.channel_id,
+								type: channelUpdated.channel_type
+							} as ChannelsEntity
+						})
+					);
+					dispatch(
+						listChannelRenderAction.addChannelToListRender({
+							...channelUpdated,
+							type: channelUpdated.channel_type
+						})
+					);
+				}
 				if (channelUpdated.channel_private !== undefined && channelUpdated.channel_private !== 0) {
 					const channel = { ...channelUpdated, type: channelUpdated.channel_type, id: channelUpdated.channel_id as string, clan_name: '' };
 					const cleanData: Record<string, string | number | boolean | string[]> = {};
@@ -1516,7 +1541,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(listChannelsByUserActions.upsertOne({ id: channelUpdated.channel_id, ...channelUpdated }));
 				}
 				if (channelUpdated.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
-					dispatch(channelsActions.addThreadToChannels({ clanId: channelUpdated.clan_id, channelId: channelUpdated.channel_id }));
+					dispatch(
+						channelsActions.upsertOne({
+							clanId: channelUpdated.clan_id as string,
+							channel: { ...channelUpdated, active: 1, id: channelUpdated.channel_id } as ChannelsEntity
+						})
+					);
 				}
 			}
 		},
