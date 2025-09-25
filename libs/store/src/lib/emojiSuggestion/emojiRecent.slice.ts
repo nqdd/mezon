@@ -122,13 +122,13 @@ const buyItemForSale = createAsyncThunk(
 				return thunkAPI.rejectWithValue('MmnClient not initialized');
 			}
 
-			const senderWalletAccount = await mezon.mmnClient.getAccountByUserId(senderId);
+			const currentNonce = await mezon.mmnClient.getCurrentNonce(senderId, 'pending');
 
 			const response = await mezon.mmnClient.sendTransaction({
 				sender: senderId,
 				recipient: creatorId,
-				amount: mezon.mmnClient.scaleAmountToDecimals(DEFAULT_EMOJI_PRICE, senderWalletAccount.decimals),
-				nonce: senderWalletAccount.nonce + 1,
+				amount: mezon.mmnClient.scaleAmountToDecimals(DEFAULT_EMOJI_PRICE),
+				nonce: currentNonce.nonce + 1,
 				textData: 'unlock item',
 				extraInfo: {
 					type: ETransferType.UnlockItem,

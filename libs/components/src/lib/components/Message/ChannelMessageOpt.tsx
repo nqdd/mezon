@@ -239,8 +239,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 					clan_id: message.clan_id ?? '',
 					message_ref_id: message.id,
 					receiver_id: message.sender_id,
-					sender_id: userId,
-					token_count: AMOUNT_TOKEN.TEN_THOUSAND_TOKENS
+					sender_id: userId
 				})
 			).unwrap();
 			if (checkSendCoffee === true) {
