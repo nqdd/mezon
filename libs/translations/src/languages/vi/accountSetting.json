@@ -32,8 +32,9 @@
 		"title": "Đặt mật khẩu",
 		"email": "Email",
 		"password": "Mật khẩu",
+		"currentPassword": "Mật khẩu hiện tại",
 		"confirmPassword": "Xác nhận mật khẩu",
-		"confirm": "Xác nhận",
+		"confirm": "Lưu",
 		"description": "Mật khẩu của bạn phải có ít nhất 8 ký tự và bao gồm ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt (ví dụ: !@#$%^&*).",
 		"error": {
 			"characters": "Mật khẩu phải có ít nhất 8 ký tự",
@@ -41,9 +42,18 @@
 			"lowercase": "Mật khẩu phải chứa ít nhất 1 chữ cái viết thường",
 			"number": "Mật khẩu phải chứa ít nhất 1 chữ số",
 			"symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
-			"notEqual": "Mật khẩu xác nhận không khớp"
+			"notEqual": "Mật khẩu xác nhận không khớp",
+			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ"
 		},
-		"notification": "Đặt mật khẩu thành công"
+		"notification": {
+			"success": "Đổi mật khẩu thành công",
+			"error": "Mật khẩu hiện tại không chính xác"
+		},
+		"placeholder": {
+			"currentPassword": "Nhập mật khẩu hiện tại",
+			"password": "Nhập mật khẩu mới",
+			"confirmPassword": "Xác nhận mật khẩu mới"
+		}
 	},
 	"setPasswordModal": {
 		"title": "Đặt mật khẩu",
