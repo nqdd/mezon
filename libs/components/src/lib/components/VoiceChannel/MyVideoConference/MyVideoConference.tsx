@@ -27,7 +27,7 @@ interface MyVideoConferenceProps {
 	channelLabel?: string;
 	url?: string;
 	token?: string;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	onJoinRoom?: () => void;
 	isExternalCalling?: boolean;
