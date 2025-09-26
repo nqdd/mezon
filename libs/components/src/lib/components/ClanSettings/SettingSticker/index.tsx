@@ -39,16 +39,14 @@ const SettingSticker = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> })
 			<div className="flex flex-col gap-6 pb-[40px] text-sm">
 				<div className="flex flex-col gap-2 pb-6 border-b-theme-primary">
 					<p className="font-bold text-xs uppercase text-theme-primary-active">{t('stickers.uploadInstructions')}</p>
-					<p>
-						{t('stickers.description')}
-					</p>
+					<p>{t('stickers.description')}</p>
 				</div>
 				<div className="flex p-4 bg-theme-setting-nav rounded-lg shadow-sm hover:shadow-md transition duration-200  border-theme-primary">
 					<div className="flex-1 w-full flex flex-col ">
 						<p className="text-base font-bold text-theme-primary-active">{t('stickers.uploadHere')}</p>
 						<p className="text-xs ">{t('stickers.customizeMessage')}</p>
 					</div>
-					<Button className="px-2 btn-primary btn-primary-hover rounded-lg" onClick={handleOpenModalUpload}>
+					<Button className="px-2 py-2.5 btn-primary btn-primary-hover rounded-lg" onClick={handleOpenModalUpload}>
 						{t('stickers.uploadSticker')}
 					</Button>
 				</div>
