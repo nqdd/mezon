@@ -5,7 +5,19 @@ import { useAppDispatch } from '@mezon/store-mobile';
 import { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+	ActivityIndicator,
+	Alert,
+	AppState,
+	Platform,
+	ScrollView,
+	StatusBar,
+	StyleSheet,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View
+} from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -169,7 +181,28 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	};
 
 	const handleChangeEmail = () => {
-		navigation.goBack();
+		Alert.alert(
+			t('otpVerify.changeEmailTitle'),
+			t('otpVerify.changeEmailMessage'),
+			[
+				{
+					text: t('otpVerify.cancel'),
+					style: 'cancel'
+				},
+				{
+					text: t('otpVerify.confirm'),
+					style: 'destructive',
+					onPress: () => {
+						if (timerRef.current) {
+							clearInterval(timerRef.current);
+							timerRef.current = null;
+						}
+						navigation.goBack();
+					}
+				}
+			],
+			{ cancelable: true }
+		);
 	};
 
 	const handleGetHelp = () => {
@@ -192,7 +225,6 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			if (value === '') {
 				newOtp[index] = '';
 				setOtp(newOtp);
-				inputRefs.current[index - 1]?.focus();
 				return;
 			}
 			// Handle normal input
@@ -226,7 +258,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
-			<LinearGradient colors={['#3574FE', '#978AFF', '#DCCFFF']} style={[StyleSheet.absoluteFillObject]} />
+			<LinearGradient colors={['#ffffff', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 			<KeyboardAvoidingView
 				style={{ flex: 1 }}
 				behavior={'padding'}
@@ -234,7 +266,6 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			>
 				<View style={styles.content}>
 					<Text style={styles.title}>{t('otpVerify.loginToMezon')}</Text>
-					<Text style={styles.subtitle}>{t('otpVerify.gladToMeetAgain')}</Text>
 
 					<View style={styles.instructionSection}>
 						<Text style={styles.instructionText}>{t('otpVerify.enterCodeFrom')}</Text>
@@ -266,13 +297,26 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 					</View>
 
 					<TouchableOpacity
-						style={[styles.verifyButton, isValidOTP || isResendEnabled ? styles.verifyButtonActive : styles.verifyButtonDisabled]}
+						style={[styles.verifyButton, !isValidOTP && styles.verifyButtonDisabled]}
 						onPress={isResendEnabled ? () => handleResendOTP() : () => handleVerifyOTP(otp?.join?.(''))}
 						disabled={(!isValidOTP && !isResendEnabled) || isLoading}
 					>
-						<Text style={[styles.verifyButtonText]}>
-							{isResendEnabled ? t('otpVerify.resendOTP') : `${t('otpVerify.verifyOTP')} (${countdown})`}
-						</Text>
+						{isLoading ? (
+							<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
+						) : (
+							<Text style={[styles.verifyButtonText]}>
+								{isResendEnabled ? t('otpVerify.resendOTP') : `${t('otpVerify.verifyOTP')} (${countdown})`}
+							</Text>
+						)}
+
+						{(isValidOTP || isResendEnabled) && (
+							<LinearGradient
+								start={{ x: 0, y: 0 }}
+								end={{ x: 1, y: 0 }}
+								colors={['#501794', '#3E70A1']}
+								style={[StyleSheet.absoluteFillObject]}
+							/>
+						)}
 					</TouchableOpacity>
 
 					<View style={styles.alternativeSection}>

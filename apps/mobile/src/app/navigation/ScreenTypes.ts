@@ -9,6 +9,7 @@ import { ApiWebhook } from 'mezon-js/api.gen';
 export const APP_SCREEN = {
 	UN_AUTHORIZE: 'UN_AUTHORIZE',
 	LOGIN: 'LOGIN',
+	WELCOME: 'WELCOME',
 	REGISTER: 'REGISTER',
 	APP_BROWSER: 'APP_BROWSER',
 	VERIFY_OTP: 'VERIFY_OTP',

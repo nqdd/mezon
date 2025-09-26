@@ -9,6 +9,7 @@ import {
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	accountActions,
+	appActions,
 	authActions,
 	channelsActions,
 	clansActions,
@@ -66,6 +67,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
+		store.dispatch(appActions.setIsShowWelcomeMobile(true));
 		store.dispatch(authActions.logOut({ device_id: userProfile.user.username, platform: Platform.OS }));
 	};
 
