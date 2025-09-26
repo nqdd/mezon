@@ -1,14 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme, verticalScale } from '@mezon/mobile-ui';
-import {
-	CategoriesEntity,
-	appActions,
-	channelsActions,
-	getStore,
-	selectAllCategories,
-	selectAppChannelById,
-	useAppDispatch
-} from '@mezon/store-mobile';
+import type { CategoriesEntity } from '@mezon/store-mobile';
+import { appActions, channelsActions, getStore, selectAllCategories, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,9 +10,10 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
 
 type ChangeCategory = typeof APP_SCREEN.MENU_CHANNEL.CHANGE_CATEGORY;
 export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<ChangeCategory>) => {

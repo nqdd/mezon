@@ -44,7 +44,7 @@ const ChannelVoice = memo(
 		const containerRef = useRef<HTMLDivElement | null>(null);
 		const { userProfile } = useAuth();
 
-		const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string): Promise<void> => {
+		const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
 			if (!clanId || !channelId || !userProfile?.user?.id) return;
 
 			await dispatch(
@@ -53,7 +53,7 @@ const ChannelVoice = memo(
 					channel_id: channelId,
 					display_name: userProfile?.user?.display_name ?? '',
 					state,
-					room_name: voiceInfo?.roomId || ''
+					room_name: self && state === ParticipantMeetState.LEAVE ? 'leave' : voiceInfo?.roomId || ''
 				})
 			);
 		};
@@ -100,11 +100,14 @@ const ChannelVoice = memo(
 			}
 		};
 
-		const handleLeaveRoom = useCallback(async () => {
-			if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
-			dispatch(voiceActions.resetVoiceControl());
-			await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId);
-		}, [voiceInfo, voiceInfo?.roomId]);
+		const handleLeaveRoom = useCallback(
+			async (self?: boolean) => {
+				if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
+				dispatch(voiceActions.resetVoiceControl());
+				await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
+			},
+			[voiceInfo, voiceInfo?.roomId]
+		);
 
 		const handleFullScreen = useCallback(() => {
 			dispatch(voiceActions.setFullScreen(!isVoiceFullScreen));

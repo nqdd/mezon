@@ -417,7 +417,7 @@ export const threadsSlice = createSlice({
 						state.byChannels[channelId] = threadsAdapter.setMany(state.byChannels[channelId], validThreads);
 						state.byChannels[channelId].cache = createCacheMetadata();
 					} else {
-						console.log('Error when load data from cache');
+						console.error('Error when load data from cache');
 					}
 
 					state.loadingStatus = 'loaded';

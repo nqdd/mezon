@@ -1,4 +1,4 @@
-import { ThreadsEntity } from '@mezon/store';
+import type { ThreadsEntity } from '@mezon/store';
 import { ThreadStatus } from '@mezon/utils';
 
 // is thread public and last message within 30days
@@ -31,7 +31,6 @@ export const getJoinedThreadsWithinLast30Days = (threads: ThreadsEntity[]): Thre
 
 	return result;
 };
-
 
 export const getThreadsOlderThan30Days = (threads: ThreadsEntity[]): ThreadsEntity[] => {
 	const thirtyDaysInSeconds = 30 * 24 * 60 * 60;

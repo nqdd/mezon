@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { AttachmentEntity } from '@mezon/store-mobile';
 import {
-	AttachmentEntity,
 	galleryActions,
 	selectCurrentClanId,
 	selectCurrentLanguage,
@@ -14,7 +14,8 @@ import moment from 'moment';
 import 'moment/locale/en-au';
 import 'moment/locale/vi';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, DeviceEventEmitter, Dimensions, FlatList, Text, View, ViewToken } from 'react-native';
+import type { ViewToken } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, Dimensions, FlatList, Text, View } from 'react-native';
 import { EmptySearchPage } from '../EmptySearchPage';
 import { ImageListModal } from '../ImageListModal';
 import { style } from './MediaChannel.styles';
