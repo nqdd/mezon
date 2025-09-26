@@ -153,8 +153,14 @@ const BottomSheetRootListener = () => {
 			backgroundStyle={styles.backgroundStyle}
 			backdropComponent={(prop) => <Backdrop {...prop} style={backdropStyle} />}
 			enableDynamicSizing={heightFitContent}
-			handleIndicatorStyle={hiddenHeaderIndicator ? { display: 'none' } : styles.handleIndicator}
 			style={styles.container}
+			handleComponent={
+				hiddenHeaderIndicator
+					? null
+					: () => {
+							return <View style={styles.handleIndicator} />;
+						}
+			}
 			containerStyle={containerStyle}
 			animationConfigs={{
 				duration: 200

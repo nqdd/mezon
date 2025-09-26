@@ -580,7 +580,9 @@ const UserProfile = React.memo(
 														}}
 													></View>
 												)}
-												<Text style={[styles.textRole]}>{role?.title}</Text>
+												<Text style={[styles.textRole]} numberOfLines={1} ellipsizeMode="tail">
+													{role?.title}
+												</Text>
 											</View>
 										))}
 									</View>

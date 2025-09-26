@@ -34,7 +34,9 @@ export const style = (colors: Attributes) =>
 			textAlign: 'center',
 			fontWeight: 'bold',
 			fontSize: size.s_18,
-			color: colors.white
+			color: colors.white,
+			maxWidth: '50%',
+			alignSelf: 'center'
 		},
 		backButton: {
 			padding: size.s_16
