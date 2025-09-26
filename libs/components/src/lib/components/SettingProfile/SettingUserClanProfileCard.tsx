@@ -1,6 +1,7 @@
 import { useAuth, useMemberStatus } from '@mezon/core';
 import { selectAccountCustomStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
@@ -57,7 +58,7 @@ const SettingUserClanProfileCard = (props: propProfilesform) => {
 			<div className="p-4 flex flex-col gap-4">
 				<div className="bg-theme-setting-primary text-theme-primary border-theme-primary shadow w-full p-4 rounded-[10px] flex flex-col gap-y-6 xl:gap-y-7">
 					<div className="w-[300px]">
-						<p className="font-bold tracking-wider text-xl one-line">
+						<p className="font-bold tracking-wider text-xl one-line" data-e2e={generateE2eId('user_setting.profile.user_profile.preview.display_name')}>
 							{profiles.displayName || currentDisplayName || userProfile?.user?.username}
 						</p>
 						<p className="font-medium tracking-wide text-sm">{userProfile?.user?.username}</p>
