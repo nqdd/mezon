@@ -235,6 +235,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 			if (!result?.assets?.length) {
 				return;
 			}
+			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, {});
 			const convertedFiles = result.assets.map((asset) => ({
 				...asset,
 				uri: Platform.OS === 'ios' && asset?.uri?.startsWith?.('file://') ? asset.uri.replace('file://', '') : asset.uri,

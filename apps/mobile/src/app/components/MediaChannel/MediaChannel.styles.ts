@@ -26,8 +26,6 @@ export const style = (colors: Attributes, widthImage: number) =>
 		wrapper: { height: '100%' },
 		contentContainer: {
 			paddingBottom: size.s_50,
-			justifyContent: 'flex-start',
-			alignItems: 'center',
 			flexGrow: 1
 		},
 		sectionHeader: {
@@ -48,6 +46,7 @@ export const style = (colors: Attributes, widthImage: number) =>
 		},
 		rowContainer: {
 			flexDirection: 'row',
+			flexWrap: 'wrap',
 			width: Dimensions.get('screen').width,
 			paddingHorizontal: size.s_8
 		},
