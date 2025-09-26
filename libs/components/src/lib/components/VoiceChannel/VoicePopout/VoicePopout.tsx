@@ -18,7 +18,7 @@ const VoicePopout: React.FC<{
 	const dispatch = useAppDispatch();
 	const { userProfile } = useAuth();
 
-	const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string): Promise<void> => {
+	const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
 		if (!clanId || !channelId || !userProfile?.user?.id) return;
 
 		await dispatch(
@@ -27,21 +27,24 @@ const VoicePopout: React.FC<{
 				channel_id: channelId,
 				display_name: userProfile?.user?.display_name ?? '',
 				state,
-				room_name: voiceInfo?.roomId || ''
+				room_name: self && state === ParticipantMeetState.LEAVE ? 'leave' : voiceInfo?.roomId || ''
 			})
 		);
 	};
 
-	const handleLeaveRoom = useCallback(async () => {
-		if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
+	const handleLeaveRoom = useCallback(
+		async (self?: boolean) => {
+			if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
 
-		dispatch(voiceActions.resetVoiceControl());
-		await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId);
+			dispatch(voiceActions.resetVoiceControl());
+			await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
 
-		if (onClose) {
-			onClose();
-		}
-	}, [dispatch, voiceInfo, onClose]);
+			if (onClose) {
+				onClose();
+			}
+		},
+		[dispatch, voiceInfo, onClose]
+	);
 
 	const handleFullScreen = useCallback(() => {
 		if (!containerRef.current) return;

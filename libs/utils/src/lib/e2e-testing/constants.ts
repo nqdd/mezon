@@ -147,6 +147,14 @@ export const DATA_E2E_IDENTIFIER = {
 					cancel: ''
 				}
 			},
+			invite_people: {
+				search_input: '',
+				user_item: {
+					button: { invite: '' }
+				},
+				url_invite: '',
+				container: ''
+			},
 			limit_creation: {
 				title: ''
 			},
@@ -226,6 +234,7 @@ export const DATA_E2E_IDENTIFIER = {
 			item: {
 				icon: {
 					hashtag: '',
+					hashtag_lock: '',
 					voice: '',
 					stream: ''
 				},
@@ -240,11 +249,38 @@ export const DATA_E2E_IDENTIFIER = {
 			settings: {
 				overview: ''
 			}
+		},
+		secondary_side_bar: {
+			member: ''
 		}
 	},
 	channel_setting_page: {
 		side_bar: {
 			item: ''
+		},
+		permissions: {
+			button: {
+				change_status: ''
+			},
+			section: {
+				member_role_management: {
+					role_list: {
+						role_item: ''
+					},
+					member_list: {
+						member_item: ''
+					}
+				},
+				advanced_permissions: ''
+			},
+			modal: {
+				ask_change: {
+					button: {
+						reset: '',
+						save_changes: ''
+					}
+				}
+			}
 		},
 		webhook: {
 			button: {

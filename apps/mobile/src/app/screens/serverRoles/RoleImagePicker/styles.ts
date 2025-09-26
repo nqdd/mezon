@@ -33,5 +33,8 @@ export const style = (colors: Attributes) =>
 		},
 		deleteText: {
 			color: baseColor.red
+		},
+		imagePicker: {
+			borderRadius: size.s_50
 		}
 	});

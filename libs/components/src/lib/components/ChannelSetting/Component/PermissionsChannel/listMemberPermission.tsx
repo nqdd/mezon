@@ -1,7 +1,7 @@
 import { useAppNavigation, useAuth, useCustomNavigate } from '@mezon/core';
 import { channelUsersActions, removeChannelUsersPayload, selectAllUserChannel, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel, createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
+import { IChannel, createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
@@ -81,7 +81,11 @@ const ItemMemberPermission = (props: ItemMemberPermissionProps) => {
 	};
 
 	return (
-		<div className={`flex justify-between py-2 rounded text-theme-primary`} key={id}>
+		<div
+			className={`flex justify-between py-2 rounded text-theme-primary`}
+			key={id}
+			data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.member_list.member_item')}
+		>
 			<div className="flex gap-x-2 items-center">
 				<AvatarImage
 					alt={username}
