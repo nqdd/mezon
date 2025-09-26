@@ -1,6 +1,6 @@
 import { usePermissionChecker } from '@mezon/core';
+import type { ClansEntity } from '@mezon/store';
 import {
-	ClansEntity,
 	FAVORITE_CATEGORY_ID,
 	categoriesActions,
 	listChannelRenderAction,
@@ -18,17 +18,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import {
-	ChannelThreads,
-	EPermission,
-	ICategoryChannel,
-	IChannel,
-	createImgproxyUrl,
-	isLinuxDesktop,
-	isWindowsDesktop,
-	toggleDisableHover,
-	useSyncEffect
-} from '@mezon/utils';
+import type { ChannelThreads, ICategoryChannel, IChannel } from '@mezon/utils';
+import { EPermission, createImgproxyUrl, isLinuxDesktop, isWindowsDesktop, toggleDisableHover, useSyncEffect } from '@mezon/utils';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -36,7 +27,8 @@ import { CreateNewChannelModal } from '../CreateChannelModal';
 import { MentionFloatButton } from '../MentionFloatButton';
 import { ThreadLinkWrapper } from '../ThreadListChannel';
 import { useVirtualizer } from '../virtual-core/useVirtualizer';
-import CategorizedItem, { IChannelLinkPermission } from './CategorizedChannels';
+import type { IChannelLinkPermission } from './CategorizedChannels';
+import CategorizedItem from './CategorizedChannels';
 import { Events } from './ChannelListComponents';
 import ChannelListItem from './ChannelListItem';
 export type ChannelListProps = { className?: string };
@@ -166,11 +158,12 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	useEffect(() => {
 		const calculateHeight = () => {
 			const clanFooterEle = document.getElementById('clan-footer');
-			const rect = clanFooterEle?.getBoundingClientRect();
-			const distanceFromBottom = window.innerHeight - (rect?.bottom || 0);
-			const totalHeight = clanTopbarEle + (clanFooterEle?.clientHeight || 0) + 8 + distanceFromBottom;
+			const clanFooterHeight = clanFooterEle?.clientHeight || 0;
+			const mdBottomMargin = window.innerWidth >= 768 ? 16 : 0;
+			const totalHeight = clanTopbarEle + clanFooterHeight + mdBottomMargin + 5;
 			const outsideHeight = totalHeight;
 			const titleBarHeight = isWindowsDesktop || isLinuxDesktop ? 21 : 0;
+
 			setHeight(window.innerHeight - outsideHeight - titleBarHeight);
 		};
 		calculateHeight();
@@ -335,7 +328,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 		<div
 			ref={parentRef}
 			style={{
-				height: height
+				height
 			}}
 			className={`thread-scroll`}
 			onWheelCapture={() => {

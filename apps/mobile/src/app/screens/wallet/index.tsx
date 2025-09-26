@@ -43,17 +43,6 @@ const CustomDrawer = ({ onClose, onChangeActiveScreen, navigation, activeScreen 
 						<Text style={styles.menuText}>{tStack('settingStack.sendToken')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
-						onPress={() => {
-							onChangeActiveScreen('manage');
-						}}
-						style={[styles.menuItem, activeScreen === 'manage' && { backgroundColor: themeValue?.secondaryLight }]}
-					>
-						<View style={{ transform: [{ rotate: '180deg' }] }}>
-							<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_20} width={size.s_20} color={baseColor.bgSuccess} />
-						</View>
-						<Text style={styles.menuText}>{tStack('settingStack.walletManagement')}</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
 						style={[styles.menuItem, activeScreen === 'history' && { backgroundColor: themeValue?.secondaryLight }]}
 						onPress={() => {
 							onChangeActiveScreen('history');

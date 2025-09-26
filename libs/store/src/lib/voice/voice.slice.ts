@@ -188,7 +188,7 @@ export const voiceSlice = createSlice({
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
 			const voice = action.payload;
 			voiceAdapter.removeOne(state, voice.id);
-			if (state.listInVoiceStatus[voice?.id]) {
+			if (state.listInVoiceStatus[voice.voice_user_id]) {
 				delete state.listInVoiceStatus[voice.voice_user_id];
 			}
 		},

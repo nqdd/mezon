@@ -65,9 +65,16 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 	const id = channelId + messageId;
 
 	if (messageId) {
-		if (isMessageAlreadyProcessed(id)) {
-			return;
+		if (store?.getState) {
+			const state = store.getState();
+			const channel = state.channels.byClans[clanId]?.entities?.entities[channelId];
+			if (channel && channel.count_mess_unread === 0) {
+				if (isMessageAlreadyProcessed(id)) {
+					return;
+				}
+			}
 		}
+
 		processedMessagesCache.set(id, Date.now());
 	}
 
