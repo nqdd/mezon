@@ -19,11 +19,11 @@
     },
     "main": {
 		"uploadInstructions": "UPLOAD INSTRUCTIONS",
-		"fileRequirements": "Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for sound effects. Sound effects will be used in clan notifications or events.",
+		"fileRequirements": "Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for voice stickers. Voice stickers will be used in clan notifications or events.",
 		"uploadHere": "Upload it here!",
-		"personalizeDescription": "Personalize sound effects for your clan!",
-		"uploadSound": "Upload voice stickers",
+		"personalizeDescription": "Personalize voice stickers for your clan!",
+		"uploadSound": "Upload voice sticker",
 		"soundEffectList": "Sound Effect List",
-		"noSoundEffects": "No sound effects yet. Click \"Upload voice stickers\" to add!"
+		"noSoundEffects": "No voice stickers yet. Click \"Upload voice sticker\" to add!"
 	}
 }
