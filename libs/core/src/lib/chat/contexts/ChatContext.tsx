@@ -707,11 +707,24 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const channelId = selectCurrentChannelId(store.getState() as unknown as RootState);
 			const directId = selectDmGroupCurrentId(store.getState());
 			const clanId = selectCurrentClanId(store.getState());
-			user?.user_ids.forEach((userID: string, index) => {
+			const currentState = store.getState() as unknown as RootState;
+			const currentChannel = selectCurrentChannel(currentState);
+
+			for (let index = 0; index < user?.user_ids.length; index++) {
+				const userID = user.user_ids[index];
 				dispatch(clansActions.updateClanBadgeCount({ clanId: user?.clan_id || '', count: -user.badge_counts[index] }));
 				if (userID === userId) {
 					if (channelId === user.channel_id) {
-						navigate(`/chat/clans/${clanId}`);
+						if (user.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
+							const parentChannelId = currentChannel?.parent_id;
+							if (parentChannelId) {
+								navigate(`/chat/clans/${clanId}/channels/${parentChannelId}`);
+							} else {
+								navigate(`/chat/clans/${clanId}`);
+							}
+						} else {
+							navigate(`/chat/clans/${clanId}`);
+						}
 					}
 					if (directId === user.channel_id) {
 						navigate(`/chat/direct/friends`);
@@ -719,6 +732,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(directSlice.actions.removeByDirectID(user.channel_id));
 					// TODO:  backend send clan_id
 					dispatch(channelsSlice.actions.removeByChannelID({ channelId: user.channel_id, clanId: clanId as string }));
+
+					if (user.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
+						dispatch(threadsActions.remove(user.channel_id));
+
+						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
+						const parentChannels = allChannels.filter((ch) => !checkIsThread(ch));
+
+						const removeActions = parentChannels.map((parentChannel) =>
+							threadsActions.removeThreadFromCache({
+								channelId: parentChannel.channel_id || parentChannel.id,
+								threadId: user.channel_id
+							})
+						);
+
+						removeActions.forEach((action) => dispatch(action));
+					}
 					dispatch(listChannelsByUserActions.remove(userID));
 					dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: user.channel_id, clanId: user.clan_id }));
 					dispatch(directMetaActions.remove(user.channel_id));
@@ -730,7 +759,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 				dispatch(channelMembers.actions.remove({ userId: userID, channelId: user.channel_id }));
 				dispatch(userChannelsActions.remove(userID));
-			});
+			}
 		},
 		[userId]
 	);
@@ -2439,3 +2468,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
+
