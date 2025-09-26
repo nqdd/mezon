@@ -123,7 +123,7 @@
 		"loginToMezon": "Đăng nhập vào tài khoản Mezon",
 		"emailAddress": "Địa chỉ email",
 		"loginWithSMS": "Đăng nhập bằng SMS OTP",
-		"loginWithPassword": "Đăng nhập bằng mật khẩu",
+		"loginWithPassword": "Đăng nhập bằng email và mật khẩu",
 		"send": "Gửi OTP",
 		"resendOtp": "Gửi lại OTP",
 		"loginByOTP": "Đăng nhập bằng OTP",
@@ -138,7 +138,11 @@
 		"enterPhoneToLogin": "Nhập số điện thoại của bạn để đăng nhập",
 		"phone": "Số điện thoại",
 		"invalidPhone": "Số điện thoại không hợp lệ",
-		"sendToPhone": "Gửi OTP đến số điện thoại của bạn"
+		"sendToPhone": "Gửi OTP đến số điện thoại của bạn",
+		"chooseAnotherOption": "Hoặc chọn một tùy chọn khác",
+		"welcomeToMezon": "Chào mừng đến với Mezon",
+		"desWelcomeToMezon": "Nền tảng Kết nối, Làm việc, \nvà Giải trí",
+		"getStarted": "Bắt đầu nào"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -150,7 +154,11 @@
 		"changeEmail": "Đổi Email",
 		"getHelp": "Nhận trợ giúp",
 		"or": "hoặc",
-		"resendOTP": "Gửi lại OTP"
+		"resendOTP": "Gửi lại OTP",
+		"changeEmailTitle": "Đổi Email",
+		"changeEmailMessage": "Bạn có chắc chắn muốn thay đổi địa chỉ email không?",
+		"cancel": "Hủy",
+		"confirm": "Đồng ý, Thay đổi"
 	},
 	"invite": {
 		"canChatNow": "Bạn có thể trò chuyện ngay bây giờ !!",

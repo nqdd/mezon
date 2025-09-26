@@ -51,8 +51,11 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		handleIndicator: {
 			backgroundColor: colors.tertiary,
 			height: size.s_6,
+			top: -size.s_6,
+			marginTop: size.s_16,
 			width: size.s_50,
-			borderRadius: size.s_10
+			borderRadius: size.s_10,
+			alignSelf: 'center'
 		},
 		container: {
 			overflow: 'hidden',
