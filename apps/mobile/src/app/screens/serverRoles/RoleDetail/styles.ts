@@ -58,21 +58,28 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_18,
 			textAlign: 'center',
 			fontWeight: 'bold',
-			color: colors.white
+			color: colors.white,
+			maxWidth: '95%'
 		},
 		headerText: {
 			textAlign: 'center',
 			color: colors.white
 		},
 		saveButton: {
-			marginRight: size.s_20
+			marginRight: size.s_16
 		},
 		saveText: {
-			fontSize: size.s_18,
+			fontSize: size.medium,
 			textAlign: 'center',
 			color: colors.bgViolet
 		},
 		backButton: {
 			marginLeft: size.s_16
+		},
+		center: {
+			alignItems: 'center',
+			width: '80%',
+			justifyContent: 'center',
+			alignSelf: 'center'
 		}
 	});
