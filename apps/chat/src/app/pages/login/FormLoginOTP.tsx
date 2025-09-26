@@ -6,7 +6,7 @@ import { OtpConfirm } from 'libs/components/src/lib/components/SettingAccount/Se
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const FormLoginPhone = ({ handleChangeMethod }: { handleChangeMethod: () => void }) => {
+const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }) => {
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation('common');
 	const [count, setCount] = useState(0);
@@ -139,4 +139,4 @@ const FormLoginPhone = ({ handleChangeMethod }: { handleChangeMethod: () => void
 	);
 };
 
-export default FormLoginPhone;
+export default FormLoginOTP;

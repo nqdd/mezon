@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useLoaderData } from 'react-router-dom';
 import type { ILoginLoaderData } from '../../loaders/loginLoader';
 import FormLoginEmail from './FormLoginEmail';
-import FormLoginPhone from './FormLoginPhone';
+import FormLoginOTP from './FormLoginOTP';
 
 function Login() {
 	const { t } = useTranslation('common');
@@ -86,7 +86,7 @@ function Login() {
 						<h1 className="text-2xl font-bold mb-1">{t('login.welcomeBack')}</h1>
 						<p className="text-gray-400">{t('login.gladToMeetAgain')}</p>
 					</div>
-					{loginMethod ? <FormLoginPhone handleChangeMethod={handleSwitchMethod} /> : <FormLoginEmail />}
+					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} /> : <FormLoginEmail />}
 					<div className="mt-4 flex items-center text-gray-400 justify-between">
 						<div className="flex items-center gap-2">
 							<input
