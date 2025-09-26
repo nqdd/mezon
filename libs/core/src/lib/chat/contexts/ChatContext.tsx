@@ -112,6 +112,7 @@ import {
 import isElectron from 'is-electron';
 import type {
 	AddClanUserEvent,
+	AddFriend,
 	BlockFriend,
 	CategoryEvent,
 	ChannelCreatedEvent,
@@ -602,6 +603,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
+				if (notification.code === NotificationCode.FRIEND_ACCEPT) {
+					dispatch(friendsActions.acceptFriend(`${userId}_${notification.sender_id}`));
+				}
 			}
 
 			if (isLinuxDesktop) {
@@ -2081,6 +2085,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		}
 	}, []);
 
+	const onaddfriend = useCallback((user: AddFriend) => {
+		dispatch(friendsActions.upsertFriendRequest({ user, myId: userId || '' }));
+	}, []);
+
 	const setCallbackEventFn = React.useCallback(
 		(socket: Socket) => {
 			socket.onvoicejoined = onvoicejoined;
@@ -2192,6 +2200,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			socket.onunblockfriend = onunblockfriend;
 
 			socket.onmarkasread = onMarkAsRead;
+
+			socket.onaddfriend = onaddfriend;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
