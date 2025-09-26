@@ -1,4 +1,4 @@
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, useTheme } from '@mezon/mobile-ui';
@@ -25,9 +25,11 @@ import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonInput from '../../componentUI/MezonInput';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { AddMemberOrRoleBS } from '../../screens/channelPermissionSetting/components/AddMemberOrRoleBS';
 import { validInput } from '../../utils/validate';
 import { style } from './styles';
@@ -109,7 +111,8 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 
 	const handleSaveChannelSetting = async () => {
 		const isCheckNameChannelValue =
-			!!channelsClan?.length && channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
+			!!channelsClan?.length &&
+			channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
 		setIsCheckDuplicateNameChannel(isCheckNameChannelValue);
 		const updateChannel = {
 			clan_id: channel?.clan_id,
@@ -193,7 +196,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					}
 				}
 			] satisfies IMezonMenuItemProps[],
-		[channel?.channel_private, channel?.type, channelId, isChannel, t, themeValue.text]
+		[channel, channelId, isChannel, navigation, t, themeValue.text]
 	);
 
 	const webhookMenu = useMemo(

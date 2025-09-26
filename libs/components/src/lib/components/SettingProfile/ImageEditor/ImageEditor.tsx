@@ -1,5 +1,5 @@
 import { Icons } from '@mezon/ui';
-import type { ImageSourceObject } from '@mezon/utils';
+import { generateE2eId, type ImageSourceObject } from '@mezon/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -297,7 +297,7 @@ const ImageEditorFooter = React.memo(({ handleReset, handleClose, handleApply, t
 				onClick={handleApply}
 				className="bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm px-4 py-2 rounded-md"
 				title={t('applyChanges')}
-				data-e2e={'button.base'}
+				data-e2e={generateE2eId('user_setting.profile.user_profile.upload.avatar_input.apply_button')}
 			>
 				{t('apply')}
 			</button>

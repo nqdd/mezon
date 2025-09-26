@@ -1,5 +1,6 @@
 import { generateClanWebhook, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ApiClanWebhook, ApiGenerateClanWebhookRequest } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -50,6 +51,7 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 					<div
 						onClick={handleAddWebhook}
 						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						data-e2e={generateE2eId('clan_page.settings.integrations.new_clan_webhook_button')}
 					>
 						{t('newClanWebhook')}
 					</div>
@@ -62,6 +64,7 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 					<div
 						onClick={handleAddWebhook}
 						className="py-2 px-4 btn-primary btn-primary-hover rounded-lg mb-[24px] w-fit text-[14px] font-semibold cursor-pointer "
+						data-e2e={generateE2eId('clan_page.settings.integrations.new_clan_webhook_button')}
 					>
 						{t('newClanWebhook')}
 					</div>

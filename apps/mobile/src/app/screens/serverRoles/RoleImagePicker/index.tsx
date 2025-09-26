@@ -70,6 +70,7 @@ function RoleImagePicker({ roleId, disable = false }: { roleId: string; disable?
 						autoUpload
 						disabled={disable}
 						imageSizeLimit={MAX_FILE_SIZE_256KB}
+						style={styles.imagePicker}
 					/>
 				</View>
 			</View>

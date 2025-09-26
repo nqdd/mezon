@@ -1,7 +1,7 @@
+import type { requestAddFriendParam } from '@mezon/store';
 import {
 	EStateFriend,
 	friendsActions,
-	requestAddFriendParam,
 	selectAllFriends,
 	selectCurrentUserId,
 	selectDmGroupCurrentId,

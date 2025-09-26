@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { GuideItemLayout } from '@mezon/components';
 import { useAppNavigation } from '@mezon/core';
-import { useTranslation } from 'react-i18next';
 import {
 	ETypeMission,
 	fetchOnboarding,
@@ -21,8 +20,9 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DONE_ONBOARDING_STATUS, titleMission } from '@mezon/utils';
-import { ApiOnboardingItem } from 'mezon-js/api.gen';
+import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 function GuideBody() {

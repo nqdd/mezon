@@ -151,7 +151,9 @@ export const SetupMembers = ({ navigation, route }: MenuClanScreenProps<SetupMem
 					<Text style={styles.title}>{t('setupMember.title')}</Text>
 				) : (
 					<View style={styles.roleName}>
-						<Text style={styles.name}>{clanRole?.title}</Text>
+						<Text style={styles.name} numberOfLines={1}>
+							{clanRole?.title}
+						</Text>
 						<Text style={styles.emptyText}>{t('roleDetail.role')}</Text>
 					</View>
 				)}

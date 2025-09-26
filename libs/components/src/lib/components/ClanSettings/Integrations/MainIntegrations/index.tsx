@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ApiWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
@@ -36,6 +37,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 					<div
 						onClick={setIsOpenWebhooks}
 						className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.create_webhook')}
 					>
 						{t('createWebhook')}
 					</div>

@@ -40,6 +40,7 @@ import {
 	EOverriddenPermission,
 	ParticipantMeetState,
 	SubPanelName,
+	generateE2eId,
 	isBackgroundModeActive,
 	isLinuxDesktop,
 	isWindowsDesktop,
@@ -350,6 +351,7 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 							onContextMenu={(event) => event.preventDefault()}
 							className={`border-l border-solid border-color-primary text-theme-primary relative overflow-y-scroll hide-scrollbar flex} ${closeMenu && !statusMenu && isShowMemberList ? 'w-full' : 'w-widthMemberList'}`}
 							id="memberList"
+							data-e2e={generateE2eId('clan_page.secondary_side_bar')}
 						>
 							<MemberList />
 						</div>

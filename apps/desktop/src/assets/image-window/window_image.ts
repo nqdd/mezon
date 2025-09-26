@@ -348,8 +348,8 @@ export const listThumnails = (listImage, indexSelect) => {
 	return listImage
 		.map((image, index) => {
 			const currentDate = escapeHtml(formatDate(image.create_time));
-			const prevDate = index > 0 ? escapeHtml(formatDate(listImage[index - 1].create_time)) : null;
-			const dateLabel = currentDate !== prevDate ? `<div class="date-label">${currentDate}</div>` : '';
+			const nextDate = index < listImage.length - 1 ? escapeHtml(formatDate(listImage[index + 1].create_time)) : null;
+			const dateLabel = currentDate !== nextDate ? `<div class="date-label">${currentDate}</div>` : '';
 			return ` <div class="thumbnail-wrapper" id="thumbnail-${index}"> ${dateLabel} <img class="thumbnail ${indexSelect === index ? 'active' : ''}"  src="${escapeHtml(image.url)}" alt="${escapeHtml(image.filename)}" /> </div> `;
 		})
 		.join('');

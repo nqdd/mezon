@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -18,7 +19,7 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
-		textBtnJoinVoice: { fontSize: size.s_16, fontWeight: '600', color: baseColor.black },
+		textBtnJoinVoice: { fontSize: size.s_16, fontWeight: '600', color: baseColor.white },
 		avatarCircle: {
 			width: size.s_40,
 			height: size.s_40,
