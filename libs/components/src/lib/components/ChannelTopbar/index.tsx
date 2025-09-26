@@ -685,7 +685,11 @@ const DmTopbarTools = memo(() => {
 						</button>
 					)}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (
-						<button title={t('tooltips.showUserProfile')} onClick={() => setIsUseProfileDM(!isUseProfileDM)}>
+						<button
+							title={t('tooltips.showUserProfile')}
+							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
+							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
+						>
 							<span>
 								<Icons.IconUserProfileDM defaultSize="size-5" />
 							</span>
