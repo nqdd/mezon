@@ -730,9 +730,18 @@ const MessageModalImageWrapper = () => {
 const MemoizedErrorModals: React.FC = React.memo(() => {
 	const toastError = useSelector(selectToastErrors);
 
-	if (!toastError || toastError?.length < 1) {
-		return null;
-	}
 	const error = toastError[0];
-	return <ModalUnknowChannel key={error.id} isError={true} errMessage={error.message} idErr={error.id} />;
+	const [openError, closeError] = useModal(
+		() => <ModalUnknowChannel isError={true} errMessage={toastError?.[0]?.message || ''} idErr={toastError?.[0]?.id || ''} />,
+		[error]
+	);
+
+	useEffect(() => {
+		if (toastError && toastError?.length > 0) {
+			openError();
+		} else {
+			closeError();
+		}
+	}, [toastError]);
+	return null;
 });
