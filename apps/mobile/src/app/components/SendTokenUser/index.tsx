@@ -29,25 +29,6 @@ export const SendTokenUser = forwardRef(() => {
 			{
 				onPress: () => {
 					navigation.push(APP_SCREEN.WALLET, {
-						activeScreen: 'manage'
-					});
-					dismiss();
-				},
-				title: t('settingStack.walletManagement'),
-				isShow: true,
-				icon: (
-					<MezonIconCDN
-						icon={IconCDN.sendMoneyIcon}
-						height={size.s_22}
-						width={size.s_22}
-						color={baseColor.bgSuccess}
-						customStyle={{ transform: [{ rotate: '180deg' }] }}
-					/>
-				)
-			},
-			{
-				onPress: () => {
-					navigation.push(APP_SCREEN.WALLET, {
 						activeScreen: 'history'
 					});
 					dismiss();

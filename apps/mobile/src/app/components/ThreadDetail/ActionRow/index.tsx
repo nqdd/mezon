@@ -105,7 +105,7 @@ export const ActionRow = React.memo(() => {
 				});
 			},
 			icon: <MezonIconCDN icon={IconCDN.settingIcon} width={22} height={22} color={themeValue.text} />,
-			isShow: isCanManageThread || isCanManageChannel,
+			isShow: (isChannel && isCanManageChannel) || (isCanManageThread && !isChannel),
 			type: EActionRow.Settings
 		}
 	];

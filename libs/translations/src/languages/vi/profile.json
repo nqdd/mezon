@@ -11,7 +11,6 @@
   "copySuccess": "Đã sao chép ID người dùng",
   "emptyId": "ID không hợp lệ",
   "errorCopy": "Lỗi khi copy ID người dùng: #{{error}}",
-  "manageWallet": "Quản lý ví",
   "userProfile": "HỒ SƠ NGƯỜI DÙNG",
   "message": "Tin nhắn",
   "call": "Gọi",
