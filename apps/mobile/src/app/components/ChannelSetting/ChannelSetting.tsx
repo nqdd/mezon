@@ -109,7 +109,8 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 
 	const handleSaveChannelSetting = async () => {
 		const isCheckNameChannelValue =
-			!!channelsClan?.length && channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
+			!!channelsClan?.length &&
+			channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
 		setIsCheckDuplicateNameChannel(isCheckNameChannelValue);
 		const updateChannel = {
 			clan_id: channel?.clan_id,
@@ -193,7 +194,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					}
 				}
 			] satisfies IMezonMenuItemProps[],
-		[channel?.channel_private, channel?.type, channelId, isChannel, t, themeValue.text]
+		[channel, channelId, isChannel, navigation, t, themeValue.text]
 	);
 
 	const webhookMenu = useMemo(
