@@ -80,7 +80,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 
 	return (
 		<div className="flex flex-col gap-3">
-			<div className="space-y-2 px-4 mb-0  flex-1 flex flex-col justify-end">
+			<div className="space-y-2 px-4 mb-0  flex-1 flex flex-col justify-end" data-e2e={generateE2eId('chat_welcome')}>
 				{
 					<>
 						{isChannel && (

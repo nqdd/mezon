@@ -222,7 +222,10 @@ const TopBarChannelText = memo(() => {
 				)}
 
 				{currentClanId === '0' && (
-					<div className="flex items-center gap-3 flex-1 overflow-hidden">
+					<div
+						className="flex items-center gap-3 flex-1 overflow-hidden"
+						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
+					>
 						<DmTopbarAvatar
 							isGroup={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP}
 							avatar={dmUserAvatar}
@@ -446,7 +449,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 	return (
 		<div className="flex items-center justify-center ">
 			{avatar ? (
-				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" />
+				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" data-e2e={generateE2eId(`avatar.image`)} />
 			) : (
 				<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
 					{avatarName}
@@ -682,7 +685,11 @@ const DmTopbarTools = memo(() => {
 						</button>
 					)}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (
-						<button title={t('tooltips.showUserProfile')} onClick={() => setIsUseProfileDM(!isUseProfileDM)}>
+						<button
+							title={t('tooltips.showUserProfile')}
+							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
+							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
+						>
 							<span>
 								<Icons.IconUserProfileDM defaultSize="size-5" />
 							</span>

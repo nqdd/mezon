@@ -40,6 +40,7 @@ export const DATA_E2E_IDENTIFIER = {
 	panel: {
 		panel_item: ''
 	},
+	chat_welcome: '',
 	homepage: {
 		header: {
 			link: '',
@@ -294,6 +295,12 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	chat: {
 		direct_message: {
+			header: {
+				left_container: '',
+				right_container: {
+					user_profile: ''
+				}
+			},
 			chat_list: '',
 			chat_item: {
 				username: '',
@@ -438,14 +445,16 @@ export const DATA_E2E_IDENTIFIER = {
 			edit_display_name: '',
 			edit_username: '',
 			set_password: '',
-			tab_account: ''
+			tab_account: '',
+			info: ''
 		},
 		profile: {
 			button_setting: '',
 			tab_profile: '',
 			user_profile: {
 				preview: {
-					avatar: ''
+					avatar: '',
+					display_name: ''
 				},
 				input: {
 					display_name: '',
