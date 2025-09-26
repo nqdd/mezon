@@ -69,6 +69,7 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '', onClanCl
 			data-id={option?.id}
 			className={`relative h-[40px] ${className}`}
 			title={option?.clan_name}
+			data-e2e={generateE2eId('clan_page.side_bar.clan_item')}
 		>
 			<button onClick={handleClick} draggable="false">
 				<NavLinkComponent active={active}>

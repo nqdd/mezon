@@ -1,7 +1,7 @@
 import { channelMembersActions, selectCurrentClanId, useAppDispatch, userClanProfileActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ChannelMembersEntity, EUserStatus, IUserAccount } from '@mezon/utils';
-import { ActivitiesType, createImgproxyUrl } from '@mezon/utils';
+import { ActivitiesType, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import type { ApiUserActivity } from 'mezon-js/api.gen';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -54,6 +54,8 @@ const AvatarProfile = ({
 		[ActivitiesType.LOL]: 'Gaming'
 	};
 
+	const isUserLeft = !avatar && !username;
+	const displayAvatar = isUserLeft ? null : avatar;
 	const activityStatus = useMemo(() => {
 		return typeof customStatus === 'string'
 			? customStatus
@@ -61,26 +63,32 @@ const AvatarProfile = ({
 	}, [activityByUserId, customStatus, activityNames]);
 
 	return (
-		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]">
+		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]" data-e2e={generateE2eId('user_setting.profile.user_profile.preview.avatar')}>
 			<div className="relative h-fit">
 				<AvatarImage
 					alt={username || ''}
-					username={username}
-					className={`w-[90px] h-[90px] min-w-[90px] min-h-[90px] xl:w-[90px] xl:h-[90px] rounded-[50px] border-[6px] border-color-avatar object-cover my-0 ${styleAvatar}`}
-					srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
-					src={avatar}
-					isAnonymous={isAnonymous}
+					username={username || ''}
+					className={`w-[90px] h-[90px] min-w-[90px] min-h-[90px] xl:w-[90px] xl:h-[90px] rounded-[50px] border-[6px] border-color-avatar object-cover my-0 ${styleAvatar} ${isUserLeft ? 'opacity-60' : ''}`}
+					srcImgProxy={displayAvatar ? createImgproxyUrl(displayAvatar, { width: 300, height: 300, resizeType: 'fit' }) : undefined}
+					src={displayAvatar || ''}
+					isAnonymous={isUserLeft || isAnonymous}
 					classNameText="!text-5xl"
 				/>
 
-				{userID !== '0' && (
+				{userID !== '0' && !isUserLeft && (
 					<div className="absolute bottom-1 right-2">
 						<UserStatusIcon status={statusOnline} />
 					</div>
 				)}
+
+				{isUserLeft && (
+					<div className="absolute bottom-1 right-2">
+						<div className="w-4 h-4 bg-gray-400 rounded-full border-2 border-white"></div>
+					</div>
+				)}
 			</div>
 
-			{(customStatus || (userStatus?.status && activityByUserId)) && (
+			{(customStatus || (userStatus?.status && activityByUserId)) && !isUserLeft && (
 				<div className="flex flex-col gap-[12px] mt-[30px] relative w-full h-[85px]">
 					<div className="bg-theme-surface w-[12px] h-[12px] rounded-full shadow-md"></div>
 					<div className="relative flex-1">

@@ -43,7 +43,6 @@
         "historyTransaction": "History Transaction",
         "quit": "Quit",
         "menu": "Menu",
-        "walletManagement": "Wallet Management",
         "setPassword": "Set Password",
         "myQRCode": "My QR Code"
     }

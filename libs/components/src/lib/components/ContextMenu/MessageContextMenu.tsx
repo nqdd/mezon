@@ -68,7 +68,8 @@ import {
 	handleCopyLink,
 	handleOpenLink,
 	handleSaveImage,
-	isPublicChannel
+	isPublicChannel,
+	showSimpleToast
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
@@ -819,9 +820,15 @@ function MessageContextMenu({
 		builder.when(enableCopyImageItem, (builder) => {
 			builder.addMenuItem('copyImage', t('copyImage'), async () => {
 				try {
-					await handleCopyImage(urlImage);
+					const success = await handleCopyImage(urlImage, () => {
+						showSimpleToast(t('imageCopiedToClipboard'));
+					});
+					if (!success) {
+						toast.error(t('errors.failedToCopyImage'));
+					}
 				} catch (error) {
 					console.error(t('errors.failedToCopyImage'), error);
+					toast.error(t('errors.failedToCopyImage'));
 				}
 			});
 		});

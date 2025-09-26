@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 import React, { memo } from 'react';
-import { Platform, ViewProps, requireNativeComponent } from 'react-native';
+import type { ViewProps } from 'react-native';
+import { Platform, requireNativeComponent } from 'react-native';
 import CachedImageWithRetryIOS from './CachedImageWithRetryIOS';
 
 interface CustomImageProps extends ViewProps {
@@ -29,7 +30,7 @@ const ImageNative = ({ url, urlOriginal, style, resizeMode }: CustomImageProps) 
 					source={{ uri: url?.toString() }}
 					urlOriginal={urlOriginal}
 					style={style}
-					retryCount={3}
+					retryCount={1}
 					resizeMode={resizeMode}
 				/>
 			);

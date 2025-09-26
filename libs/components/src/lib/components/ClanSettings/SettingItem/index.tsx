@@ -1,6 +1,7 @@
 import { selectCloseMenu, selectCurrentClan } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useSelector } from 'react-redux';
-import { ItemObjProps } from '../ItemObj';
+import type { ItemObjProps } from '../ItemObj';
 
 type SettingItemProps = {
 	name: string;
@@ -23,6 +24,7 @@ const SettingItem = ({ name, active, onClick, handleMenu, setting }: SettingItem
 					handleMenu(false);
 				}
 			}}
+			data-e2e={generateE2eId('clan_page.settings.sidebar.item')}
 		>
 			{setting?.id === 'on-boarding' && <div className="absolute top-[4px] right-[8px] ">{currentClan?.is_onboarding ? 'ON' : 'OFF'}</div>}
 			{name}

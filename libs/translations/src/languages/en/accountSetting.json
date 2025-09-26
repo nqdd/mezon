@@ -32,8 +32,9 @@
 		"title": "Set Password",
 		"email": "Email",
 		"password": "Password",
+		"currentPassword": "Current Password",
 		"confirmPassword": "Confirm Password",
-		"confirm": "Confirm",
+		"confirm": "Save",
 		"description": "Your password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&*).",
 		"error": {
 			"characters": "Password must be at least 8 characters",
@@ -41,9 +42,18 @@
 			"lowercase": "Password must contain at least 1 lowercase letter",
 			"number": "Password must contain at least 1 number",
 			"symbol": "Password must contain at least 1 special character",
-			"notEqual": "Confirmation password doesn't match"
+			"notEqual": "Confirmation password doesn't match",
+			"samePass": "The new password cannot be the same as the old password"
 		},
-		"notification": "Password set successfully"
+		"toast": {
+			"success": "Password set successfully",
+			"error": "Current password is incorrect"
+		},
+		"placeholder": {
+			"currentPassword": "Enter your current password",
+			"password": "Enter your new password",
+			"confirmPassword": "Confirm your new password"
+		}
 	},
 	"setPasswordModal": {
 		"title": "Set Password",
@@ -55,13 +65,14 @@
 	"setPhoneModal": {
 		"title": "Set Password",
 		"phoneNumber": "Phone Number",
-		"description": "Please create a new password for your account",
+		"description": "You will receive the text message with a verification code.",
 		"emailPlaceholder": "your.email@example.com",
+		"phonePlaceholder": "+84-999...999",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Send OTP",
 		"otp": "Verify your number",
-		"countryCode": "Country code",
+		"countryCode": "Country Code",
 		"confirmOtp": "Confirm OTP",
 		"invalidPhone": "Invalid phone number",
 		"updatePhoneSuccess": "Update phone number success",

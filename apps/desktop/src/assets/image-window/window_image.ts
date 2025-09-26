@@ -3,7 +3,7 @@ import { join } from 'path';
 import App from '../../app/app';
 import image_window_css from './image-window-css';
 
-import { ApiChannelAttachment } from 'mezon-js/api.gen';
+import type { ApiChannelAttachment } from 'mezon-js/api.gen';
 import { escapeHtml, sanitizeUrl } from '../../app/utils';
 import menu from '../menu-context';
 
@@ -205,7 +205,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
       </button>
     </div>
   </div>
-  <div id="toast" class="toast">Image copied</div>
+  <div id="toast" class="toast">Copied to clipboard</div>
 </div>
 
 </body>
@@ -222,7 +222,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 	// 	})
 	// );
 
-	popupWindow.loadURL('data:text/html;charset=UTF-8,' + encodeURIComponent(imageViewerHtml));
+	popupWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(imageViewerHtml)}`);
 
 	// Add IPC handlers for window controls
 	ipcMain.removeHandler('minimize-window');
@@ -348,8 +348,8 @@ export const listThumnails = (listImage, indexSelect) => {
 	return listImage
 		.map((image, index) => {
 			const currentDate = escapeHtml(formatDate(image.create_time));
-			const prevDate = index > 0 ? escapeHtml(formatDate(listImage[index - 1].create_time)) : null;
-			const dateLabel = currentDate !== prevDate ? `<div class="date-label">${currentDate}</div>` : '';
+			const nextDate = index < listImage.length - 1 ? escapeHtml(formatDate(listImage[index + 1].create_time)) : null;
+			const dateLabel = currentDate !== nextDate ? `<div class="date-label">${currentDate}</div>` : '';
 			return ` <div class="thumbnail-wrapper" id="thumbnail-${index}"> ${dateLabel} <img class="thumbnail ${indexSelect === index ? 'active' : ''}"  src="${escapeHtml(image.url)}" alt="${escapeHtml(image.filename)}" /> </div> `;
 		})
 		.join('');
@@ -580,7 +580,17 @@ menu.addEventListener('click', async (e) => {
 
 				switch (action) {
 					case 'copyImage': {
-						window.electron.handleActionShowImage(action, currentImageUrl.realUrl );
+						window.electron.handleActionShowImage(action, currentImageUrl.realUrl)
+							.then((result) => {
+								if (result?.success) {
+									showToast();
+								} else {
+									console.error('Copy failed:', result?.error || 'Unknown error');
+								}
+							})
+							.catch((error) => {
+								console.error('Copy failed:', error);
+							});
 						break;
 					}
           default :
