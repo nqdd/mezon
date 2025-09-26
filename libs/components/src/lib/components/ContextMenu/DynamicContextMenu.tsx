@@ -15,7 +15,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Menu as Dropdown } from '@mezon/ui';
-import { ContextMenuItem, IEmoji, IMessageWithUser, QUICK_MENU_TYPE, SHOW_POSITION, isPublicChannel } from '@mezon/utils';
+import { ContextMenuItem, IEmoji, IMessageWithUser, QUICK_MENU_TYPE, SHOW_POSITION, generateE2eId, isPublicChannel } from '@mezon/utils';
 import React, { ReactElement, useCallback, useMemo, useState } from 'react';
 import { Item, Menu, Separator, Submenu } from 'react-contexify';
 import { useSelector } from 'react-redux';
@@ -309,6 +309,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						<div>
 							<Item key={index} onClick={item.handleItemClick} disabled={item.disabled}>
 								<div
+									data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 									className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542] hover:text-[#FFFFFF] ' : 'text-theme-primary text-theme-primary-hover'}`}
 								>
 									<span>Add Reaction</span>
@@ -335,6 +336,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						}}
 					>
 						<div
+							data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 							className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542]  ' : 'text-theme-primary text-theme-primary-hover'}`}
 						>
 							<span>{item.label}</span>

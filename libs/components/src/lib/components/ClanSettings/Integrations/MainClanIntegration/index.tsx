@@ -1,6 +1,6 @@
 import { usePermissionChecker } from '@mezon/core';
 import { Icons } from '@mezon/ui';
-import { EPermission } from '@mezon/utils';
+import { EPermission, generateE2eId } from '@mezon/utils';
 import type { ApiClanWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
@@ -38,6 +38,7 @@ const MainClanIntegrations = ({ setIsOpenClanWebhooks, allClanWebhooks }: IClanI
 						<div
 							onClick={setIsOpenClanWebhooks}
 							className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
+							data-e2e={generateE2eId('clan_page.settings.integrations.create_clan_webhook_button')}
 						>
 							{t('createClanWebhook')}
 						</div>

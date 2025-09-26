@@ -1,7 +1,7 @@
 import { channelMembersActions, selectCurrentClanId, useAppDispatch, userClanProfileActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ChannelMembersEntity, EUserStatus, IUserAccount } from '@mezon/utils';
-import { ActivitiesType, createImgproxyUrl } from '@mezon/utils';
+import { ActivitiesType, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import type { ApiUserActivity } from 'mezon-js/api.gen';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -63,7 +63,7 @@ const AvatarProfile = ({
 	}, [activityByUserId, customStatus, activityNames]);
 
 	return (
-		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]">
+		<div className=" text-theme-primary flex flex-1 flex-row gap-[6px] mt-[-50px] px-[16px]" data-e2e={generateE2eId('user_setting.profile.user_profile.preview.avatar')}>
 			<div className="relative h-fit">
 				<AvatarImage
 					alt={username || ''}

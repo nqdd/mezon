@@ -12,7 +12,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { ContenSubmitEventProps } from '@mezon/utils';
-import { ERepeatType, OptionEvent, Tabs_Option } from '@mezon/utils';
+import { ERepeatType, OptionEvent, Tabs_Option, generateE2eId } from '@mezon/utils';
 import isEqual from 'lodash.isequal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -402,6 +402,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 						<button
 							className={`px-4 py-2 rounded font-semibold text-white bg-primary ${(!buttonWork || errorTime || errorOption) && ' bg-opacity-50'}`}
 							onClick={() => handleNext(currentModal)}
+							data-e2e={generateE2eId('clan_page.modal.create_event.next')}
 						>
 							{t('actions.next')}
 						</button>

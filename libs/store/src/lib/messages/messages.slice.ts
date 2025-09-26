@@ -679,17 +679,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 				return;
 			}
 
-			resetChannelBadgeCount(
-				thunkAPI.dispatch as AppDispatch,
-				{
-					clanId,
-					channelId,
-					badgeCount: badge_count,
-					timestamp: message_time ?? now,
-					messageId
-				},
-				{ getState: () => thunkAPI.getState() as RootState }
-			);
+			resetChannelBadgeCount(thunkAPI.dispatch as AppDispatch, {
+				clanId,
+				channelId,
+				badgeCount: badge_count,
+				timestamp: message_time ?? now,
+				messageId
+			});
 		} catch (e) {
 			console.error(e, 'updateLastSeenMessage');
 			captureSentryError(e, 'messages/updateLastSeenMessage');

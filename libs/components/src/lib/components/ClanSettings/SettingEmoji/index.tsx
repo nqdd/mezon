@@ -1,4 +1,5 @@
 import { selectCurrentClanId, selectEmojiByClanId, settingClanStickerActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import type { ClanEmoji } from 'mezon-js';
 import type { RefObject } from 'react';
 import { useCallback, useState } from 'react';
@@ -56,6 +57,7 @@ const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) =
 				<div
 					onClick={handleCreateEmoji}
 					className=" font-[500] capitalize disabled:opacity-50 disabled:cursor-not-allowed ease-linear transition-all duration-150  px-2 py-2.5 btn-primary btn-primary-hover rounded-lg w-28 cursor-pointer text-center max-w-max"
+					data-e2e={generateE2eId('clan_page.settings.emoji.upload')}
 				>
 					{t('emoji.uploadEmoji')}
 				</div>

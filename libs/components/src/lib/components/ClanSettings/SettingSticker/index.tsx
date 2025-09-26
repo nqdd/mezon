@@ -1,7 +1,8 @@
 import { selectCurrentClanId, selectStickersByClanId, settingClanStickerActions, useAppDispatch } from '@mezon/store';
 import { Button, Icons } from '@mezon/ui';
-import { ClanSticker } from 'mezon-js';
-import { RefObject, useCallback, useState } from 'react';
+import type { ClanSticker } from 'mezon-js';
+import type { RefObject } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../../components';

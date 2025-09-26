@@ -7,7 +7,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import { IChannel, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useImperativeHandle, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -119,7 +119,11 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 				<div className="flex items-center gap-2">
 					{events[0] && <EventSchedule event={events[0]} className="inline" />}
 
-					<span title={thread?.channel_label && thread?.channel_label?.length >= 15 ? thread?.channel_label : ''} className="truncate">
+					<span
+						title={thread?.channel_label && thread?.channel_label?.length >= 15 ? thread?.channel_label : ''}
+						className="truncate"
+						data-e2e={generateE2eId('clan_page.channel_list.thread_item.name')}
+					>
 						{thread.channel_label}
 					</span>
 				</div>
