@@ -31,7 +31,7 @@ import GroupPanels from '../PanelChannel/GroupPanels';
 import ItemPanel from '../PanelChannel/ItemPanel';
 import { EActiveType } from '../SettingProfile/SettingRightProfile';
 
-interface IPanelCLanProps {
+interface IPanelClanProps {
 	coords: Coords;
 	clan?: IClan;
 	onDeleteCategory?: () => void;
@@ -39,7 +39,7 @@ interface IPanelCLanProps {
 	userProfile?: ApiAccount;
 }
 
-const PanelClan: React.FC<IPanelCLanProps> = ({ coords, clan, setShowClanListMenuContext, userProfile }) => {
+const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMenuContext, userProfile }) => {
 	const { t } = useTranslation('contextMenu');
 	const tChannelMenu = useTranslation('channelMenu').t;
 	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);

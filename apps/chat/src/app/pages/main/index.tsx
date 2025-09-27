@@ -94,8 +94,8 @@ function MyApp() {
 	const { userProfile } = useAuth();
 	const calculateJoinedTime = new Date().getTime() - new Date(userProfile?.user?.create_time ?? '').getTime();
 	const isNewGuy = calculateJoinedTime <= TIME_OF_SHOWING_FIRST_POPUP;
-	const numberOfCLanJoined = useSelector(selectClanNumber);
-	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfCLanJoined === 0);
+	const numberOfClanJoined = useSelector(selectClanNumber);
+	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfClanJoined === 0);
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
@@ -464,7 +464,7 @@ const SidebarMenu = memo(
 								<div
 									className="flex items-center justify-between text-theme-primary group"
 									onClick={openCreateClanModal}
-									title="Create CLans"
+									title="Create Clan"
 									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
 								>
 									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
