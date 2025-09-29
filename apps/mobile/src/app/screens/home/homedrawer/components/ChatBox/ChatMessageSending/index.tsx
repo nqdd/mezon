@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useChannelMembers, useChatSending } from '@mezon/core';
-import { ActionEmitEvent, ID_MENTION_HERE, IRoleMention, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
+import type { IRoleMention } from '@mezon/mobile-components';
+import { ActionEmitEvent, ID_MENTION_HERE, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	emojiSuggestionActions,
 	getStore,
 	referencesActions,
@@ -19,31 +20,29 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import {
+import type {
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	ILinkOnMessage,
 	ILinkVoiceRoomOnMessage,
 	IMarkdownOnMessage,
 	IMentionOnMessage,
-	IMessageSendPayload,
-	ThreadStatus,
-	checkIsThread,
-	filterEmptyArrays,
-	uniqueUsers
+	IMessageSendPayload
 } from '@mezon/utils';
+import { ThreadStatus, checkIsThread, filterEmptyArrays, uniqueUsers } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { MutableRefObject, memo, useCallback, useMemo } from 'react';
-import { DeviceEventEmitter, Keyboard, View } from 'react-native';
+import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { MutableRefObject } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { DeviceEventEmitter, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { EMessageActionType } from '../../../enums';
-import { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
+import type { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
 import { style } from '../ChatBoxBottomBar/style';
-import { BaseRecordAudioMessage } from '../RecordAudioMessage';
+import { RecordMessageSending } from './RecordMessageSending';
 
 interface IChatMessageSendingProps {
 	isAvailableSending: boolean;
@@ -103,7 +102,7 @@ export const ChatMessageSending = memo(
 		const currentChannel = useAppSelector((state) => selectChannelById(state, channelId || ''));
 		const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
 		const { membersOfChild, membersOfParent, addMemberToThread, joinningToThread } = useChannelMembers({
-			channelId: channelId,
+			channelId,
 			mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0
 		});
 		const userId = useMemo(() => {
@@ -115,7 +114,7 @@ export const ChatMessageSending = memo(
 		const isPublic = !channelOrDirect?.channel_private;
 		const { editSendMessage, sendMessage } = useChatSending({
 			mode,
-			channelOrDirect: channelOrDirect,
+			channelOrDirect,
 			fromTopic: isCreateTopic || !!currentTopicId
 		});
 
@@ -230,8 +229,8 @@ export const ChatMessageSending = memo(
 					receiverId: ephemeralTargetUserId,
 					channelId: currentTopicId || channelId,
 					clanId: currentChannel?.clan_id || '',
-					mode: mode,
-					isPublic: isPublic,
+					mode,
+					isPublic,
 					content: payloadSendMessage,
 					mentions: simplifiedMentionList,
 					attachments: attachmentDataRef,
@@ -312,23 +311,6 @@ export const ChatMessageSending = memo(
 			requestAnimationFrame(async () => {
 				sendMessageAsync().catch((error) => {});
 			});
-			// comment todo check performance
-			// InteractionManager.runAfterInteractions(() => {
-			// 	setTimeout(() => {
-			// 		sendMessageAsync().catch((error) => {
-			// 			console.log('Error sending message:', error);
-			// 		});
-			// 	}, 0);
-			// });
-		};
-
-		const startRecording = async () => {
-			const data = {
-				snapPoints: ['50%'],
-				children: <BaseRecordAudioMessage channelId={channelId} mode={mode} topicId={currentTopicId} />
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-			Keyboard.dismiss();
 		};
 
 		return (
@@ -349,9 +331,7 @@ export const ChatMessageSending = memo(
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_18} height={size.s_18} color={baseColor.white} />
 					</Pressable>
 				) : (
-					<Pressable onLongPress={startRecording} style={[styles.btnIcon, styles.iconVoice]}>
-						<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_18} height={size.s_18} color={themeValue.textStrong} />
-					</Pressable>
+					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} />
 				)}
 			</View>
 		);

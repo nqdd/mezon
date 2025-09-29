@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { selectIsShowWelcomeMobile } from '@mezon/store';
+import { selectIsShowWelcomeMobile } from '@mezon/store-mobile';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { useSelector } from 'react-redux';

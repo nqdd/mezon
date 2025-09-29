@@ -1,4 +1,4 @@
-import { ActionEmitEvent, IS_ANSWER_CALL_FROM_NATIVE, save } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
@@ -76,7 +76,6 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		notifee.stopForegroundService();
 		notifee.cancelNotification('incoming-call', 'incoming-call');
 		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
-		save(IS_ANSWER_CALL_FROM_NATIVE, false);
 	}, [isAnswerCall]);
 
 	const onCancelCall = async () => {

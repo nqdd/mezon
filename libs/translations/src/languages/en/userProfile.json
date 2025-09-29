@@ -174,5 +174,8 @@
 				"save": "Save"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Channel voice settings",
+	"muteVoice": "Mute",
+	"kickVoice": "Kick"
 }

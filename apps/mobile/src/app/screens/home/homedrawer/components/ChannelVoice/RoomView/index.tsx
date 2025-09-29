@@ -223,6 +223,7 @@ const RoomView = ({
 					activeSoundReactions={activeSoundReactions}
 					isGroupCall={isGroupCall}
 					clanId={clanId}
+					channelId={channelId}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (

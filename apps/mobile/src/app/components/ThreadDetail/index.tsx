@@ -131,77 +131,80 @@ export default function CreateThreadModal({ navigation, route }: MenuThreadScree
 		<View style={styles.createChannelContainer}>
 			{isLoading ? (
 				<SkeletonThread numberSkeleton={12} />
-			) : showEmpty ? (
-				<EmptyThread onPress={handleNavigateCreateForm} />
 			) : (
 				<View>
 					<SearchThreadsBar onTextChanged={debouncedSetSearchText} />
-					<ScrollView
-						style={styles.scrollView}
-						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{ paddingBottom: size.s_60, paddingTop: size.s_10 }}
-					>
-						{showThreadSearch && (
-							<View>
-								{threadsSearched?.length > 0 && (
-									<GroupThread
-										title={
-											threadsSearched?.length > 1
-												? `${threadsSearched?.length} ${t('searchThreads')}`
-												: `${threadsSearched?.length} ${t('searchThread')}`
-										}
-									>
-										{threadsSearched?.map((thread: ThreadsEntity) => (
-											<ThreadItem thread={thread} key={`${thread.id}-joined-threads`} />
-										))}
-									</GroupThread>
-								)}
-							</View>
-						)}
-						{showThreadList && (
-							<View>
-								{joinedThreads?.length > 0 && (
-									<GroupThread
-										title={
-											joinedThreads?.length > 1
-												? `${joinedThreads?.length} ${t('joinedThreads')}`
-												: `${joinedThreads?.length} ${t('joinedThread')}`
-										}
-									>
-										{joinedThreads?.map((thread: ThreadsEntity) => (
-											<ThreadItem thread={thread} key={`${thread.id}-joined-threads`} />
-										))}
-									</GroupThread>
-								)}
-								{activeThreads?.length > 0 && (
-									<GroupThread
-										title={
-											activeThreads?.length > 1
-												? `${activeThreads?.length} ${t('otherActiveThreads')}`
-												: `${activeThreads?.length} ${t('otherActiveThread')}`
-										}
-									>
-										{activeThreads?.map((thread: ThreadsEntity) => (
-											<ThreadItem thread={thread} key={`${thread.id}-other-active-threads`} />
-										))}
-									</GroupThread>
-								)}
-								{oldThreads?.length > 0 && (
-									<GroupThread
-										title={
-											oldThreads?.length > 1
-												? `${oldThreads?.length} ${t('olderThreads')}`
-												: `${oldThreads?.length} ${t('olderThread')}`
-										}
-									>
-										{oldThreads?.map((thread: ThreadsEntity) => (
-											<ThreadItem thread={thread} key={`${thread.id}-older-threads`} />
-										))}
-									</GroupThread>
-								)}
-							</View>
-						)}
-					</ScrollView>
+					{showEmpty ? (
+						<EmptyThread onPress={handleNavigateCreateForm} />
+					) : (
+						<ScrollView
+							style={styles.scrollView}
+							showsVerticalScrollIndicator={false}
+							keyboardShouldPersistTaps={'handled'}
+							contentContainerStyle={{ paddingBottom: size.s_60, paddingTop: size.s_10 }}
+						>
+							{showThreadSearch && (
+								<View>
+									{threadsSearched?.length > 0 && (
+										<GroupThread
+											title={
+												threadsSearched?.length > 1
+													? `${threadsSearched?.length} ${t('searchThreads')}`
+													: `${threadsSearched?.length} ${t('searchThread')}`
+											}
+										>
+											{threadsSearched?.map((thread: ThreadsEntity) => (
+												<ThreadItem thread={thread} key={`${thread.id}-joined-threads`} />
+											))}
+										</GroupThread>
+									)}
+								</View>
+							)}
+							{showThreadList && (
+								<View>
+									{joinedThreads?.length > 0 && (
+										<GroupThread
+											title={
+												joinedThreads?.length > 1
+													? `${joinedThreads?.length} ${t('joinedThreads')}`
+													: `${joinedThreads?.length} ${t('joinedThread')}`
+											}
+										>
+											{joinedThreads?.map((thread: ThreadsEntity) => (
+												<ThreadItem thread={thread} key={`${thread.id}-joined-threads`} />
+											))}
+										</GroupThread>
+									)}
+									{activeThreads?.length > 0 && (
+										<GroupThread
+											title={
+												activeThreads?.length > 1
+													? `${activeThreads?.length} ${t('otherActiveThreads')}`
+													: `${activeThreads?.length} ${t('otherActiveThread')}`
+											}
+										>
+											{activeThreads?.map((thread: ThreadsEntity) => (
+												<ThreadItem thread={thread} key={`${thread.id}-other-active-threads`} />
+											))}
+										</GroupThread>
+									)}
+									{oldThreads?.length > 0 && (
+										<GroupThread
+											title={
+												oldThreads?.length > 1
+													? `${oldThreads?.length} ${t('olderThreads')}`
+													: `${oldThreads?.length} ${t('olderThread')}`
+											}
+										>
+											{oldThreads?.map((thread: ThreadsEntity) => (
+												<ThreadItem thread={thread} key={`${thread.id}-older-threads`} />
+											))}
+										</GroupThread>
+									)}
+								</View>
+							)}
+						</ScrollView>
+					)}
 
 					{isPaginationVisible && (
 						<View style={styles.paginationContainer}>
