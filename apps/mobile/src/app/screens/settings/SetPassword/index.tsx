@@ -2,8 +2,8 @@ import { baseColor, useTheme } from '@mezon/mobile-ui';
 import { appActions, authActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, Pressable, ScrollView, StatusBar, Text } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { Platform, Pressable, StatusBar, Text } from 'react-native';
+import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
@@ -27,6 +27,7 @@ const SetPassword = ({ navigation }) => {
 	const dispatch = useAppDispatch();
 
 	const userProfile = useSelector(selectAllAccount);
+	const hasPassword = !!userProfile?.password_setted;
 
 	const handleCurrentPasswordChange = (currentPasswordText: string) => {
 		setCurrentPassword(currentPasswordText);
@@ -89,7 +90,7 @@ const SetPassword = ({ navigation }) => {
 	const handleSubmit = useCallback(async () => {
 		const passwordError = validatePassword(password);
 		const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
-		const samePass = currentPassword && password && currentPassword === password;
+		const samePass = hasPassword && currentPassword && password && currentPassword === password;
 
 		if (confirmError || passwordError || samePass) {
 			setErrors({
@@ -101,7 +102,9 @@ const SetPassword = ({ navigation }) => {
 
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(authActions.registrationPassword({ email: userProfile?.email, password, oldPassword: currentPassword }));
+			const response = await dispatch(
+				authActions.registrationPassword({ email: userProfile?.email, password, ...(hasPassword ? { oldPassword: currentPassword } : {}) })
+			);
 			if (response?.meta?.requestStatus === 'fulfilled') {
 				Toast.show({
 					type: 'success',
@@ -137,20 +140,22 @@ const SetPassword = ({ navigation }) => {
 
 	return (
 		<KeyboardAvoidingView
-			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+			behavior={'padding'}
 			style={styles.container}
-			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 70}
+			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 		>
-			<ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-				<TextInputUser
-					placeholder={t('setPasswordAccount.placeholder.currentPassword')}
-					isPass={true}
-					value={currentPassword}
-					onChangeText={handleCurrentPasswordChange}
-					label={t('setPasswordAccount.currentPassword')}
-					error={errors?.currentPassword}
-					touched={true}
-				/>
+			<KeyboardAwareScrollView bottomOffset={100} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+				{hasPassword && (
+					<TextInputUser
+						placeholder={t('setPasswordAccount.placeholder.currentPassword')}
+						isPass={true}
+						value={currentPassword}
+						onChangeText={handleCurrentPasswordChange}
+						label={t('setPasswordAccount.currentPassword')}
+						error={errors?.currentPassword}
+						touched={true}
+					/>
+				)}
 				<TextInputUser
 					placeholder={''}
 					isPass={false}
@@ -179,7 +184,7 @@ const SetPassword = ({ navigation }) => {
 					error={errors?.confirmPassword}
 					touched={true}
 				/>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 		</KeyboardAvoidingView>
 	);
 };
