@@ -404,11 +404,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	};
 
 	const handleMarkUnread = async () => {
-		const createTime = message?.create_time || message?.creationTime || null;
-		const previousTimestamp = Math.max(0, (message?.create_time_seconds ?? Math.floor(new Date(createTime).getTime() / 1000)) - 2);
 		const payloadSetLastSeenTimestamp = {
 			channelId: message?.channel_id || '',
-			timestamp: previousTimestamp
+			timestamp: 1
 		};
 		try {
 			await dispatch(
@@ -418,7 +416,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					messageId: message?.id || '',
 					mode: message?.mode || 0,
 					badge_count: 0,
-					message_time: previousTimestamp
+					message_time: 1
 				})
 			);
 			if (message?.clan_id === '0') {
