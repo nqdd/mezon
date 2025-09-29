@@ -9,8 +9,6 @@ import { toast } from 'react-toastify';
 
 interface SetPasswordProps {
 	onSubmit?: (data: { email: string; password: string; oldPassword?: string }) => void;
-	title?: string;
-	description?: string;
 	submitButtonText?: string;
 	initialEmail?: string;
 	isLoading?: LoadingStatus;
@@ -18,16 +16,7 @@ interface SetPasswordProps {
 	hasPassword?: boolean;
 }
 
-export default function SetPassword({
-	onSubmit,
-	title,
-	description,
-	submitButtonText,
-	initialEmail = '',
-	isLoading,
-	onClose,
-	hasPassword
-}: SetPasswordProps) {
+export default function SetPassword({ onSubmit, submitButtonText, initialEmail = '', isLoading, onClose, hasPassword }: SetPasswordProps) {
 	const { t } = useTranslation('accountSetting');
 	const dispatch = useAppDispatch();
 
@@ -100,7 +89,7 @@ export default function SetPassword({
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
 			if (hasPassword && !oldPassword) {
-				toast.warn('Please fill current password.');
+				toast.warn(t(`setPasswordAccount.error.fillOldPass`));
 				return;
 			}
 			event.preventDefault();
@@ -139,8 +128,10 @@ export default function SetPassword({
 				</button>
 
 				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="text-xl font-semibold text-gray-900 dark:text-white">{title || t('setPasswordModal.title')}</div>
-					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{description || t('setPasswordModal.description')}</p>
+					<div className="text-xl font-semibold text-gray-900 dark:text-white">
+						{hasPassword ? t('setPasswordModal.changePassword') : t('setPasswordModal.title')}
+					</div>
+					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{t('setPasswordModal.description')}</p>
 				</div>
 
 				<form onSubmit={handleSubmit}>
