@@ -15,6 +15,7 @@
 	"accountInformation": "Account Information",
 	"doNotHaveBlockedUser": "You don't have any blocked users",
 	"setPassword": "Set Password",
+	"changePassword": "Change Password",
 	"setPhoneNumber": "Set Phone Number",
 	"disableAccountAlert": {
 		"title": "Disable account",
@@ -35,6 +36,7 @@
 		"currentPassword": "Current Password",
 		"confirmPassword": "Confirm Password",
 		"confirm": "Save",
+		"changePassword": "Change Password",
 		"description": "Your password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&*).",
 		"error": {
 			"characters": "Password must be at least 8 characters",
@@ -43,7 +45,8 @@
 			"number": "Password must contain at least 1 number",
 			"symbol": "Password must contain at least 1 special character",
 			"notEqual": "Confirmation password doesn't match",
-			"samePass": "The new password cannot be the same as the old password"
+			"samePass": "The new password cannot be the same as the old password",
+			"fillOldPass": "Please fill current password."
 		},
 		"toast": {
 			"success": "Password set successfully",
