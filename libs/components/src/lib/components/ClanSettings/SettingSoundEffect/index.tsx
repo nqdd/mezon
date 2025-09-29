@@ -11,6 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ClanSticker } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -71,7 +72,7 @@ const SettingSoundEffect = () => {
 		try {
 			await dispatch(
 				soundEffectActions.deleteSound({
-					soundId: soundId,
+					soundId,
 					clan_id: currentClanId,
 					soundLabel: soundName
 				})
@@ -100,14 +101,15 @@ const SettingSoundEffect = () => {
 					<div className="flex items-center gap-2 text-base font-bold text-theme-primary-active">
 						<span>{t('main.uploadHere')}</span>
 					</div>
-					<p className="text-xs mt-1 text-theme-primary">{t('main.personalizeDescription')}</p>
+					<p className="text-xs  text-theme-primary">{t('main.personalizeDescription')}</p>
 				</div>
 				<button
-					className=" rounded-lg py-2.5 px-4 btn-primary btn-primary-hover font-semibold  transition duration-200 shadow-sm hover:shadow-md capitalize"
+					className=" font-[500] capitalize disabled:opacity-50 disabled:cursor-not-allowed ease-linear transition-all duration-150  px-2 py-2.5 btn-primary btn-primary-hover rounded-lg"
 					onClick={() => {
 						setSelectedSound(null);
 						setShowModal(true);
 					}}
+					data-e2e={generateE2eId('clan_page.settings.voice_sticker.button_upload')}
 				>
 					<span className="flex items-center gap-2">{t('main.uploadSound')}</span>
 				</button>

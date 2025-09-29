@@ -63,15 +63,3 @@ export const groupByYearDay = <T>(items: T[], getDate: (item: T) => Date): YearD
 	});
 	return result;
 };
-
-export type ChunkRow<T> = { key: string; items: T[] };
-
-export const chunkIntoRows = <T extends { id?: string | number }>(list: T[], chunkSize: number, seed: string): ChunkRow<T>[] => {
-	const rows: ChunkRow<T>[] = [];
-	for (let i = 0; i < list.length; i += chunkSize) {
-		const slice = list.slice(i, i + chunkSize);
-		const key = `${seed}_row_${i / chunkSize}_${slice.map((s) => s.id ?? i).join('_')}`;
-		rows.push({ key, items: slice });
-	}
-	return rows;
-};

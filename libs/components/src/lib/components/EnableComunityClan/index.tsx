@@ -1,4 +1,5 @@
 import { selectIsCommunityEnabled, useAppSelector } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useTranslation } from 'react-i18next';
 
 const EnableComunity = ({ onEnable, clanId }: { onEnable: () => void; clanId?: string }) => {
@@ -32,6 +33,7 @@ const EnableComunity = ({ onEnable, clanId }: { onEnable: () => void; clanId?: s
 				<button
 					onClick={onEnable}
 					className="group relative px-10 py-4 bg-white text-[#5865F2] font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-out hover:bg-gray-50 active:scale-95"
+					data-e2e={generateE2eId('clan_page.settings.community.button.enable_community')}
 				>
 					<span className="relative z-10">{t('enableCommunity.button')}</span>
 					<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>

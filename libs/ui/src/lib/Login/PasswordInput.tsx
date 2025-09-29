@@ -1,8 +1,7 @@
 'use client';
 
 import { Icons } from '@mezon/ui';
-import type React from 'react';
-import { memo, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import FormError from './FormError';
 
@@ -14,9 +13,10 @@ interface PasswordInputProps {
 	error?: string;
 	isLoading?: boolean;
 	onFocus?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	className?: string;
 }
 
-const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFocus }: PasswordInputProps) => {
+const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFocus, className }: PasswordInputProps) => {
 	const { t } = useTranslation('common');
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -25,7 +25,7 @@ const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFo
 	};
 
 	return (
-		<div className="space-y-2">
+		<div className={`space-y-2 ${className ? className : ''}`}>
 			<label htmlFor={id} className="block text-sm font-medium text-gray-900 dark:text-gray-200">
 				{label}
 				<span className="text-red-500">*</span>
@@ -36,10 +36,10 @@ const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFo
 					type={showPassword ? 'text' : 'password'}
 					value={value}
 					onChange={onChange}
-					className={`w-full px-3 py-2 rounded-md pr-10 border 
-						${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'}  
+					className={`w-full px-3 py-2 rounded-md pr-10 border
+						${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'}
 						bg-white dark:bg-[#1e1e1e]
-						text-black dark:text-white 
+						text-black dark:text-white
 						focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 `}
 					readOnly={isLoading}
 					autoComplete="off"

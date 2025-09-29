@@ -1,4 +1,5 @@
 import { useEscapeKeyClose } from '@mezon/core';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -71,10 +72,15 @@ const ModalConfirm = ({
 					<div
 						onClick={handleCancel}
 						className="hover:underline px-4 rounded-lg text-theme-primary text-theme-primary-hover  cursor-pointer"
+						data-e2e={generateE2eId('modal.confirm_modal.button.cancel')}
 					>
 						{t('cancel')}
 					</div>
-					<div className={`${buttonColor}  text-white rounded-lg px-[25px] py-[8px] cursor-pointer`} onClick={handleConfirm}>
+					<div
+						className={`${buttonColor}  text-white rounded-lg px-[25px] py-[8px] cursor-pointer`}
+						onClick={handleConfirm}
+						data-e2e={generateE2eId('modal.confirm_modal.button.confirm')}
+					>
 						{buttonName}
 					</div>
 				</div>

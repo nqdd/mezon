@@ -1,4 +1,5 @@
-import { IMessageWithUser, createImgproxyUrl } from '@mezon/utils';
+import type { IMessageWithUser } from '@mezon/utils';
+import { createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -14,6 +15,7 @@ type IMessageAvatarProps = {
 const MessageAvatar = ({ message, mode, onClick }: IMessageAvatarProps) => {
 	const clanAvatar = message?.clan_avatar;
 	const generalAvatar = message?.avatar;
+
 	const { pendingUserAvatar, pendingClanAvatar } = getPendingNames(
 		message,
 		undefined,

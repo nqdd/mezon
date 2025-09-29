@@ -77,7 +77,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 			<div className="w-full rounded-lg overflow-hidden bg-theme-setting-nav">
 				<div style={{ backgroundColor: color }} className="h-[100px]  "></div>
 				<div className="flex justify-between relative -top-5 px-4 flex-col sbm:flex-row sbm:items-center">
-					<div className="flex items-center gap-x-4">
+					<div className="flex items-center gap-x-4" data-e2e={generateE2eId(`user_setting.account.info`)}>
 						<AvatarImage
 							alt={userProfile?.user?.username || ''}
 							username={userProfile?.user?.username}

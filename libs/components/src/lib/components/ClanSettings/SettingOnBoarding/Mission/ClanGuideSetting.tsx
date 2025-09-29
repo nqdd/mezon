@@ -8,7 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { titleMission } from '@mezon/utils';
+import { generateE2eId, titleMission } from '@mezon/utils';
 import { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { ReactNode, useEffect } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -141,6 +141,7 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 					<button
 						className="flex items-center justify-center p-4 text-primary text-base gap-1 border-dashed border-2 border-gray-400 dark:border-channelTextLabel rounded-md hover:bg-gray-100 dark:hover:bg-bgSecondaryHover transition-colors"
 						onClick={openModalAddRules}
+						data-e2e={generateE2eId('clan_page.settings.onboarding.button.add_resources')}
 					>
 						<Icons.AddIcon className="w-4 h-4" /> Add a resource
 					</button>

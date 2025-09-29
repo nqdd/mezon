@@ -1,6 +1,6 @@
 import { channelUsersActions, selectAllRolesClan, selectCurrentClanId, selectRolesByChannelId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import { generateE2eId, IChannel } from '@mezon/utils';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 type ListRolePermissionProps = {
@@ -36,7 +36,11 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 	};
 	return listRolesInChannel.length !== 0 ? (
 		listRolesInChannel.map((role) => (
-			<div className={`flex justify-between text-theme-primary py-2 rounded`} key={role.id}>
+			<div
+				className={`flex justify-between text-theme-primary py-2 rounded`}
+				key={role.id}
+				data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.role_list.role_item')}
+			>
 				<div className="flex gap-x-2 items-center">
 					<Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />
 					<p className="text-sm">{role.title}</p>

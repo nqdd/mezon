@@ -185,6 +185,7 @@ export type IThread = {
 	create_time_seconds?: number | string | undefined;
 	update_time_seconds?: number | string | undefined;
 	last_sent_message?: ApiChannelMessageHeader;
+	channel_private?: number;
 };
 
 export type IContextMenuItemAction = 'REST';
@@ -1103,7 +1104,8 @@ export enum TypeCheck {
 
 export enum ThreadStatus {
 	activePublic = 2,
-	joined = 1
+	joined = 1,
+	activePrivate = 3
 }
 
 export type ICanvas = {

@@ -574,9 +574,14 @@ export const jumpToMessage = createAsyncThunk(
 		{ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs,
 		thunkAPI
 	) => {
+		let timeoutId: NodeJS.Timeout | undefined;
 		try {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(true));
 			thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: 'temp', navigate: false }));
+			timeoutId = setTimeout(() => {
+				thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+				thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			}, 15000);
 			const channelMessages = selectViewportIdsByChannelId(getMessagesRootState(thunkAPI), channelId);
 			const indexMessage = channelMessages.indexOf(messageId);
 			let found = true;
@@ -623,9 +628,12 @@ export const jumpToMessage = createAsyncThunk(
 			}
 		} catch (e) {
 			captureSentryError(e, 'messages/jumpToMessage');
+			thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+			if (timeoutId) clearTimeout(timeoutId);
 			return thunkAPI.rejectWithValue(e);
 		} finally {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			if (timeoutId) clearTimeout(timeoutId);
 		}
 	}
 );
@@ -671,17 +679,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 				return;
 			}
 
-			resetChannelBadgeCount(
-				thunkAPI.dispatch as AppDispatch,
-				{
-					clanId,
-					channelId,
-					badgeCount: badge_count,
-					timestamp: message_time ?? now,
-					messageId
-				},
-				{ getState: () => thunkAPI.getState() as RootState }
-			);
+			resetChannelBadgeCount(thunkAPI.dispatch as AppDispatch, {
+				clanId,
+				channelId,
+				badgeCount: badge_count,
+				timestamp: message_time ?? now,
+				messageId
+			});
 		} catch (e) {
 			console.error(e, 'updateLastSeenMessage');
 			captureSentryError(e, 'messages/updateLastSeenMessage');

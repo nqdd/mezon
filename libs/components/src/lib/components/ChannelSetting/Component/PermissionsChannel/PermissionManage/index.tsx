@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import React, { memo, useState } from 'react';
 import MainPermissionManage from './MainPermissionManage';
 
@@ -22,7 +23,7 @@ const PermissionManage: React.FC<PermissionManageProps> = ({
 	const [showRole, setShowRole] = useState(true);
 	return (
 		channelPrivate && (
-			<div>
+			<div data-e2e={generateE2eId('channel_setting_page.permissions.section.advanced_permissions')}>
 				<HeaderPermissionManage showRole={showRole} setShowRole={setShowRole} />
 				{showRole && (
 					<MainPermissionManage

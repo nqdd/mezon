@@ -1,14 +1,15 @@
-import { convertMarkdown, EBacktickType, ETokenMessage, IMarkdownOnMessage, parseHtmlAsFormattedText, processMarkdownEntities } from '@mezon/utils';
+import type { EBacktickType, IMarkdownOnMessage } from '@mezon/utils';
+import { ETokenMessage, convertMarkdown, parseHtmlAsFormattedText, processMarkdownEntities } from '@mezon/utils';
 import { useMemo } from 'react';
 import { MarkdownContent } from '../../MarkdownFormatText/MarkdownContent';
-import { ElementToken } from '../../MessageWithUser/MessageLine';
+import type { ElementToken } from '../../MessageWithUser/MessageLine';
 
 interface EmbedDescriptionProps {
 	description: string;
 }
 
 export function EmbedDescription({ description }: EmbedDescriptionProps) {
-	const { text, entities } = parseHtmlAsFormattedText(description);
+	const { text, entities } = parseHtmlAsFormattedText(String(description || ''));
 	const markdownList: IMarkdownOnMessage[] = processMarkdownEntities(text, entities);
 
 	const mkm = markdownList.map((item) => ({ ...item, kindOf: ETokenMessage.MARKDOWNS }));
