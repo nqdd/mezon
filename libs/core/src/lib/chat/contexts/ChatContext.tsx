@@ -219,7 +219,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					joinSoundElement.addEventListener('ended', () => {
 						document.body.removeChild(joinSoundElement);
 					});
-					joinSoundElement.play();
+					joinSoundElement.play().catch((error) => {
+						console.error('Failed to play join sound:', error);
+					});
 				}
 
 				dispatch(

@@ -187,8 +187,13 @@ export const voiceSlice = createSlice({
 		addMany: voiceAdapter.addMany,
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
 			const voice = action.payload;
-			voiceAdapter.removeOne(state, voice.id);
-			if (state.listInVoiceStatus[voice.voice_user_id]) {
+			const keyRemove = voice.voice_user_id + voice.voice_channel_id;
+			const entities = voiceAdapter.getSelectors().selectEntities(state);
+			if (entities[keyRemove]) {
+				voiceAdapter.removeOne(state, keyRemove);
+				delete state.listInVoiceStatus[keyRemove];
+			} else {
+				voiceAdapter.removeOne(state, voice.id);
 				delete state.listInVoiceStatus[voice.voice_user_id];
 			}
 		},
@@ -306,7 +311,7 @@ export const voiceSlice = createSlice({
 							participant: channelRes.participant || '',
 							voice_channel_label: '',
 							last_screenshot: '',
-							id: channelRes.id || ''
+							id: (channelRes.user_id || '') + (channelRes.channel_id || '')
 						};
 					});
 					voiceAdapter.setAll(state, members);
