@@ -15,6 +15,7 @@
 	"accountInformation": "Thông tin tài khoản",
 	"doNotHaveBlockedUser": "Không có người dùng nào bị chặn",
 	"setPassword": "Đặt mật khẩu",
+	"changePassword": "Đổi mật khẩu",
 	"setPhoneNumber": "Đặt số điện thoại",
 	"disableAccountAlert": {
 		"title": "Vô hiệu hoá tài khoản",
@@ -35,6 +36,7 @@
 		"currentPassword": "Mật khẩu hiện tại",
 		"confirmPassword": "Xác nhận mật khẩu",
 		"confirm": "Lưu",
+		"changePassword": "Đổi mật khẩu",
 		"description": "Mật khẩu của bạn phải có ít nhất 8 ký tự và bao gồm ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt (ví dụ: !@#$%^&*).",
 		"error": {
 			"characters": "Mật khẩu phải có ít nhất 8 ký tự",
@@ -43,7 +45,8 @@
 			"number": "Mật khẩu phải chứa ít nhất 1 chữ số",
 			"symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
 			"notEqual": "Mật khẩu xác nhận không khớp",
-			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ"
+			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ",
+			"fillOldPass": "Vui lòng nhập mật khẩu hiện tại."
 		},
 		"notification": {
 			"success": "Đổi mật khẩu thành công",

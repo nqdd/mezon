@@ -1,9 +1,7 @@
-import { selectAllAccount, selectCurrentClanId, selectUserClanProfileByClanID, useAppSelector } from '@mezon/store';
 import type { IMessageWithUser } from '@mezon/utils';
 import { createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo } from 'react';
-import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import getPendingNames from './usePendingNames';
 
@@ -15,16 +13,8 @@ type IMessageAvatarProps = {
 };
 
 const MessageAvatar = ({ message, mode, onClick }: IMessageAvatarProps) => {
-	const currentUser = useAppSelector(selectAllAccount);
-	const currentClanId = useAppSelector(selectCurrentClanId);
-	const userClansProfile = useSelector(selectUserClanProfileByClanID(currentClanId as string, currentUser?.user?.id ?? ''));
-
 	const clanAvatar = message?.clan_avatar;
 	const generalAvatar = message?.avatar;
-
-	const isMe = currentUser?.user?.id === message.user?.id;
-	const currentUserAvatar = isMe ? currentUser?.user?.avatar_url : undefined;
-	const currentUserClanAvatar = isMe ? userClansProfile?.avatar : undefined;
 
 	const { pendingUserAvatar, pendingClanAvatar } = getPendingNames(
 		message,
@@ -34,17 +24,16 @@ const MessageAvatar = ({ message, mode, onClick }: IMessageAvatarProps) => {
 		undefined,
 		undefined,
 		undefined,
-		currentUserAvatar || message?.avatar,
-		currentUserAvatar || generalAvatar,
-		currentUserClanAvatar || clanAvatar,
-		currentUserClanAvatar || message?.clan_avatar
+		message?.avatar,
+		generalAvatar,
+		clanAvatar,
+		message?.clan_avatar
 	);
 
 	const avatarUrl =
 		((mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
-			? currentUserClanAvatar || clanAvatar || pendingClanAvatar || pendingUserAvatar
+			? clanAvatar || pendingClanAvatar || pendingUserAvatar
 			: pendingUserAvatar) ||
-			currentUserAvatar ||
 			message?.avatar) ??
 		'';
 
