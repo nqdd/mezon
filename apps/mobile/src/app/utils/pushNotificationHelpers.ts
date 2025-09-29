@@ -378,7 +378,8 @@ export const isShowNotification = (
 	currentChannelId: string | undefined,
 	currentDmId: string | undefined,
 	remoteMessage: FirebaseMessagingTypes.RemoteMessage,
-	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean }
+	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean },
+	currentTopicId?: string | undefined
 ): boolean => {
 	try {
 		if (!validateNotificationData(remoteMessage?.data)) {
@@ -395,17 +396,22 @@ export const isShowNotification = (
 
 		const directMessageId = directMessageMatch?.[1] || '';
 		const channelMessageId = channelMessageMatch?.[2] || '';
+		const topicMessageId = remoteMessage.data?.topic || '';
 
 		const areOnChannel = currentChannelId === channelMessageId;
 		const areOnDirectMessage = currentDmId === directMessageId;
+		const isOntopicDiscussion = topicMessageId && topicMessageId !== '0';
 		const isViewingChannel = !!options?.isViewingChannel;
 		const isViewingDirectMessage = !!options?.isViewingDirectMessage;
+		const isViewingtopicDiscussion = !!currentTopicId;
+
+		if (!isViewingChannel && isViewingtopicDiscussion && areOnChannel && isOntopicDiscussion) return false;
 
 		// If currently viewing DM but notification is for a channel the user has open in background
 		if (areOnChannel && currentDmId) return true;
 
 		// Suppress only when user is actively on the same destination screen
-		if (channelMessageId && areOnChannel && isViewingChannel) return false;
+		if (channelMessageId && areOnChannel && isViewingChannel && !isOntopicDiscussion) return false;
 		if (directMessageId && areOnDirectMessage && isViewingDirectMessage) return false;
 
 		return true;
