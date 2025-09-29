@@ -1,4 +1,4 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = () =>
@@ -33,7 +33,7 @@ export const style = () =>
 		inputLabel: {
 			fontSize: size.s_14,
 			color: '#e0e7ff',
-			marginBottom: size.s_12,
+			marginBottom: size.s_12
 		},
 		inputWrapper: {
 			flexDirection: 'row',

@@ -1,4 +1,5 @@
-import { TrackReference, VideoTrack, useParticipants, useRoomContext } from '@livekit/react-native';
+import type { TrackReference } from '@livekit/react-native';
+import { VideoTrack, useParticipants, useRoomContext } from '@livekit/react-native';
 import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, size, useTheme } from '@mezon/mobile-ui';
@@ -21,7 +22,7 @@ import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../../../../../assets/lottie';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
-import { ActiveSoundReaction } from '../../../../../../hooks/useSoundReactions';
+import type { ActiveSoundReaction } from '../../../../../../hooks/useSoundReactions';
 import { ContainerMessageActionModal } from '../../MessageItemBS/ContainerMessageActionModal';
 import ControlBottomBar from '../ControlBottomBar';
 import FocusedScreenPopup from '../FocusedScreenPopup';

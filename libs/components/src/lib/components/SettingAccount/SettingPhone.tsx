@@ -1,6 +1,6 @@
 import { accountActions, useAppDispatch } from '@mezon/store';
 import { Button, FormError, Icons, Input, Menu } from '@mezon/ui';
-import type { LoadingStatus } from '@mezon/utils';
+import { ECountryCode, validatePhoneNumber, type LoadingStatus } from '@mezon/utils';
 import type { ChangeEvent, ClipboardEvent, Dispatch, KeyboardEvent, SetStateAction } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,19 +9,16 @@ import { toast } from 'react-toastify';
 interface SetPhoneProps {
 	title?: string;
 	description?: string;
-	submitButtonText?: string;
 	isLoading?: LoadingStatus;
 	onClose?: () => void;
 }
 
-const PREFIX_LENGHT_PHONE_NUMBER_VN = 12;
-const PREFIX_LENGHT_PHONE_NUMBER_JP_US = 10;
-const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose }: SetPhoneProps) => {
+const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps) => {
 	const { t } = useTranslation('accountSetting');
 
 	const [validateOTP, setValidateOTP] = useState<string | undefined>(undefined);
 	const [openConfirm, setOpenConfirm] = useState(false);
-	const [country, setCountry] = useState('VN');
+	const [country, setCountry] = useState(ECountryCode.VN);
 	const [errors, setErrors] = useState<{
 		phone?: string;
 		OTP?: string;
@@ -53,27 +50,6 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 		setOtp(e);
 	};
 
-	const validatePhonePrefix = (value: string) => {
-		if (country === 'VN' && value.length === PREFIX_LENGHT_PHONE_NUMBER_VN) {
-			const vnPhoneRegex = /^(?:\+84|0)(?:3\d{8}|5\d{8}|7\d{8}|8\d{8}|9\d{8})$/;
-			if (vnPhoneRegex.test(value)) {
-				return true;
-			}
-		}
-		if (country === 'JP' && value.length >= PREFIX_LENGHT_PHONE_NUMBER_JP_US) {
-			const jpMobileRegex = /^(?:\+81|0)(?:70\d{8}|80\d{8}|90\d{8})$/;
-			if (jpMobileRegex.test(value)) {
-				return true;
-			}
-		}
-		if (country === 'US' && value.length >= PREFIX_LENGHT_PHONE_NUMBER_JP_US) {
-			const usPhoneRegex = /^(?:\+1)?\d{10}$/;
-			if (usPhoneRegex.test(value)) {
-				return true;
-			}
-		}
-		return false;
-	};
 	const [count, setCount] = useState(0);
 
 	useEffect(() => {
@@ -125,7 +101,7 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 
 		const phoneRegex = /^\+?\d{7,15}$/;
 
-		if (phone && phoneRegex.test(phone) && validatePhonePrefix(phone)) {
+		if (phone && phoneRegex.test(phone) && validatePhoneNumber(phone, country)) {
 			const response = await dispatch(
 				accountActions.addPhoneNumber({
 					phone_number: phone
@@ -215,7 +191,7 @@ const SettingPhone = ({ title, description, submitButtonText, isLoading, onClose
 	);
 };
 
-const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
+export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
 	const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, ''); // chỉ số
 		if (value.length <= 1) {
@@ -260,6 +236,7 @@ const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: st
 					<input
 						key={index}
 						id={`otp-${index}`}
+						tabIndex={-1}
 						type="text"
 						inputMode="numeric"
 						maxLength={1}
@@ -275,19 +252,19 @@ const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: st
 	);
 };
 
-const SelectCountry = ({ country, setCountry }: { country: string; setCountry: Dispatch<SetStateAction<string>> }) => {
+export const SelectCountry = ({ country, setCountry }: { country: string; setCountry: Dispatch<SetStateAction<ECountryCode>> }) => {
 	const countries = useMemo(
 		() => [
-			{ code: 'VN', name: 'Vietnam' },
-			{ code: 'JP', name: 'Japan' },
-			{ code: 'US', name: 'US' }
+			{ code: 'VN', name: 'Vietnam', dial: ECountryCode.VN },
+			{ code: 'JP', name: 'Japan', dial: ECountryCode.JP },
+			{ code: 'US', name: 'US', dial: ECountryCode.US }
 		],
 		[]
 	);
-	const flags: Record<string, { flag: JSX.Element; dial: string }> = {
-		VN: { flag: <VietNamFlag />, dial: '+84' },
-		JP: { flag: <JapanFlag />, dial: '+81' },
-		US: { flag: <USFlag />, dial: '+1' }
+	const flags: Record<string, { flag: JSX.Element; dial: string; name: string }> = {
+		'+84': { flag: <VietNamFlag />, dial: '+84', name: 'Vietnam' },
+		'+81': { flag: <JapanFlag />, dial: '+81', name: 'Japan' },
+		'+1': { flag: <USFlag />, dial: '+1', name: 'US' }
 	};
 	const menu = useMemo(
 		() => (
@@ -295,7 +272,7 @@ const SelectCountry = ({ country, setCountry }: { country: string; setCountry: D
 				{countries?.map((option, index) => (
 					<Menu.Item
 						key={index}
-						onClick={() => setCountry(option.code)}
+						onClick={() => setCountry(option.dial)}
 						className={`truncate px-3 py-2 rounded-md hover:bg-[#f3f4f6] dark:hover:bg-[#3f4147] cursor-pointer transition-colors duration-150 ${
 							country === option.code
 								? 'bg-[#e5e7eb] dark:bg-[#313338] text-[#1f2937] dark:text-white font-medium'
@@ -312,7 +289,7 @@ const SelectCountry = ({ country, setCountry }: { country: string; setCountry: D
 
 	return (
 		<div className="w-full">
-			<div className="relative flex-1">
+			<div className="relative w-[155px]">
 				<Menu
 					trigger="click"
 					menu={menu}
@@ -321,7 +298,7 @@ const SelectCountry = ({ country, setCountry }: { country: string; setCountry: D
 				>
 					<div className="w-full h-[40px] rounded-md flex flex-row px-3 justify-between items-center cursor-pointer bg-white text-[#111827] border border-[#4b5563] dark:bg-[#2d2f33] dark:text-[#d1d5db]">
 						<p className="truncate text-sm font-medium flex items-center gap-2">
-							{flags[country]?.flag} {country} {`(${flags[country]?.dial})`}
+							{flags[country]?.flag} {flags[country]?.name} {`(${flags[country]?.dial})`}
 						</p>
 						<Icons.ArrowDownFill />
 					</div>

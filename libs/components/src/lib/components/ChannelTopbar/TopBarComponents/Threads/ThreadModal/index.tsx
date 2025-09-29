@@ -12,7 +12,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EOverriddenPermission, LIMIT, checkIsThread } from '@mezon/utils';
+import { EOverriddenPermission, LIMIT, checkIsThread, generateE2eId } from '@mezon/utils';
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -136,6 +136,7 @@ const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {
 							<button
 								onClick={handleCreateThread}
 								className=" px-3  text-center text-sm font-medium h-6 rounded-lg btn-primary btn-primary-hover"
+								data-e2e={generateE2eId('chat.channel_message.header.button.thread.modal.thread_management.button.create_thread')}
 							>
 								{t('modals.threads.create')}
 							</button>

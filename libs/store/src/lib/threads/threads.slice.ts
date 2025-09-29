@@ -1,6 +1,6 @@
 import { captureSentryError } from '@mezon/logger';
 import type { IMessageWithUser, IThread, LoadingStatus } from '@mezon/utils';
-import { LIMIT, TypeCheck, getParentChannelIdIfHas } from '@mezon/utils';
+import { LIMIT, ThreadStatus, TypeCheck, getParentChannelIdIfHas } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ApiChannelDescription } from 'mezon-js/api.gen';
@@ -407,8 +407,17 @@ export const threadsSlice = createSlice({
 					}
 
 					if (!fromCache) {
-						state.byChannels[channelId] = threadsAdapter.setMany(state.byChannels[channelId], threads);
+						const validThreads = threads.filter((thread) => {
+							if (thread.channel_private) {
+								const shouldKeep = thread.active === ThreadStatus.joined || thread.active === ThreadStatus.activePrivate;
+								return shouldKeep;
+							}
+							return true;
+						});
+						state.byChannels[channelId] = threadsAdapter.setMany(state.byChannels[channelId], validThreads);
 						state.byChannels[channelId].cache = createCacheMetadata();
+					} else {
+						console.error('Error when load data from cache');
 					}
 
 					state.loadingStatus = 'loaded';

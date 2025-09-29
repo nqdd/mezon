@@ -139,6 +139,6 @@ export const style = () =>
 		},
 		inputError: {
 			borderColor: '#ca0000',
-			backgroundColor: 'rgba(202,0,0,0.1)',
+			backgroundColor: 'rgba(202,0,0,0.1)'
 		}
 	});

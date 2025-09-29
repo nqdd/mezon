@@ -28,7 +28,8 @@ import { useSelector } from 'react-redux';
 import { SeparatorWithLine } from '../../../components/Common';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, SettingScreenProps } from '../../../navigation/ScreenTypes';
+import type { SettingScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './styles';
 
 enum EAccountSettingType {

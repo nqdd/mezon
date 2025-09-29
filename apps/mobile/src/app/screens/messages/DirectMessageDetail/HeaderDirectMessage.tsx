@@ -1,6 +1,7 @@
-import { CallSignalingData } from '@mezon/components';
+import type { CallSignalingData } from '@mezon/components';
 import { useChatSending, useSeenMessagePool } from '@mezon/core';
-import { ActionEmitEvent, IOption } from '@mezon/mobile-components';
+import type { IOption } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
 	DMCallActions,
