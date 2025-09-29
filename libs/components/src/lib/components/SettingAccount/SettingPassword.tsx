@@ -129,7 +129,7 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 
 				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
 					<div className="text-xl font-semibold text-gray-900 dark:text-white">
-						{hasPassword ? t('setPasswordModal.changePassword') : t('setPasswordModal.title')}
+						{hasPassword ? t('setPasswordAccount.changePassword') : t('setPasswordModal.title')}
 					</div>
 					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{t('setPasswordModal.description')}</p>
 				</div>
