@@ -1,6 +1,6 @@
 import { baseColor, useTheme } from '@mezon/mobile-ui';
 import { appActions, authActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
-import { useEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StatusBar, Text } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -65,26 +65,29 @@ const SetPassword = ({ navigation }) => {
 		}));
 	};
 
-	const validatePassword = (value: string) => {
-		if (value.length < 8) {
-			return t('setPasswordAccount.error.characters');
-		}
-		if (!/[A-Z]/.test(value)) {
-			return t('setPasswordAccount.error.uppercase');
-		}
-		if (!/[a-z]/.test(value)) {
-			return t('setPasswordAccount.error.lowercase');
-		}
-		if (!/[0-9]/.test(value)) {
-			return t('setPasswordAccount.error.number');
-		}
-		if (!/[^A-Za-z0-9]/.test(value)) {
-			return t('setPasswordAccount.error.symbol');
-		}
-		return '';
-	};
+	const validatePassword = useCallback(
+		(value: string) => {
+			if (value.length < 8) {
+				return t('setPasswordAccount.error.characters');
+			}
+			if (!/[A-Z]/.test(value)) {
+				return t('setPasswordAccount.error.uppercase');
+			}
+			if (!/[a-z]/.test(value)) {
+				return t('setPasswordAccount.error.lowercase');
+			}
+			if (!/[0-9]/.test(value)) {
+				return t('setPasswordAccount.error.number');
+			}
+			if (!/[^A-Za-z0-9]/.test(value)) {
+				return t('setPasswordAccount.error.symbol');
+			}
+			return '';
+		},
+		[t]
+	);
 
-	const handleSubmit = async () => {
+	const handleSubmit = useCallback(async () => {
 		const passwordError = validatePassword(password);
 		const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
 		const samePass = hasPassword && currentPassword && password && currentPassword === password;
@@ -122,9 +125,9 @@ const SetPassword = ({ navigation }) => {
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	};
+	}, [confirmPassword, currentPassword, dispatch, navigation, password, t, userProfile?.email, validatePassword]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerRight: () => (
@@ -133,7 +136,7 @@ const SetPassword = ({ navigation }) => {
 				</Pressable>
 			)
 		});
-	}, [handleSubmit, navigation, t]);
+	}, [handleSubmit, navigation, styles, t]);
 
 	return (
 		<KeyboardAvoidingView
