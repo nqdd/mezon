@@ -180,7 +180,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 					setErrorMessage(t('menu.serverName.duplicateNameMessage'));
 					setIsCheckValid(false);
 					setLoading(false);
-					return;
+					throw new Error(t('menu.serverName.duplicateNameMessage'));
 				}
 			}
 
