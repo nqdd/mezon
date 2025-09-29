@@ -1,4 +1,5 @@
 import { ChannelsEntity, selectStatusMenu, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { VoiceChannelUsers } from './VoiceChannelUsers/VoiceChannelUsers';
 
 interface PreJoinVoiceChannelProps {
@@ -37,6 +38,7 @@ export const PreJoinVoiceChannel: React.FC<PreJoinVoiceChannelProps> = ({ channe
 					disabled={!roomName || loading}
 					className={`bg-green-700 rounded-3xl p-2 ${roomName ? 'hover:bg-green-600' : 'opacity-50'}`}
 					onClick={handleJoinRoom}
+					data-e2e={generateE2eId('clan_page.screen.voice_room.button.join_voice')}
 				>
 					{loading ? 'Joining...' : 'Join Voice'}
 				</button>

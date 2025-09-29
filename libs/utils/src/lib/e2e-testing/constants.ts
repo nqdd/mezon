@@ -238,7 +238,14 @@ export const DATA_E2E_IDENTIFIER = {
 					voice: '',
 					stream: ''
 				},
-				name: ''
+				name: '',
+				user_list: {
+					item: ''
+				},
+				user_list_collapsed: {
+					item: '',
+					item_count: ''
+				}
 			},
 			thread_item: {
 				name: ''
@@ -251,7 +258,16 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		secondary_side_bar: {
-			member: ''
+			member: {
+				in_voice: ''
+			}
+		},
+		screen: {
+			voice_room: {
+				button: {
+					join_voice: ''
+				}
+			}
 		}
 	},
 	channel_setting_page: {
@@ -510,7 +526,15 @@ export const DATA_E2E_IDENTIFIER = {
 				confirm: '',
 				cancel: ''
 			}
+		},
+		voice_management: {
+			button: {
+				control_item: ''
+			}
 		}
+	},
+	icon: {
+		end_call: ''
 	}
 };
 type DotNestedKeys<T> = T extends object

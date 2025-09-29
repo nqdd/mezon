@@ -85,7 +85,7 @@ const MemoizedMemberItem = memo((props: MemberClanProps) => {
 			userStatus={
 				<>
 					{userVoiceStatus ? (
-						<span className="flex items-center gap-1">
+						<span className="flex items-center gap-1" data-e2e={generateE2eId('clan_page.secondary_side_bar.member.in_voice')}>
 							<Icons.Speaker className="text-green-500 !w-3 !h-3" />
 							In voice
 						</span>

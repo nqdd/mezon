@@ -19,7 +19,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelThreads, ICategoryChannel, IChannel } from '@mezon/utils';
-import { EPermission, createImgproxyUrl, isLinuxDesktop, isWindowsDesktop, toggleDisableHover, useSyncEffect } from '@mezon/utils';
+import { EPermission, createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, toggleDisableHover, useSyncEffect } from '@mezon/utils';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -391,6 +391,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 										onDragEnter={(e) => handleDragEnter(virtualRow.index, e, `${item.category_id}-${item.id}`)}
 										onDragEnd={() => handleDragEnd(virtualRow.index)}
 										ref={virtualizer.measureElement}
+										data-e2e={generateE2eId('clan_page.channel_list.item')}
 									>
 										<ChannelListItem
 											isActive={currentChannelId === (item as IChannel).channel_id && !(item as IChannel).isFavor}

@@ -3316,7 +3316,15 @@ export function Stream({ defaultFill, defaultSize = 'w-5 h-5' }: IconProps) {
 
 export function EndCall(props: React.HTMLAttributes<SVGElement>) {
 	return (
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" preserveAspectRatio="xMidYMid meet" {...props}>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			width="24"
+			height="24"
+			preserveAspectRatio="xMidYMid meet"
+			{...props}
+			data-e2e={generateE2eId('icon.end_call')}
+		>
 			<defs>
 				<clipPath id="__lottie_element_258">
 					<rect width="24" height="24" x="0" y="0"></rect>
