@@ -99,7 +99,7 @@ export default function SetPassword({
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
-			if (!hasPassword && !oldPassword) {
+			if (hasPassword && !oldPassword) {
 				toast.warn('Please fill current password.');
 				return;
 			}
