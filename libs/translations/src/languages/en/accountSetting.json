@@ -46,7 +46,9 @@
 			"symbol": "Password must contain at least 1 special character",
 			"notEqual": "Confirmation password doesn't match",
 			"samePass": "The new password cannot be the same as the old password",
-			"fillOldPass": "Please fill current password."
+			"fillOldPass": "Please fill current password.",
+			"updateFail": "Could not update your account.",
+			"createFail": "Could not create your password."
 		},
 		"toast": {
 			"success": "Password set successfully",

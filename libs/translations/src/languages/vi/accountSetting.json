@@ -46,7 +46,9 @@
 			"symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
 			"notEqual": "Mật khẩu xác nhận không khớp",
 			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ",
-			"fillOldPass": "Vui lòng nhập mật khẩu hiện tại."
+			"fillOldPass": "Vui lòng nhập mật khẩu hiện tại.",
+			"updateFail": "Cập nhật tài khoản thất bại.",
+			"createFail": "Đặt mật khẩu thất bại."
 		},
 		"notification": {
 			"success": "Đổi mật khẩu thành công",
