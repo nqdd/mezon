@@ -82,6 +82,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 		const timestamp = Date.now() / 1000;
 		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp }));
 		if (directId === currentDmGroupId) {
+			dispatch(directActions.setDmGroupCurrentId(''));
 			navigateToFriends();
 		}
 	};

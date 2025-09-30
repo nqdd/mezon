@@ -601,7 +601,7 @@ export const ChatBoxBottomBar = memo(
 					mode: ''
 				});
 			}
-		}, []);
+		}, [modeKeyBoardBottomSheet]);
 
 		const cancelEphemeralMode = useCallback(() => {
 			setIsEphemeralMode(false);

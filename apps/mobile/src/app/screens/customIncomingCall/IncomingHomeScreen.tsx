@@ -1,12 +1,12 @@
-import { ActionEmitEvent, IS_ANSWER_CALL_FROM_NATIVE, load } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
 import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import * as React from 'react';
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import {
 	BackHandler,
 	DeviceEventEmitter,
@@ -43,6 +43,8 @@ const IncomingHomeScreen = memo((props: any) => {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const [isInCall, setIsInCall] = React.useState(false);
+	const [isForceAnswer, setIsForceAnswer] = React.useState(false);
+	const [isForceDecline, setIsForceDecline] = React.useState(false);
 	const [isInGroupCall, setIsInGroupCall] = React.useState(false);
 	const [dataCalling, setDataCalling] = React.useState<any>();
 	const userId = useSelector(selectCurrentUserId);
@@ -51,8 +53,20 @@ const IncomingHomeScreen = memo((props: any) => {
 	const ringtoneRef = useRef<Sound | null>(null);
 	const { sendSignalingToParticipants } = useSendSignaling();
 	const [dataCallGroup, setDataCallGroup] = React.useState<any>(null);
-	const isForceAnswer = useMemo(() => {
-		return load(IS_ANSWER_CALL_FROM_NATIVE);
+
+	const loadDataInit = async () => {
+		const dataInit = await notifee.getInitialNotification();
+		const pressActionId = dataInit?.pressAction?.id;
+		if (pressActionId === 'accept') {
+			setIsForceAnswer(true);
+		} else if (pressActionId === 'reject') {
+			setIsForceDecline(true);
+		} else {
+			//
+		}
+	};
+	useEffect(() => {
+		loadDataInit();
 	}, []);
 
 	const onKillApp = () => {
@@ -173,6 +187,20 @@ const IncomingHomeScreen = memo((props: any) => {
 			}
 		};
 	}, [isForceAnswer, isInCall, signalingData]);
+
+	useEffect(() => {
+		let timer;
+		if (isForceDecline) {
+			timer = setTimeout(() => {
+				onDeniedCall();
+			}, 1500);
+		}
+		return () => {
+			if (timer) {
+				clearTimeout(timer);
+			}
+		};
+	}, [isForceDecline, signalingData]);
 
 	useEffect(() => {
 		if (props && props?.payload) {
@@ -327,6 +355,11 @@ const IncomingHomeScreen = memo((props: any) => {
 				<View style={styles.wrapperConnecting}>
 					<Bounce size={size.s_80} color="#fff" />
 					<Text style={styles.callerName}>Connecting...</Text>
+				</View>
+			) : isForceDecline && dataCallGroup === null ? (
+				<View style={styles.wrapperConnecting}>
+					<Bounce size={size.s_80} color={baseColor.redStrong} />
+					<Text style={[styles.callerName, { color: baseColor.redStrong }]}>Cancel Call</Text>
 				</View>
 			) : (
 				<View style={styles.buttonContainer}>

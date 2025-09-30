@@ -175,5 +175,8 @@
 				"save": "Lưu"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Cài đặt kênh thoại",
+	"muteVoice": "Tắt tiếng",
+	"kickVoice": "Xóa khỏi kênh thoạị"
 }

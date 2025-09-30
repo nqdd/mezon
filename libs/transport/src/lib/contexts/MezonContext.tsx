@@ -1,8 +1,16 @@
-import { Client, Session, Socket } from 'mezon-js';
+import localStorageMobile from '@react-native-async-storage/async-storage';
+import { Client, safeJSONParse, Session, Socket } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
 import { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
 import React, { useCallback } from 'react';
-import { CreateMezonClientOptions, createClient as createMezonClient } from '../mezon';
+import {
+	createClient as createMezonClient,
+	CreateMezonClientOptions,
+	createIndexerClient as createMezonIndexerClient,
+	createMmnClient as createMezonMmnClient,
+	createZkClient as createMezonZkClient
+} from '../mezon';
 
 const MAX_WEBSOCKET_FAILS = 15;
 const MIN_WEBSOCKET_RETRY_TIME = 1000;
@@ -46,6 +54,11 @@ type Sessionlike = {
 	created_at?: number;
 	username?: string;
 	user_id?: string;
+};
+
+type LocalRefreshSession = {
+	token: string;
+	refresh_token: string;
 };
 
 const saveMezonConfigToStorage = (host: string, port: string, useSSL: boolean) => {
@@ -119,7 +132,13 @@ export type MezonContextValue = {
 	clientRef: React.MutableRefObject<Client | null>;
 	sessionRef: React.MutableRefObject<Session | null>;
 	socketRef: React.MutableRefObject<Socket | null>;
+	zkRef: React.MutableRefObject<ZkClient | null>;
+	mmnRef: React.MutableRefObject<MmnClient | null>;
+	indexerRef: React.MutableRefObject<IndexerClient | null>;
 	createClient: () => Promise<Client>;
+	createZkClient: () => ZkClient;
+	createMmnClient: () => MmnClient;
+	createIndexerClient: () => IndexerClient;
 	authenticateMezon: (token: string, isRemember?: boolean) => Promise<Session>;
 	createQRLogin: () => Promise<ApiLoginIDResponse>;
 	checkLoginRequest: (LoginRequest: ApiConfirmLoginRequest) => Promise<Session | null>;
@@ -141,6 +160,9 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 	const clientRef = React.useRef<Client | null>(null);
 	const sessionRef = React.useRef<Session | null>(null);
 	const socketRef = React.useRef<Socket | null>(null);
+	const zkRef = React.useRef<ZkClient | null>(null);
+	const mmnRef = React.useRef<MmnClient | null>(null);
+	const indexerRef = React.useRef<IndexerClient | null>(null);
 
 	const createSocket = useCallback(async () => {
 		if (!clientRef.current) {
@@ -156,11 +178,51 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		return socket;
 	}, [clientRef, socketRef]);
 
+	const createZkClient = useCallback(() => {
+		const zkClient = createMezonZkClient({
+			endpoint: process.env.NX_CHAT_APP_ZK_API_URL || '',
+			timeout: 30000,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		zkRef.current = zkClient;
+		return zkClient;
+	}, []);
+
+	const createMmnClient = useCallback(() => {
+		const mmnClient = createMezonMmnClient({
+			baseUrl: process.env.NX_CHAT_APP_MMN_API_URL || '',
+			timeout: 30000,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		mmnRef.current = mmnClient;
+		return mmnClient;
+	}, []);
+
+	const createIndexerClient = useCallback(() => {
+		const indexerClient = createMezonIndexerClient({
+			endpoint: process.env.NX_CHAT_APP_INDEXER_API_URL || '',
+			chainId: '1337',
+			timeout: 10000
+		});
+		indexerRef.current = indexerClient;
+		return indexerClient;
+	}, []);
+
 	const createClient = useCallback(async () => {
 		const client = await createMezonClient(mezon);
 		clientRef.current = client;
+
+		// Initialize additional clients
+		createZkClient();
+		createMmnClient();
+		createIndexerClient();
+
 		return client;
-	}, [mezon]);
+	}, [mezon, createZkClient, createMmnClient, createIndexerClient]);
 
 	const createQRLogin = useCallback(async () => {
 		if (!clientRef.current) {
@@ -320,13 +382,39 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		[socketRef]
 	);
 
+	const getLocalRefreshToken = async (): Promise<LocalRefreshSession> => {
+		let mezonRefresh = {
+			token: '',
+			refresh_token: ''
+		};
+		try {
+			if (!isFromMobile) {
+				const storageStr = localStorage.getItem('mezon_refresh_token') || '';
+				mezonRefresh = safeJSONParse(storageStr);
+			} else {
+				const storageStr = (await localStorageMobile.getItem('mezon_refresh_token')) || '';
+				mezonRefresh = safeJSONParse(storageStr);
+			}
+			return mezonRefresh;
+		} catch (e) {
+			return mezonRefresh;
+		}
+	};
+
 	const refreshSession = useCallback(
 		async (session: Sessionlike) => {
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
 			}
 
-			const sessionObj = new Session(session.token, session.refresh_token, session.created, session.api_url, session.is_remember);
+			const localRefresh = await getLocalRefreshToken();
+			const sessionObj = new Session(
+				localRefresh?.token || session?.token,
+				localRefresh?.refresh_token || session?.refresh_token,
+				session.created,
+				session.api_url,
+				session.is_remember
+			);
 
 			if (session.expires_at) {
 				sessionObj.expires_at = session.expires_at;
@@ -346,7 +434,13 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			}
 
 			const newSession = await clientRef.current.sessionRefresh(
-				new Session(session.token, session.refresh_token, session.created, session.api_url, session.is_remember)
+				new Session(
+					localRefresh?.token || session?.token,
+					localRefresh?.refresh_token || session?.refresh_token,
+					session.created,
+					session.api_url,
+					session.is_remember
+				)
 			);
 
 			sessionRef.current = newSession;
@@ -464,7 +558,13 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			clientRef,
 			sessionRef,
 			socketRef,
+			zkRef,
+			mmnRef,
+			indexerRef,
 			createClient,
+			createZkClient,
+			createMmnClient,
+			createIndexerClient,
 			createQRLogin,
 			checkLoginRequest,
 			confirmLoginRequest,
@@ -482,7 +582,13 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			clientRef,
 			sessionRef,
 			socketRef,
+			zkRef,
+			mmnRef,
+			indexerRef,
 			createClient,
+			createZkClient,
+			createMmnClient,
+			createIndexerClient,
 			createQRLogin,
 			checkLoginRequest,
 			confirmLoginRequest,

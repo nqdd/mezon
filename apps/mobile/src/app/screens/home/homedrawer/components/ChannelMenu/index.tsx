@@ -47,8 +47,8 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 	// const { setOpenThreadMessageState } = useReference();
 	const currentClan = useSelector(selectCurrentClan);
 	const dispatch = useAppDispatch();
-	const [isCanManageThread, isCanManageChannel] = usePermissionChecker(
-		[EOverriddenPermission.manageThread, EPermission.manageChannel],
+	const [isCanManageThread, isCanManageChannel, isAdminstrator, isClanOwner] = usePermissionChecker(
+		[EOverriddenPermission.manageThread, EPermission.manageChannel, EPermission.administrator, EPermission.clanOwner],
 		channel?.channel_id ?? ''
 	);
 	const currentSystemMessage = useSelector(selectClanSystemMessage);
@@ -266,18 +266,6 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 			},
 			isShow: channel?.creator_id !== currentUserId
 		},
-		// {
-		// 	title: t('menu.manageThreadMenu.closeThread'),
-		// 	icon: <MezonIconCDN icon={IconCDN.closeSmallBold} color={themeValue.textStrong} />,
-		// 	onPress: () => reserve(),
-		// 	isShow: isCanManageThread
-		// },
-		// {
-		// 	title: t('menu.manageThreadMenu.lockThread'),
-		// 	icon: <MezonIconCDN icon={IconCDN.lockIcon} color={themeValue.textStrong} />,
-		// 	onPress: () => reserve(),
-		// 	isShow: isCanManageThread
-		// },
 		{
 			title: t('menu.manageThreadMenu.editThread'),
 			icon: <MezonIconCDN icon={IconCDN.pencilIcon} color={themeValue.textStrong} />,
@@ -290,7 +278,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 					}
 				});
 			},
-			isShow: channel?.creator_id === currentUserId || isCanManageThread
+			isShow: (channel?.creator_id === currentUserId && isCanManageThread) || isAdminstrator || isClanOwner
 		},
 		{
 			title: t('menu.manageThreadMenu.deleteThread'),
@@ -313,7 +301,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 			textStyle: {
 				color: baseColor.redStrong
 			},
-			isShow: channel?.creator_id === currentUserId || isCanManageThread
+			isShow: (channel?.creator_id === currentUserId && isCanManageThread) || isAdminstrator || isClanOwner
 		}
 	];
 
