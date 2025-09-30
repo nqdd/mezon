@@ -164,10 +164,42 @@ export const DATA_E2E_IDENTIFIER = {
 				}
 			},
 			create_event: {
+				start_modal: '',
 				button_create: '',
 				next: '',
 				upload: {
 					image_cover_input: ''
+				},
+				location: {
+					type: '',
+					channel: {
+						item: ''
+					}
+				},
+				event_info: {
+					input: {
+						event_topic: '',
+						start_date: '',
+						start_time: '',
+						end_date: '',
+						end_time: '',
+						event_frequency: '',
+						description: ''
+					}
+				},
+				review: {
+					type: {
+						clan: '',
+						channel: '',
+						private: ''
+					},
+					start_time: '',
+					event_topic: '',
+					description: '',
+					voice_channel: ''
+				},
+				event_management: {
+					item: ''
 				}
 			}
 		},

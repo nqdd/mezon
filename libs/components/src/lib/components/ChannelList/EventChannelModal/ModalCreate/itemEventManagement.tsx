@@ -12,8 +12,9 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl } from '@mezon/utils';
+import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
+import { ButtonCopy } from 'libs/components/src/lib/components';
 import { ChannelType } from 'mezon-js';
 import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';
@@ -29,7 +30,6 @@ import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
-import { ButtonCopy } from 'libs/components/src/lib/components';
 
 export type ItemEventManagementProps = {
 	reviewDescription?: string;
@@ -230,7 +230,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				<div className="flex justify-between">
 					<div className="flex items-center gap-x-2 mb-4">
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
-						<p className={`font-semibold ${cssEventStatus}`}>
+						<p className={`font-semibold ${cssEventStatus}`} data-e2e={generateE2eId('clan_page.modal.create_event.review.start_time')}>
 							{actualEventStatus.isUpcoming
 								? timeUntilEvent || formatTimeI18n(event?.start_time || start)
 								: actualEventStatus.isOngoing
@@ -238,13 +238,13 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 									: formatTimeI18n(event?.start_time || start)}
 						</p>
 						{isClanEvent && (
-							<p className="bg-blue-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.clanEvent')}</p>
+							<p className="bg-blue-500 text-white rounded-sm px-1 text-center"  data-e2e={generateE2eId('clan_page.modal.create_event.review.type.clan')} >{t('eventCreator:eventDetail.clanEvent')}</p>
 						)}
 						{isChannelEvent && (
-							<p className="bg-orange-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.channelEvent')}</p>
+							<p className="bg-orange-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type.channel')} >{t('eventCreator:eventDetail.channelEvent')}</p>
 						)}
 						{isPrivateEvent && (
-							<p className="bg-red-500 text-white rounded-sm px-1 text-center">{t('eventCreator:eventDetail.privateEvent')}</p>
+							<p className="bg-red-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type.private')} >{t('eventCreator:eventDetail.privateEvent')}</p>
 						)}
 					</div>
 					{event?.creator_id && (
@@ -280,9 +280,9 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 				<div className="flex justify-between gap-4 select-text">
 					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'} `}>
-						<p className="hover:underline font-bold  text-base">{topic}</p>
+						<p className="hover:underline font-bold  text-base" data-e2e={generateE2eId('clan_page.modal.create_event.review.event_topic')}>{topic}</p>
 						<div className="flex justify-between">
-							<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap">
+							<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap" data-e2e={generateE2eId('clan_page.modal.create_event.review.description')}>
 								{isReviewEvent ? reviewDescription : event?.description}
 							</div>
 						</div>
@@ -317,7 +317,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							return (
 								<a {...linkProps} className="flex gap-x-2 cursor-pointer">
 									<Icons.Speaker />
-									<p>{channelVoice?.channel_label}</p>
+									<p data-e2e={generateE2eId('clan_page.modal.create_event.review.voice_channel')}>{channelVoice?.channel_label}</p>
 								</a>
 							);
 						})()}

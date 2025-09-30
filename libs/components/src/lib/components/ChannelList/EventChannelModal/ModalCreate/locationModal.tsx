@@ -3,7 +3,7 @@ import type { ChannelsEntity } from '@mezon/store';
 import { selectTheme } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ContenSubmitEventProps } from '@mezon/utils';
-import { OptionEvent, filterOptionReactSelect } from '@mezon/utils';
+import { OptionEvent, filterOptionReactSelect, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +80,7 @@ const LocationModal = (props: LocationModalProps) => {
 	const options = voicesChannel.map((voice) => ({
 		value: voice.id,
 		label: (
-			<div className="flex items-center gap-x-2 ">
+			<div className="flex items-center gap-x-2 " data-e2e={generateE2eId('clan_page.modal.create_event.location.channel.item')}>
 				{voice.channel_private ? <Icons.SpeakerLocked /> : <Icons.Speaker />}
 				{voice.channel_label}
 			</div>
@@ -158,7 +158,7 @@ const LocationModal = (props: LocationModalProps) => {
 	const memoizedFilterOption = useMemo<FilterOptionType>(() => (option, inputValue) => filterOptionReactSelect(option, inputValue), []);
 
 	return (
-		<div ref={modalRef}>
+		<div ref={modalRef} className="p-6" data-e2e={generateE2eId('clan_page.modal.create_event.location')}>
 			<div className="flex flex-col mb-4">
 				<h3 className="text-xl text-center font-semibold ">{t('screens.eventType.title')}</h3>
 				<p className=" text-center">{t('screens.eventType.subtitle')}</p>
@@ -278,7 +278,9 @@ const TitleOptionEvent = ({
 			<div className={`flex items-center gap-x-2 ${choose ? 'text-theme-primary-active' : ''} `}>
 				{icon}
 				<div>
-					<h4 className={`font-semibold`}>{title}</h4>
+					<h4 className={`font-semibold`} data-e2e={generateE2eId('clan_page.modal.create_event.location.type')}>
+						{title}
+					</h4>
 					<p>{desc}</p>
 				</div>
 			</div>
