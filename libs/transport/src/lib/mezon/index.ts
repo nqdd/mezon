@@ -1,7 +1,8 @@
+import localStorageMobile from '@react-native-async-storage/async-storage';
 import { Client } from 'mezon-js';
 import type { ApiSession } from 'mezon-js/api.gen';
 import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
-import localStorageMobile from '@react-native-async-storage/async-storage';
+import { SESSION_REFRESH_KEY } from '../contexts/MezonContext';
 
 export type CreateMezonClientOptions = {
 	ssl: boolean;
@@ -63,9 +64,9 @@ export function createClient(options: CreateMezonClientOptions) {
 
 	client.onRefreshSession = (session: ApiSession) => {
 		try {
-			localStorage.setItem('mezon_refresh_token', JSON.stringify(session));
+			localStorage.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
 		} catch (e) {
-			localStorageMobile.setItem('mezon_refresh_token', JSON.stringify(session));
+			localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
 		}
 	};
 
