@@ -15,10 +15,8 @@ const NotificationWebhookClan = ({ notify, onLongPressNotify }: NotifyProps) => 
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const unixTimestamp = useMemo(() => {
-		return notify?.content?.create_time_seconds
-			? notify?.content?.create_time_seconds
-			: Math.floor(new Date(notify?.content?.create_time || notify?.create_time).getTime() / 1000);
-	}, [notify?.content?.create_time, notify?.content?.create_time_seconds, notify?.create_time]);
+		return notify?.content?.create_time_seconds || Math.floor(new Date(notify?.create_time).getTime() / 1000);
+	}, [notify?.content?.create_time_seconds, notify?.create_time]);
 	const messageTimeDifference = convertTimestampToTimeAgo(unixTimestamp);
 	const data = parseObject(notify?.content);
 
