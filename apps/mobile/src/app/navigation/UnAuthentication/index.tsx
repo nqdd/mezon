@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { selectIsShowWelcomeMobile } from '@mezon/store-mobile';
+import { selectCurrentLanguage, selectIsShowWelcomeMobile, useAppSelector } from '@mezon/store-mobile';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useCheckUpdatedVersion } from '../../hooks/useCheckUpdatedVersion';
@@ -16,6 +17,14 @@ const Stack = createNativeStackNavigator();
 export const UnAuthentication = () => {
 	useCheckUpdatedVersion();
 	const isShowWelcome = useSelector(selectIsShowWelcomeMobile);
+	const currentLanguage = useAppSelector(selectCurrentLanguage);
+	const { i18n } = useTranslation();
+
+	useEffect(() => {
+		if (i18n.language !== currentLanguage) {
+			i18n.changeLanguage(currentLanguage);
+		}
+	}, [currentLanguage, i18n]);
 
 	return (
 		<Stack.Navigator
