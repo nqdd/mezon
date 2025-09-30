@@ -298,7 +298,7 @@ export const voiceSlice = createSlice({
 				(state: VoiceState, action: PayloadAction<{ users: ApiVoiceChannelUser[]; clanId: string }>) => {
 					state.loadingStatus = 'loaded';
 					const { users, clanId } = action.payload;
-
+					state.listInVoiceStatus = {};
 					const members: VoiceEntity[] = users.map((channelRes) => {
 						if (channelRes.user_id && channelRes?.id) {
 							state.listInVoiceStatus[channelRes.user_id] = channelRes.id;
