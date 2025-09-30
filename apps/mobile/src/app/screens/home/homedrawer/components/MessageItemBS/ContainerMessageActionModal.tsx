@@ -9,6 +9,7 @@ import {
 	channelMetaActions,
 	clansActions,
 	directActions,
+	directMetaActions,
 	getStore,
 	giveCoffeeActions,
 	messagesActions,
@@ -401,23 +402,27 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	};
 
 	const handleMarkUnread = async () => {
+		const payloadSetLastSeenTimestamp = {
+			channelId: message?.channel_id || '',
+			timestamp: 1
+		};
 		try {
 			await dispatch(
 				messagesActions.updateLastSeenMessage({
 					clanId: message?.clan_id || '',
-					channelId: message?.channel_id,
-					messageId: message?.id,
+					channelId: message?.channel_id || '',
+					messageId: message?.id || '',
 					mode: message?.mode || 0,
 					badge_count: 0,
-					message_time: message.create_time_seconds
+					message_time: 1
 				})
 			);
-			dispatch(
-				channelMetaActions.setChannelLastSeenTimestamp({
-					channelId: message?.channel_id as string,
-					timestamp: message.create_time_seconds || Date.now()
-				})
-			);
+			if (message?.clan_id === '0') {
+				dispatch(directMetaActions.setDirectLastSeenTimestamp(payloadSetLastSeenTimestamp));
+			} else {
+				dispatch(channelMetaActions.setChannelLastSeenTimestamp(payloadSetLastSeenTimestamp));
+			}
+
 			Toast.show({
 				type: 'success',
 				props: {
@@ -697,7 +702,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const mediaList =
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
-				message?.content?.embed?.some((embed) => embed?.image)
+			message?.content?.embed?.some((embed) => embed?.image)
 				? []
 				: [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink];
 
