@@ -5,6 +5,8 @@ import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ApiUpdateClanProfileRequest } from 'mezon-js';
 import type { ApiClanProfile } from 'mezon-js/api.gen';
+import { accountActions } from '../account/account.slice';
+import { setUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
 import { ensureClient, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
 export const USER_CLAN_PROFILE_FEATURE_KEY = 'userClanProfile';
@@ -100,6 +102,11 @@ export const updateUserClanProfile = createAsyncThunk(
 						}
 					})
 				);
+
+				if (avatarUrl && currentUser?.user?.id) {
+					setUserClanAvatarOverride(currentUser.user.id, clanId, avatarUrl);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
 
 				thunkAPI.dispatch(fetchUserClanProfile({ clanId }));
 			}
