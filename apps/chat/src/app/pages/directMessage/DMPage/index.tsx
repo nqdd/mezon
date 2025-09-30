@@ -185,7 +185,7 @@ const DirectMessage = () => {
 			return blockListUser?.some((user) => user?.user && user.user.id === (currentDmGroup?.user_id?.[0] || ''));
 		}
 		return false;
-	}, [currentDmGroup.type, currentDmGroup?.user_id]);
+	}, [currentDmGroup?.type, currentDmGroup?.user_id]);
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const handleClose = useCallback(() => {}, []);

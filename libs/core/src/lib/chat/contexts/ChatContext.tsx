@@ -1454,6 +1454,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					})
 				);
 			}
+
+			//Leave Room If It's been deleted
+			const isVoiceJoined = selectVoiceInfo(store.getState());
+			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
+				dispatch(voiceActions.resetVoiceControl());
+			}
 		},
 		[userId]
 	);
