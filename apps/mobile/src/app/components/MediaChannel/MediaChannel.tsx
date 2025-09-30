@@ -36,7 +36,7 @@ const ITEMS_PER_ROW = 3;
 const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 	const widthScreen = Dimensions.get('screen').width;
 	const widthImage = useMemo(() => {
-		return (widthScreen - size.s_40) / MAX_COLUMNS;
+		return (widthScreen - size.s_42) / MAX_COLUMNS;
 	}, [widthScreen]);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, widthImage);
@@ -259,7 +259,10 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 					windowSize={12}
 					removeClippedSubviews={true}
 					onEndReached={handleEndReached}
-					onEndReachedThreshold={0.5}
+					onEndReachedThreshold={0.3}
+					disableIntervalMomentum={true}
+					scrollEventThrottle={16}
+					disableVirtualization={true}
 					getItemLayout={getItemLayout}
 					onViewableItemsChanged={onViewableItemsChanged}
 					viewabilityConfig={viewabilityConfig}
