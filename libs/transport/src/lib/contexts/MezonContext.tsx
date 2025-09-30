@@ -18,6 +18,7 @@ const MAX_WEBSOCKET_RETRY_TIME = 30000;
 const JITTER_RANGE = 1000;
 const FAST_RETRY_ATTEMPTS = 5;
 export const SESSION_STORAGE_KEY = 'mezon_session';
+export const SESSION_REFRESH_KEY = 'mezon_refresh_session';
 
 const waitForNetworkAndDelay = async (delayMs: number): Promise<void> => {
 	if (!navigator.onLine) {
@@ -81,6 +82,15 @@ export const clearSessionFromStorage = () => {
 		localStorage.removeItem(SESSION_STORAGE_KEY);
 	} catch (error) {
 		console.error('Failed to clear session from local storage:', error);
+	}
+};
+
+export const clearSessionRefreshFromStorage = () => {
+	try {
+		localStorage.removeItem(SESSION_STORAGE_KEY);
+	} catch (error) {
+		console.error('Failed to clear session from local storage:', error);
+		localStorageMobile.removeItem(SESSION_REFRESH_KEY);
 	}
 };
 
@@ -351,6 +361,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 
 	const logOutMezon = useCallback(
 		async (device_id?: string, platform?: string, clearSession?: boolean) => {
+			clearSessionRefreshFromStorage();
 			if (socketRef.current) {
 				socketRef.current.ondisconnect = () => {
 					//console.log('loged out');
@@ -389,10 +400,10 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		};
 		try {
 			if (!isFromMobile) {
-				const storageStr = localStorage.getItem('mezon_refresh_token') || '';
+				const storageStr = localStorage.getItem(SESSION_REFRESH_KEY) || '';
 				mezonRefresh = safeJSONParse(storageStr);
 			} else {
-				const storageStr = (await localStorageMobile.getItem('mezon_refresh_token')) || '';
+				const storageStr = (await localStorageMobile.getItem(SESSION_REFRESH_KEY)) || '';
 				mezonRefresh = safeJSONParse(storageStr);
 			}
 			return mezonRefresh;
