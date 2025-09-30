@@ -21,5 +21,4 @@ export { default as useShowTransition } from './useShowTransition';
 export * from './useSignal';
 export * from './useStateRef';
 export * from './useSyncEffect';
-export * from './useWallet';
 export * from './useWindowSize';

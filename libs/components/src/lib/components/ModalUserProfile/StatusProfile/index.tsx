@@ -10,12 +10,13 @@ import {
 	selectOthersSession,
 	selectUserStatus,
 	useAppDispatch,
+	useWallet,
 	userClanProfileActions,
 	userStatusActions
 } from '@mezon/store';
 import { createClient as createMezonClient, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
-import { CURRENCY, EUserStatus, formatBalanceToString, useWallet } from '@mezon/utils';
+import { CURRENCY, EUserStatus, formatBalanceToString } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { Session } from 'mezon-js';
 import type { ReactElement, ReactNode } from 'react';
