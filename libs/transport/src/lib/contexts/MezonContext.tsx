@@ -1,11 +1,12 @@
-import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
-import { Client, Session, Socket } from 'mezon-js';
+import localStorageMobile from '@react-native-async-storage/async-storage';
+import { Client, safeJSONParse, Session, Socket } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
 import { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
 import React, { useCallback } from 'react';
 import {
-	CreateMezonClientOptions,
 	createClient as createMezonClient,
+	CreateMezonClientOptions,
 	createIndexerClient as createMezonIndexerClient,
 	createMmnClient as createMezonMmnClient,
 	createZkClient as createMezonZkClient
@@ -53,6 +54,11 @@ type Sessionlike = {
 	created_at?: number;
 	username?: string;
 	user_id?: string;
+};
+
+type LocalRefreshSession = {
+	token: string;
+	refresh_token: string;
 };
 
 const saveMezonConfigToStorage = (host: string, port: string, useSSL: boolean) => {
@@ -376,13 +382,39 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		[socketRef]
 	);
 
+	const getLocalRefreshToken = async (): Promise<LocalRefreshSession> => {
+		let mezonRefresh = {
+			token: '',
+			refresh_token: ''
+		};
+		try {
+			if (!isFromMobile) {
+				const storageStr = localStorage.getItem('mezon_refresh_token') || '';
+				mezonRefresh = safeJSONParse(storageStr);
+			} else {
+				const storageStr = (await localStorageMobile.getItem('mezon_refresh_token')) || '';
+				mezonRefresh = safeJSONParse(storageStr);
+			}
+			return mezonRefresh;
+		} catch (e) {
+			return mezonRefresh;
+		}
+	};
+
 	const refreshSession = useCallback(
 		async (session: Sessionlike) => {
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
 			}
 
-			const sessionObj = new Session(session.token, session.refresh_token, session.created, session.api_url, session.is_remember);
+			const localRefresh = await getLocalRefreshToken();
+			const sessionObj = new Session(
+				localRefresh?.token || session?.token,
+				localRefresh?.refresh_token || session?.refresh_token,
+				session.created,
+				session.api_url,
+				session.is_remember
+			);
 
 			if (session.expires_at) {
 				sessionObj.expires_at = session.expires_at;
