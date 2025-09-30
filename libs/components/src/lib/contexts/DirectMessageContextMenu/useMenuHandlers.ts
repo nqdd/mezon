@@ -90,6 +90,7 @@ export function useMenuHandlers({ userProfile, hasKeyE2ee, directId }: UseMenuHa
 			}
 
 			if (directId === channelId) {
+				dispatch(directActions.setDmGroupCurrentId(''));
 				navigate('/chat/direct/friends');
 			}
 

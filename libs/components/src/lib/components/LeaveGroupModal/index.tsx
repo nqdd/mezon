@@ -35,6 +35,7 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 			const timestamp = Date.now() / 1000;
 			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: groupWillBeLeave.channel_id, timestamp }));
 			if (groupWillBeLeave.channel_id === currentDmGroupId) {
+				dispatch(directActions.setDmGroupCurrentId(''));
 				navigateToFriends();
 			}
 		}
