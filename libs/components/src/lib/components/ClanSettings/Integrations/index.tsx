@@ -1,6 +1,6 @@
 import { selectAllClanWebhooks, selectWebhooksByChannelId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -55,7 +55,7 @@ const Integrations = ({ currentChannel, isClanSetting }: IIntegrationsProps) => 
 				<ClanWebhooks allClanWebhooks={allClanWebhooks} />
 			) : (
 				<div>
-					<MainIntegrations allWebhooks={allWebhooks} setIsOpenWebhooks={() => setIsOpenWebhooks(true)} />
+					{currentChannel && <MainIntegrations allWebhooks={allWebhooks} setIsOpenWebhooks={() => setIsOpenWebhooks(true)} />}
 					{isClanSetting && (
 						<MainClanIntegrations allClanWebhooks={allClanWebhooks} setIsOpenClanWebhooks={() => setIsOpenClanWebhooks(true)} />
 					)}
