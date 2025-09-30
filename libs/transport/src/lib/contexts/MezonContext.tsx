@@ -434,7 +434,13 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			}
 
 			const newSession = await clientRef.current.sessionRefresh(
-				new Session(session.token, session.refresh_token, session.created, session.api_url, session.is_remember)
+				new Session(
+					localRefresh?.token || session?.token,
+					localRefresh?.refresh_token || session?.refresh_token,
+					session.created,
+					session.api_url,
+					session.is_remember
+				)
 			);
 
 			sessionRef.current = newSession;
