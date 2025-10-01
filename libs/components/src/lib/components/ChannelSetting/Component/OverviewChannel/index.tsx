@@ -255,9 +255,9 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 
 	const hideInactivityTimes = useMemo(
 		() => [
-			t('fields.channelHideInactivity._1hour'),
-			t('fields.channelHideInactivity._24hours'),
-			t('fields.channelHideInactivity._3days'),
+			//t('fields.channelHideInactivity._1hour'),
+			//t('fields.channelHideInactivity._24hours'),
+			//t('fields.channelHideInactivity._3days'),
 			t('fields.channelHideInactivity._1Week')
 		],
 		[t]
