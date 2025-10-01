@@ -264,7 +264,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	);
 
 	const [slowModeDropdown, setSlowDropdown] = useState(() => slowModeValues[0]);
-	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[2]);
+	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[0]);
 
 	// Update dropdown values when translations change
 	useEffect(() => {
@@ -272,7 +272,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	}, [slowModeValues]);
 
 	useEffect(() => {
-		setHideTimeDropdown(hideInactivityTimes[2]);
+		setHideTimeDropdown(hideInactivityTimes[0]);
 	}, [hideInactivityTimes]);
 
 	const hasChange = useMemo(() => {
