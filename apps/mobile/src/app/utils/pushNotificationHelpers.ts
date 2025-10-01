@@ -10,6 +10,7 @@ import {
 	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
+import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import {
 	AndroidBadgeIconType,
@@ -400,11 +401,12 @@ export const isShowNotification = (
 		const areOnChannel = currentChannelId === channelMessageId;
 		const areOnDirectMessage = currentDmId === directMessageId;
 		const isOntopicDiscussion = topicMessageId && topicMessageId !== '0';
+		const areOncurrentTopic = currentTopicId && currentTopicId === topicMessageId;
 		const isViewingChannel = !!options?.isViewingChannel;
 		const isViewingDirectMessage = !!options?.isViewingDirectMessage;
 		const isViewingtopicDiscussion = !!currentTopicId;
 
-		if (!isViewingChannel && isViewingtopicDiscussion && areOnChannel && isOntopicDiscussion) return false;
+		if (!isViewingChannel && isViewingtopicDiscussion && areOnChannel && isOntopicDiscussion && areOncurrentTopic) return false;
 
 		// If currently viewing DM but notification is for a channel the user has open in background
 		if (areOnChannel && currentDmId) return true;
@@ -525,6 +527,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 
 const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId: string, navigation: any) => {
 	const promises = [];
+	await sleep(100);
 	promises.push(store.dispatch(topicsActions.setCurrentTopicInitMessage(null)));
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
 	promises.push(store.dispatch(topicsActions.setIsShowCreateTopic(true)));

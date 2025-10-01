@@ -447,12 +447,6 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 					}}
 				/>
 			</GroupPanels>
-			{channel.type === typeChannel.voice && (
-				<GroupPanels>
-					<ItemPanel children={t('menu.organizationMenu.openChat')} />
-					<ItemPanel children={t('menu.organizationMenu.hideNames')} type="checkbox" />
-				</GroupPanels>
-			)}
 			{channel.parent_id === '0' || !channel.parent_id ? (
 				<>
 					<GroupPanels>
