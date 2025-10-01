@@ -2,12 +2,11 @@ import { captureSentryError } from '@mezon/logger';
 import { IEmojiRecent, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
 import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { ApiClanEmoji } from 'mezon-js/dist/api.gen';
-import { ETransferType } from 'mmn-client-js';
+import { AddTxResponse, ETransferType } from 'mmn-client-js';
 import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
 import { RootState } from '../store';
-import { toastActions } from '../toasts';
-import { selectEphemeralKeyPair, selectZkProofs } from '../wallet/wallet.slice';
+import { walletActions } from '../wallet/wallet.slice';
 import { selectAllEmojiSuggestion } from './emojiSuggestion.slice';
 
 export const EMOJI_RECENT_FEATURE_KEY = 'emojiRecent';
@@ -95,55 +94,24 @@ const buyItemForSale = createAsyncThunk(
 		thunkAPI
 	) => {
 		try {
-			const zkProofs = selectZkProofs(thunkAPI.getState() as any);
-			const ephemeralKeyPair = selectEphemeralKeyPair(thunkAPI.getState() as any);
-			if (!senderId || !zkProofs || !ephemeralKeyPair) {
-				thunkAPI.dispatch(
-					toastActions.addToast({
-						message: 'Wallet not available. Please enable wallet.',
-						type: 'error'
+			const response = await thunkAPI
+				.dispatch(
+					walletActions.sendTransaction({
+						sender: senderId,
+						recipient: creatorId,
+						amount: DEFAULT_EMOJI_PRICE,
+						textData: 'unlock item',
+						extraInfo: {
+							type: ETransferType.UnlockItem,
+							UserReceiverId: creatorId || '',
+							UserSenderId: senderId ?? '',
+							UserSenderUsername: username || '',
+							ItemType: type?.toString() ?? '',
+							ItemId: id
+						}
 					})
-				);
-				return thunkAPI.rejectWithValue('Wallet not available');
-			}
-
-			if (!creatorId) {
-				thunkAPI.dispatch(
-					toastActions.addToast({
-						message: 'Creator address unavailable. Try again later.',
-						type: 'error'
-					})
-				);
-				return thunkAPI.rejectWithValue('Creator address unavailable');
-			}
-
-			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			if (!mezon.mmnClient) {
-				return thunkAPI.rejectWithValue('MmnClient not initialized');
-			}
-
-			const currentNonce = await mezon.mmnClient.getCurrentNonce(senderId, 'pending');
-
-			const response = await mezon.mmnClient.sendTransaction({
-				sender: senderId,
-				recipient: creatorId,
-				amount: mezon.mmnClient.scaleAmountToDecimals(DEFAULT_EMOJI_PRICE),
-				nonce: currentNonce.nonce + 1,
-				textData: 'unlock item',
-				extraInfo: {
-					type: ETransferType.UnlockItem,
-					UserReceiverId: creatorId || '',
-					UserSenderId: senderId ?? '',
-					UserSenderUsername: username || '',
-					ItemType: type?.toString() ?? '',
-					ItemId: id
-				},
-				publicKey: ephemeralKeyPair.publicKey,
-				privateKey: ephemeralKeyPair.privateKey,
-				zkProof: zkProofs.proof,
-				zkPub: zkProofs.public_input
-			});
-
+				)
+				.then((action) => action?.payload as AddTxResponse);
 			if (response.ok) {
 				thunkAPI.dispatch(emojiRecentActions.addPendingUnlock({ emojiId: id ?? '' }));
 			}

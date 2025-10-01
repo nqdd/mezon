@@ -6,6 +6,7 @@ import type { Session } from 'mezon-js';
 import { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
 import { clearApiCallTracker } from '../cache-metadata';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
+import { walletActions } from '../wallet/wallet.slice';
 export const AUTH_FEATURE_KEY = 'auth';
 
 export interface AuthState {
@@ -170,6 +171,7 @@ export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platfo
 	const sessionState = selectOthersSession(thunkAPI.getState() as unknown as { [AUTH_FEATURE_KEY]: AuthState });
 	await mezon?.logOutMezon(device_id, platform, !sessionState);
 	thunkAPI.dispatch(authActions.setLogout());
+	thunkAPI.dispatch(walletActions.setLogout());
 	clearApiCallTracker();
 	const restoreKey = [
 		'persist:apps',

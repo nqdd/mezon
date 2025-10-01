@@ -9,6 +9,7 @@ import {
 	giveCoffeeActions,
 	selectOthersSession,
 	selectUserStatus,
+	selectZkProofs,
 	useAppDispatch,
 	userClanProfileActions,
 	userStatusActions
@@ -50,6 +51,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	const { userProfile } = useAuth();
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 
+	const zkProofs = useSelector(selectZkProofs);
 	const { isEnableWallet, walletDetail, enableWallet, fetchWalletData } = useWallet();
 
 	useEffect(() => {
@@ -67,9 +69,15 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		setIsShowModalHistory(false);
 	};
 
-	const handleEnableWallet = () => {
+	const handleEnableWallet = useCallback(() => {
 		enableWallet();
-	};
+	}, [enableWallet]);
+
+	useEffect(() => {
+		if (isEnableWallet && !zkProofs) {
+			handleEnableWallet();
+		}
+	}, [isEnableWallet, zkProofs, handleEnableWallet]);
 
 	const statusIcon = (status: string): ReactNode => {
 		switch (status) {
@@ -252,6 +260,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					</div>
 				</Menu>
 			</div>
+
 			<div className="w-full border-b-theme-primary opacity-70 text-center"></div>
 			{isElectron() && (
 				<Menu
