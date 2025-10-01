@@ -149,6 +149,18 @@ export const sendRequestAddFriend = createAsyncThunk(
 			.then((data) => {
 				if (data) {
 					if (!isAcceptingRequest) {
+						thunkAPI.dispatch(
+							friendsActions.upsertFriend({
+								id: ids?.[0] || '',
+								key: `${ids?.[0]}_${currentUserId}`,
+								source_id: currentUserId,
+								state: EStateFriend.OTHER_PENDING,
+								user: {
+									username: usernames?.[0],
+									id: ids?.[0]
+								}
+							})
+						);
 						toast.success(i18n.t('friends:toast.sendAddFriendSuccess'));
 					} else {
 						thunkAPI.dispatch(friendsActions.acceptFriend(`${ids?.[0]}_${currentUserId}`));
@@ -195,8 +207,11 @@ export const sendRequestUnblockFriend = createAsyncThunk(
 export const upsertFriendRequest = createAsyncThunk(
 	'friends/upsertFriendRequest',
 	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
+		const state = thunkAPI.getState() as RootState;
+		const currentFriend = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
+
 		const friend: IFriend = {
-			state: EStateFriend.MY_PENDING,
+			state: currentFriend ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
 			id: user.user_id,
 			key: `${user.user_id}_${myId}`,
 			source_id: myId,
