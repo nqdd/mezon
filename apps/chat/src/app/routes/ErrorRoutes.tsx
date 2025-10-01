@@ -11,6 +11,7 @@ const ErrorRoutes = () => {
 		restoreLocalStorage([
 			'persist:auth',
 			'mezon_session',
+			'mezon_refresh_session',
 			'persist:apps',
 			'persist:categories',
 			'persist:clans',

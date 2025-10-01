@@ -2,6 +2,7 @@ import { captureSentryError } from '@mezon/logger';
 import type { IUserAccount, LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
 import { safeJSONParse } from 'mezon-js';
 import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
@@ -24,13 +25,15 @@ export interface AccountState {
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
 	cache?: CacheMetadata;
+	avatarVersion: number;
 }
 
 export const initialAccountState: AccountState = {
 	loadingStatus: 'not loaded',
 	account: null,
 	userProfile: null,
-	anonymousMode: false
+	anonymousMode: false,
+	avatarVersion: 0
 };
 
 export const fetchUserProfileCached = async (getState: () => RootState, mezon: MezonValueContext, noCache = false) => {
@@ -122,7 +125,7 @@ export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: 
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'account/verifyPhone');
-		return thunkAPI.rejectWithValue(error);
+		toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
 	}
 });
 
@@ -193,6 +196,9 @@ export const accountSlice = createSlice({
 				user: { ...state.userProfile?.user, ...action.payload.user },
 				encrypt_private_key: action.payload.encrypt_private_key
 			};
+		},
+		incrementAvatarVersion(state) {
+			state.avatarVersion = (state.avatarVersion || 0) + 1;
 		}
 	},
 	extraReducers: (builder) => {
@@ -238,3 +244,5 @@ export const selectAccountMetadata = createSelector(getAccountState, (state: Acc
 export const selectAccountCustomStatus = createSelector(selectAccountMetadata, (metadata) => metadata?.status || '');
 
 export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
+
+export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);

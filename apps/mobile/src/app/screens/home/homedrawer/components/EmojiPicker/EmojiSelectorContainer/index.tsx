@@ -31,7 +31,6 @@ export default function EmojiSelectorContainer({
 }: EmojiSelectorContainerProps) {
 	const store = getStore();
 	const { categoryEmoji, categoriesEmoji, emojis } = useEmojiSuggestionContext();
-	console.log("log => categoryEmoji: ", categoryEmoji);
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue);
 	const [emojisSearch, setEmojiSearch] = useState<IEmoji[]>();

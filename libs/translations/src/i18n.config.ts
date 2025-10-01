@@ -70,7 +70,7 @@ i18n.use(Backend)
 			lookupLocalStorage: 'i18nextLng',
 			caches: ['localStorage']
 		},
-		debug: true,
+		debug: false,
 		interpolation: {
 			escapeValue: false
 		},

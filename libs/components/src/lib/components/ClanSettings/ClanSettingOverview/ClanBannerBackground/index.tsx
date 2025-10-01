@@ -86,12 +86,12 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 					{t('clanBanner.uploadBackground')}
 				</button>
 			</div>
-			<div className="flex flex-1 sbm:mb-0 mb-5 bg-theme-setting-nav border-theme-primary rounded-lg">
-				<div className="relative max-w-[320px] w-full h-[180px]">
+			<div className="flex flex-1 sbm:mb-0 mb-5 bg-theme-setting-nav border-theme-primary rounded-lg overflow-hidden">
+				<div className="relative w-full h-[180px]">
 					<label>
 						<div
 							style={{ backgroundImage: `url(${urlImage})` }}
-							className={`bg-cover bg-no-repeat bg-center w-full h-full rounded relative cursor-pointer`}
+							className={`bg-cover bg-no-repeat bg-center w-full h-full rounded-lg relative cursor-pointer`}
 						>
 							{!urlImage && <p className="text-xl font-semibold text-center pt-[25%]">{t('clanBanner.chooseImage')}</p>}
 						</div>

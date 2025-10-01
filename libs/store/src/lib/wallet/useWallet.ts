@@ -1,6 +1,6 @@
-import { selectAllAccount, selectIsEnabledWallet, selectSession, selectWalletDetail, useAppDispatch, walletActions } from '@mezon/store';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { selectAllAccount, selectIsEnabledWallet, selectSession, selectWalletDetail, useAppDispatch, walletActions } from '../..';
 
 export function useWallet() {
 	const dispatch = useAppDispatch();
@@ -22,10 +22,10 @@ export function useWallet() {
 		const userId = userProfile?.user?.id || '';
 		if (sessionUser?.token && userId) {
 			await dispatch(walletActions.fetchEphemeralKeyPair());
-			await dispatch(walletActions.fetchAddress({ userId: userId }));
+			await dispatch(walletActions.fetchAddress({ userId }));
 
 			const proofInput = {
-				userId: userId,
+				userId,
 				jwt: sessionUser?.token
 			};
 

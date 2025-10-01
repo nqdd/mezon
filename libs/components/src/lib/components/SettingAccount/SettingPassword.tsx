@@ -136,14 +136,6 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 
 				<form onSubmit={handleSubmit}>
 					<div className="space-y-4 p-6">
-						{hasPassword && (
-							<PasswordInput
-								id="current-password"
-								label={t('setPasswordAccount.currentPassword')}
-								value={oldPassword}
-								onChange={handleCurrentPassword}
-							/>
-						)}
 						<div className="space-y-2">
 							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
 								{t('setPasswordAccount.email')}
@@ -159,8 +151,15 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 								autoComplete="off"
 							/>
 							{errors.email && <FormError message={errors.email} />}
-						</div>
-
+						</div>{' '}
+						{hasPassword && (
+							<PasswordInput
+								id="current-password"
+								label={t('setPasswordAccount.currentPassword')}
+								value={oldPassword}
+								onChange={handleCurrentPassword}
+							/>
+						)}
 						<div className="space-y-2">
 							<PasswordInput
 								id="password"
@@ -171,7 +170,6 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 							/>
 							<p className="text-sm text-gray-500 mt-2 dark:text-gray-400">{t('setPasswordAccount.description')}</p>
 						</div>
-
 						<PasswordInput
 							id="confirmPassword"
 							label={t('setPasswordAccount.confirmPassword')}

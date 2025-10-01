@@ -1,4 +1,4 @@
-import { useAppParams } from '@mezon/core';
+import { useAppNavigation, useAppParams } from '@mezon/core';
 import type { ChannelMembersEntity, RootState } from '@mezon/store';
 import {
 	EStateFriend,
@@ -19,6 +19,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Menu, Submenu, useContextMenu } from 'react-contexify';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import LeaveGroupModal from '../../components/LeaveGroupModal';
 import ModalEditGroup from '../../components/ModalEditGroup';
 import ItemPanelMember from '../../components/PanelMember/ItemPanelMember';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
@@ -43,11 +44,13 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const { t } = useTranslation('directMessage');
 	const [currentUser, setCurrentUser] = useState<ChannelMembersEntity | any>(null);
 	const [currentHandlers, setCurrentHandlers] = useState<DirectMessageContextMenuHandlers | null>(null);
+	const [isLeaveGroupModalOpen, setIsLeaveGroupModalOpen] = useState(false);
 	const dispatch = useAppDispatch();
 
 	const userProfile = useSelector(selectAllAccount);
 	const hasKeyE2ee = useAppSelector(selectHasKeyE2ee);
 	const { directId } = useAppParams();
+	const { navigate } = useAppNavigation();
 	const { show } = useContextMenu({ id: contextMenuId });
 
 	const getChannelId = currentUser?.channelId || currentUser?.channel_id;
@@ -71,6 +74,14 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		currentGroupName: currentUser?.channel_label || 'Group',
 		currentAvatar: currentUser?.topic || ''
 	});
+
+	const openLeaveGroupModal = useCallback(() => {
+		setIsLeaveGroupModalOpen(true);
+	}, []);
+
+	const closeLeaveGroupModal = useCallback(() => {
+		setIsLeaveGroupModalOpen(false);
+	}, []);
 
 	useEffect(() => {
 		if (currentUser?.channel_id) {
@@ -125,7 +136,8 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		handleLeaveDmGroup,
 		blockFriend,
 		unBlockFriend,
-		openEditGroupModal: editGroupModal.openEditModal
+		openEditGroupModal: editGroupModal.openEditModal,
+		openLeaveGroupModal
 	});
 
 	const { showContextMenu } = useContextMenuHandlers({
@@ -309,6 +321,17 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 				isLoading={updateDmGroupLoading}
 				error={updateDmGroupError}
 			/>
+
+			{isLeaveGroupModalOpen && currentUser && (
+				<LeaveGroupModal
+					onClose={closeLeaveGroupModal}
+					groupWillBeLeave={currentUser}
+					navigateToFriends={() => {
+						dispatch(directActions.setDmGroupCurrentId(''));
+						navigate('/chat/direct/friends');
+					}}
+				/>
+			)}
 		</DirectMessageContextMenuContext.Provider>
 	);
 };

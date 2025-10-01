@@ -56,7 +56,7 @@ const RoomViewListener = memo(
 		}, [dispatch, isShowPreCallInterface, participants?.length]);
 
 		useEffect(() => {
-			if (focusedScreenShare) {
+			if (focusedScreenShare && participants?.length > 1) {
 				const focusedParticipant = participants.find((p) => p.identity === focusedScreenShare?.participant?.identity);
 
 				if (!focusedParticipant?.isScreenShareEnabled) {
@@ -71,6 +71,8 @@ const RoomViewListener = memo(
 					return t('disconnectModal.content.removed');
 				case DisconnectReason.DUPLICATE_IDENTITY:
 					return t('disconnectModal.content.duplicate');
+				case DisconnectReason.ROOM_DELETED:
+					return t('disconnectModal.content.deleted');
 				default:
 					return t('disconnectModal.content.default');
 			}
@@ -78,7 +80,11 @@ const RoomViewListener = memo(
 
 		const handleDisconnected = useCallback(
 			async (reason?: DisconnectReason) => {
-				if (reason === DisconnectReason.PARTICIPANT_REMOVED || reason === DisconnectReason.DUPLICATE_IDENTITY) {
+				if (
+					reason === DisconnectReason.PARTICIPANT_REMOVED ||
+					reason === DisconnectReason.DUPLICATE_IDENTITY ||
+					reason === DisconnectReason.ROOM_DELETED
+				) {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
 						isEndCall: true,
 						clanId,
@@ -177,7 +183,7 @@ const RoomView = ({
 		return (
 			<View style={{ width: '100%', flex: 1, alignItems: 'center' }}>
 				<View style={{ height: '100%', width: '100%' }}>
-					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)}>
+					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)} allowPinchPanning={false}>
 						<View style={{ height: '100%', width: marginWidth }}>
 							<VideoTrack
 								trackRef={focusedScreenShare}
@@ -210,6 +216,13 @@ const RoomView = ({
 					clanId={clanId}
 					isGroupCall={isGroupCall}
 				/>
+				<RoomViewListener
+					isShowPreCallInterface={isShowPreCallInterface}
+					focusedScreenShare={focusedScreenShare}
+					setFocusedScreenShare={setFocusedScreenShareProp}
+					channelId={channelId}
+					clanId={clanId}
+				/>
 			</View>
 		);
 	}
@@ -224,6 +237,7 @@ const RoomView = ({
 					activeSoundReactions={activeSoundReactions}
 					isGroupCall={isGroupCall}
 					clanId={clanId}
+					channelId={channelId}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (

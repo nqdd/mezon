@@ -1,11 +1,10 @@
 import { Attributes, size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			paddingHorizontal: 20,
-			backgroundColor: colors.primary
+			paddingHorizontal: size.s_20
 		},
 		description: {
 			fontSize: size.s_12,
@@ -18,4 +17,16 @@ export const style = (colors: Attributes) =>
 			color: colors.textLink,
 			fontWeight: '400'
 		},
+		headerWrapper: {
+			paddingHorizontal: size.s_20,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingTop: Platform.OS === 'android' ? size.s_10 : 0
+		},
+		headerTitle: {
+			fontSize: size.s_18,
+			color: colors.text,
+			fontWeight: 'bold'
+		}
 	});
