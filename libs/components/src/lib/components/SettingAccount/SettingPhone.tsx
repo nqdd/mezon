@@ -154,7 +154,6 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 									type="text"
 									value={phone}
 									onChange={handleChangePhone}
-									placeholder={t('setPhoneModal.phonePlaceholder')}
 									className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 ${errors.phone ? 'border-red-500 dark:border-red-400' : ''}`}
 									label={t('setPhoneModal.phoneNumber')}
 								/>

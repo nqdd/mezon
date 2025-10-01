@@ -72,7 +72,6 @@
 		"phoneNumber": "Phone Number",
 		"description": "You will receive the text message with a verification code.",
 		"emailPlaceholder": "your.email@example.com",
-		"phonePlaceholder": "+84",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Send OTP",
@@ -82,6 +81,7 @@
 		"invalidPhone": "Invalid phone number",
 		"updatePhoneSuccess": "Update phone number success",
 		"updatePhoneFail": "Something's wrong. Try later!",
+		"errorElse": "Something's wrong. Try later!",
 		"emptyOtp": "OTP invalid!",
 		"resendOtp": "Resend OTP!"
 	},

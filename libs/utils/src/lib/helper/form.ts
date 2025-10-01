@@ -43,15 +43,12 @@ export const validatePhoneNumber = (phone: string, countryCode: string) => {
 	}
 	if (countryCode === '+1') {
 		const phoneRegex = /^\d{10}$/;
-		if (!phoneRegex.test(phone)) {
-			return true;
-		}
+
+		return phoneRegex.test(phone);
 	}
 	if (countryCode === '+81') {
 		const phoneRegex = /^(70|80|90)\d{8}$/;
-		if (!phoneRegex.test(phone)) {
-			return true;
-		}
+		return phoneRegex.test(phone);
 	}
 	return false;
 };
