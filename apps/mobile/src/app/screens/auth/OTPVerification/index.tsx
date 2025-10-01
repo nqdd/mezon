@@ -3,7 +3,7 @@ import { baseColor } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -106,42 +106,45 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	const isValidOTP = currentOtp?.every?.((digit) => digit !== '') && currentOtp?.join?.('')?.length === 6;
 
-	const handleVerifyOTP = async (otpConfirm: string) => {
-		let resp: any;
-		try {
-			if (otpConfirm?.length === 6) {
-				setIsLoading(true);
-				if (route.params?.email) {
-					resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
-				} else {
-					// todo: add more logic
-				}
+	const handleVerifyOTP = useCallback(
+		async (otpConfirm: string) => {
+			let resp: any;
+			try {
+				if (otpConfirm?.length === 6) {
+					setIsLoading(true);
+					if (route.params?.email) {
+						resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+					} else {
+						// todo: add more logic
+					}
 
-				if (!resp) {
-					Toast.show({
-						type: 'success',
-						props: {
-							text2: 'OTP does not match',
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-						}
-					});
-					setIsError(true);
-				}
+					if (!resp) {
+						Toast.show({
+							type: 'success',
+							props: {
+								text2: 'OTP does not match',
+								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+							}
+						});
+						setIsError(true);
+					}
 
-				setIsLoading(false);
+					setIsLoading(false);
+				}
+			} catch (error) {
+				setIsError(true);
+				console.error('Error verifying OTP:', error);
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: 'An error occurred while verifying OTP',
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					}
+				});
 			}
-		} catch (error) {
-			setIsError(true);
-			console.error('Error verifying OTP:', error);
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: 'An error occurred while verifying OTP',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-				}
-			});
-		}
-	};
+		},
+		[confirmEmailOTP, reqIdSent]
+	);
 
 	const handleResendOTP = async () => {
 		if (isResendEnabled) {
@@ -188,17 +191,23 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		);
 	};
 
-	const handleOtpChange = (otp: string[]) => {
-		if (isError) {
-			setIsError(false);
-		}
-		setCurrentOtp(otp);
-	};
+	const handleOtpChange = useCallback(
+		(otp: string[]) => {
+			if (isError) {
+				setIsError(false);
+			}
+			setCurrentOtp(otp);
+		},
+		[isError]
+	);
 
-	const handleOtpComplete = (otp: string) => {
-		if (isResendEnabled) return;
-		handleVerifyOTP(otp);
-	};
+	const handleOtpComplete = useCallback(
+		(otp: string) => {
+			if (isResendEnabled) return;
+			handleVerifyOTP(otp);
+		},
+		[isResendEnabled, handleVerifyOTP]
+	);
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
