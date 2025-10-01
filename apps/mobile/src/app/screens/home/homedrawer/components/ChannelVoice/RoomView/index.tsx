@@ -71,6 +71,8 @@ const RoomViewListener = memo(
 					return t('disconnectModal.content.removed');
 				case DisconnectReason.DUPLICATE_IDENTITY:
 					return t('disconnectModal.content.duplicate');
+				case DisconnectReason.ROOM_DELETED:
+					return t('disconnectModal.content.deleted');
 				default:
 					return t('disconnectModal.content.default');
 			}
@@ -78,7 +80,11 @@ const RoomViewListener = memo(
 
 		const handleDisconnected = useCallback(
 			async (reason?: DisconnectReason) => {
-				if (reason === DisconnectReason.PARTICIPANT_REMOVED || reason === DisconnectReason.DUPLICATE_IDENTITY) {
+				if (
+					reason === DisconnectReason.PARTICIPANT_REMOVED ||
+					reason === DisconnectReason.DUPLICATE_IDENTITY ||
+					reason === DisconnectReason.ROOM_DELETED
+				) {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
 						isEndCall: true,
 						clanId,
