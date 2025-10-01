@@ -72,7 +72,6 @@
 		"phoneNumber": "Phone Number",
 		"description": "You will receive the text message with a verification code.",
 		"emailPlaceholder": "your.email@example.com",
-		"phonePlaceholder": "+84-999...999",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Send OTP",
