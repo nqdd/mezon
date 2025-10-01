@@ -5,6 +5,8 @@ import { Platform } from 'react-native';
 import { Settings } from '../../../screens/settings';
 import { AccountSetting } from '../../../screens/settings/AccountSetting';
 import { BlockedUsers } from '../../../screens/settings/AccountSetting/BlockedUsers';
+import { UpdatePhoneNumber } from '../../../screens/settings/AccountSetting/UpdatePhoneNumber';
+import { VerifyPhoneNumber } from '../../../screens/settings/AccountSetting/VerifyPhoneNumber';
 import AppearanceSetting from '../../../screens/settings/AppearanceSetting';
 import AppThemeSetting from '../../../screens/settings/AppearanceSetting/AppTheme';
 import { LanguageSetting } from '../../../screens/settings/LanguageSetting';
@@ -16,7 +18,7 @@ import { Sharing } from '../../../screens/settings/Sharing';
 import { APP_SCREEN } from '../../ScreenTypes';
 
 // eslint-disable-next-line no-empty-pattern
-export const SettingStacks = ({ }: any) => {
+export const SettingStacks = ({}: any) => {
 	const Stack = createStackNavigator();
 	const { t } = useTranslation(['screenStack']);
 	const { themeValue } = useTheme();
@@ -140,6 +142,30 @@ export const SettingStacks = ({ }: any) => {
 				component={SetPassword}
 				options={{
 					headerTitle: t('settingStack.setPassword'),
+					gestureEnabled: Platform.OS === 'ios',
+					headerStyle: {
+						backgroundColor: themeValue.primary
+					}
+				}}
+			/>
+
+			<Stack.Screen
+				name={APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER}
+				component={UpdatePhoneNumber}
+				options={{
+					headerTitle: t('settingStack.updatePhoneNumber'),
+					gestureEnabled: Platform.OS === 'ios',
+					headerStyle: {
+						backgroundColor: themeValue.primary
+					}
+				}}
+			/>
+
+			<Stack.Screen
+				name={APP_SCREEN.SETTINGS.VERIFY_PHONE_NUMBER}
+				component={VerifyPhoneNumber}
+				options={{
+					headerTitle: t('settingStack.verifyPhoneNumber'),
 					gestureEnabled: Platform.OS === 'ios',
 					headerStyle: {
 						backgroundColor: themeValue.primary

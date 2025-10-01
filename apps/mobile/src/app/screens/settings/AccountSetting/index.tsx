@@ -13,7 +13,6 @@ import {
 	authActions,
 	channelsActions,
 	clansActions,
-	emojiSuggestionActions,
 	getStoreAsync,
 	messagesActions,
 	selectBlockedUsers,
@@ -35,6 +34,7 @@ import { style } from './styles';
 enum EAccountSettingType {
 	UserName,
 	DisplayName,
+	PhoneNumber,
 	BlockedUsers,
 	DisableAccount,
 	DeleteAccount,
@@ -111,6 +111,9 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			case EAccountSettingType.DisplayName:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.PROFILE });
 				break;
+			case EAccountSettingType.PhoneNumber:
+				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER });
+				break;
 			case EAccountSettingType.BlockedUsers:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.BLOCKED_USERS });
 				break;
@@ -167,6 +170,10 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				title: t('displayName'),
 				description: userProfile?.user?.display_name || '',
 				type: EAccountSettingType.DisplayName
+			},
+			{
+				title: t('phoneNumberSetting.title'),
+				type: EAccountSettingType.PhoneNumber
 			}
 		];
 

@@ -89,5 +89,21 @@
 			"success": "Account deleted successfully",
 			"error": "You are the owner of the clan"
 		}
+	},
+	"phoneNumberSetting": {
+		"title": "Phone",
+		"updatePhoneNumber": {
+			"newPhoneNumber": "New Phone Number",
+			"nextButton": "Next",
+			"removeButton": "Remove Phone Number",
+			"failed": "Phone number update failed",
+			"invalidPhoneNumber": "Invalid phone number"
+		},
+		"verifyPhoneNumber": {
+			"description": "Enter the 6-digit code we sent to",
+			"verifyButton": "Verify",
+			"success": "Phone number updated successfully",
+			"failed": "Invalid OTP"
+		}
 	}
 }
