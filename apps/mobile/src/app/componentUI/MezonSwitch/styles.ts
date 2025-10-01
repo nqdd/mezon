@@ -7,7 +7,7 @@ export const style = (colors: Attributes) =>
 			width: 50,
 			height: 30,
 			borderRadius: 15,
-			backgroundColor: colors.tertiary,
+			backgroundColor: colors.textDisabled,
 			justifyContent: 'center',
 			padding: 2
 		},

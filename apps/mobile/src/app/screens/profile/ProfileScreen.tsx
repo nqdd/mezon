@@ -1,14 +1,13 @@
-import { useFriends, useMemberStatus } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
 import {
-	FriendsEntity,
 	accountActions,
 	channelMembersActions,
 	selectAccountCustomStatus,
 	selectAllAccount,
+	selectAllFriends,
 	selectCurrentClanId,
-	selectUserStatus,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
@@ -24,13 +23,14 @@ import MezonAvatar from '../../componentUI/MezonAvatar';
 import MezonButton from '../../componentUI/MezonButton';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { AddStatusUserModal } from '../../components/AddStatusUserModal';
-import { CustomStatusUser, EUserStatus } from '../../components/CustomStatusUser';
+import { CustomStatusUser } from '../../components/CustomStatusUser';
 import ImageNative from '../../components/ImageNative';
 import { SendTokenUser } from '../../components/SendTokenUser';
 import { IconCDN } from '../../constants/icon_cdn';
 import { useMixImageColor } from '../../hooks/useMixImageColor';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import StatusProfile from './StatusProfile';
 import { style } from './styles';
 
 export enum ETypeCustomUserStatus {
@@ -43,7 +43,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const userProfile = useSelector(selectAllAccount);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, isTabletLandscape);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const { color } = useMixImageColor(userProfile?.user?.avatar_url);
 	const { t } = useTranslation(['profile']);
 	const { t: tUser } = useTranslation('customUserStatus');
@@ -52,8 +52,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const userCustomStatus = useSelector(selectAccountCustomStatus);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
-	const memberStatus = useMemberStatus(userProfile?.user?.id || '');
-	const userStatus = useSelector(selectUserStatus);
 
 	useFocusEffect(
 		React.useCallback(() => {
@@ -61,39 +59,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}, [dispatch])
 	);
 
-	const userStatusIcon = useMemo(() => {
-		const mobileIconSize = isTabletLandscape ? size.s_20 : size.s_18;
-		switch (userStatus?.status) {
-			case EUserStatus.ONLINE:
-				if (memberStatus?.isMobile) {
-					return <MezonIconCDN icon={IconCDN.mobileDeviceIcon} color="#16A34A" width={mobileIconSize} height={mobileIconSize} />;
-				}
-				return memberStatus?.status ? (
-					<MezonIconCDN icon={IconCDN.onlineStatusIcon} color="#16A34A" width={size.s_20} height={size.s_20} />
-				) : (
-					<MezonIconCDN icon={IconCDN.offlineStatusIcon} color="#AEAEAE" width={size.s_16} height={size.s_16} />
-				);
-
-			case EUserStatus.IDLE:
-				return <MezonIconCDN icon={IconCDN.idleStatusIcon} color="#F0B232" width={size.s_20} height={size.s_20} />;
-
-			case EUserStatus.DO_NOT_DISTURB:
-				return <MezonIconCDN icon={IconCDN.disturbStatusIcon} color="#F23F43" />;
-
-			case EUserStatus.INVISIBLE:
-				return <MezonIconCDN icon={IconCDN.offlineStatusIcon} color="#AEAEAE" width={size.s_16} height={size.s_16} />;
-
-			default:
-				return <MezonIconCDN icon={IconCDN.onlineStatusIcon} color="#16A34A" width={size.s_20} height={size.s_20} />;
-		}
-	}, [isTabletLandscape, memberStatus, userStatus]);
-
 	const tokenInWallet = useMemo(() => {
 		return userProfile?.wallet || 0;
 	}, [userProfile?.wallet]);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
-		return allUser.filter((user) => user.state === 0);
+		return allUser?.filter?.((user) => user.state === 0);
 	}, [allUser]);
 
 	const navigateToFriendScreen = () => {
@@ -136,7 +107,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 			dispatch(
 				channelMembersActions.updateCustomStatus({
 					clanId: currentClanId ?? '',
-					customStatus: customStatus,
+					customStatus,
 					minutes: duration,
 					noClear: noClearStatus
 				})
@@ -189,7 +160,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		} catch (error) {
 			Toast.show({
 				type: 'error',
-				text1: t('errorCopy', { error: error })
+				text1: t('errorCopy', { error })
 			});
 		}
 	};
@@ -247,20 +218,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							</View>
 						)}
 
-						<View
-							style={[
-								{
-									backgroundColor: themeValue.tertiary,
-									borderRadius: size.s_20,
-									position: 'absolute',
-									bottom: -size.s_2,
-									right: -size.s_4
-								},
-								styles.dotStatusUser
-							]}
-						>
-							{userStatusIcon}
-						</View>
+						<StatusProfile />
 					</TouchableOpacity>
 					<View style={styles.badgeStatusTemp} />
 
