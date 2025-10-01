@@ -24,7 +24,7 @@ import type {
 } from 'mezon-js/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { categoriesActions, getCategoriesState, type FetchCategoriesPayload } from '../categories/categories.slice';
+import { categoriesActions, type FetchCategoriesPayload } from '../categories/categories.slice';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import { channelMembersActions } from '../channelmembers/channel.members';
 import type { MezonValueContext } from '../helpers';
@@ -391,6 +391,16 @@ export const createNewChannel = createAsyncThunk('channels/createNewChannel', as
 			if (response.parent_id !== '0') {
 				await thunkAPI.dispatch(
 					threadsActions.setListThreadId({ channelId: response.parent_id as string, threadId: response.channel_id as string })
+				);
+			}
+
+			if (response.type === ChannelType.CHANNEL_TYPE_CHANNEL) {
+				await thunkAPI.dispatch(
+					fetchChannels({
+						clanId: response.clan_id as string,
+						channelType: ChannelType.CHANNEL_TYPE_CHANNEL,
+						noCache: true
+					})
 				);
 			}
 
@@ -1571,22 +1581,9 @@ const { selectAll } = channelsAdapter.getSelectors();
 export const getChannelsState = (rootState: { [CHANNELS_FEATURE_KEY]: ChannelsState }): ChannelsState => rootState[CHANNELS_FEATURE_KEY];
 
 export const selectAllChannels = createSelector(
-	[getChannelsState, (state: RootState) => state.clans.currentClanId as string, getCategoriesState],
-	(channelsState, clanId, categoriesState) => {
-		const channels = selectAll(channelsState.byClans[clanId]?.entities ?? channelsAdapter.getInitialState());
-		const categoryEntities = categoriesState.byClans[clanId]?.entities?.entities ?? {};
-		let changed = false;
-		const enriched = channels.map((channel) => {
-			const categoryId = channel.category_id as string;
-			const lookedUpName = (categoryEntities?.[categoryId]?.category_name as string | undefined) || undefined;
-			const finalName = channel.category_name || lookedUpName;
-			if (!finalName || channel.category_name === finalName) {
-				return channel;
-			}
-			changed = true;
-			return { ...channel, category_name: finalName } as typeof channel;
-		});
-		return changed ? enriched : channels;
+	[getChannelsState, (state: RootState) => state.clans.currentClanId as string],
+	(channelsState, clanId) => {
+		return selectAll(channelsState.byClans[clanId]?.entities ?? channelsAdapter.getInitialState());
 	}
 );
 
