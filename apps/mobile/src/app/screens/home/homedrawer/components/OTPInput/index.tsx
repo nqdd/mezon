@@ -72,10 +72,9 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 		if (resetTrigger) {
 			const newOtp = new Array(OTP_LENGTH).fill('');
 			setOtp(newOtp);
-			onOtpChange(newOtp);
 			inputRefs?.current?.[0]?.focus();
 		}
-	}, [resetTrigger, onOtpChange]);
+	}, [resetTrigger]);
 
 	const handleOtpChange = useCallback(
 		(value: string, index: number) => {
