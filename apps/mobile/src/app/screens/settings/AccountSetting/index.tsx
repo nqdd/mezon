@@ -9,9 +9,11 @@ import {
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	accountActions,
+	appActions,
 	authActions,
 	channelsActions,
 	clansActions,
+	emojiSuggestionActions,
 	getStoreAsync,
 	messagesActions,
 	selectBlockedUsers,
@@ -26,7 +28,8 @@ import { useSelector } from 'react-redux';
 import { SeparatorWithLine } from '../../../components/Common';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, SettingScreenProps } from '../../../navigation/ScreenTypes';
+import type { SettingScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './styles';
 
 enum EAccountSettingType {
@@ -66,6 +69,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
+		store.dispatch(appActions.setIsShowWelcomeMobile(false));
 		store.dispatch(authActions.logOut({ device_id: userProfile.user.username, platform: Platform.OS }));
 	};
 

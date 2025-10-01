@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
@@ -27,72 +27,33 @@ const CachedImageWithRetryIOS = memo(
 		const [loading, setLoading] = useState<boolean>(false);
 		const [isError, setIsError] = useState<boolean>(false);
 		const [fallbackUrl, setFallbackUrl] = useState<string>(urlOriginal);
-		const [hasTriedFallback, setHasTriedFallback] = useState<boolean>(false);
-		const retryAttempts = useRef<number>(0);
-		const hasExhaustedRetries = useRef<boolean>(false);
 
 		const handleExhaustedRetries = () => {
-			retryAttempts.current += 1;
-			if (retryAttempts.current > retryCount) {
-				hasExhaustedRetries.current = true;
-				setLoading(false);
+			if (urlOriginal) {
 				setIsError(true);
-				return;
-			}
-
-			if (!hasTriedFallback) {
-				const getOriginalUrl = urlOriginal || extractOriginalUrl(source?.uri);
+			} else {
+				const getOriginalUrl = urlOriginal ? urlOriginal : extractOriginalUrl(source?.uri);
 				if (getOriginalUrl) {
-					setHasTriedFallback(true);
 					setKey(Date.now());
 					setFallbackUrl(getOriginalUrl);
 					setIsError(true);
-					return;
 				}
 			}
-
-			if (hasTriedFallback && fallbackUrl) {
-				hasExhaustedRetries.current = true;
-				setLoading(false);
-				setIsError(true);
-				return;
-			}
-
-			hasExhaustedRetries.current = true;
-			setLoading(false);
-			setIsError(true);
 		};
 
 		const handleLoadStart = () => {
-			if (!hasExhaustedRetries.current) {
-				setLoading(true);
-			}
+			setLoading(true);
 		};
 
 		const handleLoadEnd = () => {
 			setLoading(false);
 		};
 
-		const handleLoadSuccess = () => {
-			retryAttempts.current = 0;
-			hasExhaustedRetries.current = false;
-			setLoading(false);
-			setIsError(false);
-		};
-
-		if (hasExhaustedRetries.current && isError) {
-			return (
-				<View style={[styles.container, style]}>
-					<View style={{ backgroundColor: 'rgba(0,0,0,0.2)', width: '100%', height: '100%' }} />
-				</View>
-			);
-		}
-
 		return (
 			<View style={[styles.container, style]}>
 				{loading && <ActivityIndicator style={styles.loader} size="small" color="#333333" />}
 				<FastImage
-					key={`${key}_${source?.uri}_${retryAttempts.current}`}
+					key={`${key}_${source?.uri}`}
 					source={{
 						uri: isError && fallbackUrl ? fallbackUrl : source?.uri,
 						priority: FastImage.priority.high,
@@ -100,7 +61,6 @@ const CachedImageWithRetryIOS = memo(
 					}}
 					onLoadStart={handleLoadStart}
 					onError={handleExhaustedRetries}
-					onLoad={handleLoadSuccess}
 					onLoadEnd={handleLoadEnd}
 					style={StyleSheet.absoluteFill}
 					{...props}
@@ -109,7 +69,7 @@ const CachedImageWithRetryIOS = memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		return prevProps.source?.uri === nextProps.source?.uri && prevProps.retryCount === nextProps.retryCount;
+		return prevProps.source?.uri === nextProps.source?.uri;
 	}
 );
 

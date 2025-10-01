@@ -1,8 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { AttachmentEntity } from '@mezon/store-mobile';
 import {
-	AttachmentEntity,
-	RootState,
 	galleryActions,
 	selectCurrentClanId,
 	selectCurrentLanguage,
@@ -11,32 +10,33 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
-import { ActivityIndicator, DeviceEventEmitter, Dimensions, SectionList, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
-import { chunkIntoRows, formatDateHeader, groupByYearDay, parseAttachmentLikeDate } from '../../utils/groupDataHelper';
+import moment from 'moment';
+import 'moment/locale/en-au';
+import 'moment/locale/vi';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import type { ViewToken } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, Dimensions, FlatList, Text, View } from 'react-native';
 import { EmptySearchPage } from '../EmptySearchPage';
 import { ImageListModal } from '../ImageListModal';
 import { style } from './MediaChannel.styles';
 import { MediaItem } from './MediaItem';
 import MediaSkeleton from './MediaSkeleton/MediaSkeleton';
 
-type MediaRowItem = { key: string; items: AttachmentEntity[] };
-
-type SectionByDay = {
-	titleDay: string;
-	year: string;
-	data: MediaRowItem[];
-	key: string;
-	isFirstOfYear?: boolean;
-};
+interface FlatDataItem {
+	id: string;
+	type: 'header' | 'row';
+	date?: string;
+	items?: AttachmentEntity[];
+	rowIndex?: number;
+}
 
 const MAX_COLUMNS = 3;
+const ITEMS_PER_ROW = 3;
 
 const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 	const widthScreen = Dimensions.get('screen').width;
 	const widthImage = useMemo(() => {
-		return (widthScreen - size.s_40) / MAX_COLUMNS;
+		return (widthScreen - size.s_42) / MAX_COLUMNS;
 	}, [widthScreen]);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, widthImage);
@@ -45,39 +45,65 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
 	const paginationState = useAppSelector((state) => selectGalleryPaginationByChannel(state, currentChannelId));
 	const currentClanId = useAppSelector((state) => selectCurrentClanId(state as any)) ?? '';
-	const currentLanguage = useSelector((state: RootState) => selectCurrentLanguage(state as any));
+	const currentLanguage = useAppSelector(selectCurrentLanguage);
 
-	const parseAttachmentDate = useCallback((att: AttachmentEntity): Date => parseAttachmentLikeDate(att), []);
+	useEffect(() => {
+		moment.locale(currentLanguage);
+	}, [currentLanguage]);
 
-	const chunkIntoRowsMemo = useCallback((list: AttachmentEntity[], chunkSize: number, seed: string): MediaRowItem[] => {
-		return chunkIntoRows<AttachmentEntity>(list, chunkSize, seed);
-	}, []);
+	const visibleDatesRef = useRef<Set<string>>(new Set());
 
-	const sections = useMemo<SectionByDay[]>(() => {
-		if (!attachments || attachments.length === 0) return [];
+	const flatData: FlatDataItem[] = useMemo(() => {
+		if (!attachments || attachments.length === 0) {
+			return [];
+		}
+		const dateGroups = new Map<string, AttachmentEntity[]>();
 
-		const groups = groupByYearDay<AttachmentEntity>(attachments, parseAttachmentDate);
-		const result: SectionByDay[] = groups.map((g) => {
-			const rows = chunkIntoRowsMemo(g.items, MAX_COLUMNS, `${g.year}-${g.dayTs}`);
-			const lang = currentLanguage === 'en' ? 'en' : 'vi';
-			const title = formatDateHeader(new Date(g.dayTs), lang);
-			return {
-				key: `${g.year}-${g.dayTs}`,
-				year: g.year,
-				titleDay: title,
-				data: rows,
-				isFirstOfYear: g.isFirstOfYear
-			};
+		for (const attachment of attachments) {
+			if (!attachment.create_time) continue;
+
+			const date = new Date(attachment.create_time);
+			const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+			if (!dateGroups.has(dateKey)) {
+				dateGroups.set(dateKey, []);
+			}
+			dateGroups.get(dateKey)!.push(attachment);
+		}
+		const result: FlatDataItem[] = [];
+
+		dateGroups.forEach((items, dateKey) => {
+			// Add header
+			result.push({
+				id: `header-${dateKey}`,
+				type: 'header',
+				date: dateKey
+			});
+
+			// Split items into rows of 3
+			for (let i = 0; i < items.length; i += ITEMS_PER_ROW) {
+				const rowItems = items.slice(i, i + ITEMS_PER_ROW);
+				result.push({
+					id: `row-${dateKey}-${i}`,
+					type: 'row',
+					items: rowItems,
+					rowIndex: i / ITEMS_PER_ROW
+				});
+			}
 		});
-		return result;
-	}, [attachments, chunkIntoRowsMemo, parseAttachmentDate, currentLanguage]);
 
-	const openImage = useCallback((image: AttachmentEntity) => {
-		const data = {
-			children: <ImageListModal channelId={channelId} imageSelected={image as AttachmentEntity} />
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, []);
+		return result;
+	}, [attachments]);
+
+	const openImage = useCallback(
+		(image: AttachmentEntity) => {
+			const data = {
+				children: <ImageListModal channelId={channelId} imageSelected={image as AttachmentEntity} />
+			};
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+		},
+		[channelId]
+	);
 
 	const handleEndReached = useCallback(() => {
 		if (!attachments || attachments.length === 0) return;
@@ -99,27 +125,36 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 				direction: 'before'
 			})
 		);
-	}, [attachments, paginationState?.isLoading, paginationState?.hasMoreBefore, paginationState?.limit, currentClanId, currentChannelId, dispatch]);
+	}, [attachments, paginationState, currentClanId, currentChannelId, dispatch]);
 
-	const renderRow = ({ item }: { item: MediaRowItem }) => (
-		<View style={styles.rowContainer}>
-			{item.items.map((media, idx) => (
-				<View key={`${item.key}_${media?.id ?? idx}`} style={styles.rowItem}>
-					<MediaItem key={`${item.key}_${media?.id ?? idx}`} data={media} onPress={openImage} />
+	const formatDateHeader = useCallback((dateString: string) => {
+		try {
+			return moment(dateString).format('LL');
+		} catch (error) {
+			return dateString;
+		}
+	}, []);
+
+	const renderItem = useCallback(
+		({ item }: { item: FlatDataItem }) => {
+			if (item.type === 'header') {
+				return (
+					<View style={styles.sectionHeader}>
+						<Text style={styles.sectionDayHeaderTitle}>{formatDateHeader(item.date)}</Text>
+					</View>
+				);
+			}
+			return (
+				<View style={styles.rowContainer}>
+					{item.items?.map((media, idx) => (
+						<View key={`${media?.id ?? idx}_${media?.filename}`} style={styles.rowItem}>
+							<MediaItem data={media} onPress={openImage} />
+						</View>
+					))}
 				</View>
-			))}
-			{item.items.length < MAX_COLUMNS &&
-				Array.from({ length: MAX_COLUMNS - item.items.length }).map((_, fillerIdx) => (
-					<View key={`filler_${item.key}_${fillerIdx}`} style={styles.rowItem} />
-				))}
-		</View>
-	);
-
-	const renderSectionHeader = ({ section }: { section: SectionByDay }) => (
-		<View style={styles.sectionHeader}>
-			{section.isFirstOfYear && <Text style={styles.sectionYearHeaderTitle}>{section.year}</Text>}
-			<Text style={styles.sectionDayHeaderTitle}>{section.titleDay}</Text>
-		</View>
+			);
+		},
+		[openImage, styles]
 	);
 
 	const renderListFooter = useCallback(() => {
@@ -131,10 +166,58 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 		);
 	}, [paginationState?.isLoading]);
 
+	const getItemLayout = useCallback(
+		(data: any, index: number) => {
+			const item = flatData[index];
+			if (!item) {
+				return { length: 0, offset: 0, index };
+			}
+
+			const headerHeight = size.s_50;
+			const rowHeight = widthImage + size.s_8;
+			let offset = 0;
+			let length = 0;
+
+			if (item.type === 'header') {
+				length = headerHeight;
+				for (let i = 0; i < index; i++) {
+					const prevItem = flatData[i];
+					offset += prevItem.type === 'header' ? headerHeight : rowHeight;
+				}
+			} else {
+				length = rowHeight;
+				for (let i = 0; i < index; i++) {
+					const prevItem = flatData[i];
+					offset += prevItem.type === 'header' ? headerHeight : rowHeight;
+				}
+			}
+
+			return { length, offset, index };
+		},
+		[flatData, widthImage]
+	);
+
+	const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+		const newVisibleDates = new Set<string>();
+		viewableItems.forEach((item) => {
+			if (item.item.type === 'header' && item.item.date) {
+				newVisibleDates.add(item.item.date);
+			}
+		});
+		visibleDatesRef.current = newVisibleDates;
+	}, []);
+
+	const viewabilityConfig = useMemo(
+		() => ({
+			itemVisiblePercentThreshold: 50,
+			minimumViewTime: 100
+		}),
+		[]
+	);
+
 	useEffect(() => {
 		if (!currentClanId || !currentChannelId) return;
 		if (paginationState?.isLoading) return;
-		if (attachments && attachments.length > 0) return;
 
 		dispatch(
 			galleryActions.fetchGalleryAttachments({
@@ -146,27 +229,47 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 		);
 	}, [currentClanId, currentChannelId]);
 
+	const keyExtractor = useCallback((item: FlatDataItem) => item.id, []);
+
+	const stickyHeaderIndices = useMemo(() => {
+		return flatData.reduce((indices: number[], item, index) => {
+			if (item.type === 'header') {
+				indices.push(index);
+			}
+			return indices;
+		}, []);
+	}, [flatData]);
+
 	return (
 		<View style={styles.wrapper}>
 			{paginationState?.isLoading && attachments?.length === 0 ? (
-				<MediaSkeleton numberSkeleton={20} />
-			) : sections.length > 0 ? (
-				<SectionList
-					sections={sections}
-					keyExtractor={(row) => row.key}
-					renderItem={renderRow}
-					renderSectionHeader={renderSectionHeader}
+				<MediaSkeleton numberSkeleton={12} />
+			) : flatData.length > 0 ? (
+				<FlatList
+					data={flatData}
+					keyExtractor={keyExtractor}
+					renderItem={renderItem}
 					ListFooterComponent={renderListFooter}
 					contentContainerStyle={styles.contentContainer}
-					removeClippedSubviews={true}
 					showsVerticalScrollIndicator={false}
-					initialNumToRender={24}
-					maxToRenderPerBatch={12}
+					bounces={false}
+					initialNumToRender={12}
+					maxToRenderPerBatch={10}
 					updateCellsBatchingPeriod={12}
-					windowSize={30}
-					stickySectionHeadersEnabled
+					windowSize={12}
+					removeClippedSubviews={true}
 					onEndReached={handleEndReached}
-					onEndReachedThreshold={0.5}
+					onEndReachedThreshold={0.3}
+					disableIntervalMomentum={true}
+					scrollEventThrottle={16}
+					disableVirtualization={true}
+					getItemLayout={getItemLayout}
+					onViewableItemsChanged={onViewableItemsChanged}
+					viewabilityConfig={viewabilityConfig}
+					stickyHeaderIndices={stickyHeaderIndices}
+					maintainVisibleContentPosition={{
+						minIndexForVisible: 0
+					}}
 				/>
 			) : (
 				<EmptySearchPage />

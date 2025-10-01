@@ -1,3 +1,4 @@
+import { generateE2eId } from '@mezon/utils';
 import { useTranslation } from 'react-i18next';
 
 export type ModalAskChangeChannelProps = {
@@ -18,10 +19,18 @@ const ModalAskChangeChannel = (props: ModalAskChangeChannelProps) => {
 				<p className={`text-[15px] ${className ? 'hidden' : ''}`}>{t('unsavedChanges.warning')}</p>
 			</div>
 			<div className="flex flex-row justify-end gap-3">
-				<button className="text-[15px] bg-gray-600 rounded-[4px] p-[8px]" onClick={onReset}>
+				<button
+					className="text-[15px] bg-gray-600 rounded-[4px] p-[8px]"
+					onClick={onReset}
+					data-e2e={generateE2eId('channel_setting_page.permissions.modal.ask_change.button.reset')}
+				>
 					{t('unsavedChanges.reset')}
 				</button>
-				<button className="text-[15px] ml-auto bg-blue-600 rounded-[4px] p-[8px] text-nowrap" onClick={onSave}>
+				<button
+					className="text-[15px] ml-auto bg-blue-600 rounded-[4px] p-[8px] text-nowrap"
+					onClick={onSave}
+					data-e2e={generateE2eId('channel_setting_page.permissions.modal.ask_change.button.save_changes')}
+				>
 					{t('unsavedChanges.saveChanges')}
 				</button>
 			</div>

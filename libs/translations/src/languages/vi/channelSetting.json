@@ -212,7 +212,11 @@
     },
     "changeCategory": {
         "title": "Thay đổi danh mục",
-        "label": "CHUYỂN TỪ {{currentChannel}} TỚI"
+        "label": "CHUYỂN TỪ {{currentChannel}} TỚI",
+        "confirmFirstContent": "Bạn có chắc chắn muốn chuyển",
+        "confirmLastContent": "đến danh mục",
+        "confirm": "Đồng ý",
+        "error": "Thay đổi danh mục thất bại"
     },
     "overview": {
         "title": "Tổng quan",

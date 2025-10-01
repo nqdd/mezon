@@ -1,14 +1,14 @@
 import { QRSection } from '@mezon/components';
 import { useAppNavigation, useAuth } from '@mezon/core';
-import { authActions, selectIsLogin, selectLoadingEmail, useAppDispatch } from '@mezon/store';
-import { validateEmail, validatePassword } from '@mezon/utils';
+import { selectIsLogin } from '@mezon/store';
 
-import { ButtonLoading, FormError, Input, PasswordInput } from '@mezon/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useLoaderData } from 'react-router-dom';
-import { ILoginLoaderData } from '../../loaders/loginLoader';
+import type { ILoginLoaderData } from '../../loaders/loginLoader';
+import FormLoginEmail from './FormLoginEmail';
+import FormLoginOTP from './FormLoginOTP';
 
 function Login() {
 	const { t } = useTranslation('common');
@@ -20,9 +20,8 @@ function Login() {
 	const [createSecond, setCreateSecond] = useState<number | null>(null);
 	const [hidden, setHidden] = useState<boolean>(false);
 	const [isRemember, setIsRemember] = useState<boolean>(false);
-	const isLoadingLoginEmail = useSelector(selectLoadingEmail);
+	const [loginMethod, setLoginMethod] = useState(true);
 
-	const dispatch = useAppDispatch();
 	useEffect(() => {
 		const fetchQRCode = async () => {
 			const qRInfo = await qRCode();
@@ -76,110 +75,38 @@ function Login() {
 			setHidden(false);
 		}
 	};
-
-	const [email, setEmail] = useState('');
-	const [password, setPassword] = useState('');
-	const [errors, setErrors] = useState<{
-		email?: string;
-		password?: string;
-	}>({});
-
-	const showErrLoginFail = isLoadingLoginEmail === 'error';
-	useEffect(() => {
-		if (showErrLoginFail) {
-			setErrors({
-				email: t('login.invalidCredentials'),
-				password: t('login.invalidCredentials')
-			});
-		}
-	}, [showErrLoginFail]);
-	const handleFocus = () => {
-		setErrors({});
-		dispatch(authActions.refreshStatus());
+	const handleSwitchMethod = () => {
+		setLoginMethod(!loginMethod);
 	};
-	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setEmail(value);
-
-		setErrors((prev) => ({
-			...prev,
-			email: validateEmail(value)
-		}));
-	}, []);
-
-	const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setPassword(value);
-
-		setErrors((prev) => ({
-			...prev,
-			password: validatePassword(value)
-		}));
-	}, []);
-
-	const handleLogin = async ({ email, password }: { email: string; password: string }) => {
-		if (!email || !password) {
-			console.error('Email and password are required');
-			return;
-		}
-
-		await dispatch(authActions.authenticateEmail({ email, password }));
-	};
-
-	const handleSubmit = useCallback(async () => {
-		const emailError = validateEmail(email);
-		const passwordError = validatePassword(password);
-
-		if (emailError || passwordError) {
-			setErrors({ email: emailError, password: passwordError });
-			return;
-		}
-
-		await handleLogin({ email, password });
-	}, [email, password]);
-
-	const disabled = !!errors.email || !!errors.password || !email || !password || isLoadingLoginEmail !== 'not loaded';
-
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-300 px-4">
-			<div className="bg-[#0b0b0b] text-white rounded-2xl shadow-lg p-14 max-w-4xl w-[800px] flex flex-row gap-8">
+			<div className="bg-[#0b0b0b] text-white rounded-2xl shadow-lg p-14 max-w-4xl w-[800px] flex flex-row gap-8 items-center">
 				<div className="flex-1 text-left flex flex-col">
 					<div className="flex flex-col items-center">
 						<h1 className="text-2xl font-bold mb-1">{t('login.welcomeBack')}</h1>
 						<p className="text-gray-400">{t('login.gladToMeetAgain')}</p>
 					</div>
-					<form onSubmit={handleSubmit} className="space-y-2">
-						<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
-							{t('login.email')}<span className="text-red-500">*</span>
-						</label>
-						<Input
-							onFocus={handleFocus}
-							id="email"
-							type="email"
-							value={email}
-							onChange={handleEmailChange}
-							placeholder={t('login.enterEmail')}
-							className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 text-black dark:text-white`}
-							readOnly={false}
-						/>
-						<div className="min-h-[20px]">{errors.email && <FormError message={errors.email} />}</div>
-						<PasswordInput onFocus={handleFocus} id="password" label={t('login.password')} value={password} onChange={handlePasswordChange} />
-						<div className="min-h-[20px]">{errors.password && <FormError message={errors.password} />}</div>
-						<ButtonLoading className="w-full h-10 btn-primary btn-primary-hover" disabled={disabled} label={t('login.logIn')} onClick={handleSubmit} />
-					</form>
-					<div className="mt-4 flex items-center text-gray-400">
-						<input
-							type="checkbox"
-							id="keepSignedIn"
-							className="mr-2"
-							checked={isRemember}
-							onChange={(e) => setIsRemember(e.target.checked)}
-						/>
-						<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
+					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} /> : <FormLoginEmail />}
+					<div className="mt-4 flex items-center text-gray-400 justify-between">
+						<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								id="keepSignedIn"
+								className="mr-2"
+								checked={isRemember}
+								onChange={(e) => setIsRemember(e.target.checked)}
+							/>
+							<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
+						</div>
+						{!loginMethod && (
+							<div className="text-sm text-blue-500 hover:underline" onClick={handleSwitchMethod}>
+								{t('login.loginByOTP')}
+							</div>
+						)}
 					</div>
 				</div>
 
-				<div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center">
+				<div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center w-56 h-80">
 					<QRSection loginId={loginId || ''} isExpired={hidden} reloadQR={reloadQR} />;
 					<p className="text-sm text-gray-500">{t('login.qr.signIn')}</p>
 					<p className="text-xs text-gray-400">{t('login.qr.useMobile')}</p>

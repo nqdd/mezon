@@ -17,6 +17,7 @@ import {
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectCurrentLanguage,
+	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
 	useAppSelector
@@ -53,10 +54,12 @@ export const AuthenticationLoader = () => {
 	const isTabletLandscape = useTabletLandscape();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
+	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
 	const dispatch = useDispatch();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
+	const currentTopicRef = useRef(currentTopicId);
 
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
 	const { i18n } = useTranslation();
@@ -169,6 +172,10 @@ export const AuthenticationLoader = () => {
 	}, [currentChannel]);
 
 	useEffect(() => {
+		currentTopicRef.current = currentTopicId;
+	}, [currentTopicId]);
+
+	useEffect(() => {
 		let timer;
 		const callListener = DeviceEventEmitter.addListener(ActionEmitEvent.GO_TO_CALL_SCREEN, async ({ payload, isDecline = false }) => {
 			if (isDecline) {
@@ -257,10 +264,16 @@ export const AuthenticationLoader = () => {
 				const isViewingDirectMessage = topRoute === APP_SCREEN.MESSAGES.MESSAGE_DETAIL || topRoute === APP_SCREEN.MESSAGES.HOME;
 
 				if (
-					isShowNotification(currentChannelRef.current?.id, currentDmGroupIdRef.current, remoteMessage, {
-						isViewingChannel,
-						isViewingDirectMessage
-					})
+					isShowNotification(
+						currentChannelRef.current?.id,
+						currentDmGroupIdRef.current,
+						remoteMessage,
+						{
+							isViewingChannel,
+							isViewingDirectMessage
+						},
+						currentTopicRef.current
+					)
 				) {
 					// Case: FCM start call
 					const title = remoteMessage?.notification?.title || remoteMessage?.data?.title;

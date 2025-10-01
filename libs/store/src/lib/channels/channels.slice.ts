@@ -470,7 +470,7 @@ export const updateChannel = createAsyncThunk('channels/updateChannel', async (b
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const state = thunkAPI.getState() as RootState;
 		const clanId = state.clans.currentClanId;
-		const response = await mezon.client.updateChannelDesc(mezon.session, clanId as string, body.channel_id, body);
+		const response = await mezon.client.updateChannelDesc(mezon.session, body.channel_id, body);
 		if (response) {
 			if (body.category_id !== '0') {
 				thunkAPI.dispatch(

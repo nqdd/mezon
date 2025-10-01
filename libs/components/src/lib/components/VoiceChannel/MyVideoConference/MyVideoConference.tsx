@@ -110,7 +110,8 @@ export function MyVideoConference({
 				reason === DisconnectReason.JOIN_FAILURE ||
 				reason === DisconnectReason.DUPLICATE_IDENTITY
 			) {
-				onLeaveRoom();
+				await onLeaveRoom();
+				room?.disconnect();
 			} else if (token) {
 				if (!url) return;
 				const maxAttempts = 3;

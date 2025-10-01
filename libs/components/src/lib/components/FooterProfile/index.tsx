@@ -16,12 +16,23 @@ import {
 	selectShowModalSendToken,
 	selectStatusMenu,
 	selectVoiceJoined,
+	selectWalletDetail,
 	useAppDispatch,
 	userClanProfileActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { EUserStatus } from '@mezon/utils';
-import { ESummaryInfo, ONE_MINUTE, TypeMessage, createImgproxyUrl, formatMoney, generateE2eId, saveParseUserStatus } from '@mezon/utils';
+import {
+	ESummaryInfo,
+	ONE_MINUTE,
+	TypeMessage,
+	compareBigInt,
+	createImgproxyUrl,
+	formatBalanceToString,
+	formatMoney,
+	generateE2eId,
+	saveParseUserStatus
+} from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -53,6 +64,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	const infoSendToken = useSelector(selectInfoSendToken);
 	const userStatusProfile = useSelector(selectAccountCustomStatus);
 	const statusMenu = useSelector(selectStatusMenu);
+	const userWallet = useSelector(selectWalletDetail);
 	const myProfile = useAuth();
 	const { t } = useTranslation(['setting']);
 	const userCustomStatus: { status: string; user_status: EUserStatus } = useMemo(() => {
@@ -76,10 +88,6 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
-
-	const tokenInWallet = useMemo(() => {
-		return myProfile?.userProfile?.wallet ? myProfile?.userProfile?.wallet : 0;
-	}, [myProfile?.userProfile?.wallet]);
 
 	const handleCloseModalCustomStatus = () => {
 		dispatch(userClanProfileActions.setShowModalCustomStatus(false));
@@ -130,11 +138,11 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			setError('Your amount must be greater than zero');
 			return;
 		}
-
-		if (token > Number(tokenInWallet)) {
-			setError('Your amount exceeds wallet balance');
+		if (compareBigInt(userWallet?.balance || '', BigInt(token).toString()) < 0) {
+			setError(`Your amount exceeds wallet balance (${formatBalanceToString(userWallet?.balance)} tokens)`);
 			return;
 		}
+
 		const tokenEvent: ApiTokenSentEvent = {
 			sender_id: myProfile.userId as string,
 			sender_name: myProfile?.userProfile?.user?.username as string,
@@ -263,10 +271,9 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 				sendTokenInputsState={sendTokenInputsState}
 				infoSendToken={infoSendToken}
 				isButtonDisabled={isButtonDisabled}
-				tokenInWallet={tokenInWallet}
 			/>
 		);
-	}, [token, selectedUserId, note, infoSendToken, isButtonDisabled, sendTokenInputsState, myProfile.userId, tokenInWallet]);
+	}, [token, selectedUserId, error, note, infoSendToken, isButtonDisabled, sendTokenInputsState, myProfile.userId]);
 
 	useEffect(() => {
 		if (showModalCustomStatus) {
@@ -296,7 +303,12 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			 w-full group focus-visible:outline-none footer-profile  `}
 			>
 				<div className={`footer-profile h-10 flex-1 flex pl-2 items-center  text-theme-primary bg-item-hover rounded-md`}>
-					<div ref={modalControlRef} className="cursor-pointer flex items-center gap-3 relative flex-1" onClick={handleClick}>
+					<div
+						ref={modalControlRef}
+						className="cursor-pointer flex items-center gap-3 relative flex-1"
+						onClick={handleClick}
+						data-e2e={generateE2eId('footer_profile.avatar')}
+					>
 						<AvatarImage
 							alt={''}
 							username={name}
@@ -309,7 +321,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							<UserStatusIconDM status={userCustomStatus?.user_status} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">
-							<p className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary">{name}</p>
+							<p className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary" data-e2e={generateE2eId('footer_profile.name')}>{name}</p>
 							<p className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]">
 								{userCustomStatus.status}
 							</p>

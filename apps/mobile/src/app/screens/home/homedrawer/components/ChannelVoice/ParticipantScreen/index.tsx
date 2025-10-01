@@ -12,7 +12,8 @@ import {
 	voiceActions
 } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
-import { Participant, RoomEvent, Track } from 'livekit-client';
+import type { Participant } from 'livekit-client';
+import { RoomEvent, Track } from 'livekit-client';
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -21,6 +22,7 @@ import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
+import UserProfile, { IActionVoiceUser, IManageVoiceUser } from '../../UserProfile';
 import { style } from '../styles';
 
 const ParticipantItem = memo(
@@ -44,7 +46,7 @@ const ParticipantItem = memo(
 		const { t } = useTranslation(['channelVoice']);
 		const member = useMemo(() => {
 			return selectMemberClanByUserName(store.getState(), username);
-		}, [username]);
+		}, [store, username]);
 
 		const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 		const voiceUsername = member?.clan_nick || member?.user?.display_name || username;
@@ -52,10 +54,6 @@ const ParticipantItem = memo(
 			return member?.clan_avatar || member?.user?.avatar_url || '';
 		}, [member]);
 		const dispatch = useAppDispatch();
-
-		const isShowMuteMenu = useMemo(() => {
-			return currentUsername !== username && !isPiPMode && !isGroupCall && canMangeVoice;
-		}, [currentUsername, username, isPiPMode, isGroupCall, canMangeVoice]);
 
 		const handleFocusScreen = () => {
 			setFocusedScreenShare(screenTrackRef);
@@ -74,59 +72,68 @@ const ParticipantItem = memo(
 			);
 		};
 
-		const onMuteParticipant = useCallback(() => {
-			dispatch(voiceActions.muteVoiceMember({ room_name: room, username: username }));
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-		}, [dispatch, room, username]);
+		const onConfirmActionVoice = useCallback(
+			(action: IActionVoiceUser) => {
+				if (action === IActionVoiceUser.MUTE) {
+					dispatch(voiceActions.muteVoiceMember({ room_name: room, username }));
+				} else {
+					dispatch(voiceActions.kickVoiceMember({ room_name: room, username }));
+				}
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+			},
+			[dispatch, room, username]
+		);
 
-		const onKickParticipant = useCallback(() => {
-			dispatch(voiceActions.kickVoiceMember({ room_name: room, username: username }));
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-		}, [dispatch, room, username]);
+		const onActionVoice = useCallback(
+			(action: IActionVoiceUser) => {
+				const data = {
+					children: (
+						<MezonConfirm
+							onConfirm={() => onConfirmActionVoice(action)}
+							title={action === IActionVoiceUser.KICK ? t('kickModal.title') : t('muteModal.title')}
+							confirmText={action === IActionVoiceUser.KICK ? t('kickModal.kick') : t('muteModal.mute')}
+							content={
+								IActionVoiceUser.KICK
+									? t('kickModal.content', { userName: voiceUsername })
+									: t('muteModal.content', { userName: voiceUsername })
+							}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+			},
+			[onConfirmActionVoice, t, voiceUsername]
+		);
 
-		const handleMuteparticipant = useCallback(() => {
-			const data = {
-				children: (
-					<MezonConfirm
-						onConfirm={onMuteParticipant}
-						title={t('muteModal.title')}
-						confirmText={t('muteModal.mute')}
-						content={t('muteModal.content', { userName: voiceUsername })}
-					/>
-				)
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-		}, [onMuteParticipant, t, voiceUsername]);
+		const onPressInfoUser = useCallback(
+			async (userIsCurrentOnMic = false) => {
+				const isHavePermission = currentUsername !== username && !isPiPMode && !isGroupCall && canMangeVoice;
+				const manageVoiceUser: IManageVoiceUser = {
+					isHavePermission,
+					isShowMute: userIsCurrentOnMic
+				};
 
-		const handleKickparticipant = useCallback(() => {
-			const data = {
-				children: (
-					<MezonConfirm
-						onConfirm={onKickParticipant}
-						title={t('kickModal.title')}
-						confirmText={t('kickModal.kick')}
-						content={t('kickModal.content', { userName: voiceUsername })}
-					/>
-				)
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-		}, [onKickParticipant, t, voiceUsername]);
-
-		const renderMuteOption = (isMicrophoneEnabled: boolean) => {
-			return (
-				<View style={styles.muteOptions}>
-					{isMicrophoneEnabled && (
-						<TouchableOpacity style={styles.muteIcon} onPress={handleMuteparticipant}>
-							<MezonIconCDN icon={IconCDN.microphoneSlashIcon} height={size.s_16} width={size.s_16} color={themeValue.textStrong} />
-						</TouchableOpacity>
-					)}
-
-					<TouchableOpacity style={styles.muteIcon} onPress={handleKickparticipant}>
-						<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} color={themeValue.textStrong} />
-					</TouchableOpacity>
-				</View>
-			);
-		};
+				const data = {
+					snapPoints: ['60%'],
+					hiddenHeaderIndicator: true,
+					containerStyle: { zIndex: 1001 },
+					backdropStyle: { zIndex: 1001 },
+					children: (
+						<UserProfile
+							user={member?.user || { username }}
+							showAction={false}
+							showRole={false}
+							currentChannel={undefined}
+							manageVoiceUser={manageVoiceUser}
+							onActionVoice={onActionVoice}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+			},
+			[canMangeVoice, currentUsername, isGroupCall, isPiPMode, member?.user, onActionVoice, username]
+		);
 
 		return (
 			<>
@@ -167,7 +174,9 @@ const ParticipantItem = memo(
 				)}
 
 				{videoTrackRef && (
-					<View
+					<TouchableOpacity
+						activeOpacity={0.8}
+						onLongPress={() => onPressInfoUser(isMicrophoneEnabled)}
 						style={[
 							styles.userView,
 							isTabletLandscape && { height: size.s_150 + size.s_100 },
@@ -180,7 +189,6 @@ const ParticipantItem = memo(
 							style={styles.participantView}
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
-						{isShowMuteMenu && renderMuteOption(isMicrophoneEnabled)}
 						{hasActiveSoundReaction && renderSoundEffectIcon()}
 						<View style={[styles.userName, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}>
 							{isMicrophoneEnabled ? (
@@ -188,13 +196,17 @@ const ParticipantItem = memo(
 							) : (
 								<MezonIconCDN icon={IconCDN.microphoneSlashIcon} height={size.s_14} color={themeValue.text} />
 							)}
-							<Text style={styles.subTitle}>{voiceUsername || 'Unknown'}</Text>
+							<Text style={styles.subTitle} numberOfLines={1}>
+								{voiceUsername || 'Unknown'}
+							</Text>
 						</View>
-					</View>
+					</TouchableOpacity>
 				)}
 
 				{!videoTrackRef && (
-					<View
+					<TouchableOpacity
+						activeOpacity={0.8}
+						onLongPress={() => onPressInfoUser(isMicrophoneEnabled)}
 						style={[
 							styles.userView,
 							isTabletLandscape && { height: size.s_150 + size.s_100 },
@@ -203,7 +215,6 @@ const ParticipantItem = memo(
 						]}
 					>
 						{hasActiveSoundReaction && renderSoundEffectIcon()}
-						{isShowMuteMenu && renderMuteOption(isMicrophoneEnabled)}
 						<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: size.s_10 }}>
 							{!voiceUsername ? (
 								<MezonIconCDN icon={IconCDN.loadingIcon} width={24} height={24} />
@@ -227,7 +238,7 @@ const ParticipantItem = memo(
 								)}
 							</View>
 						)}
-					</View>
+					</TouchableOpacity>
 				)}
 			</>
 		);
@@ -248,7 +259,7 @@ const ParticipantItem = memo(
 	}
 );
 
-const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId }) => {
+const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId }) => {
 	const participants = useParticipants();
 	const tracks = useTracks(
 		[
@@ -261,7 +272,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 	);
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 	const currentClanId = useAppSelector(selectCurrentClanId);
-	const [canMangeVoice] = usePermissionChecker([EPermission.manageChannel]);
+	const [canMangeVoice] = usePermissionChecker([EPermission.manageChannel], channelId, clanId);
 	const userCanManageVoice = useMemo(() => {
 		if (clanId === currentClanId) {
 			return canMangeVoice;

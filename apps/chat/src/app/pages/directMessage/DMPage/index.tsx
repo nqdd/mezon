@@ -10,13 +10,14 @@ import {
 	SearchMessageChannelRender
 } from '@mezon/components';
 import { EmojiSuggestionProvider, useApp, useAuth, useDragAndDrop, useGifsStickersEmoji, useSearchMessages, useSeenMessagePool } from '@mezon/core';
+import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
-	DirectEntity,
 	directMetaActions,
 	e2eeActions,
 	gifsStickerEmojiActions,
 	selectAudioDialTone,
+	selectBlockedUsersForMessage,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentDM,
@@ -39,7 +40,8 @@ import {
 } from '@mezon/store';
 import { EmojiPlaces, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { DragEvent, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import type { DragEvent } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ChannelMessages from '../../channel/ChannelMessages';
@@ -140,6 +142,7 @@ const DirectMessage = () => {
 	const isHaveCallInChannel = useMemo(() => {
 		return currentDmGroup?.user_id?.some((i) => i === signalingData?.[0]?.callerId);
 	}, [currentDmGroup?.user_id, signalingData]);
+	const blockListUser = useAppSelector((state) => selectBlockedUsersForMessage(state));
 
 	const HEIGHT_EMOJI_PANEL = 457;
 	const WIDTH_EMOJI_PANEL = 500;
@@ -147,16 +150,6 @@ const DirectMessage = () => {
 	const distanceToBottom = window.innerHeight - positionOfSmileButton.bottom;
 	const distanceToRight = window.innerWidth - positionOfSmileButton.right;
 	let topPositionEmojiPanel: string;
-
-	// useEffect(() => {
-	// 	dispatch(
-	// 		directActions.joinDirectMessage({
-	// 			directMessageId: currentDmGroup?.channel_id ?? '',
-	// 			channelName: '',
-	// 			type: Number(type)
-	// 		})
-	// 	);
-	// }, [currentDmGroup?.channel_id]);
 
 	if (distanceToBottom < HEIGHT_EMOJI_PANEL) {
 		topPositionEmojiPanel = 'auto';
@@ -187,6 +180,13 @@ const DirectMessage = () => {
 		: 0;
 
 	const isDmChannel = useMemo(() => currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM, [currentDmGroup?.type]);
+	const isBlocked = useMemo(() => {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM) {
+			return blockListUser?.some((user) => user?.user && user.user.id === (currentDmGroup?.user_id?.[0] || ''));
+		}
+		return false;
+	}, [currentDmGroup?.type, currentDmGroup?.user_id]);
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const handleClose = useCallback(() => {}, []);
 
@@ -276,7 +276,7 @@ const DirectMessage = () => {
 						)}
 
 						<div className="flex-shrink-0 flex flex-col bg-theme-chat  h-auto relative">
-							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup.user_id?.length === 0 ? (
+							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (currentDmGroup.user_id?.length === 0 || isBlocked) ? (
 								<div
 									style={{ height: 44 }}
 									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"

@@ -6,7 +6,7 @@ import { useMezon } from '@mezon/transport';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, NativeModules, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -16,7 +16,8 @@ import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './styles';
 
 type LoginMode = 'otp' | 'password' | 'sms';
-
+const OTP_COOLDOWN_SECONDS = 60;
+type ICooldownInfo = { isInCooldown: boolean; remaining: number };
 const LoginScreen = ({ navigation }) => {
 	const styles = style();
 	const [email, setEmail] = useState('');
@@ -25,8 +26,10 @@ const LoginScreen = ({ navigation }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
+	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
+	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+
 	const { t } = useTranslation(['common']);
-	const { t: tAccount } = useTranslation(['accountSetting']);
 	const dispatch = useAppDispatch();
 	const isValidEmail = (email: string) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,8 +43,74 @@ const LoginScreen = ({ navigation }) => {
 	const { clientRef } = useMezon();
 	const isEmailValid = isValidEmail(email);
 	const isPhoneValid = isValidPhone(phone);
-	const isPasswordValid = password.length >= 8;
+	const isPasswordValid = password.length >= 1;
 	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isPhoneValid : isEmailValid && isPasswordValid;
+
+	const clearBadgeCount = () => {
+		try {
+			NativeModules?.BadgeModule?.setBadgeCount?.(0);
+		} catch (error) {
+			console.error('Error clearing badge count:', error);
+		}
+	};
+
+	const getInfoInCooldown = (emailAddress: string): ICooldownInfo => {
+		const lastSentTime = lastOTPSentTime[emailAddress];
+		if (!lastSentTime)
+			return {
+				isInCooldown: false,
+				remaining: 0
+			};
+		const currentTime = Date.now();
+		const timeDifference = (currentTime - lastSentTime) / 1000;
+		return {
+			isInCooldown: timeDifference < OTP_COOLDOWN_SECONDS,
+			remaining: Math.round(OTP_COOLDOWN_SECONDS - timeDifference)
+		};
+	};
+
+	const updateCooldownTimer = () => {
+		const currentEmail = loginMode === 'sms' ? phone : email;
+		const lastSentTime = lastOTPSentTime[currentEmail];
+
+		if (!lastSentTime) {
+			setCooldownRemaining(0);
+			return;
+		}
+
+		const currentTime = Date.now();
+		const timeDifference = (currentTime - lastSentTime) / 1000;
+		const remaining = Math.max(0, OTP_COOLDOWN_SECONDS - timeDifference);
+		setCooldownRemaining(Math.ceil(remaining));
+
+		if (remaining <= 0) {
+			// Remove this email from cooldown
+			setLastOTPSentTime((prev) => {
+				const newState = { ...prev };
+				delete newState[currentEmail];
+				return newState;
+			});
+		}
+	};
+
+	useEffect(() => {
+		let interval: NodeJS.Timeout;
+
+		const currentEmail = loginMode === 'sms' ? phone : email;
+		const lastSentTime = lastOTPSentTime[currentEmail];
+
+		if (lastSentTime && getInfoInCooldown(currentEmail)?.isInCooldown) {
+			interval = setInterval(updateCooldownTimer, 1000);
+		} else {
+			setCooldownRemaining(0);
+		}
+
+		return () => {
+			if (interval) {
+				clearInterval(interval);
+			}
+		};
+	}, [lastOTPSentTime, email, phone, loginMode]);
 
 	const onLoadInit = async () => {
 		if (clientRef?.current && clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST) {
@@ -51,28 +120,22 @@ const LoginScreen = ({ navigation }) => {
 
 	useEffect(() => {
 		onLoadInit();
+		clearBadgeCount();
 	}, []);
 
-	const validatePassword = (value: string) => {
-		if (value.length < 8) {
-			return tAccount('setPasswordAccount.error.characters');
-		}
-		if (!/[A-Z]/.test(value)) {
-			return tAccount('setPasswordAccount.error.uppercase');
-		}
-		if (!/[a-z]/.test(value)) {
-			return tAccount('setPasswordAccount.error.lowercase');
-		}
-		if (!/[0-9]/.test(value)) {
-			return tAccount('setPasswordAccount.error.number');
-		}
-		if (!/[^A-Za-z0-9]/.test(value)) {
-			return tAccount('setPasswordAccount.error.symbol');
-		}
-		return '';
-	};
-
 	const handleSendOTP = async () => {
+		const infoInCooldown: ICooldownInfo = getInfoInCooldown(email);
+		if (infoInCooldown?.isInCooldown) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: `Login too fast. Please wait ${infoInCooldown?.remaining || cooldownRemaining} seconds before trying again.`,
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+				}
+			});
+			return;
+		}
+
 		try {
 			if (isEmailValid) {
 				setIsLoading(true);
@@ -80,6 +143,11 @@ const LoginScreen = ({ navigation }) => {
 				const payload = resp?.payload as ApiLinkAccountConfirmRequest;
 				const reqId = payload?.req_id;
 				if (reqId) {
+					setLastOTPSentTime((prev) => ({
+						...prev,
+						[email]: Date.now()
+					}));
+
 					navigation.navigate(APP_SCREEN.VERIFY_OTP, { email, reqId });
 				} else {
 					Toast.show({
@@ -106,9 +174,25 @@ const LoginScreen = ({ navigation }) => {
 	};
 
 	const handleSendPhoneOTP = async () => {
+		if (getInfoInCooldown(phone)?.isInCooldown) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: `Login too fast. Please wait ${cooldownRemaining} seconds before trying again.`,
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+				}
+			});
+			return;
+		}
+
 		try {
 			if (isPhoneValid) {
 				setIsLoading(true);
+				setLastOTPSentTime((prev) => ({
+					...prev,
+					[phone]: Date.now()
+				}));
+
 				// todo: add more logic
 				setIsLoading(false);
 			}
@@ -126,18 +210,6 @@ const LoginScreen = ({ navigation }) => {
 	};
 
 	const handlePasswordLogin = async () => {
-		const errorMsgPassword = validatePassword(password);
-
-		if (errorMsgPassword) {
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: errorMsgPassword,
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-				}
-			});
-			return;
-		}
 		if (isEmailValid && isPasswordValid) {
 			try {
 				const resp: any = await authenticateEmailPassword({ email, password });
@@ -192,7 +264,7 @@ const LoginScreen = ({ navigation }) => {
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
-			<LinearGradient colors={['#3574FE', '#978AFF', '#DCCFFF']} style={[StyleSheet.absoluteFillObject]} />
+			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 
 			<KeyboardAvoidingView
 				style={{ flex: 1 }}
@@ -200,55 +272,64 @@ const LoginScreen = ({ navigation }) => {
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
 				<View style={styles.content}>
-					<Text style={styles.title}>{t('login.loginToMezon')}</Text>
-					<Text style={styles.subtitle}>{t('login.gladToMeetAgain')}</Text>
+					<Text style={styles.title}>{t('login.enterEmail')}</Text>
+					<Text style={styles.subtitle}>{t('login.chooseAnotherOption')}</Text>
 
 					<View style={styles.inputSection}>
-						<Text style={styles.inputLabel}>
-							{loginMode === 'otp'
-								? t('login.enterEmail')
-								: loginMode === 'sms'
-									? t('login.enterPhoneToLogin')
-									: t('login.enterEmailToLogin')}
-						</Text>
-						{(loginMode === 'otp' || loginMode === 'password') && (
-							<TextInput
-								style={styles.emailInput}
-								placeholder={t('login.emailAddress')}
-								placeholderTextColor={styles.placeholder.color}
-								value={email}
-								onChangeText={setEmail}
-								keyboardType="email-address"
-								autoCapitalize="none"
-								autoCorrect={false}
-							/>
-						)}
-						{loginMode === 'sms' && (
-							<TextInput
-								style={styles.emailInput}
-								placeholder={t('login.phone')}
-								placeholderTextColor={styles.placeholder.color}
-								value={phone}
-								onChangeText={setPhone}
-								keyboardType={'phone-pad'}
-								autoCapitalize="none"
-								autoCorrect={false}
-							/>
-						)}
+						<View style={styles.inputWrapper}>
+							<MezonIconCDN icon={IconCDN.mailIcon} width={size.s_20} height={size.s_20} color={'#454545'} />
+
+							{(loginMode === 'otp' || loginMode === 'password') && (
+								<TextInput
+									style={styles.emailInput}
+									placeholder={t('login.emailAddress')}
+									placeholderTextColor={styles.placeholder.color}
+									value={email}
+									onChangeText={setEmail}
+									keyboardType="email-address"
+									autoCapitalize="none"
+									autoCorrect={false}
+									autoFocus={true}
+									onSubmitEditing={handlePrimaryAction}
+									underlineColorAndroid="transparent"
+								/>
+							)}
+							{loginMode === 'sms' && (
+								<TextInput
+									style={styles.emailInput}
+									placeholder={t('login.phone')}
+									placeholderTextColor={styles.placeholder.color}
+									value={phone}
+									onChangeText={setPhone}
+									keyboardType={'phone-pad'}
+									autoCapitalize="none"
+									autoCorrect={false}
+								/>
+							)}
+						</View>
 					</View>
 
 					{loginMode === 'password' && (
 						<View style={styles.inputSection}>
-							<TextInput
-								style={styles.emailInput}
-								placeholder={t('login.password')}
-								placeholderTextColor={styles.placeholder.color}
-								value={password}
-								onChangeText={setPassword}
-								secureTextEntry={!showPassword}
-								autoCapitalize="none"
-								autoCorrect={false}
-							/>
+							<View style={styles.inputWrapper}>
+								<MezonIconCDN
+									icon={showPassword ? IconCDN.lockUnlockIcon : IconCDN.lockIcon}
+									width={size.s_20}
+									height={size.s_20}
+									color={'#454545'}
+								/>
+								<TextInput
+									style={styles.emailInput}
+									placeholder={t('login.password')}
+									placeholderTextColor={styles.placeholder.color}
+									value={password}
+									onChangeText={setPassword}
+									secureTextEntry={!showPassword}
+									autoCapitalize="none"
+									autoCorrect={false}
+									onSubmitEditing={handlePrimaryAction}
+								/>
+							</View>
 							<TouchableOpacity style={styles.showPasswordContainer} onPress={togglePasswordVisibility}>
 								<View style={styles.checkboxContainer}>
 									<View style={[styles.checkbox, showPassword && styles.checkboxChecked]}>
@@ -268,16 +349,24 @@ const LoginScreen = ({ navigation }) => {
 					)}
 
 					<TouchableOpacity
-						style={[styles.otpButton, isFormValid && !isLoading ? styles.otpButtonActive : styles.otpButtonDisabled]}
+						style={[styles.otpButton, !isFormValid && styles.otpButtonDisabled]}
 						onPress={handlePrimaryAction}
 						disabled={!isFormValid || isLoading}
 					>
 						{isLoading ? (
-							<ActivityIndicator size="small" color="#FFFFFF" style={{ marginRight: 8 }} />
+							<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
 						) : (
 							<Text style={[styles.otpButtonText]}>
 								{loginMode === 'otp' || loginMode === 'sms' ? t('login.send') : t('login.login')}
 							</Text>
+						)}
+						{isFormValid && (
+							<LinearGradient
+								start={{ x: 0, y: 0 }}
+								end={{ x: 1, y: 0 }}
+								colors={['#501794', '#3E70A1']}
+								style={[StyleSheet.absoluteFillObject]}
+							/>
 						)}
 					</TouchableOpacity>
 
@@ -286,10 +375,11 @@ const LoginScreen = ({ navigation }) => {
 							<>
 								<Text style={styles.alternativeText}>{t('login.cannotAccessYourEmail')}</Text>
 								<View style={styles.alternativeOptions}>
-									<TouchableOpacity onPress={handleSMSLogin}>
-										<Text style={styles.linkText}>{t('login.loginWithSMS')}</Text>
-									</TouchableOpacity>
-									<Text style={styles.orText}>{t('login.or')}</Text>
+									{/* TODO: open for login SMS */}
+									{/*<TouchableOpacity onPress={handleSMSLogin}>*/}
+									{/*	<Text style={styles.linkText}>{t('login.loginWithSMS')}</Text>*/}
+									{/*</TouchableOpacity>*/}
+									{/*<Text style={styles.orText}>{t('login.or')}</Text>*/}
 									<TouchableOpacity onPress={switchToPasswordMode}>
 										<Text style={styles.linkText}>{t('login.loginWithPassword')}</Text>
 									</TouchableOpacity>

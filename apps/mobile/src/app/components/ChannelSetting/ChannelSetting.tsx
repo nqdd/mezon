@@ -1,4 +1,4 @@
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, useTheme } from '@mezon/mobile-ui';
@@ -17,7 +17,7 @@ import {
 } from '@mezon/store-mobile';
 import { EOverriddenPermission, EPermission, checkIsThread } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -25,9 +25,11 @@ import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonInput from '../../componentUI/MezonInput';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { AddMemberOrRoleBS } from '../../screens/channelPermissionSetting/components/AddMemberOrRoleBS';
 import { validInput } from '../../utils/validate';
 import { style } from './styles';
@@ -76,40 +78,10 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 		dispatch(fetchSystemMessageByClanId({ clanId: channel?.clan_id }));
 	}, []);
 
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerTitle: isChannel ? t1('menuChannelStack.channelSetting') : t1('menuChannelStack.threadSetting'),
-			headerRight: () => (
-				<Pressable onPress={() => handleSaveChannelSetting()}>
-					<Text style={[styles.saveChangeButton, !isNotChanged ? styles.changed : styles.notChange]}>{t('confirm.save')}</Text>
-				</Pressable>
-			)
-		});
-	}, [navigation, isNotChanged, styles.saveChangeButton, styles.changed, styles.notChange, t, isChannel, t1]);
-
-	const handleUpdateValue = (value: Partial<IChannelSettingValue>) => {
-		setCurrentSettingValue({ ...currentSettingValue, ...value });
-	};
-
-	useEffect(() => {
-		if (channel?.channel_id) {
-			const initialChannelSettingValue: IChannelSettingValue = {
-				channelName: channel?.channel_label,
-				channelTopic: ''
-			};
-			setOriginSettingValue(initialChannelSettingValue);
-			setCurrentSettingValue(initialChannelSettingValue);
-		}
-	}, [channel]);
-
-	useEffect(() => {
-		setIsCheckValid(validInput(currentSettingValue?.channelName));
-	}, [currentSettingValue?.channelName]);
-
-	const handleSaveChannelSetting = async () => {
+	const handleSaveChannelSetting = useCallback(async () => {
 		const isCheckNameChannelValue =
-			!!channelsClan?.length && channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
+			!!channelsClan?.length &&
+			channelsClan?.some((channel) => channel?.channel_id !== channelId && channel?.channel_label === currentSettingValue?.channelName);
 		setIsCheckDuplicateNameChannel(isCheckNameChannelValue);
 		const updateChannel = {
 			clan_id: channel?.clan_id,
@@ -120,7 +92,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 			app_id: channel?.app_id || '',
 			age_restricted: channel?.age_restricted,
 			e2ee: channel?.e2ee,
-			topic: channel?.topic,
+			topic: currentSettingValue?.channelTopic || channel?.topic,
 			parent_id: channel?.parent_id,
 			channel_private: channel?.channel_private
 		};
@@ -134,7 +106,38 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 				leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} />
 			}
 		});
+	}, [channel, channelId, channelsClan, currentSettingValue?.channelName, dispatch, isCheckValid, navigation, t]);
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
+			headerTitle: isChannel ? t1('menuChannelStack.channelSetting') : t1('menuChannelStack.threadSetting'),
+			headerRight: () => (
+				<Pressable onPress={() => handleSaveChannelSetting()}>
+					<Text style={[styles.saveChangeButton, !isNotChanged ? styles.changed : styles.notChange]}>{t('confirm.save')}</Text>
+				</Pressable>
+			)
+		});
+	}, [navigation, isNotChanged, styles, t, isChannel, t1, handleSaveChannelSetting]);
+
+	const handleUpdateValue = (value: Partial<IChannelSettingValue>) => {
+		setCurrentSettingValue({ ...currentSettingValue, ...value });
 	};
+
+	useEffect(() => {
+		if (channel?.channel_id) {
+			const initialChannelSettingValue: IChannelSettingValue = {
+				channelName: channel?.channel_label,
+				channelTopic: channel?.topic || ''
+			};
+			setOriginSettingValue(initialChannelSettingValue);
+			setCurrentSettingValue(initialChannelSettingValue);
+		}
+	}, [channel]);
+
+	useEffect(() => {
+		setIsCheckValid(validInput(currentSettingValue?.channelName));
+	}, [currentSettingValue?.channelName]);
 
 	const permissionMenu = useMemo(
 		() =>
@@ -157,7 +160,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					title: t('fields.channelPermission.permission'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.bravePermission} color={themeValue.text} />,
-					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP,
+					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP && currentSystemMessage?.channel_id !== channel?.channel_id,
 					onPress: () => {
 						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 							screen: APP_SCREEN.MENU_CHANNEL.CHANNEL_PERMISSION,
@@ -193,7 +196,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					}
 				}
 			] satisfies IMezonMenuItemProps[],
-		[channel?.channel_private, channel?.type, channelId, isChannel, t, themeValue.text]
+		[channel, channelId, currentSystemMessage?.channel_id, isChannel, navigation, t, themeValue.text]
 	);
 
 	const webhookMenu = useMemo(

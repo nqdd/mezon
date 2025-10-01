@@ -177,7 +177,7 @@ const RoomView = ({
 		return (
 			<View style={{ width: '100%', flex: 1, alignItems: 'center' }}>
 				<View style={{ height: '100%', width: '100%' }}>
-					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)}>
+					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)} allowPinchPanning={false}>
 						<View style={{ height: '100%', width: marginWidth }}>
 							<VideoTrack
 								trackRef={focusedScreenShare}
@@ -224,6 +224,7 @@ const RoomView = ({
 					activeSoundReactions={activeSoundReactions}
 					isGroupCall={isGroupCall}
 					clanId={clanId}
+					channelId={channelId}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (

@@ -20,6 +20,7 @@ import {
 	FOR_24_HOURS,
 	FOR_3_HOURS,
 	FOR_8_HOURS,
+	generateE2eId,
 	MUTE
 } from '@mezon/utils';
 import { format } from 'date-fns';
@@ -220,6 +221,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 			role={'button'}
 			style={{ left: coords.mouseX, bottom: positionTop ? '12px' : 'auto', top: positionTop ? 'auto' : coords.mouseY }}
 			className="outline-none fixed top-full rounded-lg z-30 w-[200px] py-[10px] px-[10px] shadow-md bg-theme-contexify"
+			data-e2e={generateE2eId('clan_page.side_bar.panel.category_panel')}
 		>
 			<GroupPanels>
 				<ItemPanel

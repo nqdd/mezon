@@ -8,9 +8,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { IMessageWithUser } from '@mezon/utils';
-import { TypeMessage } from '@mezon/utils';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import { IMessageWithUser, TypeMessage, generateE2eId } from '@mezon/utils';
+import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -154,11 +153,13 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 							onClick={closeModal}
 							className="px-4 py-2 hover:underline rounded disabled:cursor-not-allowed disabled:hover:no-underline disabled:opacity-85 text-theme-primary"
 							disabled={isLoading}
+							data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.cancel')}
 						>
 							{t('deleteMessageModal.cancel')}
 						</button>
 						<button
 							onClick={handleAction}
+							data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.confirm')}
 							className="px-4 py-2 bg-[#DA363C] rounded hover:bg-opacity-85 text-white disabled:cursor-not-allowed disabled:opacity-85 disabled:hover:opacity-85 flex items-center gap-1"
 							disabled={isLoading}
 						>

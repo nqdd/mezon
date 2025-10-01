@@ -25,11 +25,13 @@ import type { ChannelMessage } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MessageButtonClicked } from 'mezon-js/socket';
 import { accountActions, selectAllAccount } from '../account/account.slice';
+import { getUserAvatarOverride, getUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
 import { resetChannelBadgeCount } from '../badge/badgeHelpers';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
@@ -574,9 +576,14 @@ export const jumpToMessage = createAsyncThunk(
 		{ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs,
 		thunkAPI
 	) => {
+		let timeoutId: NodeJS.Timeout | undefined;
 		try {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(true));
 			thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: 'temp', navigate: false }));
+			timeoutId = setTimeout(() => {
+				thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+				thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			}, 15000);
 			const channelMessages = selectViewportIdsByChannelId(getMessagesRootState(thunkAPI), channelId);
 			const indexMessage = channelMessages.indexOf(messageId);
 			let found = true;
@@ -623,9 +630,12 @@ export const jumpToMessage = createAsyncThunk(
 			}
 		} catch (e) {
 			captureSentryError(e, 'messages/jumpToMessage');
+			thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+			if (timeoutId) clearTimeout(timeoutId);
 			return thunkAPI.rejectWithValue(e);
 		} finally {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			if (timeoutId) clearTimeout(timeoutId);
 		}
 	}
 );
@@ -671,17 +681,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 				return;
 			}
 
-			resetChannelBadgeCount(
-				thunkAPI.dispatch as AppDispatch,
-				{
-					clanId,
-					channelId,
-					badgeCount: badge_count,
-					timestamp: message_time ?? now,
-					messageId
-				},
-				{ getState: () => thunkAPI.getState() as RootState }
-			);
+			resetChannelBadgeCount(thunkAPI.dispatch as AppDispatch, {
+				clanId,
+				channelId,
+				badgeCount: badge_count,
+				timestamp: message_time ?? now,
+				messageId
+			});
 		} catch (e) {
 			console.error(e, 'updateLastSeenMessage');
 			captureSentryError(e, 'messages/updateLastSeenMessage');
@@ -832,6 +838,20 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 	const id = Snowflake.generate();
 	async function fakeItUntilYouMakeIt() {
+		const rootState = thunkAPI.getState() as RootState;
+		const currentUser = selectAllAccount(rootState);
+
+		const overrideAvatar = getUserAvatarOverride(senderId);
+		const overrideClanAvatar = clanId && clanId !== '0' ? getUserClanAvatarOverride(senderId, clanId) : undefined;
+
+		let clanAvatar = avatar;
+		if (clanId && clanId !== '0' && currentUser?.user?.id) {
+			const userClanProfile = selectUserClanProfileByClanID(clanId, currentUser.user.id)(rootState);
+			clanAvatar = overrideClanAvatar || userClanProfile?.avatar || avatar;
+		}
+
+		const finalAvatar = overrideAvatar || avatar;
+
 		const fakeMessage: ChannelMessage = {
 			id,
 			code: code || 0, // Add new message
@@ -843,7 +863,9 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			create_time: new Date().toISOString(),
 			sender_id: anonymous ? NX_CHAT_APP_ANNONYMOUS_USER_ID : senderId,
 			username: anonymous ? 'Anonymous' : username || '',
-			avatar: anonymous ? '' : avatar,
+			avatar: anonymous ? '' : finalAvatar,
+			clan_avatar: clanId && clanId !== '0' ? clanAvatar : undefined,
+			clan_id: clanId !== '0' ? clanId : undefined,
 			isSending: true,
 			references: references?.filter((item) => item) || [],
 			isMe: true,
