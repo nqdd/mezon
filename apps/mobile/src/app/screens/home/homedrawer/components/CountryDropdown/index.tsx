@@ -34,21 +34,20 @@ export const CountryDropdown = memo<ICountryDropdownProps>(({ onCountrySelect, i
 
 	return (
 		<View style={styles.dropdownContainer}>
-			{countries.length > 0 &&
-				countries.map((country) => (
-					<TouchableOpacity
-						key={country.code}
-						style={[styles.dropdownItem, selectedCountry?.code === country.code && styles.selectedItem]}
-						activeOpacity={0.8}
-						onPress={() => onCountrySelect(country)}
-					>
-						<View style={styles.dropdownItemContent}>
-							<MezonIconCDN icon={country.icon} useOriginalColor customStyle={styles.customStyleFlagIcon} />
-							<Text style={styles.dropdownText}>{country.name}</Text>
-						</View>
-						<Text style={[styles.dropdownText, { color: themeValue.bgViolet }]}>{`(${country.prefix})`}</Text>
-					</TouchableOpacity>
-				))}
+			{countries.map((country) => (
+				<TouchableOpacity
+					key={country.code}
+					style={[styles.dropdownItem, selectedCountry?.code === country.code && styles.selectedItem]}
+					activeOpacity={0.8}
+					onPress={() => onCountrySelect(country)}
+				>
+					<View style={styles.dropdownItemContent}>
+						<MezonIconCDN icon={country.icon} useOriginalColor customStyle={styles.customStyleFlagIcon} />
+						<Text style={styles.dropdownText}>{country.name}</Text>
+					</View>
+					<Text style={[styles.dropdownText, { color: themeValue.bgViolet }]}>{`(${country.prefix})`}</Text>
+				</TouchableOpacity>
+			))}
 		</View>
 	);
 });

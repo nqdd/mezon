@@ -11,8 +11,9 @@ interface OTPInputProps {
 	isSms?: boolean;
 }
 
+const { SmsUserConsent } = NativeModules;
+
 const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError = false, resetTrigger, isSms = false }) => {
-	const { SmsUserConsent } = NativeModules;
 	const styles = style();
 	const [otp, setOtp] = useState<string[]>(new Array(OTP_LENGTH).fill(''));
 	const inputRefs = useRef<(TextInput | null)[]>([]);
