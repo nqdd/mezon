@@ -1,36 +1,40 @@
-import { useTheme } from '@mezon/mobile-ui';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { NativeEventEmitter, NativeModules, Platform, TextInput, View } from 'react-native';
 import { style } from './styles';
 
-interface IOTPInputProps {
-	onOtpChange: (otp: string) => void;
+const OTP_LENGTH = 6;
+interface OTPInputProps {
+	onOtpChange: (otp: string[]) => void;
 	onOtpComplete: (otp: string) => void;
+	isError?: boolean;
+	resetTrigger?: any;
+	isSms?: boolean;
 }
 
-const OTP_LENGTH = 6;
-
-export const OTPInput = memo(({ onOtpChange, onOtpComplete }: IOTPInputProps) => {
+const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError = false, resetTrigger, isSms = false }) => {
 	const { SmsUserConsent } = NativeModules;
-	const { themeValue } = useTheme();
-	const styles = style(themeValue);
-
-	const [otpCode, setOtpCode] = useState<string[]>(Array(OTP_LENGTH).fill(''));
-	const otpInputRef = useRef<(TextInput | null)[]>([]);
+	const styles = style();
+	const [otp, setOtp] = useState<string[]>(new Array(OTP_LENGTH).fill(''));
+	const inputRefs = useRef<(TextInput | null)[]>([]);
 	const smsSubscriptionsRef = useRef<any[]>([]);
 
 	const fillOtp = useCallback(
-		(otp: string) => {
-			const otps = otp.slice(0, OTP_LENGTH).split('');
-			setOtpCode(otps);
-			otpInputRef.current[OTP_LENGTH - 1]?.focus();
-			onOtpChange(otp.slice(0, OTP_LENGTH));
+		(otpString: string) => {
+			const otps = otpString.split('');
+			otps.forEach((digit, index) => {
+				if (inputRefs.current[index]) {
+					inputRefs.current[index].setNativeProps({ text: digit });
+				}
+			});
+			setOtp(otps);
+			inputRefs.current[OTP_LENGTH - 1]?.focus();
+			onOtpChange(otps);
 		},
 		[onOtpChange]
 	);
 
 	const setupSmsAutoFill = useCallback(async () => {
-		if (Platform.OS !== 'android' || !SmsUserConsent) return;
+		if (Platform.OS !== 'android' || !SmsUserConsent || !isSms) return;
 
 		try {
 			const emitter = new NativeEventEmitter(SmsUserConsent);
@@ -52,7 +56,7 @@ export const OTPInput = memo(({ onOtpChange, onOtpComplete }: IOTPInputProps) =>
 		} catch (error) {
 			console.error('Error start SMS User Consent:', error);
 		}
-	}, [SmsUserConsent, fillOtp, onOtpComplete]);
+	}, [SmsUserConsent, fillOtp, onOtpComplete, isSms]);
 
 	useEffect(() => {
 		setupSmsAutoFill();
@@ -63,79 +67,85 @@ export const OTPInput = memo(({ onOtpChange, onOtpComplete }: IOTPInputProps) =>
 		};
 	}, [setupSmsAutoFill]);
 
+	useEffect(() => {
+		if (resetTrigger) {
+			const newOtp = new Array(OTP_LENGTH).fill('');
+			setOtp(newOtp);
+			onOtpChange(newOtp);
+			inputRefs?.current?.[0]?.focus();
+		}
+	}, [resetTrigger, onOtpChange]);
+
 	const handleOtpChange = useCallback(
 		(value: string, index: number) => {
-			if (/^\d{6}$/.test(value)) {
-				fillOtp(value);
-				onOtpComplete(value);
-				return;
+			try {
+				if (value.length === OTP_LENGTH) {
+					fillOtp(value);
+					onOtpComplete(value);
+					return;
+				}
+
+				if (value === '') {
+					setOtp((prev) => {
+						const newOtp = [...prev];
+						newOtp[index] = '';
+						onOtpChange(newOtp);
+						return newOtp;
+					});
+					return;
+				}
+
+				if (value.length >= 1 && /^\d*$/.test(value)) {
+					const valueLatest = value[value.length - 1];
+					setOtp((prev) => {
+						const newOtp = [...prev];
+						newOtp[index] = valueLatest;
+						onOtpChange(newOtp);
+
+						if (valueLatest !== '' && index < OTP_LENGTH - 1) {
+							inputRefs.current[index + 1]?.focus();
+						}
+
+						if (newOtp.every((digit) => digit !== '')) {
+							onOtpComplete(newOtp.join(''));
+						}
+
+						return newOtp;
+					});
+				}
+			} catch (error) {
+				console.error('handleOtpChange error', error);
 			}
-			if (!/^\d*$/.test(value)) return;
-
-			setOtpCode((prevOtp) => {
-				const newOtp = [...prevOtp];
-				if (value.length <= 1) {
-					newOtp[index] = value;
-					onOtpChange(newOtp.join(''));
-
-					if (value !== '' && index < OTP_LENGTH - 1) {
-						otpInputRef.current[index + 1]?.focus();
-					}
-				}
-				return newOtp;
-			});
 		},
-		[onOtpChange, onOtpComplete, fillOtp]
+		[fillOtp, onOtpChange, onOtpComplete]
 	);
 
-	const handleKeyPress = useCallback(
-		(e: any, index: number) => {
-			if (e.nativeEvent.key !== 'Backspace') return;
-
-			setOtpCode((prevOtp) => {
-				const newOtp = [...prevOtp];
-				if (prevOtp[index]) {
-					newOtp[index] = '';
-					onOtpChange(newOtp.join(''));
-					return newOtp;
-				}
-
-				if (index > 0) {
-					newOtp[index - 1] = '';
-					onOtpChange(newOtp.join(''));
-					otpInputRef.current[index - 1]?.focus();
-				}
-				return newOtp;
-			});
-		},
-		[onOtpChange]
-	);
+	const handleKeyPress = (e: any, index: number) => {
+		if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
+			inputRefs?.current?.[index - 1]?.focus();
+		}
+	};
 
 	return (
-		<View style={styles.otpContainer}>
-			{Array.from({ length: OTP_LENGTH }, (_, index) => {
-				return (
-					<TextInput
-						key={`otp-box-${index}`}
-						ref={(ref: TextInput | null) => {
-							otpInputRef.current[index] = ref;
-						}}
-						style={[styles.otpTextInput, otpCode[index] || '' ? styles.otpInputBoxActive : {}]}
-						value={otpCode[index] || ''}
-						onChangeText={(v) => handleOtpChange(v, index)}
-						onKeyPress={(e) => handleKeyPress(e, index)}
-						keyboardType="number-pad"
-						inputMode="numeric"
-						maxLength={OTP_LENGTH}
-						autoCorrect={false}
-						autoCapitalize="none"
-						textContentType={Platform.OS === 'ios' ? 'oneTimeCode' : undefined}
-						autoComplete={Platform.OS === 'android' ? 'sms-otp' : undefined}
-						selectTextOnFocus
-						autoFocus={index === 0}
-					/>
-				);
-			})}
+		<View style={styles.inputSection}>
+			{otp.map((digit, index) => (
+				<TextInput
+					key={index}
+					ref={(ref) => (inputRefs.current[index] = ref)}
+					style={[styles.input, digit !== '' ? styles.inputFilled : styles.inputEmpty, isError && styles.inputError]}
+					value={digit}
+					onChangeText={(value) => handleOtpChange(value, index)}
+					onKeyPress={(e) => handleKeyPress(e, index)}
+					keyboardType="number-pad"
+					maxLength={OTP_LENGTH}
+					autoFocus={index === 0}
+					selectTextOnFocus={true}
+					autoComplete={isSms ? 'sms-otp' : undefined}
+					textContentType={isSms ? 'oneTimeCode' : undefined}
+				/>
+			))}
 		</View>
 	);
-});
+};
+
+export default memo(OTPInput);

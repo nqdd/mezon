@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 import MezonButton from '../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { OTPInput } from '../../../home/homedrawer/components/OTPInput';
+import OTPInput from '../../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
 
 interface IVerifyPhoneNumberProps {
@@ -61,14 +61,14 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 		[requestId, t]
 	);
 
-	const handleOtpChange = useCallback((otp: string) => {
-		setOtpCode(otp);
+	const handleOtpChange = useCallback((otp: string[]) => {
+		setOtpCode(otp.join(''));
 	}, []);
 
 	return (
 		<SafeAreaView style={styles.container}>
 			<Text style={styles.subtitle}>{`${t('phoneNumberSetting.verifyPhoneNumber.description')} ${phoneNumber}`}</Text>
-			<OTPInput onOtpChange={handleOtpChange} onOtpComplete={handleVerify} />
+			<OTPInput onOtpChange={handleOtpChange} onOtpComplete={handleVerify} isSms={true} />
 
 			<MezonButton
 				title={t('phoneNumberSetting.verifyPhoneNumber.verifyButton')}

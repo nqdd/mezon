@@ -24,20 +24,33 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 	const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
 	const [isValidPhoneNumber, setIsValidPhoneNumber] = useState<boolean | null>(null);
 
-	const handleCountrySelect = useCallback((country: ICountry) => {
-		setSelectedCountry(country);
-		setIsShowDropdown(false);
-	}, []);
-
 	const toggleShowCountryDropdown = () => {
 		setIsShowDropdown(!isShowDropdown);
 	};
 
-	const checkValidPhoneNumber = useCallback((phoneNum: string) => {
-		if (phoneNum.length === 0) return null;
-		if (phoneNum.length < 7) return false;
-		return /^\d+$/.test(phoneNum);
-	}, []);
+	const checkValidPhoneNumber = useCallback(
+		(phoneData: string, prefix: string = selectedCountry.prefix) => {
+			if (phoneData.length === 0) return null;
+
+			if (prefix === '+84') {
+				const vietnamPhoneRegex = /^0?(3|5|7|8|9)[0-9]{8}$/;
+				return vietnamPhoneRegex.test(phoneData);
+			}
+
+			if (phoneData.length < 7) return false;
+			return /^\d+$/.test(phoneData);
+		},
+		[selectedCountry.prefix]
+	);
+
+	const handleCountrySelect = useCallback(
+		(country: ICountry) => {
+			setSelectedCountry(country);
+			setIsShowDropdown(false);
+			setIsValidPhoneNumber(checkValidPhoneNumber(phoneNumber, country.prefix));
+		},
+		[phoneNumber, checkValidPhoneNumber]
+	);
 
 	const handlePhoneNumberChange = useCallback(
 		(value: string) => {
@@ -48,7 +61,11 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 	);
 
 	const handleAddPhoneNumber = useCallback(async () => {
-		const fullPhoneNumber = `${selectedCountry.prefix}${phoneNumber}`;
+		let processedPhoneNumber = phoneNumber;
+		if (selectedCountry.prefix === '+84' && phoneNumber.startsWith('0')) {
+			processedPhoneNumber = phoneNumber.substring(1);
+		}
+		const fullPhoneNumber = `${selectedCountry.prefix}${processedPhoneNumber}`;
 		try {
 			const response = await dispatch(accountActions.addPhoneNumber({ phone_number: fullPhoneNumber }));
 			const requestId = response?.payload?.req_id;
@@ -92,9 +109,11 @@ export const UpdatePhoneNumber = memo(({ navigation }: { navigation: any }) => {
 					</View>
 				</View>
 
-				{isValidPhoneNumber === false && (
-					<ErrorInput errorMessage={t('phoneNumberSetting.updatePhoneNumber.invalidPhoneNumber')} style={styles.errorInput} />
-				)}
+				<View style={styles.errorContainer}>
+					{isValidPhoneNumber === false && (
+						<ErrorInput errorMessage={t('phoneNumberSetting.updatePhoneNumber.invalidPhoneNumber')} style={styles.errorInput} />
+					)}
+				</View>
 
 				<CountryDropdown onCountrySelect={handleCountrySelect} isVisible={isShowDropdown} selectedCountry={selectedCountry} />
 			</View>

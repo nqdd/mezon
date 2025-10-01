@@ -1,28 +1,38 @@
-import type { Attributes } from '@mezon/mobile-ui';
 import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (themeValue: Attributes) =>
+export const style = () =>
 	StyleSheet.create({
-		otpContainer: {
+		inputSection: {
+			marginBottom: size.s_24,
+			gap: size.s_8,
 			flexDirection: 'row',
-			marginBottom: size.s_30,
-			paddingHorizontal: size.s_20
+			alignSelf: 'center',
+			alignItems: 'center',
+			justifyContent: 'center'
 		},
-		otpInputBoxActive: {
-			borderColor: themeValue.bgViolet
-		},
-		otpTextInput: {
+		input: {
 			width: size.s_42,
-			height: size.s_50,
-			borderRadius: size.s_12,
-			backgroundColor: themeValue.secondary,
-			borderWidth: 2,
-			borderColor: themeValue.border,
+			height: size.s_48,
+			borderRadius: size.s_8,
 			textAlign: 'center',
-			fontSize: size.s_24,
+			fontSize: size.s_20,
+			color: '#000000',
 			fontWeight: '600',
-			color: themeValue.textStrong,
-			marginHorizontal: size.s_4
+			backgroundColor: '#ffffff',
+			borderWidth: 2
+		},
+		inputEmpty: {
+			borderColor: '#d1d5db',
+			color: '#374151'
+		},
+		inputFilled: {
+			borderWidth: 2,
+			borderColor: '#1661ff',
+			color: '#000000'
+		},
+		inputError: {
+			borderColor: '#ca0000',
+			backgroundColor: 'rgba(202,0,0,0.1)'
 		}
 	});

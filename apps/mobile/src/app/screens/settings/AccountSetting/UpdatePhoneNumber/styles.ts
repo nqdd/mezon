@@ -10,7 +10,7 @@ export const style = (themeValue: Attributes) =>
 			padding: size.s_20
 		},
 		contentContainer: {
-			marginBottom: size.s_32,
+			marginBottom: size.s_10,
 			position: 'relative'
 		},
 		label: {
@@ -60,5 +60,8 @@ export const style = (themeValue: Attributes) =>
 		},
 		customStyleFlagIcon: {
 			marginRight: size.s_6
+		},
+		errorContainer: {
+			minHeight: size.s_30
 		}
 	});
