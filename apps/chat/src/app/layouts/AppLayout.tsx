@@ -101,7 +101,7 @@ const AppLayout = () => {
 			return;
 		}
 		handleConnectNoti();
-	}, [isLogin, sessions]);
+	}, [isLogin]);
 
 	const handleConnectNoti = useCallback(async () => {
 		if (sessions) {

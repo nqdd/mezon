@@ -1,5 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { ClansEntity, selectBadgeCountByClanId, selectCurrentClanId } from '@mezon/store-mobile';
+import type { ClansEntity } from '@mezon/store-mobile';
+import { selectBadgeCountByClanId, selectCurrentClanId } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -71,6 +72,11 @@ export const ClanIcon = memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		return prevProps.data?.clan_id === nextProps.data?.clan_id && prevProps.data?.logo === nextProps.data?.logo;
+		return (
+			prevProps.data?.clan_id === nextProps.data?.clan_id &&
+			prevProps.data?.logo === nextProps.data?.logo &&
+			prevProps.data?.clan_name === nextProps.data?.clan_name &&
+			prevProps.isActive === nextProps.isActive
+		);
 	}
 );

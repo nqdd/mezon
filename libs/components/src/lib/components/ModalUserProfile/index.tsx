@@ -257,14 +257,14 @@ const ModalUserProfile = ({
 			<div className="px-[16px]">
 				<div className=" w-full border-theme-primary p-2 my-[16px] text-theme-primary shadow rounded-[10px] flex flex-col text-justify bg-item-theme">
 					<div>
-						<p className="font-semibold tracking-wider text-xl one-line text-theme-primary-active my-0">
+						<p className="font-semibold tracking-wider text-xl one-line text-theme-primary-active my-0 truncate">
 							{isUserRemoved
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
 									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username}
 						</p>
-						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0">
+						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
 						</p>
 					</div>
@@ -285,16 +285,24 @@ const ModalUserProfile = ({
 					)}
 
 					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
-						<div className="w-full items-center mt-2">
-							<input
-								type="text"
-								className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-								placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
-								value={content}
-								onKeyPress={handleOnKeyPress}
-								onChange={handleContent}
-							/>
-						</div>
+						userById?.user?.username ? (
+							<div className="w-full items-center mt-2">
+								<input
+									type="text"
+									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
+									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+									value={content}
+									onKeyPress={handleOnKeyPress}
+									onChange={handleContent}
+								/>
+							</div>
+						) : (
+							<div className="w-full items-center mt-2">
+								<div className="w-full  bg-item-theme text-theme-primary-active p-[8px] text-center italic">
+									{t('labels.userNotFound')}
+								</div>
+							</div>
+						)
 					) : null}
 					{showNote && (
 						<>

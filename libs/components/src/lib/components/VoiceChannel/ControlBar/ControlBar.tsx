@@ -35,7 +35,7 @@ import { TrackToggle } from './TrackToggle/TrackToggle';
 interface ControlBarProps extends React.HTMLAttributes<HTMLDivElement> {
 	onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
 	saveUserChoices?: boolean;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	isExternalCalling?: boolean;
 	currentChannel?: ReactionChannelInfo;
@@ -65,6 +65,7 @@ const ControlBar = ({
 	const screenTrackRef = useRef<LocalTrackPublication | null>(null);
 	const isDesktop = isElectron();
 	const stream = useSelector(selectStreamScreen);
+	const isPublishingScreenRef = useRef(false);
 	const visibleControls = { leave: true } as any;
 
 	const showScreen = useSelector(selectShowScreen);
@@ -152,46 +153,63 @@ const ControlBar = ({
 		}
 	}, [dispatch, showScreen]);
 
+	const handleLeaveRoom = useCallback(() => {
+		onLeaveRoom(true);
+	}, [onLeaveRoom]);
+
 	useEffect(() => {
 		const publishScreenTrack = async () => {
-			if (screenTrackRef.current?.track) {
-				screenTrackRef.current.track.stop?.();
-				await localParticipant.localParticipant.unpublishTrack(screenTrackRef.current.track);
-				screenTrackRef.current = null;
+			if (isPublishingScreenRef.current) {
+				return;
 			}
-			if (!stream) return;
-			const videoTrack = stream.getVideoTracks()[0];
+
+			isPublishingScreenRef.current = true;
+
 			try {
-				const trackPublication = await localParticipant.localParticipant.publishTrack(videoTrack, {
-					name: 'screen-share',
-					source: Track.Source.ScreenShare,
-					simulcast: false,
-					screenShareSimulcastLayers: [
-						// 720p
-						{
-							...VideoPresets.h720,
-							encoding: ScreenSharePresets.h720fps30.encoding,
-							resolution: ScreenSharePresets.h720fps30.resolution
-						},
-						// 1080p
-						{
-							...VideoPresets.h1080,
-							encoding: ScreenSharePresets.h1080fps30.encoding,
+				if (screenTrackRef.current?.track) {
+					screenTrackRef.current.track.stop?.();
+					await localParticipant.localParticipant.unpublishTrack(screenTrackRef.current.track);
+					screenTrackRef.current = null;
+				}
+				if (!stream) {
+					isPublishingScreenRef.current = false;
+					return;
+				}
+				const videoTrack = stream.getVideoTracks()[0];
+				try {
+					const trackPublication = await localParticipant.localParticipant.publishTrack(videoTrack, {
+						name: 'screen-share',
+						source: Track.Source.ScreenShare,
+						simulcast: false,
+						screenShareSimulcastLayers: [
+							// 720p
+							{
+								...VideoPresets.h720,
+								encoding: ScreenSharePresets.h720fps30.encoding,
+								resolution: ScreenSharePresets.h720fps30.resolution
+							},
+							// 1080p
+							{
+								...VideoPresets.h1080,
+								encoding: ScreenSharePresets.h1080fps30.encoding,
 
-							resolution: ScreenSharePresets.h1080fps30.resolution
-						},
-						{
-							...VideoPresets.h1440,
-							encoding: ScreenSharePresets.original.encoding,
+								resolution: ScreenSharePresets.h1080fps30.resolution
+							},
+							{
+								...VideoPresets.h1440,
+								encoding: ScreenSharePresets.original.encoding,
 
-							resolution: ScreenSharePresets.original.resolution
-						}
-					]
-				});
+								resolution: ScreenSharePresets.original.resolution
+							}
+						]
+					});
 
-				screenTrackRef.current = trackPublication;
-			} catch (error) {
-				console.error('Error publishing screen track:', error);
+					screenTrackRef.current = trackPublication;
+				} catch (error) {
+					console.error('Error publishing screen track:', error);
+				}
+			} finally {
+				isPublishingScreenRef.current = false;
 			}
 		};
 		const publishScreenAudioTrack = async () => {
@@ -230,6 +248,7 @@ const ControlBar = ({
 				localParticipant.localParticipant.unpublishTrack(audioScreenTrackRef.current.track);
 				audioScreenTrackRef.current = null;
 			}
+			isPublishingScreenRef.current = false;
 		};
 	}, [stream]);
 
@@ -449,7 +468,7 @@ const ControlBar = ({
 					))}
 				{visibleControls.leave && (
 					<div
-						onClick={onLeaveRoom}
+						onClick={handleLeaveRoom}
 						className="w-14 aspect-square max-md:w-10 bg-[#da373c] hover:bg-[#a12829] cursor-pointer rounded-full flex justify-center items-center"
 					>
 						<Icons.EndCall className="w-6 aspect-square max-md:w-4" />

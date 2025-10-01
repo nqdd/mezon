@@ -1,8 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { IClanProfile, LoadingStatus, TypeCheck } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUpdateClanProfileRequest } from 'mezon-js';
-import { ApiClanProfile } from 'mezon-js/api.gen';
+import type { IClanProfile, LoadingStatus } from '@mezon/utils';
+import { TypeCheck } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUpdateClanProfileRequest } from 'mezon-js';
+import type { ApiClanProfile } from 'mezon-js/api.gen';
+import { accountActions } from '../account/account.slice';
+import { setUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
 import { ensureClient, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
 export const USER_CLAN_PROFILE_FEATURE_KEY = 'userClanProfile';
@@ -88,6 +92,22 @@ export const updateUserClanProfile = createAsyncThunk(
 				if (!response) {
 					return thunkAPI.rejectWithValue([]);
 				}
+
+				thunkAPI.dispatch(
+					userClanProfileSlice.actions.updateOne({
+						id: `${clanId}${currentUser?.user?.id}`,
+						changes: {
+							nick_name: username,
+							avatar: avatarUrl
+						}
+					})
+				);
+
+				if (avatarUrl && currentUser?.user?.id) {
+					setUserClanAvatarOverride(currentUser.user.id, clanId, avatarUrl);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
+
 				thunkAPI.dispatch(fetchUserClanProfile({ clanId }));
 			}
 			return true;
@@ -111,6 +131,7 @@ export const userClanProfileSlice = createSlice({
 	reducers: {
 		add: userClanProfileAdapter.addOne,
 		remove: userClanProfileAdapter.removeOne,
+		updateOne: userClanProfileAdapter.updateOne,
 		changeUserClanProfile: (state, action: PayloadAction<string>) => {
 			state.currentUserClanProfileId = action.payload;
 		},

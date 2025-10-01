@@ -42,7 +42,12 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 
 	return (
 		<div className={`relative group w-full ${isOffline ? 'opacity-50' : ''}`}>
-			<div onContextMenu={handleContextMenu} onClick={onClick} className="cursor-pointer flex items-center gap-[9px] relative">
+			<div
+				onContextMenu={handleContextMenu}
+				onClick={onClick}
+				className="cursor-pointer flex items-center gap-[9px] relative"
+				data-e2e={generateE2eId('clan_page.secondary_side_bar.member')}
+			>
 				<div className="relative">
 					<AvatarImage
 						alt={username}

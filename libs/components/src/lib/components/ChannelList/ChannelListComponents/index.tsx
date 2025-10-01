@@ -19,7 +19,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DONE_ONBOARDING_STATUS, EPermission } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS, EPermission, generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
@@ -128,6 +128,7 @@ export const Events = memo(() => {
 			<div
 				className="self-stretch  items-center inline-flex cursor-pointer px-2 rounded-lg h-[34px] bg-item-hover  text-theme-primary text-theme-primary-hover"
 				onClick={openModal}
+				data-e2e={generateE2eId('clan_page.side_bar.button.events')}
 			>
 				<div className="grow w-5 flex-row items-center gap-2 flex">
 					<div className="h-5 relative flex justify-center gap-2  items-center">
@@ -151,7 +152,7 @@ export const Events = memo(() => {
 				onClick={handleClose}
 				className={`self-stretch inline-flex cursor-pointer px-2 rounded-lg h-[34px] ${isMemberPath ? 'bg-button-secondary border-theme-primary text-theme-primary-active' : ''} bg-item-hover text-theme-primary text-theme-primary-hover`}
 			>
-				<div className="grow w-5 flex-row items-center gap-2 flex">
+				<div className="grow w-5 flex-row items-center gap-2 flex" data-e2e={generateE2eId('clan_page.side_bar.button.members')}>
 					<div className="w-5 h-5 relative flex flex-row items-center">
 						<div className="w-5 h-5 ">
 							<Icons.MemberList defaultSize="w-5 h-5" />

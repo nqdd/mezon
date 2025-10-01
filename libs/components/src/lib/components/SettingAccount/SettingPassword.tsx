@@ -9,8 +9,6 @@ import { toast } from 'react-toastify';
 
 interface SetPasswordProps {
 	onSubmit?: (data: { email: string; password: string; oldPassword?: string }) => void;
-	title?: string;
-	description?: string;
 	submitButtonText?: string;
 	initialEmail?: string;
 	isLoading?: LoadingStatus;
@@ -18,16 +16,7 @@ interface SetPasswordProps {
 	hasPassword?: boolean;
 }
 
-export default function SetPassword({
-	onSubmit,
-	title,
-	description,
-	submitButtonText,
-	initialEmail = '',
-	isLoading,
-	onClose,
-	hasPassword
-}: SetPasswordProps) {
+export default function SetPassword({ onSubmit, submitButtonText, initialEmail = '', isLoading, onClose, hasPassword }: SetPasswordProps) {
 	const { t } = useTranslation('accountSetting');
 	const dispatch = useAppDispatch();
 
@@ -99,8 +88,8 @@ export default function SetPassword({
 
 	const handleSubmit = useCallback(
 		(event: React.FormEvent<HTMLFormElement>) => {
-			if (!hasPassword && !oldPassword) {
-				toast.warn('Please fill current password.');
+			if (hasPassword && !oldPassword) {
+				toast.warn(t(`setPasswordAccount.error.fillOldPass`));
 				return;
 			}
 			event.preventDefault();
@@ -139,20 +128,14 @@ export default function SetPassword({
 				</button>
 
 				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="text-xl font-semibold text-gray-900 dark:text-white">{title || t('setPasswordModal.title')}</div>
-					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{description || t('setPasswordModal.description')}</p>
+					<div className="text-xl font-semibold text-gray-900 dark:text-white">
+						{hasPassword ? t('setPasswordAccount.changePassword') : t('setPasswordModal.title')}
+					</div>
+					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{t('setPasswordModal.description')}</p>
 				</div>
 
 				<form onSubmit={handleSubmit}>
 					<div className="space-y-4 p-6">
-						{hasPassword && (
-							<PasswordInput
-								id="current-password"
-								label={t('setPasswordAccount.currentPassword')}
-								value={oldPassword}
-								onChange={handleCurrentPassword}
-							/>
-						)}
 						<div className="space-y-2">
 							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
 								{t('setPasswordAccount.email')}
@@ -168,8 +151,15 @@ export default function SetPassword({
 								autoComplete="off"
 							/>
 							{errors.email && <FormError message={errors.email} />}
-						</div>
-
+						</div>{' '}
+						{hasPassword && (
+							<PasswordInput
+								id="current-password"
+								label={t('setPasswordAccount.currentPassword')}
+								value={oldPassword}
+								onChange={handleCurrentPassword}
+							/>
+						)}
 						<div className="space-y-2">
 							<PasswordInput
 								id="password"
@@ -180,7 +170,6 @@ export default function SetPassword({
 							/>
 							<p className="text-sm text-gray-500 mt-2 dark:text-gray-400">{t('setPasswordAccount.description')}</p>
 						</div>
-
 						<PasswordInput
 							id="confirmPassword"
 							label={t('setPasswordAccount.confirmPassword')}

@@ -2,8 +2,10 @@ import { captureSentryError } from '@mezon/logger';
 import type { LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
 import type { Session } from 'mezon-js';
-import { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
+import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
+import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 export const AUTH_FEATURE_KEY = 'auth';
@@ -236,7 +238,9 @@ export const registrationPassword = createAsyncThunk(
 			return response;
 		} catch (error) {
 			captureSentryError(error, `auth/registrationPassword`);
-			return thunkAPI.rejectWithValue(error);
+			toast.error(
+				oldPassword ? t('accountSetting:setPasswordAccount.error.updateFail') : t('accountSetting:setPasswordAccount.error.createFail')
+			);
 		}
 	}
 );

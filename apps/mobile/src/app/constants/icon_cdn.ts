@@ -182,5 +182,6 @@ export enum IconCDN {
 	unlinkIcon = require('./iconPNG/unlinkIcon.png'),
 	vietnamFlagIcon = require('./iconPNG/vietnamFlagIcon.png'),
 	japanFlagIcon = require('./iconPNG/japanFlagIcon.png'),
-	usaFlagIcon = require('./iconPNG/usaFlagIcon.png')
+	usaFlagIcon = require('./iconPNG/usaFlagIcon.png'),
+	mailIcon = require('./iconPNG/mail.png')
 }

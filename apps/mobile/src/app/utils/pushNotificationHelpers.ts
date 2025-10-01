@@ -5,12 +5,11 @@ import {
 	save,
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
-	STORAGE_IS_CANCEL_CALL_IN_CACHE,
 	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
-	STORAGE_MY_USER_ID
+	STORAGE_MY_USER_ID,
+	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
-import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import {
 	AndroidBadgeIconType,
@@ -378,7 +377,8 @@ export const isShowNotification = (
 	currentChannelId: string | undefined,
 	currentDmId: string | undefined,
 	remoteMessage: FirebaseMessagingTypes.RemoteMessage,
-	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean }
+	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean },
+	currentTopicId?: string | undefined
 ): boolean => {
 	try {
 		if (!validateNotificationData(remoteMessage?.data)) {
@@ -395,17 +395,22 @@ export const isShowNotification = (
 
 		const directMessageId = directMessageMatch?.[1] || '';
 		const channelMessageId = channelMessageMatch?.[2] || '';
+		const topicMessageId = remoteMessage.data?.topic || '';
 
 		const areOnChannel = currentChannelId === channelMessageId;
 		const areOnDirectMessage = currentDmId === directMessageId;
+		const isOntopicDiscussion = topicMessageId && topicMessageId !== '0';
 		const isViewingChannel = !!options?.isViewingChannel;
 		const isViewingDirectMessage = !!options?.isViewingDirectMessage;
+		const isViewingtopicDiscussion = !!currentTopicId;
+
+		if (!isViewingChannel && isViewingtopicDiscussion && areOnChannel && isOntopicDiscussion) return false;
 
 		// If currently viewing DM but notification is for a channel the user has open in background
 		if (areOnChannel && currentDmId) return true;
 
 		// Suppress only when user is actively on the same destination screen
-		if (channelMessageId && areOnChannel && isViewingChannel) return false;
+		if (channelMessageId && areOnChannel && isViewingChannel && !isOntopicDiscussion) return false;
 		if (directMessageId && areOnDirectMessage && isViewingDirectMessage) return false;
 
 		return true;
@@ -561,22 +566,23 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
-		if (dataObj?.offer === 'CANCEL_CALL' || !dataObj?.callerName) {
-			save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'true');
-			setTimeout(() => {
-				save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
-			}, 700);
+		if (dataObj?.offer === 'CANCEL_CALL') {
 			await notifee.cancelNotification(notificationId, notificationId);
 			return;
 		}
 
-		await sleep(500); // wait for 0.5s to see if a newer call or cancellation arrives
-		const isCancelCallInCache = load(STORAGE_IS_CANCEL_CALL_IN_CACHE);
-		if (isCancelCallInCache === 'true') {
-			// A newer call or cancellation arrived during our delay
+		const cancelCallsCacheStr = load(STORAGE_OFFER_HAVE_CALL_CACHE) || '[]';
+		const cancelCallsCache = safeJSONParse(cancelCallsCacheStr) || [];
+
+		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer))) {
 			return;
 		}
-		save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
+		cancelCallsCache.push(JSON.stringify(dataObj?.offer));
+		if (cancelCallsCache.length > 20) {
+			cancelCallsCache.splice(0, 10);
+		}
+		save(STORAGE_OFFER_HAVE_CALL_CACHE, JSON.stringify(cancelCallsCache));
+
 		const channel = await notifee.createChannel({
 			id: 'calls',
 			name: 'Incoming Calls',

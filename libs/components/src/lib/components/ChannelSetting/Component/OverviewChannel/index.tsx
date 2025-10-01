@@ -15,7 +15,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons, Image, InputField, TextArea } from '@mezon/ui';
-import { checkIsThread, IChannel, ValidateSpecialCharacters, ValidateURL } from '@mezon/utils';
+import { checkIsThread, generateE2eId, IChannel, ValidateSpecialCharacters, ValidateURL } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ModalSaveChanges } from 'libs/components/src/lib/components';
 import Dropdown from 'libs/ui/src/lib/DropDown';
@@ -255,16 +255,16 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 
 	const hideInactivityTimes = useMemo(
 		() => [
-			t('fields.channelHideInactivity._1hour'),
-			t('fields.channelHideInactivity._24hours'),
-			t('fields.channelHideInactivity._3days'),
+			//t('fields.channelHideInactivity._1hour'),
+			//t('fields.channelHideInactivity._24hours'),
+			//t('fields.channelHideInactivity._3days'),
 			t('fields.channelHideInactivity._1Week')
 		],
 		[t]
 	);
 
 	const [slowModeDropdown, setSlowDropdown] = useState(() => slowModeValues[0]);
-	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[2]);
+	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[0]);
 
 	// Update dropdown values when translations change
 	useEffect(() => {
@@ -272,7 +272,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	}, [slowModeValues]);
 
 	useEffect(() => {
-		setHideTimeDropdown(hideInactivityTimes[2]);
+		setHideTimeDropdown(hideInactivityTimes[0]);
 	}, [hideInactivityTimes]);
 
 	const hasChange = useMemo(() => {
@@ -304,7 +304,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 
 	return (
 		<div className="overflow-y-auto flex flex-col flex-1 shrink  w-1/2 pt-[94px] sbm:pb-7 text-theme-primary bg-theme-setting-primary sbm:pr-[10px] sbm:pl-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
-			<div className=" text-[15px]">
+			<div className=" text-[15px]" data-e2e={generateE2eId(`clan_page.channel_list.settings.overview`)}>
 				<h3 className="mb-4 font-bold text-xl text-theme-primary-active">{t('overview.title')}</h3>
 				<p className="text-xs font-bold uppercase mb-2">{isThread ? t('fields.threadName.title') : t('fields.channelName.title')}</p>
 				<InputField

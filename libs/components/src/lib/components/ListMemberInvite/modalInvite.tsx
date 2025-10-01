@@ -2,6 +2,7 @@
 import { useInvite } from '@mezon/core';
 import { fetchSystemMessageByClanId, selectClanById, selectCurrentClan, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Button } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -89,11 +90,15 @@ const ModalInvite = (props: ModalParam) => {
 	}
 	return (
 		<ModalLayout onClose={props.onClose}>
-			<div className="bg-theme-setting-primary rounded-xl flex flex-col">
+			<div className="bg-theme-setting-primary rounded-xl flex flex-col" data-e2e={generateE2eId('clan_page.modal.invite_people.container')}>
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
-					<p className="font-bold text-xl text-theme-primary-active">
+					<p
+						title={clan?.clan_name}
+						className="font-bold text-xl text-theme-primary-active truncate overflow-hidden whitespace-nowrap max-w-[400px]"
+					>
 						{t('modal.title', { target: isInviteExternalCalling ? t('modal.privateEvent') : clan?.clan_name })}
 					</p>
+
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
 						onClick={props.onClose}
@@ -123,6 +128,7 @@ const ModalInvite = (props: ModalParam) => {
 							className="w-full h-11 border-theme-primary text-theme-primary-active bg-theme-input rounded-lg px-[16px] py-[13px] text-[14px] outline-none"
 							value={isInviteExternalCalling ? (props.privateRoomLink as string) : urlInvite}
 							readOnly
+							data-e2e={generateE2eId('clan_page.modal.invite_people.url_invite')}
 						/>
 						<button
 							className="absolute right-0 bottom-0 mb-1  font-semibold text-sm px-8 py-1.5

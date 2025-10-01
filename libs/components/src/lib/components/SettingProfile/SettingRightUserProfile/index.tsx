@@ -370,9 +370,13 @@ const SettingRightUser = ({
 								value={editAboutUser}
 								rows={4}
 								maxLength={128}
+								data-e2e={generateE2eId('user_setting.profile.user_profile.input.about_me')}
 							></textarea>
 							<div className="w-full flex justify-end">
-								<span className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}>
+								<span
+									className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}
+									data-e2e={generateE2eId('user_setting.profile.user_profile.text.about_me_length')}
+								>
 									{editAboutUser.length}/{128}
 								</span>
 							</div>
@@ -405,6 +409,7 @@ const SettingRightUser = ({
 									id="logo"
 									onChange={handleChangeLogo}
 									className="w-full absolute top-0 left-0 h-full text-sm hidden"
+									data-e2e={generateE2eId('user_setting.profile.user_profile.upload.direct_message_icon_input')}
 								/>
 							</label>
 						</div>
@@ -457,6 +462,7 @@ const SettingRightUser = ({
 							onClick={() => {
 								handleClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.reset`)}
 						>
 							{t('reset')}
 						</button>
@@ -467,6 +473,7 @@ const SettingRightUser = ({
 								handleUpdateUser();
 								handleSaveClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
 							{t('saveChanges')}
 						</button>

@@ -27,7 +27,7 @@ interface MyVideoConferenceProps {
 	channelLabel?: string;
 	url?: string;
 	token?: string;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	onJoinRoom?: () => void;
 	isExternalCalling?: boolean;
@@ -110,7 +110,8 @@ export function MyVideoConference({
 				reason === DisconnectReason.JOIN_FAILURE ||
 				reason === DisconnectReason.DUPLICATE_IDENTITY
 			) {
-				onLeaveRoom();
+				await onLeaveRoom();
+				room?.disconnect();
 			} else if (token) {
 				if (!url) return;
 				const maxAttempts = 3;

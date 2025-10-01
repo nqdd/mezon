@@ -5,26 +5,18 @@ export const style = () =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			paddingHorizontal: size.s_30
+			backgroundColor: '#ffffff'
 		},
 		content: {
 			flex: 1,
-			alignItems: 'center',
-			justifyContent: 'center'
+			paddingTop: size.s_100
 		},
 		title: {
-			fontSize: size.s_26,
+			fontSize: size.s_24,
 			fontWeight: 'bold',
-			color: '#ffffff',
+			color: '#000000',
 			textAlign: 'center',
-			marginBottom: size.s_16
-		},
-		subtitle: {
-			fontSize: size.s_16,
-			color: '#e0e7ff',
-			textAlign: 'center',
-			marginBottom: size.s_30,
-			opacity: 0.9
+			marginBottom: size.s_20
 		},
 		instructionSection: {
 			alignItems: 'center',
@@ -32,23 +24,24 @@ export const style = () =>
 		},
 		instructionText: {
 			fontSize: size.s_14,
-			color: '#e0e7ff',
+			color: '#505050',
 			textAlign: 'center',
 			marginBottom: size.s_4
 		},
 		emailText: {
 			fontSize: size.s_14,
-			color: '#ffffff',
+			color: '#505050',
 			textAlign: 'center',
-			fontWeight: '500'
+			fontWeight: 'bold'
 		},
 		inputSection: {
 			marginBottom: size.s_24,
-			width: '100%',
-			gap: size.s_4,
+			gap: size.s_8,
 			flexDirection: 'row',
-			justifyContent: 'center',
-			alignItems: 'center'
+			flexWrap: 'wrap',
+			alignSelf: 'center',
+			alignItems: 'center',
+			justifyContent: 'center'
 		},
 		otpInput: {
 			width: '100%',
@@ -65,12 +58,12 @@ export const style = () =>
 			color: '#6b7280'
 		},
 		verifyButton: {
-			width: '100%',
 			height: size.s_50,
-			borderRadius: size.s_8,
+			borderRadius: size.s_10,
 			justifyContent: 'center',
 			alignItems: 'center',
-			marginBottom: size.s_40
+			marginBottom: size.s_30,
+			overflow: 'hidden'
 		},
 		verifyButtonActive: {
 			backgroundColor: '#2563eb'
@@ -81,7 +74,8 @@ export const style = () =>
 		verifyButtonText: {
 			color: '#ffffff',
 			fontSize: size.s_16,
-			fontWeight: '600'
+			fontWeight: '600',
+			zIndex: 10
 		},
 		alternativeSection: {
 			alignItems: 'center',
@@ -89,9 +83,9 @@ export const style = () =>
 		},
 		alternativeText: {
 			fontSize: size.s_14,
-			color: '#e0e7ff',
+			color: '#5e5e5e',
 			textAlign: 'center',
-			marginBottom: size.s_12
+			marginBottom: size.s_6
 		},
 		alternativeOptions: {
 			flexDirection: 'row',
@@ -101,7 +95,7 @@ export const style = () =>
 		},
 		linkText: {
 			fontSize: size.s_14,
-			color: '#463be8'
+			color: '#2e22ff'
 		},
 		orText: {
 			fontSize: size.s_14,
@@ -124,26 +118,27 @@ export const style = () =>
 			height: size.s_48,
 			borderRadius: size.s_8,
 			textAlign: 'center',
-			fontSize: size.s_24,
+			fontSize: size.s_18,
+			color: '#000000',
 			fontWeight: '600',
-			backgroundColor: '#ffffff'
+			backgroundColor: '#ffffff',
+			borderWidth: 2
 		},
 		inputEmpty: {
-			borderWidth: size.s_2,
 			borderColor: '#d1d5db',
 			color: '#374151'
 		},
 		inputFilled: {
 			borderWidth: 2,
-			borderColor: '#2563eb',
-			color: '#1f2937'
+			borderColor: '#1661ff',
+			backgroundColor: 'rgba(0,82,255,0.1)',
+			color: '#000000'
 		},
 		inputFirst: {
-			borderColor: '#2563eb',
-			borderWidth: size.s_2
+			borderColor: '#2563eb'
 		},
 		inputError: {
 			borderColor: '#ca0000',
-			borderWidth: size.s_2
+			backgroundColor: 'rgba(202,0,0,0.1)'
 		}
 	});

@@ -68,7 +68,8 @@ import {
 	handleCopyLink,
 	handleOpenLink,
 	handleSaveImage,
-	isPublicChannel
+	isPublicChannel,
+	showSimpleToast
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
@@ -619,8 +620,7 @@ function MessageContextMenu({
 										clan_id: message.clan_id,
 										message_ref_id: message.id,
 										receiver_id: message.sender_id,
-										sender_id: userId,
-										token_count: AMOUNT_TOKEN.TEN_TOKENS
+										sender_id: userId
 									})
 								).unwrap();
 								await reactionMessageDispatch({
@@ -820,9 +820,15 @@ function MessageContextMenu({
 		builder.when(enableCopyImageItem, (builder) => {
 			builder.addMenuItem('copyImage', t('copyImage'), async () => {
 				try {
-					await handleCopyImage(urlImage);
+					const success = await handleCopyImage(urlImage, () => {
+						showSimpleToast(t('imageCopiedToClipboard'));
+					});
+					if (!success) {
+						toast.error(t('errors.failedToCopyImage'));
+					}
 				} catch (error) {
 					console.error(t('errors.failedToCopyImage'), error);
+					toast.error(t('errors.failedToCopyImage'));
 				}
 			});
 		});

@@ -55,24 +55,35 @@ export const style = (colors: Attributes) =>
 			flex: 1
 		},
 		headerTitle: {
-			fontSize: size.s_18,
 			textAlign: 'center',
 			fontWeight: 'bold',
-			color: colors.white
+			fontSize: size.s_18,
+			color: colors.white,
+			maxWidth: '50%',
+			alignSelf: 'center'
 		},
 		headerText: {
 			textAlign: 'center',
 			color: colors.white
 		},
 		saveButton: {
-			marginRight: size.s_20
+			paddingVertical: size.s_16
 		},
 		saveText: {
-			fontSize: size.s_18,
+			fontSize: size.medium,
 			textAlign: 'center',
 			color: colors.bgViolet
 		},
-		backButton: {
-			marginLeft: size.s_16
+		center: {
+			position: 'absolute',
+			alignSelf: 'center',
+			width: '100%',
+			zIndex: -1
+		},
+		header: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			width: '100%'
 		}
 	});

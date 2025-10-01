@@ -29,3 +29,31 @@ export const validatePassword = (value: string) => {
 	}
 	return '';
 };
+
+export enum ECountryCode {
+	VN = '+84',
+	US = '+1',
+	JP = '+81'
+}
+
+export const validatePhoneNumber = (phone: string, countryCode: string) => {
+	if (countryCode === '+84') {
+		const phoneRegex = /^(3|5|7|8|9)\d{8}$/;
+		if (!phoneRegex.test(phone)) {
+			return true;
+		}
+	}
+	if (countryCode === '+1') {
+		const phoneRegex = /^\d{10}$/;
+		if (!phoneRegex.test(phone)) {
+			return true;
+		}
+	}
+	if (countryCode === '+81') {
+		const phoneRegex = /^(70|80|90)\d{8}$/;
+		if (!phoneRegex.test(phone)) {
+			return true;
+		}
+	}
+	return false;
+};

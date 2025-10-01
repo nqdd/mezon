@@ -14,6 +14,7 @@ import {
 	WIDTH_CHANNEL_LIST_BOX,
 	WIDTH_CLAN_SIDE_BAR,
 	WIDTH_PANEL_PROFILE,
+	generateE2eId,
 	getNameForPrioritize
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -172,6 +173,7 @@ const MentionUser = ({
 					style={{ textDecoration: 'none' }}
 					className={`select-all cursor-pointer outline-none font-medium px-0.1 rounded-sm whitespace-nowrap bg-mention color-mention hover-mention   ${isJumMessageEnabled ? '' : 'hover:none'}`}
 					suppressContentEditableWarning={true}
+					data-e2e={generateE2eId('chat.channel_message.mention_user')}
 				>
 					{displayToken.display}
 				</a>

@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	deleteClanWebhookById,
 	deleteWebhookById,
 	fetchClanWebhooks,
@@ -15,8 +15,8 @@ import {
 } from '@mezon/store-mobile';
 import { ChannelIsNotThread, MAX_FILE_SIZE_8MB } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { ApiWebhook, MezonUpdateClanWebhookByIdBody, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ApiWebhook, MezonUpdateClanWebhookByIdBody, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -25,7 +25,8 @@ import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../../../../componentUI/MezonImagePicker';
 import MezonInput from '../../../../../componentUI/MezonInput';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import MezonMenu from '../../../../../componentUI/MezonMenu';
 import MezonOption from '../../../../../componentUI/MezonOption';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
@@ -162,7 +163,7 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 		isClanSetting
 	]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerRight: () =>

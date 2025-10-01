@@ -1,4 +1,6 @@
-import { IMessageWithUser, createImgproxyUrl } from '@mezon/utils';
+import { getUserAvatarOverride, getUserClanAvatarOverride, selectAvatarVersion, useAppSelector } from '@mezon/store';
+import type { IMessageWithUser } from '@mezon/utils';
+import { createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo } from 'react';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -12,8 +14,12 @@ type IMessageAvatarProps = {
 };
 
 const MessageAvatar = ({ message, mode, onClick }: IMessageAvatarProps) => {
+	useAppSelector(selectAvatarVersion);
 	const clanAvatar = message?.clan_avatar;
 	const generalAvatar = message?.avatar;
+
+	const overrideAvatar = getUserAvatarOverride(message.user?.id || '');
+	const overrideClanAvatar = message.clan_id ? getUserClanAvatarOverride(message.user?.id || '', message.clan_id as string) : undefined;
 	const { pendingUserAvatar, pendingClanAvatar } = getPendingNames(
 		message,
 		undefined,
@@ -30,8 +36,8 @@ const MessageAvatar = ({ message, mode, onClick }: IMessageAvatarProps) => {
 
 	const avatarUrl =
 		((mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
-			? clanAvatar || pendingClanAvatar || pendingUserAvatar
-			: pendingUserAvatar) ||
+			? overrideClanAvatar || clanAvatar || pendingClanAvatar || overrideAvatar || pendingUserAvatar
+			: overrideAvatar || pendingUserAvatar) ||
 			message?.avatar) ??
 		'';
 

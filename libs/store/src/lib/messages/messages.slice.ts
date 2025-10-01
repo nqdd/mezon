@@ -25,11 +25,13 @@ import type { ChannelMessage } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MessageButtonClicked } from 'mezon-js/socket';
 import { accountActions, selectAllAccount } from '../account/account.slice';
+import { getUserAvatarOverride, getUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
 import { resetChannelBadgeCount } from '../badge/badgeHelpers';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
@@ -117,6 +119,7 @@ export interface MessagesState {
 	isViewingOlderMessagesByChannelId: Record<string, boolean>;
 	directMessageUnread: Record<string, ChannelMessage[]>;
 	isLoadingJumpMessage?: boolean;
+	queuedLastSeenMessages: UpdateMessageArgs[];
 }
 export type FetchMessagesMeta = {
 	arg: {
@@ -573,9 +576,14 @@ export const jumpToMessage = createAsyncThunk(
 		{ clanId, messageId, channelId, noCache = true, isFetchingLatestMessages = false, navigate, mode, topicId }: JumpToMessageArgs,
 		thunkAPI
 	) => {
+		let timeoutId: NodeJS.Timeout | undefined;
 		try {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(true));
 			thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: 'temp', navigate: false }));
+			timeoutId = setTimeout(() => {
+				thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+				thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			}, 15000);
 			const channelMessages = selectViewportIdsByChannelId(getMessagesRootState(thunkAPI), channelId);
 			const indexMessage = channelMessages.indexOf(messageId);
 			let found = true;
@@ -622,9 +630,12 @@ export const jumpToMessage = createAsyncThunk(
 			}
 		} catch (e) {
 			captureSentryError(e, 'messages/jumpToMessage');
+			thunkAPI.dispatch(messagesActions.setIdMessageToJump(null));
+			if (timeoutId) clearTimeout(timeoutId);
 			return thunkAPI.rejectWithValue(e);
 		} finally {
 			thunkAPI.dispatch(messagesActions.setLoadingJumpMessage(false));
+			if (timeoutId) clearTimeout(timeoutId);
 		}
 	}
 );
@@ -648,7 +659,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 			const channelsLoadingStatus = selectLoadingStatus(state);
 			const clansLoadingStatus = selectClansLoadingStatus(state);
 			if (channelsLoadingStatus === 'loading' || clansLoadingStatus === 'loading') {
+				thunkAPI.dispatch(messagesActions.queueLastSeenMessage({ clanId, channelId, messageId, mode, badge_count, message_time }));
 				return;
+			}
+
+			const queuedMessages = (thunkAPI.getState() as RootState).messages.queuedLastSeenMessages;
+			if (queuedMessages.length > 0) {
+				thunkAPI.dispatch(processQueuedLastSeenMessages());
 			}
 
 			const response = await mezon.socketRef.current?.writeLastSeenMessage(
@@ -664,17 +681,13 @@ export const updateLastSeenMessage = createAsyncThunk(
 				return;
 			}
 
-			resetChannelBadgeCount(
-				thunkAPI.dispatch as AppDispatch,
-				{
-					clanId,
-					channelId,
-					badgeCount: badge_count,
-					timestamp: message_time ?? now,
-					messageId
-				},
-				{ getState: () => thunkAPI.getState() as RootState }
-			);
+			resetChannelBadgeCount(thunkAPI.dispatch as AppDispatch, {
+				clanId,
+				channelId,
+				badgeCount: badge_count,
+				timestamp: message_time ?? now,
+				messageId
+			});
 		} catch (e) {
 			console.error(e, 'updateLastSeenMessage');
 			captureSentryError(e, 'messages/updateLastSeenMessage');
@@ -695,6 +708,21 @@ export const updateLastSeenMessage = createAsyncThunk(
 		}
 	}
 );
+
+export const processQueuedLastSeenMessages = createAsyncThunk('messages/processQueuedLastSeenMessages', async (_, thunkAPI) => {
+	const state = thunkAPI.getState() as RootState;
+	const queuedMessages = state.messages.queuedLastSeenMessages;
+
+	if (queuedMessages.length === 0) {
+		return;
+	}
+
+	thunkAPI.dispatch(messagesActions.clearQueuedLastSeenMessages());
+
+	for (const queuedMessage of queuedMessages) {
+		await thunkAPI.dispatch(updateLastSeenMessage(queuedMessage));
+	}
+});
 
 type SendMessagePayload = {
 	clanId: string;
@@ -810,6 +838,20 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 	const id = Snowflake.generate();
 	async function fakeItUntilYouMakeIt() {
+		const rootState = thunkAPI.getState() as RootState;
+		const currentUser = selectAllAccount(rootState);
+
+		const overrideAvatar = getUserAvatarOverride(senderId);
+		const overrideClanAvatar = clanId && clanId !== '0' ? getUserClanAvatarOverride(senderId, clanId) : undefined;
+
+		let clanAvatar = avatar;
+		if (clanId && clanId !== '0' && currentUser?.user?.id) {
+			const userClanProfile = selectUserClanProfileByClanID(clanId, currentUser.user.id)(rootState);
+			clanAvatar = overrideClanAvatar || userClanProfile?.avatar || avatar;
+		}
+
+		const finalAvatar = overrideAvatar || avatar;
+
 		const fakeMessage: ChannelMessage = {
 			id,
 			code: code || 0, // Add new message
@@ -821,7 +863,9 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			create_time: new Date().toISOString(),
 			sender_id: anonymous ? NX_CHAT_APP_ANNONYMOUS_USER_ID : senderId,
 			username: anonymous ? 'Anonymous' : username || '',
-			avatar: anonymous ? '' : avatar,
+			avatar: anonymous ? '' : finalAvatar,
+			clan_avatar: clanId && clanId !== '0' ? clanAvatar : undefined,
+			clan_id: clanId !== '0' ? clanId : undefined,
 			isSending: true,
 			references: references?.filter((item) => item) || [],
 			isMe: true,
@@ -1041,7 +1085,8 @@ export const initialMessagesState: MessagesState = {
 	idMessageToJump: null,
 	directMessageUnread: {},
 	channelViewPortMessageIds: {},
-	isLoadingJumpMessage: false
+	isLoadingJumpMessage: false,
+	queuedLastSeenMessages: []
 };
 
 export type SetCursorChannelArgs = {
@@ -1389,6 +1434,21 @@ export const messagesSlice = createSlice({
 			if (state.channelMessages[channelId]?.cache) {
 				state.channelMessages[channelId].cache = undefined;
 			}
+		},
+		invalidateAllCache: (state) => {
+			Object.keys(state.channelMessages).forEach((channelId) => {
+				if (state.channelMessages[channelId]?.cache) {
+					state.channelMessages[channelId].cache = undefined;
+				}
+			});
+		},
+
+		queueLastSeenMessage: (state, action: PayloadAction<UpdateMessageArgs>) => {
+			state.queuedLastSeenMessages.push(action.payload);
+		},
+
+		clearQueuedLastSeenMessages: (state) => {
+			state.queuedLastSeenMessages = [];
 		}
 	},
 	extraReducers: (builder) => {
@@ -1410,7 +1470,13 @@ export const messagesSlice = createSlice({
 
 					if (!action?.payload?.messages?.length) return;
 
-					const isNew = channelId && action.payload.messages.some(({ id }) => !state.channelMessages?.[channelId]?.entities?.[id]);
+					const isNew =
+						channelId &&
+						action.payload.messages.some(({ id, avatar }) => {
+							const existingMessage = state.channelMessages?.[channelId]?.entities?.[id];
+							return !existingMessage || existingMessage.avatar !== avatar;
+						});
+
 					if (!direction && (!isNew || !channelId) && (!isClearMessage || (isClearMessage && fromCache)) && !foundE2ee) {
 						return;
 					}
@@ -1426,7 +1492,6 @@ export const messagesSlice = createSlice({
 
 					direction = direction || Direction_Mode.BEFORE_TIMESTAMP;
 
-					// remove all messages if ís fetching latest messages and is viewing older messages
 					if (toPresent) {
 						handleRemoveManyMessages(state, channelId);
 					}
@@ -1519,6 +1584,7 @@ export const messagesActions = {
 	sendEphemeralMessage,
 	fetchMessages,
 	updateLastSeenMessage,
+	processQueuedLastSeenMessages,
 	updateTypingUsers,
 	sendTypingUser,
 	loadMoreMessage,

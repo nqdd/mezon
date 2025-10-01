@@ -241,6 +241,7 @@ const ChannelLinkComponent = ({
 					<span
 						ref={channelLinkRef}
 						className={`flex flex-row items-center rounded relative flex-1 pointer-events-none  ${hightLightTextChannel ? ' font-semibold text-theme-primary-active' : 'font-medium '}`}
+						data-e2e={generateE2eId('clan_page.channel_list.item')}
 					>
 						{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
 

@@ -2,7 +2,7 @@ import { usePermissionChecker } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { RolesClanEntity, selectAllRolesClan } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
-import { useEffect, useMemo } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -33,7 +33,7 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 		return rolesClan?.find((role) => role?.slug === `everyone-${role?.clan_id}`);
 	}, [rolesClan]);
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerRight: () => (
@@ -42,7 +42,7 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 				</Pressable>
 			)
 		});
-	}, [navigation, t, themeValue.textStrong]);
+	}, [navigation, styles, t, themeValue.textStrong]);
 
 	const navigateToRoleEveryone = () => {
 		navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_PERMISSIONS, { roleId: everyoneRole?.id });
@@ -76,7 +76,7 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 
 			<View style={styles.roles}>
 				<Text style={styles.normalText}>
-					{t('roles')} - {allClanRoles?.length - 1 || '0'}
+					{t('roles')} - {allClanRoles?.length || '0'}
 				</Text>
 				{allClanRoles.length ? (
 					<View style={styles.listRolePanel}>

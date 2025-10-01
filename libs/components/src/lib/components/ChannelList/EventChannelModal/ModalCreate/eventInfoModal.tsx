@@ -3,7 +3,7 @@ import { selectCurrentChannelId, selectCurrentClanId, selectTheme } from '@mezon
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { TextArea, TimePicker } from '@mezon/ui';
 import type { ContenSubmitEventProps } from '@mezon/utils';
-import { ERepeatType, MAX_FILE_SIZE_1MB, fileTypeImage } from '@mezon/utils';
+import { ERepeatType, MAX_FILE_SIZE_1MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -296,7 +296,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					>
 						{t('actions.uploadImage')}
 					</div>
-					<input type="file" hidden onChange={(e) => handleFile(e)} className="w-full text-sm text-slate-500 " />
+					<input type="file" hidden onChange={(e) => handleFile(e)} className="w-full text-sm text-slate-500 " data-e2e={generateE2eId('clan_page.modal.create_event.upload.image_cover_input')} />
 				</label>
 				{contentSubmit.logo && <img src={contentSubmit.logo} alt="logo" className="max-h-[180px] rounded w-full object-cover" />}
 			</div>

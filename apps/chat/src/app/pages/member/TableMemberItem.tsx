@@ -14,7 +14,7 @@ import {
 } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, createImgproxyUrl } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import Tooltip from 'rc-tooltip';
 import type { MouseEvent } from 'react';
@@ -184,7 +184,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 			ref={itemRef}
 		>
 			<div className="flex-3 p-1">
-				<div className="flex flex-row gap-2 items-center">
+				<div className="flex flex-row gap-2 items-center" data-e2e={generateE2eId('clan_page.member_list.user_info')}>
 					<AvatarImage
 						alt={username}
 						username={username}

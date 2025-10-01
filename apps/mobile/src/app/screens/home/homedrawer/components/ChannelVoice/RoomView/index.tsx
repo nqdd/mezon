@@ -1,4 +1,5 @@
-import { TrackReference, VideoTrack, useParticipants, useRoomContext } from '@livekit/react-native';
+import type { TrackReference } from '@livekit/react-native';
+import { VideoTrack, useParticipants, useRoomContext } from '@livekit/react-native';
 import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, size, useTheme } from '@mezon/mobile-ui';
@@ -14,17 +15,19 @@ import { DisconnectReason, RoomEvent } from 'livekit-client';
 import LottieView from 'lottie-react-native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { ResumableZoom } from 'react-native-zoom-toolkit';
 import { useSelector } from 'react-redux';
 import { TYPING_DARK_MODE, TYPING_LIGHT_MODE } from '../../../../../../../assets/lottie';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
-import { ActiveSoundReaction } from '../../../../../../hooks/useSoundReactions';
+import type { ActiveSoundReaction } from '../../../../../../hooks/useSoundReactions';
 import { ContainerMessageActionModal } from '../../MessageItemBS/ContainerMessageActionModal';
 import ControlBottomBar from '../ControlBottomBar';
 import FocusedScreenPopup from '../FocusedScreenPopup';
 import ParticipantScreen from '../ParticipantScreen';
+import ReasonPopup from '../ReasonPopup';
 import { style } from '../styles';
 
 const RoomViewListener = memo(
@@ -44,6 +47,7 @@ const RoomViewListener = memo(
 		const participants = useParticipants();
 		const dispatch = useAppDispatch();
 		const room: any = useRoomContext();
+		const { t } = useTranslation(['channelVoice']);
 
 		useEffect(() => {
 			if (participants?.length > 1 && isShowPreCallInterface) {
@@ -52,7 +56,7 @@ const RoomViewListener = memo(
 		}, [dispatch, isShowPreCallInterface, participants?.length]);
 
 		useEffect(() => {
-			if (focusedScreenShare) {
+			if (focusedScreenShare && participants?.length > 1) {
 				const focusedParticipant = participants.find((p) => p.identity === focusedScreenShare?.participant?.identity);
 
 				if (!focusedParticipant?.isScreenShareEnabled) {
@@ -61,9 +65,20 @@ const RoomViewListener = memo(
 			}
 		}, [participants, focusedScreenShare]);
 
+		const getReasonContent = (reason: DisconnectReason) => {
+			switch (reason) {
+				case DisconnectReason.PARTICIPANT_REMOVED:
+					return t('disconnectModal.content.removed');
+				case DisconnectReason.DUPLICATE_IDENTITY:
+					return t('disconnectModal.content.duplicate');
+				default:
+					return t('disconnectModal.content.default');
+			}
+		};
+
 		const handleDisconnected = useCallback(
 			async (reason?: DisconnectReason) => {
-				if (reason === DisconnectReason.PARTICIPANT_REMOVED) {
+				if (reason === DisconnectReason.PARTICIPANT_REMOVED || reason === DisconnectReason.DUPLICATE_IDENTITY) {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
 						isEndCall: true,
 						clanId,
@@ -71,9 +86,14 @@ const RoomViewListener = memo(
 						roomId: room?.roomInfo?.sid as string
 					});
 					room.disconnect();
+					const content = getReasonContent(reason);
+					const data = {
+						children: <ReasonPopup title={t('disconnectModal.title')} confirmText={t('disconnectModal.confirm')} content={content} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				}
 			},
-			[channelId, clanId, room]
+			[channelId, clanId, room, t]
 		);
 
 		useEffect(() => {
@@ -157,7 +177,7 @@ const RoomView = ({
 		return (
 			<View style={{ width: '100%', flex: 1, alignItems: 'center' }}>
 				<View style={{ height: '100%', width: '100%' }}>
-					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)}>
+					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)} allowPinchPanning={false}>
 						<View style={{ height: '100%', width: marginWidth }}>
 							<VideoTrack
 								trackRef={focusedScreenShare}
@@ -190,6 +210,13 @@ const RoomView = ({
 					clanId={clanId}
 					isGroupCall={isGroupCall}
 				/>
+				<RoomViewListener
+					isShowPreCallInterface={isShowPreCallInterface}
+					focusedScreenShare={focusedScreenShare}
+					setFocusedScreenShare={setFocusedScreenShareProp}
+					channelId={channelId}
+					clanId={clanId}
+				/>
 			</View>
 		);
 	}
@@ -204,6 +231,7 @@ const RoomView = ({
 					activeSoundReactions={activeSoundReactions}
 					isGroupCall={isGroupCall}
 					clanId={clanId}
+					channelId={channelId}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (
