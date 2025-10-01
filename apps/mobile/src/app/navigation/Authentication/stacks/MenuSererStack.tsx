@@ -116,7 +116,7 @@ export const MenuClanStacks = ({ }: any) => {
 				name={APP_SCREEN.MENU_CLAN.SETTINGS}
 				component={ClanSetting}
 				options={{
-					headerTitle: t('menuClanStack.clanSetting')
+					headerShown: false
 				}}
 			/>
 

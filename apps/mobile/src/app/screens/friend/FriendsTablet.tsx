@@ -1,12 +1,13 @@
-import { useDirect, useFriends } from '@mezon/core';
+import { useDirect } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, directActions, getStore, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
+import { FriendsEntity, directActions, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
 import { User } from 'mezon-js';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import Feather from 'react-native-vector-icons/Feather';
+import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { EFriendItemAction } from '../../components/FriendItem';
@@ -23,7 +24,7 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 	const dispatch = useAppDispatch();
 	const [searchText, setSearchText] = useState<string>('');
 	const { t } = useTranslation(['common', 'friends']);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const { createDirectMessageWithUser } = useDirect();
 	const store = getStore();
 	const friendList: FriendsEntity[] = useMemo(() => {
