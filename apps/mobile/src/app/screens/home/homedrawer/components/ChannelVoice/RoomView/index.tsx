@@ -56,7 +56,7 @@ const RoomViewListener = memo(
 		}, [dispatch, isShowPreCallInterface, participants?.length]);
 
 		useEffect(() => {
-			if (focusedScreenShare) {
+			if (focusedScreenShare && participants?.length > 1) {
 				const focusedParticipant = participants.find((p) => p.identity === focusedScreenShare?.participant?.identity);
 
 				if (!focusedParticipant?.isScreenShareEnabled) {
@@ -209,6 +209,13 @@ const RoomView = ({
 					channelId={channelId}
 					clanId={clanId}
 					isGroupCall={isGroupCall}
+				/>
+				<RoomViewListener
+					isShowPreCallInterface={isShowPreCallInterface}
+					focusedScreenShare={focusedScreenShare}
+					setFocusedScreenShare={setFocusedScreenShareProp}
+					channelId={channelId}
+					clanId={clanId}
 				/>
 			</View>
 		);
