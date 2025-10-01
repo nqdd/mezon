@@ -71,7 +71,7 @@
 		"title": "Đặt số điện thoại",
 		"phoneNumber": "Số điện thoại",
 		"description": "Bạn sẽ nhận được tin nhắn có chứa mã xác minh.",
-		"phonePlaceholder": "+84-999...999",
+		"phonePlaceholder": "+84",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Gửi mã OTP",
