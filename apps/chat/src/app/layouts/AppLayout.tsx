@@ -104,8 +104,8 @@ const AppLayout = () => {
 				const localRefresh = safeJSONParse(storageStr);
 
 				const session = new Session(
-					localRefresh.token,
-					localRefresh.refresh_token,
+					localRefresh?.token || sessionData?.token,
+					localRefresh?.refresh_token || sessionData?.refresh_token,
 					sessionData.created,
 					sessionData.api_url,
 					!!sessionData.is_remember
