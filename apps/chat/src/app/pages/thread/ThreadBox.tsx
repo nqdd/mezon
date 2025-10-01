@@ -382,7 +382,7 @@ const ThreadBox = () => {
 				</div>
 			)}
 			{!threadCurrentChannel && (
-				<div className={`flex flex-col overflow-y-auto }  ww-full px-3`} onPaste={onPastedFiles}>
+				<div className={`flex flex-col overflow-y-auto w-full  px-3`} onPaste={onPastedFiles}>
 					<div className="flex flex-col justify-end flex-grow">
 						{!threadCurrentChannel && (
 							<div className="relative flex text-theme-primary-active items-center justify-center mx-4 mt-4 w-16 h-16 bg-item-theme rounded-full pointer-events-none">
@@ -407,7 +407,13 @@ const ThreadBox = () => {
 						{!openThreadMessageState && (
 							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
 						)}
-						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
+						{valueThread && openThreadMessageState && (
+							<div className="max-h-[60vh] overflow-y-auto overflow-x-hidden  thread-scroll ">
+								<div className="px-3">
+									<ChannelMessageThread user={currentClanUser} message={valueThread} />
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
