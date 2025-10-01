@@ -1,6 +1,6 @@
 import { EMuteState } from '@mezon/utils';
 import { useCallback } from 'react';
-import { DirectMessageContextMenuHandlers } from './types';
+import type { DirectMessageContextMenuHandlers } from './types';
 
 interface UseDefaultHandlersParams {
 	openUserProfile: () => void;
@@ -16,6 +16,7 @@ interface UseDefaultHandlersParams {
 	blockFriend: (username: string, userId: string) => Promise<boolean>;
 	unBlockFriend: (username: string, userId: string) => Promise<boolean>;
 	openEditGroupModal?: () => void;
+	openLeaveGroupModal?: () => void;
 }
 
 export function useDefaultHandlers({
@@ -31,7 +32,8 @@ export function useDefaultHandlers({
 	handleLeaveDmGroup,
 	blockFriend,
 	unBlockFriend,
-	openEditGroupModal
+	openEditGroupModal,
+	openLeaveGroupModal
 }: UseDefaultHandlersParams) {
 	const createDefaultHandlers = useCallback(
 		(user?: any): DirectMessageContextMenuHandlers => {
@@ -84,9 +86,9 @@ export function useDefaultHandlers({
 					}
 				},
 				handleLeaveGroup: () => {
-					const channelId = user?.channelId || user.channel_id;
-					const isLastOne = (user?.user_id?.length || 0) < 1;
-					handleLeaveDmGroup(channelId, isLastOne);
+					if (openLeaveGroupModal) {
+						openLeaveGroupModal();
+					}
 				},
 				handleBlockFriend: async () => {
 					await blockFriend(user?.usernames?.[0], user?.user_id?.[0]);
@@ -111,10 +113,10 @@ export function useDefaultHandlers({
 			muteOrUnMuteChannel,
 			handleEnableE2ee,
 			handleRemoveMemberFromGroup,
-			handleLeaveDmGroup,
 			blockFriend,
 			unBlockFriend,
-			openEditGroupModal
+			openEditGroupModal,
+			openLeaveGroupModal
 		]
 	);
 
