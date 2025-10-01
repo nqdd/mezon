@@ -79,7 +79,6 @@ const ThreadBox = () => {
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
 	const { setOverUploadingState } = useDragAndDrop();
 	const { messageThreadError, isPrivate, nameValueThread, valueThread, setNameValueThread } = useThreads();
-	console.log('valueThread', valueThread);
 	const [undoHistory, setUndoHistory] = useState<HistoryItem[]>([]);
 	const [redoHistory, setRedoHistory] = useState<HistoryItem[]>([]);
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
@@ -121,7 +120,6 @@ const ThreadBox = () => {
 				return;
 			}
 			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
-				console.log('=== Thread name too short ===');
 				toast(t('createThread.toast.threadNameTooShort'));
 				return;
 			}
