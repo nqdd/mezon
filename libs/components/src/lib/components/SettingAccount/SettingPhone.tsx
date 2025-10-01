@@ -101,7 +101,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 
 		const phoneRegex = /^\+?\d{7,15}$/;
 
-		if (!phone || !phoneRegex.test(phone) || !validatePhoneNumber(parsePhoneVN(phone), ECountryCode.VN)) {
+		if (!phone || !phoneRegex.test(phone) || !validatePhoneNumber(phone, ECountryCode.VN)) {
 			setErrors({
 				phone: t('setPhoneModal.invalidPhone')
 			});

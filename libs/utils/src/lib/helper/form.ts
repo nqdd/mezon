@@ -39,7 +39,7 @@ export enum ECountryCode {
 export const validatePhoneNumber = (phone: string, countryCode: string) => {
 	if (countryCode === '+84') {
 		const phoneRegex = /^(\+84)(3|5|7|8|9)([0-9]{8})$/;
-		return phoneRegex.test(phone);
+		return phoneRegex.test(parsePhoneVN(phone));
 	}
 	if (countryCode === '+1') {
 		const phoneRegex = /^\d{10}$/;
