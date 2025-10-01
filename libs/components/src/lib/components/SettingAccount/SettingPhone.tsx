@@ -149,7 +149,14 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 								<SelectCountry country={country} setCountry={setCountry} />
 							</div>
 							<div className="space-y-2 flex-2">
-								<Input id="phone" type="text" value={phone} onChange={handleChangePhone} label={t('setPhoneModal.phoneNumber')} />
+								<Input
+									id="phone"
+									type="text"
+									value={phone}
+									onChange={handleChangePhone}
+									className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 ${errors.phone ? 'border-red-500 dark:border-red-400' : ''}`}
+									label={t('setPhoneModal.phoneNumber')}
+								/>
 								{errors.phone && <FormError message={errors.phone} />}
 							</div>
 						</div>
