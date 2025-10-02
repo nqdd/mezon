@@ -2,7 +2,6 @@ import { useAppNavigation, useEscapeKeyClose } from '@mezon/core';
 import type { ChannelsEntity } from '@mezon/store';
 import {
 	channelsActions,
-	defaultNotificationCategoryActions,
 	selectChannelById,
 	selectChannelFirst,
 	selectChannelSecond,
@@ -51,13 +50,6 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal,
 				await dispatch(threadsActions.remove(threadId));
 				await dispatch(threadsActions.removeThreadFromCache({ channelId: parentChannelId, threadId }));
 			}
-
-			dispatch(
-				defaultNotificationCategoryActions.fetchChannelCategorySetting({
-					clanId: currentClanId as string,
-					noCache: true
-				})
-			);
 		}
 		if (channelId === currentChannelId) {
 			if (currentChannelId === channelNavId) {

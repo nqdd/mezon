@@ -1,11 +1,4 @@
-import {
-	categoriesActions,
-	defaultNotificationCategoryActions,
-	selectAllCategories,
-	selectCategoryIdSortChannel,
-	selectChannelThreads,
-	useAppDispatch
-} from '@mezon/store';
+import { categoriesActions, selectAllCategories, selectCategoryIdSortChannel, selectChannelThreads, useAppDispatch } from '@mezon/store';
 import type { ICategoryChannel, IChannel } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -22,13 +15,6 @@ export function useCategory() {
 					clanId: category.clan_id as string,
 					categoryId: category.id as string,
 					categoryLabel: category.category_name as string
-				})
-			);
-
-			dispatch(
-				defaultNotificationCategoryActions.fetchChannelCategorySetting({
-					clanId: category.clan_id as string,
-					noCache: true
 				})
 			);
 		},

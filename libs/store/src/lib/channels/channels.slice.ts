@@ -394,16 +394,6 @@ export const createNewChannel = createAsyncThunk('channels/createNewChannel', as
 				);
 			}
 
-			if (response.type === ChannelType.CHANNEL_TYPE_CHANNEL) {
-				await thunkAPI.dispatch(
-					fetchChannels({
-						clanId: response.clan_id as string,
-						channelType: ChannelType.CHANNEL_TYPE_CHANNEL,
-						noCache: true
-					})
-				);
-			}
-
 			return response;
 		} else {
 			return thunkAPI.rejectWithValue([]);

@@ -1,6 +1,5 @@
 import {
 	channelsActions,
-	defaultNotificationCategoryActions,
 	getStore,
 	selectAllChannels,
 	selectChannelById,
@@ -51,12 +50,6 @@ export function useChannels() {
 		}
 
 		await dispatch(channelsActions.deleteChannel({ channelId, clanId: clanId as string }));
-		dispatch(
-			defaultNotificationCategoryActions.fetchChannelCategorySetting({
-				clanId: clanId as string,
-				noCache: true
-			})
-		);
 
 		if (isThread && channelToDelete?.parent_id) {
 			await dispatch(threadsActions.remove(channelId));
