@@ -77,6 +77,7 @@ export const createNewDirectMessage = createAsyncThunk(
 						display_names: Array.isArray(display_names) ? display_names : display_names ? [display_names] : [],
 						channel_label: response.channel_label,
 						channel_avatar: response.channel_avatar,
+						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
 						user_ids: body.user_ids,
 						topic: response.topic || 'assets/images/avatar-group.png'
 					})
@@ -447,14 +448,15 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 		const { channel_desc, users } = payload;
 		const userIds: string[] = [];
 		const usernames: string[] = [];
-		const isOnline: boolean[] = [];
+		const avatars: string[] = [];
+		const onlines: boolean[] = [];
 		const label: string[] = [];
-		const avatar: string = channel_desc.channel_avatar || 'assets/images/avatar-group.png';
 
 		for (const user of users) {
 			userIds.push(user.user_id);
 			usernames.push(user.username);
-			isOnline.push(user.online);
+			avatars.push(user.avatar);
+			onlines.push(user.online);
 			label.push(user.display_name);
 		}
 
@@ -467,8 +469,9 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			user_ids: userIds,
 			usernames,
 			display_names: label,
-			channel_avatar: avatar,
-			onlines: isOnline,
+			channel_avatar: channel_desc.channel_avatar || 'assets/images/avatar-group.png',
+			avatars,
+			onlines,
 			active: 1,
 			channel_label: label.toString(),
 			topic: channel_desc.topic || existingEntity?.topic
@@ -581,6 +584,7 @@ export const directSlice = createSlice({
 				} else {
 					const newUsernames = item.usernames?.filter((_, index) => index !== userIndex);
 					const newDisplayNames = item.display_names?.filter((_, index) => index !== userIndex);
+					const newAvatars = item.avatars?.filter((_, index) => index !== userIndex);
 					const newChannelAvatars = item.channel_avatar;
 					const newIsOnline = item.onlines?.filter((_, index) => index !== userIndex);
 					directAdapter.updateOne(state, {
@@ -588,6 +592,7 @@ export const directSlice = createSlice({
 						changes: {
 							user_ids: newUserIds,
 							usernames: newUsernames,
+							avatars: newAvatars,
 							display_names: newDisplayNames,
 							channel_avatar: newChannelAvatars,
 							onlines: newIsOnline
@@ -671,6 +676,7 @@ export const directSlice = createSlice({
 
 				dmGroup.user_ids = [...(dmGroup.user_ids ?? []), ...(action.payload.user_ids ?? [])];
 				dmGroup.usernames = [...(dmGroup.usernames ?? []), ...(action.payload.usernames ?? [])];
+				dmGroup.avatars = [...(dmGroup.avatars ?? []), ...(action.payload.avatars ?? [])];
 				dmGroup.channel_avatar = action.payload.channel_avatar ?? '';
 				if (existingTopic && !action.payload.topic) {
 					dmGroup.topic = existingTopic;

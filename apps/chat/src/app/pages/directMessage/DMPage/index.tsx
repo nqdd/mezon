@@ -225,7 +225,7 @@ const DirectMessage = () => {
 									username={isDmChannel ? currentDmGroup?.usernames?.toString() : undefined}
 									type={isDmChannel ? ChannelType.CHANNEL_TYPE_DM : ChannelType.CHANNEL_TYPE_GROUP}
 									mode={isDmChannel ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP}
-									avatarDM={isDmChannel ? currentDmGroup?.channel_avatar : 'assets/images/avatar-group.png'}
+									avatarDM={isDmChannel ? currentDmGroup?.avatars?.at(0) : 'assets/images/avatar-group.png'}
 								/>
 							}
 						</div>
