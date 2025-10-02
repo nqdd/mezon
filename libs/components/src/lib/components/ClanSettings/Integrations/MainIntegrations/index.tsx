@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ApiWebhook } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 
@@ -12,8 +13,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 	return (
 		<>
 			<div className="text-sm pt-5 text-theme-primary">
-				{t('description')}{' '}
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('learnMore')}</b>
+				{t('description')} <b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('learnMore')}</b>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			<div
@@ -29,7 +29,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 					<div>
 						<div className="pb-[3px] font-semibold break-all text-theme-primary">{t('webhooks')}</div>
 						<div className="text-[12px] text-theme-primary">
-							{t('webhook', { count: allWebhooks?.length || 0 })}
+							{allWebhooks?.length ? t('webhook_other', { count: allWebhooks?.length }) : t('webhookCount', { count: 0 })}
 						</div>
 					</div>
 				</div>
@@ -37,6 +37,7 @@ const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps)
 					<div
 						onClick={setIsOpenWebhooks}
 						className="bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md py-2 px-3 cursor-pointer font-semibold"
+						data-e2e={generateE2eId('channel_setting_page.webhook.button.create_webhook')}
 					>
 						{t('createWebhook')}
 					</div>

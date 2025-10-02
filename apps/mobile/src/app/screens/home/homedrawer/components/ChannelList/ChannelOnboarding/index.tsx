@@ -3,7 +3,7 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	getStoreAsync,
 	selectAllChannels,
-	selectChannelById2,
+	selectChannelById,
 	selectCurrentClan,
 	selectCurrentUserId,
 	selectLastMessageByChannelId,
@@ -22,7 +22,8 @@ import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import InviteToChannel from '../../InviteToChannel';
-import { OnboardingBottomSheet, OnboardingItemProps } from './OnboardingBottomSheet';
+import type { OnboardingItemProps } from './OnboardingBottomSheet';
+import { OnboardingBottomSheet } from './OnboardingBottomSheet';
 import { style } from './styles';
 
 const NUM_OF_STEP = 3;
@@ -58,7 +59,7 @@ export const ChannelOnboarding = memo(() => {
 				onPress: async () => {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 					const store = await getStoreAsync();
-					const channel = selectChannelById2(store.getState(), welcomeChannel);
+					const channel = selectChannelById(store.getState(), welcomeChannel);
 
 					navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
 						screen: APP_SCREEN.MENU_CLAN.CREATE_CHANNEL,
@@ -97,8 +98,8 @@ export const ChannelOnboarding = memo(() => {
 				onPress: async () => {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 					const store = await getStoreAsync();
-					const channel = selectChannelById2(store.getState(), welcomeChannel);
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel: channel });
+					const channel = selectChannelById(store.getState(), welcomeChannel);
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel });
 				}
 			}
 		];

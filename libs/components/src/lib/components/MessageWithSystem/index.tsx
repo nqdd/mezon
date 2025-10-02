@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { MessagesEntity } from '@mezon/store';
+import type { MessagesEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { TypeMessage, addMention, convertDateStringI18n } from '@mezon/utils';
-import React, { ReactNode, useRef, useState } from 'react';
+import { TypeMessage, addMention, convertDateStringI18n, generateE2eId } from '@mezon/utils';
+import type { ReactNode } from 'react';
+import React, { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageReaction } from '../../components';
 import { MessageLineSystem } from '../MessageWithUser/MessageLineSystem';
@@ -23,7 +24,14 @@ export type MessageWithSystemProps = {
 	isTopic: boolean;
 };
 
-function MessageWithSystem({ message, onContextMenu: _onContextMenu, popup: _popup, isSearchMessage, showDivider, isTopic }: Readonly<MessageWithSystemProps>) {
+function MessageWithSystem({
+	message,
+	onContextMenu: _onContextMenu,
+	popup: _popup,
+	isSearchMessage,
+	showDivider,
+	isTopic
+}: Readonly<MessageWithSystemProps>) {
 	const contentUpdatedMention = addMention(message.content, message?.mentions as any);
 	const isCustom = message.code === TypeMessage.CreateThread || message.code === TypeMessage.CreatePin;
 
@@ -38,7 +46,10 @@ function MessageWithSystem({ message, onContextMenu: _onContextMenu, popup: _pop
 					messageId={message?.id}
 					className={'fullBoxText relative group'}
 				>
-					<div className={`flex items-start min-h-8 relative w-full px-3 text-theme-primary pt-2 pl-5 ${isCustom ? 'pb-2' : ''}`}>
+					<div
+						className={`flex items-start min-h-8 relative w-full px-3 text-theme-primary pt-2 pl-5 ${isCustom ? 'pb-2' : ''}`}
+						data-e2e={generateE2eId('chat.system_message', message?.code.toString())}
+					>
 						{message?.code === TypeMessage.Welcome && <Icons.WelcomeIcon defaultSize="size-8 flex-shrink-0" />}
 						{message?.code === TypeMessage.UpcomingEvent && <Icons.UpcomingEventIcon defaultSize="size-8 flex-shrink-0" />}
 						{message?.code === TypeMessage.CreateThread && <Icons.ThreadIcon defaultSize="size-6 flex-shrink-0" />}
@@ -79,7 +90,14 @@ interface HoverStateWrapperProps {
 	messageId?: string;
 	className?: string;
 }
-const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({ children, popup, isSearchMessage: _isSearchMessage, onContextMenu, messageId, className }) => {
+const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
+	children,
+	popup,
+	isSearchMessage: _isSearchMessage,
+	onContextMenu,
+	messageId,
+	className
+}) => {
 	const [isHover, setIsHover] = useState(false);
 	const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -107,6 +125,7 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({ children, popup, 
 			onMouseLeave={handleMouseLeave}
 			onContextMenu={onContextMenu}
 			id={`msg-${messageId}`}
+			data-e2e={generateE2eId('chat.system_message')}
 		>
 			{children}
 			{isHover && popup && popup()}

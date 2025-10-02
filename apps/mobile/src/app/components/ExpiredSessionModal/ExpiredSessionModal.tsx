@@ -7,7 +7,7 @@ import {
 	STORAGE_KEY_TEMPORARY_ATTACHMENT,
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
-import { authActions, channelsActions, clansActions, messagesActions, selectHasInternetMobile } from '@mezon/store';
+import { appActions, authActions, channelsActions, clansActions, messagesActions, selectHasInternetMobile } from '@mezon/store';
 import { getStoreAsync } from '@mezon/store-mobile';
 import React, { useCallback, useEffect } from 'react';
 import { DeviceEventEmitter, Platform } from 'react-native';
@@ -32,6 +32,7 @@ const ExpiredSessionModal = () => {
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
+		store.dispatch(appActions.setIsShowWelcomeMobile(false));
 		store.dispatch(authActions.logOut({ device_id: userProfile?.user?.username, platform: Platform.OS }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	}, [userProfile?.user?.username]);

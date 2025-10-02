@@ -9,7 +9,6 @@ import {
 	selectClickedOnTopicStatus,
 	selectCurrentChannel,
 	selectCurrentClanId,
-	selectDefaultCanvasByChannelId,
 	selectIsMessageChannelIdMatched,
 	selectMessageByMessageId,
 	threadsActions,
@@ -84,7 +83,6 @@ const ChannelMessageOpt = ({
 	const refOpt = useRef<HTMLDivElement>(null);
 	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannel?.id ?? '');
 	const isShowIconThread = !!(currentChannel && !Snowflake.isValid(currentChannel.parent_id ?? '') && canManageThread);
-	const defaultCanvas = useAppSelector((state) => selectDefaultCanvasByChannelId(state, currentChannel?.channel_id ?? ''));
 	const replyMenu = useMenuReplyMenuBuilder(message, hasPermission);
 	const editMenu = useEditMenuBuilder(message);
 	const reactMenu = useReactMenuBuilder(message);
@@ -172,7 +170,7 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 				builder.when(
 					clanId && clanId !== '0' && realTimeMessage?.code !== TypeMessage.Topic && !doNotAllowCreateTopic && notAllowedType,
 					(builder: MenuBuilder) => {
-						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIcon2 className="w-5 h-5 " />);
+						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIconOption className="w-5 h-5 " />);
 					}
 				);
 			}
@@ -241,8 +239,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 					clan_id: message.clan_id ?? '',
 					message_ref_id: message.id,
 					receiver_id: message.sender_id,
-					sender_id: userId,
-					token_count: AMOUNT_TOKEN.TEN_TOKENS
+					sender_id: userId
 				})
 			).unwrap();
 			if (checkSendCoffee === true) {
@@ -285,7 +282,6 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 		);
 	});
 }
-
 
 // Menu items plugins
 // maybe should be moved to separate files

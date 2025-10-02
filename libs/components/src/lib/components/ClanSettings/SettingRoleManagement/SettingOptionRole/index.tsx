@@ -1,5 +1,6 @@
 import { useClanOwner } from '@mezon/core';
-import { RolesClanEntity, getSelectedRoleId, toggleIsShowFalse } from '@mezon/store';
+import type { RolesClanEntity } from '@mezon/store';
+import { getSelectedRoleId, toggleIsShowFalse } from '@mezon/store';
 import { EVERYONE_ROLE_ID } from '@mezon/utils';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +64,7 @@ const SettingValueDisplayRole = ({ RolesClan }: { RolesClan: RolesClanEntity[] }
 						<button
 							className={`py-[5px] text-[15px] text-left transition duration-300 rounded relative tracking-wider font-medium group ${isSelectDisplayTab ? 'dark:text-white text-black' : 'text-contentTertiary'} ${clickRole === EVERYONE_ROLE_ID ? 'pointer-events-none select-none' : ''}`}
 							onClick={() => {
+								if (isSelectDisplayTab) return;
 								handleButtonClick('Display');
 								dispatch(toggleIsShowFalse());
 							}}
@@ -76,6 +78,7 @@ const SettingValueDisplayRole = ({ RolesClan }: { RolesClan: RolesClanEntity[] }
 					<button
 						className={`py-[5px] text-[15px] text-left transition duration-300 rounded relative tracking-wider font-medium group ${isSelectPermissionTab ? 'dark:text-white text-black' : 'text-contentTertiary'}`}
 						onClick={() => {
+							if (isSelectPermissionTab) return;
 							handleButtonClick('Permissions');
 							dispatch(toggleIsShowFalse());
 						}}
@@ -90,6 +93,7 @@ const SettingValueDisplayRole = ({ RolesClan }: { RolesClan: RolesClanEntity[] }
 							<button
 								className={`py-[5px] text-[15px] text-left transition duration-300 rounded relative tracking-wider font-medium group ${isSelectManageTab ? 'dark:text-white text-black' : 'text-contentTertiary'} ${clickRole === EVERYONE_ROLE_ID ? 'pointer-events-none select-none' : ''}`}
 								onClick={() => {
+									if (isSelectManageTab) return;
 									handleButtonClick('Manage Members');
 									dispatch(toggleIsShowFalse());
 								}}

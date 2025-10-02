@@ -22,7 +22,7 @@ import {
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenThreadMessageState,
 	selectSession,
 	selectStatusMenu,
@@ -32,18 +32,21 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import {
-	CREATING_THREAD,
+import type {
 	ChannelMembersEntity,
 	HistoryItem,
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	IMarkdownOnMessage,
 	IMessageSendPayload,
-	MAX_FILE_ATTACHMENTS,
 	RequestInput,
-	ThreadValue,
+	ThreadValue
+} from '@mezon/utils';
+import {
+	CREATING_THREAD,
+	MAX_FILE_ATTACHMENTS,
 	UploadLimitReason,
+	ValidateSpecialCharacters,
 	adjustPos,
 	filterEmptyArrays,
 	generateE2eId,
@@ -53,8 +56,9 @@ import {
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { Fragment, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { KeyboardEvent } from 'react';
+import React, { Fragment, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -69,7 +73,7 @@ const ThreadBox = () => {
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const sessionUser = useSelector(selectSession);
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, sessionUser?.user_id as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, sessionUser?.user_id as string));
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const currentInputChannelId = threadCurrentChannel?.channel_id || CREATING_THREAD;
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
@@ -79,7 +83,7 @@ const ThreadBox = () => {
 	const [redoHistory, setRedoHistory] = useState<HistoryItem[]>([]);
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
 	const { setRequestInput } = useMessageValue();
-	const request = useAppSelector((state) => selectComposeInputByChannelId(state, currentChannelId + 'true'));
+	const request = useAppSelector((state) => selectComposeInputByChannelId(state, `${currentChannelId}true`));
 	const rolesClan = useSelector(selectAllRolesClan);
 	const { membersOfChild } = useChannelMembers({ channelId: currentChannelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
 	const membersOfParent = useAppSelector((state) =>
@@ -112,18 +116,27 @@ const ThreadBox = () => {
 		async (value: ThreadValue, messageContent?: IMessageSendPayload) => {
 			const idParent = currentChannel?.parent_id !== '0' ? currentChannel?.parent_id : (currentChannelId as string);
 
-			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
-				toast('Thread name must be longer than 3 characters');
+			if (!value.nameValueThread || !value.nameValueThread.trim()) {
 				return;
 			}
+			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
+				toast(t('createThread.toast.threadNameTooShort'));
+				return;
+			}
+
+			const regex = ValidateSpecialCharacters().test(value.nameValueThread);
+			if (!regex) {
+				return;
+			}
+
 			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
 			if (isDuplicate?.payload) {
-				toast('Thread name already exists');
+				toast(t('createThread.toast.threadNameExists'));
 				return;
 			}
 
 			if (!messageContent?.t && !checkAttachment) {
-				toast.warning('An Initial message is required to start a thread.');
+				toast.warning(t('createThread.toast.initialMessageRequired'));
 				return;
 			}
 
@@ -142,7 +155,7 @@ const ThreadBox = () => {
 			const thread = await dispatch(createNewChannel(body));
 			return thread.payload;
 		},
-		[checkAttachment, currentChannel?.category_id, currentChannelId, currentClanId, dispatch]
+		[checkAttachment, currentChannel?.category_id, currentChannel?.parent_id, currentChannelId, currentClanId, dispatch, t]
 	);
 
 	const handleSend = useCallback(
@@ -210,14 +223,26 @@ const ThreadBox = () => {
 			references?: Array<ApiMessageRef>,
 			value?: ThreadValue
 		): Promise<boolean> => {
+			if (!threadCurrentChannel && valueThread) {
+				if (valueThread.content?.t && valueThread.content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
+					toast.error(t('createThread.toast.messageTooLong'));
+					return false;
+				}
+				await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+					nameValueThread: nameValueThread ?? valueThread?.content.t,
+					isPrivate
+				});
+				return true;
+			}
+
 			if (content?.t && content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-				toast.error('Message exceeds the 4000-character limit');
+				toast.error(t('createThread.toast.messageTooLong'));
 				return false;
 			}
 			await handleSend(content, mentions, attachments, references, value);
 			return true;
 		},
-		[handleSend]
+		[handleSend, t, threadCurrentChannel, valueThread, attachmentData, nameValueThread, isPrivate]
 	);
 
 	const handleTyping = useCallback(() => {
@@ -284,9 +309,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -306,9 +331,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -320,6 +345,15 @@ const ThreadBox = () => {
 				if (shiftKey || isComposing) {
 					return;
 				} else {
+					if (!threadCurrentChannel && valueThread) {
+						event.preventDefault();
+						await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+							nameValueThread: nameValueThread ?? valueThread?.content.t,
+							isPrivate
+						});
+						return;
+					}
+
 					const hasToken = request?.mentionRaw && request?.mentionRaw?.length > 0;
 
 					const emptyRequest: RequestInput = {
@@ -329,7 +363,7 @@ const ThreadBox = () => {
 					};
 					const checkedRequest = request ? request : emptyRequest;
 					if (checkedRequest.content.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-						toast.error(`Message exceeds the ${CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH}-character limit`);
+						toast.error(t('createThread.toast.messageLimitExceeded', { limit: CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH }));
 						event.preventDefault();
 						return;
 					}
@@ -379,7 +413,7 @@ const ThreadBox = () => {
 				</div>
 			)}
 			{!threadCurrentChannel && (
-				<div className={`flex flex-col overflow-y-auto }  ww-full px-3`} onPaste={onPastedFiles}>
+				<div className={`flex flex-col overflow-y-auto w-full  px-3`} onPaste={onPastedFiles}>
 					<div className="flex flex-col justify-end flex-grow">
 						{!threadCurrentChannel && (
 							<div className="relative flex text-theme-primary-active items-center justify-center mx-4 mt-4 w-16 h-16 bg-item-theme rounded-full pointer-events-none">
@@ -396,11 +430,21 @@ const ThreadBox = () => {
 							onKeyDown={onKeyDown}
 							value={nameValueThread ?? ''}
 							label={t('createThread.threadName')}
-							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')}
+							placeholder={
+								openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')
+							}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
 						/>
-						{!openThreadMessageState && <PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />}
-						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
+						{!openThreadMessageState && !valueThread && (
+							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
+						)}
+						{valueThread && (
+							<div className="max-h-[60vh] overflow-y-auto overflow-x-hidden  thread-scroll ">
+								<div className="px-3">
+									<ChannelMessageThread user={currentClanUser} message={valueThread} />
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -454,11 +498,7 @@ const ThreadBox = () => {
 							className={`flex flex-inline items-start gap-2 box-content max-sm:mb-0 bg-theme-surface rounded-lg relative shadow-md border-theme-primary ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}
 						${closeMenu && !statusMenu ? 'max-w-wrappBoxChatViewMobile' : 'w-wrappBoxChatView'}`}
 						>
-							<FileSelectionButton
-								currentClanId={currentClanId || ''}
-								currentChannelId={currentInputChannelId}
-								hasPermissionEdit={true}
-							/>
+							<FileSelectionButton currentChannelId={currentInputChannelId} />
 							<div className={`w-[calc(100%_-_58px)] bg-transparent gap-3 flex items-center rounded-e-md`}>
 								<div
 									className={`w-full border-none rounded-r-lg gap-3 relative whitespace-pre-wrap`}

@@ -4,10 +4,9 @@ import { selectChannelById, selectEventsByChannelId, useAppSelector } from '@mez
 import { EEventStatus } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo } from 'react';
-import { DeviceEventEmitter, Linking, Pressable, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, View } from 'react-native';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
-import { linkGoogleMeet } from '../../../../../../utils/helpers';
 import JoinChannelVoiceBS from '../../ChannelVoice/JoinChannelVoiceBS';
 
 type EventBadgeProps = {
@@ -21,10 +20,7 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 
 	const hanleEventChannel = async () => {
 		if (!events?.[0] && !events?.[0]?.channel_voice_id) return;
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `${linkGoogleMeet}${channelVoice?.meeting_code}`;
-			await Linking.openURL(urlVoice);
-		} else if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
 				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />

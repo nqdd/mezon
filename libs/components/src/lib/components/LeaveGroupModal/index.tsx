@@ -1,12 +1,5 @@
-import {
-	channelMembersActions,
-	directActions,
-	DirectEntity,
-	directMetaActions,
-	selectAllAccount,
-	selectDmGroupCurrentId,
-	useAppDispatch
-} from '@mezon/store';
+import type { DirectEntity } from '@mezon/store';
+import { channelMembersActions, directActions, directMetaActions, selectAllAccount, selectDmGroupCurrentId, useAppDispatch } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +14,7 @@ interface LeaveGroupModalProps {
 function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: LeaveGroupModalProps) {
 	const { t } = useTranslation('leaveGroup');
 	const [isChecked, setIsChecked] = useState(false);
+	const [isshowcheckbox, setIsShowCheckbox] = useState(false);
 	const dispatch = useAppDispatch();
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 	const userProfile = useSelector(selectAllAccount);
@@ -42,6 +36,7 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 			const timestamp = Date.now() / 1000;
 			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: groupWillBeLeave.channel_id, timestamp }));
 			if (groupWillBeLeave.channel_id === currentDmGroupId) {
+				dispatch(directActions.setDmGroupCurrentId(''));
 				navigateToFriends();
 			}
 		}
@@ -56,23 +51,22 @@ function LeaveGroupModal({ groupWillBeLeave, onClose, navigateToFriends }: Leave
 					<div className="text-xl font-semibold break-words whitespace-normal overflow-wrap-break-word">
 						{t('title', { groupName: groupWillBeLeave?.channel_label })}
 					</div>
-					<div className="text-lg break-all">
-						{t('confirmMessage', { groupName: groupWillBeLeave?.channel_label })}
-					</div>
+					<div className="text-lg break-all">{t('confirmMessage', { groupName: groupWillBeLeave?.channel_label })}</div>
 
-					<div className="flex items-center gap-[10px]">
-						<input
-							type="checkbox"
-							id="confirmLeaveNoNotifying"
-							checked={isChecked}
-							onChange={handleCheckboxChange}
-							className="h-4 w-4"
-							disabled={true} // remove when add action
-						/>
-						<label htmlFor="confirmLeaveNoNotifying" className="text-sm">
-							{t('leaveWithoutNotifying')}
-						</label>
-					</div>
+					{isshowcheckbox && (
+						<div className="flex items-center gap-[10px]">
+							<input
+								type="checkbox"
+								id="confirmLeaveNoNotifying"
+								checked={isChecked}
+								onChange={handleCheckboxChange}
+								className="h-4 w-4"
+							/>
+							<label htmlFor="confirmLeaveNoNotifying" className="text-sm">
+								{t('leaveWithoutNotifying')}
+							</label>
+						</div>
+					)}
 				</div>
 				<div className="bottom-block flex justify-end p-[16px]  items-center gap-[20px] font-semibold rounded-[5px]">
 					<div onClick={onClose} className=" cursor-pointer hover:underline text-theme-primary">

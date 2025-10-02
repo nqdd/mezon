@@ -58,7 +58,7 @@ const FriendsPage = () => {
 	}, []);
 
 	const handleChange = (key: string, value: string) => {
-		const isValidInput = /^[a-zA-Z0-9_.]*$/.test(value);
+		const isValidInput = /^[\p{L}0-9+\-_.]+$/u.test(value);
 
 		setIsInvalidInput(!isValidInput && value !== '');
 
@@ -133,6 +133,35 @@ const FriendsPage = () => {
 			return nameStart.localeCompare(nameNext);
 		});
 
+	const getEmptyStateMessage = (tab: string) => {
+		if (textSearch.trim()) {
+			switch (tab) {
+				case 'all':
+					return t('statusTapSearchFriends.all');
+				case 'online':
+					return t('statusTapSearchFriends.online');
+				case 'pending':
+					return t('statusTapSearchFriends.pending');
+				case 'block':
+					return t('statusTapSearchFriends.block');
+				default:
+					return t('statusTapSearchFriends.all');
+			}
+		}
+		switch (tab) {
+			case 'all':
+				return t('statusTapListFriends.all');
+			case 'online':
+				return t('statusTapListFriends.online');
+			case 'pending':
+				return t('statusTapListFriends.pending');
+			case 'block':
+				return t('statusTapListFriends.block');
+			default:
+				return t('statusTapListFriends.all');
+		}
+	};
+
 	const { setStatusMenu } = useMenu();
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
@@ -200,6 +229,7 @@ const FriendsPage = () => {
 										value={textSearch}
 										onChange={(e) => setTextSearch(e.target.value)}
 										placeholder={t('search')}
+										needOutline={true}
 										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] focus:outline focus:outline-1  outline-[#006ce7] "
 									/>
 									{Boolean(textSearch) && (
@@ -221,7 +251,15 @@ const FriendsPage = () => {
 								</span>
 							</div>
 							<div className="px-8 overflow-hidden flex flex-1 pb-4">
-								<FriendList listFriendFilter={listFriendFilter} />
+								{listFriendFilter.length > 0 ? (
+									<FriendList listFriendFilter={listFriendFilter} />
+								) : (
+									<div className="flex w-full text-theme-primary flex-col items-center justify-center h-full">
+										<div className="flex w-2/3 text-center justify-center mb-[120px]">
+											{getEmptyStateMessage(currentTabStatus)}
+										</div>
+									</div>
+								)}
 							</div>
 						</>
 					)}

@@ -1,7 +1,7 @@
 import { AudioSession } from '@livekit/react-native';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectChannelById2 } from '@mezon/store-mobile';
+import { getStore, selectChannelById } from '@mezon/store-mobile';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
@@ -124,7 +124,7 @@ const HeaderRoomView = memo(({ channelId, onPressMinimizeRoom, isGroupCall = fal
 
 	const channelLabel = useMemo(() => {
 		const store = getStore();
-		const channel = selectChannelById2(store.getState(), channelId);
+		const channel = selectChannelById(store.getState(), channelId);
 		return channel?.channel_label || '';
 	}, [channelId]);
 

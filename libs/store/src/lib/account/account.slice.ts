@@ -1,11 +1,17 @@
-import { IUserAccount, LoadingStatus } from '@mezon/utils';
-import { PayloadAction, createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { captureSentryError } from '@mezon/logger';
+import type { IUserAccount, LoadingStatus } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
 import { safeJSONParse } from 'mezon-js';
+import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
-import { CacheMetadata, clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { CacheMetadata } from '../cache-metadata';
+import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const ACCOUNT_FEATURE_KEY = 'account';
 export interface IAccount {
@@ -19,13 +25,15 @@ export interface AccountState {
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
 	cache?: CacheMetadata;
+	avatarVersion: number;
 }
 
 export const initialAccountState: AccountState = {
 	loadingStatus: 'not loaded',
 	account: null,
 	userProfile: null,
-	anonymousMode: false
+	anonymousMode: false,
+	avatarVersion: 0
 };
 
 export const fetchUserProfileCached = async (getState: () => RootState, mezon: MezonValueContext, noCache = false) => {
@@ -91,6 +99,32 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 		throw error;
 		// captureSentryError(error, 'account/deleteaccount');
 		// return thunkAPI.rejectWithValue(error);
+	}
+});
+
+export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (data: ApiLinkAccountMezon, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.linkMezon(mezon.session, data);
+
+		return response;
+	} catch (error) {
+		captureSentryError(error, 'account/addPhoneNumber');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
+
+export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
+
+		return response;
+	} catch (error) {
+		captureSentryError(error, 'account/verifyPhone');
+		toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
 	}
 });
 
@@ -161,6 +195,9 @@ export const accountSlice = createSlice({
 				user: { ...state.userProfile?.user, ...action.payload.user },
 				encrypt_private_key: action.payload.encrypt_private_key
 			};
+		},
+		incrementAvatarVersion(state) {
+			state.avatarVersion = (state.avatarVersion || 0) + 1;
 		}
 	},
 	extraReducers: (builder) => {
@@ -189,7 +226,7 @@ export const accountSlice = createSlice({
  */
 export const accountReducer = accountSlice.reducer;
 
-export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount };
+export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone };
 
 export const getAccountState = (rootState: { [ACCOUNT_FEATURE_KEY]: AccountState }): AccountState => rootState[ACCOUNT_FEATURE_KEY];
 
@@ -206,3 +243,5 @@ export const selectAccountMetadata = createSelector(getAccountState, (state: Acc
 export const selectAccountCustomStatus = createSelector(selectAccountMetadata, (metadata) => metadata?.status || '');
 
 export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
+
+export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);

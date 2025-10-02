@@ -1,5 +1,6 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { resetClanLimitModalTrigger, useAppDispatch, useAppSelector } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
@@ -51,7 +52,12 @@ const ClanLimitModalContent = ({ type, clanCount, onClose }: ClanLimitModalProps
 			<div className='fixed inset-0 bg-black opacity-80' />
 			<div className='relative z-10 w-[440px] max-w-[90vw]' onClick={(e) => e.stopPropagation()}>
 				<div className='bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md'>
-					<div className='text-theme-primary-active text-[20px] font-semibold pb-[16px]'>{title}</div>
+					<div
+						className='text-theme-primary-active text-[20px] font-semibold pb-[16px]'
+						data-e2e={generateE2eId('clan_page.modal.limit_creation.title')}
+					>
+						{title}
+					</div>
 					<div className='pb-[20px] text-theme-primary text-[14px] leading-relaxed'>{bodyText}</div>
 				</div>
 				<div className='bg-theme-setting-nav flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md'>

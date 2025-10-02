@@ -26,6 +26,19 @@
         "private": "Private Channel",
         "description": "Only selected members and roles will be able to view this channel."
     },
+    "labels": {
+        "description": "Kindly set up a channel of your choice.",
+        "chooseType": "Choose channel's type:",
+        "channelName": "What is channel's name?",
+        "isPrivate": "Is private channel?",
+        "placeholder": "Enter the channel's name"
+    },
+    "errors": {
+        "typeRequired": "Channel's type is required",
+        "nameRequired": "Channel's name is required",
+        "selectApp": "Please select an application",
+        "validName": "Please enter a valid channel name"
+    },
     "buttons": {
         "cancel": "Cancel",
         "create": "Create Channel",

@@ -108,7 +108,9 @@ export function useImage() {
 			android:
 				typeof Platform.Version === 'number' && Platform.Version >= 33
 					? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES
-					: PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
+					: typeof Platform.Version === 'number' && Platform.Version >= 29
+						? PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
+						: PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE
 		});
 
 		if (!permission) return false;

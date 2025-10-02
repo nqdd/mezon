@@ -1,9 +1,9 @@
-import { ELoadMoreDirection, IBeforeRenderCb } from '@mezon/chat-scroll';
+import type { IBeforeRenderCb } from '@mezon/chat-scroll';
+import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { MessageContextMenuProvider, MessageWithUser, useMessageContextMenu } from '@mezon/components';
 import { useMessageObservers, usePermissionChecker } from '@mezon/core';
+import type { MessagesEntity, RootState } from '@mezon/store';
 import {
-	MessagesEntity,
-	RootState,
 	channelsActions,
 	getStore,
 	messagesActions,
@@ -12,19 +12,19 @@ import {
 	selectCurrentChannelId,
 	selectDataReferences,
 	selectFirstMessageOfCurrentTopic,
-	selectHasMoreBottomByChannelId2,
-	selectHasMoreMessageByChannelId2,
+	selectHasMoreBottomByChannelId,
+	selectHasMoreMessageByChannelId,
 	selectIdMessageRefEdit,
 	selectIdMessageToJump,
 	selectIsJumpingToPresent,
 	selectIsMessageIdExist,
 	selectLastMessageByChannelId,
 	selectLatestMessageId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageEntitiesByChannelId,
-	selectMessageIdsByChannelId2,
 	selectMessageIsLoading,
 	selectMessageNotified,
+	selectMessageViewportIdsByChannelId,
 	selectOpenEditMessageState,
 	selectScrollOffsetByChannelId,
 	selectShowScrollDownButton,
@@ -33,9 +33,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import type { BooleanToVoidFunction, ChannelMembersEntity } from '@mezon/utils';
 import {
-	BooleanToVoidFunction,
-	ChannelMembersEntity,
 	Direction_Mode,
 	EOverriddenPermission,
 	LoadMoreDirection,
@@ -58,8 +57,8 @@ import {
 	useSyncEffect
 } from '@mezon/utils';
 import classNames from 'classnames';
-import { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
-import { ApiMessageRef } from 'mezon-js/api.gen';
+import type { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
+import type { ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ChannelMessage, MemorizedChannelMessage } from './ChannelMessage';
@@ -128,7 +127,7 @@ function ChannelMessages({
 }: ChannelMessagesProps) {
 	const appearanceTheme = useSelector(selectTheme);
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const messageIds = useAppSelector((state) => selectMessageIdsByChannelId2(state, channelId));
+	const messageIds = useAppSelector((state) => selectMessageViewportIdsByChannelId(state, channelId));
 	const idMessageNotified = useSelector(selectMessageNotified);
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
@@ -160,6 +159,12 @@ function ChannelMessages({
 	}, [channelId]);
 
 	useSyncEffect(() => {
+		if (lastMessage && preventScrollbottom.current) {
+			preventScrollbottom.current = false;
+		}
+	}, [lastMessage?.id]);
+
+	useSyncEffect(() => {
 		return () => {
 			requestIdleCallback &&
 				requestIdleCallback(() => {
@@ -177,18 +182,11 @@ function ChannelMessages({
 			}
 
 			if (direction === ELoadMoreDirection.bottom) {
-				const hasMoreBottom = selectHasMoreBottomByChannelId2(store.getState() as RootState, channelId);
+				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 				if (!hasMoreBottom || preventScrollbottom.current) {
 					dispatch(messagesActions.setViewingOlder({ channelId, status: false }));
 					return;
 				}
-			}
-
-			if (direction === ELoadMoreDirection.top) {
-				// const hasMoreTop = selectHasMoreMessageByChannelId2(store.getState() as RootState, channelId);
-				// if (!hasMoreTop) {
-				// 	return;
-				// }
 			}
 
 			if (typeof cb === 'function') {
@@ -243,7 +241,7 @@ function ChannelMessages({
 
 			return true;
 		},
-		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId]
+		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId, lastMessageId]
 	);
 
 	const getChatScrollBottomOffset = useCallback(() => {
@@ -352,7 +350,7 @@ function ChannelMessages({
 				</DMMessageWrapper>
 			) : (
 				<ClanMessageWrapper
-					channelId={channelId}
+					channelId={currentChannelId || channelId}
 					isThreadBox={isThreadBox}
 					isTopicBox={isTopicBox}
 					userIdsFromThreadBox={userIdsFromThreadBox}
@@ -370,7 +368,7 @@ function ChannelMessages({
 						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
-						channelId={channelId}
+						channelId={isTopicBox ? currentChannelId || channelId : channelId}
 						topicId={topicId}
 						mode={mode}
 						channelLabel={channelLabel}
@@ -434,7 +432,7 @@ const ScrollDownButton = memo(
 
 			dispatch(
 				channelsActions.setScrollOffset({
-					channelId: channelId,
+					channelId,
 					offset: 0
 				})
 			);
@@ -549,16 +547,20 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 	}) => {
 		const dispatch = useAppDispatch();
 		const user = useSelector(selectAllAccount);
-		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, user?.user?.id as string));
+		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, user?.user?.id as string));
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
-		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, channelId));
+		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
 		const jumpToPresent = useAppSelector((state) => selectIsJumpingToPresent(state, channelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
 
 		const openEditMessageState = useSelector(selectOpenEditMessageState);
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, channelId));
+
+		const topicCreatorOfInitMsg = useAppSelector((state) =>
+			selectMemberClanByUserId(state, (firstMsgOfThisTopic?.message?.sender_id as string) || '')
+		);
 
 		const getIsEditing = useCallback(
 			(messageId: string) => {
@@ -602,7 +604,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					return;
 				}
 				animateScroll({
-					container: container,
+					container,
 					element: lastMessageElement,
 					position: 'end',
 					margin: BOTTOM_FOCUS_MARGIN
@@ -670,12 +672,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					onChange(LoadMoreDirection.Forwards);
 				}
 
-				scrollOffsetRef.current = container.scrollHeight - container.scrollTop;
+				const newScrollOffset = container.scrollHeight - container.scrollTop;
+				scrollOffsetRef.current = newScrollOffset;
 
 				dispatch(
 					channelsActions.setScrollOffset({
-						channelId: channelId,
-						offset: scrollOffsetRef.current
+						channelId,
+						offset: newScrollOffset
 					})
 				);
 			});
@@ -688,21 +691,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				lastMessage?.create_time &&
 				new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500
 			) {
-				const isRelyMessage = lastMessage?.references?.length && lastMessage?.references?.length > 0;
-				const isAtBottom =
-					chatRef?.current &&
-					Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
-
-				if (isAtBottom && !isRelyMessage) return;
-				skipCalculateScroll.current = true;
-				const { scrollHeight, offsetHeight } = container;
-				const newScrollTop = scrollHeight - offsetHeight;
-				resetScroll(container, Math.ceil(newScrollTop));
-				setTimeout(() => {
-					skipCalculateScroll.current = false;
-				}, 0);
+				requestAnimationFrame(() => {
+					skipCalculateScroll.current = true;
+					const { scrollHeight, offsetHeight } = container;
+					const newScrollTop = scrollHeight - offsetHeight;
+					resetScroll(container, Math.ceil(newScrollTop));
+					setTimeout(() => {
+						skipCalculateScroll.current = false;
+					}, 0);
+				});
 			}
-		}, [lastMessage]);
+		}, [lastMessage, user?.user?.id]);
 
 		useLayoutEffectWithPrevDeps(
 			([prevMessageIds, prevIsViewportNewest]) => {
@@ -837,8 +836,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!firstMsgOfThisTopic?.message) {
 				return firstMsgOfThisTopic as MessagesEntity;
 			}
-			return convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
-		}, [firstMsgOfThisTopic]);
+			const baseEntity = convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
+			return {
+				...baseEntity,
+				avatar: baseEntity.avatar || topicCreatorOfInitMsg?.user?.avatar_url || baseEntity.avatar,
+				clan_avatar: baseEntity.clan_avatar || (topicCreatorOfInitMsg as any)?.clan_avatar || baseEntity.clan_avatar,
+				username: baseEntity.username || topicCreatorOfInitMsg?.user?.username || baseEntity.username
+			} as MessagesEntity;
+		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
 
 		const msgIdJumpHightlight = useRef<string | null>(null);
 
@@ -847,7 +852,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!idMessageToJump?.id) return;
 
 			const scrollToMessage = (messageId: string) => {
-				const messageElement = chatRef.current?.querySelector('#msg-' + messageId);
+				const messageElement = chatRef.current?.querySelector(`#msg-${messageId}`);
 				if (messageElement) {
 					setAnchor.current = new Date().getTime();
 					userActiveScroll.current = true;
@@ -968,7 +973,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 									allowDisplayShortProfile={true}
 									message={convertedFirstMsgOfThisTopic}
 									mode={mode}
-									user={currentClanUser}
+									user={topicCreatorOfInitMsg}
 								/>
 							</div>
 						)}
@@ -1060,7 +1065,7 @@ const LoadingSkeletonMessages = memo(
 		isTopic?: boolean;
 		topicId?: string;
 	}) => {
-		const hasMoreTop = useAppSelector((state) => selectHasMoreMessageByChannelId2(state, channelId));
+		const hasMoreTop = useAppSelector((state) => selectHasMoreMessageByChannelId(state, channelId));
 		// TODO: check hasMoreTop topic check backend alway return true
 		if (!hasMoreTop || isTopic) return null;
 		return (

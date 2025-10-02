@@ -6,7 +6,7 @@ import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listChannelRenderAction } from '../channels/listChannelRender.slice';
-import { selectMemberClanByUserId2 } from '../clanMembers/clan.members';
+import { selectMemberClanByUserId } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
 import { directActions } from '../direct/direct.slice';
 import { directMetaActions } from '../direct/directmeta.slice';
@@ -57,7 +57,6 @@ const getCurrentClanBadgeCount = (store: { getState?: () => RootState }, clanId:
 const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: { getState?: () => RootState }) => {
 	const { clanId, channelId, badgeCount, timestamp, messageId } = params;
 	if (!clanId || !channelId) {
-		console.warn('Invalid params for resetChannelBadgeCount:', params);
 		return;
 	}
 	cleanupOutdatedEntries();
@@ -65,15 +64,21 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 	const id = channelId + messageId;
 
 	if (messageId) {
-		if (isMessageAlreadyProcessed(id)) {
-			return;
+		if (store?.getState) {
+			const state = store.getState();
+			const channel = state.channels.byClans[clanId]?.entities?.entities[channelId];
+			if (channel && channel.count_mess_unread === 0) {
+				if (isMessageAlreadyProcessed(id)) {
+					return;
+				}
+			}
 		}
+
 		processedMessagesCache.set(id, Date.now());
 	}
 
 	const now = timestamp || Date.now() / 1000;
 	const currentClanBadge = store ? getCurrentClanBadgeCount(store, clanId) : 0;
-
 	if (clanId !== '0') {
 		dispatch(listChannelRenderAction.removeBadgeFromChannel({ clanId, channelId }));
 		dispatch(
@@ -95,14 +100,13 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 
 		if (badgeCount !== undefined && badgeCount > 0) {
 			const actualDecrement = Math.min(badgeCount, currentClanBadge);
-			if (actualDecrement > 0) {
-				dispatch(
-					clansActions.updateClanBadgeCount({
-						clanId,
-						count: actualDecrement * -1
-					})
-				);
-			}
+			dispatch(
+				clansActions.updateClanBadgeCount({
+					clanId,
+					count: actualDecrement > 0 ? actualDecrement * -1 : 0,
+					isReset: actualDecrement <= 0
+				})
+			);
 		}
 	} else {
 		dispatch(directActions.removeBadgeDirect({ channelId }));
@@ -141,7 +145,7 @@ export interface DecreaseChannelBadgeParams {
 
 const isMessageMentionOrReply = (msg: ChannelMessage, currentUserId: string, store: Store): boolean => {
 	const state = store?.getState?.();
-	const currentClanUser = state ? selectMemberClanByUserId2(state, currentUserId) : undefined;
+	const currentClanUser = state ? selectMemberClanByUserId(state, currentUserId) : undefined;
 
 	const hasMention = (() => {
 		if (!currentUserId) return false;

@@ -2,15 +2,14 @@ import { ColorRoleProvider, useChatSending, useCurrentInbox, useDeleteMessage, u
 import {
 	selectAllAccount,
 	selectCurrentTopicId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenEditMessageState,
 	topicsActions,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { IMessageWithUser } from '@mezon/utils';
-import { TypeMessage } from '@mezon/utils';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import { IMessageWithUser, TypeMessage, generateE2eId } from '@mezon/utils';
+import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,7 +32,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 	const { mess, closeModal, mode, isRemoveAttachmentNoContent, attachmentData, isRemoveAttachmentAction = false, isTopic } = props;
 	const { t } = useTranslation('message');
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 	const dispatch = useDispatch();
 	const current = useCurrentInbox() || undefined;
 	const modalRef = useRef<HTMLDivElement>(null);
@@ -117,8 +116,8 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 			tabIndex={0}
 		>
 			<div className="w-fit h-fit bg-theme-primary rounded-lg flex flex-col justify-start items-start overflow-hidden">
-				<div className="w-full">
-					<div className="p-4 pb-0 bg-theme-primary text-center">
+				<div className="w-fit max-w-[720px] ">
+					<div className="w-full p-4 pb-0 bg-theme-primary text-center">
 						<h3 className="font-bold pb-2 text-xl text-theme-primary">
 							{isRemoveAttachmentNoContent ? t('deleteMessageModal.removeAttachmentTitle') : t('deleteMessageModal.title')}
 						</h3>
@@ -128,7 +127,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 								: t('deleteMessageModal.deleteMessageDescription')}
 						</p>
 					</div>
-					<div className="p-4 max-w-[720px] max-h-[50vh] overflow-y-auto hide-scrollbar bg-theme-secondary pointer-events-none [&_.attachment-actions]:!hidden [&_button]:!hidden">
+					<div className="w-full flex flex-wrap items-start p-4 max-w-[720px] max-h-[50vh] overflow-y-auto overflow-x-hidden bg-theme-secondary pointer-events-none break-words break-all thread-scroll whitespace-pre-wrap [&_p]:!whitespace-normal [&_span]:!whitespace-normal [&_a]:!whitespace-normal [&_div]:!whitespace-normal [&_p]:break-words [&_span]:break-words [&_a]:break-words [&_code]:break-all [&_.attachment-actions]:!hidden [&_button]:!hidden [&_img]:!object-contain [&_img]:max-w-full">
 						<ColorRoleProvider>
 							{isMessageSystem ? (
 								<MessageWithSystem message={mess as IMessageWithUser} isTopic={!!isTopic} />
@@ -144,7 +143,7 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 									isMention={true}
 									isShowFull={true}
 									user={currentClanUser}
-									isSearchMessage={true}
+									isSearchMessage={false}
 								/>
 							)}
 						</ColorRoleProvider>
@@ -154,11 +153,13 @@ const ModalDeleteMess = (props: ModalDeleteMessProps) => {
 							onClick={closeModal}
 							className="px-4 py-2 hover:underline rounded disabled:cursor-not-allowed disabled:hover:no-underline disabled:opacity-85 text-theme-primary"
 							disabled={isLoading}
+							data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.cancel')}
 						>
 							{t('deleteMessageModal.cancel')}
 						</button>
 						<button
 							onClick={handleAction}
+							data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.confirm')}
 							className="px-4 py-2 bg-[#DA363C] rounded hover:bg-opacity-85 text-white disabled:cursor-not-allowed disabled:opacity-85 disabled:hover:opacity-85 flex items-center gap-1"
 							disabled={isLoading}
 						>

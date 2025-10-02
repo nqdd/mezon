@@ -30,7 +30,8 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-	ActivityIndicator, DeviceEventEmitter,
+	ActivityIndicator,
+	DeviceEventEmitter,
 	FlatList,
 	Image as ImageRN,
 	Platform,
@@ -99,7 +100,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 
 	const listChannelsText = useMemo(() => {
 		return listChannels.current
-			?.filter((channel) => channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE)
+			?.filter((channel) => channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE)
 			.sort((a, b) => {
 				const aLastSeen = a?.last_seen_message?.timestamp_seconds || 0;
 				const bLastSeen = b?.last_seen_message?.timestamp_seconds || 0;

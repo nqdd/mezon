@@ -27,7 +27,7 @@ interface MyVideoConferenceProps {
 	channelLabel?: string;
 	url?: string;
 	token?: string;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	onJoinRoom?: () => void;
 	isExternalCalling?: boolean;
@@ -102,18 +102,16 @@ export function MyVideoConference({
 
 	useEffect(() => {
 		const handleDisconnected = async (reason?: DisconnectReason) => {
-			if (reason === DisconnectReason.DUPLICATE_IDENTITY) {
-				dispatch(voiceActions.resetVoiceControl());
-				return;
-			}
 			if (
 				reason === DisconnectReason.SERVER_SHUTDOWN ||
 				reason === DisconnectReason.CLIENT_INITIATED ||
 				reason === DisconnectReason.PARTICIPANT_REMOVED ||
 				reason === DisconnectReason.SIGNAL_CLOSE ||
-				reason === DisconnectReason.JOIN_FAILURE
+				reason === DisconnectReason.JOIN_FAILURE ||
+				reason === DisconnectReason.DUPLICATE_IDENTITY
 			) {
-				onLeaveRoom();
+				await onLeaveRoom();
+				room?.disconnect();
 			} else if (token) {
 				if (!url) return;
 				const maxAttempts = 3;
@@ -134,7 +132,7 @@ export function MyVideoConference({
 				onLeaveRoom();
 			}
 		};
-		const handleLocalTrackUnpublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
+		const handleLocalTrackUnpublished = async (publication: LocalTrackPublication, participant: LocalParticipant) => {
 			if (publication.source === Track.Source.ScreenShare) {
 				dispatch(voiceActions.setShowScreen(false));
 			}
@@ -143,6 +141,9 @@ export function MyVideoConference({
 			}
 			if (focusTrack && focusTrack?.participant.sid === participant.sid) {
 				layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
+				if (document.pictureInPictureElement) {
+					await document.exitPictureInPicture();
+				}
 			}
 		};
 		const handleReconnectedRoom = () => {
@@ -157,7 +158,7 @@ export function MyVideoConference({
 			}
 		};
 		const handleTrackUnpublish = async (publication: RemoteTrackPublication, participant: RemoteParticipant) => {
-			if (focusTrack?.publication?.trackSid === publication?.trackSid) {
+			if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureElement) {
 				await document.exitPictureInPicture();
 			}
 		};
@@ -198,7 +199,12 @@ export function MyVideoConference({
 					{!focusTrack ? (
 						<div className="lk-grid-layout-wrapper bg-gray-300 dark:bg-black !h-full !py-[68px]">
 							<GridLayout tracks={tracks}>
-								<ParticipantTile roomName={room?.name} isExtCalling={isExternalCalling} activeSoundReactions={activeSoundReactions} />
+								<ParticipantTile
+									room={room}
+									roomName={room?.name}
+									isExtCalling={isExternalCalling}
+									activeSoundReactions={activeSoundReactions}
+								/>
 							</GridLayout>
 						</div>
 					) : (
@@ -208,6 +214,7 @@ export function MyVideoConference({
 								{isShowMember && (
 									<CarouselLayout tracks={tracks}>
 										<ParticipantTile
+											room={room}
 											roomName={room?.name}
 											isExtCalling={isExternalCalling}
 											activeSoundReactions={activeSoundReactions}

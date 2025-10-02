@@ -25,7 +25,8 @@ import { Alert, Platform, ScrollView, View } from 'react-native';
 import WebView from 'react-native-webview';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import MezonSearch from '../../componentUI/MezonSearch';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
@@ -58,6 +59,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
+		store.dispatch(appActions.setIsShowWelcomeMobile(false));
 		store.dispatch(authActions.logOut({ device_id: userProfile.user.username, platform: Platform.OS }));
 		store.dispatch(appActions.setLoadingMainMobile(false));
 		setLinkRedirectLogout('');

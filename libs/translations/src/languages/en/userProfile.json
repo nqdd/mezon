@@ -38,7 +38,8 @@
 		"cancelFriendRequest": "Cancel Friend Request",
 		"copyUsername": "Copy Username",
 		"copiedUserName": "Copied {{username}}",
-		"removeFriend": "Remove Friend"
+		"removeFriend": "Remove Friend",
+		"viewFullProfile": "View Full Profile"
 	},
 	"userInfoDM": {
 		"menu": {
@@ -77,7 +78,8 @@
 		"removeRole": "Remove role",
 		"role": "Role",
 		"nope": "Nope!",
-		"typoError": "Did you make a typo?"
+		"typoError": "Did you make a typo?",
+		"userNotFound": "User is not in a Clan"
 	},
 	"placeholders": {
 		"messageUser": "Message @{{username}}"
@@ -173,5 +175,8 @@
 				"save": "Save"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Channel voice settings",
+	"muteVoice": "Mute",
+	"kickVoice": "Kick"
 }

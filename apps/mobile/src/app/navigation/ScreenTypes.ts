@@ -1,16 +1,25 @@
-import { ETypeSearch, ICategoryChannelOption } from '@mezon/mobile-components';
-import { ChannelMembersEntity, ChannelsEntity, DirectEntity, EventManagementEntity, NotiChannelCategorySettingEntity, RolesClanEntity } from '@mezon/store-mobile';
-import { ChannelThreads, ICategoryChannel, IChannel, IMessageWithUser, OptionEvent } from '@mezon/utils';
-import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StackScreenProps } from '@react-navigation/stack';
-import { ApiWebhook } from 'mezon-js/api.gen';
+import type { ETypeSearch, ICategoryChannelOption } from '@mezon/mobile-components';
+import type {
+	ChannelMembersEntity,
+	ChannelsEntity,
+	DirectEntity,
+	EventManagementEntity,
+	NotiChannelCategorySettingEntity,
+	RolesClanEntity
+} from '@mezon/store-mobile';
+import type { ChannelThreads, ICategoryChannel, IChannel, IMessageWithUser, OptionEvent } from '@mezon/utils';
+import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
+import type { ApiWebhook } from 'mezon-js/api.gen';
 
 export const APP_SCREEN = {
 	UN_AUTHORIZE: 'UN_AUTHORIZE',
 	LOGIN: 'LOGIN',
+	WELCOME: 'WELCOME',
 	REGISTER: 'REGISTER',
 	APP_BROWSER: 'APP_BROWSER',
+	VERIFY_OTP: 'VERIFY_OTP',
 
 	AUTHORIZE: 'AUTHORIZE',
 	BOTTOM_BAR: 'BOTTOM_BAR',
@@ -134,7 +143,9 @@ export const APP_SCREEN = {
 		BLOCKED_USERS: 'ROUTES.SETTINGS.BLOCKED_USERS',
 		SEND_COFFEE: 'ROUTES.SETTINGS.SEND_COFFEE',
 		MY_QR_CODE: 'ROUTES.SETTINGS.MY_QR_CODE',
-		SET_PASSWORD: 'ROUTES.SETTINGS.SET_PASSWORD'
+		SET_PASSWORD: 'ROUTES.SETTINGS.SET_PASSWORD',
+		UPDATE_PHONE_NUMBER: 'ROUTES.SETTINGS.UPDATE_PHONE_NUMBER',
+		VERIFY_PHONE_NUMBER: 'ROUTES.SETTINGS.VERIFY_PHONE_NUMBER'
 	}
 } as const;
 
@@ -307,6 +318,8 @@ type SettingStackParamList = {
 	[APP_SCREEN.SETTINGS.BLOCKED_USERS]: undefined;
 	[APP_SCREEN.SETTINGS.MY_QR_CODE]: undefined;
 	[APP_SCREEN.SETTINGS.SET_PASSWORD]: undefined;
+	[APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER]: undefined;
+	[APP_SCREEN.SETTINGS.VERIFY_PHONE_NUMBER]: undefined;
 };
 
 type ChannelAppParamList = {
@@ -321,6 +334,7 @@ type ChannelAppParamList = {
 export type AppStackParamList = {
 	[APP_SCREEN.UN_AUTHORIZE]: undefined;
 	[APP_SCREEN.LOGIN]: undefined;
+	[APP_SCREEN.VERIFY_OTP]: undefined;
 	[APP_SCREEN.REGISTER]: undefined;
 	[APP_SCREEN.APP_BROWSER]: { url: string; title?: string };
 	[APP_SCREEN.AUTHORIZE]: undefined;

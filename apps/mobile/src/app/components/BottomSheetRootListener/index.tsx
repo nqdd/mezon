@@ -1,9 +1,11 @@
-import { BottomSheetModalProps, BottomSheetScrollView, BottomSheetModal as OriginalBottomSheet } from '@gorhom/bottom-sheet';
+import type { BottomSheetModalProps } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetModal as OriginalBottomSheet } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { sleep } from '@mezon/utils';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BackHandler, DeviceEventEmitter, Keyboard, NativeEventSubscription, StyleProp, Text, View, ViewStyle } from 'react-native';
+import type { NativeEventSubscription, StyleProp, ViewStyle } from 'react-native';
+import { BackHandler, DeviceEventEmitter, Keyboard, Text, View } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import Backdrop from './backdrop';
 import { style } from './styles';
@@ -153,13 +155,7 @@ const BottomSheetRootListener = () => {
 			backgroundStyle={styles.backgroundStyle}
 			backdropComponent={(prop) => <Backdrop {...prop} style={backdropStyle} />}
 			enableDynamicSizing={heightFitContent}
-			handleIndicatorStyle={styles.handleIndicator}
 			style={styles.container}
-			containerStyle={containerStyle}
-			animationConfigs={{
-				duration: 200
-			}}
-			onChange={handleSheetPositionChange}
 			handleComponent={
 				hiddenHeaderIndicator
 					? null
@@ -167,9 +163,18 @@ const BottomSheetRootListener = () => {
 							return <View style={styles.handleIndicator} />;
 						}
 			}
+			containerStyle={containerStyle}
+			animationConfigs={{
+				duration: 200
+			}}
+			onChange={handleSheetPositionChange}
 		>
 			{renderHeader()}
-			{children && <BottomSheetScrollView bounces={false}>{children}</BottomSheetScrollView>}
+			{children && (
+				<BottomSheetScrollView bounces={false} keyboardShouldPersistTaps={'handled'}>
+					{children}
+				</BottomSheetScrollView>
+			)}
 		</OriginalBottomSheet>
 	);
 };

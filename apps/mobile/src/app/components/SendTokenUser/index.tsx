@@ -5,7 +5,8 @@ import React, { forwardRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 
@@ -25,25 +26,6 @@ export const SendTokenUser = forwardRef(() => {
 				title: t('settingStack.sendToken'),
 				isShow: true,
 				icon: <MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
-			},
-			{
-				onPress: () => {
-					navigation.push(APP_SCREEN.WALLET, {
-						activeScreen: 'manage'
-					});
-					dismiss();
-				},
-				title: t('settingStack.walletManagement'),
-				isShow: true,
-				icon: (
-					<MezonIconCDN
-						icon={IconCDN.sendMoneyIcon}
-						height={size.s_22}
-						width={size.s_22}
-						color={baseColor.bgSuccess}
-						customStyle={{ transform: [{ rotate: '180deg' }] }}
-					/>
-				)
 			},
 			{
 				onPress: () => {

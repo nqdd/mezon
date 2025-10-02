@@ -1,7 +1,7 @@
 import { selectCurrentChannelId, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -86,16 +86,23 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 					{t('clanBanner.uploadBackground')}
 				</button>
 			</div>
-			<div className="flex flex-1 sbm:mb-0 mb-5 bg-theme-setting-nav border-theme-primary rounded-lg">
-				<div className="relative max-w-[320px] w-full h-[180px]">
+			<div className="flex flex-1 sbm:mb-0 mb-5 bg-theme-setting-nav border-theme-primary rounded-lg overflow-hidden">
+				<div className="relative w-full h-[180px]">
 					<label>
 						<div
 							style={{ backgroundImage: `url(${urlImage})` }}
-							className={`bg-cover bg-no-repeat bg-center w-full h-full rounded relative cursor-pointer`}
+							className={`bg-cover bg-no-repeat bg-center w-full h-full rounded-lg relative cursor-pointer`}
 						>
 							{!urlImage && <p className="text-xl font-semibold text-center pt-[25%]">{t('clanBanner.chooseImage')}</p>}
 						</div>
-						<input ref={fileInputRef} id="upload_banner_background" onChange={(e) => handleFile(e)} type="file" className="hidden" />
+						<input
+							ref={fileInputRef}
+							id="upload_banner_background"
+							onChange={(e) => handleFile(e)}
+							type="file"
+							className="hidden"
+							data-e2e={generateE2eId('clan_page.settings.upload.clan_banner_input')}
+						/>
 					</label>
 					<button onClick={handleCloseFile} className="absolute top-4 right-4 w-7 h-7 rounded-full  flex items-center justify-center">
 						{urlImage ? <Icons.Close /> : <Icons.ImageUploadIcon />}

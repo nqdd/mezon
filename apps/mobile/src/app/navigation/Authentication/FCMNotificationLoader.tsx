@@ -1,5 +1,5 @@
 import { ChatContext } from '@mezon/core';
-import { IS_ANSWER_CALL_FROM_NATIVE, STORAGE_IS_DISABLE_LOAD_BACKGROUND, save } from '@mezon/mobile-components';
+import { STORAGE_IS_DISABLE_LOAD_BACKGROUND, save } from '@mezon/mobile-components';
 import { appActions, getStoreAsync } from '@mezon/store-mobile';
 import notifee, { EventType } from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChannelMessage, safeJSONParse } from 'mezon-js';
 import moment from 'moment/moment';
 import { useCallback, useContext, useEffect, useRef } from 'react';
-import { AppState, Platform } from 'react-native';
+import { AppState, NativeModules, Platform } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { checkNotificationPermission, processNotification } from '../../utils/pushNotificationHelpers';
@@ -117,9 +117,6 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 					type === EventType.ACTION_PRESS &&
 					(detail.pressAction?.id === 'reject' || detail.pressAction?.id === 'accept')
 				) {
-					if (detail.pressAction?.id === 'accept') {
-						save(IS_ANSWER_CALL_FROM_NATIVE, true);
-					}
 					notifee.stopForegroundService();
 					notifee.cancelNotification('incoming-call', 'incoming-call');
 					notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
@@ -141,9 +138,6 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 					type === EventType.ACTION_PRESS &&
 					(detail.pressAction?.id === 'reject' || detail.pressAction?.id === 'accept')
 				) {
-					if (detail.pressAction?.id === 'accept') {
-						save(IS_ANSWER_CALL_FROM_NATIVE, true);
-					}
 					notifee.stopForegroundService();
 					notifee.cancelNotification('incoming-call', 'incoming-call');
 					notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
@@ -196,9 +190,15 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 				});
 				mapMessageNotificationToSlice(notificationDataPushedParse?.length ? notificationDataPushedParse.slice(0, 10) : []);
 			}
+			if (Platform.OS === 'android') {
+				NativeModules?.BadgeModule?.clearAllNotifications();
+			}
 			await notifee.cancelAllNotifications();
 			await notifee.cancelDisplayedNotifications();
 		} catch (error) {
+			if (Platform.OS === 'android') {
+				NativeModules?.BadgeModule?.clearAllNotifications();
+			}
 			await deleteAllChannelGroupsNotifee();
 			await notifee.cancelAllNotifications();
 			await notifee.cancelDisplayedNotifications();

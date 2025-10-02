@@ -11,8 +11,8 @@ import {
 	save
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
 import {
-	RootState,
 	emojiSuggestionActions,
 	getStore,
 	referencesActions,
@@ -24,7 +24,8 @@ import {
 	threadsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { IHashtagOnMessage, IMentionOnMessage, MIN_THRESHOLD_CHARS, MentionDataProps } from '@mezon/utils';
+import type { IHashtagOnMessage, IMentionOnMessage, MentionDataProps } from '@mezon/utils';
+import { MIN_THRESHOLD_CHARS } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 // eslint-disable-next-line
 import { useMezon } from '@mezon/transport';
@@ -32,13 +33,13 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { TriggersConfig, useMentions } from 'react-native-controlled-mentions';
+import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import type { TriggersConfig } from 'react-native-controlled-mentions';
+import { useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { ClipboardImagePreview } from '../../../../../../components/ClipboardImagePreview';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
 import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
@@ -46,12 +47,13 @@ import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
-import { IMessageActionNeedToResolve } from '../../../types';
+import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
 import EmojiSwitcher from '../../EmojiPicker/EmojiSwitcher';
 import { RenderTextContent } from '../../RenderTextContent';
 import { ChatBoxListener } from '../ChatBoxListener';
-import { ChatMessageLeftArea, IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
+import type { IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
+import { ChatMessageLeftArea } from '../ChatMessageLeftArea';
 import { ChatMessageSending } from '../ChatMessageSending';
 import { ChatBoxTyping } from './ChatBoxTyping';
 import { style } from './style';
@@ -102,6 +104,16 @@ interface IEphemeralTargetUserInfo {
 	display: string;
 }
 
+interface IFile {
+	uri: string;
+	name: string;
+	type: string;
+	size: number | string;
+	fileData: any;
+}
+const DOUBLE_TAP_DELAY = 1000;
+const LONG_PRESS_DELAY = 300;
+
 export const ChatBoxBottomBar = memo(
 	({
 		mode = 2,
@@ -130,9 +142,7 @@ export const ChatBoxBottomBar = memo(
 			id: '',
 			display: ''
 		});
-
-		const [imageBase64, setImageBase64] = useState<string | null>(null);
-
+		const [isShowOptionPaste, setIsShowOptionPaste] = useState(false);
 		const anonymousMode = useSelector(selectAnonymousMode);
 
 		const inputRef = useRef<TextInput>(null);
@@ -143,6 +153,10 @@ export const ChatBoxBottomBar = memo(
 		const mentionsOnMessage = useRef<IMentionOnMessage[]>([]);
 		const hashtagsOnMessage = useRef<IHashtagOnMessage[]>([]);
 		const chatMessageLeftAreaRef = useRef<IChatMessageLeftAreaRef>(null);
+		const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+		const isLongPressed = useRef(false);
+		const isDoublePressed = useRef(false);
+		const lastTap = useRef<number>(0);
 
 		const inputTriggersConfig = useMemo(() => {
 			const isDM = [ChannelStreamMode.STREAM_MODE_GROUP].includes(mode);
@@ -194,9 +208,9 @@ export const ChatBoxBottomBar = memo(
 				if (!textValueInputRef?.current?.length && !textChange.length) {
 					textFormat = shortName?.toString();
 				} else {
-					textFormat = `${textChange?.endsWith(' ') ? textChange : textChange + ' '}${shortName?.toString()}`;
+					textFormat = `${textChange?.endsWith(' ') ? textChange : `${textChange} `}${shortName?.toString()}`;
 				}
-				await handleTextInputChange(textFormat + ' ');
+				await handleTextInputChange(`${textFormat} `);
 			},
 			[textChange]
 		);
@@ -215,17 +229,34 @@ export const ChatBoxBottomBar = memo(
 			});
 		};
 
-		const handlePasteImage = async (imageBase64: string) => {
+		const handlePasteImage = async (imageData: string) => {
 			try {
-				if (imageBase64) {
+				if (imageData) {
 					const now = Date.now();
-					const mimeType = imageBase64.split(';')?.[0]?.split(':')?.[1] || 'image/jpeg';
-					const extension = mimeType?.split('/')?.[1]?.replace('jpeg', 'jpg')?.replace('svg+xml', 'svg') || 'jpg';
+					let fileName: string;
+					let destPath: string;
+					let mimeType: string;
 
-					const fileName = `paste_image_${now}.${extension}`;
-					const destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+					if (imageData.startsWith('data:image/')) {
+						// Handle base64 image data
+						mimeType = imageData.split(';')?.[0]?.split(':')?.[1] || 'image/jpeg';
+						const extension = mimeType?.split('/')?.[1]?.replace('jpeg', 'jpg')?.replace('svg+xml', 'svg') || 'jpg';
+						fileName = `paste_image_${now}.${extension}`;
+						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
 
-					await RNFS.writeFile(destPath, imageBase64.split(',')?.[1], 'base64');
+						await RNFS.writeFile(destPath, imageData.split(',')?.[1], 'base64');
+					} else if (imageData.startsWith('content://')) {
+						// Handle Android content:// URI
+						fileName = `paste_image_${now}.jpg`;
+						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
+						mimeType = 'image/jpeg';
+
+						// Copy file from content URI to app cache
+						await RNFS.copyFile(imageData, destPath);
+					} else {
+						throw new Error('Unsupported image format');
+					}
+
 					const fileInfo = await RNFS.stat(destPath);
 					const filePath = `file://${fileInfo?.path}`;
 					const { width, height } = await getImageDimension(filePath);
@@ -291,6 +322,8 @@ export const ChatBoxBottomBar = memo(
 			}
 		}, []);
 		const handleTextInputChange = async (text: string) => {
+			if (isShowOptionPaste) setIsShowOptionPaste(false);
+
 			const store = getStore();
 			if (text?.length > MIN_THRESHOLD_CHARS) {
 				if (convertRef.current) {
@@ -475,8 +508,8 @@ export const ChatBoxBottomBar = memo(
 			async (text: string) => {
 				// Define the path to the file
 				const now = Date.now();
-				const filename = now + '.txt';
-				const path = RNFS.DocumentDirectoryPath + `/${filename}`;
+				const filename = `${now}.txt`;
+				const path = `${RNFS.DocumentDirectoryPath}/${filename}`;
 
 				// Write the text to the file
 				await RNFS.writeFile(path, text, 'utf8')
@@ -496,7 +529,7 @@ export const ChatBoxBottomBar = memo(
 					name: filename,
 					type: 'text/plain',
 					size: (await RNFS.stat(path)).size.toString(),
-					fileData: fileData
+					fileData
 				};
 
 				return fileFormat;
@@ -519,54 +552,56 @@ export const ChatBoxBottomBar = memo(
 			}, 300);
 		};
 
-		const checkPasteImage = async () => {
+		const handlePasteImageFromClipboard = async () => {
 			try {
+				// Check for base64 image first
 				const imageUri = await Clipboard.getImage();
-
 				if (imageUri?.startsWith('data:image/')) {
 					const base64Data = imageUri.split(',')?.[1];
 					if (base64Data?.length > 10) {
-						setImageBase64(imageUri);
+						await handlePasteImage(imageUri);
+						// Only hide tooltip, keep image in clipboard
+						setIsShowOptionPaste(false);
+						return;
 					}
 				}
+
+				// Check for content:// path
+				const clipboardText = await Clipboard.getString();
+				if (
+					clipboardText?.startsWith('content://') &&
+					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
+				) {
+					await handlePasteImage(clipboardText);
+					// Only hide tooltip, keep image in clipboard
+					setIsShowOptionPaste(false);
+					return;
+				}
+
+				console.log('No image found in clipboard');
 			} catch (error) {
-				console.error('Error checking paste image:', error);
+				console.error('Error pasting image from clipboard:', error);
 			}
 		};
 
-		const handlePasteImageFromClipboard = async () => {
-			if (imageBase64) {
-				await handlePasteImage(imageBase64);
-				cancelPasteImage();
-			}
-		};
-		const cancelPasteImage = useCallback(() => {
-			if (Platform.OS === 'ios') {
-				Clipboard.setImage('');
-			} else if (Platform.OS === 'android') {
-				Clipboard.setString('');
-			}
-			setImageBase64(null);
-		}, []);
-
-		const handleInputFocus = async () => {
+		const handleInputFocus = useCallback(async () => {
 			setModeKeyBoardBottomSheet('text');
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false,
 				mode: ''
 			});
-			await checkPasteImage();
-		};
+		}, []);
 
-		const handleInputBlur = () => {
+		const handleInputBlur = useCallback(() => {
 			chatMessageLeftAreaRef.current?.setAttachControlVisibility(false);
+			setIsShowOptionPaste(false);
 			if (modeKeyBoardBottomSheet === 'text') {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false,
 					mode: ''
 				});
 			}
-		};
+		}, [modeKeyBoardBottomSheet]);
 
 		const cancelEphemeralMode = useCallback(() => {
 			setIsEphemeralMode(false);
@@ -610,6 +645,89 @@ export const ChatBoxBottomBar = memo(
 				addEmojiPickedListener.remove();
 			};
 		}, [channelId, handleEventAfterEmojiPicked, topicChannelId]);
+
+		const checkClipboardForImage = useCallback(async (): Promise<boolean> => {
+			try {
+				if (Platform.OS === 'ios') {
+					const isHasImage = await Clipboard.hasImage();
+					if (!isHasImage) return false;
+				}
+				const imageUri = await Clipboard.getImage();
+				if (imageUri?.startsWith('data:image/')) {
+					const base64Data = imageUri.split(',')?.[1];
+					if (base64Data?.length > 10) {
+						return true;
+					}
+				}
+
+				// Check if clipboard contains content:// path for images (Android)
+				const clipboardText = await Clipboard.getString();
+				if (
+					clipboardText?.startsWith('content://') &&
+					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
+				)
+					return true;
+			} catch (error) {
+				console.error('Error checking clipboard for images:', error);
+				return false;
+			}
+		}, []);
+
+		const onLongPress = useCallback(async () => {
+			const isHasImage = await checkClipboardForImage();
+			setIsShowOptionPaste(isHasImage);
+		}, [checkClipboardForImage]);
+
+		const handlePressIn = useCallback(() => {
+			isLongPressed.current = false;
+			const now = Date.now();
+
+			if (now - lastTap.current < DOUBLE_TAP_DELAY && Platform.OS === 'ios') {
+				isDoublePressed.current = true;
+				lastTap.current = 0;
+			}
+
+			longPressTimer.current = setTimeout(() => {
+				isLongPressed.current = true;
+				onLongPress();
+			}, LONG_PRESS_DELAY);
+		}, [onLongPress]);
+
+		const handleDoubleTap = useCallback(async () => {
+			try {
+				const hasImage = await checkClipboardForImage();
+				if (hasImage && Platform.OS === 'ios') {
+					setIsShowOptionPaste(true);
+				}
+			} catch (error) {
+				console.error('Error handling double tap:', error);
+			}
+		}, [checkClipboardForImage]);
+
+		const onRegularPress = useCallback(() => {
+			setIsShowOptionPaste(false);
+		}, []);
+
+		const handlePressOut = useCallback(() => {
+			if (longPressTimer.current) {
+				clearTimeout(longPressTimer.current);
+				longPressTimer.current = null;
+			}
+
+			if (!isLongPressed.current) {
+				onRegularPress();
+			}
+
+			if (isDoublePressed.current) {
+				handleDoubleTap();
+				isDoublePressed.current = false;
+				lastTap.current = 0;
+			} else {
+				lastTap.current = Date.now();
+			}
+
+			isLongPressed.current = false;
+		}, [handleDoubleTap, onRegularPress]);
 
 		return (
 			<View style={styles.container}>
@@ -676,13 +794,16 @@ export const ChatBoxBottomBar = memo(
 							/>
 						)}
 
-						{imageBase64 && (
-							<Pressable style={{ position: 'absolute', bottom: '100%' }} onPress={handlePasteImageFromClipboard}>
-								<ClipboardImagePreview imageBase64={imageBase64} message={t('pasteImage')} onCancel={cancelPasteImage} />
-							</Pressable>
-						)}
-
 						<View style={styles.input}>
+							{isShowOptionPaste && (
+								<TouchableOpacity style={styles.pasteTooltip} onPress={handlePasteImageFromClipboard} activeOpacity={0.8}>
+									<View style={styles.tooltipContent}>
+										<Text style={styles.tooltipText}>{t('pasteOption')}</Text>
+									</View>
+									<View style={styles.tooltipArrow} />
+								</TouchableOpacity>
+							)}
+
 							<TextInput
 								ref={inputRef}
 								multiline
@@ -702,6 +823,9 @@ export const ChatBoxBottomBar = memo(
 								style={[styles.inputStyle, !textValueInputRef?.current && { height: size.s_40 }]}
 								children={RenderTextContent({ text: textValueInputRef?.current })}
 								onSelectionChange={textInputProps?.onSelectionChange}
+								onPressIn={handlePressIn}
+								onPressOut={handlePressOut}
+								contextMenuHidden={isShowOptionPaste}
 							/>
 							<View style={styles.iconEmoji}>
 								<EmojiSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />

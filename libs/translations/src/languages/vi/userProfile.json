@@ -38,7 +38,8 @@
 		"cancelFriendRequest": "Hủy yêu cầu kết bạn",
 		"copyUsername": "Sao chép tên người dùng",
 		"copiedUserName": "Đã sao chép {{username}}",
-		"removeFriend": "Hủy kết bạn"
+		"removeFriend": "Hủy kết bạn",
+		"viewFullProfile": "Xem hồ sơ đầy đủ"
 	},
 	"userInfoDM": {
 		"menu": {
@@ -77,7 +78,8 @@
 		"removeRole": "Xóa vai trò",
 		"role": "Vai trò",
 		"nope": "Không có!",
-		"typoError": "Bạn có gõ sai không?"
+		"typoError": "Bạn có gõ sai không?",
+		"userNotFound": "Người dùng không có trong Clan"
 	},
 	"placeholders": {
 		"messageUser": "Gửi tin nhắn cho @{{username}}"
@@ -173,5 +175,8 @@
 				"save": "Lưu"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Cài đặt kênh thoại",
+	"muteVoice": "Tắt tiếng",
+	"kickVoice": "Xóa khỏi kênh thoạị"
 }

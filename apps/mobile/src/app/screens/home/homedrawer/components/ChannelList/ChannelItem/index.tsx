@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback } from 'react';
 import { ActivityIndicator, DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -86,8 +86,9 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 						{data?.channel_label}
 					</Text>
 				</View>
-				{(data?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || data?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) &&
-					data?.status === StatusVoiceChannel.No_Active && <ActivityIndicator color={themeValue.white} />}
+				{data?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && data?.status === StatusVoiceChannel.No_Active && (
+					<ActivityIndicator color={themeValue.white} />
+				)}
 
 				<BuzzBadge channelId={data?.channel_id as string} clanId={data?.clan_id as string} mode={ChannelStreamMode.STREAM_MODE_CHANNEL} />
 
@@ -98,6 +99,7 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 }
 export default React.memo(ChannelItem, (prevProps, nextProps) => {
 	return (
+		prevProps?.data?.channel_private === nextProps?.data?.channel_private &&
 		prevProps?.data?.channel_label === nextProps?.data?.channel_label &&
 		prevProps?.data?.channel_id === nextProps?.data?.channel_id &&
 		prevProps?.data?.count_mess_unread === nextProps?.data?.count_mess_unread &&

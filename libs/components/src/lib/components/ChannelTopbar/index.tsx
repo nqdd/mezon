@@ -6,6 +6,7 @@ import {
 	audioCallActions,
 	canvasAPIActions,
 	channelsActions,
+	directActions,
 	galleryActions,
 	getStore,
 	getStoreAsync,
@@ -30,9 +31,11 @@ import {
 	selectIsShowMemberList,
 	selectIsShowMemberListDM,
 	selectIsShowPinBadgeByChannelId,
+	selectIsShowPinBadgeByDmId,
 	selectIsThreadModalVisible,
 	selectIsUseProfileDM,
 	selectNotifiSettingsEntitiesById,
+	selectOpenVoiceCall,
 	selectSession,
 	selectStatusMenu,
 	selectUpdateDmGroupError,
@@ -219,7 +222,10 @@ const TopBarChannelText = memo(() => {
 				)}
 
 				{currentClanId === '0' && (
-					<div className="flex items-center gap-3 flex-1 overflow-hidden">
+					<div
+						className="flex items-center gap-3 flex-1 overflow-hidden"
+						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
+					>
 						<DmTopbarAvatar
 							isGroup={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP}
 							avatar={dmUserAvatar}
@@ -311,8 +317,6 @@ const ChannelTopbarLabel = memo(
 						return <Icons.ThreadIcon />;
 					case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
 						return <Icons.Speaker />;
-					case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
-						return <Icons.Speaker />;
 					case ChannelType.CHANNEL_TYPE_STREAMING:
 						return <Icons.Stream />;
 					case ChannelType.CHANNEL_TYPE_APP:
@@ -327,8 +331,6 @@ const ChannelTopbarLabel = memo(
 				case ChannelType.CHANNEL_TYPE_THREAD:
 					return <Icons.ThreadIconLocker />;
 				case ChannelType.CHANNEL_TYPE_MEZON_VOICE:
-					return <Icons.SpeakerLocked />;
-				case ChannelType.CHANNEL_TYPE_GMEET_VOICE:
 					return <Icons.SpeakerLocked />;
 				case ChannelType.CHANNEL_TYPE_STREAMING:
 					return <Icons.Stream />;
@@ -447,7 +449,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 	return (
 		<div className="flex items-center justify-center ">
 			{avatar ? (
-				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" />
+				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" data-e2e={generateE2eId(`avatar.image`)} />
 			) : (
 				<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
 					{avatarName}
@@ -462,6 +464,7 @@ const DmTopbarTools = memo(() => {
 	const dispatch = useAppDispatch();
 	const currentDmGroup = useSelector(selectCurrentDM);
 	const isShowMemberListDM = useSelector(selectIsShowMemberListDM);
+	const selectOpenVoice = useSelector(selectOpenVoiceCall);
 	const isUseProfileDM = useSelector(selectIsUseProfileDM);
 	const userProfile = useSelector(selectSession);
 	const { setStatusMenu } = useMenu();
@@ -498,7 +501,7 @@ const DmTopbarTools = memo(() => {
 
 	const handleStartCall = (isVideoCall = false) => {
 		closeMenuOnMobile();
-		if (currentDmGroup.type === ChannelType.CHANNEL_TYPE_GROUP) {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			if (isGroupCallActive && (voiceInfo as any)?.channelId === currentDmGroup.channel_id) {
 				dispatch(voiceActions.setOpenPopOut(false));
 				dispatch(DMCallActions.setIsShowMeetDM(isVideoCall));
@@ -587,39 +590,41 @@ const DmTopbarTools = memo(() => {
 			}
 			return;
 		}
-
 		if (!isInCall) {
-			if (!currentDmGroup.channel_id) {
-				dispatch(toastActions.addToast({ message: t('toastMessages.dmChannelIdMissing'), type: 'error', autoClose: 3000 }));
-				return;
-			}
-
-			handleSend(
-				{
-					t: isVideoCall ? t('callMessages.startedVideoCall') : t('callMessages.startedVoiceCall'),
-					callLog: {
-						isVideo: isVideoCall,
-						callLogType: IMessageTypeCallLog.STARTCALL,
-						showCallBack: false
-					}
-				},
-				[],
-				[],
-				[]
-			);
-			dispatch(audioCallActions.startDmCall({ groupId: currentDmGroup.channel_id, isVideo: isVideoCall }));
-			dispatch(audioCallActions.setGroupCallId(currentDmGroup.channel_id));
-
-			if (currentDmGroup?.user_id?.[0]) {
-				dispatch(audioCallActions.setUserCallId(currentDmGroup.user_id[0]));
-			}
-
-			dispatch(audioCallActions.setIsBusyTone(false));
+			startCallDM(isVideoCall, currentDmGroup?.id, currentDmGroup?.user_id?.[0]);
 		} else {
 			dispatch(toastActions.addToast({ message: t('toastMessages.youAreOnAnotherCall'), type: 'warning', autoClose: 3000 }));
 		}
 	};
 
+	const startCallDM = (isVideoCall = false, channelId?: string, userId?: string) => {
+		if (!channelId) {
+			dispatch(toastActions.addToast({ message: t('toastMessages.dmChannelIdMissing'), type: 'error', autoClose: 3000 }));
+			return;
+		}
+
+		handleSend(
+			{
+				t: isVideoCall ? t('callMessages.startedVideoCall') : t('callMessages.startedVoiceCall'),
+				callLog: {
+					isVideo: isVideoCall,
+					callLogType: IMessageTypeCallLog.STARTCALL,
+					showCallBack: false
+				}
+			},
+			[],
+			[],
+			[]
+		);
+		dispatch(audioCallActions.startDmCall({ groupId: channelId, isVideo: isVideoCall }));
+		dispatch(audioCallActions.setGroupCallId(channelId));
+
+		if (userId) {
+			dispatch(audioCallActions.setUserCallId(userId));
+		}
+
+		dispatch(audioCallActions.setIsBusyTone(false));
+	};
 	const isGroupCallDisabled = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && !currentDmGroup?.meeting_code;
 
 	const setIsUseProfileDM = useCallback(
@@ -637,6 +642,13 @@ const DmTopbarTools = memo(() => {
 		},
 		[dispatch, closeMenuOnMobile]
 	);
+
+	useEffect(() => {
+		if (selectOpenVoice?.open && currentDmGroup?.id === selectOpenVoice?.channelId) {
+			startCallDM(selectOpenVoice?.hasVideo, selectOpenVoice?.channelId, selectOpenVoice?.userId);
+			dispatch(audioCallActions.setCloseVoiceCall());
+		}
+	}, [selectOpenVoice, currentDmGroup, sendMessage]);
 
 	return (
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
@@ -673,7 +685,11 @@ const DmTopbarTools = memo(() => {
 						</button>
 					)}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (
-						<button title={t('tooltips.showUserProfile')} onClick={() => setIsUseProfileDM(!isUseProfileDM)}>
+						<button
+							title={t('tooltips.showUserProfile')}
+							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
+							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
+						>
 							<span>
 								<Icons.IconUserProfileDM defaultSize="size-5" />
 							</span>
@@ -717,7 +733,7 @@ function FileButton() {
 		<div className="relative leading-5 h-5" ref={fileRef} data-e2e={generateE2eId('chat.channel_message.header.button.file')}>
 			<button
 				title={t('tooltips.files')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowFile ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowFile}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -746,7 +762,7 @@ function CanvasButton({ onClick }: { onClick?: () => void }) {
 		<div className="relative leading-5 h-5" ref={canvasRef} data-e2e={generateE2eId('chat.channel_message.header.button.canvas')}>
 			<button
 				title={t('tooltips.canvas')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowCanvas ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowCanvas}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -773,7 +789,7 @@ function ThreadButton() {
 		<div className="relative leading-5 h-5" ref={threadRef} data-e2e={generateE2eId('chat.channel_message.header.button.thread')}>
 			<button
 				title={t('tooltips.threads')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowThread ? 'text-theme-primary-active' : ''}`}
 				onClick={handleToggleThreads}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -832,7 +848,7 @@ function MuteButton() {
 		<div className="relative leading-5 h-5" ref={notiRef} data-e2e={generateE2eId('chat.channel_message.header.button.mute')}>
 			<button
 				title={t('tooltips.notificationSettings')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowNotificationSetting ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowNotificationSetting}
 				onContextMenu={(e) => e.preventDefault()}
 			>
@@ -848,7 +864,10 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 	const dispatch = useAppDispatch();
 	const isShowPinMessage = useSelector(selectIsPinModalVisible);
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
-	const isShowPinBadge = useSelector(selectIsShowPinBadgeByChannelId(currentChannelId));
+	const currentDM = useSelector(selectCurrentDM) ?? '';
+	const isShowPinBadge = useAppSelector(selectIsShowPinBadgeByChannelId(currentChannelId));
+	const isShowPinDMBadge = useAppSelector((state) => selectIsShowPinBadgeByDmId(state, currentDM?.id || ''));
+	const isShowPinBadgeFinal = currentChannelId ? isShowPinBadge : isShowPinDMBadge;
 
 	const pinRef = useRef<HTMLDivElement | null>(null);
 
@@ -863,8 +882,13 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 		}
 		await dispatch(pinMessageActions.fetchChannelPinMessages({ channelId: currentChannelId || currentDmGroup.id, clanId: currentClanId }));
 		dispatch(pinMessageActions.togglePinModal());
-		if (isShowPinBadge) {
+
+		if (currentChannelId && isShowPinBadge) {
 			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: currentClanId, channelId: currentChannelId, isShow: false }));
+		}
+
+		if (!currentChannelId && currentDmGroup?.id && isShowPinDMBadge) {
+			dispatch(directActions.setShowPinBadgeOfDM({ dmId: currentDmGroup.id, isShow: false }));
 		}
 	};
 
@@ -872,16 +896,17 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 		<div className="relative leading-5 h-5" ref={pinRef} data-e2e={generateE2eId('chat.channel_message.header.button.pin')}>
 			<button
 				title={t('tooltips.pinnedMessages')}
-				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover`}
+				className={`${styleCss} focus-visible:outline-none relative text-theme-primary text-theme-primary-hover ${isShowPinMessage ? 'text-theme-primary-active' : ''}`}
 				onClick={handleTogglePinMessage}
 				onContextMenu={(e) => e.preventDefault()}
 			>
 				<Icons.PinRight defaultSize="size-5" />
-				{isShowPinBadge && (
+				{isShowPinBadgeFinal && (
 					<div
 						className="absolute border-theme-primary
 		 w-[8px] h-[8px] rounded-full bg-colorDanger outline outline-1 outline-transparent
 		  font-bold text-[11px] flex items-center justify-center -bottom-[0.05rem] -right-[0.075rem]"
+						data-e2e={generateE2eId('chat.channel_message.header.button.pin.pin_badge')}
 					></div>
 				)}
 			</button>
@@ -931,7 +956,12 @@ function ChannelListButton() {
 	};
 	return (
 		<div className="relative leading-5 h-5">
-			<button title={t('tooltips.members')} onClick={handleClick} className="text-theme-primary text-theme-primary-hover">
+			<button
+				title={t('tooltips.members')}
+				onClick={handleClick}
+				className={`text-theme-primary text-theme-primary-hover ${isActive ? 'text-theme-primary-active' : ''}`}
+				data-e2e={generateE2eId('chat.channel_message.header.button.member')}
+			>
 				<Icons.MemberList defaultSize="size-5" />
 			</button>
 		</div>
@@ -1013,7 +1043,7 @@ function GalleryButton() {
 		<div className="relative leading-5 h-5" ref={galleryRef}>
 			<button
 				title={t('tooltips.gallery')}
-				className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowGallery ? 'text-theme-primary-active' : ''}`}
 				onClick={handleShowGallery}
 				onContextMenu={(e) => e.preventDefault()}
 			>

@@ -3,15 +3,16 @@ import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { rolesClanActions, selectUserMaxPermissionLevel, useAppDispatch } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, FlatList, Keyboard, Platform, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, DeviceEventEmitter, FlatList, Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../componentUI/MezonInput';
 import { SeparatorWithLine } from '../../../components/Common';
+import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
 import RoleCoLourComponent from '../RoleCoLourComponent/RoleCoLourComponent';
@@ -22,6 +23,8 @@ enum EActionType {
 	permissions,
 	members
 }
+
+const MAX_ROLE_NAME = 64;
 
 type RoleDetailScreen = typeof APP_SCREEN.MENU_CLAN.ROLE_DETAIL;
 export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetailScreen>) => {
@@ -38,6 +41,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 
 	const isNotChange = useMemo(() => {
+		if (!currentRoleName) return true;
 		return isEqual(originRoleName, currentRoleName);
 	}, [originRoleName, currentRoleName]);
 
@@ -50,56 +54,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 		return clanRole?.slug === `everyone-${clanRole?.clan_id}`;
 	}, [clanRole?.clan_id, clanRole.slug]);
 
-	const handleBack = useCallback(() => {
-		if (isNotChange) {
-			navigation?.goBack();
-			return;
-		}
-		const data = {
-			children: (
-				<MezonConfirm
-					onConfirm={() => handleSave()}
-					title={t('roleDetail.confirmSaveTitle')}
-					confirmText={t('roleDetail.yes')}
-					content={t('roleDetail.confirmSaveContent')}
-				/>
-			)
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, [isNotChange, navigation]);
-
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerTitle: () => (
-				<View>
-					<Text style={styles.headerTitle}>{clanRole?.title}</Text>
-					<Text style={styles.headerText}>{t('roleDetail.role')}</Text>
-				</View>
-			),
-			headerRight: () => {
-				if (isNotChange) return null;
-				return (
-					<TouchableOpacity onPress={async () => handleSave()}>
-						<View style={styles.saveButton}>
-							<Text style={styles.saveText}>{t('roleDetail.save')}</Text>
-						</View>
-					</TouchableOpacity>
-				);
-			},
-			headerLeft: () => {
-				return (
-					<TouchableOpacity onPress={handleBack}>
-						<View style={styles.backButton}>
-							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
-						</View>
-					</TouchableOpacity>
-				);
-			}
-		});
-	}, [clanRole?.title, isNotChange, navigation, t, themeValue?.text, themeValue.white]);
-
-	const handleSave = async () => {
+	const handleSave = useCallback(async () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		const response = await updateRole(clanRole.clan_id, clanRole.id, currentRoleName, clanRole?.color || '', [], [], [], []);
 		if (response) {
@@ -120,7 +75,26 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 				}
 			});
 		}
-	};
+	}, [clanRole.clan_id, clanRole?.color, clanRole.id, currentRoleName, navigation, t, updateRole]);
+
+	const handleBack = useCallback(() => {
+		if (isNotChange) {
+			navigation?.goBack();
+			return;
+		}
+		const data = {
+			children: (
+				<MezonConfirm
+					onConfirm={() => handleSave()}
+					title={t('roleDetail.confirmSaveTitle')}
+					confirmText={t('roleDetail.yes')}
+					content={t('roleDetail.confirmSaveContent')}
+					onCancel={() => navigation?.goBack()}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [isNotChange, t, navigation, handleSave]);
 
 	const deleteRole = async () => {
 		Alert.alert('Delete Role', 'Are you sure you want to delete this role?', [
@@ -188,6 +162,25 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 	return (
 		<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
 			<View style={styles.container}>
+				<StatusBarHeight />
+				<View style={styles.header}>
+					<TouchableOpacity style={styles.saveButton} onPress={handleBack}>
+						<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
+					</TouchableOpacity>
+					<View style={styles.center}>
+						<Text style={styles.headerTitle} numberOfLines={1}>
+							{clanRole?.title}
+						</Text>
+						<Text style={styles.headerText}>{t('roleDetail.role')}</Text>
+					</View>
+					{!isNotChange && (
+						<TouchableOpacity onPress={async () => handleSave()}>
+							<View style={styles.saveButton}>
+								<Text style={styles.saveText}>{t('roleDetail.save')}</Text>
+							</View>
+						</TouchableOpacity>
+					)}
+				</View>
 				<View style={styles.nameInput}>
 					<MezonInput
 						value={currentRoleName}
@@ -195,6 +188,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 						placeHolder={t('roleDetail.roleName')}
 						label={t('roleDetail.roleName')}
 						disabled={!isCanEditRole || isEveryoneRole}
+						maxCharacter={MAX_ROLE_NAME}
 					/>
 				</View>
 

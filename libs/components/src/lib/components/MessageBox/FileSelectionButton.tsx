@@ -5,12 +5,10 @@ import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitRe
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 
 export type FileSelectionButtonProps = {
-	currentClanId: string;
 	currentChannelId: string;
-	hasPermissionEdit: boolean;
 };
 
-function FileSelectionButton({ currentClanId, currentChannelId, hasPermissionEdit }: FileSelectionButtonProps) {
+function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
 	const dispatch = useAppDispatch();
 	const uploadedAttachmentsInChannel = useAppSelector((state) => selectAttachmentByChannelId(state, currentChannelId))?.files || [];
 	const { setOverUploadingState } = useDragAndDrop();
@@ -42,7 +40,7 @@ function FileSelectionButton({ currentClanId, currentChannelId, hasPermissionEdi
 	};
 	return (
 		<label className="pl-3 flex items-center h-11" data-e2e={generateE2eId('mention.selected_file')}>
-			<input id="preview_img" type="file" onChange={handleChange} className="w-full hidden" multiple />
+			<input id="preview_img" type="file" onChange={handleChange} className="w-full hidden" multiple  data-e2e={generateE2eId('user_setting.profile.user_profile.upload.avatar_input')} />
 			<div className="flex flex-row h-6 w-6 items-center justify-center cursor-pointer text-theme-primary text-theme-primary-hover">
 				<Icons.AddCircle className="" />
 			</div>

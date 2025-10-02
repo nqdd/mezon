@@ -29,14 +29,15 @@ export const listItemSetting: ItemObjProps[] = [
 	{ id: ItemSetting.EMOJI, name: 'Emoji' },
 	{ id: ItemSetting.IMAGE_STICKERS, name: 'Image Stickers' },
 	{ id: ItemSetting.VOIDE_STICKERS, name: 'Voice Stickers' },
-	{ id: ItemSetting.CATEGORY_ORDER, name: 'Category Order' },
+	{ id: ItemSetting.CATEGORY_ORDER, name: 'Category Order' }
 	// { id: ItemSetting.NOTIFICATION_SOUND, name: 'Notification Sound' }
 ];
 
 export const listItemSettingApp: ItemObjProps[] = [{ id: ItemSetting.INTEGRATIONS, name: 'Integrations' }];
 
 export const listItemSettingModeration: ItemObjProps[] = [{ id: ItemSetting.AUDIT_LOG, name: 'Audit Log' }];
-export const communitySettingsList: ItemObjProps[] = [{ id: ItemSetting.ON_BOARDING, name: 'Onboarding' },
+export const communitySettingsList: ItemObjProps[] = [
+	{ id: ItemSetting.ON_BOARDING, name: 'Onboarding' },
 	{ id: ItemSetting.ON_COMUNITY, name: 'Enable Community' }
 ];
 
@@ -79,11 +80,7 @@ export const sideBarListItemClanPermission: ListSideBarProps[] = [
 ];
 
 export const categorySettingItem = {
-	OVERVIEW: 'overview',
-	PERMISSIONS: 'permissions'
+	OVERVIEW: 'overview'
 };
 
-export const categorySettingList = [
-	{ id: categorySettingItem.OVERVIEW, name: 'Overview' },
-	{ id: categorySettingItem.PERMISSIONS, name: 'Permissions' }
-];
+export const categorySettingList = [{ id: categorySettingItem.OVERVIEW, name: 'Overview' }];

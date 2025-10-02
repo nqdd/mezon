@@ -119,14 +119,24 @@
     }
   },
   "createThread": {
-    "newThread": "New Thread",
-    "inviteMessage": "You can invite new people by @mentioning them.",
-    "validation": {
-      "invalidChannelName": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -)."
-    },
-    "threadName": "Thread Name",
-    "enterThreadName": "Enter Thread Name",
-    "privateThread": "Private Thread",
-    "privateThreadDescription": "Only people you invite and moderators can see"
+		"newThread": "New Thread",
+		"inviteMessage": "You can invite new people by @mentioning them.",
+		"validation": {
+			"invalidChannelName": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -)."
+		},
+		"threadName": "Thread Name",
+		"enterThreadName": "Enter Thread Name",
+		"privateThread": "Private Thread",
+		"privateThreadDescription": "Only people you invite and moderators can see",
+		"toast": {
+			"threadNameTooShort": "Thread name must be longer than 3 characters",
+			"threadNameExists": "Thread name already exists",
+			"initialMessageRequired": "An Initial message is required to start a thread.",
+			"messageTooLong": "Message exceeds the 4000-character limit",
+			"messageLimitExceeded": "Message exceeds the {{limit}}-character limit"
+		},
+		"placeholder": {
+			"threadName": "Enter Thread Name"
+		}
   }
 }

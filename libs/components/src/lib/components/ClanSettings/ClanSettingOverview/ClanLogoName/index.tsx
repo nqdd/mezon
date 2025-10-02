@@ -1,7 +1,7 @@
 import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -11,9 +11,11 @@ import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/
 type ClanLogoNameProps = {
 	onUpload: (url: string) => void;
 	onGetClanName: (clanName: string) => void;
+	resetTrigger?: boolean;
+	onResetComplete?: () => void;
 };
 
-const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
+const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }: ClanLogoNameProps) => {
 	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
 	const currentClan = useSelector(selectCurrentClan);
@@ -91,6 +93,14 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 		}
 	}, [clanName]);
 
+	useEffect(() => {
+		if (resetTrigger) {
+			setUrlLogo(currentClan?.logo ?? '');
+			setClanName(currentClan?.clan_name ?? '');
+			onResetComplete?.();
+		}
+	}, [resetTrigger, currentClan?.logo, currentClan?.clan_name, onResetComplete]);
+
 	return (
 		<div className="flex sbm:flex-row flex-col gap-[10px]">
 			<div className="flex flex-row flex-1 gap-x-[10px]">
@@ -112,7 +122,14 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 										</span>
 									)}
 								</div>
-								<input ref={fileInputRef} id="upload_logo" onChange={(e) => handleFile(e)} type="file" className="hidden" />
+								<input
+									ref={fileInputRef}
+									id="upload_logo"
+									onChange={(e) => handleFile(e)}
+									type="file"
+									className="hidden"
+									data-e2e={generateE2eId('clan_page.settings.upload.clan_logo_input')}
+								/>
 							</label>
 							<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
 								<Icons.SelectFileIcon />
@@ -139,6 +156,7 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 						value={clanName}
 						onChange={(e) => handleChangeClanName(e.target.value)}
 						className=" outline-none w-full h-10 p-[10px] bg-theme-input text-base rounded placeholder:text-sm"
+						data-e2e={generateE2eId('clan_page.settings.overview.input.clan_name')}
 						placeholder={t('clanLogo.namePlaceholder')}
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 					/>

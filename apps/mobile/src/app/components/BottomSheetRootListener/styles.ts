@@ -49,10 +49,13 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			justifyContent: 'flex-start'
 		},
 		handleIndicator: {
-			backgroundColor: colors.primary,
-			height: size.s_10,
-			borderTopLeftRadius: size.s_10,
-			borderTopRightRadius: size.s_10
+			backgroundColor: colors.tertiary,
+			height: size.s_6,
+			top: -size.s_6,
+			marginTop: size.s_16,
+			width: size.s_50,
+			borderRadius: size.s_10,
+			alignSelf: 'center'
 		},
 		container: {
 			overflow: 'hidden',

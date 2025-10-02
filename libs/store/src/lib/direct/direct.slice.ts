@@ -81,16 +81,16 @@ export const createNewDirectMessage = createAsyncThunk(
 						topic: response.topic || 'assets/images/avatar-group.png'
 					})
 				);
-				if (response.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-					await thunkAPI.dispatch(
-						channelsActions.joinChat({
-							clanId: '0',
-							channelId: response.channel_id as string,
-							channelType: response.type as number,
-							isPublic: false
-						})
-					);
-				}
+
+				await thunkAPI.dispatch(
+					channelsActions.joinChat({
+						clanId: '0',
+						channelId: response.channel_id as string,
+						channelType: response.type as number,
+						isPublic: false
+					})
+				);
+
 				return response;
 			} else {
 				captureSentryError('no response', 'direct/createNewDirectMessage');
@@ -524,14 +524,29 @@ export const directSlice = createSlice({
 		upsertOne: (state, action: PayloadAction<DirectEntity>) => {
 			const { entities } = state;
 			const existLabel = entities[action.payload.id]?.channel_label?.split(',');
+			const existingShowPinBadge = entities[action.payload.id]?.showPinBadge;
 			const dataUpdate = action.payload;
 			if (existLabel && existLabel?.length <= 1) {
 				dataUpdate.channel_label = entities[action.payload.id]?.channel_label;
 			}
+
+			if (existingShowPinBadge !== undefined) {
+				dataUpdate.showPinBadge = existingShowPinBadge;
+			}
 			directAdapter.upsertOne(state, dataUpdate);
 		},
 		update: directAdapter.updateOne,
-		setAll: directAdapter.setAll,
+		setAll: (state, action) => {
+			const entitiesWithPreservedBadges = action.payload.map((newEntity: DirectEntity) => {
+				const existingEntity = state.entities[newEntity.id];
+				return {
+					...newEntity,
+					showPinBadge: existingEntity?.showPinBadge || newEntity.showPinBadge
+				};
+			});
+
+			directAdapter.setAll(state, entitiesWithPreservedBadges);
+		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
 			if (!action.payload?.channel_id) return;
 			const { channel_id, creator_id, currentUserId, ...changes } = action.payload;
@@ -842,8 +857,8 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, sel
 			if (!found) return dm;
 			return {
 				...dm,
-				last_sent_message: { ...dm.last_sent_message, ...found.last_sent_message },
-				last_seen_message: { ...dm.last_seen_message, ...found.last_seen_message }
+				last_sent_message: { ...dm?.last_sent_message, ...found.last_sent_message },
+				last_seen_message: { ...dm?.last_seen_message, ...found.last_seen_message }
 			};
 		});
 });
@@ -913,7 +928,7 @@ export const selectBuzzStateByDirectId = createSelector(
 	(state, channelId) => state.buzzStateDirect?.[channelId]
 );
 
-export const selectIsShowPinBadgeByDmId = createSelector(
-	[getDirectState, (state, dmId: string) => dmId],
-	(state, dmId) => state?.entities[dmId]?.showPinBadge
-);
+export const selectIsShowPinBadgeByDmId = createSelector([getDirectState, (state, dmId: string) => dmId], (state, dmId) => {
+	const result = state?.entities[dmId]?.showPinBadge;
+	return result;
+});

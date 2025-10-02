@@ -23,7 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, DeviceEventEmitter, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -382,7 +382,7 @@ const Notifications = () => {
 				onPress: () => handleTabChange(InboxType.INDIVIDUAL)
 			}
 		],
-		[]
+		[t]
 	);
 	return (
 		<View style={styles.notifications}>
@@ -435,10 +435,6 @@ const Notifications = () => {
 									{item.title}
 								</Text>
 							</View>
-							{/* todo: badge */}
-							{/*<View style={styles.badgeItemTabType}>*/}
-							{/*	<Text style={styles.textBadgeItemTabType}>1</Text>*/}
-							{/*</View>*/}
 						</Pressable>
 					))}
 				</View>

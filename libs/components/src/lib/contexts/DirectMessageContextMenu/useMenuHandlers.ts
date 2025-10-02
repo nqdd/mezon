@@ -46,7 +46,7 @@ export function useMenuHandlers({ userProfile, hasKeyE2ee, directId }: UseMenuHa
 	const handleMarkAsRead = useCallback(
 		(directId: string) => {
 			const timestamp = Date.now() / 1000;
-			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp: timestamp }));
+			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp }));
 			handleMarkAsReadDM(directId);
 		},
 		[dispatch, handleMarkAsReadDM]
@@ -59,8 +59,8 @@ export function useMenuHandlers({ userProfile, hasKeyE2ee, directId }: UseMenuHa
 			try {
 				await dispatch(
 					channelUsersActions.removeChannelUsers({
-						channelId: channelId,
-						userId: userId,
+						channelId,
+						userId,
 						channelType: ChannelType.CHANNEL_TYPE_GROUP
 					})
 				);
@@ -82,14 +82,15 @@ export function useMenuHandlers({ userProfile, hasKeyE2ee, directId }: UseMenuHa
 			if (!channelId) return;
 
 			const isLeaveOrDeleteGroup = isLastOne
-				? await dispatch(deleteChannel({ clanId: '', channelId: channelId, isDmGroup: true }))
-				: await dispatch(removeMemberChannel({ channelId: channelId, userIds: [userProfile?.user?.id as string], kickMember: false }));
+				? await dispatch(deleteChannel({ clanId: '0', channelId, isDmGroup: true }))
+				: await dispatch(removeMemberChannel({ channelId, userIds: [userProfile?.user?.id as string], kickMember: false }));
 
 			if (!isLeaveOrDeleteGroup) {
 				return;
 			}
 
 			if (directId === channelId) {
+				dispatch(directActions.setDmGroupCurrentId(''));
 				navigate('/chat/direct/friends');
 			}
 

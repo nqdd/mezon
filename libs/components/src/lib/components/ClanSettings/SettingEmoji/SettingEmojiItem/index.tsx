@@ -9,9 +9,10 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EPermission, MAX_FILE_NAME_EMOJI, getSrcEmoji } from '@mezon/utils';
-import { ClanEmoji } from 'mezon-js';
-import { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
-import { ChangeEvent, useMemo, useState } from 'react';
+import type { ClanEmoji } from 'mezon-js';
+import type { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 type SettingEmojiItemProp = {
@@ -19,58 +20,72 @@ type SettingEmojiItemProp = {
 	onUpdateEmoji: (emoji: ClanEmoji) => void;
 };
 
-const SettingEmojiItem = ({ emoji, onUpdateEmoji }: SettingEmojiItemProp) => {
-	const [showEdit, setShowEdit] = useState<boolean>(false);
-	const [focus, setFocus] = useState<boolean>(false);
+const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmojiItemProp) => {
+	const inputRef = useRef<HTMLInputElement>(null);
+	const [showDelete, setShowDelete] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
 	const clanId = useSelector(selectCurrentClanId);
 	const [nameEmoji, setNameEmoji] = useState<string>(emoji.shortname?.slice(1, -1) || '');
-	const dataAuthor = useSelector(selectMemberClanByUserId(emoji.creator_id ?? ''));
+	const [originalNameEmoji] = useState<string>(emoji.shortname?.slice(1, -1) || '');
+	const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
+	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId(state, emoji.creator_id ?? ''));
 	const [hasManageClanPermission] = usePermissionChecker([EPermission.manageClan]);
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const hasDeleteOrEditPermission = useMemo(() => {
 		return hasManageClanPermission || currentUserId === emoji.creator_id;
-	}, [hasManageClanPermission, currentUserId]);
+	}, [hasManageClanPermission, currentUserId, emoji.creator_id]);
 
 	const handleDelete = () => {
-		dispatch(emojiSuggestionActions.deleteEmojiSetting({ emoji: emoji, clan_id: clanId as string, label: emoji.shortname as string }));
+		dispatch(emojiSuggestionActions.deleteEmojiSetting({ emoji, clan_id: clanId as string, label: emoji.shortname as string }));
 	};
 	const handleOnMouseLeave = () => {
-		if (!focus) {
-			setShowEdit(false);
-		}
+		setShowDelete(false);
 	};
 
 	const handleHoverEmoji = () => {
-		if (hasDeleteOrEditPermission) {
-			setShowEdit(true);
-		}
+		setShowDelete(true);
 	};
 	const handleChangeEmojiName = (e: ChangeEvent<HTMLInputElement>) => {
-		setNameEmoji(e.target.value);
+		setNameEmoji(e.target.value.replace(/\s/g, ''));
 	};
 
 	const handleUpdateEmoji = async () => {
-		if (nameEmoji !== emoji.shortname && nameEmoji !== '') {
+		const cleanName = nameEmoji.replace(/\s/g, '');
+		const cleanOriginalName = originalNameEmoji.replace(/\s/g, '');
+		if (cleanName !== emoji.shortname && cleanName !== '' && cleanName !== cleanOriginalName) {
 			const request: MezonUpdateClanEmojiByIdBody = {
 				source: emoji.src,
-				shortname: ':' + nameEmoji + ':',
+				shortname: `:${cleanName}:`,
 				category: emoji.category,
 				clan_id: clanId as string
 			};
-			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request: request, emojiId: emoji.id || '' }));
-			setFocus(false);
-			setShowEdit(false);
+			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: emoji.id || '' }));
+			inputRef.current?.blur();
 		}
+	};
+
+	const handleInputBlur = () => {
+		setIsInputFocused(false);
+		const cleanName = nameEmoji.replace(/\s/g, '');
+		const cleanOriginalName = originalNameEmoji.replace(/\s/g, '');
+		if (!cleanName || nameEmoji === cleanOriginalName) {
+			setNameEmoji(originalNameEmoji);
+		} else {
+			handleUpdateEmoji();
+		}
+	};
+
+	const handleInputFocus = () => {
+		setIsInputFocused(true);
 	};
 	return (
 		<div
-			className={'flex flex-row w-full max-w-[700px] pr-5 relative h-[65px] '}
+			className={'flex flex-row w-full max-w-[700px] pr-5 relative h-[65px]  '}
 			onMouseOver={handleHoverEmoji}
 			onMouseLeave={handleOnMouseLeave}
 			onBlur={handleOnMouseLeave}
 		>
-			<div className="w-full h-full flex flex-row gap-1 border-b-theme-primary items-center">
+			<div className={`w-full h-full flex flex-row gap-1 border-b-theme-primary items-center`}>
 				<div className={'w-14 h-8'}>
 					<div className={'w-8 h-8 overflow-hidden flex items-center justify-center select-none '}>
 						<img className={'w-auto max-h-full object-cover'} src={getSrcEmoji(emoji.id as string)} alt={emoji.shortname} />
@@ -79,33 +94,56 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji }: SettingEmojiItemProp) => {
 
 				<div className={'md:flex-1 relative max-md:w-[40%] max-[400px]:w-[30%]'}>
 					<div
-						className={
-							'h-[26px] px-1 w-fit max-md:w-full relative before:absolute after:absolute before:content-[":"]  after:content-[":"]  before:left-[-3px] after:right-[-3px]'
-						}
+						className={`h-[26px] hover:border px-1 w-fit max-md:w-full rounded-md flex items-center py-1 ${hasDeleteOrEditPermission ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'} ${isInputFocused ? 'border' : ''}`}
+						tabIndex={hasDeleteOrEditPermission ? 0 : -1}
+						onClick={() => {
+							if (hasDeleteOrEditPermission) {
+								inputRef.current?.focus();
+							}
+						}}
+						onKeyDown={(e) => {
+							if (hasDeleteOrEditPermission && (e.key === 'Enter' || e.key === ' ')) {
+								inputRef.current?.focus();
+							}
+						}}
 					>
-						<p className={`max-w-[172px] w-full truncate overflow-hidden inline-block select-none`}>{emoji.shortname?.slice(1, -1)}</p>
-					</div>
-					{showEdit && (
+						<span>:</span>
 						<input
-							className={`w-full bg-theme-input-primary animate-faded_input h-[26px] top-0 mx-[2px] outline-none px-2 absolute rounded-[3px]`}
+							ref={inputRef}
+							className={`bg-transparent max-w-[200px] animate-faded_input h-[26px] top-0 outline-none ${!hasDeleteOrEditPermission ? 'cursor-not-allowed' : ''}`}
 							value={nameEmoji}
-							onChange={(e) => handleChangeEmojiName(e)}
+							onChange={handleChangeEmojiName}
+							onFocus={handleInputFocus}
+							onBlur={handleInputBlur}
 							onKeyDown={(e) => {
-								e.key === 'Enter' && handleUpdateEmoji();
+								if (hasDeleteOrEditPermission && e.key === 'Enter') {
+									const cleanName = nameEmoji.replace(/\s/g, '');
+									const cleanOriginalName = originalNameEmoji.replace(/\s/g, '');
+									if (!cleanName || nameEmoji === cleanOriginalName) {
+										setNameEmoji(originalNameEmoji);
+									} else {
+										handleUpdateEmoji();
+									}
+								}
 							}}
 							maxLength={MAX_FILE_NAME_EMOJI}
+							disabled={!hasDeleteOrEditPermission}
+							style={{
+								width: `${Math.max(nameEmoji.length * 8)}px`
+							}}
 						/>
-					)}
+						<span>:</span>
+					</div>
 				</div>
 
 				<div className={'flex-1 flex gap-[6px]  select-none max-md:min-w-[40%]'}>
 					<div className={'w-6 h-6 rounded-[50%] overflow-hidden flex items-center justify-center'}>
-						<img className={'w-full h-auto object-cover'} src={dataAuthor?.user?.avatar_url} />
+						<img className={'w-full h-auto object-cover'} src={dataAuthor?.user?.avatar_url} alt="User avatar" />
 					</div>
 					<p className={'text-sm h-auto leading-6'}>{dataAuthor?.user?.username}</p>
 				</div>
 
-				{showEdit && (
+				{showDelete && (
 					<div className={'absolute text-xs font-bold w-6 top-[-12px] right-[-12px]'}>
 						<button
 							onClick={handleDelete}

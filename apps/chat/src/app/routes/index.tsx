@@ -1,8 +1,10 @@
 import isElectron from 'is-electron';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo } from 'react';
-import { LoaderFunctionArgs, Navigate, Outlet, RouterProvider, createBrowserRouter, createHashRouter, useNavigation } from 'react-router-dom';
+import type { LoaderFunctionArgs } from 'react-router-dom';
+import { Navigate, Outlet, RouterProvider, createBrowserRouter, createHashRouter, useNavigation } from 'react-router-dom';
 
-import { CustomLoaderFunction, appLoader, shouldRevalidateApp } from '../loaders/appLoader';
+import type { CustomLoaderFunction } from '../loaders/appLoader';
+import { appLoader, shouldRevalidateApp } from '../loaders/appLoader';
 import { authLoader, shouldRevalidateAuth } from '../loaders/authLoader';
 import { channelLoader, shouldRevalidateChannel } from '../loaders/channelLoader';
 import { clanLoader, shouldRevalidateServer } from '../loaders/clanLoader';
@@ -112,7 +114,7 @@ export const Routes = memo(() => {
 				path: '',
 				loader: loaderWithStore(appLoader),
 				shouldRevalidate: shouldRevalidateApp,
-				HydrateFallback: HydrateFallback,
+				HydrateFallback,
 				element: (
 					<Suspense fallback={<SuspenseFallback />}>
 						<RouterMonitor />

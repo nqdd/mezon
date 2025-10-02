@@ -30,7 +30,7 @@ import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChann
 import { channelMembersActions } from '../channelmembers/channel.members';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { messagesActions } from '../messages/messages.slice';
+import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { selectEntiteschannelCategorySetting } from '../notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import { overriddenPoliciesActions } from '../policies/overriddenPolicies.slice';
@@ -378,11 +378,7 @@ export const createNewChannel = createAsyncThunk('channels/createNewChannel', as
 				channelsActions.add({ channel: { id: response.channel_id as string, ...response }, clanId: response.clan_id as string })
 			);
 
-			if (
-				response.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-				response.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-				response.type !== ChannelType.CHANNEL_TYPE_STREAMING
-			) {
+			if (response.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && response.type !== ChannelType.CHANNEL_TYPE_STREAMING) {
 				const isPublic = checkIsThread(response as ChannelsEntity) ? false : !response.channel_private;
 				thunkAPI.dispatch(
 					channelsActions.joinChat({
@@ -442,7 +438,7 @@ export const checkDuplicateChannelInCategory = createAsyncThunk(
 export const deleteChannel = createAsyncThunk('channels/deleteChannel', async (body: fetchChannelMembersPayload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.deleteChannelDesc(mezon.session, body.channelId);
+		const response = await mezon.client.deleteChannelDesc(mezon.session, body.clanId, body.channelId);
 		if (response) {
 			if (body.isDmGroup) {
 				return true;
@@ -599,7 +595,7 @@ export const removeFavoriteChannel = createAsyncThunk(
 	async ({ channelId, clanId }: RemoveChannelFavoriteArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.removeFavoriteChannel(mezon.session, channelId);
+			const response = await mezon.client.removeFavoriteChannel(mezon.session, clanId, channelId);
 			if (response) {
 				thunkAPI.dispatch(
 					channelsActions.removeFavorite({
@@ -778,6 +774,13 @@ export const fetchChannels = createAsyncThunk(
 
 			const meta = channels.map((ch) => extractChannelMeta(ch));
 			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata(meta));
+
+			const currentState = thunkAPI.getState() as RootState;
+			const queuedMessages = currentState.messages.queuedLastSeenMessages;
+			if (queuedMessages.length > 0) {
+				thunkAPI.dispatch(processQueuedLastSeenMessages());
+			}
+
 			return { channels, clanId };
 		} catch (error) {
 			captureSentryError(error, 'channels/fetchChannels');
@@ -1563,7 +1566,10 @@ export const selectChannelsEntities = createSelector(
 	(state, clanId) => state.byClans[clanId]?.entities.entities ?? {}
 );
 
-export const selectChannelById2 = createSelector([selectChannelsEntities, (state, id) => id], (channelsEntities, id) => channelsEntities[id] || null);
+export const selectChannelByChannelId = createSelector(
+	[selectChannelsEntities, (state, id) => id],
+	(channelsEntities, id) => channelsEntities[id] || null
+);
 
 export const selectChannelsEntitiesByClanId = createSelector(
 	[getChannelsState, (state: RootState, clanId: string) => clanId],
@@ -1623,7 +1629,7 @@ export const selectCurrentVoiceChannel = createSelector(selectChannelsEntities, 
 );
 
 export const selectVoiceChannelAll = createSelector(selectAllChannels, (channels) =>
-	channels.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
+	channels.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
 );
 export const selectAllTextChannel = createSelector(selectAllChannels, (channels) =>
 	channels.filter(

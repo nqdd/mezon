@@ -1,6 +1,7 @@
 import { useChatReaction } from '@mezon/core';
 import { getStore, selectAllAccount, selectCurrentChannel } from '@mezon/store';
-import { EmojiDataOptionals, IMessageWithUser, SenderInfoOptionals, calculateTotalCount, getSrcEmoji, isPublicChannel } from '@mezon/utils';
+import type { EmojiDataOptionals, IMessageWithUser, SenderInfoOptionals } from '@mezon/utils';
+import { calculateTotalCount, getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import Tooltip from 'rc-tooltip';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
@@ -65,5 +66,5 @@ const formatCount = (count: number) => {
 	const units = ['', 'K', 'M', 'G', 'T'];
 	const unitIndex = Math.min(Math.floor(Math.log10(Math.abs(count)) / 3), units.length - 1);
 	const value = count / Math.pow(1000, unitIndex);
-	return Math.floor(value) + units[unitIndex];
+	return value.toFixed(1) + units[unitIndex];
 };

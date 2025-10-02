@@ -1,56 +1,72 @@
-export const convertImageToBlobFile = async (urlData: string): Promise<Blob | null> => {
-	try {
-		const response = await fetch(urlData);
-		const blob = await response.blob();
-		return blob;
-	} catch (error) {
-		console.error('Error converting image to blob:', error);
-		return null;
+async function copyBlobToClipboard(pngBlob: Blob | null): Promise<boolean> {
+	if (!pngBlob || !(window.navigator.clipboard && window.ClipboardItem)) {
+		return false;
 	}
+
+	try {
+		await window.navigator.clipboard.write?.([
+			new ClipboardItem({
+				[pngBlob.type]: pngBlob
+			})
+		]);
+		return true;
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
+}
+
+export const copyImageToClipboard = (imageUrl?: string): Promise<boolean> => {
+	return new Promise((resolve, reject) => {
+		if (!imageUrl) {
+			resolve(false);
+			return;
+		}
+
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		const imageEl = new Image();
+		imageEl.crossOrigin = 'anonymous';
+
+		imageEl.onload = async (e: Event) => {
+			if (ctx && e.currentTarget) {
+				const img = e.currentTarget as HTMLImageElement;
+				canvas.width = img.width;
+				canvas.height = img.height;
+				ctx.drawImage(img, 0, 0, img.width, img.height);
+
+				canvas.toBlob(
+					async (blob) => {
+						try {
+							const success = await copyBlobToClipboard(blob);
+							resolve(success);
+						} catch (error) {
+							reject(error);
+						}
+					},
+					'image/png',
+					1
+				);
+			} else {
+				resolve(false);
+			}
+		};
+
+		imageEl.onerror = () => {
+			reject(new Error('Failed to load image'));
+		};
+
+		imageEl.src = imageUrl;
+	});
 };
 
-export const handleCopyImage = async (urlData: string) => {
+export const handleCopyImage = async (urlData: string, onSuccess?: () => void): Promise<boolean> => {
 	try {
-		if (!navigator.clipboard?.write) {
-			console.warn('Clipboard API not supported. Image data not copied.');
-			return false;
+		const success = await copyImageToClipboard(urlData);
+		if (success && onSuccess) {
+			onSuccess();
 		}
-
-		const blob = await convertImageToBlobFile(urlData);
-		if (!blob) {
-			console.error('Failed to fetch or convert image');
-			return false;
-		}
-
-		const fileName = urlData.split('/').pop()?.split('?')[0] || 'image';
-
-		let fileType: string;
-		if (blob.type) {
-			fileType = blob.type.split('/')[1];
-		} else {
-			const mimeTypes: Record<string, string> = {
-				jpg: 'jpeg',
-				jpeg: 'jpeg',
-				png: 'png',
-				gif: 'gif',
-				webp: 'webp',
-				bmp: 'bmp'
-			};
-
-			const extension = fileName.split('.').pop()?.toLowerCase();
-			fileType = mimeTypes[extension || ''] || 'png';
-		}
-
-		const file = new File([blob], fileName, {
-			type: `image/png`
-		});
-
-		const clipboardItem = new ClipboardItem({
-			[`image/png`]: file
-		});
-
-		await navigator.clipboard.write([clipboardItem]);
-		return true;
+		return success;
 	} catch (error) {
 		console.error('Error handling image copy:', error);
 		return false;

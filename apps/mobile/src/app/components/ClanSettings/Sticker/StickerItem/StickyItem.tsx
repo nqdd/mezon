@@ -1,6 +1,6 @@
 import { useClanRestriction } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { deleteSticker, selectCurrentUserId, selectMemberClanByUserId2, updateSticker, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { deleteSticker, selectCurrentUserId, selectMemberClanByUserId, updateSticker, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import { ClanSticker } from 'mezon-js';
 import React, { Ref, forwardRef, useCallback, useMemo, useState } from 'react';
@@ -23,7 +23,7 @@ interface IStickerItem {
 export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: IStickerItem, ref: Ref<SwipeableMethods>) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, data.creator_id));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, data.creator_id));
 	const [stickerName, setStickerName] = useState<string>(data.shortname);
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation(['clanStickerSetting']);
@@ -53,9 +53,9 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 		);
 	};
 
-	const handleSwipeOpen = () => {
+	const handleSwipeOpen = useCallback(() => {
 		onSwipeOpen(data);
-	};
+	}, []);
 
 	const handleDeleteSticker = useCallback(async () => {
 		if (data.id) {
@@ -103,13 +103,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 	}, [sticker, stickerName]);
 
 	return (
-		<Swipeable
-			ref={ref}
-			renderRightActions={renderRightAction}
-			onSwipeableWillOpen={handleSwipeOpen}
-			enabled={hasDeleteOrEditPermission}
-			childrenContainerStyle={{ marginBottom: -size.s_10 }}
-		>
+		<Swipeable ref={ref} renderRightActions={renderRightAction} onSwipeableWillOpen={handleSwipeOpen} enabled={hasDeleteOrEditPermission}>
 			<View style={styles.container}>
 				<View style={styles.flexRow}>
 					<FastImage
@@ -130,7 +124,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 
 				<View style={[styles.flexRow, { justifyContent: 'flex-end' }]}>
 					<Text style={styles.text} numberOfLines={1}>
-						{user?.user?.username}
+						{user?.clan_nick || user?.user?.display_name || user?.user?.username}
 					</Text>
 					<MezonAvatar height={size.s_30} width={size.s_30} avatarUrl={user?.user?.avatar_url} username={user?.user?.username} />
 				</View>

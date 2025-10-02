@@ -5,9 +5,9 @@ import {
 	save,
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
-	STORAGE_IS_CANCEL_CALL_IN_CACHE,
 	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
-	STORAGE_MY_USER_ID
+	STORAGE_MY_USER_ID,
+	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
@@ -206,7 +206,7 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 			channelId,
 			tag: channelId,
 			category: AndroidCategory.MESSAGE,
-			groupId: groupId,
+			groupId,
 			groupSummary: false,
 			groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
 			sortKey: String(Number.MAX_SAFE_INTEGER - now),
@@ -320,7 +320,7 @@ export const createLocalNotification = async (title: string, body: string, data:
 					id: `summary_${configDisplayNotificationAndroid.groupId}`,
 					title: 'New Messages',
 					body: `${groupNotifications.length} new messages`,
-					data: data,
+					data,
 					android: {
 						...configDisplayNotificationAndroid,
 						groupSummary: true,
@@ -377,7 +377,9 @@ export const handleFCMToken = async (): Promise<string | undefined> => {
 export const isShowNotification = (
 	currentChannelId: string | undefined,
 	currentDmId: string | undefined,
-	remoteMessage: FirebaseMessagingTypes.RemoteMessage
+	remoteMessage: FirebaseMessagingTypes.RemoteMessage,
+	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean },
+	currentTopicId?: string | undefined
 ): boolean => {
 	try {
 		if (!validateNotificationData(remoteMessage?.data)) {
@@ -394,17 +396,24 @@ export const isShowNotification = (
 
 		const directMessageId = directMessageMatch?.[1] || '';
 		const channelMessageId = channelMessageMatch?.[2] || '';
+		const topicMessageId = remoteMessage.data?.topic || '';
 
 		const areOnChannel = currentChannelId === channelMessageId;
 		const areOnDirectMessage = currentDmId === directMessageId;
+		const isOntopicDiscussion = topicMessageId && topicMessageId !== '0';
+		const areOncurrentTopic = currentTopicId && currentTopicId === topicMessageId;
+		const isViewingChannel = !!options?.isViewingChannel;
+		const isViewingDirectMessage = !!options?.isViewingDirectMessage;
+		const isViewingtopicDiscussion = !!currentTopicId;
 
-		if (areOnChannel && currentDmId) {
-			return true;
-		}
+		if (!isViewingChannel && isViewingtopicDiscussion && areOnChannel && isOntopicDiscussion && areOncurrentTopic) return false;
 
-		if ((channelMessageId && areOnChannel) || (directMessageId && areOnDirectMessage)) {
-			return false;
-		}
+		// If currently viewing DM but notification is for a channel the user has open in background
+		if (areOnChannel && currentDmId) return true;
+
+		// Suppress only when user is actively on the same destination screen
+		if (channelMessageId && areOnChannel && isViewingChannel && !isOntopicDiscussion) return false;
+		if (directMessageId && areOnDirectMessage && isViewingDirectMessage) return false;
 
 		return true;
 	} catch (error) {
@@ -430,7 +439,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				store.dispatch(
 					channelsActions.joinChannel({
 						clanId: clanId ?? '',
-						channelId: channelId,
+						channelId,
 						noFetchMembers: false,
 						isClearMessage: true,
 						noCache: true
@@ -448,24 +457,21 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				}
 			}
 			if (clanId) {
-				const joinAndChangeClan = async (store: any, clanId: string) => {
-					await Promise.allSettled([
-						store.dispatch(clansActions.joinClan({ clanId: clanId })),
-						store.dispatch(clansActions.changeCurrentClan({ clanId: clanId, noCache: true }))
-					]);
-				};
-				await joinAndChangeClan(store, clanId);
+				store.dispatch(clansActions.joinClan({ clanId }));
+				store.dispatch(clansActions.setCurrentClanId(clanId as string));
+				save(STORAGE_CLAN_ID, clanId);
 			}
 			if (clanId && channelId !== '0' && !!channelId) {
 				const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
 				save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-				store.dispatch(channelsActions.setCurrentChannelId({ clanId, channelId }));
 			}
-			save(STORAGE_CLAN_ID, clanId);
 			if (topicId && topicId !== '0' && !!topicId) {
 				await handleOpenTopicDiscustion(store, topicId, channelId, navigation);
 			}
 			setTimeout(() => {
+				if (clanId) {
+					store.dispatch(clansActions.changeCurrentClan({ clanId, noCache: true }));
+				}
 				if (channelId !== '0' && !!channelId) {
 					DeviceEventEmitter.emit(ActionEmitEvent.SCROLL_TO_ACTIVE_CHANNEL, channelId);
 				}
@@ -521,6 +527,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 
 const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId: string, navigation: any) => {
 	const promises = [];
+	await sleep(100);
 	promises.push(store.dispatch(topicsActions.setCurrentTopicInitMessage(null)));
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
 	promises.push(store.dispatch(topicsActions.setIsShowCreateTopic(true)));
@@ -558,33 +565,34 @@ export const getVoIPToken = async () => {
 	}
 };
 
-export const displayNativeCalling = async (data: any) => {
+export const displayNativeCalling = async (data: any, appInBackground = false) => {
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
-		if (dataObj?.offer === 'CANCEL_CALL' || !dataObj?.callerName) {
-			save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'true');
-			setTimeout(() => {
-				save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
-			}, 700);
+		if (dataObj?.offer === 'CANCEL_CALL') {
 			await notifee.cancelNotification(notificationId, notificationId);
 			return;
 		}
 
-		await sleep(500); // wait for 0.5s to see if a newer call or cancellation arrives
-		const isCancelCallInCache = load(STORAGE_IS_CANCEL_CALL_IN_CACHE);
-		if (isCancelCallInCache === 'true') {
-			// A newer call or cancellation arrived during our delay
+		const cancelCallsCacheStr = load(STORAGE_OFFER_HAVE_CALL_CACHE) || '[]';
+		const cancelCallsCache = safeJSONParse(cancelCallsCacheStr) || [];
+
+		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer))) {
 			return;
 		}
-		save(STORAGE_IS_CANCEL_CALL_IN_CACHE, 'false');
+		cancelCallsCache.push(JSON.stringify(dataObj?.offer));
+		if (cancelCallsCache.length > 20) {
+			cancelCallsCache.splice(0, 10);
+		}
+		save(STORAGE_OFFER_HAVE_CALL_CACHE, JSON.stringify(cancelCallsCache));
+
 		const channel = await notifee.createChannel({
 			id: 'calls',
 			name: 'Incoming Calls',
 			importance: AndroidImportance.HIGH,
 			visibility: AndroidVisibility.PUBLIC,
-			sound: 'ringing',
-			vibration: true,
+			sound: appInBackground ? undefined : 'ringing',
+			vibration: !appInBackground,
 			bypassDnd: true
 		});
 		await notifee.displayNotification({
@@ -597,7 +605,7 @@ export const displayNativeCalling = async (data: any) => {
 				visibility: AndroidVisibility.PUBLIC,
 				importance: AndroidImportance.HIGH,
 				smallIcon: 'ic_notification',
-				sound: 'ringing',
+				sound: appInBackground ? undefined : 'ringing',
 				tag: notificationId,
 				largeIcon: `${dataObj?.callerAvatar || dataObj?.groupAvatar || process.env.NX_LOGO_MEZON}`,
 				timestamp: Date.now(),
@@ -605,10 +613,10 @@ export const displayNativeCalling = async (data: any) => {
 				ongoing: true,
 				autoCancel: true,
 				timeoutAfter: 30000,
-				loopSound: true,
+				loopSound: !appInBackground,
 				groupSummary: false,
 				groupAlertBehavior: AndroidGroupAlertBehavior.ALL,
-				vibrationPattern: [300, 500, 300, 500],
+				vibrationPattern: appInBackground ? undefined : [300, 500, 300, 500],
 				lightUpScreen: true,
 				color: '#7029c1',
 				pressAction: {
@@ -641,13 +649,15 @@ export const displayNativeCalling = async (data: any) => {
 						title: 'Decline',
 						pressAction: {
 							id: 'reject',
-							launchActivity: 'com.mezon.mobile.CallActivity',
-							launchActivityFlags: [
-								AndroidLaunchActivityFlag.SINGLE_TOP,
-								AndroidLaunchActivityFlag.NEW_TASK,
-								AndroidLaunchActivityFlag.CLEAR_TASK,
-								AndroidLaunchActivityFlag.TASK_ON_HOME
-							],
+							launchActivity: appInBackground ? 'com.mezon.mobile.MainActivity' : 'com.mezon.mobile.CallActivity',
+							launchActivityFlags: appInBackground
+								? []
+								: [
+										AndroidLaunchActivityFlag.SINGLE_TOP,
+										AndroidLaunchActivityFlag.NEW_TASK,
+										AndroidLaunchActivityFlag.CLEAR_TASK,
+										AndroidLaunchActivityFlag.TASK_ON_HOME
+									],
 							mainComponent: 'ComingCallApp'
 						},
 						icon: 'ic_decline'

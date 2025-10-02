@@ -7,8 +7,8 @@ import {
 	getStore,
 	messagesActions,
 	selectAllAccount,
-	selectHasMoreBottomByChannelId2,
-	selectHasMoreMessageByChannelId2,
+	selectHasMoreBottomByChannelId,
+	selectHasMoreMessageByChannelId,
 	selectIdMessageToJump,
 	selectIsLoadingJumpMessage,
 	selectIsMessageIdExist,
@@ -67,7 +67,6 @@ const ChannelMessages = React.memo(({ channelId, topicId, clanId, mode, isDM, is
 	const navigation = useNavigation<any>();
 
 	const userId = useSelector(selectAllAccount)?.user?.id;
-
 
 	useEffect(() => {
 		const event = DeviceEventEmitter.addListener(ActionEmitEvent.SCROLL_TO_BOTTOM_CHAT, () => {
@@ -145,11 +144,11 @@ const ChannelMessages = React.memo(({ channelId, topicId, clanId, mode, isDM, is
 				const isFetching = selectMessageIsLoading(store.getState());
 				if (isLoadMore?.current?.[direction] || isFetching) return false;
 				if (direction === ELoadMoreDirection.bottom) {
-					const hasMoreBottom = selectHasMoreBottomByChannelId2(store.getState(), channelId);
+					const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
 					if (!hasMoreBottom) return false;
 				}
 				if (direction === ELoadMoreDirection.top) {
-					const hasMoreTop = selectHasMoreMessageByChannelId2(store.getState(), channelId);
+					const hasMoreTop = selectHasMoreMessageByChannelId(store.getState(), channelId);
 					if (!hasMoreTop) return false;
 				}
 				setIsDisableLoadMore(true);

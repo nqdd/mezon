@@ -1,5 +1,6 @@
 import {
 	MezonStoreProvider,
+	appActions,
 	initStore,
 	selectCurrentLanguage,
 	selectIsLogin,
@@ -56,12 +57,20 @@ export const useLoading = () => useContext(LoadingContext);
 const LanguageSyncProvider = () => {
 	const currentLanguage = useSelector(selectCurrentLanguage);
 	const { i18n } = useTranslation();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
-		if (i18n.language !== currentLanguage) {
+		const detectedLang = i18n.language;
+		if (detectedLang && (detectedLang === 'vi' || detectedLang === 'en') && detectedLang !== currentLanguage) {
+			dispatch(appActions.setLanguage(detectedLang));
+		}
+	}, []);
+
+	useEffect(() => {
+		if (currentLanguage && i18n.language !== currentLanguage) {
 			i18n.changeLanguage(currentLanguage);
 		}
-	}, [currentLanguage, i18n]);
+	}, [currentLanguage]);
 
 	return null;
 };

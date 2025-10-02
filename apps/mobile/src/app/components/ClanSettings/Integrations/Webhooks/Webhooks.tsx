@@ -1,10 +1,23 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
-import { generateClanWebhook, generateWebhook, selectAllClanWebhooks, selectWebhooksByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import {
+	generateClanWebhook,
+	generateWebhook,
+	selectAllClanWebhooks,
+	selectWebhooksByChannelId,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
+import { useNavigation } from '@react-navigation/native';
+import MezonIconCDN from 'apps/mobile/src/app/componentUI/MezonIconCDN';
+import { IconCDN } from 'apps/mobile/src/app/constants/icon_cdn';
+import { APP_SCREEN } from 'apps/mobile/src/app/navigation/ScreenTypes';
 import { ApiGenerateClanWebhookRequest, ApiWebhookCreateRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, FlatList, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, Pressable, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { CHANNEL_WEBHOOK_DOCS_URL, CLAN_WEBHOOK_DOCS_URL } from '../Integrations';
 import { WebhookChannelSelectModal } from './WebhookChannelSelectModal';
 import { WebhooksEmpty } from './WebhooksEmpty';
 import { WebhooksItem } from './WebhooksItem';
@@ -18,13 +31,10 @@ const WEBHOOK_AVATARS = [
 	`${process.env.NX_BASE_IMG_URL}/0/1833395573034586112/1787375123666309000/955_0mezon_logo.png`
 ] as const;
 
-
 const useWebhookData = (route: any) => {
 	const { clanId, isClanSetting, channelId, isClanIntegration } = route?.params || {};
 
-	const allChannelWebhooks = useAppSelector((state) =>
-		selectWebhooksByChannelId(state, isClanSetting ? '0' : (channelId ?? ''))
-	);
+	const allChannelWebhooks = useAppSelector((state) => selectWebhooksByChannelId(state, isClanSetting ? '0' : (channelId ?? ''), clanId));
 	const allClanWebhooks = useAppSelector(selectAllClanWebhooks);
 
 	const webhookList = useMemo(() => {
@@ -42,6 +52,7 @@ const useWebhookData = (route: any) => {
 
 const useWebhookActions = (clanId: string, isClanSetting: boolean, isClanIntegration: boolean, channelId: string) => {
 	const dispatch = useAppDispatch();
+	const { t } = useTranslation(['clanIntegrationsSetting']);
 
 	const getRandomWebhookName = useCallback((): string => {
 		const randomIndex = Math.floor(Math.random() * WEBHOOK_NAMES.length);
@@ -53,15 +64,38 @@ const useWebhookActions = (clanId: string, isClanSetting: boolean, isClanIntegra
 		return WEBHOOK_AVATARS[randomIndex];
 	}, []);
 
-	const addWebhookProcess = useCallback(async (channelId: string) => {
-		const newWebhookReq: ApiWebhookCreateRequest = {
-			channel_id: channelId,
-			webhook_name: getRandomWebhookName(),
-			avatar: getRandomAvatar(),
-			clan_id: clanId
-		};
-		dispatch(generateWebhook({ request: newWebhookReq, channelId, clanId, isClanSetting }));
-	}, [clanId, isClanSetting, getRandomWebhookName, getRandomAvatar, dispatch]);
+	const addWebhookProcess = useCallback(
+		async (channelId?: string) => {
+			try {
+				const newWebhookReq: ApiWebhookCreateRequest = {
+					channel_id: channelId,
+					webhook_name: getRandomWebhookName(),
+					avatar: getRandomAvatar(),
+					clan_id: clanId
+				};
+				const response = await dispatch(generateWebhook({ request: newWebhookReq, channelId, clanId, isClanSetting }));
+				if (response?.meta?.requestStatus === 'rejected') {
+					throw new Error(response?.meta?.requestStatus);
+				} else {
+					Toast.show({
+						type: 'success',
+						props: {
+							text2: t('toast.addSuccess'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} />
+						},
+						text2Style: { fontSize: size.small }
+					});
+				}
+			} catch (error) {
+				console.error('Error creating webhook:', error);
+				Toast.show({
+					type: 'error',
+					text1: t('toast.addError')
+				});
+			}
+		},
+		[getRandomWebhookName, getRandomAvatar, clanId, dispatch, isClanSetting, t]
+	);
 
 	const handleAddChannelWebhook = useCallback(async () => {
 		if (isClanSetting) {
@@ -73,7 +107,7 @@ const useWebhookActions = (clanId: string, isClanSetting: boolean, isClanIntegra
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 						}}
 						onCancel={() => {
-							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+							return;
 						}}
 					/>
 				)
@@ -86,14 +120,34 @@ const useWebhookActions = (clanId: string, isClanSetting: boolean, isClanIntegra
 
 	const handleAddClanWebhook = useCallback(async () => {
 		if (isClanIntegration) {
-			const newWebhookReq: ApiGenerateClanWebhookRequest = {
-				webhook_name: getRandomWebhookName(),
-				avatar: getRandomAvatar(),
-				clan_id: clanId
-			};
-			await dispatch(generateClanWebhook({ request: newWebhookReq, clanId }));
+			try {
+				const newWebhookReq: ApiGenerateClanWebhookRequest = {
+					webhook_name: getRandomWebhookName(),
+					avatar: getRandomAvatar(),
+					clan_id: clanId
+				};
+				const response = await dispatch(generateClanWebhook({ request: newWebhookReq, clanId }));
+				if (response?.meta?.requestStatus === 'rejected') {
+					throw new Error(response?.meta?.requestStatus);
+				} else {
+					Toast.show({
+						type: 'success',
+						props: {
+							text2: t('toast.addSuccess'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} />
+						},
+						text2Style: { fontSize: size.small }
+					});
+				}
+			} catch (error) {
+				console.error('Error creating webhook:', error);
+				Toast.show({
+					type: 'error',
+					text1: t('toast.addError')
+				});
+			}
 		}
-	}, [isClanIntegration, clanId, getRandomWebhookName, getRandomAvatar, dispatch]);
+	}, [isClanIntegration, getRandomWebhookName, getRandomAvatar, clanId, dispatch, t]);
 
 	return {
 		handleAddChannelWebhook,
@@ -103,34 +157,42 @@ const useWebhookActions = (clanId: string, isClanSetting: boolean, isClanIntegra
 
 const useWebhookDescription = (isClanIntegration: boolean, styles: any) => {
 	const { t } = useTranslation(['clanIntegrationsSetting']);
+	const navigation = useNavigation<any>();
+
+	const handleOpenDocs = useCallback(
+		(url: string) => {
+			navigation.navigate(APP_SCREEN.APP_BROWSER, { url, title: 'Webhooks' });
+		},
+		[navigation]
+	);
 
 	const descriptionText = useMemo(() => {
-		const baseDescription = isClanIntegration
-			? t('clanWebhooks.description')
-			: t('webhooks.description');
+		const baseDescription = isClanIntegration ? t('clanWebhooks.description') : t('webhooks.description');
 
 		if (isClanIntegration) {
 			return (
 				<>
 					{baseDescription} &nbsp;
-					<Text style={styles.textLink}>{t('clanWebhooks.tips')}</Text>
+					<Text style={styles.textLink} onPress={() => handleOpenDocs(CLAN_WEBHOOK_DOCS_URL)}>
+						{t('clanWebhooks.tips')}
+					</Text>
 				</>
 			);
 		}
 
 		return (
 			<>
-				{baseDescription} &nbsp;
-				<Text style={styles.textLink} onPress={() => Linking.openURL('')}>
+				{baseDescription}&nbsp;
+				<Text style={styles.textLink} onPress={() => handleOpenDocs(CHANNEL_WEBHOOK_DOCS_URL)}>
 					{t('webhooks.learnMore')}
 				</Text>
-				&nbsp;or try&nbsp;
-				<Text style={styles.textLink} onPress={() => Linking.openURL('')}>
+				&nbsp;{t('webhooks.try')}&nbsp;
+				<Text style={styles.textLink} onPress={() => handleOpenDocs(CHANNEL_WEBHOOK_DOCS_URL)}>
 					{t('webhooks.buildOne')}
 				</Text>
 			</>
 		);
-	}, [isClanIntegration, t, styles]);
+	}, [isClanIntegration, t, styles.textLink, handleOpenDocs]);
 
 	return descriptionText;
 };
@@ -140,20 +202,9 @@ export function Webhooks({ route }: { route: any }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 
-	const {
-		clanId,
-		isClanSetting,
-		channelId,
-		isClanIntegration,
-		webhookList
-	} = useWebhookData(route);
+	const { clanId, isClanSetting, channelId, isClanIntegration, webhookList } = useWebhookData(route);
 
-	const { handleAddChannelWebhook, handleAddClanWebhook } = useWebhookActions(
-		clanId,
-		isClanSetting,
-		isClanIntegration,
-		channelId
-	);
+	const { handleAddChannelWebhook, handleAddClanWebhook } = useWebhookActions(clanId, isClanSetting, isClanIntegration, channelId);
 
 	const descriptionText = useWebhookDescription(isClanIntegration, styles);
 
@@ -165,29 +216,16 @@ export function Webhooks({ route }: { route: any }) {
 		}
 	}, [isClanIntegration, handleAddClanWebhook, handleAddChannelWebhook]);
 
-	const renderWebhookItem = useCallback(({ item }: { item: any }) => (
-		<WebhooksItem
-			webhook={item}
-			isClanIntegration={isClanIntegration}
-			isClanSetting={isClanSetting}
-		/>
-	), [isClanIntegration, isClanSetting]);
+	const renderWebhookItem = useCallback(
+		({ item }: { item: any }) => <WebhooksItem webhook={item} isClanIntegration={isClanIntegration} isClanSetting={isClanSetting} />,
+		[isClanIntegration, isClanSetting]
+	);
 
 	const keyExtractor = useCallback((item: any) => item.id?.toString(), []);
 
 	return (
-		<View
-			style={{
-				paddingHorizontal: size.s_16,
-				paddingVertical: size.s_16,
-				backgroundColor: themeValue.primary,
-				width: '100%',
-				height: '100%'
-			}}
-		>
-			<Text style={styles.description}>
-				{descriptionText}
-			</Text>
+		<View style={styles.wrapper}>
+			<Text style={styles.description}>{descriptionText}</Text>
 
 			<FlatList
 				data={webhookList}
@@ -198,13 +236,9 @@ export function Webhooks({ route }: { route: any }) {
 				showsVerticalScrollIndicator={false}
 			/>
 
-			<TouchableOpacity
-				style={styles.stickyNewButton}
-				onPress={handleAddWebhook}
-				activeOpacity={0.8}
-			>
+			<Pressable style={styles.stickyNewButton} onPress={handleAddWebhook}>
 				<Text style={styles.stickyNewButtonText}> + </Text>
-			</TouchableOpacity>
+			</Pressable>
 		</View>
 	);
 }

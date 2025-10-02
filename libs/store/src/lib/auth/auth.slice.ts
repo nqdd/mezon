@@ -1,7 +1,11 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Session } from 'mezon-js';
+import type { LoadingStatus } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
+import type { Session } from 'mezon-js';
+import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
+import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 export const AUTH_FEATURE_KEY = 'auth';
@@ -56,6 +60,10 @@ export const authenticateApple = createAsyncThunk('auth/authenticateApple', asyn
 export type AuthenticateEmailPayload = {
 	email: string;
 	password: string;
+};
+
+export type AuthenticateEmailOTPRequestPayload = {
+	email: string;
 };
 
 export const authenticateEmail = createAsyncThunk('auth/authenticateEmail', async ({ email, password }: AuthenticateEmailPayload, thunkAPI) => {
@@ -138,13 +146,42 @@ export const checkSessionWithToken = createAsyncThunk('auth/checkSessionWithToke
 	return normalizeSession(session);
 });
 
+export const authenticateEmailOTPRequest = createAsyncThunk(
+	'auth/authenticateEmailOTPRequest',
+	async ({ email }: AuthenticateEmailOTPRequestPayload, thunkAPI) => {
+		const mezon = getMezonCtx(thunkAPI);
+		const res = await mezon?.authenticateEmailOTPRequest(email);
+		if (!res) {
+			return thunkAPI.rejectWithValue('Invalid session');
+		}
+		return res;
+	}
+);
+
+export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
+	const mezon = getMezonCtx(thunkAPI);
+	const session = await mezon?.confirmEmailOTP(data);
+	if (!session) {
+		return thunkAPI.rejectWithValue('Invalid session');
+	}
+	return normalizeSession(session);
+});
+
 export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platform }: { device_id?: string; platform?: string }, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const sessionState = selectOthersSession(thunkAPI.getState() as unknown as { [AUTH_FEATURE_KEY]: AuthState });
 	await mezon?.logOutMezon(device_id, platform, !sessionState);
 	thunkAPI.dispatch(authActions.setLogout());
 	clearApiCallTracker();
-	const restoreKey = ['persist:apps', 'persist:categories', 'persist:clans', 'current-theme', 'hideNotificationContent', 'remember_channel'];
+	const restoreKey = [
+		'persist:apps',
+		'persist:categories',
+		'persist:clans',
+		'current-theme',
+		'hideNotificationContent',
+		'remember_channel',
+		'i18nextLng'
+	];
 	if (sessionState) {
 		restoreKey.push('mezon_session');
 	}
@@ -186,14 +223,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 
 export const registrationPassword = createAsyncThunk(
 	`auth/registrationPassword`,
-	async ({ email, password }: { email: string; password: string }, thunkAPI) => {
+	async ({ email, password, oldPassword }: { email: string; password: string; oldPassword?: string }, thunkAPI) => {
 		if (!email || !password || !email.trim() || !password.trim()) {
 			return thunkAPI.rejectWithValue('Invalid input');
 		}
 
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.registrationPassword(mezon.session, email, password);
+			const response = await mezon.client.registrationPassword(mezon.session, email, password, oldPassword || '');
 
 			if (!response) {
 				return thunkAPI.rejectWithValue('Failed to register password');
@@ -201,7 +238,9 @@ export const registrationPassword = createAsyncThunk(
 			return response;
 		} catch (error) {
 			captureSentryError(error, `auth/registrationPassword`);
-			return thunkAPI.rejectWithValue(error);
+			toast.error(
+				oldPassword ? t('accountSetting:setPasswordAccount.error.updateFail') : t('accountSetting:setPasswordAccount.error.createFail')
+			);
 		}
 	}
 );
@@ -401,6 +440,28 @@ export const authSlice = createSlice({
 				state.error = action.error.message;
 			});
 		builder
+			.addCase(confirmEmailOTP.pending, (state: AuthState) => {
+				state.loadingStatus = 'loading';
+			})
+			.addCase(confirmEmailOTP.fulfilled, (state: AuthState, action) => {
+				state.loadingStatus = 'loaded';
+				if (action.payload.user_id) {
+					if (!state.session) {
+						state.session = {
+							[action.payload.user_id]: action.payload
+						};
+					} else {
+						state.session[action.payload.user_id] = action.payload;
+					}
+					state.activeAccount = `${action.payload.user_id}`;
+				}
+				state.isLogin = true;
+			})
+			.addCase(confirmEmailOTP.rejected, (state: AuthState, action) => {
+				state.loadingStatus = 'error';
+				state.error = action.error.message;
+			});
+		builder
 			.addCase(registrationPassword.pending, (state) => {
 				state.isRegistering = 'loading';
 			})
@@ -430,7 +491,9 @@ export const authActions = {
 	logOut,
 	registrationPassword,
 	authenticateEmail,
-	checkSessionWithToken
+	checkSessionWithToken,
+	authenticateEmailOTPRequest,
+	confirmEmailOTP
 };
 
 export const getAuthState = (rootState: { [AUTH_FEATURE_KEY]: AuthState }): AuthState => rootState[AUTH_FEATURE_KEY];

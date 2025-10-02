@@ -9,11 +9,12 @@ interface ICachedImageWithRetryIOSProps {
 	style?: any;
 	[key: string]: any;
 }
-
+// For covert old records
+const NX_BASE_IMG_URL_OLD = 'https://cdn.mezon.vn';
 const extractOriginalUrl = (url: string): string | null => {
-	if (url?.includes?.(process.env.NX_IMGPROXY_BASE_URL) && (url?.includes?.('https://cdn.mezon.ai') || url?.includes?.('https://cdn.mezon.vn'))) {
+	if (url?.includes?.(process.env.NX_IMGPROXY_BASE_URL) && (url?.includes?.(process.env.NX_BASE_IMG_URL) || url?.includes?.(NX_BASE_IMG_URL_OLD))) {
 		const parts = url?.split?.('/plain/');
-		if (parts?.length > 1 && (parts?.[1]?.startsWith('https://cdn.mezon.ai') || parts?.[1]?.startsWith('https://cdn.mezon.vn'))) {
+		if (parts?.length > 1 && (parts?.[1]?.startsWith(process.env.NX_BASE_IMG_URL) || parts?.[1]?.startsWith(NX_BASE_IMG_URL_OLD))) {
 			return parts?.[1]?.split?.('@')?.[0];
 		}
 	}

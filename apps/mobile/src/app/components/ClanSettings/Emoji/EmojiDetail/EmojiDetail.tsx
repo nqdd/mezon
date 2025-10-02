@@ -1,10 +1,10 @@
 import { usePermissionChecker } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { emojiSuggestionActions, selectCurrentUserId, selectMemberClanByUserId2, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { emojiSuggestionActions, selectCurrentUserId, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission, getSrcEmoji } from '@mezon/utils';
 import { ClanEmoji } from 'mezon-js';
 import { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
-import React, { Ref, forwardRef, useMemo, useRef, useState } from 'react';
+import React, { Ref, forwardRef, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -25,7 +25,7 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 	const styles = style(themeValue);
 	const { t } = useTranslation(['clanEmojiSetting']);
 	const dispatch = useAppDispatch();
-	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId2(state, item.creator_id ?? ''));
+	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId(state, item.creator_id ?? ''));
 	const [emojiName, setEmojiName] = useState(item.shortname?.split(':')?.join(''));
 	const [isFocused, setIsFocused] = useState(false);
 	const textInputRef = useRef<TextInput>(null);
@@ -46,7 +46,7 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 			category: item.category,
 			clan_id: item.clan_id
 		};
-		await dispatch(emojiSuggestionActions.updateEmojiSetting({ request: request, emojiId: item.id || '' }));
+		await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: item.id || '' }));
 	};
 
 	const handleDeleteEmoji = async () => {
@@ -63,9 +63,9 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 		}
 	};
 
-	const handleSwipableWillOpen = () => {
+	const handleSwipableWillOpen = useCallback(() => {
 		onSwipeOpen(item);
-	};
+	}, []);
 
 	const handleBlur = () => {
 		setIsFocused(false);
@@ -122,7 +122,7 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 				</View>
 				<View style={styles.user}>
 					<Text numberOfLines={1} style={styles.title}>
-						{dataAuthor?.user?.username}
+						{dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username}
 					</Text>
 					<View style={styles.imgWrapper}>
 						<MezonClanAvatar alt={dataAuthor?.user?.username} image={dataAuthor?.user?.avatar_url} imageHeight={30} imageWidth={30} />

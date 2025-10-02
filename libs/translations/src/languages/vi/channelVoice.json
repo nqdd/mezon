@@ -27,5 +27,15 @@
         "title": "Xóa khỏi kênh thoại",
         "content": "Bạn có chắc muốn xóa \"{{userName}}\" khỏi kênh thoại?",
         "kick": "Xóa"
+    },
+    "disconnectModal": {
+        "title": "Mất kết nối thoại",
+        "content": {
+            "removed": "Bạn đã bị xóa khỏi kênh thoại",
+            "duplicate": "Bạn đã bị ngắt kết nối do tham gia ở nơi khác",
+            "default": "Bạn đã bị ngắt kết nối khỏi kênh thoại",
+            "deleted": "Kênh thoại đã bị xóa"
+        },
+        "confirm": "Xác nhận"
     }
 }

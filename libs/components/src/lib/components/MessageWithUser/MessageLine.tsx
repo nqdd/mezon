@@ -1,7 +1,6 @@
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { getTagByIdOnStored } from '@mezon/core';
-import type { ChannelsEntity } from '@mezon/store';
-import { getStore, selectCanvasIdsByChannelId, selectGmeetVoice } from '@mezon/store';
+import { getStore, selectCanvasIdsByChannelId } from '@mezon/store';
 import type { IExtendedMessage } from '@mezon/utils';
 import { EBacktickType, ETokenMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
@@ -219,7 +218,15 @@ export const MessageLine = ({
 		...lkm,
 		...lkym,
 		...vkm
-	].sort((a, b) => (a.s ?? 0) - (b.s ?? 0));
+	]
+		.sort((a, b) => (a.s ?? 0) - (b.s ?? 0))
+		.filter((element, index, sortedArray) => {
+			if (index === 0) return true;
+			const prevElement = sortedArray[index - 1];
+			const currentStart = element.s ?? 0;
+			const prevEnd = prevElement.e ?? 0;
+			return currentStart >= prevEnd;
+		});
 
 	let lastindex = 0;
 	const content2 = (() => {
@@ -510,24 +517,6 @@ interface VoiceLinkContentProps {
 }
 
 export const VoiceLinkContent = ({ meetingCode, isTokenClickAble, isJumMessageEnabled, index, s, contentInElement }: VoiceLinkContentProps) => {
-	const getVoiceChannelByMeetingCode = (meetingCode: string) => {
-		const store = getStore();
-		const allChannelVoice = selectGmeetVoice(store.getState());
-		return allChannelVoice?.find((channel) => channel.meeting_code === meetingCode) || null;
-	};
-	const voiceChannelFound = getVoiceChannelByMeetingCode(meetingCode as string) || null;
-
-	if (voiceChannelFound) {
-		return (
-			<ChannelHashtag
-				channelOnLinkFound={voiceChannelFound as ChannelsEntity}
-				isTokenClickAble={isTokenClickAble}
-				isJumMessageEnabled={isJumMessageEnabled}
-				channelHastagId={`<#${voiceChannelFound?.channel_id}>`}
-			/>
-		);
-	}
-
 	return <MarkdownContent isLink={true} isTokenClickAble={isTokenClickAble} isJumMessageEnabled={isJumMessageEnabled} content={contentInElement} />;
 };
 

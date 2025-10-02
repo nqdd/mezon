@@ -94,8 +94,8 @@ function MyApp() {
 	const { userProfile } = useAuth();
 	const calculateJoinedTime = new Date().getTime() - new Date(userProfile?.user?.create_time ?? '').getTime();
 	const isNewGuy = calculateJoinedTime <= TIME_OF_SHOWING_FIRST_POPUP;
-	const numberOfCLanJoined = useSelector(selectClanNumber);
-	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfCLanJoined === 0);
+	const numberOfClanJoined = useSelector(selectClanNumber);
+	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfClanJoined === 0);
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
@@ -159,13 +159,6 @@ function MyApp() {
 	const openModalE2ee = useSelector(selectOpenModalE2ee);
 	const hasKeyE2ee = useSelector(selectHasKeyE2ee);
 
-	useEffect(() => {
-		if (currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `https://meet.google.com/${currentChannel.meeting_code}`;
-			window.open(urlVoice, '_blank', 'noreferrer');
-		}
-	}, []);
-
 	const isShowPopupQuickMess = useSelector(selectIsShowPopupQuickMess);
 
 	const streamStyle = isShowChatStream
@@ -193,7 +186,7 @@ function MyApp() {
 				className={`flex h-dvh min-[480px]:pl-[72px] ${closeMenu ? (statusMenu ? 'pl-[72px]' : '') : ''} overflow-hidden text-gray-100 relative  `}
 				onClick={handleClick}
 			>
-				{previewMode && <PreviewOnboardingMode />}
+				{previewMode?.open && previewMode.clanId === currentClanId && <PreviewOnboardingMode />}
 				{openPopupForward && <ForwardMessageModal />}
 				<SidebarMenu openCreateClanModal={openCreateClanModal} openDiscoverPage={openDiscoverPage} />
 				<Topbar isHidden={currentClanId !== '0' ? false : !directId} />
@@ -417,7 +410,7 @@ const SidebarMenu = memo(
 					className={`top-0 left-0 right-0 flex flex-col items-center pt-0 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
 					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
-					<div className={`flex flex-col items-center sticky top-0 z-10 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
 						<SidebarLogoItem
 							onToggleUnreadList={() => {
 								setShowDmUnreadList((prev) => !prev);
@@ -471,7 +464,7 @@ const SidebarMenu = memo(
 								<div
 									className="flex items-center justify-between text-theme-primary group"
 									onClick={openCreateClanModal}
-									title="Create CLans"
+									title="Create Clan"
 									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
 								>
 									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
@@ -737,9 +730,18 @@ const MessageModalImageWrapper = () => {
 const MemoizedErrorModals: React.FC = React.memo(() => {
 	const toastError = useSelector(selectToastErrors);
 
-	if (!toastError || toastError?.length < 1) {
-		return null;
-	}
 	const error = toastError[0];
-	return <ModalUnknowChannel key={error.id} isError={true} errMessage={error.message} idErr={error.id} />;
+	const [openError, closeError] = useModal(
+		() => <ModalUnknowChannel isError={true} errMessage={toastError?.[0]?.message || ''} idErr={toastError?.[0]?.id || ''} />,
+		[error]
+	);
+
+	useEffect(() => {
+		if (toastError && toastError?.length > 0) {
+			openError();
+		} else {
+			closeError();
+		}
+	}, [toastError]);
+	return null;
 });

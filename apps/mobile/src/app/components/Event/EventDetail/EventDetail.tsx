@@ -6,7 +6,7 @@ import {
 	addUserEvent,
 	deleteUserEvent,
 	selectClanById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectUserMaxPermissionLevel,
 	useAppDispatch,
 	useAppSelector
@@ -37,7 +37,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['eventMenu']);
-	const userCreate = useAppSelector((state) => selectMemberClanByUserId2(state, event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const clans = useSelector(selectClanById(event?.clan_id || ''));
 	const { userId, userProfile } = useAuth();
 	const [isInterested, setIsInterested] = useState<boolean>(false);
@@ -144,13 +144,12 @@ export function EventDetail({ event }: IEventDetailProps) {
 
 					<View style={styles.inline}>
 						<MezonIconCDN icon={IconCDN.bellIcon} height={16} width={16} color={themeValue.text} />
-						<Text style={styles.smallText}>{eventInterested}</Text>
-						<Text style={styles.smallText}>{eventInterested > 1 ? 'people are interested' : 'person is interested'}</Text>
+						<Text style={styles.smallText}>{t('detail.personInterested', { count: eventInterested })}</Text>
 					</View>
 
 					<View style={styles.inline}>
 						<MezonAvatar avatarUrl={userCreate?.user?.avatar_url} username={userCreate?.user?.username} height={20} width={20} />
-						<Text style={styles.smallText}>Created by</Text>
+						<Text style={styles.smallText}>{t('detail.createdBy')}</Text>
 						<Text style={[styles.smallText, styles.highlight]}>{userCreate?.user?.username}</Text>
 					</View>
 				</View>

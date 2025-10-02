@@ -1,17 +1,17 @@
 import {
-	selectAllChannelMembers2,
+	selectAllChannelMembersClan,
 	selectClanMemberMetaUserId,
 	selectClanMemberWithStatusIds,
 	selectCurrentChannelId,
 	selectCurrentClan,
-	selectMemberClanByUserId2,
-	selectMemberCustomStatusById2,
+	selectMemberClanByUserId,
+	selectMemberCustomStatusByUserId,
 	selectStatusInVoice,
 	selectTheme,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -29,10 +29,10 @@ type TempMemberItemProps = {
 };
 
 const TempMemberItem = memo(({ id, isOwner }: TempMemberItemProps) => {
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, id));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, id));
 	const userMeta = useAppSelector((state) => selectClanMemberMetaUserId(state, id));
 	const currentChannelID = useAppSelector(selectCurrentChannelId);
-	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusById2(state, user.user?.id || ''));
+	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusByUserId(state, user.user?.id || ''));
 	const avatar = user.clan_avatar ? user.clan_avatar : (user?.user?.avatar_url ?? '');
 	const username = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
 
@@ -67,9 +67,9 @@ type MemberClanProps = {
 
 const MemoizedMemberItem = memo((props: MemberClanProps) => {
 	const { id, isOwner, temp } = props;
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, id));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, id));
 	const userMeta = useAppSelector((state) => selectClanMemberMetaUserId(state, id));
-	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusById2(state, user?.user?.id || ''));
+	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusByUserId(state, user?.user?.id || ''));
 	const userVoiceStatus = useAppSelector((state) => selectStatusInVoice(state, user.user?.id || ''));
 	const avatar = user.clan_avatar ? user.clan_avatar : (user?.user?.avatar_url ?? '');
 	const username = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
@@ -117,7 +117,7 @@ const ListMember = () => {
 	}, [currentClan]);
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const userChannels = useAppSelector((state) => selectAllChannelMembers2(state, currentChannelId as string));
+	const userChannels = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannelId as string));
 	const members = useSelector(selectClanMemberWithStatusIds);
 
 	const [height, setHeight] = useState(window.innerHeight - heightTopBar - titleBarHeight);
@@ -209,7 +209,7 @@ const ListMember = () => {
 			ref={parentRef}
 			className={`custom-member-list ${appearanceTheme === 'light' ? 'customSmallScrollLightMode' : 'thread-scroll'} ${isElectron() ? 'scroll-big' : ''} `}
 			style={{
-				height: height,
+				height,
 				overflow: 'auto'
 			}}
 		>
@@ -233,6 +233,7 @@ const ListMember = () => {
 								height: `${virtualRow.size}px`,
 								transform: `translateY(${virtualRow.start}px)`
 							}}
+							data-e2e={generateE2eId('chat.channel_message.member_list.item')}
 						>
 							<div className="flex items-center px-4 h-full">
 								{typeof user === 'object' && 'onlineSeparate' in user ? (

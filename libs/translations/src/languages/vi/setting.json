@@ -1,67 +1,68 @@
 {
-    "accountSettings": {
-        "title": "Cài đặt tài khoản",
-        "getNitro": "Mua Nitro",
-        "account": "Tài khoản",
-        "profiles": "Hồ sơ",
-        "privacySafety": "Bảo mật và an toàn",
-        "familyCenter": "Quản lý gia đình",
-        "authorizedApp": "Ứng dụng được cho phép",
-        "device": "Thiết bị",
-        "connection": "Kết nối",
-        "clip": "Clip",
-        "friendRequests": "Yêu cầu kết bạn",
-        "QRScan": "Quét mã QR",
-        "MyQRCode": "Mã QR của tôi"
-    },
-    "paymentSettings": {
-        "title": "Cài đặt thanh toán",
-        "serverBoost": "Nâng cấp clan",
-        "nitroGift": "Tặng nitro",
-        "restoreSubscription": "Khôi phục đăng ký"
-    },
-    "appSettings": {
-        "title": "Cài đặt ứng dụng",
-        "voice": "Giọng nói",
-        "appearance": "Giao diện",
-        "accessibility": "Trợ năng",
-        "language": "Ngôn ngữ",
-        "notifications": "Thông báo",
-        "chat": "Trò chuyện",
-        "webBrowser": "Trình duyệt web",
-        "appIcon": "Biểu tượng",
-        "advanced": "Nâng cao"
-    },
-    "supportSettings": {
-        "title": "Hỗ trợ",
-        "support": "Hỗ trợ",
-        "uploadLog": "Tải lên nhật ký sửa lỗi",
-        "acknowledgement": "Lời cám ơn"
-    },
-    "whatsNew": {
-        "title": "Có gì mới",
-        "whatsNew": "Có gì mới"
-    },
-    "updateGate": {
-    "outOfDateVersion": "Phiên bản đã lỗi thời",
-    "updateExperience": "Hãy cập nhật để có trải nghiệm tốt nhất!",
-    "updateNow": "Cập nhật ngay"
-  },
-    "language": {
-        "title": "Ngôn ngữ",
-        "description": "Chọn ngôn ngữ.",
-        "english": "English",
-        "vietnamese": "Tiếng Việt"
-    },
-    "logOut": "Đăng xuất",
-    "logOutPopup": {
-        "description": "Bạn có chắc chắn muốn đăng xuất không?",
-        "noConfirm": "Không",
-        "yesConfirm": "Có"
-    },
-    "removeAccount": "Xóa tài khoản",
-    "channelSetting": {
-        "recentChannels": "Kênh gần đây",
-        "searchByChannelLabel": "Tìm kiếm theo nhãn kênh"
-    }
+	"accountSettings": {
+		"title": "Cài đặt tài khoản",
+		"getNitro": "Mua Nitro",
+		"account": "Tài khoản",
+		"profiles": "Hồ sơ",
+		"privacySafety": "Bảo mật và an toàn",
+		"familyCenter": "Quản lý gia đình",
+		"authorizedApp": "Ứng dụng được cho phép",
+		"device": "Thiết bị",
+		"connection": "Kết nối",
+		"clip": "Clip",
+		"friendRequests": "Yêu cầu kết bạn",
+		"QRScan": "Quét mã QR",
+		"MyQRCode": "Mã QR của tôi"
+	},
+	"paymentSettings": {
+		"title": "Cài đặt thanh toán",
+		"serverBoost": "Nâng cấp clan",
+		"nitroGift": "Tặng nitro",
+		"restoreSubscription": "Khôi phục đăng ký"
+	},
+	"appSettings": {
+		"title": "Cài đặt ứng dụng",
+		"voice": "Giọng nói",
+		"appearance": "Giao diện",
+		"accessibility": "Trợ năng",
+		"language": "Ngôn ngữ",
+		"notifications": "Thông báo",
+		"chat": "Trò chuyện",
+		"webBrowser": "Trình duyệt web",
+		"appIcon": "Biểu tượng",
+		"advanced": "Nâng cao"
+	},
+	"supportSettings": {
+		"title": "Hỗ trợ",
+		"support": "Hỗ trợ",
+		"uploadLog": "Tải lên nhật ký sửa lỗi",
+		"acknowledgement": "Lời cám ơn"
+	},
+	"whatsNew": {
+		"title": "Có gì mới",
+		"whatsNew": "Có gì mới"
+	},
+	"updateGate": {
+		"outOfDateVersion": "Phiên bản đã lỗi thời",
+		"updateExperience": "Hãy cập nhật để có trải nghiệm tốt nhất!",
+		"updateNow": "Cập nhật ngay"
+	},
+	"language": {
+		"title": "Ngôn ngữ",
+		"description": "Chọn ngôn ngữ.",
+		"english": "English",
+		"vietnamese": "Tiếng Việt"
+	},
+	"logOut": "Đăng xuất",
+	"logOutPopup": {
+		"description": "Bạn có chắc chắn muốn đăng xuất không?",
+		"noConfirm": "Không",
+		"yesConfirm": "Có"
+	},
+	"removeAccount": "Xóa tài khoản",
+	"channelSetting": {
+		"recentChannels": "Kênh gần đây",
+		"searchByChannelLabel": "Tìm kiếm theo nhãn kênh"
+	},
+	"setting": "Cài đặt"
 }

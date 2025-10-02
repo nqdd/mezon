@@ -8,17 +8,21 @@ import { ChannelType } from 'mezon-js';
 import type { ApiClanDesc, ApiUpdateAccountRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { batch } from 'react-redux';
 import { accountActions } from '../account/account.slice';
+import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
 import { usersClanActions } from '../clanMembers/clan.members';
+import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { defaultNotificationCategoryActions } from '../notificationSetting/notificationSettingCategory.slice';
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
 import { policiesActions } from '../policies/policies.slice';
 import { rolesClanActions } from '../roleclan/roleclan.slice';
+import { settingClanStickerSlice, soundEffectActions } from '../settingSticker/settingSticker.slice';
 import type { RootState } from '../store';
 import { usersStreamActions } from '../stream/usersStream.slice';
 import { voiceActions } from '../voice/voice.slice';
@@ -118,7 +122,7 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 					voiceActions.fetchVoiceChannelMembers({
 						clanId: clanId ?? '',
 						channelId: '',
-						channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+						channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 					})
 				);
 				thunkAPI.dispatch(
@@ -198,6 +202,13 @@ export const fetchClans = createAsyncThunk('clans/fetchClans', async ({ noCache 
 		const clans = response.clandesc.map(mapClanToEntity);
 		const meta = clans.map((clan: ClansEntity) => extractClanMeta(clan));
 		thunkAPI.dispatch(clansActions.updateBulkClanMetadata(meta));
+
+		const state = thunkAPI.getState() as RootState;
+		const queuedMessages = state.messages.queuedLastSeenMessages;
+		if (queuedMessages.length > 0) {
+			thunkAPI.dispatch(processQueuedLastSeenMessages());
+		}
+
 		const payload: FetchClansPayload = {
 			clans,
 			fromCache: response.fromCache
@@ -255,6 +266,9 @@ export const deleteClan = createAsyncThunk('clans/deleteClans', async (body: Cha
 		const response = await mezon.client.deleteClanDesc(mezon.session, body.clanId);
 		if (response) {
 			thunkAPI.dispatch(fetchClans({ noCache: true }));
+			thunkAPI.dispatch(emojiSuggestionSlice.actions.invalidateCache());
+			thunkAPI.dispatch(settingClanStickerSlice.actions.invalidateCache());
+			thunkAPI.dispatch(soundEffectActions.invalidateCache());
 		}
 	} catch (error) {
 		captureSentryError(error, 'clans/deleteClans');
@@ -295,7 +309,6 @@ export const removeClanUsers = createAsyncThunk('clans/removeClanUsers', async (
 			return thunkAPI.rejectWithValue([]);
 		}
 		thunkAPI.dispatch(fetchClans({ noCache: true }));
-
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'clans/removeClanUsers');
@@ -358,8 +371,8 @@ export const updateUser = createAsyncThunk(
 				body.display_name = display_name || '';
 			}
 
-			if (about_me && about_me !== currentUser?.user?.about_me) {
-				body.about_me = about_me;
+			if (about_me !== undefined && about_me !== currentUser?.user?.about_me) {
+				body.about_me = about_me || '';
 			}
 
 			if (dob && dob !== currentUser?.user?.dob) {
@@ -400,6 +413,13 @@ export const updateUser = createAsyncThunk(
 						}
 					})
 				);
+
+				if (avatar_url && currentUser?.user?.id && avatar_url !== currentUser?.user?.avatar_url) {
+					setUserAvatarOverride(currentUser.user.id, avatar_url);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
+
+				thunkAPI.dispatch(messagesActions.invalidateAllCache());
 			}
 			return response as true;
 		} catch (error) {

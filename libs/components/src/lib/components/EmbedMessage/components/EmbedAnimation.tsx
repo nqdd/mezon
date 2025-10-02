@@ -1,4 +1,5 @@
-import { ObserveFn, useIsIntersecting } from '@mezon/utils';
+import type { ObserveFn } from '@mezon/utils';
+import { useIsIntersecting } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
 
 type EmbedAnimationProps = {
@@ -118,6 +119,8 @@ export const EmbedAnimation = ({
 		}
 	}, [isIntersecting]);
 
+	if (!Array.isArray(pool) || !pool) return;
+
 	return (
 		<div ref={ref} id={`${messageId}_wrap_animation`} className={`rounded-md flex gap-2 ${vertical ? 'flex-col' : ''}`}>
 			{pool?.map((poolItem, index) => (
@@ -143,18 +146,14 @@ const makeAnimation = (data: TDataAnimation, poolImages: string[], ratio?: numbe
 	poolImages.map((key, index) => {
 		const frame = data.frames[key].frame;
 		if (!index) {
-			animate =
-				animate +
-				`
+			animate = `${animate}
       ${index * (100 / imageNumber)}%{
         background-position : -${frame.x * ratioPotion}px -${frame.y * ratioPotion}px;
         }
 
         `;
 		} else {
-			animate =
-				animate +
-				`${100 - (imageNumber - 1 - index) * (100 / imageNumber)}%{
+			animate = `${animate}${100 - (imageNumber - 1 - index) * (100 / imageNumber)}%{
         background-position : -${frame.x * ratioPotion}px -${frame.y * ratioPotion}px;
     }
         `;
@@ -162,7 +161,7 @@ const makeAnimation = (data: TDataAnimation, poolImages: string[], ratio?: numbe
 	});
 
 	return {
-		animate: animate
+		animate
 	};
 };
 type TDataAnimation = {

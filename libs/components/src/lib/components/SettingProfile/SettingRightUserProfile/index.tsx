@@ -14,14 +14,16 @@ import {
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { DeleteAccountModal, Icons, InputField } from '@mezon/ui';
 import type { ImageSourceObject } from '@mezon/utils';
-import { MAX_FILE_SIZE_10MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import QRCode from 'react-qr-code';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import ButtonSwitch from '../../ButtonSwitchCustom';
 import type { Coords } from '../../ChannelLink';
 import { ELimitSize } from '../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
@@ -65,6 +67,7 @@ const SettingRightUser = ({
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 	const currentClanId = useSelector(selectCurrentClanId) || '';
+	const sizeWarning = useRef<ELimitSize | null>(null);
 
 	const [valueDisplayName, setValueDisplayName] = useState<string>(currentDisplayName || '');
 
@@ -133,6 +136,8 @@ const SettingRightUser = ({
 			return;
 		}
 		if (file.size > MAX_FILE_SIZE_10MB) {
+			sizeWarning.current = ELimitSize.MB_10;
+			e.target.value = '';
 			setOpenModal(true);
 			return;
 		}
@@ -211,7 +216,9 @@ const SettingRightUser = ({
 			return;
 		}
 
-		if (e.target.files[0].size > 1000000) {
+		if (e.target.files[0].size > MAX_FILE_SIZE_1MB) {
+			sizeWarning.current = ELimitSize.MB;
+			e.target.value = '';
 			setOpenModal(true);
 			return;
 		}
@@ -278,6 +285,46 @@ const SettingRightUser = ({
 
 		return qrDataLink;
 	}, [userProfile]);
+
+	const containerRef = useRef<HTMLDivElement | null>(null);
+
+	const handleCopyQR = async () => {
+		if (!containerRef.current) return;
+		const svg = containerRef.current.querySelector('svg');
+		if (!svg) return;
+
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(svg);
+
+		const img = new Image();
+		const svgBase64 = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
+		img.src = svgBase64;
+
+		img.onload = async () => {
+			const border = 40;
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width + border * 2;
+			canvas.height = img.height + border * 2;
+
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return;
+
+			ctx.fillStyle = 'white';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			ctx.drawImage(img, border, border);
+
+			canvas.toBlob(async (blob) => {
+				if (!blob) return;
+				try {
+					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+					toast(t('messages.qrCopiedSuccess'));
+				} catch (err) {
+					console.error(t('errors.copyFailed'), err);
+				}
+			});
+		};
+	};
 	return (
 		<>
 			<div className="flex-1 flex z-0 gap-x-8 sbm:flex-row flex-col">
@@ -323,9 +370,13 @@ const SettingRightUser = ({
 								value={editAboutUser}
 								rows={4}
 								maxLength={128}
+								data-e2e={generateE2eId('user_setting.profile.user_profile.input.about_me')}
 							></textarea>
 							<div className="w-full flex justify-end">
-								<span className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}>
+								<span
+									className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}
+									data-e2e={generateE2eId('user_setting.profile.user_profile.text.about_me_length')}
+								>
 									{editAboutUser.length}/{128}
 								</span>
 							</div>
@@ -358,6 +409,7 @@ const SettingRightUser = ({
 									id="logo"
 									onChange={handleChangeLogo}
 									className="w-full absolute top-0 left-0 h-full text-sm hidden"
+									data-e2e={generateE2eId('user_setting.profile.user_profile.upload.direct_message_icon_input')}
 								/>
 							</label>
 						</div>
@@ -379,11 +431,18 @@ const SettingRightUser = ({
 						isLoading={isLoading}
 						profiles={editProfile}
 						qrProfile={
-							<div className="p-4 rounded-lg bg-white flex items-center justify-center relative">
+							<div className="p-4 rounded-lg bg-white flex items-center justify-center relative" ref={containerRef}>
 								<QRCode level="H" value={qrCodeProfile} className="w-full h-full" />
 								<div className="absolute p-2 rounded-md">
-									<img src="./assets/images/icon-logo-mezon.svg" />
+									<img src="./assets/images/icon-logo-mezon.svg" className="cursor-default pointer-events-none" />
 								</div>
+
+								<ButtonSwitch
+									iconDefault={<Icons.CopyIcon />}
+									iconSwitch={<Icons.Tick defaultSize="w-4 h-4" fill="currentColor" />}
+									onClick={handleCopyQR}
+									className="absolute p-4 !rounded-full text-white bg-transparent"
+								/>
 							</div>
 						}
 					/>
@@ -403,6 +462,7 @@ const SettingRightUser = ({
 							onClick={() => {
 								handleClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.reset`)}
 						>
 							{t('reset')}
 						</button>
@@ -413,6 +473,7 @@ const SettingRightUser = ({
 								handleUpdateUser();
 								handleSaveClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
 							{t('saveChanges')}
 						</button>
@@ -421,7 +482,7 @@ const SettingRightUser = ({
 			) : null}
 			{openModalDeleteAcc && <DeleteAccountModal handleLogOut={handleDeleteAccount} onClose={handleCloseModal} isDeleting={isDeleting} />}
 
-			<ModalOverData size={ELimitSize.MB} open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalOverData size={sizeWarning.current || ELimitSize.MB} open={openModal} onClose={() => setOpenModal(false)} />
 			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
 		</>
 	);

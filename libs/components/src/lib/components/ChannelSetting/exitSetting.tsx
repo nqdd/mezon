@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 
 export type ModalExitProps = {
 	onClose: () => void;
@@ -16,6 +17,7 @@ const ExitSetting = (props: ModalExitProps) => {
 					<div
 						onClick={handleClose}
 						className="rounded-full p-[10px] border-2 border-theme-primary text-theme-primary cursor-pointer text-theme-primary-hover"
+						data-e2e={generateE2eId('clan_page.settings.button.exit')}
 					>
 						<Icons.CloseButton className="w-4 " />
 					</div>

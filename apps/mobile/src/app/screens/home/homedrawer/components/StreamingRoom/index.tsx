@@ -10,7 +10,7 @@ import {
 } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useMemo } from 'react';
-import { Dimensions, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
@@ -22,14 +22,13 @@ import { style } from './StreamingRoom.styles';
 import { StreamingScreenComponent } from './StreamingScreen';
 import UserStreamingRoom from './UserStreamingRoom';
 
-const { width, height } = Dimensions.get('window');
-
 function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMinimizeRoom: () => void; isAnimationComplete: boolean }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentStreamInfo = useSelector(selectCurrentStreamInfo);
 	const streamChannelMember = useAppSelector((state) => selectStreamMembersByChannelId(state, currentStreamInfo?.streamId || ''));
 	const isTabletLandscape = useTabletLandscape();
+	const { width, height } = useWindowDimensions();
 
 	const userId = useMemo(() => {
 		return load(STORAGE_MY_USER_ID);
@@ -65,8 +64,8 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 	return (
 		<View
 			style={{
-				width: isAnimationComplete ? width : 200,
-				height: isAnimationComplete ? height : 100,
+				width: isAnimationComplete ? width : size.s_100 * 2,
+				height: isAnimationComplete ? height : size.s_100,
 				backgroundColor: themeValue?.primary
 			}}
 		>
@@ -110,7 +109,7 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 								}}
 							>
 								<TouchableOpacity onPress={handleShowChat} style={styles.menuIcon}>
-									<MezonIconCDN icon={IconCDN.chatIcon} />
+									<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />
 								</TouchableOpacity>
 
 								<TouchableOpacity onPress={handleEndCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>

@@ -1,5 +1,6 @@
 import {
 	AppDispatch,
+	ISession,
 	accountActions,
 	authActions,
 	clansActions,
@@ -12,9 +13,11 @@ import {
 	selectCurrentClanId,
 	selectSession,
 	selectVoiceOpenPopOut,
-	usersClanActions
+	selectZkProofs,
+	usersClanActions,
+	walletActions
 } from '@mezon/store';
-import { IWithError } from '@mezon/utils';
+import { IUserAccount, IWithError } from '@mezon/utils';
 import { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
@@ -81,7 +84,7 @@ const handleLogoutWithRedirect = (dispatch: AppDispatch, initialPath: string): I
 
 async function checkInternetConnection() {
 	try {
-		const response = await fetch('https://www.google.com/favicon.ico', {
+		const response = await fetch('https://mezon.ai/assets/favicon.ico', {
 			method: 'HEAD',
 			cache: 'no-cache'
 		});
@@ -107,6 +110,7 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 	let isRedirectLogin = false;
 	const store = getStore();
 	const sessionUser = selectSession(store?.getState());
+	const zkProofs = selectZkProofs(store?.getState());
 
 	if (!sessionUser?.token) {
 		return { isLogin: !isRedirectLogin } as IAuthLoaderData;
@@ -131,6 +135,14 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 			} else {
 				const profileResponse = await dispatch(accountActions.getUserProfile());
 				if (!(profileResponse as unknown as IWithError).error) {
+					if (zkProofs) {
+						await dispatch(
+							walletActions.fetchZkProofs({
+								userId: (profileResponse.payload as IUserAccount)?.user?.id || '',
+								jwt: (response.payload as ISession)?.token
+							})
+						);
+					}
 					return { isLogin: true } as IAuthLoaderData;
 				}
 				throw new Error('Session expired');

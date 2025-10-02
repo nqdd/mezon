@@ -20,14 +20,16 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ApiChannelAppResponseExtend, ChannelStatusEnum, ChannelThreads, IChannel, generateE2eId, openVoiceChannel } from '@mezon/utils';
+import type { ApiChannelAppResponseExtend, ChannelThreads, IChannel } from '@mezon/utils';
+import { ChannelStatusEnum, generateE2eId, openVoiceChannel } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import React, { DragEvent, memo, useCallback, useMemo, useRef } from 'react';
+import type { DragEvent } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
-import { IChannelLinkPermission } from '../ChannelList/CategorizedChannels';
+import type { IChannelLinkPermission } from '../ChannelList/CategorizedChannels';
 import SettingChannel from '../ChannelSetting';
 import EventSchedule from '../EventSchedule';
 import ModalConfirm from '../ModalConfirm';
@@ -180,7 +182,6 @@ const ChannelLinkComponent = ({
 	const isShowSettingChannel = isClanOwner || hasAdminPermission || hasClanPermission || hasChannelManagePermission;
 
 	const notVoiceOrAppOrStreamChannel =
-		channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
 		channel.type !== ChannelType.CHANNEL_TYPE_APP &&
 		channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
 		channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE;
@@ -229,32 +230,7 @@ const ChannelLinkComponent = ({
 			onDragEnd={(e) => dragEnter(e)}
 			className={`relative group z-10   ${showWhiteDot ? 'before:bg-[var(--text-secondary)] :content-[""] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute  before:top-3' : ''}`}
 		>
-			{channelType === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? (
-				<span
-					ref={channelLinkRef}
-					className={`${isActive ? 'bg-item-theme text-theme-primary-active' : classes[state]} pointer-events-none ${channel.status === StatusVoiceChannel.Active ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-					onClick={() => {
-						handleVoiceChannel(channel.id);
-						openModalJoinVoiceChannel(channel.meeting_code || '');
-					}}
-					role="link"
-				>
-					{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
-					<div className="relative mt-[-5px]">
-						{isPrivate === ChannelStatusEnum.isPrivate && <Icons.SpeakerLocked defaultSize="w-5 h-5 " />}
-						{!isPrivate && <Icons.Speaker defaultSize="w-5 h-5 " defaultFill="text-theme-primary" />}
-					</div>
-					<p
-						className={`ml-2 w-full pointer-events-none text-base text-theme-primary  ${highLightVoiceChannel ? 'bg-item-theme text-theme-primary-hover font-semibold' : ''}`}
-						title={channel.channel_label && channel?.channel_label.length > 20 ? channel?.channel_label : undefined}
-					>
-						{channel.channel_label && channel?.channel_label.length > 20
-							? `${channel?.channel_label.substring(0, 20)}...`
-							: channel?.channel_label}
-					</p>
-					{channel.status === StatusVoiceChannel.No_Active && <Icons.LoadingSpinner />}
-				</span>
-			) : (
+			{
 				<Link
 					to={channelPath}
 					id={`${channel.category_id}-${channel.id}`}
@@ -265,20 +241,17 @@ const ChannelLinkComponent = ({
 					<span
 						ref={channelLinkRef}
 						className={`flex flex-row items-center rounded relative flex-1 pointer-events-none  ${hightLightTextChannel ? ' font-semibold text-theme-primary-active' : 'font-medium '}`}
+						data-e2e={generateE2eId('clan_page.channel_list.item')}
 					>
 						{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
 
 						<div className={`relative`} data-e2e={generateE2eId('clan_page.channel_list.item.icon')}>
-							{isPrivate === ChannelStatusEnum.isPrivate && channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && (
-								<Icons.SpeakerLocked defaultSize="w-5 h-5 " data-e2e={generateE2eId('clan_page.channel_list.item.icon.voice')} />
-							)}
 							{channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel && (
 								<Icons.HashtagWarning className="w-5 h-5 " />
 							)}
 							{isPrivate === ChannelStatusEnum.isPrivate &&
 								channel.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 								!isAgeRestrictedChannel && <Icons.HashtagLocked defaultSize="w-5 h-5" />}
-							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && <Icons.Speaker defaultSize="w-5 h-5 " />}
 							{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
 								<>{isPrivate ? <Icons.SpeakerLocked defaultSize="w-5 h-5 " /> : <Icons.Speaker defaultSize="w-5 h-5 " />}</>
 							)}
@@ -314,7 +287,7 @@ const ChannelLinkComponent = ({
 						/>
 					) : null}
 				</Link>
-			)}
+			}
 
 			{isShowSettingChannel ? (
 				numberNotification && numberNotification > 0 ? (

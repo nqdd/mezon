@@ -11,9 +11,9 @@ export const style = (colors: Attributes) =>
 			marginTop: size.s_20
 		},
 		label: {
-			fontSize: size.s_14,
+			fontSize: size.small,
 			color: colors.text,
-			fontWeight: '500',
+			fontWeight: '600',
 			marginBottom: size.s_10
 		},
 		btnLink: {
@@ -21,13 +21,15 @@ export const style = (colors: Attributes) =>
 			padding: size.s_10,
 			borderRadius: size.s_10,
 			flexDirection: 'row',
-			alignItems: 'center'
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			overflow: 'hidden'
 		},
 		textBtnLink: {
 			fontSize: size.s_14,
 			color: colors.text,
 			fontWeight: '500',
-			flexBasis: '85%',
+			flex: 1,
 			textAlign: 'left',
 			height: size.s_100
 		},
@@ -47,7 +49,7 @@ export const style = (colors: Attributes) =>
 		},
 		textBtnDelete: {
 			fontSize: size.s_14,
-			color: colors.white,
+			color: baseColor.white,
 			fontWeight: '500',
 			textAlign: 'center'
 		},
@@ -55,7 +57,8 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			color: colors.textLink,
 			fontWeight: '400',
-			paddingHorizontal: size.s_10
+			paddingLeft: size.s_10,
+			flexShrink: 0
 		},
 		headerBs: {
 			fontSize: size.s_16,
@@ -71,5 +74,17 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_16,
 			color: baseColor.blurple,
 			fontWeight: '500'
+		},
+		wrapper: {
+			backgroundColor: colors.primary,
+			width: '100%',
+			height: '100%',
+			padding: size.s_16
+		},
+		headerContainer: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '100%',
+			height: '20%'
 		}
 	});
