@@ -70,6 +70,7 @@ const ModalSendToken = ({
 		const value = e.target.value;
 		setSearchTerm(value);
 		setSelectedUserId('');
+		setIsDropdownOpen(true);
 	};
 
 	const handleSelectUser = useCallback(
@@ -189,7 +190,9 @@ const ModalSendToken = ({
 		if (user) {
 			handleSelectUser(user.id, user.username);
 		}
+	}, [filteredUsers, selectedUserId, handleSelectUser]);
 
+	useEffect(() => {
 		setTokenNumber(formatNumber(Number(token), i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
 	}, [token, i18n.language]);
 

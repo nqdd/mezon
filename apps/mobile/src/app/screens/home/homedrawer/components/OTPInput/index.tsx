@@ -57,7 +57,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 		} catch (error) {
 			console.error('Error start SMS User Consent:', error);
 		}
-	}, [SmsUserConsent, fillOtp, onOtpComplete, isSms]);
+	}, [fillOtp, onOtpComplete, isSms]);
 
 	useEffect(() => {
 		setupSmsAutoFill();

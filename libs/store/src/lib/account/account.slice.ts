@@ -12,7 +12,7 @@ import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCal
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
-
+import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
 export interface IAccount {
 	email: string;
@@ -91,6 +91,7 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 
 		const response = await mezon.client.deleteAccount(mezon.session);
 		thunkAPI.dispatch(authActions.setLogout());
+		thunkAPI.dispatch(walletActions.setLogout());
 		clearApiCallTracker();
 		return response;
 	} catch (error) {

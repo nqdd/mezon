@@ -112,13 +112,12 @@ export const style = () =>
 			fontSize: size.s_14,
 			color: '#5e5e5e',
 			textAlign: 'center',
-			marginBottom: size.s_6
+			marginBottom: size.s_8
 		},
 		alternativeOptions: {
-			flexDirection: 'row',
 			alignItems: 'center',
-			flexWrap: 'wrap',
-			justifyContent: 'center'
+			justifyContent: 'center',
+			gap: size.s_2
 		},
 		linkText: {
 			fontSize: size.s_14,
@@ -126,8 +125,7 @@ export const style = () =>
 		},
 		orText: {
 			fontSize: size.s_14,
-			color: '#e0e7ff',
-			textTransform: 'uppercase',
+			color: '#5e5e5e',
 			marginHorizontal: size.s_4
 		},
 		phoneRow: {
@@ -136,13 +134,6 @@ export const style = () =>
 			backgroundColor: '#000000',
 			height: size.s_50,
 			borderRadius: size.s_8
-		},
-		countryButton: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			padding: size.s_12,
-			borderRightWidth: 2,
-			borderRightColor: '#5a62f4'
 		},
 		flagIcon: {
 			marginRight: size.s_6
@@ -156,5 +147,35 @@ export const style = () =>
 			fontSize: size.s_16,
 			color: 'white',
 			padding: size.s_12
+		},
+		phoneContainer: {
+			flexDirection: 'row',
+			height: size.s_50,
+			backgroundColor: '#f6f6f6',
+			borderWidth: 1,
+			borderColor: '#cccccc',
+			borderRadius: size.s_12,
+			marginBottom: size.s_10,
+			paddingHorizontal: size.s_16,
+			alignItems: 'center'
+		},
+		countryButton: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			paddingRight: size.s_8,
+			borderRightWidth: 1,
+			borderRightColor: '#afafaf'
+		},
+		customStyleFlagIcon: {
+			marginRight: size.s_6
+		},
+		inputCountry: {
+			fontSize: size.s_14,
+			color: '#000'
+		},
+		errorContainer: {
+			position: 'absolute',
+			top: '100%',
+			left: 0
 		}
 	});

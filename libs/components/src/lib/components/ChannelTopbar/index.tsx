@@ -651,7 +651,7 @@ const DmTopbarTools = memo(() => {
 	return (
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
 			<div className=" items-center gap-2 flex">
-				<div className="justify-start items-center gap-[15px] flex">
+				<div className="justify-start items-center gap-[15px] flex ">
 					<button
 						title={t('tooltips.startVoiceCall')}
 						onClick={() => handleStartCall()}
@@ -676,6 +676,7 @@ const DmTopbarTools = memo(() => {
 							title={t('tooltips.showMemberList')}
 							onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}
 							data-e2e={generateE2eId(`chat.direct_message.member_list.button`)}
+							className={`text-theme-primary-hover ${isShowMemberListDM ? 'text-theme-primary-active' : ''}`}
 						>
 							<span>
 								<Icons.MemberList defaultSize="size-5" />
@@ -687,6 +688,7 @@ const DmTopbarTools = memo(() => {
 							title={t('tooltips.showUserProfile')}
 							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
 							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
+							className={`text-theme-primary-hover ${isUseProfileDM ? 'text-theme-primary-active' : ''}`}
 						>
 							<span>
 								<Icons.IconUserProfileDM defaultSize="size-5" />
@@ -1002,7 +1004,11 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 					/>
 				</div>
 			)}
-			<span title={t('tooltips.addFriendsToDM')} data-e2e={generateE2eId(`chat.direct_message.button.add_user`)}>
+			<span
+				className={`text-theme-primary-hover ${openAddToGroup ? 'text-theme-primary-active' : ''}`}
+				title={t('tooltips.addFriendsToDM')}
+				data-e2e={generateE2eId(`chat.direct_message.button.add_user`)}
+			>
 				<Icons.IconAddFriendDM defaultSize="size-5" />
 			</span>
 		</div>

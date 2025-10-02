@@ -18,6 +18,7 @@ interface ICountryDropdownProps {
 	onCountrySelect: (country: ICountry) => void;
 	isVisible?: boolean;
 	selectedCountry?: ICountry;
+	backgroundColor?: string;
 }
 
 export const countries: ICountry[] = [
@@ -26,18 +27,22 @@ export const countries: ICountry[] = [
 	{ code: 'US', prefix: '+1', name: 'USA', icon: IconCDN.usaFlagIcon }
 ];
 
-export const CountryDropdown = memo<ICountryDropdownProps>(({ onCountrySelect, isVisible = true, selectedCountry }) => {
+export const CountryDropdown = memo<ICountryDropdownProps>(({ onCountrySelect, isVisible = true, selectedCountry, backgroundColor = '' }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 
 	if (!isVisible) return null;
 
 	return (
-		<View style={styles.dropdownContainer}>
-			{countries.map((country) => (
+		<View style={[styles.dropdownContainer, backgroundColor && { backgroundColor }]}>
+			{countries.map((country, index) => (
 				<TouchableOpacity
 					key={country.code}
-					style={[styles.dropdownItem, selectedCountry?.code === country.code && styles.selectedItem]}
+					style={[
+						styles.dropdownItem,
+						selectedCountry?.code === country.code && styles.selectedItem,
+						index === countries?.length - 1 && { borderBottomWidth: 0 }
+					]}
 					activeOpacity={0.8}
 					onPress={() => onCountrySelect(country)}
 				>

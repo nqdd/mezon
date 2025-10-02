@@ -105,10 +105,7 @@ export default function TopicDiscussion() {
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<TopicHeader
-					mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-					handleBack={onGoBack}
-				/>
+				<TopicHeader handleBack={onGoBack} />
 				<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
 					<View style={{ flex: 1 }}>
 						<ChannelMessages
