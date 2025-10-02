@@ -9,14 +9,14 @@ import {
 	ActivityIndicator,
 	Alert,
 	AppState,
+	Dimensions,
 	Platform,
 	ScrollView,
 	StatusBar,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
-	View,
-	useWindowDimensions
+	View
 } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
@@ -49,13 +49,27 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const [isResendEnabled, setIsResendEnabled] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [isError, setIsError] = useState<boolean>(false);
+	const [isLandscape, setIsLandscape] = useState(false);
 	const [resetTrigger, setResetTrigger] = useState(0);
 	const dispatch = useAppDispatch();
-	const { width, height } = useWindowDimensions();
-	const isLandscape = width > height;
 
 	const countdownStartTime = useRef<number>(Date.now());
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+	const checkOrientation = () => {
+		const { width, height } = Dimensions.get('screen');
+		setIsLandscape(width > height);
+	};
+
+	useEffect(() => {
+		checkOrientation();
+
+		const subscription = Dimensions.addEventListener('change', () => {
+			checkOrientation();
+		});
+
+		return () => subscription?.remove();
+	}, []);
 
 	useEffect(() => {
 		if (reqId) {

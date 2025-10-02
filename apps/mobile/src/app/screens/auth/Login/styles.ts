@@ -116,7 +116,6 @@ export const style = () =>
 		},
 		alternativeOptions: {
 			alignItems: 'center',
-			flexWrap: 'wrap',
 			justifyContent: 'center',
 			gap: size.s_2
 		},

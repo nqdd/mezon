@@ -8,6 +8,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	ActivityIndicator,
+	Dimensions,
 	NativeModules,
 	Platform,
 	ScrollView,
@@ -16,8 +17,7 @@ import {
 	Text,
 	TextInput,
 	TouchableOpacity,
-	View,
-	useWindowDimensions
+	View
 } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
@@ -42,11 +42,10 @@ const LoginScreen = ({ navigation }) => {
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isLandscape, setIsLandscape] = useState(false);
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
 	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
 	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
-	const { width, height } = useWindowDimensions();
-	const isLandscape = width > height;
 
 	const { t } = useTranslation(['common']);
 	const dispatch = useAppDispatch();
@@ -59,6 +58,21 @@ const LoginScreen = ({ navigation }) => {
 	const isEmailValid = isValidEmail(email);
 	const isPasswordValid = password.length >= 1;
 	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isValidPhoneNumber : isEmailValid && isPasswordValid;
+
+	const checkOrientation = () => {
+		const { width, height } = Dimensions.get('screen');
+		setIsLandscape(width > height);
+	};
+
+	useEffect(() => {
+		checkOrientation();
+
+		const subscription = Dimensions.addEventListener('change', () => {
+			checkOrientation();
+		});
+
+		return () => subscription?.remove();
+	}, []);
 
 	const clearBadgeCount = () => {
 		try {
