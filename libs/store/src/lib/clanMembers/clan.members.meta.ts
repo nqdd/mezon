@@ -1,8 +1,9 @@
-import { EUserStatus, UsersClanEntity } from '@mezon/utils';
-import { EntityState, PayloadAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
-import { StatusUserArgs } from '../channelmembers/channel.members';
-import { RootState } from '../store';
+import type { UsersClanEntity } from '@mezon/utils';
+import { EUserStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { StatusUserArgs } from '../channelmembers/channel.members';
+import type { RootState } from '../store';
 
 export const CLANMEMBERSMETA_FEATURE_KEY = 'clanMembersMeta';
 
@@ -27,22 +28,12 @@ export const initialClanMembersMetaState: ClanMembersMetaState = clanMembersMeta
 
 export function extracMeta(user: UsersClanEntity, state: RootState): ClanMembersMetaEntity {
 	const isMe = state?.account?.userProfile?.user?.id === user?.user?.id;
-	let metadata: any = {};
-	if (typeof user?.user?.metadata === 'string') {
-		try {
-			metadata = safeJSONParse(user.user.metadata);
-		} catch (error) {
-			console.error('Error parsing JSON:', user?.user?.metadata, error);
-		}
-	} else if (typeof user?.user?.metadata === 'object') {
-		metadata = user.user.metadata;
-	}
-	const isUserInvisible = metadata?.user_status === EUserStatus.INVISIBLE;
+	const isUserInvisible = user?.user?.user_status === EUserStatus.INVISIBLE;
 	return {
 		id: user.id,
 		online: (!isUserInvisible && !!user?.user?.online) || (!isUserInvisible && isMe),
 		isMobile: !isUserInvisible && !!user?.user?.is_mobile,
-		status: metadata?.user_status
+		status: user?.user?.user_status
 	};
 }
 
