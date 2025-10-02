@@ -1,10 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus, UserStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUserStatus, ApiUserStatusUpdate } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { LoadingStatus, UserStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUserStatus, ApiUserStatusUpdate } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const USER_STATUS_API_FEATURE_KEY = 'userstatusapi';
 
@@ -53,17 +56,6 @@ export const fetchUserStatusCached = async (getState: () => RootState, mezon: Me
 	};
 };
 
-export const getUserStatus = createAsyncThunk('userstatusapi/getUserStatus', async (args: { noCache?: boolean } = {}, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await fetchUserStatusCached(thunkAPI.getState as () => RootState, mezon, Boolean(args.noCache));
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'userstatusapi/getUserStatus');
-		return thunkAPI.rejectWithValue(error);
-	}
-});
-
 export const updateUserStatus = createAsyncThunk('userstatusapi/updateUserStatus', async (request: ApiUserStatusUpdate, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
@@ -89,24 +81,6 @@ export const userStatusSlice = createSlice({
 	initialState: initialUserStatusState,
 	reducers: {},
 	extraReducers: (builder) => {
-		builder
-			.addCase(getUserStatus.pending, (state: UserStatusState) => {
-				state.loadingStatus = 'loading';
-			})
-			.addCase(getUserStatus.fulfilled, (state: UserStatusState, action: PayloadAction<ApiUserStatus & { fromCache?: boolean }>) => {
-				const { fromCache, ...userStatus } = action.payload;
-
-				state.loadingStatus = 'loaded';
-
-				if (!fromCache) {
-					state.userStatus = userStatus;
-					state.cache = createCacheMetadata();
-				}
-			})
-			.addCase(getUserStatus.rejected, (state: UserStatusState, action) => {
-				state.loadingStatus = 'error';
-				state.error = action.error.message;
-			});
 		builder
 			.addCase(updateUserStatus.pending, (state: UserStatusState) => {
 				state.loadingStatus = 'loading';
@@ -147,7 +121,6 @@ export const userStatusAPIReducer = userStatusSlice.reducer;
  */
 export const userStatusActions = {
 	...userStatusSlice.actions,
-	getUserStatus,
 	updateUserStatus
 };
 
