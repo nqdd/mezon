@@ -30,41 +30,41 @@ const SettingComunity = ({
 	onClose?: () => void;
 	onCommunityEnabledChange?: (enabled: boolean) => void;
 }) => {
-const { t } = useTranslation('onBoardingClan');
-const dispatch = useAppDispatch();
-const isEnabled = useAppSelector((state) => selectIsCommunityEnabled(state, clanId));
-const banner = useAppSelector((state) => selectCommunityBanner(state, clanId));
-const about = useAppSelector((state) => selectComunityAbout(state, clanId));
-const isLoading = useAppSelector((state) => selectComunityLoading(state));
-const _error = useAppSelector((state) => selectComunityError(state));
+	const { t } = useTranslation('onBoardingClan');
+	const dispatch = useAppDispatch();
+	const isEnabled = useAppSelector((state) => selectIsCommunityEnabled(state, clanId));
+	const banner = useAppSelector((state) => selectCommunityBanner(state, clanId));
+	const about = useAppSelector((state) => selectComunityAbout(state, clanId));
+	const isLoading = useAppSelector((state) => selectComunityLoading(state));
+	const _error = useAppSelector((state) => selectComunityError(state));
 
-useEffect(() => {
-	if (clanId) {
-		dispatch(comunityActions.getCommunityInfo({ clan_id: clanId }));
-	}
-}, [dispatch, clanId]);
+	useEffect(() => {
+		if (clanId) {
+			dispatch(comunityActions.getCommunityInfo({ clan_id: clanId }));
+		}
+	}, [dispatch, clanId]);
 
-const [isInitialEditing, setIsInitialEditing] = useState(false);
-const [bannerFile, setBannerFile] = useState<File | null>(null);
-const [bannerPreview, setBannerPreview] = useState<string | null>(null);
-const [aboutText, setAboutText] = useState('');
-const [descriptionText, setDescriptionText] = useState('');
-const [vanityUrl, setVanityUrl] = useState('');
-const [initialBanner, setInitialBanner] = useState<string | null>(null);
-const [initialAbout, setInitialAbout] = useState('');
-const [initialDescription, setInitialDescription] = useState('');
-const [initialVanityUrl, setInitialVanityUrl] = useState('');
-const [isSaving, setIsSaving] = useState(false);
-const [openSaveChange, setOpenSaveChange] = useState(false);
-const [aboutError, setAboutError] = useState(false);
-const [descError, setDescError] = useState(false);
-const [bannerError, setBannerError] = useState(false);
-const [vanityUrlError, setVanityUrlError] = useState(false);
-const fileInputRef = useRef<HTMLInputElement>(null);
-const { sessionRef, clientRef } = useMezon();
-const isDirty =
-	aboutText !== initialAbout || bannerPreview !== initialBanner || descriptionText !== initialDescription || vanityUrl !== initialVanityUrl;
-const [openModal, setOpenModal] = useState<boolean>(false);
+	const [isInitialEditing, setIsInitialEditing] = useState(false);
+	const [bannerFile, setBannerFile] = useState<File | null>(null);
+	const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+	const [aboutText, setAboutText] = useState('');
+	const [descriptionText, setDescriptionText] = useState('');
+	const [vanityUrl, setVanityUrl] = useState('');
+	const [initialBanner, setInitialBanner] = useState<string | null>(null);
+	const [initialAbout, setInitialAbout] = useState('');
+	const [initialDescription, setInitialDescription] = useState('');
+	const [initialVanityUrl, setInitialVanityUrl] = useState('');
+	const [isSaving, setIsSaving] = useState(false);
+	const [openSaveChange, setOpenSaveChange] = useState(false);
+	const [aboutError, setAboutError] = useState(false);
+	const [descError, setDescError] = useState(false);
+	const [bannerError, setBannerError] = useState(false);
+	const [vanityUrlError, setVanityUrlError] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { sessionRef, clientRef } = useMezon();
+	const isDirty =
+		aboutText !== initialAbout || bannerPreview !== initialBanner || descriptionText !== initialDescription || vanityUrl !== initialVanityUrl;
+	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
 
 	const handleBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
