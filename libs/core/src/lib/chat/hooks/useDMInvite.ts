@@ -25,8 +25,8 @@ export function useDMInvite(channelID?: string) {
 		const memberIds = rawMembers.map((member) => member.user?.id);
 		const filteredListUserClan = dmGroupChatList.filter((item) => {
 			if (
-				(item.user_id && item.user_id.length > 1) ||
-				(item.user_id && item.user_id.length === 1 && !userIdInClanArray.includes(item.user_id[0]))
+				(item.user_ids && item.user_ids.length > 1) ||
+				(item.user_ids && item.user_ids.length === 1 && !userIdInClanArray.includes(item.user_ids[0]))
 			) {
 				return true;
 			}
@@ -36,7 +36,10 @@ export function useDMInvite(channelID?: string) {
 			return filteredListUserClan;
 		}
 		const filteredListUserChannel = dmGroupChatList.filter((item) => {
-			if ((item.user_id && item.user_id.length > 1) || (item.user_id && item.user_id.length === 1 && !memberIds.includes(item.user_id[0]))) {
+			if (
+				(item.user_ids && item.user_ids.length > 1) ||
+				(item.user_ids && item.user_ids.length === 1 && !memberIds.includes(item.user_ids[0]))
+			) {
 				return true;
 			}
 			return false;
@@ -50,9 +53,9 @@ export function useDMInvite(channelID?: string) {
 		async (clan_id: string, channel_id: string, expiry_time: number) => {
 			const action = await dispatch(
 				inviteActions.createLinkInviteUser({
-					clan_id: clan_id,
-					channel_id: channel_id,
-					expiry_time: expiry_time
+					clan_id,
+					channel_id,
+					expiry_time
 				})
 			);
 			const payload = action.payload as ApiLinkInviteUser;

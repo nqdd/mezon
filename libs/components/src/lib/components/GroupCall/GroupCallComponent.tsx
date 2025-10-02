@@ -208,7 +208,7 @@ const GroupCallComponent = memo(
 				});
 
 				groupCall.signaling.sendParticipantLeft(
-					currentDmGroup?.user_id || [],
+					currentDmGroup?.user_ids || [],
 					leftData,
 					currentDmGroup?.channel_id as string,
 					userProfile?.user?.id as string
@@ -223,7 +223,7 @@ const GroupCallComponent = memo(
 				}) as CallSignalingData;
 
 				groupCall.signaling.sendGroupCallQuit(
-					currentDmGroup?.user_id || [],
+					currentDmGroup?.user_ids || [],
 					quitData,
 					currentDmGroup?.channel_id as string,
 					userProfile?.user?.id as string
@@ -279,7 +279,7 @@ const GroupCallComponent = memo(
 			}) as CallSignalingData;
 
 			groupCall.signaling.sendGroupCallCancel(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				cancelData,
 				currentDmGroup?.channel_id as string,
 				userProfile?.user?.id as string

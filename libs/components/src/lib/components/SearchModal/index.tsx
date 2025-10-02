@@ -72,7 +72,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 		const listDMSearch = listDM?.length
 			? listDM.map((itemDM: DirectEntity) => {
 					return {
-						id: itemDM?.user_id?.[0] ?? '',
+						id: itemDM?.user_ids?.[0] ?? '',
 						name: itemDM?.usernames?.toString() ?? '',
 						displayName: itemDM.channel_label,
 						avatarUser: itemDM?.channel_avatar?.[0] ?? '',
@@ -82,7 +82,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 						type: ChannelType.CHANNEL_TYPE_DM,
 						count_messsage_unread: itemDM.count_mess_unread,
 						lastSeenTimeStamp: Number(itemDM?.last_seen_message?.timestamp_seconds || 0),
-						member: itemDM.user_id && itemDM.user_id[0]
+						member: itemDM.user_ids && itemDM.user_ids[0]
 					};
 				})
 			: [];
