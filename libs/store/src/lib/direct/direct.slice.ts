@@ -384,6 +384,7 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		channel_label: message.display_name || message.username,
 		channel_private: 1,
 		channel_avatar: message.avatar,
+		avatars: [message.avatar as string],
 		user_ids: [message.sender_id],
 		last_sent_message: {
 			id: message.id,
