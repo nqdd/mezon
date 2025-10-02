@@ -8,7 +8,6 @@ import {
 	clearApiCallTracker,
 	giveCoffeeActions,
 	selectOthersSession,
-	selectUserStatus,
 	selectZkProofs,
 	useAppDispatch,
 	useWallet,
@@ -47,8 +46,8 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		dispatch(userClanProfileActions.setShowModalCustomStatus(true));
 	};
 	const userCustomStatus = useMemberCustomStatus(user?.id || '', isDM);
-	const userStatus = useSelector(selectUserStatus);
-	const status = userStatus?.status || 'Online';
+
+	const status = user?.status || 'Online';
 	const { userProfile } = useAuth();
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 

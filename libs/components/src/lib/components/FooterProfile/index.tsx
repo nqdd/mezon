@@ -30,8 +30,7 @@ import {
 	createImgproxyUrl,
 	formatBalanceToString,
 	formatMoney,
-	generateE2eId,
-	saveParseUserStatus
+	generateE2eId
 } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
@@ -67,10 +66,16 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	const userWallet = useSelector(selectWalletDetail);
 	const myProfile = useAuth();
 	const { t } = useTranslation(['setting']);
-	const userCustomStatus: { status: string; user_status: EUserStatus } = useMemo(() => {
-		const userStatus = myProfile.userProfile?.user?.user_status;
-		return saveParseUserStatus(userStatus || '');
+	const userCustomStatus = useMemo(() => {
+		const userCustomStatus = myProfile.userProfile?.user?.user_status;
+		return userCustomStatus;
 	}, [myProfile, myProfile.userProfile?.user?.user_status]);
+
+	const userStatus = useMemo(() => {
+		const userStatus = myProfile.userProfile?.user?.status;
+		return userStatus;
+	}, [myProfile, myProfile.userProfile?.user?.status]);
+
 	const [token, setToken] = useState<number>(0);
 	const [selectedUserId, setSelectedUserId] = useState<string>('');
 	const [note, setNote] = useState<string>('Transfer funds');
@@ -251,8 +256,8 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 		}
 	};
 	const [openSetCustomStatus, closeSetCustomStatus] = useModal(() => {
-		return <ModalCustomStatus status={userCustomStatus.status || ''} name={name} onClose={handleCloseModalCustomStatus} />;
-	}, [userCustomStatus.status]);
+		return <ModalCustomStatus status={userStatus} name={name} onClose={handleCloseModalCustomStatus} />;
+	}, [userStatus]);
 
 	const [openModalSendToken, closeModalSendToken] = useModal(() => {
 		return (
@@ -318,7 +323,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							src={avatar}
 						/>
 						<div className="absolute bottom-0 left-0 w-[32px] h-[32px] ">
-							<UserStatusIconDM status={userCustomStatus?.user_status} />
+							<UserStatusIconDM status={userStatus as EUserStatus} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">
 							<p
@@ -328,7 +333,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 								{name}
 							</p>
 							<p className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]">
-								{userCustomStatus.status}
+								{userCustomStatus}
 							</p>
 						</div>
 					</div>
