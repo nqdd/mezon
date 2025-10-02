@@ -1,6 +1,5 @@
+import type { AppDispatch, ISession } from '@mezon/store';
 import {
-	AppDispatch,
-	ISession,
 	accountActions,
 	authActions,
 	clansActions,
@@ -17,8 +16,8 @@ import {
 	usersClanActions,
 	walletActions
 } from '@mezon/store';
-import { IUserAccount, IWithError } from '@mezon/utils';
-import { CustomLoaderFunction } from './appLoader';
+import type { IUserAccount, IWithError } from '@mezon/utils';
+import type { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
 export interface IAuthLoaderData {
@@ -78,6 +77,7 @@ const waitForInternetConnection = async (delayMs: number): Promise<void> => {
 const handleLogoutWithRedirect = (dispatch: AppDispatch, initialPath: string): IAuthLoaderData => {
 	const redirectTo = getRedirectTo(initialPath);
 	dispatch(authActions.setLogout());
+	dispatch(walletActions.setLogout());
 	const redirect = redirectTo ? `/desktop/login?redirect=${redirectTo}` : '/desktop/login';
 	return { isLogin: false, redirect } as IAuthLoaderData;
 };
@@ -135,11 +135,17 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 			} else {
 				const profileResponse = await dispatch(accountActions.getUserProfile());
 				if (!(profileResponse as unknown as IWithError).error) {
-					if (zkProofs) {
+					const userId = (profileResponse.payload as IUserAccount)?.user?.id;
+					if (zkProofs && userId) {
 						await dispatch(
 							walletActions.fetchZkProofs({
-								userId: (profileResponse.payload as IUserAccount)?.user?.id || '',
+								userId,
 								jwt: (response.payload as ISession)?.token
+							})
+						);
+						await dispatch(
+							walletActions.fetchWalletDetail({
+								userId
 							})
 						);
 					}
@@ -168,6 +174,7 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 			console.error('Session expired after 6 retries');
 			const redirectTo = getRedirectTo(initialPath);
 			dispatch(authActions.setLogout());
+			dispatch(walletActions.setLogout());
 			const redirect = redirectTo ? `/desktop/login?redirect=${redirectTo}` : '/desktop/login';
 			return { isLogin: !isRedirectLogin, redirect: isRedirectLogin ? redirect : '' } as IAuthLoaderData;
 		}

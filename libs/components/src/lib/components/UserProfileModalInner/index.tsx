@@ -1,19 +1,13 @@
 import { useEscapeKeyClose, useMemberCustomStatus, useMemberStatus, useOnClickOutside, useSettingFooter, useUserById } from '@mezon/core';
-import {
-	ChannelMembersEntity,
-	RootState,
-	selectCurrentClan,
-	selectCurrentUserId,
-	selectFriendById,
-	selectModeResponsive,
-	useAppSelector
-} from '@mezon/store';
+import type { ChannelMembersEntity, RootState } from '@mezon/store';
+import { selectCurrentClan, selectCurrentUserId, selectFriendById, selectModeResponsive, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EUserSettings, INotification, ModeResponsive } from '@mezon/utils';
+import type { INotification } from '@mezon/utils';
+import { EUserSettings, ModeResponsive } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { OpenModalProps } from '../ModalUserProfile';
+import type { OpenModalProps } from '../ModalUserProfile';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
 import GroupIconBanner from '../ModalUserProfile/StatusProfile/groupIconBanner';
 import ItemPanel from '../PanelChannel/ItemPanel';
@@ -168,7 +162,7 @@ const UserProfileModalInner = ({
 							avatar={avatar || displayAvatar}
 							username={displayUsername || notify?.content?.username}
 							userToDisplay={userById}
-							customStatus={customStatus || userCustomStatus}
+							customStatus={customStatus || (userCustomStatus as string)}
 							userID={userId}
 							userStatus={status || userStatus}
 							styleAvatar="w-[120px] h-[120px] rounded-full"

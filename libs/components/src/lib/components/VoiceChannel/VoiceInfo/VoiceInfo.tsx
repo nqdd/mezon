@@ -67,7 +67,7 @@ const VoiceInfo = React.memo(() => {
 			if (isGroupCall) {
 				groupCallState.endGroupCall();
 
-				if (currentDmGroup?.user_id && userProfile?.user?.id) {
+				if (currentDmGroup?.user_ids && userProfile?.user?.id) {
 					const participantLeftData = {
 						userId: userProfile.user.id,
 						userName: userProfile.user.display_name || userProfile.user.username,
@@ -75,7 +75,7 @@ const VoiceInfo = React.memo(() => {
 					};
 
 					groupCallSignaling.sendParticipantLeft(
-						currentDmGroup.user_id,
+						currentDmGroup.user_ids,
 						participantLeftData,
 						currentVoiceInfo.channelId,
 						userProfile.user.id

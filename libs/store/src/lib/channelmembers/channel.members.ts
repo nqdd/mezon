@@ -500,7 +500,7 @@ export const selectMemberCustomStatusById = createSelector(
 			return statusList?.[userId].user?.metadata?.status || false;
 		}
 		if (userClan && (isDM === 'false' || 'undefined')) {
-			return (userClan?.user?.metadata as any)?.status || '';
+			return userClan?.user?.user_status || '';
 		}
 	}
 );
@@ -515,21 +515,21 @@ export const selectMemberCustomStatusByUserId = createSelector(
 	],
 	(usersClanEntities, usersStatus, userId) => {
 		const userClan = usersClanEntities[userId];
-		return usersStatus?.[userId] || (userClan?.user?.metadata as any)?.status || '';
+		return usersStatus?.[userId] || userClan?.user?.user_status || '';
 	}
 );
 
 export const selectGrouplMembers = createSelector(
 	[selectDirectById, selectAllAccount, (state, groupId: string) => groupId],
 	(group, currentUser, groupId) => {
-		if (!group?.user_id) {
+		if (!group?.user_ids) {
 			return [];
 		}
 		// const groupDisplayNames = group.usernames?.split(',');
 		const groupUsername = group.usernames;
 		const groupDisplayNames = group.display_names;
 
-		const users = group?.user_id?.map((userId, index) => {
+		const users = group?.user_ids?.map((userId, index) => {
 			return {
 				channelId: groupId,
 				userChannelId: groupId,
@@ -540,7 +540,7 @@ export const selectGrouplMembers = createSelector(
 					avatar_url: group.channel_avatar?.[index],
 					username: groupUsername?.[index],
 					display_name: groupDisplayNames?.[index],
-					online: group.is_online?.[index]
+					online: group.onlines?.[index]
 				},
 				id: userId
 			};
@@ -586,11 +586,11 @@ export const selectMemberStatusById = createSelector(
 		if (userClan && isClanView) {
 			return { status: userClan.user?.online, isMobile: userClan.user?.is_mobile };
 		}
-		const index = userGroup?.user_id?.findIndex((item) => item === userId) ?? -1;
+		const index = userGroup?.user_ids?.findIndex((item) => item === userId) ?? -1;
 		if (index === -1) {
 			return { status: false, isMobile: false };
 		}
-		return { status: userGroup?.is_online?.[index] || false, isMobile: false };
+		return { status: userGroup?.onlines?.[index] || false, isMobile: false };
 	}
 );
 
@@ -752,14 +752,14 @@ export const selectChannelMemberByUserIds = createSelector(
 					} as ChannelMembersEntity);
 					return;
 				}
-				const { channel_label, user_id, is_online, usernames, display_names } = userInfo as DirectEntity;
-				const currentUserIndex = Array.isArray(user_id) ? user_id.findIndex((id) => id === userId) : -1;
+				const { channel_label, user_ids, onlines, usernames, display_names } = userInfo as DirectEntity;
+				const currentUserIndex = Array.isArray(user_ids) ? user_ids.findIndex((id) => id === userId) : -1;
 				if (currentUserIndex === -1) return;
 				members.push({
 					channelId,
 					userChannelId: channelId,
 					user: {
-						online: is_online?.[currentUserIndex],
+						online: onlines?.[currentUserIndex],
 						...dmMembers?.[userId]?.user,
 						display_name: display_names?.[currentUserIndex],
 						username: usernames?.[currentUserIndex]

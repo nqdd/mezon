@@ -97,8 +97,8 @@ const ModalUserProfile = ({
 	const modalRef = useRef<boolean>(false);
 	const onLoading = useRef<boolean>(false);
 	const statusOnline = useMemo(() => {
-		if (userProfile?.user?.metadata && userId === userID) {
-			const metadata = saveParseUserStatus(userProfile?.user?.metadata);
+		if (userProfile?.user?.user_status && userId === userID) {
+			const metadata = saveParseUserStatus(userProfile?.user?.user_status);
 			return metadata?.user_status;
 		}
 		if (userMetaById) {
@@ -246,7 +246,7 @@ const ModalUserProfile = ({
 				avatar={avatar || avatarByUserId}
 				username={(isFooterProfile && userProfile?.user?.username) || message?.username || userById?.user?.username}
 				userToDisplay={isFooterProfile ? userProfile : userById}
-				customStatus={displayCustomStatus}
+				customStatus={displayCustomStatus as string}
 				isAnonymous={checkAnonymous}
 				userID={userID}
 				positionType={positionType}

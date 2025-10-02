@@ -47,7 +47,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const userId = useMemo(() => userProfile?.user?.id, [userProfile]);
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
-	const avatarImages = currentDmGroup?.channel_avatar || [];
+	const avatarImages = currentDmGroup?.avatars || [];
 	const nameImages = currentDmGroup?.display_names || [];
 	const isMuteMicrophone = useSelector(selectIsMuteMicrophone);
 	const isShowShareScreen = useSelector(selectIsShowShareScreen);
@@ -55,7 +55,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const isInCall = useSelector(selectIsInCall);
 	const isPlayDialTone = useSelector(selectAudioDialTone);
 	const isPlayBusyTone = useSelector(selectAudioBusyTone);
-	const dmUserId = currentDmGroup?.user_id && currentDmGroup.user_id.length > 0 ? currentDmGroup?.user_id[0] : '';
+	const dmUserId = currentDmGroup?.user_ids && currentDmGroup.user_ids.length > 0 ? currentDmGroup?.user_ids[0] : '';
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const isRemoteAudio = useSelector(selectRemoteAudio);
 	const isRemoteVideo = useSelector(selectRemoteVideo);
@@ -67,8 +67,8 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		if (!isSignalDataOffer && !isInCall) {
 			return false;
 		}
-		return currentDmGroup?.user_id?.some((i) => i === signalingData?.[0]?.callerId);
-	}, [currentDmGroup?.user_id, isInCall, signalingData]);
+		return currentDmGroup?.user_ids?.some((i) => i === signalingData?.[0]?.callerId);
+	}, [currentDmGroup?.user_ids, isInCall, signalingData]);
 
 	const {
 		timeStartConnected,

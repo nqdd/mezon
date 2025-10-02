@@ -1295,24 +1295,11 @@ export const getIdSaleItemFromSource = (src: string) => {
 	return idFromSource;
 };
 
-export const saveParseUserStatus = (metadata: string): { status: string; user_status: EUserStatus } => {
-	try {
-		const statusParse = safeJSONParse(metadata || '{}') || '';
-		return {
-			status: typeof statusParse.status === 'string' ? statusParse.status : JSON.stringify(statusParse.status) || '',
-			user_status: statusParse.user_status || EUserStatus.ONLINE
-		};
-	} catch (e) {
-		const unescapedJSON = metadata?.replace(/\\./g, (match) => {
-			switch (match) {
-				case '\\"':
-					return '"';
-				default:
-					return match[1];
-			}
-		});
-		return safeJSONParse(unescapedJSON || '{}')?.status;
-	}
+export const saveParseUserStatus = (user_status: string): { status: string; user_status: EUserStatus } => {
+	return {
+		status: user_status,
+		user_status: EUserStatus.ONLINE
+	};
 };
 
 export const getParentChannelIdIfHas = (channel: IChannel) => {
