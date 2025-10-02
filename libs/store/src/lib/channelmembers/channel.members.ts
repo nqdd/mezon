@@ -500,7 +500,7 @@ export const selectMemberCustomStatusById = createSelector(
 			return statusList?.[userId].user?.metadata?.status || false;
 		}
 		if (userClan && (isDM === 'false' || 'undefined')) {
-			return (userClan?.user?.metadata as any)?.status || '';
+			return userClan?.user?.user_status || '';
 		}
 	}
 );
@@ -515,7 +515,7 @@ export const selectMemberCustomStatusByUserId = createSelector(
 	],
 	(usersClanEntities, usersStatus, userId) => {
 		const userClan = usersClanEntities[userId];
-		return usersStatus?.[userId] || (userClan?.user?.metadata as any)?.status || '';
+		return usersStatus?.[userId] || userClan?.user?.user_status || '';
 	}
 );
 
