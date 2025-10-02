@@ -1,6 +1,5 @@
+import type { AppDispatch, ISession } from '@mezon/store';
 import {
-	AppDispatch,
-	ISession,
 	accountActions,
 	authActions,
 	clansActions,
@@ -17,8 +16,8 @@ import {
 	usersClanActions,
 	walletActions
 } from '@mezon/store';
-import { IUserAccount, IWithError } from '@mezon/utils';
-import { CustomLoaderFunction } from './appLoader';
+import type { IUserAccount, IWithError } from '@mezon/utils';
+import type { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
 export interface IAuthLoaderData {
@@ -140,13 +139,13 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 					if (zkProofs && userId) {
 						await dispatch(
 							walletActions.fetchZkProofs({
-								userId: userId,
+								userId,
 								jwt: (response.payload as ISession)?.token
 							})
 						);
 						await dispatch(
 							walletActions.fetchWalletDetail({
-								userId: userId
+								userId
 							})
 						);
 					}

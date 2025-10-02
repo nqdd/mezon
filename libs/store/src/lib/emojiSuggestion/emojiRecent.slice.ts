@@ -1,11 +1,16 @@
 import { captureSentryError } from '@mezon/logger';
-import { IEmojiRecent, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiClanEmoji } from 'mezon-js/dist/api.gen';
-import { AddTxResponse, ETransferType } from 'mmn-client-js';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IEmojiRecent } from '@mezon/utils';
+import { RECENT_EMOJI_CATEGORY } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiClanEmoji } from 'mezon-js/dist/api.gen';
+import type { AddTxResponse } from 'mmn-client-js';
+import { ETransferType } from 'mmn-client-js';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 import { walletActions } from '../wallet/wallet.slice';
 import { selectAllEmojiSuggestion } from './emojiSuggestion.slice';
 

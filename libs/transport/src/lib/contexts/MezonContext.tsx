@@ -1,12 +1,13 @@
 import localStorageMobile from '@react-native-async-storage/async-storage';
-import { Client, safeJSONParse, Session, Socket } from 'mezon-js';
+import type { Client, Socket } from 'mezon-js';
+import { Session, safeJSONParse } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
-import { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
-import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
+import type { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import type { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
 import React, { useCallback } from 'react';
+import type { CreateMezonClientOptions } from '../mezon';
 import {
 	createClient as createMezonClient,
-	CreateMezonClientOptions,
 	createIndexerClient as createMezonIndexerClient,
 	createMmnClient as createMezonMmnClient,
 	createZkClient as createMezonZkClient

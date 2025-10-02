@@ -1,9 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { AMOUNT_TOKEN, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiGiveCoffeeEvent } from 'mezon-js/api.gen';
-import { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
-import { AddTxResponse, ETransferType } from 'mmn-client-js';
+import type { LoadingStatus } from '@mezon/utils';
+import { AMOUNT_TOKEN } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiGiveCoffeeEvent } from 'mezon-js/api.gen';
+import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
+import type { AddTxResponse } from 'mmn-client-js';
+import { ETransferType } from 'mmn-client-js';
 import { ensureSession, getMezonCtx } from '../helpers';
 import { toastActions } from '../toasts/toasts.slice';
 import { walletActions } from '../wallet/wallet.slice';

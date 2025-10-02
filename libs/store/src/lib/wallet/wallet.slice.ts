@@ -1,6 +1,8 @@
-import { compareBigInt, LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ExtraInfo, IEphemeralKeyPair, IZkProof, WalletDetail } from 'mmn-client-js';
+import type { LoadingStatus } from '@mezon/utils';
+import { compareBigInt } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ExtraInfo, IEphemeralKeyPair, IZkProof, WalletDetail } from 'mmn-client-js';
 import { ensureSession, getMezonCtx } from '../helpers';
 import { toastActions } from '../toasts';
 
@@ -135,12 +137,12 @@ const sendTransaction = createAsyncThunk(
 		const currentNonce = await mezon.mmnClient.getCurrentNonce(sender, 'pending');
 
 		const response = await mezon.mmnClient.sendTransaction({
-			sender: sender,
-			recipient: recipient,
+			sender,
+			recipient,
 			amount: mezon.mmnClient.scaleAmountToDecimals(amount),
 			nonce: currentNonce.nonce + 1,
-			textData: textData,
-			extraInfo: extraInfo,
+			textData,
+			extraInfo,
 			publicKey: ephemeralKeyPair.publicKey,
 			privateKey: ephemeralKeyPair.privateKey,
 			zkProof: zkProofs.proof,

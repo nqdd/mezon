@@ -38,7 +38,7 @@ const StreamInfo = ({ type }: StreamInfoProps) => {
 	const streamChannelMember = useAppSelector((state) => selectStreamMembersByChannelId(state, currentStreamInfo?.streamId || ''));
 	const groupCallId = useSelector(selectGroupCallId);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(groupCallId ?? ''));
-	const dmUserId = currentDmGroup?.user_id?.[0] || '';
+	const dmUserId = currentDmGroup?.user_ids?.[0] || '';
 	const direct = useAppSelector((state) => selectDirectById(state, groupCallId)) || {};
 	const isJoinedCall = useSelector(selectJoinedCall);
 	const { disconnect } = useWebRTCStream();

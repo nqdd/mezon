@@ -14,8 +14,8 @@ export function useDMInvite(channelID?: string) {
 		const userIdInClanArray = usersClan.map((user) => user.id);
 		const filteredListUserClan = dmGroupChatList.filter((item) => {
 			if (
-				(item.user_id && item.user_id.length > 1) ||
-				(item.user_id && item.user_id.length === 1 && !userIdInClanArray.includes(item.user_id[0]))
+				(item.user_ids && item.user_ids.length > 1) ||
+				(item.user_ids && item.user_ids.length === 1 && !userIdInClanArray.includes(item.user_ids[0]))
 			) {
 				return true;
 			}
@@ -25,7 +25,7 @@ export function useDMInvite(channelID?: string) {
 			return filteredListUserClan;
 		}
 		const filteredListUserChannel = dmGroupChatList.filter((item) => {
-			if ((item.user_id && item.user_id.length > 1) || (item.user_id && item.user_id.length === 1)) {
+			if ((item.user_ids && item.user_ids.length > 1) || (item.user_ids && item.user_ids.length === 1)) {
 				return true;
 			}
 			return false;

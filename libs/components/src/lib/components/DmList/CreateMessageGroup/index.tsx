@@ -85,7 +85,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 		const userNameGroup: string[] = [];
 		const avatarGroup: string[] = [];
 		if (currentDM?.type === ChannelType.CHANNEL_TYPE_DM) {
-			listGroupDM.push(currentDM.user_id?.at(0) as string);
+			listGroupDM.push(currentDM.user_ids?.at(0) as string);
 			userNameGroup.push(currentDM.usernames?.at(0) as string);
 			avatarGroup.push(currentDM.channel_avatar?.at(0) as string);
 		}

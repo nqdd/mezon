@@ -142,13 +142,11 @@ const TopBarChannelText = memo(() => {
 			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
 		}
 
-		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_ids) {
 			const currentUserId = userProfile?.user?.id;
-			const otherUserId = currentDmGroup.user_id.find((id) => id !== currentUserId);
+			const otherUserId = currentDmGroup.user_ids.find((id) => id !== currentUserId);
 			if (otherUserId && currentDmGroup.channel_avatar) {
-				const otherUserAvatar = currentDmGroup.channel_avatar.find(
-					(avatar): avatar is string => typeof avatar === 'string' && !avatar.includes(currentUserId || '')
-				);
+				const otherUserAvatar = currentDmGroup.channel_avatar;
 				return otherUserAvatar || currentDmGroup.channel_avatar[0];
 			}
 		}
@@ -548,7 +546,7 @@ const DmTopbarTools = memo(() => {
 						groupAvatar: currentDmGroup.channel_avatar?.[0],
 						meetingCode: currentDmGroup.meeting_code,
 						clanId: currentDmGroup.clan_id,
-						participants: [...(currentDmGroup?.user_id || []), userProfile?.user_id?.toString() as string],
+						participants: [...(currentDmGroup?.user_ids || []), userProfile?.user_id?.toString() as string],
 						callerInfo: {
 							id: userProfile?.user_id || '',
 							name: userProfile?.username || '',
@@ -591,7 +589,7 @@ const DmTopbarTools = memo(() => {
 			return;
 		}
 		if (!isInCall) {
-			startCallDM(isVideoCall, currentDmGroup?.id, currentDmGroup?.user_id?.[0]);
+			startCallDM(isVideoCall, currentDmGroup?.id, currentDmGroup?.user_ids?.[0]);
 		} else {
 			dispatch(toastActions.addToast({ message: t('toastMessages.youAreOnAnotherCall'), type: 'warning', autoClose: 3000 }));
 		}
