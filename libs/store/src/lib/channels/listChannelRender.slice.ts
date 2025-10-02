@@ -524,19 +524,16 @@ export const listChannelRenderSlice = createSlice({
 				.map((channelId) => state.listChannelRender[clanId].find((channel) => channel.id === channelId) as IChannel)
 				.filter(Boolean);
 
-			// Remove all channels and their threads in one operation
 			state.listChannelRender[clanId] = state.listChannelRender[clanId].filter(
 				(channel) => !channelIds.includes(channel.id) && !channelIds.includes((channel as IChannel).parent_id || '')
 			);
 
-			// Update categories to remove channel IDs
 			channelsToDelete.forEach((channelToDelete) => {
 				if (channelToDelete?.category_id) {
 					const categoryIndex = state.listChannelRender[clanId].findIndex((item) => item.id === channelToDelete.category_id);
 					if (categoryIndex !== -1) {
 						const category = state.listChannelRender[clanId][categoryIndex] as ICategoryChannel;
 						if (category.channels) {
-							// Handle both string[] and IChannel[] cases
 							if (typeof category.channels[0] === 'string') {
 								category.channels = (category.channels as string[]).filter((id) => !channelIds.includes(id));
 							} else {
