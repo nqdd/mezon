@@ -31,6 +31,7 @@ interface IMezonInputProps {
 	isValid?: boolean;
 	defaultValue?: string;
 	forcusInput?: boolean;
+	autoFocus?: boolean;
 	keyboardType?: KeyboardType;
 }
 
@@ -55,6 +56,7 @@ export default function MezonInput({
 	isValid = true,
 	defaultValue = '',
 	forcusInput = false,
+	autoFocus = false,
 	keyboardType = 'default'
 }: IMezonInputProps) {
 	const { themeValue } = useTheme();
@@ -121,6 +123,7 @@ export default function MezonInput({
 						maxLength={maxCharacter}
 						style={[styles.input, textarea && { height: size.s_100 }, inputStyle]}
 						placeholder={placeHolder}
+						autoFocus={autoFocus}
 						placeholderTextColor="gray"
 						onFocus={handleFocus}
 						onBlur={handleBlur}

@@ -1246,7 +1246,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					channel_label: channelCreated.channel_label,
 					channel_private: channelCreated.channel_private,
 					type: channelCreated.channel_type,
-					status: channelCreated.status,
+					//status: channelCreated.status,
 					app_id: channelCreated.app_id,
 					clan_id: channelCreated.clan_id
 				};
@@ -1507,7 +1507,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(accountActions.setUpdateAccount({ encrypt_private_key: userUpdated?.encrypt_private_key }));
 			} else {
 				dispatch(
-					directActions.updateMenberDMGroup({
+					directActions.updateMemberDMGroup({
 						dmId: userUpdated.channel_id,
 						user_id: userUpdated.user_id,
 						avatar: userUpdated.avatar,

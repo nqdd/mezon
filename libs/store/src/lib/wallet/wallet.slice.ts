@@ -1,7 +1,10 @@
-import { LoadingStatus } from '@mezon/utils';
-import { IEphemeralKeyPair, IZkProof, WalletDetail } from 'mmn-client-js';
-import { PayloadAction, createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { LoadingStatus } from '@mezon/utils';
+import { compareBigInt } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ExtraInfo, IEphemeralKeyPair, IZkProof, WalletDetail } from 'mmn-client-js';
 import { ensureSession, getMezonCtx } from '../helpers';
+import { toastActions } from '../toasts';
 
 export const WALLET_FEATURE_KEY = 'wallet';
 
@@ -12,6 +15,7 @@ export interface WalletState {
 	zkProofs?: IZkProof;
 	ephemeralKeyPair?: IEphemeralKeyPair;
 	address?: string | null;
+	isEnabled?: boolean;
 }
 
 const fetchWalletDetail = createAsyncThunk('wallet/fetchWalletDetail', async ({ userId }: { userId: string }, thunkAPI) => {
@@ -68,12 +72,99 @@ const fetchZkProofs = createAsyncThunk(
 	}
 );
 
+const sendTransaction = createAsyncThunk(
+	'wallet/sendTransaction',
+	async (
+		{
+			sender,
+			recipient,
+			amount,
+			textData,
+			extraInfo
+		}: {
+			sender?: string;
+			recipient?: string;
+			amount?: number;
+			textData?: string;
+			extraInfo?: ExtraInfo;
+		},
+		thunkAPI
+	) => {
+		const zkProofs = selectZkProofs(thunkAPI.getState() as any);
+		const ephemeralKeyPair = selectEphemeralKeyPair(thunkAPI.getState() as any);
+		const walletDetail = selectWalletDetail(thunkAPI.getState() as any);
+
+		if (!sender || !zkProofs || !ephemeralKeyPair) {
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: 'Wallet not available. Please enable wallet.',
+					type: 'error'
+				})
+			);
+			return thunkAPI.rejectWithValue('Wallet not available');
+		}
+
+		if (!recipient) {
+			thunkAPI.dispatch(toastActions.addToast({ message: 'Recipient wallet not found', type: 'error' }));
+			return thunkAPI.rejectWithValue('Recipient wallet not found');
+		}
+
+		if (!amount || amount <= 0) {
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: 'Amount is invalid.',
+					type: 'error'
+				})
+			);
+			return thunkAPI.rejectWithValue('Amount is invalid');
+		}
+
+		if (compareBigInt(walletDetail?.balance || '', BigInt(amount).toString()) < 0) {
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: 'Your amount exceeds wallet balance.',
+					type: 'error'
+				})
+			);
+			return thunkAPI.rejectWithValue('Your amount exceeds wallet balance');
+		}
+
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		if (!mezon.mmnClient) {
+			return thunkAPI.rejectWithValue('MmnClient not initialized');
+		}
+
+		const currentNonce = await mezon.mmnClient.getCurrentNonce(sender, 'pending');
+
+		const response = await mezon.mmnClient.sendTransaction({
+			sender,
+			recipient,
+			amount: mezon.mmnClient.scaleAmountToDecimals(amount),
+			nonce: currentNonce.nonce + 1,
+			textData,
+			extraInfo,
+			publicKey: ephemeralKeyPair.publicKey,
+			privateKey: ephemeralKeyPair.privateKey,
+			zkProof: zkProofs.proof,
+			zkPub: zkProofs.public_input
+		});
+
+		if (!response?.ok) {
+			thunkAPI.dispatch(toastActions.addToast({ message: response.error || 'An error occurred, please try again', type: 'error' }));
+			return thunkAPI.rejectWithValue(response.error);
+		}
+
+		return response;
+	}
+);
+
 export const initialWalletState: WalletState = {
 	loadingStatus: 'not loaded',
 	error: null,
 	wallet: undefined,
 	zkProofs: undefined,
-	ephemeralKeyPair: undefined
+	ephemeralKeyPair: undefined,
+	isEnabled: false
 };
 
 export const walletSlice = createSlice({
@@ -88,6 +179,27 @@ export const walletSlice = createSlice({
 					console.error('Error updating wallet by action:', error);
 				}
 			}
+		},
+		setIsEnabledWallet(state: WalletState, action: PayloadAction<boolean>) {
+			try {
+				state.isEnabled = action.payload;
+			} catch (error) {
+				console.error('Error updating isEnabled wallet by action:', error);
+			}
+		},
+		setLogout(state) {
+			state.wallet = undefined;
+			state.zkProofs = undefined;
+			state.ephemeralKeyPair = undefined;
+			state.loadingStatus = 'not loaded';
+		},
+		resetState(state) {
+			state.isEnabled = false;
+			state.wallet = undefined;
+			state.error = null;
+			state.zkProofs = undefined;
+			state.ephemeralKeyPair = undefined;
+			state.loadingStatus = 'not loaded';
 		}
 	},
 	extraReducers: (builder) => {
@@ -147,7 +259,8 @@ export const walletActions = {
 	fetchWalletDetail,
 	fetchAddress,
 	fetchEphemeralKeyPair,
-	fetchZkProofs
+	fetchZkProofs,
+	sendTransaction
 };
 
 export const selectWalletDetail = createSelector(getWalletState, (state) => state?.wallet);
@@ -157,3 +270,5 @@ export const selectZkProofs = createSelector(getWalletState, (state) => state?.z
 export const selectEphemeralKeyPair = createSelector(getWalletState, (state) => state?.ephemeralKeyPair);
 
 export const selectAddress = createSelector(getWalletState, (state) => state?.address);
+
+export const selectIsEnabledWallet = createSelector(getWalletState, (state) => state?.isEnabled);

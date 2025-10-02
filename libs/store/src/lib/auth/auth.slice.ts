@@ -8,6 +8,7 @@ import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
 import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
+import { walletActions } from '../wallet/wallet.slice';
 export const AUTH_FEATURE_KEY = 'auth';
 
 export interface AuthState {
@@ -64,6 +65,10 @@ export type AuthenticateEmailPayload = {
 
 export type AuthenticateEmailOTPRequestPayload = {
 	email: string;
+};
+
+export type AuthenticatePhoneSMSOTPRequestPayload = {
+	phone: string;
 };
 
 export const authenticateEmail = createAsyncThunk('auth/authenticateEmail', async ({ email, password }: AuthenticateEmailPayload, thunkAPI) => {
@@ -167,11 +172,24 @@ export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (d
 	return normalizeSession(session);
 });
 
+export const authenticatePhoneSMSOTPRequest = createAsyncThunk(
+	'auth/authenticatePhoneSMSOTPRequest',
+	async ({ phone }: AuthenticatePhoneSMSOTPRequestPayload, thunkAPI) => {
+		const mezon = getMezonCtx(thunkAPI);
+		const res = await mezon?.authenticateSMSOTPRequest(phone);
+		if (!res) {
+			return thunkAPI.rejectWithValue('Invalid session');
+		}
+		return res;
+	}
+);
+
 export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platform }: { device_id?: string; platform?: string }, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const sessionState = selectOthersSession(thunkAPI.getState() as unknown as { [AUTH_FEATURE_KEY]: AuthState });
 	await mezon?.logOutMezon(device_id, platform, !sessionState);
 	thunkAPI.dispatch(authActions.setLogout());
+	thunkAPI.dispatch(walletActions.setLogout());
 	clearApiCallTracker();
 	const restoreKey = [
 		'persist:apps',
@@ -493,7 +511,8 @@ export const authActions = {
 	authenticateEmail,
 	checkSessionWithToken,
 	authenticateEmailOTPRequest,
-	confirmEmailOTP
+	confirmEmailOTP,
+	authenticatePhoneSMSOTPRequest
 };
 
 export const getAuthState = (rootState: { [AUTH_FEATURE_KEY]: AuthState }): AuthState => rootState[AUTH_FEATURE_KEY];

@@ -1,9 +1,9 @@
 import { baseColor, useTheme } from '@mezon/mobile-ui';
 import { accountActions, useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView, Text } from 'react-native';
+import { Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonButton from '../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
@@ -48,17 +48,20 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 						}
 					});
 					navigation.navigate('ROUTES.SETTINGS.ACCOUNT');
-				} else if (response?.meta?.requestStatus === 'rejected') {
+				} else {
 					Toast.show({
-						type: 'error',
-						text1: t('phoneNumberSetting.verifyPhoneNumber.failed')
+						type: 'success',
+						props: {
+							text2: t('phoneNumberSetting.verifyPhoneNumber.failed'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+						}
 					});
 				}
 			} catch (error) {
 				console.error('Error verify phone number: ', error);
 			}
 		},
-		[requestId, t]
+		[dispatch, navigation, requestId, t]
 	);
 
 	const handleOtpChange = useCallback((otp: string[]) => {
@@ -66,7 +69,7 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 	}, []);
 
 	return (
-		<SafeAreaView style={styles.container}>
+		<View style={styles.container}>
 			<Text style={styles.subtitle}>{`${t('phoneNumberSetting.verifyPhoneNumber.description')} ${phoneNumber}`}</Text>
 			<OTPInput onOtpChange={handleOtpChange} onOtpComplete={handleVerify} isSms={true} />
 
@@ -77,6 +80,6 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 				containerStyle={[styles.verifyButton, isValidOtp ? styles.verifyButtonActive : {}]}
 				disabled={!isValidOtp}
 			/>
-		</SafeAreaView>
+		</View>
 	);
 });
