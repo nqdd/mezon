@@ -1,7 +1,7 @@
 import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Icons, NameComponent } from '@mezon/ui';
 import type { IChannelMember } from '@mezon/utils';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
 import { AvatarImage } from '../../components';
 
 function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; channelID: string; isPttList?: boolean }) {
@@ -12,6 +12,7 @@ function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; ch
 	return (
 		<div
 			className={`bg-item-hover text-theme-primary-hover w-[90%] flex p-1 ${isPttList ? 'w-full' : 'ml-5'} items-center gap-3 cursor-pointer rounded-sm`}
+			data-e2e={generateE2eId('clan_page.channel_list.item.user_list.item')}
 		>
 			<div className="w-5 h-5 rounded-full scale-75">
 				<div className="w-8 h-8 mt-[-0.3rem]">
