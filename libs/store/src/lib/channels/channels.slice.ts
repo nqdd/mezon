@@ -594,7 +594,7 @@ export const removeFavoriteChannel = createAsyncThunk(
 	async ({ channelId, clanId }: RemoveChannelFavoriteArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.removeFavoriteChannel(mezon.session, clanId, channelId);
+			const response = await mezon.client.removeFavoriteChannel(mezon.session, channelId, clanId);
 			if (response) {
 				thunkAPI.dispatch(
 					channelsActions.removeFavorite({

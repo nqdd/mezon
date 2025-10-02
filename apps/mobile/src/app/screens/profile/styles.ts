@@ -213,5 +213,15 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			backgroundColor: colors.text,
 			justifyContent: 'center',
 			alignItems: 'center'
-		}
+		},
+		buttonEnableWallet: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: size.s_8,
+			flexShrink: 1,
+			backgroundColor: colors.primary,
+			borderRadius: 50,
+			paddingVertical: size.s_10,
+			flexDirection: 'row'
+		},
 	});

@@ -907,7 +907,7 @@ export const style = (colors: Attributes) =>
 		},
 		cardMsg: {
 			padding: size.s_10,
-			paddingTop: 0,
+			paddingTop: size.s_6,
 			borderWidth: 1,
 			borderColor: colors.border,
 			borderRadius: size.s_8

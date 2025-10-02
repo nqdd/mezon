@@ -422,6 +422,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 	const handleOpenMenuNoti = useCallback((visible: boolean) => {
 		menuOpenNoti.current = visible;
 	}, []);
+
 	return (
 		<div
 			ref={panelRef}
@@ -446,12 +447,6 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 					}}
 				/>
 			</GroupPanels>
-			{channel.type === typeChannel.voice && (
-				<GroupPanels>
-					<ItemPanel children={t('menu.organizationMenu.openChat')} />
-					<ItemPanel children={t('menu.organizationMenu.hideNames')} type="checkbox" />
-				</GroupPanels>
-			)}
 			{channel.parent_id === '0' || !channel.parent_id ? (
 				<>
 					<GroupPanels>
@@ -466,7 +461,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								onVisibleChange={handleOpenMenuMute}
 							>
 								<div>
-									<ItemPanel children={nameChildren} dropdown="change here" onClick={() => muteOrUnMuteChannel(0)} />
+									<ItemPanel children={nameChildren} dropdown="change here" />
 								</div>
 							</Menu>
 						) : (
@@ -524,7 +519,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								onVisibleChange={handleOpenMenuMute}
 							>
 								<div>
-									<ItemPanel children={nameChildren} dropdown="change here" onClick={() => muteOrUnMuteChannel(0)} />
+									<ItemPanel children={nameChildren} dropdown="change here" />
 								</div>
 							</Menu>
 						) : (

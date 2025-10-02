@@ -2,6 +2,7 @@ import { captureSentryError } from '@mezon/logger';
 import type { IUserAccount, LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
 import { safeJSONParse } from 'mezon-js';
 import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
@@ -11,7 +12,7 @@ import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCal
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
-
+import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
 export interface IAccount {
 	email: string;
@@ -90,6 +91,7 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 
 		const response = await mezon.client.deleteAccount(mezon.session);
 		thunkAPI.dispatch(authActions.setLogout());
+		thunkAPI.dispatch(walletActions.setLogout());
 		clearApiCallTracker();
 		return response;
 	} catch (error) {
@@ -123,7 +125,7 @@ export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: 
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'account/verifyPhone');
-		return thunkAPI.rejectWithValue(error);
+		toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
 	}
 });
 

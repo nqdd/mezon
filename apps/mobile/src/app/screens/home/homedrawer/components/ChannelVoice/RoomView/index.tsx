@@ -56,7 +56,7 @@ const RoomViewListener = memo(
 		}, [dispatch, isShowPreCallInterface, participants?.length]);
 
 		useEffect(() => {
-			if (focusedScreenShare) {
+			if (focusedScreenShare && participants?.length > 1) {
 				const focusedParticipant = participants.find((p) => p.identity === focusedScreenShare?.participant?.identity);
 
 				if (!focusedParticipant?.isScreenShareEnabled) {
@@ -71,6 +71,8 @@ const RoomViewListener = memo(
 					return t('disconnectModal.content.removed');
 				case DisconnectReason.DUPLICATE_IDENTITY:
 					return t('disconnectModal.content.duplicate');
+				case DisconnectReason.ROOM_DELETED:
+					return t('disconnectModal.content.deleted');
 				default:
 					return t('disconnectModal.content.default');
 			}
@@ -78,7 +80,11 @@ const RoomViewListener = memo(
 
 		const handleDisconnected = useCallback(
 			async (reason?: DisconnectReason) => {
-				if (reason === DisconnectReason.PARTICIPANT_REMOVED || reason === DisconnectReason.DUPLICATE_IDENTITY) {
+				if (
+					reason === DisconnectReason.PARTICIPANT_REMOVED ||
+					reason === DisconnectReason.DUPLICATE_IDENTITY ||
+					reason === DisconnectReason.ROOM_DELETED
+				) {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
 						isEndCall: true,
 						clanId,
@@ -183,8 +189,8 @@ const RoomView = ({
 								trackRef={focusedScreenShare}
 								objectFit={'contain'}
 								style={{
-									height: isPiPMode ? size.s_100 * 1.2 : '100%',
-									width: isPiPMode ? '50%' : '100%',
+									height: '100%',
+									width: '100%',
 									alignSelf: 'center'
 								}}
 								iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
@@ -209,6 +215,13 @@ const RoomView = ({
 					channelId={channelId}
 					clanId={clanId}
 					isGroupCall={isGroupCall}
+				/>
+				<RoomViewListener
+					isShowPreCallInterface={isShowPreCallInterface}
+					focusedScreenShare={focusedScreenShare}
+					setFocusedScreenShare={setFocusedScreenShareProp}
+					channelId={channelId}
+					clanId={clanId}
 				/>
 			</View>
 		);

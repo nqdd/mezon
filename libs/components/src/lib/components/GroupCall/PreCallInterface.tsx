@@ -65,7 +65,7 @@ const PreCallInterface = memo(({ onJoinCall, onCancel, loading, directId }: PreC
 				<CallStatus
 					isConnecting={isConnecting || loading}
 					isConnected={false}
-					participantCount={currentDmGroup?.user_id?.length || 0}
+					participantCount={currentDmGroup?.user_ids?.length || 0}
 					groupName={groupName}
 					groupAvatar={groupAvatar}
 				/>
@@ -74,7 +74,7 @@ const PreCallInterface = memo(({ onJoinCall, onCancel, loading, directId }: PreC
 
 				{isDmGroup && (
 					<div className="text-center text-gray-400">
-						<p>{currentDmGroup?.user_id?.length || 0} members will be notified</p>
+						<p>{currentDmGroup?.user_ids?.length || 0} members will be notified</p>
 					</div>
 				)}
 			</div>

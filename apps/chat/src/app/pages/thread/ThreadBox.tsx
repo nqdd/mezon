@@ -46,6 +46,7 @@ import {
 	CREATING_THREAD,
 	MAX_FILE_ATTACHMENTS,
 	UploadLimitReason,
+	ValidateSpecialCharacters,
 	adjustPos,
 	filterEmptyArrays,
 	generateE2eId,
@@ -115,10 +116,19 @@ const ThreadBox = () => {
 		async (value: ThreadValue, messageContent?: IMessageSendPayload) => {
 			const idParent = currentChannel?.parent_id !== '0' ? currentChannel?.parent_id : (currentChannelId as string);
 
+			if (!value.nameValueThread || !value.nameValueThread.trim()) {
+				return;
+			}
 			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
 				toast(t('createThread.toast.threadNameTooShort'));
 				return;
 			}
+
+			const regex = ValidateSpecialCharacters().test(value.nameValueThread);
+			if (!regex) {
+				return;
+			}
+
 			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
 			if (isDuplicate?.payload) {
 				toast(t('createThread.toast.threadNameExists'));
@@ -213,6 +223,18 @@ const ThreadBox = () => {
 			references?: Array<ApiMessageRef>,
 			value?: ThreadValue
 		): Promise<boolean> => {
+			if (!threadCurrentChannel && valueThread) {
+				if (valueThread.content?.t && valueThread.content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
+					toast.error(t('createThread.toast.messageTooLong'));
+					return false;
+				}
+				await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+					nameValueThread: nameValueThread ?? valueThread?.content.t,
+					isPrivate
+				});
+				return true;
+			}
+
 			if (content?.t && content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
 				toast.error(t('createThread.toast.messageTooLong'));
 				return false;
@@ -220,7 +242,7 @@ const ThreadBox = () => {
 			await handleSend(content, mentions, attachments, references, value);
 			return true;
 		},
-		[handleSend, t]
+		[handleSend, t, threadCurrentChannel, valueThread, attachmentData, nameValueThread, isPrivate]
 	);
 
 	const handleTyping = useCallback(() => {
@@ -323,6 +345,15 @@ const ThreadBox = () => {
 				if (shiftKey || isComposing) {
 					return;
 				} else {
+					if (!threadCurrentChannel && valueThread) {
+						event.preventDefault();
+						await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+							nameValueThread: nameValueThread ?? valueThread?.content.t,
+							isPrivate
+						});
+						return;
+					}
+
 					const hasToken = request?.mentionRaw && request?.mentionRaw?.length > 0;
 
 					const emptyRequest: RequestInput = {
@@ -382,7 +413,7 @@ const ThreadBox = () => {
 				</div>
 			)}
 			{!threadCurrentChannel && (
-				<div className={`flex flex-col overflow-y-auto }  ww-full px-3`} onPaste={onPastedFiles}>
+				<div className={`flex flex-col overflow-y-auto w-full  px-3`} onPaste={onPastedFiles}>
 					<div className="flex flex-col justify-end flex-grow">
 						{!threadCurrentChannel && (
 							<div className="relative flex text-theme-primary-active items-center justify-center mx-4 mt-4 w-16 h-16 bg-item-theme rounded-full pointer-events-none">
@@ -404,10 +435,16 @@ const ThreadBox = () => {
 							}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
 						/>
-						{!openThreadMessageState && (
+						{!openThreadMessageState && !valueThread && (
 							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
 						)}
-						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
+						{valueThread && (
+							<div className="max-h-[60vh] overflow-y-auto overflow-x-hidden  thread-scroll ">
+								<div className="px-3">
+									<ChannelMessageThread user={currentClanUser} message={valueThread} />
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}

@@ -1,10 +1,12 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { ChannelsEntity, selectCurrentTopicInitMessage, selectFirstMessageOfCurrentTopic } from '@mezon/store-mobile';
+import type { ChannelsEntity } from '@mezon/store-mobile';
+import { selectCurrentTopicInitMessage, selectFirstMessageOfCurrentTopic } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
-import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
-import React, { useCallback, useMemo } from 'react';
+import type { ChannelStreamMode } from 'mezon-js';
+import { safeJSONParse } from 'mezon-js';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -20,16 +22,18 @@ type TopicHeaderProps = {
 	handleBack: () => void;
 };
 
-const TopicHeader = React.memo(({ mode, handleBack }: TopicHeaderProps) => {
+const TopicHeader = memo(({ mode, handleBack }: TopicHeaderProps) => {
 	const currentTopic = useSelector(selectCurrentTopicInitMessage);
 	const firstMessage = useSelector(selectFirstMessageOfCurrentTopic);
 	const valueTopic = currentTopic || firstMessage?.message;
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation('message');
-	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(valueTopic?.sender_id || '');
-
-	const userRolesClan = useColorsRoleById(valueTopic?.sender_id || '');
+	const priorityId = useMemo(() => {
+		return firstMessage?.creator_id || firstMessage?.message?.sender_id || currentTopic?.content?.cid || '';
+	}, [currentTopic?.content?.cid, firstMessage?.creator_id, firstMessage?.message?.sender_id]);
+	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(priorityId);
+	const userRolesClan = useColorsRoleById(priorityId);
 
 	const onMention = useCallback(async (mentionedUser: string) => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_MENTION_USER_MESSAGE_ITEM, mentionedUser);

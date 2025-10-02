@@ -787,7 +787,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		if (checkEnableE2EE) {
 			const state = thunkAPI.getState() as RootState;
 			const currentDM = selectCurrentDM(state);
-			const keys = selectE2eeByUserIds(state, currentDM.user_id as string[]);
+			const keys = selectE2eeByUserIds(state, currentDM.user_ids as string[]);
 
 			const missingKeys = keys.filter((entity) => !entity?.PK);
 			if (missingKeys.length > 0) {

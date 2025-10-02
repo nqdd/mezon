@@ -13,7 +13,6 @@ import {
 	authActions,
 	channelsActions,
 	clansActions,
-	emojiSuggestionActions,
 	getStoreAsync,
 	messagesActions,
 	selectBlockedUsers,
@@ -35,6 +34,7 @@ import { style } from './styles';
 enum EAccountSettingType {
 	UserName,
 	DisplayName,
+	PhoneNumber,
 	BlockedUsers,
 	DisableAccount,
 	DeleteAccount,
@@ -111,6 +111,12 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			case EAccountSettingType.DisplayName:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.PROFILE });
 				break;
+			case EAccountSettingType.PhoneNumber:
+				navigation.navigate(APP_SCREEN.SETTINGS.STACK, {
+					screen: APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER,
+					params: { currentPhone: userProfile?.user?.phone_number }
+				});
+				break;
 			case EAccountSettingType.BlockedUsers:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.BLOCKED_USERS });
 				break;
@@ -167,6 +173,11 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				title: t('displayName'),
 				description: userProfile?.user?.display_name || '',
 				type: EAccountSettingType.DisplayName
+			},
+			{
+				title: t('phoneNumberSetting.title'),
+				description: userProfile?.user?.phone_number,
+				type: EAccountSettingType.PhoneNumber
 			}
 		];
 
@@ -197,7 +208,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			usersOptions,
 			accountManagementOptions
 		};
-	}, [t, userProfile?.user?.username, userProfile?.user?.display_name, blockedUsersCount]);
+	}, [t, userProfile?.user?.username, userProfile?.user?.display_name, userProfile?.user?.phone_number, blockedUsersCount]);
 
 	return (
 		<View style={styles.container}>
@@ -213,8 +224,17 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 								<TouchableOpacity onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
 									<Text style={styles.optionTitle}>{item.title}</Text>
 									<View style={styles.optionRightSide}>
-										{item?.description ? <Text style={styles.optionDescription}>{item.description}</Text> : null}
-										<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} color={themeValue?.text} />
+										{item?.description ? (
+											<Text numberOfLines={1} style={styles.optionDescription}>
+												{item.description}
+											</Text>
+										) : null}
+										<MezonIconCDN
+											icon={IconCDN.chevronSmallRightIcon}
+											height={size.s_16}
+											width={size.s_16}
+											color={themeValue?.text}
+										/>
 									</View>
 								</TouchableOpacity>
 							);
@@ -235,8 +255,17 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 								<TouchableOpacity onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
 									<Text style={styles.optionTitle}>{item.title}</Text>
 									<View style={styles.optionRightSide}>
-										{item?.description ? <Text style={styles.optionDescription}>{item.description}</Text> : null}
-										<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} color={themeValue?.text} />
+										{item?.description ? (
+											<Text numberOfLines={1} style={styles.optionDescription}>
+												{item.description}
+											</Text>
+										) : null}
+										<MezonIconCDN
+											icon={IconCDN.chevronSmallRightIcon}
+											height={size.s_16}
+											width={size.s_16}
+											color={themeValue?.text}
+										/>
 									</View>
 								</TouchableOpacity>
 							);
@@ -259,8 +288,17 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 										{item.title}
 									</Text>
 									<View style={styles.optionRightSide}>
-										{item?.description ? <Text style={styles.optionDescription}>{item.description}</Text> : null}
-										<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} color={themeValue?.text} />
+										{item?.description ? (
+											<Text numberOfLines={1} style={styles.optionDescription}>
+												{item.description}
+											</Text>
+										) : null}
+										<MezonIconCDN
+											icon={IconCDN.chevronSmallRightIcon}
+											height={size.s_16}
+											width={size.s_16}
+											color={themeValue?.text}
+										/>
 									</View>
 								</TouchableOpacity>
 							);

@@ -39,7 +39,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
 
-	const user = useAppSelector((state) => selectDirectMemberMetaUserId(state, directMessage.user_id?.at(0) || ''));
+	const user = useAppSelector((state) => selectDirectMemberMetaUserId(state, directMessage.user_ids?.at(0) || ''));
 
 	const metadata = useMemo(() => {
 		if (typeof user?.user?.metadata === 'string') {
@@ -105,7 +105,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			<DmItemProfile
 				avatar={isTypeDMGroup ? directMessage?.topic || 'assets/images/avatar-group.png' : (directMessage?.channel_avatar?.at(0) ?? '')}
 				name={directMessage?.channel_label || ''}
-				number={(directMessage?.user_id?.length || 0) + 1}
+				number={(directMessage?.user_ids?.length || 0) + 1}
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
 				userMeta={metadata}
@@ -168,7 +168,7 @@ const DmItemProfile = ({
 				<div className="rounded-full left-7 absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
 					<UserStatusIconClan
 						channelId={direct.id}
-						userId={direct.user_id?.[0] || ''}
+						userId={direct.user_ids?.[0] || ''}
 						status={userMeta?.user_status}
 						online={userMeta?.user_status !== EUserStatus.INVISIBLE}
 					/>
