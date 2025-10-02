@@ -17,7 +17,7 @@ import { style } from './styles';
 
 type LoginMode = 'otp' | 'password' | 'sms';
 const OTP_COOLDOWN_SECONDS = 60;
-
+type ICooldownInfo = { isInCooldown: boolean; remaining: number };
 const LoginScreen = ({ navigation }) => {
 	const styles = style();
 	const [email, setEmail] = useState('');
@@ -54,12 +54,19 @@ const LoginScreen = ({ navigation }) => {
 		}
 	};
 
-	const isInCooldown = (emailAddress: string) => {
+	const getInfoInCooldown = (emailAddress: string): ICooldownInfo => {
 		const lastSentTime = lastOTPSentTime[emailAddress];
-		if (!lastSentTime) return false;
+		if (!lastSentTime)
+			return {
+				isInCooldown: false,
+				remaining: 0
+			};
 		const currentTime = Date.now();
 		const timeDifference = (currentTime - lastSentTime) / 1000;
-		return timeDifference < OTP_COOLDOWN_SECONDS;
+		return {
+			isInCooldown: timeDifference < OTP_COOLDOWN_SECONDS,
+			remaining: Math.round(OTP_COOLDOWN_SECONDS - timeDifference)
+		};
 	};
 
 	const updateCooldownTimer = () => {
@@ -92,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
 		const currentEmail = loginMode === 'sms' ? phone : email;
 		const lastSentTime = lastOTPSentTime[currentEmail];
 
-		if (lastSentTime && isInCooldown(currentEmail)) {
+		if (lastSentTime && getInfoInCooldown(currentEmail)?.isInCooldown) {
 			interval = setInterval(updateCooldownTimer, 1000);
 		} else {
 			setCooldownRemaining(0);
@@ -117,11 +124,12 @@ const LoginScreen = ({ navigation }) => {
 	}, []);
 
 	const handleSendOTP = async () => {
-		if (isInCooldown(email)) {
+		const infoInCooldown: ICooldownInfo = getInfoInCooldown(email);
+		if (infoInCooldown?.isInCooldown) {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: `Login too fast. Please wait ${cooldownRemaining} seconds before trying again.`,
+					text2: `Login too fast. Please wait ${infoInCooldown?.remaining || cooldownRemaining} seconds before trying again.`,
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -166,7 +174,7 @@ const LoginScreen = ({ navigation }) => {
 	};
 
 	const handleSendPhoneOTP = async () => {
-		if (isInCooldown(phone)) {
+		if (getInfoInCooldown(phone)?.isInCooldown) {
 			Toast.show({
 				type: 'success',
 				props: {

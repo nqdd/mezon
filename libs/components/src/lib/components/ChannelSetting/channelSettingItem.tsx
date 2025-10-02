@@ -27,10 +27,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 	const isPrivate = channel.channel_private;
 	const [selectedButton, setSelectedButton] = useState<string | null>('Overview');
 	const [showModal, setShowModal] = useState(false);
-	const [hasManageChannelPermission, hasClanPermission] = usePermissionChecker(
-		[EPermission.manageChannel, EPermission.manageClan],
-		channel.channel_id ?? ''
-	);
+	const [hasManageChannelPermission] = usePermissionChecker([EPermission.manageChannel, EPermission.manageClan], channel.channel_id ?? '');
 
 	const channelId = (channel?.channel_id || ('id' in channel ? (channel as { id?: string })?.id : '') || '') as string;
 	const channelFromStore = useAppSelector((state) => selectChannelById(state, channelId));

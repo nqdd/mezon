@@ -96,29 +96,6 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	}, [isNotChange, t, navigation, handleSave]);
 
-	const handleSave = useCallback(async () => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-		const response = await updateRole(clanRole.clan_id, clanRole.id, currentRoleName, clanRole?.color || '', [], [], [], []);
-		if (response) {
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: t('roleDetail.changesSaved'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
-				}
-			});
-			navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
-		} else {
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
-				}
-			});
-		}
-	}, [clanRole.clan_id, clanRole?.color, clanRole.id, currentRoleName, navigation, t, updateRole]);
-
 	const deleteRole = async () => {
 		Alert.alert('Delete Role', 'Are you sure you want to delete this role?', [
 			{

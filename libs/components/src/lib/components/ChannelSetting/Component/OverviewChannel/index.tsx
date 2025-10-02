@@ -1,11 +1,9 @@
+import type { ChannelsEntity, IUpdateChannelRequest, IUpdateSystemMessage } from '@mezon/store';
 import {
 	channelsActions,
-	ChannelsEntity,
 	checkDuplicateChannelInCategory,
 	checkDuplicateThread,
 	fetchSystemMessageByClanId,
-	IUpdateChannelRequest,
-	IUpdateSystemMessage,
 	selectAppChannelById,
 	selectChannelById,
 	selectClanSystemMessage,
@@ -15,12 +13,14 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons, Image, InputField, TextArea } from '@mezon/ui';
-import { checkIsThread, generateE2eId, IChannel, ValidateSpecialCharacters, ValidateURL } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { ValidateSpecialCharacters, ValidateURL, checkIsThread, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ModalSaveChanges } from 'libs/components/src/lib/components';
 import Dropdown from 'libs/ui/src/lib/DropDown';
 import { ChannelType } from 'mezon-js';
-import { ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
@@ -185,7 +185,6 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	}, [topicInit, channelLabelInit, appUrlInit, ageRestrictedInit, e2eeInit]);
 
 	const handleSave = useCallback(async () => {
-		const updatedChannelLabel = channelLabel === channelLabelInit ? '' : channelLabel;
 		const updatedAppUrl = appUrl === appUrlInit ? '' : appUrl;
 
 		if (isCheckForSystemMsg) {
@@ -212,16 +211,17 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		const updateChannel = {
 			clan_id: currentChannel.clan_id,
 			channel_id: currentChannel.channel_id || '',
-			channel_label: updatedChannelLabel,
+			channel_label: channelLabel,
 			category_id: currentChannel.category_id,
 			app_url: updatedAppUrl,
 			app_id: currentChannel.app_id || '',
-			topic: topic,
+			topic,
 			age_restricted: isAgeRestricted,
 			e2ee: isE2ee,
 			parent_id: currentChannel?.parent_id,
 			channel_private: currentChannel?.channel_private
 		} as IUpdateChannelRequest;
+
 		await dispatch(channelsActions.updateChannel(updateChannel));
 	}, [channelLabel, channelLabelInit, appUrl, appUrlInit, topic, currentChannel, isCheckForSystemMsg, dispatch, isAgeRestricted, isE2ee]);
 
@@ -229,7 +229,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		const textArea = textAreaRef.current;
 		if (textArea) {
 			textArea.style.height = 'auto';
-			textArea.style.height = textArea.scrollHeight + 'px';
+			textArea.style.height = `${textArea.scrollHeight}px`;
 		}
 	}, [topic]);
 
@@ -255,16 +255,16 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 
 	const hideInactivityTimes = useMemo(
 		() => [
-			t('fields.channelHideInactivity._1hour'),
-			t('fields.channelHideInactivity._24hours'),
-			t('fields.channelHideInactivity._3days'),
+			//t('fields.channelHideInactivity._1hour'),
+			//t('fields.channelHideInactivity._24hours'),
+			//t('fields.channelHideInactivity._3days'),
 			t('fields.channelHideInactivity._1Week')
 		],
 		[t]
 	);
 
 	const [slowModeDropdown, setSlowDropdown] = useState(() => slowModeValues[0]);
-	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[2]);
+	const [hideTimeDropdown, setHideTimeDropdown] = useState(() => hideInactivityTimes[0]);
 
 	// Update dropdown values when translations change
 	useEffect(() => {
@@ -272,7 +272,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	}, [slowModeValues]);
 
 	useEffect(() => {
-		setHideTimeDropdown(hideInactivityTimes[2]);
+		setHideTimeDropdown(hideInactivityTimes[0]);
 	}, [hideInactivityTimes]);
 
 	const hasChange = useMemo(() => {
