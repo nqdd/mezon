@@ -104,7 +104,7 @@ export interface ChannelsState {
 	loadingStatus: LoadingStatus;
 	socketStatus: LoadingStatus;
 	error?: string | null;
-	scrollOffset: Record<string, number>;
+	scrollPosition: Record<string, { messageId?: string; offset?: number }>;
 	showScrollDownButton: Record<string, boolean>;
 }
 
@@ -939,7 +939,7 @@ export const initialChannelsState: ChannelsState = {
 	byClans: {},
 	loadingStatus: 'not loaded',
 	socketStatus: 'not loaded',
-	scrollOffset: {},
+	scrollPosition: {},
 	error: null,
 	showScrollDownButton: {}
 };
@@ -1364,19 +1364,20 @@ export const channelsSlice = createSlice({
 			if (!state.byClans[clanId]) return;
 			channelsAdapter.setAll(state.byClans[clanId]?.entities, channels);
 		},
-		setScrollOffset: (state, action: PayloadAction<{ channelId: string; offset: number }>) => {
-			const { channelId, offset } = action.payload;
+		setScrollPosition: (state, action: PayloadAction<{ channelId: string; messageId?: string; offset?: number }>) => {
+			const { channelId, messageId, offset } = action.payload;
 
-			if (!state.scrollOffset) {
-				state.scrollOffset = {};
+			if (!state.scrollPosition) {
+				state.scrollPosition = {};
 			}
-			state.scrollOffset[channelId] = offset;
+
+			state.scrollPosition[channelId] = { messageId, offset };
 		},
 
-		clearScrollOffset: (state, action: PayloadAction<{ clanId: string; channelId: string }>) => {
+		clearScrollPosition: (state, action: PayloadAction<{ clanId: string; channelId: string }>) => {
 			const { channelId } = action.payload;
-			if (state.scrollOffset) {
-				delete state.scrollOffset[channelId];
+			if (state.scrollPosition) {
+				delete state.scrollPosition[channelId];
 			}
 		},
 
@@ -1789,9 +1790,9 @@ export const selectAppFocusedChannel = createSelector(
 	}
 );
 
-export const selectScrollOffsetByChannelId = createSelector(
+export const selectScrollPositionByChannelId = createSelector(
 	[getChannelsState, (state, channelId) => channelId],
-	(state, channelId) => state.scrollOffset?.[channelId] ?? 0
+	(state, channelId) => state.scrollPosition?.[channelId] ?? null
 );
 
 export const selectShowScrollDownButton = createSelector(
