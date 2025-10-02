@@ -366,6 +366,9 @@ const LoginScreen = ({ navigation }) => {
 										keyboardType={'phone-pad'}
 										autoCapitalize="none"
 										autoCorrect={false}
+										autoFocus={true}
+										onSubmitEditing={handlePrimaryAction}
+										underlineColorAndroid="transparent"
 									/>
 								</View>
 								<CountryDropdown
@@ -468,7 +471,7 @@ const LoginScreen = ({ navigation }) => {
 						</Text>
 						<View style={styles.alternativeOptions}>
 							<TouchableOpacity onPress={loginMode === 'otp' ? () => handleSMSLogin() : () => switchToOTPMode()}>
-								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithOTP')}</Text>
+								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithEmailOTP')}</Text>
 							</TouchableOpacity>
 							<Text style={styles.orText}>{t('login.or')}</Text>
 							<TouchableOpacity onPress={switchToPasswordMode}>

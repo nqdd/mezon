@@ -133,7 +133,7 @@
 		"showPassword": "Show password",
 		"enterEmailToLogin": "Enter your email to login",
 		"passwordNotSet": "Password hasn't been set yet?",
-		"loginWithOTP": "Login with OTP",
+		"loginWithEmailOTP": "Login with Email OTP",
 		"login": "Login",
 		"enterPhoneToLogin": "Enter your phone to login",
 		"phone": "Phone number",
