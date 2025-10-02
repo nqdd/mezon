@@ -497,7 +497,7 @@ export const selectMemberCustomStatusById = createSelector(
 		const [userId, isDM] = payload.split(',');
 		const userClan = usersClanEntities[userId];
 		if (statusList?.[userId]) {
-			return statusList?.[userId].user?.metadata?.status || false;
+			return statusList?.[userId].user?.user_status || '';
 		}
 		if (userClan && (isDM === 'false' || 'undefined')) {
 			return userClan?.user?.user_status || '';

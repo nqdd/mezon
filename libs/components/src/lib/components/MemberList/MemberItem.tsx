@@ -1,10 +1,5 @@
-import {
-	ChannelMembersEntity,
-	selectAccountCustomStatus,
-	selectDirectMemberMetaUserId,
-	selectMemberCustomStatusById,
-	useAppSelector
-} from '@mezon/store';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { selectAccountCustomStatus, selectDirectMemberMetaUserId, selectMemberCustomStatusById, useAppSelector } from '@mezon/store';
 import { useSelector } from 'react-redux';
 import { useDirectMessageContextMenu } from '../../contexts';
 import { BaseMemberProfile } from '../MemberProfile/MemberProfile';
@@ -38,7 +33,7 @@ function MemberItem({ user, directMessageId, isDM = true, isMe, createId }: Memb
 				username={user.user?.display_name || user.user?.username || ''}
 				userMeta={{
 					online: !!userMetaById?.user?.online || !!isMe,
-					status: userMetaById?.user?.metadata?.status
+					status: userMetaById?.user?.status
 				}}
 				isOwner={createId === user?.user?.id}
 				userStatus={isMe ? currentUserCustomStatus : userCustomStatus}
