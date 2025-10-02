@@ -137,7 +137,7 @@ const LocationModal = (props: LocationModalProps) => {
 				return {
 					value: channel.id,
 					label: (
-						<div className="flex items-center gap-x-2 ">
+						<div className="flex items-center gap-x-2 " data-e2e={generateE2eId('clan_page.modal.create_event.location.channel.item')}>
 							{icon}
 							{channel.channel_label}
 						</div>

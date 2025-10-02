@@ -238,13 +238,13 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 									: formatTimeI18n(event?.start_time || start)}
 						</p>
 						{isClanEvent && (
-							<p className="bg-blue-500 text-white rounded-sm px-1 text-center"  data-e2e={generateE2eId('clan_page.modal.create_event.review.type.clan')} >{t('eventCreator:eventDetail.clanEvent')}</p>
+							<p className="bg-blue-500 text-white rounded-sm px-1 text-center"  data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.clanEvent')}</p>
 						)}
 						{isChannelEvent && (
-							<p className="bg-orange-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type.channel')} >{t('eventCreator:eventDetail.channelEvent')}</p>
+							<p className="bg-orange-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.channelEvent')}</p>
 						)}
 						{isPrivateEvent && (
-							<p className="bg-red-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type.private')} >{t('eventCreator:eventDetail.privateEvent')}</p>
+							<p className="bg-red-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.privateEvent')}</p>
 						)}
 					</div>
 					{event?.creator_id && (
@@ -257,7 +257,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 								>{`Created by ${userCreate?.user?.username}`}</p>
 							}
 						>
-							<div className="flex  items-center gap-x-4 mb-3 mr-4">
+							<div className="flex  items-center gap-x-4 mb-3 mr-4" data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.open_detail_modal')}>
 								<AvatarImage
 									alt={userCreate?.user?.username || ''}
 									username={userCreate?.user?.username}
@@ -416,7 +416,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<p className="">
 							{t('eventCreator:eventDetail.audienceConsists')}{' '}
 							{isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
-							<strong className="">{textChannel.channel_label}</strong>
+							<strong className="" data-e2e={generateE2eId('clan_page.modal.create_event.review.text_channel')}>{textChannel.channel_label}</strong>
 						</p>
 					</span>
 				) : isClanEvent ? (
