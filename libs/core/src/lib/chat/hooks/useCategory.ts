@@ -2,8 +2,6 @@ import {
 	categoriesActions,
 	channelsActions,
 	getStore,
-	listChannelRenderAction,
-	listChannelsByUserActions,
 	selectAllCategories,
 	selectAllChannels,
 	selectCategoryIdSortChannel,
@@ -14,7 +12,8 @@ import {
 	selectWelcomeChannelByClanId,
 	useAppDispatch
 } from '@mezon/store';
-import { ICategoryChannel, IChannel, checkIsThread } from '@mezon/utils';
+import type { ICategoryChannel, IChannel } from '@mezon/utils';
+import { checkIsThread } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -27,8 +26,31 @@ export function useCategory() {
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const categorizedChannels = useCategorizedChannels();
+
+	const navigateAfterDeleteCategory = useCallback(
+		(categoryId: string) => {
+			const store = getStore();
+			const state = store.getState();
+			const allChannels = selectAllChannels(state);
+			const currentChannel = currentChannelId ? allChannels.find((ch) => ch.id === currentChannelId) : null;
+			if (!currentChannel || currentChannel.category_id !== categoryId) {
+				return;
+			}
+			const remainingChannels = allChannels.filter((ch) => ch.category_id !== categoryId && !checkIsThread(ch));
+			if (remainingChannels.length === 0) {
+				const membersPath = toMembersPage(currentClanId as string);
+				navigate(membersPath);
+				return;
+			}
+			const nextChannel = remainingChannels[0];
+			const channelPath = toChannelPage(nextChannel.id, currentClanId as string);
+			navigate(channelPath);
+		},
+		[currentChannelId, currentClanId, navigate, toChannelPage, toMembersPage]
+	);
+
 	const handleDeleteCategory = useCallback(
-		async ({ category, currenChannel }: { category: ICategoryChannel; currenChannel: IChannel }) => {
+		async ({ category }: { category: ICategoryChannel }) => {
 			const store = getStore();
 			const state = store.getState();
 			const channels = selectAllChannels(state);
@@ -50,21 +72,15 @@ export function useCategory() {
 				}
 			}
 			const channelsInCategory = channels.filter((ch) => ch.category_id === category.id);
-			channelsInCategory.forEach((channel) => {
-				const channelDeleteEvent = {
-					channel_id: channel.id,
-					clan_id: channel.clan_id || '',
-					deletor: 'user',
-					channel_type: channel.type || 0,
-					channel_label: channel.channel_label || '',
-					category_id: channel.category_id || '',
-					parent_id: channel.parent_id || ''
-				};
-				dispatch(channelsActions.deleteChannelSocket(channelDeleteEvent));
-				dispatch(listChannelsByUserActions.remove(channel.id));
-				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channel.id, clanId: channel.clan_id || '' }));
-				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channel.id, clanId: channel.clan_id || '' }));
-			});
+
+			if (channelsInCategory.length > 0) {
+				dispatch(
+					channelsActions.bulkDeleteChannelSocket({
+						channels: channelsInCategory,
+						clanId: currentClanId as string
+					})
+				);
+			}
 
 			await dispatch(
 				categoriesActions.deleteCategory({
@@ -76,27 +92,8 @@ export function useCategory() {
 
 			navigateAfterDeleteCategory(category.id);
 		},
-		[categorizedChannels, currentChannelId, currentClanId, navigate, toChannelPage, toMembersPage, dispatch]
+		[currentChannelId, currentClanId, navigate, toChannelPage, dispatch, navigateAfterDeleteCategory]
 	);
-
-	const navigateAfterDeleteCategory = (categoryId: string) => {
-		const store = getStore();
-		const state = store.getState();
-		const allChannels = selectAllChannels(state);
-		const currentChannel = currentChannelId ? allChannels.find((ch) => ch.id === currentChannelId) : null;
-		if (!currentChannel || currentChannel.category_id !== categoryId) {
-			return;
-		}
-		const remainingChannels = allChannels.filter((ch) => ch.category_id !== categoryId && !checkIsThread(ch));
-		if (remainingChannels.length === 0) {
-			const membersPath = toMembersPage(currentClanId as string);
-			navigate(membersPath);
-			return;
-		}
-		const nextChannel = remainingChannels[0];
-		const channelPath = toChannelPage(nextChannel.id, currentClanId as string);
-		navigate(channelPath);
-	};
 
 	return useMemo(
 		() => ({
@@ -104,7 +101,7 @@ export function useCategory() {
 			handleDeleteCategory,
 			navigateAfterDeleteCategory
 		}),
-		[categorizedChannels, handleDeleteCategory]
+		[categorizedChannels, handleDeleteCategory, navigateAfterDeleteCategory]
 	);
 }
 

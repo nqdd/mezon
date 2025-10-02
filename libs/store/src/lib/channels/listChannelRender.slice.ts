@@ -39,6 +39,26 @@ export const updateClanBadgeRender = createAsyncThunk(
 	}
 );
 
+export const bulkUpdateClanBadgeRender = createAsyncThunk(
+	'listRender/bulkUpdateClanBadge',
+	async ({ channelIds, clanId }: { channelIds: string[]; clanId: string }, thunkAPI) => {
+		try {
+			const state = thunkAPI.getState() as RootState;
+			const listChannelRender = state.CHANNEL_LIST_RENDER.listChannelRender[clanId];
+			const totalBadgeCount = channelIds.reduce((total, channelId) => {
+				const channel = listChannelRender.find((channel) => channelId === channel.id) as IChannel;
+				return total + (channel?.count_mess_unread || 0);
+			}, 0);
+			if (totalBadgeCount > 0) {
+				thunkAPI.dispatch(clansActions.updateClanBadgeCount({ clanId, count: totalBadgeCount * -1 }));
+			}
+		} catch (error) {
+			captureSentryError(error, 'listRender/bulkUpdateClanBadge');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
+
 export interface DataChannelAndCate {
 	listChannel: IChannel[];
 	listCategory: CategoriesEntity[];
@@ -111,12 +131,12 @@ export const listChannelRenderSlice = createSlice({
 					return;
 				}
 				state.listChannelRender[clanId].splice(indexInsert + 1, 0, channelData);
-				
+
 				const category = state.listChannelRender[clanId][indexInsert] as ICategoryChannel;
 				if (category.channels) {
 					category.channels = [...(category.channels as string[]), channelData.id];
 				}
-				
+
 				state.listChannelRender[clanId].join();
 			}
 		},
@@ -492,13 +512,48 @@ export const listChannelRenderSlice = createSlice({
 				category.channels = [...((category.channels as string[]) || []), channelId] as string[];
 				state.listChannelRender[clanId][index] = category;
 			}
+		},
+
+		bulkDeleteChannelsInListRender: (state, action: PayloadAction<{ channelIds: string[]; clanId: string }>) => {
+			const { channelIds, clanId } = action.payload;
+			if (!state.listChannelRender[clanId]) {
+				return;
+			}
+
+			const channelsToDelete = channelIds
+				.map((channelId) => state.listChannelRender[clanId].find((channel) => channel.id === channelId) as IChannel)
+				.filter(Boolean);
+
+			// Remove all channels and their threads in one operation
+			state.listChannelRender[clanId] = state.listChannelRender[clanId].filter(
+				(channel) => !channelIds.includes(channel.id) && !channelIds.includes((channel as IChannel).parent_id || '')
+			);
+
+			// Update categories to remove channel IDs
+			channelsToDelete.forEach((channelToDelete) => {
+				if (channelToDelete?.category_id) {
+					const categoryIndex = state.listChannelRender[clanId].findIndex((item) => item.id === channelToDelete.category_id);
+					if (categoryIndex !== -1) {
+						const category = state.listChannelRender[clanId][categoryIndex] as ICategoryChannel;
+						if (category.channels) {
+							// Handle both string[] and IChannel[] cases
+							if (typeof category.channels[0] === 'string') {
+								category.channels = (category.channels as string[]).filter((id) => !channelIds.includes(id));
+							} else {
+								category.channels = (category.channels as IChannel[]).filter((channel) => !channelIds.includes(channel.id));
+							}
+						}
+					}
+				}
+			});
 		}
 	}
 });
 
 export const listChannelRenderAction = {
 	...listChannelRenderSlice.actions,
-	updateClanBadgeRender
+	updateClanBadgeRender,
+	bulkUpdateClanBadgeRender
 };
 
 export const listChannelRenderReducer = listChannelRenderSlice.reducer;
