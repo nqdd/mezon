@@ -387,9 +387,9 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 										data-index={virtualRow.index}
 										draggable
 										onClick={handleChannelClick}
-										onDragStart={(e) => handleDragStart(virtualRow.index, e, `${item.category_id}-${item.id}`)}
-										onDragEnter={(e) => handleDragEnter(virtualRow.index, e, `${item.category_id}-${item.id}`)}
-										onDragEnd={() => handleDragEnd(virtualRow.index)}
+										// onDragStart={(e) => handleDragStart(virtualRow.index, e, `${item.category_id}-${item.id}`)}
+										// onDragEnter={(e) => handleDragEnter(virtualRow.index, e, `${item.category_id}-${item.id}`)}
+										// onDragEnd={() => handleDragEnd(virtualRow.index)}
 										ref={virtualizer.measureElement}
 									>
 										<ChannelListItem

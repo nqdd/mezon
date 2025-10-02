@@ -1,281 +1,281 @@
 {
-    "fields": {
-        "channelName": {
-            "title": "Tên kênh",
-            "placeholder": "Nhập tên kênh",
-            "errorMessage": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
-            "duplicateError": "Tên kênh đã tồn tại trong danh mục. Vui lòng nhập tên khác."
-        },
-        "threadName": {
-            "title": "Tên chủ đề",
-            "placeholder": "Nhập tên chủ đề",
-            "errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
-            "duplicateError": "Tên chủ đề đã tồn tại trong kênh. Vui lòng nhập tên khác."
-        },
-        "channelDescription": {
-            "title": "Mô tả của kênh",
-            "placeholder": "Hãy cho mọi người biết cách sử dụng kênh này!"
-        },
-        "threadDescription": {
-            "title": "Mô tả chủ đề",
-            "placeholder": "Hãy cho mọi người biết cách sử dụng chủ đề này!"
-        },
-        "appUrl": {
-            "title": "Đường dẫn ứng dụng",
-            "invalidError": "Vui lòng nhập URL hợp lệ (ví dụ: https://example.com)."
-        },
-        "channelCategory": {
-            "title": "Danh mục kênh"
-        },
-        "channelPermission": {
-            "title": "",
-            "permission": "Quyền hạn kênh",
-            "description": "Thay đổi cài đặt quyền riêng tư và tùy chỉnh cách thành viên có thể tương tác với kênh này."
-        },
-        "quickAction": {
-            "title": "Tác vụ"
-        },
-        "privateChannelInvite": {
-            "addMember": "Thêm thành viên"
-        },
-        "channelNotifications": {
-            "title": "",
-            "notification": "Cài đặt thông báo",
-            "pinned": "Tin nhắn được ghim",
-            "invite": "Lời mời"
-        },
-        "channelSlowMode": {
-            "title": "Chế độ chậm",
-            "description": "Thành viên sẽ bị hạn chế chỉ gửi được một tin nhắn một lần trong khoảng thời gian này, trừ khi họ có quyền quản lý kênh hoặc quản lý tin nhắn.",
-            "_5seconds": "5 giây",
-            "_10seconds": "10 giây",
-            "_15seconds": "15 giây",
-            "_30seconds": "30 giây",
-            "_1minute": "1 phút",
-            "_2minutes": "2 phút",
-            "_5minutes": "5 phút",
-            "_10minutes": "10 phút",
-            "_15minutes": "15 phút",
-            "_30minutes": "30 phút",
-            "_1hour": "1 giờ",
-            "_2hours": "2 giờ",
-            "_6hours": "6 giờ"
-        },
-        "channelHideInactivity": {
-            "title": "Ẩn sau thời gian không hoạt động",
-            "description": "Các chuỗi mới sẽ không hiển thị trong danh sách kênh sau khi không hoạt động trong khoảng thời gian được chỉ định",
-            "_1hour": "1 Giờ",
-            "_24hours": "24 Giờ",
-            "_3days": "3 Ngày",
-            "_1Week": "1 Tuần"
-        },
-        "channelWebhooks": {
-            "title": "",
-            "webhook": "Webhook"
-        },
-        "channelDelete": {
-            "title": "",
-            "delete": "Xóa kênh"
-        },
-        "threadDelete": {
-            "title": "",
-            "delete": "Xóa chủ đề"
-        },
-        "threadLeave": {
-            "title": "",
-            "leave": "Rời chủ đề"
-        }
-    },
-    "confirm": {
-        "delete": {
-            "content": "Bạn có chắc chắn muốn xóa kênh #{{channelName}} không? Hành động này không thể khôi phục.",
-            "confirmText": "Xóa",
-            "title": "Xóa kênh",
-            "systemChannel": "Không thể xóa kênh hệ thống",
-            "error": "Xóa kênh lỗi: {{error}}"
-        },
-        "deleteThread": {
-            "content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
-            "confirmText": "Xóa chủ đề",
-            "title": "Xóa chủ đề"
-        },
-        "deleteChannel": {
-            "content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
-            "confirmText": "Xóa kênh",
-            "title": "Xóa kênh"
-        },
-        "cancel": "Hủy",
-        "leave": {
-            "content": "Bạn có chắc chắn muốn rời kênh #{{channelName}} không? Hành động này không thể khôi phục.",
-            "confirmText": "Rời",
-            "title": "Rời kênh"
-        },
-        "save": "Lưu"
-    },
-    "toast": {
-        "updated": "Cập nhật thành công"
-    },
-    "channelPermission": {
-        "permissionOverrides": "Ghi đè quyền",
-        "save": "Lưu",
-        "generalChannelPermission": "QUYỀN TỔNG QUÁT KÊNH",
-        "title": "Quyền truy cập",
-        "basicView": "Cơ bản",
-        "advancedView": "Nâng cao",
-        "roles": "Vai trò",
-        "members": "Thành viên",
-        "edit": "Chỉnh sửa",
-        "done": "Hoàn tất",
-        "addRole": "Thêm vai trò",
-        "addMember": "Thêm thành viên",
-        "privateChannel": "Kênh riêng tư",
-        "basicViewDescription": "Khi bạn chuyển kênh sang chế độ riêng tư, chỉ những thành viên và vai trò được chọn mới có thể xem kênh này",
-        "addMemberAndRoles": "Thêm thành viên hoặc vai trò",
-        "whoCanAccess": "Ai có thể truy cập",
-        "warningModal": {
-            "publicChannelTitle": "Mở kênh này cho tất cả mọi người?",
-            "privateChannelTitle": "Chuyển kênh này thành riêng tư?",
-            "publicChannelContent": "{{channelLabel}} sẽ có sẵn cho tất cả các thành viên",
-            "privateChannelContent": "{{channelLabel}} sẽ trở thành riêng tư và chỉ hiển thị cho các thành viên và vai trò được chọn",
-            "confirm": "Đồng ý"
-        },
-        "warningChangeSettingModal": {
-            "title": "Bạn có các cài đặt chưa được lưu",
-            "content": "Bạn có muốn lưu các thay đổi không?",
-            "confirm": "Có, Lưu"
-        },
-        "description": {
-            "viewChannel": "Cho phép thành viên xem kênh này theo mặc định. Vô hiệu hóa điều này cho @everyone sẽ làm cho kênh này trở thành riêng tư.",
-            "manageChannel": "Cho phép thành viên thay đổi tên kênh, mô tả, và cài đặt văn bản của kênh này. Họ cũng có thể xóa kênh.",
-            "manageThread": "Cho phép thành viên đổi tên, xóa, đóng và bật chế độ chậm cho các luồng trong kênh này. Họ cũng có thể xem các luồng riêng tư.",
-            "sendMessage": "Cho phép thành viên gửi tin nhắn trong kênh này.",
-            "deleteMessage": "Cho phép thành viên xóa tin nhắn trong kênh này."
-        },
-        "bottomSheet": {
-            "addMembersOrRoles": "Thêm thành viên hoặc vai trò",
-            "add": "Thêm",
-            "roles": "VAI TRÒ",
-            "members": "THÀNH VIÊN"
-        },
-        "toast": {
-            "success": "Lưu thành công",
-            "failed": "Lưu thất bại"
-        },
-        "roleAndMemberEmpty": "Chưa có vai trò và thành viên để thiết lập quyền riêng",
-        "header": {
-            "title": "Quyền hạn kênh",
-            "description": "Sử dụng quyền hạn để tùy chỉnh ai có thể làm gì trong kênh này.",
-            "syncedWithCategory": "Quyền hạn được đồng bộ với danh mục:"
-        }
-    },
-    "quickAction": {
-        "title": "Tác vụ nhanh",
-        "description": "Quản lý tin nhắn nhanh và menu nhanh cho kênh này",
-        "keyTitle": "Nhập từ khóa (VD: xinchao): ",
-        "valueTitle": "Nhập nội dung (VD: Chào buổi sáng, chúc bạn có một ngày mới tốt lành !)",
-        "save": "LƯU",
-        "cancel": "HỦY",
-        "create": "Tạo",
-        "update": "Cập nhật",
-        "delete": "Xóa",
-        "deleteModal": "XÓA TÁC VỤ",
-        "deleteTitle": "Bạn có chắc chắn muốn xóa {{command}} không? Hành động này không thể hoàn tác.",
-        "flashMessage": "Tin nhắn nhanh",
-        "flashMessages": "Tin nhắn nhanh",
-        "quickMenu": "Menu nhanh",
-        "quickMenus": "Menu nhanh",
-        "menuName": "Tên menu",
-        "commandName": "Tên lệnh",
-        "menuNameHelper": "Tên cho mục menu nhanh này",
-        "commandNameHelper": "Tên mà người dùng sẽ nhập sau dấu gạch chéo",
-        "botEventTrigger": "Kích hoạt sự kiện Bot",
-        "botEventDescription": "Menu nhanh này sẽ tự động kích hoạt một sự kiện bot khi được chọn.",
-        "createQuickMenu": "Tạo Menu Nhanh",
-        "createFlashMessage": "Tạo Tin Nhắn Nhanh",
-        "editQuickMenu": "Chỉnh Sửa Menu Nhanh",
-        "editFlashMessage": "Chỉnh Sửa Tin Nhắn Nhanh",
-        "emptyFlashMessage": "Chưa có tin nhắn nhanh nào",
-        "emptyFlashMessageDescription": "Bắt đầu bằng cách tạo lệnh tin nhắn nhanh đầu tiên của bạn",
-        "emptyQuickMenu": "Chưa có menu nhanh nào",
-        "emptyQuickMenuDescription": "Bắt đầu bằng cách tạo menu nhanh đầu tiên của bạn",
-        "addFlashMessage": "Thêm Tin Nhắn Nhanh",
-        "addQuickMenu": "Thêm Menu Nhanh",
-        "editCommand": "Chỉnh sửa lệnh",
-        "deleteCommand": "Xóa lệnh",
-        "triggersBot": "Kích hoạt sự kiện bot",
-        "messageContent": "Nội dung tin nhắn",
-        "messageContentPlaceholder": "Tin nhắn sẽ được gửi nhanh",
-        "messageContentDescription": "Nội dung tin nhắn sẽ được gửi khi sử dụng lệnh tin nhắn nhanh này",
-        "menuAction": "Hành động menu",
-        "menuActionPlaceholder": "Hành động sẽ được thực hiện",
-        "menuActionDescription": "Hành động sẽ được thực hiện khi menu nhanh này được chọn"
-    },
-    "changeCategory": {
-        "title": "Thay đổi danh mục",
-        "label": "CHUYỂN TỪ {{currentChannel}} TỚI",
-        "confirmFirstContent": "Bạn có chắc chắn muốn chuyển",
-        "confirmLastContent": "đến danh mục",
-        "confirm": "Đồng ý",
-        "error": "Thay đổi danh mục thất bại"
-    },
-    "overview": {
-        "title": "Tổng quan",
-        "ageRestricted": {
-            "title": "Kênh hạn chế độ tuổi",
-            "description": "Người dùng sẽ cần xác nhận họ đủ tuổi hợp pháp để xem nội dung trong kênh này. Các kênh hạn chế độ tuổi được miễn trừ bộ lọc nội dung rõ ràng."
-        },
-        "e2ee": {
-            "title": "Mã hóa đầu cuối",
-            "description": "Bật mã hóa đầu cuối cho kênh này để bảo mật tất cả tin nhắn."
-        }
-    },
-    "tabs": {
-        "overview": "Tổng quan",
-        "permissions": "Quyền hạn",
-        "invites": "Lời mời",
-        "integrations": "Tích hợp",
-        "category": "Danh mục", 
-        "quickMenu": "Menu nhanh"
-    },
-    "categoryManagement": {
-        "title": "Danh mục",
-        "channelName": "Tên kênh",
-        "category": "Danh mục"
-    },
-    "unsavedChanges": {
-        "warning": "Cẩn thận - bạn có thay đổi chưa được lưu!",
-        "reset": "Đặt lại",
-        "saveChanges": "Lưu thay đổi"
-    },
-    "addMembersRoles": {
-        "title": "Thêm thành viên hoặc vai trò",
-        "placeholder": "VD: Quản trị viên, @wumpus",
-        "instruction": "Thêm thành viên riêng lẻ bằng cách bắt đầu với @ hoặc nhập tên vai trò",
-        "roles": "Vai trò",
-        "members": "Thành viên",
-        "cancel": "Hủy",
-        "done": "Hoàn thành"
-    },
-    "table": {
-        "columnHeaders": {
-            "name": "Tên",
-            "members": "Thành viên",
-            "messagesCount": "Số tin nhắn",
-            "lastSent": "Gửi gần nhất",
-            "creator": "Người tạo"
-        },
-        "pagination": {
-            "show": "Hiển thị",
-            "channelOf": "kênh trong số"
-        },
-        "memberModal": {
-            "listMember": "Danh sách thành viên"
-        },
-        "threads": {
-            "noThreads": "Không có chủ đề nào trong kênh này"
-        },
-        "members": {
-            "allMembers": "(Tất cả thành viên)"
-        }
-    }
+	"fields": {
+		"channelName": {
+			"title": "Tên kênh",
+			"placeholder": "Nhập tên kênh",
+			"errorMessage": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+			"duplicateError": "Tên kênh đã tồn tại trong danh mục. Vui lòng nhập tên khác."
+		},
+		"threadName": {
+			"title": "Tên chủ đề",
+			"placeholder": "Nhập tên chủ đề",
+			"errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+			"duplicateError": "Tên chủ đề đã tồn tại trong kênh. Vui lòng nhập tên khác."
+		},
+		"channelDescription": {
+			"title": "Mô tả của kênh",
+			"placeholder": "Hãy cho mọi người biết cách sử dụng kênh này!"
+		},
+		"threadDescription": {
+			"title": "Mô tả chủ đề",
+			"placeholder": "Hãy cho mọi người biết cách sử dụng chủ đề này!"
+		},
+		"appUrl": {
+			"title": "Đường dẫn ứng dụng",
+			"invalidError": "Vui lòng nhập URL hợp lệ (ví dụ: https://example.com)."
+		},
+		"channelCategory": {
+			"title": "Danh mục kênh"
+		},
+		"channelPermission": {
+			"title": "",
+			"permission": "Quyền hạn kênh",
+			"description": "Thay đổi cài đặt quyền riêng tư và tùy chỉnh cách thành viên có thể tương tác với kênh này."
+		},
+		"quickAction": {
+			"title": "Tác vụ"
+		},
+		"privateChannelInvite": {
+			"addMember": "Thêm thành viên"
+		},
+		"channelNotifications": {
+			"title": "",
+			"notification": "Cài đặt thông báo",
+			"pinned": "Tin nhắn được ghim",
+			"invite": "Lời mời"
+		},
+		"channelSlowMode": {
+			"title": "Chế độ chậm",
+			"description": "Thành viên sẽ bị hạn chế chỉ gửi được một tin nhắn một lần trong khoảng thời gian này, trừ khi họ có quyền quản lý kênh hoặc quản lý tin nhắn.",
+			"_5seconds": "5 giây",
+			"_10seconds": "10 giây",
+			"_15seconds": "15 giây",
+			"_30seconds": "30 giây",
+			"_1minute": "1 phút",
+			"_2minutes": "2 phút",
+			"_5minutes": "5 phút",
+			"_10minutes": "10 phút",
+			"_15minutes": "15 phút",
+			"_30minutes": "30 phút",
+			"_1hour": "1 giờ",
+			"_2hours": "2 giờ",
+			"_6hours": "6 giờ"
+		},
+		"channelHideInactivity": {
+			"title": "Ẩn sau thời gian không hoạt động",
+			"description": "Các chủ đề mới sẽ không hiển thị trong danh sách kênh sau khi không hoạt động trong khoảng thời gian được chỉ định",
+			"_1hour": "1 Giờ",
+			"_24hours": "24 Giờ",
+			"_3days": "3 Ngày",
+			"_1Week": "1 Tuần"
+		},
+		"channelWebhooks": {
+			"title": "",
+			"webhook": "Webhook"
+		},
+		"channelDelete": {
+			"title": "",
+			"delete": "Xóa kênh"
+		},
+		"threadDelete": {
+			"title": "",
+			"delete": "Xóa chủ đề"
+		},
+		"threadLeave": {
+			"title": "",
+			"leave": "Rời chủ đề"
+		}
+	},
+	"confirm": {
+		"delete": {
+			"content": "Bạn có chắc chắn muốn xóa kênh #{{channelName}} không? Hành động này không thể khôi phục.",
+			"confirmText": "Xóa",
+			"title": "Xóa kênh",
+			"systemChannel": "Không thể xóa kênh hệ thống",
+			"error": "Xóa kênh lỗi: {{error}}"
+		},
+		"deleteThread": {
+			"content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
+			"confirmText": "Xóa chủ đề",
+			"title": "Xóa chủ đề"
+		},
+		"deleteChannel": {
+			"content": "Bạn có chắc chắn muốn xóa {{channelName}} không? Hành động này không thể khôi phục.",
+			"confirmText": "Xóa kênh",
+			"title": "Xóa kênh"
+		},
+		"cancel": "Hủy",
+		"leave": {
+			"content": "Bạn có chắc chắn muốn rời kênh #{{channelName}} không? Hành động này không thể khôi phục.",
+			"confirmText": "Rời",
+			"title": "Rời kênh"
+		},
+		"save": "Lưu"
+	},
+	"toast": {
+		"updated": "Cập nhật thành công"
+	},
+	"channelPermission": {
+		"permissionOverrides": "Ghi đè quyền",
+		"save": "Lưu",
+		"generalChannelPermission": "QUYỀN TỔNG QUÁT KÊNH",
+		"title": "Quyền truy cập",
+		"basicView": "Cơ bản",
+		"advancedView": "Nâng cao",
+		"roles": "Vai trò",
+		"members": "Thành viên",
+		"edit": "Chỉnh sửa",
+		"done": "Hoàn tất",
+		"addRole": "Thêm vai trò",
+		"addMember": "Thêm thành viên",
+		"privateChannel": "Kênh riêng tư",
+		"basicViewDescription": "Khi bạn chuyển kênh sang chế độ riêng tư, chỉ những thành viên và vai trò được chọn mới có thể xem kênh này",
+		"addMemberAndRoles": "Thêm thành viên hoặc vai trò",
+		"whoCanAccess": "Ai có thể truy cập",
+		"warningModal": {
+			"publicChannelTitle": "Mở kênh này cho tất cả mọi người?",
+			"privateChannelTitle": "Chuyển kênh này thành riêng tư?",
+			"publicChannelContent": "{{channelLabel}} sẽ có sẵn cho tất cả các thành viên",
+			"privateChannelContent": "{{channelLabel}} sẽ trở thành riêng tư và chỉ hiển thị cho các thành viên và vai trò được chọn",
+			"confirm": "Đồng ý"
+		},
+		"warningChangeSettingModal": {
+			"title": "Bạn có các cài đặt chưa được lưu",
+			"content": "Bạn có muốn lưu các thay đổi không?",
+			"confirm": "Có, Lưu"
+		},
+		"description": {
+			"viewChannel": "Cho phép thành viên xem kênh này theo mặc định. Vô hiệu hóa điều này cho @everyone sẽ làm cho kênh này trở thành riêng tư.",
+			"manageChannel": "Cho phép thành viên thay đổi tên kênh, mô tả, và cài đặt văn bản của kênh này. Họ cũng có thể xóa kênh.",
+			"manageThread": "Cho phép thành viên đổi tên, xóa, đóng và bật chế độ chậm cho các luồng trong kênh này. Họ cũng có thể xem các luồng riêng tư.",
+			"sendMessage": "Cho phép thành viên gửi tin nhắn trong kênh này.",
+			"deleteMessage": "Cho phép thành viên xóa tin nhắn trong kênh này."
+		},
+		"bottomSheet": {
+			"addMembersOrRoles": "Thêm thành viên hoặc vai trò",
+			"add": "Thêm",
+			"roles": "VAI TRÒ",
+			"members": "THÀNH VIÊN"
+		},
+		"toast": {
+			"success": "Lưu thành công",
+			"failed": "Lưu thất bại"
+		},
+		"roleAndMemberEmpty": "Chưa có vai trò và thành viên để thiết lập quyền riêng",
+		"header": {
+			"title": "Quyền hạn kênh",
+			"description": "Sử dụng quyền hạn để tùy chỉnh ai có thể làm gì trong kênh này.",
+			"syncedWithCategory": "Quyền hạn được đồng bộ với danh mục:"
+		}
+	},
+	"quickAction": {
+		"title": "Tác vụ nhanh",
+		"description": "Quản lý tin nhắn nhanh và menu nhanh cho kênh này",
+		"keyTitle": "Nhập từ khóa (VD: xinchao): ",
+		"valueTitle": "Nhập nội dung (VD: Chào buổi sáng, chúc bạn có một ngày mới tốt lành !)",
+		"save": "LƯU",
+		"cancel": "HỦY",
+		"create": "Tạo",
+		"update": "Cập nhật",
+		"delete": "Xóa",
+		"deleteModal": "XÓA TÁC VỤ",
+		"deleteTitle": "Bạn có chắc chắn muốn xóa {{command}} không? Hành động này không thể hoàn tác.",
+		"flashMessage": "Tin nhắn nhanh",
+		"flashMessages": "Tin nhắn nhanh",
+		"quickMenu": "Menu nhanh",
+		"quickMenus": "Menu nhanh",
+		"menuName": "Tên menu",
+		"commandName": "Tên lệnh",
+		"menuNameHelper": "Tên cho mục menu nhanh này",
+		"commandNameHelper": "Tên mà người dùng sẽ nhập sau dấu gạch chéo",
+		"botEventTrigger": "Kích hoạt sự kiện Bot",
+		"botEventDescription": "Menu nhanh này sẽ tự động kích hoạt một sự kiện bot khi được chọn.",
+		"createQuickMenu": "Tạo Menu Nhanh",
+		"createFlashMessage": "Tạo Tin Nhắn Nhanh",
+		"editQuickMenu": "Chỉnh Sửa Menu Nhanh",
+		"editFlashMessage": "Chỉnh Sửa Tin Nhắn Nhanh",
+		"emptyFlashMessage": "Chưa có tin nhắn nhanh nào",
+		"emptyFlashMessageDescription": "Bắt đầu bằng cách tạo lệnh tin nhắn nhanh đầu tiên của bạn",
+		"emptyQuickMenu": "Chưa có menu nhanh nào",
+		"emptyQuickMenuDescription": "Bắt đầu bằng cách tạo menu nhanh đầu tiên của bạn",
+		"addFlashMessage": "Thêm Tin Nhắn Nhanh",
+		"addQuickMenu": "Thêm Menu Nhanh",
+		"editCommand": "Chỉnh sửa lệnh",
+		"deleteCommand": "Xóa lệnh",
+		"triggersBot": "Kích hoạt sự kiện bot",
+		"messageContent": "Nội dung tin nhắn",
+		"messageContentPlaceholder": "Tin nhắn sẽ được gửi nhanh",
+		"messageContentDescription": "Nội dung tin nhắn sẽ được gửi khi sử dụng lệnh tin nhắn nhanh này",
+		"menuAction": "Hành động menu",
+		"menuActionPlaceholder": "Hành động sẽ được thực hiện",
+		"menuActionDescription": "Hành động sẽ được thực hiện khi menu nhanh này được chọn"
+	},
+	"changeCategory": {
+		"title": "Thay đổi danh mục",
+		"label": "CHUYỂN TỪ {{currentChannel}} TỚI",
+		"confirmFirstContent": "Bạn có chắc chắn muốn chuyển",
+		"confirmLastContent": "đến danh mục",
+		"confirm": "Đồng ý",
+		"error": "Thay đổi danh mục thất bại"
+	},
+	"overview": {
+		"title": "Tổng quan",
+		"ageRestricted": {
+			"title": "Kênh hạn chế độ tuổi",
+			"description": "Người dùng sẽ cần xác nhận họ đủ tuổi hợp pháp để xem nội dung trong kênh này. Các kênh hạn chế độ tuổi được miễn trừ bộ lọc nội dung rõ ràng."
+		},
+		"e2ee": {
+			"title": "Mã hóa đầu cuối",
+			"description": "Bật mã hóa đầu cuối cho kênh này để bảo mật tất cả tin nhắn."
+		}
+	},
+	"tabs": {
+		"overview": "Tổng quan",
+		"permissions": "Quyền hạn",
+		"invites": "Lời mời",
+		"integrations": "Tích hợp",
+		"category": "Danh mục",
+		"quickMenu": "Menu nhanh"
+	},
+	"categoryManagement": {
+		"title": "Danh mục",
+		"channelName": "Tên kênh",
+		"category": "Danh mục"
+	},
+	"unsavedChanges": {
+		"warning": "Cẩn thận - bạn có thay đổi chưa được lưu!",
+		"reset": "Đặt lại",
+		"saveChanges": "Lưu thay đổi"
+	},
+	"addMembersRoles": {
+		"title": "Thêm thành viên hoặc vai trò",
+		"placeholder": "VD: Quản trị viên, @wumpus",
+		"instruction": "Thêm thành viên riêng lẻ bằng cách bắt đầu với @ hoặc nhập tên vai trò",
+		"roles": "Vai trò",
+		"members": "Thành viên",
+		"cancel": "Hủy",
+		"done": "Hoàn thành"
+	},
+	"table": {
+		"columnHeaders": {
+			"name": "Tên",
+			"members": "Thành viên",
+			"messagesCount": "Số tin nhắn",
+			"lastSent": "Gửi gần nhất",
+			"creator": "Người tạo"
+		},
+		"pagination": {
+			"show": "Hiển thị",
+			"channelOf": "kênh trong số"
+		},
+		"memberModal": {
+			"listMember": "Danh sách thành viên"
+		},
+		"threads": {
+			"noThreads": "Không có chủ đề nào trong kênh này"
+		},
+		"members": {
+			"allMembers": "(Tất cả thành viên)"
+		}
+	}
 }

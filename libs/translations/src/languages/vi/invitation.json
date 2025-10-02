@@ -42,7 +42,7 @@
 	"privateChannelDescription": "Kênh này là riêng tư, chỉ các thành viên và vai trò được chọn mới có thể xem kênh này.",
 	"noResults": "Không có kết quả",
 	"messages": {
-		"qrCopiedSuccess": " Đã sao chép QR thành công !!"
+		"qrCopiedSuccess": "Đã sao chép QR thành công!"
 	},
 	"errors": {
 		"createInviteLink": "Lỗi khi tạo liên kết mời",
