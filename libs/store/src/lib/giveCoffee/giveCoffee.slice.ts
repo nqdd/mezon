@@ -65,7 +65,6 @@ export const updateGiveCoffee = createAsyncThunk(
 					)
 					.then((action) => action?.payload as AddTxResponse);
 
-				console.log('🚀 ~ response:', response);
 				if (response?.ok) {
 					thunkAPI.dispatch(toastActions.addToast({ message: 'Coffee sent', type: 'success' }));
 					return response.ok;
@@ -115,7 +114,6 @@ export const sendToken = createAsyncThunk('token/sendToken', async (tokenEvent: 
 			)
 			.then((action) => action?.payload as AddTxResponse);
 
-		console.log('🚀 ~ response:', response);
 		if (response.ok) {
 			thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
 			thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
