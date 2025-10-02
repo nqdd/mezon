@@ -1,18 +1,19 @@
 import type { Attributes } from '@mezon/mobile-ui';
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (themeValue: Attributes) =>
 	StyleSheet.create({
 		dropdownContainer: {
 			position: 'absolute',
-			top: '100%',
+			top: '105%',
 			left: 0,
 			right: 0,
 			backgroundColor: themeValue.secondary,
 			borderRadius: size.s_8,
 			borderWidth: 1,
-			borderColor: themeValue.border,
+			borderColor: baseColor.gray,
+			overflow: 'hidden',
 			zIndex: 1000,
 			width: '50%',
 			maxWidth: size.s_220,

@@ -29,6 +29,7 @@ export const style = () =>
 		inputFilled: {
 			borderWidth: 2,
 			borderColor: '#1661ff',
+			backgroundColor: 'rgba(0,82,255,0.1)',
 			color: '#000000'
 		},
 		inputError: {

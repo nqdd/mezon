@@ -66,6 +66,10 @@ export type AuthenticateEmailOTPRequestPayload = {
 	email: string;
 };
 
+export type AuthenticatePhoneSMSOTPRequestPayload = {
+	phone: string;
+};
+
 export const authenticateEmail = createAsyncThunk('auth/authenticateEmail', async ({ email, password }: AuthenticateEmailPayload, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const session = await mezon?.authenticateEmail(email, password);
@@ -166,6 +170,18 @@ export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (d
 	}
 	return normalizeSession(session);
 });
+
+export const authenticatePhoneSMSOTPRequest = createAsyncThunk(
+	'auth/authenticatePhoneSMSOTPRequest',
+	async ({ phone }: AuthenticatePhoneSMSOTPRequestPayload, thunkAPI) => {
+		const mezon = getMezonCtx(thunkAPI);
+		const res = await mezon?.authenticateSMSOTPRequest(phone);
+		if (!res) {
+			return thunkAPI.rejectWithValue('Invalid session');
+		}
+		return res;
+	}
+);
 
 export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platform }: { device_id?: string; platform?: string }, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
@@ -493,7 +509,8 @@ export const authActions = {
 	authenticateEmail,
 	checkSessionWithToken,
 	authenticateEmailOTPRequest,
-	confirmEmailOTP
+	confirmEmailOTP,
+	authenticatePhoneSMSOTPRequest
 };
 
 export const getAuthState = (rootState: { [AUTH_FEATURE_KEY]: AuthState }): AuthState => rootState[AUTH_FEATURE_KEY];

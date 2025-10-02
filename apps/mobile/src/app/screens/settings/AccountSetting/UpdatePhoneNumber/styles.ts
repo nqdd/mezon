@@ -20,7 +20,7 @@ export const style = (themeValue: Attributes) =>
 		},
 		phoneContainer: {
 			flexDirection: 'row',
-			backgroundColor: `${themeValue.midnightBlue}1A`,
+			backgroundColor: themeValue.secondaryLight,
 			borderWidth: 0,
 			borderRadius: size.s_8,
 			paddingVertical: size.s_2
