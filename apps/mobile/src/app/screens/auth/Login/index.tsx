@@ -4,15 +4,29 @@ import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, NativeModules, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+	ActivityIndicator,
+	NativeModules,
+	Platform,
+	ScrollView,
+	StatusBar,
+	StyleSheet,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View,
+	useWindowDimensions
+} from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { ErrorInput } from '../../../components/ErrorInput';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
+import { CountryDropdown, countries, type ICountry } from '../../home/homedrawer/components/CountryDropdown';
 import { style } from './styles';
 
 type LoginMode = 'otp' | 'password' | 'sms';
@@ -22,12 +36,17 @@ const LoginScreen = ({ navigation }) => {
 	const styles = style();
 	const [email, setEmail] = useState('');
 	const [phone, setPhone] = useState('');
+	const [selectedCountry, setSelectedCountry] = useState<ICountry>(countries[0]);
+	const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
+	const [isValidPhoneNumber, setIsValidPhoneNumber] = useState<boolean | null>(null);
 	const [password, setPassword] = useState('');
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
 	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
 	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+	const { width, height } = useWindowDimensions();
+	const isLandscape = width > height;
 
 	const { t } = useTranslation(['common']);
 	const dispatch = useAppDispatch();
@@ -35,16 +54,11 @@ const LoginScreen = ({ navigation }) => {
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		return emailRegex.test(email);
 	};
-	const isValidPhone = (phone: string) => {
-		const phoneRegex = /^[+]?[\d\s-()]{10,15}$/;
-		return phoneRegex.test(phone.replace(/\s|-|\(|\)/g, ''));
-	};
 	const { authenticateEmailPassword } = useAuth();
 	const { clientRef } = useMezon();
 	const isEmailValid = isValidEmail(email);
-	const isPhoneValid = isValidPhone(phone);
 	const isPasswordValid = password.length >= 1;
-	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isPhoneValid : isEmailValid && isPasswordValid;
+	const isFormValid = loginMode === 'otp' ? isEmailValid : loginMode === 'sms' ? isValidPhoneNumber : isEmailValid && isPasswordValid;
 
 	const clearBadgeCount = () => {
 		try {
@@ -174,11 +188,17 @@ const LoginScreen = ({ navigation }) => {
 	};
 
 	const handleSendPhoneOTP = async () => {
-		if (getInfoInCooldown(phone)?.isInCooldown) {
+		let processedPhoneNumber = phone;
+		if (selectedCountry.prefix === '+84' && phone.startsWith('0')) {
+			processedPhoneNumber = phone.substring(1);
+		}
+		const fullPhoneNumber = `${selectedCountry.prefix}${processedPhoneNumber}`;
+		const infoInCooldown: ICooldownInfo = getInfoInCooldown(fullPhoneNumber);
+		if (infoInCooldown?.isInCooldown) {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: `Login too fast. Please wait ${cooldownRemaining} seconds before trying again.`,
+					text2: `Login too fast. Please wait ${infoInCooldown.remaining} seconds before trying again.`,
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -186,16 +206,27 @@ const LoginScreen = ({ navigation }) => {
 		}
 
 		try {
-			if (isPhoneValid) {
-				setIsLoading(true);
+			setIsLoading(true);
+			const resp: any = await dispatch(authActions.authenticatePhoneSMSOTPRequest({ phone: fullPhoneNumber }));
+			const payload = resp?.payload as ApiLinkAccountConfirmRequest;
+			const reqId = payload?.req_id;
+			if (reqId) {
 				setLastOTPSentTime((prev) => ({
 					...prev,
-					[phone]: Date.now()
+					[fullPhoneNumber]: Date.now()
 				}));
 
-				// todo: add more logic
-				setIsLoading(false);
+				navigation.navigate(APP_SCREEN.VERIFY_OTP, { phoneNumber: fullPhoneNumber, reqId });
+			} else {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: resp?.error?.message || 'An error occurred while sending OTP',
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					}
+				});
 			}
+			setIsLoading(false);
 		} catch (error) {
 			setIsLoading(false);
 			console.error('Error sending phone OTP:', error);
@@ -261,6 +292,34 @@ const LoginScreen = ({ navigation }) => {
 	const togglePasswordVisibility = () => {
 		setShowPassword(!showPassword);
 	};
+	const checkValidPhoneNumber = useCallback(
+		(phoneData: string, prefix: string = selectedCountry.prefix) => {
+			if (phoneData.length === 0) return null;
+
+			if (prefix === '+84') {
+				const vietnamPhoneRegex = /^0?(3|5|7|8|9)[0-9]{8}$/;
+				return vietnamPhoneRegex.test(phoneData);
+			}
+
+			if (phoneData.length < 7) return false;
+			return /^\d+$/.test(phoneData);
+		},
+		[selectedCountry.prefix]
+	);
+
+	const onChangePhone = (value: string) => {
+		setPhone(value);
+		setIsValidPhoneNumber(checkValidPhoneNumber(value));
+	};
+
+	const handleCountrySelect = useCallback(
+		(country: ICountry) => {
+			setSelectedCountry(country);
+			setIsShowDropdown(false);
+			setIsValidPhoneNumber(checkValidPhoneNumber(phone, country.prefix));
+		},
+		[checkValidPhoneNumber, phone]
+	);
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
@@ -271,42 +330,61 @@ const LoginScreen = ({ navigation }) => {
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={styles.content}>
+				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('login.enterEmail')}</Text>
 					<Text style={styles.subtitle}>{t('login.chooseAnotherOption')}</Text>
 
 					<View style={styles.inputSection}>
-						<View style={styles.inputWrapper}>
-							<MezonIconCDN icon={IconCDN.mailIcon} width={size.s_20} height={size.s_20} color={'#454545'} />
+						{loginMode === 'sms' ? (
+							<View style={styles.phoneContainer}>
+								<TouchableOpacity style={styles.countryButton} onPress={() => setIsShowDropdown(!isShowDropdown)}>
+									<MezonIconCDN icon={selectedCountry.icon} useOriginalColor customStyle={styles.customStyleFlagIcon} />
+									<Text style={styles.inputCountry}>{selectedCountry.prefix}</Text>
+								</TouchableOpacity>
 
-							{(loginMode === 'otp' || loginMode === 'password') && (
-								<TextInput
-									style={styles.emailInput}
-									placeholder={t('login.emailAddress')}
-									placeholderTextColor={styles.placeholder.color}
-									value={email}
-									onChangeText={setEmail}
-									keyboardType="email-address"
-									autoCapitalize="none"
-									autoCorrect={false}
-									autoFocus={true}
-									onSubmitEditing={handlePrimaryAction}
-									underlineColorAndroid="transparent"
+								<View style={{ flex: 1 }}>
+									<TextInput
+										style={styles.emailInput}
+										placeholder={t('login.phone')}
+										placeholderTextColor={styles.placeholder.color}
+										value={phone}
+										onChangeText={onChangePhone}
+										keyboardType={'phone-pad'}
+										autoCapitalize="none"
+										autoCorrect={false}
+									/>
+								</View>
+								<CountryDropdown
+									onCountrySelect={handleCountrySelect}
+									isVisible={isShowDropdown}
+									selectedCountry={selectedCountry}
+									backgroundColor={'#f6f6f6'}
 								/>
-							)}
-							{loginMode === 'sms' && (
-								<TextInput
-									style={styles.emailInput}
-									placeholder={t('login.phone')}
-									placeholderTextColor={styles.placeholder.color}
-									value={phone}
-									onChangeText={setPhone}
-									keyboardType={'phone-pad'}
-									autoCapitalize="none"
-									autoCorrect={false}
-								/>
-							)}
-						</View>
+								<View style={styles.errorContainer}>
+									{isValidPhoneNumber === false && <ErrorInput errorMessage={t('login.invalidPhoneNumber')} />}
+								</View>
+							</View>
+						) : (
+							<View style={styles.inputWrapper}>
+								<MezonIconCDN icon={IconCDN.mailIcon} width={size.s_20} height={size.s_20} color={'#454545'} />
+
+								{(loginMode === 'otp' || loginMode === 'password') && (
+									<TextInput
+										style={styles.emailInput}
+										placeholder={t('login.emailAddress')}
+										placeholderTextColor={styles.placeholder.color}
+										value={email}
+										onChangeText={setEmail}
+										keyboardType="email-address"
+										autoCapitalize="none"
+										autoCorrect={false}
+										autoFocus={true}
+										onSubmitEditing={handlePrimaryAction}
+										underlineColorAndroid="transparent"
+									/>
+								)}
+							</View>
+						)}
 					</View>
 
 					{loginMode === 'password' && (
@@ -371,28 +449,20 @@ const LoginScreen = ({ navigation }) => {
 					</TouchableOpacity>
 
 					<View style={styles.alternativeSection}>
-						{loginMode === 'otp' ? (
-							<>
-								<Text style={styles.alternativeText}>{t('login.cannotAccessYourEmail')}</Text>
-								<View style={styles.alternativeOptions}>
-									{/* TODO: open for login SMS */}
-									{/*<TouchableOpacity onPress={handleSMSLogin}>*/}
-									{/*	<Text style={styles.linkText}>{t('login.loginWithSMS')}</Text>*/}
-									{/*</TouchableOpacity>*/}
-									{/*<Text style={styles.orText}>{t('login.or')}</Text>*/}
-									<TouchableOpacity onPress={switchToPasswordMode}>
-										<Text style={styles.linkText}>{t('login.loginWithPassword')}</Text>
-									</TouchableOpacity>
-								</View>
-							</>
-						) : (
-							<>
-								<Text style={styles.alternativeText}>{t('login.passwordNotSet')}</Text>
-								<TouchableOpacity onPress={switchToOTPMode}>
-									<Text style={styles.linkText}>{t('login.loginWithOTP')}</Text>
-								</TouchableOpacity>
-							</>
-						)}
+						<Text style={styles.alternativeText}>
+							{loginMode === 'otp' ? t('login.cannotAccessYourEmail') : t('login.passwordNotSet')}
+						</Text>
+						<View style={styles.alternativeOptions}>
+							<TouchableOpacity onPress={loginMode === 'otp' ? () => handleSMSLogin() : () => switchToOTPMode()}>
+								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithOTP')}</Text>
+							</TouchableOpacity>
+							<Text style={styles.orText}>{t('login.or')}</Text>
+							<TouchableOpacity onPress={switchToPasswordMode}>
+								<Text style={styles.linkText}>
+									{loginMode !== 'password' ? t('login.loginWithPassword') : t('login.loginWithSMS')}
+								</Text>
+							</TouchableOpacity>
+						</View>
 					</View>
 				</View>
 			</KeyboardAvoidingView>

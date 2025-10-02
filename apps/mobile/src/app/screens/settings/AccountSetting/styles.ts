@@ -25,6 +25,8 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium
 		},
 		optionRightSide: {
+			maxWidth: '60%',
+			justifyContent: 'flex-end',
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_10
@@ -36,6 +38,7 @@ export const style = (colors: Attributes) =>
 		},
 		optionItem: {
 			flexDirection: 'row',
+			gap: size.s_10,
 			justifyContent: 'space-between',
 			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_12,

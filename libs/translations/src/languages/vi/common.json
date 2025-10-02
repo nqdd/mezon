@@ -142,7 +142,8 @@
 		"chooseAnotherOption": "Hoặc chọn một tùy chọn khác",
 		"welcomeToMezon": "Chào mừng đến với Mezon",
 		"desWelcomeToMezon": "Nền tảng Kết nối, Làm việc, \nvà Giải trí",
-		"getStarted": "Bắt đầu nào"
+		"getStarted": "Bắt đầu nào",
+		"invalidPhoneNumber": "Số điện thoại không hợp lệ"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -158,7 +159,9 @@
 		"changeEmailTitle": "Đổi Email",
 		"changeEmailMessage": "Bạn có chắc chắn muốn thay đổi địa chỉ email không?",
 		"cancel": "Hủy",
-		"confirm": "Đồng ý, Thay đổi"
+		"confirm": "Đồng ý, Thay đổi",
+		"changePhone": "Đổi số điện thoại",
+		"changePhoneMessage": "Bạn có chắc chắn muốn thay đổi số điện thoại không?"
 	},
 	"invite": {
 		"canChatNow": "Bạn có thể trò chuyện ngay bây giờ !!",

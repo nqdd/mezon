@@ -1,11 +1,23 @@
 import { useAuth } from '@mezon/core';
-import { baseColor } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+	ActivityIndicator,
+	Alert,
+	AppState,
+	Platform,
+	ScrollView,
+	StatusBar,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+	useWindowDimensions
+} from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -39,6 +51,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const [isError, setIsError] = useState<boolean>(false);
 	const [resetTrigger, setResetTrigger] = useState(0);
 	const dispatch = useAppDispatch();
+	const { width, height } = useWindowDimensions();
+	const isLandscape = width > height;
 
 	const countdownStartTime = useRef<number>(Date.now());
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -108,15 +122,10 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	const handleVerifyOTP = useCallback(
 		async (otpConfirm: string) => {
-			let resp: any;
 			try {
 				if (otpConfirm?.length === 6) {
 					setIsLoading(true);
-					if (route.params?.email) {
-						resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
-					} else {
-						// todo: add more logic
-					}
+					const resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
 
 					if (!resp) {
 						Toast.show({
@@ -148,7 +157,12 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	const handleResendOTP = async () => {
 		if (isResendEnabled) {
-			const resp: any = await dispatch(authActions.authenticateEmailOTPRequest({ email }));
+			let resp: any;
+			if (email) {
+				resp = await dispatch(authActions.authenticateEmailOTPRequest({ email }));
+			} else {
+				resp = await dispatch(authActions.authenticatePhoneSMSOTPRequest({ phone: phoneNumber }));
+			}
 			const payload = resp?.payload as ApiLinkAccountConfirmRequest;
 
 			const reqId = payload?.req_id;
@@ -168,8 +182,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	const handleChangeEmail = () => {
 		Alert.alert(
-			t('otpVerify.changeEmailTitle'),
-			t('otpVerify.changeEmailMessage'),
+			email ? t('otpVerify.changeEmailTitle') : t('otpVerify.changePhone'),
+			email ? t('otpVerify.changeEmailMessage') : t('otpVerify.changePhoneMessage'),
 			[
 				{
 					text: t('otpVerify.cancel'),
@@ -217,16 +231,22 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={styles.content}>
+				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('otpVerify.loginToMezon')}</Text>
 
 					<View style={styles.instructionSection}>
 						<Text style={styles.instructionText}>{t('otpVerify.enterCodeFrom')}</Text>
-						<Text style={styles.emailText}>{email}</Text>
+						<Text style={styles.emailText}>{email || phoneNumber}</Text>
 					</View>
 
 					<View style={{ alignSelf: 'center' }}>
-						<OTPInput onOtpChange={handleOtpChange} onOtpComplete={handleOtpComplete} isError={isError} resetTrigger={resetTrigger} />
+						<OTPInput
+							onOtpChange={handleOtpChange}
+							onOtpComplete={handleOtpComplete}
+							isError={isError}
+							resetTrigger={resetTrigger}
+							isSms={!!phoneNumber}
+						/>
 
 						<TouchableOpacity
 							style={[styles.verifyButton, !isValidOTP && styles.verifyButtonDisabled]}
@@ -256,7 +276,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						<Text style={styles.alternativeText}>{t('otpVerify.didNotReceiveCode')}</Text>
 						<View style={styles.alternativeOptions}>
 							<TouchableOpacity onPress={handleChangeEmail}>
-								<Text style={styles.linkText}>{t('otpVerify.changeEmail')}</Text>
+								<Text style={styles.linkText}>{email ? t('otpVerify.changeEmail') : t('otpVerify.changePhone')}</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
