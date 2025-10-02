@@ -1,6 +1,6 @@
 import { useDMInvite } from '@mezon/core';
 import type { DirectEntity, FriendsEntity } from '@mezon/store';
-import { selectAllDirectMessages, selectAllFriends, selectAllMembersInClan, selectTheme, useAppSelector } from '@mezon/store';
+import { selectAllDirectMessages, selectAllFriends, selectAllMembersInClan, useAppSelector } from '@mezon/store';
 import type { UsersClanEntity } from '@mezon/utils';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -16,9 +16,8 @@ export type ModalParam = {
 };
 const ListMemberInvite = (props: ModalParam) => {
 	const { t } = useTranslation('invitation');
-	const appearanceTheme = useSelector(selectTheme);
 	const { isInviteExternalCalling = false } = props;
-	const { listDMInvite, listUserInvite } = useDMInvite(props.channelID);
+	const { listDMInvite } = useDMInvite(props.channelID);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [sendIds, setSendIds] = useState<Record<string, boolean>>({});
 	const [filteredListDMBySearch, setFilterListSearch] = useState<DirectEntity[] | undefined>(listDMInvite);
@@ -54,12 +53,6 @@ const ListMemberInvite = (props: ModalParam) => {
 		},
 		[throttledSetSearchTerm]
 	);
-
-	const filteredListUserBySearch = useMemo(() => {
-		return listUserInvite?.filter((dmGroup) => {
-			return dmGroup.user?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
-		});
-	}, [listUserInvite, searchTerm]);
 
 	const handleSend = (dmGroup: DirectEntity) => {
 		setSendIds((ids) => {
@@ -134,13 +127,7 @@ const ListMemberInvite = (props: ModalParam) => {
 							/>
 						))}
 					</div>
-				) : (
-					<div className="flex flex-col gap-3">
-						{filteredListUserBySearch?.map((user) => (
-							<ListMemberInviteItem user={user} key={user.id} url={props.url} onSend={handleSend} isSent={!!sendIds[user.id]} />
-						))}
-					</div>
-				)}
+				) : null}
 			</div>
 			<hr className="border-t-theme-primary rounded-t " />
 		</>
