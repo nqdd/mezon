@@ -4,7 +4,6 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ScreenListItems from './ScreenListItems';
 
-
 type ScreenSelectionModalProps = {
 	onClose: () => void;
 };
@@ -18,8 +17,7 @@ const ScreenSelectionModal = memo(({ onClose }: ScreenSelectionModalProps) => {
 
 	const TABS = [
 		{ label: t('applicationWindow'), value: 'window' },
-		{ label: t('entireScreen'), value: 'screen' },
-		{ label: 'Device', value: 'Device' }
+		{ label: t('entireScreen'), value: 'screen' }
 	];
 
 	const handleClose = useCallback(() => {
