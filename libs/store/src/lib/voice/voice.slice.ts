@@ -285,6 +285,14 @@ export const voiceSlice = createSlice({
 		},
 		setExternalGroup: (state) => {
 			state.externalGroup = true;
+		},
+		removeInVoiceInChannel: (state, action: PayloadAction<string>) => {
+			const channelId = action.payload;
+			for (const key in state.listInVoiceStatus) {
+				if (state.listInVoiceStatus[key] === channelId) {
+					delete state.listInVoiceStatus[key];
+				}
+			}
 		}
 		// ...
 	},
@@ -298,10 +306,10 @@ export const voiceSlice = createSlice({
 				(state: VoiceState, action: PayloadAction<{ users: ApiVoiceChannelUser[]; clanId: string }>) => {
 					state.loadingStatus = 'loaded';
 					const { users, clanId } = action.payload;
-
+					state.listInVoiceStatus = {};
 					const members: VoiceEntity[] = users.map((channelRes) => {
 						if (channelRes.user_id && channelRes?.id) {
-							state.listInVoiceStatus[channelRes.user_id] = channelRes.id;
+							state.listInVoiceStatus[channelRes.user_id] = channelRes.channel_id || '';
 						}
 						return {
 							user_id: channelRes.user_id || '',

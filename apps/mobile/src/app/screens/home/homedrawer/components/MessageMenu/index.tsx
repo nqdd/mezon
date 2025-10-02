@@ -126,7 +126,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			},
 			isShow: isGroup,
-			title: lastOne ? t('delete.leaveGroup') : t('menu.leaveGroup'),
+			title: lastOne ? t('menu.deleteGroup') : t('menu.leaveGroup'),
 			textStyle: { color: baseColor.redStrong }
 		}
 	];

@@ -2,7 +2,7 @@ import { useMessageValue } from '@mezon/core';
 import { selectComposeInputByChannelId, selectCurrentChannelId, threadsActions, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ApiChannelDescription } from 'mezon-js/api.gen';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
@@ -43,6 +43,19 @@ const ThreadHeader = ({ threadCurrentChannel }: ThreadHeaderProps) => {
 		setNameValueThread('');
 		setRequestInput({ ...request, valueTextInput: '' }, true);
 	};
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				handleCloseModal();
+			}
+		};
+
+		document.addEventListener('keydown', handleKeyDown);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleCloseModal]);
 
 	return (
 		<div className="flex flex-row items-center justify-between px-4 h-[48px] min-h-[50px] border-b-theme-primary  z-10 bg-theme-chat">

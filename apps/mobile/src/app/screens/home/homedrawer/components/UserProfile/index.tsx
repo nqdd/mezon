@@ -43,16 +43,28 @@ import { PendingContent } from './component/PendingContent';
 import UserInfoDm from './component/UserInfoDm';
 import UserSettingProfile from './component/UserSettingProfile';
 
+export type IManageVoiceUser = {
+	isHavePermission: boolean;
+	isShowMute: boolean;
+};
+
+export enum IActionVoiceUser {
+	MUTE = 'mute',
+	KICK = 'kick'
+}
+
 interface userProfileProps {
 	userId?: string;
 	user?: any;
 	message?: IMessageWithUser;
 	checkAnonymous?: boolean;
 	onClose?: () => void;
+	onActionVoice?: (action: IActionVoiceUser) => void;
 	showAction?: boolean;
 	showRole?: boolean;
 	currentChannel?: ChannelsEntity;
 	directId?: string;
+	manageVoiceUser?: IManageVoiceUser;
 }
 
 export enum EFriendState {
@@ -68,7 +80,19 @@ export const formatDate = (dateString: string) => {
 };
 
 const UserProfile = React.memo(
-	({ userId, user, onClose, checkAnonymous, message, showAction = true, showRole = true, currentChannel, directId }: userProfileProps) => {
+	({
+		userId,
+		user,
+		onClose,
+		onActionVoice,
+		checkAnonymous,
+		message,
+		showAction = true,
+		showRole = true,
+		currentChannel,
+		directId,
+		manageVoiceUser
+	}: userProfileProps) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue, isTabletLandscape);
@@ -477,6 +501,35 @@ const UserProfile = React.memo(
 				</View>
 
 				<View style={[styles.container]}>
+					{manageVoiceUser?.isHavePermission && (
+						<View style={[styles.userInfo, { gap: size.s_10 }]}>
+							<Text style={[styles.title, { fontSize: size.medium }]}>{t('channelVoiceSettings')}</Text>
+							<View style={styles.wrapManageVoice}>
+								{manageVoiceUser?.isShowMute && (
+									<TouchableOpacity
+										onPress={() => onActionVoice?.(IActionVoiceUser.MUTE)}
+										style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+									>
+										<MezonIconCDN
+											icon={IconCDN.microphoneSlashIcon}
+											color={themeValue.text}
+											width={size.s_18}
+											height={size.s_18}
+										/>
+										<Text style={[styles.actionText]}>{t('muteVoice')}</Text>
+									</TouchableOpacity>
+								)}
+
+								<TouchableOpacity
+									onPress={() => onActionVoice?.(IActionVoiceUser.KICK)}
+									style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+								>
+									<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.text} width={size.s_18} height={size.s_18} />
+									<Text style={[styles.actionText]}>{t('kickVoice')}</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					)}
 					<View style={[styles.userInfo]}>
 						<Text style={[styles.username]}>
 							{userById
@@ -504,7 +557,7 @@ const UserProfile = React.memo(
 									(checkAnonymous ? 'Anonymous' : message?.username)}
 						</Text>
 						{isCheckOwner && <EditUserProfileBtn user={userById || (user as any)} />}
-						{!isCheckOwner && (
+						{!isCheckOwner && !manageVoiceUser && (
 							<View style={[styles.userAction]}>
 								{actionList.map((actionItem) => {
 									const { action, icon, id, isShow, text, textStyles } = actionItem;

@@ -1,5 +1,8 @@
-import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
+import localStorageMobile from '@react-native-async-storage/async-storage';
 import { Client } from 'mezon-js';
+import type { ApiSession } from 'mezon-js/api.gen';
+import { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
+import { SESSION_REFRESH_KEY } from '../contexts/MezonContext';
 
 export type CreateMezonClientOptions = {
 	ssl: boolean;
@@ -58,6 +61,14 @@ export function getIndexerClient() {
 export function createClient(options: CreateMezonClientOptions) {
 	const { ssl, host, port, key } = options;
 	const client = new Client(key, host, port, ssl);
+
+	client.onRefreshSession = (session: ApiSession) => {
+		try {
+			localStorage.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
+		} catch (e) {
+			localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
+		}
+	};
 
 	clientInstance = client;
 

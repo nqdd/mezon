@@ -1,6 +1,6 @@
 import { accountActions, useAppDispatch } from '@mezon/store';
 import { Button, FormError, Icons, Input, Menu } from '@mezon/ui';
-import { ECountryCode, validatePhoneNumber, type LoadingStatus } from '@mezon/utils';
+import { ECountryCode, parsePhoneVN, validatePhoneNumber, type LoadingStatus } from '@mezon/utils';
 import type { ChangeEvent, ClipboardEvent, Dispatch, KeyboardEvent, SetStateAction } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -101,27 +101,28 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 
 		const phoneRegex = /^\+?\d{7,15}$/;
 
-		if (phone && phoneRegex.test(phone) && validatePhoneNumber(phone, country)) {
-			const response = await dispatch(
-				accountActions.addPhoneNumber({
-					phone_number: phone
-				})
-			).unwrap();
-			setOpenConfirm(true);
-			setErrors({});
-			setOtp(Array(6).fill(''));
-			setCount(60);
-			setValidateOTP(response.req_id);
+		if (!phone || !phoneRegex.test(phone) || !validatePhoneNumber(phone, ECountryCode.VN)) {
+			setErrors({
+				phone: t('setPhoneModal.invalidPhone')
+			});
 			return;
-		} else {
-			setOpenConfirm(false);
 		}
 
-		setErrors({
-			phone: t('setPhoneModal.invalidPhone')
-		});
+		if (!count) {
+			setOpenConfirm(true);
+			setCount(60);
+			setErrors({});
+			setOtp(Array(6).fill(''));
+			const response = await dispatch(
+				accountActions.addPhoneNumber({
+					phone_number: parsePhoneVN(phone)
+				})
+			).unwrap();
+			setValidateOTP(response.req_id);
+			return;
+		}
 	};
-	const disabled = count > 0 || !!errors.phone || isLoading === 'loading';
+	const disabled = count > 0 || !!errors.phone || isLoading === 'loading' || !phone;
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
 			<div className="w-full max-w-md bg-white rounded-lg shadow-sm relative dark:bg-[#313338] dark:text-white ">
@@ -153,7 +154,6 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 									type="text"
 									value={phone}
 									onChange={handleChangePhone}
-									placeholder={t('setPhoneModal.phonePlaceholder')}
 									className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 ${errors.phone ? 'border-red-500 dark:border-red-400' : ''}`}
 									label={t('setPhoneModal.phoneNumber')}
 								/>

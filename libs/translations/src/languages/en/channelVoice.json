@@ -33,7 +33,8 @@
         "content": {
             "removed": "You have been removed from the voice channel",
             "duplicate": "You have been disconnected due to another join",
-            "default": "You have been disconnected from the voice channel"
+            "default": "You have been disconnected from the voice channel",
+            "deleted": "The voice channel has been deleted"
         },
         "confirm": "Confirm"
     }

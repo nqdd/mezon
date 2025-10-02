@@ -3,33 +3,23 @@ import { baseColor } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	ActivityIndicator,
-	Alert,
-	AppState,
-	Platform,
-	ScrollView,
-	StatusBar,
-	StyleSheet,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View
-} from 'react-native';
+import { ActivityIndicator, Alert, AppState, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
+import OTPInput from '../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
 
 interface OTPVerificationScreenProps {
 	navigation: any;
 	route: {
 		params: {
-			email: string;
+			email?: string;
+			phoneNumber?: string;
 			reqId: string;
 		};
 	};
@@ -38,16 +28,16 @@ interface OTPVerificationScreenProps {
 const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigation, route }) => {
 	const styles = style();
 	const { t } = useTranslation('common');
-	const { email, reqId } = route.params;
+	const { reqId, email = '', phoneNumber = '' } = route.params;
 	const { confirmEmailOTP } = useAuth();
 
-	const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
+	const [currentOtp, setCurrentOtp] = useState<string[]>(new Array(6).fill(''));
 	const [reqIdSent, setReqIdSent] = useState<string>(reqId);
-	const inputRefs = useRef<(TextInput | null)[]>([]);
-	const [countdown, setCountdown] = useState(59);
-	const [isResendEnabled, setIsResendEnabled] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
-	const [isError, setIsError] = useState(false);
+	const [countdown, setCountdown] = useState<number>(59);
+	const [isResendEnabled, setIsResendEnabled] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isError, setIsError] = useState<boolean>(false);
+	const [resetTrigger, setResetTrigger] = useState(0);
 	const dispatch = useAppDispatch();
 
 	const countdownStartTime = useRef<number>(Date.now());
@@ -85,11 +75,9 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		}, 1000);
 	};
 
-	// Handle app state changes
 	useEffect(() => {
 		const handleAppStateChange = (nextAppState: string) => {
 			if (nextAppState === 'active' && !isResendEnabled) {
-				// App came to foreground, recalculate countdown
 				const elapsed = Math.floor((Date.now() - countdownStartTime.current) / 1000);
 				const remaining = Math.max(59 - elapsed, 0);
 
@@ -116,48 +104,47 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		};
 	}, []);
 
-	const fillOtp = (otp: string) => {
-		const otps = otp.split('');
-		otps.forEach((digit, index) => {
-			if (inputRefs.current[index]) {
-				inputRefs.current[index].setNativeProps({ text: digit });
-			}
-		});
-		setOtp(otps);
-	};
+	const isValidOTP = currentOtp?.every?.((digit) => digit !== '') && currentOtp?.join?.('')?.length === 6;
 
-	const isValidOTP = otp?.every?.((digit) => digit !== '') && otp?.join?.('')?.length === 6;
+	const handleVerifyOTP = useCallback(
+		async (otpConfirm: string) => {
+			let resp: any;
+			try {
+				if (otpConfirm?.length === 6) {
+					setIsLoading(true);
+					if (route.params?.email) {
+						resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+					} else {
+						// todo: add more logic
+					}
 
-	const handleVerifyOTP = async (otpConfirm) => {
-		try {
-			if (otpConfirm?.length === 6) {
-				setIsLoading(true);
-				const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
-				if (!resp) {
-					Toast.show({
-						type: 'success',
-						props: {
-							text2: 'OTP does not match',
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-						}
-					});
-					setIsError(true);
+					if (!resp) {
+						Toast.show({
+							type: 'success',
+							props: {
+								text2: 'OTP does not match',
+								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+							}
+						});
+						setIsError(true);
+					}
+
+					setIsLoading(false);
 				}
-
-				setIsLoading(false);
+			} catch (error) {
+				setIsError(true);
+				console.error('Error verifying OTP:', error);
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: 'An error occurred while verifying OTP',
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					}
+				});
 			}
-		} catch (error) {
-			setIsError(true);
-			console.error('Error verifying OTP:', error);
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: 'An error occurred while verifying OTP',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-				}
-			});
-		}
-	};
+		},
+		[confirmEmailOTP, reqIdSent]
+	);
 
 	const handleResendOTP = async () => {
 		if (isResendEnabled) {
@@ -166,9 +153,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 			const reqId = payload?.req_id;
 			if (reqId) {
-				inputRefs?.current?.[0]?.focus();
 				setReqIdSent(reqId);
-				setOtp(new Array(6).fill(''));
+				setResetTrigger((prev) => prev + 1);
 				startCountdown();
 			} else {
 				Toast.show({
@@ -205,56 +191,23 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		);
 	};
 
-	const handleGetHelp = () => {
-		// Handle get help logic here
-	};
-
-	const handleOtpChange = (value: string, index: number) => {
-		try {
-			if (value.length === 6) {
-				fillOtp(value);
-				handleVerifyOTP(value);
-				return;
-			}
+	const handleOtpChange = useCallback(
+		(otp: string[]) => {
 			if (isError) {
 				setIsError(false);
 			}
-			const newOtp = [...otp];
+			setCurrentOtp(otp);
+		},
+		[isError]
+	);
 
-			// Handle backspace
-			if (value === '') {
-				newOtp[index] = '';
-				setOtp(newOtp);
-				return;
-			}
-			// Handle normal input
-			if (value.length >= 1 && /^\d*$/.test(value)) {
-				const valueLastest = value[value.length - 1];
-				newOtp[index] = valueLastest;
-				setOtp(newOtp);
-
-				// Auto focus next input if current is filled
-				if (valueLastest !== '' && index < 6 - 1) {
-					inputRefs.current[index + 1]?.focus();
-				}
-
-				// Check if OTP is complete
-				if (newOtp.every((digit) => digit !== '')) {
-					if (isResendEnabled) return;
-					handleVerifyOTP(newOtp.join(''));
-					// onComplete?.(newOtp.join(''));
-				}
-			}
-		} catch (error) {
-			console.error('handleOtpChange error', error);
-		}
-	};
-
-	const handleKeyPress = (e: any, index: number) => {
-		if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
-			inputRefs?.current?.[index - 1]?.focus();
-		}
-	};
+	const handleOtpComplete = useCallback(
+		(otp: string) => {
+			if (isResendEnabled) return;
+			handleVerifyOTP(otp);
+		},
+		[isResendEnabled, handleVerifyOTP]
+	);
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
@@ -273,32 +226,11 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 					</View>
 
 					<View style={{ alignSelf: 'center' }}>
-						<View style={styles.inputSection}>
-							{otp.map((digit, index) => (
-								<TextInput
-									key={index}
-									ref={(ref) => (inputRefs.current[index] = ref)}
-									style={[
-										styles.input,
-										digit !== '' ? styles.inputFilled : styles.inputEmpty,
-										index === 0 ? styles.inputFirst : {},
-										isError && styles.inputError
-									]}
-									value={digit}
-									onChangeText={(value) => handleOtpChange(value, index)}
-									onKeyPress={(e) => handleKeyPress(e, index)}
-									keyboardType="number-pad"
-									maxLength={6}
-									autoFocus={index === 0}
-									// autoComplete={'sms-otp'}
-									// textContentType={'oneTimeCode'}
-									selectTextOnFocus={true}
-								/>
-							))}
-						</View>
+						<OTPInput onOtpChange={handleOtpChange} onOtpComplete={handleOtpComplete} isError={isError} resetTrigger={resetTrigger} />
+
 						<TouchableOpacity
 							style={[styles.verifyButton, !isValidOTP && styles.verifyButtonDisabled]}
-							onPress={isResendEnabled ? () => handleResendOTP() : () => handleVerifyOTP(otp?.join?.(''))}
+							onPress={isResendEnabled ? () => handleResendOTP() : () => handleVerifyOTP(currentOtp?.join?.(''))}
 							disabled={(!isValidOTP && !isResendEnabled) || isLoading}
 						>
 							{isLoading ? (
@@ -326,11 +258,6 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 							<TouchableOpacity onPress={handleChangeEmail}>
 								<Text style={styles.linkText}>{t('otpVerify.changeEmail')}</Text>
 							</TouchableOpacity>
-							{/*todo: add get help*/}
-							{/*<Text style={styles.orText}>{t('otpVerify.or')}</Text>*/}
-							{/*<TouchableOpacity onPress={handleGetHelp}>*/}
-							{/*	<Text style={styles.linkText}>{t('otpVerify.getHelp')}</Text>*/}
-							{/*</TouchableOpacity>*/}
 						</View>
 					</View>
 				</View>

@@ -165,7 +165,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 					setErrorMessage(t('menu.serverName.duplicateNameMessage'));
 					setIsCheckValid(false);
 					setLoading(false);
-					return;
+					throw new Error(t('menu.serverName.duplicateNameMessage'));
 				}
 			}
 
@@ -195,6 +195,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				type: 'info',
 				text1: t('toast.saveSuccess')
 			});
+			navigation.goBack();
 		} catch (error) {
 			Toast.show({
 				type: 'error',
@@ -203,7 +204,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			});
 		} finally {
 			setLoading(false);
-			navigation.goBack();
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
 	}
