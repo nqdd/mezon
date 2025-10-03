@@ -33,8 +33,7 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 			dispatch(
 				fetchChannels({
 					clanId: currentClanId,
-					channelType: ChannelType.CHANNEL_TYPE_CHANNEL,
-					noCache: true
+					channelType: ChannelType.CHANNEL_TYPE_CHANNEL
 				})
 			);
 		}

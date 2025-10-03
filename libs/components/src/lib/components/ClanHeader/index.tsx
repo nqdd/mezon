@@ -68,7 +68,7 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 	const [openNotiSettingModal, closeNotiSettingModal] = useModal(() => <ModalNotificationSetting onClose={closeNotiSettingModal} open={true} />);
 
 	const handleShowNotificationSetting = () => {
-		dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: currentClanId || '', noCache: true }));
+		dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: currentClanId || '' }));
 		openNotiSettingModal();
 		setIsShowModalPanelClan(false);
 	};

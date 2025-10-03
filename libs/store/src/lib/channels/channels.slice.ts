@@ -1400,6 +1400,14 @@ export const channelsSlice = createSlice({
 				state.showScrollDownButton = {};
 			}
 			state.showScrollDownButton[channelId] = isVisible;
+		},
+		invalidateCache: (state, action: PayloadAction<{ clanId: string; channelsCache?: CacheMetadata }>) => {
+			const { clanId, channelsCache } = action.payload;
+			if (!state.byClans[clanId]) {
+				state.byClans[clanId] = getInitialClanState();
+			}
+
+			state.byClans[clanId].channelsCache = channelsCache;
 		}
 	},
 	extraReducers: (builder) => {

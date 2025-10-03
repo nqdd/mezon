@@ -1,4 +1,11 @@
-import { categoriesActions, selectAllCategories, selectCategoryIdSortChannel, selectChannelThreads, useAppDispatch } from '@mezon/store';
+import {
+	categoriesActions,
+	channelCategorySettingActions,
+	selectAllCategories,
+	selectCategoryIdSortChannel,
+	selectChannelThreads,
+	useAppDispatch
+} from '@mezon/store';
 import type { ICategoryChannel, IChannel } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -17,6 +24,8 @@ export function useCategory() {
 					categoryLabel: category.category_name as string
 				})
 			);
+
+			dispatch(channelCategorySettingActions.invalidateCache({ clanId: category.clan_id || '', cache: null }));
 		},
 		[categorizedChannels]
 	);

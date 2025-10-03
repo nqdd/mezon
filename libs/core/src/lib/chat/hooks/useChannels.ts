@@ -1,4 +1,5 @@
 import {
+	channelCategorySettingActions,
 	channelsActions,
 	getStore,
 	selectAllChannels,
@@ -60,6 +61,7 @@ export function useChannels() {
 				})
 			);
 		}
+		dispatch(channelCategorySettingActions.invalidateCache({ clanId: clanId || '', cache: null }));
 
 		navigateAfterDeleteChannel(channelId);
 	};
