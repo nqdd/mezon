@@ -24,7 +24,6 @@ import {
 	decreaseChannelBadgeCount,
 	defaultNotificationCategoryActions,
 	directActions,
-	directMembersMetaActions,
 	directMetaActions,
 	directSlice,
 	e2eeActions,
@@ -1087,7 +1086,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
-			dispatch(directMembersMetaActions.updateStatus({ userId: statusEvent.user_id, status: statusEvent.status }));
+			// dispatch(statusActions.updateStatus({ userId: statusEvent.user_id, status: statusEvent.status }));
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
@@ -1989,7 +1988,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		async (userStatusEvent: UserStatusEvent) => {
 			if (userStatusEvent.user_id !== userId) {
 				dispatch(clanMembersMetaActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
-				dispatch(directMembersMetaActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
+				// dispatch(directMembersMetaActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
 				dispatch(friendsActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
 			} else {
 				dispatch(clanMembersMetaActions.updateUserStatus({ userId: userId || '', user_status: userStatusEvent.custom_status }));
