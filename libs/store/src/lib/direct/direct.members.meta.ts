@@ -1,5 +1,6 @@
-import { IUserItemActivity } from '@mezon/utils';
-import { EntityState, PayloadAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { IUserItemActivity } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 
 export const DIRECTMEMBERSMETA_FEATURE_KEY = 'directmembersmeta';
 
@@ -27,8 +28,7 @@ export const directMembersMetaSlice = createSlice({
 			const directMembersMeta = state.entities[userId];
 			if (directMembersMeta) {
 				directMembersMeta.user = directMembersMeta.user || {};
-				directMembersMeta.user.metadata = directMembersMeta.user.metadata || {};
-				directMembersMeta.user.metadata.user_status = user_status;
+				directMembersMeta.user.user_status = user_status;
 			}
 		},
 		updateStatus: (state, action: PayloadAction<{ userId: string; status: any }>) => {
@@ -36,8 +36,7 @@ export const directMembersMetaSlice = createSlice({
 			const directMembersMeta = state.entities[userId];
 			if (directMembersMeta) {
 				directMembersMeta.user = directMembersMeta.user || {};
-				directMembersMeta.user.metadata = directMembersMeta.user.metadata || {};
-				directMembersMeta.user.metadata.status = status;
+				directMembersMeta.user.status = status;
 			}
 		}
 	}

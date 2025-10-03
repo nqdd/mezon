@@ -1347,7 +1347,8 @@ export type IUserProfileActivity = {
 	id?: string;
 	username?: string;
 	online?: boolean;
-	metadata?: { status?: string; user_status?: string };
+	status?: string;
+	user_status?: string;
 };
 
 export type IUserItemActivity = {
