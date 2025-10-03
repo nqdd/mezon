@@ -90,28 +90,9 @@ export const handleSaveImage = (urlData: string) => {
 		.catch((error) => console.error('Error downloading image:', error));
 };
 
-const extractUrlFromText = (text: string): string => {
-	const urlRegex = /(https?:\/\/[^\s]+|ftp:\/\/[^\s]+|www\.[^\s]+)/gi;
-	const matches = text.match(urlRegex);
-
-	if (matches && matches.length > 0) {
-		let url = matches[0];
-
-		if (url.startsWith('www.')) {
-			url = `https://${url}`;
-		}
-
-		return url;
-	}
-
-	return text;
-};
-
-export const handleCopyLink = (urlData: string, isLink?: boolean) => {
-	const linkToCopy = isLink ? extractUrlFromText(urlData) : urlData;
-
+export const handleCopyLink = (urlData: string) => {
 	if (navigator.clipboard) {
-		navigator.clipboard.writeText(linkToCopy).catch((error) => {
+		navigator.clipboard.writeText(urlData).catch((error) => {
 			console.error('Failed to copy link:', error);
 		});
 	} else {
@@ -119,7 +100,6 @@ export const handleCopyLink = (urlData: string, isLink?: boolean) => {
 	}
 };
 
-export const handleOpenLink = (urlData: string, isLink?: boolean) => {
-	const url = isLink ? extractUrlFromText(urlData) : urlData;
-	window.open(url, '_blank');
+export const handleOpenLink = (urlData: string) => {
+	window.open(urlData, '_blank');
 };
