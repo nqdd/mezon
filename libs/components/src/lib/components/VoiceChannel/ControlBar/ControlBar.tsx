@@ -308,7 +308,7 @@ const ControlBar = ({
 	useEffect(() => {
 		setShowEmojiPanel(false);
 		setShowSoundPanel(false);
-	}, [currentChannel]);
+	}, [currentChannel?.channel_id]);
 
 	useEffect(() => {
 		if (!showEmojiPanel) return;
