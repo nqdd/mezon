@@ -63,7 +63,7 @@
 		},
 		"channelHideInactivity": {
 			"title": "Ẩn sau thời gian không hoạt động",
-			"description": "Các chuỗi mới sẽ không hiển thị trong danh sách kênh sau khi không hoạt động trong khoảng thời gian được chỉ định",
+			"description": "Các chủ đề mới sẽ không hiển thị trong danh sách kênh sau khi không hoạt động trong khoảng thời gian được chỉ định",
 			"_1hour": "1 Giờ",
 			"_24hours": "24 Giờ",
 			"_3days": "3 Ngày",

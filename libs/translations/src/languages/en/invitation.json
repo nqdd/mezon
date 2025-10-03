@@ -42,7 +42,7 @@
   "privateChannelDescription": "This channel is private, only select members and roles can view this channel.",
   "noResults": "No result",
   "messages": {
-    "qrCopiedSuccess": " Copied QR successfully !!"
+    "qrCopiedSuccess": "Copied QR successfully!"
   },
   "errors": {
     "createInviteLink": "Error when create invite link",

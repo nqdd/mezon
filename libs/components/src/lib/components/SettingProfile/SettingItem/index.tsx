@@ -132,6 +132,7 @@ const SettingItem = ({ onItemClick, initSetting }: { onItemClick?: (settingName:
 						handleButtonClick('Log Out');
 						handleOpenModal();
 					}}
+					data-e2e={generateE2eId(`user_setting.logout`)}
 				>
 					{t('setting:logOut')}
 				</button>

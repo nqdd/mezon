@@ -244,7 +244,8 @@ const ModalQR = ({ closeModalEdit, data }: { closeModalEdit: () => void; data: s
 				if (!blob) return;
 				try {
 					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-					toast(t('messages.qrCopiedSuccess'));
+					const successMessage = t('messages.qrCopiedSuccess');
+					toast.success(successMessage);
 				} catch (err) {
 					console.error(t('errors.copyFailed'), err);
 				}

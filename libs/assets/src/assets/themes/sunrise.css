@@ -196,5 +196,7 @@
 	--button-theme-primary: #5265ec;
 	/* border-avatar */
 	--border-color-avatar: #f4ebe9;
+	/* border left highlight */
+	--border-left-highlight: #e67e22;
 	/* notice region */
 }
