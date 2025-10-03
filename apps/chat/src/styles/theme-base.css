@@ -156,6 +156,7 @@ button.bg-button-add-friend {
 }
 
 .bg-highlight-no-hover {
+	border-left: 3px solid var(--border-left-highlight);
 	background: var(--bg-highlight) !important;
 }
 
