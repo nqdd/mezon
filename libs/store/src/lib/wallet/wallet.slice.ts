@@ -1,3 +1,4 @@
+import i18n from '@mezon/translations';
 import { compareBigInt, type LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
@@ -138,7 +139,7 @@ const sendTransaction = createAsyncThunk(
 
 		if (currentNonce?.error) {
 			const errMsg = safeJSONParse(currentNonce.error)?.message || currentNonce.error;
-			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || 'An error occurred, please try again', type: 'error' }));
+			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || i18n.t('token:toast.error.anErrorOccurred'), type: 'error' }));
 			return thunkAPI.rejectWithValue(errMsg);
 		}
 
@@ -157,7 +158,7 @@ const sendTransaction = createAsyncThunk(
 
 		if (!response?.ok) {
 			const errMsg = safeJSONParse(response.error)?.message || response.error;
-			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || 'An error occurred, please try again', type: 'error' }));
+			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || i18n.t('token:toast.error.anErrorOccurred'), type: 'error' }));
 			return thunkAPI.rejectWithValue(errMsg);
 		}
 
