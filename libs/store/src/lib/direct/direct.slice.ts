@@ -683,8 +683,11 @@ export const directSlice = createSlice({
 				}
 			}
 		},
-		updateMemberDMGroup: (state, action: PayloadAction<{ dmId: string; user_id: string; avatar: string; display_name: string }>) => {
-			const { dmId, user_id, avatar, display_name } = action.payload;
+		updateMemberDMGroup: (
+			state,
+			action: PayloadAction<{ dmId: string; user_id: string; avatar: string; display_name: string; about_me?: string }>
+		) => {
+			const { dmId, user_id, avatar, display_name, about_me } = action.payload;
 			const dmGroup = state.entities?.[dmId];
 
 			if (!dmGroup || !user_id) return;
