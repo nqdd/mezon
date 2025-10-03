@@ -11,8 +11,7 @@ import {
 	selectZkProofs,
 	useAppDispatch,
 	useWallet,
-	userClanProfileActions,
-	userStatusActions
+	userClanProfileActions
 } from '@mezon/store';
 import { createClient as createMezonClient, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
@@ -95,7 +94,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	};
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
 		dispatch(
-			userStatusActions.updateUserStatus({
+			accountActions.updateAccountStatus({
 				status,
 				minutes,
 				until_turn_on: untilTurnOn
@@ -168,7 +167,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				children={t('statusProfile.statusOptions.online')}
 				startIcon={<Icons.OnlineStatus />}
 				onClick={() => {
-					updateUserStatus('Online', 0, true);
+					updateUserStatus(EUserStatus.ONLINE, 0, true);
 					modalRef.current = false;
 					onClose();
 				}}
@@ -176,6 +175,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			<ItemStatusUpdate
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.idle')}
+				statusValue={EUserStatus.IDLE}
 				startIcon={<Icons.DarkModeIcon className="text-[#F0B232] -rotate-90" />}
 				dropdown
 				onClick={onClose}
@@ -184,6 +184,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.doNotDisturb')}
+				statusValue={EUserStatus.DO_NOT_DISTURB}
 				startIcon={<Icons.MinusCircleIcon />}
 				dropdown
 			/>,
@@ -191,6 +192,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.invisible')}
+				statusValue={EUserStatus.INVISIBLE}
 				startIcon={<Icons.OfflineStatus />}
 				dropdown
 			/>

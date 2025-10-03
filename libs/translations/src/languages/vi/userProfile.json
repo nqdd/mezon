@@ -98,6 +98,14 @@
 			"doNotDisturb": "Không làm phiền",
 			"invisible": "Ẩn"
 		},
+		"statusDuration": {
+			"for30Minutes": "30 phút",
+			"for1Hour": "1 giờ",
+			"for3Hours": "3 giờ",
+			"for8Hours": "8 giờ",
+			"for24Hours": "24 giờ",
+			"forever": "Mãi mãi"
+		},
 		"addAccountModal": {
 			"email": "Email",
 			"password": "Mật khẩu",

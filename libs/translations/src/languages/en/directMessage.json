@@ -47,8 +47,11 @@
 		"for8Hours": "For 8 Hour",
 		"for24Hours": "For 24 Hour",
 		"untilTurnBackOn": "Until I turn it back on",
-		"mute": "Mute",
-		"unmute": "Unmute",
 		"mutedUntil": "Muted until {{time}}"
+	},
+	"remove": {
+		"content": "This conversation is no longer available!",
+		"title": "Chat Unavailable",
+		"button": "Confirm"
 	}
 }
