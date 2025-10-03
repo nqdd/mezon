@@ -182,14 +182,19 @@ export const listChannelRenderSlice = createSlice({
 			if (!state.listChannelRender[clanId]) {
 				return;
 			}
-			const oldIndexOfChannel = state.listChannelRender[clanId].findIndex((channel) => channel.id === channelId);
+			const oldIndexOfChannel = state.listChannelRender[clanId].findIndex(
+				(channel) => channel.id === channelId && channel?.category_id !== FAVORITE_CATEGORY_ID
+			);
 			const indexOfNewCategory = state.listChannelRender[clanId].findIndex((channel) => channel.id === categoryId);
 			if (oldIndexOfChannel === -1 || indexOfNewCategory === -1) {
 				return;
 			}
 
 			const newChannelWithThreads = state.listChannelRender[clanId].filter((item) => {
-				if ((item as IChannel).id === channelId || (item as IChannel).parent_id === channelId) {
+				if (
+					((item as IChannel).id === channelId || (item as IChannel).parent_id === channelId) &&
+					(item as IChannel)?.category_id !== FAVORITE_CATEGORY_ID
+				) {
 					return {
 						...item,
 						category_id: categoryId
