@@ -48,5 +48,10 @@
 		"for24Hours": "Trong vòng 24 Giờ",
 		"untilTurnBackOn": "Cho đến khi bật lại",
 		"mutedUntil": "Tắt thông báo đến {{time}}"
+	},
+	"remove": {
+		"content": "Cuộc trò chuyện ở kênh này không còn khả dụng!",
+		"title": "Trò chuyện không khả dụng",
+		"button": "Xác nhận"
 	}
 }

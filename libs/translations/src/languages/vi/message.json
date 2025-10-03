@@ -171,5 +171,10 @@
 		"startedAThread": "đã tạo chủ đề:",
 		"seeAllThreads": "Xem",
 		"allThreads": "tất cả chủ đề"
+	},
+	"removeFromChannel": {
+		"title": "Trò chuyện không khả dụng",
+		"content": "Kênh văn bản này không còn khả dụng!",
+		"button": "Xác nhận"
 	}
 }
