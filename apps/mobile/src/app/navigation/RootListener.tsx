@@ -24,7 +24,6 @@ import {
 	settingClanStickerActions,
 	topicsActions,
 	useAppDispatch,
-	userStatusActions,
 	voiceActions
 } from '@mezon/store-mobile';
 import { useCallback, useContext, useEffect, useRef } from 'react';
@@ -294,7 +293,6 @@ const RootListener = () => {
 			promises.push(dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: currentClanId })));
 			promises.push(dispatch(gifsActions.fetchGifCategories()));
 			promises.push(dispatch(gifsActions.fetchGifCategoryFeatured()));
-			promises.push(dispatch(userStatusActions.getUserStatus({})));
 			await Promise.allSettled(promises);
 			return null;
 		} catch (error) {
