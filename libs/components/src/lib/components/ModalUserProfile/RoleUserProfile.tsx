@@ -13,7 +13,7 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, EVERYONE_ROLE_TITLE } from '@mezon/utils';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -51,12 +51,13 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 		return activeRolesWithoutUserRoles?.filter((role) => {
 			return (
 				role.id !== EVERYONE_ROLE_ID &&
+				role.title !== EVERYONE_ROLE_TITLE &&
 				!userById.role_id?.includes(role.id) &&
 				role.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
 				(isClanOwner || Number(maxPermissionLevel) > Number(rolesClanEntity[role.id]?.max_level_permission || -1))
 			);
 		});
-	}, [activeRolesWithoutUserRoles, searchTerm]);
+	}, [activeRolesWithoutUserRoles, searchTerm, userById.role_id, isClanOwner, maxPermissionLevel, rolesClanEntity]);
 
 	const dispatch = useAppDispatch();
 
@@ -102,6 +103,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 		e.stopPropagation();
 		setShowAllRoles(!showAllRoles);
 	};
+
 	return (
 		<div className="flex flex-col" onClick={handleCloseAddRoleModal}>
 			{/* {userRolesClan.length > 0 && <div className="font-bold tracking-wider text-sm pt-2">ROLES</div>} */}
