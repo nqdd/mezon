@@ -10,7 +10,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -87,12 +87,13 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			}}
 		>
 			<DmItemProfile
-				avatar={isTypeDMGroup ? directMessage?.topic || 'assets/images/avatar-group.png' : (directMessage?.channel_avatar?.at(0) ?? '')}
+				avatar={isTypeDMGroup ? directMessage?.topic || 'assets/images/avatar-group.png' : (directMessage?.avatars?.at(0) ?? '')}
 				name={directMessage?.channel_label || ''}
-				number={(directMessage?.user_ids?.length || 0) + 1}
+				number={(directMessage?.member_count || 0) + 1}
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
 				userStatus={user?.user?.user_status}
+				online={directMessage?.onlines?.[0]}
 				direct={directMessage}
 			/>
 			{buzzStateDM?.isReset ? (
@@ -126,7 +127,7 @@ const DmItemProfile = ({
 	isTypeDMGroup,
 	highlight,
 	userStatus,
-	status,
+	online,
 	direct
 }: {
 	highlight: boolean;
@@ -135,7 +136,7 @@ const DmItemProfile = ({
 	number: number;
 	isTypeDMGroup: boolean;
 	userStatus?: string;
-	status?: EUserStatus;
+	online?: boolean;
 	direct: DirectEntity;
 }) => {
 	return (
@@ -152,12 +153,7 @@ const DmItemProfile = ({
 			/>
 			{!isTypeDMGroup && (
 				<div className="rounded-full left-7 absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-					<UserStatusIconClan
-						channelId={direct.id}
-						userId={direct.user_ids?.[0] || ''}
-						status={userStatus}
-						online={status !== EUserStatus.INVISIBLE}
-					/>
+					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus} online={online} />
 				</div>
 			)}
 
