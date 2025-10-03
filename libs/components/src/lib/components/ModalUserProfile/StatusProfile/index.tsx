@@ -45,7 +45,8 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		dispatch(userClanProfileActions.setShowModalCustomStatus(true));
 	};
 	const userCustomStatus = useMemberCustomStatus(user?.id || '', isDM);
-	const status = user?.status || 'Online';
+
+	const status = user?.status || EUserStatus.ONLINE;
 	const { userProfile } = useAuth();
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 
