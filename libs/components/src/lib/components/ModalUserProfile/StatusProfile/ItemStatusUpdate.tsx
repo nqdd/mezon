@@ -3,10 +3,12 @@ import { accountActions, clanMembersMetaActions, useAppDispatch } from '@mezon/s
 import { Menu } from '@mezon/ui';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ItemStatus from './ItemStatus';
 
 type ItemStatusUpdateProps = {
 	children: string;
+	statusValue: string;
 	dropdown?: boolean;
 	type?: 'radio' | 'checkbox' | 'none';
 	startIcon?: ReactNode;
@@ -15,7 +17,8 @@ type ItemStatusUpdateProps = {
 	modalRef: React.MutableRefObject<boolean>;
 };
 
-const ItemStatusUpdate = ({ children, dropdown, startIcon, type, onClick, disabled = false, modalRef }: ItemStatusUpdateProps) => {
+const ItemStatusUpdate = ({ children, statusValue, dropdown, startIcon, onClick, modalRef }: ItemStatusUpdateProps) => {
+	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 	const { userProfile } = useAuth();
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
@@ -34,20 +37,20 @@ const ItemStatusUpdate = ({ children, dropdown, startIcon, type, onClick, disabl
 
 	const menu = useMemo(() => {
 		const itemMenu: ReactElement[] = [
-			<ItemStatus children="For 30 Minutes" onClick={() => updateUserStatus(children, 30, false)} />,
+			<ItemStatus children={t('statusProfile.statusDuration.for30Minutes')} onClick={() => updateUserStatus(statusValue, 30, false)} />,
 			<div className="w-full border-b-[1px] border-[#40444b] opacity-70 text-center my-2"></div>,
-			<ItemStatus children="For 1 hour" onClick={() => updateUserStatus(children, 60, false)} />,
+			<ItemStatus children={t('statusProfile.statusDuration.for1Hour')} onClick={() => updateUserStatus(statusValue, 60, false)} />,
 			<div className="w-full border-b-[1px] border-[#40444b] opacity-70 text-center my-2"></div>,
-			<ItemStatus children="For 3 hours" onClick={() => updateUserStatus(children, 30, false)} />,
+			<ItemStatus children={t('statusProfile.statusDuration.for3Hours')} onClick={() => updateUserStatus(statusValue, 180, false)} />,
 			<div className="w-full border-b-[1px] border-[#40444b] opacity-70 text-center my-2"></div>,
-			<ItemStatus children="For 8 hours" onClick={() => updateUserStatus(children, 30, false)} />,
+			<ItemStatus children={t('statusProfile.statusDuration.for8Hours')} onClick={() => updateUserStatus(statusValue, 480, false)} />,
 			<div className="w-full border-b-[1px] border-[#40444b] opacity-70 text-center my-2"></div>,
-			<ItemStatus children="For 24 hours" onClick={() => updateUserStatus(children, 30, false)} />,
+			<ItemStatus children={t('statusProfile.statusDuration.for24Hours')} onClick={() => updateUserStatus(statusValue, 1440, false)} />,
 			<div className="w-full border-b-[1px] border-[#40444b] opacity-70 text-center my-2"></div>,
-			<ItemStatus children="Forever" onClick={() => updateUserStatus(children, 0, true)} />
+			<ItemStatus children={t('statusProfile.statusDuration.forever')} onClick={() => updateUserStatus(statusValue, 0, true)} />
 		];
 		return <>{itemMenu}</>;
-	}, []);
+	}, [statusValue, updateUserStatus, t]);
 	return (
 		<Menu
 			menu={menu}

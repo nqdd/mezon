@@ -54,6 +54,7 @@ const SettingRightUser = ({
 }) => {
 	const { t } = useTranslation('profileSetting');
 	const { t: tAccount } = useTranslation('accountSetting');
+	const { t: tInvitation } = useTranslation('invitation');
 	const [editAboutUser, setEditAboutUser] = useState(aboutMe);
 	const { sessionRef, clientRef } = useMezon();
 	const { userProfile } = useAuth();
@@ -318,9 +319,10 @@ const SettingRightUser = ({
 				if (!blob) return;
 				try {
 					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-					toast(t('messages.qrCopiedSuccess'));
+					const successMessage = tInvitation('messages.qrCopiedSuccess');
+					toast.success(successMessage);
 				} catch (err) {
-					console.error(t('errors.copyFailed'), err);
+					console.error(tInvitation('errors.copyFailed'), err);
 				}
 			});
 		};

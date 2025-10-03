@@ -103,5 +103,7 @@
 
 	/* border-avatar */
 	--border-color-avatar: #561c1e;
+	/* border left highlight */
+	--border-left-highlight: #e74c3c;
 
 }
