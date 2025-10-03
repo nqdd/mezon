@@ -100,9 +100,9 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 	);
 
 	useEffect(() => {
-		MobileEventEmitter.addListener(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, onRemoveUserChannel);
+		MobileEventEmitter?.addListener?.(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, onRemoveUserChannel);
 		return () => {
-			MobileEventEmitter.removeListener(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, () => {});
+			MobileEventEmitter?.removeListener?.(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, () => {});
 		};
 	}, []);
 

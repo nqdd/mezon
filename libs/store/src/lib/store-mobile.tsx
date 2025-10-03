@@ -78,7 +78,6 @@ import { threadsReducer } from './threads/threads.slice';
 import { toastListenerMiddleware } from './toasts/toasts.listener';
 import { TOASTS_FEATURE_KEY, toastsReducer } from './toasts/toasts.slice';
 import { topicsReducer } from './topicDiscussion/topicDiscussions.slice';
-import { USER_STATUS_API_FEATURE_KEY, userStatusAPIReducer } from './userstatus/userstatusAPI.slice';
 import { VOICE_FEATURE_KEY, voiceReducer } from './voice/voice.slice';
 import { TRANSACTION_HISTORY_FEATURE_KEY, transactionHistoryReducer } from './wallet/transactionHistory.slice';
 import { WALLET_FEATURE_KEY, walletReducer } from './wallet/wallet.slice';
@@ -493,7 +492,6 @@ const reducer = {
 	directmembersmeta: directMembersMetaReducer,
 	[ONBOARDING_FEATURE_KEY]: persistedOnboardingReducer,
 	dmcall: DMCallReducer,
-	[USER_STATUS_API_FEATURE_KEY]: userStatusAPIReducer,
 	[E2EE_FEATURE_KEY]: e2eeReducer,
 	[EMBED_MESSAGE]: embedReducer,
 	walletLedger: walletLedgerReducer,
