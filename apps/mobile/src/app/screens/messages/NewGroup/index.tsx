@@ -1,12 +1,22 @@
-import { useFriends } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, FriendsEntity, appActions, channelUsersActions, directActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	DirectEntity,
+	FriendsEntity,
+	appActions,
+	channelUsersActions,
+	directActions,
+	selectAllFriends,
+	selectDirectById,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { ChannelType, User } from 'mezon-js';
 import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { EFriendItemAction } from '../../../components/FriendItem';
@@ -28,7 +38,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const [searchText, setSearchText] = useState<string>('');
 	const { t } = useTranslation(['common', 'friends']);
 	const [friendIdSelectedList, setFriendIdSelectedList] = useState<string[]>([]);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const dispatch = useAppDispatch();
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [selectedFriendDefault, setSelectedFriendDefault] = useState<string[]>([]);

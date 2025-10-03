@@ -78,7 +78,8 @@
 		"removeRole": "Xóa vai trò",
 		"role": "Vai trò",
 		"nope": "Không có!",
-		"typoError": "Bạn có gõ sai không?"
+		"typoError": "Bạn có gõ sai không?",
+		"userNotFound": "Người dùng không có trong Clan"
 	},
 	"placeholders": {
 		"messageUser": "Gửi tin nhắn cho @{{username}}"
@@ -96,6 +97,14 @@
 			"idle": "Nhàn rỗi",
 			"doNotDisturb": "Không làm phiền",
 			"invisible": "Ẩn"
+		},
+		"statusDuration": {
+			"for30Minutes": "30 phút",
+			"for1Hour": "1 giờ",
+			"for3Hours": "3 giờ",
+			"for8Hours": "8 giờ",
+			"for24Hours": "24 giờ",
+			"forever": "Mãi mãi"
 		},
 		"addAccountModal": {
 			"email": "Email",
@@ -174,5 +183,8 @@
 				"save": "Lưu"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Cài đặt kênh thoại",
+	"muteVoice": "Tắt tiếng",
+	"kickVoice": "Xóa khỏi kênh thoạị"
 }

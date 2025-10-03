@@ -39,7 +39,9 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 			<div className="fixed inset-0 bg-black opacity-80"></div>
 			<form className="relative z-10 bg-theme-setting-primary rounded-[5px]" onSubmit={handleSubmit}>
 				<div className="top-block p-[16px]  flex flex-col gap-[15px]">
-					<div className="text-xl font-semibold text-theme-primary-active">{title}</div>
+					<div className="text-xl font-semibold text-theme-primary-active" data-e2e="permission-denied">
+						{title}
+					</div>
 					<div className="bg-[#f0b132] text-theme-message rounded-sm p-[10px]">
 						{t('confirmMessage')}
 					</div>

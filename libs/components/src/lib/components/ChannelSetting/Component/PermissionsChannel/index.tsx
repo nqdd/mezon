@@ -1,7 +1,7 @@
 import { useAuth } from '@mezon/core';
 import { channelsActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { IChannel } from '@mezon/utils';
+import { generateE2eId, type IChannel } from '@mezon/utils';
 import type { MutableRefObject, RefObject } from 'react';
 import { memo, useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -116,10 +116,14 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 								checked={valueToggle}
 								id="id-c01"
 								onChange={handleToggle}
+								data-e2e={generateE2eId('channel_setting_page.permissions.button.change_status')}
 							/>
 						</div>
 						{valueToggle && (
-							<div className="p-4 bg-theme-setting-nav border-theme-primary">
+							<div
+								className="p-4 bg-theme-setting-nav border-theme-primary"
+								data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management')}
+							>
 								<div className="flex justify-between items-center pb-4">
 									<p className="uppercase font-bold text-xs text-theme-primary">{t('channelPermission.whoCanAccess')}</p>
 									<button className="btn-primary btn-primary-hover px-4 py-1 rounded-lg " onClick={openAddMemRoleModal}>
@@ -129,14 +133,14 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 								<hr className="border-t border-solid dark:border-borderDefault border-bgModifierHoverLight" />
 								<div className="py-4">
 									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.roles')}</p>
-									<div>
+									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.role_list')}>
 										<ListRolePermission channel={channel} selectedRoleIds={selectedRoleIds} />
 									</div>
 								</div>
 								<hr className="border-t border-solid dark:border-borderDefault border-bgModifierHoverLight" />
 								<div className="py-4">
 									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.members')}</p>
-									<div>
+									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.member_list')}>
 										<ListMemberPermission channel={channel} selectedUserIds={selectedUserIds} />
 									</div>
 								</div>

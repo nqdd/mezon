@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { Dimensions, StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, widthImage: number) =>
@@ -26,8 +27,6 @@ export const style = (colors: Attributes, widthImage: number) =>
 		wrapper: { height: '100%' },
 		contentContainer: {
 			paddingBottom: size.s_50,
-			justifyContent: 'flex-start',
-			alignItems: 'center',
 			flexGrow: 1
 		},
 		sectionHeader: {
@@ -48,6 +47,7 @@ export const style = (colors: Attributes, widthImage: number) =>
 		},
 		rowContainer: {
 			flexDirection: 'row',
+			flexWrap: 'wrap',
 			width: Dimensions.get('screen').width,
 			paddingHorizontal: size.s_8
 		},

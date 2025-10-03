@@ -11,7 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -85,7 +85,7 @@ const MemoizedMemberItem = memo((props: MemberClanProps) => {
 			userStatus={
 				<>
 					{userVoiceStatus ? (
-						<span className="flex items-center gap-1">
+						<span className="flex items-center gap-1" data-e2e={generateE2eId('clan_page.secondary_side_bar.member.in_voice')}>
 							<Icons.Speaker className="text-green-500 !w-3 !h-3" />
 							In voice
 						</span>
@@ -233,6 +233,7 @@ const ListMember = () => {
 								height: `${virtualRow.size}px`,
 								transform: `translateY(${virtualRow.start}px)`
 							}}
+							data-e2e={generateE2eId('chat.channel_message.member_list.item')}
 						>
 							<div className="flex items-center px-4 h-full">
 								{typeof user === 'object' && 'onlineSeparate' in user ? (

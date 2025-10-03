@@ -7,7 +7,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons, Menu, Pagination } from '@mezon/ui';
-import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import { ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiChannelSettingItem } from 'mezon-js/api.gen';
@@ -366,7 +366,7 @@ export const AvatarUserShort = ({ id, showName = false }: { id: string; showName
 	const avatarUrl = getAvatarForPrioritize(member?.clan_avatar, member?.user?.avatar_url) || 'assets/avatar-user.svg';
 
 	return (
-		<div className="flex items-center gap-3">
+		<div className="flex items-center gap-3" data-e2e={generateE2eId('clan_page.channel_list.item.user_list_collapsed.item')}>
 			<img
 				src={createImgproxyUrl(avatarUrl, { width: 24, height: 24, resizeType: 'fit' })}
 				className="rounded-full h-6 aspect-square object-cover"

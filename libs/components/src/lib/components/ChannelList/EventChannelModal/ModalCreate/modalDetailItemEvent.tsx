@@ -12,7 +12,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +68,7 @@ const ModalDetailItemEvent = (props?: ModalDetailItemEventProps) => {
 			<div
 				ref={panelRef}
 				className="w-[600px] min-h-[400px] max-h-[600px] rounded-lg overflow-hidden text-base dark:bg-[#313339] bg-white dark:text-white text-black"
+				data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item')}
 			>
 				{event?.logo && <img src={event?.logo} alt={event?.title} className="w-full h-44 object-cover" />}
 				<div className="flex justify-between items-center pt-4 border-b font-bold border-zinc-600 cursor-pointer ">
@@ -142,16 +143,27 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 
 	return (
 		<div className="px-4 py-8 space-y-2 text-theme-primary max-h-[370px] h-fit hide-scrollbar overflow-auto">
-			<h4 className="font-semibold inline-flex gap-x-3">
+			<h4
+				className="font-semibold inline-flex gap-x-3"
+				data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.start_date_time')}
+			>
 				<Icons.IconEvents />
 				{time}
 			</h4>
-			<p className="font-bold text-theme-primary-active text-lg">{event?.title}</p>
+			<p
+				className="font-bold text-theme-primary-active text-lg"
+				data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.topic')}
+			>
+				{event?.title}
+			</p>
 			<div className="flex items-center gap-x-3">
 				<img src={currentClan?.logo} alt={currentClan?.clan_name} className="size-5 rounded-full" />
 				<p className="hover:underline">{currentClan?.clan_name}</p>
 			</div>
-			<div className="flex items-center gap-x-3 ">
+			<div
+				className="flex items-center gap-x-3 "
+				data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.channel_name')}
+			>
 				{(() => {
 					if (hasAddress) {
 						return (
@@ -205,7 +217,9 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 					{t('eventDetail.createdBy')} <span className="hover:underline">{userCreate?.user?.username}</span>
 				</p>
 			</div>
-			<div className="break-all">{event?.description}</div>
+			<div className="break-all" data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.description')}>
+				{event?.description}
+			</div>
 		</div>
 	);
 };

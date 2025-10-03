@@ -1,8 +1,10 @@
 import { useColorsRoleById } from '@mezon/core';
-import { ChannelMembersEntity, selectCurrentChannelId, selectCurrentDM } from '@mezon/store';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { selectCurrentChannelId, selectCurrentDM } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EUserStatus, UsersClanEntity, createImgproxyUrl, generateE2eId } from '@mezon/utils';
-import { ReactNode } from 'react';
+import type { UsersClanEntity } from '@mezon/utils';
+import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import type { ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../components';
 import { UserStatusIconClan } from './IconStatus';
@@ -25,7 +27,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 	const handleContextMenu = (event: React.MouseEvent) => {
 		const userTemplate: UsersClanEntity = {
 			...user,
-			id: id,
+			id,
 			prioritizeName: username,
 			clan_avatar: avatar,
 			user: {
@@ -42,7 +44,12 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 
 	return (
 		<div className={`relative group w-full ${isOffline ? 'opacity-50' : ''}`}>
-			<div onContextMenu={handleContextMenu} onClick={onClick} className="cursor-pointer flex items-center gap-[9px] relative">
+			<div
+				onContextMenu={handleContextMenu}
+				onClick={onClick}
+				className="cursor-pointer flex items-center gap-[9px] relative"
+				data-e2e={generateE2eId('clan_page.secondary_side_bar.member')}
+			>
 				<div className="relative">
 					<AvatarImage
 						alt={username}

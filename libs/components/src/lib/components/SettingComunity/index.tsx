@@ -13,7 +13,7 @@ import {
 } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_10MB, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -395,7 +395,14 @@ const SettingComunity = ({
 								)}
 							</div>
 
-							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+							<input
+								ref={fileInputRef}
+								type="file"
+								accept="image/*"
+								className="hidden"
+								onChange={handleBannerChange}
+								data-e2e={generateE2eId('clan_page.settings.upload.community_banner_input')}
+							/>
 						</div>
 
 						<div className="space-y-4">
@@ -489,7 +496,7 @@ const SettingComunity = ({
 								</svg>
 								{t('communitySettings.vanityUrl.title')}
 							</label>
-							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')}</p>
+							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 							<div className="relative">
 								<div
 									className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
@@ -678,21 +685,21 @@ const SettingComunity = ({
 								value={aboutText}
 								onChange={handleChangeAbout}
 								placeholder={t('communitySettings.about.placeholder')}
-								maxLength={300}
+								maxLength={100}
 							/>
 							<div className="absolute bottom-3 right-3 text-sm  bg-theme-setting-primary text-theme-primary border border-theme-primary px-2 py-1 rounded-md">
 								<span
 									className={
-										aboutText.length > 250
+										aboutText.length > 50
 											? 'text-orange-500'
-											: aboutText.length > 280
+											: aboutText.length > 80
 												? 'text-red-500'
 												: 'text-theme-primary-active'
 									}
 								>
 									{aboutText.length}
 								</span>
-								<span className="text-theme-primary">/300</span>
+								<span className="text-theme-primary">/100</span>
 							</div>
 						</div>
 					</div>
@@ -709,7 +716,7 @@ const SettingComunity = ({
 							</svg>
 							{t('communitySettings.vanityUrl.title')}
 						</label>
-						<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')}</p>
+						<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 						<div className="relative">
 							<div
 								className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}

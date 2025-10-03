@@ -1,5 +1,6 @@
-import { EventManagementEntity, selectAllAccount, selectAllTextChannel } from '@mezon/store';
-import { OptionEvent } from '@mezon/utils';
+import type { EventManagementEntity } from '@mezon/store';
+import { selectAllAccount, selectAllTextChannel } from '@mezon/store';
+import { OptionEvent, generateE2eId } from '@mezon/utils';
 import { useSelector } from 'react-redux';
 import ItemEventManagement from '../ModalCreate/itemEventManagement';
 
@@ -24,7 +25,7 @@ const ListEventManagement = (props: ListEventManagementProps) => {
 		)
 		.map((event, index) => {
 			return (
-				<div key={index}>
+				<div key={index} data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item')}>
 					<ItemEventManagement
 						topic={event.title || ''}
 						voiceChannel={event.channel_voice_id || ''}

@@ -187,8 +187,13 @@ export const voiceSlice = createSlice({
 		addMany: voiceAdapter.addMany,
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
 			const voice = action.payload;
-			voiceAdapter.removeOne(state, voice.id);
-			if (state.listInVoiceStatus[voice.voice_user_id]) {
+			const keyRemove = voice.voice_user_id + voice.voice_channel_id;
+			const entities = voiceAdapter.getSelectors().selectEntities(state);
+			if (entities[keyRemove]) {
+				voiceAdapter.removeOne(state, keyRemove);
+				delete state.listInVoiceStatus[keyRemove];
+			} else {
+				voiceAdapter.removeOne(state, voice.id);
 				delete state.listInVoiceStatus[voice.voice_user_id];
 			}
 		},
@@ -280,6 +285,14 @@ export const voiceSlice = createSlice({
 		},
 		setExternalGroup: (state) => {
 			state.externalGroup = true;
+		},
+		removeInVoiceInChannel: (state, action: PayloadAction<string>) => {
+			const channelId = action.payload;
+			for (const key in state.listInVoiceStatus) {
+				if (state.listInVoiceStatus[key] === channelId) {
+					delete state.listInVoiceStatus[key];
+				}
+			}
 		}
 		// ...
 	},
@@ -293,10 +306,10 @@ export const voiceSlice = createSlice({
 				(state: VoiceState, action: PayloadAction<{ users: ApiVoiceChannelUser[]; clanId: string }>) => {
 					state.loadingStatus = 'loaded';
 					const { users, clanId } = action.payload;
-
+					state.listInVoiceStatus = {};
 					const members: VoiceEntity[] = users.map((channelRes) => {
 						if (channelRes.user_id && channelRes?.id) {
-							state.listInVoiceStatus[channelRes.user_id] = channelRes.id;
+							state.listInVoiceStatus[channelRes.user_id] = channelRes.channel_id || '';
 						}
 						return {
 							user_id: channelRes.user_id || '',
@@ -306,7 +319,7 @@ export const voiceSlice = createSlice({
 							participant: channelRes.participant || '',
 							voice_channel_label: '',
 							last_screenshot: '',
-							id: channelRes.id || ''
+							id: (channelRes.user_id || '') + (channelRes.channel_id || '')
 						};
 					});
 					voiceAdapter.setAll(state, members);

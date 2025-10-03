@@ -24,7 +24,6 @@ import {
 	settingClanStickerActions,
 	topicsActions,
 	useAppDispatch,
-	userStatusActions,
 	voiceActions
 } from '@mezon/store-mobile';
 import { useCallback, useContext, useEffect, useRef } from 'react';
@@ -281,6 +280,8 @@ const RootListener = () => {
 
 	const mainLoader = useCallback(async () => {
 		try {
+			const store = getStore();
+			const currentClanId = selectCurrentClanId(store.getState() as any);
 			const promises = [];
 			// await dispatch(waitForSocketConnection());
 			promises.push(dispatch(listUsersByUserActions.fetchListUsersByUser({ noCache: true })));
@@ -288,11 +289,10 @@ const RootListener = () => {
 			promises.push(dispatch(friendsActions.fetchListFriends({ noCache: true })));
 			promises.push(dispatch(clansActions.joinClan({ clanId: '0' })));
 			promises.push(dispatch(directActions.fetchDirectMessage({ noCache: true })));
-			promises.push(dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true })));
-			promises.push(dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true })));
+			promises.push(dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true, clanId: currentClanId })));
+			promises.push(dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: currentClanId })));
 			promises.push(dispatch(gifsActions.fetchGifCategories()));
 			promises.push(dispatch(gifsActions.fetchGifCategoryFeatured()));
-			promises.push(dispatch(userStatusActions.getUserStatus({})));
 			await Promise.allSettled(promises);
 			return null;
 		} catch (error) {

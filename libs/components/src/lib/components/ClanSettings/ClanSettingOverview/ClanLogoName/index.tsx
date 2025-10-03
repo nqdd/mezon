@@ -1,7 +1,7 @@
 import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -122,7 +122,14 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }
 										</span>
 									)}
 								</div>
-								<input ref={fileInputRef} id="upload_logo" onChange={(e) => handleFile(e)} type="file" className="hidden" />
+								<input
+									ref={fileInputRef}
+									id="upload_logo"
+									onChange={(e) => handleFile(e)}
+									type="file"
+									className="hidden"
+									data-e2e={generateE2eId('clan_page.settings.upload.clan_logo_input')}
+								/>
 							</label>
 							<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
 								<Icons.SelectFileIcon />
@@ -149,6 +156,7 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }
 						value={clanName}
 						onChange={(e) => handleChangeClanName(e.target.value)}
 						className=" outline-none w-full h-10 p-[10px] bg-theme-input text-base rounded placeholder:text-sm"
+						data-e2e={generateE2eId('clan_page.settings.overview.input.clan_name')}
 						placeholder={t('clanLogo.namePlaceholder')}
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 					/>

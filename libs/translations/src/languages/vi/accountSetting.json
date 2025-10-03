@@ -15,6 +15,7 @@
 	"accountInformation": "Thông tin tài khoản",
 	"doNotHaveBlockedUser": "Không có người dùng nào bị chặn",
 	"setPassword": "Đặt mật khẩu",
+	"changePassword": "Đổi mật khẩu",
 	"setPhoneNumber": "Đặt số điện thoại",
 	"disableAccountAlert": {
 		"title": "Vô hiệu hoá tài khoản",
@@ -35,6 +36,7 @@
 		"currentPassword": "Mật khẩu hiện tại",
 		"confirmPassword": "Xác nhận mật khẩu",
 		"confirm": "Lưu",
+		"changePassword": "Đổi mật khẩu",
 		"description": "Mật khẩu của bạn phải có ít nhất 8 ký tự và bao gồm ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt (ví dụ: !@#$%^&*).",
 		"error": {
 			"characters": "Mật khẩu phải có ít nhất 8 ký tự",
@@ -43,7 +45,10 @@
 			"number": "Mật khẩu phải chứa ít nhất 1 chữ số",
 			"symbol": "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
 			"notEqual": "Mật khẩu xác nhận không khớp",
-			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ"
+			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ",
+			"fillOldPass": "Vui lòng nhập mật khẩu hiện tại.",
+			"updateFail": "Cập nhật tài khoản thất bại.",
+			"createFail": "Đặt mật khẩu thất bại."
 		},
 		"notification": {
 			"success": "Đổi mật khẩu thành công",
@@ -66,7 +71,6 @@
 		"title": "Đặt số điện thoại",
 		"phoneNumber": "Số điện thoại",
 		"description": "Bạn sẽ nhận được tin nhắn có chứa mã xác minh.",
-		"phonePlaceholder": "+84-999...999",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Gửi mã OTP",
@@ -82,6 +86,22 @@
 		"deleteAccount": {
 			"success": "Xóa tài khoản thành công",
 			"error": "Bạn là chủ của clan"
+		}
+	},
+	"phoneNumberSetting": {
+		"title": "Số điện thoại",
+		"updatePhoneNumber": {
+			"newPhoneNumber": "Số điện thoại mới",
+			"nextButton": "Tiếp theo",
+			"removeButton": "Gỡ số điện thoại",
+			"failed": "Cập nhật số điện thoại thất bại",
+			"invalidPhoneNumber": "Số điện thoại không hợp lệ"
+		},
+		"verifyPhoneNumber": {
+			"description": "Nhập mã 6 chữ số mà chúng tôi đã gửi đến",
+			"verifyButton": "Xác nhận",
+			"success": "Cập nhật số điện thoại thành công",
+			"failed": "Mã OTP không đúng"
 		}
 	}
 }

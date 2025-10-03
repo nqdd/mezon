@@ -15,6 +15,7 @@
 	"accountInformation": "Account Information",
 	"doNotHaveBlockedUser": "You don't have any blocked users",
 	"setPassword": "Set Password",
+	"changePassword": "Change Password",
 	"setPhoneNumber": "Set Phone Number",
 	"disableAccountAlert": {
 		"title": "Disable account",
@@ -35,6 +36,7 @@
 		"currentPassword": "Current Password",
 		"confirmPassword": "Confirm Password",
 		"confirm": "Save",
+		"changePassword": "Change Password",
 		"description": "Your password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (e.g., !@#$%^&*).",
 		"error": {
 			"characters": "Password must be at least 8 characters",
@@ -43,7 +45,10 @@
 			"number": "Password must contain at least 1 number",
 			"symbol": "Password must contain at least 1 special character",
 			"notEqual": "Confirmation password doesn't match",
-			"samePass": "The new password cannot be the same as the old password"
+			"samePass": "The new password cannot be the same as the old password",
+			"fillOldPass": "Please fill current password.",
+			"updateFail": "Could not update your account.",
+			"createFail": "Could not create your password."
 		},
 		"toast": {
 			"success": "Password set successfully",
@@ -67,7 +72,6 @@
 		"phoneNumber": "Phone Number",
 		"description": "You will receive the text message with a verification code.",
 		"emailPlaceholder": "your.email@example.com",
-		"phonePlaceholder": "+84-999...999",
 		"loading": "Loading...",
 		"close": "Close",
 		"sendOTP": "Send OTP",
@@ -84,6 +88,22 @@
 		"deleteAccount": {
 			"success": "Account deleted successfully",
 			"error": "You are the owner of the clan"
+		}
+	},
+	"phoneNumberSetting": {
+		"title": "Phone",
+		"updatePhoneNumber": {
+			"newPhoneNumber": "New Phone Number",
+			"nextButton": "Next",
+			"removeButton": "Remove Phone Number",
+			"failed": "Phone number update failed",
+			"invalidPhoneNumber": "Invalid phone number"
+		},
+		"verifyPhoneNumber": {
+			"description": "Enter the 6-digit code we sent to",
+			"verifyButton": "Verify",
+			"success": "Phone number updated successfully",
+			"failed": "Invalid OTP"
 		}
 	}
 }

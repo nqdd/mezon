@@ -2,8 +2,8 @@ import { captureSentryError } from '@mezon/logger';
 import type { IUserAccount, LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
-import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon } from 'mezon-js/api.gen';
+import { t } from 'i18next';
+import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon, ApiUserStatusUpdate } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
@@ -11,7 +11,7 @@ import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCal
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
-
+import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
 export interface IAccount {
 	email: string;
@@ -24,13 +24,15 @@ export interface AccountState {
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
 	cache?: CacheMetadata;
+	avatarVersion: number;
 }
 
 export const initialAccountState: AccountState = {
 	loadingStatus: 'not loaded',
 	account: null,
 	userProfile: null,
-	anonymousMode: false
+	anonymousMode: false,
+	avatarVersion: 0
 };
 
 export const fetchUserProfileCached = async (getState: () => RootState, mezon: MezonValueContext, noCache = false) => {
@@ -88,6 +90,7 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 
 		const response = await mezon.client.deleteAccount(mezon.session);
 		thunkAPI.dispatch(authActions.setLogout());
+		thunkAPI.dispatch(walletActions.setLogout());
 		clearApiCallTracker();
 		return response;
 	} catch (error) {
@@ -121,6 +124,21 @@ export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: 
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'account/verifyPhone');
+		toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
+	}
+});
+
+export const updateAccountStatus = createAsyncThunk('userstatusapi/updateUserStatus', async (request: ApiUserStatusUpdate, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.updateUserStatus(mezon.session, request);
+		if (!response) {
+			return '';
+		}
+		return request.status || '';
+	} catch (error) {
+		captureSentryError(error, 'userstatusapi/updateUserStatus');
 		return thunkAPI.rejectWithValue(error);
 	}
 });
@@ -137,16 +155,12 @@ export const accountSlice = createSlice({
 		},
 		setCustomStatus(state, action: PayloadAction<string>) {
 			if (state?.userProfile?.user) {
-				const userMetadata = safeJSONParse(state.userProfile.user.metadata || '{}');
-				const updatedUserMetadata = { ...userMetadata, status: action.payload };
-				state.userProfile.user.metadata = JSON.stringify(updatedUserMetadata);
+				state.userProfile.user.user_status = action.payload;
 			}
 		},
 		setWalletMetadata(state, action: PayloadAction<any>) {
 			if (state?.userProfile?.user) {
-				const userMetadata = safeJSONParse(state.userProfile.user.metadata || '{}');
-				const updatedUserMetadata = { ...userMetadata, wallet: action.payload };
-				state.userProfile.user.metadata = JSON.stringify(updatedUserMetadata);
+				state.userProfile.user.user_status = action.payload;
 			}
 		},
 		setLogoCustom(state, action: PayloadAction<string | undefined>) {
@@ -173,13 +187,9 @@ export const accountSlice = createSlice({
 			}
 		},
 		updateUserStatus(state: AccountState, action: PayloadAction<string>) {
-			if (state.userProfile?.user?.metadata) {
+			if (state.userProfile?.user?.user_status) {
 				try {
-					const metadataObj = JSON.parse(state.userProfile.user.metadata);
-					if (metadataObj && typeof metadataObj === 'object') {
-						metadataObj.user_status = action.payload;
-						state.userProfile.user.metadata = JSON.stringify(metadataObj);
-					}
+					state.userProfile.user.user_status = action.payload;
 				} catch (error) {
 					console.error('Error updating user status in metadata:', error);
 				}
@@ -192,6 +202,9 @@ export const accountSlice = createSlice({
 				user: { ...state.userProfile?.user, ...action.payload.user },
 				encrypt_private_key: action.payload.encrypt_private_key
 			};
+		},
+		incrementAvatarVersion(state) {
+			state.avatarVersion = (state.avatarVersion || 0) + 1;
 		}
 	},
 	extraReducers: (builder) => {
@@ -220,7 +233,7 @@ export const accountSlice = createSlice({
  */
 export const accountReducer = accountSlice.reducer;
 
-export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone };
+export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone, updateAccountStatus };
 
 export const getAccountState = (rootState: { [ACCOUNT_FEATURE_KEY]: AccountState }): AccountState => rootState[ACCOUNT_FEATURE_KEY];
 
@@ -230,10 +243,8 @@ export const selectCurrentUserId = createSelector(getAccountState, (state: Accou
 
 export const selectAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.anonymousMode);
 
-export const selectAccountMetadata = createSelector(getAccountState, (state: AccountState) =>
-	safeJSONParse(state.userProfile?.user?.metadata || '{}')
-);
-
-export const selectAccountCustomStatus = createSelector(selectAccountMetadata, (metadata) => metadata?.status || '');
+export const selectAccountCustomStatus = createSelector(getAccountState, (state: AccountState) => state.userProfile?.user?.user_status || '');
 
 export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
+
+export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);

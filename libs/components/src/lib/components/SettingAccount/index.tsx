@@ -74,10 +74,10 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 			className={`"overflow-y-auto flex flex-col  flex-1 shrink  pt-[94px] pb-7 pr-[10px] sbm:pl-[40px] pl-[10px] overflow-x-hidden ${menuIsOpen === true ? 'min-w-[700px]' : ''} 2xl:min-w-[900px] max-w-[740px] hide-scrollbar text-sm"`}
 		>
 			<h1 className="text-xl font-semibold tracking-wider text-theme-primary-active  mb-8">{t('myAccount')}</h1>
-			<div className="w-full rounded-lg overflow-hidden bg-theme-setting-nav">
+			<div className="w-full rounded-lg bg-theme-setting-nav">
 				<div style={{ backgroundColor: color }} className="h-[100px]  "></div>
 				<div className="flex justify-between relative -top-5 px-4 flex-col sbm:flex-row sbm:items-center">
-					<div className="flex items-center gap-x-4">
+					<div className="flex items-center gap-x-4" data-e2e={generateE2eId(`user_setting.account.info`)}>
 						<AvatarImage
 							alt={userProfile?.user?.username || ''}
 							username={userProfile?.user?.username}

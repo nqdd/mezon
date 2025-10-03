@@ -214,7 +214,11 @@
     },
     "changeCategory": {
         "title": "Change Category",
-        "label": "MOVE FROM {{currentChannel}} TO"
+        "label": "MOVE FROM {{currentChannel}} TO",
+        "confirmFirstContent": "Are you sure you want to move",
+        "confirmLastContent": "to category",
+        "confirm": "Confirm",
+        "error": "Change category failed"
     },
     "overview": {
         "title": "Overview",

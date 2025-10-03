@@ -1,5 +1,6 @@
-import { MezonContextValue } from '@mezon/transport';
-import { Middleware, ThunkDispatch, UnknownAction, configureStore } from '@reduxjs/toolkit';
+import type { MezonContextValue } from '@mezon/transport';
+import type { Middleware, ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { createTransform, persistReducer, persistStore } from 'redux-persist';
 import { accountReducer } from './account/account.slice';
@@ -17,7 +18,8 @@ import { friendsReducer } from './friends/friend.slice';
 import { gifsReducer } from './giftStickerEmojiPanel/gifs.slice';
 import { gifsStickerEmojiReducer } from './giftStickerEmojiPanel/gifsStickerEmoji.slice';
 import { inviteReducer } from './invite/invite.slice';
-import { MessagesState, messagesReducer } from './messages/messages.slice';
+import type { MessagesState } from './messages/messages.slice';
+import { messagesReducer } from './messages/messages.slice';
 import { referencesReducer } from './messages/references.slice';
 import { notificationReducer } from './notification/notify.slice';
 import { POLICIES_FEATURE_KEY, policiesDefaultReducer, policiesReducer } from './policies/policies.slice';
@@ -78,7 +80,10 @@ import { TOASTS_FEATURE_KEY, toastsReducer } from './toasts/toasts.slice';
 import { topicsReducer } from './topicDiscussion/topicDiscussions.slice';
 import { USER_STATUS_API_FEATURE_KEY, userStatusAPIReducer } from './userstatus/userstatusAPI.slice';
 import { VOICE_FEATURE_KEY, voiceReducer } from './voice/voice.slice';
+import { TRANSACTION_HISTORY_FEATURE_KEY, transactionHistoryReducer } from './wallet/transactionHistory.slice';
+import { WALLET_FEATURE_KEY, walletReducer } from './wallet/wallet.slice';
 import { integrationWebhookReducer } from './webhook/webhook.slice';
+
 // import storage from '@react-native-async-storage/async-storage';
 const storage = {} as any; // ignore in web
 
@@ -155,7 +160,7 @@ const persistedDirectReducer = persistReducer(
 	{
 		key: 'directMessage',
 		storage,
-		blacklist: ['currentDirectMessageId', 'statusDMChannelUnread', 'socketStatus', 'loadingStatus']
+		blacklist: ['currentDirectMessageId', 'statusDMChannelUnread', 'socketStatus', 'loadingStatus', 'currentDirectMessageType', 'buzzStateDirect']
 	},
 	directReducer
 );
@@ -409,6 +414,14 @@ const persistedCompose = persistReducer(
 	composeReducer
 );
 
+const persistedWalletStore = persistReducer(
+	{
+		key: WALLET_FEATURE_KEY,
+		storage
+	},
+	walletReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	account: persistAccountReducer,
@@ -435,7 +448,7 @@ const reducer = {
 	[POLICIES_FEATURE_KEY]: persistPoliciesReducer,
 	userClanProfile: userClanProfileReducer,
 	friends: friendsReducer,
-	direct: directReducer,
+	direct: persistedDirectReducer,
 	directmeta: directMetaReducer,
 	roleId: roleIdReducer,
 	policiesDefaultSlice: policiesDefaultReducer,
@@ -487,7 +500,9 @@ const reducer = {
 	[CHANNEL_LIST_RENDER]: persistListChannelRenderReducer,
 	[COMPOSE_FEATURE_KEY]: persistedCompose,
 	groupCall: groupCallReducer,
-	[QUICK_MENU_FEATURE_KEY]: quickMenuReducer
+	[QUICK_MENU_FEATURE_KEY]: quickMenuReducer,
+	[TRANSACTION_HISTORY_FEATURE_KEY]: transactionHistoryReducer,
+	[WALLET_FEATURE_KEY]: persistedWalletStore
 };
 
 let storeInstance = configureStore({

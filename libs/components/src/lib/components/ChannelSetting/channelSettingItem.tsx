@@ -3,7 +3,7 @@ import type { ChannelsEntity } from '@mezon/store';
 import { selectChannelById, selectWelcomeChannelByClanId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
-import { EPermission, checkIsThread } from '@mezon/utils';
+import { EPermission, checkIsThread, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,10 +27,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 	const isPrivate = channel.channel_private;
 	const [selectedButton, setSelectedButton] = useState<string | null>('Overview');
 	const [showModal, setShowModal] = useState(false);
-	const [hasManageChannelPermission, hasClanPermission] = usePermissionChecker(
-		[EPermission.manageChannel, EPermission.manageClan],
-		channel.channel_id ?? ''
-	);
+	const [hasManageChannelPermission] = usePermissionChecker([EPermission.manageChannel, EPermission.manageClan], channel.channel_id ?? '');
 
 	const channelId = (channel?.channel_id || ('id' in channel ? (channel as { id?: string })?.id : '') || '') as string;
 	const channelFromStore = useAppSelector((state) => selectChannelById(state, channelId));
@@ -193,6 +190,7 @@ const ChannelSettingItemButton = ({
 		<button
 			className={`text-theme-primary text-[16px] font-medium rounded-[5px] text-left ml-[-8px] p-2 mt-2 bg-item-theme-hover ${selectedButton === tabName ? 'bg-item-theme text-theme-primary-active' : ''}`}
 			onClick={handleOnClickTabChannelSetting}
+			data-e2e={generateE2eId('channel_setting_page.side_bar.item')}
 		>
 			{getTabTranslation ? getTabTranslation(tabName) : tabName}
 		</button>

@@ -2,7 +2,7 @@ import i18n from '@mezon/translations';
 import type { LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { Friend } from 'mezon-js';
+import type { AddFriend, Friend } from 'mezon-js';
 import { toast } from 'react-toastify';
 import { selectCurrentUserId } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
@@ -10,10 +10,11 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import type { StatusUserArgs } from '../channelmembers/channel.members';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 export const FRIEND_FEATURE_KEY = 'friends';
 const LIMIT_FRIEND = 1000;
 
-interface RootState {
+interface FriendState {
 	[FRIEND_FEATURE_KEY]: FriendsState;
 }
 
@@ -61,12 +62,12 @@ export const friendsAdapter = createEntityAdapter({
 
 const selectAllFriendsEntities = friendsAdapter.getSelectors().selectAll;
 
-const selectCachedFriends = createSelector([(state: RootState) => state[FRIEND_FEATURE_KEY]], (friendsState) => {
+const selectCachedFriends = createSelector([(state: FriendState) => state[FRIEND_FEATURE_KEY]], (friendsState) => {
 	return selectAllFriendsEntities(friendsState);
 });
 
 export const fetchListFriendsCached = async (
-	getState: () => RootState,
+	getState: () => FriendState,
 	ensuredMezon: MezonValueContext,
 	state: number,
 	limit: number,
@@ -112,7 +113,7 @@ type fetchListFriendsArgs = {
 
 export const fetchListFriends = createAsyncThunk('friends/fetchListFriends', async ({ noCache }: fetchListFriendsArgs, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	const response = await fetchListFriendsCached(thunkAPI.getState as () => RootState, mezon, -1, LIMIT_FRIEND, '', noCache);
+	const response = await fetchListFriendsCached(thunkAPI.getState as () => FriendState, mezon, -1, LIMIT_FRIEND, '', noCache);
 	if (!response.friends) {
 		return { friends: [], fromCache: response.fromCache };
 	}
@@ -130,6 +131,8 @@ export const sendRequestAddFriend = createAsyncThunk(
 	'friends/requestFriends',
 	async ({ ids, usernames, isAcceptingRequest }: requestAddFriendParam, thunkAPI) => {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const state = thunkAPI.getState() as RootState;
+		const currentUserId = state.account?.userProfile?.user?.id;
 		await mezon.client
 			.addFriends(mezon.session, ids, usernames)
 
@@ -145,15 +148,23 @@ export const sendRequestAddFriend = createAsyncThunk(
 			})
 			.then((data) => {
 				if (data) {
-					thunkAPI.dispatch(
-						friendsActions.setSentStatusMobile({
-							isSuccess: true
-						})
-					);
 					if (!isAcceptingRequest) {
+						thunkAPI.dispatch(
+							friendsActions.upsertFriend({
+								id: ids?.[0] || '',
+								key: `${ids?.[0]}_${currentUserId}`,
+								source_id: currentUserId,
+								state: EStateFriend.OTHER_PENDING,
+								user: {
+									username: usernames?.[0],
+									id: ids?.[0]
+								}
+							})
+						);
 						toast.success(i18n.t('friends:toast.sendAddFriendSuccess'));
+					} else {
+						thunkAPI.dispatch(friendsActions.acceptFriend(`${ids?.[0]}_${currentUserId}`));
 					}
-					thunkAPI.dispatch(friendsActions.fetchListFriends({ noCache: true }));
 				}
 			});
 	}
@@ -167,7 +178,7 @@ export const sendRequestDeleteFriend = createAsyncThunk(
 		if (!response) {
 			return thunkAPI.rejectWithValue([]);
 		}
-		thunkAPI.dispatch(friendsActions.fetchListFriends({ noCache: true }));
+		thunkAPI.dispatch(friendsActions.remove(ids?.[0] || ''));
 		return response;
 	}
 );
@@ -190,6 +201,28 @@ export const sendRequestUnblockFriend = createAsyncThunk(
 			return thunkAPI.rejectWithValue([]);
 		}
 		return response;
+	}
+);
+
+export const upsertFriendRequest = createAsyncThunk(
+	'friends/upsertFriendRequest',
+	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
+		const state = thunkAPI.getState() as RootState;
+		const currentFriend = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
+
+		const friend: IFriend = {
+			state: currentFriend ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
+			id: user.user_id,
+			key: `${user.user_id}_${myId}`,
+			source_id: myId,
+			user: {
+				id: user.user_id,
+				username: user.username,
+				avatar_url: user.avatar,
+				display_name: user.display_name
+			}
+		};
+		thunkAPI.dispatch(friendsActions.upsertFriend(friend));
 	}
 );
 
@@ -257,6 +290,16 @@ export const friendsSlice = createSlice({
 					friend.source_id = sourceId;
 				}
 			}
+		},
+		upsertFriend: (state, action: PayloadAction<IFriend>) => {
+			const friendEntity = mapFriendToEntity(action.payload);
+			friendsAdapter.upsertOne(state, friendEntity);
+		},
+		acceptFriend: (state, action: PayloadAction<string>) => {
+			friendsAdapter.updateOne(state, {
+				id: action.payload,
+				changes: { state: EStateFriend.FRIEND }
+			});
 		}
 	},
 	extraReducers: (builder) => {
@@ -292,12 +335,13 @@ export const friendsActions = {
 	sendRequestAddFriend,
 	sendRequestDeleteFriend,
 	sendRequestBlockFriend,
-	sendRequestUnblockFriend
+	sendRequestUnblockFriend,
+	upsertFriendRequest
 };
 
 const { selectAll } = friendsAdapter.getSelectors();
 
-export const getFriendsState = (rootState: { [FRIEND_FEATURE_KEY]: FriendsState }): FriendsState => rootState[FRIEND_FEATURE_KEY];
+export const getFriendsState = (FriendState: { [FRIEND_FEATURE_KEY]: FriendsState }): FriendsState => FriendState[FRIEND_FEATURE_KEY];
 export const selectAllFriends = createSelector(getFriendsState, selectAll);
 export const selectStatusSentMobile = createSelector(getFriendsState, (state) => state.statusSentMobile);
 export const selectFriendStatus = (userId: string) =>

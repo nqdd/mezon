@@ -1,3 +1,4 @@
+import { generateE2eId } from '@mezon/utils';
 import { FC, ReactNode } from 'react';
 import { Item } from 'react-contexify';
 
@@ -41,7 +42,7 @@ export const MemberMenuItem: FC<MemberMenuItemProps> = ({ label, onClick, isWarn
 				}}
 				className={`${isWarning ? 'text-[#E13542] ' : 'text-theme-primary-hover'} p-1`}
 			>
-				<span className="truncate max-w-[160px] block overflow-hidden text-ellipsis whitespace-nowrap" title={label}>
+				<span className="truncate max-w-[160px] block overflow-hidden text-ellipsis whitespace-nowrap" title={label} data-e2e={generateE2eId('chat.channel_message.member_list.item.actions.view_profile')}>
 					{label}
 				</span>
 				{rightElement}

@@ -78,7 +78,8 @@
 		"removeRole": "Remove role",
 		"role": "Role",
 		"nope": "Nope!",
-		"typoError": "Did you make a typo?"
+		"typoError": "Did you make a typo?",
+		"userNotFound": "User is not in a Clan"
 	},
 	"placeholders": {
 		"messageUser": "Message @{{username}}"
@@ -96,6 +97,14 @@
 			"idle": "Idle",
 			"doNotDisturb": "Do Not Disturb",
 			"invisible": "Invisible"
+		},
+		"statusDuration": {
+			"for30Minutes": "For 30 Minutes",
+			"for1Hour": "For 1 hour",
+			"for3Hours": "For 3 hours",
+			"for8Hours": "For 8 hours",
+			"for24Hours": "For 24 hours",
+			"forever": "Forever"
 		},
 		"addAccountModal": {
 			"email": "Email",
@@ -174,5 +183,8 @@
 				"save": "Save"
 			}
 		}
-	}
+	},
+	"channelVoiceSettings": "Channel voice settings",
+	"muteVoice": "Mute",
+	"kickVoice": "Kick"
 }

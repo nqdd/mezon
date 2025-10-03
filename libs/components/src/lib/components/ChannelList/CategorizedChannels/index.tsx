@@ -171,13 +171,19 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 
 	return (
 		category.category_name && (
-			<div className="flex flex-row px-2 relative gap-1" onMouseDown={handleMouseClick} ref={panelRef} role={'button'}>
+			<div
+				className="flex flex-row px-2 relative gap-1"
+				onMouseDown={handleMouseClick}
+				ref={panelRef}
+				role={'button'}
+				data-e2e={generateE2eId('clan_page.side_bar.channel_list.category')}
+			>
 				<button
 					onClick={handleToggleCategory}
 					className="text-theme-primary flex items-center px-0.5 w-full font-title tracking-wide text-theme-primary-hover uppercase text-sm font-medium"
 				>
 					{categoryExpandState ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
-					<span className="one-line" data-e2e={generateE2eId('clan_page.side_bar.channel_list.category')}>
+					<span className="one-line" data-e2e={generateE2eId('clan_page.side_bar.channel_list.category.name')}>
 						{category.category_name}
 					</span>
 				</button>

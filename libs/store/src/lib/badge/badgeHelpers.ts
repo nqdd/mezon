@@ -57,7 +57,6 @@ const getCurrentClanBadgeCount = (store: { getState?: () => RootState }, clanId:
 const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: { getState?: () => RootState }) => {
 	const { clanId, channelId, badgeCount, timestamp, messageId } = params;
 	if (!clanId || !channelId) {
-		console.warn('Invalid params for resetChannelBadgeCount:', params);
 		return;
 	}
 	cleanupOutdatedEntries();
@@ -108,8 +107,6 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 					isReset: actualDecrement <= 0
 				})
 			);
-		} else {
-			console.warn('Invalid params for resetChannelBadgeCount:', params);
 		}
 	} else {
 		dispatch(directActions.removeBadgeDirect({ channelId }));

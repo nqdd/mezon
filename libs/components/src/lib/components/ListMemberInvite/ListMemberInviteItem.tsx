@@ -1,11 +1,13 @@
 import { useSendInviteMessage, useSilentSendMess } from '@mezon/core';
-import { DirectEntity, getStore, selectDirectById } from '@mezon/store';
-import { UsersClanEntity, createImgproxyUrl } from '@mezon/utils';
+import type { DirectEntity } from '@mezon/store';
+import { getStore, selectDirectById } from '@mezon/store';
+import type { UsersClanEntity } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
-import { ProcessedUser } from './dataHelper';
+import type { ProcessedUser } from './dataHelper';
 
 type ItemPorp = {
 	url: string;
@@ -17,7 +19,7 @@ type ItemPorp = {
 	isExternalCalling?: boolean;
 };
 const ListMemberInviteItem = (props: ItemPorp) => {
-	const { dmGroup, isSent, url, onSend, user, usersInviteExternal, isExternalCalling } = props;
+	const { dmGroup, isSent, url, onSend, usersInviteExternal, isExternalCalling } = props;
 	const [isInviteSent, setIsInviteSent] = useState(isSent);
 	const { sendInviteMessage } = useSendInviteMessage();
 	const { createSilentSendMess } = useSilentSendMess();
@@ -70,22 +72,15 @@ const ListMemberInviteItem = (props: ItemPorp) => {
 		<ItemInviteDM
 			channelID={dmGroup.channel_id}
 			type={Number(dmGroup.type)}
-			avatar={dmGroup.type === ChannelType.CHANNEL_TYPE_GROUP ? (dmGroup.topic || 'assets/images/avatar-group.png') : dmGroup.channel_avatar?.at(0)}
+			avatar={
+				dmGroup.type === ChannelType.CHANNEL_TYPE_GROUP ? dmGroup.topic || 'assets/images/avatar-group.png' : dmGroup.channel_avatar?.at(0)
+			}
 			label={dmGroup.channel_label}
 			isInviteSent={isInviteSent}
 			onHandle={() => handleButtonClick(dmGroup.channel_id || '', dmGroup.type || 0)}
 			username={dmGroup.usernames?.toString()}
 		/>
-	) : (
-		<ItemInviteUser
-			userId={user?.id}
-			avatar={user?.user?.avatar_url}
-			displayName={user?.user?.display_name}
-			username={user?.user?.username}
-			isInviteSent={isInviteSent}
-			onHandle={() => handleButtonClick('', 0, user?.id)}
-		/>
-	);
+	) : null;
 };
 export default ListMemberInviteItem;
 
@@ -103,7 +98,11 @@ const ItemInviteDM = (props: ItemInviteDMProps) => {
 	const { t } = useTranslation('invitation');
 	const { channelID = '', type = '', avatar = '', label = '', isInviteSent = false, username = '', onHandle } = props;
 	return (
-		<div key={channelID} className="flex items-center justify-between h-fit group rounded-lg bg-item-hover p-1">
+		<div
+			key={channelID}
+			className="flex items-center justify-between h-fit group rounded-lg bg-item-hover p-1"
+			data-e2e={generateE2eId('clan_page.modal.invite_people.user_item')}
+		>
 			<AvatarImage
 				alt={username}
 				username={username}
@@ -115,6 +114,7 @@ const ItemInviteDM = (props: ItemInviteDMProps) => {
 				{label}
 			</p>
 			<button
+				data-e2e={generateE2eId('clan_page.modal.invite_people.user_item.button.invite')}
 				onClick={onHandle}
 				disabled={isInviteSent}
 				className={

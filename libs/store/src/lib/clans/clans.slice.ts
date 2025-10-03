@@ -8,6 +8,7 @@ import { ChannelType } from 'mezon-js';
 import type { ApiClanDesc, ApiUpdateAccountRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { batch } from 'react-redux';
 import { accountActions } from '../account/account.slice';
+import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
@@ -412,6 +413,12 @@ export const updateUser = createAsyncThunk(
 						}
 					})
 				);
+
+				if (avatar_url && currentUser?.user?.id && avatar_url !== currentUser?.user?.avatar_url) {
+					setUserAvatarOverride(currentUser.user.id, avatar_url);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
+
 				thunkAPI.dispatch(messagesActions.invalidateAllCache());
 			}
 			return response as true;

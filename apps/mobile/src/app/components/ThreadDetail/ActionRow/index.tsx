@@ -13,7 +13,8 @@ import { Pressable, Text, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import useStatusMuteChannel from '../../../hooks/useStatusMuteChannel';
-import { APP_SCREEN, AppStackScreenProps } from '../../../navigation/ScreenTypes';
+import type { AppStackScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { threadDetailContext } from '../MenuThreadDetail';
 import { style } from './style';
 enum EActionRow {

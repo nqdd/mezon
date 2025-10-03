@@ -75,9 +75,10 @@ export const createNewDirectMessage = createAsyncThunk(
 						...response,
 						usernames: Array.isArray(username) ? username : username ? [username] : [],
 						display_names: Array.isArray(display_names) ? display_names : display_names ? [display_names] : [],
-						channel_label: Array.isArray(username) ? username.toString() : username,
-						channel_avatar: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
-						user_id: body.user_ids,
+						channel_label: response.channel_label,
+						channel_avatar: response.channel_avatar,
+						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
+						user_ids: body.user_ids,
 						topic: response.topic || 'assets/images/avatar-group.png'
 					})
 				);
@@ -237,7 +238,7 @@ export const updateDmGroup = createAsyncThunk(
 				updatePayload.topic = current.topic;
 			}
 
-			const response = await mezon.client.updateChannelDesc(mezon.session, '0', body.channel_id, updatePayload);
+			const response = await mezon.client.updateChannelDesc(mezon.session, body.channel_id, updatePayload);
 
 			if (response) {
 				thunkAPI.dispatch(
@@ -382,8 +383,9 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		creator_id: message.sender_id,
 		channel_label: message.display_name || message.username,
 		channel_private: 1,
-		channel_avatar: [message.avatar as string],
-		user_id: [message.sender_id],
+		channel_avatar: message.avatar,
+		avatars: [message.avatar as string],
+		user_ids: [message.sender_id],
 		last_sent_message: {
 			id: message.id,
 			timestamp_seconds: message.create_time_seconds,
@@ -398,14 +400,12 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 			id: message.id,
 			timestamp_seconds: message.create_time_seconds ? message.create_time_seconds - 1 : undefined
 		},
-		is_online: [true],
+		onlines: [true],
 		active: ActiveDm.OPEN_DM,
 		usernames: [message.username as string],
 		creator_name: message.username as string,
 		create_time_seconds: message.create_time_seconds,
-		update_time_seconds: message.create_time_seconds,
-		metadata: ['{}'],
-		about_me: ['']
+		update_time_seconds: message.create_time_seconds
 	};
 };
 
@@ -450,18 +450,14 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 		const userIds: string[] = [];
 		const usernames: string[] = [];
 		const avatars: string[] = [];
-		const isOnline: boolean[] = [];
-		const metadata: string[] = [];
-		const aboutMe: string[] = [];
+		const onlines: boolean[] = [];
 		const label: string[] = [];
 
 		for (const user of users) {
 			userIds.push(user.user_id);
 			usernames.push(user.username);
 			avatars.push(user.avatar);
-			isOnline.push(user.online);
-			metadata.push(JSON.stringify({ status: (user as { metadata?: Array<string> }).metadata || '' }));
-			aboutMe.push(user.about_me);
+			onlines.push(user.online);
 			label.push(user.display_name);
 		}
 
@@ -471,13 +467,12 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 		const directEntity: DirectEntity = {
 			...channel_desc,
 			id: channel_desc.channel_id || '',
-			user_id: userIds,
+			user_ids: userIds,
 			usernames,
 			display_names: label,
-			channel_avatar: avatars,
-			is_online: isOnline,
-			metadata,
-			about_me: aboutMe,
+			channel_avatar: channel_desc.channel_avatar || 'assets/images/avatar-group.png',
+			avatars,
+			onlines,
 			active: 1,
 			channel_label: label.toString(),
 			topic: channel_desc.topic || existingEntity?.topic
@@ -578,32 +573,30 @@ export const directSlice = createSlice({
 			const { ids, entities } = state;
 
 			const item = entities[channelId];
-			if (!item || !item.user_id) return;
+			if (!item || !item.user_ids) return;
 
-			const userIndex = item.user_id.indexOf(userId);
+			const userIndex = item.user_ids.indexOf(userId);
 
 			if (userIndex !== -1) {
-				const newUserIds = item.user_id.filter((_, index) => index !== userIndex);
+				const newUserIds = item.user_ids.filter((_, index) => index !== userIndex);
 
 				if (newUserIds.length === 1 && newUserIds.includes(currentUserId)) {
 					directAdapter.removeOne(state, channelId);
 				} else {
 					const newUsernames = item.usernames?.filter((_, index) => index !== userIndex);
 					const newDisplayNames = item.display_names?.filter((_, index) => index !== userIndex);
-					const newChannelAvatars = item.channel_avatar?.filter((_, index) => index !== userIndex);
-					const newIsOnline = item.is_online?.filter((_, index) => index !== userIndex);
-					const newMetadata = item.metadata?.filter((_, index) => index !== userIndex);
-					const newAboutMe = item.about_me?.filter((_, index) => index !== userIndex);
+					const newAvatars = item.avatars?.filter((_, index) => index !== userIndex);
+					const newChannelAvatars = item.channel_avatar;
+					const newIsOnline = item.onlines?.filter((_, index) => index !== userIndex);
 					directAdapter.updateOne(state, {
 						id: channelId,
 						changes: {
-							user_id: newUserIds,
+							user_ids: newUserIds,
 							usernames: newUsernames,
+							avatars: newAvatars,
 							display_names: newDisplayNames,
 							channel_avatar: newChannelAvatars,
-							is_online: newIsOnline,
-							metadata: newMetadata,
-							about_me: newAboutMe
+							onlines: newIsOnline
 						}
 					});
 				}
@@ -653,17 +646,17 @@ export const directSlice = createSlice({
 					const item = entities?.[ids[index]];
 					if (!item) continue;
 
-					const userIndex = item.user_id?.indexOf(userId);
+					const userIndex = item.user_ids?.indexOf(userId);
 					if (userIndex === -1 || userIndex === undefined) continue;
 
-					const currentStatusOnlines = item.is_online || [];
+					const currentStatusOnlines = item.onlines || [];
 					const updatedStatusOnlines = [...currentStatusOnlines];
 					updatedStatusOnlines[userIndex] = online;
 
 					directAdapter.updateOne(state, {
 						id: item.id,
 						changes: {
-							is_online: updatedStatusOnlines
+							onlines: updatedStatusOnlines
 						}
 					});
 				}
@@ -682,17 +675,16 @@ export const directSlice = createSlice({
 			if (dmGroup) {
 				const existingTopic = dmGroup.topic;
 
-				dmGroup.user_id = [...(dmGroup.user_id ?? []), ...(action.payload.user_id ?? [])];
-
-				// dmGroup.usernames = dmGroup.usernames + ',' + action.payload.usernames;
+				dmGroup.user_ids = [...(dmGroup.user_ids ?? []), ...(action.payload.user_ids ?? [])];
 				dmGroup.usernames = [...(dmGroup.usernames ?? []), ...(action.payload.usernames ?? [])];
-				dmGroup.channel_avatar = [...(dmGroup.channel_avatar ?? []), ...(action.payload.channel_avatar ?? [])];
+				dmGroup.avatars = [...(dmGroup.avatars ?? []), ...(action.payload.avatars ?? [])];
+				dmGroup.channel_avatar = action.payload.channel_avatar ?? '';
 				if (existingTopic && !action.payload.topic) {
 					dmGroup.topic = existingTopic;
 				}
 			}
 		},
-		updateMenberDMGroup: (
+		updateMemberDMGroup: (
 			state,
 			action: PayloadAction<{ dmId: string; user_id: string; avatar: string; display_name: string; about_me?: string }>
 		) => {
@@ -701,10 +693,10 @@ export const directSlice = createSlice({
 
 			if (!dmGroup || !user_id) return;
 
-			const index = (dmGroup.user_id ??= []).indexOf(user_id);
+			const index = (dmGroup.user_ids ??= []).indexOf(user_id);
 			if (index === -1) return;
 
-			if (avatar && dmGroup.channel_avatar) dmGroup.channel_avatar[index] = avatar;
+			if (avatar && dmGroup.channel_avatar) dmGroup.channel_avatar = avatar;
 
 			if (display_name && dmGroup.display_names) {
 				if (dmGroup.channel_label) {
@@ -713,9 +705,6 @@ export const directSlice = createSlice({
 					dmGroup.channel_label = labels.join(',');
 				}
 				dmGroup.display_names[index] = display_name;
-			}
-			if (about_me && dmGroup.about_me) {
-				dmGroup.about_me[index] = about_me;
 			}
 		},
 		setDmActiveStatus: (state, action: PayloadAction<{ dmId: string; isActive: boolean }>) => {
@@ -840,7 +829,7 @@ export const selectDmGroupCurrentType = createSelector(getDirectState, (state) =
 
 export const selectUserIdCurrentDm = createSelector(selectAllDirectMessages, selectDmGroupCurrentId, (directMessages, currentId) => {
 	const currentDm = directMessages.find((dm) => dm.id === currentId);
-	return currentDm?.user_id || [];
+	return currentDm?.user_ids || [];
 });
 
 export const selectIsLoadDMData = createSelector(getDirectState, (state) => state.loadingStatus !== 'not loaded');
@@ -884,34 +873,14 @@ export const selectDirectById = createSelector([selectDirectMessageEntities, (st
 export const selectAllUserDM = createSelector(selectAllDirectMessages, (directMessages) => {
 	return directMessages.reduce<IUserItemActivity[]>((acc, dm) => {
 		if (dm?.active === 1) {
-			dm?.user_id?.forEach((userId: string, index: number) => {
+			dm?.user_ids?.forEach((userId: string, index: number) => {
 				if (!acc.some((existingUser) => existingUser.id === userId)) {
 					const user = {
 						avatar_url: dm?.channel_avatar ? dm?.channel_avatar[index] : '',
 						display_name: dm?.usernames ? dm?.usernames[index] : '',
-
 						id: userId,
 						username: dm?.usernames ? dm?.usernames[index] : '',
-
-						online: dm?.is_online ? dm?.is_online[index] : false,
-						metadata: (() => {
-							if (!dm?.metadata) {
-								return {};
-							}
-							try {
-								return JSON.parse(dm?.metadata[index]);
-							} catch (e) {
-								const unescapedJSON = dm?.metadata[index]?.replace(/\\./g, (match) => {
-									switch (match) {
-										case '\\"':
-											return '"';
-										default:
-											return match[1]; //
-									}
-								});
-								return safeJSONParse(unescapedJSON);
-							}
-						})()
+						online: dm?.onlines ? dm?.onlines[index] : false
 					};
 
 					acc.push({
