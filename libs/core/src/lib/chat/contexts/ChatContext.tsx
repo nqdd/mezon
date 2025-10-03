@@ -1333,22 +1333,52 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			);
 		} else if (categoryEvent.status === EEventAction.DELETE) {
 			const store = await getStoreAsync();
-			const currentChannel = selectCurrentChannel(store.getState() as unknown as RootState);
-			dispatch(categoriesActions.deleteOne({ clanId: categoryEvent.clan_id, categoryId: categoryEvent.id }));
-			dispatch(channelsActions.setCurrentChannelId({ clanId: categoryEvent.clan_id, channelId: '' }));
-			dispatch(channelsActions.removeRememberChannel({ clanId: categoryEvent.clan_id }));
-			dispatch(
-				listChannelRenderAction.removeCategoryFromListRender({
-					clanId: categoryEvent?.clan_id || '',
-					categoryId: categoryEvent.id
-				})
-			);
-			const toMembersPage = (clanId: string) => {
-				return `/chat/clans/${clanId}/member-safety`;
-			};
-			if (currentChannel?.category_id === categoryEvent.id) {
-				const linkPageMember = toMembersPage(categoryEvent?.clan_id || '');
-				navigate(linkPageMember);
+			const currentChannelId = selectCurrentChannelId(store.getState() as unknown as RootState);
+			const clanId = selectCurrentClanId(store.getState());
+
+			if (categoryEvent) {
+				const currentChannel = currentChannelId ? selectChannelById(store.getState(), currentChannelId) : null;
+				const isUserInCategoryChannel = currentChannel && currentChannel.category_id === categoryEvent.id;
+				const allChannels = selectAllChannels(store.getState());
+				const allThreads = selectAllThreads(store.getState());
+
+				const channelsInCategory = allChannels.filter((ch) => ch.category_id === categoryEvent.id);
+
+				if (isUserInCategoryChannel) {
+					if (!clanId) {
+						navigate(`/chat/direct/friends`);
+						return;
+					}
+
+					const welcomeChannelId = selectWelcomeChannelByClanId(store.getState(), clanId);
+					const defaultChannelId = selectDefaultChannelIdByClanId(store.getState(), clanId);
+					const fallbackChannelId = allChannels.find((ch) => ch.category_id !== categoryEvent.id && !checkIsThread(ch))?.id;
+
+					const redirectChannelId = welcomeChannelId || defaultChannelId || fallbackChannelId;
+
+					if (redirectChannelId) {
+						navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
+					} else {
+						navigate(`/chat/clans/${clanId}/member-safety`);
+					}
+				}
+
+				if (channelsInCategory.length > 0) {
+					dispatch(
+						channelsActions.bulkDeleteChannelSocket({
+							channels: channelsInCategory,
+							clanId: clanId as string
+						})
+					);
+				}
+
+				dispatch(categoriesActions.deleteOne({ clanId: categoryEvent.clan_id, categoryId: categoryEvent.id }));
+				dispatch(
+					listChannelRenderAction.removeCategoryFromListRender({
+						clanId: categoryEvent?.clan_id || '',
+						categoryId: categoryEvent.id
+					})
+				);
 			}
 		} else {
 			const request: ApiUpdateCategoryDescRequest = {
