@@ -1888,23 +1888,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						}
 					}
 				}
-				const isUserHasRole = await dispatch(
-					rolesClanActions.updatePermissionUserByRoleId({
-						roleId: role.id as string,
-						userId: userId as string
-					})
-				).unwrap();
-				if (isUserHasRole) {
-					dispatch(
-						policiesActions.updateOne({
-							id: role.id as string,
-							changes: {
-								title: role.title,
-								id: role.id || '',
-								max_level_permission: role.max_level_permission
-							}
-						})
-					);
+				if (status === EEventAction.UPDATE) {
 					dispatch(policiesActions.fetchPermissionsUser({ clanId: role.clan_id as string }));
 				}
 
