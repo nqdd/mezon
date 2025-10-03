@@ -8,12 +8,10 @@ import {
 	clearApiCallTracker,
 	giveCoffeeActions,
 	selectOthersSession,
-	selectUserStatus,
 	selectZkProofs,
 	useAppDispatch,
 	useWallet,
-	userClanProfileActions,
-	userStatusActions
+	userClanProfileActions
 } from '@mezon/store';
 import { createClient as createMezonClient, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
@@ -47,8 +45,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		dispatch(userClanProfileActions.setShowModalCustomStatus(true));
 	};
 	const userCustomStatus = useMemberCustomStatus(user?.id || '', isDM);
-	const userStatus = useSelector(selectUserStatus);
-	const status = userStatus?.status || 'Online';
+	const status = user?.status || 'Online';
 	const { userProfile } = useAuth();
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 
@@ -96,7 +93,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	};
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
 		dispatch(
-			userStatusActions.updateUserStatus({
+			accountActions.updateAccountStatus({
 				status,
 				minutes,
 				until_turn_on: untilTurnOn

@@ -1,7 +1,8 @@
 import { useAuth } from '@mezon/core';
-import { accountActions, clanMembersMetaActions, useAppDispatch, userStatusActions } from '@mezon/store';
+import { accountActions, clanMembersMetaActions, useAppDispatch } from '@mezon/store';
 import { Menu } from '@mezon/ui';
-import { ReactElement, ReactNode, useMemo } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import { useMemo } from 'react';
 import ItemStatus from './ItemStatus';
 
 type ItemStatusUpdateProps = {
@@ -21,9 +22,9 @@ const ItemStatusUpdate = ({ children, dropdown, startIcon, type, onClick, disabl
 		modalRef.current = false;
 		onClick?.();
 		dispatch(
-			userStatusActions.updateUserStatus({
-				status: status,
-				minutes: minutes,
+			accountActions.updateAccountStatus({
+				status,
+				minutes,
 				until_turn_on: untilTurnOn
 			})
 		);
