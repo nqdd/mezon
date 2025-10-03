@@ -30,7 +30,7 @@ import { resetChannelBadgeCount } from '../badge/badgeHelpers';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
@@ -588,6 +588,12 @@ export const jumpToMessage = createAsyncThunk(
 			const indexMessage = channelMessages.indexOf(messageId);
 			let found = true;
 			if (indexMessage < 10) {
+				thunkAPI.dispatch(
+					channelsActions.setScrollDownVisibility({
+						channelId,
+						isVisible: true
+					})
+				);
 				const response = await thunkAPI
 					.dispatch(
 						fetchMessages({
