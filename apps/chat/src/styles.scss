@@ -85,14 +85,14 @@
 }
 .react-datepicker__header {
 	background: var(--bg-option-theme) !important;
-	color:var(--text-theme-primary) !important;
+	color: var(--text-theme-primary) !important;
 	border-top-left-radius: 8px !important;
 	border-top-right-radius: 8px !important;
 }
-.react-datepicker__current-month{
+.react-datepicker__current-month {
 	color: var(--text-theme-primary) !important;
 }
-.react-datepicker__day-name{
+.react-datepicker__day-name {
 	color: var(--text-theme-primary) !important;
 }
 /* Hide scrollbar for IE, Edge and Firefox */
@@ -505,6 +505,10 @@ input:-webkit-autofill:active {
 	transition: scrollbar-color 0.3s ease;
 
 	-webkit-overflow-scrolling: touch;
+
+	will-change: scroll-position;
+	contain: layout style paint;
+	transform: translateZ(0);
 
 	&::-webkit-scrollbar-thumb {
 		border-radius: 0.375rem;
@@ -1568,12 +1572,14 @@ input {
 	opacity: 1;
 }
 
-
-.text-entity-link, .text-entity-emoji {
-  user-select: all;
+.text-entity-link,
+.text-entity-emoji {
+	user-select: all;
 }
 
-.text-entity-emoji, .text-entity-link, .text-entity-link.mention {
-  color: var(--mention-color);
-  background-color: var(--mention-primary);
+.text-entity-emoji,
+.text-entity-link,
+.text-entity-link.mention {
+	color: var(--mention-color);
+	background-color: var(--mention-primary);
 }

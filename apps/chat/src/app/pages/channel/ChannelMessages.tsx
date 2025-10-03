@@ -26,7 +26,7 @@ import {
 	selectMessageNotified,
 	selectMessageViewportIdsByChannelId,
 	selectOpenEditMessageState,
-	selectScrollOffsetByChannelId,
+	selectScrollPositionByChannelId,
 	selectShowScrollDownButton,
 	selectTheme,
 	selectUnreadMessageIdByChannelId,
@@ -310,6 +310,15 @@ function ChannelMessages({
 					isVisible
 				})
 			);
+
+			if (!isVisible) {
+				dispatch(
+					channelsActions.setScrollPosition({
+						channelId,
+						messageId: undefined
+					})
+				);
+			}
 		},
 		[channelId]
 	);
@@ -431,12 +440,11 @@ const ScrollDownButton = memo(
 			const jumpPresent = !!lastSentMessageId && !messageIds.includes(lastSentMessageId as string) && messageIds.length >= 20;
 
 			dispatch(
-				channelsActions.setScrollOffset({
+				channelsActions.setScrollPosition({
 					channelId,
-					offset: 0
+					messageId: undefined
 				})
 			);
-
 			if (jumpPresent) {
 				handleJumpToPresent();
 				return;
@@ -570,11 +578,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		);
 
 		const scrollOffsetRef = useRef<number>(0);
+		const scrollPositionRef = useRef<{ messageId?: string; offset?: number } | null>(null);
 
 		useSyncEffect(() => {
 			const store = getStore();
-			const scrollOffset = selectScrollOffsetByChannelId(store.getState(), channelId);
-			scrollOffsetRef.current = scrollOffset;
+			const scrollPosition = selectScrollPositionByChannelId(store.getState(), channelId);
+			scrollPositionRef.current = scrollPosition;
 		}, [channelId]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
@@ -591,8 +600,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				isReady.current = false;
 			};
 		}, [messageIds]);
-
-		const [forceRender, setForceRender] = useState<boolean>(false);
 
 		useEffect(() => {
 			if (chatRef.current && jumpToPresent) {
@@ -658,29 +665,57 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			runDebouncedForScroll(() => {
 				if (!userActiveScroll.current) return;
 
-				const { scrollHeight, clientHeight, scrollTop } = container;
-				if (container.scrollTop < 1000) {
-					if (messageIds.length > 0) {
+				requestAnimationFrame(() => {
+					const { scrollHeight, clientHeight, scrollTop } = container;
+
+					if (scrollTop < 1000 && messageIds.length > 0) {
 						onChange(LoadMoreDirection.Backwards);
 					}
-				}
 
-				const bottomOffset = Math.abs(scrollHeight - clientHeight - scrollTop);
-				const isAtBottom = bottomOffset <= BOTTOM_THRESHOLD;
+					// const bottomOffset = Math.abs(scrollHeight - clientHeight - scrollTop);
+					// const isAtBottom = bottomOffset <= BOTTOM_THRESHOLD;
 
-				if (isAtBottom) {
-					onChange(LoadMoreDirection.Forwards);
-				}
+					const store = getStore();
+					const isAtBottom = selectShowScrollDownButton(store.getState(), channelId);
 
-				const newScrollOffset = container.scrollHeight - container.scrollTop;
-				scrollOffsetRef.current = newScrollOffset;
+					if (isAtBottom) {
+						onChange(LoadMoreDirection.Forwards);
+						return;
+					}
 
-				dispatch(
-					channelsActions.setScrollOffset({
-						channelId,
-						offset: newScrollOffset
-					})
-				);
+					const newScrollOffset = scrollHeight - scrollTop;
+					scrollOffsetRef.current = newScrollOffset;
+
+					const containerRect = container.getBoundingClientRect();
+					const containerTop = containerRect.top;
+					const containerBottom = containerRect.bottom;
+
+					const messageElements = Array.from(container.querySelectorAll<HTMLDivElement>('.message-list-item'));
+					let visibleMessageId: string | null = null;
+
+					for (const msgElement of messageElements) {
+						const rect = msgElement.getBoundingClientRect();
+
+						if (rect.top >= containerTop && rect.top <= containerBottom) {
+							visibleMessageId = msgElement.id.replace('msg-', '');
+							break;
+						}
+
+						if (rect.top > containerBottom) {
+							break;
+						}
+					}
+
+					if (visibleMessageId) {
+						dispatch(
+							channelsActions.setScrollPosition({
+								channelId,
+								messageId: visibleMessageId,
+								offset: newScrollOffset
+							})
+						);
+					}
+				});
 			});
 		});
 		useSyncEffect(() => {
@@ -755,9 +790,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						const lastItemHeight = lastItemElement ? lastItemElement.offsetHeight : 0;
 						bottomOffset -= lastItemHeight;
 					}
-					const isAtBottom =
-						chatRef?.current &&
-						Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
+
+					const store = getStore();
+					const isAtBottom = selectShowScrollDownButton(store.getState(), channelId);
+					// const isAtBottom =
+					// 	chatRef?.current &&
+					// 	Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
 
 					const isAlreadyFocusing = false;
 					if (isAtBottom && !isAlreadyFocusing) {
@@ -777,11 +815,21 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const anchor = anchorIdRef.current && container.querySelector(`#${anchorIdRef.current}`);
 
 					let newScrollTop!: number;
+
 					if (isAtBottom) {
 						newScrollTop = scrollHeight;
 					} else if (anchor) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
+					} else if (scrollPositionRef.current?.messageId) {
+						const savedMessageElement = container.querySelector(`#msg-${scrollPositionRef.current.messageId}`);
+						if (savedMessageElement) {
+							const savedMessageRect = savedMessageElement.getBoundingClientRect();
+							const containerRect = container.getBoundingClientRect();
+							newScrollTop = scrollTop + (savedMessageRect.top - containerRect.top);
+						} else {
+							newScrollTop = scrollHeight - scrollOffset;
+						}
 					} else {
 						newScrollTop = scrollHeight - scrollOffset;
 					}
@@ -870,7 +918,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 				timerRef.current = window.setTimeout(() => {
 					msgIdJumpHightlight.current = null;
-					setForceRender(!forceRender);
 				}, 1000);
 			}
 		}, [idMessageToJump]);
@@ -930,16 +977,28 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			mode,
 			username,
 			selectedMessageId,
-			getIsEditing,
-			forceRender
+			getIsEditing
 		]);
 
 		const scrollTimeoutId2 = useRef<NodeJS.Timeout | null>(null);
+
+		useEffect(() => {
+			const container = chatRef.current;
+			if (!container) return;
+			const passiveScrollHandler = () => {
+				handleScroll();
+			};
+
+			container.addEventListener('scroll', passiveScrollHandler, { passive: true });
+			return () => {
+				container.removeEventListener('scroll', passiveScrollHandler);
+			};
+		}, [handleScroll]);
+
 		return (
 			<div className="w-full h-full relative messages-container select-text bg-theme-chat ">
 				<StickyLoadingIndicator messageCount={messageIds?.length} />
 				<div
-					onScroll={handleScroll}
 					onWheelCapture={() => {
 						toggleDisableHover(chatRef.current, scrollTimeoutId2);
 						userActiveScroll.current = true;
