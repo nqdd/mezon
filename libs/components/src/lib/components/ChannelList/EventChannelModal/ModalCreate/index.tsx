@@ -394,6 +394,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 								className={`px-4 py-2 rounded font-semibold text-white bg-primary ${(option === '' || errorOption) && ' bg-opacity-50'}`}
 								// eslint-disable-next-line @typescript-eslint/no-empty-function
 								onClick={option === '' || errorOption ? () => {} : () => handleSubmit()}
+								data-e2e={generateE2eId('clan_page.modal.create_event.button_create')}
 							>
 								{t('actions.create')}
 							</button>

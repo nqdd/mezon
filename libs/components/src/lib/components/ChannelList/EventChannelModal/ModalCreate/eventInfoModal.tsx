@@ -201,10 +201,11 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					value={contentSubmit.topic}
 					className={`font-[400] rounded w-full  outline-none text-[15px]border border-theme-primary p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
 					maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED) * 2}
+					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_topic')}
 				/>
 			</div>
 			<div className="mb-4 flex gap-x-4">
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.start_date')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
 						{t('fields.startDate.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
@@ -220,7 +221,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 						/>
 					</Suspense>
 				</div>
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.start_time')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
 						{t('fields.startTime.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
@@ -229,7 +230,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 				</div>
 			</div>
 			<div className="mb-4 flex gap-x-4">
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.end_date')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
 						{t('fields.endDate.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
@@ -245,7 +246,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 						/>
 					</Suspense>
 				</div>
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.end_time')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
 						{t('fields.endTime.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
@@ -260,6 +261,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					className={`cursor-pointer block w-full bg-theme-input   bg-option-theme rounded p-2 font-normal text-sm tracking-wide outline-none border-none ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
 					value={selectedFrequency}
 					onChange={handleFrequencyChange}
+					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_frequency')}
 				>
 					{frequencies.map((frequency) => (
 						<option className="text-sm bg-option-theme text-theme-primary" key={frequency.value} value={frequency.value}>
@@ -274,7 +276,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 			</div>
 			<div className="mb-4">
 				<h3 className="uppercase text-[11px] font-semibold">{t('fields.description.title')}</h3>
-				<div className="relative">
+				<div className="relative" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.description')}>
 					<TextArea
 						placeholder={t('fields.description.description')}
 						className="resize-none h-auto min-h-[87px] w-full bg-theme-input overflow-y-hidden outline-none py-2 pl-3 pr-5"
@@ -296,7 +298,13 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					>
 						{t('actions.uploadImage')}
 					</div>
-					<input type="file" hidden onChange={(e) => handleFile(e)} className="w-full text-sm text-slate-500 " data-e2e={generateE2eId('clan_page.modal.create_event.upload.image_cover_input')} />
+					<input
+						type="file"
+						hidden
+						onChange={(e) => handleFile(e)}
+						className="w-full text-sm text-slate-500 "
+						data-e2e={generateE2eId('clan_page.modal.create_event.upload.image_cover_input')}
+					/>
 				</label>
 				{contentSubmit.logo && <img src={contentSubmit.logo} alt="logo" className="max-h-[180px] rounded w-full object-cover" />}
 			</div>

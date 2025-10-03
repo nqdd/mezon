@@ -11,7 +11,7 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ParticipantMeetState, useMediaPermissions } from '@mezon/utils';
+import { ParticipantMeetState, generateE2eId, useMediaPermissions } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
 import Tooltip from 'rc-tooltip';
@@ -144,6 +144,7 @@ const VoiceInfo = React.memo(() => {
 		<div
 			className={`flex flex-col gap-2 rounded-t-lg border-b-2 border-theme-primary px-4 py-2 hover:bg-gray-550/[0.16] shadow-sm transition
 			bg-theme-chat w-full group`}
+			data-e2e={generateE2eId('modal.voice_management')}
 		>
 			<div className="flex justify-between items-center">
 				<div className="flex flex-col max-w-[200px]">
@@ -222,6 +223,7 @@ const ButtonControlVoice = memo(({ onClick, overlay, danger = false, icon }: But
 			<button
 				className={`flex h-8 flex-1 justify-center items-center ${danger ? 'bg-[#da373c] hover:bg-[#a12829]' : 'bg-buttonSecondary hover:bg-buttonSecondaryHover'} p-[6px] rounded-md`}
 				onClick={onClick}
+				data-e2e={generateE2eId('modal.voice_management.button.control_item')}
 			>
 				{icon}
 			</button>
