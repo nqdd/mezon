@@ -977,7 +977,26 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const channelId = message.channel_id;
 	const isViewingOlderMessages = getMessagesState(getMessagesRootState(thunkAPI))?.isViewingOlderMessagesByChannelId?.[channelId];
 	const isBottom = !selectShowScrollDownButton(state, channelId);
-	if (isViewingOlderMessages) {
+
+	const scrollPosition = state.channels?.scrollPosition?.[channelId];
+	const viewportIds = selectViewportIdsByChannelId(state, channelId);
+
+	let shouldSetViewingOlder = isViewingOlderMessages;
+	if (scrollPosition?.messageId && viewportIds?.length > 0) {
+		const scrollMessageIndex = viewportIds.indexOf(scrollPosition.messageId);
+		if (scrollMessageIndex !== -1) {
+			const distanceFromBottom = viewportIds.length - scrollMessageIndex - 1;
+			if (distanceFromBottom >= 25) {
+				shouldSetViewingOlder = true;
+			}
+		}
+	}
+
+	if (shouldSetViewingOlder) {
+		if (shouldSetViewingOlder !== isViewingOlderMessages) {
+			thunkAPI.dispatch(messagesActions.setViewingOlder({ channelId, status: true }));
+		}
+
 		thunkAPI.dispatch(messagesActions.setLastMessage(message));
 		return;
 	}
