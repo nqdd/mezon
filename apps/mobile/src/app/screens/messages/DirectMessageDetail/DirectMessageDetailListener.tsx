@@ -38,7 +38,7 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 		save(STORAGE_IS_LAST_ACTIVE_TAB_DM, 'true');
 		await dispatch(
 			directActions.joinDirectMessage({
-				directMessageId: directMessageId,
+				directMessageId,
 				type: dmType,
 				noCache: true,
 				isFetchingLatestMessages: true,

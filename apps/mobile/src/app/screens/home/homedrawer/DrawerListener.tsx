@@ -1,7 +1,7 @@
 import { MobileEventEmitter, useSeenMessagePool } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	channelMembersActions,
 	channelsActions,
 	selectChannelById,
