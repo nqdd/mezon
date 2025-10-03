@@ -1,6 +1,6 @@
 import { useMemberStatus } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectAllAccount, selectUserStatus } from '@mezon/store-mobile';
+import { selectAllAccount } from '@mezon/store-mobile';
 import { EUserStatus } from '@mezon/utils';
 import React, { memo, useMemo } from 'react';
 import { View } from 'react-native';
@@ -16,11 +16,14 @@ const StatusProfile = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, isTabletLandscape);
 	const memberStatus = useMemberStatus(userProfile?.user?.id || '');
-	const userStatus = useSelector(selectUserStatus);
+
+	const userStatus = useMemo(() => {
+		return userProfile?.user?.status;
+	}, [userProfile?.user?.status]);
 
 	const userStatusIcon = useMemo(() => {
 		const mobileIconSize = isTabletLandscape ? size.s_20 : size.s_18;
-		switch (userStatus?.status) {
+		switch (userStatus) {
 			case EUserStatus.ONLINE:
 				if (memberStatus?.isMobile) {
 					return <MezonIconCDN icon={IconCDN.mobileDeviceIcon} color="#16A34A" width={mobileIconSize} height={mobileIconSize} />;

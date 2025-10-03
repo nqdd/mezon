@@ -35,10 +35,10 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 	const navigation = useNavigation<any>();
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const currentDMGroup = useAppSelector(selectDmGroupCurrent(currentChannel?.id));
-	const currentAvatar = currentDMGroup?.topic;
+	const currentAvatar = currentDMGroup?.channel_avatar;
 
 	const lastOne = useMemo(() => {
-		const userIds = currentChannel?.user_id || [];
+		const userIds = currentChannel?.user_ids || [];
 		const userIdLength = userIds?.length || 0;
 
 		if (currentChannel?.creator_id === currentUserId) {
@@ -50,7 +50,7 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 		}
 
 		return false;
-	}, [currentChannel?.creator_id, currentChannel?.user_id, currentUserId]);
+	}, [currentChannel?.creator_id, currentChannel?.user_ids, currentUserId]);
 
 	const menuSetting: IMezonMenuItemProps[] = [
 		{

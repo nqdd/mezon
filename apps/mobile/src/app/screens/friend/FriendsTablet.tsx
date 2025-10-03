@@ -51,7 +51,7 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 		async (user: FriendsEntity) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 			const directMessage = listDM.find((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === user?.user?.id;
 			});
 			dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
