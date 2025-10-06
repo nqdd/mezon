@@ -1,8 +1,9 @@
+import { getStoreAsync, selectMemberClanByUserId } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 import { getSrcEmoji, getSrcSound } from '@mezon/utils';
-import { VoiceReactionSend } from 'mezon-js';
+import type { VoiceReactionSend } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { DisplayedEmoji, ReactionCallHandlerProps } from './types';
+import type { DisplayedEmoji, ReactionCallHandlerProps } from './types';
 
 export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ currentChannel, onSoundReaction }) => {
 	const [displayedEmojis, setDisplayedEmojis] = useState<DisplayedEmoji[]>([]);
@@ -72,15 +73,17 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ c
 								onSoundReaction(senderId, soundId);
 							}
 						} else {
-							Array.from({ length: 1 }).forEach((_, index) => {
+							Array.from({ length: 1 }).forEach(async (_, index) => {
 								const position = generatePosition();
 								const delay = index * 300;
-
+								const state = (await getStoreAsync()).getState();
+								const members = selectMemberClanByUserId(state, senderId);
 								const newEmoji = {
 									id: `${Date.now()}-${firstEmojiId}-${index}-${Math.random()}`,
 									emoji: '',
 									emojiId: firstEmojiId,
 									timestamp: Date.now(),
+									displayName: members?.clan_nick || members?.user?.display_name || members?.user?.username || '',
 									position: {
 										...position,
 										delay: `${delay}ms`
@@ -124,15 +127,14 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ c
 			{displayedEmojis.map((item) => (
 				<div
 					key={item.id}
-					className="text-5xl"
+					className="text-5xl flex flex-col gap-2 items-center"
 					style={{
 						position: 'absolute',
 						bottom: item.position?.bottom || '15%',
 						left: item.position?.left || '50%',
 						animation: `${item.position?.animationName || 'reactionFloatCurve1'} ${item.position?.duration || '3.5s'} linear forwards`,
 						animationDelay: item.position?.delay || '0ms',
-						width: '40px',
-						height: '40px',
+						height: '60px',
 						transformOrigin: 'center center',
 						willChange: 'transform, opacity',
 						backfaceVisibility: 'hidden',
@@ -142,13 +144,18 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ c
 					<img
 						src={getSrcEmoji(item.emojiId)}
 						alt={''}
-						className="w-full h-full object-contain"
+						className="w-10 h-10 object-contain"
 						style={{
 							filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.25))',
 							willChange: 'transform',
 							backfaceVisibility: 'hidden'
 						}}
 					/>
+					{item.displayName && (
+						<div className="w-full rounded-full h-3 bg-theme-setting-nav text-[10px] flex items-center justify-center px-1">
+							{item.displayName}
+						</div>
+					)}
 				</div>
 			))}
 		</div>
