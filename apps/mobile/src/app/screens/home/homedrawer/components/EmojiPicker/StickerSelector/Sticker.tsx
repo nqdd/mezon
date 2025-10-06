@@ -1,14 +1,14 @@
 /* eslint-disable react/jsx-no-useless-fragment */
-import { useAuth } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { emojiRecentActions, useAppDispatch } from '@mezon/store-mobile';
+import { emojiRecentActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import { FOR_SALE_CATE, ITEM_TYPE } from '@mezon/utils';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, FlatList, ListRenderItem, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
@@ -67,7 +67,7 @@ export default memo(function Sticker({ stickerList, categoryName, onClickSticker
 	const styles = style(themeValue, widthScreen);
 	const { t } = useTranslation(['token']);
 	const dispatch = useAppDispatch();
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 	const [isExpanded, setIsExpanded] = useState(!(categoryName === FOR_SALE_CATE && forSale));
 
 	const stickersListByCategoryName = useMemo(() => {

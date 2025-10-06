@@ -57,7 +57,8 @@ export const MemberListStatus = React.memo(() => {
 			const fetchMemberGroup = async () => {
 				dispatch(
 					fetchUserChannels({
-						channelId: currentChannel?.channel_id
+						channelId: currentChannel?.channel_id,
+						isGroup: true
 					})
 				);
 			};
@@ -128,7 +129,6 @@ export const MemberListStatus = React.memo(() => {
 	}, [currentChannel?.channel_id, currentChannel?.type, isDMThread, rawMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
-	console.log("log => online: ", online);
 
 	const navigateToNewGroupScreen = () => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {

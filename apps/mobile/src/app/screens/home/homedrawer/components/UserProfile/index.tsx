@@ -128,7 +128,6 @@ const UserProfile = React.memo(
 				user_status: userProfile?.user?.user_status
 			};
 		}, [getStatus, user?.id, userId, userProfile?.user?.id, userProfile?.user?.status, userProfile?.user?.user_status]);
-		console.log('log => status: ', status);
 
 		const isDM = useMemo(() => {
 			return currentChannel?.type === ChannelType.CHANNEL_TYPE_DM || currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
