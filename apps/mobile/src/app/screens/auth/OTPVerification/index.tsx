@@ -145,7 +145,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						Toast.show({
 							type: 'success',
 							props: {
-								text2: 'OTP does not match',
+								text2: t('otpVerify.otpNotMatch'),
 								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 							}
 						});
@@ -160,13 +160,13 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 				Toast.show({
 					type: 'success',
 					props: {
-						text2: 'An error occurred while verifying OTP',
+						text2: t('otpVerify.verifyOtpError'),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 					}
 				});
 			}
 		},
-		[confirmEmailOTP, reqIdSent]
+		[confirmEmailOTP, reqIdSent, t]
 	);
 
 	const handleResendOTP = async () => {
@@ -187,8 +187,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: 'Resend OTP Failed',
-					text2: resp?.error?.message || 'An error occurred while sending OTP'
+					text1: t('otpVerify.resendOtpFailed'),
+					text2: resp?.error?.message || t('otpVerify.sendOtpError')
 				});
 			}
 		}

@@ -112,7 +112,6 @@ const LoginScreen = ({ navigation }) => {
 		setCooldownRemaining(Math.ceil(remaining));
 
 		if (remaining <= 0) {
-			// Remove this email from cooldown
 			setLastOTPSentTime((prev) => {
 				const newState = { ...prev };
 				delete newState[currentEmail];
@@ -157,7 +156,7 @@ const LoginScreen = ({ navigation }) => {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: `Login too fast. Please wait ${infoInCooldown?.remaining || cooldownRemaining} seconds before trying again.`,
+					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining || cooldownRemaining }),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -181,7 +180,7 @@ const LoginScreen = ({ navigation }) => {
 					Toast.show({
 						type: 'success',
 						props: {
-							text2: resp?.error?.message || 'An error occurred while sending OTP',
+							text2: resp?.error?.message || t('otpVerify.sendOtpError'),
 							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 						}
 					});
@@ -194,7 +193,7 @@ const LoginScreen = ({ navigation }) => {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: error?.message || 'An error occurred while sending OTP',
+					text2: error?.message || t('otpVerify.sendOtpError'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -212,7 +211,7 @@ const LoginScreen = ({ navigation }) => {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: `Login too fast. Please wait ${infoInCooldown.remaining} seconds before trying again.`,
+					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining }),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -235,7 +234,7 @@ const LoginScreen = ({ navigation }) => {
 				Toast.show({
 					type: 'success',
 					props: {
-						text2: resp?.error?.message || 'An error occurred while sending OTP',
+						text2: resp?.error?.message || t('otpVerify.sendOtpError'),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 					}
 				});
@@ -247,7 +246,7 @@ const LoginScreen = ({ navigation }) => {
 			Toast.show({
 				type: 'success',
 				props: {
-					text2: error?.message || 'An error occurred while sending OTP',
+					text2: error?.message || t('otpVerify.sendOtpError'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 				}
 			});
@@ -262,7 +261,7 @@ const LoginScreen = ({ navigation }) => {
 					Toast.show({
 						type: 'success',
 						props: {
-							text2: 'Login Failed! An error occurred during login',
+							text2: t('login.loginFailed'),
 							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 						}
 					});
@@ -271,7 +270,7 @@ const LoginScreen = ({ navigation }) => {
 				Toast.show({
 					type: 'success',
 					props: {
-						text2: e?.message || 'Login Failed! An error occurred during login',
+						text2: e?.message || t('login.loginFailed'),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 					}
 				});
