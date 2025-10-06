@@ -76,6 +76,7 @@ import {
 	selectUserCallId,
 	selectVoiceInfo,
 	selectWelcomeChannelByClanId,
+	statusActions,
 	stickerSettingActions,
 	threadsActions,
 	toastActions,
@@ -2035,6 +2036,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		async (userStatusEvent: UserStatusEvent) => {
 			if (userStatusEvent.user_id !== userId) {
 				dispatch(friendsActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
+				dispatch(statusActions.updateStatus(userStatusEvent));
 			} else {
 				dispatch(accountActions.updateUserStatus(userStatusEvent.custom_status));
 			}
@@ -2576,4 +2578,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
-

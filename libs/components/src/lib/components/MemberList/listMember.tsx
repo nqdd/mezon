@@ -48,7 +48,7 @@ const TempMemberItem = memo(({ id, isOwner }: TempMemberItemProps) => {
 					src={avatar}
 				/>
 				<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm ">
-					<UserStatusIconClan channelId={currentChannelID || ''} userId={id || ''} status={userMeta?.status} online={userMeta?.online} />
+					<UserStatusIconClan channelId={currentChannelID || ''} userId={id || ''} status={userMeta?.status} />
 				</div>
 			</div>
 
