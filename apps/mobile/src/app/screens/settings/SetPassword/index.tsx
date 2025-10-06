@@ -103,7 +103,12 @@ const SetPassword = ({ navigation }) => {
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await dispatch(
-				authActions.registrationPassword({ email: userProfile?.email, password, ...(hasPassword ? { oldPassword: currentPassword } : {}) })
+				authActions.registrationPassword({
+					email: userProfile?.email,
+					password,
+					...(hasPassword ? { oldPassword: currentPassword } : {}),
+					isMobile: true
+				})
 			);
 			if (response?.meta?.requestStatus === 'fulfilled') {
 				Toast.show({

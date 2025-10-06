@@ -143,7 +143,9 @@
 		"welcomeToMezon": "Welcome to Mezon",
 		"desWelcomeToMezon": "The Live, Work, and Play Platform\nCustomize your own space to talk, play and hang out.",
 		"getStarted": "Get Started",
-		"invalidPhoneNumber": "Invalid phone number"
+		"invalidPhoneNumber": "Invalid phone number",
+		"loginTooFast": "Login too fast. Please wait {{seconds}} seconds before trying again.",
+		"loginFailed": "Login Failed! An error occurred during login"
 	},
 	"otpVerify": {
 		"loginToMezon": "Log in to Mezon account",
@@ -161,7 +163,11 @@
 		"cancel": "Cancel",
 		"confirm": "Yes, Change",
 		"changePhone": "Change phone number",
-		"changePhoneMessage": "Are you sure you want to change your phone number? Your current OTP verification will be cancelled."
+		"changePhoneMessage": "Are you sure you want to change your phone number? Your current OTP verification will be cancelled.",
+		"otpNotMatch": "OTP does not match",
+		"verifyOtpError": "An error occurred while verifying OTP",
+		"resendOtpFailed": "Resend OTP Failed",
+		"sendOtpError": "An error occurred while sending OTP"
 	},
 	"invite": {
 		"canChatNow": "You can chat now !!",
