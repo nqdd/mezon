@@ -786,6 +786,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					}
 					if (user.clan_id === currentVoice?.clanId) {
 						dispatch(voiceActions.resetVoiceControl());
+						if (document.pictureInPictureElement) {
+							document.exitPictureInPicture();
+						}
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
