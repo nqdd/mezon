@@ -26,7 +26,8 @@ import {
 	threadsActions,
 	topicsActions,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	useWallet
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import {
@@ -52,6 +53,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
+import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { getMessageActions } from '../../constants';
@@ -76,6 +78,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const { t } = useTranslation(['message']);
 	const [currentMessageActionType, setCurrentMessageActionType] = useState<EMessageActionType | null>(null);
 	const [isShowQuickMenuModal, setIsShowQuickMenuModal] = useState(false);
+	const { enableWallet } = useWallet();
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentDmId = useSelector(selectDmGroupCurrentId);
@@ -132,7 +135,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				referencesString
 			);
 		},
-		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message?.attachments, mode, socketRef, store]
+		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message, mode, socketRef, store]
 	);
 
 	const onConfirmAction = useCallback(
@@ -192,8 +195,13 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, payload);
 	};
 
+	const handleEnableWallet = async () => {
+		await enableWallet();
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+	};
+
 	const handleActionGiveACoffee = async () => {
-		onClose();
 		try {
 			if (userId !== message.sender_id) {
 				const currentClanId = selectCurrentClanId(store.getState());
@@ -205,10 +213,27 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					sender_id: userId
 				};
 				const res = await dispatch(giveCoffeeActions.updateGiveCoffee(coffeeEvent));
+				console.log('log => res: ', res);
 				if (res?.meta?.requestStatus === 'rejected' || !res) {
+					// Todo: handle by code
+					if (res?.payload === 'Wallet not available') {
+						const data = {
+							children: (
+								<MezonConfirm
+									onConfirm={() => handleEnableWallet()}
+									title={t('wallet.notAvailable')}
+									confirmText={t('wallet.enableWallet')}
+									content={t('wallet.descNotAvailable')}
+									onCancel={() => navigation?.goBack()}
+								/>
+							)
+						};
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+						return;
+					}
 					Toast.show({
 						type: 'error',
-						text1: 'An error occurred, please try again'
+						text1: res?.payload || 'An error occurred, please try again'
 					});
 					return;
 				}
@@ -224,6 +249,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				}
 				await dispatch(directActions.setDmGroupCurrentId(''));
 				await dispatch(clansActions.joinClan({ clanId: currentClanId }));
+				onClose();
 			}
 		} catch (error) {
 			console.error('Failed to give cofffee message', error);

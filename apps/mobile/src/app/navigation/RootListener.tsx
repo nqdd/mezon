@@ -21,10 +21,13 @@ import {
 	selectIsFromFCMMobile,
 	selectIsLogin,
 	selectSession,
+	selectZkProofs,
 	settingClanStickerActions,
 	topicsActions,
 	useAppDispatch,
-	voiceActions
+	voiceActions,
+	walletActions,
+	type ISession
 } from '@mezon/store-mobile';
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -59,6 +62,7 @@ const RootListener = () => {
 	const hasInternet = useSelector(selectHasInternetMobile);
 	const appStateRef = useRef(AppState.currentState);
 	const { clientRef } = useMezon();
+	const zkProofs = useSelector(selectZkProofs);
 
 	useEffect(() => {
 		if (isLoggedIn && hasInternet) {
@@ -228,6 +232,19 @@ const RootListener = () => {
 				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 				// @ts-expect-error
 				const { id = '', username = '' } = profileResponse?.payload?.user || {};
+				if (zkProofs && id) {
+					await dispatch(
+						walletActions.fetchZkProofs({
+							userId: id,
+							jwt: (response.payload as ISession)?.token
+						})
+					);
+					await dispatch(
+						walletActions.fetchWalletDetail({
+							userId: id
+						})
+					);
+				}
 				if (id) save(STORAGE_MY_USER_ID, id?.toString());
 				await loadFRMConfig(username);
 				// fetch DM list for map badge un-read DM

@@ -1,11 +1,14 @@
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, setBackgroundMessageHandler } from '@react-native-firebase/messaging';
+import { Buffer } from 'buffer';
 import { AppRegistry, Platform } from 'react-native';
+import 'react-native-get-random-values';
 import { enableScreens } from 'react-native-screens';
 import App from './app/navigation';
 import CustomIncomingCall from './app/screens/customIncomingCall';
 import { isNotificationProcessed } from './app/utils/notificationCache';
 import { createLocalNotification, displayNativeCalling } from './app/utils/pushNotificationHelpers';
+global.Buffer = Buffer;
 
 const messaging = getMessaging(getApp());
 
