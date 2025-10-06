@@ -87,11 +87,11 @@ const NotificationTopicItem = memo(({ notify, onPressNotify }: NotifyProps) => {
 						</Text>
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
 							<Text style={styles.username}>{t('repliedTo')}</Text>
-							{data?.content?.t || 'Unreachable message'}
+							{data?.content?.t || ''}
 						</Text>
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
 							<Text style={styles.username}>{`${lastSentUser ? lastSentUser?.user?.username : t('sender')}: `} </Text>
-							{initMessage || 'Unreachable message'}
+							{initMessage || ''}
 						</Text>
 					</View>
 					<Text style={styles.notifyDuration}>{messageTimeDifference}</Text>
