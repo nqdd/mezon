@@ -21,7 +21,7 @@ export function convertStatusClan(user: UsersClanEntity, state: RootState): IUse
 	const isUserInvisible = user?.user?.user_status === EUserStatus.INVISIBLE;
 	return {
 		id: user.id,
-		online: (!isUserInvisible && !!user?.user?.online) || (!isUserInvisible && isMe),
+		online: (!isUserInvisible && !!user?.user?.online) || isMe,
 		is_mobile: !isUserInvisible && !!user?.user?.is_mobile,
 		status: user?.user?.online ? user?.user?.status : EUserStatus.INVISIBLE,
 		user_status: user?.user?.user_status
