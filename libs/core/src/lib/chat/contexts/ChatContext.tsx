@@ -1946,7 +1946,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						})
 					);
 				}
-
+				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
 
@@ -2387,7 +2387,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	);
 
 	const handleReconnect = useCallback(
-		async (_socketType: string) => {
+		async (socketType: string) => {
 			if (socketRef.current?.isOpen()) {
 				return;
 			}
