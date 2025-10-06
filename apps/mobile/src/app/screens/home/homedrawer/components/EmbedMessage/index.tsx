@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { createImgproxyUrl, IEmbedProps } from '@mezon/utils';
+import type { IEmbedProps } from '@mezon/utils';
+import { createImgproxyUrl } from '@mezon/utils';
 import React, { memo } from 'react';
 import { DeviceEventEmitter, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -17,7 +18,7 @@ type EmbedMessageProps = {
 	message_id: string;
 	embed: IEmbedProps;
 	channel_id: string;
-	onLongPress: () => void;
+	onLongPress?: () => void;
 };
 
 export const EmbedMessage = memo(({ message_id, embed, channel_id, onLongPress }: EmbedMessageProps) => {
@@ -31,13 +32,17 @@ export const EmbedMessage = memo(({ message_id, embed, channel_id, onLongPress }
 			...image,
 			id: '',
 			filetype: 'image/jpeg',
-			message_id: message_id,
+			message_id,
 			channelId: channel_id
 		};
 		const data = {
 			children: <ImageListModal channelId={''} imageSelected={imageData} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	};
+
+	const handleLongPress = () => {
+		onLongPress && onLongPress();
 	};
 
 	return (
@@ -61,7 +66,7 @@ export const EmbedMessage = memo(({ message_id, embed, channel_id, onLongPress }
 					)}
 				</View>
 				{!!image && (
-					<TouchableOpacity onPress={handlePressImage} onLongPress={onLongPress}>
+					<TouchableOpacity onPress={handlePressImage} onLongPress={handleLongPress}>
 						<FastImage
 							source={{ uri: image?.url }}
 							style={[styles.imageWrapper, { aspectRatio: image?.width / image?.height || 1 }]}
