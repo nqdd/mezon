@@ -332,7 +332,11 @@ const DirectMessage = () => {
 								hiddenRole={true}
 								showNote={true}
 								showPopupLeft={true}
-								avatar={currentDmGroup?.channel_avatar?.[0]}
+								avatar={
+									Number(type) === ChannelType.CHANNEL_TYPE_GROUP
+										? currentDmGroup?.channel_avatar?.[0]
+										: currentDmGroup?.avatars?.[0]
+								}
 								isDM={true}
 							/>
 						</div>

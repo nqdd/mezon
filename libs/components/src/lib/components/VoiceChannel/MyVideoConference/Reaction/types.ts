@@ -18,6 +18,7 @@ export interface DisplayedEmoji {
 	emoji: string;
 	emojiId: string;
 	timestamp: number;
+	displayName?: string;
 	position?: {
 		left: string;
 		bottom: string;
