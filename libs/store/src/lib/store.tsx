@@ -40,12 +40,11 @@ import { channelMetaReducer } from './channels/channelmeta.slice';
 import { hashtagDmReducer } from './channels/hashtagDm.slice';
 import { CHANNEL_LIST_RENDER, listChannelRenderReducer } from './channels/listChannelRender.slice';
 import { listUsersByUserReducer } from './channels/listUsers.slice';
-import { clanMembersMetaReducer } from './clanMembers/clan.members.meta';
 import { integrationClanWebhookReducer } from './clanWebhook/clanWebhook.slide';
 import { settingChannelReducer } from './clans/clanSettingChannel.slice';
 import { COMUNITY_FEATURE_KEY, comunityReducer } from './comunity/comunity.slice';
-import { directMembersMetaReducer } from './direct/direct.members.meta';
 import { directMetaReducer } from './direct/directmeta.slice';
+import { USER_STATUS_FEATURE_KEY, statusReducer } from './direct/status.slice';
 import { audioCallReducer } from './dmcall/audioCall.slice';
 import { DMCallReducer } from './dmcall/dmcall.slice';
 import { dragAndDropReducer } from './dragAndDrop/dragAndDrop.slice';
@@ -289,14 +288,6 @@ const persistedsettingClanStickerReducer = persistReducer(
 	settingStickerReducer
 );
 
-const persisteduserChannelsReducer = persistReducer(
-	{
-		key: 'allUsersByAddChannel',
-		storage
-	},
-	userChannelsReducer
-);
-
 const persistedOnboardingReducer = persistReducer(
 	{
 		key: ONBOARDING_FEATURE_KEY,
@@ -348,7 +339,7 @@ const reducer = {
 	channels: persistedChannelReducer,
 	channelmeta: persistedChannelMetaReducer,
 	settingSticker: persistedsettingClanStickerReducer,
-	allUsersByAddChannel: persisteduserChannelsReducer,
+	allUsersByAddChannel: userChannelsReducer,
 	listchannelbyusers: persistedListchannelsByUserReducer,
 	listpermissionroleschannel: persistedPermissionRoleChannelReducer,
 	channelMembers: channelMembersReducer,
@@ -405,8 +396,6 @@ const reducer = {
 	systemMessages: systemMessageReducer,
 	giveCoffee: giveCoffeeReducer,
 	settingClanChannel: settingChannelReducer,
-	clanMembersMeta: clanMembersMetaReducer,
-	directmembersmeta: directMembersMetaReducer,
 	[ONBOARDING_FEATURE_KEY]: persistedOnboardingReducer,
 	dmcall: DMCallReducer,
 	[E2EE_FEATURE_KEY]: e2eeReducer,
@@ -419,7 +408,8 @@ const reducer = {
 	[COMUNITY_FEATURE_KEY]: persistedComunityReducer,
 	[WINDOW_CONTROLS_FEATURE_KEY]: windowControlsReducer,
 	[TRANSACTION_HISTORY_FEATURE_KEY]: transactionHistoryReducer,
-	[WALLET_FEATURE_KEY]: persistedWalletStore
+	[WALLET_FEATURE_KEY]: persistedWalletStore,
+	[USER_STATUS_FEATURE_KEY]: statusReducer
 };
 
 let storeInstance = configureStore({

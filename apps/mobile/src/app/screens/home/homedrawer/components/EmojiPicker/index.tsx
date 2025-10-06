@@ -77,7 +77,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 	const isCreateTopic = useSelector(selectIsShowCreateTopic);
 
 	const dmMode = currentDirectMessage
-		? Number(currentDirectMessage?.user_id?.length === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)
+		? Number(currentDirectMessage?.user_ids?.length === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)
 		: '';
 
 	const { sendMessage } = useChatSending({

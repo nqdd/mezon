@@ -5,15 +5,15 @@ import { ChannelType, User } from 'mezon-js';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
-import ImageNative from '../../../components/ImageNative';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonButton from '../../../componentUI/MezonButton';
+import ImageNative from '../../../components/ImageNative';
 import { style } from './styles';
 
 export type Receiver = {
 	channel_id?: string;
 	channel_label?: string;
-	channel_avatar?: string[];
+	channel_avatar?: string;
 	type?: ChannelType;
 	user?: User;
 	id?: string;
@@ -58,12 +58,7 @@ export const FriendListItem = React.memo((props: IFriendListItemProps) => {
 								<Image source={Images.AVATAR_GROUP} style={styles.defaultAvatar} />
 							)
 						) : (
-							<MezonAvatar
-								avatarUrl={dmGroup?.channel_avatar?.at(0)}
-								username={dmGroup?.channel_label}
-								height={size.s_40}
-								width={size.s_40}
-							/>
+							<MezonAvatar avatarUrl={dmGroup?.channel_avatar} username={dmGroup?.channel_label} height={size.s_40} width={size.s_40} />
 						)}
 						<Text style={styles.friendItemName} numberOfLines={1} ellipsizeMode="tail">
 							{dmGroup?.channel_label}

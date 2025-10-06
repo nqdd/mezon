@@ -1,15 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { FriendsEntity } from '@mezon/store-mobile';
-import {
-	accountActions,
-	channelMembersActions,
-	selectAccountCustomStatus,
-	selectAllAccount,
-	selectAllFriends,
-	selectCurrentClanId,
-	useAppDispatch
-} from '@mezon/store-mobile';
+import { accountActions, channelMembersActions, selectAllAccount, selectAllFriends, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
@@ -49,7 +41,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const { t: tUser } = useTranslation('customUserStatus');
 	const { t: tStack } = useTranslation('screenStack');
 	const [isVisibleAddStatusUserModal, setIsVisibleAddStatusUserModal] = useState<boolean>(false);
-	const userCustomStatus = useSelector(selectAccountCustomStatus);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
 
@@ -58,6 +49,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
 		}, [dispatch])
 	);
+
+	const userCustomStatus = useMemo(() => {
+		return userProfile?.user?.user_status || '';
+	}, [userProfile?.user?.user_status]);
+
+	const userStatus = useMemo(() => {
+		return userProfile?.user?.status || '';
+	}, [userProfile?.user?.status]);
 
 	const tokenInWallet = useMemo(() => {
 		return userProfile?.wallet || 0;
@@ -122,6 +121,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 			title: tUser('changeOnlineStatus'),
 			children: (
 				<CustomStatusUser
+					userStatus={userStatus}
 					userCustomStatus={userCustomStatus}
 					onPressSetCustomStatus={handlePressSetCustomStatus}
 					handleCustomUserStatus={handleCustomUserStatus}

@@ -1344,16 +1344,12 @@ export type IUserAuditLog = {
 export type IUserProfileActivity = {
 	avatar_url?: string;
 	display_name?: string;
-	id?: string;
+	id: string;
 	username?: string;
 	online?: boolean;
 	status?: string;
 	user_status?: string;
-};
-
-export type IUserItemActivity = {
-	id: string;
-	user?: IUserProfileActivity;
+	is_mobile?: boolean;
 };
 
 export type UserStatus = {

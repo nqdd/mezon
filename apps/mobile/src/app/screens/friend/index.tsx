@@ -57,7 +57,7 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 		async (user: FriendsEntity) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 			const directMessage = listDM?.find?.((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				if (!Array.isArray(userIds) || userIds.length !== 1) {
 					return false;
 				}
@@ -87,7 +87,7 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 		async (user: FriendsEntity) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 			const directMessage = listDM?.find?.((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				if (!Array.isArray(userIds) || userIds.length !== 1) {
 					return false;
 				}

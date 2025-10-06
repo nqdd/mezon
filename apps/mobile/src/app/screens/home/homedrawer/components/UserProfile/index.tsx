@@ -34,7 +34,6 @@ import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import ImageNative from '../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
-import { getUserStatusByMetadata } from '../../../../../utils/helpers';
 import { checkNotificationPermissionAndNavigate } from '../../../../../utils/notificationPermissionHelper';
 import { DirectMessageCallMain } from '../../../../messages/DirectMessageCall';
 import { style } from './UserProfile.styles';
@@ -104,6 +103,9 @@ const UserProfile = React.memo(
 		const messageAvatar = useMemo(() => {
 			return message?.clan_avatar || message?.avatar;
 		}, [message?.clan_avatar, message?.avatar]);
+		const status = useMemo(() => {
+			return userById?.user?.status || userById?.status || user?.user?.status || user?.status;
+		}, [user?.status, user?.user?.status, userById?.status, userById?.user?.status]);
 		const { color } = useMixImageColor(
 			messageAvatar || userById?.clan_avatar || userById?.user?.avatar_url || userProfile?.user?.avatar_url || ''
 		);
@@ -129,8 +131,6 @@ const UserProfile = React.memo(
 		const isBlocked = useMemo(() => {
 			return infoFriend?.state === EStateFriend.BLOCK;
 		}, [infoFriend?.state]);
-
-		const status = getUserStatusByMetadata(user?.user?.metadata) || user?.metadata?.user_status;
 
 		useEffect(() => {
 			if (isShowPendingContent) {
@@ -209,8 +209,8 @@ const UserProfile = React.memo(
 		}, [userById?.role_id, rolesClan]);
 
 		const isCheckOwner = useMemo(() => {
-			const userId = userById?.user?.google_id || userById?.user?.id;
-			const id = userProfile?.user?.google_id || userProfile?.user?.id;
+			const userId = userById?.user?.id;
+			const id = userProfile?.user?.id;
 			return userId === id;
 		}, [userById, userProfile]);
 
@@ -224,7 +224,7 @@ const UserProfile = React.memo(
 					isShow: false
 				});
 				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_id;
+					const userIds = dm?.user_ids;
 					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
 				});
 				if (directMessage?.id) {
@@ -290,7 +290,7 @@ const UserProfile = React.memo(
 					isShow: false
 				});
 				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_id;
+					const userIds = dm?.user_ids;
 					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
 				});
 				if (directMessage?.id) {

@@ -1,15 +1,9 @@
 import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import {
-	directActions,
-	DirectEntity,
-	messagesActions,
-	selectDirectById,
-	selectIsUnreadDMById,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
-import { createImgproxyUrl, IExtendedMessage } from '@mezon/utils';
+import type { DirectEntity } from '@mezon/store-mobile';
+import { directActions, messagesActions, selectDirectById, selectIsUnreadDMById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import type { IExtendedMessage } from '@mezon/utils';
+import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
@@ -34,7 +28,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
-	const { t } = useTranslation('message');
+	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const senderId = directMessage?.last_sent_message?.sender_id;
@@ -58,13 +52,13 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, [directMessage?.type]);
 
 	const otherMemberList = useMemo(() => {
-		const userIdList = directMessage.user_id;
+		const userIdList = directMessage.user_ids;
 		const usernameList = directMessage?.usernames || [];
 		const displayNameList = directMessage?.display_names || [];
 
 		return usernameList?.map((username, index) => ({
 			userId: userIdList?.[index],
-			username: username,
+			username,
 			displayName: displayNameList?.[index]
 		}));
 	}, [directMessage]);
@@ -147,10 +141,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	return (
 		<TouchableOpacity style={[styles.messageItem]} onPress={redirectToMessageDetail} onLongPress={() => handleLongPress(directMessage)}>
 			{isTypeDMGroup ? (
-				directMessage?.topic && !directMessage?.topic?.includes('avatar-group.png') ? (
+				directMessage?.channel_avatar && !directMessage?.channel_avatar?.includes('avatar-group.png') ? (
 					<View style={styles.groupAvatarWrapper}>
 						<ImageNative
-							url={createImgproxyUrl(directMessage?.topic ?? '')}
+							url={createImgproxyUrl(directMessage?.channel_avatar ?? '')}
 							style={{ width: '100%', height: '100%' }}
 							resizeMode={'cover'}
 						/>
@@ -162,10 +156,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 				)
 			) : (
 				<View style={styles.avatarWrapper}>
-					{directMessage?.channel_avatar?.[0] ? (
+					{directMessage?.avatars?.[0] ? (
 						<View style={styles.friendAvatar}>
 							<ImageNative
-								url={createImgproxyUrl(directMessage?.channel_avatar?.[0] ?? '', { width: 50, height: 50, resizeType: 'fit' })}
+								url={createImgproxyUrl(directMessage?.avatars?.[0] ?? '', { width: 50, height: 50, resizeType: 'fit' })}
 								style={{ width: '100%', height: '100%' }}
 								resizeMode={'cover'}
 							/>
@@ -182,11 +176,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 							</Text>
 						</View>
 					)}
-					<UserStatusDM
-						isOnline={directMessage?.is_online?.some(Boolean)}
-						metadata={directMessage?.metadata?.[0]}
-						userId={directMessage?.user_id?.[0]}
-					/>
+					<UserStatusDM isOnline={directMessage?.onlines?.some(Boolean)} userId={directMessage?.user_ids?.[0]} />
 				</View>
 			)}
 
@@ -221,7 +211,18 @@ export const DmListItem = React.memo((props: { id: string }) => {
 					) : null}
 				</View>
 
-				{getLastMessageContent(directMessage?.last_sent_message?.content)}
+				{directMessage?.member_count ? (
+					<View style={styles.contentMessage}>
+						<Text
+							style={[styles.defaultText, styles.lastMessage, { color: themeValue.textDisabled, textTransform: 'capitalize' }]}
+							numberOfLines={1}
+						>
+							{`${directMessage?.member_count} ${t(directMessage?.member_count > 1 ? 'members' : 'member', { ns: 'common' })}`}
+						</Text>
+					</View>
+				) : (
+					getLastMessageContent(directMessage?.last_sent_message?.content)
+				)}
 			</View>
 		</TouchableOpacity>
 	);

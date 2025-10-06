@@ -78,7 +78,7 @@ export const FriendItem = React.memo(
 							</Text>
 						</View>
 					)}
-					{!isPendingFriendRequest ? <UserStatus status={userStatus} customStatus={friend?.user?.metadata?.user_status} /> : null}
+					{!isPendingFriendRequest ? <UserStatus status={userStatus} customStatus={friend?.user?.status} /> : null}
 				</View>
 				<View style={styles.fill}>
 					<View style={styles.friendItemContent}>

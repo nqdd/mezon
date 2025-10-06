@@ -1,9 +1,8 @@
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDirect, useSendInviteMessage } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	FriendsEntity,
 	appActions,
 	getStore,
 	getStoreAsync,
@@ -17,7 +16,7 @@ import {
 import { TypeMessage, formatMoney, formatNumber } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
+import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -110,7 +109,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			});
 
 		listDM.forEach((itemDM: DirectEntity) => {
-			const userId = itemDM?.user_id?.[0] ?? '';
+			const userId = itemDM?.user_ids?.[0] ?? '';
 			if (userId && !userMap.has(userId)) {
 				userMap.set(userId, {
 					id: userId,
@@ -140,7 +139,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const directMessageId = useMemo(() => {
 		const directMessage = listDM?.find?.((dm) => {
-			const userIds = dm?.user_id;
+			const userIds = dm?.user_ids;
 			if (!Array.isArray(userIds) || userIds.length !== 1) {
 				return false;
 			}
@@ -225,9 +224,9 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				const formattedTime = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1)
 					.toString()
 					.padStart(2, '0')}/${now.getFullYear()} ${now
-						.getHours()
-						.toString()
-						.padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+					.getHours()
+					.toString()
+					.padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 				setSuccessTime(formattedTime);
 				setDisableButton(false);
 				setShowConfirmModal(true);
@@ -319,7 +318,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				const shareData = {
 					subject: null,
 					mimeType: 'image/png',
-					fileName: `share` + Date.now() + '.png',
+					fileName: `share${Date.now()}.png`,
 					text: null,
 					weblink: null,
 					contentUri: dataUri,
@@ -344,7 +343,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				Alert.alert('Failed to save image');
 				return;
 			}
-			await saveImageToCameraRoll('file://' + dataUri, 'png');
+			await saveImageToCameraRoll(`file://${dataUri}`, 'png');
 			Alert.alert('Save image successfully');
 		} catch (error) {
 			Alert.alert('Failed to save image');

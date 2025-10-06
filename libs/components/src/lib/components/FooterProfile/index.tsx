@@ -256,8 +256,8 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 		}
 	};
 	const [openSetCustomStatus, closeSetCustomStatus] = useModal(() => {
-		return <ModalCustomStatus status={userStatus} name={name} onClose={handleCloseModalCustomStatus} />;
-	}, [userStatus]);
+		return <ModalCustomStatus status={userCustomStatus} name={name} onClose={handleCloseModalCustomStatus} />;
+	}, [userCustomStatus]);
 
 	const [openModalSendToken, closeModalSendToken] = useModal(() => {
 		return (
@@ -322,7 +322,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							srcImgProxy={createImgproxyUrl(avatar ?? '')}
 							src={avatar}
 						/>
-						<div className="absolute bottom-0 left-0 w-[32px] h-[32px] ">
+						<div className="absolute top-5 left-5">
 							<UserStatusIconDM status={userStatus as EUserStatus} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">

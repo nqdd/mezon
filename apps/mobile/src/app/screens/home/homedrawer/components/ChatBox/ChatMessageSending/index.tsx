@@ -34,8 +34,7 @@ import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
 import React, { memo, useCallback, useMemo } from 'react';
-import { DeviceEventEmitter, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { DeviceEventEmitter, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
@@ -246,7 +245,7 @@ export const ChatMessageSending = memo(
 			}
 			const { targetMessage, type } = messageActionNeedToResolve || {};
 			const isCanSendReference = currentDmGroup
-				? currentDmGroup?.user_id?.includes?.(targetMessage?.sender_id) || targetMessage?.sender_id === userId
+				? currentDmGroup?.user_ids?.includes?.(targetMessage?.sender_id) || targetMessage?.sender_id === userId
 				: true;
 			const reference =
 				targetMessage && isCanSendReference
