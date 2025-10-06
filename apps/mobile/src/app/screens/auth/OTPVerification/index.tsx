@@ -1,6 +1,6 @@
 import { useAuth } from '@mezon/core';
 import { baseColor, size } from '@mezon/mobile-ui';
-import { authActions } from '@mezon/store';
+import { appActions, authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -139,17 +139,22 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			try {
 				if (otpConfirm?.length === 6) {
 					setIsLoading(true);
-					const resp = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+					const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
 
 					if (!resp) {
 						Toast.show({
 							type: 'success',
 							props: {
-								text2: 'OTP does not match',
+								text2: t('otpVerify.otpNotMatch'),
 								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 							}
 						});
 						setIsError(true);
+					} else {
+						// If the account is newly created or a username is missing, prompt for username update
+						if (!resp?.username || resp?.username === phoneNumber) {
+							dispatch(appActions.setIsShowUpdateUsername(true));
+						}
 					}
 
 					setIsLoading(false);
@@ -160,13 +165,13 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 				Toast.show({
 					type: 'success',
 					props: {
-						text2: 'An error occurred while verifying OTP',
+						text2: t('otpVerify.verifyOtpError'),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
 					}
 				});
 			}
 		},
-		[confirmEmailOTP, reqIdSent]
+		[confirmEmailOTP, dispatch, phoneNumber, reqIdSent, t]
 	);
 
 	const handleResendOTP = async () => {
@@ -187,8 +192,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: 'Resend OTP Failed',
-					text2: resp?.error?.message || 'An error occurred while sending OTP'
+					text1: t('otpVerify.resendOtpFailed'),
+					text2: resp?.error?.message || t('otpVerify.sendOtpError')
 				});
 			}
 		}

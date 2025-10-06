@@ -241,7 +241,10 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 
 export const registrationPassword = createAsyncThunk(
 	`auth/registrationPassword`,
-	async ({ email, password, oldPassword }: { email: string; password: string; oldPassword?: string }, thunkAPI) => {
+	async (
+		{ email, password, oldPassword, isMobile = false }: { email: string; password: string; oldPassword?: string; isMobile?: boolean },
+		thunkAPI
+	) => {
 		if (!email || !password || !email.trim() || !password.trim()) {
 			return thunkAPI.rejectWithValue('Invalid input');
 		}
@@ -259,6 +262,9 @@ export const registrationPassword = createAsyncThunk(
 			toast.error(
 				oldPassword ? t('accountSetting:setPasswordAccount.error.updateFail') : t('accountSetting:setPasswordAccount.error.createFail')
 			);
+			if (isMobile) {
+				return thunkAPI.rejectWithValue(error);
+			}
 		}
 	}
 );

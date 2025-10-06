@@ -74,7 +74,7 @@ export const fetchUserChannelsCached = async (
 
 export const fetchUserChannels = createAsyncThunk(
 	'allUsersByAddChannel/fetchUserChannels',
-	async ({ channelId, noCache }: { channelId: string; noCache?: boolean }, thunkAPI) => {
+	async ({ channelId, noCache, isGroup = false }: { channelId: string; noCache?: boolean; isGroup?: boolean }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
@@ -87,7 +87,9 @@ export const fetchUserChannels = createAsyncThunk(
 					fromCache: response.fromCache || true
 				};
 			}
-			thunkAPI.dispatch(statusActions.updateBulkStatus(convertStatusGroup(response as ApiAllUsersAddChannelResponse)));
+			if (isGroup) {
+				thunkAPI.dispatch(statusActions.updateBulkStatus(convertStatusGroup(response as ApiAllUsersAddChannelResponse)));
+			}
 			return {
 				channelId,
 				user_ids: response,

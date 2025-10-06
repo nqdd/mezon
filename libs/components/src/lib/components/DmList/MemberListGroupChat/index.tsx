@@ -46,7 +46,8 @@ function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
 			if (directId && !rawMembers) {
 				dispatch(
 					fetchUserChannels({
-						channelId: directId
+						channelId: directId,
+						isGroup: true
 					})
 				);
 			}
