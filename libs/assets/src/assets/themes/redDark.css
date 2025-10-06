@@ -109,5 +109,6 @@
 
 	/* border-avatar */
 	--border-color-avatar: #561c1e;
+	--border-left-highlight: #ffff00;
 
 }

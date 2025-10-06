@@ -1,5 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { RootState, directActions, getStoreAsync, selectDirectsOpenlistOrder, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import type { RootState } from '@mezon/store-mobile';
+import { directActions, getStoreAsync, selectDirectsOpenlistOrder, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import React, { useEffect } from 'react';
 import { AppState, FlatList, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -71,7 +72,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 							<FlatList
 								data={dmGroupChatList}
 								showsVerticalScrollIndicator={false}
-								keyExtractor={(dm) => dm + 'DM_MSG_ITEM'}
+								keyExtractor={(dm) => `${dm}_DM_MSG_ITEM`}
 								initialNumToRender={1}
 								maxToRenderPerBatch={1}
 								windowSize={2}

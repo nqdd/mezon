@@ -164,10 +164,53 @@ export const DATA_E2E_IDENTIFIER = {
 				}
 			},
 			create_event: {
+				start_modal: '',
 				button_create: '',
 				next: '',
 				upload: {
 					image_cover_input: ''
+				},
+				location: {
+					type: '',
+					channel: {
+						item: ''
+					}
+				},
+				event_info: {
+					input: {
+						event_topic: '',
+						start_date: '',
+						start_time: '',
+						end_date: '',
+						end_time: '',
+						event_frequency: '',
+						description: ''
+					}
+				},
+				review: {
+					type: {
+						clan: '',
+						channel: '',
+						private: ''
+					},
+					start_time: '',
+					event_topic: '',
+					description: '',
+					voice_channel: '',
+					text_channel: ''
+				},
+				event_management: {
+					item: {
+						modal_detail_item: {
+							start_date_time: '',
+							topic: '',
+							channel_name: '',
+							description: ''
+						},
+						button: {
+							open_detail_modal: ''
+						}
+					}
 				}
 			}
 		},
@@ -238,7 +281,14 @@ export const DATA_E2E_IDENTIFIER = {
 					voice: '',
 					stream: ''
 				},
-				name: ''
+				name: '',
+				user_list: {
+					item: ''
+				},
+				user_list_collapsed: {
+					item: '',
+					item_count: ''
+				}
 			},
 			thread_item: {
 				name: ''
@@ -251,7 +301,16 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		secondary_side_bar: {
-			member: ''
+			member: {
+				in_voice: ''
+			}
+		},
+		screen: {
+			voice_room: {
+				button: {
+					join_voice: ''
+				}
+			}
 		}
 	},
 	channel_setting_page: {
@@ -483,7 +542,8 @@ export const DATA_E2E_IDENTIFIER = {
 				button_reset: '',
 				button_save_changes: ''
 			}
-		}
+		},
+		logout: ''
 	},
 	common: {
 		friend_list: {
@@ -510,7 +570,15 @@ export const DATA_E2E_IDENTIFIER = {
 				confirm: '',
 				cancel: ''
 			}
+		},
+		voice_management: {
+			button: {
+				control_item: ''
+			}
 		}
+	},
+	icon: {
+		end_call: ''
 	}
 };
 type DotNestedKeys<T> = T extends object

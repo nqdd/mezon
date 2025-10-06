@@ -1,9 +1,9 @@
 import { useMemberStatus } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
 import { EventManagementEntity, selectEventById, selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
-import { getUserStatusByMetadata } from '../../../utils/helpers';
 import { style } from './styles';
 
 interface IEventMemberProps {
@@ -16,7 +16,9 @@ const Avatar = ({ id, index }: { id: string; index: number }) => {
 	const styles = style(themeValue);
 	const userStatus = useMemberStatus(id || '');
 
-	const customStatus = getUserStatusByMetadata(user?.user?.metadata);
+	const customStatus = useMemo(() => {
+		return user?.user?.status;
+	}, [user?.user?.status]);
 
 	return (
 		<View style={styles.item}>

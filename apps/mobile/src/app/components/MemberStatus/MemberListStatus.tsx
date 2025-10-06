@@ -1,17 +1,9 @@
-import { ActionEmitEvent, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	DirectEntity,
-	getStore,
-	selectAllChannelMembers,
-	selectAllUserClans,
-	selectClanMembersMetaEntities,
-	selectGrouplMembers,
-	useAppSelector
-} from '@mezon/store-mobile';
+import { DirectEntity, getStore, selectAllChannelMembers, selectAllUserClans, selectGrouplMembers, useAppSelector } from '@mezon/store-mobile';
 import { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelType, safeJSONParse } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
@@ -46,10 +38,6 @@ export const MemberListStatus = React.memo(() => {
 		[EActionButton.InviteMembers]: t('common:inviteMembers')
 	};
 
-	const myUserId = useMemo(() => {
-		return load(STORAGE_MY_USER_ID);
-	}, []);
-
 	const isDMThread = useMemo(() => {
 		return [ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type);
 	}, [currentChannel]);
@@ -64,89 +52,36 @@ export const MemberListStatus = React.memo(() => {
 		if (action === EActionButton.AddMembers) navigateToNewGroupScreen();
 	}, []);
 
-	const getInfoUserOnlineStatus = (
-		userId = ''
-	): {
-		status: string;
-		isMobile: boolean;
-		online: boolean;
-	} => {
-		try {
-			const store = getStore();
-			const membersMetaEntities = selectClanMembersMetaEntities(store.getState());
-			const isMobile = !!membersMetaEntities?.[userId]?.isMobile;
-			let online = !!membersMetaEntities?.[userId]?.online;
-			let status = '';
-			if (membersMetaEntities[userId]?.status) {
-				status = membersMetaEntities[userId]?.status;
-			} else if (currentChannel?.metadata?.[0]) {
-				const data = safeJSONParse(currentChannel?.metadata?.[0]);
-				status = data?.user_status || '';
-			}
-			// for case DM group
-			if (currentChannel?.is_online?.[0]) {
-				online = true;
-			}
-
-			return {
-				online,
-				status,
-				isMobile
-			};
-		} catch (e) {
-			return {
-				status: '',
-				online: false,
-				isMobile: false
-			};
-		}
-	};
-
 	const userChannels = useAppSelector((state) => selectAllChannelMembers(state, currentChannel?.channel_id));
 
 	const listMembersChannelGroupDM = useMemo(() => {
 		const store = getStore();
-		const membersMetaEntities = selectClanMembersMetaEntities(store.getState());
 		const members = isDMThread
 			? selectGrouplMembers(store.getState(), currentChannel?.channel_id as string)
 			: selectAllUserClans(store.getState() as any);
 
-		if (!membersMetaEntities || !members) {
+		if (!members) {
 			return {
 				online: [],
 				offline: []
 			};
 		}
 
-		const users = members?.map((item: ChannelMembersEntity | UsersClanEntity) => {
-			const inForStatusUserDM: { online: any; isMobile: any; status?: string } = getInfoUserOnlineStatus(item?.user?.id);
-
-			return {
-				...item,
-				user: {
-					...item.user,
-					online: inForStatusUserDM?.online,
-					is_mobile: inForStatusUserDM?.isMobile,
-					metadata: inForStatusUserDM?.status ? JSON.stringify({ user_status: inForStatusUserDM?.status }) : item.user.metadata
-				}
-			};
-		}) as UsersClanEntity[];
-
-		users?.sort((a, b) => {
+		members?.sort((a, b) => {
 			if (a.user?.online === b.user?.online) {
 				return getName(a).localeCompare(getName(b));
 			}
 			return a.user?.online ? -1 : 1;
 		});
-		const firstOfflineIndex = users.findIndex((user) => !user?.user?.online);
-		const onlineUsers = firstOfflineIndex === -1 ? users : users?.slice(0, firstOfflineIndex);
-		const offlineUsers = firstOfflineIndex === -1 ? [] : users?.slice(firstOfflineIndex);
+		const firstOfflineIndex = members.findIndex((user) => !user?.user?.online);
+		const onlineUsers = firstOfflineIndex === -1 ? members : members?.slice(0, firstOfflineIndex);
+		const offlineUsers = firstOfflineIndex === -1 ? [] : members?.slice(firstOfflineIndex);
 
 		return {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [currentChannel?.channel_id, isDMThread, myUserId, userChannels]);
+	}, [currentChannel?.channel_id, isDMThread]);
 
 	const lisMembers = useMemo(() => {
 		if (!userChannels || !listMembersChannelGroupDM) {
@@ -165,19 +100,7 @@ export const MemberListStatus = React.memo(() => {
 			const allClanUsers = selectAllUserClans(store.getState() as any) as UsersClanEntity[];
 			const owner = allClanUsers?.find((u) => u?.user?.id === currentChannel?.creator_id);
 			if (owner) {
-				const inForStatusUserDM = getInfoUserOnlineStatus(owner?.user?.id);
-				const ownerWithMeta = {
-					...owner,
-					user: {
-						...owner.user,
-						online: inForStatusUserDM?.online ?? true,
-						is_mobile: inForStatusUserDM?.isMobile ?? false,
-						metadata: inForStatusUserDM?.status
-							? JSON.stringify({ user_status: inForStatusUserDM?.status })
-							: owner.user.metadata
-					}
-				} as UsersClanEntity;
-				onlineMembers = [ownerWithMeta];
+				onlineMembers = [owner];
 				offlineMembers = [];
 			}
 		}
@@ -186,7 +109,7 @@ export const MemberListStatus = React.memo(() => {
 			onlineMembers,
 			offlineMembers
 		};
-	}, [listMembersChannelGroupDM, userChannels, currentChannel?.creator_id]);
+	}, [currentChannel?.creator_id, listMembersChannelGroupDM, userChannels]);
 
 	const { onlineMembers, offlineMembers } = lisMembers;
 
@@ -205,9 +128,12 @@ export const MemberListStatus = React.memo(() => {
 		setSelectedUser(user);
 	}, []);
 
-	const renderMemberItem = ({ item }) => {
-		return <MemoizedMemberItem onPress={handleUserPress} user={item} currentChannel={currentChannel} isDMThread={isDMThread} />;
-	};
+	const renderMemberItem = useCallback(
+		({ item }) => {
+			return <MemoizedMemberItem onPress={handleUserPress} user={item} creatorChannelId={currentChannel?.creator_id} isDMThread={isDMThread} />;
+		},
+		[currentChannel?.creator_id, handleUserPress, isDMThread]
+	);
 
 	return (
 		<View style={styles.container}>

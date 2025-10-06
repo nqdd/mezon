@@ -55,11 +55,10 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 		const payload: {
 			channel_id: string;
 			channel_label?: string;
-			topic?: string;
 			channel_avatar?: string;
 		} = { channel_id: dmGroupId || '' };
 		if (hasNameChanged) payload.channel_label = trimmedName;
-		if (hasImageChanged) payload.topic = avatarUrl;
+		if (hasImageChanged) payload.channel_avatar = avatarUrl;
 
 		const resp = await dispatch(directActions.updateDmGroup(payload));
 		if (resp?.meta?.requestStatus === 'fulfilled') {

@@ -51,7 +51,7 @@ export const ProfileDetail = memo(() => {
 			if (!routeRawData) return null;
 			const decodedData = JSON.parse(decodeURIComponent(atob(routeRawData)));
 			return {
-				username: username,
+				username,
 				avatar_url: decodedData?.avatar,
 				display_name: decodedData?.name,
 				user_id: decodedData?.id || ''
@@ -147,7 +147,7 @@ export const ProfileDetail = memo(() => {
 		});
 
 		const directMessage = listDM?.find?.((dm) => {
-			const userIds = dm?.user_id;
+			const userIds = dm?.user_ids;
 			return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === profileData.user_id;
 		});
 

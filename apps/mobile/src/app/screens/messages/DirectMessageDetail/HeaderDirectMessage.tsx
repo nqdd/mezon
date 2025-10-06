@@ -107,8 +107,8 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	}, [currentDmGroup?.channel_label, currentDmGroup?.usernames]);
 
 	const dmAvatar = useMemo(() => {
-		return currentDmGroup?.channel_avatar?.[0];
-	}, [currentDmGroup?.channel_avatar?.[0]]);
+		return currentDmGroup?.avatars?.[0];
+	}, [currentDmGroup?.avatars?.[0]]);
 
 	const navigateToThreadDetail = useCallback(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
@@ -147,7 +147,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 				roomName: currentDmGroup?.meeting_code,
 				clanId: '',
 				isGroupCall: true,
-				participantsCount: currentDmGroup?.user_id?.length || 0
+				participantsCount: currentDmGroup?.user_ids?.length || 0
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
 			const store = getStore();
@@ -163,17 +163,17 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 				is_video: false,
 				group_id: currentDmGroup?.channel_id,
 				group_name: currentDmGroup?.channel_label,
-				group_avatar: currentDmGroup?.channel_avatar?.[0],
+				group_avatar: currentDmGroup?.channel_avatar,
 				caller_id: userProfile?.user?.id,
 				caller_name: userProfile?.user?.display_name || userProfile?.user?.username || '',
 				caller_avatar: userProfile?.user?.avatar_url,
 				meeting_code: currentDmGroup?.meeting_code,
 				clan_id: '',
 				timestamp: Date.now(),
-				participants: currentDmGroup?.user_id || []
+				participants: currentDmGroup?.user_ids || []
 			};
 			sendSignalingToParticipants(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_OFFER,
 				callOfferAction as CallSignalingData,
 				currentDmGroup?.channel_id || '',
@@ -204,7 +204,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		}
 		dispatch(DMCallActions.removeAll());
 		const params = {
-			receiverId: currentDmGroup?.user_id?.[0],
+			receiverId: currentDmGroup?.user_ids?.[0],
 			receiverAvatar: dmAvatar,
 			receiverName: dmLabel,
 			directMessageId,
@@ -254,10 +254,10 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			)}
 			<Pressable style={styles.channelTitle} onPress={navigateToThreadDetail}>
 				{isTypeDMGroup ? (
-					currentDmGroup?.topic && !currentDmGroup?.topic?.includes('avatar-group.png') ? (
+					currentDmGroup?.channel_avatar && !currentDmGroup?.channel_avatar?.includes('avatar-group.png') ? (
 						<View style={styles.groupAvatarWrapper}>
 							<ImageNative
-								url={createImgproxyUrl(currentDmGroup?.topic ?? '')}
+								url={createImgproxyUrl(currentDmGroup?.channel_avatar ?? '')}
 								style={{ width: '100%', height: '100%' }}
 								resizeMode={'cover'}
 							/>
@@ -282,18 +282,14 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 								<Text style={[styles.textAvatar]}>{dmLabel?.charAt?.(0)?.toUpperCase()}</Text>
 							</View>
 						)}
-						<UserStatusDM
-							isOnline={currentDmGroup?.is_online?.some(Boolean)}
-							metadata={currentDmGroup?.metadata?.[0]}
-							userId={currentDmGroup?.user_id?.[0]}
-						/>
+						<UserStatusDM isOnline={currentDmGroup?.onlines?.some(Boolean)} userId={currentDmGroup?.user_ids?.[0]} />
 					</View>
 				)}
 				<Text style={styles.titleText} numberOfLines={1}>
 					{dmLabel}
 				</Text>
 				<View style={styles.iconWrapper}>
-					{((!isTypeDMGroup && !!currentDmGroup?.user_id?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
+					{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
 						<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall()}>
 							<MezonIconCDN icon={IconCDN.phoneCallIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 						</TouchableOpacity>

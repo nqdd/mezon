@@ -4,13 +4,13 @@ import {
 	directMetaActions,
 	selectBuzzStateByDirectId,
 	selectDirectById,
-	selectDirectMemberMetaUserId,
 	selectIsUnreadDMById,
+	selectUserStatusById,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -38,7 +38,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const dispatch = useAppDispatch();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
-	const user = useAppSelector((state) => selectDirectMemberMetaUserId(state, directMessage.user_ids?.at(0) || ''));
+	const user = useAppSelector((state) => selectUserStatusById(state, directMessage.user_ids?.at(0) || ''));
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const buzzStateDM = useAppSelector((state) => selectBuzzStateByDirectId(state, directMessage?.channel_id ?? ''));
 
@@ -87,12 +87,13 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			}}
 		>
 			<DmItemProfile
-				avatar={isTypeDMGroup ? directMessage?.topic || 'assets/images/avatar-group.png' : (directMessage?.channel_avatar?.at(0) ?? '')}
+				avatar={isTypeDMGroup ? directMessage?.channel_avatar || 'assets/images/avatar-group.png' : (directMessage?.avatars?.at(0) ?? '')}
 				name={directMessage?.channel_label || ''}
-				number={(directMessage?.user_ids?.length || 0) + 1}
+				number={directMessage?.member_count || 0}
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
-				userStatus={user?.user?.user_status}
+				userStatus={user?.user_status}
+				online={directMessage?.onlines?.[0]}
 				direct={directMessage}
 			/>
 			{buzzStateDM?.isReset ? (
@@ -126,7 +127,7 @@ const DmItemProfile = ({
 	isTypeDMGroup,
 	highlight,
 	userStatus,
-	status,
+	online,
 	direct
 }: {
 	highlight: boolean;
@@ -135,7 +136,7 @@ const DmItemProfile = ({
 	number: number;
 	isTypeDMGroup: boolean;
 	userStatus?: string;
-	status?: EUserStatus;
+	online?: boolean;
 	direct: DirectEntity;
 }) => {
 	return (
@@ -151,13 +152,8 @@ const DmItemProfile = ({
 				src={avatar}
 			/>
 			{!isTypeDMGroup && (
-				<div className="rounded-full left-7 absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-					<UserStatusIconClan
-						channelId={direct.id}
-						userId={direct.user_ids?.[0] || ''}
-						status={userStatus}
-						online={status !== EUserStatus.INVISIBLE}
-					/>
+				<div className="rounded-full absolute left-5 -bottom-[3px] inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
+					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus} online={online} />
 				</div>
 			)}
 

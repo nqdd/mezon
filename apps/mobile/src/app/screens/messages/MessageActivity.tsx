@@ -4,6 +4,7 @@ import { createImgproxyUrl } from '@mezon/utils';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, FlatList, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import MezonAvatar from '../../componentUI/MezonAvatar';
 import ImageNative from '../../components/ImageNative';
 import { style } from './styles';
 
@@ -81,18 +82,22 @@ function MessageActivity() {
 			easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Improved easing curve
 			useNativeDriver: false // Can't use native driver for height animations
 		}).start();
-	}, [data?.length]);
+	}, [animatedHeight, data?.length]);
 
 	const renderItem = ({ item }) => {
 		return (
 			<View style={styles.wrapperItemActivity}>
-				<View style={styles.avatarActivity}>
-					<ImageNative
-						url={createImgproxyUrl(item?.avatar ?? '', { width: 100, height: 100, resizeType: 'fit' })}
-						style={styles.avatarActivity}
-						resizeMode={'cover'}
-					/>
-				</View>
+				{item?.avatar ? (
+					<View style={styles.avatarActivity}>
+						<ImageNative
+							url={createImgproxyUrl(item?.avatar ?? '', { width: 100, height: 100, resizeType: 'fit' })}
+							style={styles.avatarActivity}
+							resizeMode={'cover'}
+						/>
+					</View>
+				) : (
+					<MezonAvatar avatarUrl={''} username={item?.name} width={size.s_36} height={size.s_36} />
+				)}
 				<View style={{ flexShrink: 1 }}>
 					<Text style={styles.userNameActivity} numberOfLines={1}>
 						{item?.name}

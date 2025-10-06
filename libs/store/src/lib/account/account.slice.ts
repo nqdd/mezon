@@ -3,7 +3,7 @@ import type { IUserAccount, LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { t } from 'i18next';
-import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon } from 'mezon-js/api.gen';
+import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon, ApiUserStatusUpdate } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
@@ -128,6 +128,21 @@ export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: 
 	}
 });
 
+export const updateAccountStatus = createAsyncThunk('userstatusapi/updateUserStatus', async (request: ApiUserStatusUpdate, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.updateUserStatus(mezon.session, request);
+		if (!response) {
+			return '';
+		}
+		return request.status || '';
+	} catch (error) {
+		captureSentryError(error, 'userstatusapi/updateUserStatus');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
+
 export const accountSlice = createSlice({
 	name: ACCOUNT_FEATURE_KEY,
 	initialState: initialAccountState,
@@ -172,9 +187,9 @@ export const accountSlice = createSlice({
 			}
 		},
 		updateUserStatus(state: AccountState, action: PayloadAction<string>) {
-			if (state.userProfile?.user?.user_status) {
+			if (state.userProfile?.user?.status) {
 				try {
-					state.userProfile.user.user_status = action.payload;
+					state.userProfile.user.status = action.payload;
 				} catch (error) {
 					console.error('Error updating user status in metadata:', error);
 				}
@@ -218,7 +233,7 @@ export const accountSlice = createSlice({
  */
 export const accountReducer = accountSlice.reducer;
 
-export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone };
+export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone, updateAccountStatus };
 
 export const getAccountState = (rootState: { [ACCOUNT_FEATURE_KEY]: AccountState }): AccountState => rootState[ACCOUNT_FEATURE_KEY];
 
