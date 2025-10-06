@@ -1,4 +1,4 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import { Attributes, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -44,13 +44,7 @@ export const style = (colors: Attributes) =>
 
 		onLineStatus: {
 			position: 'absolute',
-			bottom: 0,
-			right: 5,
-			height: size.s_24,
-			width: size.s_24,
-			borderRadius: 100,
-			borderWidth: 3,
-			backgroundColor: baseColor.green,
-			borderColor: colors.primary
+			bottom: size.s_6,
+			right: size.s_10
 		}
 	});

@@ -96,7 +96,7 @@ export const ProfileDetail = memo(() => {
 		});
 
 		const directMessage = listDM?.find?.((dm) => {
-			const userIds = dm?.user_id;
+			const userIds = dm?.user_ids;
 			return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === profileData.user_id;
 		});
 

@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectAllAccount } from '@mezon/store-mobile';
+import { selectAllAccount, useWallet } from '@mezon/store-mobile';
 import { createImgproxyUrl, formatMoney } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,10 +29,11 @@ export const MyQRCode = () => {
 	const [activeTab, setActiveTab] = useState<TabType>('profile');
 	const [isGenerating, setIsGenerating] = useState<boolean>(true);
 	const [qrCode, setQrCode] = useState<QRCode>({ profile: '', transfer: '' });
+	const { walletDetail } = useWallet();
 
 	const tokenInWallet = useMemo(() => {
-		return userProfile?.wallet || 0;
-	}, [userProfile?.wallet]);
+		return walletDetail?.balance || 0;
+	}, [walletDetail?.balance]);
 
 	const profilePayload = useMemo(() => {
 		try {
@@ -43,9 +44,7 @@ export const MyQRCode = () => {
 			};
 
 			const encodedPayload = btoa(encodeURIComponent(JSON.stringify(payload)));
-			const deeplink = process.env.NX_CHAT_APP_REDIRECT_URI + `/chat/${userProfile?.user?.username}?data=${encodedPayload}`;
-
-			return deeplink;
+			return `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/${userProfile?.user?.username}?data=${encodedPayload}`;
 		} catch (error) {
 			console.error('Error QR Profile Payload', error);
 			return '';

@@ -5,9 +5,10 @@ import {
 	selectCountWalletLedger,
 	selectWalletLedger,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	useWallet
 } from '@mezon/store-mobile';
-import { formatNumber } from '@mezon/utils';
+import { CURRENCY, formatBalanceToString } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
 import { ApiWalletLedger } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -32,15 +33,15 @@ export const HistoryTransactionScreen = () => {
 	const [page, setPage] = useState(1);
 	const [activeTab, setActiveTab] = useState<FilterType>(TRANSACTION_FILTERS.ALL);
 	const [isLoadMore, setIsLoadMore] = useState(false);
-
+	const { walletDetail } = useWallet();
 	const totalPages = useMemo(() => (count === undefined ? 0 : Math.ceil(count / LIMIT_WALLET)), [count]);
 	const isNextPage = useMemo(() => page < totalPages, [page, totalPages]);
 	const [currentTransactionItem, setCurrentTransactionItem] = useState<string>('');
 
 	const refList = useRef<any>(null);
 	const tokenInWallet = useMemo(() => {
-		return userProfile?.wallet || 0;
-	}, [userProfile?.wallet]);
+		return walletDetail?.balance || 0;
+	}, [walletDetail?.balance]);
 
 	useEffect(() => {
 		dispatch(fetchListWalletLedger({ page, filter: API_FILTER_PARAMS[activeTab] }));
@@ -97,7 +98,9 @@ export const HistoryTransactionScreen = () => {
 					</View>
 					<View style={styles.cardWalletLine}>
 						<Text style={styles.cardTitle}>{t('balance')}</Text>
-						<Text style={styles.cardAmount}>{tokenInWallet ? formatNumber(Number(tokenInWallet), 'vi-VN', 'VND') : '0'}</Text>
+						<Text style={styles.cardAmount}>
+							{formatBalanceToString((tokenInWallet || 0)?.toString())} {CURRENCY.SYMBOL}
+						</Text>
 					</View>
 				</View>
 			</LinearGradient>

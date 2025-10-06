@@ -1,12 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { MAX_FILE_SIZE_10MB } from '@mezon/utils';
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { selectAllAccount } from '@mezon/store';
+import { EUserStatus, MAX_FILE_SIZE_10MB } from '@mezon/utils';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useMixImageColor } from '../../../../../../../app/hooks/useMixImageColor';
 import MezonImagePicker, { IMezonImagePickerHandler } from '../../../../../../componentUI/MezonImagePicker';
 import MezonMenu, { IMezonMenuSectionProps } from '../../../../../../componentUI/MezonMenu';
+import { UserStatus } from '../../../../../../components/UserStatus';
 import { style } from './styles';
 
 interface IBannerAvatarProps {
@@ -22,6 +25,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 	const { color } = useMixImageColor(avatar);
 	const avatarPickerRef = useRef<IMezonImagePickerHandler>(null);
 	const { t } = useTranslation(['profile']);
+	const userProfile = useSelector(selectAllAccount);
 
 	const handleOnload = useCallback(
 		async (url: string) => {
@@ -39,6 +43,12 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		avatarPickerRef?.current?.openSelector();
 	};
+	const userStatus = useMemo(() => {
+		return {
+			status: userProfile?.user?.status || EUserStatus.ONLINE,
+			user_status: userProfile?.user?.user_status
+		};
+	}, [userProfile?.user?.status, userProfile?.user?.user_status]);
 
 	const menu = useMemo(
 		() =>
@@ -104,7 +114,9 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
 
-				<View style={[styles.onLineStatus]}></View>
+				<View style={[styles.onLineStatus]}>
+					<UserStatus status={userStatus} customStatus={userStatus?.status} />
+				</View>
 			</View>
 		</View>
 	);

@@ -63,8 +63,7 @@ function updateImagePopup(imageData: ImageData, imageWindow: BrowserWindow) {
 				timestamp.textContent = ${JSON.stringify(time)};
 			}
 
-
-			window.currentImageUrl = {
+			currentImageUrl = {
 				fileName: ${JSON.stringify(escapeHtml(imageData.filename))},
 				url: ${JSON.stringify(sanitizeUrl(imageData.url))},
 				realUrl: ${JSON.stringify(sanitizeUrl(imageData.realUrl))}
