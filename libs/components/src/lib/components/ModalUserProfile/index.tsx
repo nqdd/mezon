@@ -11,7 +11,7 @@ import {
 	useUserById
 } from '@mezon/core';
 import type { RootState } from '@mezon/store';
-import { EStateFriend, selectAllAccount, selectFriendById, selectUserStatusById, useAppSelector } from '@mezon/store';
+import { EStateFriend, selectAllAccount, selectFriendById, useAppSelector } from '@mezon/store';
 import type { ChannelMembersEntity, IMessageWithUser } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
@@ -90,9 +90,9 @@ const ModalUserProfile = ({
 	const { sendInviteMessage } = useSendInviteMessage();
 	const status = useMemberStatus(userID || '');
 	const userById = useUserById(userID);
-	const userStatusById = useAppSelector((state) => selectUserStatusById(state, userID || ''));
+	const userStatusById = useMemberStatus(userID || '');
 	const userStatus = useMemo(() => {
-		if (userID === userID) {
+		if (userID === userId) {
 			return {
 				status: userProfile?.user?.status || EUserStatus.ONLINE,
 				user_status: userProfile?.user?.user_status || ''

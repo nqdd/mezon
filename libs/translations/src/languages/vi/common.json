@@ -143,7 +143,9 @@
 		"welcomeToMezon": "Chào mừng đến với Mezon",
 		"desWelcomeToMezon": "Nền tảng Kết nối, Làm việc, \nvà Giải trí",
 		"getStarted": "Bắt đầu nào",
-		"invalidPhoneNumber": "Số điện thoại không hợp lệ"
+		"invalidPhoneNumber": "Số điện thoại không hợp lệ",
+		"loginTooFast": "Đăng nhập quá nhanh. Vui lòng đợi {{seconds}} giây trước khi thử lại.",
+		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -161,7 +163,11 @@
 		"cancel": "Hủy",
 		"confirm": "Đồng ý, Thay đổi",
 		"changePhone": "Đổi số điện thoại",
-		"changePhoneMessage": "Bạn có chắc chắn muốn thay đổi số điện thoại không?"
+		"changePhoneMessage": "Bạn có chắc chắn muốn thay đổi số điện thoại không?",
+		"otpNotMatch": "Mã OTP không khớp",
+		"verifyOtpError": "Đã xảy ra lỗi khi xác thực OTP",
+		"resendOtpFailed": "Gửi lại OTP thất bại",
+		"sendOtpError": "Đã xảy ra lỗi khi gửi OTP"
 	},
 	"invite": {
 		"canChatNow": "Bạn có thể trò chuyện ngay bây giờ !!",
