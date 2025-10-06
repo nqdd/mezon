@@ -241,6 +241,7 @@ export const registrationPassword = createAsyncThunk(
 			toast.error(
 				oldPassword ? t('accountSetting:setPasswordAccount.error.updateFail') : t('accountSetting:setPasswordAccount.error.createFail')
 			);
+			return thunkAPI.rejectWithValue(error);
 		}
 	}
 );
