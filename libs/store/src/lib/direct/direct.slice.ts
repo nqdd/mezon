@@ -4,7 +4,7 @@ import { ActiveDm } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezon-js';
-import { ChannelType, safeJSONParse } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
@@ -197,7 +197,7 @@ export const fetchDirectMessage = createAsyncThunk(
 			});
 			thunkAPI.dispatch(directMetaActions.setDirectMetaEntities(channels));
 			thunkAPI.dispatch(directActions.setAll(channels));
-			const users = mapChannelsToUsers(channels);
+			const users = mapChannelsToUsers(sorted);
 			thunkAPI.dispatch(statusActions.updateBulkStatus(users));
 			return channels;
 		} catch (error) {
@@ -258,47 +258,20 @@ export const updateDmGroup = createAsyncThunk(
 	}
 );
 
-function mapChannelsToUsers(channels: any[]): IUserProfileActivity[] {
-	return channels.reduce<IUserProfileActivity[]>((acc, dm) => {
-		if (dm?.active === 1) {
-			dm?.user_id?.forEach((userId: string, index: number) => {
-				if (!acc.some((existingUser) => existingUser.id === userId)) {
-					const user = {
-						avatar_url: dm?.channel_avatar ? dm?.channel_avatar[index] : '',
-						display_name: dm?.usernames ? dm?.usernames[index] : '',
-
-						id: userId,
-						username: dm?.usernames ? dm?.usernames[index] : '',
-
-						online: dm?.is_online ? dm?.is_online[index] : false,
-						metadata: (() => {
-							if (!dm?.metadata) {
-								return {};
-							}
-							try {
-								return JSON.parse(dm?.metadata[index]);
-							} catch (e) {
-								const unescapedJSON = dm?.metadata[index]?.replace(/\\./g, (match: string) => {
-									switch (match) {
-										case '\\"':
-											return '"';
-										default:
-											return match[1]; // Bỏ ký tự escape
-									}
-								});
-								return safeJSONParse(unescapedJSON);
-							}
-						})()
-					};
-
-					acc.push({
-						...user
-					});
-				}
+function mapChannelsToUsers(channels: ApiChannelDescription[]): IUserProfileActivity[] {
+	const userList: IUserProfileActivity[] = [];
+	channels.map((channel) => {
+		if (channel.type === ChannelType.CHANNEL_TYPE_DM) {
+			userList.push({
+				id: channel.user_ids?.[0] || '',
+				avatar_url: channel.avatars?.[0],
+				online: channel.onlines?.[0],
+				display_name: channel.display_names?.[0],
+				username: channel.usernames?.[0]
 			});
 		}
-		return acc;
-	}, []);
+	});
+	return userList;
 }
 
 interface JoinDirectMessagePayload {

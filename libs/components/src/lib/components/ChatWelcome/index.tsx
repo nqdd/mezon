@@ -106,7 +106,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 							<WelComeDm
 								name={isDmGroup ? name || `${selectedChannel?.creator_name}'s Groups` : name || username}
 								username={username}
-								avatar={isDmGroup ? directChannel?.topic : avatarDM}
+								avatar={isDmGroup ? directChannel?.channel_avatar : avatarDM}
 								classNameSubtext={classNameSubtext}
 								isDmGroup={isDmGroup}
 								onEditGroup={isDmGroup ? handleOpenEditModal : undefined}
