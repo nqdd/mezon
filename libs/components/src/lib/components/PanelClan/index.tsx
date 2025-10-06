@@ -192,7 +192,6 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 								<ItemPanel children={t('notificationSettings')} subText={notificationLabel as string} dropdown={t('changeHere')} />
 							</div>
 						</Menu>
-						<ItemPanel children={t('hideMutedChannels')} type={'checkbox'} />
 					</GroupPanels>
 					<GroupPanels>
 						<ItemPanel children={t('editClanProfile')} onClick={handleOpenClanProfileSetting} />
