@@ -16,6 +16,7 @@ import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import type { RootState } from '../store';
+import { selectMemberByGroupId } from './AllUsersChannelByAddChannel.slice';
 export const CHANNEL_MEMBERS_FEATURE_KEY = 'channelMembers';
 
 /*
@@ -544,9 +545,26 @@ export const selectGroupMembersEntities = createSelector([selectGrouplMembers], 
 	return groupMembersEntities;
 });
 
-export const selectMembeGroupByUserId = createSelector([selectGrouplMembers, (state, groupId: string, userId: string) => userId], (users, userId) => {
-	return users?.find((item) => item.id === userId);
-});
+export const selectMemberGroupByUserId = createSelector(
+	[(state: any, channelId: string, userId: string) => selectMemberByGroupId(state, channelId), (_: any, __: string, userId: string) => userId],
+	(channel, userId): ChannelMembersEntity | undefined => {
+		const index = channel?.user_ids?.indexOf(userId);
+
+		if (index === undefined || index < 0) return undefined;
+
+		const user = {
+			id: channel?.user_ids[index],
+			username: channel.usernames?.[index],
+			display_name: channel.display_names?.[index],
+			avatar: channel.avatars?.[index],
+			online: channel.onlines?.[index]
+		};
+
+		return {
+			user
+		} as ChannelMembersEntity;
+	}
+);
 
 export const selectMemberStatusById = createSelector(
 	[
