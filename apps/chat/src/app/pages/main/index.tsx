@@ -235,11 +235,9 @@ export default MyApp;
 
 type ShowModal = () => void;
 
-const DirectUnreadList = memo(({ onClose }: { onClose?: () => void }) => {
+const DirectUnreadList = memo(() => {
 	const listUnreadDM = useSelector(selectDirectsUnreadlist);
 	const [listDmRender, setListDmRender] = useState(listUnreadDM);
-	const [hiddenItems, setHiddenItems] = useState<Set<string>>(new Set());
-	const [isVisible, setIsVisible] = useState(false);
 	const countUnreadRender = useRef(listDmRender.map((channel) => channel.id));
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -260,48 +258,11 @@ const DirectUnreadList = memo(({ onClose }: { onClose?: () => void }) => {
 		}
 	}, [listUnreadDM]);
 
-	useEffect(() => {
-		setHiddenItems(new Set());
-		setTimeout(() => setIsVisible(true), 50);
-	}, []);
-
-	const handleItemClick = (itemId: string) => {
-		setHiddenItems((prev) => new Set(prev).add(itemId));
-
-		const visibleItems = listDmRender.filter((item) => !hiddenItems.has(item.id) && item.id !== itemId);
-		if (visibleItems.length === 0) {
-			setTimeout(() => {
-				onClose?.();
-			}, 300);
-		}
-	};
-
-	const visibleItems = listDmRender.filter((item) => !hiddenItems.has(item.id));
-
 	return (
-		<div
-			className={`transition-all duration-300 ease-out overflow-visible origin-top transform ${
-				isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 -translate-y-2'
-			}`}
-		>
-			{!!visibleItems?.length &&
-				visibleItems.map((dmGroupChatUnread, index) => (
-					<div
-						key={dmGroupChatUnread.id}
-						className={`transition-all duration-200 ease-out transform ${
-							isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
-						}`}
-						style={{
-							transitionDelay: isVisible ? `${index * 50}ms` : '0ms'
-						}}
-					>
-						<DirectUnread
-							directMessage={dmGroupChatUnread}
-							checkMoveOut={countUnreadRender.current}
-							onMemberClick={() => handleItemClick(dmGroupChatUnread.id)}
-							isHiding={hiddenItems.has(dmGroupChatUnread.id)}
-						/>
-					</div>
+		<div>
+			{!!listDmRender?.length &&
+				listDmRender.map((dmGroupChatUnread) => (
+					<DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} checkMoveOut={countUnreadRender.current} />
 				))}
 		</div>
 	);
@@ -313,19 +274,6 @@ const SidebarMenu = memo(
 		const statusMenu = useSelector(selectStatusMenu);
 		const { setCloseMenu, setStatusMenu } = useMenu();
 		const [isAtTop, setIsAtTop] = useState(true);
-		const [showDmUnreadList, setShowDmUnreadList] = useState(false);
-		const [hasUserToggled, setHasUserToggled] = useState(false);
-		const [previousUnreadCount, setPreviousUnreadCount] = useState(0);
-		const unreadList = useSelector(selectDirectsUnreadlist);
-		const [allwaysShowListUnread, setAllwaysShowListUnread] = useState(false);
-		const { currentURL } = useAppParams();
-
-		const handleClanClick = () => {
-			if (unreadList.length > 0) {
-				setShowDmUnreadList(true);
-				setHasUserToggled(true);
-			}
-		};
 
 		useEffect(() => {
 			const handleSizeWidth = () => {
@@ -352,32 +300,6 @@ const SidebarMenu = memo(
 				window.removeEventListener('resize', handleResize);
 			};
 		}, []);
-
-		useEffect(() => {
-			const currentUnreadCount = unreadList.length;
-
-			if (currentUnreadCount > previousUnreadCount && currentUnreadCount > 0) {
-				setShowDmUnreadList(true);
-				setHasUserToggled(false);
-			} else if (currentUnreadCount === 0 && showDmUnreadList) {
-				setShowDmUnreadList(false);
-				if (allwaysShowListUnread) {
-					setAllwaysShowListUnread(false);
-				}
-			}
-
-			setPreviousUnreadCount(currentUnreadCount);
-		}, [unreadList.length, previousUnreadCount, showDmUnreadList, allwaysShowListUnread]);
-
-		useEffect(() => {
-			if (currentURL && currentURL.includes('/chat/direct/message/')) {
-				if (allwaysShowListUnread && unreadList.length > 0) {
-					setShowDmUnreadList(true);
-				} else if (showDmUnreadList && !hasUserToggled && !allwaysShowListUnread) {
-					setShowDmUnreadList(false);
-				}
-			}
-		}, [currentURL, showDmUnreadList, hasUserToggled, allwaysShowListUnread, unreadList.length]);
 
 		const handleMenu = (event: MouseEvent) => {
 			const elementClick = event.target as HTMLDivElement;
@@ -411,22 +333,13 @@ const SidebarMenu = memo(
 					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
 					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
-						<SidebarLogoItem
-							onToggleUnreadList={() => {
-								setShowDmUnreadList((prev) => !prev);
-								setHasUserToggled(true);
-								if (currentURL && currentURL.includes('/chat/direct/message/')) {
-									setAllwaysShowListUnread((prev) => !prev);
-								}
-							}}
-							isUnreadListOpen={showDmUnreadList}
-						/>
-						{showDmUnreadList && <DirectUnreadList onClose={() => setShowDmUnreadList(false)} />}
+						<SidebarLogoItem />
+						<DirectUnreadList />
 						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
 					</div>
 
 					<div className="pb-12">
-						<ClansList onClanClick={handleClanClick} />
+						<ClansList />
 						<div className="mt-3">
 							<NavLinkComponent>
 								<div
@@ -481,7 +394,7 @@ const SidebarMenu = memo(
 	() => true
 );
 
-const ClansList = memo(({ onClanClick }: { onClanClick?: () => void }) => {
+const ClansList = memo(() => {
 	const dispatch = useAppDispatch();
 	const orderedClansWithGroups = useSelector(selectOrderedClansWithGroups);
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -604,7 +517,6 @@ const ClansList = memo(({ onClanClick }: { onClanClick?: () => void }) => {
 										className={`transition-all duration-200 ${draggingThis ? 'opacity-30' : ''} ${
 											isGroupIntentTarget && dropZone === 'center' ? 'animate-pulse' : ''
 										}`}
-										onClanClick={onClanClick}
 									/>
 								) : item.type === 'group' && 'group' in item && item.group ? (
 									<div onMouseEnter={(e) => handleItemMouseEnter(e, item.id)} onMouseMove={(e) => handleItemMouseEnter(e, item.id)}>
@@ -616,7 +528,6 @@ const ClansList = memo(({ onClanClick }: { onClanClick?: () => void }) => {
 											isGroupIntent={isGroupIntentTarget}
 											onMouseDown={(e) => handleMouseDown(e, item.id)}
 											onClanMouseDown={handleClanMouseDown}
-											onClanClick={onClanClick}
 										/>
 									</div>
 								) : null}

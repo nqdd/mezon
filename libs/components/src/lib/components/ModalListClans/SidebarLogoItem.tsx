@@ -4,7 +4,6 @@ import {
 	clansActions,
 	selectClanView,
 	selectCurrentClanId,
-	selectDirectsUnreadlist,
 	selectDmGroupCurrentId,
 	selectDmGroupCurrentType,
 	selectLogoCustom,
@@ -20,12 +19,7 @@ import type { Coords } from '../ChannelLink';
 import NavLinkComponent from '../NavLink';
 import PanelClan from '../PanelClan';
 
-type SidebarLogoItemProps = {
-	onToggleUnreadList?: () => void;
-	isUnreadListOpen?: boolean;
-};
-
-const SidebarLogoItem = ({ onToggleUnreadList, isUnreadListOpen }: SidebarLogoItemProps) => {
+const SidebarLogoItem = () => {
 	const navigate = useCustomNavigate();
 	const dispatch = useAppDispatch();
 	const appearanceTheme = useSelector(selectTheme);
@@ -61,19 +55,13 @@ const SidebarLogoItem = ({ onToggleUnreadList, isUnreadListOpen }: SidebarLogoIt
 		dispatch(clansActions.joinClan({ clanId: '0' }));
 	};
 	const { quantityPendingRequest } = useFriends();
-	const unreadDMs = useSelector(selectDirectsUnreadlist);
-	const unreadCount = isUnreadListOpen ? 0 : unreadDMs?.length || 0;
-	const combinedBadge = unreadCount + (quantityPendingRequest || 0);
+	const combinedBadge = quantityPendingRequest || 0;
 	const logoCustom = useSelector(selectLogoCustom);
 	return (
 		<div className="relative h-[40px]">
 			<button
 				onClick={() => {
 					setModeResponsive(ModeResponsive.MODE_DM);
-
-					if (unreadDMs?.length || isUnreadListOpen) {
-						onToggleUnreadList?.();
-					}
 					navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
 				}}
 				draggable="false"

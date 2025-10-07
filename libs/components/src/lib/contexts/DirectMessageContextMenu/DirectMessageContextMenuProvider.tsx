@@ -149,7 +149,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		openUserProfile
 	});
 
-	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_id?.includes(userProfile?.user?.id);
+	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_ids?.includes(userProfile?.user?.id);
 
 	const isDefaultSetting = !notificationSettings?.id || notificationSettings?.id === '0';
 	const isMuted = !isDefaultSetting && notificationSettings?.active === EMuteState.MUTED;
@@ -159,14 +159,14 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const shouldShowMuteSubmenu = !isMuted && !hasMuteTime;
 
 	const isOwnerClanOrGroup = userProfile?.user?.id && dataMemberCreate?.createId && userProfile?.user?.id === dataMemberCreate.createId;
-	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_id?.[0] || ''));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_ids?.[0] || ''));
 	const didIBlockUser = useMemo(() => {
 		return (
 			infoFriend?.state === EStateFriend.BLOCK &&
 			infoFriend?.source_id === userProfile?.user?.id &&
-			infoFriend?.user?.id === currentUser?.user_id?.[0]
+			infoFriend?.user?.id === currentUser?.user_ids?.[0]
 		);
-	}, [currentUser?.user_id, infoFriend, userProfile?.user?.id]);
+	}, [currentUser?.user_ids, infoFriend, userProfile?.user?.id]);
 
 	// keep menu mounted; gate items with currentHandlers and not self
 
