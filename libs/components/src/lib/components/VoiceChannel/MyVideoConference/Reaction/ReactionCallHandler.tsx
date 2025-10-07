@@ -152,7 +152,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ c
 						}}
 					/>
 					{item.displayName && (
-						<div className="w-full rounded-full h-3 bg-theme-setting-nav text-[10px] flex items-center justify-center px-1">
+						<div className="w-full rounded-full h-3 text-theme-primary bg-theme-setting-nav text-[10px] flex items-center justify-center px-1">
 							{item.displayName}
 						</div>
 					)}
