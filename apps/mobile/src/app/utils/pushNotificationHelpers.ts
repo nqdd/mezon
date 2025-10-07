@@ -173,7 +173,7 @@ const openAppSettings = () => {
 const getConfigDisplayNotificationAndroid = async (data: Record<string, string | object>): Promise<NotificationAndroid> => {
 	const defaultConfig: NotificationAndroid = {
 		visibility: AndroidVisibility.PUBLIC,
-		channelId: (data?.sound as string) || 'default',
+		channelId: `${data?.sound !== 'default' ? `${data?.sound}_` : ''}default`,
 		smallIcon: 'ic_notification',
 		color: '#7029c1',
 		sound: (data?.sound as string) || 'default',
@@ -198,7 +198,11 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 
 	try {
 		const groupId = await getOrCreateChannelGroup(channel);
-		const channelId = await createNotificationChannel(channel, groupId || '', (data?.sound as string) || 'default');
+		const channelId = await createNotificationChannel(
+			channel + (data?.sound !== 'default' ? `_${data?.sound}` : ''),
+			groupId || '',
+			(data?.sound as string) || 'default'
+		);
 		const now = Date.now();
 
 		return {
@@ -291,14 +295,29 @@ export const createLocalNotification = async (title: string, body: string, data:
 			return;
 		}
 
-		// Display the individual notification
+		const isBuzzSound = data?.sound === 'buzz' || configDisplayNotificationAndroid?.sound === 'buzz';
+
+		let displayTitle = title.trim();
+		let displayBody = body.trim();
+
+		if (isBuzzSound) {
+			displayTitle = `<b>${displayTitle}</b>`;
+			displayBody = `<b>${displayBody}</b>`;
+		}
+
 		await notifee.displayNotification({
 			id: notificationId,
-			title: title.trim(),
-			body: body.trim(),
+			title: displayTitle,
+			body: displayBody,
 			subtitle: isValidString(data?.subtitle) ? (data.subtitle as string) : '',
 			data: { ...data, notificationTimestamp: timestamp },
-			android: configDisplayNotificationAndroid,
+			android: {
+				...configDisplayNotificationAndroid,
+				...(isBuzzSound && {
+					color: '#FF0000',
+					colorized: true
+				})
+			},
 			ios: {}
 		});
 
