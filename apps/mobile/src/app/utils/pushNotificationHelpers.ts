@@ -12,24 +12,18 @@ import {
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
+import type { NotificationAndroid } from '@notifee/react-native/src/types/NotificationAndroid';
 import {
 	AndroidBadgeIconType,
 	AndroidCategory,
 	AndroidGroupAlertBehavior,
 	AndroidImportance,
 	AndroidStyle,
-	AndroidVisibility,
-	NotificationAndroid
+	AndroidVisibility
 } from '@notifee/react-native/src/types/NotificationAndroid';
 import { getApp } from '@react-native-firebase/app';
-import {
-	AuthorizationStatus,
-	FirebaseMessagingTypes,
-	getMessaging,
-	getToken,
-	hasPermission,
-	requestPermission
-} from '@react-native-firebase/messaging';
+import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
+import { AuthorizationStatus, getMessaging, getToken, hasPermission, requestPermission } from '@react-native-firebase/messaging';
 import { safeJSONParse } from 'mezon-js';
 import { Alert, DeviceEventEmitter, Linking, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { APP_SCREEN } from '../navigation/ScreenTypes';

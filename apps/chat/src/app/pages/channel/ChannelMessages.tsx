@@ -1,6 +1,6 @@
 import type { IBeforeRenderCb } from '@mezon/chat-scroll';
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
-import { MessageContextMenuProvider, MessageWithUser, useMessageContextMenu } from '@mezon/components';
+import { MessageContextMenuProvider, MessageWithUser, UnreadMessageBreak, useMessageContextMenu } from '@mezon/components';
 import { useMessageObservers, usePermissionChecker } from '@mezon/core';
 import type { MessagesEntity, RootState } from '@mezon/store';
 import {
@@ -133,6 +133,7 @@ function ChannelMessages({
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const lastMessageId = lastMessage?.id;
 	const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
+
 	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
 	const chatRef = useRef<HTMLDivElement | null>(null);
@@ -153,7 +154,9 @@ function ChannelMessages({
 		preventScrollbottom.current = false;
 		requestIdleCallback &&
 			requestIdleCallback(() => {
-				previousChannelId.current && dispatch(messagesActions.updateLastFiftyMessagesAction(previousChannelId.current));
+				if (previousChannelId.current) {
+					dispatch(messagesActions.UpdateChannelLastMessage({ channelId: previousChannelId.current }));
+				}
 				previousChannelId.current = channelId;
 			});
 	}, [channelId]);
@@ -168,7 +171,9 @@ function ChannelMessages({
 		return () => {
 			requestIdleCallback &&
 				requestIdleCallback(() => {
-					previousChannelId.current && dispatch(messagesActions.updateLastFiftyMessagesAction(previousChannelId.current));
+					if (previousChannelId.current) {
+						dispatch(messagesActions.UpdateChannelLastMessage({ channelId: previousChannelId.current }));
+					}
 				});
 		};
 	}, []);
@@ -934,33 +939,38 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const messageReplyHighlight = (dataReferences?.message_ref_id && dataReferences?.message_ref_id === messageId) || false;
 				const isSelected = selectedMessageId === messageId;
 				const isEditing = getIsEditing(messageId);
+				const previousMessageId = messageIds[index - 1];
+				const isPreviousMessageLastSeen = Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
+				const shouldShowUnreadBreak = isPreviousMessageLastSeen && entities[messageId]?.sender_id !== user?.user?.id;
 
 				return (
-					<MemorizedChannelMessage
-						key={messageId}
-						index={index}
-						message={entities[messageId]}
-						previousMessage={entities[messageIds[index - 1]]}
-						avatarDM={avatarDM}
-						username={username}
-						messageId={messageId}
-						nextMessageId={messageIds[index + 1]}
-						channelId={channelId}
-						isHighlight={messageId === idMessageNotified}
-						mode={mode}
-						channelLabel={channelLabel ?? ''}
-						isPrivate={isPrivate}
-						isLastSeen={Boolean(messageId === lastMessageUnreadId && messageId !== lastMessageId)}
-						checkMessageTargetToMoved={checkMessageTargetToMoved}
-						messageReplyHighlight={messageReplyHighlight}
-						isTopic={isTopic}
-						canSendMessage={canSendMessage}
-						observeIntersectionForLoading={observeIntersectionForLoading}
-						user={currentClanUser || user}
-						showMessageContextMenu={showMessageContextMenu}
-						isSelected={isSelected}
-						isEditing={isEditing}
-					/>
+					<>
+						{shouldShowUnreadBreak && <UnreadMessageBreak key={`unread-${messageId}`} />}
+						<MemorizedChannelMessage
+							key={messageId}
+							index={index}
+							message={entities[messageId]}
+							previousMessage={entities[messageIds[index - 1]]}
+							avatarDM={avatarDM}
+							username={username}
+							messageId={messageId}
+							nextMessageId={messageIds[index + 1]}
+							channelId={channelId}
+							isHighlight={messageId === idMessageNotified}
+							mode={mode}
+							channelLabel={channelLabel ?? ''}
+							isPrivate={isPrivate}
+							checkMessageTargetToMoved={checkMessageTargetToMoved}
+							messageReplyHighlight={messageReplyHighlight}
+							isTopic={isTopic}
+							canSendMessage={canSendMessage}
+							observeIntersectionForLoading={observeIntersectionForLoading}
+							user={currentClanUser || user}
+							showMessageContextMenu={showMessageContextMenu}
+							isSelected={isSelected}
+							isEditing={isEditing}
+						/>
+					</>
 				);
 			});
 		}, [

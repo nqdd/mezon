@@ -275,7 +275,9 @@ const TopBarChannelText = memo(() => {
 					</>
 				)}
 
-				{!isMemberPath && <SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />}
+				{!isMemberPath && !isChannelPath && (
+					<SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
+				)}
 			</div>
 
 			{editGroupModal.isEditModalOpen && (
