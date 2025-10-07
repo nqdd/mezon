@@ -57,7 +57,8 @@ const AvatarProfile = ({
 	};
 
 	const isUserLeft = !avatar && !username;
-	const displayAvatar = isUserLeft ? null : avatar;
+	const avatarChar = username?.charAt(0)?.toUpperCase() || '';
+	const displayAvatar = isUserLeft ? avatarChar : avatar || '';
 	const activityStatus = useMemo(() => {
 		return typeof customStatus === 'string'
 			? customStatus

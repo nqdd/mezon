@@ -284,24 +284,16 @@ const ModalUserProfile = ({
 					)}
 
 					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
-						userById?.user?.username ? (
-							<div className="w-full items-center mt-2">
-								<input
-									type="text"
-									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
-									value={content}
-									onKeyPress={handleOnKeyPress}
-									onChange={handleContent}
-								/>
-							</div>
-						) : (
-							<div className="w-full items-center mt-2">
-								<div className="w-full  bg-item-theme text-theme-primary-active p-[8px] text-center italic">
-									{t('labels.userNotFound')}
-								</div>
-							</div>
-						)
+						<div className="w-full items-center mt-2">
+							<input
+								type="text"
+								className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
+								placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+								value={content}
+								onKeyPress={handleOnKeyPress}
+								onChange={handleContent}
+							/>
+						</div>
 					) : null}
 					{showNote && (
 						<>
