@@ -5,8 +5,9 @@
 // push action into cache, keep the payload with the latest create time
 // set timeout to 1 second, if no new action comes in, send the latest action to clan
 
-import { channelMetaActions, directMetaActions, messagesActions, MessagesEntity, useAppDispatch } from '@mezon/store';
-import { isBackgroundModeActive, TIME_OFFSET } from '@mezon/utils';
+import type { MessagesEntity } from '@mezon/store';
+import { channelMetaActions, directMetaActions, messagesActions, useAppDispatch } from '@mezon/store';
+import { TIME_OFFSET, isBackgroundModeActive } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { useCallback, useMemo } from 'react';
 
@@ -25,7 +26,7 @@ export function useSeenMessagePool() {
 					clanId: message?.clan_id || '',
 					channelId: message?.channel_id,
 					messageId: message?.id,
-					mode: mode,
+					mode,
 					badge_count
 				})
 			);

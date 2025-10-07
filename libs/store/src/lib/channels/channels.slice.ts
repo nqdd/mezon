@@ -535,7 +535,7 @@ export const updateChannelPrivate = createAsyncThunk('channels/updateChannelPriv
 		const clanID = selectClanId()(thunkAPI.getState() as RootState) || '';
 
 		if (response) {
-			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId: clanID, channelId: body.channel_id }));
+			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId: clanID, channelId: body.channel_id, noCache: true }));
 			thunkAPI.dispatch(
 				channelMembersActions.fetchChannelMembers({
 					clanId: clanID,

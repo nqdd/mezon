@@ -1,10 +1,13 @@
-import { IPermissionUser, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiPermission, ApiRole } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ThunkConfigWithError } from '../errors';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IPermissionUser, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiPermission, ApiRole } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { ThunkConfigWithError } from '../errors';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const POLICIES_FEATURE_KEY = 'policies';
 
@@ -142,7 +145,7 @@ export const policiesSlice = createSlice({
 				}
 			} else {
 				policiesAdapter.addOne(state, {
-					id: id,
+					id,
 					max_level_permission: changes.max_level_permission,
 					title: changes.title,
 					slug: changes.slug
@@ -227,12 +230,24 @@ export const selectAllPermissionsUser = createSelector(getPoliciesState, selectA
 
 export const selectUserMaxPermissionLevel = createSelector([getPoliciesState], (state) => {
 	let maxPermissionLevel: number | null = null;
-	for (const permission of state.permissionUser) {
-		if (Number.isInteger(permission?.max_level_permission)) {
+
+	const entities = Object.values(state.entities);
+	for (const permission of entities) {
+		if (permission && Number.isInteger(permission?.max_level_permission)) {
 			const permissionLevel = permission.max_level_permission as number;
 			maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
 		}
 	}
+
+	if (maxPermissionLevel === null) {
+		for (const permission of state.permissionUser) {
+			if (Number.isInteger(permission?.max_level_permission)) {
+				const permissionLevel = permission.max_level_permission as number;
+				maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
+			}
+		}
+	}
+
 	return maxPermissionLevel ?? null;
 });
 

@@ -9,6 +9,7 @@ import {
 	getStore,
 	gifsStickerEmojiActions,
 	handleParticipantVoiceState,
+	messagesActions,
 	onboardingActions,
 	selectAppChannelById,
 	selectChannelAppChannelId,
@@ -97,7 +98,11 @@ function useChannelSeen(channelId: string) {
 		}
 	}, [lastMessage, handleReadMessage, isFocus]);
 
-	useBackgroundMode(undefined, handleReadMessage, isFocus);
+	const handleUpdateChannelLastMessage = useCallback(() => {
+		dispatch(messagesActions.UpdateChannelLastMessage({ channelId }));
+	}, [dispatch, channelId]);
+
+	useBackgroundMode(handleUpdateChannelLastMessage, handleReadMessage);
 }
 
 const ChannelSeenListener = memo(({ channelId }: { channelId: string }) => {

@@ -86,12 +86,13 @@ import {
 	userChannelsActions,
 	usersClanActions,
 	usersStreamActions,
+	videoStreamActions,
 	voiceActions,
 	walletActions,
 	webhookActions
 } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import type { EOverriddenPermission, IMessageSendPayload, NotificationCategory } from '@mezon/utils';
+import type { EOverriddenPermission, IMessageSendPayload, IUserProfileActivity, NotificationCategory } from '@mezon/utils';
 import {
 	ADD_ROLE_CHANNEL_STATUS,
 	AMOUNT_TOKEN,
@@ -113,6 +114,7 @@ import {
 	scaleAmountToDecimals,
 	subBigInt
 } from '@mezon/utils';
+import type { Update } from '@reduxjs/toolkit';
 import isElectron from 'is-electron';
 import type {
 	AddClanUserEvent,
@@ -490,26 +492,40 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			statusPresenceQueue.current.push(statusPresence);
 			if (!statusPresenceTimerRef.current) {
 				statusPresenceTimerRef.current = setTimeout(() => {
-					const userStatusMap = new Map<string, { online: boolean; isMobile: boolean }>();
+					const userStatusMap = new Map<string, { online: boolean; is_mobile: boolean; status?: string; user_status?: string }>();
 
 					statusPresenceQueue.current.forEach((event) => {
 						event?.joins?.forEach((join) => {
-							userStatusMap.set(join.user_id, { online: true, isMobile: join.is_mobile });
+							userStatusMap.set(join.user_id, {
+								online: true,
+								is_mobile: join.is_mobile,
+								status: join.status,
+								user_status: join.user_status
+							});
 						});
 						event?.leaves?.forEach((leave) => {
-							userStatusMap.set(leave.user_id, { online: false, isMobile: false });
+							userStatusMap.set(leave.user_id, {
+								online: false,
+								is_mobile: false,
+								status: leave.status,
+								user_status: leave.user_status
+							});
 						});
 					});
 
-					const combinedStatus = Array.from(userStatusMap.entries()).map(([userId, status]) => ({
-						userId,
-						online: status.online,
-						isMobile: status.isMobile
+					const combinedStatus: Update<IUserProfileActivity, string>[] = Array.from(userStatusMap.entries()).map(([userId, status]) => ({
+						id: userId,
+						changes: {
+							online: status.online,
+							is_mobile: status.is_mobile,
+							id: userId,
+							user_status: status.user_status,
+							status: status.status
+						}
 					}));
 
 					if (combinedStatus.length) {
-						dispatch(directActions.updateStatusByUserId(combinedStatus));
-						dispatch(friendsActions.setManyStatusUser(combinedStatus));
+						dispatch(statusActions.updateMany(combinedStatus));
 					}
 					statusPresenceQueue.current = [];
 					statusPresenceTimerRef.current = null;
@@ -768,6 +784,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 				dispatch(channelMembers.actions.remove({ userId: userID, channelId: user.channel_id }));
 				dispatch(userChannelsActions.remove(userID));
+				dispatch(
+					userChannelsActions.removeUserChannel({
+						channelId: user.channel_id,
+						userRemoves: [userID]
+					})
+				);
 			}
 		},
 		[userId]
@@ -778,10 +800,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const store = await getStoreAsync();
 			const channels = selectChannelsByClanId(store.getState() as unknown as RootState, user.clan_id as string);
 			const clanId = selectCurrentClanId(store.getState());
+			const currentVoice = selectVoiceInfo(store.getState());
+			const currentStream = selectCurrentStreamInfo(store.getState());
 			user?.user_ids.forEach((id: string) => {
 				if (id === userId) {
 					if (clanId === user.clan_id) {
 						navigate(`/chat/direct/friends`);
+					}
+					if (user.clan_id === currentVoice?.clanId) {
+						dispatch(voiceActions.resetVoiceControl());
+						if (document.pictureInPictureElement) {
+							document.exitPictureInPicture();
+						}
+					}
+					if (user.clan_id === currentStream?.clanId) {
+						dispatch(videoStreamActions.stopStream());
+						dispatch(videoStreamActions.setIsJoin(false));
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
@@ -1935,7 +1969,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						}
 					}
 				}
-
+				if (status === EEventAction.UPDATE) {
+					dispatch(
+						policiesActions.updateOne({
+							id: role.id as string,
+							changes: {
+								title: role.title,
+								id: role.id || '',
+								max_level_permission: role.max_level_permission
+							}
+						})
+					);
+				}
 				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
@@ -2036,10 +2081,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		async (userStatusEvent: UserStatusEvent) => {
 			if (userStatusEvent.user_id !== userId) {
 				dispatch(friendsActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
-				dispatch(statusActions.updateStatus(userStatusEvent));
 			} else {
 				dispatch(accountActions.updateUserStatus(userStatusEvent.custom_status));
 			}
+			dispatch(statusActions.updateStatus(userStatusEvent));
 		},
 		[userId]
 	);
