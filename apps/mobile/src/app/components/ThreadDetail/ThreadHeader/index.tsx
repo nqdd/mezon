@@ -106,7 +106,11 @@ export const ThreadHeader = memo(() => {
 							groupDMAvatar
 						) : (
 							<View>
-								<UserStatusDM isOnline={currentDmGroup?.onlines?.some(Boolean)} userId={currentDmGroup?.user_ids?.[0]} />
+								<UserStatusDM
+									isOnline={currentDmGroup?.onlines?.some(Boolean)}
+									iconSize={size.s_14}
+									userId={currentDmGroup?.user_ids?.[0]}
+								/>
 								<MezonAvatar
 									avatarUrl={
 										Array.isArray(currentChannel?.avatars) && currentChannel.avatars.length > 0

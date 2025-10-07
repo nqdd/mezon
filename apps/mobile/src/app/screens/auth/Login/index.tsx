@@ -140,7 +140,10 @@ const LoginScreen = ({ navigation }) => {
 	}, [lastOTPSentTime, email, phone, loginMode]);
 
 	const onLoadInit = async () => {
-		if (clientRef?.current && clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST) {
+		if (
+			clientRef?.current &&
+			(clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST || clientRef?.current?.port !== process.env.NX_CHAT_APP_API_GW_PORT)
+		) {
 			clientRef.current.setBasePath(process.env.NX_CHAT_APP_API_GW_HOST, process.env.NX_CHAT_APP_API_GW_PORT, true);
 		}
 	};
