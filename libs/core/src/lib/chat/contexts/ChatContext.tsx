@@ -86,6 +86,7 @@ import {
 	userChannelsActions,
 	usersClanActions,
 	usersStreamActions,
+	videoStreamActions,
 	voiceActions,
 	walletActions,
 	webhookActions
@@ -778,10 +779,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const store = await getStoreAsync();
 			const channels = selectChannelsByClanId(store.getState() as unknown as RootState, user.clan_id as string);
 			const clanId = selectCurrentClanId(store.getState());
+			const currentVoice = selectVoiceInfo(store.getState());
+			const currentStream = selectCurrentStreamInfo(store.getState());
 			user?.user_ids.forEach((id: string) => {
 				if (id === userId) {
 					if (clanId === user.clan_id) {
 						navigate(`/chat/direct/friends`);
+					}
+					if (user.clan_id === currentVoice?.clanId) {
+						dispatch(voiceActions.resetVoiceControl());
+						if (document.pictureInPictureElement) {
+							document.exitPictureInPicture();
+						}
+					}
+					if (user.clan_id === currentStream?.clanId) {
+						dispatch(videoStreamActions.stopStream());
+						dispatch(videoStreamActions.setIsJoin(false));
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
