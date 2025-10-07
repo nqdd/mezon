@@ -172,5 +172,16 @@
 		"startedAThread": "started a thread:",
 		"seeAllThreads": "See",
 		"allThreads": "all threads"
+	},
+	"removeFromChannel": {
+		"title": "Chat Unavailable",
+		"content": "This text channel is no longer available!",
+		"button": "Confirm"
+	},
+	"wallet": {
+		"notAvailable": "Wallet not available",
+		"descNotAvailable": "To complete a transfer transaction, you need enable your wallet.",
+		"enableWallet": "Enable Wallet",
+		"cancel": "Cancel"
 	}
 }

@@ -1,4 +1,4 @@
-import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMemberStatus, useMenu, usePathMatch } from '@mezon/core';
 import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
@@ -57,6 +57,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
 import CreateMessageGroup from '../DmList/CreateMessageGroup';
+import { UserStatusIconDM } from '../MemberProfile';
 import ModalEditGroup from '../ModalEditGroup';
 import { NotificationTooltip } from '../NotificationList';
 import SearchMessageChannel from '../SearchMessageChannel';
@@ -139,16 +140,11 @@ const TopBarChannelText = memo(() => {
 	}, [currentDmGroup?.channel_label, currentDmGroup?.type, currentDmGroup?.usernames]);
 	const dmUserAvatar = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
+			return currentDmGroup?.channel_avatar || 'assets/images/avatar-group.png';
 		}
 
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_ids) {
-			const currentUserId = userProfile?.user?.id;
-			const otherUserId = currentDmGroup.user_ids.find((id) => id !== currentUserId);
-			if (otherUserId && currentDmGroup.channel_avatar) {
-				const otherUserAvatar = currentDmGroup.channel_avatar;
-				return otherUserAvatar || currentDmGroup.channel_avatar[0];
-			}
+			return currentDmGroup.avatars?.[0];
 		}
 	}, [currentDmGroup, userProfile?.user?.id]);
 
@@ -184,6 +180,7 @@ const TopBarChannelText = memo(() => {
 		}
 		return '';
 	}, [isChannelPath, isGuidePath, isMemberPath, t]);
+	const userStatus = useMemberStatus(currentDmGroup?.user_ids?.[0] || '');
 
 	return (
 		<>
@@ -221,7 +218,7 @@ const TopBarChannelText = memo(() => {
 
 				{currentClanId === '0' && (
 					<div
-						className="flex items-center gap-3 flex-1 overflow-hidden"
+						className="flex items-center gap-3 flex-1 overflow-hidden relative"
 						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
 					>
 						<DmTopbarAvatar
@@ -229,7 +226,11 @@ const TopBarChannelText = memo(() => {
 							avatar={dmUserAvatar}
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
-
+						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
+							<div className="absolute top-6 left-5 w-3 h-3">
+								<UserStatusIconDM status={userStatus?.status} />
+							</div>
+						)}
 						<div
 							key={`${channelDmGroupLabel}_${currentDmGroup?.channel_id as string}_display`}
 							className={`flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis none-draggable-area group ${

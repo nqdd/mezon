@@ -47,7 +47,7 @@ export const ThreadHeader = memo(() => {
 	}, [currentChannel?.channel_label, currentChannel?.parent_id]);
 
 	const groupDMAvatar = useMemo(() => {
-		const avatar = currentDmGroup?.topic;
+		const avatar = currentDmGroup?.channel_avatar;
 		const isDefaultAvatar = !avatar || avatar?.includes('avatar-group.png');
 		return !isDefaultAvatar ? (
 			<View style={styles.groupAvatarWrapper}>
@@ -58,7 +58,7 @@ export const ThreadHeader = memo(() => {
 				<MezonIconCDN icon={IconCDN.groupIcon} color={baseColor.white} />
 			</View>
 		);
-	}, [currentDmGroup?.topic]);
+	}, [currentDmGroup?.channel_avatar, styles.groupAvatar, styles.groupAvatarWrapper]);
 
 	const handlebackMessageDetail = () => {
 		if (isDMThread && !isTabletLandscape) {
@@ -106,15 +106,11 @@ export const ThreadHeader = memo(() => {
 							groupDMAvatar
 						) : (
 							<View>
-								<UserStatusDM
-									isOnline={currentDmGroup?.is_online?.some(Boolean)}
-									metadata={currentDmGroup?.metadata?.[0]}
-									userId={currentDmGroup?.user_id?.[0]}
-								/>
+								<UserStatusDM isOnline={currentDmGroup?.onlines?.some(Boolean)} userId={currentDmGroup?.user_ids?.[0]} />
 								<MezonAvatar
 									avatarUrl={
-										Array.isArray(currentChannel?.channel_avatar) && currentChannel.channel_avatar.length > 0
-											? currentChannel.channel_avatar[0]
+										Array.isArray(currentChannel?.avatars) && currentChannel.avatars.length > 0
+											? currentChannel.avatars[0]
 											: undefined
 									}
 									width={size.s_50}

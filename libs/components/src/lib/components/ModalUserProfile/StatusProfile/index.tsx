@@ -1,19 +1,16 @@
-import { useAuth, useMemberCustomStatus } from '@mezon/core';
+import { useAuth, useMemberStatus } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
 import {
 	accountActions,
 	authActions,
-	clanMembersMetaActions,
 	clansActions,
 	clearApiCallTracker,
 	giveCoffeeActions,
 	selectOthersSession,
-	selectUserStatus,
 	selectZkProofs,
 	useAppDispatch,
 	useWallet,
-	userClanProfileActions,
-	userStatusActions
+	userClanProfileActions
 } from '@mezon/store';
 import { createClient as createMezonClient, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
@@ -42,14 +39,22 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 	const allAccount = useSelector(selectOthersSession);
-	const user = userById?.user;
 	const handleCustomStatus = () => {
 		dispatch(userClanProfileActions.setShowModalCustomStatus(true));
 	};
-	const userCustomStatus = useMemberCustomStatus(user?.id || '', isDM);
-	const userStatus = useSelector(selectUserStatus);
-	const status = userStatus?.status || 'Online';
+	const getStatus = useMemberStatus(userById?.id || '');
+
 	const { userProfile } = useAuth();
+
+	const status = useMemo(() => {
+		if (userById?.id !== userProfile?.user?.id) {
+			return getStatus;
+		}
+		return {
+			status: userProfile?.user?.status || EUserStatus.ONLINE,
+			user_status: userProfile?.user?.user_status
+		};
+	}, [getStatus, userProfile?.user?.status, userProfile?.user?.user_status]);
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 
 	const zkProofs = useSelector(selectZkProofs);
@@ -91,18 +96,17 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			case EUserStatus.INVISIBLE:
 				return <Icons.OfflineStatus />;
 			default:
-				return <Icons.OnlineStatus />;
+				return <Icons.OfflineStatus />;
 		}
 	};
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
 		dispatch(
-			userStatusActions.updateUserStatus({
+			accountActions.updateAccountStatus({
 				status,
 				minutes,
 				until_turn_on: untilTurnOn
 			})
 		);
-		dispatch(clanMembersMetaActions.updateUserStatus({ userId: userProfile?.user?.id || '', user_status: status }));
 		dispatch(accountActions.updateUserStatus(status));
 	};
 
@@ -169,7 +173,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				children={t('statusProfile.statusOptions.online')}
 				startIcon={<Icons.OnlineStatus />}
 				onClick={() => {
-					updateUserStatus('Online', 0, true);
+					updateUserStatus(EUserStatus.ONLINE, 0, true);
 					modalRef.current = false;
 					onClose();
 				}}
@@ -177,6 +181,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			<ItemStatusUpdate
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.idle')}
+				statusValue={EUserStatus.IDLE}
 				startIcon={<Icons.DarkModeIcon className="text-[#F0B232] -rotate-90" />}
 				dropdown
 				onClick={onClose}
@@ -185,6 +190,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.doNotDisturb')}
+				statusValue={EUserStatus.DO_NOT_DISTURB}
 				startIcon={<Icons.MinusCircleIcon />}
 				dropdown
 			/>,
@@ -192,6 +198,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.invisible')}
+				statusValue={EUserStatus.INVISIBLE}
 				startIcon={<Icons.OfflineStatus />}
 				dropdown
 			/>
@@ -243,7 +250,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 
 				<ItemStatus
 					onClick={handleCustomStatus}
-					children={userCustomStatus ? t('statusProfile.editCustomStatus') : t('statusProfile.setCustomStatus')}
+					children={status.user_status ? t('statusProfile.editCustomStatus') : t('statusProfile.setCustomStatus')}
 					startIcon={<Icons.SmilingFace className="text-theme-primary" />}
 				/>
 				<Menu
@@ -257,7 +264,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
 				>
 					<div className="capitalize ml-[1px] text-theme-primary">
-						<ItemStatus children={status} dropdown startIcon={statusIcon(status)} />
+						<ItemStatus children={status.status} dropdown startIcon={statusIcon(status.status)} />
 					</div>
 				</Menu>
 			</div>

@@ -1,10 +1,9 @@
 import { BaseProfile } from '@mezon/components';
-import { useAppNavigation, useDirect, useFriends } from '@mezon/core';
+import { useAppNavigation, useDirect, useFriends, useMemberStatus } from '@mezon/core';
 import type { FriendsEntity } from '@mezon/store';
 import { audioCallActions, selectCurrentTabStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { MetaDateStatusUser } from '@mezon/utils';
-import { ETabUserStatus, EUserStatus, generateE2eId } from '@mezon/utils';
+import { ETabUserStatus, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -112,6 +111,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
 	const { acceptFriend, deleteFriend, blockFriend, unBlockFriend } = useFriends();
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
+	const userStatus = useMemberStatus(friend?.user?.id || '');
 
 	const coords = useRef<Coords>({
 		mouseX: 0,
@@ -214,13 +214,8 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								<span className="group-hover:inline-block hidden text-theme-primary-hover">{friend?.user?.username}</span>
 							</>
 						}
-						status={(friend?.user?.metadata as MetaDateStatusUser)?.status}
-						userMeta={{
-							status: (friend?.user?.metadata as MetaDateStatusUser)?.status,
-							user_status: friend?.user?.online
-								? ((friend?.user?.metadata as MetaDateStatusUser)?.user_status as EUserStatus) || EUserStatus.ONLINE
-								: EUserStatus.INVISIBLE
-						}}
+						status={userStatus?.status}
+						userStatus={userStatus?.user_status}
 					/>
 				</div>
 				<div className="w-20" onClick={(e) => e.stopPropagation()}>

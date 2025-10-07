@@ -51,7 +51,7 @@ export function useDefaultHandlers({
 				handleAddFriend: () => {
 					if (!user) return;
 
-					addFriend({ usernames: [user.usernames[0]], ids: [user.user_id[0]] });
+					addFriend({ usernames: [user.usernames[0]], ids: [user.user_ids[0]] });
 				},
 				handleRemoveFriend: () => {
 					if (!user) return;

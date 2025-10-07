@@ -12,12 +12,13 @@ import {
 	selectAllFriends,
 	selectAllUserClans,
 	selectDirectsOpenlist,
-	useAppDispatch
+	useAppDispatch,
+	useWallet
 } from '@mezon/store-mobile';
-import { TypeMessage, formatMoney, formatNumber } from '@mezon/utils';
+import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
+import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -71,10 +72,11 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const [isShowModalShare, setIsShowModalShare] = useState<boolean>(false);
 	const { saveImageToCameraRoll } = useImage();
 	const dispatch = useAppDispatch();
+	const { walletDetail } = useWallet();
 	const listDM = useMemo(() => {
 		const dmGroupChatList = selectDirectsOpenlist(store.getState() as any);
 		return dmGroupChatList.filter((groupChat) => groupChat.type === ChannelType.CHANNEL_TYPE_DM);
-	}, []);
+	}, [store]);
 
 	const viewToSnapshotRef = useRef<ViewShot>(null);
 	const [disableButton, setDisableButton] = useState<boolean>(false);
@@ -85,8 +87,8 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const canEdit = jsonObject?.canEdit;
 
 	const tokenInWallet = useMemo(() => {
-		return userProfile?.wallet || 0;
-	}, [userProfile?.wallet]);
+		return walletDetail?.balance || 0;
+	}, [walletDetail?.balance]);
 
 	const mergeUser = useMemo(() => {
 		const userMap = new Map<string, Receiver>();
@@ -110,7 +112,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			});
 
 		listDM.forEach((itemDM: DirectEntity) => {
-			const userId = itemDM?.user_id?.[0] ?? '';
+			const userId = itemDM?.user_ids?.[0] ?? '';
 			if (userId && !userMap.has(userId)) {
 				userMap.set(userId, {
 					id: userId,
@@ -140,7 +142,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const directMessageId = useMemo(() => {
 		const directMessage = listDM?.find?.((dm) => {
-			const userIds = dm?.user_id;
+			const userIds = dm?.user_ids;
 			if (!Array.isArray(userIds) || userIds.length !== 1) {
 				return false;
 			}
@@ -168,8 +170,9 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				});
 				return;
 			}
-
-			if (Number(plainTokenCount || 0) > Number(tokenInWallet)) {
+			if (
+				Number(formatBalanceToString((plainTokenCount || 0)?.toString(), 0)) > Number(formatBalanceToString((tokenInWallet || 0)?.toString()))
+			) {
 				Toast.show({
 					type: 'error',
 					text1: t('toast.error.exceedWallet')
@@ -225,9 +228,9 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				const formattedTime = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1)
 					.toString()
 					.padStart(2, '0')}/${now.getFullYear()} ${now
-						.getHours()
-						.toString()
-						.padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+					.getHours()
+					.toString()
+					.padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 				setSuccessTime(formattedTime);
 				setDisableButton(false);
 				setShowConfirmModal(true);
@@ -319,7 +322,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				const shareData = {
 					subject: null,
 					mimeType: 'image/png',
-					fileName: `share` + Date.now() + '.png',
+					fileName: `share${Date.now()}.png`,
 					text: null,
 					weblink: null,
 					contentUri: dataUri,
@@ -344,7 +347,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				Alert.alert('Failed to save image');
 				return;
 			}
-			await saveImageToCameraRoll('file://' + dataUri, 'png');
+			await saveImageToCameraRoll(`file://${dataUri}`, 'png');
 			Alert.alert('Save image successfully');
 		} catch (error) {
 			Alert.alert('Failed to save image');
@@ -464,7 +467,9 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 							</View>
 							<View style={styles.cardWalletLine}>
 								<Text style={styles.cardTitle}>{t('balance')}</Text>
-								<Text style={styles.cardAmount}>{tokenInWallet ? formatNumber(Number(tokenInWallet), 'vi-VN', 'VND') : '0'}</Text>
+								<Text style={styles.cardAmount}>
+									{formatBalanceToString((tokenInWallet || 0)?.toString())} {CURRENCY.SYMBOL}
+								</Text>
 							</View>
 						</View>
 					</LinearGradient>

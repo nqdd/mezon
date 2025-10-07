@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
-import { useAuth, useFriends } from '@mezon/core';
+import { useFriends } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	EStateFriend,
 	friendsActions,
 	getStoreAsync,
+	selectAllAccount,
 	selectChannelById,
 	selectDmGroupCurrent,
 	selectFriendById,
@@ -19,6 +20,7 @@ import { ChannelType } from 'mezon-js';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import ImageNative from '../../../components/ImageNative';
@@ -36,16 +38,14 @@ const useCurrentChannel = (channelId: string) => {
 	return dmGroup || channel;
 };
 
-const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
+const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['userProfile', 'dmMessage']);
 	const currenChannel = useCurrentChannel(channelId) as IChannel;
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 	const currentUserId = userProfile?.user?.id;
-	const targetUserId = currenChannel?.user_id?.[0];
-	const [isCountBadge, setIsCountBadge] = useState(false);
-	const [remainingCount, setRemainingCount] = useState(null);
+	const targetUserId = currenChannel?.user_ids?.[0];
 	const infoFriend = useAppSelector((state) => selectFriendById(state, targetUserId || ''));
 
 	const { blockFriend, unBlockFriend } = useFriends();
@@ -72,39 +72,13 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 		return Number(currenChannel?.type) === ChannelType.CHANNEL_TYPE_GROUP;
 	}, [currenChannel?.type]);
 
-	const stackUsers = useMemo(() => {
-		const username = currenChannel?.usernames;
-		if (!isDMGroup) return [];
-
-		const allUsers =
-			currenChannel?.channel_avatar?.map((avatar, index) => {
-				return {
-					avatarUrl: avatar,
-					username: username?.[index]
-				};
-			}) || [];
-
-		if (allUsers.length > 3) {
-			const remainingCount = allUsers.length - 2;
-			const visibleUsers = allUsers.slice(0, 3);
-
-			setIsCountBadge(true);
-			setRemainingCount(remainingCount);
-			return visibleUsers;
-		}
-
-		setIsCountBadge(false);
-		setRemainingCount(null);
-		return allUsers;
-	}, [currenChannel?.category_name, currenChannel?.channel_avatar, isDMGroup]);
-
 	const creatorUser = useAppSelector((state) => selectMemberClanByUserId(state, currenChannel?.creator_id));
 
 	const groupDMAvatar = useMemo(() => {
-		const isAvatar = currenChannel?.topic && !currenChannel?.topic?.includes('avatar-group.png');
+		const isAvatar = currenChannel?.channel_avatar && !currenChannel?.channel_avatar?.includes('avatar-group.png');
 		if (!isAvatar) return '';
-		return currenChannel?.topic;
-	}, [currenChannel?.topic]);
+		return currenChannel?.channel_avatar;
+	}, [currenChannel?.channel_avatar]);
 
 	const handleAddFriend = async () => {
 		if (targetUserId) {
@@ -187,24 +161,18 @@ const WelcomeMessage = React.memo(({ channelId, uri }: IWelcomeMessage) => {
 		<View style={[styles.wrapperWelcomeMessage, isDMGroup && styles.wrapperCenter]}>
 			{isDM ? (
 				isDMGroup && !groupDMAvatar ? (
-					<MezonAvatar
-						height={size.s_50}
-						width={size.s_50}
-						avatarUrl={''}
-						username={''}
-						stacks={stackUsers}
-						isCountBadge={isCountBadge}
-						countBadge={remainingCount}
-					/>
+					<View style={styles.groupAvatar}>
+						<MezonIconCDN icon={IconCDN.groupIcon} width={size.s_30} height={size.s_30} />
+					</View>
 				) : isDMGroup && groupDMAvatar ? (
 					<View style={styles.groupAvatar}>
 						<ImageNative url={createImgproxyUrl(groupDMAvatar ?? '')} style={{ width: '100%', height: '100%' }} resizeMode={'cover'} />
 					</View>
-				) : currenChannel?.channel_avatar && currenChannel.channel_avatar[0] ? (
-					<MezonAvatar height={size.s_100} width={size.s_100} avatarUrl={currenChannel.channel_avatar[0]} username={userName} />
+				) : currenChannel?.avatars?.[0] ? (
+					<MezonAvatar height={size.s_100} width={size.s_100} avatarUrl={currenChannel.avatars[0]} username={userName} />
 				) : (
 					<View style={styles.wrapperTextAvatar}>
-						<Text style={[styles.textAvatar]}>{currenChannel?.channel_label?.charAt?.(0)}</Text>
+						<Text style={[styles.textAvatar]}>{currenChannel?.channel_label?.charAt?.(0)?.toUpperCase()}</Text>
 					</View>
 				)
 			) : (

@@ -1,14 +1,15 @@
+import { useMemberStatus } from '@mezon/core';
 import { IUserStatus } from '@mezon/mobile-components';
 import { baseColor, size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectMemberClanByUserId, selectStatusInVoice, useAppSelector } from '@mezon/store-mobile';
-import { ChannelMembersEntity, DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR } from '@mezon/utils';
+import { getStore, selectAllAccount, selectMemberClanByUserId, selectStatusInVoice, useAppSelector } from '@mezon/store-mobile';
+import { ChannelMembersEntity, DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, EUserStatus } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { useContext, useMemo } from 'react';
+import { memo, useContext, useMemo } from 'react';
 import { Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { getUserStatusByMetadata } from '../../../utils/helpers';
 import { threadDetailContext } from '../../ThreadDetail/MenuThreadDetail';
 import { AddedByUser } from '../MemberItem/AddedByUser';
 import { style } from './style';
@@ -16,41 +17,41 @@ interface IProps {
 	user: ChannelMembersEntity;
 	userStatus?: IUserStatus;
 	numCharCollapse?: number;
-	isHideIconStatus?: boolean;
 	isHideUserName?: boolean;
-	isOffline?: boolean;
 	nickName?: string;
 	creatorClanId?: string;
 	creatorDMId?: string;
 	isDMThread?: boolean;
 }
 
-export function MemberProfile({
-	user,
-	userStatus,
-	isHideIconStatus,
-	isHideUserName,
-	numCharCollapse = 6,
-	isOffline,
-	nickName,
-	creatorClanId,
-	creatorDMId,
-	isDMThread
-}: IProps) {
+export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, nickName, creatorClanId, creatorDMId, isDMThread }: IProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const userVoiceStatus = useAppSelector((state) => selectStatusInVoice(state, user?.id || user?.user?.id || ''));
+	const userId = user?.id || user?.user?.id || '';
+	const userVoiceStatus = useAppSelector((state) => selectStatusInVoice(state, userId));
+	const getStatus = useMemberStatus(userId);
+	const userProfile = useSelector(selectAllAccount);
+
+	const infoMemberStatus = useMemo(() => {
+		if (userId !== userProfile?.user?.id) {
+			return getStatus;
+		}
+		return {
+			status: userProfile?.user?.status || EUserStatus.ONLINE,
+			user_status: userProfile?.user?.user_status
+		};
+	}, [getStatus, userId, userProfile]);
 
 	const userInfo: any = useMemo(() => {
 		if (!isDMThread) {
 			const store = getStore();
-			const currentClanUser = selectMemberClanByUserId(store.getState(), (user?.id || user?.user?.id) as string);
+			const currentClanUser = selectMemberClanByUserId(store.getState(), userId as string);
 			if (currentClanUser) {
 				return currentClanUser;
 			}
 		}
 		return user?.user || user;
-	}, [isDMThread, user]);
+	}, [isDMThread, user, userId]);
 
 	const currentChannel = useContext(threadDetailContext);
 	const name = useMemo(() => {
@@ -65,6 +66,7 @@ export function MemberProfile({
 			);
 		}
 	}, [isDMThread, nickName, userInfo]);
+
 	const userColorRolesClan = useColorsRoleById(userInfo?.id || '')?.highestPermissionRoleColor;
 
 	const colorUserName = useMemo(() => {
@@ -73,18 +75,16 @@ export function MemberProfile({
 				? userColorRolesClan
 				: themeValue.text
 			: DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR;
-	}, [userColorRolesClan, currentChannel?.type]);
-
-	const status = getUserStatusByMetadata(user?.user?.metadata || user?.metadata);
+	}, [currentChannel?.type, userColorRolesClan, themeValue.text]);
 
 	return (
 		<View style={{ ...styles.container }}>
 			{/* Avatar */}
 			<MezonAvatar
-				avatarUrl={userInfo?.clan_avatar || userInfo?.user?.avatar_url || userInfo?.avatar_url}
+				avatarUrl={userInfo?.clan_avatar || userInfo?.user?.avatar_url || userInfo?.avatar_url || userInfo?.avatars?.[0]}
 				username={userInfo?.username}
-				userStatus={userStatus}
-				customStatus={status}
+				userStatus={infoMemberStatus}
+				customStatus={infoMemberStatus?.status}
 				width={size.s_36}
 				height={size.s_36}
 			/>
@@ -116,4 +116,4 @@ export function MemberProfile({
 			</View>
 		</View>
 	);
-}
+});

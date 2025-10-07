@@ -171,5 +171,16 @@
 		"startedAThread": "đã tạo chủ đề:",
 		"seeAllThreads": "Xem",
 		"allThreads": "tất cả chủ đề"
+	},
+	"removeFromChannel": {
+		"title": "Trò chuyện không khả dụng",
+		"content": "Kênh văn bản này không còn khả dụng!",
+		"button": "Xác nhận"
+	},
+	"wallet": {
+		"notAvailable": "Ví không khả dụng",
+		"descAvailable": "Để hoàn tất giao dịch, bạn cần kích hoạt ví của mình.",
+		"enableWallet": "Kích hoạt Ví",
+		"cancel": "Hủy"
 	}
 }

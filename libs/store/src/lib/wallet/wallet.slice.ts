@@ -1,12 +1,18 @@
-import type { LoadingStatus } from '@mezon/utils';
-import { compareBigInt } from '@mezon/utils';
+import i18n from '@mezon/translations';
+import { compareBigInt, type LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ExtraInfo, IEphemeralKeyPair, IZkProof, WalletDetail } from 'mmn-client-js';
+import { safeJSONParse } from 'mezon-js';
+import type { ExtraInfo, IEphemeralKeyPair, IZkProof } from 'mmn-client-js';
 import { ensureSession, getMezonCtx } from '../helpers';
 import { toastActions } from '../toasts';
 
 export const WALLET_FEATURE_KEY = 'wallet';
+
+interface WalletDetail {
+	address: string;
+	balance: string;
+}
 
 export interface WalletState {
 	loadingStatus: LoadingStatus;
@@ -26,10 +32,12 @@ const fetchWalletDetail = createAsyncThunk('wallet/fetchWalletDetail', async ({ 
 	if (!mezon.indexerClient) {
 		return thunkAPI.rejectWithValue('IndexerClient not initialized');
 	}
-	const address = await mezon.mmnClient.getAddressFromUserId(userId);
-	const response = await mezon.indexerClient.getWalletDetail(address);
+	const response = await mezon.mmnClient.getAccountByUserId(userId);
 	return {
-		wallet: response
+		wallet: {
+			address: response.address,
+			balance: response.balance
+		}
 	};
 });
 
@@ -136,6 +144,12 @@ const sendTransaction = createAsyncThunk(
 
 		const currentNonce = await mezon.mmnClient.getCurrentNonce(sender, 'pending');
 
+		if (currentNonce?.error) {
+			const errMsg = safeJSONParse(currentNonce.error)?.message || currentNonce.error;
+			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || i18n.t('token:toast.error.anErrorOccurred'), type: 'error' }));
+			return thunkAPI.rejectWithValue(errMsg);
+		}
+
 		const response = await mezon.mmnClient.sendTransaction({
 			sender,
 			recipient,
@@ -150,8 +164,9 @@ const sendTransaction = createAsyncThunk(
 		});
 
 		if (!response?.ok) {
-			thunkAPI.dispatch(toastActions.addToast({ message: response.error || 'An error occurred, please try again', type: 'error' }));
-			return thunkAPI.rejectWithValue(response.error);
+			const errMsg = safeJSONParse(response.error)?.message || response.error;
+			thunkAPI.dispatch(toastActions.addToast({ message: errMsg || i18n.t('token:toast.error.anErrorOccurred'), type: 'error' }));
+			return thunkAPI.rejectWithValue(errMsg);
 		}
 
 		return response;

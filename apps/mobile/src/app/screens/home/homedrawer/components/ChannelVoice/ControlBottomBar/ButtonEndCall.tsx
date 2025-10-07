@@ -69,7 +69,7 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 				);
 			}
 			sendSignalingToParticipants(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_QUIT,
 				baseData as CallSignalingData,
 				currentDmGroup?.channel_id || '',
@@ -84,7 +84,7 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 				reason: 'cancelled'
 			};
 			sendSignalingToParticipants(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_CANCEL,
 				cancelAction as CallSignalingData,
 				currentDmGroup?.channel_id || '',

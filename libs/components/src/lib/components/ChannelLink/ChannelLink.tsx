@@ -206,8 +206,6 @@ const ChannelLinkComponent = ({
 			onContextMenu={handleMouseClick}
 			id={channel.id}
 			role="button"
-			onDragStart={(e) => dragStart(e)}
-			onDragEnd={(e) => dragEnter(e)}
 			className={`relative group z-10   ${showWhiteDot ? 'before:bg-[var(--text-secondary)] :content-[""] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute  before:top-3' : ''}`}
 		>
 			{
@@ -221,7 +219,6 @@ const ChannelLinkComponent = ({
 					<span
 						ref={channelLinkRef}
 						className={`flex flex-row items-center rounded relative flex-1 pointer-events-none  ${hightLightTextChannel ? ' font-semibold text-theme-primary-active' : 'font-medium '}`}
-						data-e2e={generateE2eId('clan_page.channel_list.item')}
 					>
 						{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
 

@@ -1,10 +1,9 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectUserStatus, useAppDispatch, userStatusActions } from '@mezon/store-mobile';
-import { useEffect, useMemo, useState } from 'react';
+import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
 import MezonOption, { IMezonOptionData } from '../../componentUI/MezonOption';
@@ -13,6 +12,7 @@ import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
 
 interface ICustomStatusUserProps {
 	onPressSetCustomStatus?: () => void;
+	userStatus?: string;
 	userCustomStatus?: string;
 	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
 }
@@ -24,9 +24,8 @@ export enum EUserStatus {
 	INVISIBLE = 'Invisible'
 }
 export const CustomStatusUser = (props: ICustomStatusUserProps) => {
-	const { onPressSetCustomStatus, userCustomStatus, handleCustomUserStatus } = props;
+	const { onPressSetCustomStatus, userStatus, userCustomStatus, handleCustomUserStatus } = props;
 	const { t } = useTranslation(['customUserStatus']);
-	const userStatus = useSelector(selectUserStatus);
 	const dispatch = useAppDispatch();
 	const { dismiss } = useBottomSheetModal();
 
@@ -34,7 +33,7 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 	const [userStatusOption, setUserStatusOption] = useState<string>(EUserStatus.ONLINE);
 
 	useEffect(() => {
-		switch (userStatus?.status) {
+		switch (userStatus) {
 			case EUserStatus.ONLINE:
 				setUserStatusOption(EUserStatus.ONLINE);
 				break;
@@ -53,18 +52,21 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 		}
 	}, [userStatus]);
 
-	function handleStatusChange(value: string) {
-		if (!value) return;
-		dismiss();
-		dispatch(
-			userStatusActions.updateUserStatus({
-				status: value,
-				minutes: 0,
-				until_turn_on: true
-			})
-		);
-		setUserStatusOption(value);
-	}
+	const handleStatusChange = useCallback(
+		(value: string) => {
+			if (!value) return;
+			dismiss();
+			dispatch(
+				accountActions.updateAccountStatus({
+					status: value,
+					minutes: 0,
+					until_turn_on: true
+				})
+			);
+			setUserStatusOption(value);
+		},
+		[dismiss, dispatch]
+	);
 
 	const statusOptions = useMemo(
 		() =>
@@ -111,7 +113,7 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 					]
 				}
 			] as IMezonMenuSectionProps[],
-		[userCustomStatus]
+		[handleCustomUserStatus, onPressSetCustomStatus, t, themeValue.textDisabled, themeValue.textStrong, userCustomStatus]
 	);
 
 	return (

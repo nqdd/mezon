@@ -68,7 +68,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 
 	useEffect(() => {
 		if (currentDirectMessage.current?.id) {
-			setSelectedFriendDefault(currentDirectMessage.current?.user_id || []);
+			setSelectedFriendDefault(currentDirectMessage.current?.user_ids || []);
 		}
 	}, [currentDirectMessage]);
 
@@ -86,7 +86,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const handleAddMemberToGroupChat = async (listAdd: ApiCreateChannelDescRequest) => {
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const listMembersAdd = listAdd?.user_ids?.filter((userId) => !currentDirectMessage.current?.user_id?.includes(userId)) ?? [];
+			const listMembersAdd = listAdd?.user_ids?.filter((userId) => !currentDirectMessage.current?.user_ids?.includes(userId)) ?? [];
 			await dispatch(
 				channelUsersActions.addChannelUsers({
 					channelId: currentDirectMessage.current?.channel_id as string,

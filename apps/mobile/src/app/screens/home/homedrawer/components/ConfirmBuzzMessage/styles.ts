@@ -1,4 +1,4 @@
-import { Attributes, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -39,7 +39,7 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.bgViolet
 		},
 		buttonText: {
-			color: colors.white,
+			color: baseColor.white,
 			textAlign: 'center'
 		},
 		buttonsWrapper: {

@@ -103,7 +103,12 @@ const SetPassword = ({ navigation }) => {
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await dispatch(
-				authActions.registrationPassword({ email: userProfile?.email, password, ...(hasPassword ? { oldPassword: currentPassword } : {}) })
+				authActions.registrationPassword({
+					email: userProfile?.email,
+					password,
+					...(hasPassword ? { oldPassword: currentPassword } : {}),
+					isMobile: true
+				})
 			);
 			if (response?.meta?.requestStatus === 'fulfilled') {
 				Toast.show({
@@ -145,6 +150,15 @@ const SetPassword = ({ navigation }) => {
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 		>
 			<KeyboardAwareScrollView bottomOffset={100} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+				<TextInputUser
+					placeholder={''}
+					isPass={false}
+					value={userProfile?.email}
+					label={t('setPasswordAccount.email')}
+					error={errors?.password}
+					require={false}
+					disable
+				/>
 				{hasPassword && (
 					<TextInputUser
 						placeholder={t('setPasswordAccount.placeholder.currentPassword')}
@@ -156,15 +170,6 @@ const SetPassword = ({ navigation }) => {
 						touched={true}
 					/>
 				)}
-				<TextInputUser
-					placeholder={''}
-					isPass={false}
-					value={userProfile?.email}
-					label={t('setPasswordAccount.email')}
-					error={errors?.password}
-					require={false}
-					disable
-				/>
 				<TextInputUser
 					placeholder={t('setPasswordAccount.placeholder.password')}
 					isPass={true}
