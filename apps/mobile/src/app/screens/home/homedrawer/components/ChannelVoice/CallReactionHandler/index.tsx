@@ -316,13 +316,15 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 		};
 	}, [cleanupTimeouts]);
 
-	if (displayedEmojis.length === 0 || !isAnimatedCompleted) {
+	if (displayedEmojis?.length === 0 || !isAnimatedCompleted) {
 		return null;
 	}
 
 	return (
 		<View style={styles.reactionContainer}>
-			{displayedEmojis?.length > 0 ? displayedEmojis.map((item) => <AnimatedEmoji key={item.id} item={item} styles={styles} />) : null}
+			{displayedEmojis.map((item) => (
+				<AnimatedEmoji key={item.id} item={item} styles={styles} />
+			))}
 		</View>
 	);
 });
