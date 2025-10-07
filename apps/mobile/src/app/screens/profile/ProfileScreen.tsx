@@ -1,8 +1,16 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import type { FriendsEntity } from '@mezon/store-mobile';
-import { accountActions, channelMembersActions, selectAllAccount, selectAllFriends, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { createImgproxyUrl, formatNumber } from '@mezon/utils';
+import {
+	FriendsEntity,
+	accountActions,
+	channelMembersActions,
+	selectAllAccount,
+	selectAllFriends,
+	selectCurrentClanId,
+	useAppDispatch,
+	useWallet
+} from '@mezon/store-mobile';
+import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
@@ -47,7 +55,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 	useEffect(() => {
 		fetchWalletData();
-	}, [fetchWalletData]);
+	}, []);
 
 	useFocusEffect(
 		React.useCallback(() => {
@@ -65,7 +73,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
-	}, [walletDetail?.wallet]);
+	}, [walletDetail?.balance]);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser?.filter?.((user) => user.state === 0);
@@ -249,6 +257,15 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 			{isTabletLandscape && (
 				<View style={styles.buttonListLandscape}>
+					{!isEnableWallet && (
+						<MezonButton
+							containerStyle={styles.button}
+							onPress={() => enableWallet()}
+							icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={'white'} />}
+							title={t('enableWallet')}
+							titleStyle={styles.whiteText}
+						/>
+					)}
 					<MezonButton
 						containerStyle={styles.button}
 						onPress={() => navigateToProfileSetting()}
@@ -276,9 +293,9 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							>
 								<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={size.s_20} height={size.s_20} color={baseColor.azureBlue} />
 								<View style={styles.token}>
-									<Text style={styles.text}>
-										{`${t('token')} ${tokenInWallet ? formatNumber(Number(tokenInWallet), 'vi-VN', 'VND') : '0'}`}
-									</Text>
+									<Text
+										style={styles.text}
+									>{`${t('token')} ${formatBalanceToString((tokenInWallet || 0)?.toString())} ${CURRENCY.SYMBOL}`}</Text>
 								</View>
 							</TouchableOpacity>
 							<TouchableOpacity

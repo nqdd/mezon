@@ -25,6 +25,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { ErrorInput } from '../../../components/ErrorInput';
 import { IconCDN } from '../../../constants/icon_cdn';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { CountryDropdown, countries, type ICountry } from '../../home/homedrawer/components/CountryDropdown';
 import { style } from './styles';
@@ -46,6 +47,7 @@ const LoginScreen = ({ navigation }) => {
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
 	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
 	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+	const isTabletLandscape = useTabletLandscape();
 
 	const { t } = useTranslation(['common']);
 	const dispatch = useAppDispatch();
@@ -346,7 +348,7 @@ const LoginScreen = ({ navigation }) => {
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
+				<View style={[styles.content, isLandscape && !isTabletLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('login.enterEmail')}</Text>
 					<Text style={styles.subtitle}>{t('login.chooseAnotherOption')}</Text>
 
