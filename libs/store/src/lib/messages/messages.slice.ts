@@ -22,6 +22,7 @@ import type { EntityState, GetThunkAPI, PayloadAction, Update } from '@reduxjs/t
 import { createAsyncThunk, createEntityAdapter, createSelector, createSelectorCreator, createSlice, weakMapMemoize } from '@reduxjs/toolkit';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ChannelMessage } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MessageButtonClicked } from 'mezon-js/socket';
 import { accountActions, selectAllAccount } from '../account/account.slice';
@@ -30,7 +31,7 @@ import { resetChannelBadgeCount } from '../badge/badgeHelpers';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { channelsActions, selectCurrentChannel, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
@@ -420,7 +421,12 @@ export const fetchMessages = createAsyncThunk(
 			const lastLoadMessage = !fromCache ? response.messages?.at(-1) || oldMessages[0] : oldMessages[0];
 			const hasMore = lastLoadMessage?.code !== EMessageCode.FIRST_MESSAGE;
 
-			thunkAPI.dispatch(messagesActions.setFirstMessageId({ channelId: chlId, firstMessageId: !hasMore ? lastLoadMessage?.id : null }));
+			thunkAPI.dispatch(
+				messagesActions.setFirstMessageId({
+					channelId: chlId,
+					firstMessageId: !hasMore ? lastLoadMessage?.id : null
+				})
+			);
 
 			if (shouldReturnCachedMessages(isFetchingLatestMessages, oldMessages, lastSentMessage, !!fromCache)) {
 				return {
@@ -445,6 +451,51 @@ export const fetchMessages = createAsyncThunk(
 						messageId: response.last_seen_message?.id
 					})
 				);
+			}
+
+			if (isFetchingLatestMessages && lastSentMessage?.id && !fromCache) {
+				let mode: number | undefined;
+				let badge_count: number | undefined;
+
+				if (clanId !== '0') {
+					const currentChannel = selectCurrentChannel(state);
+					if (currentChannel) {
+						badge_count = currentChannel.count_mess_unread || 0;
+						if (
+							currentChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
+							currentChannel.type === ChannelType.CHANNEL_TYPE_STREAMING ||
+							currentChannel.type === ChannelType.CHANNEL_TYPE_APP ||
+							currentChannel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
+						) {
+							mode = ChannelStreamMode.STREAM_MODE_CHANNEL;
+						} else {
+							mode = ChannelStreamMode.STREAM_MODE_THREAD;
+						}
+					}
+				} else {
+					const currentDmGroup = selectCurrentDM(state);
+					if (currentDmGroup) {
+						badge_count = currentDmGroup.count_mess_unread || 0;
+						if (currentDmGroup.type === ChannelType.CHANNEL_TYPE_DM) {
+							mode = ChannelStreamMode.STREAM_MODE_DM;
+						} else {
+							mode = ChannelStreamMode.STREAM_MODE_GROUP;
+						}
+					}
+				}
+
+				if (mode !== undefined && badge_count !== undefined) {
+					thunkAPI.dispatch(
+						messagesActions.updateLastSeenMessage({
+							channelId: chlId,
+							messageId: lastSentMessage.id,
+							mode,
+							message_time: lastSentMessage.timestamp_seconds,
+							badge_count,
+							clanId
+						})
+					);
+				}
 			}
 
 			return {
@@ -629,10 +680,22 @@ export const jumpToMessage = createAsyncThunk(
 				if (clanId === '0') {
 					channelPath = `/chat/direct/message/${channelId}/${mode}`;
 				}
-				found && thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: true }));
+				found &&
+					thunkAPI.dispatch(
+						messagesActions.setIdMessageToJump({
+							id: messageId,
+							navigate: true
+						})
+					);
 				navigate && navigate(channelPath);
 			} else {
-				found && thunkAPI.dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
+				found &&
+					thunkAPI.dispatch(
+						messagesActions.setIdMessageToJump({
+							id: messageId,
+							navigate: false
+						})
+					);
 			}
 		} catch (e) {
 			captureSentryError(e, 'messages/jumpToMessage');
@@ -666,6 +729,11 @@ export const updateLastSeenMessage = createAsyncThunk(
 			const clansLoadingStatus = selectClansLoadingStatus(state);
 			if (channelsLoadingStatus === 'loading' || clansLoadingStatus === 'loading') {
 				thunkAPI.dispatch(messagesActions.queueLastSeenMessage({ clanId, channelId, messageId, mode, badge_count, message_time }));
+				return;
+			}
+
+			const channelMessages = state.messages.channelMessages[channelId];
+			if (!channelMessages?.cache) {
 				return;
 			}
 
@@ -726,7 +794,14 @@ export const processQueuedLastSeenMessages = createAsyncThunk('messages/processQ
 	thunkAPI.dispatch(messagesActions.clearQueuedLastSeenMessages());
 
 	for (const queuedMessage of queuedMessages) {
-		await thunkAPI.dispatch(updateLastSeenMessage(queuedMessage));
+		const channelEntity = state.channels.byClans[queuedMessage.clanId]?.entities?.entities?.[queuedMessage.channelId];
+		const actualBadgeCount = channelEntity?.count_mess_unread || queuedMessage.badge_count;
+		await thunkAPI.dispatch(
+			updateLastSeenMessage({
+				...queuedMessage,
+				badge_count: actualBadgeCount
+			})
+		);
 	}
 });
 
@@ -784,9 +859,21 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		let uploadedFiles: ApiMessageAttachment[] = [];
 		if (attachments && attachments.length > 0) {
 			if (isMobile) {
-				uploadedFiles = await getMobileUploadedAttachments({ attachments, channelId, clanId, client, session });
+				uploadedFiles = await getMobileUploadedAttachments({
+					attachments,
+					channelId,
+					clanId,
+					client,
+					session
+				});
 			} else {
-				uploadedFiles = await getWebUploadedAttachments({ attachments, channelId, clanId, client, session });
+				uploadedFiles = await getWebUploadedAttachments({
+					attachments,
+					channelId,
+					clanId,
+					client,
+					session
+				});
 			}
 		}
 
@@ -878,7 +965,13 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			hide_editted: true,
 			isAnonymous: anonymous
 		};
-		const fakeMess = await thunkAPI.dispatch(messagesActions.mapMessageChannelToEntityAction({ message: fakeMessage })).unwrap();
+		const fakeMess = await thunkAPI
+			.dispatch(
+				messagesActions.mapMessageChannelToEntityAction({
+					message: fakeMessage
+				})
+			)
+			.unwrap();
 		const state = getMessagesState(getMessagesRootState(thunkAPI));
 		const isViewingOlderMessages = state.isViewingOlderMessagesByChannelId[channelId];
 
@@ -887,15 +980,17 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		}
 
 		try {
-			const res = await sendWithRetry(1);
+			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
+			await sendWithRetry(1);
 
 			if (!isViewingOlderMessages) {
 				const timestamp = Date.now() / 1000;
-				thunkAPI.dispatch(channelMetaActions.setChannelLastSeenTimestamp({ channelId, timestamp }));
-
-				const mess = { ...fakeMess, id: res.message_id, create_time: res.create_time };
-
-				thunkAPI.dispatch(messagesActions.markAsSent({ id, mess }));
+				thunkAPI.dispatch(
+					channelMetaActions.setChannelLastSeenTimestamp({
+						channelId,
+						timestamp
+					})
+				);
 			}
 		} catch (error) {
 			thunkAPI.dispatch(messagesActions.markAsError({ messageId: id, channelId }));
@@ -942,7 +1037,13 @@ export const sendEphemeralMessage = createAsyncThunk('messages/sendEphemeralMess
 
 		let uploadedFiles: ApiMessageAttachment[] = [];
 		if (attachments && attachments.length > 0) {
-			uploadedFiles = await getWebUploadedAttachments({ attachments, channelId, clanId, client, session });
+			uploadedFiles = await getWebUploadedAttachments({
+				attachments,
+				channelId,
+				clanId,
+				client,
+				session
+			});
 		}
 
 		let avatarToUse = avatar;
@@ -1128,22 +1229,13 @@ export const messagesSlice = createSlice({
 	name: MESSAGES_FEATURE_KEY,
 	initialState: initialMessagesState,
 	reducers: {
-		updateLastFiftyMessagesAction: (state, action: PayloadAction<string>) => {
-			// recheck and update later
-			return;
-			const channelId = action.payload;
-			const messageIds = state.channelMessages[channelId]?.ids as string[];
-			if (!messageIds || messageIds?.length <= 50) return;
-			const lastFiftyIds = messageIds.slice(-50);
-			const lastFiftyMessages = lastFiftyIds.map((id) => state.channelMessages[channelId].entities[id]);
-			channelMessagesAdapter.setAll(state.channelMessages[channelId], lastFiftyMessages);
-			state.channelViewPortMessageIds[channelId] = lastFiftyIds;
-			state.isViewingOlderMessagesByChannelId[channelId] = false;
-			// reset first message
-			state.firstMessageId[channelId] = null;
-		},
-
-		setFirstMessageId: (state, action: PayloadAction<{ channelId: string; firstMessageId: string | null }>) => {
+		setFirstMessageId: (
+			state,
+			action: PayloadAction<{
+				channelId: string;
+				firstMessageId: string | null;
+			}>
+		) => {
 			state.firstMessageId[action.payload.channelId] = action.payload.firstMessageId;
 		},
 		setIdMessageToJump(state, action) {
@@ -1200,10 +1292,18 @@ export const messagesSlice = createSlice({
 				case TypeMessage.Ephemeral:
 				case TypeMessage.Chat: {
 					if (topic_id !== '0' && topic_id) {
-						handleAddOneMessage({ state, channelId: topic_id, adapterPayload: action.payload });
+						handleAddOneMessage({
+							state,
+							channelId: topic_id,
+							adapterPayload: action.payload
+						});
 						state.lastMessageByChannel[channelId] = action.payload;
 					} else {
-						handleAddOneMessage({ state, channelId, adapterPayload: action.payload });
+						handleAddOneMessage({
+							state,
+							channelId,
+							adapterPayload: action.payload
+						});
 						// update last message
 						const lastMessage: ApiChannelMessageHeaderWithChannel = {
 							...action.payload,
@@ -1227,7 +1327,11 @@ export const messagesSlice = createSlice({
 									// temporary remove sending message that has the same content
 									// for later update, we could use some kind of id to identify the message
 									if (message?.content?.t === newContent?.t && message?.channel_id === channelId) {
-										state.channelMessages[channelId] = handleRemoveOneMessage({ state, channelId, messageId: mid });
+										state.channelMessages[channelId] = handleRemoveOneMessage({
+											state,
+											channelId,
+											messageId: mid
+										});
 
 										// remove the first one and break
 										// prevent removing all sending messages with the same content
@@ -1259,7 +1363,12 @@ export const messagesSlice = createSlice({
 								changes: {
 									...message,
 									references: message.references?.length
-										? [{ ...message.references[0], content: JSON.stringify(action.payload.content) }]
+										? [
+												{
+													...message.references[0],
+													content: JSON.stringify(action.payload.content)
+												}
+											]
 										: []
 								}
 							};
@@ -1269,7 +1378,11 @@ export const messagesSlice = createSlice({
 					break;
 				}
 				case TypeMessage.ChatRemove: {
-					updateReferenceMessage({ state, channelId, listMessageIds: referenced_message as string[] });
+					updateReferenceMessage({
+						state,
+						channelId,
+						listMessageIds: referenced_message as string[]
+					});
 					handleRemoveOneMessage({ state, channelId, messageId });
 					break;
 				}
@@ -1291,9 +1404,14 @@ export const messagesSlice = createSlice({
 		},
 
 		markAsSent: (state, action: PayloadAction<MarkAsSentArgs>) => {
-			// the message is sent successfully
-			// will be inserted to the list
-			// from onChatMessage listener
+			const channelId = action.payload.mess.channel_id;
+			if (state?.unreadMessagesEntries?.[channelId] === action.payload.mess.message_id) return;
+			if (channelId) {
+				state.unreadMessagesEntries = {
+					...state.unreadMessagesEntries,
+					[channelId]: ''
+				};
+			}
 		},
 		markAsError: (
 			state,
@@ -1382,7 +1500,13 @@ export const messagesSlice = createSlice({
 		setIsFocused(state, action) {
 			state.isFocused = action.payload;
 		},
-		setChannelDraftMessage(state, action: PayloadAction<{ channelId: string; channelDraftMessage: ChannelDraftMessages }>) {
+		setChannelDraftMessage(
+			state,
+			action: PayloadAction<{
+				channelId: string;
+				channelDraftMessage: ChannelDraftMessages;
+			}>
+		) {
 			state.channelDraftMessage[action.payload.channelId] = action.payload.channelDraftMessage;
 		},
 		deleteChannelDraftMessage(state, action: PayloadAction<{ channelId: string }>) {
@@ -1391,12 +1515,28 @@ export const messagesSlice = createSlice({
 		setIsJumpingToPresent(state, action: PayloadAction<{ channelId: string; status: boolean }>) {
 			state.isJumpingToPresent[action.payload.channelId] = action.payload.status;
 		},
-		updateToBeTopicMessage(state, action: PayloadAction<{ channelId: string; messageId: string; topicId: string; creatorId: string }>) {
+		updateToBeTopicMessage(
+			state,
+			action: PayloadAction<{
+				channelId: string;
+				messageId: string;
+				topicId: string;
+				creatorId: string;
+			}>
+		) {
 			state.channelMessages[action.payload.channelId].entities[action.payload.messageId].code = 9;
 			state.channelMessages[action.payload.channelId].entities[action.payload.messageId].content!.tp = action.payload.topicId;
 			state.channelMessages[action.payload.channelId].entities[action.payload.messageId].content!.cid = action.payload.creatorId;
 		},
-		updateUserMessage: (state, action: PayloadAction<{ userId: string; clanId: string; clanNick: string; clanAvt: string }>) => {
+		updateUserMessage: (
+			state,
+			action: PayloadAction<{
+				userId: string;
+				clanId: string;
+				clanNick: string;
+				clanAvt: string;
+			}>
+		) => {
 			const { userId, clanId, clanNick, clanAvt } = action.payload;
 			for (const channelId in state.channelMessages) {
 				const channel = state.channelMessages[channelId];

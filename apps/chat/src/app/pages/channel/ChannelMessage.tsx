@@ -17,7 +17,6 @@ export type MessageProps = {
 	avatarDM?: string;
 	username?: string;
 	isPrivate?: number;
-	isLastSeen?: boolean;
 	index: number;
 	checkMessageTargetToMoved?: boolean;
 	messageReplyHighlight?: boolean;
@@ -74,7 +73,6 @@ export const ChannelMessage: ChannelMessageComponent = ({
 	const isSameUser = message?.user?.id === previousMessage?.user?.id;
 	const isTimeGreaterThan60Minutes =
 		!!message?.create_time && Date.parse(message.create_time) - Date.parse(previousMessage?.create_time) < FOR_10_MINUTES;
-
 	const isDifferentDay =
 		!!message?.create_time && !!previousMessage?.create_time && !isSameDay(new Date(message.create_time), new Date(previousMessage?.create_time));
 
