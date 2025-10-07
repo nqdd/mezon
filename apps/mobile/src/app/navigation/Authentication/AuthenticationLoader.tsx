@@ -315,8 +315,8 @@ export const AuthenticationLoader = () => {
 					});
 				}
 				//Payload from FCM need messageType and sound
-				if (messageCode === TypeMessage.MessageBuzz) {
-					playBuzzSound();
+				if (messageCode === TypeMessage.MessageBuzz || messageCode === TypeMessage.SendToken) {
+					playCustomSoundNotify(messageCode === TypeMessage.MessageBuzz ? 'buzz' : 'bank');
 					handleBuzz(remoteMessage);
 				}
 			} catch (e) {
@@ -328,9 +328,10 @@ export const AuthenticationLoader = () => {
 		return unsubscribe;
 	};
 
-	const playBuzzSound = () => {
+	const playCustomSoundNotify = (name: string) => {
 		Sound.setCategory('Playback');
-		const sound = new Sound('buzz.mp3', Sound.MAIN_BUNDLE, (error) => {
+		const soundName = name + (Platform.OS === 'android' ? '.mp3' : '.wav');
+		const sound = new Sound(soundName, Sound.MAIN_BUNDLE, (error) => {
 			if (error) {
 				console.error('failed to load the sound', error);
 				return;

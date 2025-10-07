@@ -4,7 +4,6 @@ import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
 import { selectCurrentTopicInitMessage, selectFirstMessageOfCurrentTopic } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
-import type { ChannelStreamMode } from 'mezon-js';
 import { safeJSONParse } from 'mezon-js';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,11 +18,10 @@ import { RenderTextMarkdownContent } from '../../RenderTextMarkdown';
 import { style } from './styles';
 
 type TopicHeaderProps = {
-	mode: ChannelStreamMode;
 	handleBack: () => void;
 };
 
-const TopicHeader = memo(({ mode, handleBack }: TopicHeaderProps) => {
+const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 	const currentTopic = useSelector(selectCurrentTopicInitMessage);
 	const firstMessage = useSelector(selectFirstMessageOfCurrentTopic);
 	const { themeValue } = useTheme();
@@ -81,7 +79,7 @@ const TopicHeader = memo(({ mode, handleBack }: TopicHeaderProps) => {
 			</View>
 			{valueTopic && (
 				<View style={styles.userInfo}>
-					<MezonAvatar avatarUrl={priorityAvatar} username={namePriority} />
+					<MezonAvatar avatarUrl={priorityAvatar} username={namePriority || valueTopic?.display_name || valueTopic?.username} />
 					<View>
 						<Text style={[styles.name, { color: colorSenderName }]}>{namePriority}</Text>
 						{memoizedValue?.createTime && <Text style={styles.dateText}>{convertTimeString(memoizedValue?.createTime as string)}</Text>}
