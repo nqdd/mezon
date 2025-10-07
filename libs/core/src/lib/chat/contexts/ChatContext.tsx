@@ -1935,7 +1935,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						}
 					}
 				}
-
+				if (status === EEventAction.UPDATE) {
+					dispatch(
+						policiesActions.updateOne({
+							id: role.id as string,
+							changes: {
+								title: role.title,
+								id: role.id || '',
+								max_level_permission: role.max_level_permission
+							}
+						})
+					);
+				}
 				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
