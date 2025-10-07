@@ -21,7 +21,7 @@ export const addChannelUsers = createAsyncThunk(
 				return thunkAPI.rejectWithValue([]);
 			}
 			if (channelId && channelType) {
-				thunkAPI.dispatch(userChannelsActions.addUserChannel({ channelId: channelId, userAdds: userIds }));
+				thunkAPI.dispatch(userChannelsActions.addUserChannel({ channelId, userAdds: userIds }));
 			}
 			return response;
 		} catch (error) {
@@ -50,14 +50,14 @@ export const removeChannelUsers = createAsyncThunk(
 			}
 			if (clanId && channelType) {
 				const body = {
-					clanId: clanId,
-					channelId: channelId,
+					clanId,
+					channelId,
 					noCache: true,
 					channelType: channelType ?? 0,
 					repace: true
 				};
 				thunkAPI.dispatch(channelMembersActions.fetchChannelMembers(body));
-				thunkAPI.dispatch(userChannelsActions.removeUserChannel({ channelId: channelId, userRemoves: userIds }));
+				thunkAPI.dispatch(userChannelsActions.removeUserChannel({ channelId, userRemoves: userIds }));
 			}
 			return response;
 		} catch (error) {
@@ -83,15 +83,15 @@ export const addChannelRoles = createAsyncThunk(
 				return thunkAPI.rejectWithValue([]);
 			}
 			const bodyFetchUsers = {
-				clanId: clanId,
-				channelId: channelId,
+				clanId,
+				channelId,
 				noCache: true,
 				channelType: channelType ?? 0,
 				repace: true
 			};
 			const bodyFetchRoles = {
-				clanId: clanId,
-				channelId: channelId,
+				clanId,
+				channelId,
 				repace: true,
 				noCache: true
 			};
@@ -120,20 +120,20 @@ export const removeChannelRole = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			const body = {
-				clanId: clanId,
-				channelId: channelId,
+			const bodyFetchUsers = {
+				clanId,
+				channelId,
 				noCache: true,
 				channelType: channelType ?? 0,
 				repace: true
 			};
-			thunkAPI.dispatch(channelMembersActions.fetchChannelMembers(body));
 			const bodyFetchRoles = {
-				clanId: clanId,
-				channelId: channelId,
+				clanId,
+				channelId,
 				repace: true,
 				noCache: true
 			};
+			thunkAPI.dispatch(channelMembersActions.fetchChannelMembers(bodyFetchUsers));
 			thunkAPI.dispatch(rolesClanActions.fetchRolesClan(bodyFetchRoles));
 			return response;
 		} catch (error) {

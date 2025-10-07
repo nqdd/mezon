@@ -784,6 +784,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 				dispatch(channelMembers.actions.remove({ userId: userID, channelId: user.channel_id }));
 				dispatch(userChannelsActions.remove(userID));
+				dispatch(
+					userChannelsActions.removeUserChannel({
+						channelId: user.channel_id,
+						userRemoves: [userID]
+					})
+				);
 			}
 		},
 		[userId]
