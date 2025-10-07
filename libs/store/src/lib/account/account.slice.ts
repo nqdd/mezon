@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import { statusActions } from '../direct/status.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
@@ -78,7 +79,20 @@ export const getUserProfile = createAsyncThunk<IUserAccount & { fromCache?: bool
 				fromCache: true
 			} as IUserAccount & { fromCache: boolean };
 		}
-
+		thunkAPI.dispatch(
+			statusActions.updateBulkStatus([
+				{
+					id: response.user?.id || '',
+					status: response.user?.status || '',
+					online: true,
+					user_status: response.user?.user_status || '',
+					username: response.user?.username,
+					is_mobile: response.user?.is_mobile,
+					display_name: response.user?.display_name,
+					avatar_url: response.user?.avatar_url
+				}
+			])
+		);
 		const { fromCache, time, ...profileData } = response;
 		return { ...profileData, fromCache: false };
 	}
