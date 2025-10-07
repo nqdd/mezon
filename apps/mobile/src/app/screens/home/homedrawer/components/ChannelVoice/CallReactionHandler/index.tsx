@@ -321,7 +321,9 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 	}
 
 	return (
-		<View style={styles.reactionContainer}>{displayedEmojis?.map((item) => <AnimatedEmoji key={item.id} item={item} styles={styles} />)}</View>
+		<View style={styles.reactionContainer}>
+			{displayedEmojis?.length > 0 ? displayedEmojis.map((item) => <AnimatedEmoji key={item.id} item={item} styles={styles} />) : null}
+		</View>
 	);
 });
 

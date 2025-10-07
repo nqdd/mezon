@@ -184,14 +184,15 @@ export const style = (colors: Attributes) =>
 			top: size.s_4
 		},
 		reactionSenderEmojiContainer: {
+			padding: size.s_4,
 			marginTop: size.s_4,
-			backgroundColor: 'white',
+			backgroundColor: colors.secondaryLight,
 			borderRadius: size.s_10,
-			width: size.s_80
+			width: size.s_90
 		},
 		senderName: {
 			fontSize: size.s_10,
-			color: 'black',
+			color: colors.text,
 			textAlign: 'center'
 		}
 	});
