@@ -524,7 +524,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 		}
 	} else if (isDirectDM) {
 		const channelDMId = notification?.data?.channel;
-		if (navigation) {
+		if (navigation && channelDMId !== '0' && !!channelDMId) {
 			await store.dispatch(directActions.setDmGroupCurrentId(channelDMId));
 			if (isTabletLandscape) {
 				navigation.navigate(APP_SCREEN.MESSAGES.HOME);
