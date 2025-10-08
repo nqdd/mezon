@@ -546,25 +546,14 @@ export const selectGroupMembersEntities = createSelector([selectGrouplMembers], 
 });
 
 export const selectMemberGroupByUserId = createSelector(
-	[(state: any, channelId: string, userId: string) => selectMemberByGroupId(state, channelId), (_: any, __: string, userId: string) => userId],
-	(channel, userId): ChannelMembersEntity | undefined => {
-		if (!channel?.user_ids || !userId) return undefined;
+	[(state: any, channelId: string) => selectMemberByGroupId(state, channelId), (_: any, __: string, userId: string) => userId],
+	(users, userId): ChannelMembersEntity | undefined => {
+		if (!users || !userId) return undefined;
 
-		const index = channel.user_ids.indexOf(userId);
+		const index = users.findIndex((user) => user.id === userId);
 		if (index === -1) return undefined;
 
-		return {
-			id: userId,
-			channelId: channel.id || '',
-			userChannelId: channel.id || '',
-			user: {
-				id: userId,
-				username: channel.usernames?.[index],
-				display_name: channel.display_names?.[index],
-				avatar: channel.avatars?.[index],
-				online: channel.onlines?.[index] ?? false
-			}
-		} as ChannelMembersEntity;
+		return users[index] as ChannelMembersEntity;
 	}
 );
 
@@ -597,7 +586,7 @@ export const selectAllChannelMembers = createSelector(
 		selectMemberIdsByChannelId,
 		selectAllUserClans,
 		selectEntitesUserClans,
-		selectGrouplMembers,
+		selectMemberByGroupId,
 		(state: RootState, channelId: string) => {
 			const currentClanId = state.clans?.currentClanId;
 			const channel = state?.channels?.byClans?.[currentClanId as string]?.entities?.entities?.[channelId];
