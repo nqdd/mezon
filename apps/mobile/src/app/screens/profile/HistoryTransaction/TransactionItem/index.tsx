@@ -56,7 +56,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 
 	const formatDate = useMemo(() => {
 		if (!isExpand) return '';
-		return moment(new Date((detailLedger.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm');
+		return moment(new Date((detailLedger?.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm');
 	}, [detailLedger?.transaction_timestamp, isExpand]);
 
 	const onContainerLayout = (e) => {
@@ -69,7 +69,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 
 	const copyTransactionId = () => {
 		if (detailLedger?.hash) {
-			Clipboard.setString(detailLedger.hash);
+			Clipboard.setString(detailLedger?.hash);
 			Toast.show({
 				type: 'success',
 				props: {
@@ -80,13 +80,13 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 		}
 	};
 	const detailFields = useMemo(() => {
-		const extraInfo = safeJSONParse(detailLedger.extra_info);
+		const extraInfo = safeJSONParse(detailLedger?.extra_info || '{}');
 		const sender = extraInfo?.UserSenderId ? usersClan.find((user) => user.id === extraInfo?.UserSenderId) : null;
 		const receiver = extraInfo?.UserReceiverId ? usersClan.find((user) => user.id === extraInfo?.UserReceiverId) : null;
 		return [
 			{
 				label: t('historyTransaction.detail.transactionId'),
-				value: detailLedger.hash
+				value: detailLedger?.hash
 			},
 			{
 				label: t('historyTransaction.detail.senderName'),
@@ -102,11 +102,11 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 			},
 			{
 				label: t('historyTransaction.detail.note'),
-				value: detailLedger.text_data || TRANSACTION_DETAIL.DEFAULT_NOTE
+				value: detailLedger?.text_data || TRANSACTION_DETAIL.DEFAULT_NOTE
 			},
 			{
 				label: t('historyTransaction.detail.amount'),
-				value: `${formatBalanceToString(detailLedger.value)} ${CURRENCY.SYMBOL}`
+				value: `${formatBalanceToString(detailLedger?.value)} ${CURRENCY.SYMBOL}`
 			}
 		];
 	}, [detailLedger, usersClan, t, formatDate]);
@@ -185,7 +185,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 							})}
 						</Text>
 						<Text style={styles.code}>
-							{moment(new Date((detailLedger.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm')}
+							{moment(new Date((detailLedger?.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm')}
 						</Text>
 					</View>
 				</View>
