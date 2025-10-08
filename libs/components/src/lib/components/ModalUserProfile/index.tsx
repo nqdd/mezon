@@ -159,7 +159,9 @@ const ModalUserProfile = ({
 		return infoFriend?.state;
 	}, [infoFriend]);
 	const checkUser = useMemo(() => userProfile?.user?.id === userID, [userID, userProfile?.user?.id]);
-
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [userById?.user?.id, infoFriend]);
 	const { setIsShowSettingFooterStatus, setIsShowSettingFooterInitTab } = useSettingFooter();
 	const openSetting = () => {
 		setIsShowSettingFooterStatus(true);
@@ -283,7 +285,7 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
+					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
 						userById?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input
