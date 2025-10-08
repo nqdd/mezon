@@ -12651,10 +12651,10 @@ mezon-js-protobuf@1.8.36:
   dependencies:
     "@scarf/scarf" "^1.1.1"
 
-mezon-js@2.12.94:
-  version "2.12.94"
-  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.94.tgz#07a44c7f685e3dc1922b0b175a95d18f5a6619e5"
-  integrity sha512-esuaVJ3aONrnL3N774DFRPl42u/2NJHzuMArLC1og8/9QYLjtFLVJh+eUtKdi0YVZ2CLukOjwPk5ce6Ta9dmUQ==
+mezon-js@2.12.97:
+  version "2.12.97"
+  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.12.97.tgz#a6fe2ec5c8037779713385537ca83461338952c4"
+  integrity sha512-+RaPXgaKvi4B7gJ6DLyPJJLt+vG1GPSwnfS5dxmZToXE9hseP3bD9iRFuoUqwa2rhJGIRGoAfPjT4jgFpgjC1Q==
   dependencies:
     "@scarf/scarf" "^1.1.1"
     base64-arraybuffer "^1.0.2"
