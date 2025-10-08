@@ -18,7 +18,6 @@ type AvatarProfileProps = {
 	userID?: string;
 	isFooterProfile?: boolean;
 	activityByUserId?: ApiUserActivity;
-	userStatus?: string;
 	statusOnline?: EUserStatus;
 	identifierE2E?: string;
 	isMobile?: boolean;
@@ -31,12 +30,9 @@ const AvatarProfile = ({
 	isAnonymous,
 	styleAvatar,
 	userID,
-	positionType,
 	isFooterProfile,
 	activityByUserId,
-	userStatus,
 	statusOnline,
-	identifierE2E,
 	isMobile
 }: AvatarProfileProps) => {
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -93,7 +89,7 @@ const AvatarProfile = ({
 				)}
 			</div>
 
-			{(customStatus || (userStatus && activityByUserId)) && !isUserLeft && (
+			{(customStatus || (statusOnline && activityByUserId)) && !isUserLeft && (
 				<div className="flex flex-col gap-[12px] mt-[30px] relative w-full h-[85px]">
 					<div className="bg-theme-surface w-[12px] h-[12px] rounded-full shadow-md"></div>
 					<div className="relative flex-1">
