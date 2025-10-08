@@ -844,8 +844,8 @@ export const selectAllUserDM = createSelector(selectAllDirectMessages, (directMe
 			dm?.user_ids?.forEach((userId: string, index: number) => {
 				if (!acc.some((existingUser) => existingUser.id === userId)) {
 					const user = {
-						avatar_url: dm?.channel_avatar ? dm?.channel_avatar[index] : '',
-						display_name: dm?.usernames ? dm?.usernames[index] : '',
+						avatar_url: dm?.avatars ? dm?.avatars[index] : '',
+						display_name: dm?.display_names ? dm?.display_names[index] : '',
 						id: userId,
 						username: dm?.usernames ? dm?.usernames[index] : '',
 						online: dm?.onlines ? dm?.onlines[index] : false
