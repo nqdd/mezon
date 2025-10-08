@@ -374,7 +374,7 @@ export const selectClanMemberWithStatusIds = createSelector(
 				typeof userProfile?.user?.metadata === 'string' ? safeJSONParse(userProfile?.user?.metadata) : userProfile?.user?.metadata;
 			const userIndex = users.findIndex((user) => user.id === userProfileId);
 
-			if (userIndex === -1 && metadata.user_status !== EUserStatus.INVISIBLE) {
+			if (userIndex === -1 && metadata?.user_status !== EUserStatus.INVISIBLE) {
 				users.push({
 					id: userProfileId,
 					user: {
@@ -382,7 +382,7 @@ export const selectClanMemberWithStatusIds = createSelector(
 						online: true
 					}
 				} as UsersClanEntity);
-			} else if (metadata.user_status !== EUserStatus.INVISIBLE) {
+			} else if (metadata?.user_status !== EUserStatus.INVISIBLE) {
 				users[userIndex] = {
 					...users[userIndex],
 					user: {
