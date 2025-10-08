@@ -477,7 +477,6 @@ const LoginScreen = ({ navigation }) => {
 							<TouchableOpacity onPress={loginMode === 'otp' ? () => handleSMSLogin() : () => switchToOTPMode()}>
 								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithEmailOTP')}</Text>
 							</TouchableOpacity>
-							<Text style={styles.orText}>{t('login.or')}</Text>
 							<TouchableOpacity onPress={switchToPasswordMode}>
 								<Text style={styles.linkText}>
 									{loginMode !== 'password' ? t('login.loginWithPassword') : t('login.loginWithSMS')}

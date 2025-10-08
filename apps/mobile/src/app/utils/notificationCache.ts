@@ -10,8 +10,8 @@ interface CachedNotification {
 }
 
 // Create unique key from title and body
-const createCacheKey = (title: string, body: string): string => {
-	return `${title.trim()}_${body.trim()}`.toLowerCase();
+const createCacheKey = (title: string, body: string, sentTime: string): string => {
+	return `${title.trim()}_${body.trim()}_${sentTime.trim()}`.toLowerCase();
 };
 
 const loadCache = async (): Promise<CachedNotification[]> => {
@@ -51,9 +51,9 @@ const cleanCache = (cache: CachedNotification[]): CachedNotification[] => {
 };
 
 // Check if notification is duplicate
-export const isNotificationProcessed = async (title: string, body: string): Promise<boolean> => {
+export const isNotificationProcessed = async (title: string, body: string, sentTime: string): Promise<boolean> => {
 	try {
-		const cacheKey = createCacheKey(title, body);
+		const cacheKey = createCacheKey(title, body, sentTime);
 		const cache = await loadCache();
 
 		// Check if this notification was already processed
