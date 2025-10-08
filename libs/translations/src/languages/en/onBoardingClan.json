@@ -55,7 +55,7 @@
 		"noChannelsHere": "No channels here",
 		"preJoinQuestions": {
 			"title": "Pre-join Questions",
-			"description": "Members will be asked these questions before they join your server. Use them to assign channels and important roles. Pre-join Questions will also be available on the Channels & Roles page."
+			"description": "Members will be asked these questions before they join your clan. Use them to assign channels and important roles. Pre-join Questions will also be available on the Channels & Roles page."
 		},
 		"addQuestion": "Add a Question",
 		"questionNumber": "Question {{number}}",

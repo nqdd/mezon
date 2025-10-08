@@ -1,8 +1,9 @@
+import { useEscapeKeyClose } from '@mezon/core';
 import { checkDuplicateCategoryInClan, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { InputField } from '@mezon/ui';
 import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
@@ -21,6 +22,14 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 	const dispatch = useAppDispatch();
 
 	const [checkValidate, setCheckValidate] = useState(t('createCategoryModal.invalidName'));
+
+	const modalRef = useRef<HTMLDivElement>(null);
+	useEscapeKeyClose(modalRef, onClose);
+	useEffect(() => {
+		if (modalRef.current) {
+			modalRef.current.focus();
+		}
+	}, []);
 
 	const debouncedSetCategoryName = useDebouncedCallback(async (value: string) => {
 		const regex = ValidateSpecialCharacters();
@@ -69,7 +78,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className="w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden">
+			<div ref={modalRef} className="w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden" tabIndex={-1} autoFocus>
 				<div className=" flex items-center justify-between px-6 pt-4 rounded-tl-[5px] rounded-tr-[5px]">
 					<div className="text-[19px] font-bold uppercase">{t('createCategoryModal.title')}</div>
 					<button className="flex items-center justify-center opacity-50 text-theme-primary-hover" onClick={onClose}>
