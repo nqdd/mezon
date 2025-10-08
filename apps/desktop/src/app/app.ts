@@ -91,13 +91,14 @@ export default class App {
 	}
 
 	private static onActivate() {
-		if (App.mainWindow === null) {
+		// Ensure a valid window exists or recreate if destroyed/null
+		if (!App.isWindowValid(App.mainWindow)) {
 			App.onReady();
 		}
 
-		// reopen window after soft quit on macos
-		if (process.platform === 'darwin' && !App.mainWindow?.isVisible()) {
-			App.mainWindow?.show();
+		// Reopen window after soft quit on macOS
+		if (process.platform === 'darwin' && App.isWindowValid(App.mainWindow) && !App.mainWindow!.isVisible()) {
+			App.mainWindow!.show();
 		}
 	}
 
@@ -201,12 +202,14 @@ export default class App {
 			return { action: 'deny' };
 		});
 
-		// Emitted when the window is closed.
+		// Intercept close to hide the window unless force quit
 		App.mainWindow.on('close', (_event) => {
 			if (forceQuit.isEnabled) {
 				app.exit(0);
 				forceQuit.disable();
+				return;
 			}
+			App.mainWindow.hide();
 		});
 
 		App.application.on('before-quit', async () => {
@@ -266,6 +269,24 @@ export default class App {
 
 	static isWindowValid(window: Electron.BrowserWindow | null): boolean {
 		return window !== null && !window.isDestroyed();
+	}
+
+	public static ensureMainWindow(params?: Record<string, string>) {
+		if (!App.isWindowValid(App.mainWindow)) {
+			App.initMainWindow();
+			App.loadMainWindow(params ?? {});
+			return;
+		}
+
+		if (App.mainWindow.isMinimized()) {
+			App.mainWindow.restore();
+		}
+
+		if (!App.mainWindow.isVisible()) {
+			App.mainWindow.show();
+		}
+
+		App.mainWindow.focus();
 	}
 
 	/**
