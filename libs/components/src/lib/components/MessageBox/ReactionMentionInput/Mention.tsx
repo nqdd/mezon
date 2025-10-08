@@ -79,10 +79,39 @@ export default function Mention({
 	const [isLoading, setIsLoading] = useState(false);
 	const abortControllerRef = useRef<AbortController | null>(null);
 
-	const prioritizeAndLimitResults = useCallback((results: MentionData[]) => {
+	const prioritizeAndLimitResults = useCallback((results: MentionData[], query: string) => {
+		const queryLower = query.toLowerCase();
+
+		const sortByRelevance = (items: MentionData[]) => {
+			return items.sort((a, b) => {
+				const aDisplay = a.display?.toLowerCase() || '';
+				const bDisplay = b.display?.toLowerCase() || '';
+				const aUsername = (a as MentionData & { username?: string }).username?.toLowerCase() || '';
+				const bUsername = (b as MentionData & { username?: string }).username?.toLowerCase() || '';
+
+				const aExactMatch = aDisplay === queryLower || aUsername === queryLower;
+				const bExactMatch = bDisplay === queryLower || bUsername === queryLower;
+
+				if (aExactMatch && !bExactMatch) return -1;
+				if (!aExactMatch && bExactMatch) return 1;
+
+				const aStartsWith = aDisplay.startsWith(queryLower) || aUsername.startsWith(queryLower);
+				const bStartsWith = bDisplay.startsWith(queryLower) || bUsername.startsWith(queryLower);
+
+				if (aStartsWith && !bStartsWith) return -1;
+				if (!aStartsWith && bStartsWith) return 1;
+
+				return 0;
+			});
+		};
+
 		const roles = results.filter((item: MentionData & { isRole?: boolean }) => item.isRole);
 		const users = results.filter((item: MentionData & { isRole?: boolean }) => !item.isRole);
-		return [...roles, ...users].slice(0, 10);
+
+		const sortedRoles = sortByRelevance(roles);
+		const sortedUsers = sortByRelevance(users);
+
+		return [...sortedRoles, ...sortedUsers].slice(0, 10);
 	}, []);
 
 	const loadSuggestions = useCallback(
@@ -111,7 +140,7 @@ export default function Mention({
 					}
 				}
 
-				const filtered = prioritizeAndLimitResults(matchedItems);
+				const filtered = prioritizeAndLimitResults(matchedItems, query);
 				setSuggestions(filtered);
 				onSuggestionsChange?.(filtered.length, false);
 				return;
@@ -123,12 +152,12 @@ export default function Mention({
 					const result = data(query);
 					if (result instanceof Promise) {
 						const resolved = await result;
-						const prioritizedResults = prioritizeAndLimitResults(resolved);
+						const prioritizedResults = prioritizeAndLimitResults(resolved, query);
 
 						setSuggestions(prioritizedResults);
 						onSuggestionsChange?.(prioritizedResults.length, false);
 					} else {
-						const prioritizedResults = prioritizeAndLimitResults(result);
+						const prioritizedResults = prioritizeAndLimitResults(result, query);
 						setSuggestions(prioritizedResults);
 						onSuggestionsChange?.(prioritizedResults.length, false);
 					}
