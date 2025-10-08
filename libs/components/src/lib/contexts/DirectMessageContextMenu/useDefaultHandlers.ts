@@ -51,11 +51,11 @@ export function useDefaultHandlers({
 				handleAddFriend: () => {
 					if (!user) return;
 
-					addFriend({ usernames: [user.usernames[0]], ids: [user.user_id[0]] });
+					addFriend({ usernames: [user?.usernames[0]], ids: [user?.user_ids[0]] });
 				},
 				handleRemoveFriend: () => {
 					if (!user) return;
-					deleteFriend(user.usernames[0], user.user_id[0]);
+					deleteFriend(user?.usernames[0], user?.user_ids[0]);
 				},
 				handleMarkAsRead: () => {
 					const channelId = (user as any)?.channelId || (user as any)?.channel_id;
@@ -91,10 +91,10 @@ export function useDefaultHandlers({
 					}
 				},
 				handleBlockFriend: async () => {
-					await blockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					await blockFriend(user?.usernames?.[0], user?.user_ids?.[0]);
 				},
 				handleUnblockFriend: async () => {
-					await unBlockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					await unBlockFriend(user?.usernames?.[0], user?.user_ids?.[0]);
 				},
 				handleEditGroup: () => {
 					if (openEditGroupModal) {

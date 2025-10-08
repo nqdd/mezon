@@ -14,7 +14,7 @@ import {
 } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, EVERYONE_ROLE_TITLE, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import Tooltip from 'rc-tooltip';
 import type { MouseEvent } from 'react';
@@ -313,7 +313,11 @@ const ListOptionRole = ({
 
 	const roleElements = [];
 	for (const key in rolesClanEntity) {
-		if (key !== EVERYONE_ROLE_ID && (isClanOwner || Number(maxPermissionLevel) > Number(rolesClanEntity[key]?.max_level_permission || -1))) {
+		if (
+			key !== EVERYONE_ROLE_ID &&
+			rolesClanEntity[key]?.title !== EVERYONE_ROLE_TITLE &&
+			(isClanOwner || Number(maxPermissionLevel) > Number(rolesClanEntity[key]?.max_level_permission || -1))
+		) {
 			roleElements.push(
 				<div
 					className="flex gap-2 items-center h-6 justify-between px-2 rounded-lg bg-item-hover cursor-pointer"
