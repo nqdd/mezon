@@ -3,10 +3,12 @@ import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
 	directMetaActions,
+	fetchUserChannels,
+	getStoreAsync,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
-	selectUserStatusById,
+	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -39,7 +41,6 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const dispatch = useAppDispatch();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
-	const user = useAppSelector((state) => selectUserStatusById(state, directMessage.user_ids?.at(0) || ''));
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const buzzStateDM = useAppSelector((state) => selectBuzzStateByDirectId(state, directMessage?.channel_id ?? ''));
 
@@ -77,15 +78,29 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const handleContextMenu = (event: React.MouseEvent) => {
 		showContextMenu(event, directMessage as ChannelMembersEntity);
 	};
+
+	const handleClickDM = useCallback(async () => {
+		joinToChatAndNavigate(id, directMessage?.type as number);
+
+		const state = (await getStoreAsync()).getState();
+		const memberDM = selectMemberByGroupId(state, id);
+		if (!memberDM && directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			dispatch(
+				fetchUserChannels({
+					channelId: id,
+					isGroup: true
+				})
+			);
+		}
+	}, [directMessage, id]);
+
 	return (
 		<div
 			onContextMenu={handleContextMenu}
 			ref={ref}
 			style={{ height: 42 }}
 			className={`flex items-center group/itemListDm relative cursor-pointer bg-item-hover h-fit px-2 rounded-[6px] w-full ${isActive ? 'bg-item-theme text-theme-primary-active' : 'text-theme-primary'}`}
-			onClick={() => {
-				joinToChatAndNavigate(id, directMessage?.type as number);
-			}}
+			onClick={handleClickDM}
 		>
 			<DmItemProfile
 				avatar={isTypeDMGroup ? directMessage?.channel_avatar || 'assets/images/avatar-group.png' : (directMessage?.avatars?.at(0) ?? '')}

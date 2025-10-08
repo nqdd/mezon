@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import type { BuzzArgs, IChannel, IMessage, IUserProfileActivity, LoadingStatus } from '@mezon/utils';
+import type { BuzzArgs, IChannel, IMessage, IUserChannel, IUserProfileActivity, LoadingStatus } from '@mezon/utils';
 import { ActiveDm } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
@@ -7,6 +7,8 @@ import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezo
 import { ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
+import { selectAllAccount } from '../account/account.slice';
+import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
 import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
@@ -170,7 +172,10 @@ export const fetchDirectMessage = createAsyncThunk(
 			if (response.fromCache) {
 				return [];
 			}
-
+			const state = thunkAPI.getState() as RootState;
+			const existingEntities = selectAllDirectMessages(state);
+			const userProfile = selectAllAccount(state)?.user;
+			const listDM: IUserChannel[] = [];
 			const sorted = response.channeldesc.sort((a: ApiChannelDescription, b: ApiChannelDescription) => {
 				if (
 					a === undefined ||
@@ -188,8 +193,20 @@ export const fetchDirectMessage = createAsyncThunk(
 
 				return -1;
 			});
-			const state = thunkAPI.getState() as RootState;
-			const existingEntities = selectAllDirectMessages(state);
+
+			response.channeldesc.map((channel: ApiChannelDescription) => {
+				if (channel.type === ChannelType.CHANNEL_TYPE_DM) {
+					listDM.push({
+						id: channel.channel_id || '',
+						channel_id: channel.channel_id || '',
+						avatars: [userProfile?.avatar_url || '', channel.avatars?.[0] || ''],
+						display_names: [userProfile?.display_name || '', channel.display_names?.[0] || ''],
+						usernames: [userProfile?.username || '', channel.usernames?.[0] || ''],
+						onlines: [true, !!channel?.onlines?.[0]],
+						user_ids: [userProfile?.id || '', channel.user_ids?.[0] || '']
+					});
+				}
+			});
 
 			const channels = sorted.map((channelRes) => {
 				const existingEntity = existingEntities.find((entity) => entity.id === channelRes.channel_id);
@@ -197,6 +214,7 @@ export const fetchDirectMessage = createAsyncThunk(
 			});
 			thunkAPI.dispatch(directMetaActions.setDirectMetaEntities(channels));
 			thunkAPI.dispatch(directActions.setAll(channels));
+			thunkAPI.dispatch(userChannelsActions.upsertMany(listDM));
 			const users = mapChannelsToUsers(sorted);
 			thunkAPI.dispatch(statusActions.updateBulkStatus(users));
 			return channels;

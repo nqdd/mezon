@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
 	fetchUserChannels,
 	getStore,
 	selectAllAccount,
@@ -10,7 +10,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
+import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -109,23 +109,7 @@ export const MemberListStatus = React.memo(() => {
 
 	const listMembersChannelGroupDM = useMemo(() => {
 		const store = getStore();
-		const userGroup: ChannelMembersEntity[] = [];
-		if (currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			rawMembers?.user_ids?.map((id, index) => {
-				if (id) {
-					userGroup.push({
-						id,
-						user: {
-							id,
-							display_name: rawMembers.display_names?.[index] || '',
-							username: rawMembers.usernames?.[index] || '',
-							avatar_url: rawMembers.avatars?.[index] || '',
-							online: rawMembers.onlines?.[index] || false
-						}
-					});
-				}
-			});
-		}
+		const userGroup: ChannelMembersEntity[] = rawMembers || [];
 		const members =
 			currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP
 				? userGroup
