@@ -205,6 +205,11 @@ export const accountSlice = createSlice({
 		},
 		incrementAvatarVersion(state) {
 			state.avatarVersion = (state.avatarVersion || 0) + 1;
+		},
+		updatePhoneNumber(state, action: PayloadAction<string>) {
+			if (state?.userProfile?.user) {
+				state.userProfile.user.phone_number = action.payload;
+			}
 		}
 	},
 	extraReducers: (builder) => {

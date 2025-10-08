@@ -176,7 +176,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			},
 			{
 				title: t('phoneNumberSetting.title'),
-				description: userProfile?.user?.phone_number,
+				description: userProfile?.user?.phone_number || '',
 				type: EAccountSettingType.PhoneNumber
 			}
 		];
