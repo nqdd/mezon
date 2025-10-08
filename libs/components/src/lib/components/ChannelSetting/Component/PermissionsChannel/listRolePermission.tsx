@@ -1,7 +1,8 @@
 import { channelUsersActions, selectAllRolesClan, selectCurrentClanId, selectRolesByChannelId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { generateE2eId, IChannel } from '@mezon/utils';
-import { useMemo } from 'react';
+import type { IChannel } from '@mezon/utils';
+import { generateE2eId } from '@mezon/utils';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 type ListRolePermissionProps = {
 	channel: IChannel;
@@ -29,7 +30,7 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 		const body = {
 			channelId: channel.id,
 			clanId: currentClanId || '',
-			roleId: roleId,
+			roleId,
 			channelType: channel.type
 		};
 		await dispatch(channelUsersActions.removeChannelRole(body));
@@ -42,7 +43,11 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 				data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.role_list.role_item')}
 			>
 				<div className="flex gap-x-2 items-center">
-					<Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />
+					{role.role_icon ? (
+						<img src={role.role_icon} alt="role icon" className="w-5 h-5 min-w-5 rounded" />
+					) : (
+						<Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />
+					)}
 					<p className="text-sm">{role.title}</p>
 				</div>
 				<div className="flex items-center gap-x-2">
@@ -63,4 +68,4 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 	);
 };
 
-export default ListRolePermission;
+export default React.memo(ListRolePermission);
