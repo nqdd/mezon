@@ -333,7 +333,7 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 }
 
 export function normalizeSearchString(str: string): string {
-	return normalizeString(str).replace('-', ' ').replace('_', ' ');
+	return normalizeString(str).replace('-', ' ').replace('_', ' ').replace('+', ' ');
 }
 
 export function normalizeString(str: string): string {
