@@ -1,16 +1,16 @@
 import { size, useTheme } from '@mezon/mobile-ui';
+import { getStore, selectMemberClanByUserId } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { getSrcEmoji, getSrcSound } from '@mezon/utils';
-import { VoiceReactionSend } from 'mezon-js';
+import type { VoiceReactionSend } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Easing, Platform, View } from 'react-native';
+import { Animated, Dimensions, Easing, Platform, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Sound from 'react-native-sound';
 import { style } from '../styles';
 
 const { width, height } = Dimensions.get('window');
 
-// Constants for better performance and maintainability
 const ANIMATION_CONFIG = {
 	EMOJI_SIZE: size.s_36,
 	START_X: width / 2,
@@ -21,7 +21,7 @@ const ANIMATION_CONFIG = {
 	FLIGHT_HEIGHT_VARIANCE: 0.2,
 	MAX_ROTATION: 120,
 	DURATIONS: {
-		TOTAL: 4000, // Reduced from 6000 for better UX
+		TOTAL: 4000,
 		SCALE_BOUNCE: 300,
 		SCALE_GROW: 500,
 		FADE_IN: 200,
@@ -40,6 +40,7 @@ interface EmojiItem {
 	opacity: Animated.Value;
 	startX: number;
 	startY: number;
+	displayName?: string;
 }
 
 interface ReactProps {
@@ -49,7 +50,7 @@ interface ReactProps {
 }
 
 // Memoized emoji component for better performance
-const AnimatedEmoji = memo(({ item }: { item: EmojiItem }) => {
+const AnimatedEmoji = memo(({ item, styles }: { item: EmojiItem; styles: any }) => {
 	return (
 		<Animated.View
 			style={{
@@ -73,6 +74,13 @@ const AnimatedEmoji = memo(({ item }: { item: EmojiItem }) => {
 				}}
 				resizeMode="contain"
 			/>
+			{item?.displayName && (
+				<View style={styles.reactionSenderEmojiContainer}>
+					<Text numberOfLines={1} style={styles.senderName}>
+						{item.displayName}
+					</Text>
+				</View>
+			)}
 		</Animated.View>
 	);
 });
@@ -173,7 +181,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 
 	// Optimized emoji creation and animation trigger
 	const createAndAnimateEmoji = useCallback(
-		(emojiId: string) => {
+		(emojiId: string, displayName = '') => {
 			const horizontalOffset = (Math.random() - 0.5) * ANIMATION_CONFIG.MAX_HORIZONTAL_OFFSET;
 			const verticalOffset = Math.random() * ANIMATION_CONFIG.MAX_VERTICAL_OFFSET;
 
@@ -185,7 +193,8 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 				scale: new Animated.Value(0),
 				opacity: new Animated.Value(0),
 				startX: ANIMATION_CONFIG.START_X + horizontalOffset * 0.2,
-				startY: ANIMATION_CONFIG.START_Y - verticalOffset
+				startY: ANIMATION_CONFIG.START_Y - verticalOffset,
+				displayName
 			};
 
 			setDisplayedEmojis((prev) => [...prev, newEmoji]);
@@ -265,7 +274,11 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 							onSoundReaction(senderId, soundId);
 						}
 					} else {
-						createAndAnimateEmoji(emojiId);
+						const store = getStore();
+						const members = selectMemberClanByUserId(store.getState(), senderId);
+						const displayName = members?.clan_nick || members?.user?.display_name || members?.user?.username || '';
+
+						createAndAnimateEmoji(emojiId, displayName);
 					}
 				}
 			} catch (error) {
@@ -303,11 +316,17 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 		};
 	}, [cleanupTimeouts]);
 
-	if (displayedEmojis.length === 0 || !isAnimatedCompleted) {
+	if (displayedEmojis?.length === 0 || !isAnimatedCompleted) {
 		return null;
 	}
 
-	return <View style={styles.reactionContainer}>{displayedEmojis?.map((item) => <AnimatedEmoji key={item.id} item={item} />)}</View>;
+	return (
+		<View style={styles.reactionContainer}>
+			{displayedEmojis.map((item) => (
+				<AnimatedEmoji key={item.id} item={item} styles={styles} />
+			))}
+		</View>
+	);
 });
 
 CallReactionHandler.displayName = 'CallReactionHandler';

@@ -65,7 +65,8 @@ export const statusSlice = createSlice({
 					status: user.custom_status
 				}
 			});
-		}
+		},
+		updateMany: statusAdapter.updateMany
 	}
 });
 

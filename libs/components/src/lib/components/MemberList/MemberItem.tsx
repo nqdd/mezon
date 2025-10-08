@@ -1,6 +1,6 @@
 import { useMemberStatus } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
-import { selectAccountCustomStatus, selectUserStatusById, useAppSelector } from '@mezon/store';
+import { selectAccountCustomStatus } from '@mezon/store';
 import { useSelector } from 'react-redux';
 import { useDirectMessageContextMenu } from '../../contexts';
 import { BaseMemberProfile } from '../MemberProfile/MemberProfile';
@@ -16,7 +16,7 @@ export type MemberItemProps = {
 };
 
 function MemberItem({ user, directMessageId, isDM = true, isMe, createId }: MemberItemProps) {
-	const userMetaById = useAppSelector((state) => selectUserStatusById(state, user?.user?.id || ''));
+	const userMetaById = useMemberStatus(user.id);
 	const currentUserCustomStatus = useSelector(selectAccountCustomStatus);
 	const status = useMemberStatus(user?.id);
 	const { showContextMenu, setCurrentUser, openProfileItem } = useDirectMessageContextMenu();

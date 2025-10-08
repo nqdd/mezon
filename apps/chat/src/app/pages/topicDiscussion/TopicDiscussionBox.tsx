@@ -313,7 +313,7 @@ const TopicDiscussionBox = () => {
 						</div>
 					</div>
 				</div>
-				{currentTopicId && <ChannelTyping channelId={currentTopicId || ''} mode={mode} isPublic isDM={false} />}
+				{currentTopicId ? <ChannelTyping channelId={currentTopicId || ''} mode={mode} isPublic isDM={false} /> : <div className="h-4"></div>}
 			</div>
 		</div>
 	);

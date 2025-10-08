@@ -11,7 +11,7 @@ import { UserStatusIconClan } from './IconStatus';
 
 type BaseMemberProfileProps = {
 	id: string;
-	userMeta?: { status?: string; online: boolean };
+	userMeta?: { status?: EUserStatus; online: boolean };
 	user: ChannelMembersEntity | UsersClanEntity;
 	username: string;
 	avatar: string;
@@ -60,12 +60,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 						src={avatar}
 					/>
 					<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-						<UserStatusIconClan
-							channelId={currentChannelID || currentDmGroup.id || ''}
-							userId={user.id}
-							status={userMeta?.status}
-							online={userMeta?.online}
-						/>
+						<UserStatusIconClan channelId={currentChannelID || currentDmGroup.id || ''} userId={user.id} status={userMeta?.status} />
 					</div>
 				</div>
 

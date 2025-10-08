@@ -1,4 +1,4 @@
-import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMemberStatus, useMenu, usePathMatch } from '@mezon/core';
 import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
@@ -49,7 +49,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IMessageSendPayload } from '@mezon/utils';
-import { EUserStatus, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -180,6 +180,7 @@ const TopBarChannelText = memo(() => {
 		}
 		return '';
 	}, [isChannelPath, isGuidePath, isMemberPath, t]);
+	const userStatus = useMemberStatus(currentDmGroup?.user_ids?.[0] || '');
 
 	return (
 		<>
@@ -227,7 +228,7 @@ const TopBarChannelText = memo(() => {
 						/>
 						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
 							<div className="absolute top-6 left-5 w-3 h-3">
-								<UserStatusIconDM status={currentDmGroup?.onlines?.[0] ? EUserStatus.ONLINE : EUserStatus.INVISIBLE} />
+								<UserStatusIconDM status={userStatus?.status} />
 							</div>
 						)}
 						<div
@@ -274,7 +275,9 @@ const TopBarChannelText = memo(() => {
 					</>
 				)}
 
-				{!isMemberPath && <SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />}
+				{!isMemberPath && !isChannelPath && (
+					<SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
+				)}
 			</div>
 
 			{editGroupModal.isEditModalOpen && (

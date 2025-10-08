@@ -7,8 +7,8 @@ import {
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectDmGroupCurrent,
-	selectMembeGroupByUserId,
 	selectMemberClanByUserId,
+	selectMemberGroupByUserId,
 	selectMessageIdAttachment,
 	selectModeAttachment,
 	selectModeResponsive,
@@ -19,7 +19,8 @@ import { Icons } from '@mezon/ui';
 import { ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { MessageContextMenuProps, useMessageContextMenu } from '../../ContextMenu';
+import type { MessageContextMenuProps } from '../../ContextMenu';
+import { useMessageContextMenu } from '../../ContextMenu';
 import ListAttachment from './listAttachment';
 export const MAX_SCALE_IMAGE = 5;
 
@@ -312,7 +313,7 @@ const SenderUser = () => {
 	const { directId } = useAppParams();
 	const attachment = useSelector(selectCurrentAttachmentShowImage);
 	const clanUser = useAppSelector((state) => selectMemberClanByUserId(state, attachment?.uploader as string));
-	const dmUser = useAppSelector((state) => selectMembeGroupByUserId(state, directId as string, attachment?.uploader as string));
+	const dmUser = useAppSelector((state) => selectMemberGroupByUserId(state, directId as string, attachment?.uploader as string));
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const user = modeResponsive === ModeResponsive.MODE_CLAN ? clanUser : dmUser;
 

@@ -9,9 +9,11 @@ import {
 	selectIsShowPreCallInterface,
 	selectVoiceInfo,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	voiceActions
 } from '@mezon/store-mobile';
-import { DisconnectReason, RoomEvent } from 'livekit-client';
+import type { Participant, TrackPublication } from 'livekit-client';
+import { DisconnectReason, RoomEvent, Track } from 'livekit-client';
 import LottieView from 'lottie-react-native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useState } from 'react';
@@ -48,6 +50,13 @@ const RoomViewListener = memo(
 		const dispatch = useAppDispatch();
 		const room: any = useRoomContext();
 		const { t } = useTranslation(['channelVoice']);
+		const voiceInfo = useSelector(selectVoiceInfo);
+
+		useEffect(() => {
+			if (!voiceInfo) {
+				handleShowDisconnectModal();
+			}
+		}, [voiceInfo]);
 
 		useEffect(() => {
 			if (participants?.length > 1 && isShowPreCallInterface) {
@@ -55,28 +64,43 @@ const RoomViewListener = memo(
 			}
 		}, [dispatch, isShowPreCallInterface, participants?.length]);
 
-		useEffect(() => {
-			if (focusedScreenShare && participants?.length > 1) {
-				const focusedParticipant = participants.find((p) => p.identity === focusedScreenShare?.participant?.identity);
-
-				if (!focusedParticipant?.isScreenShareEnabled) {
-					setFocusedScreenShare(null);
+		const getReasonContent = useCallback(
+			(reason: DisconnectReason) => {
+				switch (reason) {
+					case DisconnectReason.PARTICIPANT_REMOVED:
+						return t('disconnectModal.content.removed');
+					case DisconnectReason.DUPLICATE_IDENTITY:
+						return t('disconnectModal.content.duplicate');
+					case DisconnectReason.ROOM_DELETED:
+						return t('disconnectModal.content.deleted');
+					default:
+						return t('disconnectModal.content.default');
 				}
-			}
-		}, [participants, focusedScreenShare]);
+			},
+			[t]
+		);
 
-		const getReasonContent = (reason: DisconnectReason) => {
-			switch (reason) {
-				case DisconnectReason.PARTICIPANT_REMOVED:
-					return t('disconnectModal.content.removed');
-				case DisconnectReason.DUPLICATE_IDENTITY:
-					return t('disconnectModal.content.duplicate');
-				case DisconnectReason.ROOM_DELETED:
-					return t('disconnectModal.content.deleted');
-				default:
-					return t('disconnectModal.content.default');
-			}
-		};
+		const handleShowDisconnectModal = useCallback(
+			(reason?: DisconnectReason) => {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
+					isEndCall: true,
+					clanId,
+					channelId,
+					roomId: room?.roomInfo?.sid as string
+				});
+				room.disconnect();
+				dispatch(voiceActions.setPiPModeMobile(false));
+
+				if (reason) {
+					const content = getReasonContent(reason);
+					const data = {
+						children: <ReasonPopup title={t('disconnectModal.title')} confirmText={t('disconnectModal.confirm')} content={content} />
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				}
+			},
+			[channelId, clanId, dispatch, getReasonContent, room, t]
+		);
 
 		const handleDisconnected = useCallback(
 			async (reason?: DisconnectReason) => {
@@ -85,31 +109,42 @@ const RoomViewListener = memo(
 					reason === DisconnectReason.DUPLICATE_IDENTITY ||
 					reason === DisconnectReason.ROOM_DELETED
 				) {
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
-						isEndCall: true,
-						clanId,
-						channelId,
-						roomId: room?.roomInfo?.sid as string
-					});
-					room.disconnect();
-					const content = getReasonContent(reason);
-					const data = {
-						children: <ReasonPopup title={t('disconnectModal.title')} confirmText={t('disconnectModal.confirm')} content={content} />
-					};
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+					handleShowDisconnectModal(reason);
 				}
 			},
-			[channelId, clanId, room, t]
+			[handleShowDisconnectModal]
+		);
+
+		const handleParticipantDisconnected = useCallback(
+			(participant: Participant) => {
+				if (focusedScreenShare?.participant?.identity === participant.identity) {
+					setFocusedScreenShare(null);
+				}
+			},
+			[focusedScreenShare?.participant?.identity, setFocusedScreenShare]
+		);
+
+		const handleTrackUnpublished = useCallback(
+			(publication: TrackPublication) => {
+				if (publication.source === Track.Source.ScreenShare && publication.trackSid === focusedScreenShare?.publication?.trackSid) {
+					setFocusedScreenShare(null);
+				}
+			},
+			[focusedScreenShare?.publication?.trackSid, setFocusedScreenShare]
 		);
 
 		useEffect(() => {
 			room?.on(RoomEvent.Disconnected, handleDisconnected);
+			room?.on(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+			room?.on(RoomEvent.TrackUnpublished, handleTrackUnpublished);
 			return () => {
 				if (room) {
 					room.off(RoomEvent.Disconnected, handleDisconnected);
+					room.off(RoomEvent.ParticipantDisconnected, handleParticipantDisconnected);
+					room.off(RoomEvent.TrackUnpublished, handleTrackUnpublished);
 				}
 			};
-		}, [handleDisconnected, room]);
+		}, [handleDisconnected, handleParticipantDisconnected, handleTrackUnpublished, room]);
 		return null;
 	}
 );

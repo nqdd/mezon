@@ -1,3 +1,4 @@
+import { useMemberStatus } from '@mezon/core';
 import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
@@ -92,8 +93,6 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 				number={directMessage?.member_count || 0}
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
-				userStatus={user?.user_status}
-				online={directMessage?.onlines?.[0]}
 				direct={directMessage}
 			/>
 			{buzzStateDM?.isReset ? (
@@ -126,8 +125,6 @@ const DmItemProfile = ({
 	number,
 	isTypeDMGroup,
 	highlight,
-	userStatus,
-	online,
 	direct
 }: {
 	highlight: boolean;
@@ -135,10 +132,9 @@ const DmItemProfile = ({
 	name: string;
 	number: number;
 	isTypeDMGroup: boolean;
-	userStatus?: string;
-	online?: boolean;
 	direct: DirectEntity;
 }) => {
+	const userStatus = useMemberStatus(direct.user_ids?.[0] || '');
 	return (
 		<div
 			className={`relative flex gap-2 items-center text-theme-primary-hover  ${highlight ? 'text-theme-primary-active' : 'text-theme-primary'}`}
@@ -153,7 +149,7 @@ const DmItemProfile = ({
 			/>
 			{!isTypeDMGroup && (
 				<div className="rounded-full absolute left-5 -bottom-[3px] inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus} online={online} />
+					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus.status} />
 				</div>
 			)}
 

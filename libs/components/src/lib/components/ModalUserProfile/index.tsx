@@ -247,7 +247,6 @@ const ModalUserProfile = ({
 				userID={userID}
 				positionType={positionType}
 				isFooterProfile={isFooterProfile}
-				userStatus={userStatus?.user_status}
 				statusOnline={userStatus?.status as EUserStatus}
 			/>
 			<div className="px-[16px]">
@@ -258,7 +257,11 @@ const ModalUserProfile = ({
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username}
+									: userById?.clan_nick ||
+										userById?.user?.display_name ||
+										userById?.user?.username ||
+										message?.display_name ||
+										message?.username}
 						</p>
 						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
@@ -284,24 +287,16 @@ const ModalUserProfile = ({
 					)}
 
 					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
-						userById?.user?.username ? (
-							<div className="w-full items-center mt-2">
-								<input
-									type="text"
-									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
-									value={content}
-									onKeyPress={handleOnKeyPress}
-									onChange={handleContent}
-								/>
-							</div>
-						) : (
-							<div className="w-full items-center mt-2">
-								<div className="w-full  bg-item-theme text-theme-primary-active p-[8px] text-center italic">
-									{t('labels.userNotFound')}
-								</div>
-							</div>
-						)
+						<div className="w-full items-center mt-2">
+							<input
+								type="text"
+								className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
+								placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+								value={content}
+								onKeyPress={handleOnKeyPress}
+								onChange={handleContent}
+							/>
+						</div>
 					) : null}
 					{showNote && (
 						<>

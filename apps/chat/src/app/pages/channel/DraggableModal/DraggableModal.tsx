@@ -480,8 +480,6 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 		};
 	}, [handleMouseMove, handleMouseUp]);
 
-	const modalStyle = inVisible ? { height: 0, visibility: 'hidden' as const } : {};
-
 	const [showModal, hideModal] = useModal(() => {
 		return (
 			isShowModal && (
@@ -493,10 +491,9 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 						top: `${(dragging ? modalPosition : storedPosition || DEFAULT_POSITION).y}px`,
 						width: `${modalSize.width}px`,
 						height: `${modalSize.height}px`,
-						display: 'flex',
+						display: inVisible ? 'none' : 'flex',
 						flexDirection: 'column',
-						minHeight: `${COLLAPSED_SIZE.height}px`,
-						...modalStyle
+						minHeight: `${COLLAPSED_SIZE.height}px`
 					}}
 					onMouseDown={handleMouseDown}
 				>
@@ -516,8 +513,8 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 		);
 	}, [
 		isShowModal,
-		modalStyle,
 		dragging,
+		inVisible,
 		modalPosition,
 		storedPosition,
 		modalSize,

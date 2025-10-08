@@ -172,7 +172,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 					<MezonAvatar height={size.s_100} width={size.s_100} avatarUrl={currenChannel.avatars[0]} username={userName} />
 				) : (
 					<View style={styles.wrapperTextAvatar}>
-						<Text style={[styles.textAvatar]}>{currenChannel?.channel_label?.charAt?.(0)}</Text>
+						<Text style={[styles.textAvatar]}>{currenChannel?.channel_label?.charAt?.(0)?.toUpperCase()}</Text>
 					</View>
 				)
 			) : (
