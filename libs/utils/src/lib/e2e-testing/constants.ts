@@ -166,6 +166,7 @@ export const DATA_E2E_IDENTIFIER = {
 			create_event: {
 				start_modal: '',
 				button_create: '',
+				button_close: '',
 				next: '',
 				upload: {
 					image_cover_input: ''
@@ -174,7 +175,8 @@ export const DATA_E2E_IDENTIFIER = {
 					type: '',
 					channel: {
 						item: ''
-					}
+					},
+					input: ''
 				},
 				event_info: {
 					input: {
@@ -197,7 +199,8 @@ export const DATA_E2E_IDENTIFIER = {
 					event_topic: '',
 					description: '',
 					voice_channel: '',
-					text_channel: ''
+					text_channel: '',
+					location_name: ''
 				},
 				event_management: {
 					item: {
@@ -208,7 +211,8 @@ export const DATA_E2E_IDENTIFIER = {
 							description: ''
 						},
 						button: {
-							open_detail_modal: ''
+							open_detail_modal: '',
+							close_detail_modal: ''
 						}
 					}
 				}

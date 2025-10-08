@@ -324,7 +324,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					{checkOptionLocation && (
 						<>
 							<Icons.Location />
-							<p>{address}</p>
+							<p data-e2e={generateE2eId('clan_page.modal.create_event.review.location_name')}>{address}</p>
 						</>
 					)}
 					{option === '' && !address && !channelVoice && (
