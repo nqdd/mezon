@@ -247,7 +247,6 @@ const ModalUserProfile = ({
 				userID={userID}
 				positionType={positionType}
 				isFooterProfile={isFooterProfile}
-				userStatus={userStatus?.user_status}
 				statusOnline={userStatus?.status as EUserStatus}
 			/>
 			<div className="px-[16px]">
