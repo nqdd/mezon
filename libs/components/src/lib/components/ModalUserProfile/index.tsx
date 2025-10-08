@@ -249,7 +249,6 @@ const ModalUserProfile = ({
 				userID={userID}
 				positionType={positionType}
 				isFooterProfile={isFooterProfile}
-				userStatus={userStatus?.user_status}
 				statusOnline={userStatus?.status as EUserStatus}
 			/>
 			<div className="px-[16px]">
@@ -260,7 +259,11 @@ const ModalUserProfile = ({
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username}
+									: userById?.clan_nick ||
+										userById?.user?.display_name ||
+										userById?.user?.username ||
+										message?.display_name ||
+										message?.username}
 						</p>
 						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow}

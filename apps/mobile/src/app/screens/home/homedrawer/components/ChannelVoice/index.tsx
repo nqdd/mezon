@@ -237,10 +237,6 @@ function ChannelVoice({
 		};
 	}, [dispatch]);
 
-	if (!voiceInfo) {
-		return null;
-	}
-
 	return (
 		<View>
 			{isAnimationComplete && !focusedScreenShare && !isPiPMode && <StatusBarHeight />}

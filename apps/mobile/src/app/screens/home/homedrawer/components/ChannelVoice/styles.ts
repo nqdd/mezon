@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
@@ -181,5 +182,17 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			right: size.s_4,
 			top: size.s_4
+		},
+		reactionSenderEmojiContainer: {
+			padding: size.s_4,
+			marginTop: size.s_4,
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_10,
+			width: size.s_90
+		},
+		senderName: {
+			fontSize: size.s_10,
+			color: colors.text,
+			textAlign: 'center'
 		}
 	});

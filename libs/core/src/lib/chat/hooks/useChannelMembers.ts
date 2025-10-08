@@ -1,12 +1,11 @@
+import type { ChannelsEntity, ThreadsEntity } from '@mezon/store';
 import {
 	channelMembersActions,
 	channelMetaActions,
-	ChannelsEntity,
 	channelUsersActions,
 	selectAllAccount,
 	selectAllChannelMembers,
 	selectChannelById,
-	ThreadsEntity,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -33,8 +32,8 @@ export function useChannelMembers({ channelId, mode }: useChannelMembersOptions)
 		const body = {
 			channelId: currentChannel?.channel_id as string,
 			channelType: currentChannel?.type,
-			userIds: userIds,
-			clanId: clanId
+			userIds,
+			clanId
 		};
 
 		try {
@@ -60,9 +59,7 @@ export function useChannelMembers({ channelId, mode }: useChannelMembersOptions)
 	const addMemberToThread = useCallback(
 		async (currentChannel: ChannelsEntity | null, notExistingUserIds: string[]) => {
 			const currentUserId = userProfile?.user?.id;
-			const filteredUserIds = currentUserId
-				? notExistingUserIds.filter(userId => userId !== currentUserId)
-				: notExistingUserIds;
+			const filteredUserIds = currentUserId ? notExistingUserIds.filter((userId) => userId !== currentUserId) : notExistingUserIds;
 			if (filteredUserIds.length > 0) {
 				await updateChannelUsers(currentChannel, filteredUserIds, currentChannel?.clan_id as string);
 			}
