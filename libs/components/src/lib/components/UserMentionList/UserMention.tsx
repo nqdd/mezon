@@ -1,9 +1,11 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { useChannelMembers } from '@mezon/core';
-import { ChannelMembersEntity, selectAllRolesClan, selectChannelById, selectRolesByChannelId, useAppSelector } from '@mezon/store';
-import { EVERYONE_ROLE_ID, ID_MENTION_HERE, MentionDataProps, TITLE_MENTION_HERE, getNameForPrioritize } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { selectAllRolesClan, selectChannelById, selectRolesByChannelId, useAppSelector } from '@mezon/store';
+import type { MentionDataProps } from '@mezon/utils';
+import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TITLE_MENTION_HERE, getNameForPrioritize } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiRole } from 'mezon-js/api.gen';
+import type { ApiRole } from 'mezon-js/api.gen';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -63,7 +65,7 @@ export function UserMentionList({ channelID, channelMode }: UserMentionListProps
 				avatarUrl: '',
 				clanNick: item.title,
 				color: item.color,
-        isRole: true
+				isRole: true
 			})) ?? [];
 
 		if (channelMode === ChannelStreamMode.STREAM_MODE_CHANNEL || channelMode === ChannelStreamMode.STREAM_MODE_THREAD) {
