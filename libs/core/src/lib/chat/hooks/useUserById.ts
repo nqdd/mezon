@@ -21,7 +21,6 @@ export const useUserById = (userID: string | undefined): ChannelMembersEntity | 
 		const currentDMId = selectDmGroupCurrentId(state);
 		const isClanView = selectClanView(state);
 		if (!isClanView) {
-			const ussenamee = selectMemberGroupByUserId(state, currentDMId as string, userID as string) as unknown as ChannelMembersEntity;
 			return selectMemberGroupByUserId(state, currentDMId as string, userID as string) as unknown as ChannelMembersEntity;
 		} else {
 			return selectMemberClanByUserId(state, userID ?? '') as unknown as ChannelMembersEntity;

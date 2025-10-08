@@ -548,20 +548,22 @@ export const selectGroupMembersEntities = createSelector([selectGrouplMembers], 
 export const selectMemberGroupByUserId = createSelector(
 	[(state: any, channelId: string, userId: string) => selectMemberByGroupId(state, channelId), (_: any, __: string, userId: string) => userId],
 	(channel, userId): ChannelMembersEntity | undefined => {
-		const index = channel?.user_ids?.indexOf(userId);
+		if (!channel?.user_ids || !userId) return undefined;
 
-		if (index === undefined || index < 0) return undefined;
-
-		const user = {
-			id: channel?.user_ids[index],
-			username: channel.usernames?.[index],
-			display_name: channel.display_names?.[index],
-			avatar: channel.avatars?.[index],
-			online: channel.onlines?.[index]
-		};
+		const index = channel.user_ids.indexOf(userId);
+		if (index === -1) return undefined;
 
 		return {
-			user
+			id: userId,
+			channelId: channel.id || '',
+			userChannelId: channel.id || '',
+			user: {
+				id: userId,
+				username: channel.usernames?.[index],
+				display_name: channel.display_names?.[index],
+				avatar: channel.avatars?.[index],
+				online: channel.onlines?.[index] ?? false
+			}
 		} as ChannelMembersEntity;
 	}
 );
