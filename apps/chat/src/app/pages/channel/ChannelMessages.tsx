@@ -8,6 +8,7 @@ import {
 	getStore,
 	messagesActions,
 	selectAllAccount,
+	selectChannelByChannelId,
 	selectChannelDraftMessage,
 	selectCurrentChannelId,
 	selectDataReferences,
@@ -134,6 +135,8 @@ function ChannelMessages({
 	const lastMessageId = lastMessage?.id;
 	const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
+	const hasMoreBottom = useAppSelector((state) => selectHasMoreBottomByChannelId(state, channelId));
+
 	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
 	const chatRef = useRef<HTMLDivElement | null>(null);
@@ -159,6 +162,19 @@ function ChannelMessages({
 				}
 				previousChannelId.current = channelId;
 			});
+		return () => {
+			if (!channelId) return;
+			const store = getStore();
+			const scrollPosition = selectScrollPositionByChannelId(store.getState(), channelId);
+			const lastMessage = selectLastMessageByChannelId(store.getState(), channelId);
+			if (scrollPosition?.messageId) return;
+			dispatch(
+				channelsActions.setScrollPosition({
+					channelId,
+					messageId: lastMessage?.id
+				})
+			);
+		};
 	}, [channelId]);
 
 	useSyncEffect(() => {
@@ -177,6 +193,15 @@ function ChannelMessages({
 				});
 		};
 	}, []);
+
+	useSyncEffect(() => {
+		dispatch(
+			channelsActions.setScrollDownVisibility({
+				channelId,
+				isVisible: hasMoreBottom
+			})
+		);
+	}, [hasMoreBottom]);
 
 	const loadMoreMessage = useCallback(
 		async (direction: ELoadMoreDirection, cb?: IBeforeRenderCb) => {
@@ -594,7 +619,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		useSyncEffect(() => {
 			const store = getStore();
-			const scrollPosition = selectScrollPositionByChannelId(store.getState(), channelId);
+			const state = store.getState();
+			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
+
+			if (!scrollPosition?.messageId) {
+				const channel = selectChannelByChannelId(state, channelId);
+				const lastSeenMessageId = channel?.last_seen_message?.id;
+				if (lastSeenMessageId) {
+					scrollPosition = { messageId: lastSeenMessageId };
+				}
+			}
+
 			scrollPositionRef.current = scrollPosition;
 		}, [channelId]);
 
@@ -728,25 +763,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				});
 			});
 		});
-		useSyncEffect(() => {
-			const container = chatRef.current;
-			if (!container) return;
-			if (
-				user?.user?.id === lastMessage?.sender_id &&
-				lastMessage?.create_time &&
-				new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500
-			) {
-				requestAnimationFrame(() => {
-					skipCalculateScroll.current = true;
-					const { scrollHeight, offsetHeight } = container;
-					const newScrollTop = scrollHeight - offsetHeight;
-					resetScroll(container, Math.ceil(newScrollTop));
-					setTimeout(() => {
-						skipCalculateScroll.current = false;
-					}, 0);
-				});
-			}
-		}, [lastMessage, user?.user?.id]);
 
 		useLayoutEffectWithPrevDeps(
 			([prevMessageIds, prevIsViewportNewest]) => {
@@ -823,7 +839,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 					let newScrollTop!: number;
 
-					if (isAtBottom) {
+					if (
+						(!scrollPositionRef.current?.messageId && isAtBottom) ||
+						(userActiveScroll.current && isAtBottom) ||
+						(user?.user?.id === lastMessage?.sender_id &&
+							lastMessage?.create_time &&
+							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500)
+					) {
 						newScrollTop = scrollHeight;
 					} else if (anchor) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
@@ -940,7 +962,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const isSelected = selectedMessageId === messageId;
 				const isEditing = getIsEditing(messageId);
 				const previousMessageId = messageIds[index - 1];
-				const isPreviousMessageLastSeen = Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
+				const isPreviousMessageLastSeen =
+					Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId) && messageIds.length > 2;
 				const shouldShowUnreadBreak = isPreviousMessageLastSeen && entities[messageId]?.sender_id !== user?.user?.id;
 
 				return (
