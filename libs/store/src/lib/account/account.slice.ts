@@ -210,7 +210,7 @@ export const accountSlice = createSlice({
 		},
 		updatePhoneNumber(state, action: PayloadAction<string>) {
 			if (state?.userProfile?.user) {
-				state.userProfile.user.phone_number = action.payload;
+				(state.userProfile.user as any).phone_number = action.payload;
 			}
 		},
 		setPasswordSetted(state, action: PayloadAction<boolean>) {
