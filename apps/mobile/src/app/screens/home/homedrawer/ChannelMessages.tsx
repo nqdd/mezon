@@ -4,6 +4,7 @@ import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import {
+	channelsActions,
 	getStore,
 	messagesActions,
 	selectAllAccount,
@@ -16,7 +17,6 @@ import {
 	selectLastMessageByChannelId,
 	selectMessageIsLoading,
 	selectMessagesByChannel,
-	selectUnreadMessageIdByChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -70,11 +70,12 @@ const ChannelMessages = React.memo(
 		const timeOutRef = useRef(null);
 		const [isShowJumpToPresent, setIsShowJumpToPresent] = useState(false);
 		const navigation = useNavigation<any>();
-		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 		const lastMessageId = useMemo(() => lastMessage?.id, [lastMessage]);
 		const userId = useSelector(selectAllAccount)?.user?.id;
 		const hasJumpedToLastSeen = useRef(false);
+		const [haveScrollToBottom, setHaveScrollToBottom] = useState<boolean>(false);
+
 		useEffect(() => {
 			const event = DeviceEventEmitter.addListener(ActionEmitEvent.SCROLL_TO_BOTTOM_CHAT, () => {
 				if (!isViewingOldMessage) {
@@ -89,34 +90,57 @@ const ChannelMessages = React.memo(
 		}, [isViewingOldMessage]);
 
 		useEffect(() => {
-			if (flatListRef?.current && channelId && !lastSeenMessageId) {
-				flatListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
-			}
-		}, [messages.length, lastSeenMessageId, channelId]);
+			return () => {
+				dispatch(
+					channelsActions.updateLastSeenMessage({
+						clanId,
+						channelId,
+						lastSeenMessage: {
+							id: lastMessageId || '',
+							timestamp: new Date().toISOString()
+						}
+					})
+				);
+			};
+		}, [channelId, clanId, dispatch, lastMessageId, lastSeenMessageId]);
 
 		useEffect(() => {
-			if (hasJumpedToLastSeen.current || !lastSeenMessageId || !messages?.length) {
+			if (!lastSeenMessageId || !messages?.length || hasJumpedToLastSeen.current) {
 				return;
 			}
 
-			const checkMessageExistence = () => {
-				const store = getStore();
-				const isMessageExist = selectIsMessageIdExist(store.getState() as any, channelId, lastSeenMessageId);
+			let timeoutId: NodeJS.Timeout;
 
-				if (isMessageExist) {
-					const indexToJump = messages?.findIndex?.((message: { id: string }) => message.id === lastSeenMessageId);
-					if (indexToJump !== -1 && flatListRef.current && indexToJump > 0 && messages?.length - 1 >= indexToJump) {
-						flatListRef?.current?.scrollToIndex?.({
-							animated: true,
-							index: indexToJump + 2
-						});
-						hasJumpedToLastSeen.current = true;
+			const checkMessageExistence = () => {
+				timeoutId = setTimeout(() => {
+					const store = getStore();
+					const isMessageExist = selectIsMessageIdExist(store.getState() as any, channelId, lastSeenMessageId);
+
+					if (isMessageExist) {
+						const indexToJump = messages?.findIndex?.((message: { id: string }) => message.id === lastSeenMessageId);
+						if (
+							indexToJump !== -1 &&
+							flatListRef?.current &&
+							indexToJump > 0 &&
+							messages?.length - 1 >= indexToJump &&
+							indexToJump >= 3
+						) {
+							flatListRef?.current?.scrollToIndex?.({
+								animated: true,
+								index: indexToJump - 3
+							});
+							hasJumpedToLastSeen.current = true;
+						}
 					}
-				}
+				}, 200);
 			};
 
 			checkMessageExistence();
-		}, [lastSeenMessageId, channelId, messages]);
+
+			return () => {
+				if (timeoutId) clearTimeout(timeoutId);
+			};
+		}, [channelId, lastSeenMessageId, messages]);
 
 		useEffect(() => {
 			let timeout;
@@ -244,12 +268,14 @@ const ChannelMessages = React.memo(
 			({ item, index }) => {
 				const previousMessage = messages?.[index + 1];
 				const previousMessageId = previousMessage?.id;
-				const isPreviousMessageLastSeen = Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
-				const shouldShowUnreadBreak = isPreviousMessageLastSeen && item?.sender_id !== userId && previousMessageId && item?.sender_id;
-
+				const isPreviousMessageLastSeen =
+					Boolean(previousMessageId === lastSeenMessageId && previousMessageId !== lastMessageId) &&
+					messages.length > 2 &&
+					lastSeenMessageId &&
+					previousMessage;
+				const shouldShowUnreadBreak = isPreviousMessageLastSeen && item?.sender_id !== userId && !haveScrollToBottom;
 				return (
 					<>
-						{shouldShowUnreadBreak && <MessageNewLine key={`unread-${previousMessageId}`} />}
 						<MessageItem
 							userId={userId}
 							message={item}
@@ -260,10 +286,11 @@ const ChannelMessages = React.memo(
 							topicChannelId={topicChannelId}
 							isHighlight={idMessageToJump?.id?.toString() === item?.id?.toString()}
 						/>
+						{shouldShowUnreadBreak && <MessageNewLine key={`unread-${previousMessageId}`} />}
 					</>
 				);
 			},
-			[messages, lastMessageUnreadId, lastMessageId, userId, mode, channelId, topicChannelId, idMessageToJump?.id]
+			[channelId, haveScrollToBottom, idMessageToJump?.id, lastMessageId, lastSeenMessageId, messages, mode, topicChannelId, userId]
 		);
 
 		const handleJumpToPresent = useCallback(async () => {
@@ -300,12 +327,13 @@ const ChannelMessages = React.memo(
 			async ({ nativeEvent }) => {
 				handleSetShowJumpLast(nativeEvent);
 				if (nativeEvent.contentOffset.y <= 0 && !isLoadMore?.current?.[ELoadMoreDirection.bottom] && !isDisableLoadMore) {
+					setHaveScrollToBottom(true);
 					const canLoadMore = await isCanLoadMore(ELoadMoreDirection.bottom);
 					if (!canLoadMore) {
 						setIsDisableLoadMore(false);
 						return;
 					}
-					flatListRef?.current?.scrollToOffset?.({ animated: true, offset: 20 });
+					flatListRef?.current?.scrollToOffset?.({ animated: false, offset: 20 });
 					await onLoadMore(ELoadMoreDirection.bottom);
 				}
 			},

@@ -26,7 +26,14 @@ export const DirectMessageDetailTablet = ({ directMessageId }: { directMessageId
 			<ChannelSeen channelId={directMessageId || ''} />
 			<DirectMessageDetailListener directMessageId={directMessageId} dmType={dmType} />
 			<HeaderDirectMessage directMessageId={directMessageId} styles={styles} themeValue={themeValue} />
-			{directMessageId && <ChatMessageWrapper directMessageId={directMessageId} isModeDM={isModeDM} currentClanId={'0'} />}
+			{directMessageId && (
+				<ChatMessageWrapper
+					directMessageId={directMessageId}
+					lastSeenMessageId={currentDmGroup?.last_seen_message?.id}
+					isModeDM={isModeDM}
+					currentClanId={'0'}
+				/>
+			)}
 		</View>
 	);
 };

@@ -1,19 +1,58 @@
-import { useTheme } from '@mezon/mobile-ui';
-import React from 'react';
-import { Text, View } from 'react-native';
-import { style } from './styles';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Animated, Text, View } from 'react-native';
+import { style } from './styles';
 
 function MessageNewLine() {
 	const styles = style();
 	const { t } = useTranslation('message');
+	const opacity = useRef(new Animated.Value(0)).current;
+	const translateY = useRef(new Animated.Value(-10)).current;
+
+	useEffect(() => {
+		Animated.parallel([
+			Animated.timing(opacity, {
+				toValue: 1,
+				duration: 200,
+				useNativeDriver: true
+			}),
+			Animated.timing(translateY, {
+				toValue: 0,
+				duration: 200,
+				useNativeDriver: true
+			})
+		]).start();
+
+		return () => {
+			Animated.parallel([
+				Animated.timing(opacity, {
+					toValue: 0,
+					duration: 200,
+					useNativeDriver: true
+				}),
+				Animated.timing(translateY, {
+					toValue: 10,
+					duration: 200,
+					useNativeDriver: true
+				})
+			]).start();
+		};
+	}, []);
 
 	return (
-		<View style={styles.container}>
+		<Animated.View
+			style={[
+				styles.container,
+				{
+					opacity,
+					transform: [{ translateY }]
+				}
+			]}
+		>
 			<View style={styles.line} />
 			<Text style={styles.text}>{t('newMessages')}</Text>
 			<View style={styles.line} />
-		</View>
+		</Animated.View>
 	);
 }
 

@@ -22,8 +22,8 @@ export const DMGroupItem = memo(({ dmGroupData, navigateToDirectMessage }: IDMGr
 	}, [dmGroupData?.channel_label, dmGroupData?.usernames]);
 
 	const dmAvatar = useMemo(() => {
-		return dmGroupData?.topic;
-	}, [dmGroupData?.topic]);
+		return dmGroupData?.channel_avatar;
+	}, [dmGroupData?.channel_avatar]);
 
 	const renderAvatar = useCallback(() => {
 		if (dmAvatar && !dmAvatar.includes('avatar-group.png')) {
