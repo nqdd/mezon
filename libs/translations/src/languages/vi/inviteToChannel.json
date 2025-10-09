@@ -31,5 +31,10 @@
     "downloadError": "Lỗi khi tải mã QR",
     "shareError": "Lỗi khi chia sẻ mã QR",
     "clanDefaultName": "Clan"
+  },
+  "share": {
+    "title": "chia sẻ",
+    "message": "Tham gia Mezon với tôi:",
+    "error": "Lỗi khi chia sẻ: {{error}}"
   }
 }
