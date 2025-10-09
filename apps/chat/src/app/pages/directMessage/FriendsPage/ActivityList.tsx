@@ -145,7 +145,7 @@ const ActivityList = ({ listFriend }: ListActivityProps) => {
 										{t('activity.gaming')} - {listActivities.lolCount}
 									</p>
 								) : (
-									<MemoizedMemberItem user={user as IUserProfileActivity} />
+									<MemoizedMemberItem user={user.user as IUserProfileActivity} />
 								)}
 							</div>
 						</div>

@@ -68,7 +68,7 @@
 	"emoji": {
 		"uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
 		"title": "Biểu tượng cảm xúc",
-		"description": "Thêm tối đa 250 emoji tùy chỉnh mà mọi người có thể sử dụng trong máy chủ này. Emoji GIF động có thể được sử dụng bởi thành viên có Mezon Nitro",
+		"description": "Thêm tối đa 250 emoji tùy chỉnh mà mọi người có thể sử dụng trong máy chủ này.",
 		"uploadRequirements": "YÊU CẦU TẢI LÊN",
 		"requirements": {
 			"fileType": "Loại tệp: JPEG, PNG, GIF",

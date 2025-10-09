@@ -4,6 +4,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
+	appActions,
 	clansActions,
 	fetchSystemMessageByClanId,
 	getStore,
@@ -20,6 +21,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
+import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -115,6 +117,33 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 		});
 	}, [currentInviteLink, t]);
 
+	const handleShareInviteLink = useCallback(async () => {
+		try {
+			dispatch(appActions.setLoadingMainMobile(true));
+			const shareOptions = {
+				title: t('share.title'),
+				message: t('share.message'),
+				url: currentInviteLink || currentInviteLinkRef?.current,
+				failOnCancel: false
+			};
+
+			await Share.open(shareOptions);
+		} catch (error) {
+			if (error?.message !== 'User did not share') {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('share.error', { error: 'Unknown error' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+					}
+				});
+			}
+		} finally {
+			dispatch(appActions.setLoadingMainMobile(false));
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		}
+	}, [currentInviteLink, dispatch, t]);
+
 	const handleShowQRModal = useCallback(() => {
 		const data = {
 			children: <QRModal inviteLink={currentInviteLink} />
@@ -189,7 +218,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 				) : (
 					<MezonIconCDN icon={IconCDN.shareIcon} color={themeValue.text} />
 				),
-				onPress: () => (!currentInviteLink ? null : addInviteLinkToClipboard())
+				onPress: () => (!currentInviteLink ? null : handleShareInviteLink())
 			},
 			{
 				title: t('iconTitle.copyLink'),

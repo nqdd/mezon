@@ -1,16 +1,17 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import {
-	fetchListWalletLedger,
+	fetchListTransactionHistory,
+	selectAddress,
 	selectAllAccount,
 	selectCountWalletLedger,
-	selectWalletLedger,
+	selectTransactionHistory,
 	useAppDispatch,
 	useAppSelector,
 	useWallet
 } from '@mezon/store-mobile';
 import { CURRENCY, formatBalanceToString } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
-import { ApiWalletLedger } from 'mezon-js/api.gen';
+import { Transaction } from 'mmn-client-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -27,45 +28,57 @@ export const HistoryTransactionScreen = () => {
 	const { t } = useTranslation(['token']);
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
-	const walletLedger = useAppSelector((state) => selectWalletLedger(state));
 	const userProfile = useSelector(selectAllAccount);
 	const count = useAppSelector((state) => selectCountWalletLedger(state));
 	const [page, setPage] = useState(1);
 	const [activeTab, setActiveTab] = useState<FilterType>(TRANSACTION_FILTERS.ALL);
 	const [isLoadMore, setIsLoadMore] = useState(false);
 	const { walletDetail } = useWallet();
-	const totalPages = useMemo(() => (count === undefined ? 0 : Math.ceil(count / LIMIT_WALLET)), [count]);
-	const isNextPage = useMemo(() => page < totalPages, [page, totalPages]);
-	const [currentTransactionItem, setCurrentTransactionItem] = useState<string>('');
-
+	const isNextPage = page * LIMIT_WALLET < (count || 0);
+	const walletAddress = useSelector(selectAddress);
+	const walletLedger = useAppSelector((state) => selectTransactionHistory(state));
 	const refList = useRef<any>(null);
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
 	}, [walletDetail?.balance]);
 
-	useEffect(() => {
-		dispatch(fetchListWalletLedger({ page, filter: API_FILTER_PARAMS[activeTab] }));
-	}, [page, activeTab]);
-
-	const loadMore = useCallback(() => {
-		if (isNextPage && !isLoadMore) {
-			dispatch(fetchListWalletLedger({ page: page + 1, filter: API_FILTER_PARAMS[activeTab] })).finally(() => {
-				setPage((prev) => prev + 1);
+	const fetchTransactions = useCallback(
+		async (filter: FilterType, page = 1) => {
+			setIsLoadMore(true);
+			try {
+				await dispatch(
+					fetchListTransactionHistory({
+						address: walletAddress || '',
+						page,
+						filter: API_FILTER_PARAMS[filter]
+					})
+				);
+			} catch (error) {
+				console.error(`Error loading transactions:`, error);
+			} finally {
 				setIsLoadMore(false);
-			});
-		}
-	}, [page, isNextPage, isLoadMore]);
+			}
+		},
+		[dispatch, walletAddress]
+	);
 
-	const onPressItem = useCallback(async (id: string) => {
-		setCurrentTransactionItem(id);
-	}, []);
+	useEffect(() => {
+		fetchTransactions(activeTab);
+	}, [activeTab]);
+
+	const loadMore = useCallback(async () => {
+		if (isNextPage && !isLoadMore) {
+			await fetchTransactions(activeTab, page + 1);
+			setPage((prev) => prev + 1);
+			setIsLoadMore(false);
+		}
+	}, [isNextPage, isLoadMore, fetchTransactions, activeTab, page]);
 
 	const renderItem = useCallback(
-		({ item }: { item: ApiWalletLedger }) => {
-			const isExpand = currentTransactionItem === item?.transaction_id;
-			return <TransactionItem item={item} key={`token_receiver_${item.id}`} onPress={onPressItem} isExpand={isExpand} />;
+		({ item }: { item: Transaction }) => {
+			return <TransactionItem walletAddress={walletAddress} item={item} key={`token_receiver_${item.hash}`} />;
 		},
-		[currentTransactionItem]
+		[walletAddress]
 	);
 
 	const ViewLoadMore = () => {
@@ -77,7 +90,6 @@ export const HistoryTransactionScreen = () => {
 	};
 
 	const onChangeActiveTab = useCallback((tab: FilterType) => {
-		setCurrentTransactionItem('');
 		setActiveTab(tab);
 		setPage(1);
 		refList?.current?.scrollToOffset({ offset: 0, animated: false });
@@ -129,12 +141,7 @@ export const HistoryTransactionScreen = () => {
 				<FlashList
 					ref={refList}
 					key={`walletLedger_${userProfile?.user?.id}`}
-					data={walletLedger?.filter((item) => {
-						if (activeTab === TRANSACTION_FILTERS.ALL) return true;
-						if (activeTab === TRANSACTION_FILTERS.RECEIVED) return item.value > 0;
-						if (activeTab === TRANSACTION_FILTERS.SENT) return item.value < 0;
-						return false;
-					})}
+					data={walletLedger}
 					renderItem={renderItem}
 					removeClippedSubviews={true}
 					showsVerticalScrollIndicator={false}

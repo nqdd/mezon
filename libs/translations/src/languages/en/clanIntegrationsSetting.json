@@ -7,10 +7,10 @@
     "learnMore": "Learn more about managing integrations."
   },
   "webhooks": {
-    "description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the server using internet magic.",
-    "learnMore": "Learn more",
-    "try": "or try",
-    "buildOne": "build one yourself."
+		"description": "Webhooks are an easy way to get automated messages and data updates sent to text channel in the clan using internet magic.",
+		"learnMore": "Learn more",
+		"try": "or try",
+		"buildOne": "build one yourself."
   },
   "clanWebhooks": {
     "description": "Clan Webhooks are a simple way to post messages from other apps and websites for each Mezon user using internet technology.",

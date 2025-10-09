@@ -23,6 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import OTPInput from '../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
 
@@ -52,6 +53,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const [isLandscape, setIsLandscape] = useState(false);
 	const [resetTrigger, setResetTrigger] = useState(0);
 	const dispatch = useAppDispatch();
+	const isTabletLandscape = useTabletLandscape();
 
 	const countdownStartTime = useRef<number>(Date.now());
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -250,7 +252,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
+				<View style={[styles.content, isLandscape && !isTabletLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('otpVerify.loginToMezon')}</Text>
 
 					<View style={styles.instructionSection}>

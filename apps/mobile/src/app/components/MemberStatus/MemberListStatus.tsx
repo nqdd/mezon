@@ -4,8 +4,8 @@ import type { DirectEntity } from '@mezon/store-mobile';
 import {
 	fetchUserChannels,
 	getStore,
+	selectAllAccount,
 	selectAllUserClans,
-	selectGrouplMembers,
 	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
@@ -39,6 +39,7 @@ export const MemberListStatus = React.memo(() => {
 	const currentChannel = useContext(threadDetailContext);
 	const navigation = useNavigation<any>();
 	const dispatch = useAppDispatch();
+	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
 	const { t } = useTranslation();
@@ -77,16 +78,43 @@ export const MemberListStatus = React.memo(() => {
 		if (action === EActionButton.AddMembers) navigateToNewGroupScreen();
 	}, []);
 
-	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
+	const mapMembersDM = () => {
+		const store = getStore();
+		const userProfile = selectAllAccount(store.getState());
+		const userGroup: ChannelMembersEntity[] = [
+			{
+				id: userProfile?.user?.id || '',
+				user: {
+					id: userProfile?.user?.id || '',
+					display_name: userProfile?.user?.display_name || '',
+					username: userProfile?.user?.username || '',
+					avatar_url: userProfile?.user?.avatar_url || '',
+					online: userProfile?.user?.online || false
+				}
+			}
+		];
+		const userObject = {
+			id: currentChannel.user_ids?.[0] || '',
+			user: {
+				id: currentChannel.user_ids?.[0] || '',
+				display_name: currentChannel.display_names?.[0] || '',
+				username: currentChannel.usernames?.[0] || '',
+				avatar_url: currentChannel.avatars?.[0] || '',
+				online: currentChannel.onlines?.[0] || false
+			}
+		};
+		userGroup.push(userObject);
+		return userGroup;
+	};
 
 	const listMembersChannelGroupDM = useMemo(() => {
 		const store = getStore();
 		const userGroup: ChannelMembersEntity[] = rawMembers || [];
 		const members =
-			userGroup && currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP
+			currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP
 				? userGroup
-				: isDMThread
-					? selectGrouplMembers(store.getState(), currentChannel?.channel_id as string)
+				: currentChannel?.type === ChannelType.CHANNEL_TYPE_DM
+					? mapMembersDM()
 					: selectAllUserClans(store.getState() as any);
 
 		if (!members) {
@@ -110,7 +138,7 @@ export const MemberListStatus = React.memo(() => {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [currentChannel?.channel_id, currentChannel?.type, isDMThread, rawMembers]);
+	}, [currentChannel?.type, rawMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
 
