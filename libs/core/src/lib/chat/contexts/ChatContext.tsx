@@ -377,7 +377,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(attachmentActions.removeAttachments({ messageId: message?.message_id as string, channelId: message.channel_id }));
 				}
 
-				dispatch(messagesActions.addNewMessage(mess));
+				if (message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove) {
+					dispatch(messagesActions.newMessage(mess));
+				} else {
+					dispatch(messagesActions.addNewMessage(mess));
+				}
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
 					const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
 					!newDm && dispatch(directMetaActions.updateDMSocket(message));
@@ -441,10 +445,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						);
 					} else {
 						if (message.clan_id) {
-							const currentClanId = selectCurrentClanId(store.getState());
-							if (currentClanId !== message.clan_id) {
-								dispatch(clansActions.setHasUnreadMessage({ clanId: message.clan_id, hasUnread: true }));
-							}
+							dispatch(clansActions.setHasUnreadMessage({ clanId: message.clan_id, hasUnread: true }));
 						}
 					}
 					if (message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
