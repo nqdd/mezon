@@ -333,7 +333,7 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 }
 
 export function normalizeSearchString(str: string): string {
-	return normalizeString(str).replace('-', ' ').replace('_', ' ').replace('+', ' ');
+	return normalizeString(str).replace(/-/g, ' ').replace(/_/g, ' ').replace(/\+/g, ' ');
 }
 
 export function normalizeString(str: string): string {
@@ -470,7 +470,6 @@ export function filterListByName(listSearch: SearchItemProps[], searchText: stri
 			const itemName = item.name ? normalizeSearchString(item.name) : '';
 			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
 			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
-
 			return (
 				prioritizeName.includes(searchUpper) ||
 				itemName.includes(searchUpper) ||
