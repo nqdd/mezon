@@ -190,9 +190,7 @@ const ModalSendToken = ({
 		if (user) {
 			handleSelectUser(user.id, user.username);
 		}
-	}, [filteredUsers, selectedUserId, handleSelectUser]);
 
-	useEffect(() => {
 		setTokenNumber(formatNumber(Number(token), i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
 	}, [token, i18n.language]);
 

@@ -46,7 +46,7 @@ setBackgroundMessageHandler(messaging, async (remoteMessage) => {
 
 			if (isValidString(title) && isValidString(body)) {
 				// Check if this notification was already processed
-				const isProcessed = await isNotificationProcessed(title, body);
+				const isProcessed = await isNotificationProcessed(title, body, remoteMessage?.sentTime?.toString() || '');
 
 				if (!isProcessed) {
 					// Only create notification if not a duplicate

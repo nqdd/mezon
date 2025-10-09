@@ -401,7 +401,6 @@ export const fetchMessages = createAsyncThunk(
 			if (!fromCache) {
 				lastSentMessage = response.last_sent_message as ApiChannelMessageHeader;
 			}
-
 			const lastSentState = selectLatestMessageId(state, chlId);
 			const lastSeenState = selectLastSeenMessageStateByChannelId(state, chlId);
 			if (
@@ -762,6 +761,17 @@ export const updateLastSeenMessage = createAsyncThunk(
 				timestamp: message_time ?? now,
 				messageId
 			});
+
+			if (clanId && clanId !== '0') {
+				const state = thunkAPI.getState() as RootState;
+				const clan = selectClanById(clanId)(state);
+
+				if (clan?.has_unread_message) {
+					requestIdleCallback(() => {
+						thunkAPI.dispatch(clansActions.updateHasUnreadBasedOnChannels({ clanId }));
+					});
+				}
+			}
 		} catch (e) {
 			console.error(e, 'updateLastSeenMessage');
 			captureSentryError(e, 'messages/updateLastSeenMessage');
@@ -1089,17 +1099,23 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const viewportIds = selectViewportIdsByChannelId(state, channelId);
 
 	let shouldSetViewingOlder = isViewingOlderMessages;
+
+	let needsRebalance = false;
+
 	if (scrollPosition?.messageId && viewportIds?.length > 0) {
 		const scrollMessageIndex = viewportIds.indexOf(scrollPosition.messageId);
 		if (scrollMessageIndex !== -1) {
 			const distanceFromBottom = viewportIds.length - scrollMessageIndex - 1;
-			if (distanceFromBottom >= 25) {
+			const distanceFromTop = scrollMessageIndex;
+
+			if (distanceFromBottom >= 25 || distanceFromTop >= 25) {
+				needsRebalance = true;
 				shouldSetViewingOlder = true;
 			}
 		}
 	}
 
-	if (shouldSetViewingOlder) {
+	if (shouldSetViewingOlder && !needsRebalance) {
 		if (shouldSetViewingOlder !== isViewingOlderMessages) {
 			thunkAPI.dispatch(messagesActions.setViewingOlder({ channelId, status: true }));
 		}
@@ -1110,13 +1126,34 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 
 	thunkAPI.dispatch(messagesActions.newMessage(message));
 
-	thunkAPI.dispatch(
-		messagesActions.addMessageToViewport({
-			channelId,
-			messageId: message.id,
-			keep50items: isBottom
-		})
-	);
+	if (needsRebalance && scrollPosition?.messageId) {
+		const updatedState = thunkAPI.getState() as RootState;
+		const allMessageIds = updatedState.messages.channelMessages[channelId]?.ids as string[];
+
+		if (allMessageIds?.length > 0) {
+			const fullMessageIndex = allMessageIds.indexOf(scrollPosition.messageId);
+			if (fullMessageIndex !== -1) {
+				const halfSlice = 50;
+				const from = Math.max(0, fullMessageIndex - halfSlice);
+				const to = Math.min(allMessageIds.length - 1, fullMessageIndex + halfSlice);
+				const newViewportIds = allMessageIds.slice(from, to + 1);
+				thunkAPI.dispatch(
+					messagesActions.setViewportIds({
+						channelId,
+						viewportIds: newViewportIds
+					})
+				);
+			}
+		}
+	} else {
+		thunkAPI.dispatch(
+			messagesActions.addMessageToViewport({
+				channelId,
+				messageId: message.id,
+				keep50items: isBottom
+			})
+		);
+	}
 });
 
 type UpdateTypingArgs = {
@@ -1592,6 +1629,16 @@ export const messagesSlice = createSlice({
 				state.channelViewPortMessageIds[channelId] = messageIds.slice(-50);
 			}
 		},
+		setViewportIds: (
+			state,
+			action: PayloadAction<{
+				channelId: string;
+				viewportIds: string[];
+			}>
+		) => {
+			const { channelId, viewportIds } = action.payload;
+			state.channelViewPortMessageIds[channelId] = viewportIds;
+		},
 		resetLoading: (state) => {
 			state.loadingStatus = 'loaded';
 		},
@@ -1852,7 +1899,7 @@ export const selectHasMoreMessageByChannelId = createSelector([getMessagesState,
 export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
 	const lastMessage = state.lastMessageByChannel[channelId];
 
-	if (!lastMessage || !lastMessage.id) return false;
+	if (!lastMessage || !lastMessage.id || !state.channelViewPortMessageIds[channelId]) return false;
 
 	const isLastMessageInChannel = state.channelViewPortMessageIds[channelId]?.includes(lastMessage?.id);
 

@@ -2,6 +2,7 @@ import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji,
 import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
+	EStateFriend,
 	appActions,
 	audioCallActions,
 	canvasAPIActions,
@@ -22,6 +23,7 @@ import {
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
 	selectDefaultNotificationClan,
+	selectFriendById,
 	selectGalleryAttachmentsByChannel,
 	selectIsInCall,
 	selectIsPinModalVisible,
@@ -474,6 +476,12 @@ const DmTopbarTools = memo(() => {
 	const isInCall = useSelector(selectIsInCall);
 	const isGroupCallActive = useSelector((state: RootState) => state.groupCall?.isGroupCallActive || false);
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
+
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [currentDmGroup?.user_ids?.[0], infoFriend]);
+
 	const closeMenuOnMobile = useCallback(() => {
 		const isMobile = window.innerWidth < 640;
 		if (isMobile) {
@@ -655,22 +663,26 @@ const DmTopbarTools = memo(() => {
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
 			<div className=" items-center gap-2 flex">
 				<div className="justify-start items-center gap-[15px] flex ">
-					<button
-						title={t('tooltips.startVoiceCall')}
-						onClick={() => handleStartCall()}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconPhoneDM defaultSize="size-5" />
-					</button>
-					<button
-						title={t('tooltips.startVideoCall')}
-						onClick={() => handleStartCall(true)}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconMeetDM defaultSize="size-5" />
-					</button>
+					{!isBlockUser && (
+						<>
+							<button
+								title={t('tooltips.startVoiceCall')}
+								onClick={() => handleStartCall()}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconPhoneDM defaultSize="size-5" />
+							</button>
+							<button
+								title={t('tooltips.startVideoCall')}
+								onClick={() => handleStartCall(true)}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconMeetDM defaultSize="size-5" />
+							</button>
+						</>
+					)}
 					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
 
 					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />

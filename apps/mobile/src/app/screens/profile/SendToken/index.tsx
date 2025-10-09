@@ -1,9 +1,9 @@
 import { BottomSheetFlatList, BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useDirect, useSendInviteMessage } from '@mezon/core';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	FriendsEntity,
 	appActions,
 	getStore,
 	getStoreAsync,
@@ -21,13 +21,14 @@ import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import ViewShot from 'react-native-view-shot';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
+import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../componentUI/MezonInput';
 import Backdrop from '../../../components/BottomSheetRootListener/backdrop';
@@ -49,8 +50,11 @@ const formatTokenAmount = (amount: any) => {
 	const numericValue = parseInt(sanitizedText, 10) || 0;
 	return numericValue.toLocaleString();
 };
+
+const ITEM_HEIGHT = size.s_60;
 export const SendTokenScreen = ({ navigation, route }: any) => {
 	const { t } = useTranslation(['token']);
+	const { t: tMsg } = useTranslation(['message']);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const store = getStore();
@@ -77,6 +81,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		const dmGroupChatList = selectDirectsOpenlist(store.getState() as any);
 		return dmGroupChatList.filter((groupChat) => groupChat.type === ChannelType.CHANNEL_TYPE_DM);
 	}, [store]);
+	const { enableWallet } = useWallet();
 
 	const viewToSnapshotRef = useRef<ViewShot>(null);
 	const [disableButton, setDisableButton] = useState<boolean>(false);
@@ -140,6 +145,14 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		return Array.from(userMap.values());
 	}, [friendList, listDM, userProfile?.user?.id]);
 
+	const handleEnableWallet = async () => {
+		await enableWallet();
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	};
+
+	const onCancelEnableWallet = () => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	};
 	const directMessageId = useMemo(() => {
 		const directMessage = listDM?.find?.((dm) => {
 			const userIds = dm?.user_ids;
@@ -193,12 +206,27 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 			const res = await store.dispatch(giveCoffeeActions.sendToken(tokenEvent));
 			store.dispatch(appActions.setLoadingMainMobile(false));
+			setDisableButton(false);
+			if (res?.payload === 'Wallet not available') {
+				const data = {
+					children: (
+						<MezonConfirm
+							onConfirm={() => handleEnableWallet()}
+							title={tMsg('wallet.notAvailable')}
+							confirmText={tMsg('wallet.enableWallet')}
+							content={tMsg('wallet.descNotAvailable')}
+							onCancel={onCancelEnableWallet}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				return;
+			}
 			if (res?.meta?.requestStatus === 'rejected' || !res) {
 				Toast.show({
 					type: 'error',
 					text1: t('toast.error.anErrorOccurred')
 				});
-				setDisableButton(false);
 			} else {
 				if (directMessageId) {
 					sendInviteMessage(
@@ -266,20 +294,46 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		BottomSheetRef?.current?.dismiss();
 	};
 
-	const filteredUsers = useMemo(() => {
-		return mergeUser.filter((user) =>
-			(typeof user?.username === 'string' ? user?.username : user?.username?.[0] || '')?.toLowerCase().includes(searchText.toLowerCase())
-		);
-	}, [mergeUser, searchText]);
+	// Remove Vietnamese diacritics
+	const removeDiacritics = (str) =>
+		str
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/đ/g, 'd')
+			.replace(/Đ/g, 'D');
 
-	const renderItem = ({ item }: { item: Receiver }) => {
-		return (
-			<Pressable key={`token_receiver_${item.id}`} style={styles.userItem} onPress={() => handleSelectUser(item)}>
-				<MezonAvatar avatarUrl={item?.avatar_url} username={item?.username?.[0]} height={size.s_34} width={size.s_34} />
-				<Text style={styles.title}>{item.username}</Text>
-			</Pressable>
-		);
-	};
+	const filteredUsers = useMemo(() => {
+		if (!searchText.trim()) return mergeUser;
+
+		const search = searchText.toLowerCase();
+		const searchNorm = removeDiacritics(search);
+
+		return mergeUser
+			.map((user) => {
+				const username = (typeof user?.username === 'string' ? user.username : user?.username?.[0] || '').toLowerCase();
+				const usernameNorm = removeDiacritics(username);
+
+				const score =
+					username === search
+						? 1000
+						: username.startsWith(search)
+							? 900
+							: usernameNorm === searchNorm
+								? 800
+								: usernameNorm.startsWith(searchNorm)
+									? 700
+									: username.includes(search)
+										? 500
+										: usernameNorm.includes(searchNorm)
+											? 400
+											: 0;
+
+				return score ? { user, score, len: username.length } : null;
+			})
+			.filter(Boolean)
+			.sort((a, b) => b.score - a.score || a.len - b.len)
+			.map((item) => item.user);
+	}, [mergeUser, searchText]);
 
 	const handleSearchText = debounce((text) => {
 		setSearchText(text);
@@ -373,6 +427,27 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		},
 		[navigation]
 	);
+
+	const renderItem = useCallback(
+		({ item }) => (
+			<Pressable key={`token_receiver_${item.id}`} style={[styles.userItem, { height: ITEM_HEIGHT }]} onPress={() => handleSelectUser(item)}>
+				<MezonAvatar avatarUrl={item?.avatar_url} username={item?.username?.[0]} height={size.s_34} width={size.s_34} />
+				<Text style={styles.title}>{item.username}</Text>
+			</Pressable>
+		),
+		[styles]
+	);
+
+	const getItemLayout = useCallback(
+		(data, index) => ({
+			length: ITEM_HEIGHT, // Define your item height constant
+			offset: ITEM_HEIGHT * index,
+			index
+		}),
+		[]
+	);
+
+	const keyExtractor = useCallback((item) => item.id, []);
 
 	if (showConfirmModal) {
 		return (
@@ -476,7 +551,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					<View>
 						<Text style={styles.title}>{t('sendTokenTo')}</Text>
 						<TouchableOpacity
-							disabled={!!jsonObject?.receiver_id}
+							disabled={!!jsonObject?.receiver_id || jsonObject?.type === 'payment'}
 							style={[
 								styles.textField,
 								{
@@ -504,7 +579,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<View style={styles.textField}>
 							<TextInput
 								autoFocus={!!jsonObject?.receiver_id}
-								editable={!jsonObject?.amount || canEdit}
+								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}
 								keyboardType="numeric"
@@ -517,7 +592,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('note')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								editable={!jsonObject?.note || canEdit}
+								editable={(!jsonObject?.note || canEdit) && jsonObject?.type !== 'payment'}
 								style={[styles.textInput, { height: size.s_100, paddingVertical: size.s_10, paddingTop: size.s_10 }]}
 								placeholderTextColor="#535353"
 								autoCapitalize="none"
@@ -537,12 +612,15 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				</View>
 				<BottomSheetModal
 					ref={BottomSheetRef}
-					snapPoints={snapPoints}
+					enableDynamicSizing={false}
+					snapPoints={['80%']}
 					backdropComponent={Backdrop}
+					android_keyboardInputMode="adjustResize"
 					style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10, flex: 1, gap: size.s_10 }}
 					backgroundStyle={{ backgroundColor: themeValue.primary }}
 				>
 					<MezonInput
+						autoFocus={true}
 						inputWrapperStyle={styles.searchText}
 						placeHolder={t('selectUser')}
 						onTextChange={handleSearchText}
@@ -550,16 +628,22 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					/>
 
 					<BottomSheetFlatList
-						keyExtractor={(item) => `user_receiver_${item?.id}`}
-						keyboardShouldPersistTaps={'handled'}
+						keyExtractor={keyExtractor}
+						keyboardShouldPersistTaps="handled"
 						data={filteredUsers}
+						renderItem={renderItem}
+						getItemLayout={getItemLayout}
 						style={{
 							backgroundColor: themeValue.secondary,
 							borderRadius: size.s_8,
 							marginTop: size.s_10
 						}}
-						contentContainerStyle={{ paddingBottom: size.s_20, minHeight: '100%' }}
-						renderItem={renderItem}
+						contentContainerStyle={{ paddingBottom: size.s_20 }}
+						removeClippedSubviews
+						maxToRenderPerBatch={10}
+						initialNumToRender={15}
+						windowSize={5}
+						updateCellsBatchingPeriod={50}
 					/>
 				</BottomSheetModal>
 			</View>

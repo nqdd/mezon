@@ -51,7 +51,6 @@ const SettingUserClanProfileCard = (props: propProfilesform) => {
 				userToDisplay={true}
 				customStatus={userStatusProfile}
 				userID={userProfile?.user?.id}
-				userStatus={userStatus?.user_status}
 				statusOnline={userStatus.status}
 				identifierE2E="avatar_clan_profile"
 			/>

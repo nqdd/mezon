@@ -15,6 +15,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter } from 'react-native';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import ReasonPopup from './components/ChannelVoice/ReasonPopup';
 
 const ChannelSeen = memo(
@@ -89,28 +90,28 @@ function DrawerListener({ channelId }: { channelId: string }) {
 	);
 
 	const onRemoveUserChannel = useCallback(
-		async ({ channelId: removeChannelId, channelType }) => {
-			if (channelId === removeChannelId) {
-				if (
-					channelType === ChannelType.CHANNEL_TYPE_CHANNEL ||
-					channelType === ChannelType.CHANNEL_TYPE_THREAD ||
-					channelType === ChannelType.CHANNEL_TYPE_GROUP
-				) {
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-					await sleep(200);
-					const data = {
-						children: (
-							<ReasonPopup
-								title={t('removeFromChannel.title')}
-								confirmText={t('removeFromChannel.button')}
-								content={t('removeFromChannel.content')}
-							/>
-						)
-					};
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-					navigation.goBack();
-				}
+		async ({ channelId: removeChannelId, channelType, isRemoveClan = false }) => {
+			if (
+				(channelId === removeChannelId &&
+					(channelType === ChannelType.CHANNEL_TYPE_CHANNEL ||
+						channelType === ChannelType.CHANNEL_TYPE_THREAD ||
+						channelType === ChannelType.CHANNEL_TYPE_GROUP)) ||
+				isRemoveClan
+			) {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+				await sleep(200);
+				const data = {
+					children: (
+						<ReasonPopup
+							title={t('removeFromChannel.title')}
+							confirmText={t('removeFromChannel.button')}
+							content={t('removeFromChannel.content')}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				navigation.navigate(APP_SCREEN.BOTTOM_BAR);
 			}
 		},
 		[channelId, navigation, t]
