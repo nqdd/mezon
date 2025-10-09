@@ -11,7 +11,6 @@ import {
 	selectAllAccount,
 	selectAllFriends,
 	selectAllUserClans,
-	selectBlockedUsersForMessage,
 	selectDirectsOpenlist,
 	useAppDispatch,
 	useWallet
@@ -99,13 +98,12 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const mergeUser = useMemo(() => {
 		const userMap = new Map<string, Receiver>();
 		const usersClan = selectAllUserClans(store.getState());
-		const listBlockUsers = selectBlockedUsersForMessage(store.getState());
 
 		usersClan
 			?.filter((item) => item?.user?.id !== userProfile?.user?.id)
 			?.forEach((itemUserClan) => {
 				const userId = itemUserClan?.id ?? '';
-				if (userId && !userMap.has(userId) && !listBlockUsers?.some((item) => item?.id === userId)) {
+				if (userId && !userMap.has(userId)) {
 					userMap.set(userId, {
 						id: userId,
 						username: [
@@ -120,7 +118,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 		listDM.forEach((itemDM: DirectEntity) => {
 			const userId = itemDM?.user_ids?.[0] ?? '';
-			if (userId && !userMap.has(userId) && !listBlockUsers?.some((item) => item?.id === userId)) {
+			if (userId && !userMap.has(userId)) {
 				userMap.set(userId, {
 					id: userId,
 					username: [typeof itemDM?.usernames === 'string' ? itemDM?.usernames : (itemDM?.usernames?.[0] ?? '')] as Array<string>,

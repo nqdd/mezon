@@ -462,21 +462,19 @@ const UserProfile = React.memo(
 							>
 								<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
-							{!isBlocked && (
-								<TouchableOpacity
-									onPress={() => handleTransferFunds()}
-									style={{
-										position: 'absolute',
-										right: size.s_50,
-										top: size.s_10,
-										padding: size.s_6,
-										borderRadius: size.s_20,
-										backgroundColor: themeValue.primary
-									}}
-								>
-									<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
-								</TouchableOpacity>
-							)}
+							<TouchableOpacity
+								onPress={() => handleTransferFunds()}
+								style={{
+									position: 'absolute',
+									right: size.s_50,
+									top: size.s_10,
+									padding: size.s_6,
+									borderRadius: size.s_20,
+									backgroundColor: themeValue.primary
+								}}
+							>
+								<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+							</TouchableOpacity>
 						</View>
 					)}
 					<View style={[styles.userAvatar]}>
