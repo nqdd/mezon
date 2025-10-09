@@ -1,6 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { selectDmGroupCurrent } from '@mezon/store-mobile';
-import { ChannelStreamMode, ChannelType } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useSelector } from 'react-redux';
