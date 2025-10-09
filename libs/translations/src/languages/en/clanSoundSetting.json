@@ -5,11 +5,11 @@
 		"uploadDetailScreen": "Upload"
 	},
 	"content": {
-		"description": "•  Only accepts .mp3, .wav files, maximum 1MB. \n•  Use memorable names for sound effects. \n•  Sound effects will be used in clan notifications or events.",
+		"description": "•  Only accepts .mp3, .wav files, maximum 1MB. \n•  Use memorable names for Voice effects. \n•  Voice effects will be used in clan notifications or events.",
 		"requirements": "UPLOAD REQUIREMENTS",
 		"reqSize": "- No larger than 1024KB.",
 		"audioFile": "Audio file",
-		"audioName": "Sound Name",
+		"audioName": "Voice Name",
 		"preview": "Preview",
 		"chooseAudioFile": "Choose an audio file"
 	},
@@ -27,21 +27,21 @@
 		"noSoundEffects": "No voice stickers yet. Click \"Upload voice sticker\" to add!"
 	},
 	"modal": {
-		"editVoiceEffect": "Edit Voice Effect",
-		"uploadVoiceEffect": "Upload Voice Effect",
-		"supportFormats": "Supports MP3, WAV formats • Max 1MB",
+		"titleEdit": "Edit Voice Effect",
+		"titleUpload": "Upload Voice Effect",
+		"subtitle": "Supports MP3, WAV formats • Max 1MB",
 		"preview": "Preview",
 		"audioFile": "Audio File",
-		"chooseOrDropFile": "Choose or drop a file",
+		"soundName": "Voice Name",
+		"chooseOrDrop": "Choose or drop a file",
 		"browse": "Browse",
-		"soundName": "Sound Name",
 		"placeholder": "Ex.cat hug",
 		"cancel": "Cancel",
+		"uploading": "Uploading...",
 		"update": "Update",
 		"upload": "Upload",
-		"uploading": "Uploading...",
 		"errorFileType": "Support file .mp3 or .wav",
 		"errorFileSize": "File too big, max 1MB",
-		"errorUploadFailed": "Failed to upload sound"
+		"errorUploadFailed": "Failed to upload voice"
 	}
 }

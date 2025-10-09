@@ -1,12 +1,10 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { MediaType, selectCurrentClanId, soundEffectActions, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons, Modal } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import type { SoundType } from './index';
 
@@ -171,10 +169,8 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 				<div className="relative">
 					<div className="relative px-4 pt-4 pb-3 border-b-theme-primary">
 						<div className="text-center">
-							<h2 className="text-lg font-bold text-theme-primary-active">
-								{sound ? t('modal.editVoiceEffect') : t('modal.uploadVoiceEffect')}
-							</h2>
-							<p className=" text-xs">{t('modal.supportFormats')}</p>
+							<h2 className="text-lg font-bold text-theme-primary-active">{sound ? t('modal.titleEdit') : t('modal.titleUpload')}</h2>
+							<p className=" text-xs">{t('modal.subtitle')}</p>
 						</div>
 					</div>
 
@@ -236,7 +232,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 										>
 											{!file ? (
 												<div className="flex items-center justify-between h-full px-2">
-													<p className="text-xs truncate">{t('modal.chooseOrDropFile')}</p>
+													<p className="text-xs truncate">{t('modal.chooseOrDrop')}</p>
 													<button className="hover:bg-[#4752c4] bg-[#5865f2] rounded-[4px] py-1 px-2 text-nowrap text-white text-xs">
 														{t('modal.browse')}
 													</button>
