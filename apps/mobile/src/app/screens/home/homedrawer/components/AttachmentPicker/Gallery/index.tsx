@@ -216,7 +216,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 
 	const renderItem = ({ item, index }) => {
 		const baseFilename = item?.node?.image?.filename || '';
-		const fileName = baseFilename + index;
+		const fileName = index + baseFilename;
 		const isVideo = item?.node?.type?.startsWith?.('video') ?? false;
 		const isSelected = selectedFilenameSet?.has(fileName) ?? false;
 		const disabled = isDisableSelectAttachment && !isSelected;

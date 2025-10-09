@@ -1,23 +1,23 @@
 {
-    "button": {
-        "upload": "Upload Sound",
-        "delete": "Delete",
-        "uploadDetailScreen": "Upload"
-    },
-    "content": {
-        "description": "•  Only accepts .mp3, .wav files, maximum 1MB. \n•  Use memorable names for sound effects. \n•  Sound effects will be used in clan notifications or events.",
-        "requirements": "UPLOAD REQUIREMENTS",
-        "reqSize": "- No larger than 1024KB.",
-        "audioFile": "Audio file",
-        "audioName": "Sound Name",
-        "preview": "Preview",
-        "chooseAudioFile": "Choose an audio file"
-    },
-    "toast": {
-        "errorSizeLimit": "File size limit exceeded 1MB",
-        "errorFileType": "Invalid file type. Only .mp3, .mpeg and .wav files are allowed."
-    },
-    "main": {
+	"button": {
+		"upload": "Upload Sound",
+		"delete": "Delete",
+		"uploadDetailScreen": "Upload"
+	},
+	"content": {
+		"description": "•  Only accepts .mp3, .wav files, maximum 1MB. \n•  Use memorable names for sound effects. \n•  Sound effects will be used in clan notifications or events.",
+		"requirements": "UPLOAD REQUIREMENTS",
+		"reqSize": "- No larger than 1024KB.",
+		"audioFile": "Audio file",
+		"audioName": "Sound Name",
+		"preview": "Preview",
+		"chooseAudioFile": "Choose an audio file"
+	},
+	"toast": {
+		"errorSizeLimit": "File size limit exceeded 1MB",
+		"errorFileType": "Invalid file type. Only .mp3, .mpeg and .wav files are allowed."
+	},
+	"main": {
 		"uploadInstructions": "UPLOAD INSTRUCTIONS",
 		"fileRequirements": "Only accepts .mp3, .wav files, maximum 1MB. Use memorable names for voice stickers. Voice stickers will be used in clan notifications or events.",
 		"uploadHere": "Upload it here!",
@@ -25,5 +25,23 @@
 		"uploadSound": "Upload voice sticker",
 		"soundEffectList": "Sound Effect List",
 		"noSoundEffects": "No voice stickers yet. Click \"Upload voice sticker\" to add!"
+	},
+	"modal": {
+		"titleEdit": "Edit Sound Effect",
+		"titleUpload": "Upload Sound Effect",
+		"subtitle": "Supports MP3, WAV formats • Max 1MB",
+		"preview": "Preview",
+		"audioFile": "Audio File",
+		"soundName": "Sound Name",
+		"chooseOrDrop": "Choose or drop a file",
+		"browse": "Browse",
+		"placeholder": "Ex.cat hug",
+		"cancel": "Cancel",
+		"uploading": "Uploading...",
+		"update": "Update",
+		"upload": "Upload",
+		"errorFileType": "Support file .mp3 or .wav",
+		"errorFileSize": "File too big, max 1MB",
+		"errorUploadFailed": "Failed to upload sound"
 	}
 }

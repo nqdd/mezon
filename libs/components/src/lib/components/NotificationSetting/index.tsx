@@ -1,4 +1,4 @@
-import { useCategorizedAllChannels } from '@mezon/core';
+import { useCategorizedAllChannels, useEscapeKeyClose } from '@mezon/core';
 import type { SetDefaultNotificationPayload } from '@mezon/store';
 import {
 	defaultNotificationActions,
@@ -15,7 +15,7 @@ import {
 } from '@mezon/store';
 import { Button } from '@mezon/ui';
 import type { ICategoryChannel, IChannel } from '@mezon/utils';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Creatable from 'react-select/creatable';
@@ -216,10 +216,23 @@ const ModalNotificationSetting = (props: ModalParam) => {
 			dispatch(notificationSettingActions.deleteNotiChannelSetting({ channel_id: id, clan_id: currentClanId || '' }));
 		}
 	};
+	const modalRef = useRef<HTMLDivElement>(null);
+	useEscapeKeyClose(modalRef, props.onClose);
+
+	useEffect(() => {
+		if (modalRef.current) {
+			modalRef.current.focus();
+		}
+	}, []);
 
 	return (
 		<ModalLayout onClose={props.onClose}>
-			<div className="flex flex-col bg-theme-setting-primary rounded-xl overflow-hidden max-w-[684px] w-screen">
+			<div
+				ref={modalRef}
+				className="flex flex-col bg-theme-setting-primary rounded-xl overflow-hidden max-w-[684px] w-screen"
+				tabIndex={-1}
+				autoFocus
+			>
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
 					<div className="flex flex-col">
 						<p className="font-bold text-xl text-theme-primary-active">{t('title')}</p>

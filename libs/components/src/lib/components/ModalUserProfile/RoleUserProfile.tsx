@@ -52,12 +52,12 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 			return (
 				role.id !== EVERYONE_ROLE_ID &&
 				role.title !== EVERYONE_ROLE_TITLE &&
-				!userById.role_id?.includes(role.id) &&
+				!userById?.role_id?.includes(role.id) &&
 				role.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
 				(isClanOwner || Number(maxPermissionLevel) > Number(rolesClanEntity[role.id]?.max_level_permission || -1))
 			);
 		});
-	}, [activeRolesWithoutUserRoles, searchTerm, userById.role_id, isClanOwner, maxPermissionLevel, rolesClanEntity]);
+	}, [activeRolesWithoutUserRoles, searchTerm, userById?.role_id, isClanOwner, maxPermissionLevel, rolesClanEntity]);
 
 	const dispatch = useAppDispatch();
 

@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import type { BuzzArgs, IChannel, IMessage, IUserProfileActivity, LoadingStatus } from '@mezon/utils';
+import type { BuzzArgs, IChannel, IMessage, IUserChannel, IUserProfileActivity, LoadingStatus } from '@mezon/utils';
 import { ActiveDm } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
@@ -7,6 +7,8 @@ import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezo
 import { ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
+import { selectAllAccount } from '../account/account.slice';
+import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
 import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
@@ -170,7 +172,10 @@ export const fetchDirectMessage = createAsyncThunk(
 			if (response.fromCache) {
 				return [];
 			}
-
+			const state = thunkAPI.getState() as RootState;
+			const existingEntities = selectAllDirectMessages(state);
+			const userProfile = selectAllAccount(state)?.user;
+			const listDM: IUserChannel[] = [];
 			const sorted = response.channeldesc.sort((a: ApiChannelDescription, b: ApiChannelDescription) => {
 				if (
 					a === undefined ||
@@ -188,8 +193,20 @@ export const fetchDirectMessage = createAsyncThunk(
 
 				return -1;
 			});
-			const state = thunkAPI.getState() as RootState;
-			const existingEntities = selectAllDirectMessages(state);
+
+			response.channeldesc.map((channel: ApiChannelDescription) => {
+				if (channel.type === ChannelType.CHANNEL_TYPE_DM) {
+					listDM.push({
+						id: channel.channel_id || '',
+						channel_id: channel.channel_id || '',
+						avatars: [userProfile?.avatar_url || '', channel.avatars?.[0] || ''],
+						display_names: [userProfile?.display_name || '', channel.display_names?.[0] || ''],
+						usernames: [userProfile?.username || '', channel.usernames?.[0] || ''],
+						onlines: [true, !!channel?.onlines?.[0]],
+						user_ids: [userProfile?.id || '', channel.user_ids?.[0] || '']
+					});
+				}
+			});
 
 			const channels = sorted.map((channelRes) => {
 				const existingEntity = existingEntities.find((entity) => entity.id === channelRes.channel_id);
@@ -197,6 +214,7 @@ export const fetchDirectMessage = createAsyncThunk(
 			});
 			thunkAPI.dispatch(directMetaActions.setDirectMetaEntities(channels));
 			thunkAPI.dispatch(directActions.setAll(channels));
+			thunkAPI.dispatch(userChannelsActions.upsertMany(listDM));
 			const users = mapChannelsToUsers(sorted);
 			thunkAPI.dispatch(statusActions.updateBulkStatus(users));
 			return channels;
@@ -450,7 +468,30 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			topic: channel_desc.topic || existingEntity?.topic
 		};
 
-		thunkAPI.dispatch(directActions.upsertOne(directEntity));
+		thunkAPI.dispatch(
+			directActions.update({
+				id: channel_desc.channel_id || '',
+				changes: {
+					member_count: userIds.length,
+					user_ids: userIds,
+					channel_label: existingEntity?.channel_label || label.toString()
+				}
+			})
+		);
+		thunkAPI.dispatch(
+			userChannelsActions.update({
+				id: channel_desc.channel_id || '',
+				changes: {
+					avatars,
+					display_names: label,
+					id: channel_desc.channel_id,
+					onlines,
+					usernames,
+					user_ids: userIds,
+					channel_id: channel_desc.channel_id
+				}
+			})
+		);
 		thunkAPI.dispatch(directMetaActions.upsertOne(directEntity as DMMetaEntity));
 
 		return directEntity;
@@ -536,39 +577,14 @@ export const directSlice = createSlice({
 				}
 			});
 		},
-		removeByUserId: (state, action: PayloadAction<{ userId: string; currentUserId: string; channelId: string }>) => {
-			const { userId, currentUserId, channelId } = action.payload;
-			const { ids, entities } = state;
-
-			const item = entities[channelId];
-			if (!item || !item.user_ids) return;
-
-			const userIndex = item.user_ids.indexOf(userId);
-
-			if (userIndex !== -1) {
-				const newUserIds = item.user_ids.filter((_, index) => index !== userIndex);
-
-				if (newUserIds.length === 1 && newUserIds.includes(currentUserId)) {
-					directAdapter.removeOne(state, channelId);
-				} else {
-					const newUsernames = item.usernames?.filter((_, index) => index !== userIndex);
-					const newDisplayNames = item.display_names?.filter((_, index) => index !== userIndex);
-					const newAvatars = item.avatars?.filter((_, index) => index !== userIndex);
-					const newChannelAvatars = item.channel_avatar;
-					const newIsOnline = item.onlines?.filter((_, index) => index !== userIndex);
-					directAdapter.updateOne(state, {
-						id: channelId,
-						changes: {
-							user_ids: newUserIds,
-							usernames: newUsernames,
-							avatars: newAvatars,
-							display_names: newDisplayNames,
-							channel_avatar: newChannelAvatars,
-							onlines: newIsOnline
-						}
-					});
+		removeGroupMember: (state, action: PayloadAction<{ userId: string; currentUserId: string; channelId: string }>) => {
+			const currentDirect = state.entities[action.payload.channelId];
+			directAdapter.updateOne(state, {
+				id: action.payload.channelId,
+				changes: {
+					member_count: (currentDirect.member_count || 0) > 0 ? (currentDirect.member_count || 1) - 1 : 0
 				}
-			}
+			});
 		},
 		changeE2EE: (state, action: PayloadAction<Partial<ChannelUpdatedEvent>>) => {
 			if (!action.payload?.channel_id) return;
@@ -844,8 +860,8 @@ export const selectAllUserDM = createSelector(selectAllDirectMessages, (directMe
 			dm?.user_ids?.forEach((userId: string, index: number) => {
 				if (!acc.some((existingUser) => existingUser.id === userId)) {
 					const user = {
-						avatar_url: dm?.channel_avatar ? dm?.channel_avatar[index] : '',
-						display_name: dm?.usernames ? dm?.usernames[index] : '',
+						avatar_url: dm?.avatars ? dm?.avatars[index] : '',
+						display_name: dm?.display_names ? dm?.display_names[index] : '',
 						id: userId,
 						username: dm?.usernames ? dm?.usernames[index] : '',
 						online: dm?.onlines ? dm?.onlines[index] : false

@@ -364,6 +364,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 					handleCheckboxE2ee={handleCheckboxE2ee}
 					isAgeRestricted={isAgeRestricted || 0}
 					isE2ee={isE2ee || 0}
+					channelType={channel.type || 0}
 				/>
 			</div>
 			{hasChange && <ModalSaveChanges onReset={handleReset} onSave={handleSave} />}
@@ -386,6 +387,7 @@ interface IBottomBlockProps {
 	isCheckForSystemMsg: boolean;
 	setIsCheckForSystemMsg: (value: boolean) => void;
 	thisIsSystemMessageChannel: boolean;
+	channelType: number;
 }
 
 const BottomBlock = ({
@@ -402,7 +404,8 @@ const BottomBlock = ({
 	isE2ee,
 	isCheckForSystemMsg,
 	setIsCheckForSystemMsg,
-	thisIsSystemMessageChannel
+	thisIsSystemMessageChannel,
+	channelType
 }: IBottomBlockProps) => {
 	const { t } = useTranslation('channelSetting');
 	const logoImgSrc = useMemo(() => {
@@ -431,13 +434,16 @@ const BottomBlock = ({
 		return <>{menuItems}</>;
 	}, []);
 	return (
-		<div className="flex flex-col gap-10 mt-10 text-sm text-colorTextLightMode dark:text-textPrimary">
-			<hr className="border-t border-solid dark:border-borderDivider" />
-			<div className="flex flex-col gap-3">
-				<div className="flex justify-between">
-					<div className="font-semibold text-base text-theme-primary">{t('overview.ageRestricted.title')}</div>
-					<input
-						className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg
+		channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+		channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (
+			<>
+				<div className="flex flex-col gap-10 mt-10 text-sm text-colorTextLightMode dark:text-textPrimary">
+					<hr className="border-t border-solid dark:border-borderDivider" />
+					<div className="flex flex-col gap-3">
+						<div className="flex justify-between">
+							<div className="font-semibold text-base text-theme-primary">{t('overview.ageRestricted.title')}</div>
+							<input
+								className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg
 						bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full
 						after:bg-slate-500 after:transition-all
 						checked:bg-[#5265EC] checked:after:left-4 checked:after:bg-white
@@ -446,33 +452,35 @@ const BottomBlock = ({
 						focus:outline-none checked:focus:bg-[#4654C0] checked:after:focus:bg-white
 						focus-visible:outline-none disabled:cursor-not-allowed
 						disabled:bg-slate-200 disabled:after:bg-slate-300"
-						type="checkbox"
-						checked={isAgeRestricted === 1}
-						onChange={handleCheckboxAgeRestricted}
-					/>
-				</div>
-				<div className="text-theme-primary">{t('overview.ageRestricted.description')}</div>
-			</div>
-
-			<hr className="border-t border-solid dark:border-borderDivider" />
-			<div className="flex flex-col gap-2">
-				<div className="text-xs font-bold text-theme-primary">{t('fields.channelHideInactivity.title')}</div>
-				<div className="w-full relative">
-					<Dropdown menu={menu} className="text-theme-message bg-input-secondary rounded-md">
-						<div className="w-full h-[50px] rounded-md border-theme-primary text-theme-message bg-input-secondary flex flex-row px-3 justify-between items-center">
-							<p className="truncate max-w-[90%]">{hideTimeDropdown}</p>
-							<div>
-								<Icons.ArrowDownFill />
-							</div>
+								type="checkbox"
+								checked={isAgeRestricted === 1}
+								onChange={handleCheckboxAgeRestricted}
+							/>
 						</div>
-					</Dropdown>
+						<div className="text-theme-primary">{t('overview.ageRestricted.description')}</div>
+					</div>
+
+					<hr className="border-t border-solid dark:border-borderDivider" />
+					<div className="flex flex-col gap-2">
+						<div className="text-xs font-bold text-theme-primary">{t('fields.channelHideInactivity.title')}</div>
+						<div className="w-full relative">
+							<Dropdown menu={menu} className="text-theme-message bg-input-secondary rounded-md">
+								<div className="w-full h-[50px] rounded-md border-theme-primary text-theme-message bg-input-secondary flex flex-row px-3 justify-between items-center">
+									<p className="truncate max-w-[90%]">{hideTimeDropdown}</p>
+									<div>
+										<Icons.ArrowDownFill />
+									</div>
+								</div>
+							</Dropdown>
+						</div>
+						<div className="text-theme-primary">{t('fields.channelHideInactivity.description')}</div>
+					</div>
+					<div className="flex justify-center pb-10">
+						<Image src={logoImgSrc} width={48} height={48} className="object-cover w-[280px]" />
+					</div>
 				</div>
-				<div className="text-theme-primary">{t('fields.channelHideInactivity.description')}</div>
-			</div>
-			<div className="flex justify-center pb-10">
-				<Image src={logoImgSrc} width={48} height={48} className="object-cover w-[280px]" />
-			</div>
-		</div>
+			</>
+		)
 	);
 };
 

@@ -53,8 +53,8 @@ function DirectUnread({ directMessage, checkMoveOut, onMemberClick, isHiding }: 
 					className="w-[40px] h-[40px]"
 					srcImgProxy={
 						direct.type === ChannelType.CHANNEL_TYPE_DM
-							? createImgproxyUrl(direct?.channel_avatar?.at(0) ?? '', { width: 300, height: 300, resizeType: 'fill-down' })
-							: createImgproxyUrl(direct?.topic ?? 'assets/images/avatar-group.png', {
+							? createImgproxyUrl(direct?.avatars?.at(0) ?? '', { width: 300, height: 300, resizeType: 'fill-down' })
+							: createImgproxyUrl(direct?.channel_avatar || 'assets/images/avatar-group.png', {
 									width: 300,
 									height: 300,
 									resizeType: 'fill-down'
@@ -62,8 +62,8 @@ function DirectUnread({ directMessage, checkMoveOut, onMemberClick, isHiding }: 
 					}
 					src={
 						direct.type === ChannelType.CHANNEL_TYPE_DM
-							? direct?.channel_avatar?.at(0)
-							: (direct?.topic ?? 'assets/images/avatar-group.png')
+							? direct?.avatars?.at(0)
+							: direct?.channel_avatar || 'assets/images/avatar-group.png'
 					}
 				/>
 				{directMessage?.count_mess_unread && (

@@ -1,7 +1,6 @@
 import { useAppNavigation } from '@mezon/core';
+import type { ChannelsEntity, ThreadsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
-	ThreadsEntity,
 	appActions,
 	channelsActions,
 	selectAllChannelMembers,
@@ -13,15 +12,17 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity, IChannel, IChannelMember, convertTimeMessage, createImgproxyUrl } from '@mezon/utils';
+import type { ChannelMembersEntity, IChannel, IChannelMember } from '@mezon/utils';
+import { convertTimeMessage, createImgproxyUrl } from '@mezon/utils';
 import { AvatarImage } from 'libs/components/src/lib/components';
 import { ChannelType } from 'mezon-js';
-import { MutableRefObject, useCallback, useMemo, useRef, useState } from 'react';
+import type { MutableRefObject } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AvatarGroup, { AvatarCount } from '../../../../Avatar/AvatarGroup';
-import { Coords } from '../../../../ChannelLink';
+import type { Coords } from '../../../../ChannelLink';
 import SettingChannel from '../../../../ChannelSetting';
 import { useMessageSender } from '../../../../MessageWithUser/useMessageSender';
 import ModalConfirm from '../../../../ModalConfirm';
@@ -40,7 +41,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
 	const dispatch = useAppDispatch();
-	const threadMembers = useSelector((state) => selectAllChannelMembers(state, thread.channel_id));
+	const threadMembers = useSelector((state) => selectAllChannelMembers(state, thread?.channel_id || ''));
 	const channelThread = useAppSelector((state) => selectChannelById(state, thread.id ?? '')) || {};
 
 	const messageId = useAppSelector((state) => selectLastMessageIdByChannelId(state, thread.channel_id as string));

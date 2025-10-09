@@ -159,7 +159,9 @@ const ModalUserProfile = ({
 		return infoFriend?.state;
 	}, [infoFriend]);
 	const checkUser = useMemo(() => userProfile?.user?.id === userID, [userID, userProfile?.user?.id]);
-
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [userById?.user?.id, infoFriend]);
 	const { setIsShowSettingFooterStatus, setIsShowSettingFooterInitTab } = useSettingFooter();
 	const openSetting = () => {
 		setIsShowSettingFooterStatus(true);
@@ -286,17 +288,25 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
-						<div className="w-full items-center mt-2">
-							<input
-								type="text"
-								className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-								placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
-								value={content}
-								onKeyPress={handleOnKeyPress}
-								onChange={handleContent}
-							/>
-						</div>
+					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
+						userById?.user?.username ? (
+							<div className="w-full items-center mt-2">
+								<input
+									type="text"
+									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
+									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+									value={content}
+									onKeyPress={handleOnKeyPress}
+									onChange={handleContent}
+								/>
+							</div>
+						) : (
+							<div className="w-full items-center mt-2">
+								<div className="w-full  bg-item-theme text-theme-primary-active p-[8px] text-center italic">
+									{t('labels.userNotFound')}
+								</div>
+							</div>
+						)
 					) : null}
 					{showNote && (
 						<>

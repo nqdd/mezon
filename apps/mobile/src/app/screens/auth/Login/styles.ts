@@ -112,12 +112,12 @@ export const style = () =>
 			fontSize: size.s_14,
 			color: '#5e5e5e',
 			textAlign: 'center',
-			marginBottom: size.s_8
+			marginBottom: size.s_6
 		},
 		alternativeOptions: {
 			alignItems: 'center',
 			justifyContent: 'center',
-			gap: size.s_2
+			gap: size.s_6
 		},
 		linkText: {
 			fontSize: size.s_14,

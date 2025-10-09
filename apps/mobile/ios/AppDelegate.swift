@@ -28,6 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             "appName": "Mezon",
             "maximumCallGroups": 3,
             "maximumCallsPerCallGroup": 1,
+            "ringtoneSound": "ringring.mp3",
             "supportsVideo": false
         ]
         RNCallKeep.setup(callKeepConfig)

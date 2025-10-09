@@ -141,11 +141,30 @@ export const userChannelsSlice = createSlice({
 			const existingChannel = state.entities[channelId];
 
 			if (existingChannel) {
-				const updatedUserIds = (existingChannel?.user_ids || []).filter((userId) => !userRemoves.includes(userId));
+				const user_ids = existingChannel.user_ids;
+				const display_names = existingChannel.display_names;
+				const usernames = existingChannel.usernames;
+				const onlines = existingChannel.onlines;
+				const avatars = existingChannel.avatars;
+				userRemoves.forEach((user) => {
+					const indexRemove = user_ids?.indexOf(user);
+					if (indexRemove !== -1 && indexRemove !== undefined) {
+						user_ids?.splice(indexRemove, 1);
+						display_names?.splice(indexRemove, 1);
+						usernames?.splice(indexRemove, 1);
+						onlines?.splice(indexRemove, 1);
+						avatars?.splice(indexRemove, 1);
+					}
+				});
+
 				UserChannelAdapter.updateOne(state, {
 					id: channelId,
 					changes: {
-						user_ids: updatedUserIds
+						user_ids,
+						display_names,
+						avatars,
+						onlines,
+						usernames
 					}
 				});
 			}
@@ -193,12 +212,29 @@ export const userChannelsReducer = userChannelsSlice.reducer;
 
 export const getUserChannelsState = (rootState: { [ALL_USERS_BY_ADD_CHANNEL]: UsersByAddChannelState }): UsersByAddChannelState =>
 	rootState[ALL_USERS_BY_ADD_CHANNEL];
-const { selectEntities, selectAll, selectById } = UserChannelAdapter.getSelectors();
+const { selectEntities, selectById } = UserChannelAdapter.getSelectors();
 
 export const selectUserChannelUCEntities = createSelector(getUserChannelsState, selectEntities);
-export const selectMemberByGroupId = createSelector([getUserChannelsState, (state, channelId: string) => channelId], (state, channelId) =>
-	selectById(state, channelId)
-);
+export const selectMemberByGroupId = createSelector([getUserChannelsState, (state, channelId: string) => channelId], (state, channelId) => {
+	const entities = selectById(state, channelId);
+	if (!entities) {
+		return undefined;
+	}
+	const listMember: ChannelMembersEntity[] = [];
+	entities?.user_ids?.map((id, index) => {
+		listMember.push({
+			id,
+			user: {
+				id,
+				username: entities.usernames?.[index] || '',
+				display_name: entities.display_names?.[index] || '',
+				avatar_url: entities.avatars?.[index] || '',
+				online: entities.onlines?.[index]
+			}
+		});
+	});
+	return listMember;
+});
 
 export const selectAllUserChannel = (channelId: string) =>
 	createSelector([selectUserChannelUCEntities, selectAllUserClans, selectEntitesUserClans], (channelMembers, allUserClans, usersClanEntities) => {

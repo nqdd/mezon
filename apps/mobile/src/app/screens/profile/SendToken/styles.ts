@@ -77,10 +77,9 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			gap: size.s_8,
 			alignItems: 'center',
-			padding: size.s_10,
-			marginVertical: size.s_2,
+			paddingHorizontal: size.s_10,
 			borderBottomWidth: 1,
-			borderColor: colors.border
+			borderColor: colors.borderHighlight
 		},
 		username: {
 			color: colors.text,

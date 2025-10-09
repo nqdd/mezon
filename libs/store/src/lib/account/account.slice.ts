@@ -25,6 +25,7 @@ export interface AccountState {
 	anonymousMode: boolean;
 	cache?: CacheMetadata;
 	avatarVersion: number;
+	passwordSetted: boolean;
 }
 
 export const initialAccountState: AccountState = {
@@ -32,7 +33,8 @@ export const initialAccountState: AccountState = {
 	account: null,
 	userProfile: null,
 	anonymousMode: false,
-	avatarVersion: 0
+	avatarVersion: 0,
+	passwordSetted: false
 };
 
 export const fetchUserProfileCached = async (getState: () => RootState, mezon: MezonValueContext, noCache = false) => {
@@ -205,6 +207,9 @@ export const accountSlice = createSlice({
 		},
 		incrementAvatarVersion(state) {
 			state.avatarVersion = (state.avatarVersion || 0) + 1;
+		},
+		setPasswordSetted(state, action: PayloadAction<boolean>) {
+			state.passwordSetted = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
@@ -248,3 +253,5 @@ export const selectAccountCustomStatus = createSelector(getAccountState, (state:
 export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
 
 export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);
+
+export const selectPasswordSetted = createSelector(getAccountState, (state) => state.passwordSetted);

@@ -166,13 +166,13 @@ export const sendRequestAddFriend = createAsyncThunk(
 					if (!isAcceptingRequest) {
 						thunkAPI.dispatch(
 							friendsActions.upsertFriend({
-								id: ids?.[0] || '',
-								key: `${ids?.[0]}_${currentUserId}`,
+								id: usernames?.[0] || '',
+								key: `${usernames?.[0]}_${currentUserId}`,
 								source_id: currentUserId,
 								state: EStateFriend.OTHER_PENDING,
 								user: {
 									username: usernames?.[0],
-									id: ids?.[0]
+									id: usernames?.[0] || ids?.[0]
 								}
 							})
 						);
@@ -223,10 +223,14 @@ export const upsertFriendRequest = createAsyncThunk(
 	'friends/upsertFriendRequest',
 	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
 		const state = thunkAPI.getState() as RootState;
-		const currentFriend = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
+		const currentFriendWS = friendsAdapter.getSelectors().selectById(state.friends, `${user.username}_${myId}`);
+		if (currentFriendWS) {
+			thunkAPI.dispatch(friendsActions.removeOne(`${user.username}_${myId}`));
+		}
+		const currentFriendApi = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
 
 		const friend: FriendsEntity = {
-			state: currentFriend ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
+			state: currentFriendApi || currentFriendWS ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
 			id: user.user_id,
 			key: `${user.user_id}_${myId}`,
 			source_id: myId,
@@ -313,6 +317,9 @@ export const friendsSlice = createSlice({
 				id: action.payload,
 				changes: { state: EStateFriend.FRIEND }
 			});
+		},
+		removeOne: (state, action: PayloadAction<string>) => {
+			friendsAdapter.removeOne(state, action.payload);
 		}
 	},
 	extraReducers: (builder) => {
