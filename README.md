@@ -24,9 +24,10 @@
 ---
 
 ## Mezon Bug Report Community
+
 [Mezon Bug Report Community](https://mezon.ai/invite/1840696977034055680)
 
-## About Mezon
+## About Mezon: The Live, Work, and Play Platform the best Discord Alternative
 
 Mezon is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to talk, play, and hang out., Mezon delivers enterprise-grade performance with sub-millisecond response times and support for millions of concurrent connections.
 
