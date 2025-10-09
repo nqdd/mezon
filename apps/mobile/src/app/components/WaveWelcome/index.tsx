@@ -1,7 +1,8 @@
 import { useChatSending } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentChannel } from '@mezon/store-mobile';
-import { IMessage, IMessageSendPayload, MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
+import type { IMessage, IMessageSendPayload } from '@mezon/utils';
+import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -47,8 +48,8 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 					url: STICKER_WAVE.URL,
 					filetype: 'image/gif',
 					filename: STICKER_WAVE.NAME,
-					size: 309248,
-					width: 154,
+					size: 374892,
+					width: 150,
 					height: 150
 				}
 			];

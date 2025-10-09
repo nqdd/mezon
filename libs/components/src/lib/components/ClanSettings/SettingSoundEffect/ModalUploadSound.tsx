@@ -1,11 +1,9 @@
-import type React from 'react';
-
 import { MediaType, selectCurrentClanId, soundEffectActions, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons, Modal } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import type { SoundType } from './index';
@@ -113,13 +111,13 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 			if (!file) return;
 
 			const id = sound?.id || Snowflake.generate();
-			const path = 'sounds/' + id + '.' + file.name.split('.').pop();
+			const path = `sounds/${id}.${file.name.split('.').pop()}`;
 
 			const attachment = await handleUploadEmoticon(client, session, path, file);
 
 			if (attachment && attachment.url) {
 				const request = {
-					id: id,
+					id,
 					category: 'Among Us',
 					clan_id: currentClanId,
 					shortname: name.trim(),
@@ -139,7 +137,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 				}
 
 				onSuccess({
-					id: id,
+					id,
 					name: name.trim(),
 					url: attachment.url
 				});
@@ -153,7 +151,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 	};
 
 	const formatFileSize = (bytes: number) => {
-		return (bytes / 1024).toFixed(1) + ' KB';
+		return `${(bytes / 1024).toFixed(1)} KB`;
 	};
 
 	const removeFile = () => {
