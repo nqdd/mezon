@@ -40,7 +40,11 @@ export const StartEventModal = (props: StartEventModalProps) => {
 						{t('actions.create')}
 					</div>
 				</div>
-				<span className="text-5xl leading-3 text-theme-primary-hover cursor-pointer" onClick={onClose}>
+				<span
+					className="text-5xl leading-3 text-theme-primary-hover cursor-pointer"
+					onClick={onClose}
+					data-e2e={generateE2eId('clan_page.modal.create_event.button_close')}
+				>
 					×
 				</span>
 			</div>
