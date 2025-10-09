@@ -6,6 +6,7 @@ import { Icons, Modal } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import type { SoundType } from './index';
 
@@ -16,6 +17,7 @@ interface ModalUploadSoundProps {
 }
 
 const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) => {
+	const { t } = useTranslation('clanSoundSetting');
 	const [file, setFile] = useState<File | null>(null);
 	const [name, setName] = useState('');
 	const [error, setError] = useState('');
@@ -43,11 +45,11 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 
 	const processFile = (f: File) => {
 		if (!['audio/mp3', 'audio/mpeg', 'audio/wav'].includes(f.type)) {
-			setError('Support file .mp3 or .wav');
+			setError(t('modal.errorFileType'));
 			return;
 		}
 		if (f.size > 1024 * 1024) {
-			setError('File too big, max 1MB');
+			setError(t('modal.errorFileSize'));
 			return;
 		}
 		setFile(f);
@@ -144,7 +146,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 			}
 		} catch (error) {
 			console.error('Error uploading sound:', error);
-			setError('Failed to upload sound');
+			setError(t('modal.errorUploadFailed'));
 		} finally {
 			setIsUploading(false);
 		}
@@ -169,8 +171,8 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 				<div className="relative">
 					<div className="relative px-4 pt-4 pb-3 border-b-theme-primary">
 						<div className="text-center">
-							<h2 className="text-lg font-bold text-theme-primary-active">{sound ? 'Edit Sound Effect' : 'Upload Sound Effect'}</h2>
-							<p className=" text-xs">Supports MP3, WAV formats • Max 1MB</p>
+							<h2 className="text-lg font-bold text-theme-primary-active">{sound ? t('modal.titleEdit') : t('modal.titleUpload')}</h2>
+							<p className=" text-xs">{t('modal.subtitle')}</p>
 						</div>
 					</div>
 
@@ -178,7 +180,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 						<div className="flex-1 flex flex-col overflow-hidden overflow-y-auto gap-3">
 							<div className="space-y-1">
 								<div className="flex items-center gap-2">
-									<span className="text-xs font-bold uppercase text-theme-primary-active">Preview</span>
+									<span className="text-xs font-bold uppercase text-theme-primary-active">{t('modal.preview')}</span>
 								</div>
 
 								<div className="flex items-center justify-center rounded-lg border-theme-primary overflow-hidden min-h-[140px] md:h-36">
@@ -199,7 +201,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 
 							<div className="flex flex-col md:flex-row gap-3 ">
 								<div className="w-full md:w-1/2 flex flex-col gap-1">
-									<p className="text-xs font-bold uppercase text-theme-primary-active">Audio File</p>
+									<p className="text-xs font-bold uppercase text-theme-primary-active">{t('modal.audioFile')}</p>
 									<div
 										className={`
                                             relative group transition-all duration-200
@@ -232,9 +234,9 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 										>
 											{!file ? (
 												<div className="flex items-center justify-between h-full px-2">
-													<p className="text-xs truncate">Choose or drop a file</p>
+													<p className="text-xs truncate">{t('modal.chooseOrDrop')}</p>
 													<button className="hover:bg-[#4752c4] bg-[#5865f2] rounded-[4px] py-1 px-2 text-nowrap text-white text-xs">
-														Browse
+														{t('modal.browse')}
 													</button>
 												</div>
 											) : (
@@ -269,11 +271,11 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 								</div>
 
 								<div className="w-full md:w-1/2 flex flex-col gap-1">
-									<p className="text-xs font-bold uppercase text-theme-primary-active	">Sound Name</p>
+									<p className="text-xs font-bold uppercase text-theme-primary-active	">{t('modal.soundName')}</p>
 									<div className="relative border-theme-primary bg-item-theme rounded-md h-[60px] flex items-center">
 										<input
 											type="text"
-											placeholder="Ex.cat hug"
+											placeholder={t('modal.placeholder')}
 											value={name}
 											maxLength={30}
 											onChange={(e) => setName(e.target.value)}
@@ -294,7 +296,12 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 										<Icons.AppHelpIcon className="w-4 h-4 text-[#f04747]" />
 									</div>
 									<div>
-										<p className="text-xs text-[#f04747]" data-e2e={generateE2eId('clan_page.settings.upload.voice_sticker_input.error')}>{error}</p>
+										<p
+											className="text-xs text-[#f04747]"
+											data-e2e={generateE2eId('clan_page.settings.upload.voice_sticker_input.error')}
+										>
+											{error}
+										</p>
 									</div>
 								</div>
 							)}
@@ -305,7 +312,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 								className="px-3 py-1.5 bg-transparent  rounded-md text-sm font-medium hover:underline transition-all duration-200"
 								onClick={onClose}
 							>
-								Cancel
+								{t('modal.cancel')}
 							</button>
 
 							<button
@@ -316,12 +323,12 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 								{isUploading ? (
 									<span className="flex items-center gap-1.5">
 										<div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-										Uploading...
+										{t('modal.uploading')}
 									</span>
 								) : sound ? (
-									'Update'
+									t('modal.update')
 								) : (
-									'Upload'
+									t('modal.upload')
 								)}
 							</button>
 						</div>
