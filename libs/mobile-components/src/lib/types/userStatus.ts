@@ -8,7 +8,8 @@ export interface IUserStatusProps {
 }
 
 export interface IUserStatus {
-	status?: boolean;
+	status?: boolean | string;
+	online?: boolean;
 	isMobile?: boolean;
 	userStatus?: string;
 }

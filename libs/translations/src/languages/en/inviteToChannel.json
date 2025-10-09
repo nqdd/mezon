@@ -31,5 +31,10 @@
         "downloadError": "Error downloading QR code",
         "shareError": "Error sharing QR code",
         "clanDefaultName": "Clan"
+    },
+    "share": {
+        "title": "Share",
+        "message": "Join Mezon with me: ",
+        "error": "Error sharing invite link: {{error}}"
     }
 }

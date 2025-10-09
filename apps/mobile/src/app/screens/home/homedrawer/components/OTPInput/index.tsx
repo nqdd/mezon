@@ -134,7 +134,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 					key={index}
 					ref={(ref) => (inputRefs.current[index] = ref)}
 					style={[styles.input, digit !== '' ? styles.inputFilled : styles.inputEmpty, isError && styles.inputError]}
-					value={digit}
+					value={digit?.[0] || ''}
 					onChangeText={(value) => handleOtpChange(value, index)}
 					onKeyPress={(e) => handleKeyPress(e, index)}
 					keyboardType="number-pad"

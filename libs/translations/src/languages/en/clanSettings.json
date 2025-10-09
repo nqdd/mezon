@@ -52,7 +52,7 @@
 		"description": "This is the channel we send system event messages to. These can be turned off at any time",
 		"welcomeRandom": "Send a random welcome message when someone joins this clan.",
 		"welcomeSticker": "Prompt members to reply to welcome messages with a sticker.",
-		"boostMessage": "Send a message when someone Boosts this server.",
+		"boostMessage": "Send a message when someone Boosts this clan.",
 		"setupTips": "Send helpful tips for clan setup.",
 		"auditLog": "Send a log when an action is applied to the clan"
 	},
@@ -60,15 +60,15 @@
 		"categories": {
 			"gamingCompanion": "Gaming Companion Apps",
 			"popularTrending": "Popular & Trending Apps",
-			"serverMiniGames": "Server Mini-Games",
+			"serverMiniGames": "clan Mini-Games",
 			"rolePlayingFavorites": "Role-Playing Favorites"
 		},
-		"inServers": "in {{count}} servers"
+		"inServers": "in {{count}} clans"
 	},
 	"emoji": {
 		"uploadInstructions": "UPLOAD INSTRUCTIONS",
 		"title": "Emoji",
-		"description": "Add up to 250 custom emoji that anyone can use in this server. Animated GIF emoji may be used by members with Mezon Nitro",
+		"description": "Add up to 250 custom emoji that anyone can use in this clan.",
 		"uploadRequirements": "UPLOAD REQUIREMENTS",
 		"requirements": {
 			"fileType": "File type: JPEG, PNG, GIF",

@@ -213,27 +213,25 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					sender_id: userId
 				};
 				const res = await dispatch(giveCoffeeActions.updateGiveCoffee(coffeeEvent));
-				console.log('log => res: ', res);
+				if (res?.payload === 'Wallet not available') {
+					const data = {
+						children: (
+							<MezonConfirm
+								onConfirm={() => handleEnableWallet()}
+								title={t('wallet.notAvailable')}
+								confirmText={t('wallet.enableWallet')}
+								content={t('wallet.descNotAvailable')}
+								onCancel={() => navigation?.goBack()}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+					return;
+				}
 				if (res?.meta?.requestStatus === 'rejected' || !res) {
-					// Todo: handle by code
-					if (res?.payload === 'Wallet not available') {
-						const data = {
-							children: (
-								<MezonConfirm
-									onConfirm={() => handleEnableWallet()}
-									title={t('wallet.notAvailable')}
-									confirmText={t('wallet.enableWallet')}
-									content={t('wallet.descNotAvailable')}
-									onCancel={() => navigation?.goBack()}
-								/>
-							)
-						};
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-						return;
-					}
 					Toast.show({
 						type: 'error',
-						text1: res?.payload || 'An error occurred, please try again'
+						text1: res?.payload?.toString() || 'An error occurred, please try again'
 					});
 					return;
 				}
