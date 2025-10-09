@@ -1,13 +1,15 @@
 import i18n from '@mezon/translations';
-import type { LoadingStatus } from '@mezon/utils';
+import { EUserStatus, type IUserProfileActivity, type LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { AddFriend, Friend } from 'mezon-js';
+import type { AddFriend } from 'mezon-js';
+import type { ApiFriend } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { selectCurrentUserId } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
+import { statusActions } from '../direct/status.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
@@ -18,12 +20,7 @@ interface FriendState {
 	[FRIEND_FEATURE_KEY]: FriendsState;
 }
 
-export interface FriendsEntity extends Friend {
-	key: string;
-	id: string;
-}
-
-export interface IFriend extends Friend {
+export interface FriendsEntity extends ApiFriend {
 	key: string;
 	id: string;
 }
@@ -39,7 +36,7 @@ export enum EStateFriend {
 	BLOCK = 3
 }
 
-export const mapFriendToEntity = (FriendRes: Friend) => {
+export const mapFriendToEntity = (FriendRes: ApiFriend) => {
 	const uniqueId = `${FriendRes?.user?.id}_${FriendRes?.source_id}`;
 	return {
 		...FriendRes,
@@ -47,6 +44,23 @@ export const mapFriendToEntity = (FriendRes: Friend) => {
 		id: FriendRes?.user?.id || '',
 		source_id: FriendRes?.source_id || ''
 	};
+};
+
+const mapFriendToStatus = (friends: ApiFriend[]): IUserProfileActivity[] => {
+	const listFriend: IUserProfileActivity[] = [];
+	friends.map((friend) => {
+		listFriend.push({
+			id: friend.user?.id || '',
+			avatar_url: friend.user?.avatar_url || '',
+			display_name: friend.user?.display_name,
+			online: friend.user?.online,
+			is_mobile: friend.user?.is_mobile,
+			status: friend.user?.online ? friend.user?.status || EUserStatus.ONLINE : EUserStatus.INVISIBLE,
+			user_status: friend.user?.user_status,
+			username: friend.user?.username
+		});
+	});
+	return listFriend;
 };
 export interface FriendsState extends EntityState<FriendsEntity, string> {
 	loadingStatus: LoadingStatus;
@@ -118,6 +132,7 @@ export const fetchListFriends = createAsyncThunk('friends/fetchListFriends', asy
 		return { friends: [], fromCache: response.fromCache };
 	}
 	const listFriends = response.friends.map(mapFriendToEntity);
+	thunkAPI.dispatch(statusActions.updateBulkStatus(mapFriendToStatus(response.friends)));
 	return { friends: listFriends, fromCache: response.fromCache };
 });
 
@@ -151,13 +166,13 @@ export const sendRequestAddFriend = createAsyncThunk(
 					if (!isAcceptingRequest) {
 						thunkAPI.dispatch(
 							friendsActions.upsertFriend({
-								id: ids?.[0] || '',
-								key: `${ids?.[0]}_${currentUserId}`,
+								id: usernames?.[0] || '',
+								key: `${usernames?.[0]}_${currentUserId}`,
 								source_id: currentUserId,
 								state: EStateFriend.OTHER_PENDING,
 								user: {
 									username: usernames?.[0],
-									id: ids?.[0]
+									id: usernames?.[0] || ids?.[0]
 								}
 							})
 						);
@@ -208,10 +223,14 @@ export const upsertFriendRequest = createAsyncThunk(
 	'friends/upsertFriendRequest',
 	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
 		const state = thunkAPI.getState() as RootState;
-		const currentFriend = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
+		const currentFriendWS = friendsAdapter.getSelectors().selectById(state.friends, `${user.username}_${myId}`);
+		if (currentFriendWS) {
+			thunkAPI.dispatch(friendsActions.removeOne(`${user.username}_${myId}`));
+		}
+		const currentFriendApi = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}_${myId}`);
 
-		const friend: IFriend = {
-			state: currentFriend ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
+		const friend: FriendsEntity = {
+			state: currentFriendApi || currentFriendWS ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
 			id: user.user_id,
 			key: `${user.user_id}_${myId}`,
 			source_id: myId,
@@ -265,9 +284,7 @@ export const friendsSlice = createSlice({
 			const friendMeta = key ? state?.entities?.[key] : null;
 			if (friendMeta) {
 				friendMeta.user = friendMeta.user || {};
-				friendMeta.user.metadata = friendMeta.user.metadata || {};
 				//TODO: thai fix later
-				(friendMeta.user.metadata as any).user_status = user_status;
 			}
 		},
 		updateFriendState: (
@@ -291,7 +308,7 @@ export const friendsSlice = createSlice({
 				}
 			}
 		},
-		upsertFriend: (state, action: PayloadAction<IFriend>) => {
+		upsertFriend: (state, action: PayloadAction<FriendsEntity>) => {
 			const friendEntity = mapFriendToEntity(action.payload);
 			friendsAdapter.upsertOne(state, friendEntity);
 		},
@@ -300,6 +317,9 @@ export const friendsSlice = createSlice({
 				id: action.payload,
 				changes: { state: EStateFriend.FRIEND }
 			});
+		},
+		removeOne: (state, action: PayloadAction<string>) => {
+			friendsAdapter.removeOne(state, action.payload);
 		}
 	},
 	extraReducers: (builder) => {
@@ -307,7 +327,7 @@ export const friendsSlice = createSlice({
 			.addCase(fetchListFriends.pending, (state: FriendsState) => {
 				state.loadingStatus = 'loading';
 			})
-			.addCase(fetchListFriends.fulfilled, (state: FriendsState, action: PayloadAction<{ friends: IFriend[]; fromCache: boolean }>) => {
+			.addCase(fetchListFriends.fulfilled, (state: FriendsState, action: PayloadAction<{ friends: FriendsEntity[]; fromCache: boolean }>) => {
 				const { friends, fromCache } = action.payload;
 				if (!fromCache) {
 					friendsAdapter.setAll(state, friends);

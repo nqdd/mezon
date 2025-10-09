@@ -34,18 +34,25 @@ export default class ElectronEvents {
 				}
 
 				notification.on('click', () => {
-					if (App.mainWindow && !App.mainWindow.isDestroyed()) {
-						if (App.mainWindow.isMinimized()) {
-							App.mainWindow.restore();
+					// Ensure main window is available and visible
+					const link = options.data?.link;
+					if (link) {
+						try {
+							const notificationUrl = new URL(link);
+							const path = notificationUrl.pathname;
+							App.ensureMainWindow({ notificationPath: path });
+						} catch (_err) {
+							// Fallback: just ensure window without navigation
+							App.ensureMainWindow();
 						}
-						App.mainWindow.focus();
-						if (options.data?.link) {
-							App.mainWindow.webContents.send(NOTIFICATION_CLICKED, {
-								link: options.data.link,
-								channelId: options.data.channelId,
-								msg
-							});
-						}
+					}
+
+					if (App.mainWindow && !App.mainWindow.isDestroyed() && options.data?.link) {
+						App.mainWindow.webContents.send(NOTIFICATION_CLICKED, {
+							link: options.data.link,
+							channelId: options.data.channelId,
+							msg
+						});
 					}
 				});
 

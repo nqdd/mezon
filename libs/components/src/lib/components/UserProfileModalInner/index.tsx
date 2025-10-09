@@ -163,7 +163,7 @@ const UserProfileModalInner = ({
 							userToDisplay={userById}
 							customStatus={customStatus || (userStatus.user_status as string)}
 							userID={userId}
-							userStatus={userStatus?.user_status}
+							statusOnline={userStatus?.status}
 							styleAvatar="w-[120px] h-[120px] rounded-full"
 						/>
 						{isSelf ? (

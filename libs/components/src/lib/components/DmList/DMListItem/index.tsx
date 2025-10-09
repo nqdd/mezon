@@ -1,11 +1,14 @@
+import { useMemberStatus } from '@mezon/core';
 import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
 	directMetaActions,
+	fetchUserChannels,
+	getStoreAsync,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
-	selectUserStatusById,
+	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -38,7 +41,6 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const dispatch = useAppDispatch();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
-	const user = useAppSelector((state) => selectUserStatusById(state, directMessage.user_ids?.at(0) || ''));
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const buzzStateDM = useAppSelector((state) => selectBuzzStateByDirectId(state, directMessage?.channel_id ?? ''));
 
@@ -74,17 +76,33 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const ref = useRef<HTMLDivElement>(null);
 	const { showContextMenu } = useDirectMessageContextMenu();
 	const handleContextMenu = (event: React.MouseEvent) => {
-		showContextMenu(event, directMessage as ChannelMembersEntity);
+		if (directMessage.channel_id) {
+			showContextMenu(event, directMessage.channel_id, directMessage as ChannelMembersEntity);
+		}
 	};
+
+	const handleClickDM = useCallback(async () => {
+		joinToChatAndNavigate(id, directMessage?.type as number);
+
+		const state = (await getStoreAsync()).getState();
+		const memberDM = selectMemberByGroupId(state, id);
+		if (!memberDM && directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			dispatch(
+				fetchUserChannels({
+					channelId: id,
+					isGroup: true
+				})
+			);
+		}
+	}, [directMessage, id]);
+
 	return (
 		<div
 			onContextMenu={handleContextMenu}
 			ref={ref}
 			style={{ height: 42 }}
 			className={`flex items-center group/itemListDm relative cursor-pointer bg-item-hover h-fit px-2 rounded-[6px] w-full ${isActive ? 'bg-item-theme text-theme-primary-active' : 'text-theme-primary'}`}
-			onClick={() => {
-				joinToChatAndNavigate(id, directMessage?.type as number);
-			}}
+			onClick={handleClickDM}
 		>
 			<DmItemProfile
 				avatar={isTypeDMGroup ? directMessage?.channel_avatar || 'assets/images/avatar-group.png' : (directMessage?.avatars?.at(0) ?? '')}
@@ -92,8 +110,6 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 				number={directMessage?.member_count || 0}
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
-				userStatus={user?.user_status}
-				online={directMessage?.onlines?.[0]}
 				direct={directMessage}
 			/>
 			{buzzStateDM?.isReset ? (
@@ -126,8 +142,6 @@ const DmItemProfile = ({
 	number,
 	isTypeDMGroup,
 	highlight,
-	userStatus,
-	online,
 	direct
 }: {
 	highlight: boolean;
@@ -135,10 +149,9 @@ const DmItemProfile = ({
 	name: string;
 	number: number;
 	isTypeDMGroup: boolean;
-	userStatus?: string;
-	online?: boolean;
 	direct: DirectEntity;
 }) => {
+	const userStatus = useMemberStatus(direct.user_ids?.[0] || '');
 	return (
 		<div
 			className={`relative flex gap-2 items-center text-theme-primary-hover  ${highlight ? 'text-theme-primary-active' : 'text-theme-primary'}`}
@@ -153,7 +166,7 @@ const DmItemProfile = ({
 			/>
 			{!isTypeDMGroup && (
 				<div className="rounded-full absolute left-5 -bottom-[3px] inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus} online={online} />
+					<UserStatusIconClan channelId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus.status} />
 				</div>
 			)}
 

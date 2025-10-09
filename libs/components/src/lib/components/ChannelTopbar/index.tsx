@@ -1,7 +1,8 @@
-import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMemberStatus, useMenu, usePathMatch } from '@mezon/core';
 import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
+	EStateFriend,
 	appActions,
 	audioCallActions,
 	canvasAPIActions,
@@ -22,6 +23,7 @@ import {
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
 	selectDefaultNotificationClan,
+	selectFriendById,
 	selectGalleryAttachmentsByChannel,
 	selectIsInCall,
 	selectIsPinModalVisible,
@@ -49,7 +51,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IMessageSendPayload } from '@mezon/utils';
-import { EUserStatus, IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { IMessageTypeCallLog, SubPanelName, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, NotificationType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -180,6 +182,7 @@ const TopBarChannelText = memo(() => {
 		}
 		return '';
 	}, [isChannelPath, isGuidePath, isMemberPath, t]);
+	const userStatus = useMemberStatus(currentDmGroup?.user_ids?.[0] || '');
 
 	return (
 		<>
@@ -227,7 +230,7 @@ const TopBarChannelText = memo(() => {
 						/>
 						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
 							<div className="absolute top-6 left-5 w-3 h-3">
-								<UserStatusIconDM status={currentDmGroup?.onlines?.[0] ? EUserStatus.ONLINE : EUserStatus.INVISIBLE} />
+								<UserStatusIconDM status={userStatus?.status} />
 							</div>
 						)}
 						<div
@@ -274,7 +277,9 @@ const TopBarChannelText = memo(() => {
 					</>
 				)}
 
-				{!isMemberPath && <SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />}
+				{!isMemberPath && !isChannelPath && (
+					<SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
+				)}
 			</div>
 
 			{editGroupModal.isEditModalOpen && (
@@ -434,22 +439,27 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 		if (avatar) {
 			return (
 				<div className="flex items-center justify-center">
-					<img className="w-8 h-8 rounded-full object-cover" src={avatar} alt="" />
+					<img className="w-8 h-8 flex-shrink-0 rounded-full object-cover" src={avatar} alt="" />
 				</div>
 			);
 		}
 		return (
 			<div className="flex items-center justify-center">
-				<img className="w-8 h-8 rounded-full object-cover" src="assets/images/avatar-group.png" alt="" />
+				<img className="w-8 h-8 flex-shrink-0 rounded-full object-cover" src="assets/images/avatar-group.png" alt="" />
 			</div>
 		);
 	}
 	return (
 		<div className="flex items-center justify-center ">
 			{avatar ? (
-				<img className="w-8 h-8 rounded-full object-cover " src={createImgproxyUrl(avatar)} alt="" data-e2e={generateE2eId(`avatar.image`)} />
+				<img
+					className="w-8 h-8 flex-shrink-0 rounded-full object-cover "
+					src={createImgproxyUrl(avatar)}
+					alt=""
+					data-e2e={generateE2eId(`avatar.image`)}
+				/>
 			) : (
-				<div className="w-8 h-8 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
+				<div className="w-8 h-8 flex-shrink-0 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
 					{avatarName}
 				</div>
 			)}
@@ -471,6 +481,12 @@ const DmTopbarTools = memo(() => {
 	const isInCall = useSelector(selectIsInCall);
 	const isGroupCallActive = useSelector((state: RootState) => state.groupCall?.isGroupCallActive || false);
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
+
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [currentDmGroup?.user_ids?.[0], infoFriend]);
+
 	const closeMenuOnMobile = useCallback(() => {
 		const isMobile = window.innerWidth < 640;
 		if (isMobile) {
@@ -652,22 +668,26 @@ const DmTopbarTools = memo(() => {
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
 			<div className=" items-center gap-2 flex">
 				<div className="justify-start items-center gap-[15px] flex ">
-					<button
-						title={t('tooltips.startVoiceCall')}
-						onClick={() => handleStartCall()}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconPhoneDM defaultSize="size-5" />
-					</button>
-					<button
-						title={t('tooltips.startVideoCall')}
-						onClick={() => handleStartCall(true)}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconMeetDM defaultSize="size-5" />
-					</button>
+					{!isBlockUser && (
+						<>
+							<button
+								title={t('tooltips.startVoiceCall')}
+								onClick={() => handleStartCall()}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconPhoneDM defaultSize="size-5" />
+							</button>
+							<button
+								title={t('tooltips.startVideoCall')}
+								onClick={() => handleStartCall(true)}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconMeetDM defaultSize="size-5" />
+							</button>
+						</>
+					)}
 					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
 
 					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />

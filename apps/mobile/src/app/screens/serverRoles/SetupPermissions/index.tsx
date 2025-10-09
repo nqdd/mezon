@@ -14,7 +14,8 @@ import MezonSwitch from '../../../componentUI/MezonSwitch';
 import { SeparatorWithLine } from '../../../components/Common';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { isEqualStringArrayUnordered, normalizeString } from '../../../utils/helpers';
 import { style } from './styles';
 
@@ -174,6 +175,15 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 		}
 	}, [clanRole]);
 
+	const getPermissionTitle = useCallback(
+		(slug: string) => {
+			const titleKey = `permissionTitles.${slug}`;
+			const title = t(titleKey);
+			return title !== titleKey ? title : '';
+		},
+		[t]
+	);
+
 	const getPermissionDescription = useCallback(
 		(slug: string) => {
 			const descriptionKey = `permissionDescriptions.${slug}`;
@@ -255,7 +265,7 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 															color: item?.disabled ? themeValue.textDisabled : themeValue.white
 														}}
 													>
-														{item.title}
+														{item?.slug ? getPermissionTitle(item.slug) || item.title : item.title}
 													</Text>
 													<Text style={styles.permissionDescription}>{getPermissionDescription(item?.slug)}</Text>
 												</View>

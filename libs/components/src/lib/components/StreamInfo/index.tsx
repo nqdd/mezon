@@ -102,12 +102,6 @@ const StreamInfo = ({ type }: StreamInfoProps) => {
 		type === ESummaryInfo.CALL ? redirectToCall() : redirectToStream();
 	};
 
-	// const streamAddress =
-	// 	type === ESummaryInfo.CALL
-	// 		? currentDmGroup?.usernames || ''
-	// 		: type === ESummaryInfo.STREAM
-	// 			? `${currentStreamInfo?.streamName} / ${currentStreamInfo?.clanName}`
-	// 			: '';
 	const streamAddress =
 		type === ESummaryInfo.CALL
 			? currentDmGroup?.usernames?.toString() || ''

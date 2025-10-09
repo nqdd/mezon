@@ -1,14 +1,14 @@
 import { Icons } from '@mezon/ui';
-import { useState, useEffect } from 'react';
-import QRCode from "react-qr-code";
+import { format } from 'date-fns';
+import type { ApiClanDiscover } from 'mezon-js/api.gen';
+import { useEffect, useState } from 'react';
+import QRCode from 'react-qr-code';
 import { useParams } from 'react-router-dom';
 import ImageWithSkeleton from '../components/common/ImageWithSkeleton';
 import { FacebookIcon, LightBulbIcon, RedditIcon, TwitterIcon, UserGroupIcon } from '../components/icons';
 import { DEFAULT_IMAGES } from '../constants/constants';
 import { useDiscover } from '../context/DiscoverContext';
 import { useNavigation } from '../hooks/useNavigation';
-import { ApiClanDiscover } from 'mezon-js/api.gen';
-
 
 export default function ClanDetailPage() {
 	const { id } = useParams();
@@ -23,7 +23,7 @@ export default function ClanDetailPage() {
 	useEffect(() => {
 		const loadClan = async () => {
 			if (!id) return;
-			
+
 			setLoading(true);
 			const clanData = await fetchSingleClan(id);
 			setClan(clanData);
@@ -46,7 +46,7 @@ export default function ClanDetailPage() {
 	}
 
 	const chatty = (clan as any).chatty || 'Like a busy coffee shop';
-	const createdAt = (clan as any).created_at || 'January 2nd, 2020';
+	const createdAt = format((clan as any).create_time, 'MMMM do, yyyy') || '';
 	const features = [
 		(clan as any).feature1 || 'Try out the official features of this clan!',
 		(clan as any).feature2 || 'Weekly events and updates.',
@@ -62,7 +62,7 @@ export default function ClanDetailPage() {
 	const inviteLink = `https://mezon.ai/invite/${clan?.invite_id}`;
 	const handleNavigate = () => {
 		if (clan?.invite_id) {
-			window.open(`https://mezon.ai/invite/${clan.invite_id}`, "_blank");
+			window.open(`https://mezon.ai/invite/${clan.invite_id}`, '_blank');
 		}
 	};
 
@@ -75,7 +75,6 @@ export default function ClanDetailPage() {
 	};
 
 	const handleCopy = () => {
-
 		navigator.clipboard
 			.writeText(inviteLink)
 			.then(() => {
@@ -91,11 +90,7 @@ export default function ClanDetailPage() {
 		<>
 			<div className="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
 				<div className="relative h-56 bg-gray-200">
-					<ImageWithSkeleton
-						src={clan.banner || DEFAULT_IMAGES.BANNER}
-						alt="banner"
-						className="w-full h-full object-cover"
-					/>
+					<ImageWithSkeleton src={clan.banner || DEFAULT_IMAGES.BANNER} alt="banner" className="w-full h-full object-cover" />
 					<div className="absolute left-8 -bottom-10 w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-lg overflow-hidden border-4 border-white">
 						<ImageWithSkeleton
 							src={clan.clan_logo || DEFAULT_IMAGES.LOGO}
@@ -123,40 +118,13 @@ export default function ClanDetailPage() {
 							<div className="text-gray-600 mb-2">{clan.description || 'No description.'}</div>
 							<div className="flex items-center text-gray-500 text-[10px] sm:text-xs  mb-1">
 								<div className="flex items-center">
-									<svg
-										className="mr-1"
-										width="12"
-										height="12"
-										viewBox="0 0 12 12"
-										fill="none"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<circle
-											cx="6"
-											cy="6"
-											r="5"
-											stroke="#22c55e"
-											strokeWidth="2"
-											fill="none"
-										>
-											<animate
-												attributeName="r"
-												from="3"
-												to="6"
-												dur="1.5s"
-												repeatCount="indefinite"
-											/>
-											<animate
-												attributeName="opacity"
-												from="1"
-												to="0"
-												dur="1.5s"
-												repeatCount="indefinite"
-											/>
+									<svg className="mr-1" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<circle cx="6" cy="6" r="5" stroke="#22c55e" strokeWidth="2" fill="none">
+											<animate attributeName="r" from="3" to="6" dur="1.5s" repeatCount="indefinite" />
+											<animate attributeName="opacity" from="1" to="0" dur="1.5s" repeatCount="indefinite" />
 										</circle>
 										<circle cx="6" cy="6" r="3" fill="#22c55e" />
 									</svg>
-
 								</div>
 								<span>{clan.total_members?.toLocaleString('en-US') || 0} Members</span>
 							</div>
@@ -187,7 +155,7 @@ export default function ClanDetailPage() {
 						<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
 							<Icons.CalendarIcon className="w-6 h-6 text-[#5865f2]" />
 							<div>
-								<div className="font-semibold text-sm">Server created</div>
+								<div className="font-semibold text-sm">Clan created</div>
 								<div className="text-xs text-gray-500">{createdAt}</div>
 							</div>
 						</div>
@@ -255,8 +223,9 @@ export default function ClanDetailPage() {
 								/>
 								<button
 									onClick={handleCopy}
-									className={`flex items-center gap-1 px-3 py-1.5 rounded-md w-[80px] text-sm transition-colors ${isCopied ? 'bg-gray-200 text-gray-600' : 'bg-[#5865f2] text-white hover:bg-[#4752c4]'
-										}`}
+									className={`flex items-center gap-1 px-3 py-1.5 rounded-md w-[80px] text-sm transition-colors ${
+										isCopied ? 'bg-gray-200 text-gray-600' : 'bg-[#5865f2] text-white hover:bg-[#4752c4]'
+									}`}
 								>
 									<Icons.CopyIcon className="w-4 h-4" />
 									{isCopied ? 'Copied!' : 'Copy'}
@@ -318,4 +287,3 @@ export default function ClanDetailPage() {
 		</>
 	);
 }
-

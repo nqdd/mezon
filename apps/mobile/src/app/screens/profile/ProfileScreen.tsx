@@ -1,12 +1,20 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import type { FriendsEntity } from '@mezon/store-mobile';
-import { accountActions, channelMembersActions, selectAllAccount, selectAllFriends, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { createImgproxyUrl, formatNumber } from '@mezon/utils';
+import {
+	FriendsEntity,
+	accountActions,
+	channelMembersActions,
+	selectAllAccount,
+	selectAllFriends,
+	selectCurrentClanId,
+	useAppDispatch,
+	useWallet
+} from '@mezon/store-mobile';
+import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -43,6 +51,11 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const [isVisibleAddStatusUserModal, setIsVisibleAddStatusUserModal] = useState<boolean>(false);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
+	const { isEnableWallet, walletDetail, enableWallet, fetchWalletData } = useWallet();
+
+	useEffect(() => {
+		fetchWalletData();
+	}, []);
 
 	useFocusEffect(
 		React.useCallback(() => {
@@ -59,8 +72,8 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	}, [userProfile?.user?.status]);
 
 	const tokenInWallet = useMemo(() => {
-		return userProfile?.wallet || 0;
-	}, [userProfile?.wallet]);
+		return walletDetail?.balance || 0;
+	}, [walletDetail?.balance]);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser?.filter?.((user) => user.state === 0);
@@ -244,6 +257,15 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 			{isTabletLandscape && (
 				<View style={styles.buttonListLandscape}>
+					{!isEnableWallet && (
+						<MezonButton
+							containerStyle={styles.button}
+							onPress={() => enableWallet()}
+							icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={'white'} />}
+							title={t('enableWallet')}
+							titleStyle={styles.whiteText}
+						/>
+					)}
 					<MezonButton
 						containerStyle={styles.button}
 						onPress={() => navigateToProfileSetting()}
@@ -263,42 +285,59 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						</View>
 						<Text style={styles.text}>{userProfile?.user?.username}</Text>
 					</TouchableOpacity>
-					<TouchableOpacity onPress={showSendTokenBottomSheet} style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={size.s_20} height={size.s_20} color={baseColor.azureBlue} />
-						<View style={styles.token}>
-							<Text style={styles.text}>
-								{`${t('token')} ${tokenInWallet ? formatNumber(Number(tokenInWallet), 'vi-VN', 'VND') : '0'}`}
-							</Text>
+					{isEnableWallet && (
+						<View>
+							<TouchableOpacity
+								onPress={showSendTokenBottomSheet}
+								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}
+							>
+								<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={size.s_20} height={size.s_20} color={baseColor.azureBlue} />
+								<View style={styles.token}>
+									<Text
+										style={styles.text}
+									>{`${t('token')} ${formatBalanceToString((tokenInWallet || 0)?.toString())} ${CURRENCY.SYMBOL}`}</Text>
+								</View>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => {
+									navigation.push(APP_SCREEN.WALLET, {
+										activeScreen: 'transfer'
+									});
+								}}
+								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
+							>
+								<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
+								<View style={styles.token}>
+									<Text style={styles.text}>{tStack('settingStack.sendToken')}</Text>
+								</View>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => {
+									navigation.push(APP_SCREEN.WALLET, {
+										activeScreen: 'history'
+									});
+								}}
+								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
+							>
+								<MezonIconCDN icon={IconCDN.historyIcon} height={size.s_24} width={size.s_24} color={baseColor.bgSuccess} />
+								<View style={styles.token}>
+									<Text style={styles.text}>{tStack('settingStack.historyTransaction')}</Text>
+								</View>
+							</TouchableOpacity>
 						</View>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => {
-							navigation.push(APP_SCREEN.WALLET, {
-								activeScreen: 'transfer'
-							});
-						}}
-						style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
-					>
-						<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
-						<View style={styles.token}>
-							<Text style={styles.text}>{tStack('settingStack.sendToken')}</Text>
-						</View>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => {
-							navigation.push(APP_SCREEN.WALLET, {
-								activeScreen: 'history'
-							});
-						}}
-						style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
-					>
-						<MezonIconCDN icon={IconCDN.historyIcon} height={size.s_24} width={size.s_24} color={baseColor.bgSuccess} />
-						<View style={styles.token}>
-							<Text style={styles.text}>{tStack('settingStack.historyTransaction')}</Text>
-						</View>
-					</TouchableOpacity>
+					)}
+
 					{!isTabletLandscape && (
 						<View style={styles.buttonList}>
+							{!isEnableWallet && (
+								<MezonButton
+									containerStyle={styles.button}
+									onPress={() => enableWallet()}
+									icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={'white'} />}
+									title={t('enableWallet')}
+									titleStyle={styles.whiteText}
+								/>
+							)}
 							<MezonButton
 								containerStyle={styles.button}
 								onPress={() => navigateToProfileSetting()}

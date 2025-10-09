@@ -1,6 +1,6 @@
 import { useAppNavigation, useEscapeKeyClose } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	channelsActions,
 	selectChannelById,
 	selectChannelFirst,
@@ -84,9 +84,13 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal,
 		<div ref={modalRef} tabIndex={-1} className="fixed  inset-0 flex items-center justify-center z-50 dark:text-white text-black">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
 			<div className="bg-theme-setting-primary relative z-10  p-6 rounded-[5px] text-center">
-				<h2 className="text-[30px] font-semibold mb-4">{isThread ? t('confirm.deleteThread.title') : t('confirm.deleteChannel.title')}</h2>
-				<p className="text-white-600 mb-6 text-[16px]">
-					{isThread ? t('confirm.deleteThread.content', { channelName: channelLabel }) : t('confirm.deleteChannel.content', { channelName: channelLabel })}
+				<h2 className="text-theme-primary-active text-[30px] font-semibold mb-4">
+					{isThread ? t('confirm.deleteThread.title') : t('confirm.deleteChannel.title')}
+				</h2>
+				<p className="text-theme-primary-active mb-6 text-[16px]">
+					{isThread
+						? t('confirm.deleteThread.content', { channelName: channelLabel })
+						: t('confirm.deleteChannel.content', { channelName: channelLabel })}
 				</p>
 				<div className="flex justify-center mt-10 text-[14px]">
 					<button

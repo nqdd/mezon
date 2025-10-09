@@ -3,6 +3,7 @@ import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
+import { useFocusEffect } from '@react-navigation/native';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +26,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { ErrorInput } from '../../../components/ErrorInput';
 import { IconCDN } from '../../../constants/icon_cdn';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { CountryDropdown, countries, type ICountry } from '../../home/homedrawer/components/CountryDropdown';
 import { style } from './styles';
@@ -46,6 +48,19 @@ const LoginScreen = ({ navigation }) => {
 	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
 	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
 	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+	const isTabletLandscape = useTabletLandscape();
+
+	useFocusEffect(
+		useCallback(() => {
+			setIsShowDropdown(false);
+		}, [])
+	);
+
+	useEffect(() => {
+		if (loginMode !== 'sms') {
+			setIsShowDropdown(false);
+		}
+	}, [loginMode]);
 
 	const { t } = useTranslation(['common']);
 	const dispatch = useAppDispatch();
@@ -140,7 +155,10 @@ const LoginScreen = ({ navigation }) => {
 	}, [lastOTPSentTime, email, phone, loginMode]);
 
 	const onLoadInit = async () => {
-		if (clientRef?.current && clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST) {
+		if (
+			clientRef?.current &&
+			(clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST || clientRef?.current?.port !== process.env.NX_CHAT_APP_API_GW_PORT)
+		) {
 			clientRef.current.setBasePath(process.env.NX_CHAT_APP_API_GW_HOST, process.env.NX_CHAT_APP_API_GW_PORT, true);
 		}
 	};
@@ -343,8 +361,8 @@ const LoginScreen = ({ navigation }) => {
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
-					<Text style={styles.title}>{t('login.enterEmail')}</Text>
+				<View style={[styles.content, isLandscape && !isTabletLandscape && { paddingTop: size.s_10 }]}>
+					<Text style={styles.title}>{loginMode === 'sms' ? t('login.enterPhone') : t('login.enterEmail')}</Text>
 					<Text style={styles.subtitle}>{t('login.chooseAnotherOption')}</Text>
 
 					<View style={styles.inputSection}>
@@ -466,14 +484,18 @@ const LoginScreen = ({ navigation }) => {
 
 					<View style={styles.alternativeSection}>
 						<Text style={styles.alternativeText}>
-							{loginMode === 'otp' ? t('login.cannotAccessYourEmail') : t('login.passwordNotSet')}
+							{loginMode === 'otp'
+								? t('login.cannotAccessYourEmail')
+								: loginMode === 'sms'
+									? t('login.cannotAccessYourPhone')
+									: t('login.passwordNotSet')}
 						</Text>
 						<View style={styles.alternativeOptions}>
 							<TouchableOpacity onPress={loginMode === 'otp' ? () => handleSMSLogin() : () => switchToOTPMode()}>
 								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithEmailOTP')}</Text>
 							</TouchableOpacity>
 							<Text style={styles.orText}>{t('login.or')}</Text>
-							<TouchableOpacity onPress={switchToPasswordMode}>
+							<TouchableOpacity onPress={loginMode !== 'password' ? switchToPasswordMode : handleSMSLogin}>
 								<Text style={styles.linkText}>
 									{loginMode !== 'password' ? t('login.loginWithPassword') : t('login.loginWithSMS')}
 								</Text>

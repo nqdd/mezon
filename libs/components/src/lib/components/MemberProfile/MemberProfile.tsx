@@ -11,13 +11,13 @@ import { UserStatusIconClan } from './IconStatus';
 
 type BaseMemberProfileProps = {
 	id: string;
-	userMeta?: { status?: string; online: boolean };
+	userMeta?: { status?: EUserStatus; online: boolean };
 	user: ChannelMembersEntity | UsersClanEntity;
 	username: string;
 	avatar: string;
 	isOwner?: boolean;
 	userStatus?: ReactNode;
-	onContextMenu: (event: React.MouseEvent<Element, MouseEvent>, user: UsersClanEntity) => void;
+	onContextMenu: (event: React.MouseEvent<Element, MouseEvent>, channelId: string, user: UsersClanEntity) => void;
 	onClick: (event: React.MouseEvent) => void;
 };
 
@@ -37,7 +37,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 				avatar_url: user?.user?.avatar_url
 			}
 		};
-		onContextMenu(event, userTemplate);
+		onContextMenu(event, currentDmGroup.channel_id || '', userTemplate);
 	};
 
 	const isOffline = userMeta?.status === EUserStatus.INVISIBLE || !userMeta?.online;
@@ -60,12 +60,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 						src={avatar}
 					/>
 					<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-						<UserStatusIconClan
-							channelId={currentChannelID || currentDmGroup.id || ''}
-							userId={user.id}
-							status={userMeta?.status}
-							online={userMeta?.online}
-						/>
+						<UserStatusIconClan channelId={currentChannelID || currentDmGroup.id || ''} userId={user.id} status={userMeta?.status} />
 					</div>
 				</div>
 

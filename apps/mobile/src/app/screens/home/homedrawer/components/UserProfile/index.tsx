@@ -1,12 +1,10 @@
 import { useDirect, useMemberStatus } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity, RolesClanEntity, RootState } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	DMCallActions,
 	EStateFriend,
-	RolesClanEntity,
-	RootState,
 	directActions,
 	friendsActions,
 	getStore,
@@ -128,7 +126,6 @@ const UserProfile = React.memo(
 				user_status: userProfile?.user?.user_status
 			};
 		}, [getStatus, user?.id, userId, userProfile?.user?.id, userProfile?.user?.status, userProfile?.user?.user_status]);
-		console.log('log => status: ', status);
 
 		const isDM = useMemo(() => {
 			return currentChannel?.type === ChannelType.CHANNEL_TYPE_DM || currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
@@ -362,7 +359,7 @@ const UserProfile = React.memo(
 				text: t('userAction.voiceCall'),
 				icon: <MezonIconCDN icon={IconCDN.phoneCallIcon} color={themeValue.text} />,
 				action: () => handleCallUser(userId || user?.id),
-				isShow: (!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById
+				isShow: ((!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById) && !isBlocked
 			},
 			{
 				id: 4,

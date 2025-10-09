@@ -1,6 +1,6 @@
 import { selectIsUserTypingInChannel, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EUserStatus, UserStatus } from '@mezon/utils';
+import { EUserStatus } from '@mezon/utils';
 import { RenderTypingIndicator, StatusUser } from '../StatusUser';
 
 export const UserStatusIconDM = ({ status }: { status?: EUserStatus }) => {
@@ -41,42 +41,24 @@ export const UserStatusIcon = ({ status }: { status?: EUserStatus }) => {
 	}
 };
 
-export const UserStatusIconClan = ({
-	status,
-	online,
-	channelId,
-	userId
-}: {
-	status?: EUserStatus | string;
-	online?: boolean;
-	channelId?: string;
-	userId?: string;
-}) => {
-	const normalizedStatus = typeof status === 'object' && status !== null ? (status as UserStatus).status?.toUpperCase() : status?.toUpperCase();
+export const UserStatusIconClan = ({ status, channelId, userId }: { status?: EUserStatus; channelId?: string; userId?: string }) => {
+	const normalizedStatus = status?.toUpperCase();
 	const isTyping = useAppSelector((state) => selectIsUserTypingInChannel(state, channelId || '', userId || ''));
 
 	if (isTyping) {
 		return RenderTypingIndicator();
 	}
 
-	if (!online) {
-		return <StatusUser status="offline" />;
-	}
-
 	switch (normalizedStatus) {
 		case 'IDLE':
-			return <Icons.DarkModeIcon className="text-[#F0B232] absolute -rotate-90 w-[10px] h-[10px] bottom-0 right-1" />;
+			return <Icons.DarkModeIcon className="text-[#F0B232] -rotate-90 w-[10px] h-[10px]" />;
 		case 'DO NOT DISTURB':
 			return <StatusUser status="dnd" />;
 		case 'INVISIBLE':
 			return <StatusUser status="offline" />;
 		case 'ONLINE':
 			return <StatusUser status="online" />;
+		default:
+			return <StatusUser status="offline" />;
 	}
-
-	if (online) {
-		return <StatusUser status="online" />;
-	}
-
-	return <Icons.OfflineStatus />;
 };
