@@ -56,6 +56,12 @@ const LoginScreen = ({ navigation }) => {
 		}, [])
 	);
 
+	useEffect(() => {
+		if (loginMode !== 'sms') {
+			setIsShowDropdown(false);
+		}
+	}, [loginMode]);
+
 	const { t } = useTranslation(['common']);
 	const dispatch = useAppDispatch();
 	const isValidEmail = (email: string) => {
@@ -302,7 +308,6 @@ const LoginScreen = ({ navigation }) => {
 
 	const handleSMSLogin = () => {
 		setLoginMode('sms');
-		setIsShowDropdown(false);
 	};
 
 	const switchToPasswordMode = () => {
