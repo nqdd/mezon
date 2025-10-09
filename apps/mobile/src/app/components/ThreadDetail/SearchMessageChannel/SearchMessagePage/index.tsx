@@ -16,6 +16,7 @@ import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+import { removeDiacritics } from '../../../../utils/helpers';
 import { ChannelsSearchTab } from '../../../ChannelsSearchTab';
 import { EmptySearchPage } from '../../../EmptySearchPage';
 import MembersSearchTab from '../../../MembersSearchTab/MembersSearchTab';
@@ -95,18 +96,55 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 	}, [nameChannel, store]);
 
 	const filterAndSortMembers = useCallback((members, searchTerm) => {
-		if (!searchTerm) return members;
+		if (!searchTerm?.trim() || !members?.length) return members || [];
 
-		const normalizedSearchTerm = searchTerm.toLowerCase();
+		const search = searchTerm.trim().toLowerCase();
+		const searchNorm = removeDiacritics(search);
 
 		return members
-			?.filter((member) => {
-				const username = member?.username?.toLowerCase() || '';
-				const displayName = member?.display_name?.toLowerCase() || '';
+			.map((member) => {
+				const username = (member?.username || '').toLowerCase();
+				const displayName = (member?.display_name || '').toLowerCase();
+				const usernameNorm = removeDiacritics(username);
+				const displayNorm = removeDiacritics(displayName);
 
-				return username.includes(normalizedSearchTerm) || displayName.includes(normalizedSearchTerm);
+				const displayScore =
+					displayName === search
+						? 1050
+						: displayName.startsWith(search)
+							? 950
+							: displayNorm === searchNorm
+								? 850
+								: displayNorm.startsWith(searchNorm)
+									? 750
+									: displayName.includes(search)
+										? 550
+										: displayNorm.includes(searchNorm)
+											? 450
+											: 0;
+
+				const usernameScore =
+					username === search
+						? 1000
+						: username.startsWith(search)
+							? 900
+							: usernameNorm === searchNorm
+								? 800
+								: usernameNorm.startsWith(searchNorm)
+									? 700
+									: username.includes(search)
+										? 500
+										: usernameNorm.includes(searchNorm)
+											? 400
+											: 0;
+
+				const score = Math.max(displayScore, usernameScore);
+
+				return score ? { member, score, len: displayName.length || username.length } : null;
 			})
-			.sort((a: SearchItemProps, b: SearchItemProps) => compareObjects(a, b, searchTerm, 'display_name'));
+			?.filter(Boolean)
+			?.sort((a, b) => b.score - a.score || a.len - b.len)
+			?.map((item) => item.member);
 	}, []);
 
 	const membersSearch = useMemo(() => {
@@ -129,7 +167,7 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 		const data = [
 			{
 				title: t('members'),
-				quantitySearch: searchText && (membersSearch?.length + dmGroupsSearch?.length),
+				quantitySearch: searchText && membersSearch?.length + dmGroupsSearch?.length,
 				display: !userMention && (!!membersSearch?.length || !!dmGroupsSearch?.length),
 				index: ACTIVE_TAB.MEMBER
 			}
