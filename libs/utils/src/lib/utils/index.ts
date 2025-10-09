@@ -468,7 +468,6 @@ export function filterListByName(listSearch: SearchItemProps[], searchText: stri
 			const itemName = item.name ? normalizeSearchString(item.name) : '';
 			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
 			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
-
 			return (
 				prioritizeName.includes(searchUpper) ||
 				itemName.includes(searchUpper) ||
