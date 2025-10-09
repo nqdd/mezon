@@ -17,7 +17,7 @@
 		"neverMind": "Never Mind"
 	},
 	"content": {
-		"description": "Add upto 250 custom stickers that anyone can use in this server.",
+		"description": "Add upto 250 custom stickers that anyone can use in this clan.",
 		"requirements": "Upload Requirements",
 		"reqType": "•  Can be static (PNG) or animated (APNG, GIF).",
 		"reqDim": "•  Must be exactly 320 x 320 pixels.",

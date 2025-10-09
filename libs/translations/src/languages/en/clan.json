@@ -25,7 +25,7 @@
 	},
 	"leaveClanModal": {
 		"title": "Leave {{clanName}}",
-		"description": "Are you sure you want to leave <strong>{{clanName}}</strong>? You won't be able to re-join this server unless you are re-invited.",
+		"description": "Are you sure you want to leave <strong>{{clanName}}</strong>? You won't be able to re-join this Clan unless you are re-invited.",
 		"cancel": "Cancel"
 	},
 	"categoryOverview": {
