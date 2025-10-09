@@ -254,7 +254,7 @@ const DirectUnreadList = memo(() => {
 			countUnreadRender.current = listUnreadDM.map((channel) => channel.id);
 			timerRef.current = setTimeout(() => {
 				setListDmRender(listUnreadDM);
-			}, 1000);
+			}, 200);
 		}
 	}, [listUnreadDM]);
 
