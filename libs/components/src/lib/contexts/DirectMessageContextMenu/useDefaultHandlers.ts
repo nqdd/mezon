@@ -1,6 +1,6 @@
 import { EMuteState } from '@mezon/utils';
 import { useCallback } from 'react';
-import { DirectMessageContextMenuHandlers } from './types';
+import type { DirectMessageContextMenuHandlers } from './types';
 
 interface UseDefaultHandlersParams {
 	openUserProfile: () => void;
@@ -16,6 +16,7 @@ interface UseDefaultHandlersParams {
 	blockFriend: (username: string, userId: string) => Promise<boolean>;
 	unBlockFriend: (username: string, userId: string) => Promise<boolean>;
 	openEditGroupModal?: () => void;
+	openLeaveGroupModal?: () => void;
 }
 
 export function useDefaultHandlers({
@@ -31,7 +32,8 @@ export function useDefaultHandlers({
 	handleLeaveDmGroup,
 	blockFriend,
 	unBlockFriend,
-	openEditGroupModal
+	openEditGroupModal,
+	openLeaveGroupModal
 }: UseDefaultHandlersParams) {
 	const createDefaultHandlers = useCallback(
 		(user?: any): DirectMessageContextMenuHandlers => {
@@ -49,11 +51,20 @@ export function useDefaultHandlers({
 				handleAddFriend: () => {
 					if (!user) return;
 
-					addFriend({ usernames: [user.usernames[0]], ids: [user.user_id[0]] });
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+
+					addFriend({ usernames, ids });
 				},
 				handleRemoveFriend: () => {
 					if (!user) return;
-					deleteFriend(user.usernames[0], user.user_id[0]);
+
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+
+					deleteFriend(usernames[0], ids[0]);
 				},
 				handleMarkAsRead: () => {
 					const channelId = (user as any)?.channelId || (user as any)?.channel_id;
@@ -84,15 +95,18 @@ export function useDefaultHandlers({
 					}
 				},
 				handleLeaveGroup: () => {
-					const channelId = user?.channelId || user.channel_id;
-					const isLastOne = (user?.user_id?.length || 0) < 1;
-					handleLeaveDmGroup(channelId, isLastOne);
+					if (openLeaveGroupModal) {
+						openLeaveGroupModal();
+					}
 				},
 				handleBlockFriend: async () => {
-					await blockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+					await blockFriend(usernames[0], ids[0]);
 				},
 				handleUnblockFriend: async () => {
-					await unBlockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					await unBlockFriend(user?.usernames?.[0], user?.user_ids?.[0]);
 				},
 				handleEditGroup: () => {
 					if (openEditGroupModal) {
@@ -111,10 +125,10 @@ export function useDefaultHandlers({
 			muteOrUnMuteChannel,
 			handleEnableE2ee,
 			handleRemoveMemberFromGroup,
-			handleLeaveDmGroup,
 			blockFriend,
 			unBlockFriend,
-			openEditGroupModal
+			openEditGroupModal,
+			openLeaveGroupModal
 		]
 	);
 

@@ -98,7 +98,8 @@ export const DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR = '#17ac86';
 export const CHANNEL_INPUT_ID = 'editorReactMentionChannel';
 export const GENERAL_INPUT_ID = 'editorReactMention';
 export const AMOUNT_TOKEN = {
-	TEN_TOKENS: 10
+	TEN_TOKENS: 10,
+	TEN_THOUSAND_TOKENS: 10000
 };
 
 export const TOKEN_TO_AMOUNT = {
@@ -167,9 +168,19 @@ export enum EMuteState {
 }
 
 export const STICKER_WAVE = {
-	URL: 'https://cdn.mezon.ai/stickers/1755483370983_hello.gif',
-	NAME: '1755483370983_hello'
+	URL: 'https://cdn.mezon.ai/stickers/hello.gif',
+	NAME: 'hello'
 };
 
 export const MEZON_AVATAR_URL = 'https://cdn.mezon.ai/0/1840653409082937344/1782991817428439000/1748500199026_0logo_new.png';
 export const WAVE_SENDER_NAME = 'Mezon';
+
+export const CURRENCY = {
+	CODE: 'vi-VN',
+	SYMBOL: 'đ'
+};
+
+export const ITEM_TYPE = {
+	EMOJI: 0,
+	STICKER: 1
+};

@@ -3,15 +3,14 @@ import type { LoadingStatus, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction, Update } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
 import type { ClanUserListClanUser } from 'mezon-js/api.gen';
 import { selectAllAccount } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import { convertStatusClan, selectStatusEntities, statusActions } from '../direct/status.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
-import { clanMembersMetaActions, extracMeta, selectClanMembersMetaEntities } from './clan.members.meta';
 export const USERS_CLANS_FEATURE_KEY = 'usersClan';
 
 /*
@@ -96,7 +95,7 @@ export const fetchUsersClan = createAsyncThunk('UsersClan/fetchUsersClan', async
 		const { users, fromCache } = response;
 		if (!fromCache) {
 			const state = thunkAPI.getState() as RootState;
-			thunkAPI.dispatch(clanMembersMetaActions.updateBulkMetadata(users.map((item) => extracMeta(item, state))));
+			thunkAPI.dispatch(statusActions.updateBulkStatus(users.map((item) => convertStatusClan(item, state))));
 		}
 
 		return { users, fromCache, clanId };
@@ -253,6 +252,39 @@ export const UsersClanSlice = createSlice({
 					});
 				}
 			}
+		},
+		updateUserProfileAcrossClans: (
+			state,
+			action: PayloadAction<{ userId: string; avatar?: string; display_name?: string; about_me?: string }>
+		) => {
+			const { userId, avatar, display_name, about_me } = action.payload;
+			Object.keys(state.byClans).forEach((clanId) => {
+				const existingMember = state.byClans[clanId].entities.entities[userId];
+				if (existingMember) {
+					const updates: Partial<UsersClanEntity> = {
+						user: {
+							...existingMember.user
+						}
+					};
+
+					if (avatar !== undefined) {
+						updates.user!.avatar_url = avatar;
+					}
+
+					if (display_name !== undefined) {
+						updates.user!.display_name = display_name;
+					}
+
+					if (about_me !== undefined) {
+						updates.user!.about_me = about_me;
+					}
+
+					UsersClanAdapter.updateOne(state.byClans[clanId].entities, {
+						id: userId,
+						changes: updates
+					});
+				}
+			});
 		}
 	},
 	extraReducers: (builder) => {
@@ -349,7 +381,7 @@ const getName = (user: UsersClanEntity) =>
 // CHECK
 export const selectClanMemberWithStatusIds = createSelector(
 	selectAllUserClans,
-	selectClanMembersMetaEntities,
+	selectStatusEntities,
 	selectAllAccount,
 	(members, metas, userProfile) => {
 		if (!metas || !members) {
@@ -364,17 +396,15 @@ export const selectClanMemberWithStatusIds = createSelector(
 			user: {
 				...item.user,
 				online: metas[item.id]?.status !== EUserStatus.INVISIBLE && !!metas[item.id]?.online,
-				is_mobile: !!metas[item.id]?.isMobile
+				is_mobile: !!metas[item.id]?.is_mobile
 			}
 		})) as UsersClanEntity[];
 
 		const userProfileId = userProfile?.user?.id;
 		if (userProfileId) {
-			const metadata =
-				typeof userProfile?.user?.metadata === 'string' ? safeJSONParse(userProfile?.user?.metadata) : userProfile?.user?.metadata;
 			const userIndex = users.findIndex((user) => user.id === userProfileId);
 
-			if (userIndex === -1 && metadata?.user_status !== EUserStatus.INVISIBLE) {
+			if (userIndex === -1 && userProfile?.user?.user_status !== EUserStatus.INVISIBLE) {
 				users.push({
 					id: userProfileId,
 					user: {
@@ -382,7 +412,7 @@ export const selectClanMemberWithStatusIds = createSelector(
 						online: true
 					}
 				} as UsersClanEntity);
-			} else if (metadata?.user_status !== EUserStatus.INVISIBLE) {
+			} else if (userProfile?.user?.user_status !== EUserStatus.INVISIBLE) {
 				users[userIndex] = {
 					...users[userIndex],
 					user: {

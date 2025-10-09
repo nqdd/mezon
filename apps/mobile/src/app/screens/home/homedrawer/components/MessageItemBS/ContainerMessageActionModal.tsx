@@ -9,6 +9,7 @@ import {
 	channelMetaActions,
 	clansActions,
 	directActions,
+	directMetaActions,
 	getStore,
 	giveCoffeeActions,
 	messagesActions,
@@ -25,11 +26,11 @@ import {
 	threadsActions,
 	topicsActions,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	useWallet
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import {
-	AMOUNT_TOKEN,
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
 	EPermission,
@@ -52,6 +53,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
+import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { getMessageActions } from '../../constants';
@@ -76,6 +78,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const { t } = useTranslation(['message']);
 	const [currentMessageActionType, setCurrentMessageActionType] = useState<EMessageActionType | null>(null);
 	const [isShowQuickMenuModal, setIsShowQuickMenuModal] = useState(false);
+	const { enableWallet } = useWallet();
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentDmId = useSelector(selectDmGroupCurrentId);
@@ -132,7 +135,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				referencesString
 			);
 		},
-		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message?.attachments, mode, socketRef, store]
+		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message, mode, socketRef, store]
 	);
 
 	const onConfirmAction = useCallback(
@@ -192,8 +195,13 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, payload);
 	};
 
+	const handleEnableWallet = async () => {
+		await enableWallet();
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+	};
+
 	const handleActionGiveACoffee = async () => {
-		onClose();
 		try {
 			if (userId !== message.sender_id) {
 				const currentClanId = selectCurrentClanId(store.getState());
@@ -202,14 +210,28 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					clan_id: message.clan_id,
 					message_ref_id: message.id,
 					receiver_id: message.sender_id,
-					sender_id: userId,
-					token_count: AMOUNT_TOKEN.TEN_TOKENS
+					sender_id: userId
 				};
 				const res = await dispatch(giveCoffeeActions.updateGiveCoffee(coffeeEvent));
+				if (res?.payload === 'Wallet not available') {
+					const data = {
+						children: (
+							<MezonConfirm
+								onConfirm={() => handleEnableWallet()}
+								title={t('wallet.notAvailable')}
+								confirmText={t('wallet.enableWallet')}
+								content={t('wallet.descNotAvailable')}
+								onCancel={() => navigation?.goBack()}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+					return;
+				}
 				if (res?.meta?.requestStatus === 'rejected' || !res) {
 					Toast.show({
 						type: 'error',
-						text1: 'An error occurred, please try again'
+						text1: res?.payload?.toString() || 'An error occurred, please try again'
 					});
 					return;
 				}
@@ -225,6 +247,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				}
 				await dispatch(directActions.setDmGroupCurrentId(''));
 				await dispatch(clansActions.joinClan({ clanId: currentClanId }));
+				onClose();
 			}
 		} catch (error) {
 			console.error('Failed to give cofffee message', error);
@@ -403,23 +426,27 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	};
 
 	const handleMarkUnread = async () => {
+		const payloadSetLastSeenTimestamp = {
+			channelId: message?.channel_id || '',
+			timestamp: 1
+		};
 		try {
 			await dispatch(
 				messagesActions.updateLastSeenMessage({
 					clanId: message?.clan_id || '',
-					channelId: message?.channel_id,
-					messageId: message?.id,
+					channelId: message?.channel_id || '',
+					messageId: message?.id || '',
 					mode: message?.mode || 0,
 					badge_count: 0,
-					message_time: message.create_time_seconds
+					message_time: 1
 				})
 			);
-			dispatch(
-				channelMetaActions.setChannelLastSeenTimestamp({
-					channelId: message?.channel_id as string,
-					timestamp: message.create_time_seconds || Date.now()
-				})
-			);
+			if (message?.clan_id === '0') {
+				dispatch(directMetaActions.setDirectLastSeenTimestamp(payloadSetLastSeenTimestamp));
+			} else {
+				dispatch(channelMetaActions.setChannelLastSeenTimestamp(payloadSetLastSeenTimestamp));
+			}
+
 			Toast.show({
 				type: 'success',
 				props: {
@@ -699,7 +726,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const mediaList =
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
-				message?.content?.embed?.some((embed) => embed?.image)
+			message?.content?.embed?.some((embed) => embed?.image)
 				? []
 				: [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink];
 

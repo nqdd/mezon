@@ -1,4 +1,3 @@
-import { useAuth } from '@mezon/core';
 import {
 	debounce,
 	remove,
@@ -16,7 +15,8 @@ import {
 	getAuthState,
 	getStoreAsync,
 	listChannelsByUserActions,
-	messagesActions
+	messagesActions,
+	selectAllAccount
 } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -43,7 +43,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	const [linkRedirectLogout, setLinkRedirectLogout] = useState<string>('');
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 	const logout = async () => {
 		const store = await getStoreAsync();
 		store.dispatch(channelsActions.removeAll());
@@ -59,7 +59,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
-		store.dispatch(appActions.setIsShowWelcomeMobile(true));
+		store.dispatch(appActions.setIsShowWelcomeMobile(false));
 		store.dispatch(authActions.logOut({ device_id: userProfile.user.username, platform: Platform.OS }));
 		store.dispatch(appActions.setLoadingMainMobile(false));
 		setLinkRedirectLogout('');

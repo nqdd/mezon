@@ -1,16 +1,14 @@
-import { useAuth, useDirect, useFriends, useMemberCustomStatus, useMemberStatus } from '@mezon/core';
+import { useDirect, useMemberStatus } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity, RolesClanEntity, RootState } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	DMCallActions,
 	EStateFriend,
-	RolesClanEntity,
-	RootState,
 	directActions,
 	friendsActions,
 	getStore,
-	selectAccountCustomStatus,
+	selectAllAccount,
 	selectAllRolesClan,
 	selectDirectsOpenlist,
 	selectFriendById,
@@ -19,7 +17,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { DEFAULT_ROLE_COLOR, IMessageWithUser } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EUserStatus, IMessageWithUser } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -34,7 +32,6 @@ import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import ImageNative from '../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
-import { getUserStatusByMetadata } from '../../../../../utils/helpers';
 import { checkNotificationPermissionAndNavigate } from '../../../../../utils/notificationPermissionHelper';
 import { DirectMessageCallMain } from '../../../../messages/DirectMessageCall';
 import { style } from './UserProfile.styles';
@@ -43,16 +40,28 @@ import { PendingContent } from './component/PendingContent';
 import UserInfoDm from './component/UserInfoDm';
 import UserSettingProfile from './component/UserSettingProfile';
 
+export type IManageVoiceUser = {
+	isHavePermission: boolean;
+	isShowMute: boolean;
+};
+
+export enum IActionVoiceUser {
+	MUTE = 'mute',
+	KICK = 'kick'
+}
+
 interface userProfileProps {
 	userId?: string;
 	user?: any;
 	message?: IMessageWithUser;
 	checkAnonymous?: boolean;
 	onClose?: () => void;
+	onActionVoice?: (action: IActionVoiceUser) => void;
 	showAction?: boolean;
 	showRole?: boolean;
 	currentChannel?: ChannelsEntity;
 	directId?: string;
+	manageVoiceUser?: IManageVoiceUser;
 }
 
 export enum EFriendState {
@@ -68,14 +77,25 @@ export const formatDate = (dateString: string) => {
 };
 
 const UserProfile = React.memo(
-	({ userId, user, onClose, checkAnonymous, message, showAction = true, showRole = true, currentChannel, directId }: userProfileProps) => {
+	({
+		userId,
+		user,
+		onClose,
+		onActionVoice,
+		checkAnonymous,
+		message,
+		showAction = true,
+		showRole = true,
+		currentChannel,
+		directId,
+		manageVoiceUser
+	}: userProfileProps) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue, isTabletLandscape);
-		const { userProfile } = useAuth();
+		const userProfile = useSelector(selectAllAccount);
 		const { t } = useTranslation(['userProfile', 'friends']);
 		const userById = useAppSelector((state) => selectMemberClanByUserId(state, userId || user?.id));
-		const userStatus = useMemberStatus(userId || user?.id);
 		const rolesClan: RolesClanEntity[] = useSelector(selectAllRolesClan);
 		const messageAvatar = useMemo(() => {
 			return message?.clan_avatar || message?.avatar;
@@ -86,10 +106,8 @@ const UserProfile = React.memo(
 		const navigation = useNavigation<any>();
 		const { createDirectMessageWithUser } = useDirect();
 		const listDM = useSelector(selectDirectsOpenlist);
-		const userCustomStatus = useMemberCustomStatus(userId || user?.id || '');
-		const { acceptFriend, deleteFriend, addFriend } = useFriends();
+		const getStatus = useMemberStatus(userById?.id || '');
 		const [isShowPendingContent, setIsShowPendingContent] = useState(false);
-		const currentUserCustomStatus = useSelector(selectAccountCustomStatus);
 		const dispatch = useAppDispatch();
 		const dmChannel = useMemo(() => {
 			return listDM?.find((dm) => dm?.id === directId);
@@ -98,6 +116,17 @@ const UserProfile = React.memo(
 			return dmChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
 		}, [dmChannel?.type]);
 
+		const status = useMemo(() => {
+			const userIdInfo = userId || user?.id;
+			if (userIdInfo !== userProfile?.user?.id) {
+				return getStatus;
+			}
+			return {
+				status: userProfile?.user?.status || EUserStatus.ONLINE,
+				user_status: userProfile?.user?.user_status
+			};
+		}, [getStatus, user?.id, userId, userProfile?.user?.id, userProfile?.user?.status, userProfile?.user?.user_status]);
+
 		const isDM = useMemo(() => {
 			return currentChannel?.type === ChannelType.CHANNEL_TYPE_DM || currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
 		}, [currentChannel?.type]);
@@ -105,8 +134,6 @@ const UserProfile = React.memo(
 		const isBlocked = useMemo(() => {
 			return infoFriend?.state === EStateFriend.BLOCK;
 		}, [infoFriend?.state]);
-
-		const status = getUserStatusByMetadata(user?.user?.metadata) || user?.metadata?.user_status;
 
 		useEffect(() => {
 			if (isShowPendingContent) {
@@ -121,10 +148,12 @@ const UserProfile = React.memo(
 		const handleAddFriend = async () => {
 			const userIdToAddFriend = userId || user?.id;
 			if (userIdToAddFriend) {
-				await addFriend({
-					usernames: [],
-					ids: [userIdToAddFriend]
-				});
+				await dispatch(
+					friendsActions.sendRequestAddFriend({
+						usernames: [],
+						ids: [userIdToAddFriend]
+					})
+				);
 
 				showAddFriendToast();
 			}
@@ -185,14 +214,10 @@ const UserProfile = React.memo(
 		}, [userById?.role_id, rolesClan]);
 
 		const isCheckOwner = useMemo(() => {
-			const userId = userById?.user?.google_id || userById?.user?.id;
-			const id = userProfile?.user?.google_id || userProfile?.user?.id;
+			const userId = userById?.user?.id;
+			const id = userProfile?.user?.id;
 			return userId === id;
 		}, [userById, userProfile]);
-
-		const displayStatus = useMemo(() => {
-			return isCheckOwner ? currentUserCustomStatus : userCustomStatus;
-		}, [currentUserCustomStatus, isCheckOwner, userCustomStatus]);
 
 		const directMessageWithUser = useCallback(
 			async (userId: string) => {
@@ -200,7 +225,7 @@ const UserProfile = React.memo(
 					isShow: false
 				});
 				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_id;
+					const userIds = dm?.user_ids;
 					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
 				});
 				if (directMessage?.id) {
@@ -266,7 +291,7 @@ const UserProfile = React.memo(
 					isShow: false
 				});
 				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_id;
+					const userIds = dm?.user_ids;
 					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
 				});
 				if (directMessage?.id) {
@@ -364,11 +389,20 @@ const UserProfile = React.memo(
 		];
 
 		const handleAcceptFriend = () => {
-			acceptFriend(infoFriend?.user?.username || '', infoFriend?.user?.id || '');
+			const body = {
+				usernames: [infoFriend?.user?.username || ''],
+				ids: [infoFriend?.user?.id || ''],
+				isAcceptingRequest: true
+			};
+			dispatch(friendsActions.sendRequestAddFriend(body));
 		};
 
 		const handleIgnoreFriend = () => {
-			deleteFriend(infoFriend?.user?.username || '', infoFriend?.user?.id || '');
+			const body = {
+				usernames: [infoFriend?.user?.username || ''],
+				ids: [infoFriend?.user?.id || '']
+			};
+			dispatch(friendsActions.sendRequestDeleteFriend(body));
 		};
 		const isChannelOwner = useMemo(() => {
 			if (dmChannel?.creator_id) {
@@ -457,19 +491,19 @@ const UserProfile = React.memo(
 									: (userById?.user?.avatar_url ?? user?.user?.avatar_url ?? user?.avatar_url ?? messageAvatar)
 							}
 							username={user?.user?.username || user?.username}
-							userStatus={userStatus}
-							customStatus={status}
+							userStatus={status}
+							customStatus={status?.status}
 							isBorderBoxImage={true}
 							statusUserStyles={styles.statusUser}
 						/>
 					</View>
-					{displayStatus ? (
+					{status?.user_status ? (
 						<>
 							<View style={styles.badgeStatusTemp} />
 							<View style={styles.badgeStatus}>
 								<View style={styles.badgeStatusInside} />
 								<Text numberOfLines={3} style={styles.customStatusText}>
-									{displayStatus}
+									{status?.user_status}
 								</Text>
 							</View>
 						</>
@@ -477,6 +511,35 @@ const UserProfile = React.memo(
 				</View>
 
 				<View style={[styles.container]}>
+					{manageVoiceUser?.isHavePermission && (
+						<View style={[styles.userInfo, { gap: size.s_10 }]}>
+							<Text style={[styles.title, { fontSize: size.medium }]}>{t('channelVoiceSettings')}</Text>
+							<View style={styles.wrapManageVoice}>
+								{manageVoiceUser?.isShowMute && (
+									<TouchableOpacity
+										onPress={() => onActionVoice?.(IActionVoiceUser.MUTE)}
+										style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+									>
+										<MezonIconCDN
+											icon={IconCDN.microphoneSlashIcon}
+											color={themeValue.text}
+											width={size.s_18}
+											height={size.s_18}
+										/>
+										<Text style={[styles.actionText]}>{t('muteVoice')}</Text>
+									</TouchableOpacity>
+								)}
+
+								<TouchableOpacity
+									onPress={() => onActionVoice?.(IActionVoiceUser.KICK)}
+									style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+								>
+									<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.text} width={size.s_18} height={size.s_18} />
+									<Text style={[styles.actionText]}>{t('kickVoice')}</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					)}
 					<View style={[styles.userInfo]}>
 						<Text style={[styles.username]}>
 							{userById
@@ -504,7 +567,7 @@ const UserProfile = React.memo(
 									(checkAnonymous ? 'Anonymous' : message?.username)}
 						</Text>
 						{isCheckOwner && <EditUserProfileBtn user={userById || (user as any)} />}
-						{!isCheckOwner && (
+						{!isCheckOwner && !manageVoiceUser && (
 							<View style={[styles.userAction]}>
 								{actionList.map((actionItem) => {
 									const { action, icon, id, isShow, text, textStyles } = actionItem;
@@ -590,7 +653,11 @@ const UserProfile = React.memo(
 							) : null}
 							{isDMGroup && !isCheckOwner && isChannelOwner && (
 								<View style={styles.actionGroupDM}>
-									<UserInfoDm currentChannel={dmChannel || (currentChannel as ChannelsEntity)} user={userById || (user as any)} />
+									<UserInfoDm
+										currentChannel={dmChannel || (currentChannel as ChannelsEntity)}
+										user={userById || (user as any)}
+										isShowRemoveGroup={dmChannel?.creator_id !== (userId || user?.id)}
+									/>
 								</View>
 							)}
 							{showAction && !isKicked && <UserSettingProfile user={userById || (user as any)} />}

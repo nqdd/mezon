@@ -20,7 +20,7 @@ import type React from 'react';
 import Resizer from 'react-image-file-resizer';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
-import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
+import { CURRENCY, EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
 import { Platform } from '../hooks/platform';
 import type {
 	ChannelMembersEntity,
@@ -332,6 +332,10 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 	}
 }
 
+export function normalizeSearchString(str: string): string {
+	return normalizeString(str).replace('-', ' ').replace('_', ' ').replace('+', ' ');
+}
+
 export function normalizeString(str: string): string {
 	if (str?.length)
 		return str
@@ -449,11 +453,11 @@ export function addAttributesSearchList(data: SearchItemProps[], dataUserClan: C
 export function filterListByName(listSearch: SearchItemProps[], searchText: string, isSearchByUsername: boolean): SearchItemProps[] {
 	const result = listSearch.filter((item: SearchItemProps) => {
 		if (isSearchByUsername) {
-			const searchName = normalizeString(searchText.slice(1));
-			const itemDisplayName = item.displayName ? normalizeString(item.displayName) : '';
-			const itemName = item.name ? normalizeString(item.name) : '';
-			const itemPrioritizeName = item.prioritizeName ? normalizeString(item.prioritizeName) : '';
-			const searchNameAllClan = item.searchName ? normalizeString(item.searchName) : '';
+			const searchName = normalizeSearchString(searchText.slice(1));
+			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
+			const itemName = item.name ? normalizeSearchString(item.name) : '';
+			const itemPrioritizeName = item.prioritizeName ? normalizeSearchString(item.prioritizeName) : '';
+			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
 			return (
 				itemName.includes(searchName) ||
 				itemDisplayName.includes(searchName) ||
@@ -461,11 +465,11 @@ export function filterListByName(listSearch: SearchItemProps[], searchText: stri
 				searchNameAllClan.includes(searchName)
 			);
 		} else {
-			const searchUpper = normalizeString(searchText.startsWith('#') ? searchText.substring(1) : searchText);
-			const prioritizeName = item.prioritizeName ? normalizeString(item.prioritizeName) : '';
-			const itemName = item.name ? normalizeString(item.name) : '';
-			const itemDisplayName = item.displayName ? normalizeString(item.displayName) : '';
-			const searchNameAllClan = item.searchName ? normalizeString(item.searchName) : '';
+			const searchUpper = normalizeSearchString(searchText.startsWith('#') ? searchText.substring(1) : searchText);
+			const prioritizeName = item.prioritizeName ? normalizeSearchString(item.prioritizeName) : '';
+			const itemName = item.name ? normalizeSearchString(item.name) : '';
+			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
+			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
 
 			return (
 				prioritizeName.includes(searchUpper) ||
@@ -893,7 +897,7 @@ type ImgproxyOptions = {
 
 export const createImgproxyUrl = (sourceImageUrl: string, options: ImgproxyOptions = { width: 100, height: 100, resizeType: 'fit' }) => {
 	if (!sourceImageUrl) return '';
-	if (!sourceImageUrl.startsWith('https://cdn.mezon')) {
+	if (!sourceImageUrl?.startsWith('https://cdn.mezon')) {
 		return sourceImageUrl;
 	}
 	const { width, height, resizeType } = options;
@@ -1295,24 +1299,11 @@ export const getIdSaleItemFromSource = (src: string) => {
 	return idFromSource;
 };
 
-export const saveParseUserStatus = (metadata: string): { status: string; user_status: EUserStatus } => {
-	try {
-		const statusParse = safeJSONParse(metadata || '{}') || '';
-		return {
-			status: typeof statusParse.status === 'string' ? statusParse.status : JSON.stringify(statusParse.status) || '',
-			user_status: statusParse.user_status || EUserStatus.ONLINE
-		};
-	} catch (e) {
-		const unescapedJSON = metadata?.replace(/\\./g, (match) => {
-			switch (match) {
-				case '\\"':
-					return '"';
-				default:
-					return match[1];
-			}
-		});
-		return safeJSONParse(unescapedJSON || '{}')?.status;
-	}
+export const saveParseUserStatus = (user_status: string): { status: string; user_status: EUserStatus } => {
+	return {
+		status: user_status,
+		user_status: EUserStatus.ONLINE
+	};
 };
 
 export const getParentChannelIdIfHas = (channel: IChannel) => {
@@ -1326,3 +1317,69 @@ export const searchNormalizeText = (string?: string, search?: string) => {
 	}
 	return string.toLocaleLowerCase()?.includes(search?.toLocaleLowerCase());
 };
+
+export function formatBalanceToString(balance?: string, decimals = 6): string {
+	if (!balance) return '0';
+	try {
+		const big = BigInt(balance);
+		let divisor = BigInt(1);
+		for (let i = 0; i < decimals; i++) {
+			divisor *= BigInt(10);
+		}
+
+		const integerPart = big / divisor;
+		const fractionalPart = big % divisor;
+
+		if (integerPart !== BigInt(0)) {
+			return formatNumber(Number(integerPart), CURRENCY.CODE);
+		}
+
+		if (fractionalPart === BigInt(0)) {
+			return integerPart.toString();
+		}
+
+		// Pad fractional part to ensure correct number of decimal places
+		const fractionalStr = fractionalPart.toString().padStart(decimals, '0');
+
+		// Remove trailing zeros
+		const fractionalTrimmed = fractionalStr.replace(/0+$/, '');
+
+		// If all fractional digits were zeros, return just the integer part
+		if (fractionalTrimmed === '') {
+			return integerPart.toString();
+		}
+
+		return `${integerPart.toString()},${fractionalTrimmed}`;
+	} catch {
+		throw new Error(`Invalid balance string: ${balance}`);
+	}
+}
+
+export function compareBigInt(a: string, b: string): -1 | 0 | 1 {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+
+	if (bigA < bigB) return -1;
+	if (bigA > bigB) return 1;
+	return 0;
+}
+
+export function addBigInt(a: string, b: string): string {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+	return (bigA + bigB).toString();
+}
+
+export function subBigInt(a: string, b: string): string {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+	return (bigA - bigB).toString();
+}
+
+export function scaleAmountToDecimals(originalAmount: string | number, decimals = 6): string {
+	let scaledAmount = BigInt(originalAmount);
+	for (let i = 0; i < decimals; i++) {
+		scaledAmount = scaledAmount * BigInt(10);
+	}
+	return scaledAmount.toString();
+}

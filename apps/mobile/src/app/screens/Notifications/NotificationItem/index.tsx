@@ -1,42 +1,26 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import React, { useMemo } from 'react';
-
-import { NotificationCode } from '@mezon/utils';
+import { NotificationCategory } from '@mezon/utils';
+import { memo } from 'react';
 import { View } from 'react-native';
 import NotificationIndividualItem from '../NotificationIndividualItem';
 import NotificationMentionItem from '../NotificationMentionItem';
 import NotificationTopicItem from '../NotificationTopicItem';
 import NotificationWebhookClan from '../NotificationWebhookClan/NotificationWebhookClan';
-import { NotifyProps } from '../types';
+import type { NotifyProps } from '../types';
 
-const NotificationItem = React.memo(({ notify, onLongPressNotify, onPressNotify }: NotifyProps) => {
+const NotificationItem = memo(({ notify, onLongPressNotify, onPressNotify }: NotifyProps) => {
 	const { themeValue } = useTheme();
 
-	const isNotificationIndividual = useMemo(
-		() =>
-			notify?.code !== NotificationCode.USER_REPLIED &&
-			notify?.code !== NotificationCode.USER_MENTIONED &&
-			notify?.code !== NotificationCode.NOTIFICATION_CLAN &&
-			notify?.code,
-		[notify?.code]
-	);
-
-	const isNotificationMentionItem = useMemo(
-		() => notify?.code === NotificationCode.USER_REPLIED || notify?.code === NotificationCode.USER_MENTIONED,
-		[notify?.code]
-	);
-
-	const isNotificationWebhookClan = useMemo(() => notify?.code === NotificationCode.NOTIFICATION_CLAN, [notify]);
 	return (
 		<View style={{ borderBottomWidth: size.s_2, borderBottomColor: themeValue.secondaryLight, paddingTop: size.s_6 }}>
-			{isNotificationIndividual ? (
-				<NotificationIndividualItem onPressNotify={onPressNotify} notify={notify} onLongPressNotify={onLongPressNotify} />
-			) : null}
-			{isNotificationMentionItem ? (
+			{notify?.category === NotificationCategory.FOR_YOU && (
+				<NotificationIndividualItem notify={notify} onLongPressNotify={onLongPressNotify} />
+			)}
+			{notify?.category === NotificationCategory.MENTIONS && (
 				<NotificationMentionItem onPressNotify={onPressNotify} notify={notify} onLongPressNotify={onLongPressNotify} />
-			) : null}
-			{isNotificationWebhookClan && <NotificationWebhookClan notify={notify} onLongPressNotify={onLongPressNotify}></NotificationWebhookClan>}
-			{!notify?.code && <NotificationTopicItem onPressNotify={onPressNotify} notify={notify} />}
+			)}
+			{notify?.category === NotificationCategory.MESSAGES && <NotificationWebhookClan notify={notify} onLongPressNotify={onLongPressNotify} />}
+			{notify?.code === undefined && <NotificationTopicItem onPressNotify={onPressNotify} notify={notify} />}
 		</View>
 	);
 });

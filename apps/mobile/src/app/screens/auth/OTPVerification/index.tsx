@@ -1,20 +1,20 @@
 import { useAuth } from '@mezon/core';
-import { baseColor } from '@mezon/mobile-ui';
-import { authActions } from '@mezon/store';
+import { baseColor, size } from '@mezon/mobile-ui';
+import { appActions, authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	ActivityIndicator,
 	Alert,
 	AppState,
+	Dimensions,
 	Platform,
 	ScrollView,
 	StatusBar,
 	StyleSheet,
 	Text,
-	TextInput,
 	TouchableOpacity,
 	View
 } from 'react-native';
@@ -23,13 +23,16 @@ import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
+import OTPInput from '../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
 
 interface OTPVerificationScreenProps {
 	navigation: any;
 	route: {
 		params: {
-			email: string;
+			email?: string;
+			phoneNumber?: string;
 			reqId: string;
 		};
 	};
@@ -38,20 +41,37 @@ interface OTPVerificationScreenProps {
 const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigation, route }) => {
 	const styles = style();
 	const { t } = useTranslation('common');
-	const { email, reqId } = route.params;
+	const { reqId, email = '', phoneNumber = '' } = route.params;
 	const { confirmEmailOTP } = useAuth();
 
-	const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
+	const [currentOtp, setCurrentOtp] = useState<string[]>(new Array(6).fill(''));
 	const [reqIdSent, setReqIdSent] = useState<string>(reqId);
-	const inputRefs = useRef<(TextInput | null)[]>([]);
-	const [countdown, setCountdown] = useState(59);
-	const [isResendEnabled, setIsResendEnabled] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
-	const [isError, setIsError] = useState(false);
+	const [countdown, setCountdown] = useState<number>(59);
+	const [isResendEnabled, setIsResendEnabled] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isError, setIsError] = useState<boolean>(false);
+	const [isLandscape, setIsLandscape] = useState(false);
+	const [resetTrigger, setResetTrigger] = useState(0);
 	const dispatch = useAppDispatch();
+	const isTabletLandscape = useTabletLandscape();
 
 	const countdownStartTime = useRef<number>(Date.now());
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+	const checkOrientation = () => {
+		const { width, height } = Dimensions.get('screen');
+		setIsLandscape(width > height);
+	};
+
+	useEffect(() => {
+		checkOrientation();
+
+		const subscription = Dimensions.addEventListener('change', () => {
+			checkOrientation();
+		});
+
+		return () => subscription?.remove();
+	}, []);
 
 	useEffect(() => {
 		if (reqId) {
@@ -85,11 +105,9 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		}, 1000);
 	};
 
-	// Handle app state changes
 	useEffect(() => {
 		const handleAppStateChange = (nextAppState: string) => {
 			if (nextAppState === 'active' && !isResendEnabled) {
-				// App came to foreground, recalculate countdown
 				const elapsed = Math.floor((Date.now() - countdownStartTime.current) / 1000);
 				const remaining = Math.max(59 - elapsed, 0);
 
@@ -116,65 +134,68 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		};
 	}, []);
 
-	const fillOtp = (otp: string) => {
-		const otps = otp.split('');
-		otps.forEach((digit, index) => {
-			if (inputRefs.current[index]) {
-				inputRefs.current[index].setNativeProps({ text: digit });
-			}
-		});
-		setOtp(otps);
-	};
+	const isValidOTP = currentOtp?.every?.((digit) => digit !== '') && currentOtp?.join?.('')?.length === 6;
 
-	const isValidOTP = otp?.every?.((digit) => digit !== '') && otp?.join?.('')?.length === 6;
+	const handleVerifyOTP = useCallback(
+		async (otpConfirm: string) => {
+			try {
+				if (otpConfirm?.length === 6) {
+					setIsLoading(true);
+					const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
 
-	const handleVerifyOTP = async (otpConfirm) => {
-		try {
-			if (otpConfirm?.length === 6) {
-				setIsLoading(true);
-				const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
-				if (!resp) {
-					Toast.show({
-						type: 'success',
-						props: {
-							text2: 'OTP does not match',
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					if (!resp) {
+						Toast.show({
+							type: 'success',
+							props: {
+								text2: t('otpVerify.otpNotMatch'),
+								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+							}
+						});
+						setIsError(true);
+					} else {
+						// If the account is newly created or a username is missing, prompt for username update
+						if (!resp?.username || resp?.username === phoneNumber) {
+							dispatch(appActions.setIsShowUpdateUsername(true));
 						}
-					});
-					setIsError(true);
-				}
+					}
 
-				setIsLoading(false);
-			}
-		} catch (error) {
-			setIsError(true);
-			console.error('Error verifying OTP:', error);
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: 'An error occurred while verifying OTP',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					setIsLoading(false);
 				}
-			});
-		}
-	};
+			} catch (error) {
+				setIsError(true);
+				console.error('Error verifying OTP:', error);
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('otpVerify.verifyOtpError'),
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					}
+				});
+			}
+		},
+		[confirmEmailOTP, dispatch, phoneNumber, reqIdSent, t]
+	);
 
 	const handleResendOTP = async () => {
 		if (isResendEnabled) {
-			const resp: any = await dispatch(authActions.authenticateEmailOTPRequest({ email }));
+			let resp: any;
+			if (email) {
+				resp = await dispatch(authActions.authenticateEmailOTPRequest({ email }));
+			} else {
+				resp = await dispatch(authActions.authenticatePhoneSMSOTPRequest({ phone: phoneNumber }));
+			}
 			const payload = resp?.payload as ApiLinkAccountConfirmRequest;
 
 			const reqId = payload?.req_id;
 			if (reqId) {
-				inputRefs?.current?.[0]?.focus();
 				setReqIdSent(reqId);
-				setOtp(new Array(6).fill(''));
+				setResetTrigger((prev) => prev + 1);
 				startCountdown();
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: 'Resend OTP Failed',
-					text2: resp?.error?.message || 'An error occurred while sending OTP'
+					text1: t('otpVerify.resendOtpFailed'),
+					text2: resp?.error?.message || t('otpVerify.sendOtpError')
 				});
 			}
 		}
@@ -182,8 +203,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 
 	const handleChangeEmail = () => {
 		Alert.alert(
-			t('otpVerify.changeEmailTitle'),
-			t('otpVerify.changeEmailMessage'),
+			email ? t('otpVerify.changeEmailTitle') : t('otpVerify.changePhone'),
+			email ? t('otpVerify.changeEmailMessage') : t('otpVerify.changePhoneMessage'),
 			[
 				{
 					text: t('otpVerify.cancel'),
@@ -205,131 +226,79 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		);
 	};
 
-	const handleGetHelp = () => {
-		// Handle get help logic here
-	};
-
-	const handleOtpChange = (value: string, index: number) => {
-		try {
-			if (value.length === 6) {
-				fillOtp(value);
-				handleVerifyOTP(value);
-				return;
-			}
+	const handleOtpChange = useCallback(
+		(otp: string[]) => {
 			if (isError) {
 				setIsError(false);
 			}
-			const newOtp = [...otp];
+			setCurrentOtp(otp);
+		},
+		[isError]
+	);
 
-			// Handle backspace
-			if (value === '') {
-				newOtp[index] = '';
-				setOtp(newOtp);
-				return;
-			}
-			// Handle normal input
-			if (value.length >= 1 && /^\d*$/.test(value)) {
-				const valueLastest = value[value.length - 1];
-				newOtp[index] = valueLastest;
-				setOtp(newOtp);
-
-				// Auto focus next input if current is filled
-				if (valueLastest !== '' && index < 6 - 1) {
-					inputRefs.current[index + 1]?.focus();
-				}
-
-				// Check if OTP is complete
-				if (newOtp.every((digit) => digit !== '')) {
-					if (isResendEnabled) return;
-					handleVerifyOTP(newOtp.join(''));
-					// onComplete?.(newOtp.join(''));
-				}
-			}
-		} catch (error) {
-			console.error('handleOtpChange error', error);
-		}
-	};
-
-	const handleKeyPress = (e: any, index: number) => {
-		if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
-			inputRefs?.current?.[index - 1]?.focus();
-		}
-	};
+	const handleOtpComplete = useCallback(
+		(otp: string) => {
+			if (isResendEnabled) return;
+			handleVerifyOTP(otp);
+		},
+		[isResendEnabled, handleVerifyOTP]
+	);
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
-			<LinearGradient colors={['#ffffff', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
+			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 			<KeyboardAvoidingView
 				style={{ flex: 1 }}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={styles.content}>
+				<View style={[styles.content, isLandscape && !isTabletLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('otpVerify.loginToMezon')}</Text>
 
 					<View style={styles.instructionSection}>
 						<Text style={styles.instructionText}>{t('otpVerify.enterCodeFrom')}</Text>
-						<Text style={styles.emailText}>{email}</Text>
+						<Text style={styles.emailText}>{email || phoneNumber}</Text>
 					</View>
 
-					<View style={styles.inputSection}>
-						{otp.map((digit, index) => (
-							<TextInput
-								key={index}
-								ref={(ref) => (inputRefs.current[index] = ref)}
-								style={[
-									styles.input,
-									digit !== '' ? styles.inputFilled : styles.inputEmpty,
-									index === 0 ? styles.inputFirst : {},
-									isError && styles.inputError
-								]}
-								value={digit}
-								onChangeText={(value) => handleOtpChange(value, index)}
-								onKeyPress={(e) => handleKeyPress(e, index)}
-								keyboardType="number-pad"
-								maxLength={6}
-								autoFocus={index === 0}
-								autoComplete={'sms-otp'}
-								textContentType={'oneTimeCode'}
-								selectTextOnFocus={true}
-							/>
-						))}
+					<View style={{ alignSelf: 'center' }}>
+						<OTPInput
+							onOtpChange={handleOtpChange}
+							onOtpComplete={handleOtpComplete}
+							isError={isError}
+							resetTrigger={resetTrigger}
+							isSms={!!phoneNumber}
+						/>
+
+						<TouchableOpacity
+							style={[styles.verifyButton, !isValidOTP && styles.verifyButtonDisabled]}
+							onPress={isResendEnabled ? () => handleResendOTP() : () => handleVerifyOTP(currentOtp?.join?.(''))}
+							disabled={(!isValidOTP && !isResendEnabled) || isLoading}
+						>
+							{isLoading ? (
+								<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
+							) : (
+								<Text style={[styles.verifyButtonText]}>
+									{isResendEnabled ? t('otpVerify.resendOTP') : `${t('otpVerify.verifyOTP')} (${countdown})`}
+								</Text>
+							)}
+
+							{(isValidOTP || isResendEnabled) && (
+								<LinearGradient
+									start={{ x: 0, y: 0 }}
+									end={{ x: 1, y: 0 }}
+									colors={['#501794', '#3E70A1']}
+									style={[StyleSheet.absoluteFillObject]}
+								/>
+							)}
+						</TouchableOpacity>
 					</View>
-
-					<TouchableOpacity
-						style={[styles.verifyButton, !isValidOTP && styles.verifyButtonDisabled]}
-						onPress={isResendEnabled ? () => handleResendOTP() : () => handleVerifyOTP(otp?.join?.(''))}
-						disabled={(!isValidOTP && !isResendEnabled) || isLoading}
-					>
-						{isLoading ? (
-							<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
-						) : (
-							<Text style={[styles.verifyButtonText]}>
-								{isResendEnabled ? t('otpVerify.resendOTP') : `${t('otpVerify.verifyOTP')} (${countdown})`}
-							</Text>
-						)}
-
-						{(isValidOTP || isResendEnabled) && (
-							<LinearGradient
-								start={{ x: 0, y: 0 }}
-								end={{ x: 1, y: 0 }}
-								colors={['#501794', '#3E70A1']}
-								style={[StyleSheet.absoluteFillObject]}
-							/>
-						)}
-					</TouchableOpacity>
 
 					<View style={styles.alternativeSection}>
 						<Text style={styles.alternativeText}>{t('otpVerify.didNotReceiveCode')}</Text>
 						<View style={styles.alternativeOptions}>
 							<TouchableOpacity onPress={handleChangeEmail}>
-								<Text style={styles.linkText}>{t('otpVerify.changeEmail')}</Text>
+								<Text style={styles.linkText}>{email ? t('otpVerify.changeEmail') : t('otpVerify.changePhone')}</Text>
 							</TouchableOpacity>
-							{/*todo: add get help*/}
-							{/*<Text style={styles.orText}>{t('otpVerify.or')}</Text>*/}
-							{/*<TouchableOpacity onPress={handleGetHelp}>*/}
-							{/*	<Text style={styles.linkText}>{t('otpVerify.getHelp')}</Text>*/}
-							{/*</TouchableOpacity>*/}
 						</View>
 					</View>
 				</View>

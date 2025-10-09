@@ -2,7 +2,7 @@
 	"title": "Integrations",
 	"clanWebhooks": "Clan Webhooks",
 	"webhooks": "Webhooks",
-	"description": "Customize your server with integrations. Manage webhooks, followed channels and apps, as well as Twitch and YouTube settings for creators.",
+	"description": "Customize your clan with integrations. Manage webhooks, followed channels and apps, as well as Twitch and YouTube settings for creators.",
 	"learnMore": "Learn more about managing integrations.",
 	"webhook": "webhook",
 	"webhooksPlural": "webhooks",

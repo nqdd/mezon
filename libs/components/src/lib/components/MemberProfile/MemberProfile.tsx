@@ -1,15 +1,17 @@
 import { useColorsRoleById } from '@mezon/core';
-import { ChannelMembersEntity, selectCurrentChannelId, selectCurrentDM } from '@mezon/store';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { selectCurrentChannelId, selectCurrentDM } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EUserStatus, UsersClanEntity, createImgproxyUrl, generateE2eId } from '@mezon/utils';
-import { ReactNode } from 'react';
+import type { UsersClanEntity } from '@mezon/utils';
+import { EUserStatus, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import type { ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../components';
 import { UserStatusIconClan } from './IconStatus';
 
 type BaseMemberProfileProps = {
 	id: string;
-	userMeta?: { status?: string; online: boolean };
+	userMeta?: { status?: EUserStatus; online: boolean };
 	user: ChannelMembersEntity | UsersClanEntity;
 	username: string;
 	avatar: string;
@@ -25,7 +27,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 	const handleContextMenu = (event: React.MouseEvent) => {
 		const userTemplate: UsersClanEntity = {
 			...user,
-			id: id,
+			id,
 			prioritizeName: username,
 			clan_avatar: avatar,
 			user: {
@@ -58,18 +60,15 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 						src={avatar}
 					/>
 					<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
-						<UserStatusIconClan
-							channelId={currentChannelID || currentDmGroup.id || ''}
-							userId={user.id}
-							status={userMeta?.status}
-							online={userMeta?.online}
-						/>
+						<UserStatusIconClan channelId={currentChannelID || currentDmGroup.id || ''} userId={user.id} status={userMeta?.status} />
 					</div>
 				</div>
 
 				<div className="flex flex-col font-medium">
 					<ClanUserName userId={user?.id} name={username} isOwner={!!isOwner} />
-					<p className="text-xs text-left text-theme-primary opacity-60 line-clamp-1 ">{userStatus}</p>
+					<p className="text-xs text-left text-theme-primary opacity-60 line-clamp-1 truncate overflow-hidden flex-nowrap max-w-[100px] ">
+						{userStatus}
+					</p>
 				</div>
 			</div>
 		</div>

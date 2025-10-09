@@ -4,18 +4,16 @@ import {
 	useDirect,
 	useEscapeKeyClose,
 	useFormatDate,
-	useMemberCustomStatus,
 	useMemberStatus,
 	useOnClickOutside,
 	useSendInviteMessage,
 	useSettingFooter,
-	useUserById,
-	useUserMetaById
+	useUserById
 } from '@mezon/core';
 import type { RootState } from '@mezon/store';
-import { EStateFriend, selectAccountCustomStatus, selectAllAccount, selectCurrentUserId, selectFriendById, useAppSelector } from '@mezon/store';
+import { EStateFriend, selectAllAccount, selectFriendById, useAppSelector } from '@mezon/store';
 import type { ChannelMembersEntity, IMessageWithUser } from '@mezon/utils';
-import { saveParseUserStatus } from '@mezon/utils';
+import { EUserStatus } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { RefObject } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -90,27 +88,25 @@ const ModalUserProfile = ({
 	const { userId } = useAuth();
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
-	const userCustomStatus = useMemberCustomStatus(userID || '', isDM);
+	const status = useMemberStatus(userID || '');
 	const userById = useUserById(userID);
-	const userStatus = useMemberStatus(userID || '');
-	const userMetaById = useUserMetaById(userID);
+	const userStatusById = useMemberStatus(userID || '');
+	const userStatus = useMemo(() => {
+		if (userID === userId) {
+			return {
+				status: userProfile?.user?.status || EUserStatus.ONLINE,
+				user_status: userProfile?.user?.user_status || ''
+			};
+		}
+		return userStatusById;
+	}, [userStatusById]);
+
 	const modalRef = useRef<boolean>(false);
 	const onLoading = useRef<boolean>(false);
-	const statusOnline = useMemo(() => {
-		if (userProfile?.user?.metadata && userId === userID) {
-			const metadata = saveParseUserStatus(userProfile?.user?.metadata);
-			return metadata?.user_status;
-		}
-		if (userMetaById) {
-			return userMetaById as any;
-		}
-	}, [userID, userId, userMetaById, userProfile]);
 
 	const date = new Date(userById?.user?.create_time as string | Date);
 	const { timeFormatted } = useFormatDate({ date });
-	const currentUserId = useSelector(selectCurrentUserId);
-	const currentUserCustomStatus = useSelector(selectAccountCustomStatus);
-	const displayCustomStatus = userID === currentUserId ? currentUserCustomStatus : userCustomStatus;
+
 	const avatarByUserId = isDM ? userById?.user?.avatar_url : userById?.clan_avatar || userById?.user?.avatar_url;
 
 	const [content, setContent] = useState<string>('');
@@ -163,7 +159,9 @@ const ModalUserProfile = ({
 		return infoFriend?.state;
 	}, [infoFriend]);
 	const checkUser = useMemo(() => userProfile?.user?.id === userID, [userID, userProfile?.user?.id]);
-
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [userById?.user?.id, infoFriend]);
 	const { setIsShowSettingFooterStatus, setIsShowSettingFooterInitTab } = useSettingFooter();
 	const openSetting = () => {
 		setIsShowSettingFooterStatus(true);
@@ -246,25 +244,28 @@ const ModalUserProfile = ({
 				avatar={avatar || avatarByUserId}
 				username={(isFooterProfile && userProfile?.user?.username) || message?.username || userById?.user?.username}
 				userToDisplay={isFooterProfile ? userProfile : userById}
-				customStatus={displayCustomStatus}
+				customStatus={status.user_status}
 				isAnonymous={checkAnonymous}
 				userID={userID}
 				positionType={positionType}
 				isFooterProfile={isFooterProfile}
-				userStatus={userStatus}
-				statusOnline={statusOnline}
+				statusOnline={userStatus?.status as EUserStatus}
 			/>
 			<div className="px-[16px]">
 				<div className=" w-full border-theme-primary p-2 my-[16px] text-theme-primary shadow rounded-[10px] flex flex-col text-justify bg-item-theme">
 					<div>
-						<p className="font-semibold tracking-wider text-xl one-line text-theme-primary-active my-0">
+						<p className="font-semibold tracking-wider text-xl one-line text-theme-primary-active my-0 truncate">
 							{isUserRemoved
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username}
+									: userById?.clan_nick ||
+										userById?.user?.display_name ||
+										userById?.user?.username ||
+										message?.display_name ||
+										message?.username}
 						</p>
-						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0">
+						<p className="text-lg font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
 						</p>
 					</div>
@@ -272,19 +273,22 @@ const ModalUserProfile = ({
 					{checkAddFriend === EStateFriend.MY_PENDING && !showPopupLeft && <PendingFriend user={userById as ChannelMembersEntity} />}
 
 					{mode !== 4 && mode !== 3 && !isFooterProfile && (
-						<UserDescription title={t(`labels.${ETileDetail.AboutMe}`)} detail={userById?.user?.about_me as string} />
+						<UserDescription
+							title={t(`labels.${ETileDetail.AboutMe}`)}
+							detail={checkUser ? (userProfile?.user?.about_me as string) : (userById?.user?.about_me as string)}
+						/>
 					)}
 					{mode !== 4 && mode !== 3 && !isFooterProfile && (
 						<UserDescription title={t(`labels.${ETileDetail.MemberSince}`)} detail={timeFormatted} />
 					)}
 
 					{isFooterProfile ? (
-						<StatusProfile userById={userById as ChannelMembersEntity} isDM={isDM} modalRef={modalRef} onClose={onClose} />
+						<StatusProfile userById={userProfile?.user as ChannelMembersEntity} isDM={isDM} modalRef={modalRef} onClose={onClose} />
 					) : (
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved ? (
+					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
 						userById?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input

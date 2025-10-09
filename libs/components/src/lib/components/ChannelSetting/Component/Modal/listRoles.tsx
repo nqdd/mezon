@@ -1,4 +1,4 @@
-import { RolesClanEntity } from '@mezon/store';
+import type { RolesClanEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 
 type ListRoleProps = {
@@ -23,7 +23,7 @@ const ListRole = (props: ListRoleProps) => {
 					/>
 					<Icons.Check className="absolute invisible peer-checked:visible forced-colors:hidden w-4 h-4" />
 				</div>
-				<Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />
+				{role.role_icon ? <img src={role.role_icon} alt="" className={'size-5'} /> : <Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />}
 				<p className="text-sm one-line">{role.title}</p>
 			</label>
 		</div>

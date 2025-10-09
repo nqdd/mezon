@@ -1,10 +1,11 @@
-import { useDirect, useFriends } from '@mezon/core';
+import { useDirect } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, directActions, getStore, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
+import { FriendsEntity, directActions, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
 import { User } from 'mezon-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { SeparatorWithLine } from '../../../components/Common';
@@ -24,7 +25,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 	const [searchText, setSearchText] = useState<string>('');
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const { t } = useTranslation(['']);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const { createDirectMessageWithUser } = useDirect();
 	const store = getStore();
 	const dispatch = useAppDispatch();
@@ -55,7 +56,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 
 			const directMessage = listDM.find((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === user?.user?.id;
 			});
 			if (directMessage?.id) {

@@ -1,7 +1,8 @@
-import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMenu, usePathMatch } from '@mezon/core';
+import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMemberStatus, useMenu, usePathMatch } from '@mezon/core';
 import type { DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
+	EStateFriend,
 	appActions,
 	audioCallActions,
 	canvasAPIActions,
@@ -22,6 +23,7 @@ import {
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
 	selectDefaultNotificationClan,
+	selectFriendById,
 	selectGalleryAttachmentsByChannel,
 	selectIsInCall,
 	selectIsPinModalVisible,
@@ -57,6 +59,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
 import CreateMessageGroup from '../DmList/CreateMessageGroup';
+import { UserStatusIconDM } from '../MemberProfile';
 import ModalEditGroup from '../ModalEditGroup';
 import { NotificationTooltip } from '../NotificationList';
 import SearchMessageChannel from '../SearchMessageChannel';
@@ -139,18 +142,11 @@ const TopBarChannelText = memo(() => {
 	}, [currentDmGroup?.channel_label, currentDmGroup?.type, currentDmGroup?.usernames]);
 	const dmUserAvatar = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			return currentDmGroup?.topic || 'assets/images/avatar-group.png';
+			return currentDmGroup?.channel_avatar || 'assets/images/avatar-group.png';
 		}
 
-		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_id) {
-			const currentUserId = userProfile?.user?.id;
-			const otherUserId = currentDmGroup.user_id.find((id) => id !== currentUserId);
-			if (otherUserId && currentDmGroup.channel_avatar) {
-				const otherUserAvatar = currentDmGroup.channel_avatar.find(
-					(avatar): avatar is string => typeof avatar === 'string' && !avatar.includes(currentUserId || '')
-				);
-				return otherUserAvatar || currentDmGroup.channel_avatar[0];
-			}
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_ids) {
+			return currentDmGroup.avatars?.[0];
 		}
 	}, [currentDmGroup, userProfile?.user?.id]);
 
@@ -186,6 +182,7 @@ const TopBarChannelText = memo(() => {
 		}
 		return '';
 	}, [isChannelPath, isGuidePath, isMemberPath, t]);
+	const userStatus = useMemberStatus(currentDmGroup?.user_ids?.[0] || '');
 
 	return (
 		<>
@@ -223,7 +220,7 @@ const TopBarChannelText = memo(() => {
 
 				{currentClanId === '0' && (
 					<div
-						className="flex items-center gap-3 flex-1 overflow-hidden"
+						className="flex items-center gap-3 flex-1 overflow-hidden relative"
 						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
 					>
 						<DmTopbarAvatar
@@ -231,7 +228,11 @@ const TopBarChannelText = memo(() => {
 							avatar={dmUserAvatar}
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
-
+						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
+							<div className="absolute top-6 left-5 w-3 h-3">
+								<UserStatusIconDM status={userStatus?.status} />
+							</div>
+						)}
 						<div
 							key={`${channelDmGroupLabel}_${currentDmGroup?.channel_id as string}_display`}
 							className={`flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis none-draggable-area group ${
@@ -276,7 +277,9 @@ const TopBarChannelText = memo(() => {
 					</>
 				)}
 
-				{!isMemberPath && <SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />}
+				{!isMemberPath && !isChannelPath && (
+					<SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
+				)}
 			</div>
 
 			{editGroupModal.isEditModalOpen && (
@@ -473,6 +476,12 @@ const DmTopbarTools = memo(() => {
 	const isInCall = useSelector(selectIsInCall);
 	const isGroupCallActive = useSelector((state: RootState) => state.groupCall?.isGroupCallActive || false);
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
+
+	const isBlockUser = useMemo(() => {
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [currentDmGroup?.user_ids?.[0], infoFriend]);
+
 	const closeMenuOnMobile = useCallback(() => {
 		const isMobile = window.innerWidth < 640;
 		if (isMobile) {
@@ -548,7 +557,7 @@ const DmTopbarTools = memo(() => {
 						groupAvatar: currentDmGroup.channel_avatar?.[0],
 						meetingCode: currentDmGroup.meeting_code,
 						clanId: currentDmGroup.clan_id,
-						participants: [...(currentDmGroup?.user_id || []), userProfile?.user_id?.toString() as string],
+						participants: [...(currentDmGroup?.user_ids || []), userProfile?.user_id?.toString() as string],
 						callerInfo: {
 							id: userProfile?.user_id || '',
 							name: userProfile?.username || '',
@@ -591,7 +600,7 @@ const DmTopbarTools = memo(() => {
 			return;
 		}
 		if (!isInCall) {
-			startCallDM(isVideoCall, currentDmGroup?.id, currentDmGroup?.user_id?.[0]);
+			startCallDM(isVideoCall, currentDmGroup?.id, currentDmGroup?.user_ids?.[0]);
 		} else {
 			dispatch(toastActions.addToast({ message: t('toastMessages.youAreOnAnotherCall'), type: 'warning', autoClose: 3000 }));
 		}
@@ -653,23 +662,27 @@ const DmTopbarTools = memo(() => {
 	return (
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
 			<div className=" items-center gap-2 flex">
-				<div className="justify-start items-center gap-[15px] flex">
-					<button
-						title={t('tooltips.startVoiceCall')}
-						onClick={() => handleStartCall()}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconPhoneDM defaultSize="size-5" />
-					</button>
-					<button
-						title={t('tooltips.startVideoCall')}
-						onClick={() => handleStartCall(true)}
-						disabled={isGroupCallDisabled}
-						className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						<Icons.IconMeetDM defaultSize="size-5" />
-					</button>
+				<div className="justify-start items-center gap-[15px] flex ">
+					{!isBlockUser && (
+						<>
+							<button
+								title={t('tooltips.startVoiceCall')}
+								onClick={() => handleStartCall()}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconPhoneDM defaultSize="size-5" />
+							</button>
+							<button
+								title={t('tooltips.startVideoCall')}
+								onClick={() => handleStartCall(true)}
+								disabled={isGroupCallDisabled}
+								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+							>
+								<Icons.IconMeetDM defaultSize="size-5" />
+							</button>
+						</>
+					)}
 					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
 
 					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />
@@ -678,6 +691,7 @@ const DmTopbarTools = memo(() => {
 							title={t('tooltips.showMemberList')}
 							onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}
 							data-e2e={generateE2eId(`chat.direct_message.member_list.button`)}
+							className={`text-theme-primary-hover ${isShowMemberListDM ? 'text-theme-primary-active' : ''}`}
 						>
 							<span>
 								<Icons.MemberList defaultSize="size-5" />
@@ -689,6 +703,7 @@ const DmTopbarTools = memo(() => {
 							title={t('tooltips.showUserProfile')}
 							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
 							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
+							className={`text-theme-primary-hover ${isUseProfileDM ? 'text-theme-primary-active' : ''}`}
 						>
 							<span>
 								<Icons.IconUserProfileDM defaultSize="size-5" />
@@ -1004,7 +1019,11 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 					/>
 				</div>
 			)}
-			<span title={t('tooltips.addFriendsToDM')} data-e2e={generateE2eId(`chat.direct_message.button.add_user`)}>
+			<span
+				className={`text-theme-primary-hover ${openAddToGroup ? 'text-theme-primary-active' : ''}`}
+				title={t('tooltips.addFriendsToDM')}
+				data-e2e={generateE2eId(`chat.direct_message.button.add_user`)}
+			>
 				<Icons.IconAddFriendDM defaultSize="size-5" />
 			</span>
 		</div>

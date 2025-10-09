@@ -1,18 +1,12 @@
 import { useAuth, useGetPriorityNameFromUserClan } from '@mezon/core';
 import { convertTimestampToTimeAgo } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import {
-	TopicDiscussionsEntity,
-	getStoreAsync,
-	selectAllUserClans,
-	selectMemberClanByUserId,
-	topicsActions,
-	useAppSelector
-} from '@mezon/store-mobile';
+import type { TopicDiscussionsEntity } from '@mezon/store-mobile';
+import { getStoreAsync, selectAllUserClans, selectMemberClanByUserId, topicsActions, useAppSelector } from '@mezon/store-mobile';
 import type { INotification } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
-import React, { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -26,7 +20,7 @@ type NotifyProps = {
 	onPressNotify?: (notify: INotification) => void;
 };
 
-const NotificationTopicItem = React.memo(({ notify, onPressNotify }: NotifyProps) => {
+const NotificationTopicItem = memo(({ notify, onPressNotify }: NotifyProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['notification']);
 	const styles = style(themeValue);
@@ -93,11 +87,11 @@ const NotificationTopicItem = React.memo(({ notify, onPressNotify }: NotifyProps
 						</Text>
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
 							<Text style={styles.username}>{t('repliedTo')}</Text>
-							{data?.content?.t || 'Unreachable message'}
+							{data?.content?.t || ''}
 						</Text>
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
 							<Text style={styles.username}>{`${lastSentUser ? lastSentUser?.user?.username : t('sender')}: `} </Text>
-							{initMessage || 'Unreachable message'}
+							{initMessage || ''}
 						</Text>
 					</View>
 					<Text style={styles.notifyDuration}>{messageTimeDifference}</Text>

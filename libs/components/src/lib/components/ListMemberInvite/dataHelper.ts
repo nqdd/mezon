@@ -28,7 +28,7 @@ export function processUserData(membersClan: UsersClanEntity[], dmGroupChatList:
 	const usersFromDmGroupChat: ProcessedUser[] = dmGroupChatList
 		.flatMap((chat) => {
 			if (chat.type === ChannelType.CHANNEL_TYPE_DM) {
-				const userId = chat?.user_id?.[0];
+				const userId = chat?.user_ids?.[0];
 				if (userId && !existingIds.has(userId)) {
 					existingIds.add(userId);
 					return [

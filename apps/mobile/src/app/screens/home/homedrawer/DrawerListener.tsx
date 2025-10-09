@@ -1,16 +1,22 @@
-import { useSeenMessagePool } from '@mezon/core';
+import { MobileEventEmitter, useSeenMessagePool } from '@mezon/core';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
 	channelMembersActions,
 	channelsActions,
-	ChannelsEntity,
 	selectChannelById,
 	selectLastMessageByChannelId,
+	sleep,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DeviceEventEmitter } from 'react-native';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
+import ReasonPopup from './components/ChannelVoice/ReasonPopup';
 
 const ChannelSeen = memo(
 	({ channelId }: { channelId: string }) => {
@@ -58,6 +64,8 @@ function DrawerListener({ channelId }: { channelId: string }) {
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId));
 	const prevChannelIdRef = useRef<string>('');
 	const dispatch = useAppDispatch();
+	const navigation = useNavigation<any>();
+	const { t } = useTranslation('message');
 
 	const fetchMemberChannel = useCallback(async () => {
 		if (!currentChannel) {
@@ -80,6 +88,41 @@ function DrawerListener({ channelId }: { channelId: string }) {
 			prevChannelIdRef.current = currentChannel?.channel_id || '';
 		}, [currentChannel?.channel_id, fetchMemberChannel])
 	);
+
+	const onRemoveUserChannel = useCallback(
+		async ({ channelId: removeChannelId, channelType, isRemoveClan = false }) => {
+			if (
+				(channelId === removeChannelId &&
+					(channelType === ChannelType.CHANNEL_TYPE_CHANNEL ||
+						channelType === ChannelType.CHANNEL_TYPE_THREAD ||
+						channelType === ChannelType.CHANNEL_TYPE_GROUP)) ||
+				isRemoveClan
+			) {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+				await sleep(200);
+				const data = {
+					children: (
+						<ReasonPopup
+							title={t('removeFromChannel.title')}
+							confirmText={t('removeFromChannel.button')}
+							content={t('removeFromChannel.content')}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				navigation.navigate(APP_SCREEN.BOTTOM_BAR);
+			}
+		},
+		[channelId, navigation, t]
+	);
+
+	useEffect(() => {
+		MobileEventEmitter.addListener(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, onRemoveUserChannel);
+		return () => {
+			MobileEventEmitter.removeListener(ActionEmitEvent.ON_REMOVE_USER_CHANNEL, () => {});
+		};
+	}, []);
 
 	if (!currentChannel) {
 		return null;

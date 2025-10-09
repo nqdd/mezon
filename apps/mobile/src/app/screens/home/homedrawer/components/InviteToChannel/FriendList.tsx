@@ -2,9 +2,9 @@ import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useDirect, useInvite, useSendInviteMessage } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	FriendsEntity,
+	appActions,
 	clansActions,
 	fetchSystemMessageByClanId,
 	getStore,
@@ -16,11 +16,12 @@ import {
 } from '@mezon/store-mobile';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiSystemMessage } from 'mezon-js/api.gen';
+import type { ApiSystemMessage } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
+import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -28,7 +29,8 @@ import MezonInput from '../../../../../componentUI/MezonInput';
 import { SeparatorWithLine } from '../../../../../components/Common';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { normalizeString } from '../../../../../utils/helpers';
-import { FriendListItem, Receiver } from '../../Reusables';
+import type { Receiver } from '../../Reusables';
+import { FriendListItem } from '../../Reusables';
 import { QRModal } from './QRModal';
 import { style } from './styles';
 
@@ -81,7 +83,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 		});
 
 		dmGroupChatList.forEach((itemDM: DirectEntity) => {
-			const userId = itemDM?.user_id?.[0] ?? '';
+			const userId = itemDM?.user_ids?.[0] ?? '';
 			if (
 				(userId && !userIdInClanArray.includes(userId) && itemDM?.type === ChannelType.CHANNEL_TYPE_DM) ||
 				itemDM?.type === ChannelType.CHANNEL_TYPE_GROUP
@@ -114,6 +116,33 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			}
 		});
 	}, [currentInviteLink, t]);
+
+	const handleShareInviteLink = useCallback(async () => {
+		try {
+			dispatch(appActions.setLoadingMainMobile(true));
+			const shareOptions = {
+				title: t('share.title'),
+				message: t('share.message'),
+				url: currentInviteLink || currentInviteLinkRef?.current,
+				failOnCancel: false
+			};
+
+			await Share.open(shareOptions);
+		} catch (error) {
+			if (error?.message !== 'User did not share') {
+				Toast.show({
+					type: 'success',
+					props: {
+						text2: t('share.error', { error: 'Unknown error' }),
+						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+					}
+				});
+			}
+		} finally {
+			dispatch(appActions.setLoadingMainMobile(false));
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		}
+	}, [currentInviteLink, dispatch, t]);
 
 	const handleShowQRModal = useCallback(() => {
 		const data = {
@@ -165,7 +194,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			if (!response || !response?.invite_link) {
 				return;
 			}
-			const linkInvite = process.env.NX_CHAT_APP_REDIRECT_URI + '/invite/' + response.invite_link;
+			const linkInvite = `${process.env.NX_CHAT_APP_REDIRECT_URI}/invite/${response.invite_link}`;
 			setCurrentInviteLink(linkInvite);
 			currentInviteLinkRef.current = linkInvite;
 			dispatch(clansActions.joinClan({ clanId: '0' }));
@@ -189,7 +218,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 				) : (
 					<MezonIconCDN icon={IconCDN.shareIcon} color={themeValue.text} />
 				),
-				onPress: () => (!currentInviteLink ? null : addInviteLinkToClipboard())
+				onPress: () => (!currentInviteLink ? null : handleShareInviteLink())
 			},
 			{
 				title: t('iconTitle.copyLink'),

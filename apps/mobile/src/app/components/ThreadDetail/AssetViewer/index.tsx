@@ -49,11 +49,9 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 		(index: number) => {
 			setTabActive(index);
 			if (index === 0) {
-				dispatch(
-					channelMembersActions.fetchChannelMembers({ clanId: currentClanId, channelId: channelId, channelType: currentChannel?.type })
-				);
+				dispatch(channelMembersActions.fetchChannelMembers({ clanId: currentClanId, channelId, channelType: currentChannel?.type }));
 			}
-			if (index === 1 || index === 2) dispatch(attachmentActions.fetchChannelAttachments({ clanId: currentClanId, channelId: channelId }));
+			if (index === 1 || index === 2) dispatch(attachmentActions.fetchChannelAttachments({ clanId: currentClanId, channelId }));
 		},
 		[channelId, currentChannel?.type, currentClanId, dispatch]
 	);

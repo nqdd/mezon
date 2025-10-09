@@ -15,16 +15,14 @@ import {
 	selectToCheckAppIsOpening,
 	threadsActions,
 	useAppDispatch,
-	useAppSelector,
-	videoStreamActions,
-	voiceActions
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ApiChannelAppResponseExtend, ChannelThreads, IChannel } from '@mezon/utils';
-import { ChannelStatusEnum, generateE2eId, openVoiceChannel } from '@mezon/utils';
+import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -121,14 +119,6 @@ const ChannelLinkComponent = ({
 		openProfileItem();
 	};
 
-	const handleVoiceChannel = (id: string) => {
-		if (channel.status === StatusVoiceChannel.Active) {
-			dispatch(channelsActions.setCurrentVoiceChannelId({ channelId: id, clanId: channel.clan_id as string }));
-			dispatch(voiceActions.setStatusCall(true));
-			dispatch(videoStreamActions.stopStream());
-		}
-	};
-
 	const handleOpenModalConfirm = () => {
 		openDeleteModal();
 		closeProfileItem();
@@ -170,15 +160,6 @@ const ChannelLinkComponent = ({
 		}
 	};
 
-	const openModalJoinVoiceChannel = useCallback(
-		(url: string) => {
-			if (channel.status === 1) {
-				openVoiceChannel(url);
-			}
-		},
-		[channel.status]
-	);
-
 	const isShowSettingChannel = isClanOwner || hasAdminPermission || hasClanPermission || hasChannelManagePermission;
 
 	const notVoiceOrAppOrStreamChannel =
@@ -187,7 +168,6 @@ const ChannelLinkComponent = ({
 		channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	const showWhiteDot = isUnReadChannel && !isActive && notVoiceOrAppOrStreamChannel;
 	const hightLightTextChannel = (isActive || isUnReadChannel) && notVoiceOrAppOrStreamChannel;
-	const highLightVoiceChannel = isActive && !notVoiceOrAppOrStreamChannel;
 
 	const [openProfileItem, closeProfileItem] = useModal(() => {
 		return (
@@ -226,8 +206,6 @@ const ChannelLinkComponent = ({
 			onContextMenu={handleMouseClick}
 			id={channel.id}
 			role="button"
-			onDragStart={(e) => dragStart(e)}
-			onDragEnd={(e) => dragEnter(e)}
 			className={`relative group z-10   ${showWhiteDot ? 'before:bg-[var(--text-secondary)] :content-[""] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute  before:top-3' : ''}`}
 		>
 			{
@@ -241,7 +219,6 @@ const ChannelLinkComponent = ({
 					<span
 						ref={channelLinkRef}
 						className={`flex flex-row items-center rounded relative flex-1 pointer-events-none  ${hightLightTextChannel ? ' font-semibold text-theme-primary-active' : 'font-medium '}`}
-						data-e2e={generateE2eId('clan_page.channel_list.item')}
 					>
 						{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
 

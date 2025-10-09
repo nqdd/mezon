@@ -193,7 +193,7 @@ const ForwardMessageModal = () => {
 		const listDMSearch = listDM.length
 			? listDM.map((itemDM: DirectEntity) => {
 					return {
-						id: itemDM?.user_id?.[0] ?? '',
+						id: itemDM?.user_ids?.[0] ?? '',
 						name: itemDM?.usernames?.toString() ?? '',
 						avatarUser: itemDM?.channel_avatar?.[0] ?? '',
 						idDM: itemDM?.id ?? '',

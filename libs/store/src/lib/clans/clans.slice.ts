@@ -8,6 +8,7 @@ import { ChannelType } from 'mezon-js';
 import type { ApiClanDesc, ApiUpdateAccountRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { batch } from 'react-redux';
 import { accountActions } from '../account/account.slice';
+import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
@@ -395,7 +396,7 @@ export const updateUser = createAsyncThunk(
 				return thunkAPI.rejectWithValue([]);
 			}
 			if (response) {
-				// thunkAPI.dispatch(accountActions.getUserProfile({ noCache: true }));
+				thunkAPI.dispatch(accountActions.getUserProfile());
 				thunkAPI.dispatch(
 					accountActions.setUpdateAccount({
 						logo,
@@ -412,6 +413,12 @@ export const updateUser = createAsyncThunk(
 						}
 					})
 				);
+
+				if (avatar_url && currentUser?.user?.id && avatar_url !== currentUser?.user?.avatar_url) {
+					setUserAvatarOverride(currentUser.user.id, avatar_url);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
+
 				thunkAPI.dispatch(messagesActions.invalidateAllCache());
 			}
 			return response as true;
@@ -435,6 +442,42 @@ export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan
 		return thunkAPI.rejectWithValue(error);
 	}
 });
+
+export const updateHasUnreadBasedOnChannels = createAsyncThunk<void, { clanId: string }>(
+	'clans/updateHasUnreadBasedOnChannels',
+	async ({ clanId }, thunkAPI) => {
+		try {
+			const state = thunkAPI.getState() as RootState;
+			const channelMeta = state.channelmeta.entities;
+
+			const clanChannelState = state.channels.byClans?.[clanId];
+			if (!clanChannelState?.entities) {
+				thunkAPI.dispatch(clansActions.setHasUnreadMessage({ clanId, hasUnread: false }));
+				return;
+			}
+
+			const channelEntities = clanChannelState.entities.entities;
+			const channelIds = clanChannelState.entities.ids;
+
+			let hasUnread = false;
+			for (const channelId of channelIds) {
+				const channel = channelEntities[channelId];
+				if (channel?.id) {
+					const meta = channelMeta[channel.id];
+					if (meta && meta.lastSentTimestamp > meta.lastSeenTimestamp) {
+						hasUnread = true;
+						break;
+					}
+				}
+			}
+
+			thunkAPI.dispatch(clansActions.setHasUnreadMessage({ clanId, hasUnread }));
+		} catch (error) {
+			captureSentryError(error, 'clans/updateHasUnreadBasedOnChannels');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
 
 export const initialClansState: ClansState = clansAdapter.getInitialState({
 	loadingStatus: 'not loaded',
@@ -622,7 +665,8 @@ export const clansSlice = createSlice({
 					clansAdapter.updateOne(state, {
 						id: clanId,
 						changes: {
-							badge_count: finalBadgeCount
+							badge_count: finalBadgeCount,
+							has_unread_message: finalBadgeCount === 0 ? false : entity.has_unread_message
 						}
 					});
 				}
@@ -635,6 +679,19 @@ export const clansSlice = createSlice({
 			if (clan) {
 				const totalCount = channels.reduce((sum, { count }) => sum + count, 0);
 				clan.badge_count = Math.max(0, (clan.badge_count ?? 0) + totalCount);
+			}
+		},
+		setHasUnreadMessage: (state, action: PayloadAction<{ clanId: string; hasUnread: boolean }>) => {
+			const { clanId, hasUnread } = action.payload;
+			const clan = state.entities[clanId];
+
+			if (clan && clan.has_unread_message !== hasUnread) {
+				clansAdapter.updateOne(state, {
+					id: clanId,
+					changes: {
+						has_unread_message: hasUnread
+					}
+				});
 			}
 		},
 		refreshStatus(state) {
@@ -760,7 +817,8 @@ export const clansActions = {
 	updateUser,
 	deleteClan,
 	joinClan,
-	transferClan
+	transferClan,
+	updateHasUnreadBasedOnChannels
 };
 
 /*

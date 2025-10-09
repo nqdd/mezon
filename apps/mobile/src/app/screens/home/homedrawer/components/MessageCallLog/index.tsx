@@ -33,7 +33,7 @@ export const MessageCallLog = memo(({ contentMsg, senderId, channelId, callLog, 
 
 	const onCallBack = () => {
 		dispatch(DMCallActions.removeAll());
-		const receiverId = currentDmGroup?.user_id?.[0];
+		const receiverId = currentDmGroup?.user_ids?.[0];
 		if (receiverId) {
 			const receiverAvatar = currentDmGroup?.channel_avatar?.[0];
 			const receiverName = currentDmGroup?.channel_label;

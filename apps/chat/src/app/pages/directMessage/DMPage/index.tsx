@@ -10,13 +10,14 @@ import {
 	SearchMessageChannelRender
 } from '@mezon/components';
 import { EmojiSuggestionProvider, useApp, useAuth, useDragAndDrop, useGifsStickersEmoji, useSearchMessages, useSeenMessagePool } from '@mezon/core';
+import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
-	DirectEntity,
 	directMetaActions,
 	e2eeActions,
 	gifsStickerEmojiActions,
 	selectAudioDialTone,
+	selectBlockedUsersForMessage,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentDM,
@@ -39,7 +40,8 @@ import {
 } from '@mezon/store';
 import { EmojiPlaces, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { DragEvent, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import type { DragEvent } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ChannelMessages from '../../channel/ChannelMessages';
@@ -138,8 +140,9 @@ const DirectMessage = () => {
 	const isPlayDialTone = useSelector(selectAudioDialTone);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const isHaveCallInChannel = useMemo(() => {
-		return currentDmGroup?.user_id?.some((i) => i === signalingData?.[0]?.callerId);
-	}, [currentDmGroup?.user_id, signalingData]);
+		return currentDmGroup?.user_ids?.some((i) => i === signalingData?.[0]?.callerId);
+	}, [currentDmGroup?.user_ids, signalingData]);
+	const blockListUser = useAppSelector((state) => selectBlockedUsersForMessage(state));
 
 	const HEIGHT_EMOJI_PANEL = 457;
 	const WIDTH_EMOJI_PANEL = 500;
@@ -147,16 +150,6 @@ const DirectMessage = () => {
 	const distanceToBottom = window.innerHeight - positionOfSmileButton.bottom;
 	const distanceToRight = window.innerWidth - positionOfSmileButton.right;
 	let topPositionEmojiPanel: string;
-
-	// useEffect(() => {
-	// 	dispatch(
-	// 		directActions.joinDirectMessage({
-	// 			directMessageId: currentDmGroup?.channel_id ?? '',
-	// 			channelName: '',
-	// 			type: Number(type)
-	// 		})
-	// 	);
-	// }, [currentDmGroup?.channel_id]);
 
 	if (distanceToBottom < HEIGHT_EMOJI_PANEL) {
 		topPositionEmojiPanel = 'auto';
@@ -187,6 +180,13 @@ const DirectMessage = () => {
 		: 0;
 
 	const isDmChannel = useMemo(() => currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM, [currentDmGroup?.type]);
+	const isBlocked = useMemo(() => {
+		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM) {
+			return blockListUser?.some((user) => user?.user && user.user.id === (currentDmGroup?.user_ids?.[0] || ''));
+		}
+		return false;
+	}, [currentDmGroup?.type, currentDmGroup?.user_ids]);
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const handleClose = useCallback(() => {}, []);
 
@@ -225,7 +225,7 @@ const DirectMessage = () => {
 									username={isDmChannel ? currentDmGroup?.usernames?.toString() : undefined}
 									type={isDmChannel ? ChannelType.CHANNEL_TYPE_DM : ChannelType.CHANNEL_TYPE_GROUP}
 									mode={isDmChannel ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP}
-									avatarDM={isDmChannel ? currentDmGroup?.channel_avatar?.at(0) : 'assets/images/avatar-group.png'}
+									avatarDM={isDmChannel ? currentDmGroup?.avatars?.at(0) : 'assets/images/avatar-group.png'}
 								/>
 							}
 						</div>
@@ -276,7 +276,7 @@ const DirectMessage = () => {
 						)}
 
 						<div className="flex-shrink-0 flex flex-col bg-theme-chat  h-auto relative">
-							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup.user_id?.length === 0 ? (
+							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (currentDmGroup.user_ids?.length === 0 || isBlocked) ? (
 								<div
 									style={{ height: 44 }}
 									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
@@ -326,13 +326,17 @@ const DirectMessage = () => {
 						<div className={`bg-active-friend-list ${isUseProfileDM ? 'flex' : 'hidden'} ${closeMenu ? 'w-full' : 'w-widthDmProfile'}`}>
 							<ModalUserProfile
 								onClose={handleClose}
-								userID={Array.isArray(currentDmGroup?.user_id) ? currentDmGroup?.user_id[0] : currentDmGroup?.user_id}
+								userID={Array.isArray(currentDmGroup?.user_ids) ? currentDmGroup?.user_ids[0] : currentDmGroup?.user_ids}
 								classWrapper="w-full"
 								classBanner="h-[120px]"
 								hiddenRole={true}
 								showNote={true}
 								showPopupLeft={true}
-								avatar={currentDmGroup?.channel_avatar?.[0]}
+								avatar={
+									Number(type) === ChannelType.CHANNEL_TYPE_GROUP
+										? currentDmGroup?.channel_avatar?.[0]
+										: currentDmGroup?.avatars?.[0]
+								}
 								isDM={true}
 							/>
 						</div>

@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -173,5 +174,10 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			height: size.s_20,
 			borderRadius: size.s_20,
 			backgroundColor: colors.badgeHighlight
+		},
+		wrapManageVoice: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_12
 		}
 	});

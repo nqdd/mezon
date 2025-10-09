@@ -14,11 +14,11 @@ import {
 	updateSystemMessage,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { EPermission, MAX_FILE_SIZE_10MB } from '@mezon/utils';
+import { EPermission, MAX_FILE_SIZE_10MB, sleep } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
 import type { ApiSystemMessage, ApiSystemMessageRequest } from 'mezon-js/api.gen';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -82,7 +82,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	useEffect(() => {
 		const isClanNameChanged = clanName !== currentClan?.clan_name;
 		const isBannerChanged = banner !== (currentClan?.banner || '');
-		const isNotificationSettingChanged = notificationSetting !== defaultNotificationClan?.notification_setting_type;
 
 		let hasSystemMessageChanged = false;
 		if (updateSystemMessageRequest && systemMessage) {
@@ -97,7 +96,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			setErrorMessage(t('menu.serverName.errorMessage'));
 		}
 
-		setIsCheckValid((isClanNameChanged && validInput(clanName)) || isBannerChanged || hasSystemMessageChanged || isNotificationSettingChanged);
+		setIsCheckValid((isClanNameChanged && validInput(clanName)) || isBannerChanged || hasSystemMessageChanged);
 	}, [clanName, banner, updateSystemMessageRequest, systemMessage, notificationSetting, defaultNotificationClan?.notification_setting_type]);
 
 	const fetchSystemMessage = async () => {
@@ -121,21 +120,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	const disabled = useMemo(() => {
 		return !(hasAdminPermission || hasManageClanPermission || clanOwnerPermission);
 	}, [clanOwnerPermission, hasAdminPermission, hasManageClanPermission]);
-
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerBackTitleVisible: false,
-			headerRight: () => {
-				if (disabled) return <View />;
-				return (
-					<Pressable onPress={handleSave} disabled={loading || !isCheckValid}>
-						<Text style={{ ...styles.headerActionTitle, opacity: loading || !isCheckValid ? 0.5 : 1 }}>{t('header.save')}</Text>
-					</Pressable>
-				);
-			}
-		});
-	}, [navigation, disabled, loading, isCheckValid, styles.headerActionTitle, t]);
 
 	const handleUpdateSystemMessage = async () => {
 		if (systemMessage && Object.keys(systemMessage).length > 0 && currentClan?.clan_id && updateSystemMessageRequest) {
@@ -168,6 +152,30 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	};
 
+	const handleChangeOptionNotification = useCallback(async (value: number) => {
+		try {
+			setNotificationSetting(value);
+			dispatch(appActions.setLoadingMainMobile(true));
+			const response = await dispatch(
+				defaultNotificationActions.setDefaultNotificationClan({ clan_id: currentClan?.clan_id, notification_type: value })
+			);
+
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw response?.meta?.requestStatus;
+			}
+		} catch (error) {
+			Toast.show({
+				type: 'error',
+				text1: t('toast.saveError'),
+				text2: error?.message || String(error)
+			});
+			await sleep(50);
+			setNotificationSetting(defaultNotificationClan?.notification_setting_type);
+		} finally {
+			dispatch(appActions.setLoadingMainMobile(false));
+		}
+	}, []);
+
 	async function handleSave() {
 		setLoading(true);
 		try {
@@ -180,7 +188,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 					setErrorMessage(t('menu.serverName.duplicateNameMessage'));
 					setIsCheckValid(false);
 					setLoading(false);
-					return;
+					throw new Error(t('menu.serverName.duplicateNameMessage'));
 				}
 			}
 
@@ -196,20 +204,13 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				}
 			});
 
-			const response = await dispatch(
-				defaultNotificationActions.setDefaultNotificationClan({ clan_id: currentClan?.clan_id, notification_type: notificationSetting })
-			);
-
-			if (response?.meta?.requestStatus === 'rejected') {
-				throw response?.meta?.requestStatus;
-			}
-
 			await handleUpdateSystemMessage();
 
 			Toast.show({
 				type: 'info',
 				text1: t('toast.saveSuccess')
 			});
+			navigation.goBack();
 		} catch (error) {
 			Toast.show({
 				type: 'error',
@@ -218,10 +219,24 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			});
 		} finally {
 			setLoading(false);
-			navigation.goBack();
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
 	}
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
+			headerBackTitleVisible: false,
+			headerRight: () => {
+				if (disabled) return <View />;
+				return (
+					<Pressable onPress={handleSave} disabled={loading || !isCheckValid}>
+						<Text style={{ ...styles.headerActionTitle, opacity: loading || !isCheckValid ? 0.5 : 1 }}>{t('header.save')}</Text>
+					</Pressable>
+				);
+			}
+		});
+	}, [navigation, disabled, loading, isCheckValid, styles.headerActionTitle, t, handleSave]);
 
 	function handleLoad(url: string) {
 		if (hasAdminPermission || clanOwnerPermission) {
@@ -268,25 +283,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	};
-
-	// const inactiveMenu: IMezonMenuItemProps[] = [
-	// 	{
-	// 		title: t('menu.inactive.inactiveChannel'),
-	// 		expandable: true,
-	// 		previewValue: 'No Active channel',
-	// 		onPress: () => reserve(),
-	// 		disabled: disabled
-	// 	},
-	// 	{
-	// 		title: t('menu.inactive.inactiveTimeout'),
-	// 		expandable: true,
-	// 		previewValue: '5 mins',
-	// 		disabled: disabled,
-	// 		onPress: () => reserve()
-	// 	}
-	// ];
-
-	// ...existing code...
 
 	const systemMessageMenu: IMezonMenuItemProps[] = [
 		{
@@ -418,7 +414,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 					title={t('fields.defaultNotification.title')}
 					bottomDescription={t('fields.defaultNotification.description')}
 					data={optionNotification(tNotification)}
-					onChange={(value) => setNotificationSetting(value as number)}
+					onChange={(value) => handleChangeOptionNotification(value as number)}
 				/>
 				{!disabled && <MezonMenu menu={dangerMenu} />}
 			</ScrollView>

@@ -18,13 +18,11 @@ import {
 	channelMetaActions,
 	channelsActions,
 	channelsSlice,
-	clanMembersMetaActions,
 	clansActions,
 	clansSlice,
 	decreaseChannelBadgeCount,
 	defaultNotificationCategoryActions,
 	directActions,
-	directMembersMetaActions,
 	directMetaActions,
 	directSlice,
 	e2eeActions,
@@ -78,6 +76,7 @@ import {
 	selectUserCallId,
 	selectVoiceInfo,
 	selectWelcomeChannelByClanId,
+	statusActions,
 	stickerSettingActions,
 	threadsActions,
 	toastActions,
@@ -87,11 +86,13 @@ import {
 	userChannelsActions,
 	usersClanActions,
 	usersStreamActions,
+	videoStreamActions,
 	voiceActions,
+	walletActions,
 	webhookActions
 } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import type { EOverriddenPermission, IMessageSendPayload, NotificationCategory } from '@mezon/utils';
+import type { EOverriddenPermission, IMessageSendPayload, IUserProfileActivity, NotificationCategory } from '@mezon/utils';
 import {
 	ADD_ROLE_CHANNEL_STATUS,
 	AMOUNT_TOKEN,
@@ -101,14 +102,19 @@ import {
 	EMuteState,
 	ERepeatType,
 	IMessageTypeCallLog,
+	ITEM_TYPE,
 	NotificationCode,
 	TOKEN_TO_AMOUNT,
 	ThreadStatus,
 	TypeMessage,
+	addBigInt,
 	checkIsThread,
 	isBackgroundModeActive,
-	isLinuxDesktop
+	isLinuxDesktop,
+	scaleAmountToDecimals,
+	subBigInt
 } from '@mezon/utils';
+import type { Update } from '@reduxjs/toolkit';
 import isElectron from 'is-electron';
 import type {
 	AddClanUserEvent,
@@ -433,6 +439,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 								isReset: true
 							})
 						);
+					} else {
+						if (message.clan_id) {
+							const currentClanId = selectCurrentClanId(store.getState());
+							if (currentClanId !== message.clan_id) {
+								dispatch(clansActions.setHasUnreadMessage({ clanId: message.clan_id, hasUnread: true }));
+							}
+						}
 					}
 					if (message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
 						dispatch(
@@ -486,27 +499,40 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			statusPresenceQueue.current.push(statusPresence);
 			if (!statusPresenceTimerRef.current) {
 				statusPresenceTimerRef.current = setTimeout(() => {
-					const userStatusMap = new Map<string, { online: boolean; isMobile: boolean }>();
+					const userStatusMap = new Map<string, { online: boolean; is_mobile: boolean; status?: string; user_status?: string }>();
 
 					statusPresenceQueue.current.forEach((event) => {
 						event?.joins?.forEach((join) => {
-							userStatusMap.set(join.user_id, { online: true, isMobile: join.is_mobile });
+							userStatusMap.set(join.user_id, {
+								online: true,
+								is_mobile: join.is_mobile,
+								status: join.status,
+								user_status: join.user_status
+							});
 						});
 						event?.leaves?.forEach((leave) => {
-							userStatusMap.set(leave.user_id, { online: false, isMobile: false });
+							userStatusMap.set(leave.user_id, {
+								online: false,
+								is_mobile: false,
+								status: leave.status,
+								user_status: leave.user_status
+							});
 						});
 					});
 
-					const combinedStatus = Array.from(userStatusMap.entries()).map(([userId, status]) => ({
-						userId,
-						online: status.online,
-						isMobile: status.isMobile
+					const combinedStatus: Update<IUserProfileActivity, string>[] = Array.from(userStatusMap.entries()).map(([userId, status]) => ({
+						id: userId,
+						changes: {
+							online: status.online,
+							is_mobile: status.is_mobile,
+							id: userId,
+							user_status: status.user_status,
+							status: status.status
+						}
 					}));
 
 					if (combinedStatus.length) {
-						dispatch(clanMembersMetaActions.setManyStatusUser(combinedStatus));
-						dispatch(directActions.updateStatusByUserId(combinedStatus));
-						dispatch(friendsActions.setManyStatusUser(combinedStatus));
+						dispatch(statusActions.updateMany(combinedStatus));
 					}
 					statusPresenceQueue.current = [];
 					statusPresenceTimerRef.current = null;
@@ -765,6 +791,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 				dispatch(channelMembers.actions.remove({ userId: userID, channelId: user.channel_id }));
 				dispatch(userChannelsActions.remove(userID));
+				dispatch(
+					userChannelsActions.removeUserChannel({
+						channelId: user.channel_id,
+						userRemoves: [userID]
+					})
+				);
 			}
 		},
 		[userId]
@@ -775,10 +807,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const store = await getStoreAsync();
 			const channels = selectChannelsByClanId(store.getState() as unknown as RootState, user.clan_id as string);
 			const clanId = selectCurrentClanId(store.getState());
+			const currentVoice = selectVoiceInfo(store.getState());
+			const currentStream = selectCurrentStreamInfo(store.getState());
 			user?.user_ids.forEach((id: string) => {
 				if (id === userId) {
 					if (clanId === user.clan_id) {
 						navigate(`/chat/direct/friends`);
+					}
+					if (user.clan_id === currentVoice?.clanId) {
+						dispatch(voiceActions.resetVoiceControl());
+						if (document.pictureInPictureElement) {
+							document.exitPictureInPicture();
+						}
+					}
+					if (user.clan_id === currentStream?.clanId) {
+						dispatch(videoStreamActions.stopStream());
+						dispatch(videoStreamActions.setIsJoin(false));
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
@@ -899,7 +943,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(
 					directActions.addGroupUserWS({
 						channel_desc: { ...channel_desc, create_time_seconds: create_time_second },
-						users: [...users].filter((item) => item.user_id !== userId)
+						users
 					})
 				);
 				dispatch(
@@ -1082,7 +1126,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
-			dispatch(directMembersMetaActions.updateStatus({ userId: statusEvent.user_id, status: statusEvent.status }));
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
@@ -1102,14 +1145,54 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const isReceiverGiveCoffee = tokenEvent.receiver_id === userId;
 			const isSenderGiveCoffee = tokenEvent.sender_id === userId;
 
-			const updateAmount =
-				tokenEvent.amount !== undefined ? (isReceiverGiveCoffee ? tokenEvent.amount : isSenderGiveCoffee ? -tokenEvent.amount : 0) : 0;
-
-			dispatch(
-				accountActions.updateWalletByAction((currentValue) => {
-					return Number(currentValue) + Number(updateAmount);
-				})
-			);
+			if (tokenEvent.extra_attribute) {
+				try {
+					const parsedExtraAttribute = JSON.parse(tokenEvent.extra_attribute);
+					if (
+						'item_id' in parsedExtraAttribute &&
+						'item_type' in parsedExtraAttribute &&
+						'source' in parsedExtraAttribute &&
+						parsedExtraAttribute.item_id &&
+						parsedExtraAttribute.source
+					) {
+						if (parsedExtraAttribute.item_type === ITEM_TYPE.EMOJI) {
+							dispatch(
+								emojiSuggestionActions.update({
+									id: parsedExtraAttribute.item_id,
+									changes: {
+										src: parsedExtraAttribute.source
+									}
+								})
+							);
+						} else {
+							dispatch(
+								stickerSettingActions.update({
+									id: parsedExtraAttribute.item_id,
+									changes: {
+										source: parsedExtraAttribute.source
+									}
+								})
+							);
+						}
+						dispatch(emojiRecentActions.removePendingUnlock({ emojiId: parsedExtraAttribute.item_id }));
+					}
+				} catch (error) {
+					console.error('Error parsing extra attribute', error);
+				}
+			}
+			if (tokenEvent.amount) {
+				const updateAmount = scaleAmountToDecimals(tokenEvent.amount);
+				dispatch(
+					walletActions.updateWalletByAction((currentValue) => {
+						if (isReceiverGiveCoffee) {
+							return addBigInt(currentValue, updateAmount);
+						} else if (isSenderGiveCoffee) {
+							return subBigInt(currentValue, updateAmount);
+						}
+						return currentValue;
+					})
+				);
+			}
 			if (isReceiverGiveCoffee) {
 				const joinSoundElement = document.createElement('audio');
 				joinSoundElement.src = 'assets/audio/bankSound.mp3';
@@ -1140,7 +1223,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		(e: MessageTypingEvent) => {
 			dispatch(
 				messagesActions.updateTypingUsers({
-					channelId: e.channel_id,
+					channelId: e?.topic_id || e.channel_id,
 					userId: e.sender_id,
 					isTyping: true,
 					typingName: e.sender_display_name || e.sender_username
@@ -1201,7 +1284,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					channel_label: channelCreated.channel_label,
 					channel_private: channelCreated.channel_private,
 					type: channelCreated.channel_type,
-					status: channelCreated.status,
+					//status: channelCreated.status,
 					app_id: channelCreated.app_id,
 					clan_id: channelCreated.clan_id
 				};
@@ -1290,22 +1373,52 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			);
 		} else if (categoryEvent.status === EEventAction.DELETE) {
 			const store = await getStoreAsync();
-			const currentChannel = selectCurrentChannel(store.getState() as unknown as RootState);
-			dispatch(categoriesActions.deleteOne({ clanId: categoryEvent.clan_id, categoryId: categoryEvent.id }));
-			dispatch(channelsActions.setCurrentChannelId({ clanId: categoryEvent.clan_id, channelId: '' }));
-			dispatch(channelsActions.removeRememberChannel({ clanId: categoryEvent.clan_id }));
-			dispatch(
-				listChannelRenderAction.removeCategoryFromListRender({
-					clanId: categoryEvent?.clan_id || '',
-					categoryId: categoryEvent.id
-				})
-			);
-			const toMembersPage = (clanId: string) => {
-				return `/chat/clans/${clanId}/member-safety`;
-			};
-			if (currentChannel?.category_id === categoryEvent.id) {
-				const linkPageMember = toMembersPage(categoryEvent?.clan_id || '');
-				navigate(linkPageMember);
+			const currentChannelId = selectCurrentChannelId(store.getState() as unknown as RootState);
+			const clanId = selectCurrentClanId(store.getState());
+
+			if (categoryEvent) {
+				const currentChannel = currentChannelId ? selectChannelById(store.getState(), currentChannelId) : null;
+				const isUserInCategoryChannel = currentChannel && currentChannel.category_id === categoryEvent.id;
+				const allChannels = selectAllChannels(store.getState());
+				const allThreads = selectAllThreads(store.getState());
+
+				const channelsInCategory = allChannels.filter((ch) => ch.category_id === categoryEvent.id);
+
+				if (isUserInCategoryChannel) {
+					if (!clanId) {
+						navigate(`/chat/direct/friends`);
+						return;
+					}
+
+					const welcomeChannelId = selectWelcomeChannelByClanId(store.getState(), clanId);
+					const defaultChannelId = selectDefaultChannelIdByClanId(store.getState(), clanId);
+					const fallbackChannelId = allChannels.find((ch) => ch.category_id !== categoryEvent.id && !checkIsThread(ch))?.id;
+
+					const redirectChannelId = welcomeChannelId || defaultChannelId || fallbackChannelId;
+
+					if (redirectChannelId) {
+						navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
+					} else {
+						navigate(`/chat/clans/${clanId}/member-safety`);
+					}
+				}
+
+				if (channelsInCategory.length > 0) {
+					dispatch(
+						channelsActions.bulkDeleteChannelSocket({
+							channels: channelsInCategory,
+							clanId: clanId as string
+						})
+					);
+				}
+
+				dispatch(categoriesActions.deleteOne({ clanId: categoryEvent.clan_id, categoryId: categoryEvent.id }));
+				dispatch(
+					listChannelRenderAction.removeCategoryFromListRender({
+						clanId: categoryEvent?.clan_id || '',
+						categoryId: categoryEvent.id
+					})
+				);
 			}
 		} else {
 			const request: ApiUpdateCategoryDescRequest = {
@@ -1354,6 +1467,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const allThreads = selectAllThreads(store.getState());
 
 			const newAllThreads = allThreads.filter((thread) => thread.id !== channelDeleted.channel_id);
+
+			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
+
+			const isVoiceJoined = selectVoiceInfo(store.getState());
+			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
+				//Leave Room If It's been deleted
+				dispatch(voiceActions.resetVoiceControl());
+			}
 
 			if (channelDeleted?.deletor === userId) {
 				dispatch(channelsActions.deleteChannelSocket(channelDeleted));
@@ -1418,12 +1539,32 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			if (userUpdated.user_id === userId) {
 				dispatch(accountActions.setUpdateAccount({ encrypt_private_key: userUpdated?.encrypt_private_key }));
 			} else {
+				if (userUpdated.channel_id) {
+					dispatch(
+						directActions.updateMemberDMGroup({
+							dmId: userUpdated.channel_id,
+							user_id: userUpdated.user_id,
+							avatar: userUpdated.avatar,
+							display_name: userUpdated.display_name,
+							about_me: userUpdated.about_me
+						})
+					);
+				}
 				dispatch(
-					directActions.updateMenberDMGroup({
+					usersClanActions.updateUserProfileAcrossClans({
+						userId: userUpdated.user_id,
+						avatar: userUpdated.avatar,
+						display_name: userUpdated.display_name,
+						about_me: userUpdated.about_me
+					})
+				);
+				dispatch(
+					directActions.updateMemberDMGroup({
 						dmId: userUpdated.channel_id,
 						user_id: userUpdated.user_id,
 						avatar: userUpdated.avatar,
-						display_name: userUpdated.display_name
+						display_name: userUpdated.display_name,
+						about_me: userUpdated.about_me
 					})
 				);
 			}
@@ -1835,7 +1976,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						}
 					}
 				}
-
+				if (status === EEventAction.UPDATE) {
+					dispatch(
+						policiesActions.updateOne({
+							id: role.id as string,
+							changes: {
+								title: role.title,
+								id: role.id || '',
+								max_level_permission: role.max_level_permission
+							}
+						})
+					);
+				}
 				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
@@ -1935,13 +2087,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	const onuserstatusevent = useCallback(
 		async (userStatusEvent: UserStatusEvent) => {
 			if (userStatusEvent.user_id !== userId) {
-				dispatch(clanMembersMetaActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
-				dispatch(directMembersMetaActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
 				dispatch(friendsActions.updateUserStatus({ userId: userStatusEvent.user_id, user_status: userStatusEvent.custom_status }));
 			} else {
-				dispatch(clanMembersMetaActions.updateUserStatus({ userId: userId || '', user_status: userStatusEvent.custom_status }));
 				dispatch(accountActions.updateUserStatus(userStatusEvent.custom_status));
 			}
+			dispatch(statusActions.updateStatus(userStatusEvent));
 		},
 		[userId]
 	);

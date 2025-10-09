@@ -134,6 +134,9 @@
 			"initialMessageRequired": "Cần một tin nhắn ban đầu để bắt đầu chủ đề.",
 			"messageTooLong": "Tin nhắn vượt quá giới hạn 4000 ký tự",
 			"messageLimitExceeded": "Tin nhắn vượt quá giới hạn {{limit}} ký tự"
+		},
+		"placeholder": {
+			"threadName": "Nhập tên chủ đề"
 		}
 	}
 }

@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -26,7 +27,7 @@ export const style = (colors: Attributes) =>
 		titlePanel: {
 			flexDirection: 'row',
 			justifyContent: 'center',
-			alignItems: 'flex-end',
+			alignItems: 'center',
 			height: size.s_24,
 			gap: size.s_6
 		},

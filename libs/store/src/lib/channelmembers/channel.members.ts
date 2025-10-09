@@ -10,13 +10,13 @@ import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { selectAllUserClans, selectEntitesUserClans } from '../clanMembers/clan.members';
 import { selectClanView } from '../clans/clans.slice';
-import { selectDirectMembersMetaEntities } from '../direct/direct.members.meta';
 import type { DirectEntity } from '../direct/direct.slice';
 import { selectDirectById, selectDirectMessageEntities } from '../direct/direct.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import type { RootState } from '../store';
+import { selectMemberByGroupId } from './AllUsersChannelByAddChannel.slice';
 export const CHANNEL_MEMBERS_FEATURE_KEY = 'channelMembers';
 
 /*
@@ -484,27 +484,6 @@ export const selectMemberIdsByChannelId = createSelector(
 	}
 );
 
-export const selectMemberCustomStatusById = createSelector(
-	[
-		selectEntitesUserClans,
-		selectDirectMembersMetaEntities,
-		(state: RootState, userId: string, isDM?: boolean) => {
-			//DO NOT EDIT UNLESS YOU KNOW WHAT ARE YOU DOING: thanh.levan
-			return `${userId},${isDM}`;
-		}
-	],
-	(usersClanEntities, statusList, payload) => {
-		const [userId, isDM] = payload.split(',');
-		const userClan = usersClanEntities[userId];
-		if (statusList?.[userId]) {
-			return statusList?.[userId].user?.metadata?.status || false;
-		}
-		if (userClan && (isDM === 'false' || 'undefined')) {
-			return (userClan?.user?.metadata as any)?.status || '';
-		}
-	}
-);
-
 export const selectMemberCustomStatusByUserId = createSelector(
 	[
 		selectEntitesUserClans,
@@ -515,21 +494,21 @@ export const selectMemberCustomStatusByUserId = createSelector(
 	],
 	(usersClanEntities, usersStatus, userId) => {
 		const userClan = usersClanEntities[userId];
-		return usersStatus?.[userId] || (userClan?.user?.metadata as any)?.status || '';
+		return usersStatus?.[userId] || userClan?.user?.user_status || '';
 	}
 );
 
 export const selectGrouplMembers = createSelector(
 	[selectDirectById, selectAllAccount, (state, groupId: string) => groupId],
 	(group, currentUser, groupId) => {
-		if (!group?.user_id) {
+		if (!group?.user_ids) {
 			return [];
 		}
 		// const groupDisplayNames = group.usernames?.split(',');
 		const groupUsername = group.usernames;
 		const groupDisplayNames = group.display_names;
 
-		const users = group?.user_id?.map((userId, index) => {
+		const users = group?.user_ids?.map((userId, index) => {
 			return {
 				channelId: groupId,
 				userChannelId: groupId,
@@ -540,7 +519,7 @@ export const selectGrouplMembers = createSelector(
 					avatar_url: group.channel_avatar?.[index],
 					username: groupUsername?.[index],
 					display_name: groupDisplayNames?.[index],
-					online: group.is_online?.[index]
+					online: group.onlines?.[index]
 				},
 				id: userId
 			};
@@ -566,9 +545,17 @@ export const selectGroupMembersEntities = createSelector([selectGrouplMembers], 
 	return groupMembersEntities;
 });
 
-export const selectMembeGroupByUserId = createSelector([selectGrouplMembers, (state, groupId: string, userId: string) => userId], (users, userId) => {
-	return users?.find((item) => item.id === userId);
-});
+export const selectMemberGroupByUserId = createSelector(
+	[(state: any, channelId: string) => selectMemberByGroupId(state, channelId), (_: any, __: string, userId: string) => userId],
+	(users, userId): ChannelMembersEntity | undefined => {
+		if (!users || !userId) return undefined;
+
+		const index = users.findIndex((user) => user.id === userId);
+		if (index === -1) return undefined;
+
+		return users[index] as ChannelMembersEntity;
+	}
+);
 
 export const selectMemberStatusById = createSelector(
 	[
@@ -586,11 +573,11 @@ export const selectMemberStatusById = createSelector(
 		if (userClan && isClanView) {
 			return { status: userClan.user?.online, isMobile: userClan.user?.is_mobile };
 		}
-		const index = userGroup?.user_id?.findIndex((item) => item === userId) ?? -1;
+		const index = userGroup?.user_ids?.findIndex((item) => item === userId) ?? -1;
 		if (index === -1) {
 			return { status: false, isMobile: false };
 		}
-		return { status: userGroup?.is_online?.[index] || false, isMobile: false };
+		return { status: userGroup?.onlines?.[index] || false, isMobile: false };
 	}
 );
 
@@ -599,7 +586,7 @@ export const selectAllChannelMembers = createSelector(
 		selectMemberIdsByChannelId,
 		selectAllUserClans,
 		selectEntitesUserClans,
-		selectGrouplMembers,
+		selectMemberByGroupId,
 		(state: RootState, channelId: string) => {
 			const currentClanId = state.clans?.currentClanId;
 			const channel = state?.channels?.byClans?.[currentClanId as string]?.entities?.entities?.[channelId];
@@ -752,14 +739,14 @@ export const selectChannelMemberByUserIds = createSelector(
 					} as ChannelMembersEntity);
 					return;
 				}
-				const { channel_label, user_id, is_online, usernames, display_names } = userInfo as DirectEntity;
-				const currentUserIndex = Array.isArray(user_id) ? user_id.findIndex((id) => id === userId) : -1;
+				const { channel_label, user_ids, onlines, usernames, display_names } = userInfo as DirectEntity;
+				const currentUserIndex = Array.isArray(user_ids) ? user_ids.findIndex((id) => id === userId) : -1;
 				if (currentUserIndex === -1) return;
 				members.push({
 					channelId,
 					userChannelId: channelId,
 					user: {
-						online: is_online?.[currentUserIndex],
+						online: onlines?.[currentUserIndex],
 						...dmMembers?.[userId]?.user,
 						display_name: display_names?.[currentUserIndex],
 						username: usernames?.[currentUserIndex]

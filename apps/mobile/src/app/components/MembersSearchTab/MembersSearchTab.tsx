@@ -1,14 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import {
-	ChannelMembersEntity,
-	DirectEntity,
-	directActions,
-	getStore,
-	selectClanMemberMetaUserId,
-	selectCurrentDM,
-	useAppDispatch
-} from '@mezon/store-mobile';
+import { ChannelMembersEntity, DirectEntity, directActions, getStore, selectCurrentDM, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React, { memo, useCallback, useMemo } from 'react';
 import { DeviceEventEmitter, FlatList, Keyboard, View } from 'react-native';
@@ -86,28 +78,12 @@ const MembersSearchTab = ({ listMemberSearch, listDMGroupSearch }: MembersSearch
 	const renderItem = useCallback(
 		({ item, index }) => {
 			if (!item?.type) {
-				const userMeta = selectClanMemberMetaUserId(store.getState(), item.id);
-				const user = {
-					...item,
-					metadata: {
-						user_status: userMeta?.status
-					}
-				};
-				return (
-					<MemberItem
-						onPress={onDetailMember}
-						isHiddenStatus={!userMeta}
-						isOffline={!userMeta?.online}
-						isMobile={userMeta?.isMobile}
-						user={user}
-						key={`${item?.['id']}_member_search_${index}}`}
-					/>
-				);
+				return <MemberItem onPress={onDetailMember} user={item} key={`${item?.['id']}_member_search_${index}}`} />;
 			}
 
 			return <DMGroupItem dmGroupData={item} navigateToDirectMessage={() => handleNavigateToDMGroup(item.id)} />;
 		},
-		[onDetailMember, store, styles, themeValue]
+		[handleNavigateToDMGroup, onDetailMember]
 	);
 
 	const keyExtractor = useCallback((item, index) => `${item?.['id']}_member_search_${index}}`, []);

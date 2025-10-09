@@ -133,7 +133,7 @@
 		"showPassword": "Hiện mật khẩu",
 		"enterEmailToLogin": "Nhập email của bạn để đăng nhập",
 		"passwordNotSet": "Mật khẩu chưa được đặt?",
-		"loginWithOTP": "Đăng nhập bằng OTP",
+		"loginWithEmailOTP": "Đăng nhập bằng Email OTP",
 		"login": "Đăng nhập",
 		"enterPhoneToLogin": "Nhập số điện thoại của bạn để đăng nhập",
 		"phone": "Số điện thoại",
@@ -142,7 +142,10 @@
 		"chooseAnotherOption": "Hoặc chọn một tùy chọn khác",
 		"welcomeToMezon": "Chào mừng đến với Mezon",
 		"desWelcomeToMezon": "Nền tảng Kết nối, Làm việc, \nvà Giải trí",
-		"getStarted": "Bắt đầu nào"
+		"getStarted": "Bắt đầu nào",
+		"invalidPhoneNumber": "Số điện thoại không hợp lệ",
+		"loginTooFast": "Đăng nhập quá nhanh. Vui lòng đợi {{seconds}} giây trước khi thử lại.",
+		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -158,7 +161,13 @@
 		"changeEmailTitle": "Đổi Email",
 		"changeEmailMessage": "Bạn có chắc chắn muốn thay đổi địa chỉ email không?",
 		"cancel": "Hủy",
-		"confirm": "Đồng ý, Thay đổi"
+		"confirm": "Đồng ý, Thay đổi",
+		"changePhone": "Đổi số điện thoại",
+		"changePhoneMessage": "Bạn có chắc chắn muốn thay đổi số điện thoại không?",
+		"otpNotMatch": "Mã OTP không khớp",
+		"verifyOtpError": "Đã xảy ra lỗi khi xác thực OTP",
+		"resendOtpFailed": "Gửi lại OTP thất bại",
+		"sendOtpError": "Đã xảy ra lỗi khi gửi OTP"
 	},
 	"invite": {
 		"canChatNow": "Bạn có thể trò chuyện ngay bây giờ !!",
@@ -187,5 +196,12 @@
 		"noQuestions": "Bạn chưa có câu hỏi nào. Hãy thiết lập câu hỏi cho clan này trước !!",
 		"noRules": "Bạn chưa có quy tắc nào. Hãy thiết lập quy tắc cho clan này trước !!",
 		"noMissions": "Bạn chưa có nhiệm vụ nào. Hãy thiết lập nhiệm vụ cho clan này trước !!"
+	},
+	"updateUsername": {
+		"enterUsername": "Nhập tên Mezon",
+		"yourName": "Tên của bạn...",
+		"usernamePlaceholder": "Hãy dùng tên thật để mọi người dễ nhận ra bạn",
+		"update": "Cập nhật",
+		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác."
 	}
 }

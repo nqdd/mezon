@@ -1,7 +1,9 @@
-import { MezonContextValue } from '@mezon/transport';
-import { GetThunkAPI } from '@reduxjs/toolkit';
-import { Client, Friend, safeJSONParse, Session } from 'mezon-js';
-import { GetThunkAPIWithMezon } from './typings';
+import type { MezonContextValue } from '@mezon/transport';
+import type { GetThunkAPI } from '@reduxjs/toolkit';
+import type { Client, Session } from 'mezon-js';
+import type { ApiFriend } from 'mezon-js/api.gen';
+import type { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
+import type { GetThunkAPIWithMezon } from './typings';
 
 export const getMezonCtx = (thunkAPI: GetThunkAPI<any>) => {
 	if (!isMezonThunk(thunkAPI)) {
@@ -13,6 +15,9 @@ export const getMezonCtx = (thunkAPI: GetThunkAPI<any>) => {
 export type MezonValueContext = MezonContextValue & {
 	client: Client;
 	session: Session;
+	zkClient: ZkClient | null;
+	mmnClient: MmnClient | null;
+	indexerClient: IndexerClient | null;
 };
 
 export async function ensureSession(mezon: MezonContextValue): Promise<MezonValueContext> {
@@ -57,7 +62,10 @@ export function ensureClient(mezon: MezonContextValue): MezonValueContext {
 	return {
 		...mezon,
 		client: mezon?.clientRef?.current,
-		session: mezon.sessionRef.current
+		session: mezon.sessionRef.current,
+		zkClient: mezon.zkRef.current,
+		mmnClient: mezon.mmnRef?.current || null,
+		indexerClient: mezon.indexerRef?.current || null
 	} as MezonValueContext;
 }
 
@@ -111,12 +119,8 @@ export async function fetchDataWithSocketFallback<T>(
 
 			if (socketRequest.api_name === 'ListFriends') {
 				if (responseKey && data?.[responseKey]?.friends) {
-					data[responseKey].friends = data[responseKey]?.friends?.map((item: Friend) => ({
-						...item,
-						user: {
-							...item.user,
-							metadata: item.user?.metadata ? safeJSONParse(item.user?.metadata as string) : {}
-						}
+					data[responseKey].friends = data[responseKey]?.friends?.map((item: ApiFriend) => ({
+						...item
 					}));
 				}
 
@@ -125,12 +129,8 @@ export async function fetchDataWithSocketFallback<T>(
 
 			if (socketRequest.api_name === 'ListClanUsers') {
 				if (responseKey && data?.[responseKey]?.clan_users) {
-					data[responseKey].clan_users = data[responseKey]?.clan_users?.map((item: Friend) => ({
-						...item,
-						user: {
-							...item.user,
-							metadata: item.user?.metadata ? safeJSONParse(item.user?.metadata as string) : {}
-						}
+					data[responseKey].clan_users = data[responseKey]?.clan_users?.map((item: ApiFriend) => ({
+						...item
 					}));
 				}
 
@@ -142,7 +142,7 @@ export async function fetchDataWithSocketFallback<T>(
 			// if (socketRequest.api_name === 'ListClanDescs') {
 			// }
 		} catch (err) {
-			console.log(err, socketRequest);
+			console.error(err, socketRequest);
 			// ignore socket errors and fallback to REST API
 		}
 	}

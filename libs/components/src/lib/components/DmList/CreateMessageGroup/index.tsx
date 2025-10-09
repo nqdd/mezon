@@ -1,10 +1,12 @@
 import { useAppNavigation, useEscapeKeyClose, useFriends, useOnClickOutside } from '@mezon/core';
-import { DirectEntity, FriendsEntity, IFriend, channelUsersActions, directActions, selectAllFriends, useAppDispatch } from '@mezon/store';
+import type { DirectEntity, FriendsEntity } from '@mezon/store';
+import { channelUsersActions, directActions, selectAllFriends, useAppDispatch } from '@mezon/store';
 import { Icons, InputField } from '@mezon/ui';
 import { GROUP_CHAT_MAXIMUM_MEMBERS, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
-import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
+import type { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
@@ -85,7 +87,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 		const userNameGroup: string[] = [];
 		const avatarGroup: string[] = [];
 		if (currentDM?.type === ChannelType.CHANNEL_TYPE_DM) {
-			listGroupDM.push(currentDM.user_id?.at(0) as string);
+			listGroupDM.push(currentDM.user_ids?.at(0) as string);
 			userNameGroup.push(currentDM.usernames?.at(0) as string);
 			avatarGroup.push(currentDM.channel_avatar?.at(0) as string);
 		}
@@ -248,7 +250,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 				</div>
 				{listFriends.length > 0 ? (
 					<div ref={boxRef} className="w-full h-[190px] overflow-y-auto overflow-x-hidden thread-scroll">
-						{listFriends.map((friend: IFriend, index) => (
+						{listFriends.map((friend: FriendsEntity, index) => (
 							<div
 								key={friend.id}
 								onMouseEnter={() => setIdActive(friend.id ?? '')}

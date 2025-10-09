@@ -1,14 +1,13 @@
 import { optionNotification } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { defaultNotificationActions, selectCurrentClanId, selectDefaultNotificationClan, useAppDispatch } from '@mezon/store-mobile';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps, reserve } from '../../componentUI/MezonMenu';
+import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
 import MezonOption from '../../componentUI/MezonOption';
-import MezonSwitch from '../../componentUI/MezonSwitch';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
 import { CategoryChannel } from './CategoryChannel';
@@ -22,61 +21,16 @@ const ClanNotificationSetting = ({ navigation }: MenuClanScreenProps<ClanNotific
 	const dispatch = useAppDispatch();
 	const currentClanId = useSelector(selectCurrentClanId);
 	const { t } = useTranslation(['clanNotificationsSetting']);
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerLeft: () => (
-				<Pressable style={{ padding: 20 }} onPress={handleClose}>
+				<Pressable style={{ padding: 20 }} onPress={() => navigation.goBack()}>
 					<MezonIconCDN icon={IconCDN.closeSmallBold} height={20} width={20} color={themeValue.textStrong} />
 				</Pressable>
 			)
 		});
 	}, [navigation, themeValue.textStrong]);
-
-	const handleClose = () => {
-		navigation.goBack();
-	};
-
-	const suppressMenu: IMezonMenuItemProps[] = [
-		{
-			title: t('suppressOption.suppressEveryone'),
-			component: <MezonSwitch />,
-			onPress: () => reserve()
-		},
-		{
-			title: t('suppressOption.suppressAllRole'),
-			component: <MezonSwitch />,
-			onPress: () => reserve()
-		},
-		{
-			title: t('suppressOption.suppressHighlights'),
-			component: <MezonSwitch />,
-			onPress: () => reserve()
-		}
-	];
-
-	const muteEventMenu: IMezonMenuItemProps[] = [
-		{
-			title: t('muteEventOptions.muteNewEvents'),
-			component: <MezonSwitch />,
-			onPress: () => reserve()
-		},
-		{
-			title: t('muteEventOptions.mobilePushNotifications'),
-			component: <MezonSwitch />,
-			onPress: () => reserve()
-		}
-	];
-
-	const generalMenu: IMezonMenuSectionProps[] = [
-		{
-			items: suppressMenu,
-			bottomDescription: t('suppressOption.subText')
-		},
-		{
-			items: muteEventMenu
-		}
-	];
 
 	const notificationOverridesMenu: IMezonMenuSectionProps[] = [
 		{
@@ -107,7 +61,6 @@ const ClanNotificationSetting = ({ navigation }: MenuClanScreenProps<ClanNotific
 				title={t('notifySettingOption.title')}
 				data={optionNotification(t)}
 			/>
-			<MezonMenu menu={generalMenu} />
 			<MezonMenu menu={notificationOverridesMenu} />
 			<CategoryChannel />
 		</ScrollView>

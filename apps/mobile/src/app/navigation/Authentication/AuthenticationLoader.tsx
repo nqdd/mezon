@@ -1,4 +1,3 @@
-import { useAuth } from '@mezon/core';
 import {
 	ActionEmitEvent,
 	STORAGE_CHANNEL_CURRENT_CACHE,
@@ -14,9 +13,11 @@ import {
 	directActions,
 	getStoreAsync,
 	messagesActions,
+	selectAllAccount,
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectCurrentLanguage,
+	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
 	useAppSelector
@@ -26,10 +27,11 @@ import { TypeMessage } from '@mezon/utils';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
-import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
+import type { WebrtcSignalingFwd } from 'mezon-js';
+import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
@@ -47,16 +49,29 @@ import { APP_SCREEN } from '../ScreenTypes';
 const messaging = getMessaging(getApp());
 export const AuthenticationLoader = () => {
 	const navigation = useNavigation<any>();
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 	const currentClan = useSelector(selectCurrentClan);
 	const mezon = useMezon();
 	const isTabletLandscape = useTabletLandscape();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
+	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
 	const dispatch = useDispatch();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
+	const currentTopicRef = useRef(currentTopicId);
+	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+
+	useEffect(() => {
+		const subscription = AppState.addEventListener('change', (nextAppState) => {
+			appStateRef.current = nextAppState;
+		});
+
+		return () => {
+			subscription.remove();
+		};
+	}, []);
 
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
 	const { i18n } = useTranslation();
@@ -169,6 +184,10 @@ export const AuthenticationLoader = () => {
 	}, [currentChannel]);
 
 	useEffect(() => {
+		currentTopicRef.current = currentTopicId;
+	}, [currentTopicId]);
+
+	useEffect(() => {
 		let timer;
 		const callListener = DeviceEventEmitter.addListener(ActionEmitEvent.GO_TO_CALL_SCREEN, async ({ payload, isDecline = false }) => {
 			if (isDecline) {
@@ -257,10 +276,16 @@ export const AuthenticationLoader = () => {
 				const isViewingDirectMessage = topRoute === APP_SCREEN.MESSAGES.MESSAGE_DETAIL || topRoute === APP_SCREEN.MESSAGES.HOME;
 
 				if (
-					isShowNotification(currentChannelRef.current?.id, currentDmGroupIdRef.current, remoteMessage, {
-						isViewingChannel,
-						isViewingDirectMessage
-					})
+					isShowNotification(
+						currentChannelRef.current?.id,
+						currentDmGroupIdRef.current,
+						remoteMessage,
+						{
+							isViewingChannel,
+							isViewingDirectMessage
+						},
+						currentTopicRef.current
+					)
 				) {
 					// Case: FCM start call
 					const title = remoteMessage?.notification?.title || remoteMessage?.data?.title;
@@ -302,8 +327,12 @@ export const AuthenticationLoader = () => {
 					});
 				}
 				//Payload from FCM need messageType and sound
-				if (messageCode === TypeMessage.MessageBuzz) {
-					playBuzzSound();
+				if (messageCode === TypeMessage.MessageBuzz || messageCode === TypeMessage.SendToken) {
+					const isAppActive = appStateRef.current === 'active';
+					if (isAppActive) {
+						playCustomSoundNotify(messageCode === TypeMessage.MessageBuzz ? 'buzz' : 'bank');
+					}
+
 					handleBuzz(remoteMessage);
 				}
 			} catch (e) {
@@ -315,9 +344,10 @@ export const AuthenticationLoader = () => {
 		return unsubscribe;
 	};
 
-	const playBuzzSound = () => {
+	const playCustomSoundNotify = (name: string) => {
 		Sound.setCategory('Playback');
-		const sound = new Sound('buzz.mp3', Sound.MAIN_BUNDLE, (error) => {
+		const soundName = name + (Platform.OS === 'android' ? '.mp3' : '.wav');
+		const sound = new Sound(soundName, Sound.MAIN_BUNDLE, (error) => {
 			if (error) {
 				console.error('failed to load the sound', error);
 				return;

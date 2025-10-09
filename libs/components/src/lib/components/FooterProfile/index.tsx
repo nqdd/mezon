@@ -16,12 +16,22 @@ import {
 	selectShowModalSendToken,
 	selectStatusMenu,
 	selectVoiceJoined,
+	selectWalletDetail,
 	useAppDispatch,
 	userClanProfileActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { EUserStatus } from '@mezon/utils';
-import { ESummaryInfo, ONE_MINUTE, TypeMessage, createImgproxyUrl, formatMoney, generateE2eId, saveParseUserStatus } from '@mezon/utils';
+import {
+	ESummaryInfo,
+	ONE_MINUTE,
+	TypeMessage,
+	compareBigInt,
+	createImgproxyUrl,
+	formatBalanceToString,
+	formatMoney,
+	generateE2eId
+} from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -53,12 +63,19 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	const infoSendToken = useSelector(selectInfoSendToken);
 	const userStatusProfile = useSelector(selectAccountCustomStatus);
 	const statusMenu = useSelector(selectStatusMenu);
+	const userWallet = useSelector(selectWalletDetail);
 	const myProfile = useAuth();
 	const { t } = useTranslation(['setting']);
-	const userCustomStatus: { status: string; user_status: EUserStatus } = useMemo(() => {
-		const metadata = myProfile.userProfile?.user?.metadata;
-		return saveParseUserStatus(metadata || '');
-	}, [myProfile, myProfile.userProfile?.user?.metadata]);
+	const userCustomStatus = useMemo(() => {
+		const userCustomStatus = myProfile.userProfile?.user?.user_status;
+		return userCustomStatus;
+	}, [myProfile, myProfile.userProfile?.user?.user_status]);
+
+	const userStatus = useMemo(() => {
+		const userStatus = myProfile.userProfile?.user?.status;
+		return userStatus;
+	}, [myProfile, myProfile.userProfile?.user?.status]);
+
 	const [token, setToken] = useState<number>(0);
 	const [selectedUserId, setSelectedUserId] = useState<string>('');
 	const [note, setNote] = useState<string>('Transfer funds');
@@ -76,10 +93,6 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
-
-	const tokenInWallet = useMemo(() => {
-		return myProfile?.userProfile?.wallet ? myProfile?.userProfile?.wallet : 0;
-	}, [myProfile?.userProfile?.wallet]);
 
 	const handleCloseModalCustomStatus = () => {
 		dispatch(userClanProfileActions.setShowModalCustomStatus(false));
@@ -130,11 +143,11 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			setError('Your amount must be greater than zero');
 			return;
 		}
-
-		if (token > Number(tokenInWallet)) {
-			setError('Your amount exceeds wallet balance');
+		if (compareBigInt(userWallet?.balance || '', BigInt(token).toString()) < 0) {
+			setError(`Your amount exceeds wallet balance (${formatBalanceToString(userWallet?.balance)} tokens)`);
 			return;
 		}
+
 		const tokenEvent: ApiTokenSentEvent = {
 			sender_id: myProfile.userId as string,
 			sender_name: myProfile?.userProfile?.user?.username as string,
@@ -243,8 +256,8 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 		}
 	};
 	const [openSetCustomStatus, closeSetCustomStatus] = useModal(() => {
-		return <ModalCustomStatus status={userCustomStatus.status || ''} name={name} onClose={handleCloseModalCustomStatus} />;
-	}, [userCustomStatus.status]);
+		return <ModalCustomStatus status={userCustomStatus} name={name} onClose={handleCloseModalCustomStatus} />;
+	}, [userCustomStatus]);
 
 	const [openModalSendToken, closeModalSendToken] = useModal(() => {
 		return (
@@ -263,10 +276,9 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 				sendTokenInputsState={sendTokenInputsState}
 				infoSendToken={infoSendToken}
 				isButtonDisabled={isButtonDisabled}
-				tokenInWallet={tokenInWallet}
 			/>
 		);
-	}, [token, selectedUserId, note, infoSendToken, isButtonDisabled, sendTokenInputsState, myProfile.userId, tokenInWallet]);
+	}, [token, selectedUserId, error, note, infoSendToken, isButtonDisabled, sendTokenInputsState, myProfile.userId]);
 
 	useEffect(() => {
 		if (showModalCustomStatus) {
@@ -310,13 +322,18 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							srcImgProxy={createImgproxyUrl(avatar ?? '')}
 							src={avatar}
 						/>
-						<div className="absolute bottom-0 left-0 w-[32px] h-[32px] ">
-							<UserStatusIconDM status={userCustomStatus?.user_status} />
+						<div className="absolute top-5 left-5">
+							<UserStatusIconDM status={userStatus as EUserStatus} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">
-							<p className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary" data-e2e={generateE2eId('footer_profile.name')}>{name}</p>
+							<p
+								className="text-sm font-medium truncate max-w-[150px] max-sbm:max-w-[100px] text-theme-secondary"
+								data-e2e={generateE2eId('footer_profile.name')}
+							>
+								{name}
+							</p>
 							<p className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]">
-								{userCustomStatus.status}
+								{userCustomStatus}
 							</p>
 						</div>
 					</div>

@@ -1,4 +1,4 @@
-import type { AppDispatch } from '@mezon/store';
+import type { AppDispatch, ISession } from '@mezon/store';
 import {
 	accountActions,
 	authActions,
@@ -12,9 +12,11 @@ import {
 	selectCurrentClanId,
 	selectSession,
 	selectVoiceOpenPopOut,
-	usersClanActions
+	selectZkProofs,
+	usersClanActions,
+	walletActions
 } from '@mezon/store';
-import type { IWithError } from '@mezon/utils';
+import type { IUserAccount, IWithError } from '@mezon/utils';
 import type { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
@@ -75,6 +77,7 @@ const waitForInternetConnection = async (delayMs: number): Promise<void> => {
 const handleLogoutWithRedirect = (dispatch: AppDispatch, initialPath: string): IAuthLoaderData => {
 	const redirectTo = getRedirectTo(initialPath);
 	dispatch(authActions.setLogout());
+	dispatch(walletActions.setLogout());
 	const redirect = redirectTo ? `/desktop/login?redirect=${redirectTo}` : '/desktop/login';
 	return { isLogin: false, redirect } as IAuthLoaderData;
 };
@@ -107,6 +110,7 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 	let isRedirectLogin = false;
 	const store = getStore();
 	const sessionUser = selectSession(store?.getState());
+	const zkProofs = selectZkProofs(store?.getState());
 
 	if (!sessionUser?.token) {
 		return { isLogin: !isRedirectLogin } as IAuthLoaderData;
@@ -131,6 +135,20 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 			} else {
 				const profileResponse = await dispatch(accountActions.getUserProfile());
 				if (!(profileResponse as unknown as IWithError).error) {
+					const userId = (profileResponse.payload as IUserAccount)?.user?.id;
+					if (zkProofs && userId) {
+						await dispatch(
+							walletActions.fetchZkProofs({
+								userId,
+								jwt: (response.payload as ISession)?.token
+							})
+						);
+						await dispatch(
+							walletActions.fetchWalletDetail({
+								userId
+							})
+						);
+					}
 					return { isLogin: true } as IAuthLoaderData;
 				}
 				throw new Error('Session expired');
@@ -156,6 +174,7 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 			console.error('Session expired after 6 retries');
 			const redirectTo = getRedirectTo(initialPath);
 			dispatch(authActions.setLogout());
+			dispatch(walletActions.setLogout());
 			const redirect = redirectTo ? `/desktop/login?redirect=${redirectTo}` : '/desktop/login';
 			return { isLogin: !isRedirectLogin, redirect: isRedirectLogin ? redirect : '' } as IAuthLoaderData;
 		}
