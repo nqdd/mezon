@@ -1,6 +1,6 @@
 import { baseColor, useTheme } from '@mezon/mobile-ui';
-import { appActions, authActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { accountActions, appActions, authActions, selectAllAccount, selectPasswordSetted, useAppDispatch } from '@mezon/store-mobile';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StatusBar, Text } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -25,9 +25,12 @@ const SetPassword = ({ navigation }) => {
 		confirmPassword?: string;
 	}>({});
 	const dispatch = useAppDispatch();
+	const passwordSetted = useSelector(selectPasswordSetted);
 
 	const userProfile = useSelector(selectAllAccount);
-	const hasPassword = !!userProfile?.password_setted;
+	const hasPassword = useMemo(() => {
+		return !!userProfile?.password_setted || passwordSetted;
+	}, [passwordSetted, userProfile?.password_setted]);
 
 	const handleCurrentPasswordChange = (currentPasswordText: string) => {
 		setCurrentPassword(currentPasswordText);
@@ -111,6 +114,7 @@ const SetPassword = ({ navigation }) => {
 				})
 			);
 			if (response?.meta?.requestStatus === 'fulfilled') {
+				dispatch(accountActions.setPasswordSetted(true));
 				Toast.show({
 					type: 'success',
 					props: {

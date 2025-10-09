@@ -9,7 +9,7 @@ import {
 	selectCurrentUserId,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { ID_MENTION_HERE, MentionDataProps, compareObjects, normalizeString } from '@mezon/utils';
+import { ID_MENTION_HERE, MentionDataProps } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { FC, memo, useEffect, useMemo, useState } from 'react';
 import { LayoutAnimation, Pressable, View } from 'react-native';
@@ -25,42 +25,69 @@ export interface MentionSuggestionsProps {
 }
 
 const Suggestions: FC<MentionSuggestionsProps> = memo(({ keyword, onSelect, listMentions, isEphemeralMode }) => {
+	const removeDiacritics = (str) => {
+		if (!str) return '';
+		return str
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/đ/g, 'd')
+			.replace(/Đ/g, 'D');
+	};
+
 	const [listMentionData, setListMentionData] = useState([]);
-	const filterMentionList = debounce(() => {
-		if (!listMentions?.length) {
-			setListMentionData([]);
-			return;
-		}
-		LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types['easeInEaseOut'], LayoutAnimation.Properties['opacity']));
-		const mentionSearchText = keyword?.toLocaleLowerCase();
+	const filteredMentions = useMemo(() => {
+		if (!listMentions?.length || !keyword?.trim()) return listMentions || [];
 
-		const filterMatchedMentions = (mentionData: MentionDataProps) => {
-			const matchesKeyword =
-				normalizeString(mentionData?.display)?.toLocaleLowerCase()?.includes(mentionSearchText) ||
-				normalizeString(mentionData?.username)?.toLocaleLowerCase()?.includes(mentionSearchText);
+		const search = keyword.trim();
+		const searchLower = search.toLowerCase();
+		const searchNorm = removeDiacritics(searchLower);
 
-			if (isEphemeralMode) {
-				const store = getStore();
-				const currentUserId = selectCurrentUserId(store.getState());
-				return mentionData?.id !== ID_MENTION_HERE && !mentionData?.isRoleUser && mentionData?.id !== currentUserId && matchesKeyword;
-			}
+		const store = isEphemeralMode ? getStore() : null;
+		const currentUserId = store ? selectCurrentUserId(store.getState()) : null;
 
-			return matchesKeyword;
-		};
+		return listMentions
+			.reduce((acc, mention) => {
+				if (isEphemeralMode && (mention.id === ID_MENTION_HERE || mention.isRoleUser || mention.id === currentUserId)) {
+					return acc;
+				}
 
-		const filteredUserMentions = listMentions
-			.filter(filterMatchedMentions)
-			.sort((a, b) => compareObjects(a, b, mentionSearchText, 'display', 'display'))
-			.map((item) => ({
-				...item,
-				name: item?.display
-			}));
-		setListMentionData(filteredUserMentions || []);
-	}, 300);
+				const display = mention.display || '';
+				const username = mention.username || '';
+				const displayLower = display.toLowerCase();
+				const usernameLower = username.toLowerCase();
+				const displayNorm = removeDiacritics(displayLower);
+				const usernameNorm = removeDiacritics(usernameLower);
+
+				const score =
+					displayLower === searchLower || usernameLower === searchLower
+						? 2000
+						: displayLower.startsWith(searchLower) || usernameLower.startsWith(searchLower)
+							? 1900
+							: displayLower.includes(searchLower) || usernameLower.includes(searchLower)
+								? 1500
+								: displayNorm === searchNorm || usernameNorm === searchNorm
+									? 1000
+									: displayNorm.startsWith(searchNorm) || usernameNorm.startsWith(searchNorm)
+										? 900
+										: displayNorm.includes(searchNorm) || usernameNorm.includes(searchNorm)
+											? 500
+											: 0;
+
+				if (score > 0) {
+					acc.push({ ...mention, score, len: display.length, name: display });
+				}
+				return acc;
+			}, [])
+			.sort((a, b) => b.score - a.score || a.len - b.len || a.display.localeCompare(b.display))
+			.map(({ score, len, ...item }) => item);
+	}, [listMentions, keyword, isEphemeralMode]);
 
 	useEffect(() => {
-		filterMentionList();
-	}, [keyword, listMentions]);
+		if (filteredMentions !== listMentionData) {
+			LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
+			setListMentionData(filteredMentions);
+		}
+	}, [filteredMentions]);
 
 	const handleSuggestionPress = (user: MentionDataProps) => {
 		onSelect(user as MentionDataProps);

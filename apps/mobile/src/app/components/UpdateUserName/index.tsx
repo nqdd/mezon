@@ -11,6 +11,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
+import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { ErrorInput } from '../ErrorInput';
 import { style } from './styles';
 
@@ -23,6 +24,7 @@ const UpdateUserName = () => {
 	const userProfile = useSelector(selectAllAccount);
 	const { updateUser } = useAccount();
 	const dispatch = useAppDispatch();
+	const isTabletLandscape = useTabletLandscape();
 
 	const { t } = useTranslation(['common']);
 	const isFormValid = userName?.length >= 1;
@@ -85,7 +87,7 @@ const UpdateUserName = () => {
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<View style={[styles.content, isLandscape && { paddingTop: size.s_10 }]}>
+				<View style={[styles.content, isLandscape && isTabletLandscape && { paddingTop: size.s_10 }]}>
 					<Text style={styles.title}>{t('updateUsername.enterUsername')}</Text>
 					<Text style={styles.subtitle}>{t('updateUsername.usernamePlaceholder')}</Text>
 

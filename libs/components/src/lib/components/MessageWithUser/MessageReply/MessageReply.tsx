@@ -86,7 +86,7 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 			{message.references?.[0].message_ref_id ? (
 				<div className="rounded flex flex-row gap-1 items-center justify-start w-fit text-[14px] ml-9 mb-[-5px] replyMessage">
 					<Icons.ReplyCorner />
-					<div className="flex flex-row gap-1 pr-12 items-center w-full">
+					<div className="flex flex-row gap-1 pr-12 items-center w-full h-[33px] pb-[4px]">
 						<div onClick={onClick} className="w-5 h-5">
 							<AvatarImage
 								className="w-5 h-5"
