@@ -104,7 +104,7 @@
 			"description": "Nhập mã 6 chữ số mà chúng tôi đã gửi đến",
 			"verifyButton": "Xác nhận",
 			"success": "Cập nhật số điện thoại thành công",
-			"failed": "Mã OTP không đúng"
+			"failed": "Mã OTP không hợp lệ"
 		}
 	}
 }
