@@ -22,8 +22,9 @@
 </div>
 
 ---
-![Uploading image.png…]()
 
+## Mezon Bug Report Community
+[Mezon Bug Report Community](https://mezon.ai/invite/1840696977034055680)
 
 ## About Mezon
 
