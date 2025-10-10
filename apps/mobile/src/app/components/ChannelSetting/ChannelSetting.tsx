@@ -136,7 +136,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 	}, [channel]);
 
 	useEffect(() => {
-		setIsCheckValid(validInput(currentSettingValue?.channelName));
+		setIsCheckValid(validInput(currentSettingValue?.channelName, true));
 	}, [currentSettingValue?.channelName]);
 
 	const permissionMenu = useMemo(
@@ -351,11 +351,17 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 			children: (
 				<MezonConfirm
 					onConfirm={handleDeleteChannel}
-					title={t('confirm.delete.title')}
-					confirmText={t('confirm.delete.confirmText')}
-					content={t('confirm.delete.content', {
-						channelName: channel?.channel_label
-					})}
+					title={isChannel ? t('confirm.deleteChannel.title') : t('confirm.deleteThread.title')}
+					confirmText={isChannel ? t('confirm.deleteChannel.confirmText') : t('confirm.deleteThread.confirmText')}
+					content={
+						isChannel
+							? t('confirm.deleteChannel.content', {
+									channelName: channel?.channel_label
+								})
+							: t('confirm.deleteThread.content', {
+									channelName: channel?.channel_label
+								})
+					}
 				/>
 			)
 		};
@@ -366,15 +372,19 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 		<ScrollView style={styles.container}>
 			<View style={styles.inputWrapper}>
 				<MezonInput
-					label={t('fields.channelName.title')}
+					label={isChannel ? t('fields.channelName.title') : t('fields.threadName.title')}
 					value={currentSettingValue.channelName}
 					onTextChange={(text) => handleUpdateValue({ channelName: text })}
 					maxCharacter={64}
 					errorMessage={
 						isCheckDuplicateNameChannel
-							? t('channelCreator:fields.channelName.duplicateChannelName')
+							? isChannel
+								? t('channelSetting:fields.channelName.duplicateError')
+								: t('channelSetting:fields.threadName.duplicateError')
 							: !isCheckValid
-								? t('fields.channelName.errorMessage')
+								? isChannel
+									? t('channelSetting:fields.channelName.errorMessage')
+									: t('channelSetting:fields.threadName.errorMessage')
 								: ''
 					}
 					placeHolder={t('fields.channelName.placeholder')}
