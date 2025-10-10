@@ -715,12 +715,12 @@ type UpdateMessageArgs = {
 	mode: number;
 	badge_count: number;
 	message_time?: number;
-	forceUpdate?: boolean;
+	updateLast?: boolean;
 };
 
 export const updateLastSeenMessage = createAsyncThunk(
 	'messages/updateLastSeenMessage',
-	async ({ clanId, channelId, messageId, mode, badge_count, message_time, forceUpdate = false }: UpdateMessageArgs, thunkAPI) => {
+	async ({ clanId, channelId, messageId, mode, badge_count, message_time, updateLast = false }: UpdateMessageArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 			const now = Math.floor(Date.now() / 1000);
@@ -733,7 +733,7 @@ export const updateLastSeenMessage = createAsyncThunk(
 			}
 
 			const channelMessages = state.messages.channelMessages[channelId];
-			if (!channelMessages?.cache && !forceUpdate) {
+			if (!channelMessages?.cache && !updateLast) {
 				return;
 			}
 

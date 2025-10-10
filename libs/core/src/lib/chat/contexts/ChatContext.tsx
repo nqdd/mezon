@@ -425,7 +425,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 									messageId: mess?.id,
 									mode: mess.mode,
 									badge_count: 0,
-									forceUpdate: true
+									updateLast: true
 								})
 							);
 							dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp }));
