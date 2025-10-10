@@ -68,6 +68,7 @@ import {
 	selectCurrentUserId,
 	selectDataReferences,
 	selectDefaultChannelIdByClanId,
+	selectDirectById,
 	selectDmGroupCurrentId,
 	selectIsInCall,
 	selectLastMessageByChannelId,
@@ -407,24 +408,32 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							message.references?.at(0)?.message_sender_id !== userId
 						) {
 							dispatch(directMetaActions.setCountMessUnread({ channelId: message.channel_id, isMention: false }));
-							dispatch(directActions.addBadgeDirect({ channelId: message.channel_id as string }));
+							if (!mess.isMe) {
+								dispatch(directActions.addBadgeDirect({ channelId: message.channel_id as string }));
+							}
 						}
 					}
 
-					if (mess.isMe) {
+					if (mess.isMe && isNotCurrentDirect) {
+						const directReceiver = selectDirectById(store.getState(), mess?.channel_id);
 						// Mark as read if isMe send token
-						if (mess.code === TypeMessage.SendToken) {
+						if (
+							directReceiver &&
+							(directReceiver.type === ChannelType.CHANNEL_TYPE_DM || directReceiver.type === ChannelType.CHANNEL_TYPE_GROUP) &&
+							!directReceiver.count_mess_unread
+						) {
 							dispatch(
 								messagesActions.updateLastSeenMessage({
 									clanId: mess?.clan_id || '',
 									channelId: mess?.channel_id,
 									messageId: mess?.id,
 									mode: mess.mode,
-									badge_count: 0
+									badge_count: 0,
+									updateLast: true
 								})
 							);
+							dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp }));
 						}
-						dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp }));
 					}
 				} else {
 					if (mess.isMe) {
