@@ -24,7 +24,7 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 	}, [item?.parent_id]);
 
 	const isGroupDM = useMemo(() => item?.type === ChannelType.CHANNEL_TYPE_GROUP, [item?.type]);
-	const isAvatar = useMemo(() => item?.topic && !item?.topic?.includes('avatar-group.png'), [item?.topic]);
+	const isAvatar = useMemo(() => item?.channel_avatar && !item?.channel_avatar?.includes('avatar-group.png'), [item?.channel_avatar]);
 
 	const handleChooseItem = () => {
 		onChooseItem(item);
@@ -41,7 +41,7 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 		if (item?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			return {
 				name: item?.channel_label,
-				avatarUrl: item?.topic
+				avatarUrl: item?.channel_avatar
 			};
 		}
 

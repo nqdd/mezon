@@ -32,11 +32,6 @@ const ListOptionSearch = ({ onPressOption }: IListOptionSearchProps) => {
 			value: 'mention',
 			icon: <MezonIconCDN icon={IconCDN.atIcon} color={themeValue.text} width={20} height={20} />
 		}
-		// { title: ITypeOptionSearch.HAS, content: 'link, embed or file', value: 'attachment', icon: <LinkIcon /> },
-		// { title: ITypeOptionSearch.BEFORE, content: 'specific data', value: 'username', icon: <CalendarDayIcon /> },
-		// { title: ITypeOptionSearch.DURING, content: 'specific data', value: 'username' },
-		// { title: ITypeOptionSearch.AFTER, content: 'specific data', value: 'username', icon: <CalendarPlusIcon /> },
-		// { title: ITypeOptionSearch.PINED, content: 'true or false', value: 'username' }
 	];
 
 	return (

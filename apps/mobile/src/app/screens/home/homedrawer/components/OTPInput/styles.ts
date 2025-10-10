@@ -1,5 +1,5 @@
 import { size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const style = () =>
 	StyleSheet.create({
@@ -20,6 +20,7 @@ export const style = () =>
 			color: '#000000',
 			fontWeight: '600',
 			backgroundColor: '#ffffff',
+			paddingHorizontal: Platform.OS === 'ios' ? size.s_12 : 0,
 			borderWidth: 2
 		},
 		inputEmpty: {
