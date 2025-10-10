@@ -963,7 +963,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const isEditing = getIsEditing(messageId);
 				const previousMessageId = messageIds[index - 1];
 				const isPreviousMessageLastSeen =
-					previousMessageId && Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
+					lastMessageUnreadId && Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
 				const shouldShowUnreadBreak = isPreviousMessageLastSeen && entities[messageId]?.sender_id !== user?.user?.id;
 
 				return (
