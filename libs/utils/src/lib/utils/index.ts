@@ -45,6 +45,7 @@ import type {
 	UsersClanEntity
 } from '../types';
 import { EBacktickType, ETokenMessage, EUserStatus } from '../types';
+import { getDateLocale } from './dateI18n';
 import { Foreman } from './foreman';
 import { isMezonCdnUrl, isTenorUrl } from './urlSanitization';
 import { getPlatform } from './windowEnvironment';
@@ -177,8 +178,9 @@ export const uniqueUsers = (
 	return userIdsNotInChannel;
 };
 
-export const convertTimeMessage = (timestamp: number) => {
-	const textTime = formatDistanceToNowStrict(new Date(timestamp * 1000), { addSuffix: true });
+export const convertTimeMessage = (timestamp: number, languageCode = 'en') => {
+	const locale = getDateLocale(languageCode);
+	const textTime = formatDistanceToNowStrict(new Date(timestamp * 1000), { addSuffix: true, locale });
 	return textTime;
 };
 

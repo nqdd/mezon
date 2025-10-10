@@ -16,8 +16,13 @@ type ItemListPermissionProps = {
 const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>((props, ref) => {
 	const { onSelect, listPermission } = props;
 	const { t } = useTranslation('channelSetting');
+	const { t: tClanRoles } = useTranslation('clanRoles');
 	const listPermissionRoleChannel = useAppSelector((state) => selectAllPermissionRoleChannel(state, props.channelId));
 	const itemRefs = useRef<{ [key: string]: { reset: () => void } }>({});
+
+	const getPermissionTitle = (slug: string) => {
+		return tClanRoles(`permissionTitles.${slug}`, { defaultValue: '' });
+	};
 
 	useImperativeHandle(ref, () => ({
 		reset: () => {
@@ -42,7 +47,7 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 						<ItemPermission
 							key={item.id}
 							id={item.id}
-							title={item.title}
+							title={item.slug ? getPermissionTitle(item.slug) || item.title : item.title}
 							active={matchingRoleChannel?.active}
 							onSelect={onSelect}
 							ref={(el) => (itemRefs.current[item.id] = el!)}

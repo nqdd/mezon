@@ -183,5 +183,7 @@
 		"descNotAvailable": "To complete a transfer transaction, you need enable your wallet.",
 		"enableWallet": "Enable Wallet",
 		"cancel": "Cancel"
-	}
+	},
+	"creator": "Creator",
+	"viewTopic": "View topic"
 }

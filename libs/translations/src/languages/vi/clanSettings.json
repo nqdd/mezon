@@ -4,12 +4,13 @@
 		"deleteClan": "Xóa clan",
 		"sectionTitles": {
 			"apps": "Ứng dụng",
-			"moderation": "Kiểm duyệt"
+			"moderation": "Kiểm duyệt",
+			"emotions": "Cảm xúc"
 		},
 		"items": {
 			"overview": "Tổng quan",
 			"roles": "Vai trò",
-			"emoji": "Biểu tượng cảm xúc",
+			"emoji": "emoji",
 			"imageStickers": "Nhãn dán hình ảnh",
 			"voiceStickers": "Nhãn dán âm thanh",
 			"categoryOrder": "Thứ tự danh mục",
@@ -67,7 +68,7 @@
 	},
 	"emoji": {
 		"uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
-		"title": "Biểu tượng cảm xúc",
+		"title": "Emoji",
 		"description": "Thêm tối đa 250 emoji tùy chỉnh mà mọi người có thể sử dụng trong máy chủ này.",
 		"uploadRequirements": "YÊU CẦU TẢI LÊN",
 		"requirements": {

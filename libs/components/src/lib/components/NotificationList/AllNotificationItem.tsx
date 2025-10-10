@@ -12,6 +12,7 @@ import {
 } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNotificationJump } from '../../hooks/useNotificationJump';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import MessageAttachment from '../MessageWithUser/MessageAttachment';
@@ -47,6 +48,7 @@ function convertContentToObject(notify: any) {
 }
 
 function AllNotificationItem({ notify }: NotifyMentionProps) {
+	const { t } = useTranslation('channelTopbar');
 	const parseNotify = useMemo(() => convertContentToObject(notify), [notify]);
 	const messageId = parseNotify.content.message_id;
 	const channelId = parseNotify.content.channel_id;
@@ -94,10 +96,10 @@ function AllNotificationItem({ notify }: NotifyMentionProps) {
 
 			{parseNotify.category === NotificationCategory.MENTIONS && (
 				<button
-					className="absolute py-1 px-2 bottom-[10px] z-50 right-3 text-[10px] rounded-lg border-theme-primary transition-all duration-300 group-hover:block hidden"
+					className="absolute py-1 px-2 bottom-[10px] z-50 right-3 text-[10px] rounded-lg border-theme-primary transition-all duration-300 group-hover:block hidden bg-item-theme"
 					onClick={handleClickJump}
 				>
-					Jump
+					{t('tooltips.jump')}
 				</button>
 			)}
 			{<AllTabContent {...allTabProps} />}
@@ -115,6 +117,7 @@ interface IMentionTabContent {
 }
 
 function AllTabContent({ message, subject, category, senderId }: IMentionTabContent) {
+	const { t } = useTranslation('channelTopbar');
 	const contentUpdatedMention = addMention(message?.content, message?.mentions as IMentionOnMessage[]);
 	const { priorityAvatar } = useGetPriorityNameFromUserClan(message.sender_id);
 
@@ -186,7 +189,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 									</div>
 								</div>
 							) : (
-								'direct message'
+								t('directMessage')
 							)
 						) : category === NotificationCategory.MESSAGES ? (
 							clan?.clan_name

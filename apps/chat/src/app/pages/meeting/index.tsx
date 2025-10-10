@@ -15,6 +15,7 @@ import {
 } from '@mezon/store';
 import { GUEST_NAME, IS_MOBILE } from '@mezon/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -63,6 +64,7 @@ const PermissionsPopup = React.memo(({ onClose }: { onClose: () => void }) => {
 });
 
 export default function PreJoinCalling() {
+	const { t } = useTranslation('common');
 	const [cameraOn, setCameraOn] = useState(false);
 	const [username, setUsername] = useState('');
 	const [avatar, setAvatar] = useState('');
@@ -93,7 +95,7 @@ export default function PreJoinCalling() {
 			const decoded = atob(payload);
 			return JSON.parse(decoded);
 		} catch (error) {
-			toast.error('Invalid JWT');
+			toast.error(t('invalidJWT'));
 			return {};
 		}
 	}
