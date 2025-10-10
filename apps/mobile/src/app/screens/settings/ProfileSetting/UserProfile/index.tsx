@@ -76,7 +76,7 @@ const UserProfile = forwardRef(function UserProfile({ navigation }: IUserProfile
 			dispatch(appActions.setLoadingMainMobile(false));
 			if (response && response?.status !== 400) {
 				Toast.show({
-					type: 'info',
+					type: 'success',
 					text1: t('updateProfileSuccess')
 				});
 				navigation.goBack();

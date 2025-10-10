@@ -209,7 +209,7 @@ export default function CategoryMenu({ category }: ICategoryMenuProps) {
 			onPress: () => {
 				Clipboard.setString(category?.category_id);
 				Toast.show({
-					type: 'info',
+					type: 'success',
 					text1: t('notify.serverIDCopied')
 				});
 			}

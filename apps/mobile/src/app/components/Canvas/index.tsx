@@ -72,7 +72,7 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 	const handleCopyLink = useCallback((canvasId: string) => {
 		Clipboard.setString(process.env.NX_CHAT_APP_REDIRECT_URI + `/chat/clans/${clanId}/channels/${channelId}/canvas/${canvasId}`);
 		Toast.show({
-			type: 'info',
+			type: 'success',
 			text1: 'Copied canvas link to clipboard'
 		});
 	}, []);

@@ -10,11 +10,11 @@ import { Bubble } from './Bubble';
 const WrapperIcon = ({ children }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const defaultLeadingIcon = <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.bgDanger} />;
+	const defaultLeadingIcon = <MezonIconCDN icon={IconCDN.circleExlaimionIcon} color={baseColor.bgDanger} />;
 	return <View style={styles.iconWrapper}>{children || defaultLeadingIcon}</View>;
 };
 
-export const ToastSuccess = memo((props: ToastConfigParams<any>) => {
+export const ToastError = memo((props: ToastConfigParams<any>) => {
 	const { text1Style, text2Style, props: data, text1, text2 } = props;
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -24,16 +24,16 @@ export const ToastSuccess = memo((props: ToastConfigParams<any>) => {
 
 	return (
 		<View
-			style={[
-				styles.toastWrapper,
-				{
-					backgroundColor: '#b6e1c6'
-				}
-			]}
+			style={{
+				borderRadius: 20,
+				overflow: 'hidden',
+				width: '90%',
+				backgroundColor: '#efc3ca'
+			}}
 		>
-			<Bubble size={size.s_60} position={{ left: -size.s_20, top: -size.s_20 }} color={'#90ddb1'} />
-			<Bubble size={size.s_30} position={{ left: size.s_20, bottom: -size.s_20 }} color={'#90ddb1'} />
-			<Bubble size={size.s_10} position={{ left: size.s_60, bottom: size.s_20 }} color={'#90ddb1'} />
+			<Bubble size={size.s_60} position={{ left: -size.s_20, top: -size.s_20 }} color={'#e69ca0'} />
+			<Bubble size={size.s_30} position={{ left: size.s_20, bottom: -size.s_20 }} color={'#e69ca0'} />
+			<Bubble size={size.s_10} position={{ left: size.s_60, bottom: size.s_20 }} color={'#e69ca0'} />
 			<BaseToast
 				style={[containerStyle]}
 				contentContainerStyle={{ paddingHorizontal: size.s_20 }}
@@ -41,7 +41,7 @@ export const ToastSuccess = memo((props: ToastConfigParams<any>) => {
 				text2Style={[styles.descriptionBaseStyle, text2Style]}
 				text1={text1Content}
 				text2={text2Content}
-				text2NumberOfLines={1}
+				text2NumberOfLines={2}
 				text1NumberOfLines={!text2Content ? 2 : 1}
 				renderLeadingIcon={() => <WrapperIcon>{data?.leadingIcon}</WrapperIcon>}
 				renderTrailingIcon={() => <View style={{ marginRight: -size.s_30 }}></View>}

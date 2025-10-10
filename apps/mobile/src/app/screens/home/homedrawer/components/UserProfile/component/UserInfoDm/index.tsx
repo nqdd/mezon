@@ -41,7 +41,7 @@ export default function UserInfoDm({
 					throw new Error('removeMemberChannel failed');
 				} else {
 					Toast.show({
-						type: 'info',
+						type: 'success',
 						text1: t('userInfoDM.menu.removeSuccess')
 					});
 					dispatch(directActions.fetchDirectMessage({ noCache: true }));
@@ -49,7 +49,7 @@ export default function UserInfoDm({
 			} catch (error) {
 				console.error('Error removing member from channel:', error);
 				Toast.show({
-					type: 'info',
+					type: 'error',
 					text1: t('userInfoDM.menu.removeFailed')
 				});
 			}

@@ -171,7 +171,7 @@ export function useImage() {
 				isShowSuccessToast &&
 					Toast.show({
 						text1: 'Save successfully',
-						type: 'info'
+						type: 'success'
 					});
 			} catch (err) {
 				Toast.show({
