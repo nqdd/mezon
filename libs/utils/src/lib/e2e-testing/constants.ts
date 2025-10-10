@@ -97,7 +97,8 @@ export const DATA_E2E_IDENTIFIER = {
 				add_clan: '',
 				add_channel: '',
 				events: '',
-				members: ''
+				members: '',
+				channels: ''
 			},
 			panel: {
 				category_panel: '',
@@ -315,6 +316,10 @@ export const DATA_E2E_IDENTIFIER = {
 					join_voice: ''
 				}
 			}
+		},
+		channel_management: {
+			total_channels: '',
+			channel_item: ''
 		}
 	},
 	channel_setting_page: {
