@@ -96,7 +96,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 				})
 			);
 		}
-	}, [directMessage, id]);
+	}, [directMessage, id, currentDmGroupId]);
 
 	return (
 		<div

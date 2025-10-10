@@ -335,7 +335,7 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 }
 
 export function normalizeSearchString(str: string): string {
-	return normalizeString(str).replace('-', ' ').replace('_', ' ').replace('+', ' ');
+	return normalizeString(str).replace(/-/g, ' ').replace(/_/g, ' ').replace(/\+/g, ' ');
 }
 
 export function normalizeString(str: string): string {
@@ -349,14 +349,12 @@ export function normalizeString(str: string): string {
 
 export function searchMentionsHashtag(searchValue: string, list: MentionDataProps[]) {
 	if (!searchValue) return list;
-	// Normalize and remove diacritical marks from the search value
-	const normalizedSearchValue = normalizeString(searchValue).toUpperCase();
+	const normalizedSearchValue = normalizeSearchString(searchValue);
 	const filteredList: MentionDataProps[] = list.filter((mention) => {
-		const displayNormalized = normalizeString(mention.display ?? '').toUpperCase();
-		const usernameNormalized = normalizeString(mention.username ?? '').toUpperCase();
+		const displayNormalized = normalizeSearchString(mention.display ?? '');
+		const usernameNormalized = normalizeSearchString(mention.username ?? '');
 		return displayNormalized.includes(normalizedSearchValue) || usernameNormalized.includes(normalizedSearchValue);
 	});
-	// Sort the filtered list
 	const sortedList = filteredList.sort((a, b) => compareObjects(a, b, normalizedSearchValue, 'display', 'display'));
 	return sortedList;
 }
@@ -472,7 +470,6 @@ export function filterListByName(listSearch: SearchItemProps[], searchText: stri
 			const itemName = item.name ? normalizeSearchString(item.name) : '';
 			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
 			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
-
 			return (
 				prioritizeName.includes(searchUpper) ||
 				itemName.includes(searchUpper) ||
