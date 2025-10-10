@@ -138,7 +138,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 	const isChannel = message.mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 
 	return (
-		<div className="flex flex-col p-2 bg-item-theme rounded-lg ">
+		<div className="flex flex-col p-2 bg-item-theme rounded-lg overflow-hidden">
 			{checkMessageHasReply && (
 				<div className="max-w-full overflow-hidden">
 					<MessageReply message={message} />
@@ -148,7 +148,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 			<div className="flex flex-row items-start p-1 w-full gap-4 rounded-lg ">
 				<AvatarImage
 					alt="user avatar"
-					className="w-10 h-10 min-w-10"
+					className="w-10 h-10 min-w-10 flex-shrink-0"
 					username={message?.username}
 					srcImgProxy={createImgproxyUrl((priorityAvatar ? priorityAvatar : message.avatar || user?.avatar_url) ?? '', {
 						width: 300,
@@ -158,7 +158,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 					src={priorityAvatar ? priorityAvatar : message.avatar || user?.avatar_url}
 				/>
 
-				<div className="h-full w-full">
+				<div className="h-full w-full min-w-0 flex-1">
 					<div className="flex flex-col gap-[2px] text-[12px] font-bold ">
 						{category === NotificationCategory.MENTIONS ? (
 							clan?.clan_name ? (
@@ -195,7 +195,7 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 						)}
 					</div>
 					{category === NotificationCategory.MENTIONS || category === NotificationCategory.MESSAGES ? (
-						<div className="w-[85%]">
+						<div className="w-[85%] max-w-[85%]">
 							<MessageHead message={message} mode={ChannelStreamMode.STREAM_MODE_CHANNEL} />
 							<MessageLine
 								messageId={message.message_id}
@@ -205,11 +205,15 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 								isJumMessageEnabled={false}
 							/>
 							{Array.isArray(message.attachments) && (
-								<MessageAttachment
-									mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
-									message={message}
-									defaultMaxWidth={TOPBARS_MAX_WIDTH}
-								/>
+								<div className="max-h-[200px] overflow-hidden">
+									<div style={{ transform: 'scale(0.7)', transformOrigin: 'top left' }}>
+										<MessageAttachment
+											mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
+											message={message}
+											defaultMaxWidth={TOPBARS_MAX_WIDTH}
+										/>
+									</div>
+								</div>
 							)}
 						</div>
 					) : (
