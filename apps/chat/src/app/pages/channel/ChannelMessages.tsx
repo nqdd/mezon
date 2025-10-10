@@ -194,7 +194,7 @@ function ChannelMessages({
 		};
 	}, []);
 
-	useSyncEffect(() => {
+	useEffect(() => {
 		dispatch(
 			channelsActions.setScrollDownVisibility({
 				channelId,
