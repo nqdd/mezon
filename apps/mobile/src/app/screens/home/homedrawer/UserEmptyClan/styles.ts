@@ -40,8 +40,8 @@ export const styles = StyleSheet.create({
 		width: '100%',
 		padding: size.s_10,
 		backgroundColor: 'transparent',
-		borderWidth: 2,
-		borderColor: '#323232',
+		borderWidth: 1,
+		borderColor: 'rgba(50,50,50,0.5)',
 		borderRadius: size.s_50
 	},
 	textCreateClan: {

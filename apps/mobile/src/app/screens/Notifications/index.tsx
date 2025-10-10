@@ -103,7 +103,10 @@ const Notifications = () => {
 	}, [selectedTabs, sortedNotifications, getAllTopic]);
 
 	const initLoader = useCallback(async () => {
-		if (!currentClanId) return;
+		if (!currentClanId) {
+			setFirstLoading(false);
+			return;
+		}
 
 		const store = await getStoreAsync();
 		await Promise.all([
@@ -338,6 +341,8 @@ const Notifications = () => {
 		if (currentClanId && currentClanId !== '0') {
 			initLoader();
 			setIsLoadMore(true);
+		} else {
+			setFirstLoading(false);
 		}
 	}, [currentClanId, initLoader]);
 
