@@ -740,6 +740,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
 
 					if (isAtBottom) {
+						onChange(LoadMoreDirection.Forwards);
 						const store = getStore();
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
 						if (hasMoreBottom) return;
@@ -751,8 +752,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 								isVisible: false
 							})
 						);
-
-						onChange(LoadMoreDirection.Forwards);
 						return;
 					}
 
@@ -1060,7 +1059,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					}}
 					ref={chatRef}
 					className={classNames([
-						'thread-scroll',
+						'messages-scroll',
 						'w-full',
 						{
 							customScrollLightMode: appearanceTheme === 'light'
