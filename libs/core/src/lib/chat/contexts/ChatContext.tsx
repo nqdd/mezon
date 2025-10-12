@@ -1135,12 +1135,26 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
+			if (statusEvent.status) {
+				dispatch(
+					channelMembersActions.setCustomStatusUser({
+						userId: statusEvent.user_id,
+						status: statusEvent.status
+					})
+				);
+			}
+
 			dispatch(
-				channelMembersActions.setCustomStatusUser({
-					userId: statusEvent.user_id,
-					status: statusEvent.status
-				})
+				statusActions.updateMany([
+					{
+						id: statusEvent.user_id,
+						changes: {
+							user_status: statusEvent.status
+						}
+					}
+				])
 			);
+
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
