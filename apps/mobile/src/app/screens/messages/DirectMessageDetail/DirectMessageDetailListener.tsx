@@ -1,7 +1,7 @@
 import { ChatContext, MobileEventEmitter } from '@mezon/core';
 import { ActionEmitEvent, STORAGE_CLAN_ID, STORAGE_IS_LAST_ACTIVE_TAB_DM, load, save } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { clansActions, directActions, selectDmGroupCurrentId, sleep, useAppDispatch } from '@mezon/store-mobile';
+import { clansActions, directActions, fetchUserChannels, selectDmGroupCurrentId, sleep, useAppDispatch } from '@mezon/store-mobile';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
@@ -36,6 +36,14 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 
 	const directMessageLoader = useCallback(async () => {
 		save(STORAGE_IS_LAST_ACTIVE_TAB_DM, 'true');
+		if (dmType === ChannelType.CHANNEL_TYPE_GROUP) {
+			dispatch(
+				fetchUserChannels({
+					channelId: directMessageId,
+					isGroup: true
+				})
+			);
+		}
 		await dispatch(
 			directActions.joinDirectMessage({
 				directMessageId,

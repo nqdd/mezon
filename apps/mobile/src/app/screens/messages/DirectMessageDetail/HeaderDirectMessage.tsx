@@ -205,7 +205,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		}
 		dispatch(DMCallActions.removeAll());
 		const params = {
-			receiverId: currentDmGroup?.user_ids?.[0],
+			receiverId: currentDmGroup?.user_id?.[0] || currentDmGroup?.user_ids?.[0],
 			receiverAvatar: dmAvatar,
 			receiverName: dmLabel,
 			directMessageId,

@@ -1,6 +1,6 @@
 import { auditLogFilterActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { UserAuditLog } from '@mezon/utils';
+import { generateE2eId, UserAuditLog } from '@mezon/utils';
 
 export type ModalExitProps = {
 	onClose: () => void;
@@ -26,6 +26,7 @@ const ExitSetting = (props: ModalExitProps) => {
 					<div
 						onClick={handleClose}
 						className="rounded-full p-[10px] border-theme-primary bg-button-secondary bg-secondary-button-hover cursor-pointer"
+						data-e2e={generateE2eId('user_setting.account.exit_setting')}
 					>
 						<Icons.CloseButton className="w-4" />
 					</div>

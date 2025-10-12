@@ -221,6 +221,7 @@ const LocationModal = (props: LocationModalProps) => {
 						onChange={onChangeAddress}
 						placeholder={t('fields.address.placeholder')}
 						className={`font-[400] rounded w-full  outline-none text-[15px] border border-theme-primary px-4 py-3 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
+						data-e2e={generateE2eId('clan_page.modal.create_event.location.input')}
 					/>
 				</div>
 			)}

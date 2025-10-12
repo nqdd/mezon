@@ -35,6 +35,7 @@ import Backdrop from '../../../components/BottomSheetRootListener/backdrop';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useImage } from '../../../hooks/useImage';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
+import { removeDiacritics } from '../../../utils/helpers';
 import { Sharing } from '../../settings/Sharing';
 import { style } from './styles';
 
@@ -285,22 +286,10 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		BottomSheetRef?.current?.present();
 	};
 
-	const snapPoints = useMemo(() => {
-		return ['70%', '90%'];
-	}, []);
-
 	const handleSelectUser = (item: Receiver) => {
 		setSelectedUser(item);
 		BottomSheetRef?.current?.dismiss();
 	};
-
-	// Remove Vietnamese diacritics
-	const removeDiacritics = (str) =>
-		str
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.replace(/đ/g, 'd')
-			.replace(/Đ/g, 'D');
 
 	const filteredUsers = useMemo(() => {
 		if (!searchText.trim()) return mergeUser;
