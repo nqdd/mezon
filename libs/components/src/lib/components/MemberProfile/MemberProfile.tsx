@@ -37,7 +37,7 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 				avatar_url: user?.user?.avatar_url
 			}
 		};
-		onContextMenu(event, currentDmGroup.channel_id || '', userTemplate);
+		onContextMenu(event, currentDmGroup?.channel_id || '', userTemplate);
 	};
 
 	const isOffline = userMeta?.status === EUserStatus.INVISIBLE || !userMeta?.online;

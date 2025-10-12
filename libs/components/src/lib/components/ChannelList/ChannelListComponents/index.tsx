@@ -173,7 +173,9 @@ export const Events = memo(() => {
 								<Icons.ChannelBrowser />
 							</div>
 						</div>
-						<div className="w-full text-base font-medium">{t('navigation.channels')}</div>
+						<div className="w-full text-base font-medium" data-e2e={generateE2eId('clan_page.side_bar.button.channels')}>
+							{t('navigation.channels')}
+						</div>
 					</div>
 				</Link>
 			) : null}
