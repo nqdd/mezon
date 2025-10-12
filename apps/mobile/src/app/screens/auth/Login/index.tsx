@@ -45,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLandscape, setIsLandscape] = useState(false);
-	const [loginMode, setLoginMode] = useState<LoginMode>('otp');
+	const [loginMode, setLoginMode] = useState<LoginMode>('sms');
 	const [lastOTPSentTime, setLastOTPSentTime] = useState<{ [email: string]: number }>({});
 	const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
 	const isTabletLandscape = useTabletLandscape();
@@ -494,7 +494,6 @@ const LoginScreen = ({ navigation }) => {
 							<TouchableOpacity onPress={loginMode === 'otp' ? () => handleSMSLogin() : () => switchToOTPMode()}>
 								<Text style={styles.linkText}>{loginMode === 'otp' ? t('login.loginWithSMS') : t('login.loginWithEmailOTP')}</Text>
 							</TouchableOpacity>
-							<Text style={styles.orText}>{t('login.or')}</Text>
 							<TouchableOpacity onPress={loginMode !== 'password' ? switchToPasswordMode : handleSMSLogin}>
 								<Text style={styles.linkText}>
 									{loginMode !== 'password' ? t('login.loginWithPassword') : t('login.loginWithSMS')}

@@ -219,7 +219,7 @@ const ChannelMessages = React.memo(
 
 		const onLoadMore = useCallback(
 			async (direction: ELoadMoreDirection) => {
-				if (messages?.length < LIMIT_MESSAGE - 10 || idMessageToJump?.id) return;
+				if (messages?.length < 10 || idMessageToJump?.id) return;
 				try {
 					if (direction === ELoadMoreDirection.top) {
 						const canLoadMore = await isCanLoadMore(ELoadMoreDirection.top);
@@ -353,6 +353,7 @@ const ChannelMessages = React.memo(
 						handleScroll={handleScroll}
 						renderItem={renderItem}
 						onLoadMore={onLoadMore}
+						isLoadMoreBottom={isLoadMore?.current?.[ELoadMoreDirection.bottom]}
 					/>
 				) : (
 					<View />
