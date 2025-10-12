@@ -34,7 +34,7 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 		if (item?.type === ChannelType.CHANNEL_TYPE_DM) {
 			return {
 				name: item?.channel_label,
-				avatarUrl: item?.channel_avatar?.[0]
+				avatarUrl: item?.avatars?.[0]
 			};
 		}
 

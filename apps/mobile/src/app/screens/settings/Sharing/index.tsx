@@ -162,29 +162,33 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	}, []);
 
 	const sendToDM = async (dataSend: { text: any; links: any[] }) => {
-		const store = await getStoreAsync();
-		await store.dispatch(
-			channelsActions.joinChat({
-				clanId: channelSelected?.clan_id,
-				channelId: channelSelected?.channel_id,
-				channelType: channelSelected?.type,
-				isPublic: false
-			})
-		);
+		try {
+			const store = await getStoreAsync();
+			await store.dispatch(
+				channelsActions.joinChat({
+					clanId: channelSelected?.clan_id,
+					channelId: channelSelected?.channel_id,
+					channelType: channelSelected?.type,
+					isPublic: false
+				})
+			);
 
-		await mezon.socketRef.current.writeChatMessage(
-			'0',
-			channelSelected?.id,
-			Number(channelSelected?.user_id?.length) === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
-			false,
-			{
-				t: dataSend.text,
-				mk: dataSend.links || []
-			},
-			[],
-			getAttachmentUnique(attachmentUpload) || [],
-			[]
-		);
+			await mezon.socketRef.current.writeChatMessage(
+				'0',
+				channelSelected?.id,
+				Number(channelSelected?.user_ids?.length) === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
+				false,
+				{
+					t: dataSend.text,
+					mk: dataSend.links || []
+				},
+				[],
+				getAttachmentUnique(attachmentUpload) || [],
+				[]
+			);
+		} catch (e) {
+			Toast.show({ type: 'error', text1: e?.message });
+		}
 	};
 
 	const sendToGroup = async (dataSend: { text: any; links: any[] }) => {
@@ -421,7 +425,12 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				setAttachmentUpload(response);
 				setAttachmentPreview((prev) =>
 					prev.map((p) => {
-						const matched = response.find((r: any) => r?.filename === p?.filename || r?.name === p?.filename || r?.url === p?.url);
+						const matched = response.find(
+							(r: any) =>
+								r?.filename?.toLowerCase() === p?.filename?.toLowerCase() ||
+								r?.name?.toLowerCase() === p?.filename?.toLowerCase() ||
+								r?.url?.toLowerCase() === p?.url?.toLowerCase()
+						);
 						return matched ? { ...p, isUploaded: true, url: matched?.url || p.url } : p;
 					})
 				);
