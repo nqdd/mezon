@@ -126,7 +126,6 @@ const getInitialClanState = () => {
 		favoriteChannels: [],
 		buzzState: {},
 		appFocused: {},
-		scrollOffset: {},
 		showScrollDownButton: {}
 	};
 };
@@ -1452,6 +1451,11 @@ export const channelsSlice = createSlice({
 				state.scrollPosition = {};
 			}
 
+			const currentPosition = state.scrollPosition[channelId];
+			if (currentPosition?.messageId === messageId && currentPosition?.offset === offset) {
+				return;
+			}
+
 			state.scrollPosition[channelId] = { messageId, offset };
 		},
 
@@ -1898,7 +1902,7 @@ export const selectScrollPositionByChannelId = createSelector(
 
 export const selectShowScrollDownButton = createSelector(
 	[getChannelsState, (state, channelId) => channelId],
-	(state, channelId) => state.showScrollDownButton?.[channelId] ?? 0
+	(state, channelId) => state.showScrollDownButton?.[channelId] ?? false
 );
 
 export const selectAllAppChannelsListShowOnPopUp = createSelector(getChannelsState, (state) => {
