@@ -13,6 +13,7 @@ interface IChannelListMessageProps {
 	handleScroll: (event) => void;
 	renderItem: ({ item }: { item: MessagesEntity }) => React.ReactElement;
 	onLoadMore: (direction: ELoadMoreDirection) => void;
+	isLoadMoreBottom: boolean;
 }
 
 export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolean }) => {
@@ -26,70 +27,72 @@ export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolea
 	);
 };
 
-const ChannelListMessage = React.memo(({ flatListRef, messages, handleScroll, renderItem, onLoadMore }: IChannelListMessageProps) => {
-	const { themeValue } = useTheme();
-	const styles = style(themeValue);
+const ChannelListMessage = React.memo(
+	({ flatListRef, messages, handleScroll, renderItem, onLoadMore, isLoadMoreBottom }: IChannelListMessageProps) => {
+		const { themeValue } = useTheme();
+		const styles = style(themeValue);
 
-	const keyExtractor = useCallback((message) => `${message?.id}_${message?.channel_id}`, []);
+		const keyExtractor = useCallback((message) => `${message?.id}_${message?.channel_id}`, []);
 
-	const isCannotLoadMore = useMemo(() => {
-		const lastMessage = messages?.[messages?.length - 1];
+		const isCannotLoadMore = useMemo(() => {
+			const lastMessage = messages?.[messages?.length - 1];
 
-		return lastMessage?.sender_id === '0' && !lastMessage?.content?.t && lastMessage?.username?.toLowerCase() === 'system';
-	}, [messages]);
+			return lastMessage?.sender_id === '0' && !lastMessage?.content?.t && lastMessage?.username?.toLowerCase() === 'system';
+		}, [messages]);
 
-	const handleEndReached = () => {
-		if (messages?.length && !isCannotLoadMore) {
-			onLoadMore(ELoadMoreDirection.top);
-		}
-	};
-	return (
-		<FlatList
-			data={messages}
-			renderItem={renderItem}
-			keyExtractor={keyExtractor}
-			inverted={true}
-			showsVerticalScrollIndicator={true}
-			contentContainerStyle={styles.listChannels}
-			initialNumToRender={5}
-			maxToRenderPerBatch={10}
-			windowSize={10}
-			onEndReachedThreshold={0.7}
-			maintainVisibleContentPosition={{
-				minIndexForVisible: 0,
-				autoscrollToTopThreshold: 10
-			}}
-			ref={flatListRef}
-			// overrideProps={{ isInvertedVirtualizedList: true }}
-			onMomentumScrollEnd={handleScroll}
-			keyboardShouldPersistTaps={'handled'}
-			// removeClippedSubviews={false}
-			// decelerationRate={'fast'}
-			// updateCellsBatchingPeriod={100}
-			onEndReached={handleEndReached}
-			// scrollEventThrottle={16}
-			// estimatedItemSize={220}
-			onScrollBeginDrag={() => {
-				Keyboard.dismiss();
-			}}
-			viewabilityConfig={{
-				minimumViewTime: 0,
-				viewAreaCoveragePercentThreshold: 0,
-				itemVisiblePercentThreshold: 0,
-				waitForInteraction: false
-			}}
-			contentInsetAdjustmentBehavior="automatic"
-			onScrollToIndexFailed={(info) => {
-				const wait = new Promise((resolve) => setTimeout(resolve, 200));
-				if (info?.highestMeasuredFrameIndex < info?.index && info?.index <= messages?.length) {
-					flatListRef.current?.scrollToIndex({ index: info.highestMeasuredFrameIndex, animated: true });
-					wait.then(() => {
-						flatListRef.current?.scrollToIndex({ index: info?.index, animated: true });
-					});
-				}
-			}}
-			disableVirtualization
-		/>
-	);
-});
+		const handleEndReached = () => {
+			if (messages?.length && !isCannotLoadMore) {
+				onLoadMore(ELoadMoreDirection.top);
+			}
+		};
+		return (
+			<FlatList
+				data={messages}
+				renderItem={renderItem}
+				keyExtractor={keyExtractor}
+				inverted={true}
+				showsVerticalScrollIndicator={true}
+				contentContainerStyle={styles.listChannels}
+				initialNumToRender={5}
+				maxToRenderPerBatch={10}
+				windowSize={10}
+				onEndReachedThreshold={0.7}
+				maintainVisibleContentPosition={{
+					minIndexForVisible: 0,
+					autoscrollToTopThreshold: isLoadMoreBottom ? undefined : 10
+				}}
+				ref={flatListRef}
+				// overrideProps={{ isInvertedVirtualizedList: true }}
+				onMomentumScrollEnd={handleScroll}
+				keyboardShouldPersistTaps={'handled'}
+				// removeClippedSubviews={false}
+				// decelerationRate={'fast'}
+				// updateCellsBatchingPeriod={100}
+				onEndReached={handleEndReached}
+				// scrollEventThrottle={16}
+				// estimatedItemSize={220}
+				onScrollBeginDrag={() => {
+					Keyboard.dismiss();
+				}}
+				viewabilityConfig={{
+					minimumViewTime: 0,
+					viewAreaCoveragePercentThreshold: 0,
+					itemVisiblePercentThreshold: 0,
+					waitForInteraction: false
+				}}
+				contentInsetAdjustmentBehavior="automatic"
+				onScrollToIndexFailed={(info) => {
+					const wait = new Promise((resolve) => setTimeout(resolve, 200));
+					if (info?.highestMeasuredFrameIndex < info?.index && info?.index <= messages?.length) {
+						flatListRef.current?.scrollToIndex({ index: info.highestMeasuredFrameIndex, animated: true, viewPosition: 0.5 });
+						wait.then(() => {
+							flatListRef.current?.scrollToIndex({ index: info?.index, animated: true, viewPosition: 0.5 });
+						});
+					}
+				}}
+				disableVirtualization
+			/>
+		);
+	}
+);
 export default ChannelListMessage;

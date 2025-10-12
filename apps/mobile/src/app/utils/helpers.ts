@@ -1,6 +1,5 @@
 import { load, save, STORAGE_KEY_TEMPORARY_INPUT_MESSAGES, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
 import { EmojiDataOptionals } from '@mezon/utils';
-import { safeJSONParse } from 'mezon-js';
 import { deflate, inflate } from 'react-native-gzip';
 
 export const sleep = (milliseconds: number) => {
@@ -130,4 +129,13 @@ export const compress = async (str: string) => {
 
 export const decompress = async (compressedStr: string) => {
 	return await inflate(compressedStr);
+};
+
+export const removeDiacritics = (str) => {
+	if (!str) return '';
+	return str
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/đ/g, 'd')
+		.replace(/Đ/g, 'D');
 };

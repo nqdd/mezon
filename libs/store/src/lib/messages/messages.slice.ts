@@ -992,6 +992,12 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
+			thunkAPI.dispatch(
+				channelsActions.setScrollPosition({
+					channelId,
+					messageId: undefined
+				})
+			);
 			await sendWithRetry(1);
 
 			if (!isViewingOlderMessages) {
@@ -1100,12 +1106,21 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const viewportIds = selectViewportIdsByChannelId(state, channelId);
 
 	let shouldSetViewingOlder = isViewingOlderMessages;
-
 	let needsRebalance = false;
 
 	if (scrollPosition?.messageId && viewportIds?.length > 0) {
 		const scrollMessageIndex = viewportIds.indexOf(scrollPosition.messageId);
-		if (scrollMessageIndex !== -1) {
+
+		if (scrollMessageIndex === -1) {
+			const allMessageIds = state.messages.channelMessages[channelId]?.ids as string[];
+			const messageExistsInChannel = allMessageIds?.includes(scrollPosition.messageId);
+
+			if (!messageExistsInChannel) {
+				thunkAPI.dispatch(channelsActions.clearScrollPosition({ clanId: '', channelId }));
+			} else {
+				shouldSetViewingOlder = true;
+			}
+		} else {
 			const distanceFromBottom = viewportIds.length - scrollMessageIndex - 1;
 			const distanceFromTop = scrollMessageIndex;
 
@@ -2095,6 +2110,9 @@ const handleRemoveOneMessage = ({ state, channelId, messageId }: { state: Messag
 			}
 		}
 	}
+
+	// handle remove setScrollPosition
+
 	if (Array.isArray(state.channelViewPortMessageIds[channelId])) {
 		state.channelViewPortMessageIds[channelId] = state.channelViewPortMessageIds[channelId].filter((item) => item !== messageId);
 	}
