@@ -98,14 +98,6 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		}
 	};
 
-	//TODO: delete
-	const showUpdating = () => {
-		Toast.show({
-			type: 'info',
-			text1: 'Coming soon'
-		});
-	};
-
 	const handleSettingOption = (type: EAccountSettingType) => {
 		switch (type) {
 			case EAccountSettingType.UserName:
