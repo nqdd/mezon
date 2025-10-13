@@ -19,7 +19,7 @@ import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezo
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -77,12 +77,10 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const [isShowModalShare, setIsShowModalShare] = useState<boolean>(false);
 	const { saveImageToCameraRoll } = useImage();
 	const dispatch = useAppDispatch();
-	const { walletDetail } = useWallet();
 	const listDM = useMemo(() => {
 		const dmGroupChatList = selectDirectsOpenlist(store.getState() as any);
 		return dmGroupChatList.filter((groupChat) => groupChat.type === ChannelType.CHANNEL_TYPE_DM);
 	}, [store]);
-	const { enableWallet } = useWallet();
 
 	const viewToSnapshotRef = useRef<ViewShot>(null);
 	const [disableButton, setDisableButton] = useState<boolean>(false);
@@ -91,6 +89,13 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		return friends?.filter((user) => user.state === 0) || [];
 	}, []);
 	const canEdit = jsonObject?.canEdit;
+	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
+
+	useEffect(() => {
+		if (!isEnableWallet) {
+			showEnableWallet();
+		}
+	}, [isEnableWallet]);
 
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
@@ -167,8 +172,27 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		return directMessage?.id;
 	}, [jsonObject?.receiver_id, listDM, selectedUser?.id]);
 
+	const showEnableWallet = () => {
+		const data = {
+			children: (
+				<MezonConfirm
+					onConfirm={() => handleEnableWallet()}
+					title={tMsg('wallet.notAvailable')}
+					confirmText={tMsg('wallet.enableWallet')}
+					content={tMsg('wallet.descNotAvailable')}
+					onCancel={onCancelEnableWallet}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	};
+
 	const sendToken = async () => {
 		const store = await getStoreAsync();
+		if (!isEnableWallet) {
+			showEnableWallet();
+			return;
+		}
 		try {
 			if (!selectedUser && !jsonObject?.receiver_id) {
 				Toast.show({
@@ -209,18 +233,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			store.dispatch(appActions.setLoadingMainMobile(false));
 			setDisableButton(false);
 			if (res?.payload === 'Wallet not available') {
-				const data = {
-					children: (
-						<MezonConfirm
-							onConfirm={() => handleEnableWallet()}
-							title={tMsg('wallet.notAvailable')}
-							confirmText={tMsg('wallet.enableWallet')}
-							content={tMsg('wallet.descNotAvailable')}
-							onCancel={onCancelEnableWallet}
-						/>
-					)
-				};
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				showEnableWallet();
 				return;
 			}
 			if (res?.meta?.requestStatus === 'rejected' || !res) {
