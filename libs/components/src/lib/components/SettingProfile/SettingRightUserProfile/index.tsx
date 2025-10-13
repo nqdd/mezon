@@ -74,7 +74,8 @@ const SettingRightUser = ({
 
 	const handleUpdateUser = async () => {
 		if (name || urlImage || valueDisplayName || editAboutUser || dob) {
-			await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, userProfile?.logo || '');
+			const result = await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, userProfile?.logo || '');
+			if (result === true) handleSaveClose();
 			if (currentClanId && userProfile?.user?.id) {
 				await dispatch(
 					usersClanActions.updateUserDisplayName({
@@ -99,7 +100,6 @@ const SettingRightUser = ({
 		}
 	};
 
-	// Editor Avatar Profile//
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [imageObject, setImageObject] = useState<ImageSourceObject | null>(null);
 	const [imageCropped, setImageCropped] = useState<File | null>(null);
@@ -475,7 +475,6 @@ const SettingRightUser = ({
 							className=" btn-primary btn-primary-hover rounded-lg px-2 text-nowrap py-1  "
 							onClick={() => {
 								handleUpdateUser();
-								handleSaveClose();
 							}}
 							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
