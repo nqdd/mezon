@@ -10,7 +10,7 @@ export async function handleUploadCommunityBanner(client: Client, session: Sessi
 				const fileExtension = fileNameParts[fileNameParts.length - 1].toLowerCase();
 				fileType = `image/${fileExtension}`;
 			}
-			const buf = await file.arrayBuffer();
+			const buf = file.arrayBuffer();
 			resolve(uploadFile(client, session, filename, fileType, file.size, Buffer.from(buf)));
 		} catch (error) {
 			reject(new Error(`${error}`));
