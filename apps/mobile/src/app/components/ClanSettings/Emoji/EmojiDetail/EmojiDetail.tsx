@@ -74,7 +74,7 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 		} else if (!hasDeleteOrEditPermission && emojiName !== item.shortname?.split(':')?.join('')) {
 			setEmojiName(item.shortname?.split(':')?.join(''));
 			Toast.show({
-				type: 'info',
+				type: 'error',
 				text1: t('toast.reject')
 			});
 		} else if (emojiName !== item.shortname?.split(':')?.join('')) {
