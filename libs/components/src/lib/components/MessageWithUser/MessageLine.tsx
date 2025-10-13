@@ -353,7 +353,7 @@ export const MessageLine = ({
 								/>
 							);
 						} else if (!isCanvas && contentHasChannelLink) {
-							const channelFound = getTagByIdOnStored(channelId);
+							const channelFound = getTagByIdOnStored(clanId, channelId);
 							if (channelId && channelFound?.id) {
 								componentToRender = (
 									<ChannelHashtag
