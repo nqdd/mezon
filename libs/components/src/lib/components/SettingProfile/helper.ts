@@ -1,7 +1,7 @@
 import { toastActions } from '@mezon/store';
 import { handleUploadFile } from '@mezon/transport';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
-import { ApiAccount } from 'mezon-js/api.gen';
+import type { ApiAccount } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 
 export const processImage = async (
@@ -51,7 +51,9 @@ export const processImage = async (
 			clanId,
 			userProfile?.user?.id || '0',
 			imageAvatarResize.name,
-			imageAvatarResize
+			imageAvatarResize,
+			NaN,
+			true
 		);
 
 		if (isMounted) {
