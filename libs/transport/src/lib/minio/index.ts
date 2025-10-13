@@ -198,9 +198,9 @@ export async function uploadFile(
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<ApiMessageAttachment>(async function (resolve, reject) {
 		try {
-			let fn = client.uploadAttachmentFile;
+			let fn = client.uploadAttachmentFile.bind(client);
 			if (isOauth) {
-				fn = client.uploadOauthFile;
+				fn = client.uploadOauthFile.bind(client);
 			}
 			const data = await fn(session, {
 				filename,
