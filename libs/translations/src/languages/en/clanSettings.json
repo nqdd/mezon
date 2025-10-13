@@ -4,7 +4,8 @@
 		"deleteClan": "Delete clan",
 		"sectionTitles": {
 			"apps": "Apps",
-			"moderation": "Moderation"
+			"moderation": "Moderation",
+			"emotions": "Emotions"
 		},
 		"items": {
 			"overview": "Overview",

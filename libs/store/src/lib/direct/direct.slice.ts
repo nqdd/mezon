@@ -566,6 +566,7 @@ export const directSlice = createSlice({
 			const existingDirect = state.entities[channel_id];
 			const showE2EEToast = existingDirect && existingDirect.e2ee !== e2ee && notCurrentUser;
 			if (showE2EEToast) {
+				// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 				toast.info(existingDirect.usernames + (e2ee === 1 ? ' enabled E2EE' : ' disabled E2EE'), {
 					closeButton: true
 				});
@@ -766,12 +767,14 @@ export const directSlice = createSlice({
 				const channelId = action.meta.arg.channel_id;
 				state.updateDmGroupLoading[channelId] = false;
 				state.updateDmGroupError[channelId] = null;
+				// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 				toast.success('Group updated successfully!');
 			})
 			.addCase(updateDmGroup.rejected, (state: DirectState, action) => {
 				const channelId = action.meta.arg.channel_id;
 				state.updateDmGroupLoading[channelId] = false;
 				state.updateDmGroupError[channelId] = action.error.message || 'Failed to update group';
+				// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 				toast.error(action.error.message || 'Failed to update group');
 			});
 	}

@@ -94,8 +94,8 @@ export const RecentInteractiveSearch = React.memo(
 		);
 
 		const isGroupDMAvatar = useMemo(
-			() => selectedChannel?.topic && !selectedChannel?.topic?.includes('avatar-group.png'),
-			[selectedChannel?.topic]
+			() => selectedChannel?.channel_avatar && !selectedChannel?.channel_avatar?.includes('avatar-group.png'),
+			[selectedChannel?.channel_avatar]
 		);
 
 		const filterLabelMap: Record<FilterType, string> = useMemo(
@@ -241,7 +241,7 @@ export const RecentInteractiveSearch = React.memo(
 									)
 								) : (
 									<MezonAvatar
-										avatarUrl={selectedChannel?.channel_avatar?.[0] || clans?.[selectedChannel?.clan_id]?.logo}
+										avatarUrl={selectedChannel?.avatars?.[0] || clans?.[selectedChannel?.clan_id]?.logo}
 										username={clans?.[selectedChannel?.clan_id]?.clan_name || selectedChannel?.channel_label}
 										width={size.s_18}
 										height={size.s_18}

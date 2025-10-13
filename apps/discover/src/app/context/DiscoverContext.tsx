@@ -1,6 +1,7 @@
 import { Client } from 'mezon-js';
 import type { ApiClanDiscover, ApiClanDiscoverRequest } from 'mezon-js/api.gen';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { PAGINATION } from '../constants/constants';
@@ -30,6 +31,7 @@ const STORAGE_KEY = 'discover_clans';
 const CATEGORIES_STORAGE_KEY = 'discover_categories';
 
 export const DiscoverProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+	const { t } = useTranslation('common');
 	const location = useLocation();
 	const [clans, setClans] = useState<ApiClanDiscover[]>(() => {
 		const savedClans = localStorage.getItem(STORAGE_KEY);
@@ -79,7 +81,7 @@ export const DiscoverProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 			localStorage.setItem(STORAGE_KEY, JSON.stringify(newClans));
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'An error occurred');
-			toast.error('Cannot fetch clans, please try again later');
+			toast.error(t('cannotFetchClans'));
 		} finally {
 			setLoading(false);
 		}
@@ -110,7 +112,7 @@ export const DiscoverProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 			return clans.length > 0 ? clans[0] : null;
 		} catch (err) {
 			console.error('Failed to fetch single clan:', err);
-			toast.error('Cannot fetch clan, please try again later');
+			toast.error(t('cannotFetchClan'));
 			return null;
 		}
 	};
@@ -133,7 +135,7 @@ export const DiscoverProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
 	const handleCategorySelect = (category: string) => {
 		setSelectedCategory(category);
-		toast.info('Category filtering will be implemented soon!');
+		toast.info(t('categoryFilteringComingSoon'));
 	};
 
 	const value = {

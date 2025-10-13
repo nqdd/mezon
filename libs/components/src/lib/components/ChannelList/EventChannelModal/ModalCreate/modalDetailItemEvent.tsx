@@ -91,6 +91,7 @@ const ModalDetailItemEvent = (props?: ModalDetailItemEventProps) => {
 					<span
 						className="text-base leading-3 dark:hover:text-white hover:text-black mr-4 -mt-[14px] text-theme-primary-"
 						onClick={() => clearChooseEvent()}
+						data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.close_detail_modal')}
 					>
 						✕
 					</span>

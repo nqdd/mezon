@@ -4,6 +4,7 @@ import { IMessageWithUser, TOPBARS_MAX_WIDTH, convertTimeString, generateE2eId }
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { UnpinMessageObject } from '.';
 import BaseProfile from '../../../MemberProfile/BaseProfile';
@@ -19,6 +20,7 @@ type ItemPinMessageProps = {
 };
 
 const ItemPinMessage = (props: ItemPinMessageProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const { pinMessage, contentString, handleUnPinMessage, onClose, mode } = props;
 
 	const getValidCreateTime = () => {
@@ -97,24 +99,27 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 							/>
 						)}
 					</div>
-					{!!pinMessageAttachments.length && (() => {
-						const enhancedAttachments = pinMessageAttachments.map((att: ApiMessageAttachment) => ({
-							...att,
-							create_time: validCreateTime, 
-							sender_id: pinMessage.sender_id,
-							message_id: pinMessage.message_id
-						}));
-						return (
-							<MessageAttachment
-								mode={mode as ChannelStreamMode}
-								message={{
-									...pinMessage,
-									attachments: enhancedAttachments
-								} as IMessageWithUser}
-								defaultMaxWidth={TOPBARS_MAX_WIDTH}
-							/>
-						);
-					})()}
+					{!!pinMessageAttachments.length &&
+						(() => {
+							const enhancedAttachments = pinMessageAttachments.map((att: ApiMessageAttachment) => ({
+								...att,
+								create_time: validCreateTime,
+								sender_id: pinMessage.sender_id,
+								message_id: pinMessage.message_id
+							}));
+							return (
+								<MessageAttachment
+									mode={mode as ChannelStreamMode}
+									message={
+										{
+											...pinMessage,
+											attachments: enhancedAttachments
+										} as IMessageWithUser
+									}
+									defaultMaxWidth={TOPBARS_MAX_WIDTH}
+								/>
+							);
+						})()}
 				</div>
 			</div>
 			<div className="absolute h-fit flex gap-x-2 items-center opacity-0 right-2 top-2 group-hover/item-pinMess:opacity-100">
@@ -123,7 +128,7 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 					className="text-xs border-theme-primary rounded-lg p-1 h-fit text-theme-primary-hover"
 					data-e2e={generateE2eId('common.pin_message.button.jump')}
 				>
-					Jump
+					{t('tooltips.jump')}
 				</button>
 				<button
 					className=" mr-1 bg-theme-input bg-secondary-button-hover text-theme-primary-hover rounded-full w-6 h-6 items-center justify-center text-[10px] px-3 py-2 flex"

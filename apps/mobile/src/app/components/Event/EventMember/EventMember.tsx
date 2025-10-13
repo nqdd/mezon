@@ -17,8 +17,8 @@ const Avatar = ({ id, index }: { id: string; index: number }) => {
 	const userStatus = useMemberStatus(id || '');
 
 	const customStatus = useMemo(() => {
-		return user?.user?.status;
-	}, [user?.user?.status]);
+		return userStatus?.status;
+	}, [userStatus?.status]);
 
 	return (
 		<View style={styles.item}>

@@ -1,6 +1,6 @@
 import type { IBeforeRenderCb } from '@mezon/chat-scroll';
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
-import { MessageContextMenuProvider, MessageWithUser, UnreadMessageBreak, useMessageContextMenu } from '@mezon/components';
+import { MessageContextMenuProvider, MessageWithUser, useMessageContextMenu } from '@mezon/components';
 import { useMessageObservers, usePermissionChecker } from '@mezon/core';
 import type { MessagesEntity, RootState } from '@mezon/store';
 import {
@@ -93,6 +93,22 @@ const DMMessageWrapper = ({ channelId, children }: { channelId: string; children
 	return <MessageContextMenuProvider channelId={channelId}>{children}</MessageContextMenuProvider>;
 };
 
+const HasmoreBottom = memo(({ channelId }: { channelId: string }) => {
+	const dispatch = useAppDispatch();
+	const hasMoreBottom = useAppSelector((state) => selectHasMoreBottomByChannelId(state, channelId));
+
+	useEffect(() => {
+		if (!hasMoreBottom) return;
+		dispatch(
+			channelsActions.setScrollDownVisibility({
+				channelId,
+				isVisible: hasMoreBottom
+			})
+		);
+	}, [hasMoreBottom]);
+	return null;
+});
+
 const ClanMessageWrapper = ({
 	channelId,
 	isThreadBox,
@@ -134,8 +150,6 @@ function ChannelMessages({
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const lastMessageId = lastMessage?.id;
 	const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
-
-	const hasMoreBottom = useAppSelector((state) => selectHasMoreBottomByChannelId(state, channelId));
 
 	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
@@ -194,15 +208,6 @@ function ChannelMessages({
 		};
 	}, []);
 
-	useEffect(() => {
-		dispatch(
-			channelsActions.setScrollDownVisibility({
-				channelId,
-				isVisible: hasMoreBottom
-			})
-		);
-	}, [hasMoreBottom]);
-
 	const loadMoreMessage = useCallback(
 		async (direction: ELoadMoreDirection, cb?: IBeforeRenderCb) => {
 			const store = getStore();
@@ -224,6 +229,8 @@ function ChannelMessages({
 			}
 
 			if (direction === ELoadMoreDirection.bottom) {
+				isLoadingMoreBottomRef.current = true;
+
 				//load more in topic
 				if (isTopicBox) {
 					await dispatch(
@@ -271,7 +278,7 @@ function ChannelMessages({
 
 			return true;
 		},
-		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId, lastMessageId]
+		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId]
 	);
 
 	const getChatScrollBottomOffset = useCallback(() => {
@@ -284,6 +291,7 @@ function ChannelMessages({
 
 	const isLoadMore = useRef<boolean>(false);
 	const currentScrollDirection = useRef<ELoadMoreDirection | null>(null);
+	const isLoadingMoreBottomRef = useRef<boolean>(false);
 
 	const handleOnChange = useCallback(
 		async (direction: LoadMoreDirection) => {
@@ -315,7 +323,6 @@ function ChannelMessages({
 	const scrollToLastMessage = useCallback(() => {
 		if (userActiveScroll.current) {
 			userActiveScroll.current = false;
-			skipCalculateScroll.current = true;
 			anchorIdRef.current = null;
 			anchorTopRef.current = null;
 		}
@@ -337,9 +344,12 @@ function ChannelMessages({
 		(isVisible: boolean) => {
 			const store = getStore();
 
-			const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+			const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
 
 			if (hasMoreBottom) return;
+
+			const showFAB = selectShowScrollDownButton(store.getState(), channelId);
+			if (showFAB === isVisible) return;
 
 			dispatch(
 				channelsActions.setScrollDownVisibility({
@@ -370,6 +380,7 @@ function ChannelMessages({
 						key={channelId}
 						messageIds={messageIds}
 						chatRef={chatRef}
+						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						userActiveScroll={userActiveScroll}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -406,6 +417,7 @@ function ChannelMessages({
 						key={channelId}
 						messageIds={messageIds}
 						chatRef={chatRef}
+						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						userActiveScroll={userActiveScroll}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -432,6 +444,7 @@ function ChannelMessages({
 				</ClanMessageWrapper>
 			)}
 			<ScrollDownButton channelId={channelId} clanId={clanId} messageIds={messageIds} chatRef={chatRef} />
+			<HasmoreBottom channelId={channelId} />
 		</>
 	);
 }
@@ -539,6 +552,7 @@ ChannelMessages.Skeleton = () => {
 type ChatMessageListProps = {
 	messageIds: string[];
 	chatRef: React.RefObject<HTMLDivElement>;
+	isLoadingMoreBottomRef: React.MutableRefObject<boolean>;
 	userActiveScroll: React.MutableRefObject<boolean>;
 	skipCalculateScroll: React.MutableRefObject<boolean>;
 	appearanceTheme: string;
@@ -567,6 +581,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 	({
 		messageIds,
 		chatRef,
+		isLoadingMoreBottomRef,
 		userActiveScroll,
 		appearanceTheme,
 		lastMessageId,
@@ -614,7 +629,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			[channelDraftMessage?.message_id, openEditMessageState, idMessageRefEdit]
 		);
 
-		const scrollOffsetRef = useRef<number>(0);
 		const scrollPositionRef = useRef<{ messageId?: string; offset?: number } | null>(null);
 
 		useSyncEffect(() => {
@@ -647,6 +661,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				isReady.current = false;
 			};
 		}, [messageIds]);
+
+		const [forceRender, setForceRender] = useState<boolean>(false);
 
 		useEffect(() => {
 			if (chatRef.current && jumpToPresent) {
@@ -725,12 +741,21 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 					if (isAtBottom) {
 						onChange(LoadMoreDirection.Forwards);
+						const store = getStore();
+						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
+						if (hasMoreBottom) return;
+						const showFAB = selectShowScrollDownButton(store.getState(), channelId);
+						if (!showFAB) return;
+						dispatch(
+							channelsActions.setScrollDownVisibility({
+								channelId,
+								isVisible: false
+							})
+						);
 						return;
 					}
 
 					const newScrollOffset = scrollHeight - scrollTop;
-					scrollOffsetRef.current = newScrollOffset;
-
 					const containerRect = container.getBoundingClientRect();
 					const containerTop = containerRect.top;
 					const containerBottom = containerRect.bottom;
@@ -810,12 +835,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 				requestForcedReflow(() => {
 					const { scrollTop, scrollHeight, offsetHeight } = container;
-					const scrollOffset = scrollOffsetRef.current;
-					let bottomOffset = scrollOffset - (prevContainerHeight || offsetHeight);
-					if (wasMessageAdded) {
-						const lastItemHeight = lastItemElement ? lastItemElement.offsetHeight : 0;
-						bottomOffset -= lastItemHeight;
-					}
 
 					const store = getStore();
 					const isAtBottom = !selectShowScrollDownButton(store.getState(), channelId);
@@ -840,11 +859,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					let newScrollTop!: number;
 
 					if (
-						(!scrollPositionRef.current?.messageId && isAtBottom) ||
-						(userActiveScroll.current && isAtBottom) ||
+						(!isLoadingMoreBottomRef.current &&
+							((!scrollPositionRef.current?.messageId && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
 						(user?.user?.id === lastMessage?.sender_id &&
 							lastMessage?.create_time &&
-							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 500)
+							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
 						newScrollTop = scrollHeight;
 					} else if (anchor) {
@@ -857,21 +876,23 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							const containerRect = container.getBoundingClientRect();
 							newScrollTop = scrollTop + (savedMessageRect.top - containerRect.top);
 						} else {
-							newScrollTop = scrollHeight - scrollOffset;
+							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 						}
 					} else {
-						newScrollTop = scrollHeight - scrollOffset;
+						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 					}
 
 					return () => {
 						resetScroll(container, Math.ceil(newScrollTop));
-						scrollOffsetRef.current = Math.max(Math.ceil(scrollHeight - newScrollTop), offsetHeight);
 						if (!memoFocusingIdRef.current) {
 							isScrollTopJustUpdatedRef.current = true;
 							requestMeasure(() => {
 								isScrollTopJustUpdatedRef.current = false;
 							});
 						}
+						isLoadingMoreBottomRef.current = false;
 					};
 				});
 			},
@@ -902,10 +923,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			rememberScrollPositionRef.current();
 		}, [setAnchor?.current, rememberScrollPositionRef]);
 
-		useSyncEffect(
-			() => forceMeasure(() => rememberScrollPositionRef.current()),
-			[messageIds, userActiveScroll.current, isViewportNewest, rememberScrollPositionRef]
-		);
+		useSyncEffect(() => forceMeasure(() => rememberScrollPositionRef.current()), [messageIds, isViewportNewest, rememberScrollPositionRef]);
 
 		useEffect(() => rememberScrollPositionRef.current(), [getContainerHeight, rememberScrollPositionRef]);
 
@@ -947,6 +965,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 				timerRef.current = window.setTimeout(() => {
 					msgIdJumpHightlight.current = null;
+					setForceRender(!forceRender);
 				}, 1000);
 			}
 		}, [idMessageToJump]);
@@ -967,33 +986,31 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const shouldShowUnreadBreak = isPreviousMessageLastSeen && entities[messageId]?.sender_id !== user?.user?.id;
 
 				return (
-					<>
-						{shouldShowUnreadBreak && <UnreadMessageBreak key={`unread-${messageId}`} />}
-						<MemorizedChannelMessage
-							key={messageId}
-							index={index}
-							message={entities[messageId]}
-							previousMessage={entities[messageIds[index - 1]]}
-							avatarDM={avatarDM}
-							username={username}
-							messageId={messageId}
-							nextMessageId={messageIds[index + 1]}
-							channelId={channelId}
-							isHighlight={messageId === idMessageNotified}
-							mode={mode}
-							channelLabel={channelLabel ?? ''}
-							isPrivate={isPrivate}
-							checkMessageTargetToMoved={checkMessageTargetToMoved}
-							messageReplyHighlight={messageReplyHighlight}
-							isTopic={isTopic}
-							canSendMessage={canSendMessage}
-							observeIntersectionForLoading={observeIntersectionForLoading}
-							user={currentClanUser || user}
-							showMessageContextMenu={showMessageContextMenu}
-							isSelected={isSelected}
-							isEditing={isEditing}
-						/>
-					</>
+					<MemorizedChannelMessage
+						key={messageId}
+						index={index}
+						message={entities[messageId]}
+						previousMessage={entities[messageIds[index - 1]]}
+						avatarDM={avatarDM}
+						username={username}
+						messageId={messageId}
+						nextMessageId={messageIds[index + 1]}
+						channelId={channelId}
+						isHighlight={messageId === idMessageNotified}
+						mode={mode}
+						channelLabel={channelLabel ?? ''}
+						isPrivate={isPrivate}
+						checkMessageTargetToMoved={checkMessageTargetToMoved}
+						messageReplyHighlight={messageReplyHighlight}
+						isTopic={isTopic}
+						canSendMessage={canSendMessage}
+						observeIntersectionForLoading={observeIntersectionForLoading}
+						user={currentClanUser || user}
+						showMessageContextMenu={showMessageContextMenu}
+						isSelected={isSelected}
+						isEditing={isEditing}
+						shouldShowUnreadBreak={!!shouldShowUnreadBreak}
+					/>
 				);
 			});
 		}, [
@@ -1012,28 +1029,21 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			mode,
 			username,
 			selectedMessageId,
-			getIsEditing
+			getIsEditing,
+			forceRender,
+			currentClanUser,
+			user,
+			observeIntersectionForLoading,
+			showMessageContextMenu,
+			isPrivate
 		]);
 
 		const scrollTimeoutId2 = useRef<NodeJS.Timeout | null>(null);
-
-		useEffect(() => {
-			const container = chatRef.current;
-			if (!container) return;
-			const passiveScrollHandler = () => {
-				handleScroll();
-			};
-
-			container.addEventListener('scroll', passiveScrollHandler, { passive: true });
-			return () => {
-				container.removeEventListener('scroll', passiveScrollHandler);
-			};
-		}, [handleScroll]);
-
 		return (
 			<div className="w-full h-full relative messages-container select-text bg-theme-chat ">
 				<StickyLoadingIndicator messageCount={messageIds?.length} />
 				<div
+					onScroll={handleScroll}
 					onWheelCapture={() => {
 						toggleDisableHover(chatRef.current, scrollTimeoutId2);
 						userActiveScroll.current = true;
@@ -1049,7 +1059,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					}}
 					ref={chatRef}
 					className={classNames([
-						'thread-scroll',
+						'messages-scroll',
 						'w-full',
 						{
 							customScrollLightMode: appearanceTheme === 'light'

@@ -182,5 +182,7 @@
 		"descAvailable": "Để hoàn tất giao dịch, bạn cần kích hoạt ví của mình.",
 		"enableWallet": "Kích hoạt Ví",
 		"cancel": "Hủy"
-	}
+	},
+	"creator": "Người tạo",
+	"viewTopic": "Xem thảo luận ngắn"
 }
