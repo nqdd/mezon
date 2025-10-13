@@ -47,11 +47,9 @@ export const ConfirmBuzzMessageModal = memo((props: IBuzzMessageModalProps) => {
 						onChangeText={setMessageBuzz}
 					/>
 				</View>
-				<View style={styles.buttonsWrapper}>
-					<TouchableOpacity onPress={onConfirm} style={styles.yesButton}>
-						<Text style={styles.buttonText}>{t('buzz.confirmText')}</Text>
-					</TouchableOpacity>
-				</View>
+				<TouchableOpacity onPress={onConfirm} style={styles.yesButton}>
+					<Text style={styles.buttonText}>{t('buzz.confirmText')}</Text>
+				</TouchableOpacity>
 			</View>
 			<TouchableOpacity style={styles.backdrop} onPress={onClose} />
 		</View>

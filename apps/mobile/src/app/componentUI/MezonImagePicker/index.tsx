@@ -36,18 +36,13 @@ interface IMezonImagePickerProps {
 	alt?: string;
 	style?: StyleProp<ViewStyle>;
 	defaultColor?: string;
-	penPosition?: {
-		top?: number;
-		left?: number;
-		right?: number;
-		bottom?: number;
-	};
 	noDefaultText?: boolean;
 	disabled?: boolean;
 	onPressAvatar?: () => void;
 	imageWidth?: number;
 	imageHeight?: number;
 	autoCloseBottomSheet?: boolean;
+	isOauth?: boolean;
 	imageSizeLimit?: number;
 }
 
@@ -95,18 +90,13 @@ export default memo(
 			alt,
 			style,
 			defaultColor,
-			penPosition = {
-				bottom: undefined,
-				top: -7,
-				left: undefined,
-				right: -7
-			},
 			noDefaultText,
 			disabled,
 			onPressAvatar,
 			imageHeight,
 			imageWidth,
 			autoCloseBottomSheet = true,
+			isOauth = false,
 			imageSizeLimit
 		}: IMezonImagePickerProps,
 		ref
@@ -129,14 +119,14 @@ export default memo(
 			};
 		}, []);
 
-		async function handleUploadImage(file: IFile) {
+		async function handleUploadImage(file: IFile, isOauth = false) {
 			const session = sessionRef.current;
 			const client = clientRef.current;
 
 			if (!file || !client || !session) {
 				throw new Error('Client is not initialized');
 			}
-			const res = await handleUploadFileMobile(client, session, currentChannel?.clan_id, currentChannel?.channel_id, file.name, file);
+			const res = await handleUploadFileMobile(client, session, currentChannel?.clan_id, currentChannel?.channel_id, file.name, file, isOauth);
 			return res.url;
 		}
 
@@ -189,7 +179,7 @@ export default memo(
 						height: finalFile.height,
 						width: finalFile.width
 					} as IFile;
-					const url = await handleUploadImage(uploadImagePayload);
+					const url = await handleUploadImage(uploadImagePayload, isOauth);
 					if (url) {
 						onLoad && onLoad(url);
 					}
@@ -197,7 +187,13 @@ export default memo(
 				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			} catch (error) {
 				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-				console.error('Error in handleImage:', error);
+				console.error('Error in handleImage:', error?.message || error);
+				if (error?.message) {
+					Toast.show({
+						type: 'error',
+						text1: error?.message
+					});
+				}
 			}
 		}
 
