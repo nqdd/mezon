@@ -1,4 +1,5 @@
-import { SearchItemProps, toggleDisableHover } from '@mezon/utils';
+import type { SearchItemProps } from '@mezon/utils';
+import { toggleDisableHover } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -156,7 +157,9 @@ export const ListGroupSearchModal: React.FC<Props> = ({ listRecent, listItemWith
 			>
 				{!normalizeSearchText && listRecent.length > 0 && (
 					<>
-						<div className="text-xs font-semibold uppercase text-theme-primary py-2 text-theme-primary-active">{t('searchModal.previousChannels')}</div>
+						<div className="text-xs font-semibold uppercase text-theme-primary py-2 text-theme-primary-active">
+							{t('searchModal.previousChannels')}
+						</div>
 						<ListSearchModal
 							listSearch={listRecent}
 							focusItemId={focusItemId}
