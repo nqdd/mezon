@@ -155,7 +155,9 @@ const SettingRightUser = ({
 				currentClanId || '0',
 				userProfile?.user?.id || '0',
 				file.name,
-				file
+				file,
+				NaN,
+				true
 			);
 			setUrlImage(attachment?.url || '');
 			setFlags(true);
