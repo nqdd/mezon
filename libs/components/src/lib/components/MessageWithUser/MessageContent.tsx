@@ -4,6 +4,7 @@ import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
 import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, isValidEmojiData } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { MessageLine } from './MessageLine';
 
@@ -52,6 +53,7 @@ const MessageContent = ({ message, mode, isSearchMessage, isEphemeral, isSending
 };
 
 export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
+	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, message?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
@@ -76,8 +78,8 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 					srcImgProxy={createImgproxyUrl(avatarToDisplay ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 					src={avatarToDisplay}
 				/>
-				<div className="font-semibold text-blue-500 group-hover:underline group-hover:decoration-solid flex-shrink-0">Creator</div>
-				<p className="flex-shrink-0">View topic</p>
+				<div className="font-semibold text-blue-500 group-hover:underline group-hover:decoration-solid flex-shrink-0">{t('creator')}</div>
+				<p className="flex-shrink-0">{t('viewTopic')}</p>
 			</div>
 			<Icons.ArrowRight className="flex-shrink-0" />
 		</div>

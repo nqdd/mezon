@@ -169,7 +169,7 @@ const SettingComunity = ({
 			hasError = true;
 		}
 		if (hasError) {
-			toast.error('please fill all required fields: Banner, About, Description, Vanity URL!');
+			toast.error(t('communitySettings.messages.fillAllRequiredFields'));
 			return;
 		}
 		setIsSaving(true);

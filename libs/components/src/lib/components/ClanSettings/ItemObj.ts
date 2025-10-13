@@ -3,6 +3,23 @@ export type ItemObjProps = {
 	name: string;
 };
 
+// Translation keys for i18n
+export const ITEM_TRANSLATION_KEYS = {
+	OVERVIEW: 'overview',
+	ROLES: 'roles',
+	CATEGORY_ORDER: 'categoryOrder',
+	INTEGRATIONS: 'integrations',
+	AUDIT_LOG: 'auditLog',
+	ON_BOARDING: 'onboarding',
+	ON_COMUNITY: 'enableCommunity',
+	EMOJI: 'emoji',
+	IMAGE_STICKERS: 'imageStickers',
+	VOIDE_STICKERS: 'voiceStickers',
+	EMOTIONS: 'emotions',
+	APPS: 'apps',
+	MODERATION: 'moderation'
+} as const;
+
 export type ListSideBarProps = {
 	title: string;
 	listItem: ItemObjProps[];
@@ -28,6 +45,32 @@ export const listItemSetting: ItemObjProps[] = [
 	{ id: ItemSetting.ROLES, name: 'Roles' },
 	{ id: ItemSetting.CATEGORY_ORDER, name: 'Category Order' }
 ];
+
+// Helper function to get translated names
+export const getTranslatedItemName = (id: string, t: (key: string) => string): string => {
+	const translationMap: Record<string, string> = {
+		[ItemSetting.OVERVIEW]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.OVERVIEW}`),
+		[ItemSetting.ROLES]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.ROLES}`),
+		[ItemSetting.CATEGORY_ORDER]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.CATEGORY_ORDER}`),
+		[ItemSetting.INTEGRATIONS]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.INTEGRATIONS}`),
+		[ItemSetting.AUDIT_LOG]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.AUDIT_LOG}`),
+		[ItemSetting.ON_BOARDING]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.ON_BOARDING}`),
+		[ItemSetting.ON_COMUNITY]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.ON_COMUNITY}`),
+		[ItemSetting.EMOJI]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.EMOJI}`),
+		[ItemSetting.IMAGE_STICKERS]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.IMAGE_STICKERS}`),
+		[ItemSetting.VOIDE_STICKERS]: t(`sidebar.items.${ITEM_TRANSLATION_KEYS.VOIDE_STICKERS}`)
+	};
+	return translationMap[id] || id;
+};
+
+export const getTranslatedTitle = (title: string, t: (key: string) => string): string => {
+	const titleMap: Record<string, string> = {
+		'Emotions': t(`sidebar.sectionTitles.${ITEM_TRANSLATION_KEYS.EMOTIONS}`),
+		'Apps': t(`sidebar.sectionTitles.${ITEM_TRANSLATION_KEYS.APPS}`),
+		'Moderation': t(`sidebar.sectionTitles.${ITEM_TRANSLATION_KEYS.MODERATION}`)
+	};
+	return titleMap[title] || title;
+};
 
 export const listItemSettingApp: ItemObjProps[] = [{ id: ItemSetting.INTEGRATIONS, name: 'Integrations' }];
 

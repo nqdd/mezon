@@ -4,6 +4,7 @@ import { fetchUserChannels, selectMemberByGroupId, useAppDispatch, useAppSelecto
 import { generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MemberContextMenuProvider } from '../../../contexts';
 import MemberItem from '../../MemberList/MemberItem';
 
@@ -18,6 +19,7 @@ export type DataMemberCreate = {
 };
 
 function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
+	const { t } = useTranslation('common');
 	const { directId } = useAppParams();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, directId as string));
 	const { userId } = useAuth();
@@ -44,7 +46,7 @@ function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
 					className="mb-3 ml-2 font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase"
 					data-e2e={generateE2eId(`chat.direct_message.member_list.member_count`)}
 				>
-					MEMBER - {rawMembers?.length}
+					{t('member').toUpperCase()} - {rawMembers?.length}
 				</p>
 				{
 					<div className={`flex flex-col ${isElectron() ? 'pb-8' : ''}`}>

@@ -7,20 +7,15 @@ type ProfileTabsProps = {
 
 export const typeTab = {
 	ABOUT_ME: 'aboutMe',
-	ACTIVITY: 'activity', 
+	ACTIVITY: 'activity',
 	MUTUAL_FRIENDS: 'mutualFriends',
 	MUTUAL_SERVERS: 'mutualServers'
 };
 
 const ProfileTabs = ({ activeTab, onActiveTabChange }: ProfileTabsProps) => {
 	const { t } = useTranslation('common');
-	
-	const profileTabs = [
-		{ id: typeTab.ABOUT_ME, name: t('userProfile.aboutMe') },
-		{ id: typeTab.ACTIVITY, name: t('userProfile.activity') },
-		{ id: typeTab.MUTUAL_FRIENDS, name: t('userProfile.mutualFriends') },
-		{ id: typeTab.MUTUAL_SERVERS, name: t('userProfile.mutualServers') }
-	];
+
+	const profileTabs = [{ id: typeTab.ABOUT_ME, name: t('userProfile.aboutMe') }];
 
 	const handleClickTab = (tabId: string) => {
 		onActiveTabChange(tabId);

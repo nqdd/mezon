@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Creatable from 'react-select/creatable';
 import { ModalLayout } from '../../components';
-import { notificationTypesList } from '../PanelChannel';
+import { createNotificationTypesListTranslated } from '../PanelChannel';
 export type ModalParam = {
 	onClose: () => void;
 	open: boolean;
@@ -77,6 +77,7 @@ export const customStyles = {
 
 const ModalNotificationSetting = (props: ModalParam) => {
 	const { t } = useTranslation('notificationSetting');
+	const notificationTypesListTranslated = createNotificationTypesListTranslated(t);
 	const currentClan = useSelector(selectCurrentClan);
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 	const currentChannel = useSelector(selectCurrentChannel);
@@ -248,7 +249,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 				<div className={`px-5 py-4 max-h-[500px] overflow-y-auto hide-scrollbar`}>
 					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">{t('clanNotificationSettings')}</div>
 					<div className="space-y-2">
-						{notificationTypesList.map((notificationType, index) => (
+						{notificationTypesListTranslated.map((notificationType, index) => (
 							<div key={index} className="flex items-center gap-x-3 p-[12px]  rounded text-sm">
 								<input
 									type="radio"
@@ -300,7 +301,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 								{sortedChannelCategorySettings.map((channelCategorySetting) => (
 									<tr key={channelCategorySetting.id} className="group relative grid grid-cols-7 mb-2.5  rounded p-[10px]">
 										<td className="col-span-3">{channelCategorySetting.channel_category_label}</td>
-										{notificationTypesList.map((notificationType) => (
+										{notificationTypesListTranslated.map((notificationType) => (
 											<td key={notificationType.value} className="col-span-1 text-center">
 												<input
 													type="radio"

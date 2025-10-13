@@ -129,7 +129,8 @@
 			"changesSaved": "Đã lưu thay đổi!",
 			"communityDisabled": "Đã tắt cộng đồng.",
 			"disableFailed": "Tắt thất bại!",
-			"bannerRemoved": "Đã xóa banner!"
+			"bannerRemoved": "Đã xóa banner!",
+			"fillAllRequiredFields": "Vui lòng điền đầy đủ các trường bắt buộc: Banner, Giới thiệu, Mô tả, URL tùy chỉnh!"
 		}
 	},
 	"clanGuideSetting": {

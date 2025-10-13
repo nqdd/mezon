@@ -14,6 +14,7 @@ import { createImgproxyUrl } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiSdTopic } from 'mezon-js/dist/api.gen';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -22,6 +23,7 @@ export type TopicProps = {
 };
 
 function TopicNotificationItem({ topic }: TopicProps) {
+	const { t } = useTranslation('channelTopbar');
 	const navigate = useNavigate();
 	const isShowInbox = useSelector(selectIsShowInbox);
 	const [subjectTopic, setSubjectTopic] = useState('');
@@ -68,7 +70,7 @@ function TopicNotificationItem({ topic }: TopicProps) {
 				className="absolute py-1 px-2 bg-item-theme bottom-[10px] z-50 right-3 text-[10px] rounded-[6px] transition-all duration-300 group-hover:block hidden"
 				onClick={handleOpenTopic}
 			>
-				Jump
+				{t('tooltips.jump')}
 			</button>
 			<AllTabContent {...allTabProps} />
 		</div>

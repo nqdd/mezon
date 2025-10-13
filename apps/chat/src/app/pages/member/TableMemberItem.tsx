@@ -19,6 +19,7 @@ import { formatDistance } from 'date-fns';
 import Tooltip from 'rc-tooltip';
 import type { MouseEvent } from 'react';
 import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -35,6 +36,7 @@ type TableMemberItemProps = {
 };
 
 const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime, displayName }: TableMemberItemProps) => {
+	const { t } = useTranslation('common');
 	const rolesClanEntity = useSelector(selectRolesClanEntities);
 
 	const userRolesClan = useMemo(() => {
@@ -112,7 +114,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	const handleTransferOwner = async () => {
 		const response = await dispatch(clansActions.transferClan({ clanId: currentClan?.clan_id || '', new_clan_owner: userId || '' }));
 		if (response) {
-			toast.success('Transferred successfully!');
+			toast.success(t('transferredSuccessfully'));
 		}
 		closeTransfer();
 	};
@@ -166,7 +168,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	const handleRemoveMember = async () => {
 		const response = await removeMemberClan({ clanId: currentClanId as string, channelId: currentChannelId as string, userIds: [userId] });
 		if (response) {
-			toast.success('Member removed successfully');
+			toast.success(t('memberRemovedSuccessfully'));
 		}
 		closeModalRemoveMember();
 	};
@@ -262,7 +264,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 							placement="left-start"
 						>
 							<span
-								title="Add Role"
+								title={t('addRole')}
 								className="inline-flex justify-center gap-x-1 w-6 aspect-square items-center rounded bg-item-theme  hoverIconBlackImportant ml-1 text-base"
 							>
 								+
@@ -272,7 +274,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				</span>
 			</div>
 			<div className="flex-1 p-1 text-center">
-				<span className="text-xs  font-medium uppercase">Signals</span>
+				<span className="text-xs  font-medium uppercase">{t('signals')}</span>
 			</div>
 		</div>
 	);
@@ -290,6 +292,7 @@ const ListOptionRole = ({
 	};
 	userId: string;
 }) => {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const { updateRole } = useRoles();
 	const maxPermissionLevel = useSelector(selectUserMaxPermissionLevel);
@@ -348,6 +351,6 @@ const ListOptionRole = ({
 		}
 	}
 
-	return roleElements.length ? roleElements : <span className="text-gray-500">No roles available.</span>;
+	return roleElements.length ? roleElements : <span className="text-gray-500">{t('noRolesAvailable')}</span>;
 };
 export default TableMemberItem;
