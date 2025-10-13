@@ -24,12 +24,12 @@ export const ToastError = memo((props: ToastConfigParams<any>) => {
 
 	return (
 		<View
-			style={{
-				borderRadius: 20,
-				overflow: 'hidden',
-				width: '90%',
-				backgroundColor: '#efc3ca'
-			}}
+			style={[
+				styles.toastWrapper,
+				{
+					backgroundColor: '#efc3ca'
+				}
+			]}
 		>
 			<Bubble size={size.s_60} position={{ left: -size.s_20, top: -size.s_20 }} color={'#e69ca0'} />
 			<Bubble size={size.s_30} position={{ left: size.s_20, bottom: -size.s_20 }} color={'#e69ca0'} />

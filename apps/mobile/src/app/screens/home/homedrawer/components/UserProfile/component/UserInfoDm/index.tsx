@@ -41,7 +41,7 @@ export default function UserInfoDm({
 					throw new Error('removeMemberChannel failed');
 				} else {
 					Toast.show({
-						type: 'success',
+						type: 'info',
 						text1: t('userInfoDM.menu.removeSuccess')
 					});
 					dispatch(directActions.fetchDirectMessage({ noCache: true }));

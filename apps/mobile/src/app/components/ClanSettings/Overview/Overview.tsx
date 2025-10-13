@@ -207,7 +207,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			await handleUpdateSystemMessage();
 
 			Toast.show({
-				type: 'success',
+				type: 'info',
 				text1: t('toast.saveSuccess')
 			});
 			navigation.goBack();

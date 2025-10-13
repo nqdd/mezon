@@ -105,7 +105,7 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 			dispatch(appActions.setLoadingMainMobile(false));
 			if (response) {
 				Toast.show({
-					type: 'success',
+					type: 'info',
 					text1: t('updateClanProfileSuccess')
 				});
 				navigation.goBack();

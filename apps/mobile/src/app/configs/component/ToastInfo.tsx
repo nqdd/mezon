@@ -14,7 +14,7 @@ const WrapperIcon = ({ children }) => {
 	return <View style={styles.iconWrapper}>{children || defaultLeadingIcon}</View>;
 };
 
-export const ToastSuccess = memo((props: ToastConfigParams<any>) => {
+export const ToastInfo = memo((props: ToastConfigParams<any>) => {
 	const { text1Style, text2Style, props: data, text1, text2 } = props;
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
