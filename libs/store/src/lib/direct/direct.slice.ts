@@ -468,16 +468,29 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			topic: channel_desc.topic || existingEntity?.topic
 		};
 
-		thunkAPI.dispatch(
-			directActions.update({
-				id: channel_desc.channel_id || '',
-				changes: {
+		if (existingEntity) {
+			thunkAPI.dispatch(
+				directActions.update({
+					id: channel_desc.channel_id || '',
+					changes: {
+						member_count: userIds.length,
+						user_ids: userIds,
+						channel_label: existingEntity?.channel_label || label.toString()
+					}
+				})
+			);
+		} else {
+			thunkAPI.dispatch(
+				directActions.upsertOne({
+					...channel_desc,
+					id: channel_desc.channel_id || '',
 					member_count: userIds.length,
 					user_ids: userIds,
-					channel_label: existingEntity?.channel_label || label.toString()
-				}
-			})
-		);
+					channel_label: channel_desc?.channel_label || label.toString(),
+					active: 1
+				})
+			);
+		}
 		thunkAPI.dispatch(
 			userChannelsActions.update({
 				id: channel_desc.channel_id || '',
@@ -525,6 +538,7 @@ export const directSlice = createSlice({
 	initialState: initialDirectState,
 	reducers: {
 		remove: directAdapter.removeOne,
+		addOne: directAdapter.addOne,
 		upsertOne: (state, action: PayloadAction<DirectEntity>) => {
 			const { entities } = state;
 			const existLabel = entities[action.payload.id]?.channel_label?.split(',');
