@@ -82,6 +82,9 @@ export function MyVideoConference({
 	useEffect(() => {
 		setIsFocused(!!focusTrack);
 		setIsGridView(!focusTrack);
+		if (!focusTrack && document.pictureInPictureElement) {
+			document.exitPictureInPicture();
+		}
 	}, [focusTrack]);
 
 	const toggleViewMode = () => {
