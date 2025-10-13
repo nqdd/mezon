@@ -218,11 +218,15 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	};
 
 	const isBlocked = useMemo(() => {
-		if (currentDmGroup.type !== ChannelType.CHANNEL_TYPE_DM) return false;
-		const store = getStore();
-		const listBlockedUser = selectBlockedUsersForMessage(store.getState());
-		const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === currentDmGroup?.user_ids?.[0]);
-		return blockedUser;
+		try {
+			if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
+			const store = getStore();
+			const listBlockedUser = selectBlockedUsersForMessage(store.getState());
+			const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === currentDmGroup?.user_ids?.[0]);
+			return blockedUser;
+		} catch (e) {
+			return false;
+		}
 	}, [currentDmGroup]);
 
 	const headerOptions: IOption[] = [
