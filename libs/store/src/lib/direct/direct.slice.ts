@@ -538,7 +538,6 @@ export const directSlice = createSlice({
 	initialState: initialDirectState,
 	reducers: {
 		remove: directAdapter.removeOne,
-		addOne: directAdapter.addOne,
 		upsertOne: (state, action: PayloadAction<DirectEntity>) => {
 			const { entities } = state;
 			const existLabel = entities[action.payload.id]?.channel_label?.split(',');
