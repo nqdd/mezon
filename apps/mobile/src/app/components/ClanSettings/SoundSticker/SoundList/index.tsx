@@ -1,7 +1,7 @@
 import { size } from '@mezon/mobile-ui';
 import { ClanSticker } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, Platform } from 'react-native';
 import Sound from 'react-native-sound';
 import { SoundItem } from '../SoundItem';
 
@@ -45,7 +45,7 @@ export const SoundList = ({ soundList, ListHeaderComponent }: SoundListProps) =>
 
 			stopCurrentSound();
 
-			const sound = new Sound(item.source, Sound.MAIN_BUNDLE, (error) => {
+			const sound = new Sound(item.source, Platform.OS === 'android' ? Sound.MAIN_BUNDLE : null, (error) => {
 				if (error) {
 					console.error('error load sound: ', error);
 					return;

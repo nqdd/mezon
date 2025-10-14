@@ -90,7 +90,6 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					defaultColor={color}
 					noDefaultText
 					style={{ borderWidth: 0, borderRadius: 0 }}
-					penPosition={{ right: 10, top: 10 }}
 					disabled={true}
 					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
@@ -107,11 +106,11 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					style={{ borderWidth: 5, borderColor: themeValue.primary }}
 					onLoad={handleOnload}
 					autoUpload
-					penPosition={{ right: 5, top: 5 }}
 					onPressAvatar={openAvatarBS}
 					imageHeight={400}
 					imageWidth={400}
 					imageSizeLimit={MAX_FILE_SIZE_10MB}
+					isOauth={true}
 				/>
 
 				<View style={[styles.onLineStatus]}>
