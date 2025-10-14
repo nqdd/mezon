@@ -21,9 +21,9 @@ import {
 	userClanProfileActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { EUserStatus } from '@mezon/utils';
 import {
 	ESummaryInfo,
+	EUserStatus,
 	ONE_MINUTE,
 	TypeMessage,
 	compareBigInt,
@@ -72,7 +72,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	}, [myProfile, myProfile.userProfile?.user?.user_status]);
 
 	const userStatus = useMemo(() => {
-		const userStatus = myProfile.userProfile?.user?.status;
+		const userStatus = myProfile.userProfile?.user?.status || EUserStatus.ONLINE;
 		return userStatus;
 	}, [myProfile, myProfile.userProfile?.user?.status]);
 

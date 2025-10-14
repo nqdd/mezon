@@ -209,7 +209,7 @@ export const fetchMessagesCached = async (
 		}
 	}
 	const channelData = state[MESSAGES_FEATURE_KEY].channelMessages[channelId];
-	const apiKey = createApiKey('fetchMessages', clanId, channelId, messageId || '', direction || 1, topicId || '');
+	const apiKey = createApiKey('fetchMessages', clanId, channelId, direction || 1, topicId || '');
 	const shouldForceCall = shouldForceApiCall(apiKey, channelData?.cache, noCache);
 
 	if (!shouldForceCall && channelData?.ids?.length > 0) {
@@ -443,7 +443,7 @@ export const fetchMessages = createAsyncThunk(
 				messages = await MessageCrypt.decryptMessages(messages, currentUser?.user?.id as string);
 			}
 
-			if (response.last_seen_message?.id) {
+			if (!state.messages.channelMessages?.[channelId]?.cache && response.last_seen_message?.id) {
 				thunkAPI.dispatch(
 					messagesActions.setChannelLastMessage({
 						channelId: chlId,
@@ -649,7 +649,7 @@ export const jumpToMessage = createAsyncThunk(
 						fetchMessages({
 							clanId,
 							channelId,
-							noCache,
+							noCache: true,
 							messageId,
 							direction: Direction_Mode.AROUND_TIMESTAMP,
 							isFetchingLatestMessages,
@@ -1506,7 +1506,7 @@ export const messagesSlice = createSlice({
 			};
 		},
 		UpdateChannelLastMessage: (state, action: PayloadAction<{ channelId: string }>) => {
-			const lastMess = state.channelMessages[action.payload.channelId]?.ids?.at(-1);
+			const lastMess = state.channelViewPortMessageIds?.[action.payload.channelId]?.at(-1);
 			state.unreadMessagesEntries = {
 				...state.unreadMessagesEntries,
 				[action.payload.channelId]: lastMess || ''
@@ -1967,6 +1967,10 @@ export const selectMessageViewportIdsByChannelId = createSelector(
 
 export const selectMessagesByChannel = createSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
 	return messagesState?.channelMessages?.[channelId];
+});
+
+export const selectChannelMessageCache = createSelector([selectMessagesByChannel], (channelMessages) => {
+	return channelMessages?.cache;
 });
 
 export const selectMessageByMessageId = createSelector(

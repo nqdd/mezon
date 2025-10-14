@@ -12,6 +12,7 @@ import {
 	useAppSelector,
 	voiceActions
 } from '@mezon/store-mobile';
+import { UsersClanEntity } from '@mezon/utils';
 import type { Participant, TrackPublication } from 'livekit-client';
 import { DisconnectReason, RoomEvent, Track } from 'livekit-client';
 import LottieView from 'lottie-react-native';
@@ -157,7 +158,8 @@ const RoomView = ({
 	onFocusedScreenChange,
 	isGroupCall = false,
 	participantsCount = 0,
-	activeSoundReactions
+	activeSoundReactions,
+	allUserClans
 }: {
 	isAnimationComplete: boolean;
 	onPressMinimizeRoom: () => void;
@@ -167,6 +169,7 @@ const RoomView = ({
 	isGroupCall?: boolean;
 	participantsCount?: number;
 	activeSoundReactions: Map<string, ActiveSoundReaction>;
+	allUserClans: UsersClanEntity[];
 }) => {
 	const marginWidth = Dimensions.get('screen').width;
 	const { themeValue, themeBasic } = useTheme();
@@ -265,7 +268,7 @@ const RoomView = ({
 	return (
 		<View style={[styles.roomViewContainer, isPiPMode && styles.roomViewContainerPiP]}>
 			{!isAnimationComplete ? (
-				<FocusedScreenPopup />
+				<FocusedScreenPopup clanUsers={allUserClans} />
 			) : (
 				<ParticipantScreen
 					setFocusedScreenShare={setFocusedScreenShareProp}
@@ -273,6 +276,7 @@ const RoomView = ({
 					isGroupCall={isGroupCall}
 					clanId={clanId}
 					channelId={channelId}
+					clanUsers={allUserClans}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (

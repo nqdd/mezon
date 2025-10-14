@@ -10,6 +10,7 @@ import {
 	selectAllAccount,
 	selectChannelByChannelId,
 	selectChannelDraftMessage,
+	selectChannelMessageCache,
 	selectCurrentChannelId,
 	selectDataReferences,
 	selectFirstMessageOfCurrentTopic,
@@ -93,7 +94,7 @@ const DMMessageWrapper = ({ channelId, children }: { channelId: string; children
 	return <MessageContextMenuProvider channelId={channelId}>{children}</MessageContextMenuProvider>;
 };
 
-const HasmoreBottom = memo(({ channelId }: { channelId: string }) => {
+const HasmoreBottomTracker = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
 	const hasMoreBottom = useAppSelector((state) => selectHasMoreBottomByChannelId(state, channelId));
 
@@ -105,7 +106,19 @@ const HasmoreBottom = memo(({ channelId }: { channelId: string }) => {
 				isVisible: hasMoreBottom
 			})
 		);
-	}, [hasMoreBottom]);
+	}, [hasMoreBottom, channelId, dispatch]);
+	return null;
+});
+
+const FirstJoinLoadTracker = memo(({ channelId, isFirstJoinLoadRef }: { channelId: string; isFirstJoinLoadRef: React.MutableRefObject<boolean> }) => {
+	const channelCache = useAppSelector((state) => selectChannelMessageCache(state, channelId));
+
+	useEffect(() => {
+		if (channelCache && isFirstJoinLoadRef.current) {
+			isFirstJoinLoadRef.current = true;
+		}
+	}, [channelCache, channelId, isFirstJoinLoadRef]);
+
 	return null;
 });
 
@@ -162,6 +175,7 @@ function ChannelMessages({
 	const setAnchor = useRef<number | null>(null);
 	const previousChannelId = useRef<string | null>(null);
 	const preventScrollbottom = useRef<boolean>(false);
+	const isFirstJoinLoadRef = useRef<boolean>(true);
 
 	useSyncEffect(() => {
 		userActiveScroll.current = false;
@@ -169,6 +183,8 @@ function ChannelMessages({
 		anchorIdRef.current = null;
 		anchorTopRef.current = null;
 		preventScrollbottom.current = false;
+		isFirstJoinLoadRef.current = true;
+
 		requestIdleCallback &&
 			requestIdleCallback(() => {
 				if (previousChannelId.current) {
@@ -180,12 +196,11 @@ function ChannelMessages({
 			if (!channelId) return;
 			const store = getStore();
 			const scrollPosition = selectScrollPositionByChannelId(store.getState(), channelId);
-			const lastMessage = selectLastMessageByChannelId(store.getState(), channelId);
 			if (scrollPosition?.messageId) return;
 			dispatch(
 				channelsActions.setScrollPosition({
 					channelId,
-					messageId: lastMessage?.id
+					messageId: messageIds?.at(-1)
 				})
 			);
 		};
@@ -381,6 +396,7 @@ function ChannelMessages({
 						messageIds={messageIds}
 						chatRef={chatRef}
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
+						isFirstJoinLoadRef={isFirstJoinLoadRef}
 						userActiveScroll={userActiveScroll}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -418,6 +434,7 @@ function ChannelMessages({
 						messageIds={messageIds}
 						chatRef={chatRef}
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
+						isFirstJoinLoadRef={isFirstJoinLoadRef}
 						userActiveScroll={userActiveScroll}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -444,7 +461,8 @@ function ChannelMessages({
 				</ClanMessageWrapper>
 			)}
 			<ScrollDownButton channelId={channelId} clanId={clanId} messageIds={messageIds} chatRef={chatRef} />
-			<HasmoreBottom channelId={channelId} />
+			<HasmoreBottomTracker channelId={channelId} />
+			<FirstJoinLoadTracker channelId={channelId} isFirstJoinLoadRef={isFirstJoinLoadRef} />
 		</>
 	);
 }
@@ -553,6 +571,7 @@ type ChatMessageListProps = {
 	messageIds: string[];
 	chatRef: React.RefObject<HTMLDivElement>;
 	isLoadingMoreBottomRef: React.MutableRefObject<boolean>;
+	isFirstJoinLoadRef: React.MutableRefObject<boolean>;
 	userActiveScroll: React.MutableRefObject<boolean>;
 	skipCalculateScroll: React.MutableRefObject<boolean>;
 	appearanceTheme: string;
@@ -582,6 +601,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		messageIds,
 		chatRef,
 		isLoadingMoreBottomRef,
+		isFirstJoinLoadRef,
 		userActiveScroll,
 		appearanceTheme,
 		lastMessageId,
@@ -635,7 +655,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			const store = getStore();
 			const state = store.getState();
 			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
-
 			if (!scrollPosition?.messageId) {
 				const channel = selectChannelByChannelId(state, channelId);
 				const lastSeenMessageId = channel?.last_seen_message?.id;
@@ -743,6 +762,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						onChange(LoadMoreDirection.Forwards);
 						const store = getStore();
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
+						dispatch(
+							channelsActions.setScrollPosition({
+								channelId,
+								messageId: messageIds?.at(-1)
+							})
+						);
+
 						if (hasMoreBottom) return;
 						const showFAB = selectShowScrollDownButton(store.getState(), channelId);
 						if (!showFAB) return;
@@ -860,7 +886,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 					if (
 						(!isLoadingMoreBottomRef.current &&
-							((!scrollPositionRef.current?.messageId && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
+							((!isFirstJoinLoadRef.current && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
 						(user?.user?.id === lastMessage?.sender_id &&
 							lastMessage?.create_time &&
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
