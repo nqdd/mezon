@@ -1,8 +1,9 @@
 import { useChatSending } from '@mezon/core';
 import { selectCurrentChannel, selectCurrentDM } from '@mezon/store';
-import { IMessage, IMessageSendPayload, MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
+import type { IMessage, IMessageSendPayload } from '@mezon/utils';
+import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiChannelDescription } from 'mezon-js/api.gen';
+import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -21,7 +22,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	}, [currenChannel, currentDm, mode]);
 
 	const { sendMessage } = useChatSending({
-		mode: mode,
+		mode,
 		channelOrDirect: channelOrDirect as ApiChannelDescription
 	});
 
@@ -48,8 +49,8 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 					url: STICKER_WAVE.URL,
 					filetype: 'image/gif',
 					filename: STICKER_WAVE.NAME,
-					size: 309248,
-					width: 154,
+					size: 374892,
+					width: 150,
 					height: 150
 				}
 			];

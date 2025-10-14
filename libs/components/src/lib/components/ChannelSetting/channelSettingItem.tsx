@@ -112,6 +112,7 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							getTabTranslation={getTabTranslation}
 						/>
 						{channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+							channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
 							channel.type !== ChannelType.CHANNEL_TYPE_APP &&
 							channel.id !== welcomeChannelId &&
 							canEditChannelPermissions && (
@@ -124,16 +125,19 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							)}
 					</>
 				)}
-				{hasManageChannelPermission && (
-					<ChannelSettingItemButton
-						tabName={EChannelSettingTab.INTEGRATIONS}
-						handleOnClick={handleButtonClick}
-						selectedButton={selectedButton}
-						getTabTranslation={getTabTranslation}
-					/>
-				)}
+				{hasManageChannelPermission &&
+					channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
+					channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
+						<ChannelSettingItemButton
+							tabName={EChannelSettingTab.INTEGRATIONS}
+							handleOnClick={handleButtonClick}
+							selectedButton={selectedButton}
+							getTabTranslation={getTabTranslation}
+						/>
+					)}
 				{canEditChannelPermissions &&
 					channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+					channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
 					channel.type !== ChannelType.CHANNEL_TYPE_APP && (
 						<ChannelSettingItemButton
 							tabName={EChannelSettingTab.QUICK_MENU}

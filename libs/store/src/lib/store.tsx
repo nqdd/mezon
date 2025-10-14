@@ -147,7 +147,7 @@ const persistedChannelReducer = persistReducer(
 	{
 		key: 'channels',
 		storage,
-		blacklist: ['request', 'previousChannels', 'scrollOffset', 'showScrollDownButton']
+		blacklist: ['request', 'previousChannels', 'showScrollDownButton', 'scrollPosition']
 	},
 	channelsReducer
 );

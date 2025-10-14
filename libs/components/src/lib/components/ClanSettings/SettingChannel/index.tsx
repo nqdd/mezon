@@ -116,7 +116,7 @@ const ListChannelSetting = ({ listChannel, clanId, countChannel, searchFilter }:
 						/>
 					))}
 					<div className="flex flex-row justify-between items-center px-4 h-[54px] border-t-theme-primary mt-0">
-						<div className={'flex flex-row items-center '}>
+						<div className={'flex flex-row items-center '} data-e2e={generateE2eId('clan_page.channel_management.total_channels')}>
 							{t('table.pagination.show')}
 							<Menu menu={menu}>
 								<div className={'flex flex-row items-center justify-center text-center border-theme-primary rounded mx-1 px-3 w-12'}>
@@ -304,7 +304,10 @@ const ItemInfor = ({
 			className={`w-full py-1 relative before:content-[" "] before:w-full before:h-[0.08px]  before:absolute before:top-0 before:left-0 group text-theme-primary `}
 			onContextMenu={handleCopyChannelId}
 		>
-			<div className="cursor-pointer px-3 py-2 pr-12 flex gap-3 items-center w-full bg-item-hover">
+			<div
+				className="cursor-pointer px-3 py-2 pr-12 flex gap-3 items-center w-full bg-item-hover"
+				data-e2e={generateE2eId('clan_page.channel_management.channel_item')}
+			>
 				<div className="h-6 w-6">
 					{!isVoice &&
 						(isThread ? (
