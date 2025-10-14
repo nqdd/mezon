@@ -2,6 +2,7 @@ import type { ChannelsEntity } from '@mezon/store';
 import {
 	getStore,
 	selectChannelByChannelId,
+	selectChannelByIdAndClanId,
 	selectClanView,
 	selectCurrentChannel,
 	selectCurrentDM,
@@ -58,11 +59,10 @@ export const useTagById = (tagId: string | undefined): ChannelsEntity | undefine
 	});
 };
 
-export const getTagByIdOnStored = (tagId: string | undefined): ChannelsEntity | undefined => {
+export const getTagByIdOnStored = (clanId: string, tagId: string | undefined): ChannelsEntity | undefined => {
 	const store = getStore();
 	if (!tagId) return undefined;
-	const isClanView = selectClanView(store.getState());
-	return isClanView ? selectChannelByChannelId(store.getState(), tagId) : selectHashtagDmById(store.getState(), tagId);
+	return selectChannelByIdAndClanId(store.getState(), clanId, tagId) || selectHashtagDmById(store.getState(), tagId);
 };
 
 export const useCurrentInbox = (): ChannelsEntity | null => {
