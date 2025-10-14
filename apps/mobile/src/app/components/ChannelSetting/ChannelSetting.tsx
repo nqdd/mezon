@@ -353,15 +353,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					onConfirm={handleDeleteChannel}
 					title={isChannel ? t('confirm.deleteChannel.title') : t('confirm.deleteThread.title')}
 					confirmText={isChannel ? t('confirm.deleteChannel.confirmText') : t('confirm.deleteThread.confirmText')}
-					content={
-						isChannel
-							? t('confirm.deleteChannel.content', {
-									channelName: channel?.channel_label
-								})
-							: t('confirm.deleteThread.content', {
-									channelName: channel?.channel_label
-								})
-					}
+					content={t('confirm.delete.content', { channelName: channel?.channel_label })}
 				/>
 			)
 		};
