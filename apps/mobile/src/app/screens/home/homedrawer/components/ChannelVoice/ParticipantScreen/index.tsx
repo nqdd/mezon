@@ -2,16 +2,7 @@ import { useParticipants, useRoomContext, useTracks, VideoTrack } from '@livekit
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import {
-	getStore,
-	selectAllAccount,
-	selectCurrentClanId,
-	selectIsPiPMode,
-	selectMemberClanByUserName,
-	useAppDispatch,
-	useAppSelector,
-	voiceActions
-} from '@mezon/store-mobile';
+import { getStore, selectAllAccount, selectCurrentClanId, selectIsPiPMode, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import type { Participant } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
@@ -39,16 +30,14 @@ const ParticipantItem = memo(
 		room,
 		isGroupCall,
 		canMangeVoice,
-		currentUsername
+		currentUsername,
+		member
 	}: any) => {
 		const isTabletLandscape = useTabletLandscape();
 		const store = getStore();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 		const { t } = useTranslation(['channelVoice']);
-		const member = useMemo(() => {
-			return selectMemberClanByUserName(store.getState(), username);
-		}, [store, username]);
 
 		const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 		const voiceUsername = member?.clan_nick || member?.user?.display_name || username;
@@ -261,7 +250,7 @@ const ParticipantItem = memo(
 	}
 );
 
-const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId }) => {
+const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId, clanUsers }) => {
 	const participants = useParticipants();
 	const tracks = useTracks(
 		[
@@ -351,6 +340,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 						);
 
 						const currentUsername = userProfile?.user?.username;
+						const memberItem = clanUsers?.find((u) => u?.user?.username === participant?.identity);
 
 						return (
 							<ParticipantItem
@@ -368,6 +358,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 								isGroupCall={isGroupCall}
 								canMangeVoice={userCanManageVoice}
 								currentUsername={currentUsername}
+								member={memberItem}
 							/>
 						);
 					})}
