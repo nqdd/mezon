@@ -1152,7 +1152,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					}
 				])
 			);
-			dispatch(clansActions.invalidateCache());
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
