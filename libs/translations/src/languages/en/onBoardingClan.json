@@ -129,7 +129,8 @@
 			"changesSaved": "Changes saved!",
 			"communityDisabled": "Community disabled.",
 			"disableFailed": "Disable failed!",
-			"bannerRemoved": "Banner removed!"
+			"bannerRemoved": "Banner removed!",
+			"fillAllRequiredFields": "Please fill all required fields: Banner, About, Description, Vanity URL!"
 		}
 	},
 	"clanGuideSetting": {

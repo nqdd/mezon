@@ -3,6 +3,7 @@ import { Icons } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import { generateE2eId } from '@mezon/utils';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 type ListRolePermissionProps = {
 	channel: IChannel;
@@ -11,6 +12,7 @@ type ListRolePermissionProps = {
 
 const ListRolePermission = (props: ListRolePermissionProps) => {
 	const { channel } = props;
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const RolesChannel = useSelector(selectRolesByChannelId(channel.id));
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -51,7 +53,7 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 					<p className="text-sm">{role.title}</p>
 				</div>
 				<div className="flex items-center gap-x-2">
-					<p className="text-xs ">Role</p>
+					<p className="text-xs ">{t('role')}</p>
 					<div onClick={() => deleteRole(role?.id || '')} role="button">
 						<Icons.EscIcon defaultSize="size-[15px] cursor-pointer" />
 					</div>
@@ -62,7 +64,7 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 		<div className={`flex justify-between text-theme-primary py-2 rounded`}>
 			<div className="flex gap-x-2 items-center">
 				<Icons.RoleIcon defaultSize="w-5 h-5 min-w-5" />
-				<p className="text-sm ">No Roles</p>
+				<p className="text-sm ">{t('noRoles')}</p>
 			</div>
 		</div>
 	);

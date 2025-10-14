@@ -10,10 +10,11 @@ import { style } from './styles';
 
 interface IChatMessageWrapperProps {
 	directMessageId: string;
+	lastSeenMessageId: string;
 	isModeDM: boolean;
 	currentClanId: string;
 }
-export const ChatMessageWrapper = memo(({ directMessageId, isModeDM, currentClanId }: IChatMessageWrapperProps) => {
+export const ChatMessageWrapper = memo(({ directMessageId, lastSeenMessageId, isModeDM, currentClanId }: IChatMessageWrapperProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 
@@ -26,6 +27,7 @@ export const ChatMessageWrapper = memo(({ directMessageId, isModeDM, currentClan
 			<View style={{ flex: 1 }}>
 				<ChannelMessages
 					channelId={directMessageId}
+					lastSeenMessageId={lastSeenMessageId}
 					clanId={'0'}
 					mode={Number(isModeDM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)}
 					isPublic={false}

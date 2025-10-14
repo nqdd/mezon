@@ -715,11 +715,12 @@ type UpdateMessageArgs = {
 	mode: number;
 	badge_count: number;
 	message_time?: number;
+	updateLast?: boolean;
 };
 
 export const updateLastSeenMessage = createAsyncThunk(
 	'messages/updateLastSeenMessage',
-	async ({ clanId, channelId, messageId, mode, badge_count, message_time }: UpdateMessageArgs, thunkAPI) => {
+	async ({ clanId, channelId, messageId, mode, badge_count, message_time, updateLast = false }: UpdateMessageArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 			const now = Math.floor(Date.now() / 1000);
@@ -732,7 +733,7 @@ export const updateLastSeenMessage = createAsyncThunk(
 			}
 
 			const channelMessages = state.messages.channelMessages[channelId];
-			if (!channelMessages?.cache) {
+			if (!channelMessages?.cache && !updateLast) {
 				return;
 			}
 
@@ -991,6 +992,12 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
+			thunkAPI.dispatch(
+				channelsActions.setScrollPosition({
+					channelId,
+					messageId: undefined
+				})
+			);
 			await sendWithRetry(1);
 
 			if (!isViewingOlderMessages) {
@@ -1099,12 +1106,21 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	const viewportIds = selectViewportIdsByChannelId(state, channelId);
 
 	let shouldSetViewingOlder = isViewingOlderMessages;
-
 	let needsRebalance = false;
 
 	if (scrollPosition?.messageId && viewportIds?.length > 0) {
 		const scrollMessageIndex = viewportIds.indexOf(scrollPosition.messageId);
-		if (scrollMessageIndex !== -1) {
+
+		if (scrollMessageIndex === -1) {
+			const allMessageIds = state.messages.channelMessages[channelId]?.ids as string[];
+			const messageExistsInChannel = allMessageIds?.includes(scrollPosition.messageId);
+
+			if (!messageExistsInChannel) {
+				thunkAPI.dispatch(channelsActions.clearScrollPosition({ clanId: '', channelId }));
+			} else {
+				shouldSetViewingOlder = true;
+			}
+		} else {
 			const distanceFromBottom = viewportIds.length - scrollMessageIndex - 1;
 			const distanceFromTop = scrollMessageIndex;
 
@@ -1442,7 +1458,6 @@ export const messagesSlice = createSlice({
 
 		markAsSent: (state, action: PayloadAction<MarkAsSentArgs>) => {
 			const channelId = action.payload.mess.channel_id;
-			if (state?.unreadMessagesEntries?.[channelId] === action.payload.mess.message_id) return;
 			if (channelId) {
 				state.unreadMessagesEntries = {
 					...state.unreadMessagesEntries,
@@ -2095,6 +2110,9 @@ const handleRemoveOneMessage = ({ state, channelId, messageId }: { state: Messag
 			}
 		}
 	}
+
+	// handle remove setScrollPosition
+
 	if (Array.isArray(state.channelViewPortMessageIds[channelId])) {
 		state.channelViewPortMessageIds[channelId] = state.channelViewPortMessageIds[channelId].filter((item) => item !== messageId);
 	}

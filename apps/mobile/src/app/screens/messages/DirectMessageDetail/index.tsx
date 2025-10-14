@@ -44,7 +44,12 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 			<DirectMessageDetailListener dmType={dmType} directMessageId={directMessageId} />
 			<HeaderDirectMessage from={from} styles={styles} themeValue={themeValue} directMessageId={directMessageId} />
 			{directMessageId && (
-				<ChatMessageWrapper directMessageId={directMessageId} isModeDM={Number(dmType) === ChannelType.CHANNEL_TYPE_DM} currentClanId={'0'} />
+				<ChatMessageWrapper
+					directMessageId={directMessageId}
+					lastSeenMessageId={currentDmGroup?.last_seen_message?.id}
+					isModeDM={Number(dmType) === ChannelType.CHANNEL_TYPE_DM}
+					currentClanId={'0'}
+				/>
 			)}
 		</View>
 	);

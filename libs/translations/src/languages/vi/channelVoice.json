@@ -1,41 +1,41 @@
 {
-    "joinChannelVoiceBS": {
-        "channelVoice": "kênh thoại",
-        "noOne": "Chưa có ai ở đây!",
-        "readyTalk": "Khi bạn sẵn sàng nói chuyện, chỉ cần tham gia vào.",
-        "joinVoice": "Tham gia kênh thoại"
-    },
-    "selectAudioOutput": {
-        "title": "Chọn đầu ra âm thanh",
-        "speaker": "Loa ngoài",
-        "phone": "Điện thoại"
-    },
-    "channelVoiceRoom": {
-        "channelVoice": "kênh thoại",
-        "addPeople": "Thêm người vào cuộc trò chuyện thoại",
-        "leftTheGroup": "Đã rời nhóm. Những người khác đã được thông báo về sự hiện diện của bạn!"
-    },
-    "noChannelVoice": "Không có kênh thoại",
-    "chat": "Trò chuyện",
-    "noDisplay": "Không hiển thị kênh thoại",
-    "muteModal": {
-        "title": "Tắt tiếng thành viên",
-        "content": "Bạn có chắc muốn tắt tiếng \"{{userName}}\"?",
-        "mute": "Tắt tiếng"
-    },
-    "kickModal": {
-        "title": "Xóa khỏi kênh thoại",
-        "content": "Bạn có chắc muốn xóa \"{{userName}}\" khỏi kênh thoại?",
-        "kick": "Xóa"
-    },
-    "disconnectModal": {
-        "title": "Mất kết nối thoại",
-        "content": {
-            "removed": "Bạn đã bị xóa khỏi kênh thoại",
-            "duplicate": "Bạn đã bị ngắt kết nối do tham gia ở nơi khác",
-            "default": "Bạn đã bị ngắt kết nối khỏi kênh thoại",
-            "deleted": "Kênh thoại đã bị xóa"
-        },
-        "confirm": "Xác nhận"
-    }
+	"joinChannelVoiceBS": {
+		"channelVoice": "kênh thoại",
+		"noOne": "Chưa có ai ở đây!",
+		"readyTalk": "Khi bạn sẵn sàng nói chuyện, chỉ cần tham gia vào.",
+		"joinVoice": "Tham gia kênh thoại"
+	},
+	"selectAudioOutput": {
+		"title": "Chọn đầu ra âm thanh",
+		"speaker": "Loa ngoài",
+		"phone": "Điện thoại"
+	},
+	"channelVoiceRoom": {
+		"channelVoice": "kênh thoại",
+		"addPeople": "Thêm người vào cuộc trò chuyện thoại",
+		"leftTheGroup": "Đã rời nhóm. Những người khác đã được thông báo về sự hiện diện của bạn!"
+	},
+	"noChannelVoice": "Không có kênh thoại",
+	"chat": "Trò chuyện",
+	"noDisplay": "Không hiển thị kênh thoại",
+	"muteModal": {
+		"title": "Tắt tiếng thành viên",
+		"content": "Bạn có chắc muốn tắt tiếng \"{{userName}}\"?",
+		"mute": "Tắt tiếng"
+	},
+	"kickModal": {
+		"title": "Xóa khỏi kênh thoại",
+		"content": "Bạn có chắc muốn xóa \"{{userName}}\" khỏi kênh thoại?",
+		"kick": "Xóa"
+	},
+	"disconnectModal": {
+		"title": "Mất kết nối thoại",
+		"content": {
+			"removed": "Bạn đã bị xóa khỏi kênh thoại",
+			"duplicate": "Bạn đã bị ngắt kết nối do tham gia ở nơi khác",
+			"default": "Bạn đã bị ngắt kết nối khỏi kênh thoại",
+			"deleted": "Kênh thoại đã bị xóa"
+		},
+		"confirm": "Xác nhận"
+	}
 }

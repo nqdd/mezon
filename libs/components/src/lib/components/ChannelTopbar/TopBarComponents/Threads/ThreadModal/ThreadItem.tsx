@@ -18,6 +18,7 @@ import { AvatarImage } from 'libs/components/src/lib/components';
 import { ChannelType } from 'mezon-js';
 import type { MutableRefObject } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -38,6 +39,7 @@ type ThreadItemProps = {
 };
 
 const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasContext = true, preventClosePannel }: ThreadItemProps) => {
+	const { i18n } = useTranslation();
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
 	const dispatch = useAppDispatch();
@@ -80,15 +82,15 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 
 	const timeMessage = useMemo(() => {
 		if (message && message.create_time_seconds) {
-			const lastTime = convertTimeMessage(message.create_time_seconds);
+			const lastTime = convertTimeMessage(message.create_time_seconds, i18n.language);
 			return lastTime;
 		} else {
 			if (thread && thread.last_sent_message && thread.last_sent_message.timestamp_seconds) {
-				const lastTime = convertTimeMessage(thread.last_sent_message.timestamp_seconds);
+				const lastTime = convertTimeMessage(thread.last_sent_message.timestamp_seconds, i18n.language);
 				return lastTime;
 			}
 		}
-	}, [message, thread]);
+	}, [message, thread, i18n.language]);
 
 	const handleLinkThread = (channelId: string, clanId: string) => {
 		preventClosePannel.current = false;

@@ -238,26 +238,43 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 									: formatTimeI18n(event?.start_time || start)}
 						</p>
 						{isClanEvent && (
-							<p className="bg-blue-500 text-white rounded-sm px-1 text-center"  data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.clanEvent')}</p>
+							<p
+								className="bg-blue-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.clanEvent')}
+							</p>
 						)}
 						{isChannelEvent && (
-							<p className="bg-orange-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.channelEvent')}</p>
+							<p
+								className="bg-orange-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.channelEvent')}
+							</p>
 						)}
 						{isPrivateEvent && (
-							<p className="bg-red-500 text-white rounded-sm px-1 text-center" data-e2e={generateE2eId('clan_page.modal.create_event.review.type')} >{t('eventCreator:eventDetail.privateEvent')}</p>
+							<p
+								className="bg-red-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.privateEvent')}
+							</p>
 						)}
 					</div>
 					{event?.creator_id && (
 						<Tooltip
 							placement="left"
 							overlay={
-								<p
-									className="text-theme-primary-active"
-									style={{ width: 'max-content' }}
-								>{`Created by ${userCreate?.user?.username}`}</p>
+								<p className="text-theme-primary-active" style={{ width: 'max-content' }}>
+									{t('eventCreator:eventDetail.createdBy', { username: userCreate?.user?.username })}
+								</p>
 							}
 						>
-							<div className="flex  items-center gap-x-4 mb-3 mr-4" data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.open_detail_modal')}>
+							<div
+								className="flex  items-center gap-x-4 mb-3 mr-4"
+								data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.open_detail_modal')}
+							>
 								<AvatarImage
 									alt={userCreate?.user?.username || ''}
 									username={userCreate?.user?.username}
@@ -280,9 +297,17 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 				<div className="flex justify-between gap-4 select-text">
 					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'} `}>
-						<p className="hover:underline font-bold  text-base" data-e2e={generateE2eId('clan_page.modal.create_event.review.event_topic')}>{topic}</p>
+						<p
+							className="hover:underline font-bold  text-base"
+							data-e2e={generateE2eId('clan_page.modal.create_event.review.event_topic')}
+						>
+							{topic}
+						</p>
 						<div className="flex justify-between">
-							<div className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap" data-e2e={generateE2eId('clan_page.modal.create_event.review.description')}>
+							<div
+								className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.description')}
+							>
 								{isReviewEvent ? reviewDescription : event?.description}
 							</div>
 						</div>
@@ -324,7 +349,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					{checkOptionLocation && (
 						<>
 							<Icons.Location />
-							<p>{address}</p>
+							<p data-e2e={generateE2eId('clan_page.modal.create_event.review.location_name')}>{address}</p>
 						</>
 					)}
 					{option === '' && !address && !channelVoice && (
@@ -416,7 +441,9 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 						<p className="">
 							{t('eventCreator:eventDetail.audienceConsists')}{' '}
 							{isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
-							<strong className="" data-e2e={generateE2eId('clan_page.modal.create_event.review.text_channel')}>{textChannel.channel_label}</strong>
+							<strong className="" data-e2e={generateE2eId('clan_page.modal.create_event.review.text_channel')}>
+								{textChannel.channel_label}
+							</strong>
 						</p>
 					</span>
 				) : isClanEvent ? (

@@ -1,7 +1,7 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
 	channelUsersActions,
@@ -160,7 +160,12 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					title: t('fields.channelPermission.permission'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.bravePermission} color={themeValue.text} />,
-					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP && currentSystemMessage?.channel_id !== channel?.channel_id,
+					isShow:
+						isChannel &&
+						currentSystemMessage?.channel_id !== channel?.channel_id &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_APP &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE,
 					onPress: () => {
 						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 							screen: APP_SCREEN.MENU_CHANNEL.CHANNEL_PERMISSION,
@@ -175,7 +180,11 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					title: t('fields.quickAction.title'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.quickAction} color={themeValue.text} />,
-					isShow: isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP,
+					isShow:
+						isChannel &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_APP &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE,
 					onPress: () => {
 						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 							screen: APP_SCREEN.MENU_CHANNEL.QUICK_ACTION,
@@ -206,7 +215,10 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					title: t('fields.channelWebhooks.webhook'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.webhookIcon} color={themeValue.text} />,
-					isShow: channel?.type !== ChannelType.CHANNEL_TYPE_APP,
+					isShow:
+						channel?.type !== ChannelType.CHANNEL_TYPE_APP &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
+						channel?.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE,
 					onPress: () => {
 						navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, {
 							screen: APP_SCREEN.MENU_CLAN.INTEGRATIONS,
@@ -393,9 +405,16 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 				)}
 			</View>
 
-			{isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP && <MezonMenu menu={topMenu} />}
+			{isChannel && channel?.type !== ChannelType.CHANNEL_TYPE_APP && (
+				<MezonMenu
+					menu={topMenu}
+					paddingBottom={
+						channel?.type === ChannelType.CHANNEL_TYPE_STREAMING || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ? 0 : size.s_18
+					}
+				/>
+			)}
 
-			<MezonMenu menu={bottomMenu} />
+			<MezonMenu menu={bottomMenu} marginVertical={0} />
 			<AddMemberOrRoleBS bottomSheetRef={bottomSheetRef} channel={channel} />
 		</ScrollView>
 	);

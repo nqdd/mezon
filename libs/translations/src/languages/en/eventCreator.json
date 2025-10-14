@@ -118,7 +118,7 @@
 		"eventInfo": "Event Info",
 		"interested": "Interested",
 		"personInterested": "{{count}} person is interested",
-		"createdBy": "Created by",
+		"createdBy": "Created by {{username}}",
 		"inviteFriends": "Invite friends to event?",
 		"shareLink": "Share this link with others to grant access to this clan",
 		"onlyInvitedMembers": "Only invited members can join.",

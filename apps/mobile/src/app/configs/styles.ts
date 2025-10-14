@@ -1,21 +1,27 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			height: size.s_50,
-			width: '80%',
-			backgroundColor: colors.secondaryLight,
-			borderRadius: size.s_40,
+			height: size.s_60,
+			width: '90%',
+			backgroundColor: 'transparent',
 			flexDirection: 'row',
 			alignItems: 'center',
 			borderLeftColor: 'transparent',
-			paddingHorizontal: size.s_20
+			paddingLeft: size.s_20,
+			borderLeftWidth: 0,
+			shadowColor: 'transparent',
+			elevation: 2,
+			overflow: 'hidden'
 		},
 		iconWrapper: {
-			width: size.s_20,
-			height: size.s_20
+			padding: size.s_4,
+			backgroundColor: baseColor.white,
+			justifyContent: 'center',
+			alignItems: 'center',
+			borderRadius: size.s_50
 		},
 		text: {
 			color: colors.text
@@ -52,5 +58,20 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: size.s_8,
 			marginBottom: -size.s_4
+		},
+		toastWrapper: {
+			borderRadius: size.s_20,
+			overflow: 'hidden',
+			width: '90%'
+		},
+		titleBaseStyle: {
+			fontSize: size.medium,
+			color: baseColor.black,
+			fontWeight: '600'
+		},
+		descriptionBaseStyle: {
+			fontSize: size.small,
+			color: baseColor.black,
+			fontWeight: '400'
 		}
 	});

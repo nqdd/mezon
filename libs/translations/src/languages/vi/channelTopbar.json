@@ -18,8 +18,14 @@
 		"members": "Thành viên",
 		"showChat": "Hiển thị cuộc trò chuyện",
 		"addFriendsToDM": "Thêm bạn bè vào DM",
+		"jump": "Nhảy đến",
 		"gallery": "Thư viện ảnh"
 	},
+	"directMessage": "Tin nhắn trực tiếp",
+	"activeThreads": "Chủ đề đang hoạt động",
+	"joinedThreadsLast30Days": "Chủ đề đã tham gia (30 ngày qua)",
+	"olderThreads": "Chủ đề cũ hơn",
+	"loading": "Đang tải...",
 	"callMessages": {
 		"startedVoiceCall": "Đã bắt đầu cuộc gọi thoại",
 		"startedVideoCall": "Đã bắt đầu cuộc gọi video"
@@ -59,9 +65,9 @@
 		"attachmentFailed": "Không thể tải tệp đính kèm."
 	},
 	"notificationSetting": {
-		"muteChannel": "Tắt tiếng kênh",
-		"unmuteChannel": "Bật tiếng kênh",
-		"mutedUntil": "Tắt tiếng đến {{date}}",
+		"muteChannel": "Tắt thông báo kênh",
+		"unmuteChannel": "Bật thông báo kênh",
+		"mutedUntil": "Tắt thông báo đến {{date}}",
 		"useCategoryDefault": "Sử dụng mặc định danh mục",
 		"muteOptions": {
 			"for15Minutes": "Trong 15 phút",

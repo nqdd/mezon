@@ -1,19 +1,10 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import type { DirectEntity } from '@mezon/store-mobile';
-import {
-	fetchUserChannels,
-	getStore,
-	selectAllAccount,
-	selectAllUserClans,
-	selectMemberByGroupId,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
+import { DirectEntity, getStore, selectAllChannelMembersClan, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -38,7 +29,6 @@ export const MemberListStatus = React.memo(() => {
 	const styles = style(themeValue);
 	const currentChannel = useContext(threadDetailContext);
 	const navigation = useNavigation<any>();
-	const dispatch = useAppDispatch();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
@@ -53,20 +43,6 @@ export const MemberListStatus = React.memo(() => {
 		return [ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type);
 	}, [currentChannel]);
 
-	useEffect(() => {
-		if (isDMThread && currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			const fetchMemberGroup = async () => {
-				dispatch(
-					fetchUserChannels({
-						channelId: currentChannel?.channel_id,
-						isGroup: true
-					})
-				);
-			};
-			fetchMemberGroup();
-		}
-	}, [currentChannel?.channel_id, currentChannel?.type, dispatch, isDMThread]);
-
 	const handleAddOrInviteMembers = useCallback((action: EActionButton) => {
 		if (action === EActionButton.InviteMembers) {
 			const data = {
@@ -78,44 +54,9 @@ export const MemberListStatus = React.memo(() => {
 		if (action === EActionButton.AddMembers) navigateToNewGroupScreen();
 	}, []);
 
-	const mapMembersDM = () => {
-		const store = getStore();
-		const userProfile = selectAllAccount(store.getState());
-		const userGroup: ChannelMembersEntity[] = [
-			{
-				id: userProfile?.user?.id || '',
-				user: {
-					id: userProfile?.user?.id || '',
-					display_name: userProfile?.user?.display_name || '',
-					username: userProfile?.user?.username || '',
-					avatar_url: userProfile?.user?.avatar_url || '',
-					online: userProfile?.user?.online || false
-				}
-			}
-		];
-		const userObject = {
-			id: currentChannel.user_ids?.[0] || '',
-			user: {
-				id: currentChannel.user_ids?.[0] || '',
-				display_name: currentChannel.display_names?.[0] || '',
-				username: currentChannel.usernames?.[0] || '',
-				avatar_url: currentChannel.avatars?.[0] || '',
-				online: currentChannel.onlines?.[0] || false
-			}
-		};
-		userGroup.push(userObject);
-		return userGroup;
-	};
-
 	const listMembersChannelGroupDM = useMemo(() => {
 		const store = getStore();
-		const userGroup: ChannelMembersEntity[] = rawMembers || [];
-		const members =
-			currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP
-				? userGroup
-				: currentChannel?.type === ChannelType.CHANNEL_TYPE_DM
-					? mapMembersDM()
-					: selectAllUserClans(store.getState() as any);
+		const members = isDMThread ? rawMembers : selectAllChannelMembersClan(store.getState() as any, currentChannel?.id as string);
 
 		if (!members) {
 			return {
@@ -138,7 +79,7 @@ export const MemberListStatus = React.memo(() => {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [currentChannel?.type, rawMembers]);
+	}, [currentChannel?.id, isDMThread, rawMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
 

@@ -1,31 +1,31 @@
 {
-     "muteClan": "Tắt thông báo của clan sẽ ẩn các chỉ báo tin nhắn chưa đọc và không hiển thị thông báo, trừ khi bạn được nhắc đến",
-  "notifySettingOption": {
-      "title": "Cài đặt thông báo clan",
-      "allMessage": "Tất cả tin nhắn",
-      "onlyMentions": "Chỉ @mention",
-      "nothing": "Không có gì"
-  },
-  "suppressOption": {
-      "suppressEveryone": "Tắt tiếng @everyone và @here",
-      "suppressAllRole": "Tắt tiếng @mention tất cả vai trò",
-      "suppressHighlights": "Tắt tiếng điểm nổi bật",
-      "subText": "Điểm nổi bật cung cấp các bản cập nhật thỉnh thoảng khi bạn bè của bạn đang trò chuyện trong clan mua và hơn thế nữa."
-  },
-  "muteEventOptions": {
-      "muteNewEvents": "Tắt tiếng sự kiện mới",
-      "mobilePushNotifications": "Thông báo đẩy di động"
-  },
-  "notificationOverrides": {
-      "title": "Ghi đè thông báo",
-      "addChannelsAllCategory": "Thêm tất cả kênh vào danh mục"
-  },
-  "clanNotificationSettingDetail": {
-      "muteChannelSubText": "Bạn sẽ không nhận được thông báo từ các kênh đã tắt tiếng. Cài đặt này áp dụng trên tất cả các thiết bị của bạn.",
-      "youHaveMuted": "Bạn đã tắt tiếng kênh này đến"
-  },
-  "clanNotificationBS": {
-      "title": "Tắt tiếng clan này"
-  },
-  "resetOverrides": "Đặt lại ghi đè"
+	"muteClan": "Tắt thông báo của clan sẽ ẩn các chỉ báo tin nhắn chưa đọc và không hiển thị thông báo, trừ khi bạn được nhắc đến",
+	"notifySettingOption": {
+		"title": "Cài đặt thông báo clan",
+		"allMessage": "Tất cả tin nhắn",
+		"onlyMentions": "Chỉ @mention",
+		"nothing": "Không có gì"
+	},
+	"suppressOption": {
+		"suppressEveryone": "Tắt thông báo @everyone và @here",
+		"suppressAllRole": "Tắt thông báo @mention tất cả vai trò",
+		"suppressHighlights": "Tắt thông báo điểm nổi bật",
+		"subText": "Điểm nổi bật cung cấp các bản cập nhật thỉnh thoảng khi bạn bè của bạn đang trò chuyện trong clan mua và hơn thế nữa."
+	},
+	"muteEventOptions": {
+		"muteNewEvents": "Tắt thông báo sự kiện mới",
+		"mobilePushNotifications": "Thông báo đẩy di động"
+	},
+	"notificationOverrides": {
+		"title": "Ghi đè thông báo",
+		"addChannelsAllCategory": "Thêm tất cả kênh vào danh mục"
+	},
+	"clanNotificationSettingDetail": {
+		"muteChannelSubText": "Bạn sẽ không nhận được thông báo từ các kênh đã tắt thông báo. Cài đặt này áp dụng trên tất cả các thiết bị của bạn.",
+		"youHaveMuted": "Bạn đã tắt thông báo kênh này đến"
+	},
+	"clanNotificationBS": {
+		"title": "Tắt thông báo clan này"
+	},
+	"resetOverrides": "Đặt lại ghi đè"
 }

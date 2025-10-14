@@ -83,6 +83,7 @@ const ListDMChannel = ({ listDM }: ListDMChannelProps) => {
 			onWheelCapture={() => {
 				toggleDisableHover(parentRef.current, scrollTimeoutId2);
 			}}
+			data-e2e={generateE2eId('chat.direct_message.chat_list_container')}
 		>
 			<div
 				style={{

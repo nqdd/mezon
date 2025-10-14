@@ -270,22 +270,6 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 			</div>
 
 			<div className="w-full border-b-theme-primary opacity-70 text-center"></div>
-			{isElectron() && (
-				<Menu
-					menu={menuAccount}
-					trigger="click"
-					placement="bottomRight"
-					align={{
-						offset: [0, 10],
-						points: ['br']
-					}}
-					className="bg-theme-setting-primary border-none ml-2 py-[6px] px-[8px] w-[100px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full"
-				>
-					<div>
-						<ItemStatus children={t('statusProfile.switchAccounts')} dropdown startIcon={<Icons.ConvertAccount />} />
-					</div>
-				</Menu>
-			)}
 
 			<ButtonCopy
 				copyText={userProfile?.user?.id || ''}

@@ -191,11 +191,10 @@ export const voiceSlice = createSlice({
 			const entities = voiceAdapter.getSelectors().selectEntities(state);
 			if (entities[keyRemove]) {
 				voiceAdapter.removeOne(state, keyRemove);
-				delete state.listInVoiceStatus[keyRemove];
 			} else {
 				voiceAdapter.removeOne(state, voice.id);
-				delete state.listInVoiceStatus[voice.voice_user_id];
 			}
+			delete state.listInVoiceStatus[voice.voice_user_id];
 		},
 		voiceEnded: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;

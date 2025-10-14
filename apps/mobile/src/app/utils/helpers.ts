@@ -131,3 +131,12 @@ export const compress = async (str: string) => {
 export const decompress = async (compressedStr: string) => {
 	return await inflate(compressedStr);
 };
+
+export const removeDiacritics = (str) => {
+	if (!str) return '';
+	return str
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/đ/g, 'd')
+		.replace(/Đ/g, 'D');
+};

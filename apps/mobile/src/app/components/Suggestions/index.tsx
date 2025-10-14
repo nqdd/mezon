@@ -15,6 +15,7 @@ import { FC, memo, useEffect, useMemo, useState } from 'react';
 import { LayoutAnimation, Pressable, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
+import { removeDiacritics } from '../../utils/helpers';
 import SuggestItem from './SuggestItem';
 
 export interface MentionSuggestionsProps {
@@ -25,15 +26,6 @@ export interface MentionSuggestionsProps {
 }
 
 const Suggestions: FC<MentionSuggestionsProps> = memo(({ keyword, onSelect, listMentions, isEphemeralMode }) => {
-	const removeDiacritics = (str) => {
-		if (!str) return '';
-		return str
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.replace(/đ/g, 'd')
-			.replace(/Đ/g, 'D');
-	};
-
 	const [listMentionData, setListMentionData] = useState([]);
 	const filteredMentions = useMemo(() => {
 		if (!listMentions?.length || !keyword?.trim()) return listMentions || [];
@@ -87,11 +79,15 @@ const Suggestions: FC<MentionSuggestionsProps> = memo(({ keyword, onSelect, list
 			LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.easeInEaseOut, LayoutAnimation.Properties.opacity));
 			setListMentionData(filteredMentions);
 		}
-	}, [filteredMentions]);
+	}, [filteredMentions, listMentionData]);
 
 	const handleSuggestionPress = (user: MentionDataProps) => {
-		onSelect(user as MentionDataProps);
+		onSelect({
+			...user,
+			name: user.display
+		} as MentionDataProps);
 	};
+
 	return (
 		<FlatList
 			style={{ maxHeight: size.s_220 }}

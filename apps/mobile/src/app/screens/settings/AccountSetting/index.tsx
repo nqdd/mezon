@@ -65,7 +65,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		store.dispatch(clansActions.removeAll());
 		store.dispatch(clansActions.collapseAllGroups());
 		store.dispatch(clansActions.clearClanGroups());
-		store.dispatch(accountActions.setPasswordSetted(false));
+
 		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
@@ -96,14 +96,6 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		} catch (error) {
 			console.error('Delete account failed:', error);
 		}
-	};
-
-	//TODO: delete
-	const showUpdating = () => {
-		Toast.show({
-			type: 'info',
-			text1: 'Coming soon'
-		});
 	};
 
 	const handleSettingOption = (type: EAccountSettingType) => {

@@ -2112,27 +2112,24 @@ export function IconAddFriendDM({ defaultSize = 'w-5 h-5' }) {
 	);
 }
 
-export function IconUserProfileDM({ defaultSize = 'w-5 h-5 ' }) {
+export function IconUserProfileDM({ defaultSize = 'w-5 h-5 ' }: { defaultSize?: string }) {
 	return (
-		<svg
-			className={defaultSize}
-			x="0"
-			y="0"
-			aria-hidden="true"
-			role="img"
-			xmlns="http://www.w3.org/2000/svg"
-			width="24"
-			height="24"
-			fill="none"
-			viewBox="0 0 24 24"
-		>
-			<path
-				fill="currentColor"
-				fillRule="evenodd"
-				d="M23 12.38c-.02.38-.45.58-.78.4a6.97 6.97 0 0 0-6.27-.08.54.54 0 0 1-.44 0 8.97 8.97 0 0 0-11.16 3.55c-.1.15-.1.35 0 .5.37.58.8 1.13 1.28 1.61.24.24.64.15.8-.15.19-.38.39-.73.58-1.02.14-.21.43-.1.4.15l-.19 1.96c-.02.19.07.37.23.47A8.96 8.96 0 0 0 12 21a.4.4 0 0 1 .38.27c.1.33.25.65.4.95.18.34-.02.76-.4.77L12 23a11 11 0 1 1 11-10.62ZM15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-				clipRule="evenodd"
-			></path>
-			<path fill="currentColor" d="M24 19a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z"></path>
+		<svg className={defaultSize} aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="-2.28 -2.28 50.09 50.09" fill="none">
+			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+			<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+			<g id="SVGRepo_iconCarrier">
+				<g>
+					<path
+						fill="currentColor"
+						stroke="currentColor"
+						d="M22.766,0.001C10.194,0.001,0,10.193,0,22.766s10.193,22.765,22.766,22.765
+						c12.574,0,22.766-10.192,22.766-22.765S35.34,0.001,22.766,0.001z M22.766,6.808c4.16,0,7.531,3.372,7.531,7.53
+						c0,4.159-3.371,7.53-7.531,7.53c-4.158,0-7.529-3.371-7.529-7.53C15.237,10.18,18.608,6.808,22.766,6.808z M22.761,39.579
+						c-4.149,0-7.949-1.511-10.88-4.012c-0.714-0.609-1.126-1.502-1.126-2.439c0-4.217,3.413-7.592,7.631-7.592h8.762
+						c4.219,0,7.619,3.375,7.619,7.592c0,0.938-0.41,1.829-1.125,2.438C30.712,38.068,26.911,39.579,22.761,39.579z"
+					></path>
+				</g>
+			</g>
 		</svg>
 	);
 }

@@ -16,6 +16,7 @@ import type { ChannelMembersEntity } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDirectMessageContextMenu } from '../../../contexts';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
@@ -38,6 +39,7 @@ export type directMessageValueProps = {
 };
 
 function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFriends, isActive }: DirectMessProp) {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
@@ -94,7 +96,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 				})
 			);
 		}
-	}, [directMessage, id]);
+	}, [directMessage, id, currentDmGroupId]);
 
 	return (
 		<div
@@ -111,6 +113,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 				isTypeDMGroup={isTypeDMGroup}
 				highlight={isUnReadChannel || currentDmGroupId === id}
 				direct={directMessage}
+				t={t}
 			/>
 			{buzzStateDM?.isReset ? (
 				<BuzzBadge
@@ -142,7 +145,8 @@ const DmItemProfile = ({
 	number,
 	isTypeDMGroup,
 	highlight,
-	direct
+	direct,
+	t
 }: {
 	highlight: boolean;
 	avatar: string;
@@ -150,6 +154,7 @@ const DmItemProfile = ({
 	number: number;
 	isTypeDMGroup: boolean;
 	direct: DirectEntity;
+	t: (key: string) => string;
 }) => {
 	const userStatus = useMemberStatus(direct.user_ids?.[0] || '');
 	return (
@@ -174,7 +179,11 @@ const DmItemProfile = ({
 				<span className="one-line text-start" data-e2e={generateE2eId(`chat.direct_message.chat_item.username`)}>
 					{name}
 				</span>
-				{isTypeDMGroup && <p className="opacity-60 text-xs text-start">{number} Members</p>}
+				{isTypeDMGroup && (
+					<p className="opacity-60 text-theme-primary text-xs text-start">
+						{number} {t('members')}
+					</p>
+				)}
 			</div>
 		</div>
 	);

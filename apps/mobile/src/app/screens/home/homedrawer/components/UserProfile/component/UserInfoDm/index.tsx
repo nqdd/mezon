@@ -49,7 +49,7 @@ export default function UserInfoDm({
 			} catch (error) {
 				console.error('Error removing member from channel:', error);
 				Toast.show({
-					type: 'info',
+					type: 'error',
 					text1: t('userInfoDM.menu.removeFailed')
 				});
 			}

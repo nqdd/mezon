@@ -2,6 +2,7 @@ import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { IMentionOnMessage, IMessageWithUser, INotification, TOPBARS_MAX_WIDTH, TypeMessage, addMention, createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNotificationJump } from '../../hooks/useNotificationJump';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import MessageAttachment from '../MessageWithUser/MessageAttachment';
@@ -35,6 +36,7 @@ function convertContentToObject(notify: any) {
 	return notify;
 }
 function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
+	const { t } = useTranslation('channelTopbar');
 	const parseNotify = convertContentToObject(notify);
 
 	const messageId = useMemo(() => {
@@ -57,10 +59,7 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 
 	const topicId = parseNotify?.content?.topic_id;
 
-	const isTopic =
-		Number(topicId) !== 0 ||
-		parseNotify?.content?.code === TypeMessage.Topic ||
-		parseNotify?.message?.code === TypeMessage.Topic;
+	const isTopic = Number(topicId) !== 0 || parseNotify?.content?.code === TypeMessage.Topic || parseNotify?.message?.code === TypeMessage.Topic;
 
 	const { handleClickJump } = useNotificationJump({
 		messageId,
@@ -68,9 +67,8 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 		clanId,
 		topicId,
 		isTopic,
-		mode: (parseNotify?.content?.mode ?? 1) - 1,
+		mode: (parseNotify?.content?.mode ?? 1) - 1
 	});
-
 
 	return (
 		<div className=" bg-transparent rounded-[8px] relative group">
@@ -78,7 +76,7 @@ function NotifyMentionItem({ notify, isUnreadTab }: NotifyMentionProps) {
 				className="absolute py-1 px-2 top-[10px] z-50 right-3 text-[10px] rounded-[6px] transition-all duration-300 group-hover:block hidden"
 				onClick={handleClickJump}
 			>
-				Jump
+				{t('tooltips.jump')}
 			</button>
 			{<MentionTabContent message={parseNotify.content} />}
 		</div>

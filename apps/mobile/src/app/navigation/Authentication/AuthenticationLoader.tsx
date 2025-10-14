@@ -333,7 +333,7 @@ export const AuthenticationLoader = () => {
 						playCustomSoundNotify(messageCode === TypeMessage.MessageBuzz ? 'buzz' : 'bank');
 					}
 
-					handleBuzz(remoteMessage);
+					if (messageCode === TypeMessage.MessageBuzz) handleBuzz(remoteMessage);
 				}
 			} catch (e) {
 				console.error('log  => e', e);

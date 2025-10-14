@@ -56,7 +56,7 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 		const error = (newChannelCreatedId as any).error;
 		if (newChannelCreatedId && error) {
 			Toast.show({
-				type: 'info',
+				type: 'error',
 				text1: t('fields.channelName.duplicateChannelName')
 			});
 			dispatch(appActions.setLoadingMainMobile(false));

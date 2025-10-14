@@ -201,7 +201,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				const isJoined = selectVoiceJoined(store.getState());
 				if (isJoined && !data?.isEndCall && voiceInfo?.channelId === data?.channelId) {
 					Toast.show({
-						type: 'info',
+						type: 'error',
 						text1: 'Already in the call',
 						text2: 'You are already in this voice channel.'
 					});
