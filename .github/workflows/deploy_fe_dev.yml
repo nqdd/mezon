@@ -1,4 +1,6 @@
 name: Deploy Mezon FE Dev
+permissions:
+  contents: read
 on:
   workflow_dispatch:
 
