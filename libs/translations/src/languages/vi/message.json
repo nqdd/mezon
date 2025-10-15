@@ -184,5 +184,6 @@
 		"cancel": "Hủy"
 	},
 	"creator": "Người tạo",
-	"viewTopic": "Xem thảo luận ngắn"
+	"viewTopic": "Xem thảo luận ngắn",
+	"reply": "{{number}} tin nhắn"
 }

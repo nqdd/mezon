@@ -1,4 +1,12 @@
-import { getFirstMessageOfTopic, selectMemberClanByUserId, threadsActions, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import {
+	getFirstMessageOfTopic,
+	selectMemberClanByUserId,
+	selectMessageByMessageId,
+	threadsActions,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
 import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, isValidEmojiData } from '@mezon/utils';
@@ -55,7 +63,8 @@ const MessageContent = ({ message, mode, isSearchMessage, isEphemeral, isSending
 export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
-	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, message?.content?.cid as string));
+	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id)) || message;
+	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, latestMessage?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
 
 	const handleOpenTopic = useCallback(() => {
@@ -78,8 +87,10 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 					srcImgProxy={createImgproxyUrl(avatarToDisplay ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 					src={avatarToDisplay}
 				/>
-				<div className="font-semibold text-blue-500 group-hover:underline group-hover:decoration-solid flex-shrink-0">{t('creator')}</div>
-				<p className="flex-shrink-0">{t('viewTopic')}</p>
+				<div className="font-semibold text-blue-500 flex-shrink-0">{t('creator')}</div>
+				<p className="flex-shrink-0">
+					{t('viewTopic')} {latestMessage?.content?.rpl && `(${t('reply', { number: latestMessage?.content?.rpl })})`}
+				</p>
 			</div>
 			<Icons.ArrowRight className="flex-shrink-0" />
 		</div>
