@@ -1,5 +1,5 @@
 import type { FriendsEntity, ISendTokenDetailType, UsersEntity } from '@mezon/store';
-import { selectAllFriends, selectAllUsersByUser } from '@mezon/store';
+import { selectAllFriends, selectAllUsersByUser, selectWalletDetail } from '@mezon/store';
 import { ButtonLoading, Icons } from '@mezon/ui';
 import { createImgproxyUrl, formatNumber } from '@mezon/utils';
 import Dropdown from 'rc-dropdown';
@@ -54,10 +54,13 @@ const ModalSendToken = ({
 	const { t, i18n } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile.sendTokenModal' });
 	const usersClan = useSelector(selectAllUsersByUser);
 	const friends = useSelector(selectAllFriends);
+	const walletDetail = useSelector(selectWalletDetail);
 	const [searchTerm, setSearchTerm] = useState(infoSendToken?.receiver_name || '');
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [tokenNumber, setTokenNumber] = useState('');
 	const [noteSendToken, setNoteSendToken] = useState(note || '');
+	const [walletBalanceError, setWalletBalanceError] = useState<string | null>(null);
+	const [limitError, setLimitError] = useState<string | null>(null);
 
 	useEffect(() => {
 		return () => {
@@ -65,6 +68,16 @@ const ModalSendToken = ({
 			setToken(0);
 		};
 	}, [setToken]);
+
+	useEffect(() => {
+		setWalletBalanceError(null);
+	}, [walletDetail?.balance]);
+
+	useEffect(() => {
+		if (token <= 99000000) {
+			setLimitError(null);
+		}
+	}, [token]);
 
 	const handleChangeSearchTerm = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
@@ -86,9 +99,34 @@ const ModalSendToken = ({
 	);
 
 	const handleChangeSendToken = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value.replace(/[^0-9]/g, '');
-		setTokenNumber(formatNumber(Number(value), i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
-		setToken(Number(value));
+		const rawValue = e.target.value;
+		const cleanedValue = rawValue.replace(/[^0-9]/g, '');
+		const numericValue = Number(cleanedValue);
+
+		const warningLimit = 100000000;
+		const absoluteLimit = 100000099;
+
+		const walletBalanceRaw = Number(walletDetail?.balance || 0);
+		const walletBalance = walletBalanceRaw;
+		if (numericValue > absoluteLimit) {
+			setLimitError(t('errors.maximumLimit'));
+			return;
+		}
+
+		setTokenNumber(formatNumber(numericValue, i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
+		setToken(numericValue);
+
+		if (numericValue >= warningLimit) {
+			setLimitError(t('errors.maximumLimit'));
+		} else {
+			setLimitError(null);
+		}
+
+		setWalletBalanceError(null);
+
+		if (numericValue > walletBalance) {
+			setWalletBalanceError(t('errors.exceedWalletBalance'));
+		}
 	};
 
 	const handleChangeNote = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,6 +300,8 @@ const ModalSendToken = ({
 							</span>
 						</div>
 						{error && <p className="text-red-500 text-sm">{error}</p>}
+						{walletBalanceError && <p className="text-red-500 text-sm">{walletBalanceError}</p>}
+						{limitError && <p className="text-orange-500 text-sm">{limitError}</p>}
 					</div>
 
 					<div className="space-y-3">
@@ -287,7 +327,7 @@ const ModalSendToken = ({
 					<ButtonLoading
 						className="flex-1 h-12 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 hover:text-white  text-white font-medium"
 						onClick={handleSendToken}
-						disabled={isButtonDisabled || !selectedUserId || token <= 0}
+						disabled={isButtonDisabled || !selectedUserId || token <= 0 || !!walletBalanceError || token > 100000000}
 						label={t('buttons.sendTokens')}
 					/>
 				</div>

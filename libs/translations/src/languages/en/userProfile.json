@@ -132,6 +132,10 @@
 			"buttons": {
 				"cancel": "Cancel",
 				"sendTokens": "Send Tokens"
+			},
+			"errors": {
+				"exceedWalletBalance": "Amount exceeds wallet balance",
+				"maximumLimit": "Maximum is 100,000,000"
 			}
 		},
 		"historyTransaction": {

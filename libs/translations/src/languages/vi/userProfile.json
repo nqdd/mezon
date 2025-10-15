@@ -132,6 +132,10 @@
 			"buttons": {
 				"cancel": "Hủy",
 				"sendTokens": "Gửi Token"
+			},
+			"errors": {
+				"exceedWalletBalance": "Số tiền vượt quá số dư trong ví",
+				"maximumLimit": "Tối đa là 100,000,000"
 			}
 		},
 		"historyTransaction": {
