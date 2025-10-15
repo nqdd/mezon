@@ -111,7 +111,8 @@ export const sendToken = createAsyncThunk('token/sendToken', async (tokenEvent: 
 						type: ETransferType.TransferToken,
 						UserReceiverId: tokenEvent.receiver_id || '',
 						UserSenderId: tokenEvent.sender_id || '',
-						UserSenderUsername: mezon.session.username || ''
+						UserSenderUsername: mezon.session.username || '',
+						ExtraAttribute: tokenEvent?.extra_attribute || ''
 					}
 				})
 			)
