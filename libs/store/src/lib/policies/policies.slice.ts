@@ -154,6 +154,19 @@ export const policiesSlice = createSlice({
 		},
 		updateCache: (state) => {
 			state.cache = createCacheMetadata(LIST_PERMISSION_CACHED_TIME);
+		},
+		addPermissionCurrentClan: (state, action: PayloadAction<ApiRole>) => {
+			const role = action.payload;
+			if (state.permissionUser) {
+				state.permissionUser = [
+					...state.permissionUser,
+					{
+						id: role.id,
+						...role
+					}
+				];
+			}
+			state.cache = createCacheMetadata(LIST_PERMISSION_CACHED_TIME);
 		}
 	},
 	extraReducers: (builder) => {
@@ -231,20 +244,10 @@ export const selectAllPermissionsUser = createSelector(getPoliciesState, selectA
 export const selectUserMaxPermissionLevel = createSelector([getPoliciesState], (state) => {
 	let maxPermissionLevel: number | null = null;
 
-	const entities = Object.values(state.entities);
-	for (const permission of entities) {
-		if (permission && Number.isInteger(permission?.max_level_permission)) {
+	for (const permission of state.permissionUser) {
+		if (Number.isInteger(permission?.max_level_permission)) {
 			const permissionLevel = permission.max_level_permission as number;
 			maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
-		}
-	}
-
-	if (maxPermissionLevel === null) {
-		for (const permission of state.permissionUser) {
-			if (Number.isInteger(permission?.max_level_permission)) {
-				const permissionLevel = permission.max_level_permission as number;
-				maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
-			}
 		}
 	}
 

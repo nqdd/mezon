@@ -1972,47 +1972,21 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						})
 					).unwrap();
 
-					if (isUserResult) {
-						if (user_add_ids.includes(userId as string)) {
-							dispatch(
-								policiesActions.updateOne({
-									id: role.id as string,
-									changes: { title: role.title, id: role.id || '', max_level_permission: role.max_level_permission }
-								})
-							);
-						} else {
-							dispatch(policiesActions.removeOne(role.id as string));
+					if (isUserResult && user_add_ids.includes(userId as string)) {
+						const store = await getStoreAsync();
+						const currentClanId = selectCurrentClanId(store.getState() as unknown as RootState);
+						if (currentClanId === role.clan_id) {
+							dispatch(policiesActions.addPermissionCurrentClan(role));
 						}
 					}
 				}
-				if (status === EEventAction.UPDATE) {
-					dispatch(
-						policiesActions.updateOne({
-							id: role.id as string,
-							changes: {
-								title: role.title,
-								id: role.id || '',
-								max_level_permission: role.max_level_permission
-							}
-						})
-					);
-				}
+
 				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
 
 			// Handle role deletion
 			if (status === EEventAction.DELETE) {
-				const isUserResult = await dispatch(
-					rolesClanActions.updatePermissionUserByRoleId({
-						roleId: role.id as string,
-						userId: userId as string
-					})
-				).unwrap();
-
-				if (isUserResult) {
-					dispatch(policiesActions.removeOne(role.id as string));
-				}
 				dispatch(rolesClanActions.remove({ roleId: role.id as string, clanId: role.clan_id as string }));
 			}
 		},
