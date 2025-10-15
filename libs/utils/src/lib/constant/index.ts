@@ -184,3 +184,5 @@ export const ITEM_TYPE = {
 	EMOJI: 0,
 	STICKER: 1
 };
+
+export const MAX_CLAN_ITEM_SLOTS = 250;

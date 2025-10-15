@@ -2,10 +2,10 @@ import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components'
 import { useTheme } from '@mezon/mobile-ui';
 import { createSticker, selectCurrentClanId, selectStickersByClanId, useAppDispatch } from '@mezon/store-mobile';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
-import { LIMIT_SIZE_UPLOAD_IMG } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
-import { ApiClanStickerAddRequest } from 'mezon-js/api.gen';
+import type { ApiClanStickerAddRequest } from 'mezon-js/api.gen';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
@@ -13,7 +13,7 @@ import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import { WebView } from 'react-native-webview';
 import { useSelector } from 'react-redux';
-import { IFile } from '../../../componentUI/MezonImagePicker';
+import type { IFile } from '../../../componentUI/MezonImagePicker';
 import { EmojiPreview } from '../Emoji/EmojiPreview';
 import { StickerList } from './StickerList';
 import { style } from './styles';
@@ -25,7 +25,7 @@ export function StickerSetting({ navigation }) {
 	const currentClanId = useSelector(selectCurrentClanId) || '';
 	const listSticker = useSelector(selectStickersByClanId(currentClanId));
 	const dispatch = useAppDispatch();
-	const { t } = useTranslation(['clanStickerSetting']);
+	const { t } = useTranslation(['clanStickerSetting', 'common']);
 
 	const [watermarkState, setWatermarkState] = useState<{
 		isProcessing: boolean;
@@ -130,7 +130,7 @@ export function StickerSetting({ navigation }) {
 		const arrayBuffer = BufferMobile.from(file?.fileData, 'base64');
 
 		const id = Snowflake.generate();
-		const path = 'stickers/' + id + '.webp';
+		const path = `stickers/${id}.webp`;
 		const attachment = await handleUploadEmoticon(client, session, path, file as unknown as File, true, arrayBuffer);
 
 		return {
@@ -140,6 +140,13 @@ export function StickerSetting({ navigation }) {
 	}, []);
 
 	const handleUploadSticker = async () => {
+		if (listSticker?.length > MAX_CLAN_ITEM_SLOTS) {
+			Toast.show({
+				type: 'error',
+				text1: t('common:uploadLimit.sticker')
+			});
+			return;
+		}
 		try {
 			const selectedFile = await openPicker({
 				mediaType: 'photo',
@@ -200,8 +207,8 @@ export function StickerSetting({ navigation }) {
 		const category = 'Among Us';
 
 		const request: ApiClanStickerAddRequest = {
-			id: id,
-			category: category,
+			id,
+			category,
 			clan_id: currentClanId,
 			shortname: name,
 			source: url,
@@ -212,7 +219,7 @@ export function StickerSetting({ navigation }) {
 			const fileData = await createBlurredWatermarkedImageFile(croppedFile?.data);
 
 			const { id } = await handleUploadImage({
-				fileData: fileData,
+				fileData,
 				name: croppedFile?.modificationDate,
 				uri: croppedFile?.path,
 				size: croppedFile?.size,
@@ -220,7 +227,7 @@ export function StickerSetting({ navigation }) {
 			});
 			request.id = id;
 		}
-		dispatch(createSticker({ request: request, clanId: currentClanId }));
+		dispatch(createSticker({ request, clanId: currentClanId }));
 	};
 
 	const ListHeaderComponent = () => {
