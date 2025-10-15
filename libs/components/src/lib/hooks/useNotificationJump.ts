@@ -1,5 +1,16 @@
-import { getFirstMessageOfTopic, messagesActions, selectCurrentChannelId, selectCurrentClanId, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import {
+	appActions,
+	getFirstMessageOfTopic,
+	messagesActions,
+	selectCurrentChannelId,
+	selectCurrentClanId,
+	selectIsShowCanvas,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 interface UseNotificationJumpProps {
@@ -9,13 +20,15 @@ interface UseNotificationJumpProps {
 	topicId?: string;
 	isTopic: boolean;
 	mode?: number;
+	onCloseTooltip?: () => void;
 }
 
-export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isTopic, mode }: UseNotificationJumpProps) => {
+export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isTopic, mode, onCloseTooltip }: UseNotificationJumpProps) => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const currentClanId = useAppSelector(selectCurrentClanId);
 	const currentChannelId = useAppSelector(selectCurrentChannelId);
+	const isShowCanvas = useSelector(selectIsShowCanvas);
 
 	const handleJumpToTopic = useCallback(async () => {
 		if (!topicId || !channelId || !clanId || !messageId) return;
@@ -33,30 +46,36 @@ export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isT
 		dispatch(topicsActions.setIsShowCreateTopic(true));
 		dispatch(topicsActions.setCurrentTopicId(topicId));
 		dispatch(getFirstMessageOfTopic(topicId));
-		
+
 		dispatch(messagesActions.setIdMessageToJump({ id: messageId, navigate: false }));
 	}, [currentClanId, currentChannelId, clanId, channelId, topicId, messageId, navigate, dispatch]);
 
 	const handleJumpToMessage = useCallback(() => {
 		if (!messageId || !channelId || !clanId) return;
 
-		dispatch(messagesActions.jumpToMessage({
-			clanId: clanId || '',
-			messageId: messageId,
-			channelId: channelId,
-			mode: mode,
-			navigate
-		}));
+		dispatch(
+			messagesActions.jumpToMessage({
+				clanId: clanId || '',
+				messageId,
+				channelId,
+				mode,
+				navigate
+			})
+		);
 	}, [dispatch, messageId, channelId, clanId, mode, navigate]);
 
 	const handleClickJump = useCallback(async () => {
+		onCloseTooltip?.();
+		if (isShowCanvas) {
+			dispatch(appActions.setIsShowCanvas(false));
+		}
 		if (isTopic) {
 			await handleJumpToTopic();
 			return;
 		}
-		
+
 		handleJumpToMessage();
-	}, [isTopic, handleJumpToTopic, handleJumpToMessage]);
+	}, [isTopic, handleJumpToTopic, handleJumpToMessage, onCloseTooltip, isShowCanvas, dispatch]);
 
 	return {
 		handleClickJump,
