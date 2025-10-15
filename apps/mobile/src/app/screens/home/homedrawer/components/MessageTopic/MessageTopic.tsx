@@ -1,6 +1,7 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	MessagesEntity,
+	getFirstMessageOfTopic,
 	selectLatestMessageId,
 	selectMemberClanByUserId,
 	topicsActions,
@@ -32,6 +33,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 	const handleOpenTopic = () => {
 		dispatch(topicsActions.setCurrentTopicInitMessage(message));
 		dispatch(topicsActions.setCurrentTopicId(message?.content?.tp || ''));
+		dispatch(getFirstMessageOfTopic(message?.content?.tp || ''));
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.TOPIC_DISCUSSION
 		});
