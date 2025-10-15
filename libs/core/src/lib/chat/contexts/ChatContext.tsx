@@ -2124,12 +2124,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	}, []);
 
 	const onsdtopicevent = useCallback(async (sdTopicEvent: SdTopicEvent) => {
+		if (!sdTopicEvent) return;
+
 		dispatch(
 			messagesActions.updateToBeTopicMessage({
-				channelId: sdTopicEvent?.channel_id as string,
-				messageId: sdTopicEvent?.message_id as string,
-				topicId: sdTopicEvent?.id as string,
-				creatorId: sdTopicEvent?.user_id as string
+				channelId: sdTopicEvent.channel_id as string,
+				messageId: sdTopicEvent.message_id as string,
+				topicId: sdTopicEvent.id as string,
+				creatorId: sdTopicEvent.user_id as string
 			})
 		);
 		dispatch(
