@@ -78,7 +78,7 @@ const ForwardMessageScreen = () => {
 		return {
 			channelId: dm?.id,
 			type: dm?.type,
-			avatar: dm?.type === ChannelType.CHANNEL_TYPE_DM ? dm?.channel_avatar?.[0] : dm?.topic,
+			avatar: dm?.type === ChannelType.CHANNEL_TYPE_DM ? dm?.avatars?.[0] : dm?.channel_avatar,
 			name: dm?.channel_label,
 			clanId: '',
 			clanName: '',
@@ -273,7 +273,7 @@ const ForwardMessageScreen = () => {
 				</View>
 				<Text
 					style={{
-						fontSize: verticalScale(20),
+						fontSize: verticalScale(18),
 						color: themeValue.white
 					}}
 				>

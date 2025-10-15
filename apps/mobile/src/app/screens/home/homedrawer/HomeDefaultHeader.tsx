@@ -56,8 +56,6 @@ const HomeDefaultHeader = React.memo(
 		};
 
 		const handleActionBuzzMessage = async () => {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-			await sleep(500);
 			const data = {
 				children: <ConfirmBuzzMessageModal onSubmit={handleBuzzMessage} />
 			};

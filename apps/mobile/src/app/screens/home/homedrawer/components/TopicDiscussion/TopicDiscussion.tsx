@@ -112,6 +112,7 @@ export default function TopicDiscussion() {
 							channelId={currentTopicId}
 							topicId={currentTopicId}
 							clanId={currentClanId}
+							lastSeenMessageId={currentChannel?.last_seen_message?.id}
 							isPublic={isPublicChannel(currentChannel)}
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}

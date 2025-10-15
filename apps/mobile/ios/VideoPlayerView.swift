@@ -5,7 +5,7 @@ import React
 import CommonCrypto
 import MobileVLCKit
 
-class VideoPlayerView: UIView {
+class VideoPlayerView: UIView, VLCMediaPlayerDelegate {
 	private var playerViewController: AVPlayerViewController?
 	private var avPlayer: AVPlayer?
 	private var playerItem: AVPlayerItem?
