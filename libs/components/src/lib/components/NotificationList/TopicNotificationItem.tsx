@@ -1,8 +1,10 @@
 import { useAuth, useGetPriorityNameFromUserClan } from '@mezon/core';
 import {
+	appActions,
 	getFirstMessageOfTopic,
 	notificationActions,
 	selectAllUserClans,
+	selectIsShowCanvas,
 	selectIsShowInbox,
 	selectMemberClanByUserId,
 	threadsActions,
@@ -20,15 +22,18 @@ import { useNavigate } from 'react-router-dom';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 export type TopicProps = {
 	readonly topic: ApiSdTopic;
+	onCloseTooltip?: () => void;
 };
 
-function TopicNotificationItem({ topic }: TopicProps) {
+function TopicNotificationItem({ topic, onCloseTooltip }: TopicProps) {
 	const { t } = useTranslation('channelTopbar');
 	const navigate = useNavigate();
 	const isShowInbox = useSelector(selectIsShowInbox);
 	const [subjectTopic, setSubjectTopic] = useState('');
 	const dispatch = useAppDispatch();
 	const memberClan = useSelector(selectAllUserClans);
+	const isShowCanvas = useSelector(selectIsShowCanvas);
+
 	const { userId } = useAuth();
 	const userIds = topic.last_sent_message?.repliers;
 	const usernames = useMemo(() => {
@@ -48,6 +53,10 @@ function TopicNotificationItem({ topic }: TopicProps) {
 		}
 	}, [usernames, userIds]);
 	const handleOpenTopic = async () => {
+		if (isShowCanvas) {
+			dispatch(appActions.setIsShowCanvas(false));
+		}
+		onCloseTooltip?.();
 		await navigate(`/chat/clans/${topic.clan_id}/channels/${topic.channel_id}`);
 		dispatch(topicsActions.setIsShowCreateTopic(true));
 		dispatch(threadsActions.setIsShowCreateThread({ channelId: topic.channel_id as string, isShowCreateThread: false }));
