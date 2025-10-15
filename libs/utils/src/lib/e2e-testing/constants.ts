@@ -503,6 +503,18 @@ export const DATA_E2E_IDENTIFIER = {
 					see_all_pinned: ''
 				}
 			}
+		},
+		hover_message_actions: {
+			button: {
+				base: ''
+			}
+		},
+		topic: {
+			header: {
+				button: {
+					close: ''
+				}
+			}
 		}
 	},
 	onboarding: {
