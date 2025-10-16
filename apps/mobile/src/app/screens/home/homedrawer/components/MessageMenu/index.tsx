@@ -66,7 +66,9 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, messageInfo?.channel_id || ''));
 
 	useEffect(() => {
-		dispatch(fetchUserChannels({ channelId: messageInfo?.channel_id || '' }));
+		if (messageInfo?.channel_id) {
+			dispatch(fetchUserChannels({ channelId: messageInfo.channel_id, isGroup: true }));
+		}
 	}, [messageInfo?.channel_id]);
 
 	const dismiss = () => {
