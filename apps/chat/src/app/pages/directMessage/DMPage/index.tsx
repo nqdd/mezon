@@ -177,11 +177,11 @@ const DirectMessage = () => {
 	}, [isShowCreateThread]);
 
 	useEffect(() => {
-		if (directId && blockListUser.length > 0) {
+		if (directId && blockListUser && blockListUser.length > 0) {
 			dispatch(friendsActions.fetchListFriends({ noCache: true }));
 		}
 		return;
-	}, [blockListUser.length, directId]);
+	}, [blockListUser, directId, dispatch]);
 
 	const setMarginleft = messagesContainerRef?.current?.getBoundingClientRect()
 		? window.innerWidth - messagesContainerRef?.current?.getBoundingClientRect().right + 155
@@ -190,10 +190,16 @@ const DirectMessage = () => {
 	const isDmChannel = useMemo(() => currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM, [currentDmGroup?.type]);
 
 	const isBlocked = useMemo(() => {
-		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && blockListUser.length > 0 && currentDmGroup?.user_ids?.[0] && userId) {
+		if (
+			currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM &&
+			blockListUser &&
+			blockListUser.length > 0 &&
+			currentDmGroup?.user_ids?.[0] &&
+			userId
+		) {
 			const otherUserId = currentDmGroup.user_ids[0];
 
-			return blockListUser?.some((friend) => {
+			return blockListUser.some((friend) => {
 				if (!friend?.user?.id) return false;
 				const isBlockedByOther = friend.source_id === otherUserId && friend.user.id === userId;
 				const hasBlockedOther = friend.source_id === userId && friend.user.id === otherUserId;
