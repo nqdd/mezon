@@ -1141,6 +1141,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					status: statusEvent.status
 				})
 			);
+
+			dispatch(
+				statusActions.updateMany([
+					{
+						id: statusEvent.user_id,
+						changes: {
+							user_status: statusEvent.status
+						}
+					}
+				])
+			);
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
