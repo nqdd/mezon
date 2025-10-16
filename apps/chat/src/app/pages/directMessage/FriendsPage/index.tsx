@@ -11,12 +11,12 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityList from './ActivityList';
 import FriendList from './FriendsList';
-import { generateE2eId } from '@mezon/utils';
 const FriendsPage = () => {
 	const { t } = useTranslation('friendsPage');
 	const dispatch = useAppDispatch();
@@ -287,10 +287,20 @@ const FriendsPage = () => {
 										data-e2e={generateE2eId('friend_page.input.add_friend')}
 									/>
 									{isAlreadyFriend && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.alreadyFriends')}</div>
+										<div
+											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
+											data-e2e={generateE2eId('friend_page.input.error')}
+										>
+											{t('addFriendModal.alreadyFriends')}
+										</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.invalidInput')}</div>
+										<div
+											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
+											data-e2e={generateE2eId('friend_page.input.error')}
+										>
+											{t('addFriendModal.invalidInput')}
+										</div>
 									)}
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
