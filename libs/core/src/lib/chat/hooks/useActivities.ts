@@ -18,6 +18,17 @@ export function useActivities() {
 		},
 		[dispatch]
 	);
+	const setUserAFK = useCallback(
+		(status: number) => {
+			const body = {
+				activity_name: 'AFK',
+				activity_type: 4,
+				status: status
+			};
+			dispatch(acitvitiesActions.createActivity(body));
+		},
+		[dispatch]
+	);
 	return useMemo(
 		() => ({
 			setUserActivity

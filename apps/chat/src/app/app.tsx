@@ -16,7 +16,6 @@ import { captureSentryError } from '@mezon/logger';
 import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
-	EUserStatus,
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
 	UNLOCK_SCREEN,
@@ -89,7 +88,7 @@ const AppInitializer = () => {
 	const isLogin = useSelector(selectIsLogin);
 	const dispatch = useDispatch();
 	const { setIsShowSettingFooterStatus } = useSettingFooter();
-	const { setUserActivity } = useActivities();
+	const { setUserActivity, setUserAFK } = useActivities();
 
 	const { clientRef } = useMezon();
 	if (clientRef?.current?.setBasePath) {
@@ -154,10 +153,10 @@ const AppInitializer = () => {
 					captureSentryError(error, 'electron/update');
 				},
 				[LOCK_SCREEN]: () => {
-					setUserStatusOption(EUserStatus.IDLE);
+					setUserAFK(1)
 				},
 				[UNLOCK_SCREEN]: () => {
-					unSetIdleStatus();
+					setUserAFK(0)
 				}
 			});
 		} else {
