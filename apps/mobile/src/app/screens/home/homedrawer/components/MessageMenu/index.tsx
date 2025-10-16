@@ -8,6 +8,7 @@ import {
 	directActions,
 	directMetaActions,
 	fetchDirectMessage,
+	fetchUserChannels,
 	markAsReadProcessing,
 	notificationSettingActions,
 	removeMemberChannel,
@@ -16,6 +17,7 @@ import {
 	selectCurrentUserId,
 	selectFriendById,
 	selectNotifiSettingsEntitiesById,
+	selectRawDataUserGroup,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -61,6 +63,13 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		);
 	}, [infoFriend?.source_id, infoFriend?.state, infoFriend?.user?.id, messageInfo?.user_ids, userProfile?.user?.id]);
 	const { blockFriend, unBlockFriend, deleteFriend, addFriend } = useFriends();
+	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, messageInfo?.channel_id || ''));
+
+	useEffect(() => {
+		if (messageInfo?.channel_id) {
+			dispatch(fetchUserChannels({ channelId: messageInfo.channel_id, isGroup: true }));
+		}
+	}, [messageInfo?.channel_id]);
 
 	const dismiss = () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -89,19 +98,9 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	}, [messageInfo?.type]);
 
 	const lastOne = useMemo(() => {
-		const userIds = messageInfo?.user_ids || [];
-		const userIdLength = userIds?.length || 0;
-
-		if (messageInfo?.creator_id === currentUserId) {
-			return userIdLength === 0;
-		}
-
-		if (userIds.includes(currentUserId)) {
-			return userIdLength === 1;
-		}
-
-		return false;
-	}, [currentUserId, messageInfo?.creator_id, messageInfo?.user_ids]);
+		const userIds = allUserGroupDM?.user_ids || [];
+		return userIds?.length === 1;
+	}, [allUserGroupDM?.user_ids]);
 
 	const leaveGroupMenu: IMezonMenuItemProps[] = [
 		{
