@@ -161,8 +161,8 @@ export const policiesSlice = createSlice({
 				state.permissionUser = [
 					...state.permissionUser,
 					{
-						id: role.id,
-						...role
+						...role,
+						id: role.id
 					}
 				];
 			}
