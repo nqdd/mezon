@@ -32,8 +32,7 @@ const FriendsPage = () => {
 		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
 	};
 	const { friends, quantityPendingRequest, addFriend, acceptFriend } = useFriends();
-	const [isAlreadyFriend, setIsAlreadyFriend] = useState(false);
-	const [showRequestFailedPopup, setShowRequestFailedPopup] = useState(false);
+	const [isAlreadyFriend, setIsAlreadyFriend] = useState<boolean | null>(null);
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
 	const [textSearch, setTextSearch] = useState('');
 	const [isInvalidInput, setIsInvalidInput] = useState(false);
@@ -77,7 +76,7 @@ const FriendsPage = () => {
 			default:
 				return;
 		}
-		setIsAlreadyFriend(false);
+		setIsAlreadyFriend(null);
 	};
 
 	const resetField = () => {
@@ -86,10 +85,7 @@ const FriendsPage = () => {
 			ids: []
 		});
 		setIsInvalidInput(false);
-	};
-
-	const toggleRequestFailedPopup = () => {
-		setShowRequestFailedPopup(!showRequestFailedPopup);
+		setIsAlreadyFriend(null);
 	};
 
 	const handleAddFriend = async () => {
@@ -113,8 +109,7 @@ const FriendsPage = () => {
 		}
 
 		if (requestAddFriend?.usernames?.length && checkFriend) {
-			setIsAlreadyFriend(true);
-			setShowRequestFailedPopup(true);
+			setIsAlreadyFriend(checkFriend.state === EStateFriend.OTHER_PENDING ? true : false);
 			return;
 		}
 		await addFriend(requestAddFriend);
@@ -299,8 +294,10 @@ const FriendsPage = () => {
 										placeholder={t('addFriendModal.placeholder')}
 										needOutline={true}
 									/>
-									{isAlreadyFriend && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.alreadyFriends')}</div>
+									{isAlreadyFriend !== null && (
+										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">
+											{isAlreadyFriend ? t('addFriendModal.waitAccept') : t('addFriendModal.alreadyFriends')}
+										</div>
 									)}
 									{isInvalidInput && (
 										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.invalidInput')}</div>
@@ -326,7 +323,6 @@ const FriendsPage = () => {
 					<ActivityList listFriend={friends} />
 				</div>
 			</div>
-			{showRequestFailedPopup && <RequestFailedPopup togglePopup={toggleRequestFailedPopup} />}
 		</div>
 	);
 };
