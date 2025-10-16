@@ -94,6 +94,9 @@ const FriendsPage = () => {
 		}
 
 		const getFriend = (username: string) => {
+			if (!friends || !friends.length) {
+				return null;
+			}
 			const friendIndex = friends.findIndex((user) => user?.user?.username === username);
 			if (friendIndex === -1) {
 				return null;
