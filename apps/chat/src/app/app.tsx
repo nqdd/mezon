@@ -16,7 +16,6 @@ import { captureSentryError } from '@mezon/logger';
 import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
-	EUserStatus,
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
 	UNLOCK_SCREEN,
@@ -154,10 +153,10 @@ const AppInitializer = () => {
 					captureSentryError(error, 'electron/update');
 				},
 				[LOCK_SCREEN]: () => {
-					setUserStatusOption(EUserStatus.IDLE);
+					//setIdleStatus();
 				},
 				[UNLOCK_SCREEN]: () => {
-					unSetIdleStatus();
+					//unSetIdleStatus();
 				}
 			});
 		} else {
