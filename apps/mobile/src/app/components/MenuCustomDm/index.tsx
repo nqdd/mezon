@@ -8,6 +8,7 @@ import {
 	removeMemberChannel,
 	selectCurrentUserId,
 	selectDmGroupCurrent,
+	selectRawDataUserGroup,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -18,6 +19,7 @@ import { ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
@@ -36,21 +38,12 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const currentDMGroup = useAppSelector(selectDmGroupCurrent(currentChannel?.id));
 	const currentAvatar = currentDMGroup?.channel_avatar;
+	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, currentChannel?.id || ''));
 
 	const lastOne = useMemo(() => {
-		const userIds = currentChannel?.user_ids || [];
-		const userIdLength = userIds?.length || 0;
-
-		if (currentChannel?.creator_id === currentUserId) {
-			return userIdLength === 0;
-		}
-
-		if (userIds.includes(currentUserId)) {
-			return userIdLength === 1;
-		}
-
-		return false;
-	}, [currentChannel?.creator_id, currentChannel?.user_ids, currentUserId]);
+		const userIds = allUserGroupDM?.user_ids || [];
+		return userIds?.length === 1;
+	}, [allUserGroupDM?.user_ids]);
 
 	const menuSetting: IMezonMenuItemProps[] = [
 		{
@@ -69,7 +62,7 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 			}
 		},
 		{
-			title: t('leaveGroup'),
+			title: lastOne ? t('dmMessage:menu.deleteGroup') : t('dmMessage:menu.leaveGroup'),
 			expandable: false,
 			icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_22} height={size.s_22} color={themeValue.text} />,
 			textStyle: styles.label,
