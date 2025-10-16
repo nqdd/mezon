@@ -13,7 +13,17 @@ import { MezonContextProvider, clearSessionFromStorage, getMezonConfig, useMezon
 import { PopupManagerProvider } from '@mezon/components';
 import { PermissionProvider, useActivities, useSettingFooter } from '@mezon/core';
 import { captureSentryError } from '@mezon/logger';
-import { ACTIVE_WINDOW, DOWNLOAD_PROGRESS, TRIGGER_SHORTCUT, UPDATE_AVAILABLE, UPDATE_ERROR, electronBridge } from '@mezon/utils';
+import {
+	ACTIVE_WINDOW,
+	DOWNLOAD_PROGRESS,
+	EUserStatus,
+	LOCK_SCREEN,
+	TRIGGER_SHORTCUT,
+	UNLOCK_SCREEN,
+	UPDATE_AVAILABLE,
+	UPDATE_ERROR,
+	electronBridge
+} from '@mezon/utils';
 import isElectron from 'is-electron';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import 'react-contexify/ReactContexify.css';
@@ -142,6 +152,12 @@ const AppInitializer = () => {
 				[UPDATE_ERROR]: (error) => {
 					console.error(error);
 					captureSentryError(error, 'electron/update');
+				},
+				[LOCK_SCREEN]: () => {
+					setUserStatusOption(EUserStatus.IDLE);
+				},
+				[UNLOCK_SCREEN]: () => {
+					unSetIdleStatus();
 				}
 			});
 		} else {

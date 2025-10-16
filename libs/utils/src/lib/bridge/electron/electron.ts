@@ -7,8 +7,9 @@ import {
 	UPDATE_AVAILABLE,
 	UPDATE_ERROR
 } from './constants';
-import { NotificationData, SHOW_NOTIFICATION } from './notification';
-import { ElectronBridgeHandler, IElectronBridge, MezonDownloadFile, MezonElectronAPI, MezonNotificationOptions } from './types';
+import type { NotificationData } from './notification';
+import { SHOW_NOTIFICATION } from './notification';
+import type { ElectronBridgeHandler, IElectronBridge, MezonDownloadFile, MezonElectronAPI, MezonNotificationOptions } from './types';
 
 export class ElectronBridge implements IElectronBridge {
 	private readonly bridge: MezonElectronAPI = window.electron;
