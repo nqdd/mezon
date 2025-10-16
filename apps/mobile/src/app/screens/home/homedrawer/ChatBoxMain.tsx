@@ -10,7 +10,7 @@ import { resetCachedMessageActionNeedToResolve } from '../../../utils/helpers';
 import { ActionMessageSelected } from './components/ChatBox/ActionMessageSelected';
 import { ChatBoxBottomBar } from './components/ChatBox/ChatBoxBottomBar';
 import { EMessageActionType } from './enums';
-import { IMessageActionNeedToResolve } from './types';
+import type { IMessageActionNeedToResolve } from './types';
 
 interface IChatBoxProps {
 	channelId: string;
