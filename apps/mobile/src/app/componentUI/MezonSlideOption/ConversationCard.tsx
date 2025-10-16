@@ -1,5 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { style } from './styles';
@@ -15,34 +16,35 @@ interface IConversationCard {
 const ConversationCard = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
+	const { t } = useTranslation(['common']);
 
 	const conversationCards: IConversationCard[] = [
 		{
 			id: '1',
 			name: 'John Doe',
 			avatar: 'https://cdn.mezon.ai/0/1812749818716491776/1782991817428439000/1757087543445_13.jpg',
-			message: 'Hey, are we still on for the meeting tomorrow?',
+			message: t('cardConversationMessage.johnDoe'),
 			date: '10m'
 		},
 		{
 			id: '2',
 			name: 'Jane Smith',
 			avatar: 'https://cdn.mezon.ai/0/1812749818716491776/1782991817428439000/1757087543446_31.webp',
-			message: "Don't forget to check out the new project updates!",
+			message: t('cardConversationMessage.janeSmith'),
 			date: '1h'
 		},
 		{
 			id: '3',
 			name: 'Alice Johnson',
 			avatar: 'https://cdn.mezon.ai/0/1812749818716491776/1782991817428439000/1757087543445_4.webp',
-			message: 'Can you send me the files from last week?',
+			message: t('cardConversationMessage.aliceJohnson'),
 			date: '8h'
 		},
 		{
 			id: '4',
 			name: 'Bob Brown',
 			avatar: 'https://cdn.mezon.ai/0/1812749818716491776/1782991817428439000/1757087543447_22.png',
-			message: "Let's grab lunch sometime next week.",
+			message: t('cardConversationMessage.bobBrown'),
 			date: '14h'
 		}
 	];
@@ -78,7 +80,7 @@ const ConversationCard = () => {
 				style={[StyleSheet.absoluteFillObject]}
 			/>
 			<View style={styles.header}>
-				<Text style={styles.headerTitle}>Messages</Text>
+				<Text style={styles.headerTitle}>{t('cardConversationMessage.title')}</Text>
 			</View>
 
 			<View style={styles.conversationsList}>{conversationCards.map((item) => renderConversationCard(item))}</View>

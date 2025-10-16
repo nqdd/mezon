@@ -90,6 +90,18 @@
 		"joinMessage": "Bạn đã đạt số lượng clan tối đa có thể tham gia trên tài khoản của mình ({{count}} clan). Để tham gia clan mới này, bạn cần xóa hoặc rời khỏi một trong những clan hiện có.",
 		"okay": "Được rồi"
 	},
+	"uploadLimit": {
+		"emoji": "Đạt giới hạn biểu cảm",
+		"sticker": "Đạt giới hạn nhãn dán",
+		"voiceSticker": "Đạt giới hạn hiệu ứng âm thanh"
+	},
+	"cardConversationMessage": {
+		"title": "Cuộc trò chuyện",
+		"johnDoe": "Này, cuộc họp ngày mai của chúng ta vẫn diễn ra chứ?",
+		"janeSmith": "Đừng quên xem các cập nhật mới của dự án nhé!",
+		"aliceJohnson": "Bạn có thể gửi cho tôi các tập tin từ tuần trước không?",
+		"bobBrown": "Tuần tới chúng mình đi ăn trưa với nhau nhé."
+	},
 	"isTyping": " đang nhập...",
 	"severalPeopleTyping": "Một số người đang nhập...",
 	"blockedMessage": "Tin nhắn bị chặn",

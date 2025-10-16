@@ -2,20 +2,21 @@ import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components'
 import { useTheme } from '@mezon/mobile-ui';
 import { createEmojiSetting, selectCurrentClanId, selectEmojiByClanId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
-import { LIMIT_SIZE_UPLOAD_IMG } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
-import { ApiClanEmojiCreateRequest } from 'mezon-js/api.gen';
+import type { ApiClanEmojiCreateRequest } from 'mezon-js/api.gen';
 import { useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Platform, Pressable, Text, View } from 'react-native';
 import { Image as ImageCompressor } from 'react-native-compressor';
 import RNFS from 'react-native-fs';
-import { Image, openCropper, openPicker } from 'react-native-image-crop-picker';
+import type { Image } from 'react-native-image-crop-picker';
+import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import { IFile } from '../../../componentUI/MezonImagePicker';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { IFile } from '../../../componentUI/MezonImagePicker';
+import type { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
 import { EmojiList } from './EmojiList';
 import { EmojiPreview } from './EmojiPreview';
 import { style } from './styles';
@@ -28,7 +29,7 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 	const dispatch = useAppDispatch();
 	const currentClanId = useSelector(selectCurrentClanId) || '';
 	const { sessionRef, clientRef } = useMezon();
-	const { t } = useTranslation(['clanEmojiSetting']);
+	const { t } = useTranslation(['clanEmojiSetting', 'common']);
 	const emojiList = useAppSelector((state) => selectEmojiByClanId(state, currentClanId || ''));
 
 	useLayoutEffect(() => {
@@ -69,6 +70,13 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 	);
 
 	const handleAddEmoji = async () => {
+		if (emojiList?.length > MAX_CLAN_ITEM_SLOTS) {
+			Toast.show({
+				type: 'error',
+				text1: t('common:uploadLimit.emoji')
+			});
+			return;
+		}
 		try {
 			const selectedFile = await openPicker({
 				mediaType: 'photo',
