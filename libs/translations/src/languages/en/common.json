@@ -91,6 +91,18 @@
 		"joinMessage": "You've reached the maximum number of clans you can join on your account ({{count}} clans). To join this new clan, you'll need to delete or leaving one of your existing clans.",
 		"okay": "Okay"
 	},
+	"uploadLimit": {
+		"emoji": "Max emoji limit exceeded",
+		"sticker": "Max sticker limit exceeded",
+		"voiceSticker": "Max voice sticker limit exceeded"
+	},
+	"cardConversationMessage": {
+		"title": "Conversation",
+		"johnDoe": "Hey, are we still on for the meeting tomorrow?",
+		"janeSmith": "Don't forget to check out the new project updates!",
+		"aliceJohnson": "Can you send me the files from last week?",
+		"bobBrown": "Let's grab lunch sometime next week."
+	},
 	"isTyping": " is typing...",
 	"severalPeopleTyping": "Several people are typing...",
 	"blockedMessage": "Blocked message",

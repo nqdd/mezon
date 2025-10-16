@@ -1,4 +1,4 @@
-import { LoadingStatus } from '@mezon/utils';
+import type { LoadingStatus } from '@mezon/utils';
 import { memo } from 'react';
 
 interface JoinFormProps {
@@ -6,10 +6,9 @@ interface JoinFormProps {
 	setUsername: (value: string) => void;
 	onJoin: () => void;
 	loadingStatus: LoadingStatus;
-	displayNameExisted?: string;
 }
 
-const JoinForm = memo(({ username, setUsername, onJoin, loadingStatus, displayNameExisted }: JoinFormProps) => {
+const JoinForm = memo(({ username, setUsername, onJoin, loadingStatus }: JoinFormProps) => {
 	const isLoading = loadingStatus === 'loading';
 	const isDisabled = loadingStatus === 'loaded' || isLoading;
 
@@ -18,12 +17,10 @@ const JoinForm = memo(({ username, setUsername, onJoin, loadingStatus, displayNa
 			<input
 				type="text"
 				placeholder="Enter name"
-				value={displayNameExisted ? displayNameExisted : username}
+				value={username}
 				onChange={(e) => setUsername(e.target.value)}
 				className="flex-1 px-4 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
 				aria-label="Enter your username"
-				readOnly={Boolean(displayNameExisted)}
-				disabled={Boolean(displayNameExisted)}
 			/>
 			<button
 				onClick={onJoin}

@@ -1,8 +1,8 @@
 import { ChannelTopbar } from '@mezon/components';
 import { usePathMatch } from '@mezon/core';
 import { selectCloseMenu, selectCurrentChannel, selectStatusMenu, selectVoiceInfo, selectVoiceJoined } from '@mezon/store';
-import { IChannel } from '@mezon/utils';
-import { ChannelStreamMode } from 'mezon-js';
+import type { IChannel } from '@mezon/utils';
+import type { ChannelStreamMode } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
