@@ -105,41 +105,41 @@ const sendTransaction = createAsyncThunk(
 		if (!sender || !zkProofs || !ephemeralKeyPair) {
 			thunkAPI.dispatch(
 				toastActions.addToast({
-					message: 'Wallet not available. Please enable wallet.',
+					message: i18n.t('message:wallet.notAvailable'),
 					type: 'error'
 				})
 			);
-			return thunkAPI.rejectWithValue('Wallet not available');
+			return thunkAPI.rejectWithValue(i18n.t('message:wallet.notAvailable'));
 		}
 
 		if (!recipient) {
-			thunkAPI.dispatch(toastActions.addToast({ message: 'Recipient wallet not found', type: 'error' }));
-			return thunkAPI.rejectWithValue('Recipient wallet not found');
+			thunkAPI.dispatch(toastActions.addToast({ message: i18n.t('token:toast.error.mustSelectUser'), type: 'error' }));
+			return thunkAPI.rejectWithValue(i18n.t('token:toast.error.mustSelectUser'));
 		}
 
 		if (!amount || amount <= 0) {
 			thunkAPI.dispatch(
 				toastActions.addToast({
-					message: 'Amount is invalid.',
+					message: i18n.t('token:toast.error.amountMustThanZero'),
 					type: 'error'
 				})
 			);
-			return thunkAPI.rejectWithValue('Amount is invalid');
-		}
-
-		if (compareBigInt(walletDetail?.balance || '', BigInt(amount).toString()) < 0) {
-			thunkAPI.dispatch(
-				toastActions.addToast({
-					message: 'Your amount exceeds wallet balance.',
-					type: 'error'
-				})
-			);
-			return thunkAPI.rejectWithValue('Your amount exceeds wallet balance');
+			return thunkAPI.rejectWithValue(i18n.t('token:toast.error.amountMustThanZero'));
 		}
 
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		if (!mezon.mmnClient) {
 			return thunkAPI.rejectWithValue('MmnClient not initialized');
+		}
+
+		if (compareBigInt(walletDetail?.balance || '', mezon.mmnClient.scaleAmountToDecimals(amount)) < 0) {
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: i18n.t('token:toast.error.exceedWallet'),
+					type: 'error'
+				})
+			);
+			return thunkAPI.rejectWithValue(i18n.t('token:toast.error.exceedWallet'));
 		}
 
 		const currentNonce = await mezon.mmnClient.getCurrentNonce(sender, 'pending');

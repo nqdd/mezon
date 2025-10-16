@@ -112,7 +112,6 @@ import {
 	checkIsThread,
 	isBackgroundModeActive,
 	isLinuxDesktop,
-	scaleAmountToDecimals,
 	subBigInt
 } from '@mezon/utils';
 import type { Update } from '@reduxjs/toolkit';
@@ -192,7 +191,7 @@ export type ChatContextValue = {
 const ChatContext = React.createContext<ChatContextValue>({} as ChatContextValue);
 
 const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) => {
-	const { socketRef, reconnectWithTimeout } = useMezon();
+	const { socketRef, mmnRef, reconnectWithTimeout } = useMezon();
 	const { userId } = useAuth();
 	const dispatch = useAppDispatch();
 
@@ -1201,7 +1200,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 			}
 			if (tokenEvent.amount) {
-				const updateAmount = scaleAmountToDecimals(tokenEvent.amount);
+				const updateAmount = mmnRef.current?.scaleAmountToDecimals(tokenEvent.amount) || '0';
 				dispatch(
 					walletActions.updateWalletByAction((currentValue) => {
 						if (isReceiverGiveCoffee) {
