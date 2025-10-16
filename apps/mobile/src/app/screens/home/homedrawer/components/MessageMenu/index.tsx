@@ -159,8 +159,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 			Toast.show({
 				type: 'error',
 				props: {
-					text2: t('notification.blockUser.error'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
+					text2: t('notification.blockUser.error')
 				}
 			});
 		} finally {

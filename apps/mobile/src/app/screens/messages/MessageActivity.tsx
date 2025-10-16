@@ -56,19 +56,23 @@ function MessageActivity() {
 				return [];
 			}
 
-			return mergeListFriendAndListUserDM.reduce((acc, user) => {
-				const info = activityMap.get(user.id);
-				if (info) {
-					const activityName = info?.activity_description ? `${info?.activity_name} - ${info.activity_description}` : info?.activity_name;
+			return mergeListFriendAndListUserDM
+				.reduce((acc, user) => {
+					const info = activityMap.get(user.id);
+					if (info) {
+						const activityName = info?.activity_description
+							? `${info?.activity_name} - ${info.activity_description}`
+							: info?.activity_name;
 
-					acc.push({
-						activityName,
-						avatar: user?.avatar_url,
-						name: user?.display_name || user?.username
-					});
-				}
-				return acc;
-			}, []);
+						acc.push({
+							activityName,
+							avatar: user?.avatar_url,
+							name: user?.display_name || user?.username
+						});
+					}
+					return acc;
+				}, [])
+				?.filter((i) => !!i?.name);
 		} catch (e) {
 			console.error('log  => e', e);
 			return [];

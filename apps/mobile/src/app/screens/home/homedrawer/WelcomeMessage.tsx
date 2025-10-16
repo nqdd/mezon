@@ -127,8 +127,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 			Toast.show({
 				type: 'error',
 				props: {
-					text2: t('notification.blockUser.error', { ns: 'dmMessage' }),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
+					text2: t('notification.blockUser.error', { ns: 'dmMessage' })
 				}
 			});
 		}
@@ -150,8 +149,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 			Toast.show({
 				type: 'error',
 				props: {
-					text2: t('notification.unblockUser.error', { ns: 'dmMessage' }),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
+					text2: t('notification.unblockUser.error', { ns: 'dmMessage' })
 				}
 			});
 		}

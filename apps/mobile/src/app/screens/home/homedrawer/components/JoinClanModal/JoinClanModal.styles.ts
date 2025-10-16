@@ -1,29 +1,26 @@
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 	headerModal: { backgroundColor: 'transparent' },
 	title: {
-		fontSize: size.h5,
+		fontSize: size.h4,
 		fontWeight: '600',
-		color: 'white',
 		textAlign: 'center',
 		marginBottom: size.s_10
 	},
 	textInviteBtn: {
-		fontSize: size.label,
+		fontSize: size.medium,
 		fontWeight: '500',
 		color: 'white',
 		textAlign: 'center'
 	},
 	btnInvite: {
 		width: '100%',
-		padding: size.s_10,
-		backgroundColor: '#5865f2',
-		borderRadius: size.s_50,
-		position: 'absolute',
-		bottom: size.s_60,
-		left: size.s_20
+		marginTop: size.s_40,
+		padding: size.s_12,
+		backgroundColor: baseColor.blurple,
+		borderRadius: size.s_10
 	},
 	description: {
 		fontSize: size.medium,
@@ -32,8 +29,20 @@ export const styles = StyleSheet.create({
 		textAlign: 'center'
 	},
 	textExample: {
+		marginTop: size.s_6,
 		fontSize: size.small,
 		fontWeight: '400',
 		color: '#c7c7c7'
+	},
+	backButton: {
+		position: 'absolute',
+		left: -size.s_16,
+		top: -size.s_10,
+		justifyContent: 'center',
+		alignItems: 'center',
+		zIndex: 10,
+		width: size.s_40,
+		height: size.s_40,
+		borderRadius: size.s_20
 	}
 });

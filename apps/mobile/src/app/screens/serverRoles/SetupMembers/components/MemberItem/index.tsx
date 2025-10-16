@@ -54,7 +54,7 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 			});
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />

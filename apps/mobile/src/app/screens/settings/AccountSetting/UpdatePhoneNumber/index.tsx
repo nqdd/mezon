@@ -259,7 +259,7 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 
 			if (remainingSeconds > 0) {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
 						text2: t('setPhoneModal.tooFast', { seconds: remainingSeconds }),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
@@ -286,7 +286,7 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 
 		if (currentPhone === fullPhoneNumber) {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('setPhoneModal.alreadyLinked'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
@@ -301,7 +301,7 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			// todo: recheck
 			if (response?.payload?.status === 400) {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
 						text2: t('setPhoneModal.alreadyLinkedToAnother'),
 						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
