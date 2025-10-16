@@ -514,6 +514,9 @@ export const DATA_E2E_IDENTIFIER = {
 				button: {
 					close: ''
 				}
+			},
+			button: {
+				view_topic: ''
 			}
 		}
 	},
