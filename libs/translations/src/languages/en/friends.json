@@ -1,33 +1,34 @@
 {
-    "friendRequest": {
-        "title": "Friend Requests",
-        "received": "Received",
-        "sent": "Sent",
-        "emptyReceived": {
-            "title": "No incoming friend requests",
-            "description": "Here you'll see all the friend requests people send to you."
-        },
-        "emptySent": {
-            "title": "No outgoing friend requests", 
-            "description": "Here you'll see all the friend requests you've sent to others."
-        }
-    },
-    "addFriend": {
-        "incomingFriendRequest": "Incoming Friend Request",
-        "findYourFriend": "Find your friends",
-        "addByUserName": "Add by Username",
-        "addByUsername": "Add By {{username}}",
-        "searchUsernamePlaceholder": "Enter a username",
-        "whoYouWantToAddFriend": "Who would you like to add as a friend",
-        "byTheWay": "By the way, your username is",
-        "sendRequestButton": "Send Friend Request",
-        "addFriendToast": "Sent a friend request"
-    },
-    "friends": "Friends",
-    "noFriendsResultsFound": "No friends results found",
-    "toast": {
-        "sendAddFriendSuccess": "Friend request sent successfully!",
-        "sendAddFriendFail": "Hm, that didn't work. Double-check that the username is correct."
-    },
-    "you": "you"
+	"friendRequest": {
+		"title": "Friend Requests",
+		"received": "Received",
+		"sent": "Sent",
+		"emptyReceived": {
+			"title": "No incoming friend requests",
+			"description": "Here you'll see all the friend requests people send to you."
+		},
+		"emptySent": {
+			"title": "No outgoing friend requests",
+			"description": "Here you'll see all the friend requests you've sent to others."
+		}
+	},
+	"addFriend": {
+		"incomingFriendRequest": "Incoming Friend Request",
+		"findYourFriend": "Find your friends",
+		"addByUserName": "Add by Username",
+		"addByUsername": "Add By {{username}}",
+		"searchUsernamePlaceholder": "Enter a username",
+		"whoYouWantToAddFriend": "Who would you like to add as a friend",
+		"byTheWay": "By the way, your username is",
+		"sendRequestButton": "Send Friend Request",
+		"addFriendToast": "Sent a friend request"
+	},
+	"friends": "Friends",
+	"noFriendsResultsFound": "No friends results found",
+	"toast": {
+		"sendAddFriendSuccess": "Friend request sent successfully!",
+		"acceptAddFriendSuccess": "Accept friend request!",
+		"sendAddFriendFail": "Hm, that didn't work. Double-check that the username is correct."
+	},
+	"you": "you"
 }
