@@ -1,6 +1,7 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
 import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
+	EStateFriend,
 	channelsActions,
 	friendsActions,
 	selectBlockedUsers,
@@ -30,7 +31,7 @@ const FriendsPage = () => {
 		const tab = tabData.find((tab) => tab.value === tabValue);
 		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
 	};
-	const { friends, quantityPendingRequest, addFriend } = useFriends();
+	const { friends, quantityPendingRequest, addFriend, acceptFriend } = useFriends();
 	const [isAlreadyFriend, setIsAlreadyFriend] = useState(false);
 	const [showRequestFailedPopup, setShowRequestFailedPopup] = useState(false);
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
@@ -92,10 +93,26 @@ const FriendsPage = () => {
 	};
 
 	const handleAddFriend = async () => {
-		const checkIsAlreadyFriend = (username: string) => {
-			return friends.some((user) => user?.user?.username === username);
+		if (!requestAddFriend?.usernames?.length) {
+			return;
+		}
+
+		const getFriend = (username: string) => {
+			const friendIndex = friends.findIndex((user) => user?.user?.username === username);
+			if (friendIndex === -1) {
+				return null;
+			}
+			return friends[friendIndex];
 		};
-		if (requestAddFriend?.usernames?.length && checkIsAlreadyFriend(requestAddFriend.usernames[0])) {
+
+		const checkFriend = getFriend(requestAddFriend.usernames?.[0]);
+
+		if (requestAddFriend?.usernames?.length && checkFriend && checkFriend?.state === EStateFriend.MY_PENDING) {
+			await acceptFriend(checkFriend?.user?.username || '', checkFriend?.user?.id || '');
+			return;
+		}
+
+		if (requestAddFriend?.usernames?.length && checkFriend) {
 			setIsAlreadyFriend(true);
 			setShowRequestFailedPopup(true);
 			return;
