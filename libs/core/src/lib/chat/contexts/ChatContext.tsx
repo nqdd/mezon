@@ -1135,6 +1135,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
+			if (!statusEvent || !statusEvent.user_id) {
+				return;
+			}
+
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
@@ -2657,4 +2661,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export { ChatContext, ChatContextConsumer, ChatContextProvider };
+export { ChatContext, ChatContext, ChatContextConsumer, ChatContextConsumer, ChatContextProvider, ChatContextProvider };
