@@ -25,6 +25,7 @@ export function useActivities() {
 				activity_type: 4,
 				status
 			};
+			console.error('call create activity', body);
 			dispatch(acitvitiesActions.createActivity(body));
 		},
 		[dispatch]
