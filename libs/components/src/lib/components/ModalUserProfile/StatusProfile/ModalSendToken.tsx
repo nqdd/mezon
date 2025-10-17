@@ -35,7 +35,6 @@ type User = {
 	search_key?: string;
 	display_name?: string;
 };
-// Constants for token limits
 const TOKEN_WARNING_THRESHOLD = 99000000;
 const TOKEN_SOFT_LIMIT = 100000000;
 const TOKEN_HARD_LIMIT = 100000099;
@@ -113,17 +112,14 @@ const ModalSendToken = ({
 		const walletBalanceRaw = Number(walletDetail?.balance || 0);
 		const walletBalance = walletBalanceRaw;
 
-		// Nếu vượt quá giới hạn cứng, không cho nhập thêm
 		if (numericValue > TOKEN_HARD_LIMIT) {
 			setLimitError(t('errors.maximumLimit'));
 			return;
 		}
 
-		// Cập nhật giá trị
 		setTokenNumber(formatNumber(numericValue, i18n.language === 'vi' ? 'vi-VN' : 'en-US'));
 		setToken(numericValue);
 
-		// Hiển thị cảnh báo nếu >= giới hạn mềm, nhưng vẫn cho nhập
 		if (numericValue >= TOKEN_SOFT_LIMIT) {
 			setLimitError(t('errors.maximumLimit'));
 		} else {
@@ -178,7 +174,7 @@ const ModalSendToken = ({
 
 	const filteredUsers = mergedUsers.filter((user) =>
 		searchTerm.length === 0
-			? user.id !== userId // Hiển thị tất cả users nếu chưa search
+			? user.id !== userId
 			: (user.username?.toLowerCase().includes(searchTerm.toLowerCase()) || user.search_key?.includes(searchTerm.toLowerCase())) &&
 				user.id !== userId
 	);
