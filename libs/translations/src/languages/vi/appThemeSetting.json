@@ -1,15 +1,15 @@
 {
-    "fields": {
-        "dark": "Tối",
-        "darker": "Tối hơn",
-        "midnight": "Ban đêm",
-        "light": "Sáng",
-        "system": "Hệ thống",
-        "sunrise": "Sunrise",
-        "redDark": "Red Dark",
-        "purpleHaze": "Purple Haze",
-        "abyssDark": "Abyss Dark",
-        "sunset": "Sunset"
-    },
-    "desc": "Bạn luôn có thể thay đổi điều này sau!"
+	"fields": {
+		"dark": "Tối",
+		"darker": "Tối hơn",
+		"midnight": "Ban đêm",
+		"light": "Sáng",
+		"system": "Hệ thống",
+		"sunrise": "Bình minh",
+		"redDark": "Đỏ đậm",
+		"purpleHaze": "Tím mộng mơ",
+		"abyssDark": "Vực thẳm tối",
+		"sunset": "Hoàng hôn"
+	},
+	"desc": "Bạn luôn có thể thay đổi điều này sau!"
 }

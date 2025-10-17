@@ -215,6 +215,9 @@ export const getUserChannelsState = (rootState: { [ALL_USERS_BY_ADD_CHANNEL]: Us
 const { selectEntities, selectById } = UserChannelAdapter.getSelectors();
 
 export const selectUserChannelUCEntities = createSelector(getUserChannelsState, selectEntities);
+export const selectRawDataUserGroup = createSelector([getUserChannelsState, (state, channelId: string) => channelId], (state, channelId) =>
+	selectById(state, channelId)
+);
 export const selectMemberByGroupId = createSelector([getUserChannelsState, (state, channelId: string) => channelId], (state, channelId) => {
 	const entities = selectById(state, channelId);
 	if (!entities) {

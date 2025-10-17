@@ -117,7 +117,7 @@ const ChannelVoice = memo(
 
 		const toggleChat = useCallback(() => {
 			dispatch(appActions.setIsShowChatVoice(!isShowChatVoice));
-		}, []);
+		}, [isShowChatVoice, dispatch]);
 
 		const isShowSettingFooter = useSelector(selectIsShowSettingFooter);
 		const showModalEvent = useSelector(selectShowModelEvent);
