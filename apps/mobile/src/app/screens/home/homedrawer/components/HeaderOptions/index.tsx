@@ -1,7 +1,6 @@
 import { IOption } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { style } from './styles';
 
 export const OptionChannelHeader = {
@@ -23,7 +22,7 @@ const ChannelHeaderOptions = ({ onPressOption, options }: IListOptionProps) => {
 
 	const OptionItem = ({ option }: { option: IOption }) => {
 		return (
-			<Pressable onPress={() => handleSelectOption(option)}>
+			<TouchableOpacity onPress={() => handleSelectOption(option)}>
 				<View style={styles.wrapperOption}>
 					{option?.icon}
 					<View style={styles.content}>
@@ -32,7 +31,7 @@ const ChannelHeaderOptions = ({ onPressOption, options }: IListOptionProps) => {
 						</Text>
 					</View>
 				</View>
-			</Pressable>
+			</TouchableOpacity>
 		);
 	};
 

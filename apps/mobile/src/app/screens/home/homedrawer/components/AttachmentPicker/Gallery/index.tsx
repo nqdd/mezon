@@ -266,8 +266,43 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 					const ext = image.extension;
 					const destPath = `${RNFS.CachesDirectoryPath}/${ms}.${ext}`;
 
-					if (type && type.startsWith('video')) {
-						filePath = await RNFS.copyAssetsVideoIOS(filePath, destPath);
+					const isGif = type?.toLowerCase().includes('gif') || ext?.toLowerCase() === 'gif';
+					const isWebP = type?.toLowerCase().includes('webp') || ext?.toLowerCase() === 'webp';
+					const isAnimated = isGif || isWebP;
+
+					if ((isAnimated || type.startsWith('video')) && Platform.OS === 'ios') {
+						try {
+							const assetInfo = await CameraRoll.iosGetImageDataById(image.uri);
+							if (assetInfo?.node?.image?.filepath) {
+								const cleanFilePath = assetInfo.node.image.filepath.split('#')[0];
+								if (cleanFilePath.startsWith('file://')) {
+									const sourcePathWithoutProtocol = cleanFilePath.replace('file://', '');
+									const fileExists = await RNFS.exists(sourcePathWithoutProtocol);
+
+									if (fileExists) {
+										await RNFS.copyFile(sourcePathWithoutProtocol, destPath);
+										filePath = `file://${destPath}`;
+									} else {
+										filePath = await RNFS.copyAssetsVideoIOS(image.uri, destPath);
+									}
+								} else if (cleanFilePath.startsWith('/')) {
+									const fileExists = await RNFS.exists(cleanFilePath);
+
+									if (fileExists) {
+										await RNFS.copyFile(cleanFilePath, destPath);
+										filePath = `file://${destPath}`;
+									} else {
+										filePath = await RNFS.copyAssetsVideoIOS(image.uri, destPath);
+									}
+								} else {
+									filePath = await RNFS.copyAssetsVideoIOS(image.uri, destPath);
+								}
+							} else {
+								filePath = await RNFS.copyAssetsVideoIOS(image.uri, destPath);
+							}
+						} catch (animatedError) {
+							filePath = await RNFS.copyAssetsFileIOS(image.uri, destPath, image.width, image.height);
+						}
 					} else {
 						filePath = await RNFS.copyAssetsFileIOS(filePath, destPath, image.width, image.height);
 					}
@@ -289,7 +324,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				console.error('Error: ', err);
 			}
 		},
-		[onPickGallery]
+		[onPickGallery, t]
 	);
 
 	const requestCameraPermission = async () => {

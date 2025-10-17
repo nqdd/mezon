@@ -128,7 +128,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				userMap.set(userId, {
 					id: userId,
 					username: [typeof itemDM?.usernames === 'string' ? itemDM?.usernames : (itemDM?.usernames?.[0] ?? '')] as Array<string>,
-					avatar_url: itemDM?.channel_avatar?.[0] ?? ''
+					avatar_url: itemDM?.avatars?.[0] ?? ''
 				});
 			}
 		});

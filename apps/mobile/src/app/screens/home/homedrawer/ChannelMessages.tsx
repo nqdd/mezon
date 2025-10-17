@@ -20,7 +20,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { Direction_Mode, LIMIT_MESSAGE } from '@mezon/utils';
+import { Direction_Mode } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -333,7 +333,6 @@ const ChannelMessages = React.memo(
 						setIsDisableLoadMore(false);
 						return;
 					}
-					flatListRef?.current?.scrollToOffset?.({ animated: false, offset: 20 });
 					await onLoadMore(ELoadMoreDirection.bottom);
 				}
 			},
