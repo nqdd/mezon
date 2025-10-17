@@ -99,10 +99,9 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 			});
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: 'Failed',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
+					text2: 'Failed'
 				}
 			});
 		}

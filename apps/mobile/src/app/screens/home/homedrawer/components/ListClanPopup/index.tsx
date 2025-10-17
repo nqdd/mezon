@@ -14,6 +14,7 @@ import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { ClanIcon } from '../ClanIcon';
 import CreateClanModal from '../CreateClanModal';
+import JoinClanModal from '../JoinClanModal';
 import { style } from './styles';
 
 const GROUP = 'group';
@@ -130,6 +131,14 @@ export const ListClanPopup = React.memo(() => {
 		const data = {
 			children: <CreateClanModal />
 		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, []);
+
+	const onJoinNewClanModal = useCallback(() => {
+		const data = {
+			children: <JoinClanModal />
+		};
+
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	}, []);
 
@@ -320,11 +329,20 @@ export const ListClanPopup = React.memo(() => {
 				ListEmptyComponent={<View />}
 				ListFooterComponent={() => {
 					return (
-						<TouchableOpacity style={styles.createClan} onPress={onCreateClanModal}>
-							<View style={styles.wrapperPlusClan}>
-								<MezonIconCDN icon={IconCDN.plusLargeIcon} color={baseColor.blurple} width={size.s_18} height={size.s_18} />
-							</View>
-						</TouchableOpacity>
+						<View>
+							{clans?.length === 0 && (
+								<TouchableOpacity style={styles.createClan} onPress={onJoinNewClanModal}>
+									<View style={styles.wrapperPlusClan}>
+										<MezonIconCDN icon={IconCDN.joinClanIcon} useOriginalColor={true} width={size.s_30} height={size.s_30} />
+									</View>
+								</TouchableOpacity>
+							)}
+							<TouchableOpacity style={styles.createClan} onPress={onCreateClanModal}>
+								<View style={styles.wrapperPlusClan}>
+									<MezonIconCDN icon={IconCDN.plusLargeIcon} color={baseColor.blurple} width={size.s_18} height={size.s_18} />
+								</View>
+							</TouchableOpacity>
+						</View>
 					);
 				}}
 				activationDistance={40}

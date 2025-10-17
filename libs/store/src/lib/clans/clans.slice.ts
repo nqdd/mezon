@@ -991,3 +991,5 @@ export const selectOrderedClansWithGroups = createSelector([selectAllClans, sele
 
 	return [...orderedItems, ...remainingClans];
 });
+
+export const selectCountClanJoined = createSelector(getClansState, (state) => state?.ids?.length || 0);

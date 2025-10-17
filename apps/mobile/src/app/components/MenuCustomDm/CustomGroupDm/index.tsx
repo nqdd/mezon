@@ -65,10 +65,9 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: 'Update group failed',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: 'Update group failed'
 				}
 			});
 		}
