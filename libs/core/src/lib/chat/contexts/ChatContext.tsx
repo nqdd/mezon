@@ -1152,11 +1152,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					}
 				])
 			);
+
+			dispatch(
+				usersClanActions.updateUserStatus({
+					userId: statusEvent.user_id,
+					user_status: statusEvent.status
+				})
+			);
+
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
 		},
-		[dispatch]
+		[dispatch, userId]
 	);
 
 	const ontokensent = useCallback(

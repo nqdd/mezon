@@ -253,6 +253,23 @@ export const UsersClanSlice = createSlice({
 				}
 			}
 		},
+		updateUserStatus: (state, action: PayloadAction<{ userId: string; user_status: string }>) => {
+			const { userId, user_status } = action.payload;
+			Object.keys(state.byClans).forEach((clanId) => {
+				const existingMember = state.byClans[clanId].entities.entities[userId];
+				if (existingMember) {
+					UsersClanAdapter.updateOne(state.byClans[clanId].entities, {
+						id: userId,
+						changes: {
+							user: {
+								...existingMember.user,
+								user_status
+							}
+						}
+					});
+				}
+			});
+		},
 		updateUserProfileAcrossClans: (
 			state,
 			action: PayloadAction<{ userId: string; avatar?: string; display_name?: string; about_me?: string }>
