@@ -89,32 +89,20 @@ const FriendsPage = () => {
 	};
 
 	const handleAddFriend = async () => {
-		if (!requestAddFriend?.usernames?.length) {
-			return;
-		}
+		const username = requestAddFriend?.usernames?.[0];
+		if (!username) return;
 
-		const getFriend = (username: string) => {
-			if (!friends || !friends.length) {
-				return null;
+		const friend = friends?.find((u) => u?.user?.username === username);
+
+		if (friend) {
+			if (friend.state === EStateFriend.MY_PENDING) {
+				await acceptFriend(friend.user?.username || '', friend.user?.id || '');
+			} else {
+				setIsAlreadyFriend(friend.state === EStateFriend.OTHER_PENDING);
 			}
-			const friendIndex = friends.findIndex((user) => user?.user?.username === username);
-			if (friendIndex === -1) {
-				return null;
-			}
-			return friends[friendIndex];
-		};
-
-		const checkFriend = getFriend(requestAddFriend.usernames?.[0]);
-
-		if (requestAddFriend?.usernames?.length && checkFriend && checkFriend?.state === EStateFriend.MY_PENDING) {
-			await acceptFriend(checkFriend?.user?.username || '', checkFriend?.user?.id || '');
 			return;
 		}
 
-		if (requestAddFriend?.usernames?.length && checkFriend) {
-			setIsAlreadyFriend(checkFriend.state === EStateFriend.OTHER_PENDING ? true : false);
-			return;
-		}
 		await addFriend(requestAddFriend);
 		resetField();
 	};
