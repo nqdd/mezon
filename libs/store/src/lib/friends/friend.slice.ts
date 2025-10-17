@@ -5,7 +5,7 @@ import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } fr
 import type { AddFriend } from 'mezon-js';
 import type { ApiFriend } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
-import { selectCurrentUserId } from '../account/account.slice';
+import { selectAllAccount, selectCurrentUserId } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
@@ -35,10 +35,10 @@ export enum EStateFriend {
 	BLOCK = 3
 }
 
-export const mapFriendToEntity = (FriendRes: ApiFriend) => {
+export const mapFriendToEntity = (FriendRes: ApiFriend, myId: string) => {
 	return {
 		...FriendRes,
-		id: FriendRes.state === EStateFriend.BLOCK ? FriendRes.source_id || '' : FriendRes?.user?.id || '',
+		id: myId === FriendRes.source_id ? FriendRes?.user?.id || '' : FriendRes?.source_id || '',
 		source_id: FriendRes?.source_id || ''
 	};
 };
@@ -128,7 +128,10 @@ export const fetchListFriends = createAsyncThunk('friends/fetchListFriends', asy
 	if (!response.friends) {
 		return { friends: [], fromCache: response.fromCache };
 	}
-	const listFriends = response.friends.map(mapFriendToEntity);
+
+	const state = thunkAPI.getState() as RootState;
+	const currentUserId = selectAllAccount(state)?.user?.id || '';
+	const listFriends = response.friends.map((friend) => mapFriendToEntity(friend, currentUserId));
 	thunkAPI.dispatch(statusActions.updateBulkStatus(mapFriendToStatus(response.friends)));
 	return { friends: listFriends, fromCache: response.fromCache };
 });
@@ -301,7 +304,7 @@ export const friendsSlice = createSlice({
 			}
 		},
 		upsertFriend: (state, action: PayloadAction<FriendsEntity>) => {
-			const friendEntity = mapFriendToEntity(action.payload);
+			const friendEntity = mapFriendToEntity(action.payload, action.payload.source_id || '');
 			friendsAdapter.upsertOne(state, friendEntity);
 		},
 		acceptFriend: (state, action: PayloadAction<string>) => {
