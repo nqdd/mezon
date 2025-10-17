@@ -1,11 +1,11 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { appActions, getStoreAsync, referencesActions, selectChannelById, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import { appActions, getStoreAsync, referencesActions, selectChannelById, selectCurrentChannelId, selectCurrentDM } from '@mezon/store-mobile';
 import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
 import { errorCodes, pick, types } from '@react-native-documents/picker';
-import { ChannelStreamMode } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
@@ -188,13 +188,20 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 		const permissionGranted = await requestLocationPermission();
 		if (permissionGranted) {
 			try {
-				onCancel?.(true);
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
+					isShow: false,
+					mode: ''
+				});
 				const { latitude, longitude } = await getCurrentPosition();
 				const store = await getStoreAsync();
 				let mode = ChannelStreamMode.STREAM_MODE_CHANNEL;
-				const currentDirectId = selectDmGroupCurrentId(store.getState());
-				if (currentDirectId) {
-					mode = ChannelStreamMode.STREAM_MODE_DM;
+				const currentChannelId = selectCurrentChannelId(store.getState());
+				const currentDirect = selectCurrentDM(store.getState());
+				if (currentDirect) {
+					mode =
+						currentDirect?.type === ChannelType.CHANNEL_TYPE_GROUP
+							? ChannelStreamMode.STREAM_MODE_GROUP
+							: ChannelStreamMode.STREAM_MODE_DM;
 				} else {
 					const channel = selectChannelById(store.getState(), currentChannelId as string) as ChannelsEntity;
 					const isThread = checkIsThread(channel);
@@ -211,7 +218,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 					children: (
 						<ShareLocationConfirmModal
 							mode={mode}
-							channelId={currentDirectId ? currentDirectId : currentChannelId}
+							channelId={currentDirect?.id ? currentDirect?.id : currentChannelId}
 							geoLocation={geoLocation}
 						/>
 					)
