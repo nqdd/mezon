@@ -681,6 +681,15 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			};
 		}, [messageIds]);
 
+		useEffect(() => {
+			// Logic clear scroll position when the last message is sent by the current user
+			if (lastMessage?.sender_id === user?.user?.id && scrollPositionRef?.current?.messageId !== lastMessage?.id) {
+				scrollPositionRef.current = {
+					messageId: undefined
+				};
+			}
+		}, [lastMessage?.id, lastMessage?.sender_id, user?.user?.id]);
+
 		const [forceRender, setForceRender] = useState<boolean>(false);
 
 		useEffect(() => {
