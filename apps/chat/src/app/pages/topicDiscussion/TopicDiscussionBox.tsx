@@ -52,6 +52,8 @@ const TopicDiscussionBox = () => {
 	const [topicDraggingState, setTopicDraggingState] = useState(false);
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
+	const isDesktop = isElectron();
+
 	const mode =
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const handleChildContextMenu = (event: React.MouseEvent) => {
@@ -260,7 +262,7 @@ const TopicDiscussionBox = () => {
 				</div>
 			)}
 
-			<div className="flex-shrink flex flex-col bg-theme-chat h-auto relative">
+			<div className={`flex-shrink flex flex-col bg-theme-chat h-auto relative ${isDesktop && 'pb-5'}`}>
 				{dataReferences.message_ref_id && (
 					<div className="w-full ">
 						<ReplyMessageBox channelId={currentTopicId ?? ''} dataReferences={dataReferences} />
