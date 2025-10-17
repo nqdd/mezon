@@ -2,13 +2,13 @@ import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
 	SENDER_ID,
+	SHOW_NOTIFICATION,
 	START_NOTIFICATION_SERVICE,
 	TRIGGER_SHORTCUT,
 	UPDATE_AVAILABLE,
 	UPDATE_ERROR
 } from './constants';
 import type { NotificationData } from './notification';
-import { SHOW_NOTIFICATION } from './notification';
 import type { ElectronBridgeHandler, IElectronBridge, MezonDownloadFile, MezonElectronAPI, MezonNotificationOptions } from './types';
 
 export class ElectronBridge implements IElectronBridge {
