@@ -1,8 +1,9 @@
-import { ipcMain, IpcMainEvent, nativeImage } from 'electron';
+import type { IpcMainEvent } from 'electron';
+import { ipcMain, nativeImage } from 'electron';
 import { SET_BADGE_COUNT } from '../../events/constants';
 import { BADGE_DESCRIPTION } from './constants';
 import { BadgeIconGenerator } from './icon';
-import { IBadge } from './types';
+import type { IBadge } from './types';
 /**
  * Badge class for mac and linux
  */
