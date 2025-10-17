@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage, ModalLayout } from '../../../components';
+import { TOKEN_HARD_LIMIT, TOKEN_SOFT_LIMIT, TOKEN_WARNING_THRESHOLD } from './constants';
 
 type ModalSendTokenProps = {
 	onClose: () => void;
@@ -35,9 +36,6 @@ type User = {
 	search_key?: string;
 	display_name?: string;
 };
-const TOKEN_WARNING_THRESHOLD = 99000000;
-const TOKEN_SOFT_LIMIT = 100000000;
-const TOKEN_HARD_LIMIT = 100000099;
 
 const ModalSendToken = ({
 	onClose,
