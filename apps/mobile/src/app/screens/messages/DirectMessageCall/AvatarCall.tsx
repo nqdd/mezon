@@ -1,5 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Images from '../../../../assets/Images';
@@ -20,6 +21,7 @@ const RING_CONFIG = [
 const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConnected = false }: IAvatarCallProps) => {
 	const ringAnimation = useRef(new Animated.Value(0)).current;
 	const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+	const { t } = useTranslation(['common']);
 
 	const { themeValue } = useTheme();
 
@@ -105,7 +107,7 @@ const AvatarCall = ({ receiverAvatar, receiverName, isAnswerCall = false, isConn
 						}
 					]}
 				>
-					{isAnswerCall ? 'Connecting...' : 'Ringing...'}
+					{isAnswerCall ? t('call.connecting') : t('call.ringing')}
 				</Text>
 			)}
 		</View>

@@ -9,11 +9,11 @@ export enum ENotificationChannelId {
 	Default = '0'
 }
 
-export const notifyLabels: Record<number, string> = {
-	[ENotificationTypes.ALL_MESSAGE]: 'All',
-	[ENotificationTypes.MENTION_MESSAGE]: 'Only @mention',
-	[ENotificationTypes.NOTHING_MESSAGE]: 'Nothing'
-};
+export const getNotifyLabels = (t: (key: string) => string): Record<number, string> => ({
+	[ENotificationTypes.ALL_MESSAGE]: t('notificationSetting:bottomSheet.labelOptions.allMessage'),
+	[ENotificationTypes.MENTION_MESSAGE]: t('notificationSetting:bottomSheet.labelOptions.mentionMessage'),
+	[ENotificationTypes.NOTHING_MESSAGE]: t('notificationSetting:bottomSheet.labelOptions.notThingMessage')
+});
 
 export interface IOptionsNotification {
 	id: number;

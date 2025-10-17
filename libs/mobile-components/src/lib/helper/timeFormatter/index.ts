@@ -150,7 +150,7 @@ export function getDayWeekName(date: Date, lang: 'vi' | 'en') {
 	return lang === 'vi' ? day + ' ' + name_vi[weekOfMonth] + ' của tháng' : name_en[weekOfMonth] + ' ' + day;
 }
 
-export function convertTimestampToTimeAgo(timestampSeconds: number) {
+export function convertTimestampToTimeAgo(timestampSeconds: number, t?: (key: string, options?: any) => string) {
 	const now = Math.floor(Date.now() / 1000);
 	const diff = now - timestampSeconds;
 
@@ -172,6 +172,6 @@ export function convertTimestampToTimeAgo(timestampSeconds: number) {
 		case minutes > 0:
 			return `${minutes}m`;
 		default:
-			return `Just now`;
+			return t ? t('common:justNow') : 'Just now';
 	}
 }

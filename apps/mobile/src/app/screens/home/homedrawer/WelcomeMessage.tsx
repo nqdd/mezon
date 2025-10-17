@@ -41,7 +41,7 @@ const useCurrentChannel = (channelId: string) => {
 const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['userProfile', 'dmMessage']);
+	const { t } = useTranslation(['userProfile', 'dmMessage', 'chatWelcome']);
 	const currenChannel = useCurrentChannel(channelId) as IChannel;
 	const userProfile = useSelector(selectAllAccount);
 	const currentUserId = userProfile?.user?.id;
@@ -60,9 +60,23 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 		return typeof currenChannel?.usernames === 'string' ? currenChannel?.usernames : currenChannel?.usernames?.[0] || '';
 	}, [currenChannel?.usernames]);
 
+	const displayName: string = useMemo(() => {
+		return typeof currenChannel?.display_names === 'string' ? currenChannel?.display_names : currenChannel?.display_names?.[0] || '';
+	}, [currenChannel?.display_names]);
+
 	const isChannel = useMemo(() => {
 		return currenChannel?.parent_id === '0';
 	}, [currenChannel?.parent_id]);
+
+	const isPrivate = useMemo(() => currenChannel?.channel_private === ChannelStatusEnum.isPrivate, [currenChannel?.channel_private]);
+
+	const iconRender = useMemo(() => {
+		return isChannel ? (isPrivate ? IconCDN.channelTextLock : IconCDN.channelText) : isPrivate ? IconCDN.threadLockIcon : IconCDN.threadIcon;
+	}, [isChannel, isPrivate]);
+
+	const priorityName = useMemo(() => {
+		return displayName || userName || '';
+	}, [displayName, userName]);
 
 	const isDM = useMemo(() => {
 		return currenChannel?.clan_id === '0';
@@ -175,15 +189,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 				)
 			) : (
 				<View style={styles.iconWelcomeMessage}>
-					{isChannel ? (
-						currenChannel?.channel_private === ChannelStatusEnum.isPrivate ? (
-							<MezonIconCDN icon={IconCDN.channelTextLock} width={size.s_50} height={size.s_50} color={themeValue.textStrong} />
-						) : (
-							<MezonIconCDN icon={IconCDN.channelText} width={size.s_50} height={size.s_50} color={themeValue.textStrong} />
-						)
-					) : (
-						<MezonIconCDN icon={IconCDN.threadIcon} width={size.s_50} height={size.s_50} color={themeValue.textStrong} />
-					)}
+					<MezonIconCDN icon={iconRender} width={size.s_50} height={size.s_50} color={themeValue.textStrong} />
 				</View>
 			)}
 
@@ -192,11 +198,11 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 					<Text style={[styles.titleWelcomeMessage, isDMGroup && { textAlign: 'center' }]}>{currenChannel?.channel_label}</Text>
 					{!isDMGroup && <Text style={styles.subTitleUsername}>{userName}</Text>}
 					{isDMGroup ? (
-						<Text style={styles.subTitleWelcomeMessageCenter}>{"Welcome to your new group! Invite friends whenever you're ready"}</Text>
-					) : (
-						<Text style={styles.subTitleWelcomeMessage}>
-							{`This is the very beginning of your legendary conversation with ${userName}`}
+						<Text style={styles.subTitleWelcomeMessageCenter}>
+							{t('chatWelcome:welcome.welcomeToGroup', { groupName: currenChannel?.channel_label || '' })}
 						</Text>
+					) : (
+						<Text style={styles.subTitleWelcomeMessage}>{t('chatWelcome:welcome.beginningOfDM', { userName: priorityName })}</Text>
 					)}
 
 					{!isDMGroup && !isBlockedByUser && (
@@ -235,14 +241,21 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 				</View>
 			) : isChannel ? (
 				<View>
-					<Text style={styles.titleWelcomeMessage}>{`Welcome to #${currenChannel?.channel_label}`}</Text>
-					<Text style={styles.subTitleWelcomeMessage}>{`This is the start of the #${currenChannel?.channel_label}`}</Text>
+					<Text style={styles.titleWelcomeMessage}>
+						{t('chatWelcome:welcome.welcomeToChannel', { channelName: currenChannel?.channel_label || '' })}
+					</Text>
+					<Text style={styles.subTitleWelcomeMessage}>
+						{t('chatWelcome:welcome.startOfChannel', {
+							channelName: currenChannel?.channel_label || '',
+							channelType: Boolean(currenChannel?.channel_private) ? t('chatWelcome:welcome.private') : ''
+						})}
+					</Text>
 				</View>
 			) : (
 				<View>
-					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label}</Text>
+					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label || ''}</Text>
 					<View style={{ flexDirection: 'row' }}>
-						<Text style={styles.subTitleWelcomeMessage}>{'Started by '}</Text>
+						<Text style={styles.subTitleWelcomeMessage}>{t('chatWelcome:welcome.startOfThread', { username: '' })}</Text>
 						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || ''}</Text>
 					</View>
 				</View>
