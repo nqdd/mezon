@@ -1,5 +1,5 @@
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { IImageWindowProps } from '../../types';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { IImageWindowProps } from '../../types';
 
 export type ElectronBridgeHandler = (...args: any[]) => void;
 export type MezonElectronAPI = {

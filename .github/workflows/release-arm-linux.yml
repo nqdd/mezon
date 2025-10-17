@@ -1,5 +1,6 @@
 name: Release Mezon App for Linux
-
+permissions:
+  contents: read
 on:
   release:
     types: [published]

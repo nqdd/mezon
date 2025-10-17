@@ -1,4 +1,6 @@
 name: Deploy Mezon FE Prod
+permissions:
+  contents: read
 on:
   release:
     types: [published]

@@ -6,8 +6,6 @@ import { EUserStatus } from '../../types';
 import { electronBridge } from './electron';
 import type { MezonNotificationOptions } from './types';
 
-export const SHOW_NOTIFICATION = 'APP::SHOW_NOTIFICATION';
-
 export interface IMessageExtras {
 	link: string; // link for navigating
 	e2eemess: string;
