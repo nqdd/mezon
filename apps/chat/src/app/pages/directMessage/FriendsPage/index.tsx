@@ -1,6 +1,7 @@
 import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
 import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
+	EStateFriend,
 	channelsActions,
 	friendsActions,
 	selectBlockedUsers,
@@ -31,9 +32,8 @@ const FriendsPage = () => {
 		const tab = tabData.find((tab) => tab.value === tabValue);
 		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
 	};
-	const { friends, quantityPendingRequest, addFriend } = useFriends();
-	const [isAlreadyFriend, setIsAlreadyFriend] = useState(false);
-	const [showRequestFailedPopup, setShowRequestFailedPopup] = useState(false);
+	const { friends, quantityPendingRequest, addFriend, acceptFriend } = useFriends();
+	const [isAlreadyFriend, setIsAlreadyFriend] = useState<boolean | null>(null);
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
 	const [textSearch, setTextSearch] = useState('');
 	const [isInvalidInput, setIsInvalidInput] = useState(false);
@@ -77,7 +77,7 @@ const FriendsPage = () => {
 			default:
 				return;
 		}
-		setIsAlreadyFriend(false);
+		setIsAlreadyFriend(null);
 	};
 
 	const resetField = () => {
@@ -86,21 +86,24 @@ const FriendsPage = () => {
 			ids: []
 		});
 		setIsInvalidInput(false);
-	};
-
-	const toggleRequestFailedPopup = () => {
-		setShowRequestFailedPopup(!showRequestFailedPopup);
+		setIsAlreadyFriend(null);
 	};
 
 	const handleAddFriend = async () => {
-		const checkIsAlreadyFriend = (username: string) => {
-			return friends.some((user) => user?.user?.username === username);
-		};
-		if (requestAddFriend?.usernames?.length && checkIsAlreadyFriend(requestAddFriend.usernames[0])) {
-			setIsAlreadyFriend(true);
-			setShowRequestFailedPopup(true);
+		const username = requestAddFriend?.usernames?.[0];
+		if (!username) return;
+
+		const friend = friends?.find((u) => u?.user?.username === username);
+
+		if (friend) {
+			if (friend.state === EStateFriend.MY_PENDING) {
+				await acceptFriend(friend.user?.username || '', friend.user?.id || '');
+			} else {
+				setIsAlreadyFriend(friend.state === EStateFriend.OTHER_PENDING);
+			}
 			return;
 		}
+
 		await addFriend(requestAddFriend);
 		resetField();
 	};
@@ -286,12 +289,12 @@ const FriendsPage = () => {
 										needOutline={true}
 										data-e2e={generateE2eId('friend_page.input.add_friend')}
 									/>
-									{isAlreadyFriend && (
+									{isAlreadyFriend !== null && (
 										<div
 											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
 											data-e2e={generateE2eId('friend_page.input.error')}
 										>
-											{t('addFriendModal.alreadyFriends')}
+											{isAlreadyFriend ? t('addFriendModal.waitAccept') : t('addFriendModal.alreadyFriends')}
 										</div>
 									)}
 									{isInvalidInput && (
@@ -324,7 +327,6 @@ const FriendsPage = () => {
 					<ActivityList listFriend={friends} />
 				</div>
 			</div>
-			{showRequestFailedPopup && <RequestFailedPopup togglePopup={toggleRequestFailedPopup} />}
 		</div>
 	);
 };

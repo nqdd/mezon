@@ -185,5 +185,6 @@
 	},
 	"creator": "Người tạo",
 	"viewTopic": "Xem thảo luận ngắn",
-	"replies": "Phản hồi"
+	"reply": "{{number}} tin nhắn",
+	"replies": "Tin nhắn"
 }

@@ -15,7 +15,6 @@ import {
 	directActions,
 	directMetaActions,
 	e2eeActions,
-	friendsActions,
 	gifsStickerEmojiActions,
 	selectAudioDialTone,
 	selectBlockedUsersForMessage,
@@ -170,13 +169,6 @@ const DirectMessage = () => {
 			setIsShowMemberList(false);
 		}
 	}, [isShowCreateThread]);
-
-	useEffect(() => {
-		if (directId && blockListUser && blockListUser.length > 0) {
-			dispatch(friendsActions.fetchListFriends({ noCache: true }));
-		}
-		return;
-	}, [blockListUser, directId, dispatch]);
 
 	const setMarginleft = messagesContainerRef?.current?.getBoundingClientRect()
 		? window.innerWidth - messagesContainerRef?.current?.getBoundingClientRect().right + 155

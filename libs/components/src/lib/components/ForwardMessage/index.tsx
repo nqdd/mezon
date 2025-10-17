@@ -1,6 +1,7 @@
 import { useAuth, useSendForwardMessage } from '@mezon/core';
 import type { DirectEntity, MessagesEntity } from '@mezon/store';
 import {
+	EStateFriend,
 	channelsActions,
 	getIsFowardAll,
 	getSelectedMessage,
@@ -8,6 +9,7 @@ import {
 	selectAllChannelMembers,
 	selectAllChannelsByUser,
 	selectAllDirectMessages,
+	selectAllFriends,
 	selectAllUserClans,
 	selectCurrentChannel,
 	selectCurrentChannelId,
@@ -187,20 +189,28 @@ const ForwardMessageModal = () => {
 	};
 
 	const usersClan = useSelector(selectAllUserClans);
+	const friends = useSelector(selectAllFriends);
+
+	const blockedUserIds = useMemo(() => {
+		return new Set(friends.filter((friend) => friend.state === EStateFriend.BLOCK).map((friend) => friend.id));
+	}, [friends]);
+
 	const listMemSearch = useMemo(() => {
 		const listDMSearch = listDM.length
-			? listDM.map((itemDM: DirectEntity) => {
-					return {
-						id: itemDM?.user_ids?.[0] ?? '',
-						name: itemDM?.usernames?.toString() ?? '',
-						avatarUser: itemDM?.avatars?.[0] ?? '',
-						idDM: itemDM?.id ?? '',
-						typeChat: ChannelType.CHANNEL_TYPE_DM,
-						displayName: itemDM.channel_label,
-						lastSentTimeStamp: itemDM.last_sent_message?.timestamp_seconds,
-						typeSearch: TypeSearch.Dm_Type
-					};
-				})
+			? listDM
+					.filter((itemDM) => !blockedUserIds.has(itemDM?.user_ids?.[0] ?? ''))
+					.map((itemDM: DirectEntity) => {
+						return {
+							id: itemDM?.user_ids?.[0] ?? '',
+							name: itemDM?.usernames?.toString() ?? '',
+							avatarUser: itemDM?.avatars?.[0] ?? '',
+							idDM: itemDM?.id ?? '',
+							typeChat: ChannelType.CHANNEL_TYPE_DM,
+							displayName: itemDM.channel_label,
+							lastSentTimeStamp: itemDM.last_sent_message?.timestamp_seconds,
+							typeSearch: TypeSearch.Dm_Type
+						};
+					})
 			: [];
 		const listGroupSearch = listGroup.length
 			? listGroup.map((itemGr: DirectEntity) => {
@@ -232,7 +242,8 @@ const ForwardMessageModal = () => {
 				})
 			: [];
 
-		const usersClanMap = new Map(listUserClanSearch.map((user) => [user.id, user]));
+		const usersClanMap = new Map(listUserClanSearch.filter((user) => !blockedUserIds.has(user.id)).map((user) => [user.id, user]));
+
 		const listSearch = [
 			...listDMSearch.map((itemDM) => {
 				const user = usersClanMap.get(itemDM.id);
@@ -247,8 +258,8 @@ const ForwardMessageModal = () => {
 			}),
 			...listGroupSearch
 		];
-		return removeDuplicatesById(listSearch.filter((item) => item.id !== accountId));
-	}, [accountId, listDM, listGroup, membersInClan, usersClan]);
+		return removeDuplicatesById(listSearch.filter((item) => item.id !== accountId).filter((item) => !blockedUserIds.has(item.id)));
+	}, [accountId, listDM, listGroup, usersClan, blockedUserIds]);
 
 	const listChannelSearch = useMemo(() => {
 		const listChannelForward = listChannels.filter(
