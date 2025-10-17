@@ -16,7 +16,6 @@
 	"role": "Role",
 	"noRoles": "No Roles",
 	"member": "Member",
-	"members": "Members",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
 	"categoryFilteringComingSoon": "Category filtering will be implemented soon!",
@@ -55,6 +54,9 @@
 	"todayAt": "Today at",
 	"today": "Today",
 	"yesterdayAt": "Yesterday at",
+	"todayAtTime": "Today at {{time}}",
+	"yesterdayAtTime": "Yesterday at {{time}}",
+	"justNow": "Just now",
 	"sampleMessage": "Look at me I'm a beautiful butterfly",
 	"switchingTheme": "Switching theme...",
 	"settingsSaved": "Settings saved!",
@@ -223,5 +225,22 @@
 		"usernamePlaceholder": "Please use your actual name to make it easier for people to identify you.",
 		"update": "Update",
 		"errorDuplicate": "There’s an issue or the name already exists, please choose another one."
+	},
+	"sessionExpired": {
+		"title": "Session Expired or Network Error",
+		"confirm": "Login Again",
+		"content": "Your session has expired. Please log in again to continue."
+	},
+	"call": {
+		"connecting": "Connecting...",
+		"ringing": "Ringing..."
+	},
+	"itemClanPreview": {
+		"preview": "{{type}} Preview",
+		"name": "{{type}} Name",
+		"forSale": "For Sale",
+		"upload": "Upload",
+		"sticker": "Sticker",
+		"emoji": "Emoji"
 	}
 }

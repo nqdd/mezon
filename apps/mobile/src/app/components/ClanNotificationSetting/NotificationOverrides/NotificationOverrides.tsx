@@ -3,6 +3,7 @@ import { EOptionOverridesType } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { IChannel } from '@mezon/utils';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, TextInput, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -14,6 +15,7 @@ const NotificationOverrides = () => {
 	const styles = style(themeValue);
 	const categorizedChannels = useCategorizedAllChannels();
 	const [searchText, setSearchText] = useState<string>('');
+	const { t } = useTranslation(['common']);
 
 	const options = useMemo(() => {
 		if (!categorizedChannels?.length) return [];
@@ -60,7 +62,7 @@ const NotificationOverrides = () => {
 					>
 						<TextInput
 							placeholderTextColor={themeValue.textDisabled}
-							placeholder={'Search'}
+							placeholder={t('searchPlaceHolder')}
 							style={styles.input}
 							value={searchText}
 							onChangeText={onTextChange}

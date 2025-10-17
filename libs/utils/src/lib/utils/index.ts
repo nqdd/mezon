@@ -77,7 +77,7 @@ export * from './transform';
 export * from './windowEnvironment';
 export * from './windowSize';
 
-export const convertTimeString = (dateString: string) => {
+export const convertTimeString = (dateString: string, t?: (key: string, options?: any) => string) => {
 	if (!dateString) {
 		return '';
 	}
@@ -85,15 +85,12 @@ export const convertTimeString = (dateString: string) => {
 	const today = startOfDay(new Date());
 	const yesterday = startOfDay(subDays(new Date(), 1));
 	if (isSameDay(codeTime, today)) {
-		// Date is today
 		const formattedTime = format(codeTime, 'HH:mm');
-		return `Today at ${formattedTime}`;
+		return t ? t('common:todayAtTime', { time: formattedTime }) : `Today at ${formattedTime}`;
 	} else if (isSameDay(codeTime, yesterday)) {
-		// Date is yesterday
 		const formattedTime = format(codeTime, 'HH:mm');
-		return `Yesterday at ${formattedTime}`;
+		return t ? t('common:yesterdayAtTime', { time: formattedTime }) : `Yesterday at ${formattedTime}`;
 	} else {
-		// Date is neither today nor yesterday
 		const formattedDate = format(codeTime, 'dd/MM/yyyy, HH:mm');
 		return formattedDate;
 	}

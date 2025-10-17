@@ -243,7 +243,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 								bottomPickerRef.current?.close();
 							}}
 							value={nameValueThread}
-							placeHolder="New Thread"
+							placeHolder={t('newThread')}
 							maxCharacter={64}
 							errorMessage={errorMessage}
 							forcusInput

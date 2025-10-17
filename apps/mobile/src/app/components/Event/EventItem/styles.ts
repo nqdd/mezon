@@ -35,7 +35,7 @@ export const style = (colors: Attributes) =>
 
 		tinyText: {
 			color: colors.text,
-			fontSize: Fonts.size.tiny
+			fontSize: size.s_12
 		},
 
 		smallText: {

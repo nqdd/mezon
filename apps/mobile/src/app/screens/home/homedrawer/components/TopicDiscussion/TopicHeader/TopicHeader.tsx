@@ -26,7 +26,7 @@ const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 	const firstMessage = useSelector(selectFirstMessageOfCurrentTopic);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation('message');
+	const { t } = useTranslation(['message', 'common']);
 
 	const valueTopic = useMemo(() => {
 		return currentTopic || firstMessage?.message;
@@ -83,7 +83,9 @@ const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 					<MezonAvatar avatarUrl={priorityAvatar} username={namePriority || memoizedValue?.displayName || ''} />
 					<View>
 						<Text style={[styles.name, { color: colorSenderName }]}>{namePriority || memoizedValue?.displayName || ''}</Text>
-						{memoizedValue?.createTime && <Text style={styles.dateText}>{convertTimeString(memoizedValue?.createTime as string)}</Text>}
+						{memoizedValue?.createTime && (
+							<Text style={styles.dateText}>{convertTimeString(memoizedValue?.createTime as string, t)}</Text>
+						)}
 					</View>
 				</View>
 			)}

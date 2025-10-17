@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Image } from 'react-native-image-crop-picker';
 import MezonSwitch from '../../../../componentUI/MezonSwitch';
@@ -19,6 +20,7 @@ export const EmojiPreview = memo(({ isSticker = false, image, onConfirm }: IShar
 	const styles = style(themeValue, isTabletLandscape);
 	const [isForSale, setIsForSale] = useState<boolean>(false);
 	const [emojiName, setEmojiName] = useState<string>(`${isSticker ? 'sticker' : 'emoji'}_${Date.now()}`);
+	const { t } = useTranslation(['common']);
 
 	function handleClose() {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
@@ -34,17 +36,21 @@ export const EmojiPreview = memo(({ isSticker = false, image, onConfirm }: IShar
 	return (
 		<View style={styles.main}>
 			<View style={styles.container}>
-				<Text style={styles.title}>{isSticker ? 'Sticker' : 'Emoji'} Preview</Text>
+				<Text style={styles.title}>
+					{t('itemClanPreview.preview', { type: isSticker ? t('itemClanPreview.sticker') : t('itemClanPreview.emoji') })}
+				</Text>
 				<ImageNative url={image?.path} style={{ height: size.s_40, width: size.s_40 }} />
-				<Text style={styles.title}>{isSticker ? 'Sticker' : 'Emoji'} Name</Text>
+				<Text style={styles.title}>
+					{t('itemClanPreview.name', { type: isSticker ? t('itemClanPreview.sticker') : t('itemClanPreview.emoji') })}
+				</Text>
 				<TextInput style={styles.textInput} value={emojiName} onChangeText={setEmojiName} />
 				<View style={styles.row}>
 					<MezonSwitch value={isForSale} onValueChange={setIsForSale} />
-					<Text style={styles.title}>For sale</Text>
+					<Text style={styles.title}>{t('itemClanPreview.forSale')}</Text>
 				</View>
 
 				<TouchableOpacity style={styles.sendButton} onPress={handleUploadConfirm}>
-					<Text style={styles.buttonText}>Upload</Text>
+					<Text style={styles.buttonText}>{t('itemClanPreview.upload')}</Text>
 				</TouchableOpacity>
 			</View>
 			<TouchableOpacity style={styles.backdrop} onPress={handleClose} />

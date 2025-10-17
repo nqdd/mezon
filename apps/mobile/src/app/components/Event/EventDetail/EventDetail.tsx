@@ -36,7 +36,7 @@ interface IEventDetailProps {
 export function EventDetail({ event }: IEventDetailProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['eventMenu']);
+	const { t } = useTranslation(['eventMenu', 'eventCreator']);
 	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const clans = useSelector(selectClanById(event?.clan_id || ''));
 	const { userId, userProfile } = useAuth();
@@ -111,7 +111,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{!!event?.channel_id && event.channel_id !== '0' && !event?.is_private && (
 				<View style={styles.privateArea}>
 					<View style={[styles.privatePanel, { backgroundColor: baseColor.orange }]}>
-						<Text style={styles.privateText}>Channel Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.channelEvent')}</Text>
 					</View>
 				</View>
 			)}
@@ -119,7 +119,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{event?.is_private && (
 				<View style={styles.privateArea}>
 					<View style={styles.privatePanel}>
-						<Text style={styles.privateText}>Private Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.privateEvent')}</Text>
 					</View>
 				</View>
 			)}
@@ -127,7 +127,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{!event?.is_private && !event?.channel_id && (
 				<View style={styles.privateArea}>
 					<View style={[styles.privatePanel, { backgroundColor: baseColor.blurple }]}>
-						<Text style={styles.privateText}>Clan Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.clanEvent')}</Text>
 					</View>
 				</View>
 			)}

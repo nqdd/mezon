@@ -3,6 +3,7 @@ import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { selectTypingUsersById } from '@mezon/store-mobile';
 import LottieView from 'lottie-react-native';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
@@ -11,6 +12,7 @@ import { style } from './styles';
 
 export const MessageUserTyping = React.memo(({ channelId, isDM, mode, isPublic }: IProps) => {
 	const { themeValue, themeBasic } = useTheme();
+	const { t } = useTranslation(['common']);
 	const styles = style(themeValue);
 	const userId = useMemo(() => {
 		return load(STORAGE_MY_USER_ID);
@@ -18,13 +20,13 @@ export const MessageUserTyping = React.memo(({ channelId, isDM, mode, isPublic }
 	const typingUsers = useSelector((state) => selectTypingUsersById(state, channelId, userId));
 	const typingLabel = useMemo(() => {
 		if (typingUsers?.length === 1) {
-			return `${typingUsers[0].typingName} is typing...`;
+			return `${typingUsers[0].typingName}${t('isTyping')}`;
 		}
 		if (typingUsers?.length > 1) {
-			return 'Several people are typing...';
+			return `${t('severalPeopleTyping')}`;
 		}
 		return '';
-	}, [typingUsers]);
+	}, [typingUsers, t]);
 
 	if (!typingLabel) {
 		return null;
