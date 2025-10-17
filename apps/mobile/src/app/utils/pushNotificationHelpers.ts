@@ -168,7 +168,6 @@ const openAppSettings = () => {
 
 const getConfigDisplayNotificationAndroid = async (data: Record<string, string | object>): Promise<NotificationAndroid> => {
 	const defaultConfig: NotificationAndroid = {
-		visibility: AndroidVisibility.PUBLIC,
 		channelId: `${data?.sound !== 'default' ? `${data?.sound}_` : ''}default`,
 		smallIcon: 'ic_notification',
 		color: '#7029c1',
@@ -252,8 +251,7 @@ const createNotificationChannel = async (channelId: string, groupId: string, sou
 			name: channelId,
 			groupId,
 			importance: AndroidImportance.HIGH,
-			sound: sound ? sound : 'default',
-			visibility: AndroidVisibility.PUBLIC
+			sound: sound ? sound : 'default'
 		});
 	} catch (error) {
 		console.error('Error creating notification channel:', error);
