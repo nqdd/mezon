@@ -31,8 +31,9 @@ export function useActivities() {
 	);
 	return useMemo(
 		() => ({
-			setUserActivity
+			setUserActivity,
+			setUserAFK
 		}),
-		[setUserActivity]
+		[setUserActivity, setUserAFK]
 	);
 }
