@@ -144,6 +144,13 @@ export const UsersClanSlice = createSlice({
 				UsersClanAdapter.removeOne(state.byClans[clanId].entities, userId);
 			}
 		},
+		removeUsersAndClearCache: (state, action: PayloadAction<{ clanId: string; userIds: string[] }>) => {
+			const { clanId, userIds } = action.payload;
+			if (state.byClans[clanId]) {
+				UsersClanAdapter.removeMany(state.byClans[clanId].entities, userIds);
+				delete state.byClans[clanId].cache;
+			}
+		},
 		updateUserClan: (state, action: PayloadAction<{ clanId: string; userId: string; clanNick: string; clanAvt: string }>) => {
 			const { clanId, userId, clanNick, clanAvt } = action.payload;
 			if (state.byClans[clanId]) {
