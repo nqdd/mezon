@@ -176,7 +176,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		}
 	}, []);
 
-	async function handleSave() {
+	const handleSave = useCallback(async () => {
 		setLoading(true);
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
@@ -221,7 +221,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			setLoading(false);
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}
+	}, [clanName, currentClan, banner, dispatch, handleCheckDuplicateClanname, updateClan, handleUpdateSystemMessage, t, navigation]);
 
 	useLayoutEffect(() => {
 		navigation.setOptions({

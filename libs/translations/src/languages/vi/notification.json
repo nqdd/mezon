@@ -28,7 +28,7 @@
 				"description": "Không bao giờ bỏ lỡ khi ai đó nhắc đến bạn"
 			},
 			"muteControl": {
-				"title": "Tắt tiếng các cuộc trò chuyện cụ thể và loại cuộc trò chuyện",
+				"title": "Tắt thông báo các cuộc trò chuyện cụ thể và loại cuộc trò chuyện",
 				"description": "Kiểm soát thông báo nào bạn nhận được"
 			}
 		}

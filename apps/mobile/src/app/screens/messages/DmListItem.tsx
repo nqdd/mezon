@@ -125,10 +125,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const lastMessageTime = useMemo(() => {
 		if (directMessage?.last_sent_message?.timestamp_seconds) {
 			const timestamp = Number(directMessage?.last_sent_message?.timestamp_seconds);
-			return convertTimestampToTimeAgo(timestamp);
+			return convertTimestampToTimeAgo(timestamp, t);
 		}
 		return null;
-	}, [directMessage]);
+	}, [directMessage, t]);
 
 	const handleLongPress = useCallback((directMessage: DirectEntity) => {
 		const data = {

@@ -10,6 +10,7 @@ import {
 	MessageModalImage,
 	ModalCreateClan,
 	ModalUnknowChannel,
+	ModalWalletNotAvailable,
 	MultiStepModalE2ee,
 	NavLinkComponent,
 	SearchModal,
@@ -21,6 +22,7 @@ import {
 import { useAppParams, useAuth, useClanGroupDragAndDrop, useMenu, useReference } from '@mezon/core';
 import type { ClanGroupItem } from '@mezon/store';
 import {
+	EErrorType,
 	accountActions,
 	clansActions,
 	e2eeActions,
@@ -54,6 +56,7 @@ import { PLATFORM_ENV, Platform, TIME_OF_SHOWING_FIRST_POPUP, generateE2eId, isL
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ChannelStream from '../channel/ChannelStream';
@@ -270,6 +273,7 @@ const DirectUnreadList = memo(() => {
 
 const SidebarMenu = memo(
 	({ openCreateClanModal, openDiscoverPage }: { openCreateClanModal: ShowModal; openDiscoverPage: ShowModal }) => {
+		const { t } = useTranslation('common');
 		const closeMenu = useSelector(selectCloseMenu);
 		const statusMenu = useSelector(selectStatusMenu);
 		const { setCloseMenu, setStatusMenu } = useMenu();
@@ -345,7 +349,7 @@ const SidebarMenu = memo(
 								<div
 									className="flex items-center justify-between text-theme-primary group"
 									onClick={openDiscoverPage}
-									title="Discover"
+									title={t('discover')}
 								>
 									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
 										<svg
@@ -377,7 +381,7 @@ const SidebarMenu = memo(
 								<div
 									className="flex items-center justify-between text-theme-primary group"
 									onClick={openCreateClanModal}
-									title="Create Clan"
+									title={t('createClan')}
 									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
 								>
 									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
@@ -613,6 +617,7 @@ const ClansList = memo(() => {
 });
 
 const PreviewOnboardingMode = () => {
+	const { t } = useTranslation('common');
 	const dispatch = useDispatch();
 	const handleClosePreview = () => {
 		dispatch(onboardingActions.closeOnboardingPreviewMode());
@@ -622,10 +627,10 @@ const PreviewOnboardingMode = () => {
 			<div className="absolute cursor-pointer bg-item-theme-hover left-6 px-2 flex gap-1 border-2 py-1 items-center justify-center  border-theme-primary rounded bg-transparent">
 				<Icons.LeftArrowIcon className="fill-theme-primary-active text-theme-primary-active" />
 				<p className="text-theme-primary-active text-xs font-medium" onClick={handleClosePreview}>
-					Close preview mode
+					{t('closePreviewMode')}
 				</p>
 			</div>
-			<div className="text-base text-theme-primary-active font-semibold">You are viewing the clan as a new member. You have no roles.</div>
+			<div className="text-base text-theme-primary-active font-semibold">{t('previewModeDescription')}</div>
 		</div>
 	);
 };
@@ -643,7 +648,12 @@ const MemoizedErrorModals: React.FC = React.memo(() => {
 
 	const error = toastError[0];
 	const [openError, closeError] = useModal(
-		() => <ModalUnknowChannel isError={true} errMessage={toastError?.[0]?.message || ''} idErr={toastError?.[0]?.id || ''} />,
+		() =>
+			error?.errType === EErrorType.WALLET ? (
+				<ModalWalletNotAvailable isError={true} errMessage={error?.message || ''} idErr={error?.id || ''} />
+			) : (
+				<ModalUnknowChannel isError={true} errMessage={toastError?.[0]?.message || ''} idErr={toastError?.[0]?.id || ''} />
+			),
 		[error]
 	);
 

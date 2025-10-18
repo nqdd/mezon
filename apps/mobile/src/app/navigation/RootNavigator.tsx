@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
 import { MezonStoreProvider, appActions, initStore, selectHiddenBottomTabMobile, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { extractAndSaveConfig, useMezon } from '@mezon/transport';
-import { LinkingOptions, NavigationContainer, getStateFromPath } from '@react-navigation/native';
+import type { LinkingOptions } from '@react-navigation/native';
+import { NavigationContainer, getStateFromPath } from '@react-navigation/native';
 import React, { memo, useEffect, useMemo } from 'react';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ChatContextProvider, EmojiSuggestionProvider, PermissionProvider } from '@mezon/core';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { ActionEmitEvent, STORAGE_SESSION_KEY, save } from '@mezon/mobile-components';
 import { ThemeModeBase, ThemeProvider, useTheme } from '@mezon/mobile-ui';
-import { Session } from 'mezon-js';
+import type { Session } from 'mezon-js';
 import { DeviceEventEmitter, NativeModules, Platform, StatusBar, View } from 'react-native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +18,7 @@ import NetInfoComp from '../components/NetworkInfo';
 import { WebRTCStreamProvider } from '../components/StreamContext/StreamContext';
 import { toastConfig } from '../configs/toastConfig';
 import { DeviceProvider } from '../contexts/device';
+import RefreshSessionWrapper, { useSessionReady } from './RefreshSessionWrapper';
 import RootListener from './RootListener';
 import RootStack from './RootStack';
 import { APP_SCREEN } from './ScreenTypes';
@@ -36,6 +38,19 @@ const saveMezonConfigToStorage = (host: string, port: string, useSSL: boolean) =
 		console.error('Failed to save Mezon config to local storage:', error);
 	}
 };
+
+const MainApiCallingBackground = () => {
+	const isSessionReady = useSessionReady();
+
+	if (!isSessionReady) return null;
+	return (
+		<View style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
+			<RootListener />
+			<NetInfoComp />
+		</View>
+	);
+};
+
 const NavigationMain = memo(
 	(props) => {
 		const { themeValue, themeBasic } = useTheme();
@@ -168,21 +183,20 @@ const RootNavigation = (props) => {
 		<MezonStoreProvider store={store} loading={null} persistor={persistor}>
 			<ThemeProvider>
 				<ChatContextProvider>
-					<WebRTCStreamProvider>
-						<DeviceProvider>
-							<PermissionProvider>
-								<EmojiSuggestionProvider isMobile={true}>
-									<KeyboardProvider statusBarTranslucent>
-										<NavigationMain {...props} />
-										<View style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
-											<RootListener />
-											<NetInfoComp />
-										</View>
-									</KeyboardProvider>
-								</EmojiSuggestionProvider>
-							</PermissionProvider>
-						</DeviceProvider>
-					</WebRTCStreamProvider>
+					<RefreshSessionWrapper>
+						<WebRTCStreamProvider>
+							<DeviceProvider>
+								<PermissionProvider>
+									<EmojiSuggestionProvider isMobile={true}>
+										<KeyboardProvider statusBarTranslucent>
+											<NavigationMain {...props} />
+											<MainApiCallingBackground />
+										</KeyboardProvider>
+									</EmojiSuggestionProvider>
+								</PermissionProvider>
+							</DeviceProvider>
+						</WebRTCStreamProvider>
+					</RefreshSessionWrapper>
 				</ChatContextProvider>
 				<Toast config={toastConfig} />
 			</ThemeProvider>

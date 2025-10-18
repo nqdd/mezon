@@ -95,6 +95,7 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 		return response;
 	} catch (error) {
 		//Todo: check clan owner before deleting account
+		// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 		toast.error('Error: You are the owner of the clan');
 		throw error;
 		// captureSentryError(error, 'account/deleteaccount');

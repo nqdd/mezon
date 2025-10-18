@@ -7,7 +7,7 @@
 		"thisCannotBeEdited": "Không thể chỉnh sửa",
 		"browse": "Duyệt",
 		"chooseAFile": "Chọn tệp",
-		"stickerName": "Tên emoji",
+		"stickerName": "Tên biểu cảm",
 		"exCatHug": "VD: cat_hug",
 		"thisIsForSale": "Đây là sản phẩm bán",
 		"neverMind": "Bỏ qua"
@@ -21,15 +21,15 @@
 		"errorSizeLimit": "Kích thước ảnh vượt quá 256 KB"
 	},
 	"button": {
-		"upload": "Tải lên biểu tượng cảm xúc"
+		"upload": "Tải lên biểu cảm"
 	},
 	"description": {
-		"descriptions": "Thêm emoji tùy chỉnh mà tất cả người dùng trong clan này đều có thể sử dụng. Mọi thành viên trong Mezon đều có thể sử dụng được các emoji GIF động.",
+		"descriptions": "Thêm biểu cảm tùy chỉnh mà tất cả người dùng trong clan này đều có thể sử dụng. Mọi thành viên trong Mezon đều có thể sử dụng được các biểu cảm GIF động.",
 		"requirements": "YÊU CẦU TẢI LÊN",
-		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của emoji phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
+		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của biểu cảm phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
 	},
 	"emojiList": {
-		"slotsDetails": "DANH SÁCH EMOJI",
+		"slotsDetails": "DANH SÁCH BIỂU CẢM",
 		"delete": "Xóa"
 	}
 }

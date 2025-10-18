@@ -1,6 +1,7 @@
 import { useOnScreen } from '@mezon/core';
 import { selectCurrentClanId, selectTheme, ThreadsEntity, useAppSelector } from '@mezon/store';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import GroupThreads from './GroupThreads';
 import { getActiveThreads, getJoinedThreadsWithinLast30Days, getThreadsOlderThan30Days } from './hepler';
 
@@ -12,6 +13,7 @@ type ThreadListProps = {
 };
 
 export default function ThreadList({ isLoading, threads, loadMore, preventClosePannel }: ThreadListProps) {
+	const { t } = useTranslation('channelTopbar');
 	const ulRef = useRef<HTMLUListElement | null>(null);
 
 	const currentClanId = useAppSelector(selectCurrentClanId);
@@ -42,23 +44,23 @@ export default function ThreadList({ isLoading, threads, loadMore, preventCloseP
 		>
 			<GroupThreads
 				preventClosePannel={preventClosePannel}
-				title="Active Threads"
+				title={t('activeThreads')}
 				threads={activeThreads}
 				measureRef={isLastInActive ? measureRef : undefined}
 			/>
 			<GroupThreads
 				preventClosePannel={preventClosePannel}
-				title="Joined Threads (Last 30 Days)"
+				title={t('joinedThreadsLast30Days')}
 				threads={joinedThreads}
 				measureRef={isLastInJoined ? measureRef : undefined}
 			/>
 			<GroupThreads
 				preventClosePannel={preventClosePannel}
-				title="Older Threads"
+				title={t('olderThreads')}
 				threads={oldThreads}
 				measureRef={isLastInOld ? measureRef : undefined}
 			/>
-			{isLoading && <li>Loading...</li>}
+			{isLoading && <li>{t('loading')}</li>}
 		</ul>
 	);
 }

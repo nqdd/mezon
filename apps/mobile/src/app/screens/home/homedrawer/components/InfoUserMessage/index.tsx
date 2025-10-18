@@ -2,6 +2,7 @@ import { useColorsRoleById, useTheme } from '@mezon/mobile-ui';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import ImageNative from '../../../../../components/ImageNative';
 import { styles } from './styles';
@@ -16,6 +17,7 @@ interface IProps {
 	mode: number;
 }
 export const InfoUserMessage = ({ createTime, isShow, onPress, onLongPress, senderDisplayName, messageSenderId, mode }: IProps) => {
+	const { t } = useTranslation(['common']);
 	const userRolesClan = useColorsRoleById(messageSenderId);
 	const { themeValue } = useTheme();
 	const colorSenderName = useMemo(() => {
@@ -43,7 +45,7 @@ export const InfoUserMessage = ({ createTime, isShow, onPress, onLongPress, send
 					{senderDisplayName}
 				</Text>
 				{!!imageRoleUrl && <ImageNative url={imageRoleUrl} style={styles.roleIcon} resizeMode={'contain'} />}
-				<Text style={styles.dateMessageBox}>{createTime ? convertTimeString(createTime) : ''}</Text>
+				<Text style={styles.dateMessageBox}>{createTime ? convertTimeString(createTime, t) : ''}</Text>
 			</TouchableOpacity>
 		);
 	}

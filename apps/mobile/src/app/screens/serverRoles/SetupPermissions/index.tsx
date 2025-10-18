@@ -109,7 +109,7 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 		} catch (error) {
 			console.error(error);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
@@ -157,7 +157,7 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 			navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_ROLE_MEMBERS);
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />

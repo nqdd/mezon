@@ -20,10 +20,12 @@ import {
 	useAppDispatch,
 	userClanProfileActions
 } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import type { EUserStatus } from '@mezon/utils';
 import {
+	CURRENCY,
 	ESummaryInfo,
+	EUserStatus,
 	ONE_MINUTE,
 	TypeMessage,
 	compareBigInt,
@@ -46,7 +48,6 @@ import StreamInfo from '../StreamInfo';
 import UpdateButton from '../UpdateButton/UpdateButton';
 import { VoiceInfo } from '../VoiceChannel';
 import ModalFooterProfile from './ModalFooterProfile';
-
 export type FooterProfileProps = {
 	name: string;
 	status?: boolean;
@@ -65,14 +66,16 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 	const statusMenu = useSelector(selectStatusMenu);
 	const userWallet = useSelector(selectWalletDetail);
 	const myProfile = useAuth();
-	const { t } = useTranslation(['setting']);
+	const { t } = useTranslation(['setting', 'token']);
+	const { mmnRef } = useMezon();
+
 	const userCustomStatus = useMemo(() => {
 		const userCustomStatus = myProfile.userProfile?.user?.user_status;
 		return userCustomStatus;
 	}, [myProfile, myProfile.userProfile?.user?.user_status]);
 
 	const userStatus = useMemo(() => {
-		const userStatus = myProfile.userProfile?.user?.status;
+		const userStatus = myProfile.userProfile?.user?.status || EUserStatus.ONLINE;
 		return userStatus;
 	}, [myProfile, myProfile.userProfile?.user?.status]);
 
@@ -140,11 +143,17 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			return;
 		}
 		if (token <= 0) {
-			setError('Your amount must be greater than zero');
+			setError(t('token:toast.error.amountMustThanZero'));
 			return;
 		}
-		if (compareBigInt(userWallet?.balance || '', BigInt(token).toString()) < 0) {
-			setError(`Your amount exceeds wallet balance (${formatBalanceToString(userWallet?.balance)} tokens)`);
+		const mmnClient = mmnRef.current;
+		if (!mmnClient) {
+			setError('MmnClient not initialized');
+			return;
+		}
+		if (compareBigInt(userWallet?.balance || '', mmnClient.scaleAmountToDecimals(token)) < 0) {
+			setError(`
+				${t('token:toast.error.exceedWallet')} (${formatBalanceToString(userWallet?.balance)} ${CURRENCY.SYMBOL})`);
 			return;
 		}
 

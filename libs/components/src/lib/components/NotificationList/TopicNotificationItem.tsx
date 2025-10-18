@@ -1,32 +1,44 @@
 import { useAuth, useGetPriorityNameFromUserClan } from '@mezon/core';
 import {
+	appActions,
 	getFirstMessageOfTopic,
+	getStore,
+	messagesActions,
 	notificationActions,
 	selectAllUserClans,
+	selectCurrentChannelId,
+	selectIsShowCanvas,
 	selectIsShowInbox,
 	selectMemberClanByUserId,
+	selectMessageByMessageId,
 	threadsActions,
 	topicsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import type { IMessageWithUser } from '@mezon/utils';
 import { createImgproxyUrl } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiSdTopic } from 'mezon-js/dist/api.gen';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 export type TopicProps = {
 	readonly topic: ApiSdTopic;
+	onCloseTooltip?: () => void;
 };
 
-function TopicNotificationItem({ topic }: TopicProps) {
+function TopicNotificationItem({ topic, onCloseTooltip }: TopicProps) {
+	const { t } = useTranslation('channelTopbar');
 	const navigate = useNavigate();
 	const isShowInbox = useSelector(selectIsShowInbox);
 	const [subjectTopic, setSubjectTopic] = useState('');
 	const dispatch = useAppDispatch();
 	const memberClan = useSelector(selectAllUserClans);
+	const isShowCanvas = useSelector(selectIsShowCanvas);
+
 	const { userId } = useAuth();
 	const userIds = topic.last_sent_message?.repliers;
 	const usernames = useMemo(() => {
@@ -45,15 +57,61 @@ function TopicNotificationItem({ topic }: TopicProps) {
 			setSubjectTopic(`${usernames[usernames.length - 1]} and ${usernames.length - 1} others`);
 		}
 	}, [usernames, userIds]);
-	const handleOpenTopic = async () => {
-		await navigate(`/chat/clans/${topic.clan_id}/channels/${topic.channel_id}`);
-		dispatch(topicsActions.setIsShowCreateTopic(true));
-		dispatch(threadsActions.setIsShowCreateThread({ channelId: topic.channel_id as string, isShowCreateThread: false }));
-		dispatch(topicsActions.setCurrentTopicId(topic.id || ''));
-		dispatch(getFirstMessageOfTopic(topic.id || ''));
-		dispatch(notificationActions.setIsShowInbox(!isShowInbox));
-	};
 
+	const handleOpenTopic = async () => {
+		if (isShowCanvas) {
+			dispatch(appActions.setIsShowCanvas(false));
+		}
+		onCloseTooltip?.();
+		dispatch(notificationActions.setIsShowInbox(!isShowInbox));
+		if (topic.message_id && topic.channel_id) {
+			const state = getStore().getState();
+			const currentChannelId = selectCurrentChannelId(state);
+			if (currentChannelId !== topic.channel_id) {
+				await navigate(`/chat/clans/${topic.clan_id}/channels/${topic.channel_id}`);
+			}
+
+			dispatch(
+				messagesActions.jumpToMessage({
+					clanId: topic.clan_id || '',
+					messageId: topic.message_id,
+					channelId: topic.channel_id,
+					navigate
+				})
+			);
+
+			const waitForMessage = (timeout = 5000): Promise<unknown> =>
+				new Promise((resolve) => {
+					const startTime = Date.now();
+					const checkMessage = () => {
+						const state = getStore().getState();
+						const msg = selectMessageByMessageId(state, topic.channel_id as string, topic.message_id as string);
+						if (msg) {
+							return resolve(msg);
+						}
+						if (Date.now() - startTime > timeout) {
+							console.warn('Timeout waiting for message to load');
+							return resolve(null);
+						}
+						requestAnimationFrame(checkMessage);
+					};
+					checkMessage();
+				});
+
+			const fullMessage = await waitForMessage();
+
+			if (fullMessage) {
+				dispatch(topicsActions.setCurrentTopicInitMessage(fullMessage as IMessageWithUser));
+			} else {
+				console.error('Failed to load message, cannot set currentTopicInitMessage');
+			}
+
+			dispatch(topicsActions.setIsShowCreateTopic(true));
+			dispatch(threadsActions.setIsShowCreateThread({ channelId: topic.channel_id as string, isShowCreateThread: false }));
+			dispatch(topicsActions.setCurrentTopicId(topic.id || ''));
+			dispatch(getFirstMessageOfTopic(topic.id || ''));
+		}
+	};
 	const allTabProps = {
 		messageReplied: topic?.message,
 		subject: subjectTopic,
@@ -68,7 +126,7 @@ function TopicNotificationItem({ topic }: TopicProps) {
 				className="absolute py-1 px-2 bg-item-theme bottom-[10px] z-50 right-3 text-[10px] rounded-[6px] transition-all duration-300 group-hover:block hidden"
 				onClick={handleOpenTopic}
 			>
-				Jump
+				{t('tooltips.jump')}
 			</button>
 			<AllTabContent {...allTabProps} />
 		</div>

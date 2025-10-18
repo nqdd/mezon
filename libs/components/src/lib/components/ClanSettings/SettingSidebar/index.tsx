@@ -49,7 +49,8 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 	const getTranslatedSectionTitle = (title: string) => {
 		const sectionMap: Record<string, string> = {
 			Apps: t('sidebar.sectionTitles.apps'),
-			Moderation: t('sidebar.sectionTitles.moderation')
+			Moderation: t('sidebar.sectionTitles.moderation'),
+			Emotions: t('sidebar.sectionTitles.emotions')
 		};
 		return sectionMap[title] || title;
 	};

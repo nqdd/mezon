@@ -1,9 +1,10 @@
 import { useAppParams, useAuth } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
-import { fetchUserChannels, selectMemberByGroupId, useAppDispatch, useAppSelector } from '@mezon/store';
+import { selectMemberByGroupId, useAppSelector } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { memo, useEffect } from 'react';
+import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MemberContextMenuProvider } from '../../../contexts';
 import MemberItem from '../../MemberList/MemberItem';
 
@@ -18,24 +19,10 @@ export type DataMemberCreate = {
 };
 
 function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
+	const { t } = useTranslation('common');
 	const { directId } = useAppParams();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, directId as string));
 	const { userId } = useAuth();
-	const dispatch = useAppDispatch();
-
-	useEffect(() => {
-		const fetchMemberGroup = async () => {
-			if (directId && !rawMembers) {
-				dispatch(
-					fetchUserChannels({
-						channelId: directId,
-						isGroup: true
-					})
-				);
-			}
-		};
-		fetchMemberGroup();
-	}, [directId]);
 
 	return (
 		<div className="self-stretch w-full h-[268px] flex-col justify-start items-start flex pt-[16px] pb-[16px] ml-2 mr-1 gap-[24px]">
@@ -44,7 +31,7 @@ function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
 					className="mb-3 ml-2 font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase"
 					data-e2e={generateE2eId(`chat.direct_message.member_list.member_count`)}
 				>
-					MEMBER - {rawMembers?.length}
+					{t('member').toUpperCase()} - {rawMembers?.length}
 				</p>
 				{
 					<div className={`flex flex-col ${isElectron() ? 'pb-8' : ''}`}>

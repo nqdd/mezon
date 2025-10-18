@@ -103,7 +103,7 @@ export const listChannelRenderSlice = createSlice({
 				channels: listChannelFavor,
 				id: FAVORITE_CATEGORY_ID,
 				category_id: FAVORITE_CATEGORY_ID,
-				category_name: 'Favorite Channel',
+				category_name: 'Favorite Channel', // TODO: This should be i18n translated
 				clan_id: clanId,
 				creator_id: '0',
 				category_order: 1,

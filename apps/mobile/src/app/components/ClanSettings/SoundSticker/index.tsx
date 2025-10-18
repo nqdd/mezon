@@ -1,10 +1,13 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { selectAudioByClanId, selectCurrentClanId, useAppSelector } from '@mezon/store-mobile';
+import { MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, Platform, Pressable, Text, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { SoundList } from './SoundList';
 import { style } from './styles';
 
@@ -14,7 +17,7 @@ export function SoundBoardSetting({ navigation }: MenuClanScreenProps<ClanSettin
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const { t } = useTranslation(['clanSoundSetting']);
+	const { t } = useTranslation(['clanSoundSetting', 'common']);
 	const soundList = useAppSelector((state) => selectAudioByClanId(state, currentClanId));
 
 	useLayoutEffect(() => {
@@ -25,6 +28,13 @@ export function SoundBoardSetting({ navigation }: MenuClanScreenProps<ClanSettin
 	}, [navigation]);
 
 	const handleAddEmoji = async () => {
+		if (soundList?.length > MAX_CLAN_ITEM_SLOTS) {
+			Toast.show({
+				type: 'error',
+				text1: t('common:uploadLimit.voiceSticker')
+			});
+			return;
+		}
 		navigation.navigate(APP_SCREEN.MENU_CLAN.CREATE_SOUND);
 	};
 	const ListHeaderComponent = () => {

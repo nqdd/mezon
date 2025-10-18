@@ -1,7 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectMemberClanByUserId } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { getSrcEmoji, getSrcSound } from '@mezon/utils';
+import { getSrcEmoji, getSrcSound, UsersClanEntity } from '@mezon/utils';
 import type { VoiceReactionSend } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Platform, Text, View } from 'react-native';
@@ -47,6 +46,7 @@ interface ReactProps {
 	channelId: string;
 	isAnimatedCompleted: boolean;
 	onSoundReaction: (senderId: string, soundId: string) => void;
+	allUserClans: UsersClanEntity[];
 }
 
 // Memoized emoji component for better performance
@@ -87,14 +87,14 @@ const AnimatedEmoji = memo(({ item, styles }: { item: EmojiItem; styles: any }) 
 
 AnimatedEmoji.displayName = 'AnimatedEmoji';
 
-export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSoundReaction }: ReactProps) => {
+export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSoundReaction, allUserClans }: ReactProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [displayedEmojis, setDisplayedEmojis] = useState<EmojiItem[]>([]);
 	const { socketRef } = useMezon();
 	const animationTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
 	const soundRefs = useRef<Map<string, Sound>>(new Map());
-
+	
 	// Cleanup function for timeouts
 	const cleanupTimeouts = useCallback(() => {
 		animationTimeoutsRef.current.forEach(clearTimeout);
@@ -274,8 +274,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 							onSoundReaction(senderId, soundId);
 						}
 					} else {
-						const store = getStore();
-						const members = selectMemberClanByUserId(store.getState(), senderId);
+						const members = allUserClans.find((item) => item.id === senderId);
 						const displayName = members?.clan_nick || members?.user?.display_name || members?.user?.username || '';
 
 						createAndAnimateEmoji(emojiId, displayName);
@@ -285,7 +284,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 				console.error('Error handling voice reaction:', error);
 			}
 		},
-		[channelId, createAndAnimateEmoji, onSoundReaction, playSound]
+		[allUserClans, channelId, createAndAnimateEmoji, onSoundReaction, playSound]
 	);
 
 	// Effect for socket handling with proper cleanup

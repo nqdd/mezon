@@ -1,6 +1,6 @@
 import { IOption } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -22,10 +22,13 @@ const HeaderTooltip = ({ onPressOption, options }: ITooltipHeaderProps) => {
 		setIsShowTooltip(!isShowTooltip);
 	};
 
-	const onPressOptionTooltip = (option: IOption) => {
-		onPressOption(option);
-		setIsShowTooltip(false);
-	};
+	const onPressOptionTooltip = useCallback(
+		(option: IOption) => {
+			onPressOption(option);
+			setIsShowTooltip(false);
+		},
+		[onPressOption]
+	);
 
 	return (
 		<View style={styles.tooltipButton}>

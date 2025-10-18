@@ -144,6 +144,13 @@ export const UsersClanSlice = createSlice({
 				UsersClanAdapter.removeOne(state.byClans[clanId].entities, userId);
 			}
 		},
+		removeUsersAndClearCache: (state, action: PayloadAction<{ clanId: string; userIds: string[] }>) => {
+			const { clanId, userIds } = action.payload;
+			if (state.byClans[clanId]) {
+				UsersClanAdapter.removeMany(state.byClans[clanId].entities, userIds);
+				delete state.byClans[clanId].cache;
+			}
+		},
 		updateUserClan: (state, action: PayloadAction<{ clanId: string; userId: string; clanNick: string; clanAvt: string }>) => {
 			const { clanId, userId, clanNick, clanAvt } = action.payload;
 			if (state.byClans[clanId]) {
@@ -404,7 +411,7 @@ export const selectClanMemberWithStatusIds = createSelector(
 		if (userProfileId) {
 			const userIndex = users.findIndex((user) => user.id === userProfileId);
 
-			if (userIndex === -1 && userProfile?.user?.user_status !== EUserStatus.INVISIBLE) {
+			if (userIndex === -1 && userProfile?.user?.status !== EUserStatus.INVISIBLE) {
 				users.push({
 					id: userProfileId,
 					user: {
@@ -412,7 +419,7 @@ export const selectClanMemberWithStatusIds = createSelector(
 						online: true
 					}
 				} as UsersClanEntity);
-			} else if (userProfile?.user?.user_status !== EUserStatus.INVISIBLE) {
+			} else if (userProfile?.user?.status !== EUserStatus.INVISIBLE) {
 				users[userIndex] = {
 					...users[userIndex],
 					user: {

@@ -28,7 +28,7 @@ interface IEventItemProps {
 export function EventItem({ event, onPress, showActions = true, start }: IEventItemProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['eventMenu']);
+	const { t } = useTranslation(['eventMenu', 'eventCreator']);
 	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const { userId } = useAuth();
 	const [isInterested, setIsInterested] = useState<boolean>(false);
@@ -109,7 +109,7 @@ export function EventItem({ event, onPress, showActions = true, start }: IEventI
 							/>
 						</View>
 						<View style={styles.inline}>
-							<MezonIconCDN icon={IconCDN.groupIcon} height={size.s_10} width={size.s_10} color={themeValue.text} />
+							<MezonIconCDN icon={IconCDN.groupIcon} height={size.s_12} width={size.s_12} color={themeValue.text} />
 							<Text style={styles.tinyText}>{event?.user_ids?.length}</Text>
 						</View>
 					</View>
@@ -119,19 +119,19 @@ export function EventItem({ event, onPress, showActions = true, start }: IEventI
 					<View style={styles.mainSec}>
 						{!!event?.channel_id && event.channel_id !== '0' && !event?.is_private && (
 							<View style={[styles.privatePanel, { backgroundColor: baseColor.orange }]}>
-								<Text style={styles.privateText}>Channel Event</Text>
+								<Text style={styles.privateText}>{t('eventCreator:eventDetail.channelEvent')}</Text>
 							</View>
 						)}
 
 						{event?.is_private && (
-							<View style={[styles.privatePanel, { backgroundColor: baseColor.orange }]}>
-								<Text style={styles.privateText}>Channel Event</Text>
+							<View style={styles.privatePanel}>
+								<Text style={styles.privateText}>{t('eventCreator:eventDetail.privateEvent')}</Text>
 							</View>
 						)}
 
 						{!event?.is_private && !event?.channel_id && (
 							<View style={[styles.privatePanel, { backgroundColor: baseColor.blurple }]}>
-								<Text style={styles.privateText}>Clan Event</Text>
+								<Text style={styles.privateText}>{t('eventCreator:eventDetail.clanEvent')}</Text>
 							</View>
 						)}
 						<Text style={{ color: themeValue.textStrong }}>{event.title}</Text>

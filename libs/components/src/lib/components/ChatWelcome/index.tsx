@@ -49,7 +49,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 	const editGroupModal = useEditGroupModal({
 		channelId: directChannel?.channel_id,
 		currentGroupName: name || directChannel?.channel_label || 'Group',
-		currentAvatar: directChannel?.topic || ''
+		currentAvatar: directChannel?.channel_avatar || ''
 	});
 	useEffect(() => {
 		if (directId) {
@@ -106,7 +106,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 							<WelComeDm
 								name={isDmGroup ? name || `${selectedChannel?.creator_name}'s Groups` : name || username}
 								username={username}
-								avatar={isDmGroup ? directChannel?.channel_avatar : avatarDM}
+								avatar={isDmGroup ? directChannel?.channel_avatar || 'assets/images/avatar-group.png' : avatarDM}
 								classNameSubtext={classNameSubtext}
 								isDmGroup={isDmGroup}
 								onEditGroup={isDmGroup ? handleOpenEditModal : undefined}

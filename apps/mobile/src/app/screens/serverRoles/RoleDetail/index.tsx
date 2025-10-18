@@ -69,7 +69,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 			navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
@@ -111,7 +111,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 						navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
 					} else {
 						Toast.show({
-							type: 'success',
+							type: 'error',
 							props: {
 								text2: t('failed'),
 								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />

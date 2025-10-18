@@ -1,6 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectAllAccount, useWallet } from '@mezon/store-mobile';
-import { createImgproxyUrl, formatMoney } from '@mezon/utils';
+import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Share, Text, TouchableOpacity, View } from 'react-native';
@@ -84,7 +84,7 @@ export const MyQRCode = () => {
 			const qrCodeUri = qrCode?.['profile'];
 			if (!qrCodeUri) return;
 			const filePath = qrCodeUri.startsWith('file://') ? qrCodeUri : `file://${qrCodeUri}`;
-			await saveImageToCameraRoll(filePath, 'image', true);
+			await saveImageToCameraRoll(filePath, 'image', true, false);
 		} catch (e) {
 			console.error('QR Code download error:', e);
 		}
@@ -152,7 +152,9 @@ export const MyQRCode = () => {
 					<View>
 						<Text style={styles.nameProfile}>{userInfo.username || userInfo.displayName}</Text>
 						<Text style={styles.tokenProfile}>
-							{activeTab === 'profile' ? `${t('shareWithOthers')}` : `${t('token')} ${formatMoney(Number(tokenInWallet || 0))}₫`}
+							{activeTab === 'profile'
+								? `${t('shareWithOthers')}`
+								: `${t('token')} ${formatBalanceToString(tokenInWallet || '0')?.toString()} ${CURRENCY.SYMBOL}`}
 						</Text>
 					</View>
 				</View>

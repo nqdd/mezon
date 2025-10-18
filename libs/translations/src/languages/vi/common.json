@@ -3,6 +3,23 @@
 	"savedSuccessfully": "Đã lưu thành công",
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
+	"newMessage": "Tin nhắn mới",
+	"discover": "Khám phá",
+	"createClan": "Tạo Clan",
+	"closePreviewMode": "Đóng chế độ xem trước",
+	"previewModeDescription": "Bạn đang xem clan như một thành viên mới. Bạn không có vai trò nào.",
+	"transferredSuccessfully": "Chuyển giao thành công!",
+	"memberRemovedSuccessfully": "Đã xóa thành viên thành công",
+	"addRole": "Thêm vai trò",
+	"signals": "Tín hiệu",
+	"noRolesAvailable": "Không có vai trò nào.",
+	"role": "Vai trò",
+	"noRoles": "Chưa có vai trò",
+	"member": "Thành viên",
+	"cannotFetchClans": "Không thể tải danh sách clan, vui lòng thử lại sau",
+	"cannotFetchClan": "Không thể tải clan, vui lòng thử lại sau",
+	"categoryFilteringComingSoon": "Lọc theo danh mục sẽ được triển khai sớm!",
+	"invalidJWT": "JWT không hợp lệ",
 	"muteNotification": "Tắt thông báo",
 	"thread": "Chủ đề",
 	"members": "Thành viên",
@@ -37,6 +54,9 @@
 	"todayAt": "Hôm nay lúc",
 	"today": "Hôm nay",
 	"yesterdayAt": "Hôm qua lúc",
+	"todayAtTime": "Hôm nay lúc {{time}}",
+	"yesterdayAtTime": "Hôm qua lúc {{time}}",
+	"justNow": "Vừa xong",
 	"sampleMessage": "Nhìn tôi này, tôi là một chú bướm xinh đẹp",
 	"switchingTheme": "Đang chuyển chủ đề...",
 	"settingsSaved": "Đã lưu cài đặt!",
@@ -73,8 +93,20 @@
 		"joinMessage": "Bạn đã đạt số lượng clan tối đa có thể tham gia trên tài khoản của mình ({{count}} clan). Để tham gia clan mới này, bạn cần xóa hoặc rời khỏi một trong những clan hiện có.",
 		"okay": "Được rồi"
 	},
-	"isTyping": " đang gõ...",
-	"severalPeopleTyping": "Một số người đang gõ...",
+	"uploadLimit": {
+		"emoji": "Đạt giới hạn biểu cảm",
+		"sticker": "Đạt giới hạn nhãn dán",
+		"voiceSticker": "Đạt giới hạn hiệu ứng âm thanh"
+	},
+	"cardConversationMessage": {
+		"title": "Cuộc trò chuyện",
+		"johnDoe": "Này, cuộc họp ngày mai của chúng ta vẫn diễn ra chứ?",
+		"janeSmith": "Đừng quên xem các cập nhật mới của dự án nhé!",
+		"aliceJohnson": "Bạn có thể gửi cho tôi các tập tin từ tuần trước không?",
+		"bobBrown": "Tuần tới chúng mình đi ăn trưa với nhau nhé."
+	},
+	"isTyping": " đang nhập...",
+	"severalPeopleTyping": "Một số người đang nhập...",
 	"blockedMessage": "Tin nhắn bị chặn",
 	"quickMess": {
 		"title": "KHOAN ĐÃ. QUÁ NHANH RỒI!",
@@ -124,7 +156,7 @@
 		"loginToMezon": "Đăng nhập vào tài khoản Mezon",
 		"emailAddress": "Địa chỉ email",
 		"loginWithSMS": "Đăng nhập bằng SMS OTP",
-		"loginWithPassword": "Đăng nhập bằng email và mật khẩu",
+		"loginWithPassword": "Đăng nhập bằng Email & Mật khẩu",
 		"send": "Gửi OTP",
 		"resendOtp": "Gửi lại OTP",
 		"loginByOTP": "Đăng nhập bằng OTP",
@@ -205,5 +237,22 @@
 		"usernamePlaceholder": "Hãy dùng tên thật để mọi người dễ nhận ra bạn",
 		"update": "Cập nhật",
 		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác."
+	},
+	"sessionExpired": {
+		"title": "Phiên đăng nhập đã hết hạn hoặc lỗi mạng",
+		"confirm": "Đăng nhập lại",
+		"content": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại để tiếp tục."
+	},
+	"call": {
+		"connecting": "Đang kết nối...",
+		"ringing": "Đang đổ chuông..."
+	},
+	"itemClanPreview": {
+		"preview": "Xem trước {{type}}",
+		"name": "Tên {{type}}",
+		"forSale": "Để bán",
+		"upload": "Tải lên",
+		"sticker": "nhãn dán",
+		"emoji": "biểu cảm"
 	}
 }
