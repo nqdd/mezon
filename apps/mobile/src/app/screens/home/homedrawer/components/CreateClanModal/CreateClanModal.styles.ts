@@ -19,21 +19,19 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: '100%'
 		},
-		headerTitle: {
-			fontSize: size.s_20,
-			fontWeight: '700',
-			color: colors.textStrong,
-			textAlign: 'center',
-			marginBottom: size.s_8
-		},
-		headerSubTitle: {
-			fontSize: size.label,
-			fontWeight: '400',
+		title: {
+			fontSize: size.h4,
 			color: colors.text,
+			fontWeight: '600',
 			textAlign: 'center',
-			marginBottom: size.s_6
+			marginBottom: size.s_10
 		},
-
+		description: {
+			fontSize: size.medium,
+			fontWeight: '500',
+			color: colors.textDisabled,
+			textAlign: 'center'
+		},
 		uploadImage: {
 			width: size.s_100,
 			height: size.s_100,
@@ -108,5 +106,15 @@ export const style = (colors: Attributes) =>
 			height: '100%',
 			borderRadius: 50
 		},
-		errorMessage: { paddingRight: size.s_20 }
+		errorMessage: { paddingRight: size.s_20 },
+		backButton: {
+			position: 'absolute',
+			top: size.s_10,
+			justifyContent: 'center',
+			alignItems: 'center',
+			zIndex: 10,
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_20
+		}
 	});

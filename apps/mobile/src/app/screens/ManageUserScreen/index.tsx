@@ -117,8 +117,7 @@ const ManageUserScreen = ({ route }: ManageUserScreenProps) => {
 				Toast.show({
 					type: 'error',
 					props: {
-						text2: t('permissions.toast.kickMemberFailed'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} />
+						text2: t('permissions.toast.kickMemberFailed')
 					}
 				});
 			}

@@ -54,6 +54,9 @@
 	"todayAt": "Hôm nay lúc",
 	"today": "Hôm nay",
 	"yesterdayAt": "Hôm qua lúc",
+	"todayAtTime": "Hôm nay lúc {{time}}",
+	"yesterdayAtTime": "Hôm qua lúc {{time}}",
+	"justNow": "Vừa xong",
 	"sampleMessage": "Nhìn tôi này, tôi là một chú bướm xinh đẹp",
 	"switchingTheme": "Đang chuyển chủ đề...",
 	"settingsSaved": "Đã lưu cài đặt!",
@@ -153,7 +156,7 @@
 		"loginToMezon": "Đăng nhập vào tài khoản Mezon",
 		"emailAddress": "Địa chỉ email",
 		"loginWithSMS": "Đăng nhập bằng SMS OTP",
-		"loginWithPassword": "Đăng nhập bằng email và mật khẩu",
+		"loginWithPassword": "Đăng nhập bằng Email & Mật khẩu",
 		"send": "Gửi OTP",
 		"resendOtp": "Gửi lại OTP",
 		"loginByOTP": "Đăng nhập bằng OTP",
@@ -234,5 +237,22 @@
 		"usernamePlaceholder": "Hãy dùng tên thật để mọi người dễ nhận ra bạn",
 		"update": "Cập nhật",
 		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác."
+	},
+	"sessionExpired": {
+		"title": "Phiên đăng nhập đã hết hạn hoặc lỗi mạng",
+		"confirm": "Đăng nhập lại",
+		"content": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại để tiếp tục."
+	},
+	"call": {
+		"connecting": "Đang kết nối...",
+		"ringing": "Đang đổ chuông..."
+	},
+	"itemClanPreview": {
+		"preview": "Xem trước {{type}}",
+		"name": "Tên {{type}}",
+		"forSale": "Để bán",
+		"upload": "Tải lên",
+		"sticker": "nhãn dán",
+		"emoji": "biểu cảm"
 	}
 }

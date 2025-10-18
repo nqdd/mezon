@@ -27,7 +27,7 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			alignSelf: 'center',
-			marginVertical: size.s_10
+			marginTop: size.s_10
 		},
 		clanName: {
 			color: colors.textStrong,

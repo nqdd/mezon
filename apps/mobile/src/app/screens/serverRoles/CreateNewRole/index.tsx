@@ -41,7 +41,7 @@ export const CreateNewRole = ({ navigation }: MenuClanScreenProps<CreateNewRoleS
 		} else {
 			navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
 					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />

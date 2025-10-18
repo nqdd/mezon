@@ -4,16 +4,18 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { channelsActions, checkDuplicateNameClan, clansActions, getStoreAsync, selectCurrentChannel } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
-import MezonClanAvatar from 'apps/mobile/src/app/componentUI/MezonClanAvatar';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import type { CameraOptions } from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
+import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import MezonButton from '../../../../../componentUI/MezonButton';
+import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import type { IFile } from '../../../../../componentUI/MezonImagePicker';
 import MezonInput from '../../../../../componentUI/MezonInput';
@@ -21,8 +23,6 @@ import { IconCDN } from '../../../../../constants/icon_cdn';
 import useCheckClanLimit from '../../../../../hooks/useCheckClanLimit';
 import { validInput } from '../../../../../utils/validate';
 import { style } from './CreateClanModal.styles';
-import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
-import LinearGradient from 'react-native-linear-gradient';
 
 const CreateClanModal = memo(() => {
 	const { themeValue } = useTheme();
@@ -134,11 +134,14 @@ const CreateClanModal = memo(() => {
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<Pressable onPress={onClose}>
-				<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.textStrong} height={size.s_30} width={size.s_30} />
-			</Pressable>
-			<Text style={styles.headerTitle}>{t('title')}</Text>
-			<Text style={styles.headerSubTitle}>{t('subTitle')}</Text>
+
+			<View style={{ marginBottom: size.s_40, paddingTop: size.s_20 }}>
+				<TouchableOpacity style={styles.backButton} onPress={onClose} activeOpacity={0.7}>
+					<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.text} width={size.s_30} height={size.s_30} />
+				</TouchableOpacity>
+				<Text style={[styles.title, { color: themeValue.text }]}>{t('title')}</Text>
+				<Text style={[styles.description, { color: themeValue.textDisabled }]}>{t('subTitle')}</Text>
+			</View>
 			<View style={styles.boxImage}>
 				<TouchableOpacity style={styles.uploadImage} onPress={onOpen}>
 					{!urlImage ? (

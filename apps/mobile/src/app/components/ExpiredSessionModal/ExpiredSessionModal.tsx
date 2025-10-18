@@ -9,6 +9,7 @@ import {
 import { appActions, authActions, channelsActions, clansActions, messagesActions, selectAllAccount, selectHasInternetMobile } from '@mezon/store';
 import { getStoreAsync } from '@mezon/store-mobile';
 import React, { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
@@ -16,6 +17,7 @@ import MezonConfirm from '../../componentUI/MezonConfirm';
 const ExpiredSessionModal = () => {
 	const userProfile = useSelector(selectAllAccount);
 	const hasInternet = useSelector(selectHasInternetMobile);
+	const { t } = useTranslation(['common']);
 
 	const logout = useCallback(async () => {
 		const store = await getStoreAsync();
@@ -43,9 +45,9 @@ const ExpiredSessionModal = () => {
 				children: (
 					<MezonConfirm
 						onConfirm={logout}
-						title={'Session Expired or Network Error'}
-						confirmText={'Login Again'}
-						content={'Your session has expired. Please log in again to continue.'}
+						title={t('sessionExpired.title')}
+						confirmText={t('sessionExpired.confirm')}
+						content={t('sessionExpired.content')}
 					/>
 				)
 			};
@@ -55,7 +57,7 @@ const ExpiredSessionModal = () => {
 		return () => {
 			listener.remove();
 		};
-	}, [hasInternet, logout]);
+	}, [hasInternet, logout, t]);
 	return null;
 };
 

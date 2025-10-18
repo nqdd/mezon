@@ -25,11 +25,6 @@ export const style = (colors: Attributes) =>
 			fontWeight: '700',
 			textAlign: 'center'
 		},
-		description: {
-			fontSize: size.s_15,
-			fontWeight: '500',
-			textAlign: 'center'
-		},
 		joinClan: {
 			width: '100%',
 			padding: size.s_10,
@@ -60,8 +55,7 @@ export const style = (colors: Attributes) =>
 		containerHeader: {
 			width: '100%',
 			borderBottomWidth: 1,
-			paddingTop: size.s_6,
-			paddingBottom: size.s_14,
+			paddingVertical: size.s_14,
 			paddingHorizontal: size.s_12,
 			borderBottomColor: colors.border,
 			zIndex: 2
@@ -235,5 +229,17 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500',
 			paddingHorizontal: size.s_4,
 			textAlign: 'center'
+		},
+		footerLoading: {
+			paddingVertical: size.s_20,
+			alignItems: 'center',
+			justifyContent: 'center',
+			flexDirection: 'row',
+			gap: size.s_8
+		},
+		loadingText: {
+			fontSize: size.s_14,
+			color: colors.textDisabled,
+			fontWeight: '500'
 		}
 	});

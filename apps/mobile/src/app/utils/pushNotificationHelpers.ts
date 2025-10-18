@@ -24,6 +24,7 @@ import {
 import { getApp } from '@react-native-firebase/app';
 import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { AuthorizationStatus, getMessaging, getToken, hasPermission, requestPermission } from '@react-native-firebase/messaging';
+import { CommonActions } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import { Alert, DeviceEventEmitter, Linking, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { APP_SCREEN } from '../navigation/ScreenTypes';
@@ -456,7 +457,8 @@ export const navigateToNotification = async (store: any, notification: any, navi
 						channelId,
 						noFetchMembers: false,
 						isClearMessage: true,
-						noCache: true
+						noCache: true,
+						isDisableJump: true
 					})
 				);
 			}
@@ -527,7 +529,35 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: channelDMId });
 			}
 		} else if (channelDMId === '0' && navigation) {
-			navigation.navigate(APP_SCREEN.NOTIFICATION.HOME, { initialTab: InboxType.MESSAGES, version: notification?.sentTime });
+			navigation.navigate(APP_SCREEN.NOTIFICATION.HOME, {
+				initialTab: InboxType.MESSAGES,
+				version: notification?.sentTime
+			});
+			try {
+				navigation.dispatch(
+					CommonActions.reset({
+						index: 1,
+						routes: [
+							{
+								name: APP_SCREEN.NOTIFICATION.HOME,
+								params: {
+									initialTab: InboxType.MESSAGES,
+									version: notification?.sentTime
+								}
+							},
+							{
+								name: APP_SCREEN.NOTIFICATION.HOME,
+								params: {
+									initialTab: InboxType.MESSAGES,
+									version: notification?.sentTime
+								}
+							}
+						]
+					})
+				);
+			} catch (e) {
+				console.error('log => e navigation: ', e);
+			}
 		}
 		setTimeout(() => {
 			store.dispatch(appActions.setIsFromFCMMobile(false));

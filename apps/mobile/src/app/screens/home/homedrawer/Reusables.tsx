@@ -32,7 +32,7 @@ export const FriendListItem = React.memo((props: IFriendListItemProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['inviteToChannel']);
 	const styles = style(themeValue);
-	const isGroupAvatar = !dmGroup?.topic?.includes('avatar-group.png');
+	const isGroupAvatar = !dmGroup?.channel_avatar?.includes('avatar-group.png');
 
 	return (
 		<View>

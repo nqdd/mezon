@@ -1,4 +1,4 @@
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
 		width: '100%',
 		backgroundColor: 'transparent',
 		paddingHorizontal: size.s_20,
-		marginTop: size.s_60
+		marginTop: size.s_40
 	},
 	headerText: {
 		fontSize: size.s_20,
@@ -32,8 +32,8 @@ export const styles = StyleSheet.create({
 	},
 	addFriendsBtn: {
 		width: '100%',
-		padding: size.s_10,
-		backgroundColor: '#5865f2',
+		padding: size.s_12,
+		backgroundColor: baseColor.blurple,
 		borderRadius: size.s_50
 	},
 	textAddFriends: {

@@ -69,10 +69,9 @@ const UpdateUserName = () => {
 		} catch (error) {
 			setIsLoading(false);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: error?.message || 'Have some error, please try again!',
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: error?.message || 'Have some error, please try again!'
 				}
 			});
 		}

@@ -1,4 +1,4 @@
-import { IOptionsNotification, notifyLabels } from '@mezon/mobile-components';
+import { IOptionsNotification, getNotifyLabels } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
@@ -69,11 +69,11 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 
 	useEffect(() => {
 		if (defaultNotificationCategory?.notification_setting_type) {
-			setDefaultNotifyName(notifyLabels[defaultNotificationCategory?.notification_setting_type]);
+			setDefaultNotifyName(getNotifyLabels(t)[defaultNotificationCategory?.notification_setting_type]);
 		} else if (defaultNotificationClan?.notification_setting_type) {
-			setDefaultNotifyName(notifyLabels[defaultNotificationClan?.notification_setting_type]);
+			setDefaultNotifyName(getNotifyLabels(t)[defaultNotificationClan?.notification_setting_type]);
 		}
-	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan]);
+	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan, t]);
 
 	const handleRadioBoxPress = async (checked: boolean, id: number) => {
 		const notifyOptionSelected = radioBox.map((item) => item && { ...item, isChecked: item.id === id });

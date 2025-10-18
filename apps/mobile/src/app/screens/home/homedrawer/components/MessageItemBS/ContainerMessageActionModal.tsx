@@ -459,8 +459,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			Toast.show({
 				type: 'error',
 				props: {
-					text2: t('toast.markMessageUnreadFailed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} />
+					text2: t('toast.markMessageUnreadFailed')
 				}
 			});
 			console.error('Error marking message as unread:', error);
