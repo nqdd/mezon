@@ -180,6 +180,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			<div
 				style={{ height: 44 }}
 				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
 				You do not have permission to send messages in this channel.
 			</div>

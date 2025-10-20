@@ -8,7 +8,7 @@ import type { ChannelUserListChannelUser } from 'mezon-js/dist/api.gen';
 import { accountActions, selectAllAccount } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { selectAllUserClans, selectEntitesUserClans } from '../clanMembers/clan.members';
+import { selectAllUserClans, selectEntitesUserClans, usersClanActions } from '../clanMembers/clan.members';
 import { selectClanView } from '../clans/clans.slice';
 import type { DirectEntity } from '../direct/direct.slice';
 import { selectDirectById, selectDirectMessageEntities } from '../direct/direct.slice';
@@ -262,8 +262,22 @@ export const updateCustomStatus = createAsyncThunk(
 				minutes = Math.floor(timeDifference / (1000 * 60));
 			}
 			const response = await mezon.socketRef.current?.writeCustomStatus(clanId, customStatus, minutes, noClear);
+
+			const state = thunkAPI.getState() as RootState;
+			const userId = state.account?.userProfile?.user?.id;
+
 			thunkAPI.dispatch(accountActions.setCustomStatus(customStatus));
 			thunkAPI.dispatch(accountActions.getUserProfile({ noCache: true }));
+
+			if (userId) {
+				thunkAPI.dispatch(
+					usersClanActions.updateUserStatus({
+						userId,
+						user_status: customStatus
+					})
+				);
+			}
+
 			if (response) {
 				return response;
 			}

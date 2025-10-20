@@ -1,7 +1,7 @@
 import { useChatSending } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectChannelById, selectDmGroupCurrent, useAppSelector } from '@mezon/store-mobile';
+import { selectChannelById, selectCurrentTopicId, selectDmGroupCurrent, useAppSelector } from '@mezon/store-mobile';
 import { EBacktickType, IMessageSendPayload, filterEmptyArrays, processText } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useEffect, useState } from 'react';
@@ -22,6 +22,7 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 	const styles = style(themeValue);
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
+	const currentTopicId = useSelector(selectCurrentTopicId);
 
 	const [links, setLinks] = useState([]);
 	const { t } = useTranslation('message');
@@ -30,7 +31,8 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 	const { sendMessage } = useChatSending({
 		mode,
 		channelOrDirect:
-			mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD ? currentChannel : currentDmGroup
+			mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD ? currentChannel : currentDmGroup,
+		fromTopic: !!currentTopicId
 	});
 	useEffect(() => {
 		if (geoLocation) {
@@ -86,7 +88,7 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 				</View>
 				<View style={styles.modalFooter}>
 					<TouchableOpacity style={styles.button} onPress={handelCancelModal}>
-						<Text style={styles.textButton}>{t('shareLocationModal.cancel')}</Text>
+						<Text style={[styles.textButton, { color: themeValue.text }]}>{t('shareLocationModal.cancel')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.button} onPress={handleSendMessage}>
 						<Text style={styles.textButton}>{t('shareLocationModal.send')}</Text>

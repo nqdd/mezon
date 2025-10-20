@@ -77,7 +77,7 @@ const ListDMChannel = ({ listDM }: ListDMChannelProps) => {
 			ref={parentRef}
 			className={`thread-scroll show-scroll`}
 			style={{
-				height: height,
+				height,
 				overflow: 'auto'
 			}}
 			onWheelCapture={() => {
@@ -106,7 +106,6 @@ const ListDMChannel = ({ listDM }: ListDMChannelProps) => {
 								transform: `translateY(${virtualRow.start}px)`
 							}}
 							className="dm-wrap"
-							data-e2e={generateE2eId(`chat.direct_message.chat_list`)}
 						>
 							<DMListItem
 								currentDmGroupId={currentDmGroupId as string}

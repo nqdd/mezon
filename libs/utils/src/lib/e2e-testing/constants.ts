@@ -319,7 +319,10 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		channel_management: {
 			total_channels: '',
-			channel_item: ''
+			channel_item: {
+				messages_count: '',
+				channel_name: ''
+			}
 		}
 	},
 	channel_setting_page: {
@@ -362,6 +365,11 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	chat: {
+		message_box: {
+			input: {
+				no_permission: ''
+			}
+		},
 		direct_message: {
 			header: {
 				left_container: '',
@@ -467,9 +475,7 @@ export const DATA_E2E_IDENTIFIER = {
 			mention_user: '',
 			member_list: {
 				item: {
-					actions: {
-						view_profile: ''
-					}
+					actions: ''
 				}
 			}
 		},
@@ -499,6 +505,21 @@ export const DATA_E2E_IDENTIFIER = {
 					jump_to_message: '',
 					see_all_pinned: ''
 				}
+			}
+		},
+		hover_message_actions: {
+			button: {
+				base: ''
+			}
+		},
+		topic: {
+			header: {
+				button: {
+					close: ''
+				}
+			},
+			button: {
+				view_topic: ''
 			}
 		}
 	},
@@ -589,6 +610,31 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	icon: {
 		end_call: ''
+	},
+	friend_page: {
+		tab: {
+			all: '',
+			online: '',
+			pending: '',
+			block: ''
+		},
+		button: {
+			add_friend: '',
+			send_friend_request: '',
+			accept_friend_request: '',
+			reject_friend_request: '',
+			cancel_friend_request: ''
+		},
+		input: {
+			search: '',
+			add_friend: '',
+			error: ''
+		},
+		request_failed_popup: {
+			button: {
+				okay: ''
+			}
+		}
 	}
 };
 type DotNestedKeys<T> = T extends object

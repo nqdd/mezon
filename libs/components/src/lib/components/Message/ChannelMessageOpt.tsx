@@ -30,6 +30,7 @@ import {
 	TypeMessage,
 	findParentByClass,
 	formatMoney,
+	generateE2eId,
 	isPublicChannel,
 	useMenuBuilder,
 	useMenuBuilderPlugin
@@ -114,6 +115,7 @@ const ChannelMessageOpt = ({
 									'h-full p-1 rounded-lg cursor-pointer popup-btn text-theme-primary text-theme-primary-hover bg-item-hover',
 									item.classNames
 								)}
+								data-e2e={generateE2eId('chat.hover_message_actions.button.base')}
 							>
 								{item.icon}
 							</button>

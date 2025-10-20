@@ -79,7 +79,7 @@ export function combineMessageReactions(reactions: any[], message_id: string): a
 				channel_id: ''
 			};
 		}
-		if (!reaction?.sender_name) continue;
+		//if (!reaction?.sender_name) continue;
 		const newSender = {
 			sender_id: reaction?.sender_id,
 			count: reaction?.count
