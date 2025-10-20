@@ -1,10 +1,14 @@
 import { captureSentryError } from '@mezon/logger';
-import { ETypeLinkMedia, IAttachmentEntity, IChannelAttachment, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ChannelStreamMode } from 'mezon-js';
-import { ApiChannelAttachment } from 'mezon-js/dist/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
+import type { IAttachmentEntity, IChannelAttachment, LoadingStatus } from '@mezon/utils';
+import { ETypeLinkMedia } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ChannelStreamMode } from 'mezon-js';
+import type { ApiChannelAttachment } from 'mezon-js/dist/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
 
 export const ATTACHMENT_FEATURE_KEY = 'attachments';
 
@@ -67,8 +71,6 @@ export const fetchChannelAttachmentsCached = async (
 	after?: number,
 	noCache = false
 ) => {
-
-
 	const currentState = getState();
 	const attachmentState = currentState[ATTACHMENT_FEATURE_KEY] as AttachmentState;
 	const channelData = attachmentState.listAttachmentsByChannel[channelId];
@@ -106,7 +108,18 @@ export const fetchChannelAttachments = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-			const response = await fetchChannelAttachmentsCached(thunkAPI.getState, mezon, channelId, clanId, fileType, state, limit, before, after, Boolean(noCache));
+			const response = await fetchChannelAttachmentsCached(
+				thunkAPI.getState,
+				mezon,
+				channelId,
+				clanId,
+				fileType,
+				state,
+				limit,
+				before,
+				after,
+				Boolean(noCache)
+			);
 
 			if (!response.attachments) {
 				return { attachments: [], channelId, fromCache: response.fromCache };
@@ -118,7 +131,7 @@ export const fetchChannelAttachments = createAsyncThunk(
 				return {
 					attachments: [],
 					channelId,
-					fromCache: true,
+					fromCache: true
 				};
 			}
 
@@ -208,7 +221,10 @@ export const attachmentSlice = createSlice({
 			})
 			.addCase(
 				fetchChannelAttachments.fulfilled,
-				(state: AttachmentState, action: PayloadAction<{ attachments: AttachmentEntity[]; channelId: string; fromCache?: boolean; append?: boolean }>) => {
+				(
+					state: AttachmentState,
+					action: PayloadAction<{ attachments: AttachmentEntity[]; channelId: string; fromCache?: boolean; append?: boolean }>
+				) => {
 					const { attachments, channelId, fromCache } = action.payload;
 
 					if (!state.listAttachmentsByChannel[channelId]) {
@@ -312,3 +328,5 @@ export const selectAllListDocumentByChannel = createSelector([getAttachmentState
 		}, []) || []
 	);
 });
+
+export const selectAttachmentsLoadingStatus = createSelector(getAttachmentState, (state: AttachmentState) => state.loadingStatus);

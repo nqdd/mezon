@@ -1,9 +1,11 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { AttachmentEntity, selectAllListDocumentByChannel, selectCurrentLanguage, useAppSelector } from '@mezon/store-mobile';
+import type { AttachmentEntity } from '@mezon/store-mobile';
+import { selectAllListDocumentByChannel, selectAttachmentsLoadingStatus, selectCurrentLanguage, useAppSelector } from '@mezon/store-mobile';
 import { memo, useCallback, useMemo, useState } from 'react';
-import { SectionList, Text, View } from 'react-native';
+import { ActivityIndicator, SectionList, Text, View } from 'react-native';
 import { formatDateHeader, groupByYearDay, parseAttachmentLikeDate } from '../../utils/groupDataHelper';
 import { normalizeString } from '../../utils/helpers';
+import { EmptySearchPage } from '../EmptySearchPage';
 import ChannelFileItem from './ChannelFileItem';
 import ChannelFileSearch from './ChannelFileSearch';
 import { style } from './styles';
@@ -13,6 +15,7 @@ const ChannelFiles = memo(({ currentChannelId }: { currentChannelId: string }) =
 	const styles = style(themeValue);
 	const [searchText, setSearchText] = useState('');
 	const allAttachments = useAppSelector((state) => selectAllListDocumentByChannel(state, (currentChannelId ?? '') as string));
+	const loadingStatus = useAppSelector(selectAttachmentsLoadingStatus);
 
 	const filteredAttachments = useMemo(() => {
 		return allAttachments.filter((attachment) => normalizeString(attachment?.filename).includes(normalizeString(searchText)));
@@ -59,25 +62,31 @@ const ChannelFiles = memo(({ currentChannelId }: { currentChannelId: string }) =
 			<ChannelFileSearch onSearchTextChange={handleSearchChange} />
 
 			<View style={styles.container}>
-				<SectionList
-					sections={sections}
-					renderItem={renderItem}
-					keyExtractor={(item, index) => `attachment_document_${index}_${item?.id}`}
-					renderSectionHeader={({ section }) => (
-						<View style={styles.sectionHeader}>
-							{section.isFirstOfYear && <Text style={styles.sectionYearHeaderTitle}>{section.year}</Text>}
-							<Text style={styles.sectionDayHeaderTitle}>{section.titleDay}</Text>
-						</View>
-					)}
-					contentContainerStyle={styles.listContent}
-					showsVerticalScrollIndicator={false}
-					removeClippedSubviews={true}
-					stickySectionHeadersEnabled
-					initialNumToRender={24}
-					maxToRenderPerBatch={12}
-					updateCellsBatchingPeriod={12}
-					windowSize={30}
-				/>
+				{loadingStatus === 'loading' ? (
+					<ActivityIndicator size="large" color={themeValue.text} />
+				) : sections.length === 0 || loadingStatus === 'error' ? (
+					<EmptySearchPage />
+				) : (
+					<SectionList
+						sections={sections}
+						renderItem={renderItem}
+						keyExtractor={(item, index) => `attachment_document_${index}_${item?.id}`}
+						renderSectionHeader={({ section }) => (
+							<View style={styles.sectionHeader}>
+								{section.isFirstOfYear && <Text style={styles.sectionYearHeaderTitle}>{section.year}</Text>}
+								<Text style={styles.sectionDayHeaderTitle}>{section.titleDay}</Text>
+							</View>
+						)}
+						contentContainerStyle={styles.listContent}
+						showsVerticalScrollIndicator={false}
+						removeClippedSubviews={true}
+						stickySectionHeadersEnabled
+						initialNumToRender={24}
+						maxToRenderPerBatch={12}
+						updateCellsBatchingPeriod={12}
+						windowSize={30}
+					/>
+				)}
 			</View>
 		</View>
 	);
