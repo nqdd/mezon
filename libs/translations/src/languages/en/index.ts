@@ -45,6 +45,7 @@ import integrations from './integrations.json';
 import invitation from './invitation.json';
 import inviteToChannel from './inviteToChannel.json';
 import leaveGroup from './leaveGroup.json';
+import linkAppInstall from './linkAppInstall.json';
 import linkMessageInvite from './linkMessageInvite.json';
 import media from './media.json';
 import memberTable from './memberTable.json';
@@ -152,5 +153,6 @@ export default {
 	search,
 	homepage,
 	forwardMessage,
-	chatWelcome
+	chatWelcome,
+	linkAppInstall
 };
