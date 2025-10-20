@@ -116,7 +116,6 @@ const FirstJoinLoadTracker = memo(({ channelId, isFirstJoinLoadRef }: { channelI
 	useEffect(() => {
 		if (channelCache) {
 			isFirstJoinLoadRef.current = true;
-			console.log(channelCache, 'channelCache');
 		}
 	}, [channelCache, channelId, isFirstJoinLoadRef]);
 
