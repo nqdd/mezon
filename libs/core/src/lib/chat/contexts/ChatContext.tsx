@@ -1134,6 +1134,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
+			if (!statusEvent || !statusEvent.user_id) {
+				return;
+			}
+
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
@@ -1151,11 +1155,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					}
 				])
 			);
+
+			dispatch(
+				usersClanActions.updateUserStatus({
+					userId: statusEvent.user_id,
+					user_status: statusEvent.status
+				})
+			);
+
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
 		},
-		[dispatch]
+		[dispatch, userId]
 	);
 
 	const ontokensent = useCallback(
@@ -2624,4 +2636,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export { ChatContext, ChatContextConsumer, ChatContextProvider };
+export { ChatContext, ChatContext, ChatContextConsumer, ChatContextConsumer, ChatContextProvider, ChatContextProvider };
