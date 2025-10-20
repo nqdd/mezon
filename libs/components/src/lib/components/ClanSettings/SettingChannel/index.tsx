@@ -325,7 +325,9 @@ const ItemInfor = ({
 					{isVoice && <Icons.Speaker />}
 				</div>
 				<div className={`flex-1 box-border flex overflow-hidden`}>
-					<span className="truncate pr-8">{label}</span>
+					<span className="truncate pr-8" data-e2e={generateE2eId('clan_page.channel_management.channel_item.channel_name')}>
+						{label}
+					</span>
 				</div>
 				<div className="flex-1 flex " onClick={handleShowAllMemberList}>
 					{privateChannel || isThread ? (
@@ -339,7 +341,12 @@ const ItemInfor = ({
 						<p className={`italic text-xs ${isThread ? '-ml-8' : ''}`}>{t('table.members.allMembers')}</p>
 					)}
 				</div>
-				<div className={`flex-1 font-semibold ${isThread ? '-ml-8' : ''}`}>{mumberformatter.format(Number(messageCount || 0))}</div>
+				<div
+					className={`flex-1 font-semibold ${isThread ? '-ml-8' : ''}`}
+					data-e2e={generateE2eId('clan_page.channel_management.channel_item.messages_count')}
+				>
+					{mumberformatter.format(Number(messageCount || 0))}
+				</div>
 				<div className={`flex-1 flex gap-1 items-center`}>
 					{lastMessage?.sender_id ? (
 						<>

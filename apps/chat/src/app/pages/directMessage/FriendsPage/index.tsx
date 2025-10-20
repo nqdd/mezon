@@ -12,6 +12,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -202,6 +203,7 @@ const FriendsPage = () => {
 									className={`px-3 py-[6px] font-medium rounded-lg text-theme-primary text-theme-primary-hover shadow-none border-none bg-button-hover ${currentTabStatus === tab.value && !openModalAddFriend ? 'bg-active-button text-theme-primary-active' : ''} ${tab.value === 'pending' && quantityPendingRequest !== 0 ? 'pr-[30px]' : ''}`}
 									tabIndex={index}
 									onClick={() => handleChangeTab(tab.value)}
+									data-e2e={generateE2eId(`friend_page.tab`)}
 								>
 									{tab.title}
 								</button>
@@ -234,6 +236,7 @@ const FriendsPage = () => {
 										placeholder={t('search')}
 										needOutline={true}
 										className="mb-6 py-[10px] rounded-lg border-theme-primary bg-theme-input-primary text-[16px] font-normal h-[44px] focus:outline focus:outline-1  outline-[#006ce7] "
+										data-e2e={generateE2eId('friend_page.input.search')}
 									/>
 									{Boolean(textSearch) && (
 										<div
@@ -284,19 +287,29 @@ const FriendsPage = () => {
 										value={requestAddFriend.usernames}
 										placeholder={t('addFriendModal.placeholder')}
 										needOutline={true}
+										data-e2e={generateE2eId('friend_page.input.add_friend')}
 									/>
 									{isAlreadyFriend !== null && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">
+										<div
+											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
+											data-e2e={generateE2eId('friend_page.input.error')}
+										>
 											{isAlreadyFriend ? t('addFriendModal.waitAccept') : t('addFriendModal.alreadyFriends')}
 										</div>
 									)}
 									{isInvalidInput && (
-										<div className="text-red-500 dark:text-red-400 text-[14px] pb-5">{t('addFriendModal.invalidInput')}</div>
+										<div
+											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
+											data-e2e={generateE2eId('friend_page.input.error')}
+										>
+											{t('addFriendModal.invalidInput')}
+										</div>
 									)}
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
 										disabled={!requestAddFriend.usernames?.length || isInvalidInput}
 										onClick={handleAddFriend}
+										data-e2e={generateE2eId('friend_page.button.send_friend_request')}
 									>
 										<span className="hidden md:inline">{t('addFriendModal.sendRequest')}</span>
 										<span className="md:hidden">{t('addFriendModal.add')}</span>
@@ -336,6 +349,7 @@ const RequestFailedPopup = ({ togglePopup }: { togglePopup: () => void }) => {
 					<div
 						onClick={togglePopup}
 						className="w-full cursor-pointer bg-[#5865f2] hover:bg-[#4752c4] text-whit rounded-sm h-[44px] flex items-center font-semibold justify-center"
+						data-e2e={generateE2eId('friend_page.request_failed_popup.button.okay')}
 					>
 						{t('requestFailedPopup.okay')}
 					</div>

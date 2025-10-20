@@ -38,7 +38,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EmojiPlaces, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
+import { EmojiPlaces, generateE2eId, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
@@ -289,6 +289,7 @@ const DirectMessage = () => {
 								<div
 									style={{ height: 44 }}
 									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
+									data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 								>
 									You do not have permission to send message
 								</div>

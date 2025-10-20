@@ -235,6 +235,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Cancel"
 								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.cancel_friend_request')}
 							>
 								✕
 							</button>
@@ -246,6 +247,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Accept"
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.accept_friend_request')}
 							>
 								✓
 							</button>
@@ -253,6 +255,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Reject"
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.reject_friend_request')}
 							>
 								✕
 							</button>

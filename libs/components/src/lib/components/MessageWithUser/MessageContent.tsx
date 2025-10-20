@@ -12,7 +12,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
-import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, isValidEmojiData } from '@mezon/utils';
+import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -85,6 +85,7 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 		<div
 			className={`border-theme-primary  text-theme-primary bg-item-theme text-theme-primary-hover rounded-lg my-1 p-1  flex justify-between items-center cursor-pointer group/view-topic-btn  ${isShowCreateThread || isShowCreateTopic ? 'w-[70%] max-2xl:w-full' : 'w-[70%]'}`}
 			onClick={handleOpenTopic}
+			data-e2e={generateE2eId('chat.topic.button.view_topic')}
 		>
 			<div className="flex items-center gap-2 text-sm h-fit flex-1 min-w-0">
 				<AvatarImage
