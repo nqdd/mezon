@@ -111,8 +111,8 @@ export const fetchChannelAttachments = createAsyncThunk(
 			const response = await fetchChannelAttachmentsCached(
 				thunkAPI.getState,
 				mezon,
-				channelId,
 				clanId,
+				channelId,
 				fileType,
 				state,
 				limit,
