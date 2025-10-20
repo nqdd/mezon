@@ -64,7 +64,7 @@ const ChannelFiles = memo(({ currentChannelId }: { currentChannelId: string }) =
 			<View style={styles.container}>
 				{loadingStatus === 'loading' ? (
 					<ActivityIndicator size="large" color={themeValue.text} />
-				) : sections.length === 0 || loadingStatus === 'error' ? (
+				) : loadingStatus === 'error' || !sections?.length ? (
 					<EmptySearchPage />
 				) : (
 					<SectionList
