@@ -12,7 +12,7 @@ import { iosReadGalleryPermission } from '@react-native-camera-roll/camera-roll/
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { EmitterSubscription } from 'react-native';
-import { ActivityIndicator, Alert, Dimensions, Linking, PermissionsAndroid, Platform, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import { FlatList } from 'react-native-gesture-handler';
 import type { CameraOptions } from 'react-native-image-picker';
@@ -20,6 +20,7 @@ import * as ImagePicker from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import type { IFile } from '../../../../../../componentUI/MezonImagePicker';
 import GalleryItem from './components/GalleryItem';
+import { style } from './styles';
 
 export const { height } = Dimensions.get('window');
 interface IProps {
@@ -31,6 +32,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['qrScanner', 'sharing', 'common']);
 	const [hasPermission, setHasPermission] = useState(false);
+	const styles = useMemo(() => style(themeValue), [themeValue]);
 	const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
 	const [pageInfo, setPageInfo] = useState(null);
 	const [isPermissionLimitIOS, setIsPermissionLimitIOS] = useState(false);
@@ -74,6 +76,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	useEffect(() => {
 		const subscription: EmitterSubscription = cameraRollEventEmitter.addListener('onLibrarySelectionChange', (_event) => {
 			if (isPermissionLimitIOS) {
+				setPhotos([]);
 				loadPhotos();
 			}
 		});
@@ -197,7 +200,6 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				return requestResult === 'granted' || requestResult === 'limited';
 			} else if (result === 'limited') {
 				setIsPermissionLimitIOS(true);
-				await iosRefreshGallerySelection();
 			}
 
 			return result === 'granted' || result === 'limited';
@@ -213,6 +215,12 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 			Linking.openSettings();
 		}
 	};
+
+	const handleSelectMorePhotos = useCallback(async () => {
+		if (Platform.OS === 'ios' && isPermissionLimitIOS) {
+			await iosRefreshGallerySelection();
+		}
+	}, [isPermissionLimitIOS]);
 
 	const renderItem = ({ item, index }) => {
 		const baseFilename = item?.node?.image?.filename || '';
@@ -406,6 +414,12 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 
 	return (
 		<View style={{ flex: 1 }}>
+			{isPermissionLimitIOS && (
+				<TouchableOpacity style={[styles.limitedPermissionBanner, { backgroundColor: themeValue.primary }]} onPress={handleSelectMorePhotos}>
+					<Text style={[styles.limitedPermissionText, { color: themeValue.text }]}>{`📷 ${t('common:limitedPhotosAccess')}`}</Text>
+				</TouchableOpacity>
+			)}
+
 			<FlatList
 				data={[{ isUseCamera: true }, ...photos]}
 				numColumns={3}

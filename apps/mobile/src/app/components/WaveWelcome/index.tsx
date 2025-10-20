@@ -1,8 +1,7 @@
 import { useChatSending } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentChannel, selectDmGroupCurrent } from '@mezon/store-mobile';
-import type { IMessage, IMessageSendPayload } from '@mezon/utils';
-import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
+import { IMessage, IMessageSendPayload, MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME, createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -69,7 +68,11 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 
 	return (
 		<TouchableOpacity style={styles.waveButton} onPress={handleSendWaveSticker}>
-			<ImageNative url={STICKER_WAVE.URL} style={styles.waveIcon} resizeMode="contain" />
+			<ImageNative
+				url={createImgproxyUrl(STICKER_WAVE.URL ?? '', { width: 50, height: 50, resizeType: 'fit' })}
+				style={styles.waveIcon}
+				resizeMode="contain"
+			/>
 			<Text style={styles.waveButtonText}>{t('waveWelcome')}</Text>
 		</TouchableOpacity>
 	);

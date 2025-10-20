@@ -34,6 +34,7 @@ import createThread from './createThread.json';
 import customUserStatus from './customUserStatus.json';
 import deleteClan from './deleteClan.json';
 import directMessage from './directMessage.json';
+import discover from './discover.json';
 import dmMessage from './dmMessage.json';
 import eventCreator from './eventCreator.json';
 import eventMenu from './eventMenu.json';
@@ -152,5 +153,6 @@ export default {
 	search,
 	homepage,
 	forwardMessage,
-	chatWelcome
+	chatWelcome,
+	discover
 };

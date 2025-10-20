@@ -22,7 +22,6 @@
 	"invalidJWT": "Invalid JWT",
 	"muteNotification": "Mute",
 	"thread": "Threads",
-	"members": "Members",
 	"offlines": "Offlines",
 	"media": "Media",
 	"image": "Image",
@@ -65,6 +64,7 @@
 	"hideNotificationDesc": "When you clear this checkbox, a message will appear with its contents.",
 	"showNotificationDesc": "When the checkbox is clicked, any notification will be displayed without any content.",
 	"save": "Save",
+	"limitedPhotosAccess": "Tap to Select More Photos",
 	"searchModal": {
 		"placeholder": "Where would you like to go?",
 		"protip": "PROTIP:",
