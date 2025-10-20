@@ -423,6 +423,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 		menuOpenNoti.current = visible;
 	}, []);
 
+	const onToggleMenuMute = useCallback(() => {
+		muteOrUnMuteChannel(getNotificationChannelSelected?.active === 1 ? 0 : 1);
+		menuOpenMute.current = false;
+	}, []);
+
 	return (
 		<div
 			ref={panelRef}
@@ -461,7 +466,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								onVisibleChange={handleOpenMenuMute}
 							>
 								<div>
-									<ItemPanel children={nameChildren} dropdown="change here" />
+									<ItemPanel children={nameChildren} dropdown="change here" onClick={onToggleMenuMute} />
 								</div>
 							</Menu>
 						) : (
@@ -479,7 +484,16 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<ItemPanel children={t('menu.notification.notification')} dropdown="change here" />
+									<ItemPanel
+										children={t('menu.notification.notification')}
+										dropdown="change here"
+										subText={
+											getNotificationChannelSelected?.notification_setting_type === ENotificationTypes.DEFAULT ||
+											getNotificationChannelSelected?.notification_setting_type === undefined
+												? defaultNotifiName
+												: notiLabelsTranslated[getNotificationChannelSelected?.notification_setting_type || 0]
+										}
+									/>
 								</div>
 							</Menu>
 						)}
@@ -537,7 +551,16 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<ItemPanel children={t('menu.notification.notification')} dropdown="change here" />
+									<ItemPanel
+										children={t('menu.notification.notification')}
+										dropdown="change here"
+										subText={
+											getNotificationChannelSelected?.notification_setting_type === ENotificationTypes.DEFAULT ||
+											getNotificationChannelSelected?.notification_setting_type === undefined
+												? defaultNotifiName
+												: notiLabelsTranslated[getNotificationChannelSelected?.notification_setting_type || 0]
+										}
+									/>
 								</div>
 							</Menu>
 						)}
