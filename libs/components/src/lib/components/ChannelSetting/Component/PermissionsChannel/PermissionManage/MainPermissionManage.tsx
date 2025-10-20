@@ -19,6 +19,11 @@ import type { ListPermissionHandle } from './ListPermission';
 import ListPermission from './ListPermission';
 import ListRoleMember from './ListRoleMember';
 
+export const ENTITY_TYPE = {
+	ROLE: 0,
+	USER: 1
+} as const;
+
 type MainPermissionManageProps = {
 	channelId: string;
 	setIsPrivateChannel: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,8 +49,8 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 		selectAllPermissionRoleChannel(
 			state,
 			channelId,
-			currentRoleId?.type === 0 ? currentRoleId.id : undefined,
-			currentRoleId?.type === 1 ? currentRoleId.id : undefined
+			currentRoleId?.type === ENTITY_TYPE.ROLE ? currentRoleId.id : undefined,
+			currentRoleId?.type === ENTITY_TYPE.USER ? currentRoleId.id : undefined
 		)
 	);
 	const rolesClan = useSelector(selectAllRolesClan);
@@ -57,12 +62,12 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 			...rolesInChannel.map((role) => ({
 				id: role.id,
 				title: role.title,
-				type: 0
+				type: ENTITY_TYPE.ROLE
 			})),
 			...rawMembers.map((member) => ({
 				id: member.id,
 				title: member.user?.username,
-				type: 1
+				type: ENTITY_TYPE.USER
 			}))
 		],
 		[rolesInChannel, rawMembers]
@@ -147,7 +152,7 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 				type: matchingRoleChannel ? (matchingRoleChannel.active ? TypeChoose.Tick : TypeChoose.Remove) : TypeChoose.Or
 			});
 		});
-		if (type === 0) {
+		if (type === ENTITY_TYPE.ROLE) {
 			await dispatch(
 				permissionRoleChannelActions.setPermissionRoleChannel({
 					channelId,

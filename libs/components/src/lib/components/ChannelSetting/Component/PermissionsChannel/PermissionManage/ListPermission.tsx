@@ -3,6 +3,7 @@ import { permissionRoleChannelActions, selectAllPermissionRoleChannel, useAppDis
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ItemPermission from './ItemPermission';
+import { ENTITY_TYPE } from './MainPermissionManage';
 
 export type ListPermissionHandle = {
 	reset: () => void;
@@ -25,8 +26,8 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 		selectAllPermissionRoleChannel(
 			state,
 			props.channelId,
-			currentRoleId?.type === 0 ? currentRoleId.id : undefined,
-			currentRoleId?.type === 1 ? currentRoleId.id : undefined
+			currentRoleId?.type === ENTITY_TYPE.ROLE ? currentRoleId.id : undefined,
+			currentRoleId?.type === ENTITY_TYPE.USER ? currentRoleId.id : undefined
 		)
 	);
 	const itemRefs = useRef<{ [key: string]: { reset: () => void } }>({});
@@ -40,14 +41,13 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 			dispatch(
 				permissionRoleChannelActions.fetchPermissionRoleChannel({
 					channelId: props.channelId,
-					roleId: currentRoleId.type === 0 ? currentRoleId.id : '',
-					userId: currentRoleId.type === 1 ? currentRoleId.id : '',
+					roleId: currentRoleId.type === ENTITY_TYPE.ROLE ? currentRoleId.id : '',
+					userId: currentRoleId.type === ENTITY_TYPE.USER ? currentRoleId.id : '',
 					noCache: true
 				})
 			);
 		}
 	}, [currentRoleId, listPermissionRoleChannel, props.channelId, dispatch]);
-
 	useImperativeHandle(ref, () => ({
 		reset: () => {
 			Object.values(itemRefs.current).forEach((item) => item.reset());
