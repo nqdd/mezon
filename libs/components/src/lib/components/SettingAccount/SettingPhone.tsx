@@ -176,16 +176,13 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 									<div className="flex items-center justify-between">
 										<span className="text-sm text-theme-primary">{t('setPhoneModal.phoneNumber')}</span>
 										<span className="text-sm font-medium text-theme-primary-active">
-											{phone.replace(/^(.+)(.{2})$/, (_, p1, p2) => '*'.repeat(Math.max(p1.length - 2, 0)) + p1.slice(-2) + p2)}
+											{phone.replace(/^(.+)(.{2})$/, (_, p1, p2) => `xxx-xxx${p2}`)}
 										</span>
 									</div>
 								</div>
 								<p className="text-sm text-theme-primary text-center">
 									{t('setPhoneModal.otpSentMessage', {
-										phone: phone.replace(
-											/^(.+)(.{2})$/,
-											(_, p1, p2) => '*'.repeat(Math.max(p1.length - 2, 0)) + p1.slice(-2) + p2
-										)
+										phone: phone.replace(/^(.+)(.{2})$/, (_, p1, p2) => `xxx-xxx${p2}`)
 									})}
 								</p>
 								<div className="space-y-2">
