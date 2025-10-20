@@ -5,7 +5,7 @@ import {
 	selectAllFriends,
 	selectCurrentUserId,
 	selectDmGroupCurrentId,
-	selectGrouplMembers,
+	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -16,8 +16,8 @@ import { useSelector } from 'react-redux';
 export function useFriends() {
 	const friends = useSelector(selectAllFriends);
 	const currentDM = useSelector(selectDmGroupCurrentId);
-	const groupDmMember = useAppSelector((state) => selectGrouplMembers(state, currentDM as string));
-	const numberMemberInDmGroup = useMemo(() => groupDmMember.length, [groupDmMember]);
+	const groupDmMember = useAppSelector((state) => selectMemberByGroupId(state, currentDM as string));
+	const numberMemberInDmGroup = useMemo(() => groupDmMember?.length || 0, [groupDmMember]);
 	const currentUserId = useSelector(selectCurrentUserId);
 	const dispatch = useAppDispatch();
 
@@ -102,6 +102,7 @@ export function useFriends() {
 
 	const filteredFriends = useCallback(
 		(searchTerm: string, isAddMember?: boolean) => {
+			if (!groupDmMember) return [];
 			if (isAddMember) {
 				return friends.filter((friend) => {
 					if (friend.state === EStateFriend.BLOCK) {
