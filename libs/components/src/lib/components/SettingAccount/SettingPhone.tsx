@@ -43,7 +43,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 				setCount(0);
 			}
 		},
-		[setPhone, country]
+		[setPhone]
 	);
 
 	const handleSetOTP = (e: string[]) => {
@@ -75,6 +75,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 		if (otp.join('').length === 6 && !errors.OTP) {
 			handleSendOTPChangePhone();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [otp, errors.OTP]);
 
 	const handleSendOTPChangePhone = async () => {
@@ -125,7 +126,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 	const disabled = count > 0 || !!errors.phone || isLoading === 'loading' || !phone;
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-			<div className="w-full max-w-md bg-white rounded-lg shadow-sm relative dark:bg-[#313338] dark:text-white ">
+			<div className="w-full max-w-md bg-theme-setting-primary rounded-lg shadow-lg relative text-theme-primary-active">
 				<button
 					onClick={onClose}
 					title={t('setPhoneModal.close')}
@@ -135,34 +136,76 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 				</button>
 
 				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="text-xl font-semibold text-gray-900 dark:text-white">{title || t('setPhoneNumber')}</div>
-					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{description || t('setPhoneModal.description')}</p>
+					<div className="text-xl font-semibold text-theme-primary-active">{title || t('setPhoneNumber')}</div>
+					<p className="mt-1 text-sm text-theme-primary">{description || t('setPhoneModal.description')}</p>
 				</div>
 
 				<form onSubmit={handleSubmit}>
 					<div className="space-y-4 p-6">
-						<div className="flex gap-2">
-							<div className="space-y-2 flex-1">
-								<label htmlFor="countryCode" className="block text-sm font-medium ">
-									{t('setPhoneModal.countryCode')}
-								</label>
-								<SelectCountry country={country} setCountry={setCountry} />
+						{!openConfirm ? (
+							<div className="flex gap-2">
+								<div className="space-y-2 flex-1">
+									<label htmlFor="countryCode" className="block text-sm font-medium ">
+										{t('setPhoneModal.countryCode')}
+									</label>
+									<SelectCountry country={country} setCountry={setCountry} />
+								</div>
+								<div className="space-y-2 flex-2">
+									<Input
+										id="phone"
+										type="text"
+										value={phone}
+										onChange={handleChangePhone}
+										className={`bg-theme-input ${errors.phone ? 'border-red-500 dark:border-red-400' : ''}`}
+										label={t('setPhoneModal.phoneNumber')}
+									/>
+									{errors.phone && <FormError message={errors.phone} />}
+								</div>
 							</div>
-							<div className="space-y-2 flex-2">
-								<Input
-									id="phone"
-									type="text"
-									value={phone}
-									onChange={handleChangePhone}
-									className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 ${errors.phone ? 'border-red-500 dark:border-red-400' : ''}`}
-									label={t('setPhoneModal.phoneNumber')}
-								/>
-								{errors.phone && <FormError message={errors.phone} />}
-							</div>
-						</div>
-						{openConfirm && (
-							<div className="space-y-2">
-								<OtpConfirm handleSetOTP={handleSetOTP} otp={otp} />
+						) : (
+							<div className="space-y-4">
+								<div className="bg-theme-input p-4 rounded-lg border border-theme-primary">
+									<div className="flex items-center justify-between mb-3">
+										<span className="text-sm text-theme-primary">{t('setPhoneModal.country')}</span>
+										<span className="text-sm font-medium text-theme-primary-active">
+											{country === ECountryCode.VN && 'Vietnam (+84)'}
+											{country === ECountryCode.JP && 'Japan (+81)'}
+											{country === ECountryCode.US && 'US (+1)'}
+										</span>
+									</div>
+									<div className="flex items-center justify-between">
+										<span className="text-sm text-theme-primary">{t('setPhoneModal.phoneNumber')}</span>
+										<span className="text-sm font-medium text-theme-primary-active">
+											{phone.replace(/^(.+)(.{2})$/, (_, p1, p2) => '*'.repeat(Math.max(p1.length - 2, 0)) + p1.slice(-2) + p2)}
+										</span>
+									</div>
+								</div>
+								<p className="text-sm text-theme-primary text-center">
+									{t('setPhoneModal.otpSentMessage', {
+										phone: phone.replace(
+											/^(.+)(.{2})$/,
+											(_, p1, p2) => '*'.repeat(Math.max(p1.length - 2, 0)) + p1.slice(-2) + p2
+										)
+									})}
+								</p>
+								<div className="space-y-2">
+									<OtpConfirm handleSetOTP={handleSetOTP} otp={otp} />
+								</div>
+								{count === 0 && (
+									<button
+										type="button"
+										onClick={() => {
+											setOpenConfirm(false);
+											setOtp(Array(6).fill(''));
+											setErrors({});
+											setCount(0);
+										}}
+										className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors font-medium"
+									>
+										<Icons.LeftArrowIcon className="w-4 h-4" />
+										{t('setPhoneModal.backToPhoneInput')}
+									</button>
+								)}
 							</div>
 						)}
 					</div>
@@ -192,6 +235,16 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 };
 
 export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
+	useEffect(() => {
+		// Auto focus vào ô đầu tiên khi component mount
+		const firstInput = document.getElementById('otp-0');
+		if (firstInput) {
+			setTimeout(() => {
+				firstInput.focus();
+			}, 100);
+		}
+	}, []);
+
 	const handleChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value.replace(/\D/g, ''); // chỉ số
 		if (value.length <= 1) {
@@ -223,7 +276,6 @@ export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP:
 		}
 		handleSetOTP(newOtp);
 
-		// focus ô cuối có dữ liệu
 		const lastIndex = Math.min(pasteData.length - 1, 5);
 		const nextInput = document.getElementById(`otp-${lastIndex}`);
 		nextInput?.focus();
@@ -244,7 +296,7 @@ export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP:
 						onChange={(e) => handleChange(index, e)}
 						onKeyDown={(e) => handleKeyDown(index, e)}
 						onPaste={handlePaste}
-						className="aspect-square rounded-md h-10 outline-none w-10 text-2xl text-center font-bold text-black"
+						className="aspect-square rounded-md h-10 outline-none w-10 text-xl text-center font-bold bg-theme-input border border-theme-primary focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:bg-[#4d6aff5f]"
 					/>
 				))}
 			</div>
@@ -268,15 +320,13 @@ export const SelectCountry = ({ country, setCountry }: { country: string; setCou
 	};
 	const menu = useMemo(
 		() => (
-			<div className="border-none py-[6px] px-[8px] max-h-[200px] overflow-y-scroll thread-scroll z-20 bg-white dark:bg-[#2b2d31]  rounded-lg shadow-lg">
+			<div className="border-none py-[6px] px-[8px] max-h-[200px] overflow-y-scroll thread-scroll z-20 ">
 				{countries?.map((option, index) => (
 					<Menu.Item
 						key={index}
 						onClick={() => setCountry(option.dial)}
-						className={`truncate px-3 py-2 rounded-md hover:bg-[#f3f4f6] dark:hover:bg-[#3f4147] cursor-pointer transition-colors duration-150 ${
-							country === option.code
-								? 'bg-[#e5e7eb] dark:bg-[#313338] text-[#1f2937] dark:text-white font-medium'
-								: 'text-[#374151] dark:text-[#d1d5db]'
+						className={`truncate px-3 py-2 rounded-md bg-item-theme-hover cursor-pointer transition-colors duration-150 ${
+							country === option.code ? 'bg-theme-input  font-medium' : 'text-theme-primary'
 						}`}
 					>
 						{option.name}
@@ -294,9 +344,9 @@ export const SelectCountry = ({ country, setCountry }: { country: string; setCou
 					trigger="click"
 					menu={menu}
 					placement="bottomLeft"
-					className="border-none py-[6px] px-[8px] z-50 bg-white dark:bg-[#2b2d31]  rounded-lg shadow-lg"
+					className="border-none py-[6px] px-[8px] z-50 bg-theme-input rounded-lg shadow-lg"
 				>
-					<div className="w-full h-[40px] rounded-md flex flex-row px-3 justify-between items-center cursor-pointer bg-white text-[#111827] border border-[#4b5563] dark:bg-[#2d2f33] dark:text-[#d1d5db]">
+					<div className="w-full h-[40px] rounded-md flex flex-row px-3 justify-between items-center cursor-pointer text-theme-primary-active bg-theme-input border-theme-primary">
 						<p className="truncate text-sm font-medium flex items-center gap-2">
 							{flags[country]?.flag} {flags[country]?.name} {`(${flags[country]?.dial})`}
 						</p>
