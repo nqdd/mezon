@@ -90,7 +90,6 @@ const ChannelListMessage = React.memo(
 						});
 					}
 				}}
-				disableVirtualization
 			/>
 		);
 	}
