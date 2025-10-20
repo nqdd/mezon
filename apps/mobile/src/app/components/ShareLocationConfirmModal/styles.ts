@@ -50,17 +50,16 @@ export const style = (colors: Attributes) =>
 		textContent: {
 			color: colors.text,
 			fontSize: size.s_14,
-			fontWeight: '400'
+			fontWeight: '400',
+			flexShrink: 1
 		},
 		modalFooter: {
 			flexDirection: 'row',
-			alignItems: 'center'
+			alignItems: 'center',
+			justifyContent: 'flex-end'
 		},
 		button: {
-			padding: size.s_10,
-			borderWidth: size.s_2,
-			borderColor: colors.borderDim,
-			width: '50%'
+			padding: size.s_16
 		},
 		textButton: {
 			color: colors.textLink,
@@ -75,5 +74,20 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: '100%',
 			backgroundColor: 'rgba(0,0,0,0.5)'
+		},
+		map: {
+			width: '100%',
+			height: size.s_200
+		},
+		avatarWrapper: {
+			borderWidth: 2,
+			borderColor: colors.white,
+			borderRadius: size.s_20,
+			overflow: 'hidden'
+		},
+		avatar: {
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_15
 		}
 	});
