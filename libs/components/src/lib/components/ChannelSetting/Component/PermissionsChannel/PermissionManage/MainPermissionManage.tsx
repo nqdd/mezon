@@ -52,18 +52,21 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 	const rolesInChannel = useSelector(selectRolesByChannelId(channelId));
 	const rawMembers = useSelector(selectAllUserChannel(channelId));
 	const currentClanId = useSelector(selectCurrentClanId);
-	const combinedArray = [
-		...rolesInChannel.map((role) => ({
-			id: role.id,
-			title: role.title,
-			type: 0
-		})),
-		...rawMembers.map((member) => ({
-			id: member.id,
-			title: member.user?.username,
-			type: 1
-		}))
-	];
+	const combinedArray = useMemo(
+		() => [
+			...rolesInChannel.map((role) => ({
+				id: role.id,
+				title: role.title,
+				type: 0
+			})),
+			...rawMembers.map((member) => ({
+				id: member.id,
+				title: member.user?.username,
+				type: 1
+			}))
+		],
+		[rolesInChannel, rawMembers]
+	);
 
 	const { maxPermissionId } = useMyRole();
 	const dispatch = useAppDispatch();
@@ -110,10 +113,19 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 
 	const handleSelectRole = useCallback(
 		(id: string, type: number) => {
+			setPermissions({});
 			setCurrentRoleId({ id, type });
+			listPermissionRef.current?.reset();
 		},
 		[setCurrentRoleId]
 	);
+
+	useEffect(() => {
+		if (!currentRoleId && combinedArray.length > 0) {
+			const firstItem = combinedArray[0];
+			handleSelectRole(firstItem.id, firstItem.type);
+		}
+	}, [combinedArray, currentRoleId, handleSelectRole]);
 
 	const handleReset = () => {
 		setPermissions({});

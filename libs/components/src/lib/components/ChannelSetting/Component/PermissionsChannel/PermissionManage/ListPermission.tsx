@@ -1,5 +1,5 @@
 import type { PermissionUserEntity } from '@mezon/store';
-import { selectAllPermissionRoleChannel, useAppSelector } from '@mezon/store';
+import { permissionRoleChannelActions, selectAllPermissionRoleChannel, useAppDispatch, useAppSelector } from '@mezon/store';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ItemPermission from './ItemPermission';
@@ -19,6 +19,8 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 	const { onSelect, listPermission, currentRoleId } = props;
 	const { t } = useTranslation('channelSetting');
 	const { t: tClanRoles } = useTranslation('clanRoles');
+	const dispatch = useAppDispatch();
+
 	const listPermissionRoleChannel = useAppSelector((state) =>
 		selectAllPermissionRoleChannel(
 			state,
@@ -32,6 +34,19 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 	const getPermissionTitle = (slug: string) => {
 		return tClanRoles(`permissionTitles.${slug}`, { defaultValue: '' });
 	};
+
+	useEffect(() => {
+		if (currentRoleId && !listPermissionRoleChannel) {
+			dispatch(
+				permissionRoleChannelActions.fetchPermissionRoleChannel({
+					channelId: props.channelId,
+					roleId: currentRoleId.type === 0 ? currentRoleId.id : '',
+					userId: currentRoleId.type === 1 ? currentRoleId.id : '',
+					noCache: true
+				})
+			);
+		}
+	}, [currentRoleId, listPermissionRoleChannel, props.channelId, dispatch]);
 
 	useImperativeHandle(ref, () => ({
 		reset: () => {
