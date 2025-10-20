@@ -2636,4 +2636,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 
 ChatContextProvider.displayName = 'ChatContextProvider';
 
-export { ChatContext, ChatContext, ChatContextConsumer, ChatContextConsumer, ChatContextProvider, ChatContextProvider };
+export { ChatContext, ChatContextConsumer, ChatContextProvider };
