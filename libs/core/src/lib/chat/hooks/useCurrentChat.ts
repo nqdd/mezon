@@ -6,7 +6,7 @@ export function getCurrentChatData() {
 	const directId = selectDmGroupCurrentId(state);
 	const isClanView = selectClanView(state);
 	const allClanUsersEntities = selectEntitesUserClans(state);
-	const allDmUsersEntities = selectGroupMembersEntities(state, directId);
+	const allDmUsersEntities = selectGroupMembersEntities(state, directId as string);
 
 	const currentChatUsersEntities = isClanView ? allClanUsersEntities : allDmUsersEntities;
 

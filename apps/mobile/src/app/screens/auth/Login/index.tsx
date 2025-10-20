@@ -1,4 +1,5 @@
 import { useAuth } from '@mezon/core';
+import { STORAGE_IS_LAST_ACTIVE_TAB_DM, save } from '@mezon/mobile-components';
 import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
@@ -155,6 +156,7 @@ const LoginScreen = ({ navigation }) => {
 	}, [lastOTPSentTime, email, phone, loginMode]);
 
 	const onLoadInit = async () => {
+		save(STORAGE_IS_LAST_ACTIVE_TAB_DM, 'false');
 		if (
 			clientRef?.current &&
 			(clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST || clientRef?.current?.port !== process.env.NX_CHAT_APP_API_GW_PORT)

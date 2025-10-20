@@ -352,14 +352,14 @@ const UserProfile = React.memo(
 				text: t('userAction.sendMessage'),
 				icon: <MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
 				action: navigateToMessageDetail,
-				isShow: (!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById
+				isShow: !isBlocked
 			},
 			{
 				id: 2,
 				text: t('userAction.voiceCall'),
 				icon: <MezonIconCDN icon={IconCDN.phoneCallIcon} color={themeValue.text} />,
 				action: () => handleCallUser(userId || user?.id),
-				isShow: ((!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById) && !isBlocked
+				isShow: !isBlocked
 			},
 			{
 				id: 4,

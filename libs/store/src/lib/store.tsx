@@ -113,7 +113,8 @@ const persistedAppReducer = persistReducer(
 			'chatStreamWidth',
 			'isShowCanvas',
 			'isShowSettingFooter',
-			'isShowWelcomeMobile'
+			'isShowWelcomeMobile',
+			'history'
 		]
 	},
 	appReducer

@@ -41,7 +41,7 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 			[ItemSetting.INTEGRATIONS]: t('sidebar.items.integrations'),
 			[ItemSetting.AUDIT_LOG]: t('sidebar.items.auditLog'),
 			[ItemSetting.ON_BOARDING]: t('sidebar.items.onboarding'),
-			[ItemSetting.ON_COMUNITY]: t('sidebar.items.enableCommunity')
+			[ItemSetting.ON_COMUNITY]: isCommunityEnabled ? t('sidebar.communityOverview') : t('sidebar.items.enableCommunity')
 		};
 		return translationMap[item.id] || item.name;
 	};
@@ -56,7 +56,7 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 	};
 
 	const sideBarListItemWithPermissions = sideBarListItem.map((sidebarItem) => {
-		let filteredListItem = sidebarItem.listItem.filter((item) => {
+		const filteredListItem = sidebarItem.listItem.filter((item) => {
 			if (item.id === ItemSetting.INTEGRATIONS) {
 				return hasClanPermission || hasChannelPermission;
 			}
@@ -68,10 +68,6 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 			}
 			return true;
 		});
-
-		filteredListItem = filteredListItem.map((item) =>
-			item.id === ItemSetting.ON_COMUNITY && isCommunityEnabled ? { ...item, name: t('sidebar.communityOverview') } : item
-		);
 
 		return {
 			...sidebarItem,

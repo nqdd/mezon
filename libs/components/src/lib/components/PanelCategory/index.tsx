@@ -270,7 +270,19 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 					className=" bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 				>
 					<div>
-						<ItemPanel dropdown="change here">{t('notificationSettings')}</ItemPanel>
+						<ItemPanel
+							dropdown="change here"
+							subText={
+								defaultCategoryNotificationSetting?.notification_setting_type === ENotificationTypes.DEFAULT ||
+								defaultCategoryNotificationSetting?.notification_setting_type === undefined
+									? t('useClanDefault')
+									: notificationTypesList.find(
+											(type) => type.value === defaultCategoryNotificationSetting?.notification_setting_type
+										)?.label || ''
+							}
+						>
+							{t('notificationSettings')}
+						</ItemPanel>
 					</div>
 				</Menu>
 			</GroupPanels>
