@@ -315,6 +315,7 @@ export const AuthenticationLoader = () => {
 							store.dispatch(directActions.setDmGroupCurrentId(''));
 							store.dispatch(messagesActions.setIdMessageToJump(null));
 							store.dispatch(appActions.setIsFromFCMMobile(true));
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_VOICE_ROOM_RESIZE);
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 								isShow: false
 							});
