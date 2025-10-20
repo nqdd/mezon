@@ -27,7 +27,7 @@ const SideBarHistory = () => {
 	if (!isElectron()) return null;
 
 	return (
-		<div className="flex gap-2 pb-1 text-theme-primary-active">
+		<div className="flex pb-1 text-theme-primary-active">
 			<div
 				className={`rotate-180 rounded-full aspect-square p-1 bg-item-theme-hover cursor-pointer  ${history?.current === 0 || !history?.url?.length ? 'opacity-40' : ''}`}
 				onClick={() => handleHistoryNavigate(true)}
