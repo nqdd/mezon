@@ -11,7 +11,7 @@ import {
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectDmGroupCurrentId,
-	selectGrouplMembers,
+	selectMemberByGroupId,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
@@ -37,7 +37,7 @@ const ChannelMessageListener = React.memo(() => {
 				let listUser = [];
 				const currentDirectId = selectDmGroupCurrentId(store.getState());
 				if (!!currentDirectId && currentDirectId !== '0') {
-					listUser = selectGrouplMembers(store.getState(), currentDirectId);
+					listUser = selectMemberByGroupId(store.getState(), currentDirectId);
 				} else {
 					listUser = selectAllUserClans(store.getState());
 				}
