@@ -8,7 +8,7 @@ import { errorCodes, pick, types } from '@react-native-documents/picker';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, DeviceEventEmitter, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
@@ -188,10 +188,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 		const permissionGranted = await requestLocationPermission();
 		if (permissionGranted) {
 			try {
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
-					isShow: false,
-					mode: ''
-				});
+				Keyboard.dismiss();
 				const { latitude, longitude } = await getCurrentPosition();
 				const store = await getStoreAsync();
 				let mode = ChannelStreamMode.STREAM_MODE_CHANNEL;
