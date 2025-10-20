@@ -11,7 +11,7 @@ import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCal
 import { selectAllUserClans, selectEntitesUserClans, usersClanActions } from '../clanMembers/clan.members';
 import { selectClanView } from '../clans/clans.slice';
 import type { DirectEntity } from '../direct/direct.slice';
-import { selectDirectById, selectDirectMessageEntities } from '../direct/direct.slice';
+import { selectDirectMessageEntities } from '../direct/direct.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
@@ -512,46 +512,9 @@ export const selectMemberCustomStatusByUserId = createSelector(
 	}
 );
 
-export const selectGrouplMembers = createSelector(
-	[selectDirectById, selectAllAccount, (state, groupId: string) => groupId],
-	(group, currentUser, groupId) => {
-		if (!group?.user_ids) {
-			return [];
-		}
-		// const groupDisplayNames = group.usernames?.split(',');
-		const groupUsername = group.usernames;
-		const groupDisplayNames = group.display_names;
+export const selectGroupMembersEntities = createSelector([selectMemberByGroupId], (groupMembers): Record<string, ChannelMembersEntity> => {
+	if (!groupMembers) return {};
 
-		const users = group?.user_ids?.map((userId, index) => {
-			return {
-				channelId: groupId,
-				userChannelId: groupId,
-				user: {
-					...group,
-					id: userId,
-					user_id: [userId],
-					avatar_url: group.channel_avatar?.[index],
-					username: groupUsername?.[index],
-					display_name: groupDisplayNames?.[index],
-					online: group.onlines?.[index]
-				},
-				id: userId
-			};
-		}) as ChannelMembersEntity[];
-
-		// push current user login to list users
-		currentUser?.user &&
-			users.push({
-				...currentUser,
-				channelId: groupId,
-				userChannelId: groupId,
-				id: currentUser?.user?.id as string
-			} as ChannelMembersEntity);
-		return users;
-	}
-);
-
-export const selectGroupMembersEntities = createSelector([selectGrouplMembers], (groupMembers): Record<string, ChannelMembersEntity> => {
 	const groupMembersEntities = groupMembers.reduce<Record<string, ChannelMembersEntity>>((acc, member) => {
 		acc[member.id as string] = member;
 		return acc;
@@ -704,7 +667,7 @@ export const selectAllChannelMemberIds = createSelector(
 	[
 		getChannelMembersState,
 		selectAllUserClans,
-		selectGrouplMembers,
+		selectMemberByGroupId,
 		(state: RootState, channelId: string, isDm?: boolean) => {
 			const currentClanId = state.clans?.currentClanId;
 			const channel = state.channels?.byClans[currentClanId as string]?.entities?.entities?.[channelId];
