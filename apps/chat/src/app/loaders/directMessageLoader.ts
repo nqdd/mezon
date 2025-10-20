@@ -1,4 +1,4 @@
-import { channelsActions, directActions, fetchUserChannels } from '@mezon/store';
+import { appActions, channelsActions, directActions, fetchUserChannels } from '@mezon/store';
 import { notificationService } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { ShouldRevalidateFunction } from 'react-router-dom';
@@ -27,6 +27,7 @@ export const directMessageLoader: CustomLoaderFunction = async ({ params, dispat
 			type: Number(type)
 		})
 	);
+	dispatch(appActions.setHistory(`/chat/direct/message/${directId}/${type}`));
 	dispatch(channelsActions.setPreviousChannels({ clanId: '0', channelId: directId }));
 	notificationService.setCurrentChannelId(directId);
 

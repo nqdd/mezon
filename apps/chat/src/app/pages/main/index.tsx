@@ -15,6 +15,7 @@ import {
 	NavLinkComponent,
 	SearchModal,
 	SidebarClanItem,
+	SidebarHistory,
 	SidebarLogoItem,
 	Topbar,
 	useWebRTCStream
@@ -337,6 +338,7 @@ const SidebarMenu = memo(
 					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
 					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+						<SidebarHistory />
 						<SidebarLogoItem />
 						<DirectUnreadList />
 						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
