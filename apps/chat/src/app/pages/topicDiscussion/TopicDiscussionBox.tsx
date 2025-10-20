@@ -41,7 +41,7 @@ const TopicDiscussionBox = () => {
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentClanId = useSelector(selectCurrentClanId);
-	const allUserIdsInChannel = useAppSelector((state) => selectAllChannelMemberIds(state, currentChannelId, false));
+	const allUserIdsInChannel = useAppSelector((state) => selectAllChannelMemberIds(state, currentChannelId as string, false));
 	const sessionUser = useSelector(selectSession);
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const [isFetchMessageDone, setIsFetchMessageDone] = useState(false);

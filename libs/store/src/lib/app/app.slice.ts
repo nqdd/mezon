@@ -14,6 +14,7 @@ import type { RootState } from '../store';
 import { voiceActions } from '../voice/voice.slice';
 
 export const APP_FEATURE_KEY = 'app';
+const NUMBER_HISTORY = 10;
 
 export interface showSettingFooterProps {
 	status: boolean;
@@ -47,6 +48,10 @@ export interface AppState {
 	isShowPopupQuickMess: boolean;
 	categoryChannelOffsets: { [key: number]: number };
 	isShowWelcomeMobile: boolean;
+	history: {
+		url: string[];
+		current: number | null;
+	};
 }
 
 const getInitialLanguage = (): 'en' | 'vi' => {
@@ -91,7 +96,11 @@ export const initialAppState: AppState = {
 	isShowSettingFooter: { status: false, initTab: 'Account', isUserProfile: true, profileInitTab: 'USER_SETTING', clanId: '' },
 	isShowPopupQuickMess: false,
 	categoryChannelOffsets: {},
-	isShowWelcomeMobile: true
+	isShowWelcomeMobile: true,
+	history: {
+		url: [],
+		current: null
+	}
 };
 
 export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id: string }, thunkAPI) => {
@@ -251,6 +260,51 @@ export const appSlice = createSlice({
 		},
 		setIsShowWelcomeMobile: (state, action) => {
 			state.isShowWelcomeMobile = action.payload;
+		},
+		setHistory: (state, action) => {
+			if (!state.history) {
+				state.history = {
+					url: [],
+					current: null
+				};
+			}
+
+			const url = action.payload;
+			if (state.history.current !== null && state.history.url[state.history.current] === url) {
+				return;
+			}
+			if (state.history.current !== null && state.history.url.length - 2 >= state.history.current && state.history.current > 0) {
+				const history = [...state.history.url].splice(0, state.history.current + 1);
+				history.push(url);
+				state.history = {
+					url: history.slice(-NUMBER_HISTORY),
+					current: history.length > NUMBER_HISTORY ? NUMBER_HISTORY - 1 : history.length - 1
+				};
+				return;
+			}
+
+			const history = [...state.history.url, url];
+
+			state.history = {
+				url: history.slice(-NUMBER_HISTORY),
+				current: history.length > NUMBER_HISTORY ? NUMBER_HISTORY - 1 : history.length - 1
+			};
+		},
+		setBackHistory: (state, action) => {
+			if (!state.history) return;
+			if (state.history.current === null) return;
+			if (action.payload) {
+				if (!state.history.current) {
+					return;
+				}
+				state.history.current = state.history.current - 1;
+				return;
+			} else {
+				if (state.history.current === state.history.url.length - 1) {
+					return;
+				}
+				state.history.current = state.history.current + 1;
+			}
 		}
 	}
 });
@@ -306,3 +360,5 @@ export const selectIsShowSettingFooter = createSelector(getAppState, (state: App
 export const selectIsShowPopupQuickMess = createSelector(getAppState, (state: AppState) => state.isShowPopupQuickMess);
 
 export const selectIsShowWelcomeMobile = createSelector(getAppState, (state: AppState) => state.isShowWelcomeMobile);
+
+export const selectHistory = createSelector(getAppState, (state: AppState) => state.history);

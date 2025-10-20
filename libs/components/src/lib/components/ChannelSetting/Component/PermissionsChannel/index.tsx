@@ -1,10 +1,11 @@
 import { useAuth } from '@mezon/core';
-import { channelsActions, useAppDispatch } from '@mezon/store';
+import { channelsActions, selectAllCategories, selectChannelById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { generateE2eId, type IChannel } from '@mezon/utils';
 import type { MutableRefObject, RefObject } from 'react';
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { AddMemRole } from '../Modal/addMemRoleModal';
 import ModalAskChangeChannel from '../Modal/modalAskChangeChannel';
 import PermissionManage from './PermissionManage';
@@ -20,6 +21,18 @@ export type PermissionsChannelProps = {
 
 const PermissionsChannel = (props: PermissionsChannelProps) => {
 	const { channel, openModalAdd, parentRef, clanId } = props;
+	const realTimeChannel = useAppSelector((state) => selectChannelById(state, channel.channel_id || ''));
+	const listCategory = useSelector(selectAllCategories);
+	const categoryName = useMemo(() => {
+		if (realTimeChannel?.category_name) {
+			return realTimeChannel.category_name;
+		}
+		if (realTimeChannel?.category_id) {
+			const category = listCategory.find((cat) => cat.id === realTimeChannel.category_id);
+			return category?.category_name || '';
+		}
+		return '';
+	}, [realTimeChannel?.category_name, realTimeChannel?.category_id, listCategory]);
 	const { t } = useTranslation('channelSetting');
 	const [showAddMemRole, setShowAddMemRole] = useState(false);
 	const [valueToggleInit, setValueToggleInit] = useState(!!channel.channel_private);
@@ -92,7 +105,7 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 		<>
 			<div className="overflow-y-auto flex flex-col flex-1 shrink bg-theme-setting-primary w-1/2 pt-[94px] sbm:pb-7 sbm:px-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar relative">
 				<div className="dark:text-white text-[15px] text-black">
-					<HeaderModal name={channel.category_name} />
+					<HeaderModal name={categoryName} />
 					<div className="rounded-md overflow-hidden mt-4">
 						<div className="bg-theme-setting-nav flex justify-between items-start p-4 border-theme-primary border-2 rounded-lg">
 							<div>

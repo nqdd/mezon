@@ -26,6 +26,7 @@ export const channelLoader: CustomLoaderFunction = async ({ params, request, dis
 	dispatch(topicsActions.setFocusTopicBox(false));
 	dispatch(threadsActions.setFocusThreadBox(false));
 	dispatch(threadsActions.hideThreadModal());
+	dispatch(appActions.setHistory(`/chat/clans/${clanId}/channels/${channelId}`));
 	return null;
 };
 
