@@ -586,7 +586,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.CopyMediaLink:
 				handleActionCopyMediaLink();
 				break;
-			case EMessageActionType.SaveImage:
+			case EMessageActionType.SaveMedia:
 				handleActionSaveImage();
 				break;
 			case EMessageActionType.Report:
@@ -641,7 +641,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				return <MezonIconCDN icon={IconCDN.pinIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.UnPinMessage:
 				return <MezonIconCDN icon={IconCDN.pinIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
-			case EMessageActionType.SaveImage:
+			case EMessageActionType.SaveMedia:
 				return <MezonIconCDN icon={IconCDN.downloadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CopyMediaLink:
 				return <MezonIconCDN icon={IconCDN.linkIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
@@ -714,7 +714,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isDM && EMessageActionType.QuickMenu,
 			isHideActionImage && EMessageActionType.CopyImage,
 			isHideActionImage && EMessageActionType.ShareImage,
-			isHideActionMedia && EMessageActionType.SaveImage,
+			isHideActionMedia && EMessageActionType.SaveMedia,
 			isTopicFirstMessage && EMessageActionType.EditMessage
 		];
 
@@ -732,7 +732,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
 			message?.content?.embed?.some((embed) => embed?.image)
-				? [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
+				? [EMessageActionType.SaveMedia, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
 				: [];
 
 		const frequentActionList = [
