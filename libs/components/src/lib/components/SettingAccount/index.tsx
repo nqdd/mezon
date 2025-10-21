@@ -106,7 +106,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						<div className="font-semibold text-lg">{userProfile?.user?.display_name}</div>
 					</div>
 					<div className="flex gap-2">
-						<div onClick={openQR} className=" flex items-center justify-center p-2 bg-white mt-8 h-fit rounded-md">
+						<div onClick={openQR} className=" flex items-center justify-center p-2 bg-white mt-8 h-fit rounded-md cursor-pointer">
 							<svg
 								width="24px"
 								height="24px"

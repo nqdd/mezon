@@ -235,8 +235,10 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				dispatch(appActions.setLoadingMainMobile(false));
 			}
 		});
+		const eventResizeRoom = DeviceEventEmitter.addListener(ActionEmitEvent.ON_VOICE_ROOM_RESIZE, handlePressMinimizeRoom);
 		return () => {
 			eventOpenMezonMeet.remove();
+			eventResizeRoom.remove();
 		};
 	}, [isFromNativeCall]);
 

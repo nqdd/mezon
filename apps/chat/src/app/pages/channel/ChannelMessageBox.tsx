@@ -2,6 +2,7 @@ import { MessageBox, ReplyMessageBox, UserMentionList } from '@mezon/components'
 import { useChatSending, useEscapeKey } from '@mezon/core';
 import {
 	ETypeMission,
+	getStoreAsync,
 	onboardingActions,
 	referencesActions,
 	selectAnonymousMode,
@@ -9,13 +10,15 @@ import {
 	selectDataReferences,
 	selectMissionDone,
 	selectOnboardingByClan,
+	selectProcessingByClan,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, ThreadValue, blankReferenceObj } from '@mezon/utils';
+import type { IMessageSendPayload, ThreadValue } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS, blankReferenceObj } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
@@ -60,8 +63,11 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 		[sendMessage, currentMission, onboardingList?.mission]
 	);
 
-	const handDoMessageMission = () => {
+	const handDoMessageMission = async () => {
+		const store = (await getStoreAsync()).getState();
+		const processingClan = selectProcessingByClan(store, clanId as string);
 		if (
+			processingClan?.onboarding_step !== DONE_ONBOARDING_STATUS &&
 			currentClan?.is_onboarding &&
 			onboardingList?.mission?.[currentMission]?.channel_id === channel?.channel_id &&
 			onboardingList?.mission?.[currentMission]?.task_type === ETypeMission.SEND_MESSAGE
