@@ -1,16 +1,18 @@
 import React, { memo } from 'react';
 
 import { registerGlobals } from '@livekit/react-native';
-import { createStackNavigator, StackCardInterpolatedStyle, StackCardInterpolationProps, StackCardStyleInterpolator } from '@react-navigation/stack';
+import type { StackCardInterpolatedStyle, StackCardInterpolationProps, StackCardStyleInterpolator } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Dimensions, Platform, View } from 'react-native';
 import CallingModalGroupWrapper from '../../components/CallingModalGroupWrapper';
 import CallingModalWrapper from '../../components/CallingModalWrapper';
 import ModalRootListener from '../../components/ModalRootListener';
 import AppBrowser from '../../screens/auth/AppBrowser';
-import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
-import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
-import HomeDefaultWrapper from '../../screens/home/homedrawer/HomeDefaultWrapper';
 import HomeScreenTablet from '../../screens/home/HomeScreenTablet';
+import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
+import HomeDefaultWrapper from '../../screens/home/homedrawer/HomeDefaultWrapper';
+import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
+import InstallClanScreen from '../../screens/installClan/InstallClanScreen';
 import InviteClanScreen from '../../screens/inviteClan/InviteClanScreen';
 import { DirectMessageDetailScreen } from '../../screens/messages/DirectMessageDetail';
 import { ProfileDetail } from '../../screens/profile/ProfileDetail';
@@ -168,6 +170,7 @@ export const RootAuthStack = memo(
 					/>
 					<RootStack.Screen name={APP_SCREEN.SHOP.STACK} children={(props) => <ShopStack {...props} />} />
 					<RootStack.Screen name={APP_SCREEN.INVITE_CLAN} component={InviteClanScreen} />
+					<RootStack.Screen name={APP_SCREEN.INSTALL_CLAN} component={InstallClanScreen} />
 				</RootStack.Navigator>
 				<ModalRootListener />
 				<FCMNotificationLoader notifyInit={notifyInit} />

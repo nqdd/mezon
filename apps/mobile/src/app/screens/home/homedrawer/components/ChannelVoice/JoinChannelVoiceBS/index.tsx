@@ -9,7 +9,7 @@ import {
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectCurrentClanId, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store-mobile';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
@@ -132,45 +132,16 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 				<Text style={styles.text}>{t('joinChannelVoiceBS.channelVoice')}</Text>
 				<Text style={styles.textDisable}>{t('joinChannelVoiceBS.readyTalk')}</Text>
 			</View>
-			<View style={{ borderRadius: size.s_40, marginTop: size.s_20, marginBottom: size.s_10 }}>
-				<View
-					style={{
-						gap: size.s_20,
-						flexDirection: 'row',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						paddingHorizontal: size.s_16,
-						paddingBottom: size.s_16
-					}}
-				>
-					<View
-						style={{
-							justifyContent: 'center',
-							alignItems: 'center',
-							position: 'relative',
-							width: size.s_50,
-							height: size.s_50,
-							backgroundColor: 'transparent',
-							borderRadius: size.s_30
-						}}
-					></View>
-					<View style={{ flexDirection: 'column', flex: 1 }}>
+			<View style={styles.controlContainerOuter}>
+				<View style={styles.controlContainerInner}>
+					<View style={styles.controlContainer}></View>
+					<View style={styles.btnJoinVoiceContainer}>
 						<TouchableOpacity style={styles.btnJoinVoice} onPress={handleJoinVoice}>
 							<Text style={styles.textBtnJoinVoice}>{t('joinChannelVoiceBS.joinVoice')}</Text>
 						</TouchableOpacity>
 					</View>
 					<TouchableOpacity onPress={handleShowChat}>
-						<View
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								position: 'relative',
-								width: size.s_50,
-								height: size.s_50,
-								backgroundColor: themeValue.border,
-								borderRadius: size.s_30
-							}}
-						>
+						<View style={[styles.controlContainer, { backgroundColor: themeValue.tertiary }]}>
 							<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 						</View>
 					</TouchableOpacity>

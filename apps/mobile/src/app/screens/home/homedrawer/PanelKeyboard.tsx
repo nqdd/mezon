@@ -5,12 +5,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, Platform, View } from 'react-native';
 import AttachmentPicker from './components/AttachmentPicker';
 import EmojiPicker from './components/EmojiPicker';
-import { IMessageActionNeedToResolve } from './types';
+import type { EMessageActionType } from './enums';
+import type { IMessageActionNeedToResolve } from './types';
 
 interface IProps {
 	directMessageId?: string;
 	currentChannelId: string;
 	currentClanId: string;
+	messageAction?: EMessageActionType;
 }
 const PanelKeyboard = React.memo((props: IProps) => {
 	const { themeValue, themeBasic } = useTheme();
@@ -106,7 +108,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 					style={{ minHeight: heightKeyboardShow }}
 				>
 					{typeKeyboardBottomSheet === 'attachment' ? (
-						<AttachmentPicker currentChannelId={props?.currentChannelId} currentClanId={props?.currentClanId} onCancel={onClose} />
+						<AttachmentPicker currentChannelId={props?.currentChannelId} onCancel={onClose} messageAction={props?.messageAction} />
 					) : typeKeyboardBottomSheet === 'emoji' ? (
 						<EmojiPicker
 							onDone={onClose}

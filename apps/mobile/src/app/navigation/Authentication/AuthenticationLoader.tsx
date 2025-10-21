@@ -167,9 +167,8 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
-		} else if (path?.includes?.('/install/')) {
-			const installMatch = path.match(/(?:^|\/)install\/([^/?#]+)/);
-			const applicationId = installMatch?.[1];
+		} else if (path?.includes?.('/bot/install/')) {
+			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
 			if (applicationId) {
 				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
 					appId: applicationId

@@ -75,7 +75,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const [successTime, setSuccessTime] = useState('');
 	const [fileShared, setFileShared] = useState<any>();
 	const [isShowModalShare, setIsShowModalShare] = useState<boolean>(false);
-	const { saveImageToCameraRoll } = useImage();
+	const { saveMediaToCameraRoll } = useImage();
 	const dispatch = useAppDispatch();
 	const listDM = useMemo(() => {
 		const dmGroupChatList = selectDirectsOpenlist(store.getState() as any);
@@ -403,7 +403,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				Alert.alert('Failed to save image');
 				return;
 			}
-			await saveImageToCameraRoll(`file://${dataUri}`, 'png');
+			await saveMediaToCameraRoll(`file://${dataUri}`, 'png');
 			Alert.alert('Save image successfully');
 		} catch (error) {
 			Alert.alert('Failed to save image');

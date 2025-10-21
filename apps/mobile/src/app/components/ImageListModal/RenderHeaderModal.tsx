@@ -33,7 +33,7 @@ export const RenderHeaderModal = React.memo(({ imageSelected, onImageSaved, onLo
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const uploader = useAppSelector((state) => selectMemberClanByUserId(state, imageSelected?.uploader || ''));
-	const { downloadImage, saveImageToCameraRoll, getImageAsBase64OrFile } = useImage();
+	const { downloadImage, saveMediaToCameraRoll, getImageAsBase64OrFile } = useImage();
 	const currentDirectId = useSelector(selectDmGroupCurrentId);
 	const navigation = useNavigation<any>();
 
@@ -50,7 +50,7 @@ export const RenderHeaderModal = React.memo(({ imageSelected, onImageSaved, onLo
 			const filetypeParts = filetype?.split?.('/');
 			const filePath = await downloadImage(url, filetypeParts[1]);
 			if (filePath) {
-				await saveImageToCameraRoll('file://' + filePath, filetypeParts[0], false);
+				await saveMediaToCameraRoll('file://' + filePath, filetypeParts[0], false);
 				onImageSaved();
 			}
 		} catch (error) {
