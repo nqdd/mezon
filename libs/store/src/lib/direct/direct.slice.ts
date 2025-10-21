@@ -47,10 +47,10 @@ export const directAdapter = createEntityAdapter<DirectEntity>();
 
 export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEntity?: DirectEntity) => {
 	const mapped = { ...channelRes, id: channelRes.channel_id || '' };
-	if (existingEntity?.topic && !mapped.topic) {
-		mapped.topic = existingEntity.topic;
-	} else if (!mapped.topic) {
-		mapped.topic = 'assets/images/avatar-group.png';
+	if (existingEntity?.channel_avatar && !mapped.channel_avatar) {
+		mapped.channel_avatar = existingEntity.channel_avatar;
+	} else if (!mapped.channel_avatar) {
+		mapped.channel_avatar = 'assets/images/avatar-group.png';
 	}
 
 	return mapped;
@@ -78,10 +78,9 @@ export const createNewDirectMessage = createAsyncThunk(
 						usernames: Array.isArray(username) ? username : username ? [username] : [],
 						display_names: Array.isArray(display_names) ? display_names : display_names ? [display_names] : [],
 						channel_label: response.channel_label,
-						channel_avatar: response.channel_avatar,
+						channel_avatar: response.channel_avatar || 'assets/images/avatar-group.png',
 						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
-						user_ids: body.user_ids,
-						topic: response.topic || 'assets/images/avatar-group.png'
+						user_ids: body.user_ids
 					})
 				);
 
@@ -566,7 +565,7 @@ export const directSlice = createSlice({
 		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
 			if (!action.payload?.channel_id) return;
-			const { channel_id, creator_id, currentUserId, ...changes } = action.payload;
+			const { channel_id, creator_id: _creator_id, currentUserId: _currentUserId, ...changes } = action.payload;
 			directAdapter.updateOne(state, {
 				id: channel_id,
 				changes
@@ -671,14 +670,14 @@ export const directSlice = createSlice({
 		addMemberDmGroup: (state, action: PayloadAction<DirectEntity>) => {
 			const dmGroup = state.entities?.[action.payload.channel_id as string];
 			if (dmGroup) {
-				const existingTopic = dmGroup.topic;
+				const existingChannelAvatar = dmGroup.channel_avatar;
 
 				dmGroup.user_ids = [...(dmGroup.user_ids ?? []), ...(action.payload.user_ids ?? [])];
 				dmGroup.usernames = [...(dmGroup.usernames ?? []), ...(action.payload.usernames ?? [])];
 				dmGroup.avatars = [...(dmGroup.avatars ?? []), ...(action.payload.avatars ?? [])];
 				dmGroup.channel_avatar = action.payload.channel_avatar ?? '';
-				if (existingTopic && !action.payload.topic) {
-					dmGroup.topic = existingTopic;
+				if (existingChannelAvatar && !action.payload.channel_avatar) {
+					dmGroup.channel_avatar = existingChannelAvatar;
 				}
 			}
 		},
