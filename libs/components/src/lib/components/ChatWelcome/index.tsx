@@ -2,7 +2,6 @@ import { useAppParams, useFriends } from '@mezon/core';
 import type { ChannelsEntity, RootState } from '@mezon/store';
 import {
 	EStateFriend,
-	directActions,
 	selectAllAccount,
 	selectCurrentChannel,
 	selectDirectById,
@@ -19,7 +18,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { ChannelStatusEnum, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -51,11 +50,6 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 		currentGroupName: name || directChannel?.channel_label || 'Group',
 		currentAvatar: directChannel?.channel_avatar || ''
 	});
-	useEffect(() => {
-		if (directId) {
-			dispatch(directActions.fetchDirectMessage({ noCache: true }));
-		}
-	}, [directId, dispatch]);
 
 	const handleOpenEditModal = useCallback(() => {
 		editGroupModal.openEditModal();
