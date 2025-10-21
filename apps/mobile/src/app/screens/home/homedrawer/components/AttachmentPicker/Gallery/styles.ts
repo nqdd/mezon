@@ -31,5 +31,17 @@ export const style = (colors: Attributes) =>
 		},
 		disable: {
 			opacity: 0.5
+		},
+		limitedPermissionBanner: {
+			padding: size.s_12,
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: size.s_8
+		},
+		limitedPermissionText: {
+			fontSize: size.s_14,
+			color: colors.text,
+			fontWeight: '600',
+			textAlign: 'center'
 		}
 	});

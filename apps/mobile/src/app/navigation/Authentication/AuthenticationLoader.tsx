@@ -167,6 +167,14 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
+		} else if (path?.includes?.('/install/')) {
+			const installMatch = path.match(/(?:^|\/)install\/([^/?#]+)/);
+			const applicationId = installMatch?.[1];
+			if (applicationId) {
+				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
+					appId: applicationId
+				});
+			}
 		}
 	};
 
@@ -315,6 +323,7 @@ export const AuthenticationLoader = () => {
 							store.dispatch(directActions.setDmGroupCurrentId(''));
 							store.dispatch(messagesActions.setIdMessageToJump(null));
 							store.dispatch(appActions.setIsFromFCMMobile(true));
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_VOICE_ROOM_RESIZE);
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 								isShow: false
 							});

@@ -232,7 +232,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			const res = await store.dispatch(giveCoffeeActions.sendToken(tokenEvent));
 			store.dispatch(appActions.setLoadingMainMobile(false));
 			setDisableButton(false);
-			if (res?.payload === 'Wallet not available') {
+			if ([res?.payload, res?.payload?.message].includes(tMsg('wallet.notAvailable'))) {
 				showEnableWallet();
 				return;
 			}
@@ -580,7 +580,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('token')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								autoFocus={!!jsonObject?.receiver_id}
+								autoFocus={!!jsonObject?.receiver_id && isEnableWallet}
 								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}

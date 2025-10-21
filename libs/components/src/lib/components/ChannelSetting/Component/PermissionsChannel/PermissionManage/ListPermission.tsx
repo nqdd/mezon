@@ -1,8 +1,9 @@
 import type { PermissionUserEntity } from '@mezon/store';
-import { selectAllPermissionRoleChannel, useAppSelector } from '@mezon/store';
+import { permissionRoleChannelActions, selectAllPermissionRoleChannel, useAppDispatch, useAppSelector } from '@mezon/store';
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ItemPermission from './ItemPermission';
+import { ENTITY_TYPE } from './MainPermissionManage';
 
 export type ListPermissionHandle = {
 	reset: () => void;
@@ -19,12 +20,14 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 	const { onSelect, listPermission, currentRoleId } = props;
 	const { t } = useTranslation('channelSetting');
 	const { t: tClanRoles } = useTranslation('clanRoles');
+	const dispatch = useAppDispatch();
+
 	const listPermissionRoleChannel = useAppSelector((state) =>
 		selectAllPermissionRoleChannel(
 			state,
 			props.channelId,
-			currentRoleId?.type === 0 ? currentRoleId.id : undefined,
-			currentRoleId?.type === 1 ? currentRoleId.id : undefined
+			currentRoleId?.type === ENTITY_TYPE.ROLE ? currentRoleId.id : undefined,
+			currentRoleId?.type === ENTITY_TYPE.USER ? currentRoleId.id : undefined
 		)
 	);
 	const itemRefs = useRef<{ [key: string]: { reset: () => void } }>({});
@@ -33,6 +36,18 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 		return tClanRoles(`permissionTitles.${slug}`, { defaultValue: '' });
 	};
 
+	useEffect(() => {
+		if (currentRoleId && !listPermissionRoleChannel) {
+			dispatch(
+				permissionRoleChannelActions.fetchPermissionRoleChannel({
+					channelId: props.channelId,
+					roleId: currentRoleId.type === ENTITY_TYPE.ROLE ? currentRoleId.id : '',
+					userId: currentRoleId.type === ENTITY_TYPE.USER ? currentRoleId.id : '',
+					noCache: true
+				})
+			);
+		}
+	}, [currentRoleId, listPermissionRoleChannel, props.channelId, dispatch]);
 	useImperativeHandle(ref, () => ({
 		reset: () => {
 			Object.values(itemRefs.current).forEach((item) => item.reset());

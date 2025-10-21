@@ -56,9 +56,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 		<View style={styles.containerMessages}>
 			<View style={styles.leftContainer}>
 				<View style={styles.containerMessages}>
-					<View>
-						<ServerList />
-					</View>
+					<ServerList />
 
 					<View style={styles.container}>
 						<MessageHeader />

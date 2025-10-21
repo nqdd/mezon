@@ -33,13 +33,10 @@ export const channelMetaSlice = createSlice({
 	initialState: initialChannelMetaState,
 	reducers: {
 		add: channelMetaAdapter.addOne,
-		removeAll: channelMetaAdapter.removeAll,
-		remove: channelMetaAdapter.removeOne,
-		update: channelMetaAdapter.updateOne,
 		setChannelLastSentTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; senderId: string }>) => {
 			const channel = state?.entities[action.payload.channelId];
 			if (channel) {
-				channel.lastSentTimestamp = action.payload.timestamp;
+				channel.lastSentTimestamp = Math.floor(action.payload.timestamp);
 				state.lastSentChannelId = channel.id;
 				channel.senderId = action.payload.senderId;
 			}
@@ -52,7 +49,7 @@ export const channelMetaSlice = createSlice({
 				channelMetaAdapter.updateOne(state, {
 					id: channelId,
 					changes: {
-						lastSeenTimestamp: timestamp
+						lastSeenTimestamp: Math.floor(timestamp)
 					}
 				});
 			}
@@ -62,7 +59,7 @@ export const channelMetaSlice = createSlice({
 			const updates = action.payload.map((channelId) => ({
 				id: channelId,
 				changes: {
-					lastSeenTimestamp: timestamp
+					lastSeenTimestamp: Math.floor(timestamp)
 				}
 			}));
 			channelMetaAdapter.updateMany(state, updates);

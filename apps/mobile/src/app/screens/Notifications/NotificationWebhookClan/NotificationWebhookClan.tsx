@@ -1,9 +1,9 @@
 import { convertTimestampToTimeAgo } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectClanById, useAppSelector } from '@mezon/store-mobile';
-import { memo, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import MezonAvatar from '../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../componentUI/MezonClanAvatar';
 import { parseObject } from '../NotificationMentionItem';
 import type { NotifyProps } from '../types';
 import { ENotifyBsToShow } from '../types';
@@ -25,7 +25,7 @@ const NotificationWebhookClan = ({ notify, onLongPressNotify }: NotifyProps) => 
 			<View style={styles.notifyContainer}>
 				<View style={styles.notifyHeader}>
 					<View style={styles.boxImage}>
-						<MezonAvatar avatarUrl={notify?.content?.avatar} username={notify?.content?.display_name}></MezonAvatar>
+						<MezonClanAvatar alt={notify?.content?.display_name} image={notify?.content?.avatar} />
 					</View>
 					<View style={styles.notifyContent}>
 						{clan?.clan_name && (

@@ -9,7 +9,7 @@ jobs:
   release:
     runs-on: mezon-build-linux
     name: Release Mezon App for Linux
-    environment: production
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v4

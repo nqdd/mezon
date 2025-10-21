@@ -277,18 +277,6 @@ export const ProfileDetail = memo(() => {
 							</TouchableOpacity>
 						)}
 
-						{(userRelationshipStatus === UserRelationshipStatus.FRIENDS ||
-							userRelationshipStatus === UserRelationshipStatus.SAME_CLAN) && (
-							<>
-								<TouchableOpacity style={styles.actionButton} onPress={navigateToMessageDetail}>
-									<Text style={styles.actionButtonText}>{t('message', 'Message')}</Text>
-								</TouchableOpacity>
-								<TouchableOpacity style={styles.actionButton} onPress={handleCallUser}>
-									<Text style={styles.actionButtonText}>{t('call', 'Call')}</Text>
-								</TouchableOpacity>
-							</>
-						)}
-
 						{userRelationshipStatus === UserRelationshipStatus.MY_PENDING && (
 							<TouchableOpacity style={[styles.actionButton, styles.acceptButton]} onPress={handleAcceptRequest}>
 								<Text style={styles.actionButtonText}>{t('acceptRequest', 'Accept Request')}</Text>
@@ -300,6 +288,9 @@ export const ProfileDetail = memo(() => {
 								<Text style={styles.actionButtonText}>{t('cancelRequest', 'Cancel Request')}</Text>
 							</TouchableOpacity>
 						)}
+						<TouchableOpacity style={styles.actionButton} onPress={navigateToMessageDetail}>
+							<Text style={styles.actionButtonText}>{t('message', 'Message')}</Text>
+						</TouchableOpacity>
 					</View>
 				)}
 

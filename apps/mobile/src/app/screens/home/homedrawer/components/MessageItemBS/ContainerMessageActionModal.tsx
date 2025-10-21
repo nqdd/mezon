@@ -213,7 +213,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					sender_id: userId
 				};
 				const res = await dispatch(giveCoffeeActions.updateGiveCoffee(coffeeEvent));
-				if (res?.payload === 'Wallet not available') {
+				if ([res?.payload, res?.payload?.message].includes(t('wallet.notAvailable'))) {
 					const data = {
 						children: (
 							<MezonConfirm
@@ -221,7 +221,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 								title={t('wallet.notAvailable')}
 								confirmText={t('wallet.enableWallet')}
 								content={t('wallet.descNotAvailable')}
-								onCancel={() => navigation?.goBack()}
 							/>
 						)
 					};

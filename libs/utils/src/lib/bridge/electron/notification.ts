@@ -148,7 +148,7 @@ export class MezonNotificationService {
 					this.handlePong(connection);
 					this.startPingMonitoring(connection);
 				} else {
-					if (this.isUserInDNDMode(userId)) {
+					if (this.isUserInDNDMode(this.currentActiveUserId as string)) {
 						return;
 					}
 
@@ -249,7 +249,7 @@ export class MezonNotificationService {
 		msg?: NotificationData,
 		connection?: UserNotificationConnection
 	) {
-		if (connection?.userId && this.isUserInDNDMode(connection.userId)) {
+		if (this.isUserInDNDMode(this.currentActiveUserId as string)) {
 			return;
 		}
 
