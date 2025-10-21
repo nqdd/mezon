@@ -66,6 +66,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 	const limitSizeDisplay = isSticker ? ELimitSize.KB_512 : ELimitSize.KB_256;
 	const limitSize = isSticker ? LIMIT_SIZE_UPLOAD_IMG / 2 : LIMIT_SIZE_UPLOAD_IMG / 4;
 
+	const isValidPreview = (url: string): boolean => {
+		try {
+			const parsedUrl = new URL(url);
+			return parsedUrl.protocol === 'blob:' || parsedUrl.protocol === 'data:';
+		} catch {
+			return false;
+		}
+	};
+
 	const handleChooseFile = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
 			if (!fileTypeImage.includes(e.target.files[0].type)) {
@@ -79,11 +88,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			}
 
 			const srcPreview = URL.createObjectURL(e.target.files[0]);
-			setEditingGraphic({
-				...editingGraphic,
-				source: srcPreview,
-				fileName: e.target.files[0].name
-			});
+			if (isValidPreview(srcPreview)) {
+				setEditingGraphic({
+					...editingGraphic,
+					source: srcPreview,
+					fileName: e.target.files[0].name
+				});
+			} else {
+				console.error('Invalid preview URL.');
+			}
 		} else {
 			console.error('No files selected.');
 		}
@@ -330,12 +343,14 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						</div>
 					</div>
 					<div className={`w-full h-[54px] bottom-0 flex items-center justify-end select-none gap-2`}>
-						<div className="flex items-center flex-1 h-full gap-2">
-							<Checkbox ref={isForSaleRef} id="sale_item" className="accent-blue-600 w-4 h-4" />
-							<label htmlFor="sale_item" className="">
-								{t('thisIsForSale')}
-							</label>
-						</div>
+						{!graphic && (
+							<div className="flex items-center flex-1 h-full gap-2">
+								<Checkbox ref={isForSaleRef} id="sale_item" className="accent-blue-600 w-4 h-4" />
+								<label htmlFor="sale_item" className="">
+									{t('thisIsForSale')}
+								</label>
+							</div>
+						)}
 						<Button className="px-2 py-1 border-none hover:underline hover:bg-transparent bg-transparent" onClick={handleCloseModal}>
 							{t('neverMind')}
 						</Button>

@@ -54,6 +54,9 @@
 	"todayAt": "Hôm nay lúc",
 	"today": "Hôm nay",
 	"yesterdayAt": "Hôm qua lúc",
+	"todayAtTime": "Hôm nay lúc {{time}}",
+	"yesterdayAtTime": "Hôm qua lúc {{time}}",
+	"justNow": "Vừa xong",
 	"sampleMessage": "Nhìn tôi này, tôi là một chú bướm xinh đẹp",
 	"switchingTheme": "Đang chuyển chủ đề...",
 	"settingsSaved": "Đã lưu cài đặt!",
@@ -62,6 +65,7 @@
 	"hideNotificationDesc": "Khi bạn bỏ chọn ô này, tin nhắn sẽ xuất hiện với nội dung của nó.",
 	"showNotificationDesc": "Thông báo sẽ hiển thị mà không có nội dung chi tiết.",
 	"save": "Lưu",
+	"limitedPhotosAccess": "Chọn thêm ảnh",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",
@@ -89,6 +93,18 @@
 		"createMessage": "Bạn đã đạt số lượng clan tối đa có thể tạo trên tài khoản của mình ({{count}} clan). Để tạo clan mới, bạn cần xóa hoặc rời khỏi một trong những clan hiện có.",
 		"joinMessage": "Bạn đã đạt số lượng clan tối đa có thể tham gia trên tài khoản của mình ({{count}} clan). Để tham gia clan mới này, bạn cần xóa hoặc rời khỏi một trong những clan hiện có.",
 		"okay": "Được rồi"
+	},
+	"uploadLimit": {
+		"emoji": "Đạt giới hạn biểu cảm",
+		"sticker": "Đạt giới hạn nhãn dán",
+		"voiceSticker": "Đạt giới hạn hiệu ứng âm thanh"
+	},
+	"cardConversationMessage": {
+		"title": "Cuộc trò chuyện",
+		"johnDoe": "Này, cuộc họp ngày mai của chúng ta vẫn diễn ra chứ?",
+		"janeSmith": "Đừng quên xem các cập nhật mới của dự án nhé!",
+		"aliceJohnson": "Bạn có thể gửi cho tôi các tập tin từ tuần trước không?",
+		"bobBrown": "Tuần tới chúng mình đi ăn trưa với nhau nhé."
 	},
 	"isTyping": " đang nhập...",
 	"severalPeopleTyping": "Một số người đang nhập...",
@@ -141,7 +157,7 @@
 		"loginToMezon": "Đăng nhập vào tài khoản Mezon",
 		"emailAddress": "Địa chỉ email",
 		"loginWithSMS": "Đăng nhập bằng SMS OTP",
-		"loginWithPassword": "Đăng nhập bằng email và mật khẩu",
+		"loginWithPassword": "Đăng nhập bằng Email & Mật khẩu",
 		"send": "Gửi OTP",
 		"resendOtp": "Gửi lại OTP",
 		"loginByOTP": "Đăng nhập bằng OTP",
@@ -222,5 +238,22 @@
 		"usernamePlaceholder": "Hãy dùng tên thật để mọi người dễ nhận ra bạn",
 		"update": "Cập nhật",
 		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác."
+	},
+	"sessionExpired": {
+		"title": "Phiên đăng nhập đã hết hạn hoặc lỗi mạng",
+		"confirm": "Đăng nhập lại",
+		"content": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại để tiếp tục."
+	},
+	"call": {
+		"connecting": "Đang kết nối...",
+		"ringing": "Đang đổ chuông..."
+	},
+	"itemClanPreview": {
+		"preview": "Xem trước {{type}}",
+		"name": "Tên {{type}}",
+		"forSale": "Để bán",
+		"upload": "Tải lên",
+		"sticker": "nhãn dán",
+		"emoji": "biểu cảm"
 	}
 }

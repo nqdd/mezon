@@ -1,5 +1,5 @@
 import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, Menu, Notification, app, dialog, screen, shell } from 'electron';
+import { BrowserWindow, Menu, Notification, app, dialog, powerMonitor, screen, shell } from 'electron';
 import log from 'electron-log/main';
 import { autoUpdater } from 'electron-updater';
 import activeWindows from 'mezon-active-windows';
@@ -10,7 +10,7 @@ import tray from '../Tray';
 import { EActivityCoding, EActivityGaming, EActivityMusic } from './activities';
 import setupAutoUpdates from './autoUpdates';
 import { rendererAppName, rendererAppPort } from './constants';
-import { ACTIVE_WINDOW, TRIGGER_SHORTCUT } from './events/constants';
+import { ACTIVE_WINDOW, LOCK_SCREEN, TRIGGER_SHORTCUT, UNLOCK_SCREEN } from './events/constants';
 import setupRequestPermission from './requestPermission';
 import { initBadge } from './services/badge';
 import { forceQuit } from './utils';
@@ -74,6 +74,7 @@ export default class App {
 				setupAutoUpdates();
 				setupRequestPermission();
 			});
+			App.setupDetectLockScreen();
 		}
 
 		if (process.platform === 'win32') {
@@ -96,9 +97,9 @@ export default class App {
 			App.onReady();
 		}
 
-		// Reopen window after soft quit on macOS
-		if (process.platform === 'darwin' && App.isWindowValid(App.mainWindow) && !App.mainWindow!.isVisible()) {
-			App.mainWindow!.show();
+		// Reopen window after soft quit
+		if (App.mainWindow && App.isWindowValid(App.mainWindow) && !App.mainWindow.isVisible()) {
+			App.mainWindow.show();
 		}
 	}
 
@@ -487,5 +488,15 @@ export default class App {
 
 		const menu = Menu.buildFromTemplate(template);
 		Menu.setApplicationMenu(menu);
+	}
+
+	private static setupDetectLockScreen() {
+		powerMonitor.on('lock-screen', () => {
+			App.mainWindow.webContents.send(LOCK_SCREEN);
+		});
+
+		powerMonitor.on('unlock-screen', () => {
+			App.mainWindow.webContents.send(UNLOCK_SCREEN);
+		});
 	}
 }

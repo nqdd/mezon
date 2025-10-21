@@ -1,5 +1,6 @@
 name: Release Mezon App for Linux
-
+permissions:
+  contents: read
 on:
   release:
     types: [published]
@@ -8,7 +9,7 @@ jobs:
   release:
     runs-on: mezon-build-linux
     name: Release Mezon App for Linux
-    environment: production
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v4

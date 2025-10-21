@@ -311,6 +311,7 @@ export interface IMessageRatioOption {
 	value: string;
 	style?: EButtonMessageStyle;
 	disabled?: boolean;
+	extraData?: string[];
 }
 
 export interface IMessageInput {
@@ -430,6 +431,7 @@ export interface IMessageSendPayload {
 	fwd?: boolean;
 	lky?: ILinkYoutubeOnMessage[];
 	isCard?: boolean;
+	rpl?: number;
 }
 
 export type IUser = {

@@ -210,7 +210,7 @@ export const fetchClans = createAsyncThunk('clans/fetchClans', async ({ noCache 
 		}
 
 		if (!response.fromCache && clans.length > 0) {
-			const clanIds = clans.map((clan) => clan.id);
+			const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
 			thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
 		}
 
@@ -314,6 +314,7 @@ export const removeClanUsers = createAsyncThunk('clans/removeClanUsers', async (
 			return thunkAPI.rejectWithValue([]);
 		}
 		thunkAPI.dispatch(fetchClans({ noCache: true }));
+		thunkAPI.dispatch(usersClanActions.removeUsersAndClearCache({ clanId, userIds }));
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'clans/removeClanUsers');
@@ -990,3 +991,5 @@ export const selectOrderedClansWithGroups = createSelector([selectAllClans, sele
 
 	return [...orderedItems, ...remainingClans];
 });
+
+export const selectCountClanJoined = createSelector(getClansState, (state) => state?.ids?.length || 0);

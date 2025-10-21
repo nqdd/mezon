@@ -352,14 +352,14 @@ const UserProfile = React.memo(
 				text: t('userAction.sendMessage'),
 				icon: <MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
 				action: navigateToMessageDetail,
-				isShow: (!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById
+				isShow: !isBlocked
 			},
 			{
 				id: 2,
 				text: t('userAction.voiceCall'),
 				icon: <MezonIconCDN icon={IconCDN.phoneCallIcon} color={themeValue.text} />,
 				action: () => handleCallUser(userId || user?.id),
-				isShow: ((!!infoFriend && infoFriend?.state === EFriendState.Friend) || !!userById) && !isBlocked
+				isShow: !isBlocked
 			},
 			{
 				id: 4,
@@ -439,7 +439,11 @@ const UserProfile = React.memo(
 		if (isShowPendingContent) {
 			return (
 				<View style={[styles.wrapper]}>
-					<PendingContent targetUser={infoFriend} onClose={() => setIsShowPendingContent(false)} />
+					<PendingContent
+						targetUser={infoFriend}
+						userName={message?.user?.username || user?.user?.username || user?.username || userById?.user?.username}
+						onClose={() => setIsShowPendingContent(false)}
+					/>
 				</View>
 			);
 		}

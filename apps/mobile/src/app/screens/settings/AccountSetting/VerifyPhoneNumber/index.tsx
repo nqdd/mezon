@@ -51,7 +51,7 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 					navigation.navigate('ROUTES.SETTINGS.ACCOUNT');
 				} else {
 					Toast.show({
-						type: 'success',
+						type: 'error',
 						props: {
 							text2: t('phoneNumberSetting.verifyPhoneNumber.failed'),
 							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />

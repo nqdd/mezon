@@ -98,7 +98,7 @@ const NotificationSettingDetail = memo(({ route }: { route: any }) => {
 			<MezonOption
 				onChange={handleNotificationChange}
 				value={selectedOption}
-				title={'Clan Notifications Setting'}
+				title={t('notifySettingOption.title')}
 				data={optionsNotificationSetting}
 			/>
 			{!!selectedOption && (

@@ -41,6 +41,7 @@ export { default as CanvasHashtag } from './components/MarkdownFormatText/Canvas
 export { default as ChannelHashtag } from './components/MarkdownFormatText/HashTag';
 export { default as MentionUser } from './components/MarkdownFormatText/MentionUser';
 export { default as ModalUnknowChannel } from './components/MarkdownFormatText/ModalUnknowChannel';
+export { default as ModalWalletNotAvailable } from './components/MarkdownFormatText/ModalWalletNotAvailable';
 export { default as MemberList } from './components/MemberList';
 export { default as BaseProfile } from './components/MemberProfile/BaseProfile';
 export { default as Message } from './components/Message';
@@ -141,3 +142,4 @@ export { DmCallManager } from './components/DmCall/DmCallManager';
 export { default as InternetStatusPopover } from './components/InternetStatusPopover';
 export { default as ModalLayout } from './components/Modal';
 export { default as ModalEditGroup } from './components/ModalEditGroup';
+export { default as SidebarHistory } from './components/ModalListClans/SidebarHistory';

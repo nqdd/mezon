@@ -202,9 +202,9 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 			<div
 				key={friend?.user?.id}
 				onClick={handleNavigateDM}
-				className="py-2 flex justify-between group flex-1 items-center px-3 cursor-pointer rounded-lg bg-item-hover"
+				className="py-2 flex justify-between group flex-1 items-center px-3 cursor-pointer rounded-lg bg-item-hover min-w-0"
 			>
-				<div key={friend?.user?.id} className={'flex-1'}>
+				<div key={friend?.user?.id} className="flex-1 min-w-0 pr-2">
 					<BaseProfile
 						avatar={friend?.user?.avatar_url ?? ''}
 						name={(friend?.user?.display_name || friend?.user?.username) ?? ''}
@@ -218,7 +218,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 						userStatus={userStatus?.user_status}
 					/>
 				</div>
-				<div className="w-20" onClick={(e) => e.stopPropagation()}>
+				<div className="flex-shrink-0 w-auto min-w-fit" onClick={(e) => e.stopPropagation()}>
 					{friend?.state === 0 && (
 						<div className="flex gap-3 items-center">
 							<button onClick={handleNavigateDM} className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover">
@@ -235,6 +235,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Cancel"
 								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.cancel_friend_request')}
 							>
 								✕
 							</button>
@@ -246,6 +247,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Accept"
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.accept_friend_request')}
 							>
 								✓
 							</button>
@@ -253,6 +255,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								title="Reject"
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								data-e2e={generateE2eId('friend_page.button.reject_friend_request')}
 							>
 								✕
 							</button>

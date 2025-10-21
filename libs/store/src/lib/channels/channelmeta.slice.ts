@@ -1,5 +1,6 @@
-import { LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { selectAllAccount } from '../account/account.slice';
 export const CHANNELMETA_FEATURE_KEY = 'channelmeta';
 
@@ -32,13 +33,10 @@ export const channelMetaSlice = createSlice({
 	initialState: initialChannelMetaState,
 	reducers: {
 		add: channelMetaAdapter.addOne,
-		removeAll: channelMetaAdapter.removeAll,
-		remove: channelMetaAdapter.removeOne,
-		update: channelMetaAdapter.updateOne,
 		setChannelLastSentTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; senderId: string }>) => {
 			const channel = state?.entities[action.payload.channelId];
 			if (channel) {
-				channel.lastSentTimestamp = action.payload.timestamp;
+				channel.lastSentTimestamp = Math.floor(action.payload.timestamp);
 				state.lastSentChannelId = channel.id;
 				channel.senderId = action.payload.senderId;
 			}
@@ -51,7 +49,7 @@ export const channelMetaSlice = createSlice({
 				channelMetaAdapter.updateOne(state, {
 					id: channelId,
 					changes: {
-						lastSeenTimestamp: timestamp
+						lastSeenTimestamp: Math.floor(timestamp)
 					}
 				});
 			}
@@ -61,7 +59,7 @@ export const channelMetaSlice = createSlice({
 			const updates = action.payload.map((channelId) => ({
 				id: channelId,
 				changes: {
-					lastSeenTimestamp: timestamp
+					lastSeenTimestamp: Math.floor(timestamp)
 				}
 			}));
 			channelMetaAdapter.updateMany(state, updates);
@@ -132,6 +130,14 @@ export const selectIsUnreadChannelById = createSelector(
 	(state, settings, channelId) => {
 		const channel = state?.entities[channelId];
 		return channel?.lastSeenTimestamp < channel?.lastSentTimestamp;
+	}
+);
+
+export const selectLastSeenChannel = createSelector(
+	[getChannelMetaState, selectChannelMetaEntities, (state, channelId) => channelId],
+	(state, settings, channelId) => {
+		const channel = settings?.[channelId];
+		return channel?.lastSeenTimestamp;
 	}
 );
 

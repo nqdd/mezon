@@ -48,7 +48,8 @@
 			"samePass": "The new password cannot be the same as the old password",
 			"fillOldPass": "Please fill current password.",
 			"updateFail": "Could not update your account.",
-			"createFail": "Could not create your password."
+			"createFail": "Could not create your password.",
+			"incorrectCurrent": "Incorrect password. Please try again"
 		},
 		"toast": {
 			"success": "Password set successfully",
@@ -77,6 +78,7 @@
 		"sendOTP": "Send OTP",
 		"otp": "Verify your number",
 		"countryCode": "Country Code",
+		"country": "Country",
 		"confirmOtp": "Confirm OTP",
 		"invalidPhone": "Invalid phone number",
 		"updatePhoneSuccess": "Update phone number success",
@@ -85,7 +87,10 @@
 		"resendOtp": "Resend OTP!",
 		"tooFast": "Too fast. Please wait {{seconds}} seconds before sending OTP again.",
 		"alreadyLinked": "Phone number is already linked to your account",
-		"alreadyLinkedToAnother": "Phone number is already linked to another account"
+		"alreadyLinkedToAnother": "Phone number is already linked to another account",
+		"verifyOtpMessage": "Please verify the OTP code sent to",
+		"otpSentMessage": "Please check the OTP code sent to {{phone}}",
+		"backToPhoneInput": "Change phone number?"
 	},
 	"toast": {
 		"deleteAccount": {

@@ -156,7 +156,7 @@ const TopBarChannelText = memo(() => {
 	const editGroupModal = useEditGroupModal({
 		channelId: currentDmGroup?.channel_id,
 		currentGroupName: channelDmGroupLabel || '',
-		currentAvatar: currentDmGroup?.topic || ''
+		currentAvatar: currentDmGroup?.channel_avatar || ''
 	});
 
 	const handleOpenEditModal = useCallback(() => {
@@ -690,7 +690,7 @@ const DmTopbarTools = memo(() => {
 					)}
 					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
 
-					<AddMemberToGroupDm currentDmGroup={currentDmGroup} />
+					{!isBlockUser && <AddMemberToGroupDm currentDmGroup={currentDmGroup} />}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
 						<button
 							title={t('tooltips.showMemberList')}

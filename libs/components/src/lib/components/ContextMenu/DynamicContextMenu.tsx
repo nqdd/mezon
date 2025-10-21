@@ -15,9 +15,12 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Menu as Dropdown } from '@mezon/ui';
-import { ContextMenuItem, IEmoji, IMessageWithUser, QUICK_MENU_TYPE, SHOW_POSITION, generateE2eId, isPublicChannel } from '@mezon/utils';
-import React, { ReactElement, useCallback, useMemo, useState } from 'react';
+import type { ContextMenuItem, IEmoji, IMessageWithUser } from '@mezon/utils';
+import { QUICK_MENU_TYPE, SHOW_POSITION, generateE2eId, isPublicChannel } from '@mezon/utils';
+import type { ReactElement } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Item, Menu, Separator, Submenu } from 'react-contexify';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useMessageContextMenu } from './MessageContextMenuContext';
 import ReactionItem from './ReactionItem';
@@ -53,6 +56,7 @@ type Props = {
 
 export default function DynamicContextMenu({ menuId, items, messageId, message, isTopic, onSlashCommandExecute, currentChannelId }: Props) {
 	const emojiConverted = useEmojiConverted();
+	const { t } = useTranslation('contextMenu');
 
 	const { directId } = useAppParams();
 
@@ -251,13 +255,13 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 			if (item.label === 'Copy Link' && checkPos) elements.push(<Separator key={`separator-${index}`} />);
 			if (item.label === 'Copy Image') elements.push(<Separator key={`separator-${index}`} />);
 			const lableAddReaction = item.label === 'Add Reaction';
-			const lableSlashCommands = item.label === 'Slash Commands';
+			const lableSlashCommands = item.label === t('slashCommands');
 
 			if (lableSlashCommands && shouldShowQuickMenu) {
 				elements.push(
 					<Submenu
 						key={item.label}
-						label={<span className="text-sm font-medium pl-[4px]">Quick Menu</span>}
+						label={<span className="text-sm font-medium pl-[4px]">{t('slashCommands')}</span>}
 						className="border-none bg-theme-contexify p-0"
 					>
 						{isLoadingCommands ? (

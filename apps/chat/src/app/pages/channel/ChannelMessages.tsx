@@ -35,7 +35,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import type { BooleanToVoidFunction, ChannelMembersEntity } from '@mezon/utils';
+import type { BooleanToVoidFunction, ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import {
 	Direction_Mode,
 	EOverriddenPermission,
@@ -114,7 +114,7 @@ const FirstJoinLoadTracker = memo(({ channelId, isFirstJoinLoadRef }: { channelI
 	const channelCache = useAppSelector((state) => selectChannelMessageCache(state, channelId));
 
 	useEffect(() => {
-		if (channelCache && isFirstJoinLoadRef.current) {
+		if (channelCache) {
 			isFirstJoinLoadRef.current = true;
 		}
 	}, [channelCache, channelId, isFirstJoinLoadRef]);
@@ -919,6 +919,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							});
 						}
 						isLoadingMoreBottomRef.current = false;
+						isFirstJoinLoadRef.current = false;
 					};
 				});
 			},
@@ -958,11 +959,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				return firstMsgOfThisTopic as MessagesEntity;
 			}
 			const baseEntity = convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
+			const topicCreator = topicCreatorOfInitMsg as UsersClanEntity | undefined;
 			return {
 				...baseEntity,
-				avatar: baseEntity.avatar || topicCreatorOfInitMsg?.user?.avatar_url || baseEntity.avatar,
-				clan_avatar: baseEntity.clan_avatar || (topicCreatorOfInitMsg as any)?.clan_avatar || baseEntity.clan_avatar,
-				username: baseEntity.username || topicCreatorOfInitMsg?.user?.username || baseEntity.username
+				avatar: baseEntity.avatar || topicCreator?.user?.avatar_url || baseEntity.avatar,
+				clan_avatar: baseEntity.clan_avatar || topicCreator?.clan_avatar || baseEntity.clan_avatar,
+				clan_nick: baseEntity.clan_nick || topicCreator?.clan_nick || baseEntity.clan_nick,
+				username: baseEntity.username || topicCreator?.user?.username || baseEntity.username
 			} as MessagesEntity;
 		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
 

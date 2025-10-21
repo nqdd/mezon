@@ -31,7 +31,8 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
+import type { AppStateStatus } from 'react-native';
+import { AppState, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
@@ -245,7 +246,7 @@ export const AuthenticationLoader = () => {
 			const routes = navigationState?.routes || [];
 			const activeScreenIndex = routes[navigationState?.index]?.state?.index || 0;
 			const activeState = routes[navigationState?.index]?.state || {};
-			const currentRoute = activeState?.routes[activeScreenIndex]?.name || '';
+			const currentRoute = activeState?.routes[activeScreenIndex]?.params?.screen || activeState?.routes[activeScreenIndex]?.name || '';
 
 			return currentRoute;
 		} catch (error) {
@@ -272,7 +273,7 @@ export const AuthenticationLoader = () => {
 				const topRoute = getTopRoute();
 
 				// Determine current view state for suppression decision
-				const isViewingChannel = topRoute === APP_SCREEN.HOME_DEFAULT;
+				const isViewingChannel = topRoute === APP_SCREEN.HOME_DEFAULT || topRoute === APP_SCREEN.MESSAGES.CHAT_STREAMING;
 				const isViewingDirectMessage = topRoute === APP_SCREEN.MESSAGES.MESSAGE_DETAIL || topRoute === APP_SCREEN.MESSAGES.HOME;
 
 				if (
@@ -314,6 +315,7 @@ export const AuthenticationLoader = () => {
 							store.dispatch(directActions.setDmGroupCurrentId(''));
 							store.dispatch(messagesActions.setIdMessageToJump(null));
 							store.dispatch(appActions.setIsFromFCMMobile(true));
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_VOICE_ROOM_RESIZE);
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 								isShow: false
 							});

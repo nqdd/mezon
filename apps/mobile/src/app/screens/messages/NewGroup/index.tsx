@@ -7,6 +7,7 @@ import {
 	directActions,
 	selectAllFriends,
 	selectDirectById,
+	selectRawDataUserGroup,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -42,7 +43,8 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const dispatch = useAppDispatch();
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const [selectedFriendDefault, setSelectedFriendDefault] = useState<string[]>([]);
-	const currentDirectMessage = useRef(useAppSelector((state) => selectDirectById(state, directMessage?.id)));
+	const currentDirectMessage = useRef(useAppSelector((state) => selectDirectById(state, directMessage?.id || '')));
+	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, directMessage?.id || ''));
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser.filter((user) => user.state === 0);
@@ -68,9 +70,9 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 
 	useEffect(() => {
 		if (currentDirectMessage.current?.id) {
-			setSelectedFriendDefault(currentDirectMessage.current?.user_ids || []);
+			setSelectedFriendDefault(allUserGroupDM?.user_ids || []);
 		}
-	}, [currentDirectMessage]);
+	}, [currentDirectMessage.current?.id, allUserGroupDM?.user_ids]);
 
 	const onSelectedChange = useCallback((friendIdSelected: string[]) => {
 		setFriendIdSelectedList(friendIdSelected);

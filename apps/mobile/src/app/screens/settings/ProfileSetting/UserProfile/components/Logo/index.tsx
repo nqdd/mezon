@@ -2,6 +2,7 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { appActions, clansActions, selectAllAccount, selectLogoCustom, useAppDispatch } from '@mezon/store-mobile';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
@@ -15,6 +16,7 @@ export const DirectMessageLogo = memo(() => {
 	const logoCustom = useSelector(selectLogoCustom);
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
+	const { t } = useTranslation(['profileSetting']);
 
 	const handleOnLoad = async (url) => {
 		if (url) {
@@ -35,7 +37,7 @@ export const DirectMessageLogo = memo(() => {
 
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>Direct Message Icon</Text>
+			<Text style={styles.title}>{t('directMessageIcon')}</Text>
 			<MezonImagePicker
 				defaultValue={logoCustom}
 				height={size.s_50}

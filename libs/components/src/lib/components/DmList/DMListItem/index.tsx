@@ -3,12 +3,9 @@ import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
 	directMetaActions,
-	fetchUserChannels,
-	getStoreAsync,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
-	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -85,17 +82,6 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 
 	const handleClickDM = useCallback(async () => {
 		joinToChatAndNavigate(id, directMessage?.type as number);
-
-		const state = (await getStoreAsync()).getState();
-		const memberDM = selectMemberByGroupId(state, id);
-		if (!memberDM && directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			dispatch(
-				fetchUserChannels({
-					channelId: id,
-					isGroup: true
-				})
-			);
-		}
 	}, [directMessage, id, currentDmGroupId]);
 
 	return (
@@ -105,6 +91,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			style={{ height: 42 }}
 			className={`flex items-center group/itemListDm relative cursor-pointer bg-item-hover h-fit px-2 rounded-[6px] w-full ${isActive ? 'bg-item-theme text-theme-primary-active' : 'text-theme-primary'}`}
 			onClick={handleClickDM}
+			data-e2e={generateE2eId(`chat.direct_message.chat_list`)}
 		>
 			<DmItemProfile
 				avatar={isTypeDMGroup ? directMessage?.channel_avatar || 'assets/images/avatar-group.png' : (directMessage?.avatars?.at(0) ?? '')}

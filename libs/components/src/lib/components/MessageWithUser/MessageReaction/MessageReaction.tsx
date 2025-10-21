@@ -1,6 +1,6 @@
 import { useIdleRender } from '@mezon/core';
 import { selectMessageByMessageId, useAppSelector } from '@mezon/store';
-import { EmojiDataOptionals, IMessageWithUser } from '@mezon/utils';
+import type { EmojiDataOptionals, IMessageWithUser } from '@mezon/utils';
 import React, { useRef, useState } from 'react';
 import ItemEmoji from './ItemEmoji';
 import ItemEmojiSkeleton from './ItemEmojiSkeleton';
@@ -66,12 +66,12 @@ export function combineMessageReactions(reactions: any[], message_id: string): a
 				emoji,
 				senders: [],
 				action: false,
-				message_id: message_id,
+				message_id,
 				id: '',
 				channel_id: ''
 			};
 		}
-		if (!reaction.sender_name) continue;
+		//if (!reaction.sender_name) continue;
 		const newSender = {
 			sender_id: reaction.sender_id,
 			count: reaction.count

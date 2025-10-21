@@ -1,5 +1,6 @@
 name: Release Mezon App for ARM MacOS
-
+permissions:
+  contents: read
 on:
   release:
     types: [published]
@@ -8,7 +9,7 @@ jobs:
   release:
     runs-on: build-arm-mac
     name: Release Mezon App for ARM MacOS
-    environment: production
+    environment: prod
     steps:
       - name: Checkout
         uses: actions/checkout@v3

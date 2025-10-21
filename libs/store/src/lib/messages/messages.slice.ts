@@ -732,12 +732,7 @@ export const updateLastSeenMessage = createAsyncThunk(
 				return;
 			}
 
-			const channelMessages = state.messages.channelMessages[channelId];
-			if (!channelMessages?.cache && !updateLast) {
-				return;
-			}
-
-			const queuedMessages = (thunkAPI.getState() as RootState).messages.queuedLastSeenMessages;
+			const queuedMessages = (thunkAPI.getState() as RootState).messages?.queuedLastSeenMessages;
 			if (queuedMessages.length > 0) {
 				thunkAPI.dispatch(processQueuedLastSeenMessages());
 			}
@@ -1099,13 +1094,25 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 
 	const state = thunkAPI.getState() as RootState;
 	const channelId = message.channel_id;
+
+	if (!state.messages.channelMessages?.[channelId]?.cache) {
+		thunkAPI.dispatch(messagesActions.setLastMessage(message));
+		return;
+	}
+
 	const isViewingOlderMessages = getMessagesState(getMessagesRootState(thunkAPI))?.isViewingOlderMessagesByChannelId?.[channelId];
+
+	if (isViewingOlderMessages) {
+		thunkAPI.dispatch(messagesActions.setLastMessage(message));
+		return;
+	}
+
 	const isBottom = !selectShowScrollDownButton(state, channelId);
 
 	const scrollPosition = state.channels?.scrollPosition?.[channelId];
 	const viewportIds = selectViewportIdsByChannelId(state, channelId);
 
-	let shouldSetViewingOlder = isViewingOlderMessages;
+	let shouldSetViewingOlder = false;
 	let needsRebalance = false;
 
 	if (scrollPosition?.messageId && viewportIds?.length > 0) {
@@ -1132,10 +1139,7 @@ export const addNewMessage = createAsyncThunk('messages/addNewMessage', async (m
 	}
 
 	if (shouldSetViewingOlder && !needsRebalance) {
-		if (shouldSetViewingOlder !== isViewingOlderMessages) {
-			thunkAPI.dispatch(messagesActions.setViewingOlder({ channelId, status: true }));
-		}
-
+		thunkAPI.dispatch(messagesActions.setViewingOlder({ channelId, status: true }));
 		thunkAPI.dispatch(messagesActions.setLastMessage(message));
 		return;
 	}
@@ -1351,6 +1355,27 @@ export const messagesSlice = createSlice({
 							adapterPayload: action.payload
 						});
 						state.lastMessageByChannel[channelId] = action.payload;
+
+						let foundParentChannel: string | null = null;
+
+						for (const searchChannelId in state.channelMessages) {
+							if (searchChannelId !== topic_id) {
+								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
+								for (const msgId in searchChannelMessages) {
+									const message: MessagesEntity = searchChannelMessages[msgId];
+									if (message?.content?.tp === topic_id) {
+										foundParentChannel = searchChannelId;
+
+										const currentRpl = message.content?.rpl || 0;
+										if (message.content) {
+											message.content.rpl = currentRpl + 1;
+										}
+										break;
+									}
+								}
+								if (foundParentChannel) break;
+							}
+						}
 					} else {
 						handleAddOneMessage({
 							state,
@@ -1431,6 +1456,29 @@ export const messagesSlice = createSlice({
 					break;
 				}
 				case TypeMessage.ChatRemove: {
+					if (topic_id !== '0' && topic_id) {
+						let foundParentChannel: string | null = null;
+
+						for (const searchChannelId in state.channelMessages) {
+							if (searchChannelId !== topic_id) {
+								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
+								for (const msgId in searchChannelMessages) {
+									const message: MessagesEntity = searchChannelMessages[msgId];
+									if (message?.content?.tp === topic_id) {
+										foundParentChannel = searchChannelId;
+
+										const currentRpl = message.content?.rpl || 0;
+										if (message.content && currentRpl > 0) {
+											message.content.rpl = currentRpl - 1;
+										}
+										break;
+									}
+								}
+								if (foundParentChannel) break;
+							}
+						}
+					}
+
 					updateReferenceMessage({
 						state,
 						channelId,
@@ -1984,6 +2032,17 @@ export const selectLastSeenMessageStateByChannelId = createSelector(
 	[getMessagesState, (state, channelId: string) => channelId],
 	(state, channelId) => {
 		return state?.lastMessageByChannel?.[channelId] ?? null;
+	}
+);
+
+export const selectLastMessageViewportByChannelId = createSelector(
+	[selectMessagesByChannel, selectViewportIdsByChannelId],
+	(channelMessages, ids) => {
+		if (!channelMessages) return null;
+		const { entities } = channelMessages;
+		const lastId = ids?.at(-1);
+		if (!lastId) return null;
+		return entities[lastId];
 	}
 );
 

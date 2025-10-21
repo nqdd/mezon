@@ -50,7 +50,7 @@ const ItemPanel = ({
 				{type === 'checkbox' && <input type="checkbox" id="accept" checked={checked} defaultChecked={defaultChecked} readOnly />}
 				{type === 'radio' && <input type="radio" className="" name={name} value="change here" checked={checked} readOnly />}
 			</div>
-			{subText && <div className="text-[12px] ml-[8px] -mt-2 mb-1 text-theme-primary">{subText}</div>}
+			{subText && <div className="text-[12px] self-start ml-2 -mt-2 mb-1 text-theme-primary">{subText}</div>}
 		</button>
 	);
 };

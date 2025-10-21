@@ -102,8 +102,12 @@ export function useFriends() {
 
 	const filteredFriends = useCallback(
 		(searchTerm: string, isAddMember?: boolean) => {
+			if (!groupDmMember) return [];
 			if (isAddMember) {
 				return friends.filter((friend) => {
+					if (friend.state === EStateFriend.BLOCK) {
+						return false;
+					}
 					if (friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)) {
 						if (!Object.values(groupDmMember ?? [])?.some((user) => user?.id === friend?.id)) {
 							return friend;
@@ -112,10 +116,12 @@ export function useFriends() {
 				});
 			}
 			return friends.filter(
-				(friend) => friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)
+				(friend) =>
+					friend.state !== EStateFriend.BLOCK &&
+					(friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm))
 			);
 		},
-		[friends]
+		[friends, groupDmMember]
 	);
 
 	return useMemo(

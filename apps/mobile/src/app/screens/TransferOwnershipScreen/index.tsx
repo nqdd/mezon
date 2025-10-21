@@ -1,14 +1,9 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	clansActions,
-	selectAllUserClans,
-	selectCurrentClan,
-	selectCurrentClanId,
-	useAppDispatch
-} from '@mezon/store-mobile';
+import { clansActions, selectAllUserClans, selectCurrentClan, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
-import { APP_SCREEN, MenuClanScreenProps } from 'apps/mobile/src/app/navigation/ScreenTypes';
+import type { MenuClanScreenProps } from 'apps/mobile/src/app/navigation/ScreenTypes';
+import { APP_SCREEN } from 'apps/mobile/src/app/navigation/ScreenTypes';
 import { ERequestStatus } from 'apps/mobile/src/app/screens/channelPermissionSetting/types/channelPermission.enum';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -34,44 +29,48 @@ const TransferOwnershipScreen = ({ route }: TransferOwnershipScreenProps) => {
 	const currentClan = useSelector(selectCurrentClan);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const clanMembers = useSelector(selectAllUserClans);
-	
+
 	const currentOwner = useMemo(() => {
 		if (!currentClan?.creator_id || !clanMembers?.length) return null;
-		return clanMembers.find(member => member.user?.id === currentClan.creator_id);
+		return clanMembers.find((member) => member.user?.id === currentClan.creator_id);
 	}, [currentClan?.creator_id, clanMembers]);
 
-	const handleTransferOwnership = useCallback(async (newOwnerId: string) => {
-		if (!currentClanId || !newOwnerId) return;
+	const handleTransferOwnership = useCallback(
+		async (newOwnerId: string) => {
+			if (!currentClanId || !newOwnerId) return;
 
-		try {
-			const response = await dispatch(clansActions.transferClan({ 
-				clanId: currentClanId, 
-				new_clan_owner: newOwnerId 
-			}));
-			
-			if (response?.meta?.requestStatus === ERequestStatus.Fulfilled) {
+			try {
+				const response = await dispatch(
+					clansActions.transferClan({
+						clanId: currentClanId,
+						new_clan_owner: newOwnerId
+					})
+				);
+
+				if (response?.meta?.requestStatus === ERequestStatus.Fulfilled) {
+					Toast.show({
+						type: 'success',
+						props: {
+							text2: t('clanOverviewSetting:permissions.toast.transferOwnershipSuccess'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
+						}
+					});
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+					navigation.navigate(APP_SCREEN.HOME as never);
+				} else {
+					throw new Error();
+				}
+			} catch (error) {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
-						text2: t('clanOverviewSetting:permissions.toast.transferOwnershipSuccess'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
+						text2: t('clanOverviewSetting:permissions.toast.transferOwnershipFailed')
 					}
 				});
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-				navigation.navigate(APP_SCREEN.HOME as never);
-			} else {
-				throw new Error();
 			}
-		} catch (error) {
-			Toast.show({
-				type: 'success',
-				props: {
-					text2: t('clanOverviewSetting:permissions.toast.transferOwnershipFailed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} />
-				}
-			});
-		}
-	}, [currentClanId, dispatch, t, navigation]);
+		},
+		[currentClanId, dispatch, t, navigation]
+	);
 
 	const handleTransfer = () => {
 		if (isAcknowledged && user?.user?.id) {
@@ -118,12 +117,12 @@ const TransferOwnershipScreen = ({ route }: TransferOwnershipScreenProps) => {
 
 				<Text style={styles.warningText}>
 					<Trans
-						i18nKey={"userProfile:transferOwnershipModal.warning"}
+						i18nKey={'userProfile:transferOwnershipModal.warning'}
 						values={{
 							clanName: currentClan?.clan_name,
 							username: user?.user?.username || user?.['username']
 						}}
-						components={{ 
+						components={{
 							highlightClan: <Text key="highlightClan" style={styles.highlightText} />,
 							highlightUser: <Text key="highlightUser" style={styles.highlightText} />
 						}}
@@ -132,22 +131,14 @@ const TransferOwnershipScreen = ({ route }: TransferOwnershipScreenProps) => {
 
 				<View style={styles.acknowledgmentSection}>
 					<Text style={styles.sectionTitle}>{t('userProfile:transferOwnershipModal.sectionTitle')}</Text>
-					<TouchableOpacity 
-						style={styles.checkboxContainer}
-						onPress={() => setIsAcknowledged(!isAcknowledged)}
-					>
+					<TouchableOpacity style={styles.checkboxContainer} onPress={() => setIsAcknowledged(!isAcknowledged)}>
 						<View style={[styles.checkbox, isAcknowledged && styles.checkboxChecked]}>
 							{isAcknowledged && (
-								<MezonIconCDN
-									icon={IconCDN.checkmarkSmallIcon}
-									width={size.s_16}
-									height={size.s_16}
-									color={themeValue.text}
-								/>
+								<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={size.s_16} height={size.s_16} color={themeValue.text} />
 							)}
 						</View>
 						<Text style={styles.acknowledgmentText}>
-							{t('userProfile:transferOwnershipModal.acknowledgment', { 
+							{t('userProfile:transferOwnershipModal.acknowledgment', {
 								username: user?.user?.username || user?.['username']
 							})}
 						</Text>

@@ -24,9 +24,11 @@ import {
 import { getApp } from '@react-native-firebase/app';
 import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import { AuthorizationStatus, getMessaging, getToken, hasPermission, requestPermission } from '@react-native-firebase/messaging';
+import { CommonActions } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import { Alert, DeviceEventEmitter, Linking, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { APP_SCREEN } from '../navigation/ScreenTypes';
+import { InboxType } from '../screens/Notifications';
 import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex } from './helpers';
 const messaging = getMessaging(getApp());
 
@@ -166,7 +168,6 @@ const openAppSettings = () => {
 
 const getConfigDisplayNotificationAndroid = async (data: Record<string, string | object>): Promise<NotificationAndroid> => {
 	const defaultConfig: NotificationAndroid = {
-		visibility: AndroidVisibility.PUBLIC,
 		channelId: `${data?.sound !== 'default' ? `${data?.sound}_` : ''}default`,
 		smallIcon: 'ic_notification',
 		color: '#7029c1',
@@ -250,8 +251,7 @@ const createNotificationChannel = async (channelId: string, groupId: string, sou
 			name: channelId,
 			groupId,
 			importance: AndroidImportance.HIGH,
-			sound: sound ? sound : 'default',
-			visibility: AndroidVisibility.PUBLIC
+			sound: sound ? sound : 'default'
 		});
 	} catch (error) {
 		console.error('Error creating notification channel:', error);
@@ -455,7 +455,8 @@ export const navigateToNotification = async (store: any, notification: any, navi
 						channelId,
 						noFetchMembers: false,
 						isClearMessage: true,
-						noCache: true
+						noCache: true,
+						isDisableJump: true
 					})
 				);
 			}
@@ -524,6 +525,36 @@ export const navigateToNotification = async (store: any, notification: any, navi
 				navigation.navigate(APP_SCREEN.MESSAGES.HOME);
 			} else {
 				navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: channelDMId });
+			}
+		} else if (channelDMId === '0' && navigation) {
+			navigation.navigate(APP_SCREEN.NOTIFICATION.HOME, {
+				initialTab: InboxType.MESSAGES,
+				version: notification?.sentTime
+			});
+			try {
+				navigation.dispatch(
+					CommonActions.reset({
+						index: 1,
+						routes: [
+							{
+								name: APP_SCREEN.NOTIFICATION.HOME,
+								params: {
+									initialTab: InboxType.MESSAGES,
+									version: notification?.sentTime
+								}
+							},
+							{
+								name: APP_SCREEN.NOTIFICATION.HOME,
+								params: {
+									initialTab: InboxType.MESSAGES,
+									version: notification?.sentTime
+								}
+							}
+						]
+					})
+				);
+			} catch (e) {
+				console.error('log => e navigation: ', e);
 			}
 		}
 		setTimeout(() => {

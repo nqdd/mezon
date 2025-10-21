@@ -35,8 +35,7 @@ export const style = (colors: Attributes) =>
 		iconImageStyle: {},
 		defaultNotifyName: {
 			color: colors.text,
-			fontSize: size.s_14,
-			textTransform: 'capitalize'
+			fontSize: size.s_14
 		},
 		checkbox: {
 			width: 35,

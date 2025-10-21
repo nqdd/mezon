@@ -3,8 +3,8 @@
 import { useChannelMembers, useChatSending, useDirect, usePermissionChecker, useSendInviteMessage } from '@mezon/core';
 import { ActionEmitEvent, STORAGE_MY_USER_ID, formatContentEditMessage, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { MessagesEntity } from '@mezon/store-mobile';
 import {
-	MessagesEntity,
 	appActions,
 	channelMetaActions,
 	clansActions,
@@ -58,10 +58,10 @@ import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { getMessageActions } from '../../constants';
 import { EMessageActionType } from '../../enums';
-import { IConfirmActionPayload, IMessageAction, IMessageActionNeedToResolve, IReplyBottomSheet } from '../../types/message.interface';
+import type { IConfirmActionPayload, IMessageAction, IMessageActionNeedToResolve, IReplyBottomSheet } from '../../types/message.interface';
 import { ConfirmPinMessageModal } from '../ConfirmPinMessageModal';
 import EmojiSelector from '../EmojiPicker/EmojiSelector';
-import { IReactionMessageProps } from '../MessageReaction';
+import type { IReactionMessageProps } from '../MessageReaction';
 import { QuickMenuModal } from '../QuickMenuModal';
 import { ReportMessageModal } from '../ReportMessageModal';
 import { RecentEmojiMessageAction } from './RecentEmojiMessageAction';
@@ -213,7 +213,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					sender_id: userId
 				};
 				const res = await dispatch(giveCoffeeActions.updateGiveCoffee(coffeeEvent));
-				if (res?.payload === 'Wallet not available') {
+				if ([res?.payload, res?.payload?.message].includes(t('wallet.notAvailable'))) {
 					const data = {
 						children: (
 							<MezonConfirm
@@ -221,7 +221,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 								title={t('wallet.notAvailable')}
 								confirmText={t('wallet.enableWallet')}
 								content={t('wallet.descNotAvailable')}
-								onCancel={() => navigation?.goBack()}
 							/>
 						)
 					};
@@ -350,7 +349,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			const filePath = await downloadImage(url, type?.[1]);
 
 			if (filePath) {
-				await saveImageToCameraRoll('file://' + filePath, type?.[0], true);
+				await saveImageToCameraRoll(`file://${filePath}`, type?.[0], true);
 			}
 		} catch (error) {
 			console.error(`Error downloading or saving media from URL: ${url}`, error);
@@ -397,7 +396,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const handleActionTopicDiscussion = async () => {
 		if (!message) return;
 		dispatch(topicsActions.setCurrentTopicInitMessage(message));
-		dispatch(topicsActions.setCurrentTopicId(message?.content?.tp || ''));
+		dispatch(topicsActions.setCurrentTopicId(''));
+		dispatch(topicsActions.setFirstMessageOfCurrentTopic(message));
 		dispatch(topicsActions.setIsShowCreateTopic(true));
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.TOPIC_DISCUSSION
@@ -458,8 +458,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			Toast.show({
 				type: 'error',
 				props: {
-					text2: t('toast.markMessageUnreadFailed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} />
+					text2: t('toast.markMessageUnreadFailed')
 				}
 			});
 			console.error('Error marking message as unread:', error);
@@ -532,7 +531,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			const shareOptions = {
 				url: `file://${imageData.filePath}`,
 				type: filetype || 'image/png',
-				filename: filename
+				filename
 			};
 
 			await Share.open(shareOptions);
@@ -678,7 +677,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const isUnPinMessage = listPinMessages.some((pinMessage) => pinMessage?.message_id === message?.id);
 		const isHideCreateThread = isDM || ((!isCanManageThread || !isCanManageChannel) && !isClanOwner) || currentChannel?.parent_id !== '0';
 		const isHideThread = currentChannel?.parent_id !== '0';
-		const isHideDeleteMessage = !((isAllowDelMessage && !isDM) || isMyMessage);
+		const isTopicFirstMessage = message?.code === TypeMessage.Topic;
+		const isHideDeleteMessage = !((isAllowDelMessage && !isDM) || isMyMessage) || isTopicFirstMessage;
 		const isHideTopicDiscussion =
 			(message?.topic_id && message?.topic_id !== '0') ||
 			message?.code === TypeMessage.Topic ||
@@ -710,7 +710,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isHideTopicDiscussion && EMessageActionType.TopicDiscussion,
 			isDM && EMessageActionType.QuickMenu,
 			isHideActionImage && EMessageActionType.CopyImage,
-			isHideActionImage && EMessageActionType.ShareImage
+			isHideActionImage && EMessageActionType.ShareImage,
+			isHideActionImage && EMessageActionType.SaveImage,
+			isTopicFirstMessage && EMessageActionType.EditMessage
 		];
 
 		let availableMessageActions: IMessageAction[] = [];
@@ -727,10 +729,11 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
 			message?.content?.embed?.some((embed) => embed?.image)
-				? []
-				: [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink];
+				? [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
+				: [];
 
 		const frequentActionList = [
+			EMessageActionType.ForwardMessage,
 			EMessageActionType.ResendMessage,
 			EMessageActionType.GiveACoffee,
 			EMessageActionType.EditMessage,
@@ -742,6 +745,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		return {
 			frequent: availableMessageActions.filter((action) => frequentActionList.includes(action.type)),
 			normal: availableMessageActions.filter((action) => ![...frequentActionList, ...warningActionList, ...mediaList].includes(action.type)),
+			media: availableMessageActions.filter((action) => mediaList.includes(action.type)),
 			warning: availableMessageActions.filter((action) => warningActionList.includes(action.type))
 		};
 	}, [
@@ -813,6 +817,16 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				</View>
 				<View style={styles.messageActionGroup}>
 					{messageActionList.normal.map((action) => {
+						return (
+							<Pressable key={action.id} style={styles.actionItem} onPress={() => implementAction(action.type)}>
+								<View style={styles.icon}>{getActionMessageIcon(action.type)}</View>
+								<Text style={styles.actionText}>{action.title}</Text>
+							</Pressable>
+						);
+					})}
+				</View>
+				<View style={styles.messageActionGroup}>
+					{messageActionList.media.map((action) => {
 						return (
 							<Pressable key={action.id} style={styles.actionItem} onPress={() => implementAction(action.type)}>
 								<View style={styles.icon}>{getActionMessageIcon(action.type)}</View>

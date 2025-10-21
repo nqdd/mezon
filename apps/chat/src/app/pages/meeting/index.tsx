@@ -65,8 +65,11 @@ const PermissionsPopup = React.memo(({ onClose }: { onClose: () => void }) => {
 
 export default function PreJoinCalling() {
 	const { t } = useTranslation('common');
+	const account = useSelector(selectAllAccount);
+	const getDisplayName = account?.user?.display_name || account?.user?.username;
+	const getAvatar = account?.user?.avatar_url;
 	const [cameraOn, setCameraOn] = useState(false);
-	const [username, setUsername] = useState('');
+	const [username, setUsername] = useState(getDisplayName || '');
 	const [avatar, setAvatar] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	// State for permissions
@@ -133,10 +136,6 @@ export default function PreJoinCalling() {
 	const showCamera = useSelector(selectShowCamera);
 	const serverUrl = process.env.NX_CHAT_APP_MEET_WS_URL;
 
-	const account = useSelector(selectAllAccount);
-	const getDisplayName = account?.user?.display_name || account?.user?.username;
-	const getAvatar = account?.user?.avatar_url;
-
 	const closePermissionsPopup = useCallback(() => {
 		setPermissionsState((prev) => ({
 			...prev,
@@ -181,9 +180,7 @@ export default function PreJoinCalling() {
 
 		setError(null);
 		setAvatar(avatar as string);
-		const fullStringNameAndAvatar = isUser
-			? JSON.stringify({ extName: getDisplayName || username, extAvatar: getAvatar })
-			: JSON.stringify({ extName: getDisplayName || username });
+		const fullStringNameAndAvatar = isUser ? JSON.stringify({ extName: username, extAvatar: getAvatar }) : JSON.stringify({ extName: username });
 
 		await dispatch(generateMeetTokenExternal({ token: code as string, displayName: fullStringNameAndAvatar, isGuest: !isUser as boolean }));
 	}, [dispatch, username, getDisplayName, code]);
@@ -247,13 +244,7 @@ export default function PreJoinCalling() {
 						<div className="w-full max-w-xl bg-zinc-800 rounded-lg overflow-hidden">
 							<div className="p-6 flex flex-col items-center">
 								<VideoPreview avatarExist={getAvatar} cameraOn={cameraOn} stream={streamRef.current} />
-								<JoinForm
-									displayNameExisted={getDisplayName}
-									loadingStatus={getJoinCallExtStatus}
-									username={username}
-									setUsername={setUsername}
-									onJoin={joinMeeting}
-								/>
+								<JoinForm loadingStatus={getJoinCallExtStatus} username={username} setUsername={setUsername} onJoin={joinMeeting} />
 
 								{/* Error message */}
 								{error && (

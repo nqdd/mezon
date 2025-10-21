@@ -112,7 +112,6 @@ import {
 	checkIsThread,
 	isBackgroundModeActive,
 	isLinuxDesktop,
-	scaleAmountToDecimals,
 	subBigInt
 } from '@mezon/utils';
 import type { Update } from '@reduxjs/toolkit';
@@ -192,7 +191,7 @@ export type ChatContextValue = {
 const ChatContext = React.createContext<ChatContextValue>({} as ChatContextValue);
 
 const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) => {
-	const { socketRef, reconnectWithTimeout } = useMezon();
+	const { socketRef, mmnRef, reconnectWithTimeout } = useMezon();
 	const { userId } = useAuth();
 	const dispatch = useAppDispatch();
 
@@ -1135,17 +1134,40 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const oncustomstatus = useCallback(
 		(statusEvent: CustomStatusEvent) => {
+			if (!statusEvent || !statusEvent.user_id) {
+				return;
+			}
+
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
 					status: statusEvent.status
 				})
 			);
+
+			dispatch(
+				statusActions.updateMany([
+					{
+						id: statusEvent.user_id,
+						changes: {
+							user_status: statusEvent.status
+						}
+					}
+				])
+			);
+
+			dispatch(
+				usersClanActions.updateUserStatus({
+					userId: statusEvent.user_id,
+					user_status: statusEvent.status
+				})
+			);
+
 			if (statusEvent.user_id === userId) {
 				dispatch(accountActions.setCustomStatus(statusEvent.status));
 			}
 		},
-		[dispatch]
+		[dispatch, userId]
 	);
 
 	const ontokensent = useCallback(
@@ -1190,7 +1212,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 			}
 			if (tokenEvent.amount) {
-				const updateAmount = scaleAmountToDecimals(tokenEvent.amount);
+				const updateAmount = mmnRef.current?.scaleAmountToDecimals(tokenEvent.amount) || '0';
 				dispatch(
 					walletActions.updateWalletByAction((currentValue) => {
 						if (isReceiverGiveCoffee) {
@@ -1972,47 +1994,21 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						})
 					).unwrap();
 
-					if (isUserResult) {
-						if (user_add_ids.includes(userId as string)) {
-							dispatch(
-								policiesActions.updateOne({
-									id: role.id as string,
-									changes: { title: role.title, id: role.id || '', max_level_permission: role.max_level_permission }
-								})
-							);
-						} else {
-							dispatch(policiesActions.removeOne(role.id as string));
+					if (isUserResult && user_add_ids.includes(userId as string)) {
+						const store = await getStoreAsync();
+						const currentClanId = selectCurrentClanId(store.getState() as unknown as RootState);
+						if (currentClanId === role.clan_id) {
+							dispatch(policiesActions.addPermissionCurrentClan(role));
 						}
 					}
 				}
-				if (status === EEventAction.UPDATE) {
-					dispatch(
-						policiesActions.updateOne({
-							id: role.id as string,
-							changes: {
-								title: role.title,
-								id: role.id || '',
-								max_level_permission: role.max_level_permission
-							}
-						})
-					);
-				}
+
 				dispatch(rolesClanActions.update({ role, clanId: role.clan_id as string }));
 				return;
 			}
 
 			// Handle role deletion
 			if (status === EEventAction.DELETE) {
-				const isUserResult = await dispatch(
-					rolesClanActions.updatePermissionUserByRoleId({
-						roleId: role.id as string,
-						userId: userId as string
-					})
-				).unwrap();
-
-				if (isUserResult) {
-					dispatch(policiesActions.removeOne(role.id as string));
-				}
 				dispatch(rolesClanActions.remove({ roleId: role.id as string, clanId: role.clan_id as string }));
 			}
 		},
@@ -2124,6 +2120,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	}, []);
 
 	const onsdtopicevent = useCallback(async (sdTopicEvent: SdTopicEvent) => {
+		if (!sdTopicEvent) return;
+
 		dispatch(
 			messagesActions.updateToBeTopicMessage({
 				channelId: sdTopicEvent?.channel_id as string,

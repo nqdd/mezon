@@ -22,7 +22,8 @@ import {
 	selectIsShowCanvas,
 	selectIsShowCreateThread,
 	selectIsShowMemberList,
-	selectLastMessageByChannelId,
+	selectLastMessageViewportByChannelId,
+	selectLastSeenChannel,
 	selectMissionDone,
 	selectMissionSum,
 	selectOnboardingByClan,
@@ -62,7 +63,10 @@ import { ChannelTyping } from './ChannelTyping';
 function useChannelSeen(channelId: string) {
 	const dispatch = useAppDispatch();
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId)) || {};
-	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
+	const lastMessage = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
+
+	const lastSeenTimeStamp = useAppSelector((state) => selectLastSeenChannel(state, channelId));
+
 	const isFocus = !isBackgroundModeActive();
 
 	useEffect(() => {
@@ -77,7 +81,10 @@ function useChannelSeen(channelId: string) {
 			currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL || currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING
 				? ChannelStreamMode.STREAM_MODE_CHANNEL
 				: ChannelStreamMode.STREAM_MODE_THREAD;
-		markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
+
+		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp) {
+			markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
+		}
 	}, [lastMessage, currentChannel, markAsReadSeen]);
 
 	useEffect(() => {
@@ -173,6 +180,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			<div
 				style={{ height: 44 }}
 				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
 				You do not have permission to send messages in this channel.
 			</div>

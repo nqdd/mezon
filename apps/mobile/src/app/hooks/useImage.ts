@@ -2,6 +2,7 @@ import { appActions, useAppDispatch } from '@mezon/store-mobile';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Linking, NativeModules, Platform } from 'react-native';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import Toast from 'react-native-toast-message';
@@ -11,6 +12,7 @@ const { ImageClipboardModule } = NativeModules;
 
 export function useImage() {
 	const dispatch = useAppDispatch();
+	const { t } = useTranslation(['common']);
 
 	const downloadImage = useCallback(
 		async (imageUrl: string, type: string) => {
@@ -159,7 +161,7 @@ export function useImage() {
 	};
 
 	const saveImageToCameraRoll = useCallback(
-		async (filePath: string, type: string, isShowSuccessToast = true) => {
+		async (filePath: string, type: string, isShowSuccessToast = true, isUnlink = true) => {
 			try {
 				const hasPermission = await checkAndRequestPermission();
 				if (!hasPermission) {
@@ -170,7 +172,7 @@ export function useImage() {
 
 				isShowSuccessToast &&
 					Toast.show({
-						text1: 'Save successfully',
+						text1: t('savedSuccessfully'),
 						type: 'info'
 					});
 			} catch (err) {
@@ -180,13 +182,13 @@ export function useImage() {
 				});
 				throw err;
 			} finally {
-				if (Platform.OS === 'android') {
+				if (Platform.OS === 'android' && isUnlink) {
 					await RNFetchBlob.fs.unlink(filePath);
 				}
 				dispatch(appActions.setLoadingMainMobile(false));
 			}
 		},
-		[dispatch]
+		[dispatch, t]
 	);
 
 	return {

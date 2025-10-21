@@ -177,10 +177,12 @@ export const WAVE_SENDER_NAME = 'Mezon';
 
 export const CURRENCY = {
 	CODE: 'vi-VN',
-	SYMBOL: 'đ'
+	SYMBOL: 'đồng'
 };
 
 export const ITEM_TYPE = {
 	EMOJI: 0,
 	STICKER: 1
 };
+
+export const MAX_CLAN_ITEM_SLOTS = 250;

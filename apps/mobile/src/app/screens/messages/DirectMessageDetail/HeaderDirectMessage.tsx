@@ -95,6 +95,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const { sendSignalingToParticipants } = useSendSignaling();
+	const listBlockedUser = useSelector(selectBlockedUsersForMessage);
 
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 	const { sendMessage } = useChatSending({ mode, channelOrDirect: currentDmGroup });
@@ -220,14 +221,12 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	const isBlocked = useMemo(() => {
 		try {
 			if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
-			const store = getStore();
-			const listBlockedUser = selectBlockedUsersForMessage(store.getState());
 			const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === currentDmGroup?.user_ids?.[0]);
 			return blockedUser;
 		} catch (e) {
 			return false;
 		}
-	}, [currentDmGroup]);
+	}, [currentDmGroup, listBlockedUser]);
 
 	const headerOptions: IOption[] = [
 		{
@@ -245,8 +244,6 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	};
 
 	const handleActionBuzzMessage = async () => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-		await sleep(500);
 		const data = {
 			children: <ConfirmBuzzMessageModal onSubmit={handleBuzzMessage} />
 		};

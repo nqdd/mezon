@@ -48,7 +48,8 @@
 			"samePass": "Mật khẩu mới không thể giống mật khẩu cũ",
 			"fillOldPass": "Vui lòng nhập mật khẩu hiện tại.",
 			"updateFail": "Cập nhật tài khoản thất bại.",
-			"createFail": "Đặt mật khẩu thất bại."
+			"createFail": "Đặt mật khẩu thất bại.",
+			"incorrectCurrent": "Mật khẩu hiện tại không đúng. Hãy thử lại"
 		},
 		"toast": {
 			"success": "Đổi mật khẩu thành công",
@@ -81,9 +82,12 @@
 		"updatePhoneFail": "Có lỗi xảy ra. Thử lại sau",
 		"emptyOtp": "Mã OTP không hợp lệ!",
 		"resendOtp": "Gửi lại mã OTP!",
-		"tooFast": "Quá nhanh. Vui lòng chờ {{seconds}} giây trước khi gửi mã OTP lại.",
+		"tooFast": "Quá nhanh. Vui lòng chờ {{seconds}} giây trước khi gửi mã OTP lại.",
 		"alreadyLinked": "Số này đã liên kết với tài khoản của bạn",
-		"alreadyLinkedToAnother": "Số này đã liên kết với tài khoản khác"
+		"alreadyLinkedToAnother": "Số này đã liên kết với tài khoản khác",
+		"country": "Quốc gia",
+		"otpSentMessage": "Vui lòng kiểm tra mã OTP đã được gửi đến số điện thoại {{phone}}",
+		"backToPhoneInput": "Thay đổi số điện thoại?"
 	},
 	"toast": {
 		"deleteAccount": {

@@ -128,7 +128,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 				userMap.set(userId, {
 					id: userId,
 					username: [typeof itemDM?.usernames === 'string' ? itemDM?.usernames : (itemDM?.usernames?.[0] ?? '')] as Array<string>,
-					avatar_url: itemDM?.channel_avatar?.[0] ?? ''
+					avatar_url: itemDM?.avatars?.[0] ?? ''
 				});
 			}
 		});
@@ -232,7 +232,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			const res = await store.dispatch(giveCoffeeActions.sendToken(tokenEvent));
 			store.dispatch(appActions.setLoadingMainMobile(false));
 			setDisableButton(false);
-			if (res?.payload === 'Wallet not available') {
+			if ([res?.payload, res?.payload?.message].includes(tMsg('wallet.notAvailable'))) {
 				showEnableWallet();
 				return;
 			}
@@ -580,7 +580,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('token')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								autoFocus={!!jsonObject?.receiver_id}
+								autoFocus={!!jsonObject?.receiver_id && isEnableWallet}
 								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}

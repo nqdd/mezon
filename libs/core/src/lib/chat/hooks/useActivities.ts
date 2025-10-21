@@ -1,5 +1,5 @@
 import { acitvitiesActions, useAppDispatch } from '@mezon/store';
-import { ActivitiesInfo } from '@mezon/utils';
+import type { ActivitiesInfo } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 
 export function useActivities() {
@@ -18,10 +18,22 @@ export function useActivities() {
 		},
 		[dispatch]
 	);
+	const setUserAFK = useCallback(
+		(status: number) => {
+			const body = {
+				activity_name: 'AFK',
+				activity_type: 4,
+				status
+			};
+			dispatch(acitvitiesActions.createActivity(body));
+		},
+		[dispatch]
+	);
 	return useMemo(
 		() => ({
-			setUserActivity
+			setUserActivity,
+			setUserAFK
 		}),
-		[setUserActivity]
+		[setUserActivity, setUserAFK]
 	);
 }

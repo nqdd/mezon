@@ -1,7 +1,7 @@
 import { AvatarImage } from '@mezon/components';
 import { useCustomNavigate } from '@mezon/core';
 import type { DMMetaEntity } from '@mezon/store';
-import { directActions, directMetaActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store';
+import { directActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { createImgproxyUrl } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useMemo } from 'react';
@@ -28,9 +28,6 @@ function DirectUnread({ directMessage, checkMoveOut, onMemberClick, isHiding }: 
 		);
 
 		navigate(`/chat/direct/message/${direct.channel_id}/${direct.type}`);
-		const timestamp = Date.now() / 1000;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: direct.id || '', timestamp }));
-
 		onMemberClick?.();
 	};
 

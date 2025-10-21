@@ -1,4 +1,5 @@
 import { useAuth } from '@mezon/core';
+import { STORAGE_IS_LAST_ACTIVE_TAB_DM, save } from '@mezon/mobile-components';
 import { baseColor, size } from '@mezon/mobile-ui';
 import { authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
@@ -155,6 +156,7 @@ const LoginScreen = ({ navigation }) => {
 	}, [lastOTPSentTime, email, phone, loginMode]);
 
 	const onLoadInit = async () => {
+		save(STORAGE_IS_LAST_ACTIVE_TAB_DM, 'false');
 		if (
 			clientRef?.current &&
 			(clientRef?.current?.host !== process.env.NX_CHAT_APP_API_GW_HOST || clientRef?.current?.port !== process.env.NX_CHAT_APP_API_GW_PORT)
@@ -172,10 +174,9 @@ const LoginScreen = ({ navigation }) => {
 		const infoInCooldown: ICooldownInfo = getInfoInCooldown(email);
 		if (infoInCooldown?.isInCooldown) {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining || cooldownRemaining }),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining || cooldownRemaining })
 				}
 			});
 			return;
@@ -196,10 +197,9 @@ const LoginScreen = ({ navigation }) => {
 					navigation.navigate(APP_SCREEN.VERIFY_OTP, { email, reqId });
 				} else {
 					Toast.show({
-						type: 'success',
+						type: 'error',
 						props: {
-							text2: resp?.error?.message || t('otpVerify.sendOtpError'),
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+							text2: resp?.error?.message || t('otpVerify.sendOtpError')
 						}
 					});
 				}
@@ -209,10 +209,9 @@ const LoginScreen = ({ navigation }) => {
 			setIsLoading(false);
 			console.error('Error sending OTP:', error);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: error?.message || t('otpVerify.sendOtpError'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: error?.message || t('otpVerify.sendOtpError')
 				}
 			});
 		}
@@ -227,10 +226,9 @@ const LoginScreen = ({ navigation }) => {
 		const infoInCooldown: ICooldownInfo = getInfoInCooldown(fullPhoneNumber);
 		if (infoInCooldown?.isInCooldown) {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining }),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: t('login.loginTooFast', { seconds: infoInCooldown?.remaining })
 				}
 			});
 			return;
@@ -250,10 +248,9 @@ const LoginScreen = ({ navigation }) => {
 				navigation.navigate(APP_SCREEN.VERIFY_OTP, { phoneNumber: fullPhoneNumber, reqId });
 			} else {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
-						text2: resp?.error?.message || t('otpVerify.sendOtpError'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+						text2: resp?.error?.message || t('otpVerify.sendOtpError')
 					}
 				});
 			}
@@ -262,10 +259,9 @@ const LoginScreen = ({ navigation }) => {
 			setIsLoading(false);
 			console.error('Error sending phone OTP:', error);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
-					text2: error?.message || t('otpVerify.sendOtpError'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+					text2: error?.message || t('otpVerify.sendOtpError')
 				}
 			});
 		}
@@ -277,19 +273,17 @@ const LoginScreen = ({ navigation }) => {
 				const resp: any = await authenticateEmailPassword({ email, password });
 				if (!resp) {
 					Toast.show({
-						type: 'success',
+						type: 'error',
 						props: {
-							text2: t('login.loginFailed'),
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+							text2: t('login.loginFailed')
 						}
 					});
 				}
 			} catch (e) {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
-						text2: e?.message || t('login.loginFailed'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
+						text2: e?.message || t('login.loginFailed')
 					}
 				});
 			}

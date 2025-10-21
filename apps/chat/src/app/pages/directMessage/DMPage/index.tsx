@@ -28,8 +28,8 @@ import {
 	selectIsShowCreateThread,
 	selectIsShowMemberListDM,
 	selectIsUseProfileDM,
-	selectLastMessageByChannelId,
-	selectLastSeenMessageStateByChannelId,
+	selectLastMessageViewportByChannelId,
+	selectLastSeenDM,
 	selectPositionEmojiButtonSmile,
 	selectReactionTopState,
 	selectSearchMessagesLoadingStatus,
@@ -38,7 +38,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EmojiPlaces, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
+import { EmojiPlaces, generateE2eId, isBackgroundModeActive, isLinuxDesktop, isWindowsDesktop, SubPanelName, useBackgroundMode } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
@@ -49,10 +49,9 @@ import { ChannelTyping } from '../../channel/ChannelTyping';
 
 const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
-	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
-	const lastMessageState = useSelector((state) => selectLastSeenMessageStateByChannelId(state, channelId as string));
-
+	const lastMessage = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
+	const lastSeenTimeStamp = useAppSelector((state) => selectLastSeenDM(state, channelId));
 	const { markAsReadSeen } = useSeenMessagePool();
 
 	const isMounted = useRef(false);
@@ -61,17 +60,13 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const markMessageAsRead = useCallback(() => {
 		if (!lastMessage) return;
 
-		if (
-			lastMessage?.create_time_seconds &&
-			lastMessageState?.timestamp_seconds &&
-			lastMessage?.create_time_seconds >= lastMessageState?.timestamp_seconds
-		) {
+		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp) {
 			const mode =
 				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 
 			markAsReadSeen(lastMessage, mode, 0);
 		}
-	}, [lastMessage, markAsReadSeen, currentDmGroup, lastMessageState]);
+	}, [lastMessage, markAsReadSeen, currentDmGroup, lastSeenTimeStamp]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {
@@ -180,12 +175,26 @@ const DirectMessage = () => {
 		: 0;
 
 	const isDmChannel = useMemo(() => currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM, [currentDmGroup?.type]);
+
 	const isBlocked = useMemo(() => {
-		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM) {
-			return blockListUser?.some((user) => user?.user && user.user.id === (currentDmGroup?.user_ids?.[0] || ''));
+		if (
+			currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM &&
+			blockListUser &&
+			blockListUser.length > 0 &&
+			currentDmGroup?.user_ids?.[0] &&
+			userId
+		) {
+			const otherUserId = currentDmGroup.user_ids[0];
+
+			return blockListUser.some((friend) => {
+				if (!friend?.user?.id) return false;
+				const isBlockedByOther = friend.source_id === otherUserId && friend.user.id === userId;
+				const hasBlockedOther = friend.source_id === userId && friend.user.id === otherUserId;
+				return isBlockedByOther || hasBlockedOther;
+			});
 		}
 		return false;
-	}, [currentDmGroup?.type, currentDmGroup?.user_ids]);
+	}, [currentDmGroup?.type, currentDmGroup?.user_ids, blockListUser, userId]);
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const handleClose = useCallback(() => {}, []);
@@ -280,6 +289,7 @@ const DirectMessage = () => {
 								<div
 									style={{ height: 44 }}
 									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
+									data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 								>
 									You do not have permission to send message
 								</div>
