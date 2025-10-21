@@ -2,6 +2,7 @@ import { useInvite } from '@mezon/core';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { channelsActions, clansActions, inviteActions, selectInviteById, useAppDispatch } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -115,7 +116,8 @@ export default function InvitePage() {
 						<div className="flex items-center">
 							<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 							<span className="">
-								{Number(selectInvite?.member_count || 1).toLocaleString()} {t('invite.member', { count: selectInvite?.member_count || 1 })}
+								{Number(selectInvite?.member_count || 1).toLocaleString()}{' '}
+								{t('invite.member', { count: selectInvite?.member_count || 1 })}
 							</span>
 						</div>
 						{/* <div className="flex items-center">
@@ -137,6 +139,7 @@ export default function InvitePage() {
 					onClick={handleJoinChannel}
 					disabled={loading}
 					className={`text-white w-full py-[10px] text-base font-medium rounded-md ${loading ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary btn-primary-hover '}`}
+					data-e2e={generateE2eId('acceptModal.button.acceptInvite')}
 				>
 					{loading ? t('invite.joining') : t('invite.acceptInvite')}
 				</button>
