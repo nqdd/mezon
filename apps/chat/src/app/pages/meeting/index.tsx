@@ -8,8 +8,6 @@ import {
 	selectGuestAccessToken,
 	selectGuestUserId,
 	selectJoinCallExtStatus,
-	selectShowCamera,
-	selectShowMicrophone,
 	useAppDispatch,
 	voiceActions
 } from '@mezon/store';
@@ -132,8 +130,6 @@ export default function PreJoinCalling() {
 		}
 	}, [getJoinCallExtStatus]);
 
-	const showMicrophone = useSelector(selectShowMicrophone);
-	const showCamera = useSelector(selectShowCamera);
 	const serverUrl = process.env.NX_CHAT_APP_MEET_WS_URL;
 
 	const closePermissionsPopup = useCallback(() => {
@@ -215,7 +211,10 @@ export default function PreJoinCalling() {
 					id="livekitRoom"
 					key={getExternalToken}
 					audio={IS_MOBILE as boolean}
-					video={showCamera as boolean}
+					video={{
+						resolution: { width: 320, height: 180 },
+						frameRate: 24
+					}}
 					token={getExternalToken}
 					serverUrl={serverUrl}
 					data-lk-theme="default"

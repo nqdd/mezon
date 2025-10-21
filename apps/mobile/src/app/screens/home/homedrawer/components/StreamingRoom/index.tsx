@@ -30,26 +30,26 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 	const isTabletLandscape = useTabletLandscape();
 	const [isVisibleControl, setIsVisibleControl] = useState(true);
 	const [layout, setLayout] = useState(() => {
-		const window = Dimensions.get('window');
+		const { width, height } = Dimensions.get('screen');
 		return {
-			width: window.width,
-			height: window.height,
-			isLandscape: window.width > window.height
+			width,
+			height
 		};
 	});
 
 	useEffect(() => {
-		const subscription = Dimensions.addEventListener('change', ({ window }) => {
+		const subscription = Dimensions.addEventListener('change', () => {
+			const { width, height } = Dimensions.get('screen');
 			setLayout({
-				width: window.width,
-				height: window.height,
-				isLandscape: window.width > window.height
+				width,
+				height
 			});
 		});
-		return () => subscription?.remove();
-	}, []);
 
-	const { width, height, isLandscape } = layout;
+		return () => {
+			subscription && subscription.remove();
+		};
+	}, []);
 
 	const userId = useMemo(() => {
 		return load(STORAGE_MY_USER_ID);
@@ -89,8 +89,8 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 	return (
 		<View
 			style={{
-				width: isAnimationComplete ? width : size.s_100 * 2,
-				height: isAnimationComplete ? height : size.s_100,
+				width: isAnimationComplete ? layout.width : size.s_100 * 2,
+				height: isAnimationComplete ? layout.height : size.s_100,
 				backgroundColor: themeValue?.primary
 			}}
 		>
@@ -118,9 +118,9 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 								height: '60%'
 							}}
 						>
-							<StreamingScreenComponent />
+							<StreamingScreenComponent isAnimationComplete={true} />
 						</View>
-						<View style={[isLandscape && { marginTop: -size.s_28 }]}>
+						<View style={[layout.width > layout.height && { marginTop: -size.s_28 }]}>
 							<UserStreamingRoom streamChannelMember={streamChannelMember} />
 						</View>
 
@@ -153,7 +153,7 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 							height: '100%'
 						}}
 					>
-						<StreamingScreenComponent />
+						<StreamingScreenComponent isAnimationComplete={false} />
 					</View>
 				</View>
 			)}

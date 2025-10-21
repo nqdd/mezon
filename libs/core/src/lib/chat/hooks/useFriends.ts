@@ -109,7 +109,7 @@ export function useFriends() {
 						return false;
 					}
 					if (friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)) {
-						if (!Object.values(groupDmMember)?.some((user) => user.id === friend.id)) {
+						if (!Object.values(groupDmMember ?? [])?.some((user) => user?.id === friend?.id)) {
 							return friend;
 						}
 					}

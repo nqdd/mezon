@@ -49,7 +49,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 			}
 			if (
 				numberMemberInDmGroup === GROUP_CHAT_MAXIMUM_MEMBERS ||
-				selectedFriends.length === GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup
+				selectedFriends.length === GROUP_CHAT_MAXIMUM_MEMBERS - (numberMemberInDmGroup ?? 0)
 			) {
 				return prevSelectedFriends;
 			}
@@ -214,9 +214,11 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 			return friends.length > GROUP_CHAT_MAXIMUM_MEMBERS ? GROUP_CHAT_MAXIMUM_MEMBERS : friends.length;
 		}
 
+		if (numberMemberInDmGroup == null) return 0;
+
 		return numberMemberInDmGroup < GROUP_CHAT_MAXIMUM_MEMBERS
-			? GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup > listFriends.length
-				? listFriends.length
+			? GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup > (listFriends?.length ?? 0)
+				? (listFriends?.length ?? 0)
 				: GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup
 			: 0;
 	}, [friends]);

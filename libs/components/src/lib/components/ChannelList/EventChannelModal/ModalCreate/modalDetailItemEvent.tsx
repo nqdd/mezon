@@ -1,7 +1,6 @@
 import { useAppNavigation, useOnClickOutside } from '@mezon/core';
+import type { EventManagementEntity, RootState } from '@mezon/store';
 import {
-	EventManagementEntity,
-	RootState,
 	eventManagementActions,
 	selectChannelById,
 	selectChooseEvent,
@@ -13,7 +12,6 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
-import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -131,7 +129,6 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 	};
 
 	const redirectToVoice = () => {
-		console.log('redirectToVoice called!', channelVoice);
 		if (channelVoice && channelVoice.channel_id) {
 			const channelUrl = toChannelPage(channelVoice.channel_id as string, channelVoice.clan_id as string);
 			navigate(channelUrl);
@@ -175,14 +172,13 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 						);
 					}
 
-					if (hasVoiceChannel && !isPrivateEvent) {						
+					if (hasVoiceChannel && !isPrivateEvent) {
 						const linkProps = {
-									onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-										console.log('Voice channel clicked!');
-										handleStopPropagation(e);
-										redirectToVoice();
-									}
-								};
+							onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+								handleStopPropagation(e);
+								redirectToVoice();
+							}
+						};
 						return (
 							<a {...linkProps} className="flex gap-x-3 cursor-pointer items-center">
 								<Icons.Speaker />
@@ -214,9 +210,7 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 			</div>
 			<div className="flex items-center gap-x-3">
 				<img src={userCreate?.user?.avatar_url} alt={userCreate?.user?.avatar_url} className="size-5 rounded-full" />
-				<p>
-					{t('eventDetail.createdBy')} <span className="hover:underline">{userCreate?.user?.username}</span>
-				</p>
+				<p>{t('eventDetail.createdBy', { username: userCreate?.user?.username })}</p>
 			</div>
 			<div className="break-all" data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.description')}>
 				{event?.description}

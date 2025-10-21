@@ -25,7 +25,7 @@ export const MyQRCode = () => {
 	const styles = style(themeValue) as any;
 	const { t } = useTranslation(['profile']);
 	const userProfile = useSelector(selectAllAccount);
-	const { saveImageToCameraRoll } = useImage();
+	const { saveMediaToCameraRoll } = useImage();
 	const [activeTab, setActiveTab] = useState<TabType>('profile');
 	const [isGenerating, setIsGenerating] = useState<boolean>(true);
 	const [qrCode, setQrCode] = useState<QRCode>({ profile: '', transfer: '' });
@@ -84,11 +84,11 @@ export const MyQRCode = () => {
 			const qrCodeUri = qrCode?.['profile'];
 			if (!qrCodeUri) return;
 			const filePath = qrCodeUri.startsWith('file://') ? qrCodeUri : `file://${qrCodeUri}`;
-			await saveImageToCameraRoll(filePath, 'image', true, false);
+			await saveMediaToCameraRoll(filePath, 'image', true, false);
 		} catch (e) {
 			console.error('QR Code download error:', e);
 		}
-	}, [qrCode, saveImageToCameraRoll]);
+	}, [qrCode, saveMediaToCameraRoll]);
 
 	const handleShareQRCode = useCallback(async () => {
 		try {

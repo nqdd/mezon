@@ -16,6 +16,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_40,
 			backgroundColor: baseColor.green,
 			height: size.s_50,
+			width: size.s_200,
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
@@ -52,6 +53,33 @@ export const style = (colors: Attributes) =>
 			borderRadius: '100%',
 			backgroundColor: colors.tertiary,
 			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		controlContainerOuter: {
+			borderRadius: size.s_40,
+			marginTop: size.s_20,
+			marginBottom: size.s_10
+		},
+		controlContainerInner: {
+			gap: size.s_20,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingBottom: size.s_16
+		},
+		controlContainer: {
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'relative',
+			width: size.s_50,
+			height: size.s_50,
+			backgroundColor: 'transparent',
+			borderRadius: size.s_30
+		},
+		btnJoinVoiceContainer: {
+			flexDirection: 'column',
+			flex: 1,
+			paddingHorizontal: size.s_16,
 			alignItems: 'center'
 		}
 	});
