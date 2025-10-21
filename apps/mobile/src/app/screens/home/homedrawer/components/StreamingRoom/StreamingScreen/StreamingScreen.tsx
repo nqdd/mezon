@@ -21,7 +21,7 @@ export function StreamingScreen({ isAnimationComplete = true }: IStreamingScreen
 	const { t } = useTranslation(['streamingRoom']);
 
 	useEffect(() => {
-		InCallManager.setSpeakerphoneOn(false);
+		InCallManager.setSpeakerphoneOn(true);
 	}, []);
 	return (
 		<View style={styles.container}>
