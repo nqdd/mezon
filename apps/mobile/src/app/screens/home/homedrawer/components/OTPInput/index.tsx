@@ -124,6 +124,13 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 	const handleKeyPress = (e: any, index: number) => {
 		if (e.nativeEvent.key === 'Backspace' && otp[index] === '' && index > 0) {
 			inputRefs?.current?.[index - 1]?.focus();
+			inputRefs.current[index - 1].setNativeProps({ text: '' });
+			setOtp((prev) => {
+				const newOtp = [...prev];
+				newOtp[index - 1] = '';
+				onOtpChange(newOtp);
+				return newOtp;
+			});
 		}
 	};
 
