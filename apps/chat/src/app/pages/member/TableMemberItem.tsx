@@ -184,6 +184,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 			className="flex flex-row justify-between items-center h-[48px] border-b-[1px] border-b-theme-primary last:border-b-0"
 			onContextMenu={handleContextMenu}
 			ref={itemRef}
+			data-e2e={generateE2eId('clan_page.member_list')}
 		>
 			<div className="flex-3 p-1">
 				<div className="flex flex-row gap-2 items-center" data-e2e={generateE2eId('clan_page.member_list.user_info')}>
@@ -200,10 +201,13 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 							style={{
 								color: userRolesClan.sortedRoles[0]?.color || DEFAULT_ROLE_COLOR
 							}}
+							data-e2e={generateE2eId('clan_page.member_list.user_info.display_name')}
 						>
 							{HighlightMatchBold(displayName, searchQuery)}
 						</p>
-						<p className="text-[11px] ">{HighlightMatchBold(username, searchQuery)}</p>
+						<p className="text-[11px] " data-e2e={generateE2eId('clan_page.member_list.user_info.username')}>
+							{HighlightMatchBold(username, searchQuery)}
+						</p>
 					</div>
 				</div>
 			</div>
@@ -266,6 +270,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 							<span
 								title={t('addRole')}
 								className="inline-flex justify-center gap-x-1 w-6 aspect-square items-center rounded bg-item-theme  hoverIconBlackImportant ml-1 text-base"
+								data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.button')}
 							>
 								+
 							</span>
@@ -331,7 +336,11 @@ const ListOptionRole = ({
 						className="text-transparent size-3 rounded-full"
 						style={{ backgroundColor: rolesClanEntity[key].color || DEFAULT_ROLE_COLOR }}
 					/>
-					<span className="text-xs font-medium px-1 truncate flex-1 text-theme-primary" style={{ lineHeight: '15px' }}>
+					<span
+						className="text-xs font-medium px-1 truncate flex-1 text-theme-primary"
+						style={{ lineHeight: '15px' }}
+						data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.role_name')}
+					>
 						{rolesClanEntity[key].title}
 					</span>
 					<div className="relative flex flex-row justify-center">
@@ -343,6 +352,7 @@ const ListOptionRole = ({
 							key={key}
 							// Prevent click event propagation to parent to avoid double triggering
 							onClick={(e) => e.stopPropagation()}
+							data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.choose_role')}
 						/>
 						<Icons.Check className="absolute invisible peer-checked:visible forced-colors:hidden w-4 h-4 pointer-events-none" />
 					</div>
