@@ -72,10 +72,10 @@ export const style = (colors: Attributes) =>
 			position: 'relative',
 			width: size.s_50,
 			height: size.s_50,
-			backgroundColor: colors.secondaryWeight,
+			backgroundColor: colors.tertiary,
+			borderRadius: size.s_30,
 			borderWidth: 0.5,
-			borderColor: colors.textDisabled,
-			borderRadius: size.s_50
+			borderColor: colors.textDisabled
 		},
 		addPeopleBtn: {
 			padding: size.s_20,

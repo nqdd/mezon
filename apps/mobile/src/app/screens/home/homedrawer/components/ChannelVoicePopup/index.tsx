@@ -36,21 +36,31 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const [isGroupCall, setIsGroupCall] = useState(false);
 	const [participantsCount, setParticipantsCount] = useState(0);
 	const userProfile = useSelector(selectAllAccount);
+	const layoutRef = useRef({ width: 0, height: 0 });
 
-	const resetPosition = useCallback(() => {
+	const checkOrientation = () => {
+		const { width, height } = Dimensions.get('window');
+		layoutRef.current = { width, height };
+	};
+
+	const resetPosition = () => {
 		if (!isFullScreen.current && !isPiPMode) {
 			pan.setValue({ x: 0, y: 0 });
 		}
-	}, [isPiPMode, pan]);
+	};
 
 	useEffect(() => {
+		checkOrientation();
+
 		const subscription = Dimensions.addEventListener('change', () => {
+			checkOrientation();
 			resetPosition();
 		});
+
 		return () => {
 			subscription && subscription.remove();
 		};
-	}, [resetPosition]);
+	}, []);
 
 	const panResponder = useRef(
 		PanResponder.create({
@@ -70,13 +80,12 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 					if (Math.abs(gestureState?.dx) > 10 || Math.abs(gestureState?.dy) > 10) {
 						isDragging.current = true;
 					}
-					const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 					const offsetX = (pan?.x as any)?._offset || 0;
 					const offsetY = (pan?.y as any)?._offset || 0;
 
-					const dx = Math.max(-offsetX, Math.min(screenWidth - MINIMIZED_WIDTH - offsetX, gestureState?.dx));
-					const dy = Math.max(-offsetY, Math.min(screenHeight - MINIMIZED_HEIGHT - offsetY, gestureState?.dy));
+					const dx = Math.max(-offsetX, Math.min(layoutRef.current.width - MINIMIZED_WIDTH - offsetX, gestureState?.dx));
+					const dy = Math.max(-offsetY, Math.min(layoutRef.current.height - MINIMIZED_HEIGHT - offsetY, gestureState?.dy));
 
 					Animated.event([null, { dx: pan?.x, dy: pan?.y }], { useNativeDriver: false })(e, {
 						...gestureState,

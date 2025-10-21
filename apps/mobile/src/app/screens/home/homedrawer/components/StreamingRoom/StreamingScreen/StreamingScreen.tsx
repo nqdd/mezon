@@ -9,21 +9,30 @@ import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
 import Images from '../../../../../../../assets/Images';
 import { useWebRTCStream } from '../../../../../../components/StreamContext/StreamContext';
-export function StreamingScreen() {
+
+interface IStreamingScreenProps {
+	isAnimationComplete?: boolean;
+}
+
+export function StreamingScreen({ isAnimationComplete = true }: IStreamingScreenProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { isStream, isRemoteVideoStream, remoteStream } = useWebRTCStream();
 	const { t } = useTranslation(['streamingRoom']);
 
 	useEffect(() => {
-		InCallManager.setSpeakerphoneOn(true);
+		InCallManager.setSpeakerphoneOn(false);
 	}, []);
 	return (
 		<View style={styles.container}>
 			{remoteStream && isStream ? (
 				<View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
 					{!isRemoteVideoStream && (
-						<FastImage source={Images.RADIO_NCC8} style={{ width: '100%', height: '100%' }} resizeMode={'contain'} />
+						<FastImage
+							source={Images.RADIO_NCC8}
+							style={{ width: '100%', height: '100%' }}
+							resizeMode={isAnimationComplete ? 'contain' : 'cover'}
+						/>
 					)}
 					<RTCView streamURL={remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={true} objectFit={'cover'} />
 				</View>
