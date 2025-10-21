@@ -444,7 +444,7 @@ const ControlBar = ({
 								onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
 							/>
 						)}
-						{showCamera && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
+						{showCamera && isExternalCalling && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
 					</div>
 				)}
 				{visibleControls.screenShare &&
