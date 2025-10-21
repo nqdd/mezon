@@ -65,6 +65,7 @@
 	"hideNotificationDesc": "Khi bạn bỏ chọn ô này, tin nhắn sẽ xuất hiện với nội dung của nó.",
 	"showNotificationDesc": "Thông báo sẽ hiển thị mà không có nội dung chi tiết.",
 	"save": "Lưu",
+	"limitedPhotosAccess": "Chọn thêm ảnh",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",

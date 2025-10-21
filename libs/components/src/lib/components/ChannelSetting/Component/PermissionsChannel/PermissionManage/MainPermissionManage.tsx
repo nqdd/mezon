@@ -19,6 +19,11 @@ import type { ListPermissionHandle } from './ListPermission';
 import ListPermission from './ListPermission';
 import ListRoleMember from './ListRoleMember';
 
+export const ENTITY_TYPE = {
+	ROLE: 0,
+	USER: 1
+} as const;
+
 type MainPermissionManageProps = {
 	channelId: string;
 	setIsPrivateChannel: React.Dispatch<React.SetStateAction<boolean>>;
@@ -44,26 +49,29 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 		selectAllPermissionRoleChannel(
 			state,
 			channelId,
-			currentRoleId?.type === 0 ? currentRoleId.id : undefined,
-			currentRoleId?.type === 1 ? currentRoleId.id : undefined
+			currentRoleId?.type === ENTITY_TYPE.ROLE ? currentRoleId.id : undefined,
+			currentRoleId?.type === ENTITY_TYPE.USER ? currentRoleId.id : undefined
 		)
 	);
 	const rolesClan = useSelector(selectAllRolesClan);
 	const rolesInChannel = useSelector(selectRolesByChannelId(channelId));
 	const rawMembers = useSelector(selectAllUserChannel(channelId));
 	const currentClanId = useSelector(selectCurrentClanId);
-	const combinedArray = [
-		...rolesInChannel.map((role) => ({
-			id: role.id,
-			title: role.title,
-			type: 0
-		})),
-		...rawMembers.map((member) => ({
-			id: member.id,
-			title: member.user?.username,
-			type: 1
-		}))
-	];
+	const combinedArray = useMemo(
+		() => [
+			...rolesInChannel.map((role) => ({
+				id: role.id,
+				title: role.title,
+				type: ENTITY_TYPE.ROLE
+			})),
+			...rawMembers.map((member) => ({
+				id: member.id,
+				title: member.user?.username,
+				type: ENTITY_TYPE.USER
+			}))
+		],
+		[rolesInChannel, rawMembers]
+	);
 
 	const { maxPermissionId } = useMyRole();
 	const dispatch = useAppDispatch();
@@ -110,10 +118,19 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 
 	const handleSelectRole = useCallback(
 		(id: string, type: number) => {
+			setPermissions({});
 			setCurrentRoleId({ id, type });
+			listPermissionRef.current?.reset();
 		},
 		[setCurrentRoleId]
 	);
+
+	useEffect(() => {
+		if (!currentRoleId && combinedArray.length > 0) {
+			const firstItem = combinedArray[0];
+			handleSelectRole(firstItem.id, firstItem.type);
+		}
+	}, [combinedArray, currentRoleId, handleSelectRole]);
 
 	const handleReset = () => {
 		setPermissions({});
@@ -135,7 +152,7 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 				type: matchingRoleChannel ? (matchingRoleChannel.active ? TypeChoose.Tick : TypeChoose.Remove) : TypeChoose.Or
 			});
 		});
-		if (type === 0) {
+		if (type === ENTITY_TYPE.ROLE) {
 			await dispatch(
 				permissionRoleChannelActions.setPermissionRoleChannel({
 					channelId,
