@@ -96,7 +96,7 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 					src={avatarToDisplay}
 				/>
 				<div className="flex flex-wrap items-center gap-x-2 flex-1 min-w-0">
-					<div className="font-semibold text-blue-500 flex-shrink-0">{t('creator')}</div>
+					<div className="font-semibold color-mention flex-shrink-0">{t('creator')}</div>
 					<p className="break-words min-w-0">
 						{t('viewTopic')} {rplCount > 0 && `(${t('reply', { number: rplCount > 99 ? '99+' : rplCount })})`}
 					</p>
