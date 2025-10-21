@@ -1,0 +1,11 @@
+{
+  "description": "Một ứng dụng bên ngoài",
+  "subDescription": "muốn truy cập vào tài khoản Mezon của bạn",
+  "addToClan": "Thêm vào Clan",
+  "invite": "Ủy quyền",
+  "back": "Quay lại",
+  "successInstall": "Thêm ứng dụng vào clan thành công",
+  "errorInstall": "Lỗi khi thêm ứng dụng vào clan",
+  "selectClan": "Tìm kiếm Clan",
+  "placeholder": "Chọn một clan để mời bot/ứng dụng của bạn"
+}
