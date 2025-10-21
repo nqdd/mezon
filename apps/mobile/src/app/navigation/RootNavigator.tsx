@@ -131,6 +131,12 @@ const NavigationMain = memo(
 						parse: {
 							code: (code) => `${code}`
 						}
+					},
+					[`${APP_SCREEN.INSTALL_CLAN}`]: {
+						path: 'bot/install/:code',
+						parse: {
+							code: (code) => `${code}`
+						}
 					}
 				}
 			},

@@ -167,6 +167,13 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
+		} else if (path?.includes?.('/bot/install/')) {
+			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
+			if (applicationId) {
+				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
+					appId: applicationId
+				});
+			}
 		}
 	};
 
