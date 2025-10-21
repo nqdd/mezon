@@ -62,6 +62,17 @@ export const style = (colors: Attributes) =>
 			bottom: -5,
 			right: 5
 		},
+		unreadDot: {
+			backgroundColor: colors.text,
+			position: 'absolute',
+			borderRadius: size.s_8,
+			width: size.s_8,
+			height: size.s_8,
+			alignItems: 'center',
+			justifyContent: 'center',
+			bottom: size.s_16,
+			left: -size.s_4
+		},
 		badgeText: {
 			color: 'white',
 			fontWeight: 'bold',
