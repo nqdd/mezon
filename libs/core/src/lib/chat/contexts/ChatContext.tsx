@@ -381,6 +381,15 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(messagesActions.newMessage(mess));
 				} else {
 					dispatch(messagesActions.addNewMessage(mess));
+
+					if (message.topic_id && message.topic_id !== '0') {
+						dispatch(
+							messagesActions.updateTopicRplCount({
+								topicId: message.topic_id,
+								increment: true
+							})
+						);
+					}
 				}
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
 					const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
