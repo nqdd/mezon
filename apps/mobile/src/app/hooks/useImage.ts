@@ -154,8 +154,8 @@ export function useImage() {
 				content: desc || t('permissionNotification.photoDesc'),
 				confirmText: t('openSettings'),
 				onConfirm: () => {
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 					openAppSettings();
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				}
 			})
 		};

@@ -42,8 +42,8 @@ const ButtonToggleMic = () => {
 					content={t('permissionNotification.microphonePermissionDesc')}
 					confirmText={t('openSettings')}
 					onConfirm={() => {
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 						Linking.openSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 					}}
 				/>
 			)

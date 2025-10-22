@@ -108,8 +108,8 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 					content={desc || t('common:permissionNotification.photoDesc')}
 					confirmText={t('common:openSettings')}
 					onConfirm={() => {
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 						openAppSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 					}}
 				/>
 			)
@@ -353,8 +353,8 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 								content={t('pleaseAllowCamera')}
 								confirmText={t('common:openSettings')}
 								onConfirm={() => {
-									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 									Linking.openSettings();
+									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 								}}
 							/>
 						)

@@ -87,8 +87,8 @@ const ControlBottomBar = ({
 					content={t('permissionNotification.cameraPermissionDesc')}
 					confirmText={t('openSettings')}
 					onConfirm={() => {
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 						Linking.openSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 					}}
 				/>
 			)
