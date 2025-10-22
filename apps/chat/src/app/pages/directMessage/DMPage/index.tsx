@@ -23,6 +23,7 @@ import {
 	selectCurrentDM,
 	selectDirectById,
 	selectDmGroupCurrent,
+	selectDmGroupCurrentId,
 	selectHasKeyE2ee,
 	selectIsSearchMessage,
 	selectIsShowCreateThread,
@@ -109,6 +110,7 @@ function DirectSeenListener({ channelId, mode, currentChannel }: { channelId: st
 const DirectMessage = () => {
 	// TODO: move selector to store
 	const currentDirect = useSelector(selectCurrentDM);
+	const currentDirectId = useSelector(selectDmGroupCurrentId);
 	const directId = currentDirect?.id;
 	const type = currentDirect?.type;
 	const { draggingState, setDraggingState } = useDragAndDrop();
@@ -207,6 +209,16 @@ const DirectMessage = () => {
 		}
 	}, [directMessage, dispatch, hasKeyE2ee]);
 
+	useEffect(() => {
+		if (!currentDirect && currentDirectId) {
+			dispatch(
+				directActions.fetchDirectDetail({
+					directId: currentDirectId
+				})
+			);
+		}
+	}, []);
+
 	return (
 		<>
 			{draggingState && <FileUploadByDnD currentId={currentDmGroup?.channel_id ?? ''} />}
@@ -228,7 +240,7 @@ const DirectMessage = () => {
 								<ChannelMessages
 									clanId="0"
 									isDM={true}
-									channelId={directId ?? ''}
+									channelId={directId || currentDirectId || ''}
 									isPrivate={currentDmGroup?.channel_private}
 									channelLabel={currentDmGroup?.channel_label}
 									username={isDmChannel ? currentDmGroup?.usernames?.toString() : undefined}
