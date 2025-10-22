@@ -18,13 +18,13 @@
 	"changePassword": "Change Password",
 	"setPhoneNumber": "Set Phone Number",
 	"disableAccountAlert": {
-		"title": "Disable account",
+		"title": "Disable Account",
 		"description": "Are you sure you want to disable your account?",
 		"noConfirm": "No",
 		"yesConfirm": "Yes"
 	},
 	"deleteAccountAlert": {
-		"title": "Delete account",
+		"title": "Delete Account",
 		"description": "Are you sure you want to delete your account?",
 		"noConfirm": "No",
 		"yesConfirm": "Yes"

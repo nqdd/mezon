@@ -1,6 +1,8 @@
 {
 	"searchPlaceHolder": "Tìm kiếm",
 	"savedSuccessfully": "Đã lưu thành công",
+	"saveFailed": "Không thể lưu",
+	"yes": "Có",
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
 	"newMessage": "Tin nhắn mới",
@@ -255,5 +257,25 @@
 		"upload": "Tải lên",
 		"sticker": "nhãn dán",
 		"emoji": "biểu cảm"
+	},
+	"openSettings": "Mở cài đặt",
+	"permissionNotification": {
+		"photoTitle": "Quyền truy cập ảnh",
+		"photoDesc": "Ứng dụng cần quyền truy cập vào thư viện ảnh của bạn",
+		"notificationTitle": "Quyền truy cập thông báo",
+		"notificationError": "Quyền truy cập thông báo bị từ chối.",
+		"typeTitle": "{{type}} không khả dụng",
+		"typeDesc": "Cho phép Mezon truy cập vào {{type}} của bạn",
+		"endCallTitle": "Kết thúc cuộc gọi",
+		"endCallDesc": "Bạn có chắc chắn muốn kết thúc cuộc gọi không?",
+		"permissionRequired": "Yêu cầu quyền truy cập",
+		"microphoneRequiredDesc": "Vui lòng cho phép truy cập micrô.",
+		"cameraPermissionTitle": "Quyền truy cập camera",
+		"cameraPermissionDesc": "Vui lòng cho phép truy cập camera trong cài đặt thiết bị của bạn để sử dụng tính năng này.",
+		"microphonePermissionTitle": "Quyền truy cập micrô",
+		"microphonePermissionDesc": "Vui lòng cho phép truy cập micrô trong cài đặt thiết bị của bạn để sử dụng tính năng này.",
+		"locationPermissionTitle": "Quyền truy cập vị trí",
+		"locationPermissionDesc": "Mezon cần quyền truy cập vị trí của bạn.",
+		"permissionDenied": "Quyền truy cập bị từ chối"
 	}
 }

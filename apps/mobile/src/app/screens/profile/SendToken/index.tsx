@@ -21,7 +21,7 @@ import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -54,7 +54,7 @@ const formatTokenAmount = (amount: any) => {
 
 const ITEM_HEIGHT = size.s_60;
 export const SendTokenScreen = ({ navigation, route }: any) => {
-	const { t } = useTranslation(['token']);
+	const { t } = useTranslation(['token', 'common']);
 	const { t: tMsg } = useTranslation(['message']);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -400,13 +400,25 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const dataUri = await viewToSnapshotRef?.current?.capture?.();
 			if (!dataUri) {
-				Alert.alert('Failed to save image');
+				Toast.show({
+					type: 'error',
+					text1: t('common:saveFailed')
+				});
 				return;
 			}
 			await saveMediaToCameraRoll(`file://${dataUri}`, 'png');
-			Alert.alert('Save image successfully');
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('common:savedSuccessfully'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} />
+				}
+			});
 		} catch (error) {
-			Alert.alert('Failed to save image');
+			Toast.show({
+				type: 'error',
+				text1: t('common:saveFailed')
+			});
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
 	};
