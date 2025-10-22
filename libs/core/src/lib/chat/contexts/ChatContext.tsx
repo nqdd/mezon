@@ -2147,18 +2147,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onblockfriend = useCallback(
 		(blockFriend: BlockFriend) => {
-			if (!blockFriend?.user_id) {
+			if (!blockFriend?.user_id || !userId) {
 				return;
 			}
 			dispatch(
 				friendsActions.updateFriendState({
 					userId: blockFriend.user_id,
 					friendState: EStateFriend.BLOCK,
-					sourceId: blockFriend.user_id
+					sourceId: userId
 				})
 			);
 		},
-		[dispatch]
+		[dispatch, userId]
 	);
 
 	const onunblockfriend = useCallback(
@@ -2169,8 +2169,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			dispatch(
 				friendsActions.updateFriendState({
 					userId: unblockFriend.user_id,
-					friendState: EStateFriend.FRIEND,
-					sourceId: unblockFriend.user_id
+					friendState: EStateFriend.FRIEND
 				})
 			);
 		},
