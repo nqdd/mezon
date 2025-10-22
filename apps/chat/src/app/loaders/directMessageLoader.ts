@@ -29,6 +29,7 @@ export const directMessageLoader: CustomLoaderFunction = async ({ params, dispat
 	);
 	dispatch(appActions.setHistory(`/chat/direct/message/${directId}/${type}`));
 	dispatch(channelsActions.setPreviousChannels({ clanId: '0', channelId: directId }));
+	dispatch(directActions.setDmGroupCurrentId(directId));
 	notificationService.setCurrentChannelId(directId);
 
 	return null;
