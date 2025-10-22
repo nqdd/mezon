@@ -1,6 +1,14 @@
 import { useFriends } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { RootState, friendsActions, getStore, requestAddFriendParam, selectAllAccount, selectStatusSentMobile } from '@mezon/store-mobile';
+import {
+	EStateFriend,
+	RootState,
+	friendsActions,
+	getStore,
+	requestAddFriendParam,
+	selectAllAccount,
+	selectStatusSentMobile
+} from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StatusBar, Text, TextInput, View } from 'react-native';
@@ -22,14 +30,14 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 	const styles = style(themeValue);
 	const { isShow, onClose } = props;
 	const userProfile = useSelector(selectAllAccount);
-	const { addFriend } = useFriends();
+	const { addFriend, friends } = useFriends();
 	const dispatch = useDispatch();
 	const [visibleModal, setVisibleModal] = useState<boolean>(false);
 	const [requestAddFriend, setRequestAddFriend] = useState<requestAddFriendParam>({
 		usernames: [],
 		ids: []
 	});
-	const { t } = useTranslation('friends');
+	const { t } = useTranslation(['friends', 'friendsPage']);
 	const inputRef = useRef<TextInput>(null);
 
 	useEffect(() => {
@@ -80,6 +88,24 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 		if (inputRef?.current) {
 			inputRef.current.blur();
 		}
+
+		const friend = friends?.find((u) => u?.user?.username === firstUsername);
+
+		if (friend?.state === EStateFriend.FRIEND) {
+			Toast.show({
+				type: 'error',
+				text1: t('friendsPage:addFriendModal.alreadyFriends')
+			});
+			return;
+		}
+		if (friend?.state === EStateFriend.OTHER_PENDING) {
+			Toast.show({
+				type: 'error',
+				text1: t('friendsPage:addFriendModal.waitAccept')
+			});
+			return;
+		}
+
 		await addFriend(requestAddFriend);
 		showAddFriendToast();
 	};
