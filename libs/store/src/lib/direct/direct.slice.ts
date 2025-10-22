@@ -392,6 +392,7 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		onlines: [true],
 		active: ActiveDm.OPEN_DM,
 		usernames: [message.username as string],
+		display_names: [message.display_name as string],
 		creator_name: message.username as string,
 		create_time_seconds: message.create_time_seconds,
 		update_time_seconds: message.create_time_seconds
@@ -742,7 +743,10 @@ export const directSlice = createSlice({
 					changes = {
 						...currentData,
 						last_sent_message: data?.last_sent_message,
-						update_time_seconds: data?.update_time_seconds
+						update_time_seconds: data?.update_time_seconds,
+						display_names: data?.display_names,
+						usernames: data?.usernames,
+						user_ids: data?.user_ids,
 					};
 				} else {
 					changes = {
