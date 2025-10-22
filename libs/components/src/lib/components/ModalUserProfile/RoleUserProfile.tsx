@@ -13,7 +13,7 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, EVERYONE_ROLE_TITLE } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, EVERYONE_ROLE_TITLE, generateE2eId } from '@mezon/utils';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -246,7 +246,11 @@ const RoleClanItem = ({
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			)}
-			<span className="text-xs font-medium truncate overflow-hidden max-w-[120px] whitespace-nowrap" title={role.title}>
+			<span
+				className="text-xs font-medium truncate overflow-hidden max-w-[120px] whitespace-nowrap"
+				title={role.title}
+				data-e2e={generateE2eId('clan_page.channel_list.members.role.role_name')}
+			>
 				{' '}
 				{role.title}{' '}
 			</span>
