@@ -162,7 +162,7 @@ import type {
 	WebrtcSignalingFwd
 } from 'mezon-js';
 import { ChannelStreamMode, ChannelType, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
-import type { ApiChannelDescription, ApiCreateEventRequest, ApiGiveCoffeeEvent, ApiMessageReaction, ApiNotification } from 'mezon-js/api.gen';
+import type { ApiCreateEventRequest, ApiGiveCoffeeEvent, ApiMessageReaction, ApiNotification } from 'mezon-js/api.gen';
 import type {
 	ApiChannelMessageHeader,
 	ApiClanEmoji,
@@ -780,11 +780,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							const parentChannelId = currentChannel?.parent_id;
 							if (parentChannelId) {
 								navigate(`/chat/clans/${clanId}/channels/${parentChannelId}`);
-							} else {
-								navigate(`/chat/clans/${clanId}`);
+								return;
 							}
+						}
+						const defaultChannelId = selectDefaultChannelIdByClanId(store.getState() as unknown as RootState, clanId as string);
+						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
+						const fallbackChannelId = allChannels.find((ch) => ch.clan_id === clanId && !checkIsThread(ch))?.id;
+
+						const redirectChannelId = defaultChannelId || fallbackChannelId;
+
+						if (redirectChannelId) {
+							navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
 						} else {
-							navigate(`/chat/clans/${clanId}`);
+							navigate(`/chat/clans/${clanId}/member-safety`);
 						}
 					}
 					if (directId === user.channel_id) {
@@ -1533,14 +1541,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(threadsActions.remove(channelDeleted.channel_id));
-
-				dispatch(
-					threadsActions.updateCacheOnThreadCreation({
-						clanId: channelDeleted.clan_id,
-						channelId: channelDeleted?.parent_id || '',
-						defaultThreadList: newAllThreads as ApiChannelDescription[]
-					})
-				);
 
 				return;
 			}
@@ -2656,3 +2656,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
+
