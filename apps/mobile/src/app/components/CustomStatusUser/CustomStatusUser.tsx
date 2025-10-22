@@ -15,7 +15,7 @@ interface ICustomStatusUserProps {
 	onPressSetCustomStatus?: () => void;
 	userStatus?: string;
 	userCustomStatus?: string;
-	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
+	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => Promise<void>;
 }
 
 export enum EUserStatus {
@@ -118,9 +118,9 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 							onPress: () => onPressSetCustomStatus(),
 							component: localCustomStatus ? (
 								<Pressable
-									onPress={() => {
+									onPress={async () => {
+										await handleCustomUserStatus('', ETypeCustomUserStatus.Close);
 										setLocalCustomStatus('');
-										handleCustomUserStatus('', ETypeCustomUserStatus.Close);
 									}}
 								>
 									<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.textStrong} />
