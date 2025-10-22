@@ -2,9 +2,10 @@ import { MemberProvider } from '@mezon/core';
 import { onboardingActions, selectCurrentClan, selectFormOnboarding, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ApiOnboardingContent } from 'mezon-js/api.gen';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -13,7 +14,6 @@ import ModalSaveChanges from '../ClanSettingOverview/ModalSaveChanges';
 import GuideItemLayout from './GuideItemLayout';
 import ClanGuideSetting from './Mission/ClanGuideSetting';
 import Questions from './Questions/Questions';
-import { generateE2eId } from '@mezon/utils';
 
 export enum EOnboardingStep {
 	QUESTION,
@@ -297,10 +297,6 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 			onCloseSetting();
 		}
 	};
-
-	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClan?.id as string }));
-	}, [currentClan, dispatch]);
 
 	return (
 		<div className="flex flex-col gap-6 flex-1">
