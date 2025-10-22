@@ -209,15 +209,22 @@ function AllTabContent({ message, subject, category, senderId }: IMentionTabCont
 								isTokenClickAble={false}
 								isJumMessageEnabled={false}
 							/>
-							{Array.isArray(message.attachments) && (
-								<div className="max-h-[200px] overflow-hidden">
-									<div style={{ transform: 'scale(0.7)', transformOrigin: 'top left' }}>
-										<MessageAttachment
-											mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
-											message={message}
-											defaultMaxWidth={TOPBARS_MAX_WIDTH}
-										/>
+							{Array.isArray(message.attachments) && message.attachments.length > 0 && (
+								<div>
+									<div className="max-h-[150px] max-w-[150px] overflow-hidden rounded-lg">
+										<div>
+											<MessageAttachment
+												mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
+												message={{ ...message, attachments: [message.attachments[0]] }}
+												defaultMaxWidth={TOPBARS_MAX_WIDTH}
+											/>
+										</div>
 									</div>
+									{message.attachments.length > 1 && (
+										<div className="text-xs text-zinc-400 mt-1 ml-1">
+											+{message.attachments.length - 1} {t(message.attachments.length - 1 === 1 ? 'moreFile' : 'moreFiles')}
+										</div>
+									)}
 								</div>
 							)}
 						</div>
