@@ -35,6 +35,11 @@ export const DATA_E2E_IDENTIFIER = {
 		box: {
 			thread: '',
 			topic: ''
+		},
+		header: {
+			button: {
+				close: ''
+			}
 		}
 	},
 	panel: {
@@ -444,7 +449,8 @@ export const DATA_E2E_IDENTIFIER = {
 									create_thread: ''
 								}
 							}
-						}
+						},
+						item: ''
 					},
 					chat: ''
 				}
