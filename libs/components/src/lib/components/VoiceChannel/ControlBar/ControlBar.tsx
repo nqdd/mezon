@@ -29,6 +29,7 @@ import SoundSquare from '../../GifsStickersEmojis/SoundSquare';
 import ScreenSelectionModal from '../../ScreenSelectionModal/ScreenSelectionModal';
 import type { ReactionChannelInfo } from '../MyVideoConference/Reaction/types';
 import { useSendReaction } from '../MyVideoConference/Reaction/useSendReaction';
+import { BackgroundEffectsMenu } from './BackgroundEffectMenu';
 import { MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
 import { ScreenShareToggleButton } from './TrackToggle/ScreenShareToggleButton';
 import { TrackToggle } from './TrackToggle/TrackToggle';
@@ -443,6 +444,7 @@ const ControlBar = ({
 								onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
 							/>
 						)}
+						{showCamera && isExternalCalling && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
 					</div>
 				)}
 				{visibleControls.screenShare &&

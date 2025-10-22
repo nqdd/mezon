@@ -162,7 +162,7 @@ export function useImage() {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
-	const saveImageToCameraRoll = useCallback(
+	const saveMediaToCameraRoll = useCallback(
 		async (filePath: string, type: string, isShowSuccessToast = true, isUnlink = true) => {
 			try {
 				const hasPermission = await checkAndRequestPermission();
@@ -195,7 +195,7 @@ export function useImage() {
 
 	return {
 		downloadImage,
-		saveImageToCameraRoll,
+		saveMediaToCameraRoll,
 		getImageAsBase64OrFile
 	};
 }

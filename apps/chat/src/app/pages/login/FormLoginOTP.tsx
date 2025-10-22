@@ -76,13 +76,14 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 		setOtp(Array(6).fill(''));
 		setErrors({});
 		setCount(0);
+		setTimeout(() => setStep(null), 1000);
 	};
 
 	const disabled = !!errors.otp || !email || !otp;
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-2 flex flex-col justify-center items-center flex-1 relative">
-			<div className="flex flex-col justify-center !h-64">
+			<div className="flex flex-col justify-center !h-64 w-full">
 				<div className="flex overflow-x-hidden items-center gap-2">
 					{step && (
 						<div className="absolute left-0 top-0 flex gap-1" onClick={handleBackStep}>
@@ -108,7 +109,7 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 						</div>
 						<div className="min-h-[20px]">{errors.email && <FormError message={errors.email} />}</div>
 					</div>
-					<div className={`flex flex-col w-full shrink-0 ${step === null ? '' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
+					<div className={`flex flex-col w-full shrink-0 ${step === null ? 'hidden' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
 						<div className={`flex flex-col gap-2 h-20 opacity-100`}>
 							<label className="block text-sm font-medium text-gray-900 dark:text-gray-200">
 								{t('login.otp')}

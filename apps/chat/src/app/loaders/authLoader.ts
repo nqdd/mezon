@@ -5,6 +5,7 @@ import {
 	clansActions,
 	directActions,
 	emojiRecentActions,
+	emojiSuggestionActions,
 	friendsActions,
 	getStore,
 	listChannelsByUserActions,
@@ -198,6 +199,7 @@ export const authLoader: CustomLoaderFunction = async ({ dispatch, initialPath }
 	dispatch(friendsActions.fetchListFriends({}));
 	dispatch(directActions.fetchDirectMessage({}));
 	dispatch(emojiRecentActions.fetchEmojiRecent({}));
+	dispatch(emojiSuggestionActions.fetchEmoji({ clanId: '0' }));
 	// check network not connect
 	if (!navigator.onLine) {
 		const splashScreen = document.getElementById('splash-screen');

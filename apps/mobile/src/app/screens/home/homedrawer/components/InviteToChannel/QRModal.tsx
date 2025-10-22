@@ -20,7 +20,7 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 	const currentClan = useSelector(selectCurrentClan);
 	const { t } = useTranslation(['inviteToChannel']);
 	const [qrCodeUri, setQrCodeUri] = useState<string>('');
-	const { saveImageToCameraRoll } = useImage();
+	const { saveMediaToCameraRoll } = useImage();
 
 	const qrCodeCache = useRef<Map<string, string>>(new Map());
 
@@ -54,7 +54,7 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 		try {
 			if (!qrCodeUri) return;
 			const filePath = qrCodeUri.startsWith('file://') ? qrCodeUri : `file://${qrCodeUri}`;
-			await saveImageToCameraRoll(filePath, 'image', true);
+			await saveMediaToCameraRoll(filePath, 'image', true);
 		} catch (e) {
 			console.log(t('qrModal.downloadError'), e);
 		}
