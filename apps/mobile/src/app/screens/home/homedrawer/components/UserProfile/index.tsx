@@ -10,9 +10,11 @@ import {
 	getStore,
 	selectAllAccount,
 	selectAllRolesClan,
+	selectChannelById,
 	selectDirectsOpenlist,
 	selectFriendById,
 	selectMemberClanByUserId,
+	selectStatusInVoice,
 	selectStatusSentMobile,
 	useAppDispatch,
 	useAppSelector
@@ -108,6 +110,8 @@ const UserProfile = React.memo(
 		const listDM = useSelector(selectDirectsOpenlist);
 		const getStatus = useMemberStatus(userById?.id || '');
 		const [isShowPendingContent, setIsShowPendingContent] = useState(false);
+		const inVoiceUser = useSelector((state) => selectStatusInVoice(state, userId || user?.id || ''));
+		const voiceChannel = useSelector((state) => selectChannelById(state, inVoiceUser || ''));
 		const dispatch = useAppDispatch();
 		const dmChannel = useMemo(() => {
 			return listDM?.find((dm) => dm?.id === directId);
@@ -282,6 +286,10 @@ const UserProfile = React.memo(
 				onClose();
 			}
 			directMessageWithUser(userId || user?.id);
+		};
+
+		const navigateToChannelVoice = async () => {
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel: voiceChannel });
 		};
 
 		const handleCallUser = useCallback(
@@ -605,6 +613,30 @@ const UserProfile = React.memo(
 							</View>
 						)}
 					</View>
+
+					{!isDMGroup && !!voiceChannel && (
+						<View style={[styles.userInfo]}>
+							<Text style={[styles.actionText, { flexShrink: 1, marginBottom: size.s_10 }]} numberOfLines={1}>
+								{t('voiceInfo.inVoice')}
+							</Text>
+							<View style={[styles.wrapManageVoice, { marginBottom: size.s_16 }]}>
+								<MezonIconCDN icon={IconCDN.channelVoice} color={themeValue.text} width={size.s_18} height={size.s_18} />
+								<Text style={[styles.actionText, { flexShrink: 1 }]} numberOfLines={1}>
+									{voiceChannel.channel_label}
+								</Text>
+							</View>
+							<TouchableOpacity
+								onPress={navigateToChannelVoice}
+								style={
+									styles.voiceJoinButton
+								}
+							>
+								<Text style={[styles.actionText, { flexShrink: 1, color: baseColor.white }]} numberOfLines={1}>
+									{t('voiceInfo.joinVoice')}
+								</Text>
+							</TouchableOpacity>
+						</View>
+					)}
 
 					{isShowUserContent && (
 						<View style={[!isDMGroup && styles.roleGroup]}>
