@@ -3,7 +3,6 @@ import type { EventManagementOnGogoing } from '@mezon/store';
 import {
 	channelsActions,
 	eventManagementActions,
-	onboardingActions,
 	selectCurrentChannelId,
 	selectCurrentClan,
 	selectCurrentClanId,
@@ -20,7 +19,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DONE_ONBOARDING_STATUS, EPermission, generateE2eId } from '@mezon/utils';
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,13 +67,6 @@ export const Events = memo(() => {
 
 	const dispatch = useAppDispatch();
 	const selectUserProcessing = useSelector((state) => selectProcessingByClan(state, currentClan?.clan_id as string));
-	useEffect(() => {
-		if (currentClan?.is_onboarding) {
-			dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId as string }));
-			dispatch(onboardingActions.fetchProcessingOnboarding({ clan_id: currentClanId as string }));
-		}
-	}, [currentClan?.is_onboarding, currentClan]);
-
 	const checkPreviewMode = useMemo(() => {
 		if (previewMode?.open && previewMode.clanId === currentClanId) {
 			return true;
@@ -218,15 +210,10 @@ const OnboardingGetStart = ({ link, clanId }: { link: string; clanId: string }) 
 	const completionPercentage = useMemo(() => {
 		return missionDone ? (missionDone / missionSum) * 100 - 100 : -97;
 	}, [missionDone, missionSum]);
-	const dispatch = useAppDispatch();
 	const { navigate } = useAppNavigation();
 	const handleNavigate = () => {
 		navigate(link);
 	};
-
-	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: clanId }));
-	}, [clanId, dispatch]);
 
 	return (
 		<div className="w-full h-12 flex flex-col gap-2 relative px-2" onClick={handleNavigate}>
