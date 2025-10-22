@@ -13,9 +13,11 @@ import { clansActions, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { Track, createLocalVideoTrack } from 'livekit-client';
 import React, { useEffect } from 'react';
-import { Alert, DeviceEventEmitter, Linking, NativeModules, Platform, TouchableOpacity, View, findNodeHandle } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { DeviceEventEmitter, Linking, Platform, TouchableOpacity, View } from 'react-native';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
@@ -47,6 +49,7 @@ const ControlBottomBar = ({
 	const { isCameraEnabled, isScreenShareEnabled, localParticipant } = useLocalParticipant();
 	const screenCaptureRef = React.useRef(null);
 	const insets = useSafeAreaInsets();
+	const { t } = useTranslation(['common']);
 
 	useEffect(() => {
 		if (localParticipant) {
@@ -75,16 +78,22 @@ const ControlBottomBar = ({
 		}
 		return false;
 	};
+
 	const showPermissionCameraAlert = () => {
-		Alert.alert('Camera Permission Required', 'Please allow camera access in your device settings to use this feature.', [
-			{ text: 'Cancel', style: 'cancel' },
-			{
-				text: 'Open Settings',
-				onPress: () => {
-					Linking.openSettings();
-				}
-			}
-		]);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('permissionNotification.cameraPermissionTitle')}
+					content={t('permissionNotification.cameraPermissionDesc')}
+					confirmText={t('openSettings')}
+					onConfirm={() => {
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+						Linking.openSettings();
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleToggleCamera = async () => {

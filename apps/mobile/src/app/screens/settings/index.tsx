@@ -1,4 +1,5 @@
 import {
+	ActionEmitEvent,
 	debounce,
 	remove,
 	STORAGE_CHANNEL_CURRENT_CACHE,
@@ -21,9 +22,10 @@ import {
 import { sleep } from '@mezon/utils';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Platform, ScrollView, View } from 'react-native';
+import { DeviceEventEmitter, Platform, ScrollView, View } from 'react-native';
 import WebView from 'react-native-webview';
 import { useSelector } from 'react-redux';
+import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
 import MezonMenu from '../../componentUI/MezonMenu';
@@ -72,19 +74,21 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	};
 
 	const confirmLogout = () => {
-		Alert.alert(
-			t('logOut'),
-			t('logOutPopup.description'),
-			[
-				{
-					text: t('logOutPopup.noConfirm'),
-					onPress: () => {},
-					style: 'cancel'
-				},
-				{ text: t('logOutPopup.yesConfirm'), onPress: () => logoutRedirect() }
-			],
-			{ cancelable: false }
-		);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('logOut')}
+					content={t('logOutPopup.description')}
+					confirmText={t('logOutPopup.yesConfirm')}
+					isDanger
+					onConfirm={() => {
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+						logoutRedirect();
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const AccountMenu = useMemo(

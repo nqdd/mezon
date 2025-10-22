@@ -1,5 +1,6 @@
 import { useAuth } from '@mezon/core';
-import { baseColor, size } from '@mezon/mobile-ui';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { size } from '@mezon/mobile-ui';
 import { appActions, authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
@@ -7,8 +8,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	ActivityIndicator,
-	Alert,
 	AppState,
+	DeviceEventEmitter,
 	Dimensions,
 	Platform,
 	ScrollView,
@@ -21,8 +22,8 @@ import {
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import MezonIconCDN from '../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../constants/icon_cdn';
+import MezonConfirm from '../../../componentUI/MezonConfirm';
+import ModalRootListener from '../../../components/ModalRootListener';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import OTPInput from '../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
@@ -200,28 +201,23 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	};
 
 	const handleChangeEmail = () => {
-		Alert.alert(
-			email ? t('otpVerify.changeEmailTitle') : t('otpVerify.changePhone'),
-			email ? t('otpVerify.changeEmailMessage') : t('otpVerify.changePhoneMessage'),
-			[
-				{
-					text: t('otpVerify.cancel'),
-					style: 'cancel'
-				},
-				{
-					text: t('otpVerify.confirm'),
-					style: 'destructive',
-					onPress: () => {
+		const data = {
+			children: (
+				<MezonConfirm
+					title={email ? t('otpVerify.changeEmailTitle') : t('otpVerify.changePhone')}
+					content={email ? t('otpVerify.changeEmailMessage') : t('otpVerify.changePhoneMessage')}
+					confirmText={t('otpVerify.confirm')}
+					onConfirm={() => {
 						if (timerRef.current) {
 							clearInterval(timerRef.current);
 							timerRef.current = null;
 						}
 						navigation.goBack();
-					}
-				}
-			],
-			{ cancelable: true }
-		);
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleOtpChange = useCallback(
@@ -301,6 +297,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 					</View>
 				</View>
 			</KeyboardAvoidingView>
+			<ModalRootListener />
 		</ScrollView>
 	);
 };

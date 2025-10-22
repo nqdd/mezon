@@ -3,9 +3,9 @@ import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { rolesClanActions, selectUserMaxPermissionLevel, useAppDispatch } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, FlatList, Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../componentUI/MezonConfirm';
@@ -31,7 +31,7 @@ type RoleDetailScreen = typeof APP_SCREEN.MENU_CLAN.ROLE_DETAIL;
 export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetailScreen>) => {
 	const clanRole = route.params?.role;
 	const roleId = clanRole?.id;
-	const { t } = useTranslation('clanRoles');
+	const { t } = useTranslation(['clanRoles', 'confirmations', 'common']);
 	const [originRoleName, setOriginRoleName] = useState('');
 	const [currentRoleName, setCurrentRoleName] = useState('');
 	const { themeValue } = useTheme();
@@ -98,29 +98,29 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 	}, [isNotChange, t, navigation, handleSave]);
 
 	const deleteRole = async () => {
-		Alert.alert('Delete Role', 'Are you sure you want to delete this role?', [
-			{
-				text: 'No',
-				style: 'cancel'
-			},
-			{
-				text: 'Yes',
-				onPress: async () => {
-					const response = await dispatch(rolesClanActions.fetchDeleteRole({ roleId: clanRole?.id, clanId: clanRole?.clan_id }));
-					if (response?.payload) {
-						navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
-					} else {
-						Toast.show({
-							type: 'error',
-							props: {
-								text2: t('failed'),
-								leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
-							}
-						});
-					}
-				}
-			}
-		]);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('confirmations:deleteRole.title')}
+					content={t('confirmations:deleteRole.message')}
+					confirmText={t('confirmations:deleteRole.confirm')}
+					isDanger
+					onConfirm={async () => {
+						const response = await dispatch(rolesClanActions.fetchDeleteRole({ roleId: clanRole?.id, clanId: clanRole?.clan_id }));
+						if (response?.payload) {
+							navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
+						} else {
+							Toast.show({
+								type: 'error',
+								text1: t('common:saveFailed')
+							});
+						}
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	useEffect(() => {

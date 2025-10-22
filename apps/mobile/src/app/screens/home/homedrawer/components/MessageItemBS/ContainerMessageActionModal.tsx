@@ -46,7 +46,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Text, View } from 'react-native';
+import { DeviceEventEmitter, Text, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
@@ -291,26 +291,24 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 
 	const handleActionDeleteMessage = () => {
 		onClose();
-		Alert.alert(
-			'Delete Message',
-			'Are you sure you want to delete this message?',
-			[
-				{
-					text: 'No',
-					onPress: () => console.log('Cancel Pressed'),
-					style: 'cancel'
-				},
-				{
-					text: 'Yes',
-					onPress: () =>
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('deleteMessageModal.title')}
+					content={t('deleteMessageModal.deleteMessageDescription')}
+					confirmText={t('deleteMessageModal.delete')}
+					isDanger
+					onConfirm={() => {
 						onConfirmAction({
 							type: EMessageActionType.DeleteMessage,
 							message
-						})
-				}
-			],
-			{ cancelable: false }
-		);
+						});
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleActionPinMessage = () => {
