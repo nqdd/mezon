@@ -110,9 +110,9 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	}, [isVisibleAddStatusUserModal]);
 
 	const handleCustomUserStatus = useCallback(
-		(customStatus = '', type: ETypeCustomUserStatus, duration?: number, noClearStatus?: boolean) => {
+		async (customStatus = '', type: ETypeCustomUserStatus, duration?: number, noClearStatus?: boolean) => {
 			setIsVisibleAddStatusUserModal(false);
-			dispatch(
+			await dispatch(
 				channelMembersActions.updateCustomStatus({
 					clanId: currentClanId ?? '',
 					customStatus,
@@ -120,6 +120,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					noClear: noClearStatus
 				})
 			);
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_UPDATE_CUSTOM_STATUS, customStatus);
 		},
 		[currentClanId, dispatch]
 	);

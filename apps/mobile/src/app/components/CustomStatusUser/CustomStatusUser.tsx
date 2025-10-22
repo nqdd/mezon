@@ -1,9 +1,10 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { accountActions, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
 import MezonOption, { IMezonOptionData } from '../../componentUI/MezonOption';
@@ -28,9 +29,20 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 	const { t } = useTranslation(['customUserStatus']);
 	const dispatch = useAppDispatch();
 	const { dismiss } = useBottomSheetModal();
+	const [localCustomStatus, setLocalCustomStatus] = useState<string>(userCustomStatus || '');
 
 	const { themeValue } = useTheme();
 	const [userStatusOption, setUserStatusOption] = useState<string>(EUserStatus.ONLINE);
+
+	useEffect(() => {
+		const subscription = DeviceEventEmitter.addListener(ActionEmitEvent.ON_UPDATE_CUSTOM_STATUS, (data: string) => {
+			setLocalCustomStatus(data);
+		});
+
+		return () => {
+			subscription && subscription.remove();
+		};
+	}, []);
 
 	useEffect(() => {
 		switch (userStatus) {
@@ -101,11 +113,16 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 				{
 					items: [
 						{
-							title: userCustomStatus ? userCustomStatus : t('setCustomStatus'),
+							title: localCustomStatus ? localCustomStatus : t('setCustomStatus'),
 							icon: <MezonIconCDN icon={IconCDN.reactionIcon} height={20} width={20} color={themeValue.textDisabled} />,
 							onPress: () => onPressSetCustomStatus(),
-							component: userCustomStatus ? (
-								<Pressable onPress={() => handleCustomUserStatus('', ETypeCustomUserStatus.Close)}>
+							component: localCustomStatus ? (
+								<Pressable
+									onPress={() => {
+										setLocalCustomStatus('');
+										handleCustomUserStatus('', ETypeCustomUserStatus.Close);
+									}}
+								>
 									<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.textStrong} />
 								</Pressable>
 							) : null
@@ -113,7 +130,7 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 					]
 				}
 			] as IMezonMenuSectionProps[],
-		[handleCustomUserStatus, onPressSetCustomStatus, t, themeValue.textDisabled, themeValue.textStrong, userCustomStatus]
+		[handleCustomUserStatus, onPressSetCustomStatus, t, themeValue.textDisabled, themeValue.textStrong, localCustomStatus]
 	);
 
 	return (
