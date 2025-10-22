@@ -1,19 +1,14 @@
+import type { ApiMediaExtendedPreview, ApiPhoto, IMediaDimensions, ObserveFn } from '@mezon/utils';
 import {
-	ApiMediaExtendedPreview,
-	ApiPhoto,
+	MIN_MEDIA_HEIGHT,
+	SHOW_POSITION,
 	buildClassName,
 	calculateMediaDimensions,
 	createImgproxyUrl,
 	getMediaFormat,
 	getMediaTransferState,
 	getPhotoMediaHash,
-	IMediaDimensions,
-	MIN_MEDIA_HEIGHT,
-	ObserveFn,
-	SHOW_POSITION,
-	useBlurredMediaThumbRef,
 	useIsIntersecting,
-	useMediaTransition,
 	useMediaWithLoadProgress,
 	usePreviousDeprecated,
 	useShowTransition
@@ -106,17 +101,12 @@ const Photo = <T,>({
 			});
 
 	const { mediaData, loadProgress } = useMediaWithLoadProgress(
-		createImgproxyUrl(photo.url ?? '', { width: width, height: height, resizeType: 'fit' }),
+		createImgproxyUrl(photo.url ?? '', { width, height, resizeType: 'fit' }),
 		!isIntersecting
 	);
 	const fullMediaData = localBlobUrl || mediaData;
 
 	const withBlurredBackground = Boolean(forcedWidth);
-	const [withThumb] = useState(!fullMediaData);
-	const noThumb = Boolean(fullMediaData);
-	const thumbRef = useBlurredMediaThumbRef(photo, false);
-	useMediaTransition(!noThumb, { ref: thumbRef, className: 'fast' });
-	const blurredBackgroundRef = useBlurredMediaThumbRef(photo, !withBlurredBackground);
 
 	const { loadProgress: downloadProgress } = useMediaWithLoadProgress(
 		!isPaidPreview ? getPhotoMediaHash(photo, 'download') : undefined,
@@ -179,13 +169,12 @@ const Photo = <T,>({
 		<div
 			id={id}
 			ref={ref}
-			className={'relative max-w-full ' + componentClassName}
+			className={`relative max-w-full ${componentClassName}`}
 			style={style}
 			onClick={() => {
 				onClick?.(photo?.url);
 			}}
 		>
-			{withBlurredBackground && <canvas ref={blurredBackgroundRef} className="thumbnail blurred-bg" />}
 			{fullMediaData && (
 				<img
 					onContextMenu={handleContextMenu}
@@ -196,18 +185,11 @@ const Photo = <T,>({
 					draggable={!isProtected}
 				/>
 			)}
-			{!isSending && withThumb && (
-				<canvas
-					style={{ width, height }}
-					ref={thumbRef}
-					className="max-w-full max-h-full block object-cover absolute bottom-0 left-0 rounded overflow-hidden will-change-opacity"
-				/>
-			)}
 			{isProtected && <span className="protector" />}
 			{((shouldRenderSpinner && !shouldRenderDownloadButton) || isSending) && (
 				<div
 					ref={spinnerRef as any}
-					style={{ width: width, height: height }}
+					style={{ width, height }}
 					className={`${!photo.thumbnail?.dataUri ? 'bg-[#0000001c]' : ''} max-w-full max-h-full absolute bottom-0 left-0 flex items-center justify-center bg-muted/30 backdrop-blur-[2px] rounded-md z-[3]`}
 					aria-hidden="true"
 				></div>
