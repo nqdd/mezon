@@ -396,7 +396,8 @@ export const isShowNotification = (
 	currentDmId: string | undefined,
 	remoteMessage: FirebaseMessagingTypes.RemoteMessage,
 	options?: { isViewingChannel?: boolean; isViewingDirectMessage?: boolean },
-	currentTopicId?: string | undefined
+	currentTopicId?: string | undefined,
+	isVoiceFullScreen?: boolean
 ): boolean => {
 	try {
 		if (!validateNotificationData(remoteMessage?.data)) {
@@ -406,6 +407,10 @@ export const isShowNotification = (
 		const link = remoteMessage.data?.link;
 		if (!isValidString(link)) {
 			return false;
+		}
+
+		if (isVoiceFullScreen) {
+			return true;
 		}
 
 		const directMessageMatch = link.match(clanDirectMessageLinkRegex);

@@ -177,6 +177,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				useNativeDriver: true
 			}).start(() => {
 				setIsAnimationComplete(true);
+				dispatch(voiceActions.setFullScreen(true));
 			});
 		} else {
 			pan?.flattenOffset();
@@ -186,6 +187,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				useNativeDriver: true
 			}).start(() => {
 				setIsAnimationComplete(false);
+				dispatch(voiceActions.setFullScreen(false));
 			});
 		}
 	}, [pan]);
@@ -227,12 +229,16 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 
 				if (data?.isEndCall) {
 					await handleLeaveRoom(data?.clanId, data?.channelId, data?.roomId);
+					dispatch(voiceActions.setFullScreen(false));
 					setIsGroupCall(false);
 					setVoicePlay(false);
 					if (isFromNativeCall) {
 						BackHandler.exitApp();
 					}
 				} else {
+					if (isFullScreen?.current) {
+						dispatch(voiceActions.setFullScreen(true));
+					}
 					if (data?.isGroupCall) {
 						setIsGroupCall(true);
 						setParticipantsCount(data?.participantsCount || 0);

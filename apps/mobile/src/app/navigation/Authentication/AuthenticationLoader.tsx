@@ -20,6 +20,7 @@ import {
 	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
+	selectVoiceFullScreen,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
@@ -58,11 +59,13 @@ export const AuthenticationLoader = () => {
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
+	const isFullVoiceScreen = useSelector(selectVoiceFullScreen);
 	const dispatch = useDispatch();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
 	const currentTopicRef = useRef(currentTopicId);
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+	const voiceFullScreenRef = useRef(isFullVoiceScreen);
 
 	useEffect(() => {
 		const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -196,6 +199,10 @@ export const AuthenticationLoader = () => {
 	}, [currentTopicId]);
 
 	useEffect(() => {
+		voiceFullScreenRef.current = isFullVoiceScreen;
+	}, [isFullVoiceScreen]);
+
+	useEffect(() => {
 		let timer;
 		const callListener = DeviceEventEmitter.addListener(ActionEmitEvent.GO_TO_CALL_SCREEN, async ({ payload, isDecline = false }) => {
 			if (isDecline) {
@@ -292,7 +299,8 @@ export const AuthenticationLoader = () => {
 							isViewingChannel,
 							isViewingDirectMessage
 						},
-						currentTopicRef.current
+						currentTopicRef.current,
+						voiceFullScreenRef.current
 					)
 				) {
 					// Case: FCM start call
