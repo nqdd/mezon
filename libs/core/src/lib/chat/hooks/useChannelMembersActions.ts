@@ -1,4 +1,4 @@
-import { channelMembersActions, clansActions, directActions, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import { channelMembersActions, clansActions, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import type { RemoveChannelUsers, RemoveClanUsers } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -15,7 +15,6 @@ export function useChannelMembersActions() {
 	const removeMemberChannel = useCallback(
 		async ({ channelId, userIds }: RemoveChannelUsers) => {
 			await dispatch(channelMembersActions.removeMemberChannel({ channelId, userIds }));
-			dispatch(directActions.fetchDirectMessage({ noCache: true }));
 		},
 		[dispatch]
 	);

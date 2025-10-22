@@ -102,14 +102,14 @@ export function useFriends() {
 
 	const filteredFriends = useCallback(
 		(searchTerm: string, isAddMember?: boolean) => {
-			if (!groupDmMember) return [];
 			if (isAddMember) {
 				return friends.filter((friend) => {
 					if (friend.state === EStateFriend.BLOCK) {
 						return false;
 					}
+
 					if (friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)) {
-						if (!Object.values(groupDmMember)?.some((user) => user.id === friend.id)) {
+						if (!groupDmMember || !Object.values(groupDmMember)?.some((user) => user.id === friend.id)) {
 							return friend;
 						}
 					}

@@ -16,16 +16,16 @@ import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import type { IFile } from '../../../../../componentUI/MezonImagePicker';
 import ShareLocationConfirmModal from '../../../../../components/ShareLocationConfirmModal';
 import { IconCDN } from '../../../../../constants/icon_cdn';
+import type { EMessageActionType } from '../../enums';
 import Gallery from './Gallery';
 import { style } from './styles';
 export type AttachmentPickerProps = {
-	mode?: number;
 	currentChannelId?: string;
-	currentClanId?: string;
 	onCancel?: (isForcesKeyboard?: boolean) => void;
+	messageAction?: EMessageActionType;
 };
 
-function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: AttachmentPickerProps) {
+function AttachmentPicker({ currentChannelId, onCancel, messageAction }: AttachmentPickerProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'sharing', 'common']);
@@ -217,6 +217,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 							mode={mode}
 							channelId={currentDirect?.id ? currentDirect?.id : currentChannelId}
 							geoLocation={geoLocation}
+							messageAction={messageAction}
 						/>
 					)
 				};

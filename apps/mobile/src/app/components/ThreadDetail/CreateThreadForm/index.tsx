@@ -281,7 +281,11 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={''}
 				/>
-				<PanelKeyboard currentChannelId={currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
+				<PanelKeyboard
+					currentChannelId={currentChannel?.channel_id}
+					currentClanId={currentChannel?.clan_id}
+					messageAction={EMessageActionType.CreateThread}
+				/>
 			</View>
 		</KeyboardAvoidingView>
 	);

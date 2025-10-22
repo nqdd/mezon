@@ -1,16 +1,20 @@
 import { useMemberContext } from '@mezon/core';
 import { Icons, Menu, Pagination } from '@mezon/ui';
-import { ReactElement, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import MemberTopBar from './MemberTopBar';
 import TableMember from './TableMember';
 
 const MemberClan = () => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
-	const { filteredMembers } = useMemberContext();
+	const { filteredMembers, searchQuery } = useMemberContext();
 	const totalPages = useMemo(() => {
 		return Math.ceil(filteredMembers.length / pageSize);
 	}, [filteredMembers.length, pageSize]);
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery]);
 
 	const onPageChange = (page: number) => {
 		setCurrentPage(page);

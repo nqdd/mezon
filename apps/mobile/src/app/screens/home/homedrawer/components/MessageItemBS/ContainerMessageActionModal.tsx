@@ -173,7 +173,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		currentChannelId ?? ''
 	);
 	const [isAllowDelMessage] = usePermissionChecker([EOverriddenPermission.deleteMessage], message?.channel_id ?? '');
-	const { downloadImage, saveImageToCameraRoll, getImageAsBase64OrFile } = useImage();
+	const { downloadImage, saveMediaToCameraRoll, getImageAsBase64OrFile } = useImage();
 	const allMessagesEntities = useAppSelector((state) =>
 		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
 	);
@@ -344,12 +344,12 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const url = media?.url;
 		const filetype = media?.filetype;
 
-		const type = filetype?.split?.('/');
+		const type = filetype === 'video/quicktime' ? ['video', 'mov'] : filetype?.split?.('/');
 		try {
 			const filePath = await downloadImage(url, type?.[1]);
 
 			if (filePath) {
-				await saveImageToCameraRoll(`file://${filePath}`, type?.[0], true);
+				await saveMediaToCameraRoll(`file://${filePath}`, type?.[0], true);
 			}
 		} catch (error) {
 			console.error(`Error downloading or saving media from URL: ${url}`, error);
@@ -586,7 +586,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.CopyMediaLink:
 				handleActionCopyMediaLink();
 				break;
-			case EMessageActionType.SaveImage:
+			case EMessageActionType.SaveMedia:
 				handleActionSaveImage();
 				break;
 			case EMessageActionType.Report:
@@ -641,7 +641,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				return <MezonIconCDN icon={IconCDN.pinIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.UnPinMessage:
 				return <MezonIconCDN icon={IconCDN.pinIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
-			case EMessageActionType.SaveImage:
+			case EMessageActionType.SaveMedia:
 				return <MezonIconCDN icon={IconCDN.downloadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CopyMediaLink:
 				return <MezonIconCDN icon={IconCDN.linkIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
@@ -689,6 +689,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
 		const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 		const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
+		const isHideActionMedia =
+			message?.attachments?.length === 0 ||
+			!message?.attachments?.every((a) => a?.filetype?.startsWith('image') || a?.filetype?.startsWith('video'));
 
 		const isShowForwardAll = () => {
 			if (messagePosition === -1) return false;
@@ -711,7 +714,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isDM && EMessageActionType.QuickMenu,
 			isHideActionImage && EMessageActionType.CopyImage,
 			isHideActionImage && EMessageActionType.ShareImage,
-			isHideActionImage && EMessageActionType.SaveImage,
+			isHideActionMedia && EMessageActionType.SaveMedia,
 			isTopicFirstMessage && EMessageActionType.EditMessage
 		];
 
@@ -729,7 +732,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			(message?.attachments?.length > 0 &&
 				message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
 			message?.content?.embed?.some((embed) => embed?.image)
-				? [EMessageActionType.SaveImage, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
+				? [EMessageActionType.SaveMedia, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
 				: [];
 
 		const frequentActionList = [
