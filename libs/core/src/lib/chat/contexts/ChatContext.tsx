@@ -221,12 +221,23 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					joinSoundElement.src = 'assets/audio/joincallsound.mp3';
 					joinSoundElement.preload = 'auto';
 					joinSoundElement.style.display = 'none';
+
+					const cleanup = () => {
+						joinSoundElement.removeEventListener('ended', cleanup);
+						joinSoundElement.removeEventListener('error', cleanup);
+						if (document.body.contains(joinSoundElement)) {
+							document.body.removeChild(joinSoundElement);
+						}
+						joinSoundElement.src = '';
+					};
+
+					joinSoundElement.addEventListener('ended', cleanup);
+					joinSoundElement.addEventListener('error', cleanup);
 					document.body.appendChild(joinSoundElement);
-					joinSoundElement.addEventListener('ended', () => {
-						document.body.removeChild(joinSoundElement);
-					});
+
 					joinSoundElement.play().catch((error) => {
 						console.error('Failed to play join sound:', error);
+						cleanup();
 					});
 				}
 
@@ -284,8 +295,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const handleBuzz = useCallback((channelId: string, senderId: string, isReset: boolean, mode: ChannelStreamMode | undefined) => {
 		const audio = new Audio('assets/audio/buzz.mp3');
+
+		const cleanup = () => {
+			audio.removeEventListener('ended', cleanup);
+			audio.removeEventListener('error', cleanup);
+			audio.src = '';
+		};
+
+		audio.addEventListener('ended', cleanup);
+		audio.addEventListener('error', cleanup);
+
 		audio.play().catch((error) => {
 			console.error('Failed to play buzz sound:', error);
+			cleanup();
 		});
 
 		const timestamp = Math.round(Date.now() / 1000);

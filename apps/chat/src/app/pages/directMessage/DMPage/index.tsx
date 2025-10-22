@@ -61,7 +61,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const markMessageAsRead = useCallback(() => {
 		if (!lastMessage) return;
 
-		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp) {
+		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
 			const mode =
 				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 

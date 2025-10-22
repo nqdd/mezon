@@ -166,6 +166,17 @@ errorListenerMiddleware.startListening({
 				return;
 			}
 
+			const isAuthTokenError =
+				toast.message &&
+				typeof toast.message === 'string' &&
+				(toast.message.toLowerCase().includes('auth token') ||
+					toast.message.toLowerCase().includes('malformed') ||
+					toast.message.toLowerCase().includes('token expired'));
+
+			if (isAuthTokenError) {
+				return;
+			}
+
 			listenerApi.dispatch(
 				toastActions.addToastError({
 					message: toast.message as string,
