@@ -23,6 +23,7 @@ import {
 	selectCurrentDM,
 	selectDirectById,
 	selectDmGroupCurrent,
+	selectDmGroupCurrentId,
 	selectHasKeyE2ee,
 	selectIsSearchMessage,
 	selectIsShowCreateThread,
@@ -60,7 +61,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const markMessageAsRead = useCallback(() => {
 		if (!lastMessage) return;
 
-		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp) {
+		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
 			const mode =
 				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 
@@ -109,6 +110,7 @@ function DirectSeenListener({ channelId, mode, currentChannel }: { channelId: st
 const DirectMessage = () => {
 	// TODO: move selector to store
 	const currentDirect = useSelector(selectCurrentDM);
+	const currentDirectId = useSelector(selectDmGroupCurrentId);
 	const directId = currentDirect?.id;
 	const type = currentDirect?.type;
 	const { draggingState, setDraggingState } = useDragAndDrop();
@@ -181,20 +183,27 @@ const DirectMessage = () => {
 			currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM &&
 			blockListUser &&
 			blockListUser.length > 0 &&
-			currentDmGroup?.user_ids?.[0] &&
+			currentDmGroup?.user_ids &&
+			currentDmGroup.user_ids.length > 0 &&
 			userId
 		) {
 			const otherUserId = currentDmGroup.user_ids[0];
 
-			return blockListUser.some((friend) => {
-				if (!friend?.user?.id) return false;
-				const isBlockedByOther = friend.source_id === otherUserId && friend.user.id === userId;
-				const hasBlockedOther = friend.source_id === userId && friend.user.id === otherUserId;
-				return isBlockedByOther || hasBlockedOther;
+			return blockListUser.some((blockedRelation) => {
+				if (!blockedRelation?.user?.id || !blockedRelation?.source_id) return false;
+
+				const currentUserBlockedOther = blockedRelation.source_id === userId;
+				const otherUserBlockedCurrent = blockedRelation.source_id === otherUserId && blockedRelation.user.id === userId;
+
+				return currentUserBlockedOther || otherUserBlockedCurrent;
 			});
 		}
 		return false;
 	}, [currentDmGroup?.type, currentDmGroup?.user_ids, blockListUser, userId]);
+
+	const isDmWithoutParticipants = useMemo(() => {
+		return currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (!currentDmGroup.user_ids || currentDmGroup.user_ids.length === 0);
+	}, [currentDmGroup?.type, currentDmGroup?.user_ids]);
 
 	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const handleClose = useCallback(() => {}, []);
@@ -206,6 +215,16 @@ const DirectMessage = () => {
 			dispatch(e2eeActions.setOpenModalE2ee(true));
 		}
 	}, [directMessage, dispatch, hasKeyE2ee]);
+
+	useEffect(() => {
+		if (!currentDirect && currentDirectId) {
+			dispatch(
+				directActions.fetchDirectDetail({
+					directId: currentDirectId
+				})
+			);
+		}
+	}, []);
 
 	return (
 		<>
@@ -228,7 +247,7 @@ const DirectMessage = () => {
 								<ChannelMessages
 									clanId="0"
 									isDM={true}
-									channelId={directId ?? ''}
+									channelId={directId || currentDirectId || ''}
 									isPrivate={currentDmGroup?.channel_private}
 									channelLabel={currentDmGroup?.channel_label}
 									username={isDmChannel ? currentDmGroup?.usernames?.toString() : undefined}
@@ -285,7 +304,7 @@ const DirectMessage = () => {
 						)}
 
 						<div className="flex-shrink-0 flex flex-col bg-theme-chat  h-auto relative">
-							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (currentDmGroup.user_ids?.length === 0 || isBlocked) ? (
+							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (isDmWithoutParticipants || isBlocked) ? (
 								<div
 									style={{ height: 44 }}
 									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
