@@ -379,8 +379,28 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 				if (message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove) {
 					dispatch(messagesActions.newMessage(mess));
+
+					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
+						dispatch(
+							messagesActions.updateTopicRplCount({
+								topicId: message?.topic_id,
+								channelId: message?.channel_id,
+								increment: false
+							})
+						);
+					}
 				} else {
 					dispatch(messagesActions.addNewMessage(mess));
+
+					if (message.topic_id && message.topic_id !== '0' && message?.message_id) {
+						dispatch(
+							messagesActions.updateTopicRplCount({
+								topicId: message?.topic_id,
+								channelId: message?.channel_id,
+								increment: true
+							})
+						);
+					}
 				}
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
 					const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();

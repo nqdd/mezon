@@ -1355,27 +1355,6 @@ export const messagesSlice = createSlice({
 							adapterPayload: action.payload
 						});
 						state.lastMessageByChannel[channelId] = action.payload;
-
-						let foundParentChannel: string | null = null;
-
-						for (const searchChannelId in state.channelMessages) {
-							if (searchChannelId !== topic_id) {
-								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
-								for (const msgId in searchChannelMessages) {
-									const message: MessagesEntity = searchChannelMessages[msgId];
-									if (message?.content?.tp === topic_id) {
-										foundParentChannel = searchChannelId;
-
-										const currentRpl = message.content?.rpl || 0;
-										if (message.content) {
-											message.content.rpl = currentRpl + 1;
-										}
-										break;
-									}
-								}
-								if (foundParentChannel) break;
-							}
-						}
 					} else {
 						handleAddOneMessage({
 							state,
@@ -1456,29 +1435,6 @@ export const messagesSlice = createSlice({
 					break;
 				}
 				case TypeMessage.ChatRemove: {
-					if (topic_id !== '0' && topic_id) {
-						let foundParentChannel: string | null = null;
-
-						for (const searchChannelId in state.channelMessages) {
-							if (searchChannelId !== topic_id) {
-								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
-								for (const msgId in searchChannelMessages) {
-									const message: MessagesEntity = searchChannelMessages[msgId];
-									if (message?.content?.tp === topic_id) {
-										foundParentChannel = searchChannelId;
-
-										const currentRpl = message.content?.rpl || 0;
-										if (message.content && currentRpl > 0) {
-											message.content.rpl = currentRpl - 1;
-										}
-										break;
-									}
-								}
-								if (foundParentChannel) break;
-							}
-						}
-					}
-
 					updateReferenceMessage({
 						state,
 						channelId,
@@ -1498,6 +1454,27 @@ export const messagesSlice = createSlice({
 		},
 		setLastMessage: (state, action: PayloadAction<ApiChannelMessageHeaderWithChannel>) => {
 			state.lastMessageByChannel[action.payload.channel_id] = action.payload;
+		},
+		updateTopicRplCount: (state, action: PayloadAction<{ channelId: string; topicId: string; increment: boolean }>) => {
+			const { channelId, topicId, increment } = action.payload;
+
+			const channelMessages = state.channelMessages[channelId];
+			if (!channelMessages) return;
+
+			const topicCreatorMessage = channelMessagesAdapter
+				.getSelectors()
+				.selectAll(channelMessages)
+				.find((message) => message?.content?.tp === topicId);
+
+			if (topicCreatorMessage?.content && topicCreatorMessage.id) {
+				const currentRpl = topicCreatorMessage.content.rpl || 0;
+				const newRpl = increment ? currentRpl + 1 : Math.max(0, currentRpl - 1);
+
+				const messageEntity = channelMessages.entities[topicCreatorMessage.id];
+				if (messageEntity?.content) {
+					messageEntity.content.rpl = newRpl;
+				}
+			}
 		},
 		setViewingOlder: (state, action: PayloadAction<{ channelId: string; status: boolean }>) => {
 			const { channelId, status } = action.payload;
