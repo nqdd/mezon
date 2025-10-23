@@ -1,15 +1,8 @@
+import { useMemo } from 'react';
 import { View } from 'react-native';
+import { createBubbleStyle } from '../styles';
 
-export const Bubble = ({ size, position, color }) => (
-	<View
-		style={{
-			position: 'absolute',
-			backgroundColor: color,
-			height: size,
-			width: size,
-			borderRadius: size / 2,
-			...position,
-			elevation: 1
-		}}
-	/>
-);
+export const Bubble = ({ size, position, color }) => {
+	const bubbleStyle = useMemo(() => createBubbleStyle(size, position, color), [size, position, color]);
+	return <View style={bubbleStyle.bubble} />;
+};

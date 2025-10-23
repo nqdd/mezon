@@ -82,7 +82,7 @@ export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, 
 			{/* Avatar */}
 			<MezonAvatar
 				avatarUrl={userInfo?.clan_avatar || userInfo?.user?.avatar_url || userInfo?.avatar_url || userInfo?.avatars?.[0]}
-				username={userInfo?.username}
+				username={name}
 				userStatus={infoMemberStatus}
 				customStatus={infoMemberStatus?.status}
 				width={size.s_36}

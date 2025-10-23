@@ -23,5 +23,10 @@ export const style = (colors: Attributes) =>
 			fontSize: size.label,
 			fontWeight: '600',
 			color: colors.text
+		},
+		container: {
+			backgroundColor: colors.primary,
+			flex: 1,
+			padding: size.s_10
 		}
 	});

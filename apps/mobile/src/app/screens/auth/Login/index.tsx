@@ -351,7 +351,7 @@ const LoginScreen = ({ navigation }) => {
 			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 
 			<KeyboardAvoidingView
-				style={{ flex: 1 }}
+				style={styles.main}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
@@ -367,7 +367,7 @@ const LoginScreen = ({ navigation }) => {
 									<Text style={styles.inputCountry}>{selectedCountry.prefix}</Text>
 								</TouchableOpacity>
 
-								<View style={{ flex: 1 }}>
+								<View style={styles.main}>
 									<TextInput
 										style={styles.emailInput}
 										placeholder={t('login.phone')}
@@ -460,7 +460,7 @@ const LoginScreen = ({ navigation }) => {
 						disabled={!isFormValid || isLoading}
 					>
 						{isLoading ? (
-							<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
+							<ActivityIndicator size="small" color="#FFFFFF" style={styles.loading} />
 						) : (
 							<Text style={[styles.otpButtonText]}>
 								{loginMode === 'otp' || loginMode === 'sms' ? t('login.send') : t('login.login')}
