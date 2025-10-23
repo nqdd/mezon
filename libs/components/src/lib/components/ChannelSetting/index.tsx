@@ -1,7 +1,7 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
 import { fetchUserChannels, selectChannelById, selectCloseMenu, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -11,6 +11,7 @@ import IntegrationsChannel from './Component/IntegrationsChannel';
 import InvitesChannel from './Component/InvitesChannel';
 import OverviewChannel from './Component/OverviewChannel';
 import PermissionsChannel from './Component/PermissionsChannel';
+import StreamThumbnailChannel from './Component/StreamThumbnail';
 import ChannelSettingItem from './channelSettingItem';
 import ExitSetting from './exitSetting';
 
@@ -24,7 +25,8 @@ export enum EChannelSettingTab {
 	INVITES = 'Invites',
 	INTEGRATIONS = 'Integrations',
 	CATEGORY = 'Category',
-	QUICK_MENU = 'Quick Menu'
+	QUICK_MENU = 'Quick Menu',
+	STREAM_THUMBNAIL = 'Stream Thumbnail'
 }
 const SettingChannel = (props: ModalSettingProps) => {
 	const { onClose, channel } = props;
@@ -37,17 +39,21 @@ const SettingChannel = (props: ModalSettingProps) => {
 	const [menu, setMenu] = useState(true);
 	const [displayChannelLabel, setDisplayChannelLabel] = useState<string>(currentChannel?.channel_label || '');
 
-	const getTabTranslation = useCallback((tabKey: string) => {
-		const translations: Record<string, string> = {
-			[EChannelSettingTab.OVERVIEW]: t('tabs.overview'),
-			[EChannelSettingTab.PREMISSIONS]: t('tabs.permissions'),
-			[EChannelSettingTab.INVITES]: t('tabs.invites'),
-			[EChannelSettingTab.INTEGRATIONS]: t('tabs.integrations'),
-			[EChannelSettingTab.CATEGORY]: t('tabs.category'),
-			[EChannelSettingTab.QUICK_MENU]: t('tabs.quickMenu')
-		};
-		return translations[tabKey] || tabKey;
-	}, [t]);
+	const getTabTranslation = useCallback(
+		(tabKey: string) => {
+			const translations: Record<string, string> = {
+				[EChannelSettingTab.OVERVIEW]: t('tabs.overview'),
+				[EChannelSettingTab.PREMISSIONS]: t('tabs.permissions'),
+				[EChannelSettingTab.INVITES]: t('tabs.invites'),
+				[EChannelSettingTab.INTEGRATIONS]: t('tabs.integrations'),
+				[EChannelSettingTab.CATEGORY]: t('tabs.category'),
+				[EChannelSettingTab.QUICK_MENU]: t('tabs.quickMenu'),
+				[EChannelSettingTab.STREAM_THUMBNAIL]: t('streamThumbnail:title')
+			};
+			return translations[tabKey] || tabKey;
+		},
+		[t]
+	);
 
 	const handleSettingItemClick = (settingName: string) => {
 		setCurrentSetting(settingName);
@@ -123,6 +129,7 @@ const SettingChannel = (props: ModalSettingProps) => {
 				{currentSetting === EChannelSettingTab.INVITES && <InvitesChannel />}
 				{currentSetting === EChannelSettingTab.INTEGRATIONS && <IntegrationsChannel currentChannel={channel} />}
 				{currentSetting === EChannelSettingTab.CATEGORY && <SettingCategoryChannel channel={channel} />}
+				{currentSetting === EChannelSettingTab.STREAM_THUMBNAIL && <StreamThumbnailChannel />}
 				{currentSetting === EChannelSettingTab.QUICK_MENU && (
 					<div className="overflow-y-auto flex flex-col flex-1 shrink bg-theme-setting-primary w-1/2 pt-[94px] sbm:pb-7 sbm:pr-[10px] sbm:pl-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
 						<QuickMenuAccessManager channelId={channel.channel_id || ''} clanId={channel.clan_id || ''} />

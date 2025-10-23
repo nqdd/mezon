@@ -1,0 +1,49 @@
+{
+	"title": "Ảnh bìa Stream",
+	"uploadThumbnail": "Tải lên ảnh bìa",
+	"currentThumbnail": "Ảnh bìa hiện tại",
+	"requirementsTitle": "Yêu cầu",
+	"buttons": {
+		"change": "Thay đổi",
+		"remove": "Xóa",
+		"selectFile": "Chọn tệp",
+		"uploading": "Đang tải lên...",
+		"cancel": "Hủy",
+		"confirmUpload": "Xác nhận",
+		"removing": "Đang xóa...",
+		"removeThumbnail": "Xóa ảnh bìa"
+	},
+	"upload": {
+		"title": "Tải lên ảnh bìa của bạn",
+		"description": "Nhấp để duyệt hoặc kéo và thả hình ảnh của bạn"
+	},
+	"confirmModal": {
+		"uploadTitle": "Xác nhận tải lên",
+		"uploadDescription": "Đặt hình ảnh này làm ảnh bìa stream của bạn?",
+		"uploadMessage": "Ảnh bìa này sẽ được hiển thị khi stream của bạn offline. Tất cả thành viên sẽ thấy cập nhật này ngay lập tức.",
+		"removeTitle": "Xóa ảnh bìa",
+		"removeQuestion": "Bạn có chắc chắn?",
+		"removeMessage": "Điều này sẽ xóa ảnh bìa stream của bạn. Màn hình splash mặc định sẽ được hiển thị thay thế khi stream của bạn offline.",
+		"removeWarning": "⚠️ Hành động này không thể hoàn tác."
+	},
+	"requirements": {
+		"format": {
+			"title": "Định dạng",
+			"value": "JPG, PNG, GIF, WEBP"
+		},
+		"resolution": {
+			"title": "Độ phân giải",
+			"value": "Khuyến nghị 1920 x 1080"
+		},
+		"sizeLimit": {
+			"title": "Giới hạn kích thước",
+			"value": "Tối đa 10 MB"
+		}
+	},
+	"errors": {
+		"channelNotFound": "Không tìm thấy kênh",
+		"clientNotReady": "Client/session chưa sẵn sàng",
+		"uploadFailed": "Tải lên ảnh bìa thất bại. Vui lòng thử lại.",
+		"removeFailed": "Xóa ảnh bìa thất bại. Vui lòng thử lại."
+	}
+}

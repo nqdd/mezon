@@ -71,6 +71,7 @@ import search from './search.json';
 import searchMessageChannel from './searchMessageChannel.json';
 import setting from './setting.json';
 import sharing from './sharing.json';
+import streamThumbnail from './streamThumbnail.json';
 import streamingRoom from './streamingRoom.json';
 import token from './token.json';
 import transferOwner from './transferOwner.json';
@@ -138,6 +139,7 @@ export default {
 	channelVoice,
 	channelList,
 	token,
+	streamThumbnail,
 	qrScanner,
 	clanSoundSetting,
 	sharing,
