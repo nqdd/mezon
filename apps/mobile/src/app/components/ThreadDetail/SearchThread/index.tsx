@@ -11,10 +11,10 @@ type SearchThreadsProps = {
 	inputValue?: string;
 	onTextChanged?: (value: string) => void;
 };
-export const SearchThreadsBar = ({ onTextChanged, inputValue }: SearchThreadsProps) => {
+export const SearchThreadsBar = ({ onTextChanged, inputValue = '' }: SearchThreadsProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const [searchInput, setSearchInput] = useState<string>(inputValue);
+	const [searchInput, setSearchInput] = useState<string>(inputValue || '');
 	const { t } = useTranslation(['channelMenu']);
 
 	const clearSearchInput = () => {
