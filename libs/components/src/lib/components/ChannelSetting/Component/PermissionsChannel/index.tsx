@@ -87,11 +87,13 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 
 	const closeAddMemRoleModal = useCallback(() => {
 		setShowAddMemRole(false);
+		setSelectedRoleIds([]);
+		setSelectedUserIds([]);
 		setTimeout(() => {
 			openModalAdd.current = false;
 			parentRef?.current?.focus();
 		}, 0);
-	}, []);
+	}, [openModalAdd, parentRef]);
 
 	const handleSelectedUsersChange = useCallback((newSelectedUserIds: string[]) => {
 		setSelectedUserIds(newSelectedUserIds);

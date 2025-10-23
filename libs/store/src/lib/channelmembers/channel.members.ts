@@ -609,16 +609,21 @@ export const selectAllChannelMembersClan = createSelector(
 			const channel = state?.channels?.byClans?.[currentClanId as string]?.entities?.entities?.[channelId];
 			const isPrivate = channel?.channel_private;
 			const parentId = channel?.parent_id;
-			return `${channelId},${isPrivate},${parentId}`;
+			const creatorId = channel?.creator_id;
+			return `${channelId},${isPrivate},${parentId},${creatorId || ''}`;
 		}
 	],
 	(channelMembers, allUserClans, usersClanEntities, payload) => {
-		const [channelId, isPrivate, parentId] = payload.split(',');
+		const [channelId, isPrivate, parentId, creatorId] = payload.split(',');
 		const membersOfChannel: ChannelMembersEntity[] = [];
 
 		if (!allUserClans?.length) return membersOfChannel;
 
-		const ids = isPrivate === '1' || (parentId !== '0' && parentId !== '') ? channelMembers : allUserClans.map((u: any) => u.id);
+		let ids = isPrivate === '1' || (parentId !== '0' && parentId !== '') ? channelMembers : allUserClans.map((u: any) => u.id);
+
+		if (isPrivate === '1' && creatorId && ids && !ids.includes(creatorId)) {
+			ids = [...(ids || []), creatorId];
+		}
 
 		if (!ids?.length) return membersOfChannel;
 
