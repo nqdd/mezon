@@ -98,12 +98,13 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 
 				if (value.length >= 1 && /^\d*$/.test(value)) {
 					const valueLatest = value[value.length - 1];
+					const hadValue = otp[index] !== '';
 					setOtp((prev) => {
 						const newOtp = [...prev];
 						newOtp[index] = valueLatest;
 						onOtpChange(newOtp);
 
-						if (valueLatest !== '' && index < OTP_LENGTH - 1) {
+						if (index < OTP_LENGTH - 1 && (hadValue || valueLatest !== '')) {
 							inputRefs.current[index + 1]?.focus();
 						}
 
@@ -118,7 +119,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 				console.error('handleOtpChange error', error);
 			}
 		},
-		[fillOtp, onOtpChange, onOtpComplete]
+		[fillOtp, onOtpChange, onOtpComplete, otp]
 	);
 
 	const handleKeyPress = (e: any, index: number) => {
@@ -148,6 +149,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 					maxLength={OTP_LENGTH}
 					autoFocus={index === 0}
 					selectTextOnFocus={true}
+					selection={digit !== '' ? { start: 1, end: 1 } : undefined}
 					autoComplete={isSms ? 'sms-otp' : undefined}
 					textContentType={isSms ? 'oneTimeCode' : undefined}
 				/>

@@ -211,7 +211,7 @@ const ImageRenderer = React.memo(
 				}) as string,
 				urlOriginal: image.url
 			};
-		}, [image?.filetype, image?.height, image?.url, image?.width]);
+		}, [image.filetype, image?.height, image.url, image?.width, imageOriginal?.url]);
 
 		if (!image.url) {
 			return null;
@@ -236,7 +236,7 @@ const ImageRenderer = React.memo(
 			<TouchableOpacity
 				disabled={isUploading || disable}
 				activeOpacity={0.3}
-				key={`${index}-${retryAttempt}`} // Add retry attempt to force re-render
+				key={`${index}-${retryAttempt}`}
 				onPress={() => onPress(image)}
 				onLongPress={handleLongPressImage}
 				style={containerStyle}
@@ -252,7 +252,7 @@ const ImageRenderer = React.memo(
 					<FastImage
 						source={{
 							uri: imageProxyObj?.url,
-							priority: FastImage.priority.high,
+							priority: FastImage.priority.normal,
 							cache: FastImage.cacheControl.immutable
 						}}
 						resizeMode={isMultiple ? 'cover' : 'contain'}

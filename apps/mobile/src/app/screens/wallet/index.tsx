@@ -1,5 +1,5 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { accountActions, selectAllAccount, useAppDispatch, walletActions } from '@mezon/store-mobile';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { IconCDN } from '../../constants/icon_cdn';
 import { HistoryTransactionScreen } from '../profile/HistoryTransaction';
 import { SendTokenScreen } from '../profile/SendToken';
 import { style } from './styles';
+import { useSelector } from 'react-redux';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.7;
@@ -77,11 +78,17 @@ export const WalletScreen = React.memo(({ navigation, route }: any) => {
 	const overlayOpacity = useRef(new Animated.Value(0)).current;
 	const [activeScreen, setActiveScreen] = useState(route?.params?.activeScreen || 'transfer');
 	const dispatch = useAppDispatch();
+	const userProfile = useSelector(selectAllAccount);
 
 	useFocusEffect(
 		useCallback(() => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
-		}, [dispatch])
+			dispatch(
+				walletActions.fetchWalletDetail({
+					userId: userProfile?.user?.id
+				})
+			);
+		}, [dispatch, userProfile?.user?.id])
 	);
 
 	const openDrawer = () => {
