@@ -57,7 +57,8 @@
 		"shareImageSuccess": "Image shared successfully"
 	},
 	"directMessage": {
-		"you": "You"
+		"you": "You",
+		"groupCreated": "Group is created"
 	},
 	"edited": "(edited)",
 	"newMessage": {
