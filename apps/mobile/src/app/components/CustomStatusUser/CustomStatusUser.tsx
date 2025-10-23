@@ -1,19 +1,21 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { accountActions, selectAccountCustomStatus, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
-import MezonOption, { IMezonOptionData } from '../../componentUI/MezonOption';
+import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
+import type { IMezonOptionData } from '../../componentUI/MezonOption';
+import MezonOption from '../../componentUI/MezonOption';
 import { IconCDN } from '../../constants/icon_cdn';
 import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
 
 interface ICustomStatusUserProps {
 	onPressSetCustomStatus?: () => void;
 	userStatus?: string;
-	userCustomStatus?: string;
 	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
 }
 
@@ -24,13 +26,13 @@ export enum EUserStatus {
 	INVISIBLE = 'Invisible'
 }
 export const CustomStatusUser = (props: ICustomStatusUserProps) => {
-	const { onPressSetCustomStatus, userStatus, userCustomStatus, handleCustomUserStatus } = props;
+	const { onPressSetCustomStatus, userStatus, handleCustomUserStatus } = props;
 	const { t } = useTranslation(['customUserStatus']);
 	const dispatch = useAppDispatch();
 	const { dismiss } = useBottomSheetModal();
-
 	const { themeValue } = useTheme();
 	const [userStatusOption, setUserStatusOption] = useState<string>(EUserStatus.ONLINE);
+	const userCustomStatus = useSelector(selectAccountCustomStatus);
 
 	useEffect(() => {
 		switch (userStatus) {

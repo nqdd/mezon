@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
 import {
-	FriendsEntity,
 	accountActions,
 	channelMembersActions,
 	selectAllAccount,
@@ -137,7 +137,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 			children: (
 				<CustomStatusUser
 					userStatus={userStatus}
-					userCustomStatus={userCustomStatus}
 					onPressSetCustomStatus={handlePressSetCustomStatus}
 					handleCustomUserStatus={handleCustomUserStatus}
 				/>
