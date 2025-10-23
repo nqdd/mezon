@@ -105,13 +105,6 @@ const ChannelListMessage = React.memo(
 				onScrollToIndexFailed={onScrollToIndexFailed}
 			/>
 		);
-	},
-	(prevProps, nextProps) => {
-		return (
-			prevProps.messages === nextProps.messages &&
-			prevProps.isLoadMoreBottom === nextProps.isLoadMoreBottom &&
-			prevProps.flatListRef === nextProps.flatListRef
-		);
 	}
 );
 export default ChannelListMessage;

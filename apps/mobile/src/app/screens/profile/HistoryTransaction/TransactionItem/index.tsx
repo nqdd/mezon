@@ -119,12 +119,12 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 						<TouchableOpacity
 							disabled={field.label !== t('historyTransaction.detail.transactionId')}
 							onPress={copyTransactionId}
-							style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+							style={styles.touchableRow}
 						>
 							<Text style={styles.title}>{field.label}</Text>
 							{field.label === t('historyTransaction.detail.transactionId') && detailLedger?.hash && (
-								<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-									<Pressable onPress={copyTransactionId} style={{ padding: 4 }}>
+								<View style={styles.copyIconWrapper}>
+									<Pressable onPress={copyTransactionId} style={styles.copyButton}>
 										<MezonIconCDN icon={IconCDN.copyIcon} color={themeValue.text} width={size.s_16} height={size.s_16} />
 									</Pressable>
 								</View>
@@ -191,7 +191,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 				</View>
 			</View>
 
-			<Animated.View style={{ height: animation, overflow: 'hidden' }}>{detailView}</Animated.View>
+			<Animated.View style={[styles.animatedContainer, { height: animation }]}>{detailView}</Animated.View>
 		</Pressable>
 	);
 };

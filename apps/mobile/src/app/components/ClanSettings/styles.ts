@@ -28,5 +28,18 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_18,
 			color: colors.text,
 			fontWeight: 'bold'
+		},
+		rootContainer: {
+			flex: 1
+		},
+		backButton: {
+			width: size.s_60,
+			paddingVertical: size.s_10
+		},
+		headerSpacer: {
+			width: size.s_60
+		},
+		scrollContainer: {
+			flex: 1
 		}
 	});

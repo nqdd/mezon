@@ -38,12 +38,12 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 		const screenTrackRef = tracks.find((t) => t.participant.identity === screenShareOther.identity && t.source === Track.Source.ScreenShare);
 		if (screenTrackRef) {
 			return (
-				<View style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-					<View style={{ height: size.s_150, width: '100%', alignSelf: 'center' }}>
+				<View style={styles.focusedContainer}>
+					<View style={styles.focusedVideoWrapper}>
 						<VideoTrack
 							objectFit="contain"
 							trackRef={screenTrackRef}
-							style={{ height: size.s_150, width: '100%', alignSelf: 'center' }}
+							style={styles.focusedVideoStyle}
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
 					</View>
@@ -56,11 +56,11 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 		const selfScreenTrackRef = tracks.find((t) => t.participant.identity === selfParticipant.identity && t.source === Track.Source.ScreenShare);
 		if (selfScreenTrackRef) {
 			return (
-				<View style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-					<View style={{ height: size.s_150, width: '100%', alignSelf: 'center' }}>
+				<View style={styles.focusedContainer}>
+					<View style={styles.focusedVideoWrapper}>
 						<VideoTrack
 							trackRef={selfScreenTrackRef}
-							style={{ height: size.s_150, width: '100%', alignSelf: 'center' }}
+							style={styles.focusedVideoStyle}
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
 					</View>
@@ -74,11 +74,11 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 		const videoTrackRef = tracks.find((t) => t.participant.identity === cameraOther.identity && t.source === Track.Source.Camera);
 		if (videoTrackRef) {
 			return (
-				<View style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-					<View style={{ height: size.s_150, width: '100%', alignSelf: 'center' }}>
+				<View style={styles.focusedContainer}>
+					<View style={styles.focusedVideoWrapper}>
 						<VideoTrack
 							trackRef={videoTrackRef}
-							style={{ height: 100, width: '100%', alignSelf: 'center' }}
+							style={styles.focusedVideoStyleSmall}
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
 					</View>
@@ -91,11 +91,11 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 		const videoTrackRef = tracks.find((t) => t.participant.identity === selfParticipant.identity && t.source === Track.Source.Camera);
 		if (videoTrackRef) {
 			return (
-				<View style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-					<View style={{ height: 100, width: '100%', alignSelf: 'center' }}>
+				<View style={styles.focusedContainer}>
+					<View style={styles.focusedVideoWrapperSmall}>
 						<VideoTrack
 							trackRef={videoTrackRef}
-							style={{ height: 100, width: '100%', alignSelf: 'center' }}
+							style={styles.focusedVideoStyleSmall}
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
 					</View>
@@ -106,11 +106,11 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 
 	if (randomParticipant) {
 		return (
-			<View style={{ width: '100%', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-				<View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+			<View style={styles.focusedContainer}>
+				<View style={styles.focusedAvatarWrapper}>
 					<MezonAvatar width={size.s_50} height={size.s_50} username={voiceUsername} avatarUrl={avatar} />
 				</View>
-				<View style={[styles.userName, { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}>
+				<View style={[styles.userName, styles.focusedUsernameWrapper]}>
 					{randomParticipant.isMicrophoneEnabled ? (
 						<MezonIconCDN icon={IconCDN.microphoneIcon} height={size.s_14} color={themeValue.text} />
 					) : (

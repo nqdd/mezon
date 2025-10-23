@@ -26,6 +26,26 @@ const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			color: colors.text,
 			fontWeight: '500'
+		},
+		channelItemContainer: {
+			marginBottom: size.s_20
+		},
+		channelRow: {
+			flexDirection: 'row',
+			gap: size.s_10,
+			alignItems: 'center'
+		},
+		channelInfo: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_6,
+			marginBottom: size.s_2
+		},
+		voiceChannelContainer: {
+			flexDirection: 'row',
+			gap: size.s_10,
+			alignItems: 'center',
+			justifyContent: 'space-between'
 		}
 	});
 

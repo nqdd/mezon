@@ -206,7 +206,7 @@ const ParticipantItem = memo(
 						]}
 					>
 						{hasActiveSoundReaction && renderSoundEffectIcon()}
-						<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: size.s_10 }}>
+						<View style={styles.avatarContainer}>
 							{!voiceUsername ? (
 								<MezonIconCDN icon={IconCDN.loadingIcon} width={24} height={24} />
 							) : (
@@ -315,15 +315,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 			automaticallyAdjustContentInsets={false}
 			automaticallyAdjustKeyboardInsets={false}
 		>
-			<View
-				style={{
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					justifyContent: isPiPMode ? 'space-between' : 'center',
-					gap: isPiPMode ? size.s_2 : size.s_10,
-					alignItems: isPiPMode ? 'flex-start' : 'center'
-				}}
-			>
+			<View style={isPiPMode ? styles.participantContainerPiP : styles.participantContainer}>
 				{sortedParticipants?.length > 0 &&
 					sortedParticipants?.map((participant) => {
 						const isSpeaking = participant?.isSpeaking;
@@ -363,7 +355,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 						);
 					})}
 			</View>
-			<View style={{ height: size.s_300 }} />
+			<View style={styles.spacer} />
 		</ScrollView>
 	);
 };

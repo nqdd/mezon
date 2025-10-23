@@ -24,9 +24,11 @@ import { EOverridePermissionType, ERequestStatus } from '../../types/channelPerm
 import { IAddMemberOrRoleContentProps } from '../../types/channelPermission.type';
 import { MemberItem } from '../MemberItem';
 import { RoleItem } from '../RoleItem';
+import { styles as stylesFn } from './AddMemberOrRoleContent.styles';
 
 export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOrRoleContentProps) => {
 	const { themeValue } = useTheme();
+	const styles = stylesFn(themeValue);
 	const [searchText, setSearchText] = useState('');
 	const debouncedSetSearchText = debounce((text) => setSearchText(text), 300);
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -145,15 +147,8 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 			const { type, headerTitle, isShowHeaderTitle } = item;
 			if (!type && headerTitle && isShowHeaderTitle) {
 				return (
-					<View style={{ paddingTop: size.s_12, paddingLeft: size.s_12 }}>
-						<Text
-							style={{
-								fontSize: verticalScale(18),
-								marginLeft: 0,
-								marginRight: 0,
-								color: themeValue.text
-							}}
-						>
+					<View style={styles.sectionHeader}>
+						<Text style={styles.sectionHeaderText}>
 							{headerTitle}:
 						</Text>
 					</View>
@@ -189,48 +184,27 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 	);
 
 	return (
-		<View style={{ paddingHorizontal: size.s_14, flex: 1 }}>
-			<View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-				<View style={{ alignItems: 'center' }}>
-					<Text
-						style={{
-							fontSize: verticalScale(18),
-							marginLeft: 0,
-							marginRight: 0,
-							fontWeight: 'bold',
-							color: themeValue.white
-						}}
-					>
+		<View style={styles.container}>
+			<View style={styles.headerContainer}>
+				<View style={styles.headerCenter}>
+					<Text style={styles.headerTitle}>
 						{t('channelPermission.bottomSheet.addMembersOrRoles')}
 					</Text>
-					<Text
-						style={{
-							marginLeft: 0,
-							marginRight: 0,
-							color: themeValue.text
-						}}
-					>
+					<Text style={styles.headerSubtitle}>
 						#{channel?.channel_label}
 					</Text>
 				</View>
 				<TouchableOpacity
 					onPress={addMemberOrRole}
-					style={{
-						position: 'absolute',
-						top: 0,
-						right: 0
-					}}
+					style={styles.addButton}
 					disabled={disableAddButton}
 				>
-					<View style={{ padding: size.s_10 }}>
+					<View style={styles.addButtonInner}>
 						<Text
-							style={{
-								fontSize: verticalScale(18),
-								marginLeft: 0,
-								marginRight: 0,
-								fontWeight: 'bold',
-								color: disableAddButton ? '#676b73' : baseColor.blurple
-							}}
+							style={[
+								styles.addButtonText,
+								{ color: disableAddButton ? '#676b73' : baseColor.blurple }
+							]}
 						>
 							{t('channelPermission.bottomSheet.add')}
 						</Text>
@@ -238,10 +212,10 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 				</TouchableOpacity>
 			</View>
 
-			<View style={{ paddingVertical: size.s_16 }}>
+			<View style={styles.searchWrapper}>
 				<MezonInput onTextChange={debouncedSetSearchText} placeHolder={'Search Roles & Members'} />
 			</View>
-			<View style={{ flex: 1, paddingBottom: size.s_10 }}>
+			<View style={styles.listWrapper}>
 				<BottomSheetFlatList
 					data={filteredSearch}
 					keyboardShouldPersistTaps={'handled'}

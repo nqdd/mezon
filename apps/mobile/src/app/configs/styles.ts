@@ -101,7 +101,7 @@ export const style = (colors: Attributes) =>
 			color: colors.white
 		},
 		notificationBody: {
-			fontSize: size.label,
+			fontSize: size.h7,
 			marginLeft: 0,
 			marginRight: 0,
 			color: colors.textStrong

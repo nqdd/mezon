@@ -31,6 +31,7 @@ export const style = (colors: Attributes) =>
 			gap: size.s_6,
 			flexGrow: 1,
 			borderBottomColor: colors.borderDim,
+			borderBottomWidth: 1,
 			minHeight: size.s_50,
 			alignItems: 'center',
 			paddingVertical: size.s_8
@@ -39,6 +40,21 @@ export const style = (colors: Attributes) =>
 			gap: size.s_4,
 			justifyContent: 'center',
 			width: '100%'
+		},
+		nameRowContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_4
+		},
+		voiceContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: 4
+		},
+		voiceText: {
+			color: colors.textDisabled,
+			fontSize: size.s_12,
+			fontWeight: '500'
 		},
 
 		container: {

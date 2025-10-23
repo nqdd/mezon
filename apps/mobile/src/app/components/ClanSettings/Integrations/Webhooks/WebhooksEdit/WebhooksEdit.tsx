@@ -168,20 +168,20 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerRight: () =>
 				hasChange ? (
-					<Pressable onPress={handleEditWebhook} style={{ paddingRight: size.s_14 }}>
+					<Pressable onPress={handleEditWebhook} style={styles.headerButton}>
 						<Text style={styles.textHeader}>{t('webhooksEdit.save', { ns: 'clanIntegrationsSetting' })}</Text>
 					</Pressable>
 				) : null,
 
 			headerLeft: () =>
 				hasChange ? (
-					<Pressable style={{ paddingLeft: size.s_14 }}>
+					<Pressable style={styles.headerLeftButton}>
 						<Text style={styles.textHeader} onPress={handleResetChange}>
 							{t('webhooksEdit.cancel', { ns: 'clanIntegrationsSetting' })}
 						</Text>
 					</Pressable>
 				) : (
-					<Pressable style={{ padding: 20 }} onPress={() => navigation.goBack()}>
+					<Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
 						<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
 					</Pressable>
 				),
@@ -292,7 +292,7 @@ export function WebhooksEdit({ route, navigation }: { route: any; navigation: an
 					confirmText={t('webhooksEdit.yes', { ns: 'clanIntegrationsSetting' })}
 					title={t('webhooksEdit.deleteCaptionHook', { ns: 'clanIntegrationsSetting' })}
 					children={
-						<Text style={{ color: themeValue.white }}>
+						<Text style={styles.confirmText}>
 							{t('webhooksEdit.deleteWebhookConfirmation', {
 								ns: 'clanIntegrationsSetting',
 								webhookName: webhook?.webhook_name

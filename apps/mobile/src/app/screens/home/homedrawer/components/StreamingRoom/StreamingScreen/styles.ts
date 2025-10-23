@@ -44,5 +44,18 @@ export const style = (colors: Attributes) =>
 			color: colors.white,
 			fontSize: size.s_20,
 			fontWeight: '600'
+		},
+		streamContainer: {
+			width: '100%',
+			height: '100%',
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
+		},
+		rtcViewFlex: {
+			flex: 1
 		}
 	});

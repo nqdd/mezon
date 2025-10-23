@@ -194,5 +194,67 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_10,
 			color: colors.text,
 			textAlign: 'center'
+		},
+		focusedContainer: {
+			width: '100%',
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		focusedVideoWrapper: {
+			height: size.s_150,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoStyle: {
+			height: size.s_150,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoStyleSmall: {
+			height: 100,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoWrapperSmall: {
+			height: 100,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedAvatarWrapper: {
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: 10
+		},
+		focusedUsernameWrapper: {
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		avatarContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: size.s_10
+		},
+		participantContainer: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'center',
+			gap: size.s_10,
+			alignItems: 'center'
+		},
+		participantContainerPiP: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'space-between',
+			gap: size.s_2,
+			alignItems: 'flex-start'
+		},
+		spacer: {
+			height: size.s_300
 		}
 	});

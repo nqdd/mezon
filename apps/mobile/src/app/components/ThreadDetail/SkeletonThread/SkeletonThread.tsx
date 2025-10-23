@@ -21,24 +21,15 @@ export default function SkeletonThread({ numberSkeleton }: { numberSkeleton: num
 				LinearGradient={LinearGradient}
 			/>
 			{Array.from({ length: numberSkeleton }).map((_, index) => (
-				<View key={`ChannelListSkeleton_${index}`} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: size.s_20 }}>
-					<View
-						style={{
-							flex: 1,
-							borderRadius: size.s_10,
-							flexDirection: 'row',
-							alignItems: 'center',
-							paddingHorizontal: size.s_10,
-							marginTop: size.s_4
-						}}
-					>
-						<View style={{ flex: 1 }}>
+				<View key={`ChannelListSkeleton_${index}`} style={styles.itemContainer}>
+					<View style={styles.contentWrapper}>
+						<View style={styles.textContainer}>
 							<ShimmerPlaceHolder
 								shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
 								shimmerStyle={styles.normalText}
 								LinearGradient={LinearGradient}
 							/>
-							<View style={{ flexDirection: 'row', gap: size.s_20 }}>
+							<View style={styles.textRow}>
 								<ShimmerPlaceHolder
 									shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
 									shimmerStyle={styles.mediumText}
