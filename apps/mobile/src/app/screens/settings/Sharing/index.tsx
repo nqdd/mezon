@@ -84,6 +84,10 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	const listBlockUsers = useSelector(selectBlockedUsersForMessage);
 	const { handleReconnect } = useContext(ChatContext);
 
+	const mode = useMemo(() => {
+		return channelSelected?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
+	}, [channelSelected?.type]);
+
 	useEffect(() => {
 		handleReconnect('Initial reconnect attempt');
 	}, [handleReconnect]);
@@ -166,8 +170,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			const store = await getStoreAsync();
 			await store.dispatch(
 				channelsActions.joinChat({
-					clanId: channelSelected?.clan_id,
-					channelId: channelSelected?.channel_id,
+					clanId: channelSelected?.clan_id || '0',
+					channelId: channelSelected?.channel_id || '',
 					channelType: channelSelected?.type,
 					isPublic: false
 				})
@@ -175,8 +179,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 
 			await mezon.socketRef.current.writeChatMessage(
 				'0',
-				channelSelected?.id,
-				Number(channelSelected?.user_ids?.length) === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
+				channelSelected?.id || '',
+				mode,
 				false,
 				{
 					t: dataSend.text,
