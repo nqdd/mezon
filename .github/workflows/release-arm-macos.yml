@@ -87,9 +87,9 @@ jobs:
           envkey_NX_CHAT_APP_API_GW_HOST: ${{ secrets.NX_CHAT_APP_API_GW_HOST }}
           envkey_NX_CHAT_APP_API_GW_PORT: ${{ secrets.NX_CHAT_APP_API_GW_PORT }}
           envkey_NX_DOMAIN_URL: https://mezon.ai
-          envkey_NX_CHAT_APP_MMN_API_URL: https://dong.mezon.ai/mmn-api/
-          envkey_NX_CHAT_APP_INDEXER_API_URL: https://dong.mezon.ai/indexer-api/
-          envkey_NX_CHAT_APP_ZK_API_URL: https://dong.mezon.ai/zk-api/
+          envkey_NX_CHAT_APP_MMN_API_URL: https://dong.mezon.ai/mmn-api
+          envkey_NX_CHAT_APP_INDEXER_API_URL: https://dong.mezon.ai/indexer-api
+          envkey_NX_CHAT_APP_ZK_API_URL: https://dong.mezon.ai/zk-api
 
       - name: Release Desktop
         run: |
