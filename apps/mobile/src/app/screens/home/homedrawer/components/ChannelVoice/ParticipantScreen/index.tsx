@@ -2,7 +2,7 @@ import { useParticipants, useRoomContext, useTracks, VideoTrack } from '@livekit
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectAllAccount, selectCurrentClanId, selectIsPiPMode, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
+import { selectAllAccount, selectCurrentClanId, selectIsPiPMode, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import type { Participant } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
@@ -34,7 +34,6 @@ const ParticipantItem = memo(
 		member
 	}: any) => {
 		const isTabletLandscape = useTabletLandscape();
-		const store = getStore();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 		const { t } = useTranslation(['channelVoice']);
@@ -252,6 +251,8 @@ const ParticipantItem = memo(
 
 const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId, clanUsers }) => {
 	const participants = useParticipants();
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const tracks = useTracks(
 		[
 			{ source: Track.Source.Camera, withPlaceholder: true },
