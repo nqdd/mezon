@@ -176,6 +176,7 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 		importance: AndroidImportance.HIGH,
 		showTimestamp: true,
 		badgeIconType: AndroidBadgeIconType.LARGE,
+		actions: [],
 		pressAction: {
 			id: 'default',
 			launchActivity: 'com.mezon.mobile.MainActivity'
@@ -310,7 +311,8 @@ export const createLocalNotification = async (title: string, body: string, data:
 				...(isBuzzSound && {
 					color: '#FF0000',
 					colorized: true
-				})
+				}),
+				actions: []
 			},
 			ios: {}
 		});
@@ -340,6 +342,7 @@ export const createLocalNotification = async (title: string, body: string, data:
 						groupAlertBehavior: AndroidGroupAlertBehavior.SUMMARY,
 						timestamp: Math.max(...groupNotifications.map((n) => n.notification.android?.timestamp || 0)),
 						sortKey: String(Number.MAX_SAFE_INTEGER - Date.now()),
+						actions: [],
 						style: {
 							type: AndroidStyle.MESSAGING,
 							person: {

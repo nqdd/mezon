@@ -1,13 +1,13 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import type { ChannelsEntity, RootState } from '@mezon/store-mobile';
+import type { RootState } from '@mezon/store-mobile';
 import { getStore, selectAllChannelMembers, selectAllUserClans, selectChannelsEntities, selectHashtagDmEntities } from '@mezon/store-mobile';
 import type { IExtendedMessage } from '@mezon/utils';
 import { EBacktickType, ETokenMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
 import type { TFunction } from 'i18next';
 import { ChannelType } from 'mezon-js';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { DeviceEventEmitter, Linking, StyleSheet, Text, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import CustomIcon from '../../../../../../../src/assets/CustomIcon';
@@ -63,32 +63,32 @@ export const markdownStyles = (
 		heading1: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h1,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading2: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h2,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading3: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h3,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading4: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h4,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading5: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h5,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading6: {
 			color: commonHeadingStyle.color,
 			fontSize: size.h6,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		body: commonHeadingStyle,
 		em: commonHeadingStyle,
@@ -204,8 +204,6 @@ export type IMarkdownProps = {
 	content: IExtendedMessage;
 	isEdited?: boolean;
 	translate?: TFunction;
-	onMention?: (url: string) => void;
-	onChannelMention?: (channel: ChannelsEntity) => void;
 	isNumberOfLine?: boolean;
 	isMessageReply?: boolean;
 	mode?: number;
@@ -216,7 +214,6 @@ export type IMarkdownProps = {
 	isUnReadChannel?: boolean;
 	isLastMessage?: boolean;
 	isBuzzMessage?: boolean;
-	onLongPress?: () => void;
 };
 
 function parseMarkdownLink(text: string) {
@@ -342,8 +339,6 @@ export const RenderTextMarkdownContent = ({
 	content,
 	isEdited,
 	translate,
-	onMention,
-	onChannelMention,
 	isNumberOfLine,
 	isMessageReply,
 	mode,
@@ -353,16 +348,16 @@ export const RenderTextMarkdownContent = ({
 	isOnlyContainEmoji,
 	isUnReadChannel = false,
 	isLastMessage = false,
-	isBuzzMessage = false,
-	onLongPress
+	isBuzzMessage = false
 }: IMarkdownProps) => {
 	const { themeValue } = useTheme();
 	const isTabletLandscape = useTabletLandscape();
 
-	const { t, embed, mentions = [], hg = [], ej = [], mk = [], lk = [] } = content || {};
+	const { t, embed, mentions = [], hg = [], ej = [], mk = [] } = content || {};
 	const embedNotificationMessage = embed?.[0]?.title;
 	let lastIndex = 0;
 	const textParts: React.ReactNode[] = [];
+	const textTripleParts: React.ReactNode[] = [];
 	const markdownBlackParts: React.ReactNode[] = [];
 
 	const elements = [
@@ -433,7 +428,9 @@ export const RenderTextMarkdownContent = ({
 								backgroundColor: themeValue.darkMossGreen
 							}
 						]}
-						onPress={() => onMention?.(isRoleMention ? link.replace('@role', '@') : link)}
+						onPress={() => {
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_MENTION_USER_MESSAGE_ITEM, isRoleMention ? link.replace('@role', '@') : link);
+						}}
 					>
 						{text || contentInElement}
 					</Text>
@@ -479,7 +476,7 @@ export const RenderTextMarkdownContent = ({
 							]}
 							onPress={() => {
 								if (!payloadChannel?.channel_id) return;
-								onChannelMention?.(payloadChannel);
+								DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, payloadChannel);
 							}}
 						>
 							{renderChannelIcon(payloadChannel?.type, payloadChannel?.channel_id, themeValue)}
@@ -535,6 +532,14 @@ export const RenderTextMarkdownContent = ({
 										</Text>
 									</View>
 								</View>
+							</Text>
+						);
+						textTripleParts.push(
+							<Text key={`code-triple-${index}`} style={themeValue ? markdownStyles(themeValue).code_block : {}}>
+								{(contentInElement?.startsWith('```') && contentInElement?.endsWith('```')
+									? contentInElement?.slice(3, -3)
+									: contentInElement
+								)?.replace(/^\n+|\n+$/g, '')}
 							</Text>
 						);
 						break;
@@ -615,7 +620,7 @@ export const RenderTextMarkdownContent = ({
 										]}
 										onPress={() => {
 											if (!payloadChannel?.channel_id) return;
-											onChannelMention?.(payloadChannel);
+											DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, payloadChannel);
 										}}
 									>
 										{renderChannelIcon(payloadChannel?.type, payloadChannel?.channel_id, themeValue)}
@@ -709,6 +714,22 @@ export const RenderTextMarkdownContent = ({
 				{` ${translate('edited')}`}
 			</Text>
 		);
+	}
+
+	const isCodeTripleOnly = useMemo(() => {
+		return (
+			textParts?.[0]?.key?.includes('code-triple') &&
+			textParts?.length <= 2 &&
+			(textParts.length === 1 || textParts[1]?.key?.includes('edited'))
+		);
+	}, [textParts]);
+
+	if (isCodeTripleOnly) {
+		const fenceStyle = themeValue
+			? markdownStyles(themeValue, isUnReadChannel, isLastMessage, isBuzzMessage, isTabletLandscape).fence
+			: undefined;
+
+		return <View style={fenceStyle}>{textTripleParts}</View>;
 	}
 
 	return (

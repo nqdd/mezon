@@ -16,6 +16,7 @@
 	"role": "Role",
 	"noRoles": "No Roles",
 	"member": "Member",
+	"members": "Members",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
 	"categoryFilteringComingSoon": "Category filtering will be implemented soon!",
