@@ -19,7 +19,7 @@ import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezo
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -89,13 +89,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		return friends?.filter((user) => user.state === 0) || [];
 	}, []);
 	const canEdit = jsonObject?.canEdit;
-	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
-
-	useEffect(() => {
-		if (!isEnableWallet) {
-			showEnableWallet();
-		}
-	}, [isEnableWallet]);
+	const { walletDetail, enableWallet } = useWallet();
 
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
@@ -149,7 +143,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		});
 
 		return Array.from(userMap.values());
-	}, [friendList, listDM, userProfile?.user?.id]);
+	}, [friendList, listDM, store, userProfile?.user?.id]);
 
 	const handleEnableWallet = async () => {
 		await enableWallet();
@@ -189,10 +183,6 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const sendToken = async () => {
 		const store = await getStoreAsync();
-		if (!isEnableWallet) {
-			showEnableWallet();
-			return;
-		}
 		try {
 			if (!selectedUser && !jsonObject?.receiver_id) {
 				Toast.show({
@@ -592,7 +582,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('token')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								autoFocus={!!jsonObject?.receiver_id && isEnableWallet}
+								autoFocus={!!jsonObject?.receiver_id}
 								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}

@@ -2,7 +2,6 @@
 import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegex } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
-	ChannelsEntity,
 	MessagesEntity,
 	getStore,
 	getStoreAsync,
@@ -38,6 +37,7 @@ import MessageSendTokenLog from './components/MessageSendTokenLog';
 import MessageTopic from './components/MessageTopic/MessageTopic';
 import { RenderMessageItemRef } from './components/RenderMessageItemRef';
 import { RenderTextMarkdownContent } from './components/RenderTextMarkdown';
+import { RenderRawText } from './components/RenderTextMarkdown/RenderRawText';
 import UserProfile from './components/UserProfile';
 import { EMessageActionType } from './enums';
 import { style } from './styles';
@@ -219,14 +219,6 @@ const MessageItem = React.memo(
 			}
 		}, [channelId, checkAnonymous, checkSystem, isDM, message, preventAction]);
 
-		const onMention = useCallback(async (mentionedUser: string) => {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_MENTION_USER_MESSAGE_ITEM, mentionedUser);
-		}, []);
-
-		const onChannelMention = useCallback(async (channel: ChannelsEntity) => {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, channel);
-		}, []);
-
 		const handleLongPressMessage = useCallback(() => {
 			if (preventAction || isMessageSystem) return;
 			dispatch(setSelectedMessage(message));
@@ -240,7 +232,13 @@ const MessageItem = React.memo(
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false
 			});
-		}, [dispatch, message, mode, preventAction, senderDisplayName]);
+		}, [dispatch, isMessageSystem, message, mode, preventAction, senderDisplayName]);
+
+		const isRawMessage = useMemo(() => {
+			const { t, embed, hg, ej, mk } = message.content || {};
+			const mentions = message?.mentions || [];
+			return Boolean(t && !embed && !mentions?.length && !hg?.length && !ej?.length && !mk?.length);
+		}, [message?.content, message?.mentions]);
 
 		// Message welcome
 		if (message?.sender_id === '0' && !message?.content?.t && message?.username?.toLowerCase() === 'system') {
@@ -346,6 +344,14 @@ const MessageItem = React.memo(
 											/>
 										) : isSendTokenLog ? (
 											<MessageSendTokenLog messageContent={message?.content?.t} />
+										) : isRawMessage ? (
+											<RenderRawText
+												text={message.content?.t}
+												isEdited={isEdited}
+												isNumberOfLine={isNumberOfLine}
+												translate={t}
+												isBuzzMessage={isBuzzMessage}
+											/>
 										) : message?.content?.t ? (
 											<RenderTextMarkdownContent
 												content={{
@@ -356,15 +362,12 @@ const MessageItem = React.memo(
 												}}
 												isEdited={isEdited}
 												translate={t}
-												onMention={onMention}
-												onChannelMention={onChannelMention}
 												isNumberOfLine={isNumberOfLine}
 												isMessageReply={false}
 												isBuzzMessage={isBuzzMessage}
 												mode={mode}
 												currentChannelId={channelId}
 												isOnlyContainEmoji={isOnlyContainEmoji}
-												onLongPress={handleLongPressMessage}
 											/>
 										) : null}
 										{!!message?.content?.embed?.length &&

@@ -8,7 +8,8 @@ import {
 	selectAllFriends,
 	selectCurrentClanId,
 	useAppDispatch,
-	useWallet
+	useWallet,
+	walletActions
 } from '@mezon/store-mobile';
 import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -56,7 +57,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	useFocusEffect(
 		React.useCallback(() => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
-		}, [dispatch])
+			dispatch(
+				walletActions.fetchWalletDetail({
+					userId: userProfile?.user?.id
+				})
+			);
+		}, [dispatch, userProfile?.user?.id])
 	);
 
 	const userCustomStatus = useMemo(() => {
