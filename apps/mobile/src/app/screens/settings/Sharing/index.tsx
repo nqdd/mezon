@@ -166,8 +166,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			const store = await getStoreAsync();
 			await store.dispatch(
 				channelsActions.joinChat({
-					clanId: channelSelected?.clan_id,
-					channelId: channelSelected?.channel_id,
+					clanId: '0',
+					channelId: channelSelected?.channel_id || '',
 					channelType: channelSelected?.type,
 					isPublic: false
 				})
@@ -175,8 +175,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 
 			await mezon.socketRef.current.writeChatMessage(
 				'0',
-				channelSelected?.id,
-				Number(channelSelected?.user_ids?.length) === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
+				channelSelected?.id || '',
+				channelSelected?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
 				false,
 				{
 					t: dataSend.text,
@@ -191,7 +191,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		}
 	};
 
-	const sendToGroup = async (dataSend: { text: any; links: any[] }) => {
+	const sendToChannel = async (dataSend: { text: any; links: any[] }) => {
 		const clanIdStore = selectCurrentClanId(store.getState());
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
@@ -280,7 +280,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		if (channelSelected.type === ChannelType.CHANNEL_TYPE_GROUP || channelSelected.type === ChannelType.CHANNEL_TYPE_DM) {
 			await sendToDM(dataSend);
 		} else {
-			await sendToGroup(dataSend);
+			await sendToChannel(dataSend);
 		}
 		setIsLoading(false);
 		onCloseSharing(true);
