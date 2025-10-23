@@ -4,6 +4,7 @@ import {
 	clansActions,
 	selectClanView,
 	selectCurrentClanId,
+	selectDmGroupCurrent,
 	selectDmGroupCurrentId,
 	selectDmGroupCurrentType,
 	selectLogoCustom,
@@ -28,6 +29,7 @@ const SidebarLogoItem = () => {
 	const currentDmId = useSelector(selectDmGroupCurrentId);
 	const currentDmIType = useSelector(selectDmGroupCurrentType);
 	const logoCustom = useSelector(selectLogoCustom);
+	const currentDmGroup = useSelector(selectDmGroupCurrent(currentDmId || ''));
 
 	const setModeResponsive = useCallback(
 		(value: ModeResponsive) => {
@@ -64,7 +66,7 @@ const SidebarLogoItem = () => {
 			<button
 				onClick={() => {
 					setModeResponsive(ModeResponsive.MODE_DM);
-					navigate(currentDmId ? `/chat/direct/message/${currentDmId}/${currentDmIType}` : '/chat/direct/friends');
+					navigate(!currentDmId || !currentDmGroup ? '/chat/direct/friends' : `/chat/direct/message/${currentDmId}/${currentDmIType}`);
 				}}
 				draggable="false"
 			>
