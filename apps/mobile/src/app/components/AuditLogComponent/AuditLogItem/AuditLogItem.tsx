@@ -38,21 +38,9 @@ export const AuditLogItem = memo(({ data }: AuditLogItemProps) => {
 			: '';
 
 	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				padding: size.s_10,
-				backgroundColor: themeValue.secondary,
-				borderRadius: size.s_10,
-				gap: size.s_10,
-				alignItems: 'center',
-				borderWidth: 1,
-				borderColor: themeValue.tertiary,
-				marginVertical: size.s_6
-			}}
-		>
+		<View style={styles.itemContainer}>
 			<MezonAvatar avatarUrl={avatar} username={username} height={size.s_36} width={size.s_36} />
-			<View style={{ flex: 1 }}>
+			<View style={styles.itemContent}>
 				<View>
 					{isChannelAction && data?.channel_id !== '0' ? (
 						<Text style={styles.actionText}>

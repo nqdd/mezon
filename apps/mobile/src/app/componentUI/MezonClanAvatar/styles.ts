@@ -33,8 +33,14 @@ export const style = (colors: Attributes, isMsgReply = false) =>
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
-		textAvatarMessageBoxDefault: {
+			textAvatarMessageBoxDefault: {
 			fontSize: isMsgReply ? size.h8 : size.h7,
-			color: baseColor.white
+			color: baseColor.white,
+			textTransform: 'uppercase'
+		},
+		defaultImageStyle: {
+			width: '100%',
+			height: '100%',
+			borderRadius: size.s_100
 		}
 	});

@@ -87,13 +87,13 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 	const handleOnPressFilter = useCallback(() => {
 		const data = {
 			children: (
-				<View style={{ paddingHorizontal: size.s_20 }}>
+				<View style={styles.menuContainer}>
 					<MezonMenu menu={menu} />
 				</View>
 			)
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-	}, [menu]);
+	}, [menu, styles.menuContainer]);
 
 	useLayoutEffect(() => {
 		navigation.setOptions({
@@ -158,23 +158,15 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 
 	const renderAditLogItem = ({ item }) => <AuditLogItem data={item} />;
 	return (
-		<View style={{ paddingVertical: size.s_10, width: '100%', height: '100%', backgroundColor: themeValue.primary }}>
+		<View style={styles.container}>
 			<TouchableOpacity onPress={handleOnPressFilter} activeOpacity={0.5} style={styles.filterBtn}>
-				<View style={{ gap: size.s_10, alignItems: 'center', flexDirection: 'row', marginRight: size.s_10 }}>
-					<View
-						style={{
-							maxWidth: 200,
-							marginLeft: size.s_20,
-							backgroundColor: themeValue.tertiary,
-							padding: size.s_6,
-							borderRadius: size.s_6
-						}}
-					>
+				<View style={styles.filterContainer}>
+					<View style={styles.filterTag}>
 						<Text style={styles.textFilterBtn} numberOfLines={1}>
 							{displayUserName}
 						</Text>
 					</View>
-					<View style={{ maxWidth: 200, backgroundColor: themeValue.tertiary, padding: size.s_6, borderRadius: size.s_6 }}>
+					<View style={styles.filterTagSecondary}>
 						<Text style={styles.textFilterBtn} numberOfLines={1}>
 							{displayActionLog}
 						</Text>
@@ -182,7 +174,7 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 				</View>
 			</TouchableOpacity>
-			<View style={{ paddingHorizontal: size.s_10 }}>
+			<View style={styles.datePickerContainer}>
 				<MezonDateTimePicker
 					value={selectDate}
 					onChange={handleDatePicked}
@@ -192,7 +184,7 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 				/>
 			</View>
 
-			<View style={{ flex: 1, paddingHorizontal: size.s_10, paddingVertical: size.s_10 }}>
+			<View style={styles.listContainer}>
 				{loadingStatus === 'loaded' && !auditLogData?.logs?.length ? (
 					<EmptyAuditLog />
 				) : (

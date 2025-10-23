@@ -2,7 +2,7 @@ import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { MessagesEntity } from '@mezon/store-mobile';
 import React, { useCallback, useMemo } from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, Platform, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import { FlatList } from 'react-native-gesture-handler';
 import { style } from './styles';
@@ -40,57 +40,77 @@ const ChannelListMessage = React.memo(
 			return lastMessage?.sender_id === '0' && !lastMessage?.content?.t && lastMessage?.username?.toLowerCase() === 'system';
 		}, [messages]);
 
-		const handleEndReached = () => {
+		const handleEndReached = useCallback(() => {
 			if (messages?.length && !isCannotLoadMore) {
 				onLoadMore(ELoadMoreDirection.top);
 			}
-		};
+		}, [messages?.length, isCannotLoadMore, onLoadMore]);
+
+		const handleScrollBeginDrag = useCallback(() => {
+			Keyboard.dismiss();
+		}, []);
+
+		const onScrollToIndexFailed = useCallback(
+			(info: { index: number; highestMeasuredFrameIndex: number; averageItemLength: number }) => {
+				const wait = new Promise((resolve) => setTimeout(resolve, 200));
+				if (info?.highestMeasuredFrameIndex < info?.index && info?.index <= messages?.length) {
+					flatListRef.current?.scrollToIndex({ index: info.highestMeasuredFrameIndex, animated: true, viewPosition: 0.5 });
+					wait.then(() => {
+						flatListRef.current?.scrollToIndex({ index: info?.index, animated: true, viewPosition: 0.5 });
+					});
+				}
+			},
+			[flatListRef, messages?.length]
+		);
+
+		const viewabilityConfig = useMemo(
+			() => ({
+				minimumViewTime: 0,
+				viewAreaCoveragePercentThreshold: 0,
+				itemVisiblePercentThreshold: 0,
+				waitForInteraction: false
+			}),
+			[]
+		);
+
+		const maintainVisibleConfig = useMemo(
+			() => ({
+				minIndexForVisible: Platform.OS === 'android' ? 1 : 10,
+				autoscrollToTopThreshold: isLoadMoreBottom ? undefined : 100
+			}),
+			[isLoadMoreBottom]
+		);
+
 		return (
 			<FlatList
 				data={messages}
 				renderItem={renderItem}
 				keyExtractor={keyExtractor}
 				inverted={true}
+				bounces={false}
 				showsVerticalScrollIndicator={true}
 				contentContainerStyle={styles.listChannels}
-				initialNumToRender={5}
+				initialNumToRender={10}
 				maxToRenderPerBatch={10}
 				windowSize={10}
-				onEndReachedThreshold={0.2}
-				maintainVisibleContentPosition={{
-					minIndexForVisible: 0,
-					autoscrollToTopThreshold: isLoadMoreBottom ? undefined : 100
-				}}
+				onEndReachedThreshold={0.5}
+				maintainVisibleContentPosition={maintainVisibleConfig}
 				ref={flatListRef}
-				// overrideProps={{ isInvertedVirtualizedList: true }}
 				onMomentumScrollEnd={handleScroll}
 				keyboardShouldPersistTaps={'handled'}
-				// removeClippedSubviews={false}
-				// decelerationRate={'fast'}
-				// updateCellsBatchingPeriod={100}
+				updateCellsBatchingPeriod={50}
 				onEndReached={handleEndReached}
-				// scrollEventThrottle={16}
-				// estimatedItemSize={220}
-				onScrollBeginDrag={() => {
-					Keyboard.dismiss();
-				}}
-				viewabilityConfig={{
-					minimumViewTime: 0,
-					viewAreaCoveragePercentThreshold: 0,
-					itemVisiblePercentThreshold: 0,
-					waitForInteraction: false
-				}}
-				contentInsetAdjustmentBehavior="automatic"
-				onScrollToIndexFailed={(info) => {
-					const wait = new Promise((resolve) => setTimeout(resolve, 200));
-					if (info?.highestMeasuredFrameIndex < info?.index && info?.index <= messages?.length) {
-						flatListRef.current?.scrollToIndex({ index: info.highestMeasuredFrameIndex, animated: true, viewPosition: 0.5 });
-						wait.then(() => {
-							flatListRef.current?.scrollToIndex({ index: info?.index, animated: true, viewPosition: 0.5 });
-						});
-					}
-				}}
+				onScrollBeginDrag={handleScrollBeginDrag}
+				viewabilityConfig={viewabilityConfig}
+				onScrollToIndexFailed={onScrollToIndexFailed}
 			/>
+		);
+	},
+	(prevProps, nextProps) => {
+		return (
+			prevProps.messages === nextProps.messages &&
+			prevProps.isLoadMoreBottom === nextProps.isLoadMoreBottom &&
+			prevProps.flatListRef === nextProps.flatListRef
 		);
 	}
 );

@@ -23,20 +23,13 @@ export const ToastError = memo((props: ToastConfigParams<any>) => {
 	const text2Content = !data?.text1 && !text1 && (text2 || data?.text2) ? '' : text2 || data?.text2;
 
 	return (
-		<View
-			style={[
-				styles.toastWrapper,
-				{
-					backgroundColor: '#efc3ca'
-				}
-			]}
-		>
+		<View style={[styles.toastWrapper, styles.toastErrorBackground]}>
 			<Bubble size={size.s_60} position={{ left: -size.s_20, top: -size.s_20 }} color={'#e69ca0'} />
 			<Bubble size={size.s_30} position={{ left: size.s_20, bottom: -size.s_20 }} color={'#e69ca0'} />
 			<Bubble size={size.s_10} position={{ left: size.s_60, bottom: size.s_20 }} color={'#e69ca0'} />
 			<BaseToast
 				style={[containerStyle]}
-				contentContainerStyle={{ paddingHorizontal: size.s_20 }}
+				contentContainerStyle={styles.contentContainerStyle}
 				text1Style={[styles.titleBaseStyle, text1Style]}
 				text2Style={[styles.descriptionBaseStyle, text2Style]}
 				text1={text1Content}
@@ -44,7 +37,7 @@ export const ToastError = memo((props: ToastConfigParams<any>) => {
 				text2NumberOfLines={2}
 				text1NumberOfLines={!text2Content ? 2 : 1}
 				renderLeadingIcon={() => <WrapperIcon>{data?.leadingIcon}</WrapperIcon>}
-				renderTrailingIcon={() => <View style={{ marginRight: -size.s_30 }}></View>}
+				renderTrailingIcon={() => <View style={styles.trailingIconContainer}></View>}
 			/>
 		</View>
 	);

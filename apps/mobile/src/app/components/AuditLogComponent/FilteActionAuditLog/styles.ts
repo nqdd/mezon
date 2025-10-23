@@ -4,15 +4,20 @@ import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
+			width: '100%',
+			height: '100%',
 			backgroundColor: colors.primary,
-			flex: 1,
-			paddingHorizontal: size.s_20,
+			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_10
 		},
-		headerLeftButton: {
-			padding: size.s_20
+		iconText: {
+			fontSize: size.h6,
+			marginLeft: 0,
+			marginRight: 0,
+			fontWeight: 'bold',
+			color: colors.white
 		},
-		contentContainer: {
-			paddingBottom: size.s_50
+		scrollContainer: {
+			marginVertical: size.s_20
 		}
 	});

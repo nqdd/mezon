@@ -1,4 +1,4 @@
-import { size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { auditLogFilterActions, selectActionAuditLog, useAppDispatch } from '@mezon/store-mobile';
 import { ActionLog } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonOption, { IMezonOptionData } from '../../../componentUI/MezonOption';
 import InputSearchAuditLog from '../InputSearchAuditLog/InputSearchAuditLog';
+import { style } from './styles';
 
 const iconMap: { [key in ActionLog]: ReactNode | string } = {
 	[ActionLog.ALL_ACTION_AUDIT]: '-',
@@ -62,6 +63,7 @@ export default function FilterActionAuditLog() {
 	const [searchText, setSearchText] = useState<string>('');
 	const [actionOption, setActionOption] = useState<string>(actionAuditLog ?? ActionLog.ALL_ACTION_AUDIT);
 	const { t } = useTranslation('auditLog');
+	const styles = style(themeValue);
 
 	const actionOptions: IMezonOptionData = useMemo(
 		() =>
@@ -69,22 +71,10 @@ export default function FilterActionAuditLog() {
 				?.map((action) => ({
 					title: action,
 					value: action,
-					icon: (
-						<Text
-							style={{
-								fontSize: verticalScale(16),
-								marginLeft: 0,
-								marginRight: 0,
-								fontWeight: 'bold',
-								color: themeValue.white
-							}}
-						>
-							{iconMap[action]}
-						</Text>
-					)
+					icon: <Text style={styles.iconText}>{iconMap[action]}</Text>
 				}))
 				?.filter((option) => option?.title?.toLowerCase().includes(searchText?.toLowerCase())),
-		[searchText, themeValue]
+		[searchText, styles.iconText]
 	);
 	const handleSearchTerm = useCallback((text) => {
 		setSearchText(text);
@@ -95,11 +85,9 @@ export default function FilterActionAuditLog() {
 		navigation.goBack();
 	}, []);
 	return (
-		<View
-			style={{ width: '100%', height: '100%', backgroundColor: themeValue.primary, paddingHorizontal: size.s_10, paddingVertical: size.s_10 }}
-		>
+		<View style={styles.container}>
 			<InputSearchAuditLog onChangeText={handleSearchTerm} placeHolder={t('filterActionAuditLog.placeholder')} />
-			<View style={{ marginVertical: size.s_20 }}>
+			<View style={styles.scrollContainer}>
 				<ScrollView showsVerticalScrollIndicator={false}>
 					<MezonOption data={actionOptions} onChange={handleOptionChange} value={actionOption} />
 				</ScrollView>

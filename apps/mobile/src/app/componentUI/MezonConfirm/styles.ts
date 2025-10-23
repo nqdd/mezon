@@ -53,12 +53,14 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		btnDanger: {
 			backgroundColor: baseColor.buzzRed
 		},
-		btnText: {
+			btnText: {
 			color: colors.textStrong,
 			fontSize: Fonts.size.h8,
 			textAlign: 'center'
 		},
-
+		btnTextWhite: {
+			color: baseColor.white
+		},
 		contentText: {
 			color: colors.text,
 			fontSize: size.h6,

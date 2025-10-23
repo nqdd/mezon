@@ -25,12 +25,12 @@ const ClanNotificationSetting = ({ navigation }: MenuClanScreenProps<ClanNotific
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerLeft: () => (
-				<Pressable style={{ padding: 20 }} onPress={() => navigation.goBack()}>
+				<Pressable style={styles.headerLeftButton} onPress={() => navigation.goBack()}>
 					<MezonIconCDN icon={IconCDN.closeSmallBold} height={20} width={20} color={themeValue.textStrong} />
 				</Pressable>
 			)
 		});
-	}, [navigation, themeValue.textStrong]);
+	}, [navigation, styles.headerLeftButton, themeValue.textStrong]);
 
 	const notificationOverridesMenu: IMezonMenuSectionProps[] = [
 		{
@@ -54,7 +54,7 @@ const ClanNotificationSetting = ({ navigation }: MenuClanScreenProps<ClanNotific
 	};
 
 	return (
-		<ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: size.s_50 }}>
+		<ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 			<MezonOption
 				value={defaultNotificationClan?.notification_setting_type}
 				onChange={handleNotificationClanChange}
