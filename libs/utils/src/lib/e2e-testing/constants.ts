@@ -379,7 +379,10 @@ export const DATA_E2E_IDENTIFIER = {
 			header: {
 				left_container: '',
 				right_container: {
-					user_profile: ''
+					user_profile: '',
+					call: '',
+					video_call: '',
+					add_member: ''
 				}
 			},
 			chat_list_container: '',
