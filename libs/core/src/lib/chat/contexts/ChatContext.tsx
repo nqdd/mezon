@@ -868,6 +868,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const currentVoice = selectVoiceInfo(store.getState());
 			const currentStream = selectCurrentStreamInfo(store.getState());
 			user?.user_ids.forEach((id: string) => {
+				dispatch(voiceActions.removeFromClanInvoice(id));
 				if (id === userId) {
 					if (clanId === user.clan_id) {
 						navigate(`/chat/direct/friends`);
@@ -2678,4 +2679,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
-
