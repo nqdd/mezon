@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { memo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import ImageNative from '../../../../components/ImageNative';
+import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import { UserStatus } from '../../../../components/UserStatus';
 import { APP_SCREEN } from '../../../../navigation/ScreenTypes';
 import { style } from './styles';
@@ -28,9 +28,9 @@ const ProfileBar = () => {
 		<Pressable style={styles.wrapperProfile} onPress={handleOpenProfileSettings}>
 			<View>
 				<View style={styles.imageWrapper}>
-					<ImageNative
-						url={createImgproxyUrl(user?.userProfile?.user?.avatar_url ?? '', { width: 150, height: 150, resizeType: 'fit' })}
-						style={styles.imageWrapper}
+					<MezonClanAvatar
+						alt={user?.userProfile?.user?.username || ''}
+						image={createImgproxyUrl(user?.userProfile?.user?.avatar_url ?? '', { width: 150, height: 150, resizeType: 'fit' })}
 					/>
 				</View>
 				<UserStatus status={userStatus} iconSize={size.s_10} />

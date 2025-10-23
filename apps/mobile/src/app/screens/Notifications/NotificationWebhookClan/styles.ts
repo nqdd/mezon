@@ -34,7 +34,10 @@ export const style = (colors: Attributes) =>
 			height: size.s_40,
 			borderRadius: size.s_50,
 			marginBottom: size.s_8,
-			fontSize: size.medium
+			fontSize: size.medium,
+			alignItems: 'center',
+			gap: size.s_8,
+			overflow: 'hidden'
 		},
 
 		image: {

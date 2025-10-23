@@ -184,7 +184,9 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 					<MezonAvatar height={size.s_100} width={size.s_100} avatarUrl={currenChannel.avatars[0]} username={userName} />
 				) : (
 					<View style={styles.wrapperTextAvatar}>
-						<Text style={[styles.textAvatar]}>{currenChannel?.channel_label?.charAt?.(0)?.toUpperCase()}</Text>
+						<Text style={[styles.textAvatar]}>
+							{(currenChannel?.channel_label || displayName || userName)?.charAt?.(0)?.toUpperCase()}
+						</Text>
 					</View>
 				)
 			) : (
@@ -247,7 +249,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 					<Text style={styles.subTitleWelcomeMessage}>
 						{t('chatWelcome:welcome.startOfChannel', {
 							channelName: currenChannel?.channel_label || '',
-							channelType: Boolean(currenChannel?.channel_private) ? t('chatWelcome:welcome.private') : ''
+							channelType: currenChannel?.channel_private ? t('chatWelcome:welcome.private') : ''
 						})}
 					</Text>
 				</View>

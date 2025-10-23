@@ -7,9 +7,10 @@ import LottieView from 'lottie-react-native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, ImageStyle, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, ImageStyle, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import { SOUND_WAVES_CIRCLE } from '../../../../../../../assets/lottie';
@@ -30,7 +31,7 @@ interface IRecordAudioMessageProps {
 export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: IRecordAudioMessageProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['recordChatMessage']);
+	const { t } = useTranslation(['recordChatMessage', 'common']);
 	const [isDisplay, setIsDisplay] = useState<boolean>(false);
 	const recordingRef = useRef(null);
 	const recordingWaveRef = useRef(null);
@@ -76,7 +77,11 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 			const granted = await requestMicrophonePermission();
 
 			if (!granted) {
-				Alert.alert('Permissions required', 'Please grant microphone permissions to use this feature.');
+				Toast.show({
+					type: 'error',
+					text1: t('common:permissionNotification.permissionRequired'),
+					text2: t('common:permissionNotification.microphoneRequiredDesc')
+				});
 				return false;
 			}
 			return true;

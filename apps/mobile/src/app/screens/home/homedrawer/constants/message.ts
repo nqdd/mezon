@@ -92,7 +92,7 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 		{
 			id: 14,
 			title: t('message:actions.saveImage'),
-			type: EMessageActionType.SaveImage
+			type: EMessageActionType.SaveMedia
 		},
 		{
 			id: 15,

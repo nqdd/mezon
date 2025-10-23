@@ -1,9 +1,9 @@
-import BottomSheet from '@gorhom/bottom-sheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useThreadMessage, useThreads } from '@mezon/core';
 import { ActionEmitEvent, STORAGE_CLAN_ID, STORAGE_DATA_CLAN_CHANNEL_CACHE, getUpdateOrAddClanChannelCache, save } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
 import {
-	RootState,
 	appActions,
 	channelsActions,
 	createNewChannel,
@@ -16,12 +16,13 @@ import {
 	selectThreadCurrentChannel,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { IChannel, IMessageSendPayload, IMessageWithUser, ThreadValue, checkIsThread, isPublicChannel } from '@mezon/utils';
+import type { IChannel, IMessageSendPayload, IMessageWithUser, ThreadValue } from '@mezon/utils';
+import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription, ApiCreateChannelDescRequest, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Keyboard, Platform, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, Platform, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
@@ -31,7 +32,8 @@ import MezonInput from '../../../componentUI/MezonInput';
 import MezonSwitch from '../../../componentUI/MezonSwitch';
 import { IconCDN } from '../../../constants/icon_cdn';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
-import { APP_SCREEN, MenuThreadScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuThreadScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { ChatBox } from '../../../screens/home/homedrawer/ChatBox';
 import MessageItem from '../../../screens/home/homedrawer/MessageItem';
 import PanelKeyboard from '../../../screens/home/homedrawer/PanelKeyboard';
@@ -91,13 +93,21 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 			try {
 				const newThreadResponse = await dispatch(createNewChannel(body));
 				if (newThreadResponse.meta.requestStatus === 'rejected') {
-					Alert.alert('Created Thread Failed', "Thread not found or you're not allowed to update");
+					Toast.show({
+						type: 'error',
+						text1: t('threadFailed.title'),
+						text2: t('threadFailed.content')
+					});
 				} else {
 					handleRouteData(newThreadResponse.payload as IChannel);
 					return newThreadResponse?.payload;
 				}
 			} catch (error) {
-				Alert.alert('Created Thread Failed', "Thread not found or you're not allowed to update");
+				Toast.show({
+					type: 'error',
+					text1: t('threadFailed.title'),
+					text2: t('threadFailed.content')
+				});
 			}
 		},
 		[currentChannel, currentChannel?.parent_id, currentClanId, dispatch]
@@ -198,7 +208,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 		const clanId = thread?.clan_id || currentClanId;
 		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-		store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId: channelId, noFetchMembers: false }));
+		store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId, noFetchMembers: false }));
 		await sleep(500);
 		if (isTabletLandscape) {
 			navigation.navigate(APP_SCREEN.HOME);
@@ -281,7 +291,11 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={''}
 				/>
-				<PanelKeyboard currentChannelId={currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
+				<PanelKeyboard
+					currentChannelId={currentChannel?.channel_id}
+					currentClanId={currentChannel?.clan_id}
+					messageAction={EMessageActionType.CreateThread}
+				/>
 			</View>
 		</KeyboardAvoidingView>
 	);

@@ -66,6 +66,7 @@ export const ClanIcon = memo(
 							<Text style={styles.badgeText}>{badgeCountClan > 99 ? `+99` : badgeCountClan}</Text>
 						</View>
 					)}
+					{props?.data?.has_unread_message === true && <View style={styles.unreadDot} />}
 					{!!isActiveCurrentClan && <View style={styles.lineActiveClan} />}
 				</TouchableOpacity>
 			</ScaleDecorator>
@@ -76,6 +77,7 @@ export const ClanIcon = memo(
 			prevProps.data?.clan_id === nextProps.data?.clan_id &&
 			prevProps.data?.logo === nextProps.data?.logo &&
 			prevProps.data?.clan_name === nextProps.data?.clan_name &&
+			prevProps.data?.has_unread_message === nextProps.data?.has_unread_message &&
 			prevProps.isActive === nextProps.isActive
 		);
 	}

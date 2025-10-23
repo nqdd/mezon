@@ -8,12 +8,13 @@ import { Snowflake } from '@theinternetfolks/snowflake';
 import { safeJSONParse } from 'mezon-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import { launchImageLibrary } from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import RNQRGenerator from 'rn-qr-generator';
+import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -21,7 +22,7 @@ import { getQueryParam } from '../../../utils/helpers';
 import { style } from './styles';
 
 export const QRScanner = () => {
-	const { t } = useTranslation(['qrScanner']);
+	const { t } = useTranslation(['qrScanner', 'common']);
 	const [hasPermission, setHasPermission] = useState(false);
 	const [doScanBarcode, setDoScanBarcode] = useState(true);
 	const navigation = useNavigation<any>();
@@ -53,15 +54,20 @@ export const QRScanner = () => {
 				if (granted === PermissionsAndroid.RESULTS.GRANTED) {
 					setHasPermission(true);
 				} else {
-					Alert.alert(
-						t('cameraPermissionDenied'),
-						t('pleaseAllowCamera'),
-						[
-							{ text: t('cancel'), style: 'cancel' },
-							{ text: t('openSettings'), onPress: () => Linking.openSettings() }
-						],
-						{ cancelable: false }
-					);
+					const data = {
+						children: (
+							<MezonConfirm
+								title={t('cameraPermissionDenied')}
+								content={t('pleaseAllowCamera')}
+								confirmText={t('common:openSettings')}
+								onConfirm={() => {
+									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+									Linking.openSettings();
+								}}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				}
 			} else if (Platform.OS === 'ios') {
 				setHasPermission(true);

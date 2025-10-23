@@ -5,7 +5,8 @@ export interface CacheMetadata {
 	sessionId?: string;
 }
 
-export const DEFAULT_CACHE_TIME = 1000 * 60 * 60;
+export const DEFAULT_CACHE_TIME = 1000 * 60 * 20;
+const MAX_TRACKER_ENTRIES = 1000;
 
 const apiCallTracker = new Map<string, boolean>();
 
@@ -41,6 +42,16 @@ export const getTimeUntilExpiry = (cache?: CacheMetadata): number => {
 export const markApiFirstCalled = (key: string): void => {
 	const fullKey = `${'cache'}_${key}`;
 	apiCallTracker.set(fullKey, true);
+
+	if (apiCallTracker.size > MAX_TRACKER_ENTRIES) {
+		const entriesToRemove = Math.floor(apiCallTracker.size / 2);
+		let removed = 0;
+		for (const key of apiCallTracker.keys()) {
+			if (removed >= entriesToRemove) break;
+			apiCallTracker.delete(key);
+			removed++;
+		}
+	}
 };
 
 export const isApiFirstCall = (key: string): boolean => {

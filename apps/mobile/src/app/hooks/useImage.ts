@@ -1,12 +1,14 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { appActions, useAppDispatch } from '@mezon/store-mobile';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Linking, NativeModules, Platform } from 'react-native';
+import { DeviceEventEmitter, Linking, NativeModules, Platform } from 'react-native';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import Toast from 'react-native-toast-message';
 import RNFetchBlob from 'rn-fetch-blob';
+import MezonConfirm from '../componentUI/MezonConfirm';
 
 const { ImageClipboardModule } = NativeModules;
 
@@ -146,21 +148,21 @@ export function useImage() {
 	};
 
 	const alertOpenSettings = (title?: string, desc?: string) => {
-		Alert.alert(title || 'Photo Permission', desc || 'App needs access to your photo library', [
-			{
-				text: 'Cancel',
-				style: 'cancel'
-			},
-			{
-				text: 'OK',
-				onPress: () => {
+		const data = {
+			children: React.createElement(MezonConfirm, {
+				title: title || t('permissionNotification.photoTitle'),
+				content: desc || t('permissionNotification.photoDesc'),
+				confirmText: t('openSettings'),
+				onConfirm: () => {
 					openAppSettings();
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				}
-			}
-		]);
+			})
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
-	const saveImageToCameraRoll = useCallback(
+	const saveMediaToCameraRoll = useCallback(
 		async (filePath: string, type: string, isShowSuccessToast = true, isUnlink = true) => {
 			try {
 				const hasPermission = await checkAndRequestPermission();
@@ -193,7 +195,7 @@ export function useImage() {
 
 	return {
 		downloadImage,
-		saveImageToCameraRoll,
+		saveMediaToCameraRoll,
 		getImageAsBase64OrFile
 	};
 }

@@ -22,16 +22,15 @@ import type { EntityState, GetThunkAPI, PayloadAction, Update } from '@reduxjs/t
 import { createAsyncThunk, createEntityAdapter, createSelector, createSelectorCreator, createSlice, weakMapMemoize } from '@reduxjs/toolkit';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ChannelMessage } from 'mezon-js';
-import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MessageButtonClicked } from 'mezon-js/socket';
 import { accountActions, selectAllAccount } from '../account/account.slice';
 import { getUserAvatarOverride, getUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
-import { resetChannelBadgeCount } from '../badge/badgeHelpers';
+import { getCurrentChannelBadgeCount, resetChannelBadgeCount } from '../badge/badgeHelpers';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { channelsActions, selectCurrentChannel, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
@@ -452,51 +451,6 @@ export const fetchMessages = createAsyncThunk(
 				);
 			}
 
-			if (isFetchingLatestMessages && lastSentMessage?.id && !fromCache) {
-				let mode: number | undefined;
-				let badge_count: number | undefined;
-
-				if (clanId !== '0') {
-					const currentChannel = selectCurrentChannel(state);
-					if (currentChannel) {
-						badge_count = currentChannel.count_mess_unread || 0;
-						if (
-							currentChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
-							currentChannel.type === ChannelType.CHANNEL_TYPE_STREAMING ||
-							currentChannel.type === ChannelType.CHANNEL_TYPE_APP ||
-							currentChannel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
-						) {
-							mode = ChannelStreamMode.STREAM_MODE_CHANNEL;
-						} else {
-							mode = ChannelStreamMode.STREAM_MODE_THREAD;
-						}
-					}
-				} else {
-					const currentDmGroup = selectCurrentDM(state);
-					if (currentDmGroup) {
-						badge_count = currentDmGroup.count_mess_unread || 0;
-						if (currentDmGroup.type === ChannelType.CHANNEL_TYPE_DM) {
-							mode = ChannelStreamMode.STREAM_MODE_DM;
-						} else {
-							mode = ChannelStreamMode.STREAM_MODE_GROUP;
-						}
-					}
-				}
-
-				if (mode !== undefined && badge_count !== undefined) {
-					thunkAPI.dispatch(
-						messagesActions.updateLastSeenMessage({
-							channelId: chlId,
-							messageId: lastSentMessage.id,
-							mode,
-							message_time: lastSentMessage.timestamp_seconds,
-							badge_count,
-							clanId
-						})
-					);
-				}
-			}
-
 			return {
 				messages,
 				isFetchingLatestMessages,
@@ -734,29 +688,32 @@ export const updateLastSeenMessage = createAsyncThunk(
 
 			const queuedMessages = (thunkAPI.getState() as RootState).messages?.queuedLastSeenMessages;
 			if (queuedMessages.length > 0) {
-				thunkAPI.dispatch(processQueuedLastSeenMessages());
+				await thunkAPI.dispatch(processQueuedLastSeenMessages()).unwrap();
 			}
 
-			const response = await mezon.socketRef.current?.writeLastSeenMessage(
-				clanId,
-				channelId,
-				mode,
-				messageId,
-				message_time ?? now,
-				badge_count
-			);
+			let badgeCount = badge_count;
+
+			if (clanId !== '0') {
+				const currentChannelBadge = getCurrentChannelBadgeCount({ getState: () => thunkAPI.getState() as RootState }, clanId, channelId);
+				badgeCount = currentChannelBadge;
+			}
+
+			const response = await mezon.socketRef.current?.writeLastSeenMessage(clanId, channelId, mode, messageId, message_time ?? now, badgeCount);
 
 			if (response?.channel_id !== channelId) {
 				return;
 			}
-
-			resetChannelBadgeCount(thunkAPI.dispatch as AppDispatch, {
-				clanId,
-				channelId,
-				badgeCount: badge_count,
-				timestamp: message_time ?? now,
-				messageId
-			});
+			resetChannelBadgeCount(
+				thunkAPI.dispatch as AppDispatch,
+				{
+					clanId,
+					channelId,
+					badgeCount: badge_count,
+					timestamp: message_time ?? now,
+					messageId
+				},
+				{ getState: () => thunkAPI.getState() as RootState }
+			);
 
 			if (clanId && clanId !== '0') {
 				const state = thunkAPI.getState() as RootState;
@@ -1199,7 +1156,7 @@ export const updateTypingUsers = createAsyncThunk(
 
 		typingTimeouts[typingKey] = setTimeout(() => {
 			thunkAPI.dispatch(messagesActions.recheckTypingUsers({ channelId, userId }));
-			delete typingTimeouts[userId];
+			delete typingTimeouts[typingKey];
 		}, TYPING_TIMEOUT + 100);
 	}
 );
@@ -1355,27 +1312,6 @@ export const messagesSlice = createSlice({
 							adapterPayload: action.payload
 						});
 						state.lastMessageByChannel[channelId] = action.payload;
-
-						let foundParentChannel: string | null = null;
-
-						for (const searchChannelId in state.channelMessages) {
-							if (searchChannelId !== topic_id) {
-								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
-								for (const msgId in searchChannelMessages) {
-									const message: MessagesEntity = searchChannelMessages[msgId];
-									if (message?.content?.tp === topic_id) {
-										foundParentChannel = searchChannelId;
-
-										const currentRpl = message.content?.rpl || 0;
-										if (message.content) {
-											message.content.rpl = currentRpl + 1;
-										}
-										break;
-									}
-								}
-								if (foundParentChannel) break;
-							}
-						}
 					} else {
 						handleAddOneMessage({
 							state,
@@ -1456,29 +1392,6 @@ export const messagesSlice = createSlice({
 					break;
 				}
 				case TypeMessage.ChatRemove: {
-					if (topic_id !== '0' && topic_id) {
-						let foundParentChannel: string | null = null;
-
-						for (const searchChannelId in state.channelMessages) {
-							if (searchChannelId !== topic_id) {
-								const searchChannelMessages: Record<string, MessagesEntity> = state.channelMessages[searchChannelId].entities;
-								for (const msgId in searchChannelMessages) {
-									const message: MessagesEntity = searchChannelMessages[msgId];
-									if (message?.content?.tp === topic_id) {
-										foundParentChannel = searchChannelId;
-
-										const currentRpl = message.content?.rpl || 0;
-										if (message.content && currentRpl > 0) {
-											message.content.rpl = currentRpl - 1;
-										}
-										break;
-									}
-								}
-								if (foundParentChannel) break;
-							}
-						}
-					}
-
 					updateReferenceMessage({
 						state,
 						channelId,
@@ -1498,6 +1411,27 @@ export const messagesSlice = createSlice({
 		},
 		setLastMessage: (state, action: PayloadAction<ApiChannelMessageHeaderWithChannel>) => {
 			state.lastMessageByChannel[action.payload.channel_id] = action.payload;
+		},
+		updateTopicRplCount: (state, action: PayloadAction<{ channelId: string; topicId: string; increment: boolean }>) => {
+			const { channelId, topicId, increment } = action.payload;
+
+			const channelMessages = state.channelMessages[channelId];
+			if (!channelMessages) return;
+
+			const topicCreatorMessage = channelMessagesAdapter
+				.getSelectors()
+				.selectAll(channelMessages)
+				.find((message) => message?.content?.tp === topicId);
+
+			if (topicCreatorMessage?.content && topicCreatorMessage.id) {
+				const currentRpl = topicCreatorMessage.content.rpl || 0;
+				const newRpl = increment ? currentRpl + 1 : Math.max(0, currentRpl - 1);
+
+				const messageEntity = channelMessages.entities[topicCreatorMessage.id];
+				if (messageEntity?.content) {
+					messageEntity.content.rpl = newRpl;
+				}
+			}
 		},
 		setViewingOlder: (state, action: PayloadAction<{ channelId: string; status: boolean }>) => {
 			const { channelId, status } = action.payload;
@@ -1777,8 +1711,6 @@ export const messagesSlice = createSlice({
 						state,
 						channelId,
 						adapterPayload: action.payload.messages,
-						direction,
-						isClearMessage,
 						addMany: !!offsetId && !state.channelMessages[channelId]?.ids?.includes(offsetId)
 					});
 
@@ -2117,15 +2049,11 @@ const handleSetManyMessages = ({
 	state,
 	channelId,
 	adapterPayload,
-	direction,
-	isClearMessage = false,
 	addMany = false
 }: {
 	state: MessagesState;
 	channelId?: string;
 	adapterPayload: MessagesEntity[];
-	direction?: Direction_Mode;
-	isClearMessage?: boolean;
 	addMany?: boolean;
 }) => {
 	if (!channelId) return state;

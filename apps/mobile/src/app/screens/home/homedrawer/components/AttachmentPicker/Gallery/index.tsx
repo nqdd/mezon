@@ -1,3 +1,4 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { appActions, referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, fileTypeImage } from '@mezon/utils';
@@ -12,15 +13,16 @@ import { iosReadGalleryPermission } from '@react-native-camera-roll/camera-roll/
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { EmitterSubscription } from 'react-native';
-import { ActivityIndicator, Alert, Dimensions, Linking, PermissionsAndroid, Platform, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, Dimensions, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import { FlatList } from 'react-native-gesture-handler';
 import type { CameraOptions } from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import type { IFile } from '../../../../../../componentUI/MezonImagePicker';
 import GalleryItem from './components/GalleryItem';
-
+import { style } from './styles';
 export const { height } = Dimensions.get('window');
 interface IProps {
 	onPickGallery: (files: IFile | any) => void;
@@ -31,6 +33,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['qrScanner', 'sharing', 'common']);
 	const [hasPermission, setHasPermission] = useState(false);
+	const styles = useMemo(() => style(themeValue), [themeValue]);
 	const [photos, setPhotos] = useState<PhotoIdentifier[]>([]);
 	const [pageInfo, setPageInfo] = useState(null);
 	const [isPermissionLimitIOS, setIsPermissionLimitIOS] = useState(false);
@@ -74,6 +77,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	useEffect(() => {
 		const subscription: EmitterSubscription = cameraRollEventEmitter.addListener('onLibrarySelectionChange', (_event) => {
 			if (isPermissionLimitIOS) {
+				setPhotos([]);
 				loadPhotos();
 			}
 		});
@@ -97,18 +101,20 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	};
 
 	const alertOpenSettings = (title?: string, desc?: string) => {
-		Alert.alert(title || 'Photo Permission', desc || 'App needs access to your photo library', [
-			{
-				text: 'Cancel',
-				style: 'cancel'
-			},
-			{
-				text: 'OK',
-				onPress: () => {
-					openAppSettings();
-				}
-			}
-		]);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={title || t('common:permissionNotification.photoTitle')}
+					content={desc || t('common:permissionNotification.photoDesc')}
+					confirmText={t('common:openSettings')}
+					onConfirm={() => {
+						openAppSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const getCheckPermissionPromise = async () => {
@@ -197,7 +203,6 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				return requestResult === 'granted' || requestResult === 'limited';
 			} else if (result === 'limited') {
 				setIsPermissionLimitIOS(true);
-				await iosRefreshGallerySelection();
 			}
 
 			return result === 'granted' || result === 'limited';
@@ -213,6 +218,12 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 			Linking.openSettings();
 		}
 	};
+
+	const handleSelectMorePhotos = useCallback(async () => {
+		if (Platform.OS === 'ios' && isPermissionLimitIOS) {
+			await iosRefreshGallerySelection();
+		}
+	}, [isPermissionLimitIOS]);
 
 	const renderItem = ({ item, index }) => {
 		const baseFilename = item?.node?.image?.filename || '';
@@ -335,15 +346,20 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 					setHasPermission(true);
 					return true;
 				} else {
-					Alert.alert(
-						t('cameraPermissionDenied'),
-						t('pleaseAllowCamera'),
-						[
-							{ text: t('cancel'), style: 'cancel' },
-							{ text: t('openSettings'), onPress: () => Linking.openSettings() }
-						],
-						{ cancelable: false }
-					);
+					const data = {
+						children: (
+							<MezonConfirm
+								title={t('cameraPermissionDenied')}
+								content={t('pleaseAllowCamera')}
+								confirmText={t('common:openSettings')}
+								onConfirm={() => {
+									Linking.openSettings();
+									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+								}}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 					return false;
 				}
 			} else if (Platform.OS === 'ios') {
@@ -406,6 +422,12 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 
 	return (
 		<View style={{ flex: 1 }}>
+			{isPermissionLimitIOS && (
+				<TouchableOpacity style={[styles.limitedPermissionBanner, { backgroundColor: themeValue.primary }]} onPress={handleSelectMorePhotos}>
+					<Text style={[styles.limitedPermissionText, { color: themeValue.text }]}>{`📷 ${t('common:limitedPhotosAccess')}`}</Text>
+				</TouchableOpacity>
+			)}
+
 			<FlatList
 				data={[{ isUseCamera: true }, ...photos]}
 				numColumns={3}

@@ -68,9 +68,9 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id)) || message;
+	const rplCount = latestMessage?.content?.rpl || 0;
 	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, latestMessage?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
-
 	const handleOpenTopic = useCallback(() => {
 		dispatch(topicsActions.setIsShowCreateTopic(true));
 		dispatch(threadsActions.setIsShowCreateThread({ channelId: message.channel_id as string, isShowCreateThread: false }));
@@ -96,11 +96,9 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 					src={avatarToDisplay}
 				/>
 				<div className="flex flex-wrap items-center gap-x-2 flex-1 min-w-0">
-					<div className="font-semibold text-blue-500 flex-shrink-0">{t('creator')}</div>
+					<div className="font-semibold color-mention flex-shrink-0">{t('creator')}</div>
 					<p className="break-words min-w-0">
-						{t('viewTopic')}{' '}
-						{latestMessage?.content?.rpl &&
-							`(${t('reply', { number: latestMessage?.content?.rpl > 99 ? '99+' : latestMessage?.content?.rpl })})`}
+						{t('viewTopic')} {rplCount > 0 && `(${t('reply', { number: rplCount > 99 ? '99+' : rplCount })})`}
 					</p>
 				</div>
 			</div>

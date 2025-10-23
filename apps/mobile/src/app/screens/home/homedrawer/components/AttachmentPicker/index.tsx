@@ -8,24 +8,25 @@ import { errorCodes, pick, types } from '@react-native-documents/picker';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
+import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import type { IFile } from '../../../../../componentUI/MezonImagePicker';
 import ShareLocationConfirmModal from '../../../../../components/ShareLocationConfirmModal';
 import { IconCDN } from '../../../../../constants/icon_cdn';
+import type { EMessageActionType } from '../../enums';
 import Gallery from './Gallery';
 import { style } from './styles';
 export type AttachmentPickerProps = {
-	mode?: number;
 	currentChannelId?: string;
-	currentClanId?: string;
 	onCancel?: (isForcesKeyboard?: boolean) => void;
+	messageAction?: EMessageActionType;
 };
 
-function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: AttachmentPickerProps) {
+function AttachmentPicker({ currentChannelId, onCancel, messageAction }: AttachmentPickerProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'sharing', 'common']);
@@ -159,29 +160,32 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 	};
 
 	const openSettings = () => {
-		Alert.alert('Location permission', 'Mezon needs your permission to access location', [
-			{
-				text: 'Cancel',
-				style: 'cancel',
-				onPress: () => {
-					Toast.show({
-						type: 'error',
-						text1: 'Permission Denied',
-						text2: 'Mezon needs your permission to access location.'
-					});
-				}
-			},
-			{
-				text: 'OK',
-				onPress: () => {
-					if (Platform.OS === 'ios') {
-						Linking.openURL('app-settings:');
-					} else {
-						Linking.openSettings();
-					}
-				}
-			}
-		]);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('common:permissionNotification.locationPermissionTitle')}
+					content={t('common:permissionNotification.locationPermissionDesc')}
+					confirmText={t('common:openSettings')}
+					onConfirm={() => {
+						if (Platform.OS === 'ios') {
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+							Linking.openURL('app-settings:');
+						} else {
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+							Linking.openSettings();
+						}
+					}}
+					onCancel={() => {
+						Toast.show({
+							type: 'error',
+							text1: t('common:permissionNotification.permissionDenied'),
+							text2: t('common:permissionNotification.locationPermissionDesc')
+						});
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleLinkGoogleMap = async () => {
@@ -217,6 +221,7 @@ function AttachmentPicker({ mode, currentChannelId, currentClanId, onCancel }: A
 							mode={mode}
 							channelId={currentDirect?.id ? currentDirect?.id : currentChannelId}
 							geoLocation={geoLocation}
+							messageAction={messageAction}
 						/>
 					)
 				};

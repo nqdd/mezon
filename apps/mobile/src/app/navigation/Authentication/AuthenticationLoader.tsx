@@ -20,6 +20,7 @@ import {
 	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
+	selectVoiceFullScreen,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
@@ -58,11 +59,13 @@ export const AuthenticationLoader = () => {
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
+	const isFullVoiceScreen = useSelector(selectVoiceFullScreen);
 	const dispatch = useDispatch();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
 	const currentTopicRef = useRef(currentTopicId);
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+	const voiceFullScreenRef = useRef(isFullVoiceScreen);
 
 	useEffect(() => {
 		const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -167,6 +170,13 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
+		} else if (path?.includes?.('/bot/install/')) {
+			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
+			if (applicationId) {
+				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
+					appId: applicationId
+				});
+			}
 		}
 	};
 
@@ -187,6 +197,10 @@ export const AuthenticationLoader = () => {
 	useEffect(() => {
 		currentTopicRef.current = currentTopicId;
 	}, [currentTopicId]);
+
+	useEffect(() => {
+		voiceFullScreenRef.current = isFullVoiceScreen;
+	}, [isFullVoiceScreen]);
 
 	useEffect(() => {
 		let timer;
@@ -285,7 +299,8 @@ export const AuthenticationLoader = () => {
 							isViewingChannel,
 							isViewingDirectMessage
 						},
-						currentTopicRef.current
+						currentTopicRef.current,
+						voiceFullScreenRef.current
 					)
 				) {
 					// Case: FCM start call
@@ -315,6 +330,7 @@ export const AuthenticationLoader = () => {
 							store.dispatch(directActions.setDmGroupCurrentId(''));
 							store.dispatch(messagesActions.setIdMessageToJump(null));
 							store.dispatch(appActions.setIsFromFCMMobile(true));
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_VOICE_ROOM_RESIZE);
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 								isShow: false
 							});

@@ -622,7 +622,7 @@ export const onboardingActions = {
 	editOnboarding
 };
 
-const { selectAll, selectEntities, selectById } = onboardingUserAdapter.getSelectors();
+const { selectById } = onboardingUserAdapter.getSelectors();
 
 export const getOnboardingState = (rootState: { [ONBOARDING_FEATURE_KEY]: OnboardingState }): OnboardingState => rootState[ONBOARDING_FEATURE_KEY];
 

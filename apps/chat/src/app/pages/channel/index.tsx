@@ -82,7 +82,7 @@ function useChannelSeen(channelId: string) {
 				? ChannelStreamMode.STREAM_MODE_CHANNEL
 				: ChannelStreamMode.STREAM_MODE_THREAD;
 
-		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp) {
+		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
 			markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
 		}
 	}, [lastMessage, currentChannel, markAsReadSeen]);
