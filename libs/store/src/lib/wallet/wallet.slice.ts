@@ -65,7 +65,7 @@ const fetchEphemeralKeyPair = createAsyncThunk('wallet/fetchEphemeralKeyPair', a
 
 const fetchZkProofs = createAsyncThunk(
 	'wallet/fetchZkProofs',
-	async (req: { userId: string; ephemeralPrivateKey?: string; jwt: string }, thunkAPI) => {
+	async (req: { userId: string; ephemeralKeyPair?: IEphemeralKeyPair; jwt: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const ephemeralKeyPair = selectEphemeralKeyPair(thunkAPI.getState() as any);
@@ -215,6 +215,7 @@ export const walletSlice = createSlice({
 			}
 		},
 		setLogout(state) {
+			state.address = undefined;
 			state.wallet = undefined;
 			state.zkProofs = undefined;
 			state.ephemeralKeyPair = undefined;

@@ -58,7 +58,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	const [isShowModalHistory, setIsShowModalHistory] = useState<boolean>(false);
 
 	const zkProofs = useSelector(selectZkProofs);
-	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
+	const { isEnableWallet, walletDetail, enableWallet, fetchWalletData } = useWallet();
 
 	const handleSendToken = () => {
 		dispatch(giveCoffeeActions.setShowModalSendToken(true));
@@ -76,10 +76,13 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 	}, [enableWallet]);
 
 	useEffect(() => {
-		if (isEnableWallet && !zkProofs) {
-			handleEnableWallet();
+		if (isEnableWallet) {
+			fetchWalletData();
+			if (!zkProofs) {
+				handleEnableWallet();
+			}
 		}
-	}, [isEnableWallet, zkProofs, handleEnableWallet]);
+	}, [isEnableWallet, zkProofs, fetchWalletData, handleEnableWallet]);
 
 	const statusIcon = (status: string): ReactNode => {
 		switch (status) {
