@@ -39,6 +39,7 @@ import EditUserProfileBtn from './component/EditUserProfileBtn';
 import { PendingContent } from './component/PendingContent';
 import UserInfoDm from './component/UserInfoDm';
 import UserSettingProfile from './component/UserSettingProfile';
+import { UserVoiceInfo } from './component/UserVoiceInfo';
 
 export type IManageVoiceUser = {
 	isHavePermission: boolean;
@@ -605,6 +606,8 @@ const UserProfile = React.memo(
 							</View>
 						)}
 					</View>
+
+					{!isDMGroup && <UserVoiceInfo userId={userId || user?.id || ''} />}
 
 					{isShowUserContent && (
 						<View style={[!isDMGroup && styles.roleGroup]}>
