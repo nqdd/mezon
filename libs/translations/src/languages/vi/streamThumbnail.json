@@ -24,7 +24,7 @@
 		"removeTitle": "Xóa ảnh bìa",
 		"removeQuestion": "Bạn có chắc chắn?",
 		"removeMessage": "Điều này sẽ xóa ảnh bìa stream của bạn. Màn hình splash mặc định sẽ được hiển thị thay thế khi stream của bạn offline.",
-		"removeWarning": "⚠️ Hành động này không thể hoàn tác."
+		"removeWarning": "Hành động này không thể hoàn tác."
 	},
 	"requirements": {
 		"format": {

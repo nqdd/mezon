@@ -24,7 +24,7 @@
 		"removeTitle": "Remove Thumbnail",
 		"removeQuestion": "Are you sure?",
 		"removeMessage": "This will remove your stream thumbnail. The default splash screen will be displayed instead when your stream is offline.",
-		"removeWarning": "⚠️ This action cannot be undone."
+		"removeWarning": "This action cannot be undone."
 	},
 	"requirements": {
 		"format": {
