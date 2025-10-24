@@ -18,7 +18,6 @@
 	"role": "Role",
 	"noRoles": "No Roles",
 	"member": "Member",
-	"members": "Members",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
 	"categoryFilteringComingSoon": "Category filtering will be implemented soon!",
@@ -69,6 +68,9 @@
 	"showNotificationDesc": "When the checkbox is clicked, any notification will be displayed without any content.",
 	"save": "Save",
 	"limitedPhotosAccess": "Tap to Select More Photos",
+	"actions": "Actions",
+	"copiedCanvasLink": "Copied canvas link to clipboard",
+	"forwarded": "Forwarded",
 	"searchModal": {
 		"placeholder": "Where would you like to go?",
 		"protip": "PROTIP:",
@@ -280,5 +282,30 @@
 		"locationPermissionTitle": "Location Permission Required",
 		"locationPermissionDesc": "Mezon needs your permission to access location.",
 		"permissionDenied": "Permission Denied"
+	},
+	"dateTime": {
+		"daysShort": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		},
+		"monthsShort": {
+			"jan": "Jan",
+			"feb": "Feb",
+			"mar": "Mar",
+			"apr": "Apr",
+			"may": "May",
+			"jun": "Jun",
+			"jul": "Jul",
+			"aug": "Aug",
+			"sep": "Sep",
+			"oct": "Oct",
+			"nov": "Nov",
+			"dec": "Dec"
+		}
 	}
 }

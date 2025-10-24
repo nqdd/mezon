@@ -68,6 +68,9 @@
 	"showNotificationDesc": "Thông báo sẽ hiển thị mà không có nội dung chi tiết.",
 	"save": "Lưu",
 	"limitedPhotosAccess": "Chọn thêm ảnh",
+	"actions": "Hành động",
+	"copiedCanvasLink": "Đã sao chép liên kết canvas vào bộ nhớ tạm",
+	"forwarded": "Đã chuyển tiếp",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",
@@ -279,5 +282,30 @@
 		"locationPermissionTitle": "Quyền truy cập vị trí",
 		"locationPermissionDesc": "Mezon cần quyền truy cập vị trí của bạn.",
 		"permissionDenied": "Quyền truy cập bị từ chối"
+	},
+	"dateTime": {
+		"daysShort": {
+			"sun": "CN",
+			"mon": "Th 2",
+			"tue": "Th 3",
+			"wed": "Th 4",
+			"thu": "Th 5",
+			"fri": "Th 6",
+			"sat": "Th 7"
+		},
+		"monthsShort": {
+			"jan": "thg 1",
+			"feb": "thg 2",
+			"mar": "thg 3",
+			"apr": "thg 4",
+			"may": "thg 5",
+			"jun": "thg 6",
+			"jul": "thg 7",
+			"aug": "thg 8",
+			"sep": "thg 9",
+			"oct": "thg 10",
+			"nov": "thg 11",
+			"dec": "thg 12"
+		}
 	}
 }

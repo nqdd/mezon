@@ -1,25 +1,26 @@
 {
-  "auditLogComponent": {
-    "title": "Nhật ký kiểm tra",
-    "filterByUser": "Lọc theo người dùng",
-    "filterByAction": "Lọc theo hành động",
-    "filterBtn": "Lọc"
-  },
-  "auditLogItem": {
-    "performedAnAction": "đã thực hiện một hành động",
-    "toChannel": "đến kênh",
-    "remove": "xóa",
-    "add": "thêm"
-  },
-  "filterActionAuditLog": {
-    "placeholder": "Tìm kiếm hành động"
-  },
-  "filterUserAuditLog": {
-    "placeholder": "Tìm kiếm người dùng",
-    "allUsers": "Tất cả người dùng"
-  },
-  "emptyAuditLog": {
-    "khongCoNhatKy": "CHƯA CÓ NHẬT KÝ",
-    "moTa": "Khi các quản trị viên bắt đầu quản lý, bạn có thể theo dõi hoạt động quản lý ở đây."
-  }
+	"auditLogComponent": {
+		"title": "Nhật ký kiểm tra",
+		"filterByUser": "Lọc theo người dùng",
+		"filterByAction": "Lọc theo hành động",
+		"filterBtn": "Lọc"
+	},
+	"auditLogItem": {
+		"performedAnAction": "đã thực hiện một hành động",
+		"toChannel": "đến kênh",
+		"remove": "xóa",
+		"add": "thêm"
+	},
+	"filterActionAuditLog": {
+		"allActions": "Tất cả hành động",
+		"placeholder": "Tìm kiếm hành động"
+	},
+	"filterUserAuditLog": {
+		"allUsers": "Tất cả người dùng",
+		"placeholder": "Tìm kiếm người dùng"
+	},
+	"emptyAuditLog": {
+		"noLogsYet": "CHƯA CÓ NHẬT KÝ",
+		"description": "Sau khi các kiểm duyệt viên thực hiện nhiệm vụ, bạn có thể theo dõi hoạt động của họ tại đây."
+	}
 }

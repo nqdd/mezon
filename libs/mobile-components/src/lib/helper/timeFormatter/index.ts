@@ -1,31 +1,58 @@
-export const timeFormat = (start: string) => {
+export type LangCode = 'en' | 'vi';
+
+export const timeFormat = (start: string, t: (key: string, options?: any) => string, lang: LangCode) => {
+	const daysOfWeek = [
+		t('common:dateTime.daysShort.sun'),
+		t('common:dateTime.daysShort.mon'),
+		t('common:dateTime.daysShort.tue'),
+		t('common:dateTime.daysShort.wed'),
+		t('common:dateTime.daysShort.thu'),
+		t('common:dateTime.daysShort.fri'),
+		t('common:dateTime.daysShort.sat')
+	];
+
+	const months = [
+		t('common:dateTime.monthsShort.jan'),
+		t('common:dateTime.monthsShort.feb'),
+		t('common:dateTime.monthsShort.mar'),
+		t('common:dateTime.monthsShort.apr'),
+		t('common:dateTime.monthsShort.may'),
+		t('common:dateTime.monthsShort.jun'),
+		t('common:dateTime.monthsShort.jul'),
+		t('common:dateTime.monthsShort.aug'),
+		t('common:dateTime.monthsShort.sep'),
+		t('common:dateTime.monthsShort.oct'),
+		t('common:dateTime.monthsShort.nov'),
+		t('common:dateTime.monthsShort.dec')
+	];
+
 	const date = new Date(start);
-
-	const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 	const dayName = daysOfWeek[date.getUTCDay()];
-
-	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	const monthName = months[date.getUTCMonth()];
 
 	const day = date.getUTCDate();
-	const suffix = (day: number) => {
-		if (day > 3 && day < 21) return 'th'; // 4 - 20 là 'th'
-		switch (day % 10) {
-			case 1:
-				return 'st';
-			case 2:
-				return 'nd';
-			case 3:
-				return 'rd';
-			default:
-				return 'th';
-		}
-	};
-	const dayWithSuffix = `${day}${suffix(day)}`;
 	const hours = date.getUTCHours().toString().padStart(2, '0');
 	const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
-	return `${dayName} ${monthName} ${dayWithSuffix} - ${hours}:${minutes}`;
+	if (lang === 'vi') {
+		return `${dayName}, ${day} ${monthName} - ${hours}:${minutes}`;
+	} else {
+		const suffix = (day: number) => {
+			if (day > 3 && day < 21) return 'th';
+			switch (day % 10) {
+				case 1:
+					return 'st';
+				case 2:
+					return 'nd';
+				case 3:
+					return 'rd';
+				default:
+					return 'th';
+			}
+		};
+		const dayWithSuffix = `${day}${suffix(day)}`;
+		return `${dayName} ${monthName} ${dayWithSuffix} - ${hours}:${minutes}`;
+	}
 };
 
 export const handleTimeISO = (fullDateStr: Date, timeStr: string) => {
@@ -147,7 +174,7 @@ export function getDayWeekName(date: Date, lang: 'vi' | 'en') {
 	const name_en = ['first', 'second', 'third', 'fourth', 'fifth'];
 	const name_vi = ['đầu tiên', 'thứ hai', 'thứ ba', 'thứ tư', 'thứ năm'];
 
-	return lang === 'vi' ? day + ' ' + name_vi[weekOfMonth] + ' của tháng' : name_en[weekOfMonth] + ' ' + day;
+	return lang === 'vi' ? `${day} ${name_vi[weekOfMonth]} của tháng` : `${name_en[weekOfMonth]} ${day}`;
 }
 
 export function convertTimestampToTimeAgo(timestampSeconds: number, t?: (key: string, options?: any) => string) {

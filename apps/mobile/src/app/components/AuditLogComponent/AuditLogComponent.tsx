@@ -1,8 +1,8 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { Fonts, size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
 import {
-	RootState,
 	auditLogFilterActions,
 	auditLogList,
 	selectActionAuditLog,
@@ -12,16 +12,18 @@ import {
 } from '@mezon/store-mobile';
 import { ActionLog, UserAuditLog } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
-import { MezonapiListAuditLog } from 'mezon-js/api.gen';
+import type { MezonapiListAuditLog } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonDateTimePicker from '../../componentUI/MezonDateTimePicker';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { AuditLogItem } from './AuditLogItem/AuditLogItem';
 import EmptyAuditLog from './EmptyAuditLog/EmptyAuditLog';
 import { style } from './styles';
@@ -52,12 +54,12 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 	const displayUserName = useMemo(() => {
 		return userAuditLog?.username && userAuditLog?.username !== UserAuditLog.ALL_USER_AUDIT
 			? userAuditLog?.username
-			: UserAuditLog.ALL_USER_AUDIT;
-	}, [userAuditLog?.username]);
+			: t('filterUserAuditLog.allUsers');
+	}, [userAuditLog?.username, t]);
 
 	const displayActionLog = useMemo(() => {
-		return actionAuditLog && actionAuditLog !== ActionLog.ALL_ACTION_AUDIT ? actionAuditLog : ActionLog.ALL_ACTION_AUDIT;
-	}, [actionAuditLog]);
+		return actionAuditLog && actionAuditLog !== ActionLog.ALL_ACTION_AUDIT ? actionAuditLog : t('filterActionAuditLog.allActions');
+	}, [actionAuditLog, t]);
 
 	const menu = useMemo(
 		() =>

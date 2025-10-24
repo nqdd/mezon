@@ -5,6 +5,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
@@ -20,6 +21,7 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 	const userProfile = useSelector(selectAllAccount);
 	const dispatch = useAppDispatch();
 	const [searchText, setSearchText] = useState('');
+	const { t } = useTranslation(['common']);
 
 	useEffect(() => {
 		fetchCanvas();
@@ -37,16 +39,6 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 	};
 
 	const canvases = useAppSelector((state) => selectCanvasIdsByChannelId(state, channelId));
-	// const { countCanvas } = useAppSelector((state) => selectCanvasCursors(state, channelId ?? ''));
-	// const pages = useMemo(() => {
-	// 	if (!!countCanvas && countCanvas > 0) {
-	// 		const totalPages = countCanvas === undefined ? 0 : Math.ceil(countCanvas / LIMIT);
-	// 		const pageArray = Array.from({ length: totalPages }, (_, index) => index + 1);
-	// 		pagesRef.current = pageArray;
-	// 		return pageArray;
-	// 	}
-	// 	return pagesRef?.current;
-	// }, [countCanvas]);
 
 	const filterCanvas = useMemo(() => {
 		return canvases?.filter((canvas) =>
@@ -70,10 +62,10 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 	}, []);
 
 	const handleCopyLink = useCallback((canvasId: string) => {
-		Clipboard.setString(process.env.NX_CHAT_APP_REDIRECT_URI + `/chat/clans/${clanId}/channels/${channelId}/canvas/${canvasId}`);
+		Clipboard.setString(`${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${clanId}/channels/${channelId}/canvas/${canvasId}`);
 		Toast.show({
 			type: 'info',
-			text1: 'Copied canvas link to clipboard'
+			text1: t('copiedCanvasLink')
 		});
 	}, []);
 
@@ -86,8 +78,8 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 					navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 						screen: APP_SCREEN.MENU_CHANNEL.CANVAS,
 						params: {
-							channelId: channelId,
-							clanId: clanId,
+							channelId,
+							clanId,
 							canvasId: item?.id
 						}
 					});
@@ -114,18 +106,6 @@ const Canvas = memo(({ channelId, clanId }: { channelId: string; clanId: string 
 					/>
 				)}
 			</ScrollView>
-			{/* <ScrollView horizontal style={styles.horizontalScrollView}>
-				{pages?.length > 1 &&
-					pages?.map((item) => (
-						<TouchableOpacity
-							key={`canvas_page_channel_${channelId}_${item}`}
-							onPress={() => setCanvasPage(item)}
-							style={[styles.pageItem, item === canvasPage && styles.selected]}
-						>
-							<Text style={styles.pageNumber}>{item.toString()}</Text>
-						</TouchableOpacity>
-					))}
-			</ScrollView> */}
 		</View>
 	);
 });
