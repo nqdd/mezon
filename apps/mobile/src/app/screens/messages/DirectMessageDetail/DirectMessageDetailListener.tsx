@@ -23,8 +23,6 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 	const { handleReconnect } = useContext(ChatContext);
 	const appStateRef = useRef(AppState.currentState);
 
-	console.log('listener dmType', dmType, ' directMessageId', directMessageId);
-
 	const fetchMemberChannel = async () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 		const currentClanIdCached = await load(STORAGE_CLAN_ID);
