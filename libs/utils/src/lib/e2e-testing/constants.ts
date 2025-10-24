@@ -35,6 +35,11 @@ export const DATA_E2E_IDENTIFIER = {
 		box: {
 			thread: '',
 			topic: ''
+		},
+		header: {
+			button: {
+				close: ''
+			}
 		}
 	},
 	panel: {
@@ -405,7 +410,10 @@ export const DATA_E2E_IDENTIFIER = {
 			header: {
 				left_container: '',
 				right_container: {
-					user_profile: ''
+					user_profile: '',
+					call: '',
+					video_call: '',
+					add_member: ''
 				}
 			},
 			chat_list_container: '',
@@ -475,7 +483,8 @@ export const DATA_E2E_IDENTIFIER = {
 									create_thread: ''
 								}
 							}
-						}
+						},
+						item: ''
 					},
 					chat: ''
 				}
