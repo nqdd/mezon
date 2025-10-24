@@ -1,7 +1,7 @@
-import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import type { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useChatSending, useGifsStickersEmoji } from '@mezon/core';
 import { debounce, isEmpty } from '@mezon/mobile-components';
-import { Fonts, baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import {
 	MediaType,
 	selectAnonymousMode,
@@ -10,10 +10,12 @@ import {
 	selectDmGroupCurrent,
 	selectIsShowCreateTopic
 } from '@mezon/store-mobile';
-import { IMessageSendPayload, checkIsThread } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { checkIsThread } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { MutableRefObject, useCallback, useState } from 'react';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { MutableRefObject } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, TextInput, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
@@ -21,7 +23,7 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { EMessageActionType } from '../../enums';
-import { IMessageActionNeedToResolve } from '../../types';
+import type { IMessageActionNeedToResolve } from '../../types';
 import EmojiSelector from './EmojiSelector';
 import GifSelector from './GifSelector';
 import StickerSelector from './StickerSelector';
@@ -43,18 +45,12 @@ function TextTab({ selected, title, onPress }: TextTabProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	return (
-		<View style={{ flex: 1, height: size.s_30 }}>
+		<View style={styles.tabFlexContainer}>
 			<Pressable
 				onPress={onPress}
-				style={{
-					backgroundColor: selected ? themeValue.bgViolet : 'transparent',
-					...styles.selected,
-					alignItems: 'center',
-					justifyContent: 'center',
-					height: '100%'
-				}}
+				style={[styles.selected, styles.tabPressable, { backgroundColor: selected ? themeValue.bgViolet : 'transparent' }]}
 			>
-				<Text style={{ color: selected ? 'white' : '#727272', fontSize: Fonts.size.small, textAlign: 'center' }}>{title}</Text>
+				<Text style={[styles.tabText, { color: selected ? 'white' : '#727272' }]}>{title}</Text>
 			</Pressable>
 		</View>
 	);
@@ -184,10 +180,10 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 				</View>
 
 				{mode !== 'emoji' && (
-					<View style={{ flexDirection: 'row', gap: size.s_10, width: '100%', alignItems: 'center' }}>
+					<View style={styles.searchRow}>
 						{mode === 'gif' && !!valueInputToCheckHandleSearch && (
 							<Pressable
-								style={{ paddingVertical: size.s_10 }}
+								style={styles.backButton}
 								onPress={() => {
 									setSearchText('');
 									setValueInputSearch('');
@@ -211,7 +207,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 						{mode === 'sticker' && (
 							<Pressable
 								style={[
-									{ paddingVertical: size.s_10, backgroundColor: baseColor.blurple, padding: size.s_10, borderRadius: size.s_4 },
+									styles.stickerModeButton,
 									stickerMode === MediaType.STICKER && { backgroundColor: themeValue.secondaryLight }
 								]}
 								onPress={() => {

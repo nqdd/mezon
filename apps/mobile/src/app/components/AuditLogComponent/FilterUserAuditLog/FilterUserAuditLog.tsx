@@ -11,6 +11,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonOption from '../../../componentUI/MezonOption';
 import { IconCDN } from '../../../constants/icon_cdn';
 import InputSearchAuditLog from '../InputSearchAuditLog/InputSearchAuditLog';
+import { style } from './styles';
 
 export default function FilterUserAuditLog() {
 	const { themeValue } = useTheme();
@@ -21,6 +22,7 @@ export default function FilterUserAuditLog() {
 	const userAuditLog = useSelector(selectUserAuditLog);
 	const [userOption, setUserOption] = useState(userAuditLog?.userId);
 	const { t } = useTranslation('auditLog');
+	const styles = style(themeValue);
 
 	const userOptions = useMemo(
 		() =>
@@ -60,11 +62,9 @@ export default function FilterUserAuditLog() {
 	}, []);
 
 	return (
-		<View
-			style={{ width: '100%', height: '100%', backgroundColor: themeValue.primary, paddingHorizontal: size.s_10, paddingVertical: size.s_10 }}
-		>
+		<View style={styles.container}>
 			<InputSearchAuditLog onChangeText={handleSearchTerm} placeHolder={t('filterUserAuditLog.placeholder')} />
-			<View style={{ marginVertical: size.s_10 }}>
+			<View style={styles.scrollContainer}>
 				<ScrollView
 					showsVerticalScrollIndicator={false}
 					scrollEventThrottle={16}

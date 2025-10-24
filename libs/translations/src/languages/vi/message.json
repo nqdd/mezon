@@ -56,7 +56,8 @@
 		"shareImageSuccess": "Chia sẻ ảnh thành công"
 	},
 	"directMessage": {
-		"you": "Bạn"
+		"you": "Bạn",
+		"groupCreated": "Nhóm đã được tạo"
 	},
 	"edited": "(đã chỉnh sửa)",
 	"newMessage": {

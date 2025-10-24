@@ -17,5 +17,19 @@ export const style = (colors: Attributes) =>
 			fontWeight: '600',
 			color: colors.white
 		},
-		lowercase: { textTransform: 'lowercase' }
+		lowercase: { textTransform: 'lowercase' },
+		itemContainer: {
+			flexDirection: 'row',
+			padding: size.s_10,
+			backgroundColor: colors.secondary,
+			borderRadius: size.s_10,
+			gap: size.s_10,
+			alignItems: 'center',
+			borderWidth: 1,
+			borderColor: colors.tertiary,
+			marginVertical: size.s_6
+		},
+		itemContent: {
+			flex: 1
+		}
 	});

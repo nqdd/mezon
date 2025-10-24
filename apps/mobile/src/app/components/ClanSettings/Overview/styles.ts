@@ -1,4 +1,4 @@
-import { Attributes, baseColor, Metrics } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -15,5 +15,19 @@ export const style = (colors: Attributes) =>
 		},
 		errorInput: {
 			paddingHorizontal: Metrics.size.m
+		},
+		mainContainer: {
+			flex: 1
+		},
+		channelLabelText: {
+			fontSize: size.s_12
+		},
+		clearBannerButton: {
+			position: 'absolute',
+			right: size.s_14,
+			top: size.s_2
+		},
+		inputWrapper: {
+			marginVertical: 10
 		}
 	});

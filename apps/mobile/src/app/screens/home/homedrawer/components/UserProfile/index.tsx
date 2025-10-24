@@ -39,6 +39,7 @@ import EditUserProfileBtn from './component/EditUserProfileBtn';
 import { PendingContent } from './component/PendingContent';
 import UserInfoDm from './component/UserInfoDm';
 import UserSettingProfile from './component/UserSettingProfile';
+import { UserVoiceInfo } from './component/UserVoiceInfo';
 
 export type IManageVoiceUser = {
 	isHavePermission: boolean;
@@ -53,7 +54,7 @@ export enum IActionVoiceUser {
 interface userProfileProps {
 	userId?: string;
 	user?: any;
-	message?: IMessageWithUser;
+	messageAvatar?: string;
 	checkAnonymous?: boolean;
 	onClose?: () => void;
 	onActionVoice?: (action: IActionVoiceUser) => void;
@@ -83,7 +84,7 @@ const UserProfile = React.memo(
 		onClose,
 		onActionVoice,
 		checkAnonymous,
-		message,
+		 messageAvatar,
 		showAction = true,
 		showRole = true,
 		currentChannel,
@@ -97,9 +98,6 @@ const UserProfile = React.memo(
 		const { t } = useTranslation(['userProfile', 'friends']);
 		const userById = useAppSelector((state) => selectMemberClanByUserId(state, userId || user?.id));
 		const rolesClan: RolesClanEntity[] = useSelector(selectAllRolesClan);
-		const messageAvatar = useMemo(() => {
-			return message?.clan_avatar || message?.avatar;
-		}, [message?.clan_avatar, message?.avatar]);
 		const { color } = useMixImageColor(
 			messageAvatar || userById?.clan_avatar || userById?.user?.avatar_url || userProfile?.user?.avatar_url || ''
 		);
@@ -239,9 +237,9 @@ const UserProfile = React.memo(
 				}
 				const response = await createDirectMessageWithUser(
 					userId,
-					message?.display_name || user?.user?.display_name || user?.display_name || userById?.user?.display_name,
-					message?.user?.username || user?.user?.username || user?.username || userById?.user?.username,
-					message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url
+					user?.user?.display_name || user?.display_name || userById?.user?.display_name,
+					user?.user?.username || user?.username || userById?.user?.username,
+					user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url
 				);
 
 				if (response?.channel_id) {
@@ -260,9 +258,6 @@ const UserProfile = React.memo(
 				dispatch,
 				isTabletLandscape,
 				listDM,
-				message?.avatar,
-				message?.display_name,
-				message?.user?.username,
 				navigation,
 				user?.avatar_url,
 				user?.display_name,
@@ -297,8 +292,8 @@ const UserProfile = React.memo(
 				if (directMessage?.id) {
 					const params = {
 						receiverId: userId,
-						receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
-						receiverName: message?.display_name || user?.user?.display_name || user?.display_name || userById?.user?.display_name,
+						receiverAvatar: user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
+						receiverName: user?.user?.display_name || user?.display_name || userById?.user?.display_name,
 						directMessageId: directMessage?.id
 					};
 					const data = {
@@ -309,16 +304,16 @@ const UserProfile = React.memo(
 				}
 				const response = await createDirectMessageWithUser(
 					userId,
-					message?.display_name || user?.user?.display_name || user?.display_name || userById?.user?.display_name,
-					message?.user?.username || user?.user?.username || user?.username || userById?.user?.username,
-					message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url
+					user?.user?.display_name || user?.display_name || userById?.user?.display_name,
+					user?.user?.username || user?.username || userById?.user?.username,
+					user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url
 				);
 				if (response?.channel_id) {
 					dispatch(DMCallActions.removeAll());
 					const params = {
 						receiverId: userId,
-						receiverAvatar: message?.avatar || user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
-						receiverName: message?.display_name || user?.user?.display_name || user?.display_name || userById?.user?.display_name,
+						receiverAvatar: user?.avatar_url || user?.user?.avatar_url || userById?.user?.avatar_url,
+						receiverName: user?.user?.display_name || user?.display_name || userById?.user?.display_name,
 						directMessageId: response?.channel_id
 					};
 					const data = {
@@ -330,9 +325,6 @@ const UserProfile = React.memo(
 			[
 				createDirectMessageWithUser,
 				listDM,
-				message?.avatar,
-				message?.display_name,
-				message?.user?.username,
 				navigation,
 				user?.avatar_url,
 				user?.display_name,
@@ -441,7 +433,7 @@ const UserProfile = React.memo(
 				<View style={[styles.wrapper]}>
 					<PendingContent
 						targetUser={infoFriend}
-						userName={message?.user?.username || user?.user?.username || user?.username || userById?.user?.username}
+						userName={user?.user?.username || user?.username || userById?.user?.username}
 						onClose={() => setIsShowPendingContent(false)}
 					/>
 				</View>
@@ -559,7 +551,7 @@ const UserProfile = React.memo(
 									user?.user?.display_name ||
 									user?.username ||
 									user?.user?.username ||
-									(checkAnonymous ? 'Anonymous' : message?.username)}
+									(checkAnonymous ? 'Anonymous' : '')}
 						</Text>
 						<Text style={[styles.subUserName]}>
 							{userById
@@ -568,7 +560,7 @@ const UserProfile = React.memo(
 									user?.user?.username ||
 									user?.display_name ||
 									user?.user?.display_name ||
-									(checkAnonymous ? 'Anonymous' : message?.username)}
+									(checkAnonymous ? 'Anonymous' : '')}
 						</Text>
 						{isCheckOwner && <EditUserProfileBtn user={userById || (user as any)} />}
 						{!isCheckOwner && !manageVoiceUser && (
@@ -605,6 +597,8 @@ const UserProfile = React.memo(
 							</View>
 						)}
 					</View>
+
+					{!isDMGroup && <UserVoiceInfo userId={userId || user?.id || ''} />}
 
 					{isShowUserContent && (
 						<View style={[!isDMGroup && styles.roleGroup]}>

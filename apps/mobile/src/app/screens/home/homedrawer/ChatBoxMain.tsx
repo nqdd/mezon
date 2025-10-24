@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { resetCachedMessageActionNeedToResolve } from '../../../utils/helpers';
 import { ActionMessageSelected } from './components/ChatBox/ActionMessageSelected';
 import { ChatBoxBottomBar } from './components/ChatBox/ChatBoxBottomBar';
+import { styles as stylesFn } from './ChatBoxMain.styles';
 import { EMessageActionType } from './enums';
 import type { IMessageActionNeedToResolve } from './types';
 
@@ -28,6 +29,7 @@ interface IChatBoxProps {
 export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['message']);
+	const styles = stylesFn(themeValue);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 	const isDM = useMemo(() => {
 		return [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(props?.mode);
@@ -84,43 +86,14 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	}, []);
 
 	return (
-		<View
-			style={{
-				borderTopWidth: 1,
-				borderTopColor: themeValue.border,
-				flexDirection: 'column',
-				justifyContent: 'space-between'
-			}}
-		>
+		<View style={[styles.container, { borderTopColor: themeValue.border }]}>
 			{messageActionNeedToResolve && (props?.canSendMessage || isDM) && (
 				<ActionMessageSelected messageActionNeedToResolve={messageActionNeedToResolve} onClose={deleteMessageActionNeedToResolve} />
 			)}
 			{(!props?.canSendMessage && !isDM) || isBlocked ? (
-				<View
-					style={{
-						zIndex: 10,
-						width: '95%',
-						marginVertical: size.s_6,
-						alignSelf: 'center',
-						marginBottom: size.s_20
-					}}
-				>
-					<View
-						style={{
-							backgroundColor: themeValue.charcoal,
-							padding: size.s_16,
-							borderRadius: size.s_20,
-							marginHorizontal: size.s_6
-						}}
-					>
-						<Text
-							style={{
-								color: themeValue.textDisabled,
-								textAlign: 'center'
-							}}
-						>
-							{t('noSendMessagePermission')}
-						</Text>
+				<View style={styles.warningContainer}>
+					<View style={[styles.warningBox, { backgroundColor: themeValue.charcoal }]}>
+						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>{t('noSendMessagePermission')}</Text>
 					</View>
 				</View>
 			) : (

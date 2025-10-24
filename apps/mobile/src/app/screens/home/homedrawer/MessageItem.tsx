@@ -85,21 +85,36 @@ const MessageItem = React.memo(
 		const swipeRef = useRef(null);
 
 		const isEphemeralMessage = useMemo(() => message?.code === TypeMessage.Ephemeral, [message?.code]);
-		const isInviteLink = Array.isArray(lk) && validLinkInviteRegex.test(contentMessage);
-		const isMessageCallLog = !!message?.content?.callLog;
-		const isGoogleMapsLink = Array.isArray(lk) && validLinkGoogleMapRegex.test(contentMessage);
-		const checkAnonymous = message?.sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID;
-		const checkSystem = message?.sender_id === '0' && message?.username?.toLowerCase() === 'system';
-		const isMessageSystem =
-			message?.code === TypeMessage.Welcome ||
-			message?.code === TypeMessage.UpcomingEvent ||
-			message?.code === TypeMessage.CreateThread ||
-			message?.code === TypeMessage.CreatePin ||
-			message?.code === TypeMessage.AuditLog;
-		const isDM = [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(mode);
-		const senderDisplayName = isDM
-			? message?.display_name || message?.username || ''
-			: message?.clan_nick || message?.display_name || message?.user?.username || (checkAnonymous ? 'Anonymous' : message?.username);
+
+		const isInviteLink = useMemo(() => Array.isArray(lk) && validLinkInviteRegex.test(contentMessage), [lk, contentMessage]);
+		const isMessageCallLog = useMemo(() => !!message?.content?.callLog, [message?.content?.callLog]);
+		const isGoogleMapsLink = useMemo(() => Array.isArray(lk) && validLinkGoogleMapRegex.test(contentMessage), [lk, contentMessage]);
+
+		const checkAnonymous = useMemo(() => message?.sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID, [message?.sender_id]);
+		const checkSystem = useMemo(
+			() => message?.sender_id === '0' && message?.username?.toLowerCase() === 'system',
+			[message?.sender_id, message?.username]
+		);
+
+		const isMessageSystem = useMemo(
+			() =>
+				message?.code === TypeMessage.Welcome ||
+				message?.code === TypeMessage.UpcomingEvent ||
+				message?.code === TypeMessage.CreateThread ||
+				message?.code === TypeMessage.CreatePin ||
+				message?.code === TypeMessage.AuditLog,
+			[message?.code]
+		);
+
+		const isDM = useMemo(() => [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(mode), [mode]);
+
+		const senderDisplayName = useMemo(
+			() =>
+				isDM
+					? message?.display_name || message?.username || ''
+					: message?.clan_nick || message?.display_name || message?.user?.username || (checkAnonymous ? 'Anonymous' : message?.username),
+			[isDM, message?.display_name, message?.username, message?.clan_nick, message?.user?.username, checkAnonymous]
+		);
 
 		const onReplyMessage = useCallback(() => {
 			const payload: IMessageActionNeedToResolve = {
@@ -111,63 +126,87 @@ const MessageItem = React.memo(
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, payload);
 		}, [message, senderDisplayName]);
 
-		const hasIncludeMention = (() => {
+		const hasIncludeMention = useMemo(() => {
+			if (!userId) return false;
+
 			const store = getStore();
 			const currentClanUser = selectMemberClanByUserId(store.getState(), userId as string);
 
-			if (!userId) return false;
-			if (typeof message?.content?.t == 'string') {
+			if (typeof message?.content?.t === 'string') {
 				if (message?.mentions?.some((mention) => mention?.user_id === ID_MENTION_HERE)) return true;
 			}
+
 			if (typeof message?.mentions === 'string') {
 				const parsedMentions = safeJSONParse(message?.mentions) as ApiMessageMention[] | undefined;
-				const userIdMention = userId;
-				const includesUser = parsedMentions?.some((mention) => mention?.user_id === userIdMention);
+				const includesUser = parsedMentions?.some((mention) => mention?.user_id === userId);
 				const includesRole = parsedMentions?.some((item) => currentClanUser?.role_id?.includes(item?.role_id as string));
 				return includesUser || includesRole;
 			}
-			const userIdMention = userId;
-			const includesUser = message?.mentions?.some((mention) => mention?.user_id === userIdMention);
+
+			const includesUser = message?.mentions?.some((mention) => mention?.user_id === userId);
 			const includesRole = message?.mentions?.some((item) => currentClanUser?.role_id?.includes(item?.role_id as string));
 			const checkReplied = userId && message?.references && message?.references[0]?.message_sender_id === userId;
 
 			return includesUser || includesRole || checkReplied;
-		})();
+		}, [userId, message?.content?.t, message?.mentions, message?.references]);
 
-		const isTimeGreaterThan5Minutes =
-			message?.create_time && previousMessage?.create_time
-				? Date.parse(message.create_time) - Date.parse(previousMessage.create_time) < 2 * 60 * 1000
-				: false;
+		const isTimeGreaterThan5Minutes = useMemo(
+			() =>
+				message?.create_time && previousMessage?.create_time
+					? Date.parse(message.create_time) - Date.parse(previousMessage.create_time) < 2 * 60 * 1000
+					: false,
+			[message?.create_time, previousMessage?.create_time]
+		);
 
-		const isBuzzMessage = message?.code === TypeMessage.MessageBuzz;
+		const isBuzzMessage = useMemo(() => message?.code === TypeMessage.MessageBuzz, [message?.code]);
 
-		const isCombine = message?.user?.id === previousMessage?.user?.id && isTimeGreaterThan5Minutes;
+		const isCombine = useMemo(
+			() => message?.user?.id === previousMessage?.user?.id && isTimeGreaterThan5Minutes,
+			[message?.user?.id, previousMessage?.user?.id, isTimeGreaterThan5Minutes]
+		);
 
-		const messageAvatar =
-			mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD
-				? message?.clan_avatar || message?.avatar
-				: message?.avatar;
+		const messageAvatar = useMemo(
+			() =>
+				mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD
+					? message?.clan_avatar || message?.avatar
+					: message?.avatar,
+			[mode, message?.clan_avatar, message?.avatar]
+		);
 
-		const firstAttachment = Array.isArray(message?.attachments) && message.attachments.length > 0 ? message.attachments[0] : null;
-		const checkOneLinkImage =
-			message?.attachments?.length === 1 &&
-			firstAttachment?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX) &&
-			firstAttachment?.url === message?.content?.t?.trim();
+		const firstAttachment = useMemo(
+			() => (Array.isArray(message?.attachments) && message.attachments.length > 0 ? message.attachments[0] : null),
+			[message?.attachments]
+		);
 
-		const isOnlyContainEmoji = isValidEmojiData(message.content);
+		const checkOneLinkImage = useMemo(
+			() =>
+				message?.attachments?.length === 1 &&
+				firstAttachment?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX) &&
+				firstAttachment?.url === message?.content?.t?.trim(),
+			[message?.attachments?.length, firstAttachment?.filetype, firstAttachment?.url, message?.content?.t]
+		);
 
-		const isEdited =
-			message?.update_time && !message.isError && !message.isErrorRetry
-				? new Date(message?.update_time) > new Date(message?.create_time)
-				: message.hide_editted === false && !!message?.content?.t;
+		const isOnlyContainEmoji = useMemo(() => isValidEmojiData(message.content), [message.content]);
 
-		const usernameMessage = isDM
-			? message?.display_name || message?.user?.username
-			: checkAnonymous
-				? 'Anonymous'
-				: message?.user?.username || message?.username;
+		const isEdited = useMemo(
+			() =>
+				message?.update_time && !message.isError && !message.isErrorRetry
+					? new Date(message?.update_time) > new Date(message?.create_time)
+					: message.hide_editted === false && !!message?.content?.t,
+			[message?.update_time, message?.create_time, message.isError, message.isErrorRetry, message.hide_editted, message?.content?.t]
+		);
 
-		const isSendTokenLog = message?.code === TypeMessage.SendToken;
+		const usernameMessage = useMemo(
+			() =>
+				isDM
+					? message?.display_name || message?.user?.username
+					: checkAnonymous
+						? 'Anonymous'
+						: message?.user?.username || message?.username,
+			[isDM, message?.display_name, message?.user?.username, checkAnonymous, message?.username]
+		);
+
+		const isSendTokenLog = useMemo(() => message?.code === TypeMessage.SendToken, [message?.code]);
 
 		const onLongPressImage = useCallback(
 			(image?: ApiMessageAttachment) => {
@@ -206,7 +245,7 @@ const MessageItem = React.memo(
 						<UserProfile
 							userId={message?.user?.id}
 							user={message?.user}
-							message={message}
+							messageAvatar={messageAvatar}
 							checkAnonymous={checkAnonymous}
 							showAction={!isDM}
 							currentChannel={currentChannel}
@@ -217,7 +256,7 @@ const MessageItem = React.memo(
 				};
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 			}
-		}, [channelId, checkAnonymous, checkSystem, isDM, message, preventAction]);
+		}, [channelId, checkAnonymous, checkSystem, isDM, message?.user, messageAvatar, preventAction]);
 
 		const handleLongPressMessage = useCallback(() => {
 			if (preventAction || isMessageSystem) return;
@@ -452,21 +491,17 @@ const MessageItem = React.memo(
 		);
 	},
 	(prevProps, nextProps) => {
+		// Return true to skip re-render, false to re-render
 		return (
-			prevProps?.message?.id +
-				prevProps?.message?.update_time +
-				prevProps?.previousMessage?.id +
-				prevProps?.message?.code +
-				prevProps?.isHighlight +
-				prevProps?.message?.reactions +
-				prevProps?.message?.references?.[0]?.content ===
-			nextProps?.message?.id +
-				nextProps?.message?.update_time +
-				nextProps?.previousMessage?.id +
-				nextProps?.message?.code +
-				nextProps?.isHighlight +
-				nextProps?.message?.reactions +
-				nextProps?.message?.references?.[0]?.content
+			prevProps?.message?.id === nextProps?.message?.id &&
+			prevProps?.message?.update_time === nextProps?.message?.update_time &&
+			prevProps?.previousMessage?.id === nextProps?.previousMessage?.id &&
+			prevProps?.message?.code === nextProps?.message?.code &&
+			prevProps?.isHighlight === nextProps?.isHighlight &&
+			prevProps?.message?.reactions === nextProps?.message?.reactions &&
+			prevProps?.message?.references?.[0]?.content === nextProps?.message?.references?.[0]?.content &&
+			prevProps?.message?.content?.t === nextProps?.message?.content?.t &&
+			prevProps?.message?.attachments?.length === nextProps?.message?.attachments?.length
 		);
 	}
 );

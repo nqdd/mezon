@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import { APP_SCREEN } from '../ScreenTypes';
 import BottomNavigator from './BottomNavigator';
+import { styles } from './styles';
 
 const BottomNavigatorWrapper = memo(({ initRouteName = '' }: { initRouteName: string }) => {
 	const [isReadyToRender, setIsReadyToRender] = useState<boolean>(false);
@@ -55,9 +56,9 @@ const BottomNavigatorWrapper = memo(({ initRouteName = '' }: { initRouteName: st
 		initLoader();
 	}, [initLoader]);
 
-	if (!isReadyToRender) return <View style={{ flex: 1 }} />;
+	if (!isReadyToRender) return <View style={styles.flexContainer} />;
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.flexContainer}>
 			<StatusBarHeight />
 			<BottomNavigator isLastActiveTabDm={load(STORAGE_IS_LAST_ACTIVE_TAB_DM) === 'true'} />
 		</View>

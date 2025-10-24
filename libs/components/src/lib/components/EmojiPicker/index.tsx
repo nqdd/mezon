@@ -81,8 +81,9 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 
 	const categoryIcons = useMemo(
 		() => [
-			<Icons.Star defaultSize="w-7 h-7" />,
 			<Icons.MarketIcons />,
+			<Icons.Star defaultSize="h-7 w-7" />,
+			<Icons.ClockIcon className="h-7 w-7" />,
 			...categoryEmoji.map((emoji) =>
 				emoji.clan_logo !== '' ? (
 					<img src={emoji.clan_logo} className="max-w-7 max-h-7 w-full rounded-full aspect-square object-cover" alt={emoji.clan_name} />
@@ -105,11 +106,11 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 	const categoriesWithIcons: { name: string; icon: JSX.Element }[] = useMemo(() => {
 		const categories = categoriesEmoji.map((category, index) => ({
 			name: category,
-			icon: categoryIcons[index]
+			icon: categoryIcons[index + 1]
 		}));
-		categories.splice(1, 1, {
+		categories.splice(0, 0, {
 			name: FOR_SALE_CATE,
-			icon: <Icons.MarketIcons />
+			icon: categoryIcons[0]
 		});
 
 		return categories;

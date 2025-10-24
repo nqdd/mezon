@@ -6,6 +6,7 @@ import Video from 'react-native-video';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { RenderVideoIOS } from './RenderVideoIOS';
+import { styles } from './styles';
 
 export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 	const videoURL = route?.params?.videoURL as string;
@@ -45,7 +46,7 @@ export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 					},
 					shouldCache: true
 				}}
-				style={{ width: '100%', height: '100%' }}
+				style={styles.videoFullSize}
 				resizeMode="contain"
 				controls={true}
 				paused={false}
@@ -89,16 +90,14 @@ export const RenderVideoDetail = React.memo(({ route }: { route: any }) => {
 	};
 
 	return (
-		<View style={{ flex: 1, backgroundColor: 'black', paddingVertical: size.s_50, justifyContent: 'center', alignItems: 'center' }}>
+		<View style={styles.container}>
 			{!!videoURL && isReadyDisplay && renderVideoPlayer()}
 
-			<TouchableOpacity onPress={handleClose} style={{ position: 'absolute', top: size.s_24, right: 0, padding: size.s_10 }}>
+			<TouchableOpacity onPress={handleClose} style={styles.closeButton}>
 				<MezonIconCDN icon={IconCDN.closeIcon} height={size.s_40} width={size.s_40} />
 			</TouchableOpacity>
 
-			{(isBuffering || !isPlaying) && Platform.OS === 'android' && (
-				<ActivityIndicator style={{ position: 'absolute', top: '50%', left: '50%', transform: [{ translateX: -15 }, { translateY: -15 }] }} />
-			)}
+			{(isBuffering || !isPlaying) && Platform.OS === 'android' && <ActivityIndicator style={styles.loadingIndicator} />}
 		</View>
 	);
 });

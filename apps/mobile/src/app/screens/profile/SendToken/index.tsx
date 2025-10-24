@@ -462,7 +462,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					<ViewShot
 						ref={viewToSnapshotRef}
 						options={{ fileName: 'send_money_success_mobile', format: 'png', quality: 1 }}
-						style={{ flex: 1 }}
+						style={styles.viewShotContainer}
 					>
 						<View style={styles.fullscreenModal}>
 							<View style={styles.modalHeader}>
@@ -530,7 +530,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			behavior="padding"
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 		>
-			<View style={{ flex: 1 }}>
+			<View style={styles.wrapperContainer}>
 				<KeyboardAwareScrollView bottomOffset={100} style={styles.form} keyboardShouldPersistTaps={'handled'}>
 					<Text style={styles.heading}>{t('sendToken')}</Text>
 					<LinearGradient
@@ -620,7 +620,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					snapPoints={['80%']}
 					backdropComponent={Backdrop}
 					android_keyboardInputMode="adjustResize"
-					style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10, flex: 1, gap: size.s_10 }}
+					style={styles.bottomSheetStyle}
 					backgroundStyle={{ backgroundColor: themeValue.primary }}
 				>
 					<MezonInput
@@ -637,12 +637,8 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						data={filteredUsers}
 						renderItem={renderItem}
 						getItemLayout={getItemLayout}
-						style={{
-							backgroundColor: themeValue.secondary,
-							borderRadius: size.s_8,
-							marginTop: size.s_10
-						}}
-						contentContainerStyle={{ paddingBottom: size.s_20 }}
+						style={[styles.flatListStyle, { backgroundColor: themeValue.secondary }]}
+						contentContainerStyle={styles.flatListContentStyle}
 						removeClippedSubviews
 						maxToRenderPerBatch={10}
 						initialNumToRender={15}

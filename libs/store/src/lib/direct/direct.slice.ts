@@ -89,7 +89,9 @@ export const createNewDirectMessage = createAsyncThunk(
 						...response,
 						usernames: Array.isArray(username) ? username : username ? [username] : [],
 						display_names: Array.isArray(display_names) ? display_names : display_names ? [display_names] : [],
-						channel_label: response.channel_label,
+						channel_label:
+							response.channel_label ||
+							(Array.isArray(display_names) ? display_names.join(',') : Array.isArray(username) ? username.join(',') : ''),
 						channel_avatar: response.channel_avatar || 'assets/images/avatar-group.png',
 						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
 						user_ids: body.user_ids
@@ -400,6 +402,7 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		onlines: [true],
 		active: ActiveDm.OPEN_DM,
 		usernames: [message.username as string],
+		display_names: [message.display_name as string],
 		creator_name: message.username as string,
 		create_time_seconds: message.create_time_seconds,
 		update_time_seconds: message.create_time_seconds
@@ -749,7 +752,10 @@ export const directSlice = createSlice({
 					changes = {
 						...currentData,
 						last_sent_message: data?.last_sent_message,
-						update_time_seconds: data?.update_time_seconds
+						update_time_seconds: data?.update_time_seconds,
+						display_names: data?.display_names,
+						usernames: data?.usernames,
+						user_ids: data?.user_ids
 					};
 				} else {
 					changes = {

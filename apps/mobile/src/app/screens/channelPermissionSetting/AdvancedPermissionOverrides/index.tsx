@@ -1,6 +1,6 @@
 import { useMyRole } from '@mezon/core';
 import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
 import { permissionRoleChannelActions, selectAllPermissionRoleChannel, selectPermissionChannel, useAppDispatch } from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
@@ -11,16 +11,18 @@ import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuChannelScreenProps } from '../../../navigation/ScreenTypes';
 import { PermissionItem } from '../components/PermissionItem';
 import { EOverridePermissionType, EPermissionStatus, ERequestStatus } from '../types/channelPermission.enum';
-import { IPermissionSetting } from '../types/channelPermission.type';
+import type { IPermissionSetting } from '../types/channelPermission.type';
+import { style } from './styles';
 
 type AdvancedPermissionOverrides = typeof APP_SCREEN.MENU_CHANNEL.ADVANCED_PERMISSION_OVERRIDES;
 export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelScreenProps<AdvancedPermissionOverrides>) => {
 	const { channelId, clanId, id, type } = route.params;
 	const dispatch = useAppDispatch();
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const { t } = useTranslation(['channelSetting']);
 	const channelPermissionList = useSelector(selectPermissionChannel);
 	const changedChannelPermissionList = useAppSelector((state) => selectAllPermissionRoleChannel(state, channelId));
@@ -99,34 +101,15 @@ export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelSc
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerTitle: () => (
 				<View>
-					<Text
-						style={{
-							fontSize: verticalScale(20),
-							marginLeft: 0,
-							marginRight: 0,
-							fontWeight: 'bold',
-							color: themeValue.white
-						}}
-					>
-						{t('channelPermission.permissionOverrides')}
-					</Text>
+					<Text style={styles.headerTitle}>{t('channelPermission.permissionOverrides')}</Text>
 				</View>
 			),
 			headerRight: () => {
 				if (isSettingNotChange) return null;
 				return (
 					<TouchableOpacity onPress={saveChannelPermission}>
-						<View style={{ marginRight: size.s_20, paddingVertical: size.s_10 }}>
-							<Text
-								style={{
-									fontSize: verticalScale(18),
-									marginLeft: 0,
-									marginRight: 0,
-									color: themeValue.bgViolet
-								}}
-							>
-								{t('channelPermission.save')}
-							</Text>
+						<View style={styles.headerRightContainer}>
+							<Text style={styles.saveButtonText}>{t('channelPermission.save')}</Text>
 						</View>
 					</TouchableOpacity>
 				);
@@ -134,14 +117,14 @@ export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelSc
 			headerLeft: () => {
 				return (
 					<TouchableOpacity onPress={handleBack}>
-						<View style={{ marginLeft: size.s_16 }}>
+						<View style={styles.headerLeftContainer}>
 							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
 						</View>
 					</TouchableOpacity>
 				);
 			}
 		});
-	}, [handleBack, isSettingNotChange, navigation, saveChannelPermission, t, themeValue.bgViolet, themeValue.white]);
+	}, [handleBack, isSettingNotChange, navigation, saveChannelPermission, styles, t, themeValue.white]);
 
 	const onPermissionStatusChange = useCallback(
 		(permissionId: string, status: EPermissionStatus) => {
@@ -177,7 +160,7 @@ export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelSc
 			if (isOverrideRole) {
 				dispatch(
 					permissionRoleChannelActions.fetchPermissionRoleChannel({
-						channelId: channelId,
+						channelId,
 						roleId: id,
 						userId: ''
 					})
@@ -185,7 +168,7 @@ export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelSc
 			} else {
 				dispatch(
 					permissionRoleChannelActions.fetchPermissionRoleChannel({
-						channelId: channelId,
+						channelId,
 						roleId: '',
 						userId: id
 					})
@@ -195,17 +178,11 @@ export const AdvancedPermissionOverrides = ({ navigation, route }: MenuChannelSc
 	}, [channelId, dispatch, id, type, isOverrideRole]);
 
 	return (
-		<View style={{ flex: 1, backgroundColor: themeValue.primary, paddingHorizontal: size.s_18, gap: size.s_18 }}>
-			<Text
-				style={{
-					color: themeValue.textDisabled
-				}}
-			>
-				{t('channelPermission.generalChannelPermission')}
-			</Text>
+		<View style={styles.container}>
+			<Text style={styles.permissionTypeText}>{t('channelPermission.generalChannelPermission')}</Text>
 
 			<ScrollView>
-				<View style={{ gap: size.s_28 }}>
+				<View style={styles.scrollContent}>
 					{channelPermissionList?.map((permission) => {
 						return (
 							<PermissionItem

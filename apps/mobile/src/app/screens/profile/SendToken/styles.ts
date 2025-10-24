@@ -185,5 +185,24 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_18,
 			fontWeight: 'bold',
 			color: colors.white
+		},
+		viewShotContainer: {
+			flex: 1
+		},
+		wrapperContainer: {
+			flex: 1
+		},
+		bottomSheetStyle: {
+			paddingHorizontal: size.s_20,
+			paddingVertical: size.s_10,
+			flex: 1,
+			gap: size.s_10
+		},
+		flatListContentStyle: {
+			paddingBottom: size.s_20
+		},
+		flatListStyle: {
+			borderRadius: size.s_8,
+			marginTop: size.s_10
 		}
 	});

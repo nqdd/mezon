@@ -231,7 +231,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				if (disabled) return <View />;
 				return (
 					<Pressable onPress={handleSave} disabled={loading || !isCheckValid}>
-						<Text style={{ ...styles.headerActionTitle, opacity: loading || !isCheckValid ? 0.5 : 1 }}>{t('header.save')}</Text>
+						<Text style={[styles.headerActionTitle, { opacity: loading || !isCheckValid ? 0.5 : 1 }]}>{t('header.save')}</Text>
 					</Pressable>
 				);
 			}
@@ -288,7 +288,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		{
 			title: t('menu.systemMessage.channel'),
 			expandable: true,
-			component: <Text style={{ color: themeValue.text, fontSize: size.s_12 }}>{selectedChannelMessage?.channel_label}</Text>,
+			component: <Text style={[styles.channelLabelText, { color: themeValue.text }]}>{selectedChannelMessage?.channel_label}</Text>,
 			onPress: openBottomSheetSystemChannel,
 			disabled
 		},
@@ -370,12 +370,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	];
 
 	return (
-		<View
-			style={{
-				flex: 1,
-				backgroundColor: themeValue.secondary
-			}}
-		>
+		<View style={[styles.mainContainer, { backgroundColor: themeValue.secondary }]}>
 			<ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps={'handled'}>
 				<MezonImagePicker
 					disabled={disabled}
@@ -391,12 +386,12 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				/>
 
 				{banner && (
-					<Pressable style={{ position: 'absolute', right: size.s_14, top: size.s_2 }} onPress={handleClearBanner}>
+					<Pressable style={styles.clearBannerButton} onPress={handleClearBanner}>
 						<MezonIconCDN icon={IconCDN.circleXIcon} height={25} width={25} color={themeValue.white} />
 					</Pressable>
 				)}
 
-				<View style={{ marginVertical: 10 }}>
+				<View style={styles.inputWrapper}>
 					<MezonInput
 						label={t('menu.serverName.title')}
 						onTextChange={setClanName}

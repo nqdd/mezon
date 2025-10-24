@@ -58,5 +58,20 @@ export const style = (colors: Attributes) =>
 			fontWeight: 'bold',
 			marginBottom: size.s_4,
 			marginLeft: size.s_4
+		},
+		headerLeftButton: {
+			marginLeft: 20
+		},
+		headerRightButton: {
+			marginRight: 20
+		},
+		dateFlexTwo: {
+			flex: 2
+		},
+		dateFlexOne: {
+			flex: 1
+		},
+		imagePickerCenter: {
+			alignSelf: 'center'
 		}
 	});

@@ -1,7 +1,8 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, NativeScrollEvent, NativeSyntheticEvent, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
+import { createViewStyle } from './styles';
 
 interface IMezonTabViewProps {
 	views: ReactNode[];
@@ -16,6 +17,7 @@ export default function MezonTabView({ views, onChange, pageIndex, isBottomSheet
 	const isTabletLandscape = useTabletLandscape();
 	const ref = useRef<ScrollView>(null);
 	const windowWidth = Dimensions.get('window').width;
+	const styles = useMemo(() => createViewStyle(isTabletLandscape, isBottomSheet), [isTabletLandscape, isBottomSheet]);
 
 	useEffect(() => {
 		if (pageIndex !== pageIns) {
@@ -36,11 +38,7 @@ export default function MezonTabView({ views, onChange, pageIndex, isBottomSheet
 		<ScrollView horizontal pagingEnabled snapToAlignment="center" onScroll={handleScrollTabView} showsHorizontalScrollIndicator={false} ref={ref}>
 			{views.map((view, index) => (
 				<ScrollView key={index.toString()}>
-					<View
-						style={{ width: isTabletLandscape && isBottomSheet ? Dimensions.get('screen').width * 0.4 : Dimensions.get('screen').width }}
-					>
-						{view}
-					</View>
+					<View style={styles.tabViewContainer}>{view}</View>
 				</ScrollView>
 			))}
 		</ScrollView>
