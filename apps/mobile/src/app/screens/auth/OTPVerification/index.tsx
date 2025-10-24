@@ -79,7 +79,10 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			setReqIdSent(reqId);
 			setIsError(false);
 		}
-	}, [reqId]);
+		if (phoneNumber) {
+			dispatch(appActions.setIsShowUpdateUsername(true));
+		}
+	}, [dispatch, phoneNumber, reqId]);
 
 	const startCountdown = () => {
 		countdownStartTime.current = Date.now();
@@ -156,6 +159,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						// If the account is newly created or a username is missing, prompt for username update
 						if (!resp?.username || resp?.username === phoneNumber) {
 							dispatch(appActions.setIsShowUpdateUsername(true));
+						} else {
+							dispatch(appActions.setIsShowUpdateUsername(false));
 						}
 					}
 

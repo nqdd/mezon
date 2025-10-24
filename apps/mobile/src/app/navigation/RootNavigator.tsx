@@ -45,10 +45,9 @@ const MainApiCallingBackground = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 
-	if (!isSessionReady) return null;
 	return (
 		<View style={styles.absoluteContainer}>
-			<RootListener />
+			{isSessionReady && <RootListener />}
 			<NetInfoComp />
 		</View>
 	);
