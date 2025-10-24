@@ -232,8 +232,8 @@ const ModalUserProfile = ({
 				className={`${classBanner ? classBanner : 'rounded-tl-lg bg-indigo-400 rounded-tr-lg h-[105px]'} flex justify-end gap-x-2 p-2 `}
 				style={{ backgroundColor: color }}
 			>
-				{userInvoice && !isFooterProfile && <MemberInVoiceButton channelId={userInvoice} />}
-				{!checkUser && !checkAnonymous && !isDM && (
+				{userInvoice && !isFooterProfile && !isDM && <MemberInVoiceButton channelId={userInvoice} />}
+				{!checkUser && !checkAnonymous && (
 					<GroupIconBanner
 						checkAddFriend={checkAddFriend}
 						openModal={openModal}
