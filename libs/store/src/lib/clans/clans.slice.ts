@@ -1,7 +1,7 @@
 import { captureSentryError } from '@mezon/logger';
 import { SESSION_REFRESH_KEY } from '@mezon/transport';
 import type { IClan, LoadingStatus } from '@mezon/utils';
-import { LIMIT_CLAN_ITEM, TypeCheck, sleep } from '@mezon/utils';
+import { LIMIT_CLAN_ITEM, TypeCheck } from '@mezon/utils';
 import localStorageMobile from '@react-native-async-storage/async-storage';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
@@ -450,7 +450,6 @@ export const updateUsername = createAsyncThunk('clans/updateUsername', async ({ 
 			} catch (e) {
 				await localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(response));
 			}
-			await sleep(500);
 			return await mezon?.refreshSession({
 				...sessionState,
 				is_remember: sessionState.is_remember ?? false,
