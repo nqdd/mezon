@@ -224,4 +224,37 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			paddingVertical: size.s_10,
 			flexDirection: 'row'
 		},
+		shopSettingRow: {
+			flexDirection: 'row',
+			gap: size.s_10
+		},
+		defaultAvatarContainer: {
+			backgroundColor: colors.colorAvatarDefault,
+			overflow: 'hidden',
+			width: '100%',
+			height: '100%',
+			borderRadius: isTabletLandscape ? size.s_70 : size.s_50,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		scrollContentContainer: {
+			paddingBottom: size.s_100
+		},
+		touchStatusMargin: {
+			marginBottom: size.s_10
+		},
+		tokenRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
+		},
+		tokenRowMargin: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10,
+			marginTop: size.s_10
+		},
+		contentGap: {
+			gap: size.s_20
+		}
 	});

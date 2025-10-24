@@ -218,19 +218,8 @@ export const QRScanner = () => {
 	if (!hasPermission) {
 		return (
 			<View style={styles.wrapper}>
-				<View style={[styles.popupLogin, { backgroundColor: 'rgba(0,0,0,0.16)' }]}>
-					<View
-						style={{
-							zIndex: 100,
-							flexDirection: 'row',
-							position: 'absolute',
-							justifyContent: 'space-between',
-							top: size.s_40,
-							flex: 1,
-							paddingHorizontal: size.s_10,
-							width: '100%'
-						}}
-					>
+				<View style={[styles.popupLogin, styles.popupBackground]}>
+					<View style={styles.headerContainer}>
 						<TouchableOpacity
 							style={styles.backHeader}
 							onPress={() => {
@@ -241,7 +230,7 @@ export const QRScanner = () => {
 						</TouchableOpacity>
 					</View>
 					<TouchableOpacity
-						style={[styles.button, styles.buttonBorder, { backgroundColor: '#292929' }]}
+						style={[styles.button, styles.buttonBorder, styles.buttonBorderDark]}
 						onPress={() => {
 							requestCameraPermission();
 						}}
@@ -272,23 +261,12 @@ export const QRScanner = () => {
 						scanningRef.current = true;
 					}}
 					scanBarcode={doScanBarcode}
-					style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+					style={styles.cameraStyle}
 				/>
 			)}
 			{!valueCode ? (
-				<View style={{ flex: 1 }}>
-					<View
-						style={{
-							zIndex: 100,
-							flexDirection: 'row',
-							position: 'absolute',
-							justifyContent: 'space-between',
-							top: size.s_40,
-							flex: 1,
-							paddingHorizontal: size.s_10,
-							width: '100%'
-						}}
-					>
+				<View style={styles.scannerContainer}>
+					<View style={styles.headerContainer}>
 						<TouchableOpacity
 							style={styles.backHeader}
 							onPress={() => {
@@ -298,23 +276,12 @@ export const QRScanner = () => {
 							<MezonIconCDN icon={IconCDN.closeSmallBold} width={size.s_28} height={size.s_28} color={baseColor.white} />
 						</TouchableOpacity>
 						<TouchableOpacity onPress={onMyQRCode}>
-							<View
-								style={{
-									paddingHorizontal: size.s_20,
-									borderRadius: size.s_30,
-									backgroundColor: 'rgba(0,0,0,0.5)',
-									flexDirection: 'row',
-									height: '100%',
-									alignItems: 'center',
-									gap: size.s_10,
-									justifyContent: 'center'
-								}}
-							>
+							<View style={styles.myQRCodeButton}>
 								<MezonIconCDN icon={IconCDN.userIcon} width={size.s_24} height={size.s_24} color={baseColor.white} />
 								<Text style={styles.textMyQRCode}>{t('myQRCode')}</Text>
 							</View>
 						</TouchableOpacity>
-						<View style={{ width: size.s_50, backgroundColor: 'transparent' }} />
+						<View style={styles.transparentSpacer} />
 					</View>
 
 					<View style={styles.mainOverlay}></View>
@@ -347,7 +314,7 @@ export const QRScanner = () => {
 							<Text style={styles.buttonTextOutline}>{isSuccess ? `${t('startTalking')}` : `${t('logIn')}`}</Text>
 						</TouchableOpacity>
 						{!isSuccess && (
-							<TouchableOpacity style={[styles.button, { backgroundColor: 'transparent', marginTop: size.s_10 }]} onPress={onGoback}>
+							<TouchableOpacity style={[styles.button, styles.buttonTransparent]} onPress={onGoback}>
 								<Text style={styles.buttonTextOutline}>{t('cancel')}</Text>
 							</TouchableOpacity>
 						)}

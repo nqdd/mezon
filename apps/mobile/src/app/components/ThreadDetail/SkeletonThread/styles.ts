@@ -8,5 +8,25 @@ export const style = (colors: Attributes) =>
 		normalText: { marginTop: size.s_6, width: '50%', marginBottom: size.s_10, height: size.s_24, borderRadius: size.s_8 },
 		smallText: { width: '30%', marginBottom: size.s_10, height: size.s_16, borderRadius: size.s_8 },
 		mediumText: { width: '50%', marginBottom: size.s_10, height: size.s_16, borderRadius: size.s_8 },
-		dropdown: { width: size.s_40, height: size.s_40, borderRadius: size.s_4 }
+		dropdown: { width: size.s_40, height: size.s_40, borderRadius: size.s_4 },
+		itemContainer: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			gap: size.s_20
+		},
+		contentWrapper: {
+			flex: 1,
+			borderRadius: size.s_10,
+			flexDirection: 'row',
+			alignItems: 'center',
+			paddingHorizontal: size.s_10,
+			marginTop: size.s_4
+		},
+		textContainer: {
+			flex: 1
+		},
+		textRow: {
+			flexDirection: 'row',
+			gap: size.s_20
+		}
 	});

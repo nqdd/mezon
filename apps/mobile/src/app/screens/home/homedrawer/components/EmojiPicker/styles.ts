@@ -1,4 +1,4 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Fonts, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -28,7 +28,6 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			height: size.s_40
 		},
-
 		textInputWrapper: {
 			flex: 1,
 			display: 'flex',
@@ -39,5 +38,33 @@ export const style = (colors: Attributes) =>
 			borderRadius: 10,
 			gap: 10,
 			backgroundColor: colors.secondary
+		},
+		tabFlexContainer: {
+			flex: 1,
+			height: size.s_30
+		},
+		tabPressable: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			height: '100%'
+		},
+		searchRow: {
+			flexDirection: 'row',
+			gap: size.s_10,
+			width: '100%',
+			alignItems: 'center'
+		},
+		backButton: {
+			paddingVertical: size.s_10
+		},
+		stickerModeButton: {
+			paddingVertical: size.s_10,
+			backgroundColor: baseColor.blurple,
+			padding: size.s_10,
+			borderRadius: size.s_4
+		},
+		tabText: {
+			fontSize: Fonts.size.small,
+			textAlign: 'center'
 		}
 	});

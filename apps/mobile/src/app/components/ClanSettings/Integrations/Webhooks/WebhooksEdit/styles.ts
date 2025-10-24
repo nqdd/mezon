@@ -86,5 +86,17 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			width: '100%',
 			height: '20%'
+		},
+		headerButton: {
+			paddingRight: size.s_14
+		},
+		headerLeftButton: {
+			paddingLeft: size.s_14
+		},
+		backButton: {
+			padding: 20
+		},
+		confirmText: {
+			color: colors.white
 		}
 	});
