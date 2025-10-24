@@ -11,6 +11,7 @@ import {
 	listChannelsByUserActions,
 	listUsersByUserActions,
 	selectCurrentClanId,
+	selectIsEnabledWallet,
 	selectSession,
 	selectVoiceOpenPopOut,
 	selectZkProofs,
@@ -111,6 +112,7 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 	let isRedirectLogin = false;
 	const store = getStore();
 	const sessionUser = selectSession(store?.getState());
+	const isEnabledWallet = selectIsEnabledWallet(store?.getState());
 	const zkProofs = selectZkProofs(store?.getState());
 
 	if (!sessionUser?.token) {
@@ -137,13 +139,17 @@ const refreshSession = async ({ dispatch, initialPath }: { dispatch: AppDispatch
 				const profileResponse = await dispatch(accountActions.getUserProfile());
 				if (!(profileResponse as unknown as IWithError).error) {
 					const userId = (profileResponse.payload as IUserAccount)?.user?.id;
-					if (zkProofs && userId) {
-						await dispatch(
-							walletActions.fetchZkProofs({
-								userId,
-								jwt: (response.payload as ISession)?.token
-							})
-						);
+					if (userId && isEnabledWallet) {
+						if (!zkProofs) {
+							await dispatch(walletActions.fetchEphemeralKeyPair());
+							await dispatch(walletActions.fetchAddress({ userId }));
+							await dispatch(
+								walletActions.fetchZkProofs({
+									userId,
+									jwt: (response.payload as ISession)?.token
+								})
+							);
+						}
 						await dispatch(
 							walletActions.fetchWalletDetail({
 								userId
