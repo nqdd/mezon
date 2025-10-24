@@ -233,7 +233,7 @@ const ModalUserProfile = ({
 				style={{ backgroundColor: color }}
 			>
 				{userInvoice && !isFooterProfile && <MemberInVoiceButton channelId={userInvoice} />}
-				{!checkUser && !checkAnonymous && (
+				{!checkUser && !checkAnonymous && !isDM && (
 					<GroupIconBanner
 						checkAddFriend={checkAddFriend}
 						openModal={openModal}
