@@ -176,10 +176,18 @@ export const uniqueUsers = (
 	return userIdsNotInChannel;
 };
 
-export const convertTimeMessage = (timestamp: number, languageCode = 'en') => {
-	const locale = getDateLocale(languageCode);
-	const textTime = formatDistanceToNowStrict(new Date(timestamp * 1000), { addSuffix: true, locale });
-	return textTime;
+export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1) => {
+	const target = new Date(Math.floor(timestampSec) * 1000);
+	const diffSec = Math.max(0, differenceInSeconds(Date.now(), target));
+
+	if (diffSec <= justNowThreshold) {
+		return languageCode.startsWith('vi') ? 'Vừa xong' : 'Just now';
+	}
+
+	return formatDistanceToNowStrict(target, {
+		addSuffix: true,
+		locale: getDateLocale(languageCode)
+	});
 };
 
 export const isGreaterOneMonth = (timestamp: number) => {

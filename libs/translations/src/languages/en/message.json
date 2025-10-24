@@ -187,6 +187,7 @@
 	},
 	"creator": "Creator",
 	"viewTopic": "View topic",
-	"reply": "{{number}} replies",
+	"reply": "{{number}} reply",
+	"numberReplies": "{{number}} replies",
 	"replies": "Replies"
 }
