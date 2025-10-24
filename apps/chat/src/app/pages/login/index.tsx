@@ -21,6 +21,7 @@ function Login() {
 	const [hidden, setHidden] = useState<boolean>(false);
 	const [isRemember, setIsRemember] = useState<boolean>(false);
 	const [loginMethod, setLoginMethod] = useState(true);
+	const [otpStep, setOtpStep] = useState<boolean | null>(null);
 
 	useEffect(() => {
 		const fetchQRCode = async () => {
@@ -77,6 +78,7 @@ function Login() {
 	};
 	const handleSwitchMethod = () => {
 		setLoginMethod(!loginMethod);
+		setOtpStep(null);
 	};
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-300 px-4">
@@ -86,8 +88,8 @@ function Login() {
 						<h1 className="text-2xl font-bold mb-1">{t('login.welcomeBack')}</h1>
 						<p className="text-gray-400">{t('login.gladToMeetAgain')}</p>
 					</div>
-					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} /> : <FormLoginEmail />}
-					{!loginMethod && (
+					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} onStepChange={setOtpStep} /> : <FormLoginEmail />}
+					{!(loginMethod && otpStep) && (
 						<div className="mt-4 flex items-center text-gray-400 justify-between">
 							<div className="flex items-center gap-2">
 								<input
@@ -99,9 +101,11 @@ function Login() {
 								/>
 								<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
 							</div>
-							<div className="text-sm text-blue-500 hover:underline" onClick={handleSwitchMethod}>
-								{t('login.loginByOTP')}
-							</div>
+							{!loginMethod && (
+								<div className="text-sm text-blue-500 hover:underline" onClick={handleSwitchMethod}>
+									{t('login.loginByOTP')}
+								</div>
+							)}
 						</div>
 					)}
 				</div>

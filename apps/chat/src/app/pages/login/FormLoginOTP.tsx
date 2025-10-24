@@ -6,7 +6,7 @@ import { OtpConfirm } from 'libs/components/src/lib/components/SettingAccount/Se
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }) => {
+const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod: () => void; onStepChange?: (step: boolean | null) => void }) => {
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation('common');
 	const [count, setCount] = useState(0);
@@ -19,6 +19,12 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 		email?: string;
 		otp?: string;
 	}>({});
+
+	useEffect(() => {
+		if (onStepChange) {
+			onStepChange(step);
+		}
+	}, [step, onStepChange]);
 
 	const handleSubmit = useCallback(async () => {
 		if (reqId) {
@@ -87,15 +93,15 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 				{step && (
 					<div className="flex justify-start gap-3 ml-3 absolute bottom-[-38px]">
 						{count === 0 && step && (
-						<button
-							type="button"
-							onClick={handleBackStep}
-							className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium mt-2"
-						>
-							<Icons.LeftArrowIcon className="w-4 h-4" />
-							{t('login.backToEmailInput')}
-						</button>
-						 )} 
+							<button
+								type="button"
+								onClick={handleBackStep}
+								className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium mt-2"
+							>
+								<Icons.LeftArrowIcon className="w-4 h-4" />
+								{t('login.backToEmailInput')}
+							</button>
+						)}
 					</div>
 				)}
 
