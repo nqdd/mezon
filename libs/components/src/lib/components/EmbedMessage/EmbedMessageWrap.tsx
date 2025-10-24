@@ -1,6 +1,6 @@
 import { useCustomNavigate } from '@mezon/core';
 import { channelsActions, getStore, selectAppChannelById } from '@mezon/store';
-import { IEmbedProps, ObserveFn } from '@mezon/utils';
+import type { IEmbedProps, ObserveFn } from '@mezon/utils';
 import { useDispatch } from 'react-redux';
 import { EmbedMessage } from './EmbedMessage';
 

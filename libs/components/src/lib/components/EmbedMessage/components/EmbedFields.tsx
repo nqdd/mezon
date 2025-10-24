@@ -113,7 +113,7 @@ type InputEmbedByType = {
 const InputEmbedByType = ({ messageId, senderId, component, max_options, channelId, observeIntersectionForLoading }: InputEmbedByType) => {
 	switch (component.type) {
 		case EMessageComponentType.INPUT:
-			return <MessageInput buttonId={component.id} messageId={messageId} senderId={senderId} input={component.component} />;
+			return <MessageInput buttonId={component?.id || ''} messageId={messageId} senderId={senderId} input={component?.component} />;
 		case EMessageComponentType.SELECT:
 			return <MessageSelect buttonId={component.id} messageId={messageId} senderId={senderId} select={component.component} inside={true} />;
 		case EMessageComponentType.DATEPICKER:

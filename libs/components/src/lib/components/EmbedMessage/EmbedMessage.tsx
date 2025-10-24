@@ -1,4 +1,4 @@
-import { IEmbedProps, ObserveFn } from '@mezon/utils';
+import type { IEmbedProps, ObserveFn } from '@mezon/utils';
 import { EmbedAuthor } from './components/EmbedAuthor';
 import { EmbedDescription } from './components/EmbedDescription';
 import { EmbedFields } from './components/EmbedFields';

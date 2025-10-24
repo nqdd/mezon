@@ -1,5 +1,5 @@
 import { embedActions } from '@mezon/store';
-import { IMessageInput } from '@mezon/utils';
+import type { IMessageInput } from '@mezon/utils';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
@@ -34,7 +34,7 @@ export const MessageInput: React.FC<MessageRatioButtonProps> = ({ input, message
 				message_id: messageId,
 				data: {
 					id: buttonId,
-					value: value
+					value
 				}
 			})
 		);
