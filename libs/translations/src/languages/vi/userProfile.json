@@ -192,7 +192,7 @@
 	"muteVoice": "Tắt tiếng",
 	"kickVoice": "Xóa khỏi kênh thoại",
 	"voiceInfo": {
-		"inVoice": "In Voice",
-		"joinVoice": "Join Voice"
+		"inVoice": "Trong kênh thoại",
+		"joinVoice": "Tham gia thoại"
 	}
 }
