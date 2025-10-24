@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegex } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { MessagesEntity } from '@mezon/store-mobile';
 import {
-	MessagesEntity,
 	getStore,
 	getStoreAsync,
 	selectCurrentChannel,
@@ -13,7 +13,7 @@ import {
 } from '@mezon/store-mobile';
 import { ETypeLinkMedia, ID_MENTION_HERE, TypeMessage, isValidEmojiData } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Pressable, Text, View } from 'react-native';
@@ -41,7 +41,7 @@ import { RenderRawText } from './components/RenderTextMarkdown/RenderRawText';
 import UserProfile from './components/UserProfile';
 import { EMessageActionType } from './enums';
 import { style } from './styles';
-import { IMessageActionNeedToResolve } from './types';
+import type { IMessageActionNeedToResolve } from './types';
 
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
@@ -77,7 +77,7 @@ const MessageItem = React.memo(
 			isHighlight = false
 		} = props;
 		const dispatch = useAppDispatch();
-		const { t } = useTranslation('message');
+		const { t } = useTranslation(['message', 'common']);
 		const message: MessagesEntity = props?.message;
 		const previousMessage: MessagesEntity = props?.previousMessage;
 		const { t: contentMessage, lk = [] } = message?.content || {};
@@ -198,11 +198,7 @@ const MessageItem = React.memo(
 
 		const usernameMessage = useMemo(
 			() =>
-				isDM
-					? message?.display_name || message?.user?.username
-					: checkAnonymous
-						? 'Anonymous'
-						: message?.user?.username || message?.username,
+				isDM ? message?.display_name || message?.user?.username : checkAnonymous ? 'Anonymous' : message?.user?.username || message?.username,
 			[isDM, message?.display_name, message?.user?.username, checkAnonymous, message?.username]
 		);
 
@@ -367,7 +363,7 @@ const MessageItem = React.memo(
 								<View style={message?.content?.fwd ? { borderLeftWidth: 2, borderColor: 'gray', paddingLeft: 10 } : undefined}>
 									{!!message?.content?.fwd && (
 										<Text style={styles.forward}>
-											<Entypo name="forward" size={15} color={themeValue.text} /> Forwarded
+											<Entypo name="forward" size={15} color={themeValue.text} /> {t('common:forwarded')}
 										</Text>
 									)}
 									<View style={{ opacity: message.isError || message?.isErrorRetry ? 0.6 : 1 }}>

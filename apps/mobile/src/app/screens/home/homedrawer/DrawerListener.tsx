@@ -111,6 +111,9 @@ function DrawerListener({ channelId }: { channelId: string }) {
 					)
 				};
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+				if (!isRemoveClan) {
+					dispatch(channelsActions.setCurrentChannelId({ clanId: currentChannel.clan_id || '', channelId: '' }));
+				}
 				navigation.navigate(APP_SCREEN.BOTTOM_BAR);
 			}
 		},

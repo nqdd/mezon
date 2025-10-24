@@ -1,18 +1,19 @@
 import { getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity, MessagesEntity, ThreadsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
-	ChannelsEntity,
 	getStoreAsync,
-	MessagesEntity,
 	selectLastMessageIdByChannelId,
 	selectMemberClanByUserId,
 	selectMessageEntityById,
-	ThreadsEntity,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { convertTimeMessage, IChannelMember } from '@mezon/utils';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import i18n from '@mezon/translations';
+import type { IChannelMember } from '@mezon/utils';
+import { convertTimeMessage } from '@mezon/utils';
+import type { NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -20,7 +21,8 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useMessageSender } from '../../../hooks/useMessageSender';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
-import { APP_SCREEN, AppStackParamList } from '../../../navigation/ScreenTypes';
+import type { AppStackParamList } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { style } from './ThreadItem.style';
 
 interface IThreadItemProps {
@@ -58,14 +60,12 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
 	};
 
-	const timeMessage = useMemo(() => {
+	const lastTimeMessage = useMemo(() => {
 		if (message && message.create_time_seconds) {
-			const lastTime = convertTimeMessage(message.create_time_seconds);
-			return lastTime;
+			return convertTimeMessage(message.create_time_seconds, i18n.language);
 		} else {
 			if (thread && thread.last_sent_message && thread.last_sent_message.timestamp_seconds) {
-				const lastTime = convertTimeMessage(thread.last_sent_message.timestamp_seconds);
-				return lastTime;
+				return convertTimeMessage(thread.last_sent_message.timestamp_seconds, i18n.language);
 			}
 		}
 	}, [message, thread]);
@@ -103,7 +103,7 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 					<View style={styles.dateString}>
 						<Text style={styles.bullet}>•</Text>
 						<Text numberOfLines={1} style={styles.createTime}>
-							{timeMessage}
+							{lastTimeMessage}
 						</Text>
 					</View>
 				</View>

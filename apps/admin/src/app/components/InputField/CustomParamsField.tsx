@@ -2,7 +2,8 @@ import { ModalLayout } from '@mezon/components';
 import { safeJSONParse } from 'mezon-js';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { HTMLFieldProps, connectField } from 'uniforms';
+import type { HTMLFieldProps } from 'uniforms';
+import { connectField } from 'uniforms';
 
 type CustomFormFieldProps = HTMLFieldProps<{ [key: string]: string }, HTMLDivElement> & {
 	label?: string;
@@ -93,7 +94,7 @@ function CustomParamsField({ onChange, value, label, errorMessage, showInlineErr
 						<span>&#123;</span>
 					</div>
 					<div className="pl-1 overflow-hidden">
-						{options.length > 0 ? (
+						{options?.length > 0 ? (
 							options.map((option, index) => (
 								<div key={index}>
 									<span>"{option.key}"</span>

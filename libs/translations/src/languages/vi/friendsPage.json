@@ -1,6 +1,8 @@
 {
 	"friend": "Bạn bè",
 	"addFriend": "Thêm bạn",
+	"friends": "Bạn bè",
+	"clearSearch": "Xóa tìm kiếm",
 	"search": "Tìm kiếm",
 	"tabs": {
 		"all": "Tất cả",
@@ -35,7 +37,11 @@
 		"startVoiceCall": "Bắt đầu gọi thoại",
 		"removeFriend": "Xóa bạn bè",
 		"block": "Chặn",
-		"unblock": "Bỏ chặn"
+		"unblock": "Bỏ chặn",
+		"more": "Thêm",
+		"cancel": "Hủy",
+		"accept": "Chấp nhận",
+		"reject": "Từ chối"
 	},
 	"toast": {
 		"userBlockedSuccess": "Đã chặn người dùng thành công",

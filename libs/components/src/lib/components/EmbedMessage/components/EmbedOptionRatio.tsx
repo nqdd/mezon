@@ -27,8 +27,8 @@ export function EmbedOptionRatio({ options, message_id, idRadio, max_options, di
 	const dispatch = useDispatch();
 
 	const checkMultiple = useMemo(() => {
-		if (options.length > 1 && options[0].name) {
-			return options[0].name !== options[1].name;
+		if (options?.length > 1 && options?.[0]?.name) {
+			return options?.[0].name !== options?.[1].name;
 		}
 		return false;
 	}, [options]);

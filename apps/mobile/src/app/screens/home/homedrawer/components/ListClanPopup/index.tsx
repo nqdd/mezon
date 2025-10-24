@@ -22,7 +22,7 @@ const CLAN = 'clan';
 const DISTANCE_OFFSET = 10;
 const PREVIEW_DEBOUNCE_MS = 750;
 
-export const ListClanPopup = React.memo(() => {
+export const ListClanPopup = React.memo(({ hideActive = false }: { hideActive?: boolean }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const timerRef = useRef(null);
@@ -302,6 +302,7 @@ export const ListClanPopup = React.memo(() => {
 						drag={drag}
 						isActive={isActive}
 						onLayout={getIconLayout}
+						hideActive={hideActive}
 					/>
 					{groupPreviewMap?.[item?.clan?.clan_id] !== undefined && (
 						<ClanGroupPreview targetItem={item} dragItem={groupClans[dragIndexRef.current]} clans={clans} />

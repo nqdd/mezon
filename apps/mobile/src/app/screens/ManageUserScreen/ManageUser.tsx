@@ -1,7 +1,7 @@
 import { useMyRole, usePermissionChecker } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelMembersEntity } from '@mezon/store-mobile';
 import {
-	ChannelMembersEntity,
 	rolesClanActions,
 	selectAllRolesClan,
 	selectCurrentClan,
@@ -23,7 +23,8 @@ import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import ImageNative from '../../components/ImageNative';
 import { IconCDN } from '../../constants/icon_cdn';
 import { style } from './styles';
-import { EActionSettingUserProfile, IProfileSetting } from './types';
+import type { IProfileSetting } from './types';
+import { EActionSettingUserProfile } from './types';
 
 interface IManageUserProp {
 	user: ChannelMembersEntity;
@@ -40,7 +41,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 	const { maxPermissionId } = useMyRole();
 	const [selectedRole, setSelectedRole] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const { t } = useTranslation('message');
+	const { t } = useTranslation(['message', 'common']);
 	const maxPermissionLevel = useSelector(selectUserMaxPermissionLevel);
 	const dispatch = useAppDispatch();
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
@@ -121,7 +122,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 						removeUserIds: [],
 						removePermissionIds: [],
 						clanId: currentClan?.clan_id || '',
-						maxPermissionId: maxPermissionId,
+						maxPermissionId,
 						roleIcon: ''
 					})
 				);
@@ -162,7 +163,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 						removeUserIds: [user?.user?.id],
 						removePermissionIds: [],
 						clanId: currentClan?.clan_id || '',
-						maxPermissionId: maxPermissionId,
+						maxPermissionId,
 						roleIcon: ''
 					})
 				);
@@ -323,7 +324,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 
 				{hasActionableSettings && (
 					<View style={styles.actionsSection}>
-						<Text style={styles.sectionTitle}>Actions</Text>
+						<Text style={styles.sectionTitle}>{t('common:actions')}</Text>
 
 						<View style={styles.roleListContainer}>
 							{actionableProfileSettings.map((item, index) => (

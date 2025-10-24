@@ -25,7 +25,7 @@ import { createImgproxyUrl, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import type { ApiMarkAsReadRequest } from 'mezon-js/api.gen';
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -102,27 +102,29 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		return userIds?.length === 1;
 	}, [allUserGroupDM?.user_ids]);
 
+	const handleShowModalLeaveGroup = useCallback(async () => {
+		dismiss();
+		await sleep(500);
+		const data = {
+			children: (
+				<MezonConfirm
+					onConfirm={handleLeaveGroupConfirm}
+					title={t('confirm.title', {
+						groupName: messageInfo?.channel_label
+					})}
+					content={t('confirm.content', {
+						groupName: messageInfo?.channel_label
+					})}
+					confirmText={t('confirm.confirmText')}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [messageInfo?.channel_label, t]);
+
 	const leaveGroupMenu: IMezonMenuItemProps[] = [
 		{
-			onPress: async () => {
-				dismiss();
-				await sleep(500);
-				const data = {
-					children: (
-						<MezonConfirm
-							onConfirm={handleLeaveGroupConfirm}
-							title={t('confirm.title', {
-								groupName: messageInfo?.channel_label
-							})}
-							content={t('confirm.content', {
-								groupName: messageInfo?.channel_label
-							})}
-							confirmText={t('confirm.confirmText')}
-						/>
-					)
-				};
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-			},
+			onPress: handleShowModalLeaveGroup,
 			isShow: isGroup,
 			title: lastOne ? t('menu.deleteGroup') : t('menu.leaveGroup'),
 			textStyle: { color: baseColor.redStrong }
@@ -195,6 +197,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		{
 			onPress: async () => {
 				await dispatch(directActions.closeDirectMessage({ channel_id: messageInfo?.channel_id }));
+				await dispatch(directActions.setDmGroupCurrentId(''));
 				dismiss();
 			},
 			title: t('menu.closeDm'),
@@ -306,17 +309,18 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		}
 	];
 
-	const handleLeaveGroupConfirm = async () => {
+	const handleLeaveGroupConfirm = useCallback(async () => {
 		const isLeaveOrDeleteGroup = lastOne
 			? await dispatch(deleteChannel({ clanId: '0', channelId: messageInfo?.channel_id ?? '', isDmGroup: true }))
 			: await dispatch(removeMemberChannel({ channelId: messageInfo?.channel_id || '', userIds: [currentUserId], kickMember: false }));
 		if (!isLeaveOrDeleteGroup) {
 			return;
 		}
+		dispatch(directActions.setDmGroupCurrentId(''));
 
 		await dispatch(fetchDirectMessage({ noCache: true }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	};
+	}, [currentUserId, dispatch, lastOne, messageInfo?.channel_id]);
 
 	return (
 		<View style={styles.container}>
