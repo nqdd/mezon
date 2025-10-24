@@ -51,6 +51,18 @@ function MessageVideo({ attachmentData, isMobile = false, isPreview = false }: M
 			videoRef.current.pause();
 		}
 	}, [showControl]);
+
+	useEffect(() => {
+		const video = videoRef.current;
+		return () => {
+			if (video) {
+				video.pause();
+				video.removeAttribute('src');
+				video.load();
+			}
+		};
+	}, []);
+
 	const handleDownloadVideo = () => {
 		if (attachmentData.url) {
 			const a = document.createElement('a');

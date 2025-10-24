@@ -1,10 +1,10 @@
-import { size } from '@mezon/mobile-ui';
 import { selectAllchannelCategorySetting } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React from 'react';
 import { View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { CategoryChannelItem } from '../CategoryChannelItem';
+import { styles } from './styles';
 
 export const CategoryChannel = React.memo(() => {
 	const channelCategorySettings = useSelector(selectAllchannelCategorySetting);
@@ -25,7 +25,7 @@ export const CategoryChannel = React.memo(() => {
 	}, [channelCategorySettings]);
 
 	return (
-		<View style={{ borderRadius: size.s_14, overflow: 'hidden' }}>
+		<View style={styles.container}>
 			{sortedChannelCategorySettings?.length > 0
 				? sortedChannelCategorySettings?.map((item) => (
 						<CategoryChannelItem

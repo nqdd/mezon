@@ -81,7 +81,17 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, [isYourAccount, otherMemberList, senderId, t]);
 
 	const getLastMessageContent = (content: string | IExtendedMessage) => {
-		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') return null;
+		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') {
+			if (isTypeDMGroup) {
+				return  (
+				<Text style={[styles.defaultText, styles.lastMessage, { color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }]}>
+					{t('directMessage.groupCreated')}
+				</Text>
+			);
+			} else {
+				return null;
+			}
+		};
 		const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
 
 		if (!text) {
@@ -210,19 +220,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						</Text>
 					) : null}
 				</View>
-
-				{directMessage?.member_count ? (
-					<View style={styles.contentMessage}>
-						<Text
-							style={[styles.defaultText, styles.lastMessage, { color: themeValue.textDisabled, textTransform: 'capitalize' }]}
-							numberOfLines={1}
-						>
-							{`${directMessage?.member_count} ${t(directMessage?.member_count > 1 ? 'members' : 'member', { ns: 'common' })}`}
-						</Text>
-					</View>
-				) : (
-					getLastMessageContent(directMessage?.last_sent_message?.content)
-				)}
+				{getLastMessageContent(directMessage?.last_sent_message?.content)}
 			</View>
 		</TouchableOpacity>
 	);

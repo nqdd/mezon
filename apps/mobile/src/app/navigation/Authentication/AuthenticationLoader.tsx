@@ -20,6 +20,7 @@ import {
 	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
+	selectVoiceFullScreen,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
@@ -31,8 +32,7 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AppStateStatus } from 'react-native';
-import { AppState, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, NativeModules, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
@@ -58,11 +58,13 @@ export const AuthenticationLoader = () => {
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
+	const isFullVoiceScreen = useSelector(selectVoiceFullScreen);
 	const dispatch = useDispatch();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
 	const currentTopicRef = useRef(currentTopicId);
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+	const voiceFullScreenRef = useRef(isFullVoiceScreen);
 
 	useEffect(() => {
 		const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -86,6 +88,7 @@ export const AuthenticationLoader = () => {
 				setTimeout(() => {
 					loadFileSharing();
 					initFirebaseMessaging();
+					if (Platform.OS === 'ios') checkAndClearCacheImageIOS();
 				}, 100);
 				await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 				await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
@@ -196,6 +199,10 @@ export const AuthenticationLoader = () => {
 	}, [currentTopicId]);
 
 	useEffect(() => {
+		voiceFullScreenRef.current = isFullVoiceScreen;
+	}, [isFullVoiceScreen]);
+
+	useEffect(() => {
 		let timer;
 		const callListener = DeviceEventEmitter.addListener(ActionEmitEvent.GO_TO_CALL_SCREEN, async ({ payload, isDecline = false }) => {
 			if (isDecline) {
@@ -292,7 +299,8 @@ export const AuthenticationLoader = () => {
 							isViewingChannel,
 							isViewingDirectMessage
 						},
-						currentTopicRef.current
+						currentTopicRef.current,
+						voiceFullScreenRef.current
 					)
 				) {
 					// Case: FCM start call
@@ -414,6 +422,18 @@ export const AuthenticationLoader = () => {
 				'mezon.mobile.sharing'
 			);
 		} catch (error) {
+			/* empty */
+		}
+	};
+
+	const checkAndClearCacheImageIOS = async () => {
+		try {
+			const size = await NativeModules?.FastNativeImageViewManager?.getCacheSize?.();
+			const sizeInMB = size?.totalSize / (1024 * 1024);
+			if (Math.round(sizeInMB) >= 300) {
+				await NativeModules?.FastNativeImageViewManager?.clearCache?.();
+			}
+		} catch (e) {
 			/* empty */
 		}
 	};

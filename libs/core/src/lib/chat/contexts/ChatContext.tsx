@@ -162,7 +162,7 @@ import type {
 	WebrtcSignalingFwd
 } from 'mezon-js';
 import { ChannelStreamMode, ChannelType, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
-import type { ApiChannelDescription, ApiCreateEventRequest, ApiGiveCoffeeEvent, ApiMessageReaction, ApiNotification } from 'mezon-js/api.gen';
+import type { ApiCreateEventRequest, ApiGiveCoffeeEvent, ApiMessageReaction, ApiNotification } from 'mezon-js/api.gen';
 import type {
 	ApiChannelMessageHeader,
 	ApiClanEmoji,
@@ -221,12 +221,23 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					joinSoundElement.src = 'assets/audio/joincallsound.mp3';
 					joinSoundElement.preload = 'auto';
 					joinSoundElement.style.display = 'none';
+
+					const cleanup = () => {
+						joinSoundElement.removeEventListener('ended', cleanup);
+						joinSoundElement.removeEventListener('error', cleanup);
+						if (document.body.contains(joinSoundElement)) {
+							document.body.removeChild(joinSoundElement);
+						}
+						joinSoundElement.src = '';
+					};
+
+					joinSoundElement.addEventListener('ended', cleanup);
+					joinSoundElement.addEventListener('error', cleanup);
 					document.body.appendChild(joinSoundElement);
-					joinSoundElement.addEventListener('ended', () => {
-						document.body.removeChild(joinSoundElement);
-					});
+
 					joinSoundElement.play().catch((error) => {
 						console.error('Failed to play join sound:', error);
+						cleanup();
 					});
 				}
 
@@ -284,8 +295,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const handleBuzz = useCallback((channelId: string, senderId: string, isReset: boolean, mode: ChannelStreamMode | undefined) => {
 		const audio = new Audio('assets/audio/buzz.mp3');
+
+		const cleanup = () => {
+			audio.removeEventListener('ended', cleanup);
+			audio.removeEventListener('error', cleanup);
+			audio.src = '';
+		};
+
+		audio.addEventListener('ended', cleanup);
+		audio.addEventListener('error', cleanup);
+
 		audio.play().catch((error) => {
 			console.error('Failed to play buzz sound:', error);
+			cleanup();
 		});
 
 		const timestamp = Math.round(Date.now() / 1000);
@@ -379,8 +401,28 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 				if (message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove) {
 					dispatch(messagesActions.newMessage(mess));
+
+					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
+						dispatch(
+							messagesActions.updateTopicRplCount({
+								topicId: message?.topic_id,
+								channelId: message?.channel_id,
+								increment: false
+							})
+						);
+					}
 				} else {
 					dispatch(messagesActions.addNewMessage(mess));
+
+					if (message.topic_id && message.topic_id !== '0' && message?.message_id) {
+						dispatch(
+							messagesActions.updateTopicRplCount({
+								topicId: message?.topic_id,
+								channelId: message?.channel_id,
+								increment: true
+							})
+						);
+					}
 				}
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
 					const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
@@ -760,11 +802,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							const parentChannelId = currentChannel?.parent_id;
 							if (parentChannelId) {
 								navigate(`/chat/clans/${clanId}/channels/${parentChannelId}`);
-							} else {
-								navigate(`/chat/clans/${clanId}`);
+								return;
 							}
+						}
+						const defaultChannelId = selectDefaultChannelIdByClanId(store.getState() as unknown as RootState, clanId as string);
+						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
+						const fallbackChannelId = allChannels.find((ch) => ch.clan_id === clanId && !checkIsThread(ch))?.id;
+
+						const redirectChannelId = defaultChannelId || fallbackChannelId;
+
+						if (redirectChannelId) {
+							navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
 						} else {
-							navigate(`/chat/clans/${clanId}`);
+							navigate(`/chat/clans/${clanId}/member-safety`);
 						}
 					}
 					if (directId === user.channel_id) {
@@ -818,6 +868,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const currentVoice = selectVoiceInfo(store.getState());
 			const currentStream = selectCurrentStreamInfo(store.getState());
 			user?.user_ids.forEach((id: string) => {
+				dispatch(voiceActions.removeFromClanInvoice(id));
 				if (id === userId) {
 					if (clanId === user.clan_id) {
 						navigate(`/chat/direct/friends`);
@@ -1514,14 +1565,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(threadsActions.remove(channelDeleted.channel_id));
 
-				dispatch(
-					threadsActions.updateCacheOnThreadCreation({
-						clanId: channelDeleted.clan_id,
-						channelId: channelDeleted?.parent_id || '',
-						defaultThreadList: newAllThreads as ApiChannelDescription[]
-					})
-				);
-
 				return;
 			}
 			if (channelDeleted) {
@@ -2147,18 +2190,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onblockfriend = useCallback(
 		(blockFriend: BlockFriend) => {
-			if (!blockFriend?.user_id) {
+			if (!blockFriend?.user_id || !userId) {
 				return;
 			}
 			dispatch(
 				friendsActions.updateFriendState({
 					userId: blockFriend.user_id,
 					friendState: EStateFriend.BLOCK,
-					sourceId: blockFriend.user_id
+					sourceId: userId
 				})
 			);
 		},
-		[dispatch]
+		[dispatch, userId]
 	);
 
 	const onunblockfriend = useCallback(
@@ -2169,8 +2212,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			dispatch(
 				friendsActions.updateFriendState({
 					userId: unblockFriend.user_id,
-					friendState: EStateFriend.FRIEND,
-					sourceId: unblockFriend.user_id
+					friendState: EStateFriend.FRIEND
 				})
 			);
 		},

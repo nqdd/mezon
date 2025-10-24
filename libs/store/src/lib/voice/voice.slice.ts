@@ -196,6 +196,20 @@ export const voiceSlice = createSlice({
 			}
 			delete state.listInVoiceStatus[voice.voice_user_id];
 		},
+		removeFromClanInvoice: (state, action: PayloadAction<string>) => {
+			const userId = action.payload;
+			const listUser = voiceAdapter.getSelectors().selectAll(state);
+			const keyRemove = listUser
+				.filter((user) => {
+					return user.user_id === userId;
+				})
+				.map((user) => user.id);
+
+			if (keyRemove.length > 0) {
+				voiceAdapter.removeMany(state, keyRemove);
+			}
+			delete state.listInVoiceStatus[userId];
+		},
 		voiceEnded: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;
 			const idsToRemove = Object.values(state.entities)

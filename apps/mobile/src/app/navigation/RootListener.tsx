@@ -17,6 +17,7 @@ import {
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDmGroupCurrentId,
+	selectIsEnabledWallet,
 	selectIsFromFCMMobile,
 	selectIsLogin,
 	selectSession,
@@ -44,6 +45,7 @@ const RootListener = () => {
 	const dispatch = useAppDispatch();
 	const appStateRef = useRef(AppState.currentState);
 	const zkProofs = useSelector(selectZkProofs);
+	const isEnabledWallet = useSelector(selectIsEnabledWallet);
 
 	useEffect(() => {
 		if (isLoggedIn) {
@@ -205,25 +207,29 @@ const RootListener = () => {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
 			const { id = '', username = '' } = profileResponse?.payload?.user || {};
-			if (zkProofs && id) {
-				await dispatch(
-					walletActions.fetchZkProofs({
-						userId: id,
-						jwt: sessionMain?.token
-					})
-				);
+			if (id && isEnabledWallet) {
 				await dispatch(
 					walletActions.fetchWalletDetail({
 						userId: id
 					})
 				);
+				if (!zkProofs) {
+					await dispatch(walletActions.fetchEphemeralKeyPair());
+					await dispatch(walletActions.fetchAddress({ userId: id }));
+					await dispatch(
+						walletActions.fetchZkProofs({
+							userId: id,
+							jwt: sessionMain?.token
+						})
+					);
+				}
 			}
 			if (id) save(STORAGE_MY_USER_ID, id?.toString());
 			await loadFRMConfig(username, sessionMain);
 		} catch (e) {
 			console.error('log => profileLoader: ', e);
 		}
-	}, [dispatch, loadFRMConfig, zkProofs]);
+	}, [dispatch, loadFRMConfig, zkProofs, isEnabledWallet]);
 
 	const mainLoader = useCallback(async () => {
 		try {

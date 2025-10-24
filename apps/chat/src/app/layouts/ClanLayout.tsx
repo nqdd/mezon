@@ -3,6 +3,7 @@ import { useApp, useGifsStickersEmoji } from '@mezon/core';
 import type { ChannelsEntity, ClansEntity } from '@mezon/store';
 import {
 	appActions,
+	onboardingActions,
 	selectAllAccount,
 	selectCloseMenu,
 	selectCurrentChannel,
@@ -20,7 +21,7 @@ import { SubPanelName, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
 import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Outlet, useLocation } from 'react-router-dom';
 import ChatStream from '../pages/chatStream';
 import Setting from '../pages/setting';
@@ -78,7 +79,7 @@ const ClanLayout = () => {
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentChannel?.id as string));
 	const isShowCreateTopic = useSelector(selectIsShowCreateTopic);
 	const chatStreamRef = useRef<HTMLDivElement | null>(null);
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const { setSubPanelActive } = useGifsStickersEmoji();
 	const onMouseDownTopicBox = () => {
 		setSubPanelActive(SubPanelName.NONE);
@@ -91,6 +92,14 @@ const ClanLayout = () => {
 		dispatch(threadsActions.setFocusThreadBox(true));
 	};
 	const isVoiceFullScreen = useSelector(selectVoiceFullScreen);
+
+	useEffect(() => {
+		if (!currentClan?.id) return;
+		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClan.id }));
+		if (currentClan?.is_onboarding) {
+			dispatch(onboardingActions.fetchProcessingOnboarding({ clan_id: currentClan.id }));
+		}
+	}, [currentClan?.is_onboarding, currentClan?.id]);
 
 	return (
 		<>

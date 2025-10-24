@@ -78,11 +78,11 @@ export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, 
 	}, [currentChannel?.type, userColorRolesClan, themeValue.text]);
 
 	return (
-		<View style={{ ...styles.container }}>
+		<View style={styles.container}>
 			{/* Avatar */}
 			<MezonAvatar
 				avatarUrl={userInfo?.clan_avatar || userInfo?.user?.avatar_url || userInfo?.avatar_url || userInfo?.avatars?.[0]}
-				username={userInfo?.username}
+				username={name}
 				userStatus={infoMemberStatus}
 				customStatus={infoMemberStatus?.status}
 				width={size.s_36}
@@ -90,10 +90,10 @@ export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, 
 			/>
 
 			{/* Name */}
-			<View style={{ ...styles.nameContainer, borderBottomWidth: 1 }}>
+			<View style={styles.nameContainer}>
 				{!isHideUserName && (
 					<View style={styles.nameItem}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_4 }}>
+						<View style={styles.nameRowContainer}>
 							<Text style={{ color: colorUserName }}>
 								{userInfo?.username?.length > numCharCollapse ? `${name.substring(0, numCharCollapse)}...` : name}
 							</Text>
@@ -103,9 +103,9 @@ export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, 
 								)}
 						</View>
 						{!!userVoiceStatus && (
-							<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+							<View style={styles.voiceContainer}>
 								<MezonIconCDN icon={IconCDN.channelVoice} color={baseColor.green} width={12} height={12} />
-								<Text style={{ color: themeValue.textDisabled, fontSize: size.s_12, fontWeight: '500' }}>In voice</Text>
+								<Text style={styles.voiceText}>In voice</Text>
 							</View>
 						)}
 						{isDMThread && currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP && (

@@ -144,5 +144,7 @@
 		"placeholder": {
 			"threadName": "Enter Thread Name"
 		}
-	}
+	},
+	"moreFile": "more file",
+	"moreFiles": "more files"
 }

@@ -8,15 +8,13 @@ import { AddFriendScreen } from '../../../screens/friend/AddFriend';
 import { RequestFriendScreen } from '../../../screens/friend/RequestFriend';
 import { SettingFriendRequestScreen } from '../../../screens/friend/SettingFriendRequest';
 import { APP_SCREEN } from '../../ScreenTypes';
+import { styles } from './styles';
 
 const AddFriendButton = ({ navigation }: { navigation: any }) => {
 	const { t } = useTranslation(['screen']);
 	return (
-		<Pressable
-			onPress={() => navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.ADD_FRIEND })}
-			style={{ marginRight: size.s_18 }}
-		>
-			<Text style={{ color: '#5a62f4' }}>{t('headerRight.addFriends')}</Text>
+		<Pressable onPress={() => navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.ADD_FRIEND })} style={styles.addFriendButton}>
+			<Text style={styles.addFriendText}>{t('headerRight.addFriends')}</Text>
 		</Pressable>
 	);
 };

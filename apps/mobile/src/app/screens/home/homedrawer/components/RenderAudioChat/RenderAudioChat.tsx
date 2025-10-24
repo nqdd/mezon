@@ -99,23 +99,14 @@ const RenderAudioChat = React.memo(
 		}, [sound]);
 
 		return (
-			<View style={{ flex: 1, flexDirection: 'row' }}>
+			<View style={styles.wrapper}>
 				<TouchableOpacity
 					onPress={isPlaying ? pauseSound : playSound}
 					activeOpacity={0.6}
 					style={{ ...styles.container, ...stylesContainerCustom }}
 				>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<View
-							style={{
-								backgroundColor: baseColor.bgDeepLavender,
-								borderRadius: size.s_30,
-								padding: size.s_8,
-								alignItems: 'center',
-								gap: size.s_10,
-								justifyContent: 'center'
-							}}
-						>
+					<View style={styles.innerContainer}>
+						<View style={styles.playButton}>
 							{isPlaying ? (
 								<MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />
 							) : (

@@ -12,7 +12,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
-import { generateE2eId } from '@mezon/utils';
+import { EUserStatus, generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -111,7 +111,7 @@ const FriendsPage = () => {
 	const filterStatus = (listFriends: FriendsEntity[]) => {
 		switch (currentTabStatus) {
 			case 'online':
-				return listFriends.filter((item) => item.state === 0 && item.user?.online);
+				return listFriends.filter((item) => item.state === 0 && item.user?.online && item.user?.status !== EUserStatus.INVISIBLE);
 			case 'all':
 				return listFriends.filter((item) => item.state === 0);
 			case 'pending':

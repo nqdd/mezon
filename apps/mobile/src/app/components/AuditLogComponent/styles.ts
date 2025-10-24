@@ -35,5 +35,41 @@ export const style = (colors: Attributes) =>
 		},
 		stylesDatePicker: {
 			backgroundColor: colors.tertiary
+		},
+		container: {
+			paddingVertical: size.s_10,
+			width: '100%',
+			height: '100%',
+			backgroundColor: colors.primary
+		},
+		menuContainer: {
+			paddingHorizontal: size.s_20
+		},
+		filterContainer: {
+			gap: size.s_10,
+			alignItems: 'center',
+			flexDirection: 'row',
+			marginRight: size.s_10
+		},
+		filterTag: {
+			maxWidth: 200,
+			marginLeft: size.s_20,
+			backgroundColor: colors.tertiary,
+			padding: size.s_6,
+			borderRadius: size.s_6
+		},
+		filterTagSecondary: {
+			maxWidth: 200,
+			backgroundColor: colors.tertiary,
+			padding: size.s_6,
+			borderRadius: size.s_6
+		},
+		datePickerContainer: {
+			paddingHorizontal: size.s_10
+		},
+		listContainer: {
+			flex: 1,
+			paddingHorizontal: size.s_10,
+			paddingVertical: size.s_10
 		}
 	});

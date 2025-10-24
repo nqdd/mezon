@@ -56,6 +56,18 @@ export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEn
 	return mapped;
 };
 
+export const fetchDirectDetail = createAsyncThunk('direct/fetchDirectDetail', async ({ directId }: { directId: string }, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const response = await mezon.client.listChannelDetail(mezon.session, directId);
+
+		return mapDmGroupToEntity(response);
+	} catch (error) {
+		captureSentryError(error, 'direct/closeDirectMessage');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
+
 export const createNewDirectMessage = createAsyncThunk(
 	'direct/createNewDirectMessage',
 	async (
@@ -77,7 +89,9 @@ export const createNewDirectMessage = createAsyncThunk(
 						...response,
 						usernames: Array.isArray(username) ? username : username ? [username] : [],
 						display_names: Array.isArray(display_names) ? display_names : display_names ? [display_names] : [],
-						channel_label: response.channel_label,
+						channel_label:
+							response.channel_label ||
+							(Array.isArray(display_names) ? display_names.join(',') : Array.isArray(username) ? username.join(',') : ''),
 						channel_avatar: response.channel_avatar || 'assets/images/avatar-group.png',
 						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
 						user_ids: body.user_ids
@@ -341,10 +355,6 @@ export const joinDirectMessage = createAsyncThunk<void, JoinDirectMessagePayload
 							thunkAPI.dispatch(hashtagDmActions.fetchHashtagDm({ userIds, directId: directMessageId }));
 						}
 					});
-				// const userIds = members?.filter((m) => m.user_id && m.user_id !== currentUserId).map((m) => m.user_id) as string[];
-				// if (userIds?.length) {
-				// 	await thunkAPI.dispatch(e2eeActions.getPubKeys({ userIds }));
-				// }
 			}
 			thunkAPI.dispatch(
 				channelsActions.joinChat({
@@ -392,6 +402,7 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		onlines: [true],
 		active: ActiveDm.OPEN_DM,
 		usernames: [message.username as string],
+		display_names: [message.display_name as string],
 		creator_name: message.username as string,
 		create_time_seconds: message.create_time_seconds,
 		update_time_seconds: message.create_time_seconds
@@ -560,7 +571,6 @@ export const directSlice = createSlice({
 					showPinBadge: existingEntity?.showPinBadge || newEntity.showPinBadge
 				};
 			});
-
 			directAdapter.setAll(state, entitiesWithPreservedBadges);
 		},
 		updateOne: (state, action: PayloadAction<Partial<ChannelUpdatedEvent & { currentUserId: string }>>) => {
@@ -742,7 +752,10 @@ export const directSlice = createSlice({
 					changes = {
 						...currentData,
 						last_sent_message: data?.last_sent_message,
-						update_time_seconds: data?.update_time_seconds
+						update_time_seconds: data?.update_time_seconds,
+						display_names: data?.display_names,
+						usernames: data?.usernames,
+						user_ids: data?.user_ids
 					};
 				} else {
 					changes = {
@@ -788,6 +801,9 @@ export const directSlice = createSlice({
 				state.updateDmGroupError[channelId] = action.error.message || 'Failed to update group';
 				// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 				toast.error(action.error.message || 'Failed to update group');
+			})
+			.addCase(fetchDirectDetail.fulfilled, (state: DirectState, action) => {
+				directAdapter.upsertOne(state, action.payload);
 			});
 	}
 });
@@ -804,7 +820,8 @@ export const directActions = {
 	openDirectMessage,
 	addGroupUserWS,
 	addDirectByMessageWS,
-	follower
+	follower,
+	fetchDirectDetail
 };
 
 const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {

@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, size } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { AttachmentEntity, selectAllListAttachmentByChannel, sleep } from '@mezon/store-mobile';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
@@ -16,6 +16,7 @@ import LoadingModal from '../LoadingModal/LoadingModal';
 import { ItemImageModal } from './ItemImageModal';
 import { RenderFooterModal } from './RenderFooterModal';
 import { RenderHeaderModal } from './RenderHeaderModal';
+import { style as stylesFn } from './styles';
 
 interface IImageListModalProps {
 	imageSelected?: AttachmentEntity;
@@ -34,6 +35,8 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const { width, height } = useWindowDimensions();
 	const { imageSelected, channelId } = props;
 	const { t } = useTranslation(['common', 'message']);
+	const { themeValue } = useTheme();
+	const styles = stylesFn(themeValue);
 	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(imageSelected);
 	const [visibleToolbarConfig, setVisibleToolbarConfig] = useState<IVisibleToolbarConfig>({ showHeader: true, showFooter: false });
 	const [showSavedImage, setShowSavedImage] = useState(false);
@@ -241,7 +244,7 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	}, 300);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.container}>
 			{visibleToolbarConfig.showHeader && (
 				<RenderHeaderModal
 					imageSelected={currentImage}
@@ -253,7 +256,7 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 			)}
 			<GalleryAwesome
 				ref={ref}
-				style={{ flex: 1 }}
+				style={styles.galleryContainer}
 				numToRender={1}
 				containerDimensions={{ height, width }}
 				initialIndex={initialIndex === -1 ? 0 : initialIndex}
@@ -274,9 +277,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				onImageThumbnailChange={onImageThumbnailChange}
 			/>
 			{showSavedImage && (
-				<View style={{ position: 'absolute', top: '50%', width: '100%', alignItems: 'center' }}>
-					<View style={{ backgroundColor: '#2a2e31', padding: size.s_10, borderRadius: size.s_10 }}>
-						<Text style={{ color: 'white' }}>{t('savedSuccessfully')}</Text>
+				<View style={styles.savedImageContainer}>
+					<View style={styles.savedImageBox}>
+						<Text style={styles.savedImageText}>{t('savedSuccessfully')}</Text>
 					</View>
 				</View>
 			)}

@@ -190,5 +190,9 @@
 	},
 	"channelVoiceSettings": "Channel voice settings",
 	"muteVoice": "Mute",
-	"kickVoice": "Kick"
+	"kickVoice": "Kick",
+	"voiceInfo": {
+		"inVoice": "In Voice",
+		"joinVoice": "Join Voice"
+	}
 }

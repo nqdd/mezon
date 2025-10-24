@@ -42,5 +42,9 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			gap: size.s_10,
 			alignItems: 'center'
+		},
+		channelLabelContainer: {
+			flexShrink: 1,
+			minWidth: 0
 		}
 	});

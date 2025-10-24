@@ -1,14 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
 import {
-	FriendsEntity,
 	accountActions,
 	channelMembersActions,
 	selectAllAccount,
 	selectAllFriends,
 	selectCurrentClanId,
 	useAppDispatch,
-	useWallet
+	useWallet,
+	walletActions
 } from '@mezon/store-mobile';
 import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -56,7 +57,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	useFocusEffect(
 		React.useCallback(() => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
-		}, [dispatch])
+			dispatch(
+				walletActions.fetchWalletDetail({
+					userId: userProfile?.user?.id
+				})
+			);
+		}, [dispatch, userProfile?.user?.id])
 	);
 
 	const userCustomStatus = useMemo(() => {
@@ -131,7 +137,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 			children: (
 				<CustomStatusUser
 					userStatus={userStatus}
-					userCustomStatus={userCustomStatus}
 					onPressSetCustomStatus={handlePressSetCustomStatus}
 					handleCustomUserStatus={handleCustomUserStatus}
 				/>
@@ -183,7 +188,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 						</TouchableOpacity>
 					)}
-					<View style={{ flexDirection: 'row', gap: size.s_10 }}>
+					<View style={styles.shopSettingRow}>
 						<TouchableOpacity style={styles.backgroundSetting} onPress={() => navigateToShopScreen()}>
 							<MezonIconCDN icon={IconCDN.shopSparkleIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 						</TouchableOpacity>
@@ -212,17 +217,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 								</View>
 							)
 						) : (
-							<View
-								style={{
-									backgroundColor: themeValue.colorAvatarDefault,
-									overflow: 'hidden',
-									width: '100%',
-									height: '100%',
-									borderRadius: isTabletLandscape ? size.s_70 : size.s_50,
-									alignItems: 'center',
-									justifyContent: 'center'
-								}}
-							>
+							<View style={styles.defaultAvatarContainer}>
 								<Text style={styles.textAvatar}>{userProfile?.user?.username?.charAt?.(0)?.toUpperCase()}</Text>
 							</View>
 						)}
@@ -272,9 +267,9 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				</View>
 			)}
 
-			<ScrollView style={styles.contentWrapper} contentContainerStyle={{ paddingBottom: size.s_100 }}>
+			<ScrollView style={styles.contentWrapper} contentContainerStyle={styles.scrollContentContainer}>
 				<View style={styles.contentContainer}>
-					<TouchableOpacity onPress={showUserStatusBottomSheet} style={{ marginBottom: size.s_10 }}>
+					<TouchableOpacity onPress={showUserStatusBottomSheet} style={styles.touchStatusMargin}>
 						<View style={styles.viewInfo}>
 							<Text style={styles.textName}>{userProfile?.user?.display_name || userProfile?.user?.username}</Text>
 							<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
@@ -285,7 +280,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						<View>
 							<TouchableOpacity
 								onPress={showSendTokenBottomSheet}
-								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}
+								style={styles.tokenRow}
 							>
 								<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={size.s_20} height={size.s_20} color={baseColor.azureBlue} />
 								<View style={styles.token}>
@@ -300,7 +295,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 										activeScreen: 'transfer'
 									});
 								}}
-								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
+								style={styles.tokenRowMargin}
 							>
 								<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
 								<View style={styles.token}>
@@ -313,7 +308,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 										activeScreen: 'history'
 									});
 								}}
-								style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10, marginTop: size.s_10 }}
+								style={styles.tokenRowMargin}
 							>
 								<MezonIconCDN icon={IconCDN.historyIcon} height={size.s_24} width={size.s_24} color={baseColor.bgSuccess} />
 								<View style={styles.token}>
@@ -346,7 +341,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				</View>
 
 				<View style={styles.contentContainer}>
-					<View style={{ gap: size.s_20 }}>
+					<View style={styles.contentGap}>
 						{userProfile?.user?.about_me ? (
 							<View>
 								<Text style={styles.textTitle}>{t('aboutMe')}</Text>

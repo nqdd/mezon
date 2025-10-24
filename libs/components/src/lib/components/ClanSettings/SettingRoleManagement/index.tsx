@@ -18,6 +18,7 @@ import {
 	setSelectedPermissions,
 	setSelectedRoleId
 } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -91,7 +92,10 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	};
 	return flagOption ? (
 		<>
-			<div className="absolute top-0 left-0 w-full h-full pl-2 flex flex-row flex-1 shrink bg-theme-setting-primary overflow-hidden sbm:pt-[-60px] pt-[10px]">
+			<div
+				className="absolute top-0 left-0 w-full h-full pl-2 flex flex-row flex-1 shrink bg-theme-setting-primary overflow-hidden sbm:pt-[-60px] pt-[10px]"
+				data-e2e={generateE2eId('clan_page.settings.role.container')}
+			>
 				<SettingListRole handleClose={props.handleClose} RolesClan={rolesClan} handleUpdateUser={() => handleUpdateUser(true)} />
 				<div className="w-2/3">
 					<div className="font-semibold pl-3 text-theme-primary-active">

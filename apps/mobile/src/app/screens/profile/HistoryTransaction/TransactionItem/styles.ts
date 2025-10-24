@@ -72,5 +72,21 @@ export const style = (colors: Attributes) =>
 			padding: size.s_10,
 			flexDirection: 'row',
 			flexWrap: 'wrap'
+		},
+		touchableRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between'
+		},
+		copyIconWrapper: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: 4
+		},
+		copyButton: {
+			padding: 4
+		},
+		animatedContainer: {
+			overflow: 'hidden'
 		}
 	});

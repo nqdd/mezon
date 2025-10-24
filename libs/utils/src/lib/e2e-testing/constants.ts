@@ -112,7 +112,20 @@ export const DATA_E2E_IDENTIFIER = {
 			}
 		},
 		member_list: {
-			user_info: ''
+			user_info: {
+				display_name: '',
+				username: ''
+			},
+			role_settings: {
+				add_role: {
+					button: '',
+					role_name: '',
+					choose_role: ''
+				},
+				exist_role: {
+					role_name: ''
+				}
+			}
 		},
 		modal: {
 			create_category: {
@@ -159,7 +172,10 @@ export const DATA_E2E_IDENTIFIER = {
 					button: { invite: '' }
 				},
 				url_invite: '',
-				container: ''
+				container: '',
+				accept_invite: {
+					button: ''
+				}
 			},
 			limit_creation: {
 				title: ''
@@ -281,6 +297,16 @@ export const DATA_E2E_IDENTIFIER = {
 				voice_sticker_input: {
 					error: ''
 				}
+			},
+			role: {
+				container: {
+					role_option: {
+						display: '',
+						permissions: '',
+						manage_members: ''
+					},
+					name_input: ''
+				}
 			}
 		},
 		channel_list: {
@@ -308,6 +334,11 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			settings: {
 				overview: ''
+			},
+			members: {
+				role: {
+					role_name: ''
+				}
 			}
 		},
 		secondary_side_bar: {

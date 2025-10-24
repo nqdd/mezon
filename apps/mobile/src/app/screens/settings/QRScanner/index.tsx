@@ -8,12 +8,13 @@ import { Snowflake } from '@theinternetfolks/snowflake';
 import { safeJSONParse } from 'mezon-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraType } from 'react-native-camera-kit';
 import { launchImageLibrary } from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import RNQRGenerator from 'rn-qr-generator';
+import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -21,7 +22,7 @@ import { getQueryParam } from '../../../utils/helpers';
 import { style } from './styles';
 
 export const QRScanner = () => {
-	const { t } = useTranslation(['qrScanner']);
+	const { t } = useTranslation(['qrScanner', 'common']);
 	const [hasPermission, setHasPermission] = useState(false);
 	const [doScanBarcode, setDoScanBarcode] = useState(true);
 	const navigation = useNavigation<any>();
@@ -53,15 +54,20 @@ export const QRScanner = () => {
 				if (granted === PermissionsAndroid.RESULTS.GRANTED) {
 					setHasPermission(true);
 				} else {
-					Alert.alert(
-						t('cameraPermissionDenied'),
-						t('pleaseAllowCamera'),
-						[
-							{ text: t('cancel'), style: 'cancel' },
-							{ text: t('openSettings'), onPress: () => Linking.openSettings() }
-						],
-						{ cancelable: false }
-					);
+					const data = {
+						children: (
+							<MezonConfirm
+								title={t('cameraPermissionDenied')}
+								content={t('pleaseAllowCamera')}
+								confirmText={t('common:openSettings')}
+								onConfirm={() => {
+									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+									Linking.openSettings();
+								}}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				}
 			} else if (Platform.OS === 'ios') {
 				setHasPermission(true);
@@ -212,19 +218,8 @@ export const QRScanner = () => {
 	if (!hasPermission) {
 		return (
 			<View style={styles.wrapper}>
-				<View style={[styles.popupLogin, { backgroundColor: 'rgba(0,0,0,0.16)' }]}>
-					<View
-						style={{
-							zIndex: 100,
-							flexDirection: 'row',
-							position: 'absolute',
-							justifyContent: 'space-between',
-							top: size.s_40,
-							flex: 1,
-							paddingHorizontal: size.s_10,
-							width: '100%'
-						}}
-					>
+				<View style={[styles.popupLogin, styles.popupBackground]}>
+					<View style={styles.headerContainer}>
 						<TouchableOpacity
 							style={styles.backHeader}
 							onPress={() => {
@@ -235,7 +230,7 @@ export const QRScanner = () => {
 						</TouchableOpacity>
 					</View>
 					<TouchableOpacity
-						style={[styles.button, styles.buttonBorder, { backgroundColor: '#292929' }]}
+						style={[styles.button, styles.buttonBorder, styles.buttonBorderDark]}
 						onPress={() => {
 							requestCameraPermission();
 						}}
@@ -266,23 +261,12 @@ export const QRScanner = () => {
 						scanningRef.current = true;
 					}}
 					scanBarcode={doScanBarcode}
-					style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+					style={styles.cameraStyle}
 				/>
 			)}
 			{!valueCode ? (
-				<View style={{ flex: 1 }}>
-					<View
-						style={{
-							zIndex: 100,
-							flexDirection: 'row',
-							position: 'absolute',
-							justifyContent: 'space-between',
-							top: size.s_40,
-							flex: 1,
-							paddingHorizontal: size.s_10,
-							width: '100%'
-						}}
-					>
+				<View style={styles.scannerContainer}>
+					<View style={styles.headerContainer}>
 						<TouchableOpacity
 							style={styles.backHeader}
 							onPress={() => {
@@ -292,23 +276,12 @@ export const QRScanner = () => {
 							<MezonIconCDN icon={IconCDN.closeSmallBold} width={size.s_28} height={size.s_28} color={baseColor.white} />
 						</TouchableOpacity>
 						<TouchableOpacity onPress={onMyQRCode}>
-							<View
-								style={{
-									paddingHorizontal: size.s_20,
-									borderRadius: size.s_30,
-									backgroundColor: 'rgba(0,0,0,0.5)',
-									flexDirection: 'row',
-									height: '100%',
-									alignItems: 'center',
-									gap: size.s_10,
-									justifyContent: 'center'
-								}}
-							>
+							<View style={styles.myQRCodeButton}>
 								<MezonIconCDN icon={IconCDN.userIcon} width={size.s_24} height={size.s_24} color={baseColor.white} />
 								<Text style={styles.textMyQRCode}>{t('myQRCode')}</Text>
 							</View>
 						</TouchableOpacity>
-						<View style={{ width: size.s_50, backgroundColor: 'transparent' }} />
+						<View style={styles.transparentSpacer} />
 					</View>
 
 					<View style={styles.mainOverlay}></View>
@@ -341,7 +314,7 @@ export const QRScanner = () => {
 							<Text style={styles.buttonTextOutline}>{isSuccess ? `${t('startTalking')}` : `${t('logIn')}`}</Text>
 						</TouchableOpacity>
 						{!isSuccess && (
-							<TouchableOpacity style={[styles.button, { backgroundColor: 'transparent', marginTop: size.s_10 }]} onPress={onGoback}>
+							<TouchableOpacity style={[styles.button, styles.buttonTransparent]} onPress={onGoback}>
 								<Text style={styles.buttonTextOutline}>{t('cancel')}</Text>
 							</TouchableOpacity>
 						)}

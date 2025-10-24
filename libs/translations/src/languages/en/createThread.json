@@ -18,5 +18,9 @@
 	"olderThreads": "older threads",
 	"olderThread": "older thread",
 	"searchThreads": "search threads",
-	"searchThread": "search thread"
+	"searchThread": "search thread",
+	"threadFailed": {
+		"title": "Created Thread Failed",
+		"content": "Thread not found or you're not allowed to update"
+	}
 }

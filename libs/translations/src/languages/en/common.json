@@ -1,6 +1,8 @@
 {
 	"searchPlaceHolder": "Search",
 	"savedSuccessfully": "Saved Successfully",
+	"saveFailed": "Failed to save",
+	"yes": "Yes",
 	"settings": "Setting",
 	"search": "Search",
 	"newMessage": "New",
@@ -16,12 +18,14 @@
 	"role": "Role",
 	"noRoles": "No Roles",
 	"member": "Member",
+	"members": "Members",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
 	"categoryFilteringComingSoon": "Category filtering will be implemented soon!",
 	"invalidJWT": "Invalid JWT",
 	"muteNotification": "Mute",
 	"thread": "Threads",
+	"members": "Members",
 	"offlines": "Offlines",
 	"media": "Media",
 	"image": "Image",
@@ -179,7 +183,9 @@
 		"getStarted": "Get Started",
 		"invalidPhoneNumber": "Invalid phone number",
 		"loginTooFast": "Login too fast. Please wait {{seconds}} seconds before trying again.",
-		"loginFailed": "Login Failed! An error occurred during login"
+		"loginFailed": "Login Failed! An error occurred during login",
+		"otpSentMessage": "We have sent an OTP to email {{email}}, please check your inbox",
+		"backToEmailInput": "Change email?"
 	},
 	"otpVerify": {
 		"loginToMezon": "Log in to Mezon account",
@@ -254,5 +260,25 @@
 		"upload": "Upload",
 		"sticker": "Sticker",
 		"emoji": "Emoji"
+	},
+	"openSettings": "Open Settings",
+	"permissionNotification": {
+		"photoTitle": "Photo Permission",
+		"photoDesc": "App needs access to your photo library",
+		"notificationTitle": "Notification Permission",
+		"notificationError": "Notification permission denied.",
+		"typeTitle": "{{type}} is not available",
+		"typeDesc": "Allow Mezon access to your {{type}}",
+		"endCallTitle": "End Call",
+		"endCallDesc": "Are you sure you want to end the call?",
+		"permissionRequired": "Permissions required",
+		"microphoneRequiredDesc": "Please grant microphone permissions.",
+		"cameraPermissionTitle": "Camera Permission Required",
+		"cameraPermissionDesc": "Please allow camera access in your device settings to use this feature.",
+		"microphonePermissionTitle": "Microphone Permission Required",
+		"microphonePermissionDesc": "Please allow microphone access in your device settings to use this feature.",
+		"locationPermissionTitle": "Location Permission Required",
+		"locationPermissionDesc": "Mezon needs your permission to access location.",
+		"permissionDenied": "Permission Denied"
 	}
 }

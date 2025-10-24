@@ -247,6 +247,11 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		const elements: React.ReactNode[] = [];
 		for (let index = 0; index < items.length; index++) {
 			const item = items[index];
+
+			if (item.label === 'Delete Message' && !isTopic && message?.content?.tp && message?.content?.tp !== '0') {
+				continue;
+			}
+
 			const lableItemWarning =
 				item.label === 'Delete Message' ||
 				item.label === 'Report Message' ||

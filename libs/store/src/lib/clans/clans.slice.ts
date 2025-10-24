@@ -344,7 +344,6 @@ export const updateClan = createAsyncThunk(
 );
 
 type UpdateLinkUser = {
-	user_name: string;
 	avatar_url: string;
 	display_name: string;
 	about_me: string;
@@ -356,7 +355,7 @@ type UpdateLinkUser = {
 
 export const updateUser = createAsyncThunk(
 	'clans/updateUser',
-	async ({ user_name, avatar_url, display_name, about_me, logo, noCache = false, dob, encrypt_private_key }: UpdateLinkUser, thunkAPI) => {
+	async ({ avatar_url, display_name, about_me, logo, noCache = false, dob, encrypt_private_key }: UpdateLinkUser, thunkAPI) => {
 		try {
 			const state = thunkAPI.getState() as RootState;
 			const currentUser = state.account?.userProfile;
@@ -364,10 +363,6 @@ export const updateUser = createAsyncThunk(
 			const mezon = ensureClient(getMezonCtx(thunkAPI));
 
 			const body: Partial<ApiUpdateAccountRequest> = {};
-
-			if (user_name && user_name !== currentUser?.user?.username) {
-				body.username = user_name;
-			}
 
 			if (avatar_url && avatar_url !== currentUser?.user?.avatar_url) {
 				body.avatar_url = avatar_url || '';
@@ -413,7 +408,6 @@ export const updateUser = createAsyncThunk(
 							lang_tag: 'en',
 							location: '',
 							timezone: '',
-							username: user_name,
 							about_me,
 							dob
 						}

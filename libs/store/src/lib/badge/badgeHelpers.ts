@@ -1,3 +1,4 @@
+import type { IChannel } from '@mezon/utils';
 import { ID_MENTION_HERE, TIME_OFFSET, TypeMessage, debounce } from '@mezon/utils';
 import type { ChannelMessage } from 'mezon-js';
 import { safeJSONParse } from 'mezon-js';
@@ -54,8 +55,24 @@ const getCurrentClanBadgeCount = (store: { getState?: () => RootState }, clanId:
 	}
 };
 
+export const getCurrentChannelBadgeCount = (store: { getState?: () => RootState }, clanId: string, channelId: string): number => {
+	try {
+		const state = store?.getState?.();
+		const listChannelRender = state?.CHANNEL_LIST_RENDER?.listChannelRender?.[clanId];
+		if (!listChannelRender) {
+			return 0;
+		}
+
+		const channel = listChannelRender.find((ch) => ch.id === channelId) as IChannel;
+		return channel?.count_mess_unread ?? 0;
+	} catch (error) {
+		console.warn('Failed to get channel badge count:', error);
+		return 0;
+	}
+};
+
 const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: { getState?: () => RootState }) => {
-	const { clanId, channelId, badgeCount, timestamp, messageId } = params;
+	const { clanId, channelId, timestamp, messageId, badgeCount } = params;
 	if (!clanId || !channelId) {
 		return;
 	}
@@ -63,24 +80,18 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 
 	const id = channelId + messageId;
 
-	if (messageId) {
-		if (store?.getState) {
-			const state = store.getState();
-			const channel = state.channels.byClans[clanId]?.entities?.entities[channelId];
-			if (channel && channel.count_mess_unread === 0) {
-				if (isMessageAlreadyProcessed(id)) {
-					return;
-				}
-			}
-		}
+	if (isMessageAlreadyProcessed(id)) {
+		return;
+	}
 
+	if (messageId) {
 		processedMessagesCache.set(id, Date.now());
 	}
 
 	const now = timestamp || Date.now() / 1000;
 	const currentClanBadge = store ? getCurrentClanBadgeCount(store, clanId) : 0;
+
 	if (clanId !== '0') {
-		dispatch(listChannelRenderAction.removeBadgeFromChannel({ clanId, channelId }));
 		dispatch(
 			channelsActions.updateChannelBadgeCount({
 				clanId,
@@ -98,7 +109,7 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 		dispatch(listChannelsByUserActions.resetBadgeCount({ channelId }));
 		dispatch(listChannelsByUserActions.updateLastSeenTime({ channelId }));
 
-		if (badgeCount !== undefined && badgeCount > 0) {
+		if (badgeCount && badgeCount > 0) {
 			const actualDecrement = Math.min(badgeCount, currentClanBadge);
 			dispatch(
 				clansActions.updateClanBadgeCount({
@@ -108,6 +119,7 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 				})
 			);
 		}
+		dispatch(listChannelRenderAction.removeBadgeFromChannel({ clanId, channelId }));
 	} else {
 		dispatch(directActions.removeBadgeDirect({ channelId }));
 		dispatch(listChannelsByUserActions.resetBadgeCount({ channelId }));

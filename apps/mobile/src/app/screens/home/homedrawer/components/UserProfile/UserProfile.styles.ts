@@ -1,5 +1,5 @@
 import type { Attributes } from '@mezon/mobile-ui';
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -179,5 +179,14 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_12
+		},
+		voiceJoinButton: {
+			flexDirection: 'row',
+			gap: size.s_6,
+			backgroundColor: baseColor.bgSuccess,
+			borderRadius: size.s_50,
+			justifyContent: 'center',
+			paddingVertical: size.s_8,
+			alignItems: 'center',
 		}
 	});

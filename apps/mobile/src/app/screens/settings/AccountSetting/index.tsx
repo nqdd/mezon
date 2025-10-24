@@ -20,11 +20,14 @@ import {
 } from '@mezon/store-mobile';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
 // eslint-disable-next-line @nx/enforce-module-boundaries
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { DeviceEventEmitter } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { SeparatorWithLine } from '../../../components/Common';
+import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import type { SettingScreenProps } from '../../../navigation/ScreenTypes';
@@ -113,40 +116,35 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			case EAccountSettingType.BlockedUsers:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.BLOCKED_USERS });
 				break;
-			case EAccountSettingType.DeleteAccount:
-				Alert.alert(
-					t('deleteAccountAlert.title'),
-					t('deleteAccountAlert.description'),
-					[
-						{
-							text: t('deleteAccountAlert.noConfirm'),
-							style: 'cancel'
-						},
-						{
-							text: t('deleteAccountAlert.yesConfirm'),
-							onPress: () => handleDeleteAccount()
-						}
-					],
-					{ cancelable: false }
-				);
+			case EAccountSettingType.DeleteAccount: {
+				const data = {
+					children: (
+						<MezonConfirm
+							title={t('deleteAccountAlert.title')}
+							content={t('deleteAccountAlert.description')}
+							confirmText={t('deleteAccountAlert.yesConfirm')}
+							isDanger
+							onConfirm={() => handleDeleteAccount()}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				break;
-			case EAccountSettingType.DisableAccount:
-				Alert.alert(
-					t('disableAccountAlert.title'),
-					t('disableAccountAlert.description'),
-					[
-						{
-							text: t('deleteAccountAlert.noConfirm'),
-							style: 'cancel'
-						},
-						{
-							text: t('deleteAccountAlert.yesConfirm'),
-							onPress: () => logout()
-						}
-					],
-					{ cancelable: false }
-				);
+			}
+			case EAccountSettingType.DisableAccount: {
+				const disableData = {
+					children: (
+						<MezonConfirm
+							title={t('disableAccountAlert.title')}
+							content={t('disableAccountAlert.description')}
+							confirmText={t('deleteAccountAlert.yesConfirm')}
+							onConfirm={() => logout()}
+						/>
+					)
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: disableData });
 				break;
+			}
 			case EAccountSettingType.SetPassword:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.SET_PASSWORD });
 				break;
