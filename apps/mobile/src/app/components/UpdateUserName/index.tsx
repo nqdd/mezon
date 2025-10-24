@@ -9,7 +9,6 @@ import { ActivityIndicator, Dimensions, Platform, ScrollView, StatusBar, StyleSh
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
