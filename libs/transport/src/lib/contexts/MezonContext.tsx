@@ -2,7 +2,7 @@ import localStorageMobile from '@react-native-async-storage/async-storage';
 import type { Client, Socket } from 'mezon-js';
 import { Session, safeJSONParse } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
-import type { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import type { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse, ApiSession } from 'mezon-js/dist/api.gen';
 import type { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
 import React, { useCallback } from 'react';
 import type { CreateMezonClientOptions } from '../mezon';
@@ -228,13 +228,40 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		const client = await createMezonClient(mezon);
 		clientRef.current = client;
 
+		client.onRefreshSession = (session: ApiSession) => {
+			try {
+				localStorage.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
+			} catch (e) {
+				localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
+			}
+			if (session) {
+				const sessionData = session;
+				const newSession = new Session(
+					session.token || '',
+					session.refresh_token || '',
+					session.created || false,
+					session.api_url || '',
+					sessionData.is_remember || false
+				);
+
+				sessionRef.current = newSession;
+				if (typeof window !== 'undefined') {
+					window.dispatchEvent(
+						new CustomEvent('mezon:session-refreshed', {
+							detail: { session: newSession }
+						})
+					);
+				}
+			}
+		};
+
 		// Initialize additional clients
 		createZkClient();
 		createMmnClient();
 		createIndexerClient();
 
 		return client;
-	}, [mezon, createZkClient, createMmnClient, createIndexerClient]);
+	}, [mezon, createZkClient, createMmnClient, createIndexerClient, isFromMobile]);
 
 	const createQRLogin = useCallback(async () => {
 		if (!clientRef.current) {

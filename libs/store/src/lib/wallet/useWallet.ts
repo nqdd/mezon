@@ -1,15 +1,8 @@
 import { useMezon } from '@mezon/transport';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import {
-	WalletDetail,
-	selectAllAccount,
-	selectIsEnabledWallet,
-	selectIsWalletAvailable,
-	selectWalletDetail,
-	useAppDispatch,
-	walletActions
-} from '../..';
+import type { WalletDetail } from '../..';
+import { selectAllAccount, selectIsEnabledWallet, selectIsWalletAvailable, selectWalletDetail, useAppDispatch, walletActions } from '../..';
 
 export function useWallet(): {
 	isEnableWallet?: boolean;
@@ -34,7 +27,7 @@ export function useWallet(): {
 		} catch (error) {
 			console.error(`Error loading wallet detail:`, error);
 		}
-	}, [userProfile]);
+	}, [isEnableWallet, userProfile, dispatch]);
 
 	useEffect(() => {
 		if (!firstRender.current) {
