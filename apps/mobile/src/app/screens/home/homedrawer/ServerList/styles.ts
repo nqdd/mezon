@@ -38,6 +38,22 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			backgroundColor: colors.secondary
 		},
-		contentScroll: { paddingBottom: size.s_100 },
-		separatorLine: { width: '60%', marginTop: size.s_6, alignSelf: 'center' }
+		contentScroll: {
+			paddingBottom: size.s_100
+		},
+		separatorLine: {
+			width: '60%',
+			marginTop: size.s_6,
+			alignSelf: 'center'
+		},
+		focusDirectMessage: {
+			backgroundColor: baseColor.azureBlue,
+			width: size.s_6,
+			height: '80%',
+			top: '25%',
+			left: 0,
+			borderTopRightRadius: 10,
+			borderBottomEndRadius: 10,
+			position: 'absolute'
+		}
 	});
