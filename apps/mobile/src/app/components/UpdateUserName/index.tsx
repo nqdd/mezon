@@ -2,7 +2,6 @@ import { useAccount } from '@mezon/core';
 import { size } from '@mezon/mobile-ui';
 import { accountActions, appActions, authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
-import { sleep } from '@mezon/utils';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Dimensions, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -49,7 +48,6 @@ const UpdateUserName = () => {
 			setIsLoading(true);
 			const responseSession = await updateUserName(userName);
 			if (responseSession) {
-				await sleep(1000);
 				dispatch(authActions.setSession(responseSession));
 				dispatch(accountActions.getUserProfile({ noCache: true }));
 				dispatch(appActions.setIsShowUpdateUsername(false));
