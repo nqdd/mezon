@@ -54,7 +54,7 @@ export function useWallet(): {
 				await fetchWalletData();
 			}
 		}
-	}, [userProfile, sessionRef, dispatch]);
+	}, [userProfile, sessionRef]);
 
 	const disableWallet = useCallback(async () => {
 		await dispatch(walletActions.resetState());

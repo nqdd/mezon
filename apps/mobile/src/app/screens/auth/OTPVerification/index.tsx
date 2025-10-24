@@ -156,6 +156,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						// If the account is newly created or a username is missing, prompt for username update
 						if (!resp?.username || resp?.username === phoneNumber) {
 							dispatch(appActions.setIsShowUpdateUsername(true));
+						} else {
+							dispatch(appActions.setIsShowUpdateUsername(false));
 						}
 					}
 

@@ -77,7 +77,24 @@ const fetchZkProofs = createAsyncThunk(
 				return thunkAPI.rejectWithValue('ZkClient not initialized');
 			}
 
-			const response = await mezon.zkClient.getZkProofs({ ...req, address, ephemeralPublicKey: ephemeralKeyPair?.publicKey });
+			let jwt = mezon.session.token;
+			if (mezon.session.isexpired(Date.now() / 1000)) {
+				const session = await mezon?.refreshSession({
+					...mezon.session,
+					is_remember: mezon.session.is_remember ?? false
+				});
+				if (!session?.token) {
+					return thunkAPI.rejectWithValue('Session refresh failed');
+				}
+				jwt = session.token;
+			}
+
+			const response = await mezon.zkClient.getZkProofs({
+				userId: req.userId,
+				jwt,
+				address,
+				ephemeralPublicKey: ephemeralKeyPair?.publicKey
+			});
 			return response;
 		} catch (error) {
 			if (error instanceof Error) {
