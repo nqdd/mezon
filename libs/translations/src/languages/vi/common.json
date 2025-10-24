@@ -182,7 +182,9 @@
 		"getStarted": "Bắt đầu nào",
 		"invalidPhoneNumber": "Số điện thoại không hợp lệ",
 		"loginTooFast": "Đăng nhập quá nhanh. Vui lòng đợi {{seconds}} giây trước khi thử lại.",
-		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập"
+		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập",
+		"otpSentMessage": "Chúng tôi đã gửi mã OTP đến email {{email}}, hãy kiểm tra hộm thư của bạn",
+		"backToEmailInput": "Thay đổi email?"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
