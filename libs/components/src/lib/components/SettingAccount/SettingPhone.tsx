@@ -235,7 +235,6 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 
 export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
 	useEffect(() => {
-		// Auto focus vào ô đầu tiên khi component mount
 		const firstInput = document.getElementById('otp-0');
 		if (firstInput) {
 			setTimeout(() => {
@@ -282,7 +281,7 @@ export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP:
 
 	return (
 		<div className="flex flex-col">
-			<div className="flex items-center justify-between gap-2">
+			<div className="flex items-center justify-around gap-3">
 				{otp.map((digit, index) => (
 					<input
 						key={index}
@@ -295,7 +294,7 @@ export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP:
 						onChange={(e) => handleChange(index, e)}
 						onKeyDown={(e) => handleKeyDown(index, e)}
 						onPaste={handlePaste}
-						className="aspect-square rounded-md h-10 outline-none w-10 text-xl text-center font-bold bg-theme-input border border-theme-primary focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:bg-[#4d6aff5f]"
+						className="aspect-square rounded-md h-12 outline-none w-12 text-xl text-center font-bold bg-theme-input border border-theme-primary focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:bg-[#4d6aff5f]"
 					/>
 				))}
 			</div>

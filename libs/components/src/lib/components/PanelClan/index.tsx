@@ -115,7 +115,6 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 	const handleRemoveLogo = () => {
 		dispatch(
 			clansActions.updateUser({
-				user_name: userProfile?.user?.username || '',
 				avatar_url: userProfile?.user?.avatar_url || '',
 				display_name: userProfile?.user?.display_name || '',
 				about_me: userProfile?.user?.about_me || '',

@@ -1,4 +1,5 @@
-import { getTimeDifferenceDate, IUsersClan } from '@mezon/utils';
+import type { IUsersClan } from '@mezon/utils';
+import { getTimeDifferenceDate } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import TableMemberHeader from './TableMemberHeader';
 import TableMemberItem from './TableMemberItem';
@@ -24,7 +25,7 @@ const TableMember: React.FC<ITableMemberProps> = ({ currentPage, pageSize, dataM
 					<TableMemberItem
 						key={user.id}
 						username={user.user?.username ?? ''}
-						avatar={user.clan_avatar ?? user.user?.avatar_url ?? ''}
+						avatar={user.clan_avatar || user.user?.avatar_url || ''}
 						mezonJoinTime={getTimeDifferenceDate(user.user?.create_time || '')}
 						clanJoinTime={user.user?.join_time}
 						userId={user.id}

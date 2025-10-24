@@ -28,13 +28,13 @@ export function useWallet(): {
 	const isWalletAvailable = useSelector(selectIsWalletAvailable);
 
 	const fetchWalletData = useCallback(async () => {
-		if (!isEnableWallet || !userProfile?.user?.id) return;
+		if (!userProfile?.user?.id) return;
 		try {
 			await dispatch(walletActions.fetchWalletDetail({ userId: userProfile?.user?.id })).unwrap();
 		} catch (error) {
 			console.error(`Error loading wallet detail:`, error);
 		}
-	}, [isEnableWallet, userProfile]);
+	}, [userProfile]);
 
 	useEffect(() => {
 		if (!firstRender.current) {
@@ -58,6 +58,7 @@ export function useWallet(): {
 			const res = await dispatch(walletActions.fetchZkProofs(proofInput));
 			if (res.payload) {
 				await dispatch(walletActions.setIsEnabledWallet(true));
+				await fetchWalletData();
 			}
 		}
 	}, [userProfile, sessionUser]);
