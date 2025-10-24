@@ -8,7 +8,7 @@ import {
 	setIsElectronUpdateAvailable
 } from '@mezon/store';
 import i18n from '@mezon/translations';
-import { MezonContextProvider, clearSessionFromStorage, getMezonConfig, useMezon } from '@mezon/transport';
+import { MezonContextProvider, clearSessionFromStorage, clearSessionRefreshFromStorage, getMezonConfig, useMezon } from '@mezon/transport';
 
 import { PopupManagerProvider } from '@mezon/components';
 import { PermissionProvider, useActivities, useSettingFooter } from '@mezon/core';
@@ -94,6 +94,7 @@ const AppInitializer = () => {
 	if (clientRef?.current?.setBasePath) {
 		if (!isLogin) {
 			clearSessionFromStorage();
+			clearSessionRefreshFromStorage();
 			clientRef.current.setBasePath(
 				process.env.NX_CHAT_APP_API_GW_HOST as string,
 				process.env.NX_CHAT_APP_API_GW_PORT as string,
