@@ -146,6 +146,14 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 							getTabTranslation={getTabTranslation}
 						/>
 					)}
+				{hasManageChannelPermission && channel.type === ChannelType.CHANNEL_TYPE_STREAMING && (
+					<ChannelSettingItemButton
+						tabName={EChannelSettingTab.STREAM_THUMBNAIL}
+						handleOnClick={handleButtonClick}
+						selectedButton={selectedButton}
+						getTabTranslation={getTabTranslation}
+					/>
+				)}
 				<hr className="border-t border-solid dark:border-borderDefault my-4" />
 				<button
 					className={`p-2 dark:text-red-600 text-red-600 text-[16px] font-medium pl-2 ml-[-8px] hover:bg-bgModifierHoverLight dark:hover:bg-bgModalLight ${selectedButton === 'Delete' ? 'dark:bg-[#232E3B] bg-bgLightModeButton  ' : ''} w-[170px] text-left rounded-[5px]`}
