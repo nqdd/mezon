@@ -72,6 +72,7 @@ export * from './resetScroll';
 export * from './schedulers';
 export * from './select';
 export * from './signals';
+export * from './timeFormatterI18n';
 export * from './toggleSelection';
 export * from './transform';
 export * from './windowEnvironment';

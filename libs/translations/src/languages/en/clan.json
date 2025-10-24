@@ -28,6 +28,8 @@
 		"description": "Are you sure you want to leave <strong>{{clanName}}</strong>? You won't be able to re-join this Clan unless you are re-invited.",
 		"cancel": "Cancel"
 	},
+	"leaveClan": "Leave Clan",
+	"leaveClanTitle": "Leave",
 	"categoryOverview": {
 		"categoryName": "Category Name",
 		"categoryNamePlaceholder": "Enter your category name here...",

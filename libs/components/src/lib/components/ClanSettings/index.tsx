@@ -13,6 +13,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { EPermission } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import DeleteClanModal from '../DeleteClanModal';
@@ -22,7 +23,7 @@ import AuditLog from './AuditLog';
 import ClanSettingOverview from './ClanSettingOverview';
 import Integrations from './Integrations';
 import type { ItemObjProps } from './ItemObj';
-import { ItemSetting, listItemSetting } from './ItemObj';
+import { ItemSetting, createTranslatedListItemSetting } from './ItemObj';
 import CategoryOrderSetting from './OrderCategorySetting';
 import SettingEmoji from './SettingEmoji';
 import ServerSettingMainRoles from './SettingMainRoles';
@@ -36,22 +37,24 @@ export type ModalSettingProps = {
 	initialSetting?: string;
 };
 
-const allSettings: ItemObjProps[] = [
-	{ id: ItemSetting.OVERVIEW, name: 'Overview' },
-	{ id: ItemSetting.ROLES, name: 'Roles' },
-	{ id: ItemSetting.CATEGORY_ORDER, name: 'Category Order' },
-	{ id: ItemSetting.EMOJI, name: 'Emoji' },
-	{ id: ItemSetting.IMAGE_STICKERS, name: 'Image Stickers' },
-	{ id: ItemSetting.VOIDE_STICKERS, name: 'Voice Stickers' },
-	{ id: ItemSetting.INTEGRATIONS, name: 'Integrations' },
-	{ id: ItemSetting.AUDIT_LOG, name: 'Audit Log' },
-	{ id: ItemSetting.ON_BOARDING, name: 'Onboarding' },
-	{ id: ItemSetting.ON_COMUNITY, name: 'Enable Community' }
-];
-
 const ClanSetting = (props: ModalSettingProps) => {
+	const { t } = useTranslation('clanSettings');
 	const { onClose, initialSetting } = props;
 
+	const listItemSetting = createTranslatedListItemSetting(t);
+
+	const allSettings: ItemObjProps[] = [
+		{ id: ItemSetting.OVERVIEW, name: t('sidebar.items.overview') },
+		{ id: ItemSetting.ROLES, name: t('sidebar.items.roles') },
+		{ id: ItemSetting.CATEGORY_ORDER, name: t('sidebar.items.categoryOrder') },
+		{ id: ItemSetting.EMOJI, name: t('sidebar.items.emoji') },
+		{ id: ItemSetting.IMAGE_STICKERS, name: t('sidebar.items.imageStickers') },
+		{ id: ItemSetting.VOIDE_STICKERS, name: t('sidebar.items.voiceStickers') },
+		{ id: ItemSetting.INTEGRATIONS, name: t('sidebar.items.integrations') },
+		{ id: ItemSetting.AUDIT_LOG, name: t('sidebar.items.auditLog') },
+		{ id: ItemSetting.ON_BOARDING, name: t('sidebar.items.onboarding') },
+		{ id: ItemSetting.ON_COMUNITY, name: t('sidebar.items.enableCommunity') }
+	];
 	const [currentSettingId, setCurrentSettingId] = useState<string>(() => (initialSetting ? initialSetting : listItemSetting[0].id));
 	const currentSetting = useMemo(() => {
 		return allSettings.find((item) => item.id === currentSettingId);
