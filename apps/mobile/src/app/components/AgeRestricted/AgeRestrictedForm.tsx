@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { clansActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ const AgeRestrictedForm = ({ onClose }: { onClose: () => void }) => {
 		if (!date) return;
 		dispatch(
 			clansActions.updateUser({
-				user_name: userProfile?.user?.username || '',
 				avatar_url: userProfile?.user?.avatar_url || '',
 				display_name: userProfile?.user?.display_name || '',
 				about_me: userProfile?.user?.about_me || '',

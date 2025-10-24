@@ -1,6 +1,6 @@
 import { useAccount } from '@mezon/core';
-import { baseColor, size } from '@mezon/mobile-ui';
-import { appActions, selectAllAccount } from '@mezon/store';
+import { size } from '@mezon/mobile-ui';
+import { accountActions, appActions, authActions } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,6 @@ import { ActivityIndicator, Dimensions, Platform, ScrollView, StatusBar, StyleSh
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
@@ -21,8 +20,7 @@ const UpdateUserName = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLandscape, setIsLandscape] = useState(false);
 	const [isError, setIsError] = useState(false);
-	const userProfile = useSelector(selectAllAccount);
-	const { updateUser } = useAccount();
+	const { updateUserName } = useAccount();
 	const dispatch = useAppDispatch();
 	const isTabletLandscape = useTabletLandscape();
 
@@ -47,20 +45,11 @@ const UpdateUserName = () => {
 	const handlePrimaryAction = async () => {
 		try {
 			setIsError(false);
-			const { display_name, avatar_url, about_me } = userProfile?.user || {};
-
 			setIsLoading(true);
-
-			const response = await updateUser(
-				userName,
-				avatar_url || '',
-				display_name?.trim() || '',
-				about_me || '',
-				userProfile?.user?.dob || '',
-				userProfile?.logo || '',
-				true
-			);
-			if (response && response?.status !== 400) {
+			const responseSession = await updateUserName(userName);
+			if (responseSession) {
+				dispatch(authActions.setSession(responseSession));
+				dispatch(accountActions.getUserProfile({ noCache: true }));
 				dispatch(appActions.setIsShowUpdateUsername(false));
 			} else {
 				setIsError(true);
