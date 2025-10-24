@@ -79,10 +79,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			setReqIdSent(reqId);
 			setIsError(false);
 		}
-		if (phoneNumber) {
-			dispatch(appActions.setIsShowUpdateUsername(true));
-		}
-	}, [dispatch, phoneNumber, reqId]);
+	}, [reqId]);
 
 	const startCountdown = () => {
 		countdownStartTime.current = Date.now();
