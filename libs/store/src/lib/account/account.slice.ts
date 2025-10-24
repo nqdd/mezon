@@ -259,3 +259,5 @@ export const selectAccountCustomStatus = createSelector(getAccountState, (state:
 export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
 
 export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);
+
+export const selectCurrentUsername = createSelector(getAccountState, (state: AccountState) => state.userProfile?.user?.username || '');
