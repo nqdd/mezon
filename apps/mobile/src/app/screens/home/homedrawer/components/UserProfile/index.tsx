@@ -17,7 +17,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { DEFAULT_ROLE_COLOR, EUserStatus, IMessageWithUser } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EUserStatus } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -598,7 +598,7 @@ const UserProfile = React.memo(
 						)}
 					</View>
 
-					{!isDMGroup && <UserVoiceInfo userId={userId || user?.id || ''} />}
+					{showAction && <UserVoiceInfo userId={userId || user?.id || ''} />}
 
 					{isShowUserContent && (
 						<View style={[!isDMGroup && styles.roleGroup]}>
