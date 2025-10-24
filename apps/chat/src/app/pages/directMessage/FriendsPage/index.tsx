@@ -111,7 +111,7 @@ const FriendsPage = () => {
 	const filterStatus = (listFriends: FriendsEntity[]) => {
 		switch (currentTabStatus) {
 			case 'online':
-				return listFriends.filter((item) => item.state === 0 && item.user?.online && item.user.status !== EUserStatus.INVISIBLE);
+				return listFriends.filter((item) => item.state === 0 && item.user?.online && item.user?.status !== EUserStatus.INVISIBLE);
 			case 'all':
 				return listFriends.filter((item) => item.state === 0);
 			case 'pending':
