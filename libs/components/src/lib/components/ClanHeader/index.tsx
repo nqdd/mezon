@@ -211,8 +211,8 @@ function ClanHeader({ name, type }: ClanHeaderProps) {
 					handleCancel={toggleLeaveClanPopup}
 					handleConfirm={handleLeaveClan}
 					modalName={currentClan?.clan_name}
-					title="leave"
-					buttonName="Leave Clan"
+					title={t('leaveClanTitle')}
+					buttonName={t('leaveClan')}
 				/>
 			)}
 			{openCreateCate && <ModalCreateCategory onClose={onClose} onCreateCategory={handleCreateCate} />}

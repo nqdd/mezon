@@ -1,7 +1,8 @@
 import { ColorRoleProvider, useEscapeKeyClose } from '@mezon/core';
 import { selectAllAccount, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
-import { generateE2eId, IMessageWithUser, KEY_KEYBOARD } from '@mezon/utils';
-import { useEffect, useRef } from 'react';
+import type { IMessageWithUser } from '@mezon/utils';
+import { KEY_KEYBOARD, generateE2eId } from '@mezon/utils';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import MessageWithUser from '../MessageWithUser';
@@ -19,10 +20,10 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 	const userId = useSelector(selectAllAccount)?.user?.id;
 	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 
-	const handlePinMessageAndCloseModal = () => {
+	const handlePinMessageAndCloseModal = useCallback(() => {
 		handlePinMessage();
 		closeModal();
-	};
+	}, []);
 
 	useEffect(() => {
 		const handleEnterKey = (event: KeyboardEvent) => {
@@ -67,7 +68,11 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 						</ColorRoleProvider>
 					</div>
 					<div className="w-full  p-4 flex justify-end gap-x-4 bg-theme-setting-nav">
-						<button onClick={closeModal} className="px-4 py-2 hover:underline rounded" data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.cancel')}>
+						<button
+							onClick={closeModal}
+							className="px-4 py-2 hover:underline rounded"
+							data-e2e={generateE2eId('chat.message_action_modal.confirm_modal.button.cancel')}
+						>
 							{t('modal.cancel')}
 						</button>
 						<button

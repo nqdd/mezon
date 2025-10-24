@@ -1,8 +1,8 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { Fonts, size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
 import {
-	RootState,
 	auditLogFilterActions,
 	auditLogList,
 	selectActionAuditLog,
@@ -12,16 +12,18 @@ import {
 } from '@mezon/store-mobile';
 import { ActionLog, UserAuditLog } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
-import { MezonapiListAuditLog } from 'mezon-js/api.gen';
+import type { MezonapiListAuditLog } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonDateTimePicker from '../../componentUI/MezonDateTimePicker';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { AuditLogItem } from './AuditLogItem/AuditLogItem';
 import EmptyAuditLog from './EmptyAuditLog/EmptyAuditLog';
 import { style } from './styles';
@@ -52,12 +54,12 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 	const displayUserName = useMemo(() => {
 		return userAuditLog?.username && userAuditLog?.username !== UserAuditLog.ALL_USER_AUDIT
 			? userAuditLog?.username
-			: UserAuditLog.ALL_USER_AUDIT;
-	}, [userAuditLog?.username]);
+			: t('filterUserAuditLog.allUsers');
+	}, [userAuditLog?.username, t]);
 
 	const displayActionLog = useMemo(() => {
-		return actionAuditLog && actionAuditLog !== ActionLog.ALL_ACTION_AUDIT ? actionAuditLog : ActionLog.ALL_ACTION_AUDIT;
-	}, [actionAuditLog]);
+		return actionAuditLog && actionAuditLog !== ActionLog.ALL_ACTION_AUDIT ? actionAuditLog : t('filterActionAuditLog.allActions');
+	}, [actionAuditLog, t]);
 
 	const menu = useMemo(
 		() =>
@@ -87,13 +89,13 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 	const handleOnPressFilter = useCallback(() => {
 		const data = {
 			children: (
-				<View style={{ paddingHorizontal: size.s_20 }}>
+				<View style={styles.menuContainer}>
 					<MezonMenu menu={menu} />
 				</View>
 			)
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-	}, [menu]);
+	}, [menu, styles.menuContainer]);
 
 	useLayoutEffect(() => {
 		navigation.setOptions({
@@ -158,23 +160,15 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 
 	const renderAditLogItem = ({ item }) => <AuditLogItem data={item} />;
 	return (
-		<View style={{ paddingVertical: size.s_10, width: '100%', height: '100%', backgroundColor: themeValue.primary }}>
+		<View style={styles.container}>
 			<TouchableOpacity onPress={handleOnPressFilter} activeOpacity={0.5} style={styles.filterBtn}>
-				<View style={{ gap: size.s_10, alignItems: 'center', flexDirection: 'row', marginRight: size.s_10 }}>
-					<View
-						style={{
-							maxWidth: 200,
-							marginLeft: size.s_20,
-							backgroundColor: themeValue.tertiary,
-							padding: size.s_6,
-							borderRadius: size.s_6
-						}}
-					>
+				<View style={styles.filterContainer}>
+					<View style={styles.filterTag}>
 						<Text style={styles.textFilterBtn} numberOfLines={1}>
 							{displayUserName}
 						</Text>
 					</View>
-					<View style={{ maxWidth: 200, backgroundColor: themeValue.tertiary, padding: size.s_6, borderRadius: size.s_6 }}>
+					<View style={styles.filterTagSecondary}>
 						<Text style={styles.textFilterBtn} numberOfLines={1}>
 							{displayActionLog}
 						</Text>
@@ -182,7 +176,7 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 				</View>
 			</TouchableOpacity>
-			<View style={{ paddingHorizontal: size.s_10 }}>
+			<View style={styles.datePickerContainer}>
 				<MezonDateTimePicker
 					value={selectDate}
 					onChange={handleDatePicked}
@@ -192,7 +186,7 @@ export default function AuditLogComponent({ navigation }: MenuClanScreenProps<Cl
 				/>
 			</View>
 
-			<View style={{ flex: 1, paddingHorizontal: size.s_10, paddingVertical: size.s_10 }}>
+			<View style={styles.listContainer}>
 				{loadingStatus === 'loaded' && !auditLogData?.logs?.length ? (
 					<EmptyAuditLog />
 				) : (

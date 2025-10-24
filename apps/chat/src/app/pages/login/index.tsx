@@ -21,6 +21,7 @@ function Login() {
 	const [hidden, setHidden] = useState<boolean>(false);
 	const [isRemember, setIsRemember] = useState<boolean>(false);
 	const [loginMethod, setLoginMethod] = useState(true);
+	const [otpStep, setOtpStep] = useState<boolean | null>(null);
 
 	useEffect(() => {
 		const fetchQRCode = async () => {
@@ -77,33 +78,36 @@ function Login() {
 	};
 	const handleSwitchMethod = () => {
 		setLoginMethod(!loginMethod);
+		setOtpStep(null);
 	};
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-300 px-4">
 			<div className="bg-[#0b0b0b] text-white rounded-2xl shadow-lg p-14 max-w-4xl w-[800px] flex flex-row gap-8 items-center">
 				<div className="flex-1 text-left flex flex-col">
-					<div className="flex flex-col items-center">
+					<div className="flex flex-col items-center mb-2">
 						<h1 className="text-2xl font-bold mb-1">{t('login.welcomeBack')}</h1>
 						<p className="text-gray-400">{t('login.gladToMeetAgain')}</p>
 					</div>
-					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} /> : <FormLoginEmail />}
-					<div className="mt-4 flex items-center text-gray-400 justify-between">
-						<div className="flex items-center gap-2">
-							<input
-								type="checkbox"
-								id="keepSignedIn"
-								className="mr-2"
-								checked={isRemember}
-								onChange={(e) => setIsRemember(e.target.checked)}
-							/>
-							<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
-						</div>
-						{!loginMethod && (
-							<div className="text-sm text-blue-500 hover:underline" onClick={handleSwitchMethod}>
-								{t('login.loginByOTP')}
+					{loginMethod ? <FormLoginOTP handleChangeMethod={handleSwitchMethod} onStepChange={setOtpStep} /> : <FormLoginEmail />}
+					{!(loginMethod && otpStep) && (
+						<div className="mt-4 flex items-center text-gray-400 justify-between">
+							<div className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									id="keepSignedIn"
+									className="mr-2"
+									checked={isRemember}
+									onChange={(e) => setIsRemember(e.target.checked)}
+								/>
+								<label htmlFor="keepSignedIn">{t('login.keepSignedIn')}</label>
 							</div>
-						)}
-					</div>
+							{!loginMethod && (
+								<div className="text-sm text-blue-500 hover:underline" onClick={handleSwitchMethod}>
+									{t('login.loginByOTP')}
+								</div>
+							)}
+						</div>
+					)}
 				</div>
 
 				<div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center w-56 h-80">

@@ -86,7 +86,7 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 			const data = {
 				snapPoints: ['55%'],
 				children: (
-					<View style={{ paddingHorizontal: size.s_20 }}>
+					<View style={styles.bottomSheetContent}>
 						<Text style={styles.headerBS}>{t('clanNotificationBS.title', { ns: 'clanNotificationsSetting' })}</Text>
 						<MezonMenu menu={menu} />
 					</View>

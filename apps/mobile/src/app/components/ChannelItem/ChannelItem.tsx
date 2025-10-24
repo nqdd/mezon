@@ -41,12 +41,12 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 		}
 	};
 	return (
-		<TouchableOpacity onPress={handleOnPress} style={{ marginBottom: size.s_20 }}>
+		<TouchableOpacity onPress={handleOnPress} style={styles.channelItemContainer}>
 			{[ChannelType.CHANNEL_TYPE_CHANNEL, ChannelType.CHANNEL_TYPE_THREAD, ChannelType.CHANNEL_TYPE_APP].includes(channelData?.type) ? (
-				<View style={{ flexDirection: 'row', gap: size.s_10, alignItems: 'center' }}>
+				<View style={styles.channelRow}>
 					<IconChannel channelPrivate={channelData?.channel_private} type={channelData?.type} />
 					<View>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_6, marginBottom: size.s_2 }}>
+						<View style={styles.channelInfo}>
 							<Text style={styles.channelName} numberOfLines={1}>{`${channelData?.channel_label} ${parentLabel}`}</Text>
 						</View>
 						{!!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
@@ -54,11 +54,11 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 				</View>
 			) : null}
 			{[ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE].includes(channelData?.type) ? (
-				<View style={{ flexDirection: 'row', gap: size.s_10, alignItems: 'center', justifyContent: 'space-between' }}>
-					<View style={{ flexDirection: 'row', gap: size.s_10, alignItems: 'center' }}>
+				<View style={styles.voiceChannelContainer}>
+					<View style={styles.channelRow}>
 						<IconChannel channelPrivate={channelData?.channel_private} type={channelData?.type} />
 						<View>
-							<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_6, marginBottom: size.s_2 }}>
+							<View style={styles.channelInfo}>
 								<Text style={styles.channelName} numberOfLines={1}>
 									{channelData?.channel_label}
 								</Text>

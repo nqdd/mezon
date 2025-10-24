@@ -1,13 +1,14 @@
-import { CategoryChannelItemProps, EOptionOverridesType, optionNotification } from '@mezon/mobile-components';
+import type { CategoryChannelItemProps } from '@mezon/mobile-components';
+import { EOptionOverridesType, optionNotification } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectAllchannelCategorySetting } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
-import { TFunction } from 'i18next';
-import { ChannelType, NotificationType } from 'mezon-js';
+import type { TFunction } from 'i18next';
+import type { NotificationType } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -51,7 +52,7 @@ export const CategoryChannelItem = React.memo(
 		}, []);
 
 		return (
-			<TouchableOpacity onPress={navigateToNotificationDetail} style={{ ...styles.categoryItem, ...stylesItem }}>
+			<TouchableOpacity onPress={navigateToNotificationDetail} style={[styles.categoryItem, stylesItem]}>
 				<View style={styles.channelTitle}>
 					{typePreviousIcon === ChannelType.CHANNEL_TYPE_CHANNEL && (
 						<MezonIconCDN icon={IconCDN.channelText} width={16} height={16} color={themeValue.channelNormal} />
@@ -59,7 +60,7 @@ export const CategoryChannelItem = React.memo(
 					{typePreviousIcon === EOptionOverridesType.Category && (
 						<MezonIconCDN icon={IconCDN.forderIcon} width={16} height={16} color={themeValue.channelNormal} />
 					)}
-					<View style={{ flexShrink: 1, minWidth: 0 }}>
+					<View style={styles.channelLabelContainer}>
 						{categoryLabel && (
 							<Text style={styles.categoryLabel} numberOfLines={1}>
 								{categoryLabel}

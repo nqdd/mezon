@@ -10,9 +10,17 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 			borderRadius: size.s_50,
 			position: 'relative'
 		},
+		emptyView: {
+			height,
+			width
+		},
 		boxImage: {
 			borderRadius: size.s_50,
 			overflow: 'hidden'
+		},
+		sizedContainer: {
+			height,
+			width
 		},
 		borderBoxImage: {
 			borderColor: colors.secondary,
@@ -77,3 +85,7 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 			fontWeight: 'bold'
 		}
 	});
+
+export const createPositionStyle = (index: number) => ({
+	left: index * 20
+});

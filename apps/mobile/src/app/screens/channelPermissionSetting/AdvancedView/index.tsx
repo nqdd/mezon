@@ -1,4 +1,4 @@
-import { size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { fetchUserChannels, rolesClanActions, selectAllUserChannel, selectRolesByChannelId, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
@@ -10,10 +10,12 @@ import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { MemberItem } from '../components/MemberItem';
 import { RoleItem } from '../components/RoleItem';
 import { EOverridePermissionType } from '../types/channelPermission.enum';
-import { IAdvancedViewProps } from '../types/channelPermission.type';
+import type { IAdvancedViewProps } from '../types/channelPermission.type';
+import { styles as stylesFn } from './AdvancedView.styles';
 
 export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedViewProps) => {
 	const { themeValue } = useTheme();
+	const styles = stylesFn(themeValue);
 	const navigation = useNavigation<any>();
 	const { t } = useTranslation('channelSetting');
 	const listOfChannelRole = useSelector(selectRolesByChannelId(channel?.channel_id));
@@ -65,20 +67,13 @@ export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedView
 			const { type, headerTitle, isShowHeader, role, member } = item;
 			if (!type && headerTitle && isShowHeader) {
 				return (
-					<View style={{ paddingTop: size.s_12, paddingLeft: size.s_8, marginBottom: size.s_10 }}>
-						<Text
-							style={{
-								fontSize: verticalScale(18),
-								color: themeValue.white
-							}}
-						>
-							{headerTitle}:
-						</Text>
+					<View style={styles.headerContainer}>
+						<Text style={styles.headerText}>{headerTitle}:</Text>
 					</View>
 				);
 			}
 			return (
-				<View style={{ backgroundColor: themeValue.primary, borderRadius: size.s_8, marginBottom: size.s_8 }}>
+				<View style={styles.itemWrapper}>
 					{type === EOverridePermissionType.Member ? (
 						!member?.user?.id || !member?.user?.username ? (
 							<View />
@@ -93,11 +88,11 @@ export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedView
 				</View>
 			);
 		},
-		[channel, themeValue, navigateToPermissionOverridesDetail]
+		[channel, styles, navigateToPermissionOverridesDetail]
 	);
 
 	return (
-		<View style={{ flex: 1, backgroundColor: themeValue.primary }}>
+		<View style={styles.container}>
 			{listOfRoleAndMemberInChannel.length ? (
 				<FlashList
 					data={listOfRoleAndMemberInChannel}
@@ -107,14 +102,8 @@ export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedView
 					removeClippedSubviews={true}
 				/>
 			) : (
-				<View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }}>
-					<Text
-						style={{
-							color: themeValue.textDisabled
-						}}
-					>
-						{t('channelPermission.roleAndMemberEmpty')}
-					</Text>
+				<View style={styles.emptyContainer}>
+					<Text style={styles.emptyText}>{t('channelPermission.roleAndMemberEmpty')}</Text>
 				</View>
 			)}
 

@@ -1,16 +1,12 @@
-// CachedImageWithRetryIOS.tsx
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import { StyleSheet, View } from 'react-native';
+import { FastNativeImage } from './FastNativeImage';
 
 interface ICachedImageWithRetryIOSProps {
 	source: { uri: string };
 	urlOriginal?: string;
 	style?: any;
 	resizeMode?: 'contain' | 'cover' | 'stretch' | 'center';
-	placeholder?: React.ReactNode;
-	isVisible?: boolean; // NEW: Only load when visible
-	[key: string]: any;
 }
 
 const NX_BASE_IMG_URL_OLD = 'https://cdn.mezon.vn';
@@ -26,89 +22,45 @@ const extractOriginalUrl = (url: string): string | null => {
 };
 
 const CachedImageWithRetryIOS = memo(
-	({ source, urlOriginal, style, resizeMode = 'cover', placeholder, isVisible = true, ...props }: ICachedImageWithRetryIOSProps) => {
-		const [loading, setLoading] = useState<boolean>(false);
+	({ source, urlOriginal, style, resizeMode = 'cover', ...props }: ICachedImageWithRetryIOSProps) => {
 		const [hasError, setHasError] = useState<boolean>(false);
-		const [shouldLoad, setShouldLoad] = useState<boolean>(isVisible);
-		const isMountedRef = useRef<boolean>(true);
-		const hasLoadedOnceRef = useRef<boolean>(false);
+		const [currentUri, setCurrentUri] = useState<string>(source?.uri);
+		const mountedRef = useRef<boolean>(true);
 
 		useEffect(() => {
-			isMountedRef.current = true;
-			return () => {
-				isMountedRef.current = false;
-			};
-		}, []);
-
-		// Only trigger load when item becomes visible
-		useEffect(() => {
-			if (isVisible && !hasLoadedOnceRef.current) {
-				// Small delay to batch loads
-				const timer = setTimeout(() => {
-					if (isMountedRef.current) {
-						setShouldLoad(true);
-					}
-				}, 50);
-				return () => clearTimeout(timer);
-			}
-		}, [isVisible]);
-
-		// Reset on URI change
-		useEffect(() => {
+			mountedRef.current = true;
 			setHasError(false);
-			hasLoadedOnceRef.current = false;
-			setShouldLoad(isVisible);
-		}, [source?.uri, isVisible]);
+			setCurrentUri(source?.uri);
 
-		const handleLoadStart = useCallback(() => {
-			if (isMountedRef.current) {
-				setLoading(true);
-			}
-		}, []);
+			return () => {
+				mountedRef.current = false;
+			};
+		}, [source?.uri]);
 
-		const handleLoadEnd = useCallback(() => {
-			if (isMountedRef.current) {
-				setLoading(false);
-				hasLoadedOnceRef.current = true;
-			}
-		}, []);
-
-		const handleError = useCallback(() => {
-			if (isMountedRef.current) {
+		const handleError = useCallback(
+			(e: any) => {
+				if (!mountedRef.current || hasError) return;
 				const fallbackUrl = urlOriginal || extractOriginalUrl(source?.uri);
-				if (fallbackUrl && !hasError) {
+
+				if (fallbackUrl && fallbackUrl !== currentUri) {
 					setHasError(true);
+					setCurrentUri(fallbackUrl);
 				} else {
-					setLoading(false);
 				}
-			}
-		}, [source?.uri, urlOriginal, hasError]);
-
-		// Don't render image if not visible yet
-		if (!shouldLoad) {
-			return <View style={[styles.container, style]}>{placeholder || <View style={styles.placeholder} />}</View>;
-		}
-
-		const imageUri = hasError && urlOriginal ? urlOriginal : source?.uri;
-
-		if (!imageUri) {
-			return <View style={[styles.container, style]} />;
-		}
+			},
+			[source?.uri, urlOriginal, hasError, currentUri]
+		);
 
 		return (
 			<View style={[styles.container, style]}>
-				{loading && <ActivityIndicator style={styles.loader} size="small" color="#999" />}
-				<FastImage
+				<FastNativeImage
 					source={{
-						uri: imageUri,
-						priority: FastImage.priority.normal,
-						cache: FastImage.cacheControl.web
+						uri: currentUri,
+						priority: 'normal'
 					}}
-					onLoadStart={handleLoadStart}
-					onError={handleError}
-					onLoadEnd={handleLoadEnd}
-					resizeMode={resizeMode}
 					style={StyleSheet.absoluteFill}
+					resizeMode={resizeMode}
+					onError={handleError}
 					{...props}
 				/>
 			</View>
@@ -116,7 +68,9 @@ const CachedImageWithRetryIOS = memo(
 	},
 	(prevProps, nextProps) => {
 		return (
-			prevProps.source?.uri === nextProps.source?.uri && prevProps?.isVisible === nextProps?.isVisible && prevProps?.style === nextProps?.style
+			prevProps.source?.uri === nextProps.source?.uri &&
+			prevProps?.style === nextProps?.style &&
+			prevProps?.resizeMode === nextProps?.resizeMode
 		);
 	}
 );
@@ -126,14 +80,6 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		overflow: 'hidden'
-	},
-	loader: {
-		position: 'absolute',
-		zIndex: 1
-	},
-	placeholder: {
-		width: '100%',
-		height: '100%'
 	}
 });
 

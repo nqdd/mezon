@@ -68,6 +68,8 @@ const PanelKeyboard = React.memo((props: IProps) => {
 			setHeightKeyboardShow(0);
 			setTypeKeyboardBottomSheet('text');
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, { isShow: false, mode: '' });
+		} else if (index === 0 && typeKeyboardBottomSheet !== 'text') {
+			Keyboard.dismiss();
 		}
 	};
 

@@ -9,7 +9,8 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_20,
 			alignItems: 'center',
 			gap: size.s_16,
-			backgroundColor: colors.secondary
+			backgroundColor: colors.secondary,
+			justifyContent: 'space-between'
 		},
 		imageWrapper: {
 			height: size.s_40,
@@ -29,5 +30,14 @@ export const style = (colors: Attributes) =>
 			color: colors.text,
 			fontSize: size.s_14,
 			maxWidth: '90%'
+		},
+		profileWrapper: {
+			flexDirection: 'row',
+			gap: size.s_4
+		},
+		settingButton: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			padding: size.s_6
 		}
 	});

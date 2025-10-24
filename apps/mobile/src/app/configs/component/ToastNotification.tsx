@@ -1,4 +1,4 @@
-import { useTheme, verticalScale } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import LottieView from 'lottie-react-native';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -30,41 +30,14 @@ export const ToastNotification = memo((props: ToastConfigParams<any>) => {
 			<View style={styles.notificationContainer}>
 				<View style={[styles.notificationContent]}>
 					{!!logoUrl && <FastImage source={{ uri: logoUrl }} style={styles.notificationLogo} />}
-					<View
-						style={{
-							flexDirection: 'column',
-							flex: 1
-						}}
-					>
-						<Text
-							style={{
-								fontSize: verticalScale(16),
-								marginLeft: 0,
-								marginRight: 0,
-								fontWeight: 'bold',
-								color: themeValue.white
-							}}
-						>
-							{title}
-						</Text>
-						<Text
-							style={{
-								fontSize: verticalScale(14),
-								marginLeft: 0,
-								marginRight: 0,
-								color: themeValue.textStrong
-							}}
-							numberOfLines={3}
-						>
+					<View style={styles.notificationTextContainer}>
+						<Text style={styles.notificationTitle}>{title}</Text>
+						<Text style={styles.notificationBody} numberOfLines={3}>
 							{body}
 						</Text>
 					</View>
 				</View>
-				<View
-					style={{
-						transform: [{ rotateY: '180deg' }]
-					}}
-				>
+				<View style={styles.notificationProgressBarContainer}>
 					<LottieView loop={false} speed={0.4} ref={progressBarRef} source={NOTIFICATION_PROGRESS_BAR} style={styles.lottieProgressBar} />
 				</View>
 			</View>

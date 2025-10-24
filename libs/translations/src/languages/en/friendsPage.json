@@ -1,6 +1,8 @@
 {
 	"friend": "Friend",
 	"addFriend": "Add Friend",
+	"friends": "Friends",
+	"clearSearch": "Clear search",
 	"search": "Search",
 	"tabs": {
 		"all": "All",
@@ -35,7 +37,11 @@
 		"startVoiceCall": "Start Voice Call",
 		"removeFriend": "Remove Friend",
 		"block": "Block",
-		"unblock": "Unblock"
+		"unblock": "Unblock",
+		"more": "More",
+		"cancel": "Cancel",
+		"accept": "Accept",
+		"reject": "Reject"
 	},
 	"toast": {
 		"userBlockedSuccess": "User blocked successfully",

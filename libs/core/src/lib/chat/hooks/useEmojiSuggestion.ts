@@ -50,7 +50,6 @@ export function useEmojiSuggestion({ isMobile = false }: EmojiSuggestionProps = 
 	const emojiConverted = useSelector(selectAllEmojiRecent);
 
 	const emojis = useMemo(() => filterEmojiData([...(emojiMetadata || []), ...(emojiConverted || [])]), [emojiMetadata, emojiConverted]);
-
 	const isEmojiListShowed = useSelector(selectEmojiListStatus);
 	const emojiPicked = useSelector(selectEmojiObjSuggestion);
 
@@ -109,7 +108,7 @@ export function useEmojiSuggestion({ isMobile = false }: EmojiSuggestionProps = 
 	}, [categoryEmoji]);
 
 	const categoriesEmoji = useMemo(() => {
-		const defaultCategories = ['Recent', 'Frequency', 'People', 'Nature', 'Food', 'Activities', 'Travel', 'Objects', 'Symbols', 'Flags'];
+		const defaultCategories = ['Recent', 'Frequently', 'People', 'Nature', 'Food', 'Activities', 'Travel', 'Objects', 'Symbols', 'Flags'];
 		const mergedCategories = [...defaultCategories.slice(0, 2), ...clanNames, ...defaultCategories.slice(2)];
 		return [...new Set(mergedCategories)];
 	}, [clanNames]);

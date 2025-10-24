@@ -13,5 +13,21 @@ export const style = (colors: Attributes) =>
 			paddingRight: size.s_14,
 			height: '100%',
 			justifyContent: 'center'
+		},
+		titleRow: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		iconContainer: {
+			marginRight: size.s_10
+		},
+		titleText: {
+			fontSize: size.h6,
+			fontWeight: '700'
+		},
+		subtitleText: {
+			fontSize: size.medium,
+			fontWeight: '400',
+			maxWidth: '90%'
 		}
 	});

@@ -16,19 +16,21 @@ import {
 	usersStreamActions,
 	videoStreamActions
 } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import type { IChannelMember, IStreamInfo } from '@mezon/utils';
 import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { RefObject } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
 	videoRef: RefObject<HTMLVideoElement>;
+	currentChannel?: ChannelsEntity | null;
 }
 
-function HLSPlayer({ videoRef }: MediaPlayerProps) {
+function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [isMuted, setIsMuted] = useState(false);
 	const [volume, setVolume] = useState(1);
@@ -116,8 +118,8 @@ function HLSPlayer({ videoRef }: MediaPlayerProps) {
 			<div className="custom-video-container w-full h-full" style={{ position: 'relative' }}>
 				{!isRemoteVideoStream && (
 					<img
-						src="http://do78x13wq0td.cloudfront.net/prod/Uploads/images/imsv2/1734066191951-145%20(14).png"
-						alt="background"
+						src={currentChannel?.channel_avatar || 'assets/images/flahstream.png'}
+						alt="Stream Thumbnail"
 						className="w-full h-full object-cover"
 					/>
 				)}
@@ -283,8 +285,9 @@ export default function ChannelStream({
 	const streamPlay = useSelector(selectStatusStream);
 	const isJoin = useSelector(selectIsJoin);
 	const appearanceTheme = useSelector(selectTheme);
-	const { userProfile, session } = useAuth();
-	const accessToken = session?.token;
+	const { userProfile } = useAuth();
+	const { sessionRef } = useMezon();
+	const accessToken = sessionRef.current?.token;
 	const dispatch = useAppDispatch();
 	const [showMembers, setShowMembers] = useState(true);
 	const [showEndCallButton, setShowEndCallButton] = useState(true);
@@ -406,7 +409,7 @@ export default function ChannelStream({
 							<div
 								className={`transition-all duration-300 h-full max-sm:w-full w-${showMembers && !isShowChatStream ? '[70%]' : '[100%]'}`}
 							>
-								<HLSPlayer videoRef={streamVideoRef} />
+								<HLSPlayer videoRef={streamVideoRef} currentChannel={currentChannel} />
 							</div>
 						) : (
 							<div className="sm:h-[250px] md:h-[350px] lg:h-[450px] xl:h-[550px] w-[70%] dark:text-[#AEAEAE] text-colorTextLightMode dark:bg-bgSecondary600 bg-channelTextareaLight text-5xl flex justify-center items-center text-center">

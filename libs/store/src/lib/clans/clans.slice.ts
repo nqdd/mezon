@@ -1,6 +1,8 @@
 import { captureSentryError } from '@mezon/logger';
+import { SESSION_REFRESH_KEY } from '@mezon/transport';
 import type { IClan, LoadingStatus } from '@mezon/utils';
 import { LIMIT_CLAN_ITEM, TypeCheck } from '@mezon/utils';
+import localStorageMobile from '@react-native-async-storage/async-storage';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ClanUpdatedEvent } from 'mezon-js';
@@ -344,7 +346,6 @@ export const updateClan = createAsyncThunk(
 );
 
 type UpdateLinkUser = {
-	user_name: string;
 	avatar_url: string;
 	display_name: string;
 	about_me: string;
@@ -356,7 +357,7 @@ type UpdateLinkUser = {
 
 export const updateUser = createAsyncThunk(
 	'clans/updateUser',
-	async ({ user_name, avatar_url, display_name, about_me, logo, noCache = false, dob, encrypt_private_key }: UpdateLinkUser, thunkAPI) => {
+	async ({ avatar_url, display_name, about_me, logo, noCache = false, dob, encrypt_private_key }: UpdateLinkUser, thunkAPI) => {
 		try {
 			const state = thunkAPI.getState() as RootState;
 			const currentUser = state.account?.userProfile;
@@ -364,10 +365,6 @@ export const updateUser = createAsyncThunk(
 			const mezon = ensureClient(getMezonCtx(thunkAPI));
 
 			const body: Partial<ApiUpdateAccountRequest> = {};
-
-			if (user_name && user_name !== currentUser?.user?.username) {
-				body.username = user_name;
-			}
 
 			if (avatar_url && avatar_url !== currentUser?.user?.avatar_url) {
 				body.avatar_url = avatar_url || '';
@@ -413,7 +410,6 @@ export const updateUser = createAsyncThunk(
 							lang_tag: 'en',
 							location: '',
 							timezone: '',
-							username: user_name,
 							about_me,
 							dob
 						}
@@ -434,6 +430,40 @@ export const updateUser = createAsyncThunk(
 		}
 	}
 );
+
+type UpdateUserName = {
+	username?: string;
+};
+
+export const updateUsername = createAsyncThunk('clans/updateUsername', async ({ username }: UpdateUserName, thunkAPI) => {
+	try {
+		const mezon = ensureClient(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.updateUsername(mezon.session, { username });
+		if (!response) {
+			return thunkAPI.rejectWithValue([]);
+		}
+		const sessionState = mezon?.session;
+		if (response?.refresh_token && response?.token) {
+			try {
+				localStorage.setItem(SESSION_REFRESH_KEY, JSON.stringify(response));
+			} catch (e) {
+				await localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(response));
+			}
+			return await mezon?.refreshSession({
+				...sessionState,
+				is_remember: sessionState.is_remember ?? false,
+				username,
+				refresh_token: response.refresh_token,
+				token: response.token
+			});
+		}
+		return false;
+	} catch (error) {
+		captureSentryError(error, 'clans/updateUsername');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
 
 interface JoinClanPayload {
 	clanId: string;
@@ -858,6 +888,7 @@ export const clansActions = {
 	fetchClans,
 	createClan,
 	updateClan,
+	updateUsername,
 	removeClanUsers,
 	changeCurrentClan,
 	updateUser,

@@ -84,7 +84,7 @@ const NotificationSettingDetail = memo(({ route }: { route: any }) => {
 	}, [title, currentChannelId, currentClanId, dispatch]);
 
 	return (
-		<View style={{ backgroundColor: themeValue.primary, flex: 1, padding: size.s_10 }}>
+		<View style={styles.container}>
 			{notifyChannelCategorySetting?.type !== EOptionOverridesType.Category && (
 				<View>
 					<MuteClanNotificationBS

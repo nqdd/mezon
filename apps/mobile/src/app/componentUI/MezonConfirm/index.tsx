@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
-import { ReactNode } from 'react';
+import { useTheme } from '@mezon/mobile-ui';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
@@ -41,7 +41,7 @@ export default function MezonConfirm({ children, title, confirmText, content, is
 
 				<View style={styles.btnWrapper}>
 					<TouchableOpacity style={[styles.btn, styles.btnDefault, isDanger && styles.btnDanger]} onPress={() => handleConfirm()}>
-						<Text style={[styles.btnText, { color: baseColor.white }]}>{confirmText}</Text>
+						<Text style={[styles.btnText, styles.btnTextWhite]}>{confirmText}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.btn} onPress={() => handleClose()}>
 						<Text style={styles.btnText}>{t('buzz.cancel')}</Text>

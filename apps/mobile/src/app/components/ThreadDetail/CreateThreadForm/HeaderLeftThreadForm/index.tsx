@@ -23,9 +23,9 @@ const HeaderLeftThreadForm = ({ currentChannel }: { currentChannel: ChannelThrea
 				<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} color={themeValue.textStrong} />
 			</TouchableOpacity>
 			<View>
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<View style={styles.titleRow}>
 					{!openThreadMessageState && (
-						<View style={{ marginRight: size.s_10 }}>
+						<View style={styles.iconContainer}>
 							{currentChannel?.channel_private === ChannelStatusEnum.isPrivate &&
 							currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL ? (
 								<MezonIconCDN icon={IconCDN.channelTextLock} width={18} height={18} color={themeValue.textStrong} />
@@ -34,7 +34,7 @@ const HeaderLeftThreadForm = ({ currentChannel }: { currentChannel: ChannelThrea
 							)}
 						</View>
 					)}
-					<Text style={{ color: themeValue.textStrong, fontSize: size.h6, fontWeight: '700' }}>
+					<Text style={[styles.titleText, { color: themeValue.textStrong }]}>
 						{openThreadMessageState ? t('newThread', { ns: 'createThread' }) : currentChannel?.channel_label}
 					</Text>
 					<MezonIconCDN
@@ -46,7 +46,7 @@ const HeaderLeftThreadForm = ({ currentChannel }: { currentChannel: ChannelThrea
 					/>
 				</View>
 				{openThreadMessageState && (
-					<Text numberOfLines={1} style={{ color: themeValue.text, fontSize: size.medium, fontWeight: '400', maxWidth: '90%' }}>
+					<Text numberOfLines={1} style={[styles.subtitleText, { color: themeValue.text }]}>
 						{currentChannel?.channel_label}
 					</Text>
 				)}

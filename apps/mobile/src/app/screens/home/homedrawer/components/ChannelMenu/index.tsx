@@ -365,6 +365,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				isPrivate: channel.channel_private || 0
 			})
 		);
+		await dispatch(channelsActions.setCurrentChannelId({ clanId: currentClan?.id || '', channelId: '' }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	}, [channel?.channel_private, channel?.id, channel?.parent_id, currentClan?.id, dispatch]);
 

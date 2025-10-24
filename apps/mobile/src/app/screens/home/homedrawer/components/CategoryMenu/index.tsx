@@ -14,7 +14,6 @@ import {
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { EPermission, ICategoryChannel, sleep } from '@mezon/utils';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -202,36 +201,16 @@ export default function CategoryMenu({ category }: ICategoryMenuProps) {
 		}
 	];
 
-	const devMenu: IMezonMenuItemProps[] = [
-		{
-			title: t('menu.devMode.copyServerID'),
-			icon: <MezonIconCDN icon={IconCDN.idIcon} color={themeValue.textStrong} />,
-			onPress: () => {
-				Clipboard.setString(category?.category_id);
-				Toast.show({
-					type: 'info',
-					text1: t('notify.serverIDCopied')
-				});
-			}
-		}
-	];
-
 	const menu: IMezonMenuSectionProps[] = [
 		{
 			items: watchMenu
 		},
-		// {
-		// 	items: inviteMenu
-		// },
 		{
 			items: notificationMenu
 		},
 		{
 			items: organizationMenu
 		},
-		{
-			items: devMenu
-		}
 	];
 
 	return (

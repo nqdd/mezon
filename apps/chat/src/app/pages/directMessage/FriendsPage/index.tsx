@@ -12,7 +12,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
-import { generateE2eId } from '@mezon/utils';
+import { EUserStatus, generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -111,7 +111,7 @@ const FriendsPage = () => {
 	const filterStatus = (listFriends: FriendsEntity[]) => {
 		switch (currentTabStatus) {
 			case 'online':
-				return listFriends.filter((item) => item.state === 0 && item.user?.online);
+				return listFriends.filter((item) => item.state === 0 && item.user?.online && item.user?.status !== EUserStatus.INVISIBLE);
 			case 'all':
 				return listFriends.filter((item) => item.state === 0);
 			case 'pending':
@@ -191,7 +191,7 @@ const FriendsPage = () => {
 				<div className={`gap-3 flex overflow-x-scroll hide-scrollbar ${closeMenuMobile ? 'ml-7' : ''}`}>
 					<div className="flex flex-row gap-2 items-center text-theme-primary-active font-medium">
 						<Icons.IconFriends />
-						Friends
+						{t('friends')}
 					</div>
 					<div className="flex flex-row gap-2 items-center text-theme-primary">
 						<Icons.DotIcon className="w-1 h-1" />
@@ -242,8 +242,8 @@ const FriendsPage = () => {
 										<div
 											className="absolute top-2.5 right-12 text-theme-primary cursor-pointer select-none text-[25px] px-2 leading-none hover:text-red-500"
 											onClick={() => setTextSearch('')}
-											aria-label="Clear search"
-											title="Clear search"
+											aria-label={t('clearSearch')}
+											title={t('clearSearch')}
 										>
 											×
 										</div>

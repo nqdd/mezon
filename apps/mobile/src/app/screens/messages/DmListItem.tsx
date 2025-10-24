@@ -1,7 +1,15 @@
 import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { directActions, messagesActions, selectDirectById, selectIsUnreadDMById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	directActions,
+	messagesActions,
+	selectDirectById,
+	selectDmGroupCurrentId,
+	selectIsUnreadDMById,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import type { IExtendedMessage } from '@mezon/utils';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +34,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const { id } = props;
 	const navigation = useNavigation<any>();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
-
+	const currentDirectId = useAppSelector(selectDmGroupCurrentId);
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
@@ -36,6 +44,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		const userId = load(STORAGE_MY_USER_ID);
 		return userId?.toString() === senderId?.toString();
 	}, [senderId]);
+
+	const isShowActiveDMGroup = useMemo(() => {
+		return isTabletLandscape && directMessage?.id === currentDirectId;
+	}, [currentDirectId, directMessage?.id, isTabletLandscape]);
 
 	const redirectToMessageDetail = async () => {
 		dispatch(messagesActions.setIdMessageToJump(null));
@@ -81,7 +93,19 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, [isYourAccount, otherMemberList, senderId, t]);
 
 	const getLastMessageContent = (content: string | IExtendedMessage) => {
-		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') return null;
+		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') {
+			if (isTypeDMGroup) {
+				return (
+					<Text
+						style={[styles.defaultText, styles.lastMessage, { color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }]}
+					>
+						{t('directMessage.groupCreated')}
+					</Text>
+				);
+			} else {
+				return null;
+			}
+		}
 		const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
 
 		if (!text) {
@@ -139,7 +163,11 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, []);
 
 	return (
-		<TouchableOpacity style={[styles.messageItem]} onPress={redirectToMessageDetail} onLongPress={() => handleLongPress(directMessage)}>
+		<TouchableOpacity
+			style={[styles.messageItem, isShowActiveDMGroup && styles.activeDMGroupBackground]}
+			onPress={redirectToMessageDetail}
+			onLongPress={() => handleLongPress(directMessage)}
+		>
 			{isTypeDMGroup ? (
 				directMessage?.channel_avatar && !directMessage?.channel_avatar?.includes('avatar-group.png') ? (
 					<View style={styles.groupAvatarWrapper}>
@@ -210,19 +238,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						</Text>
 					) : null}
 				</View>
-
-				{directMessage?.member_count ? (
-					<View style={styles.contentMessage}>
-						<Text
-							style={[styles.defaultText, styles.lastMessage, { color: themeValue.textDisabled, textTransform: 'capitalize' }]}
-							numberOfLines={1}
-						>
-							{`${directMessage?.member_count} ${t(directMessage?.member_count > 1 ? 'members' : 'member', { ns: 'common' })}`}
-						</Text>
-					</View>
-				) : (
-					getLastMessageContent(directMessage?.last_sent_message?.content)
-				)}
+				{getLastMessageContent(directMessage?.last_sent_message?.content)}
 			</View>
 		</TouchableOpacity>
 	);

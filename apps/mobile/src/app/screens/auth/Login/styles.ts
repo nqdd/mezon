@@ -8,6 +8,9 @@ export const style = () =>
 			paddingHorizontal: size.s_16,
 			backgroundColor: '#ffffff'
 		},
+		main: {
+			flex: 1
+		},
 		content: {
 			flex: 1,
 			paddingTop: size.s_100
@@ -177,5 +180,8 @@ export const style = () =>
 			position: 'absolute',
 			top: '100%',
 			left: 0
+		},
+		loading: {
+			zIndex: 10
 		}
 	});

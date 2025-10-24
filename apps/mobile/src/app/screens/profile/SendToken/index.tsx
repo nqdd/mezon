@@ -19,7 +19,7 @@ import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezo
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Modal, Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -89,13 +89,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		return friends?.filter((user) => user.state === 0) || [];
 	}, []);
 	const canEdit = jsonObject?.canEdit;
-	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
-
-	useEffect(() => {
-		if (!isEnableWallet) {
-			showEnableWallet();
-		}
-	}, [isEnableWallet]);
+	const { walletDetail, enableWallet } = useWallet();
 
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
@@ -149,7 +143,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		});
 
 		return Array.from(userMap.values());
-	}, [friendList, listDM, userProfile?.user?.id]);
+	}, [friendList, listDM, store, userProfile?.user?.id]);
 
 	const handleEnableWallet = async () => {
 		await enableWallet();
@@ -189,10 +183,6 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const sendToken = async () => {
 		const store = await getStoreAsync();
-		if (!isEnableWallet) {
-			showEnableWallet();
-			return;
-		}
 		try {
 			if (!selectedUser && !jsonObject?.receiver_id) {
 				Toast.show({
@@ -472,7 +462,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					<ViewShot
 						ref={viewToSnapshotRef}
 						options={{ fileName: 'send_money_success_mobile', format: 'png', quality: 1 }}
-						style={{ flex: 1 }}
+						style={styles.viewShotContainer}
 					>
 						<View style={styles.fullscreenModal}>
 							<View style={styles.modalHeader}>
@@ -540,7 +530,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			behavior="padding"
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 		>
-			<View style={{ flex: 1 }}>
+			<View style={styles.wrapperContainer}>
 				<KeyboardAwareScrollView bottomOffset={100} style={styles.form} keyboardShouldPersistTaps={'handled'}>
 					<Text style={styles.heading}>{t('sendToken')}</Text>
 					<LinearGradient
@@ -592,7 +582,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('token')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								autoFocus={!!jsonObject?.receiver_id && isEnableWallet}
+								autoFocus={!!jsonObject?.receiver_id}
 								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}
@@ -630,7 +620,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					snapPoints={['80%']}
 					backdropComponent={Backdrop}
 					android_keyboardInputMode="adjustResize"
-					style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10, flex: 1, gap: size.s_10 }}
+					style={styles.bottomSheetStyle}
 					backgroundStyle={{ backgroundColor: themeValue.primary }}
 				>
 					<MezonInput
@@ -647,12 +637,8 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						data={filteredUsers}
 						renderItem={renderItem}
 						getItemLayout={getItemLayout}
-						style={{
-							backgroundColor: themeValue.secondary,
-							borderRadius: size.s_8,
-							marginTop: size.s_10
-						}}
-						contentContainerStyle={{ paddingBottom: size.s_20 }}
+						style={[styles.flatListStyle, { backgroundColor: themeValue.secondary }]}
+						contentContainerStyle={styles.flatListContentStyle}
 						removeClippedSubviews
 						maxToRenderPerBatch={10}
 						initialNumToRender={15}

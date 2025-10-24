@@ -45,5 +45,25 @@ export const style = (colors: Attributes) =>
 		option: {
 			flexDirection: 'row',
 			gap: size.s_10
+		},
+		container: {
+			flex: 1
+		},
+		galleryContainer: {
+			flex: 1
+		},
+		savedImageContainer: {
+			position: 'absolute',
+			top: '50%',
+			width: '100%',
+			alignItems: 'center'
+		},
+		savedImageBox: {
+			backgroundColor: '#2a2e31',
+			padding: size.s_10,
+			borderRadius: size.s_10
+		},
+		savedImageText: {
+			color: 'white'
 		}
 	});

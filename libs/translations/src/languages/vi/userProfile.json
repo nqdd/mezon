@@ -190,5 +190,9 @@
 	},
 	"channelVoiceSettings": "Cài đặt kênh thoại",
 	"muteVoice": "Tắt tiếng",
-	"kickVoice": "Xóa khỏi kênh thoạị"
+	"kickVoice": "Xóa khỏi kênh thoại",
+	"voiceInfo": {
+		"inVoice": "Trong kênh thoại",
+		"joinVoice": "Tham gia thoại"
+	}
 }

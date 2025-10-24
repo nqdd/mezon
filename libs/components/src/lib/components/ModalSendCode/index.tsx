@@ -274,7 +274,6 @@ export const ModalConfirmPin = ({
 					const encryptWithPIN = await MessageCrypt.encryptPrivateKeyWithPIN(userProfile?.user?.id as string, otpCode);
 					dispatch(
 						clansActions.updateUser({
-							user_name: userProfile?.user?.username as string,
 							avatar_url: userProfile?.user?.avatar_url as string,
 							display_name: userProfile?.user?.display_name as string,
 							about_me: userProfile?.user?.about_me as string,

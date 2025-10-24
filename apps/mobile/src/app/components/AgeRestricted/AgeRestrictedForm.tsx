@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { clansActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,6 @@ const AgeRestrictedForm = ({ onClose }: { onClose: () => void }) => {
 		if (!date) return;
 		dispatch(
 			clansActions.updateUser({
-				user_name: userProfile?.user?.username || '',
 				avatar_url: userProfile?.user?.avatar_url || '',
 				display_name: userProfile?.user?.display_name || '',
 				about_me: userProfile?.user?.about_me || '',
@@ -34,7 +33,7 @@ const AgeRestrictedForm = ({ onClose }: { onClose: () => void }) => {
 		onClose();
 	};
 	return (
-		<View style={{ backgroundColor: themeValue.primary, borderRadius: size.s_10, padding: size.s_20, margin: size.s_10 }}>
+		<View style={styles.formContainer}>
 			<View>
 				<Text style={styles.title}>{t('ageRestrictedForm.title')}</Text>
 				<Text style={styles.description}>{t('ageRestrictedForm.description')}</Text>

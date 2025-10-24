@@ -26,18 +26,14 @@ export function StreamingScreen({ isAnimationComplete = true }: IStreamingScreen
 	return (
 		<View style={styles.container}>
 			{remoteStream && isStream ? (
-				<View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+				<View style={styles.streamContainer}>
 					{!isRemoteVideoStream && (
-						<FastImage
-							source={Images.RADIO_NCC8}
-							style={{ width: '100%', height: '100%' }}
-							resizeMode={isAnimationComplete ? 'contain' : 'cover'}
-						/>
+						<FastImage source={Images.RADIO_NCC8} style={styles.imageFullSize} resizeMode={isAnimationComplete ? 'contain' : 'cover'} />
 					)}
-					<RTCView streamURL={remoteStream?.toURL?.()} style={{ flex: 1 }} mirror={true} objectFit={'cover'} />
+					<RTCView streamURL={remoteStream?.toURL?.()} style={styles.rtcViewFlex} mirror={true} objectFit={'cover'} />
 				</View>
 			) : (
-				<View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+				<View style={styles.streamContainer}>
 					<Text style={styles.errorText}>{t('noDisplay')}</Text>
 				</View>
 			)}

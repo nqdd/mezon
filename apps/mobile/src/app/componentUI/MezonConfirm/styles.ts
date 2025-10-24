@@ -16,7 +16,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			margin: size.s_16,
 			borderRadius: size.s_16,
 			overflow: 'hidden',
-			width: '90%',
+			width: isTabletLandscape ? '60%' : '90%',
 			marginHorizontal: isTabletLandscape ? '30%' : 0,
 			zIndex: 100
 		},
@@ -53,12 +53,14 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		btnDanger: {
 			backgroundColor: baseColor.buzzRed
 		},
-		btnText: {
+			btnText: {
 			color: colors.textStrong,
 			fontSize: Fonts.size.h8,
 			textAlign: 'center'
 		},
-
+		btnTextWhite: {
+			color: baseColor.white
+		},
 		contentText: {
 			color: colors.text,
 			fontSize: size.h6,

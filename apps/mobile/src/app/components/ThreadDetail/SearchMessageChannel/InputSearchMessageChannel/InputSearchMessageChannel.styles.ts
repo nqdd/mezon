@@ -41,5 +41,23 @@ export const style = (colors: Attributes) =>
 			fontWeight: '600',
 			color: colors.white
 		},
-		textBadgeHighLight: { color: colors.white, fontSize: size.s_12, fontWeight: '500', width: '100%' }
+		textBadgeHighLight: { color: colors.white, fontSize: size.s_12, fontWeight: '500', width: '100%' },
+		backButton: {
+			height: '100%',
+			paddingRight: size.s_10
+		},
+		backButtonInner: {
+			alignSelf: 'center',
+			justifyContent: 'center',
+			flex: 1
+		},
+		iconWrapper: {
+			marginRight: size.s_6
+		},
+		badge: {
+			borderRadius: size.s_18,
+			paddingHorizontal: size.s_10,
+			paddingVertical: size.s_2,
+			maxWidth: size.s_100
+		}
 	});

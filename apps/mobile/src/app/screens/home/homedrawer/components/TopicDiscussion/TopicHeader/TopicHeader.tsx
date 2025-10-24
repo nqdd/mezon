@@ -49,14 +49,6 @@ const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(memoizedValue?.senderId || '');
 	const userRolesClan = useColorsRoleById(memoizedValue?.senderId || '');
 
-	const onMention = useCallback(async (mentionedUser: string) => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_MENTION_USER_MESSAGE_ITEM, mentionedUser);
-	}, []);
-
-	const onChannelMention = useCallback(async (channel: ChannelsEntity) => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, channel);
-	}, []);
-
 	const colorSenderName = useMemo(() => {
 		return (
 			(userRolesClan?.highestPermissionRoleColor?.startsWith('#') ? userRolesClan.highestPermissionRoleColor : themeValue.text) ||
@@ -99,8 +91,6 @@ const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 						}}
 						translate={t}
 						isMessageReply={false}
-						onMention={onMention}
-						onChannelMention={onChannelMention}
 					/>
 					{memoizedValue?.attachments?.length > 0 && (
 						<MessageAttachment

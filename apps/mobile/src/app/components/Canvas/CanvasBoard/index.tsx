@@ -90,18 +90,7 @@ export function CanvasScreen({ navigation, route }: MenuChannelScreenProps<Scree
 	return (
 		<View style={styles.container}>
 			{loading && (
-				<View
-					style={{
-						alignItems: 'center',
-						justifyContent: 'center',
-						position: 'absolute',
-						height: '100%',
-						zIndex: 1,
-						width: '100%',
-						backgroundColor: themeValue.charcoal,
-						flex: 1
-					}}
-				>
+				<View style={styles.loadingOverlay}>
 					<Chase color={'#cdcdcd'} />
 				</View>
 			)}

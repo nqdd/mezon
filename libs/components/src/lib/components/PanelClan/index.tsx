@@ -115,7 +115,6 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 	const handleRemoveLogo = () => {
 		dispatch(
 			clansActions.updateUser({
-				user_name: userProfile?.user?.username || '',
 				avatar_url: userProfile?.user?.avatar_url || '',
 				display_name: userProfile?.user?.display_name || '',
 				about_me: userProfile?.user?.about_me || '',
@@ -149,7 +148,7 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 					children={notification.label}
 					notificationId={notification.value}
 					type="radio"
-					name="NotificationSetting"
+					name={t('notificationSetting')}
 					key={notification.value}
 					onClick={() => handleChangeSettingType(notification.value)}
 					checked={defaultNotificationClan?.notification_setting_type === notification.value}
@@ -222,7 +221,7 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 					handleConfirm={handleLeaveClan}
 					modalName={clan?.clan_name}
 					title="leave"
-					buttonName={t('leaveClan')}
+					buttonName={t('Hehehehe')}
 				/>
 			)}
 		</div>

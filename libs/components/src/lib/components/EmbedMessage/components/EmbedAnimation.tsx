@@ -1,5 +1,4 @@
-import type { ObserveFn } from '@mezon/utils';
-import { useIsIntersecting } from '@mezon/utils';
+import { useIsIntersecting, type ObserveFn } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
 
 type EmbedAnimationProps = {
@@ -119,21 +118,21 @@ export const EmbedAnimation = ({
 		}
 	}, [isIntersecting]);
 
-	if (!Array.isArray(pool) || !pool) return;
-
 	return (
 		<div ref={ref} id={`${messageId}_wrap_animation`} className={`rounded-md flex gap-2 ${vertical ? 'flex-col' : ''}`}>
-			{pool?.map((poolItem, index) => (
-				<div
-					key={`${messageId}_animation_${index}`}
-					id={`${messageId}_animation_${index}`}
-					style={{
-						height: DEFAULT_HEIGH,
-						width: DEFAULT_WIDTH
-					}}
-					className={`box_animation_${index}_${messageId} box_resize_${index}_${messageId}`}
-				></div>
-			))}
+			{!Array.isArray(pool) || !pool
+				? null
+				: pool?.map((poolItem, index) => (
+						<div
+							key={`${messageId}_animation_${index}`}
+							id={`${messageId}_animation_${index}`}
+							style={{
+								height: DEFAULT_HEIGH,
+								width: DEFAULT_WIDTH
+							}}
+							className={`box_animation_${index}_${messageId} box_resize_${index}_${messageId}`}
+						></div>
+					))}
 		</div>
 	);
 };

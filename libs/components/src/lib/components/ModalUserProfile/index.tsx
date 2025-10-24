@@ -232,7 +232,7 @@ const ModalUserProfile = ({
 				className={`${classBanner ? classBanner : 'rounded-tl-lg bg-indigo-400 rounded-tr-lg h-[105px]'} flex justify-end gap-x-2 p-2 `}
 				style={{ backgroundColor: color }}
 			>
-				{userInvoice && <MemberInVoiceButton channelId={userInvoice} />}
+				{userInvoice && !isFooterProfile && !isDM && <MemberInVoiceButton channelId={userInvoice} />}
 				{!checkUser && !checkAnonymous && (
 					<GroupIconBanner
 						checkAddFriend={checkAddFriend}
@@ -334,7 +334,9 @@ const MemberInVoiceButton = ({ channelId }: { channelId: string }) => {
 	const navigate = useNavigate();
 
 	const handleNavigateRoom = useCallback(() => {
-		navigate(`/chat/clans/${channelData.clan_id}/channels/${channelData.channel_id}`);
+		if (channelData?.clan_id && channelData?.channel_id) {
+			navigate(`/chat/clans/${channelData?.clan_id}/channels/${channelData?.channel_id}`);
+		}
 	}, [channelId]);
 
 	return (
@@ -344,7 +346,7 @@ const MemberInVoiceButton = ({ channelId }: { channelId: string }) => {
 			data-e2e="invoice-button-component"
 		>
 			<div className="opacity-0 truncate w-0 group-hover:animate-expand flex items-center justify-center leading-4 font-medium">
-				{channelData.channel_label}
+				{channelData?.channel_label}
 			</div>
 			<Icons.Speaker defaultSize="w-[14px] h-[14px] text-green-500 pointer-events-none" />
 		</div>

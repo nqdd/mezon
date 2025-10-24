@@ -4,7 +4,7 @@ import React from 'react';
 import { Text, View, ViewStyle } from 'react-native';
 import { UserStatus } from '../../components/UserStatus';
 import MezonClanAvatar from '../MezonClanAvatar';
-import { style } from './styles';
+import { createPositionStyle, style } from './styles';
 
 interface IMezonAvatarProps {
 	avatarUrl: string;
@@ -43,21 +43,21 @@ const MezonAvatar = React.memo((props: IMezonAvatarProps) => {
 	} = props;
 	const styles = style(themeValue, height, width, stacks?.length);
 
-	if (!isShow) return <View style={{ height, width }}></View>;
+	if (!isShow) return <View style={styles.emptyView}></View>;
 
 	if (stacks) {
 		return (
 			<View style={styles.listImageFriend}>
 				{stacks.map((user, idx) => {
 					return (
-						<View key={idx} style={[styles.imageContainer, styles.borderBoxImage, { height, width }, { left: idx * 20 }]}>
+						<View key={idx} style={[styles.imageContainer, styles.borderBoxImage, styles.sizedContainer, createPositionStyle(idx)]}>
 							<MezonClanAvatar alt={user.username} image={user.avatarUrl} lightMode />
 						</View>
 					);
 				})}
 
 				{isCountBadge && (
-					<View style={[styles.imageContainer, styles.borderBoxImage, { height, width }, { left: 3 * 20 }]}>
+					<View style={[styles.imageContainer, styles.borderBoxImage, styles.sizedContainer, createPositionStyle(3)]}>
 						<View style={styles.countBadge}>
 							<Text style={styles.countBadgeText}>+{countBadge}</Text>
 						</View>
@@ -68,8 +68,8 @@ const MezonAvatar = React.memo((props: IMezonAvatarProps) => {
 	}
 
 	return (
-		<View style={[styles.containerItem, { height, width }]}>
-			<View style={[styles.boxImage, { height, width }, isBorderBoxImage && styles.borderBoxImage]}>
+		<View style={[styles.containerItem, styles.sizedContainer]}>
+			<View style={[styles.boxImage, styles.sizedContainer, isBorderBoxImage && styles.borderBoxImage]}>
 				<MezonClanAvatar alt={username} image={avatarUrl} isMsgReply={isMsgReply} lightMode />
 			</View>
 

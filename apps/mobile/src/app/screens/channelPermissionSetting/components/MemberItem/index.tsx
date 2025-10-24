@@ -11,7 +11,8 @@ import MezonAvatar from '../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import { EOverridePermissionType, ERequestStatus } from '../../types/channelPermission.enum';
-import { IMemberItemProps } from '../../types/channelPermission.type';
+import type { IMemberItemProps } from '../../types/channelPermission.type';
+import { styles as stylesFn } from './MemberItem.styles';
 
 export const MemberItem = memo(
 	({ member, channel, isCheckbox = false, isChecked = false, onSelectMemberChange, isAdvancedSetting = false, onPress }: IMemberItemProps) => {
@@ -19,6 +20,7 @@ export const MemberItem = memo(
 		const [checkClanOwner] = useCheckOwnerForUser();
 		const isClanOwner = checkClanOwner(member?.user?.id);
 		const { themeValue } = useTheme();
+		const styles = stylesFn(themeValue);
 		const dispatch = useAppDispatch();
 		const { t } = useTranslation('channelSetting');
 
@@ -55,7 +57,7 @@ export const MemberItem = memo(
 		const getSuffixIcon = () => {
 			if (isCheckbox) {
 				return (
-					<View style={{ height: size.s_20, width: size.s_20 }}>
+					<View style={styles.checkboxContainer}>
 						<BouncyCheckbox
 							size={20}
 							isChecked={isChecked}
@@ -91,7 +93,7 @@ export const MemberItem = memo(
 
 		return (
 			<TouchableOpacity onPress={onPressMemberItem} disabled={disabled}>
-				<View style={{ gap: size.s_10, flexDirection: 'row', padding: size.s_10, alignItems: 'center' }}>
+				<View style={styles.container}>
 					<MezonAvatar
 						avatarUrl={createImgproxyUrl(member?.user?.avatar_url ?? '', { width: 100, height: 100, resizeType: 'fit' })}
 						username={member.user.username}
@@ -99,31 +101,12 @@ export const MemberItem = memo(
 						height={size.s_40}
 						isBorderBoxImage
 					/>
-					<View style={{ flex: 1 }}>
-						<View style={{ flexDirection: 'row', gap: size.s_4, alignItems: 'center' }}>
-							<Text
-								style={{
-									fontSize: size.s_14,
-									marginLeft: 0,
-									marginRight: 0,
-									color: themeValue.white
-								}}
-							>
-								{member?.user?.display_name || member?.user?.username}
-							</Text>
+					<View style={styles.userInfoContainer}>
+						<View style={styles.nameRow}>
+							<Text style={styles.nameText}>{member?.user?.display_name || member?.user?.username}</Text>
 							{isClanOwner && <MezonIconCDN icon={IconCDN.ownerIcon} color={themeValue.borderWarning} width={16} height={16} />}
 						</View>
-						{!isAdvancedSetting && (
-							<Text
-								style={{
-									marginLeft: 0,
-									marginRight: 0,
-									color: themeValue.textDisabled
-								}}
-							>
-								{member?.user?.username}
-							</Text>
-						)}
+						{!isAdvancedSetting && <Text style={styles.usernameText}>{member?.user?.username}</Text>}
 					</View>
 					{getSuffixIcon()}
 				</View>

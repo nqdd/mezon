@@ -3,7 +3,7 @@ import { fetchTransactionDetail, selectAllUsersByUser, selectDetailTransaction, 
 import { CURRENCY, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { safeJSONParse } from 'mezon-js';
-import { Transaction } from 'mmn-client-js';
+import type { Transaction } from 'mmn-client-js';
 import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -119,12 +119,12 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 						<TouchableOpacity
 							disabled={field.label !== t('historyTransaction.detail.transactionId')}
 							onPress={copyTransactionId}
-							style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+							style={styles.touchableRow}
 						>
 							<Text style={styles.title}>{field.label}</Text>
 							{field.label === t('historyTransaction.detail.transactionId') && detailLedger?.hash && (
-								<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-									<Pressable onPress={copyTransactionId} style={{ padding: 4 }}>
+								<View style={styles.copyIconWrapper}>
+									<Pressable onPress={copyTransactionId} style={styles.copyButton}>
 										<MezonIconCDN icon={IconCDN.copyIcon} color={themeValue.text} width={size.s_16} height={size.s_16} />
 									</Pressable>
 								</View>
@@ -175,7 +175,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 							{formatBalanceToString((item.value || 0)?.toString())}
 						</Text>
 						<Text style={styles.code}>
-							{walletAddress !== item?.from_address ? t('historyTransaction.received') : t('historyTransaction.sent')}
+							{walletAddress !== item?.from_address ? t('historyTransaction.detail.received') : t('historyTransaction.detail.sent')}
 						</Text>
 					</View>
 					<View style={styles.userRowHeader}>
@@ -191,7 +191,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 				</View>
 			</View>
 
-			<Animated.View style={{ height: animation, overflow: 'hidden' }}>{detailView}</Animated.View>
+			<Animated.View style={[styles.animatedContainer, { height: animation }]}>{detailView}</Animated.View>
 		</Pressable>
 	);
 };

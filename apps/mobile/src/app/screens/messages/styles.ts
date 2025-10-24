@@ -14,7 +14,8 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 
 		container: {
-			flex: 1
+			flex: 1,
+			backgroundColor: colors.primary
 		},
 
 		leftContainer: {
@@ -300,5 +301,8 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		desActivity: {
 			fontSize: size.s_10,
 			color: colors.textDisabled
+		},
+		activeDMGroupBackground: {
+			backgroundColor: colors.secondaryLight
 		}
 	});

@@ -66,6 +66,7 @@ export const style = (colors: Attributes) =>
 		},
 		textAvatar: {
 			textAlign: 'center',
+			textTransform: 'uppercase',
 			fontSize: size.h5,
 			color: 'white'
 		},

@@ -73,5 +73,53 @@ export const style = (colors: Attributes) =>
 			fontSize: size.small,
 			color: baseColor.black,
 			fontWeight: '400'
+		},
+		toastSuccessBackground: {
+			backgroundColor: '#b6e1c6'
+		},
+		toastErrorBackground: {
+			backgroundColor: '#efc3ca'
+		},
+		toastInfoBackground: {
+			backgroundColor: '#b6e1c6'
+		},
+		contentContainerStyle: {
+			paddingHorizontal: size.s_20
+		},
+		trailingIconContainer: {
+			marginRight: -size.s_30
+		},
+		notificationTextContainer: {
+			flexDirection: 'column',
+			flex: 1
+		},
+		notificationTitle: {
+			fontSize: size.h6,
+			marginLeft: 0,
+			marginRight: 0,
+			fontWeight: 'bold',
+			color: colors.white
+		},
+		notificationBody: {
+			fontSize: size.h7,
+			marginLeft: 0,
+			marginRight: 0,
+			color: colors.textStrong
+		},
+		notificationProgressBarContainer: {
+			transform: [{ rotateY: '180deg' }]
+		}
+	});
+
+export const createBubbleStyle = (size: number, position: any, color: string) =>
+	StyleSheet.create({
+		bubble: {
+			position: 'absolute',
+			backgroundColor: color,
+			height: size,
+			width: size,
+			borderRadius: size / 2,
+			...position,
+			elevation: 1
 		}
 	});

@@ -34,15 +34,15 @@ const AgeRestricted = ({ onClose }: { onClose: () => void }) => {
 	}, [navigation]);
 
 	return (
-		<View style={{ backgroundColor: themeValue.secondary, borderRadius: size.s_10, padding: size.s_20 }}>
-			<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+		<View style={styles.container}>
+			<View style={styles.iconContainer}>
 				<MezonIconCDN icon={IconCDN.ageRestrictedIcon} width={size.s_100} height={size.s_100} useOriginalColor={true} />
 			</View>
 			<View>
 				<Text style={styles.title}>{t('title')}</Text>
 				<Text style={styles.description}>{t('description')}</Text>
 			</View>
-			<View style={{ marginTop: size.s_20, flexDirection: 'row', justifyContent: 'center', gap: size.s_30 }}>
+			<View style={styles.buttonContainer}>
 				<TouchableOpacity style={styles.buttonNope} onPress={handleNode}>
 					<Text style={styles.btnText}>{t('nope')}</Text>
 				</TouchableOpacity>
