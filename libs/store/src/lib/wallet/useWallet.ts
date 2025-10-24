@@ -1,3 +1,4 @@
+import { useMezon } from '@mezon/transport';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import {
@@ -5,7 +6,6 @@ import {
 	selectAllAccount,
 	selectIsEnabledWallet,
 	selectIsWalletAvailable,
-	selectSession,
 	selectWalletDetail,
 	useAppDispatch,
 	walletActions
@@ -21,7 +21,7 @@ export function useWallet(): {
 } {
 	const firstRender = useRef(true);
 	const dispatch = useAppDispatch();
-	const sessionUser = useSelector(selectSession);
+	const { sessionRef } = useMezon();
 	const userProfile = useSelector(selectAllAccount);
 	const walletDetail = useSelector(selectWalletDetail);
 	const isEnableWallet = useSelector(selectIsEnabledWallet);
@@ -46,13 +46,13 @@ export function useWallet(): {
 
 	const enableWallet = useCallback(async () => {
 		const userId = userProfile?.user?.id || '';
-		if (sessionUser?.token && userId) {
+		if (sessionRef.current?.token && userId) {
 			await dispatch(walletActions.fetchEphemeralKeyPair());
 			await dispatch(walletActions.fetchAddress({ userId }));
 
 			const proofInput = {
 				userId,
-				jwt: sessionUser?.token
+				jwt: sessionRef.current.token
 			};
 
 			const res = await dispatch(walletActions.fetchZkProofs(proofInput));
@@ -61,7 +61,7 @@ export function useWallet(): {
 				await fetchWalletData();
 			}
 		}
-	}, [userProfile, sessionUser]);
+	}, [userProfile, sessionRef]);
 
 	const disableWallet = useCallback(async () => {
 		await dispatch(walletActions.resetState());
