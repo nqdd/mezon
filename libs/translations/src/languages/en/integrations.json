@@ -16,6 +16,7 @@
 	"webhookDescription": "Webhooks are a simple way to post messages from other apps and websites into Mezon using internet magic.",
 	"clanWebhookDescription": "Clan Webhooks are a simple way to post messages from other apps and websites for each Mezon user using internet technology.",
 	"learnMoreWebhook": "Learn more",
+	"orTry": "or try",
 	"buildWebhook": "building one yourself.",
 	"webhookTip": "Tip: If you feel the token on your URL is compromised or outdated, reset it and copy the new URL.",
 	"webhookCount": "{{count}} webhook",

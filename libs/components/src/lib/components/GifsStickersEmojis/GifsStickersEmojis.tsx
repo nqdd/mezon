@@ -11,6 +11,7 @@ import { EmojiPlaces, RequestInput, SubPanelName } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { ApiChannelDescription } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import EmojiPickerComp from '../EmojiPicker';
 import SoundSquare from './SoundSquare';
@@ -160,6 +161,7 @@ const TabBar = React.memo(
 			sounds?: boolean;
 		};
 	}) => {
+		const { t } = useTranslation('common');
 		const getTabClassName = useCallback((isActive: boolean) => {
 			return `relative px-2 mx-2 text-sm rounded-md ${isActive ? 'text-theme-primary-active font-semibold' : 'text-theme-primary'}`;
 		}, []);
@@ -168,22 +170,22 @@ const TabBar = React.memo(
 			<div className="flex justify-start flex-row mt-3 pt-1 max-sm:justify-evenly">
 				{showTabs.gifs && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.GIFS)} onClick={() => onTabClick(SubPanelName.GIFS)}>
-						Gifs
+						{t('gifs')}
 					</button>
 				)}
 				{showTabs.stickers && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.STICKERS)} onClick={() => onTabClick(SubPanelName.STICKERS)}>
-						Stickers
+						{t('stickers')}
 					</button>
 				)}
 				{showTabs.emojis && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.EMOJI)} onClick={() => onTabClick(SubPanelName.EMOJI)}>
-						Emojis
+						{t('emojis')}
 					</button>
 				)}
 				{showTabs.sounds && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.SOUNDS)} onClick={() => onTabClick(SubPanelName.SOUNDS)}>
-						Sounds
+						{t('sounds')}
 					</button>
 				)}
 			</div>

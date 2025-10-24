@@ -11,6 +11,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { IUser } from '@mezon/utils';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { OpenModalProps } from '..';
 import { PopupFriend } from './PopupShortUser';
@@ -26,6 +27,7 @@ type GroupIconBannerProps = {
 
 const GroupIconBanner = (props: GroupIconBannerProps) => {
 	const { checkAddFriend, openModal, user, showPopupLeft, setOpenModal, kichUser } = props;
+	const { t } = useTranslation('common');
 	const transferDetail = useSelector(selectInfoSendToken);
 	const { addFriend, acceptFriend, deleteFriend } = useFriends();
 	const currentUserId = useAppSelector(selectCurrentUserId);
@@ -44,32 +46,32 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 			case EStateFriend.FRIEND:
 				return [
 					{
-						title: 'Friend',
+						title: t('friend'),
 						icon: <Icons.IconFriend className="size-4" />
 					}
 				];
 			case EStateFriend.OTHER_PENDING:
 				return [
 					{
-						title: 'Pending',
+						title: t('pending'),
 						icon: <Icons.PendingFriend className="size-4 " />
 					}
 				];
 			case EStateFriend.MY_PENDING:
 				return [
 					{
-						title: 'Accept',
+						title: t('accept'),
 						icon: <Icons.IConAcceptFriend className="size-4" />
 					},
 					{
-						title: 'Ignore',
+						title: t('ignore'),
 						icon: <Icons.IConIgnoreFriend className="size-4" />
 					}
 				];
 			default:
 				return [
 					{
-						title: 'Add friend',
+						title: t('addFriend'),
 						icon: <Icons.AddPerson className="size-4 " />
 					}
 				];
@@ -115,7 +117,7 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 	};
 
 	const handleOpenTransferModal = () => {
-		const note = 'Transfer funds';
+		const note = t('transferFunds');
 		dispatch(
 			giveCoffeeActions.setInfoSendToken({
 				sender_id: userProfile?.user?.id,
@@ -139,7 +141,7 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 					handleOpenTransferModal();
 				}}
 			>
-				<span title="Transfer">
+				<span title={t('transfer')}>
 					<Icons.Transaction className="size-4 iconWhiteImportant" />
 				</span>
 			</div>

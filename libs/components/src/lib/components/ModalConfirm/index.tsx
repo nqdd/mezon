@@ -18,16 +18,20 @@ interface ModalConfirmProps {
 
 const ModalConfirm = ({
 	handleCancel,
-	title = 'Title Modal',
-	buttonName = 'OK',
+	title,
+	buttonName,
 	modalName,
 	handleConfirm,
 	buttonColor = 'bg-red-600 hover:bg-red-700',
-	message = "You won't be able to re-join this server unless you are re-invited.",
+	message,
 	customModalName,
 	customTitle = ''
 }: ModalConfirmProps) => {
 	const { t } = useTranslation('common');
+
+	const defaultTitle = title || t('modalConfirm.defaultTitle');
+	const defaultButtonName = buttonName || t('modalConfirm.defaultButtonName');
+	const defaultMessage = message || t('modalConfirm.defaultMessage');
 	useEffect(() => {
 		const handleEnterKey = (event: KeyboardEvent) => {
 			if (event.key === 'Enter') {
@@ -50,7 +54,7 @@ const ModalConfirm = ({
 			<div className="relative z-10 w-[440px]" onClick={(e) => e.stopPropagation()}>
 				<div className="bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md">
 					<div className=" text-theme-primary-active text-[20px] font-semibold pb-[16px]">
-						<span className="capitalize mr-1">{title}</span>
+						<span className="capitalize mr-1">{defaultTitle}</span>
 						{customModalName ? customModalName : modalName}
 					</div>
 					<div className=" pb-[20px] text-theme-primary">
@@ -60,10 +64,10 @@ const ModalConfirm = ({
 							<span>
 								<Trans
 									i18nKey="common:areYouSureYouWantTo"
-									values={{ action: title, name: modalName }}
+									values={{ action: defaultTitle, name: modalName }}
 									components={[<b className="font-semibold" key="0" />]}
 								/>
-								{message && ` ${message}`}
+								{defaultMessage && ` ${defaultMessage}`}
 							</span>
 						)}
 					</div>
@@ -81,7 +85,7 @@ const ModalConfirm = ({
 						onClick={handleConfirm}
 						data-e2e={generateE2eId('modal.confirm_modal.button.confirm')}
 					>
-						{buttonName}
+						{defaultButtonName}
 					</div>
 				</div>
 			</div>
