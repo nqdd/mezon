@@ -136,26 +136,13 @@ export const RenderHeaderModal = React.memo(({ imageSelected, onImageSaved, onLo
 	};
 
 	return (
-		<View
-			style={{
-				position: 'absolute',
-				paddingTop: Platform.OS === 'ios' ? size.s_40 : size.s_30,
-				left: 0,
-				zIndex: 1,
-				justifyContent: 'space-between',
-				flexDirection: 'row',
-				backgroundColor: 'rgba(0, 0, 0, 0.4)',
-				width: '100%',
-				padding: size.s_10,
-				alignItems: 'center'
-			}}
-		>
-			<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
+		<View style={[styles.headerContainer, { paddingTop: Platform.OS === 'ios' ? size.s_40 : size.s_30 }]}>
+			<View style={styles.headerLeftSection}>
 				<TouchableOpacity onPress={onClose}>
 					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={'white'} />
 				</TouchableOpacity>
 				{!!uploader && (
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_6 }}>
+					<View style={styles.uploaderSection}>
 						<View style={styles.wrapperAvatar}>
 							<MezonClanAvatar
 								image={currentDirectId ? uploader?.user?.avatar_url : uploader?.clan_avatar || uploader?.user?.avatar_url}

@@ -51,7 +51,7 @@ export const ClanIcon = memo(
 							<View style={[styles.logoClan, isActiveCurrentClan && styles.logoClanActive]}>
 								<ImageNative
 									url={createImgproxyUrl(props?.data?.logo ?? '', { width: 100, height: 100, resizeType: 'fit' })}
-									style={{ width: '100%', height: '100%' }}
+									style={styles.imageFullSize}
 									resizeMode={'cover'}
 								/>
 							</View>

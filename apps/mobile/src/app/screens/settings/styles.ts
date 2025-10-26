@@ -9,5 +9,10 @@ export const style = (colors: Attributes) =>
 		},
 		settingScroll: {
 			padding: size.s_20
+		},
+		webViewHidden: {
+			height: 0,
+			position: 'absolute',
+			zIndex: -1
 		}
 	});

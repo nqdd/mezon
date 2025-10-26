@@ -94,7 +94,6 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 	const { socketRef } = useMezon();
 	const animationTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
 	const soundRefs = useRef<Map<string, Sound>>(new Map());
-	
 	// Cleanup function for timeouts
 	const cleanupTimeouts = useCallback(() => {
 		animationTimeoutsRef.current.forEach(clearTimeout);

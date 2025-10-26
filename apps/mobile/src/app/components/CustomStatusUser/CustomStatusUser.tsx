@@ -12,6 +12,7 @@ import type { IMezonOptionData } from '../../componentUI/MezonOption';
 import MezonOption from '../../componentUI/MezonOption';
 import { IconCDN } from '../../constants/icon_cdn';
 import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
+import { styles } from './CustomStatusUser.styles';
 
 interface ICustomStatusUserProps {
 	onPressSetCustomStatus?: () => void;
@@ -119,7 +120,7 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 	);
 
 	return (
-		<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10 }}>
+		<View style={styles.container}>
 			<MezonOption title={t('onlineStatus')} data={statusOptions} value={userStatusOption} onChange={handleStatusChange} />
 
 			<MezonMenu menu={statusMenu} />

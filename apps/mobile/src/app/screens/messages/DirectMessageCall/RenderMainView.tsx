@@ -35,9 +35,9 @@ export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnecte
 	const { t } = useTranslation(['dmMessage']);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.flexContainer}>
 			{callState.remoteStream && isRemoteVideo && isConnected ? (
-				<View style={{ flex: 1 }}>
+				<View style={styles.flexContainer}>
 					<RenderVideoStream stream={callState?.remoteStream} mirror={false} />
 					{!isRemoteAudio && (
 						<View style={styles.mutedAudioContainer}>
@@ -51,7 +51,7 @@ export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnecte
 			) : (
 				<View>
 					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
-					<View style={[styles.mutedAudioAvatarContainer, { top: size.s_150, opacity: isRemoteAudio ? 0 : 1 }]}>
+					<View style={isRemoteAudio ? styles.mutedAudioAvatarContainerHidden : styles.mutedAudioAvatarContainerVisible}>
 						<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 						<Text style={styles.mutedAudioText}>
 							{receiverName || ''} {t('turnedMicOff')}
@@ -60,7 +60,7 @@ export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnecte
 				</View>
 			)}
 			{isConnected && (
-				<View style={{ top: callState.remoteStream && isRemoteVideo ? 0 : size.s_70 }}>
+				<View style={callState.remoteStream && isRemoteVideo ? styles.callDurationTopVideo : styles.callDurationTopAvatar}>
 					<CallDuration isConnected={isConnected} />
 				</View>
 			)}

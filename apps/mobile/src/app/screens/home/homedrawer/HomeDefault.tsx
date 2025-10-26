@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { setTimeout } from '@testing-library/react-native/build/helpers/timers';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { DeviceEventEmitter, Keyboard, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, Platform, StatusBar, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import AgeRestrictedModal from '../../../components/AgeRestricted/AgeRestrictedModal';
@@ -79,12 +79,12 @@ const HomeDefault = React.memo(
 					start={{ x: 1, y: 0 }}
 					end={{ x: 0, y: 0 }}
 					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-					style={[StyleSheet.absoluteFillObject]}
+					style={styles.absoluteFill}
 				/>
 				{Platform.OS === 'ios' && <LicenseAgreement />}
 				<DrawerListener channelId={channelId} />
 				<HomeDefaultHeader openBottomSheet={openBottomSheet} navigation={props.navigation} onOpenDrawer={onOpenDrawer} />
-				<View style={{ flex: 1 }}>
+				<View style={styles.flexOne}>
 					<ChannelMessages
 						channelId={channelId}
 						lastSeenMessageId={lastSeenMessageId}

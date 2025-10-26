@@ -94,5 +94,9 @@ export const style = (colors: Attributes) =>
 		reactionImage: {
 			width: size.s_22,
 			height: size.s_22
+		},
+		emojiPickerContainer: {
+			padding: size.s_10,
+			minHeight: '100%'
 		}
 	});

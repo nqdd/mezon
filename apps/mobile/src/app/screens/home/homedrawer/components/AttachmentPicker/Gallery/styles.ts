@@ -43,5 +43,11 @@ export const style = (colors: Attributes) =>
 			color: colors.text,
 			fontWeight: '600',
 			textAlign: 'center'
+		},
+		galleryContainer: {
+			flex: 1
+		},
+		galleryFlatList: {
+			maxHeight: '80%'
 		}
 	});

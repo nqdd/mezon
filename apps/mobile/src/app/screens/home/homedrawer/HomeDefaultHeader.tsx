@@ -138,8 +138,8 @@ const HomeDefaultHeader = React.memo(
 
 		return (
 			<View style={styles.homeDefaultHeader}>
-				<TouchableOpacity style={{ flex: 1 }} onPress={navigateMenuThreadDetail}>
-					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<TouchableOpacity style={styles.headerTouchable} onPress={navigateMenuThreadDetail}>
+					<View style={styles.headerRowContainer}>
 						{!isTabletLandscape && (
 							<TouchableOpacity
 								hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -185,7 +185,7 @@ const HomeDefaultHeader = React.memo(
 				) : (
 					<View />
 				)}
-				<View style={{ position: 'relative', zIndex: 0 }}>
+				<View style={styles.headerTooltipContainer}>
 					<HeaderTooltip onPressOption={onPressOption} options={headerOptions} />
 				</View>
 			</View>

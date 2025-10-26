@@ -86,5 +86,11 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'space-between',
 			alignItems: 'center',
 			width: '100%'
+		},
+		actionItemText: {
+			color: colors.white
+		},
+		deleteViewMargin: {
+			marginVertical: size.s_10
 		}
 	});

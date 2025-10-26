@@ -311,5 +311,9 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 		flexOne: {
 			flex: 1
+		},
+		separator: {
+			height: '100%',
+			width: size.s_4
 		}
 	});

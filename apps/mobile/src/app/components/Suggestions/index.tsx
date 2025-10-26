@@ -17,6 +17,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import { removeDiacritics } from '../../utils/helpers';
 import SuggestItem from './SuggestItem';
+import { style } from './styles';
 
 export interface MentionSuggestionsProps {
 	keyword?: string;
@@ -26,6 +27,7 @@ export interface MentionSuggestionsProps {
 }
 
 const Suggestions: FC<MentionSuggestionsProps> = memo(({ keyword, onSelect, listMentions, isEphemeralMode }) => {
+	const styles = style();
 	const [listMentionData, setListMentionData] = useState([]);
 	const filteredMentions = useMemo(() => {
 		if (!listMentions?.length || !keyword?.trim()) return listMentions || [];
@@ -90,7 +92,7 @@ const Suggestions: FC<MentionSuggestionsProps> = memo(({ keyword, onSelect, list
 
 	return (
 		<FlatList
-			style={{ maxHeight: size.s_220 }}
+			style={styles.flatListContainer}
 			data={listMentionData}
 			renderItem={({ item }) => {
 				if (!item?.display) return <View />;
@@ -143,6 +145,7 @@ export interface MentionHashtagSuggestionsProps {
 }
 
 const HashtagSuggestions: FC<MentionHashtagSuggestionsProps> = memo(({ keyword, onSelect, directMessageId, mode }) => {
+	const styles = style();
 	const channels = useSelector(selectAllChannels);
 	const commonChannelDms = useSelector(selectAllHashtagDm);
 	const [channelsMentionData, setChannelsMentionData] = useState([]);
@@ -182,7 +185,7 @@ const HashtagSuggestions: FC<MentionHashtagSuggestionsProps> = memo(({ keyword, 
 
 	return (
 		<FlatList
-			style={{ maxHeight: size.s_220 }}
+			style={styles.flatListContainer}
 			data={channelsMentionData}
 			renderItem={({ item }) => (
 				<Pressable onPress={() => handleSuggestionPress(item)}>
@@ -217,6 +220,7 @@ export interface IEmojiSuggestionProps {
 }
 
 const EmojiSuggestion: FC<IEmojiSuggestionProps> = memo(({ keyword, onSelect }) => {
+	const styles = style();
 	const emojiListPNG = useSelector(selectAllEmojiSuggestion);
 	const dispatch = useAppDispatch();
 	const [formattedEmojiData, setFormattedEmojiData] = useState([]);
@@ -265,7 +269,7 @@ const EmojiSuggestion: FC<IEmojiSuggestionProps> = memo(({ keyword, onSelect }) 
 
 	return (
 		<FlatList
-			style={{ maxHeight: size.s_220 }}
+			style={styles.flatListContainer}
 			data={formattedEmojiData}
 			renderItem={({ item }) => (
 				<Pressable onPress={() => handleEmojiSuggestionPress(item)}>
