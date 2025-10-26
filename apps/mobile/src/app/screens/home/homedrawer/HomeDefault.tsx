@@ -29,6 +29,7 @@ const HomeDefault = React.memo(
 		const isThread = props?.isThread;
 		const channelType = props?.channelType;
 		const lastSeenMessageId = props?.lastSeenMessageId;
+		const lastSentMessageId = props?.lastSentMessageId;
 		const timeoutRef = useRef<any>(null);
 		const navigation = useNavigation<any>();
 
@@ -87,6 +88,7 @@ const HomeDefault = React.memo(
 					<ChannelMessages
 						channelId={channelId}
 						lastSeenMessageId={lastSeenMessageId}
+						lastSentMessageId={lastSentMessageId}
 						clanId={clanId}
 						isPublic={isPublicChannel}
 						mode={isThread ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
