@@ -32,6 +32,7 @@ import FocusedScreenPopup from '../FocusedScreenPopup';
 import ParticipantScreen from '../ParticipantScreen';
 import ReasonPopup from '../ReasonPopup';
 import { style } from '../styles';
+import { createStyles } from './index.styles';
 
 const RoomViewListener = memo(
 	({
@@ -171,9 +172,9 @@ const RoomView = ({
 	activeSoundReactions: Map<string, ActiveSoundReaction>;
 	allUserClans: UsersClanEntity[];
 }) => {
-	const marginWidth = Dimensions.get('screen').width;
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue);
+	const localStyles = createStyles();
 	const voiceInfo = useSelector(selectVoiceInfo);
 	const [focusedScreenShare, setFocusedScreenShare] = useState<TrackReference | null>(null);
 	const [isHiddenControl, setIsHiddenControl] = useState<boolean>(false);
@@ -219,18 +220,14 @@ const RoomView = ({
 
 	if (focusedScreenShare) {
 		return (
-			<View style={{ width: '100%', flex: 1, alignItems: 'center' }}>
-				<View style={{ height: '100%', width: '100%' }}>
+			<View style={localStyles.focusedScreenContainer}>
+				<View style={localStyles.focusedScreenWrapper}>
 					<ResumableZoom onTap={() => setIsHiddenControl((prevState) => !prevState)} allowPinchPanning={false}>
-						<View style={{ height: '100%', width: marginWidth }}>
+						<View style={localStyles.focusedScreenInner}>
 							<VideoTrack
 								trackRef={focusedScreenShare}
 								objectFit={'contain'}
-								style={{
-									height: '100%',
-									width: '100%',
-									alignSelf: 'center'
-								}}
+								style={localStyles.videoTrack}
 								iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 							/>
 						</View>
@@ -280,12 +277,12 @@ const RoomView = ({
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (
-				<View style={{ alignItems: 'center', justifyContent: 'center', paddingBottom: size.s_100 * 2 }}>
+				<View style={localStyles.preCallContainer}>
 					<LottieView
 						source={themeBasic === ThemeModeBase.DARK ? TYPING_DARK_MODE : TYPING_LIGHT_MODE}
 						autoPlay
 						loop
-						style={{ width: size.s_60, height: size.s_60 }}
+						style={localStyles.lottieView}
 					/>
 					<Text style={styles.text}>{`${participantsCount} members will be notified`}</Text>
 				</View>

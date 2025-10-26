@@ -3,6 +3,38 @@ import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
+		container: {
+			paddingHorizontal: size.s_20
+		},
+		header: {
+			width: '100%',
+			flexDirection: 'row',
+			marginBottom: size.s_20
+		},
+		headerSpacer: {
+			width: size.s_60
+		},
+		colorGrid: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			paddingVertical: size.s_10,
+			paddingHorizontal: size.s_20,
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: size.s_20
+		},
+		colorItem: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			height: size.s_40,
+			width: size.s_40,
+			borderRadius: size.s_20
+		},
+		footerContainer: {
+			width: '100%',
+			alignItems: 'center',
+			marginVertical: size.s_20
+		},
 		checkedIcon: {
 			color: colors.black
 		},
