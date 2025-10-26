@@ -1,12 +1,11 @@
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, Platform, View } from 'react-native';
 import AttachmentPicker from './components/AttachmentPicker';
 import EmojiPicker from './components/EmojiPicker';
 import type { EMessageActionType } from './enums';
-import { style } from './PanelKeyboard.styles';
 import type { IMessageActionNeedToResolve } from './types';
 
 interface IProps {
@@ -21,7 +20,6 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	const [typeKeyboardBottomSheet, setTypeKeyboardBottomSheet] = useState<string>('text');
 	const bottomPickerRef = useRef<BottomSheetModal>(null);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
-	const styles = useMemo(() => style(themeValue, themeBasic), [themeValue, themeBasic]);
 
 	const onShowKeyboardBottomSheet = useCallback(async (isShow: boolean, type?: string) => {
 		const keyboardHeight = Platform.OS === 'ios' ? 365 : 300;
@@ -77,7 +75,12 @@ const PanelKeyboard = React.memo((props: IProps) => {
 
 	return (
 		<>
-			<View style={styles.keyboardSpacer(heightKeyboardShow, typeKeyboardBottomSheet)} />
+			<View
+				style={{
+					height: Platform.OS === 'ios' || typeKeyboardBottomSheet !== 'text' ? heightKeyboardShow : 0,
+					backgroundColor: themeBasic === 'light' ? themeValue.tertiary : themeValue.primary
+				}}
+			/>
 			<BottomSheetModal
 				ref={bottomPickerRef}
 				snapPoints={[heightKeyboardShow ? heightKeyboardShow : 1, '100%']}
@@ -86,19 +89,25 @@ const PanelKeyboard = React.memo((props: IProps) => {
 				animationConfigs={{
 					duration: 200
 				}}
-				backgroundStyle={styles.bottomSheetBackground(themeBasic, themeValue)}
+				backgroundStyle={{
+					backgroundColor: themeBasic === 'light' ? themeValue.tertiary : themeValue.primary
+				}}
 				backdropComponent={null}
 				enableDynamicSizing={false}
 				enablePanDownToClose={true}
-				handleIndicatorStyle={styles.handleIndicator(themeValue)}
+				handleIndicatorStyle={{
+					backgroundColor: themeValue.tertiary,
+					height: size.s_6,
+					width: size.s_50
+				}}
 				onChange={handleSheetChange}
 			>
 				<BottomSheetScrollView
 					scrollEnabled={true}
 					stickyHeaderIndices={[0]}
 					keyboardShouldPersistTaps="handled"
-					contentContainerStyle={typeKeyboardBottomSheet === 'emoji' ? styles.scrollViewContent : undefined}
-					style={styles.scrollViewMinHeight(heightKeyboardShow)}
+					contentContainerStyle={typeKeyboardBottomSheet === 'emoji' ? { flex: 1 } : undefined}
+					style={{ minHeight: heightKeyboardShow }}
 				>
 					{typeKeyboardBottomSheet === 'attachment' ? (
 						<AttachmentPicker currentChannelId={props?.currentChannelId} onCancel={onClose} messageAction={props?.messageAction} />
