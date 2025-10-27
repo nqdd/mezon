@@ -5,7 +5,6 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
 	DMCallActions,
-	EStateFriend,
 	directActions,
 	directMetaActions,
 	getStore,
@@ -13,7 +12,6 @@ import {
 	messagesActions,
 	selectAllAccount,
 	selectDmGroupCurrent,
-	selectFriendById,
 	selectLastMessageByChannelId,
 	selectLastSeenMessageStateByChannelId,
 	useAppDispatch,
@@ -42,6 +40,7 @@ interface HeaderProps {
 	styles: any;
 	themeValue: any;
 	directMessageId: string;
+	isBlocked?: boolean;
 }
 export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
@@ -90,13 +89,12 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	return null;
 });
 
-const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, directMessageId }) => {
+const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, directMessageId, isBlocked }) => {
 	const currentDmGroup = useSelector(selectDmGroupCurrent(directMessageId ?? ''));
 	const navigation = useNavigation<any>();
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const { sendSignalingToParticipants } = useSendSignaling();
-	const infoFriend = useSelector((state) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
 
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 	const { sendMessage } = useChatSending({ mode, channelOrDirect: currentDmGroup });
@@ -218,13 +216,6 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 	};
-
-	const isBlocked = useMemo(() => {
-		if (mode !== ChannelStreamMode.STREAM_MODE_DM) return false;
-		return (
-			infoFriend?.state === EStateFriend.BLOCK
-		);
-	}, [infoFriend?.source_id, infoFriend?.state, infoFriend?.user?.id]);
 
 	const headerOptions: IOption[] = [
 		{
