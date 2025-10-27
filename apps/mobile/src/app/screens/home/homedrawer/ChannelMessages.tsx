@@ -359,11 +359,7 @@ const ChannelMessages = React.memo(
 					<View />
 				)}
 				{isLoadMore.current?.[ELoadMoreDirection.bottom] && <ViewLoadMore />}
-				<View
-					style={{
-						height: size.s_8
-					}}
-				/>
+				<View style={styles.spacerHeight8} />
 				{isShowJumpToPresent && (
 					<ButtonJumpToPresent
 						handleJumpToPresent={handleJumpToPresent}

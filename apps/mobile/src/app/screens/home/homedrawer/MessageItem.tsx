@@ -359,14 +359,14 @@ const MessageItem = React.memo(
 								/>
 							)}
 
-							<View style={[message?.content?.fwd ? { display: 'flex' } : undefined, message?.content?.isCard && styles.cardMsg]}>
+							<View style={[message?.content?.fwd ? styles.contentDisplay : undefined, message?.content?.isCard && styles.cardMsg]}>
 								<View style={message?.content?.fwd ? styles.forwardBorder : undefined}>
 									{!!message?.content?.fwd && (
 										<Text style={styles.forward}>
 											<Entypo name="forward" size={15} color={themeValue.text} /> {t('common:forwarded')}
 										</Text>
 									)}
-									<View style={{ opacity: message.isError || message?.isErrorRetry ? 0.6 : 1 }}>
+									<View style={message.isError || message?.isErrorRetry ? styles.opacityErrorRetry : styles.opacityNormal}>
 										{isMessageSystem ? (
 											<MessageLineSystem message={message} />
 										) : isMessageCallLog ? (

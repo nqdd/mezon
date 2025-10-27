@@ -188,7 +188,7 @@ export const MessageLineSystem = memo(({ message }: { message: MessagesEntity })
 	}, [elements, t, allUserIdsInChannel, styles, handleJumpToPinMessage, onMention]);
 
 	return (
-		<View style={[styles.wrapperMessageBox, { marginVertical: size.s_10, paddingLeft: 0 }]}>
+		<View style={[styles.wrapperMessageBox, styles.systemMessageContainer]}>
 			<View>
 				{message?.code === TypeMessage.Welcome && (
 					<MezonIconCDN icon={IconCDN.auditLog} width={size.s_24} height={size.s_24} color={baseColor.bgSuccess} />
@@ -206,7 +206,7 @@ export const MessageLineSystem = memo(({ message }: { message: MessagesEntity })
 					<MezonIconCDN icon={IconCDN.auditLog} width={size.s_24} height={size.s_24} color={baseColor.redStrong} />
 				)}
 			</View>
-			<View style={{ flexDirection: 'column' }}>
+			<View style={styles.columnFlexDirection}>
 				<View style={styles.messageSystemBox}>
 					<Text style={styles.messageText}>
 						{content}

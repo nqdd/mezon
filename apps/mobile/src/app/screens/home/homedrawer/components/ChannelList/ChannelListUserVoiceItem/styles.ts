@@ -21,5 +21,17 @@ export const style = (colors: Attributes) =>
 			fontWeight: 'bold',
 			fontSize: size.s_10,
 			flexShrink: 1
+		},
+		collapsedAvatar: {
+			// left offset will be dynamic based on index
+		},
+		collapsedCountBadge: {
+			paddingHorizontal: size.s_2,
+			minWidth: size.s_20,
+			height: size.s_20,
+			borderRadius: size.s_20,
+			borderWidth: 1,
+			alignItems: 'center',
+			justifyContent: 'center'
 		}
 	});

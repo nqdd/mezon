@@ -45,7 +45,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 	}, [message?.content?.rpl, replyCount]);
 
 	return (
-		<View style={{ flexDirection: 'row' }}>
+		<View style={styles.outerWrapper}>
 			<TouchableOpacity onPress={handleOpenTopic} style={styles.container}>
 				<MezonAvatar
 					avatarUrl={topicCreator?.clan_avatar || topicCreator?.user?.avatar_url}

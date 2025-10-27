@@ -222,18 +222,20 @@ const UserProfile = React.memo(
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false
 				});
-				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_ids;
-					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
-				});
-				if (directMessage?.id) {
-					if (isTabletLandscape) {
-						await dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
-						navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-					} else {
-						navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
+				if (!isCheckOwner) {
+					const directMessage = listDM?.find?.((dm) => {
+						const userIds = dm?.user_ids;
+						return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
+					});
+					if (directMessage?.id) {
+						if (isTabletLandscape) {
+							dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
+							navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+						} else {
+							navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
+						}
+						return;
 					}
-					return;
 				}
 				const response = await createDirectMessageWithUser(
 					userId,
@@ -245,10 +247,18 @@ const UserProfile = React.memo(
 				if (response?.channel_id) {
 					await checkNotificationPermissionAndNavigate(() => {
 						if (isTabletLandscape) {
-							dispatch(directActions.setDmGroupCurrentId(directMessage?.id || ''));
+							dispatch(directActions.setDmGroupCurrentId(response?.channel_id || ''));
 							navigation.navigate(APP_SCREEN.MESSAGES.HOME);
 						} else {
 							navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: response?.channel_id });
+						}
+					});
+				} else {
+					Toast.show({
+						type: 'error',
+						props: {
+							text2: t('friends:toast.somethingWentWrong'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 						}
 					});
 				}
@@ -256,9 +266,11 @@ const UserProfile = React.memo(
 			[
 				createDirectMessageWithUser,
 				dispatch,
+				isCheckOwner,
 				isTabletLandscape,
 				listDM,
 				navigation,
+				t,
 				user?.avatar_url,
 				user?.display_name,
 				user?.user?.avatar_url,
@@ -324,8 +336,8 @@ const UserProfile = React.memo(
 			},
 			[
 				createDirectMessageWithUser,
+				dispatch,
 				listDM,
-				navigation,
 				user?.avatar_url,
 				user?.display_name,
 				user?.user?.avatar_url,
@@ -555,6 +567,14 @@ const UserProfile = React.memo(
 										</TouchableOpacity>
 									);
 								})}
+							</View>
+						)}
+						{isCheckOwner && (
+							<View style={[styles.userAction]}>
+								<TouchableOpacity onPress={navigateToMessageDetail} style={[styles.actionItem]}>
+									<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
+									<Text style={[styles.actionText]}>{t('userAction.sendMessage')}</Text>
+								</TouchableOpacity>
 							</View>
 						)}
 						{EFriendState.ReceivedRequestFriend === infoFriend?.state && (

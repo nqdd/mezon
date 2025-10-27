@@ -23,16 +23,7 @@ const ChannelAppHotbar = ({ channelId, clanId }: channelAppHotBarProps) => {
 	}, [channelId, clanId]);
 
 	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				justifyContent: 'space-between',
-				paddingVertical: size.s_6,
-				paddingHorizontal: size.s_10,
-				gap: size.s_10,
-				backgroundColor: 'transparent'
-			}}
-		>
+		<View style={styles.channelAppHotbarContainer}>
 			<TouchableOpacity style={styles.channelAppButton} onPress={openChannelApp}>
 				<Text style={styles.messageText}>Launch App</Text>
 			</TouchableOpacity>
