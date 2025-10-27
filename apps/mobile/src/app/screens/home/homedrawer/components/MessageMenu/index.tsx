@@ -132,10 +132,8 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	];
 
 	const handleAddFriend = () => {
-		addFriend({
-			ids: [messageInfo?.user_ids?.[0]],
-			usernames: [messageInfo?.usernames?.[0]]
-		});
+		const body = messageInfo?.user_ids?.[0] ? { ids: [messageInfo?.user_ids?.[0]] } : { usernames: [messageInfo?.usernames?.[0]] };
+		addFriend(body);
 		dismiss();
 	};
 

@@ -393,11 +393,10 @@ const UserProfile = React.memo(
 		];
 
 		const handleAcceptFriend = () => {
-			const body = {
-				usernames: [infoFriend?.user?.username || ''],
+			const body = infoFriend?.user?.id ?  {
 				ids: [infoFriend?.user?.id || ''],
 				isAcceptingRequest: true
-			};
+			} : {usernames: [infoFriend?.user?.username || ''], isAcceptingRequest: true};
 			dispatch(friendsActions.sendRequestAddFriend(body));
 		};
 
