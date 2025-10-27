@@ -136,9 +136,6 @@ const ModalUserProfile = ({
 	const handleContent = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setContent(e.target.value);
 	};
-	const checkOwner = (userIdPram: string) => {
-		return userIdPram === userId;
-	};
 
 	const checkUrl = (url: string | undefined) => {
 		if (url !== undefined && url !== '') return true;
@@ -292,7 +289,7 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
+					{userID !== '0' && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
 						userById?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input
