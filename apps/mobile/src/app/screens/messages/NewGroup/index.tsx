@@ -1,18 +1,19 @@
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	FriendsEntity,
 	appActions,
 	channelUsersActions,
 	directActions,
 	selectAllFriends,
+	selectCurrentUserId,
 	selectDirectById,
 	selectRawDataUserGroup,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelType, User } from 'mezon-js';
-import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { User } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
+import type { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
@@ -45,6 +46,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const [selectedFriendDefault, setSelectedFriendDefault] = useState<string[]>([]);
 	const currentDirectMessage = useRef(useAppSelector((state) => selectDirectById(state, directMessage?.id || '')));
 	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, directMessage?.id || ''));
+	const currentUserId = useSelector(selectCurrentUserId);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser.filter((user) => user.state === 0);
@@ -74,9 +76,18 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 		}
 	}, [currentDirectMessage.current?.id, allUserGroupDM?.user_ids]);
 
-	const onSelectedChange = useCallback((friendIdSelected: string[]) => {
-		setFriendIdSelectedList(friendIdSelected);
-	}, []);
+	const onSelectedChange = useCallback(
+		(friendIdSelected: string[]) => {
+			if (directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+				const newMembers = friendIdSelected?.filter((userId) => !selectedFriendDefault?.includes(userId));
+				setFriendIdSelectedList(newMembers);
+			} else {
+				const newMembers = friendIdSelected?.filter((userId) => userId !== currentUserId);
+				setFriendIdSelectedList(newMembers);
+			}
+		},
+		[directMessage?.type, selectedFriendDefault, currentUserId]
+	);
 
 	const handleMenuThreadBack = () => {
 		navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
@@ -182,7 +193,6 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 					</View>
 
 					<View style={styles.contentWrapper}>
-						{/* TODO: update later - autocomplete input */}
 						<View style={styles.searchFriend}>
 							<Feather size={18} name="search" color={themeValue.text} />
 							<TextInput
