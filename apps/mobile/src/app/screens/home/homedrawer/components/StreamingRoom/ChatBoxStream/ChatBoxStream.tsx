@@ -40,7 +40,7 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 				style={[StyleSheet.absoluteFillObject]}
 			/>
 			<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
-				<View style={{ flex: 1 }}>
+				<View style={styles.messageContainer}>
 					<ChannelMessages
 						channelId={currentChannel?.channel_id}
 						clanId={currentChannel?.clan_id}

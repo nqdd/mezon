@@ -126,7 +126,7 @@ export const RenderVideoChat = React.memo(
 						<Image source={{ uri: thumbnailPreview || '' }} style={styles.video} />
 					)}
 					<View style={styles.iconFlagVideo}>
-						<Entypo size={size.s_16} name="video" style={{ color: '#ffffff' }} />
+						<Entypo size={size.s_16} name="video" style={styles.iconFlagVideoColor} />
 					</View>
 				</>
 			);
@@ -145,7 +145,7 @@ export const RenderVideoChat = React.memo(
 						)}
 
 						<View style={styles.iconPlayVideo}>
-							<Entypo size={size.s_40} name="controller-play" style={{ color: '#eaeaea' }} />
+							<Entypo size={size.s_40} name="controller-play" style={styles.iconPlayVideoColor} />
 						</View>
 					</TouchableOpacity>
 				)}

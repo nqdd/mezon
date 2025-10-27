@@ -18,7 +18,7 @@ const AttachmentFilePreview = ({ attachment }: IProps) => {
 	return (
 		<View style={[styles.fileViewer, { backgroundColor: themeValue.secondaryLight }]}>
 			<MezonIconCDN icon={IconCDN.fileIcon} width={verticalScale(30)} height={verticalScale(30)} color={'#5a62f4'} />
-			<View style={{ maxWidth: '75%' }}>
+			<View style={styles.fileContentWrapper}>
 				<Text style={[styles.fileName, { color: themeValue.text }]} numberOfLines={1}>
 					{abbreviateText(attachment.filename)}
 				</Text>

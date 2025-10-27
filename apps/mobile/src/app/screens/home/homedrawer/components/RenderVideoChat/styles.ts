@@ -37,12 +37,20 @@ export const style = (isUploading: boolean, imageWidth: number, imageHeight: num
             alignItems: 'center'
         },
 
+        iconPlayVideoColor: {
+            color: '#eaeaea'
+        },
+
         iconFlagVideo: {
             position: 'absolute',
             top: size.s_8,
             right: size.s_8,
             borderRadius: size.s_12,
             padding: size.s_4
+        },
+
+        iconFlagVideoColor: {
+            color: '#ffffff'
         },
 
         skeleton: {

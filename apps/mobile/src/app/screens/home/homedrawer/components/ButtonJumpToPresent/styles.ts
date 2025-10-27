@@ -8,7 +8,7 @@ export const style = (colors: Attributes) =>
 			right: size.s_10,
 			bottom: size.s_28,
 			backgroundColor: colors.secondaryLight,
-			borderColor: colors.secondaryLight,
+			borderColor: colors.primary,
 			borderWidth: 1,
 			width: size.s_40,
 			height: size.s_40,
