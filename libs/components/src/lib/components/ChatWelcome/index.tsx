@@ -311,10 +311,15 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 				deleteFriend(username, userID);
 				break;
 			default:
-				addFriend({
-					ids: [userID],
-					usernames: [username]
-				});
+				addFriend(
+					userID
+						? {
+								ids: [userID]
+							}
+						: {
+								usernames: [username]
+							}
+				);
 		}
 	};
 
