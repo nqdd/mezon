@@ -147,7 +147,7 @@ const WelComeChannel = (props: WelComeChannelProps) => {
 				{isChatStream ? <Icons.Chat defaultSize="w-10 h-10 " /> : <Icons.Hashtag defaultSize="w-10 h-10" />}
 			</div>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">
 					{t('welcome.welcomeToChannel', { channelName: name })}
 				</p>
 			</div>
@@ -183,7 +183,7 @@ const WelcomeChannelThread = (props: WelcomeChannelThreadProps) => {
 				)}
 			</div>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">
 					{isShowCreateThread ? name : currentThread?.channel_label}
 				</p>
 			</div>
@@ -224,9 +224,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 				classNameText="!text-4xl font-semibold"
 			/>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
-					{name}
-				</p>
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">{name}</p>
 			</div>
 			{!isDmGroup && <p className="font-medium text-2xl text-theme-primary">{username}</p>}
 			<div className="text-base">

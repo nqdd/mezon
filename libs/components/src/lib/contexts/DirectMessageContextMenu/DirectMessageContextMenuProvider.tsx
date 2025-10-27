@@ -261,10 +261,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 							) : shouldShowMuteSubmenu ? (
 								<Submenu
 									label={
-										<span
-											className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover  "
-											style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 6 }}
-										>
+										<span className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1.5">
 											{nameChildren}
 										</span>
 									}
