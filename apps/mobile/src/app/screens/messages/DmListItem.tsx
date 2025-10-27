@@ -1,4 +1,4 @@
-import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID, validLinkGoogleMapRegex } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
 import {
@@ -10,23 +10,41 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
+import { isValidUrl } from '@mezon/transport';
 import type { IExtendedMessage } from '@mezon/utils';
-import { createImgproxyUrl } from '@mezon/utils';
+import { createImgproxyUrl, EMimeTypes } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import React, { useCallback, useMemo } from 'react';
+import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
 import BuzzBadge from '../../components/BuzzBadge/BuzzBadge';
 import ImageNative from '../../components/ImageNative';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import { formatDuration } from '../../utils/helpers';
 import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 import { UserStatusDM } from './UserStatusDM';
+
+export const getMediaDuration = async (url) => {
+  if (Platform.OS === 'ios') {
+    return '';
+  }
+
+  try {
+    const durationSec = await NativeModules?.VideoThumbnail.getMediaDuration(url);
+    return formatDuration(durationSec);
+  } catch (e) {
+    console.error('Error getMediaDuration:', e);
+    return '';
+  }
+};
+
 
 export const DmListItem = React.memo((props: { id: string }) => {
 	const { themeValue } = useTheme();
@@ -40,6 +58,9 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const senderId = directMessage?.last_sent_message?.sender_id;
+
+	const [attachmentContent, setAttachmentContent] = useState<string>('');
+	
 	const isYourAccount = useMemo(() => {
 		const userId = load(STORAGE_MY_USER_ID);
 		return userId?.toString() === senderId?.toString();
@@ -92,6 +113,67 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		return '';
 	}, [isYourAccount, otherMemberList, senderId, t]);
 
+	const getLastMessageAttachmentContent = useCallback(async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string) => {
+		const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
+		if (isGoogleMapsLink) {
+			return `[${t('attachments.location')}]`;
+		}
+		if (isLinkMessage) {
+			return `[${t('attachments.link')}] ${text}`;
+		}
+		
+		const fileName = attachment?.filename;
+		const fileType = attachment?.filetype;
+		const url = attachment?.url;
+
+		const type = fileType?.split('/')?.[0];
+
+		switch (type) {
+			case 'image': {
+				if (url?.includes(EMimeTypes.tenor)) {
+					return `[${t('attachments.gif')}]`;
+				}
+				if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
+					return `[${t('attachments.sticker')}]`;
+				}
+				return `[${t('attachments.image')}]`;
+			}
+			case 'video': {
+				const duration = await getMediaDuration(url);
+				return `[${t('attachments.video')}]${duration ? ' ' + duration : ''}`;
+			}
+			case 'audio': {
+				const duration = await getMediaDuration(url);
+				return `[${t('attachments.audio')}]${duration ? ' ' + duration : ''}`;
+			}
+			case 'application':
+			case 'text':
+				return `[${t('attachments.file')}] ${fileName || ''}`;
+			default:
+				return `[${t('attachments.file')}]`;
+		}
+	}, [t]);
+
+	useEffect(() => {
+		const resolveAttachmentContent = async () => {
+			const content = directMessage?.last_sent_message?.content;
+
+			const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
+			const attachment = directMessage?.last_sent_message?.attachment;
+			const attachementToResolve = typeof attachment === 'object' ? attachment : safeJSONParse(attachment);
+			const isLinkMessage = isValidUrl(text);
+
+			if (attachementToResolve?.[0] || isLinkMessage) {
+				const resolved = await getLastMessageAttachmentContent(attachementToResolve[0], isLinkMessage, text);
+				setAttachmentContent(resolved);
+			} else {
+				setAttachmentContent('');
+			}
+		};
+
+		resolveAttachmentContent();
+	}, [directMessage?.last_sent_message?.content, directMessage?.last_sent_message?.attachment, getLastMessageAttachmentContent]);
+
 	const getLastMessageContent = (content: string | IExtendedMessage) => {
 		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') {
 			if (isTypeDMGroup) {
@@ -107,8 +189,9 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			}
 		}
 		const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
+		const isLinkMessage = isValidUrl(text);
 
-		if (!text) {
+		if (!text || isLinkMessage) {
 			return (
 				<View style={styles.contentMessage}>
 					<Text
@@ -120,8 +203,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						numberOfLines={1}
 					>
 						{renderLastMessageContent}
-						{'attachment '}
-						<MezonIconCDN icon={IconCDN.attachmentIcon} width={13} height={13} color={'#c7c7c7'} />
+						{attachmentContent}
 					</Text>
 				</View>
 			);
