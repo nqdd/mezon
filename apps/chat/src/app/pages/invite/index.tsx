@@ -105,8 +105,7 @@ export default function InvitePage() {
 				<div className="text-center mb-4 w-full">
 					<p className="text-sm mb-1">{t('invite.invitedToJoin')}</p>
 					<h1
-						className="text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
-						style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+						className="truncate text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
 						title={selectInvite?.clan_name || t('invite.defaultClanName')}
 					>
 						{selectInvite?.clan_name || t('invite.defaultClanName')}

@@ -306,8 +306,7 @@ const DirectMessage = () => {
 						<div className="flex-shrink-0 flex flex-col bg-theme-chat  h-auto relative">
 							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (isDmWithoutParticipants || isBlocked) ? (
 								<div
-									style={{ height: 44 }}
-									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
+									className="h-11 opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
 									data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 								>
 									You do not have permission to send message

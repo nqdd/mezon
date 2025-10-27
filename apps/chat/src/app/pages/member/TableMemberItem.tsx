@@ -245,9 +245,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 											</div>
 										}
 									>
-										<span className="text-xs font-medium px-1 cursor-pointer" style={{ lineHeight: '15px' }}>
-											+{userRolesClan.length - 1}
-										</span>
+										<span className="text-xs font-medium px-1 cursor-pointer leading-[15px]">+{userRolesClan.length - 1}</span>
 									</Tooltip>
 								</span>
 							)}
@@ -337,8 +335,7 @@ const ListOptionRole = ({
 						style={{ backgroundColor: rolesClanEntity[key].color || DEFAULT_ROLE_COLOR }}
 					/>
 					<span
-						className="text-xs font-medium px-1 truncate flex-1 text-theme-primary"
-						style={{ lineHeight: '15px' }}
+						className="text-xs font-medium px-1 truncate flex-1 text-theme-primary leading-[15px]"
 						data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.role_name')}
 					>
 						{rolesClanEntity[key].title}

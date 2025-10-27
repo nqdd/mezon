@@ -75,6 +75,8 @@ function useChannelSeen(channelId: string) {
 	}, [channelId, currentChannel, dispatch, isFocus]);
 	const { markAsReadSeen } = useSeenMessagePool();
 	const handleReadMessage = useCallback(() => {
+		console.log('lastMessage');
+
 		if (!lastMessage) {
 			return;
 		}
@@ -84,6 +86,7 @@ function useChannelSeen(channelId: string) {
 				: ChannelStreamMode.STREAM_MODE_THREAD;
 
 		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
+			console.log('markAsReadSeen');
 			markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
 		}
 	}, [lastMessage, currentChannel, markAsReadSeen]);
@@ -180,8 +183,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	if (!canSendMessageDelayed) {
 		return (
 			<div
-				style={{ height: 44 }}
-				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
 				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
 				{t('noPermissionToSendMessage')}

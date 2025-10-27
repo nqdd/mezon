@@ -115,7 +115,7 @@ function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 			onMouseMove={handleMouseMoveOrClick}
 			onClick={handleMouseMoveOrClick}
 		>
-			<div className="custom-video-container w-full h-full" style={{ position: 'relative' }}>
+			<div className="custom-video-container w-full h-full relative">
 				{!isRemoteVideoStream && (
 					<img
 						src={currentChannel?.channel_avatar || 'assets/images/flahstream.png'}
@@ -124,17 +124,13 @@ function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 					/>
 				)}
 				<video
-					className="custom-video w-full h-full object-contain"
+					className={`custom-video w-full h-full object-contain ${isRemoteVideoStream ? 'block' : 'hidden'}`}
 					ref={videoRef}
 					autoPlay
 					playsInline
 					controls={false}
-					style={{
-						display: isRemoteVideoStream ? 'block' : 'none'
-					}}
 				/>
-			</div>
-
+			</div>{' '}
 			{/* {isLoading && (
 				<div className="absolute top-0 left-0 w-full h-full bg-gray-400 flex justify-center items-center text-white text-xl z-50">
 					Loading...
@@ -145,7 +141,6 @@ function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 					Cannot play video. Please try again later.
 				</div>
 			)}
-
 			<div
 				className={`bg-black bg-opacity-50 absolute bottom-0 flex items-center w-full justify-between p-2 transition-transform duration-300 ease-in-out ${showControls ? 'translate-y-0' : 'translate-y-full'}`}
 			>
