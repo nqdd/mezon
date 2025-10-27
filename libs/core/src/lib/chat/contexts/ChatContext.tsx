@@ -4,7 +4,6 @@ import type { ActivitiesEntity, AttachmentEntity, ChannelsEntity, RootState, Thr
 import {
 	DMCallActions,
 	EMarkAsReadType,
-	EStateFriend,
 	accountActions,
 	acitvitiesActions,
 	appActions,
@@ -2190,14 +2189,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onblockfriend = useCallback(
 		(blockFriend: BlockFriend) => {
-			if (!blockFriend?.user_id || !userId) {
+			if (!blockFriend?.user_id) {
 				return;
 			}
 			dispatch(
 				friendsActions.updateFriendState({
 					userId: blockFriend.user_id,
-					friendState: EStateFriend.BLOCK,
-					sourceId: userId
+					sourceId: blockFriend.user_id
 				})
 			);
 		},
@@ -2211,8 +2209,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			}
 			dispatch(
 				friendsActions.updateFriendState({
-					userId: unblockFriend.user_id,
-					friendState: EStateFriend.FRIEND
+					userId: unblockFriend.user_id
 				})
 			);
 		},
