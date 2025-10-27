@@ -842,6 +842,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(listChannelsByUserActions.remove(userID));
 					dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: user.channel_id, clanId: user.clan_id }));
 					dispatch(directMetaActions.remove(user.channel_id));
+					dispatch(
+						appActions.clearHistoryChannel({
+							channelId: user.channel_id,
+							clanId: clanId as string
+						})
+					);
 				} else {
 					if (user.channel_type === ChannelType.CHANNEL_TYPE_GROUP) {
 						dispatch(directActions.removeGroupMember({ userId: userID, currentUserId: userId as string, channelId: user.channel_id }));
@@ -885,6 +891,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
+					dispatch(appActions.cleanHistoryClan(user.clan_id));
 				} else {
 					dispatch(
 						channelMembersActions.removeUserByUserIdAndClan({
@@ -1537,6 +1544,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				navigate(`/chat/direct/friends`);
 				dispatch(clansSlice.actions.removeByClanID(clanDelete.clan_id));
 			}
+			dispatch(appActions.cleanHistoryClan(clanDelete.clan_id));
 		},
 		[userId]
 	);
@@ -1546,12 +1554,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const store = await getStoreAsync();
 			const currentChannelId = selectCurrentChannelId(store.getState() as unknown as RootState);
 			const clanId = selectCurrentClanId(store.getState());
-			const allThreads = selectAllThreads(store.getState());
-
-			const newAllThreads = allThreads.filter((thread) => thread.id !== channelDeleted.channel_id);
 
 			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
-
+			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 			const isVoiceJoined = selectVoiceInfo(store.getState());
 			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
 				//Leave Room If It's been deleted
