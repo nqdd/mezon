@@ -109,7 +109,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 	const handleAcceptFriend = async () => {
 		const store = await getStoreAsync();
 		const body = {
-			usernames: [userName],
+			usernames: [],
 			ids: [targetUserId],
 			isAcceptingRequest: true
 		};
