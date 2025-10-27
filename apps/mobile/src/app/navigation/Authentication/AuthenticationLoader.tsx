@@ -32,7 +32,7 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, NativeModules, Platform, StatusBar } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
@@ -88,7 +88,6 @@ export const AuthenticationLoader = () => {
 				setTimeout(() => {
 					loadFileSharing();
 					initFirebaseMessaging();
-					if (Platform.OS === 'ios') checkAndClearCacheImageIOS();
 				}, 100);
 				await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 				await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
@@ -422,18 +421,6 @@ export const AuthenticationLoader = () => {
 				'mezon.mobile.sharing'
 			);
 		} catch (error) {
-			/* empty */
-		}
-	};
-
-	const checkAndClearCacheImageIOS = async () => {
-		try {
-			const size = await NativeModules?.FastNativeImageViewManager?.getCacheSize?.();
-			const sizeInMB = size?.totalSize / (1024 * 1024);
-			if (Math.round(sizeInMB) >= 300) {
-				await NativeModules?.FastNativeImageViewManager?.clearCache?.();
-			}
-		} catch (e) {
 			/* empty */
 		}
 	};

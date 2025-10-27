@@ -85,5 +85,9 @@ export const style = (colors: Attributes) =>
 		scrollview: {
 			flexGrow: 1,
 			justifyContent: 'space-between'
+		},
+		contentContainer: {
+			margin: size.s_20,
+			flex: 1
 		}
 	});

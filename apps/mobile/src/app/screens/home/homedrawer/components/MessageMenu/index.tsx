@@ -203,7 +203,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 			title: t('menu.closeDm'),
 			isShow: !isGroup,
 			icon: <MezonIconCDN icon={IconCDN.closeDMIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_4 }} />,
-			textStyle: { marginLeft: -size.s_2 }
+			textStyle: styles.menuTextMarginLeft
 		},
 		{
 			onPress: infoFriend?.state === EStateFriend.FRIEND ? handleDeleteFriend : handleAddFriend,
@@ -327,10 +327,10 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 			<View style={styles.header}>
 				{isGroup ? (
 					messageInfo?.channel_avatar && !messageInfo?.channel_avatar?.includes('avatar-group.png') ? (
-						<View style={{ width: size.s_60, height: size.s_60, borderRadius: size.s_30, overflow: 'hidden' }}>
+						<View style={styles.groupAvatarContainer}>
 							<ImageNative
 								url={createImgproxyUrl(messageInfo?.channel_avatar ?? '')}
-								style={{ width: '100%', height: '100%' }}
+								style={styles.imageFullSize}
 								resizeMode={'cover'}
 							/>
 						</View>

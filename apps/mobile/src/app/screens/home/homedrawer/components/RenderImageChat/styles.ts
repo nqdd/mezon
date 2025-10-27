@@ -31,5 +31,9 @@ export const style = (colors: Attributes) =>
 			color: '#fff',
 			fontSize: 20,
 			fontWeight: 'bold'
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

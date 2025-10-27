@@ -1,7 +1,8 @@
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import LottieView from 'lottie-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
 import Sound from 'react-native-sound';
 import { WAY_AUDIO } from '../../../../../../assets/lottie';
@@ -100,11 +101,7 @@ const RenderAudioChat = React.memo(
 
 		return (
 			<View style={styles.wrapper}>
-				<TouchableOpacity
-					onPress={isPlaying ? pauseSound : playSound}
-					activeOpacity={0.6}
-					style={{ ...styles.container, ...stylesContainerCustom }}
-				>
+				<TouchableOpacity onPress={isPlaying ? pauseSound : playSound} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]}>
 					<View style={styles.innerContainer}>
 						<View style={styles.playButton}>
 							{isPlaying ? (
@@ -113,8 +110,8 @@ const RenderAudioChat = React.memo(
 								<MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />
 							)}
 						</View>
-						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={{ ...styles.soundLottie, ...styleLottie }} />
-						<Text style={[styles.currentTime, isPlaying && { opacity: 0 }]}>{`${formatTime(totalTime)}`}</Text>
+						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={[styles.soundLottie, styleLottie]} />
+						<Text style={[styles.currentTime, isPlaying && styles.currentTimeHidden]}>{`${formatTime(totalTime)}`}</Text>
 					</View>
 				</TouchableOpacity>
 			</View>

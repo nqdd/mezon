@@ -171,11 +171,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			{isTypeDMGroup ? (
 				directMessage?.channel_avatar && !directMessage?.channel_avatar?.includes('avatar-group.png') ? (
 					<View style={styles.groupAvatarWrapper}>
-						<ImageNative
-							url={createImgproxyUrl(directMessage?.channel_avatar ?? '')}
-							style={{ width: '100%', height: '100%' }}
-							resizeMode={'cover'}
-						/>
+						<ImageNative url={createImgproxyUrl(directMessage?.channel_avatar ?? '')} style={styles.imageFullSize} resizeMode={'cover'} />
 					</View>
 				) : (
 					<View style={styles.groupAvatar}>
@@ -188,7 +184,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						<View style={styles.friendAvatar}>
 							<ImageNative
 								url={createImgproxyUrl(directMessage?.avatars?.[0] ?? '', { width: 50, height: 50, resizeType: 'fit' })}
-								style={{ width: '100%', height: '100%' }}
+								style={styles.imageFullSize}
 								resizeMode={'cover'}
 							/>
 						</View>
@@ -208,7 +204,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 				</View>
 			)}
 
-			<View style={{ flex: 1 }}>
+			<View style={styles.flexOne}>
 				<View style={styles.messageContent}>
 					<Text
 						numberOfLines={1}

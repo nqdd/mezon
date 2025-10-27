@@ -46,5 +46,18 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			bottom: size.s_6,
 			right: size.s_10
+		},
+
+		menuContainer: {
+			padding: size.s_20
+		},
+
+		bannerImage: {
+			borderWidth: 0,
+			borderRadius: 0
+		},
+
+		avatarImage: {
+			borderWidth: 5
 		}
 	});

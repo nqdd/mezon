@@ -211,13 +211,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 									<TouchableOpacity onPress={() => handleAction(item.type)} disabled={!item?.isView}>
 										<View style={styles.actionItem}>
 											<View style={styles.actionTitleHeader}>
-												<Text
-													style={{
-														color: themeValue.white
-													}}
-												>
-													{item.actionTitle}
-												</Text>
+												<Text style={styles.actionItemText}>{item.actionTitle}</Text>
 												{!item?.isView && (
 													<MezonIconCDN
 														icon={IconCDN.lockIcon}
@@ -238,7 +232,7 @@ export const RoleDetail = ({ navigation, route }: MenuClanScreenProps<RoleDetail
 					</View>
 
 					{isCanEditRole && !isEveryoneRole && (
-						<View style={{ marginVertical: size.s_10 }}>
+						<View style={styles.deleteViewMargin}>
 							<TouchableOpacity onPress={() => deleteRole()}>
 								<View style={styles.deleteButton}>
 									<View style={styles.flex}>

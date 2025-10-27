@@ -84,7 +84,7 @@ const UserProfile = React.memo(
 		onClose,
 		onActionVoice,
 		checkAnonymous,
-		 messageAvatar,
+		messageAvatar,
 		showAction = true,
 		showRole = true,
 		currentChannel,
@@ -444,31 +444,11 @@ const UserProfile = React.memo(
 			<View style={[styles.wrapper]}>
 				<View style={[styles.backdrop, { backgroundColor: userById || user?.avatar_url ? color : baseColor.gray }]}>
 					{!isCheckOwner && (
-						<View style={{ flexDirection: 'row' }}>
-							<TouchableOpacity
-								onPress={iconFriend?.action}
-								style={{
-									position: 'absolute',
-									right: size.s_10,
-									top: size.s_10,
-									padding: size.s_6,
-									borderRadius: size.s_20,
-									backgroundColor: themeValue.primary
-								}}
-							>
+						<View style={styles.rowContainer}>
+							<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
 								<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
-							<TouchableOpacity
-								onPress={() => handleTransferFunds()}
-								style={{
-									position: 'absolute',
-									right: size.s_50,
-									top: size.s_10,
-									padding: size.s_6,
-									borderRadius: size.s_20,
-									backgroundColor: themeValue.primary
-								}}
-							>
+							<TouchableOpacity onPress={() => handleTransferFunds()} style={styles.transferFundsButton}>
 								<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
 						</View>
@@ -508,13 +488,13 @@ const UserProfile = React.memo(
 
 				<View style={[styles.container]}>
 					{manageVoiceUser?.isHavePermission && (
-						<View style={[styles.userInfo, { gap: size.s_10 }]}>
-							<Text style={[styles.title, { fontSize: size.medium }]}>{t('channelVoiceSettings')}</Text>
+						<View style={[styles.userInfo, styles.userInfoGap]}>
+							<Text style={[styles.title, styles.mediumFontSize]}>{t('channelVoiceSettings')}</Text>
 							<View style={styles.wrapManageVoice}>
 								{manageVoiceUser?.isShowMute && (
 									<TouchableOpacity
 										onPress={() => onActionVoice?.(IActionVoiceUser.MUTE)}
-										style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+										style={[styles.actionItem, styles.actionItemRow]}
 									>
 										<MezonIconCDN
 											icon={IconCDN.microphoneSlashIcon}
@@ -528,7 +508,7 @@ const UserProfile = React.memo(
 
 								<TouchableOpacity
 									onPress={() => onActionVoice?.(IActionVoiceUser.KICK)}
-									style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+									style={[styles.actionItem, styles.actionItemRow]}
 								>
 									<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.text} width={size.s_18} height={size.s_18} />
 									<Text style={[styles.actionText]}>{t('kickVoice')}</Text>
@@ -578,19 +558,13 @@ const UserProfile = React.memo(
 							</View>
 						)}
 						{EFriendState.ReceivedRequestFriend === infoFriend?.state && (
-							<View style={{ marginTop: size.s_16 }}>
+							<View style={styles.friendRequestContainer}>
 								<Text style={styles.receivedFriendRequestTitle}>{t('incomingFriendRequest')}</Text>
-								<View style={{ flexDirection: 'row', gap: size.s_10, marginTop: size.s_10 }}>
-									<TouchableOpacity
-										onPress={() => handleAcceptFriend()}
-										style={[styles.button, { backgroundColor: baseColor.green }]}
-									>
+								<View style={styles.friendRequestActions}>
+									<TouchableOpacity onPress={() => handleAcceptFriend()} style={[styles.button, styles.acceptButton]}>
 										<Text style={styles.defaultText}>{t('accept')}</Text>
 									</TouchableOpacity>
-									<TouchableOpacity
-										onPress={() => handleIgnoreFriend()}
-										style={[styles.button, { backgroundColor: baseColor.bgButtonSecondary }]}
-									>
+									<TouchableOpacity onPress={() => handleIgnoreFriend()} style={[styles.button, styles.ignoreButton]}>
 										<Text style={styles.defaultText}>{t('ignore')}</Text>
 									</TouchableOpacity>
 								</View>
@@ -611,7 +585,7 @@ const UserProfile = React.memo(
 								</View>
 							)}
 							{!!userById?.user?.about_me && (
-								<View style={{ paddingVertical: size.s_16 }}>
+								<View style={styles.aboutMeContainer}>
 									<Text style={[styles.aboutMe]}>{t('aboutMe.headerTitle')}</Text>
 									<Text style={[styles.aboutMeText]}>{userById?.user?.about_me}</Text>
 								</View>
@@ -623,22 +597,10 @@ const UserProfile = React.memo(
 										{userRolesClan?.map((role, index) => (
 											<View style={[styles.roleItem]} key={`${role.id}_${index}`}>
 												{role?.role_icon ? (
-													<ImageNative
-														url={role?.role_icon}
-														style={{
-															width: size.s_15,
-															height: size.s_15,
-															borderRadius: size.s_50
-														}}
-													/>
+													<ImageNative url={role?.role_icon} style={styles.roleIcon} />
 												) : (
 													<View
-														style={{
-															width: size.s_15,
-															height: size.s_15,
-															borderRadius: size.s_50,
-															backgroundColor: role?.color || DEFAULT_ROLE_COLOR
-														}}
+														style={[styles.roleColorDot, { backgroundColor: role?.color || DEFAULT_ROLE_COLOR }]}
 													></View>
 												)}
 												<Text style={[styles.textRole]} numberOfLines={1} ellipsizeMode="tail">

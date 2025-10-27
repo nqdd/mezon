@@ -242,7 +242,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 			<View style={styles.createChannelContent}>
 				<HeaderLeftThreadForm currentChannel={channelThreads || currentChannel} />
 				<ScrollView contentContainerStyle={styles.scrollview} keyboardShouldPersistTaps="handled">
-					<View style={{ margin: size.s_20, flex: 1 }}>
+					<View style={styles.contentContainer}>
 						<View style={styles.iconContainer}>
 							<MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 						</View>

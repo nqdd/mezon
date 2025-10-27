@@ -29,5 +29,8 @@ export const style = ({ textStrong }: Attributes) =>
 		container: {
 			padding: Metrics.size.xl,
 			paddingTop: 0
+		},
+		flexOne: {
+			flex: 1
 		}
 	});

@@ -1,4 +1,5 @@
 import localStorageMobile from '@react-native-async-storage/async-storage';
+import EventEmitter from 'events';
 import type { Client, Socket } from 'mezon-js';
 import { Session, safeJSONParse } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
@@ -20,6 +21,7 @@ const JITTER_RANGE = 1000;
 const FAST_RETRY_ATTEMPTS = 5;
 export const SESSION_STORAGE_KEY = 'mezon_session';
 export const SESSION_REFRESH_KEY = 'mezon_refresh_session';
+export const MobileEventSessionEmitter = new EventEmitter();
 
 const waitForNetworkAndDelay = async (delayMs: number): Promise<void> => {
 	if (!navigator.onLine) {
@@ -245,12 +247,18 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 				);
 
 				sessionRef.current = newSession;
-				if (typeof window !== 'undefined') {
-					window.dispatchEvent(
-						new CustomEvent('mezon:session-refreshed', {
-							detail: { session: newSession }
-						})
-					);
+				if (isFromMobile) {
+					MobileEventSessionEmitter.emit('mezon:session-refreshed', {
+						session: newSession
+					});
+				} else {
+					if (typeof window !== 'undefined') {
+						window.dispatchEvent(
+							new CustomEvent('mezon:session-refreshed', {
+								detail: { session: newSession }
+							})
+						);
+					}
 				}
 			}
 		};

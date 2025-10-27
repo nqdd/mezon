@@ -63,5 +63,18 @@ export const style = (colors: Attributes) =>
 		memberText: {
 			color: colors.white,
 			fontSize: Fonts.size.h7
+		},
+		menuTextMarginLeft: {
+			marginLeft: -size.s_2
+		},
+		groupAvatarContainer: {
+			width: size.s_60,
+			height: size.s_60,
+			borderRadius: size.s_30,
+			overflow: 'hidden'
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

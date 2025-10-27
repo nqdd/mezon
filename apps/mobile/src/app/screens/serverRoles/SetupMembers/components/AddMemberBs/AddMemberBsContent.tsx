@@ -13,6 +13,7 @@ import MezonInput from '../../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { normalizeString } from '../../../../../utils/helpers';
 import { MemberItem } from '../MemberItem';
+import { styles as localStyles } from './AddMemberBsContent.styles';
 
 interface IAddMemberBsContentProps {
 	memberList?: UsersClanEntity[];
@@ -74,38 +75,17 @@ export const AddMemberBsContent = memo((props: IAddMemberBsContentProps) => {
 		}
 	}, [updateRole, role?.clan_id, role?.id, role?.title, role?.color, selectedMemberIdList, onClose, t]);
 
+	const componentStyles = localStyles(themeValue);
+
 	return (
-		<View style={{ flex: 1, paddingHorizontal: size.s_15 }}>
-			<View style={{ marginBottom: size.s_14 }}>
-				<Text
-					style={{
-						fontSize: verticalScale(18),
-						textAlign: 'center',
-						color: themeValue.white
-					}}
-				>
-					{t('setupMember.addMember')}
-				</Text>
-				<Text
-					style={{
-						textAlign: 'center',
-						color: themeValue.text
-					}}
-				>
-					{role?.title}
-				</Text>
+		<View style={componentStyles.container}>
+			<View style={componentStyles.headerContainer}>
+				<Text style={componentStyles.title}>{t('setupMember.addMember')}</Text>
+				<Text style={componentStyles.roleTitle}>{role?.title}</Text>
 				{selectedMemberIdList?.length ? (
-					<View style={{ position: 'absolute', right: 0 }}>
-						<TouchableOpacity onPress={handleAddMemberToRole} style={{ padding: size.s_6 }}>
-							<Text
-								style={{
-									fontSize: verticalScale(13),
-									textAlign: 'center',
-									color: themeValue.bgViolet
-								}}
-							>
-								{t('setupMember.add')}
-							</Text>
+					<View style={componentStyles.addButtonContainer}>
+						<TouchableOpacity onPress={handleAddMemberToRole} style={componentStyles.addButton}>
+							<Text style={componentStyles.addButtonText}>{t('setupMember.add')}</Text>
 						</TouchableOpacity>
 					</View>
 				) : null}
@@ -129,14 +109,7 @@ export const AddMemberBsContent = memo((props: IAddMemberBsContentProps) => {
 				/>
 			) : (
 				<View>
-					<Text
-						style={{
-							textAlign: 'center',
-							color: themeValue.text
-						}}
-					>
-						{t('setupMember.noMembersFound')}
-					</Text>
+					<Text style={componentStyles.noMembersText}>{t('setupMember.noMembersFound')}</Text>
 				</View>
 			)}
 		</View>

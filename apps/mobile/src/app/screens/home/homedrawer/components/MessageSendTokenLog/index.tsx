@@ -26,13 +26,13 @@ const MessageSendTokenLog = memo(({ messageContent = ' | ' }: MessageSendTokenLo
 	};
 
 	return (
-		<View style={{ flexDirection: 'row' }}>
+		<View style={styles.wrapper}>
 			<View style={styles.container}>
 				<View style={styles.info}>
-					<View style={{ width: size.s_40 }}>
+					<View style={styles.iconContainer}>
 						<MezonIconCDN icon={IconCDN.transactionIcon} height={size.s_34} width={size.s_34} color={baseColor.bgSuccess} />
 					</View>
-					<View style={{ marginBottom: size.s_4, flexShrink: 1 }}>
+					<View style={styles.contentContainer}>
 						<Text style={styles.title}>{title}</Text>
 						<Text style={styles.transactionTitle}>
 							{'Detail: '}

@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ClansEntity, DirectEntity } from '@mezon/store-mobile';
+import type { ClansEntity, DirectEntity } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
@@ -225,19 +225,12 @@ export const RecentInteractiveSearch = React.memo(
 										<View style={styles.groupAvatarWrapper}>
 											<ImageNative
 												url={createImgproxyUrl(selectedChannel?.topic ?? '')}
-												style={{ width: '100%', height: '100%' }}
+												style={styles.groupAvatarImage}
 												resizeMode={'cover'}
 											/>
 										</View>
 									) : (
-										<FastImage
-											source={Images.AVATAR_GROUP}
-											style={{
-												width: size.s_18,
-												height: size.s_18,
-												borderRadius: size.s_18
-											}}
-										/>
+										<FastImage source={Images.AVATAR_GROUP} style={styles.avatarGroupImage} />
 									)
 								) : (
 									<MezonAvatar
@@ -320,7 +313,7 @@ export const RecentInteractiveSearch = React.memo(
 								styles={styles}
 							/>
 						}
-						contentStyle={{ minWidth: size.s_150, padding: 0, borderRadius: size.s_10, backgroundColor: themeValue.primary }}
+						contentStyle={[styles.tooltipContent, { backgroundColor: themeValue.primary }]}
 						arrowSize={{ width: 0, height: 0 }}
 						placement="bottom"
 						onClose={() => setIsVisibleToolTip(false)}

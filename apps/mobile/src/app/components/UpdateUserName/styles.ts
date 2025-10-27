@@ -176,5 +176,14 @@ export const style = () =>
 		errorContainer: {
 			paddingRight: size.s_16,
 			paddingLeft: size.s_2
+		},
+		keyboardAvoidingView: {
+			flex: 1
+		},
+		inputContainer: {
+			flex: 1
+		},
+		activityIndicator: {
+			zIndex: 10
 		}
 	});
