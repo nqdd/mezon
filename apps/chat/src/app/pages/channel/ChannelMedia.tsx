@@ -35,7 +35,7 @@ export const ChannelMedia = ({ currentChannel }: ChannelMediaProps) => {
 		);
 	}
 
-	return ChannelMessages?.Skeleton ? <ChannelMessages.Skeleton /> : null;
+	return null;
 };
 
 type KeyPressListenerProps = {
