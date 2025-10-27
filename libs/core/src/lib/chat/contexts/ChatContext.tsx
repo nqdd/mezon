@@ -441,7 +441,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						!isFocus;
 
 					if (isNotCurrentDirect) {
-						dispatch(directActions.openDirectMessage({ channelId: message.channel_id, clanId: message.clan_id || '' }));
+						//dispatch(directActions.openDirectMessage({ channelId: message.channel_id, clanId: message.clan_id || '' }));
 						dispatch(directMetaActions.setDirectLastSentTimestamp({ channelId: message.channel_id, timestamp }));
 						if (
 							((Array.isArray(message.mentions) && message.mentions.length === 0) ||
