@@ -71,7 +71,7 @@ const UpdateUserName = () => {
 			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 
 			<KeyboardAvoidingView
-				style={{ flex: 1 }}
+				style={styles.keyboardAvoidingView}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
@@ -82,7 +82,7 @@ const UpdateUserName = () => {
 					<View style={styles.inputSection}>
 						<View style={styles.inputWrapper}>
 							<MezonIconCDN icon={IconCDN.userIcon} width={size.s_20} height={size.s_20} color={'#454545'} />
-							<View style={{ flex: 1 }}>
+							<View style={styles.inputContainer}>
 								<TextInput
 									style={styles.emailInput}
 									placeholder={t('updateUsername.yourName')}
@@ -106,7 +106,7 @@ const UpdateUserName = () => {
 						disabled={!isFormValid || isLoading}
 					>
 						{isLoading ? (
-							<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
+							<ActivityIndicator size="small" color="#FFFFFF" style={styles.activityIndicator} />
 						) : (
 							<Text style={[styles.otpButtonText]}>{t('updateUsername.update')}</Text>
 						)}

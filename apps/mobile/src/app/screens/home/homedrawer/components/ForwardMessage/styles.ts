@@ -1,4 +1,4 @@
-import { baseColor, size } from '@mezon/mobile-ui';
+import { baseColor, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (themeValue: any) =>
@@ -67,5 +67,31 @@ export const style = (themeValue: any) =>
 			padding: size.s_10,
 			gap: size.s_6,
 			justifyContent: 'center'
+		},
+		container: {
+			flex: 1,
+			paddingHorizontal: size.s_16,
+			paddingTop: size.s_16
+		},
+		header: {
+			flexDirection: 'row',
+			justifyContent: 'center',
+			marginBottom: size.s_18
+		},
+		headerSide: {
+			flex: 1
+		},
+		headerTitle: {
+			fontSize: verticalScale(18),
+			color: themeValue.white
+		},
+		inputWrapper: {
+			backgroundColor: themeValue.primary,
+			paddingHorizontal: size.s_6
+		},
+		contentWrapper: {
+			marginTop: size.s_12,
+			marginBottom: size.s_12,
+			flex: 1
 		}
 	});

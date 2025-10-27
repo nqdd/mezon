@@ -155,5 +155,19 @@ export const style = (colors: Attributes) =>
 		},
 		activeTabTitle: {
 			color: 'white'
+		},
+		headerTitleText: {
+			fontSize: size.s_18,
+			marginLeft: 0,
+			marginRight: 0
+		},
+		containerView: {
+			flex: 1,
+			paddingHorizontal: size.s_12
+		},
+		loadingView: {
+			flex: 1,
+			justifyContent: 'center',
+			alignItems: 'center'
 		}
 	});

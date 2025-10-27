@@ -168,12 +168,12 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 	}));
 
 	return (
-		<KeyboardAvoidingView behavior={'position'} style={{ width: Dimensions.get('screen').width }}>
+		<KeyboardAvoidingView behavior={'position'} style={[styles.keyboardAvoidingView, { width: Dimensions.get('screen').width }]}>
 			<TouchableOpacity onPress={() => openBottomSheet()} style={styles.actionItem}>
 				<View style={[styles.clanAvatarWrapper]}>
 					<MezonClanAvatar image={selectedClan?.logo} alt={selectedClan?.clan_name} />
 				</View>
-				<View style={{ flex: 1 }}>
+				<View style={styles.clanNameWrapper}>
 					<Text style={styles.clanName}>{selectedClan?.clan_name}</Text>
 				</View>
 				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_15} width={size.s_15} color={themeValue.text} />
@@ -200,13 +200,11 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 					label={t('fields.clanName.label')}
 					errorMessage={isDuplicateClanNickname ? 'The nick name already exists in the clan. Please enter another nick name.' : ''}
 					isValid={!isDuplicateClanNickname}
-					inputWrapperStyle={{
-						backgroundColor: themeValue.primary
-					}}
+					inputWrapperStyle={[{ backgroundColor: themeValue.primary }]}
 				/>
 			</View>
 
-			<View style={{ height: 250 }} />
+			<View style={styles.spacer} />
 		</KeyboardAvoidingView>
 	);
 });

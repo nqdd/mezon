@@ -72,9 +72,9 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 	};
 
 	return (
-		<View style={{ width: '100%', paddingVertical: size.s_10, paddingHorizontal: size.s_10 }}>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-				<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexGrow: 1, flexShrink: 1 }}>
+		<View style={styles.container}>
+			<View style={styles.headerRow}>
+				<View style={styles.headerLeftContent}>
 					<TouchableOpacity
 						onPress={() => {
 							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -83,7 +83,7 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 					>
 						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
-					<Text numberOfLines={2} style={[styles.text, { flexGrow: 1, flexShrink: 1 }]}>
+					<Text numberOfLines={2} style={[styles.text, styles.textFlexible]}>
 						{channel?.channel_label}
 					</Text>
 				</View>
@@ -95,29 +95,19 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 						};
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 					}}
-					style={{
-						backgroundColor: themeValue.tertiary,
-						padding: size.s_8,
-						borderRadius: size.s_22
-					}}
+					style={styles.inviteButton}
 				>
 					<MezonIconCDN icon={IconCDN.userPlusIcon} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			</View>
-			<View style={{ alignItems: 'center', gap: size.s_6, marginTop: size.s_20 }}>
-				<View
-					style={{
-						paddingVertical: size.s_10,
-						justifyContent: 'center',
-						alignItems: 'center'
-					}}
-				>
+			<View style={styles.centerContent}>
+				<View style={styles.avatarContainer}>
 					{voiceChannelMembers?.length === 0 ? (
 						<View style={styles.iconVoice}>
 							<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
 						</View>
 					) : (
-						<View style={{ flexDirection: 'row' }}>
+						<View style={styles.avatarRow}>
 							{voiceChannelMembers?.slice?.(0, 3)?.map((m) => {
 								return <VoiceChannelAvatar key={`${m.user_id}_user_join_voice`} userId={m.user_id} />;
 							})}
@@ -141,7 +131,7 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 						</TouchableOpacity>
 					</View>
 					<TouchableOpacity onPress={handleShowChat}>
-						<View style={[styles.controlContainer, { backgroundColor: themeValue.tertiary }]}>
+						<View style={[styles.controlContainer, styles.controlContainerTertiary]}>
 							<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 						</View>
 					</TouchableOpacity>

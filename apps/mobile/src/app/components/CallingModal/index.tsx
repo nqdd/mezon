@@ -228,8 +228,8 @@ const CallingModal = () => {
 
 	return (
 		<View style={styles.centeredView}>
-			<View style={{ flex: 1, paddingRight: size.s_10 }}>
-				<View style={{ alignItems: 'center', flexDirection: 'row' }}>
+			<View style={styles.headerContainer}>
+				<View style={styles.headerRow}>
 					<Text numberOfLines={1} style={styles.headerTitle}>
 						{t('callLog.incomingCall')}
 					</Text>
@@ -245,7 +245,7 @@ const CallingModal = () => {
 					{callerInfo?.name || callerInfo?.user?.username || ''}
 				</Text>
 			</View>
-			<View style={{ gap: size.s_10, flexDirection: 'row' }}>
+			<View style={styles.buttonContainer}>
 				<TouchableOpacity onPress={onDeniedCall} style={[styles.btnControl, styles.btnDenied]}>
 					<MezonIconCDN icon={IconCDN.closeLargeIcon} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>

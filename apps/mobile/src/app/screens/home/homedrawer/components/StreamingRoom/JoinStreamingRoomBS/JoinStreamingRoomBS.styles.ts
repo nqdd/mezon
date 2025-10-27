@@ -60,5 +60,18 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			paddingHorizontal: size.s_16,
 			alignItems: 'center'
+		},
+		outerContainer: {
+			width: '100%',
+			paddingVertical: size.s_10,
+			paddingHorizontal: size.s_10
+		},
+		topButtonsRow: {
+			flexDirection: 'row',
+			justifyContent: 'space-between'
+		},
+		centerContent: {
+			alignItems: 'center',
+			gap: size.s_6
 		}
 	});

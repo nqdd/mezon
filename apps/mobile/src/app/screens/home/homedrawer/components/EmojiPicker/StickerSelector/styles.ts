@@ -85,5 +85,17 @@ export const style = (colors: Attributes, widthScreen: number) =>
 		},
 		chevronIcon: {
 			marginTop: size.s_10
+		},
+		scrollViewContainer: {
+			paddingBottom: size.s_10 * 2
+		},
+		btnEmoActive: {
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		btnEmoImageFull: {
+			height: '100%',
+			width: '100%'
 		}
 	});

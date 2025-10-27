@@ -378,7 +378,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				<Text style={styles.serverName}>{channel?.channel_label}</Text>
 			</View>
 
-			<View style={{ flex: 1 }}>
+			<View style={styles.flexOne}>
 				<MezonMenu menu={isChannel ? mainChannelMenu : mainThreadMenu} />
 			</View>
 		</View>

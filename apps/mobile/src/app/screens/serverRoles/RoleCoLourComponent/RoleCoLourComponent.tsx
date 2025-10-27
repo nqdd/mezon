@@ -59,12 +59,12 @@ function RoleCoLourComponent({ roleId, disable = false }: { roleId: string; disa
 	return (
 		<View>
 			<TouchableOpacity onPress={onPresentBS} style={styles.roleButton} disabled={disable}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_6 }}>
+				<View style={styles.labelContainer}>
 					<Text style={styles.textBtn}>{t('roleColorPicker.textBtnRole')}</Text>
 					{disable && <MezonIconCDN icon={IconCDN.lockIcon} color={themeValue.textDisabled} height={size.s_16} width={size.s_16} />}
 				</View>
-				<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-					<View style={{ width: size.s_40, height: size.s_40, backgroundColor: roleColorSelected, borderRadius: size.s_6 }}></View>
+				<View style={styles.colorContainer}>
+					<View style={[styles.colorBox, { backgroundColor: roleColorSelected }]}></View>
 					<Text style={styles.colorText}>{activeRole?.color ?? ''}</Text>
 					{!disable && <MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.text} />}
 				</View>

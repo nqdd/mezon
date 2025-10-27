@@ -246,7 +246,7 @@ const ImageRenderer = React.memo(
 						url={imageProxyObj?.url}
 						urlOriginal={image?.url}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 					/>
 				) : (
 					<FastImage
@@ -256,7 +256,7 @@ const ImageRenderer = React.memo(
 							cache: FastImage.cacheControl.immutable
 						}}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 						onError={() => onError(new Error(`FastImage load failed for ${imageProxyObj?.url}`))}
 					/>
 				)}

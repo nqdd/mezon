@@ -160,11 +160,11 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 	const renderListFooter = useCallback(() => {
 		if (!paginationState?.isLoading) return null;
 		return (
-			<View style={{ paddingVertical: size.s_16, alignItems: 'center', justifyContent: 'center' }}>
+			<View style={styles.listFooter}>
 				<ActivityIndicator size="small" />
 			</View>
 		);
-	}, [paginationState?.isLoading]);
+	}, [paginationState?.isLoading, styles]);
 
 	const getItemLayout = useCallback(
 		(data: any, index: number) => {

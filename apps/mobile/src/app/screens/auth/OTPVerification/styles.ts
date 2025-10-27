@@ -140,5 +140,14 @@ export const style = () =>
 		inputError: {
 			borderColor: '#ca0000',
 			backgroundColor: 'rgba(202,0,0,0.1)'
+		},
+		keyboardAvoidingView: {
+			flex: 1
+		},
+		otpInputContainer: {
+			alignSelf: 'center'
+		},
+		activityIndicator: {
+			zIndex: 10
 		}
 	});

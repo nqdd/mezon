@@ -1,6 +1,7 @@
 import { TouchableOpacity } from '@gorhom/bottom-sheet';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
-import { FriendsEntity, friendsActions, useAppDispatch } from '@mezon/store-mobile';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
+import { friendsActions, useAppDispatch } from '@mezon/store-mobile';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ import MezonAvatar from '../../../../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
 import { SeparatorWithLine } from '../../../../../../../components/Common';
 import { IconCDN } from '../../../../../../../constants/icon_cdn';
+import { styles } from './index.styles';
 interface IPendingContentProps {
 	targetUser: FriendsEntity;
 	userName: string;
@@ -85,7 +87,7 @@ export const PendingContent = memo((props: IPendingContentProps) => {
 
 	return (
 		<View>
-			<View style={{ flexDirection: 'row', marginTop: size.s_15, padding: size.s_20, alignItems: 'center' }}>
+			<View style={styles.headerContainer}>
 				<MezonAvatar
 					width={size.s_34}
 					height={size.s_34}
@@ -94,28 +96,15 @@ export const PendingContent = memo((props: IPendingContentProps) => {
 					isBorderBoxImage={false}
 				/>
 
-				<View style={{ flex: 1 }}>
-					<Text
-						style={{
-							fontSize: verticalScale(16),
-							marginLeft: 0,
-							marginRight: 0,
-							textAlign: 'center',
-							alignItems: 'center',
-							alignContent: 'center',
-							justifyContent: 'center',
-							color: themeValue.white
-						}}
-					>
-						{userName}
-					</Text>
+				<View style={styles.userNameContainer}>
+					<Text style={[styles.userName, { color: themeValue.white }]}>{userName}</Text>
 				</View>
 
 				<TouchableOpacity onPress={() => onClose()}>
 					<MezonIconCDN icon={IconCDN.closeIcon} height={size.s_32} width={size.s_32} color={themeValue.text} />
 				</TouchableOpacity>
 			</View>
-			<View style={{ marginHorizontal: size.s_10, backgroundColor: themeValue.secondary, borderRadius: size.s_10 }}>
+			<View style={[styles.actionListContainer, { backgroundColor: themeValue.secondary }]}>
 				<FlatList
 					data={actionList}
 					keyExtractor={(item) => item.id.toString()}
@@ -125,7 +114,7 @@ export const PendingContent = memo((props: IPendingContentProps) => {
 						if (!isShow) return null;
 						return (
 							<TouchableOpacity onPress={action}>
-								<View style={{ padding: size.s_14 }}>
+								<View style={styles.actionItemContainer}>
 									<Text
 										style={{
 											color: isWarning ? baseColor.redStrong : themeValue.text

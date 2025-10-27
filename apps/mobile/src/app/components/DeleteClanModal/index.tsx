@@ -86,7 +86,7 @@ const DeleteClanModal = ({ isLeaveClan = false }: { isLeaveClan?: boolean }) => 
 							}
 							return [
 								...acc,
-								<Text key={index} style={{ fontWeight: 'bold' }}>
+								<Text key={index} style={styles.boldText}>
 									{currentClanName}
 								</Text>,
 								part
