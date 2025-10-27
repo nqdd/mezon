@@ -106,6 +106,7 @@ const ModalEditGroup: React.FC<ModalEditGroupProps> = ({
 				<div className="absolute inset-0 bg-black/50" onClick={onClose} />
 				<div
 					className={`relative flex flex-col bg-theme-setting-primary rounded-lg shadow-2xl overflow-hidden max-w-[440px] w-full mx-4 ${className}`}
+					data-e2e={generateE2eId('chat.direct_message.edit_group')}
 				>
 					<div className="flex items-center justify-between px-4 py-4 bg-theme-setting-nav">
 						<h2 className="font-semibold text-xl text-theme-primary select-none">{t('editGroup.title')}</h2>
