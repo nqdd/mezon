@@ -182,7 +182,8 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		setIsCheckForSystemMsg(false);
 		setIsAgeRestricted(ageRestrictedInit);
 		setIsE2ee(e2eeInit);
-	}, [topicInit, channelLabelInit, appUrlInit, ageRestrictedInit, e2eeInit]);
+		onDisplayLabelChange?.(channelLabelInit);
+	}, [topicInit, channelLabelInit, appUrlInit, ageRestrictedInit, e2eeInit, onDisplayLabelChange]);
 
 	const handleSave = useCallback(async () => {
 		const updatedAppUrl = appUrl === appUrlInit ? '' : appUrl;
