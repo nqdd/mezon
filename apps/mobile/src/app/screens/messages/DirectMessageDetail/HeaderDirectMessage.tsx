@@ -5,20 +5,21 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
 	DMCallActions,
+	EStateFriend,
 	directActions,
 	directMetaActions,
 	getStore,
 	groupCallActions,
 	messagesActions,
 	selectAllAccount,
-	selectBlockedUsersForMessage,
 	selectDmGroupCurrent,
+	selectFriendById,
 	selectLastMessageByChannelId,
 	selectLastSeenMessageStateByChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl, sleep } from '@mezon/utils';
+import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl } from '@mezon/utils';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
@@ -95,7 +96,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const { sendSignalingToParticipants } = useSendSignaling();
-	const listBlockedUser = useSelector(selectBlockedUsersForMessage);
+	const infoFriend = useSelector((state) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
 
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 	const { sendMessage } = useChatSending({ mode, channelOrDirect: currentDmGroup });
@@ -219,14 +220,11 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 	};
 
 	const isBlocked = useMemo(() => {
-		try {
-			if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
-			const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === currentDmGroup?.user_ids?.[0]);
-			return blockedUser;
-		} catch (e) {
-			return false;
-		}
-	}, [currentDmGroup, listBlockedUser]);
+		if (mode !== ChannelStreamMode.STREAM_MODE_DM) return false;
+		return (
+			infoFriend?.state === EStateFriend.BLOCK
+		);
+	}, [infoFriend?.source_id, infoFriend?.state, infoFriend?.user?.id]);
 
 	const headerOptions: IOption[] = [
 		{

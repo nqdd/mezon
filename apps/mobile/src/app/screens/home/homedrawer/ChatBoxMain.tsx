@@ -1,15 +1,15 @@
 import { ActionEmitEvent, load, save, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectBlockedUsersForMessage, selectDirectById } from '@mezon/store-mobile';
+import { useTheme } from '@mezon/mobile-ui';
+import { EStateFriend, selectDirectById, selectFriendById } from '@mezon/store-mobile';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { resetCachedMessageActionNeedToResolve } from '../../../utils/helpers';
+import { styles as stylesFn } from './ChatBoxMain.styles';
 import { ActionMessageSelected } from './components/ChatBox/ActionMessageSelected';
 import { ChatBoxBottomBar } from './components/ChatBox/ChatBoxBottomBar';
-import { styles as stylesFn } from './ChatBoxMain.styles';
 import { EMessageActionType } from './enums';
 import type { IMessageActionNeedToResolve } from './types';
 
@@ -34,15 +34,14 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	const isDM = useMemo(() => {
 		return [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(props?.mode);
 	}, [props?.mode]);
-	const listBlockedUser = useSelector(selectBlockedUsersForMessage);
-
+	const directMessage = useSelector((state) => selectDirectById(state, props.channelId));
+	const infoFriend = useSelector((state) => selectFriendById(state, directMessage?.user_ids?.[0] || ''));
 	const isBlocked = useMemo(() => {
 		if (props?.mode !== ChannelStreamMode.STREAM_MODE_DM) return false;
-		const store = getStore();
-		const directMessage = selectDirectById(store.getState(), props.channelId);
-		const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === (directMessage?.user_ids?.[0] || ''));
-		return blockedUser;
-	}, [props?.channelId, listBlockedUser]);
+		return (
+			infoFriend?.state === EStateFriend.BLOCK
+		);
+	}, [infoFriend?.source_id, infoFriend?.state, infoFriend?.user?.id]);
 
 	useEffect(() => {
 		if (props?.channelId && messageActionNeedToResolve) {
