@@ -40,7 +40,7 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 		}
 		if (!select?.min_options && !select?.max_options) {
 			setSelectedOptions([option]);
-			setAvailableOptions(select?.options.filter((o) => o.value !== option?.value));
+			setAvailableOptions(select?.options?.filter((o) => o.value !== option?.value));
 		} else {
 			setSelectedOptions((prev) => [...prev, option]);
 			setAvailableOptions((prev) => prev.filter((o) => o.value !== option?.value));
