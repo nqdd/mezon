@@ -5,6 +5,7 @@ import {
 	channelUsersActions,
 	directActions,
 	selectAllFriends,
+	selectCurrentUserId,
 	selectDirectById,
 	selectRawDataUserGroup,
 	useAppDispatch,
@@ -45,6 +46,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const [selectedFriendDefault, setSelectedFriendDefault] = useState<string[]>([]);
 	const currentDirectMessage = useRef(useAppSelector((state) => selectDirectById(state, directMessage?.id || '')));
 	const allUserGroupDM = useSelector((state) => selectRawDataUserGroup(state, directMessage?.id || ''));
+	const currentUserId = useSelector(selectCurrentUserId);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser.filter((user) => user.state === 0);
@@ -76,10 +78,15 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 
 	const onSelectedChange = useCallback(
 		(friendIdSelected: string[]) => {
-			const newMembers = friendIdSelected?.filter((userId) => !selectedFriendDefault?.includes(userId));
-			setFriendIdSelectedList(newMembers);
+			if (directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+				const newMembers = friendIdSelected?.filter((userId) => !selectedFriendDefault?.includes(userId));
+				setFriendIdSelectedList(newMembers);
+			} else {
+				const newMembers = friendIdSelected?.filter((userId) => userId !== currentUserId);
+				setFriendIdSelectedList(newMembers);
+			}
 		},
-		[selectedFriendDefault]
+		[directMessage?.type, selectedFriendDefault, currentUserId]
 	);
 
 	const handleMenuThreadBack = () => {
@@ -186,7 +193,6 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 					</View>
 
 					<View style={styles.contentWrapper}>
-						{/* TODO: update later - autocomplete input */}
 						<View style={styles.searchFriend}>
 							<Feather size={18} name="search" style={{ color: themeValue.text }} />
 							<TextInput
