@@ -129,7 +129,7 @@ export const fetchChannelAttachments = createAsyncThunk(
 
 			if (response.fromCache) {
 				return {
-					attachments: [],
+					attachments,
 					channelId,
 					fromCache: true
 				};
