@@ -161,11 +161,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const isOwnerClanOrGroup = userProfile?.user?.id && dataMemberCreate?.createId && userProfile?.user?.id === dataMemberCreate.createId;
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_ids?.[0] || currentUser?.id || ''));
 	const didIBlockUser = useMemo(() => {
-		return (
-			infoFriend?.state === EStateFriend.BLOCK &&
-			infoFriend?.source_id === userProfile?.user?.id &&
-			infoFriend?.user?.id === currentUser?.user_ids?.[0]
-		);
+		return infoFriend?.state === EStateFriend.BLOCK && infoFriend?.source_id === userProfile?.user?.id;
 	}, [currentUser?.user_ids, infoFriend, userProfile?.user?.id]);
 
 	const contextValue: DirectMessageContextMenuContextType = {
