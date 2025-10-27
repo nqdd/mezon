@@ -178,16 +178,6 @@ const ModalUserProfile = ({
 		if (!modalRef.current) onClose();
 	});
 
-	const placeholderUserName = useMemo(() => {
-		if (userById) {
-			return userById?.clan_nick || userById?.user?.display_name || userById?.user?.username;
-		}
-		if (userID === message?.sender_id) {
-			return message?.display_name || message?.username;
-		}
-		return message?.references?.[0].message_sender_display_name || message?.references?.[0].message_sender_username;
-	}, [userById, userID]);
-
 	const usernameShow = useMemo(() => {
 		if (isFooterProfile) {
 			return userProfile?.user?.username;
