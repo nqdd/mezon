@@ -1,6 +1,5 @@
-import localStorageMobile from '@react-native-async-storage/async-storage';
 import type { Client, Socket } from 'mezon-js';
-import { Session, safeJSONParse } from 'mezon-js';
+import { Session } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
 import type { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse, ApiSession } from 'mezon-js/dist/api.gen';
 import type { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
@@ -19,7 +18,6 @@ const MAX_WEBSOCKET_RETRY_TIME = 30000;
 const JITTER_RANGE = 1000;
 const FAST_RETRY_ATTEMPTS = 5;
 export const SESSION_STORAGE_KEY = 'mezon_session';
-export const SESSION_REFRESH_KEY = 'mezon_refresh_session';
 
 const waitForNetworkAndDelay = async (delayMs: number): Promise<void> => {
 	if (!navigator.onLine) {
@@ -58,11 +56,6 @@ type Sessionlike = {
 	user_id?: string;
 };
 
-type LocalRefreshSession = {
-	token: string;
-	refresh_token: string;
-};
-
 const saveMezonConfigToStorage = (host: string, port: string, useSSL: boolean) => {
 	try {
 		localStorage.setItem(
@@ -91,7 +84,6 @@ export const clearSessionRefreshFromStorage = () => {
 		localStorage.removeItem(SESSION_STORAGE_KEY);
 	} catch (error) {
 		console.error('Failed to clear session from local storage:', error);
-		localStorageMobile.removeItem(SESSION_REFRESH_KEY);
 	}
 };
 
@@ -229,11 +221,6 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		clientRef.current = client;
 
 		client.onRefreshSession = (session: ApiSession) => {
-			try {
-				localStorage.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
-			} catch (e) {
-				localStorageMobile.setItem(SESSION_REFRESH_KEY, JSON.stringify(session));
-			}
 			if (session) {
 				const sessionData = session;
 				const newSession = new Session(
@@ -430,39 +417,13 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		[socketRef]
 	);
 
-	const getLocalRefreshToken = async (): Promise<LocalRefreshSession> => {
-		let mezonRefresh = {
-			token: '',
-			refresh_token: ''
-		};
-		try {
-			if (!isFromMobile) {
-				const storageStr = localStorage.getItem(SESSION_REFRESH_KEY) || '';
-				mezonRefresh = safeJSONParse(storageStr);
-			} else {
-				const storageStr = (await localStorageMobile.getItem(SESSION_REFRESH_KEY)) || '';
-				mezonRefresh = safeJSONParse(storageStr);
-			}
-			return mezonRefresh;
-		} catch (e) {
-			return mezonRefresh;
-		}
-	};
-
 	const refreshSession = useCallback(
 		async (session: Sessionlike) => {
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
 			}
 
-			const localRefresh = await getLocalRefreshToken();
-			const sessionObj = new Session(
-				localRefresh?.token || session?.token,
-				localRefresh?.refresh_token || session?.refresh_token,
-				session.created,
-				session.api_url,
-				session.is_remember
-			);
+			const sessionObj = new Session(session?.token, session?.refresh_token, session.created, session.api_url, session.is_remember);
 
 			if (session.expires_at) {
 				sessionObj.expires_at = session.expires_at;
@@ -482,13 +443,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			}
 
 			const newSession = await clientRef.current.sessionRefresh(
-				new Session(
-					localRefresh?.token || session?.token,
-					localRefresh?.refresh_token || session?.refresh_token,
-					session.created,
-					session.api_url,
-					session.is_remember
-				)
+				new Session(session?.token, session?.refresh_token, session.created, session.api_url, session.is_remember)
 			);
 
 			sessionRef.current = newSession;
