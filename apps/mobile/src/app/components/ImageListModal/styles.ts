@@ -65,5 +65,26 @@ export const style = (colors: Attributes) =>
 		},
 		savedImageText: {
 			color: 'white'
+		},
+		headerContainer: {
+			position: 'absolute',
+			left: 0,
+			zIndex: 1,
+			justifyContent: 'space-between',
+			flexDirection: 'row',
+			backgroundColor: 'rgba(0, 0, 0, 0.4)',
+			width: '100%',
+			padding: size.s_10,
+			alignItems: 'center'
+		},
+		headerLeftSection: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
+		},
+		uploaderSection: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_6
 		}
 	});

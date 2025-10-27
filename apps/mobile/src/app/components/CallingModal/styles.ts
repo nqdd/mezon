@@ -45,5 +45,17 @@ export const style = (colors: Attributes) =>
 			color: colors.white,
 			width: size.s_20,
 			height: size.s_20
+		},
+		headerContainer: {
+			flex: 1,
+			paddingRight: size.s_10
+		},
+		headerRow: {
+			alignItems: 'center',
+			flexDirection: 'row'
+		},
+		buttonContainer: {
+			gap: size.s_10,
+			flexDirection: 'row'
 		}
 	});

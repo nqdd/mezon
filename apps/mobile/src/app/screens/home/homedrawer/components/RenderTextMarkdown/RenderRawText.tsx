@@ -1,6 +1,7 @@
-import { size, useTheme, type Attributes } from '@mezon/mobile-ui';
+import { useTheme, type Attributes } from '@mezon/mobile-ui';
 import type { TFunction } from 'i18next';
 import { Text, View } from 'react-native';
+import { styles as rawTextStyles } from './RenderRawText.styles';
 import { markdownStyles } from './index';
 
 export type IRawTextProps = {
@@ -13,6 +14,7 @@ export type IRawTextProps = {
 
 export const RenderRawText = ({ text, isEdited, translate, isNumberOfLine, isBuzzMessage }: IRawTextProps) => {
 	const { themeValue } = useTheme();
+	const styles = rawTextStyles(themeValue);
 
 	const renderTextPlainContain = (themeValue: Attributes, text: string, isBuzzMessage: boolean) => {
 		const lines = text?.split('\n');
@@ -73,26 +75,11 @@ export const RenderRawText = ({ text, isEdited, translate, isNumberOfLine, isBuz
 		}
 	};
 	return (
-		<View
-			style={{
-				...(isNumberOfLine && {
-					flex: 1,
-					maxHeight: size.s_20 * 10 - size.s_10,
-					overflow: 'hidden'
-				})
-			}}
-		>
-			<View style={{ flexDirection: 'row', gap: size.s_6, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+		<View style={isNumberOfLine ? styles.numberLineContainer : undefined}>
+			<View style={styles.textPartsContainer}>
 				{renderTextPlainContain(themeValue, text, isBuzzMessage)}
 				{isEdited && (
-					<Text
-						key={`edited-${text}`}
-						style={{
-							fontSize: size.small,
-							color: themeValue.textDisabled,
-							marginTop: size.s_2
-						}}
-					>
+					<Text key={`edited-${text}`} style={styles.editedText}>
 						{translate('edited')}
 					</Text>
 				)}

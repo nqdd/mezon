@@ -109,7 +109,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 	const handleAcceptFriend = async () => {
 		const store = await getStoreAsync();
 		const body = {
-			usernames: [userName],
+			usernames: [],
 			ids: [targetUserId],
 			isAcceptingRequest: true
 		};
@@ -178,7 +178,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 					</View>
 				) : isDMGroup && groupDMAvatar ? (
 					<View style={styles.groupAvatar}>
-						<ImageNative url={createImgproxyUrl(groupDMAvatar ?? '')} style={{ width: '100%', height: '100%' }} resizeMode={'cover'} />
+						<ImageNative url={createImgproxyUrl(groupDMAvatar ?? '')} style={styles.imageFull} resizeMode={'cover'} />
 					</View>
 				) : currenChannel?.avatars?.[0] ? (
 					<MezonAvatar height={size.s_100} width={size.s_100} avatarUrl={currenChannel.avatars[0]} username={userName} />
@@ -197,7 +197,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 
 			{isDM ? (
 				<View>
-					<Text style={[styles.titleWelcomeMessage, isDMGroup && { textAlign: 'center' }]}>{currenChannel?.channel_label}</Text>
+					<Text style={[styles.titleWelcomeMessage, isDMGroup && styles.textAlignCenter]}>{currenChannel?.channel_label}</Text>
 					{!isDMGroup && <Text style={styles.subTitleUsername}>{userName}</Text>}
 					{isDMGroup ? (
 						<Text style={styles.subTitleWelcomeMessageCenter}>
@@ -215,7 +215,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 										<Text style={styles.buttonText}>{t('userAction.removeFriend')}</Text>
 									</TouchableOpacity>
 								) : infoFriend?.state === EStateFriend.OTHER_PENDING ? (
-									<View style={[styles.addFriendButton, { opacity: 0.6 }]}>
+									<View style={[styles.addFriendButton, styles.addFriendButtonOpacity]}>
 										<Text style={styles.buttonText}>{t('sendAddFriendSuccess')}</Text>
 									</View>
 								) : infoFriend?.state === EStateFriend.MY_PENDING ? (
@@ -256,7 +256,7 @@ const WelcomeMessage = React.memo(({ channelId }: IWelcomeMessage) => {
 			) : (
 				<View>
 					<Text style={styles.titleWelcomeMessage}>{currenChannel?.channel_label || ''}</Text>
-					<View style={{ flexDirection: 'row' }}>
+					<View style={styles.flexRow}>
 						<Text style={styles.subTitleWelcomeMessage}>{t('chatWelcome:welcome.startOfThread', { username: '' })}</Text>
 						<Text style={styles.subTitleWelcomeMessageWithHighlight}>{creatorUser?.user?.username || ''}</Text>
 					</View>

@@ -85,7 +85,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 				</View>
 				{isTabletLandscape && <ProfileBar />}
 			</View>
-			<View style={{ height: '100%', width: size.s_4 }} />
+			<View style={styles.separator} />
 			<View style={styles.containerDetailMessage}>
 				{currentDmGroupId ? <DirectMessageDetailTablet directMessageId={currentDmGroupId} /> : <FriendsTablet navigation={navigation} />}
 			</View>

@@ -1,13 +1,11 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
-import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import type { ChannelsEntity } from '@mezon/store-mobile';
 import { selectCurrentTopicInitMessage, selectFirstMessageOfCurrentTopic } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
-import { memo, useCallback, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
@@ -68,7 +66,7 @@ const TopicHeader = memo(({ handleBack }: TopicHeaderProps) => {
 					</Pressable>
 					<Text style={styles.title}>Topic</Text>
 				</View>
-				<View style={{ width: size.s_50 }} />
+				<View style={styles.spacer} />
 			</View>
 			{valueTopic && (
 				<View style={styles.userInfo}>

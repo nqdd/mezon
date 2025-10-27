@@ -84,7 +84,7 @@ const UserProfile = React.memo(
 		onClose,
 		onActionVoice,
 		checkAnonymous,
-		 messageAvatar,
+		messageAvatar,
 		showAction = true,
 		showRole = true,
 		currentChannel,
@@ -222,18 +222,20 @@ const UserProfile = React.memo(
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false
 				});
-				const directMessage = listDM?.find?.((dm) => {
-					const userIds = dm?.user_ids;
-					return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
-				});
-				if (directMessage?.id) {
-					if (isTabletLandscape) {
-						await dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
-						navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-					} else {
-						navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
+				if (!isCheckOwner) {
+					const directMessage = listDM?.find?.((dm) => {
+						const userIds = dm?.user_ids;
+						return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
+					});
+					if (directMessage?.id) {
+						if (isTabletLandscape) {
+							dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
+							navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+						} else {
+							navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
+						}
+						return;
 					}
-					return;
 				}
 				const response = await createDirectMessageWithUser(
 					userId,
@@ -245,10 +247,18 @@ const UserProfile = React.memo(
 				if (response?.channel_id) {
 					await checkNotificationPermissionAndNavigate(() => {
 						if (isTabletLandscape) {
-							dispatch(directActions.setDmGroupCurrentId(directMessage?.id || ''));
+							dispatch(directActions.setDmGroupCurrentId(response?.channel_id || ''));
 							navigation.navigate(APP_SCREEN.MESSAGES.HOME);
 						} else {
 							navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: response?.channel_id });
+						}
+					});
+				} else {
+					Toast.show({
+						type: 'error',
+						props: {
+							text2: t('friends:toast.somethingWentWrong'),
+							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 						}
 					});
 				}
@@ -256,9 +266,11 @@ const UserProfile = React.memo(
 			[
 				createDirectMessageWithUser,
 				dispatch,
+				isCheckOwner,
 				isTabletLandscape,
 				listDM,
 				navigation,
+				t,
 				user?.avatar_url,
 				user?.display_name,
 				user?.user?.avatar_url,
@@ -324,8 +336,8 @@ const UserProfile = React.memo(
 			},
 			[
 				createDirectMessageWithUser,
+				dispatch,
 				listDM,
-				navigation,
 				user?.avatar_url,
 				user?.display_name,
 				user?.user?.avatar_url,
@@ -381,11 +393,10 @@ const UserProfile = React.memo(
 		];
 
 		const handleAcceptFriend = () => {
-			const body = {
-				usernames: [infoFriend?.user?.username || ''],
+			const body = infoFriend?.user?.id ?  {
 				ids: [infoFriend?.user?.id || ''],
 				isAcceptingRequest: true
-			};
+			} : {usernames: [infoFriend?.user?.username || ''], isAcceptingRequest: true};
 			dispatch(friendsActions.sendRequestAddFriend(body));
 		};
 
@@ -444,31 +455,11 @@ const UserProfile = React.memo(
 			<View style={[styles.wrapper]}>
 				<View style={[styles.backdrop, { backgroundColor: userById || user?.avatar_url ? color : baseColor.gray }]}>
 					{!isCheckOwner && (
-						<View style={{ flexDirection: 'row' }}>
-							<TouchableOpacity
-								onPress={iconFriend?.action}
-								style={{
-									position: 'absolute',
-									right: size.s_10,
-									top: size.s_10,
-									padding: size.s_6,
-									borderRadius: size.s_20,
-									backgroundColor: themeValue.primary
-								}}
-							>
+						<View style={styles.rowContainer}>
+							<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
 								<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
-							<TouchableOpacity
-								onPress={() => handleTransferFunds()}
-								style={{
-									position: 'absolute',
-									right: size.s_50,
-									top: size.s_10,
-									padding: size.s_6,
-									borderRadius: size.s_20,
-									backgroundColor: themeValue.primary
-								}}
-							>
+							<TouchableOpacity onPress={() => handleTransferFunds()} style={styles.transferFundsButton}>
 								<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
 						</View>
@@ -508,13 +499,13 @@ const UserProfile = React.memo(
 
 				<View style={[styles.container]}>
 					{manageVoiceUser?.isHavePermission && (
-						<View style={[styles.userInfo, { gap: size.s_10 }]}>
-							<Text style={[styles.title, { fontSize: size.medium }]}>{t('channelVoiceSettings')}</Text>
+						<View style={[styles.userInfo, styles.userInfoGap]}>
+							<Text style={[styles.title, styles.mediumFontSize]}>{t('channelVoiceSettings')}</Text>
 							<View style={styles.wrapManageVoice}>
 								{manageVoiceUser?.isShowMute && (
 									<TouchableOpacity
 										onPress={() => onActionVoice?.(IActionVoiceUser.MUTE)}
-										style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+										style={[styles.actionItem, styles.actionItemRow]}
 									>
 										<MezonIconCDN
 											icon={IconCDN.microphoneSlashIcon}
@@ -528,7 +519,7 @@ const UserProfile = React.memo(
 
 								<TouchableOpacity
 									onPress={() => onActionVoice?.(IActionVoiceUser.KICK)}
-									style={[styles.actionItem, { flexDirection: 'row', gap: size.s_6 }]}
+									style={[styles.actionItem, styles.actionItemRow]}
 								>
 									<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.text} width={size.s_18} height={size.s_18} />
 									<Text style={[styles.actionText]}>{t('kickVoice')}</Text>
@@ -577,20 +568,22 @@ const UserProfile = React.memo(
 								})}
 							</View>
 						)}
+						{isCheckOwner && (
+							<View style={[styles.userAction]}>
+								<TouchableOpacity onPress={navigateToMessageDetail} style={[styles.actionItem]}>
+									<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
+									<Text style={[styles.actionText]}>{t('userAction.sendMessage')}</Text>
+								</TouchableOpacity>
+							</View>
+						)}
 						{EFriendState.ReceivedRequestFriend === infoFriend?.state && (
-							<View style={{ marginTop: size.s_16 }}>
+							<View style={styles.friendRequestContainer}>
 								<Text style={styles.receivedFriendRequestTitle}>{t('incomingFriendRequest')}</Text>
-								<View style={{ flexDirection: 'row', gap: size.s_10, marginTop: size.s_10 }}>
-									<TouchableOpacity
-										onPress={() => handleAcceptFriend()}
-										style={[styles.button, { backgroundColor: baseColor.green }]}
-									>
+								<View style={styles.friendRequestActions}>
+									<TouchableOpacity onPress={() => handleAcceptFriend()} style={[styles.button, styles.acceptButton]}>
 										<Text style={styles.defaultText}>{t('accept')}</Text>
 									</TouchableOpacity>
-									<TouchableOpacity
-										onPress={() => handleIgnoreFriend()}
-										style={[styles.button, { backgroundColor: baseColor.bgButtonSecondary }]}
-									>
+									<TouchableOpacity onPress={() => handleIgnoreFriend()} style={[styles.button, styles.ignoreButton]}>
 										<Text style={styles.defaultText}>{t('ignore')}</Text>
 									</TouchableOpacity>
 								</View>
@@ -611,7 +604,7 @@ const UserProfile = React.memo(
 								</View>
 							)}
 							{!!userById?.user?.about_me && (
-								<View style={{ paddingVertical: size.s_16 }}>
+								<View style={styles.aboutMeContainer}>
 									<Text style={[styles.aboutMe]}>{t('aboutMe.headerTitle')}</Text>
 									<Text style={[styles.aboutMeText]}>{userById?.user?.about_me}</Text>
 								</View>
@@ -623,22 +616,10 @@ const UserProfile = React.memo(
 										{userRolesClan?.map((role, index) => (
 											<View style={[styles.roleItem]} key={`${role.id}_${index}`}>
 												{role?.role_icon ? (
-													<ImageNative
-														url={role?.role_icon}
-														style={{
-															width: size.s_15,
-															height: size.s_15,
-															borderRadius: size.s_50
-														}}
-													/>
+													<ImageNative url={role?.role_icon} style={styles.roleIcon} />
 												) : (
 													<View
-														style={{
-															width: size.s_15,
-															height: size.s_15,
-															borderRadius: size.s_50,
-															backgroundColor: role?.color || DEFAULT_ROLE_COLOR
-														}}
+														style={[styles.roleColorDot, { backgroundColor: role?.color || DEFAULT_ROLE_COLOR }]}
 													></View>
 												)}
 												<Text style={[styles.textRole]} numberOfLines={1} ellipsizeMode="tail">

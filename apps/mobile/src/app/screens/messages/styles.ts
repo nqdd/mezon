@@ -304,5 +304,16 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 		activeDMGroupBackground: {
 			backgroundColor: colors.secondaryLight
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
+		},
+		flexOne: {
+			flex: 1
+		},
+		separator: {
+			height: '100%',
+			width: size.s_4
 		}
 	});

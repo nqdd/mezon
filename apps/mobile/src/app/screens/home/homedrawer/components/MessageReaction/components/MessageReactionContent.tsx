@@ -147,7 +147,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 					data={dataSenderEmojis}
 					renderItem={({ item, index }: { item: { sender_id: string; count: number }; index: number }) => {
 						return (
-							<View key={`${index}_${item.sender_id}_allReactionDataOnOneMessage`} style={{ marginBottom: size.s_10 }}>
+							<View key={`${index}_${item.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
 								<ReactionMember
 									userId={item.sender_id}
 									channelId={channelId}

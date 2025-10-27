@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { useSendForwardMessage } from '@mezon/core';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { baseColor, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity, MessagesEntity } from '@mezon/store-mobile';
 import {
 	getIsFowardAll,
@@ -256,7 +256,7 @@ const ForwardMessageScreen = () => {
 		<KeyboardAvoidingView
 			behavior="padding"
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-			style={{ flex: 1, paddingHorizontal: size.s_16, paddingTop: size.s_16 }}
+			style={styles.container}
 		>
 			<StatusBarHeight />
 			<LinearGradient
@@ -265,21 +265,14 @@ const ForwardMessageScreen = () => {
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: size.s_18 }}>
-				<View style={{ flex: 1 }}>
+			<View style={styles.header}>
+				<View style={styles.headerSide}>
 					<TouchableOpacity onPress={onClose}>
 						<MezonIconCDN icon={IconCDN.closeLargeIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 				</View>
-				<Text
-					style={{
-						fontSize: verticalScale(18),
-						color: themeValue.white
-					}}
-				>
-					{t('forwardTo')}
-				</Text>
-				<View style={{ flex: 1 }} />
+				<Text style={styles.headerTitle}>{t('forwardTo')}</Text>
+				<View style={styles.headerSide} />
 			</View>
 
 			<MezonInput
@@ -287,10 +280,10 @@ const ForwardMessageScreen = () => {
 				onTextChange={setSearchText}
 				value={searchText}
 				prefixIcon={<MezonIconCDN icon={IconCDN.magnifyingIcon} color={themeValue.text} height={20} width={20} />}
-				inputWrapperStyle={{ backgroundColor: themeValue.primary, paddingHorizontal: size.s_6 }}
+				inputWrapperStyle={styles.inputWrapper}
 			/>
 
-			<View style={{ marginTop: size.s_12, marginBottom: size.s_12, flex: 1 }}>
+			<View style={styles.contentWrapper}>
 				<FlashList
 					keyExtractor={(item) => `${item.channelId}_${item.type}`}
 					estimatedItemSize={70}

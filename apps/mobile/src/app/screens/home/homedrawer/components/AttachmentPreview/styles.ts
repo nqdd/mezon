@@ -61,5 +61,15 @@ export const style = (colors: Attributes) =>
 			fontSize: size.small,
 			color: '#c7c7c7',
 			textTransform: 'uppercase'
+		},
+		gradientBackground: {
+			...StyleSheet.absoluteFillObject
+		},
+		scrollViewContainer: {
+			flex: 1
+		},
+		scrollViewContent: {
+			paddingRight: verticalScale(20),
+			alignItems: 'center'
 		}
 	});

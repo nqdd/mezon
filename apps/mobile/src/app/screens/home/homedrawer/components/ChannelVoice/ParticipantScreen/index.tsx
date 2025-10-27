@@ -15,7 +15,8 @@ import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
-import UserProfile, { IActionVoiceUser, IManageVoiceUser } from '../../UserProfile';
+import type { IManageVoiceUser } from '../../UserProfile';
+import UserProfile, { IActionVoiceUser } from '../../UserProfile';
 import { style } from '../styles';
 
 const ParticipantItem = memo(
@@ -107,8 +108,8 @@ const ParticipantItem = memo(
 				const data = {
 					snapPoints: ['60%'],
 					hiddenHeaderIndicator: true,
-					containerStyle: { zIndex: 1001 },
-					backdropStyle: { zIndex: 1001 },
+					containerStyle: styles.bottomSheetZIndex,
+					backdropStyle: styles.bottomSheetZIndex,
 					children: (
 						<UserProfile
 							user={member?.user || { username }}
@@ -130,15 +131,7 @@ const ParticipantItem = memo(
 				{screenTrackRef && (
 					<TouchableOpacity
 						onPress={handleFocusScreen}
-						style={[
-							styles.userView,
-							isTabletLandscape && { height: size.s_150 + size.s_100 },
-							isPiPMode && {
-								width: '100%',
-								height: size.s_100 * 1.2,
-								marginBottom: size.s_100
-							}
-						]}
+						style={[styles.userView, isTabletLandscape && styles.userViewTabletHeight, isPiPMode && styles.userViewPiPScreenShare]}
 					>
 						<VideoTrack
 							objectFit={'contain'}
@@ -148,9 +141,9 @@ const ParticipantItem = memo(
 						/>
 						{!isPiPMode && hasActiveSoundReaction && renderSoundEffectIcon()}
 						{!isPiPMode && (
-							<View style={[styles.userName, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '90%' }]}>
+							<View style={[styles.userName, styles.userNameFullWidth]}>
 								<MezonIconCDN icon={IconCDN.shareScreenIcon} height={size.s_14} />
-								<Text numberOfLines={1} ellipsizeMode="tail" style={[styles.subTitle, { width: '100%' }]}>
+								<Text numberOfLines={1} ellipsizeMode="tail" style={[styles.subTitle, styles.subTitleFullWidth]}>
 									{voiceUsername} Share Screen
 								</Text>
 							</View>
@@ -169,9 +162,9 @@ const ParticipantItem = memo(
 						onLongPress={() => onPressInfoUser(isMicrophoneEnabled)}
 						style={[
 							styles.userView,
-							isTabletLandscape && { height: size.s_150 + size.s_100 },
-							isPiPMode && { height: size.s_60 * 2, width: '45%', marginHorizontal: size.s_4 },
-							isSpeaking && { borderWidth: 1, borderColor: themeValue.textLink }
+							isTabletLandscape && styles.userViewTabletHeight,
+							isPiPMode && styles.userViewPiPVideo,
+							isSpeaking && [styles.userViewSpeaking, { borderColor: themeValue.textLink }]
 						]}
 					>
 						<VideoTrack
@@ -180,7 +173,7 @@ const ParticipantItem = memo(
 							iosPIP={{ enabled: true, startAutomatically: true, preferredSize: { width: 12, height: 8 } }}
 						/>
 						{hasActiveSoundReaction && renderSoundEffectIcon()}
-						<View style={[styles.userName, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}>
+						<View style={[styles.userName, styles.userNameCentered]}>
 							{isMicrophoneEnabled ? (
 								<MezonIconCDN icon={IconCDN.microphoneIcon} height={size.s_14} color={themeValue.text} />
 							) : (
@@ -199,9 +192,9 @@ const ParticipantItem = memo(
 						onLongPress={() => onPressInfoUser(isMicrophoneEnabled)}
 						style={[
 							styles.userView,
-							isTabletLandscape && { height: size.s_150 + size.s_100 },
-							isPiPMode && { height: size.s_60 * 2, width: '45%', marginHorizontal: size.s_4 },
-							isSpeaking && { borderWidth: 1, borderColor: themeValue.textLink }
+							isTabletLandscape && styles.userViewTabletHeight,
+							isPiPMode && styles.userViewPiPVideo,
+							isSpeaking && [styles.userViewSpeaking, { borderColor: themeValue.textLink }]
 						]}
 					>
 						{hasActiveSoundReaction && renderSoundEffectIcon()}
@@ -302,7 +295,7 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 
 	return (
 		<ScrollView
-			style={{ marginHorizontal: isPiPMode ? 0 : size.s_10 }}
+			style={isPiPMode ? styles.scrollViewMarginZero : styles.scrollViewMargin}
 			showsVerticalScrollIndicator={false}
 			removeClippedSubviews={true}
 			scrollEventThrottle={16}

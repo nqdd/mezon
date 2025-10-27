@@ -1,5 +1,5 @@
 import { size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const style = () =>
 	StyleSheet.create({
@@ -183,5 +183,27 @@ export const style = () =>
 		},
 		loading: {
 			zIndex: 10
+		},
+		welcomeContainer: {
+			flex: 1,
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			paddingTop: size.s_40,
+			paddingHorizontal: size.s_20,
+			paddingBottom: Platform.OS === 'android' ? size.s_20 : size.s_50
+		},
+		welcomeContentWrapper: {
+			flex: 1,
+			width: '100%',
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		welcomeImage: {
+			width: '100%',
+			height: 300,
+			marginBottom: size.s_40
+		},
+		welcomeButton: {
+			bottom: 0
 		}
 	});

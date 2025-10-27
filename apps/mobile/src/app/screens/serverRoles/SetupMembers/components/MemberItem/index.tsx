@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message';
 import MezonAvatar from '../../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
+import { style } from './index.styles';
 
 interface IMemberItemProps {
 	member: UsersClanEntity;
@@ -25,6 +26,7 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation('clanRoles');
 	const { updateRole } = useRoles();
+	const styles = style(themeValue);
 
 	const isDisable = useMemo(() => {
 		return disabled || !isSelectMode;
@@ -65,50 +67,26 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 
 	return (
 		<TouchableOpacity onPress={onPressMemberItem}>
-			<View
-				style={{
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					backgroundColor: themeValue.secondary,
-					padding: size.s_12,
-					gap: size.s_10
-				}}
-			>
-				<View style={{ flex: 1, flexDirection: 'row', gap: size.s_10, alignItems: 'center' }}>
+			<View style={styles.container}>
+				<View style={styles.memberInfoContainer}>
 					<MezonAvatar avatarUrl={member?.user?.avatar_url} username={member?.user?.username} />
-					<View style={{ width: '80%' }}>
-						{memberName ? (
-							<Text
-								style={{
-									color: themeValue.white
-								}}
-							>
-								{memberName}
-							</Text>
-						) : null}
-						<Text
-							style={{
-								color: themeValue.text
-							}}
-						>
-							{member?.user?.username}
-						</Text>
+					<View style={styles.memberTextContainer}>
+						{memberName ? <Text style={styles.memberName}>{memberName}</Text> : null}
+						<Text style={styles.memberUsername}>{member?.user?.username}</Text>
 					</View>
 				</View>
 
-				<View style={{ height: size.s_20, width: size.s_20 }}>
+				<View style={styles.actionContainer}>
 					{isSelectMode ? (
 						<BouncyCheckbox
 							size={20}
 							isChecked={isSelected}
 							onPress={(value) => onSelectChange(value, member?.id)}
 							fillColor={'#5865f2'}
-							iconStyle={{ borderRadius: 5 }}
+							iconStyle={styles.checkboxIcon}
 							innerIconStyle={{
-								borderWidth: 1.5,
+								...styles.checkboxInnerIcon,
 								borderColor: isSelected ? '#5865f2' : '#ccc',
-								borderRadius: 5,
 								opacity: disabled ? 0.4 : 1
 							}}
 							disabled={disabled}

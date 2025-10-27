@@ -15,6 +15,7 @@ import {
 	directActions,
 	directMetaActions,
 	e2eeActions,
+	EStateFriend,
 	gifsStickerEmojiActions,
 	selectAudioDialTone,
 	selectBlockedUsersForMessage,
@@ -24,6 +25,7 @@ import {
 	selectDirectById,
 	selectDmGroupCurrent,
 	selectDmGroupCurrentId,
+	selectFriendById,
 	selectHasKeyE2ee,
 	selectIsSearchMessage,
 	selectIsShowCreateThread,
@@ -177,29 +179,7 @@ const DirectMessage = () => {
 		: 0;
 
 	const isDmChannel = useMemo(() => currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM, [currentDmGroup?.type]);
-
-	const isBlocked = useMemo(() => {
-		if (
-			currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM &&
-			blockListUser &&
-			blockListUser.length > 0 &&
-			currentDmGroup?.user_ids &&
-			currentDmGroup.user_ids.length > 0 &&
-			userId
-		) {
-			const otherUserId = currentDmGroup.user_ids[0];
-
-			return blockListUser.some((blockedRelation) => {
-				if (!blockedRelation?.user?.id || !blockedRelation?.source_id) return false;
-
-				const currentUserBlockedOther = blockedRelation.source_id === userId;
-				const otherUserBlockedCurrent = blockedRelation.source_id === otherUserId && blockedRelation.user.id === userId;
-
-				return currentUserBlockedOther || otherUserBlockedCurrent;
-			});
-		}
-		return false;
-	}, [currentDmGroup?.type, currentDmGroup?.user_ids, blockListUser, userId]);
+	const isBlocked = useAppSelector((state) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''))?.state === EStateFriend.BLOCK;
 
 	const isDmWithoutParticipants = useMemo(() => {
 		return currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (!currentDmGroup.user_ids || currentDmGroup.user_ids.length === 0);
@@ -306,8 +286,7 @@ const DirectMessage = () => {
 						<div className="flex-shrink-0 flex flex-col bg-theme-chat  h-auto relative">
 							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (isDmWithoutParticipants || isBlocked) ? (
 								<div
-									style={{ height: 44 }}
-									className="opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
+									className="h-11 opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
 									data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 								>
 									You do not have permission to send message

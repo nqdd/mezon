@@ -44,5 +44,11 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_4
+		},
+		outerWrapper: {
+			flexDirection: 'row'
+		},
+		iconWrapper: {
+			top: size.s_2
 		}
 	});

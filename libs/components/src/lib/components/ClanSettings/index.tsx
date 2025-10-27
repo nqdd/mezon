@@ -11,7 +11,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission } from '@mezon/utils';
+import { EPermission, generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -127,7 +127,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 		navigate('/mezon');
 	};
 	return (
-		<div ref={modalRef} tabIndex={-1} className="  flex fixed inset-0  w-screen z-30">
+		<div ref={modalRef} tabIndex={-1} className="  flex fixed inset-0  w-screen z-30" data-e2e={generateE2eId('clan_page.settings')}>
 			<div className="flex flex-row w-screen">
 				<div className="z-50 h-fit absolute top-5 right-5 block sbm:hidden">
 					<div onClick={() => onClose()} className="rounded-full p-[10px] border-theme-primary">

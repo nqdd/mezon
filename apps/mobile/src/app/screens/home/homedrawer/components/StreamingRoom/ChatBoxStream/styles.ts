@@ -5,5 +5,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		channelView: {
 			flex: 1
+		},
+		messageContainer: {
+			flex: 1
 		}
 	});

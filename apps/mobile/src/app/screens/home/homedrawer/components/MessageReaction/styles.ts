@@ -173,5 +173,8 @@ export const style = (colors: Attributes) =>
 		noActionContent: {
 			color: '#c7c7c7',
 			fontSize: size.medium
+		},
+		reactionListItem: {
+			marginBottom: size.s_10
 		}
 	});

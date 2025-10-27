@@ -1,5 +1,5 @@
 import { Attributes, baseColor, size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -33,7 +33,10 @@ export const style = (colors: Attributes) =>
 			width: '90%',
 			height: 'auto',
 			flex: 1,
-			backgroundColor: colors.primary,
+			top: Platform.OS === 'android' ? size.s_2 : size.s_22,
+			backgroundColor: colors.secondary,
+			borderWidth: size.s_2,
+			borderColor: colors.primary,
 			borderRadius: size.s_16,
 			overflow: 'hidden',
 			shadowOffset: { width: 0, height: 0 },
@@ -60,6 +63,7 @@ export const style = (colors: Attributes) =>
 			marginBottom: -size.s_4
 		},
 		toastWrapper: {
+			top: Platform.OS === 'android' ? size.s_12 : size.s_22,
 			borderRadius: size.s_20,
 			overflow: 'hidden',
 			width: '90%'
@@ -94,14 +98,14 @@ export const style = (colors: Attributes) =>
 			flex: 1
 		},
 		notificationTitle: {
-			fontSize: size.h6,
+			fontSize: size.h5,
 			marginLeft: 0,
 			marginRight: 0,
 			fontWeight: 'bold',
 			color: colors.white
 		},
 		notificationBody: {
-			fontSize: size.h7,
+			fontSize: size.h6,
 			marginLeft: 0,
 			marginRight: 0,
 			color: colors.textStrong

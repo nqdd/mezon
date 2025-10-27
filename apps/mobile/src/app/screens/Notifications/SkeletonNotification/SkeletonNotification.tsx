@@ -1,4 +1,4 @@
-import { Metrics, size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import React from 'react';
 import { View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,16 +9,16 @@ export default function SkeletonNotification({ numberSkeleton }: { numberSkeleto
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	return (
-		<View style={{ paddingHorizontal: Metrics.size.m, flex: 1 }}>
+		<View style={styles.container}>
 			{Array.from({ length: numberSkeleton }).map((_, index) => (
-				<View key={`ChannelListSkeleton_${index}`} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: size.s_20 }}>
+				<View key={`ChannelListSkeleton_${index}`} style={styles.skeletonRow}>
 					<ShimmerPlaceHolder
 						shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
 						shimmerStyle={styles.avatar}
 						LinearGradient={LinearGradient}
 					/>
 
-					<View style={{ flex: 1 }}>
+					<View style={styles.contentWrapper}>
 						<ShimmerPlaceHolder
 							shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
 							shimmerStyle={styles.normalText}
@@ -59,7 +59,7 @@ export default function SkeletonNotification({ numberSkeleton }: { numberSkeleto
 					</View>
 					<ShimmerPlaceHolder
 						shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
-						shimmerStyle={{ ...styles.avatar, width: size.s_30, height: size.s_30 }}
+						shimmerStyle={[styles.avatar, styles.smallAvatar]}
 						LinearGradient={LinearGradient}
 					/>
 				</View>

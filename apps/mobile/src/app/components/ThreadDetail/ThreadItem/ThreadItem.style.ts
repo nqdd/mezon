@@ -58,5 +58,12 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500',
 			flexGrow: 1,
 			flexShrink: 1
+		},
+		flex1: {
+			flex: 1
+		},
+		iconMargin: {
+			marginLeft: size.s_30,
+			marginRight: -size.s_4
 		}
 	});

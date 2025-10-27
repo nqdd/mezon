@@ -98,8 +98,8 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	};
 
 	return (
-		<View style={{ width: '100%', paddingVertical: size.s_10, paddingHorizontal: size.s_10 }}>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+		<View style={styles.outerContainer}>
+			<View style={styles.topButtonsRow}>
 				<TouchableOpacity
 					onPress={() => {
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -121,7 +121,7 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 					<MezonIconCDN icon={IconCDN.userPlusIcon} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			</View>
-			<View style={{ alignItems: 'center', gap: size.s_6 }}>
+			<View style={styles.centerContent}>
 				<View style={styles.logoIconContainer}>
 					<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
 				</View>

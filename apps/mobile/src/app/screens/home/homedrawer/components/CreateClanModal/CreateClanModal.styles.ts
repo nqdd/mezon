@@ -116,5 +116,9 @@ export const style = (colors: Attributes) =>
 			width: size.s_40,
 			height: size.s_40,
 			borderRadius: size.s_20
+		},
+		headerContainer: {
+			marginBottom: size.s_40,
+			paddingTop: size.s_20
 		}
 	});

@@ -191,7 +191,7 @@ const ControlBottomBar = ({
 				}
 			]}
 		>
-			<View style={{ gap: size.s_10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: size.s_6 }}>
+			<View style={styles.controlBarContainer}>
 				<TouchableOpacity onPress={handleToggleCamera} style={styles.menuIcon}>
 					<MezonIconCDN icon={isCameraEnabled ? IconCDN.videoIcon : IconCDN.videoSlashIcon} color={themeValue.textStrong} />
 				</TouchableOpacity>
