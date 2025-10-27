@@ -223,6 +223,7 @@ const ModalUserProfile = ({
 		},
 		[userById, content]
 	);
+
 	return (
 		<div tabIndex={-1} ref={profileRef} className={`outline-none ${classWrapper}`} onClick={() => setOpenModal(initOpenModal)}>
 			<div
@@ -290,12 +291,14 @@ const ModalUserProfile = ({
 					)}
 
 					{userID !== '0' && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
-						userById?.user?.username ? (
+						userProfile?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input
 									type="text"
 									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+									placeholder={t('placeholders.messageUser', {
+										username: userProfile?.user?.display_name || userProfile?.user?.username
+									})}
 									value={content}
 									onKeyPress={handleOnKeyPress}
 									onChange={handleContent}
