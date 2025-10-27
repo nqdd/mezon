@@ -1,7 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, FriendsEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	FriendsEntity,
 	appActions,
 	channelUsersActions,
 	directActions,
@@ -11,8 +10,9 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelType, User } from 'mezon-js';
-import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { User } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
+import type { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
@@ -74,9 +74,13 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 		}
 	}, [currentDirectMessage.current?.id, allUserGroupDM?.user_ids]);
 
-	const onSelectedChange = useCallback((friendIdSelected: string[]) => {
-		setFriendIdSelectedList(friendIdSelected);
-	}, []);
+	const onSelectedChange = useCallback(
+		(friendIdSelected: string[]) => {
+			const newMembers = friendIdSelected?.filter((userId) => !selectedFriendDefault?.includes(userId));
+			setFriendIdSelectedList(newMembers);
+		},
+		[selectedFriendDefault]
+	);
 
 	const handleMenuThreadBack = () => {
 		navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
