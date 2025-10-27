@@ -46,5 +46,8 @@ export const style = (colors: Attributes) =>
 		backButton: {
 			width: size.s_50,
 			paddingVertical: size.s_4
+		},
+		spacer: {
+			width: size.s_50
 		}
 	});

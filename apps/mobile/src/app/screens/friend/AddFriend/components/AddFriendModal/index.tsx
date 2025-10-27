@@ -147,7 +147,7 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 					keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 					style={styles.fill}
 				>
-					<View style={[styles.fill, { paddingVertical: 20 }]}>
+					<View style={[styles.fill, styles.paddingVertical20]}>
 						<View style={styles.fill}>
 							<Text style={styles.defaultText}>{t('addFriend.whoYouWantToAddFriend')}</Text>
 							<View style={styles.searchUsernameWrapper}>
@@ -166,13 +166,13 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 							</View>
 						</View>
 						<View style={[styles.buttonWrapper]}>
-							<View style={{ height: size.s_50 }}>
+							<View style={styles.heightAuto}>
 								<MezonButton
 									disabled={!firstUsername?.length}
 									onPress={() => sentFriendRequest()}
 									containerStyle={[styles.sendButton, !firstUsername?.length && { backgroundColor: themeValue.textDisabled }]}
 									title={t('addFriend.sendRequestButton')}
-									titleStyle={{ color: baseColor.white, fontSize: size.medium }}
+									titleStyle={styles.buttonTitleStyle}
 								/>
 							</View>
 						</View>

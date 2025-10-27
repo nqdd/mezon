@@ -72,7 +72,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 		const data = {
 			heightFitContent: true,
 			children: (
-				<View style={{ padding: size.s_20 }}>
+				<View style={styles.menuContainer}>
 					<MezonMenu menu={[menu]} />
 				</View>
 			)
@@ -89,7 +89,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					defaultValue={''}
 					defaultColor={color}
 					noDefaultText
-					style={{ borderWidth: 0, borderRadius: 0 }}
+					style={styles.bannerImage}
 					disabled={true}
 					imageSizeLimit={MAX_FILE_SIZE_10MB}
 				/>
@@ -103,7 +103,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 					defaultValue={avatar || ''}
 					alt={alt}
 					rounded
-					style={{ borderWidth: 5, borderColor: themeValue.primary }}
+					style={[styles.avatarImage, { borderColor: themeValue.primary }]}
 					onLoad={handleOnload}
 					autoUpload
 					onPressAvatar={openAvatarBS}

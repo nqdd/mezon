@@ -77,5 +77,9 @@ export const style = (colors: Attributes) =>
 			color: 'white',
 			fontWeight: 'bold',
 			fontSize: size.tiny
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

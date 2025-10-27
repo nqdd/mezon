@@ -1,6 +1,6 @@
 import { ActionEmitEvent, STORAGE_SESSION_KEY, load } from '@mezon/mobile-components';
 import { authActions, selectHasInternetMobile, selectIsLogin, useAppDispatch } from '@mezon/store-mobile';
-import { useMezon } from '@mezon/transport';
+import { MobileEventSessionEmitter, useMezon } from '@mezon/transport';
 import type { IWithError } from '@mezon/utils';
 import { sleep } from '@mezon/utils';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
@@ -90,6 +90,17 @@ const RefreshSessionWrapper = ({ children }) => {
 			}
 		}
 	}, [clientRef, dispatch]);
+
+	const onSessionRefresh = (session) => {
+		dispatch(authActions.updateSession(session));
+	};
+
+	useEffect(() => {
+		MobileEventSessionEmitter.addListener('mezon:session-refreshed', onSessionRefresh);
+		return () => {
+			MobileEventSessionEmitter.removeListener('mezon:session-refreshed', () => {});
+		};
+	}, []);
 
 	useEffect(() => {
 		if (isLoggedIn && hasInternet) {

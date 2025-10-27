@@ -47,43 +47,24 @@ export const RoleColorPicker = function RoleColorPicker({ onPickColor }: { onPic
 		dismiss();
 	};
 	return (
-		<View style={{ paddingHorizontal: size.s_20 }}>
-			<View style={{ width: '100%', flexDirection: 'row', marginBottom: size.s_20 }}>
-				<View style={{ width: size.s_60 }} />
+		<View style={styles.container}>
+			<View style={styles.header}>
+				<View style={styles.headerSpacer} />
 				<Text style={styles.title}>{t('roleColorPicker.titleBS')}</Text>
 				<TouchableOpacity onPress={handleSaveColor} style={styles.headerRightBtn}>
 					<Text style={styles.textBtn}>{t('roleColorPicker.save')}</Text>
 				</TouchableOpacity>
 			</View>
-			<View
-				style={{
-					flexDirection: 'row',
-					flexWrap: 'wrap',
-					paddingVertical: size.s_10,
-					paddingHorizontal: size.s_20,
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: size.s_20
-				}}
-			>
+			<View style={styles.colorGrid}>
 				{colorArray?.map((color) => (
 					<Pressable onPress={() => handlePickColor(color)}>
-						<View
-							style={{
-								alignItems: 'center',
-								justifyContent: 'center',
-								height: size.s_40,
-								width: size.s_40,
-								backgroundColor: color,
-								borderRadius: size.s_20
-							}}
-						>
+						<View style={[styles.colorItem, { backgroundColor: color }]}>
 							{!!colorSelected && colorSelected === color && <Text style={styles.checkedIcon}>✓</Text>}
 						</View>
 					</Pressable>
 				))}
 			</View>
-			<View style={{ width: '100%', alignItems: 'center', marginVertical: size.s_20 }}>
+			<View style={styles.footerContainer}>
 				<TouchableOpacity onPress={handleResetColor} style={styles.footerBtn}>
 					<Text style={styles.textBtn}>{t('roleColorPicker.reset')}</Text>
 				</TouchableOpacity>

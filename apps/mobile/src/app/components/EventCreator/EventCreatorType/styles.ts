@@ -73,5 +73,18 @@ export const style = (colors: Attributes) =>
 		chevronDownIcon: {
 			position: 'absolute',
 			right: size.s_10
+		},
+		headerRightButton: {
+			marginRight: 20
+		},
+		bottomSheetContainer: {
+			paddingHorizontal: size.s_20,
+			paddingVertical: size.s_10,
+			flex: 1,
+			gap: size.s_10
+		},
+		bottomSheetContent: {
+			flex: 1,
+			borderRadius: size.s_8
 		}
 	});

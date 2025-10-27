@@ -147,5 +147,22 @@ export const style = (colors: Attributes) =>
 		attachmentRow: {
 			marginBottom: size.s_16,
 			flexDirection: 'row'
+		},
+		keyboardAvoidingView: {
+			flex: 1,
+			width: '100%'
+		},
+		mediaWrapperFile: {
+			height: size.s_60,
+			width: size.s_50 * 3
+		},
+		sendButtonDisabled: {
+			opacity: 0.5
+		},
+		sendButtonEnabled: {
+			opacity: 1
+		},
+		textInputHeight: {
+			height: size.s_40
 		}
 	});

@@ -98,7 +98,7 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 			scrollEventThrottle={16}
 			onScroll={onScroll}
 			style={{ maxHeight: Metrics.screenHeight / 1.07 }}
-			contentContainerStyle={{ paddingBottom: size.s_10 * 2 }}
+			contentContainerStyle={styles.scrollViewContainer}
 		>
 			<ScrollView horizontal contentContainerStyle={styles.btnWrap}>
 				{categoryLogo?.length > 0 &&
@@ -115,7 +115,7 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 						>
 							<View style={styles.btnEmoImage}>
 								{item?.forSale ? (
-									<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+									<View style={styles.btnEmoActive}>
 										<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />
 									</View>
 								) : item?.url ? (
@@ -126,7 +126,7 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 											cache: FastImage.cacheControl.immutable,
 											priority: FastImage.priority.high
 										}}
-										style={{ height: '100%', width: '100%' }}
+										style={styles.btnEmoImageFull}
 									/>
 								) : (
 									<View style={styles.forSaleContainer}>

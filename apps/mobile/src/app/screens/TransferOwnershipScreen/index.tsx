@@ -80,15 +80,15 @@ const TransferOwnershipScreen = ({ route }: TransferOwnershipScreenProps) => {
 
 	if (!currentOwner) {
 		return (
-			<View style={{ flex: 1, backgroundColor: themeValue.primary, justifyContent: 'center', alignItems: 'center' }}>
-				<Text style={{ color: themeValue.text }}>Loading...</Text>
+			<View style={styles.loadingContainer}>
+				<Text style={styles.loadingText}>Loading...</Text>
 			</View>
 		);
 	}
 
 	return (
 		<View style={styles.container}>
-			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'} style={{ flex: 1 }}>
+			<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'} style={styles.keyboardAvoidingView}>
 				<View style={styles.transferVisual}>
 					<View style={styles.arrowContainer}>
 						<View style={styles.arrowDown} />

@@ -50,5 +50,15 @@ export const style = (colors: Attributes) =>
 			paddingVertical: size.s_14,
 			backgroundColor: baseColor.blurple,
 			borderRadius: 50
+		},
+		buttonTitleStyle: {
+			color: baseColor.white,
+			fontSize: size.medium
+		},
+		heightAuto: {
+			height: size.s_50
+		},
+		paddingVertical20: {
+			paddingVertical: 20
 		}
 	});

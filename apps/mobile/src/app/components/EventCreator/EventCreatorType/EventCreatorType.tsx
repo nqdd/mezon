@@ -51,7 +51,7 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 			headerLeft: () => <View />,
 			headerRight: () => (
 				<TouchableOpacity
-					style={{ marginRight: 20 }}
+					style={styles.headerRightButton}
 					onPress={() => {
 						onGoBack?.();
 						navigation.navigate(APP_SCREEN.HOME);
@@ -216,14 +216,14 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 	const handleShowBottomSheetChannel = () => {
 		const data = {
 			children: (
-				<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10, flex: 1, gap: size.s_10 }}>
+				<View style={styles.bottomSheetContainer}>
 					<MezonInput
 						inputWrapperStyle={styles.searchText}
 						placeHolder={t('selectUser')}
 						onTextChange={handleSearchText}
 						prefixIcon={<MezonIconCDN icon={IconCDN.magnifyingIcon} color={themeValue.text} height={20} width={20} />}
 					/>
-					<View style={{ flex: 1, borderRadius: size.s_8 }}>
+					<View style={styles.bottomSheetContent}>
 						<FlatList data={filteredOptionsChannels} contentContainerStyle={{ flexGrow: 1 }} renderItem={renderItem} />
 					</View>
 				</View>

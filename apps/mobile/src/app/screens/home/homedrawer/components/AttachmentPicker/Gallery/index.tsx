@@ -421,7 +421,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 	);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.galleryContainer}>
 			{isPermissionLimitIOS && (
 				<TouchableOpacity style={[styles.limitedPermissionBanner, { backgroundColor: themeValue.primary }]} onPress={handleSelectMorePhotos}>
 					<Text style={[styles.limitedPermissionText, { color: themeValue.text }]}>{`📷 ${t('common:limitedPhotosAccess')}`}</Text>
@@ -445,9 +445,7 @@ const Gallery = ({ onPickGallery, currentChannelId }: IProps) => {
 				}}
 				contentOffset={{ x: 0, y: 0 }}
 				disableVirtualization
-				style={{
-					maxHeight: height * 0.8
-				}}
+				style={styles.galleryFlatList}
 				onEndReached={handleLoadMore}
 				onEndReachedThreshold={0.8}
 				ListFooterComponent={() => isLoadingMoreRef?.current && <ActivityIndicator size="small" color={themeValue.text} />}

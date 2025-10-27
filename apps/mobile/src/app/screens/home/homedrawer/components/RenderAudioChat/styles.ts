@@ -38,5 +38,8 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			gap: size.s_10,
 			justifyContent: 'center'
+		},
+		currentTimeHidden: {
+			opacity: 0
 		}
 	});

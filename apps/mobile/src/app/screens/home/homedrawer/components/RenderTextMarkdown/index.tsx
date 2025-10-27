@@ -17,6 +17,7 @@ import LinkOptionModal from '../LinkOptions/LinkOptionModal';
 import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
+import { getMessageReplyMaxHeight, styles as componentStyles } from './index.styles';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
 
 export default function openUrl(url, customCallback) {
@@ -245,20 +246,21 @@ export function extractIds(url: string): { clanId: string | null; channelId: str
 }
 
 const renderChannelIcon = (channelType: number, channelId: string, themeValue: Attributes) => {
+	const iconStyle = componentStyles().channelIcon;
 	if (channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
-		return <CustomIcon name="voice" size={size.s_14} color={baseColor.link} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="voice" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_THREAD) {
-		return <CustomIcon name="thread" size={size.s_14} color={baseColor.link} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="thread" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_STREAMING) {
-		return <CustomIcon name="stream" size={size.s_14} color={baseColor.link} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="stream" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_APP) {
-		return <CustomIcon name="app" size={size.s_14} color={baseColor.link} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="app" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelId === 'undefined') {
-		return <Feather name="lock" size={size.s_14} color={themeValue.text} style={{ marginTop: size.s_10 }} />;
+		return <Feather name="lock" size={size.s_14} color={themeValue.text} style={iconStyle} />;
 	}
 	return null;
 };
@@ -732,34 +734,19 @@ export const RenderTextMarkdownContent = ({
 		return <View style={fenceStyle}>{textTripleParts}</View>;
 	}
 
-	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				flexWrap: 'wrap',
-				alignItems: 'center',
-				...(isNumberOfLine && {
-					flex: 1,
-					maxHeight: isMessageReply ? size.s_17 : size.s_20 * 10 - size.s_10,
-					overflow: 'hidden'
-				})
-			}}
-		>
-			{isMessageReply && (
-				<View
-					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						zIndex: 1
-					}}
-				/>
-			)}
+	const localStyles = componentStyles(themeValue);
+	const containerStyle = [
+		localStyles.containerWrapper,
+		isNumberOfLine && localStyles.containerWithLineLimit,
+		isNumberOfLine && { maxHeight: getMessageReplyMaxHeight(isMessageReply) }
+	];
 
-			<View style={{ flexDirection: 'row', gap: size.s_6, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-				<View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+	return (
+		<View style={containerStyle}>
+			{isMessageReply && <View style={localStyles.messageReplyOverlay} />}
+
+			<View style={localStyles.textPartsContainer}>
+				<View style={localStyles.textPartsColumn}>
 					{textParts?.length > 0 && <Text key={`textParts${t}_${lastIndex}`}>{textParts}</Text>}
 					{markdownBlackParts?.length > 0 &&
 						markdownBlackParts.map((item, index) => <View key={`markdown-black-part-${index}`}>{item}</View>)}

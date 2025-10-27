@@ -24,5 +24,23 @@ export const style = (colors: Attributes) =>
 		},
 		checkedIcon: {
 			color: colors.black
+		},
+
+		labelContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_6
+		},
+
+		colorContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
+		},
+
+		colorBox: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_6
 		}
 	});

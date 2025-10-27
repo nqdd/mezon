@@ -87,7 +87,7 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 			}}
 			style={styles.threadItemWrapper}
 		>
-			<View style={{ flex: 1 }}>
+			<View style={styles.flex1}>
 				<Text style={styles.threadName}>{thread?.channel_label}</Text>
 				<View style={styles.threadContent}>
 					<View style={styles.username}>
@@ -108,7 +108,7 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 					</View>
 				</View>
 			</View>
-			<View style={{ marginLeft: size.s_30, marginRight: -size.s_4 }}>
+			<View style={styles.iconMargin}>
 				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={25} height={25} color={themeValue.textDisabled} />
 			</View>
 		</Pressable>
