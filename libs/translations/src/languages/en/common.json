@@ -18,14 +18,106 @@
 	"role": "Role",
 	"noRoles": "No Roles",
 	"member": "Member",
-	"members": "Members",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
 	"categoryFilteringComingSoon": "Category filtering will be implemented soon!",
 	"invalidJWT": "Invalid JWT",
 	"muteNotification": "Mute",
+	"modalConfirm": {
+		"defaultTitle": "Title Modal",
+		"defaultButtonName": "OK",
+		"defaultMessage": "You won't be able to re-join this Clan unless you are re-invited."
+	},
+	"firstJoinPopup": {
+		"ifYouHaveInvitation": "If you have invitation link,",
+		"joinClan": "Join clan",
+		"enterInvitationLink": "Enter the invitation link below to join an available clan",
+		"invitationLink": "Invitation link",
+		"invitationInvalid": "The invitation is not valid or has expired",
+		"example": "Example: https://mezon.ai/invite/:id, hTKzmak",
+		"or": "Or",
+		"createYourOwnClan": "Create your own clan"
+	},
 	"thread": "Threads",
 	"members": "Members",
+	"gifs": "Gifs",
+	"stickers": "Stickers",
+	"emojis": "Emojis",
+	"sounds": "Sounds",
+	"friend": "Friend",
+	"pending": "Pending",
+	"accept": "Accept",
+	"ignore": "Ignore",
+	"addFriend": "Add friend",
+	"transfer": "Transfer",
+	"transferFunds": "Transfer funds",
+	"noPermissionToSendMessage": "You do not have permission to send messages in this channel.",
+	"resetApp": "Reset App",
+	"launchApp": "Launch App",
+	"help": "Help",
+	"unlockItem": "Unlock Item",
+	"itemLockedMessage": "This item is locked. Spend 500 tokens to open this item. Please purchase to unlock.",
+	"confirm": "Confirm",
+	"everyoneWaitingInside": "Everyone is waiting for you inside",
+	"noOneInVoice": "No one is currently in voice",
+	"joining": "Joining...",
+	"joinVoice": "Join Voice",
+	"reset": "Reset",
+	"saveChanges": "Save Changes",
+	"timeFormat": {
+		"daysOfWeek": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		},
+		"months": {
+			"jan": "Jan",
+			"feb": "Feb",
+			"mar": "Mar",
+			"apr": "Apr",
+			"may": "May",
+			"jun": "Jun",
+			"jul": "Jul",
+			"aug": "Aug",
+			"sep": "Sep",
+			"oct": "Oct",
+			"nov": "Nov",
+			"dec": "Dec"
+		},
+		"suffix": {
+			"st": "st",
+			"nd": "nd",
+			"rd": "rd",
+			"th": "th"
+		},
+		"weekNames": {
+			"first": "first",
+			"second": "second",
+			"third": "third",
+			"fourth": "fourth",
+			"fifth": "fifth"
+		},
+		"timeAgo": {
+			"years": "{{count}}y",
+			"months": "{{count}}mo",
+			"days": "{{count}}d",
+			"hours": "{{count}}h",
+			"minutes": "{{count}}m",
+			"justNow": "Just now"
+		},
+		"fullDate": "{{dayName}} {{monthName}} {{day}} - {{hours}}:{{minutes}}"
+	},
+	"todayAtTime": "Today at {{time}}",
+	"yesterdayAtTime": "Yesterday at {{time}}",
+	"deleteCategory": "Delete category",
+	"cannotBeUndone": "This cannot be undone",
+	"category": "Category",
+	"notificationSetting": "Notification Setting",
+	"replyingTo": "Replying to",
 	"offlines": "Offlines",
 	"media": "Media",
 	"image": "Image",
@@ -69,6 +161,9 @@
 	"showNotificationDesc": "When the checkbox is clicked, any notification will be displayed without any content.",
 	"save": "Save",
 	"limitedPhotosAccess": "Tap to Select More Photos",
+	"actions": "Actions",
+	"copiedCanvasLink": "Copied canvas link to clipboard",
+	"forwarded": "Forwarded",
 	"searchModal": {
 		"placeholder": "Where would you like to go?",
 		"protip": "PROTIP:",
@@ -280,5 +375,30 @@
 		"locationPermissionTitle": "Location Permission Required",
 		"locationPermissionDesc": "Mezon needs your permission to access location.",
 		"permissionDenied": "Permission Denied"
+	},
+	"dateTime": {
+		"daysShort": {
+			"sun": "Sun",
+			"mon": "Mon",
+			"tue": "Tue",
+			"wed": "Wed",
+			"thu": "Thu",
+			"fri": "Fri",
+			"sat": "Sat"
+		},
+		"monthsShort": {
+			"jan": "Jan",
+			"feb": "Feb",
+			"mar": "Mar",
+			"apr": "Apr",
+			"may": "May",
+			"jun": "Jun",
+			"jul": "Jul",
+			"aug": "Aug",
+			"sep": "Sep",
+			"oct": "Oct",
+			"nov": "Nov",
+			"dec": "Dec"
+		}
 	}
 }

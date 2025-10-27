@@ -3,7 +3,7 @@ import { fetchTransactionDetail, selectAllUsersByUser, selectDetailTransaction, 
 import { CURRENCY, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { safeJSONParse } from 'mezon-js';
-import { Transaction } from 'mmn-client-js';
+import type { Transaction } from 'mmn-client-js';
 import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -175,7 +175,7 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 							{formatBalanceToString((item.value || 0)?.toString())}
 						</Text>
 						<Text style={styles.code}>
-							{walletAddress !== item?.from_address ? t('historyTransaction.received') : t('historyTransaction.sent')}
+							{walletAddress !== item?.from_address ? t('historyTransaction.detail.received') : t('historyTransaction.detail.sent')}
 						</Text>
 					</View>
 					<View style={styles.userRowHeader}>

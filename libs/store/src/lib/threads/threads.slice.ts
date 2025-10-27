@@ -386,6 +386,12 @@ export const threadsSlice = createSlice({
 			}
 
 			threadsAdapter.upsertOne(state.byChannels[channelId], thread);
+		},
+		resetThreadSearchedResult: (state: ThreadsState, action: PayloadAction<string>) => {
+			const channelId = action.payload;
+			if (state?.threadSearchedResult) {
+				state.threadSearchedResult[channelId] = null;
+			}
 		}
 	},
 	extraReducers: (builder) => {

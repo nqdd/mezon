@@ -16,6 +16,7 @@ import {
 	usersStreamActions,
 	videoStreamActions
 } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import type { IChannelMember, IStreamInfo } from '@mezon/utils';
 import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
@@ -284,8 +285,9 @@ export default function ChannelStream({
 	const streamPlay = useSelector(selectStatusStream);
 	const isJoin = useSelector(selectIsJoin);
 	const appearanceTheme = useSelector(selectTheme);
-	const { userProfile, session } = useAuth();
-	const accessToken = session?.token;
+	const { userProfile } = useAuth();
+	const { sessionRef } = useMezon();
+	const accessToken = sessionRef.current?.token;
 	const dispatch = useAppDispatch();
 	const [showMembers, setShowMembers] = useState(true);
 	const [showEndCallButton, setShowEndCallButton] = useState(true);

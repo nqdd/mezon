@@ -224,7 +224,11 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 							<button onClick={handleNavigateDM} className=" bg-button-secondary rounded-full p-2 text-theme-primary-hover">
 								<Icons.IconChat />
 							</button>
-							<button title="More" onClick={handleMenuClick} className="bg-button-secondary rounded-full p-2 text-theme-primary-hover">
+							<button
+								title={t('friendMenu.more')}
+								onClick={handleMenuClick}
+								className="bg-button-secondary rounded-full p-2 text-theme-primary-hover"
+							>
 								<Icons.IconEditThreeDot />
 							</button>
 						</div>
@@ -232,7 +236,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 1 && (
 						<div className="flex gap-3 items-center">
 							<button
-								title="Cancel"
+								title={t('friendMenu.cancel')}
 								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 								data-e2e={generateE2eId('friend_page.button.cancel_friend_request')}
@@ -244,7 +248,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 					{friend?.state === 2 && (
 						<div className="flex gap-3 items-center">
 							<button
-								title="Accept"
+								title={t('friendMenu.accept')}
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
 								data-e2e={generateE2eId('friend_page.button.accept_friend_request')}
@@ -252,7 +256,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 								✓
 							</button>
 							<button
-								title="Reject"
+								title={t('friendMenu.reject')}
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
 								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
 								data-e2e={generateE2eId('friend_page.button.reject_friend_request')}

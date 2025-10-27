@@ -4,6 +4,7 @@ import { Icons } from '@mezon/ui';
 import { blankReferenceObj } from '@mezon/utils';
 import classNames from 'classnames';
 import { ApiMessageRef } from 'mezon-js/api.gen';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 type MessageReplyProps = {
@@ -13,6 +14,7 @@ type MessageReplyProps = {
 };
 
 export function ReplyMessageBox({ channelId, dataReferences, className }: MessageReplyProps) {
+	const { t } = useTranslation('common');
 	const dispatch = useDispatch();
 	const nameShowed = getShowName(
 		dataReferences.message_sender_clan_nick ?? '',
@@ -38,7 +40,7 @@ export function ReplyMessageBox({ channelId, dataReferences, className }: Messag
 			)}
 		>
 			<div className="text-theme-primary">
-				Replying to <span className=" text-theme-primary-active font-semibold">{nameShowed}</span>
+				{t('replyingTo')} <span className=" text-theme-primary-active font-semibold">{nameShowed}</span>
 			</div>
 			<button className="relative text-theme-primary-active" onClick={handleRemoveReply}>
 				<Icons.Close />

@@ -752,11 +752,16 @@ export const directSlice = createSlice({
 					changes = {
 						...currentData,
 						last_sent_message: data?.last_sent_message,
-						update_time_seconds: data?.update_time_seconds,
-						display_names: data?.display_names,
-						usernames: data?.usernames,
-						user_ids: data?.user_ids
+						update_time_seconds: data?.update_time_seconds
 					};
+					if (data.type === ChannelType.CHANNEL_TYPE_GROUP) {
+						changes = {
+							...changes,
+							display_names: data?.display_names,
+							usernames: data?.usernames,
+							user_ids: data?.user_ids
+						};
+					}
 				} else {
 					changes = {
 						...data,

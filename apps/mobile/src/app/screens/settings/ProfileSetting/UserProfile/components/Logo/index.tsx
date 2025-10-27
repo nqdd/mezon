@@ -23,7 +23,6 @@ export const DirectMessageLogo = memo(() => {
 			dispatch(appActions.setLoadingMainMobile(true));
 			await dispatch(
 				clansActions.updateUser({
-					user_name: userProfile.user.username,
 					avatar_url: userProfile.user.avatar_url,
 					display_name: userProfile.user.display_name,
 					about_me: userProfile.user.about_me,

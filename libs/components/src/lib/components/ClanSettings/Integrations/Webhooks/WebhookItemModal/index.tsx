@@ -13,7 +13,7 @@ import {
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
-import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId } from '@mezon/utils';
+import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId, timeFormatI18n } from '@mezon/utils';
 import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent, ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -30,18 +30,9 @@ interface IWebhookItemModalProps {
 	isClanSetting?: boolean;
 }
 
-const convertDate = (isoDateString: string): string => {
-	const date = new Date(isoDateString);
-	const options: Intl.DateTimeFormatOptions = {
-		day: 'numeric',
-		month: 'long',
-		year: 'numeric'
-	};
-	return date.toLocaleDateString('en-GB', options);
-};
-
 const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebhookItemModalProps) => {
 	const { t } = useTranslation('clanIntegrationsSetting');
+	const { t: tCommon } = useTranslation('common');
 	const [isExpand, setIsExpand] = useState(false);
 	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhookItem.creator_id as string));
 	return (
@@ -55,7 +46,7 @@ const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebho
 							<Icons.ClockIcon className="text-theme-primary" />
 							<div className="text-theme-primary text-[13px]">
 								{t('webhooksItem.createdBy', {
-									webhookCreateTime: convertDate(webhookItem.create_time || ''),
+									webhookCreateTime: timeFormatI18n(webhookItem.create_time || '', tCommon),
 									webhookUserOwnerName: webhookOwner?.user?.username
 								})}
 							</div>

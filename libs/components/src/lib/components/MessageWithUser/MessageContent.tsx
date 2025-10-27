@@ -5,6 +5,7 @@ import {
 	selectIsShowCreateTopic,
 	selectMemberClanByUserId,
 	selectMessageByMessageId,
+	selectTopicById,
 	threadsActions,
 	topicsActions,
 	useAppDispatch,
@@ -12,9 +13,10 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
-import { EBacktickType, ETypeLinkMedia, addMention, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
+import { EBacktickType, ETypeLinkMedia, addMention, convertTimeMessage, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
+import i18n from 'libs/translations/src/i18n.config';
 import { safeJSONParse } from 'mezon-js';
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -67,7 +69,7 @@ const MessageContent = ({ message, mode, isSearchMessage, isEphemeral, isSending
 export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
-	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id)) || message;
+	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id));
 	const rplCount = latestMessage?.content?.rpl || 0;
 	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, latestMessage?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
@@ -81,9 +83,19 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentChannel?.id as string));
 	const isShowCreateTopic = useSelector(selectIsShowCreateTopic);
 
+	const topic = useAppSelector((state) => selectTopicById(state, message?.content?.tp || ''));
+
+	const timeMessage = useMemo(() => {
+		if (!topic) return;
+		if (topic?.last_sent_message && topic?.last_sent_message?.timestamp_seconds) {
+			const lastTime = convertTimeMessage(topic.last_sent_message.timestamp_seconds, i18n.language);
+			return lastTime;
+		}
+	}, [topic]);
+
 	return (
 		<div
-			className={`border-theme-primary  text-theme-primary bg-item-theme text-theme-primary-hover rounded-lg my-1 p-1  flex justify-between items-center cursor-pointer group/view-topic-btn  ${isShowCreateThread || isShowCreateTopic ? 'w-[70%] max-2xl:w-full' : 'w-[70%]'}`}
+			className={`border-theme-primary min-w-250 text-theme-primary bg-item-theme text-theme-primary-hover rounded-lg gap-5 my-1 p-1  flex justify-between items-center cursor-pointer group/view-topic-btn  ${isShowCreateThread || isShowCreateTopic ? '' : 'w-fit'}`}
 			onClick={handleOpenTopic}
 			data-e2e={generateE2eId('chat.topic.button.view_topic')}
 		>
@@ -96,13 +108,14 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 					src={avatarToDisplay}
 				/>
 				<div className="flex flex-wrap items-center gap-x-2 flex-1 min-w-0">
-					<div className="font-semibold color-mention flex-shrink-0">{t('creator')}</div>
-					<p className="break-words min-w-0">
-						{t('viewTopic')} {rplCount > 0 && `(${t('reply', { number: rplCount > 99 ? '99+' : rplCount })})`}
+					<p className="break-words color-mention min-w-0">
+						{rplCount > 0 &&
+							(rplCount === 1 ? t('reply', { number: 1 }) : t('numberReplies', { number: rplCount > 99 ? '99+' : rplCount }))}
 					</p>
+					{timeMessage}
 				</div>
 			</div>
-			<Icons.ArrowRight className="flex-shrink-0" />
+			<Icons.ArrowRight className="flex-shrink-0 text-center" />
 		</div>
 	);
 };

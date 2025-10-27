@@ -1,5 +1,6 @@
 import { Icons, Image } from '@mezon/ui';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface IFirstJoinPopup {
 	onclose: () => void;
@@ -7,6 +8,7 @@ interface IFirstJoinPopup {
 }
 
 const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
+	const { t } = useTranslation('common');
 	const [inputValue, setInputValue] = useState('');
 	const [error, setError] = useState(false);
 	const handleJoinClan = () => {
@@ -39,16 +41,14 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 					<Icons.MenuClose onClick={onclose} className="absolute top-5 right-5 w-[16px] cursor-pointer" />
 					<div className="px-[16px] flex flex-col h-full flex-1 gap-4 pt-20">
 						<div className="text-center">
-							<div className="text-black text-[13px]">If you have invitation link,</div>
-							<div className="text-black font-bold text-[25px]">Join clan</div>
-							<div>Enter the invitation link below to join an available clan</div>
+							<div className="text-black text-[13px]">{t('firstJoinPopup.ifYouHaveInvitation')}</div>
+							<div className="text-black font-bold text-[25px]">{t('firstJoinPopup.joinClan')}</div>
+							<div>{t('firstJoinPopup.enterInvitationLink')}</div>
 						</div>
 						<div className="flex flex-col gap-[5px]">
 							<div className=" text-xs font-bold flex flex-1 items-center justify-between">
-								<p className="uppercase">Invitation link</p>
-								{error && (
-									<p className="text-[10px]  font-semibold italic text-red-500">The invitation is not valid or has expired</p>
-								)}
+								<p className="uppercase">{t('firstJoinPopup.invitationLink')}</p>
+								{error && <p className="text-[10px]  font-semibold italic text-red-500">{t('firstJoinPopup.invitationInvalid')}</p>}
 							</div>
 							<input
 								value={inputValue}
@@ -56,13 +56,13 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 								type="text"
 								className="bg-[#dfe0e2] outline-primary border border-white hover:border-[#979a9e] w-full rounded-md p-[10px] text-[15px]"
 							/>
-							<div className="text-xs flex flex-col gap-2">Example: https://mezon.ai/invite/:id, hTKzmak</div>
+							<div className="text-xs flex flex-col gap-2">{t('firstJoinPopup.example')}</div>
 						</div>
 					</div>
 					<div className="p-[16px] flex justify-between">
 						<div className="flex items-center gap-1	">
 							<div>
-								Or{' '}
+								{t('firstJoinPopup.or')}{' '}
 								<span
 									onClick={() => {
 										openCreateClanModal();
@@ -70,7 +70,7 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 									}}
 									className="font-semibold hover:underline cursor-pointer"
 								>
-									Create your own clan
+									{t('firstJoinPopup.createYourOwnClan')}
 								</span>
 							</div>
 						</div>
@@ -79,7 +79,7 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 							className={`${inputValue === '' ? 'bg-[#959cf1]' : 'bg-[#5865f2] hover:bg-[#444ec1]'} text-white px-[13px] py-[5px] rounded-sm select-none`}
 							disabled={inputValue === '' ? true : false}
 						>
-							Join clan
+							{t('firstJoinPopup.joinClan')}
 						</button>
 					</div>
 				</div>

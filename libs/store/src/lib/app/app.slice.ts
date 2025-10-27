@@ -52,6 +52,7 @@ export interface AppState {
 		url: string[];
 		current: number | null;
 	};
+	isShowUpdateUsername: boolean;
 }
 
 const getInitialLanguage = (): 'en' | 'vi' => {
@@ -100,7 +101,8 @@ export const initialAppState: AppState = {
 	history: {
 		url: [],
 		current: null
-	}
+	},
+	isShowUpdateUsername: false
 };
 
 export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id: string }, thunkAPI) => {
@@ -305,6 +307,9 @@ export const appSlice = createSlice({
 				}
 				state.history.current = state.history.current + 1;
 			}
+		},
+		setIsShowUpdateUsername: (state, action) => {
+			state.isShowUpdateUsername = action.payload;
 		}
 	}
 });
@@ -362,3 +367,5 @@ export const selectIsShowPopupQuickMess = createSelector(getAppState, (state: Ap
 export const selectIsShowWelcomeMobile = createSelector(getAppState, (state: AppState) => state.isShowWelcomeMobile);
 
 export const selectHistory = createSelector(getAppState, (state: AppState) => state.history);
+
+export const selectIsShowUpdateUsername = createSelector(getAppState, (state: AppState) => state.isShowUpdateUsername);

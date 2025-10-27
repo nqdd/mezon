@@ -14,6 +14,7 @@ import { Icons } from '@mezon/ui';
 import type { ICategory, ICategoryChannel, IChannel } from '@mezon/utils';
 import { EPermission, generateE2eId, MouseButton } from '@mezon/utils';
 import React, { memo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { CategorySetting } from '../../CategorySetting';
@@ -38,6 +39,7 @@ interface DeleteCategoryModalProps {
 }
 
 const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({ category, closeDeleteModal }) => {
+	const { t } = useTranslation('common');
 	const { handleDeleteCategory } = useCategory();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const confirmDeleteCategory = async () => {
@@ -53,9 +55,9 @@ const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({ category, clo
 			modalName={category.category_name || ''}
 			handleConfirm={confirmDeleteCategory}
 			title="delete"
-			buttonName="Delete category"
-			message="This cannot be undone"
-			customModalName="Category"
+			buttonName={t('deleteCategory')}
+			message={t('cannotBeUndone')}
+			customModalName={t('category')}
 		/>
 	);
 };
