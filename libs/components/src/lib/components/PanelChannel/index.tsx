@@ -2,6 +2,7 @@
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker } from '@mezon/core';
 import type { SetMuteNotificationPayload, SetNotificationPayload } from '@mezon/store';
 import {
+	FAVORITE_CATEGORY_ID,
 	channelsActions,
 	clansActions,
 	hasGrandchildModal,
@@ -428,6 +429,8 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 		menuOpenMute.current = false;
 	}, []);
 
+	const isFavoriteCategory = channel?.category_id === FAVORITE_CATEGORY_ID;
+
 	return (
 		<div
 			ref={panelRef}
@@ -435,14 +438,16 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			style={{ left: coords.mouseX, bottom: positionTop ? '12px' : 'auto', top: positionTop ? 'auto' : coords.mouseY }}
 			className="outline-none fixed top-full bg-theme-contexify border-theme-primary rounded-lg shadow z-30 w-[200px] py-[10px] px-[10px]"
 		>
-			<GroupPanels>
-				<ItemPanel
-					onClick={statusMarkAsReadChannel === 'pending' ? undefined : () => handleMarkAsReadChannel(channel)}
-					disabled={statusMarkAsReadChannel === 'pending'}
-				>
-					{statusMarkAsReadChannel === 'pending' ? t('menu.notification.processing') : t('menu.watchMenu.markAsRead')}
-				</ItemPanel>
-			</GroupPanels>
+			{!isFavoriteCategory && (
+				<GroupPanels>
+					<ItemPanel
+						onClick={statusMarkAsReadChannel === 'pending' ? undefined : () => handleMarkAsReadChannel(channel)}
+						disabled={statusMarkAsReadChannel === 'pending'}
+					>
+						{statusMarkAsReadChannel === 'pending' ? t('menu.notification.processing') : t('menu.watchMenu.markAsRead')}
+					</ItemPanel>
+				</GroupPanels>
+			)}
 			<GroupPanels>
 				<ItemPanel
 					children={t('menu.inviteMenu.copyLink')}
