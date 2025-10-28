@@ -425,6 +425,16 @@ export const DATA_E2E_IDENTIFIER = {
 				text_area: '',
 				namegroup: ''
 			},
+			message_buzz: {
+				header: '',
+				button: {
+					close: '',
+					send: ''
+				},
+				input: {
+					message: ''
+				}
+			},
 			button: {
 				add_user: '',
 				create_group: '',
@@ -452,6 +462,12 @@ export const DATA_E2E_IDENTIFIER = {
 				member_count: ''
 			},
 			add_to_group: {
+				button: ''
+			},
+			unblock: {
+				button: ''
+			},
+			block: {
 				button: ''
 			},
 

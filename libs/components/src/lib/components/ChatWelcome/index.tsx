@@ -368,6 +368,7 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 				<button
 					onClick={didIBlockUser ? handleUnblockFriend : handleBlockFriend}
 					className="rounded-lg text-theme-primary-hover border border-theme-primary bg-button-secondary px-4 py-0.5 font-medium text-theme-primary"
+					data-e2e={generateE2eId(`chat.direct_message.${didIBlockUser ? 'unblock' : 'block'}.button`)}
 				>
 					{didIBlockUser ? t('welcome.unblock') : t('welcome.block')}
 				</button>
