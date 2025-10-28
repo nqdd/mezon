@@ -363,7 +363,8 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	channel_setting_page: {
 		side_bar: {
-			item: ''
+			item: '',
+			channel_label: ''
 		},
 		permissions: {
 			button: {
