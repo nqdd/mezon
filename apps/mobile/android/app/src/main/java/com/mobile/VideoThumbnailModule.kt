@@ -77,29 +77,4 @@ class VideoThumbnailModule(reactContext: ReactApplicationContext) :
             promise.reject("ERROR", e)
         }
     }
-
-    @ReactMethod
-    fun getMediaDuration(mediaUrl: String, promise: Promise) {
-        val retriever = MediaMetadataRetriever()
-        try {
-            retriever.setDataSource(mediaUrl, HashMap<String, String>())
-
-            val durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-
-            if (durationStr == null) {
-                promise.reject("ERROR", "Could not retrieve duration from URL")
-                return
-            }
-
-            val durationMs = durationStr.toLong()
-            val durationSec = durationMs / 1000.0
-            promise.resolve(durationSec)
-
-        } catch (e: Exception) {
-            Log.e("VideoThumbnailModule", "Error getting remote duration", e)
-            promise.reject("ERROR", e)
-        } finally {
-            retriever.release()
-        }
-    }
 }

@@ -1,5 +1,5 @@
 import { load, save, STORAGE_KEY_TEMPORARY_INPUT_MESSAGES, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
-import { type EmojiDataOptionals } from '@mezon/utils';
+import type { EmojiDataOptionals } from '@mezon/utils';
 import { deflate, inflate } from 'react-native-gzip';
 
 export const sleep = (milliseconds: number) => {
@@ -139,17 +139,4 @@ export const removeDiacritics = (str) => {
 		.replace(/[\u0300-\u036f]/g, '')
 		.replace(/đ/g, 'd')
 		.replace(/Đ/g, 'D');
-};
-
-export const formatDuration = (seconds) => {
-	const hrs = Math.floor(seconds / 3600);
-	const mins = Math.floor((seconds % 3600) / 60);
-	const secs = Math.floor(seconds % 60);
-
-	const pad = (num) => String(num).padStart(2, '0');
-
-	if (hrs > 0) {
-		return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
-	}
-	return `${pad(mins)}:${pad(secs)}`;
 };

@@ -18,33 +18,17 @@ import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import BuzzBadge from '../../components/BuzzBadge/BuzzBadge';
 import ImageNative from '../../components/ImageNative';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
-import { formatDuration } from '../../utils/helpers';
 import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 import { UserStatusDM } from './UserStatusDM';
-
-export const getMediaDuration = async (url) => {
-  if (Platform.OS === 'ios') {
-    return '';
-  }
-
-  try {
-    const durationSec = await NativeModules?.VideoThumbnail.getMediaDuration(url);
-    return formatDuration(durationSec);
-  } catch (e) {
-    console.error('Error getMediaDuration:', e);
-    return '';
-  }
-};
-
 
 export const DmListItem = React.memo((props: { id: string }) => {
 	const { themeValue } = useTheme();
@@ -60,7 +44,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const senderId = directMessage?.last_sent_message?.sender_id;
 
 	const [attachmentContent, setAttachmentContent] = useState<string>('');
-	
+
 	const isYourAccount = useMemo(() => {
 		const userId = load(STORAGE_MY_USER_ID);
 		return userId?.toString() === senderId?.toString();
@@ -113,46 +97,47 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		return '';
 	}, [isYourAccount, otherMemberList, senderId, t]);
 
-	const getLastMessageAttachmentContent = useCallback(async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string) => {
-		const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
-		if (isGoogleMapsLink) {
-			return `[${t('attachments.location')}]`;
-		}
-		if (isLinkMessage) {
-			return `[${t('attachments.link')}] ${text}`;
-		}
-		
-		const fileName = attachment?.filename;
-		const fileType = attachment?.filetype;
-		const url = attachment?.url;
+	const getLastMessageAttachmentContent = useCallback(
+		async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string) => {
+			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
+			if (isGoogleMapsLink) {
+				return `[${t('attachments.location')}]`;
+			}
+			if (isLinkMessage) {
+				return `[${t('attachments.link')}] ${text}`;
+			}
 
-		const type = fileType?.split('/')?.[0];
+			const fileName = attachment?.filename;
+			const fileType = attachment?.filetype;
+			const url = attachment?.url;
 
-		switch (type) {
-			case 'image': {
-				if (url?.includes(EMimeTypes.tenor)) {
-					return `[${t('attachments.gif')}]`;
+			const type = fileType?.split('/')?.[0];
+
+			switch (type) {
+				case 'image': {
+					if (url?.includes(EMimeTypes.tenor)) {
+						return `[${t('attachments.gif')}]`;
+					}
+					if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
+						return `[${t('attachments.sticker')}]`;
+					}
+					return `[${t('attachments.image')}]`;
 				}
-				if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
-					return `[${t('attachments.sticker')}]`;
+				case 'video': {
+					return `[${t('attachments.video')}]`;
 				}
-				return `[${t('attachments.image')}]`;
+				case 'audio': {
+					return `[${t('attachments.audio')}]`;
+				}
+				case 'application':
+				case 'text':
+					return `[${t('attachments.file')}] ${fileName || ''}`;
+				default:
+					return `[${t('attachments.file')}]`;
 			}
-			case 'video': {
-				const duration = await getMediaDuration(url);
-				return `[${t('attachments.video')}]${duration ? ' ' + duration : ''}`;
-			}
-			case 'audio': {
-				const duration = await getMediaDuration(url);
-				return `[${t('attachments.audio')}]${duration ? ' ' + duration : ''}`;
-			}
-			case 'application':
-			case 'text':
-				return `[${t('attachments.file')}] ${fileName || ''}`;
-			default:
-				return `[${t('attachments.file')}]`;
-		}
-	}, [t]);
+		},
+		[t]
+	);
 
 	useEffect(() => {
 		const resolveAttachmentContent = async () => {
