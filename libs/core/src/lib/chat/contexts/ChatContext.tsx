@@ -1057,8 +1057,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		const store = await getStoreAsync();
 
 		const clanMemberStore = selectClanMemberByClanId(store.getState() as unknown as RootState, userJoinClan.clan_id);
+
 		if (userJoinClan?.user && clanMemberStore) {
-			const createTime = userJoinClan.user.create_time_second ? new Date(userJoinClan.user.create_time_second * 1000).toISOString() : undefined;
+			const create_time = new Date(userJoinClan.user.create_time_second * 1000).toISOString();
+			const joinTime = new Date().toISOString();
 			dispatch(
 				usersClanActions.add({
 					user: {
@@ -1072,7 +1074,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							display_name: userJoinClan.user.display_name,
 							metadata: userJoinClan.user.custom_status,
 							username: userJoinClan.user.username,
-							create_time: createTime
+							create_time,
+							join_time: joinTime
 						}
 					},
 					clanId: userJoinClan.clan_id
