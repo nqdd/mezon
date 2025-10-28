@@ -130,7 +130,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				avatar_url: avatar
 			}
 		};
-	}, []);
+	}, [avatar, displayName, userId, username]);
 
 	const [openConfirmTransfer, closeTransfer] = useModal(() => {
 		return <TransferOwnerModal onClose={closeTransfer} onClick={handleTransferOwner} member={member} />;
@@ -179,10 +179,15 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 
 	const currentClan = useSelector(selectCurrentClan);
 
+	const handleClickItem = () => {
+		openUserProfile();
+	};
+
 	return (
 		<div
-			className="flex flex-row justify-between items-center h-[48px] border-b-[1px] border-b-theme-primary last:border-b-0"
+			className="flex flex-row justify-between items-center h-[48px] border-b-[1px] bg-item-hover cursor-pointer  border-b-theme-primary last:border-b-0"
 			onContextMenu={handleContextMenu}
+			onClick={handleClickItem}
 			ref={itemRef}
 			data-e2e={generateE2eId('clan_page.member_list')}
 		>
@@ -197,7 +202,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 					/>
 					<div className="flex flex-col">
 						<p
-							className="text-base font-medium font-normal"
+							className="text-base font-normal"
 							style={{
 								color: userRolesClan.sortedRoles[0]?.color || DEFAULT_ROLE_COLOR
 							}}
@@ -256,19 +261,30 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 					{hasClanPermission && (
 						<Tooltip
 							overlay={
-								<div className="rounded-lg p-1 bg-theme-contexify border-theme-primary  max-h-52 overflow-y-auto overflow-x-hidden scrollbar-hide">
+								<div
+									className="rounded-lg p-1 bg-theme-contexify border-theme-primary  max-h-52 overflow-y-auto overflow-x-hidden scrollbar-hide"
+									onClick={(e) => {
+										e.stopPropagation();
+										e.preventDefault();
+									}}
+								>
 									<div className="flex flex-col gap-1 max-w-72">
 										{<ListOptionRole userId={userId} rolesClanEntity={rolesClanEntity} userRolesClan={userRolesClan} />}
 									</div>
 								</div>
 							}
-							trigger="click"
+							trigger={['click']}
 							placement="left-start"
+							overlayClassName="z-50"
 						>
 							<span
 								title={t('addRole')}
 								className="inline-flex justify-center gap-x-1 w-6 aspect-square items-center rounded bg-item-theme  hoverIconBlackImportant ml-1 text-base"
 								data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.button')}
+								onClick={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+								}}
 							>
 								+
 							</span>
@@ -328,7 +344,11 @@ const ListOptionRole = ({
 				<div
 					className="flex gap-2 items-center h-6 justify-between px-2 rounded-lg bg-item-hover cursor-pointer"
 					key={key}
-					onClick={() => handleAddRoleMemberList(rolesClanEntity[key])}
+					onClick={(e) => {
+						e.stopPropagation();
+						e.preventDefault();
+						handleAddRoleMemberList(rolesClanEntity[key]);
+					}}
 				>
 					<div
 						className="text-transparent size-3 rounded-full"
@@ -345,10 +365,15 @@ const ListOptionRole = ({
 							checked={!!userRolesClan.usersRole[key]}
 							type="checkbox"
 							className={`peer appearance-none cursor-pointer forced-colors:appearance-auto relative w-4 h-4 border-theme-primary rounded-md focus:outline-none`}
-							onChange={() => handleAddRoleMemberList(rolesClanEntity[key])}
+							onChange={(e) => {
+								e.stopPropagation();
+								handleAddRoleMemberList(rolesClanEntity[key]);
+							}}
 							key={key}
-							// Prevent click event propagation to parent to avoid double triggering
-							onClick={(e) => e.stopPropagation()}
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+							}}
 							data-e2e={generateE2eId('clan_page.member_list.role_settings.add_role.choose_role')}
 						/>
 						<Icons.Check className="absolute invisible peer-checked:visible forced-colors:hidden w-4 h-4 pointer-events-none" />
