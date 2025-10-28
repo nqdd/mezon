@@ -154,7 +154,7 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 	const menu = useMemo(() => {
 		const menuItems: ReactElement[] = [];
 
-		availableOptions.map((option) =>
+		availableOptions?.map((option) =>
 			menuItems.push(
 				<Menu.Item
 					key={option.value}
