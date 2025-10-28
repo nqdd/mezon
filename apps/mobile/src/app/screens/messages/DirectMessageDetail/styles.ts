@@ -73,12 +73,13 @@ export const style = (colors: Attributes) =>
 			backgroundColor: baseColor.gray
 		},
 		avatarWrapper: {
-			borderRadius: 50,
-			backgroundColor: colors.colorAvatarDefault,
+			borderRadius: size.s_50,
 			height: size.s_30,
 			width: size.s_30
 		},
 		wrapperTextAvatar: {
+			backgroundColor: colors.colorAvatarDefault,
+			borderRadius: size.s_50,
 			width: size.s_30,
 			height: size.s_30,
 			justifyContent: 'center',

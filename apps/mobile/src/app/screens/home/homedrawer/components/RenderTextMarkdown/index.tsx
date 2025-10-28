@@ -17,8 +17,8 @@ import LinkOptionModal from '../LinkOptions/LinkOptionModal';
 import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
-import { getMessageReplyMaxHeight, styles as componentStyles } from './index.styles';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
+import { styles as componentStyles, getMessageReplyMaxHeight } from './index.styles';
 
 export default function openUrl(url, customCallback) {
 	if (customCallback) {

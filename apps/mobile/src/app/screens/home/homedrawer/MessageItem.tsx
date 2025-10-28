@@ -487,17 +487,25 @@ const MessageItem = React.memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		// Return true to skip re-render, false to re-render
 		return (
-			prevProps?.message?.id === nextProps?.message?.id &&
-			prevProps?.message?.update_time === nextProps?.message?.update_time &&
-			prevProps?.previousMessage?.id === nextProps?.previousMessage?.id &&
-			prevProps?.message?.code === nextProps?.message?.code &&
-			prevProps?.isHighlight === nextProps?.isHighlight &&
-			prevProps?.message?.reactions === nextProps?.message?.reactions &&
-			prevProps?.message?.references?.[0]?.content === nextProps?.message?.references?.[0]?.content &&
-			prevProps?.message?.content?.t === nextProps?.message?.content?.t &&
-			prevProps?.message?.attachments?.length === nextProps?.message?.attachments?.length
+			prevProps?.message?.id +
+				prevProps?.message?.update_time +
+				prevProps?.previousMessage?.id +
+				prevProps?.message?.code +
+				prevProps?.isHighlight +
+				prevProps?.message?.reactions +
+				prevProps?.message?.content?.t +
+				prevProps?.message?.attachments?.length +
+				prevProps?.message?.references?.[0]?.content ===
+			nextProps?.message?.id +
+				nextProps?.message?.update_time +
+				nextProps?.previousMessage?.id +
+				nextProps?.message?.code +
+				nextProps?.isHighlight +
+				nextProps?.message?.reactions +
+				nextProps?.message?.content?.t +
+				nextProps?.message?.attachments?.length +
+				nextProps?.message?.references?.[0]?.content
 		);
 	}
 );

@@ -154,7 +154,7 @@ export type MezonContextValue = {
 	authenticateSMSOTPRequest: (phone: string) => Promise<ApiLinkAccountConfirmRequest>;
 
 	logOutMezon: (device_id?: string, platform?: string, clearSession?: boolean) => Promise<void>;
-	refreshSession: (session: Sessionlike) => Promise<Session | undefined>;
+	refreshSession: (session: Sessionlike, isSetNewUsername?: boolean) => Promise<Session | undefined>;
 	connectWithSession: (session: Sessionlike) => Promise<Session>;
 	createSocket: () => Promise<Socket>;
 	reconnectWithTimeout: (clanId: string) => Promise<unknown>;
@@ -426,7 +426,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 	);
 
 	const refreshSession = useCallback(
-		async (session: Sessionlike) => {
+		async (session: Sessionlike, isSetNewUsername?: boolean) => {
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
 			}
@@ -457,7 +457,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			sessionRef.current = newSession;
 			extractAndSaveConfig(newSession, isFromMobile);
 
-			if (!socketRef.current) {
+			if (!socketRef.current || isSetNewUsername) {
 				const socket = await createSocket();
 				socketRef.current = socket;
 			}

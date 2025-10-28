@@ -108,7 +108,7 @@ const RootListener = () => {
 				await Promise.allSettled(promise);
 			}
 			dispatch(directActions.fetchDirectMessage({ noCache: true }));
-			dispatch(clansActions.fetchClans({ noCache: true }));
+			dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 			return null;
 		} catch (error) {
 			/* empty */
@@ -257,7 +257,7 @@ const RootListener = () => {
 					promises.push(dispatch(clansActions.joinClan({ clanId })));
 					promises.push(dispatch(clansActions.changeCurrentClan({ clanId })));
 				}
-				promises.push(dispatch(clansActions.fetchClans({ noCache: true })));
+				promises.push(dispatch(clansActions.fetchClans({ noCache: true, isMobile: true })));
 				const results = await Promise.all(promises);
 				if (!isFromFCM && !clanId) {
 					const clanResp = results.find((result) => result.type === 'clans/fetchClans/fulfilled');
