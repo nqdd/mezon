@@ -925,8 +925,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 					let newScrollTop!: number;
 
-					console.log(isLoadingMoreBottomRef.current, 'isLoadingMoreBottomRef.current');
-
 					if (
 						(!isLoadingMoreBottomRef.current &&
 							((!isFirstJoinLoadRef.current && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
@@ -934,18 +932,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							lastMessage?.create_time &&
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
-						console.log('RUN1');
-
 						newScrollTop = scrollHeight;
 					} else if (anchor) {
-						console.log('RUN2');
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
 					} else if (scrollPositionRef.current?.messageId) {
 						const savedMessageElement = container.querySelector(`#msg-${scrollPositionRef.current.messageId}`);
-
-						console.log(scrollPositionRef.current?.messageId, 'scrollPositionRef.current?.messageId');
-
 						if (savedMessageElement) {
 							const savedMessageRect = savedMessageElement.getBoundingClientRect();
 							const containerRect = container.getBoundingClientRect();
@@ -955,7 +947,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 						}
 					} else {
-						console.log('RUN4');
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 					}

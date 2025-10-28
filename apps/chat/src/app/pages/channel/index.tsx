@@ -75,8 +75,6 @@ function useChannelSeen(channelId: string) {
 	}, [channelId, currentChannel, dispatch, isFocus]);
 	const { markAsReadSeen } = useSeenMessagePool();
 	const handleReadMessage = useCallback(() => {
-		console.log('lastMessage');
-
 		if (!lastMessage) {
 			return;
 		}
@@ -86,7 +84,6 @@ function useChannelSeen(channelId: string) {
 				: ChannelStreamMode.STREAM_MODE_THREAD;
 
 		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
-			console.log('markAsReadSeen');
 			markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
 		}
 	}, [lastMessage, currentChannel, markAsReadSeen]);
