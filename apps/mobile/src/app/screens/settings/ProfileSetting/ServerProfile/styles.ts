@@ -77,5 +77,17 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			gap: size.s_10,
 			alignItems: 'center'
+		},
+
+		keyboardAvoidingView: {
+			width: '100%'
+		},
+
+		clanNameWrapper: {
+			flex: 1
+		},
+
+		spacer: {
+			height: 250
 		}
 	});

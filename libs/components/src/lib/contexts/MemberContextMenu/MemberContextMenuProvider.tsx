@@ -170,7 +170,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 			},
 			handleAddFriend: () => {
 				if (user?.user?.username && user?.user?.id) {
-					addFriend({ usernames: [user.user.username], ids: [] });
+					addFriend({ ids: [user.user.id] });
 				}
 			},
 			handleRemoveFriend: () => {

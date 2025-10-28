@@ -6,7 +6,7 @@ import { OtpConfirm } from 'libs/components/src/lib/components/SettingAccount/Se
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }) => {
+const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod: () => void; onStepChange?: (step: boolean | null) => void }) => {
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation('common');
 	const [count, setCount] = useState(0);
@@ -19,6 +19,12 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 		email?: string;
 		otp?: string;
 	}>({});
+
+	useEffect(() => {
+		if (onStepChange) {
+			onStepChange(step);
+		}
+	}, [step, onStepChange]);
 
 	const handleSubmit = useCallback(async () => {
 		if (reqId) {
@@ -83,17 +89,26 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-2 flex flex-col justify-center items-center flex-1 relative">
-			<div className="flex flex-col justify-center !h-64 w-full">
-				<div className="flex overflow-x-hidden items-center gap-2">
-					{step && (
-						<div className="absolute left-0 top-0 flex gap-1" onClick={handleBackStep}>
-							<Icons.BackToCategoriesGif />
-							<p className="inline-block">Back</p>
-						</div>
-					)}
+			<div className="flex flex-col justify-center !h-64 w-full relative">
+				{step && (
+					<div className="flex justify-start gap-3 ml-3 absolute bottom-[-38px]">
+						{count === 0 && step && (
+							<button
+								type="button"
+								onClick={handleBackStep}
+								className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium mt-2"
+							>
+								<Icons.LeftArrowIcon className="w-4 h-4" />
+								{t('login.backToEmailInput')}
+							</button>
+						)}
+					</div>
+				)}
+
+				<div className="flex overflow-hidden items-center  gap-2">
 					<div className={`flex flex-col w-full shrink-0 ${step === null ? '' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
 						<div className="flex flex-col gap-2">
-							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
+							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300 leading-10 ml-2 ">
 								{t('login.email')}
 								<span className="text-red-500">*</span>
 							</label>
@@ -103,30 +118,32 @@ const FormLoginOTP = ({ handleChangeMethod }: { handleChangeMethod: () => void }
 								value={email}
 								onChange={handleEmailChange}
 								placeholder={t('login.enterEmail')}
-								className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 text-black dark:text-white`}
+								className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 text-black dark:text-white h-12`}
 								readOnly={false}
 							/>
 						</div>
-						<div className="min-h-[20px]">{errors.email && <FormError message={errors.email} />}</div>
+						{errors.email && <FormError message={errors.email} />}
 					</div>
 					<div className={`flex flex-col w-full shrink-0 ${step === null ? 'hidden' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
-						<div className={`flex flex-col gap-2 h-20 opacity-100`}>
-							<label className="block text-sm font-medium text-gray-900 dark:text-gray-200">
-								{t('login.otp')}
-								<span className="text-red-500">*</span>
-							</label>
+						<p className="text-sm text-gray-700 dark:text-gray-300 text-center mb-4">
+							{t('login.otpSentMessage', {
+								email: email.replace(/^(.{3})(.*)(@.*)$/, (_, p1, p2, p3) => `${p1}${'*'.repeat(p2.length)}${p3}`)
+							})}
+						</p>
+						<div className={`flex flex-col gap-2`}>
 							<OtpConfirm otp={otp} handleSetOTP={handleSetOTP} />
 						</div>
-
-						<div className="min-h-[20px]">{errors.otp && <FormError message={errors.otp} />}</div>
 					</div>
 				</div>
-				<ButtonLoading
-					className="w-full h-10 btn-primary btn-primary-hover"
-					disabled={!step ? !!errors.email || (step === null && errors.email === undefined) || disabled : disabled || count > 0}
-					label={`${!step ? t('login.send') : t('login.resendOtp')} ${count ? `(${count})` : ''}`}
-					onClick={handleSubmit}
-				/>
+				<div className="p-1 mt-2">
+					<ButtonLoading
+						className="w-full h-10 btn-primary btn-primary-hover"
+						disabled={!step ? !!errors.email || (step === null && errors.email === undefined) || disabled : disabled || count > 0}
+						label={`${!step ? t('login.send') : t('login.resendOtp')} ${count ? `(${count})` : ''}`}
+						onClick={handleSubmit}
+					/>
+				</div>
+
 				<div className=" flex flex-col items-center !mt-8">
 					<p className="text-sm">Couldn't access your email inbox?</p>
 					<p className="text-sm text-gray-500 inline-block">

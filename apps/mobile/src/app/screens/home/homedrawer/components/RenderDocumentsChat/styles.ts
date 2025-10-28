@@ -21,5 +21,19 @@ export const style = (colors: Attributes) =>
 			fontSize: size.small,
 			color: '#c7c7c7',
 			textTransform: 'uppercase'
+		},
+		fileNameContainer: {
+			maxWidth: '75%'
+		},
+		uploadingOverlay: {
+			backgroundColor: 'rgba(0,0,0,0.5)',
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0,
+			alignItems: 'flex-end',
+			justifyContent: 'center',
+			paddingRight: 10
 		}
 	});

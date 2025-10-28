@@ -15,6 +15,7 @@ interface IClanIconProps {
 	drag: () => void;
 	isActive?: boolean;
 	onLayout?: (dimensions: { width: number; height: number }) => void;
+	hideActive?: boolean;
 }
 
 export const ClanIcon = memo(
@@ -24,7 +25,7 @@ export const ClanIcon = memo(
 		const currentClanId = useSelector(selectCurrentClanId);
 		const badgeCountClan = useSelector(selectBadgeCountByClanId(props?.data?.clan_id ?? '')) || 0;
 
-		const isActiveCurrentClan = currentClanId === props?.data?.clan_id;
+		const isActiveCurrentClan = currentClanId === props?.data?.clan_id && !props.hideActive;
 		const onIconLayout = useCallback(
 			(event: any) => {
 				const { width, height } = event.nativeEvent.layout;
@@ -50,7 +51,7 @@ export const ClanIcon = memo(
 							<View style={[styles.logoClan, isActiveCurrentClan && styles.logoClanActive]}>
 								<ImageNative
 									url={createImgproxyUrl(props?.data?.logo ?? '', { width: 100, height: 100, resizeType: 'fit' })}
-									style={{ width: '100%', height: '100%' }}
+									style={styles.imageFullSize}
 									resizeMode={'cover'}
 								/>
 							</View>

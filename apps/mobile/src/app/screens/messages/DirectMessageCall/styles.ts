@@ -147,6 +147,65 @@ export const style = (colors: Attributes) =>
 		},
 		mutedAudioText: {
 			color: colors.text,
-			fontSize: size.s_14,
+			fontSize: size.s_14
+		},
+		headerControlsLeft: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_20
+		},
+		headerControlsRight: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
+		},
+		endCallButton: {
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'relative',
+			width: size.s_50 + size.s_4,
+			height: size.s_50 + size.s_4,
+			backgroundColor: '#dc2626',
+			opacity: 1,
+			borderRadius: size.s_100
+		},
+		flexContainer: {
+			flex: 1
+		},
+		mutedAudioAvatarContainerVisible: {
+			flexDirection: 'row',
+			top: size.s_150,
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15,
+			opacity: 1
+		},
+		mutedAudioAvatarContainerHidden: {
+			flexDirection: 'row',
+			top: size.s_150,
+			gap: size.s_6,
+			justifyContent: 'center',
+			alignItems: 'center',
+			alignSelf: 'center',
+			backgroundColor: colors.badgeHighlight,
+			paddingHorizontal: size.s_10,
+			marginHorizontal: size.s_10,
+			paddingVertical: size.s_6,
+			borderRadius: size.s_20,
+			zIndex: 15,
+			opacity: 0
+		},
+		callDurationTopVideo: {
+			top: 0
+		},
+		callDurationTopAvatar: {
+			top: size.s_70
 		}
 	});

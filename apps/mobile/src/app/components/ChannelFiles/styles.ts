@@ -28,5 +28,8 @@ export const style = (colors: Attributes) =>
 			color: colors.text,
 			fontSize: 14,
 			fontWeight: '600'
+		},
+		rootContainer: {
+			flex: 1
 		}
 	});

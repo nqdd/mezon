@@ -234,7 +234,6 @@ const SettingRightUser = ({
 			(attachment) => {
 				dispatch(
 					clansActions.updateUser({
-						user_name: name,
 						avatar_url: urlImage,
 						display_name: valueDisplayName,
 						about_me: editAboutUser,

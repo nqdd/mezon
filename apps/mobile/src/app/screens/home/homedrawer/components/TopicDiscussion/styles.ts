@@ -4,5 +4,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		channelView: {
 			flex: 1
+		},
+		panGestureContainer: {
+			flex: 1
 		}
 	});

@@ -28,6 +28,8 @@
 		"description": "Bạn có chắc muốn rời khỏi <strong>{{clanName}}</strong>? Bạn sẽ không thể tham gia lại máy chủ này trừ khi được mời lại.",
 		"cancel": "Hủy"
 	},
+	"leaveClan": "Rời khỏi Clan",
+	"leaveClanTitle": "Rời",
 	"categoryOverview": {
 		"categoryName": "Tên danh mục",
 		"categoryNamePlaceholder": "Nhập tên danh mục của bạn tại đây...",

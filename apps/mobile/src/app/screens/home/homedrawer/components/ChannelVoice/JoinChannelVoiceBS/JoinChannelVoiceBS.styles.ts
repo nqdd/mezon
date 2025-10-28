@@ -81,5 +81,48 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			paddingHorizontal: size.s_16,
 			alignItems: 'center'
+		},
+		container: {
+			width: '100%',
+			paddingVertical: size.s_10,
+			paddingHorizontal: size.s_10
+		},
+		headerRow: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			gap: 10
+		},
+		headerLeftContent: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			gap: 10,
+			flexGrow: 1,
+			flexShrink: 1
+		},
+		textFlexible: {
+			flexGrow: 1,
+			flexShrink: 1
+		},
+		inviteButton: {
+			backgroundColor: colors.tertiary,
+			padding: size.s_8,
+			borderRadius: size.s_22
+		},
+		centerContent: {
+			alignItems: 'center',
+			gap: size.s_6,
+			marginTop: size.s_20
+		},
+		avatarContainer: {
+			paddingVertical: size.s_10,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		avatarRow: {
+			flexDirection: 'row'
+		},
+		controlContainerTertiary: {
+			backgroundColor: colors.tertiary
 		}
 	});

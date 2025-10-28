@@ -185,7 +185,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
 				<View style={styles.wrapper}>
 					<View style={styles.headerWrapper}>
-						<Pressable onPress={() => navigation.goBack()} style={{ width: size.s_70, height: '100%' }}>
+						<Pressable onPress={() => navigation.goBack()} style={styles.backButton}>
 							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={20} width={20} color={themeValue.text} />
 						</Pressable>
 						<View style={styles.screenTitleWrapper}>
@@ -208,7 +208,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 
 					<View style={styles.contentWrapper}>
 						<View style={styles.searchFriend}>
-							<Feather size={size.s_18} name="search" style={{ color: themeValue.text }} />
+							<Feather size={size.s_18} name="search" color={themeValue.text} />
 							<TextInput
 								placeholder={t('common:searchPlaceHolder')}
 								placeholderTextColor={themeValue.textDisabled}

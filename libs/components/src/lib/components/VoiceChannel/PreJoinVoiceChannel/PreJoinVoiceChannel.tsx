@@ -1,5 +1,6 @@
 import { ChannelsEntity, selectStatusMenu, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store';
 import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import { VoiceChannelUsers } from './VoiceChannelUsers/VoiceChannelUsers';
 
 interface PreJoinVoiceChannelProps {
@@ -11,6 +12,7 @@ interface PreJoinVoiceChannelProps {
 }
 
 export const PreJoinVoiceChannel: React.FC<PreJoinVoiceChannelProps> = ({ channel, roomName, loading, handleJoinRoom, isCurrentChannel }) => {
+	const { t } = useTranslation('common');
 	const voiceChannelMembers = useAppSelector((state) => selectVoiceChannelMembersByChannelId(state, channel?.channel_id as string));
 	const statusMenu = useAppSelector(selectStatusMenu);
 
@@ -30,9 +32,9 @@ export const PreJoinVoiceChannel: React.FC<PreJoinVoiceChannelProps> = ({ channe
 						: channel?.channel_label}
 				</div>
 				{voiceChannelMembers.length > 0 ? (
-					<div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div>
+					<div className="text-gray-800 dark:text-white">{t('everyoneWaitingInside')}</div>
 				) : (
-					<div className="text-gray-800 dark:text-white">No one is currently in voice</div>
+					<div className="text-gray-800 dark:text-white">{t('noOneInVoice')}</div>
 				)}
 				<button
 					disabled={!roomName || loading}
@@ -40,7 +42,7 @@ export const PreJoinVoiceChannel: React.FC<PreJoinVoiceChannelProps> = ({ channe
 					onClick={handleJoinRoom}
 					data-e2e={generateE2eId('clan_page.screen.voice_room.button.join_voice')}
 				>
-					{loading ? 'Joining...' : 'Join Voice'}
+					{loading ? t('joining') : t('joinVoice')}
 				</button>
 			</div>
 		</div>

@@ -1,7 +1,15 @@
 import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { directActions, messagesActions, selectDirectById, selectIsUnreadDMById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	directActions,
+	messagesActions,
+	selectDirectById,
+	selectDmGroupCurrentId,
+	selectIsUnreadDMById,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import type { IExtendedMessage } from '@mezon/utils';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +34,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const { id } = props;
 	const navigation = useNavigation<any>();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
-
+	const currentDirectId = useAppSelector(selectDmGroupCurrentId);
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
@@ -36,6 +44,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		const userId = load(STORAGE_MY_USER_ID);
 		return userId?.toString() === senderId?.toString();
 	}, [senderId]);
+
+	const isShowActiveDMGroup = useMemo(() => {
+		return isTabletLandscape && directMessage?.id === currentDirectId;
+	}, [currentDirectId, directMessage?.id, isTabletLandscape]);
 
 	const redirectToMessageDetail = async () => {
 		dispatch(messagesActions.setIdMessageToJump(null));
@@ -157,15 +169,15 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, []);
 
 	return (
-		<TouchableOpacity style={[styles.messageItem]} onPress={redirectToMessageDetail} onLongPress={() => handleLongPress(directMessage)}>
+		<TouchableOpacity
+			style={[styles.messageItem, isShowActiveDMGroup && styles.activeDMGroupBackground]}
+			onPress={redirectToMessageDetail}
+			onLongPress={() => handleLongPress(directMessage)}
+		>
 			{isTypeDMGroup ? (
 				directMessage?.channel_avatar && !directMessage?.channel_avatar?.includes('avatar-group.png') ? (
 					<View style={styles.groupAvatarWrapper}>
-						<ImageNative
-							url={createImgproxyUrl(directMessage?.channel_avatar ?? '')}
-							style={{ width: '100%', height: '100%' }}
-							resizeMode={'cover'}
-						/>
+						<ImageNative url={createImgproxyUrl(directMessage?.channel_avatar ?? '')} style={styles.imageFullSize} resizeMode={'cover'} />
 					</View>
 				) : (
 					<View style={styles.groupAvatar}>
@@ -178,7 +190,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						<View style={styles.friendAvatar}>
 							<ImageNative
 								url={createImgproxyUrl(directMessage?.avatars?.[0] ?? '', { width: 50, height: 50, resizeType: 'fit' })}
-								style={{ width: '100%', height: '100%' }}
+								style={styles.imageFullSize}
 								resizeMode={'cover'}
 							/>
 						</View>
@@ -198,7 +210,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 				</View>
 			)}
 
-			<View style={{ flex: 1 }}>
+			<View style={styles.flexOne}>
 				<View style={styles.messageContent}>
 					<Text
 						numberOfLines={1}

@@ -3,7 +3,7 @@ import type { LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { t } from 'i18next';
-import type { Session } from 'mezon-js';
+import { Session } from 'mezon-js';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
 import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
@@ -47,7 +47,7 @@ export const initialAuthState: AuthState = {
 };
 
 function normalizeSession(session: Session): ISession {
-	return session;
+	return session as ISession;
 }
 
 export const authenticateApple = createAsyncThunk('auth/authenticateApple', async (token: string, thunkAPI) => {
@@ -102,16 +102,21 @@ export const refreshSession = createAsyncThunk('auth/refreshSession', async (_, 
 		return thunkAPI.rejectWithValue('Invalid refreshSession');
 	}
 
+	if (!sessionState.token || !sessionState.refresh_token) {
+		return thunkAPI.rejectWithValue('Invalid session tokens');
+	}
+
 	if (mezon.sessionRef.current?.token && mezon.sessionRef.current?.token === sessionState?.token) {
 		return sessionState;
 	}
 
-	let session;
+	let session = new Session(sessionState.token, sessionState.refresh_token, sessionState.created, sessionState.api_url, !!sessionState.is_remember);
+
 	try {
-		session = await mezon?.refreshSession({
-			...sessionState,
-			is_remember: sessionState.is_remember ?? false
-		});
+		session = (await mezon?.refreshSession({
+			...session,
+			is_remember: session.is_remember ?? false
+		})) as Session;
 	} catch (error: any) {
 		return thunkAPI.rejectWithValue(error);
 	}
@@ -125,20 +130,16 @@ export const refreshSession = createAsyncThunk('auth/refreshSession', async (_, 
 
 export const checkSessionWithToken = createAsyncThunk('auth/checkSessionWithToken', async (_, thunkAPI) => {
 	const mezon = await ensureClientAsync(getMezonCtx(thunkAPI));
-	const sessionState = selectSession(thunkAPI.getState() as unknown as { [AUTH_FEATURE_KEY]: AuthState });
 
-	if (!sessionState) {
+	if (!mezon.sessionRef.current) {
 		return thunkAPI.rejectWithValue('Invalid checkSessionWithToken');
 	}
 
-	if (mezon.sessionRef.current?.token === sessionState?.token) {
-		return sessionState;
-	}
 	let session;
 	try {
 		session = await mezon?.connectWithSession({
-			...sessionState,
-			is_remember: sessionState.is_remember ?? false
+			...mezon.sessionRef.current,
+			is_remember: mezon.sessionRef.current.is_remember ?? false
 		});
 	} catch (error: any) {
 		return thunkAPI.rejectWithValue('Redirect Login');
@@ -295,6 +296,15 @@ export const authSlice = createSlice({
 			}
 			state.isLogin = true;
 		},
+
+		updateSession(state, action: PayloadAction<ISession>) {
+			if (action.payload.user_id && state.session && state.session[action.payload.user_id]) {
+				state.session[action.payload.user_id] = {
+					...state.session[action.payload.user_id],
+					...action.payload
+				};
+			}
+		},
 		setLogout(state) {
 			if (state.session && state.activeAccount && Object.keys(state.session).length >= 2) {
 				delete state.session?.[state.activeAccount];
@@ -312,8 +322,7 @@ export const authSlice = createSlice({
 			state.loadingStatusEmail = 'not loaded';
 		},
 		checkFormatSession(state) {
-			const newSession: any = state.session;
-			if (newSession.token || !state.activeAccount) {
+			if (!state.activeAccount || !state.session) {
 				state.session = null;
 				state.isLogin = false;
 				state.activeAccount = null;
@@ -556,3 +565,23 @@ export const selectOthersSession = createSelector(getAuthState, (state: AuthStat
 export const selectAllSession = createSelector(getAuthState, (state: AuthState) => {
 	return state.session;
 });
+
+export const setupSessionSyncListener = (store: any) => {
+	if (typeof window !== 'undefined') {
+		const handleSessionRefresh = (event: Event) => {
+			const customEvent = event as CustomEvent;
+			const session = customEvent.detail?.session;
+			if (session) {
+				store.dispatch(authActions.updateSession(session));
+			}
+		};
+
+		window.addEventListener('mezon:session-refreshed', handleSessionRefresh);
+		return () => {
+			window.removeEventListener('mezon:session-refreshed', handleSessionRefresh);
+		};
+	}
+	return () => {
+		// noop
+	};
+};

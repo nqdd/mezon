@@ -136,9 +136,6 @@ const ModalUserProfile = ({
 	const handleContent = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setContent(e.target.value);
 	};
-	const checkOwner = (userIdPram: string) => {
-		return userIdPram === userId;
-	};
 
 	const checkUrl = (url: string | undefined) => {
 		if (url !== undefined && url !== '') return true;
@@ -181,16 +178,6 @@ const ModalUserProfile = ({
 		if (!modalRef.current) onClose();
 	});
 
-	const placeholderUserName = useMemo(() => {
-		if (userById) {
-			return userById?.clan_nick || userById?.user?.display_name || userById?.user?.username;
-		}
-		if (userID === message?.sender_id) {
-			return message?.display_name || message?.username;
-		}
-		return message?.references?.[0].message_sender_display_name || message?.references?.[0].message_sender_username;
-	}, [userById, userID]);
-
 	const usernameShow = useMemo(() => {
 		if (isFooterProfile) {
 			return userProfile?.user?.username;
@@ -226,13 +213,14 @@ const ModalUserProfile = ({
 		},
 		[userById, content]
 	);
+
 	return (
 		<div tabIndex={-1} ref={profileRef} className={`outline-none ${classWrapper}`} onClick={() => setOpenModal(initOpenModal)}>
 			<div
 				className={`${classBanner ? classBanner : 'rounded-tl-lg bg-indigo-400 rounded-tr-lg h-[105px]'} flex justify-end gap-x-2 p-2 `}
 				style={{ backgroundColor: color }}
 			>
-				{userInvoice && !isFooterProfile && <MemberInVoiceButton channelId={userInvoice} />}
+				{userInvoice && !isFooterProfile && !isDM && <MemberInVoiceButton channelId={userInvoice} />}
 				{!checkUser && !checkAnonymous && (
 					<GroupIconBanner
 						checkAddFriend={checkAddFriend}
@@ -292,13 +280,15 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkOwner(userID ?? '') && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
-						userById?.user?.username ? (
+					{userID !== '0' && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser ? (
+						userProfile?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input
 									type="text"
 									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
-									placeholder={t('placeholders.messageUser', { username: placeholderUserName })}
+									placeholder={t('placeholders.messageUser', {
+										username: userProfile?.user?.display_name || userProfile?.user?.username
+									})}
 									value={content}
 									onKeyPress={handleOnKeyPress}
 									onChange={handleContent}

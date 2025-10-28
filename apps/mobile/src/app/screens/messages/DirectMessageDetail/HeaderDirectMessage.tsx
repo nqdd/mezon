@@ -11,14 +11,13 @@ import {
 	groupCallActions,
 	messagesActions,
 	selectAllAccount,
-	selectBlockedUsersForMessage,
 	selectDmGroupCurrent,
 	selectLastMessageByChannelId,
 	selectLastSeenMessageStateByChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl, sleep } from '@mezon/utils';
+import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl } from '@mezon/utils';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
@@ -41,6 +40,7 @@ interface HeaderProps {
 	styles: any;
 	themeValue: any;
 	directMessageId: string;
+	isBlocked?: boolean;
 }
 export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
@@ -89,13 +89,12 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	return null;
 });
 
-const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, directMessageId }) => {
+const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, directMessageId, isBlocked }) => {
 	const currentDmGroup = useSelector(selectDmGroupCurrent(directMessageId ?? ''));
 	const navigation = useNavigation<any>();
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 	const { sendSignalingToParticipants } = useSendSignaling();
-	const listBlockedUser = useSelector(selectBlockedUsersForMessage);
 
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 	const { sendMessage } = useChatSending({ mode, channelOrDirect: currentDmGroup });
@@ -217,16 +216,6 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 	};
-
-	const isBlocked = useMemo(() => {
-		try {
-			if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
-			const blockedUser = listBlockedUser.some((user) => user?.user && user?.user?.id === currentDmGroup?.user_ids?.[0]);
-			return blockedUser;
-		} catch (e) {
-			return false;
-		}
-	}, [currentDmGroup, listBlockedUser]);
 
 	const headerOptions: IOption[] = [
 		{

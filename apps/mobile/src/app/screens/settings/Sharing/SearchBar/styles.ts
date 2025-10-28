@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -18,7 +19,7 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			paddingHorizontal: size.s_10,
-			borderRadius: size.s_24,
+			borderRadius: size.s_24
 		},
 
 		// Input icons
@@ -83,7 +84,7 @@ export const style = (colors: Attributes) =>
 		tooltipContainer: {
 			backgroundColor: colors.primary,
 			borderRadius: size.s_10,
-			paddingVertical: size.s_4,
+			paddingVertical: size.s_4
 		},
 		tooltipTitle: {
 			color: colors.white,
@@ -112,5 +113,19 @@ export const style = (colors: Attributes) =>
 			height: size.s_18,
 			borderRadius: size.s_12,
 			overflow: 'hidden'
+		},
+		groupAvatarImage: {
+			width: '100%',
+			height: '100%'
+		},
+		avatarGroupImage: {
+			width: size.s_18,
+			height: size.s_18,
+			borderRadius: size.s_18
+		},
+		tooltipContent: {
+			minWidth: size.s_150,
+			padding: 0,
+			borderRadius: size.s_10
 		}
 	});

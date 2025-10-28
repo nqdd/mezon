@@ -8,8 +8,10 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons, Menu } from '@mezon/ui';
-import { IMessageSelect, IMessageSelectOption, ModeResponsive } from '@mezon/utils';
-import React, { ReactElement, useEffect, useMemo, useState } from 'react';
+import type { IMessageSelect, IMessageSelectOption } from '@mezon/utils';
+import { ModeResponsive } from '@mezon/utils';
+import type { ReactElement } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 type MessageSelectProps = {
@@ -33,15 +35,15 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 		if (select?.disabled) {
 			return;
 		}
-		if (selectedOptions.length >= (select?.max_options || select.options.length)) {
+		if (selectedOptions.length >= (select?.max_options || select?.options?.length)) {
 			return;
 		}
 		if (!select?.min_options && !select?.max_options) {
 			setSelectedOptions([option]);
-			setAvailableOptions(select?.options.filter((o) => o.value !== option.value));
+			setAvailableOptions(select?.options?.filter((o) => o.value !== option?.value));
 		} else {
 			setSelectedOptions((prev) => [...prev, option]);
-			setAvailableOptions((prev) => prev.filter((o) => o.value !== option.value));
+			setAvailableOptions((prev) => prev.filter((o) => o.value !== option?.value));
 		}
 		if (!inside) {
 			dispatch(
@@ -51,7 +53,7 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 					button_id: buttonId,
 					sender_id: senderId,
 					user_id: currentUserId,
-					extra_data: option.value
+					extra_data: option?.value
 				})
 			);
 			return;

@@ -17,7 +17,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			margin: size.s_16,
 			borderRadius: size.s_16,
 			overflow: 'hidden',
-			width: '90%',
+			width: isTabletLandscape ? '60%' : '90%',
 			marginHorizontal: isTabletLandscape ? '30%' : 0,
 			zIndex: 100
 		},

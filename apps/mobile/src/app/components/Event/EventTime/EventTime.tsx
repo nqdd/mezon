@@ -1,6 +1,8 @@
+import type { LangCode } from '@mezon/mobile-components';
 import { isSameDay, timeFormat } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { EventManagementEntity } from '@mezon/store-mobile';
+import type { EventManagementEntity } from '@mezon/store-mobile';
+import i18n from '@mezon/translations';
 import { EEventStatus } from '@mezon/utils';
 import moment from 'moment';
 import { useMemo } from 'react';
@@ -38,19 +40,19 @@ export function EventTime({ event, eventStatus, minutes }: IEventTimeProps) {
 			default: {
 				color = themeValue.textStrong;
 				const localOffset = moment().utcOffset();
-				text = timeFormat(moment.utc(event?.start_time).add(localOffset, 'minutes').toISOString());
+				text = timeFormat(moment.utc(event?.start_time).add(localOffset, 'minutes').toISOString(), t, i18n.language as LangCode);
 				break;
 			}
 		}
 
 		return { colorStatusEvent: color, textStatusEvent: text };
-	}, [eventStatus, event.start_time]);
+	}, [eventStatus, event.start_time, t]);
 
 	return (
 		<View style={styles.inline}>
 			{isSameDay(event.create_time as string) && <MezonBadge title="new" type="success" />}
 			<MezonIconCDN icon={IconCDN.calendarIcon} height={size.s_20} width={size.s_20} color={colorStatusEvent} />
-			<Text style={{ ...styles.smallText, color: colorStatusEvent }}>{textStatusEvent}</Text>
+			<Text style={[styles.smallText, { color: colorStatusEvent }]}>{textStatusEvent}</Text>
 		</View>
 	);
 }

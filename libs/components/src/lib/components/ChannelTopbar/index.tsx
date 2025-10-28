@@ -439,7 +439,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 		if (avatar) {
 			return (
 				<div className="flex items-center justify-center">
-					<img className="w-8 h-8 flex-shrink-0 rounded-full object-cover" src={avatar} alt="" />
+					<img className="w-8 h-8 flex-shrink-0 rounded-full object-cover" src={avatar} alt="" data-e2e={generateE2eId('avatar.image')} />
 				</div>
 			);
 		}
@@ -675,6 +675,7 @@ const DmTopbarTools = memo(() => {
 								onClick={() => handleStartCall()}
 								disabled={isGroupCallDisabled}
 								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+								data-e2e={generateE2eId(`chat.direct_message.header.right_container.call`)}
 							>
 								<Icons.IconPhoneDM defaultSize="size-5" />
 							</button>
@@ -683,6 +684,7 @@ const DmTopbarTools = memo(() => {
 								onClick={() => handleStartCall(true)}
 								disabled={isGroupCallDisabled}
 								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+								data-e2e={generateE2eId(`chat.direct_message.header.right_container.video_call`)}
 							>
 								<Icons.IconMeetDM defaultSize="size-5" />
 							</button>
@@ -1012,7 +1014,12 @@ const AddMemberToGroupDm = memo(({ currentDmGroup }: { currentDmGroup: DirectEnt
 	};
 	const rootRef = useRef<HTMLDivElement>(null);
 	return (
-		<div onClick={handleOpenAddToGroupModal} ref={rootRef} className="none-draggable-area cursor-pointer">
+		<div
+			onClick={handleOpenAddToGroupModal}
+			ref={rootRef}
+			className="none-draggable-area cursor-pointer"
+			data-e2e={generateE2eId(`chat.direct_message.header.right_container.add_member`)}
+		>
 			{openAddToGroup && (
 				<div className="relative">
 					<CreateMessageGroup

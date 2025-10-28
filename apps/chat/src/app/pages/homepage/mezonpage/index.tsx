@@ -94,12 +94,7 @@ function MezonPage() {
 	}, []);
 
 	return (
-		<div
-			className="relative bg-[#0B0E2D] select-text"
-			style={{
-				fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial'
-			}}
-		>
+		<div className="relative bg-[#0B0E2D] select-text font-[system-ui,-apple-system,BlinkMacSystemFont,'Segoe_UI',Roboto,'Helvetica_Neue',Arial]">
 			<div className="bg-white layout relative flex flex-col items-center text-textDarkTheme overflow-visibile">
 				{!sideBarIsOpen && <HeaderMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
 
@@ -305,9 +300,8 @@ export const DropdownButton: React.FC<DropdownButtonProps> = ({
 				)}
 				<div className="absolute top-2.5 right-2.5 max-md:top-0 max-md:right-0">
 					<Icons.ChevronDownIcon
-						className={isWindow ? 'text-textDarkTheme' : 'text-transparent'}
+						className={`w-[26px] h-[26px] ${isWindow ? 'text-textDarkTheme' : 'text-transparent'}`}
 						onClick={toggleDropdownWindow}
-						style={{ width: 26, height: 26 }}
 					/>
 				</div>
 			</button>

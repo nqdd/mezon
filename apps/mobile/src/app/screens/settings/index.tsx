@@ -265,7 +265,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 					source={{
 						uri: linkRedirectLogout
 					}}
-					style={{ height: 0, position: 'absolute', zIndex: -1 }}
+					style={styles.webViewHidden}
 					originWhitelist={['*']}
 					injectedJavaScriptBeforeContentLoaded={injectedJS}
 					javaScriptEnabled={true}

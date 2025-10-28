@@ -40,6 +40,14 @@ export const ItemSetting = {
 	ON_COMUNITY: 'on-comunity'
 };
 
+// Helper function to create translated list items
+export const createTranslatedListItemSetting = (t: (key: string) => string): ItemObjProps[] => [
+	{ id: ItemSetting.OVERVIEW, name: getTranslatedItemName(ItemSetting.OVERVIEW, t) },
+	{ id: ItemSetting.ROLES, name: getTranslatedItemName(ItemSetting.ROLES, t) },
+	{ id: ItemSetting.CATEGORY_ORDER, name: getTranslatedItemName(ItemSetting.CATEGORY_ORDER, t) }
+];
+
+// Keep original for backward compatibility (will be removed later)
 export const listItemSetting: ItemObjProps[] = [
 	{ id: ItemSetting.OVERVIEW, name: 'Overview' },
 	{ id: ItemSetting.ROLES, name: 'Roles' },

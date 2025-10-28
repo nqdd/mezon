@@ -47,8 +47,11 @@ export const AddStatusUserModal = ({ isVisible, setIsVisible, userCustomStatus, 
 	);
 
 	useEffect(() => {
-		setLineStatus(userCustomStatus);
-	}, [userCustomStatus]);
+		if (isVisible) {
+			setLineStatus(userCustomStatus);
+			setStatusDuration(-1);
+		}
+	}, [isVisible, userCustomStatus]);
 
 	function handleTimeOptionChange(value: number) {
 		setStatusDuration(value);

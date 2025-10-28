@@ -16,7 +16,7 @@ import { UnreadDMBadgeList } from '../components/UnreadDMBadgeList';
 import BadgeFriendRequest from './BadgeFriendRequest';
 import { style } from './styles';
 
-const ServerList = React.memo(() => {
+const ServerList = React.memo(({ hideActive = false }: { hideActive?: boolean }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const navigation = useNavigation<any>();
@@ -40,12 +40,13 @@ const ServerList = React.memo(() => {
 				) : (
 					<MezonIconCDN icon={IconCDN.logoMezon} width={size.s_42} height={size.s_42} useOriginalColor={true} />
 				)}
+				{hideActive && <View style={styles.focusDirectMessage}></View>}
 				<BadgeFriendRequest />
 			</TouchableOpacity>
 			<SeparatorWithLine style={styles.separatorLine} />
 			<NestableScrollContainer removeClippedSubviews={true} contentContainerStyle={styles.contentScroll} showsVerticalScrollIndicator={false}>
 				<UnreadDMBadgeList />
-				<ListClanPopup />
+				<ListClanPopup hideActive={hideActive} />
 			</NestableScrollContainer>
 		</View>
 	);

@@ -42,6 +42,7 @@ import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
 import { style } from '../ChatBoxBottomBar/style';
 import { RecordMessageSending } from './RecordMessageSending';
+import { styles as localStyles } from './styles';
 
 interface IChatMessageSendingProps {
 	isAvailableSending: boolean;
@@ -309,12 +310,7 @@ export const ChatMessageSending = memo(
 		};
 
 		return (
-			<View
-				style={{
-					alignItems: 'center',
-					justifyContent: 'center'
-				}}
-			>
+			<View style={localStyles.sendingContainer}>
 				{isAvailableSending || !!attachmentDataRef?.length ? (
 					<Pressable
 						android_ripple={{

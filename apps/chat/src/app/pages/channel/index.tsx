@@ -54,6 +54,7 @@ import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import type { DragEvent } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChannelMedia } from './ChannelMedia';
@@ -123,6 +124,7 @@ type ChannelMainContentTextProps = {
 };
 
 const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainContentTextProps) => {
+	const { t } = useTranslation('common');
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 	const dispatch = useDispatch();
 	const isShowMemberList = useSelector(selectIsShowMemberList);
@@ -142,7 +144,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	const missionSum = useSelector((state) => selectMissionSum(state, currentClan?.id as string));
 	const onboardingClan = useAppSelector((state) => selectOnboardingByClan(state, currentChannel.clan_id as string));
 	const appIsOpen = useAppSelector((state) => selectToCheckAppIsOpening(state, channelId));
-	const appButtonLabel = appIsOpen ? 'Reset App' : 'Launch App';
+	const appButtonLabel = appIsOpen ? t('resetApp') : t('launchApp');
 
 	const currentMission = useMemo(() => {
 		return onboardingClan.mission[missionDone || 0];
@@ -178,11 +180,10 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	if (!canSendMessageDelayed) {
 		return (
 			<div
-				style={{ height: 44 }}
-				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
 				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
-				You do not have permission to send messages in this channel.
+				{t('noPermissionToSendMessage')}
 			</div>
 		);
 	}
@@ -224,7 +225,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 					</div>
 					<div className="w-[calc(50%_-_4px)] border-theme-primary flex gap-1 items-center justify-center bg-item-theme py-2 px-2 rounded-md cursor-pointer font-medium text-theme-primary-hover">
 						<Icons.AppHelpIcon className="w-6" />
-						<div>Help</div>
+						<div>{t('help')}</div>
 					</div>
 				</div>
 			)}

@@ -1,25 +1,26 @@
 {
-  "auditLogComponent": {
-    "title": "Audit Log",
-    "filterByUser":"Filter By User",
-    "filterByAction":"Filter By Action",
-    "filterBtn": "Filter"
-  },
-  "auditLogItem": {
-    "performedAnAction":"performed an action",
-    "toChannel": "to channel",
-    "remove": "remove",
-    "add": "add"
-  },
-  "filterActionAuditLog": {
-    "placeholder": "Search Action"
-  },
-  "filterUserAuditLog": {
-    "placeholder": "Search Users",
-    "allUsers":"All Users"
-  },
-  "emptyAuditLog": {
-    "noLogsYet": "NO LOGS YET",
-    "description": "Once moderators begin moderating, you can moderate the moderation here."
-  }
+	"auditLogComponent": {
+		"title": "Audit Log",
+		"filterByUser": "Filter By User",
+		"filterByAction": "Filter By Action",
+		"filterBtn": "Filter"
+	},
+	"auditLogItem": {
+		"performedAnAction": "performed an action",
+		"toChannel": "to channel",
+		"remove": "remove",
+		"add": "add"
+	},
+	"filterActionAuditLog": {
+		"allActions": "All Actions",
+		"placeholder": "Search Action"
+	},
+	"filterUserAuditLog": {
+		"allUsers": "All Users",
+		"placeholder": "Search Users"
+	},
+	"emptyAuditLog": {
+		"noLogsYet": "NO LOGS YET",
+		"description": "Once moderators begin moderating, you can moderate the moderation here."
+	}
 }

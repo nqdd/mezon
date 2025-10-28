@@ -1,12 +1,12 @@
-import { accountActions, authActions, AuthenticateEmailPayload, selectAllAccount, selectSession, useAppDispatch } from '@mezon/store';
-import { Session } from 'mezon-js';
-import { ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
+import type { AuthenticateEmailPayload } from '@mezon/store';
+import { accountActions, authActions, selectAllAccount, useAppDispatch } from '@mezon/store';
+import type { Session } from 'mezon-js';
+import type { ApiLinkAccountConfirmRequest, ApiLoginIDResponse } from 'mezon-js/dist/api.gen';
 import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 export function useAuth() {
 	const userProfile = useSelector(selectAllAccount);
-	const session = useSelector(selectSession);
 	const dispatch = useAppDispatch();
 
 	const userId = useMemo(() => userProfile?.user?.id, [userProfile]);
@@ -85,8 +85,7 @@ export function useAuth() {
 			qRCode,
 			checkLoginRequest,
 			fetchUserProfile,
-			confirmLoginRequest,
-			session
+			confirmLoginRequest
 		}),
 		[
 			userProfile,
@@ -97,8 +96,7 @@ export function useAuth() {
 			qRCode,
 			checkLoginRequest,
 			fetchUserProfile,
-			confirmLoginRequest,
-			session
+			confirmLoginRequest
 		]
 	);
 }

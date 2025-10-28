@@ -230,24 +230,16 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 		<>
 			<ModalConfirmRecord visible={isConfirmRecordModalVisible} onBack={handleBackRecord} onConfirm={handleQuitRecord} />
 			{/*TODO: Refactor this component*/}
-			<View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: size.s_40, paddingVertical: size.s_20 }}>
+			<View style={styles.container}>
 				{isPreviewRecord && recordUrl ? (
 					<RenderAudioChat audioURL={recordUrl} stylesContainerCustom={styles.containerAudioCustom} styleLottie={styles.customLottie} />
 				) : (
 					<RecordingAudioMessage audioRecorderPlayer={audioRecorderPlayer} ref={recordingWaveRef} />
 				)}
 
-				<View style={{ marginTop: size.s_20 }}>
+				<View style={styles.textSection}>
 					<Text style={styles.title}>{t('handsFreeMode')}</Text>
-					<View
-						style={{
-							flexDirection: 'row',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							marginVertical: size.s_20,
-							width: '80%'
-						}}
-					>
+					<View style={styles.buttonsRow}>
 						<TouchableOpacity onPress={handleRemoveRecord} style={styles.boxIcon}>
 							<MezonIconCDN icon={IconCDN.trashIcon} color={themeValue.white} />
 						</TouchableOpacity>

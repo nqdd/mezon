@@ -63,5 +63,18 @@ export const style = (colors: Attributes) =>
 		friendListWrapper: {
 			flex: 1,
 			paddingTop: size.s_10
+		},
+
+		container: {
+			flex: 1
+		},
+
+		backButton: {
+			width: size.s_70,
+			height: '100%'
+		},
+
+		searchIcon: {
+			// Icon color will be dynamic
 		}
 	});

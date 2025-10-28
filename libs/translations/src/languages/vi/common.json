@@ -23,8 +23,101 @@
 	"categoryFilteringComingSoon": "Lọc theo danh mục sẽ được triển khai sớm!",
 	"invalidJWT": "JWT không hợp lệ",
 	"muteNotification": "Tắt thông báo",
+	"modalConfirm": {
+		"defaultTitle": "Tiêu đề Modal",
+		"defaultButtonName": "OK",
+		"defaultMessage": "Bạn sẽ không thể tham gia lại Clan này trừ khi được mời lại."
+	},
+	"firstJoinPopup": {
+		"ifYouHaveInvitation": "Nếu bạn có liên kết mời,",
+		"joinClan": "Tham gia clan",
+		"enterInvitationLink": "Nhập liên kết mời bên dưới để tham gia clan có sẵn",
+		"invitationLink": "Liên kết mời",
+		"invitationInvalid": "Lời mời không hợp lệ hoặc đã hết hạn",
+		"example": "Ví dụ: https://mezon.ai/invite/:id, hTKzmak",
+		"or": "Hoặc",
+		"createYourOwnClan": "Tạo clan của riêng bạn"
+	},
 	"thread": "Chủ đề",
 	"members": "Thành viên",
+	"gifs": "Gif",
+	"stickers": "Nhãn dán",
+	"emojis": "Biểu cảm",
+	"sounds": "Âm thanh",
+	"friend": "Bạn bè",
+	"pending": "Đang chờ",
+	"accept": "Chấp nhận",
+	"ignore": "Bỏ qua",
+	"addFriend": "Thêm bạn",
+	"transfer": "Chuyển",
+	"transferFunds": "Chuyển tiền",
+	"noPermissionToSendMessage": "Bạn không có quyền gửi tin nhắn trong kênh này.",
+	"resetApp": "Đặt lại ứng dụng",
+	"launchApp": "Khởi chạy ứng dụng",
+	"help": "Trợ giúp",
+	"unlockItem": "Mở khóa vật phẩm",
+	"itemLockedMessage": "Vật phẩm này đã bị khóa. Chi tiêu 500 token để mở vật phẩm này. Bấm xác nhận để mua.",
+	"confirm": "Xác nhận",
+	"everyoneWaitingInside": "Mọi người đang chờ bạn bên trong",
+	"noOneInVoice": "Hiện tại không có ai trong voice",
+	"joining": "Đang tham gia...",
+	"joinVoice": "Tham gia Voice",
+	"reset": "Đặt lại",
+	"saveChanges": "Lưu thay đổi",
+	"timeFormat": {
+		"daysOfWeek": {
+			"sun": "Chủ nhật",
+			"mon": "Thứ hai",
+			"tue": "Thứ ba",
+			"wed": "Thứ tư",
+			"thu": "Thứ năm",
+			"fri": "Thứ sáu",
+			"sat": "Thứ bảy"
+		},
+		"months": {
+			"jan": "1",
+			"feb": "2",
+			"mar": "3",
+			"apr": "4",
+			"may": "5",
+			"jun": "6",
+			"jul": "7",
+			"aug": "8",
+			"sep": "9",
+			"oct": "10",
+			"nov": "11",
+			"dec": "12"
+		},
+		"suffix": {
+			"st": "",
+			"nd": "",
+			"rd": "",
+			"th": ""
+		},
+		"weekNames": {
+			"first": "đầu tiên",
+			"second": "thứ hai",
+			"third": "thứ ba",
+			"fourth": "thứ tư",
+			"fifth": "thứ năm"
+		},
+		"timeAgo": {
+			"years": "{{count}} năm",
+			"months": "{{count}} tháng",
+			"days": "{{count}} ngày",
+			"hours": "{{count}} giờ",
+			"minutes": "{{count}} phút",
+			"justNow": "Vừa xong"
+		},
+		"fullDate": "{{dayName}}, ngày {{day}} tháng {{monthName}} - {{hours}}:{{minutes}}"
+	},
+	"todayAtTime": "Hôm nay lúc {{time}}",
+	"yesterdayAtTime": "Hôm qua lúc {{time}}",
+	"deleteCategory": "Xóa danh mục",
+	"cannotBeUndone": "Hành động này không thể hoàn tác",
+	"category": "Danh mục",
+	"notificationSetting": "Cài đặt thông báo",
+	"replyingTo": "Đang trả lời",
 	"offlines": "Ngoại tuyến",
 	"media": "Đa phương tiện",
 	"image": "Ảnh",
@@ -68,6 +161,9 @@
 	"showNotificationDesc": "Thông báo sẽ hiển thị mà không có nội dung chi tiết.",
 	"save": "Lưu",
 	"limitedPhotosAccess": "Chọn thêm ảnh",
+	"actions": "Hành động",
+	"copiedCanvasLink": "Đã sao chép liên kết canvas vào bộ nhớ tạm",
+	"forwarded": "Đã chuyển tiếp",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",
@@ -150,7 +246,7 @@
 		"enterEmail": "Nhập email của bạn",
 		"enterPhone": "Nhập số điện thoại của bạn",
 		"logIn": "Đăng nhập",
-		"keepSignedIn": "Giữ tôi đăng nhập",
+		"keepSignedIn": "Duy trì đăng nhập",
 		"invalidCredentials": "Email hoặc mật khẩu không hợp lệ",
 		"qr": {
 			"signIn": "Đăng nhập bằng mã QR",
@@ -182,7 +278,9 @@
 		"getStarted": "Bắt đầu nào",
 		"invalidPhoneNumber": "Số điện thoại không hợp lệ",
 		"loginTooFast": "Đăng nhập quá nhanh. Vui lòng đợi {{seconds}} giây trước khi thử lại.",
-		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập"
+		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập",
+		"otpSentMessage": "Chúng tôi đã gửi mã OTP đến email {{email}}, hãy kiểm tra hộm thư của bạn",
+		"backToEmailInput": "Thay đổi email?"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -277,5 +375,30 @@
 		"locationPermissionTitle": "Quyền truy cập vị trí",
 		"locationPermissionDesc": "Mezon cần quyền truy cập vị trí của bạn.",
 		"permissionDenied": "Quyền truy cập bị từ chối"
+	},
+	"dateTime": {
+		"daysShort": {
+			"sun": "CN",
+			"mon": "Th 2",
+			"tue": "Th 3",
+			"wed": "Th 4",
+			"thu": "Th 5",
+			"fri": "Th 6",
+			"sat": "Th 7"
+		},
+		"monthsShort": {
+			"jan": "thg 1",
+			"feb": "thg 2",
+			"mar": "thg 3",
+			"apr": "thg 4",
+			"may": "thg 5",
+			"jun": "thg 6",
+			"jul": "thg 7",
+			"aug": "thg 8",
+			"sep": "thg 9",
+			"oct": "thg 10",
+			"nov": "thg 11",
+			"dec": "thg 12"
+		}
 	}
 }

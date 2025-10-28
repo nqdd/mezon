@@ -65,7 +65,7 @@ const fetchEphemeralKeyPair = createAsyncThunk('wallet/fetchEphemeralKeyPair', a
 
 const fetchZkProofs = createAsyncThunk(
 	'wallet/fetchZkProofs',
-	async (req: { userId: string; ephemeralPrivateKey?: string; jwt: string }, thunkAPI) => {
+	async (req: { userId: string; ephemeralKeyPair?: IEphemeralKeyPair; jwt: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const ephemeralKeyPair = selectEphemeralKeyPair(thunkAPI.getState() as any);
@@ -77,7 +77,24 @@ const fetchZkProofs = createAsyncThunk(
 				return thunkAPI.rejectWithValue('ZkClient not initialized');
 			}
 
-			const response = await mezon.zkClient.getZkProofs({ ...req, address, ephemeralPublicKey: ephemeralKeyPair?.publicKey });
+			let jwt = mezon.session.token;
+			if (mezon.session.isexpired(Date.now() / 1000)) {
+				const session = await mezon?.refreshSession({
+					...mezon.session,
+					is_remember: mezon.session.is_remember ?? false
+				});
+				if (!session?.token) {
+					return thunkAPI.rejectWithValue('Session refresh failed');
+				}
+				jwt = session.token;
+			}
+
+			const response = await mezon.zkClient.getZkProofs({
+				userId: req.userId,
+				jwt,
+				address,
+				ephemeralPublicKey: ephemeralKeyPair?.publicKey
+			});
 			return response;
 		} catch (error) {
 			if (error instanceof Error) {
@@ -215,6 +232,7 @@ export const walletSlice = createSlice({
 			}
 		},
 		setLogout(state) {
+			state.address = undefined;
 			state.wallet = undefined;
 			state.zkProofs = undefined;
 			state.ephemeralKeyPair = undefined;

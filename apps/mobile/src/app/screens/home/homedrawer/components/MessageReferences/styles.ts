@@ -67,5 +67,12 @@ export const style = (colors: Attributes) =>
 		tapToSeeAttachmentText: {
 			color: colors.text,
 			fontSize: size.small
+		},
+		attachmentIconWrapper: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		dmMessageStyleText: {
+			fontSize: size.small
 		}
 	});

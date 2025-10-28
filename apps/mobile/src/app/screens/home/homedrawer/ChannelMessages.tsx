@@ -24,13 +24,12 @@ import { Direction_Mode, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DeviceEventEmitter, Keyboard, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MessageNewLine from '../../../components/MessageNewLine/MessageNewLine';
 import { TopAlert } from '../../../components/NotificationPermissionAlert';
-import { IconCDN } from '../../../constants/icon_cdn';
 import MessageItem from './MessageItem';
+import ButtonJumpToPresent from './components/ButtonJumpToPresent';
 import ChannelMessageList, { ViewLoadMore } from './components/ChannelMessageList';
 import { ChannelMessageLoading } from './components/ChannelMessageLoading';
 import { MessageUserTyping } from './components/MessageUserTyping';
@@ -39,6 +38,7 @@ import { style } from './styles';
 type ChannelMessagesProps = {
 	channelId: string;
 	lastSeenMessageId?: string;
+	lastSentMessageId?: string;
 	topicId?: string;
 	clanId: string;
 	mode: ChannelStreamMode;
@@ -53,7 +53,7 @@ const getEntitiesArray = (state: any) => {
 };
 
 const ChannelMessages = React.memo(
-	({ channelId, lastSeenMessageId, topicId, clanId, mode, isDM, isPublic, topicChannelId }: ChannelMessagesProps) => {
+	({ channelId, lastSeenMessageId, lastSentMessageId, topicId, clanId, mode, isDM, isPublic, topicChannelId }: ChannelMessagesProps) => {
 		const dispatch = useAppDispatch();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
@@ -219,7 +219,7 @@ const ChannelMessages = React.memo(
 
 		const onLoadMore = useCallback(
 			async (direction: ELoadMoreDirection) => {
-				if (messages?.length < 10 || idMessageToJump?.id) return;
+				if (messages?.length < 10) return;
 				try {
 					if (direction === ELoadMoreDirection.top) {
 						const canLoadMore = await isCanLoadMore(ELoadMoreDirection.top);
@@ -262,7 +262,7 @@ const ChannelMessages = React.memo(
 					console.error('Error in onLoadMore:', error);
 				}
 			},
-			[messages?.length, idMessageToJump?.id, dispatch, clanId, topicChannelId, channelId, topicId, isCanLoadMore]
+			[messages?.length, dispatch, clanId, topicChannelId, channelId, topicId, isCanLoadMore]
 		);
 
 		const renderItem = useCallback(
@@ -359,15 +359,14 @@ const ChannelMessages = React.memo(
 					<View />
 				)}
 				{isLoadMore.current?.[ELoadMoreDirection.bottom] && <ViewLoadMore />}
-				<View
-					style={{
-						height: size.s_8
-					}}
-				/>
-				{isShowJumpToPresent && !isLoadMore.current?.[ELoadMoreDirection.bottom] && (
-					<TouchableOpacity style={styles.btnScrollDown} onPress={handleJumpToPresent} activeOpacity={0.8}>
-						<MezonIconCDN icon={IconCDN.arrowLargeDownIcon} color={themeValue.textStrong} height={size.s_18} width={size.s_18} />
-					</TouchableOpacity>
+				<View style={styles.spacerHeight8} />
+				{isShowJumpToPresent && (
+					<ButtonJumpToPresent
+						handleJumpToPresent={handleJumpToPresent}
+						lastSeenMessageId={lastSeenMessageId}
+						lastSentMessageId={lastSentMessageId}
+						hasNewLine={lastSentMessageId !== lastSeenMessageId && !haveScrollToBottom}
+					/>
 				)}
 
 				<MessageUserTyping channelId={channelId} isDM={isDM} isPublic={isPublic} mode={mode} />

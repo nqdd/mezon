@@ -1,14 +1,7 @@
 import { useFriends } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	EStateFriend,
-	RootState,
-	friendsActions,
-	getStore,
-	requestAddFriendParam,
-	selectAllAccount,
-	selectStatusSentMobile
-} from '@mezon/store-mobile';
+import type { RootState, requestAddFriendParam } from '@mezon/store-mobile';
+import { EStateFriend, friendsActions, getStore, selectCurrentUsername, selectStatusSentMobile } from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, StatusBar, Text, TextInput, View } from 'react-native';
@@ -29,7 +22,7 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { isShow, onClose } = props;
-	const userProfile = useSelector(selectAllAccount);
+	const currentUsername = useSelector(selectCurrentUsername);
 	const { addFriend, friends } = useFriends();
 	const dispatch = useDispatch();
 	const [visibleModal, setVisibleModal] = useState<boolean>(false);
@@ -91,6 +84,13 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 
 		const friend = friends?.find((u) => u?.user?.username === firstUsername);
 
+		if (friend?.user?.username === currentUsername) {
+			Toast.show({
+				type: 'error',
+				text1: t('toast.sendAddFriendFail')
+			});
+			return;
+		}
 		if (friend?.state === EStateFriend.FRIEND) {
 			Toast.show({
 				type: 'error',
@@ -147,7 +147,7 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 					keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 					style={styles.fill}
 				>
-					<View style={[styles.fill, { paddingVertical: 20 }]}>
+					<View style={[styles.fill, styles.paddingVertical20]}>
 						<View style={styles.fill}>
 							<Text style={styles.defaultText}>{t('addFriend.whoYouWantToAddFriend')}</Text>
 							<View style={styles.searchUsernameWrapper}>
@@ -162,17 +162,17 @@ export const AddFriendModal = React.memo((props: IAddFriendModal) => {
 								/>
 							</View>
 							<View style={styles.byTheWayText}>
-								<Text style={styles.defaultText}>{`${t('addFriend.byTheWay')} ${userProfile?.user?.username}`}</Text>
+								<Text style={styles.defaultText}>{`${t('addFriend.byTheWay')} ${currentUsername}`}</Text>
 							</View>
 						</View>
 						<View style={[styles.buttonWrapper]}>
-							<View style={{ height: size.s_50 }}>
+							<View style={styles.heightAuto}>
 								<MezonButton
 									disabled={!firstUsername?.length}
 									onPress={() => sentFriendRequest()}
 									containerStyle={[styles.sendButton, !firstUsername?.length && { backgroundColor: themeValue.textDisabled }]}
 									title={t('addFriend.sendRequestButton')}
-									titleStyle={{ color: baseColor.white, fontSize: size.medium }}
+									titleStyle={styles.buttonTitleStyle}
 								/>
 							</View>
 						</View>

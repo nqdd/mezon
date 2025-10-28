@@ -100,9 +100,7 @@ export default function InviteAcceptModal({ inviteId, onClose, showModal }: Invi
 					<div className="flex justify-center gap-5 text-sm">
 						<div className="flex items-center">
 							<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-							<span>
-								{t('acceptModal.memberCount', { count: Number(selectInvite?.member_count || 1) })}
-							</span>
+							<span>{t('acceptModal.memberCount', { count: Number(selectInvite?.member_count || 1) })}</span>
 						</div>
 					</div>
 				</div>

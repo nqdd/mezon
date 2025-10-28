@@ -1,4 +1,4 @@
-import { Attributes, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, Metrics, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape?: boolean) =>
@@ -88,5 +88,26 @@ export const style = (colors: Attributes, isTabletLandscape?: boolean) =>
 		},
 		chevronIcon: {
 			marginBottom: size.s_4
+		},
+		primaryBackground: {
+			backgroundColor: colors.primary
+		},
+		flatListStyle: {
+			marginBottom: -size.s_20
+		},
+		flatListContentContainer: {
+			minHeight: '100%'
+		},
+		columnWrapper: {
+			justifyContent: 'space-between'
+		},
+		emojiListContainer: {
+			flex: 1
+		},
+		cateItemActive: {
+			backgroundColor: baseColor.blurple
+		},
+		cateItemInactive: {
+			backgroundColor: 'transparent'
 		}
 	});

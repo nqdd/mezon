@@ -14,7 +14,8 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 
 		container: {
-			flex: 1
+			flex: 1,
+			backgroundColor: colors.primary
 		},
 
 		leftContainer: {
@@ -300,5 +301,19 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		desActivity: {
 			fontSize: size.s_10,
 			color: colors.textDisabled
+		},
+		activeDMGroupBackground: {
+			backgroundColor: colors.secondaryLight
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
+		},
+		flexOne: {
+			flex: 1
+		},
+		separator: {
+			height: '100%',
+			width: size.s_4
 		}
 	});

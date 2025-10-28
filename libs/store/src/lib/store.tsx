@@ -461,6 +461,11 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 	storeInstance = store;
 	storeCreated = true;
 	const persistor = persistStore(store);
+
+	import('./auth/auth.slice').then(({ setupSessionSyncListener }) => {
+		setupSessionSyncListener(store);
+	});
+
 	return { store, persistor };
 };
 

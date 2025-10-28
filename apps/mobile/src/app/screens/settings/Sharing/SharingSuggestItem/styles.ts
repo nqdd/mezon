@@ -12,5 +12,10 @@ export const style = (colors: Attributes) =>
 		titleSuggestion: {
 			fontSize: size.medium,
 			color: colors.text
+		},
+		avatarImage: {
+			width: size.s_24,
+			height: size.s_24,
+			borderRadius: 50
 		}
 	});

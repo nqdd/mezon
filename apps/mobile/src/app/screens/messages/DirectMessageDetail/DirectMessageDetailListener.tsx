@@ -8,9 +8,11 @@ import React, { memo, useCallback, useContext, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, DeviceEventEmitter, Platform, StatusBar, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import ReasonPopup from '../../home/homedrawer/components/ChannelVoice/ReasonPopup';
 
 export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { dmType: number; directMessageId: string }) => {
+	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const navigation = useNavigation();
 	const dispatch = useAppDispatch();
@@ -100,11 +102,12 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 				const data = {
 					children: <ReasonPopup title={t('remove.title')} confirmText={t('remove.button')} content={t('remove.content')} />
 				};
+				dispatch(directActions.setDmGroupCurrentId(''));
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-				navigation.goBack();
+				if (!isTabletLandscape) navigation.goBack();
 			}
 		},
-		[currentDirectId, t, navigation]
+		[currentDirectId]
 	);
 
 	useEffect(() => {

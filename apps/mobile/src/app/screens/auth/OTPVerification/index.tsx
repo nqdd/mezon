@@ -156,6 +156,8 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						// If the account is newly created or a username is missing, prompt for username update
 						if (!resp?.username || resp?.username === phoneNumber) {
 							dispatch(appActions.setIsShowUpdateUsername(true));
+						} else {
+							dispatch(appActions.setIsShowUpdateUsername(false));
 						}
 					}
 
@@ -242,7 +244,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
 			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
 			<KeyboardAvoidingView
-				style={{ flex: 1 }}
+				style={styles.keyboardAvoidingView}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
@@ -254,7 +256,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 						<Text style={styles.emailText}>{email || phoneNumber}</Text>
 					</View>
 
-					<View style={{ alignSelf: 'center' }}>
+					<View style={styles.otpInputContainer}>
 						<OTPInput
 							onOtpChange={handleOtpChange}
 							onOtpComplete={handleOtpComplete}
@@ -269,7 +271,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 							disabled={(!isValidOTP && !isResendEnabled) || isLoading}
 						>
 							{isLoading ? (
-								<ActivityIndicator size="small" color="#FFFFFF" style={{ zIndex: 10 }} />
+								<ActivityIndicator size="small" color="#FFFFFF" style={styles.activityIndicator} />
 							) : (
 								<Text style={[styles.verifyButtonText]}>
 									{isResendEnabled ? t('otpVerify.resendOTP') : `${t('otpVerify.verifyOTP')} (${countdown})`}

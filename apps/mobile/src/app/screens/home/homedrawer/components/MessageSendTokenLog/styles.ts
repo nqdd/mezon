@@ -42,5 +42,15 @@ export const style = (colors: Attributes) =>
 		transactionTitle: {
 			color: baseColor.blurple,
 			fontSize: size.small
+		},
+		wrapper: {
+			flexDirection: 'row'
+		},
+		iconContainer: {
+			width: size.s_40
+		},
+		contentContainer: {
+			marginBottom: size.s_4,
+			flexShrink: 1
 		}
 	});

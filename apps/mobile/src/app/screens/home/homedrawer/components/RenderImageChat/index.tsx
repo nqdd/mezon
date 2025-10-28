@@ -246,7 +246,7 @@ const ImageRenderer = React.memo(
 						url={imageProxyObj?.url}
 						urlOriginal={image?.url}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 					/>
 				) : (
 					<FastImage
@@ -256,18 +256,20 @@ const ImageRenderer = React.memo(
 							cache: FastImage.cacheControl.immutable
 						}}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 						onError={() => onError(new Error(`FastImage load failed for ${imageProxyObj?.url}`))}
 					/>
 				)}
 
 				{!!remainingImagesCount && (
 					<View
-						style={{
-							...styles.overlay,
-							width: photoSize?.width / (isTablet ? 1.8 : 1),
-							height: photoSize?.height / (isTablet ? 1.8 : 1)
-						}}
+						style={[
+							styles.overlay,
+							{
+								width: photoSize?.width / (isTablet ? 1.8 : 1),
+								height: photoSize?.height / (isTablet ? 1.8 : 1)
+							}
+						]}
 					>
 						<Text style={styles.moreText}>+{remainingImagesCount}</Text>
 					</View>
