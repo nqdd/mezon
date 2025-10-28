@@ -17,7 +17,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { DEFAULT_ROLE_COLOR, EUserStatus, IMessageWithUser } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EUserStatus } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -84,7 +84,7 @@ const UserProfile = React.memo(
 		onClose,
 		onActionVoice,
 		checkAnonymous,
-		 messageAvatar,
+		messageAvatar,
 		showAction = true,
 		showRole = true,
 		currentChannel,
@@ -110,9 +110,11 @@ const UserProfile = React.memo(
 		const dmChannel = useMemo(() => {
 			return listDM?.find((dm) => dm?.id === directId);
 		}, [directId, listDM]);
+
 		const isDMGroup = useMemo(() => {
-			return dmChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
-		}, [dmChannel?.type]);
+			const channelType = dmChannel?.type || currentChannel?.type;
+			return channelType === ChannelType.CHANNEL_TYPE_GROUP;
+		}, [currentChannel?.type, dmChannel?.type]);
 
 		const status = useMemo(() => {
 			const userIdInfo = userId || user?.id;

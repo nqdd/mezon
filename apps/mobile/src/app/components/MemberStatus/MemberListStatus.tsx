@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, getStore, selectAllChannelMembersClan, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
+import { getStore, selectAllChannelMembersClan, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -86,7 +86,7 @@ export const MemberListStatus = React.memo(() => {
 	const navigateToNewGroupScreen = () => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.NEW_GROUP,
-			params: { directMessage: currentChannel as DirectEntity }
+			params: { directMessageId: currentChannel?.id || currentChannel?.channel_id || '' }
 		});
 	};
 
