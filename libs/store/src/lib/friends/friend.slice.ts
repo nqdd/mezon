@@ -349,10 +349,11 @@ export const friendsActions = {
 	upsertFriendRequest
 };
 
-const { selectAll, selectById } = friendsAdapter.getSelectors();
+const { selectAll, selectById, selectEntities } = friendsAdapter.getSelectors();
 
 export const getFriendsState = (FriendState: { [FRIEND_FEATURE_KEY]: FriendsState }): FriendsState => FriendState[FRIEND_FEATURE_KEY];
 export const selectAllFriends = createSelector(getFriendsState, selectAll);
+export const selectFriendsEntities = createSelector(getFriendsState, selectEntities);
 export const selectStatusSentMobile = createSelector(getFriendsState, (state) => state.statusSentMobile);
 export const selectFriendStatus = (userId: string) =>
 	createSelector(getFriendsState, (state) => {
