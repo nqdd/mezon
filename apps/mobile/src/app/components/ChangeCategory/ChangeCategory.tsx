@@ -14,6 +14,7 @@ import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componen
 import MezonMenu from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
 import type { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import { style } from './ChangeCategory.styles';
 
 type ChangeCategory = typeof APP_SCREEN.MENU_CHANNEL.CHANGE_CATEGORY;
 export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<ChangeCategory>) => {
@@ -22,6 +23,7 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 	const { t } = useTranslation(['channelSetting']);
 	const listCategory = useSelector(selectAllCategories);
 	const dispatch = useAppDispatch();
+	const styles = style(themeValue);
 
 	const handleMoveChannelToNewCategory = async (category: CategoriesEntity) => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
@@ -82,11 +84,11 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 						title={t('changeCategory.title')}
 						confirmText={t('changeCategory.confirm')}
 						children={
-							<Text style={{ color: themeValue.text, fontSize: size.medium, textAlign: 'center' }}>
+							<Text style={styles.confirmText}>
 								{t('changeCategory.confirmFirstContent')}
-								<Text style={{ fontWeight: 'bold' }}> {channel?.channel_label} </Text>
+								<Text style={styles.boldText}> {channel?.channel_label} </Text>
 								{t('changeCategory.confirmLastContent')}
-								<Text style={{ fontWeight: 'bold' }}> {category?.category_name}</Text>?
+								<Text style={styles.boldText}> {category?.category_name}</Text>?
 							</Text>
 						}
 					/>
@@ -94,7 +96,7 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		},
-		[channel?.channel_label, t]
+		[channel?.channel_label, t, styles]
 	);
 
 	const CategoryList = useMemo(
@@ -120,15 +122,7 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerTitle: () => (
 				<View>
-					<Text
-						style={{
-							fontSize: verticalScale(18),
-							marginLeft: 0,
-							marginRight: 0,
-							fontWeight: 'bold',
-							color: themeValue.white
-						}}
-					>
+					<Text style={styles.headerTitle}>
 						{t('changeCategory.title')}
 					</Text>
 				</View>
@@ -136,17 +130,17 @@ export const ChangeCategory = ({ navigation, route }: MenuChannelScreenProps<Cha
 			headerLeft: () => {
 				return (
 					<TouchableOpacity onPress={() => navigation.goBack()}>
-						<View style={{ marginLeft: size.s_16 }}>
+						<View style={styles.headerLeftContainer}>
 							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} color={themeValue.white} height={size.s_22} width={size.s_22} />
 						</View>
 					</TouchableOpacity>
 				);
 			}
 		});
-	}, [navigation, t, themeValue.white]);
+	}, [navigation, t, themeValue.white, styles]);
 
 	return (
-		<View style={{ flex: 1, backgroundColor: themeValue.primary, paddingHorizontal: size.s_12 }}>
+		<View style={styles.container}>
 			<MezonMenu menu={menu} />
 		</View>
 	);

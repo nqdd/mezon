@@ -180,8 +180,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	if (!canSendMessageDelayed) {
 		return (
 			<div
-				style={{ height: 44 }}
-				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
 				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
 				{t('noPermissionToSendMessage')}

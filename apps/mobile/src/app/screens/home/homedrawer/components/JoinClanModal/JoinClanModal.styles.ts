@@ -44,5 +44,19 @@ export const styles = StyleSheet.create({
 		width: size.s_40,
 		height: size.s_40,
 		borderRadius: size.s_20
+	},
+	container: {
+		flex: 1,
+		paddingBottom: size.s_100
+	},
+	contentWrapper: {
+		width: '100%',
+		height: '100%',
+		paddingHorizontal: size.s_16,
+		paddingTop: size.s_20,
+		position: 'relative'
+	},
+	headerSection: {
+		marginBottom: size.s_40
 	}
 });

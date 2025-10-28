@@ -313,7 +313,7 @@ const MessageItem = React.memo(
 					onLongPress={handleLongPressMessage}
 					style={({ pressed }) => [
 						styles.messageWrapper,
-						(isCombine || preventAction) && { marginTop: 0 },
+						(isCombine || preventAction) && styles.messageWrapperCombine,
 						hasIncludeMention && styles.highlightMessageReply,
 						isHighlight && styles.highlightMessageMention,
 						isEphemeralMessage && styles.ephemeralMessage,
@@ -346,7 +346,7 @@ const MessageItem = React.memo(
 							/>
 						)}
 
-						<View style={[styles.rowMessageBox, isMessageSystem && { width: '100%' }]}>
+						<View style={[styles.rowMessageBox, isMessageSystem && styles.rowMessageBoxFullWidth]}>
 							{!isMessageSystem && (
 								<InfoUserMessage
 									onPress={onPressInfoUser}
@@ -359,14 +359,14 @@ const MessageItem = React.memo(
 								/>
 							)}
 
-							<View style={[message?.content?.fwd ? { display: 'flex' } : undefined, message?.content?.isCard && styles.cardMsg]}>
-								<View style={message?.content?.fwd ? { borderLeftWidth: 2, borderColor: 'gray', paddingLeft: 10 } : undefined}>
+							<View style={[message?.content?.fwd ? styles.contentDisplay : undefined, message?.content?.isCard && styles.cardMsg]}>
+								<View style={message?.content?.fwd ? styles.forwardBorder : undefined}>
 									{!!message?.content?.fwd && (
 										<Text style={styles.forward}>
 											<Entypo name="forward" size={15} color={themeValue.text} /> {t('common:forwarded')}
 										</Text>
 									)}
-									<View style={{ opacity: message.isError || message?.isErrorRetry ? 0.6 : 1 }}>
+									<View style={message.isError || message?.isErrorRetry ? styles.opacityErrorRetry : styles.opacityNormal}>
 										{isMessageSystem ? (
 											<MessageLineSystem message={message} />
 										) : isMessageCallLog ? (
@@ -456,7 +456,7 @@ const MessageItem = React.memo(
 								{message?.content?.isCard && message?.code !== TypeMessage.Topic && <ButtonGotoTopic message={message} />}
 								{message?.code === TypeMessage.Topic && message?.content?.isCard && <MessageTopic message={message} />}
 							</View>
-							{message.isError && <Text style={{ color: baseColor.redStrong }}>{t('unableSendMessage')}</Text>}
+							{message.isError && <Text style={styles.errorTextColor}>{t('unableSendMessage')}</Text>}
 							{!preventAction && !!message?.reactions?.length ? (
 								<MessageAction
 									userId={userId}

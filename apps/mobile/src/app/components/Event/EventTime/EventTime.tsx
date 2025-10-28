@@ -52,7 +52,7 @@ export function EventTime({ event, eventStatus, minutes }: IEventTimeProps) {
 		<View style={styles.inline}>
 			{isSameDay(event.create_time as string) && <MezonBadge title="new" type="success" />}
 			<MezonIconCDN icon={IconCDN.calendarIcon} height={size.s_20} width={size.s_20} color={colorStatusEvent} />
-			<Text style={{ ...styles.smallText, color: colorStatusEvent }}>{textStatusEvent}</Text>
+			<Text style={[styles.smallText, { color: colorStatusEvent }]}>{textStatusEvent}</Text>
 		</View>
 	);
 }

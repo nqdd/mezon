@@ -42,7 +42,9 @@ const EmojisPanel: FC<EmojisPanelProps> = ({ emojisData, onEmojiSelect }) => {
 	const userProfile = useSelector(selectAllAccount);
 	const COLUMNS = 9;
 	const ITEM_HEIGHT = 40;
-
+	const { themeValue } = useTheme();
+	const isTabletLandscape = useTabletLandscape();
+	const styles = style(themeValue, isTabletLandscape);
 	const onBuyEmoji = useCallback(
 		async (emoji: IEmoji) => {
 			try {
@@ -135,13 +137,13 @@ const EmojisPanel: FC<EmojisPanelProps> = ({ emojisData, onEmojiSelect }) => {
 			getItemLayout={getItemLayout}
 			removeClippedSubviews={true}
 			scrollEnabled={false}
-			columnWrapperStyle={{ justifyContent: 'space-between' }}
+			columnWrapperStyle={styles.columnWrapper}
 			maxToRenderPerBatch={10}
 			windowSize={10}
 			initialNumToRender={10}
 			keyboardShouldPersistTaps="handled"
 			showsVerticalScrollIndicator={false}
-			style={{ flex: 1 }}
+			style={styles.emojiListContainer}
 		/>
 	);
 };

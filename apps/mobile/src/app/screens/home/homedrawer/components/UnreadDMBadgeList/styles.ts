@@ -76,5 +76,15 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.textDisabled,
 			position: 'absolute',
 			bottom: 0
+		},
+		imageFull: {
+			width: '100%',
+			height: '100%'
+		},
+		animatedContainer: {
+			overflow: 'hidden'
+		},
+		animatedInner: {
+			paddingVertical: size.s_20
 		}
 	});

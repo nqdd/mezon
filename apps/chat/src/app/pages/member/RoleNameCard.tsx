@@ -17,8 +17,7 @@ const RoleNameCard: React.FC<IRoleNameCardProps> = ({ roleName, roleColor, roleI
 			<div className="text-transparent size-3 rounded-full flex-shrink-0" style={{ backgroundColor: roleColor || DEFAULT_ROLE_COLOR }} />
 			{roleIcon && <img src={roleIcon} alt="" className="size-3 flex-shrink-0" />}
 			<span
-				className="text-xs font-medium px-1 truncate max-w-16 "
-				style={{ lineHeight: '15px' }}
+				className="text-xs font-medium px-1 truncate max-w-16 leading-[15px]"
 				data-e2e={generateE2eId('clan_page.member_list.role_settings.exist_role.role_name')}
 			>
 				{roleName}

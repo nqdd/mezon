@@ -58,7 +58,7 @@ const ChannelFiles = memo(({ currentChannelId }: { currentChannelId: string }) =
 	};
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.rootContainer}>
 			<ChannelFileSearch onSearchTextChange={handleSearchChange} />
 
 			<View style={styles.container}>

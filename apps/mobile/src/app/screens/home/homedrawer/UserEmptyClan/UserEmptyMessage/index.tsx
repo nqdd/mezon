@@ -13,12 +13,12 @@ const UserEmptyMessage = ({ onPress }: { onPress: () => void }) => {
 
 	return (
 		<View style={styles.wrapper}>
-			<FastImage source={EMPTY_BG} style={{ width: '100%', height: size.s_100}} resizeMode={FastImage.resizeMode.contain} />
-			<View style={{ marginTop: size.s_20 }}>
+			<FastImage source={EMPTY_BG} style={styles.imageWrapper} resizeMode={FastImage.resizeMode.contain} />
+			<View style={styles.contentContainer}>
 				<Text style={[styles.title, { color: themeValue.text }]}>{t('emptyMessage.dMsWith')}</Text>
 				<Text style={[styles.description, { color: themeValue.textDisabled }]}>{t('emptyMessage.inviteYourFriends')}</Text>
 			</View>
-			<View style={{ marginTop: size.s_50 }}>
+			<View style={styles.buttonContainer}>
 				<TouchableOpacity
 					style={styles.addFriendsBtn}
 					onPress={() => {

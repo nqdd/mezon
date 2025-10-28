@@ -911,5 +911,104 @@ export const style = (colors: Attributes) =>
 			borderWidth: 1,
 			borderColor: colors.border,
 			borderRadius: size.s_8
+		},
+		headerTouchable: {
+			flex: 1
+		},
+		headerRowContainer: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		headerTooltipContainer: {
+			position: 'relative',
+			zIndex: 0
+		},
+		messageWrapperCombine: {
+			marginTop: 0
+		},
+		rowMessageBoxFullWidth: {
+			width: '100%'
+		},
+		forwardBorder: {
+			display: 'flex',
+			borderLeftWidth: 2,
+			borderColor: 'gray',
+			paddingLeft: 10
+		},
+		userNameFullWidth: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '90%'
+		},
+		marginLeft30: {
+			marginLeft: size.s_30,
+			marginRight: -size.s_4
+		},
+		heightAuto: {
+			height: size.s_50
+		},
+		paddingVertical20: {
+			paddingVertical: 20
+		},
+		errorTextColor: {
+			color: baseColor.redStrong
+		},
+		absoluteFill: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0
+		},
+		flexOne: {
+			flex: 1
+		},
+		imageFull: {
+			width: '100%',
+			height: '100%'
+		},
+		flexRow: {
+			flexDirection: 'row'
+		},
+		addFriendButtonOpacity: {
+			opacity: 0.6
+		},
+		textAlignCenter: {
+			textAlign: 'center'
+		},
+		spacerHeight8: {
+			height: size.s_8
+		},
+		columnFlexDirection: {
+			flexDirection: 'column'
+		},
+		systemMessageContainer: {
+			marginVertical: size.s_10,
+			paddingLeft: 0
+		},
+		pressedMessageIOS: (secondaryWeight: string) => ({
+			backgroundColor: secondaryWeight,
+			opacity: 0.8
+		}),
+		contentDisplay: {
+			display: 'flex'
+		},
+		opacityErrorRetry: {
+			opacity: 0.6
+		},
+		opacityNormal: {
+			opacity: 1
+		},
+		channelAppHotbarContainer: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			paddingVertical: size.s_6,
+			paddingHorizontal: size.s_10,
+			gap: size.s_10,
+			backgroundColor: 'transparent'
+		},
+		channelMessagesWrapperContainer: {
+			flex: 1
 		}
 	});

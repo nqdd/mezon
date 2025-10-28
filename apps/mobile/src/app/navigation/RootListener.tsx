@@ -28,11 +28,9 @@ import {
 	voiceActions,
 	walletActions
 } from '@mezon/store-mobile';
-import { SESSION_REFRESH_KEY } from '@mezon/transport';
-import asyncStorage from '@react-native-async-storage/async-storage';
 import { getAnalytics, logEvent, setAnalyticsCollectionEnabled } from '@react-native-firebase/analytics';
 import { getApp } from '@react-native-firebase/app';
-import { ChannelType, Session, safeJSONParse } from 'mezon-js';
+import { ChannelType, Session } from 'mezon-js';
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -193,16 +191,8 @@ const RootListener = () => {
 		try {
 			const store = await getStore();
 			const session = selectSession(store.getState() as any);
-			const storageStr = (await asyncStorage.getItem(SESSION_REFRESH_KEY)) || '';
-			const localRefresh = safeJSONParse(storageStr);
 
-			const sessionMain = new Session(
-				localRefresh?.token || session?.token,
-				localRefresh?.refresh_token || session?.refresh_token,
-				session.created,
-				session.api_url,
-				!!session.is_remember
-			);
+			const sessionMain = new Session(session?.token, session?.refresh_token, session.created, session.api_url, !!session.is_remember);
 			const profileResponse = await dispatch(accountActions.getUserProfile());
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error

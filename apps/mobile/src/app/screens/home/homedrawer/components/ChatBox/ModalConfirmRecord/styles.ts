@@ -32,5 +32,16 @@ export const style = (colors: Attributes) =>
 		},
 		btn: {
 			padding: size.s_14
+		},
+		separator: {
+			width: '100%',
+			height: 1
+		},
+		buttonContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'flex-end',
+			gap: size.s_20,
+			width: '100%'
 		}
 	});

@@ -470,7 +470,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	return (
 		<View style={styles.wrapper}>
 			<KeyboardAvoidingView
-				style={{ flex: 1, width: '100%' }}
+				style={styles.keyboardAvoidingView}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
 			>
@@ -519,7 +519,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				</View>
 				<View style={styles.chatArea}>
 					{!!attachmentPreview?.length && (
-						<View style={[styles.attachmentRow]}>
+						<View style={styles.attachmentRow}>
 							<ScrollView horizontal keyboardShouldPersistTaps={'always'}>
 								{attachmentPreview?.map((media: any, index) => {
 									const isFile =
@@ -531,7 +531,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 									return (
 										<View
 											key={`${media?.url}_${index}_media_sharing`}
-											style={[styles.wrapperItemMedia, isFile && { height: size.s_60, width: size.s_50 * 3 }]}
+											style={[styles.wrapperItemMedia, isFile && styles.mediaWrapperFile]}
 										>
 											{isVideo(media?.filename?.toLowerCase()) && isVideo(media?.url?.toLowerCase()) && (
 												<View style={styles.videoOverlay}>
@@ -584,7 +584,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					<View style={styles.inputRow}>
 						<View style={styles.chatInput}>
 							<TextInput
-								style={[styles.textInput, { height: size.s_40 }]}
+								style={[styles.textInput, styles.textInputHeight]}
 								value={dataText}
 								onChangeText={(text) => setDataText(text)}
 								placeholder={t('addCommentPlaceholder')}
@@ -600,7 +600,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 						<TouchableOpacity
 							onPress={onSend}
 							disabled={!channelSelected || !isAttachmentUploaded}
-							style={[styles.sendButton, { opacity: channelSelected && isAttachmentUploaded ? 1 : 0.5 }]}
+							style={[styles.sendButton, channelSelected && isAttachmentUploaded ? styles.sendButtonEnabled : styles.sendButtonDisabled]}
 						>
 							{isLoading ? (
 								<Flow size={size.s_28} color={'white'} />

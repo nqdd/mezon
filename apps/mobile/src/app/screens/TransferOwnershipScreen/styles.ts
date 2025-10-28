@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -6,7 +7,7 @@ export const style = (colors: Attributes) =>
 		container: {
 			flex: 1,
 			backgroundColor: colors.primary,
-			paddingHorizontal: size.s_20,
+			paddingHorizontal: size.s_20
 		},
 		transferVisual: {
 			position: 'relative',
@@ -14,26 +15,26 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			paddingTop: size.s_28,
-			paddingBottom: size.s_20,
+			paddingBottom: size.s_20
 		},
 		userCircle: {
 			width: size.s_80,
 			height: size.s_80,
 			borderRadius: size.s_30,
 			alignItems: 'center',
-			justifyContent: 'center',
+			justifyContent: 'center'
 		},
 		defaultAvatar: {
 			width: size.s_50,
 			height: size.s_50,
 			borderRadius: size.s_26,
 			alignItems: 'center',
-			justifyContent: 'center',
+			justifyContent: 'center'
 		},
 		avatarText: {
 			fontSize: size.s_20,
 			fontWeight: '600',
-			color: colors.white,
+			color: colors.white
 		},
 		arrowContainer: {
 			position: 'absolute',
@@ -59,14 +60,14 @@ export const style = (colors: Attributes) =>
 			borderTopWidth: size.s_8,
 			borderLeftColor: 'transparent',
 			borderRightColor: 'transparent',
-			borderTopColor: colors.white,
+			borderTopColor: colors.white
 		},
 		serverName: {
 			textAlign: 'center',
 			fontSize: size.medium,
 			fontWeight: '700',
 			color: colors.text,
-			marginBottom: size.s_20,
+			marginBottom: size.s_20
 		},
 		warningText: {
 			textAlign: 'center',
@@ -74,28 +75,28 @@ export const style = (colors: Attributes) =>
 			fontWeight: '400',
 			color: colors.textStrong,
 			lineHeight: 1.4 * size.s_16,
-			marginBottom: size.s_20,
+			marginBottom: size.s_20
 		},
 		highlightText: {
 			color: colors.white,
-			fontWeight: '700',
+			fontWeight: '700'
 		},
 		acknowledgmentSection: {
-			marginVertical: size.s_20,
+			marginVertical: size.s_20
 		},
 		sectionTitle: {
 			fontSize: size.s_12,
 			fontWeight: '600',
 			color: colors.textDisabled,
 			marginBottom: size.s_20,
-			textTransform: 'uppercase',
+			textTransform: 'uppercase'
 		},
 		checkboxContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
 			borderRadius: size.s_10,
 			backgroundColor: colors.secondary,
-			padding: size.s_8,
+			padding: size.s_8
 		},
 		checkbox: {
 			width: size.s_20,
@@ -106,33 +107,45 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			marginRight: size.s_12,
-			marginTop: size.s_2,
+			marginTop: size.s_2
 		},
 		checkboxChecked: {
 			backgroundColor: colors.bgViolet,
-			borderColor: colors.white,
+			borderColor: colors.white
 		},
 		acknowledgmentText: {
 			flex: 1,
 			fontSize: size.s_14,
 			fontWeight: '400',
 			color: colors.textStrong,
-			lineHeight: 1.4 * size.s_16,
+			lineHeight: 1.4 * size.s_16
 		},
 		button: {
 			borderRadius: size.s_20,
 			backgroundColor: colors.bgViolet,
 			padding: size.s_10,
-			marginBottom: size.s_20,
+			marginBottom: size.s_20
 		},
 		buttonDisabled: {
 			backgroundColor: colors.textDisabled,
-			opacity: 0.5,
+			opacity: 0.5
 		},
 		textButton: {
 			fontWeight: '500',
 			textAlign: 'center',
 			fontSize: size.s_14,
-			color: colors.white,
+			color: colors.white
 		},
+		loadingContainer: {
+			flex: 1,
+			backgroundColor: colors.primary,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		loadingText: {
+			color: colors.text
+		},
+		keyboardAvoidingView: {
+			flex: 1
+		}
 	});

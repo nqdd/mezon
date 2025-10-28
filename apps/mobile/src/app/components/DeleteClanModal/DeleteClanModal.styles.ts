@@ -46,5 +46,8 @@ export const styles = StyleSheet.create({
 		color: baseColor.gray,
 		fontSize: Fonts.size.small,
 		lineHeight: size.s_18
+	},
+	boldText: {
+		fontWeight: 'bold'
 	}
 });

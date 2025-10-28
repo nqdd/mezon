@@ -41,5 +41,15 @@ export const styles = StyleSheet.create({
 		color: 'white',
 		fontWeight: '600',
 		textAlign: 'center'
+	},
+	imageWrapper: {
+		width: '100%',
+		height: size.s_100
+	},
+	contentContainer: {
+		marginTop: size.s_20
+	},
+	buttonContainer: {
+		marginTop: size.s_50
 	}
 });

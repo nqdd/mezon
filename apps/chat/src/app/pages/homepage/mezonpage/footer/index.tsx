@@ -56,9 +56,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 									<Image src={`assets/images/mezon-logo-black.svg`} width={32} height={32} className="aspect-square object-cover" />
 									<div className="text-[22.15px] leading-[26.58px] font-semibold text-[#FFFFFF]">mezon</div>
 								</div>
-								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									{t('footer.description')}
-								</div>
+								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">{t('footer.description')}</div>
 							</div>
 							<div className="flex gap-[32px] max-lg:flex-col">
 								<div className="flex flex-col gap-[12px]">
@@ -220,7 +218,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										dropdownRef={dropdownRef}
 										downloadUrl={downloadUrl}
 										onDownloadClick={trackFooterDownloadEvent}
-									t={t}
+										t={t}
 									/>
 								)}
 							</div>
