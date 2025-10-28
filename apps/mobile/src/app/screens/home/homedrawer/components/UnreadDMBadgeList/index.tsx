@@ -34,7 +34,7 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 									uri: createImgproxyUrl(dm?.avatars?.[0] ?? '', { width: 100, height: 100, resizeType: 'fit' })
 								}}
 								resizeMode="cover"
-								style={styles.groupAvatar}
+								style={styles.dmAvatar}
 							/>
 						) : (
 							<View style={styles.wrapperTextAvatar}>

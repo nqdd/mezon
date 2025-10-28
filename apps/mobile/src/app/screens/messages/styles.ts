@@ -209,11 +209,12 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 		avatarWrapper: {
 			borderRadius: size.s_50,
-			backgroundColor: colors.colorAvatarDefault,
 			height: size.s_40,
 			width: size.s_40
 		},
 		wrapperTextAvatar: {
+			backgroundColor: colors.colorAvatarDefault,
+			borderRadius: size.s_50,
 			width: size.s_40,
 			height: size.s_40,
 			justifyContent: 'center',

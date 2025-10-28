@@ -371,9 +371,7 @@ const UserProfile = React.memo(
 				icon: <MezonIconCDN icon={IconCDN.userPlusIcon} color={baseColor.green} />,
 				action: handleAddFriend,
 				isShow: !infoFriend && !isBlocked,
-				textStyles: {
-					color: baseColor.green
-				}
+				textStyleName: 'actionTextGreen'
 			},
 			{
 				id: 5,
@@ -386,9 +384,7 @@ const UserProfile = React.memo(
 					!!infoFriend &&
 					infoFriend?.state !== undefined &&
 					[EFriendState.ReceivedRequestFriend, EFriendState.SentRequestFriend].includes(infoFriend?.state),
-				textStyles: {
-					color: baseColor.goldenrodYellow
-				}
+				textStyleName: 'actionTextYellow'
 			}
 		];
 
@@ -441,7 +437,7 @@ const UserProfile = React.memo(
 
 		if (isShowPendingContent) {
 			return (
-				<View style={[styles.wrapper]}>
+				<View style={styles.wrapper}>
 					<PendingContent
 						targetUser={infoFriend}
 						userName={user?.user?.username || user?.username || userById?.user?.username}
@@ -452,7 +448,7 @@ const UserProfile = React.memo(
 		}
 
 		return (
-			<View style={[styles.wrapper]}>
+			<View style={styles.wrapper}>
 				<View style={[styles.backdrop, { backgroundColor: userById || user?.avatar_url ? color : baseColor.gray }]}>
 					{!isCheckOwner && (
 						<View style={styles.rowContainer}>
@@ -464,7 +460,7 @@ const UserProfile = React.memo(
 							</TouchableOpacity>
 						</View>
 					)}
-					<View style={[styles.userAvatar]}>
+					<View style={styles.userAvatar}>
 						<MezonAvatar
 							width={size.s_80}
 							height={size.s_80}
@@ -555,14 +551,14 @@ const UserProfile = React.memo(
 						</Text>
 						{isCheckOwner && <EditUserProfileBtn user={userById || (user as any)} />}
 						{!isCheckOwner && !manageVoiceUser && (
-							<View style={[styles.userAction]}>
+							<View style={styles.userAction}>
 								{actionList.map((actionItem) => {
-									const { action, icon, id, isShow, text, textStyles } = actionItem;
+									const { action, icon, id, isShow, text, textStyleName } = actionItem;
 									if (!isShow) return null;
 									return (
-										<TouchableOpacity key={id} onPress={() => action?.()} style={[styles.actionItem]}>
+										<TouchableOpacity key={id} onPress={() => action?.()} style={styles.actionItem}>
 											{icon}
-											<Text style={[styles.actionText, textStyles && textStyles]}>{text}</Text>
+											<Text style={[styles.actionText, textStyleName && styles[textStyleName]]}>{text}</Text>
 										</TouchableOpacity>
 									);
 								})}
