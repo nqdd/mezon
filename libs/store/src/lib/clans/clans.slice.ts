@@ -460,13 +460,16 @@ export const updateUsername = createAsyncThunk('clans/updateUsername', async ({ 
 		}
 		const sessionState = mezon?.session;
 		if (response?.refresh_token && response?.token) {
-			return await mezon?.refreshSession({
-				...sessionState,
-				is_remember: sessionState.is_remember ?? false,
-				username,
-				refresh_token: response.refresh_token,
-				token: response.token
-			});
+			return await mezon?.refreshSession(
+				{
+					...sessionState,
+					is_remember: sessionState.is_remember ?? false,
+					username,
+					refresh_token: response.refresh_token,
+					token: response.token
+				},
+				true
+			);
 		}
 		return false;
 	} catch (error) {
