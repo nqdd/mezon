@@ -186,7 +186,7 @@ const TopBarChannelText = memo(() => {
 
 	return (
 		<>
-			<div className="flex relative flex-1 min-w-0 items-center gap-2  text-theme-primary">
+			<div className="flex relative flex-1 min-w-0 items-center gap-2  text-theme-primary mr-5">
 				<div className="flex sbm:hidden pl-3 px-2 text-theme-primary" onClick={openMenu} role="button">
 					<Icons.OpenMenu />
 				</div>
@@ -220,7 +220,7 @@ const TopBarChannelText = memo(() => {
 
 				{currentClanId === '0' && (
 					<div
-						className="flex items-center gap-3 flex-1 overflow-hidden relative"
+						className="flex w-full items-center gap-3 flex-1 overflow-hidden relative"
 						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
 					>
 						<DmTopbarAvatar
@@ -237,14 +237,14 @@ const TopBarChannelText = memo(() => {
 							key={`${channelDmGroupLabel}_${currentDmGroup?.channel_id as string}_display`}
 							className={`flex items-center gap-2 overflow-hidden whitespace-nowrap text-ellipsis none-draggable-area group ${
 								currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP
-									? 'cursor-pointer hover:text-theme-primary-active transition-colors bg-item-theme-hover rounded-lg px-2'
+									? 'cursor-pointer hover:text-theme-primary-active transition-colors bg-item-theme-hover rounded-lg pl-2 pr-4'
 									: 'pointer-events-none cursor-default'
-							} font-medium bg-transparent outline-none leading-10 text-theme-primary max-w-[250px] min-w-0`}
+							} font-medium bg-transparent outline-none leading-10 text-theme-primary  min-w-content `}
 							onClick={handleOpenEditModal}
 							title={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP ? t('tooltips.clickToEdit') : channelDmGroupLabel}
 							data-e2e={generateE2eId(`chat.direct_message.chat_item.namegroup`)}
 						>
-							<span className="truncate">{channelDmGroupLabel}</span>
+							<span className="truncate flex-1 min-w-0">{channelDmGroupLabel}</span>
 							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
 								<svg
 									className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0"
