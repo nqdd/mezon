@@ -88,7 +88,6 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 		);
 	};
 	const appearanceTheme = useSelector(selectTheme);
-	const isLightMode = appearanceTheme === 'light';
 	const [isVisible, setIsVisible] = useState(false);
 	const [showAllRoles, setShowAllRoles] = useState(false);
 
@@ -123,9 +122,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 						className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-theme-input-primary hoverIconBlackImportant ml-1 cursor-pointer"
 						onClick={handleShowAllRoles}
 					>
-						<span className="text-xs font-medium px-1" style={{ lineHeight: '15px' }}>
-							+ {userRolesClan.length - 6}
-						</span>
+						<span className="text-xs font-medium px-1 leading-[15px]">+ {userRolesClan.length - 6}</span>
 					</span>
 				)}
 			</div>
@@ -135,9 +132,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 						className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-theme-input-primary hoverIconBlackImportant cursor-pointer"
 						onClick={handleShowAllRoles}
 					>
-						<span className="text-xs font-medium px-1" style={{ lineHeight: '15px' }}>
-							{t('labels.showLess')}
-						</span>
+						<span className="text-xs font-medium px-1 leading-[15px]">{t('labels.showLess')}</span>
 					</span>
 				</div>
 			)}
@@ -154,6 +149,22 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 					</button>
 				</div>
 			</UserRestrictionZone>
+		</div>
+	);
+};
+
+const RoleListItem = ({ role, onAddRole }: { role: RolesClanEntity; onAddRole: (roleId: string) => void }) => {
+	const roleColor = role.color || DEFAULT_ROLE_COLOR;
+	const roleStyle = useMemo(() => ({ backgroundColor: roleColor }) as React.CSSProperties, [roleColor]);
+
+	return (
+		<div
+			className="text-base w-full  p-2 bg-transparent mr-2 bg-item-hover flex gap-2 items-center text-theme-primary"
+			onClick={() => onAddRole(role.id)}
+		>
+			<div className="size-3 min-w-3 rounded-full" style={roleStyle}></div>
+			{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
+			{role.title}
 		</div>
 	);
 };
@@ -186,17 +197,7 @@ const AddRolesComp = ({
 			</div>
 			<div className="w-full flex-1 overflow-y-scroll overflow-x-hidden hide-scrollbar space-y-1">
 				{filteredListRoleBySearch.length > 0 ? (
-					filteredListRoleBySearch.map((role, index) => (
-						<div
-							key={index}
-							className="text-base w-full  p-2 bg-transparent mr-2 bg-item-hover flex gap-2 items-center text-theme-primary"
-							onClick={() => addRole(role.id)}
-						>
-							<div className="size-3 min-w-3 rounded-full" style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}></div>
-							{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
-							{role.title}
-						</div>
-					))
+					filteredListRoleBySearch.map((role, index) => <RoleListItem key={index} role={role} onAddRole={addRole} />)
 				) : (
 					<div className="flex flex-col py-4 gap-y-4 items-center">
 						<p className="font-medium text-theme-primary-active">{t('labels.nope')}</p>
@@ -210,10 +211,10 @@ const AddRolesComp = ({
 
 const RoleClanItem = ({
 	role,
-	index,
+	index: _index,
 	deleteRole,
 	hasPermissionEditRole,
-	appearanceTheme
+	appearanceTheme: _appearanceTheme
 }: {
 	role: RolesClanEntity;
 	index: number;
@@ -223,6 +224,9 @@ const RoleClanItem = ({
 }) => {
 	const { t } = useTranslation('userProfile');
 	const [isHovered, setIsHovered] = useState(false);
+	const roleColor = role.color || DEFAULT_ROLE_COLOR;
+	const buttonStyle = useMemo(() => ({ backgroundColor: roleColor }) as React.CSSProperties, [roleColor]);
+
 	return (
 		<span className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-item-theme  text-theme-primary hoverIconBlackImportant">
 			{hasPermissionEditRole ? (
@@ -230,19 +234,19 @@ const RoleClanItem = ({
 					<button
 						className="p-0.5 rounded-full h-fit"
 						onClick={() => deleteRole(role.id)}
-						style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}
+						style={buttonStyle}
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
 					>
 						<span title={t('labels.removeRole')}>
-							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : role.color || DEFAULT_ROLE_COLOR} />
+							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : roleColor} />
 						</span>
 					</button>
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			) : (
 				<>
-					<div className="size-2 rounded-full" style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}></div>
+					<div className="size-2 rounded-full" style={buttonStyle}></div>
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			)}
