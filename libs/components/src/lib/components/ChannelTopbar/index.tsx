@@ -459,7 +459,7 @@ const DmTopbarAvatar = ({ isGroup, avatar, avatarName }: { isGroup: boolean; ava
 					data-e2e={generateE2eId(`avatar.image`)}
 				/>
 			) : (
-				<div className="w-8 h-8 flex-shrink-0 rounded-full uppercase flex items-center justify-center font-semibold dark:bg-bgAvatarLight dark:text-bgAvatarDark text-bgAvatarLight">
+				<div className="w-8 h-8 flex-shrink-0 rounded-full uppercase flex items-center justify-center font-semibold bg-bgAvatarDark  text-bgAvatarLight">
 					{avatarName}
 				</div>
 			)}
