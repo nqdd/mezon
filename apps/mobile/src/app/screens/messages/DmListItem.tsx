@@ -96,11 +96,17 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') {
 			if (isTypeDMGroup) {
 				return (
-					<Text
-						style={[styles.defaultText, styles.lastMessage, { color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }]}
-					>
-						{t('directMessage.groupCreated')}
-					</Text>
+					<View style={styles.contentMessage}>
+						<Text
+							style={[
+								styles.defaultText,
+								styles.lastMessage,
+								{ color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }
+							]}
+						>
+							{t('directMessage.groupCreated')}
+						</Text>
+					</View>
 				);
 			} else {
 				return null;

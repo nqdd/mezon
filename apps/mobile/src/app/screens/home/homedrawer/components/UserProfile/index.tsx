@@ -110,9 +110,11 @@ const UserProfile = React.memo(
 		const dmChannel = useMemo(() => {
 			return listDM?.find((dm) => dm?.id === directId);
 		}, [directId, listDM]);
+
 		const isDMGroup = useMemo(() => {
-			return dmChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
-		}, [dmChannel?.type]);
+			const channelType = dmChannel?.type || currentChannel?.type;
+			return channelType === ChannelType.CHANNEL_TYPE_GROUP;
+		}, [currentChannel?.type, dmChannel?.type]);
 
 		const status = useMemo(() => {
 			const userIdInfo = userId || user?.id;
