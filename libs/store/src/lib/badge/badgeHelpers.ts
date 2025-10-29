@@ -73,18 +73,18 @@ export const getCurrentChannelBadgeCount = (store: { getState?: () => RootState 
 
 const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: { getState?: () => RootState }) => {
 	const { clanId, channelId, timestamp, messageId, badgeCount } = params;
-	if (!clanId || !channelId) {
+	if (!channelId) {
 		return;
 	}
-	cleanupOutdatedEntries();
 
 	const id = channelId + messageId;
 
-	if (isMessageAlreadyProcessed(id)) {
+	if (clanId !== '0' && isMessageAlreadyProcessed(id)) {
 		return;
 	}
 
-	if (messageId) {
+	if (clanId !== '0' && messageId) {
+		cleanupOutdatedEntries();
 		processedMessagesCache.set(id, Date.now());
 	}
 

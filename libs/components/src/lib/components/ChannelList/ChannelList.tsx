@@ -336,10 +336,9 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 			}}
 		>
 			<div
+				className="relative w-full"
 				style={{
-					height: virtualizer.getTotalSize(),
-					width: '100%',
-					position: 'relative'
+					height: virtualizer.getTotalSize()
 				}}
 			>
 				{firstChannelWithBadgeCount && isChannelRefOutOfViewport() && (
@@ -349,13 +348,9 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 				)}
 				<div
 					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						width: '100%',
 						transform: `translateY(${items[0]?.start ?? 0}px)`
 					}}
-					className="channel-wrap"
+					className="channel-wrap absolute top-0 left-0 w-full"
 				>
 					{items.map((virtualRow, index) => {
 						const item = data[virtualRow.index];
@@ -368,7 +363,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 						} else if (item.channels) {
 							return (
 								<div
-									style={{ padding: '10px 0 6px' }}
+									className="pt-[10px] pb-[6px]"
 									key={virtualRow.key}
 									data-index={virtualRow.index}
 									ref={virtualizer.measureElement}
