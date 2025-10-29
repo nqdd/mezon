@@ -38,10 +38,10 @@ const KickUserClanModal = ({ user, onRemoveUserClan }: { user: ChannelMembersEnt
 						<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 					</TouchableOpacity>
 					<Text style={styles.headerTitle}>{t('kickUserClanModal.title')}</Text>
-					<View style={{ width: size.s_20 }} />
+					<View style={styles.spacer} />
 				</View>
-				<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'}>
-					<View style={{ flex: 1 }}>
+				<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'position'} style={styles.flex}>
+					<View>
 						<View style={styles.headerContent}>
 							<Text style={styles.textError}>
 								{t('kickUserClanModal.kickFromServer', { username: user?.user?.username || user?.['username'] })}

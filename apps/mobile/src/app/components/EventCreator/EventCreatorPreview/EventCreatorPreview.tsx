@@ -33,13 +33,13 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 				color: themeValue.textDisabled
 			},
 			headerLeft: () => (
-				<TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
+				<TouchableOpacity style={styles.headerLeftButton} onPress={() => navigation.goBack()}>
 					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={Fonts.size.s_18} width={Fonts.size.s_18} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			),
 			headerRight: () => (
 				<TouchableOpacity
-					style={{ marginRight: 20 }}
+					style={styles.headerRightButton}
 					onPress={() => {
 						onGoBack?.();
 						navigation.navigate(APP_SCREEN.HOME);

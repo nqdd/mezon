@@ -52,5 +52,11 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.primary
 		},
 		titleMezonBtn: { fontSize: Fonts.size.h7, color: baseColor.white, fontWeight: '600' },
-		mezonBtn: { backgroundColor: baseColor.blurple }
+		mezonBtn: { backgroundColor: baseColor.blurple },
+		headerLeftButton: {
+			marginLeft: 20
+		},
+		headerRightButton: {
+			marginRight: 20
+		}
 	});

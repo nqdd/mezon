@@ -107,5 +107,9 @@ export const style = (colors: Attributes) =>
 			marginLeft: -size.s_2,
 			alignItems: 'center',
 			justifyContent: 'center'
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});
