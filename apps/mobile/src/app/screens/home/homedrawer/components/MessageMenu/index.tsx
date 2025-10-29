@@ -104,8 +104,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 
 	const isChatWithMyself = useMemo(() => {
 		if (Number(messageInfo?.type) !== ChannelType.CHANNEL_TYPE_DM) return false;
-		const userIds = messageInfo?.user_ids || [];
-		return userIds.length === 1 && userIds[0] === currentUserId;
+		return messageInfo?.user_ids?.[0] === currentUserId;
 	}, [messageInfo?.type, messageInfo?.user_ids, currentUserId]);
 
 	const handleShowModalLeaveGroup = useCallback(async () => {

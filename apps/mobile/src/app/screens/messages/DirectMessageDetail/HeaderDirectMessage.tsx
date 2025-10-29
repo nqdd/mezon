@@ -106,8 +106,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 
 	const isChatWithMyself = useMemo(() => {
 		if (Number(currentDmGroup?.type) !== ChannelType.CHANNEL_TYPE_DM) return false;
-		const userIds = currentDmGroup?.user_ids || [];
-		return userIds.length === 1 && userIds[0] === currentUserId;
+		return currentDmGroup?.user_ids?.[0] === currentUserId;
 	}, [currentDmGroup?.type, currentDmGroup?.user_ids, currentUserId]);
 
 	const dmLabel = useMemo(() => {

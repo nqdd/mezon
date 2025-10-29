@@ -45,8 +45,7 @@ export const ActionRow = React.memo(() => {
 
 	const isChatWithMyself = useMemo(() => {
 		if (Number(currentChannel?.type) !== ChannelType.CHANNEL_TYPE_DM) return false;
-		const userIds = currentChannel?.user_ids || [];
-		return userIds.length === 1 && userIds[0] === currentUserId;
+		return currentChannel?.user_ids?.[0] === currentUserId;
 	}, [currentChannel?.type, currentChannel?.user_ids, currentUserId]);
 
 	useEffect(() => {
