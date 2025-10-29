@@ -102,6 +102,12 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		return userIds?.length === 1;
 	}, [allUserGroupDM?.user_ids]);
 
+	const isChatWithMyself = useMemo(() => {
+		if (Number(messageInfo?.type) !== ChannelType.CHANNEL_TYPE_DM) return false;
+		const userIds = messageInfo?.user_ids || [];
+		return userIds.length === 1 && userIds[0] === currentUserId;
+	}, [messageInfo?.type, messageInfo?.user_ids, currentUserId]);
+
 	const handleShowModalLeaveGroup = useCallback(async () => {
 		dismiss();
 		await sleep(500);
@@ -210,7 +216,8 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 				!isGroup &&
 				infoFriend?.state !== EStateFriend.BLOCK &&
 				infoFriend?.state !== EStateFriend.MY_PENDING &&
-				infoFriend?.state !== EStateFriend.OTHER_PENDING,
+				infoFriend?.state !== EStateFriend.OTHER_PENDING &&
+				!isChatWithMyself,
 			icon:
 				infoFriend?.state === EStateFriend.FRIEND ? (
 					<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
@@ -221,7 +228,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		{
 			onPress: didIBlockUser ? handleUnblockFriend : handleBlockFriend,
 			title: didIBlockUser ? t('menu.unblockUser') : t('menu.blockUser'),
-			isShow: !isGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser),
+			isShow: !isGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && !isChatWithMyself,
 			icon: didIBlockUser ? (
 				<MezonIconCDN icon={IconCDN.unblockUser} color={themeValue.textStrong} />
 			) : (
@@ -253,7 +260,8 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		{
 			onPress: async () => await handleMarkAsRead(messageInfo?.channel_id ?? ''),
 			title: t('menu.markAsRead'),
-			icon: <MezonIconCDN icon={IconCDN.eyeIcon} color={themeValue.textStrong} />
+			icon: <MezonIconCDN icon={IconCDN.eyeIcon} color={themeValue.textStrong} />,
+			isShow: !isChatWithMyself
 		}
 	];
 
@@ -288,7 +296,8 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 				<MezonIconCDN icon={IconCDN.bellIcon} color={themeValue.textStrong} />
 			) : (
 				<MezonIconCDN icon={IconCDN.bellSlashIcon} color={themeValue.textStrong} />
-			)
+			),
+			isShow: !isChatWithMyself
 		}
 	];
 
