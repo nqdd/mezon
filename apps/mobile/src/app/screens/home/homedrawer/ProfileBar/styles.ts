@@ -24,7 +24,8 @@ export const style = (colors: Attributes) =>
 		},
 		username: {
 			color: colors.white,
-			fontSize: size.s_18
+			fontSize: size.s_18,
+			maxWidth: '90%'
 		},
 		status: {
 			color: colors.text,
@@ -33,7 +34,8 @@ export const style = (colors: Attributes) =>
 		},
 		profileWrapper: {
 			flexDirection: 'row',
-			gap: size.s_4
+			gap: size.s_8,
+			flexShrink: 1
 		},
 		settingButton: {
 			alignItems: 'center',
