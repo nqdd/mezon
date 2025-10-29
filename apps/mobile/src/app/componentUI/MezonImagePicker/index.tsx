@@ -189,7 +189,7 @@ export default memo(
 			} catch (error) {
 				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				console.error('Error in handleImage:', error?.message || error);
-				if (error?.code !== 'E_PICKER_CANCELLED') {
+				if (error?.message && error?.code !== 'E_PICKER_CANCELLED') {
 					Toast.show({
 						type: 'error',
 						text1: error?.message
