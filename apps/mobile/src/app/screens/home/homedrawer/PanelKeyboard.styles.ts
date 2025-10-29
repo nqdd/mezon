@@ -11,7 +11,7 @@ export const createStyles = (themeValue: Attributes, themeBasic: string, heightK
 			backgroundColor: themeBasic === 'light' ? themeValue.tertiary : themeValue.primary
 		},
 		handleIndicator: {
-			backgroundColor: themeValue.tertiary,
+			backgroundColor: themeBasic === 'light' || themeBasic === 'sunrise' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.8)',
 			height: size.s_6,
 			width: size.s_50
 		},
