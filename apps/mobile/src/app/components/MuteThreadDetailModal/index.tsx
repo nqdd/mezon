@@ -104,14 +104,14 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 			headerShown: true,
 			headerTitle: () => (
 				<View>
-					<Text style={{ color: themeValue.textStrong, fontSize: size.medium, fontWeight: '700' }}>
+					<Text style={styles.headerTitle}>
 						{isDMThread
 							? t('notifySettingThreadModal.muteThisConversation')
 							: isChannel
 								? t('notifySettingThreadModal.headerTitleMuteChannel')
 								: t('notifySettingThreadModal.headerTitleMuteThread')}
 					</Text>
-					<Text numberOfLines={1} style={{ color: themeValue.text, fontSize: size.medium, fontWeight: '400', maxWidth: '90%' }}>
+					<Text numberOfLines={1} style={styles.headerSubtitle}>
 						{isDMThread
 							? currentChannel?.channel_label
 							: isChannel

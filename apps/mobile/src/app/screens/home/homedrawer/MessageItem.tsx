@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegex } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
 import {
 	getStore,

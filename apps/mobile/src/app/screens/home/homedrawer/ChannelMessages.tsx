@@ -307,6 +307,7 @@ const ChannelMessages = React.memo(
 			dispatch(messagesActions.setIdMessageToJump(null));
 			timeOutRef.current = setTimeout(() => {
 				isLoadMore.current[ELoadMoreDirection.bottom] = false;
+				setIsShowJumpToPresent(false);
 				flatListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
 			}, 300);
 		}, [clanId, channelId, dispatch, topicChannelId]);

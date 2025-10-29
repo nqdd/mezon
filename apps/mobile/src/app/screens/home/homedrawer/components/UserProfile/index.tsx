@@ -227,7 +227,8 @@ const UserProfile = React.memo(
 				if (!isCheckOwner) {
 					const directMessage = listDM?.find?.((dm) => {
 						const userIds = dm?.user_ids;
-						return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId;
+						const isDM = dm.type === ChannelType.CHANNEL_TYPE_DM;
+						return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === userId && isDM;
 					});
 					if (directMessage?.id) {
 						if (isTabletLandscape) {
@@ -391,10 +392,12 @@ const UserProfile = React.memo(
 		];
 
 		const handleAcceptFriend = () => {
-			const body = infoFriend?.user?.id ?  {
-				ids: [infoFriend?.user?.id || ''],
-				isAcceptingRequest: true
-			} : {usernames: [infoFriend?.user?.username || ''], isAcceptingRequest: true};
+			const body = infoFriend?.user?.id
+				? {
+						ids: [infoFriend?.user?.id || ''],
+						isAcceptingRequest: true
+					}
+				: { usernames: [infoFriend?.user?.username || ''], isAcceptingRequest: true };
 			dispatch(friendsActions.sendRequestAddFriend(body));
 		};
 

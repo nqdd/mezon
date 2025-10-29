@@ -227,7 +227,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 					return;
 				}
-				if (res?.meta?.requestStatus === 'rejected' || !res) {
+				if (res?.meta?.requestStatus === 'rejected' || !res || !res?.payload) {
 					Toast.show({
 						type: 'error',
 						text1: res?.payload?.toString() || 'An error occurred, please try again'

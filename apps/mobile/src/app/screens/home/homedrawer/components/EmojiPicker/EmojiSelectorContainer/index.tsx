@@ -273,7 +273,6 @@ export default function EmojiSelectorContainer({
 			removeClippedSubviews={true}
 			showsVerticalScrollIndicator={false}
 			keyboardShouldPersistTaps="handled"
-			disableVirtualization
 			style={styles.flatListStyle}
 			contentContainerStyle={styles.flatListContentContainer}
 			onScrollToIndexFailed={(info) => {

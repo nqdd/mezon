@@ -303,6 +303,9 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			fontSize: size.s_10,
 			color: colors.textDisabled
 		},
+		activityTextWrapper: {
+			flexShrink: 1
+		},
 		activeDMGroupBackground: {
 			backgroundColor: colors.secondaryLight
 		},
