@@ -40,10 +40,12 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 	const isEnabled = useAppSelector((state) => selectIsCommunityEnabled(state, clanId));
 	const communityState = useAppSelector((state) => selectCommunityStateByClanId(state, clanId));
 
-	const [bannerUri, setBannerUri] = useState<string | null>(null);
-	const [description, setDescription] = useState('');
-	const [about, setAbout] = useState('');
-	const [vanityUrl, setVanityUrl] = useState('');
+	const [communityData, setCommunityData] = useState({
+		bannerUri: null as string | null,
+		description: '',
+		about: '',
+		vanityUrl: ''
+	});
 	const [submitting, setSubmitting] = useState(false);
 	const [errors, setErrors] = useState({
 		banner: false,
@@ -57,33 +59,35 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 	}, []);
 
 	useEffect(() => {
-		setBannerUri(communityState?.communityBanner ?? null);
-		setDescription(communityState?.description ?? '');
-		setAbout(communityState?.about ?? '');
-		setVanityUrl(communityState?.short_url ?? '');
+		setCommunityData({
+			bannerUri: communityState?.communityBanner ?? null,
+			description: communityState?.description ?? '',
+			about: communityState?.about ?? '',
+			vanityUrl: communityState?.short_url ?? ''
+		});
 	}, [communityState]);
 
 	const hasCommunityChanged = useMemo(() => {
 		return (
 			isEnabled &&
 			!!communityState &&
-			(communityState.communityBanner !== bannerUri ||
-				(communityState.description ?? '') !== description.trim() ||
-				(communityState.about ?? '') !== about.trim() ||
-				(communityState.short_url ?? '') !== vanityUrl.trim())
+			(communityState.communityBanner !== communityData?.bannerUri ||
+				(communityState.description ?? '') !== communityData?.description.trim() ||
+				(communityState.about ?? '') !== communityData?.about.trim() ||
+				(communityState.short_url ?? '') !== communityData?.vanityUrl.trim())
 		);
-	}, [about, vanityUrl, bannerUri, communityState, description, isEnabled]);
+	}, [communityData, communityState, isEnabled]);
 
 	const validate = useCallback(() => {
 		const newErrors = {
-			banner: !bannerUri,
-			description: !description.trim(),
-			about: !about.trim(),
-			vanityUrl: !vanityUrl.trim()
+			banner: !communityData?.bannerUri,
+			description: !communityData?.description.trim(),
+			about: !communityData?.about.trim(),
+			vanityUrl: !communityData?.vanityUrl.trim()
 		};
 		setErrors(newErrors);
 		return !Object.values(newErrors).some(Boolean);
-	}, [bannerUri, description, about, vanityUrl]);
+	}, [communityData]);
 
 	const onSubmit = useCallback(async () => {
 		if (!validate()) return;
@@ -93,10 +97,10 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 			await dispatch(
 				comunityActions.updateCommunity({
 					clan_id: clanId,
-					bannerUrl: bannerUri,
-					description: description.trim(),
-					about: about.trim(),
-					short_url: vanityUrl.trim(),
+					bannerUrl: communityData?.bannerUri,
+					description: communityData?.description.trim(),
+					about: communityData?.about.trim(),
+					short_url: communityData?.vanityUrl.trim(),
 					enabled: true
 				})
 			)
@@ -114,7 +118,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 		} finally {
 			setSubmitting(false);
 		}
-	}, [validate, dispatch, clanId, bannerUri, description, about, vanityUrl, t, navigation]);
+	}, [validate, dispatch, clanId, communityData, t, navigation]);
 
 	const onDisable = useCallback(async () => {
 		setSubmitting(true);
@@ -146,12 +150,12 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 		try {
 			const promises: Promise<unknown>[] = [];
 
-			if (communityState.communityBanner !== bannerUri) {
+			if (communityState.communityBanner !== communityData?.bannerUri) {
 				promises.push(
 					dispatch(
 						comunityActions.updateCommunityBanner({
 							clan_id: clanId,
-							bannerUrl: bannerUri
+							bannerUrl: communityData?.bannerUri
 						})
 					)
 						.unwrap()
@@ -162,12 +166,12 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 				);
 			}
 
-			if (communityState.description !== description) {
+			if (communityState.description !== communityData?.description) {
 				promises.push(
 					dispatch(
 						comunityActions.updateCommunityDescription({
 							clan_id: clanId,
-							description: description.trim()
+							description: communityData?.description.trim()
 						})
 					)
 						.unwrap()
@@ -178,12 +182,12 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 				);
 			}
 
-			if (communityState.about !== about) {
+			if (communityState.about !== communityData?.about) {
 				promises.push(
 					dispatch(
 						comunityActions.updateCommunityAbout({
 							clan_id: clanId,
-							about: about.trim()
+							about: communityData?.about.trim()
 						})
 					)
 						.unwrap()
@@ -194,12 +198,12 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 				);
 			}
 
-			if (communityState.short_url !== vanityUrl) {
+			if (communityState.short_url !== communityData?.vanityUrl) {
 				promises.push(
 					dispatch(
 						comunityActions.updateCommunityShortUrl({
 							clan_id: clanId,
-							short_url: vanityUrl.trim()
+							short_url: communityData?.vanityUrl.trim()
 						})
 					)
 						.unwrap()
@@ -233,21 +237,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 		} finally {
 			setSubmitting(false);
 		}
-	}, [
-		about,
-		vanityUrl,
-		bannerUri,
-		clanId,
-		communityState.about,
-		communityState.communityBanner,
-		communityState.description,
-		communityState.short_url,
-		description,
-		dispatch,
-		validate,
-		t,
-		navigation
-	]);
+	}, [communityData, clanId, communityState, dispatch, validate, t, navigation]);
 
 	const handlePressSaveButton = useCallback(() => {
 		if (hasCommunityChanged) {
@@ -259,25 +249,24 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 		}
 	}, [hasCommunityChanged, isEnabled, onDisable, onSubmit, onEditCommunity]);
 
-	const handleChange = (field: 'description' | 'about' | 'vanityUrl', value: string) => {
+	const handleChange = (field: keyof typeof communityData, value: string) => {
 		if (errors[field]) setErrors((prev) => ({ ...prev, [field]: false }));
-		if (field === 'description') setDescription(value);
-		if (field === 'about') setAbout(value);
-		if (field === 'vanityUrl') setVanityUrl(value);
+		setCommunityData((prev) => ({ ...prev, [field]: value }));
 	};
 
 	const handleLoad = (url: string) => {
 		if (errors.banner) setErrors((prev) => ({ ...prev, banner: false }));
-		setBannerUri(url);
+		setCommunityData((prev) => ({ ...prev, bannerUri: url }));
 	};
 
 	const handleResetValues = useCallback(() => {
-		setBannerUri(communityState?.communityBanner ?? null);
-		setDescription(communityState?.description ?? '');
-		setAbout(communityState?.about ?? '');
-		setVanityUrl(communityState?.short_url ?? '');
-	}, [communityState?.about, communityState?.communityBanner, communityState?.description, communityState?.short_url]);
-
+		setCommunityData({
+			bannerUri: communityState?.communityBanner ?? null,
+			description: communityState?.description ?? '',
+			about: communityState?.about ?? '',
+			vanityUrl: communityState?.short_url ?? ''
+		});
+	}, [communityState]);
 	return (
 		<KeyboardAvoidingView
 			behavior={'padding'}
@@ -307,7 +296,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 
 				<Text style={styles.label}>{t('communitySettings.banner.title')}</Text>
 				<MezonImagePicker
-					defaultValue={bannerUri}
+					defaultValue={communityData?.bannerUri}
 					height={size.s_100}
 					width={width - size.s_32}
 					onLoad={handleLoad}
@@ -321,7 +310,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 
 				<Text style={styles.label}>{t('communitySettings.description.title')}</Text>
 				<MezonInput
-					value={description}
+					value={communityData?.description}
 					onTextChange={(val) => handleChange('description', val)}
 					placeHolder={t('communitySettings.description.placeholder')}
 					inputWrapperStyle={[styles.multiline, errors.description && styles.inputError]}
@@ -331,7 +320,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 
 				<Text style={styles.label}>{t('communitySettings.about.title')}</Text>
 				<MezonInput
-					value={about}
+					value={communityData?.about}
 					onTextChange={(val) => handleChange('about', val)}
 					placeHolder={t('communitySettings.about.placeholder')}
 					inputWrapperStyle={[styles.multiline, errors.about && styles.inputError]}
@@ -342,7 +331,7 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 				<Text style={styles.label}>{t('communitySettings.vanityUrl.title')}</Text>
 				<Text style={styles.description}>{t('communitySettings.vanityUrl.description')}</Text>
 				<MezonInput
-					value={vanityUrl}
+					value={communityData?.vanityUrl}
 					onTextChange={(val) => handleChange('vanityUrl', val)}
 					placeHolder={t('communitySettings.vanityUrl.placeholder')}
 					inputWrapperStyle={[styles.input, errors.vanityUrl && styles.inputError]}
