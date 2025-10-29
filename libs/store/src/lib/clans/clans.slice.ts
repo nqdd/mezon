@@ -221,7 +221,7 @@ export const fetchClans = createAsyncThunk(
 						lastUnreadIndicatorCall = now;
 						const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
 						queueMicrotask(() => {
-							thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds, isMobile }));
+							thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
 						});
 					}
 				} else {
@@ -530,16 +530,13 @@ export const updateHasUnreadBasedOnChannels = createAsyncThunk<void, { clanId: s
 
 export const listClanUnreadMsgIndicator = createAsyncThunk<void, { clanIds: string[]; isMobile?: boolean }>(
 	'clans/listClanUnreadMsgIndicator',
-	async ({ clanIds, isMobile }, thunkAPI) => {
+	async ({ clanIds }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
 			for (const clanId of clanIds) {
 				try {
-					if (isMobile) {
-						await sleep(1000);
-					}
-
+					await sleep(1000);
 					const response = await fetchDataWithSocketFallback(
 						mezon,
 						{
