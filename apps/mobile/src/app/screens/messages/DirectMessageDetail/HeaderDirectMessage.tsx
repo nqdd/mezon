@@ -298,7 +298,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					<View style={styles.iconWrapper}>
 						{!isChatWithMyself && (
 							<>
-								{(!!currentDmGroup?.user_ids?.[0] || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
+								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall()}>
 										<MezonIconCDN icon={IconCDN.phoneCallIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 									</TouchableOpacity>
