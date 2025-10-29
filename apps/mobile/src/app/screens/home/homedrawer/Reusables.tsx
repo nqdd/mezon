@@ -49,7 +49,11 @@ export const FriendListItem = React.memo((props: IFriendListItemProps) => {
 						{Number(dmGroup.type) === ChannelType.CHANNEL_TYPE_GROUP ? (
 							isGroupAvatar ? (
 								<View style={styles.groupAvatarWrapper}>
-									<ImageNative url={createImgproxyUrl(dmGroup?.topic ?? '')} style={styles.imageFull} resizeMode={'cover'} />
+									<ImageNative
+										url={createImgproxyUrl(dmGroup?.channel_avatar ?? '')}
+										style={styles.imageFull}
+										resizeMode={'cover'}
+									/>
 								</View>
 							) : (
 								<Image source={Images.AVATAR_GROUP} style={styles.defaultAvatar} />
