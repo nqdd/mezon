@@ -188,7 +188,7 @@ export default memo(
 			} catch (error) {
 				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				console.error('Error in handleImage:', error?.message || error);
-				if (error?.message) {
+				if (error?.message !== 'User cancelled image selection') {
 					Toast.show({
 						type: 'error',
 						text1: error?.message
