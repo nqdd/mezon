@@ -24,8 +24,7 @@ export const style = (colors: Attributes) =>
 		},
 		username: {
 			color: colors.white,
-			fontSize: size.s_18,
-			maxWidth: '90%'
+			fontSize: size.s_18
 		},
 		status: {
 			color: colors.text,
