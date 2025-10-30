@@ -11,7 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, useWindowSize } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -113,7 +113,7 @@ const ListMember = () => {
 	const currentClan = useSelector(selectCurrentClan);
 
 	const [showFullList, setShowFullList] = useState(false);
-	useSyncEffect(() => {
+	useEffect(() => {
 		if (showFullList) {
 			setShowFullList(false);
 		}

@@ -374,15 +374,6 @@ function ChannelMessages({
 					isVisible
 				})
 			);
-
-			if (!isVisible) {
-				dispatch(
-					channelsActions.setScrollPosition({
-						channelId,
-						messageId: undefined
-					})
-				);
-			}
 		},
 		[channelId]
 	);
@@ -698,7 +689,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			}
 
 			scrollPositionRef.current = scrollPosition;
-		}, [channelId]);
+		}, [channelId, lastMessageId]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
@@ -782,7 +773,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (!userActiveScroll.current) return;
 
 				requestAnimationFrame(() => {
-					const { scrollHeight, scrollTop } = container;
+					const { scrollTop } = container;
 
 					if (scrollTop < 1000 && messageIds.length > 0) {
 						onChange(LoadMoreDirection.Backwards);
@@ -797,17 +788,20 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						const store = getStore();
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
 						const lastMsgId = messageIds?.at(-1);
+						if (lastMsgId) {
+							const message = entities[lastMsgId];
 
-						dispatch(
-							channelsActions.setScrollPosition({
-								channelId,
-								messageId: messageIds?.at(-1)
-							})
-						);
-
-						// Save last seen message when user is at bottom
-						if (lastMsgId && !hasMoreBottom) {
-							lastSeenAtBottomRef.current = lastMsgId;
+							if (message && !message.isSending) {
+								dispatch(
+									channelsActions.setScrollPosition({
+										channelId,
+										messageId: lastMsgId
+									})
+								);
+								if (lastMsgId && !hasMoreBottom) {
+									lastSeenAtBottomRef.current = lastMsgId;
+								}
+							}
 						}
 
 						if (hasMoreBottom) return;
@@ -822,7 +816,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						return;
 					}
 
-					const newScrollOffset = scrollHeight - scrollTop;
 					const containerRect = container.getBoundingClientRect();
 					const containerTop = containerRect.top;
 					const containerBottom = containerRect.bottom;
@@ -847,8 +840,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						dispatch(
 							channelsActions.setScrollPosition({
 								channelId,
-								messageId: visibleMessageId,
-								offset: newScrollOffset
+								messageId: visibleMessageId
 							})
 						);
 					}
@@ -901,7 +893,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				}
 
 				requestForcedReflow(() => {
-					const { scrollTop, scrollHeight, offsetHeight } = container;
+					const { scrollTop, scrollHeight } = container;
 
 					const store = getStore();
 					const isAtBottom = !selectShowScrollDownButton(store.getState(), channelId);
@@ -924,6 +916,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const anchor = anchorIdRef.current && container.querySelector(`#${anchorIdRef.current}`);
 
 					let newScrollTop!: number;
+					let shouldUpdateScrollPosition = false;
+
+					const lastMsgId = messageIds?.at(-1) || '';
+					const message = entities[lastMsgId];
 
 					if (
 						(!isLoadingMoreBottomRef.current &&
@@ -933,6 +929,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
 						newScrollTop = scrollHeight;
+						shouldUpdateScrollPosition = !message.isSending;
 					} else if (anchor) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
@@ -945,14 +942,26 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						} else {
 							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
+							shouldUpdateScrollPosition = !message.isSending;
 						}
 					} else {
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
+						shouldUpdateScrollPosition = !message.isSending;
 					}
 
 					return () => {
 						resetScroll(container, Math.ceil(newScrollTop));
+
+						if (message && shouldUpdateScrollPosition) {
+							dispatch(
+								channelsActions.setScrollPosition({
+									channelId,
+									messageId: lastMsgId
+								})
+							);
+						}
+
 						if (!memoFocusingIdRef.current) {
 							isScrollTopJustUpdatedRef.current = true;
 							requestMeasure(() => {
