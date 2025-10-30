@@ -179,7 +179,8 @@ export const listChannelRenderSlice = createSlice({
 					age_restricted: dataUpdate.age_restricted,
 					channel_private: dataUpdate.channel_private
 						? dataUpdate.channel_private || (state.listChannelRender[clanId][indexUpdate] as IChannel).channel_private
-						: 0
+						: 0,
+					channel_avatar: dataUpdate?.channel_avatar || (state.listChannelRender[clanId][indexUpdate] as IChannel)?.channel_avatar
 				};
 				if (state.listChannelRender[clanId][indexUpdate].category_id === FAVORITE_CATEGORY_ID) {
 					const indexNextUpdate = state.listChannelRender[clanId].findIndex(
@@ -193,7 +194,8 @@ export const listChannelRenderSlice = createSlice({
 						age_restricted: dataUpdate.age_restricted,
 						channel_private: dataUpdate.channel_private
 							? dataUpdate.channel_private || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_private
-							: 0
+							: 0,
+						channel_avatar: dataUpdate?.channel_avatar || (state.listChannelRender[clanId][indexNextUpdate] as IChannel)?.channel_avatar
 					};
 				}
 			}
