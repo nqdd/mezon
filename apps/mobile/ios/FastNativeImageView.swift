@@ -10,11 +10,6 @@ class FastNativeImageView: UIView {
   private var activityIndicator: UIActivityIndicatorView!
   private var currentURL: URL?
 
-  private let maxCacheSize: UInt = 1000 * 1024 * 1024
-  private let targetCacheSize: UInt = 500 * 1024 * 1024
-  private let cacheCheckInterval: TimeInterval = 60
-  private static var lastCacheCheck: Date = Date()
-
   override init(frame: CGRect) {
 	super.init(frame: frame)
 	setupViews()
@@ -49,13 +44,12 @@ class FastNativeImageView: UIView {
   private func configureSDWebImage() {
 	let cache = SDImageCache.shared
 
-	// Memory cache configuration
 	cache.config.maxMemoryCost = 200 * 1024 * 1024
 	cache.config.maxMemoryCount = 100
 	cache.config.shouldUseWeakMemoryCache = true
 
 	cache.config.maxDiskAge = 60 * 60 * 24 * 7
-	cache.config.maxDiskSize = maxCacheSize
+	cache.config.maxDiskSize = 1000 * 1024 * 1024
 	cache.config.diskCacheExpireType = .accessDate
 
 	let downloader = SDWebImageDownloader.shared
@@ -94,71 +88,6 @@ class FastNativeImageView: UIView {
 	  imageView.contentMode = .center
 	default:
 	  imageView.contentMode = .scaleAspectFill
-	}
-  }
-
-  private func checkAndCleanCache() {
-	let now = Date()
-
-	guard now.timeIntervalSince(FastNativeImageView.lastCacheCheck) > cacheCheckInterval else {
-	  return
-	}
-
-	FastNativeImageView.lastCacheCheck = now
-
-	DispatchQueue.global(qos: .utility).async { [weak self] in
-	  guard let self = self else { return }
-
-	  SDImageCache.shared.calculateSize { (fileCount, totalSize) in
-		if totalSize >= self.maxCacheSize {
-		  self.cleanCache(currentSize: totalSize)
-		}
-	  }
-	}
-  }
-
-  private func cleanCache(currentSize: UInt) {
-	let sizeToRemove = currentSize - targetCacheSize
-
-	print("🧹 Cache cleanup started: \(currentSize / 1024 / 1024)MB -> target \(targetCacheSize / 1024 / 1024)MB")
-
-	DispatchQueue.global(qos: .utility).async {
-	  let cache = SDImageCache.shared
-
-	  guard let cachePath = cache.diskCachePath as String?,
-			let fileManager = FileManager.default as FileManager?,
-			let files = try? fileManager.contentsOfDirectory(atPath: cachePath) else {
-		return
-	  }
-
-	  var filesToRemove: [(path: String, date: Date, size: UInt64)] = []
-	  var removedSize: UInt64 = 0
-
-	  // Collect file info
-	  for file in files {
-		let filePath = (cachePath as NSString).appendingPathComponent(file)
-
-		guard let attributes = try? fileManager.attributesOfItem(atPath: filePath),
-			  let modificationDate = attributes[.modificationDate] as? Date,
-			  let fileSize = attributes[.size] as? UInt64 else {
-		  continue
-		}
-
-		filesToRemove.append((path: filePath, date: modificationDate, size: fileSize))
-	  }
-
-	  filesToRemove.sort { $0.date < $1.date }
-
-	  for fileInfo in filesToRemove {
-		guard removedSize < sizeToRemove else { break }
-
-		try? fileManager.removeItem(atPath: fileInfo.path)
-		removedSize += fileInfo.size
-	  }
-
-	  DispatchQueue.main.async {
-		SDImageCache.shared.clearMemory()
-	  }
 	}
   }
 
@@ -238,6 +167,7 @@ class FastNativeImageView: UIView {
 	  }
 	}
   }
+
   private func loadImage() {
 	guard let source = source,
 		  let uri = source["uri"] as? String,
@@ -250,6 +180,7 @@ class FastNativeImageView: UIView {
 	  loadPhotoAsset(identifier: assetIdentifier)
 	  return
 	}
+
 	guard let url = URL(string: uri) else {
 	  onError?(["error": "Invalid URL"])
 	  return
@@ -258,8 +189,6 @@ class FastNativeImageView: UIView {
 	if currentURL == url && imageView.image != nil {
 	  return
 	}
-
-	checkAndCleanCache()
 
 	imageView.sd_cancelCurrentImageLoad()
 	currentURL = url
