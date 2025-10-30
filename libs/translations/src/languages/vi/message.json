@@ -195,6 +195,7 @@
 		"sticker": "Nhãn dán",
 		"gif": "GIF",
 		"link": "Liên kết",
-		"attachment": "Tệp đính kèm"
+		"attachment": "Tệp đính kèm",
+		"embed": "Nhúng"
 	}
 }
