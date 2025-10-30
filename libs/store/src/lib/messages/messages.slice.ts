@@ -944,12 +944,6 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
-			thunkAPI.dispatch(
-				channelsActions.setScrollPosition({
-					channelId,
-					messageId: undefined
-				})
-			);
 			await sendWithRetry(1);
 
 			if (!isViewingOlderMessages) {
