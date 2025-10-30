@@ -19,7 +19,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelThreads, ICategoryChannel, IChannel } from '@mezon/utils';
-import { EPermission, createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, toggleDisableHover, useSyncEffect } from '@mezon/utils';
+import { EPermission, createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, toggleDisableHover } from '@mezon/utils';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -112,7 +112,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const [showFullList, setShowFullList] = useState(false);
 	const prevClanIdRef = useRef<string | null>(null);
 
-	useSyncEffect(() => {
+	useEffect(() => {
 		const currentClanId = currentClan?.clan_id ?? null;
 		if (prevClanIdRef.current !== currentClanId) {
 			prevClanIdRef.current = currentClanId;
