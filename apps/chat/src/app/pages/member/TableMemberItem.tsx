@@ -5,7 +5,6 @@ import type { RolesClanEntity } from '@mezon/store';
 import {
 	clansActions,
 	selectCurrentChannelId,
-	selectCurrentClan,
 	selectCurrentClanId,
 	selectRolesClanEntities,
 	selectUserMaxPermissionLevel,
@@ -112,7 +111,7 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	}, [userId, username, avatar]);
 	const dispatch = useAppDispatch();
 	const handleTransferOwner = async () => {
-		const response = await dispatch(clansActions.transferClan({ clanId: currentClan?.clan_id || '', new_clan_owner: userId || '' }));
+		const response = await dispatch(clansActions.transferClan({ clanId: currentClanId || '', new_clan_owner: userId || '' }));
 		if (response) {
 			toast.success(t('transferredSuccessfully'));
 		}
@@ -176,8 +175,6 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 	const [openModalRemoveMember, closeModalRemoveMember] = useModal(() => {
 		return <ModalRemoveMemberClan username={username} onClose={closeModalRemoveMember} onRemoveMember={handleRemoveMember} />;
 	}, [username, handleRemoveMember]);
-
-	const currentClan = useSelector(selectCurrentClan);
 
 	const handleClickItem = () => {
 		openUserProfile();

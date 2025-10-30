@@ -401,11 +401,7 @@ export const fetchMessages = createAsyncThunk(
 				lastSentMessage = response.last_sent_message as ApiChannelMessageHeader;
 			}
 			const lastSentState = selectLatestMessageId(state, chlId);
-			const lastSeenState = selectLastSeenMessageStateByChannelId(state, chlId);
-			if (
-				!lastSentState ||
-				(lastSentMessage && lastSentMessage.id && (lastSentMessage?.timestamp_seconds || 0) >= (lastSeenState?.timestamp_seconds || 0))
-			) {
+			if (!lastSentState || (lastSentMessage && lastSentMessage.id && (lastSentMessage?.timestamp_seconds || 0))) {
 				thunkAPI.dispatch(
 					messagesActions.setLastMessage({
 						...lastSentMessage,
@@ -944,14 +940,14 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
-			await sendWithRetry(1);
-
-			if (!isViewingOlderMessages) {
+			const message = await sendWithRetry(1);
+			if (!isViewingOlderMessages && message) {
 				const timestamp = Date.now() / 1000;
 				thunkAPI.dispatch(
 					channelMetaActions.setChannelLastSeenTimestamp({
 						channelId,
-						timestamp
+						timestamp,
+						messageId: message.message_id
 					})
 				);
 			}
@@ -1954,7 +1950,7 @@ export const selectMessageByMessageId = createSelector(
 	}
 );
 
-export const selectLastSeenMessageStateByChannelId = createSelector(
+export const selectLastSentMessageStateByChannelId = createSelector(
 	[getMessagesState, (state, channelId: string) => channelId],
 	(state, channelId) => {
 		return state?.lastMessageByChannel?.[channelId] ?? null;

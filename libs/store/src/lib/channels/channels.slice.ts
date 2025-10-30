@@ -64,7 +64,8 @@ function extractChannelMeta(channel: ChannelsEntity): ChannelMetaEntity {
 		lastSentTimestamp: Number(channel.last_sent_message?.timestamp_seconds),
 		clanId: channel.clan_id ?? '',
 		isMute: channel.is_mute ?? false,
-		senderId: channel.last_sent_message?.sender_id ?? ''
+		senderId: channel.last_sent_message?.sender_id ?? '',
+		lastSeenMessageId: channel.last_seen_message?.id
 	};
 }
 
