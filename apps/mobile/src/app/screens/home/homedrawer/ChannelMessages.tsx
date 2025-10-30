@@ -18,7 +18,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { Direction_Mode, sleep } from '@mezon/utils';
+import { Direction_Mode, LIMIT_MESSAGE, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -359,7 +359,7 @@ const ChannelMessages = React.memo(
 				)}
 				{isLoadMore.current?.[ELoadMoreDirection.bottom] && <ViewLoadMore />}
 				<View style={styles.spacerHeight8} />
-				{isShowJumpToPresent && (
+				{isShowJumpToPresent && messages?.length >= LIMIT_MESSAGE && (
 					<ButtonJumpToPresent
 						handleJumpToPresent={handleJumpToPresent}
 						lastSeenMessageId={lastSeenMessageId}

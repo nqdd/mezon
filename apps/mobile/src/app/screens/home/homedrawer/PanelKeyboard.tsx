@@ -4,7 +4,8 @@ import { useTheme } from '@mezon/mobile-ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, Platform, View } from 'react-native';
 import { createStyles } from './PanelKeyboard.styles';
-import AttachmentPicker from './components/AttachmentPicker';
+import Gallery from './components/AttachmentPicker/Gallery';
+import HeaderAttachmentPicker from './components/AttachmentPicker/HeaderAttachmentPicker';
 import EmojiPicker from './components/EmojiPicker';
 import type { EMessageActionType } from './enums';
 import type { IMessageActionNeedToResolve } from './types';
@@ -84,7 +85,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 			<View style={styles.spacerView} />
 			<BottomSheetModal
 				ref={bottomPickerRef}
-				snapPoints={[heightKeyboardShow ? heightKeyboardShow : 1, '100%']}
+				snapPoints={[heightKeyboardShow ? heightKeyboardShow : 1, Platform.OS === 'ios' ? '95%' : '100%']}
 				index={0}
 				animateOnMount
 				animationConfigs={{
@@ -98,14 +99,21 @@ const PanelKeyboard = React.memo((props: IProps) => {
 				onChange={handleSheetChange}
 			>
 				<BottomSheetScrollView
-					scrollEnabled={true}
+					scrollEnabled={typeKeyboardBottomSheet !== 'attachment'}
 					stickyHeaderIndices={[0]}
 					keyboardShouldPersistTaps="handled"
 					contentContainerStyle={typeKeyboardBottomSheet === 'emoji' ? styles.scrollViewContentFlex : undefined}
 					style={styles.scrollViewMinHeight}
 				>
 					{typeKeyboardBottomSheet === 'attachment' ? (
-						<AttachmentPicker currentChannelId={props?.currentChannelId} onCancel={onClose} messageAction={props?.messageAction} />
+						<View>
+							<HeaderAttachmentPicker
+								onCancel={onClose}
+								messageAction={props?.messageAction}
+								currentChannelId={props?.currentChannelId}
+							/>
+							<Gallery currentChannelId={props?.currentChannelId} />
+						</View>
 					) : typeKeyboardBottomSheet === 'emoji' ? (
 						<EmojiPicker
 							onDone={onClose}

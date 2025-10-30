@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { appActions, getStoreAsync, referencesActions, selectChannelById, selectCurrentChannelId, selectCurrentDM } from '@mezon/store-mobile';
+import { appActions, getStoreAsync, referencesActions, selectChannelById, selectCurrentDM } from '@mezon/store-mobile';
 import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
 import { errorCodes, pick, types } from '@react-native-documents/picker';
@@ -18,15 +18,14 @@ import type { IFile } from '../../../../../componentUI/MezonImagePicker';
 import ShareLocationConfirmModal from '../../../../../components/ShareLocationConfirmModal';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import type { EMessageActionType } from '../../enums';
-import Gallery from './Gallery';
 import { style } from './styles';
-export type AttachmentPickerProps = {
+export type HeaderAttachmentPickerProps = {
 	currentChannelId?: string;
 	onCancel?: (isForcesKeyboard?: boolean) => void;
 	messageAction?: EMessageActionType;
 };
 
-function AttachmentPicker({ currentChannelId, onCancel, messageAction }: AttachmentPickerProps) {
+const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: HeaderAttachmentPickerProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'sharing', 'common']);
@@ -196,7 +195,6 @@ function AttachmentPicker({ currentChannelId, onCancel, messageAction }: Attachm
 				const { latitude, longitude } = await getCurrentPosition();
 				const store = await getStoreAsync();
 				let mode = ChannelStreamMode.STREAM_MODE_CHANNEL;
-				const currentChannelId = selectCurrentChannelId(store.getState());
 				const currentDirect = selectCurrentDM(store.getState());
 				if (currentDirect) {
 					mode =
@@ -287,29 +285,26 @@ function AttachmentPicker({ currentChannelId, onCancel, messageAction }: Attachm
 				text2: 'Please try again or check permissions'
 			});
 		}
-	}, [handleSelectedAttachments]);
+	}, [handleSelectedAttachments, t]);
 
 	return (
-		<View style={styles.container}>
-			<View style={styles.wrapperHeader}>
-				<TouchableOpacity activeOpacity={0.8} style={styles.buttonHeader} onPress={() => handleLinkGoogleMap()}>
-					<MezonIconCDN icon={IconCDN.locationIcon} height={20} width={20} color={themeValue.text} />
-					<Text style={styles.titleButtonHeader}>{t('message:actions.location')}</Text>
-				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.8} style={styles.buttonAlbum} onPress={() => handleShowAllAlbums()}>
-					<View style={styles.albumButtonGroup}>
-						<Text style={styles.albumTitle}>{t('message:actions.allAlbums')}</Text>
-						<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.textStrong} height={size.s_16} width={size.s_16} />
-					</View>
-				</TouchableOpacity>
-				<TouchableOpacity activeOpacity={0.8} onPress={onPickFiles} style={styles.buttonHeader}>
-					<MezonIconCDN icon={IconCDN.attachmentIcon} height={20} width={20} color={themeValue.text} />
-					<Text style={styles.titleButtonHeader}>{t('message:actions.files')}</Text>
-				</TouchableOpacity>
-			</View>
-			<Gallery onPickGallery={handleSelectedAttachments} currentChannelId={currentChannelId} />
+		<View style={styles.wrapperHeader}>
+			<TouchableOpacity activeOpacity={0.8} style={styles.buttonHeader} onPress={() => handleLinkGoogleMap()}>
+				<MezonIconCDN icon={IconCDN.locationIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+				<Text style={styles.titleButtonHeader}>{t('message:actions.location')}</Text>
+			</TouchableOpacity>
+			<TouchableOpacity activeOpacity={0.8} style={styles.buttonAlbum} onPress={() => handleShowAllAlbums()}>
+				<View style={styles.albumButtonGroup}>
+					<Text style={styles.albumTitle}>{t('message:actions.allAlbums')}</Text>
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.textStrong} height={size.s_16} width={size.s_16} />
+				</View>
+			</TouchableOpacity>
+			<TouchableOpacity activeOpacity={0.8} onPress={onPickFiles} style={styles.buttonHeader}>
+				<MezonIconCDN icon={IconCDN.attachmentIcon} height={20} width={20} color={themeValue.text} />
+				<Text style={styles.titleButtonHeader}>{t('message:actions.files')}</Text>
+			</TouchableOpacity>
 		</View>
 	);
-}
+};
 
-export default AttachmentPicker;
+export default HeaderAttachmentPicker;
