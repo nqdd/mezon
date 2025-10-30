@@ -10,12 +10,12 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { isValidUrl } from '@mezon/transport';
+import { isContainsUrl } from '@mezon/transport';
 import type { IExtendedMessage } from '@mezon/utils';
 import { createImgproxyUrl, EMimeTypes } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
@@ -98,7 +98,10 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, [isYourAccount, otherMemberList, senderId, t]);
 
 	const getLastMessageAttachmentContent = useCallback(
-		async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string) => {
+		async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
+			if (embed) {
+				return `[${t('attachments.embed')}] ${embed?.title || embed?.description || ''}`;
+			}
 			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
 			if (isGoogleMapsLink) {
 				return `[${t('attachments.location')}]`;
@@ -146,10 +149,12 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
 			const attachment = directMessage?.last_sent_message?.attachment;
 			const attachementToResolve = typeof attachment === 'object' ? attachment : safeJSONParse(attachment);
-			const isLinkMessage = isValidUrl(text);
+			const embed = (typeof content === 'object' ? content : safeJSONParse(content))?.embed?.[0];
 
-			if (attachementToResolve?.[0] || isLinkMessage) {
-				const resolved = await getLastMessageAttachmentContent(attachementToResolve[0], isLinkMessage, text);
+			const isLinkMessage = isContainsUrl(text);
+
+			if (attachementToResolve?.[0] || isLinkMessage || embed) {
+				const resolved = await getLastMessageAttachmentContent(attachementToResolve[0], isLinkMessage, text, embed);
 				setAttachmentContent(resolved);
 			} else {
 				setAttachmentContent('');
@@ -180,7 +185,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			}
 		}
 		const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
-		const isLinkMessage = isValidUrl(text);
+		const isLinkMessage = isContainsUrl(text);
 
 		if (!text || isLinkMessage) {
 			return (
