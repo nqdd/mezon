@@ -177,7 +177,7 @@ const StreamThumbnailChannel = () => {
 						{thumbnail ? (
 							<div className="space-y-3">
 								<div className="relative group rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl bg-slate-800/50">
-									<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+									<div className="relative w-full pb-[56.25%]">
 										<img
 											src={thumbnail || '/placeholder.svg'}
 											alt="Stream Thumbnail"
@@ -301,7 +301,7 @@ const StreamThumbnailChannel = () => {
 						<div className="p-6">
 							{previewImage && (
 								<div className="rounded-xl overflow-hidden border border-slate-700/50 mb-4 bg-slate-900/50">
-									<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+									<div className="relative w-full pb-[56.25%]">
 										<img src={previewImage} alt="Preview" className="absolute top-0 left-0 w-full h-full object-cover" />
 									</div>
 								</div>

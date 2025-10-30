@@ -90,8 +90,7 @@ export default function InviteAcceptModal({ inviteId, onClose, showModal }: Invi
 				<div className="text-center mb-4 w-full">
 					<p className="text-sm mb-1">{t('acceptModal.invitedToJoin')}</p>
 					<h1
-						className="text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
-						style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+						className="text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 						title={selectInvite?.clan_name || 'XCLAN'}
 					>
 						{selectInvite?.clan_name || 'XCLAN'}

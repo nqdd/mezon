@@ -102,9 +102,9 @@ const CustomGroupDm = ({ dmGroupId, channelLabel, currentAvatar }: { dmGroupId: 
 	}, [shouldDisableRemoveAvatar, handleRemoveAvatar]);
 
 	return (
-		<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10 }}>
+		<View style={styles.container}>
 			<Text style={styles.headerCustomGroup}>{t('customiseGroup')}</Text>
-			<View style={{ paddingVertical: size.s_20, alignItems: 'center' }}>
+			<View style={styles.avatarContainer}>
 				<MezonImagePicker
 					ref={avatarPickerRef}
 					defaultValue={avatarUrl}

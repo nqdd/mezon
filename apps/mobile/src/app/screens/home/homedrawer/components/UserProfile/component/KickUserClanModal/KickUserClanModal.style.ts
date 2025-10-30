@@ -82,5 +82,11 @@ export const style = (colors: Attributes) =>
 			textAlign: 'center',
 			fontSize: size.s_14,
 			color: baseColor.white
+		},
+		spacer: {
+			width: size.s_20
+		},
+		flex: {
+			flex: 1
 		}
 	});

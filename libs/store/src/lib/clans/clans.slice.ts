@@ -16,7 +16,7 @@ import { usersClanActions } from '../clanMembers/clan.members';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx, sleep } from '../helpers';
 import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { defaultNotificationCategoryActions } from '../notificationSetting/notificationSettingCategory.slice';
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
@@ -192,38 +192,55 @@ export type FetchClansPayload = {
 	fromCache?: boolean;
 };
 
-export const fetchClans = createAsyncThunk('clans/fetchClans', async ({ noCache = false }: { noCache?: boolean }, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await fetchClansCached(thunkAPI.getState as () => RootState, mezon, LIMIT_CLAN_ITEM, 1, '', noCache);
-		if (!response.clandesc) {
-			return { clans: [], fromCache: response.fromCache };
-		}
-		const clans = response.clandesc.map(mapClanToEntity);
-		const meta = clans.map((clan: ClansEntity) => extractClanMeta(clan));
-		thunkAPI.dispatch(clansActions.updateBulkClanMetadata(meta));
+let lastUnreadIndicatorCall = 0;
+const UNREAD_DEBOUNCE_MS = 2000;
 
-		const state = thunkAPI.getState() as RootState;
-		const queuedMessages = state.messages.queuedLastSeenMessages;
-		if (queuedMessages.length > 0) {
-			thunkAPI.dispatch(processQueuedLastSeenMessages());
-		}
+export const fetchClans = createAsyncThunk(
+	'clans/fetchClans',
+	async ({ noCache = false, isMobile = false }: { noCache?: boolean; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await fetchClansCached(thunkAPI.getState as () => RootState, mezon, LIMIT_CLAN_ITEM, 1, '', noCache);
+			if (!response.clandesc) {
+				return { clans: [], fromCache: response.fromCache };
+			}
+			const clans = response.clandesc.map(mapClanToEntity);
+			const meta = clans.map((clan: ClansEntity) => extractClanMeta(clan));
+			thunkAPI.dispatch(clansActions.updateBulkClanMetadata(meta));
 
-		if (!response.fromCache && clans.length > 0) {
-			const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
-			thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
-		}
+			const state = thunkAPI.getState() as RootState;
+			const queuedMessages = state.messages.queuedLastSeenMessages;
+			if (queuedMessages.length > 0) {
+				thunkAPI.dispatch(processQueuedLastSeenMessages());
+			}
 
-		const payload: FetchClansPayload = {
-			clans,
-			fromCache: response.fromCache
-		};
-		return payload;
-	} catch (error) {
-		captureSentryError(error, 'clans/fetchClans');
-		return thunkAPI.rejectWithValue(error);
+			if (!response.fromCache && clans.length > 0) {
+				if (isMobile) {
+					const now = Date.now();
+					if (now - lastUnreadIndicatorCall > UNREAD_DEBOUNCE_MS) {
+						lastUnreadIndicatorCall = now;
+						const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
+						queueMicrotask(() => {
+							thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
+						});
+					}
+				} else {
+					const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
+					thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
+				}
+			}
+
+			const payload: FetchClansPayload = {
+				clans,
+				fromCache: response.fromCache
+			};
+			return payload;
+		} catch (error) {
+			captureSentryError(error, 'clans/fetchClans');
+			return thunkAPI.rejectWithValue(error);
+		}
 	}
-});
+);
 
 type CreatePayload = {
 	clan_name: string;
@@ -443,13 +460,16 @@ export const updateUsername = createAsyncThunk('clans/updateUsername', async ({ 
 		}
 		const sessionState = mezon?.session;
 		if (response?.refresh_token && response?.token) {
-			return await mezon?.refreshSession({
-				...sessionState,
-				is_remember: sessionState.is_remember ?? false,
-				username,
-				refresh_token: response.refresh_token,
-				token: response.token
-			});
+			return await mezon?.refreshSession(
+				{
+					...sessionState,
+					is_remember: sessionState.is_remember ?? false,
+					username,
+					refresh_token: response.refresh_token,
+					token: response.token
+				},
+				true
+			);
 		}
 		return false;
 	} catch (error) {
@@ -508,7 +528,7 @@ export const updateHasUnreadBasedOnChannels = createAsyncThunk<void, { clanId: s
 	}
 );
 
-export const listClanUnreadMsgIndicator = createAsyncThunk<void, { clanIds: string[] }>(
+export const listClanUnreadMsgIndicator = createAsyncThunk<void, { clanIds: string[]; isMobile?: boolean }>(
 	'clans/listClanUnreadMsgIndicator',
 	async ({ clanIds }, thunkAPI) => {
 		try {
@@ -516,6 +536,7 @@ export const listClanUnreadMsgIndicator = createAsyncThunk<void, { clanIds: stri
 
 			for (const clanId of clanIds) {
 				try {
+					await sleep(1000);
 					const response = await fetchDataWithSocketFallback(
 						mezon,
 						{

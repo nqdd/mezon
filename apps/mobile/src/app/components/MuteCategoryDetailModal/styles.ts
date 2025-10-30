@@ -61,5 +61,16 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			fontWeight: '500',
 			marginTop: size.s_10
+		},
+		headerTitle: {
+			color: colors.textStrong,
+			fontSize: size.label,
+			fontWeight: '700'
+		},
+		headerSubtitle: {
+			color: colors.text,
+			fontSize: size.medium,
+			fontWeight: '400',
+			width: '100%'
 		}
 	});

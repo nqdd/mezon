@@ -126,6 +126,12 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			fontWeight: '600'
 		},
+		textFilterActive: {
+			color: colors.white
+		},
+		listContainer: {
+			flexGrow: 1
+		},
 		loadMoreChannelMessage: {
 			paddingVertical: size.s_20,
 			alignItems: 'center',

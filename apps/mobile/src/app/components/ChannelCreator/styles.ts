@@ -1,4 +1,4 @@
-import { Attributes, Metrics } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -13,5 +13,13 @@ export const style = (colors: Attributes) =>
 			display: 'flex',
 			flexDirection: 'column',
 			paddingHorizontal: Metrics.size.xl
+		},
+		headerCreateButton: {
+			color: baseColor.blurple,
+			fontWeight: 'bold',
+			paddingHorizontal: size.s_20
+		},
+		headerBackButton: {
+			padding: size.s_20
 		}
 	});

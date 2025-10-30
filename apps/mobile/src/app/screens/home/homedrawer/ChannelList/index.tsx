@@ -47,7 +47,7 @@ const ChannelList = () => {
 
 		const promise = [
 			dispatch(channelsActions.fetchChannels({ clanId: currentClan?.clan_id, noCache: true, isMobile: true })),
-			dispatch(clansActions.fetchClans({ noCache: true })),
+			dispatch(clansActions.fetchClans({ noCache: true, isMobile: true })),
 			dispatch(
 				voiceActions.fetchVoiceChannelMembers({
 					clanId: currentClan?.clan_id ?? '',

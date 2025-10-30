@@ -13,6 +13,7 @@ import { NotificationOverrides } from '../../../components/ClanNotificationSetti
 import { ClanNotificationSetting as NotificationSettingDetail } from '../../../components/ClanNotificationSetting/NotificationSettingDetail';
 import { ClanSetting } from '../../../components/ClanSettings';
 import { ClanEmojiSetting } from '../../../components/ClanSettings/Emoji';
+import EnableCommunityScreen from '../../../components/ClanSettings/EnableCommunity';
 import { Integrations } from '../../../components/ClanSettings/Integrations';
 import { Webhooks } from '../../../components/ClanSettings/Integrations/Webhooks';
 import { WebhooksEdit } from '../../../components/ClanSettings/Integrations/Webhooks/WebhooksEdit';
@@ -284,6 +285,13 @@ export const MenuClanStacks = ({ }: any) => {
 				component={ManageUserScreen}
 				options={{
 					headerTitle: t('menuClanStack.manageUser')
+				}}
+			/>
+			<Stack.Screen
+				name={APP_SCREEN.MENU_CLAN.ENABLE_COMMUNITY}
+				component={EnableCommunityScreen}
+				options={{
+					headerShown: false
 				}}
 			/>
 		</Stack.Navigator>

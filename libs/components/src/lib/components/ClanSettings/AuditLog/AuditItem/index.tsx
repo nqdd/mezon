@@ -49,7 +49,6 @@ const MainAuditLog = ({ pageSize, setPageSize, currentPage, setCurrentPage, sele
 
 	return (
 		<div className="flex flex-col">
-			<div className="border-b-theme-primary my-[32px]" />
 			{auditLogData && auditLogData.length > 0 ? (
 				auditLogData.map((log) => <AuditLogItem key={log.id} logItem={log} />)
 			) : (

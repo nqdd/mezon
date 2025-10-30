@@ -155,7 +155,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 					<div className="flex flex-row flex-1 justify-start h-full">
 						<div className="w-[740px] pl-7 sbm:pl-10 pr-7">
 							<div className="relative max-h-full sbm:min-h-heightRolesEdit min-h-heightRolesEditMobile text-theme-primary">
-								{!(currentSetting?.id === ItemSetting.INTEGRATIONS) ? (
+								{!(currentSetting?.id === ItemSetting.INTEGRATIONS || currentSetting?.id === ItemSetting.AUDIT_LOG) ? (
 									<h2 className="text-xl font-semibold mb-5 sbm:mt-[60px] mt-[10px] text-theme-primary-active">
 										{currentSetting?.name}
 									</h2>

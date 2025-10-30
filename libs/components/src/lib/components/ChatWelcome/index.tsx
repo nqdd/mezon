@@ -354,20 +354,22 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 			{checkAddFriend === EStateFriend.MY_PENDING && (
 				<p className="dark:text-contentTertiary text-colorTextLightMode">{t('welcome.friendRequestSent')}</p>
 			)}
-			{title.map((button, index) => (
-				<button
-					className={`rounded-lg   border border-theme-primary px-4 py-0.5 font-medium  ${checkAddFriend === EStateFriend.OTHER_PENDING ? 'cursor-not-allowed' : ''} ${checkAddFriend === EStateFriend.FRIEND ? 'bg-button-secondary text-theme-primary text-theme-primary-hover' : 'btn-primary btn-primary-hover'}`}
-					onClick={() => handleOnClickButtonFriend(index)}
-					key={button}
-				>
-					{button}
-				</button>
-			))}
+			{userID !== userProfile?.user?.id &&
+				title.map((button, index) => (
+					<button
+						className={`rounded-lg border border-theme-primary px-4 py-0.5 font-medium ${checkAddFriend === EStateFriend.OTHER_PENDING ? 'cursor-not-allowed' : ''} ${checkAddFriend === EStateFriend.FRIEND ? 'bg-button-secondary text-theme-primary text-theme-primary-hover' : 'btn-primary btn-primary-hover'}`}
+						onClick={() => handleOnClickButtonFriend(index)}
+						key={button}
+					>
+						{button}
+					</button>
+				))}
 
 			{(isFriend || didIBlockUser) && (
 				<button
 					onClick={didIBlockUser ? handleUnblockFriend : handleBlockFriend}
 					className="rounded-lg text-theme-primary-hover border border-theme-primary bg-button-secondary px-4 py-0.5 font-medium text-theme-primary"
+					data-e2e={generateE2eId(`chat.direct_message.${didIBlockUser ? 'unblock' : 'block'}.button`)}
 				>
 					{didIBlockUser ? t('welcome.unblock') : t('welcome.block')}
 				</button>

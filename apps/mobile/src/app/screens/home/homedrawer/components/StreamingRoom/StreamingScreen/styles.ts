@@ -49,7 +49,8 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: '100%',
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			backgroundColor: colors.primary
 		},
 		imageFullSize: {
 			width: '100%',

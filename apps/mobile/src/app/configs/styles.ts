@@ -33,7 +33,7 @@ export const style = (colors: Attributes) =>
 			width: '90%',
 			height: 'auto',
 			flex: 1,
-			top: Platform.OS === 'android' ? size.s_2 : size.s_22,
+			top: size.s_2,
 			backgroundColor: colors.secondary,
 			borderWidth: size.s_2,
 			borderColor: colors.primary,
@@ -63,7 +63,7 @@ export const style = (colors: Attributes) =>
 			marginBottom: -size.s_4
 		},
 		toastWrapper: {
-			top: Platform.OS === 'android' ? size.s_12 : size.s_22,
+			top: size.s_2,
 			borderRadius: size.s_20,
 			overflow: 'hidden',
 			width: '90%'
