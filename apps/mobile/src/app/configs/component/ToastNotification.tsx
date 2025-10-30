@@ -38,7 +38,14 @@ export const ToastNotification = memo((props: ToastConfigParams<any>) => {
 					</View>
 				</View>
 				<View style={styles.notificationProgressBarContainer}>
-					<LottieView loop={false} speed={0.4} ref={progressBarRef} source={NOTIFICATION_PROGRESS_BAR} style={styles.lottieProgressBar} />
+					<LottieView
+						loop={false}
+						speed={0.4}
+						ref={progressBarRef}
+						resizeMode="cover"
+						source={NOTIFICATION_PROGRESS_BAR}
+						style={styles.lottieProgressBar}
+					/>
 				</View>
 			</View>
 		</Pressable>
