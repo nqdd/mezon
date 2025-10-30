@@ -1,12 +1,12 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { appActions, getStoreAsync, referencesActions, selectChannelById, selectCurrentDM } from '@mezon/store-mobile';
+import { getStoreAsync, referencesActions, selectChannelById, selectCurrentDM } from '@mezon/store-mobile';
 import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
 import { errorCodes, pick, types } from '@react-native-documents/picker';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -29,20 +29,10 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'sharing', 'common']);
-	const timeRef = useRef<any>(null);
 	const dispatch = useDispatch();
-
-	useEffect(() => {
-		return () => {
-			timeRef?.current && clearTimeout(timeRef.current);
-		};
-	}, []);
 
 	const onPickFiles = async () => {
 		try {
-			timeRef.current = setTimeout(() => {
-				dispatch(appActions.setIsFromFCMMobile(true));
-			}, 500);
 			const res = await pick({
 				type: [types.allFiles]
 			});
@@ -75,13 +65,7 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 				})
 			);
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, {});
-			timeRef.current = setTimeout(() => {
-				dispatch(appActions.setIsFromFCMMobile(false));
-			}, 2000);
 		} catch (err) {
-			timeRef.current = setTimeout(() => {
-				dispatch(appActions.setIsFromFCMMobile(false));
-			}, 2000);
 			if (err?.code === errorCodes.OPERATION_CANCELED) {
 				onCancel?.();
 				// User cancelled the picker
