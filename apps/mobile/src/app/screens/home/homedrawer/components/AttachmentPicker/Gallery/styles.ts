@@ -45,9 +45,8 @@ export const style = (colors: Attributes) =>
 			textAlign: 'center'
 		},
 		galleryContainer: {
-			flex: 1
-		},
-		galleryFlatList: {
-			maxHeight: '80%'
+			flex: 1,
+			padding: size.s_10,
+			paddingTop: 0
 		}
 	});
