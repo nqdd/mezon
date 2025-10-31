@@ -45,8 +45,8 @@ const Install: React.FC = () => {
 			navigateDeeplinkMobile(applicationId);
 			dispatch(getApplicationDetail({ appId: applicationId }));
 		}
-		const t = setTimeout(() => setIsRedirect(true), 400);
-		return () => clearTimeout(t);
+		const timer = setTimeout(() => setIsRedirect(true), 400);
+		return () => clearTimeout(timer);
 	}, [applicationId, dispatch]);
 
 	if (!isLogin && isRedirect) {
