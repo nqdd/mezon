@@ -179,8 +179,7 @@ export const listChannelRenderSlice = createSlice({
 					age_restricted: dataUpdate.age_restricted,
 					channel_private: dataUpdate.channel_private
 						? dataUpdate.channel_private || (state.listChannelRender[clanId][indexUpdate] as IChannel).channel_private
-						: 0,
-					channel_avatar: dataUpdate?.channel_avatar || (state.listChannelRender[clanId][indexUpdate] as IChannel)?.channel_avatar
+						: 0
 				};
 				const existing = state.listChannelRender[clanId][indexUpdate] as IChannel;
 				if (state.listChannelRender?.[clanId]?.[indexUpdate]) {
@@ -203,8 +202,7 @@ export const listChannelRenderSlice = createSlice({
 						age_restricted: dataUpdate.age_restricted,
 						channel_private: dataUpdate.channel_private
 							? dataUpdate.channel_private || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_private
-							: 0,
-						channel_avatar: dataUpdate?.channel_avatar || (state.listChannelRender[clanId][indexNextUpdate] as IChannel)?.channel_avatar
+							: 0
 					};
 					const existingNext = state.listChannelRender[clanId][indexNextUpdate] as IChannel;
 					const avatarNext =
