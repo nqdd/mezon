@@ -102,7 +102,7 @@ export const MemberProfile = memo(({ user, isHideUserName, numCharCollapse = 6, 
 									<MezonIconCDN icon={IconCDN.ownerIcon} color={themeValue.borderWarning} width={16} height={16} />
 								)}
 						</View>
-						{!!userVoiceStatus && (
+						{!!userVoiceStatus && !isDMThread && (
 							<View style={styles.voiceContainer}>
 								<MezonIconCDN icon={IconCDN.channelVoice} color={baseColor.green} width={12} height={12} />
 								<Text style={styles.voiceText}>In voice</Text>
