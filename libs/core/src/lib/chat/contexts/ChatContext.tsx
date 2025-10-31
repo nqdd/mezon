@@ -71,6 +71,8 @@ import {
 	selectDmGroupCurrentId,
 	selectIsInCall,
 	selectLastMessageByChannelId,
+	selectLastSentMessageStateByChannelId,
+	selectLatestMessageId,
 	selectLoadingStatus,
 	selectStreamMembersByChannelId,
 	selectUserCallId,
@@ -471,7 +473,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 									updateLast: true
 								})
 							);
-							dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp }));
+							dispatch(
+								directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp, messageId: message.id })
+							);
 						}
 					}
 				} else {
@@ -671,11 +675,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						dispatch(directMetaActions.setCountMessUnread({ channelId: notification?.channel_id ?? '', isMention: true }));
 					}
 				}
-			}
-
-			if (currentChannel?.channel_id === (notification as any).channel_id) {
-				const timestamp = Date.now() / 1000;
-				dispatch(channelMetaActions.setChannelLastSeenTimestamp({ channelId: (notification as any).channel_id, timestamp }));
 			}
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
@@ -2229,7 +2228,15 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		const channels = selectChannelThreads(store.getState() as RootState);
 		if (!markAsReadEvent.category_id) {
 			const channelIds = channels.map((item) => item.id);
-			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelIds));
+			const channelUpdates = channelIds.map((channelId) => {
+				let messageId = selectLatestMessageId(store.getState(), channelId);
+				if (!messageId) {
+					const lastSentMsg = selectLastSentMessageStateByChannelId(store.getState(), channelId);
+					messageId = lastSentMsg?.id || '';
+				}
+				return { channelId, messageId: messageId || undefined };
+			});
+			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelUpdates));
 			dispatch(
 				channelsActions.resetChannelsCount({
 					clanId: markAsReadEvent.clan_id,
@@ -2253,7 +2260,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			const channelIds = allChannelsAndThreads.map((item) => item.id);
 
-			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelIds));
+			const channelUpdates = channelIds.map((channelId) => ({
+				channelId,
+				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
+			}));
+			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelUpdates));
 			dispatch(
 				channelsActions.resetChannelsCount({
 					clanId: markAsReadEvent.clan_id as string,
@@ -2275,7 +2286,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			const channelIds = relatedChannels.map((channel) => channel.id);
 
-			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelIds));
+			const channelUpdates = channelIds.map((channelId) => ({
+				channelId,
+				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
+			}));
+			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(channelUpdates));
 			dispatch(
 				channelsActions.resetChannelsCount({
 					clanId: markAsReadEvent.clan_id as string,
@@ -2301,7 +2316,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			const threadIds = relatedChannels.flatMap((channel) => channel.threadIds || []);
 			if (threadIds.length) {
-				dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadIds));
+				const threadUpdates = threadIds.map((channelId) => ({
+					channelId,
+					messageId: selectLatestMessageId(store.getState(), channelId) || undefined
+				}));
+				dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadUpdates));
 			}
 
 			dispatch(listChannelsByUserActions.markAsReadChannel([markAsReadEvent.channel_id, ...threadIds]));

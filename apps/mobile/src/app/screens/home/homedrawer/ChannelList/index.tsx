@@ -3,7 +3,7 @@ import {
 	channelsActions,
 	clansActions,
 	selectCurrentChannelId,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectIsShowEmptyCategory,
 	selectListChannelRenderByClanId,
 	useAppDispatch,
@@ -29,28 +29,28 @@ import { style } from './styles';
 const ChannelList = () => {
 	const { themeValue } = useTheme();
 	const isTabletLandscape = useTabletLandscape();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const isShowEmptyCategory = useSelector(selectIsShowEmptyCategory);
-	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClan?.clan_id));
+	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId));
 	const [refreshing, setRefreshing] = useState(false);
 	const dispatch = useAppDispatch();
 	const flashListRef = useRef(null);
 
 	useEffect(() => {
-		if (currentClan?.clan_id) {
+		if (currentClanId) {
 			flashListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
 		}
-	}, [currentClan?.clan_id]);
+	}, [currentClanId]);
 	const handleRefresh = async () => {
 		setRefreshing(true);
 
 		const promise = [
-			dispatch(channelsActions.fetchChannels({ clanId: currentClan?.clan_id, noCache: true, isMobile: true })),
+			dispatch(channelsActions.fetchChannels({ clanId: currentClanId, noCache: true, isMobile: true })),
 			dispatch(clansActions.fetchClans({ noCache: true, isMobile: true })),
 			dispatch(
 				voiceActions.fetchVoiceChannelMembers({
-					clanId: currentClan?.clan_id ?? '',
+					clanId: currentClanId ?? '',
 					channelId: '',
 					channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 				})

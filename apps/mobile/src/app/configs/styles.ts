@@ -1,5 +1,5 @@
 import { Attributes, baseColor, size } from '@mezon/mobile-ui';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -59,8 +59,7 @@ export const style = (colors: Attributes) =>
 		},
 		lottieProgressBar: {
 			width: '100%',
-			height: size.s_8,
-			marginBottom: -size.s_4
+			height: size.s_8
 		},
 		toastWrapper: {
 			top: size.s_2,
@@ -111,7 +110,9 @@ export const style = (colors: Attributes) =>
 			color: colors.textStrong
 		},
 		notificationProgressBarContainer: {
-			transform: [{ rotateY: '180deg' }]
+			transform: [{ rotateY: '180deg' }],
+			height: size.s_4,
+			overflow: 'hidden'
 		}
 	});
 

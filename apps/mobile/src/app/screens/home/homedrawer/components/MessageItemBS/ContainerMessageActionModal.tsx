@@ -426,7 +426,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const handleMarkUnread = async () => {
 		const payloadSetLastSeenTimestamp = {
 			channelId: message?.channel_id || '',
-			timestamp: 1
+			timestamp: 1,
+			messageId: message?.id
 		};
 		try {
 			await dispatch(

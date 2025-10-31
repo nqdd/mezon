@@ -63,7 +63,7 @@ const ChannelListMessage = React.memo(
 					autoscrollToTopThreshold: isLoadMoreBottom ? undefined : 1000
 				}}
 				ref={flatListRef}
-				onMomentumScrollEnd={handleScroll}
+				onScroll={handleScroll}
 				keyboardShouldPersistTaps={'handled'}
 				onEndReached={handleEndReached}
 				onScrollBeginDrag={() => {

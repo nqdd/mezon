@@ -101,5 +101,9 @@ export const style = (colors: Attributes) =>
 		iconWrapper: {
 			flexDirection: 'row',
 			gap: size.s_2
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

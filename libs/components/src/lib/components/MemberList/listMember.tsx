@@ -117,7 +117,7 @@ const ListMember = () => {
 		if (showFullList) {
 			setShowFullList(false);
 		}
-	}, [currentClan]);
+	}, [currentClan?.id]);
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const userChannels = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannelId as string));
@@ -189,6 +189,7 @@ const ListMember = () => {
 	useEffect(() => {
 		const idleCallback = window.requestIdleCallback(
 			() => {
+				console.log('setShowFullList');
 				setShowFullList(true);
 			},
 			{ timeout: 3000 }

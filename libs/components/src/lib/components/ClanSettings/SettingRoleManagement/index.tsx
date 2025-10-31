@@ -10,7 +10,7 @@ import {
 	getRemovePermissions,
 	getSelectedRoleId,
 	roleSlice,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectCurrentRoleIcon,
 	setColorRoleNew,
 	setCurrentRoleIcon,
@@ -46,7 +46,7 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	const removePermissions = useSelector(getRemovePermissions);
 	const addUsers = useSelector(getNewAddMembers);
 	const dispatch = useDispatch();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const isChange = useSelector(getIsShow);
 	const isCreateNewRole = clickRole === t('roleManagement.newRoleDefault');
 
@@ -75,11 +75,11 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 			return;
 		}
 		if (isCreateNewRole) {
-			const respond = await createRole(currentClan?.id || '', nameRole, colorRole, addUsers, addPermissions);
+			const respond = await createRole(currentClanId || '', nameRole, colorRole, addUsers, addPermissions);
 			if (!hasChangeRole) dispatch(setSelectedRoleId(respond?.id || ''));
 		} else {
 			const roleIcon = newRoleIcon || currentRoleIcon || '';
-			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
+			await updateRole(currentClanId ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
 			dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon));
 			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}

@@ -448,7 +448,8 @@ function MessageContextMenu({
 			dispatch(
 				channelMetaActions.setChannelLastSeenTimestamp({
 					channelId: message?.channel_id as string,
-					timestamp: message.create_time_seconds || Date.now()
+					timestamp: message.create_time_seconds || Date.now(),
+					messageId: message?.id
 				})
 			);
 		} catch (error) {

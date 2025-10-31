@@ -14,7 +14,6 @@ import {
 	selectCurrentUserId,
 	selectDmGroupCurrent,
 	selectLastMessageByChannelId,
-	selectLastSeenMessageStateByChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -47,8 +46,6 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
-	const lastMessageState = useSelector((state) => selectLastSeenMessageStateByChannelId(state, channelId as string));
-
 	const { markAsReadSeen } = useSeenMessagePool();
 
 	const isMounted = useRef(false);
@@ -56,17 +53,13 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const markMessageAsRead = useCallback(() => {
 		if (!lastMessage) return;
 
-		if (
-			lastMessage?.create_time_seconds &&
-			lastMessageState?.timestamp_seconds &&
-			lastMessage?.create_time_seconds >= lastMessageState?.timestamp_seconds
-		) {
+		if (lastMessage?.create_time_seconds) {
 			const mode =
 				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 
 			markAsReadSeen(lastMessage, mode, 0);
 		}
-	}, [lastMessage, markAsReadSeen, currentDmGroup, lastMessageState]);
+	}, [lastMessage, markAsReadSeen, currentDmGroup]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {

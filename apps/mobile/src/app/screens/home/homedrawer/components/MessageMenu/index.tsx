@@ -9,13 +9,15 @@ import {
 	directMetaActions,
 	fetchDirectMessage,
 	fetchUserChannels,
+	getStore,
 	markAsReadProcessing,
 	notificationSettingActions,
 	removeMemberChannel,
 	selectAllAccount,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectCurrentUserId,
 	selectFriendById,
+	selectLatestMessageId,
 	selectNotifiSettingsEntitiesById,
 	selectRawDataUserGroup,
 	useAppDispatch,
@@ -51,7 +53,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const userProfile = useSelector(selectAllAccount);
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const infoFriend = useAppSelector((state) => selectFriendById(state, messageInfo?.user_ids?.[0] || ''));
@@ -239,7 +241,9 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 	const handleMarkAsRead = async (channel_id: string) => {
 		if (!channel_id) return;
 		const timestamp = Date.now() / 1000;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: channel_id, timestamp }));
+		const store = getStore();
+		const messageId = store ? selectLatestMessageId(store.getState(), channel_id) : undefined;
+		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: channel_id, timestamp, messageId }));
 
 		const body: ApiMarkAsReadRequest = {
 			clan_id: '',
@@ -268,7 +272,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		const body = {
 			channel_id: messageInfo?.channel_id || '',
 			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-			clan_id: currentClan?.clan_id || '',
+			clan_id: currentClanId || '',
 			active
 		};
 		const response = await dispatch(notificationSettingActions.setMuteNotificationSetting(body));
