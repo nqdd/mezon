@@ -1,5 +1,5 @@
 import { useAppNavigation, useAuth, useDirect, useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
-import { selectCurrentClan } from '@mezon/store';
+import { selectCurrentClanCreatorId } from '@mezon/store';
 import { ChannelMembersEntity } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,10 +25,10 @@ const PanelMemberTable = ({ coords, member, onClose, onOpenProfile, kichMember, 
 	const { userProfile } = useAuth();
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [positionTop, setPositionTop] = useState<boolean>(false);
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanCreatorId = useSelector(selectCurrentClanCreatorId);
 	const isClanOwner = useMemo(() => {
-		return currentClan?.creator_id === userProfile?.user?.id;
-	}, [currentClan?.creator_id, userProfile?.user?.id]);
+		return currentClanCreatorId === userProfile?.user?.id;
+	}, [currentClanCreatorId, userProfile?.user?.id]);
 	useEffect(() => {
 		const heightPanel = panelRef.current?.clientHeight;
 		if (heightPanel && heightPanel > coords.distanceToBottom) {
@@ -85,7 +85,7 @@ const PanelMemberTable = ({ coords, member, onClose, onOpenProfile, kichMember, 
 
 				{!isSelf && <ItemPanelMember children={t('message')} onClick={handleDirectMessageWithUser} />}
 				{isClanOwner && !isSelf && <ItemPanelMember danger children={t('transferOwnership')} onClick={handleTransferOwner} />}
-				{kichMember && !isSelf && currentClan?.creator_id !== member?.id && (
+				{kichMember && !isSelf && currentClanCreatorId !== member?.id && (
 					<ItemPanelMember danger children={t('removeMember')} onClick={handleRemoveMember} />
 				)}
 			</GroupPanelMember>

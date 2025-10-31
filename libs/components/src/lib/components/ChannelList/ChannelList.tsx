@@ -1,12 +1,13 @@
 import { usePermissionChecker } from '@mezon/core';
-import type { ClansEntity } from '@mezon/store';
 import {
 	FAVORITE_CATEGORY_ID,
 	categoriesActions,
 	listChannelRenderAction,
 	selectCtrlKFocusChannel,
 	selectCurrentChannelId,
-	selectCurrentClan,
+	selectCurrentClanBanner,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
 	selectCurrentUserId,
 	selectIsElectronDownloading,
 	selectIsElectronUpdateAvailable,
@@ -38,8 +39,9 @@ const clanTopbarEle = 50;
 function ChannelList() {
 	const isOpenModal = useAppSelector((state) => selectIsOpenCreateNewChannel(state));
 	const [openCreateChannel, closeCreateChannel] = useModal(() => <CreateNewChannelModal />, []);
-	const currentClan = useSelector(selectCurrentClan);
-	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClan?.clan_id));
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanCreatorId = useSelector(selectCurrentClanCreatorId);
+	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
 
 	const userId = useSelector(selectCurrentUserId);
 	const [hasAdminPermission, hasClanPermission, hasChannelManagePermission] = usePermissionChecker([
@@ -47,7 +49,7 @@ function ChannelList() {
 		EPermission.manageClan,
 		EPermission.manageChannel
 	]);
-	const isClanOwner = currentClan?.creator_id === userId;
+	const isClanOwner = currentClanCreatorId === userId;
 	const permissions = useMemo(
 		() => ({
 			hasAdminPermission,
@@ -87,13 +89,13 @@ function ChannelList() {
 	);
 }
 
-const ChannelBannerAndEvents = memo(({ currentClan }: { currentClan: ClansEntity | null }) => {
+const ChannelBannerAndEvents = memo(({ banner }: { banner?: string }) => {
 	return (
 		<>
-			{currentClan?.banner && (
+			{banner && (
 				<div className="h-[136px]">
 					<img
-						src={createImgproxyUrl(currentClan?.banner ?? '', { width: 300, height: 300, resizeType: 'fit' })}
+						src={createImgproxyUrl(banner ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						alt="imageCover"
 						className="h-full w-full object-cover"
 					/>
@@ -108,19 +110,19 @@ const ChannelBannerAndEvents = memo(({ currentClan }: { currentClan: ClansEntity
 });
 
 const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLinkPermission }) => {
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanBanner = useSelector(selectCurrentClanBanner);
 	const [showFullList, setShowFullList] = useState(false);
 	const prevClanIdRef = useRef<string | null>(null);
 
 	useEffect(() => {
-		const currentClanId = currentClan?.clan_id ?? null;
 		if (prevClanIdRef.current !== currentClanId) {
-			prevClanIdRef.current = currentClanId;
+			prevClanIdRef.current = currentClanId as string;
 			if (showFullList) {
 				setShowFullList(false);
 			}
 		}
-	}, [currentClan?.id]);
+	}, [currentClanId]);
 
 	const isShowEmptyCategory = useSelector(selectIsShowEmptyCategory);
 	const streamPlay = useSelector(selectStatusStream);
@@ -130,7 +132,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const ctrlKFocusChannel = useSelector(selectCtrlKFocusChannel);
 	const dispatch = useAppDispatch();
 
-	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClan?.clan_id));
+	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
 	const firstChannelWithBadgeCount = useMemo(() => {
 		return listChannelRender?.find((item) => (item as IChannel)?.count_mess_unread && ((item as IChannel)?.count_mess_unread || 0) > 0) || null;
 	}, [listChannelRender]);
@@ -357,7 +359,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 						if (virtualRow.index === 0) {
 							return (
 								<div key={virtualRow.key} data-index={virtualRow.index} ref={virtualizer.measureElement}>
-									<ChannelBannerAndEvents currentClan={currentClan} />
+									<ChannelBannerAndEvents banner={currentClanBanner} />
 								</div>
 							);
 						} else if (item.channels) {

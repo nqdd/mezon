@@ -6,8 +6,8 @@ import {
 	onboardingActions,
 	selectCloseMenu,
 	selectCurrentChannel,
-	selectCurrentClan,
 	selectCurrentClanId,
+	selectCurrentClanName,
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
@@ -80,7 +80,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 	const [isShowDeletePopup, setIsShowDeletePopup] = useState<boolean>(false);
 	const currentChannel = useSelector(selectCurrentChannel) || undefined;
 	const currentClanId = useSelector(selectCurrentClanId) as string;
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanName = useSelector(selectCurrentClanName);
 	const navigate = useNavigate();
 	const [_isCommunityEnabled, setIsCommunityEnabled] = useState(false);
 
@@ -169,7 +169,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 							<DeleteClanModal
 								onClose={() => setIsShowDeletePopup(false)}
 								buttonLabel="Delete clan"
-								title={`Delete '${currentClan?.clan_name}'`}
+								title={`Delete '${currentClanName}'`}
 								onClick={handleDeleteCurrentClan}
 							/>
 						)}
