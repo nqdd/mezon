@@ -1,6 +1,6 @@
 import { getApplicationDetail, selectAppDetail, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { memo, useCallback, useLayoutEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLoaderData, useParams } from 'react-router-dom';
 import { useAppearance } from '../../context/AppearanceContext';
@@ -40,16 +40,10 @@ const Install: React.FC = () => {
 		}
 	};
 
-	useLayoutEffect(() => {
-		if (!applicationId) {
-			setIsRedirect(true);
-			return;
-		}
-		try {
+	useEffect(() => {
+		if (applicationId) {
 			navigateDeeplinkMobile(applicationId);
 			dispatch(getApplicationDetail({ appId: applicationId }));
-		} catch (e) {
-			console.error('navigateDeeplinkMobile render call failed', e);
 		}
 		const t = setTimeout(() => setIsRedirect(true), 400);
 		return () => clearTimeout(t);
