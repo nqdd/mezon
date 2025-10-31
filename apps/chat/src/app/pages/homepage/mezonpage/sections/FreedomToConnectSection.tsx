@@ -5,11 +5,12 @@ import React from 'react';
 
 export const FreedomToConnectSection = () => {
 	const [activeImage, setActiveImage] = React.useState('mezon-welcome.png');
-	const [currentFeatureIndex, setCurrentFeatureIndex] = React.useState(-1); // -1 means default state
-	const [activePopup, setActivePopup] = React.useState<string | null>(null); // Added state for popup
+	const [currentFeatureIndex, setCurrentFeatureIndex] = React.useState(-1);
+	const [activePopup, setActivePopup] = React.useState<string | null>(null);
 	const sectionRef = React.useRef<HTMLElement>(null);
 	const scrollLockRef = React.useRef(false);
 	const lastScrollTime = React.useRef(0);
+	const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	React.useEffect(() => {
 		const style = document.createElement('style');
@@ -62,18 +63,39 @@ export const FreedomToConnectSection = () => {
 		};
 	}, []);
 
-	const imageMap: Record<string, string> = {
-		'Text Channel': 'text-channel.png',
-		'Voice Channel': 'voice-channel.png',
-		Organize: 'organize.png',
-		Customize: 'custome.png',
-		Engage: 'engage.png',
-		'AI Generation': 'ai-gent.png'
-	};
+	const imageMap: Record<string, string> = React.useMemo(
+		() => ({
+			'Text Channel': 'text-channel.png',
+			'Voice Channel': 'voice-channel.png',
+			Organize: 'organize.png',
+			Customize: 'custome.png',
+			Engage: 'engage.png',
+			'AI Generation': 'ai-gent.png'
+		}),
+		[]
+	);
 
-	const buttonLabels = ['Text Channel', 'Voice Channel', 'Organize', 'Customize', 'Engage', 'AI Agent'];
+	const buttonLabels = React.useMemo(() => ['Text Channel', 'Voice Channel', 'Organize', 'Customize', 'Engage', 'AI Agent'], []);
 
-	// Scroll-triggered feature showcase
+	const resetToDefaultImage = React.useCallback(() => {
+		setActiveImage('mezon-welcome.png');
+	}, []);
+
+	const resetHoverTimeout = React.useCallback(() => {
+		if (hoverTimeoutRef.current) {
+			clearTimeout(hoverTimeoutRef.current);
+		}
+		hoverTimeoutRef.current = setTimeout(resetToDefaultImage, 5000);
+	}, [resetToDefaultImage]);
+
+	React.useEffect(() => {
+		return () => {
+			if (hoverTimeoutRef.current) {
+				clearTimeout(hoverTimeoutRef.current);
+			}
+		};
+	}, []);
+
 	React.useEffect(() => {
 		const handleScroll = (e: WheelEvent) => {
 			if (!sectionRef.current) return;
@@ -86,14 +108,12 @@ export const FreedomToConnectSection = () => {
 				return;
 			}
 
-			// Check if we should lock scroll
 			const now = Date.now();
-			if (now - lastScrollTime.current < 800) return; // Throttle scroll events
+			if (now - lastScrollTime.current < 800) return;
 
 			const scrollingDown = e.deltaY > 0;
 			const scrollingUp = e.deltaY < 0;
 
-			// Scrolling down through features
 			if (scrollingDown && currentFeatureIndex < buttonLabels.length - 1) {
 				e.preventDefault();
 				scrollLockRef.current = true;
@@ -108,9 +128,7 @@ export const FreedomToConnectSection = () => {
 				} else {
 					setActiveImage(imageMap[label]);
 				}
-			}
-			// Scrolling up through features
-			else if (scrollingUp && currentFeatureIndex >= 0) {
+			} else if (scrollingUp && currentFeatureIndex >= 0) {
 				e.preventDefault();
 				scrollLockRef.current = true;
 				lastScrollTime.current = now;
@@ -128,13 +146,9 @@ export const FreedomToConnectSection = () => {
 						setActiveImage(imageMap[label]);
 					}
 				}
-			}
-			// Allow scroll to next section when at the end
-			else if (scrollingDown && currentFeatureIndex === buttonLabels.length - 1) {
+			} else if (scrollingDown && currentFeatureIndex === buttonLabels.length - 1) {
 				scrollLockRef.current = false;
-			}
-			// Allow scroll to previous section when at the beginning
-			else if (scrollingUp && currentFeatureIndex === -1) {
+			} else if (scrollingUp && currentFeatureIndex === -1) {
 				scrollLockRef.current = false;
 			}
 		};
@@ -190,6 +204,10 @@ export const FreedomToConnectSection = () => {
                 `}
 								onMouseEnter={() => {
 									if (activePopup === null) {
+										if (hoverTimeoutRef.current) {
+											clearTimeout(hoverTimeoutRef.current);
+										}
+
 										if (label === 'AI Agent') {
 											setActiveImage(imageMap['AI Generation']);
 										} else {
@@ -199,7 +217,7 @@ export const FreedomToConnectSection = () => {
 								}}
 								onMouseLeave={() => {
 									if (activePopup === null) {
-										setActiveImage('mezon-welcome.png');
+										resetHoverTimeout();
 									}
 								}}
 								onClick={() => setActivePopup(label)}
@@ -245,7 +263,7 @@ interface PopupProps {
 	onClose: () => void;
 }
 
-const Popup: React.FC<PopupProps> = ({ title, onClose }) => {
+const Popup: React.FC<PopupProps> = ({ title: _title, onClose }) => {
 	const features = [
 		{
 			title: 'Chat Messages',
