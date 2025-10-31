@@ -4,7 +4,7 @@ import type { ChannelMembersEntity } from '@mezon/store-mobile';
 import {
 	rolesClanActions,
 	selectAllRolesClan,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectUserMaxPermissionLevel,
 	setAddPermissions,
 	setRemovePermissions,
@@ -37,7 +37,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 	const styles = style(themeValue);
 	const [editMode, setEditMode] = useState(false);
 	const rolesClan = useSelector(selectAllRolesClan);
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const { maxPermissionId } = useMyRole();
 	const [selectedRole, setSelectedRole] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -116,7 +116,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 						activePermissionIds: [],
 						removeUserIds: [],
 						removePermissionIds: [],
-						clanId: currentClan?.clan_id || '',
+						clanId: currentClanId || '',
 						maxPermissionId,
 						roleIcon: ''
 					})
@@ -127,7 +127,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 					dispatch(
 						usersClanActions.addRoleIdUser({
 							id: roleId,
-							clanId: currentClan?.clan_id,
+							clanId: currentClanId,
 							userId: user?.user?.id
 						})
 					);
@@ -141,7 +141,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 				setIsLoading(false);
 			}
 		},
-		[rolesClan, currentClan?.clan_id, user?.user?.id, handleAfterUpdate, dispatch]
+		[rolesClan, currentClanId, user?.user?.id, handleAfterUpdate, dispatch]
 	);
 
 	const deleteRole = useCallback(
@@ -157,7 +157,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 						activePermissionIds: [],
 						removeUserIds: [user?.user?.id],
 						removePermissionIds: [],
-						clanId: currentClan?.clan_id || '',
+						clanId: currentClanId || '',
 						maxPermissionId,
 						roleIcon: ''
 					})
@@ -169,7 +169,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 					dispatch(
 						usersClanActions.removeRoleIdUser({
 							id: roleId,
-							clanId: currentClan?.clan_id,
+							clanId: currentClanId,
 							userId: user?.user?.id
 						})
 					);
@@ -181,7 +181,7 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 				setIsLoading(false);
 			}
 		},
-		[rolesClan, currentClan?.clan_id, user?.user?.id, handleAfterUpdate, dispatch]
+		[rolesClan, currentClanId, user?.user?.id, handleAfterUpdate, dispatch]
 	);
 
 	const onSelectedRoleChange = useCallback(
