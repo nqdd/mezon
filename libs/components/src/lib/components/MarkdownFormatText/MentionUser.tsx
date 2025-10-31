@@ -1,8 +1,8 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import {
 	selectChannelMemberByUserIds,
-	selectCurrentChannel,
 	selectCurrentChannelId,
+	selectCurrentChannelType,
 	selectDmGroupCurrentId,
 	selectMemberByUsername,
 	useAppSelector
@@ -199,8 +199,8 @@ const UserProfilePopup = ({ username, userID, channelId, mode, isDm, positionSho
 	}, [getUserByUserId, getUserByUsername]);
 	const userId = userGetByNameOrId?.id ?? userID;
 
-	const currentChannel = useSelector(selectCurrentChannel);
-	const positionStyle = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ? { right: `120px` } : { left: `${positionShortUser?.left}px` };
+	const currentChannelType = useSelector(selectCurrentChannelType);
+	const positionStyle = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING ? { right: `120px` } : { left: `${positionShortUser?.left}px` };
 	const prioritizeName = getNameForPrioritize(
 		userGetByNameOrId?.clan_nick ?? '',
 		userGetByNameOrId?.user?.display_name ?? '',

@@ -135,14 +135,6 @@ export const selectIsUnreadChannelById = createSelector(
 	}
 );
 
-export const selectLastSeenChannel = createSelector(
-	[getChannelMetaState, selectChannelMetaEntities, (state, channelId) => channelId],
-	(state, settings, channelId) => {
-		const channel = settings?.[channelId];
-		return channel?.lastSeenTimestamp;
-	}
-);
-
 export const selectLastSeenMessageId = createSelector([selectChannelMetaEntities, (state, channelId) => channelId], (settings, channelId) => {
 	const channel = settings?.[channelId];
 	return channel?.lastSeenMessageId;

@@ -32,7 +32,7 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
-import { clansActions, selectClanById, selectClansLoadingStatus } from '../clans/clans.slice';
+import { clansActions, selectClanExists, selectClanHasUnreadMessage, selectClansLoadingStatus } from '../clans/clans.slice';
 import { selectCurrentDM } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import type { MezonValueContext } from '../helpers';
@@ -194,7 +194,7 @@ export const fetchMessagesCached = async (
 ) => {
 	const state = getState();
 
-	let foundClan: boolean = clanId === '0' || !!selectClanById(clanId)(state);
+	let foundClan: boolean = clanId === '0' || selectClanExists(clanId)(state);
 	if (!foundClan) {
 		if (dispatch && clanId !== '0') {
 			const res = await dispatch(clansActions.fetchClans({ noCache: true })).unwrap();
@@ -713,9 +713,9 @@ export const updateLastSeenMessage = createAsyncThunk(
 
 			if (clanId && clanId !== '0') {
 				const state = thunkAPI.getState() as RootState;
-				const clan = selectClanById(clanId)(state);
+				const hasUnread = selectClanHasUnreadMessage(clanId)(state);
 
-				if (clan?.has_unread_message) {
+				if (hasUnread) {
 					requestIdleCallback(() => {
 						thunkAPI.dispatch(clansActions.updateHasUnreadBasedOnChannels({ clanId }));
 					});

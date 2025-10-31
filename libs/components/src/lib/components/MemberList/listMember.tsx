@@ -3,7 +3,8 @@ import {
 	selectAllChannelMembersClan,
 	selectClanMemberWithStatusIds,
 	selectCurrentChannelId,
-	selectCurrentClan,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
 	selectMemberClanByUserId,
 	selectMemberCustomStatusByUserId,
 	selectStatusInVoice,
@@ -110,14 +111,15 @@ const MemoizedMemberItem = memo((props: MemberClanProps) => {
 });
 
 const ListMember = () => {
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanCreatorId = useSelector(selectCurrentClanCreatorId);
 
 	const [showFullList, setShowFullList] = useState(false);
 	useEffect(() => {
 		if (showFullList) {
 			setShowFullList(false);
 		}
-	}, [currentClan?.id]);
+	}, [currentClanId]);
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const userChannels = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannelId as string));
@@ -189,7 +191,6 @@ const ListMember = () => {
 	useEffect(() => {
 		const idleCallback = window.requestIdleCallback(
 			() => {
-				console.log('setShowFullList');
 				setShowFullList(true);
 			},
 			{ timeout: 3000 }
@@ -249,7 +250,7 @@ const ListMember = () => {
 										Offline - {lisMembers.offlineCount}
 									</p>
 								) : (
-									<MemoizedMemberItem id={user} temp={!showFullList} isOwner={currentClan?.creator_id === user} />
+									<MemoizedMemberItem id={user} temp={!showFullList} isOwner={currentClanCreatorId === user} />
 								)}
 							</div>
 						</div>

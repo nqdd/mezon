@@ -3,7 +3,10 @@ import type { ChannelsEntity, RootState } from '@mezon/store';
 import {
 	EStateFriend,
 	selectAllAccount,
-	selectCurrentChannel,
+	selectChannelById,
+	selectCurrentChannelId,
+	selectCurrentChannelLabel,
+	selectCurrentChannelType,
 	selectDirectById,
 	selectFriendById,
 	selectIsShowCreateThread,
@@ -41,7 +44,10 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 	const { directId } = useAppParams();
 	const dispatch = useAppDispatch();
 	const directChannel = useAppSelector((state) => selectDirectById(state, directId));
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId || ''));
+	const currentChannelType = useSelector(selectCurrentChannelType);
+	const currentChannelLabel = useSelector(selectCurrentChannelLabel);
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(directChannel?.channel_id || '')(state));
 	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(directChannel?.channel_id || '')(state));
@@ -70,7 +76,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 	const isThread = mode === ChannelStreamMode.STREAM_MODE_THREAD;
 	const isDm = mode === ChannelStreamMode.STREAM_MODE_DM;
 	const isDmGroup = mode === ChannelStreamMode.STREAM_MODE_GROUP;
-	const isChatStream = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
+	const isChatStream = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 
 	return (
 		<div className="flex flex-col gap-3">
@@ -79,7 +85,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 					<>
 						{isChannel && (
 							<WelComeChannel
-								name={currentChannel?.channel_label}
+								name={currentChannelLabel}
 								classNameSubtext={classNameSubtext}
 								channelPrivate={Boolean(selectedChannel?.channel_private)}
 								isChatStream={isChatStream}

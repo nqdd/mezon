@@ -31,10 +31,9 @@ import {
 	selectIsShowCreateThread,
 	selectIsShowMemberListDM,
 	selectIsUseProfileDM,
-	selectLastMessageByChannelId,
 	selectLastMessageViewportByChannelId,
-	selectLastSeenDM,
 	selectLastSeenMessageIdDM,
+	selectLastSentMessageStateByChannelId,
 	selectPositionEmojiButtonSmile,
 	selectReactionTopState,
 	selectSearchMessagesLoadingStatus,
@@ -56,8 +55,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
 	const lastMessageViewport = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
-	const lastMessageChannel = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
-	const lastSeenTimeStamp = useAppSelector((state) => selectLastSeenDM(state, channelId));
+	const lastMessageChannel = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
 	const lastSeenMessageId = useAppSelector((state) => selectLastSeenMessageIdDM(state, channelId));
 	const { markAsReadSeen } = useSeenMessagePool();
 
@@ -80,13 +78,11 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 			}
 		}
 
-		if (lastMessageViewport?.create_time_seconds && lastSeenTimeStamp && lastMessageViewport?.create_time_seconds >= lastSeenTimeStamp - 2) {
-			const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
-			if (isLastMessage) {
-				markAsReadSeen(lastMessageViewport, mode, 0);
-			}
+		const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
+		if (isLastMessage) {
+			markAsReadSeen(lastMessageViewport, mode, 0);
 		}
-	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentDmGroup, lastSeenTimeStamp]);
+	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentDmGroup]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {
