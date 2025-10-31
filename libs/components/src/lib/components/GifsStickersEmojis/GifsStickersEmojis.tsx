@@ -7,9 +7,10 @@ import {
 	selectCurrentTopicId,
 	selectIdMessageRefReaction
 } from '@mezon/store';
-import { EmojiPlaces, RequestInput, SubPanelName } from '@mezon/utils';
+import type { RequestInput } from '@mezon/utils';
+import { EmojiPlaces, SubPanelName } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription } from 'mezon-js/api.gen';
+import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -107,7 +108,7 @@ export const GifStickerEmojiPopup = ({
 					? 'min-h-[350px]'
 					: 'min-h-[500px]';
 
-		return `${baseClasses} ${widthClasses} max-sbm:w-[calc(100dvw_-_24px)] max-sbm:rounded-lg h-fit rounded-lg text-theme-primary bg-theme-setting-primary shadow shadow-neutral-900 z-30 ${heightClasses}`;
+		return `${baseClasses} ${widthClasses} max-sbm:w-[calc(100dvw_-_24px)] max-sbm:rounded-lg h-fit rounded-lg text-theme-primary bg-theme-setting-primary shadow shadow-neutral-900 z-20 ${heightClasses}`;
 	}, [currentChannel?.type, emojiAction, isShowEmojiPicker]);
 
 	const contentWidthClass = useMemo(() => {
