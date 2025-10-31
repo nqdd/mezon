@@ -257,7 +257,8 @@
 		"roles": "Vai trò",
 		"members": "Thành viên",
 		"cancel": "Hủy",
-		"done": "Hoàn thành"
+		"done": "Hoàn thành",
+		"searchPlaceholder": "Tìm kiếm Vai trò & Thành viên"
 	},
 	"table": {
 		"columnHeaders": {

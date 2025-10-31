@@ -259,7 +259,8 @@
 		"roles": "Roles",
 		"members": "Members",
 		"cancel": "Cancel",
-		"done": "Done"
+		"done": "Done",
+		"searchPlaceholder": "Search Roles & Members"
 	},
 	"table": {
 		"columnHeaders": {
