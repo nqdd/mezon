@@ -5,8 +5,10 @@ import {
 	deleteChannel,
 	directActions,
 	directMetaActions,
+	getStore,
 	removeMemberChannel,
 	selectDirectById,
+	selectLatestMessageId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -51,7 +53,9 @@ export function useMenuHandlers({ userProfile, hasKeyE2ee, directId }: UseMenuHa
 	const handleMarkAsRead = useCallback(
 		(directId: string) => {
 			const timestamp = Date.now() / 1000;
-			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp }));
+			const store = getStore();
+			const messageId = store ? selectLatestMessageId(store.getState(), directId) : undefined;
+			dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp, messageId }));
 			handleMarkAsReadDM(directId);
 		},
 		[dispatch, handleMarkAsReadDM]
