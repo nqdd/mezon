@@ -1727,6 +1727,18 @@ export const selectCurrentChannel = createSelector(
 	}
 );
 
+export const selectCurrentChannelType = createSelector(selectCurrentChannel, (channel) => channel?.type);
+export const selectCurrentChannelClanId = createSelector(selectCurrentChannel, (channel) => channel?.clan_id);
+export const selectCurrentChannelPrivate = createSelector(selectCurrentChannel, (channel) => channel?.channel_private);
+export const selectCurrentChannelParentId = createSelector(selectCurrentChannel, (channel) => channel?.parent_id);
+export const selectCurrentChannelCategoryId = createSelector(selectCurrentChannel, (channel) => channel?.category_id);
+export const selectCurrentChannelLabel = createSelector(selectCurrentChannel, (channel) => channel?.channel_label);
+export const selectCurrentChannelMeetingCode = createSelector(selectCurrentChannel, (channel) => channel?.meeting_code);
+export const selectCurrentChannelChannelId = createSelector(selectCurrentChannel, (channel) => channel?.channel_id);
+export const selectCurrentChannelCountMessUnread = createSelector(selectCurrentChannel, (channel) => channel?.count_mess_unread);
+export const selectCurrentChannelAgeRestricted = createSelector(selectCurrentChannel, (channel) => channel?.age_restricted);
+export const selectCurrentChannelCreatorId = createSelector(selectCurrentChannel, (channel) => channel?.creator_id);
+
 export const selectSelectedChannel = createSelector(selectChannelsEntities, selectSelectedChannelId, (clansEntities, clanId) =>
 	clanId ? clansEntities[clanId] : null
 );

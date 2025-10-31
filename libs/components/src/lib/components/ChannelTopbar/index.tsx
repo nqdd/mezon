@@ -17,8 +17,14 @@ import {
 	selectAllAccount,
 	selectChannelById,
 	selectCloseMenu,
-	selectCurrentChannel,
+	selectCurrentChannelCategoryId,
+	selectCurrentChannelChannelId,
+	selectCurrentChannelClanId,
 	selectCurrentChannelId,
+	selectCurrentChannelLabel,
+	selectCurrentChannelParentId,
+	selectCurrentChannelPrivate,
+	selectCurrentChannelType,
 	selectCurrentClanId,
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
@@ -100,7 +106,10 @@ const ChannelTopbar = memo(() => {
 
 const TopBarChannelText = memo(() => {
 	const { t } = useTranslation('channelTopbar');
-	const channel = useSelector(selectCurrentChannel);
+	const channelParentId = useSelector(selectCurrentChannelParentId);
+	const channelLabel = useSelector(selectCurrentChannelLabel);
+	const channelPrivate = useSelector(selectCurrentChannelPrivate);
+	const channelType = useSelector(selectCurrentChannelType);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
 	const channelPath = `/chat/clans/${currentClanId}/channel-setting`;
@@ -110,8 +119,7 @@ const TopBarChannelText = memo(() => {
 		isChannelPath: channelPath,
 		isGuidePath: guidePath
 	});
-	const channelParent =
-		useAppSelector((state) => selectChannelById(state, (channel?.parent_id ? (channel.parent_id as string) : '') ?? '')) || null;
+	const channelParent = useAppSelector((state) => selectChannelById(state, (channelParentId ? (channelParentId as string) : '') ?? '')) || null;
 	const { setStatusMenu } = useMenu();
 	const openMenu = useCallback(() => {
 		setStatusMenu(true);
@@ -195,7 +203,7 @@ const TopBarChannelText = memo(() => {
 					<p className="text-base font-semibold truncate max-sbm:max-w-[180px]">{pagePathTitle}</p>
 				) : (
 					<>
-						{!!channel && (
+						{!!channelType && (
 							<>
 								{channelParent && (
 									<div className="flex gap-1 items-center truncate max-sbm:hidden" onClick={handleNavigateToParent}>
@@ -208,9 +216,9 @@ const TopBarChannelText = memo(() => {
 									</div>
 								)}
 								<ChannelTopbarLabel
-									isPrivate={!!channel?.channel_private}
-									label={channel?.channel_label || ''}
-									type={channel?.type || ChannelType.CHANNEL_TYPE_CHANNEL}
+									isPrivate={!!channelPrivate}
+									label={channelLabel || ''}
+									type={channelType || ChannelType.CHANNEL_TYPE_CHANNEL}
 									onClick={handleCloseCanvas}
 								/>
 							</>
@@ -263,13 +271,13 @@ const TopBarChannelText = memo(() => {
 			<div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
 				{!pagePathTitle && (
 					<>
-						{channel ? (
+						{channelType ? (
 							<ChannelTopbarTools
 								isPagePath={!!isMemberPath || !!isChannelPath}
-								isStream={channel?.type === ChannelType.CHANNEL_TYPE_STREAMING}
-								isVoice={channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE}
-								isApp={channel?.type === ChannelType.CHANNEL_TYPE_APP}
-								isThread={!!(channel?.parent_id !== '0' && channel?.parent_id)}
+								isStream={channelType === ChannelType.CHANNEL_TYPE_STREAMING}
+								isVoice={channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE}
+								isApp={channelType === ChannelType.CHANNEL_TYPE_APP}
+								isThread={!!(channelParentId !== '0' && channelParentId)}
 							/>
 						) : (
 							<DmTopbarTools />
@@ -278,7 +286,7 @@ const TopBarChannelText = memo(() => {
 				)}
 
 				{!isMemberPath && !isChannelPath && (
-					<SearchMessageChannel mode={channel ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
+					<SearchMessageChannel mode={channelType ? ChannelStreamMode.STREAM_MODE_CHANNEL : ChannelStreamMode.STREAM_MODE_DM} />
 				)}
 			</div>
 
@@ -384,9 +392,10 @@ const ChannelTopbarTools = memo(
 
 		const setTurnOffThreadMessage = async () => {
 			const store = await getStoreAsync();
-			const currentChannel = selectCurrentChannel(store.getState());
-			const isShowCreateThread = selectIsShowCreateThread(store.getState() as RootState, currentChannel?.id as string);
-			const isShowCreateTopic = selectIsShowCreateTopic(store.getState() as RootState);
+			const state = store.getState();
+			const currentChannelId = selectCurrentChannelId(state);
+			const isShowCreateThread = selectIsShowCreateThread(state as RootState, currentChannelId as string);
+			const isShowCreateTopic = selectIsShowCreateTopic(state as RootState);
 			if (isShowCreateThread) {
 				dispatch(threadsActions.setOpenThreadMessageState(false));
 				dispatch(threadsActions.setValueThread(null));
@@ -400,8 +409,10 @@ const ChannelTopbarTools = memo(
 
 		const fetchCanvasChannel = async () => {
 			const store = await getStoreAsync();
-			const currentChannel = selectCurrentChannel(store.getState());
-			dispatch(canvasAPIActions.getChannelCanvasList({ channel_id: currentChannel?.channel_id || '', clan_id: currentChannel?.clan_id || '' }));
+			const state = store.getState();
+			const channelId = selectCurrentChannelChannelId(state);
+			const clanId = selectCurrentChannelClanId(state);
+			dispatch(canvasAPIActions.getChannelCanvasList({ channel_id: channelId || '', clan_id: clanId || '' }));
 			closeMenuOnMobile();
 		};
 		return (
@@ -825,9 +836,10 @@ function ThreadButton() {
 function MuteButton() {
 	const { t } = useTranslation('channelTopbar');
 	const [isMuteBell, setIsMuteBell] = useState<boolean>(false);
-	const currentChannel = useSelector(selectCurrentChannel);
-	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannel?.id || ''));
-	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannel?.category_id as string));
+	const currentChannelObjectId = useSelector(selectCurrentChannelId);
+	const currentChannelCategoryId = useSelector(selectCurrentChannelCategoryId);
+	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObjectId || ''));
+	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannelCategoryId as string));
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 
 	useEffect(() => {

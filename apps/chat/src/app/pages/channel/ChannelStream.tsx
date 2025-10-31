@@ -3,14 +3,14 @@ import { useAuth } from '@mezon/core';
 import type { ChannelsEntity } from '@mezon/store';
 import {
 	appActions,
-	selectCurrentClan,
+	selectCurrentClanId,
+	selectCurrentClanName,
 	selectIsJoin,
 	selectIsShowChatStream,
 	selectMemberClanByUserId,
 	selectRemoteVideoStream,
 	selectStatusStream,
 	selectStreamMembersByChannelId,
-	selectTheme,
 	useAppDispatch,
 	useAppSelector,
 	usersStreamActions,
@@ -279,7 +279,6 @@ export default function ChannelStream({
 	const memberJoin = useAppSelector((state) => selectStreamMembersByChannelId(state, currentChannel?.channel_id || ''));
 	const streamPlay = useSelector(selectStatusStream);
 	const isJoin = useSelector(selectIsJoin);
-	const appearanceTheme = useSelector(selectTheme);
 	const { userProfile } = useAuth();
 	const { sessionRef } = useMezon();
 	const accessToken = sessionRef.current?.token;
@@ -290,14 +289,15 @@ export default function ChannelStream({
 	const hideButtonsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isShowChatStream = useSelector(selectIsShowChatStream);
 
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanName = useSelector(selectCurrentClanName);
 	useEffect(() => {
-		if (!currentChannel || !currentClan || !currentStreamInfo) return;
+		if (!currentChannel || !currentClanId || !currentStreamInfo) return;
 		if (currentChannel.type !== ChannelType.CHANNEL_TYPE_STREAMING) return;
 		if (currentStreamInfo.streamId !== currentChannel.id || (!streamPlay && currentStreamInfo?.streamId === currentChannel.id)) {
 			dispatch(appActions.setIsShowChatStream(false));
 		}
-	}, [currentChannel, currentStreamInfo, currentClan]);
+	}, [currentChannel, currentStreamInfo, currentClanId]);
 
 	const handleLeaveChannel = async () => {
 		if (currentStreamInfo) {
@@ -312,12 +312,12 @@ export default function ChannelStream({
 	};
 
 	const handleJoinChannel = async () => {
-		if (!currentChannel || !currentClan) return;
+		if (!currentChannel || !currentClanId) return;
 		if (currentChannel.type !== ChannelType.CHANNEL_TYPE_STREAMING) return;
 		dispatch(
 			videoStreamActions.startStream({
-				clanId: currentClan.id as string,
-				clanName: currentClan.clan_name as string,
+				clanId: currentClanId as string,
+				clanName: currentClanName as string,
 				streamId: currentChannel.channel_id as string,
 				streamName: currentChannel.channel_label as string,
 				parentId: currentChannel.parent_id as string
@@ -326,7 +326,7 @@ export default function ChannelStream({
 		dispatch(videoStreamActions.setIsJoin(true));
 		disconnect();
 		handleChannelClick(
-			currentClan?.id as string,
+			currentClanId as string,
 			currentChannel?.channel_id as string,
 			userProfile?.user?.id as string,
 			currentChannel?.channel_id as string,
