@@ -1,6 +1,7 @@
 import mezonPackage from '@mezon/package-js';
 import { getPlatform, Platform } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
 
@@ -19,7 +20,15 @@ const AboutMezon = () => {
 		}
 		return `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`;
 	}, [platform, version]);
-
+	const trackHeaderLoginClick = (action: string) => {
+		if (typeof window !== 'undefined' && typeof (window as any).gtag !== 'undefined') {
+			(window as any).gtag('event', 'Login Button', {
+				event_category: 'Login Button',
+				event_label: action,
+				custom_parameter_1: 'mezon_header_login'
+			});
+		}
+	};
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
 	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
@@ -121,7 +130,7 @@ const AboutMezon = () => {
 								<div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -131,7 +140,7 @@ const AboutMezon = () => {
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -141,7 +150,7 @@ const AboutMezon = () => {
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -165,7 +174,7 @@ const AboutMezon = () => {
 										href="https://apps.apple.com/vn/app/mezon/id6502750046"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsMobileDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -177,7 +186,7 @@ const AboutMezon = () => {
 										href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 										onClick={() => setIsMobileDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -282,9 +291,13 @@ const AboutMezon = () => {
 						Ready to make every{' '}
 						<span className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] bg-clip-text text-transparent">chat count</span> ?
 					</h2>
-					<button className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] text-white px-[32px] py-[16px] rounded-[12px] text-[20px] font-semibold hover:opacity-90 transition-opacity">
+					<Link
+						className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] text-white px-[32px] py-[16px] rounded-[12px] text-[20px] font-semibold hover:opacity-90 transition-opacity"
+						to={'/mezon'}
+						onClick={() => trackHeaderLoginClick('Create Mezon Account')}
+					>
 						Create your FREE Mezon account
-					</button>
+					</Link>
 				</div>
 			</section>
 			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />

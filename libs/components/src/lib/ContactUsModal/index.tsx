@@ -1,5 +1,6 @@
 'use client';
 
+import { Input, TextArea } from '@mezon/ui';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface ContactUsModalProps {
@@ -103,7 +104,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 				>
 					<button
 						onClick={handleClose}
-						className="close-btn absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-50 hover:from-red-50 hover:to-red-100 border border-gray-200 hover:border-red-300 text-gray-600 hover:text-red-600 text-3xl font-light"
+						className="close-btn absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full  text-gray-600 hover:text-red-600 text-3xl font-light"
 					>
 						×
 					</button>
@@ -122,7 +123,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 						<div className="grid grid-cols-2 gap-4">
 							<div>
 								<label className="block text-sm font-semibold text-gray-700 mb-1">First Name*</label>
-								<input
+								<Input
 									type="text"
 									name="firstName"
 									value={formData.firstName}
@@ -134,7 +135,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 							</div>
 							<div>
 								<label className="block text-sm font-semibold text-gray-700 mb-1">Last Name*</label>
-								<input
+								<Input
 									type="text"
 									name="lastName"
 									value={formData.lastName}
@@ -148,7 +149,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 
 						<div>
 							<label className="block text-sm font-semibold text-gray-700 mb-1">Email Address*</label>
-							<input
+							<Input
 								type="email"
 								name="email"
 								value={formData.email}
@@ -161,7 +162,7 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 
 						<div>
 							<label className="block text-sm font-semibold text-gray-700 mb-1">Other Contact Method</label>
-							<input
+							<Input
 								type="text"
 								name="otherContactMethod"
 								value={formData.otherContactMethod}
@@ -190,11 +191,11 @@ export const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose 
 
 						<div>
 							<label className="block text-sm font-semibold text-gray-700 mb-1">Message</label>
-							<textarea
+							<TextArea
 								name="message"
 								value={formData.message}
 								onChange={handleInputChange}
-								rows={4}
+								rows={2}
 								className="form-input w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 bg-gray-50 hover:bg-white resize-none text-base"
 								placeholder="Tell us more about your inquiry..."
 							/>

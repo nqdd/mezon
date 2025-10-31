@@ -108,13 +108,22 @@ export const EconomyPage = () => {
 						brands — all with zero fee. Transparent and Secure
 					</p>
 					<div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-						<button className="px-12 py-4 bg-white border-2 border-purple-200 text-black text-lg font-semibold hover:bg-purple-50 hover:border-purple-400 transition-all duration-300 shadow-md hover:shadow-lg rounded-md">
-							Learn How It Works
-						</button>
-						<button className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md rounded-md">
-							Explore Partners
-						</button>
+						<a href="https://mezon.ai/docs/en/user/mezon-dong" target="_blank" rel="noopener noreferrer">
+							<button
+								className="px-12 py-4 border-2 border-purple-200 text-black text-lg font-semibold 
+    bg-white hover:bg-gradient-to-r hover:from-purple-600 hover:to-purple-500 hover:text-white 
+    hover:border-transparent transition-all duration-300 shadow-md hover:shadow-lg rounded-md"
+							>
+								Open Documentation
+							</button>
+						</a>
+						<a href="https://cobar.vn/" target="_blank" rel="noopener noreferrer">
+							<button className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md rounded-md">
+								Explore Partners
+							</button>
+						</a>
 					</div>
+
 					<div className="flex justify-center mb-6">
 						<div className="relative w-full max-w-lg">
 							<img
@@ -170,9 +179,12 @@ export const EconomyPage = () => {
 						Send <span className="text-purple-600 font-semibold">Mezon Dong</span> as easily as sending a message. Tip friends, contribute
 						to your community, or buy stuff — all instantly and without fees.
 					</p>
-					<button className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md">
-						Discover Mezon
-					</button>
+					<a href="https://cobar.vn/" target="_blank" rel="noopener noreferrer">
+						<button className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md">
+							Discover Cobar
+						</button>
+					</a>
+
 					<div className="flex justify-center">
 						<div className="relative w-full max-w-lg">
 							<img
@@ -229,7 +241,10 @@ export const EconomyPage = () => {
 						Partner brands can accept <span className="text-purple-600 font-semibold">Mezon Dong</span> for products and services. From
 						digital goods to real-world items, communities can buy directly with a click.
 					</p>
-					<button className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md">
+					<button
+						className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md"
+						onClick={() => setIsContactModalOpen(true)}
+					>
 						Become a Merchant
 					</button>
 					<div className="flex justify-center">
@@ -296,10 +311,12 @@ export const EconomyPage = () => {
 								Learn more in Docs
 							</button>
 						</a>
+						<a href="https://cobar.vn/" target="_blank" rel="noopener noreferrer">
+							<button className="px-12 py-4 border-2 border-purple-600 text-purple-600 text-lg font-semibold hover:bg-purple-600 hover:text-white transition-all duration-300 hover:shadow-lg rounded-md">
+								Join as a Partner
+							</button>
+						</a>
 
-						<button className="px-12 py-4 border-2 border-purple-600 text-purple-600 text-lg font-semibold hover:bg-purple-600 hover:text-white transition-all duration-300 hover:shadow-lg rounded-md">
-							Join as a Partner
-						</button>
 						<div className="relative" ref={dropdownRef}>
 							<button
 								onClick={handleDownloadMezon}
@@ -311,7 +328,7 @@ export const EconomyPage = () => {
 								<div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100  text-purple-600 hover:text-pink-600 "
 										onClick={() => setIsDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -321,7 +338,7 @@ export const EconomyPage = () => {
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100  text-purple-600 hover:text-pink-600 "
 										onClick={() => setIsDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -331,7 +348,7 @@ export const EconomyPage = () => {
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`}
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100  text-purple-600 hover:text-pink-600 "
 										onClick={() => setIsDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -343,7 +360,7 @@ export const EconomyPage = () => {
 										href="https://apps.apple.com/vn/app/mezon/id6502750046"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100  text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -355,7 +372,7 @@ export const EconomyPage = () => {
 										href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
 										target="_blank"
 										rel="noopener noreferrer"
-										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDropdownOpen(false)}
 									>
 										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

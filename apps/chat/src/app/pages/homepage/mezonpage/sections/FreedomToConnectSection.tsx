@@ -1,10 +1,12 @@
 'use client';
 
+import { Button } from '@mezon/ui';
 import React from 'react';
 
 export const FreedomToConnectSection = () => {
 	const [activeImage, setActiveImage] = React.useState('mezon-welcome.png');
 	const [currentFeatureIndex, setCurrentFeatureIndex] = React.useState(-1); // -1 means default state
+	const [activePopup, setActivePopup] = React.useState<string | null>(null); // Added state for popup
 	const sectionRef = React.useRef<HTMLElement>(null);
 	const scrollLockRef = React.useRef(false);
 	const lastScrollTime = React.useRef(0);
@@ -144,8 +146,21 @@ export const FreedomToConnectSection = () => {
 		};
 	}, [currentFeatureIndex, buttonLabels, imageMap]);
 
+	React.useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && activePopup) {
+				setActivePopup(null);
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [activePopup]);
+
 	return (
-		<section className="w-full bg-[#E6ECF0] py-20 max-md:py-12">
+		<section className="w-full bg-[#E6ECF0] py-20 max-md:py-12" ref={sectionRef}>
 			<div className="container w-10/12 max-lg:w-full max-md:px-4 mx-auto">
 				<div className="w-full text-center mb-12">
 					<h2 className="text-6xl max-md:text-3xl font-bold text-stone-900">
@@ -161,28 +176,36 @@ export const FreedomToConnectSection = () => {
 				<div className="flex flex-col lg:flex-row items-center gap-2 max-md:gap-8 mx-[200px] max-lg:mx-8 max-md:mx-0">
 					<div className="flex-1 flex flex-col gap-6 items-center max-md:w-full">
 						{buttonLabels.map((label, index) => (
-							<button
+							<Button
 								key={label}
-								className="
-	   									 px-10 py-4 max-md:px-6 max-md:py-3 border-2 border-purple-300 rounded-2xl text-gray-700 bg-white hover:bg-gradient-to-r hover:from-[#8961E3] hover:to-[#7B78F4]
-	   	 hover:text-white hover:border-transparent
-	   	 hover:scale-105 hover:translate-x-12
-	   	 max-md:hover:translate-x-0 max-md:hover:translate-y-2
-	   	 transition-all duration-700 ease-in-out
-	   	 font-semibold text-lg max-md:text-base text-center transform origin-center whitespace-nowrap
-	   	 min-w-[220px] w-auto max-md:min-w-full max-md:w-full
-	   	"
+								className={`
+                  px-10 py-4 max-md:px-6 max-md:py-3 border-2 rounded-2xl font-semibold text-lg max-md:text-base text-center transform origin-center whitespace-nowrap
+                  min-w-[220px] w-auto max-md:min-w-full max-md:w-full
+                  transition-all duration-700 ease-in-out
+                  ${
+						activePopup === label
+							? 'bg-gradient-to-r from-[#8961E3] to-[#7B78F4] text-white border-transparent scale-105 translate-x-12 max-md:translate-x-0 max-md:translate-y-2'
+							: 'border-purple-300 text-gray-700 bg-white hover:bg-gradient-to-r hover:from-[#8961E3] hover:to-[#7B78F4] hover:text-white hover:border-transparent hover:scale-105 hover:translate-x-12 max-md:hover:translate-x-0 max-md:hover:translate-y-2'
+					}
+                `}
 								onMouseEnter={() => {
-									if (label === 'AI Agent') {
-										setActiveImage(imageMap['AI Generation']);
-									} else {
-										setActiveImage(imageMap[label]);
+									if (activePopup === null) {
+										if (label === 'AI Agent') {
+											setActiveImage(imageMap['AI Generation']);
+										} else {
+											setActiveImage(imageMap[label]);
+										}
 									}
 								}}
-								onMouseLeave={() => setActiveImage('mezon-welcome.png')}
+								onMouseLeave={() => {
+									if (activePopup === null) {
+										setActiveImage('mezon-welcome.png');
+									}
+								}}
+								onClick={() => setActivePopup(label)}
 							>
 								{label}
-							</button>
+							</Button>
 						))}
 					</div>
 
@@ -211,6 +234,70 @@ export const FreedomToConnectSection = () => {
 					</div>
 				</div>
 			</div>
+
+			{activePopup && <Popup title={activePopup} onClose={() => setActivePopup(null)} />}
 		</section>
+	);
+};
+
+interface PopupProps {
+	title: string;
+	onClose: () => void;
+}
+
+const Popup: React.FC<PopupProps> = ({ title, onClose }) => {
+	const features = [
+		{
+			title: 'Chat Messages',
+			description: 'Send quick texts, links, or updates that keep the conversation flowing in real time'
+		},
+		{
+			title: 'Canvas',
+			description: 'Open a collaborative canvas where everyone can brainstorm, sketch, or map out ideas'
+		},
+		{
+			title: 'Mentions',
+			description: 'Use @mentions to call out teammates and make sure the right people see the message.'
+		},
+		{
+			title: 'File sharing',
+			description: 'Upload and share images, videos, and documents directly in the chat, with previews and easy downloads'
+		},
+		{
+			title: 'Pinned messages',
+			description: 'Keep announcements, rules, or important updates visible at the top of the channel'
+		},
+		{
+			title: 'Voice notes',
+			description: "Record short audio clips when you're on the move or when typing just isn't enough"
+		}
+	];
+
+	return (
+		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+			<div className="bg-white rounded-3xl p-12 max-w-4xl w-full max-h-[80vh] overflow-y-auto relative">
+				<button
+					onClick={onClose}
+					className="absolute top-8 right-8 w-12 h-12 rounded-full border-2 border-gray-400 flex items-center justify-center hover:bg-gray-100 transition-colors"
+					aria-label="Close popup"
+				>
+					<span className="text-2xl text-gray-600">×</span>
+				</button>
+
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					{features.map((feature, index) => (
+						<div key={index} className="flex flex-col gap-4">
+							<div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+								<div className="w-8 h-8 bg-purple-300 rounded-full"></div>
+							</div>
+
+							<h3 className="text-xl font-semibold text-gray-900">{feature.title}</h3>
+
+							<p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+						</div>
+					))}
+				</div>
+			</div>
+		</div>
 	);
 };

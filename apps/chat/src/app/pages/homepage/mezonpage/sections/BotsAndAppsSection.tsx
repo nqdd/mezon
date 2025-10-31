@@ -3,14 +3,14 @@ import { useState } from 'react';
 const LINKS = {
 	store: 'https://top.mezon.ai/',
 	apps: {
-		listenTogether: 'youtube.com',
-		virtualHub: 'youtube.com',
-		liveTranslator: 'youtube.com'
+		listenTogether: 'https://top.mezon.ai/bot/2e094c10-f284-49ae-8065-2f2a2f312ed6',
+		virtualHub: 'https://top.mezon.ai/bot/b02262d4-bf9c-4c8a-828f-c8e9c16bcf7d',
+		duckrace: 'https://top.mezon.ai/bot/a267809c-8020-4d65-80be-b9a3b0b4d5a3'
 	},
 	bots: {
-		utility: 'youtube.com',
-		rewardBot: 'youtube.com',
-		neuro: 'youtube.com'
+		utility: 'https://top.mezon.ai/bot/2cfc2f83-5835-4d51-b295-0ddeef64a540',
+		rewardBot: 'https://top.mezon.ai/bot/43c37f43-c808-47de-9826-4607690d3dfc',
+		neuro: 'https://top.mezon.ai/bot/7468ecf6-6662-4a68-9958-fa5b374d6f95'
 	}
 } as const;
 
@@ -137,7 +137,7 @@ export const BotsAndAppsSection = () => {
 										</div>
 									</a>
 
-									<a href={LINKS.apps.liveTranslator} target="_blank" rel="noopener noreferrer">
+									<a href={LINKS.apps.duckrace} target="_blank" rel="noopener noreferrer">
 										<div className="rounded-3xl p-8   hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full">
 											<div className="w-28 h-28 mx-auto mb-6 bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl flex items-center justify-center">
 												<img src="/assets/duck-race.png" alt="Freedom to Connect" className="w-full h-full object-cover" />
@@ -167,7 +167,9 @@ export const BotsAndAppsSection = () => {
 							</>
 						) : (
 							<>
-								<h3 className="text-3xl font-bold mb-8 text-stone-900">Bots That Automate & Enhance Your Server</h3>
+								<h3 className="text-4xl font-bold mb-8 text-stone-900">
+									Bots That Automate & Enhance <p>Your Server</p>
+								</h3>
 								<p className="text-gray-600 mb-12 max-w-2xl mx-auto">
 									Add powerful bots to automate tasks, moderate your community, and create engaging experiences. Easy to set up and
 									customize to fit your needs.

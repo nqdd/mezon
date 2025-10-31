@@ -96,7 +96,7 @@ export const FinalCTASection = ({
 							<div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[200px]">
 								<a
 									href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`}
-									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+									className="flex items-center gap-3 px-4 py-3 hover:bg-purple-60 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 									onClick={() => setIsDesktopDropdownOpen(false)}
 								>
 									<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -106,7 +106,7 @@ export const FinalCTASection = ({
 								</a>
 								<a
 									href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`}
-									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+									className="flex items-center gap-3 px-4 py-3 hover:bg-purple-60 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 									onClick={() => setIsDesktopDropdownOpen(false)}
 								>
 									<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -116,7 +116,7 @@ export const FinalCTASection = ({
 								</a>
 								<a
 									href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`}
-									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+									className="flex items-center gap-3 px-4 py-3 hover:bg-purple-60 transition-colors  text-purple-600 hover:text-pink-600"
 									onClick={() => setIsDesktopDropdownOpen(false)}
 								>
 									<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -140,7 +140,7 @@ export const FinalCTASection = ({
 									href="https://apps.apple.com/vn/app/mezon/id6502750046"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100"
+									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 									onClick={() => setIsMobileDropdownOpen(false)}
 								>
 									<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -152,7 +152,7 @@ export const FinalCTASection = ({
 									href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+									className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 									onClick={() => setIsMobileDropdownOpen(false)}
 								>
 									<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

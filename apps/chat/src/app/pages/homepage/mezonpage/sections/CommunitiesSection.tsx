@@ -52,17 +52,19 @@ export const CommunitiesSection = ({
 			alt: 'Gaming Community',
 			badgeClass: 'bg-purple-600',
 			title: 'Gaming',
-			description: 'Tham gia cộng đồng gaming tuyệt vời',
-			ctaHref: 'https://youtube.com'
+			description:
+				'Cộng đồng game nhỏ – nơi tụ họp những trò chơi đơn giản, vui nhộn, thư giãn. Không cần căng não hay ganh đua, chỉ cần chơi để vui, cười và xả stress. Vào đây chill nhẹ, kết nối bạn bè và tận hưởng niềm vui mỗi ngày!',
+			ctaHref: 'https://mezon.ai/clans/clan/1840680131652227072'
 		},
 		{
 			index: 1,
 			imageSrc: '/assets/chuongheo.png',
-			alt: 'Mezon Monthly Bot Challenge',
+			alt: 'Chuồng Heo',
 			badgeClass: 'bg-blue-600',
-			title: 'Mezon Monthly Bot Challenge',
-			description: 'Thể hiện sáng tạo và kỹ năng lập trình của bạn',
-			ctaHref: 'https://youtube.com'
+			title: 'Chuồng Heo',
+			description:
+				'Chuồng heo lôm côm đủ thứ: chai nhựa làm máng nước, dép đứt quai treo lủng lẳng, bảng tên "heo Bảy" viết bằng bút lông mờ nét. Heo nằm lim dim nghe tiếng mưa rơi trên mái tôn, thỉnh thoảng có tiếng vịt la ó bên chuồng kế bên, vui như... sân đình làng!',
+			ctaHref: 'https://mezon.ai/clans/clan/1840688603550715904'
 		},
 		{
 			index: 2,
@@ -70,36 +72,39 @@ export const CommunitiesSection = ({
 			alt: 'Tạp Hóa Cô Ba',
 			badgeClass: 'bg-green-600',
 			title: 'Tạp Hóa Cô Ba',
-			description: 'Mua gì cứ mua, có tiền là có tất cả',
-			ctaHref: 'https://youtube.com'
+			description:
+				'Tạp hóa cô Bar – góc nhỏ thân quen giữa lòng phố thị, nơi có đủ món quà vặt tuổi thơ, đồ xinh xắn và cả những câu chuyện vui buồn đời thường. Ghé tạp hóa không chỉ để mua đồ, mà còn để tìm chút bình yên, chút duyên thầm trong từng món hàng.',
+			ctaHref: 'https://mezon.ai/clans/clan/1840688215531458560'
 		},
 		{
 			index: 3,
 			imageSrc: '/assets/tim-viec.png',
-			alt: 'Creative Hub',
+			alt: 'ViecTimNguoi',
 			badgeClass: 'bg-pink-600',
-			title: 'Creative Hub',
-			description: 'Chia sẻ tác phẩm và kết nối với các nhà sáng tạo',
-			ctaHref: 'https://youtube.com'
+			title: 'ViecTimNguoi',
+			description:
+				'Cộng đồng freelancer – nơi tụ hội những người yêu thích tự do, sáng tạo và làm chủ thời gian. Cùng chia sẻ cơ hội việc làm, kinh nghiệm làm nghề, kỹ năng đàm phán và hỗ trợ nhau vượt qua thử thách trong hành trình freelance.',
+			ctaHref: 'https://mezon.ai/clans/clan/1840657908031819776'
 		},
 		{
 			index: 4,
 			imageSrc: '/assets/mezon-challenge.png',
-			alt: 'Music Lovers',
+			alt: 'KOMU',
 			badgeClass: 'bg-indigo-600',
-			title: 'Bot',
-			description: 'Ở đây sẽ có nhiều ',
-			ctaHref: 'https://youtube.com'
+			title: 'KOMU',
+			description:
+				'NCC is a software firm and IT outsourcing service provider. Established in 2014, we have swiftly established our position in the market and become a prestigious information technology enterprise in Vietnam. ',
+			ctaHref: 'https://mezon.ai/clans/clan/1779484504377790464'
 		},
 		{
 			index: 5,
-			type: 'gradient',
-			gradientClass: 'bg-gradient-to-br from-red-600 to-orange-600',
-			emoji: '⚽',
-			badgeClass: 'bg-red-600',
-			title: 'Sports Arena',
-			description: 'Kết nối với các vận động viên và fan hâm mộ',
-			ctaHref: 'https://youtube.com'
+			imageSrc: '/assets/trada-congso.png',
+			alt: 'Trà Đá Công Sở',
+			badgeClass: 'bg-indigo-600',
+			title: 'Trà Đá Công Sở',
+			description:
+				'Trà đá công sở – điểm tụ họp của dân văn phòng mê tám chuyện. Nơi cập nhật drama nóng hổi, chia sẻ chuyện cười, chuyện sếp, chuyện đồng nghiệp. Vào đây xả stress, tám cho đã, cười một cái rồi quay lại deadline cũng thấy nhẹ nhàng hơn!',
+			ctaHref: 'https://mezon.ai/clans/clan/1840677019352829952'
 		}
 	];
 
@@ -203,8 +208,14 @@ export const CommunitiesSection = ({
 								)}
 								<div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent" />
 								<div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6">
-									<h3 className="mb-2 text-lg font-bold text-white sm:text-xl md:text-2xl">{card.title}</h3>
-									<p className="text-xs text-gray-200 sm:text-sm md:text-base text-left max-md:hidden">{card.description}</p>
+									<h3 className="mb-2 text-lg font-bold text-white sm:text-xl md:text-2xl [text-shadow:_0_2px_8px_rgba(0,0,0,0.4)]">
+										{card.title}
+									</h3>
+
+									<p className="text-xs text-gray-200 sm:text-sm md:text-base text-left max-md:hidden pb-2 [text-shadow:_0_1px_4px_rgba(0,0,0,0.3)]">
+										{card.description}
+									</p>
+
 									<div className="flex items-center justify-end gap-3">
 										<a
 											href={card.ctaHref}
