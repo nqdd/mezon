@@ -41,20 +41,19 @@ const Install: React.FC = () => {
 	};
 
 	useLayoutEffect(() => {
-		if (!isLogin) {
-			if (applicationId) {
-				try {
-					navigateDeeplinkMobile(applicationId);
-					dispatch(getApplicationDetail({ appId: applicationId }));
-				} catch (e) {
-					console.error('navigateDeeplinkMobile render call failed', e);
-				}
-				const t = setTimeout(() => setIsRedirect(true), 400);
-				return () => clearTimeout(t);
-			}
+		if (!applicationId) {
 			setIsRedirect(true);
+			return;
 		}
-	}, [isLogin, applicationId, dispatch]);
+		try {
+			navigateDeeplinkMobile(applicationId);
+			dispatch(getApplicationDetail({ appId: applicationId }));
+		} catch (e) {
+			console.error('navigateDeeplinkMobile render call failed', e);
+		}
+		const t = setTimeout(() => setIsRedirect(true), 400);
+		return () => clearTimeout(t);
+	}, [applicationId, dispatch]);
 
 	if (!isLogin && isRedirect) {
 		return <Navigate to={redirect || '/login'} replace />;
