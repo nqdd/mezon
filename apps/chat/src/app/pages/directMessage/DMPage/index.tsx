@@ -31,8 +31,10 @@ import {
 	selectIsShowCreateThread,
 	selectIsShowMemberListDM,
 	selectIsUseProfileDM,
+	selectLastMessageByChannelId,
 	selectLastMessageViewportByChannelId,
 	selectLastSeenDM,
+	selectLastSeenMessageIdDM,
 	selectPositionEmojiButtonSmile,
 	selectReactionTopState,
 	selectSearchMessagesLoadingStatus,
@@ -53,23 +55,38 @@ import { ChannelTyping } from '../../channel/ChannelTyping';
 const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
-	const lastMessage = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
+	const lastMessageViewport = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
+	const lastMessageChannel = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const lastSeenTimeStamp = useAppSelector((state) => selectLastSeenDM(state, channelId));
+	const lastSeenMessageId = useAppSelector((state) => selectLastSeenMessageIdDM(state, channelId));
 	const { markAsReadSeen } = useSeenMessagePool();
 
 	const isMounted = useRef(false);
 	const isWindowFocused = !isBackgroundModeActive();
 
 	const markMessageAsRead = useCallback(() => {
-		if (!lastMessage) return;
+		if (!lastMessageViewport || !lastMessageChannel) return;
 
-		if (lastMessage?.create_time_seconds && lastSeenTimeStamp && lastMessage?.create_time_seconds >= lastSeenTimeStamp - 2) {
-			const mode =
-				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
-
-			markAsReadSeen(lastMessage, mode, 0);
+		const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
+		if (lastSeenMessageId && lastMessageViewport?.id) {
+			try {
+				const distance = Math.round(Number((BigInt(lastMessageViewport.id) >> BigInt(22)) - (BigInt(lastSeenMessageId) >> BigInt(22))));
+				if (distance >= 0) {
+					markAsReadSeen(lastMessageViewport, mode, 0);
+					return;
+				}
+			} catch (error) {
+				//
+			}
 		}
-	}, [lastMessage, markAsReadSeen, currentDmGroup, lastSeenTimeStamp]);
+
+		if (lastMessageViewport?.create_time_seconds && lastSeenTimeStamp && lastMessageViewport?.create_time_seconds >= lastSeenTimeStamp - 2) {
+			const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
+			if (isLastMessage) {
+				markAsReadSeen(lastMessageViewport, mode, 0);
+			}
+		}
+	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentDmGroup, lastSeenTimeStamp]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {
@@ -83,17 +100,17 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	}, [dispatch, channelId]);
 
 	useEffect(() => {
-		if (lastMessage && isWindowFocused) {
-			dispatch(directMetaActions.updateLastSeenTime(lastMessage));
+		if (lastMessageViewport && isWindowFocused) {
+			dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 			markMessageAsRead();
 		}
-	}, [lastMessage, isWindowFocused, markMessageAsRead, dispatch, channelId]);
+	}, [lastMessageViewport, isWindowFocused, markMessageAsRead, dispatch, channelId]);
 
 	useEffect(() => {
-		if (isMounted.current || !lastMessage) return;
+		if (isMounted.current || !lastMessageViewport) return;
 		isMounted.current = true;
 		updateChannelSeenState(channelId);
-	}, [channelId, lastMessage, updateChannelSeenState]);
+	}, [channelId, lastMessageViewport, updateChannelSeenState]);
 
 	useBackgroundMode(undefined, markMessageAsRead, isWindowFocused);
 

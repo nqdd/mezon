@@ -120,7 +120,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 				setShowFullList(false);
 			}
 		}
-	}, [currentClan]);
+	}, [currentClan?.id]);
 
 	const isShowEmptyCategory = useSelector(selectIsShowEmptyCategory);
 	const streamPlay = useSelector(selectStatusStream);

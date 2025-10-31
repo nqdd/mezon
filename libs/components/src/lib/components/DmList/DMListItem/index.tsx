@@ -3,9 +3,11 @@ import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
 	directMetaActions,
+	getStore,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
+	selectLatestMessageId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -65,7 +67,9 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 		e.stopPropagation();
 		await dispatch(directActions.closeDirectMessage({ channel_id: directId }));
 		const timestamp = Date.now() / 1000;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp }));
+		const store = getStore();
+		const messageId = store ? selectLatestMessageId(store.getState(), directId) : undefined;
+		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp, messageId }));
 		if (directId === currentDmGroupId) {
 			dispatch(directActions.setDmGroupCurrentId(''));
 			navigateToFriends();
