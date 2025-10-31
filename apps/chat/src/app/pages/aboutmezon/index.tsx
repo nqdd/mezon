@@ -229,7 +229,7 @@ const AboutMezon = () => {
 
 						<div className="group bg-white p-[32px] rounded-[16px] shadow-lg border border-gray-100 hover:bg-[#26155f] hover:-translate-y-2 cursor-pointer transition-all duration-300">
 							<div className="flex justify-center mb-[24px] ">
-								<img src="/assets/Powered-Creativity.png" alt="" className="h-auto w-[85px]" />
+								<img src="/assets/powered-creativity.png" alt="" className="h-auto w-[85px]" />
 							</div>
 							<h3 className="text-[28px] font-bold text-black group-hover:text-white text-center mb-[16px]">Powered by Creativity</h3>
 							<p className="text-[18px] leading-[28px] text-gray-600 group-hover:text-white text-center">

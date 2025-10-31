@@ -58,7 +58,7 @@ export const CommunitiesSection = ({
 		},
 		{
 			index: 1,
-			imageSrc: '/assets/chuongheo.png',
+			imageSrc: '/assets/chuong-heo.png',
 			alt: 'Chuồng Heo',
 			badgeClass: 'bg-blue-600',
 			title: 'Chuồng Heo',
