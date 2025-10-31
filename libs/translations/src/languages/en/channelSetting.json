@@ -283,5 +283,8 @@
 		"members": {
 			"allMembers": "(All Members)"
 		}
+	},
+	"streamBanner": {
+		"title": "Stream Banner"
 	}
 }
