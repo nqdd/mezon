@@ -1,10 +1,10 @@
 import { getApplicationDetail, selectAppDetail, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useLayoutEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLoaderData, useParams } from 'react-router-dom';
 import { useAppearance } from '../../context/AppearanceContext';
-import { IAuthLoaderData } from '../../loader/authLoader';
+import type { IAuthLoaderData } from '../../loader/authLoader';
 import ModalAddApp from './ModalAddApp';
 import ModalAddBot from './ModalAddBot';
 import ModalTry from './ModalTry';
@@ -20,6 +20,7 @@ const Install: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const appDetail = useSelector(selectAppDetail);
 	const [openModalAdd, setOpenModalAdd] = useState(false);
+	const [isRedirect, setIsRedirect] = useState(false);
 	const handleOpenModalAdd = useCallback(() => {
 		setOpenModalAdd(!openModalAdd);
 	}, [openModalAdd]);
@@ -39,14 +40,23 @@ const Install: React.FC = () => {
 		}
 	};
 
-	useEffect(() => {
-		if (applicationId) {
-			navigateDeeplinkMobile(applicationId);
-			dispatch(getApplicationDetail({ appId: applicationId }));
+	useLayoutEffect(() => {
+		if (!isLogin) {
+			if (applicationId) {
+				try {
+					navigateDeeplinkMobile(applicationId);
+					dispatch(getApplicationDetail({ appId: applicationId }));
+				} catch (e) {
+					console.error('navigateDeeplinkMobile render call failed', e);
+				}
+				const t = setTimeout(() => setIsRedirect(true), 400);
+				return () => clearTimeout(t);
+			}
+			setIsRedirect(true);
 		}
-	}, [applicationId, dispatch]);
+	}, [isLogin, applicationId, dispatch]);
 
-	if (!isLogin) {
+	if (!isLogin && isRedirect) {
 		return <Navigate to={redirect || '/login'} replace />;
 	}
 
