@@ -55,9 +55,9 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					</h1>
 
 					<p className="text-xl max-md:text-lg text-gray-600 max-w-3xl">
-						A <span className="text-purple-600 font-semibold">safe</span> and{' '}
-						<span className="text-purple-600 font-semibold">transparent</span> platform to work smarter, connect deeper, and grow together
-						- without limits
+						<span className="text-purple-600 font-semibold">Mezon </span> s great for playing games and chilling with friends, or even
+						building a worldwide community. Customize your own space to <span className="text-purple-600 font-semibold">talk</span>, play
+						and <span className="text-purple-600 font-semibold">hang out</span>.
 					</p>
 
 					<div className="relative" ref={dropdownRef}>
