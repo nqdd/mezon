@@ -1,6 +1,5 @@
 'use client';
 
-import { ContactUsModal } from '@mezon/components';
 import mezonPackage from '@mezon/package-js';
 import { Platform, getPlatform } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -11,7 +10,6 @@ export const EconomyPage = () => {
 	const platform = getPlatform();
 	const version = mezonPackage.version;
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const downloadUrl: string = useMemo(() => {
 		if (platform === Platform.MACOS) {
@@ -241,12 +239,6 @@ export const EconomyPage = () => {
 						Partner brands can accept <span className="text-purple-600 font-semibold">Mezon Dong</span> for products and services. From
 						digital goods to real-world items, communities can buy directly with a click.
 					</p>
-					<button
-						className="px-12 py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white  text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md"
-						onClick={() => setIsContactModalOpen(true)}
-					>
-						Become a Merchant
-					</button>
 					<div className="flex justify-center">
 						<div className="relative w-full max-w-lg">
 							<img
@@ -289,14 +281,6 @@ export const EconomyPage = () => {
 							<div className="text-purple-100 text-lg leading-relaxed">Tap into Mezon's growing network of users and developers</div>
 						</div>
 					</div>
-				</div>
-				<div className="flex justify-center w-full">
-					<button
-						onClick={() => setIsContactModalOpen(true)}
-						className="px-12 py-4 mt-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white text-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all duration-300 shadow-md mb-12 rounded-md"
-					>
-						Contact Us
-					</button>
 				</div>
 			</section>
 
@@ -388,7 +372,6 @@ export const EconomyPage = () => {
 			</section>
 
 			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
-			<ContactUsModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 		</div>
 	);
 };
