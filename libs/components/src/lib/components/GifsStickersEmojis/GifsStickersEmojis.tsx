@@ -278,7 +278,7 @@ const ContentPanel = React.memo(
 		if (subPanelActive === SubPanelName.SOUNDS) {
 			return (
 				<div className={`flex h-full pr-2 w-full ${contentWidthClass}`}>
-					<SoundSquare channel={channelOrDirect} mode={channelMode as number} onClose={onClose} isTopic={isTopic} />
+					<SoundSquare mode={channelMode as number} onClose={onClose} isTopic={isTopic} />
 				</div>
 			);
 		}
