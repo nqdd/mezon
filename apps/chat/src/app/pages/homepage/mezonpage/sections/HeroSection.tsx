@@ -51,11 +51,11 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 				>
 					<h1 className="text-6xl max-md:text-4xl max-sm:text-3xl font-bold max-w-4xl text-stone-900">
 						Your <span className="text-purple-600">Live</span>, <span className="text-purple-600">Work</span>,{' '}
-						<span className="text-purple-600">Play</span> Platform
+						<span className="text-purple-600">Play</span> Platform. The best Discord Alternative
 					</h1>
 
 					<p className="text-xl max-md:text-lg text-gray-600 max-w-3xl">
-						<span className="text-purple-600 font-semibold">Mezon </span> s great for playing games and chilling with friends, or even
+						<span className="text-purple-600 font-semibold">Mezon </span> is great for playing games and chilling with friends, or even
 						building a worldwide community. Customize your own space to <span className="text-purple-600 font-semibold">talk</span>, play
 						and <span className="text-purple-600 font-semibold">hang out</span>.
 					</p>
