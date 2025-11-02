@@ -31,5 +31,8 @@ export const style = (colors: Attributes) =>
 		username: {
 			fontSize: size.small,
 			fontWeight: 'bold'
+		},
+		outerWrapper: {
+			flexDirection: 'row'
 		}
 	});

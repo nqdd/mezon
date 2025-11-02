@@ -263,11 +263,13 @@ const ImageRenderer = React.memo(
 
 				{!!remainingImagesCount && (
 					<View
-						style={{
-							...styles.overlay,
-							width: photoSize?.width / (isTablet ? 1.8 : 1),
-							height: photoSize?.height / (isTablet ? 1.8 : 1)
-						}}
+						style={[
+							styles.overlay,
+							{
+								width: photoSize?.width / (isTablet ? 1.8 : 1),
+								height: photoSize?.height / (isTablet ? 1.8 : 1)
+							}
+						]}
 					>
 						<Text style={styles.moreText}>+{remainingImagesCount}</Text>
 					</View>

@@ -22,14 +22,15 @@
 		"resend": "Gửi lại",
 		"buzz": "Buzz!!",
 		"markMessage": "Đánh dấu tin nhắn",
+		"quickMenu": "Menu nhanh",
 		"allAlbums": "Tất cả album",
 		"linkOptions": "Tùy chọn liên kết",
 		"openLink": "Mở liên kết",
 		"copyLink": "Sao chép liên kết",
 		"shareLink": "Chia sẻ liên kết",
 		"copyLinkSuccess": "Đã sao chép liên kết vào clipboard",
-		"copyImage": "Sao chép Ảnh",
-		"shareImage": "Chia sẻ Ảnh"
+		"copyImage": "Sao chép ảnh",
+		"shareImage": "Chia sẻ ảnh"
 	},
 	"chatBox": {
 		"replyingTo": "Đang trả lời",
@@ -184,8 +185,18 @@
 		"enableWallet": "Kích hoạt Ví",
 		"cancel": "Hủy"
 	},
-	"creator": "Người tạo",
-	"viewTopic": "Xem thảo luận ngắn",
 	"reply": "{{number}} tin nhắn",
-	"replies": "Tin nhắn"
+	"replies": "Tin nhắn",
+	"attachments": {
+		"image": "Hình ảnh",
+		"video": "Video",
+		"audio": "Tin nhắn thoại",
+		"file": "Tệp",
+		"location": "Vị trí hiện tại",
+		"sticker": "Nhãn dán",
+		"gif": "GIF",
+		"link": "Liên kết",
+		"attachment": "Tệp đính kèm",
+		"embed": "Nhúng"
+	}
 }

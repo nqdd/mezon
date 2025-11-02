@@ -33,7 +33,8 @@ export const style = (colors: Attributes) =>
 		},
 		profileWrapper: {
 			flexDirection: 'row',
-			gap: size.s_4
+			gap: size.s_8,
+			flexShrink: 1
 		},
 		settingButton: {
 			alignItems: 'center',

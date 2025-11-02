@@ -38,12 +38,12 @@ export default function HeaderSearchMessageDm({ initialSearchText, onClearStoreI
 	};
 
 	return (
-		<View style={{ paddingHorizontal: size.s_10, paddingVertical: size.s_20, flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
+		<View style={styles.headerContainer}>
 			<TouchableOpacity onPress={onGoBack}>
 				<MezonIconCDN icon={IconCDN.backArrowLarge} width={20} height={20} color={themeValue.text} />
 			</TouchableOpacity>
 			<View style={styles.searchBox}>
-				<View style={{ marginRight: size.s_6 }}>
+				<View style={styles.iconMargin}>
 					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={20} height={20} color={themeValue.text} />
 				</View>
 				<TextInput

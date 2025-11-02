@@ -99,11 +99,12 @@ export const listChannelRenderSlice = createSlice({
 					listChannelRender.push(channel);
 				});
 			});
+
 			const favorCate: ICategoryChannel = {
 				channels: listChannelFavor,
 				id: FAVORITE_CATEGORY_ID,
 				category_id: FAVORITE_CATEGORY_ID,
-				category_name: 'Favorite Channel', // TODO: This should be i18n translated
+				category_name: 'Favorite Channel',
 				clan_id: clanId,
 				creator_id: '0',
 				category_order: 1,
@@ -180,6 +181,15 @@ export const listChannelRenderSlice = createSlice({
 						? dataUpdate.channel_private || (state.listChannelRender[clanId][indexUpdate] as IChannel).channel_private
 						: 0
 				};
+				const existing = state.listChannelRender[clanId][indexUpdate] as IChannel;
+				if (state.listChannelRender?.[clanId]?.[indexUpdate]) {
+					const safeAvatar =
+						typeof dataUpdate?.channel_avatar === 'string' && dataUpdate?.channel_avatar?.trim() !== ''
+							? dataUpdate?.channel_avatar
+							: (existing?.channel_avatar ?? '');
+
+					(state.listChannelRender[clanId][indexUpdate] as IChannel).channel_avatar = safeAvatar;
+				}
 				if (state.listChannelRender[clanId][indexUpdate].category_id === FAVORITE_CATEGORY_ID) {
 					const indexNextUpdate = state.listChannelRender[clanId].findIndex(
 						(channel) => channel.id === channelId && channel.category_id !== FAVORITE_CATEGORY_ID
@@ -194,6 +204,13 @@ export const listChannelRenderSlice = createSlice({
 							? dataUpdate.channel_private || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_private
 							: 0
 					};
+					const existingNext = state.listChannelRender[clanId][indexNextUpdate] as IChannel;
+					const avatarNext =
+						typeof dataUpdate?.channel_avatar === 'string' && dataUpdate?.channel_avatar?.trim() !== ''
+							? dataUpdate?.channel_avatar
+							: (existingNext?.channel_avatar ?? '');
+
+					(state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_avatar = avatarNext;
 				}
 			}
 		},

@@ -17,8 +17,9 @@ import LinkOptionModal from '../LinkOptions/LinkOptionModal';
 import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
-import { getMessageReplyMaxHeight, styles as componentStyles } from './index.styles';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
+import { styles as componentStyles, getMessageReplyMaxHeight } from './index.styles';
+import FastImage from 'react-native-fast-image';
 
 export default function openUrl(url, customCallback) {
 	if (customCallback) {
@@ -393,8 +394,8 @@ export const RenderTextMarkdownContent = ({
 				const srcEmoji = getSrcEmoji(element?.emojiid);
 				textParts.push(
 					<View key={`emoji-${index}`} style={!isOnlyContainEmoji && markdownStyles(themeValue).emojiInMessageContain}>
-						<ImageNative
-							url={srcEmoji}
+						<FastImage
+							source={{ uri: srcEmoji }}
 							style={
 								isOnlyContainEmoji ? markdownStyles(themeValue).onlyIconEmojiInMessage : markdownStyles(themeValue).iconEmojiInMessage
 							}

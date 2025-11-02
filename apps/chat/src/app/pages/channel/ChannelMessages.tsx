@@ -8,7 +8,6 @@ import {
 	getStore,
 	messagesActions,
 	selectAllAccount,
-	selectChannelByChannelId,
 	selectChannelDraftMessage,
 	selectChannelMessageCache,
 	selectCurrentChannelId,
@@ -162,7 +161,6 @@ function ChannelMessages({
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const lastMessageId = lastMessage?.id;
-	const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
 	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
@@ -176,6 +174,7 @@ function ChannelMessages({
 	const previousChannelId = useRef<string | null>(null);
 	const preventScrollbottom = useRef<boolean>(false);
 	const isFirstJoinLoadRef = useRef<boolean>(true);
+	const lastSeenAtBottomRef = useRef<string | null>(null);
 
 	useSyncEffect(() => {
 		userActiveScroll.current = false;
@@ -184,6 +183,7 @@ function ChannelMessages({
 		anchorTopRef.current = null;
 		preventScrollbottom.current = false;
 		isFirstJoinLoadRef.current = true;
+		lastSeenAtBottomRef.current = null;
 
 		requestIdleCallback &&
 			requestIdleCallback(() => {
@@ -372,15 +372,6 @@ function ChannelMessages({
 					isVisible
 				})
 			);
-
-			if (!isVisible) {
-				dispatch(
-					channelsActions.setScrollPosition({
-						channelId,
-						messageId: undefined
-					})
-				);
-			}
 		},
 		[channelId]
 	);
@@ -402,7 +393,6 @@ function ChannelMessages({
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
 						idMessageNotified={idMessageNotified}
-						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
 						channelId={channelId}
@@ -416,9 +406,9 @@ function ChannelMessages({
 						anchorTopRef={anchorTopRef}
 						setAnchor={setAnchor}
 						isPrivate={isPrivate}
-						clanId={clanId}
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
+						lastSeenAtBottomRef={lastSeenAtBottomRef}
 					/>
 				</DMMessageWrapper>
 			) : (
@@ -440,7 +430,6 @@ function ChannelMessages({
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
 						idMessageNotified={idMessageNotified}
-						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
 						channelId={isTopicBox ? currentChannelId || channelId : channelId}
@@ -454,13 +443,19 @@ function ChannelMessages({
 						anchorTopRef={anchorTopRef}
 						setAnchor={setAnchor}
 						isPrivate={isPrivate}
-						clanId={clanId}
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
+						lastSeenAtBottomRef={lastSeenAtBottomRef}
 					/>
 				</ClanMessageWrapper>
 			)}
-			<ScrollDownButton channelId={channelId} clanId={clanId} messageIds={messageIds} chatRef={chatRef} />
+			<ScrollDownButton
+				channelId={channelId}
+				clanId={clanId}
+				messageIds={messageIds}
+				chatRef={chatRef}
+				lastSeenAtBottomRef={lastSeenAtBottomRef}
+			/>
 			<HasmoreBottomTracker channelId={channelId} />
 			<FirstJoinLoadTracker channelId={channelId} isFirstJoinLoadRef={isFirstJoinLoadRef} />
 		</>
@@ -472,17 +467,34 @@ const ScrollDownButton = memo(
 		channelId,
 		clanId,
 		messageIds,
-		chatRef
+		chatRef,
+		lastSeenAtBottomRef
 	}: {
 		channelId: string;
 		clanId: string;
 		messageIds: string[];
 		chatRef: React.RefObject<HTMLDivElement>;
+		lastSeenAtBottomRef: React.MutableRefObject<string | null>;
 	}) => {
 		const dispatch = useAppDispatch();
 
 		const isVisible = useAppSelector((state) => selectShowScrollDownButton(state, channelId));
 		const appearanceTheme = useAppSelector(selectTheme);
+		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId));
+		const lastMessageId = useAppSelector((state) => selectLatestMessageId(state, channelId));
+
+		const unreadCount = useMemo(() => {
+			let count = 0;
+			const baseMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
+			if (baseMessageId && lastMessageId) {
+				try {
+					count = Math.max(0, Math.round(Number((BigInt(lastMessageId) >> BigInt(22)) - (BigInt(baseMessageId) >> BigInt(22)))));
+				} catch (e) {
+					count = 0;
+				}
+			}
+			return count;
+		}, [lastSeenAtBottomRef.current, lastMessageUnreadId, lastMessageId]);
 
 		const handleJumpToPresent = async () => {
 			await dispatch(
@@ -507,12 +519,6 @@ const ScrollDownButton = memo(
 
 			const jumpPresent = !!lastSentMessageId && !messageIds.includes(lastSentMessageId as string) && messageIds.length >= 20;
 
-			dispatch(
-				channelsActions.setScrollPosition({
-					channelId,
-					messageId: undefined
-				})
-			);
 			if (jumpPresent) {
 				handleJumpToPresent();
 				return;
@@ -541,6 +547,11 @@ const ScrollDownButton = memo(
 					isVisible ? 'opacity-100' : 'opacity-0'
 				} cursor-pointer absolute z-10 rounded-full bg-clip-padding border text-token-text-secondary border-token-border-light w-8 h-8 flex items-center justify-center bottom-5 right-[12px] transition-all duration-200 hover:scale-105 active:scale-95 active:shadow-inner`}
 			>
+				{unreadCount > 0 && (
+					<div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-semibold">
+						{unreadCount > 99 ? '99+' : unreadCount}
+					</div>
+				)}
 				<svg
 					width={18}
 					height={18}
@@ -578,7 +589,6 @@ type ChatMessageListProps = {
 	lastMessageId: string;
 	dataReferences: ApiMessageRef;
 	idMessageNotified: string;
-	lastMessageUnreadId: string;
 	avatarDM?: string;
 	username?: string;
 	isPrivate?: number;
@@ -591,9 +601,9 @@ type ChatMessageListProps = {
 	anchorIdRef: React.MutableRefObject<string | null>;
 	anchorTopRef: React.MutableRefObject<number | null>;
 	setAnchor: React.MutableRefObject<number | null>;
-	clanId: string;
 	onScrollDownToggle: BooleanToVoidFunction;
 	onNotchToggle: BooleanToVoidFunction;
+	lastSeenAtBottomRef: React.MutableRefObject<string | null>;
 };
 
 const ChatMessageList: React.FC<ChatMessageListProps> = memo(
@@ -607,7 +617,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		lastMessageId,
 		dataReferences,
 		idMessageNotified,
-		lastMessageUnreadId,
+
 		avatarDM,
 		username,
 		channelId,
@@ -621,9 +631,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		anchorTopRef,
 		setAnchor,
 		isPrivate,
-		clanId,
 		onScrollDownToggle,
-		onNotchToggle
+		onNotchToggle,
+		lastSeenAtBottomRef
 	}) => {
 		const dispatch = useAppDispatch();
 		const user = useSelector(selectAllAccount);
@@ -633,6 +643,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
 		const jumpToPresent = useAppSelector((state) => selectIsJumpingToPresent(state, channelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
+		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
 		const openEditMessageState = useSelector(selectOpenEditMessageState);
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
@@ -656,15 +667,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			const state = store.getState();
 			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
 			if (!scrollPosition?.messageId) {
-				const channel = selectChannelByChannelId(state, channelId);
-				const lastSeenMessageId = channel?.last_seen_message?.id;
-				if (lastSeenMessageId) {
-					scrollPosition = { messageId: lastSeenMessageId };
+				if (lastMessageUnreadId) {
+					scrollPosition = { messageId: lastMessageUnreadId };
 				}
 			}
 
 			scrollPositionRef.current = scrollPosition;
-		}, [channelId]);
+		}, [channelId, lastMessageUnreadId]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
@@ -748,7 +757,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (!userActiveScroll.current) return;
 
 				requestAnimationFrame(() => {
-					const { scrollHeight, scrollTop } = container;
+					const { scrollTop } = container;
 
 					if (scrollTop < 1000 && messageIds.length > 0) {
 						onChange(LoadMoreDirection.Backwards);
@@ -762,12 +771,22 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						onChange(LoadMoreDirection.Forwards);
 						const store = getStore();
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
-						dispatch(
-							channelsActions.setScrollPosition({
-								channelId,
-								messageId: messageIds?.at(-1)
-							})
-						);
+						const lastMsgId = messageIds?.at(-1);
+						if (lastMsgId) {
+							const message = entities[lastMsgId];
+
+							if (message && !message.isSending) {
+								dispatch(
+									channelsActions.setScrollPosition({
+										channelId,
+										messageId: lastMsgId
+									})
+								);
+								if (lastMsgId && !hasMoreBottom) {
+									lastSeenAtBottomRef.current = lastMsgId;
+								}
+							}
+						}
 
 						if (hasMoreBottom) return;
 						const showFAB = selectShowScrollDownButton(store.getState(), channelId);
@@ -781,7 +800,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						return;
 					}
 
-					const newScrollOffset = scrollHeight - scrollTop;
 					const containerRect = container.getBoundingClientRect();
 					const containerTop = containerRect.top;
 					const containerBottom = containerRect.bottom;
@@ -806,8 +824,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						dispatch(
 							channelsActions.setScrollPosition({
 								channelId,
-								messageId: visibleMessageId,
-								offset: newScrollOffset
+								messageId: visibleMessageId
 							})
 						);
 					}
@@ -860,7 +877,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				}
 
 				requestForcedReflow(() => {
-					const { scrollTop, scrollHeight, offsetHeight } = container;
+					const { scrollTop, scrollHeight } = container;
 
 					const store = getStore();
 					const isAtBottom = !selectShowScrollDownButton(store.getState(), channelId);
@@ -883,6 +900,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const anchor = anchorIdRef.current && container.querySelector(`#${anchorIdRef.current}`);
 
 					let newScrollTop!: number;
+					let shouldUpdateScrollPosition = false;
+
+					const lastMsgId = messageIds?.at(-1) || '';
+					const message = entities[lastMsgId];
 
 					if (
 						(!isLoadingMoreBottomRef.current &&
@@ -892,6 +913,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
 						newScrollTop = scrollHeight;
+						shouldUpdateScrollPosition = !message.isSending;
 					} else if (anchor) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
@@ -904,14 +926,26 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						} else {
 							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
+							shouldUpdateScrollPosition = !message.isSending;
 						}
 					} else {
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
+						shouldUpdateScrollPosition = !message.isSending;
 					}
 
 					return () => {
 						resetScroll(container, Math.ceil(newScrollTop));
+
+						if (message && shouldUpdateScrollPosition) {
+							dispatch(
+								channelsActions.setScrollPosition({
+									channelId,
+									messageId: lastMsgId
+								})
+							);
+						}
+
 						if (!memoFocusingIdRef.current) {
 							isScrollTopJustUpdatedRef.current = true;
 							requestMeasure(() => {
@@ -1004,6 +1038,9 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const { showMessageContextMenu, selectedMessageId } = useMessageContextMenu();
 
 		const renderedMessages = useMemo(() => {
+			// Use lastSeenAtBottomRef (saved when user was at bottom) or fallback to lastMessageUnreadId
+			const baseUnreadMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
+
 			return messageIds.map((messageId, index) => {
 				const checkMessageTargetToMoved = msgIdJumpHightlight.current === messageId && messageId !== lastMessageId;
 				const messageReplyHighlight = (dataReferences?.message_ref_id && dataReferences?.message_ref_id === messageId) || false;
@@ -1011,7 +1048,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const isEditing = getIsEditing(messageId);
 				const previousMessageId = messageIds[index - 1];
 				const isPreviousMessageLastSeen =
-					lastMessageUnreadId && Boolean(previousMessageId === lastMessageUnreadId && previousMessageId !== lastMessageId);
+					baseUnreadMessageId && Boolean(previousMessageId === baseUnreadMessageId && previousMessageId !== lastMessageId);
 				const shouldShowUnreadBreak = isPreviousMessageLastSeen && entities[messageId]?.sender_id !== user?.user?.id;
 
 				return (
@@ -1111,9 +1148,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							</div>
 						)}
 						{withHistoryTriggers && <div ref={backwardsTriggerRef} key="backwards-trigger" className="backwards-trigger" />}
-						{messageIds?.[0] && (
-							<LoadingSkeletonMessages messageId={messageIds[0]} channelId={channelId} isTopic={isTopic} topicId={topicId} />
-						)}
+						{messageIds?.[0] && <LoadingSkeletonMessages channelId={channelId} isTopic={isTopic} topicId={topicId} />}
 						{renderedMessages}
 						{withHistoryTriggers && <div ref={forwardsTriggerRef} key="forwards-trigger" className="forwards-trigger" />}
 
@@ -1130,7 +1165,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			prev.lastMessageId === curr.lastMessageId &&
 			prev.dataReferences === curr.dataReferences &&
 			prev.idMessageNotified === curr.idMessageNotified &&
-			prev.lastMessageUnreadId === curr.lastMessageUnreadId &&
 			prev.appearanceTheme === curr.appearanceTheme &&
 			prev.avatarDM === curr.avatarDM &&
 			prev.channelLabel === curr.channelLabel
@@ -1184,38 +1218,44 @@ interface MessageSkeletonProps {
 }
 
 const LoadingSkeletonMessages = memo(
-	({
-		messageId,
-		channelId,
-		topicId,
-		isTopic,
-		imageFrequency = 0.5
-	}: {
-		messageId?: string;
-		count?: number;
-		imageFrequency?: number;
-		channelId: string;
-		isTopic?: boolean;
-		topicId?: string;
-	}) => {
+	({ channelId, isTopic }: { channelId: string; isTopic?: boolean; topicId?: string }) => {
 		const hasMoreTop = useAppSelector((state) => selectHasMoreMessageByChannelId(state, channelId));
 		// TODO: check hasMoreTop topic check backend alway return true
 		if (!hasMoreTop || isTopic) return null;
 		return (
 			<div id="msg-loading-top" className="py-2">
-				<MessageSkeleton randomKey={`top-${messageId || ''}`} />
+				<MessageSkeleton randomKey={channelId} />
 			</div>
 		);
+	},
+	(prev, next) => {
+		return prev.channelId === next.channelId && prev.isTopic === next.isTopic;
 	}
 );
 
-export const MessageSkeleton = memo(
-	function MessageSkeleton({ className, randomKey }: MessageSkeletonProps) {
-		return (
-			<div style={{ width: '60%', height: '1000px', overflow: 'hidden' }} className={buildClassName('flex flex-col px-4 py-2', className)}>
-				{Array.from({ length: 5 }).map((_, index) => {
-					const imageWidth = Math.floor(Math.random() * 200) + 100;
+LoadingSkeletonMessages.displayName = 'LoadingSkeletonMessages';
 
+const SKELETON_ITEMS = [
+	{ line1: [75, 68, 82, 91, 77], line2: [88, 71, 94, 83, 69], image: 180 },
+	{ line1: [82, 95, 73, 87, 91], line2: [76, 89, 84, 78, 93], image: 220 },
+	{ line1: [68, 84, 92, 77, 85], line2: [91, 73, 88, 95, 81], image: 150 },
+	{ line1: [91, 72, 86, 94, 79], line2: [84, 97, 76, 89, 85], image: 200 },
+	{ line1: [77, 89, 81, 93, 88], line2: [79, 92, 87, 74, 96], image: 170 }
+] as const;
+
+// Pre-compute style objects to avoid recreating them on every render
+const SKELETON_LINE_STYLES = SKELETON_ITEMS.map((item) => ({
+	line1: item.line1.map((width) => ({ width: `${width}%` })),
+	line2: item.line2.map((width) => ({ width: `${width}%` })),
+	image: { width: item.image, height: 120, maxWidth: '100%' }
+}));
+
+export const MessageSkeleton = memo(
+	function MessageSkeleton({ className, randomKey = 'skeleton' }: MessageSkeletonProps) {
+		return (
+			<div className={buildClassName('flex flex-col px-4 py-2 w-[60%] h-[1000px] overflow-hidden', className)}>
+				{SKELETON_ITEMS.map((item, index) => {
+					const styles = SKELETON_LINE_STYLES[index];
 					return (
 						<div key={`${randomKey}-${index}`} className="flex items-start gap-3 pb-4">
 							<div className="rounded-full dark:bg-skeleton-dark bg-skeleton-white h-10 w-10 flex-shrink-0" />
@@ -1227,59 +1267,18 @@ export const MessageSkeleton = memo(
 								</div>
 
 								<div className="flex gap-2">
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
+									{item.line1.map((_, i) => (
+										<div key={i} className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded" style={styles.line1[i]} />
+									))}
 								</div>
 
 								<div className="flex gap-2 pt-2">
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
-									<div
-										className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded"
-										style={{ width: `${Math.floor(Math.random() * 40) + 60}%` }}
-									/>
+									{item.line2.map((_, i) => (
+										<div key={i} className="h-4 dark:bg-skeleton-dark bg-skeleton-white rounded" style={styles.line2[i]} />
+									))}
 								</div>
 
-								<div
-									className="dark:bg-skeleton-dark bg-skeleton-white rounded-md mt-2"
-									style={{
-										width: imageWidth,
-										height: 120,
-										maxWidth: '100%'
-									}}
-								/>
+								<div className="dark:bg-skeleton-dark bg-skeleton-white rounded-md mt-2" style={styles.image} />
 							</div>
 						</div>
 					);

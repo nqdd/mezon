@@ -1,6 +1,6 @@
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { EPermission } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -83,6 +83,15 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.channelVoice} color={themeValue.text} />
+		},
+		{
+			title: t('menu.settings.enableCommunity'),
+			onPress: async () => {
+				navigation.navigate(APP_SCREEN.MENU_CLAN.ENABLE_COMMUNITY);
+			},
+			expandable: true,
+			isShow: hasManageClanPermission,
+			icon: <MezonIconCDN icon={IconCDN.communityIcon} color={themeValue.text} />
 		}
 	];
 

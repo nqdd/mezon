@@ -227,7 +227,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 					return;
 				}
-				if (res?.meta?.requestStatus === 'rejected' || !res) {
+				if (res?.meta?.requestStatus === 'rejected' || !res || !res?.payload) {
 					Toast.show({
 						type: 'error',
 						text1: res?.payload?.toString() || 'An error occurred, please try again'
@@ -426,7 +426,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const handleMarkUnread = async () => {
 		const payloadSetLastSeenTimestamp = {
 			channelId: message?.channel_id || '',
-			timestamp: 1
+			timestamp: 1,
+			messageId: message?.id
 		};
 		try {
 			await dispatch(
@@ -683,7 +684,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isDM ||
 			!canSendMessage ||
 			currentChannelId !== message?.channel_id ||
-			isMessageSystem;
+			isMessageSystem ||
+			message?.code === TypeMessage.MessageBuzz;
 		const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
 		const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 		const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));

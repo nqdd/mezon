@@ -69,5 +69,17 @@ export const style = (colors: Attributes, isTablet: boolean) =>
 			padding: size.s_4,
 			bottom: isTablet ? size.s_20 : size.s_100,
 			left: '30%'
+		},
+		channelItemWrapper: {
+			zIndex: 1
+		},
+		absoluteFillGradient: {
+			...StyleSheet.absoluteFillObject
+		},
+		flatListContent: {
+			paddingBottom: size.s_6
+		},
+		bottomSpacer: {
+			height: 80
 		}
 	});

@@ -9,6 +9,7 @@ export const style = (colors: Attributes) =>
 			minHeight: Metrics.screenHeight * 0.8
 		},
 		wrapperHeader: {
+			paddingHorizontal: size.s_10,
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			gap: size.s_10,

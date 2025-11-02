@@ -52,5 +52,8 @@ export const style = (colors: Attributes) =>
 			fontSize: size.regular,
 			fontWeight: '700',
 			color: colors.white
-		}
+		},
+		userItemDynamic: (isMoreThanMax: boolean) => ({
+			marginRight: isMoreThanMax ? -15 : 10
+		})
 	});

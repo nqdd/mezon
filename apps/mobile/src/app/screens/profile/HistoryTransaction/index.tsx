@@ -122,22 +122,22 @@ export const HistoryTransactionScreen = () => {
 					style={[styles.itemFilter, activeTab === TRANSACTION_FILTERS.ALL && styles.itemFilterActive]}
 					onPress={() => onChangeActiveTab('all')}
 				>
-					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.ALL && { color: 'white' }]}>{t('all')}</Text>
+					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.ALL && styles.textFilterActive]}>{t('all')}</Text>
 				</Pressable>
 				<Pressable
 					style={[styles.itemFilter, activeTab === TRANSACTION_FILTERS.RECEIVED && styles.itemFilterActive]}
 					onPress={() => onChangeActiveTab(TRANSACTION_FILTERS.RECEIVED)}
 				>
-					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.RECEIVED && { color: 'white' }]}>{t('inComing')}</Text>
+					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.RECEIVED && styles.textFilterActive]}>{t('inComing')}</Text>
 				</Pressable>
 				<Pressable
 					style={[styles.itemFilter, activeTab === TRANSACTION_FILTERS.SENT && styles.itemFilterActive]}
 					onPress={() => onChangeActiveTab(TRANSACTION_FILTERS.SENT)}
 				>
-					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.SENT && { color: 'white' }]}>{t('outGoing')}</Text>
+					<Text style={[styles.textFilter, activeTab === TRANSACTION_FILTERS.SENT && styles.textFilterActive]}>{t('outGoing')}</Text>
 				</Pressable>
 			</View>
-			<View style={{ flexGrow: 1 }}>
+			<View style={styles.listContainer}>
 				<FlashList
 					ref={refList}
 					key={`walletLedger_${userProfile?.user?.id}`}

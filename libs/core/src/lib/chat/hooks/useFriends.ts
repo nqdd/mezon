@@ -58,7 +58,6 @@ export function useFriends() {
 	const blockFriend = useCallback(
 		async (username: string, id: string) => {
 			const body = {
-				usernames: [username],
 				ids: [id]
 			};
 			const response = await dispatch(friendsActions.sendRequestBlockFriend(body));
@@ -67,13 +66,12 @@ export function useFriends() {
 				dispatch(
 					friendsActions.updateFriendState({
 						userId: id,
-						friendState: EStateFriend.BLOCK,
 						sourceId: currentUserId
 					})
 				);
 				return true;
 			}
-			return false;
+			throw new Error('BLOCK_FRIEND_FAILED');
 		},
 		[dispatch, currentUserId]
 	);
@@ -81,21 +79,18 @@ export function useFriends() {
 	const unBlockFriend = useCallback(
 		async (username: string, id: string) => {
 			const body = {
-				usernames: [username],
 				ids: [id]
 			};
 			const response = await dispatch(friendsActions.sendRequestUnblockFriend(body));
 			if (response?.meta?.requestStatus === 'fulfilled' && currentUserId) {
 				dispatch(
 					friendsActions.updateFriendState({
-						userId: id,
-						friendState: EStateFriend.FRIEND,
-						sourceId: currentUserId
+						userId: id
 					})
 				);
 				return true;
 			}
-			return false;
+			throw new Error('UNBLOCK_FRIEND_FAILED');
 		},
 		[currentUserId, dispatch]
 	);

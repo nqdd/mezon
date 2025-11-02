@@ -15,6 +15,13 @@ export const style = (colors: Attributes) =>
 			flexGrow: 0,
 			paddingHorizontal: size.s_10
 		},
+		dmAvatar: {
+			width: size.s_42,
+			height: size.s_42,
+			borderRadius: size.s_42,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
 		groupAvatar: {
 			backgroundColor: baseColor.orange,
 			width: size.s_42,
@@ -48,7 +55,6 @@ export const style = (colors: Attributes) =>
 		},
 		avatarWrapper: {
 			borderRadius: size.s_42,
-			backgroundColor: colors.colorAvatarDefault,
 			height: size.s_42,
 			width: size.s_42
 		},
@@ -76,5 +82,15 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.textDisabled,
 			position: 'absolute',
 			bottom: 0
+		},
+		imageFull: {
+			width: '100%',
+			height: '100%'
+		},
+		animatedContainer: {
+			overflow: 'hidden'
+		},
+		animatedInner: {
+			paddingVertical: size.s_20
 		}
 	});

@@ -84,5 +84,8 @@ export const style = (colors: Attributes) =>
 		categoryTitle: {
 			marginVertical: 20,
 			gap: size.s_10
+		},
+		animatedContainer: {
+			transform: [{ translateX: 0 }]
 		}
 	});

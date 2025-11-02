@@ -65,5 +65,16 @@ export const style = (colors: Attributes) =>
 		headerLeftBtn: {
 			marginLeft: size.s_10,
 			padding: size.s_10
+		},
+		headerTitle: {
+			color: colors.textStrong,
+			fontSize: size.medium,
+			fontWeight: '700'
+		},
+		headerSubtitle: {
+			color: colors.text,
+			fontSize: size.medium,
+			fontWeight: '400',
+			maxWidth: '90%'
 		}
 	});
