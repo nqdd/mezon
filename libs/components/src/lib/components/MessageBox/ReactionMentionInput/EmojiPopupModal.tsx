@@ -1,5 +1,4 @@
 import { EmojiSuggestionProvider, useCurrentInbox } from '@mezon/core';
-import type { ChannelsEntity } from '@mezon/store';
 import { selectSubPanelActive } from '@mezon/store';
 import { EmojiPlaces, SubPanelName } from '@mezon/utils';
 import type { ChannelStreamMode } from 'mezon-js';
@@ -12,7 +11,6 @@ import { GifStickerEmojiPopup } from '../../GifsStickersEmojis';
 
 interface EmojiPopupModalProps {
 	popupRef: RefObject<HTMLDivElement>;
-	currentChannel?: ChannelsEntity;
 	mode?: ChannelStreamMode;
 	isEmojiPopupVisible: boolean;
 	setIsEmojiPopupVisible: (visible: boolean) => void;

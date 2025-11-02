@@ -34,7 +34,6 @@ interface MyVideoConferenceProps {
 	tracks?: TrackReferenceOrPlaceholder[];
 	isShowChatVoice?: boolean;
 	onToggleChat?: () => void;
-	currentChannel?: any;
 }
 
 export function MyVideoConference({
@@ -45,7 +44,6 @@ export function MyVideoConference({
 	tracks: propTracks,
 	isShowChatVoice,
 	onToggleChat,
-	currentChannel,
 	onJoinRoom,
 	url,
 	token
@@ -196,7 +194,7 @@ export function MyVideoConference({
 
 	return (
 		<div className="lk-video-conference flex-1">
-			<ReactionCallHandler currentChannel={currentChannel} onSoundReaction={handleSoundReaction} />
+			<ReactionCallHandler onSoundReaction={handleSoundReaction} />
 			<LayoutContextProvider value={layoutContext}>
 				<div className="lk-video-conference-inner relative bg-gray-100 dark:bg-black group">
 					{!focusTrack ? (
@@ -317,7 +315,6 @@ export function MyVideoConference({
 							isExternalCalling={isExternalCalling}
 							onLeaveRoom={onLeaveRoom}
 							onFullScreen={onFullScreen}
-							currentChannel={currentChannel}
 							isShowMember={isShowMember}
 							isGridView={isGridView}
 						/>
