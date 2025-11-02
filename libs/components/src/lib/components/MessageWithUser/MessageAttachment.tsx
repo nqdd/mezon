@@ -318,7 +318,7 @@ const ImageAlbum = memo(
 							clanId,
 							channelId,
 							state: undefined,
-							limit: 20,
+							limit: 100,
 							before: beforeTimestamp
 						})
 					).unwrap();
