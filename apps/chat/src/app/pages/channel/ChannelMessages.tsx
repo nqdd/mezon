@@ -11,6 +11,7 @@ import {
 	selectChannelDraftMessage,
 	selectChannelMessageCache,
 	selectCurrentChannelId,
+	selectCurrentUserId,
 	selectDataReferences,
 	selectFirstMessageOfCurrentTopic,
 	selectHasMoreBottomByChannelId,
@@ -20,6 +21,7 @@ import {
 	selectIsJumpingToPresent,
 	selectIsMessageIdExist,
 	selectLastMessageByChannelId,
+	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	selectMemberClanByUserId,
 	selectMessageEntitiesByChannelId,
@@ -158,7 +160,7 @@ function ChannelMessages({
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const messageIds = useAppSelector((state) => selectMessageViewportIdsByChannelId(state, channelId));
 	const idMessageNotified = useSelector(selectMessageNotified);
-	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
+	const lastMessage = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const lastMessageId = lastMessage?.id;
 
@@ -481,20 +483,26 @@ const ScrollDownButton = memo(
 		const isVisible = useAppSelector((state) => selectShowScrollDownButton(state, channelId));
 		const appearanceTheme = useAppSelector(selectTheme);
 		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId));
-		const lastMessageId = useAppSelector((state) => selectLatestMessageId(state, channelId));
+		const lastSent = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
+		const currentUserId = useAppSelector(selectCurrentUserId);
 
 		const unreadCount = useMemo(() => {
+			if (lastSent?.sender_id === currentUserId) {
+				return 0;
+			}
+
 			let count = 0;
 			const baseMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
-			if (baseMessageId && lastMessageId) {
+
+			if (baseMessageId && lastSent.id) {
 				try {
-					count = Math.max(0, Math.round(Number((BigInt(lastMessageId) >> BigInt(22)) - (BigInt(baseMessageId) >> BigInt(22)))));
+					count = Math.max(0, Math.round(Number((BigInt(lastSent.id) >> BigInt(22)) - (BigInt(baseMessageId) >> BigInt(22)))));
 				} catch (e) {
 					count = 0;
 				}
 			}
 			return count;
-		}, [lastSeenAtBottomRef.current, lastMessageUnreadId, lastMessageId]);
+		}, [lastSeenAtBottomRef.current, lastMessageUnreadId, lastSent, currentUserId]);
 
 		const handleJumpToPresent = async () => {
 			await dispatch(
