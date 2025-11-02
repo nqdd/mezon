@@ -8,7 +8,6 @@ import {
 	getStore,
 	messagesActions,
 	selectAllAccount,
-	selectChannelByChannelId,
 	selectChannelDraftMessage,
 	selectChannelMessageCache,
 	selectCurrentChannelId,
@@ -162,7 +161,6 @@ function ChannelMessages({
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const lastMessageId = lastMessage?.id;
-	const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
 	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
@@ -395,7 +393,6 @@ function ChannelMessages({
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
 						idMessageNotified={idMessageNotified}
-						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
 						channelId={channelId}
@@ -409,7 +406,6 @@ function ChannelMessages({
 						anchorTopRef={anchorTopRef}
 						setAnchor={setAnchor}
 						isPrivate={isPrivate}
-						clanId={clanId}
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
 						lastSeenAtBottomRef={lastSeenAtBottomRef}
@@ -434,7 +430,6 @@ function ChannelMessages({
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
 						idMessageNotified={idMessageNotified}
-						lastMessageUnreadId={lastMessageUnreadId as string}
 						avatarDM={avatarDM}
 						username={username}
 						channelId={isTopicBox ? currentChannelId || channelId : channelId}
@@ -448,7 +443,6 @@ function ChannelMessages({
 						anchorTopRef={anchorTopRef}
 						setAnchor={setAnchor}
 						isPrivate={isPrivate}
-						clanId={clanId}
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
 						lastSeenAtBottomRef={lastSeenAtBottomRef}
@@ -525,12 +519,6 @@ const ScrollDownButton = memo(
 
 			const jumpPresent = !!lastSentMessageId && !messageIds.includes(lastSentMessageId as string) && messageIds.length >= 20;
 
-			dispatch(
-				channelsActions.setScrollPosition({
-					channelId,
-					messageId: undefined
-				})
-			);
 			if (jumpPresent) {
 				handleJumpToPresent();
 				return;
@@ -601,7 +589,6 @@ type ChatMessageListProps = {
 	lastMessageId: string;
 	dataReferences: ApiMessageRef;
 	idMessageNotified: string;
-	lastMessageUnreadId: string;
 	avatarDM?: string;
 	username?: string;
 	isPrivate?: number;
@@ -614,7 +601,6 @@ type ChatMessageListProps = {
 	anchorIdRef: React.MutableRefObject<string | null>;
 	anchorTopRef: React.MutableRefObject<number | null>;
 	setAnchor: React.MutableRefObject<number | null>;
-	clanId: string;
 	onScrollDownToggle: BooleanToVoidFunction;
 	onNotchToggle: BooleanToVoidFunction;
 	lastSeenAtBottomRef: React.MutableRefObject<string | null>;
@@ -631,7 +617,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		lastMessageId,
 		dataReferences,
 		idMessageNotified,
-		lastMessageUnreadId,
+
 		avatarDM,
 		username,
 		channelId,
@@ -645,7 +631,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		anchorTopRef,
 		setAnchor,
 		isPrivate,
-		clanId,
 		onScrollDownToggle,
 		onNotchToggle,
 		lastSeenAtBottomRef
@@ -658,6 +643,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
 		const jumpToPresent = useAppSelector((state) => selectIsJumpingToPresent(state, channelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
+		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
 		const openEditMessageState = useSelector(selectOpenEditMessageState);
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
@@ -681,15 +667,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			const state = store.getState();
 			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
 			if (!scrollPosition?.messageId) {
-				const channel = selectChannelByChannelId(state, channelId);
-				const lastSeenMessageId = channel?.last_seen_message?.id;
-				if (lastSeenMessageId) {
-					scrollPosition = { messageId: lastSeenMessageId };
+				if (lastMessageUnreadId) {
+					scrollPosition = { messageId: lastMessageUnreadId };
 				}
 			}
 
 			scrollPositionRef.current = scrollPosition;
-		}, [channelId, lastMessageId]);
+		}, [channelId, lastMessageUnreadId]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
@@ -1181,7 +1165,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			prev.lastMessageId === curr.lastMessageId &&
 			prev.dataReferences === curr.dataReferences &&
 			prev.idMessageNotified === curr.idMessageNotified &&
-			prev.lastMessageUnreadId === curr.lastMessageUnreadId &&
 			prev.appearanceTheme === curr.appearanceTheme &&
 			prev.avatarDM === curr.avatarDM &&
 			prev.channelLabel === curr.channelLabel
