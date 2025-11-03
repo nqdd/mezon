@@ -55,7 +55,7 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 		<div
 			ref={gridEl}
 			data-lk-pagination={pagination.totalPageCount > 1}
-			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] [&>*]:w-auto gap-6 p-12 w-fit  [&>*]:max-h-80 [&>*]:h-[-webkit-fill-available] justify-items-center'}`}
+			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] [&>*]:w-auto gap-6 p-12 !w-fit  [&>*]:max-h-80 [&>*]:h-[-webkit-fill-available] justify-items-center'}`}
 			data-lk-user-interaction={interactive}
 		>
 			{tracks.length > layout.maxTiles && (
