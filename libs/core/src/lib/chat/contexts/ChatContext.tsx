@@ -121,6 +121,7 @@ import isElectron from 'is-electron';
 import type {
 	AddClanUserEvent,
 	AddFriend,
+	BannedUserEvent,
 	BlockFriend,
 	CategoryEvent,
 	ChannelCreatedEvent,
@@ -2340,6 +2341,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		dispatch(friendsActions.upsertFriendRequest({ user, myId: userId || '' }));
 	}, []);
 
+	const onbanneduser = useCallback((user: BannedUserEvent) => {
+		console.warn('user: ', user);
+	}, []);
+
 	const setCallbackEventFn = React.useCallback(
 		(socket: Socket) => {
 			socket.onvoicejoined = onvoicejoined;
@@ -2453,6 +2458,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			socket.onmarkasread = onMarkAsRead;
 
 			socket.onaddfriend = onaddfriend;
+
+			socket.onbanneduser = onbanneduser;
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[
@@ -2637,6 +2644,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			socket.onblockfriend = () => {};
 			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			socket.onunblockfriend = () => {};
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			socket.onbanneduser = () => {};
 		};
 	}, [
 		onchannelmessage,
