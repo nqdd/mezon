@@ -55,7 +55,7 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 		<div
 			ref={gridEl}
 			data-lk-pagination={pagination.totalPageCount > 1}
-			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] gap-6 p-12 w-auto'}`}
+			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] [&>*]:w-auto gap-6 p-12 w-auto'}`}
 			data-lk-user-interaction={interactive}
 		>
 			{tracks.length > layout.maxTiles && (
