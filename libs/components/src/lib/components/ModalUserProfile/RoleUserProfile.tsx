@@ -60,6 +60,28 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 
 	const dispatch = useAppDispatch();
 
+	const updateRoleUsersList = (role: RolesClanEntity | undefined, action: 'add' | 'remove') => {
+		if (!role || !userById?.user?.id) return;
+
+		const updatedRoleUsers =
+			action === 'add'
+				? [...(role.role_user_list?.role_users || []), { id: userById.user.id }]
+				: role.role_user_list?.role_users?.filter((user) => user.id !== userById?.user?.id) || [];
+
+		dispatch(
+			rolesClanActions.update({
+				role: {
+					...role,
+					role_user_list: {
+						...role.role_user_list,
+						role_users: updatedRoleUsers
+					}
+				},
+				clanId: currentClanId as string
+			})
+		);
+	};
+
 	const addRole = async (roleId: string) => {
 		setIsVisible(false);
 		const activeRole = RolesClan.find((role) => role.id === roleId);
@@ -74,19 +96,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 			})
 		);
 
-		const updatedRoleUsers = [...(activeRole?.role_user_list?.role_users || []), { id: userById?.user?.id as string }];
-		dispatch(
-			rolesClanActions.update({
-				role: {
-					...activeRole,
-					role_user_list: {
-						...activeRole?.role_user_list,
-						role_users: updatedRoleUsers
-					}
-				},
-				clanId: currentClanId as string
-			})
-		);
+		updateRoleUsersList(activeRole, 'add');
 	};
 
 	const deleteRole = async (roleId: string) => {
@@ -101,19 +111,7 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 			})
 		);
 
-		const updatedRoleUsers = activeRole?.role_user_list?.role_users?.filter((user) => user.id !== userById?.user?.id) || [];
-		dispatch(
-			rolesClanActions.update({
-				role: {
-					...activeRole,
-					role_user_list: {
-						...activeRole?.role_user_list,
-						role_users: updatedRoleUsers
-					}
-				},
-				clanId: currentClanId as string
-			})
-		);
+		updateRoleUsersList(activeRole, 'remove');
 	};
 	const appearanceTheme = useSelector(selectTheme);
 	const [isVisible, setIsVisible] = useState(false);
