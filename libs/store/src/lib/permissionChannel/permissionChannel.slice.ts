@@ -38,6 +38,12 @@ export type removeChannelUsersPayload = {
 	channelType?: number;
 };
 
+export type banChannelUsersPayload = {
+	channelId: string;
+	userId: string;
+	clanId: string;
+};
+
 export const removeChannelUsers = createAsyncThunk(
 	'channelUsers/removeChannelUsers',
 	async ({ channelId, userId, clanId, channelType }: removeChannelUsersPayload, thunkAPI) => {
@@ -66,6 +72,20 @@ export const removeChannelUsers = createAsyncThunk(
 		}
 	}
 );
+
+export const banChatUser = createAsyncThunk('channelUsers/banChatUser', async ({ channelId, userId, clanId }: banChannelUsersPayload, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const response = await mezon.client.banClanUsers(mezon.session, clanId, channelId, [userId]);
+		if (!response) {
+			return thunkAPI.rejectWithValue([]);
+		}
+		return response;
+	} catch (error) {
+		captureSentryError(error, 'channelUsers/removeChannelUsers');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
 
 type addChannelRolesPayload = {
 	clanId: string;
@@ -142,4 +162,4 @@ export const removeChannelRole = createAsyncThunk(
 		}
 	}
 );
-export const channelUsersActions = { addChannelUsers, removeChannelUsers, addChannelRoles, removeChannelRole };
+export const channelUsersActions = { addChannelUsers, removeChannelUsers, addChannelRoles, removeChannelRole, banChatUser };
