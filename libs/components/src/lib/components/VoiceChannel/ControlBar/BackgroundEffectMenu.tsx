@@ -32,10 +32,33 @@ export const BackgroundEffectsMenu: React.FC<BackgroundEffectsMenuProps> = ({ pa
 		};
 	}, [participant]);
 
+	async function canRunProcessor() {
+		try {
+			if (typeof WebAssembly === 'undefined') {
+				console.warn('⚠️ WebAssembly not available in this browser.');
+				return false;
+			}
+			const simdSupported = await WebAssembly.validate(
+				new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 7, 1, 96, 0, 1, 123, 3, 2, 1, 0, 10, 11, 1, 9, 0, 65, 0, 253, 15, 11])
+			);
+
+			return simdSupported;
+		} catch (err) {
+			console.warn('⚠️ WebAssembly SIMD check failed:', err);
+			return false;
+		}
+	}
+
 	const applyBlur = async () => {
 		setIsLoading(true);
 
 		try {
+			const canRun = await canRunProcessor();
+			if (!canRun) {
+				console.error('Cannot apply background effects: WebAssembly SIMD not supported.');
+				setIsLoading(false);
+				return;
+			}
 			const videoTrackPublication = participant.getTrackPublication(Track.Source.Camera);
 			if (!videoTrackPublication?.track) {
 				setIsLoading(false);
@@ -57,6 +80,12 @@ export const BackgroundEffectsMenu: React.FC<BackgroundEffectsMenuProps> = ({ pa
 	};
 
 	const applyVirtualBackground = async () => {
+		const canRun = await canRunProcessor();
+		if (!canRun) {
+			console.error('Cannot apply background effects: WebAssembly SIMD not supported.');
+			setIsLoading(false);
+			return;
+		}
 		setIsLoading(true);
 
 		try {
