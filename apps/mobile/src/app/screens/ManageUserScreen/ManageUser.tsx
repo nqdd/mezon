@@ -131,7 +131,6 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 							userId: user?.user?.id
 						})
 					);
-
 					dispatch(setAddPermissions([]));
 					dispatch(setRemovePermissions([]));
 				}
