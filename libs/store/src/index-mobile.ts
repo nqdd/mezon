@@ -31,7 +31,6 @@ export * from './lib/clans/clans.slice';
 export * from './lib/compose/compose.slice';
 export * from './lib/comunity/comunity.slice';
 export * from './lib/direct/direct.slice';
-export * from './lib/direct/directmeta.slice';
 export * from './lib/direct/status.slice';
 export * from './lib/dmcall/audioCall.slice';
 export * from './lib/dmcall/dmcall.slice';
