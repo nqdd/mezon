@@ -202,5 +202,6 @@
 		"link": "Link",
 		"attachment": "Attachment",
 		"embed": "Embed"
-	}
+	},
+	"bannedChannel": "You are banned from channel {{channelName}}."
 }

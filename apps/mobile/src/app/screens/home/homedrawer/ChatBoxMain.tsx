@@ -1,11 +1,9 @@
 import { ActionEmitEvent, load, save, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectCurrentUserId, selectIsUserBannedInChannel } from '@mezon/store-mobile';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import { resetCachedMessageActionNeedToResolve } from '../../../utils/helpers';
 import { styles as stylesFn } from './ChatBoxMain.styles';
 import { ActionMessageSelected } from './components/ChatBox/ActionMessageSelected';
@@ -25,6 +23,7 @@ interface IChatBoxProps {
 	isPublic: boolean;
 	topicChannelId?: string;
 	isBlocked?: boolean;
+	isBanned?: boolean;
 }
 
 export const ChatBoxMain = memo((props: IChatBoxProps) => {
@@ -35,8 +34,6 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	const isDM = useMemo(() => {
 		return [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(props?.mode);
 	}, [props?.mode]);
-	const currentUserId = useSelector(selectCurrentUserId);
-	const isBanned = useSelector((state) => selectIsUserBannedInChannel(state, props?.channelId, currentUserId));
 
 	useEffect(() => {
 		if (props?.channelId && messageActionNeedToResolve) {
@@ -84,11 +81,11 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 			{messageActionNeedToResolve && (props?.canSendMessage || isDM) && (
 				<ActionMessageSelected messageActionNeedToResolve={messageActionNeedToResolve} onClose={deleteMessageActionNeedToResolve} />
 			)}
-			{(!props?.canSendMessage && !isDM) || props?.isBlocked || isBanned ? (
+			{(!props?.canSendMessage && !isDM) || props?.isBlocked || props?.isBanned ? (
 				<View style={styles.warningContainer}>
 					<View style={[styles.warningBox, { backgroundColor: themeValue.charcoal }]}>
 						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>
-							{isBanned ? t('isBanned') : t('noSendMessagePermission')}
+							{props?.isBanned ? t('isBanned') : t('noSendMessagePermission')}
 						</Text>
 					</View>
 				</View>

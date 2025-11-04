@@ -199,5 +199,6 @@
 		"link": "Liên kết",
 		"attachment": "Tệp đính kèm",
 		"embed": "Nhúng"
-	}
+	},
+	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}."
 }

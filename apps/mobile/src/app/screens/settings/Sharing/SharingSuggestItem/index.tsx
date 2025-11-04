@@ -1,6 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ClansEntity } from '@mezon/store-mobile';
-import { getStore, selectChannelById, selectCurrentUserId, selectIsUserBannedInChannel } from '@mezon/store-mobile';
+import { getStore, selectChannelById } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
@@ -23,14 +23,6 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 		const parentChannel = selectChannelById(state, item?.parent_id || '');
 		return parentChannel?.channel_label ? `(${parentChannel.channel_label})` : '';
 	}, [item?.parent_id]);
-
-	const isBanned = useMemo(() => {
-		const store = getStore();
-		const state = store.getState();
-		const currentUserId = selectCurrentUserId(state);
-		const isBannedChannel = selectIsUserBannedInChannel(state, item?.channel_id, currentUserId);
-		return isBannedChannel;
-	}, [item?.channel_id]);
 
 	const isGroupDM = useMemo(() => item?.type === ChannelType.CHANNEL_TYPE_GROUP, [item?.type]);
 	const isAvatar = useMemo(() => item?.channel_avatar && !item?.channel_avatar?.includes('avatar-group.png'), [item?.channel_avatar]);
@@ -60,8 +52,6 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 			avatarUrl: clan?.logo
 		};
 	}, [item, clans]);
-
-	if (isBanned) return null;
 
 	return (
 		<TouchableOpacity style={styles.itemSuggestion} onPress={handleChooseItem}>
