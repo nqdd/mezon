@@ -212,7 +212,7 @@ export default function PreJoinCalling() {
 					key={getExternalToken}
 					audio={IS_MOBILE as boolean}
 					video={{
-						resolution: { width: 320, height: 180 },
+						resolution: { width: 640, height: 360 },
 						frameRate: 24
 					}}
 					token={getExternalToken}
