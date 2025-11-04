@@ -1,4 +1,5 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { selectCurrentUserId, selectIsUserBannedInChannel } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import ImageNative from 'apps/mobile/src/app/components/ImageNative';
 import { ChannelType } from 'mezon-js';
@@ -6,6 +7,7 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import FastImage from 'react-native-fast-image';
+import { useSelector } from 'react-redux';
 import type { IForwardIObject } from '..';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
@@ -25,6 +27,8 @@ function ForwardMessageItem({
 	const styles = style(themeValue);
 	const componentStyles = localStyles(themeValue);
 	const [isChecked, setIsChecked] = useState<boolean>(isItemChecked);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanFromChannel = useSelector((state) => selectIsUserBannedInChannel(state, item?.channelId, currentUserId));
 
 	const renderAvatar = (item: IForwardIObject) => {
 		const { type } = item;
@@ -76,6 +80,8 @@ function ForwardMessageItem({
 		setIsChecked(isChecked);
 		onSelectChange(isChecked, item);
 	};
+
+	if (isBanFromChannel) return null;
 
 	return (
 		<TouchableOpacity
