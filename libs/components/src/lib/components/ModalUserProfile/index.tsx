@@ -251,11 +251,7 @@ const ModalUserProfile = ({
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick ||
-										userById?.user?.display_name ||
-										userById?.user?.username ||
-										message?.display_name ||
-										message?.username}
+									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username || usernameShow}
 						</p>
 						<p className="text-base font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
