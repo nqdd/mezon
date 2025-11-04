@@ -1,6 +1,6 @@
 import { useAppNavigation, useEscapeKeyClose, useFriends, useOnClickOutside } from '@mezon/core';
 import type { DirectEntity, FriendsEntity } from '@mezon/store';
-import { channelUsersActions, directActions, selectAllFriends, useAppDispatch } from '@mezon/store';
+import { channelUsersActions, directActions, selectAllAccount, selectAllFriends, useAppDispatch } from '@mezon/store';
 import { Icons, InputField } from '@mezon/ui';
 import { GROUP_CHAT_MAXIMUM_MEMBERS, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
@@ -27,10 +27,12 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 	const dispatch = useAppDispatch();
 	const { navigate, toDmGroupPage } = useAppNavigation();
 	const friends = useSelector(selectAllFriends);
+	const userCurrent = useSelector(selectAllAccount);
 
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [idActive, setIdActive] = useState<string>('');
 	const [selectedFriends, setSelectedFriends] = useState<string[]>([]);
+	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const dataSelectFriends = useRef<FriendsEntity[]>([]);
 	const boxRef = useRef<HTMLDivElement | null>(null);
 
@@ -47,11 +49,17 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 				dataSelectFriends.current = dataSelectFriends.current?.filter((friend) => friend.id !== idFriend);
 				return prevSelectedFriends.filter((friend) => friend !== idFriend);
 			}
-			if (
-				numberMemberInDmGroup === GROUP_CHAT_MAXIMUM_MEMBERS ||
-				selectedFriends.length === GROUP_CHAT_MAXIMUM_MEMBERS - (numberMemberInDmGroup ?? 0)
-			) {
-				return prevSelectedFriends;
+			if (currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+				if (
+					numberMemberInDmGroup === GROUP_CHAT_MAXIMUM_MEMBERS ||
+					selectedFriends.length === GROUP_CHAT_MAXIMUM_MEMBERS - (numberMemberInDmGroup ?? 0)
+				) {
+					return prevSelectedFriends;
+				}
+			} else {
+				if (selectedFriends.length >= GROUP_CHAT_MAXIMUM_MEMBERS - 1) {
+					return prevSelectedFriends;
+				}
 			}
 			const dataFriend = friends.find((friend) => friend.id === idFriend);
 			if (dataFriend) {
@@ -68,6 +76,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 
 	const resetAndCloseModal = () => {
 		setSelectedFriends([]);
+		setIsCreating(false);
 		onClose();
 	};
 	const handleAddMemberToGroupChat = async (listAdd: ApiCreateChannelDescRequest) => {
@@ -83,39 +92,48 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 	};
 
 	const handleCreateDM = async () => {
-		const listGroupDM = selectedFriends;
-		const userNameGroup: string[] = [];
-		const avatarGroup: string[] = [];
-		if (currentDM?.type === ChannelType.CHANNEL_TYPE_DM) {
-			listGroupDM.push(currentDM.user_ids?.at(0) as string);
-			userNameGroup.push(currentDM.usernames?.at(0) as string);
-			avatarGroup.push(currentDM.channel_avatar?.at(0) as string);
-		}
-		const bodyCreateDmGroup: ApiCreateChannelDescRequest = {
-			type: selectedFriends.length > 1 ? ChannelType.CHANNEL_TYPE_GROUP : ChannelType.CHANNEL_TYPE_DM,
-			channel_private: 1,
-			user_ids: listGroupDM,
-			clan_id: '0'
-		};
-		if (currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			handleAddMemberToGroupChat(bodyCreateDmGroup);
-			return;
-		}
+		if (isCreating) return;
 
-		dataSelectFriends.current?.map((friend) => {
-			userNameGroup.push(friend.user?.display_name || friend.user?.username || '');
-			avatarGroup.push(friend.user?.avatar_url || '');
-		});
+		setIsCreating(true);
+		try {
+			const listGroupDM = selectedFriends;
+			const userNameGroup: string[] = [userCurrent?.user?.display_name || userCurrent?.user?.username || ''];
+			const avatarGroup: string[] = [userCurrent?.user?.avatar_url || ''];
+			if (currentDM?.type === ChannelType.CHANNEL_TYPE_DM) {
+				listGroupDM.push(currentDM.user_ids?.at(0) as string);
+				userNameGroup.push(currentDM.usernames?.at(0) as string);
+				avatarGroup.push(currentDM.channel_avatar?.at(0) as string);
+			}
+			const bodyCreateDmGroup: ApiCreateChannelDescRequest = {
+				type: selectedFriends.length > 1 ? ChannelType.CHANNEL_TYPE_GROUP : ChannelType.CHANNEL_TYPE_DM,
+				channel_private: 1,
+				user_ids: listGroupDM,
+				clan_id: '0'
+			};
+			if (currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+				await handleAddMemberToGroupChat(bodyCreateDmGroup);
+				return;
+			}
 
-		const response = await dispatch(
-			directActions.createNewDirectMessage({ body: bodyCreateDmGroup, username: userNameGroup, avatar: avatarGroup })
-		);
-		const resPayload = response.payload as ApiCreateChannelDescRequest;
-		if (resPayload.channel_id) {
-			const directChat = toDmGroupPage(resPayload.channel_id, Number(resPayload.type));
-			navigate(directChat);
+			dataSelectFriends.current?.map((friend) => {
+				userNameGroup.push(friend.user?.display_name || friend.user?.username || '');
+				avatarGroup.push(friend.user?.avatar_url || '');
+			});
+
+			const response = await dispatch(
+				directActions.createNewDirectMessage({ body: bodyCreateDmGroup, username: userNameGroup, avatar: avatarGroup })
+			);
+			const resPayload = response.payload as ApiCreateChannelDescRequest;
+			if (resPayload.channel_id) {
+				const directChat = toDmGroupPage(resPayload.channel_id, Number(resPayload.type));
+				navigate(directChat);
+			}
+			resetAndCloseModal();
+		} catch (error) {
+			console.error('Error creating DM:', error);
+		} finally {
+			setIsCreating(false);
 		}
-		resetAndCloseModal();
 	};
 
 	useEffect(() => {
@@ -210,18 +228,18 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 	}, [searchTerm]);
 
 	const numberCanAdd = useMemo(() => {
-		if (currentDM?.type !== ChannelType.CHANNEL_TYPE_GROUP) {
-			return friends.length > GROUP_CHAT_MAXIMUM_MEMBERS ? GROUP_CHAT_MAXIMUM_MEMBERS : friends.length;
+		if (currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			if (numberMemberInDmGroup == null) return 0;
+			return numberMemberInDmGroup < GROUP_CHAT_MAXIMUM_MEMBERS
+				? GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup > (listFriends?.length ?? 0)
+					? (listFriends?.length ?? 0)
+					: GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup
+				: 0;
+		} else {
+			const maxCanSelect = GROUP_CHAT_MAXIMUM_MEMBERS - 1;
+			return friends.length > maxCanSelect ? maxCanSelect : friends.length;
 		}
-
-		if (numberMemberInDmGroup == null) return 0;
-
-		return numberMemberInDmGroup < GROUP_CHAT_MAXIMUM_MEMBERS
-			? GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup > (listFriends?.length ?? 0)
-				? (listFriends?.length ?? 0)
-				: GROUP_CHAT_MAXIMUM_MEMBERS - numberMemberInDmGroup
-			: 0;
-	}, [friends]);
+	}, [friends, currentDM?.type, listFriends?.length, numberMemberInDmGroup]);
 
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, onClose);
@@ -303,18 +321,24 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 
 				<div className="p-[20px]">
 					<button
-						disabled={selectedFriends.length === 0}
+						disabled={selectedFriends.length === 0 || isCreating}
 						onClick={handleCreateDM}
-						className="h-[38px] w-full text-sm text-white bg-buttonPrimary  hover:bg-bgSelectItemHover rounded"
+						className={`h-[38px] w-full text-sm text-white rounded ${
+							selectedFriends.length === 0 || isCreating
+								? 'bg-gray-400 cursor-not-allowed'
+								: 'bg-buttonPrimary hover:bg-bgSelectItemHover'
+						}`}
 						data-e2e={generateE2eId(`chat.direct_message.button.create_group`)}
 					>
-						{currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP
-							? t('createMessageGroup.addToGroupChat')
-							: selectedFriends.length === 0
-								? t('createMessageGroup.createDMOrGroupChat')
-								: selectedFriends.length === 1 && currentDM?.type !== ChannelType.CHANNEL_TYPE_DM
-									? t('createMessageGroup.createDM')
-									: t('createMessageGroup.createGroupChat')}
+						{isCreating
+							? 'Creating...'
+							: currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP
+								? t('createMessageGroup.addToGroupChat')
+								: selectedFriends.length === 0
+									? t('createMessageGroup.createDMOrGroupChat')
+									: selectedFriends.length === 1 && currentDM?.type !== ChannelType.CHANNEL_TYPE_DM
+										? t('createMessageGroup.createDM')
+										: t('createMessageGroup.createGroupChat')}
 					</button>
 				</div>
 			</div>
