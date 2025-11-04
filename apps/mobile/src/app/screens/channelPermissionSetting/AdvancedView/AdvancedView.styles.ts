@@ -17,9 +17,9 @@ export const styles = (colors: Attributes) =>
 			color: colors.white
 		},
 		itemWrapper: {
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondary,
 			borderRadius: size.s_8,
-			marginBottom: size.s_8
+			marginBottom: size.s_4
 		},
 		emptyContainer: {
 			alignItems: 'center',

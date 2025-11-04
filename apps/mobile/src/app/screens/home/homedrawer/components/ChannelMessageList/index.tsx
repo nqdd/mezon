@@ -1,7 +1,7 @@
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { MessagesEntity } from '@mezon/store-mobile';
-import React, { useCallback, useMemo } from 'react';
+import type { MessagesEntity } from '@mezon/store-mobile';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import { FlatList } from 'react-native-gesture-handler';
@@ -14,6 +14,7 @@ interface IChannelListMessageProps {
 	renderItem: ({ item }: { item: MessagesEntity }) => React.ReactElement;
 	onLoadMore: (direction: ELoadMoreDirection) => void;
 	isLoadMoreBottom: boolean;
+	lastSeenMessageId?: string;
 }
 
 export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolean }) => {
@@ -28,10 +29,11 @@ export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolea
 };
 
 const ChannelListMessage = React.memo(
-	({ flatListRef, messages, handleScroll, renderItem, onLoadMore, isLoadMoreBottom }: IChannelListMessageProps) => {
+	({ flatListRef, messages, handleScroll, renderItem, onLoadMore, isLoadMoreBottom, lastSeenMessageId }: IChannelListMessageProps) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
-
+		const hasJumpedToLastSeen = useRef(false);
+		const [initialScrollIndex, setInitialScrollIndex] = useState<number | null>(null);
 		const keyExtractor = useCallback((message) => `${message?.id}_${message?.channel_id}`, []);
 
 		const isCannotLoadMore = useMemo(() => {
@@ -45,12 +47,27 @@ const ChannelListMessage = React.memo(
 				onLoadMore(ELoadMoreDirection.top);
 			}
 		};
+
+		useEffect(() => {
+			if (!lastSeenMessageId || !messages?.length || hasJumpedToLastSeen.current) {
+				return;
+			}
+
+			const indexToJump = messages?.findIndex?.((message: { id: string }) => message.id === lastSeenMessageId);
+
+			if (indexToJump !== -1 && indexToJump >= 5) {
+				setInitialScrollIndex(indexToJump);
+				hasJumpedToLastSeen.current = true;
+			}
+		}, [lastSeenMessageId, messages]);
+
 		return (
 			<FlatList
 				data={messages}
 				renderItem={renderItem}
 				keyExtractor={keyExtractor}
 				inverted={true}
+				initialScrollIndex={initialScrollIndex ?? undefined}
 				bounces={false}
 				showsVerticalScrollIndicator={true}
 				contentContainerStyle={styles.listChannels}
