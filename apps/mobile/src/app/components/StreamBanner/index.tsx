@@ -24,10 +24,10 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 
 	useEffect(() => {
 		setBanner(channel?.channel_avatar || '');
-	}, [channel]);
+	}, [channel?.channel_avatar]);
 
 	const isBannerChanged = useMemo(() => {
-		return banner !== channel?.channel_avatar;
+		return !!channel?.channel_avatar && banner !== channel?.channel_avatar;
 	}, [banner, channel?.channel_avatar]);
 	const handleLoad = async (url: string) => {
 		if (url) {
