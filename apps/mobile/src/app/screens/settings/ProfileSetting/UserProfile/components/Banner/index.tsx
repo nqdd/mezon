@@ -29,6 +29,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 
 	const handleOnload = useCallback(
 		async (url: string) => {
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			onLoad && onLoad(url);
 		},
 		[onLoad]
@@ -40,7 +41,6 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 	};
 
 	const pickAvatar = () => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		avatarPickerRef?.current?.openSelector();
 	};
 	const userStatus = useMemo(() => {
@@ -98,6 +98,7 @@ export default memo(function BannerAvatar({ avatar, onLoad, alt, defaultAvatar }
 			<View style={styles.avatarContainer}>
 				<MezonImagePicker
 					ref={avatarPickerRef}
+					autoCloseBottomSheet={false}
 					width={size.s_100}
 					height={size.s_100}
 					defaultValue={avatar || ''}

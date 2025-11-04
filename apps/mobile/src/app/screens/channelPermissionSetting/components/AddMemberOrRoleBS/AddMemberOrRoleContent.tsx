@@ -129,7 +129,7 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 		const response = await Promise.all(promise);
 		const isError = response?.some((data) => data?.meta?.requestStatus === ERequestStatus.Rejected);
 		Toast.show({
-			type: 'success',
+			type: isError ? 'error' : 'success',
 			props: {
 				text2: isError ? t('channelPermission.toast.failed') : t('channelPermission.toast.success'),
 				leadingIcon: isError ? (

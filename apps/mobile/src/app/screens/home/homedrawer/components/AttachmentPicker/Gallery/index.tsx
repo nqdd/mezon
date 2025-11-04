@@ -43,13 +43,13 @@ const Gallery = ({ currentChannelId }: IProps) => {
 	const timerRef = useRef<any>(null);
 	const isLoadingMoreRef = useRef<boolean>(false);
 	const attachmentFilteredByChannelId = useAppSelector((state) => selectAttachmentByChannelId(state, currentChannelId ?? ''));
-	const [widthItem, setWidthItem] = useState(isTabletLandscape ? Dimensions.get('screen')?.height : Dimensions.get('screen')?.width);
+	const [widthItem, setWidthItem] = useState(Dimensions.get('screen')?.width);
 
 	useEffect(() => {
 		const subscription = Dimensions.addEventListener('change', (handler) => {
 			const screen = handler?.screen;
 			if (screen?.width) {
-				setWidthItem(isTabletLandscape ? screen?.height : screen?.width);
+				setWidthItem(screen?.width);
 			}
 		});
 

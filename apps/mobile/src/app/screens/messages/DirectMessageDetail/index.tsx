@@ -24,7 +24,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 	const isBlocked = useMemo(() => {
 		if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
 		return infoFriend?.state === EStateFriend.BLOCK;
-	}, [infoFriend?.source_id, infoFriend?.state, infoFriend?.user?.id]);
+	}, [currentDmGroup?.type, infoFriend?.state]);
 
 	useEffect(() => {
 		dispatch(topicsActions.setCurrentTopicId(''));
@@ -53,6 +53,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 				<ChatMessageWrapper
 					directMessageId={directMessageId}
 					lastSeenMessageId={currentDmGroup?.last_seen_message?.id}
+					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
 					isModeDM={Number(dmType) === ChannelType.CHANNEL_TYPE_DM}
 					currentClanId={'0'}
 					isBlocked={isBlocked}
