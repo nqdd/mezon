@@ -38,7 +38,7 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 
 		const container = gridEl.current;
 		if (container) {
-			container.addEventListener('wheel', handleScroll);
+			container.addEventListener('wheel', handleScroll, { passive: true });
 		}
 
 		return () => {
@@ -55,7 +55,10 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 		<div
 			ref={gridEl}
 			data-lk-pagination={pagination.totalPageCount > 1}
-			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] [&>*]:w-auto gap-6 p-12 !w-fit  [&>*]:max-h-80 [&>*]:h-[-webkit-fill-available] justify-items-center'}`}
+			className={`lk-grid-layout  ${
+				isExternalCalling &&
+				`[&>*]:aspect-[16/9] [&>*]:h-full !w-auto ${tracks.length < 3 ? '!h-[40vh]' : tracks.length < 5 ? '!h-[60vh]' : ''}`
+			}`}
 			data-lk-user-interaction={interactive}
 		>
 			{tracks.length > layout.maxTiles && (
