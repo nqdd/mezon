@@ -55,7 +55,10 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 		<div
 			ref={gridEl}
 			data-lk-pagination={pagination.totalPageCount > 1}
-			className={`lk-grid-layout  ${isExternalCalling && '[&>*]:aspect-[16/9] [&>*]:w-auto gap-6 p-12 !w-fit  [&>*]:max-h-80 justify-items-center'}`}
+			className={`lk-grid-layout  ${
+				isExternalCalling &&
+				`[&>*]:aspect-[16/9] [&>*]:h-full !w-auto ${tracks.length < 3 ? '!h-[40vh]' : tracks.length < 5 ? '!h-[60vh]' : ''}`
+			}`}
 			data-lk-user-interaction={interactive}
 		>
 			{tracks.length > layout.maxTiles && (
