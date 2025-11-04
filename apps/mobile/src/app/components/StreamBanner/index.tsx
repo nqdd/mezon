@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../componentUI/MezonImagePicker';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
 import { width } from '../ClanSettings/Emoji';
 import { style } from './styles';
 

@@ -37,6 +37,7 @@ export const DirectMessageDetailTablet = ({ directMessageId }: { directMessageId
 				<ChatMessageWrapper
 					directMessageId={directMessageId}
 					lastSeenMessageId={currentDmGroup?.last_seen_message?.id}
+					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
 					isModeDM={isModeDM}
 					currentClanId={'0'}
 					isBlocked={isBlocked}

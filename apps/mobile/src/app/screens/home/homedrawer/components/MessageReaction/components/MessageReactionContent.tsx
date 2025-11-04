@@ -1,6 +1,6 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectMessageByMessageId, useAppSelector } from '@mezon/store-mobile';
 import { EmojiDataOptionals, calculateTotalCount, getSrcEmoji } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
@@ -132,12 +132,12 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 						<View>
 							{showConfirmDeleteEmoji ? (
 								<Pressable style={styles.confirmDeleteEmoji} onPress={() => onRemoveEmoji()}>
-									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} />
+									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
 									<Text style={styles.confirmText}>{t('reactions.removeActions')}</Text>
 								</Pressable>
 							) : (
 								<Pressable onPress={() => setShowConfirmDeleteEmoji(true)}>
-									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} />
+									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 								</Pressable>
 							)}
 						</View>

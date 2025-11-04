@@ -17,15 +17,15 @@ interface IProps {
 	messageAction?: EMessageActionType;
 }
 const PanelKeyboard = React.memo((props: IProps) => {
-	const { themeValue, themeBasic } = useTheme();
+	const { themeValue } = useTheme();
 	const [heightKeyboardShow, setHeightKeyboardShow] = useState<number>(0);
 	const [typeKeyboardBottomSheet, setTypeKeyboardBottomSheet] = useState<string>('text');
 	const bottomPickerRef = useRef<BottomSheetModal>(null);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 
 	const styles = useMemo(
-		() => createStyles(themeValue, themeBasic, heightKeyboardShow, typeKeyboardBottomSheet),
-		[themeValue, themeBasic, heightKeyboardShow, typeKeyboardBottomSheet]
+		() => createStyles(themeValue, heightKeyboardShow, typeKeyboardBottomSheet),
+		[themeValue, heightKeyboardShow, typeKeyboardBottomSheet]
 	);
 
 	const onShowKeyboardBottomSheet = useCallback(async (isShow: boolean, type?: string) => {
