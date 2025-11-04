@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../componentUI/MezonImagePicker';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
 import { width } from '../ClanSettings/Emoji';
 import { style } from './styles';
 
@@ -24,10 +24,10 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 
 	useEffect(() => {
 		setBanner(channel?.channel_avatar || '');
-	}, [channel]);
+	}, [channel?.channel_avatar]);
 
 	const isBannerChanged = useMemo(() => {
-		return banner !== channel?.channel_avatar;
+		return !!channel?.channel_avatar && banner !== channel?.channel_avatar;
 	}, [banner, channel?.channel_avatar]);
 	const handleLoad = async (url: string) => {
 		if (url) {

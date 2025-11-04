@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -51,7 +52,8 @@ export const style = (colors: Attributes) =>
 		label: {
 			marginBottom: size.s_8,
 			marginLeft: size.s_4,
-			fontWeight: '600'
+			fontWeight: '600',
+			color: colors.textStrong
 		},
 		requirementCard: {
 			borderRadius: size.s_8,
@@ -64,7 +66,8 @@ export const style = (colors: Attributes) =>
 			marginBottom: size.s_10
 		},
 		requirementCardText: {
-			fontSize: size.s_12
+			fontSize: size.s_12,
+			color: colors.textDisabled
 		},
 		semibold: {
 			fontWeight: '600'

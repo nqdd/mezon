@@ -1,13 +1,15 @@
-import { useClanRestriction } from '@mezon/core';
+import { usePermissionChecker } from '@mezon/core';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { deleteSticker, selectCurrentUserId, selectMemberClanByUserId, updateSticker, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
-import { ClanSticker } from 'mezon-js';
-import React, { Ref, forwardRef, useCallback, useMemo, useState } from 'react';
+import type { ClanSticker } from 'mezon-js';
+import type { Ref } from 'react';
+import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
-import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Toast from 'react-native-toast-message';
 import MezonAvatar from '../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
@@ -29,8 +31,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 	const { t } = useTranslation(['clanStickerSetting']);
 	const currentUserId = useAppSelector(selectCurrentUserId);
 
-	const [hasAdminPermission, { isClanOwner }] = useClanRestriction([EPermission.administrator]);
-	const [hasManageClanPermission] = useClanRestriction([EPermission.manageClan]);
+	const [hasAdminPermission, isClanOwner, hasManageClanPermission] = usePermissionChecker([EPermission.administrator, EPermission.clanOwner]);
 	const hasDeleteOrEditPermission = useMemo(() => {
 		return hasAdminPermission || isClanOwner || hasManageClanPermission || currentUserId === data.creator_id;
 	}, [hasAdminPermission, isClanOwner, hasManageClanPermission, currentUserId, data.creator_id]);
@@ -107,7 +108,7 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 			<View style={styles.container}>
 				<View style={styles.flexRow}>
 					<FastImage
-						source={{ uri: sticker.source ? sticker.source : `${process.env.NX_BASE_IMG_URL}/stickers/` + sticker.id + `.webp` }}
+						source={{ uri: sticker.source ? sticker.source : `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp` }}
 						style={{ height: size.s_36, width: size.s_36 }}
 					/>
 

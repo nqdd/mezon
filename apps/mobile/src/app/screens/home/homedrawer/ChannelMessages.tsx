@@ -11,7 +11,6 @@ import {
 	selectIdMessageToJump,
 	selectIsLoadingJumpMessage,
 	selectIsMessageIdExist,
-	selectIsViewingOlderMessagesByChannelId,
 	selectLastMessageByChannelId,
 	selectMessageIsLoading,
 	selectMessagesByChannel,
@@ -20,7 +19,7 @@ import {
 } from '@mezon/store-mobile';
 import { Direction_Mode, LIMIT_MESSAGE, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelStreamMode } from 'mezon-js';
+import type { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -59,9 +58,6 @@ const ChannelMessages = React.memo(
 		const messages = useMemo(() => getEntitiesArray(selectMessagesByChannelMemoized), [selectMessagesByChannelMemoized]);
 		const isLoadMore = useRef({});
 		const [isDisableLoadMore, setIsDisableLoadMore] = useState<boolean | string>(false);
-		const isViewingOldMessage = useAppSelector((state) =>
-			selectIsViewingOlderMessagesByChannelId(state, topicChannelId ? (topicChannelId ?? '') : (channelId ?? ''))
-		);
 		const idMessageToJump = useSelector(selectIdMessageToJump);
 		const isLoadingJumpMessage = useSelector(selectIsLoadingJumpMessage);
 		const flatListRef = useRef(null);
@@ -76,16 +72,15 @@ const ChannelMessages = React.memo(
 
 		useEffect(() => {
 			const event = DeviceEventEmitter.addListener(ActionEmitEvent.SCROLL_TO_BOTTOM_CHAT, () => {
-				if (!isViewingOldMessage) {
-					flatListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
-				}
+				setIsShowJumpToPresent(false);
+				flatListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
 			});
 
 			return () => {
 				if (timeOutRef?.current) clearTimeout(timeOutRef.current);
 				event.remove();
 			};
-		}, [isViewingOldMessage]);
+		}, []);
 
 		useEffect(() => {
 			return () => {
@@ -110,6 +105,7 @@ const ChannelMessages = React.memo(
 			let timeoutId: NodeJS.Timeout;
 
 			const checkMessageExistence = () => {
+				hasJumpedToLastSeen.current = true;
 				timeoutId = setTimeout(() => {
 					const store = getStore();
 					const isMessageExist = selectIsMessageIdExist(store.getState() as any, channelId, lastSeenMessageId);
@@ -127,7 +123,6 @@ const ChannelMessages = React.memo(
 								animated: true,
 								index: indexToJump - 3
 							});
-							hasJumpedToLastSeen.current = true;
 						}
 					}
 				}, 200);
