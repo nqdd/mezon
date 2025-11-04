@@ -39,19 +39,19 @@ function GuideMain() {
 					)}
 				</div>
 				<div className=" flex gap-3 items-end h-28">
-					<div className="text-[32px] font-bold leading-8 ">
+					<div className="text-[32px] font-bold leading-8 truncate overflow-hidden max-w-[70%]" title="">
 						{currentClanName ?? `${clanOwner?.user?.display_name ?? clanOwner?.user?.username}'s ${t('guide.clan')}`}
 					</div>
-					<div className="relative h-6 w-6">
+					<div className="relative h-6 w-6 text-theme-primary">
 						<svg className="absolute" role="img" width="24" height="24" viewBox="0 0 16 15.2">
 							<path
-								fill="#ffffff"
+								fill="currentColor"
 								fillRule="evenodd"
 								d="m16 7.6c0 .79-1.28 1.38-1.52 2.09s.44 2 0 2.59-1.84.35-2.46.8-.79 1.84-1.54 2.09-1.67-.8-2.47-.8-1.75 1-2.47.8-.92-1.64-1.54-2.09-2-.18-2.46-.8.23-1.84 0-2.59-1.54-1.3-1.54-2.09 1.28-1.38 1.52-2.09-.44-2 0-2.59 1.85-.35 2.48-.8.78-1.84 1.53-2.12 1.67.83 2.47.83 1.75-1 2.47-.8.91 1.64 1.53 2.09 2 .18 2.46.8-.23 1.84 0 2.59 1.54 1.3 1.54 2.09z"
 							></path>
 						</svg>
 						<svg
-							className="absolute top-1 right-1"
+							className="absolute top-1 right-1 text-theme-primary-active"
 							role="img"
 							xmlns="http://www.w3.org/2000/svg"
 							width="16"
