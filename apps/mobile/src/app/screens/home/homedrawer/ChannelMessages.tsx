@@ -17,7 +17,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { Direction_Mode, LIMIT_MESSAGE, sleep } from '@mezon/utils';
+import { Direction_Mode, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import type { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -63,6 +63,8 @@ const ChannelMessages = React.memo(
 		const isLoadingJumpMessage = useSelector(selectIsLoadingJumpMessage);
 		const flatListRef = useRef(null);
 		const timeOutRef = useRef(null);
+		const readyToLoadMore = useRef(false);
+		const timeOutLoadMoreRef = useRef(null);
 		const [isShowJumpToPresent, setIsShowJumpToPresent] = useState(false);
 		const navigation = useNavigation<any>();
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
@@ -79,6 +81,15 @@ const ChannelMessages = React.memo(
 			return () => {
 				if (timeOutRef?.current) clearTimeout(timeOutRef.current);
 				event.remove();
+			};
+		}, []);
+
+		useEffect(() => {
+			timeOutLoadMoreRef.current = setTimeout(() => {
+				readyToLoadMore.current = true;
+			}, 1000);
+			return () => {
+				clearTimeout(timeOutLoadMoreRef.current);
 			};
 		}, []);
 
@@ -284,7 +295,12 @@ const ChannelMessages = React.memo(
 		const handleScroll = useCallback(
 			async ({ nativeEvent }) => {
 				handleSetShowJumpLast(nativeEvent);
-				if (nativeEvent.contentOffset.y <= 0 && !isLoadMore?.current?.[ELoadMoreDirection.bottom] && !isDisableLoadMore) {
+				if (
+					readyToLoadMore?.current &&
+					nativeEvent.contentOffset.y <= 0 &&
+					!isLoadMore?.current?.[ELoadMoreDirection.bottom] &&
+					!isDisableLoadMore
+				) {
 					setHaveScrollToBottom(true);
 					const canLoadMore = await isCanLoadMore(ELoadMoreDirection.bottom);
 					if (!canLoadMore) {
@@ -318,7 +334,7 @@ const ChannelMessages = React.memo(
 				)}
 				{isLoadMore.current?.[ELoadMoreDirection.bottom] && <ViewLoadMore />}
 				<View style={styles.spacerHeight8} />
-				{isShowJumpToPresent && messages?.length >= LIMIT_MESSAGE && (
+				{isShowJumpToPresent && (
 					<ButtonJumpToPresent
 						handleJumpToPresent={handleJumpToPresent}
 						lastSeenMessageId={lastSeenMessageId}

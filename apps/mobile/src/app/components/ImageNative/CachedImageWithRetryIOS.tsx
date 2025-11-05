@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { FastNativeImage } from './FastNativeImage';
+import FastImage from 'react-native-fast-image';
 
 interface ICachedImageWithRetryIOSProps {
 	source: { uri: string };
@@ -37,42 +37,36 @@ const CachedImageWithRetryIOS = memo(
 			};
 		}, [source?.uri]);
 
-		const handleError = useCallback(
-			(e: any) => {
-				if (!mountedRef.current || hasError) return;
-				const fallbackUrl = urlOriginal || extractOriginalUrl(source?.uri);
+		const handleError = useCallback(() => {
+			if (!mountedRef.current || hasError) return;
+			const fallbackUrl = urlOriginal || extractOriginalUrl(source?.uri);
 
-				if (fallbackUrl && fallbackUrl !== currentUri) {
-					setHasError(true);
-					setCurrentUri(fallbackUrl);
-				} else {
-					/* empty */
-				}
-			},
-			[source?.uri, urlOriginal, hasError, currentUri]
-		);
+			if (fallbackUrl && fallbackUrl !== currentUri) {
+				setHasError(true);
+				setCurrentUri(fallbackUrl);
+			} else {
+				/* empty */
+			}
+		}, [source?.uri, urlOriginal, hasError, currentUri]);
 
 		return (
 			<View style={[styles.container, style]}>
-				<FastNativeImage
+				<FastImage
 					source={{
 						uri: currentUri,
-						priority: 'normal'
+						priority: FastImage.priority.normal,
+						cache: FastImage.cacheControl.web
 					}}
-					style={StyleSheet.absoluteFill}
-					resizeMode={resizeMode}
 					onError={handleError}
+					resizeMode={resizeMode}
+					style={StyleSheet.absoluteFill}
 					{...props}
 				/>
 			</View>
 		);
 	},
 	(prevProps, nextProps) => {
-		return (
-			prevProps.source?.uri === nextProps.source?.uri &&
-			prevProps?.style === nextProps?.style &&
-			prevProps?.resizeMode === nextProps?.resizeMode
-		);
+		return prevProps.source?.uri === nextProps.source?.uri && prevProps?.style === nextProps?.style;
 	}
 );
 
@@ -81,6 +75,14 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 		overflow: 'hidden'
+	},
+	loader: {
+		position: 'absolute',
+		zIndex: 1
+	},
+	placeholder: {
+		width: '100%',
+		height: '100%'
 	}
 });
 

@@ -63,11 +63,6 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const checkIsDuplicateClanNickname = async (value: string) => {
 		try {
-			if (!value || value.trim() === '') {
-				setIsDuplicateClanNickname(false);
-				return;
-			}
-
 			const result = unwrapResult(
 				await dispatch(
 					checkDuplicateClanNickName({
