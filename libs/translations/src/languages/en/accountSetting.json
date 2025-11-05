@@ -19,13 +19,13 @@
 	"setPhoneNumber": "Set Phone Number",
 	"disableAccountAlert": {
 		"title": "Disable Account",
-		"description": "Are you sure you want to disable your account?",
+		"description": "Please confirm if you would like to disable your account?",
 		"noConfirm": "No",
 		"yesConfirm": "Yes"
 	},
 	"deleteAccountAlert": {
 		"title": "Delete Account",
-		"description": "Are you sure you want to delete your account?",
+		"description": "Please confirm if you would like to delete your account?",
 		"noConfirm": "No",
 		"yesConfirm": "Yes"
 	},

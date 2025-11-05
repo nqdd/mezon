@@ -1,39 +1,39 @@
 {
-    "menu": {
-        "watchMenu": {
-            "title": "",
-            "markAsRead": "Mark As Read"
-        },
-        "inviteMenu": {
-            "title": "",
-            "invite": "Invite"
-        },
-        "notification": {
-            "title": "",
-            "muteCategory": "Mute Category",
-            "notification": "Notification Settings"
-        },
-        "organizationMenu": {
-            "title": "",
-            "createChannel": "Create Channel",
-            "edit": "Edit Category",
-            "delete":"Delete Category"
-        },
-        "devMode": {
-            "title": "Development Mode",
-            "copyServerID": "Copy Clan ID"
-        },
-        "modalConfirm": {
-            "title": "Delete category",
-            "content": "Are you sure you want to delete Category? This can not be undone",
-            "confirmText": "Delete"
-        },
-        "toast": {
-            "systemChannel": "Error: {{categoryName}} has system channel",
-            "error": "Error delete Category: {{error}}"
-        }
-    },
-    "notify": {
-        "serverIDCopied": "Copied Clan ID"
-    }
+	"menu": {
+		"watchMenu": {
+			"title": "",
+			"markAsRead": "Mark As Read"
+		},
+		"inviteMenu": {
+			"title": "",
+			"invite": "Invite"
+		},
+		"notification": {
+			"title": "",
+			"muteCategory": "Mute Category",
+			"notification": "Notification Settings"
+		},
+		"organizationMenu": {
+			"title": "",
+			"createChannel": "Create Channel",
+			"edit": "Edit Category",
+			"delete": "Delete Category"
+		},
+		"devMode": {
+			"title": "Development Mode",
+			"copyServerID": "Copy Clan ID"
+		},
+		"modalConfirm": {
+			"title": "Delete category",
+			"content": "Please confirm if you would like to delete Category? This can not be undone",
+			"confirmText": "Delete"
+		},
+		"toast": {
+			"systemChannel": "Error: {{categoryName}} has system channel",
+			"error": "Error delete Category: {{error}}"
+		}
+	},
+	"notify": {
+		"serverIDCopied": "Copied Clan ID"
+	}
 }
