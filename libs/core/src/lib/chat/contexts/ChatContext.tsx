@@ -49,7 +49,6 @@ import {
 	rolesClanActions,
 	selectAllChannels,
 	selectAllTextChannel,
-	selectAllThreads,
 	selectAllUserClans,
 	selectChannelById,
 	selectChannelByIdAndClanId,
@@ -444,16 +443,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						!isFocus;
 
 					if (isNotCurrentDirect) {
-						dispatch(directMetaActions.setDirectLastSentTimestamp({ channelId: message.channel_id, timestamp }));
-						if (
-							((Array.isArray(message.mentions) && message.mentions.length === 0) ||
-								message.mentions?.some((listUser) => listUser.user_id !== userId)) &&
-							message.references?.at(0)?.message_sender_id !== userId
-						) {
+						if (message.sender_id !== userId) {
 							dispatch(directMetaActions.setCountMessUnread({ channelId: message.channel_id, isMention: false }));
-							if (!mess.isMe) {
-								dispatch(directActions.addBadgeDirect({ channelId: message.channel_id as string }));
-							}
 						}
 					}
 
@@ -624,8 +615,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			const store = await getStoreAsync();
 			const currentChannel = selectCurrentChannel(store.getState() as unknown as RootState);
-			const isClanView = selectClanView(store.getState());
-			const currentDirectId = selectDmGroupCurrentId(store.getState());
 			const isFocus = !isBackgroundModeActive();
 
 			if (
@@ -637,13 +626,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(
 					notificationActions.add({ data: mapNotificationToEntity(notification), category: notification.category as NotificationCategory })
 				);
-				const isFriendPageView = path.includes('/chat/direct/friends');
-				const isNotCurrentDirect =
-					isFriendPageView ||
-					isClanView ||
-					!currentDirectId ||
-					(currentDirectId && !RegExp(currentDirectId).test(notification?.channel_id || '')) ||
-					!isFocus;
+
 				if (notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED) {
 					dispatch(clansActions.updateClanBadgeCount({ clanId: notification?.clan_id || '', count: 1 }));
 
@@ -672,10 +655,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							count: 1
 						})
 					);
-
-					if (isNotCurrentDirect) {
-						dispatch(directMetaActions.setCountMessUnread({ channelId: notification?.channel_id ?? '', isMention: true }));
-					}
 				}
 			}
 
@@ -843,8 +822,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(directMetaActions.remove(user.channel_id));
 					dispatch(
 						appActions.clearHistoryChannel({
-							channelId: user.channel_id,
-							clanId: clanId as string
+							channelId: user.channel_id
 						})
 					);
 				} else {
@@ -1471,7 +1449,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				const currentChannel = currentChannelId ? selectChannelById(store.getState(), currentChannelId) : null;
 				const isUserInCategoryChannel = currentChannel && currentChannel.category_id === categoryEvent.id;
 				const allChannels = selectAllChannels(store.getState());
-				const allThreads = selectAllThreads(store.getState());
 
 				const channelsInCategory = allChannels.filter((ch) => ch.category_id === categoryEvent.id);
 
@@ -1558,7 +1535,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const clanId = selectCurrentClanId(store.getState());
 
 			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
-			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
+			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id }));
 			const isVoiceJoined = selectVoiceInfo(store.getState());
 			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
 				//Leave Room If It's been deleted
@@ -2342,7 +2319,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 	}, []);
 
 	const onbanneduser = useCallback((user: BannedUserEvent) => {
-		console.warn('user: ', user);
+		if (user.action === 1) {
+			dispatch(channelMembersActions.addBannedUser({ channelId: user.channel_id, userIds: user?.user_ids }));
+		} else {
+			dispatch(channelMembersActions.removeBannedUser({ channelId: user.channel_id, userIds: user?.user_ids }));
+		}
 	}, []);
 
 	const setCallbackEventFn = React.useCallback(

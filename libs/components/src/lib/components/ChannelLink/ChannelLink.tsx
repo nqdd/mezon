@@ -200,6 +200,7 @@ const ChannelLinkComponent = ({
 	const isAgeRestrictedChannel = useMemo(() => {
 		return channel?.age_restricted === 1;
 	}, [channel?.age_restricted]);
+	const countNumberNotification = numberNotification && numberNotification > 99 ? '99+' : (numberNotification ?? 0);
 
 	return (
 		<div
@@ -274,9 +275,9 @@ const ChannelLinkComponent = ({
 							onClick={handleOpenCreate}
 						/>
 						<div
-							className={`absolute ml-auto w-4 h-4 text-white right-3 group-hover:hidden bg-red-600 rounded-full text-xs text-center top-2`}
+							className={`absolute ml-auto w-5 h-5 text-white right-3 group-hover:hidden bg-red-600 rounded-full text-[12px] flex items-center justify-center top-2`}
 						>
-							{numberNotification}
+							{countNumberNotification}
 						</div>
 					</>
 				) : (

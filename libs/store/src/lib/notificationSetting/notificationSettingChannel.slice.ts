@@ -1,13 +1,15 @@
 import { captureSentryError } from '@mezon/logger';
-import { INotificationUserChannel, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiNotificationUserChannel } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { INotificationUserChannel, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiNotificationUserChannel } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions } from '../channels/channels.slice';
-import { directActions } from '../direct/direct.slice';
-import { directMetaActions } from '../direct/directmeta.slice';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import { directActions, directMetaActions } from '../direct/direct.slice';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 import { defaultNotificationCategoryActions } from './notificationSettingCategory.slice';
 
 export const NOTIFICATION_SETTING_FEATURE_KEY = 'notificationsetting';
@@ -95,14 +97,14 @@ export const getNotificationSetting = createAsyncThunk(
 
 			if (response.fromCache) {
 				return {
-					channelId: channelId,
+					channelId,
 					notifiSetting: {},
 					fromCache: true
 				};
 			}
 
 			return {
-				channelId: channelId,
+				channelId,
 				notifiSetting: response,
 				fromCache: false
 			};
@@ -129,9 +131,9 @@ export const setNotificationSetting = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body = {
 				channel_category_id: channel_id,
-				notification_type: notification_type,
-				time_mute: time_mute,
-				clan_id: clan_id
+				notification_type,
+				time_mute,
+				clan_id
 			};
 			const response = await mezon.client.setNotificationChannel(mezon.session, body);
 			if (!response) {
@@ -171,8 +173,8 @@ export const setMuteNotificationSetting = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body = {
 				id: channel_id,
-				notification_type: notification_type,
-				active: active
+				notification_type,
+				active
 			};
 			const response = await mezon.client.setMuteNotificationChannel(mezon.session, body);
 
@@ -280,7 +282,7 @@ export const notificationSettingSlice = createSlice({
 				notificationSetting = {
 					id: channelId,
 					channel_id: channelId,
-					active: active,
+					active,
 					notification_type: 0
 				} as any;
 				state.byChannels[channelId].notificationSetting = notificationSetting;

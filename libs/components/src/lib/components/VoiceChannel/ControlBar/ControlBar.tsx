@@ -21,7 +21,7 @@ import isElectron from 'is-electron';
 import type { LocalTrackPublication } from 'livekit-client';
 import { ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
 import Tooltip from 'rc-tooltip';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -54,6 +54,15 @@ const ControlBar = ({
 }: ControlBarProps) => {
 	const dispatch = useAppDispatch();
 	const audioScreenTrackRef = useRef<LocalTrackPublication | null>(null);
+
+	const isSupport = useMemo(() => {
+		const sender = RTCRtpSender.prototype as any;
+
+		const supports =
+			(typeof sender.createEncodedStreams === 'function' || typeof sender.createEncodedVideoStreams === 'function') &&
+			typeof (window as any).VideoFrame === 'function';
+		return supports;
+	}, []);
 
 	const { hasCameraAccess, hasMicrophoneAccess } = useMediaPermissions();
 
@@ -443,7 +452,7 @@ const ControlBar = ({
 								onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
 							/>
 						)}
-						{showCamera && isExternalCalling && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
+						{showCamera && isExternalCalling && isSupport && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
 					</div>
 				)}
 				{visibleControls.screenShare &&

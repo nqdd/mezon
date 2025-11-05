@@ -8,8 +8,9 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../componentUI/MezonImagePicker';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuChannelScreenProps } from '../../navigation/ScreenTypes';
 import { width } from '../ClanSettings/Emoji';
+import StatusBarHeight from '../StatusBarHeight/StatusBarHeight';
 import { style } from './styles';
 
 type ChannelSettingsScreen = typeof APP_SCREEN.MENU_CHANNEL.STREAM_BANNER;
@@ -27,7 +28,7 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 	}, [channel?.channel_avatar]);
 
 	const isBannerChanged = useMemo(() => {
-		return !!channel?.channel_avatar && banner !== channel?.channel_avatar;
+		return !!(banner || channel?.channel_avatar) && banner !== channel?.channel_avatar;
 	}, [banner, channel?.channel_avatar]);
 	const handleLoad = async (url: string) => {
 		if (url) {
@@ -71,6 +72,7 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 
 	return (
 		<View style={styles.container}>
+			<StatusBarHeight />
 			<View style={styles.header}>
 				<Pressable style={styles.backButton} onPress={navigation.goBack}>
 					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />

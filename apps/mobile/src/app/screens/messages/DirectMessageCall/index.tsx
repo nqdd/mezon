@@ -186,7 +186,7 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 				<View style={styles.headerControlsLeft}>
 					<TouchableOpacity
 						onPress={() => {
-							Alert.alert('End Call', 'Are you sure you want to end the call?', [
+							Alert.alert('End Call', 'Please confirm if you would like to end the call?', [
 								{
 									text: 'Cancel',
 									style: 'cancel'

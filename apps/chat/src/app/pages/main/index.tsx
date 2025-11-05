@@ -240,8 +240,8 @@ type ShowModal = () => void;
 
 const DirectUnreadList = memo(() => {
 	const listUnreadDM = useSelector(selectDirectsUnreadlist);
-	const [listDmRender, setListDmRender] = useState(listUnreadDM);
-	const countUnreadRender = useRef(listDmRender.map((channel) => channel.id));
+	const [listDmRender, setListDmRender] = useState(() => [...listUnreadDM]);
+	const previousIdsRef = useRef(listDmRender.map((channel) => channel.id));
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -250,25 +250,35 @@ const DirectUnreadList = memo(() => {
 			clearTimeout(timerRef.current);
 			timerRef.current = null;
 		}
-		if (listUnreadDM.length > countUnreadRender.current.length) {
-			setListDmRender(listUnreadDM);
-			countUnreadRender.current = listUnreadDM.map((channel) => channel.id);
+
+		const currentIds = previousIdsRef.current;
+		const newIds = listUnreadDM.map((channel) => channel.id);
+
+		if (listUnreadDM.length > currentIds.length) {
+			setListDmRender([...listUnreadDM]);
+			previousIdsRef.current = newIds;
 		} else {
-			countUnreadRender.current = listUnreadDM.map((channel) => channel.id);
 			timerRef.current = setTimeout(() => {
-				setListDmRender(listUnreadDM);
+				setListDmRender([...listUnreadDM]);
+				previousIdsRef.current = listUnreadDM.map((channel) => channel.id);
 			}, 200);
 		}
 	}, [listUnreadDM]);
 
-	return (
-		<div>
-			{!!listDmRender?.length &&
-				listDmRender.map((dmGroupChatUnread) => (
-					<DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} checkMoveOut={countUnreadRender.current} />
-				))}
-		</div>
+	const validIdsSet = useMemo(() => new Set(listUnreadDM.map((channel) => channel.id)), [listUnreadDM]);
+
+	const renderItems = useMemo(
+		() =>
+			listDmRender.map((dmGroupChatUnread) => {
+				const shouldAnimateOut = !validIdsSet.has(dmGroupChatUnread.id);
+				return <DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} shouldAnimateOut={shouldAnimateOut} />;
+			}),
+		[listDmRender, validIdsSet]
 	);
+
+	if (!listDmRender?.length) return null;
+
+	return <div>{renderItems}</div>;
 });
 
 const SidebarMenu = memo(

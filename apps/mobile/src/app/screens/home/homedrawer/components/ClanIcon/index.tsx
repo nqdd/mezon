@@ -1,5 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { ClansEntity, selectBadgeCountByClanId, selectClanHasUnreadMessage, selectCurrentClanId } from '@mezon/store-mobile';
+import type { ClansEntity } from '@mezon/store-mobile';
+import { selectBadgeCountByClanId, selectClanHasUnreadMessage, selectCurrentClanId } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';

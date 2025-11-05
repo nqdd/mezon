@@ -19,7 +19,7 @@ import {
 } from '@mezon/store-mobile';
 import { Direction_Mode, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelStreamMode } from 'mezon-js';
+import type { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -42,6 +42,7 @@ type ChannelMessagesProps = {
 	isDM?: boolean;
 	isPublic?: boolean;
 	topicChannelId?: string;
+	isBanned?: boolean;
 };
 
 const getEntitiesArray = (state: any) => {
@@ -50,7 +51,7 @@ const getEntitiesArray = (state: any) => {
 };
 
 const ChannelMessages = React.memo(
-	({ channelId, lastSeenMessageId, lastSentMessageId, topicId, clanId, mode, isDM, isPublic, topicChannelId }: ChannelMessagesProps) => {
+	({ channelId, lastSeenMessageId, lastSentMessageId, topicId, clanId, mode, isDM, isPublic, topicChannelId, isBanned }: ChannelMessagesProps) => {
 		const dispatch = useAppDispatch();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
@@ -251,12 +252,13 @@ const ChannelMessages = React.memo(
 							channelId={channelId}
 							topicChannelId={topicChannelId}
 							isHighlight={idMessageToJump?.id?.toString() === item?.id?.toString()}
+							preventAction={isBanned}
 						/>
 						{shouldShowUnreadBreak && <MessageNewLine key={`unread-${previousMessageId}`} />}
 					</>
 				);
 			},
-			[channelId, haveScrollToBottom, idMessageToJump?.id, lastMessageId, lastSeenMessageId, messages, mode, topicChannelId, userId]
+			[channelId, haveScrollToBottom, idMessageToJump?.id, isBanned, lastMessageId, lastSeenMessageId, messages, mode, topicChannelId, userId]
 		);
 
 		const handleJumpToPresent = useCallback(async () => {

@@ -43,7 +43,6 @@ import { listUsersByUserReducer } from './channels/listUsers.slice';
 import { integrationClanWebhookReducer } from './clanWebhook/clanWebhook.slide';
 import { settingChannelReducer } from './clans/clanSettingChannel.slice';
 import { COMUNITY_FEATURE_KEY, comunityReducer } from './comunity/comunity.slice';
-import { directMetaReducer } from './direct/directmeta.slice';
 import { USER_STATUS_FEATURE_KEY, statusReducer } from './direct/status.slice';
 import { audioCallReducer } from './dmcall/audioCall.slice';
 import { DMCallReducer } from './dmcall/dmcall.slice';
@@ -357,7 +356,6 @@ const reducer = {
 	userClanProfile: userClanProfileReducer,
 	friends: friendsReducer,
 	direct: directReducer,
-	directmeta: directMetaReducer,
 	roleId: roleIdReducer,
 	policiesDefaultSlice: policiesDefaultReducer,
 	[OVERRIDDEN_POLICIES_FEATURE_KEY]: overriddenPoliciesReducer,

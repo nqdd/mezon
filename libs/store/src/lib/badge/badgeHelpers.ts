@@ -9,8 +9,7 @@ import { channelsActions } from '../channels/channels.slice';
 import { listChannelRenderAction } from '../channels/listChannelRender.slice';
 import { selectMemberClanByUserId } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
-import { directActions } from '../direct/direct.slice';
-import { directMetaActions } from '../direct/directmeta.slice';
+import { directMetaActions } from '../direct/direct.slice';
 import { selectLatestMessageId } from '../messages/messages.slice';
 import type { AppDispatch, RootState, Store } from '../store';
 
@@ -123,7 +122,6 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 		}
 		dispatch(listChannelRenderAction.removeBadgeFromChannel({ clanId, channelId }));
 	} else {
-		dispatch(directActions.removeBadgeDirect({ channelId }));
 		dispatch(listChannelsByUserActions.resetBadgeCount({ channelId }));
 		const messageId = store?.getState ? selectLatestMessageId(store.getState(), channelId) : undefined;
 		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId, timestamp: now, messageId }));
@@ -198,8 +196,14 @@ export const decreaseChannelBadgeCount = (dispatch: AppDispatch, params: Decreas
 
 	// Handle direct messages (DM/Group)
 	if (!message.clan_id || message.clan_id === '0') {
-		const dmMeta = store.getState().directmeta?.entities?.[message.channel_id];
-		if (dmMeta && messageTimestamp > dmMeta.lastSeenTimestamp && dmMeta.count_mess_unread > 0) {
+		const dmMeta = store.getState().direct?.entities?.[message.channel_id];
+		if (
+			dmMeta &&
+			dmMeta.lastSeenTimestamp !== undefined &&
+			messageTimestamp > dmMeta.lastSeenTimestamp &&
+			dmMeta.count_mess_unread !== undefined &&
+			dmMeta.count_mess_unread > 0
+		) {
 			dispatch(directMetaActions.setCountMessUnread({ channelId: message.channel_id, count: -1 }));
 		}
 	} else {
