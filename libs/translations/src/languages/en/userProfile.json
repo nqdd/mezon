@@ -17,7 +17,7 @@
 	"kickUserClanModal": {
 		"title": "Kick Member",
 		"kickFromServer": "Kick {{username}} From Clan",
-		"description": "Are you sure you want to kick {{username}} from the clan? They will be able to rejoin again with a new invite.",
+		"description": "Please confirm if you would like to kick {{username}} from the clan? They will be able to rejoin again with a new invite.",
 		"reasonKick": "Reason For Kick",
 		"buttonName": "Kick"
 	},
@@ -27,7 +27,7 @@
 		"acknowledgment": "I acknowledge that by transferring ownership of this clan to {{username}}, it officially belongs to them.",
 		"transferButton": "Transfer",
 		"confirmTitle": "Transfer Ownership?",
-		"confirmDescription": "Are you sure you want to transfer ownership of {{clanName}} to {{username}}? This action cannot be undone.",
+		"confirmDescription": "Please confirm if you would like to transfer ownership of {{clanName}} to {{username}}? This action cannot be undone.",
 		"confirmButton": "Transfer"
 	},
 	"pendingContent": {

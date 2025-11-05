@@ -97,8 +97,8 @@
 	"searchResult": "Search results",
 	"pinMessage": "Pin Message",
 	"unpinMessage": "Unpin Message",
-	"confirmPinMessage": "Are you sure you want to pin this message?",
-	"confirmUnPinMessage": "Are you sure you want to remove this pinned message?",
+	"confirmPinMessage": "Please confirm if you would like to pin this message?",
+	"confirmUnPinMessage": "Please confirm if you would like to remove this pinned message?",
 	"pinSuccess": "Pin Message Successfully",
 	"unpinSuccess": "Unpin Message Successfully",
 	"Yes": "Yes",
@@ -158,8 +158,8 @@
 	"deleteMessageModal": {
 		"title": "Delete Message",
 		"removeAttachmentTitle": "Remove Attachment",
-		"deleteMessageDescription": "Are you sure you want to delete this message?",
-		"removeAttachmentDescription": "Are you sure you want to remove the attachment from this message?",
+		"deleteMessageDescription": "Please confirm if you would like to delete this message?",
+		"removeAttachmentDescription": "Please confirm if you would like to remove the attachment from this message?",
 		"cancel": "Cancel",
 		"delete": "Delete",
 		"remove": "Remove"
