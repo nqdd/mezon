@@ -169,6 +169,7 @@ function ChannelMessages({
 	const chatRef = useRef<HTMLDivElement | null>(null);
 
 	const skipCalculateScroll = useRef<boolean>(false);
+	const isScrollTopJustUpdatedRef = useRef(false);
 
 	const anchorIdRef = useRef<string | null>(null);
 	const anchorTopRef = useRef<number | null>(null);
@@ -391,6 +392,7 @@ function ChannelMessages({
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						isFirstJoinLoadRef={isFirstJoinLoadRef}
 						userActiveScroll={userActiveScroll}
+						isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
@@ -428,6 +430,7 @@ function ChannelMessages({
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						isFirstJoinLoadRef={isFirstJoinLoadRef}
 						userActiveScroll={userActiveScroll}
+						isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
 						dataReferences={dataReferences}
@@ -457,6 +460,8 @@ function ChannelMessages({
 				messageIds={messageIds}
 				chatRef={chatRef}
 				lastSeenAtBottomRef={lastSeenAtBottomRef}
+				userActiveScroll={userActiveScroll}
+				isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 			/>
 			<HasmoreBottomTracker channelId={channelId} />
 			<FirstJoinLoadTracker channelId={channelId} isFirstJoinLoadRef={isFirstJoinLoadRef} />
@@ -470,13 +475,17 @@ const ScrollDownButton = memo(
 		clanId,
 		messageIds,
 		chatRef,
-		lastSeenAtBottomRef
+		lastSeenAtBottomRef,
+		userActiveScroll,
+		isScrollTopJustUpdatedRef
 	}: {
 		channelId: string;
 		clanId: string;
 		messageIds: string[];
 		chatRef: React.RefObject<HTMLDivElement>;
 		lastSeenAtBottomRef: React.MutableRefObject<string | null>;
+		userActiveScroll: React.MutableRefObject<boolean>;
+		isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
 	}) => {
 		const dispatch = useAppDispatch();
 
@@ -540,12 +549,17 @@ const ScrollDownButton = memo(
 
 			dispatch(messagesActions.jumToPresent({ channelId }));
 
+			userActiveScroll.current = false;
+			isScrollTopJustUpdatedRef.current = true;
 			animateScroll({
 				container: messagesContainer,
 				element: lastMessageElement,
 				position: 'end',
 				margin: BOTTOM_FOCUS_MARGIN
 			});
+			setTimeout(() => {
+				isScrollTopJustUpdatedRef.current = false;
+			}, MESSAGE_ANIMATION_DURATION);
 		});
 
 		return (
@@ -592,6 +606,7 @@ type ChatMessageListProps = {
 	isLoadingMoreBottomRef: React.MutableRefObject<boolean>;
 	isFirstJoinLoadRef: React.MutableRefObject<boolean>;
 	userActiveScroll: React.MutableRefObject<boolean>;
+	isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
 	skipCalculateScroll: React.MutableRefObject<boolean>;
 	appearanceTheme: string;
 	lastMessageId: string;
@@ -621,6 +636,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		isLoadingMoreBottomRef,
 		isFirstJoinLoadRef,
 		userActiveScroll,
+		isScrollTopJustUpdatedRef,
 		appearanceTheme,
 		lastMessageId,
 		dataReferences,
@@ -685,7 +701,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
-		const isScrollTopJustUpdatedRef = useRef(false);
 		const isViewportNewest = true;
 		const isUnread = true;
 		const isReady = useRef(false);
@@ -709,12 +724,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (!lastMessageElement) {
 					return;
 				}
+				userActiveScroll.current = false;
+				isScrollTopJustUpdatedRef.current = true;
 				animateScroll({
 					container,
 					element: lastMessageElement,
 					position: 'end',
 					margin: BOTTOM_FOCUS_MARGIN
 				});
+				setTimeout(() => {
+					isScrollTopJustUpdatedRef.current = false;
+				}, MESSAGE_ANIMATION_DURATION);
 				dispatch(messagesActions.setIsJumpingToPresent({ channelId, status: false }));
 			}
 		}, [jumpToPresent]);
@@ -755,6 +775,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				return;
 			}
 
+			if (!userActiveScroll.current) return;
+
 			const container = chatRef.current;
 
 			if (!container) {
@@ -762,8 +784,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			}
 
 			runDebouncedForScroll(() => {
-				if (!userActiveScroll.current) return;
-
 				requestAnimationFrame(() => {
 					const { scrollTop } = container;
 
@@ -943,6 +963,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					}
 
 					return () => {
+						userActiveScroll.current = false;
 						resetScroll(container, Math.ceil(newScrollTop));
 
 						if (message && shouldUpdateScrollPosition) {
@@ -1021,8 +1042,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const messageElement = chatRef.current?.querySelector(`#msg-${messageId}`);
 				if (messageElement) {
 					setAnchor.current = new Date().getTime();
-					userActiveScroll.current = true;
+					userActiveScroll.current = false;
+					isScrollTopJustUpdatedRef.current = true;
 					messageElement.scrollIntoView({ behavior: 'auto', block: 'center' });
+					requestAnimationFrame(() => {
+						isScrollTopJustUpdatedRef.current = false;
+					});
 				}
 			};
 			const store = getStore();
