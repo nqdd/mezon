@@ -92,7 +92,7 @@ const RefreshSessionWrapper = ({ children }) => {
 	}, [clientRef, dispatch]);
 
 	const onSessionRefresh = (session) => {
-		dispatch(authActions.updateSession(session));
+		if (session?.session) dispatch(authActions.updateSession(session?.session));
 	};
 
 	useEffect(() => {

@@ -24,7 +24,7 @@ export default function DetailInfo({ value, onChange }: IDetailInfoProps) {
 			<MezonInput
 				value={value?.displayName}
 				onTextChange={(newValue) => onChange({ displayName: newValue })}
-				placeHolder={value?.username}
+				placeHolder={value?.displayName || ''}
 				inputWrapperStyle={{
 					backgroundColor: themeValue.primary
 				}}

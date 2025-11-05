@@ -3,7 +3,7 @@ import { EMimeTypes, createImgproxyUrl } from '@mezon/utils';
 import * as Sentry from '@sentry/react-native';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { getAspectRatioSize, useImageResolution } from 'react-native-zoom-toolkit';
 import ImageNative from '../../../../../components/ImageNative';
@@ -241,7 +241,15 @@ const ImageRenderer = React.memo(
 				onLongPress={handleLongPressImage}
 				style={containerStyle}
 			>
-				{imageProxyObj?.isProxyImage ? (
+				{isUploading && Platform.OS === 'ios' ? (
+					<Image
+						source={{
+							uri: image?.url
+						}}
+						resizeMode={isMultiple ? 'cover' : 'contain'}
+						style={styles.imageFullSize}
+					/>
+				) : imageProxyObj?.isProxyImage ? (
 					<ImageNative
 						url={imageProxyObj?.url}
 						urlOriginal={image?.url}
