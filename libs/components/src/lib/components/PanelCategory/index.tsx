@@ -220,7 +220,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 			tabIndex={-1}
 			role={'button'}
 			style={{ left: coords.mouseX, bottom: positionTop ? '12px' : 'auto', top: positionTop ? 'auto' : coords.mouseY }}
-			className="outline-none fixed top-full rounded-lg z-30 w-[200px] py-[10px] px-[10px] shadow-md bg-theme-contexify"
+			className="outline-none fixed top-full rounded-lg z-30 w-[200px] py-[10px] px-[10px] shadow-md bg-theme-contexify border-theme-primary"
 			data-e2e={generateE2eId('clan_page.side_bar.panel.category_panel')}
 		>
 			<GroupPanels>
