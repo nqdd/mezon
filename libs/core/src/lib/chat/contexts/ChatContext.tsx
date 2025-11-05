@@ -49,7 +49,6 @@ import {
 	rolesClanActions,
 	selectAllChannels,
 	selectAllTextChannel,
-	selectAllThreads,
 	selectAllUserClans,
 	selectChannelById,
 	selectChannelByIdAndClanId,
@@ -843,8 +842,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(directMetaActions.remove(user.channel_id));
 					dispatch(
 						appActions.clearHistoryChannel({
-							channelId: user.channel_id,
-							clanId: clanId as string
+							channelId: user.channel_id
 						})
 					);
 				} else {
@@ -1471,7 +1469,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				const currentChannel = currentChannelId ? selectChannelById(store.getState(), currentChannelId) : null;
 				const isUserInCategoryChannel = currentChannel && currentChannel.category_id === categoryEvent.id;
 				const allChannels = selectAllChannels(store.getState());
-				const allThreads = selectAllThreads(store.getState());
 
 				const channelsInCategory = allChannels.filter((ch) => ch.category_id === categoryEvent.id);
 
@@ -1558,7 +1555,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const clanId = selectCurrentClanId(store.getState());
 
 			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
-			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
+			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id }));
 			const isVoiceJoined = selectVoiceInfo(store.getState());
 			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
 				//Leave Room If It's been deleted
