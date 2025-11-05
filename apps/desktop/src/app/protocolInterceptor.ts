@@ -4,10 +4,12 @@ import { extname, join, normalize } from 'path';
 
 export const MIME_TYPES: Record<string, string> = {
 	'.html': 'text/html',
+	'.xml': 'application/xml',
 	'.js': 'text/javascript',
 	'.css': 'text/css',
 	'.json': 'application/json',
 	'.png': 'image/png',
+	'.webp': 'image/webp',
 	'.jpg': 'image/jpeg',
 	'.gif': 'image/gif',
 	'.svg': 'image/svg+xml',
