@@ -9,6 +9,7 @@ import {
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectCurrentLanguage,
+	selectIsActivityTrackingEnabled,
 	selectIsLogin,
 	setIsElectronDownloading,
 	setIsElectronUpdateAvailable
@@ -26,6 +27,7 @@ import {
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
 	UNLOCK_SCREEN,
+	UPDATE_ACTIVITY_TRACKING,
 	UPDATE_AVAILABLE,
 	UPDATE_ERROR,
 	electronBridge,
@@ -278,6 +280,22 @@ const AppInitializer = () => {
 	return null;
 };
 
+const ActivityTrackingSyncProvider = () => {
+	const isActivityTrackingEnabled = useSelector(selectIsActivityTrackingEnabled);
+
+	useEffect(() => {
+		if (isElectron() && typeof window !== 'undefined' && window.electron) {
+			try {
+				window.electron.send(UPDATE_ACTIVITY_TRACKING, { isActivityTrackingEnabled });
+			} catch (error) {
+				console.error('Failed to sync activity tracking state with electron:', error);
+			}
+		}
+	}, [isActivityTrackingEnabled]);
+
+	return null;
+};
+
 export function App() {
 	const mezon = useMezon();
 
@@ -310,6 +328,7 @@ export function App() {
 			{showLoading && <LoadingFallbackWrapper />}
 			<MezonStoreProvider store={store} loading={null} persistor={persistor}>
 				<LanguageSyncProvider />
+				<ActivityTrackingSyncProvider />
 				<PopupManagerProvider>
 					<PermissionProvider>
 						<AppInitializer />

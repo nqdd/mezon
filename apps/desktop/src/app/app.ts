@@ -45,6 +45,7 @@ export default class App {
 
 	private static updateCheckInterval: NodeJS.Timeout | null = null;
 	private static activityTrackingInterval: NodeJS.Timeout | null = null;
+	private static isActivityTrackingEnabled = true;
 
 	public static isDevelopmentMode() {
 		return !app.isPackaged;
@@ -341,6 +342,18 @@ export default class App {
 		App.mainWindow.focus();
 	}
 
+	public static setActivityTrackingEnabled(enabled: boolean) {
+		App.isActivityTrackingEnabled = enabled;
+		if (enabled) {
+			App.setupWindowManager();
+		} else {
+			if (App.activityTrackingInterval) {
+				clearInterval(App.activityTrackingInterval);
+				App.activityTrackingInterval = null;
+			}
+		}
+	}
+
 	/**
 	 * setup badge for the app
 	 */
@@ -391,7 +404,9 @@ export default class App {
 
 		App.activityTrackingInterval = setInterval(() => {
 			try {
-				fetchActiveWindow();
+				if (App.isActivityTrackingEnabled) {
+					fetchActiveWindow();
+				}
 			} catch (ex) {
 				console.error(ex);
 			}
