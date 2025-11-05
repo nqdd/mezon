@@ -26,11 +26,16 @@
 		"appearance": "Appearance",
 		"accessibility": "Accessibility",
 		"language": "Language",
+		"activity": "Activity",
 		"notifications": "Notifications",
 		"chat": "Chat",
 		"webBrowser": "Web Browser",
 		"appIcon": "App Icon",
 		"advanced": "Advanced"
+	},
+	"activity": {
+		"title": "Show my activity",
+		"description": "Show your current coding, music, or gaming activities to friends. This lets them see what you're up to and makes it easier to connect."
 	},
 	"supportSettings": {
 		"title": "Support",

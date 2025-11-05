@@ -1047,6 +1047,7 @@ export enum EUserSettings {
 	FRIEND_REQUESTS = 'Friend Requests',
 	APP_SETTINGS = 'APP SETTINGS',
 	APPEARANCE = 'Appearance',
+	ACTIVITY = 'Activity',
 	ACCESSIBILITY = 'Accessibility',
 	VOICE_VIDEO = 'Voice & Video',
 	TEXT_IMAGE = 'Text & Image',
