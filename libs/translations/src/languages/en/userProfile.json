@@ -195,5 +195,24 @@
 	"voiceInfo": {
 		"inVoice": "In Voice",
 		"joinVoice": "Join Voice"
+	},
+	"ban": {
+		"title": "Ban user",
+		"unbanTitle": "Unban user",
+		"content": "Are you sure you want to ban \"{{userName}}\"?",
+		"banButton": "Ban",
+		"unBanButton": "Unban",
+		"reasonBan": "Reason for ban",
+		"unBanDescription": "Are you sure you want to unban \"{{userName}}\"?",
+		"time": {
+			"title": "Duration",
+			"tenMinutes": "10 minutes",
+			"thirtyMinutes": "30 minutes",
+			"oneHour": "1 hour",
+			"sixHours": "6 hours",
+			"twelveHours": "12 hours",
+			"oneDay": "1 day",
+			"threeDays": "3 days"
+		}
 	}
 }

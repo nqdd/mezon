@@ -9,8 +9,10 @@ import {
 	selectAllChannelsByUser,
 	selectBlockedUsersForMessage,
 	selectCurrentChannelId,
+	selectCurrentUserId,
 	selectDirectsOpenlist,
 	selectDmGroupCurrentId,
+	selectIsUserBannedInChannel,
 	selectMessageEntitiesByChannelId,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -184,7 +186,15 @@ const ForwardMessageScreen = () => {
 				index++;
 			}
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
-				const { type, channelId, clanId = '' } = selectedObjectSend;
+				const { type, channelId, clanId = '', name } = selectedObjectSend;
+				const currentUserId = selectCurrentUserId(store.getState());
+				const isBanFromChannel = selectIsUserBannedInChannel(store.getState(), channelId, currentUserId);
+				if (isBanFromChannel) {
+					Toast.show({
+						type: 'error',
+						text1: t('bannedChannel', { channelName: name })
+					});
+				}
 				switch (type) {
 					case ChannelType.CHANNEL_TYPE_DM:
 						for (const message of combineMessages) {
@@ -228,7 +238,16 @@ const ForwardMessageScreen = () => {
 		if (!selectedForwardObjectsRef.current?.length) return;
 		try {
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
-				const { type, channelId, clanId = '', isChannelPublic } = selectedObjectSend;
+				const { type, channelId, clanId = '', isChannelPublic, name } = selectedObjectSend;
+				const currentUserId = selectCurrentUserId(store.getState());
+				const isBanFromChannel = selectIsUserBannedInChannel(store.getState(), channelId, currentUserId);
+				if (isBanFromChannel) {
+					Toast.show({
+						type: 'error',
+						text1: t('bannedChannel', { channelName: name })
+					});
+					return;
+				}
 				switch (type) {
 					case ChannelType.CHANNEL_TYPE_DM:
 						sendForwardMessage('', channelId, ChannelStreamMode.STREAM_MODE_DM, false, message);
