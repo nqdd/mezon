@@ -1,5 +1,5 @@
 import { Icons } from '@mezon/ui';
-import { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from 'react';
+import type { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ModalControlRule = ({
@@ -24,7 +24,7 @@ const ModalControlRule = ({
 					<Icons.CloseButton />
 				</div>
 
-				<div className="absolute w-full p-4 flex bottom-0 left-0 justify-between bg-theme-setting-nav border-t border-gray-200 dark:border-transparent">
+				<div className="absolute w-full p-4 flex bottom-0 left-0 justify-between bg-theme-setting-nav border-t border-gray-200 dark:border-transparent rounded-b-md">
 					<div className="flex-1 flex">
 						<div className="h-10 items-center text-red-500 cursor-pointer hover:underline flex" onClick={bottomLeftBtnFunction}>
 							{bottomLeftBtn || t('buttons.reset')}

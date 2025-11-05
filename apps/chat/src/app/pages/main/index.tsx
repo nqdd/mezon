@@ -328,7 +328,7 @@ const SidebarMenu = memo(
 
 		return (
 			<div
-				className={`contain-strict h-dvh fixed z-10 left-0 top-0 w-[72px] duration-100 ${isWindowsDesktop || isLinuxDesktop || isMacDesktop ? 'mt-[21px]' : ''} ${closeMenu ? (statusMenu ? '' : 'max-sm:hidden') : ''}`}
+				className={`contain-strict h-dvh fixed z-9 left-0 top-0 w-[72px] duration-100 ${isWindowsDesktop || isLinuxDesktop || isMacDesktop ? 'mt-[21px]' : ''} ${closeMenu ? (statusMenu ? '' : 'max-sm:hidden') : ''}`}
 				onClick={() => handleMenu}
 				id="menu"
 			>
