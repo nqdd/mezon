@@ -10,7 +10,8 @@ export const style = (themeValue: Attributes) =>
 			padding: size.s_20
 		},
 		contentContainer: {
-			position: 'relative'
+			position: 'relative',
+			marginBottom: size.s_10
 		},
 		label: {
 			fontSize: size.s_12,
