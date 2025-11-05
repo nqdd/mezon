@@ -8,7 +8,7 @@ import {
 	STORAGE_DATA_CLAN_CHANNEL_CACHE
 } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectBlockedUsersForMessage, selectDirectsOpenlist } from '@mezon/store';
+import { selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist, selectIsUserBannedInChannel } from '@mezon/store';
 import {
 	channelMetaActions,
 	channelsActions,
@@ -195,6 +195,17 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		const clanIdStore = selectCurrentClanId(store.getState());
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
+		const currentUserId = selectCurrentUserId(store.getState());
+		const isBannedChannel = selectIsUserBannedInChannel(store.getState(), channelSelected?.channel_id, currentUserId);
+
+		if (isBannedChannel) {
+			Toast.show({
+				type: 'error',
+				text1: t('bannedChannel', { channelName: channelSelected?.channel_label })
+			});
+			return;
+		}
+
 		requestAnimationFrame(async () => {
 			if (isDiffClan) {
 				await store.dispatch(clansActions.joinClan({ clanId: channelSelected?.clan_id }));

@@ -1015,7 +1015,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					onChange={onChangeMentionInput}
 					onKeyDown={onKeyDown}
 					placeholder={ephemeralTargetUserId ? t('ephemeralMessage', { username: ephemeralTargetUserDisplay }) : t('placeholder')}
-					className={`mentions min-h-11 text-theme-message rounded-lg border-none max-h-[350px] overflow-auto ${
+					className={`mentions min-h-11 text-theme-message rounded-lg border-none max-h-[350px] overflow-auto thread-scroll ${
 						props.isThread && !threadCurrentChannel ? 'p-2.5' : 'py-[9px] pr-[120px] pl-[9px]'
 					}`}
 					onSend={(formattedText: FormattedText) => {

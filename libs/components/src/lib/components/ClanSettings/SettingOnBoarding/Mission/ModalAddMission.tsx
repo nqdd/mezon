@@ -9,8 +9,9 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { ChannelStatusEnum } from '@mezon/utils';
-import { ApiOnboardingItem } from 'mezon-js/api.gen';
-import { ChangeEvent, useMemo, useState } from 'react';
+import type { ApiOnboardingItem } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
@@ -21,7 +22,7 @@ type TypeMission = {
 };
 const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void; missionEdit?: ApiOnboardingItem; tempId?: number }) => {
 	const { t } = useTranslation('onboardingMissions');
-	
+
 	const listTypeMisstion: TypeMission[] = [
 		{
 			id: ETypeMission.SEND_MESSAGE,
@@ -107,7 +108,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 					clan_id: currentClanId as string,
 					idOnboarding: missionEdit?.id as string,
 					content: {
-						title: title,
+						title,
 						guide_type: EGuideType.TASK,
 						task_type: mission || 0,
 						channel_id: missionChannel
@@ -121,7 +122,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		dispatch(
 			onboardingActions.addMission({
 				data: {
-					title: title,
+					title,
 					guide_type: EGuideType.TASK,
 					task_type: mission || 0,
 					channel_id: missionChannel
@@ -185,7 +186,11 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 							value={missionChannel}
 						>
 							{listMissionChannel.map((channel) => (
-								<option value={channel.id} key={channel.id}>
+								<option
+									value={channel.id}
+									key={channel.id}
+									className="text-theme-primary bg-theme-setting-primary bg-item-them-hover"
+								>
 									{channel.channel_label}
 								</option>
 							))}

@@ -496,7 +496,8 @@ const MessageItem = React.memo(
 				prevProps?.message?.reactions +
 				prevProps?.message?.content?.t +
 				prevProps?.message?.attachments?.length +
-				prevProps?.message?.references?.[0]?.content ===
+				prevProps?.message?.references?.[0]?.content +
+				prevProps?.preventAction ===
 			nextProps?.message?.id +
 				nextProps?.message?.update_time +
 				nextProps?.previousMessage?.id +
@@ -505,7 +506,8 @@ const MessageItem = React.memo(
 				nextProps?.message?.reactions +
 				nextProps?.message?.content?.t +
 				nextProps?.message?.attachments?.length +
-				nextProps?.message?.references?.[0]?.content
+				nextProps?.message?.references?.[0]?.content +
+				nextProps?.preventAction
 		);
 	}
 );

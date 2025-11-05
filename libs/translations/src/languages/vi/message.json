@@ -112,6 +112,7 @@
 	},
 	"newMessages": "TIN NHẮN MỚI",
 	"noSendMessagePermission": "Bạn không có quyền gửi tin nhắn",
+	"isBanned": "Bạn đã bị cấm trò chuyện",
 	"blockedUserMessage": "Bạn không thể trả lời cuộc trò chuyện này",
 	"messageInputPlaceHolder": "Nhập tin nhắn...",
 	"shareLocationModal": {
@@ -198,5 +199,6 @@
 		"link": "Liên kết",
 		"attachment": "Tệp đính kèm",
 		"embed": "Nhúng"
-	}
+	},
+	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}."
 }

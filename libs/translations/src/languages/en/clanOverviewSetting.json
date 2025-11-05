@@ -59,7 +59,9 @@
 		"kick": "Kick",
 		"removeFromThread": "Remove from Thread",
 		"manage": "Manage",
-		"transferOwnership": "Transfer Ownership"
+		"transferOwnership": "Transfer Ownership",
+		"ban": "Ban",
+		"unban": "Unban"
 	},
 	"threadRemoveModal": {
 		"title": "Remove from Thread?",

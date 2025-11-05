@@ -45,7 +45,7 @@ export const CategorySetting: React.FC<ICategorySettingProps> = ({ onClose, cate
 					</button>
 				</div>
 				<div
-					className={`overflow-y-auto w-1/6 xl:w-1/4 min-w-56 dark:bg-bgSecondary bg-bgLightModeSecond dark:text-white text-black flex justify-end pt-96 pr-2 scrollbar-thin scrollbar-thumb-black scrollbar-track-gray-200 2xl:flex-grow hide-scrollbar flex-grow`}
+					className={`overflow-y-auto w-1/6 xl:w-1/4 min-w-56 bg-theme-setting-nav text-theme-primary-active flex justify-end pt-96 pr-2 scrollbar-thin scrollbar-thumb-black scrollbar-track-gray-200 2xl:flex-grow hide-scrollbar flex-grow`}
 				>
 					<CategorySettingSidebar
 						onClickItem={handleSettingItemClick}
@@ -55,11 +55,9 @@ export const CategorySetting: React.FC<ICategorySettingProps> = ({ onClose, cate
 						displayCategoryName={displayCategoryName}
 					/>
 				</div>
-				<div className="overflow-y-auto flex flex-col flex-1 shrink dark:bg-bgPrimary bg-white  w-1/2 pt-[94px] sbm:pb-7 sbm:pr-[40px] sbm:pl-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
-					<div className="dark:text-white text-black text-[15px]">
-						<h2 className="text-xl font-semibold mb-5 dark:text-textDarkTheme text-textLightTheme sbm:mt-[60px] mt-[10px]">
-							{currentSetting.name}
-						</h2>
+				<div className="overflow-y-auto flex flex-col flex-1 shrink bg-theme-setting-primary  w-1/2 pt-[94px] sbm:pb-7 sbm:pr-[40px] sbm:pl-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar">
+					<div className="text-theme-primary-active">
+						<h2 className="text-xl font-semibold mb-5 text-theme-primary-active sbm:mt-[60px] mt-[10px]">{currentSetting.name}</h2>
 						{currentSetting.id === categorySettingItem.OVERVIEW && (
 							<OverviewSetting category={category} onClose={onClose} onDisplayNameChange={setDisplayCategoryName} />
 						)}

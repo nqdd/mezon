@@ -2,16 +2,14 @@
 import {
 	channelsActions,
 	selectChannelById,
-	selectCurrentChannelChannelId,
 	selectCurrentChannelClanId,
-	selectCurrentChannelId,
 	selectCurrentChannelLabel,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Button, Icons } from '@mezon/ui';
-import { fileTypeImage } from '@mezon/utils';
+import { fileTypeImage, type IChannel } from '@mezon/utils';
 import type { ChangeEvent } from 'react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,17 +17,25 @@ import { ELimitSize } from '../../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 const MAX_FILE_SIZE_10MB = 10 * 1024 * 1024;
 
-const StreamThumbnailChannel = () => {
+export type StreamThumbnailChannelProps = {
+	channel: IChannel;
+};
+
+const StreamThumbnailChannel = (props: StreamThumbnailChannelProps) => {
+	const { channel } = props;
 	const { t } = useTranslation('streamThumbnail');
 	const dispatch = useAppDispatch();
-	const currentChannelId = useAppSelector(selectCurrentChannelId);
-	const channelId = useAppSelector(selectCurrentChannelChannelId);
+
+	const channelId = (channel?.channel_id ?? channel?.id ?? '') as string;
+	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId));
+
 	const clanId = useAppSelector(selectCurrentChannelClanId);
 	const channelLabel = useAppSelector(selectCurrentChannelLabel);
-	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId || ''));
+
+	const thumbnail = currentChannel?.channel_avatar || null;
+
 	const { sessionRef, clientRef } = useMezon();
 
-	const [thumbnail, setThumbnail] = useState<string | null>(currentChannel?.channel_avatar || null);
 	const [isUploading, setIsUploading] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -132,7 +138,6 @@ const StreamThumbnailChannel = () => {
 				})
 			);
 
-			setThumbnail(attachment.url);
 			setIsUploading(false);
 		} catch (error) {
 			console.error('Failed to upload thumbnail:', error);
@@ -161,7 +166,6 @@ const StreamThumbnailChannel = () => {
 				})
 			);
 
-			setThumbnail(null);
 			setIsUploading(false);
 		} catch (error) {
 			console.error('Failed to remove thumbnail:', error);
