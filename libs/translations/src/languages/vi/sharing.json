@@ -8,5 +8,6 @@
     "suggestions": "Gợi ý",
     "addCommentPlaceholder": "Thêm bình luận (Tùy chọn)",
     "fileTooLarge": "Tệp quá lớn",
-    "fileSizeExceeded": "{{fileType}} không thể vượt quá {{maxSize}}MB!"
+    "fileSizeExceeded": "{{fileType}} không thể vượt quá {{maxSize}}MB!",
+    "bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}."
 }

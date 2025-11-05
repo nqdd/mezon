@@ -195,5 +195,24 @@
 	"voiceInfo": {
 		"inVoice": "Trong kênh thoại",
 		"joinVoice": "Tham gia thoại"
+	},
+	"ban": {
+		"title": "Cấm người dùng",
+		"unbanTitle": "Hủy cấm người dùng",
+		"content": "Cấm người dùng \"{{userName}}\"?",
+		"banButton": "Cấm",
+		"unBanButton": "Hủy cấm",
+		"reasonBan": "Lý do cấm",
+		"unBanDescription": "Bạn có muốn hủy cấm người dùng \"{{userName}}\"?",
+		"time": {
+			"title": "Khoảng thời gian",
+			"tenMinutes": "10 phút",
+			"thirtyMinutes": "30 phút",
+			"oneHour": "1 giờ",
+			"sixHours": "6 giờ",
+			"twelveHours": "12 giờ",
+			"oneDay": "1 ngày",
+			"threeDays": "3 giờ"
+		}
 	}
 }

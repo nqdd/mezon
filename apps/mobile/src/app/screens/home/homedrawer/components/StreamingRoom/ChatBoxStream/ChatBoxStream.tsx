@@ -1,5 +1,5 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { selectCurrentChannel } from '@mezon/store-mobile';
+import { selectCurrentChannel, selectCurrentUserId, selectIsUserBannedInChannel } from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback } from 'react';
@@ -8,7 +8,7 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
+import type { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
 import ChannelMessages from '../../../ChannelMessages';
 import { ChatBox } from '../../../ChatBox';
 import PanelKeyboard from '../../../PanelKeyboard';
@@ -19,6 +19,8 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentChannel = useSelector(selectCurrentChannel);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanned = useSelector((state) => selectIsUserBannedInChannel(state, currentChannel?.channel_id, currentUserId));
 
 	const onHandlerStateChange = useCallback((event: { nativeEvent: { translationX: any; velocityX: any } }) => {
 		const { translationX, velocityX } = event.nativeEvent;
@@ -46,6 +48,7 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 						clanId={currentChannel?.clan_id}
 						isPublic={isPublicChannel(currentChannel)}
 						mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
+						isBanned={isBanned}
 					/>
 				</View>
 			</PanGestureHandler>
@@ -58,6 +61,7 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 				mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 				isPublic={isPublicChannel(currentChannel)}
 				topicChannelId={''}
+				isBanned={isBanned}
 			/>
 			<PanelKeyboard currentChannelId={currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
 		</KeyboardAvoidingView>

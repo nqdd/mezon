@@ -23,6 +23,7 @@ interface IChatBoxProps {
 	isPublic: boolean;
 	topicChannelId?: string;
 	isBlocked?: boolean;
+	isBanned?: boolean;
 }
 
 export const ChatBoxMain = memo((props: IChatBoxProps) => {
@@ -80,10 +81,12 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 			{messageActionNeedToResolve && (props?.canSendMessage || isDM) && (
 				<ActionMessageSelected messageActionNeedToResolve={messageActionNeedToResolve} onClose={deleteMessageActionNeedToResolve} />
 			)}
-			{(!props?.canSendMessage && !isDM) || props?.isBlocked ? (
+			{(!props?.canSendMessage && !isDM) || props?.isBlocked || props?.isBanned ? (
 				<View style={styles.warningContainer}>
 					<View style={[styles.warningBox, { backgroundColor: themeValue.charcoal }]}>
-						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>{t('noSendMessagePermission')}</Text>
+						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>
+							{props?.isBanned ? t('isBanned') : t('noSendMessagePermission')}
+						</Text>
 					</View>
 				</View>
 			) : (

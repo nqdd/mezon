@@ -333,11 +333,11 @@ export const appSlice = createSlice({
 				current: countCurrent
 			};
 		},
-		clearHistoryChannel: (state, action: PayloadAction<{ clanId: string; channelId: string }>) => {
-			const { clanId, channelId } = action.payload;
+		clearHistoryChannel: (state, action: PayloadAction<{ channelId: string }>) => {
+			const { channelId } = action.payload;
 			if (!state.history || !state.history?.url?.length) return;
 			const filteredHistory = state.history?.url.filter(
-				(url) => !(url.includes(`/channels/${channelId}/`) || url.includes(`/message/${channelId}/`))
+				(url) => !(url.includes(`/channels/${channelId}`) || url.includes(`/message/${channelId}/`))
 			);
 			let countCurrent = state.history?.current !== null ? state.history.current : 0;
 			state.history.url.map((url, index) => {
