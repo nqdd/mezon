@@ -5,7 +5,7 @@ import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezon-js';
 import { ChannelType } from 'mezon-js';
-import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiChannelMessageHeader, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { selectAllAccount } from '../account/account.slice';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
@@ -14,10 +14,9 @@ import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
 import { hashtagDmActions } from '../channels/hashtagDm.slice';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import type { MessagesEntity } from '../messages/messages.slice';
 import { messagesActions } from '../messages/messages.slice';
 import type { RootState } from '../store';
-import type { DMMetaEntity } from './directmeta.slice';
-import { directMetaActions, selectEntitiesDirectMeta } from './directmeta.slice';
 import { statusActions } from './status.slice';
 
 export const DIRECT_FEATURE_KEY = 'direct';
@@ -25,7 +24,12 @@ export const DIRECT_FEATURE_KEY = 'direct';
 export interface DirectEntity extends IChannel {
 	id: string;
 	showPinBadge?: boolean;
+	lastSeenTimestamp?: number;
+	lastSentTimestamp?: number;
+	lastSeenMessageId?: string;
 }
+
+export type DMMetaEntity = DirectEntity;
 
 export interface DirectState extends EntityState<DirectEntity, string> {
 	loadingStatus: LoadingStatus;
@@ -55,6 +59,17 @@ export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEn
 
 	return mapped;
 };
+
+function extractDMMeta(channel: DirectEntity): Partial<DirectEntity> {
+	const lastSeenTimestamp = Number(channel?.last_seen_message?.timestamp_seconds);
+	const lastSentTimestamp = Number(channel?.last_sent_message?.timestamp_seconds);
+
+	return {
+		lastSeenTimestamp: isNaN(lastSeenTimestamp) ? (lastSentTimestamp > 0 ? lastSentTimestamp - 1 : 0) : lastSeenTimestamp,
+		lastSentTimestamp: isNaN(lastSentTimestamp) ? 0 : lastSentTimestamp,
+		lastSeenMessageId: channel?.last_seen_message?.id
+	};
+}
 
 export const fetchDirectDetail = createAsyncThunk('direct/fetchDirectDetail', async ({ directId }: { directId: string }, thunkAPI) => {
 	try {
@@ -225,7 +240,7 @@ export const fetchDirectMessage = createAsyncThunk(
 				const existingEntity = existingEntities.find((entity) => entity.id === channelRes.channel_id);
 				return mapDmGroupToEntity(channelRes, existingEntity);
 			});
-			thunkAPI.dispatch(directMetaActions.setDirectMetaEntities(channels));
+			thunkAPI.dispatch(directActions.setDirectMetaEntities(channels));
 			thunkAPI.dispatch(directActions.setAll(channels));
 			thunkAPI.dispatch(userChannelsActions.upsertMany(listDM));
 			const users = mapChannelsToUsers(sorted);
@@ -416,17 +431,8 @@ export const addDirectByMessageWS = createAsyncThunk('direct/addDirectByMessageW
 
 		const directEntity = mapMessageToConversation(message);
 		if (!existingDirect) {
-			if (message.isMe) {
-				return directEntity;
-			}
-			thunkAPI.dispatch(directActions.upsertOne(directEntity));
-			thunkAPI.dispatch(
-				directMetaActions.upsertOne({
-					...directEntity,
-					lastSeenTimestamp: directEntity.last_seen_message?.timestamp_seconds,
-					lastSentTimestamp: directEntity.last_sent_message?.timestamp_seconds
-				} as DMMetaEntity)
-			);
+			const meta = extractDMMeta(directEntity);
+			thunkAPI.dispatch(directActions.upsertOne({ ...directEntity, ...meta }));
 			return directEntity;
 		} else {
 			thunkAPI.dispatch(directActions.updateMoreData(directEntity));
@@ -515,7 +521,8 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 				}
 			})
 		);
-		thunkAPI.dispatch(directMetaActions.upsertOne(directEntity as DMMetaEntity));
+		const meta = extractDMMeta(directEntity);
+		thunkAPI.dispatch(directActions.upsertOne({ ...directEntity, ...meta }));
 
 		return directEntity;
 	} catch (error) {
@@ -774,6 +781,105 @@ export const directSlice = createSlice({
 					changes
 				});
 			}
+		},
+		updateDMSocket: (state, action: PayloadAction<ChannelMessage>) => {
+			const payload = action.payload;
+			const timestamp = Date.now() / 1000;
+			const dmChannel = state.entities[payload.channel_id];
+
+			directAdapter.updateOne(state, {
+				id: payload.channel_id,
+				changes: {
+					last_sent_message: {
+						content: payload.content,
+						id: payload.id,
+						sender_id: payload.sender_id,
+						timestamp_seconds: timestamp
+					} as ApiChannelMessageHeader,
+					lastSentTimestamp: timestamp
+				}
+			});
+
+			if (payload.clan_id === '0' && dmChannel?.active !== ActiveDm.OPEN_DM) {
+				directAdapter.updateOne(state, {
+					id: payload.channel_id,
+					changes: {
+						active: ActiveDm.OPEN_DM
+					}
+				});
+			}
+		},
+		setCountMessUnread: (state, action: PayloadAction<{ channelId: string; isMention?: boolean; count?: number; isReset?: boolean }>) => {
+			const { channelId, isMention = false, count = 1, isReset = false } = action.payload;
+			const entity = state.entities[channelId];
+			if (entity?.is_mute !== true || isMention === true) {
+				const newCountMessUnread = isReset ? 0 : (entity?.count_mess_unread || 0) + count;
+				const finalCount = Math.max(0, newCountMessUnread);
+				directAdapter.updateOne(state, {
+					id: channelId,
+					changes: {
+						count_mess_unread: finalCount
+					}
+				});
+			}
+		},
+		setDirectLastSeenTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; messageId?: string }>) => {
+			const { channelId, timestamp, messageId } = action.payload;
+			directAdapter.updateOne(state, {
+				id: channelId,
+				changes: {
+					count_mess_unread: 0,
+					lastSeenTimestamp: timestamp,
+					...(messageId && { lastSeenMessageId: messageId })
+				}
+			});
+		},
+		updateLastSeenTime: (state, action: PayloadAction<MessagesEntity>) => {
+			const payload = action.payload;
+			const entity = state.entities[payload.channel_id];
+			if (entity && entity.lastSeenMessageId === payload.id) {
+				return;
+			}
+
+			const timestamp = Date.now() / 1000;
+			directAdapter.updateOne(state, {
+				id: payload.channel_id,
+				changes: {
+					last_seen_message: {
+						content: payload.content,
+						id: payload.id,
+						sender_id: payload.sender_id,
+						timestamp_seconds: timestamp
+					} as ApiChannelMessageHeader,
+					count_mess_unread: 0,
+					lastSeenMessageId: payload.id,
+					lastSeenTimestamp: timestamp
+				}
+			});
+		},
+		setDirectMetaEntities: (state, action: PayloadAction<IChannel[]>) => {
+			const channels = action.payload;
+			if (channels) {
+				for (const ch of channels) {
+					const entity = state.entities[ch.channel_id || ''];
+					if (entity) {
+						const meta = extractDMMeta(entity as DirectEntity);
+						directAdapter.updateOne(state, {
+							id: ch.channel_id || '',
+							changes: meta
+						});
+					}
+				}
+			}
+		},
+		updateMuteDM: (state, action: PayloadAction<{ channelId: string; isMute: boolean }>) => {
+			const payload = action.payload;
+			directAdapter.updateOne(state, {
+				id: payload.channelId,
+				changes: {
+					is_mute: payload.isMute
+				}
+			});
 		}
 	},
 	extraReducers: (builder) => {
@@ -829,6 +935,8 @@ export const directActions = {
 	fetchDirectDetail
 };
 
+export const directMetaActions = directActions;
+
 const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {
 	if (lastSeenStamp && lastSentStamp) {
 		return Number(lastSeenStamp) < Number(lastSentStamp);
@@ -862,21 +970,10 @@ export const selectUpdateDmGroupLoading = (channelId: string) =>
 
 export const selectUpdateDmGroupError = (channelId: string) => createSelector(getDirectState, (state) => state.updateDmGroupError[channelId] || null);
 
-export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, selectEntitiesDirectMeta, (directMessages, directMetaEntities) => {
-	return directMessages
-		.filter((dm) => {
-			return dm?.active === 1;
-		})
-		.map((dm) => {
-			if (!dm?.channel_id) return dm;
-			const found = directMetaEntities?.[dm.channel_id];
-			if (!found) return dm;
-			return {
-				...dm,
-				last_sent_message: { ...dm?.last_sent_message, ...found.last_sent_message },
-				last_seen_message: { ...dm?.last_seen_message, ...found.last_seen_message }
-			};
-		});
+export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, (directMessages) => {
+	return directMessages.filter((dm) => {
+		return dm?.active === 1;
+	});
 });
 
 export const selectDirectsOpenlistOrder = createSelector(selectDirectsOpenlist, (data) => {
@@ -927,3 +1024,27 @@ export const selectIsShowPinBadgeByDmId = createSelector([getDirectState, (state
 	const result = state?.entities[dmId]?.showPinBadge;
 	return result;
 });
+
+export const selectDirectsUnreadlist = createSelector(selectAllDirectMessages, (state) => {
+	return state.filter((item) => {
+		return item?.count_mess_unread && item?.is_mute !== true;
+	});
+});
+
+export const selectIsUnreadDMById = createSelector([selectDirectMessageEntities, (state, channelId: string) => channelId], (entities, channelId) => {
+	const channel = entities?.[channelId];
+	return (
+		channel?.lastSeenTimestamp !== undefined && channel?.lastSentTimestamp !== undefined && channel.lastSeenTimestamp < channel.lastSentTimestamp
+	);
+});
+
+export const selectTotalUnreadDM = createSelector(selectDirectsUnreadlist, (listUnreadDM) => {
+	return listUnreadDM.reduce((total, count) => total + (count?.count_mess_unread ?? 0), 0);
+});
+
+export const selectLastSeenMessageIdDM = createSelector([selectDirectMessageEntities, (state, dmId: string) => dmId], (entities, channelId) => {
+	const dm = entities?.[channelId];
+	return dm?.lastSeenMessageId;
+});
+
+export const selectEntitiesDirectMeta = selectDirectMessageEntities;

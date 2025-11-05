@@ -43,7 +43,7 @@
 			"shadowModeInfo": "In shadow mode, the bot can receive all messages sent to the creator, but it cannot send messages."
 		},
 		"shadowConfirm": {
-			"title": "Are you sure you want to enable Shadow Bot mode?",
+			"title": "Please confirm if you would like to enable Shadow Bot mode?",
 			"message": "In this mode, the bot can receive all messages sent to the creator but cannot send messages."
 		}
 	},

@@ -1,6 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import { messagesActions, selectCurrentChannel, selectCurrentClanId, selectCurrentTopicId, topicsActions, useAppDispatch } from '@mezon/store-mobile';
+import {
+	messagesActions,
+	selectCurrentChannel,
+	selectCurrentClanId,
+	selectCurrentTopicId,
+	selectCurrentUserId,
+	selectIsUserBannedInChannel,
+	topicsActions,
+	useAppDispatch
+} from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
@@ -22,6 +31,8 @@ export default function TopicDiscussion() {
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannel = useSelector(selectCurrentChannel);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanned = useSelector((state) => selectIsUserBannedInChannel(state, currentChannel?.channel_id, currentUserId));
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
 
@@ -116,6 +127,7 @@ export default function TopicDiscussion() {
 							isPublic={isPublicChannel(currentChannel)}
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}
+							isBanned={isBanned}
 						/>
 					</View>
 				</PanGestureHandler>
@@ -127,6 +139,7 @@ export default function TopicDiscussion() {
 					}}
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={currentTopicId}
+					isBanned={isBanned}
 				/>
 				<PanelKeyboard currentChannelId={currentTopicId || currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
 			</KeyboardAvoidingView>

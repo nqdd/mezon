@@ -1,4 +1,4 @@
-import { selectCurrentChannel, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import { selectCurrentChannel, selectCurrentUserId, selectDmGroupCurrentId, selectIsUserBannedInChannel } from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,8 @@ import NoChannelSelected from './NoChannelSelected';
 const HomeScreen = React.memo((props: any) => {
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDirectId = useSelector(selectDmGroupCurrentId);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanned = useSelector((state) => selectIsUserBannedInChannel(state, currentChannel?.channel_id, currentUserId));
 	if (!currentChannel && !currentDirectId) {
 		return <NoChannelSelected />;
 	}
@@ -24,6 +26,7 @@ const HomeScreen = React.memo((props: any) => {
 			isPublicChannel={isPublic}
 			isThread={isThread}
 			channelType={currentChannel?.type}
+			isBanned={isBanned}
 		/>
 	);
 });
