@@ -269,10 +269,11 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 		'--contexify-activeRightSlot-color': 'var(--text-secondary)',
 		'--contexify-arrow-color': 'var(--text-theme-primary)',
 		'--contexify-activeArrow-color': 'var(--text-secondary)',
-		'--contexify-menu-radius': '2px',
+		'--contexify-menu-radius': '8px',
 		'--contexify-activeItem-radius': '2px',
 		'--contexify-menu-minWidth': '188px',
-		'--contexify-separator-color': '#ADB3B9'
+		'--contexify-separator-color': '#ADB3B9',
+		border: '1px solid var(--border-primary)'
 	} as CSSProperties;
 	return (
 		<MemberContextMenuContext.Provider value={contextValue}>

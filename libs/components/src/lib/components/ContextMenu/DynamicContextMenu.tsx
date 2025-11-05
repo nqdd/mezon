@@ -111,7 +111,9 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		'--contexify-rightSlot-color': 'var(--text-secondary)',
 		'--contexify-activeRightSlot-color': 'var(--text-secondary)',
 		'--contexify-arrow-color': 'var(--text-theme-primary)',
-		'--contexify-activeArrow-color': 'var(--text-secondary)'
+		'--contexify-activeArrow-color': 'var(--text-secondary)',
+		'--contexify-menu-radius': '8px',
+		border: '1px solid var(--border-primary)'
 	} as React.CSSProperties;
 
 	const { posShowMenu, onVisibilityChange } = useMessageContextMenu();
