@@ -272,7 +272,10 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 		'--contexify-menu-radius': '2px',
 		'--contexify-activeItem-radius': '2px',
 		'--contexify-menu-minWidth': '188px',
-		'--contexify-separator-color': '#ADB3B9'
+		'--contexify-separator-color': '#ADB3B9',
+		'--contexify-border-color': 'var(--border-primary)',
+		'--contexify-border-width': '1px',
+		border: '1px solid var(--border-primary)'
 	} as CSSProperties;
 	return (
 		<MemberContextMenuContext.Provider value={contextValue}>
