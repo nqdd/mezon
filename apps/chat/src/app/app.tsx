@@ -6,6 +6,7 @@ import {
 	initStore,
 	selectAllListAttachmentByChannel,
 	selectAttachmentPaginationByChannel,
+	selectClanView,
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectCurrentLanguage,
@@ -127,11 +128,14 @@ const AppInitializer = () => {
 				if (!state) return;
 
 				const currentChannelId = selectCurrentChannelId(state);
+				const isClanView = selectClanView(state);
+				const currentDMId = (state as any)?.direct?.currentDirectMessageId as string | undefined;
+				const effectiveChannelId = isClanView ? (currentChannelId as string) : (currentDMId as string) || (currentChannelId as string);
 				const currentClanId = selectCurrentClanId(state);
-				const currentAttachments = selectAllListAttachmentByChannel(state, currentChannelId as string);
-				const paginationState = selectAttachmentPaginationByChannel(state, currentChannelId as string);
+				const currentAttachments = selectAllListAttachmentByChannel(state, effectiveChannelId);
+				const paginationState = selectAttachmentPaginationByChannel(state, effectiveChannelId);
 
-				if (!currentChannelId || paginationState.isLoading) {
+				if (!effectiveChannelId || paginationState.isLoading) {
 					return;
 				}
 
@@ -157,13 +161,13 @@ const AppInitializer = () => {
 					afterParam = timestampNumber;
 				}
 
-				dispatch(attachmentActions.setAttachmentLoading({ channelId: currentChannelId, isLoading: true }));
+				dispatch(attachmentActions.setAttachmentLoading({ channelId: effectiveChannelId, isLoading: true }));
 
 				try {
 					await dispatch(
 						attachmentActions.fetchChannelAttachments({
 							clanId: clanId as string,
-							channelId: currentChannelId,
+							channelId: effectiveChannelId,
 							limit: paginationState.limit,
 							direction,
 							...(beforeParam && { before: beforeParam }),
@@ -172,15 +176,15 @@ const AppInitializer = () => {
 					);
 				} catch (error) {
 					console.error('Error fetching attachments:', error);
-					dispatch(attachmentActions.setAttachmentLoading({ channelId: currentChannelId, isLoading: false }));
+					dispatch(attachmentActions.setAttachmentLoading({ channelId: effectiveChannelId, isLoading: false }));
 					return;
 				}
 
 				const updatedState = getStore()?.getState();
 				if (!updatedState) return;
 
-				const updatedAttachments = selectAllListAttachmentByChannel(updatedState, currentChannelId);
-				const updatedPagination = selectAttachmentPaginationByChannel(updatedState, currentChannelId);
+				const updatedAttachments = selectAllListAttachmentByChannel(updatedState, effectiveChannelId);
+				const updatedPagination = selectAttachmentPaginationByChannel(updatedState, effectiveChannelId);
 				const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
 
 				const imageAttachments = updatedAttachments
@@ -188,7 +192,7 @@ const AppInitializer = () => {
 					.map((att) => ({
 						...att,
 						id: att.id || '',
-						channelId: currentChannelId,
+						channelId: effectiveChannelId,
 						clanId: clanId || ''
 					}));
 

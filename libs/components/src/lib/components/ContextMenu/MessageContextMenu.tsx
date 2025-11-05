@@ -514,11 +514,11 @@ function MessageContextMenu({
 
 	const [enableEditMessageItem, enableReportMessageItem] = useMemo(() => {
 		if (!checkPos) return [false, false];
-		const enableEdit = isMyMessage && !message.content.tp;
+		const enableEdit = isMyMessage && !message?.content?.tp;
 		const enableReport = !isMyMessage;
 
 		return [enableEdit, enableReport];
-	}, [isMyMessage, checkPos, message.content.tp]);
+	}, [isMyMessage, checkPos, message?.content?.tp]);
 
 	const pinMessageStatus = useMemo(() => {
 		if (!checkPos) return undefined;
@@ -540,7 +540,7 @@ function MessageContextMenu({
 	}, [checkPos, activeMode, canManageThread]);
 
 	const enableDelMessageItem = useMemo(() => {
-		if (!checkPos || message.content.tp) return false;
+		if (!checkPos || message?.content?.tp) return false;
 		if (isMyMessage) {
 			return true;
 		}
@@ -551,7 +551,7 @@ function MessageContextMenu({
 		if (activeMode === ChannelStreamMode.STREAM_MODE_CHANNEL || activeMode === ChannelStreamMode.STREAM_MODE_THREAD) {
 			return canDeleteMessage;
 		}
-	}, [activeMode, type, canDeleteMessage, isMyMessage, checkPos, isOwnerGroupDM, message.content.tp]);
+	}, [activeMode, type, canDeleteMessage, isMyMessage, checkPos, isOwnerGroupDM, message?.content?.tp]);
 
 	const checkElementIsImage = elementTarget instanceof HTMLImageElement;
 	const checkElementIsLink = elementTarget instanceof HTMLAnchorElement;

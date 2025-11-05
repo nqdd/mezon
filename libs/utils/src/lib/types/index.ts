@@ -814,6 +814,12 @@ export type RemoveChannelUsers = {
 	userIds: string[];
 };
 
+export type BanClanUsers = {
+	clanId: string;
+	channelId: string;
+	userIds: string[];
+};
+
 export enum Tabs_Option {
 	LOCATION = 0,
 	EVENT_INFO = 1,

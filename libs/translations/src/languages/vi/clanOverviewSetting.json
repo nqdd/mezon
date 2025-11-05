@@ -59,7 +59,9 @@
     "kick": "Khai trừ",
     "removeFromThread": "Xóa khỏi chủ đề",
     "manage": "Quản lý",
-    "transferOwnership": "Chuyển quyền sở hữu"
+    "transferOwnership": "Chuyển quyền sở hữu",
+    "ban": "Cấm",
+    "unban": "Hủy cấm"
   },
   "threadRemoveModal": {
     "title": "Xóa khỏi chủ đề?",

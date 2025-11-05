@@ -16,6 +16,7 @@ interface IChatBoxProps {
 	isPublic: boolean;
 	topicChannelId?: string;
 	isBlocked?: boolean;
+	isBanned?: boolean;
 }
 export const ChatBox = memo((props: IChatBoxProps) => {
 	const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], props.channelId);

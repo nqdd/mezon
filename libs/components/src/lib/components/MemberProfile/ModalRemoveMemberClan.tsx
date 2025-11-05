@@ -27,15 +27,29 @@ const ModalRemoveMemberClan = ({ username, onClose, onRemoveMember }: ModalRemov
 	return (
 		<ModalLayout onClose={onClose}>
 			<div className="bg-theme-setting-primary pt-4 rounded w-[440px]">
-				<div className="px-4">
-					<h1 className="text-theme-primary-active text-xl font-semibold">
-						{t('kickMember.title', { username, clanName: currentClanName || 'clan' })}
+				<div className="px-4 mb-3">
+					<h1 className="text-theme-primary-active text-xl font-semibold flex flex-wrap items-center gap-1">
+						<span>{t('kickMember.title').split('{')[0]}</span>
+						<span className="text-purple-600 font-bold inline-block truncate max-w-[200px]" title={username}>
+							{username}
+						</span>
+						<span>{t('kickMember.title').includes('from') ? 'from' : ''}</span>
+						<span className="text-blue-600 font-bold inline-block truncate max-w-[150px]" title={currentClanName || 'clan'}>
+							{currentClanName || 'clan'}
+						</span>
 					</h1>
 				</div>
-				<div className="px-4">
+				<div className="px-4 mb-4">
 					<div className="block">
-						<p className="text-theme-primary text-base font-normal">
-							{t('kickMember.description', { username, clanName: currentClanName || 'the clan' })}
+						<p className="text-theme-primary text-base font-normal flex flex-wrap items-center gap-1">
+							<span>{t('kickMember.description').split('{')[0]}</span>
+							<span className="text-purple-600 font-semibold inline-block truncate max-w-[150px]" title={username}>
+								{username}
+							</span>
+							<span>{t('kickMember.description').includes('from') ? 'from' : ''}</span>
+							<span className="text-blue-600 font-semibold inline-block truncate max-w-[150px]" title={currentClanName || 'the clan'}>
+								{currentClanName || 'the clan'}
+							</span>
 						</p>
 					</div>
 				</div>
