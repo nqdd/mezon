@@ -1,11 +1,5 @@
 import { useAuth, useChatReaction } from '@mezon/core';
-import {
-	selectCurrentChannelId,
-	selectCurrentChannelParentId,
-	selectCurrentChannelPrivate,
-	selectMemberClanByUserId,
-	useAppSelector
-} from '@mezon/store';
+import { selectCurrentChannelId, selectCurrentChannelParentId, selectCurrentChannelPrivate } from '@mezon/store';
 import type { IMessageWithUser } from '@mezon/utils';
 import { getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import { memo, useCallback } from 'react';
@@ -30,7 +24,6 @@ const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messag
 	const currentChannelObjectId = useSelector(selectCurrentChannelId);
 	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
 	const currentChannelPrivate = useSelector(selectCurrentChannelPrivate);
-	const clanProfile = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id || ''));
 
 	const handleClickEmoji = useCallback(async () => {
 		await reactionMessageDispatch({
@@ -45,22 +38,19 @@ const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messag
 			clanId: message?.clan_id ?? '',
 			channelId: isTopic ? currentChannelObjectId || '' : (message?.channel_id ?? ''),
 			isFocusTopicBox: isTopic,
-			channelIdOnMessage: message?.channel_id,
-			sender_name: !clanProfile
-				? userProfile?.user?.display_name || userProfile?.user?.username
-				: clanProfile.prioritizeName || clanProfile.clan_nick || userProfile?.user?.username
+			channelIdOnMessage: message?.channel_id
 		});
 	}, [
 		reactionMessageDispatch,
 		message,
 		emojiId,
+		messageId,
 		emojiShortCode,
 		userProfile,
 		currentChannelParentId,
 		currentChannelPrivate,
 		currentChannelObjectId,
-		isTopic,
-		clanProfile
+		isTopic
 	]);
 
 	return (
