@@ -3,8 +3,8 @@ import { throttle } from './schedulers';
 const showError = true;
 let error: Error | undefined;
 
-window.addEventListener('error', handleErrorEvent);
-window.addEventListener('unhandledrejection', handleErrorEvent);
+// window.addEventListener('error', handleErrorEvent);
+// window.addEventListener('unhandledrejection', handleErrorEvent);
 
 const throttleError = throttle((err) => {
 	if (showError) {

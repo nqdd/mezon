@@ -444,16 +444,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						!isFocus;
 
 					if (isNotCurrentDirect) {
-						dispatch(directMetaActions.setDirectLastSentTimestamp({ channelId: message.channel_id, timestamp }));
-						if (
-							((Array.isArray(message.mentions) && message.mentions.length === 0) ||
-								message.mentions?.some((listUser) => listUser.user_id !== userId)) &&
-							message.references?.at(0)?.message_sender_id !== userId
-						) {
+						if (message.sender_id !== userId) {
 							dispatch(directMetaActions.setCountMessUnread({ channelId: message.channel_id, isMention: false }));
-							if (!mess.isMe) {
-								dispatch(directActions.addBadgeDirect({ channelId: message.channel_id as string }));
-							}
 						}
 					}
 
@@ -624,8 +616,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 			const store = await getStoreAsync();
 			const currentChannel = selectCurrentChannel(store.getState() as unknown as RootState);
-			const isClanView = selectClanView(store.getState());
-			const currentDirectId = selectDmGroupCurrentId(store.getState());
 			const isFocus = !isBackgroundModeActive();
 
 			if (
@@ -637,13 +627,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(
 					notificationActions.add({ data: mapNotificationToEntity(notification), category: notification.category as NotificationCategory })
 				);
-				const isFriendPageView = path.includes('/chat/direct/friends');
-				const isNotCurrentDirect =
-					isFriendPageView ||
-					isClanView ||
-					!currentDirectId ||
-					(currentDirectId && !RegExp(currentDirectId).test(notification?.channel_id || '')) ||
-					!isFocus;
+
 				if (notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED) {
 					dispatch(clansActions.updateClanBadgeCount({ clanId: notification?.clan_id || '', count: 1 }));
 
@@ -672,10 +656,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							count: 1
 						})
 					);
-
-					if (isNotCurrentDirect) {
-						dispatch(directMetaActions.setCountMessUnread({ channelId: notification?.channel_id ?? '', isMention: true }));
-					}
 				}
 			}
 

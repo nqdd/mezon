@@ -70,6 +70,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 			try {
 				const distance = Math.round(Number((BigInt(lastMessageViewport.id) >> BigInt(22)) - (BigInt(lastSeenMessageId) >> BigInt(22))));
 				if (distance >= 0) {
+					dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 					markAsReadSeen(lastMessageViewport, mode, 0);
 					return;
 				}
@@ -80,6 +81,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 
 		const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
 		if (isLastMessage) {
+			dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 			markAsReadSeen(lastMessageViewport, mode, 0);
 		}
 	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentDmGroup]);
@@ -97,10 +99,9 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 
 	useEffect(() => {
 		if (lastMessageViewport && isWindowFocused) {
-			dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 			markMessageAsRead();
 		}
-	}, [lastMessageViewport, isWindowFocused, markMessageAsRead, dispatch, channelId]);
+	}, [lastMessageViewport, isWindowFocused, markMessageAsRead, dispatch, channelId, lastSeenMessageId]);
 
 	useEffect(() => {
 		if (isMounted.current || !lastMessageViewport) return;
