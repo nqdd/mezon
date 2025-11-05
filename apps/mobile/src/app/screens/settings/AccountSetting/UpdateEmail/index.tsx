@@ -287,6 +287,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 					placeHolder={t('emailSetting.updateEmail.newEmail')}
 					prefixIcon={renderEmailIcon()}
 					inputWrapperStyle={styles.inputWrapperPrefix}
+					autoFocus
 				/>
 				<View style={styles.errorContainer}>{!isValidEmail && <ErrorInput errorMessage={t('emailSetting.updateEmail.invalidEmail')} />}</View>
 			</View>
