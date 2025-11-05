@@ -331,7 +331,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 						data-e2e={generateE2eId(`chat.direct_message.button.create_group`)}
 					>
 						{isCreating
-							? 'Creating...'
+							? `${t('createMessageGroup.creating')}`
 							: currentDM?.type === ChannelType.CHANNEL_TYPE_GROUP
 								? t('createMessageGroup.addToGroupChat')
 								: selectedFriends.length === 0

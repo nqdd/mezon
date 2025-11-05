@@ -12,7 +12,8 @@
 		"createDMOrGroupChat": "Create DM or Group Chat",
 		"createDM": "Create DM",
 		"createGroupChat": "Create Group Chat",
-		"noFriendsFound": "No friends found that are not already in this DM."
+		"noFriendsFound": "No friends found that are not already in this DM.",
+		"creating": "Creating..."
 	},
 	"editGroup": {
 		"title": "Edit Group",
