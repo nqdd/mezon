@@ -61,7 +61,10 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 				isLoading={isLoadingUpdatePassword}
 				initialEmail={email}
 				onSubmit={async (data) => {
-					await dispatch(authActions.registrationPassword(data));
+					const result = await dispatch(authActions.registrationPassword(data));
+					if (result?.payload) {
+						closeSetPasswordModal();
+					}
 				}}
 				hasPassword={!!userProfile?.password_setted}
 			/>
@@ -79,12 +82,6 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 	const handleOpenSetPassword = () => {
 		openSetPassWordModal();
 	};
-
-	useEffect(() => {
-		if (isLoadingUpdatePassword !== 'loading') {
-			closeSetPasswordModal();
-		}
-	}, [isLoadingUpdatePassword]);
 
 	return (
 		<div
