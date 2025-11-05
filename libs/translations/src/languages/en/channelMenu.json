@@ -1,100 +1,100 @@
 {
-    "menu": {
-        "watchMenu": {
-            "title": "",
-            "markAsRead": "Mark As Read"
-        },
-        "inviteMenu": {
-            "title": "",
-            "invite": "Invite",
-            "markFavorite": "Mark Favorite",
-            "unMarkFavorite": "Unmark Favorite",
-            "copyLink": "Copy Link"
-        },
-        "notification": {
-            "title": "",
-            "muteChannel": "Mute Channel",
-            "unMuteChannel": "Unmute Channel",
-            "muteThread": "Mute Thread",
-            "unMuteThread": "Unmute Thread",
-            "notification": "Notification Settings",
-            "for15Minutes": "For 15 Minutes",
-            "for1Hour": "For 1 Hour", 
-            "for3Hours": "For 3 Hour",
-            "for8Hours": "For 8 Hour",
-            "for24Hours": "For 24 Hour",
-            "untilTurnedBackOn": "Until I turn it back on",
-            "useCategoryDefault": "Use Category Default",
-            "all": "All",
-            "onlyMention": "Only @mention", 
-            "nothing": "Nothing",
-            "processing": "Processing...",
-            "muteChannelStatus": "Mute Channel",
-            "muteThreadStatus": "Mute Thread", 
-            "unmuteChannelStatus": "Unmute Channel",
-            "unmuteThreadStatus": "Unmute Thread",
-            "mutedUntil": "Muted until"
-        },
-        "thread": {
-          "title": "",
-          "threads": "Threads",
-          "searchThreads": "Search for Thread Name",
-          "searchFiles": "Search Files",
-          "searchCanvas": "Search for Canvas Name"
-        },
-        "organizationMenu": {
-            "title": "",
-            "edit": "Edit Channel",
-            "deleteChannel": "Delete Channel",
-            "duplicateChannel": "Duplicate Category", 
-            "leaveChannel": "Leave Channel",
-            "createTextChannel": "Create Text Channel",
-            "createVoiceChannel": "Create Voice Channel",
-            "openChat": "Open Chat",
-            "hideNames": "Hide Names",
-            "createThread": "Create Thread"
-        },
-        "devMode": {
-            "title": "Development Mode",
-            "copyChannelID": "Copy Channel ID"
-        },
-        "manageThreadMenu": {
-            "editThread": "Edit Thread",
-            "deleteThread": "Delete Thread",
-            "leaveThread": "Leave Thread",
-            "closeThread": "Close Thread",
-            "lockThread": "Lock Thread",
-            "copyLink": "Copy Link"
-        }
-    },
-    "notify": {
-        "serverIDCopied": "Copied Channel ID"
-    },
-    "modalConfirm": {
-        "thread": {
-            "title": "Delete Thread {{threadName}}",
-            "content": "Are you sure you want to delete this Thread?",
-            "confirmText": "Yes"
-        },
-        "channel": {
-            "title": "Delete Channel {{channelName}}",
-            "content": "Are you sure you want to delete this channel?",
-            "confirmText": "Yes",
-            "systemChannel": "You can't delete system channel",
-            "error": "Delete channel failed: {{error}}"
-        }
-    },
-    "modalConFirmLeaveThread": {
-      "title": "Leave Thread",
-      "yesButton": "Leave Thread",
-      "textConfirm": "Are you sure you want to Leave Thread ? You can't receive messages from this thread when leave it"
-    },
-    "modalConFirmLeaveChannel": {
-      "title": "Leave Channel",
-      "yesButton": "Leave Channel",
-      "textConfirm": "Are you sure you want to Leave Channel ? You can't receive messages from this channel when leave it",
-      "error": "Leave channel failed: {{error}}"
-    },
-    "btnBadgeCount": "New",
-    "favoriteChannel": "FAVORITE CHANNEL"
+	"menu": {
+		"watchMenu": {
+			"title": "",
+			"markAsRead": "Mark As Read"
+		},
+		"inviteMenu": {
+			"title": "",
+			"invite": "Invite",
+			"markFavorite": "Mark Favorite",
+			"unMarkFavorite": "Unmark Favorite",
+			"copyLink": "Copy Link"
+		},
+		"notification": {
+			"title": "",
+			"muteChannel": "Mute Channel",
+			"unMuteChannel": "Unmute Channel",
+			"muteThread": "Mute Thread",
+			"unMuteThread": "Unmute Thread",
+			"notification": "Notification Settings",
+			"for15Minutes": "For 15 Minutes",
+			"for1Hour": "For 1 Hour",
+			"for3Hours": "For 3 Hour",
+			"for8Hours": "For 8 Hour",
+			"for24Hours": "For 24 Hour",
+			"untilTurnedBackOn": "Until I turn it back on",
+			"useCategoryDefault": "Use Category Default",
+			"all": "All",
+			"onlyMention": "Only @mention",
+			"nothing": "Nothing",
+			"processing": "Processing...",
+			"muteChannelStatus": "Mute Channel",
+			"muteThreadStatus": "Mute Thread",
+			"unmuteChannelStatus": "Unmute Channel",
+			"unmuteThreadStatus": "Unmute Thread",
+			"mutedUntil": "Muted until"
+		},
+		"thread": {
+			"title": "",
+			"threads": "Threads",
+			"searchThreads": "Search for Thread Name",
+			"searchFiles": "Search Files",
+			"searchCanvas": "Search for Canvas Name"
+		},
+		"organizationMenu": {
+			"title": "",
+			"edit": "Edit Channel",
+			"deleteChannel": "Delete Channel",
+			"duplicateChannel": "Duplicate Category",
+			"leaveChannel": "Leave Channel",
+			"createTextChannel": "Create Text Channel",
+			"createVoiceChannel": "Create Voice Channel",
+			"openChat": "Open Chat",
+			"hideNames": "Hide Names",
+			"createThread": "Create Thread"
+		},
+		"devMode": {
+			"title": "Development Mode",
+			"copyChannelID": "Copy Channel ID"
+		},
+		"manageThreadMenu": {
+			"editThread": "Edit Thread",
+			"deleteThread": "Delete Thread",
+			"leaveThread": "Leave Thread",
+			"closeThread": "Close Thread",
+			"lockThread": "Lock Thread",
+			"copyLink": "Copy Link"
+		}
+	},
+	"notify": {
+		"serverIDCopied": "Copied Channel ID"
+	},
+	"modalConfirm": {
+		"thread": {
+			"title": "Delete Thread {{threadName}}",
+			"content": "Please confirm if you would like to delete this Thread?",
+			"confirmText": "Yes"
+		},
+		"channel": {
+			"title": "Delete Channel {{channelName}}",
+			"content": "Please confirm if you would like to delete this channel?",
+			"confirmText": "Yes",
+			"systemChannel": "You can't delete system channel",
+			"error": "Delete channel failed: {{error}}"
+		}
+	},
+	"modalConFirmLeaveThread": {
+		"title": "Leave Thread",
+		"yesButton": "Leave Thread",
+		"textConfirm": "Please confirm if you would like to Leave Thread ? You can't receive messages from this thread when leave it"
+	},
+	"modalConFirmLeaveChannel": {
+		"title": "Leave Channel",
+		"yesButton": "Leave Channel",
+		"textConfirm": "Please confirm if you would like to Leave Channel ? You can't receive messages from this channel when leave it",
+		"error": "Leave channel failed: {{error}}"
+	},
+	"btnBadgeCount": "New",
+	"favoriteChannel": "FAVORITE CHANNEL"
 }

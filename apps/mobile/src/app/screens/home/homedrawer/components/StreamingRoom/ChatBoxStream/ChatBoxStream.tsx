@@ -8,7 +8,7 @@ import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
+import type { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
 import ChannelMessages from '../../../ChannelMessages';
 import { ChatBox } from '../../../ChatBox';
 import PanelKeyboard from '../../../PanelKeyboard';

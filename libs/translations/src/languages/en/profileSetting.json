@@ -26,7 +26,7 @@
 	},
 	"changedAlert": {
 		"title": "Discard unsaved changes?",
-		"description": "You have unsaved changes. Are you sure you want to discard them?",
+		"description": "You have unsaved changes. Please confirm if you would like to discard them?",
 		"discard": "Discard",
 		"keepEditing": "Keep Editing"
 	},

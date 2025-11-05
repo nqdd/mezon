@@ -55,7 +55,7 @@
 	},
 	"logOut": "Logout",
 	"logOutPopup": {
-		"description": "Are you sure you want to log out?",
+		"description": "Please confirm if you would like to log out?",
 		"noConfirm": "No",
 		"yesConfirm": "Yes"
 	},

@@ -1,6 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import { messagesActions, selectCurrentChannel, selectCurrentClanId, selectCurrentTopicId, selectCurrentUserId, selectIsUserBannedInChannel, topicsActions, useAppDispatch } from '@mezon/store-mobile';
+import {
+	messagesActions,
+	selectCurrentChannel,
+	selectCurrentClanId,
+	selectCurrentTopicId,
+	selectCurrentUserId,
+	selectIsUserBannedInChannel,
+	topicsActions,
+	useAppDispatch
+} from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
