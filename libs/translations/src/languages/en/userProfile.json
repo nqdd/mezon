@@ -199,11 +199,11 @@
 	"ban": {
 		"title": "Ban user",
 		"unbanTitle": "Unban user",
-		"content": "Are you sure you want to ban \"{{userName}}\"?",
+		"content": "Please confirm if you would like to ban \"{{userName}}\"?",
 		"banButton": "Ban",
 		"unBanButton": "Unban",
 		"reasonBan": "Reason for ban",
-		"unBanDescription": "Are you sure you want to unban \"{{userName}}\"?",
+		"unBanDescription": "Please confirm if you would like to unban \"{{userName}}\"?",
 		"time": {
 			"title": "Duration",
 			"tenMinutes": "10 minutes",
