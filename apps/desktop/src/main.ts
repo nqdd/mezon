@@ -21,6 +21,7 @@ import {
 	SET_RATIO_WINDOW,
 	TITLE_BAR_ACTION,
 	UNMAXIMIZE_WINDOW,
+	UPDATE_ACTIVITY_TRACKING,
 	UPDATE_ATTACHMENTS
 } from './app/events/constants';
 import ElectronEvents from './app/events/electron.events';
@@ -270,6 +271,10 @@ ipcMain.on(UPDATE_ATTACHMENTS, (event, { attachments, hasMoreBefore, hasMoreAfte
 			hasMoreAfter
 		});
 	}
+});
+
+ipcMain.on(UPDATE_ACTIVITY_TRACKING, (event, { isActivityTrackingEnabled }) => {
+	App.setActivityTrackingEnabled(isActivityTrackingEnabled);
 });
 
 async function copyBlobToClipboardElectron(blob: Buffer | null) {
