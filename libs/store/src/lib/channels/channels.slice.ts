@@ -339,14 +339,15 @@ export const joinChannel = createAsyncThunk(
 
 			if (!state.messages?.idMessageToJump?.id) {
 				const unreadMsgId = selectUnreadMessageIdByChannelId(thunkAPI.getState(), channelId as string);
-				const lastSeenMessageId = unreadMsgId || channel?.last_seen_message?.id;
+				const isSeenUpToDate = (channel?.last_seen_message?.timestamp_seconds || 0) >= (channel?.last_sent_message?.timestamp_seconds || 0);
+				const lastSeenMessageId = unreadMsgId || (isSeenUpToDate ? undefined : channel?.last_seen_message?.id);
 				thunkAPI.dispatch(
 					messagesActions.fetchMessages({
 						clanId,
 						channelId,
 						isClearMessage,
 						noCache,
-						messageId: lastSeenMessageId,
+						messageId: lastSeenMessageId || undefined,
 						direction: lastSeenMessageId ? 2 : undefined,
 						isFetchingLatestMessages: !lastSeenMessageId
 					})
@@ -1458,6 +1459,8 @@ export const channelsSlice = createSlice({
 			if (currentPosition?.messageId === messageId && currentPosition?.offset === offset) {
 				return;
 			}
+
+			// removed noisy console log
 
 			state.scrollPosition[channelId] = { messageId, offset };
 		},

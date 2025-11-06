@@ -50,9 +50,9 @@
 		linear-gradient(64.92deg, hsl(0 88.6% 30.98%) 16.17%, hsl(0 0% 0%) 72%) fixed 0 0 / cover;
 
 	--text-secondary: #f7ffff;
-	--bg-item-hover: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+	--bg-item-hover: hsl(240 calc(1 * 4%) 60.784% /0.12156862745098039);
 	--bg-item-hover-chat: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
-	--bg-active-member-channel: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+	--bg-active-member-channel: linear-gradient(rgba(78, 78, 78, 0.103), rgba(165, 165, 165, 0.151));
 
 	--bg-theme-input-primary: linear-gradient(rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.5)) fixed 0 0 / cover,
 		linear-gradient(64.92deg, hsl(0 88.6% 30.98%) 16.17%, hsl(0 0% 0%) 72%) fixed 0 0 / cover;

@@ -1,21 +1,19 @@
+import type { ChannelsEntity, RootState, WriteMessageReactionArgs } from '@mezon/store';
 import {
 	channelMetaActions,
-	ChannelsEntity,
 	channelUsersActions,
 	getActiveMode,
 	getStore,
 	reactionActions,
-	RootState,
 	selectAllAccount,
 	selectAllChannelMembers,
 	selectAllEmojiRecent,
 	selectCurrentChannel,
 	selectLastEmojiRecent,
-	useAppDispatch,
-	WriteMessageReactionArgs
+	useAppDispatch
 } from '@mezon/store';
 import { transformPayloadWriteSocket } from '@mezon/utils';
-import { ApiClanEmoji } from 'mezon-js/api.gen';
+import type { ApiClanEmoji } from 'mezon-js/api.gen';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 export type UseMessageReactionOption = {
@@ -41,12 +39,19 @@ interface ReactionMessageDispatchParams {
 	channelId: string;
 	isFocusTopicBox?: boolean;
 	channelIdOnMessage?: string;
-	sender_name?: string;
 }
 
 export function useChatReaction({ isMobile = false, isClanViewMobile = undefined }: ChatReactionProps = {}) {
 	const dispatch = useAppDispatch();
-	const userId = useSelector(selectAllAccount)?.user?.id as string;
+	const userProfile = useSelector(selectAllAccount);
+
+	const userId = useMemo(() => {
+		return userProfile?.user?.id as string;
+	}, [userProfile?.user?.id]);
+
+	const userName = useMemo(() => {
+		return userProfile?.user?.display_name || userProfile?.user?.username;
+	}, [userProfile?.user?.display_name, userProfile?.user?.username]);
 
 	const updateChannelUsers = useCallback(async (currentChannel: ChannelsEntity | null, userIds: string[], clanId: string) => {
 		const timestamp = Date.now() / 1000;
@@ -54,8 +59,8 @@ export function useChatReaction({ isMobile = false, isClanViewMobile = undefined
 		const body = {
 			channelId: currentChannel?.channel_id as string,
 			channelType: currentChannel?.type,
-			userIds: userIds,
-			clanId: clanId
+			userIds,
+			clanId
 		};
 
 		await dispatch(channelUsersActions.addChannelUsers(body));
@@ -114,8 +119,7 @@ export function useChatReaction({ isMobile = false, isClanViewMobile = undefined
 			clanId,
 			channelId,
 			isFocusTopicBox,
-			channelIdOnMessage,
-			sender_name
+			channelIdOnMessage
 		}: ReactionMessageDispatchParams) => {
 			const mode = getActiveMode(channelId);
 			const checkIsClanView = clanId && clanId !== '0';
@@ -123,7 +127,7 @@ export function useChatReaction({ isMobile = false, isClanViewMobile = undefined
 
 			isClanView && addMemberToThread(userId || '');
 			const payload = transformPayloadWriteSocket({
-				clanId: clanId,
+				clanId,
 				isPublicChannel: is_public,
 				isClanView: isClanView as boolean
 			});
@@ -143,12 +147,12 @@ export function useChatReaction({ isMobile = false, isClanViewMobile = undefined
 				isPublic: payload.is_public,
 				userId: userId as string,
 				topic_id: isFocusTopicBox ? channelIdOnMessage : '',
-				emoji_recent_id: emoji_recent_id,
-				sender_name
+				emoji_recent_id,
+				sender_name: userName
 			};
 			return dispatch(reactionActions.writeMessageReaction(payloadDispatchReaction)).unwrap();
 		},
-		[userId, emojiRecentId, addMemberToThread]
+		[userId, userName, emojiRecentId, addMemberToThread]
 	);
 
 	return useMemo(
