@@ -244,10 +244,10 @@ const DirectMessage = () => {
 									channelId={directId || currentDirectId || ''}
 									isPrivate={currentDmGroup?.channel_private}
 									channelLabel={currentDmGroup?.channel_label}
-									username={isDmChannel ? currentDmGroup?.usernames?.toString() : undefined}
+									username={isDmChannel ? currentDmGroup?.usernames?.at(-1) : undefined}
 									type={isDmChannel ? ChannelType.CHANNEL_TYPE_DM : ChannelType.CHANNEL_TYPE_GROUP}
 									mode={isDmChannel ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP}
-									avatarDM={isDmChannel ? currentDmGroup?.avatars?.at(0) : 'assets/images/avatar-group.png'}
+									avatarDM={isDmChannel ? currentDmGroup?.avatars?.at(-1) : 'assets/images/avatar-group.png'}
 								/>
 							}
 						</div>
@@ -357,7 +357,7 @@ const DirectMessage = () => {
 								avatar={
 									Number(type) === ChannelType.CHANNEL_TYPE_GROUP
 										? currentDmGroup?.channel_avatar?.[0]
-										: currentDmGroup?.avatars?.[0]
+										: currentDmGroup?.avatars?.at(-1)
 								}
 								isDM={true}
 							/>
