@@ -7,31 +7,30 @@ interface ModalProps {
 
 export const DeleteModal: React.FC<ModalProps> = ({ handleDelete, onClose }) => {
 	const { t } = useTranslation('confirmations');
+
 	return (
-		<div className="fixed  inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-			<div className="relative z-10 bg-theme-setting-primary p-6 rounded-md text-center text-theme-primary">
-				<h2 className="text-[30px] font-semibold mb-4">{t('deleteRole.title')}</h2>
-				<p className="text-white-600 text-[16px] whitespace-break-spaces">
-					{t('deleteRole.message')}
-				</p>
-				<div className="flex justify-center mt-10 text-[14px] gap-x-5">
-					<button
-						color="gray"
-						onClick={onClose}
-						className="px-4 py-2 bg-gray-300 text-gray-700 hover:bg-gray-400 focus:outline-none rounded-lg"
-					>
+		<div className="fixed inset-0 flex items-center justify-center z-50" onClick={onClose}>
+			<div className="fixed inset-0 bg-black opacity-80" />
+
+			<div className="relative z-10 w-[440px]" onClick={(e) => e.stopPropagation()}>
+				<div className="bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md text-theme-primary">
+					<h2 className="text-[20px] font-semibold text-theme-primary-active pb-[16px]">{t('deleteRole.title')}</h2>
+					<p className="pb-[20px] text-theme-primary text-[14px] whitespace-pre-line">{t('deleteRole.message')}</p>
+				</div>
+
+				<div className="bg-theme-setting-nav flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md">
+					<div onClick={onClose} className="hover:underline px-4 rounded-lg text-theme-primary text-theme-primary-hover cursor-pointer">
 						{t('deleteRole.cancel')}
-					</button>
-					<button
-						color="blue"
+					</div>
+					<div
 						onClick={() => {
 							handleDelete();
 							onClose();
 						}}
-						className="px-4 py-2 btn-primary btn-primary-hover focus:outline-none  rounded-lg"
+						className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-[25px] py-[8px] cursor-pointer"
 					>
 						{t('deleteRole.confirm')}
-					</button>
+					</div>
 				</div>
 			</div>
 		</div>

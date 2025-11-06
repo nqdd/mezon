@@ -6,9 +6,10 @@ type ModalSaveChangesProps = {
 	onSave: () => void;
 	onReset: () => void;
 	isLoading?: boolean;
+	disableSave?: boolean;
 };
 
-const ModalSaveChanges = ({ onSave, onReset, isLoading }: ModalSaveChangesProps) => {
+const ModalSaveChanges = ({ onSave, onReset, isLoading: _isLoading, disableSave }: ModalSaveChangesProps) => {
 	const { t } = useTranslation('clanSettings');
 	const handleSaveChanges = async () => {
 		await onSave();
@@ -24,11 +25,13 @@ const ModalSaveChanges = ({ onSave, onReset, isLoading }: ModalSaveChangesProps)
 					<button onClick={onReset} className="rounded px-4 py-1.5 hover:underline" data-e2e={generateE2eId('button.base')}>
 						{t('modalSaveChanges.reset')}
 					</button>
-					<ButtonLoading
-						label={t('modalSaveChanges.saveChanges')}
-						onClick={handleSaveChanges}
-						className="ml-auto bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 text-white rounded-lg px-4 py-1.5 text-nowrap  w-28"
-					/>
+					{!disableSave && (
+						<ButtonLoading
+							label={t('modalSaveChanges.saveChanges')}
+							onClick={handleSaveChanges}
+							className="ml-auto bg-indigo-600 dark:bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-700 text-white rounded-lg px-4 py-1.5 text-nowrap  w-28"
+						/>
+					)}
 				</div>
 			</div>
 		</div>
