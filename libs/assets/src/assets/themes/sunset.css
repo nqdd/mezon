@@ -44,7 +44,7 @@
 	--bg-theme-direct-message: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), linear-gradient(141.68deg, rgb(72, 40, 140) 27.57%, rgb(219, 127, 75) 71.25%);
 
 	--text-secondary: #f7ffff;
-	--bg-item-hover: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+	--bg-item-hover: hsl(240 calc(1 * 4%) 60.784% /0.12156862745098039);
 	--bg-item-hover-chat: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
 	--bg-active-member-channel: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
 
@@ -55,7 +55,7 @@
 	--border-t-theme-primary: color-mix(in oklab, hsl(0 100% 50%) 100%, hsl(0 100% 30%) 30%);
 	--border-r-t-l-theme-primary: color-mix(in oklab, hsl(0 100% 50%) 100%, hsl(0 100% 30%) 30%);
 	--border-r-b-l-theme-primary: color-mix(in oklab, hsl(0 100% 50%) 100%, hsl(0 100% 30%) 30%);
-	--border-primary: hsl(0 0% 30% / 0.4);
+	--border-primary: color-mix(in oklab, hsl(240 calc(1 * 4%) 60.784% /0.2) 100%, hsla(50, 18%, 34%, 0.355) 50%);
 	--border-secondary: #ff4444;
 	--border-focus: #ff6666;
 	--border-divider: #330000;
