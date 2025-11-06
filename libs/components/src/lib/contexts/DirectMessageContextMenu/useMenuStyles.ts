@@ -1,5 +1,6 @@
 import { selectTheme, useAppSelector } from '@mezon/store';
-import { CSSProperties, useMemo } from 'react';
+import type { CSSProperties } from 'react';
+import { useMemo } from 'react';
 
 export function useMenuStyles(warningStatus: string) {
 	const appearanceTheme = useAppSelector(selectTheme);
@@ -16,7 +17,9 @@ export function useMenuStyles(warningStatus: string) {
 				'--contexify-activeRightSlot-color': 'var(--text-secondary)',
 				'--contexify-arrow-color': 'var(--text-theme-primary)',
 				'--contexify-activeArrow-color': 'var(--text-secondary)',
-				'--contexify-activeItem-radius': '6px'
+				'--contexify-activeItem-radius': '6px',
+				'--contexify-menu-radius': '8px',
+				border: '1px solid var(--border-primary)'
 			}) as CSSProperties,
 		[warningStatus]
 	);

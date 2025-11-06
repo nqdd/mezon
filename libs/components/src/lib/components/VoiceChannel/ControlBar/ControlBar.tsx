@@ -2,6 +2,7 @@ import { useLocalParticipant, useLocalParticipantPermissions, usePersistentUserC
 import {
 	selectCurrentChannelId,
 	selectGroupCallJoined,
+	selectNoiseSuppressionEnabled,
 	selectShowCamera,
 	selectShowMicrophone,
 	selectShowScreen,
@@ -79,6 +80,7 @@ const ControlBar = ({
 	const showScreen = useSelector(selectShowScreen);
 	const showCamera = useSelector(selectShowCamera);
 	const showMicrophone = useSelector(selectShowMicrophone);
+	const noiseSuppressionEnabled = useSelector(selectNoiseSuppressionEnabled);
 
 	const isFullScreen = useSelector(selectVoiceFullScreen);
 	const isShowSelectScreenModal = useSelector(selectShowSelectScreenModal);
@@ -355,6 +357,10 @@ const ControlBar = ({
 		},
 		[sendSoundReaction]
 	);
+
+	const toggleNoiseSuppression = useCallback(() => {
+		dispatch(voiceActions.setNoiseSuppressionEnabled(!noiseSuppressionEnabled));
+	}, [dispatch, noiseSuppressionEnabled]);
 
 	return (
 		<div className="lk-control-bar !flex !justify-between !border-none !bg-transparent max-md:flex-col">
