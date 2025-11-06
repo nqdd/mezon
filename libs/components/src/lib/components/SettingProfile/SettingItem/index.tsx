@@ -89,6 +89,16 @@ const SettingItem = ({ onItemClick, initSetting }: { onItemClick?: (settingName:
 				</button>
 				<br />
 				<button
+					className={`p-2 pl-2 ml-[-8px] font-medium ${selectedButton === 'Activity' ? 'bg-button-secondary text-theme-primary-active' : 'text-theme-primary'} mt-1 w-[170px] text-left rounded-[5px]`}
+					onClick={() => {
+						handleButtonClick('Activity');
+						onItemClick && onItemClick('Activity');
+					}}
+				>
+					{t('setting:appSettings.activity')}
+				</button>
+				<br />
+				<button
 					className={`p-2 pl-2 ml-[-8px] font-medium ${selectedButton === 'Notifications' ? 'bg-button-secondary text-theme-primary-active' : 'text-theme-primary'} mt-1 w-[170px] text-left rounded-[5px]`}
 					onClick={() => {
 						handleButtonClick('Notifications');

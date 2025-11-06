@@ -23,7 +23,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { getColorAverageFromURL } from '../SettingProfile/AverageColor';
 import AvatarProfile from './AvatarProfile';
-import NoteUserProfile from './NoteUserProfile';
 import RoleUserProfile from './RoleUserProfile';
 import StatusProfile from './StatusProfile';
 import GroupIconBanner from './StatusProfile/groupIconBanner';
@@ -298,12 +297,6 @@ const ModalUserProfile = ({
 							</div>
 						)
 					) : null}
-					{showNote && (
-						<>
-							<div className="w-full border-b-theme-primary"></div>
-							<NoteUserProfile />
-						</>
-					)}
 					{!isFooterProfile && checkUser && (
 						<button className="rounded bg-outside-footer py-2 hover:bg-opacity-50 mt-2" onClick={openSetting}>
 							{t('labels.editProfile')}

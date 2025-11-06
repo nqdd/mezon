@@ -576,6 +576,7 @@ const ScrollDownButton = memo(
 						})
 					);
 					setAnchor.current = new Date().getTime();
+					lastSeenAtBottomRef.current = lastSentMessageId;
 				}, 200);
 			});
 		});
