@@ -1,0 +1,48 @@
+{
+	"header": {
+		"title": "Transaction History",
+		"subtitle": "View all your transaction activities"
+	},
+	"footers": {
+		"noti": "You have loaded all of {{count}} transactions",
+		"fetching": "Fetching more transactions..."
+	},
+	"filters": {
+		"all": "All Transaction",
+		"sent": "Send Transaction",
+		"received": "Received Transaction"
+	},
+	"transactionTypes": {
+		"sent": "Sent",
+		"received": "Received"
+	},
+	"currency": {
+		"code": "en-US",
+		"symbol": "Dong"
+	},
+	"emptyStates": {
+		"noTransactions": {
+			"title": "Can't find any transaction",
+			"description": "You haven't made any transactions yet. Your transaction history will appear here once you start sending or receiving tokens."
+		},
+		"noFilteredTransactions": {
+			"title": "Can't find any transaction",
+			"description": "No transactions found for the selected filter. Please try a different filter or check back later."
+		}
+	},
+	"transactionDetail": {
+		"fields": {
+			"transactionId": "Transaction ID",
+			"sender": "Sender",
+			"amount": "Amount",
+			"receiver": "Receiver",
+			"note": "Note",
+			"created": "Created"
+		},
+		"defaultNote": "No note",
+		"unknownUser": "Unknown User"
+	},
+	"transactionItem": {
+		"idPrefix": "Transaction #"
+	}
+}
