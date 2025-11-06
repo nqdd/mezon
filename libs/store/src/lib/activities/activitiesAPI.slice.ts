@@ -1,9 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { FOR_24_HOURS, IActivity, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiCreateActivityRequest, ApiUserActivity } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { IActivity, LoadingStatus } from '@mezon/utils';
+import { FOR_24_HOURS } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiCreateActivityRequest, ApiUserActivity } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 
 export const ACTIVITIES_API_FEATURE_KEY = 'activitiesapi';
 
@@ -24,6 +28,7 @@ export interface ActivityState extends EntityState<ActivitiesEntity, string> {
 	loadingStatus: LoadingStatus;
 	error?: string | null;
 	cache?: CacheMetadata;
+	isActivityTrackingEnabled: boolean;
 }
 
 export const activityAdapter = createEntityAdapter({
@@ -114,7 +119,8 @@ export const listActivities = createAsyncThunk('activity/listActivities', async 
 
 export const initialActivityState: ActivityState = activityAdapter.getInitialState({
 	loadingStatus: 'not loaded',
-	error: null
+	error: null,
+	isActivityTrackingEnabled: true
 });
 
 export const activitiesSlice = createSlice({
@@ -126,6 +132,9 @@ export const activitiesSlice = createSlice({
 		remove: activityAdapter.removeOne,
 		updateListActivity: (state: ActivityState, action: PayloadAction<ActivitiesEntity[]>) => {
 			activityAdapter.setAll(state, action.payload);
+		},
+		setActivityTrackingEnabled: (state: ActivityState, action: PayloadAction<boolean>) => {
+			state.isActivityTrackingEnabled = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
@@ -216,6 +225,8 @@ export const getActivityState = (rootState: { [ACTIVITIES_API_FEATURE_KEY]: Acti
 export const selectAllActivities = createSelector(getActivityState, selectAll);
 
 export const selectActivitiesEntities = createSelector(getActivityState, selectEntities);
+
+export const selectIsActivityTrackingEnabled = createSelector(getActivityState, (state) => state.isActivityTrackingEnabled);
 
 export const selectActivityByUserId = createSelector([getActivityState, (state, userId: string) => userId], (state, userId) =>
 	selectById(state, userId)
