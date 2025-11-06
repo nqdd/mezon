@@ -65,8 +65,6 @@ const SettingComunity = ({
 
 	const hasChanges =
 		aboutText !== initialAbout || bannerPreview !== initialBanner || descriptionText !== initialDescription || vanityUrl !== initialVanityUrl;
-	const allFieldsFilled = aboutText.trim() !== '' && descriptionText.trim() !== '' && vanityUrl.trim() !== '' && bannerPreview !== null;
-	const canSave = hasChanges && allFieldsFilled;
 
 	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
@@ -225,9 +223,42 @@ const SettingComunity = ({
 		setBannerFile(null);
 		setOpenSaveChange(false);
 		setVanityUrl(initialVanityUrl);
+		// Clear all error states
+		setAboutError(false);
+		setDescError(false);
+		setBannerError(false);
+		setVanityUrlError(false);
 	};
 
 	const handleSaveChanges = async () => {
+		let hasError = false;
+		setAboutError(false);
+		setDescError(false);
+		setBannerError(false);
+		setVanityUrlError(false);
+
+		if (!aboutText.trim()) {
+			setAboutError(true);
+			hasError = true;
+		}
+		if (!descriptionText.trim()) {
+			setDescError(true);
+			hasError = true;
+		}
+		if (!vanityUrl.trim()) {
+			setVanityUrlError(true);
+			hasError = true;
+		}
+		if (!bannerPreview) {
+			setBannerError(true);
+			hasError = true;
+		}
+
+		if (hasError) {
+			toast.error(t('communitySettings.messages.fillAllRequiredFields'));
+			return;
+		}
+
 		setIsSaving(true);
 		try {
 			let bannerUrl = bannerPreview;
@@ -362,6 +393,9 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.banner.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 
 							<div className={`relative group ${bannerError ? 'border-2 border-red-500 rounded-xl' : ''}`}>
@@ -424,6 +458,9 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.description.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 							<div className="relative">
 								<TextArea
@@ -463,6 +500,9 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.about.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 
 							<div className="relative">
@@ -503,6 +543,9 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.vanityUrl.title')}
+								<span title="Nội dung này không được để trống" className="text-red-500">
+									{'*'}
+								</span>
 							</label>
 							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 							<div className="relative">
@@ -602,7 +645,7 @@ const SettingComunity = ({
 								</svg>
 								{t('communitySettings.banner.title')}
 							</label>
-							<div className="relative group">
+							<div className={`relative group ${bannerError ? 'border-2 border-red-500 rounded-xl' : ''}`}>
 								{bannerPreview ? (
 									<div className="relative w-full h-40 rounded-xl overflow-hidden shadow-lg">
 										<img
@@ -622,7 +665,7 @@ const SettingComunity = ({
 								) : (
 									<div
 										onClick={() => fileInputRef.current?.click()}
-										className="cursor-pointer group relative w-full h-48 rounded-lg border-2 border-dashed hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 flex items-center justify-center text-theme-primary bg-theme-setting-primary  "
+										className={`cursor-pointer group relative w-full h-48 rounded-lg border-2 border-dashed ${bannerError ? 'border-red-500' : ''} hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-300 flex items-center justify-center text-theme-primary bg-theme-setting-primary`}
 									>
 										<div className="text-center">
 											<Icons.ImageUploadIcon className="w-12 h-12 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300 text-theme-primary group-hover:text-blue-500" />
@@ -647,10 +690,13 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.description.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 							<div className="relative">
 								<TextArea
-									className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-theme-input text-theme-primary focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base"
+									className={`w-full border-2 rounded-xl p-4 bg-theme-input text-theme-primary focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base ${descError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 									rows={5}
 									value={descriptionText}
 									onChange={handleChangeDescription}
@@ -685,11 +731,14 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.about.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 
 							<div className="relative">
 								<TextArea
-									className="w-full border-2 border-gray-200 dark:border-gray-600 rounded-xl p-4 bg-theme-input text-theme-primary  focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base"
+									className={`w-full border-2 rounded-xl p-4 bg-theme-input text-theme-primary focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base ${aboutError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 									rows={5}
 									value={aboutText}
 									onChange={handleChangeAbout}
@@ -724,6 +773,9 @@ const SettingComunity = ({
 									/>
 								</svg>
 								{t('communitySettings.vanityUrl.title')}
+								<span title={t('communitySettings.warnningEmptyField')} className="text-red-500 cursor-pointer">
+									{'*'}
+								</span>
 							</label>
 							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 							<div className="relative">
@@ -765,9 +817,7 @@ const SettingComunity = ({
 						</div>
 					</div>
 				</div>
-				{openSaveChange && hasChanges && (
-					<ModalSaveChanges onSave={handleSaveChanges} onReset={handleReset} isLoading={isSaving} disableSave={!canSave} />
-				)}
+				{openSaveChange && hasChanges && <ModalSaveChanges onSave={handleSaveChanges} onReset={handleReset} isLoading={isSaving} />}
 			</div>
 			<ModalErrorTypeUpload open={openTypeModal} onClose={() => setOpenTypeModal(false)} />
 			<ModalOverData open={openModal} onClose={() => setOpenModal(false)} size={ELimitSize.MB_10} />
