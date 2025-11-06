@@ -24,6 +24,7 @@ export interface VoiceState extends EntityState<VoiceEntity, string> {
 	showMicrophone: boolean;
 	showCamera: boolean;
 	showScreen: boolean;
+	noiseSuppressionEnabled: boolean;
 	statusCall: boolean;
 	voiceConnectionState: boolean;
 	fullScreen?: boolean;
@@ -156,6 +157,7 @@ export const initialVoiceState: VoiceState = voiceAdapter.getInitialState({
 	showMicrophone: false,
 	showCamera: false,
 	showScreen: false,
+	noiseSuppressionEnabled: true,
 	statusCall: false,
 	voiceConnectionState: false,
 	fullScreen: false,
@@ -246,6 +248,9 @@ export const voiceSlice = createSlice({
 		setShowScreen: (state, action: PayloadAction<boolean>) => {
 			state.showScreen = action.payload;
 		},
+		setNoiseSuppressionEnabled: (state, action: PayloadAction<boolean>) => {
+			state.noiseSuppressionEnabled = action.payload;
+		},
 		setShowSelectScreenModal: (state, action: PayloadAction<boolean>) => {
 			state.showSelectScreenModal = action.payload;
 		},
@@ -265,6 +270,7 @@ export const voiceSlice = createSlice({
 			state.showMicrophone = false;
 			state.showCamera = false;
 			state.showScreen = false;
+			state.noiseSuppressionEnabled = true;
 			state.voiceConnectionState = false;
 			state.voiceInfo = null;
 			state.fullScreen = false;
@@ -430,6 +436,8 @@ export const selectShowMicrophone = createSelector(getVoiceState, (state) => sta
 export const selectShowCamera = createSelector(getVoiceState, (state) => state.showCamera);
 
 export const selectShowScreen = createSelector(getVoiceState, (state) => state.showScreen);
+
+export const selectNoiseSuppressionEnabled = createSelector(getVoiceState, (state) => state.noiseSuppressionEnabled);
 
 export const selectStatusCall = createSelector(getVoiceState, (state) => state.statusCall);
 

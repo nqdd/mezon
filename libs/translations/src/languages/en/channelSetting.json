@@ -90,25 +90,25 @@
 	},
 	"confirm": {
 		"delete": {
-			"content": "Are you sure you want to delete #{{channelName}}?. This cannot be undone!",
+			"content": "Please confirm if you would like to delete #{{channelName}}?. This cannot be undone!",
 			"confirmText": "Delete",
 			"title": "Delete channel",
 			"systemChannel": "You can't delete system channel",
 			"error": "Delete channel failed: {{error}}"
 		},
 		"deleteThread": {
-			"content": "Are you sure you want to delete {{channelName}}? This cannot be undone.",
+			"content": "Please confirm if you would like to delete {{channelName}}? This cannot be undone.",
 			"confirmText": "Delete Thread",
 			"title": "Delete Thread"
 		},
 		"deleteChannel": {
-			"content": "Are you sure you want to delete {{channelName}}? This cannot be undone.",
+			"content": "Please confirm if you would like to delete {{channelName}}? This cannot be undone.",
 			"confirmText": "Delete Channel",
 			"title": "Delete Channel"
 		},
 		"cancel": "Cancel",
 		"leave": {
-			"content": "Are you sure you want to leave #{{channelName}}?. This cannot be undone!",
+			"content": "Please confirm if you would like to leave #{{channelName}}?. This cannot be undone!",
 			"confirmText": "Leave",
 			"title": "Leave channel"
 		},
@@ -184,7 +184,7 @@
 		"update": "Update",
 		"delete": "Delete",
 		"deleteModal": "DELETE ACTION",
-		"deleteTitle": "Are you sure you want to delete {{command}}? This action cannot be undone.",
+		"deleteTitle": "Please confirm if you would like to delete {{command}}? This action cannot be undone.",
 		"flashMessage": "Flash Message",
 		"flashMessages": "Flash Messages",
 		"quickMenu": "Quick Menu",
@@ -218,7 +218,7 @@
 	"changeCategory": {
 		"title": "Change Category",
 		"label": "MOVE FROM {{currentChannel}} TO",
-		"confirmFirstContent": "Are you sure you want to move",
+		"confirmFirstContent": "Please confirm if you would like to move",
 		"confirmLastContent": "to category",
 		"confirm": "Confirm",
 		"error": "Change category failed"

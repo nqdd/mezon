@@ -1,12 +1,12 @@
 import { ChatContext, useChatReaction } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { getStore, selectAllAccount, selectCurrentChannel, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import { getStore, selectCurrentChannel, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { isPublicChannel } from '@mezon/utils';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { IReactionMessageProps } from './components/MessageReaction';
+import type { IReactionMessageProps } from './components/MessageReaction';
 
 const maxRetries = 10;
 const ChannelMessageReactionListener = React.memo(() => {
@@ -17,7 +17,6 @@ const ChannelMessageReactionListener = React.memo(() => {
 	const { handleReconnect } = useContext(ChatContext);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 	const counterRef = useRef(0);
-	const userProfile = useSelector(selectAllAccount);
 
 	const onReactionMessage = useCallback(
 		async (data: IReactionMessageProps) => {
@@ -46,12 +45,11 @@ const ChannelMessageReactionListener = React.memo(() => {
 					clanId: currentDirectId ? '0' : currentChannel?.clan_id,
 					channelId: currentDirectId || currentChannel?.channel_id,
 					isFocusTopicBox: !!data?.topicId,
-					channelIdOnMessage: data?.channelId ?? '',
-					sender_name: userProfile?.user?.display_name ? userProfile?.user?.display_name : userProfile?.user?.username || ''
+					channelIdOnMessage: data?.channelId ?? ''
 				});
 			}
 		},
-		[store, socketRef, handleReconnect, reactionMessageDispatch, currentDirectId, userProfile?.user?.display_name, userProfile?.user?.username]
+		[store, socketRef, handleReconnect, reactionMessageDispatch, currentDirectId]
 	);
 
 	const onReactionMessageRetry = useCallback(
@@ -72,12 +70,11 @@ const ChannelMessageReactionListener = React.memo(() => {
 					clanId: currentDirectId ? '0' : currentChannel?.clan_id,
 					channelId: currentDirectId || currentChannel?.channel_id,
 					isFocusTopicBox: !!data?.topicId,
-					channelIdOnMessage: data?.channelId ?? '',
-					sender_name: userProfile?.user?.display_name ? userProfile?.user?.display_name : userProfile?.user?.username || ''
+					channelIdOnMessage: data?.channelId ?? ''
 				});
 			}
 		},
-		[socketRef, store, reactionMessageDispatch, currentDirectId, userProfile?.user?.display_name, userProfile?.user?.username]
+		[socketRef, store, reactionMessageDispatch, currentDirectId]
 	);
 
 	useEffect(() => {
