@@ -15,11 +15,12 @@ export const styles = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		headerTitle: {
-			fontSize: verticalScale(18),
+			fontSize: size.s_16,
 			marginLeft: 0,
 			marginRight: 0,
 			fontWeight: 'bold',
-			color: colors.white
+			color: colors.white,
+			textAlign: 'center'
 		},
 		headerSubtitle: {
 			marginLeft: 0,
@@ -35,7 +36,7 @@ export const styles = (colors: Attributes) =>
 			padding: size.s_10
 		},
 		addButtonText: {
-			fontSize: verticalScale(18),
+			fontSize: size.medium,
 			marginLeft: 0,
 			marginRight: 0,
 			fontWeight: 'bold'

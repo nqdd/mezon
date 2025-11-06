@@ -3,6 +3,7 @@ import { debounce } from '@mezon/mobile-components';
 import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
 	channelUsersActions,
+	rolesClanActions,
 	selectAllChannelMembers,
 	selectAllRolesClan,
 	selectAllUserClans,
@@ -139,6 +140,9 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 				)
 			}
 		});
+		if (!isError) {
+			dispatch(rolesClanActions.addRoleByChannel({ channelId: channel.id, roleIds: selectedRoleIdList, clanId: currentClanId }));
+		}
 		onDismiss && onDismiss();
 	};
 

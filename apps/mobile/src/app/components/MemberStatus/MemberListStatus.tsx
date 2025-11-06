@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
+import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -31,6 +31,7 @@ export const MemberListStatus = React.memo(() => {
 	const currentChannel = useContext(threadDetailContext);
 	const navigation = useNavigation<any>();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
+	const channelMembers = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannel?.channel_id));
 	const currentUserId = useSelector(selectCurrentUserId);
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
@@ -62,8 +63,7 @@ export const MemberListStatus = React.memo(() => {
 	}, []);
 
 	const listMembersChannelGroupDM = useMemo(() => {
-		const store = getStore();
-		const members = isDMThread ? rawMembers : selectAllChannelMembersClan(store.getState() as any, currentChannel?.id as string);
+		const members = isDMThread ? rawMembers : channelMembers;
 
 		if (!members) {
 			return {
@@ -86,7 +86,7 @@ export const MemberListStatus = React.memo(() => {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [currentChannel?.id, isDMThread, rawMembers]);
+	}, [currentChannel?.id, isDMThread, rawMembers, channelMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
 
@@ -161,7 +161,7 @@ export const MemberListStatus = React.memo(() => {
 					renderItem={renderMemberItem}
 					renderSectionHeader={({ section: { title } }) => (
 						<Text style={styles.text}>
-							{title} - {title === t('common:members') ? online?.length : offline?.length}
+							{title} - {title === t('common:onlines') ? online?.length : offline?.length}
 						</Text>
 					)}
 					contentContainerStyle={{ paddingBottom: size.s_60 }}
