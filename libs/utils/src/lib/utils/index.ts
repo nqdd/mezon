@@ -306,14 +306,32 @@ export const getAvatarForPrioritize = (clanAvatar: string | undefined, userAvata
 };
 
 export function compareObjects(a: any, b: any, searchText: string, prioritizeProp: string, nameProp?: string) {
-	const normalizedSearchText = searchText.toUpperCase();
+	const normalizedSearchText = normalizeSearchString(searchText);
 
-	const aIndex = a[prioritizeProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
-	const bIndex = b[prioritizeProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
+	const aPrioritizeName = normalizeSearchString(a[prioritizeProp] ?? '');
+	const bPrioritizeName = normalizeSearchString(b[prioritizeProp] ?? '');
+
+	const aIsExactMatch = aPrioritizeName === normalizedSearchText;
+	const bIsExactMatch = bPrioritizeName === normalizedSearchText;
+
+	if (aIsExactMatch && !bIsExactMatch) return -1;
+	if (!aIsExactMatch && bIsExactMatch) return 1;
+
+	const aIndex = aPrioritizeName.indexOf(normalizedSearchText);
+	const bIndex = bPrioritizeName.indexOf(normalizedSearchText);
 
 	if (nameProp) {
-		const aNameIndex = a[nameProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
-		const bNameIndex = b[nameProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
+		const aName = normalizeSearchString(a[nameProp] ?? '');
+		const bName = normalizeSearchString(b[nameProp] ?? '');
+
+		const aNameIsExactMatch = aName === normalizedSearchText;
+		const bNameIsExactMatch = bName === normalizedSearchText;
+
+		if (aNameIsExactMatch && !bNameIsExactMatch) return -1;
+		if (!aNameIsExactMatch && bNameIsExactMatch) return 1;
+
+		const aNameIndex = aName.indexOf(normalizedSearchText);
+		const bNameIndex = bName.indexOf(normalizedSearchText);
 
 		if (aIndex === -1 && bIndex === -1) {
 			return aNameIndex - bNameIndex;
@@ -336,7 +354,7 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 			if (bIndex === -1) return -1;
 			return aIndex - bIndex;
 		}
-		return (a[prioritizeProp]?.toUpperCase() ?? '').localeCompare(b[prioritizeProp]?.toUpperCase() ?? '');
+		return aPrioritizeName.localeCompare(bPrioritizeName);
 	}
 }
 

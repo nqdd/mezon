@@ -442,26 +442,6 @@ const ControlBar = ({
 						)}
 					</div>
 				)}
-				{visibleControls.microphone && (
-					<Tooltip
-						placement="top"
-						overlay={
-							<div className="text-xs text-center">
-								{noiseSuppressionEnabled ? 'Disable Noise Suppression' : 'Enable Noise Suppression'}
-							</div>
-						}
-						destroyTooltipOnHide
-					>
-						<button
-							onClick={toggleNoiseSuppression}
-							className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
-								isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
-							} ${noiseSuppressionEnabled ? 'hover:bg-green-600 dark:hover:bg-green-700' : 'hover:bg-zinc-600 dark:hover:bg-zinc-800'}`}
-						>
-							<Icons.VoiceSoundControlIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
-						</button>
-					</Tooltip>
-				)}
 				{visibleControls.camera && (
 					<div className="relative rounded-full ">
 						<TrackToggle
