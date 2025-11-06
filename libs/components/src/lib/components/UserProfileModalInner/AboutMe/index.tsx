@@ -18,16 +18,6 @@ const AboutMe = ({ createTime }: AboutMeProps) => {
 				<p className="text-xs font-semibold text-theme-primary">{t('userProfile.memberSince')}</p>
 				<span className="text-sm font-normal text-theme-primary">{formatDate(createTime || '')}</span>
 			</div>
-			<div className="flex flex-col gap-2">
-				<p className="text-xs font-semibold text-theme-primary">{t('userProfile.note')}</p>
-				<textarea
-					name=""
-					id=""
-					rows={2}
-					placeholder={t('userProfile.addNotePlaceholder')}
-					className="w-full p-1  rounded-[3px] text-sm font-normal focus-visible:outline-none border-theme-primary bg-theme-setting-nav text-theme-primary"
-				></textarea>
-			</div>
 		</div>
 	);
 };
