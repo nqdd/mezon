@@ -85,6 +85,7 @@
 		"note": "Hành động này sẽ mở khóa các tính năng cộng đồng nâng cao"
 	},
 	"communitySettings": {
+		"warnningEmptyField": "Các trường có * là bắt buộc",
 		"title": "Cài đặt Cộng đồng",
 		"subtitle": "Quản lý thông tin cộng đồng của bạn",
 		"enableTitle": "Bật Cộng đồng",

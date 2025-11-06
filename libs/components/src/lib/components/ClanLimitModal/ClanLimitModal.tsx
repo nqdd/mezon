@@ -43,27 +43,25 @@ const ClanLimitModalContent = ({ type, clanCount, onClose }: ClanLimitModalProps
 
 	const isCreateType = type === 'create';
 	const title = isCreateType ? t('clanLimitModal.createTitle') : t('clanLimitModal.joinTitle');
-	const bodyText = isCreateType
-		? t('clanLimitModal.createMessage', { count: clanCount })
-		: t('clanLimitModal.joinMessage', { count: clanCount });
+	const bodyText = isCreateType ? t('clanLimitModal.createMessage', { count: clanCount }) : t('clanLimitModal.joinMessage', { count: clanCount });
 
 	return (
-		<div ref={modalRef} tabIndex={-1} className='fixed inset-0 flex items-center justify-center z-50' onClick={handleOverlayClick}>
-			<div className='fixed inset-0 bg-black opacity-80' />
-			<div className='relative z-10 w-[440px] max-w-[90vw]' onClick={(e) => e.stopPropagation()}>
-				<div className='bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md'>
+		<div ref={modalRef} tabIndex={-1} className="fixed inset-0 flex items-center justify-center z-50" onClick={handleOverlayClick}>
+			<div className="fixed inset-0 bg-black opacity-80" />
+			<div className="relative z-10 w-[440px] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+				<div className="bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md">
 					<div
-						className='text-theme-primary-active text-[20px] font-semibold pb-[16px]'
+						className="text-theme-primary-active text-[20px] font-semibold pb-[16px]"
 						data-e2e={generateE2eId('clan_page.modal.limit_creation.title')}
 					>
 						{title}
 					</div>
-					<div className='pb-[20px] text-theme-primary text-[14px] leading-relaxed'>{bodyText}</div>
+					<div className="pb-[20px] text-theme-primary text-[14px] leading-relaxed">{bodyText}</div>
 				</div>
-				<div className='bg-theme-setting-nav flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md'>
+				<div className="bg-theme-setting-nav flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md">
 					<button
 						onClick={onClose}
-						className='btn-primary btn-primary-hover text-white rounded-lg px-[25px] py-[8px] cursor-pointer transition-colors'
+						className="btn-primary btn-primary-hover text-white rounded-lg px-[25px] py-[8px] cursor-pointer transition-colors"
 					>
 						{t('clanLimitModal.okay')}
 					</button>
