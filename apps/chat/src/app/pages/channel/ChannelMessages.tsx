@@ -18,7 +18,6 @@ import {
 	selectHasMoreMessageByChannelId,
 	selectIdMessageRefEdit,
 	selectIdMessageToJump,
-	selectIsJumpingToPresent,
 	selectIsMessageIdExist,
 	selectLastMessageByChannelId,
 	selectLastSentMessageStateByChannelId,
@@ -178,6 +177,7 @@ function ChannelMessages({
 	const preventScrollbottom = useRef<boolean>(false);
 	const isFirstJoinLoadRef = useRef<boolean>(true);
 	const lastSeenAtBottomRef = useRef<string | null>(null);
+	const isJumpingToPresentRef = useRef<boolean>(false);
 
 	useSyncEffect(() => {
 		userActiveScroll.current = false;
@@ -187,6 +187,7 @@ function ChannelMessages({
 		preventScrollbottom.current = false;
 		isFirstJoinLoadRef.current = true;
 		lastSeenAtBottomRef.current = null;
+		isJumpingToPresentRef.current = false;
 
 		requestIdleCallback &&
 			requestIdleCallback(() => {
@@ -413,6 +414,7 @@ function ChannelMessages({
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
 						lastSeenAtBottomRef={lastSeenAtBottomRef}
+						isJumpingToPresentRef={isJumpingToPresentRef}
 					/>
 				</DMMessageWrapper>
 			) : (
@@ -451,6 +453,7 @@ function ChannelMessages({
 						onScrollDownToggle={handleScrollDownVisibilityChange}
 						onNotchToggle={setIsNotchShown}
 						lastSeenAtBottomRef={lastSeenAtBottomRef}
+						isJumpingToPresentRef={isJumpingToPresentRef}
 					/>
 				</ClanMessageWrapper>
 			)}
@@ -462,6 +465,8 @@ function ChannelMessages({
 				lastSeenAtBottomRef={lastSeenAtBottomRef}
 				userActiveScroll={userActiveScroll}
 				isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
+				isJumpingToPresentRef={isJumpingToPresentRef}
+				setAnchor={setAnchor}
 			/>
 			<HasmoreBottomTracker channelId={channelId} />
 			<FirstJoinLoadTracker channelId={channelId} isFirstJoinLoadRef={isFirstJoinLoadRef} />
@@ -477,7 +482,9 @@ const ScrollDownButton = memo(
 		chatRef,
 		lastSeenAtBottomRef,
 		userActiveScroll,
-		isScrollTopJustUpdatedRef
+		isScrollTopJustUpdatedRef,
+		isJumpingToPresentRef,
+		setAnchor
 	}: {
 		channelId: string;
 		clanId: string;
@@ -486,6 +493,8 @@ const ScrollDownButton = memo(
 		lastSeenAtBottomRef: React.MutableRefObject<string | null>;
 		userActiveScroll: React.MutableRefObject<boolean>;
 		isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
+		isJumpingToPresentRef: React.MutableRefObject<boolean>;
+		setAnchor: React.MutableRefObject<number | null>;
 	}) => {
 		const dispatch = useAppDispatch();
 
@@ -514,6 +523,7 @@ const ScrollDownButton = memo(
 		}, [lastSeenAtBottomRef.current, lastMessageUnreadId, lastSent, currentUserId]);
 
 		const handleJumpToPresent = async () => {
+			isJumpingToPresentRef.current = true;
 			await dispatch(
 				messagesActions.fetchMessages({
 					clanId,
@@ -524,10 +534,9 @@ const ScrollDownButton = memo(
 					toPresent: true
 				})
 			);
-			dispatch(messagesActions.setIsJumpingToPresent({ channelId, status: true }));
 		};
 
-		const handleScrollDownClick = useLastCallback(() => {
+		const handleScrollDownClick = useLastCallback(async () => {
 			const messagesContainer = chatRef.current;
 			if (!messagesContainer) return;
 			const state = getStore().getState();
@@ -537,29 +546,38 @@ const ScrollDownButton = memo(
 			const jumpPresent = !!lastSentMessageId && !messageIds.includes(lastSentMessageId as string) && messageIds.length >= 20;
 
 			if (jumpPresent) {
-				handleJumpToPresent();
-				return;
+				await handleJumpToPresent();
 			}
 
-			const messageElements = messagesContainer.querySelectorAll<HTMLDivElement>('.message-list-item');
-			const lastMessageElement = messageElements[messageElements.length - 1];
-			if (!lastMessageElement) {
-				return;
-			}
+			requestAnimationFrame(() => {
+				const messageElements = messagesContainer.querySelectorAll<HTMLDivElement>('.message-list-item');
+				const lastMessageElement = messageElements[messageElements.length - 1];
+				if (!lastMessageElement) {
+					return;
+				}
 
-			dispatch(messagesActions.jumToPresent({ channelId }));
+				dispatch(messagesActions.jumToPresent({ channelId }));
 
-			userActiveScroll.current = false;
-			isScrollTopJustUpdatedRef.current = true;
-			animateScroll({
-				container: messagesContainer,
-				element: lastMessageElement,
-				position: 'end',
-				margin: BOTTOM_FOCUS_MARGIN
+				userActiveScroll.current = false;
+				isScrollTopJustUpdatedRef.current = true;
+				animateScroll({
+					container: messagesContainer,
+					element: lastMessageElement,
+					position: 'end',
+					margin: BOTTOM_FOCUS_MARGIN
+				});
+				setTimeout(() => {
+					isScrollTopJustUpdatedRef.current = false;
+					isJumpingToPresentRef.current = false;
+					dispatch(
+						channelsActions.setScrollPosition({
+							channelId,
+							messageId: lastSentMessageId
+						})
+					);
+					setAnchor.current = new Date().getTime();
+				}, 200);
 			});
-			setTimeout(() => {
-				isScrollTopJustUpdatedRef.current = false;
-			}, MESSAGE_ANIMATION_DURATION);
 		});
 
 		return (
@@ -627,6 +645,7 @@ type ChatMessageListProps = {
 	onScrollDownToggle: BooleanToVoidFunction;
 	onNotchToggle: BooleanToVoidFunction;
 	lastSeenAtBottomRef: React.MutableRefObject<string | null>;
+	isJumpingToPresentRef: React.MutableRefObject<boolean>;
 };
 
 const ChatMessageList: React.FC<ChatMessageListProps> = memo(
@@ -657,7 +676,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		isPrivate,
 		onScrollDownToggle,
 		onNotchToggle,
-		lastSeenAtBottomRef
+		lastSeenAtBottomRef,
+		isJumpingToPresentRef
 	}) => {
 		const dispatch = useAppDispatch();
 		const user = useSelector(selectAllAccount);
@@ -665,7 +685,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
 		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
-		const jumpToPresent = useAppSelector((state) => selectIsJumpingToPresent(state, channelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
 		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
 
@@ -714,30 +733,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		}, [messageIds]);
 
 		const [forceRender, setForceRender] = useState<boolean>(false);
-
-		useEffect(() => {
-			if (chatRef.current && jumpToPresent) {
-				const container = chatRef.current;
-				if (!container) return;
-				const messageElements = container.querySelectorAll<HTMLDivElement>('.message-list-item');
-				const lastMessageElement = messageElements[messageElements.length - 1];
-				if (!lastMessageElement) {
-					return;
-				}
-				userActiveScroll.current = false;
-				isScrollTopJustUpdatedRef.current = true;
-				animateScroll({
-					container,
-					element: lastMessageElement,
-					position: 'end',
-					margin: BOTTOM_FOCUS_MARGIN
-				});
-				setTimeout(() => {
-					isScrollTopJustUpdatedRef.current = false;
-				}, MESSAGE_ANIMATION_DURATION);
-				dispatch(messagesActions.setIsJumpingToPresent({ channelId, status: false }));
-			}
-		}, [jumpToPresent]);
 
 		const { withHistoryTriggers, backwardsTriggerRef, forwardsTriggerRef, fabTriggerRef } = useScrollHooks(
 			'thread',
@@ -934,6 +929,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const message = entities[lastMsgId];
 
 					if (
+						isJumpingToPresentRef.current ||
 						(!isLoadingMoreBottomRef.current &&
 							((!isFirstJoinLoadRef.current && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
 						(user?.user?.id === lastMessage?.sender_id &&
@@ -975,6 +971,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							);
 						}
 
+						if (isJumpingToPresentRef.current) {
+							isJumpingToPresentRef.current = false;
+						}
+
 						if (!memoFocusingIdRef.current) {
 							isScrollTopJustUpdatedRef.current = true;
 							requestMeasure(() => {
@@ -1009,6 +1009,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (!setAnchor?.current) return;
 			const container = chatRef?.current;
 			if (!container) return;
+
 			listItemElementsRef.current = Array.from(container.querySelectorAll<HTMLDivElement>('.message-list-item'));
 			rememberScrollPositionRef.current();
 		}, [setAnchor?.current, rememberScrollPositionRef]);

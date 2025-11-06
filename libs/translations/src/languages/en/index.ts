@@ -76,6 +76,7 @@ import sharing from './sharing.json';
 import streamThumbnail from './streamThumbnail.json';
 import streamingRoom from './streamingRoom.json';
 import token from './token.json';
+import transactionHistory from './transactionHistory.json';
 import transferOwner from './transferOwner.json';
 import userEmptyClan from './userEmptyClan.json';
 import userProfile from './userProfile.json';
@@ -142,6 +143,7 @@ export default {
 	channelVoice,
 	channelList,
 	token,
+	transactionHistory,
 	streamThumbnail,
 	qrScanner,
 	clanSoundSetting,

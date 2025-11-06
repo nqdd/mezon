@@ -1,0 +1,48 @@
+{
+	"header": {
+		"title": "Lịch sử giao dịch",
+		"subtitle": "Xem tất cả hoạt động giao dịch của bạn"
+	},
+	"footers": {
+		"noti": "Bạn đã tải tất cả {{count}} giao dịch",
+		"fetching": "Đang tải thêm giao dịch..."
+	},
+	"filters": {
+		"all": "Tất cả giao dịch",
+		"sent": "Giao dịch gửi",
+		"received": "Giao dịch nhận"
+	},
+	"transactionTypes": {
+		"sent": "Đã gửi",
+		"received": "Đã nhận"
+	},
+	"currency": {
+		"code": "vi-VN",
+		"symbol": "đồng"
+	},
+	"emptyStates": {
+		"noTransactions": {
+			"title": "Không tìm thấy giao dịch nào",
+			"description": "Bạn chưa thực hiện giao dịch nào. Lịch sử giao dịch của bạn sẽ xuất hiện ở đây khi bạn bắt đầu gửi hoặc nhận token."
+		},
+		"noFilteredTransactions": {
+			"title": "Không tìm thấy giao dịch nào",
+			"description": "Không tìm thấy giao dịch nào cho bộ lọc đã chọn. Vui lòng thử bộ lọc khác hoặc kiểm tra lại sau."
+		}
+	},
+	"transactionDetail": {
+		"fields": {
+			"transactionId": "Mã giao dịch",
+			"sender": "Người gửi",
+			"amount": "Số tiền",
+			"receiver": "Người nhận",
+			"note": "Ghi chú",
+			"created": "Thời gian tạo"
+		},
+		"defaultNote": "Không có ghi chú",
+		"unknownUser": "Người dùng không xác định"
+	},
+	"transactionItem": {
+		"idPrefix": "Giao dịch #"
+	}
+}
