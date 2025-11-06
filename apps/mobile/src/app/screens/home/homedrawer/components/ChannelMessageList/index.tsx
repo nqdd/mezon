@@ -1,10 +1,11 @@
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Keyboard, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
-import { FlatList } from 'react-native-gesture-handler';
+import type { FlatList } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 import { style } from './styles';
 
 interface IChannelListMessageProps {
@@ -33,7 +34,6 @@ const ChannelListMessage = React.memo(
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 		const hasJumpedToLastSeen = useRef(false);
-		const [initialScrollIndex, setInitialScrollIndex] = useState<number | null>(null);
 		const keyExtractor = useCallback((message) => `${message?.id}_${message?.channel_id}`, []);
 
 		const isCannotLoadMore = useMemo(() => {
@@ -54,20 +54,24 @@ const ChannelListMessage = React.memo(
 			}
 
 			const indexToJump = messages?.findIndex?.((message: { id: string }) => message.id === lastSeenMessageId);
+			hasJumpedToLastSeen.current = true;
 
 			if (indexToJump !== -1 && indexToJump >= 5) {
-				setInitialScrollIndex(indexToJump);
-				hasJumpedToLastSeen.current = true;
+				flatListRef.current?.scrollToIndex({
+					index: indexToJump,
+					animated: true,
+					viewOffset: 0,
+					viewPosition: 0.5
+				});
 			}
-		}, [lastSeenMessageId, messages]);
+		}, [flatListRef, lastSeenMessageId, messages]);
 
 		return (
-			<FlatList
+			<Animated.FlatList
 				data={messages}
 				renderItem={renderItem}
 				keyExtractor={keyExtractor}
 				inverted={true}
-				initialScrollIndex={initialScrollIndex ?? undefined}
 				bounces={false}
 				showsVerticalScrollIndicator={true}
 				contentContainerStyle={styles.listChannels}
@@ -82,6 +86,7 @@ const ChannelListMessage = React.memo(
 				ref={flatListRef}
 				onScroll={handleScroll}
 				keyboardShouldPersistTaps={'handled'}
+				keyboardDismissMode={'interactive'}
 				onEndReached={handleEndReached}
 				onScrollBeginDrag={() => {
 					Keyboard.dismiss();
