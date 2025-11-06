@@ -16,9 +16,9 @@ import {
 	directMetaActions,
 	e2eeActions,
 	EStateFriend,
+	getStore,
 	gifsStickerEmojiActions,
 	selectAudioDialTone,
-	selectBlockedUsersForMessage,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentDM,
@@ -53,7 +53,6 @@ import { ChannelTyping } from '../../channel/ChannelTyping';
 
 const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
-	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
 	const lastMessageViewport = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
 	const lastMessageChannel = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
 	const lastSeenMessageId = useAppSelector((state) => selectLastSeenMessageIdDM(state, channelId));
@@ -63,8 +62,12 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const isWindowFocused = !isBackgroundModeActive();
 
 	const markMessageAsRead = useCallback(() => {
+		if (!isWindowFocused) return;
 		if (!lastMessageViewport || !lastMessageChannel) return;
 
+		const store = getStore();
+		const state = store.getState();
+		const currentDmGroup = selectDmGroupCurrent(channelId ?? '')(state);
 		const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 		if (lastSeenMessageId && lastMessageViewport?.id) {
 			try {
@@ -84,7 +87,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 			dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 			markAsReadSeen(lastMessageViewport, mode, 0);
 		}
-	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentDmGroup]);
+	}, [isWindowFocused, lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, dispatch, channelId]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {
@@ -155,7 +158,6 @@ const DirectMessage = () => {
 	const isHaveCallInChannel = useMemo(() => {
 		return currentDmGroup?.user_ids?.some((i) => i === signalingData?.[0]?.callerId);
 	}, [currentDmGroup?.user_ids, signalingData]);
-	const blockListUser = useAppSelector((state) => selectBlockedUsersForMessage(state));
 
 	const HEIGHT_EMOJI_PANEL = 457;
 	const WIDTH_EMOJI_PANEL = 500;
