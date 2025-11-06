@@ -480,33 +480,10 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			avatars,
 			onlines,
 			active: 1,
-			channel_label: label.toString(),
-			topic: channel_desc.topic || existingEntity?.topic
+			channel_label: existingEntity?.channel_label || label.toString(),
+			topic: channel_desc.topic || existingEntity?.topic,
+			member_count: channel_desc.member_count
 		};
-
-		if (existingEntity) {
-			thunkAPI.dispatch(
-				directActions.update({
-					id: channel_desc.channel_id || '',
-					changes: {
-						member_count: userIds.length,
-						user_ids: userIds,
-						channel_label: existingEntity?.channel_label || label.toString()
-					}
-				})
-			);
-		} else {
-			thunkAPI.dispatch(
-				directActions.upsertOne({
-					...channel_desc,
-					id: channel_desc.channel_id || '',
-					member_count: userIds.length,
-					user_ids: userIds,
-					channel_label: channel_desc?.channel_label || label.toString(),
-					active: 1
-				})
-			);
-		}
 		thunkAPI.dispatch(
 			userChannelsActions.update({
 				id: channel_desc.channel_id || '',

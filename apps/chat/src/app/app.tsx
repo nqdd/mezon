@@ -10,6 +10,7 @@ import {
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectCurrentLanguage,
+	selectIsActivityTrackingEnabled,
 	selectIsLogin,
 	setIsElectronDownloading,
 	setIsElectronUpdateAvailable
@@ -27,6 +28,7 @@ import {
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
 	UNLOCK_SCREEN,
+	UPDATE_ACTIVITY_TRACKING,
 	UPDATE_AVAILABLE,
 	UPDATE_ERROR,
 	electronBridge,
@@ -95,6 +97,7 @@ const LanguageSyncProvider = () => {
 
 const AppInitializer = () => {
 	const isLogin = useSelector(selectIsLogin);
+	const isActivityTrackingEnabled = useSelector(selectIsActivityTrackingEnabled);
 	const dispatch = useDispatch();
 	const { setIsShowSettingFooterStatus } = useSettingFooter();
 	const { setUserActivity, setUserAFK } = useActivities();
@@ -278,6 +281,16 @@ const AppInitializer = () => {
 	useEffect(() => {
 		isElectron() && isLogin && electronBridge.invoke('APP::CHECK_UPDATE');
 	}, [isLogin]);
+
+	useEffect(() => {
+		if (isElectron() && typeof window !== 'undefined' && window.electron) {
+			try {
+				window.electron.send(UPDATE_ACTIVITY_TRACKING, { isActivityTrackingEnabled });
+			} catch (error) {
+				console.error('Failed to sync activity tracking state with electron:', error);
+			}
+		}
+	}, [isActivityTrackingEnabled]);
 
 	return null;
 };

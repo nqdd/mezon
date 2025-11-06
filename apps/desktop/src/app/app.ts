@@ -5,12 +5,12 @@ import { autoUpdater } from 'electron-updater';
 import activeWindows from 'mezon-active-windows';
 import { join } from 'path';
 import ua from 'universal-analytics';
-import { format } from 'url';
 import tray from '../Tray';
 import { EActivityCoding, EActivityGaming, EActivityMusic } from './activities';
 import setupAutoUpdates from './autoUpdates';
 import { rendererAppName, rendererAppPort } from './constants';
 import { ACTIVE_WINDOW, LOCK_SCREEN, TRIGGER_SHORTCUT, UNLOCK_SCREEN } from './events/constants';
+import { MEZON_APP_HOSTNAME, registerHttpInterceptor } from './protocolInterceptor';
 import setupRequestPermission from './requestPermission';
 import { initBadge } from './services/badge';
 import { forceQuit } from './utils';
@@ -19,8 +19,6 @@ const isQuitting = false;
 const ACTIVITY_CODING = Object.values(EActivityCoding);
 const ACTIVITY_MUSIC = Object.values(EActivityMusic);
 const ACTIVITY_GAMING = Object.values(EActivityGaming);
-
-const _IMAGE_WINDOW_KEY = 'IMAGE_WINDOW_KEY';
 
 const isMac = process.platform === 'darwin';
 
@@ -45,6 +43,7 @@ export default class App {
 
 	private static updateCheckInterval: NodeJS.Timeout | null = null;
 	private static activityTrackingInterval: NodeJS.Timeout | null = null;
+	private static isActivityTrackingEnabled = true;
 
 	public static isDevelopmentMode() {
 		return !app.isPackaged;
@@ -75,6 +74,11 @@ export default class App {
 	}
 
 	private static onReady() {
+		if (App.application.isPackaged) {
+			const appPath = join(__dirname, '..', rendererAppName);
+			registerHttpInterceptor(appPath);
+		}
+
 		if (rendererAppName) {
 			App.application.setLoginItemSettings({
 				openAtLogin: false
@@ -298,15 +302,9 @@ export default class App {
 			const fullUrl = this.generateFullUrl(baseUrl, params);
 			App.mainWindow.loadURL(fullUrl);
 		} else {
-			const baseUrl = join(__dirname, '..', rendererAppName, 'index.html');
-			App.mainWindow.loadURL(
-				format({
-					pathname: baseUrl,
-					protocol: 'file:',
-					slashes: true,
-					query: params
-				})
-			);
+			const baseUrl = `http://${MEZON_APP_HOSTNAME}`;
+			const fullUrl = this.generateFullUrl(baseUrl, params);
+			App.mainWindow.loadURL(fullUrl);
 		}
 	}
 
@@ -341,6 +339,18 @@ export default class App {
 		App.mainWindow.focus();
 	}
 
+	public static setActivityTrackingEnabled(enabled: boolean) {
+		App.isActivityTrackingEnabled = enabled;
+		if (enabled) {
+			App.setupWindowManager();
+		} else {
+			if (App.activityTrackingInterval) {
+				clearInterval(App.activityTrackingInterval);
+				App.activityTrackingInterval = null;
+			}
+		}
+	}
+
 	/**
 	 * setup badge for the app
 	 */
@@ -349,6 +359,7 @@ export default class App {
 	}
 
 	private static setupWindowManager() {
+		if (!App.isActivityTrackingEnabled) return;
 		let defaultApp = null;
 		const usageThreshold = 30 * 60 * 1000;
 
@@ -391,7 +402,9 @@ export default class App {
 
 		App.activityTrackingInterval = setInterval(() => {
 			try {
-				fetchActiveWindow();
+				if (App.isActivityTrackingEnabled) {
+					fetchActiveWindow();
+				}
 			} catch (ex) {
 				console.error(ex);
 			}

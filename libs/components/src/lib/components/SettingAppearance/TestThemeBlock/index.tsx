@@ -14,7 +14,7 @@ const TestThemeBlock = () => {
 	const realTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 	return (
 		<div>
-			<div className="font-semibold text-[24px] mb-10 text-theme-primary-active">{t('appearance')}</div>
+			<div className="font-semibold text-xl mb-10 text-theme-primary-active">{t('appearance')}</div>
 			<div className={`test-container border-theme-primary bg-theme-primary pb-5 overflow-y-hidden h-[150px] rounded-lg`}>
 				<div className="test-item flex px-5 mt-[-15px]">
 					<div className="test-left">
