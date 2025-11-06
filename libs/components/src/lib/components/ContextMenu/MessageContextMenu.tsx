@@ -31,7 +31,9 @@ import {
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectDefaultCanvasByChannelId,
-	selectDmGroupCurrent,
+	selectDmChannelIdById,
+	selectDmChannelPrivateById,
+	selectDmCreatorIdById,
 	selectDmGroupCurrentId,
 	selectMessageByMessageId,
 	selectMessageEntitiesByChannelId,
@@ -102,11 +104,11 @@ type JsonObject = {
 const useIsOwnerGroupDM = () => {
 	const { userProfile } = useAuth();
 	const { directId } = useAppParams();
-	const currentGroupDM = useSelector(selectDmGroupCurrent(directId as string));
+	const creatorId = useAppSelector((state) => selectDmCreatorIdById(state, (directId as string) || ''));
 
 	const isOwnerGroupDM = useMemo(() => {
-		return currentGroupDM?.creator_id === userProfile?.user?.id;
-	}, [currentGroupDM?.creator_id, userProfile?.user?.id]);
+		return creatorId === userProfile?.user?.id;
+	}, [creatorId, userProfile?.user?.id]);
 
 	return isOwnerGroupDM;
 };
@@ -136,7 +138,8 @@ function MessageContextMenu({
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isFocusThreadBox = useSelector(selectClickedOnThreadBoxStatus);
 	const currentThread = useAppSelector(selectThreadCurrentChannel);
-	const currentDmGroup = useSelector(selectDmGroupCurrent(currentDmId || ''));
+	const dmChannelPrivate = useAppSelector((state) => selectDmChannelPrivateById(state, (currentDmId || '') as string));
+	const dmChannelId = useAppSelector((state) => selectDmChannelIdById(state, (currentDmId || '') as string));
 
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
@@ -149,8 +152,8 @@ function MessageContextMenu({
 				channel_id: currentChannelId
 			} as ApiChannelDescription;
 		}
-		return currentDmGroup as ApiChannelDescription;
-	}, [isClanView, currentClanId, currentChannelPrivate, currentChannelId, currentDmGroup]);
+		return { channel_private: dmChannelPrivate, channel_id: dmChannelId, clan_id: '0' } as ApiChannelDescription;
+	}, [isClanView, currentClanId, currentChannelPrivate, currentChannelId, dmChannelPrivate, dmChannelId]);
 
 	const { sendMessage: sendChatMessage } = useChatSending({
 		channelOrDirect,
@@ -165,10 +168,10 @@ function MessageContextMenu({
 		)
 	);
 
-	const currentDm = useSelector(selectDmGroupCurrent(currentDmId || ''));
+	const currentDmChannelId = useAppSelector((state) => selectDmChannelIdById(state, (currentDmId || '') as string));
 	const modeResponsive = useSelector(selectModeResponsive);
 	const allMessagesEntities = useAppSelector((state) =>
-		selectMessageEntitiesByChannelId(state, (modeResponsive === ModeResponsive.MODE_CLAN ? currentChannelId : currentDm?.id) || '')
+		selectMessageEntitiesByChannelId(state, (modeResponsive === ModeResponsive.MODE_CLAN ? currentChannelId : currentDmChannelId) || '')
 	);
 	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (isClanView ? currentChannelId : currentDmId) as string));
 	const dispatch = useAppDispatch();
