@@ -48,6 +48,8 @@
 		"setPassword": "Đặt mật khẩu",
 		"myQRCode": "Mã QR của tôi",
 		"updatePhoneNumber": "Cập nhật số điện thoại",
-		"verifyPhoneNumber": "Xác thực số điện thoại"
+		"verifyPhoneNumber": "Xác thực số điện thoại",
+		"updateEmail": "Cập nhật email",
+		"verifyEmail": "Xác thực email"
 	}
 }

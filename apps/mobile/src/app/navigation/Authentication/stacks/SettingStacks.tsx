@@ -5,7 +5,9 @@ import { Platform } from 'react-native';
 import { Settings } from '../../../screens/settings';
 import { AccountSetting } from '../../../screens/settings/AccountSetting';
 import { BlockedUsers } from '../../../screens/settings/AccountSetting/BlockedUsers';
+import { UpdateEmail } from '../../../screens/settings/AccountSetting/UpdateEmail';
 import { UpdatePhoneNumber } from '../../../screens/settings/AccountSetting/UpdatePhoneNumber';
+import { VerifyEmail } from '../../../screens/settings/AccountSetting/VerifyEmail';
 import { VerifyPhoneNumber } from '../../../screens/settings/AccountSetting/VerifyPhoneNumber';
 import AppearanceSetting from '../../../screens/settings/AppearanceSetting';
 import AppThemeSetting from '../../../screens/settings/AppearanceSetting/AppTheme';
@@ -162,10 +164,34 @@ export const SettingStacks = ({}: any) => {
 			/>
 
 			<Stack.Screen
+				name={APP_SCREEN.SETTINGS.UPDATE_EMAIL}
+				component={UpdateEmail}
+				options={{
+					headerTitle: t('settingStack.updateEmail'),
+					gestureEnabled: Platform.OS === 'ios',
+					headerStyle: {
+						backgroundColor: themeValue.primary
+					}
+				}}
+			/>
+
+			<Stack.Screen
 				name={APP_SCREEN.SETTINGS.VERIFY_PHONE_NUMBER}
 				component={VerifyPhoneNumber}
 				options={{
 					headerTitle: t('settingStack.verifyPhoneNumber'),
+					gestureEnabled: Platform.OS === 'ios',
+					headerStyle: {
+						backgroundColor: themeValue.primary
+					}
+				}}
+			/>
+
+			<Stack.Screen
+				name={APP_SCREEN.SETTINGS.VERIFY_EMAIL}
+				component={VerifyEmail}
+				options={{
+					headerTitle: t('settingStack.verifyEmail'),
 					gestureEnabled: Platform.OS === 'ios',
 					headerStyle: {
 						backgroundColor: themeValue.primary
