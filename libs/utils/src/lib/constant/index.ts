@@ -18,19 +18,17 @@ export const EVERYONE_ROLE_TITLE = 'Everyone';
 export const TITLE_MENTION_HERE = '@here';
 export const RECENT_EMOJI_CATEGORY = 'Recent';
 export const DONE_ONBOARDING_STATUS = 3;
-export const FOR_15_MINUTES = 15 * 60 * 1000;
-export const FOR_10_MINUTES = 10 * 60 * 1000;
-export const FOR_1_HOUR = 60 * 60 * 1000;
-export const FOR_3_HOURS = 3 * 60 * 60 * 1000;
-export const FOR_8_HOURS = 8 * 60 * 60 * 1000;
-export const FOR_24_HOURS = 24 * 60 * 60 * 1000;
+export const FOR_15_MINUTES = 15 * 60;
+export const FOR_10_MINUTES = 10 * 60;
+export const FOR_1_HOUR = 60 * 60;
+export const FOR_3_HOURS = 3 * 60 * 60;
+export const FOR_8_HOURS = 8 * 60 * 60;
+export const FOR_24_HOURS = 24 * 60 * 60;
 export const MAX_LENGTH_MESSAGE_BUZZ = 160;
 export const ONE_MINUTE = 60000;
 export const GUEST_NAME = 'guest';
 export const FOR_SALE_CATE = 'forsale';
 
-export const MUTE = 0;
-export const ACTIVE = 1;
 export const DEFAULT_ID = '0';
 export const LIMIT = 50;
 

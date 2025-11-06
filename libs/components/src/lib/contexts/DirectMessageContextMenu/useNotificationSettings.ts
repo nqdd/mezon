@@ -1,10 +1,10 @@
-import type { SetMuteNotificationPayload, SetNotificationPayload } from '@mezon/store';
-import { notificationSettingActions, useAppDispatch } from '@mezon/store';
+import type { MuteChannelPayload } from '@mezon/store';
+import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { EMuteState } from '@mezon/utils';
 import { format } from 'date-fns';
-import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 interface UseNotificationSettingsParams {
 	channelId?: string;
@@ -15,6 +15,7 @@ interface UseNotificationSettingsParams {
 export function useNotificationSettings({ channelId, notificationSettings, getChannelId }: UseNotificationSettingsParams) {
 	const { t } = useTranslation('directMessage');
 	const dispatch = useAppDispatch();
+	const currentClanId = useSelector(selectCurrentClanId);
 	const [mutedUntilText, setMutedUntilText] = useState<string>('');
 	const [nameChildren, setNameChildren] = useState<string>('');
 
@@ -22,56 +23,31 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 		(channelId: string, active: number, channelType?: number) => {
 			if (!channelId) return;
 			dispatch(notificationSettingActions.updateNotiState({ channelId, active }));
-			const now = new Date();
-			const unmuteTimeISO = now.toISOString();
-
 			const body = {
 				channel_id: channelId,
-				notification_type: 0,
-				clan_id: '',
-				active,
-				time_mute: active === EMuteState.UN_MUTE ? undefined : unmuteTimeISO,
-				is_current_channel: true,
-				is_direct: channelType === ChannelType.CHANNEL_TYPE_DM || channelType === ChannelType.CHANNEL_TYPE_GROUP
+				mute_time: 0,
+				active
 			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-			dispatch(notificationSettingActions.setNotificationSetting(body));
+
+			dispatch(notificationSettingActions.setMuteChannel(body));
 		},
 		[dispatch]
 	);
 
 	const handleScheduleMute = useCallback(
-		(channelId: string, channelType: number, duration: number) => {
+		(channelId: string, duration: number) => {
 			if (!channelId) return;
 
-			if (duration !== Infinity) {
-				dispatch(notificationSettingActions.updateNotiState({ channelId, active: EMuteState.MUTED }));
-				const now = new Date();
-				const unmuteTime = new Date(now.getTime() + duration);
-				const unmuteTimeISO = unmuteTime.toISOString();
-
-				const body: SetNotificationPayload = {
-					channel_id: channelId,
-					notification_type: 0,
-					clan_id: '',
-					time_mute: unmuteTimeISO,
-					is_current_channel: true,
-					is_direct: channelType === ChannelType.CHANNEL_TYPE_DM || channelType === ChannelType.CHANNEL_TYPE_GROUP
-				};
-				dispatch(notificationSettingActions.setNotificationSetting(body));
-			} else {
-				dispatch(notificationSettingActions.updateNotiState({ channelId, active: EMuteState.MUTED }));
-				const body: SetMuteNotificationPayload = {
-					channel_id: channelId,
-					notification_type: 0,
-					clan_id: '',
-					active: EMuteState.MUTED,
-					is_current_channel: true
-				};
-				dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-			}
+			dispatch(notificationSettingActions.updateNotiState({ channelId, active: EMuteState.MUTED }));
+			const body: MuteChannelPayload = {
+				channel_id: channelId,
+				mute_time: duration,
+				active: 0,
+				clan_id: currentClanId || ''
+			};
+			dispatch(notificationSettingActions.setMuteChannel(body));
 		},
-		[dispatch]
+		[dispatch, currentClanId]
 	);
 
 	const getNotificationSetting = useCallback(

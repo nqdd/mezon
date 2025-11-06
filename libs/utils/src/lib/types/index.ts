@@ -101,7 +101,7 @@ export type IDefaultNotificationClan = ApiNotificationSetting;
 
 export type IDefaultNotificationCategory = ApiNotificationSetting & {
 	active?: number;
-	time_mute?: string;
+	time_mute?: string | null;
 };
 
 export type IDefaultNotification = ApiNotificationSetting & {
