@@ -8,7 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ICategoryChannel } from '@mezon/utils';
-import { FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import type { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
@@ -47,31 +47,31 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 						{
 							title: t('notifySettingThreadModal.muteDuration.forFifteenMinutes'),
 							onPress: () => {
-								handleScheduleMute(FOR_15_MINUTES);
+								handleScheduleMute(FOR_15_MINUTES_SEC_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forOneHour'),
 							onPress: () => {
-								handleScheduleMute(FOR_1_HOUR);
+								handleScheduleMute(FOR_1_HOUR_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forThreeHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_3_HOURS);
+								handleScheduleMute(FOR_3_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forEightHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_8_HOURS);
+								handleScheduleMute(FOR_8_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forTwentyFourHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_24_HOURS);
+								handleScheduleMute(FOR_24_HOURS_SEC);
 							}
 						},
 						{

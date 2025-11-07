@@ -22,7 +22,7 @@ import {
 } from '@mezon/store';
 import type { ChannelThreads, UsersClanEntity } from '@mezon/utils';
 import {
-	FOR_1_HOUR,
+	FOR_1_HOUR_SEC,
 	ModeResponsive,
 	TypeSearch,
 	addAttributesSearchList,
@@ -107,7 +107,7 @@ const ForwardMessageModal = () => {
 			index < allMessageIds.length &&
 			Date.parse(allMessagesEntities?.[allMessageIds[index]]?.create_time) -
 				Date.parse(allMessagesEntities?.[allMessageIds[index]]?.create_time) <
-				FOR_1_HOUR &&
+				FOR_1_HOUR_SEC &&
 			allMessagesEntities?.[allMessageIds[index]]?.sender_id === selectedMessage?.user?.id
 		) {
 			combineMessages.push(allMessagesEntities?.[allMessageIds[index]]);

@@ -15,11 +15,11 @@ import {
 	EMuteState,
 	ENotificationTypes,
 	EPermission,
-	FOR_15_MINUTES,
-	FOR_1_HOUR,
-	FOR_24_HOURS,
-	FOR_3_HOURS,
-	FOR_8_HOURS,
+	FOR_15_MINUTES_SEC,
+	FOR_1_HOUR_SEC,
+	FOR_24_HOURS_SEC,
+	FOR_3_HOURS_SEC,
+	FOR_8_HOURS_SEC,
 	generateE2eId
 } from '@mezon/utils';
 import { format } from 'date-fns';
@@ -137,11 +137,11 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel onClick={() => handleScheduleMute(FOR_15_MINUTES)}>{t('muteFor15Minutes')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_1_HOUR)}>{t('muteFor1Hour')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_3_HOURS)}>{t('muteFor3Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_8_HOURS)}>{t('muteFor8Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_24_HOURS)}>{t('muteFor24Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_15_MINUTES_SEC)}>{t('muteFor15Minutes')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_1_HOUR_SEC)}>{t('muteFor1Hour')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_3_HOURS_SEC)}>{t('muteFor3Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_8_HOURS_SEC)}>{t('muteFor8Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_24_HOURS_SEC)}>{t('muteFor24Hours')}</ItemPanel>,
 			<ItemPanel onClick={() => handleScheduleMute(Infinity)}>{t('muteUntilTurnedBack')}</ItemPanel>
 		];
 		return <>{menuItems}</>;

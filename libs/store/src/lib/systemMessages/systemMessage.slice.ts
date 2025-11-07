@@ -1,10 +1,14 @@
 import { captureSentryError } from '@mezon/logger';
-import { FOR_15_MINUTES, IPSystemMessage, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiSystemMessage, ApiSystemMessageRequest, ApiSystemMessagesList, MezonUpdateSystemMessageBody } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IPSystemMessage, LoadingStatus } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC_SEC } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiSystemMessage, ApiSystemMessageRequest, ApiSystemMessagesList, MezonUpdateSystemMessageBody } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const SYSTEM_MESSAGE_FEATURE_KEY = 'systemMessages';
 
@@ -140,7 +144,7 @@ export const systemMessageSlice = createSlice({
 			if (!state.byClans[clanId]) {
 				state.byClans[clanId] = getInitialClanState();
 			}
-			state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES);
+			state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC_SEC);
 		}
 	},
 	extraReducers: (builder) => {
@@ -173,7 +177,7 @@ export const systemMessageSlice = createSlice({
 							systemMessageAdapter.upsertOne(state, { ...systemMessageData, id: systemMessageData.id });
 						}
 						state.byClans[clanId].systemMessage = systemMessageData;
-						state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES);
+						state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC_SEC);
 					}
 
 					state.loadingStatus = 'loaded';

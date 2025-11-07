@@ -1,14 +1,17 @@
-import { ActionEmitEvent, ENotificationActive, ICategoryChannelOption } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
-import { NotiChannelCategorySettingEntity, notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import type { ICategoryChannelOption } from '@mezon/mobile-components';
+import { ActionEmitEvent, ENotificationActive } from '@mezon/mobile-components';
+import { useTheme } from '@mezon/mobile-ui';
+import type { NotiChannelCategorySettingEntity } from '@mezon/store-mobile';
+import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
+import { FOR_15_MINUTES_SEC_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
-import { ApiNotificationUserChannel } from 'mezon-js/api.gen';
+import type { ApiNotificationUserChannel } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import MezonMenu, { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
+import type { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
+import MezonMenu from '../../../componentUI/MezonMenu';
 import { style } from './MuteClanNotificationBS.styles';
 
 type MuteClanNotificationBSProps = {
@@ -34,31 +37,31 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 						{
 							title: t('notifySettingThreadModal.muteDuration.forFifteenMinutes'),
 							onPress: () => {
-								handleScheduleMute(FOR_15_MINUTES);
+								handleScheduleMute(FOR_15_MINUTES_SEC_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forOneHour'),
 							onPress: () => {
-								handleScheduleMute(FOR_1_HOUR);
+								handleScheduleMute(FOR_1_HOUR_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forThreeHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_3_HOURS);
+								handleScheduleMute(FOR_3_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forEightHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_8_HOURS);
+								handleScheduleMute(FOR_8_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forTwentyFourHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_24_HOURS);
+								handleScheduleMute(FOR_24_HOURS_SEC);
 							}
 						},
 						{

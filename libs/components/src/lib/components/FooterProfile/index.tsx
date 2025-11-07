@@ -26,7 +26,7 @@ import {
 	CURRENCY,
 	ESummaryInfo,
 	EUserStatus,
-	ONE_MINUTE,
+	ONE_MINUTE_MS,
 	TypeMessage,
 	compareBigInt,
 	createImgproxyUrl,
@@ -218,7 +218,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 			});
 			const timer = setTimeout(() => {
 				handleClosePopup();
-			}, ONE_MINUTE);
+			}, ONE_MINUTE_MS);
 
 			return () => clearTimeout(timer);
 		}

@@ -1,6 +1,6 @@
 import type { ThreadError } from '../types';
 
-export const TIME_COMBINE = 10 * 60 * 1000; // 10 minutes in milliseconds
+export const TIME_COMBINE_MS = 10 * 60 * 1000; // 10 minutes in milliseconds
 export const TIME_OFFSET = 3;
 export const LIMIT_MESSAGE = 50;
 export const LIMIT_CLAN_ITEM = 50;
@@ -18,14 +18,14 @@ export const EVERYONE_ROLE_TITLE = 'Everyone';
 export const TITLE_MENTION_HERE = '@here';
 export const RECENT_EMOJI_CATEGORY = 'Recent';
 export const DONE_ONBOARDING_STATUS = 3;
-export const FOR_15_MINUTES = 15 * 60;
-export const FOR_10_MINUTES = 10 * 60;
-export const FOR_1_HOUR = 60 * 60;
-export const FOR_3_HOURS = 3 * 60 * 60;
-export const FOR_8_HOURS = 8 * 60 * 60;
-export const FOR_24_HOURS = 24 * 60 * 60;
+export const FOR_15_MINUTES_SEC = 15 * 60;
+export const FOR_10_MINUTES_SEC = 10 * 60;
+export const FOR_1_HOUR_SEC = 60 * 60;
+export const FOR_3_HOURS_SEC = 3 * 60 * 60;
+export const FOR_8_HOURS_SEC = 8 * 60 * 60;
+export const FOR_24_HOURS_SEC = 24 * 60 * 60;
 export const MAX_LENGTH_MESSAGE_BUZZ = 160;
-export const ONE_MINUTE = 60000;
+export const ONE_MINUTE_MS = 60000;
 export const GUEST_NAME = 'guest';
 export const FOR_SALE_CATE = 'forsale';
 
