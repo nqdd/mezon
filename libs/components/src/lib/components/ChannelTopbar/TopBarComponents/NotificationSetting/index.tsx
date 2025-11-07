@@ -12,7 +12,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
-import { EMuteState, ENotificationTypes, FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import { EMuteState, ENotificationTypes, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
 import type { ReactElement, RefObject } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -101,18 +101,18 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 
 	const menu = useMemo(() => {
 		const listItem: { key: number; label: string }[] = [
-			{ key: FOR_15_MINUTES, label: t('notificationSetting.muteOptions.for15Minutes') },
-			{ key: FOR_1_HOUR, label: t('notificationSetting.muteOptions.for1Hour') },
+			{ key: FOR_15_MINUTES_SEC, label: t('notificationSetting.muteOptions.for15Minutes') },
+			{ key: FOR_1_HOUR_SEC, label: t('notificationSetting.muteOptions.for1Hour') },
 			{
-				key: FOR_3_HOURS,
+				key: FOR_3_HOURS_SEC,
 				label: t('notificationSetting.muteOptions.for3Hours')
 			},
 			{
-				key: FOR_8_HOURS,
+				key: FOR_8_HOURS_SEC,
 				label: t('notificationSetting.muteOptions.for8Hours')
 			},
 			{
-				key: FOR_24_HOURS,
+				key: FOR_24_HOURS_SEC,
 				label: t('notificationSetting.muteOptions.for24Hours')
 			},
 			{
