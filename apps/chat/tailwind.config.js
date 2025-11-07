@@ -138,6 +138,7 @@ module.exports = {
 
 			fontFamily: {
 				ggSans: ['gg sans', 'sans-serif'],
+				svnAvo: ['SVN-AVO', 'sans-serif'],
 				code: ['Fira Code', 'monospace']
 			},
 			screens: {
