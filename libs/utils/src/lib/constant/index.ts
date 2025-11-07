@@ -1,6 +1,6 @@
 import type { ThreadError } from '../types';
 
-export const TIME_COMBINE = 120;
+export const TIME_COMBINE = 10 * 60 * 1000; // 10 minutes in milliseconds
 export const TIME_OFFSET = 3;
 export const LIMIT_MESSAGE = 50;
 export const LIMIT_CLAN_ITEM = 50;
