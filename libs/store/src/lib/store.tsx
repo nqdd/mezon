@@ -26,7 +26,7 @@ import { POLICIES_FEATURE_KEY, policiesDefaultReducer, policiesReducer } from '.
 import { reactionReducer } from './reactionMessage/reactionMessage.slice';
 
 import type { MezonContextValue } from '@mezon/transport';
-import { activitiesAPIReducer } from './activities/activitiesAPI.slice';
+import { ACTIVITIES_API_FEATURE_KEY, activitiesAPIReducer } from './activities/activitiesAPI.slice';
 import { adminApplicationReducer } from './application/applications.slice';
 import { attachmentReducer } from './attachment/attachments.slice';
 import { auditLogReducer } from './auditLog/auditLog.slice';
@@ -329,6 +329,15 @@ const persistedWalletStore = persistReducer(
 	walletReducer
 );
 
+const persistedActivitiesReducer = persistReducer(
+	{
+		key: ACTIVITIES_API_FEATURE_KEY,
+		storage,
+		whitelist: ['isActivityTrackingEnabled']
+	},
+	activitiesAPIReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	account: accountReducer,
@@ -375,7 +384,7 @@ const reducer = {
 	channelApp: persistedChannelAppReducer,
 	canvas: canvasReducer,
 	canvasapi: canvasAPIReducer,
-	activitiesapi: activitiesAPIReducer,
+	activitiesapi: persistedActivitiesReducer,
 	auditlog: auditLogReducer,
 	audiocall: audioCallReducer,
 	fcm: fcmReducer,

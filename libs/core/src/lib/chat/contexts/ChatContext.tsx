@@ -1832,19 +1832,25 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 		[userId]
 	);
 	const onunmuteevent = useCallback(async (unmuteEvent: UnmuteEvent) => {
-		if (unmuteEvent.category_id !== '0') {
+		dispatch(
+			notificationSettingActions.updateNotiState({
+				active: EMuteState.UN_MUTE,
+				channelId: unmuteEvent.channel_id
+			})
+		);
+		if (unmuteEvent.category_id && unmuteEvent.category_id !== '0') {
 			dispatch(
-				defaultNotificationCategoryActions.setMuteCategory({
-					category_id: unmuteEvent.category_id,
-					active: 1,
-					clan_id: unmuteEvent.clan_id
+				defaultNotificationCategoryActions.unmuteCate({
+					clanId: unmuteEvent.clan_id,
+					categoryId: unmuteEvent.category_id
 				})
 			);
-		} else {
+		}
+		if (unmuteEvent.channel_id && unmuteEvent.channel_id !== '0') {
 			dispatch(
-				notificationSettingActions.updateNotiState({
-					active: EMuteState.UN_MUTE,
-					channelId: unmuteEvent.channel_id
+				defaultNotificationCategoryActions.unmuteCate({
+					clanId: unmuteEvent.clan_id,
+					categoryId: unmuteEvent.category_id
 				})
 			);
 		}

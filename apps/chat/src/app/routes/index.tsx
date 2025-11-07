@@ -52,6 +52,12 @@ const MezonPage = lazy(() => import(/* webpackChunkName: "homepage" */ '../pages
 const AboutMezon = lazy(() => import(/* webpackChunkName: "about" */ '../pages/aboutmezon'));
 const EconomyPage = lazy(() => import(/* webpackChunkName: "economy-page" */ '../pages/economy'));
 const InvitePage = lazy(() => import(/* webpackChunkName: "invite-pages" */ '../pages/invite'));
+const TextChannelPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/textchannel'));
+const VoiceChannelPage = lazy(() => import(/* webpackChunkName: "voicechannel-page" */ '../pages/voicechannel'));
+const OrganizePage = lazy(() => import(/* webpackChunkName: "organize-page" */ '../pages/organize'));
+const EngagePage = lazy(() => import(/* webpackChunkName: "engage-page" */ '../pages/engage'));
+const CustomizePage = lazy(() => import(/* webpackChunkName: "customize-page" */ '../pages/customize'));
+const AIGenerationPage = lazy(() => import(/* webpackChunkName: "aigeneration-page" */ '../pages/aigeneration'));
 const Login = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/login'));
 const LoginCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/loginCallback'));
 const LogoutCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/logoutCallback'));
@@ -209,6 +215,54 @@ export const Routes = memo(() => {
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<AboutMezon />
+							</Suspense>
+						)
+					},
+					{
+						path: '/textchannel',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<TextChannelPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/voicechannel',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<VoiceChannelPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/organize',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<OrganizePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/engage',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<EngagePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/customize',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<CustomizePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/aigeneration',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<AIGenerationPage />
 							</Suspense>
 						)
 					},

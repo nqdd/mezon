@@ -67,7 +67,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 	);
 	return (
 		<div
-			className={`layout fixed flex flex-col items-center w-full z-50 bg-gradient-to-r from-[#7E00FF] via-[#9C3FE9] to-[#4B0082] h-[80px] max-md:h-[72px]`}
+			className={`layout fixed flex flex-col items-center w-full z-50 bg-gradient-to-r from-[#8960e0] via-[#8960e0] to-[#8960e0] h-[80px] max-md:h-[72px]`}
 		>
 			<div
 				ref={refHeader}

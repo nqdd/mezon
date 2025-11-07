@@ -71,6 +71,7 @@ export { ReplyMessageBox } from './components/ReplyMessageBox';
 export { default as SearchMessageChannelRender } from './components/SearchMessageChannel/SearchMessageChannelRender';
 export { default as SearchModal } from './components/SearchModal';
 export { default as SettingAccount } from './components/SettingAccount';
+export { default as SettingActivity } from './components/SettingActivity';
 export { default as SettingAppearance } from './components/SettingAppearance';
 export { SettingLanguage } from './components/SettingLanguage';
 export { default as SettingNotifications } from './components/SettingNotifications';

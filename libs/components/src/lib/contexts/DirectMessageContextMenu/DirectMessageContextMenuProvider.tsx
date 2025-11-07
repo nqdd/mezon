@@ -12,7 +12,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EMuteState, FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { FC } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -264,27 +264,27 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 								>
 									<MemberMenuItem
 										label={t('contextMenu.for15Minutes')}
-										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES)}
+										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
 										label={t('contextMenu.for1Hour')}
-										onClick={() => currentHandlers.handleMute(FOR_1_HOUR)}
+										onClick={() => currentHandlers.handleMute(FOR_1_HOUR_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
 										label={t('contextMenu.for3Hours')}
-										onClick={() => currentHandlers.handleMute(FOR_3_HOURS)}
+										onClick={() => currentHandlers.handleMute(FOR_3_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
 										label={t('contextMenu.for8Hours')}
-										onClick={() => currentHandlers.handleMute(FOR_8_HOURS)}
+										onClick={() => currentHandlers.handleMute(FOR_8_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
 										label={t('contextMenu.for24Hours')}
-										onClick={() => currentHandlers.handleMute(FOR_24_HOURS)}
+										onClick={() => currentHandlers.handleMute(FOR_24_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem

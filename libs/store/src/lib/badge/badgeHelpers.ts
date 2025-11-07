@@ -197,10 +197,11 @@ export const decreaseChannelBadgeCount = (dispatch: AppDispatch, params: Decreas
 	// Handle direct messages (DM/Group)
 	if (!message.clan_id || message.clan_id === '0') {
 		const dmMeta = store.getState().direct?.entities?.[message.channel_id];
+		const lastSeenTimestamp = Number(dmMeta?.last_seen_message?.timestamp_seconds ?? Number.NaN);
 		if (
 			dmMeta &&
-			dmMeta.lastSeenTimestamp !== undefined &&
-			messageTimestamp > dmMeta.lastSeenTimestamp &&
+			!Number.isNaN(lastSeenTimestamp) &&
+			messageTimestamp > lastSeenTimestamp &&
 			dmMeta.count_mess_unread !== undefined &&
 			dmMeta.count_mess_unread > 0
 		) {

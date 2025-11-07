@@ -1,11 +1,11 @@
 import { captureSentryError } from '@mezon/logger';
-import type { IChannelCategorySetting, IDefaultNotificationCategory, LoadingStatus } from '@mezon/utils';
+import { EMuteState, type IChannelCategorySetting, type IDefaultNotificationCategory, type LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiSetNotificationRequest } from 'mezon-js/api.gen';
 import type { ApiNotificationChannelCategorySetting } from 'mezon-js/dist/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { channelsActions } from '../channels/channels.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
@@ -127,32 +127,24 @@ export const getDefaultNotificationCategory = createAsyncThunk(
 export type SetDefaultNotificationPayload = {
 	category_id?: string;
 	notification_type?: number;
-	time_mute?: string;
-	clan_id: string;
-	active?: number;
+	clan_id?: string;
 };
 
 export const setDefaultNotificationCategory = createAsyncThunk(
 	'defaultnotificationcategory/setDefaultNotificationCategory',
-	async ({ category_id, notification_type, time_mute, clan_id }: SetDefaultNotificationPayload, thunkAPI) => {
+	async ({ category_id, notification_type, clan_id }: SetDefaultNotificationPayload, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const body = {
+			const body: ApiSetNotificationRequest = {
 				channel_category_id: category_id,
 				notification_type,
-				time_mute,
 				clan_id
 			};
 			const response = await mezon.client.setNotificationCategory(mezon.session, body);
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			if (time_mute) {
-				thunkAPI.dispatch(channelsActions.fetchChannels({ clanId: clan_id || '', noCache: true }));
-			}
-			thunkAPI.dispatch(fetchChannelCategorySetting({ clanId: clan_id || '', noCache: true }));
-			thunkAPI.dispatch(getDefaultNotificationCategory({ categoryId: category_id || '', clanId: clan_id || '', noCache: true }));
-			return response;
+			return body;
 		} catch (error) {
 			captureSentryError(error, 'defaultnotificationcategory/setDefaultNotificationCategory');
 			return thunkAPI.rejectWithValue(error);
@@ -184,23 +176,33 @@ export const deleteDefaultNotificationCategory = createAsyncThunk(
 	}
 );
 
+export type MuteCatePayload = {
+	active?: number;
+	id?: string;
+	mute_time?: number;
+	clan_id: string;
+};
 export const setMuteCategory = createAsyncThunk(
 	'defaultnotificationcategory/setMuteCategory',
-	async ({ category_id, notification_type, active, clan_id }: SetDefaultNotificationPayload, thunkAPI) => {
+	async ({ id, active, mute_time, clan_id }: MuteCatePayload, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.setMuteNotificationCategory(mezon.session, {
+			const response = await mezon.client.setMuteCategory(mezon.session, {
 				active,
-				notification_type,
-				id: category_id
+				id,
+				mute_time,
+				clan_id
 			});
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			thunkAPI.dispatch(channelsActions.fetchChannels({ clanId: clan_id || '', noCache: true }));
-			thunkAPI.dispatch(fetchChannelCategorySetting({ clanId: clan_id || '', noCache: true }));
-			thunkAPI.dispatch(getDefaultNotificationCategory({ categoryId: category_id || '', clanId: clan_id || '', noCache: true }));
-			return response;
+
+			return {
+				active,
+				id,
+				mute_time,
+				clan_id
+			};
 		} catch (error) {
 			captureSentryError(error, 'defaultnotificationcategory/setMuteCategory');
 			return thunkAPI.rejectWithValue(error);
@@ -218,6 +220,13 @@ export const defaultNotificationCategorySlice = createSlice({
 				state.byClans[clanId] = getInitialClanState();
 			}
 			state.byClans[clanId].cache = createCacheMetadata(DEFAULT_NOTIFICATION_CATEGORY_CACHE_TIME);
+		},
+		unmuteCate: (state, action: PayloadAction<{ categoryId: string; clanId: string }>) => {
+			const { categoryId, clanId } = action.payload;
+			if (state.byClans[clanId]?.categoriesSettings[categoryId]) {
+				state.byClans[clanId].categoriesSettings[categoryId].active = EMuteState.UN_MUTE;
+				state.byClans[clanId].categoriesSettings[categoryId].time_mute = null;
+			}
 		}
 	},
 	extraReducers: (builder) => {
@@ -248,6 +257,32 @@ export const defaultNotificationCategorySlice = createSlice({
 			.addCase(getDefaultNotificationCategory.rejected, (state: DefaultNotificationCategoryState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
+			})
+			.addCase(setDefaultNotificationCategory.fulfilled, (state, action) => {
+				const { channel_category_id, notification_type, clan_id } = action.payload;
+				if (!clan_id || !channel_category_id) {
+					return;
+				}
+				if (!state.byClans[clan_id]) {
+					state.byClans[clan_id] = getInitialClanState();
+				}
+				if (state.byClans[clan_id]?.categoriesSettings[channel_category_id]) {
+					state.byClans[clan_id].categoriesSettings[channel_category_id].notification_setting_type = notification_type;
+				}
+			})
+			.addCase(setMuteCategory.fulfilled, (state, action) => {
+				const { id, active, mute_time, clan_id } = action.payload;
+				if (!id) {
+					return;
+				}
+				if (!state.byClans[clan_id]) {
+					state.byClans[clan_id] = getInitialClanState();
+				}
+				if (state.byClans[clan_id]?.categoriesSettings[id]) {
+					state.byClans[clan_id].categoriesSettings[id].active = active ? EMuteState.UN_MUTE : EMuteState.MUTED;
+					state.byClans[clan_id].categoriesSettings[id].time_mute =
+						mute_time === 0 && active === EMuteState.MUTED ? null : new Date(Date.now() + (mute_time || 0) * 1000).toISOString();
+				}
 			});
 	}
 });

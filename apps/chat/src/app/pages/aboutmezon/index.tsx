@@ -1,4 +1,5 @@
 import mezonPackage from '@mezon/package-js';
+import { Icons } from '@mezon/ui';
 import { getPlatform, Platform } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -133,9 +134,7 @@ const AboutMezon = () => {
 										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
-										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" />
-										</svg>
+										<Icons.Windows className="w-5 h-5" />
 										<span className="text-gray-700 font-medium">Windows</span>
 									</a>
 									<a
@@ -143,9 +142,7 @@ const AboutMezon = () => {
 										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
-										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z" />
-										</svg>
+										<Icons.Apple className="w-5 h-5" />
 										<span className="text-gray-700 font-medium">macOS</span>
 									</a>
 									<a
@@ -153,9 +150,7 @@ const AboutMezon = () => {
 										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
-										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M20.581 19.049c-.55-.446-.336-1.431-.907-1.917.553-3.365-.997-6.331-2.845-8.232-1.551-1.595-1.051-3.147-1.051-4.49 0-2.146-.881-4.41-3.55-4.41-2.853 0-3.635 2.38-3.663 3.738-.068 3.262.659 4.11-1.25 6.484-2.246 2.793-2.577 5.579-2.07 7.057-.237.276-.557.582-1.155.835-1.652.72-.441 1.925-.898 2.78-.13.243-.192.497-.192.74 0 .75.596 1.399 1.679 1.302 1.461-.13 2.809.905 3.681.905.77 0 1.402-.438 1.696-1.041 1.377-.339 3.077-.296 4.453.059.247.691.917 1.141 1.662 1.141 1.631 0 1.945-1.849 3.816-2.475.674-.225 1.013-.879 1.013-1.488 0-.39-.139-.761-.419-.988zM8.426 4.821c.052-.773.202-1.432.493-1.989.804-1.532 2.493-1.936 3.086-1.936 1.301 0 2.303.789 2.303 1.936 0 1.169-.324 2.004-.535 2.578-.203.554-.38 1.004-.38 1.498 0 .663.296 1.165.444 1.495.18.403.304.688.304 1.031 0 .999-1.134 1.68-1.969 1.68-1.317 0-1.903-.094-2.468-.094-.464 0-.833.067-1.171.133-.438.086-.86.17-1.382.17-1.305 0-1.969-.75-1.969-1.618 0-.384.157-.75.346-1.151.151-.32.323-.684.323-1.11 0-.483-.188-.915-.396-1.367-.221-.479-.47-1.015-.47-1.619 0-.528.048-1.108.461-1.647zm7.582 10.483c-.033.179-.057.367-.073.562.002-.193.024-.381.073-.562zM8.128 15.178l-.017.009zm7.743-.001l-.017-.009zm-7.743.001c-.191.096-.381.202-.574.318.194-.116.384-.223.574-.318zm7.743-.001c.191.095.381.202.574.318-.193-.116-.383-.223-.574-.318zM15.867 14.47l-.007-.011z" />
-										</svg>
+										<Icons.Linux className="w-5 h-5" />
 										<span className="text-gray-700 font-medium">Linux</span>
 									</a>
 								</div>
@@ -177,9 +172,7 @@ const AboutMezon = () => {
 										className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsMobileDropdownOpen(false)}
 									>
-										<svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-											<path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 22 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 22C7.78997 22.05 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z" />
-										</svg>
+										<Icons.Apple className="w-5 h-5" />
 										<span className="text-gray-700 font-medium">iOS (App Store)</span>
 									</a>
 									<a

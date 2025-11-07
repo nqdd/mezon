@@ -20,7 +20,7 @@ import type React from 'react';
 import Resizer from 'react-image-file-resizer';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
-import { CURRENCY, EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
+import { CURRENCY, EVERYONE_ROLE_ID, ID_MENTION_HERE } from '../constant';
 import { Platform } from '../hooks/platform';
 import type {
 	ChannelMembersEntity,
@@ -396,10 +396,6 @@ export const checkSameDayByCreateTimeMs = (unixTime1: number, unixTime2: number)
 	const date2 = fromUnixTime(unixTime2 / 1000);
 
 	return isSameDay(date1, date2);
-};
-
-export const checkContinuousMessagesByCreateTimeMs = (unixTime1: number, unixTime2: number) => {
-	return Math.abs(unixTime1 - unixTime2) <= TIME_COMBINE;
 };
 
 export const checkSameDayByCreateTime = (createTime1: string | Date, createTime2: string | Date) => {

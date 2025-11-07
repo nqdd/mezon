@@ -131,8 +131,10 @@ function MessageWithUser({
 		return includesUser || includesRole;
 	})();
 
-	const checkMessageHasReply = !!message?.references?.length && message?.code === TypeMessage.Chat;
+	const checkMessageHasReply = !!message?.references?.length && !!message?.references?.[0]?.message_ref_id;
 	const isEphemeralMessage = message?.code === TypeMessage.Ephemeral;
+
+	const shouldRenderMessageReply = checkMessageHasReply && !isEphemeralMessage;
 
 	const handleOpenShortUser = useCallback(
 		(e: React.MouseEvent<HTMLImageElement, MouseEvent>, userId: string, isClickOnReply = false) => {
@@ -216,7 +218,11 @@ function MessageWithUser({
 						},
 						{
 							'bg-highlight-no-hover':
-								(hasIncludeMention || checkReplied) && !messageReplyHighlight && !checkMessageTargetToMoved && !isEphemeralMessage
+								(hasIncludeMention || checkReplied) &&
+								!messageReplyHighlight &&
+								!checkMessageTargetToMoved &&
+								!isEphemeralMessage &&
+								!isTopic
 						},
 						{ '!bg-bgMessageReplyHighline': messageReplyHighlight },
 						{ 'bg-highlight': isHighlight },
@@ -234,7 +240,7 @@ function MessageWithUser({
 					create_time={message.create_time}
 					showMessageHead={showMessageHead}
 				>
-					{checkMessageHasReply && !isEphemeralMessage && (
+					{shouldRenderMessageReply && (
 						<MessageReply
 							message={message}
 							mode={mode}

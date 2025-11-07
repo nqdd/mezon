@@ -6,7 +6,7 @@ import { isPublicChannel } from '@mezon/utils';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import { useSelector } from 'react-redux';
-import { IReactionMessageProps } from './components/MessageReaction';
+import type { IReactionMessageProps } from './components/MessageReaction';
 
 const maxRetries = 10;
 const ChannelMessageReactionListener = React.memo(() => {

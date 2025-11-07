@@ -38,7 +38,7 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 			};
 
 			try {
-				const response = await dispatch(accountActions.verifyPhone(payload as ApiLinkAccountConfirmRequest));
+				const response = await dispatch(accountActions.verifyPhone({ data: payload as ApiLinkAccountConfirmRequest }));
 				if (response?.meta?.requestStatus === 'fulfilled') {
 					dispatch(accountActions.updatePhoneNumber(phoneNumber));
 					Toast.show({
