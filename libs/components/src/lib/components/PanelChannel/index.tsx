@@ -511,11 +511,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								onVisibleChange={handleOpenMenuMute}
 							>
 								<div>
-									<ItemPanel children={nameChildren} dropdown="change here" />
+									<ItemPanel children={nameChildren} dropdown="change here" onClick={onToggleMenuMute} />
 								</div>
 							</Menu>
 						) : (
-							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(1)} subText={mutedUntil} />
+							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(EMuteState.UN_MUTE)} subText={mutedUntil} />
 						)}
 
 						{shouldShowNotificationSettings && (
