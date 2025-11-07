@@ -224,7 +224,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 		const body: MuteChannelPayload = {
 			channel_id: channel.channel_id || '',
-			mute_time: duration !== Infinity ? 5 : 0,
+			mute_time: duration !== Infinity ? duration : 0,
 			active: EMuteState.MUTED,
 			clan_id: currentClanId || ''
 		};
