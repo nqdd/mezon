@@ -9,7 +9,7 @@ import {
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectCurrentClanId,
-	selectDmGroupCurrent,
+	selectDmChannelLabelById,
 	selectMemberClanByUserId,
 	selectMemberGroupByUserId,
 	selectMessageIdAttachment,
@@ -22,7 +22,6 @@ import {
 import { Icons } from '@mezon/ui';
 import { ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
 import type { MessageContextMenuProps } from '../../ContextMenu';
 import { useMessageContextMenu } from '../../ContextMenu';
 import ListAttachment from './listAttachment';
@@ -35,19 +34,19 @@ const MessageModalImage = () => {
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const [showList, setShowList] = useState(true);
-	const currentChannelId = useSelector(selectCurrentChannelId);
-	const currentClanId = useSelector(selectCurrentClanId) ?? '';
-	const attachments = useSelector((state) => selectAllListAttachmentByChannel(state, (directId ?? currentChannelId) as string));
+	const currentChannelId = useAppSelector(selectCurrentChannelId);
+	const currentClanId = useAppSelector(selectCurrentClanId) ?? '';
+	const attachments = useAppSelector((state) => selectAllListAttachmentByChannel(state, (directId ?? currentChannelId) as string));
 	const paginationState = useAppSelector((state) => selectAttachmentPaginationByChannel(state, (directId ?? currentChannelId) as string));
 	const { setOpenModalAttachment } = useAttachments();
-	const openModalAttachment = useSelector(selectOpenModalAttachment);
-	const attachment = useSelector(selectAttachment);
+	const openModalAttachment = useAppSelector(selectOpenModalAttachment);
+	const attachment = useAppSelector(selectAttachment);
 	const [urlImg, setUrlImg] = useState(attachment);
 	const [currentIndexAtt, setCurrentIndexAtt] = useState(-1);
 	const { showMessageContextMenu, setPositionShow, setImageURL } = useMessageContextMenu();
 
-	const mode = useSelector(selectModeAttachment);
-	const messageId = useSelector(selectMessageIdAttachment);
+	const mode = useAppSelector(selectModeAttachment);
+	const messageId = useAppSelector(selectMessageIdAttachment);
 	const dispatch = useAppDispatch();
 	const handleShowList = () => {
 		setShowList(!showList);
@@ -237,8 +236,8 @@ const MessageModalImage = () => {
 		setDragging(false);
 	};
 
-	const currentChannel = useSelector(selectCurrentChannel);
-	const currentDM = useSelector(selectDmGroupCurrent(directId as string));
+	const currentChannel = useAppSelector(selectCurrentChannel);
+	const currentDmLabel = useAppSelector((state) => selectDmChannelLabelById(state, (directId as string) || ''));
 
 	const handleRotateImg = (direction: 'LEFT' | 'RIGHT') => {
 		if (direction === 'LEFT') {
@@ -281,7 +280,7 @@ const MessageModalImage = () => {
 			className={`justify-center items-center flex flex-col fixed z-40 inset-0 outline-none focus:outline-none bg-black text-colorTextLightMode select-none`}
 		>
 			<div className="flex justify-center items-center bg-[#2e2e2e] w-full h-[30px] relative">
-				<div className="text-textDarkTheme">{currentDM?.channel_label || currentChannel?.channel_label}</div>
+				<div className="text-textDarkTheme">{currentDmLabel || currentChannel?.channel_label}</div>
 				<div onClick={closeModal} className="w-4 absolute right-2 top-2 cursor-pointer">
 					<Icons.MenuClose className="text-white w-full" />
 				</div>
@@ -383,7 +382,7 @@ const MessageModalImage = () => {
 
 const SenderUser = () => {
 	const { directId } = useAppParams();
-	const attachment = useSelector(selectCurrentAttachmentShowImage);
+	const attachment = useAppSelector(selectCurrentAttachmentShowImage);
 	const clanUser = useAppSelector((state) => selectMemberClanByUserId(state, attachment?.uploader as string));
 	const dmUser = useAppSelector((state) => selectMemberGroupByUserId(state, directId as string, attachment?.uploader as string));
 	const modeResponsive = useAppSelector(selectModeResponsive);
