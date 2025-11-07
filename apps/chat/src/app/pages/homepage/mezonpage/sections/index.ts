@@ -1,7 +1,7 @@
-export { BotsAndAppsSection } from './BotsAndAppsSection';
-export { CommunitiesSection } from './CommunitiesSection';
+export { AiAgentSection } from './AiAgentSection';
+export { CLanDiscoverSection } from './CLanDiscoverSection';
+export { ComunityPaymentsSection } from './ComunityPaymentsSection';
+export { EnterpriseIntegrationsSection } from './EnterpriseIntegrationsSection';
 export { FinalCTASection } from './FinalCTASection';
-export { FreedomToConnectSection } from './FreedomToConnectSection';
 export { HeroSection } from './HeroSection';
-export { MezonEconomySection } from './MezonEconomySection';
-
+export { TextChannelSection } from './TextChannelSection';
