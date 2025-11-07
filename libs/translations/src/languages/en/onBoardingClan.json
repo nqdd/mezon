@@ -85,6 +85,7 @@
 		"note": "This action will unlock advanced community features"
 	},
 	"communitySettings": {
+		"warnningEmptyField": "Fields with * are required",
 		"title": "Community Settings",
 		"subtitle": "Manage your community information",
 		"enableTitle": "Enable Community",

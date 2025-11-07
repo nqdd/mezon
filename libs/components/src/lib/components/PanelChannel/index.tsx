@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker } from '@mezon/core';
-import type { SetMuteNotificationPayload, SetNotificationPayload } from '@mezon/store';
+import type { MuteChannelPayload } from '@mezon/store';
 import {
 	FAVORITE_CATEGORY_ID,
 	channelsActions,
@@ -26,14 +26,15 @@ import {
 import { Menu } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import {
+	EMuteState,
 	ENotificationTypes,
 	EOverriddenPermission,
 	EPermission,
-	FOR_15_MINUTES,
-	FOR_1_HOUR,
-	FOR_24_HOURS,
-	FOR_3_HOURS,
-	FOR_8_HOURS,
+	FOR_15_MINUTES_SEC,
+	FOR_1_HOUR_SEC,
+	FOR_24_HOURS_SEC,
+	FOR_3_HOURS_SEC,
+	FOR_8_HOURS_SEC,
 	copyChannelLink
 } from '@mezon/utils';
 import { format } from 'date-fns';
@@ -220,40 +221,24 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 	const handleScheduleMute = (duration: number) => {
 		menuOpenMute.current = false;
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
 
-			const body: SetNotificationPayload = {
-				channel_id: channel.channel_id || '',
-				notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				time_mute: unmuteTimeISO,
-				is_current_channel: channel.channel_id === currentChannelId
-			};
-			dispatch(notificationSettingActions.setNotificationSetting(body));
-		} else {
-			const body: SetMuteNotificationPayload = {
-				channel_id: channel.channel_id || '',
-				notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: 0,
-				is_current_channel: channel.channel_id === currentChannelId
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-		}
+		const body: MuteChannelPayload = {
+			channel_id: channel.channel_id || '',
+			mute_time: duration !== Infinity ? duration : 0,
+			active: EMuteState.MUTED,
+			clan_id: currentClanId || ''
+		};
+		dispatch(notificationSettingActions.setMuteChannel(body));
 	};
 
 	const muteOrUnMuteChannel = (active: number) => {
-		const body = {
+		const body: MuteChannelPayload = {
 			channel_id: channel.channel_id || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
 			clan_id: currentClanId || '',
 			active,
-			is_current_channel: channel.channel_id === currentChannelId
+			mute_time: 0
 		};
-		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+		dispatch(notificationSettingActions.setMuteChannel(body));
 	};
 
 	const setNotification = (notificationType: number | 0) => {
@@ -286,7 +271,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 	}, [coords.distanceToBottom]);
 
 	useEffect(() => {
-		if (getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0') {
+		if (getNotificationChannelSelected?.active === 1) {
 			if (channel.parent_id === '0' || !channel.parent_id) {
 				setNameChildren(t('menu.notification.muteChannelStatus'));
 			} else {
@@ -303,20 +288,8 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 				const timeMute = new Date(getNotificationChannelSelected.time_mute);
 				const currentTime = new Date();
 				if (timeMute > currentTime) {
-					const timeDifference = timeMute.getTime() - currentTime.getTime();
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
 					setmutedUntil(`${t('menu.notification.mutedUntil')} ${formattedDate}`);
-
-					setTimeout(() => {
-						const body = {
-							channel_id: currentChannelId || '',
-							notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-							clan_id: currentClanId || '',
-							active: 1,
-							is_current_channel: channel.channel_id === currentChannelId
-						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-					}, timeDifference);
 				}
 			}
 		}
@@ -374,11 +347,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel children={t('menu.notification.for15Minutes')} onClick={() => handleScheduleMute(FOR_15_MINUTES)} />,
-			<ItemPanel children={t('menu.notification.for1Hour')} onClick={() => handleScheduleMute(FOR_1_HOUR)} />,
-			<ItemPanel children={t('menu.notification.for3Hours')} onClick={() => handleScheduleMute(FOR_3_HOURS)} />,
-			<ItemPanel children={t('menu.notification.for8Hours')} onClick={() => handleScheduleMute(FOR_8_HOURS)} />,
-			<ItemPanel children={t('menu.notification.for24Hours')} onClick={() => handleScheduleMute(FOR_24_HOURS)} />,
+			<ItemPanel children={t('menu.notification.for15Minutes')} onClick={() => handleScheduleMute(FOR_15_MINUTES_SEC)} />,
+			<ItemPanel children={t('menu.notification.for1Hour')} onClick={() => handleScheduleMute(FOR_1_HOUR_SEC)} />,
+			<ItemPanel children={t('menu.notification.for3Hours')} onClick={() => handleScheduleMute(FOR_3_HOURS_SEC)} />,
+			<ItemPanel children={t('menu.notification.for8Hours')} onClick={() => handleScheduleMute(FOR_8_HOURS_SEC)} />,
+			<ItemPanel children={t('menu.notification.for24Hours')} onClick={() => handleScheduleMute(FOR_24_HOURS_SEC)} />,
 			<ItemPanel children={t('menu.notification.untilTurnedBackOn')} onClick={() => handleScheduleMute(Infinity)} />
 		];
 		return <>{menuItems}</>;
@@ -425,7 +398,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 	}, []);
 
 	const onToggleMenuMute = useCallback(() => {
-		muteOrUnMuteChannel(getNotificationChannelSelected?.active === 1 ? 0 : 1);
+		muteOrUnMuteChannel(EMuteState.MUTED);
 		menuOpenMute.current = false;
 	}, []);
 
@@ -460,7 +433,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			{channel.parent_id === '0' || !channel.parent_id ? (
 				<>
 					<GroupPanels>
-						{getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0' ? (
+						{getNotificationChannelSelected?.active === 1 ? (
 							<Menu
 								trigger="hover"
 								menu={menuMute}
@@ -475,7 +448,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								</div>
 							</Menu>
 						) : (
-							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(1)} subText={mutedUntil} />
+							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(EMuteState.UN_MUTE)} subText={mutedUntil} />
 						)}
 
 						{shouldShowNotificationSettings && (
