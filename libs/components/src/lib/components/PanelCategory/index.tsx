@@ -83,7 +83,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 		const payload: MuteCatePayload = {
 			id: category?.id,
 			active: EMuteState.MUTED,
-			mute_time: duration !== Infinity ? 5 : 0,
+			mute_time: duration !== Infinity ? duration : 0,
 			clan_id: currentClanId || ''
 		};
 		dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
