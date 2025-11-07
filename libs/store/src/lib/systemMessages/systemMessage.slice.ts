@@ -1,6 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import type { IPSystemMessage, LoadingStatus } from '@mezon/utils';
-import { FOR_15_MINUTES_SEC_SEC } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC, type IPSystemMessage, type LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ApiSystemMessage, ApiSystemMessageRequest, ApiSystemMessagesList, MezonUpdateSystemMessageBody } from 'mezon-js/api.gen';
@@ -144,7 +143,7 @@ export const systemMessageSlice = createSlice({
 			if (!state.byClans[clanId]) {
 				state.byClans[clanId] = getInitialClanState();
 			}
-			state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC_SEC);
+			state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC);
 		}
 	},
 	extraReducers: (builder) => {
@@ -177,7 +176,7 @@ export const systemMessageSlice = createSlice({
 							systemMessageAdapter.upsertOne(state, { ...systemMessageData, id: systemMessageData.id });
 						}
 						state.byClans[clanId].systemMessage = systemMessageData;
-						state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC_SEC);
+						state.byClans[clanId].cache = createCacheMetadata(FOR_15_MINUTES_SEC);
 					}
 
 					state.loadingStatus = 'loaded';
