@@ -1,18 +1,14 @@
 import { useLocalParticipant, useRoomContext } from '@livekit/components-react';
-import { selectNoiseSuppressionEnabled, useAppSelector } from '@mezon/store';
+import { selectNoiseSuppressionEnabled, selectNoiseSuppressionLevel, useAppSelector } from '@mezon/store';
 import { DeepFilterNoiseFilterProcessor } from 'deepfilternet3-noise-filter';
 import type { LocalParticipant, LocalTrackPublication } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
 import { useEffect, useRef } from 'react';
 
-interface UseDeepFilterNet3Options {
-	noiseReductionLevel?: number;
-	sampleRate?: number;
-}
-
-export const useDeepFilterNet3 = (options: UseDeepFilterNet3Options = {}) => {
-	const { noiseReductionLevel = 50, sampleRate = 48000 } = options;
+export const useDeepFilterNet3 = () => {
 	const enabled = useAppSelector(selectNoiseSuppressionEnabled);
+	const level = useAppSelector(selectNoiseSuppressionLevel);
+	const sampleRate = 48000;
 	const room = useRoomContext();
 	const { localParticipant } = useLocalParticipant();
 	const processorsRef = useRef<Map<string, DeepFilterNoiseFilterProcessor>>(new Map());
@@ -60,17 +56,20 @@ export const useDeepFilterNet3 = (options: UseDeepFilterNet3Options = {}) => {
 			try {
 				const processor = new DeepFilterNoiseFilterProcessor({
 					sampleRate,
-					noiseReductionLevel,
+					noiseReductionLevel: level,
 					enabled: true
 				});
 
+				console.log('start set processor');
+
 				await track.setProcessor(processor);
-				processor.setSuppressionLevel(noiseReductionLevel);
+
+				console.log('set process success');
+
+				processor.setSuppressionLevel(level);
 				processorsRef.current.set(trackSid, processor);
 			} catch (error) {
-				if (process.env.NODE_ENV === 'development') {
-					console.error('Failed to apply DeepFilterNet3 processor:', error);
-				}
+				console.error('Failed to apply DeepFilterNet3 processor:', error);
 			}
 		};
 
@@ -111,7 +110,7 @@ export const useDeepFilterNet3 = (options: UseDeepFilterNet3Options = {}) => {
 			});
 			processorsMap.clear();
 		};
-	}, [room, localParticipant, enabled, sampleRate]);
+	}, [room, localParticipant, enabled, level, sampleRate]);
 
 	useEffect(() => {
 		if (!enabled || !room || !localParticipant) {
@@ -120,12 +119,10 @@ export const useDeepFilterNet3 = (options: UseDeepFilterNet3Options = {}) => {
 
 		processorsRef.current.forEach((processor) => {
 			try {
-				processor.setSuppressionLevel(noiseReductionLevel);
+				processor.setSuppressionLevel(level);
 			} catch (error) {
-				if (process.env.NODE_ENV === 'development') {
-					console.error('Failed to update suppression level:', error);
-				}
+				console.error('Failed to update suppression level:', error);
 			}
 		});
-	}, [noiseReductionLevel, enabled, room, localParticipant]);
+	}, [level, enabled, room, localParticipant]);
 };

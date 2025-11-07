@@ -3,6 +3,7 @@ import {
 	selectCurrentChannelId,
 	selectGroupCallJoined,
 	selectNoiseSuppressionEnabled,
+	selectNoiseSuppressionLevel,
 	selectShowCamera,
 	selectShowMicrophone,
 	selectShowScreen,
@@ -81,6 +82,7 @@ const ControlBar = ({
 	const showCamera = useSelector(selectShowCamera);
 	const showMicrophone = useSelector(selectShowMicrophone);
 	const noiseSuppressionEnabled = useSelector(selectNoiseSuppressionEnabled);
+	const noiseSuppressionLevel = useSelector(selectNoiseSuppressionLevel);
 
 	const isFullScreen = useSelector(selectVoiceFullScreen);
 	const isShowSelectScreenModal = useSelector(selectShowSelectScreenModal);
@@ -362,6 +364,13 @@ const ControlBar = ({
 		dispatch(voiceActions.setNoiseSuppressionEnabled(!noiseSuppressionEnabled));
 	}, [dispatch, noiseSuppressionEnabled]);
 
+	const handleNoiseSuppressionLevelChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			dispatch(voiceActions.setNoiseSuppressionLevel(Number(e.target.value)));
+		},
+		[dispatch]
+	);
+
 	return (
 		<div className="lk-control-bar !flex !justify-between !border-none !bg-transparent max-md:flex-col">
 			<div className="flex justify-start gap-4 max-md:hidden">
@@ -441,6 +450,40 @@ const ControlBar = ({
 							/>
 						)}
 					</div>
+				)}
+				{visibleControls.microphone && (
+					<Tooltip
+						placement="top"
+						trigger={['click']}
+						overlayClassName="w-64"
+						overlay={
+							<div className="p-2">
+								<div className="flex justify-between items-center mb-2">
+									<span className="text-xs font-semibold">Noise Suppression</span>
+									<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
+								</div>
+								<input
+									type="range"
+									min="0"
+									max="100"
+									value={noiseSuppressionLevel}
+									onChange={handleNoiseSuppressionLevelChange}
+									className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+									disabled={!noiseSuppressionEnabled}
+								/>
+							</div>
+						}
+						destroyTooltipOnHide
+					>
+						<button
+							onClick={toggleNoiseSuppression}
+							className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
+								isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
+							} ${noiseSuppressionEnabled ? 'hover:bg-green-600 dark:hover:bg-green-700' : 'hover:bg-zinc-600 dark:hover:bg-zinc-800'}`}
+						>
+							<Icons.VoiceSoundControlIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
+						</button>
+					</Tooltip>
 				)}
 				{visibleControls.camera && (
 					<div className="relative rounded-full ">
