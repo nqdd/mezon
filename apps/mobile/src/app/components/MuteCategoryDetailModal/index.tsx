@@ -8,7 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ICategoryChannel } from '@mezon/utils';
-import { FOR_15_MINUTES_SEC_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import type { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
@@ -47,7 +47,7 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 						{
 							title: t('notifySettingThreadModal.muteDuration.forFifteenMinutes'),
 							onPress: () => {
-								handleScheduleMute(FOR_15_MINUTES_SEC_SEC);
+								handleScheduleMute(FOR_15_MINUTES_SEC);
 							}
 						},
 						{

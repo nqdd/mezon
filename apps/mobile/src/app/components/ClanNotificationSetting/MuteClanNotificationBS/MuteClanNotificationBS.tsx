@@ -3,7 +3,7 @@ import { ActionEmitEvent, ENotificationActive } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { NotiChannelCategorySettingEntity } from '@mezon/store-mobile';
 import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { FOR_15_MINUTES_SEC_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
 import type { ApiNotificationUserChannel } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
@@ -37,7 +37,7 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 						{
 							title: t('notifySettingThreadModal.muteDuration.forFifteenMinutes'),
 							onPress: () => {
-								handleScheduleMute(FOR_15_MINUTES_SEC_SEC);
+								handleScheduleMute(FOR_15_MINUTES_SEC);
 							}
 						},
 						{
