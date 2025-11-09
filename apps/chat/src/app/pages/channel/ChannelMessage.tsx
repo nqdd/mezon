@@ -2,7 +2,7 @@ import type { MessageContextMenuProps } from '@mezon/components';
 import { ChannelMessageOpt, ChatWelcome, MessageWithSystem, MessageWithUser, OnBoardWelcome, UnreadMessageBreak } from '@mezon/components';
 import type { MessagesEntity } from '@mezon/store';
 import type { ObserveFn, UsersClanEntity } from '@mezon/utils';
-import { FOR_10_MINUTES, TypeMessage } from '@mezon/utils';
+import { TIME_COMBINE_MS, TypeMessage } from '@mezon/utils';
 import { isSameDay } from 'date-fns';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback } from 'react';
@@ -74,7 +74,7 @@ export const ChannelMessage: ChannelMessageComponent = ({
 }: Readonly<MessageProps>) => {
 	const isSameUser = message?.user?.id === previousMessage?.user?.id;
 	const isTimeGreaterThan60Minutes =
-		!!message?.create_time && Date.parse(message.create_time) - Date.parse(previousMessage?.create_time) < FOR_10_MINUTES;
+		!!message?.create_time && Date.parse(message.create_time) - Date.parse(previousMessage?.create_time) < TIME_COMBINE_MS;
 	const isDifferentDay =
 		!!message?.create_time && !!previousMessage?.create_time && !isSameDay(new Date(message.create_time), new Date(previousMessage?.create_time));
 

@@ -65,6 +65,36 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ChannelMessage, MemorizedChannelMessage } from './ChannelMessage';
 
+const useSafeTimeout = () => {
+	const timeoutsRef = useRef<Set<number>>(new Set());
+
+	const clearSafeTimeout = useCallback((timeoutId?: number | null) => {
+		if (timeoutId === undefined || timeoutId === null) {
+			return;
+		}
+		clearTimeout(timeoutId);
+		timeoutsRef.current.delete(timeoutId);
+	}, []);
+
+	const setSafeTimeout = useCallback((fn: () => void, delay: number) => {
+		const timeoutId = window.setTimeout(() => {
+			timeoutsRef.current.delete(timeoutId);
+			fn();
+		}, delay);
+		timeoutsRef.current.add(timeoutId);
+		return timeoutId;
+	}, []);
+
+	useEffect(() => {
+		timeoutsRef.current.forEach((timeoutId) => {
+			clearTimeout(timeoutId);
+		});
+		timeoutsRef.current.clear();
+	}, []);
+
+	return { setSafeTimeout, clearSafeTimeout };
+};
+
 type ChannelMessagesProps = {
 	clanId: string;
 	channelId: string;
@@ -122,21 +152,7 @@ const FirstJoinLoadTracker = memo(({ channelId, isFirstJoinLoadRef }: { channelI
 	return null;
 });
 
-const ClanMessageWrapper = ({
-	channelId,
-	isThreadBox,
-	isTopicBox,
-	userIdsFromThreadBox,
-	userIdsFromTopicBox,
-	children
-}: {
-	channelId: string;
-	isThreadBox?: boolean;
-	isTopicBox?: boolean;
-	userIdsFromThreadBox?: string[];
-	userIdsFromTopicBox?: string[] | ChannelMembersEntity[];
-	children: React.ReactNode;
-}) => {
+const ClanMessageWrapper = ({ channelId, children }: { channelId: string; children: React.ReactNode }) => {
 	return <MessageContextMenuProvider channelId={channelId}>{children}</MessageContextMenuProvider>;
 };
 
@@ -178,6 +194,9 @@ function ChannelMessages({
 	const isFirstJoinLoadRef = useRef<boolean>(true);
 	const lastSeenAtBottomRef = useRef<string | null>(null);
 	const isJumpingToPresentRef = useRef<boolean>(false);
+
+	const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
+	const loadMoreResetTimeoutRef = useRef<number | null>(null);
 
 	useSyncEffect(() => {
 		userActiveScroll.current = false;
@@ -322,21 +341,29 @@ function ChannelMessages({
 					currentScrollDirection.current = ELoadMoreDirection.top;
 					isLoadMore.current = true;
 					await loadMoreMessage(ELoadMoreDirection.top);
-					setTimeout(() => {
+					if (loadMoreResetTimeoutRef.current) {
+						clearSafeTimeout(loadMoreResetTimeoutRef.current);
+					}
+					loadMoreResetTimeoutRef.current = setSafeTimeout(() => {
 						isLoadMore.current = false;
+						loadMoreResetTimeoutRef.current = null;
 					}, 200);
 					break;
 				case LoadMoreDirection.Forwards:
 					currentScrollDirection.current = ELoadMoreDirection.bottom;
 					isLoadMore.current = true;
 					await loadMoreMessage(ELoadMoreDirection.bottom);
-					setTimeout(() => {
+					if (loadMoreResetTimeoutRef.current) {
+						clearSafeTimeout(loadMoreResetTimeoutRef.current);
+					}
+					loadMoreResetTimeoutRef.current = setSafeTimeout(() => {
 						isLoadMore.current = false;
+						loadMoreResetTimeoutRef.current = null;
 					}, 200);
 					break;
 			}
 		},
-		[loadMoreMessage, messageIds]
+		[loadMoreMessage, clearSafeTimeout, setSafeTimeout]
 	);
 
 	const scrollToLastMessage = useCallback(() => {
@@ -418,13 +445,7 @@ function ChannelMessages({
 					/>
 				</DMMessageWrapper>
 			) : (
-				<ClanMessageWrapper
-					channelId={currentChannelId || channelId}
-					isThreadBox={isThreadBox}
-					isTopicBox={isTopicBox}
-					userIdsFromThreadBox={userIdsFromThreadBox}
-					userIdsFromTopicBox={userIdsFromTopicBox}
-				>
+				<ClanMessageWrapper channelId={currentChannelId || channelId}>
 					<ChatMessageList
 						key={channelId}
 						messageIds={messageIds}
@@ -498,6 +519,9 @@ const ScrollDownButton = memo(
 	}) => {
 		const dispatch = useAppDispatch();
 
+		const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
+		const jumpToPresentTimeoutRef = useRef<number | null>(null);
+
 		const isVisible = useAppSelector((state) => selectShowScrollDownButton(state, channelId));
 		const appearanceTheme = useAppSelector(selectTheme);
 		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId));
@@ -566,7 +590,10 @@ const ScrollDownButton = memo(
 					position: 'end',
 					margin: BOTTOM_FOCUS_MARGIN
 				});
-				setTimeout(() => {
+				if (jumpToPresentTimeoutRef.current) {
+					clearSafeTimeout(jumpToPresentTimeoutRef.current);
+				}
+				jumpToPresentTimeoutRef.current = setSafeTimeout(() => {
 					isScrollTopJustUpdatedRef.current = false;
 					isJumpingToPresentRef.current = false;
 					dispatch(
@@ -576,6 +603,8 @@ const ScrollDownButton = memo(
 						})
 					);
 					setAnchor.current = new Date().getTime();
+					lastSeenAtBottomRef.current = lastSentMessageId;
+					jumpToPresentTimeoutRef.current = null;
 				}, 200);
 			});
 		});
@@ -680,6 +709,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		isJumpingToPresentRef
 	}) => {
 		const dispatch = useAppDispatch();
+		const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
+		const removeForceScrollTimeoutRef = useRef<number | null>(null);
 		const user = useSelector(selectAllAccount);
 		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, user?.user?.id as string));
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
@@ -753,8 +784,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		const listItemElementsRef = useRef<HTMLDivElement[]>();
 
-		const memoFocusingIdRef = useRef<number>();
-
 		useSyncEffect(() => {
 			if (idMessageToJump) {
 				userActiveScroll.current = false;
@@ -766,7 +795,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		const handleScroll = useLastCallback(() => {
 			if (isScrollTopJustUpdatedRef.current) {
-				isScrollTopJustUpdatedRef.current = false;
 				return;
 			}
 
@@ -892,10 +920,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				) {
 					container.parentElement!.classList.add('force-messages-scroll');
 
-					setTimeout(() => {
+					if (removeForceScrollTimeoutRef.current) {
+						clearSafeTimeout(removeForceScrollTimeoutRef.current);
+					}
+					removeForceScrollTimeoutRef.current = setSafeTimeout(() => {
 						if (container.parentElement) {
 							container.parentElement!.classList.remove('force-messages-scroll');
 						}
+						removeForceScrollTimeoutRef.current = null;
 					}, MESSAGE_ANIMATION_DURATION);
 				}
 
@@ -938,10 +970,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					) {
 						newScrollTop = scrollHeight;
 						shouldUpdateScrollPosition = !message.isSending;
-					} else if (anchor) {
+					} else if (anchor && !isScrollTopJustUpdatedRef.current) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
-					} else if (scrollPositionRef.current?.messageId) {
+					} else if (scrollPositionRef.current?.messageId && !isScrollTopJustUpdatedRef.current) {
 						const savedMessageElement = container.querySelector(`#msg-${scrollPositionRef.current.messageId}`);
 						if (savedMessageElement) {
 							const savedMessageRect = savedMessageElement.getBoundingClientRect();
@@ -975,12 +1007,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							isJumpingToPresentRef.current = false;
 						}
 
-						if (!memoFocusingIdRef.current) {
-							isScrollTopJustUpdatedRef.current = true;
-							requestMeasure(() => {
-								isScrollTopJustUpdatedRef.current = false;
-							});
-						}
 						isLoadingMoreBottomRef.current = false;
 						isFirstJoinLoadRef.current = false;
 					};
@@ -1034,8 +1060,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
 
 		const msgIdJumpHightlight = useRef<string | null>(null);
+		const jumpHighlightTimeoutRef = useRef<number | null>(null);
 
-		const timerRef = useRef<number | null>(null);
 		useEffect(() => {
 			if (!idMessageToJump?.id) return;
 
@@ -1060,12 +1086,23 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				msgIdJumpHightlight.current = idMessageToJump.id;
 				dispatch(messagesActions.setIdMessageToJump(null));
 
-				timerRef.current = window.setTimeout(() => {
+				if (jumpHighlightTimeoutRef.current) {
+					clearSafeTimeout(jumpHighlightTimeoutRef.current);
+				}
+				jumpHighlightTimeoutRef.current = setSafeTimeout(() => {
 					msgIdJumpHightlight.current = null;
-					setForceRender(!forceRender);
+					setForceRender((prev) => !prev);
+					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-		}, [idMessageToJump]);
+
+			return () => {
+				if (jumpHighlightTimeoutRef.current) {
+					clearSafeTimeout(jumpHighlightTimeoutRef.current);
+					jumpHighlightTimeoutRef.current = null;
+				}
+			};
+		}, [idMessageToJump, channelId, clearSafeTimeout, dispatch, setSafeTimeout]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);
 

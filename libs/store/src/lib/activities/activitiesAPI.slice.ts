@@ -1,6 +1,6 @@
 import { captureSentryError } from '@mezon/logger';
 import type { IActivity, LoadingStatus } from '@mezon/utils';
-import { FOR_24_HOURS } from '@mezon/utils';
+import { FOR_24_HOURS_SEC } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ApiCreateActivityRequest, ApiUserActivity } from 'mezon-js/api.gen';
@@ -11,7 +11,7 @@ import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../help
 
 export const ACTIVITIES_API_FEATURE_KEY = 'activitiesapi';
 
-const ACTIVITIES_CACHE_TIME = FOR_24_HOURS;
+const ACTIVITIES_CACHE_TIME = FOR_24_HOURS_SEC;
 
 /*
  * Update these interfaces according to your requirements.

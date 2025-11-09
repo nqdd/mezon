@@ -86,8 +86,10 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 			}
 			const validate = await dispatch(
 				accountActions.verifyPhone({
-					otp_code: otp.join(''),
-					req_id: validateOTP
+					data: {
+						otp_code: otp.join(''),
+						req_id: validateOTP
+					}
 				})
 			).unwrap();
 			if (validate && onClose) {

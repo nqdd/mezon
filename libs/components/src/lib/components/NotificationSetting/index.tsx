@@ -1,5 +1,5 @@
 import { useCategorizedAllChannels, useEscapeKeyClose } from '@mezon/core';
-import type { SetDefaultNotificationPayload } from '@mezon/store';
+import type { MuteCatePayload, MuteChannelPayload } from '@mezon/store';
 import {
 	defaultNotificationActions,
 	defaultNotificationCategoryActions,
@@ -151,24 +151,24 @@ const ModalNotificationSetting = (props: ModalParam) => {
 		}
 	};
 
-	const handleMuteNotificationChange = (notificationType: any, channelCategoryId: any, title: string, active: number) => {
+	const handleMuteChange = (channelCategoryId: string, title: string, active: number) => {
 		if (title === 'category') {
-			const payload: SetDefaultNotificationPayload = {
-				category_id: channelCategoryId || '',
-				notification_type: notificationType,
-				clan_id: currentClanId || '',
-				active
+			const payload: MuteCatePayload = {
+				id: channelCategoryId || '',
+				mute_time: 0,
+				active,
+				clan_id: currentClanId || ''
 			};
 			dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 		}
 		if (title === 'channel') {
-			const body = {
+			const payload: MuteChannelPayload = {
 				channel_id: channelCategoryId || '',
-				notification_type: notificationType,
-				clan_id: currentClanId || '',
-				active
+				mute_time: 0,
+				active,
+				clan_id: currentClanId || ''
 			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			dispatch(notificationSettingActions.setMuteChannel(payload));
 		}
 	};
 
@@ -196,10 +196,11 @@ const ModalNotificationSetting = (props: ModalParam) => {
 	const handleRemoveOverride = (title: string, id: string, active: number, channelCategoryId: string) => {
 		if (title === 'category') {
 			if (active === 0) {
-				const payload: SetDefaultNotificationPayload = {
-					category_id: channelCategoryId || '',
-					clan_id: currentClanId || '',
-					active: 1
+				const payload: MuteCatePayload = {
+					id,
+					mute_time: 0,
+					active: 1,
+					clan_id: currentClanId || ''
 				};
 				dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 			}
@@ -212,7 +213,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					clan_id: currentClanId || '',
 					active: 1
 				};
-				dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+				dispatch(notificationSettingActions.setNotificationSetting(body));
 			}
 			dispatch(notificationSettingActions.deleteNotiChannelSetting({ channel_id: id, clan_id: currentClanId || '' }));
 		}
@@ -322,8 +323,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 												type="checkbox"
 												checked={channelCategorySetting.action !== 1}
 												onChange={() =>
-													handleMuteNotificationChange(
-														0,
+													handleMuteChange(
 														channelCategorySetting.id,
 														channelCategorySetting.channel_category_title || '',
 														channelCategorySetting.action === 1 ? 0 : 1
