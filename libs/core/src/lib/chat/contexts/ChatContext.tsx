@@ -426,9 +426,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						);
 					}
 				}
+
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
-					const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
-					!newDm && dispatch(directMetaActions.updateDMSocket(message));
+					const isContentMutation = message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove;
+					if (!isContentMutation) {
+						const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
+						!newDm && dispatch(directMetaActions.updateDMSocket(message));
+					}
+
 					const isClanView = selectClanView(store.getState());
 
 					const path = isElectron() ? window.location.hash : window.location.pathname;
@@ -443,12 +448,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 						!isFocus;
 
 					if (isNotCurrentDirect) {
-						if (message.sender_id !== userId) {
+						if (message.sender_id !== userId && message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
 							dispatch(directMetaActions.setCountMessUnread({ channelId: message.channel_id, isMention: false }));
 						}
 					}
 
-					if (mess.isMe && isNotCurrentDirect) {
+					if (mess.isMe && isNotCurrentDirect && !isContentMutation) {
 						const directReceiver = selectDirectById(store.getState(), mess?.channel_id);
 						// Mark as read if isMe send token
 						if (

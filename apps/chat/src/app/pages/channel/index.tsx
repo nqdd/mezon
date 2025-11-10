@@ -80,8 +80,7 @@ function useChannelSeen(channelId: string) {
 			: ChannelStreamMode.STREAM_MODE_THREAD;
 
 	const markMessageAsRead = useCallback(() => {
-		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending || lastSeenMessageId === lastMessageChannel.id) return;
-
+		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending) return;
 		if (lastSeenMessageId && lastMessageViewport?.id) {
 			try {
 				const distance = Math.round(Number((BigInt(lastMessageViewport.id) >> BigInt(22)) - (BigInt(lastSeenMessageId) >> BigInt(22))));
