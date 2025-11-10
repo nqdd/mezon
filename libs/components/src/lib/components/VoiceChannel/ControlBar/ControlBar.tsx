@@ -454,10 +454,10 @@ const ControlBar = ({
 				{visibleControls.microphone && (
 					<Tooltip
 						placement="top"
-						trigger={['click']}
 						overlayClassName="w-64"
+						visible={noiseSuppressionEnabled}
 						overlay={
-							<div className="p-2">
+							<div className="p-2" onClick={(e) => e.stopPropagation()}>
 								<div className="flex justify-between items-center mb-2">
 									<span className="text-xs font-semibold">Noise Suppression</span>
 									<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
