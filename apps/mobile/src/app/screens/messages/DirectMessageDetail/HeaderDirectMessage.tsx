@@ -5,7 +5,6 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
 	DMCallActions,
-	directActions,
 	directMetaActions,
 	getStore,
 	groupCallActions,
@@ -14,13 +13,14 @@ import {
 	selectCurrentUserId,
 	selectDmGroupCurrent,
 	selectLastMessageByChannelId,
+	selectLastSentMessageStateByChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl } from '@mezon/utils';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { BackHandler, DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
@@ -46,27 +46,24 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const dispatch = useAppDispatch();
 	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId ?? ''));
-	const { markAsReadSeen } = useSeenMessagePool();
+	const lastMessageState = useSelector((state) => selectLastSentMessageStateByChannelId(state, channelId as string));
 
-	const isMounted = useRef(false);
+	const { markAsReadSeen } = useSeenMessagePool();
 
 	const markMessageAsRead = useCallback(() => {
 		if (!lastMessage) return;
 
-		if (lastMessage?.create_time_seconds) {
+		if (
+			lastMessage?.create_time_seconds &&
+			lastMessageState?.timestamp_seconds &&
+			lastMessage?.create_time_seconds >= lastMessageState?.timestamp_seconds
+		) {
 			const mode =
 				currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 
 			markAsReadSeen(lastMessage, mode, 0);
 		}
-	}, [lastMessage, markAsReadSeen, currentDmGroup]);
-
-	const updateChannelSeenState = useCallback(
-		(channelId: string) => {
-			dispatch(directActions.setActiveDirect({ directId: channelId }));
-		},
-		[dispatch]
-	);
+	}, [lastMessage, lastMessageState?.timestamp_seconds, currentDmGroup?.type, markAsReadSeen]);
 
 	useEffect(() => {
 		if (lastMessage) {
@@ -74,12 +71,6 @@ export const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 			markMessageAsRead();
 		}
 	}, [lastMessage, markMessageAsRead, dispatch, channelId]);
-
-	useEffect(() => {
-		if (isMounted.current || !lastMessage) return;
-		isMounted.current = true;
-		updateChannelSeenState(channelId);
-	}, [channelId, lastMessage, updateChannelSeenState]);
 	return null;
 });
 
@@ -205,7 +196,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 		}
 		dispatch(DMCallActions.removeAll());
 		const params = {
-			receiverId: currentDmGroup?.user_id?.[0] || currentDmGroup?.user_ids?.[0],
+			receiverId: currentDmGroup?.user_ids?.[0],
 			receiverAvatar: dmAvatar,
 			receiverName: dmLabel,
 			directMessageId,

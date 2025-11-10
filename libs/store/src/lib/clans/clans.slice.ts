@@ -392,7 +392,7 @@ export const updateUser = createAsyncThunk(
 				body.avatar_url = avatar_url || '';
 			}
 
-			if (display_name && display_name !== currentUser?.user?.display_name) {
+			if (display_name !== currentUser?.user?.display_name) {
 				body.display_name = display_name || '';
 			}
 

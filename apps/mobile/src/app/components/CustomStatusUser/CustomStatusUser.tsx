@@ -21,7 +21,7 @@ interface ICustomStatusUserProps {
 }
 
 export enum EUserStatus {
-	ONLINE = 'active',
+	ONLINE = 'Online',
 	IDLE = 'Idle',
 	DO_NOT_DISTURB = 'Do Not Disturb',
 	INVISIBLE = 'Invisible'
