@@ -83,7 +83,8 @@ export const style = (colors: Attributes) =>
 		},
 		username: {
 			color: colors.text,
-			paddingHorizontal: size.s_10
+			paddingHorizontal: size.s_10,
+			maxWidth: '90%'
 		},
 		searchText: {
 			paddingHorizontal: size.s_10
@@ -204,5 +205,17 @@ export const style = (colors: Attributes) =>
 		flatListStyle: {
 			borderRadius: size.s_8,
 			marginTop: size.s_10
+		},
+		btnCopyAddress: {
+			height: '100%',
+			paddingHorizontal: size.s_10,
+			justifyContent: 'center'
+		},
+		selectSendTokenTo: {
+			height: size.s_40,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingRight: size.s_10
 		}
 	});
