@@ -1253,6 +1253,15 @@ export const channelsSlice = createSlice({
 			state.byClans[clanId].previousChannels = [{ clanId, channelId }, ...(state.byClans[clanId].previousChannels || []).slice(0, 4)];
 		},
 
+		removePreviousChannel: (state: ChannelsState, action: PayloadAction<{ clanId: string; channelId: string }>) => {
+			const { clanId, channelId } = action.payload;
+			if (!state.byClans[clanId]?.previousChannels) return;
+
+			state.byClans[clanId].previousChannels = state.byClans[clanId].previousChannels.filter(
+				(prevChannel) => prevChannel.channelId !== channelId
+			);
+		},
+
 		updateChannelBadgeCount: (
 			state: ChannelsState,
 			action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>
