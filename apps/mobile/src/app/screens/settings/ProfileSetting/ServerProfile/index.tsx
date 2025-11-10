@@ -90,9 +90,10 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const updateClanProfile = async () => {
 		const { displayName, imgUrl } = currentClanProfileValue;
-		const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
-		if (isDuplicateNickname) return;
-
+		if (displayName) {
+			const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
+			if (isDuplicateNickname) return;
+		}
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await updateUserClanProfile(selectedClan?.clan_id ?? '', displayName?.trim() || '', imgUrl || '');
@@ -183,7 +184,9 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 			<View style={styles.clanProfileDetail}>
 				<View style={styles.nameWrapper}>
-					<Text style={styles.displayNameText}>{currentClanProfileValue?.displayName}</Text>
+					<Text style={styles.displayNameText}>
+						{currentClanProfileValue?.displayName || userProfile?.user?.display_name || userProfile?.user?.username}
+					</Text>
 					<Text style={styles.usernameText}>{currentClanProfileValue?.username}</Text>
 				</View>
 
