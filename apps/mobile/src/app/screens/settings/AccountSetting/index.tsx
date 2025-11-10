@@ -37,6 +37,7 @@ import { style } from './styles';
 enum EAccountSettingType {
 	UserName,
 	DisplayName,
+	Email,
 	PhoneNumber,
 	BlockedUsers,
 	DisableAccount,
@@ -112,6 +113,12 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			case EAccountSettingType.DisplayName:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.PROFILE });
 				break;
+			case EAccountSettingType.Email:
+				navigation.navigate(APP_SCREEN.SETTINGS.STACK, {
+					screen: APP_SCREEN.SETTINGS.UPDATE_EMAIL,
+					params: { currentEmail: userProfile?.email || '' }
+				});
+				break;
 			case EAccountSettingType.PhoneNumber:
 				navigation.navigate(APP_SCREEN.SETTINGS.STACK, {
 					screen: APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER,
@@ -171,6 +178,11 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				type: EAccountSettingType.DisplayName
 			},
 			{
+				title: 'Email',
+				description: userProfile?.email || '',
+				type: EAccountSettingType.Email
+			},
+			{
 				title: t('phoneNumberSetting.title'),
 				description: userProfile?.user?.phone_number || '',
 				type: EAccountSettingType.PhoneNumber
@@ -204,7 +216,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			usersOptions,
 			accountManagementOptions
 		};
-	}, [t, userProfile?.user?.username, userProfile?.user?.display_name, userProfile?.user?.phone_number, blockedUsersCount]);
+	}, [t, userProfile?.user?.username, userProfile?.user?.display_name, userProfile?.user?.phone_number, userProfile?.email, blockedUsersCount]);
 
 	return (
 		<View style={styles.container}>

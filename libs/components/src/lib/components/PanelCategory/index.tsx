@@ -1,5 +1,5 @@
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker, UserRestrictionZone } from '@mezon/core';
-import type { SetDefaultNotificationPayload } from '@mezon/store';
+import type { MuteCatePayload, SetDefaultNotificationPayload } from '@mezon/store';
 import {
 	categoriesActions,
 	defaultNotificationCategoryActions,
@@ -11,20 +11,18 @@ import {
 import { Menu } from '@mezon/ui';
 import type { ICategoryChannel } from '@mezon/utils';
 import {
-	ACTIVE,
 	DEFAULT_ID,
+	EMuteState,
 	ENotificationTypes,
 	EPermission,
-	FOR_15_MINUTES,
-	FOR_1_HOUR,
-	FOR_24_HOURS,
-	FOR_3_HOURS,
-	FOR_8_HOURS,
-	generateE2eId,
-	MUTE
+	FOR_15_MINUTES_SEC,
+	FOR_1_HOUR_SEC,
+	FOR_24_HOURS_SEC,
+	FOR_3_HOURS_SEC,
+	FOR_8_HOURS_SEC,
+	generateE2eId
 } from '@mezon/utils';
 import { format } from 'date-fns';
-import { NotificationType } from 'mezon-js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Coords } from '../ChannelLink';
@@ -82,57 +80,32 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 	};
 
 	const handleScheduleMute = (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const muteTime = new Date(now.getTime() + duration);
-			const muteTimeISO = muteTime.toISOString();
-			const payload: SetDefaultNotificationPayload = {
-				category_id: category?.id,
-				notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
-				time_mute: muteTimeISO,
-				clan_id: currentClanId || ''
-			};
-			dispatch(defaultNotificationCategoryActions.setDefaultNotificationCategory(payload));
-		} else {
-			const payload: SetDefaultNotificationPayload = {
-				category_id: category?.id,
-				notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
-				clan_id: currentClanId || '',
-				active: 0
-			};
-			dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
-		}
+		const payload: MuteCatePayload = {
+			id: category?.id,
+			active: EMuteState.MUTED,
+			mute_time: duration !== Infinity ? duration : 0,
+			clan_id: currentClanId || ''
+		};
+		dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 	};
 
 	const handleMuteCategory = (active: number) => {
-		const payload: SetDefaultNotificationPayload = {
-			category_id: category?.id,
-			notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
-			clan_id: currentClanId || '',
-			active
+		const payload: MuteCatePayload = {
+			id: category?.id,
+			active,
+			mute_time: 0,
+			clan_id: currentClanId || ''
 		};
 		dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 	};
 
 	useEffect(() => {
-		if (defaultCategoryNotificationSetting?.active) {
-			setMuteUntil('');
-		} else if (defaultCategoryNotificationSetting?.time_mute) {
+		if (defaultCategoryNotificationSetting?.time_mute) {
 			const muteTime = new Date(defaultCategoryNotificationSetting.time_mute);
 			const now = new Date();
 			if (muteTime > now) {
-				const timeDifference = muteTime.getTime() - now.getTime();
 				const formattedTimeDifference = format(muteTime, 'dd/MM, HH:mm');
 				setMuteUntil(t('mutedUntil', { time: formattedTimeDifference }));
-				setTimeout(() => {
-					const payload: SetDefaultNotificationPayload = {
-						category_id: category?.id,
-						notification_type: defaultCategoryNotificationSetting?.notification_setting_type ?? NotificationType.ALL_MESSAGE,
-						clan_id: currentClanId || '',
-						active: 1
-					};
-					dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
-				}, timeDifference);
 			}
 		}
 	}, [defaultCategoryNotificationSetting]);
@@ -164,11 +137,11 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel onClick={() => handleScheduleMute(FOR_15_MINUTES)}>{t('muteFor15Minutes')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_1_HOUR)}>{t('muteFor1Hour')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_3_HOURS)}>{t('muteFor3Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_8_HOURS)}>{t('muteFor8Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => handleScheduleMute(FOR_24_HOURS)}>{t('muteFor24Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_15_MINUTES_SEC)}>{t('muteFor15Minutes')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_1_HOUR_SEC)}>{t('muteFor1Hour')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_3_HOURS_SEC)}>{t('muteFor3Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_8_HOURS_SEC)}>{t('muteFor8Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => handleScheduleMute(FOR_24_HOURS_SEC)}>{t('muteFor24Hours')}</ItemPanel>,
 			<ItemPanel onClick={() => handleScheduleMute(Infinity)}>{t('muteUntilTurnedBack')}</ItemPanel>
 		];
 		return <>{menuItems}</>;
@@ -238,7 +211,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 				<ItemPanel onClick={collapseAllCategory}>{t('collapseAllCategories')}</ItemPanel>
 			</GroupPanels>
 			<GroupPanels>
-				{defaultCategoryNotificationSetting?.active === ACTIVE || defaultCategoryNotificationSetting?.id === DEFAULT_ID ? (
+				{defaultCategoryNotificationSetting?.active === EMuteState.UN_MUTE || defaultCategoryNotificationSetting?.id === DEFAULT_ID ? (
 					<Menu
 						trigger="hover"
 						menu={menuMute}
@@ -249,13 +222,13 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 						onVisibleChange={handleOpenMenuMute}
 					>
 						<div>
-							<ItemPanel dropdown="change here" onClick={() => handleMuteCategory(MUTE)}>
+							<ItemPanel dropdown="change here" onClick={() => handleMuteCategory(EMuteState.MUTED)}>
 								{t('muteCategory')}
 							</ItemPanel>
 						</div>
 					</Menu>
 				) : (
-					<ItemPanel onClick={() => handleMuteCategory(ACTIVE)} subText={muteUntil}>
+					<ItemPanel onClick={() => handleMuteCategory(EMuteState.UN_MUTE)} subText={muteUntil}>
 						{t('unmuteCategory')}
 					</ItemPanel>
 				)}

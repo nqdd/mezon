@@ -3,7 +3,7 @@ import type { IUserAccount, LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { t } from 'i18next';
-import type { ApiLinkAccountConfirmRequest, ApiLinkAccountMezon, ApiUserStatusUpdate } from 'mezon-js/api.gen';
+import type { ApiAccountEmail, ApiLinkAccountConfirmRequest, ApiLinkAccountMezon, ApiUserStatusUpdate } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
@@ -116,18 +116,35 @@ export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (
 	}
 });
 
-export const verifyPhone = createAsyncThunk('account/verifyPhone', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
+export const linkEmail = createAsyncThunk('account/linkEmail', async (data: ApiAccountEmail, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-
-		const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
-
+		const response = await mezon.client.linkEmail(mezon.session, data);
 		return response;
 	} catch (error) {
-		captureSentryError(error, 'account/verifyPhone');
-		toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
+		captureSentryError(error, 'account/linkEmail');
+		return thunkAPI.rejectWithValue(error);
 	}
 });
+
+export const verifyPhone = createAsyncThunk(
+	'account/verifyPhone',
+	async ({ data, isMobile = false }: { data: ApiLinkAccountConfirmRequest; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+			const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
+
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/verifyPhone');
+			toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
+			if (isMobile) {
+				return thunkAPI.rejectWithValue(error);
+			}
+		}
+	}
+);
 
 export const updateAccountStatus = createAsyncThunk('userstatusapi/updateUserStatus', async (request: ApiUserStatusUpdate, thunkAPI) => {
 	try {
@@ -216,6 +233,11 @@ export const accountSlice = createSlice({
 			if (state?.userProfile) {
 				state.userProfile.password_setted = action.payload;
 			}
+		},
+		updateEmail(state, action: PayloadAction<string>) {
+			if (state?.userProfile) {
+				state.userProfile.email = action.payload;
+			}
 		}
 	},
 	extraReducers: (builder) => {
@@ -244,7 +266,7 @@ export const accountSlice = createSlice({
  */
 export const accountReducer = accountSlice.reducer;
 
-export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone, updateAccountStatus };
+export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone, updateAccountStatus, linkEmail };
 
 export const getAccountState = (rootState: { [ACCOUNT_FEATURE_KEY]: AccountState }): AccountState => rootState[ACCOUNT_FEATURE_KEY];
 

@@ -110,5 +110,20 @@
 			"success": "Cập nhật số điện thoại thành công",
 			"failed": "Mã OTP không hợp lệ"
 		}
+	},
+	"emailSetting": {
+		"updateEmail": {
+			"newEmail": "Email mới",
+			"currentPassword": "Mật khẩu hiện tại",
+			"nextButton": "Tiếp theo",
+			"failed": "Cập nhật email thất bại",
+			"invalidEmail": "Email không hợp lệ",
+			"emailAlreadyLinked": "Email này bạn đang sử dụng"
+		},
+		"verifyEmail": {
+			"description": "Nhập mã 6 chữ số mà chúng tôi đã gửi đến",
+			"verifyButton": "Xác nhận",
+			"success": "Cập nhật email thành công"
+		}
 	}
 }

@@ -1,6 +1,7 @@
 import {
 	ExitSetting,
 	SettingAccount,
+	SettingActivity,
 	SettingAppearance,
 	SettingItem,
 	SettingLanguage,
@@ -54,6 +55,7 @@ const SettingContent = ({ isDM, isShowSettingFooter }: { isDM: boolean; isShowSe
 				{currentSetting === EUserSettings.APPEARANCE && <SettingAppearance menuIsOpen={menuIsOpen} />}
 				{currentSetting === EUserSettings.LANGUAGE && <SettingLanguage menuIsOpen={menuIsOpen} />}
 				{currentSetting === EUserSettings.NOTIFICATIONS && <SettingNotifications menuIsOpen={menuIsOpen} />}
+				{currentSetting === EUserSettings.ACTIVITY && <SettingActivity menuIsOpen={menuIsOpen} />}
 				<ExitSetting onClose={closeSetting} />
 
 				{menuIsOpen ? (

@@ -101,7 +101,7 @@ export type IDefaultNotificationClan = ApiNotificationSetting;
 
 export type IDefaultNotificationCategory = ApiNotificationSetting & {
 	active?: number;
-	time_mute?: string;
+	time_mute?: string | null;
 };
 
 export type IDefaultNotification = ApiNotificationSetting & {
@@ -1053,6 +1053,7 @@ export enum EUserSettings {
 	FRIEND_REQUESTS = 'Friend Requests',
 	APP_SETTINGS = 'APP SETTINGS',
 	APPEARANCE = 'Appearance',
+	ACTIVITY = 'Activity',
 	ACCESSIBILITY = 'Accessibility',
 	VOICE_VIDEO = 'Voice & Video',
 	TEXT_IMAGE = 'Text & Image',

@@ -154,7 +154,7 @@ const TopBarChannelText = memo(() => {
 		}
 
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_ids) {
-			return currentDmGroup.avatars?.[0];
+			return currentDmGroup.avatars?.at(-1) || undefined;
 		}
 	}, [currentDmGroup, userProfile?.user?.id]);
 

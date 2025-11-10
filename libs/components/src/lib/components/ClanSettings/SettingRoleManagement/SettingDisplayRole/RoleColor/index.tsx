@@ -31,7 +31,9 @@ const RoleColor = () => {
 		} else {
 			setIsCustoms(false);
 		}
-	}, [selectedColor]);
+
+		setSelectedColor(colorRole || '');
+	}, [selectedColor, colorRole]);
 
 	return (
 		<div className="w-full flex flex-col text-[15px] dark:text-textSecondary text-textSecondary800 pr-5">
