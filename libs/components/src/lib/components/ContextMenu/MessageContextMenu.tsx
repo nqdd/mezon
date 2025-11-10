@@ -57,7 +57,7 @@ import {
 	EEventAction,
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
-	FOR_10_MINUTES_SEC,
+	FORWARD_MESSAGE_TIME,
 	MenuBuilder,
 	ModeResponsive,
 	SHOW_POSITION,
@@ -310,18 +310,13 @@ function MessageContextMenu({
 		const isSameSenderWithPreviousMessage = currentMessage?.sender_id === previousMessage?.sender_id;
 
 		const isNextMessageWithinTimeLimit = nextMessage
-			? Date.parse(nextMessage?.create_time) - Date.parse(currentMessage?.create_time) < FOR_10_MINUTES_SEC
+			? Date.parse(nextMessage?.create_time) - Date.parse(currentMessage?.create_time) < FORWARD_MESSAGE_TIME
 			: false;
-
 		const isPreviousMessageWithinTimeLimit = previousMessage
-			? Date.parse(currentMessage?.create_time) - Date.parse(previousMessage?.create_time) < FOR_10_MINUTES_SEC
+			? Date.parse(currentMessage?.create_time) - Date.parse(previousMessage?.create_time) < FORWARD_MESSAGE_TIME
 			: false;
-
-		return isSameSenderWithPreviousMessage
-			? isSameSenderWithNextMessage && isNextMessageWithinTimeLimit && !isPreviousMessageWithinTimeLimit
-			: isSameSenderWithNextMessage && isNextMessageWithinTimeLimit;
+		return (isPreviousMessageWithinTimeLimit && isSameSenderWithPreviousMessage) || (isSameSenderWithNextMessage && isNextMessageWithinTimeLimit);
 	}, [allMessageIds, allMessagesEntities, messagePosition]);
-
 	const handleReplyMessage = useCallback(() => {
 		if (!message) {
 			return;
@@ -699,9 +694,7 @@ function MessageContextMenu({
 				<Icons.EditMessageRightClick defaultSize="w-4 h-4" />
 			);
 		});
-		builder.when(!isTopic && pinMessageStatus === true, (builder) => {
-			builder.addMenuItem('pinMessage', t('pinMessage'), openPinMessageModal, <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
-		});
+
 		builder.when(!isTopic && pinMessageStatus === false, (builder) => {
 			builder.addMenuItem('unPinMessage', t('unpinMessage'), () => handleUnPinMessage(), <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
 		});
@@ -726,16 +719,14 @@ function MessageContextMenu({
 				<Icons.ForwardRightClick defaultSize="w-4 h-4" />
 			);
 		});
-
-		isShowForwardAll &&
-			builder.when(checkPos, (builder) => {
-				builder.addMenuItem(
-					'forwardAll',
-					t('forwardAllMessage'),
-					() => handleForwardAllMessage(),
-					<Icons.ForwardRightClick defaultSize="w-4 h-4" />
-				);
-			});
+		builder.when(checkPos && isShowForwardAll, (builder) => {
+			builder.addMenuItem(
+				'forwardAll',
+				t('forwardAllMessage'),
+				() => handleForwardAllMessage(),
+				<Icons.ForwardAllRightClick defaultSize="w-4 h-4" />
+			);
+		});
 		builder.when(enableCreateThreadItem, (builder) => {
 			builder.addMenuItem('createThread', t('createThread'), () => handleCreateThread(), <Icons.ThreadIconRightClick defaultSize="w-4 h-4" />);
 		});
@@ -752,6 +743,9 @@ function MessageContextMenu({
 				},
 				<Icons.CopyTextRightClick />
 			);
+		});
+		builder.when(!isTopic && pinMessageStatus === true, (builder) => {
+			builder.addMenuItem('pinMessage', t('pinMessage'), openPinMessageModal, <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);
 		});
 
 		message?.code !== TypeMessage.Topic &&
@@ -821,9 +815,6 @@ function MessageContextMenu({
 				}
 			});
 		});
-		builder.when(enableDelMessageItem, (builder) => {
-			builder.addMenuItem('deleteMessage', t('deleteMessage'), openDeleteMessageModal, <Icons.DeleteMessageRightClick defaultSize="w-4 h-4" />);
-		});
 
 		// builder.when(checkPos, (builder) => {
 		// 	builder.addMenuItem('apps', 'Apps', () => console.log('apps'), <Icons.RightArrowRightClick defaultSize="w-4 h-4" />);
@@ -864,6 +855,9 @@ function MessageContextMenu({
 					console.error(t('errors.failedToSaveImage'), error);
 				}
 			});
+		});
+		builder.when(enableDelMessageItem, (builder) => {
+			builder.addMenuItem('deleteMessage', t('deleteMessage'), openDeleteMessageModal, <Icons.DeleteMessageRightClick defaultSize="w-4 h-4" />);
 		});
 
 		return builder.build();

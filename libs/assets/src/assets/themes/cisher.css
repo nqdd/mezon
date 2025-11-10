@@ -169,4 +169,5 @@
 	/* border left highlight */
 	--border-left-highlight: #f39c12;
 	/* notice region */
+	--text-separator-theme-primary: #25252521;
 }
