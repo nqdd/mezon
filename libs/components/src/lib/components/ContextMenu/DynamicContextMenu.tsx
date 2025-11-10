@@ -440,7 +440,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 					@media (min-width: 501px) {
 						.contexify {
 							width: auto !important;
-							max-height: 90vh !important;
+							max-height: 85vh !important;
 							overflow-y: auto !important;
 						}
 					}
@@ -448,7 +448,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						.contexify {
 							width: 100% !important;
 							max-width: 500px !important;
-							max-height: 90vh !important;
+							max-height: 80vh !important;
 							overflow-y: auto !important;
 						}
 					}
