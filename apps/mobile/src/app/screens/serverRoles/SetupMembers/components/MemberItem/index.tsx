@@ -1,13 +1,13 @@
 import { useRoles } from '@mezon/core';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { RolesClanEntity } from '@mezon/store-mobile';
-import { UsersClanEntity } from '@mezon/utils';
+import { useTheme } from '@mezon/mobile-ui';
+import type { RolesClanEntity } from '@mezon/store-mobile';
+import type { UsersClanEntity } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Toast from 'react-native-toast-message';
-import MezonAvatar from '../../../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './index.styles';
@@ -32,9 +32,13 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 		return disabled || !isSelectMode;
 	}, [disabled, isSelectMode]);
 
+	const memberAvatarUrl = useMemo(() => {
+		return member?.clan_avatar || member?.user?.avatar_url || '';
+	}, [member?.clan_avatar, member?.user?.avatar_url]);
+
 	const memberName = useMemo(() => {
-		return member?.clan_nick || member?.user?.display_name;
-	}, [member?.user?.display_name, member?.clan_nick]);
+		return member?.clan_nick || member?.user?.display_name || member?.user?.username || '';
+	}, [member?.clan_nick, member?.user?.display_name, member?.user?.username]);
 
 	const onPressMemberItem = useCallback(() => {
 		if (isDisable) return;
@@ -49,18 +53,12 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 		if (response) {
 			Toast.show({
 				type: 'success',
-				props: {
-					text2: t('setupMember.deletedMember', { memberName }),
-					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
-				}
+				text1: t('setupMember.deletedMember', { memberName })
 			});
 		} else {
 			Toast.show({
 				type: 'error',
-				props: {
-					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
-				}
+				text1: t('failed')
 			});
 		}
 	}, [role, member?.id, updateRole, memberName, t]);
@@ -69,10 +67,12 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 		<TouchableOpacity onPress={onPressMemberItem}>
 			<View style={styles.container}>
 				<View style={styles.memberInfoContainer}>
-					<MezonAvatar avatarUrl={member?.user?.avatar_url} username={member?.user?.username} />
+					<View style={styles.imgWrapper}>
+						<MezonClanAvatar alt={member?.user?.username || ''} image={memberAvatarUrl} />
+					</View>
 					<View style={styles.memberTextContainer}>
-						{memberName ? <Text style={styles.memberName}>{memberName}</Text> : null}
-						<Text style={styles.memberUsername}>{member?.user?.username}</Text>
+						<Text style={styles.memberName}>{memberName}</Text>
+						<Text style={styles.memberUsername}>{member?.user?.username || ''}</Text>
 					</View>
 				</View>
 
