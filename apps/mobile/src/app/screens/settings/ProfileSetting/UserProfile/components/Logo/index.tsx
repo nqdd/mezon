@@ -60,9 +60,11 @@ export const DirectMessageLogo = memo(() => {
 				autoUpload
 				imageSizeLimit={MAX_FILE_SIZE_1MB}
 			/>
-			<TouchableOpacity style={styles.removeButton} onPress={handleRemoveDirectLogo}>
-				<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
-			</TouchableOpacity>
+			{!!logoCustom && (
+				<TouchableOpacity style={styles.removeButton} onPress={handleRemoveDirectLogo}>
+					<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+				</TouchableOpacity>
+			)}
 		</View>
 	);
 });
