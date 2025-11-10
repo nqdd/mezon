@@ -117,13 +117,15 @@ const sendTransaction = createAsyncThunk(
 			recipient,
 			amount,
 			textData,
-			extraInfo
+			extraInfo,
+			isSendByAddress
 		}: {
 			sender?: string;
 			recipient?: string;
 			amount?: number;
 			textData?: string;
 			extraInfo?: ExtraInfo;
+			isSendByAddress?: boolean;
 		},
 		thunkAPI
 	) => {
@@ -179,18 +181,31 @@ const sendTransaction = createAsyncThunk(
 			return thunkAPI.rejectWithValue(errMsg);
 		}
 
-		const response = await mezon.mmnClient.sendTransaction({
-			sender,
-			recipient,
-			amount: mezon.mmnClient.scaleAmountToDecimals(amount),
-			nonce: currentNonce.nonce + 1,
-			textData,
-			extraInfo,
-			publicKey: ephemeralKeyPair.publicKey,
-			privateKey: ephemeralKeyPair.privateKey,
-			zkProof: zkProofs.proof,
-			zkPub: zkProofs.public_input
-		});
+		const response = isSendByAddress
+			? await mezon.mmnClient.sendTransactionByAddress({
+					sender,
+					recipient,
+					amount: mezon.mmnClient.scaleAmountToDecimals(amount),
+					nonce: currentNonce.nonce + 1,
+					textData,
+					extraInfo,
+					publicKey: ephemeralKeyPair.publicKey,
+					privateKey: ephemeralKeyPair.privateKey,
+					zkProof: zkProofs.proof,
+					zkPub: zkProofs.public_input
+				})
+			: await mezon.mmnClient.sendTransaction({
+					sender,
+					recipient,
+					amount: mezon.mmnClient.scaleAmountToDecimals(amount),
+					nonce: currentNonce.nonce + 1,
+					textData,
+					extraInfo,
+					publicKey: ephemeralKeyPair.publicKey,
+					privateKey: ephemeralKeyPair.privateKey,
+					zkProof: zkProofs.proof,
+					zkPub: zkProofs.public_input
+				});
 
 		if (!response?.ok) {
 			const errMsg = safeJSONParse(response.error)?.message || response.error;
