@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -18,14 +19,15 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			fontWeight: 'bold',
 			textTransform: 'uppercase',
-			color: colors.textStrong,
+			color: colors.borderRadio,
 			marginTop: size.s_6,
-			marginBottom: size.s_4,
+			marginBottom: size.s_4
 		},
 		textDescription: {
 			marginLeft: size.s_10,
 			lineHeight: size.s_16,
-			fontSize: size.s_12
+			fontSize: size.s_12,
+			color: colors.borderRadio
 		},
 		btn: {
 			marginBottom: size.s_20,
@@ -47,5 +49,5 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			color: baseColor.white,
 			fontWeight: '500'
-		},
+		}
 	});
