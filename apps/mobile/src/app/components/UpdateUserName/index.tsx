@@ -1,7 +1,7 @@
 import { useAccount } from '@mezon/core';
 import { size } from '@mezon/mobile-ui';
 import { accountActions, appActions } from '@mezon/store';
-import { useAppDispatch } from '@mezon/store-mobile';
+import { selectCurrentLanguage, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import React, { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Dimensions, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -23,14 +23,21 @@ const UpdateUserName = () => {
 	const { updateUserName } = useAccount();
 	const dispatch = useAppDispatch();
 	const isTabletLandscape = useTabletLandscape();
+	const currentLanguage = useAppSelector(selectCurrentLanguage);
 
-	const { t } = useTranslation(['common']);
+	const { t, i18n } = useTranslation(['common']);
 	const isFormValid = userName?.length >= 1;
 
 	const checkOrientation = () => {
 		const { width, height } = Dimensions.get('screen');
 		setIsLandscape(width > height);
 	};
+
+	useEffect(() => {
+		if (i18n.language !== currentLanguage) {
+			i18n.changeLanguage(currentLanguage);
+		}
+	}, [currentLanguage, i18n]);
 
 	useEffect(() => {
 		checkOrientation();
