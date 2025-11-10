@@ -9,6 +9,7 @@ export const EnterpriseIntegrationsSection = () => {
 	const imageRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const [isVisible, setIsVisible] = useState(false);
+	const [imageLoaded, setImageLoaded] = useState(false);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
@@ -40,9 +41,11 @@ export const EnterpriseIntegrationsSection = () => {
 						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
 					>
 						<img
-							src="https://cdn.mezon.ai/landing-page-mezon/integraytion.png"
+							src="https://cdn.mezon.ai/landing-page-mezon/integraytionnew.webp"
 							alt="Voice Channel"
-							className="max-w-[35vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl"
+							className={`max-w-[35vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl ${!imageLoaded ? 'bg-gradient-to-br from-[#8661df] to-[#7979ed]' : ''}`}
+							loading="lazy"
+							onLoad={() => setImageLoaded(true)}
 						/>
 					</div>
 

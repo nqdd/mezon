@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 export const TextChannelSection = () => {
 	const sectionRef = useRef<HTMLElement>(null);
 	const [isVisible, setIsVisible] = useState(false);
+	const [imageLoaded, setImageLoaded] = useState(false);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
@@ -28,9 +29,11 @@ export const TextChannelSection = () => {
 						className={`w-3/5 max-lg:w-full transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
 					>
 						<img
-							src="https://cdn.mezon.ai/landing-page-mezon/message.png"
+							src="https://cdn.mezon.ai/landing-page-mezon/messagenew.webp"
 							alt="Text Channel"
-							className="w-auto h-auto max-w-[60vw] max-lg:max-w-full 3xl:max-w-[30vw] object-contain drop-shadow-2xl rounded-2xl"
+							className={`w-auto h-auto max-w-[60vw] lg:max-w-[50vw] 3xl:max-w-[30vw] object-contain drop-shadow-2xl rounded-2xl ${!imageLoaded ? 'bg-gradient-to-br from-[#8661df] to-[#7979ed]' : ''}`}
+							loading="lazy"
+							onLoad={() => setImageLoaded(true)}
 						/>
 					</div>
 
