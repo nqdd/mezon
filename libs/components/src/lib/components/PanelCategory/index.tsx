@@ -11,7 +11,6 @@ import {
 import { Menu } from '@mezon/ui';
 import type { ICategoryChannel } from '@mezon/utils';
 import {
-	DEFAULT_ID,
 	EMuteState,
 	ENotificationTypes,
 	EPermission,
@@ -211,7 +210,7 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 				<ItemPanel onClick={collapseAllCategory}>{t('collapseAllCategories')}</ItemPanel>
 			</GroupPanels>
 			<GroupPanels>
-				{defaultCategoryNotificationSetting?.active === EMuteState.UN_MUTE || defaultCategoryNotificationSetting?.id === DEFAULT_ID ? (
+				{defaultCategoryNotificationSetting?.active === EMuteState.UN_MUTE ? (
 					<Menu
 						trigger="hover"
 						menu={menuMute}
