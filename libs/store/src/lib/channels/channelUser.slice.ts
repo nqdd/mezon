@@ -31,7 +31,9 @@ export interface ListChannelsByUserState extends EntityState<ChannelUsersEntity,
 	cache?: CacheMetadata;
 }
 
-export const listChannelsByUserAdapter = createEntityAdapter<ChannelUsersEntity>();
+export const listChannelsByUserAdapter = createEntityAdapter({
+	selectId: (channelByUser: ChannelUsersEntity) => channelByUser.id
+});
 
 export interface ListChannelsByUserRootState {
 	[LIST_CHANNELS_USER_FEATURE_KEY]: ListChannelsByUserState;
@@ -117,6 +119,7 @@ export const listChannelsByUserSlice = createSlice({
 		remove: listChannelsByUserAdapter.removeOne,
 		update: listChannelsByUserAdapter.updateOne,
 		upsertOne: listChannelsByUserAdapter.upsertOne,
+		upsertMany: listChannelsByUserAdapter.upsertMany,
 		removeByClanId: (state, action: PayloadAction<{ clanId: string }>) => {
 			const channels = listChannelsByUserAdapter.getSelectors().selectAll(state);
 			const channelsToRemove = channels.filter((channel) => channel.clan_id === action.payload.clanId).map((channel) => channel.id);
