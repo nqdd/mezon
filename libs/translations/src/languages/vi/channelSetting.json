@@ -284,5 +284,6 @@
 	},
 	"streamBanner": {
 		"title": "Ảnh bìa Stream"
-	}
+	},
+	"banList": "Danh sách cấm"
 }
