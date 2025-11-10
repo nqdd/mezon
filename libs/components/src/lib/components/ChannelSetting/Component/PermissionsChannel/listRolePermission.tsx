@@ -8,10 +8,11 @@ import { useSelector } from 'react-redux';
 type ListRolePermissionProps = {
 	channel: IChannel;
 	selectedRoleIds: string[];
+	setSelectedRoleIds?: (roleIds: string[]) => void;
 };
 
 const ListRolePermission = (props: ListRolePermissionProps) => {
-	const { channel } = props;
+	const { channel, selectedRoleIds, setSelectedRoleIds } = props;
 	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const RolesChannel = useSelector(selectRolesByChannelId(channel.id));
@@ -29,6 +30,10 @@ const ListRolePermission = (props: ListRolePermissionProps) => {
 	}, [RolesChannel, props.selectedRoleIds]);
 
 	const deleteRole = async (roleId: string) => {
+		if (setSelectedRoleIds && selectedRoleIds) {
+			const newSelectedRoleIds = selectedRoleIds.filter((id) => id !== roleId);
+			setSelectedRoleIds(newSelectedRoleIds);
+		}
 		const body = {
 			channelId: channel.id,
 			clanId: currentClanId || '',
