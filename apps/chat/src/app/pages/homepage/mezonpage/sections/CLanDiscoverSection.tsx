@@ -34,10 +34,10 @@ export const CLanDiscoverSection = () => {
 	return (
 		<section ref={sectionRef} className="relative w-full bg-[#131221]  py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
 			<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
-				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 gap-8 lg:gap-12 xl:gap-16">
+				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse gap-8 lg:gap-12 xl:gap-16">
 					<div
 						ref={imageRef}
-						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
 					>
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/clan.png"
@@ -49,7 +49,7 @@ export const CLanDiscoverSection = () => {
 					<div
 						ref={contentRef}
 						className={`flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4 transition-all duration-700 delay-300 ${
-							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
 						}`}
 					>
 						<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">

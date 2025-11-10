@@ -34,10 +34,10 @@ export const EnterpriseIntegrationsSection = () => {
 	return (
 		<section ref={sectionRef} className="relative w-full bg-white py-20 max-md:py-12 2xl:py-[193px] overflow-hidden">
 			<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
-				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse ">
+				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 gap-8 lg:gap-12 xl:gap-16">
 					<div
 						ref={imageRef}
-						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
+						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
 					>
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/integraytion.png"
@@ -48,8 +48,8 @@ export const EnterpriseIntegrationsSection = () => {
 
 					<div
 						ref={contentRef}
-						className={`flex flex-col justify-center items-center pl-8 lg:pl-16 xl:pl-24 max-lg:px-4 transition-all duration-700 delay-300 ${
-							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+						className={`flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4 transition-all duration-700 delay-300 ${
+							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
 						}`}
 					>
 						<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
