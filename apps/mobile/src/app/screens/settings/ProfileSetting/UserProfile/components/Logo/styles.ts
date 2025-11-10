@@ -28,5 +28,18 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			backgroundColor: colors.bgViolet
+		},
+
+		removeButton: {
+			height: size.s_30,
+			width: size.s_30,
+			overflow: 'hidden',
+			borderRadius: size.s_15,
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'absolute',
+			right: size.s_10,
+			top: size.s_10,
+			zIndex: 2
 		}
 	});

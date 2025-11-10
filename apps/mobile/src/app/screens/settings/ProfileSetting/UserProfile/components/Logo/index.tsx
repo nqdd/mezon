@@ -3,7 +3,7 @@ import { appActions, clansActions, selectAllAccount, selectLogoCustom, useAppDis
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../../../../../componentUI/MezonImagePicker';
@@ -34,6 +34,20 @@ export const DirectMessageLogo = memo(() => {
 		}
 	};
 
+	const handleRemoveDirectLogo = async () => {
+		dispatch(appActions.setLoadingMainMobile(true));
+		await dispatch(
+			clansActions.updateUser({
+				avatar_url: userProfile.user.avatar_url,
+				display_name: userProfile.user.display_name,
+				about_me: userProfile.user.about_me,
+				dob: userProfile.user.dob,
+				logo: ''
+			})
+		);
+		dispatch(appActions.setLoadingMainMobile(false));
+	};
+
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>{t('directMessageIcon')}</Text>
@@ -46,6 +60,9 @@ export const DirectMessageLogo = memo(() => {
 				autoUpload
 				imageSizeLimit={MAX_FILE_SIZE_1MB}
 			/>
+			<TouchableOpacity style={styles.removeButton} onPress={handleRemoveDirectLogo}>
+				<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+			</TouchableOpacity>
 		</View>
 	);
 });
