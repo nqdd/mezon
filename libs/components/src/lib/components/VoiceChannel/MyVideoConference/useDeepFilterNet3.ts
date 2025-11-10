@@ -12,6 +12,11 @@ export const useDeepFilterNet3 = () => {
 	const room = useRoomContext();
 	const { localParticipant } = useLocalParticipant();
 	const processorsRef = useRef<Map<string, DeepFilterNoiseFilterProcessor>>(new Map());
+	const levelRef = useRef<number>(level);
+
+	useEffect(() => {
+		levelRef.current = level;
+	}, [level]);
 
 	useEffect(() => {
 		if (!room || !localParticipant) {
@@ -54,19 +59,19 @@ export const useDeepFilterNet3 = () => {
 			}
 
 			try {
+				const currentLevel = levelRef.current;
 				const processor = new DeepFilterNoiseFilterProcessor({
 					sampleRate,
-					noiseReductionLevel: level,
+					noiseReductionLevel: currentLevel,
 					enabled: true
 				});
 
-				console.log('start set processor');
+				// console.log('start set processor');
 
 				await track.setProcessor(processor);
 
-				console.log('set process success');
-
-				processor.setSuppressionLevel(level);
+				// console.log('set process success');
+				processor.setSuppressionLevel(currentLevel);
 				processorsRef.current.set(trackSid, processor);
 			} catch (error) {
 				console.error('Failed to apply DeepFilterNet3 processor:', error);
@@ -110,7 +115,7 @@ export const useDeepFilterNet3 = () => {
 			});
 			processorsMap.clear();
 		};
-	}, [room, localParticipant, enabled, level, sampleRate]);
+	}, [room, localParticipant, sampleRate]);
 
 	useEffect(() => {
 		if (!enabled || !room || !localParticipant) {
@@ -125,4 +130,12 @@ export const useDeepFilterNet3 = () => {
 			}
 		});
 	}, [level, enabled, room, localParticipant]);
+
+	useEffect(() => {
+		processorsRef.current.forEach((processor) => {
+			processor.setEnabled(enabled).catch((error) => {
+				console.error('Failed to toggle noise suppression:', error);
+			});
+		});
+	}, [enabled]);
 };
