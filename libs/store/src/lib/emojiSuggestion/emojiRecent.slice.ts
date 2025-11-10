@@ -112,7 +112,7 @@ const buyItemForSale = createAsyncThunk(
 							UserSenderId: senderId ?? '',
 							UserSenderUsername: username || '',
 							ItemType: type?.toString() ?? '',
-							ItemId: id
+							ItemId: id || ''
 						}
 					})
 				)

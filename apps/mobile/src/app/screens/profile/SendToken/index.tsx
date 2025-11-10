@@ -16,6 +16,7 @@ import {
 	useWallet
 } from '@mezon/store-mobile';
 import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezon/utils';
+import Clipboard from '@react-native-clipboard/clipboard';
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
@@ -60,7 +61,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const styles = style(themeValue);
 	const store = getStore();
 	const formValue = route?.params?.formValue;
-	const jsonObject: ApiTokenSentEvent = safeJSONParse(formValue || '{}');
+	const jsonObject: ApiTokenSentEvent | any = safeJSONParse(formValue || '{}');
 	const formattedAmount = formatTokenAmount(jsonObject?.amount || '0');
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const [tokenCount, setTokenCount] = useState(formattedAmount || '0');
@@ -87,7 +88,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const friendList: FriendsEntity[] = useMemo(() => {
 		const friends = selectAllFriends(store.getState());
 		return friends?.filter((user) => user.state === 0) || [];
-	}, []);
+	}, [store]);
 	const canEdit = jsonObject?.canEdit;
 	const { walletDetail, enableWallet } = useWallet();
 
@@ -181,7 +182,8 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 	const sendToken = async () => {
 		const store = await getStoreAsync();
 		try {
-			if (!selectedUser && !jsonObject?.receiver_id) {
+			const walletAddress = jsonObject?.wallet_address;
+			if (!selectedUser && !jsonObject?.receiver_id && !walletAddress) {
 				Toast.show({
 					type: 'error',
 					text1: t('toast.error.mustSelectUser')
@@ -208,15 +210,14 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			setDisableButton(true);
 
 			const tokenEvent: ApiTokenSentEvent = {
-				sender_id: userProfile?.user?.id || '',
-				sender_name: userProfile?.user?.username?.[0] || userProfile?.user?.username || '',
-				receiver_id: jsonObject?.receiver_id || selectedUser?.id || '',
+				sender_id: walletAddress ? walletDetail?.address : userProfile?.user?.id || '',
+				sender_name: walletAddress ? walletDetail?.address : userProfile?.user?.username?.[0] || userProfile?.user?.username || '',
+				receiver_id: walletAddress ? walletAddress : jsonObject?.receiver_id || selectedUser?.id || '',
 				extra_attribute: jsonObject?.extra_attribute || '',
 				amount: Number(plainTokenCount || 1),
 				note: note?.replace?.(/\s+/g, ' ')?.trim() || ''
 			};
-
-			const res = await store.dispatch(giveCoffeeActions.sendToken(tokenEvent));
+			const res: any = await store.dispatch(giveCoffeeActions.sendToken({ tokenEvent, isSendByAddress: !!walletAddress }));
 			store.dispatch(appActions.setLoadingMainMobile(false));
 			setDisableButton(false);
 			if ([res?.payload, res?.payload?.message].includes(tMsg('wallet.notAvailable'))) {
@@ -229,28 +230,31 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 					text1: t('toast.error.anErrorOccurred')
 				});
 			} else {
-				if (directMessageId) {
-					sendInviteMessage(
-						`${t('tokensSent')} ${formatMoney(Number(plainTokenCount || 1))}₫ | ${note?.replace?.(/\s+/g, ' ')?.trim() || ''}`,
-						directMessageId,
-						ChannelStreamMode.STREAM_MODE_DM,
-						TypeMessage.SendToken
-					);
-				} else {
-					const receiver = (mergeUser?.find((user) => user?.id === jsonObject?.receiver_id) || selectedUser || jsonObject) as any;
-					const response = await createDirectMessageWithUser(
-						receiver?.id || receiver?.receiver_id,
-						receiver?.username?.[0] || receiver?.receiver_name,
-						receiver?.username?.[0] || receiver?.receiver_name,
-						receiver?.avatar_url
-					);
-					if (response?.channel_id) {
-						sendInviteMessage(
+				if (!walletAddress) {
+					// Send DM message
+					if (directMessageId) {
+						await sendInviteMessage(
 							`${t('tokensSent')} ${formatMoney(Number(plainTokenCount || 1))}₫ | ${note?.replace?.(/\s+/g, ' ')?.trim() || ''}`,
-							response?.channel_id,
+							directMessageId,
 							ChannelStreamMode.STREAM_MODE_DM,
 							TypeMessage.SendToken
 						);
+					} else {
+						const receiver = (mergeUser?.find((user) => user?.id === jsonObject?.receiver_id) || selectedUser || jsonObject) as any;
+						const response = await createDirectMessageWithUser(
+							receiver?.id || receiver?.receiver_id,
+							receiver?.username?.[0] || receiver?.receiver_name,
+							receiver?.username?.[0] || receiver?.receiver_name,
+							receiver?.avatar_url
+						);
+						if (response?.channel_id) {
+							sendInviteMessage(
+								`${t('tokensSent')} ${formatMoney(Number(plainTokenCount || 1))}₫ | ${note?.replace?.(/\s+/g, ' ')?.trim() || ''}`,
+								response?.channel_id,
+								ChannelStreamMode.STREAM_MODE_DM,
+								TypeMessage.SendToken
+							);
+						}
 					}
 				}
 				const now = new Date();
@@ -450,9 +454,22 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const keyExtractor = useCallback((item) => item.id, []);
 
+	const handleCopyAddress = async () => {
+		if (jsonObject?.wallet_address) {
+			Clipboard.setString(jsonObject?.wallet_address);
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('copyAddressSuccess'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.linkIcon} color={baseColor.link} />
+				}
+			});
+		}
+	};
+
 	if (showConfirmModal) {
 		return (
-			<Modal visible={true} supportedOrientations={['portrait', 'landscape']}>
+			<Modal animationType={'fade'} visible={true} supportedOrientations={['portrait', 'landscape']}>
 				{fileShared && isShowModalShare ? (
 					<Sharing data={fileShared} topUserSuggestionId={directMessageId} onClose={onCloseFileShare} />
 				) : (
@@ -473,10 +490,8 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 							<View style={styles.modalBody}>
 								<View style={styles.infoRow}>
 									<Text style={styles.label}>{t('receiver')}</Text>
-									<Text style={[styles.value, { fontSize: size.s_20 }]}>
-										{/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
-										{/*@ts-expect-error*/}
-										{selectedUser?.username || jsonObject?.receiver_name || 'KOMU'}
+									<Text style={[styles.value, { fontSize: size.s_20 }]} numberOfLines={1}>
+										{jsonObject?.wallet_address || selectedUser?.username || jsonObject?.receiver_name}
 									</Text>
 								</View>
 
@@ -550,28 +565,27 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						</View>
 					</LinearGradient>
 					<View>
-						<Text style={styles.title}>{t('sendTokenTo')}</Text>
+						<Text style={styles.title}>{jsonObject?.wallet_address ? t('sendTokenToAddress') : t('sendTokenTo')}</Text>
 						<TouchableOpacity
-							disabled={!!jsonObject?.receiver_id || jsonObject?.type === 'payment'}
-							style={[
-								styles.textField,
-								{
-									height: size.s_40,
-									flexDirection: 'row',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									paddingRight: size.s_10
-								}
-							]}
+							disabled={!!jsonObject?.receiver_id || jsonObject?.type === 'payment' || !!jsonObject?.wallet_address}
+							style={[styles.textField, styles.selectSendTokenTo]}
 							onPress={handleOpenBottomSheet}
 						>
-							<Text style={styles.username}>
-								{/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
-								{/*@ts-expect-error*/}
-								{jsonObject?.receiver_id ? jsonObject?.receiver_name || 'KOMU' : selectedUser?.username || t('selectAccount')}
+							<Text style={styles.username} numberOfLines={1}>
+								{jsonObject?.wallet_address
+									? jsonObject?.wallet_address
+									: jsonObject?.receiver_id
+										? jsonObject?.receiver_name || ''
+										: selectedUser?.username || t('selectAccount')}
 							</Text>
-							{!jsonObject?.receiver_id && (
+							{jsonObject?.wallet_address ? (
+								<TouchableOpacity style={styles.btnCopyAddress} onPress={handleCopyAddress}>
+									<MezonIconCDN icon={IconCDN.copyIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+								</TouchableOpacity>
+							) : !jsonObject?.receiver_id ? (
 								<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+							) : (
+								<View />
 							)}
 						</TouchableOpacity>
 					</View>
