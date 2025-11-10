@@ -41,5 +41,10 @@ export const style = (colors: Attributes) =>
 			right: size.s_10,
 			top: size.s_10,
 			zIndex: 2
+		},
+
+		confirmText: {
+			fontSize: size.medium,
+			textAlign: 'center'
 		}
 	});
