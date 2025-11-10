@@ -26,7 +26,7 @@ type ServerDetailProps = {
 Sound.setCategory('Playback');
 
 const areEqual = (prevProps: ServerDetailProps, nextProps: ServerDetailProps) => {
-	return prevProps?.isPlaying === nextProps?.isPlaying && prevProps.item?.id === nextProps.item?.id;
+	return prevProps?.isPlaying === nextProps?.isPlaying && prevProps?.item?.id === nextProps?.item?.id;
 };
 
 const SoundItemComponent = forwardRef(({ item, onSwipeOpen, isPlaying = false, onPressPlay }: ServerDetailProps, ref: Ref<SwipeableMethods>) => {
