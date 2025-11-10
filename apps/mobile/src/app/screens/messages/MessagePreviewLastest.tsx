@@ -1,7 +1,6 @@
 import { load, STORAGE_MY_USER_ID, validLinkGoogleMapRegex } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { isContainsUrl } from '@mezon/transport';
-import type { IMessageSendPayload } from '@mezon/utils';
 import { EMimeTypes } from '@mezon/utils';
 import { ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
@@ -12,17 +11,18 @@ import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 
 export const MessagePreviewLastest = React.memo(
-	(props: {
-		content: IMessageSendPayload;
-		type: ChannelType;
-		senderId: string;
-		otherMemberList: any;
-		attachment: ApiMessageAttachment;
-		isUnReadChannel: boolean;
-	}) => {
+	(props: { type: ChannelType; senderId: string; otherMemberList: any; lastSentMessage: any; isUnReadChannel: boolean }) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
-		const { content, type, senderId, otherMemberList, attachment, isUnReadChannel } = props || {};
+		const { lastSentMessage, type, senderId, otherMemberList, isUnReadChannel } = props || {};
+
+		const content = useMemo(() => {
+			return typeof lastSentMessage?.content === 'object' ? lastSentMessage?.content : safeJSONParse(lastSentMessage?.content || '{}');
+		}, [lastSentMessage?.content]);
+
+		const attachment = useMemo(() => {
+			return typeof lastSentMessage?.attachment === 'object' ? lastSentMessage?.attachment : safeJSONParse(lastSentMessage?.attachment || '{}');
+		}, [lastSentMessage?.attachment]);
 
 		const contentTextObj = useMemo(() => {
 			const isLinkMessage = isContainsUrl(content?.t || '');

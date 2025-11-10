@@ -1,22 +1,23 @@
-import { ActionEmitEvent, convertTimestampToTimeAgo } from '@mezon/mobile-components';
+import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, directActions, messagesActions, selectDirectById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import type { DirectEntity } from '@mezon/store-mobile';
+import { directActions, messagesActions, selectDirectById, selectIsUnreadDMById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
-import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import BuzzBadge from '../../components/BuzzBadge/BuzzBadge';
 import ImageNative from '../../components/ImageNative';
+import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { MessagePreviewLastest } from './MessagePreviewLastest';
-import { UserStatusDM } from './UserStatusDM';
 import { style } from './styles';
+import { UserStatusDM } from './UserStatusDM';
 
 export const DmListItem = React.memo((props: { id: string }) => {
 	const { themeValue } = useTheme();
@@ -24,17 +25,15 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const { id } = props;
 	const navigation = useNavigation<any>();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
+	const isUnreadDMById = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const isUnReadChannel = useMemo(() => {
-		return (
-			directMessage?.last_seen_message?.timestamp_seconds !== undefined &&
-			directMessage?.last_sent_message?.timestamp_seconds !== undefined &&
-			directMessage?.last_seen_message?.timestamp_seconds < directMessage?.last_sent_message?.timestamp_seconds
-		);
-	}, [directMessage?.last_seen_message?.timestamp_seconds, directMessage?.last_sent_message?.timestamp_seconds]);
+		const myUserId = load(STORAGE_MY_USER_ID);
+
+		return isUnreadDMById && directMessage?.last_sent_message?.sender_id !== myUserId;
+	}, [isUnreadDMById, directMessage?.last_sent_message?.sender_id]);
 	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
-
 	const redirectToMessageDetail = async () => {
 		dispatch(messagesActions.setIdMessageToJump(null));
 		if (!isTabletLandscape) {
@@ -50,16 +49,17 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	}, [directMessage?.type]);
 
 	const otherMemberList = useMemo(() => {
-		const userIdList = directMessage.user_ids;
-		const usernameList = directMessage?.usernames || [];
-		const displayNameList = directMessage?.display_names || [];
+		const DMClone = JSON.parse(JSON.stringify(directMessage));
+		const userIdList = DMClone.user_ids;
+		const usernameList = DMClone?.usernames || [];
+		const displayNameList = DMClone?.display_names || [];
 
 		return usernameList?.map((username, index) => ({
 			userId: userIdList?.[index],
 			username,
 			displayName: displayNameList?.[index]
 		}));
-	}, [directMessage?.display_names, directMessage?.user_ids, directMessage?.usernames]);
+	}, [directMessage]);
 
 	const lastMessageTime = useMemo(() => {
 		if (directMessage?.last_sent_message?.timestamp_seconds) {
@@ -150,16 +150,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 					type={directMessage?.type}
 					otherMemberList={otherMemberList}
 					senderId={directMessage?.last_sent_message?.sender_id}
-					content={
-						typeof directMessage?.last_sent_message?.content === 'object'
-							? directMessage?.last_sent_message?.content
-							: safeJSONParse(directMessage?.last_sent_message?.content || '{}')
-					}
-					attachment={
-						typeof directMessage?.last_sent_message?.attachment === 'object'
-							? directMessage?.last_sent_message?.attachment
-							: safeJSONParse(directMessage?.last_sent_message?.attachment || '[]')
-					}
+					lastSentMessage={directMessage?.last_sent_message}
 				/>
 			</View>
 		</TouchableOpacity>

@@ -2,10 +2,9 @@ import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, Platform, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
-import type { FlatList } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
+import { FlatList } from 'react-native-gesture-handler';
 import { style } from './styles';
 
 interface IChannelListMessageProps {
@@ -67,7 +66,7 @@ const ChannelListMessage = React.memo(
 		}, [flatListRef, lastSeenMessageId, messages]);
 
 		return (
-			<Animated.FlatList
+			<FlatList
 				data={messages}
 				renderItem={renderItem}
 				keyExtractor={keyExtractor}
@@ -107,7 +106,7 @@ const ChannelListMessage = React.memo(
 						});
 					}
 				}}
-				disableVirtualization
+				disableVirtualization={Platform.OS === 'ios'}
 			/>
 		);
 	}
