@@ -80,7 +80,7 @@ function useChannelSeen(channelId: string) {
 			: ChannelStreamMode.STREAM_MODE_THREAD;
 
 	const markMessageAsRead = useCallback(() => {
-		if (!lastMessageViewport || !lastMessageChannel) return;
+		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending || lastSeenMessageId === lastMessageChannel.id) return;
 
 		if (lastSeenMessageId && lastMessageViewport?.id) {
 			try {
@@ -135,7 +135,7 @@ function useChannelSeen(channelId: string) {
 		dispatch(messagesActions.UpdateChannelLastMessage({ channelId }));
 	}, [dispatch, channelId]);
 
-	useBackgroundMode(handleUpdateChannelLastMessage, markMessageAsRead, isWindowFocused);
+	useBackgroundMode(handleUpdateChannelLastMessage, markMessageAsRead);
 }
 
 const ChannelSeenListener = memo(({ channelId }: { channelId: string }) => {

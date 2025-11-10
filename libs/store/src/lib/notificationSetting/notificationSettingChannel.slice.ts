@@ -339,7 +339,7 @@ export const notificationSettingSlice = createSlice({
 
 				channel.notificationSetting.active = active ?? EMuteState.UN_MUTE;
 				channel.notificationSetting.time_mute =
-					active === EMuteState.MUTED && mute_time === 0 ? new Date(Date.now() + (mute_time || 0) * 1000).toISOString() : undefined;
+					active === EMuteState.MUTED && mute_time !== 0 ? new Date(Date.now() + (mute_time || 0) * 1000).toISOString() : undefined;
 			});
 	}
 });

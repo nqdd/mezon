@@ -62,9 +62,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const isWindowFocused = !isBackgroundModeActive();
 
 	const markMessageAsRead = useCallback(() => {
-		if (!isWindowFocused) return;
-		if (!lastMessageViewport || !lastMessageChannel) return;
-
+		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending || lastSeenMessageId === lastMessageChannel.id) return;
 		const store = getStore();
 		const state = store.getState();
 		const currentDmGroup = selectDmGroupCurrent(channelId ?? '')(state);
@@ -83,11 +81,12 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 		}
 
 		const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
+
 		if (isLastMessage) {
 			dispatch(directMetaActions.updateLastSeenTime(lastMessageViewport));
 			markAsReadSeen(lastMessageViewport, mode, 0);
 		}
-	}, [isWindowFocused, lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, dispatch, channelId]);
+	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, dispatch, channelId]);
 
 	const updateChannelSeenState = useCallback(
 		(channelId: string) => {
@@ -112,7 +111,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 		updateChannelSeenState(channelId);
 	}, [channelId, lastMessageViewport, updateChannelSeenState]);
 
-	useBackgroundMode(undefined, markMessageAsRead, isWindowFocused);
+	useBackgroundMode(undefined, markMessageAsRead);
 
 	return null;
 });
