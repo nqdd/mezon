@@ -38,7 +38,7 @@ const UserProfile = forwardRef(function UserProfile({ navigation }: IUserProfile
 		const initialValue: IUserProfileValue = {
 			username: username || '',
 			imgUrl: avatar_url || '',
-			displayName: display_name || username || '',
+			displayName: display_name || '',
 			aboutMe: about_me || ''
 		};
 		setCurrentUserProfileValue(initialValue);

@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -36,5 +37,11 @@ export const style = (colors: Attributes) =>
 		checkboxInnerIcon: {
 			borderWidth: 1.5,
 			borderRadius: 5
+		},
+		imgWrapper: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_40,
+			overflow: 'hidden'
 		}
 	});

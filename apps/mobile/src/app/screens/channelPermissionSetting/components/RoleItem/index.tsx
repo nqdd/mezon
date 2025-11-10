@@ -1,5 +1,5 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { channelUsersActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
+import { channelUsersActions, rolesClanActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -33,6 +33,9 @@ export const RoleItem = memo(
 			};
 			const response = await dispatch(channelUsersActions.removeChannelRole(body));
 			const isError = response?.meta?.requestStatus === ERequestStatus.Rejected;
+			if (!isError) {
+				dispatch(rolesClanActions.removeChannelRole({ channelId: channel?.channel_id, clanId: currentClanId, roleId: role?.id }));
+			}
 			Toast.show({
 				type: 'success',
 				props: {

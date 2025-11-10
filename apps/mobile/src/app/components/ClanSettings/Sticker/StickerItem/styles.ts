@@ -1,26 +1,26 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
-import { width } from 'libs/mobile-ui/src/lib/themes/Metrics';
-import { StyleSheet } from 'react-native';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
+import { Dimensions, StyleSheet } from 'react-native';
+const { width } = Dimensions.get('screen');
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flexDirection: 'row',
-			justifyContent: 'space-between',
-			alignItems: 'center',
-			backgroundColor: colors.primary,
-			paddingBottom: size.s_2,
-			borderBottomColor: colors.border,
-			borderBottomWidth: 1,
 			paddingHorizontal: size.s_20,
+			backgroundColor: colors.primary,
+			alignItems: 'center',
+			justifyContent: 'space-between',
 			gap: size.s_10,
-			height: size.s_50
+			height: size.s_50,
+			flex: 1,
+			borderBottomColor: colors.border,
+			borderBottomWidth: 1
 		},
-		flexRow: {
+		stickerItem: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10,
-			maxWidth: '50%'
+			gap: size.s_10
 		},
 		stickerName: {
 			maxWidth: width * 0.3,
@@ -28,20 +28,14 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			width: 'auto'
 		},
-		text: {
+		title: {
 			color: colors.borderRadio,
 			fontSize: size.s_12,
-			maxWidth: '70%'
+			maxWidth: '75%'
 		},
 		lightTitle: {
 			color: colors.white,
 			fontSize: size.s_14
-		},
-		close: {
-			height: '100%',
-			padding: size.s_10,
-			justifyContent: 'center',
-			alignItems: 'center'
 		},
 		rightItem: {
 			backgroundColor: baseColor.flamingo,
@@ -59,19 +53,22 @@ export const style = (colors: Attributes) =>
 			fontWeight: 'bold',
 			fontSize: size.s_14
 		},
-		wrapperForSale: {
-			position: 'absolute',
+		imgWrapper: {
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_30,
+			overflow: 'hidden'
+		},
+		stickerImage: {
+			height: size.s_36,
+			width: size.s_36
+		},
+		user: {
+			flexDirection: 'row',
+			gap: size.s_10,
 			alignItems: 'center',
-			justifyContent: 'center',
-			left: size.s_4,
-			bottom: 0,
-			transform: 'rotate(320deg)',
-			width: size.s_24,
-			borderWidth: 1,
-			borderColor: 'yellow',
-			borderRadius: size.s_20,
-			height: size.s_24,
-			zIndex: 1,
-			backgroundColor: colors.primary
+			justifyContent: 'flex-end',
+			flex: 1,
+			width: '50%'
 		}
 	});
