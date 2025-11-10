@@ -166,7 +166,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 				</div>
 
 				<div className="mb-12">
-					<div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 lg:gap-[100px]">
+					<div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 lg:gap-12 xl:gap-16 2xl:gap-[100px]">
 						<a
 							href="https://apps.apple.com/vn/app/mezon/id6502750046"
 							target="_blank"

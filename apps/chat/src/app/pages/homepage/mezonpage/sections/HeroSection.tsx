@@ -45,7 +45,7 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 	}, []);
 
 	return (
-		<section className="w-full bg-white pt-32 pb-16 max-md:pt-24 max-md:pb-12" id="home" ref={homeRef}>
+		<section className="w-full bg-white pt-32 pb-16 max-md:pt-24 max-md:pb-12 2xl:py-[193px]" id="home" ref={homeRef}>
 			<div className="container w-10/12 max-lg:w-full max-md:px-4 mx-auto">
 				<div
 					className={`flex flex-col items-center text-center gap-8 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
