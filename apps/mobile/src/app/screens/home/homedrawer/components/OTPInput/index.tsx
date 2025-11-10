@@ -1,3 +1,4 @@
+import { useTheme } from '@mezon/mobile-ui';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { NativeEventEmitter, NativeModules, Platform, TextInput, View } from 'react-native';
 import { style } from './styles';
@@ -14,7 +15,8 @@ interface OTPInputProps {
 const { SmsUserConsent } = NativeModules;
 
 const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError = false, resetTrigger, isSms = false }) => {
-	const styles = style();
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const [otp, setOtp] = useState<string[]>(new Array(OTP_LENGTH).fill(''));
 	const inputRefs = useRef<(TextInput | null)[]>([]);
 	const smsSubscriptionsRef = useRef<any[]>([]);
