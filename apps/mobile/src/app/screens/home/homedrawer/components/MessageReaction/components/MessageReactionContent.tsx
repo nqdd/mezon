@@ -75,21 +75,25 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		return currentEmojiSelected?.senders?.find((sender) => sender?.sender_id === userId)?.count > 0;
 	}, [currentEmojiSelected, userId]);
 
-	const checkToFocusOtherEmoji = () => {
-		const prevSelected = prevReactionsRef.current?.find((e) => e?.emojiId === selectedTabId);
-		const nowSelected = allReactionDataOnOneMessage?.find((e) => e?.emojiId === selectedTabId);
+	const checkToFocusOtherEmoji = useCallback(() => {
+		const prevSelected = prevReactionsRef.current?.length > 0 && prevReactionsRef.current?.find((e) => e?.emojiId === selectedTabId);
+		const nowSelected = allReactionDataOnOneMessage?.length > 0 && allReactionDataOnOneMessage?.find((e) => e?.emojiId === selectedTabId);
 
 		if (calculateTotalCount(prevSelected?.senders || []) > 0 && calculateTotalCount(nowSelected?.senders || []) === 0) {
 			const emojiDeletedIndex = prevReactionsRef.current?.findIndex((e) => e?.emojiId === selectedTabId);
 			const neighbor = prevReactionsRef.current?.[emojiDeletedIndex - 1] ?? prevReactionsRef.current?.[emojiDeletedIndex + 1] ?? null;
 			setSelectedTabId(neighbor?.emojiId || neighbor?.id || null);
 		}
-
-		prevReactionsRef.current = allReactionDataOnOneMessage || [];
-	};
+	}, [allReactionDataOnOneMessage, selectedTabId]);
 
 	useEffect(() => {
-		checkToFocusOtherEmoji();
+		if (dataSenderEmojis?.length === 0 && selectedTabId) {
+			checkToFocusOtherEmoji();
+		}
+	}, [checkToFocusOtherEmoji, dataSenderEmojis?.length]);
+
+	useEffect(() => {
+		prevReactionsRef.current = allReactionDataOnOneMessage || [];
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
 	const onRemoveEmoji = useCallback(() => {
