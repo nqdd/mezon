@@ -56,28 +56,34 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 	}, [emojiSelectedId]);
 
 	const dataSenderEmojis = useMemo(() => {
-		return allReactionDataOnOneMessage?.reduce((acc, item) => {
-			if (item?.emojiId === selectedTabId) {
-				acc.push(...item.senders);
-			}
-			return acc;
-		}, []);
+		return (
+			allReactionDataOnOneMessage?.length > 0 &&
+			allReactionDataOnOneMessage.reduce((acc, item) => {
+				if (item?.emojiId === selectedTabId) {
+					acc.push(...(item?.senders || []));
+				}
+				return acc;
+			}, [])
+		);
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
 	const currentEmojiSelected = useMemo(() => {
 		if (selectedTabId) {
-			return allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId);
+			return (
+				allReactionDataOnOneMessage?.length > 0 &&
+				allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId)
+			);
 		}
 		return null;
 	}, [selectedTabId, allReactionDataOnOneMessage]);
 
 	const isExistingMyEmoji = useMemo(() => {
-		return currentEmojiSelected?.senders?.find((sender) => sender?.sender_id === userId)?.count > 0;
+		return currentEmojiSelected?.senders?.length > 0 && currentEmojiSelected.senders.find((sender) => sender?.sender_id === userId)?.count > 0;
 	}, [currentEmojiSelected, userId]);
 
 	const checkToFocusOtherEmoji = useCallback(() => {
 		const prevSelected = prevReactionsRef.current?.length > 0 && prevReactionsRef.current?.find((e) => e?.emojiId === selectedTabId);
-		const nowSelected = allReactionDataOnOneMessage?.length > 0 && allReactionDataOnOneMessage?.find((e) => e?.emojiId === selectedTabId);
+		const nowSelected = allReactionDataOnOneMessage?.length > 0 && allReactionDataOnOneMessage.find((e) => e?.emojiId === selectedTabId);
 
 		if (calculateTotalCount(prevSelected?.senders || []) > 0 && calculateTotalCount(nowSelected?.senders || []) === 0) {
 			const emojiDeletedIndex = prevReactionsRef.current?.findIndex((e) => e?.emojiId === selectedTabId);
@@ -108,24 +114,24 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 				horizontal
 				scrollEnabled={isScrollable}
 				showsHorizontalScrollIndicator={false}
-				data={allReactionDataOnOneMessage}
-				keyExtractor={(item) => `${item.emojiId}_TabHeaderEmoji`}
+				data={allReactionDataOnOneMessage || []}
+				keyExtractor={(item) => `${item?.emojiId}_TabHeaderEmoji`}
 				initialNumToRender={1}
 				maxToRenderPerBatch={1}
 				windowSize={2}
 				renderItem={({ item }) => (
 					<Pressable
-						onPress={() => selectEmoji(item.emojiId)}
-						style={[styles.tabHeaderItem, selectedTabId === item.emojiId && styles.activeTab]}
+						onPress={() => selectEmoji(item?.emojiId)}
+						style={[styles.tabHeaderItem, selectedTabId === item?.emojiId && styles.activeTab]}
 					>
 						<FastImage
 							source={{
-								uri: getSrcEmoji(item.emojiId)
+								uri: getSrcEmoji(item?.emojiId || '')
 							}}
 							resizeMode={'contain'}
 							style={styles.iconEmojiReactionDetail}
 						/>
-						<Text style={[styles.reactCount, styles.headerTabCount]}>{calculateTotalCount(item.senders)}</Text>
+						<Text style={[styles.reactCount, styles.headerTabCount]}>{calculateTotalCount(item?.senders || [])}</Text>
 					</Pressable>
 				)}
 			/>
@@ -136,7 +142,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		return (
 			<View style={styles.contentWrapper}>
 				<View style={styles.removeEmojiContainer}>
-					<Text style={styles.emojiText}>{currentEmojiSelected?.emoji}</Text>
+					<Text style={styles.emojiText}>{currentEmojiSelected?.emoji || ''}</Text>
 					{isExistingMyEmoji ? (
 						<View>
 							{showConfirmDeleteEmoji ? (
@@ -153,19 +159,21 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 					) : null}
 				</View>
 				<FlashList
-					data={dataSenderEmojis}
+					data={dataSenderEmojis || []}
 					renderItem={({ item, index }: { item: { sender_id: string; count: number }; index: number }) => {
 						return (
-							<View key={`${index}_${item.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
+							<View key={`${index}_${item?.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
 								<ReactionMember
-									userId={item.sender_id}
+									userId={item?.sender_id || ''}
 									channelId={channelId}
-									count={item.count}
+									count={item?.count || 0}
 									onSelectUserId={() => {
 										const data = {
 											snapPoints: ['60%', '90%'],
 											hiddenHeaderIndicator: true,
-											children: <UserProfile userId={item.sender_id} showAction={true} showRole={true} currentChannel={null} />
+											children: (
+												<UserProfile userId={item?.sender_id || ''} showAction={true} showRole={true} currentChannel={null} />
+											)
 										};
 										DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 									}}
