@@ -351,3 +351,18 @@ export const ForwardRightClick: React.FC<IconProps> = ({ defaultFill = '#AEAEAE'
 		</svg>
 	);
 };
+export const ForwardAllRightClick: React.FC<IconProps> = ({ defaultFill = '#AEAEAE', defaultSize = 'w-5 h-5 min-w-4' }) => {
+	return (
+		<svg className={`${defaultSize}`} viewBox="0 0 24 24" fill={defaultFill} xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+			<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+			<g id="SVGRepo_iconCarrier">
+				<path
+					fillRule="evenodd"
+					d="M13.5857864,10 L9.29289322,5.70710678 L10.7071068,4.29289322 L17.4142136,11 L10.7071068,17.7071068 L9.29289322,16.2928932 L13.5857864,12 L13,12 C6.25355783,12 4,14.3437001 4,21 L2,21 C2,13.2562999 5.13105756,10 13,10 L13.5857864,10 Z M19.5857864,11 L14.2928932,5.70710678 L15.7071068,4.29289322 L22.4142136,11 L15.7071068,17.7071068 L14.2928932,16.2928932 L19.5857864,11 Z"
+					fill="currentColor"
+				/>
+			</g>
+		</svg>
+	);
+};
