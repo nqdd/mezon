@@ -52,11 +52,11 @@ export interface ChannelMembersState extends EntityState<ChannelMembersEntity, s
 		EntityState<ChannelMembersEntity, string> & {
 			id: string;
 			cache?: CacheMetadata;
-			memberAddedByUserId?: IMemberAddedByUserId[];
+			memberAddedByUserId?: Map<string, IMemberAddedByUserId>;
 		}
 	>;
 	dmGroupUsers?: ChannelUserListChannelUser[];
-	bannedUserIds: Record<string, string[]>;
+	bannedUserIds: Record<string, Set<string>>;
 }
 
 export const mapUserIdToEntity = (userId: string, username: string, online: boolean) => {
@@ -381,17 +381,26 @@ export const channelMembers = createSlice({
 				};
 			}
 			const memberIds = members.map((member) => member.user_id as string);
-			const memberAddedByUserId: IMemberAddedByUserId[] = members.map((member) => {
-				return {
-					id: member?.user_id as string,
-					addedBy: member?.added_by as string
-				} as IMemberAddedByUserId;
+			const memberAddedByUserId = new Map<string, IMemberAddedByUserId>();
+			const memberBanneds = new Set<string>();
+
+			members.forEach((member) => {
+				if (member?.user_id) {
+					memberAddedByUserId.set(member.user_id, {
+						id: member.user_id,
+						addedBy: member.added_by
+					});
+				}
+				if (member.is_banned && member.user_id) {
+					memberBanneds.add(member.user_id);
+				}
 			});
 			state.memberChannels[channelId] = {
 				...state.memberChannels[channelId],
 				ids: [...new Set(memberIds)],
 				memberAddedByUserId
 			};
+			state.bannedUserIds[channelId] = memberBanneds;
 		},
 		addNewMember: (state, action: PayloadAction<{ channel_id: string; user_ids: string[]; addedByUserId?: string }>) => {
 			const payload = action.payload;
@@ -403,16 +412,16 @@ export const channelMembers = createSlice({
 				state.memberChannels[channelId] = {
 					...channelMembersAdapter.getInitialState(),
 					id: channelId,
-					memberAddedByUserId: state.memberChannels[channelId]?.memberAddedByUserId || []
+					memberAddedByUserId: state.memberChannels[channelId]?.memberAddedByUserId || new Map()
 				};
 			}
 			userIds.forEach((userId) => {
 				if (!state.memberChannels[channelId]?.ids.includes(userId) && userId !== process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID) {
 					state.memberChannels[channelId].ids.push(userId);
 					if (addedByUserId && state?.memberChannels?.[channelId]?.memberAddedByUserId) {
-						const isExist = state.memberChannels[channelId].memberAddedByUserId?.some((i) => i.id === userId);
+						const isExist = state.memberChannels[channelId].memberAddedByUserId?.has(userId);
 						if (!isExist) {
-							state.memberChannels[channelId].memberAddedByUserId?.push({
+							state.memberChannels[channelId].memberAddedByUserId?.set(userId, {
 								id: userId,
 								addedBy: addedByUserId
 							});
@@ -444,19 +453,19 @@ export const channelMembers = createSlice({
 		addBannedUser: (state, action: PayloadAction<{ channelId: string; userIds: string[] }>) => {
 			const { channelId, userIds } = action.payload;
 			if (!state.bannedUserIds[channelId]) {
-				state.bannedUserIds[channelId] = [];
+				state.bannedUserIds[channelId] = new Set<string>();
 			}
 			const current = state.bannedUserIds[channelId];
 			for (const userId of userIds) {
-				if (!current?.includes(userId)) {
-					current.push(userId);
+				if (!current?.has(userId)) {
+					current.add(userId);
 				}
 			}
 		},
 		removeBannedUser: (state, action: PayloadAction<{ channelId: string; userIds: string[] }>) => {
 			const { channelId, userIds } = action.payload;
 			if (state?.bannedUserIds?.[channelId]) {
-				state.bannedUserIds[channelId] = state.bannedUserIds[channelId].filter((id) => !userIds.includes(id));
+				userIds.forEach((id) => state.bannedUserIds[channelId].delete(id));
 			}
 		}
 	},
@@ -810,7 +819,7 @@ export const selectUserAddedByUserId = createSelector(
 	[getChannelMembersState, selectAllChannelMembers, (state: RootState, channelId: string, userId: string) => ({ channelId, userId })],
 	(channelMembersState, channelMembers, { channelId, userId }) => {
 		const memberChannelsData = channelMembersState.memberChannels[channelId];
-		const addedByInfo = memberChannelsData?.memberAddedByUserId?.find((item) => item.id === userId);
+		const addedByInfo = memberChannelsData?.memberAddedByUserId?.get(userId);
 
 		if (!addedByInfo?.addedBy) {
 			return null;
@@ -849,6 +858,6 @@ export const selectIsUserBannedInChannel = createSelector(
 	[getChannelMembersState, (state: RootState, channelId: string, userId: string) => ({ channelId, userId })],
 	(channelMembersState, payload) => {
 		const { channelId, userId } = payload;
-		return !!channelMembersState?.bannedUserIds?.[channelId]?.includes(userId);
+		return !!channelMembersState?.bannedUserIds?.[channelId]?.has(userId);
 	}
 );
