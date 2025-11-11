@@ -166,8 +166,6 @@ export const deleteDefaultNotificationCategory = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			thunkAPI.dispatch(fetchChannelCategorySetting({ clanId: clan_id || '', noCache: true }));
-			thunkAPI.dispatch(getDefaultNotificationCategory({ categoryId: category_id || '', clanId: clan_id || '', noCache: true }));
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'defaultnotificationcategory/deleteDefaultNotificationCategory');
