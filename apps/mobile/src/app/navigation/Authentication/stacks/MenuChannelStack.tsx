@@ -2,6 +2,7 @@ import { Fonts, size, useTheme } from '@mezon/mobile-ui';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
+import BannedUserListScreen from '../../../components/BannedUserList';
 import { CanvasScreen } from '../../../components/Canvas/CanvasBoard';
 import { ChangeCategory } from '../../../components/ChangeCategory';
 import { ChannelSetting } from '../../../components/ChannelSetting';
@@ -100,6 +101,7 @@ export function MenuChannelStacks({}: any) {
 				}}
 			/>
 			<Stack.Screen name={APP_SCREEN.MENU_CHANNEL.STREAM_BANNER} component={StreamBannerScreen} options={{ headerShown: false }} />
+			<Stack.Screen name={APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS} component={BannedUserListScreen} options={{ headerShown: false }} />
 		</Stack.Navigator>
 	);
 }

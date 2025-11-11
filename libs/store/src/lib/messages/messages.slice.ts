@@ -1886,7 +1886,8 @@ export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, 
 
 	if (!lastMessage || !lastMessage.id || !state.channelViewPortMessageIds[channelId]) return false;
 
-	const isLastMessageInChannel = state.channelViewPortMessageIds[channelId]?.includes(lastMessage?.id);
+	const isLastMessageInChannel =
+		state.channelViewPortMessageIds[channelId]?.length === 0 || state.channelViewPortMessageIds[channelId]?.includes(lastMessage?.id);
 
 	return !isLastMessageInChannel;
 });

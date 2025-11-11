@@ -2,6 +2,7 @@ import { captureSentryError } from '@mezon/logger';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import { ensureSession, getMezonCtx } from '../helpers';
+import { rolesClanActions } from '../roleclan/roleclan.slice';
 
 type addChannelUsersPayload = {
 	channelId: string;
@@ -80,19 +81,24 @@ type addChannelRolesPayload = {
 	channelType?: number;
 	roleIds: string[];
 };
-export const addChannelRoles = createAsyncThunk('channelUsers/addChannelRoles', async ({ channelId, roleIds }: addChannelRolesPayload, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.addRolesChannelDesc(mezon.session, { channel_id: channelId, role_ids: roleIds });
-		if (!response) {
-			return thunkAPI.rejectWithValue([]);
+export const addChannelRoles = createAsyncThunk(
+	'channelUsers/addChannelRoles',
+	async ({ channelId, roleIds, clanId }: addChannelRolesPayload, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.addRolesChannelDesc(mezon.session, { channel_id: channelId, role_ids: roleIds });
+			if (!response) {
+				return thunkAPI.rejectWithValue([]);
+			}
+			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId, noCache: true }));
+
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'channelUsers/addChannelRoles');
+			return thunkAPI.rejectWithValue(error);
 		}
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'channelUsers/addChannelRoles');
-		return thunkAPI.rejectWithValue(error);
 	}
-});
+);
 
 type removeChannelRolePayload = {
 	clanId: string;
@@ -109,6 +115,8 @@ export const removeChannelRole = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
+			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId, noCache: true }));
+
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'channelUsers/removeChannelRole');

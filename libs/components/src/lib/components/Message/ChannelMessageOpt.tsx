@@ -107,7 +107,13 @@ const ChannelMessageOpt = ({
 					<RecentEmoji message={message} isTopic={isTopic} />
 					{items
 						.filter((item) => {
-							return currentChannelType !== ChannelType.CHANNEL_TYPE_STREAMING || item.id !== EMessageOpt.THREAD;
+							if (currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING && item.id === EMessageOpt.THREAD) {
+								return false;
+							}
+							if (message?.content?.tp && item.id === 'edit') {
+								return false;
+							}
+							return true;
 						})
 						.map((item, index) => (
 							<button
