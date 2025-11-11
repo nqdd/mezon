@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegex } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
 import {
 	getStore,
@@ -16,8 +16,7 @@ import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Platform, Pressable, Text, View } from 'react-native';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { Animated, DeviceEventEmitter, PanResponder, Platform, Pressable, Text, View } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -82,7 +81,7 @@ const MessageItem = React.memo(
 		const previousMessage: MessagesEntity = props?.previousMessage;
 		const { t: contentMessage, lk = [] } = message?.content || {};
 		const userId = props?.userId;
-		const swipeRef = useRef(null);
+		const translateX = useRef(new Animated.Value(0)).current;
 
 		const isEphemeralMessage = useMemo(() => message?.code === TypeMessage.Ephemeral, [message?.code]);
 
@@ -280,30 +279,28 @@ const MessageItem = React.memo(
 			return <WelcomeMessage channelId={props.channelId} />;
 		}
 
-		const renderRightActions = () => {
-			return (
-				<View style={styles.replyMessage}>
-					<MezonIconCDN icon={IconCDN.replyMsg} width={size.s_20} height={size.s_20} />
-				</View>
-			);
-		};
-
-		const handleSwipeOpen = async () => {
-			onReplyMessage();
-			requestAnimationFrame(() => {
-				swipeRef?.current?.close();
-			});
-		};
-
+		const panResponder = PanResponder.create({
+			onMoveShouldSetPanResponder: (_, gestureState) => {
+				if (Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 2 && gestureState.dx < -10) {
+					Animated.sequence([
+						Animated.timing(translateX, {
+							toValue: -100,
+							duration: 200,
+							useNativeDriver: true
+						}),
+						Animated.spring(translateX, {
+							toValue: 0,
+							useNativeDriver: true
+						})
+					]).start();
+					onReplyMessage && onReplyMessage();
+					return true;
+				}
+				return false;
+			}
+		});
 		return (
-			<Swipeable
-				ref={swipeRef}
-				enabled={!preventAction && !isMessageSystem}
-				dragOffsetFromLeftEdge={500}
-				dragOffsetFromRightEdge={10}
-				renderRightActions={renderRightActions}
-				onSwipeableWillOpen={handleSwipeOpen}
-			>
+			<Animated.View {...(preventAction || isMessageSystem ? {} : panResponder.panHandlers)} style={[{ transform: [{ translateX }] }]}>
 				<Pressable
 					android_ripple={{
 						color: themeValue.secondaryLight
@@ -483,7 +480,7 @@ const MessageItem = React.memo(
 						</View>
 					</View>
 				</Pressable>
-			</Swipeable>
+			</Animated.View>
 		);
 	},
 	(prevProps, nextProps) => {

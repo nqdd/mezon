@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import {
 	channelsActions,
 	clansActions,
@@ -42,7 +42,8 @@ const ChannelList = () => {
 			flashListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
 		}
 	}, [currentClanId]);
-	const handleRefresh = async () => {
+
+	const handleRefresh = useCallback(async () => {
 		setRefreshing(true);
 
 		const promise = [
@@ -58,7 +59,7 @@ const ChannelList = () => {
 		];
 		await Promise.all(promise);
 		setRefreshing(false);
-	};
+	}, [currentClanId, dispatch]);
 
 	const data = useMemo(
 		() => [

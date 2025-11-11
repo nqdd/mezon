@@ -26,6 +26,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const navigation = useNavigation<any>();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
 	const isUnreadDMById = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
+
 	const isUnReadChannel = useMemo(() => {
 		const myUserId = load(STORAGE_MY_USER_ID);
 
@@ -34,7 +35,8 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
-	const redirectToMessageDetail = async () => {
+
+	const redirectToMessageDetail = useCallback(async () => {
 		dispatch(messagesActions.setIdMessageToJump(null));
 		if (!isTabletLandscape) {
 			navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
@@ -42,7 +44,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			});
 		}
 		dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
-	};
+	}, [directMessage?.id, dispatch, isTabletLandscape, navigation]);
 
 	const isTypeDMGroup = useMemo(() => {
 		return Number(directMessage?.type) === ChannelType.CHANNEL_TYPE_GROUP;
@@ -76,7 +78,6 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	}, []);
-
 	return (
 		<TouchableOpacity style={[styles.messageItem]} onPress={redirectToMessageDetail} onLongPress={() => handleLongPress(directMessage)}>
 			{isTypeDMGroup ? (
