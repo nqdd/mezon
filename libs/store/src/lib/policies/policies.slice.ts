@@ -30,7 +30,7 @@ export interface PoliciesState extends EntityState<PermissionUserEntity, string>
 	error?: string | null;
 	PermissionsUserId?: string | null;
 	cache?: CacheMetadata;
-	permissionUser: ApiRole[];
+	maxPermissionUser: number;
 }
 
 export const policiesAdapter = createEntityAdapter<PermissionUserEntity>();
@@ -58,7 +58,7 @@ export const fetchPermissionsUser = createAsyncThunk<any, fetchPermissionsUserPa
 		if (!response.roles) {
 			return [];
 		}
-		return response.roles.map(mapPermissionUserToEntity);
+		return response.max_level_permission || 0;
 	}
 );
 
@@ -124,7 +124,7 @@ export const fetchPermission = createAsyncThunk('policies/fetchPermission', asyn
 
 export const initialPoliciesState: PoliciesState = policiesAdapter.getInitialState({
 	loadingStatus: 'not loaded',
-	permissionUser: [],
+	maxPermissionUser: 0,
 	error: null
 });
 
@@ -157,14 +157,8 @@ export const policiesSlice = createSlice({
 		},
 		addPermissionCurrentClan: (state, action: PayloadAction<ApiRole>) => {
 			const role = action.payload;
-			if (state.permissionUser) {
-				state.permissionUser = [
-					...state.permissionUser,
-					{
-						...role,
-						id: role.id
-					}
-				];
+			if (role.max_level_permission && role.max_level_permission > state.maxPermissionUser) {
+				state.maxPermissionUser = role.max_level_permission;
 			}
 			state.cache = createCacheMetadata(LIST_PERMISSION_CACHED_TIME);
 		}
@@ -174,8 +168,8 @@ export const policiesSlice = createSlice({
 			.addCase(fetchPermissionsUser.pending, (state: PoliciesState) => {
 				state.loadingStatus = 'loading';
 			})
-			.addCase(fetchPermissionsUser.fulfilled, (state: PoliciesState, action: PayloadAction<IPermissionUser[]>) => {
-				state.permissionUser = action.payload;
+			.addCase(fetchPermissionsUser.fulfilled, (state: PoliciesState, action: PayloadAction<number>) => {
+				state.maxPermissionUser = action.payload;
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchPermissionsUser.rejected, (state: PoliciesState, action) => {
@@ -242,16 +236,7 @@ export const getPoliciesDefaultState = (rootState: { ['policiesDefaultSlice']: P
 export const selectAllPermissionsUser = createSelector(getPoliciesState, selectAll);
 
 export const selectUserMaxPermissionLevel = createSelector([getPoliciesState], (state) => {
-	let maxPermissionLevel: number | null = null;
-
-	for (const permission of state.permissionUser) {
-		if (Number.isInteger(permission?.max_level_permission)) {
-			const permissionLevel = permission.max_level_permission as number;
-			maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
-		}
-	}
-
-	return maxPermissionLevel ?? null;
+	return state.maxPermissionUser ?? null;
 });
 
 export const selectAllPermissionsDefault = createSelector(getPoliciesDefaultState, selectAll);
