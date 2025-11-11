@@ -68,11 +68,8 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
 	const currentEmojiSelected = useMemo(() => {
-		if (selectedTabId) {
-			return (
-				allReactionDataOnOneMessage?.length > 0 &&
-				allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId)
-			);
+		if (selectedTabId && allReactionDataOnOneMessage?.length > 0) {
+			return allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId);
 		}
 		return null;
 	}, [selectedTabId, allReactionDataOnOneMessage]);
