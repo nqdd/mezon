@@ -281,7 +281,10 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 	const handleConfirmSuccessful = () => {
 		setShowConfirmModal(false);
-		navigation.replace(APP_SCREEN.BOTTOM_BAR);
+		navigation.reset({
+			index: 0,
+			routes: [{ name: APP_SCREEN.BOTTOM_BAR }]
+		});
 	};
 
 	const handleOpenBottomSheet = () => {
@@ -593,7 +596,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 						<Text style={styles.title}>{t('token')}</Text>
 						<View style={styles.textField}>
 							<TextInput
-								autoFocus={!!jsonObject?.receiver_id}
+								autoFocus={!!jsonObject?.receiver_id || !!jsonObject?.wallet_address}
 								editable={(!jsonObject?.amount || canEdit) && jsonObject?.type !== 'payment'}
 								style={styles.textInput}
 								value={tokenCount}
