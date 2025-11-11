@@ -45,6 +45,8 @@ import type { IMessageActionNeedToResolve } from './types';
 
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
+const COMBINE_TIME_MILISECONDS = 2 * 60 * 1000;
+
 export type MessageItemProps = {
 	message?: MessagesEntity;
 	previousMessage?: MessagesEntity;
@@ -83,6 +85,20 @@ const MessageItem = React.memo(
 		const { t: contentMessage, lk = [] } = message?.content || {};
 		const userId = props?.userId;
 		const swipeRef = useRef(null);
+
+		const shouldShowForwardedText = useMemo(() => {
+			if (!message?.content?.fwd) return false;
+
+			if (!previousMessage) return true;
+
+			if (!previousMessage?.content?.fwd) return true;
+
+			const timeDiff = Date.parse(message.create_time) - Date.parse(previousMessage.create_time);
+			const isDifferentSender = message.sender_id !== previousMessage.sender_id;
+			const isTimeGap = timeDiff > COMBINE_TIME_MILISECONDS;
+
+			return isDifferentSender || isTimeGap;
+		}, [message, previousMessage]);
 
 		const isEphemeralMessage = useMemo(() => message?.code === TypeMessage.Ephemeral, [message?.code]);
 
@@ -153,7 +169,7 @@ const MessageItem = React.memo(
 		const isTimeGreaterThan5Minutes = useMemo(
 			() =>
 				message?.create_time && previousMessage?.create_time
-					? Date.parse(message.create_time) - Date.parse(previousMessage.create_time) < 2 * 60 * 1000
+					? Date.parse(message.create_time) - Date.parse(previousMessage.create_time) < COMBINE_TIME_MILISECONDS
 					: false,
 			[message?.create_time, previousMessage?.create_time]
 		);
@@ -361,7 +377,7 @@ const MessageItem = React.memo(
 
 							<View style={[message?.content?.fwd ? styles.contentDisplay : undefined, message?.content?.isCard && styles.cardMsg]}>
 								<View style={message?.content?.fwd ? styles.forwardBorder : undefined}>
-									{!!message?.content?.fwd && (
+									{!!message?.content?.fwd && shouldShowForwardedText && (
 										<Text style={styles.forward}>
 											<Entypo name="forward" size={15} color={themeValue.text} /> {t('common:forwarded')}
 										</Text>

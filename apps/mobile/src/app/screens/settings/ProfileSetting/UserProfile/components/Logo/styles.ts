@@ -45,6 +45,7 @@ export const style = (colors: Attributes) =>
 
 		confirmText: {
 			fontSize: size.medium,
-			textAlign: 'center'
+			textAlign: 'center',
+			color: colors.text
 		}
 	});
