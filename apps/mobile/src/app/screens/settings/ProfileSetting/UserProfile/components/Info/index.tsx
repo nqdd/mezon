@@ -1,7 +1,7 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
-import { IUserProfileValue } from '../../..';
+import type { IUserProfileValue } from '../../..';
 import MezonInput from '../../../../../../componentUI/MezonInput';
 import { style } from './styles';
 
@@ -24,7 +24,7 @@ export default function DetailInfo({ value, onChange }: IDetailInfoProps) {
 			<MezonInput
 				value={value?.displayName}
 				onTextChange={(newValue) => onChange({ displayName: newValue })}
-				placeHolder={value?.username}
+				placeHolder={value?.displayName || ''}
 				inputWrapperStyle={{
 					backgroundColor: themeValue.primary
 				}}

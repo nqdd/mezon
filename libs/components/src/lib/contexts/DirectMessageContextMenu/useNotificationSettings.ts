@@ -20,7 +20,7 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 	const [nameChildren, setNameChildren] = useState<string>('');
 
 	const muteOrUnMuteChannel = useCallback(
-		(channelId: string, active: number, channelType?: number) => {
+		(channelId: string, active: number) => {
 			if (!channelId) return;
 			dispatch(notificationSettingActions.updateNotiState({ channelId, active }));
 			const body = {
@@ -37,12 +37,10 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 	const handleScheduleMute = useCallback(
 		(channelId: string, duration: number) => {
 			if (!channelId) return;
-
-			dispatch(notificationSettingActions.updateNotiState({ channelId, active: EMuteState.MUTED }));
 			const body: MuteChannelPayload = {
 				channel_id: channelId,
 				mute_time: duration,
-				active: 0,
+				active: EMuteState.MUTED,
 				clan_id: currentClanId || ''
 			};
 			dispatch(notificationSettingActions.setMuteChannel(body));
@@ -64,13 +62,8 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 	);
 
 	useEffect(() => {
-		const isDefaultSetting = !notificationSettings?.id || notificationSettings?.id === '0';
-		const isCurrentlyMuted = !isDefaultSetting && notificationSettings?.active === EMuteState.MUTED;
-		const hasActiveMuteTime =
-			!isDefaultSetting && notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
-		const shouldShowUnmute = isCurrentlyMuted || hasActiveMuteTime;
-
-		setNameChildren(shouldShowUnmute ? t('contextMenu.unmute') : t('contextMenu.mute'));
+		const hasActiveMuteTime = notificationSettings?.active === EMuteState.MUTED;
+		setNameChildren(hasActiveMuteTime ? t('contextMenu.unmute') : t('contextMenu.mute'));
 
 		setMutedUntilText(
 			hasActiveMuteTime && notificationSettings?.time_mute

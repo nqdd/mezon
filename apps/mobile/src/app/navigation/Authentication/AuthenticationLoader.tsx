@@ -32,7 +32,8 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, NativeModules, Platform, StatusBar } from 'react-native';
+import type { AppStateStatus } from 'react-native';
+import { AppState, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
@@ -88,7 +89,6 @@ export const AuthenticationLoader = () => {
 				setTimeout(() => {
 					loadFileSharing();
 					initFirebaseMessaging();
-					checkCacheSizeImageIOS();
 				}, 100);
 				await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 				await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
@@ -170,7 +170,7 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
-		} else if (path?.includes?.('/bot/install/')) {
+		} else if (path?.includes?.('bot/install/')) {
 			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
 			if (applicationId) {
 				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
@@ -433,19 +433,6 @@ export const AuthenticationLoader = () => {
 				'mezon.mobile.sharing'
 			);
 		} catch (error) {
-			/* empty */
-		}
-	};
-
-	const checkCacheSizeImageIOS = async () => {
-		if (Platform.OS === 'android') return;
-		try {
-			const sizeCache = await NativeModules?.FastNativeImageViewManager?.getCacheSize();
-			const sizeInMB = Math.round(sizeCache.sizeInMB);
-			if (sizeInMB >= 500) {
-				NativeModules?.FastNativeImageViewManager?.clearCache(300);
-			}
-		} catch (e) {
 			/* empty */
 		}
 	};

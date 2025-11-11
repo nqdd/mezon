@@ -113,7 +113,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_8
 		},
 		buttonText: {
-			color: 'white',
+			color: colors.text,
 			textAlign: 'center'
 		},
 		cancelButton: {

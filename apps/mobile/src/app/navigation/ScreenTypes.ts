@@ -130,7 +130,8 @@ export const APP_SCREEN = {
 		CANVAS: 'CANVAS',
 		CALL_DIRECT: 'CALL_DIRECT',
 		QUICK_ACTION: 'QUICK_ACTION',
-		STREAM_BANNER: 'STREAM_BANNER'
+		STREAM_BANNER: 'STREAM_BANNER',
+		LIST_BANNED_USERS: 'LIST_BANNED_USERS'
 	},
 
 	SETTINGS: {
@@ -236,6 +237,10 @@ export type MenuChannelStackParamList = {
 	};
 	[APP_SCREEN.MENU_CHANNEL.STREAM_BANNER]: {
 		channelId: string;
+	};
+	[APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS]: {
+		channelId: string;
+		clanId: string;
 	};
 };
 

@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { Dimensions, StyleSheet } from 'react-native';
 const { width } = Dimensions.get('screen');
 
@@ -29,7 +30,6 @@ export const style = (colors: Attributes) =>
 		},
 		lightTitle: {
 			color: colors.white,
-			maxWidth: width * 0.3,
 			fontSize: size.s_14
 		},
 		emojiName: {
@@ -61,18 +61,8 @@ export const style = (colors: Attributes) =>
 		},
 		emojiItem: {
 			flexDirection: 'row',
-			width: '50%',
 			alignItems: 'center',
-			flexGrow: 0,
-			gap: size.s_10,
-			maxWidth: width * 0.45,
-			minWidth: width * 0.35
-		},
-		textAvatar: {
-			textAlign: 'center',
-			fontSize: size.h2,
-			color: baseColor.white,
-			fontWeight: 'bold'
+			gap: size.s_10
 		},
 		imgWrapper: {
 			width: size.s_30,

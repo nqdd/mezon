@@ -30,11 +30,11 @@ import {
 	ENotificationTypes,
 	EOverriddenPermission,
 	EPermission,
-	FOR_15_MINUTES,
-	FOR_1_HOUR,
-	FOR_24_HOURS,
-	FOR_3_HOURS,
-	FOR_8_HOURS,
+	FOR_15_MINUTES_SEC,
+	FOR_1_HOUR_SEC,
+	FOR_24_HOURS_SEC,
+	FOR_3_HOURS_SEC,
+	FOR_8_HOURS_SEC,
 	copyChannelLink
 } from '@mezon/utils';
 import { format } from 'date-fns';
@@ -224,7 +224,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 		const body: MuteChannelPayload = {
 			channel_id: channel.channel_id || '',
-			mute_time: duration !== Infinity ? 5 : 0,
+			mute_time: duration !== Infinity ? duration : 0,
 			active: EMuteState.MUTED,
 			clan_id: currentClanId || ''
 		};
@@ -347,11 +347,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 
 	const menuMute = useMemo(() => {
 		const menuItems = [
-			<ItemPanel children={t('menu.notification.for15Minutes')} onClick={() => handleScheduleMute(FOR_15_MINUTES)} />,
-			<ItemPanel children={t('menu.notification.for1Hour')} onClick={() => handleScheduleMute(FOR_1_HOUR)} />,
-			<ItemPanel children={t('menu.notification.for3Hours')} onClick={() => handleScheduleMute(FOR_3_HOURS)} />,
-			<ItemPanel children={t('menu.notification.for8Hours')} onClick={() => handleScheduleMute(FOR_8_HOURS)} />,
-			<ItemPanel children={t('menu.notification.for24Hours')} onClick={() => handleScheduleMute(FOR_24_HOURS)} />,
+			<ItemPanel children={t('menu.notification.for15Minutes')} onClick={() => handleScheduleMute(FOR_15_MINUTES_SEC)} />,
+			<ItemPanel children={t('menu.notification.for1Hour')} onClick={() => handleScheduleMute(FOR_1_HOUR_SEC)} />,
+			<ItemPanel children={t('menu.notification.for3Hours')} onClick={() => handleScheduleMute(FOR_3_HOURS_SEC)} />,
+			<ItemPanel children={t('menu.notification.for8Hours')} onClick={() => handleScheduleMute(FOR_8_HOURS_SEC)} />,
+			<ItemPanel children={t('menu.notification.for24Hours')} onClick={() => handleScheduleMute(FOR_24_HOURS_SEC)} />,
 			<ItemPanel children={t('menu.notification.untilTurnedBackOn')} onClick={() => handleScheduleMute(Infinity)} />
 		];
 		return <>{menuItems}</>;
@@ -500,7 +500,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			) : (
 				<>
 					<GroupPanels>
-						{getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0' ? (
+						{getNotificationChannelSelected?.active === 1 ? (
 							<Menu
 								trigger="hover"
 								menu={menuMute}
@@ -511,11 +511,11 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 								onVisibleChange={handleOpenMenuMute}
 							>
 								<div>
-									<ItemPanel children={nameChildren} dropdown="change here" />
+									<ItemPanel children={nameChildren} dropdown="change here" onClick={onToggleMenuMute} />
 								</div>
 							</Menu>
 						) : (
-							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(1)} subText={mutedUntil} />
+							<ItemPanel children={nameChildren} onClick={() => muteOrUnMuteChannel(EMuteState.UN_MUTE)} subText={mutedUntil} />
 						)}
 
 						{shouldShowNotificationSettings && (

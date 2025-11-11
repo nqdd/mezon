@@ -3,10 +3,16 @@ import mezonPackage from '@mezon/package-js';
 import { Platform, getPlatform } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
-import { useTranslation } from 'react-i18next';
 import Footer from './footer';
 import HeaderMezon from './header';
-import { BotsAndAppsSection, CommunitiesSection, FinalCTASection, FreedomToConnectSection, HeroSection, MezonEconomySection } from './sections';
+import {
+	AiAgentSection,
+	CLanDiscoverSection,
+	ComunityPaymentsSection,
+	EnterpriseIntegrationsSection,
+	HeroSection,
+	TextChannelSection
+} from './sections';
 import { SideBarMezon } from './sidebar';
 
 // Intersection Observer Hook
@@ -45,30 +51,11 @@ export const useIntersectionObserver = (elementRef: RefObject<Element>, options:
 };
 
 function MezonPage() {
-	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
-	const isWindow = platform === Platform.WINDOWS;
 	const [sideBarIsOpen, setSideBarIsOpen] = useState(false);
-	const carouselRef = useRef<HTMLDivElement>(null);
-	const [currentSlide, setCurrentSlide] = useState(0);
-	const totalSlides = 6;
-
-	const handlePrevSlide = () => {
-		setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
-	};
-
-	const handleNextSlide = () => {
-		setCurrentSlide((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
-	};
-
-	const scrollToSlide = (index: number) => {
-		setCurrentSlide(index);
-	};
 
 	const homeRef = useRef<HTMLDivElement>(null);
 	const isVisible = useIntersectionObserver(homeRef, { threshold: 0.1 });
-
-	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const toggleSideBar = () => {
 		setSideBarIsOpen(!sideBarIsOpen);
@@ -149,34 +136,13 @@ function MezonPage() {
 		>
 			<div className="bg-white layout relative flex flex-col items-center text-textDarkTheme overflow-visible">
 				{!sideBarIsOpen && <HeaderMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
-
 				<HeroSection homeRef={homeRef} isVisible={isVisible} />
-
-				<FreedomToConnectSection />
-
-				<BotsAndAppsSection />
-
-				<CommunitiesSection
-					carouselRef={carouselRef}
-					currentSlide={currentSlide}
-					setCurrentSlide={setCurrentSlide}
-					handlePrevSlide={handlePrevSlide}
-					handleNextSlide={handleNextSlide}
-					scrollToSlide={scrollToSlide}
-				/>
-
-				<MezonEconomySection />
-
-				<FinalCTASection
-					trackDownloadEvent={trackDownloadEvent}
-					platform={platform}
-					downloadUrl={downloadUrl}
-					universalUrl={universalUrl}
-					portableUrl={portableUrl}
-					dropdownRef={dropdownRef}
-					isWindow={isWindow}
-					t={t}
-				/>
+				<TextChannelSection />
+				<CLanDiscoverSection />
+				<EnterpriseIntegrationsSection />
+				<ComunityPaymentsSection />
+				<AiAgentSection />
+				{/* <FinalCTASection /> */}
 
 				{sideBarIsOpen && <SideBarMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
 			</div>

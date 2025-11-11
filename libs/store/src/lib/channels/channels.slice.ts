@@ -27,6 +27,7 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import { categoriesActions, type FetchCategoriesPayload } from '../categories/categories.slice';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import { channelMembersActions } from '../channelmembers/channel.members';
+import { selectClansEntities } from '../clans/clans.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import { messagesActions, processQueuedLastSeenMessages, selectUnreadMessageIdByChannelId } from '../messages/messages.slice';
@@ -788,11 +789,13 @@ export const fetchChannels = createAsyncThunk(
 					};
 				}
 
+				const clanData = selectClansEntities(thunkAPI.getState() as RootState)[clanId];
 				const channels = response.channeldesc.map((channel) => ({
 					...mapChannelToEntity(channel),
-					last_seen_message: channel.last_seen_message ? channel.last_seen_message : { timestamp_seconds: 0 }
+					last_seen_message: channel.last_seen_message ? channel.last_seen_message : { timestamp_seconds: 0 },
+					clan_name: clanData.clan_name || ''
 				}));
-
+				thunkAPI.dispatch(listChannelsByUserActions.upsertMany(channels));
 				const [favorChannels, listCategory] = await Promise.all([
 					thunkAPI.dispatch(fetchListFavoriteChannel({ clanId, noCache: Boolean(noCache) })),
 					thunkAPI.dispatch(categoriesActions.fetchCategories({ clanId, noCache: Boolean(noCache) }))
@@ -1248,6 +1251,15 @@ export const channelsSlice = createSlice({
 			if (!state.byClans[clanId]) return;
 
 			state.byClans[clanId].previousChannels = [{ clanId, channelId }, ...(state.byClans[clanId].previousChannels || []).slice(0, 4)];
+		},
+
+		removePreviousChannel: (state: ChannelsState, action: PayloadAction<{ clanId: string; channelId: string }>) => {
+			const { clanId, channelId } = action.payload;
+			if (!state.byClans[clanId]?.previousChannels) return;
+
+			state.byClans[clanId].previousChannels = state.byClans[clanId].previousChannels.filter(
+				(prevChannel) => prevChannel.channelId !== channelId
+			);
 		},
 
 		updateChannelBadgeCount: (

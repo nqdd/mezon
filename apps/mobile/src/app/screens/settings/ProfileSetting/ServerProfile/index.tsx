@@ -1,8 +1,8 @@
 import { useClanProfileSetting } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { ClansEntity } from '@mezon/store-mobile';
 import {
-	ClansEntity,
 	appActions,
 	checkDuplicateClanNickName,
 	selectAllAccount,
@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, FlatList, KeyboardAvoidingView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
-import { IClanProfileValue, IUserProfileValue } from '..';
+import type { IClanProfileValue, IUserProfileValue } from '..';
 import { SeparatorWithLine } from '../../../../../app/components/Common';
 import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
@@ -63,11 +63,6 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const checkIsDuplicateClanNickname = async (value: string) => {
 		try {
-			if (!value || value.trim() === '') {
-				setIsDuplicateClanNickname(false);
-				return;
-			}
-
 			const result = unwrapResult(
 				await dispatch(
 					checkDuplicateClanNickName({

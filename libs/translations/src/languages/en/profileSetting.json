@@ -61,5 +61,10 @@
 	"userProfile": "User Profile",
 	"clanProfiles": "Clan Profiles",
 	"directMessageIcon": "Direct Message Icon",
+	"directMessageIconAction": {
+		"remove": "Remove",
+		"removeTitle": "Remove Direct Message Icon",
+		"removeDescription": "Are you sure you want to remove the direct message icon?"
+	},
 	"displayName": "DISPLAY NAME"
 }

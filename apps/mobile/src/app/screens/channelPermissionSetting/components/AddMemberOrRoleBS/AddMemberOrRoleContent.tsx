@@ -3,6 +3,7 @@ import { debounce } from '@mezon/mobile-components';
 import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
 	channelUsersActions,
+	rolesClanActions,
 	selectAllChannelMembers,
 	selectAllRolesClan,
 	selectAllUserClans,
@@ -21,7 +22,7 @@ import MezonInput from '../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import { normalizeString } from '../../../../utils/helpers';
 import { EOverridePermissionType, ERequestStatus } from '../../types/channelPermission.enum';
-import { IAddMemberOrRoleContentProps } from '../../types/channelPermission.type';
+import type { IAddMemberOrRoleContentProps } from '../../types/channelPermission.type';
 import { MemberItem } from '../MemberItem';
 import { RoleItem } from '../RoleItem';
 import { styles as stylesFn } from './AddMemberOrRoleContent.styles';
@@ -139,6 +140,9 @@ export const AddMemberOrRoleContent = memo(({ channel, onDismiss }: IAddMemberOr
 				)
 			}
 		});
+		if (!isError) {
+			dispatch(rolesClanActions.addRoleByChannel({ channelId: channel.id, roleIds: selectedRoleIdList, clanId: currentClanId }));
+		}
 		onDismiss && onDismiss();
 	};
 

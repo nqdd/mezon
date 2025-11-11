@@ -474,6 +474,28 @@ export const RolesClanSlice = createSlice({
 
 			return RolesClanAdapter.setAll(state, updatedRoles);
 		},
+		addRoleByChannel: (state, action: PayloadAction<{ channelId: string; roleIds: string[]; clanId: string }>) => {
+			const { channelId, roleIds, clanId } = action.payload;
+			const clanData = state?.byClans?.[clanId];
+			if (!clanData?.roles || !Array.isArray(roleIds)) return;
+
+			for (const roleId of roleIds) {
+				const role = clanData?.roles?.[roleId];
+				if (!role) continue;
+
+				const channels = Array.isArray(role?.channel_ids) ? role?.channel_ids : [];
+				if (!channels?.includes(channelId)) {
+					role.channel_ids = [...channels, channelId];
+				}
+			}
+		},
+		removeChannelRole: (state, action: PayloadAction<{ channelId: string; roleId: string; clanId: string }>) => {
+			const { channelId, roleId, clanId } = action.payload;
+			const role = state?.byClans?.[clanId]?.roles?.[roleId];
+			if (!role) return;
+
+			role.channel_ids = Array.isArray(role?.channel_ids) ? role?.channel_ids?.filter((id) => id && id !== channelId) : [];
+		},
 		setCurrentRoleId: (state, action: PayloadAction<string>) => {
 			state.currentRoleId = action.payload;
 		}

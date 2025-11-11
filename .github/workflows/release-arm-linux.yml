@@ -30,7 +30,10 @@ jobs:
 
       - name: Remove ENV
         run: |
+          rm -rf apps/desktop/src/assets/mac-icon.png
           rm -rf apps/chat/.env
+          cd apps/chat/src/assets/
+          find . -maxdepth 1 -type f -name "*.png" ! -name "button_openmezon.png" -delete
 
       - name: Create ENV
         uses: SpicyPizza/create-envfile@v2.0

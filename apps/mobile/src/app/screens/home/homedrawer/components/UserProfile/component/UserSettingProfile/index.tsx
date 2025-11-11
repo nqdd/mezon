@@ -176,7 +176,7 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		} else {
-			await sleep(400);
+			await sleep(600);
 			const data = {
 				heightFitContent: true,
 				children: <BanUserChannelModal clanId={currentClanId} channelId={currentChannelId} user={user} />

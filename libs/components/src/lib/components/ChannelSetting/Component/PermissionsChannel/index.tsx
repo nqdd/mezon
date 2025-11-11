@@ -87,8 +87,6 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 
 	const closeAddMemRoleModal = useCallback(() => {
 		setShowAddMemRole(false);
-		setSelectedRoleIds([]);
-		setSelectedUserIds([]);
 		setTimeout(() => {
 			openModalAdd.current = false;
 			parentRef?.current?.focus();
@@ -149,14 +147,22 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 								<div className="py-4">
 									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.roles')}</p>
 									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.role_list')}>
-										<ListRolePermission channel={channel} selectedRoleIds={selectedRoleIds} />
+										<ListRolePermission
+											channel={channel}
+											selectedRoleIds={selectedRoleIds}
+											setSelectedRoleIds={setSelectedRoleIds}
+										/>
 									</div>
 								</div>
 								<hr className="border-t border-solid dark:border-borderDefault border-bgModifierHoverLight" />
 								<div className="py-4">
 									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.members')}</p>
 									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.member_list')}>
-										<ListMemberPermission channel={channel} selectedUserIds={selectedUserIds} />
+										<ListMemberPermission
+											channel={channel}
+											selectedUserIds={selectedUserIds}
+											setSelectedUserIds={setSelectedUserIds}
+										/>
 									</div>
 								</div>
 							</div>

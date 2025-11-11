@@ -1,10 +1,12 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { appActions, clansActions, selectAllAccount, selectLogoCustom, useAppDispatch } from '@mezon/store-mobile';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, View } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../../../../../componentUI/MezonImagePicker';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
@@ -34,6 +36,34 @@ export const DirectMessageLogo = memo(() => {
 		}
 	};
 
+	const handleShowConfirmModal = () => {
+		const data = {
+			children: (
+				<MezonConfirm
+					onConfirm={handleRemoveDirectLogo}
+					title={t('directMessageIconAction.removeTitle')}
+					confirmText={t('directMessageIconAction.remove')}
+					children={<Text style={styles.confirmText}>{t('directMessageIconAction.removeDescription')}</Text>}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	};
+
+	const handleRemoveDirectLogo = async () => {
+		dispatch(appActions.setLoadingMainMobile(true));
+		await dispatch(
+			clansActions.updateUser({
+				avatar_url: userProfile.user.avatar_url,
+				display_name: userProfile.user.display_name,
+				about_me: userProfile.user.about_me,
+				dob: userProfile.user.dob,
+				logo: ''
+			})
+		);
+		dispatch(appActions.setLoadingMainMobile(false));
+	};
+
 	return (
 		<View style={styles.container}>
 			<Text style={styles.title}>{t('directMessageIcon')}</Text>
@@ -46,6 +76,11 @@ export const DirectMessageLogo = memo(() => {
 				autoUpload
 				imageSizeLimit={MAX_FILE_SIZE_1MB}
 			/>
+			{!!logoCustom && (
+				<TouchableOpacity style={styles.removeButton} onPress={handleShowConfirmModal}>
+					<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+				</TouchableOpacity>
+			)}
 		</View>
 	);
 });

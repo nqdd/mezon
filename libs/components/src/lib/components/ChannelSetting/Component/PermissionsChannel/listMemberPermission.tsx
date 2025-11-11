@@ -1,6 +1,6 @@
 import { useAppNavigation, useAuth, useCustomNavigate } from '@mezon/core';
 import type { removeChannelUsersPayload } from '@mezon/store';
-import { channelUsersActions, selectAllUserChannel, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import { channelUsersActions, selectAllUserChannel, selectAllUserClans, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
@@ -12,12 +12,16 @@ import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 type ListMemberPermissionProps = {
 	channel: IChannel;
 	selectedUserIds: string[];
+	setSelectedUserIds?: (userIds: string[]) => void;
 };
 
 const ListMemberPermission = (props: ListMemberPermissionProps) => {
 	const { channel } = props;
+
 	const dispatch = useAppDispatch();
 	const rawMembers = useSelector(selectAllUserChannel(channel.channel_id || ''));
+
+	const usersClan = useSelector(selectAllUserClans);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const navigate = useCustomNavigate();
 	const userProfile = useAuth();
@@ -37,12 +41,12 @@ const ListMemberPermission = (props: ListMemberPermissionProps) => {
 
 	const listMembersInChannel = useMemo(() => {
 		if (channel.channel_private === 0 || channel.channel_private === undefined) {
-			const filteredMembers = rawMembers.filter((member) => member.user && member.user.id && props.selectedUserIds.includes(member.user.id));
+			const filteredMembers = usersClan.filter((member) => member.user && member.user.id && props.selectedUserIds.includes(member.user.id));
 			return filteredMembers.map((member) => ({ ...member.user, clanNick: member.clan_nick, clanAvatar: member.clan_avatar }));
 		}
 		const filteredMembers = rawMembers.filter((member) => member.userChannelId !== '0' && member.id);
 		return filteredMembers.map((member) => ({ ...member.user, clanNick: member.clan_nick, clanAvatar: member.clan_avatar }));
-	}, [rawMembers]);
+	}, [usersClan, props.selectedUserIds, channel.channel_private, rawMembers]);
 
 	return listMembersInChannel.map((user) => (
 		<ItemMemberPermission
@@ -55,6 +59,8 @@ const ListMemberPermission = (props: ListMemberPermissionProps) => {
 			avatar={user.avatar_url}
 			onDelete={() => deleteMember(user.id as string)}
 			channelOwner={channel.creator_id === user.id}
+			selectedUserIds={props.selectedUserIds}
+			setSelectedUserIds={props.setSelectedUserIds}
 		/>
 	));
 };
@@ -70,14 +76,31 @@ type ItemMemberPermissionProps = {
 	clanAvatar?: string;
 	onDelete: () => void;
 	channelOwner?: boolean;
+	selectedUserIds?: string[];
+	setSelectedUserIds?: (userIds: string[]) => void;
 };
 
 const ItemMemberPermission = (props: ItemMemberPermissionProps) => {
-	const { id = '', username = '', displayName = '', clanName = '', clanAvatar = '', avatar = '', onDelete, channelOwner } = props;
+	const {
+		id = '',
+		username = '',
+		displayName = '',
+		clanName = '',
+		clanAvatar = '',
+		avatar = '',
+		onDelete,
+		channelOwner,
+		selectedUserIds = [],
+		setSelectedUserIds
+	} = props;
 	const namePrioritize = getNameForPrioritize(clanName, displayName, username);
 	const avatarPrioritize = getAvatarForPrioritize(clanAvatar, avatar);
 
 	const handleDelete = () => {
+		if (setSelectedUserIds && selectedUserIds) {
+			const newSelectedUserIds = selectedUserIds.filter((userId) => userId !== id);
+			setSelectedUserIds(newSelectedUserIds);
+		}
 		if (!channelOwner) {
 			onDelete();
 		}

@@ -98,46 +98,50 @@ export const initialGiveCoffeeState: GiveCoffeeState = giveCoffeeAdapter.getInit
 	pendingGiveCoffee: false
 });
 
-export const sendToken = createAsyncThunk('token/sendToken', async (tokenEvent: ApiTokenSentEvent, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+export const sendToken = createAsyncThunk(
+	'token/sendToken',
+	async ({ tokenEvent, isSendByAddress }: { tokenEvent: ApiTokenSentEvent; isSendByAddress?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-		const response = await thunkAPI
-			.dispatch(
-				walletActions.sendTransaction({
-					sender: tokenEvent.sender_id,
-					recipient: tokenEvent.receiver_id,
-					amount: tokenEvent.amount,
-					textData: tokenEvent.note,
-					extraInfo: {
-						type: ETransferType.TransferToken,
-						UserReceiverId: tokenEvent.receiver_id || '',
-						UserSenderId: tokenEvent.sender_id || '',
-						UserSenderUsername: mezon.session.username || '',
-						ExtraAttribute: tokenEvent?.extra_attribute || ''
-					}
+			const response = await thunkAPI
+				.dispatch(
+					walletActions.sendTransaction({
+						sender: tokenEvent.sender_id,
+						recipient: tokenEvent.receiver_id,
+						amount: tokenEvent.amount,
+						textData: tokenEvent.note,
+						extraInfo: {
+							type: ETransferType.TransferToken,
+							UserReceiverId: tokenEvent.receiver_id || '',
+							UserSenderId: tokenEvent.sender_id || '',
+							UserSenderUsername: mezon.session.username || '',
+							ExtraAttribute: tokenEvent?.extra_attribute || ''
+						},
+						isSendByAddress
+					})
+				)
+				.then((action) => action?.payload as AddTxResponse);
+
+			if (response?.ok) {
+				thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
+				thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
+				return { ...response, tx_hash: response.tx_hash };
+			} else {
+				return thunkAPI.rejectWithValue('');
+			}
+		} catch (error) {
+			captureSentryError(error, 'token/sendToken');
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: error instanceof Error ? error.message : 'Transaction failed',
+					type: 'error'
 				})
-			)
-			.then((action) => action?.payload as AddTxResponse);
-
-		if (response?.ok) {
-			thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
-			thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
-			return { ...response, tx_hash: response.tx_hash };
-		} else {
-			return thunkAPI.rejectWithValue('');
+			);
+			return thunkAPI.rejectWithValue(error);
 		}
-	} catch (error) {
-		captureSentryError(error, 'token/sendToken');
-		thunkAPI.dispatch(
-			toastActions.addToast({
-				message: error instanceof Error ? error.message : 'Transaction failed',
-				type: 'error'
-			})
-		);
-		return thunkAPI.rejectWithValue(error);
 	}
-});
+);
 
 export const giveCoffeeSlice = createSlice({
 	name: GIVE_COFEE,

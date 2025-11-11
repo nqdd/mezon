@@ -1,6 +1,7 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { accountActions, selectAccountCustomStatus, useAppDispatch } from '@mezon/store-mobile';
+import { EUserStatus } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
@@ -20,12 +21,6 @@ interface ICustomStatusUserProps {
 	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
 }
 
-export enum EUserStatus {
-	ONLINE = 'active',
-	IDLE = 'Idle',
-	DO_NOT_DISTURB = 'Do Not Disturb',
-	INVISIBLE = 'Invisible'
-}
 export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 	const { onPressSetCustomStatus, userStatus, handleCustomUserStatus } = props;
 	const { t } = useTranslation(['customUserStatus']);
