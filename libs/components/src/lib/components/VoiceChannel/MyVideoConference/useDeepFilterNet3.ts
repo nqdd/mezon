@@ -5,13 +5,24 @@ import type { LocalParticipant, LocalTrackPublication } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
 import { useEffect, useRef } from 'react';
 
-export const useDeepFilterNet3 = () => {
-	const enabled = useAppSelector(selectNoiseSuppressionEnabled);
+interface UseDeepFilterNet3Options {
+	enabled?: boolean;
+}
+
+interface ProcessorData {
+	processor: DeepFilterNoiseFilterProcessor;
+	track: LocalTrackPublication;
+}
+
+export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
+	const noiseSuppressionEnabled = useAppSelector(selectNoiseSuppressionEnabled);
 	const level = useAppSelector(selectNoiseSuppressionLevel);
+
+	const enabled = options?.enabled === false ? false : noiseSuppressionEnabled;
 	const sampleRate = 48000;
 	const room = useRoomContext();
 	const { localParticipant } = useLocalParticipant();
-	const processorsRef = useRef<Map<string, DeepFilterNoiseFilterProcessor>>(new Map());
+	const processorsRef = useRef<Map<string, ProcessorData>>(new Map());
 	const levelRef = useRef<number>(level);
 
 	useEffect(() => {
@@ -39,11 +50,11 @@ export const useDeepFilterNet3 = () => {
 			}
 
 			if (!enabled) {
-				const processor = processorsRef.current.get(trackSid);
-				if (processor) {
+				const processorData = processorsRef.current.get(trackSid);
+				if (processorData) {
 					try {
 						await track.stopProcessor().catch(() => {});
-						processor.destroy?.().catch(() => {});
+						processorData.processor.destroy?.().catch(() => {});
 						processorsRef.current.delete(trackSid);
 					} catch (error) {
 						if (process.env.NODE_ENV === 'development') {
@@ -72,7 +83,7 @@ export const useDeepFilterNet3 = () => {
 
 				// console.log('set process success');
 				processor.setSuppressionLevel(currentLevel);
-				processorsRef.current.set(trackSid, processor);
+				processorsRef.current.set(trackSid, { processor, track: publication });
 			} catch (error) {
 				console.error('Failed to apply DeepFilterNet3 processor:', error);
 			}
@@ -91,13 +102,23 @@ export const useDeepFilterNet3 = () => {
 			}
 		};
 
-		const handleTrackUnpublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
+		const handleTrackUnpublished = async (publication: LocalTrackPublication, participant: LocalParticipant) => {
 			if (participant.sid === localParticipant.sid && publication.source === Track.Source.Microphone) {
 				const trackSid = publication.trackSid;
-				const processor = processorsRef.current.get(trackSid);
-				if (processor) {
-					processor.destroy?.().catch(() => {});
-					processorsRef.current.delete(trackSid);
+				const processorData = processorsRef.current.get(trackSid);
+				if (processorData) {
+					try {
+						const track = processorData.track.track;
+						if (track) {
+							await track.stopProcessor().catch(() => {});
+						}
+						processorData.processor.destroy?.().catch(() => {});
+						processorsRef.current.delete(trackSid);
+					} catch (error) {
+						if (process.env.NODE_ENV === 'development') {
+							console.error('Failed to cleanup processor on track unpublish:', error);
+						}
+					}
 				}
 			}
 		};
@@ -110,21 +131,30 @@ export const useDeepFilterNet3 = () => {
 		return () => {
 			room.off(RoomEvent.LocalTrackPublished, handleTrackPublished);
 			room.off(RoomEvent.LocalTrackUnpublished, handleTrackUnpublished);
-			processorsMap.forEach((processor) => {
-				processor.destroy?.().catch(() => {});
+
+			processorsMap.forEach((processorData) => {
+				try {
+					const track = processorData.track.track;
+					if (track) {
+						track.stopProcessor().catch(() => {});
+					}
+					processorData.processor.destroy?.().catch(() => {});
+				} catch (error) {
+					console.error('Failed to cleanup processor on unmount:', error);
+				}
 			});
 			processorsMap.clear();
 		};
-	}, [room, localParticipant, sampleRate]);
+	}, [room, localParticipant, sampleRate, enabled]);
 
 	useEffect(() => {
 		if (!enabled || !room || !localParticipant) {
 			return;
 		}
 
-		processorsRef.current.forEach((processor) => {
+		processorsRef.current.forEach((processorData) => {
 			try {
-				processor.setSuppressionLevel(level);
+				processorData.processor.setSuppressionLevel(level);
 			} catch (error) {
 				console.error('Failed to update suppression level:', error);
 			}
@@ -132,8 +162,8 @@ export const useDeepFilterNet3 = () => {
 	}, [level, enabled, room, localParticipant]);
 
 	useEffect(() => {
-		processorsRef.current.forEach((processor) => {
-			processor.setEnabled(enabled).catch((error) => {
+		processorsRef.current.forEach((processorData) => {
+			processorData.processor.setEnabled(enabled).catch((error) => {
 				console.error('Failed to toggle noise suppression:', error);
 			});
 		});

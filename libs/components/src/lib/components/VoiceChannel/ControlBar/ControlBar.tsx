@@ -360,6 +360,8 @@ const ControlBar = ({
 		[sendSoundReaction]
 	);
 
+	const [showNoiseSuppressionTooltip, setShowNoiseSuppressionTooltip] = useState(false);
+
 	const toggleNoiseSuppression = useCallback(() => {
 		dispatch(voiceActions.setNoiseSuppressionEnabled(!noiseSuppressionEnabled));
 	}, [dispatch, noiseSuppressionEnabled]);
@@ -451,11 +453,11 @@ const ControlBar = ({
 						)}
 					</div>
 				)}
-				{visibleControls.microphone && (
+				{visibleControls.microphone && isExternalCalling && (
 					<Tooltip
 						placement="top"
 						overlayClassName="w-64"
-						visible={noiseSuppressionEnabled}
+						visible={showNoiseSuppressionTooltip && noiseSuppressionEnabled}
 						overlay={
 							<div className="p-2" onClick={(e) => e.stopPropagation()}>
 								<div className="flex justify-between items-center mb-2">
@@ -473,6 +475,7 @@ const ControlBar = ({
 								/>
 							</div>
 						}
+						onVisibleChange={setShowNoiseSuppressionTooltip}
 						destroyTooltipOnHide
 					>
 						<button

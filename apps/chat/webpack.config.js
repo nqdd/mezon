@@ -153,10 +153,25 @@ module.exports = composePlugins(
 			'X-Content-Type-Options': 'nosniff',
 			'X-Frame-Options': 'SAMEORIGIN',
 			'X-XSS-Protection': '1; mode=block',
-			'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-			// Enable SharedArrayBuffer by making the page cross-origin isolated
-			'Cross-Origin-Opener-Policy': 'same-origin',
-			'Cross-Origin-Embedder-Policy': 'require-corp'
+			'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+			// 'Cross-Origin-Opener-Policy': 'same-origin',
+			// 'Cross-Origin-Embedder-Policy': 'credentialless'
+		};
+
+		config.devServer.setupMiddlewares = (middlewares, devServer) => {
+			if (!devServer) {
+				throw new Error('webpack-dev-server is not defined');
+			}
+
+			devServer.app.use((req, res, next) => {
+				if (req.path.startsWith('/meeting') || req.url.startsWith('/meeting')) {
+					res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+					res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+				}
+				next();
+			});
+
+			return middlewares;
 		};
 
 		config.devServer.static = {
