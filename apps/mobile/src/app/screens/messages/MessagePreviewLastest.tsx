@@ -21,7 +21,9 @@ export const MessagePreviewLastest = React.memo(
 		}, [lastSentMessage?.content]);
 
 		const attachment = useMemo(() => {
-			return typeof lastSentMessage?.attachment === 'object' ? lastSentMessage?.attachment : safeJSONParse(lastSentMessage?.attachment || '{}');
+			const messageAttachments =
+				typeof lastSentMessage?.attachment === 'object' ? lastSentMessage?.attachment : safeJSONParse(lastSentMessage?.attachment || '{}');
+			return Array.isArray(messageAttachments) ? messageAttachments?.[0] : messageAttachments;
 		}, [lastSentMessage?.attachment]);
 
 		const contentTextObj = useMemo(() => {
