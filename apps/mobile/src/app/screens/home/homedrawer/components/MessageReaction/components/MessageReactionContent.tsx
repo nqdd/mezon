@@ -2,9 +2,10 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectMessageByMessageId, useAppSelector } from '@mezon/store-mobile';
-import { EmojiDataOptionals, calculateTotalCount, getSrcEmoji } from '@mezon/utils';
+import type { EmojiDataOptionals } from '@mezon/utils';
+import { calculateTotalCount, getSrcEmoji } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Pressable, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -41,6 +42,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 
 	const [selectedTabId, setSelectedTabId] = useState<string | null>(null);
 	const [showConfirmDeleteEmoji, setShowConfirmDeleteEmoji] = useState<boolean>(false);
+	const prevReactionsRef = useRef<EmojiDataOptionals[]>([]);
 
 	const selectEmoji = (emojiId: string) => {
 		setSelectedTabId(emojiId);
@@ -64,7 +66,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 
 	const currentEmojiSelected = useMemo(() => {
 		if (selectedTabId) {
-			return allReactionDataOnOneMessage.find((emoji) => emoji?.id === selectedTabId || emoji?.emojiId === selectedTabId);
+			return allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId);
 		}
 		return null;
 	}, [selectedTabId, allReactionDataOnOneMessage]);
@@ -73,24 +75,27 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		return currentEmojiSelected?.senders?.find((sender) => sender?.sender_id === userId)?.count > 0;
 	}, [currentEmojiSelected, userId]);
 
-	const checkToFocusOtherEmoji = useCallback(() => {
-		const areStillEmoji = currentEmojiSelected.senders.filter((sender) => sender.sender_id !== userId).some((sender) => sender.count !== 0);
-		if (areStillEmoji) return;
+	const checkToFocusOtherEmoji = () => {
+		const prevSelected = prevReactionsRef.current?.find((e) => e?.emojiId === selectedTabId);
+		const nowSelected = allReactionDataOnOneMessage?.find((e) => e?.emojiId === selectedTabId);
 
-		const emojiDeletedIndex = allReactionDataOnOneMessage.findIndex((emoji) => emoji.id === currentEmojiSelected.id);
-
-		let nextFocusEmoji = allReactionDataOnOneMessage[emojiDeletedIndex + 1];
-		if (!nextFocusEmoji) {
-			nextFocusEmoji = allReactionDataOnOneMessage[emojiDeletedIndex - 1];
+		if (calculateTotalCount(prevSelected?.senders || []) > 0 && calculateTotalCount(nowSelected?.senders || []) === 0) {
+			const emojiDeletedIndex = prevReactionsRef.current?.findIndex((e) => e?.emojiId === selectedTabId);
+			const neighbor = prevReactionsRef.current?.[emojiDeletedIndex - 1] ?? prevReactionsRef.current?.[emojiDeletedIndex + 1] ?? null;
+			setSelectedTabId(neighbor?.emojiId || neighbor?.id || null);
 		}
-		setSelectedTabId(nextFocusEmoji?.id || null);
-	}, [allReactionDataOnOneMessage, currentEmojiSelected, userId]);
 
-	const onRemoveEmoji = useCallback(async () => {
-		await removeEmoji(currentEmojiSelected);
+		prevReactionsRef.current = allReactionDataOnOneMessage || [];
+	};
+
+	useEffect(() => {
 		checkToFocusOtherEmoji();
+	}, [allReactionDataOnOneMessage, selectedTabId]);
+
+	const onRemoveEmoji = useCallback(() => {
+		removeEmoji(currentEmojiSelected);
 		setShowConfirmDeleteEmoji(false);
-	}, [removeEmoji, checkToFocusOtherEmoji, currentEmojiSelected]);
+	}, [removeEmoji, currentEmojiSelected]);
 
 	const getTabHeader = () => {
 		return (
