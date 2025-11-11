@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -167,11 +168,11 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		noActionTitle: {
-			color: 'white',
+			color: colors.textStrong,
 			fontSize: size.h6
 		},
 		noActionContent: {
-			color: '#c7c7c7',
+			color: colors.text,
 			fontSize: size.medium
 		},
 		reactionListItem: {
