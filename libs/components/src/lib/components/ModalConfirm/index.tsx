@@ -1,7 +1,7 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { generateE2eId } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 interface ModalConfirmProps {
 	handleCancel: () => void;
@@ -58,18 +58,7 @@ const ModalConfirm = ({
 						{customModalName ? customModalName : modalName}
 					</div>
 					<div className=" pb-[20px] text-theme-primary">
-						{customTitle !== '' ? (
-							<span>{customTitle}</span>
-						) : (
-							<span>
-								<Trans
-									i18nKey="common:areYouSureYouWantTo"
-									values={{ action: defaultTitle, name: modalName }}
-									components={[<b className="font-semibold" key="0" />]}
-								/>
-								{defaultMessage && ` ${defaultMessage}`}
-							</span>
-						)}
+						{customTitle !== '' ? <span>{customTitle}</span> : <span>{defaultMessage && ` ${defaultMessage}`}</span>}
 					</div>
 				</div>
 				<div className="bg-theme-setting-nav  flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md">
