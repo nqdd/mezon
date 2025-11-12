@@ -15,7 +15,8 @@ import 'moment/locale/en-au';
 import 'moment/locale/vi';
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { ViewToken } from 'react-native';
-import { ActivityIndicator, DeviceEventEmitter, Dimensions, FlatList, Text, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { EmptySearchPage } from '../EmptySearchPage';
 import { ImageListModal } from '../ImageListModal';
 import { style } from './MediaChannel.styles';
@@ -140,6 +141,12 @@ const MediaChannel = memo(({ channelId }: { channelId: string }) => {
 			if (item.type === 'header') {
 				return (
 					<View style={styles.sectionHeader}>
+						<LinearGradient
+							start={{ x: 1, y: 0 }}
+							end={{ x: 0, y: 0 }}
+							colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+							style={[StyleSheet.absoluteFillObject]}
+						/>
 						<Text style={styles.sectionDayHeaderTitle}>{formatDateHeader(item.date)}</Text>
 					</View>
 				);

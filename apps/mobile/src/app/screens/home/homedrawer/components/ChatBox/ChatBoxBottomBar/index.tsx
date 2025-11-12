@@ -302,92 +302,96 @@ export const ChatBoxBottomBar = memo(
 		}, []);
 
 		const handleTextInputChange = async (text: string) => {
-			if (isShowOptionPaste) setIsShowOptionPaste(false);
+			try {
+				if (isShowOptionPaste) setIsShowOptionPaste(false);
 
-			const store = getStore();
-			if (text?.length > MIN_THRESHOLD_CHARS) {
-				if (convertRef.current) {
+				const store = getStore();
+				if (text?.length > MIN_THRESHOLD_CHARS) {
+					if (convertRef.current) {
+						return;
+					}
+					convertRef.current = true;
+					await onConvertToFiles(text);
+					textValueInputRef.current = '';
+					setTextChange('');
 					return;
 				}
-				convertRef.current = true;
-				await onConvertToFiles(text);
-				textValueInputRef.current = '';
-				setTextChange('');
-				return;
-			}
-			setTextChange(text);
-			textValueInputRef.current = text;
-			if (!text || text === '') {
-				setMentionTextValue('');
-			}
+				setTextChange(text);
+				textValueInputRef.current = text;
+				if (!text || text === '') {
+					setMentionTextValue('');
+				}
 
-			if (messageAction !== EMessageActionType.CreateThread) {
-				saveMessageToCache(text);
-			}
+				if (messageAction !== EMessageActionType.CreateThread) {
+					saveMessageToCache(text);
+				}
 
-			if (!text) return;
+				if (!text) return;
 
-			const rawConvertedHashtag = convertMentionsToText(text);
-			const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
-			const words = convertedHashtag?.split?.(mentionRegexSplit);
+				const rawConvertedHashtag = convertMentionsToText(text);
+				const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
+				const words = convertedHashtag?.split?.(mentionRegexSplit);
 
-			const mentionList: Array<{ user_id: string; s: number; e: number }> = [];
-			const hashtagList: Array<{ channelid: string; s: number; e: number }> = [];
+				const mentionList: Array<{ user_id: string; s: number; e: number }> = [];
+				const hashtagList: Array<{ channelid: string; s: number; e: number }> = [];
 
-			let mentionBeforeCount = 0;
-			let mentionBeforeHashtagCount = 0;
-			let indexOfLastHashtag = 0;
-			let indexOfLastMention = 0;
-			words?.reduce?.((offset, word) => {
-				if (word?.startsWith?.('@[') && word?.endsWith?.(']')) {
-					mentionBeforeCount++;
-					const mentionUserName = word?.slice?.(2, -1);
-					const mention = listMentions?.find?.((item) => `${item?.display}` === mentionUserName);
+				let mentionBeforeCount = 0;
+				let mentionBeforeHashtagCount = 0;
+				let indexOfLastHashtag = 0;
+				let indexOfLastMention = 0;
+				words?.reduce?.((offset, word) => {
+					if (word?.startsWith?.('@[') && word?.endsWith?.(']')) {
+						mentionBeforeCount++;
+						const mentionUserName = word?.slice?.(2, -1);
+						const mention = listMentions?.find?.((item) => `${item?.display}` === mentionUserName);
 
-					if (mention) {
-						const startindex = convertedHashtag?.indexOf?.(word, indexOfLastMention);
-						indexOfLastMention = startindex + 1;
+						if (mention) {
+							const startindex = convertedHashtag?.indexOf?.(word, indexOfLastMention);
+							indexOfLastMention = startindex + 1;
 
-						mentionList.push({
-							user_id: mention.id?.toString() ?? '',
-							s: startindex - (mentionBeforeHashtagCount * 2 + (mentionBeforeCount - 1) * 2),
-							e: startindex + word.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
-						});
+							mentionList.push({
+								user_id: mention.id?.toString() ?? '',
+								s: startindex - (mentionBeforeHashtagCount * 2 + (mentionBeforeCount - 1) * 2),
+								e: startindex + word.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
+							});
+						}
+						return offset;
 					}
+
+					if (word?.trim()?.startsWith('<#') && word?.trim()?.endsWith('>')) {
+						const channelName = word?.trim();
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-expect-error
+						const listChannel = selectAllChannels(store.getState() as RootState);
+						const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
+						const channelLabel = channelName?.slice?.(2, -1);
+						const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
+
+						mentionBeforeHashtagCount++;
+
+						if (channelInfo) {
+							const startindex = convertedHashtag?.indexOf?.(channelName, indexOfLastHashtag);
+							indexOfLastHashtag = startindex + 1;
+
+							hashtagList?.push?.({
+								channelid: channelInfo?.channel_id?.toString() ?? '',
+								s: startindex - (mentionBeforeCount * 2 + (mentionBeforeHashtagCount - 1) * 2),
+								e: startindex + channelName.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
+							});
+						}
+					}
+
 					return offset;
-				}
+				}, 0);
 
-				if (word?.trim()?.startsWith('<#') && word?.trim()?.endsWith('>')) {
-					const channelName = word?.trim();
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-expect-error
-					const listChannel = selectAllChannels(store.getState() as RootState);
-					const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
-					const channelLabel = channelName?.slice?.(2, -1);
-					const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
-
-					mentionBeforeHashtagCount++;
-
-					if (channelInfo) {
-						const startindex = convertedHashtag?.indexOf?.(channelName, indexOfLastHashtag);
-						indexOfLastHashtag = startindex + 1;
-
-						hashtagList?.push?.({
-							channelid: channelInfo?.channel_id?.toString() ?? '',
-							s: startindex - (mentionBeforeCount * 2 + (mentionBeforeHashtagCount - 1) * 2),
-							e: startindex + channelName.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
-						});
-					}
-				}
-
-				return offset;
-			}, 0);
-
-			hashtagsOnMessage.current = hashtagList;
-			mentionsOnMessage.current = mentionList;
-			setMentionTextValue(text);
-			textValueInputRef.current = rawConvertedHashtag;
-			chatMessageLeftAreaRef?.current?.setAttachControlVisibility(false);
+				hashtagsOnMessage.current = hashtagList;
+				mentionsOnMessage.current = mentionList;
+				setMentionTextValue(text);
+				textValueInputRef.current = rawConvertedHashtag;
+				chatMessageLeftAreaRef?.current?.setAttachControlVisibility(false);
+			} catch (e) {
+				/* empty */
+			}
 		};
 
 		const handleMentionSelectForEphemeral = useCallback((text: string) => {

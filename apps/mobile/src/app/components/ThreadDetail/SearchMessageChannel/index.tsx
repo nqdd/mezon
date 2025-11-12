@@ -1,10 +1,13 @@
-import { ETypeSearch, IOption, IUerMention } from '@mezon/mobile-components';
+import type { ETypeSearch, IOption, IUerMention } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, searchMessagesActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { IChannel, SIZE_PAGE_SEARCH, SearchFilter } from '@mezon/utils';
-import { RouteProp } from '@react-navigation/native';
-import { createContext, memo, useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import type { DirectEntity } from '@mezon/store-mobile';
+import { searchMessagesActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
+import type { IChannel, SearchFilter } from '@mezon/utils';
+import { SIZE_PAGE_SEARCH } from '@mezon/utils';
+import type { RouteProp } from '@react-navigation/native';
+import React, { createContext, memo, useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../StatusBarHeight/StatusBarHeight';
 import InputSearchMessageChannel from './InputSearchMessageChannel';
@@ -105,7 +108,13 @@ const SearchMessageChannel = ({ route }: SearchMessageChannelProps) => {
 
 	return (
 		<SearchMessageChannelContext.Provider value={filtersSearch}>
-			<View style={{ flex: 1, backgroundColor: themeValue.primary }}>
+			<View style={{ flex: 1 }}>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<StatusBarHeight />
 				<InputSearchMessageChannel
 					onKeyPress={handleKeyPress}
