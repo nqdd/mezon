@@ -375,7 +375,7 @@ export const fetchMessages = createAsyncThunk(
 				currentUser = await thunkAPI.dispatch(accountActions.getUserProfile()).unwrap();
 			}
 
-			const response = await fetchMessagesCached(
+			let response = await fetchMessagesCached(
 				thunkAPI.getState as () => RootState,
 				mezon,
 				clanId,
@@ -386,6 +386,23 @@ export const fetchMessages = createAsyncThunk(
 				noCache,
 				thunkAPI.dispatch as AppDispatch
 			);
+
+			// Fallback
+			if (messageId && (!response.messages || response.messages.length === 0)) {
+				/* eslint-disable */
+				console.log('FALLBACK GET MESSAGES', { clanId, channelId, messageId });
+				response = await fetchMessagesCached(
+					thunkAPI.getState as () => RootState,
+					mezon,
+					clanId,
+					channelId,
+					undefined,
+					undefined,
+					topicId,
+					true,
+					thunkAPI.dispatch as AppDispatch
+				);
+			}
 
 			const fromCache = response.fromCache || false;
 
