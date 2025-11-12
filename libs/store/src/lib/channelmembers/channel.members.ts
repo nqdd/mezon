@@ -288,22 +288,6 @@ export const updateCustomStatus = createAsyncThunk(
 		}
 	}
 );
-export const fetchListBanUser = createAsyncThunk(
-	'channelMembers/fetchListBanUser',
-	async ({ clanId, channelId = '0' }: { clanId: string; channelId?: string }, thunkAPI) => {
-		try {
-			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.listBannedUsers(mezon.session, clanId, channelId);
-			if (!response) {
-				return;
-			}
-			return true;
-		} catch (error) {
-			captureSentryError(error, 'channelMembers/banUserChannel');
-			return thunkAPI.rejectWithValue(error);
-		}
-	}
-);
 
 export const banUserChannel = createAsyncThunk(
 	'channelMembers/banUserChannel',
