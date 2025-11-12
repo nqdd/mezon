@@ -20,7 +20,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ChannelThreads } from '@mezon/utils';
-import { EOverriddenPermission, EPermission, sleep } from '@mezon/utils';
+import { EMuteState, EOverriddenPermission, EPermission, sleep } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -145,14 +145,25 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 		dispatch(listChannelRenderAction.handleMarkFavor({ channelId: channel?.id, clanId: currentClanId as string, mark: false }));
 	};
 
-	const muteOrUnMuteChannel = (active: ENotificationActive) => {
-		const body = {
-			channel_id: channel?.channel_id || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-			clan_id: currentClanId || '',
-			active
-		};
-		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+	const handleUnmuteChannel = async () => {
+		try {
+			const body = {
+				channel_id: channel?.channel_id || '',
+				clan_id: currentClanId || '',
+				active: EMuteState.UN_MUTE,
+				mute_time: 0
+			};
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			}
+		} catch (error) {
+			console.error('Error setting unmute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('menu.notification.muteError')
+			});
+		}
 	};
 
 	const notificationMenu: IMezonMenuItemProps[] = [
@@ -162,7 +173,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				: `${isChannelUnmute ? t('menu.notification.muteThread') : t('menu.notification.unMuteThread')}`,
 			onPress: () => {
 				if (!isChannelUnmute) {
-					muteOrUnMuteChannel(ENotificationActive.ON);
+					handleUnmuteChannel();
 				} else {
 					navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
 						screen: APP_SCREEN.MENU_THREAD.MUTE_THREAD_DETAIL_CHANNEL,

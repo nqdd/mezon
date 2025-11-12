@@ -33,7 +33,11 @@
 			"muteThreadStatus": "Mute Thread",
 			"unmuteChannelStatus": "Unmute Channel",
 			"unmuteThreadStatus": "Unmute Thread",
-			"mutedUntil": "Muted until"
+			"mutedUntil": "Muted until",
+			"muteSuccess": "Muted successfully!",
+			"unMuteSuccess": "Unmuted successfully!",
+			"muteFailed": "Failed to mute!",
+			"unMuteFailed": "Failed to unmute!"
 		},
 		"thread": {
 			"title": "",

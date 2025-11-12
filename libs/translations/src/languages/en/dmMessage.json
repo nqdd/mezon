@@ -33,7 +33,11 @@
 		"unblockUser": {
 			"success": "User unblocked successfully",
 			"error": "Failed to unblock user"
-		}
+		},
+		"muteSuccess": "Muted successfully!",
+		"unMuteSuccess": "Unmuted successfully!",
+		"muteFailed": "Failed to mute!",
+		"unMuteFailed": "Failed to unmute!"
 	},
 	"waveWelcome": "Wave to say hi!",
 	"members": "members",

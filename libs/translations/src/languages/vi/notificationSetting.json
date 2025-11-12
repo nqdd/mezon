@@ -25,7 +25,11 @@
 			"forTwentyFourHours": "Trong 24 giờ",
 			"untilTurnItBackOn": "Cho đến khi bật lại"
 		},
-		"description": "Bạn đang nhận được thông báo từ tất cả tin nhắn trong clan này, nhưng bạn có thể thay đổi cài đặt tại đây"
+		"description": "Bạn đang nhận được thông báo từ tất cả tin nhắn trong clan này, nhưng bạn có thể thay đổi cài đặt tại đây",
+		"muteSuccess": "Tắt thông báo thành công!",
+		"unMuteSuccess": "Bật thông báo thành công!",
+		"muteFailed": "Tắt thông báo không thành công!",
+		"unMuteFailed": "Bật thông báo không thành công!"
 	},
 	"toast": {
 		"error": "Cập nhật thông báo lỗi: {{error}}"

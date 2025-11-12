@@ -8,7 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ICategoryChannel } from '@mezon/utils';
-import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import type { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
@@ -133,13 +133,7 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
 					setTimeMuted(formattedDate);
 					idTimeOut = setTimeout(() => {
-						const body = {
-							channel_id: currentCategory?.id || '',
-							notification_type: defaultCategoryNotificationSetting?.notification_setting_type || 0,
-							clan_id: currentClanId || '',
-							active: ENotificationActive.ON
-						};
-						dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
+						muteOrUnMuteChannel();
 						clearTimeout(idTimeOut);
 					}, timeDifference);
 				}
@@ -147,12 +141,12 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 		}
 	}, [defaultCategoryNotificationSetting, dispatch, currentCategory?.id, currentClanId]);
 
-	const muteOrUnMuteChannel = (active: ENotificationActive) => {
+	const muteOrUnMuteChannel = () => {
 		const body = {
-			category_id: currentCategory?.id,
-			notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
+			id: currentCategory?.id,
+			mute_time: 0,
 			clan_id: currentClanId || '',
-			active
+			active: EMuteState.UN_MUTE
 		};
 		dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
 		navigateToThreadDetail();
@@ -163,27 +157,14 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 	};
 
 	const handleScheduleMute = (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
+		const body = {
+			id: currentCategory?.id,
+			clan_id: currentClanId || '',
+			time_mute: duration !== Infinity ? duration : null,
+			active: EMuteState.MUTED
+		};
+		dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
 
-			const body = {
-				category_id: currentCategory?.id,
-				notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
-				clan_id: currentClanId || '',
-				time_mute: unmuteTimeISO
-			};
-			dispatch(defaultNotificationCategoryActions.setDefaultNotificationCategory(body));
-		} else {
-			const body = {
-				category_id: currentCategory?.id,
-				notification_type: defaultCategoryNotificationSetting?.notification_setting_type,
-				clan_id: currentClanId || '',
-				active: ENotificationActive.OFF
-			};
-			dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
-		}
 		navigateToThreadDetail();
 	};
 
@@ -196,7 +177,7 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 				<View style={styles.optionsBox}>
 					<TouchableOpacity
 						onPress={() => {
-							muteOrUnMuteChannel(ENotificationActive.ON);
+							muteOrUnMuteChannel();
 						}}
 						style={styles.wrapperUnmuteBox}
 					>
