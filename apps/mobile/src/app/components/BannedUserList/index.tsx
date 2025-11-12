@@ -1,6 +1,7 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectBannedUserIdsByChannel, selectMembersByUserIds, useAppSelector } from '@mezon/store-mobile';
-import { UsersClanEntity, normalizeString } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
+import { normalizeString } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
