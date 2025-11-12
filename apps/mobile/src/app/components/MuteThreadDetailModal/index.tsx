@@ -163,7 +163,7 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 				}
 			}
 		}
-	}, [getNotificationChannelSelected, dispatch, currentChannel.channel_id, currentClanId]);
+	}, [getNotificationChannelSelected, dispatch, currentChannel?.channel_id, currentClanId]);
 
 	const handleUnmuteChannel = async () => {
 		try {
@@ -176,8 +176,9 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
 			if (response?.meta?.requestStatus === 'rejected') {
 				throw new Error(response?.meta?.requestStatus);
+			} else {
+				navigateToThreadDetail();
 			}
-			navigateToThreadDetail();
 		} catch (error) {
 			console.error('Error setting unmute channel:', error);
 			Toast.show({

@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
@@ -156,16 +157,25 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 		navigation.goBack();
 	};
 
-	const handleScheduleMute = (duration: number) => {
-		const body = {
-			id: currentCategory?.id,
-			clan_id: currentClanId || '',
-			time_mute: duration !== Infinity ? duration : null,
-			active: EMuteState.MUTED
-		};
-		dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
-
-		navigateToThreadDetail();
+	const handleScheduleMute = async (duration: number) => {
+		try {
+			const body = {
+				id: currentCategory?.id,
+				clan_id: currentClanId || '',
+				time_mute: duration !== Infinity ? duration : null,
+				active: EMuteState.MUTED
+			};
+			const response = await dispatch(defaultNotificationCategoryActions.setMuteCategory(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			}
+		} catch (error) {
+			console.error('Error setting mute category:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notifySettingThreadModal.muteError')
+			});
+		}
 	};
 
 	return (
@@ -175,12 +185,7 @@ const MuteCategoryDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 				<MezonMenu menu={menu} />
 			) : (
 				<View style={styles.optionsBox}>
-					<TouchableOpacity
-						onPress={() => {
-							muteOrUnMuteChannel();
-						}}
-						style={styles.wrapperUnmuteBox}
-					>
+					<TouchableOpacity onPress={muteOrUnMuteChannel} style={styles.wrapperUnmuteBox}>
 						<MezonIconCDN icon={IconCDN.bellSlashIcon} width={20} height={20} customStyle={{ marginRight: 20 }} color={themeValue.text} />
 						<Text style={styles.option}>{t('bottomSheet.unMute')}</Text>
 					</TouchableOpacity>
