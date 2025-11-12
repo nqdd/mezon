@@ -13,7 +13,7 @@ import {
 	toggleIsShowTrue
 } from '@mezon/store';
 import { InputField } from '@mezon/ui';
-import { EVERYONE_ROLE_ID, SlugPermission } from '@mezon/utils';
+import { EOverriddenPermission, SlugPermission } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -104,7 +104,7 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 					{searchResults.map((permission) => (
 						<li
 							key={permission.id}
-							className={`flex items-start justify-between p-3 rounded-lg border border-color-theme ${hasPermissionEdit && clickRole !== EVERYONE_ROLE_ID ? 'cursor-pointer bg-item-hover' : 'cursor-not-allowed bg-item-hover'}`}
+							className={`flex items-start justify-between p-3 rounded-lg border border-color-theme ${hasPermissionEdit ? 'cursor-pointer bg-item-hover' : 'cursor-not-allowed bg-item-hover'}`}
 						>
 							<div className="flex-1 pr-4">
 								<div className="font-medium text-theme-primary-active mb-1">
@@ -121,7 +121,10 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 									type="checkbox"
 									checked={selectedPermissions.includes(permission.id)}
 									onChange={() => {
-										if (hasPermissionEdit && clickRole !== EVERYONE_ROLE_ID) {
+										if (
+											hasPermissionEdit &&
+											!(activeRole?.slug?.startsWith('everyone-') && permission.slug === EOverriddenPermission.sendMessage)
+										) {
 											handlePermissionToggle(permission.id);
 										}
 									}}
@@ -129,10 +132,14 @@ const SettingPermissions = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 										bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full
 										after:bg-slate-500 after:transition-all
 										checked:bg-[#5265EC] checked:after:left-4 checked:after:bg-white
-										${clickRole !== EVERYONE_ROLE_ID ? 'hover:bg-slate-400 after:hover:bg-slate-600 checked:hover:bg-[#4654C0] checked:after:hover:bg-white' : ''}
+										hover:bg-slate-400 after:hover:bg-slate-600 checked:hover:bg-[#4654C0] checked:after:hover:bg-white
 										focus:outline-none focus-visible:outline-none disabled:cursor-not-allowed
 									`}
-									disabled={hiddenPermissionAdmin(permission.slug || '') || !hasPermissionEdit || clickRole === EVERYONE_ROLE_ID}
+									disabled={
+										hiddenPermissionAdmin(permission.slug || '') ||
+										!hasPermissionEdit ||
+										(activeRole?.slug?.startsWith('everyone-') && permission.slug === EOverriddenPermission.sendMessage)
+									}
 								/>
 							</label>
 						</li>

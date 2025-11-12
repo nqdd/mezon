@@ -13,7 +13,7 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID, EVERYONE_ROLE_TITLE, generateE2eId } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_TITLE, generateE2eId } from '@mezon/utils';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -49,7 +49,6 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 	const filteredListRoleBySearch = useMemo(() => {
 		return activeRolesWithoutUserRoles?.filter((role) => {
 			return (
-				role.id !== EVERYONE_ROLE_ID &&
 				role.title !== EVERYONE_ROLE_TITLE &&
 				!userById?.role_id?.includes(role.id) &&
 				role.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&

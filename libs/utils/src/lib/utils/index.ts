@@ -20,7 +20,7 @@ import type React from 'react';
 import Resizer from 'react-image-file-resizer';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
-import { CURRENCY, EVERYONE_ROLE_ID, ID_MENTION_HERE } from '../constant';
+import { CURRENCY, ID_MENTION_HERE } from '../constant';
 import { Platform } from '../hooks/platform';
 import type {
 	ChannelMembersEntity,
@@ -148,7 +148,7 @@ export const uniqueUsers = (
 	);
 
 	const allRoleUsers = rolesClan.reduce<RoleUserListRoleUser[]>((acc, role) => {
-		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id && mention.role_id !== EVERYONE_ROLE_ID);
+		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id);
 		if (isMentionedRole && role.role_user_list?.role_users) {
 			acc.push(...role.role_user_list.role_users);
 		}
