@@ -12,6 +12,7 @@ import {
 	messagesActions,
 	onboardingActions,
 	selectAppChannelById,
+	selectBanMemberCurrentClanById,
 	selectChannelAppChannelId,
 	selectChannelAppClanId,
 	selectChannelById,
@@ -23,7 +24,6 @@ import {
 	selectIsShowCanvas,
 	selectIsShowCreateThread,
 	selectIsShowMemberList,
-	selectIsUserBannedInChannel,
 	selectLastMessageViewportByChannelId,
 	selectLastSeenMessageId,
 	selectLastSentMessageStateByChannelId,
@@ -203,7 +203,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		}
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
 	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
-	const isBanned = useAppSelector((state) => selectIsUserBannedInChannel(state, currentChannel.id, userId as string));
+	const isBanned = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannel.id, userId as string));
 
 	if (!canSendMessageDelayed || isBanned) {
 		return (
