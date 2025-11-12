@@ -1144,6 +1144,8 @@ export const getAttachmentDataForWindow = (
 ) => {
 	return imageList.map((image) => {
 		const uploader = currentChatUsersEntities?.[image.uploader as string];
+		const isVideo = image?.isVideo || image?.filetype?.startsWith('video') || image.filetype?.includes('mp4') || image?.filetype?.includes('mov');
+
 		return {
 			...image,
 			uploaderData: {
@@ -1152,12 +1154,15 @@ export const getAttachmentDataForWindow = (
 					`${window.location.origin}/assets/images/anonymous-avatar.png`) as string,
 				name: uploader?.clan_nick || uploader?.user?.display_name || uploader?.user?.username || 'Anonymous'
 			},
-			url: createImgproxyUrl(image.url || '', {
-				width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
-				height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
-				resizeType: 'fit'
-			}),
-			realUrl: image.url || ''
+			url: isVideo
+				? image.url || ''
+				: createImgproxyUrl(image.url || '', {
+						width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
+						height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
+						resizeType: 'fit'
+					}),
+			realUrl: image.url || '',
+			isVideo
 		};
 	});
 };
