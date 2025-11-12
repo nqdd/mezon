@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import {
 	deleteQuickMenuAccess,
 	listQuickMenuAccess,
@@ -136,7 +136,7 @@ export function QuickAction({ navigation, route }) {
 						title={t('quickAction.deleteModal')}
 						confirmText={t('confirm.delete.confirmText')}
 						content={t('quickAction.deleteTitle', {
-							key: item.menu_name
+							command: item.menu_name
 						})}
 					/>
 				)
