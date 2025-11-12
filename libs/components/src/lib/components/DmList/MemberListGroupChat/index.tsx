@@ -31,7 +31,7 @@ function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
 					className="mb-3 ml-2 font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase"
 					data-e2e={generateE2eId(`chat.direct_message.member_list.member_count`)}
 				>
-					{t('member').toUpperCase()} - {rawMembers?.length}
+					{t('members').toUpperCase()} - {rawMembers?.length}
 				</p>
 				{
 					<div className={`flex flex-col ${isElectron() ? 'pb-8' : ''}`}>

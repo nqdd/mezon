@@ -44,9 +44,9 @@
 		"unmute": "Unmute",
 		"for15Minutes": "For 15 Minutes",
 		"for1Hour": "For 1 Hour",
-		"for3Hours": "For 3 Hour",
-		"for8Hours": "For 8 Hour",
-		"for24Hours": "For 24 Hour",
+		"for3Hours": "For 3 Hours",
+		"for8Hours": "For 8 Hours",
+		"for24Hours": "For 24 Hours",
 		"untilTurnBackOn": "Until I turn it back on",
 		"mutedUntil": "Muted until {{time}}"
 	},
