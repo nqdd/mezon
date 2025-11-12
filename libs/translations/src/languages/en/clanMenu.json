@@ -2,7 +2,7 @@
     "menu": {
         "watchMenu": {
             "title": "",
-            "markAsRead": "Mark As Read",
+            "markAsRead": "Mark as Read",
             "browseChannels": "Browse Channels"
         },
         "organizationMenu": {
@@ -51,7 +51,7 @@
     },
     "modalPanel": {
         "createCategory": "Create Category",
-        "markAsRead": "Mark As Read",
+        "markAsRead": "Mark as Read",
         "processing": "Processing...",
         "invitePeople": "Invite People",
         "clanSettings": "Clan Settings", 
