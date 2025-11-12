@@ -20,6 +20,7 @@ export type MezonElectronAPI = {
 			uploaderData: { name: string; avatar: string };
 			realUrl: string;
 			channelImagesData: IImageWindowProps;
+			isVideo?: boolean;
 		}
 	) => Promise<void>;
 	dowloadImage: (url: string) => Promise<void>;

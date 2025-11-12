@@ -1463,6 +1463,7 @@ export interface IAttachmentEntity extends ApiChannelAttachment {
 	id: string;
 	channelId?: string;
 	clanId?: string;
+	isVideo?: boolean;
 }
 
 export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
@@ -1471,6 +1472,7 @@ export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
 		name: string;
 	};
 	realUrl: string;
+	isVideo?: boolean;
 }
 
 export interface IImageWindowProps {
