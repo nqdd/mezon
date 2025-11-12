@@ -105,6 +105,72 @@ export const fetchUsersClan = createAsyncThunk('UsersClan/fetchUsersClan', async
 	}
 });
 
+export const fetchListBanMembersCached = async (
+	getState: () => RootState,
+	ensuredMezon: MezonValueContext,
+	clanId: string,
+	channelId: string,
+	noCache = false
+) => {
+	const currentState = getState();
+	const clanData = currentState[USERS_CLANS_FEATURE_KEY].byClans[clanId];
+
+	const apiKey = createApiKey('listBannedUsers', clanId, ensuredMezon.session.username || '');
+	const shouldForceCall = shouldForceApiCall(apiKey, clanData?.cache, noCache);
+
+	if (!shouldForceCall) {
+		return {
+			ban_list: [],
+			fromCache: true
+		};
+	}
+
+	const response = await fetchDataWithSocketFallback(
+		ensuredMezon,
+		{
+			api_name: 'listBannedUsers',
+			list_channel_users_req: {
+				channel_id: channelId,
+				clan_id: clanId
+			}
+		},
+		() => ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId),
+		'ban_list'
+	);
+
+	markApiFirstCalled(apiKey);
+
+	return {
+		ban_list: response.banned_users,
+		fromCache: false
+	};
+};
+
+export const fetchListBanUser = createAsyncThunk(
+	'channelMembers/fetchListBanUser',
+	async ({ clanId, channelId = '0' }: { clanId: string; channelId?: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await fetchListBanMembersCached(thunkAPI.getState as () => RootState, mezon, clanId, channelId);
+			if (!response || !response.ban_list) {
+				return {
+					ban_list: [],
+					fromCache: false,
+					clanId
+				};
+			}
+			return {
+				ban_list: response.ban_list,
+				clanId,
+				fromCache: response.fromCache
+			};
+		} catch (error) {
+			captureSentryError(error, 'channelMembers/banUserChannel');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
+
 const getInitialClanState = () => {
 	return {
 		entities: UsersClanAdapter.getInitialState()
@@ -347,6 +413,37 @@ export const UsersClanSlice = createSlice({
 			.addCase(fetchUsersClan.rejected, (state: UsersClanState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
+			})
+			.addCase(fetchListBanUser.fulfilled, (state, action) => {
+				const { ban_list, fromCache, clanId } = action.payload;
+				state.loadingStatus = 'loaded';
+
+				if (!fromCache) {
+					if (!state.byClans[clanId]) {
+						state.byClans[clanId] = getInitialClanState();
+					}
+					const grouped: Record<string, Set<string>> = {};
+
+					for (const user of ban_list) {
+						if (!user.banned_id || !user.channel_id) continue;
+
+						if (!grouped[user.banned_id]) {
+							grouped[user.banned_id] = new Set();
+						}
+
+						grouped[user.banned_id].add(user.channel_id);
+					}
+
+					const banList: Update<UsersClanEntity, string>[] = Object.entries(grouped).map(([banned_id, channelSet]) => ({
+						id: banned_id,
+						changes: {
+							ban_list: channelSet
+						}
+					}));
+					UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+
+					state.byClans[clanId].cache = createCacheMetadata();
+				}
 			});
 	}
 });
@@ -355,7 +452,7 @@ export const UsersClanSlice = createSlice({
  * Export reducer for store configuration.
  */
 export const usersClanReducer = UsersClanSlice.reducer;
-export const usersClanActions = { ...UsersClanSlice.actions, fetchUsersClan };
+export const usersClanActions = { ...UsersClanSlice.actions, fetchUsersClan, fetchListBanUser };
 
 const { selectAll, selectById, selectEntities } = UsersClanAdapter.getSelectors();
 
@@ -469,5 +566,17 @@ export const selectClanMemberWithStatusIds = createSelector(
 			online: onlineUsers?.map((item) => item?.id),
 			offline: offlineUsers?.map((item) => item?.id)
 		};
+	}
+);
+
+export const selectBanMemberCurrentClanById = createSelector(
+	[
+		getUsersClanState,
+		(state: RootState) => state.clans.currentClanId as string,
+		(_: RootState, channelId: string) => channelId,
+		(_: RootState, __: string, userId: string) => userId
+	],
+	(state, clanId, channelId, userId) => {
+		return selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list?.has(channelId);
 	}
 );
