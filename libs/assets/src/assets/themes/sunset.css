@@ -105,5 +105,6 @@
 	--border-color-avatar: #561c1e;
 	/* border left highlight */
 	--border-left-highlight: #e74c3c;
+	--text-separator-theme-primary: #bababa32;
 
 }

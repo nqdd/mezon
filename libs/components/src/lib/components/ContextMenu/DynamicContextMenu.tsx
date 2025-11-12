@@ -16,7 +16,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { Menu as Dropdown } from '@mezon/ui';
+import { Menu as Dropdown, Icons } from '@mezon/ui';
 import type { ContextMenuItem, IEmoji, IMessageWithUser } from '@mezon/utils';
 import { QUICK_MENU_TYPE, SHOW_POSITION, generateE2eId, isPublicChannel } from '@mezon/utils';
 import type { ReactElement } from 'react';
@@ -103,18 +103,23 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 	const [isLoadingCommands, setIsLoadingCommands] = useState(false);
 	const dispatch = useAppDispatch();
 
-	const className = {
-		'--contexify-menu-bgColor': 'var(--bg-theme-contexify)',
-		'--contexify-item-color': 'var(--text-theme-primary)',
-		'--contexify-activeItem-color': 'var(--text-secondary)',
-		'--contexify-activeItem-bgColor': warningStatus || 'var(--bg-item-hover)',
-		'--contexify-rightSlot-color': 'var(--text-secondary)',
-		'--contexify-activeRightSlot-color': 'var(--text-secondary)',
-		'--contexify-arrow-color': 'var(--text-theme-primary)',
-		'--contexify-activeArrow-color': 'var(--text-secondary)',
-		'--contexify-menu-radius': '8px',
-		border: '1px solid var(--border-primary)'
-	} as React.CSSProperties;
+	const className = useMemo(
+		() =>
+			({
+				'--contexify-menu-bgColor': 'var(--bg-theme-contexify)',
+				'--contexify-activeItem-color': 'var(--text-secondary)',
+				'--contexify-activeItem-bgColor': warningStatus || 'var(--bg-item-hover)',
+				'--contexify-rightSlot-color': 'var(--text-secondary)',
+				'--contexify-activeRightSlot-color': 'var(--text-secondary)',
+				'--contexify-arrow-color': 'var(--text-theme-primary)',
+				'--contexify-activeArrow-color': 'var(--text-secondary)',
+				'--contexify-separator-color': 'var(--text-separator-theme-primary)',
+				'--contexify-menu-radius': '8px',
+				'--contexify-item-color': 'var(--text-theme-primary)',
+				border: '1px solid var(--border-primary)'
+			}) as React.CSSProperties,
+		[warningStatus]
+	);
 
 	const { posShowMenu, onVisibilityChange } = useMessageContextMenu();
 	const checkPos = useMemo(() => {
@@ -242,73 +247,95 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						}
 					}}
 				>
-					<span>View More</span>
+					<span>{t('viewMore')}</span>
 				</div>
 			</Item>
 		);
 		return <>{reactItems}</>;
 	}, [firstFourElements]);
 
+	const dropdownSlashCommands = useMemo(() => {
+		if (isLoadingCommands) {
+			return (
+				<div className="w-[320px] p-4 text-center text-gray-500">
+					<div className="flex items-center justify-center gap-2 mb-2">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="animate-spin">
+							<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="30" strokeDashoffset="30" />
+						</svg>
+						<span>Loading commands...</span>
+					</div>
+				</div>
+			);
+		}
+
+		if (slashCommandOptions.length === 0) {
+			return (
+				<div className="w-[320px] p-4 text-center text-gray-500">
+					<span>No commands available</span>
+				</div>
+			);
+		}
+
+		return (
+			<Item onKeyDown={(e) => e.stopPropagation()} onKeyUp={(e) => e.stopPropagation()} onKeyPress={(e) => e.stopPropagation()}>
+				<SearchableCommandList
+					options={slashCommandOptions}
+					onChange={handleCommandSelect}
+					placeholder="Type to search slash commands..."
+					isLoading={isLoadingCommands}
+					className="w-[320px]"
+					autoFocus={true}
+				/>
+			</Item>
+		);
+	}, [isLoadingCommands, slashCommandOptions, handleCommandSelect]);
+
 	const children = useMemo(() => {
 		const elements: React.ReactNode[] = [];
 		for (let index = 0; index < items.length; index++) {
 			const item = items[index];
 
-			if (item.label === 'Delete Message' && !isTopic && message?.content?.tp && message?.content?.tp !== '0') {
+			if (item.label === t('deleteMessage') && !isTopic && message?.content?.tp && message?.content?.tp !== '0') {
 				continue;
 			}
 
 			const lableItemWarning =
-				item.label === 'Delete Message' ||
-				item.label === 'Report Message' ||
-				item.label === 'Remove Reactions' ||
-				item.label === 'Remove All Reactions';
-			if (item.label === 'Copy Link' && checkPos) elements.push(<Separator key={`separator-${index}`} />);
-			if (item.label === 'Copy Image') elements.push(<Separator key={`separator-${index}`} />);
-			const lableAddReaction = item.label === 'Add Reaction';
+				item.label === t('deleteMessage') ||
+				item.label === t('reportMessage') ||
+				item.label === t('removeReactions') ||
+				item.label === t('removeAllReactions');
+			if (item.label === t('deleteMessage') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
+			if (item.label === t('editMessage') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
+			if (item.label === t('copyText') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
+			if (item.label === t('copyLink') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
+			if (item.label === t('copyImage')) elements.push(<Separator key={`separator-${index}`} />);
+			const lableAddReaction = item.label === t('addReaction');
 			const lableSlashCommands = item.label === t('slashCommands');
-
 			if (lableSlashCommands && shouldShowQuickMenu) {
 				elements.push(
-					<Submenu
+					<Dropdown
+						align={{
+							points: ['tl', 'br']
+						}}
+						menu={dropdownSlashCommands}
 						key={item.label}
-						label={<span className="text-sm font-medium pl-[4px]">{t('slashCommands')}</span>}
-						className="border-none bg-theme-contexify p-0"
+						trigger="hover"
+						className="border-none bg-theme-contexify"
 					>
-						{isLoadingCommands ? (
-							<div className="w-[320px] p-4 text-center text-gray-500">
-								<div className="flex items-center justify-center gap-2 mb-2">
-									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="animate-spin">
-										<circle
-											cx="12"
-											cy="12"
-											r="10"
-											stroke="currentColor"
-											strokeWidth="2"
-											strokeDasharray="30"
-											strokeDashoffset="30"
-										/>
-									</svg>
-									<span>Loading commands...</span>
+						<div>
+							<Item key={index} onClick={item.handleItemClick} disabled={item.disabled}>
+								<div
+									data-e2e={generateE2eId('chat.message_action_modal.button.base')}
+									className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 text-theme-primary text-theme-primary-hover`}
+								>
+									<span>{t('slashCommands')}</span>
+									<span>
+										<Icons.RightArrowRightClick defaultSize="w-4 h-4" />
+									</span>
 								</div>
-							</div>
-						) : slashCommandOptions.length === 0 ? (
-							<div className="w-[320px] p-4 text-center text-gray-500">
-								<span>No commands available</span>
-							</div>
-						) : (
-							<Item onKeyDown={(e) => e.stopPropagation()} onKeyUp={(e) => e.stopPropagation()} onKeyPress={(e) => e.stopPropagation()}>
-								<SearchableCommandList
-									options={slashCommandOptions}
-									onChange={handleCommandSelect}
-									placeholder="Type to search slash commands..."
-									isLoading={isLoadingCommands}
-									className="w-[320px]"
-									autoFocus={true}
-								/>
 							</Item>
-						)}
-					</Submenu>
+						</div>
+					</Dropdown>
 				);
 			} else if (lableAddReaction) {
 				elements.push(
@@ -327,7 +354,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 									data-e2e={generateE2eId('chat.message_action_modal.button.base')}
 									className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542] hover:text-[#FFFFFF] ' : 'text-theme-primary text-theme-primary-hover'}`}
 								>
-									<span>Add Reaction</span>
+									<span>{t('addReaction')}</span>
 								</div>
 							</Item>
 						</div>
@@ -393,9 +420,37 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				{`
 					.contexify_submenu {
 						padding: 0 !important;
+						max-height: 80vh !important;
+						overflow-y: auto !important;
+						min-width: 200px !important;
+						width: auto !important;
 					}
 					.contexify_submenu .contexify_itemContent {
 						padding: 0 !important;
+						width: 100% !important;
+					}
+					.rc-dropdown  {
+						margin-left: 15px !important;
+					}
+					.contexify {
+						max-width: calc(100vw - 10px) !important;
+						min-width: 230px !important;
+						overflow: visible !important;
+					}
+					@media (min-width: 501px) {
+						.contexify {
+							width: auto !important;
+							max-height: 85vh !important;
+							overflow-y: auto !important;
+						}
+					}
+					@media (max-width: 500px) {
+						.contexify {
+							width: 100% !important;
+							max-width: 500px !important;
+							max-height: 80vh !important;
+							overflow-y: auto !important;
+						}
 					}
 				`}
 			</style>
@@ -403,7 +458,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				onVisibilityChange={onVisibilityChange}
 				id={menuId}
 				style={className}
-				className="z-50 rounded-lg  text-theme-primary text-theme-primary-hover border-theme-primary "
+				className="z-50 rounded-lg text-theme-primary text-theme-primary-hover border-theme-primary thread-scroll"
 			>
 				{checkPos && (
 					<ReactionPart emojiList={firstFourElements} messageId={messageId} isOption={false} message={message} isTopic={!!isTopic} />
