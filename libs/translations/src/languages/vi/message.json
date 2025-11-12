@@ -72,7 +72,7 @@
 	"reactions": {
 		"noActionTitle": "Chưa có biểu cảm",
 		"noActionDescription": "Một thế giới vắng bóng cảm xúc.",
-		"removeActions": "Xóa biểu cảm"
+		"removeActions": "Xóa"
 	},
 	"messageDeleteReply": "Tin nhắn gốc đã bị xóa",
 	"forwardMessagesSuccessfully": "Chuyển tiếp tin nhắn thành công!",

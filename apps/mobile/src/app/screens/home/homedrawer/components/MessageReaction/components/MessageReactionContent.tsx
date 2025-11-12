@@ -7,9 +7,10 @@ import { calculateTotalCount, getSrcEmoji } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Dimensions, Pressable, Text, View } from 'react-native';
+import { DeviceEventEmitter, Dimensions, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import { combineMessageReactions } from '../../../../../../utils/helpers';
@@ -26,6 +27,13 @@ interface IMessageReactionContentProps {
 	messageId?: string;
 }
 
+type ReactionSenderItem = {
+	sender_id: string;
+	count: number;
+	isMyReact: boolean;
+	emojiData: EmojiDataOptionals;
+};
+
 const { width } = Dimensions.get('window');
 
 export const MessageReactionContent = memo((props: IMessageReactionContentProps) => {
@@ -35,18 +43,16 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation('message');
-	const [isScrollable, setIsScrollable] = useState(false);
+	const [isScrollable, setIsScrollable] = useState<boolean>(false);
 	const handleContentSizeChange = (contentWidth) => {
 		setIsScrollable(contentWidth > width - size.s_20);
 	};
 
 	const [selectedTabId, setSelectedTabId] = useState<string | null>(null);
-	const [showConfirmDeleteEmoji, setShowConfirmDeleteEmoji] = useState<boolean>(false);
 	const prevReactionsRef = useRef<EmojiDataOptionals[]>([]);
 
 	const selectEmoji = (emojiId: string) => {
 		setSelectedTabId(emojiId);
-		setShowConfirmDeleteEmoji(false);
 	};
 
 	useEffect(() => {
@@ -60,16 +66,22 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 			allReactionDataOnOneMessage?.length > 0 &&
 			allReactionDataOnOneMessage.reduce((acc, item) => {
 				if (item?.emojiId === selectedTabId) {
-					acc.push(...(item?.senders || []));
+					acc.push(
+						...(item?.senders || []).map((sender) => ({
+							...sender,
+							isMyReact: sender?.sender_id === userId,
+							emojiData: item
+						}))
+					);
 				}
 				return acc;
 			}, [])
 		);
-	}, [allReactionDataOnOneMessage, selectedTabId]);
+	}, [allReactionDataOnOneMessage, selectedTabId, userId]);
 
 	const currentEmojiSelected = useMemo(() => {
 		if (selectedTabId && allReactionDataOnOneMessage?.length > 0) {
-			return allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId || emoji?.id === selectedTabId);
+			return allReactionDataOnOneMessage.find((emoji) => emoji?.emojiId === selectedTabId);
 		}
 		return null;
 	}, [selectedTabId, allReactionDataOnOneMessage]);
@@ -85,7 +97,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		if (calculateTotalCount(prevSelected?.senders || []) > 0 && calculateTotalCount(nowSelected?.senders || []) === 0) {
 			const emojiDeletedIndex = prevReactionsRef.current?.findIndex((e) => e?.emojiId === selectedTabId);
 			const neighbor = prevReactionsRef.current?.[emojiDeletedIndex - 1] ?? prevReactionsRef.current?.[emojiDeletedIndex + 1] ?? null;
-			setSelectedTabId(neighbor?.emojiId || neighbor?.id || null);
+			setSelectedTabId(neighbor?.emojiId || null);
 		}
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
@@ -99,10 +111,20 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		prevReactionsRef.current = allReactionDataOnOneMessage || [];
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
-	const onRemoveEmoji = useCallback(() => {
-		removeEmoji(currentEmojiSelected);
-		setShowConfirmDeleteEmoji(false);
-	}, [removeEmoji, currentEmojiSelected]);
+	const renderRightActions = useCallback(
+		(item: ReactionSenderItem) => {
+			if (!item?.isMyReact) {
+				return null;
+			}
+			return (
+				<TouchableOpacity style={styles.deleteSwipeButton} onPress={() => removeEmoji?.(item?.emojiData)}>
+					<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
+					<Text style={styles.deleteSwipeText}>{t('reactions.removeActions')}</Text>
+				</TouchableOpacity>
+			);
+		},
+		[removeEmoji, t]
+	);
 
 	const getTabHeader = () => {
 		return (
@@ -135,51 +157,50 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		);
 	};
 
+	const renderItem = useCallback(
+		({ item, index }: { item: ReactionSenderItem; index: number }) => {
+			return (
+				<View key={`${index}_${item?.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
+					<Swipeable
+						key={`${index}_${item?.sender_id}_${item?.emojiData?.emojiId}_reactItem`}
+						enabled={item?.isMyReact}
+						renderRightActions={() => renderRightActions(item)}
+					>
+						<ReactionMember
+							userId={item?.sender_id || ''}
+							channelId={channelId}
+							count={item?.count || 0}
+							onSelectUserId={() => {
+								const data = {
+									snapPoints: ['60%', '90%'],
+									hiddenHeaderIndicator: true,
+									children: <UserProfile userId={item?.sender_id || ''} showAction={true} showRole={true} currentChannel={null} />
+								};
+								DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+							}}
+						/>
+					</Swipeable>
+				</View>
+			);
+		},
+		[renderRightActions, channelId]
+	);
+
 	const getContent = () => {
 		return (
 			<View style={styles.contentWrapper}>
 				<View style={styles.removeEmojiContainer}>
 					<Text style={styles.emojiText}>{currentEmojiSelected?.emoji || ''}</Text>
-					{isExistingMyEmoji ? (
-						<View>
-							{showConfirmDeleteEmoji ? (
-								<Pressable style={styles.confirmDeleteEmoji} onPress={() => onRemoveEmoji()}>
-									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
-									<Text style={styles.confirmText}>{t('reactions.removeActions')}</Text>
-								</Pressable>
-							) : (
-								<Pressable onPress={() => setShowConfirmDeleteEmoji(true)}>
-									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
-								</Pressable>
-							)}
-						</View>
-					) : null}
+					<View style={styles.deleteEmojiWrapper}>
+						{isExistingMyEmoji ? (
+							<Pressable style={styles.confirmDeleteEmoji} onPress={() => removeEmoji?.(currentEmojiSelected)}>
+								<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
+								<Text style={styles.confirmText}>{t('reactions.removeActions')}</Text>
+							</Pressable>
+						) : null}
+					</View>
 				</View>
-				<FlashList
-					data={dataSenderEmojis || []}
-					renderItem={({ item, index }: { item: { sender_id: string; count: number }; index: number }) => {
-						return (
-							<View key={`${index}_${item?.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
-								<ReactionMember
-									userId={item?.sender_id || ''}
-									channelId={channelId}
-									count={item?.count || 0}
-									onSelectUserId={() => {
-										const data = {
-											snapPoints: ['60%', '90%'],
-											hiddenHeaderIndicator: true,
-											children: (
-												<UserProfile userId={item?.sender_id || ''} showAction={true} showRole={true} currentChannel={null} />
-											)
-										};
-										DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-									}}
-								/>
-							</View>
-						);
-					}}
-					estimatedItemSize={size.s_50}
-				/>
+				<FlashList data={dataSenderEmojis || []} renderItem={renderItem} estimatedItemSize={size.s_50} />
 			</View>
 		);
 	};

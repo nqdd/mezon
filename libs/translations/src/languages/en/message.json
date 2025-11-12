@@ -72,7 +72,7 @@
 	"reactions": {
 		"noActionTitle": "No Reactions",
 		"noActionDescription": "What a cold, emotionless world.",
-		"removeActions": "Remove Actions"
+		"removeActions": "Remove"
 	},
 	"messageDeleteReply": "Original message was deleted",
 	"forwardMessagesSuccessfully": "Forward messages successfully!",

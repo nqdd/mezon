@@ -106,7 +106,8 @@ export const style = (colors: Attributes) =>
 		memberWrapper: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10
+			gap: size.s_10,
+			backgroundColor: colors.primary
 		},
 		imageWrapper: {
 			width: size.s_36,
@@ -145,14 +146,17 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'space-between',
 			alignItems: 'center'
 		},
+		deleteEmojiWrapper: {
+			minHeight: size.s_32
+		},
 		confirmDeleteEmoji: {
 			flexDirection: 'row',
 			alignItems: 'center',
 			backgroundColor: baseColor.redStrong,
 			paddingVertical: size.s_6,
-			paddingHorizontal: size.s_12,
+			paddingHorizontal: size.s_8,
 			gap: size.s_6,
-			borderRadius: 50
+			borderRadius: size.s_8
 		},
 		confirmText: {
 			color: 'white',
@@ -177,5 +181,19 @@ export const style = (colors: Attributes) =>
 		},
 		reactionListItem: {
 			marginBottom: size.s_10
+		},
+		deleteSwipeButton: {
+			backgroundColor: baseColor.redStrong,
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
+		},
+		deleteSwipeText: {
+			color: baseColor.white,
+			fontSize: size.s_14,
+			fontWeight: '600'
 		}
 	});
