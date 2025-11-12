@@ -120,6 +120,8 @@ const SCROLL_DEBOUNCE = 200;
 
 const runDebouncedForScroll = debounce((cb) => cb(), SCROLL_DEBOUNCE, false);
 
+const hasScrolledToUnreadMap = new Map<string, boolean>();
+
 const DMMessageWrapper = ({ channelId, children }: { channelId: string; children: React.ReactNode }) => {
 	return <MessageContextMenuProvider channelId={channelId}>{children}</MessageContextMenuProvider>;
 };
@@ -741,13 +743,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			const state = store.getState();
 			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
 			if (!scrollPosition?.messageId) {
-				if (lastMessageUnreadId) {
+				if (lastMessageUnreadId && !hasScrolledToUnreadMap.get(channelId) && messageIds?.length > 0) {
 					scrollPosition = { messageId: lastMessageUnreadId };
+					hasScrolledToUnreadMap.set(channelId, true);
 				}
 			}
 
 			scrollPositionRef.current = scrollPosition;
-		}, [channelId, lastMessageUnreadId]);
+		}, [channelId, lastMessageUnreadId, messageIds?.length]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
