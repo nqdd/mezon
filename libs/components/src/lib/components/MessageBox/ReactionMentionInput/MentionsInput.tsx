@@ -254,7 +254,6 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 	) => {
 		const inputRef = useRef<HTMLDivElement>(null);
 		const popoverRef = useRef<HTMLDivElement>(null);
-		const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
 		const [html, setHtml] = useState(value);
 		const [activeMentionContext, setActiveMentionContext] = useState<ActiveMentionContext | null>(null);
@@ -888,66 +887,6 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			[disabled, onChange, debouncedDetectMention, onHandlePaste]
 		);
 
-		const handlePasteFromContextMenu = useCallback(async () => {
-			if (!inputRef.current || disabled) return;
-
-			try {
-				const clipboardText = await navigator.clipboard.readText();
-				if (!clipboardText) return;
-
-				inputRef.current.focus();
-
-				const contentToInsert = (renderText(clipboardText, ['escape_html', 'br_html']) as string[]).join('').replace(/\u200b+/g, '\u200b');
-
-				insertHtmlInSelection(contentToInsert);
-				inputRef.current.dispatchEvent(new Event('input', { bubbles: true }));
-
-				const newHtml = inputRef.current.innerHTML;
-				setHtml(newHtml);
-				onChange?.(newHtml);
-				debouncedDetectMention();
-
-				setContextMenuPosition(null);
-			} catch (error) {
-				console.error('Failed to paste from clipboard:', error);
-			}
-		}, [disabled, onChange, debouncedDetectMention]);
-
-		const handleContextMenu = useCallback(
-			(e: React.MouseEvent<HTMLDivElement>) => {
-				if (disabled) return;
-				e.preventDefault();
-				setContextMenuPosition({ x: e.clientX, y: e.clientY });
-			},
-			[disabled]
-		);
-
-		useEffect(() => {
-			const handleClickOutside = () => {
-				if (contextMenuPosition) {
-					setContextMenuPosition(null);
-				}
-			};
-
-			const handleKeyDown = (e: KeyboardEvent) => {
-				if (e.key === 'Escape' && contextMenuPosition) {
-					setContextMenuPosition(null);
-				}
-			};
-
-			if (contextMenuPosition) {
-				document.addEventListener('click', handleClickOutside);
-				document.addEventListener('contextmenu', handleClickOutside);
-				document.addEventListener('keydown', handleKeyDown);
-			}
-
-			return () => {
-				document.removeEventListener('click', handleClickOutside);
-				document.removeEventListener('contextmenu', handleClickOutside);
-				document.removeEventListener('keydown', handleKeyDown);
-			};
-		}, [contextMenuPosition]);
-
 		const handleInput = useCallback(
 			(e: React.FormEvent<HTMLDivElement>) => {
 				let newHtml = e.currentTarget.innerHTML;
@@ -1079,37 +1018,8 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 					switch (e.key.toLowerCase()) {
 						case 'b': {
 							e.preventDefault();
-
-							if (!inputRef.current) break;
-
-							const selection = window.getSelection();
-							const selectedText = selection?.toString() || '';
-
-							if (selectedText.length === 0) {
-								document.execCommand('bold', false);
-								handled = true;
-								break;
-							}
-
-							const isMarkdownSyntax = /^\*\*[^*]+\*\*$/.test(selectedText) || /^\*[^*\n]+\*$/.test(selectedText);
-							if (isMarkdownSyntax) break;
-
-							const textContent = inputRef.current.textContent || '';
-							const caretPosition = getCaretPosition(inputRef.current);
-							const isInsideMarkdown = [/\*\*([^*]+)\*\*/g, /\*([^*\n]+)\*/g].some((regex) => {
-								let match: RegExpExecArray | null;
-								while ((match = regex.exec(textContent)) !== null) {
-									const start = match.index;
-									const end = start + match[0].length;
-									if (caretPosition > start && caretPosition < end) return true;
-								}
-								return false;
-							});
-
-							if (!isInsideMarkdown) {
-								document.execCommand('bold', false);
-								handled = true;
-							}
+							document.execCommand('bold', false);
+							handled = true;
 							break;
 						}
 						case 'i':
@@ -1225,7 +1135,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 		}, [mentionContent, refs, floatingStyles, activeMentionContext, inputWidth]);
 
 		return (
-			<div className={`mention-input relative ${className} `} style={style} onContextMenu={handleContextMenu}>
+			<div className={`mention-input relative ${className} `} style={style}>
 				<div
 					ref={(node) => {
 						(inputRef as any).current = node;
@@ -1237,7 +1147,6 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 					onInput={handleInput}
 					onKeyDown={handleKeyDown}
 					onPaste={handlePaste}
-					onContextMenu={handleContextMenu}
 					onBlur={saveCaretPosition}
 					onMouseUp={saveCaretPosition}
 					onKeyUp={saveCaretPosition}
@@ -1253,26 +1162,6 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 					data-e2e={generateE2eId('mention.input')}
 				/>
 				{tooltipOverlay && (createPortal(tooltipOverlay, document.body) as React.ReactElement)}
-				{contextMenuPosition &&
-					(createPortal(
-						<div
-							className="fixed bg-theme-surface border border-theme-primary rounded-md shadow-lg py-1 z-[10000]"
-							style={{
-								left: `${contextMenuPosition.x}px`,
-								top: `${contextMenuPosition.y}px`
-							}}
-							onClick={(e) => e.stopPropagation()}
-						>
-							<button
-								className="w-full px-4 text-left text-theme-primary hover:bg-theme-surface-hover flex items-center justify-between gap-8 cursor-pointer transition-colors"
-								onClick={handlePasteFromContextMenu}
-							>
-								<span>Paste</span>
-								<span className="text-xs text-theme-secondary">Ctrl+V</span>
-							</button>
-						</div>,
-						document.body
-					) as React.ReactElement)}
 			</div>
 		);
 	}
