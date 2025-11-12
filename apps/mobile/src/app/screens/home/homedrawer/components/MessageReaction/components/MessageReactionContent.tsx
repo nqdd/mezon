@@ -187,7 +187,6 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 						{isExistingMyEmoji ? (
 							<Pressable style={styles.confirmDeleteEmoji} onPress={() => removeEmoji?.(currentEmojiSelected)}>
 								<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
-								<Text style={styles.deleteSwipeText}>{t('reactions.removeActions')}</Text>
 							</Pressable>
 						) : null}
 					</View>
