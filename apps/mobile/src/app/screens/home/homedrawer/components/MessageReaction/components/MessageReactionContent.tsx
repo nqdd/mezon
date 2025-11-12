@@ -30,8 +30,6 @@ interface IMessageReactionContentProps {
 type ReactionSenderItem = {
 	sender_id: string;
 	count: number;
-	isMyReact: boolean;
-	emojiData: EmojiDataOptionals;
 };
 
 const { width } = Dimensions.get('window');
@@ -66,18 +64,12 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 			allReactionDataOnOneMessage?.length > 0 &&
 			allReactionDataOnOneMessage.reduce((acc, item) => {
 				if (item?.emojiId === selectedTabId) {
-					acc.push(
-						...(item?.senders || []).map((sender) => ({
-							...sender,
-							isMyReact: sender?.sender_id === userId,
-							emojiData: item
-						}))
-					);
+					acc.push(...(item?.senders || []));
 				}
 				return acc;
 			}, [])
 		);
-	}, [allReactionDataOnOneMessage, selectedTabId, userId]);
+	}, [allReactionDataOnOneMessage, selectedTabId]);
 
 	const currentEmojiSelected = useMemo(() => {
 		if (selectedTabId && allReactionDataOnOneMessage?.length > 0) {
@@ -113,17 +105,17 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 
 	const renderRightActions = useCallback(
 		(item: ReactionSenderItem) => {
-			if (!item?.isMyReact) {
+			if (item?.sender_id !== userId) {
 				return null;
 			}
 			return (
-				<TouchableOpacity style={styles.deleteSwipeButton} onPress={() => removeEmoji?.(item?.emojiData)}>
+				<TouchableOpacity style={styles.deleteSwipeButton} onPress={() => removeEmoji?.(currentEmojiSelected)}>
 					<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
 					<Text style={styles.deleteSwipeText}>{t('reactions.removeActions')}</Text>
 				</TouchableOpacity>
 			);
 		},
-		[removeEmoji, t]
+		[removeEmoji, t, userId, currentEmojiSelected]
 	);
 
 	const getTabHeader = () => {
@@ -162,8 +154,8 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 			return (
 				<View key={`${index}_${item?.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
 					<Swipeable
-						key={`${index}_${item?.sender_id}_${item?.emojiData?.emojiId}_reactItem`}
-						enabled={item?.isMyReact}
+						key={`${index}_${item?.sender_id}_${currentEmojiSelected?.emojiId}_reactItem`}
+						enabled={item?.sender_id === userId}
 						renderRightActions={() => renderRightActions(item)}
 					>
 						<ReactionMember
@@ -195,7 +187,7 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 						{isExistingMyEmoji ? (
 							<Pressable style={styles.confirmDeleteEmoji} onPress={() => removeEmoji?.(currentEmojiSelected)}>
 								<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
-								<Text style={styles.confirmText}>{t('reactions.removeActions')}</Text>
+								<Text style={styles.deleteSwipeText}>{t('reactions.removeActions')}</Text>
 							</Pressable>
 						) : null}
 					</View>

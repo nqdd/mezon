@@ -147,20 +147,17 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		deleteEmojiWrapper: {
-			minHeight: size.s_32
+			minHeight: size.s_36
 		},
 		confirmDeleteEmoji: {
-			flexDirection: 'row',
-			alignItems: 'center',
 			backgroundColor: baseColor.redStrong,
-			paddingVertical: size.s_6,
+			alignItems: 'center',
+			justifyContent: 'center',
 			paddingHorizontal: size.s_8,
-			gap: size.s_6,
-			borderRadius: size.s_8
-		},
-		confirmText: {
-			color: 'white',
-			fontSize: size.h6
+			paddingVertical: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
 		},
 		emojiText: {
 			color: colors.text,
