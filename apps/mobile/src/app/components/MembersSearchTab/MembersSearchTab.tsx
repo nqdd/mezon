@@ -89,27 +89,25 @@ const MembersSearchTab = ({ listMemberSearch, listDMGroupSearch }: MembersSearch
 	const keyExtractor = useCallback((item, index) => `${item?.['id']}_member_search_${index}}`, []);
 
 	return (
-		<View style={[styles.container, { backgroundColor: data?.length > 0 ? themeValue.primary : themeValue.secondary }]}>
-			<FlatList
-				data={data}
-				renderItem={renderItem}
-				onScrollBeginDrag={() => Keyboard.dismiss()}
-				keyExtractor={keyExtractor}
-				initialNumToRender={1}
-				maxToRenderPerBatch={1}
-				windowSize={4}
-				showsVerticalScrollIndicator={false}
-				removeClippedSubviews={true}
-				keyboardShouldPersistTaps={'handled'}
-				disableVirtualization={false}
-				contentContainerStyle={{
-					backgroundColor: themeValue.secondary,
-					paddingBottom: size.s_6
-				}}
-				style={styles.boxMembers}
-				ListEmptyComponent={() => <EmptySearchPage />}
-			/>
-		</View>
+		<FlatList
+			data={data}
+			renderItem={renderItem}
+			onScrollBeginDrag={() => Keyboard.dismiss()}
+			keyExtractor={keyExtractor}
+			initialNumToRender={1}
+			maxToRenderPerBatch={1}
+			windowSize={4}
+			showsVerticalScrollIndicator={false}
+			removeClippedSubviews={true}
+			keyboardShouldPersistTaps={'handled'}
+			disableVirtualization={false}
+			contentContainerStyle={{
+				backgroundColor: themeValue.secondary,
+				paddingBottom: size.s_6
+			}}
+			style={styles.boxMembers}
+			ListEmptyComponent={() => <EmptySearchPage />}
+		/>
 	);
 };
 
