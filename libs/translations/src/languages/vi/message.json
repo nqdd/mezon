@@ -197,8 +197,7 @@
 		"sticker": "Nhãn dán",
 		"gif": "GIF",
 		"link": "Liên kết",
-		"attachment": "Tệp đính kèm",
-		"embed": "Nhúng"
+		"attachment": "Tệp đính kèm"
 	},
 	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}."
 }
