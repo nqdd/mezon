@@ -72,7 +72,7 @@
 	"reactions": {
 		"noActionTitle": "Chưa có biểu cảm",
 		"noActionDescription": "Một thế giới vắng bóng cảm xúc.",
-		"removeActions": "Xóa biểu cảm"
+		"removeActions": "Xóa"
 	},
 	"messageDeleteReply": "Tin nhắn gốc đã bị xóa",
 	"forwardMessagesSuccessfully": "Chuyển tiếp tin nhắn thành công!",
@@ -197,8 +197,7 @@
 		"sticker": "Nhãn dán",
 		"gif": "GIF",
 		"link": "Liên kết",
-		"attachment": "Tệp đính kèm",
-		"embed": "Nhúng"
+		"attachment": "Tệp đính kèm"
 	},
 	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}."
 }

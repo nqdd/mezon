@@ -7,6 +7,7 @@ import { Session } from 'mezon-js';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
 import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
+import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 import { walletActions } from '../wallet/wallet.slice';
 export const AUTH_FEATURE_KEY = 'auth';
@@ -191,16 +192,9 @@ export const logOut = createAsyncThunk('auth/logOut', async ({ device_id, platfo
 	await mezon?.logOutMezon(device_id, platform, !sessionState);
 	thunkAPI.dispatch(authActions.setLogout());
 	thunkAPI.dispatch(walletActions.setLogout());
+	thunkAPI.dispatch(listChannelsByUserActions.removeAll());
 	clearApiCallTracker();
-	const restoreKey = [
-		'persist:apps',
-		'persist:categories',
-		'persist:clans',
-		'current-theme',
-		'hideNotificationContent',
-		'remember_channel',
-		'i18nextLng'
-	];
+	const restoreKey = ['persist:apps', 'persist:categories', 'persist:clans', 'current-theme', 'hideNotificationContent', 'i18nextLng'];
 	if (sessionState) {
 		restoreKey.push('mezon_session');
 	}

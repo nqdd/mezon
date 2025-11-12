@@ -14,7 +14,9 @@ function MessageActivity() {
 	const store = getStore();
 	const friends = useSelector(selectAllFriends);
 	const activities = useSelector(selectAllActivities);
-	const animatedHeight = useRef(new Animated.Value(0)).current;
+	const animatedOpacity = useRef(new Animated.Value(0)).current;
+	const animatedTranslateY = useRef(new Animated.Value(-20)).current;
+
 	const mergeListFriendAndListUserDM = useMemo(() => {
 		try {
 			const dmUsers = selectAllUserDM(store.getState());
@@ -80,13 +82,21 @@ function MessageActivity() {
 	}, [mergeListFriendAndListUserDM, activityMap]);
 
 	useEffect(() => {
-		Animated.timing(animatedHeight, {
-			toValue: data.length > 0 ? size.s_60 : 0,
-			duration: 400,
-			easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Improved easing curve
-			useNativeDriver: false // Can't use native driver for height animations
-		}).start();
-	}, [animatedHeight, data?.length]);
+		Animated.parallel([
+			Animated.timing(animatedOpacity, {
+				toValue: data.length > 0 ? 1 : 0,
+				duration: 300,
+				easing: Easing.ease,
+				useNativeDriver: true
+			}),
+			Animated.timing(animatedTranslateY, {
+				toValue: data.length > 0 ? 0 : -20,
+				duration: 300,
+				easing: Easing.ease,
+				useNativeDriver: true
+			})
+		]).start();
+	}, [animatedOpacity, animatedTranslateY, data?.length]);
 
 	const renderItem = ({ item }) => {
 		return (
@@ -117,7 +127,9 @@ function MessageActivity() {
 	return (
 		<Animated.View
 			style={{
-				height: animatedHeight
+				height: data.length > 0 ? size.s_60 : 0,
+				opacity: animatedOpacity,
+				transform: [{ translateY: animatedTranslateY }]
 			}}
 		>
 			<FlatList

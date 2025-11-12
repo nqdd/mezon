@@ -33,7 +33,11 @@
         "unblockUser": {
             "success": "Bỏ chặn người dùng thành công",
             "error": "Không thể bỏ chặn người dùng"
-        }
+        },
+        "muteSuccess": "Tắt thông báo thành công!",
+		"unMuteSuccess": "Bật thông báo thành công!",
+		"muteFailed": "Tắt thông báo không thành công!",
+		"unMuteFailed": "Bật thông báo không thành công!"
     },
     "waveWelcome": "Vẫy tay để chào!",
     "members": "thành viên",

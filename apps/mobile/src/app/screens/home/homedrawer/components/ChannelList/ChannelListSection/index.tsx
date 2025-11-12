@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { categoriesActions, selectCategoryExpandStateByCategoryId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { ICategoryChannel } from '@mezon/utils';
+import { FAVORITE_CATEGORY_ID, categoriesActions, selectCategoryExpandStateByCategoryId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import type { ICategoryChannel } from '@mezon/utils';
 import React, { memo, useCallback } from 'react';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
@@ -32,6 +32,10 @@ const ChannelListSection = memo(({ data }: IChannelListSectionProps) => {
 	);
 
 	const onLongPressHeader = useCallback(() => {
+		if (data?.category_id === FAVORITE_CATEGORY_ID) {
+			return;
+		}
+
 		const dataBottomSheet = {
 			heightFitContent: true,
 			children: <CategoryMenu category={data} />
@@ -59,7 +63,9 @@ const ChannelListSection = memo(({ data }: IChannelListSectionProps) => {
 						color={themeValue.text}
 						customStyle={[!categoryExpandState && { transform: [{ rotate: '-90deg' }] }]}
 					/>
-					<Text style={styles.channelListHeaderItemTitle} numberOfLines={1}>{data?.category_name}</Text>
+					<Text style={styles.channelListHeaderItemTitle} numberOfLines={1}>
+						{data?.category_name}
+					</Text>
 				</View>
 			</TouchableOpacity>
 		</View>

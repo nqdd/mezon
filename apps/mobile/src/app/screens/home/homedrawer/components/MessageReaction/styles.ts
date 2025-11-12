@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -105,7 +106,8 @@ export const style = (colors: Attributes) =>
 		memberWrapper: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10
+			gap: size.s_10,
+			backgroundColor: colors.primary
 		},
 		imageWrapper: {
 			width: size.s_36,
@@ -144,18 +146,18 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'space-between',
 			alignItems: 'center'
 		},
-		confirmDeleteEmoji: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			backgroundColor: baseColor.redStrong,
-			paddingVertical: size.s_6,
-			paddingHorizontal: size.s_12,
-			gap: size.s_6,
-			borderRadius: 50
+		deleteEmojiWrapper: {
+			minHeight: size.s_36
 		},
-		confirmText: {
-			color: 'white',
-			fontSize: size.h6
+		confirmDeleteEmoji: {
+			backgroundColor: baseColor.redStrong,
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_8,
+			paddingVertical: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
 		},
 		emojiText: {
 			color: colors.text,
@@ -167,14 +169,28 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		noActionTitle: {
-			color: 'white',
+			color: colors.textStrong,
 			fontSize: size.h6
 		},
 		noActionContent: {
-			color: '#c7c7c7',
+			color: colors.text,
 			fontSize: size.medium
 		},
 		reactionListItem: {
 			marginBottom: size.s_10
+		},
+		deleteSwipeButton: {
+			backgroundColor: baseColor.redStrong,
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
+		},
+		deleteSwipeText: {
+			color: baseColor.white,
+			fontSize: size.s_14,
+			fontWeight: '600'
 		}
 	});

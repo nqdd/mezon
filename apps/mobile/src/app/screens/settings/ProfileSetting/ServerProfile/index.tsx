@@ -1,8 +1,8 @@
 import { useClanProfileSetting } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import type { ClansEntity } from '@mezon/store-mobile';
 import {
-	ClansEntity,
 	appActions,
 	checkDuplicateClanNickName,
 	selectAllAccount,
@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, FlatList, KeyboardAvoidingView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
-import { IClanProfileValue, IUserProfileValue } from '..';
+import type { IClanProfileValue, IUserProfileValue } from '..';
 import { SeparatorWithLine } from '../../../../../app/components/Common';
 import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
@@ -90,9 +90,10 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const updateClanProfile = async () => {
 		const { displayName, imgUrl } = currentClanProfileValue;
-		const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
-		if (isDuplicateNickname) return;
-
+		if (displayName) {
+			const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
+			if (isDuplicateNickname) return;
+		}
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await updateUserClanProfile(selectedClan?.clan_id ?? '', displayName?.trim() || '', imgUrl || '');
@@ -183,7 +184,9 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 			<View style={styles.clanProfileDetail}>
 				<View style={styles.nameWrapper}>
-					<Text style={styles.displayNameText}>{currentClanProfileValue?.displayName}</Text>
+					<Text style={styles.displayNameText}>
+						{currentClanProfileValue?.displayName || userProfile?.user?.display_name || userProfile?.user?.username}
+					</Text>
 					<Text style={styles.usernameText}>{currentClanProfileValue?.username}</Text>
 				</View>
 

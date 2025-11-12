@@ -3,7 +3,7 @@ import { useChannelMembers } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
 import { selectAllRolesClan, selectChannelById, selectRolesByChannelId, useAppSelector } from '@mezon/store';
 import type { MentionDataProps } from '@mezon/utils';
-import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TITLE_MENTION_HERE, getNameForPrioritize } from '@mezon/utils';
+import { ID_MENTION_HERE, TITLE_MENTION_HERE, getNameForPrioritize } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiRole } from 'mezon-js/api.gen';
 import { useMemo } from 'react';
@@ -28,9 +28,6 @@ export function UserMentionList({ channelID, channelMode }: UserMentionListProps
 		}
 	}, [channel?.parent_id, channelparent?.channel_private, rolesChannel, rolesInClan]);
 
-	const filteredRoles = useMemo(() => {
-		return rolesToUse.filter((role) => role.id !== EVERYONE_ROLE_ID);
-	}, [rolesToUse]);
 	const newUserMentionList = useMemo(() => {
 		if (!membersOfParent || membersOfParent.length === 0) {
 			return [];
@@ -59,7 +56,7 @@ export function UserMentionList({ channelID, channelMode }: UserMentionListProps
 			return 0;
 		});
 		const roleMentions =
-			filteredRoles?.map((item: ApiRole) => ({
+			rolesToUse?.map((item: ApiRole) => ({
 				id: item.id ?? '',
 				display: item.title,
 				avatarUrl: '',

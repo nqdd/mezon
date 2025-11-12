@@ -25,7 +25,11 @@
 			"forTwentyFourHours": "For 24 Hours",
 			"untilTurnItBackOn": "Until turn it back on"
 		},
-		"description": "You are receiving notifications from all messages in this clan, but you can override it here"
+		"description": "You are receiving notifications from all messages in this clan, but you can override it here",
+		"muteSuccess": "Muted successfully!",
+		"unMuteSuccess": "Unmuted successfully!",
+		"muteFailed": "Failed to mute!",
+		"unMuteFailed": "Failed to unmute!"
 	},
 	"toast": {
 		"error": "Error update notification: {{error}}"

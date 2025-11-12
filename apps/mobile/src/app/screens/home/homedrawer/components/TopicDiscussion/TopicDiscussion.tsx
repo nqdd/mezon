@@ -18,6 +18,7 @@ import { DeviceEventEmitter, Platform, StatusBar, StyleSheet, View } from 'react
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
+import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import ChannelMessages from '../../ChannelMessages';
@@ -126,7 +127,7 @@ export default function TopicDiscussion() {
 			>
 				<TopicHeader handleBack={onGoBack} />
 				<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
-					<View style={styles.panGestureContainer}>
+					<Animated.View style={styles.panGestureContainer}>
 						<ChannelMessages
 							channelId={currentTopicId}
 							topicId={currentTopicId}
@@ -137,7 +138,7 @@ export default function TopicDiscussion() {
 							topicChannelId={currentChannel?.channel_id}
 							isBanned={isBanned}
 						/>
-					</View>
+					</Animated.View>
 				</PanGestureHandler>
 				<ChatBox
 					channelId={currentChannel?.channel_id}

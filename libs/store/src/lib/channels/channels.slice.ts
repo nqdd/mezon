@@ -30,7 +30,7 @@ import { channelMembersActions } from '../channelmembers/channel.members';
 import { selectClansEntities } from '../clans/clans.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { messagesActions, processQueuedLastSeenMessages, selectUnreadMessageIdByChannelId } from '../messages/messages.slice';
+import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { selectEntiteschannelCategorySetting } from '../notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import { overriddenPoliciesActions } from '../policies/overriddenPolicies.slice';
@@ -41,7 +41,7 @@ import { selectListThreadId, threadsActions } from '../threads/threads.slice';
 import type { LIST_CHANNELS_USER_FEATURE_KEY, ListChannelsByUserState } from './channelUser.slice';
 import { listChannelsByUserActions, selectEntitiesChannelsByUser } from './channelUser.slice';
 import type { ChannelMetaEntity } from './channelmeta.slice';
-import { channelMetaActions, enableMute } from './channelmeta.slice';
+import { channelMetaActions, enableMute, selectChannelMetaById } from './channelmeta.slice';
 import { listChannelRenderAction, selectListChannelRenderByClanId } from './listChannelRender.slice';
 
 const LIST_CHANNEL_CACHED_TIME = 1000 * 60 * 5;
@@ -337,11 +337,12 @@ export const joinChannel = createAsyncThunk(
 			}
 
 			const channel = selectChannelById(getChannelsRootState(thunkAPI), channelId);
+			const channelMeta = selectChannelMetaById(thunkAPI.getState(), channelId);
 
 			if (!state.messages?.idMessageToJump?.id) {
-				const unreadMsgId = selectUnreadMessageIdByChannelId(thunkAPI.getState(), channelId as string);
-				const isSeenUpToDate = (channel?.last_seen_message?.timestamp_seconds || 0) >= (channel?.last_sent_message?.timestamp_seconds || 0);
-				const lastSeenMessageId = unreadMsgId || (isSeenUpToDate ? undefined : channel?.last_seen_message?.id);
+				const unreadMsgId = channelMeta?.lastSeenMessageId;
+				const isSeenUpToDate = (channelMeta?.lastSeenTimestamp || 0) >= (channelMeta?.lastSentTimestamp || 0);
+				const lastSeenMessageId = isSeenUpToDate ? undefined : unreadMsgId;
 				thunkAPI.dispatch(
 					messagesActions.fetchMessages({
 						clanId,

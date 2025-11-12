@@ -1,13 +1,11 @@
-import { baseColor, useTheme } from '@mezon/mobile-ui';
-import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { useTheme } from '@mezon/mobile-ui';
+import { accountActions, appActions, useAppDispatch } from '@mezon/store-mobile';
 import type { ApiLinkAccountConfirmRequest } from 'mezon-js/api.gen';
 import React, { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonButton from '../../../../componentUI/MezonButton';
-import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../constants/icon_cdn';
 import OTPInput from '../../../home/homedrawer/components/OTPInput';
 import { style } from './styles';
 
@@ -38,28 +36,25 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 			};
 
 			try {
-				const response = await dispatch(accountActions.verifyPhone({ data: payload as ApiLinkAccountConfirmRequest }));
+				dispatch(appActions.setLoadingMainMobile(true));
+				const response = await dispatch(accountActions.verifyPhone({ data: payload as ApiLinkAccountConfirmRequest, isMobile: true }));
 				if (response?.meta?.requestStatus === 'fulfilled') {
 					dispatch(accountActions.updatePhoneNumber(phoneNumber));
 					Toast.show({
 						type: 'success',
-						props: {
-							text2: t('phoneNumberSetting.verifyPhoneNumber.success'),
-							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
-						}
+						text1: t('phoneNumberSetting.verifyPhoneNumber.success')
 					});
 					navigation.navigate('ROUTES.SETTINGS.ACCOUNT');
 				} else {
 					Toast.show({
 						type: 'error',
-						props: {
-							text2: t('phoneNumberSetting.verifyPhoneNumber.failed'),
-							leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-						}
+						text1: t('phoneNumberSetting.verifyPhoneNumber.failed')
 					});
 				}
 			} catch (error) {
 				console.error('Error verify phone number: ', error);
+			} finally {
+				dispatch(appActions.setLoadingMainMobile(false));
 			}
 		},
 		[dispatch, navigation, requestId, t]

@@ -211,12 +211,22 @@ const ImageAlbum = memo(
 
 					const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
 					const listAttachmentsByChannel = data?.attachments
-						?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+						?.filter(
+							(att) =>
+								att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX) ||
+								att?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+								att?.filetype?.includes(EMimeTypes.mp4) ||
+								att?.filetype?.includes(EMimeTypes.mov)
+						)
 						.map((attachmentRes) => ({
 							...attachmentRes,
 							id: attachmentRes.id || '',
 							channelId,
-							clanId
+							clanId,
+							isVideo:
+								attachmentRes?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+								attachmentRes?.filetype?.includes(EMimeTypes.mp4) ||
+								attachmentRes?.filetype?.includes(EMimeTypes.mov)
 						}))
 						.sort((a, b) => {
 							if (a.create_time && b.create_time) {
@@ -299,6 +309,7 @@ const ImageAlbum = memo(
 
 				dispatch(
 					attachmentActions.setCurrentAttachment({
+						...enhancedAttachmentData,
 						id: enhancedAttachmentData.message_id as string,
 						uploader: enhancedAttachmentData.sender_id || message.sender_id,
 						create_time: enhancedAttachmentData.create_time

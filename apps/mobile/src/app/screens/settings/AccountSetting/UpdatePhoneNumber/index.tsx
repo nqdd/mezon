@@ -1,7 +1,7 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { load, save } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
-import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { useTheme } from '@mezon/mobile-ui';
+import { accountActions, appActions, useAppDispatch } from '@mezon/store-mobile';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -10,7 +10,6 @@ import MezonButton from '../../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
 import { ErrorInput } from '../../../../components/ErrorInput';
-import { IconCDN } from '../../../../constants/icon_cdn';
 import type { ICountry } from '../../../home/homedrawer/components/CountryDropdown';
 import { CountryDropdown, countries } from '../../../home/homedrawer/components/CountryDropdown';
 import { style } from './styles';
@@ -55,7 +54,6 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 					const parsed = JSON.parse(cachedData);
 					const currentTime = Date.now();
 
-					// Filter out expired entries and load valid ones
 					const validEntries: [string, number][] = [];
 					Object.entries(parsed).forEach(([phone, timestamp]) => {
 						const elapsed = Math.floor((currentTime - (timestamp as number)) / 1000);
@@ -260,10 +258,7 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			if (remainingSeconds > 0) {
 				Toast.show({
 					type: 'error',
-					props: {
-						text2: t('setPhoneModal.tooFast', { seconds: remainingSeconds }),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-					}
+					text1: t('setPhoneModal.tooFast', { seconds: remainingSeconds })
 				});
 				return false;
 			}
@@ -287,30 +282,23 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 		if (currentPhone === fullPhoneNumber) {
 			Toast.show({
 				type: 'error',
-				props: {
-					text2: t('setPhoneModal.alreadyLinked'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-				}
+				text1: t('setPhoneModal.alreadyLinked')
 			});
 			return;
 		}
 		try {
+			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await dispatch(accountActions.addPhoneNumber({ phone_number: fullPhoneNumber }));
 			const requestId = response?.payload?.req_id;
 
-			// todo: recheck
 			if (response?.payload?.status === 400) {
 				Toast.show({
 					type: 'error',
-					props: {
-						text2: t('setPhoneModal.alreadyLinkedToAnother'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-					}
+					text1: t('setPhoneModal.alreadyLinkedToAnother')
 				});
 				return false;
 			}
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
-				// Start cooldown timer for this phone number after successful OTP send
 				startCooldownTimer(fullPhoneNumber);
 
 				navigation.navigate('ROUTES.SETTINGS.VERIFY_PHONE_NUMBER', {
@@ -326,6 +314,8 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			}
 		} catch (error) {
 			console.error('Error add phone number: ', error);
+		} finally {
+			dispatch(appActions.setLoadingMainMobile(false));
 		}
 	}, [selectedCountry.prefix, phoneNumber, t, checkCooldown, startCooldownTimer, dispatch, navigation]);
 

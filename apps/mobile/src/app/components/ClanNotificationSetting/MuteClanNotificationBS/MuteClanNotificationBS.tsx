@@ -3,12 +3,13 @@ import { ActionEmitEvent, ENotificationActive } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { NotiChannelCategorySettingEntity } from '@mezon/store-mobile';
 import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
 import type { ApiNotificationUserChannel } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import type { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
 import MezonMenu from '../../../componentUI/MezonMenu';
@@ -76,15 +77,26 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 		[]
 	);
 
-	const handleMuteOrUnmute = () => {
+	const handleMuteOrUnmute = async () => {
 		if (!isUnmute) {
-			const body = {
-				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: ENotificationActive.ON
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			try {
+				const body = {
+					channel_id: currentChannel?.id || '',
+					clan_id: currentClanId || '',
+					mute_time: 0,
+					active: EMuteState.UN_MUTE
+				};
+				const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+				if (response?.meta?.requestStatus === 'rejected') {
+					throw new Error(response?.meta?.requestStatus);
+				}
+			} catch (error) {
+				console.error('Error setting unmute channel:', error);
+				Toast.show({
+					type: 'error',
+					text1: t('notifySettingThreadModal.unMuteError')
+				});
+			}
 		} else {
 			const data = {
 				snapPoints: ['55%'],
@@ -103,29 +115,27 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	};
 
-	const handleScheduleMute = (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
-
+	const handleScheduleMute = async (duration: number) => {
+		try {
 			const body = {
 				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
 				clan_id: currentClanId || '',
-				time_mute: unmuteTimeISO
+				mute_time: duration !== Infinity ? duration : 0,
+				active: EMuteState.MUTED
 			};
-			dispatch(notificationSettingActions.setNotificationSetting(body));
-		} else {
-			const body = {
-				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: ENotificationActive.OFF
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			} else {
+				onDismissBS();
+			}
+		} catch (error) {
+			console.error('Error setting mute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notifySettingThreadModal.muteError')
+			});
 		}
-		onDismissBS();
 	};
 
 	useEffect(() => {
@@ -143,11 +153,11 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 					idTimeOut = setTimeout(() => {
 						const body = {
 							channel_id: currentChannel?.id || '',
-							notification_type: notificationChannelSelected?.notification_setting_type || 0,
 							clan_id: currentClanId || '',
-							active: ENotificationActive.ON
+							mute_time: 0,
+							active: EMuteState.UN_MUTE
 						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+						dispatch(notificationSettingActions.setMuteChannel(body));
 						clearTimeout(idTimeOut);
 					}, timeDifference);
 				}

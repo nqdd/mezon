@@ -147,42 +147,44 @@ const InputSearchMessageChannel = ({
 					</Pressable>
 				) : null}
 			</View>
-			<Tooltip
-				isVisible={isVisibleToolTip}
-				closeOnBackgroundInteraction={true}
-				disableShadow={true}
-				closeOnContentInteraction={true}
-				content={
-					<ListOptionSearch
-						onPressOption={(option) => {
-							onChangeOptionFilter(option);
+			{!!nameChannel && (
+				<Tooltip
+					isVisible={isVisibleToolTip}
+					closeOnBackgroundInteraction={true}
+					disableShadow={true}
+					closeOnContentInteraction={true}
+					content={
+						<ListOptionSearch
+							onPressOption={(option) => {
+								onChangeOptionFilter(option);
+								if (inputSearchRef.current) {
+									inputSearchRef.current.focus();
+								}
+								setIsVisibleToolTip(false);
+							}}
+						/>
+					}
+					contentStyle={{ minWidth: size.s_220, padding: 0, borderRadius: size.s_10, backgroundColor: themeValue.primary }}
+					arrowSize={{ width: 0, height: 0 }}
+					placement="bottom"
+					onClose={() => setIsVisibleToolTip(false)}
+					showChildInTooltip={false}
+					topAdjustment={Platform.OS === 'android' ? -StatusBar.currentHeight : 0}
+				>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => {
+							setIsVisibleToolTip(true);
 							if (inputSearchRef.current) {
 								inputSearchRef.current.focus();
 							}
-							setIsVisibleToolTip(false);
 						}}
-					/>
-				}
-				contentStyle={{ minWidth: size.s_220, padding: 0, borderRadius: size.s_10, backgroundColor: themeValue.primary }}
-				arrowSize={{ width: 0, height: 0 }}
-				placement="bottom"
-				onClose={() => setIsVisibleToolTip(false)}
-				showChildInTooltip={false}
-				topAdjustment={Platform.OS === 'android' ? -StatusBar.currentHeight : 0}
-			>
-				<TouchableOpacity
-					activeOpacity={0.7}
-					onPress={() => {
-						setIsVisibleToolTip(true);
-						if (inputSearchRef.current) {
-							inputSearchRef.current.focus();
-						}
-					}}
-					style={styles.listSearchIcon}
-				>
-					<MezonIconCDN icon={IconCDN.filterHorizontalIcon} width={20} height={20} color={themeValue.textStrong} />
-				</TouchableOpacity>
-			</Tooltip>
+						style={styles.listSearchIcon}
+					>
+						<MezonIconCDN icon={IconCDN.filterHorizontalIcon} width={20} height={20} color={themeValue.textStrong} />
+					</TouchableOpacity>
+				</Tooltip>
+			)}
 		</View>
 	);
 };

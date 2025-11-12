@@ -20,7 +20,7 @@ import type React from 'react';
 import Resizer from 'react-image-file-resizer';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
-import { CURRENCY, EVERYONE_ROLE_ID, ID_MENTION_HERE } from '../constant';
+import { CURRENCY, ID_MENTION_HERE } from '../constant';
 import { Platform } from '../hooks/platform';
 import type {
 	ChannelMembersEntity,
@@ -148,7 +148,7 @@ export const uniqueUsers = (
 	);
 
 	const allRoleUsers = rolesClan.reduce<RoleUserListRoleUser[]>((acc, role) => {
-		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id && mention.role_id !== EVERYONE_ROLE_ID);
+		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id);
 		if (isMentionedRole && role.role_user_list?.role_users) {
 			acc.push(...role.role_user_list.role_users);
 		}
@@ -1144,6 +1144,8 @@ export const getAttachmentDataForWindow = (
 ) => {
 	return imageList.map((image) => {
 		const uploader = currentChatUsersEntities?.[image.uploader as string];
+		const isVideo = image?.isVideo || image?.filetype?.startsWith('video') || image.filetype?.includes('mp4') || image?.filetype?.includes('mov');
+
 		return {
 			...image,
 			uploaderData: {
@@ -1152,12 +1154,15 @@ export const getAttachmentDataForWindow = (
 					`${window.location.origin}/assets/images/anonymous-avatar.png`) as string,
 				name: uploader?.clan_nick || uploader?.user?.display_name || uploader?.user?.username || 'Anonymous'
 			},
-			url: createImgproxyUrl(image.url || '', {
-				width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
-				height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
-				resizeType: 'fit'
-			}),
-			realUrl: image.url || ''
+			url: isVideo
+				? image.url || ''
+				: createImgproxyUrl(image.url || '', {
+						width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
+						height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
+						resizeType: 'fit'
+					}),
+			realUrl: image.url || '',
+			isVideo
 		};
 	});
 };
