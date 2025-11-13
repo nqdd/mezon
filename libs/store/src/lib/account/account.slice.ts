@@ -116,31 +116,48 @@ export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (
 	}
 });
 
-export const linkEmail = createAsyncThunk('account/linkEmail', async (data: ApiAccountEmail, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.linkEmail(mezon.session, data);
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'account/linkEmail');
-		return thunkAPI.rejectWithValue(error);
+export const linkEmail = createAsyncThunk(
+	'account/linkEmail',
+	async ({ data, isMobile = false }: { data: ApiAccountEmail; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkEmail(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/linkEmail');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			}
+		}
 	}
-});
+);
 
 export const verifyPhone = createAsyncThunk(
 	'account/verifyPhone',
 	async ({ data, isMobile = false }: { data: ApiLinkAccountConfirmRequest; isMobile?: boolean }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-
 			const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
-
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'account/verifyPhone');
 			toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
 			if (isMobile) {
-				return thunkAPI.rejectWithValue(error);
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
 			}
 		}
 	}

@@ -235,7 +235,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(accountActions.linkEmail(payload as ApiAccountEmail));
+			const response = await dispatch(accountActions.linkEmail({ data: payload as ApiAccountEmail, isMobile: true }));
 			const requestId = response?.payload?.req_id;
 
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
@@ -248,7 +248,8 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: t('emailSetting.updateEmail.failed')
+					text1: t('emailSetting.updateEmail.failed'),
+					text2: response?.payload?.message || ''
 				});
 			}
 		} catch (error) {
