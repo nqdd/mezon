@@ -1,10 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus, QUICK_MENU_TYPE } from '@mezon/utils';
-import { PayloadAction, createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { LoadingStatus } from '@mezon/utils';
+import { QUICK_MENU_TYPE } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiQuickMenuAccess, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiQuickMenuAccess, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
 import { ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 
 export const QUICK_MENU_FEATURE_KEY = 'quickMenu';
 
@@ -156,10 +158,10 @@ export const updateQuickMenuAccess = createAsyncThunk(
 
 export const deleteQuickMenuAccess = createAsyncThunk(
 	'quickMenu/deleteQuickMenuAccess',
-	async ({ id, channelId }: { id: string; channelId: string }, thunkAPI) => {
+	async ({ id, channelId, clanId }: { id: string; channelId: string; clanId: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			await mezon.client.deleteQuickMenuAccess(mezon.session, id);
+			await mezon.client.deleteQuickMenuAccess(mezon.session, id, clanId);
 			return { id, channelId };
 		} catch (error) {
 			captureSentryError(error, 'quickMenu/deleteQuickMenuAccess');
