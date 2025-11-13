@@ -4,8 +4,7 @@ import { StyleSheet } from 'react-native';
 export const styles = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			flexDirection: 'column',
-			backgroundColor: colors.primary
+			flexDirection: 'column'
 		},
 		replyContainer: {
 			flexDirection: 'row',

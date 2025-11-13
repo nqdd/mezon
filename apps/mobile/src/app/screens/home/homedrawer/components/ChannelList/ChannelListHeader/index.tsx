@@ -69,6 +69,7 @@ const ChannelListHeader = () => {
 
 	const handlePress = () => {
 		const data = {
+			heightFitContent: true,
 			children: <ClanMenu />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
