@@ -19,7 +19,7 @@
 		"showChat": "Hiển thị cuộc trò chuyện",
 		"addFriendsToDM": "Thêm bạn bè vào DM",
 		"jump": "Nhảy đến",
-		"gallery": "Thư viện ảnh"
+		"gallery": "Thư viện"
 	},
 	"directMessage": "Tin nhắn trực tiếp",
 	"activeThreads": "Chủ đề đang hoạt động",
@@ -79,10 +79,15 @@
 		}
 	},
 	"gallery": {
-		"title": "Thư viện ảnh",
+		"title": "Thư viện",
 		"sentDate": "Ngày gửi",
 		"fromDate": "Từ ngày",
 		"toDate": "Đến ngày",
+		"filters": {
+			"all": "Tất cả",
+			"images": "Hình ảnh",
+			"videos": "Video"
+		},
 		"dateRange": {
 			"from": "Từ {{date}}",
 			"to": "Đến {{date}}",
@@ -98,11 +103,14 @@
 		},
 		"emptyState": {
 			"noMediaFiles": "Không tìm thấy tệp phương tiện",
-			"noMediaFilesDateRange": "Không tìm thấy tệp phương tiện cho khoảng ngày đã chọn"
+			"noMediaFilesDateRange": "Không tìm thấy tệp phương tiện cho khoảng ngày đã chọn",
+			"noImages": "Không tìm thấy hình ảnh",
+			"noVideos": "Không tìm thấy video"
 		},
 		"loading": {
 			"olderImages": "Đang tải ảnh cũ hơn...",
-			"newerImages": "Đang tải ảnh mới hơn..."
+			"newerImages": "Đang tải ảnh mới hơn...",
+			"filterChange": "Đang tải phương tiện..."
 		},
 		"filesCount": "{{count}} tệp",
 		"imageError": "Lỗi"
