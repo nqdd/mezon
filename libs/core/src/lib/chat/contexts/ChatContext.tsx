@@ -2339,9 +2339,16 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onbanneduser = useCallback((user: BannedUserEvent) => {
 		if (user.action === 1) {
-			dispatch(channelMembersActions.addBannedUser({ channelId: user.channel_id, userIds: user?.user_ids }));
+			dispatch(
+				usersClanActions.addBannedUser({
+					clanId: user.clan_id,
+					banner_id: user.banner_id,
+					channelId: user.channel_id,
+					userIds: user?.user_ids
+				})
+			);
 		} else {
-			dispatch(channelMembersActions.removeBannedUser({ channelId: user.channel_id, userIds: user?.user_ids }));
+			dispatch(usersClanActions.removeBannedUser({ clanId: user.clan_id, channelId: user.channel_id, userIds: user?.user_ids }));
 		}
 	}, []);
 

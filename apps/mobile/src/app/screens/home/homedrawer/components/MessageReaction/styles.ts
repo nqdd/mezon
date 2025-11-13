@@ -40,11 +40,12 @@ export const style = (colors: Attributes) =>
 		},
 		memberReactCount: {
 			marginLeft: size.s_12,
-			color: '#676b73',
+			color: colors.textDisabled,
 			fontSize: size.small,
 			fontWeight: 'bold'
 		},
 		reactCount: {
+			fontWeight: '600',
 			color: colors.text,
 			fontSize: size.small
 		},
@@ -71,12 +72,12 @@ export const style = (colors: Attributes) =>
 			padding: size.s_4,
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_4,
+			gap: size.s_6,
 			borderRadius: 8,
 			marginRight: 7
 		},
 		activeTab: {
-			backgroundColor: colors.border
+			backgroundColor: colors.secondary
 		},
 		originEmojiColor: {
 			color: 'white'
@@ -106,7 +107,7 @@ export const style = (colors: Attributes) =>
 		memberWrapper: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10,
+			gap: size.s_6,
 			backgroundColor: colors.primary
 		},
 		imageWrapper: {
@@ -121,8 +122,9 @@ export const style = (colors: Attributes) =>
 			height: '100%'
 		},
 		memberName: {
+			fontWeight: '600',
 			marginLeft: size.s_12,
-			color: colors.white
+			color: colors.text
 		},
 		mentionText: {
 			color: '#676b73'
@@ -161,18 +163,24 @@ export const style = (colors: Attributes) =>
 		},
 		emojiText: {
 			color: colors.text,
-			fontSize: size.label
+			fontWeight: '600',
+			fontSize: size.medium
 		},
 		noActionsWrapper: {
 			flex: 1,
+			paddingTop: size.s_20,
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
 		noActionTitle: {
+			textAlign: 'center',
+			fontWeight: '600',
 			color: colors.textStrong,
-			fontSize: size.h6
+			marginBottom: size.s_4,
+			fontSize: size.h4
 		},
 		noActionContent: {
+			textAlign: 'center',
 			color: colors.text,
 			fontSize: size.medium
 		},

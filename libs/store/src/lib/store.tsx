@@ -452,7 +452,7 @@ const limitDataMiddleware: Middleware = () => (next) => (action: any) => {
 export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRootState) => {
 	const store = configureStore({
 		reducer,
-		devTools: process.env.NODE_ENV !== 'production',
+		devTools: false,
 		preloadedState,
 		middleware: (getDefaultMiddleware) =>
 			getDefaultMiddleware({

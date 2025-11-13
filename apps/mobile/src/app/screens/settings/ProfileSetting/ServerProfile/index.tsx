@@ -193,7 +193,7 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 				<MezonInput
 					value={currentClanProfileValue?.displayName}
 					onTextChange={(newValue) => onValueChange({ displayName: newValue })}
-					placeHolder={currentClanProfileValue?.username}
+					placeHolder={currentClanProfileValue?.displayName || userProfile?.user?.display_name || userProfile?.user?.username}
 					maxCharacter={32}
 					label={t('fields.clanNickname.label')}
 					errorMessage={isDuplicateClanNickname ? 'The nick name already exists in the clan. Please enter another nick name.' : ''}
