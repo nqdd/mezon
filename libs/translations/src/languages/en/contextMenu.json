@@ -33,6 +33,7 @@
 		"addFriend": "Add Friend",
 		"removeFriend": "Remove Friend",
 		"banChat": "Ban",
+		"unBanChat": "Unban",
 		"kick": "Kick",
 		"removeFromThread": "Remove {{username}} from thread"
 	},
