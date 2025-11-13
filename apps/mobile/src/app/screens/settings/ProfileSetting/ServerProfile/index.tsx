@@ -165,15 +165,17 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	return (
 		<KeyboardAvoidingView behavior={'position'} style={[styles.keyboardAvoidingView, { width: Dimensions.get('screen').width }]}>
-			<TouchableOpacity onPress={() => openBottomSheet()} style={styles.actionItem}>
-				<View style={[styles.clanAvatarWrapper]}>
-					<MezonClanAvatar image={selectedClan?.logo} alt={selectedClan?.clan_name} />
-				</View>
-				<View style={styles.clanNameWrapper}>
-					<Text style={styles.clanName}>{selectedClan?.clan_name}</Text>
-				</View>
-				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_15} width={size.s_15} color={themeValue.text} />
-			</TouchableOpacity>
+			{!!clans?.length && (
+				<TouchableOpacity onPress={() => openBottomSheet()} style={styles.actionItem}>
+					<View style={[styles.clanAvatarWrapper]}>
+						<MezonClanAvatar image={selectedClan?.logo} alt={selectedClan?.clan_name} />
+					</View>
+					<View style={styles.clanNameWrapper}>
+						<Text style={styles.clanName}>{selectedClan?.clan_name}</Text>
+					</View>
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_15} width={size.s_15} color={themeValue.text} />
+				</TouchableOpacity>
+			)}
 
 			<BannerAvatar
 				avatar={currentClanProfileValue?.imgUrl || userProfile?.user?.avatar_url}

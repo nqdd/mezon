@@ -13,6 +13,7 @@ import {
 	authActions,
 	channelsActions,
 	clansActions,
+	directActions,
 	getAuthState,
 	getStoreAsync,
 	listChannelsByUserActions,
@@ -48,6 +49,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	const userProfile = useSelector(selectAllAccount);
 	const logout = async () => {
 		const store = await getStoreAsync();
+		store.dispatch(directActions.removeAll());
 		store.dispatch(channelsActions.removeAll());
 		store.dispatch(messagesActions.removeAll());
 		store.dispatch(listChannelsByUserActions.removeAll());
