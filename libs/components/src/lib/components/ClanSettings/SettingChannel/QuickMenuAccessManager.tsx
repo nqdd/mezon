@@ -105,7 +105,7 @@ const QuickMenuAccessManager: React.FC<QuickMenuAccessManagerProps> = ({ channel
 
 		setLoading(true);
 		try {
-			await dispatch(quickMenuActions.deleteQuickMenuAccess({ id: itemToDelete.id as string, channelId })).unwrap();
+			await dispatch(quickMenuActions.deleteQuickMenuAccess({ id: itemToDelete.id as string, channelId, clanId })).unwrap();
 			setIsDeleteModalOpen(false);
 			setItemToDelete(null);
 		} catch (error) {
@@ -113,7 +113,7 @@ const QuickMenuAccessManager: React.FC<QuickMenuAccessManagerProps> = ({ channel
 		} finally {
 			setLoading(false);
 		}
-	}, [dispatch, channelId, itemToDelete]);
+	}, [dispatch, channelId, itemToDelete, clanId]);
 
 	const handleDeleteCancel = useCallback(() => {
 		setIsDeleteModalOpen(false);
