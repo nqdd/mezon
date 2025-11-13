@@ -356,8 +356,6 @@ export const updateClan = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-
-			thunkAPI.dispatch(fetchClans({ noCache: true }));
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'clans/updateClans');

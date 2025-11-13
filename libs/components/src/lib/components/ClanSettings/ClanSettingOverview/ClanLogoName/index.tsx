@@ -13,9 +13,10 @@ type ClanLogoNameProps = {
 	onGetClanName: (clanName: string) => void;
 	resetTrigger?: boolean;
 	onResetComplete?: () => void;
+	handleRemovelogo?: () => void;
 };
 
-const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }: ClanLogoNameProps) => {
+const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete, handleRemovelogo }: ClanLogoNameProps) => {
 	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
 	const currentClanLogo = useSelector(selectCurrentClanLogo);
@@ -76,18 +77,6 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }
 		}
 	};
 
-	const handleCloseFile = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.stopPropagation();
-		if (urlLogo && fileInputRef.current) {
-			setUrlLogo('');
-			fileInputRef.current.value = '';
-		}
-
-		if (fileInputRef.current && !urlLogo) {
-			fileInputRef.current.click();
-		}
-	};
-
 	useEffect(() => {
 		if (clanName === currentClanName) {
 			setCheckValidate(false);
@@ -101,6 +90,11 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }
 			onResetComplete?.();
 		}
 	}, [resetTrigger, currentClanLogo, currentClanName, onResetComplete]);
+
+	const handledeleteLogo = () => {
+		setUrlLogo('');
+		handleRemovelogo?.();
+	};
 
 	return (
 		<div className="flex sbm:flex-row flex-col gap-[10px]">
@@ -132,9 +126,18 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete }
 									data-e2e={generateE2eId('clan_page.settings.upload.clan_logo_input')}
 								/>
 							</label>
-							<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
-								<Icons.SelectFileIcon />
-							</div>
+							{urlLogo ? (
+								<div
+									onClick={handledeleteLogo}
+									className="absolute text-sm right-[-15px] cursor-pointer top-[2px] p-[3px] text-theme-primary text-red-500 rounded-full z-50 shadow-xl border-theme-primary"
+								>
+									<Icons.CloseIcon />
+								</div>
+							) : (
+								<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
+									<Icons.SelectFileIcon />
+								</div>
+							)}
 						</div>
 						<p className="text-[10px] mt-[10px]">{t('clanLogo.minimumSize')}</p>
 					</div>
