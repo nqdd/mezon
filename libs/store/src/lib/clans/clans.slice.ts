@@ -181,7 +181,8 @@ export const fetchClansCached = async (
 			}
 		},
 		() => ensuredMezon.client.listClanDescs(ensuredMezon.session, limit, state, cursor || ''),
-		'clan_desc_list'
+		'clan_desc_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);

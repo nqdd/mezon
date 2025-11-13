@@ -71,7 +71,8 @@ export const fetchUsersClanCached = async (getState: () => RootState, ensuredMez
 			}
 		},
 		() => ensuredMezon.client.listClanUsers(ensuredMezon.session, clanId),
-		'clan_user_list'
+		'clan_user_list',
+		{ maxRetries: 5 }
 	);
 
 	const users = response?.clan_users?.map(mapUsersClanToEntity) || [];

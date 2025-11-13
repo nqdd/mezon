@@ -99,7 +99,8 @@ export const fetchCategoriesCached = async (getState: () => RootState, ensuredMe
 			}
 		},
 		() => ensuredMezon.client.listCategoryDescs(ensuredMezon.session, clanId),
-		'category_list'
+		'category_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);

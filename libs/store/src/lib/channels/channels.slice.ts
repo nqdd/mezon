@@ -211,7 +211,8 @@ export const fetchChannelsCached = async (
 			}
 		},
 		() => ensuredMezon.client.listChannelDescs(ensuredMezon.session, limit, state, '', clanId, channelType),
-		'channel_desc_list'
+		'channel_desc_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -248,7 +249,8 @@ export const fetchListFavoriteChannelCached = async (getState: () => RootState, 
 			}
 		},
 		() => ensuredMezon.client.getListFavoriteChannel(ensuredMezon.session, clanId),
-		'favorite_channel_list'
+		'favorite_channel_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -284,7 +286,8 @@ export const fetchAppChannelCached = async (getState: () => RootState, ensuredMe
 			}
 		},
 		() => ensuredMezon.client.listChannelApps(ensuredMezon.session, clanId),
-		'channel_apps_list'
+		'channel_apps_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
