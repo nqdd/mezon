@@ -1,6 +1,6 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { load, save } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { accountActions, appActions, useAppDispatch } from '@mezon/store-mobile';
 import { ErrorInput } from 'apps/mobile/src/app/components/ErrorInput';
 import type { ApiAccountEmail } from 'mezon-js/api.gen';
@@ -203,10 +203,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			if (remainingSeconds > 0) {
 				Toast.show({
 					type: 'error',
-					props: {
-						text2: t('setPhoneModal.tooFast', { seconds: remainingSeconds }),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-					}
+					text1: t('setPhoneModal.tooFast', { seconds: remainingSeconds })
 				});
 				return false;
 			}
