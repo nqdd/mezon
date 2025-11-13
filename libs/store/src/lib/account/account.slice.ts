@@ -103,18 +103,28 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 	}
 });
 
-export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (data: ApiLinkAccountMezon, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+export const addPhoneNumber = createAsyncThunk(
+	'account/addPhoneNumber',
+	async ({ data, isMobile = false }: { data: ApiLinkAccountMezon; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkMezon(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/addPhoneNumber');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
 
-		const response = await mezon.client.linkMezon(mezon.session, data);
-
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'account/addPhoneNumber');
-		return thunkAPI.rejectWithValue(error);
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			}
+		}
 	}
-});
+);
 
 export const linkEmail = createAsyncThunk(
 	'account/linkEmail',

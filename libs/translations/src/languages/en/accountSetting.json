@@ -110,14 +110,12 @@
 		"verifyPhoneNumber": {
 			"description": "Enter the 6-digit code we sent to",
 			"verifyButton": "Verify",
-			"success": "Phone number updated successfully",
-			"failed": "Invalid OTP"
+			"success": "Phone number updated successfully"
 		}
 	},
 	"emailSetting": {
 		"updateEmail": {
 			"newEmail": "New Email",
-			"currentPassword": "Current Password",
 			"nextButton": "Next",
 			"failed": "Email update failed",
 			"invalidEmail": "Invalid email",

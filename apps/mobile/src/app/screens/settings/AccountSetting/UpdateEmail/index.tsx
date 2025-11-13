@@ -254,7 +254,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [checkCooldown, email, t, startCooldownTimer, currentEmail]);
+	}, [checkCooldown, email, t, startCooldownTimer]);
 
 	const isFormValid = useMemo(() => {
 		return isValidEmail && email?.trim()?.length > 0;
