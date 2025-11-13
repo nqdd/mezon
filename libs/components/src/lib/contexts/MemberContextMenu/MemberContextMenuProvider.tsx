@@ -4,6 +4,7 @@ import {
 	EStateFriend,
 	channelUsersActions,
 	selectAllAccount,
+	selectBanMemberCurrentClanById,
 	selectCurrentChannelCreatorId,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
@@ -41,6 +42,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 	const currentChannelCreatorId = useAppSelector(selectCurrentChannelCreatorId);
 
 	const [hasClanOwnerPermission, hasAdminPermission] = usePermissionChecker([EPermission.clanOwner, EPermission.administrator]);
+	const isBan = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannelId || '', currentUser?.id || ''));
 	const dispatch = useAppDispatch();
 	const { addFriend, deleteFriend } = useFriends();
 	const { createDirectMessageWithUser } = useDirect();

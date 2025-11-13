@@ -33,6 +33,7 @@
 		"addFriend": "Thêm bạn",
 		"removeFriend": "Xóa bạn",
 		"banChat": "Chặn",
+		"unBanChat": "Bỏ chặn",
 		"kick": "Đuổi",
 		"removeFromThread": "Xóa {{username}} khỏi chủ đề"
 	},

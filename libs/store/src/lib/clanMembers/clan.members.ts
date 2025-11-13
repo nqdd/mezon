@@ -3,7 +3,7 @@ import type { LoadingStatus, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction, Update } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ClanUserListClanUser } from 'mezon-js/api.gen';
+import type { ChannelUserListChannelUser, ClanUserListClanUser } from 'mezon-js/api.gen';
 import { selectAllAccount } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
@@ -391,7 +391,7 @@ export const UsersClanSlice = createSlice({
 				};
 			});
 
-			UsersClanAdapter.upsertMany(state.byClans[clanId].entities, banList);
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
 		},
 		removeBannedUser: (state, action: PayloadAction<{ clanId: string; channelId: string; userIds: string[] }>) => {
 			const { clanId, channelId, userIds } = action.payload;
@@ -406,7 +406,31 @@ export const UsersClanSlice = createSlice({
 					}
 				};
 			});
-			UsersClanAdapter.upsertMany(state.byClans[clanId].entities, banList);
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+		},
+		upsertBanFromChannel: (state, action: PayloadAction<{ clanId: string; channelId: string; users: ChannelUserListChannelUser[] }>) => {
+			const { clanId, channelId, users } = action.payload;
+			const clanEntities = state.byClans?.[clanId]?.entities?.entities;
+			if (!clanEntities) return;
+			const updates: Update<UsersClanEntity, string>[] = [];
+			for (let i = 0; i < users.length; i++) {
+				const user = users[i];
+				if (!user.is_banned) continue;
+
+				if (!user?.id) return;
+				const userEntity = clanEntities[user.id];
+				if (!userEntity) continue;
+
+				const oldBanList = userEntity.ban_list || {};
+				const newBanList = { ...oldBanList };
+				delete newBanList[channelId];
+
+				updates.push({
+					id: user.id,
+					changes: { ban_list: newBanList }
+				});
+			}
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, updates);
 		}
 	},
 	extraReducers: (builder) => {

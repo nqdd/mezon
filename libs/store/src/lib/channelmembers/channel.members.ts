@@ -171,6 +171,7 @@ export const fetchChannelMembers = createAsyncThunk(
 				thunkAPI.dispatch(channelMembersActions.removeUserByChannel(channelId));
 			}
 
+			thunkAPI.dispatch(usersClanActions.upsertBanFromChannel({ channelId, clanId, users: response.channel_users }));
 			thunkAPI.dispatch(channelMembersActions.setMemberChannels({ channelId, members: response.channel_users }));
 			return { channel_users: response.channel_users, fromCache: false, channelId };
 		} catch (error) {
