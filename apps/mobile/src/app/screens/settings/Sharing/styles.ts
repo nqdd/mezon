@@ -16,7 +16,6 @@ export const style = (colors: Attributes) =>
 			height: '100%',
 			zIndex: 1000
 		},
-
 		// Header section
 		header: {
 			width: '100%',

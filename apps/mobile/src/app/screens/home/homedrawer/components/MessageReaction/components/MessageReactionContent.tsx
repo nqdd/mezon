@@ -1,5 +1,4 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectMessageByMessageId, useAppSelector } from '@mezon/store-mobile';
 import type { EmojiDataOptionals } from '@mezon/utils';
@@ -7,16 +6,14 @@ import { calculateTotalCount, getSrcEmoji } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Dimensions, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { FlatList } from 'react-native-gesture-handler';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import { combineMessageReactions } from '../../../../../../utils/helpers';
-import UserProfile from '../../UserProfile';
 import { style } from '../styles';
-import { ReactionMember } from './ReactionMember';
+import { MessageReactionContentItem } from './MessageReactionContentItem';
 
 interface IMessageReactionContentProps {
 	allReactionDataOnOneMessage: EmojiDataOptionals[];
@@ -103,21 +100,6 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 		prevReactionsRef.current = allReactionDataOnOneMessage || [];
 	}, [allReactionDataOnOneMessage, selectedTabId]);
 
-	const renderRightActions = useCallback(
-		(item: ReactionSenderItem) => {
-			if (item?.sender_id !== userId) {
-				return null;
-			}
-			return (
-				<TouchableOpacity style={styles.deleteSwipeButton} onPress={() => removeEmoji?.(currentEmojiSelected)}>
-					<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
-					<Text style={styles.deleteSwipeText}>{t('reactions.removeActions')}</Text>
-				</TouchableOpacity>
-			);
-		},
-		[removeEmoji, t, userId, currentEmojiSelected]
-	);
-
 	const getTabHeader = () => {
 		return (
 			<FlatList
@@ -150,56 +132,42 @@ export const MessageReactionContent = memo((props: IMessageReactionContentProps)
 	};
 
 	const renderItem = useCallback(
-		({ item, index }: { item: ReactionSenderItem; index: number }) => {
+		({ item }: { item: ReactionSenderItem }) => {
 			return (
-				<View key={`${index}_${item?.sender_id}_allReactionDataOnOneMessage`} style={styles.reactionListItem}>
-					<Swipeable
-						key={`${index}_${item?.sender_id}_${currentEmojiSelected?.emojiId}_reactItem`}
-						enabled={item?.sender_id === userId}
-						renderRightActions={() => renderRightActions(item)}
-					>
-						<ReactionMember
-							userId={item?.sender_id || ''}
-							channelId={channelId}
-							count={item?.count || 0}
-							onSelectUserId={() => {
-								const data = {
-									snapPoints: ['60%', '90%'],
-									hiddenHeaderIndicator: true,
-									children: <UserProfile userId={item?.sender_id || ''} showAction={true} showRole={true} currentChannel={null} />
-								};
-								DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-							}}
-						/>
-					</Swipeable>
-				</View>
+				<MessageReactionContentItem
+					item={item}
+					userId={userId}
+					removeEmoji={removeEmoji}
+					channelId={channelId || ''}
+					currentEmojiSelected={currentEmojiSelected}
+				/>
 			);
 		},
-		[renderRightActions, channelId]
+		[userId, removeEmoji, channelId, currentEmojiSelected]
 	);
 
-	const getContent = () => {
-		return (
-			<View style={styles.contentWrapper}>
-				<View style={styles.removeEmojiContainer}>
-					<Text style={styles.emojiText}>{currentEmojiSelected?.emoji || ''}</Text>
-					<View style={styles.deleteEmojiWrapper}>
-						{isExistingMyEmoji ? (
-							<Pressable style={styles.confirmDeleteEmoji} onPress={() => removeEmoji?.(currentEmojiSelected)}>
-								<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
-							</Pressable>
-						) : null}
-					</View>
-				</View>
-				<FlashList data={dataSenderEmojis || []} renderItem={renderItem} estimatedItemSize={size.s_50} />
-			</View>
-		);
-	};
 	return (
 		<BottomSheetScrollView stickyHeaderIndices={[0]}>
 			{!!allReactionDataOnOneMessage?.length && <View style={styles.contentHeader}>{getTabHeader()}</View>}
 			{allReactionDataOnOneMessage?.length ? (
-				<View>{getContent()}</View>
+				<View style={styles.contentWrapper}>
+					<View style={styles.removeEmojiContainer}>
+						<Text style={styles.emojiText}>{currentEmojiSelected?.emoji || ''}</Text>
+						<View style={styles.deleteEmojiWrapper}>
+							{isExistingMyEmoji ? (
+								<Pressable style={styles.confirmDeleteEmoji} onPress={() => removeEmoji?.(currentEmojiSelected)}>
+									<MezonIconCDN icon={IconCDN.trashIcon} width={size.s_20} height={size.s_20} color={baseColor.white} />
+								</Pressable>
+							) : null}
+						</View>
+					</View>
+					<FlashList
+						data={dataSenderEmojis || []}
+						renderItem={renderItem}
+						estimatedItemSize={size.s_50}
+						keyExtractor={(item, index) => `${index}_${item?.sender_id}_allReactionDataOnOneMessage`}
+					/>
+				</View>
 			) : (
 				<View style={styles.noActionsWrapper}>
 					<Text style={styles.noActionTitle}>{t('reactions.noActionTitle')}</Text>

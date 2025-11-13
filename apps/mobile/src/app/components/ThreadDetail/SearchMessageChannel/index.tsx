@@ -62,11 +62,7 @@ const SearchMessageChannel = ({ route }: SearchMessageChannelProps) => {
 		setSearchMessagePage(true);
 	}, []);
 
-	useEffect(() => {
-		if (nameChannel) handleSearchMessage();
-	}, [searchText, userMention, nameChannel]);
-
-	const handleSearchMessage = () => {
+	const handleSearchMessage = useCallback(() => {
 		const filter: SearchFilter[] = [];
 
 		filter.push({ field_name: 'channel_id', field_value: currentChannel?.id }, { field_name: 'clan_id', field_value: currentClanId as string });
@@ -74,7 +70,7 @@ const SearchMessageChannel = ({ route }: SearchMessageChannelProps) => {
 		if (optionFilter && userMention) {
 			filter.push({
 				field_name: optionFilter?.value,
-				field_value: optionFilter?.value === 'mention' ? `"user_id":"${userMention?.id}"` : userMention?.display
+				field_value: optionFilter?.value === 'mention' ? `"user_id":"${userMention?.id}"` : userMention?.subDisplay || userMention?.display
 			});
 		}
 		if (searchText?.trim()) {
@@ -94,7 +90,11 @@ const SearchMessageChannel = ({ route }: SearchMessageChannelProps) => {
 			dispatch(searchMessagesActions.setCurrentPage({ channelId: currentChannel?.id, page: 1 }));
 			dispatch(searchMessagesActions.fetchListSearchMessage(payload));
 		}
-	};
+	}, [currentChannel?.id, currentClanId, dispatch, optionFilter, searchText, userMention]);
+
+	useEffect(() => {
+		if (nameChannel) handleSearchMessage();
+	}, [handleSearchMessage, nameChannel]);
 
 	const handleKeyPress = useCallback(
 		(e) => {
