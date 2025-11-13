@@ -2,6 +2,7 @@ import { useAppNavigation, useDirect, useFriends, usePermissionChecker } from '@
 import type { ChannelMembersEntity } from '@mezon/store';
 import {
 	EStateFriend,
+	channelMembersActions,
 	channelUsersActions,
 	selectAllAccount,
 	selectBanMemberCurrentClanById,
@@ -13,7 +14,8 @@ import {
 	selectFriendStatus,
 	selectTheme,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	usersClanActions
 } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
@@ -162,9 +164,34 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 
 			try {
 				await dispatch(
-					channelUsersActions.banChatUser({
+					channelMembersActions.banUserChannel({
 						channelId: currentChannelId,
-						userId,
+						userIds: [userId],
+						clanId: currentClanId
+					})
+				);
+			} catch (error) {
+				dispatch({
+					type: 'ERROR_NOTIFICATION',
+					payload: {
+						message: 'Failed to ban chat member',
+						error
+					}
+				});
+			}
+		},
+		[dispatch, currentClanId, currentChannelId, isThread]
+	);
+
+	const handleUnBanChatUser = useCallback(
+		async (userId?: string) => {
+			if (!userId || !currentChannelId || !currentClanId) return;
+
+			try {
+				await dispatch(
+					channelMembersActions.unbanUserChannel({
+						channelId: currentChannelId,
+						userIds: [userId],
 						clanId: currentClanId
 					})
 				);
@@ -224,9 +251,13 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 					handleRemoveMemberFromThread(user.user.id);
 				}
 			},
-			handleBanChat: () => {
+			handleBanChat: (isBan: boolean) => {
 				if (user?.user?.id) {
-					handleBanChatUser(user.user.id);
+					if (isBan) {
+						handleUnBanChatUser(user.user.id);
+					} else {
+						handleBanChatUser(user.user.id);
+					}
 				}
 			}
 		};
@@ -243,8 +274,11 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 			const handlers = createDefaultHandlers(user);
 			setCurrentHandlers(handlers);
 			showMenu(event);
+			if (hasAdminPermission && currentChannelId && currentClanId) {
+				dispatch(usersClanActions.fetchListBanUser({ clanId: currentClanId, channelId: currentChannelId }));
+			}
 		},
-		[currentChannelId]
+		[currentChannelId, hasAdminPermission]
 	);
 
 	const contextValue: MemberContextMenuContextType = {
@@ -312,8 +346,8 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 						)}
 						{shouldShow('banChat') && (
 							<MemberMenuItem
-								label={t('member.banChat')}
-								onClick={currentHandlers.handleBanChat}
+								label={isBan ? t('member.unBanChat') : t('member.banChat')}
+								onClick={() => currentHandlers.handleBanChat(isBan)}
 								isWarning={true}
 								setWarningStatus={setWarningStatus}
 							/>
