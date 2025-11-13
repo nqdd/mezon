@@ -20,16 +20,22 @@ type SystemMessagesManagementProps = {
 	updateSystem: ApiSystemMessage | null;
 	setUpdateSystemMessageRequest: React.Dispatch<React.SetStateAction<ApiSystemMessageRequest | null>>;
 	channelSelectedId: string;
+	setClanRequest: (channel: any) => void;
 };
 
-const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest, channelSelectedId }: SystemMessagesManagementProps) => {
+const SystemMessagesManagement = ({
+	updateSystem,
+	setUpdateSystemMessageRequest,
+	channelSelectedId,
+	setClanRequest
+}: SystemMessagesManagementProps) => {
 	const { t } = useTranslation('clanSettings');
 	const dispatch = useAppDispatch();
 	const channelsList = useAppSelector(selectAllChannels);
 	const currentClanId = useAppSelector(selectCurrentClanId);
 
 	useEffect(() => {
-		if (currentClanId) {
+		if (currentClanId && channelsList.length === 0) {
 			dispatch(
 				fetchChannels({
 					clanId: currentClanId,
@@ -37,7 +43,7 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 				})
 			);
 		}
-	}, [currentClanId]);
+	}, [currentClanId, dispatch, channelsList.length]);
 	const selectedChannel = useMemo(() => {
 		return channelsList.find((channel) => channel.id === channelSelectedId);
 	}, [channelsList, channelSelectedId]);
@@ -45,6 +51,7 @@ const SystemMessagesManagement = ({ updateSystem, setUpdateSystemMessageRequest,
 	const handleToggleSetting = (checked: boolean, type: ETypeUpdateSystemMessage, channelId?: string) => {
 		if (channelId && channelId !== channelSelectedId && type === ETypeUpdateSystemMessage.CHANNEL) {
 			setUpdateSystemMessageRequest({ ...updateSystem, channel_id: channelId });
+			setClanRequest((prev: any) => ({ ...prev, welcome_channel_id: channelId }));
 			return;
 		}
 		switch (type) {

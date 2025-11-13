@@ -2,7 +2,6 @@ import { ChannelList, ClanHeader } from '@mezon/components';
 import { useApp, useGifsStickersEmoji } from '@mezon/core';
 import {
 	appActions,
-	onboardingActions,
 	selectAllAccount,
 	selectCloseMenu,
 	selectCurrentChannelId,
@@ -98,13 +97,13 @@ const ClanLayout = () => {
 	};
 	const isVoiceFullScreen = useSelector(selectVoiceFullScreen);
 
-	useEffect(() => {
-		if (!currentClanId) return;
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId }));
-		if (currentClanIsOnboarding) {
-			dispatch(onboardingActions.fetchProcessingOnboarding({ clan_id: currentClanId }));
-		}
-	}, [currentClanIsOnboarding, currentClanId, dispatch]);
+	// useEffect(() => {
+	// 	if (!currentClanId) return;
+	// 	dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId }));
+	// 	if (currentClanIsOnboarding) {
+	// 		dispatch(onboardingActions.fetchProcessingOnboarding({ clan_id: currentClanId }));
+	// 	}
+	// }, [currentClanIsOnboarding, currentClanId, dispatch]);
 
 	return (
 		<>
