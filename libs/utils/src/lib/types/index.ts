@@ -781,7 +781,7 @@ export type IMessageLine = {
 
 export interface UsersClanEntity extends IUsersClan {
 	id: string; // Primary ID
-	ban_list?: Set<string>;
+	ban_list?: Record<string, string>;
 }
 
 export interface ChannelMembersEntity extends IChannelMember {
