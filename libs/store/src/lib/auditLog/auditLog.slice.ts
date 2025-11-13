@@ -1,10 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-import { ApiAuditLog, MezonapiListAuditLog } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ensureSession, getMezonCtx, MezonValueContext } from '../helpers';
-import { RootState } from '../store';
+import type { LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiAuditLog, MezonapiListAuditLog } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
+import type { RootState } from '../store';
 
 export const AUDIT_LOG_FEATURE_KEY = 'auditlog';
 const FETCH_AUDIT_LOG_CACHED_TIME = 1000 * 60 * 60;
@@ -61,7 +64,10 @@ export const fetchAuditLogCached = async (
 		};
 	}
 
-	const response = await mezon.client.listAuditLog(mezon.session, actionLog, userId, clanId, date_log);
+	const response = await withRetry(() => mezon.client.listAuditLog(mezon.session, actionLog, userId, clanId, date_log), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 

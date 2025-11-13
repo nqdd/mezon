@@ -7,7 +7,7 @@ import type { ApiEditChannelCanvasRequest } from 'mezon-js/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const CANVAS_API_FEATURE_KEY = 'canvasapi';
@@ -106,7 +106,10 @@ const fetchCanvasListCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page);
+	const response = await withRetry(() => mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -136,7 +139,10 @@ const fetchCanvasDetailCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id);
+	const response = await withRetry(() => mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
