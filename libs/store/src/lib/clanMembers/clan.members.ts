@@ -418,16 +418,14 @@ export const UsersClanSlice = createSlice({
 				const user = users[i];
 				if (!user.is_banned) continue;
 
-				if (!user?.id) return;
-				const userEntity = clanEntities[user.id];
+				if (!user?.user_id) return;
+				const userEntity = clanEntities[user.user_id];
 				if (!userEntity) continue;
 
 				const oldBanList = userEntity.ban_list || {};
-				const newBanList = { ...oldBanList };
-				delete newBanList[channelId];
-
+				const newBanList = { ...oldBanList, [channelId]: '' };
 				updates.push({
-					id: user.id,
+					id: user.user_id,
 					changes: { ban_list: newBanList }
 				});
 			}
@@ -636,7 +634,7 @@ export const selectBanMemberCurrentClanById = createSelector(
 	(state, clanId, channelId, userId) => {
 		const clanState = state.byClans?.[clanId]?.entities;
 		if (!clanState) return false;
-		return selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list?.[channelId];
+		return Object.prototype.hasOwnProperty.call(selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list || {}, channelId);
 	}
 );
 export const selectBanMemberByChannelId = createSelector(
