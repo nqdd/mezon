@@ -34,6 +34,7 @@ import {
 	giveCoffeeActions,
 	listChannelRenderAction,
 	listChannelsByUserActions,
+	listUsersByUserActions,
 	mapMessageChannelToEntityAction,
 	mapNotificationToEntity,
 	mapReactionToEntity,
@@ -2335,6 +2336,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 
 	const onaddfriend = useCallback((user: AddFriend) => {
 		dispatch(friendsActions.upsertFriendRequest({ user, myId: userId || '' }));
+		dispatch(
+			listUsersByUserActions.updateUserInList({
+				id: user?.user_id,
+				avatar_url: user?.avatar,
+				display_name: user?.display_name,
+				username: user?.username
+			})
+		);
 	}, []);
 
 	const onbanneduser = useCallback((user: BannedUserEvent) => {

@@ -1,7 +1,7 @@
 import { BaseProfile } from '@mezon/components';
 import { useAppNavigation, useDirect, useFriends, useMemberStatus } from '@mezon/core';
 import type { FriendsEntity } from '@mezon/store';
-import { audioCallActions, selectCurrentTabStatus } from '@mezon/store';
+import { audioCallActions, listUsersByUserActions, selectCurrentTabStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ETabUserStatus, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
@@ -113,6 +113,8 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
 	const userStatus = useMemberStatus(friend?.user?.id || '');
 
+	const dispatch = useDispatch();
+
 	const coords = useRef<Coords>({
 		mouseX: 0,
 		mouseY: 0,
@@ -132,8 +134,9 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		return;
 	}, [friend]);
 
-	const handleAcceptFriend = (username: string, id: string) => {
+	const handleAcceptFriend = (username: string, id: string, avatar?: string, displayName?: string) => {
 		acceptFriend(username, id);
+		dispatch(listUsersByUserActions.updateUserInList({ id, avatar_url: avatar, display_name: displayName, username }));
 	};
 
 	const handleDeleteFriend = (username: string, id: string) => {
@@ -250,7 +253,14 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 							<button
 								title={t('friendMenu.accept')}
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
-								onClick={() => handleAcceptFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								onClick={() =>
+									handleAcceptFriend(
+										friend?.user?.username as string,
+										friend?.user?.id as string,
+										friend?.user?.avatar_url as string,
+										friend?.user?.display_name as string
+									)
+								}
 								data-e2e={generateE2eId('friend_page.button.accept_friend_request')}
 							>
 								✓

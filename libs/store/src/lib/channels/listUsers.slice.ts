@@ -1,10 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { IUsers, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUser } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IUsers, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUser } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const LIST_USERS_BY_USER_FEATURE_KEY = 'listusersbyuserid';
 
@@ -93,7 +96,11 @@ export const initialListUsersByUserState: ListUsersState = listUsersAdapter.getI
 export const listUsersByUserSlice = createSlice({
 	name: LIST_USERS_BY_USER_FEATURE_KEY,
 	initialState: initialListUsersByUserState,
-	reducers: {},
+	reducers: {
+		updateUserInList: (state, action: PayloadAction<UsersEntity>) => {
+			listUsersAdapter.upsertOne(state, action.payload);
+		}
+	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(fetchListUsersByUser.pending, (state: ListUsersState) => {
