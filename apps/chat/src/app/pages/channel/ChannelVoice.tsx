@@ -160,6 +160,7 @@ const ChannelVoice = memo(
 							channel_id={currentChannelId as string}
 							loading={loading}
 							handleJoinRoom={handleJoinRoom}
+							channel_label={currentChannelLabel}
 							isCurrentChannel={isShow}
 						/>
 

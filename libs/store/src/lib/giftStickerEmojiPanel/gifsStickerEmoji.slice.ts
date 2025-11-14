@@ -1,5 +1,6 @@
 import { SubPanelName } from '@mezon/utils';
-import { PayloadAction, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 
 export const GIFS_STICKERS_EMOJIS_FEATURE_KEY = 'gifsStickersEmojis';
 
@@ -8,7 +9,7 @@ export interface GifsStickersEmojisState {
 	error?: string | null;
 	subPanelActive: SubPanelName;
 	valueInputToCheckHandleSearchState?: string;
-	placeHolder: string;
+	placeHolder: string | null;
 }
 
 export const initialGifsStickersEmojisState: GifsStickersEmojisState = {
@@ -16,7 +17,7 @@ export const initialGifsStickersEmojisState: GifsStickersEmojisState = {
 	error: null,
 	subPanelActive: SubPanelName.NONE,
 	valueInputToCheckHandleSearchState: '',
-	placeHolder: 'Find the perfect emoji'
+	placeHolder: null
 };
 
 export const gifsStickersEmojisSlice = createSlice({
