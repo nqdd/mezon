@@ -1,12 +1,14 @@
 import { auditLogFilterActions, auditLogList, selectTheme, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ActionLog, IUserAuditLog } from '@mezon/utils';
+import type { IUserAuditLog } from '@mezon/utils';
+import { ActionLog } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface Action {
 	name: string;
+	originalKey: ActionLog;
 	icon: string;
 }
 
@@ -88,17 +90,74 @@ const SearchActionAuditLogModal = ({
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedAction, setSelectedAction] = useState<string>(actionFilter || ActionLog.ALL_ACTION_AUDIT);
 
+	const getTranslatedActionName = (actionKey: ActionLog): string => {
+		const actionMap: { [key in ActionLog]: string } = {
+			[ActionLog.ALL_ACTION_AUDIT]: t('actions.allActions'),
+			[ActionLog.UPDATE_CLAN_ACTION_AUDIT]: t('actions.updateClan'),
+			[ActionLog.CREATE_CHANNEL_ACTION_AUDIT]: t('actions.createChannel'),
+			[ActionLog.UPDATE_CHANNEL_ACTION_AUDIT]: t('actions.updateChannel'),
+			[ActionLog.UPDATE_CHANNEL_PRIVATE_ACTION_AUDIT]: t('actions.updateChannelPrivate'),
+			[ActionLog.DELETE_CHANNE_ACTION_AUDIT]: t('actions.deleteChannel'),
+			[ActionLog.CREATE_CHANNEL_PERMISSION_ACTION_AUDIT]: t('actions.createChannelPermission'),
+			[ActionLog.UPDATE_CHANNEL_PERMISSION_ACTION_AUDIT]: t('actions.updateChannelPermission'),
+			[ActionLog.DELETE_CHANNEL_PERMISSION_ACTION_AUDIT]: t('actions.deleteChannelPermission'),
+			[ActionLog.KICK_MEMBER_ACTION_AUDIT]: t('actions.kickMember'),
+			[ActionLog.PRUNE_MEMBER_ACTION_AUDIT]: t('actions.pruneMember'),
+			[ActionLog.BAN_MEMBER_ACTION_AUDIT]: t('actions.banMember'),
+			[ActionLog.UNBAN_MEMBER_ACTION_AUDIT]: t('actions.unbanMember'),
+			[ActionLog.UPDATE_MEMBER_ACTION_AUDIT]: t('actions.updateMember'),
+			[ActionLog.UPDATE_ROLES_MEMBER_ACTION_AUDIT]: t('actions.updateRolesMember'),
+			[ActionLog.MOVE_MEMBER_ACTION_AUDIT]: t('actions.moveMember'),
+			[ActionLog.DISCONNECT_MEMBER_ACTION_AUDIT]: t('actions.disconnectMember'),
+			[ActionLog.ADD_BOT_ACTION_AUDIT]: t('actions.addBot'),
+			[ActionLog.CREATE_THREAD_ACTION_AUDIT]: t('actions.createThread'),
+			[ActionLog.UPDATE_THREAD_ACTION_AUDIT]: t('actions.updateThread'),
+			[ActionLog.DELETE_THREAD_ACTION_AUDIT]: t('actions.deleteThread'),
+			[ActionLog.CREATE_ROLE_ACTION_AUDIT]: t('actions.createRole'),
+			[ActionLog.UPDATE_ROLE_ACTION_AUDIT]: t('actions.updateRole'),
+			[ActionLog.DELETE_ROLE_ACTION_AUDIT]: t('actions.deleteRole'),
+			[ActionLog.CREATE_WEBHOOK_ACTION_AUDIT]: t('actions.createWebhook'),
+			[ActionLog.UPDATE_WEBHOOK_ACTION_AUDIT]: t('actions.updateWebhook'),
+			[ActionLog.DELETE_WEBHOOK_ACTION_AUDIT]: t('actions.deleteWebhook'),
+			[ActionLog.CREATE_EMOJI_ACTION_AUDIT]: t('actions.createEmoji'),
+			[ActionLog.UPDATE_EMOJI_ACTION_AUDIT]: t('actions.updateEmoji'),
+			[ActionLog.DELETE_EMOJI_ACTION_AUDIT]: t('actions.deleteEmoji'),
+			[ActionLog.CREATE_STICKER_ACTION_AUDIT]: t('actions.createSticker'),
+			[ActionLog.UPDATE_STICKER_ACTION_AUDIT]: t('actions.updateSticker'),
+			[ActionLog.DELETE_STICKER_ACTION_AUDIT]: t('actions.deleteSticker'),
+			[ActionLog.CREATE_EVENT_ACTION_AUDIT]: t('actions.createEvent'),
+			[ActionLog.UPDATE_EVENT_ACTION_AUDIT]: t('actions.updateEvent'),
+			[ActionLog.DELETE_EVENT_ACTION_AUDIT]: t('actions.deleteEvent'),
+			[ActionLog.CREATE_CANVAS_ACTION_AUDIT]: t('actions.createCanvas'),
+			[ActionLog.UPDATE_CANVAS_ACTION_AUDIT]: t('actions.updateCanvas'),
+			[ActionLog.DELETE_CANVAS_ACTION_AUDIT]: t('actions.deleteCanvas'),
+			[ActionLog.CREATE_CATEGORY_ACTION_AUDIT]: t('actions.createCategory'),
+			[ActionLog.UPDATE_CATEGORY_ACTION_AUDIT]: t('actions.updateCategory'),
+			[ActionLog.DELETE_CATEGORY_ACTION_AUDIT]: t('actions.deleteCategory'),
+			[ActionLog.ADD_MEMBER_CHANNEL_ACTION_AUDIT]: t('actions.addMemberChannel'),
+			[ActionLog.REMOVE_MEMBER_CHANNEL_ACTION_AUDIT]: t('actions.removeMemberChannel'),
+			[ActionLog.ADD_ROLE_CHANNEL_ACTION_AUDIT]: t('actions.addRoleChannel'),
+			[ActionLog.REMOVE_ROLE_CHANNEL_ACTION_AUDIT]: t('actions.removeRoleChannel'),
+			[ActionLog.ADD_MEMBER_THREAD_ACTION_AUDIT]: t('actions.addMemberThread'),
+			[ActionLog.REMOVE_MEMBER_THREAD_ACTION_AUDIT]: t('actions.removeMemberThread'),
+			[ActionLog.ADD_ROLE_THREAD_ACTION_AUDIT]: t('actions.addRoleThread'),
+			[ActionLog.REMOVE_ROLE_THREAD_ACTION_AUDIT]: t('actions.removeRoleThread')
+		};
+		return actionMap[actionKey] || actionKey;
+	};
+
 	const actions = Object.values(ActionLog).map((action) => ({
-		name: action,
+		name: getTranslatedActionName(action),
+		originalKey: action,
 		icon: iconMap[action] || '-'
 	}));
 
 	const handleActionClick = (action: Action) => {
-		setSelectedAction(action?.name || actionFilter);
-		dispatch(auditLogFilterActions.setAction(action?.name === ActionLog.ALL_ACTION_AUDIT ? '' : action?.name));
+		setSelectedAction(action?.originalKey || actionFilter);
+		dispatch(auditLogFilterActions.setAction(action?.originalKey === ActionLog.ALL_ACTION_AUDIT ? '' : action?.originalKey));
 		if (currentClanId) {
 			const body = {
-				actionLog: action?.name === ActionLog.ALL_ACTION_AUDIT ? '' : action?.name,
+				actionLog: action?.originalKey === ActionLog.ALL_ACTION_AUDIT ? '' : action?.originalKey,
 				userId: userFilter?.userId ?? '',
 				clanId: currentClanId ?? '',
 				date_log: selectedDate
@@ -134,13 +193,13 @@ const SearchActionAuditLogModal = ({
 							<div
 								key={index}
 								className={`flex items-center px-2 py-[10px] mb-1 text-theme-primary font-medium rounded cursor-pointer transition-colors bg-item-theme-hover ${
-									selectedAction === action.name ? 'bg-[#5865F2] text-white hover:text-buttonProfile' : ''
+									selectedAction === action.originalKey ? 'bg-[#5865F2] text-white hover:text-buttonProfile' : ''
 								}`}
 								onClick={() => handleActionClick(action)}
 							>
 								<span className="">{action.icon}</span>
 								<span className="ml-3 ">{action.name}</span>
-								{selectedAction === action.name && (
+								{selectedAction === action.originalKey && (
 									<span className="ml-auto">
 										<Icons.CheckMarkFilter defaultSize="w-5 h-5" defaultFill="text-white" />
 									</span>

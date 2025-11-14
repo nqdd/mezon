@@ -20,6 +20,7 @@
 		"save": "Lưu",
 		"cancel": "Hủy",
 		"channel": "Kênh",
+		"nameLabel": "Tên",
 		"recommendImage": "Khuyến nghị sử dụng hình ảnh có kích thước tối thiểu 128x128 px",
 		"webhookURL": "URL Webhook",
 		"copy": "Sao chép",

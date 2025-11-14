@@ -202,7 +202,13 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			<div ref={modalRef} tabIndex={-1} className="pt-[20px] mt-[12px] border-t dark:border-[#3b3d44]">
 				<div className="flex gap-2">
 					<div className="w-3/12 dark:text-[#b5bac1] text-textLightTheme">
-						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')} />
+						<input
+							onChange={handleChooseFile}
+							ref={avatarRef}
+							type="file"
+							hidden
+							data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')}
+						/>
 						<div className="relative w-fit">
 							<div
 								onClick={() => avatarRef.current?.click()}
@@ -223,7 +229,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 						<div className="flex gap-6 w-full">
 							<div className="w-1/2">
 								<div className="dark:text-[#b5bac1] text-textLightTheme text-[12px] mb-[10px]">
-									<b>NAME</b>
+									<b>{t('webhooksEdit.nameLabel').toUpperCase()}</b>
 								</div>
 								<input
 									onChange={(e) =>

@@ -187,6 +187,7 @@
 		"cancel": "Hủy"
 	},
 	"reply": "{{number}} tin nhắn",
+	"numberReplies": "{{number}} tin nhắn",
 	"replies": "Tin nhắn",
 	"attachments": {
 		"image": "Hình ảnh",

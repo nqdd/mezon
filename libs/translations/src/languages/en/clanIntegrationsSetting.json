@@ -21,6 +21,7 @@
 		"save": "Save",
 		"cancel": "Cancel",
 		"channel": "Channel",
+		"nameLabel": "Name",
 		"recommendImage": "We recommend an image of at least 128x128",
 		"webhookURL": "Webhook URL",
 		"copy": "Copy",
