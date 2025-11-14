@@ -114,10 +114,10 @@ export const refreshSession = createAsyncThunk('auth/refreshSession', async (_, 
 	let session = new Session(
 		sessionState.token,
 		sessionState.refresh_token,
-		sessionState.user_id || '',
 		sessionState.created,
 		sessionState.api_url,
-		!!sessionState.is_remember
+		!!sessionState.is_remember,
+		sessionState.user_id
 	);
 
 	try {
