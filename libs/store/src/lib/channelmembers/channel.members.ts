@@ -106,7 +106,8 @@ export const fetchChannelMembersCached = async (
 			}
 		},
 		() => ensuredMezon.client.listChannelUsers(ensuredMezon.session, clanId, channelId, channelType, 1, 2000, ''),
-		'channel_user_list'
+		'channel_user_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);

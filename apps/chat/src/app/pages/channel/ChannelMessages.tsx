@@ -126,7 +126,7 @@ const DMMessageWrapper = ({ channelId, children }: { channelId: string; children
 	return <MessageContextMenuProvider channelId={channelId}>{children}</MessageContextMenuProvider>;
 };
 
-const HasmoreBottomTracker = memo(({ channelId }: { channelId: string }) => {
+const HasmoreBottomTracker = memo(({ channelId, topicId }: { channelId: string; topicId?: string }) => {
 	const dispatch = useAppDispatch();
 	const hasMoreBottom = useAppSelector((state) => selectHasMoreBottomByChannelId(state, channelId));
 
@@ -134,7 +134,7 @@ const HasmoreBottomTracker = memo(({ channelId }: { channelId: string }) => {
 		if (!hasMoreBottom) return;
 		dispatch(
 			channelsActions.setScrollDownVisibility({
-				channelId,
+				channelId: topicId || channelId,
 				isVisible: hasMoreBottom
 			})
 		);
@@ -210,24 +210,47 @@ function ChannelMessages({
 		lastSeenAtBottomRef.current = null;
 		isJumpingToPresentRef.current = false;
 
-		requestIdleCallback &&
-			requestIdleCallback(() => {
-				if (previousChannelId.current) {
-					dispatch(messagesActions.UpdateChannelLastMessage({ channelId: previousChannelId.current }));
-				}
-				previousChannelId.current = channelId;
-			});
+		previousChannelId.current = channelId;
+
 		return () => {
 			if (!channelId) return;
-			const store = getStore();
-			const scrollPosition = selectScrollPositionByChannelId(store.getState(), channelId);
-			if (scrollPosition?.messageId) return;
-			dispatch(
-				channelsActions.setScrollPosition({
-					channelId,
-					messageId: messageIds?.at(-1)
-				})
-			);
+
+			const state = getStore()?.getState();
+			const currentMessageIds = selectMessageViewportIdsByChannelId(state, channelId);
+			const lastMessageViewport = currentMessageIds?.at(-1);
+
+			if (lastMessageViewport) {
+				const lastSeenMessageId = selectUnreadMessageIdByChannelId(state, channelId);
+
+				let shouldUpdate = true;
+				if (lastSeenMessageId) {
+					try {
+						const distance = Math.round(Number((BigInt(lastMessageViewport) >> BigInt(22)) - (BigInt(lastSeenMessageId) >> BigInt(22))));
+						shouldUpdate = distance >= 0;
+					} catch (e) {
+						shouldUpdate = true;
+					}
+				}
+
+				if (shouldUpdate) {
+					dispatch(
+						messagesActions.UpdateChannelLastMessage({
+							channelId,
+							messageId: lastMessageViewport
+						})
+					);
+				}
+			}
+
+			const scrollPosition = selectScrollPositionByChannelId(state, channelId);
+			if (!scrollPosition?.messageId && lastMessageViewport) {
+				dispatch(
+					channelsActions.setScrollPosition({
+						channelId,
+						messageId: lastMessageViewport
+					})
+				);
+			}
 		};
 	}, [channelId]);
 
@@ -237,29 +260,26 @@ function ChannelMessages({
 		}
 	}, [lastMessage?.id]);
 
-	useSyncEffect(() => {
-		return () => {
-			requestIdleCallback &&
-				requestIdleCallback(() => {
-					if (previousChannelId.current) {
-						dispatch(messagesActions.UpdateChannelLastMessage({ channelId: previousChannelId.current }));
-					}
-				});
-		};
-	}, []);
-
 	const loadMoreMessage = useCallback(
 		async (direction: ELoadMoreDirection, cb?: IBeforeRenderCb) => {
 			const store = getStore();
-			const isFetching = selectMessageIsLoading(store.getState());
+			const state = store.getState();
+			const isFetching = selectMessageIsLoading(state);
 			if (isFetching) {
 				return;
 			}
 
 			if (direction === ELoadMoreDirection.bottom) {
-				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+				const hasMoreBottom = selectHasMoreBottomByChannelId(state as RootState, channelId);
 				if (!hasMoreBottom || preventScrollbottom.current) {
 					dispatch(messagesActions.setViewingOlder({ channelId, status: false }));
+					return;
+				}
+			}
+
+			if (direction === ELoadMoreDirection.top) {
+				const hasMoreTop = selectHasMoreMessageByChannelId(state as RootState, topicId || channelId);
+				if (!hasMoreTop) {
 					return;
 				}
 			}
@@ -401,7 +421,7 @@ function ChannelMessages({
 
 			dispatch(
 				channelsActions.setScrollDownVisibility({
-					channelId,
+					channelId: topicId || channelId,
 					isVisible
 				})
 			);
@@ -491,7 +511,7 @@ function ChannelMessages({
 				isJumpingToPresentRef={isJumpingToPresentRef}
 				setAnchor={setAnchor}
 			/>
-			<HasmoreBottomTracker channelId={channelId} />
+			<HasmoreBottomTracker channelId={channelId} topicId={topicId} />
 			<FirstJoinLoadTracker channelId={channelId} isFirstJoinLoadRef={isFirstJoinLoadRef} />
 		</>
 	);
@@ -847,7 +867,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						if (!showFAB) return;
 						dispatch(
 							channelsActions.setScrollDownVisibility({
-								channelId,
+								channelId: topicId || channelId,
 								isVisible: false
 							})
 						);
@@ -938,7 +958,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const { scrollTop, scrollHeight } = container;
 
 					const store = getStore();
-					const isAtBottom = !selectShowScrollDownButton(store.getState(), channelId);
+					const isAtBottom = !selectShowScrollDownButton(store.getState(), topicId || channelId);
 
 					const isAlreadyFocusing = false;
 					if (isAtBottom && !isAlreadyFocusing) {

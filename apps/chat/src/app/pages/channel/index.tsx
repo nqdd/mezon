@@ -9,7 +9,6 @@ import {
 	getStore,
 	gifsStickerEmojiActions,
 	handleParticipantVoiceState,
-	messagesActions,
 	onboardingActions,
 	selectAppChannelById,
 	selectBanMemberCurrentClanById,
@@ -131,11 +130,7 @@ function useChannelSeen(channelId: string) {
 		updateChannelSeenState(channelId);
 	}, [channelId, lastMessageViewport, updateChannelSeenState]);
 
-	const handleUpdateChannelLastMessage = useCallback(() => {
-		dispatch(messagesActions.UpdateChannelLastMessage({ channelId }));
-	}, [dispatch, channelId]);
-
-	useBackgroundMode(handleUpdateChannelLastMessage, markMessageAsRead);
+	useBackgroundMode(undefined, markMessageAsRead);
 }
 
 const ChannelSeenListener = memo(({ channelId }: { channelId: string }) => {

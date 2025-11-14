@@ -1,20 +1,14 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { IMessageWithUser } from '@mezon/utils';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Animated, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, DeviceEventEmitter, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
-import { MezonModal } from '../../../../../componentUI/MezonModal';
 import { SeparatorWithSpace } from '../../../../../components/Common';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './styles';
-
-interface IReportMessageModalProps {
-	isVisible: boolean;
-	onClose: () => void;
-	message: IMessageWithUser;
-}
+import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 
 interface IReportOption {
 	title: string;
@@ -47,8 +41,7 @@ const reportOptionList: IReportOption[] = [
 	}
 ];
 
-export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
-	const { isVisible, onClose, message } = props;
+export const ReportMessageModal = memo(() => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [reportSelected, setReportSelected] = useState<IReportOption | null>(null);
@@ -59,6 +52,10 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 		if (!value) {
 			onClose();
 		}
+	};
+
+	const onClose = () => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
 	useEffect(() => {
@@ -84,13 +81,8 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 	};
 
 	return (
-		<MezonModal
-			visible={isVisible}
-			rightClose={true}
-			onBack={() => setReportSelected(null)}
-			visibleBackButton={!!reportSelected}
-			visibleChange={onVisibleChange}
-		>
+		<View style={styles.container}>
+			<StatusBarHeight />
 			<View style={styles.reportMessageModalContainer}>
 				<View style={styles.contentWrapper}>
 					{reportSelected ? (
@@ -147,12 +139,12 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 					</View>
 				) : (
 					<View style={styles.buttonWrapper}>
-						<TouchableOpacity onPress={() => onVisibleChange(false)}>
+						<TouchableOpacity style={styles.buttonCannel} onPress={() => onVisibleChange(false)}>
 							<Text style={styles.cannelText}>{t('reportMessage.cancel')}</Text>
 						</TouchableOpacity>
 					</View>
 				)}
 			</View>
-		</MezonModal>
+		</View>
 	);
 });

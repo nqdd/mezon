@@ -5,7 +5,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiQuickMenuAccess, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const QUICK_MENU_FEATURE_KEY = 'quickMenu';
@@ -187,7 +187,10 @@ export const listQuickMenuAccess = createAsyncThunk(
 			}
 
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.listQuickMenuAccess(mezon.session, '0', channelId, menuType);
+			const response = await withRetry(() => mezon.client.listQuickMenuAccess(mezon.session, '0', channelId, menuType), {
+				maxRetries: 3,
+				initialDelay: 1000
+			});
 
 			return { channelId, menuType, quickMenuItems: response.list_menus || [], fromCache: false };
 		} catch (error) {

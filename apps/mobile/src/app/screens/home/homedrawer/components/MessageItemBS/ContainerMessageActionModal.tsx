@@ -139,6 +139,13 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message, mode, socketRef, store]
 	);
 
+	const handleActionReportMessage = useCallback(() => {
+		const data = {
+			children: <ReportMessageModal />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, []);
+
 	const onConfirmAction = useCallback(
 		(payload: IConfirmActionPayload) => {
 			const { type, message } = payload;
@@ -147,7 +154,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					onDeleteMessage(message?.id);
 					break;
 				case EMessageActionType.ForwardMessage:
-				case EMessageActionType.Report:
 				case EMessageActionType.PinMessage:
 				case EMessageActionType.UnPinMessage:
 					setCurrentMessageActionType(type);
@@ -367,10 +373,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			dispatch(appActions.setLoadingMainMobile(false));
 			onClose();
 		}
-	};
-
-	const handleActionReportMessage = () => {
-		setCurrentMessageActionType(EMessageActionType.Report);
 	};
 
 	const handleForwardMessage = async () => {
@@ -893,9 +895,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				</View>
 			) : (
 				renderMessageItemActions()
-			)}
-			{currentMessageActionType === EMessageActionType.Report && (
-				<ReportMessageModal isVisible={currentMessageActionType === EMessageActionType.Report} onClose={onClose} message={message} />
 			)}
 			{[EMessageActionType.PinMessage, EMessageActionType.UnPinMessage].includes(currentMessageActionType) && (
 				<ConfirmPinMessageModal
