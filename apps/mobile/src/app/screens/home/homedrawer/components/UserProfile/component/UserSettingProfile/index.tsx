@@ -1,21 +1,23 @@
 import { useChannelMembersActions, usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectIsUserBannedInChannel, useAppSelector } from '@mezon/store';
 import type { ChannelMembersEntity } from '@mezon/store-mobile';
 import {
 	channelUsersActions,
 	selectAllAccount,
+	selectBanMemberCurrentClanById,
 	selectCurrentChannel,
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
 	selectMemberIdsByChannelId,
-	useAppDispatch
+	useAppDispatch,
+	useAppSelector,
+	usersClanActions
 } from '@mezon/store-mobile';
 import { EPermission, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -49,10 +51,10 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentChannelId = currentChannel?.channel_id;
-	const isBannedUser = useSelector((state) => selectIsUserBannedInChannel(state, currentChannelId, user?.id as string));
+	const isBannedUser = useSelector((state) => selectBanMemberCurrentClanById(state, currentChannelId, user?.id as string));
 	const isItMe = useMemo(() => userProfile?.user?.id === user?.user?.id, [user?.user?.id, userProfile?.user?.id]);
 	const isThatClanOwner = useMemo(() => currentClanCreatorId === user?.user?.id, [user?.user?.id, currentClanCreatorId]);
-	const [hasClanOwnerPermission, hasAdminPermission, hasMannageChannelPermission] = usePermissionChecker([
+	const [hasClanOwnerPermission, hasAdminPermission] = usePermissionChecker([
 		EPermission.clanOwner,
 		EPermission.administrator,
 		EPermission.manageChannel
@@ -73,6 +75,12 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 		EActionSettingUserProfile.TransferOwnership,
 		EActionSettingUserProfile.Ban
 	];
+
+	useEffect(() => {
+		if (hasAdminPermission && !!currentChannel) {
+			dispatch(usersClanActions.fetchListBanUser({ clanId: currentChannel?.clan_id, channelId: currentChannel?.channel_id }));
+		}
+	}, []);
 
 	const handleSettingUserProfile = useCallback((action?: EActionSettingUserProfile) => {
 		switch (action) {
@@ -142,7 +150,7 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 				value: EActionSettingUserProfile.Ban,
 				icon: <MezonIconCDN icon={IconCDN.hammerIcon} width={size.s_22} height={size.s_22} color={baseColor.red} />,
 				action: handleSettingUserProfile,
-				isShow: (isBannedUser && hasAdminPermission) || (hasMannageChannelPermission && !isItMe)
+				isShow: hasAdminPermission && !isItMe
 			}
 		];
 		return settingList;
@@ -156,8 +164,7 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 		isThatClanOwner,
 		isThread,
 		isUserInThread,
-		isBannedUser,
-		hasMannageChannelPermission
+		isBannedUser
 	]);
 
 	const confirmKickUserClan = useCallback(() => {

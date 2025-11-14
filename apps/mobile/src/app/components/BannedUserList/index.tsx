@@ -1,9 +1,9 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectBannedUserIdsByChannel, selectMembersByUserIds, useAppSelector } from '@mezon/store-mobile';
+import { selectBanMemberByChannelId, useAppDispatch, useAppSelector, usersClanActions } from '@mezon/store-mobile';
 import type { UsersClanEntity } from '@mezon/utils';
 import { normalizeString } from '@mezon/utils';
 import debounce from 'lodash.debounce';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -19,8 +19,13 @@ const BannedUserListScreen = ({ navigation, route }: MenuChannelScreenProps<Chan
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation('userProfile');
-	const listBannedUsers = useAppSelector((state) => selectBannedUserIdsByChannel(state, channelId || ''));
-	const listUserClanBanned = useAppSelector((state) => selectMembersByUserIds(state, listBannedUsers || []));
+	const listUserClanBanned = useAppSelector((state) => selectBanMemberByChannelId(state, channelId || ''));
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(usersClanActions.fetchListBanUser({ clanId, channelId }));
+	}, []);
+
 	const [searchText, setSearchText] = useState('');
 	const searchInputRef = useRef(null);
 
@@ -63,7 +68,7 @@ const BannedUserListScreen = ({ navigation, route }: MenuChannelScreenProps<Chan
 					</Text>
 				</View>
 			</View>
-			{!listBannedUsers?.length ? (
+			{!listUserClanBanned?.length ? (
 				<View style={styles.emptyListWrapper}>
 					<MezonIconCDN icon={IconCDN.hammerIcon} height={size.s_80} width={size.s_80} color={themeValue.textDisabled} />
 					<Text style={styles.emptyList}>{t('ban.banListEmpty')}</Text>

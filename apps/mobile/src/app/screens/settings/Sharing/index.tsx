@@ -8,7 +8,7 @@ import {
 	STORAGE_DATA_CLAN_CHANNEL_CACHE
 } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist, selectIsUserBannedInChannel } from '@mezon/store';
+import { selectBanMemberCurrentClanById, selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist } from '@mezon/store';
 import {
 	channelMetaActions,
 	channelsActions,
@@ -196,7 +196,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
 		const currentUserId = selectCurrentUserId(store.getState());
-		const isBannedChannel = selectIsUserBannedInChannel(store.getState(), channelSelected?.channel_id, currentUserId);
+		const isBannedChannel = selectBanMemberCurrentClanById(store.getState(), channelSelected?.channel_id, currentUserId);
 
 		if (isBannedChannel) {
 			Toast.show({
