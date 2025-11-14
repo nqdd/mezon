@@ -19,7 +19,7 @@ import classNames from 'classnames';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import type { ApiMessageMention } from 'mezon-js/api.gen';
 import type { ReactNode } from 'react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import CallLogMessage from '../CallLogMessage/CallLogMessage';
@@ -58,7 +58,7 @@ export type MessageWithUserProps = {
 	isCombine?: boolean;
 	showDivider?: boolean;
 	channelLabel?: string;
-	checkMessageTargetToMoved?: boolean;
+	checkMessageTargetToMoved?: number;
 	messageReplyHighlight?: boolean;
 	isTopic?: boolean;
 	observeIntersectionForLoading?: ObserveFn;
@@ -170,6 +170,29 @@ function MessageWithUser({
 	const isDM = mode === ChannelStreamMode.STREAM_MODE_GROUP || mode === ChannelStreamMode.STREAM_MODE_DM;
 
 	const [isAnonymousOnModal, setIsAnonymousOnModal] = useState<boolean>(false);
+	const [showTargetHighlight, setShowTargetHighlight] = useState<boolean>(false);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+	useEffect(() => {
+		if (checkMessageTargetToMoved && checkMessageTargetToMoved > 0) {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+
+			setShowTargetHighlight(true);
+
+			timeoutRef.current = setTimeout(() => {
+				setShowTargetHighlight(false);
+				timeoutRef.current = null;
+			}, 3000);
+		}
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [checkMessageTargetToMoved]);
 
 	const [openProfileItem, closeProfileItem] = useModal(() => {
 		return (
@@ -220,13 +243,13 @@ function MessageWithUser({
 							'bg-highlight-no-hover':
 								(hasIncludeMention || checkReplied) &&
 								!messageReplyHighlight &&
-								!checkMessageTargetToMoved &&
+								!showTargetHighlight &&
 								!isEphemeralMessage &&
 								!isTopic
 						},
 						{ '!bg-bgMessageReplyHighline': messageReplyHighlight },
 						{ 'bg-highlight': isHighlight },
-						{ '!bg-[#eab30833]': checkMessageTargetToMoved },
+						{ '!bg-[#eab30833]': showTargetHighlight },
 						{
 							' bg-item-theme border-l-4  border-[#A78BFA] ': isEphemeralMessage
 						},

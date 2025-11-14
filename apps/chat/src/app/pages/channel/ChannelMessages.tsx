@@ -1084,6 +1084,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		const msgIdJumpHightlight = useRef<string | null>(null);
 		const jumpHighlightTimeoutRef = useRef<number | null>(null);
+		const jumpTriggerTimestamp = useRef<number>(0);
 
 		useEffect(() => {
 			if (!idMessageToJump?.id) return;
@@ -1107,6 +1108,8 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (idMessageToJump.id === 'temp') return;
 				scrollToMessage(idMessageToJump.id);
 				msgIdJumpHightlight.current = idMessageToJump.id;
+				jumpTriggerTimestamp.current = Date.now();
+				setForceRender((prev) => !prev);
 				dispatch(messagesActions.setIdMessageToJump(null));
 
 				if (jumpHighlightTimeoutRef.current) {
@@ -1114,9 +1117,10 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				}
 				jumpHighlightTimeoutRef.current = setSafeTimeout(() => {
 					msgIdJumpHightlight.current = null;
+					jumpTriggerTimestamp.current = 0;
 					setForceRender((prev) => !prev);
 					jumpHighlightTimeoutRef.current = null;
-				}, 1000);
+				}, 3000);
 			}
 
 			return () => {
@@ -1136,7 +1140,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			const baseUnreadMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
 
 			return messageIds.map((messageId, index) => {
-				const checkMessageTargetToMoved = msgIdJumpHightlight.current === messageId && messageId !== lastMessageId;
+				const checkMessageTargetToMoved = msgIdJumpHightlight.current === messageId ? jumpTriggerTimestamp.current : 0;
 				const messageReplyHighlight = (dataReferences?.message_ref_id && dataReferences?.message_ref_id === messageId) || false;
 				const isSelected = selectedMessageId === messageId;
 				const isEditing = getIsEditing(messageId);

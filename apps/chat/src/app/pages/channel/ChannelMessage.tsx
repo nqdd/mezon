@@ -18,7 +18,7 @@ export type MessageProps = {
 	username?: string;
 	isPrivate?: number;
 	index: number;
-	checkMessageTargetToMoved?: boolean;
+	checkMessageTargetToMoved?: number;
 	messageReplyHighlight?: boolean;
 	message: MessagesEntity;
 	previousMessage: MessagesEntity;
