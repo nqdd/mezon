@@ -12,7 +12,9 @@ import {
 	authActions,
 	channelsActions,
 	clansActions,
+	directActions,
 	getStoreAsync,
+	listChannelsByUserActions,
 	messagesActions,
 	selectAllAccount,
 	selectBlockedUsers,
@@ -68,12 +70,15 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 
 	const logout = async () => {
 		const store = await getStoreAsync();
+		store.dispatch(directActions.removeAll());
 		store.dispatch(channelsActions.removeAll());
 		store.dispatch(messagesActions.removeAll());
+		store.dispatch(listChannelsByUserActions.removeAll());
 		store.dispatch(clansActions.setCurrentClanId(''));
 		store.dispatch(clansActions.removeAll());
 		store.dispatch(clansActions.collapseAllGroups());
 		store.dispatch(clansActions.clearClanGroups());
+		store.dispatch(clansActions.refreshStatus());
 
 		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
@@ -81,6 +86,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
 		store.dispatch(appActions.setIsShowWelcomeMobile(false));
 		store.dispatch(authActions.logOut({ device_id: userProfile.user.username, platform: Platform.OS }));
+		store.dispatch(appActions.setLoadingMainMobile(false));
 	};
 
 	const handleDeleteAccount = async () => {

@@ -119,7 +119,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			navigation.goBack();
 		}
 		return true;
-	}, []);
+	}, [from, navigation]);
 
 	useFocusEffect(
 		useCallback(() => {

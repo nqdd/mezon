@@ -109,6 +109,7 @@ export const style = (colors: Attributes) =>
 		errorMessage: { paddingRight: size.s_20 },
 		backButton: {
 			position: 'absolute',
+			left: -size.s_16,
 			top: size.s_10,
 			justifyContent: 'center',
 			alignItems: 'center',

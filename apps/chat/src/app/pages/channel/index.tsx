@@ -9,9 +9,9 @@ import {
 	getStore,
 	gifsStickerEmojiActions,
 	handleParticipantVoiceState,
-	messagesActions,
 	onboardingActions,
 	selectAppChannelById,
+	selectBanMemberCurrentClanById,
 	selectChannelAppChannelId,
 	selectChannelAppClanId,
 	selectChannelById,
@@ -130,11 +130,7 @@ function useChannelSeen(channelId: string) {
 		updateChannelSeenState(channelId);
 	}, [channelId, lastMessageViewport, updateChannelSeenState]);
 
-	const handleUpdateChannelLastMessage = useCallback(() => {
-		dispatch(messagesActions.UpdateChannelLastMessage({ channelId }));
-	}, [dispatch, channelId]);
-
-	useBackgroundMode(handleUpdateChannelLastMessage, markMessageAsRead);
+	useBackgroundMode(undefined, markMessageAsRead);
 }
 
 const ChannelSeenListener = memo(({ channelId }: { channelId: string }) => {
@@ -152,6 +148,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 	const dispatch = useDispatch();
 	const isShowMemberList = useSelector(selectIsShowMemberList);
+	const { userId } = useAuth();
 	const mode =
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ||
@@ -201,8 +198,9 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		}
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
 	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
+	const isBanned = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannel.id, userId as string));
 
-	if (!canSendMessageDelayed) {
+	if (!canSendMessageDelayed || isBanned) {
 		return (
 			<div
 				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"

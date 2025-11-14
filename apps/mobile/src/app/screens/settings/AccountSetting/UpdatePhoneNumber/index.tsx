@@ -288,13 +288,16 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			return;
 		}
 
-		const payload = {
-			phone_number: fullPhoneNumber
-		};
-
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(accountActions.addPhoneNumber({ data: payload as ApiLinkAccountMezon, isMobile: true }));
+			const response = await dispatch(
+				accountActions.addPhoneNumber({
+					data: {
+						phone_number: fullPhoneNumber
+					} as ApiLinkAccountMezon,
+					isMobile: true
+				})
+			);
 			const requestId = response?.payload?.req_id;
 
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {

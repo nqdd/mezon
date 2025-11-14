@@ -67,7 +67,7 @@ export const MessagePreviewLastest = React.memo(
 
 		const getLastMessageAttachmentContent = async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
 			if (embed) {
-				return `[${t('attachments.embed')}] ${embed?.title || embed?.description || ''}`;
+				return `${embed?.title || embed?.description || ''}`;
 			}
 			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
 			if (isGoogleMapsLink) {

@@ -14,10 +14,11 @@ import {
 	selectDmGroupCurrentId,
 	selectIsUserBannedInChannel,
 	selectMessageEntitiesByChannelId,
+	selectMessageIdsByChannelId,
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ChannelThreads, IMessageWithUser } from '@mezon/utils';
-import { normalizeString } from '@mezon/utils';
+import { FOR_1_HOUR_SEC, normalizeString } from '@mezon/utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -67,14 +68,7 @@ const ForwardMessageScreen = () => {
 	const allMessagesEntities = useAppSelector((state) =>
 		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
 	);
-	const convertedAllMessagesEntities: MessagesEntity[] = allMessagesEntities ? Object.values(allMessagesEntities) : [];
-	const allMessagesBySenderId = useMemo(() => {
-		return convertedAllMessagesEntities?.filter((message) => message.sender_id === selectedMessage?.user?.id);
-	}, [allMessagesEntities, selectedMessage?.user?.id]);
-
-	const startIndex = useMemo(() => {
-		return allMessagesBySenderId.findIndex((message) => message.id === selectedMessage?.id);
-	}, [allMessagesEntities, selectedMessage?.id]);
+	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || ''));
 
 	const mapDirectMessageToForwardObject = (dm: DirectEntity): IForwardIObject => {
 		return {
@@ -176,14 +170,23 @@ const ForwardMessageScreen = () => {
 			const combineMessages: MessagesEntity[] = [];
 			combineMessages.push(selectedMessage);
 
-			let index = startIndex + 1;
-			while (
-				index < allMessagesBySenderId.length &&
-				!allMessagesBySenderId[index].isStartedMessageGroup &&
-				allMessagesBySenderId[index].sender_id === selectedMessage?.user?.id
-			) {
-				combineMessages.push(allMessagesBySenderId[index]);
-				index++;
+			const revertIds = [...(allMessageIds || [])]?.reverse();
+			const startIndex = revertIds?.findIndex((id) => id === selectedMessage?.id);
+
+			let index = startIndex - 1;
+
+			while (index >= 0) {
+				const messageEntity = allMessagesEntities?.[revertIds?.[index]];
+				if (!messageEntity) break;
+
+				const differentTime = Date.parse(selectedMessage.create_time) - Date.parse(messageEntity.create_time);
+
+				if (differentTime <= FOR_1_HOUR_SEC * 1000 && messageEntity?.sender_id === selectedMessage?.user?.id) {
+					combineMessages.push(messageEntity);
+					index--;
+				} else {
+					break;
+				}
 			}
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
 				const { type, channelId, clanId = '', name } = selectedObjectSend;

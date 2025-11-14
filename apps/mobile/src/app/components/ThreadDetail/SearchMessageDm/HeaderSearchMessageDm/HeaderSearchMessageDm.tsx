@@ -40,11 +40,11 @@ export default function HeaderSearchMessageDm({ initialSearchText, onClearStoreI
 	return (
 		<View style={styles.headerContainer}>
 			<TouchableOpacity onPress={onGoBack}>
-				<MezonIconCDN icon={IconCDN.backArrowLarge} width={20} height={20} color={themeValue.text} />
+				<MezonIconCDN icon={IconCDN.backArrowLarge} width={size.s_20} height={size.s_20} color={themeValue.text} />
 			</TouchableOpacity>
 			<View style={styles.searchBox}>
 				<View style={styles.iconMargin}>
-					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={20} height={20} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				</View>
 				<TextInput
 					value={textInput}

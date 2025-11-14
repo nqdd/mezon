@@ -39,14 +39,14 @@ export const ActionMessageSelected = memo(({ messageActionNeedToResolve, onClose
 
 	return (
 		<View style={style.container}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			{messageActionNeedToResolve?.replyTo ? (
 				<View style={style.replyContainer}>
-					<LinearGradient
-						start={{ x: 1, y: 0 }}
-						end={{ x: 0, y: 0 }}
-						colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-						style={[StyleSheet.absoluteFillObject]}
-					/>
 					<Pressable onPress={() => handleCloseMessageAction(EMessageActionType.Reply)} style={style.closeButton}>
 						<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
 					</Pressable>

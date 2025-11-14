@@ -13,7 +13,7 @@ import type { StatusUserArgs } from '../channelmembers/channel.members';
 import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
 import { hashtagDmActions } from '../channels/hashtagDm.slice';
-import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { MessagesEntity } from '../messages/messages.slice';
 import { messagesActions } from '../messages/messages.slice';
 import type { RootState } from '../store';
@@ -60,7 +60,7 @@ export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEn
 export const fetchDirectDetail = createAsyncThunk('direct/fetchDirectDetail', async ({ directId }: { directId: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.listChannelDetail(mezon.session, directId);
+		const response = await withRetry(() => mezon.client.listChannelDetail(mezon.session, directId), { maxRetries: 3, initialDelay: 1000 });
 
 		return mapDmGroupToEntity(response);
 	} catch (error) {

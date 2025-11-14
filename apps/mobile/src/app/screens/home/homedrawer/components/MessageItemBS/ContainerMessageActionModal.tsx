@@ -3,7 +3,6 @@
 import { useChannelMembers, useChatSending, useDirect, usePermissionChecker, useSendInviteMessage } from '@mezon/core';
 import { ActionEmitEvent, STORAGE_MY_USER_ID, formatContentEditMessage, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import type { MessagesEntity } from '@mezon/store-mobile';
 import {
 	appActions,
 	channelMetaActions,
@@ -21,6 +20,7 @@ import {
 	selectDmGroupCurrent,
 	selectDmGroupCurrentId,
 	selectMessageEntitiesByChannelId,
+	selectMessageIdsByChannelId,
 	selectPinMessageByChannelId,
 	setIsForwardAll,
 	threadsActions,
@@ -34,6 +34,7 @@ import {
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
 	EPermission,
+	FORWARD_MESSAGE_TIME,
 	TOKEN_TO_AMOUNT,
 	ThreadStatus,
 	TypeMessage,
@@ -138,6 +139,13 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message, mode, socketRef, store]
 	);
 
+	const handleActionReportMessage = useCallback(() => {
+		const data = {
+			children: <ReportMessageModal />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, []);
+
 	const onConfirmAction = useCallback(
 		(payload: IConfirmActionPayload) => {
 			const { type, message } = payload;
@@ -146,7 +154,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 					onDeleteMessage(message?.id);
 					break;
 				case EMessageActionType.ForwardMessage:
-				case EMessageActionType.Report:
 				case EMessageActionType.PinMessage:
 				case EMessageActionType.UnPinMessage:
 					setCurrentMessageActionType(type);
@@ -177,12 +184,10 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const allMessagesEntities = useAppSelector((state) =>
 		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
 	);
-	const convertedAllMessagesEntities = useMemo(() => {
-		return allMessagesEntities ? (Object.values(allMessagesEntities) as MessagesEntity[]) : [];
-	}, [allMessagesEntities]);
+	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || ''));
 	const messagePosition = useMemo(() => {
-		return convertedAllMessagesEntities?.findIndex((value: MessagesEntity) => value.id === message?.id);
-	}, [convertedAllMessagesEntities, message?.id]);
+		return allMessageIds?.findIndex((id: string) => id === message?.id);
+	}, [allMessageIds, message?.id]);
 	const { joinningToThread } = useChannelMembers({ channelId: currentChannelId, mode: mode ?? 0 });
 
 	const handleActionEditMessage = () => {
@@ -370,10 +375,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		}
 	};
 
-	const handleActionReportMessage = () => {
-		setCurrentMessageActionType(EMessageActionType.Report);
-	};
-
 	const handleForwardMessage = async () => {
 		dispatch(setIsForwardAll(false));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -386,9 +387,16 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		});
 	};
 
-	const handleForwardAllMessages = () => {
+	const handleForwardAllMessages = async () => {
 		dispatch(setIsForwardAll(true));
-		setCurrentMessageActionType(EMessageActionType.ForwardMessage);
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		await sleep(500);
+		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
+			screen: APP_SCREEN.MESSAGES.FORWARD_MESSAGE,
+			params: {
+				message
+			}
+		});
 	};
 
 	const handleActionTopicDiscussion = async () => {
@@ -629,7 +637,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.ForwardMessage:
 				return <MezonIconCDN icon={IconCDN.arrowAngleRightUpIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.ForwardAllMessages:
-				return <MezonIconCDN icon={IconCDN.arrowAngleRightUpIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+				return <MezonIconCDN icon={IconCDN.forwardAllIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CreateThread:
 				return <MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CopyText:
@@ -694,12 +702,18 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			!message?.attachments?.every((a) => a?.filetype?.startsWith('image') || a?.filetype?.startsWith('video'));
 
 		const isShowForwardAll = () => {
-			if (messagePosition === -1) return false;
-			return (
-				message?.isStartedMessageGroup &&
-				messagePosition < (convertedAllMessagesEntities?.length || 0 - 1) &&
-				!convertedAllMessagesEntities?.[messagePosition + 1]?.isStartedMessageGroup
-			);
+			if (messagePosition === -1 || messagePosition === 0) return false;
+
+			const currentMessage = allMessagesEntities?.[allMessageIds?.[messagePosition]];
+			const nextMessage = allMessagesEntities?.[allMessageIds?.[messagePosition + 1]];
+
+			const isSameSenderWithNextMessage = currentMessage?.sender_id === nextMessage?.sender_id;
+
+			const isNextMessageWithinTimeLimit = nextMessage
+				? Date.parse(nextMessage?.create_time) - Date.parse(currentMessage?.create_time) < FORWARD_MESSAGE_TIME
+				: false;
+
+			return isSameSenderWithNextMessage && isNextMessageWithinTimeLimit;
 		};
 
 		const listOfActionShouldHide = [
@@ -737,6 +751,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 
 		const frequentActionList = [
 			EMessageActionType.ForwardMessage,
+			EMessageActionType.ForwardAllMessages,
 			EMessageActionType.ResendMessage,
 			EMessageActionType.GiveACoffee,
 			EMessageActionType.EditMessage,
@@ -753,22 +768,30 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		};
 	}, [
 		userId,
-		message,
+		message?.user?.id,
+		message?.isError,
+		message?.code,
+		message?.topic_id,
+		message?.channel_id,
+		message?.attachments,
+		message?.content?.embed,
+		message?.id,
+		currentTopicId,
 		listPinMessages,
 		isDM,
 		isCanManageThread,
 		isCanManageChannel,
-		currentChannel?.parent_id,
 		isClanOwner,
+		currentChannel?.parent_id,
 		isAllowDelMessage,
 		canSendMessage,
 		currentChannelId,
 		isMessageSystem,
 		isAnonymous,
 		messagePosition,
-		convertedAllMessagesEntities,
-		t,
-		currentTopicId
+		allMessageIds,
+		allMessagesEntities,
+		t
 	]);
 
 	const handleReact = useCallback(
@@ -872,9 +895,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				</View>
 			) : (
 				renderMessageItemActions()
-			)}
-			{currentMessageActionType === EMessageActionType.Report && (
-				<ReportMessageModal isVisible={currentMessageActionType === EMessageActionType.Report} onClose={onClose} message={message} />
 			)}
 			{[EMessageActionType.PinMessage, EMessageActionType.UnPinMessage].includes(currentMessageActionType) && (
 				<ConfirmPinMessageModal

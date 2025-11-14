@@ -781,6 +781,7 @@ export type IMessageLine = {
 
 export interface UsersClanEntity extends IUsersClan {
 	id: string; // Primary ID
+	ban_list?: Record<string, string>;
 }
 
 export interface ChannelMembersEntity extends IChannelMember {
@@ -1463,6 +1464,7 @@ export interface IAttachmentEntity extends ApiChannelAttachment {
 	id: string;
 	channelId?: string;
 	clanId?: string;
+	isVideo?: boolean;
 }
 
 export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
@@ -1471,6 +1473,7 @@ export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
 		name: string;
 	};
 	realUrl: string;
+	isVideo?: boolean;
 }
 
 export interface IImageWindowProps {

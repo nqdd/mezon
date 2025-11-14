@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -45,6 +46,7 @@ export const style = (colors: Attributes) =>
 
 		confirmText: {
 			fontSize: size.medium,
-			textAlign: 'center'
+			textAlign: 'center',
+			color: colors.text
 		}
 	});

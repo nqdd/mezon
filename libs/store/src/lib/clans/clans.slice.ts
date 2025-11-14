@@ -181,7 +181,8 @@ export const fetchClansCached = async (
 			}
 		},
 		() => ensuredMezon.client.listClanDescs(ensuredMezon.session, limit, state, cursor || ''),
-		'clan_desc_list'
+		'clan_desc_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -355,8 +356,6 @@ export const updateClan = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-
-			thunkAPI.dispatch(fetchClans({ noCache: true }));
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'clans/updateClans');

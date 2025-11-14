@@ -132,6 +132,10 @@ const ClanSettingOverview = () => {
 		}
 	};
 
+	const handleRemovelogo = () => {
+		setClanRequest({ ...clanRequest, logo: '' });
+	};
+
 	const handleReset = () => {
 		setResetTrigger(true);
 		setClanRequest({
@@ -155,6 +159,7 @@ const ClanSettingOverview = () => {
 				onGetClanName={handleChangeName}
 				resetTrigger={resetTrigger}
 				onResetComplete={handleResetComplete}
+				handleRemovelogo={handleRemovelogo}
 			/>
 			<ClanBannerBackground onUpload={handleUploadBackground} urlImage={clanRequest?.banner} />
 			{systemMessage && (
@@ -162,6 +167,7 @@ const ClanSettingOverview = () => {
 					updateSystem={updateSystemMessageRequest}
 					setUpdateSystemMessageRequest={setUpdateSystemMessageRequest}
 					channelSelectedId={updateSystemMessageRequest?.channel_id as string}
+					setClanRequest={setClanRequest}
 				/>
 			)}
 

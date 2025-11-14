@@ -19,10 +19,10 @@ export const style = (colors: Attributes) =>
 		},
 		headerContainer: {
 			paddingHorizontal: size.s_10,
-			paddingVertical: size.s_20,
+			paddingVertical: size.s_10,
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_20
+			gap: size.s_10
 		},
 		iconMargin: {
 			marginRight: size.s_6

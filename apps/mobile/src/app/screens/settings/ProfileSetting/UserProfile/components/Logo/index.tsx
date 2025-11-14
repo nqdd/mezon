@@ -62,6 +62,7 @@ export const DirectMessageLogo = memo(() => {
 			})
 		);
 		dispatch(appActions.setLoadingMainMobile(false));
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
 	return (

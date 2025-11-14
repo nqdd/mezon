@@ -1,10 +1,11 @@
 import { useFriends } from '@mezon/core';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity } from '@mezon/store-mobile';
-import { User } from 'mezon-js';
+import type { FriendsEntity } from '@mezon/store-mobile';
+import type { ApiUser } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { SeparatorWithLine } from '../../../components/Common';
 import { EFriendItemAction, FriendItem } from '../../../components/FriendItem';
 import { UserInformationBottomSheet } from '../../../components/UserInformationBottomSheet';
@@ -17,9 +18,8 @@ export const AddFriendScreen = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { friends, acceptFriend, deleteFriend } = useFriends();
-	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
 	const { t } = useTranslation('friends');
-	const [currentAddFriendShow, setCurrentAddFriendShow] = useState<boolean>(false);
 	const receivedFriendRequestList = useMemo(() => {
 		return friends.filter((friend) => friend.state === 2);
 	}, [friends]);
@@ -51,10 +51,17 @@ export const AddFriendScreen = () => {
 		return <EmptyFriendRequest type={EFriendRequest.Received} />;
 	}, []);
 
+	const onOpenAddFriendModal = useCallback(() => {
+		const data = {
+			children: <AddFriendModal />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, []);
+
 	return (
 		<View style={styles.addFriendContainer}>
 			<View style={styles.groupWrapper}>
-				<TouchableOpacity onPress={() => setCurrentAddFriendShow(true)} style={styles.addFriendItem}>
+				<TouchableOpacity onPress={onOpenAddFriendModal} style={styles.addFriendItem}>
 					<Text style={styles.addFriendText}>{t('addFriend.addByUserName')}</Text>
 				</TouchableOpacity>
 			</View>
@@ -71,7 +78,6 @@ export const AddFriendScreen = () => {
 				ListEmptyComponent={renderEmptyFriendRequest}
 			/>
 
-			<AddFriendModal isShow={currentAddFriendShow} onClose={() => setCurrentAddFriendShow(false)} />
 			<UserInformationBottomSheet user={selectedUser} onClose={onClose} showAction={false} showRole={false} />
 		</View>
 	);

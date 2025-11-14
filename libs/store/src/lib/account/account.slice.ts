@@ -9,7 +9,7 @@ import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
@@ -50,7 +50,7 @@ export const fetchUserProfileCached = async (getState: () => RootState, mezon: M
 		};
 	}
 
-	const response = await mezon.client.getAccount(mezon.session);
+	const response = await withRetry(() => mezon.client.getAccount(mezon.session), { maxRetries: 3, initialDelay: 1000 });
 
 	markApiFirstCalled(apiKey);
 

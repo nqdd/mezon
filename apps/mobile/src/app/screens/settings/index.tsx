@@ -13,6 +13,7 @@ import {
 	authActions,
 	channelsActions,
 	clansActions,
+	directActions,
 	getAuthState,
 	getStoreAsync,
 	listChannelsByUserActions,
@@ -48,6 +49,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	const userProfile = useSelector(selectAllAccount);
 	const logout = async () => {
 		const store = await getStoreAsync();
+		store.dispatch(directActions.removeAll());
 		store.dispatch(channelsActions.removeAll());
 		store.dispatch(messagesActions.removeAll());
 		store.dispatch(listChannelsByUserActions.removeAll());
@@ -122,7 +124,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 					},
 					expandable: true,
 					title: t('accountSettings.MyQRCode'),
-					icon: <MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.textStrong} width={size.s_24} height={size.s_24} />
+					icon: <MezonIconCDN icon={IconCDN.scanQR} color={themeValue.textStrong} width={size.s_24} height={size.s_20} />
 				},
 				{
 					onPress: () => {
@@ -132,7 +134,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 					},
 					expandable: true,
 					title: t('accountSettings.QRScan'),
-					icon: <MezonIconCDN icon={IconCDN.scanQR} color={themeValue.textStrong} width={size.s_24} height={size.s_20} />
+					icon: <MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.textStrong} width={size.s_24} height={size.s_24} />
 				}
 			] satisfies IMezonMenuItemProps[],
 		[navigation, t, themeValue.textStrong, i18n.language]

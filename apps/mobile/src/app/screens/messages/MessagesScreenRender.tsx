@@ -2,7 +2,7 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { acitvitiesActions, directActions, useAppDispatch } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import React, { memo, useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { FlatList, Keyboard, Platform, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -27,27 +27,30 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 			return [];
 		}
 	}, [chatList]);
-	const refreshingRef = useRef<boolean>(false);
+
+	const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 	const navigation = useNavigation<any>();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 
-	const navigateToNewMessageScreen = () => {
+	const navigateToNewMessageScreen = useCallback(() => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, { screen: APP_SCREEN.MESSAGES.NEW_MESSAGE });
-	};
+	}, [navigation]);
 
-	const handleRefresh = async () => {
-		refreshingRef.current = true;
+	const handleRefresh = useCallback(async () => {
+		setIsRefreshing(true);
 		dispatch(directActions.fetchDirectMessage({ noCache: true }));
 		dispatch(acitvitiesActions.listActivities({ noCache: true }));
 		await sleep(500);
-		refreshingRef.current = false;
-	};
+		setIsRefreshing(false);
+	}, [dispatch]);
 
 	const renderItem = useCallback(({ item }: { item: string }) => {
 		return <DmListItem id={item} />;
 	}, []);
+
+	const HeaderComponent = useMemo(() => <MessageActivity />, []);
 
 	return (
 		<View style={styles.container}>
@@ -71,15 +74,13 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 				windowSize={2}
 				onEndReachedThreshold={0.7}
 				onMomentumScrollBegin={() => Keyboard.dismiss()}
-				ListHeaderComponent={() => {
-					return <MessageActivity />;
-				}}
+				ListHeaderComponent={HeaderComponent}
 				keyboardShouldPersistTaps={'handled'}
-				refreshControl={<RefreshControl refreshing={refreshingRef?.current} onRefresh={handleRefresh} />}
+				refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
 				disableVirtualization
 				ListEmptyComponent={() => <MessagesScreenEmpty />}
 			/>
-			<Pressable style={styles.addMessage} onPress={() => navigateToNewMessageScreen()}>
+			<Pressable style={styles.addMessage} onPress={navigateToNewMessageScreen}>
 				<MezonIconCDN icon={IconCDN.messagePlusIcon} width={size.s_22} height={size.s_22} />
 			</Pressable>
 		</View>

@@ -188,6 +188,7 @@ width : 0 !important;
 
 .thumbnail-wrapper {
     width: 88px;
+    position: relative;
 }
 
 .date-label {

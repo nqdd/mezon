@@ -82,7 +82,7 @@ const ChannelMessageListener = React.memo(() => {
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 				} else if (type === ChannelType.CHANNEL_TYPE_STREAMING) {
 					const data = {
-						snapPoints: ['45%'],
+						heightFitContent: true,
 						children: <JoinStreamingRoomBS channel={channel} />
 					};
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });

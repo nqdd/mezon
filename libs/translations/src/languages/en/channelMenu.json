@@ -2,7 +2,7 @@
 	"menu": {
 		"watchMenu": {
 			"title": "",
-			"markAsRead": "Mark As Read"
+			"markAsRead": "Mark as Read"
 		},
 		"inviteMenu": {
 			"title": "",
@@ -20,9 +20,9 @@
 			"notification": "Notification Settings",
 			"for15Minutes": "For 15 Minutes",
 			"for1Hour": "For 1 Hour",
-			"for3Hours": "For 3 Hour",
-			"for8Hours": "For 8 Hour",
-			"for24Hours": "For 24 Hour",
+			"for3Hours": "For 3 Hours",
+			"for8Hours": "For 8 Hours",
+			"for24Hours": "For 24 Hours",
 			"untilTurnedBackOn": "Until I turn it back on",
 			"useCategoryDefault": "Use Category Default",
 			"all": "All",
@@ -33,7 +33,11 @@
 			"muteThreadStatus": "Mute Thread",
 			"unmuteChannelStatus": "Unmute Channel",
 			"unmuteThreadStatus": "Unmute Thread",
-			"mutedUntil": "Muted until"
+			"mutedUntil": "Muted until",
+			"muteSuccess": "Muted successfully!",
+			"unMuteSuccess": "Unmuted successfully!",
+			"muteFailed": "Failed to mute!",
+			"unMuteFailed": "Failed to unmute!"
 		},
 		"thread": {
 			"title": "",

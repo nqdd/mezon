@@ -9,6 +9,7 @@ interface IAttachmentEntity extends ApiChannelAttachment {
 	id: string;
 	channelId?: string;
 	clanId?: string;
+	isVideo?: boolean;
 }
 interface IAttachmentEntityWithUploader extends IAttachmentEntity {
 	uploaderData: {
@@ -16,6 +17,7 @@ interface IAttachmentEntityWithUploader extends IAttachmentEntity {
 		name: string;
 	};
 	realUrl: string;
+	isVideo?: boolean;
 }
 interface IImageWindowProps {
 	channelLabel: string;
@@ -37,6 +39,7 @@ export type ImageData = {
 	};
 	realUrl: string;
 	channelImagesData: IImageWindowProps;
+	isVideo?: boolean;
 };
 function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.mainWindow, params?: Record<string, string>) {
 	const parentBounds = parentWindow.getBounds();
@@ -65,7 +68,6 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 		movable: true,
 		hasShadow: true
 	});
-	const htmlPath = join(__dirname, 'image-viewer.html');
 	const imageViewerHtml = `
      <!DOCTYPE html>
 <html lang="en">
@@ -80,7 +82,15 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   </style>
   <script>
   function closeWindow() {
-    selectedImage.src = null;
+    const media = document.getElementById('selectedMedia');
+    if (media) {
+      if (media.tagName === 'VIDEO') {
+        media.pause();
+        media.src = '';
+      } else {
+        media.src = null;
+      }
+    }
     window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::CLOSE_IMAGE_WINDOW');
   }
 </script>
@@ -121,7 +131,11 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   <div id="channel-label" class="channel-label">${escapeHtml(imageData.channelImagesData.channelLabel)}</div>
   <div class="image-view">
     <div class="selected-image-wrapper" id="selected-image-wrapper">
-      <img id="selectedImage" class="selected-image" src="${sanitizeUrl(imageData.url)}" />
+      ${
+			imageData.isVideo || imageData.filetype?.startsWith('video') || imageData.filetype?.includes('mp4') || imageData.filetype?.includes('mov')
+				? `<video id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
+				: `<img id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.url)}" />`
+		}
     </div>
     <div id="thumbnails" class="thumbnail-container">
       <div id="thumbnails-content" class="thumbnails-content">
@@ -223,15 +237,24 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 	popupWindow.once('ready-to-show', () => {
 		popupWindow.show();
 		popupWindow.webContents.executeJavaScript(`
-	    const selectedImage = document.getElementById('selectedImage');
+	    const selectedMedia = document.getElementById('selectedMedia');
+      const isVideo = selectedMedia && selectedMedia.tagName === 'VIDEO';
       let currentImageUrl = {
         fileName : '${imageData.filename}',
         url : '${imageData.url}',
-          realUrl : '${imageData.realUrl}'
+          realUrl : '${imageData.realUrl}',
+          isVideo : ${imageData.isVideo || false}
       };
       let uploaderData = [];
       document.getElementById('close-window').addEventListener('click', () => {
-		selectedImage.src = null;
+		if (selectedMedia) {
+			if (isVideo) {
+				selectedMedia.pause();
+				selectedMedia.src = '';
+			} else {
+				selectedMedia.src = null;
+			}
+		}
     	window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::CLOSE_IMAGE_WINDOW');
 	});
 	document.getElementById('minimize-window').addEventListener('click', () => {
@@ -254,13 +277,20 @@ window.electron.handleActionShowImage('saveImage',currentImageUrl.realUrl);
 document.getElementById('selected-image-wrapper').addEventListener('click', (e)=>{
       window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::CLOSE_IMAGE_WINDOW');
 })
-document.getElementById('selectedImage').addEventListener('click', (e)=>{
+document.getElementById('selectedMedia').addEventListener('click', (e)=>{
      e.stopPropagation();
 })
 document.addEventListener('keydown', (e) => {
 		switch (e.key) {
 			case 'Escape':
-				selectedImage.src = null;
+				if (selectedMedia) {
+					if (isVideo) {
+						selectedMedia.pause();
+						selectedMedia.src = '';
+					} else {
+						selectedMedia.src = null;
+					}
+				}
     	  window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::CLOSE_IMAGE_WINDOW');
 				break;
 		}
@@ -311,6 +341,20 @@ const createVirtualizer = () => {
 		const getRect = (element) => {
 			const { offsetWidth, offsetHeight } = element;
 			return { width: offsetWidth, height: offsetHeight };
+		};
+
+		const createThumbProxyUrl = (sourceImageUrl) => {
+			if (!sourceImageUrl) return '';
+			if (!sourceImageUrl.startsWith('https://cdn.mezon')) return sourceImageUrl;
+			const width = 88;
+			const height = 88;
+			const resizeType = 'fit';
+			const processingOptions = 'rs:' + resizeType + ':' + width + ':' + height + ':1/mb:2097152';
+			const path = '/' + processingOptions + '/plain/' + sourceImageUrl + '@webp';
+			const base = '${process.env.NX_IMGPROXY_BASE_URL || ''}';
+			const key = '${process.env.NX_IMGPROXY_KEY || ''}';
+			if (!base || !key) return sourceImageUrl;
+			return base + '/' + key + path;
 		};
 		class ThumbnailVirtualizer {
 			constructor(container, items, options = {}) {
@@ -557,21 +601,50 @@ const createVirtualizer = () => {
 						dateLabel.textContent = currentDate;
 						wrapper.appendChild(dateLabel);
 					}
-					const img = document.createElement('img');
-					img.className = 'thumbnail';
+					const isVideoThumbnail = item.isVideo || item.filetype?.startsWith('video') || item.filetype?.includes('mp4') || item.filetype?.includes('mov');
 					const currentIndex = this.findIndexById(this.currentItemId);
-					if (index === currentIndex && currentIndex >= 0) {
-						img.classList.add('active');
+
+					if (isVideoThumbnail) {
+						const video = document.createElement('video');
+						video.className = 'thumbnail';
+						if (index === currentIndex && currentIndex >= 0) {
+							video.classList.add('active');
+						}
+						video.src = item.realUrl || item.url;
+						video.muted = true;
+						video.playsInline = true;
+						video.preload = 'metadata';
+						video.style.objectFit = 'cover';
+						video.setAttribute('data-index', index);
+						video.setAttribute('data-id', itemId);
+						video.addEventListener('click', (e) => {
+							const itemId = e.target.getAttribute('data-id');
+							this.onThumbnailClick(itemId);
+						});
+						wrapper.appendChild(video);
+
+						const playIcon = document.createElement('div');
+						playIcon.className = 'video-play-icon';
+						playIcon.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="white" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));"><circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.6)" /><path d="M9.5 8.5 L16.5 12 L9.5 15.5 Z" fill="white" /></svg>';
+						playIcon.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1;';
+						wrapper.appendChild(playIcon);
+					} else {
+						const img = document.createElement('img');
+						img.className = 'thumbnail';
+						if (index === currentIndex && currentIndex >= 0) {
+							img.classList.add('active');
+						}
+						img.src = (item.thumbnailUrl && item.thumbnailUrl.length > 0) ? item.thumbnailUrl : createThumbProxyUrl(item.url);
+						img.alt = item.filename || '';
+						img.setAttribute('data-index', index);
+						img.setAttribute('data-id', itemId);
+						img.addEventListener('click', (e) => {
+							const itemId = e.target.getAttribute('data-id');
+							this.onThumbnailClick(itemId);
+						});
+						wrapper.appendChild(img);
 					}
-					img.src = item.url;
-					img.alt = item.filename || '';
-					img.setAttribute('data-index', index);
-					img.setAttribute('data-id', itemId);
-					img.addEventListener('click', (e) => {
-						const itemId = e.target.getAttribute('data-id');
-						this.onThumbnailClick(itemId);
-					});
-					wrapper.appendChild(img);
+
 					this.content.appendChild(wrapper);
 					wrapper.setAttribute('data-index', index.toString());
 					if (this.itemResizeObserver) {
@@ -785,8 +858,11 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 		fileName: escapeHtml(image.filename),
 		realUrl: sanitizeUrl(image.realUrl || ''),
 		create_time: image.create_time,
-		time: escapeHtml(formatDateTime(image.create_time))
+		time: escapeHtml(formatDateTime(image.create_time)),
+		isVideo: image.isVideo,
+		filetype: image.filetype
 	}));
+
 	const imagesDataStr = JSON.stringify(initialImagesData);
 	return `
 		${createVirtualizer()}
@@ -805,9 +881,44 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 				const imageData = imagesData.find(img => (img.id || img.url) === itemId);
 				if (!imageData) return;
 				resetTransform();
-				const selectedImage = document.getElementById('selectedImage');
-				if (selectedImage) {
-					selectedImage.src = imageData.url;
+				const selectedMedia = document.getElementById('selectedMedia');
+				if (selectedMedia) {
+					const isNewVideo = imageData.isVideo ||
+						imageData.url?.includes('.mp4') ||
+						imageData.url?.includes('.mov') ||
+						imageData.filetype?.includes('video/') ||
+						imageData.filetype?.includes('mp4') ||
+						imageData.filetype?.includes('mov');
+					const wasVideo = selectedMedia.tagName === 'VIDEO';
+
+					if (isNewVideo !== wasVideo) {
+						const wrapper = document.getElementById('selected-image-wrapper');
+						if (wrapper) {
+							wrapper.innerHTML = '';
+							if (isNewVideo) {
+								const video = document.createElement('video');
+								video.id = 'selectedMedia';
+								video.className = 'selected-image';
+								video.src = imageData.realUrl || imageData.url;
+								video.controls = true;
+								video.autoplay = true;
+								video.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
+								wrapper.appendChild(video);
+							} else {
+								const img = document.createElement('img');
+								img.id = 'selectedMedia';
+								img.className = 'selected-image';
+								img.src = imageData.url;
+								wrapper.appendChild(img);
+							}
+						}
+					} else {
+						selectedMedia.src = isNewVideo ? (imageData.realUrl || imageData.url) : imageData.url;
+						if (wasVideo) {
+							selectedMedia.load();
+							selectedMedia.play();
+						}
+					}
 				}
 				const userAvatar = document.getElementById('userAvatar');
 				if (userAvatar) {
@@ -824,7 +935,8 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 				currentImageUrl = {
 					fileName: imageData.fileName,
 					url: imageData.url,
-					realUrl: imageData.realUrl
+					realUrl: imageData.realUrl,
+					isVideo: imageData.url && (imageData.url.includes('.mp4') || imageData.url.includes('.mov'))
 				};
 				currentItemId = itemId;
 				virtualizer.updateActiveState(itemId);
@@ -865,7 +977,9 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 							fileName: att.filename,
 							realUrl: att.realUrl || att.url,
 							create_time: att.create_time,
-							time: att.create_time
+							time: att.create_time,
+							isVideo: att.isVideo,
+							filetype: att.filetype
 						}));
 						imagesData = updatedImagesData;
 						const preservedItemId = window.thumbnailVirtualizer.currentItemId || currentItemId;
@@ -890,29 +1004,44 @@ const scriptRotateAndZoom = () => {
  const resetTransform = () => {
    currentRotation = 0;
    currentZoom = 1;
-   selectedImage.style.transform = 'none';
+   if (selectedMedia && !isVideo) {
+     selectedMedia.style.transform = 'none';
+   }
  };
- document.getElementById('rotateRightBtn').addEventListener('click', () => {
- currentRotation = currentRotation + 90;
- if(currentRotation % 180 === 90){
-  selectedImage.classList.add('rotate-width');
- }else{
-  selectedImage.classList.remove('rotate-width');
+
+ if (isVideo) {
+   document.getElementById('rotateRightBtn').style.display = 'none';
+   document.getElementById('rotateLeftBtn').style.display = 'none';
+   document.getElementById('zoomInBtn').style.display = 'none';
+   document.getElementById('zoomOutBtn').style.display = 'none';
+ } else {
+   document.getElementById('rotateRightBtn').addEventListener('click', () => {
+     currentRotation = currentRotation + 90;
+     if(currentRotation % 180 === 90){
+       selectedMedia.classList.add('rotate-width');
+     }else{
+       selectedMedia.classList.remove('rotate-width');
+     }
+     selectedMedia.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`;
+   });
+
+   document.getElementById('rotateLeftBtn').addEventListener('click', () => {
+     currentRotation = currentRotation - 90;
+     selectedMedia.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`;
+   });
+
+   document.getElementById('zoomInBtn').addEventListener('click', () => {
+     currentZoom = currentZoom + 0.25;
+     selectedMedia.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`;
+   });
+
+   document.getElementById('zoomOutBtn').addEventListener('click', () => {
+     if (currentZoom - 0.25 >= 1) {
+       currentZoom = currentZoom - 0.25;
+       selectedMedia.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`;
+     }
+   });
  }
- selectedImage.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`; });
-  document.getElementById('rotateLeftBtn').addEventListener('click', () => {
- currentRotation = currentRotation - 90;
- selectedImage.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom}) \`; });
- document.getElementById('zoomInBtn').addEventListener('click', () => {
-  currentZoom = currentZoom + 0.25
- selectedImage.style.transform = \`rotate(\${currentRotation}deg) translate(0,0)  scale(\${currentZoom}) \`;
-  });
-document.getElementById('zoomOutBtn').addEventListener('click', () => {
-if (currentZoom - 0.25 >= 1) {
-  currentZoom = currentZoom - 0.25;
-  selectedImage.style.transform = \`rotate(\${currentRotation}deg) translate(0,0)  scale(\${currentZoom}) \`;
-}
- });
  `;
 };
 const scriptDrag = () => {
@@ -926,41 +1055,48 @@ const scriptDrag = () => {
 		y: 0
 	};
 	let dragStatus = false;
-  selectedImage.addEventListener('mousemove', (e)=>{
-    if (currentZoom > 1 && dragStatus) {
-			currenPosition = {
-				x: e.clientX - dragstart.x,
-				y: e.clientY - dragstart.y
+
+  if (!isVideo && selectedMedia) {
+    selectedMedia.addEventListener('mousemove', (e)=>{
+      if (currentZoom > 1 && dragStatus) {
+        currenPosition = {
+          x: e.clientX - dragstart.x,
+          y: e.clientY - dragstart.y
         };
-			selectedImage.style.transform = \`scale(\${currentZoom}) translate(\${currenPosition.x / currentZoom}px, \${currenPosition.y / currentZoom}px) rotate(\${currentRotation}deg)  \`;
-		}
-  });
-  selectedImage.addEventListener('mousedown', (event)=>{
-    dragStatus = true;
-		dragstart = {
-			x: event.clientX - currenPosition.x,
-			y: event.clientY - currenPosition.y
+        selectedMedia.style.transform = \`scale(\${currentZoom}) translate(\${currenPosition.x / currentZoom}px, \${currenPosition.y / currentZoom}px) rotate(\${currentRotation}deg)\`;
+      }
+    });
+
+    selectedMedia.addEventListener('mousedown', (event)=>{
+      dragStatus = true;
+      dragstart = {
+        x: event.clientX - currenPosition.x,
+        y: event.clientY - currenPosition.y
       };
-  });
-	document.addEventListener('mouseup', (event)=>{
-  		dragStatus = false;
-		event.stopPropagation();
-  });
-  selectedImage.addEventListener('dragstart', (e) => {
-		e.preventDefault();
-		e.stopPropagation();
-	});
-  selectedImage.addEventListener('wheel', (e)=>{
-  	const delta = e.deltaY * -0.001;
-		currentZoom = Math.max(1, Math.min(currentZoom + delta, 5));
- selectedImage.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom}) \`;
-  }, { passive: false });
+    });
+
+    document.addEventListener('mouseup', (event)=>{
+      dragStatus = false;
+      event.stopPropagation();
+    });
+
+    selectedMedia.addEventListener('dragstart', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    selectedMedia.addEventListener('wheel', (e)=>{
+      const delta = e.deltaY * -0.001;
+      currentZoom = Math.max(1, Math.min(currentZoom + delta, 5));
+      selectedMedia.style.transform = \`rotate(\${currentRotation}deg) translate(0,0) scale(\${currentZoom})\`;
+    }, { passive: false });
+  }
   `;
 };
 const scriptMenu = () => {
 	return `
 document.addEventListener('contextmenu', (e) => {
-	if (e.target.matches('#selectedImage')) {
+	if (e.target.matches('#selectedMedia')) {
 		e.preventDefault();
 		const menu = document.getElementById('contextMenu');
 		if (!menu) return;
