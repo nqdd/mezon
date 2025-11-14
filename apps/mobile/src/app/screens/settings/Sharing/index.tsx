@@ -18,7 +18,6 @@ import {
 	getStoreAsync,
 	selectAllChannelsByUser,
 	selectClansEntities,
-	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDirectById,
 	useAppDispatch
@@ -423,8 +422,6 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	const handleFiles = async (files: any) => {
 		const maxRetries = 5;
 		const retryDelay = 4000; // 4 seconds
-		const clanIdStore = selectCurrentClanId(store.getState());
-		const currentChannelId = selectCurrentChannelId(store.getState() as any);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
@@ -435,7 +432,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				}
 
 				const promises = Array.from(files).map((file: any) => {
-					return handleUploadFileMobile(client, session, clanIdStore, currentChannelId, file.name, file);
+					return handleUploadFileMobile(client, session, file.name, file);
 				});
 
 				const response = await Promise.all(promises);
