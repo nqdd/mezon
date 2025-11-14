@@ -120,7 +120,7 @@ const SetPassword = ({ navigation }) => {
 				Toast.show({
 					type: 'error',
 					text1: t('setPasswordAccount.toast.error'),
-					text2: response?.payload?.message
+					text2: response?.payload?.message || ''
 				});
 			}
 		} catch (error) {
