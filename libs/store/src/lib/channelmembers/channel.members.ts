@@ -8,7 +8,7 @@ import type { ChannelUserListChannelUser } from 'mezon-js/dist/api.gen';
 import { accountActions, selectAllAccount } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { selectAllUserClans, selectEntitesUserClans, usersClanActions } from '../clanMembers/clan.members';
+import { USERS_CLANS_FEATURE_KEY, selectAllUserClans, selectEntitesUserClans, usersClanActions } from '../clanMembers/clan.members';
 import { selectClanView } from '../clans/clans.slice';
 import type { DirectEntity } from '../direct/direct.slice';
 import { selectDirectMessageEntities } from '../direct/direct.slice';
@@ -326,6 +326,68 @@ export const unbanUserChannel = createAsyncThunk(
 		}
 	}
 );
+export const checkBanInChannelCached = async (
+	getState: () => RootState,
+	ensuredMezon: MezonValueContext,
+	clanId: string,
+	channelId: string,
+	userId: string,
+	noCache = false
+) => {
+	const currentState = getState();
+	const clanMemberState = currentState[USERS_CLANS_FEATURE_KEY];
+
+	const apiKey = createApiKey('checkBanInChannel', clanId, channelId, ensuredMezon.session.username || '');
+
+	const shouldForceCall = shouldForceApiCall(apiKey, clanMemberState.byClans?.[clanId]?.cache, noCache);
+
+	if (!shouldForceCall) {
+		const isBanned = Object.prototype.hasOwnProperty.call(
+			clanMemberState.byClans?.[clanId]?.entities?.entities?.[userId]?.ban_list || {},
+			channelId
+		);
+		return {
+			isBan: isBanned,
+			time: Date.now(),
+			fromCache: true
+		};
+	}
+
+	const response = await ensuredMezon.client.isBanned(ensuredMezon.session, channelId);
+
+	markApiFirstCalled(apiKey);
+
+	return {
+		isBan: response.is_banned || false,
+		time: Date.now(),
+		fromCache: false
+	};
+};
+export const checkBanInChannel = createAsyncThunk(
+	'channelMembers/checkBanInChannel',
+	async ({ clanId, channelId }: { clanId: string; channelId: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const state = thunkAPI.getState() as RootState;
+			const userId = state.account?.userProfile?.user?.id;
+			if (!userId) {
+				return;
+			}
+
+			const response = await checkBanInChannelCached(thunkAPI.getState as () => RootState, mezon, clanId, channelId, userId, false);
+			if (!response) {
+				return;
+			}
+			if (response.isBan) {
+				thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds: [userId], banner_id: '' }));
+			}
+			return true;
+		} catch (error) {
+			captureSentryError(error, 'channelMembers/checkBanInChannel');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
 
 export const initialChannelMembersState: ChannelMembersState = channelMembersAdapter.getInitialState({
 	loadingStatus: 'not loaded',
@@ -524,7 +586,8 @@ export const channelMembersActions = {
 	removeMemberChannel,
 	updateCustomStatus,
 	banUserChannel,
-	unbanUserChannel
+	unbanUserChannel,
+	checkBanInChannel
 };
 
 /*
