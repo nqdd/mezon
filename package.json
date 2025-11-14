@@ -1,6 +1,6 @@
 {
   "name": "mezon",
-  "version": "1.4.48",
+  "version": "1.4.49",
   "license": "MIT",
   "description": "Mezon application",
   "productName": "mezon",
@@ -71,7 +71,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
     "mezon-active-windows": "0.1.38",
-    "mezon-js": "2.13.37",
+    "mezon-js": "2.13.40",
     "mezon-js-protobuf": "1.8.55",
     "mmn-client-js": "1.0.11",
     "minio": "^7.1.3",

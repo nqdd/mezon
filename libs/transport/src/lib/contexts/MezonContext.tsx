@@ -228,6 +228,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 				const newSession = new Session(
 					session.token || '',
 					session.refresh_token || '',
+					sessionData.user_id || '',
 					session.created || false,
 					session.api_url || '',
 					sessionData.is_remember || false
@@ -431,7 +432,14 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 				throw new Error('Mezon client not initialized');
 			}
 
-			const sessionObj = new Session(session?.token, session?.refresh_token, session.created, session.api_url, session.is_remember);
+			const sessionObj = new Session(
+				session?.token,
+				session?.refresh_token,
+				session?.user_id || '',
+				session.created,
+				session.api_url,
+				session.is_remember
+			);
 
 			if (session.expires_at) {
 				sessionObj.expires_at = session.expires_at;
@@ -451,7 +459,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			}
 
 			const newSession = await clientRef.current.sessionRefresh(
-				new Session(session?.token, session?.refresh_token, session.created, session.api_url, session.is_remember)
+				new Session(session?.token, session?.refresh_token, session.user_id || '', session.created, session.api_url, session.is_remember)
 			);
 
 			sessionRef.current = newSession;
@@ -519,6 +527,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 								new Session(
 									sessionRef.current.token,
 									sessionRef.current.refresh_token,
+									sessionRef.current.user_id || '',
 									sessionRef.current.created,
 									sessionRef.current.api_url,
 									sessionRef.current.is_remember ?? false

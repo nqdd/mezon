@@ -111,7 +111,14 @@ export const refreshSession = createAsyncThunk('auth/refreshSession', async (_, 
 		return sessionState;
 	}
 
-	let session = new Session(sessionState.token, sessionState.refresh_token, sessionState.created, sessionState.api_url, !!sessionState.is_remember);
+	let session = new Session(
+		sessionState.token,
+		sessionState.refresh_token,
+		sessionState.user_id || '',
+		sessionState.created,
+		sessionState.api_url,
+		!!sessionState.is_remember
+	);
 
 	try {
 		session = (await mezon?.refreshSession({
