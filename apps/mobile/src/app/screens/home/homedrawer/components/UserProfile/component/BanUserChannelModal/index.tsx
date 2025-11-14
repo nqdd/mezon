@@ -16,6 +16,14 @@ interface IBuzzMessageModalProps {
 	user: ChannelMembersEntity;
 }
 
+const BANTIME_10_MINUTES = 600;
+const BANTIME_30_MINUTES = 1800;
+const BANTIME_1_HOUR = 3600;
+const BANTIME_6_HOURS = 21600;
+const BANTIME_12_HOURS = 43200;
+const BANTIME_1_DAY = 86400;
+const BANTIME_3_DAYS = 259200;
+
 export const BanUserChannelModal = memo((props: IBuzzMessageModalProps) => {
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
@@ -30,38 +38,38 @@ export const BanUserChannelModal = memo((props: IBuzzMessageModalProps) => {
 			[
 				{
 					title: t('ban.time.tenMinutes'),
-					value: 10
+					value: BANTIME_10_MINUTES
 				},
 				{
 					title: t('ban.time.thirtyMinutes'),
-					value: 30
+					value: BANTIME_30_MINUTES
 				},
 				{
 					title: t('ban.time.oneHour'),
-					value: 60
+					value: BANTIME_1_HOUR
 				},
 				{
 					title: t('ban.time.sixHours'),
-					value: 360
+					value: BANTIME_6_HOURS
 				},
 				{
 					title: t('ban.time.twelveHours'),
-					value: 720
+					value: BANTIME_12_HOURS
 				},
 				{
 					title: t('ban.time.oneDay'),
-					value: 1440
+					value: BANTIME_1_DAY
 				},
 				{
 					title: t('ban.time.threeDays'),
-					value: 4320
+					value: BANTIME_3_DAYS
 				}
 			] as IMezonOptionData,
 		[t]
 	);
 
 	const onConfirm = useCallback(async () => {
-		dispatch(channelMembersActions.banUserChannel({ clanId, channelId, userIds: [user?.id], banTime: timeOption, banMember: true }));
+		dispatch(channelMembersActions.banUserChannel({ clanId, channelId, userIds: [user?.id], banTime: timeOption }));
 		onClose();
 	}, [channelId, clanId, dispatch, timeOption, user?.id]);
 

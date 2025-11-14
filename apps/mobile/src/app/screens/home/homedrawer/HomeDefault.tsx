@@ -84,7 +84,7 @@ const HomeDefault = React.memo(
 				/>
 				{Platform.OS === 'ios' && <LicenseAgreement />}
 				<DrawerListener channelId={channelId} />
-				<HomeDefaultHeader openBottomSheet={openBottomSheet} navigation={props.navigation} onOpenDrawer={onOpenDrawer} />
+				<HomeDefaultHeader openBottomSheet={openBottomSheet} navigation={props.navigation} onOpenDrawer={onOpenDrawer} isBanned={isBanned} />
 				<View style={styles.flexOne}>
 					<ChannelMessages
 						channelId={channelId}

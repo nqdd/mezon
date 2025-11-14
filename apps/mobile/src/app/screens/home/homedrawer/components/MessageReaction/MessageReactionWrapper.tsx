@@ -113,7 +113,7 @@ export const MessageReactionWrapper = React.memo((props: IMessageReactionProps) 
 				})}
 			{renderedReactions}
 
-			{messageReactions?.length ? (
+			{messageReactions?.length && !preventAction ? (
 				<Pressable onPress={() => !preventAction && openEmojiPicker?.()} style={styles.addEmojiIcon}>
 					<MezonIconCDN icon={IconCDN.faceIcon} height={size.s_20} width={size.s_20} color={baseColor.gray} />
 				</Pressable>
