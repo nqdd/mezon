@@ -56,67 +56,70 @@ export const ActionRow = React.memo(() => {
 		dispatch(notificationSettingActions.getNotificationSetting({ channelId: currentChannel?.channel_id }));
 	}, []);
 
-	const actionList = [
-		{
-			title: t('search'),
-			action: () => {
-				if (isChannelDm) {
-					navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
-						screen: APP_SCREEN.MENU_CHANNEL.SEARCH_MESSAGE_DM,
-						params: {
-							currentChannel
-						}
-					});
-				} else {
-					navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
-						screen: APP_SCREEN.MENU_CHANNEL.SEARCH_MESSAGE_CHANNEL,
-						params: {
-							typeSearch: ETypeSearch.SearchChannel,
-							currentChannel,
-							nameChannel: currentChannel?.channel_label
-						}
-					});
-				}
-			},
-			icon: <MezonIconCDN icon={IconCDN.magnifyingIcon} width={22} height={22} color={themeValue.text} />,
-			isShow: true,
-			type: EActionRow.Search
-		},
-		{
-			title: t('thread'),
-			action: () => {
-				navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, { screen: APP_SCREEN.MENU_THREAD.CREATE_THREAD });
-			},
-			icon: <MezonIconCDN icon={IconCDN.threadIcon} width={22} height={22} color={themeValue.text} />,
-			isShow: isChannel,
-			type: EActionRow.Threads
-		},
-		{
-			title: t('muteNotification'),
-			action: () => {
-				navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
-					screen: APP_SCREEN.MENU_THREAD.MUTE_THREAD_DETAIL_CHANNEL,
-					params: { currentChannel, isCurrentChannel: true }
-				});
-			},
-			isShow: !isChatWithMyself,
-			type: EActionRow.Mute
-		},
-		{
-			title: t('settings'),
-			action: () => {
-				navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
-					screen: APP_SCREEN.MENU_CHANNEL.SETTINGS,
-					params: {
-						channelId: currentChannel?.channel_id
+	const actionList = useMemo(
+		() => [
+			{
+				title: t('search'),
+				action: () => {
+					if (isChannelDm) {
+						navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
+							screen: APP_SCREEN.MENU_CHANNEL.SEARCH_MESSAGE_DM,
+							params: {
+								currentChannel
+							}
+						});
+					} else {
+						navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
+							screen: APP_SCREEN.MENU_CHANNEL.SEARCH_MESSAGE_CHANNEL,
+							params: {
+								typeSearch: ETypeSearch.SearchChannel,
+								currentChannel,
+								nameChannel: currentChannel?.channel_label
+							}
+						});
 					}
-				});
+				},
+				icon: <MezonIconCDN icon={IconCDN.magnifyingIcon} width={22} height={22} color={themeValue.text} />,
+				isShow: true,
+				type: EActionRow.Search
 			},
-			icon: <MezonIconCDN icon={IconCDN.settingIcon} width={22} height={22} color={themeValue.text} />,
-			isShow: (isChannel && isCanManageChannel) || (isCanManageThread && !isChannel),
-			type: EActionRow.Settings
-		}
-	];
+			{
+				title: t('thread'),
+				action: () => {
+					navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, { screen: APP_SCREEN.MENU_THREAD.CREATE_THREAD });
+				},
+				icon: <MezonIconCDN icon={IconCDN.threadIcon} width={22} height={22} color={themeValue.text} />,
+				isShow: isChannel,
+				type: EActionRow.Threads
+			},
+			{
+				title: t('muteNotification'),
+				action: () => {
+					navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
+						screen: APP_SCREEN.MENU_THREAD.MUTE_THREAD_DETAIL_CHANNEL,
+						params: { currentChannel, isCurrentChannel: true }
+					});
+				},
+				isShow: !isChatWithMyself,
+				type: EActionRow.Mute
+			},
+			{
+				title: t('settings'),
+				action: () => {
+					navigation.push(APP_SCREEN.MENU_CHANNEL.STACK, {
+						screen: APP_SCREEN.MENU_CHANNEL.SETTINGS,
+						params: {
+							channelId: currentChannel?.channel_id
+						}
+					});
+				},
+				icon: <MezonIconCDN icon={IconCDN.settingIcon} width={22} height={22} color={themeValue.text} />,
+				isShow: (isChannel && isCanManageChannel) || (isCanManageThread && !isChannel),
+				type: EActionRow.Settings
+			}
+		],
+		[isChannelDm, isChannel, isChatWithMyself, isCanManageChannel, isCanManageThread, currentChannel, themeValue.text, navigation, t]
+	);
 
 	const filteredActionList = useMemo(() => {
 		if (currentChannel?.clan_id === '0') {
