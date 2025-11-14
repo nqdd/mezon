@@ -1,6 +1,6 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
 import type { RootState } from '@mezon/store';
-import { getStoreAsync, roleSlice, selectCurrentClanId, selectTheme } from '@mezon/store';
+import { getStoreAsync, roleSlice, selectTheme } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_256KB, fileTypeImage, resizeFileImage } from '@mezon/utils';
@@ -58,12 +58,11 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 
 		const store = await getStoreAsync();
 		const state = store.getState() as RootState;
-		const currentClanId = selectCurrentClanId(state);
 
 		setIsLoading(true);
 		const resizeFile = (await resizeFileImage(file, 64, 64, 'file')) as File;
 
-		const roleIcon = await handleUploadFile(clientRef.current, sessionRef.current, currentClanId || '', 'roleIcon', file.name, resizeFile);
+		const roleIcon = await handleUploadFile(clientRef.current, sessionRef.current, file.name, resizeFile);
 		dispatch(roleSlice.actions.setNewRoleIcon(roleIcon?.url || ''));
 
 		onClose();

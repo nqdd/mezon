@@ -835,16 +835,12 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			if (isMobile) {
 				uploadedFiles = await getMobileUploadedAttachments({
 					attachments,
-					channelId,
-					clanId,
 					client,
 					session
 				});
 			} else {
 				uploadedFiles = await getWebUploadedAttachments({
 					attachments,
-					channelId,
-					clanId,
 					client,
 					session
 				});
@@ -1013,8 +1009,6 @@ export const sendEphemeralMessage = createAsyncThunk('messages/sendEphemeralMess
 		if (attachments && attachments.length > 0) {
 			uploadedFiles = await getWebUploadedAttachments({
 				attachments,
-				channelId,
-				clanId,
 				client,
 				session
 			});

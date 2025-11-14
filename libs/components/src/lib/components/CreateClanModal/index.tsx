@@ -1,13 +1,5 @@
 import { toChannelPage, useAppNavigation, useClans } from '@mezon/core';
-import {
-	channelsActions,
-	checkDuplicateNameClan,
-	selectAllClans,
-	selectCurrentChannelId,
-	selectCurrentClanId,
-	triggerClanLimitModal,
-	useAppDispatch
-} from '@mezon/store';
+import { channelsActions, checkDuplicateNameClan, selectAllClans, triggerClanLimitModal, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Button, ButtonLoading, Icons, InputField } from '@mezon/ui';
 import { DEBOUNCE_TYPING_TIME, LIMIT_SIZE_UPLOAD_IMG, ValidateSpecialCharacters, checkClanLimit, fileTypeImage, generateE2eId } from '@mezon/utils';
@@ -43,8 +35,6 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 	const { navigate, toClanPage } = useAppNavigation();
 	const { createClans } = useClans();
 	const dispatch = useAppDispatch();
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 	const allClans = useSelector(selectAllClans);
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
@@ -98,7 +88,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 			e.target.value = null;
 			return;
 		}
-		handleUploadFile(client, session, currentClanId || '0', currentChannelId || '0', file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setUrlImage(attachment.url ?? '');
 		});
 	};
@@ -169,7 +159,13 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 									<span className="text-[14px]">{t('createClanModal.upload')}</span>
 								</div>
 							)}
-							<input id="preview_img" type="file" onChange={(e) => handleFile(e)} className="w-full text-sm hidden" data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')} />
+							<input
+								id="preview_img"
+								type="file"
+								onChange={(e) => handleFile(e)}
+								className="w-full text-sm hidden"
+								data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')}
+							/>
 						</label>
 						<div className="w-full">
 							<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>

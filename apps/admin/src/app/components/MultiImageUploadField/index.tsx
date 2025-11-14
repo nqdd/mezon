@@ -1,9 +1,12 @@
-import { CustomFile, handleUploadFile, useMezon } from '@mezon/transport';
+import type { CustomFile } from '@mezon/transport';
+import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { processFile } from '@mezon/utils';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { ChangeEvent, useRef, useState } from 'react';
-import { HTMLFieldProps, connectField } from 'uniforms';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useRef, useState } from 'react';
+import type { HTMLFieldProps } from 'uniforms';
+import { connectField } from 'uniforms';
 
 type CustomFormFieldProps = HTMLFieldProps<ApiMessageAttachment[], HTMLDivElement>;
 const MultiImageUploadField = connectField((props: CustomFormFieldProps) => {
@@ -30,7 +33,7 @@ const MultiImageUploadField = connectField((props: CustomFormFieldProps) => {
 					const extraAttributes = await processFile<CustomFile>(file);
 					file.width = extraAttributes.width;
 					file.height = extraAttributes.height;
-					const attachment = await handleUploadFile(client, session, '', '', file.name, file);
+					const attachment = await handleUploadFile(client, session, file.name, file);
 					if (attachment && attachment.url) {
 						newAttachments.push(attachment);
 					} else {
