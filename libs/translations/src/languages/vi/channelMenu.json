@@ -33,7 +33,11 @@
           "muteThreadStatus": "Tắt thông báo chủ đề",
           "unmuteChannelStatus": "Bật thông báo kênh", 
           "unmuteThreadStatus": "Bật thông báo chủ đề",
-          "mutedUntil": "Tắt thông báo đến"
+          "mutedUntil": "Tắt thông báo đến",
+          "muteSuccess": "Tắt thông báo thành công!",
+          "unMuteSuccess": "Bật thông báo thành công!",
+          "muteFailed": "Tắt thông báo không thành công!",
+          "unMuteFailed": "Bật thông báo không thành công!"
       },
       "thread": {
         "title": "",

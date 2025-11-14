@@ -123,7 +123,7 @@ export const ActionRow = React.memo(() => {
 			return actionList.filter((item) => [t('muteNotification'), t('search')].includes(item.title));
 		}
 		return actionList;
-	}, [currentChannel, isChannel]);
+	}, [actionList, currentChannel?.clan_id, t]);
 	return (
 		<View style={styles.container}>
 			{filteredActionList.map((action, index) =>

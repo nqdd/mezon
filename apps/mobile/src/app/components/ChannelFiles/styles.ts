@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { Dimensions, StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -15,7 +16,6 @@ export const style = (colors: Attributes) =>
 		},
 		sectionHeader: {
 			padding: size.s_10,
-			backgroundColor: colors.primary,
 			width: Dimensions.get('screen').width
 		},
 		sectionYearHeaderTitle: {

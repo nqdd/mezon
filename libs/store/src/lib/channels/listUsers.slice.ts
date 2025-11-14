@@ -6,7 +6,7 @@ import type { ApiUser } from 'mezon-js/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const LIST_USERS_BY_USER_FEATURE_KEY = 'listusersbyuserid';
@@ -49,7 +49,7 @@ export const fetchListUsersByUserCached = async (getState: () => RootState, mezo
 		};
 	}
 
-	const response = await mezon.client.listUserClansByUserId(mezon.session);
+	const response = await withRetry(() => mezon.client.listUserClansByUserId(mezon.session), { maxRetries: 3, initialDelay: 1000 });
 
 	markApiFirstCalled(apiKey);
 

@@ -1,8 +1,8 @@
 import { useAuth, usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { EventManagementEntity } from '@mezon/store-mobile';
 import {
-	EventManagementEntity,
 	addUserEvent,
 	deleteUserEvent,
 	selectClanById,
@@ -12,7 +12,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { EEventStatus, EPermission, sleep } from '@mezon/utils';
-import { ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
@@ -149,8 +149,10 @@ export function EventDetail({ event }: IEventDetailProps) {
 
 					<View style={styles.inline}>
 						<MezonAvatar avatarUrl={userCreate?.user?.avatar_url} username={userCreate?.user?.username} height={20} width={20} />
-						<Text style={styles.smallText}>{t('detail.createdBy')}</Text>
-						<Text style={[styles.smallText, styles.highlight]}>{userCreate?.user?.username}</Text>
+						<Text style={styles.smallText}>
+							{t('detail.createdBy')}
+							<Text style={styles.highlight}>{userCreate?.user?.username}</Text>
+						</Text>
 					</View>
 				</View>
 			</View>
@@ -158,7 +160,6 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{event.description && <Text style={styles.description}>{event.description}</Text>}
 
 			<View style={styles.inline}>
-				{/* <MezonButton title="End event" fluid /> */}
 				<MezonButton
 					icon={
 						isInterested ? (
@@ -172,7 +173,6 @@ export function EventDetail({ event }: IEventDetailProps) {
 					border
 					onPress={handleToggleUserEvent}
 				/>
-				{/* <MezonButton title="Start event" fluid type="success" /> */}
 				{!event?.address && (
 					<MezonButton
 						onPress={handleShareEvent}

@@ -9,7 +9,7 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import { channelsActions, selectCurrentChannel } from '../channels/channels.slice';
 import { listChannelRenderAction } from '../channels/listChannelRender.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const THREADS_FEATURE_KEY = 'threads';
@@ -100,7 +100,10 @@ export const fetchThreadsCached = async (
 			time: channelData.cache?.lastFetched || Date.now()
 		};
 	}
-	const response = await mezon.client.listThreadDescs(mezon.session, channelId, LIMIT, 0, clanId, threadId, page);
+	const response = await withRetry(() => mezon.client.listThreadDescs(mezon.session, channelId, LIMIT, 0, clanId, threadId, page), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 	markApiFirstCalled(apiKey);
 
 	return {

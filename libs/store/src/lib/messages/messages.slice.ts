@@ -251,8 +251,6 @@ export const fetchMessagesCached = async (
 			if (retryCount > 1) {
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				return listChannelMessagesWithRetry(retryCount - 1);
-			} else {
-				throw error;
 			}
 		}
 	}
@@ -375,7 +373,7 @@ export const fetchMessages = createAsyncThunk(
 				currentUser = await thunkAPI.dispatch(accountActions.getUserProfile()).unwrap();
 			}
 
-			const response = await fetchMessagesCached(
+			let response = await fetchMessagesCached(
 				thunkAPI.getState as () => RootState,
 				mezon,
 				clanId,
@@ -386,6 +384,23 @@ export const fetchMessages = createAsyncThunk(
 				noCache,
 				thunkAPI.dispatch as AppDispatch
 			);
+
+			// Fallback
+			if (!topicId && messageId && (!response.messages || response.messages.length === 0)) {
+				/* eslint-disable */
+				console.log('FALLBACK GET MESSAGES', { clanId, channelId, messageId });
+				response = await fetchMessagesCached(
+					thunkAPI.getState as () => RootState,
+					mezon,
+					clanId,
+					channelId,
+					undefined,
+					undefined,
+					topicId,
+					true,
+					thunkAPI.dispatch as AppDispatch
+				);
+			}
 
 			const fromCache = response.fromCache || false;
 
@@ -1477,12 +1492,15 @@ export const messagesSlice = createSlice({
 				[action.payload.channelId]: action.payload.messageId
 			};
 		},
-		UpdateChannelLastMessage: (state, action: PayloadAction<{ channelId: string }>) => {
-			const lastMess = state.channelViewPortMessageIds?.[action.payload.channelId]?.at(-1);
-			state.unreadMessagesEntries = {
-				...state.unreadMessagesEntries,
-				[action.payload.channelId]: lastMess || ''
-			};
+		UpdateChannelLastMessage: (state, action: PayloadAction<{ channelId: string; messageId: string }>) => {
+			const { channelId, messageId } = action.payload;
+
+			if (messageId) {
+				state.unreadMessagesEntries = {
+					...state.unreadMessagesEntries,
+					[channelId]: messageId
+				};
+			}
 		},
 		setUserTyping: (state, action: PayloadAction<SetUserTypingArgs>) => {
 			const { channelId, userId, typingName } = action.payload || {};
@@ -1875,10 +1893,10 @@ export const selectHasMoreMessageByChannelId = createSelector([getMessagesState,
 	const firstMessageId = state.firstMessageId[channelId];
 	if (!firstMessageId) return true;
 
-	const isFirstMessageInChannel = state.channelMessages[channelId]?.entities[firstMessageId];
+	const viewportIds = state.channelViewPortMessageIds[channelId] || [];
+	const isFirstMessageInViewport = viewportIds.includes(firstMessageId);
 
-	// if the first message is not in the channel's messages, then there are more messages
-	return !isFirstMessageInChannel;
+	return !isFirstMessageInViewport;
 });
 
 export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
@@ -1992,10 +2010,6 @@ export const selectLassSendMessageEntityBySenderId = createCachedSelector(
 
 export const selectChannelDraftMessage = createCachedSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
 	return messagesState.channelDraftMessage[channelId];
-});
-
-export const selectFirstMessageId = createCachedSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
-	return messagesState.firstMessageId[channelId] ?? '';
 });
 
 // select selectLatestMessage's id

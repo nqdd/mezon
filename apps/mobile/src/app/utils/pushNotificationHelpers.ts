@@ -6,6 +6,7 @@ import {
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
 	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
+	STORAGE_LATEST_CALL_CACHE,
 	STORAGE_MY_USER_ID,
 	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
@@ -278,7 +279,7 @@ export const createLocalNotification = async (title: string, body: string, data:
 		}
 
 		const myUserId = load(STORAGE_MY_USER_ID);
-		const excludedMessages = ['video call', 'audio call', 'Untitled message'];
+		const excludedMessages = ['video call', 'audio call', 'voice call', 'Untitled message'];
 
 		// Skip if it's a call message or from the current user
 		if (excludedMessages.some((text) => body.includes(text)) || myUserId === data?.sender) {
@@ -583,7 +584,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 
 const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId: string, navigation: any) => {
 	const promises = [];
-	await sleep(300);
+	await sleep(500);
 	promises.push(store.dispatch(topicsActions.setCurrentTopicInitMessage(null)));
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
 	promises.push(store.dispatch(topicsActions.setIsShowCreateTopic(true)));
@@ -621,12 +622,61 @@ export const getVoIPToken = async () => {
 	}
 };
 
+const displayMissedCallNotification = async (dataObj: any) => {
+	const channelId = await notifee.createChannel({
+		id: `${dataObj?.channelId}_MISS_CALL`,
+		name: `${dataObj?.channelId}_MISS_CALL`,
+		importance: AndroidImportance.HIGH
+	});
+
+	await notifee.displayNotification({
+		id: channelId,
+		title: 'Missed call',
+		body: `${dataObj?.callerName || 'Unknown'} call was missed.`,
+		data: {
+			link: `https://mezon.ai/chat/direct/message/${dataObj?.channelId}/3`
+		},
+		android: {
+			channelId,
+			smallIcon: 'ic_notification',
+			vibrationPattern: [300, 500, 300, 500],
+			lightUpScreen: true,
+			color: '#7029c1',
+			actions: [
+				{
+					title: 'Call back',
+					pressAction: {
+						id: 'open_chat',
+						launchActivity: 'com.mezon.mobile.MainActivity',
+						launchActivityFlags: [
+							AndroidLaunchActivityFlag.SINGLE_TOP,
+							AndroidLaunchActivityFlag.NEW_TASK,
+							AndroidLaunchActivityFlag.CLEAR_TOP
+						]
+					},
+					icon: 'ic_message'
+				}
+			],
+			largeIcon: dataObj?.callerAvatar || dataObj?.groupAvatar || process.env.NX_LOGO_MEZON,
+			pressAction: {
+				id: 'default',
+				launchActivity: 'com.mezon.mobile.MainActivity'
+			}
+		}
+	});
+};
+
 export const displayNativeCalling = async (data: any, appInBackground = false) => {
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
 		if (dataObj?.offer === 'CANCEL_CALL') {
+			const latestCallsCacheStr = load(STORAGE_LATEST_CALL_CACHE) || '{}';
+			const latestCallsCache = safeJSONParse(latestCallsCacheStr) || {};
 			await notifee.cancelNotification(notificationId, notificationId);
+			if (latestCallsCache?.channelId) {
+				await displayMissedCallNotification(latestCallsCache);
+			}
 			return;
 		}
 
@@ -641,6 +691,7 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 			cancelCallsCache.splice(0, 10);
 		}
 		save(STORAGE_OFFER_HAVE_CALL_CACHE, JSON.stringify(cancelCallsCache));
+		save(STORAGE_LATEST_CALL_CACHE, JSON.stringify(dataObj));
 
 		const channel = await notifee.createChannel({
 			id: 'calls',

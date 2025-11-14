@@ -31,7 +31,6 @@ export const style = (colors: Attributes, widthImage: number) =>
 		},
 		sectionHeader: {
 			padding: size.s_10,
-			backgroundColor: colors.primary,
 			width: Dimensions.get('screen').width
 		},
 		sectionYearHeaderTitle: {

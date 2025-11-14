@@ -24,11 +24,12 @@ import {
 	selectGalleryAttachmentsByChannel,
 	selectGalleryPaginationByChannel,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	type MediaFilterType
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IImageWindowProps } from '@mezon/utils';
-import { ETypeLinkMedia, LoadMoreDirection, convertDateStringI18n, createImgproxyUrl, getAttachmentDataForWindow } from '@mezon/utils';
+import { EMimeTypes, ETypeLinkMedia, LoadMoreDirection, convertDateStringI18n, createImgproxyUrl, getAttachmentDataForWindow } from '@mezon/utils';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import isElectron from 'is-electron';
 import type { RefObject } from 'react';
@@ -69,12 +70,35 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
 	const paginationState = useAppSelector((state) => selectGalleryPaginationByChannel(state, currentChannelId));
 
+	useEffect(() => {
+		return () => {
+			if (currentChannelId) {
+				dispatch(galleryActions.clearGalleryAttachments({ channelId: currentChannelId }));
+			}
+		};
+	}, [currentChannelId, dispatch]);
+
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [endDate, setEndDate] = useState<Date | null>(null);
 	const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
 	const [dateValidationError, setDateValidationError] = useState<string | null>(null);
+	const [mediaFilter, setMediaFilter] = useState<MediaFilterType>('all');
 
 	const modalRef = useRef<HTMLDivElement>(null);
+
+	const filteredAttachments = useMemo(() => {
+		if (!attachments || attachments.length === 0) return [];
+
+		if (mediaFilter === 'all') {
+			return attachments;
+		} else if (mediaFilter === 'image') {
+			return attachments.filter((att) => att.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX));
+		} else if (mediaFilter === 'video') {
+			return attachments.filter((att) => att.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX));
+		}
+
+		return attachments;
+	}, [attachments, mediaFilter]);
 
 	const { refs, floatingStyles, context } = useFloating({
 		open: isDateDropdownOpen,
@@ -210,6 +234,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						channelId: currentChannelId,
 						limit: paginationState.limit,
 						direction,
+						mediaFilter: 'all',
 						...(beforeParam && { before: beforeParam }),
 						...(afterParam && { after: afterParam })
 					})
@@ -262,11 +287,11 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 	}, [onClose, rootRef]);
 
 	const virtualData: VirtualDataItem[] = useMemo(() => {
-		if (!attachments || attachments.length === 0) {
+		if (!filteredAttachments || filteredAttachments.length === 0) {
 			return [];
 		}
 
-		const groupedAttachments = attachments.reduce(
+		const groupedAttachments = filteredAttachments.reduce(
 			(groups, attachment) => {
 				if (!attachment.create_time) return groups;
 
@@ -303,7 +328,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 			});
 			return items;
 		});
-	}, [attachments]);
+	}, [filteredAttachments]);
 
 	const formatDate = useCallback(
 		(date: Date) => {
@@ -371,6 +396,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 				channelId: currentChannelId,
 				limit: 50,
 				direction: 'initial',
+				mediaFilter: 'all',
 				...(startTimestamp && { after: startTimestamp }),
 				...(endTimestamp && { before: endTimestamp })
 			})
@@ -391,11 +417,20 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 					clanId: currentClanId,
 					channelId: currentChannelId,
 					limit: 50,
-					direction: 'initial'
+					direction: 'initial',
+					mediaFilter: 'all'
 				})
 			);
 		}
 	}, [currentChannelId, currentClanId, dispatch]);
+
+	const handleMediaFilterChange = useCallback(
+		(filter: MediaFilterType) => {
+			if (filter === mediaFilter) return;
+			setMediaFilter(filter);
+		},
+		[mediaFilter]
+	);
 
 	const getDateRangeText = useCallback(() => {
 		if (!startDate && !endDate) return t('gallery.sentDate');
@@ -428,11 +463,17 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 			const currentChannelLabel = selectCurrentChannelLabel(state);
 			const currentDmGroupId = currentDm?.id;
 			const attachmentData = attachment;
+
 			if (!attachmentData) return;
 			const enhancedAttachmentData = {
 				...attachmentData,
 				create_time: attachmentData.create_time || new Date().toISOString()
 			};
+
+			const isVideo =
+				attachmentData?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+				attachmentData?.filetype?.includes(EMimeTypes.mp4) ||
+				attachmentData?.filetype?.includes(EMimeTypes.mov);
 
 			if (isElectron()) {
 				const clanId = currentClanId === '0' ? '0' : (currentClanId as string);
@@ -454,12 +495,22 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 				const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
 				const currentImageUploader = currentChatUsersEntities?.[attachmentData.uploader as string];
 				const listAttachmentsByChannel = data?.attachments
-					?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+					?.filter(
+						(att) =>
+							att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX) ||
+							att?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+							att?.filetype?.includes(EMimeTypes.mp4) ||
+							att?.filetype?.includes(EMimeTypes.mov)
+					)
 					.map((attachmentRes) => ({
 						...attachmentRes,
 						id: attachmentRes.id || '',
 						channelId,
-						clanId
+						clanId,
+						isVideo:
+							attachmentRes?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+							attachmentRes?.filetype?.includes(EMimeTypes.mp4) ||
+							attachmentRes?.filetype?.includes(EMimeTypes.mov)
 					}))
 					.sort((a, b) => {
 						if (a.create_time && b.create_time) {
@@ -468,13 +519,20 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						return 0;
 					});
 				if (!listAttachmentsByChannel) return;
+
 				window.electron.openImageWindow({
 					...enhancedAttachmentData,
-					url: createImgproxyUrl(enhancedAttachmentData.url || '', {
-						width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
-						height: enhancedAttachmentData.height ? (enhancedAttachmentData.height > 900 ? 900 : enhancedAttachmentData.height) : 0,
-						resizeType: 'fit'
-					}),
+					url: isVideo
+						? enhancedAttachmentData.url || ''
+						: createImgproxyUrl(enhancedAttachmentData.url || '', {
+								width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
+								height: enhancedAttachmentData.height
+									? enhancedAttachmentData.height > 900
+										? 900
+										: enhancedAttachmentData.height
+									: 0,
+								resizeType: 'fit'
+							}),
 					uploaderData: {
 						name:
 							currentImageUploader?.clan_nick ||
@@ -490,7 +548,8 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						channelLabel: (currentChannelId ? currentChannelLabel : currentDm.channel_label) as string,
 						images: [],
 						selectedImageIndex: 0
-					}
+					},
+					isVideo
 				});
 
 				if (listAttachmentsByChannel) {
@@ -504,15 +563,21 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 					window.electron.openImageWindow({
 						...enhancedAttachmentData,
-						url: createImgproxyUrl(enhancedAttachmentData.url || '', {
-							width: enhancedAttachmentData.width ? (enhancedAttachmentData.width > 1600 ? 1600 : enhancedAttachmentData.width) : 0,
-							height: enhancedAttachmentData.height
-								? (enhancedAttachmentData.width || 0) > 1600
-									? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
-									: enhancedAttachmentData.height
-								: 0,
-							resizeType: 'fill'
-						}),
+						url: isVideo
+							? enhancedAttachmentData.url || ''
+							: createImgproxyUrl(enhancedAttachmentData.url || '', {
+									width: enhancedAttachmentData.width
+										? enhancedAttachmentData.width > 1600
+											? 1600
+											: enhancedAttachmentData.width
+										: 0,
+									height: enhancedAttachmentData.height
+										? (enhancedAttachmentData.width || 0) > 1600
+											? Math.round((1600 * enhancedAttachmentData.height) / (enhancedAttachmentData.width || 1))
+											: enhancedAttachmentData.height
+										: 0,
+									resizeType: 'fill'
+								}),
 						uploaderData: {
 							name:
 								currentImageUploader?.clan_nick ||
@@ -524,7 +589,8 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 								`${window.location.origin}/assets/images/anonymous-avatar.png`) as string
 						},
 						realUrl: enhancedAttachmentData.url || '',
-						channelImagesData
+						channelImagesData,
+						isVideo
 					});
 					return;
 				}
@@ -532,6 +598,7 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 
 			dispatch(
 				attachmentActions.setCurrentAttachment({
+					...enhancedAttachmentData,
 					id: enhancedAttachmentData.message_id as string,
 					uploader: enhancedAttachmentData.uploader,
 					create_time: enhancedAttachmentData.create_time
@@ -570,98 +637,136 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 			className="absolute top-8 right-0 rounded-md dark:shadow-shadowBorder shadow-shadowInbox z-[9999] origin-top-right"
 		>
 			<div className="flex bg-theme-setting-primary flex-col rounded-md min-h-[400px] md:w-[480px] max-h-[80vh] lg:w-[540px] shadow-sm overflow-hidden">
-				<div className="bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12">
-					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
-						<Icons.ImageThumbnail defaultSize="w-4 h-4" />
-						<span className="text-base font-semibold cursor-default">{t('gallery.title')}</span>
-					</div>
-					<div className="flex-1 max-w-md mx-4">
-						<button
-							ref={refs.setReference}
-							{...getReferenceProps()}
-							className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none"
-						>
-							<span>{getDateRangeText()}</span>
-							<Icons.ArrowDown className={`w-3 h-3 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`} />
-						</button>
-
-						{isDateDropdownOpen && (
-							<FloatingPortal>
-								<FloatingFocusManager context={context} modal={false}>
-									<div
-										ref={refs.setFloating}
-										style={floatingStyles}
-										{...getFloatingProps()}
-										className="bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]"
-										data-floating-dropdown="true"
-									>
-										<div className="space-y-4">
-											<div>
-												<label className="block text-xs font-medium text-theme-secondary mb-2">{t('gallery.fromDate')}</label>
-												<Suspense fallback={<DatePickerPlaceholder />}>
-													<DatePickerWrapper
-														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
-															dateValidationError ? 'border-red-500' : 'border-theme-primary'
-														}`}
-														wrapperClassName="w-full"
-														selected={startDate || new Date()}
-														onChange={handleStartDateChange}
-														dateFormat="dd/MM/yyyy"
-														minDate={endDate ? undefined : new Date(2020, 0, 1)}
-													/>
-												</Suspense>
-											</div>
-											<div>
-												<label className="block text-xs font-medium text-theme-secondary mb-2">{t('gallery.toDate')}</label>
-												<Suspense fallback={<DatePickerPlaceholder />}>
-													<DatePickerWrapper
-														className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
-															dateValidationError ? 'border-red-500' : 'border-theme-primary'
-														}`}
-														wrapperClassName="w-full"
-														selected={endDate || new Date()}
-														onChange={handleEndDateChange}
-														dateFormat="dd/MM/yyyy"
-														minDate={startDate || undefined}
-													/>
-												</Suspense>
-											</div>
-
-											{dateValidationError && (
-												<div className="text-red-500 text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded px-2 py-1">
-													{dateValidationError}
-												</div>
-											)}
-
-											<div className="flex justify-between items-center">
-												<button
-													onClick={clearDateFilter}
-													className="text-theme-secondary text-xs focus:outline-none hover:underline"
-												>
-													{t('gallery.buttons.clearAll')}
-												</button>
-												<button
-													onClick={handleApplyDateFilter}
-													disabled={!!dateValidationError}
-													className={`px-3 py-1 text-xs rounded transition-colors ${
-														dateValidationError
-															? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-															: 'btn-primary btn-primary-hover text-white'
-													}`}
-												>
-													{t('gallery.buttons.apply')}
-												</button>
-											</div>
-										</div>
-									</div>
-								</FloatingFocusManager>
-							</FloatingPortal>
-						)}
-					</div>
-					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">
-						<button onClick={onClose}>
+				<div className="bg-theme-setting-nav flex flex-col p-[16px]">
+					<div className="flex flex-row items-center justify-between mb-3">
+						<div className="flex flex-row items-center gap-4">
+							<Icons.ImageThumbnail defaultSize="w-4 h-4" />
+							<span className="text-base font-semibold cursor-default">{t('gallery.title')}</span>
+						</div>
+						<button onClick={onClose} className="text-theme-primary-hover">
 							<Icons.Close defaultSize="w-4 h-4" />
 						</button>
+					</div>
+					<div className="flex flex-row items-center justify-between gap-4">
+						<div className="flex gap-2">
+							<button
+								onClick={() => handleMediaFilterChange('all')}
+								className={`px-3 py-1.5 text-sm rounded transition-colors ${
+									mediaFilter === 'all'
+										? 'bg-theme-primary text-white'
+										: 'bg-theme-surface text-theme-primary hover:bg-theme-surface-hover'
+								}`}
+							>
+								{t('gallery.filters.all')}
+							</button>
+							<button
+								onClick={() => handleMediaFilterChange('image')}
+								className={`px-3 py-1.5 text-sm rounded transition-colors ${
+									mediaFilter === 'image'
+										? 'bg-theme-primary text-white'
+										: 'bg-theme-surface text-theme-primary hover:bg-theme-surface-hover'
+								}`}
+							>
+								{t('gallery.filters.images')}
+							</button>
+							<button
+								onClick={() => handleMediaFilterChange('video')}
+								className={`px-3 py-1.5 text-sm rounded transition-colors ${
+									mediaFilter === 'video'
+										? 'bg-theme-primary text-white'
+										: 'bg-theme-surface text-theme-primary hover:bg-theme-surface-hover'
+								}`}
+							>
+								{t('gallery.filters.videos')}
+							</button>
+						</div>
+						<div>
+							<button
+								ref={refs.setReference}
+								{...getReferenceProps()}
+								className="flex items-center gap-2 px-3 py-1.5 bg-theme-surface text-sm text-theme-primary hover:bg-theme-surface-hover transition-colors focus:outline-none"
+							>
+								<span>{getDateRangeText()}</span>
+								<Icons.ArrowDown className={`w-3 h-3 transition-transform ${isDateDropdownOpen ? 'rotate-180' : ''}`} />
+							</button>
+
+							{isDateDropdownOpen && (
+								<FloatingPortal>
+									<FloatingFocusManager context={context} modal={false}>
+										<div
+											ref={refs.setFloating}
+											style={floatingStyles}
+											{...getFloatingProps()}
+											className="bg-theme-surface rounded-lg shadow-lg z-[10000] p-4 border border-theme-border min-w-[300px]"
+											data-floating-dropdown="true"
+										>
+											<div className="space-y-4">
+												<div>
+													<label className="block text-xs font-medium text-theme-secondary mb-2">
+														{t('gallery.fromDate')}
+													</label>
+													<Suspense fallback={<DatePickerPlaceholder />}>
+														<DatePickerWrapper
+															className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
+																dateValidationError ? 'border-red-500' : 'border-theme-primary'
+															}`}
+															wrapperClassName="w-full"
+															selected={startDate || new Date()}
+															onChange={handleStartDateChange}
+															dateFormat="dd/MM/yyyy"
+															minDate={endDate ? undefined : new Date(2020, 0, 1)}
+														/>
+													</Suspense>
+												</div>
+												<div>
+													<label className="block text-xs font-medium text-theme-secondary mb-2">
+														{t('gallery.toDate')}
+													</label>
+													<Suspense fallback={<DatePickerPlaceholder />}>
+														<DatePickerWrapper
+															className={`w-full bg-theme-surface border rounded px-3 py-2 text-sm text-theme-primary outline-none ${
+																dateValidationError ? 'border-red-500' : 'border-theme-primary'
+															}`}
+															wrapperClassName="w-full"
+															selected={endDate || new Date()}
+															onChange={handleEndDateChange}
+															dateFormat="dd/MM/yyyy"
+															minDate={startDate || undefined}
+														/>
+													</Suspense>
+												</div>
+
+												{dateValidationError && (
+													<div className="text-red-500 text-xs bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded px-2 py-1">
+														{dateValidationError}
+													</div>
+												)}
+
+												<div className="flex justify-between items-center">
+													<button
+														onClick={clearDateFilter}
+														className="text-theme-secondary text-xs focus:outline-none hover:underline"
+													>
+														{t('gallery.buttons.clearAll')}
+													</button>
+													<button
+														onClick={handleApplyDateFilter}
+														disabled={!!dateValidationError}
+														className={`px-3 py-1 text-xs rounded transition-colors ${
+															dateValidationError
+																? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+																: 'btn-primary btn-primary-hover text-white'
+														}`}
+													>
+														{t('gallery.buttons.apply')}
+													</button>
+												</div>
+											</div>
+										</div>
+									</FloatingFocusManager>
+								</FloatingPortal>
+							)}
+						</div>
 					</div>
 				</div>
 
@@ -670,7 +775,13 @@ export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {
 						<div className="flex flex-col items-center justify-center h-64 text-center">
 							<Icons.ImageThumbnail defaultSize="w-12 h-12" className="text-theme-secondary opacity-50 mb-4" />
 							<p className="text-theme-secondary text-sm">
-								{startDate || endDate ? t('gallery.emptyState.noMediaFilesDateRange') : t('gallery.emptyState.noMediaFiles')}
+								{mediaFilter === 'image'
+									? t('gallery.emptyState.noImages')
+									: mediaFilter === 'video'
+										? t('gallery.emptyState.noVideos')
+										: startDate || endDate
+											? t('gallery.emptyState.noMediaFilesDateRange')
+											: t('gallery.emptyState.noMediaFiles')}
 							</p>
 							{(startDate || endDate) && (
 								<button
@@ -717,17 +828,46 @@ interface ImageWithLoadingProps {
 	onClick?: () => void;
 	cacheKey?: string;
 	t?: (key: string, options?: any) => string;
+	isVideo?: boolean;
+	filetype?: string;
 }
 
 const ImageWithLoading = React.memo<ImageWithLoadingProps>(
-	({ src, alt, className, onClick, cacheKey, t }) => {
+	({ src, alt, className, onClick, cacheKey, t, isVideo }) => {
 		const [isLoading, setIsLoading] = useState(true);
 		const [hasError, setHasError] = useState(false);
+		const [isInView, setIsInView] = useState(!isVideo);
+		const containerRef = useRef<HTMLDivElement>(null);
 
 		useEffect(() => {
 			setIsLoading(true);
 			setHasError(false);
 		}, [src, cacheKey]);
+
+		useEffect(() => {
+			if (!isVideo || !containerRef.current) return;
+
+			const observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							setIsInView(true);
+							observer.disconnect();
+						}
+					});
+				},
+				{
+					rootMargin: '100px',
+					threshold: 0.01
+				}
+			);
+
+			observer.observe(containerRef.current);
+
+			return () => {
+				observer.disconnect();
+			};
+		}, [isVideo]);
 
 		const handleLoad = () => {
 			setIsLoading(false);
@@ -739,7 +879,7 @@ const ImageWithLoading = React.memo<ImageWithLoadingProps>(
 		};
 
 		return (
-			<div className="aspect-square relative cursor-pointer" onClick={onClick}>
+			<div ref={containerRef} className="aspect-square relative cursor-pointer" onClick={onClick}>
 				{isLoading && (
 					<div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
 						<svg
@@ -779,13 +919,38 @@ const ImageWithLoading = React.memo<ImageWithLoadingProps>(
 					</div>
 				)}
 
-				<img
-					src={src}
-					alt={alt}
-					className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
-					onLoad={handleLoad}
-					onError={handleError}
-				/>
+				{isVideo ? (
+					<div className="relative w-full h-full bg-gray-900">
+						{isInView ? (
+							<video
+								src={src}
+								className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+								onLoadedData={handleLoad}
+								onError={handleError}
+								preload="metadata"
+								muted
+								playsInline
+							/>
+						) : (
+							<div className="w-full h-full bg-gray-800" />
+						)}
+						<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+							<div className="bg-black bg-opacity-60 rounded-full p-3">
+								<svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+									<path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+								</svg>
+							</div>
+						</div>
+					</div>
+				) : (
+					<img
+						src={src}
+						alt={alt}
+						className={`w-full h-full object-cover ${isLoading ? 'opacity-0' : 'opacity-100'} ${className}`}
+						onLoad={handleLoad}
+						onError={handleError}
+					/>
+				)}
 			</div>
 		);
 	},
@@ -798,6 +963,8 @@ const ImageWithLoading = React.memo<ImageWithLoadingProps>(
 			prevProps.alt === nextProps.alt &&
 			prevProps.className === nextProps.className &&
 			prevProps.cacheKey === nextProps.cacheKey &&
+			prevProps.isVideo === nextProps.isVideo &&
+			prevProps.filetype === nextProps.filetype &&
 			prevProps.t === nextProps.t
 		);
 	}
@@ -869,13 +1036,20 @@ const GalleryContent = ({
 							<div key={`${item.dateKey}-grid`} className="gallery-item grid grid-cols-3 gap-3">
 								{item.attachments.map((attachment: AttachmentEntity, attachmentIndex: number) => {
 									const cacheKey = attachment.id || attachment.message_id || `${item.dateKey}-${attachment.url}-${attachmentIndex}`;
+									const isVideo = attachment.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX);
 									return (
 										<ImageWithLoading
 											key={cacheKey}
 											cacheKey={cacheKey}
-											src={createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })}
+											src={
+												isVideo
+													? attachment.url || ''
+													: createImgproxyUrl(attachment.url || '', { width: 120, height: 120, resizeType: 'fill' })
+											}
 											alt={attachment.filename || 'Media'}
 											onClick={() => handleImageClick(attachment)}
+											isVideo={isVideo}
+											filetype={attachment.filetype}
 											t={t}
 										/>
 									);

@@ -21,7 +21,9 @@ export const MessagePreviewLastest = React.memo(
 		}, [lastSentMessage?.content]);
 
 		const attachment = useMemo(() => {
-			return typeof lastSentMessage?.attachment === 'object' ? lastSentMessage?.attachment : safeJSONParse(lastSentMessage?.attachment || '{}');
+			const messageAttachments =
+				typeof lastSentMessage?.attachment === 'object' ? lastSentMessage?.attachment : safeJSONParse(lastSentMessage?.attachment || '{}');
+			return Array.isArray(messageAttachments) ? messageAttachments?.[0] : messageAttachments;
 		}, [lastSentMessage?.attachment]);
 
 		const contentTextObj = useMemo(() => {
@@ -65,7 +67,7 @@ export const MessagePreviewLastest = React.memo(
 
 		const getLastMessageAttachmentContent = async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
 			if (embed) {
-				return `[${t('attachments.embed')}] ${embed?.title || embed?.description || ''}`;
+				return `${embed?.title || embed?.description || ''}`;
 			}
 			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
 			if (isGoogleMapsLink) {

@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectAllActivities, selectAllFriends, selectAllUserDM } from '@mezon/store-mobile';
+import { getStore, selectAllAccount, selectAllActivities, selectAllFriends, selectAllUserDM } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, FlatList, Text, View } from 'react-native';
@@ -14,7 +14,8 @@ function MessageActivity() {
 	const store = getStore();
 	const friends = useSelector(selectAllFriends);
 	const activities = useSelector(selectAllActivities);
-	const animatedHeight = useRef(new Animated.Value(0)).current;
+	const userId = useSelector(selectAllAccount)?.user?.id;
+
 	const mergeListFriendAndListUserDM = useMemo(() => {
 		try {
 			const dmUsers = selectAllUserDM(store.getState());
@@ -42,7 +43,7 @@ function MessageActivity() {
 			console.error('Error merging friends and DM users:', e);
 			return [];
 		}
-	}, [friends?.length]);
+	}, [friends?.length, store]);
 
 	const activityMap = useMemo(() => {
 		if (!activities?.length) return new Map();
@@ -59,7 +60,7 @@ function MessageActivity() {
 			return mergeListFriendAndListUserDM
 				.reduce((acc, user) => {
 					const info = activityMap.get(user.id);
-					if (info) {
+					if (info && user.id !== userId) {
 						const activityName = info?.activity_description
 							? `${info?.activity_name} - ${info.activity_description}`
 							: info?.activity_name;
@@ -77,14 +78,16 @@ function MessageActivity() {
 			console.error('log  => e', e);
 			return [];
 		}
-	}, [mergeListFriendAndListUserDM, activityMap]);
+	}, [mergeListFriendAndListUserDM, activityMap, userId]);
+
+	const animatedHeight = useRef(new Animated.Value(data.length > 0 ? size.s_60 : 0)).current;
 
 	useEffect(() => {
 		Animated.timing(animatedHeight, {
 			toValue: data.length > 0 ? size.s_60 : 0,
-			duration: 400,
-			easing: Easing.bezier(0.25, 0.1, 0.25, 1), // Improved easing curve
-			useNativeDriver: false // Can't use native driver for height animations
+			duration: 300,
+			easing: Easing.linear,
+			useNativeDriver: false
 		}).start();
 	}, [animatedHeight, data?.length]);
 
@@ -117,7 +120,8 @@ function MessageActivity() {
 	return (
 		<Animated.View
 			style={{
-				height: animatedHeight
+				height: animatedHeight,
+				overflow: 'hidden'
 			}}
 		>
 			<FlatList

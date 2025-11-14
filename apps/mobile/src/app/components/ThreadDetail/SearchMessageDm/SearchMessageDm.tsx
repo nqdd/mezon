@@ -7,10 +7,12 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { SearchFilter, SIZE_PAGE_SEARCH } from '@mezon/utils';
+import type { SearchFilter } from '@mezon/utils';
+import { SIZE_PAGE_SEARCH } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { EmptySearchPage } from '../../EmptySearchPage';
 import MessagesSearchTab from '../../MessagesSearchTab';
 import StatusBarHeight from '../../StatusBarHeight/StatusBarHeight';
@@ -84,7 +86,7 @@ export default function SearchMessageDm({ navigation, route }: any) {
 	);
 
 	const handleSetValueInputSearch = useCallback((value: string) => {
-		dispatch(searchMessagesActions.setValueInputSearch({ channelId: currentChannel?.channel_id || '', value: value }));
+		dispatch(searchMessagesActions.setValueInputSearch({ channelId: currentChannel?.channel_id || '', value }));
 	}, []);
 
 	useEffect(() => {
@@ -108,7 +110,13 @@ export default function SearchMessageDm({ navigation, route }: any) {
 	return (
 		<SearchMessageChannelContext.Provider value={filtersSearch}>
 			<StatusBarHeight />
-			<View style={{ width: '100%', height: '100%', backgroundColor: themeValue.primary }}>
+			<View style={{ flex: 1 }}>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<HeaderSearchMessageDm
 					onChangeText={handleTextChange}
 					initialSearchText={keywordSearch.current}

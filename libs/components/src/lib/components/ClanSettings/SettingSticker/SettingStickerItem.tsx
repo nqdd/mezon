@@ -51,10 +51,10 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			<div className="flex items-end justify-center gap-1">
 				<img
 					className="w-4 h-4 rounded-full select-none object-cover"
-					src={dataAuthor?.user?.avatar_url ?? process.env.NX_LOGO_MEZON}
+					src={(dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url) ?? process.env.NX_LOGO_MEZON}
 					alt=""
 				/>
-				<p className=" max-w-20 truncate">{dataAuthor?.user?.username}</p>
+				<p className=" max-w-20 truncate">{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 			</div>
 			{hasDeleteOrEditPermission && (
 				<div className="group-hover:flex absolute flex-col right-[-12px] top-[-12px] gap-1 hidden select-none">

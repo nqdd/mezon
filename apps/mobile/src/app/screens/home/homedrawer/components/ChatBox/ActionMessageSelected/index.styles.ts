@@ -1,11 +1,11 @@
-import { Attributes, size, verticalScale } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const styles = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			flexDirection: 'column',
-			backgroundColor: colors.primary
+			flexDirection: 'column'
 		},
 		replyContainer: {
 			flexDirection: 'row',

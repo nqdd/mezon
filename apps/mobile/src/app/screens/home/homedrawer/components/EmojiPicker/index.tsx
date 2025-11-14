@@ -118,7 +118,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 		}
 
 		if (type === 'gif') {
-			handleSend({ t: '' }, [], [{ url: data }], isEmpty(messageRef) ? [] : [messageRef]);
+			handleSend({ t: '' }, [], [{ url: data, filetype: 'image/gif' }], isEmpty(messageRef) ? [] : [messageRef]);
 		} else if (type === 'sticker') {
 			const imageUrl = data?.source ? data?.source : `${process.env.NX_BASE_IMG_URL}/stickers/${data?.id}.webp`;
 			const attachments = [{ url: imageUrl, filetype: stickerMode === MediaType.STICKER ? 'image/gif' : 'audio/mpeg', filename: data?.id }];

@@ -120,7 +120,7 @@
 	"channelPermission": {
 		"permissionOverrides": "Permission Overrides",
 		"save": "Save",
-		"generalChannelPermission": "GENERAL CHANNEL PERMISSION",
+		"generalChannelPermission": "GENERAL CHANNEL PERMISSIONS",
 		"title": "Permissions",
 		"basicView": "Basic View",
 		"advancedView": "Advanced View",
@@ -227,7 +227,7 @@
 		"title": "Overview",
 		"ageRestricted": {
 			"title": "Age-Restricted Channel",
-			"description": "Users will need to confirm they are of legal age to view the content in this channel. Age-restricted channels are exempt from the explicit content filter."
+			"description": "Users will need to confirm that they are of over the legal age to view the content in this channel. Age-restricted channels are exempt from the explicit content filter."
 		},
 		"e2ee": {
 			"title": "End-to-End Encryption",

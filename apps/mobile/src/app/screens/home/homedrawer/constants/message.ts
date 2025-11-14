@@ -1,6 +1,6 @@
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import { EMessageActionType } from '../enums';
-import { IMessageAction } from '../types';
+import type { IMessageAction } from '../types';
 
 export const getMessageActions = (t: TFunction): IMessageAction[] => {
 	return [
@@ -8,11 +8,6 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			id: 17,
 			title: t('message:actions.resend'),
 			type: EMessageActionType.ResendMessage
-		},
-		{
-			id: 2,
-			title: t('message:actions.forwardAllMessages'),
-			type: EMessageActionType.ForwardAllMessages
 		},
 		{
 			id: 16,
@@ -33,6 +28,11 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			id: 1,
 			title: t('message:actions.forward'),
 			type: EMessageActionType.ForwardMessage
+		},
+		{
+			id: 2,
+			title: t('message:actions.forwardAllMessages'),
+			type: EMessageActionType.ForwardAllMessages
 		},
 		{
 			id: 5,

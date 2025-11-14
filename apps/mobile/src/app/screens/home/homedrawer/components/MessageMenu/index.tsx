@@ -1,8 +1,8 @@
 import { useFriends } from '@mezon/core';
 import { ActionEmitEvent, ENotificationActive, ENotificationChannelId } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
 	EStateFriend,
 	deleteChannel,
 	directActions,
@@ -23,7 +23,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { createImgproxyUrl, sleep } from '@mezon/utils';
+import { EMuteState, createImgproxyUrl, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import type { ApiMarkAsReadRequest } from 'mezon-js/api.gen';
@@ -268,16 +268,24 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		}
 	];
 
-	const muteOrUnMuteChannel = async (active: ENotificationActive) => {
-		const body = {
-			channel_id: messageInfo?.channel_id || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-			clan_id: currentClanId || '',
-			active
-		};
-		const response = await dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-		if (response?.meta?.requestStatus === 'fulfilled') {
-			dispatch(notificationSettingActions.updateNotiState({ channelId: messageInfo?.channel_id || '', active }));
+	const handleUnmuteConversation = async () => {
+		try {
+			const body = {
+				channel_id: messageInfo?.channel_id || '',
+				clan_id: currentClanId || '',
+				active: EMuteState.UN_MUTE,
+				mute_time: 0
+			};
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			}
+		} catch (error) {
+			console.error('Error setting unmute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notification.unMuteError')
+			});
 		}
 	};
 
@@ -286,7 +294,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 			title: isDmUnmute ? t('menu.muteConversation') : t('menu.unMuteConversation'),
 			onPress: () => {
 				if (!isDmUnmute) {
-					muteOrUnMuteChannel(ENotificationActive.ON);
+					handleUnmuteConversation();
 				} else {
 					navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
 						screen: APP_SCREEN.MENU_THREAD.MUTE_THREAD_DETAIL_CHANNEL,

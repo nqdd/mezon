@@ -3,7 +3,7 @@ import type { LoadingStatus, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction, Update } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ClanUserListClanUser } from 'mezon-js/api.gen';
+import type { ChannelUserListChannelUser, ClanUserListClanUser } from 'mezon-js/api.gen';
 import { selectAllAccount } from '../account/account.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
@@ -71,7 +71,8 @@ export const fetchUsersClanCached = async (getState: () => RootState, ensuredMez
 			}
 		},
 		() => ensuredMezon.client.listClanUsers(ensuredMezon.session, clanId),
-		'clan_user_list'
+		'clan_user_list',
+		{ maxRetries: 5 }
 	);
 
 	const users = response?.clan_users?.map(mapUsersClanToEntity) || [];
@@ -104,6 +105,72 @@ export const fetchUsersClan = createAsyncThunk('UsersClan/fetchUsersClan', async
 		return thunkAPI.rejectWithValue(error);
 	}
 });
+
+export const fetchListBanMembersCached = async (
+	getState: () => RootState,
+	ensuredMezon: MezonValueContext,
+	clanId: string,
+	channelId: string,
+	noCache = false
+) => {
+	const currentState = getState();
+	const clanData = currentState[USERS_CLANS_FEATURE_KEY].byClans[clanId];
+
+	const apiKey = createApiKey('listBannedUsers', clanId, ensuredMezon.session.username || '');
+	const shouldForceCall = shouldForceApiCall(apiKey, clanData?.cache, noCache);
+
+	if (!shouldForceCall) {
+		return {
+			ban_list: [],
+			fromCache: true
+		};
+	}
+
+	const response = await fetchDataWithSocketFallback(
+		ensuredMezon,
+		{
+			api_name: 'listBannedUsers',
+			list_channel_users_req: {
+				channel_id: channelId,
+				clan_id: clanId
+			}
+		},
+		() => ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId),
+		'ban_list'
+	);
+
+	markApiFirstCalled(apiKey);
+
+	return {
+		ban_list: response.banned_users,
+		fromCache: false
+	};
+};
+
+export const fetchListBanUser = createAsyncThunk(
+	'channelMembers/fetchListBanUser',
+	async ({ clanId, channelId = '0' }: { clanId: string; channelId?: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await fetchListBanMembersCached(thunkAPI.getState as () => RootState, mezon, clanId, channelId);
+			if (!response || !response.ban_list) {
+				return {
+					ban_list: [],
+					fromCache: false,
+					clanId
+				};
+			}
+			return {
+				ban_list: response.ban_list,
+				clanId,
+				fromCache: response.fromCache
+			};
+		} catch (error) {
+			captureSentryError(error, 'channelMembers/banUserChannel');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
 
 const getInitialClanState = () => {
 	return {
@@ -309,6 +376,60 @@ export const UsersClanSlice = createSlice({
 					});
 				}
 			});
+		},
+		addBannedUser: (state, action: PayloadAction<{ clanId: string; channelId: string; userIds: string[]; banner_id: string }>) => {
+			const { clanId, channelId, userIds, banner_id } = action.payload;
+			const banList: Update<UsersClanEntity, string>[] = userIds.map((id) => {
+				const oldBanList = state.byClans?.[clanId]?.entities?.entities[id].ban_list || {};
+				return {
+					id,
+					changes: {
+						ban_list: {
+							...oldBanList,
+							[channelId]: banner_id
+						}
+					}
+				};
+			});
+
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+		},
+		removeBannedUser: (state, action: PayloadAction<{ clanId: string; channelId: string; userIds: string[] }>) => {
+			const { clanId, channelId, userIds } = action.payload;
+			const banList: Update<UsersClanEntity, string>[] = userIds.map((id) => {
+				const oldBanList = state.byClans?.[clanId]?.entities?.entities[id].ban_list || {};
+				const newBanList = { ...oldBanList };
+				delete newBanList[channelId];
+				return {
+					id,
+					changes: {
+						ban_list: newBanList
+					}
+				};
+			});
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+		},
+		upsertBanFromChannel: (state, action: PayloadAction<{ clanId: string; channelId: string; users: ChannelUserListChannelUser[] }>) => {
+			const { clanId, channelId, users } = action.payload;
+			const clanEntities = state.byClans?.[clanId]?.entities?.entities;
+			if (!clanEntities) return;
+			const updates: Update<UsersClanEntity, string>[] = [];
+			for (let i = 0; i < users.length; i++) {
+				const user = users[i];
+				if (!user.is_banned) continue;
+
+				if (!user?.user_id) return;
+				const userEntity = clanEntities[user.user_id];
+				if (!userEntity) continue;
+
+				const oldBanList = userEntity.ban_list || {};
+				const newBanList = { ...oldBanList, [channelId]: '' };
+				updates.push({
+					id: user.user_id,
+					changes: { ban_list: newBanList }
+				});
+			}
+			UsersClanAdapter.updateMany(state.byClans[clanId].entities, updates);
 		}
 	},
 	extraReducers: (builder) => {
@@ -347,6 +468,37 @@ export const UsersClanSlice = createSlice({
 			.addCase(fetchUsersClan.rejected, (state: UsersClanState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
+			})
+			.addCase(fetchListBanUser.fulfilled, (state, action) => {
+				const { ban_list, fromCache, clanId } = action.payload;
+				state.loadingStatus = 'loaded';
+
+				if (!fromCache) {
+					if (!state.byClans[clanId]) {
+						state.byClans[clanId] = getInitialClanState();
+					}
+					const grouped: Record<string, Record<string, string>> = {};
+
+					for (const user of ban_list) {
+						if (!user.banned_id || !user.channel_id) continue;
+						if (grouped[user.banned_id]) {
+							grouped[user.banned_id][user.channel_id] = user.banner_id || '';
+						} else {
+							grouped[user.banned_id] = { [user.channel_id]: user.banner_id || '' };
+						}
+					}
+
+					const banList: Update<UsersClanEntity, string>[] = Object.entries(grouped).map(([banned_id, channelSet]) => ({
+						id: banned_id,
+						changes: {
+							ban_list: channelSet
+						}
+					}));
+
+					UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+
+					state.byClans[clanId].cache = createCacheMetadata();
+				}
 			});
 	}
 });
@@ -355,7 +507,7 @@ export const UsersClanSlice = createSlice({
  * Export reducer for store configuration.
  */
 export const usersClanReducer = UsersClanSlice.reducer;
-export const usersClanActions = { ...UsersClanSlice.actions, fetchUsersClan };
+export const usersClanActions = { ...UsersClanSlice.actions, fetchUsersClan, fetchListBanUser };
 
 const { selectAll, selectById, selectEntities } = UsersClanAdapter.getSelectors();
 
@@ -469,5 +621,27 @@ export const selectClanMemberWithStatusIds = createSelector(
 			online: onlineUsers?.map((item) => item?.id),
 			offline: offlineUsers?.map((item) => item?.id)
 		};
+	}
+);
+
+export const selectBanMemberCurrentClanById = createSelector(
+	[
+		getUsersClanState,
+		(state: RootState) => state.clans.currentClanId as string,
+		(_: RootState, channelId: string) => channelId,
+		(_: RootState, __: string, userId: string) => userId
+	],
+	(state, clanId, channelId, userId) => {
+		const clanState = state.byClans?.[clanId]?.entities;
+		if (!clanState) return false;
+		return Object.prototype.hasOwnProperty.call(selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list || {}, channelId);
+	}
+);
+export const selectBanMemberByChannelId = createSelector(
+	[getUsersClanState, (state: RootState) => state.clans.currentClanId as string, (_: RootState, channelId: string) => channelId],
+	(state, clanId, channelId) => {
+		const clanState = state.byClans?.[clanId]?.entities;
+		if (!clanState) return [];
+		return selectAll(state.byClans?.[clanId]?.entities).filter((user) => user.ban_list?.[channelId]);
 	}
 );

@@ -33,7 +33,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Platform, StyleSheet, TextInput, View } from 'react-native';
 import type { TriggersConfig } from 'react-native-controlled-mentions';
 import { useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
@@ -56,6 +56,7 @@ import type { IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
 import { ChatMessageLeftArea } from '../ChatMessageLeftArea';
 import { ChatMessageSending } from '../ChatMessageSending';
 import { ChatBoxTyping } from './ChatBoxTyping';
+import { OptionPasteTooltip } from './OptionPasteTooltip';
 import { style } from './style';
 import useProcessedContent from './useProcessedContent';
 
@@ -113,6 +114,47 @@ interface IFile {
 }
 const DOUBLE_TAP_DELAY = 1000;
 const LONG_PRESS_DELAY = 300;
+const MemoizedGradient = memo(({ themeValue }: { themeValue: any }) => (
+	<LinearGradient
+		start={{ x: 1, y: 0 }}
+		end={{ x: 0, y: 0 }}
+		colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+		style={[StyleSheet.absoluteFillObject]}
+	/>
+));
+MemoizedGradient.displayName = 'MemoizedGradient';
+
+const SuggestionsPanel = memo(
+	({
+		triggers,
+		listMentions,
+		isEphemeralMode,
+		channelId,
+		mode,
+		onSelectCommand
+	}: {
+		triggers: any;
+		listMentions: MentionDataProps[];
+		isEphemeralMode: boolean;
+		channelId: string;
+		mode: ChannelStreamMode;
+		onSelectCommand: (command: any) => void;
+	}) => {
+		return (
+			<>
+				{triggers?.mention?.keyword !== undefined && (
+					<Suggestions {...triggers.mention} listMentions={listMentions} isEphemeralMode={isEphemeralMode} />
+				)}
+				{triggers?.hashtag?.keyword !== undefined && <HashtagSuggestions directMessageId={channelId} mode={mode} {...triggers.hashtag} />}
+				{triggers?.emoji?.keyword !== undefined && <EmojiSuggestion {...triggers.emoji} />}
+				{triggers?.slash?.keyword !== undefined && (
+					<SlashCommandSuggestions keyword={triggers?.slash?.keyword} channelId={channelId} onSelectCommand={onSelectCommand} />
+				)}
+			</>
+		);
+	}
+);
+SuggestionsPanel.displayName = 'SuggestionsPanel';
 
 export const ChatBoxBottomBar = memo(
 	({
@@ -157,7 +199,11 @@ export const ChatBoxBottomBar = memo(
 		const isLongPressed = useRef(false);
 		const isDoublePressed = useRef(false);
 		const lastTap = useRef<number>(0);
-
+		const currentChannelKey = useMemo(() => topicChannelId || channelId, [topicChannelId, channelId]);
+		const showAnonymousIcon = useMemo(
+			() => mode !== ChannelStreamMode.STREAM_MODE_DM && mode !== ChannelStreamMode.STREAM_MODE_GROUP && anonymousMode,
+			[mode, anonymousMode]
+		);
 		const inputTriggersConfig = useMemo(() => {
 			const isDM = [ChannelStreamMode.STREAM_MODE_GROUP].includes(mode);
 			const newTriggersConfig = { ...triggersConfig };
@@ -215,73 +261,6 @@ export const ChatBoxBottomBar = memo(
 			[textChange]
 		);
 
-		const getImageDimension = (imageUri: string): Promise<{ width: number; height: number }> => {
-			return new Promise((resolve) => {
-				Image.getSize(
-					imageUri,
-					(width, height) => {
-						resolve({ width, height });
-					},
-					(error) => {
-						console.error('Error getting image dimensions:', error);
-					}
-				);
-			});
-		};
-
-		const handlePasteImage = async (imageData: string) => {
-			try {
-				if (imageData) {
-					const now = Date.now();
-					let fileName: string;
-					let destPath: string;
-					let mimeType: string;
-
-					if (imageData.startsWith('data:image/')) {
-						// Handle base64 image data
-						mimeType = imageData.split(';')?.[0]?.split(':')?.[1] || 'image/jpeg';
-						const extension = mimeType?.split('/')?.[1]?.replace('jpeg', 'jpg')?.replace('svg+xml', 'svg') || 'jpg';
-						fileName = `paste_image_${now}.${extension}`;
-						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-
-						await RNFS.writeFile(destPath, imageData.split(',')?.[1], 'base64');
-					} else if (imageData.startsWith('content://')) {
-						// Handle Android content:// URI
-						fileName = `paste_image_${now}.jpg`;
-						destPath = `${RNFS.CachesDirectoryPath}/${fileName}`;
-						mimeType = 'image/jpeg';
-
-						// Copy file from content URI to app cache
-						await RNFS.copyFile(imageData, destPath);
-					} else {
-						throw new Error('Unsupported image format');
-					}
-
-					const fileInfo = await RNFS.stat(destPath);
-					const filePath = `file://${fileInfo?.path}`;
-					const { width, height } = await getImageDimension(filePath);
-
-					const imageFile = {
-						filename: fileName,
-						filetype: mimeType,
-						url: filePath,
-						size: fileInfo?.size,
-						width: width ?? 250,
-						height: height ?? 250
-					};
-
-					dispatch(
-						referencesActions.setAtachmentAfterUpload({
-							channelId: topicChannelId || channelId,
-							files: [imageFile]
-						})
-					);
-				}
-			} catch (error) {
-				console.error('Error pasting image:', error);
-			}
-		};
-
 		const onSendSuccess = useCallback(() => {
 			textValueInputRef.current = '';
 			setTextChange('');
@@ -304,7 +283,7 @@ export const ChatBoxBottomBar = memo(
 				})
 			);
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
-		}, [dispatch, onDeleteMessageActionNeedToResolve, channelId]);
+		}, [onDeleteMessageActionNeedToResolve, topicChannelId, channelId, dispatch]);
 
 		const handleKeyboardBottomSheetMode = useCallback((mode: string) => {
 			setModeKeyBoardBottomSheet(mode);
@@ -321,93 +300,98 @@ export const ChatBoxBottomBar = memo(
 				});
 			}
 		}, []);
-		const handleTextInputChange = async (text: string) => {
-			if (isShowOptionPaste) setIsShowOptionPaste(false);
 
-			const store = getStore();
-			if (text?.length > MIN_THRESHOLD_CHARS) {
-				if (convertRef.current) {
+		const handleTextInputChange = async (text: string) => {
+			try {
+				if (isShowOptionPaste) setIsShowOptionPaste(false);
+
+				const store = getStore();
+				if (text?.length > MIN_THRESHOLD_CHARS) {
+					if (convertRef.current) {
+						return;
+					}
+					convertRef.current = true;
+					await onConvertToFiles(text);
+					textValueInputRef.current = '';
+					setTextChange('');
 					return;
 				}
-				convertRef.current = true;
-				await onConvertToFiles(text);
-				textValueInputRef.current = '';
-				setTextChange('');
-				return;
-			}
-			setTextChange(text);
-			textValueInputRef.current = text;
-			if (!text || text === '') {
-				setMentionTextValue('');
-			}
+				setTextChange(text);
+				textValueInputRef.current = text;
+				if (!text || text === '') {
+					setMentionTextValue('');
+				}
 
-			if (messageAction !== EMessageActionType.CreateThread) {
-				saveMessageToCache(text);
-			}
+				if (messageAction !== EMessageActionType.CreateThread) {
+					saveMessageToCache(text);
+				}
 
-			if (!text) return;
+				if (!text) return;
 
-			const rawConvertedHashtag = convertMentionsToText(text);
-			const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
-			const words = convertedHashtag?.split?.(mentionRegexSplit);
+				const rawConvertedHashtag = convertMentionsToText(text);
+				const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
+				const words = convertedHashtag?.split?.(mentionRegexSplit);
 
-			const mentionList: Array<{ user_id: string; s: number; e: number }> = [];
-			const hashtagList: Array<{ channelid: string; s: number; e: number }> = [];
+				const mentionList: Array<{ user_id: string; s: number; e: number }> = [];
+				const hashtagList: Array<{ channelid: string; s: number; e: number }> = [];
 
-			let mentionBeforeCount = 0;
-			let mentionBeforeHashtagCount = 0;
-			let indexOfLastHashtag = 0;
-			let indexOfLastMention = 0;
-			words?.reduce?.((offset, word) => {
-				if (word?.startsWith?.('@[') && word?.endsWith?.(']')) {
-					mentionBeforeCount++;
-					const mentionUserName = word?.slice?.(2, -1);
-					const mention = listMentions?.find?.((item) => `${item?.display}` === mentionUserName);
+				let mentionBeforeCount = 0;
+				let mentionBeforeHashtagCount = 0;
+				let indexOfLastHashtag = 0;
+				let indexOfLastMention = 0;
+				words?.reduce?.((offset, word) => {
+					if (word?.startsWith?.('@[') && word?.endsWith?.(']')) {
+						mentionBeforeCount++;
+						const mentionUserName = word?.slice?.(2, -1);
+						const mention = listMentions?.find?.((item) => `${item?.display}` === mentionUserName);
 
-					if (mention) {
-						const startindex = convertedHashtag?.indexOf?.(word, indexOfLastMention);
-						indexOfLastMention = startindex + 1;
+						if (mention) {
+							const startindex = convertedHashtag?.indexOf?.(word, indexOfLastMention);
+							indexOfLastMention = startindex + 1;
 
-						mentionList.push({
-							user_id: mention.id?.toString() ?? '',
-							s: startindex - (mentionBeforeHashtagCount * 2 + (mentionBeforeCount - 1) * 2),
-							e: startindex + word.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
-						});
+							mentionList.push({
+								user_id: mention.id?.toString() ?? '',
+								s: startindex - (mentionBeforeHashtagCount * 2 + (mentionBeforeCount - 1) * 2),
+								e: startindex + word.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
+							});
+						}
+						return offset;
 					}
+
+					if (word?.trim()?.startsWith('<#') && word?.trim()?.endsWith('>')) {
+						const channelName = word?.trim();
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-expect-error
+						const listChannel = selectAllChannels(store.getState() as RootState);
+						const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
+						const channelLabel = channelName?.slice?.(2, -1);
+						const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
+
+						mentionBeforeHashtagCount++;
+
+						if (channelInfo) {
+							const startindex = convertedHashtag?.indexOf?.(channelName, indexOfLastHashtag);
+							indexOfLastHashtag = startindex + 1;
+
+							hashtagList?.push?.({
+								channelid: channelInfo?.channel_id?.toString() ?? '',
+								s: startindex - (mentionBeforeCount * 2 + (mentionBeforeHashtagCount - 1) * 2),
+								e: startindex + channelName.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
+							});
+						}
+					}
+
 					return offset;
-				}
+				}, 0);
 
-				if (word?.trim()?.startsWith('<#') && word?.trim()?.endsWith('>')) {
-					const channelName = word?.trim();
-					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-					// @ts-expect-error
-					const listChannel = selectAllChannels(store.getState() as RootState);
-					const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
-					const channelLabel = channelName?.slice?.(2, -1);
-					const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
-
-					mentionBeforeHashtagCount++;
-
-					if (channelInfo) {
-						const startindex = convertedHashtag?.indexOf?.(channelName, indexOfLastHashtag);
-						indexOfLastHashtag = startindex + 1;
-
-						hashtagList?.push?.({
-							channelid: channelInfo?.channel_id?.toString() ?? '',
-							s: startindex - (mentionBeforeCount * 2 + (mentionBeforeHashtagCount - 1) * 2),
-							e: startindex + channelName.length - (mentionBeforeHashtagCount * 2 + mentionBeforeCount * 2)
-						});
-					}
-				}
-
-				return offset;
-			}, 0);
-
-			hashtagsOnMessage.current = hashtagList;
-			mentionsOnMessage.current = mentionList;
-			setMentionTextValue(text);
-			textValueInputRef.current = rawConvertedHashtag;
-			chatMessageLeftAreaRef?.current?.setAttachControlVisibility(false);
+				hashtagsOnMessage.current = hashtagList;
+				mentionsOnMessage.current = mentionList;
+				setMentionTextValue(text);
+				textValueInputRef.current = rawConvertedHashtag;
+				chatMessageLeftAreaRef?.current?.setAttachControlVisibility(false);
+			} catch (e) {
+				/* empty */
+			}
 		};
 
 		const handleMentionSelectForEphemeral = useCallback((text: string) => {
@@ -550,38 +534,6 @@ export const ChatBoxBottomBar = memo(
 				inputRef.current?.focus();
 				setIsFocus(true);
 			}, 300);
-		};
-
-		const handlePasteImageFromClipboard = async () => {
-			try {
-				// Check for base64 image first
-				const imageUri = await Clipboard.getImage();
-				if (imageUri?.startsWith('data:image/')) {
-					const base64Data = imageUri.split(',')?.[1];
-					if (base64Data?.length > 10) {
-						await handlePasteImage(imageUri);
-						// Only hide tooltip, keep image in clipboard
-						setIsShowOptionPaste(false);
-						return;
-					}
-				}
-
-				// Check for content:// path
-				const clipboardText = await Clipboard.getString();
-				if (
-					clipboardText?.startsWith('content://') &&
-					(clipboardText.includes('image') || clipboardText.includes('photo') || clipboardText.includes('media'))
-				) {
-					await handlePasteImage(clipboardText);
-					// Only hide tooltip, keep image in clipboard
-					setIsShowOptionPaste(false);
-					return;
-				}
-
-				console.log('No image found in clipboard');
-			} catch (error) {
-				console.error('Error pasting image from clipboard:', error);
-			}
 		};
 
 		const handleInputFocus = useCallback(async () => {
@@ -729,49 +681,41 @@ export const ChatBoxBottomBar = memo(
 			isLongPressed.current = false;
 		}, [handleDoubleTap, onRegularPress]);
 
+		const handleSlashCommandSelect = useCallback((command: any) => {
+			if (command.id === KEY_SLASH_COMMAND_EPHEMERAL) {
+				setIsEphemeralMode(true);
+				setTextChange('@');
+				setMentionTextValue('@');
+				textValueInputRef.current = '@';
+				mentionsOnMessage.current = [];
+			} else {
+				if (command.display && command.description) {
+					setTextChange(`${command.display} `);
+					setMentionTextValue('');
+					textValueInputRef.current = `${command.description}`;
+				}
+			}
+		}, []);
+
+		const onSetShowOptionPaste = useCallback((status: boolean) => {
+			setIsShowOptionPaste(status);
+		}, []);
+
 		return (
 			<View style={styles.container}>
-				<LinearGradient
-					start={{ x: 1, y: 0 }}
-					end={{ x: 0, y: 0 }}
-					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-					style={[StyleSheet.absoluteFillObject]}
-				/>
+				<MemoizedGradient themeValue={themeValue} />
 				<View style={[styles.suggestions]}>
-					<LinearGradient
-						start={{ x: 1, y: 0 }}
-						end={{ x: 0, y: 0 }}
-						colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-						style={[StyleSheet.absoluteFillObject]}
+					<MemoizedGradient themeValue={themeValue} />
+					<SuggestionsPanel
+						triggers={triggers}
+						listMentions={listMentions}
+						isEphemeralMode={isEphemeralMode}
+						channelId={channelId}
+						mode={mode}
+						onSelectCommand={handleSlashCommandSelect}
 					/>
-					{triggers?.mention?.keyword !== undefined && (
-						<Suggestions {...triggers.mention} listMentions={listMentions} isEphemeralMode={isEphemeralMode} />
-					)}
-					{triggers?.hashtag?.keyword !== undefined && <HashtagSuggestions directMessageId={channelId} mode={mode} {...triggers.hashtag} />}
-					{triggers?.emoji?.keyword !== undefined && <EmojiSuggestion {...triggers.emoji} />}
-					{triggers?.slash?.keyword !== undefined && (
-						<SlashCommandSuggestions
-							keyword={triggers?.slash?.keyword}
-							channelId={channelId}
-							onSelectCommand={(command) => {
-								if (command.id === KEY_SLASH_COMMAND_EPHEMERAL) {
-									setIsEphemeralMode(true);
-									setTextChange('@');
-									setMentionTextValue('@');
-									textValueInputRef.current = '@';
-									mentionsOnMessage.current = [];
-								} else {
-									if (command.display && command.description) {
-										setTextChange(`${command.display} `);
-										setMentionTextValue('');
-										textValueInputRef.current = `${command.description}`;
-									}
-								}
-							}}
-						/>
-					)}
 				</View>
-				<AttachmentPreview channelId={topicChannelId || channelId} />
+				<AttachmentPreview channelId={currentChannelKey} />
 				<ChatBoxListener mode={mode} />
 				<View style={styles.containerInput}>
 					<ChatMessageLeftArea
@@ -796,12 +740,11 @@ export const ChatBoxBottomBar = memo(
 
 						<View style={styles.input}>
 							{isShowOptionPaste && (
-								<TouchableOpacity style={styles.pasteTooltip} onPress={handlePasteImageFromClipboard} activeOpacity={0.8}>
-									<View style={styles.tooltipContent}>
-										<Text style={styles.tooltipText}>{t('pasteOption')}</Text>
-									</View>
-									<View style={styles.tooltipArrow} />
-								</TouchableOpacity>
+								<OptionPasteTooltip
+									channelId={channelId}
+									topicChannelId={topicChannelId}
+									onSetShowOptionPaste={onSetShowOptionPaste}
+								/>
 							)}
 
 							<TextInput
@@ -830,7 +773,7 @@ export const ChatBoxBottomBar = memo(
 							<View style={styles.iconEmoji}>
 								<EmojiSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />
 							</View>
-							{mode !== ChannelStreamMode.STREAM_MODE_DM && mode !== ChannelStreamMode.STREAM_MODE_GROUP && anonymousMode && (
+							{showAnonymousIcon && (
 								<View style={styles.iconAnonymous}>
 									<MezonIconCDN icon={IconCDN.anonymous} color={themeValue.text} />
 								</View>
