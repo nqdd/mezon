@@ -298,7 +298,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 			if (item.label === t('deleteMessage') && !isTopic && message?.content?.tp && message?.content?.tp !== '0') {
 				continue;
 			}
-
+			const hasEdit = items.some((i) => i.label === t('editMessage'));
 			const lableItemWarning =
 				item.label === t('deleteMessage') ||
 				item.label === t('reportMessage') ||
@@ -306,6 +306,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				item.label === t('removeAllReactions');
 			if (item.label === t('deleteMessage') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
 			if (item.label === t('editMessage') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
+			if (item.label === t('reply') && !hasEdit && checkPos) elements.push(<Separator key={`separator-${index}`} />);
 			if (item.label === t('copyText') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
 			if (item.label === t('copyLink') && checkPos) elements.push(<Separator key={`separator-${index}`} />);
 			if (item.label === t('copyImage')) elements.push(<Separator key={`separator-${index}`} />);
@@ -355,6 +356,9 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 									className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium p-1 ${lableItemWarning ? ' text-[#E13542] hover:text-[#FFFFFF] ' : 'text-theme-primary text-theme-primary-hover'}`}
 								>
 									<span>{t('addReaction')}</span>
+									<span>
+										<Icons.RightArrowRightClick defaultSize="w-4 h-4" />
+									</span>
 								</div>
 							</Item>
 						</div>
