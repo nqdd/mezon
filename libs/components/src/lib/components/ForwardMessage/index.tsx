@@ -92,6 +92,89 @@ const ForwardMessageModal = () => {
 		return isForwardAll ? handleForwardAllMessage() : sentToMessage();
 	};
 
+	const handleDirectMessageForwardAll = async (selectedObjectIdSend: ObjectSend, combineMessages: MessagesEntity[]) => {
+		if (selectedObjectIdSend.isFriend) {
+			const friend = allFriends.find((f) => f?.user?.id === selectedObjectIdSend.id);
+			if (!friend?.user?.id) return;
+
+			const response = await createDirectMessageWithUser(
+				friend.user.id,
+				friend.user.display_name || friend.user.username,
+				friend.user.username,
+				friend.user.avatar_url
+			);
+
+			if (!response?.channel_id) return;
+
+			for (const message of combineMessages) {
+				await sendForwardMessage('', response.channel_id, ChannelStreamMode.STREAM_MODE_DM, false, {
+					...message,
+					references: []
+				});
+			}
+			return;
+		}
+
+		for (const message of combineMessages) {
+			await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_DM, false, {
+				...message,
+				references: []
+			});
+		}
+	};
+
+	const handleGroupForwardAll = async (selectedObjectIdSend: ObjectSend, combineMessages: MessagesEntity[]) => {
+		for (const message of combineMessages) {
+			await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_GROUP, false, {
+				...message,
+				references: []
+			});
+		}
+	};
+
+	const handleChannelForwardAll = async (selectedObjectIdSend: ObjectSend, combineMessages: MessagesEntity[]) => {
+		for (const message of combineMessages) {
+			await sendForwardMessage(
+				selectedObjectIdSend.clanId || '',
+				selectedObjectIdSend.id,
+				ChannelStreamMode.STREAM_MODE_CHANNEL,
+				currentChannel ? !currentChannel.channel_private : false,
+				{ ...message, references: [] }
+			);
+		}
+	};
+
+	const handleThreadForwardAll = async (selectedObjectIdSend: ObjectSend, combineMessages: MessagesEntity[]) => {
+		for (const message of combineMessages) {
+			await sendForwardMessage(
+				selectedObjectIdSend.clanId || '',
+				selectedObjectIdSend.id,
+				ChannelStreamMode.STREAM_MODE_THREAD,
+				currentChannel ? !currentChannel.channel_private : false,
+				{ ...message, references: [] }
+			);
+		}
+	};
+
+	const forwardAllToSingleDestination = async (selectedObjectIdSend: ObjectSend, combineMessages: MessagesEntity[]) => {
+		switch (selectedObjectIdSend.type) {
+			case ChannelType.CHANNEL_TYPE_DM:
+				await handleDirectMessageForwardAll(selectedObjectIdSend, combineMessages);
+				break;
+			case ChannelType.CHANNEL_TYPE_GROUP:
+				await handleGroupForwardAll(selectedObjectIdSend, combineMessages);
+				break;
+			case ChannelType.CHANNEL_TYPE_CHANNEL:
+				await handleChannelForwardAll(selectedObjectIdSend, combineMessages);
+				break;
+			case ChannelType.CHANNEL_TYPE_THREAD:
+				await handleThreadForwardAll(selectedObjectIdSend, combineMessages);
+				break;
+			default:
+				break;
+		}
+	};
+
 	const handleForwardAllMessage = async () => {
 		const store = getStore();
 		const state = store.getState();
@@ -119,113 +202,88 @@ const ForwardMessageModal = () => {
 		}
 
 		for (const selectedObjectIdSend of selectedObjectIdSends) {
-			if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_DM) {
-				if (selectedObjectIdSend.isFriend) {
-					const friend = allFriends.find((f) => f?.user?.id === selectedObjectIdSend.id);
-					if (friend?.user?.id) {
-						const response = await createDirectMessageWithUser(
-							friend.user.id,
-							friend.user.display_name || friend.user.username,
-							friend.user.username,
-							friend.user.avatar_url
-						);
-						if (response?.channel_id) {
-							for (const message of combineMessages) {
-								await sendForwardMessage('', response.channel_id, ChannelStreamMode.STREAM_MODE_DM, false, {
-									...message,
-									references: []
-								});
-							}
-						}
-					}
-				} else {
-					for (const message of combineMessages) {
-						await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_DM, false, {
-							...message,
-							references: []
-						});
-					}
-				}
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_GROUP) {
-				for (const message of combineMessages) {
-					await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_GROUP, false, {
-						...message,
-						references: []
-					});
-				}
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_CHANNEL) {
-				for (const message of combineMessages) {
-					await sendForwardMessage(
-						selectedObjectIdSend.clanId || '',
-						selectedObjectIdSend.id,
-						ChannelStreamMode.STREAM_MODE_CHANNEL,
-						currentChannel ? !currentChannel.channel_private : false,
-						{ ...message, references: [] }
-					);
-				}
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				for (const message of combineMessages) {
-					await sendForwardMessage(
-						selectedObjectIdSend.clanId || '',
-						selectedObjectIdSend.id,
-						ChannelStreamMode.STREAM_MODE_THREAD,
-						currentChannel ? !currentChannel.channel_private : false,
-						{ ...message, references: [] }
-					);
-				}
-			}
+			await forwardAllToSingleDestination(selectedObjectIdSend, combineMessages);
 		}
 
 		dispatch(toggleIsShowPopupForwardFalse());
 	};
 
+	const handleDirectMessageForward = async (selectedObjectIdSend: ObjectSend) => {
+		if (selectedObjectIdSend.isFriend) {
+			const friend = allFriends.find((f) => f?.user?.id === selectedObjectIdSend.id);
+			if (!friend?.user?.id) return;
+
+			const response = await createDirectMessageWithUser(
+				friend.user.id,
+				friend.user.display_name || friend.user.username,
+				friend.user.username,
+				friend.user.avatar_url
+			);
+
+			if (!response?.channel_id) return;
+
+			await sendForwardMessage('', response.channel_id, ChannelStreamMode.STREAM_MODE_DM, false, {
+				...selectedMessage,
+				references: []
+			});
+			return;
+		}
+
+		await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_DM, false, {
+			...selectedMessage,
+			references: []
+		});
+	};
+
+	const handleGroupForward = async (selectedObjectIdSend: ObjectSend) => {
+		await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_GROUP, false, {
+			...selectedMessage,
+			references: []
+		});
+	};
+
+	const handleChannelForward = async (selectedObjectIdSend: ObjectSend) => {
+		await sendForwardMessage(
+			selectedObjectIdSend.clanId || '',
+			selectedObjectIdSend.id,
+			ChannelStreamMode.STREAM_MODE_CHANNEL,
+			selectedObjectIdSend.isPublic,
+			{ ...selectedMessage, references: [] }
+		);
+	};
+
+	const handleThreadForward = async (selectedObjectIdSend: ObjectSend) => {
+		await sendForwardMessage(
+			selectedObjectIdSend.clanId || '',
+			selectedObjectIdSend.id,
+			ChannelStreamMode.STREAM_MODE_THREAD,
+			selectedObjectIdSend.isPublic,
+			{ ...selectedMessage, references: [] }
+		);
+	};
+
+	const forwardToSingleDestination = async (selectedObjectIdSend: ObjectSend) => {
+		switch (selectedObjectIdSend.type) {
+			case ChannelType.CHANNEL_TYPE_DM:
+				await handleDirectMessageForward(selectedObjectIdSend);
+				break;
+			case ChannelType.CHANNEL_TYPE_GROUP:
+				await handleGroupForward(selectedObjectIdSend);
+				break;
+			case ChannelType.CHANNEL_TYPE_CHANNEL:
+				await handleChannelForward(selectedObjectIdSend);
+				break;
+			case ChannelType.CHANNEL_TYPE_THREAD:
+				await handleThreadForward(selectedObjectIdSend);
+				break;
+			default:
+				break;
+		}
+	};
+
 	const sentToMessage = async () => {
 		for (const selectedObjectIdSend of selectedObjectIdSends) {
-			if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_DM) {
-				if (selectedObjectIdSend.isFriend) {
-					const friend = allFriends.find((f) => f?.user?.id === selectedObjectIdSend.id);
-					if (friend?.user?.id) {
-						const response = await createDirectMessageWithUser(
-							friend.user.id,
-							friend.user.display_name || friend.user.username,
-							friend.user.username,
-							friend.user.avatar_url
-						);
-						if (response?.channel_id) {
-							await sendForwardMessage('', response.channel_id, ChannelStreamMode.STREAM_MODE_DM, false, {
-								...selectedMessage,
-								references: []
-							});
-						}
-					}
-				} else {
-					await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_DM, false, {
-						...selectedMessage,
-						references: []
-					});
-				}
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_GROUP) {
-				await sendForwardMessage('', selectedObjectIdSend.id, ChannelStreamMode.STREAM_MODE_GROUP, false, {
-					...selectedMessage,
-					references: []
-				});
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_CHANNEL) {
-				await sendForwardMessage(
-					selectedObjectIdSend.clanId || '',
-					selectedObjectIdSend.id,
-					ChannelStreamMode.STREAM_MODE_CHANNEL,
-					selectedObjectIdSend.isPublic,
-					{ ...selectedMessage, references: [] }
-				);
-			} else if (selectedObjectIdSend.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				await sendForwardMessage(
-					selectedObjectIdSend.clanId || '',
-					selectedObjectIdSend.id,
-					ChannelStreamMode.STREAM_MODE_THREAD,
-					selectedObjectIdSend.isPublic,
-					{ ...selectedMessage, references: [] }
-				);
-			}
+			await forwardToSingleDestination(selectedObjectIdSend);
 		}
 		dispatch(toggleIsShowPopupForwardFalse());
 	};
