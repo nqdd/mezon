@@ -226,13 +226,16 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			return;
 		}
 
-		const payload = {
-			email: email?.trim() || ''
-		};
-
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(accountActions.linkEmail({ data: payload as ApiAccountEmail, isMobile: true }));
+			const response = await dispatch(
+				accountActions.linkEmail({
+					data: {
+						email: email?.trim() || ''
+					} as ApiAccountEmail,
+					isMobile: true
+				})
+			);
 			const requestId = response?.payload?.req_id;
 
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
