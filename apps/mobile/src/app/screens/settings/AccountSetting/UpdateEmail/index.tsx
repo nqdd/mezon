@@ -1,6 +1,6 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { load, save } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { accountActions, appActions, useAppDispatch } from '@mezon/store-mobile';
 import { ErrorInput } from 'apps/mobile/src/app/components/ErrorInput';
 import type { ApiAccountEmail } from 'mezon-js/api.gen';
@@ -203,10 +203,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			if (remainingSeconds > 0) {
 				Toast.show({
 					type: 'error',
-					props: {
-						text2: t('setPhoneModal.tooFast', { seconds: remainingSeconds }),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.red} />
-					}
+					text1: t('setPhoneModal.tooFast', { seconds: remainingSeconds })
 				});
 				return false;
 			}
@@ -229,13 +226,16 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			return;
 		}
 
-		const payload = {
-			email: email?.trim() || ''
-		};
-
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(accountActions.linkEmail(payload as ApiAccountEmail));
+			const response = await dispatch(
+				accountActions.linkEmail({
+					data: {
+						email: email?.trim() || ''
+					} as ApiAccountEmail,
+					isMobile: true
+				})
+			);
 			const requestId = response?.payload?.req_id;
 
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
@@ -248,7 +248,8 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: t('emailSetting.updateEmail.failed')
+					text1: t('emailSetting.updateEmail.failed'),
+					text2: response?.payload?.message || ''
 				});
 			}
 		} catch (error) {
@@ -256,7 +257,7 @@ export const UpdateEmail = memo(({ navigation, route }: { navigation: any; route
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [checkCooldown, email, t, startCooldownTimer, currentEmail]);
+	}, [checkCooldown, email, t, startCooldownTimer]);
 
 	const isFormValid = useMemo(() => {
 		return isValidEmail && email?.trim()?.length > 0;
