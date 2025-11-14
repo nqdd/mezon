@@ -4,7 +4,6 @@ import { Icons, Image } from '@mezon/ui';
 import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
 import { DropdownButton } from '../components';
 
 interface FooterProps {
@@ -49,25 +48,19 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 
 	return (
 		<footer className="bg-[#131221]">
-			<div className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-				<div className="mb-12 text-start">
-					<Link to={'/'} className="flex items-center gap-[4.92px] min-w-[120px]">
-						<Image src={`assets/logo.png`} width={120} height={35} className="object-cover" />
-					</Link>
-				</div>
-
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 pb-12 border-b border-white/20">
+			<div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-12 pb-8 md:pb-12 border-b border-white/20">
 					<div>
-						<h3 className="font-semibold text-md uppercase tracking-wider mb-5 text-white">Platform</h3>
-						<div className="space-y-3">
-							<a href="/about" className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block">
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Platform</h3>
+						<div className="space-y-2 md:space-y-3">
+							<a href="/about" className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block">
 								About
 							</a>
 							<a
 								href="https://mezon.ai/blogs/"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Blog
 							</a>
@@ -75,7 +68,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/developers"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								{t('footer.links.developerApi')}
 							</a>
@@ -83,13 +76,13 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 					</div>
 
 					<div>
-						<h3 className="font-semibold text-md uppercase tracking-wider mb-5 text-white">Resources</h3>
-						<div className="space-y-3">
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Resources</h3>
+						<div className="space-y-2 md:space-y-3">
 							<a
 								href="https://github.com/mezonai/mezon"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Github
 							</a>
@@ -97,7 +90,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/docs/user/account-and-personalization"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								User Docs
 							</a>
@@ -105,7 +98,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/docs/user/bots-and-apps"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Developer Docs
 							</a>
@@ -113,13 +106,13 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 					</div>
 
 					<div>
-						<h3 className="font-semibold text-md uppercase tracking-wider mb-5 text-white">Company</h3>
-						<div className="space-y-3">
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Company</h3>
+						<div className="space-y-2 md:space-y-3">
 							<a
 								href="https://mezon.ai/blogs/mediakit"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Media Kit
 							</a>
@@ -127,7 +120,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/blogs/contact"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Contact
 							</a>
@@ -135,7 +128,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/blogs/mezon-clan"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Mezon Clan
 							</a>
@@ -143,13 +136,13 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 					</div>
 
 					<div>
-						<h3 className="font-semibold text-md uppercase tracking-wider mb-5 text-white">Legal</h3>
-						<div className="space-y-3">
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Legal</h3>
+						<div className="space-y-2 md:space-y-3">
 							<a
 								href="https://mezon.ai/blogs/privacy-policy"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Privacy Policy
 							</a>
@@ -157,7 +150,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								href="https://mezon.ai/blogs/terms-of-service"
 								target="_blank"
 								rel="noreferrer"
-								className="text-white/90 hover:text-white transition-colors  text-sm leading-relaxed block"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
 								Terms of Service
 							</a>
@@ -165,8 +158,8 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 					</div>
 				</div>
 
-				<div className="mb-12">
-					<div className="flex flex-wrap items-center justify-center gap-6 md:gap-8 lg:gap-12 xl:gap-16 2xl:gap-[100px]">
+				<div className="mb-8 md:mb-12">
+					<div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 lg:gap-8 xl:gap-12 2xl:gap-[100px]">
 						<a
 							href="https://apps.apple.com/vn/app/mezon/id6502750046"
 							target="_blank"
@@ -174,7 +167,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 							onClick={() => trackFooterDownloadEvent('iOS', 'App Store')}
 							className="transition-transform duration-300 hover:scale-105"
 						>
-							<Image src={`assets/app-store.svg`} className="w-36 md:w-44" />
+							<Image src={`assets/app-store.svg`} className="w-24 md:w-36 lg:w-44" />
 						</a>
 						<a
 							href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
@@ -183,12 +176,12 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 							onClick={() => trackFooterDownloadEvent('Android', 'Google Play')}
 							className="transition-transform duration-300 hover:scale-105"
 						>
-							<Image src={`assets/google-play.svg`} className="w-36 md:w-44" />
+							<Image src={`assets/google-play.svg`} className="w-24 md:w-36 lg:w-44" />
 						</a>
 						{platform === Platform.MACOS ? (
 							<div className="relative inline-block leading-none" ref={dropdownRef}>
 								<button onClick={toggleDropdown} className="transition-transform duration-300 hover:scale-105">
-									<Icons.MacAppStoreDesktop className="max-w-full h-12 md:h-14 w-fit" />
+									<Icons.MacAppStoreDesktop className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
 								</button>
 
 								{isOpen && (
@@ -200,7 +193,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 											rel="noreferrer"
 											onClick={() => trackFooterDownloadEvent('macOS', 'Apple Silicon')}
 										>
-											<Icons.MacAppleSilicon className="max-w-full h-10 w-fit" />
+											<Icons.MacAppleSilicon className="max-w-full h-8 md:h-10 w-fit" />
 										</a>
 										<a
 											className="cursor-pointer leading-none block mt-2 p-2 hover:bg-[#7E22CE] rounded transition-colors"
@@ -209,7 +202,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 											rel="noreferrer"
 											onClick={() => trackFooterDownloadEvent('macOS', 'Intel')}
 										>
-											<Icons.MacAppleIntel className="max-w-full h-10 w-fit" />
+											<Icons.MacAppleIntel className="max-w-full h-8 md:h-10 w-fit" />
 										</a>
 									</div>
 								)}
@@ -222,7 +215,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								rel="noreferrer"
 								onClick={() => trackFooterDownloadEvent('Linux', 'DEB Package')}
 							>
-								<Image src={`assets/linux.svg`} className="w-36 md:w-44" />
+								<Image src={`assets/linux.svg`} className="w-24 md:w-36 lg:w-44" />
 							</a>
 						) : (
 							<DropdownButton
@@ -234,13 +227,13 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 										rel="noreferrer"
 										onClick={() => trackFooterDownloadEvent('Windows', 'EXE Installer')}
 									>
-										<Icons.MicrosoftDropdown className="max-w-full h-12 md:h-14 w-fit" />
+										<Icons.MicrosoftDropdown className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
 									</a>
 								}
 								downloadLinks={[
 									{
 										url: portableUrl,
-										icon: <Icons.MicrosoftWinPortable className="max-w-full h-10 w-fit" />,
+										icon: <Icons.MicrosoftWinPortable className="max-w-full h-8 md:h-10 w-fit" />,
 										trackingData: { platform: 'Windows', type: 'Portable' }
 									}
 								]}
@@ -253,16 +246,19 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 					</div>
 				</div>
 
-				<div className="border-t border-white/20 pt-6">
-					<div className="flex flex-col md:flex-row justify-between items-center gap-4">
-						<div className="text-white/80 text-xs font-medium" data-e2e={generateE2eId('homepage.footer.text.copyright')}>
+				<div className="border-t border-white/20 pt-4 md:pt-6">
+					<div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+						<div
+							className="text-white/80 text-xs font-medium text-center md:text-left"
+							data-e2e={generateE2eId('homepage.footer.text.copyright')}
+						>
 							© 2025 Mezon. All rights reserved.
 						</div>
-						<div className="flex gap-6">
-							<a href="/about" className="text-white/80 hover:text-white text-xs transition-colors">
+						<div className="flex gap-4 md:gap-6 text-xs">
+							<a href="/about" className="text-white/80 hover:text-white transition-colors">
 								Privacy
 							</a>
-							<a href="/about" className="text-white/80 hover:text-white text-xs transition-colors">
+							<a href="/about" className="text-white/80 hover:text-white transition-colors">
 								Terms
 							</a>
 						</div>

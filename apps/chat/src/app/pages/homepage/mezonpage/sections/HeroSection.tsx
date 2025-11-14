@@ -3,6 +3,7 @@ import { Icons } from '@mezon/ui';
 import { getPlatform } from '@mezon/utils';
 import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface HeroSectionProps {
 	homeRef: RefObject<HTMLDivElement>;
@@ -10,9 +11,11 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
+	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const version = mezonPackage.version;
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [isImageLoaded, setIsImageLoaded] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	const downloadLinks = {
@@ -51,14 +54,17 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					className={`flex flex-col items-center text-center gap-8 transition-opacity duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
 				>
 					<h1 className="font-svnAvo text-6xl max-md:text-4xl max-sm:text-3xl font-bold max-w-4xl text-stone-900">
-						Your <span className="text-purple-600">Live</span>, <span className="text-purple-600">Work</span>,{' '}
-						<span className="text-purple-600">Play</span> Platform. The best Discord Alternative
+						{t('sections.hero.title.your')} <span className="text-purple-600">{t('sections.hero.title.live')}</span>,{' '}
+						<span className="text-purple-600">{t('sections.hero.title.work')}</span>,{' '}
+						<span className="text-purple-600">{t('sections.hero.title.play')}</span> {t('sections.hero.title.platform')}{' '}
+						{t('sections.hero.title.theBest')} {t('sections.hero.title.discordAlternative')}
 					</h1>
 
 					<p className="text-xl max-md:text-lg text-gray-600 max-w-3xl">
-						<span className="text-purple-600 font-semibold">Mezon </span> is great for playing games and chilling with friends, or even
-						building a worldwide community. Customize your own space to <span className="text-purple-600 font-semibold">talk</span>, play
-						and <span className="text-purple-600 font-semibold">hang out</span>.
+						<span className="text-purple-600 font-semibold">Mezon </span>
+						{t('sections.hero.description')} <span className="text-purple-600 font-semibold">{t('sections.hero.talk')}</span>,{' '}
+						{t('sections.hero.play')} {t('sections.hero.and')}{' '}
+						<span className="text-purple-600 font-semibold">{t('sections.hero.hangOut')}</span>.
 					</p>
 
 					<div className="relative" ref={dropdownRef}>
@@ -66,12 +72,12 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 							onClick={handleTryMezon}
 							className="px-[17px] py-[8px] md:px-8 md:py-4  bg-purple-600 text-white rounded-full text-lg font-semibold hover:bg-purple-700 transition-all border-4 border-purple-300 shadow-lg"
 						>
-							Try Mezon, its free !
+							{t('sections.hero.tryButton')}
 						</button>
 
 						{isDropdownOpen && (
 							<div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl p-4 min-w-[250px] z-50 border border-purple-200">
-								<div className="text-center mb-3 text-sm font-semibold text-gray-700">Choose your platform</div>
+								<div className="text-center mb-3 text-sm font-semibold text-gray-700">{t('sections.hero.choosePlatform')}</div>
 								<div className="flex flex-col gap-2">
 									<a
 										href={downloadLinks.windows}
@@ -100,9 +106,17 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					</div>
 
 					<div className="w-full max-w-6xl mt-8 relative">
-						<img src="/assets/homepage-bg.png" alt="Mezon Platform Preview" className="w-full h-auto" />
+						<div
+							className={`absolute inset-0 bg-purple-600 rounded-lg transition-opacity duration-300 ${isImageLoaded ? 'opacity-0' : 'opacity-100'}`}
+						/>
+						<img
+							src="/assets/homepage-bg.webp"
+							alt="Mezon Platform Preview"
+							className="w-full h-auto relative z-10"
+							onLoad={() => setIsImageLoaded(true)}
+						/>
 
-						<div className="absolute top-10 left-10 max-md:left-2 max-md:top-5 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
+						<div className="absolute top-10 left-10 max-md:left-2 max-md:top-5 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow-lg z-20">
 							#wol
 						</div>
 						<div className="absolute top-1/4 right-10 max-md:right-2 bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow-lg">
