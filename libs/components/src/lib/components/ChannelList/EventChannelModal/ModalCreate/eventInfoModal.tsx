@@ -1,5 +1,5 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { selectCurrentChannelId, selectCurrentClanId, selectTheme } from '@mezon/store';
+import { selectTheme } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { TextArea, TimePicker } from '@mezon/ui';
 import type { ContenSubmitEventProps } from '@mezon/utils';
@@ -31,9 +31,6 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 	const [errorStart, setErrorStart] = useState(false);
 	const [errorEnd, setErrorEnd] = useState(false);
 	const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 
 	const startDate = contentSubmit.selectedDateStart.getDate();
 	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -178,7 +175,7 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 			e.target.value = null;
 			return;
 		}
-		handleUploadFile(client, session, currentClanId, currentChannelId, file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setContentSubmit((prev) => ({ ...prev, logo: attachment.url ?? '' }));
 		});
 	};

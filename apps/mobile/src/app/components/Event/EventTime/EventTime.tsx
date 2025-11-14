@@ -16,7 +16,7 @@ import { style } from './styles';
 interface IEventTimeProps {
 	event: EventManagementEntity;
 	eventStatus: number;
-	minutes: number;
+	minutes?: number;
 }
 
 export function EventTime({ event, eventStatus, minutes }: IEventTimeProps) {

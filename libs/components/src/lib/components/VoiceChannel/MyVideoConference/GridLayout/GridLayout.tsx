@@ -57,7 +57,7 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 			data-lk-pagination={pagination.totalPageCount > 1}
 			className={`lk-grid-layout  ${
 				isExternalCalling &&
-				`[&>*]:aspect-[16/9] [&>*]:h-auto !w-auto ${tracks.length < 3 ? '!h-[40vh]' : tracks.length < 5 ? '!h-[60vh]' : ''}`
+				`[&>*]:aspect-[16/9] [&>*]:!max-h-full  !aspect-video !w-auto !h-full ${tracks.length < 3 ? '!h-[40vh] !aspect-auto' : tracks.length < 5 ? '!h-[60vh]' : ''}`
 			}`}
 			data-lk-user-interaction={interactive}
 		>

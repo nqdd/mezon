@@ -61,5 +61,10 @@
 	"userProfile": "Hồ sơ người dùng",
 	"clanProfiles": "Hồ sơ Clan",
 	"directMessageIcon": "Biểu tượng tin nhắn riêng",
+	"directMessageIconAction": {
+		"remove": "Xóa",
+		"removeTitle": "Xóa biểu tượng tin nhắn riêng",
+		"removeDescription": "Bạn có chắc muốn xóa biểu tượng tin nhắn riêng?"
+	},
 	"displayName": "TÊN HIỂN THỊ"
 }

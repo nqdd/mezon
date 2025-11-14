@@ -217,6 +217,21 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 							}
 						});
 					}
+				},
+				{
+					title: t('banList'),
+					expandable: true,
+					icon: <MezonIconCDN icon={IconCDN.hammerIcon} color={themeValue.text} />,
+					isShow: isAdminstrator,
+					onPress: () => {
+						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
+							screen: APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS,
+							params: {
+								channelId,
+								clanId: channel?.clan_id
+							}
+						});
+					}
 				}
 			] satisfies IMezonMenuItemProps[],
 		[channel, channelId, currentSystemMessage?.channel_id, isChannel, navigation, t, themeValue.text]

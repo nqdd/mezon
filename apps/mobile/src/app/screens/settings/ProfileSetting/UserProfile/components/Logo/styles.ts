@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -28,5 +29,24 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			backgroundColor: colors.bgViolet
+		},
+
+		removeButton: {
+			height: size.s_30,
+			width: size.s_30,
+			overflow: 'hidden',
+			borderRadius: size.s_15,
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'absolute',
+			right: size.s_10,
+			top: size.s_10,
+			zIndex: 2
+		},
+
+		confirmText: {
+			fontSize: size.medium,
+			textAlign: 'center',
+			color: colors.text
 		}
 	});

@@ -105,7 +105,6 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 		);
 	};
 	const { sessionRef, clientRef } = useMezon();
-	const currentClanId = useSelector(selectCurrentClanId);
 	const avatarRef = useRef<HTMLInputElement>(null);
 
 	const webhookChannel = useAppSelector((state) => selectChannelById(state, webhookItem.channel_id ?? '')) || {};
@@ -154,14 +153,12 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			if (!client || !session) {
 				throw new Error('Client or file is not initialized');
 			}
-			handleUploadFile(client, session, currentClanId || '', currentChannel?.channel_id || '', e.target.files[0].name, e.target.files[0]).then(
-				(attachment: ApiMessageAttachment) => {
-					setDataForUpdate({
-						...dataForUpdate,
-						webhookAvatarUrl: attachment.url
-					});
-				}
-			);
+			handleUploadFile(client, session, e.target.files[0].name, e.target.files[0]).then((attachment: ApiMessageAttachment) => {
+				setDataForUpdate({
+					...dataForUpdate,
+					webhookAvatarUrl: attachment.url
+				});
+			});
 		}
 	};
 	const clanId = useSelector(selectCurrentClanId) as string;
@@ -202,7 +199,13 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			<div ref={modalRef} tabIndex={-1} className="pt-[20px] mt-[12px] border-t dark:border-[#3b3d44]">
 				<div className="flex gap-2">
 					<div className="w-3/12 dark:text-[#b5bac1] text-textLightTheme">
-						<input onChange={handleChooseFile} ref={avatarRef} type="file" hidden data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')} />
+						<input
+							onChange={handleChooseFile}
+							ref={avatarRef}
+							type="file"
+							hidden
+							data-e2e={generateE2eId('channel_setting_page.webhook.input.avatar_channel_webhook')}
+						/>
 						<div className="relative w-fit">
 							<div
 								onClick={() => avatarRef.current?.click()}

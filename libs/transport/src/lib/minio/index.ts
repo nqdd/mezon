@@ -72,8 +72,6 @@ function getFileType(mimeType: string): string {
 export async function handleUploadFile(
 	client: Client,
 	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
 	filename: string,
 	file: CustomFile,
 	index?: number,
@@ -89,7 +87,7 @@ export async function handleUploadFile(
 				fileType = `text/${fileExtension}`;
 			}
 			const shortFileType = getFileType(fileType);
-			const { filePath, originalFilename } = createUploadFilePath(session, currentClanId, currentChannelId, filename, false, index);
+			const { filePath, originalFilename } = createUploadFilePath(filename, false, index);
 			const buf = await file?.arrayBuffer();
 
 			resolve(
@@ -117,8 +115,6 @@ export async function handleUploadFile(
 export async function handleUploadFileMobile(
 	client: Client,
 	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
 	filename: string,
 	file: any,
 	isOauth?: boolean
@@ -138,7 +134,7 @@ export async function handleUploadFileMobile(
 					console.error('Failed to read file data.');
 					return;
 				}
-				const { filePath, originalFilename } = createUploadFilePath(session, currentClanId, currentChannelId, filename, true);
+				const { filePath, originalFilename } = createUploadFilePath(filename, true);
 				resolve(
 					uploadFile(
 						client,
@@ -162,27 +158,15 @@ export async function handleUploadFileMobile(
 	});
 }
 
-export function createUploadFilePath(
-	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
-	filename: string,
-	isMobile: boolean,
-	index?: number
-): { filePath: string; originalFilename: string } {
+export function createUploadFilePath(filename: string, isMobile: boolean, index?: number): { filePath: string; originalFilename: string } {
 	const originalFilename = filename;
 	// Append milliseconds timestamp to filename
 	const ms = Date.now();
 	filename = isMobile ? ms + filename : `${ms}_${index || ''}${filename}`;
 	filename = filename.replace(/[^a-zA-Z0-9.]/g, '_');
 	// Ensure valid clan and channel IDs
-	if (!currentClanId) {
-		currentClanId = '0';
-	}
-	if (!currentChannelId) {
-		currentChannelId = '0';
-	}
-	const filePath = `${currentClanId}/${currentChannelId}/${session.user_id}/${filename}`;
+
+	const filePath = `${filename}`;
 	return { filePath, originalFilename };
 }
 
@@ -222,9 +206,9 @@ export async function uploadFile(
 			if (res.status !== 200) {
 				throw new Error('Failed to upload file to MinIO.');
 			}
-			let url = `${process.env.NX_BASE_IMG_URL}/${filename}`;
+			let url = `${process.env.NX_BASE_IMG_URL}/${data.filename}`;
 			if (isOauth) {
-				url = `${process.env.NX_PROFILE_IMG_URL}/${filename}`;
+				url = `${process.env.NX_PROFILE_IMG_URL}/${data.filename}`;
 			}
 			resolve({
 				filename: originalFilename,

@@ -62,7 +62,7 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	const isWindowFocused = !isBackgroundModeActive();
 
 	const markMessageAsRead = useCallback(() => {
-		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending || lastSeenMessageId === lastMessageChannel.id) return;
+		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending) return;
 		const store = getStore();
 		const state = store.getState();
 		const currentDmGroup = selectDmGroupCurrent(channelId ?? '')(state);

@@ -192,7 +192,7 @@ export const ShareEventModal = memo(({ event, onConfirm }: IShareEventModalProps
 				<View style={styles.row}>
 					<TextInput style={styles.textInput} value={shareLink} />
 					<TouchableOpacity style={styles.copyButton} onPress={handleCoppyLink}>
-						<MezonIconCDN icon={IconCDN.copyIcon} color={themeValue.text} height={size.s_20} width={size.s_20} />
+						<MezonIconCDN icon={IconCDN.copyIcon} color={baseColor.white} height={size.s_20} width={size.s_20} />
 					</TouchableOpacity>
 				</View>
 
@@ -207,7 +207,6 @@ export const ShareEventModal = memo(({ event, onConfirm }: IShareEventModalProps
 				<FlashList
 					keyboardShouldPersistTaps="handled"
 					data={filteredForwardObjects}
-					// ItemSeparatorComponent={() => <SeparatorWithLine style={{ backgroundColor: themeValue.border }} />}
 					keyExtractor={(item) => item?.channelId?.toString()}
 					renderItem={renderForwardObject}
 					estimatedItemSize={size.s_60}

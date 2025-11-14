@@ -1,14 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
-import { ChannelsEntity, getStore, selectCurrentDM } from '@mezon/store-mobile';
-import { User } from 'mezon-js';
+import type { ChannelsEntity } from '@mezon/store-mobile';
+import { getStore, selectCurrentDM } from '@mezon/store-mobile';
+import type { ApiUser } from 'mezon-js/api.gen';
 import React, { useEffect } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import UserProfile from '../../screens/home/homedrawer/components/UserProfile';
 
 interface IUserInformationBottomSheetProps {
 	userId?: string;
-	user?: User;
+	user?: ApiUser;
 	onClose: () => void;
 	showAction?: boolean;
 	showRole?: boolean;

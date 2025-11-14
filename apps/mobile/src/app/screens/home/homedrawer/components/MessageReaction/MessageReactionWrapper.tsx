@@ -1,14 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectCurrentTopicId } from '@mezon/store-mobile';
-import { EmojiDataOptionals, TypeMessage, calculateTotalCount } from '@mezon/utils';
+import type { EmojiDataOptionals } from '@mezon/utils';
+import { TypeMessage, calculateTotalCount } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { DeviceEventEmitter, Keyboard, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
-import { IMessageReactionProps } from '../../types';
+import type { IMessageReactionProps } from '../../types';
 import { MessageReactionContent } from './components/MessageReactionContent';
 import { ReactionItem } from './components/MessageReactionItem';
 import { style } from './styles';
@@ -46,14 +47,14 @@ export const MessageReactionWrapper = React.memo((props: IMessageReactionProps) 
 			const countToRemove = senders?.find?.((sender) => sender.sender_id === userId)?.count;
 
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_REACTION_MESSAGE_ITEM, {
-				id: id,
+				id,
 				mode: mode ?? ChannelStreamMode.STREAM_MODE_CHANNEL,
 				messageId: message?.id ?? '',
 				channelId: message?.channel_id ?? '',
 				emojiId: emojiId ?? '',
 				emoji: emoji?.trim() ?? '',
 				senderId: message?.sender_id ?? '',
-				countToRemove: countToRemove,
+				countToRemove,
 				actionDelete: true,
 				topicId: currentTopicId || ''
 			} as IReactionMessageProps);
@@ -112,7 +113,7 @@ export const MessageReactionWrapper = React.memo((props: IMessageReactionProps) 
 				})}
 			{renderedReactions}
 
-			{messageReactions?.length ? (
+			{messageReactions?.length && !preventAction ? (
 				<Pressable onPress={() => !preventAction && openEmojiPicker?.()} style={styles.addEmojiIcon}>
 					<MezonIconCDN icon={IconCDN.faceIcon} height={size.s_20} width={size.s_20} color={baseColor.gray} />
 				</Pressable>

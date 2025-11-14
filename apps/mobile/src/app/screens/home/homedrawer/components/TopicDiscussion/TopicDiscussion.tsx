@@ -2,22 +2,23 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import {
 	messagesActions,
+	selectBanMemberCurrentClanById,
 	selectCurrentChannel,
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectCurrentUserId,
-	selectIsUserBannedInChannel,
 	topicsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { DeviceEventEmitter, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
+import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import ChannelMessages from '../../ChannelMessages';
@@ -32,12 +33,20 @@ export default function TopicDiscussion() {
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentUserId = useSelector(selectCurrentUserId);
-	const isBanned = useSelector((state) => selectIsUserBannedInChannel(state, currentChannel?.channel_id, currentUserId));
+	const isBanned = useSelector((state) => selectBanMemberCurrentClanById(state, currentChannel?.channel_id, currentUserId));
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
+	const topicIdRef = useRef<string>('');
+
+	useEffect(() => {
+		if (currentTopicId) topicIdRef.current = currentTopicId;
+	}, [currentTopicId]);
 
 	useEffect(() => {
 		const focusedListener = navigation.addListener('focus', () => {
+			if (!currentTopicId && topicIdRef.current) {
+				dispatch(topicsActions.setCurrentTopicId(topicIdRef.current));
+			}
 			if (Platform.OS === 'android') {
 				StatusBar.setBackgroundColor(themeValue.primary);
 			}
@@ -53,15 +62,15 @@ export default function TopicDiscussion() {
 			focusedListener();
 			blurListener();
 		};
-	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary]);
+	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary, currentTopicId]);
 
 	const styles = style(themeValue);
 	useEffect(() => {
 		const fetchMsgResult = async () => {
 			await dispatch(
 				messagesActions.fetchMessages({
-					channelId: currentChannel?.channel_id,
-					clanId: currentClanId,
+					channelId: currentChannel?.channel_id || '',
+					clanId: currentClanId || '',
 					topicId: currentTopicId || ''
 				})
 			);
@@ -118,7 +127,7 @@ export default function TopicDiscussion() {
 			>
 				<TopicHeader handleBack={onGoBack} />
 				<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
-					<View style={styles.panGestureContainer}>
+					<Animated.View style={styles.panGestureContainer}>
 						<ChannelMessages
 							channelId={currentTopicId}
 							topicId={currentTopicId}
@@ -127,9 +136,9 @@ export default function TopicDiscussion() {
 							isPublic={isPublicChannel(currentChannel)}
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}
-							isBanned={isBanned}
+							isBanned={!!isBanned}
 						/>
-					</View>
+					</Animated.View>
 				</PanGestureHandler>
 				<ChatBox
 					channelId={currentChannel?.channel_id}
@@ -139,7 +148,7 @@ export default function TopicDiscussion() {
 					}}
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={currentTopicId}
-					isBanned={isBanned}
+					isBanned={!!isBanned}
 				/>
 				<PanelKeyboard currentChannelId={currentTopicId || currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
 			</KeyboardAvoidingView>

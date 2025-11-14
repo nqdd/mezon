@@ -1,7 +1,8 @@
+import type { Attributes } from '@mezon/mobile-ui';
 import { size } from '@mezon/mobile-ui';
 import { Platform, StyleSheet } from 'react-native';
 
-export const style = () =>
+export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		inputSection: {
 			marginBottom: size.s_24,
@@ -31,7 +32,7 @@ export const style = () =>
 			borderWidth: 2,
 			borderColor: '#1661ff',
 			backgroundColor: 'rgba(0,82,255,0.1)',
-			color: '#000000'
+			color: colors.textStrong
 		},
 		inputError: {
 			borderColor: '#ca0000',

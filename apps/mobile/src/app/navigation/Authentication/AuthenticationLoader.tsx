@@ -169,7 +169,7 @@ export const AuthenticationLoader = () => {
 					data: dataParam || undefined
 				});
 			}
-		} else if (path?.includes?.('/bot/install/')) {
+		} else if (path?.includes?.('bot/install/')) {
 			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
 			if (applicationId) {
 				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
@@ -318,7 +318,7 @@ export const AuthenticationLoader = () => {
 					const body: any = remoteMessage?.notification?.body || remoteMessage?.data?.body;
 					if (
 						title === 'Incoming call' ||
-						(body && ['video call', 'audio call', 'Untitled message'].some((text) => body?.includes?.(text))) ||
+						(body && ['video call', 'audio call', 'voice call', 'Untitled message'].some((text) => body?.includes?.(text))) ||
 						!body ||
 						!title ||
 						body?.includes?.('"Untitled message"')

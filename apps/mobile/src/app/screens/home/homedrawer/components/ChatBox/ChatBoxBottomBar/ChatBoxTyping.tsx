@@ -33,7 +33,7 @@ export const ChatBoxTyping = memo(
 			dispatch(
 				messagesActions.sendTypingUser({
 					clanId: currentClanId || '',
-					channelId: channelId,
+					channelId,
 					mode,
 					isPublic,
 					username: userClanProfile?.clan_nick || userProfile?.user?.display_name || userProfile?.user?.username,
@@ -47,8 +47,8 @@ export const ChatBoxTyping = memo(
 				dispatch(
 					messagesActions.sendTypingUser({
 						clanId: '0',
-						channelId: channelId,
-						mode: mode,
+						channelId,
+						mode,
 						isPublic: false,
 						username: userProfile?.user?.display_name || userProfile?.user?.username
 					})

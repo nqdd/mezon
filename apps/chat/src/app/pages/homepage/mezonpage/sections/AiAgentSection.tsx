@@ -9,6 +9,7 @@ export const AiAgentSection = () => {
 	const imageRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const [isVisible, setIsVisible] = useState(false);
+	const [imageLoaded, setImageLoaded] = useState(false);
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
@@ -32,42 +33,44 @@ export const AiAgentSection = () => {
 	}, [isVisible]);
 
 	return (
-		<section ref={sectionRef} className="relative w-full bg-white py-20 max-md:py-12 overflow-hidden">
-			<div className="max-w-[1600px] mx-auto px-10">
-				<div className="flex items-center justify-between max-lg:flex-col-reverse max-lg:gap-12">
+		<section ref={sectionRef} className="relative w-full bg-white py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
+			<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
+				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse gap-8 lg:gap-12 xl:gap-16">
 					<div
 						ref={imageRef}
-						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
 					>
 						<img
-							src="/assets/ai-agent.webp"
+							src="https://cdn.mezon.ai/landing-page-mezon/ai-agentnew.webp"
 							alt="Engage"
-							className="max-w-[35vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl"
+							className={`max-w-[35vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl ${!imageLoaded ? 'bg-gradient-to-br from-[#8661df] to-[#7979ed]' : ''}`}
+							loading="lazy"
+							onLoad={() => setImageLoaded(true)}
 						/>
 					</div>
 
 					<div
 						ref={contentRef}
-						className={`flex flex-col justify-center items-center pr-1 lg:pr-16 xl:pr-24 max-lg:px-4 transition-all duration-700 delay-300 ${
-							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+						className={`flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4 transition-all duration-700 delay-300 ${
+							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
 						}`}
 					>
-						<div className="max-w-[520px] flex flex-col items-start gap-8">
+						<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 							<div>
-								<h2 className="font-svnAvo text-6xl max-md:text-3xl text-stone-900 mb-6">
+								<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
 									<span className="text-stone-900">AI Agents for Clan and Always-On Assistance</span>
 								</h2>
-								<p className="font-svnAvo text-xl text-gray-600 leading-relaxed">
+								<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
 									Voice AI agent (Summarize content in voice channel conversations, or act as an interviewer in interviews),
 									assistance , BOT shawdow mode (summary content in channel text).
 								</p>
 							</div>
 							<Link
 								to="/"
-								className="font-svnAvo inline-flex items-center justify-center gap-2 px-12 py-[10px] lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[280px]"
+								className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
 							>
 								<span>Tìm hiểu thêm</span>
-								<Icons.ArrowRight className="w-5 h-5" />
+								<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
 							</Link>
 						</div>
 					</div>

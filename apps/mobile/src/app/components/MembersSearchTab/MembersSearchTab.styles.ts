@@ -9,6 +9,7 @@ const style = (colors: Attributes) =>
 			flex: 1
 		},
 		boxMembers: {
+			marginHorizontal: size.s_20,
 			marginTop: size.s_10,
 			borderRadius: size.s_14,
 			backgroundColor: colors.secondary,

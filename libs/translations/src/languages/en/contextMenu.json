@@ -12,7 +12,7 @@
 	"markUnread": "Mark Unread",
 	"topicDiscussion": "Topic Discussion",
 	"forwardMessage": "Forward Message",
-	"forwardAllMessage": "Forward All Message",
+	"forwardAllMessage": "Forward All Messages",
 	"deleteMessage": "Delete Message",
 	"reportMessage": "Report Message",
 	"copyLink": "Copy Link",
@@ -26,12 +26,14 @@
 	"removeAllReactions": "Remove All Reactions",
 	"loadingCommands": "Loading commands...",
 	"noCommandsFound": "No commands found",
+	"viewMore": "View More",
 	"member": {
 		"profile": "Profile",
 		"message": "Message",
 		"addFriend": "Add Friend",
 		"removeFriend": "Remove Friend",
 		"banChat": "Ban",
+		"unBanChat": "Unban",
 		"kick": "Kick",
 		"removeFromThread": "Remove {{username}} from thread"
 	},

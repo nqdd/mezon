@@ -213,6 +213,9 @@
 			"twelveHours": "12 hours",
 			"oneDay": "1 day",
 			"threeDays": "3 days"
-		}
+		},
+		"banList" : "Ban list",
+		"search" : "Search banned users",
+		"banListEmpty": "No banned users found"
 	}
 }

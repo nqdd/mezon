@@ -22,6 +22,7 @@ import { GridLayout } from './GridLayout/GridLayout';
 import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 import { ReactionCallHandler } from './Reaction';
 import { useSoundReactions } from './Reaction/useSoundReactions';
+import { useDeepFilterNet3 } from './useDeepFilterNet3';
 
 interface MyVideoConferenceProps {
 	channelLabel?: string;
@@ -51,6 +52,8 @@ export function MyVideoConference({
 	const [isFocused, setIsFocused] = useState<boolean>(false);
 	const [isGridView, setIsGridView] = useState<boolean>(true);
 	const { activeSoundReactions, handleSoundReaction } = useSoundReactions();
+
+	useDeepFilterNet3({ enabled: isExternalCalling ? undefined : false });
 
 	const tracksFromHook = useTracks(
 		[

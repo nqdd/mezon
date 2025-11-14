@@ -1,8 +1,9 @@
 import { useTheme } from '@mezon/mobile-ui';
 import type { AttachmentEntity } from '@mezon/store-mobile';
 import { selectAllListDocumentByChannel, selectAttachmentsLoadingStatus, selectCurrentLanguage, useAppSelector } from '@mezon/store-mobile';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, SectionList, Text, View } from 'react-native';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, SectionList, StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { formatDateHeader, groupByYearDay, parseAttachmentLikeDate } from '../../utils/groupDataHelper';
 import { normalizeString } from '../../utils/helpers';
 import { EmptySearchPage } from '../EmptySearchPage';
@@ -73,6 +74,12 @@ const ChannelFiles = memo(({ currentChannelId }: { currentChannelId: string }) =
 						keyExtractor={(item, index) => `attachment_document_${index}_${item?.id}`}
 						renderSectionHeader={({ section }) => (
 							<View style={styles.sectionHeader}>
+								<LinearGradient
+									start={{ x: 1, y: 0 }}
+									end={{ x: 0, y: 0 }}
+									colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+									style={[StyleSheet.absoluteFillObject]}
+								/>
 								{section.isFirstOfYear && <Text style={styles.sectionYearHeaderTitle}>{section.year}</Text>}
 								<Text style={styles.sectionDayHeaderTitle}>{section.titleDay}</Text>
 							</View>

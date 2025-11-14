@@ -500,7 +500,7 @@ const PanelChannel = ({ coords, channel, openSetting, setIsShowPanelChannel, onD
 			) : (
 				<>
 					<GroupPanels>
-						{getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0' ? (
+						{getNotificationChannelSelected?.active === 1 ? (
 							<Menu
 								trigger="hover"
 								menu={menuMute}

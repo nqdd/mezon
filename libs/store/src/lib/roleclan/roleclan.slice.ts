@@ -8,7 +8,7 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { selectEntitesUserClans } from '../clanMembers/clan.members';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx, withRetry } from '../helpers';
 import type { PermissionUserEntity } from '../policies/policies.slice';
 import { selectAllPermissionsDefaultEntities } from '../policies/policies.slice';
 import type { RootState } from '../store';
@@ -107,7 +107,8 @@ export const fetchRolesClanCached = async (getState: () => RootState, ensuredMez
 			}
 		},
 		() => ensuredMezon.client.listRoles(ensuredMezon.session, clanId, 500, 1, ''),
-		'role_event_list'
+		'role_event_list',
+		{ maxRetries: 5 }
 	)) as ApiRoleListEventResponse;
 
 	markApiFirstCalled(apiKey);
@@ -178,7 +179,7 @@ type FetchMembersRolePayload = {
 export const fetchMembersRole = createAsyncThunk('MembersRole/fetchMembersRole', async ({ roleId, clanId }: FetchMembersRolePayload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.listRoleUsers(mezon.session, roleId, 100, '');
+		const response = await withRetry(() => mezon.client.listRoleUsers(mezon.session, roleId, 100, ''), { maxRetries: 3, initialDelay: 1000 });
 		if (!response.role_users) {
 			return thunkAPI.rejectWithValue([]);
 		}
@@ -473,6 +474,28 @@ export const RolesClanSlice = createSlice({
 			});
 
 			return RolesClanAdapter.setAll(state, updatedRoles);
+		},
+		addRoleByChannel: (state, action: PayloadAction<{ channelId: string; roleIds: string[]; clanId: string }>) => {
+			const { channelId, roleIds, clanId } = action.payload;
+			const clanData = state?.byClans?.[clanId];
+			if (!clanData?.roles || !Array.isArray(roleIds)) return;
+
+			for (const roleId of roleIds) {
+				const role = clanData?.roles?.[roleId];
+				if (!role) continue;
+
+				const channels = Array.isArray(role?.channel_ids) ? role?.channel_ids : [];
+				if (!channels?.includes(channelId)) {
+					role.channel_ids = [...channels, channelId];
+				}
+			}
+		},
+		removeChannelRole: (state, action: PayloadAction<{ channelId: string; roleId: string; clanId: string }>) => {
+			const { channelId, roleId, clanId } = action.payload;
+			const role = state?.byClans?.[clanId]?.roles?.[roleId];
+			if (!role) return;
+
+			role.channel_ids = Array.isArray(role?.channel_ids) ? role?.channel_ids?.filter((id) => id && id !== channelId) : [];
 		},
 		setCurrentRoleId: (state, action: PayloadAction<string>) => {
 			state.currentRoleId = action.payload;

@@ -52,11 +52,11 @@ export interface ChannelMembersState extends EntityState<ChannelMembersEntity, s
 		EntityState<ChannelMembersEntity, string> & {
 			id: string;
 			cache?: CacheMetadata;
-			memberAddedByUserId?: IMemberAddedByUserId[];
+			memberAddedByUserId?: Record<string, IMemberAddedByUserId>;
 		}
 	>;
 	dmGroupUsers?: ChannelUserListChannelUser[];
-	bannedUserIds: Record<string, string[]>;
+	bannedUserIds: Record<string, Set<string>>;
 }
 
 export const mapUserIdToEntity = (userId: string, username: string, online: boolean) => {
@@ -106,7 +106,8 @@ export const fetchChannelMembersCached = async (
 			}
 		},
 		() => ensuredMezon.client.listChannelUsers(ensuredMezon.session, clanId, channelId, channelType, 1, 2000, ''),
-		'channel_user_list'
+		'channel_user_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -171,6 +172,7 @@ export const fetchChannelMembers = createAsyncThunk(
 				thunkAPI.dispatch(channelMembersActions.removeUserByChannel(channelId));
 			}
 
+			thunkAPI.dispatch(usersClanActions.upsertBanFromChannel({ channelId, clanId, users: response.channel_users }));
 			thunkAPI.dispatch(channelMembersActions.setMemberChannels({ channelId, members: response.channel_users }));
 			return { channel_users: response.channel_users, fromCache: false, channelId };
 		} catch (error) {
@@ -298,7 +300,7 @@ export const banUserChannel = createAsyncThunk(
 			if (!response) {
 				return;
 			}
-			thunkAPI.dispatch(channelMembersActions.addBannedUser({ channelId, userIds }));
+			thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds, banner_id: '' }));
 			return true;
 		} catch (error) {
 			captureSentryError(error, 'channelMembers/banUserChannel');
@@ -316,7 +318,7 @@ export const unbanUserChannel = createAsyncThunk(
 			if (!response) {
 				return;
 			}
-			thunkAPI.dispatch(channelMembersActions.removeBannedUser({ channelId, userIds }));
+			thunkAPI.dispatch(usersClanActions.removeBannedUser({ clanId, channelId, userIds }));
 			return true;
 		} catch (error) {
 			captureSentryError(error, 'channelMembers/unbanUserChannel');
@@ -381,17 +383,27 @@ export const channelMembers = createSlice({
 				};
 			}
 			const memberIds = members.map((member) => member.user_id as string);
-			const memberAddedByUserId: IMemberAddedByUserId[] = members.map((member) => {
-				return {
-					id: member?.user_id as string,
-					addedBy: member?.added_by as string
-				} as IMemberAddedByUserId;
+
+			const memberAddedByUserId: Record<string, IMemberAddedByUserId> = {};
+			const memberBanneds = new Set<string>();
+
+			members.forEach((member) => {
+				if (member?.user_id) {
+					memberAddedByUserId[member.user_id] = {
+						id: member.user_id,
+						addedBy: member.added_by
+					};
+				}
+				if (member.is_banned && member.user_id) {
+					memberBanneds.add(member.user_id);
+				}
 			});
 			state.memberChannels[channelId] = {
 				...state.memberChannels[channelId],
 				ids: [...new Set(memberIds)],
 				memberAddedByUserId
 			};
+			state.bannedUserIds[channelId] = memberBanneds;
 		},
 		addNewMember: (state, action: PayloadAction<{ channel_id: string; user_ids: string[]; addedByUserId?: string }>) => {
 			const payload = action.payload;
@@ -403,19 +415,25 @@ export const channelMembers = createSlice({
 				state.memberChannels[channelId] = {
 					...channelMembersAdapter.getInitialState(),
 					id: channelId,
-					memberAddedByUserId: state.memberChannels[channelId]?.memberAddedByUserId || []
+					memberAddedByUserId: state.memberChannels[channelId]?.memberAddedByUserId || {}
 				};
 			}
 			userIds.forEach((userId) => {
 				if (!state.memberChannels[channelId]?.ids.includes(userId) && userId !== process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID) {
 					state.memberChannels[channelId].ids.push(userId);
 					if (addedByUserId && state?.memberChannels?.[channelId]?.memberAddedByUserId) {
-						const isExist = state.memberChannels[channelId].memberAddedByUserId?.some((i) => i.id === userId);
-						if (!isExist) {
-							state.memberChannels[channelId].memberAddedByUserId?.push({
-								id: userId,
-								addedBy: addedByUserId
-							});
+						if (!state?.memberChannels[channelId]?.memberAddedByUserId) {
+							state.memberChannels[channelId].memberAddedByUserId = {};
+						}
+						const isExist = state.memberChannels[channelId].memberAddedByUserId?.[userId];
+						if (!isExist && state.memberChannels[channelId].memberAddedByUserId) {
+							state.memberChannels[channelId].memberAddedByUserId = {
+								...state.memberChannels[channelId].memberAddedByUserId,
+								[userId]: {
+									id: userId,
+									addedBy: addedByUserId
+								}
+							};
 						}
 					}
 				}
@@ -440,24 +458,6 @@ export const channelMembers = createSlice({
 		setCustomStatusUser: (state, action: PayloadAction<{ userId: string; status: string }>) => {
 			const { userId, status } = action.payload;
 			state.customStatusUser[userId] = status;
-		},
-		addBannedUser: (state, action: PayloadAction<{ channelId: string; userIds: string[] }>) => {
-			const { channelId, userIds } = action.payload;
-			if (!state.bannedUserIds[channelId]) {
-				state.bannedUserIds[channelId] = [];
-			}
-			const current = state.bannedUserIds[channelId];
-			for (const userId of userIds) {
-				if (!current?.includes(userId)) {
-					current.push(userId);
-				}
-			}
-		},
-		removeBannedUser: (state, action: PayloadAction<{ channelId: string; userIds: string[] }>) => {
-			const { channelId, userIds } = action.payload;
-			if (state?.bannedUserIds?.[channelId]) {
-				state.bannedUserIds[channelId] = state.bannedUserIds[channelId].filter((id) => !userIds.includes(id));
-			}
 		}
 	},
 	extraReducers: (builder) => {
@@ -810,7 +810,7 @@ export const selectUserAddedByUserId = createSelector(
 	[getChannelMembersState, selectAllChannelMembers, (state: RootState, channelId: string, userId: string) => ({ channelId, userId })],
 	(channelMembersState, channelMembers, { channelId, userId }) => {
 		const memberChannelsData = channelMembersState.memberChannels[channelId];
-		const addedByInfo = memberChannelsData?.memberAddedByUserId?.find((item) => item.id === userId);
+		const addedByInfo = memberChannelsData?.memberAddedByUserId?.[userId];
 
 		if (!addedByInfo?.addedBy) {
 			return null;
@@ -835,20 +835,5 @@ export const selectUserAddedByUserId = createSelector(
 			username: addedByUser.user?.username,
 			display_name: addedByUser.user?.display_name
 		};
-	}
-);
-
-export const selectBannedUserIdsByChannel = createSelector(
-	[getChannelMembersState, (state: RootState, channelId: string) => channelId],
-	(channelMembersState, channelId) => {
-		return channelMembersState?.bannedUserIds?.[channelId] ?? [];
-	}
-);
-
-export const selectIsUserBannedInChannel = createSelector(
-	[getChannelMembersState, (state: RootState, channelId: string, userId: string) => ({ channelId, userId })],
-	(channelMembersState, payload) => {
-		const { channelId, userId } = payload;
-		return !!channelMembersState?.bannedUserIds?.[channelId]?.includes(userId);
 	}
 );

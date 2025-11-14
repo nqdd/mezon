@@ -18,7 +18,6 @@ import { eventManagementActions } from '../eventManagement/eventManagement.slice
 import type { MezonValueContext } from '../helpers';
 import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx, sleep } from '../helpers';
 import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
-import { defaultNotificationCategoryActions } from '../notificationSetting/notificationSettingCategory.slice';
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
 import { policiesActions } from '../policies/policies.slice';
 import { rolesClanActions } from '../roleclan/roleclan.slice';
@@ -122,7 +121,6 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 				thunkAPI.dispatch(eventManagementActions.fetchEventManagement({ clanId }));
 				thunkAPI.dispatch(policiesActions.fetchPermissionsUser({ clanId }));
 				thunkAPI.dispatch(policiesActions.fetchPermission({}));
-				thunkAPI.dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId }));
 				thunkAPI.dispatch(defaultNotificationActions.getDefaultNotificationClan({ clanId }));
 				thunkAPI.dispatch(channelsActions.setStatusChannelFetch(clanId));
 				thunkAPI.dispatch(
@@ -183,7 +181,8 @@ export const fetchClansCached = async (
 			}
 		},
 		() => ensuredMezon.client.listClanDescs(ensuredMezon.session, limit, state, cursor || ''),
-		'clan_desc_list'
+		'clan_desc_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -357,8 +356,6 @@ export const updateClan = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-
-			thunkAPI.dispatch(fetchClans({ noCache: true }));
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'clans/updateClans');

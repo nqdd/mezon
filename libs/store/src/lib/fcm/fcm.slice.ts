@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Session } from 'mezon-js';
-import { ensureSession, getMezonCtx } from '../helpers';
+import type { Session } from 'mezon-js';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 
 const REGIS_FCM_TOKEN_CACHED_TIME = 1000 * 60 * 60;
 
@@ -26,7 +26,10 @@ export const registFcmDeviceToken = createAsyncThunk(
 	async ({ session, tokenId, deviceId, platform, voipToken }: FcmDeviceTokenPayload, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const response = await mezon.client.registFCMDeviceToken(session, tokenId, deviceId, platform || '', voipToken || '');
+			const response = await withRetry(() => mezon.client.registFCMDeviceToken(session, tokenId, deviceId, platform || '', voipToken || ''), {
+				maxRetries: 3,
+				initialDelay: 1000
+			});
 			if (!response) {
 				return thunkAPI.rejectWithValue(null);
 			}
@@ -41,7 +44,7 @@ export const registFcmDeviceToken = createAsyncThunk(
 
 export const fcmSlice = createSlice({
 	name: FCM_FEATURE_KEY,
-	initialState: initialState,
+	initialState,
 	reducers: {
 		setGotifyToken(state, action) {
 			state.token = action.payload;

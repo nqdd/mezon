@@ -138,9 +138,13 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 
 				<div className={'flex-1 flex gap-[6px]  select-none max-md:min-w-[40%]'}>
 					<div className={'w-6 h-6 rounded-[50%] overflow-hidden flex items-center justify-center'}>
-						<img className={'w-full h-auto object-cover'} src={dataAuthor?.user?.avatar_url} alt="User avatar" />
+						<img
+							className={'w-full h-auto object-cover'}
+							src={dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url}
+							alt="User avatar"
+						/>
 					</div>
-					<p className={'text-sm h-auto leading-6'}>{dataAuthor?.user?.username}</p>
+					<p className={'text-sm h-auto leading-6'}>{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 				</div>
 
 				{showDelete && (

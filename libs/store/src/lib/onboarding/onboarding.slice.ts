@@ -8,7 +8,7 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { clansActions } from '../clans/clans.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const ONBOARDING_FEATURE_KEY = 'ONBOARDING_FEATURE_KEY';
@@ -85,7 +85,10 @@ export const fetchOnboardingCached = async (getState: () => RootState, mezon: Me
 		};
 	}
 
-	const response = await mezon.client.listOnboarding(mezon.session, clan_id, undefined, 100);
+	const response = await withRetry(() => mezon.client.listOnboarding(mezon.session, clan_id, undefined, 100), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -233,7 +236,7 @@ export const fetchOnboardingStepCached = async (getState: () => RootState, mezon
 		};
 	}
 
-	const response = await mezon.client.listOnboardingStep(mezon.session, clan_id);
+	const response = await withRetry(() => mezon.client.listOnboardingStep(mezon.session, clan_id), { maxRetries: 3, initialDelay: 1000 });
 
 	markApiFirstCalled(apiKey);
 

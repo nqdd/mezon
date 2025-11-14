@@ -10,7 +10,6 @@ import { directActions } from '../direct/direct.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import type { RootState } from '../store';
-import { defaultNotificationCategoryActions } from './notificationSettingCategory.slice';
 
 export const NOTIFICATION_SETTING_FEATURE_KEY = 'notificationsetting';
 
@@ -145,10 +144,7 @@ export const setNotificationSetting = createAsyncThunk(
 					thunkAPI.dispatch(channelsActions.update({ clanId: clan_id, update: { changes: { is_mute: true }, id: channel_id as string } }));
 				}
 			}
-			if (!is_direct) {
-				thunkAPI.dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: clan_id || '', noCache: true }));
-			}
-			thunkAPI.dispatch(getNotificationSetting({ channelId: channel_id || '', noCache: true }));
+
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'notificationsetting/setNotificationSetting');
@@ -208,9 +204,6 @@ export const deleteNotiChannelSetting = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-
-			thunkAPI.dispatch(getNotificationSetting({ channelId: channel_id || '', noCache: true }));
-			thunkAPI.dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: clan_id || '', noCache: true }));
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'notificationsetting/deleteNotiChannelSetting');

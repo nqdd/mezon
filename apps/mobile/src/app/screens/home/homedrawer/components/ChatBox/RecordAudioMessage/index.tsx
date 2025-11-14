@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { selectChannelById, selectDmGroupCurrent, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { getMobileUploadedAttachments } from '@mezon/utils';
@@ -7,7 +7,8 @@ import LottieView from 'lottie-react-native';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, ImageStyle, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
+import type { ImageStyle } from 'react-native';
+import { DeviceEventEmitter, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import Toast from 'react-native-toast-message';
@@ -149,8 +150,6 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 			const attachments = await getAudioFileInfo(recordingUrl);
 			const uploadedFiles = await getMobileUploadedAttachments({
 				attachments,
-				channelId: topicId || channelId,
-				clanId,
 				client,
 				session
 			});

@@ -174,11 +174,14 @@ const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
 	const creator = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 
 	if (!creator) return null;
-
 	return (
 		<div className="flex items-center justify-center gap-1 mt-1">
-			<img className="w-4 h-4 rounded-full select-none object-cover" src={creator?.user?.avatar_url ?? process.env.NX_LOGO_MEZON} alt="" />
-			<p className="text-xs text-theme-primary max-w-20 truncate">{creator?.user?.username}</p>
+			<img
+				className="w-4 h-4 rounded-full select-none object-cover"
+				src={(creator?.clan_avatar || creator?.user?.avatar_url || '') ?? process.env.NX_LOGO_MEZON}
+				alt="User avatar"
+			/>
+			<p className="text-xs text-theme-primary max-w-20 truncate">{creator?.clan_nick || creator?.user?.username}</p>
 		</div>
 	);
 };

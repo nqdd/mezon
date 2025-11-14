@@ -1,22 +1,11 @@
-import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID, validLinkGoogleMapRegex } from '@mezon/mobile-components';
+import { ActionEmitEvent, convertTimestampToTimeAgo, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import {
-	directActions,
-	messagesActions,
-	selectDirectById,
-	selectDmGroupCurrentId,
-	selectIsUnreadDMById,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
-import { isContainsUrl } from '@mezon/transport';
-import type { IExtendedMessage } from '@mezon/utils';
-import { createImgproxyUrl, EMimeTypes } from '@mezon/utils';
+import { directActions, messagesActions, selectDirectById, selectIsUnreadDMById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import BuzzBadge from '../../components/BuzzBadge/BuzzBadge';
@@ -26,7 +15,7 @@ import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import MessageMenu from '../home/homedrawer/components/MessageMenu';
-import { DmListItemLastMessage } from './DMListItemLastMessage';
+import { MessagePreviewLastest } from './MessagePreviewLastest';
 import { style } from './styles';
 import { UserStatusDM } from './UserStatusDM';
 
@@ -36,25 +25,18 @@ export const DmListItem = React.memo((props: { id: string }) => {
 	const { id } = props;
 	const navigation = useNavigation<any>();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
-	const currentDirectId = useAppSelector(selectDmGroupCurrentId);
-	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
+	const isUnreadDMById = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
+
+	const isUnReadChannel = useMemo(() => {
+		const myUserId = load(STORAGE_MY_USER_ID);
+
+		return isUnreadDMById && directMessage?.last_sent_message?.sender_id !== myUserId;
+	}, [isUnreadDMById, directMessage?.last_sent_message?.sender_id]);
 	const { t } = useTranslation(['message', 'common']);
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
-	const senderId = directMessage?.last_sent_message?.sender_id;
 
-	const [attachmentContent, setAttachmentContent] = useState<string>('');
-
-	const isYourAccount = useMemo(() => {
-		const userId = load(STORAGE_MY_USER_ID);
-		return userId?.toString() === senderId?.toString();
-	}, [senderId]);
-
-	const isShowActiveDMGroup = useMemo(() => {
-		return isTabletLandscape && directMessage?.id === currentDirectId;
-	}, [currentDirectId, directMessage?.id, isTabletLandscape]);
-
-	const redirectToMessageDetail = async () => {
+	const redirectToMessageDetail = useCallback(async () => {
 		dispatch(messagesActions.setIdMessageToJump(null));
 		if (!isTabletLandscape) {
 			navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
@@ -62,16 +44,17 @@ export const DmListItem = React.memo((props: { id: string }) => {
 			});
 		}
 		dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
-	};
+	}, [directMessage?.id, dispatch, isTabletLandscape, navigation]);
 
 	const isTypeDMGroup = useMemo(() => {
 		return Number(directMessage?.type) === ChannelType.CHANNEL_TYPE_GROUP;
 	}, [directMessage?.type]);
 
 	const otherMemberList = useMemo(() => {
-		const userIdList = directMessage.user_ids;
-		const usernameList = directMessage?.usernames || [];
-		const displayNameList = directMessage?.display_names || [];
+		const DMClone = JSON.parse(JSON.stringify(directMessage));
+		const userIdList = DMClone.user_ids;
+		const usernameList = DMClone?.usernames || [];
+		const displayNameList = DMClone?.display_names || [];
 
 		return usernameList?.map((username, index) => ({
 			userId: userIdList?.[index],
@@ -80,157 +63,13 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		}));
 	}, [directMessage]);
 
-	const renderLastMessageContent = useMemo(() => {
-		if (!senderId) {
-			return '';
-		}
-
-		if (isYourAccount) {
-			return `${t('directMessage.you')}: `;
-		}
-
-		const lastMessageSender = otherMemberList?.find?.((it) => it?.userId === senderId);
-		if (lastMessageSender?.username) {
-			return `${lastMessageSender?.displayName || lastMessageSender?.username}: `;
-		}
-
-		return '';
-	}, [isYourAccount, otherMemberList, senderId, t]);
-
-	const getLastMessageAttachmentContent = useCallback(
-		async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
-			if (embed) {
-				return `[${t('attachments.embed')}] ${embed?.title || embed?.description || ''}`;
-			}
-			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
-			if (isGoogleMapsLink) {
-				return `[${t('attachments.location')}]`;
-			}
-			if (isLinkMessage) {
-				return `[${t('attachments.link')}] ${text}`;
-			}
-
-			const fileName = attachment?.filename;
-			const fileType = attachment?.filetype;
-			const url = attachment?.url;
-
-			const type = fileType?.split('/')?.[0];
-
-			switch (type) {
-				case 'image': {
-					if (url?.includes(EMimeTypes.tenor)) {
-						return `[${t('attachments.gif')}]`;
-					}
-					if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
-						return `[${t('attachments.sticker')}]`;
-					}
-					return `[${t('attachments.image')}]`;
-				}
-				case 'video': {
-					return `[${t('attachments.video')}]`;
-				}
-				case 'audio': {
-					return `[${t('attachments.audio')}]`;
-				}
-				case 'application':
-				case 'text':
-					return `[${t('attachments.file')}] ${fileName || ''}`;
-				default:
-					return `[${t('attachments.file')}]`;
-			}
-		},
-		[t]
-	);
-
-	useEffect(() => {
-		const resolveAttachmentContent = async () => {
-			const content = directMessage?.last_sent_message?.content;
-
-			const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
-			const attachment = directMessage?.last_sent_message?.attachment;
-			const attachementToResolve = typeof attachment === 'object' ? attachment : safeJSONParse(attachment);
-			const embed = (typeof content === 'object' ? content : safeJSONParse(content))?.embed?.[0];
-
-			const isLinkMessage = isContainsUrl(text);
-
-			if (attachementToResolve?.[0] || isLinkMessage || embed) {
-				const resolved = await getLastMessageAttachmentContent(attachementToResolve[0], isLinkMessage, text, embed);
-				setAttachmentContent(resolved);
-			} else {
-				setAttachmentContent('');
-			}
-		};
-
-		resolveAttachmentContent();
-	}, [directMessage?.last_sent_message?.content, directMessage?.last_sent_message?.attachment, getLastMessageAttachmentContent]);
-
-	const getLastMessageContent = (content: string | IExtendedMessage) => {
-		if (!content || (typeof content === 'object' && Object.keys(content).length === 0) || content === '{}') {
-			if (isTypeDMGroup) {
-				return (
-					<View style={styles.contentMessage}>
-						<Text
-							style={[
-								styles.defaultText,
-								styles.lastMessage,
-								{ color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }
-							]}
-						>
-							{t('directMessage.groupCreated')}
-						</Text>
-					</View>
-				);
-			} else {
-				return null;
-			}
-		}
-		const text = typeof content === 'string' ? safeJSONParse(content)?.t : safeJSONParse(JSON.stringify(content) || '{}')?.t;
-		const isLinkMessage = isContainsUrl(text);
-
-		if (!text || isLinkMessage) {
-			return (
-				<View style={styles.contentMessage}>
-					<Text
-						style={[
-							styles.defaultText,
-							styles.lastMessage,
-							{ color: isUnReadChannel && !isYourAccount ? themeValue.textStrong : themeValue.textDisabled }
-						]}
-						numberOfLines={1}
-					>
-						{renderLastMessageContent}
-						{attachmentContent}
-					</Text>
-				</View>
-			);
-		}
-
-		return (
-			<View style={styles.contentMessage}>
-				{renderLastMessageContent && (
-					<Text
-						style={[styles.defaultText, styles.lastMessage, { color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }]}
-					>
-						{renderLastMessageContent}
-					</Text>
-				)}
-				{!!content && (
-					<DmListItemLastMessage
-						content={typeof content === 'object' ? content : safeJSONParse(content || '{}')}
-						styleText={{ color: isUnReadChannel ? themeValue.textStrong : themeValue.textDisabled }}
-					/>
-				)}
-			</View>
-		);
-	};
-
 	const lastMessageTime = useMemo(() => {
 		if (directMessage?.last_sent_message?.timestamp_seconds) {
 			const timestamp = Number(directMessage?.last_sent_message?.timestamp_seconds);
 			return convertTimestampToTimeAgo(timestamp, t);
 		}
 		return null;
-	}, [directMessage, t]);
+	}, [directMessage?.last_sent_message?.timestamp_seconds, t]);
 
 	const handleLongPress = useCallback((directMessage: DirectEntity) => {
 		const data = {
@@ -239,13 +78,8 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	}, []);
-
 	return (
-		<TouchableOpacity
-			style={[styles.messageItem, isShowActiveDMGroup && styles.activeDMGroupBackground]}
-			onPress={redirectToMessageDetail}
-			onLongPress={() => handleLongPress(directMessage)}
-		>
+		<TouchableOpacity style={[styles.messageItem]} onPress={redirectToMessageDetail} onLongPress={() => handleLongPress(directMessage)}>
 			{isTypeDMGroup ? (
 				directMessage?.channel_avatar && !directMessage?.channel_avatar?.includes('avatar-group.png') ? (
 					<View style={styles.groupAvatarWrapper}>
@@ -312,7 +146,13 @@ export const DmListItem = React.memo((props: { id: string }) => {
 						</Text>
 					) : null}
 				</View>
-				{getLastMessageContent(directMessage?.last_sent_message?.content)}
+				<MessagePreviewLastest
+					isUnReadChannel={isUnReadChannel}
+					type={directMessage?.type}
+					otherMemberList={otherMemberList}
+					senderId={directMessage?.last_sent_message?.sender_id}
+					lastSentMessage={directMessage?.last_sent_message}
+				/>
 			</View>
 		</TouchableOpacity>
 	);

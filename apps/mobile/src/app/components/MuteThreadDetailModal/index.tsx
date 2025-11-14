@@ -9,7 +9,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { IChannel } from '@mezon/utils';
-import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import type { RouteProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
@@ -17,6 +17,7 @@ import { ChannelType } from 'mezon-js';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
@@ -156,13 +157,7 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
 					setTimeMuted(formattedDate);
 					idTimeOut = setTimeout(() => {
-						const body = {
-							channel_id: currentChannel?.channel_id || '',
-							notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-							clan_id: currentClanId || '',
-							active: ENotificationActive.ON
-						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+						handleUnmuteChannel();
 						clearTimeout(idTimeOut);
 					}, timeDifference);
 				}
@@ -170,15 +165,27 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 		}
 	}, [getNotificationChannelSelected, dispatch, currentChannel?.channel_id, currentClanId]);
 
-	const muteOrUnMuteChannel = (active: ENotificationActive) => {
-		const body = {
-			channel_id: currentChannel?.channel_id || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-			clan_id: currentClanId || '',
-			active
-		};
-		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-		navigateToThreadDetail();
+	const handleUnmuteChannel = async () => {
+		try {
+			const body = {
+				channel_id: currentChannel?.channel_id || '',
+				clan_id: currentClanId || '',
+				active: EMuteState.UN_MUTE,
+				mute_time: 0
+			};
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			} else {
+				navigateToThreadDetail();
+			}
+		} catch (error) {
+			console.error('Error setting unmute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notifySettingThreadModal.unMuteError')
+			});
+		}
 	};
 
 	const navigateToThreadDetail = () => {
@@ -186,40 +193,26 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 	};
 
 	const handleScheduleMute = async (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
-
+		try {
 			const body = {
 				channel_id: currentChannel?.channel_id || '',
-				notification_type: isDMThread ? 0 : getNotificationChannelSelected?.notification_setting_type || 0,
 				clan_id: isDMThread ? '' : currentClanId || '',
-				time_mute: unmuteTimeISO,
-				...(isCurrentChannel && { is_current_channel: false })
+				mute_time: duration !== Infinity ? duration : 0,
+				active: EMuteState.MUTED
 			};
-			const response = await dispatch(notificationSettingActions.setNotificationSetting(body));
-			if (response?.meta?.requestStatus === 'fulfilled') {
-				dispatch(
-					notificationSettingActions.updateNotiState({ channelId: currentChannel?.channel_id || '', active: ENotificationActive.OFF })
-				);
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			} else {
+				navigateToThreadDetail();
 			}
-		} else {
-			const body = {
-				channel_id: currentChannel?.channel_id || '',
-				notification_type: isDMThread ? 0 : getNotificationChannelSelected?.notification_setting_type || 0,
-				clan_id: isDMThread ? '' : currentClanId || '',
-				active: ENotificationActive.OFF,
-				...(isCurrentChannel && { is_current_channel: false })
-			};
-			const response = await dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-			if (response?.meta?.requestStatus === 'fulfilled') {
-				dispatch(
-					notificationSettingActions.updateNotiState({ channelId: currentChannel?.channel_id || '', active: ENotificationActive.OFF })
-				);
-			}
+		} catch (error) {
+			console.error('Error setting mute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notifySettingThreadModal.muteError')
+			});
 		}
-		navigateToThreadDetail();
 	};
 
 	return (
@@ -229,12 +222,7 @@ const MuteThreadDetailModal = ({ route }: MuteThreadDetailModalProps) => {
 				<MezonMenu menu={menu} />
 			) : (
 				<View style={styles.optionsBox}>
-					<TouchableOpacity
-						onPress={() => {
-							muteOrUnMuteChannel(ENotificationActive.ON);
-						}}
-						style={styles.wrapperUnmuteBox}
-					>
+					<TouchableOpacity onPress={handleUnmuteChannel} style={styles.wrapperUnmuteBox}>
 						<MezonIconCDN icon={IconCDN.bellSlashIcon} width={20} height={20} customStyle={{ marginRight: 20 }} color={themeValue.text} />
 						<Text
 							style={styles.option}

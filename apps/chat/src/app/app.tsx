@@ -24,6 +24,7 @@ import { captureSentryError } from '@mezon/logger';
 import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
+	EMimeTypes,
 	ETypeLinkMedia,
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
@@ -190,17 +191,27 @@ const AppInitializer = () => {
 				const updatedPagination = selectAttachmentPaginationByChannel(updatedState, effectiveChannelId);
 				const currentChatUsersEntities = getCurrentChatData()?.currentChatUsersEntities;
 
-				const imageAttachments = updatedAttachments
-					?.filter((att) => att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX))
+				const mediaAttachments = updatedAttachments
+					?.filter(
+						(att) =>
+							att?.filetype?.startsWith(ETypeLinkMedia.IMAGE_PREFIX) ||
+							att?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+							att?.filetype?.includes(EMimeTypes.mp4) ||
+							att?.filetype?.includes(EMimeTypes.mov)
+					)
 					.map((att) => ({
 						...att,
 						id: att.id || '',
 						channelId: effectiveChannelId,
-						clanId: clanId || ''
+						clanId: clanId || '',
+						isVideo:
+							att?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX) ||
+							att?.filetype?.includes(EMimeTypes.mp4) ||
+							att?.filetype?.includes(EMimeTypes.mov)
 					}));
 
-				if (imageAttachments && currentChatUsersEntities) {
-					const attachmentsWithUploaderData = getAttachmentDataForWindow(imageAttachments as any, currentChatUsersEntities);
+				if (mediaAttachments && currentChatUsersEntities) {
+					const attachmentsWithUploaderData = getAttachmentDataForWindow(mediaAttachments as any, currentChatUsersEntities);
 					window.electron?.send('APP::UPDATE_ATTACHMENTS', {
 						attachments: attachmentsWithUploaderData,
 						hasMoreBefore: updatedPagination.hasMoreBefore,

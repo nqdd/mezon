@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		addFriendModalContainer: {
-			paddingHorizontal: size.s_4,
-			gap: size.s_18,
+			backgroundColor: colors.primary,
+			paddingBottom: size.s_100,
 			flex: 1
 		},
 		whiteText: {
@@ -25,8 +25,14 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_12,
 			flexDirection: 'row'
 		},
+		form: {
+			flex: 1,
+			paddingHorizontal: size.s_10,
+			paddingBottom: size.s_30
+		},
 		fill: {
-			flex: 1
+			flex: 1,
+			paddingHorizontal: size.s_10
 		},
 		headerTitle: {
 			color: colors.textStrong,
@@ -48,6 +54,7 @@ export const style = (colors: Attributes) =>
 		},
 		sendButton: {
 			paddingVertical: size.s_14,
+			marginHorizontal: size.s_10,
 			backgroundColor: baseColor.blurple,
 			borderRadius: 50
 		},
@@ -58,7 +65,25 @@ export const style = (colors: Attributes) =>
 		heightAuto: {
 			height: size.s_50
 		},
-		paddingVertical20: {
-			paddingVertical: 20
+		header: {
+			width: '100%',
+			zIndex: 10,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			position: 'relative'
+		},
+		btnClose: {
+			padding: size.s_10,
+			zIndex: 10,
+			paddingRight: size.s_50,
+			width: size.s_100
+		},
+		titleHeader: {
+			top: -size.s_34,
+			fontWeight: 'bold',
+			fontSize: size.s_18,
+			color: colors.text,
+			textAlign: 'center'
 		}
 	});

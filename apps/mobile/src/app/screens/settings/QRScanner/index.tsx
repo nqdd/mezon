@@ -168,7 +168,7 @@ export const QRScanner = () => {
 				if (username) {
 					const dataParam = getQueryParam(value, 'data');
 					navigation.navigate(APP_SCREEN.PROFILE_DETAIL, {
-						username: username,
+						username,
 						data: dataParam || undefined
 					});
 				}
@@ -177,7 +177,7 @@ export const QRScanner = () => {
 			try {
 				const valueObj = safeJSONParse(value || '{}');
 				// case Transfer funds
-				if (valueObj?.receiver_id) {
+				if (valueObj?.receiver_id || valueObj?.wallet_address) {
 					navigation.push(APP_SCREEN.WALLET, {
 						activeScreen: 'transfer',
 						formValue: value

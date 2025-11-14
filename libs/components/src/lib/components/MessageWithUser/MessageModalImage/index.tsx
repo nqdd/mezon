@@ -20,8 +20,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ETypeLinkMedia, ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MessageContextMenuProps } from '../../ContextMenu';
 import { useMessageContextMenu } from '../../ContextMenu';
 import ListAttachment from './listAttachment';
@@ -32,6 +32,7 @@ const MessageModalImage = () => {
 	const [scale, setScale] = useState(1);
 	const [rotate, setRotate] = useState(0);
 	const modalRef = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const [showList, setShowList] = useState(true);
 	const currentChannelId = useAppSelector(selectCurrentChannelId);
@@ -41,9 +42,25 @@ const MessageModalImage = () => {
 	const { setOpenModalAttachment } = useAttachments();
 	const openModalAttachment = useAppSelector(selectOpenModalAttachment);
 	const attachment = useAppSelector(selectAttachment);
+	const currentAttachment = useAppSelector(selectCurrentAttachmentShowImage);
 	const [urlImg, setUrlImg] = useState(attachment);
 	const [currentIndexAtt, setCurrentIndexAtt] = useState(-1);
 	const { showMessageContextMenu, setPositionShow, setImageURL } = useMessageContextMenu();
+	const [isPlaying, setIsPlaying] = useState(false);
+
+	const isVideo = useMemo(() => {
+		if (currentAttachment?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX)) {
+			return true;
+		}
+
+		if (urlImg) {
+			const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+			const lowerUrl = urlImg.toLowerCase();
+			return videoExtensions.some((ext) => lowerUrl.includes(ext));
+		}
+
+		return false;
+	}, [currentAttachment?.filetype, urlImg]);
 
 	const mode = useAppSelector(selectModeAttachment);
 	const messageId = useAppSelector(selectMessageIdAttachment);
@@ -114,10 +131,27 @@ const MessageModalImage = () => {
 		]
 	);
 
+	const toggleVideoPlayback = useCallback(() => {
+		if (videoRef.current) {
+			if (isPlaying) {
+				videoRef.current.pause();
+			} else {
+				videoRef.current.play();
+			}
+			setIsPlaying(!isPlaying);
+		}
+	}, [isPlaying]);
+
 	useEffect(() => {
 		setShowList(true);
 		setScale(1);
+		setRotate(0);
 		setUrlImg(attachment);
+		setIsPlaying(false);
+		if (videoRef.current) {
+			videoRef.current.pause();
+			videoRef.current.currentTime = 0;
+		}
 		if (openModalAttachment && modalRef.current) {
 			modalRef.current.focus();
 		}
@@ -128,7 +162,7 @@ const MessageModalImage = () => {
 			const indexImage = attachments.findIndex((img) => img.url === urlImg);
 			setCurrentIndexAtt(indexImage);
 		}
-	}, [attachments]);
+	}, [attachments, urlImg]);
 
 	const handleDrag = (e: any) => {
 		e.preventDefault();
@@ -165,18 +199,26 @@ const MessageModalImage = () => {
 		[showMessageContextMenu, messageId, mode, setPositionShow, setImageURL, urlImg]
 	);
 
-	const handleKeyDown = (event: any) => {
-		if (event.key === 'Escape') {
-			closeModal();
-			return;
-		}
-		if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-			handleSelectNextImage();
-		}
-		if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-			handleSelectPreviousImage();
-		}
-	};
+	const handleKeyDown = useCallback(
+		(event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				closeModal();
+				return;
+			}
+			if (event.key === ' ' && isVideo) {
+				event.preventDefault();
+				toggleVideoPlayback();
+				return;
+			}
+			if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+				handleSelectNextImage();
+			}
+			if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+				handleSelectPreviousImage();
+			}
+		},
+		[isVideo, toggleVideoPlayback]
+	);
 
 	const handleSelectNextImage = () => {
 		if (!attachments) {
@@ -208,7 +250,7 @@ const MessageModalImage = () => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [urlImg, currentIndexAtt]);
+	}, [handleKeyDown]);
 
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -290,26 +332,42 @@ const MessageModalImage = () => {
 					className="flex-1 flex justify-center items-center px-5 py-3 overflow-hidden h-full w-full relative"
 					onClick={handleClickOutsideImage}
 				>
-					<img
-						src={createImgproxyUrl(urlImg ?? '', { width: 0, height: 0, resizeType: 'force' })}
-						alt={urlImg}
-						className={`max-h-full object-scale-down rounded-[10px] cursor-default ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
-						onDragStart={handleDrag}
-						onWheel={handleWheel}
-						onMouseUp={handleMouseUp}
-						onMouseMove={handleMouseMove}
-						onMouseDown={handleMouseDown}
-						onMouseLeave={handleMouseUp}
-						style={{
-							transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px) `,
-							transition: `${dragging ? '' : 'transform 0.2s ease'}`,
-							rotate: `${rotate}deg`
-						}}
-						onContextMenu={handleContextMenu}
-						onClick={stopPropagation}
-					/>
+					{isVideo ? (
+						<video
+							ref={videoRef}
+							src={urlImg ?? ''}
+							className="max-h-full max-w-full object-scale-down rounded-[10px] cursor-pointer"
+							controls
+							onContextMenu={handleContextMenu}
+							onClick={(e) => {
+								e.stopPropagation();
+								toggleVideoPlayback();
+							}}
+							onPlay={() => setIsPlaying(true)}
+							onPause={() => setIsPlaying(false)}
+						/>
+					) : (
+						<img
+							src={createImgproxyUrl(urlImg ?? '', { width: 0, height: 0, resizeType: 'force' })}
+							alt={urlImg}
+							className={`max-h-full object-scale-down rounded-[10px] cursor-default ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
+							onDragStart={handleDrag}
+							onWheel={handleWheel}
+							onMouseUp={handleMouseUp}
+							onMouseMove={handleMouseMove}
+							onMouseDown={handleMouseDown}
+							onMouseLeave={handleMouseUp}
+							style={{
+								transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px) `,
+								transition: `${dragging ? '' : 'transform 0.2s ease'}`,
+								rotate: `${rotate}deg`
+							}}
+							onContextMenu={handleContextMenu}
+							onClick={stopPropagation}
+						/>
+					)}
 					<div
-						className={`h-full w-12 absolute flex flex-col right-0 gap-2 justify-center ${scale === 1 ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+						className={`h-full w-12 absolute flex flex-col right-0 gap-2 justify-center ${scale === 1 && !isVideo ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
 						onClick={stopPropagation}
 					>
 						<div
@@ -351,24 +409,28 @@ const MessageModalImage = () => {
 					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={handleDownloadImage}>
 						<Icons.HomepageDownload className="w-5 h-5" />
 					</div>
-					<div className="">
-						<Icons.StraightLineIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('LEFT')}>
-						<Icons.RotateLeftIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('RIGHT')}>
-						<Icons.RotateRightIcon className="w-5" />
-					</div>
-					<div className="">
-						<Icons.StraightLineIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(true)}>
-						<Icons.ZoomIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(false)}>
-						<Icons.AspectRatioIcon className="w-5" />
-					</div>
+					{!isVideo && (
+						<>
+							<div className="">
+								<Icons.StraightLineIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('LEFT')}>
+								<Icons.RotateLeftIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('RIGHT')}>
+								<Icons.RotateRightIcon className="w-5" />
+							</div>
+							<div className="">
+								<Icons.StraightLineIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(true)}>
+								<Icons.ZoomIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(false)}>
+								<Icons.AspectRatioIcon className="w-5" />
+							</div>
+						</>
+					)}
 				</div>
 				<div className="flex justify-end flex-1">
 					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={handleShowList}>

@@ -54,6 +54,14 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 		[]
 	);
 
+	const displayName = useMemo(() => {
+		return user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
+	}, [user?.clan_nick, user?.user?.display_name, user?.user?.username]);
+
+	const avatarUrl = useMemo(() => {
+		return user?.clan_avatar || user?.user?.avatar_url || '';
+	}, [user?.clan_avatar, user?.user?.avatar_url]);
+
 	const activeRoleOfUser = useMemo(() => {
 		if (!rolesClan) return [];
 		return rolesClan.filter((role) => selectedRole.includes(role?.id));
@@ -249,10 +257,10 @@ export const ManageUser = memo<IManageUserProp>(({ user, onClose, memberSettings
 			<ScrollView>
 				<View style={styles.userInfoContainer}>
 					<View style={styles.userInfo}>
-						<MezonAvatar avatarUrl={user?.user?.avatar_url || ''} username={user?.user?.username || ''} />
+						<MezonAvatar avatarUrl={avatarUrl} username={user?.user?.username || ''} />
 						<View>
-							{user?.user?.display_name ? <Text style={styles.displayName}>{user?.user?.display_name}</Text> : null}
-							<Text style={styles.username}>{user?.user?.username}</Text>
+							<Text style={styles.displayName}>{displayName}</Text>
+							<Text style={styles.username}>{user?.user?.username || ''}</Text>
 						</View>
 					</View>
 				</View>
