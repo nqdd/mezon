@@ -121,6 +121,8 @@ export const addPhoneNumber = createAsyncThunk(
 					messageData = data?.message || '';
 				}
 				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
 			}
 		}
 	}
@@ -144,6 +146,8 @@ export const linkEmail = createAsyncThunk(
 					messageData = data?.message || '';
 				}
 				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
 			}
 		}
 	}
