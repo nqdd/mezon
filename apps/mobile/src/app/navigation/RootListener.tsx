@@ -192,14 +192,7 @@ const RootListener = () => {
 			const store = await getStore();
 			const session = selectSession(store.getState() as any);
 
-			const sessionMain = new Session(
-				session?.token,
-				session?.refresh_token,
-				session.created,
-				session.api_url,
-				!!session.is_remember,
-				session?.user_id
-			);
+			const sessionMain = new Session(session?.token, session?.refresh_token, session.created, session.api_url, !!session.is_remember);
 			const profileResponse = await dispatch(accountActions.getUserProfile());
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error

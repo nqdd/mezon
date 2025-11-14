@@ -112,8 +112,7 @@ const AppLayout = () => {
 					sessionData.refresh_token,
 					sessionData.created,
 					sessionData.api_url,
-					!!sessionData.is_remember,
-					sessionData.user_id
+					!!sessionData.is_remember
 				);
 				const response = await dispatch(
 					fcmActions.registFcmDeviceToken({
