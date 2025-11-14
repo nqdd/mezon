@@ -222,9 +222,9 @@ export async function uploadFile(
 			if (res.status !== 200) {
 				throw new Error('Failed to upload file to MinIO.');
 			}
-			let url = `${process.env.NX_BASE_IMG_URL}/${filename}`;
+			let url = `${process.env.NX_BASE_IMG_URL}/${session.user_id}/${filename}`;
 			if (isOauth) {
-				url = `${process.env.NX_PROFILE_IMG_URL}/${filename}`;
+				url = `${process.env.NX_PROFILE_IMG_URL}/${session.user_id}/${filename}`;
 			}
 			resolve({
 				filename: originalFilename,
