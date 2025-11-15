@@ -126,18 +126,7 @@ export const fetchListBanMembersCached = async (
 		};
 	}
 
-	const response = await fetchDataWithSocketFallback(
-		ensuredMezon,
-		{
-			api_name: 'listBannedUsers',
-			list_channel_users_req: {
-				channel_id: channelId,
-				clan_id: clanId
-			}
-		},
-		() => ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId),
-		'ban_list'
-	);
+	const response = await ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId);
 
 	markApiFirstCalled(apiKey);
 

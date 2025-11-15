@@ -369,7 +369,15 @@ export const joinChannel = createAsyncThunk(
 						})
 					);
 				}
-				thunkAPI.dispatch(channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL }));
+				if (channel) {
+					if (channel?.channel_private) {
+						thunkAPI.dispatch(
+							channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL })
+						);
+					} else {
+						thunkAPI.dispatch(channelMembersActions.checkBanInChannel({ clanId, channelId }));
+					}
+				}
 			}
 			thunkAPI.dispatch(userChannelsActions.fetchUserChannels({ channelId }));
 			thunkAPI.dispatch(channelsActions.setModeResponsive({ clanId, mode: ModeResponsive.MODE_CLAN }));
