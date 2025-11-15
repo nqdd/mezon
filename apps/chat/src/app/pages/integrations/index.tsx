@@ -9,7 +9,7 @@ import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
 
 const IntegrationsPage = () => {
-	const { t } = useTranslation('integrations');
+	const { t } = useTranslation('integrationspage');
 	const platform = getPlatform();
 	const version = mezonPackage.version;
 	const [imageLoaded, setImageLoaded] = useState(false);
@@ -300,43 +300,46 @@ const IntegrationsPage = () => {
 						</div>
 
 						<div className="space-y-0 border-t border-gray-200">
-							{(t('faq.questions', { returnObjects: true }) as Array<{ question: string; answer: string }>).map((faq, index) => (
-								<div key={index} className="border-b border-gray-200">
-									<button
-										onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
-										className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-gray-100 transition-colors duration-200"
-									>
-										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
-											<span className="text-slate-700 mt-1 transition-all duration-300">{openFAQ === index ? '✓' : '>'}</span>
-											<span>{faq.question}</span>
-										</span>
-										<svg
-											className={`faq-icon w-5 h-5 text-slate-600 flex-shrink-0 ${openFAQ === index ? 'rotate-180' : 'rotate-0'}`}
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
+							{Array.isArray(t('faq.questions', { returnObjects: true })) &&
+								(t('faq.questions', { returnObjects: true }) as Array<{ question: string; answer: string }>).map((faq, index) => (
+									<div key={index} className="border-b border-gray-200">
+										<button
+											onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+											className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-gray-100 transition-colors duration-200"
 										>
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-										</svg>
-									</button>
-									<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
-										<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
-											<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4">{faq.answer}</p>
-											<a
-												href="https://mezon.ai/help"
-												target="_blank"
-												rel="noopener noreferrer"
-												className="font-svnAvo text-[#b625d3] hover:text-[#9920ba] inline-flex items-center gap-1 text-sm sm:text-base transition-colors"
+											<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
+												<span className="text-slate-700 mt-1 transition-all duration-300">
+													{openFAQ === index ? '✓' : '>'}
+												</span>
+												<span>{faq.question}</span>
+											</span>
+											<svg
+												className={`faq-icon w-5 h-5 text-slate-600 flex-shrink-0 ${openFAQ === index ? 'rotate-180' : 'rotate-0'}`}
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
 											>
-												{t('faq.learnMore')}
-												<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-												</svg>
-											</a>
+												<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+											</svg>
+										</button>
+										<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
+											<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
+												<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4">{faq.answer}</p>
+												<a
+													href="https://mezon.ai/help"
+													target="_blank"
+													rel="noopener noreferrer"
+													className="font-svnAvo text-[#b625d3] hover:text-[#9920ba] inline-flex items-center gap-1 text-sm sm:text-base transition-colors"
+												>
+													{t('faq.learnMore')}
+													<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+													</svg>
+												</a>
+											</div>
 										</div>
 									</div>
-								</div>
-							))}
+								))}
 						</div>
 					</div>
 				</div>

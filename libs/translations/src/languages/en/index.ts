@@ -45,6 +45,7 @@ import friends from './friends.json';
 import friendsPage from './friendsPage.json';
 import homepage from './homepage.json';
 import integrations from './integrations.json';
+import integrationspage from './integrationspage.json';
 import invitation from './invitation.json';
 import inviteToChannel from './inviteToChannel.json';
 import leaveGroup from './leaveGroup.json';
@@ -98,6 +99,7 @@ export default {
 	friends,
 	friendsPage,
 	integrations,
+	integrationspage,
 	clan,
 	profileSetting,
 	clanSettings,

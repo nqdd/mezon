@@ -1,41 +1,42 @@
 {
 	"sections": {
 		"section1": {
-			"title": "Chill cùng bạn bè, tụ tập trong voice channel",
+			"title": "Chill Cùng Bạn Bè, Tụ Tập Trong Voice Channel",
 			"description": "Mezon thật tuyệt vời để bạn bè cùng nhau tụ tập và dành thời gian bên nhau, dù là nghỉ giải lao buổi chiều hay ở lại muộn vào ban đêm."
 		},
 		"section2": {
-			"title": "Kết nối dễ dàng, trò chuyện mượt mà với voice channel",
+			"title": "Kết Nối Dễ Dàng, Trò Chuyện Mượt Mà Với Voice Channel",
 			"description": "Bạn có thể dễ dàng kết nối với bạn bè bằng cách mở một voice channel – và điều này miễn phí mãi mãi. Càng sử dụng Mezon nhiều, bạn sẽ càng nhận ra việc giữ liên lạc suốt cả ngày thật dễ dàng."
 		},
 		"section3": {
-			"title": "Stream và Thông báo để mọi người theo dõi",
+			"title": "Stream Và Thông Báo Để Mọi Người Theo Dõi",
 			"description": "Cập nhật thông báo và livestream nhanh nhất có thể. Tham gia livestream bất cứ lúc nào hoặc phản ứng với tin tức quan trọng từ kênh hoặc nhóm."
 		},
 		"section4": {
-			"title": "Channel App giúp cuộc sống của bạn dễ dàng hơn",
+			"title": "Channel App Giúp Cuộc Sống Của Bạn Dễ Dàng Hơn",
 			"description": "Channel App giúp bạn cập nhật mọi thứ – từ thông báo, ghi chú, lịch đến quản lý danh sách công việc. Mezon cung cấp hệ thống App độc đáo với nhiều lựa chọn phong phú cho mọi lối sống."
 		},
 		"section5": {
-			"title": "Bot siêu thông minh cho cả clan",
+			"title": "Bot Siêu Thông Minh Cho Cả Clan",
 			"description": "Bot giúp bạn hoàn thành công việc nhanh chóng và hiệu quả, từ quản lý lịch trình đến phản hồi nhanh. Mezon Bot được xây dựng để phục vụ cả clan, giúp công việc dễ dàng và có tổ chức hơn."
 		}
 	},
 	"discover": {
-		"title": "Khám phá thêm tính năng của Mezon",
+		"title": "Khám Phá Thêm Tính Năng Của Mezon",
 		"description": "Khám phá các tính năng khác của Mezon. Trò chuyện với bạn bè, Kênh Voice, Stream, Apps, Bots ... và nhiều hơn nữa",
-		"viewAll": "Xem tất cả",
+		"viewAll": "Xem Tất Cả",
+		"buttonText": "Khám Phá",
 		"slides": [
 			{
-				"title": "Relationship first – Gắn kết đồng đội qua clan, event, chat & voice",
+				"title": "Relationship First – Gắn Kết Đồng Đội Qua Clan, Event, Chat & Voice",
 				"description": "Duy trì kết nối những người quan trọng với bạn qua cuộc trò chuyện"
 			},
 			{
-				"title": "Culture builder – Tạo môi trường làm việc đậm chất riêng",
+				"title": "Culture Builder – Tạo Môi Trường Làm Việc Đậm Chất Riêng",
 				"description": "Xây dựng văn hóa làm việc độc đáo với các kênh và tích hợp tùy chỉnh"
 			},
 			{
-				"title": "Làm việc mọi lúc, mọi nơi, không giới hạn",
+				"title": "Làm Việc Mọi Lúc, Mọi Nơi, Không Giới Hạn",
 				"description": "Làm việc liền mạch trên mọi thiết bị và địa điểm"
 			},
 			{
@@ -45,24 +46,24 @@
 		]
 	},
 	"faq": {
-		"title": "Cần thêm trợ giúp?",
-		"seeAll": "Xem tất cả câu hỏi",
-		"learnMore": "Tìm hiểu thêm",
+		"title": "Cần Thêm Trợ Giúp?",
+		"seeAll": "Xem Tất Cả Câu Hỏi",
+		"learnMore": "Tìm Hiểu Thêm",
 		"questions": [
 			{
-				"question": "Làm thế nào để thêm bạn bè trên Mezon?",
+				"question": "Làm Thế Nào Để Thêm Bạn Bè Trên Mezon?",
 				"answer": "Để thêm bạn bè trên Mezon, vào trang Bạn bè và nhập Tên người dùng Mezon trong phần 'Thêm bạn'. Bạn có thể quản lý danh sách bạn bè với các bộ lọc như Tất cả, Trực tuyến, Đang chờ (yêu cầu kết bạn) và Chặn (người dùng bị chặn). Bạn cũng có thể xem trạng thái trực tuyến của bạn bè trong thời gian thực và xem họ đang làm gì thông qua phần Hoạt động, cho biết họ đang code, nghe nhạc hay chơi game."
 			},
 			{
-				"question": "Mezon cung cấp những tính năng nhắn tin gì?",
+				"question": "Mezon Cung Cấp Những Tính Năng Nhắn Tin Gì?",
 				"answer": "Mezon cung cấp các tính năng nhắn tin toàn diện bao gồm: gửi văn bản, emoji, sticker, hình ảnh, video, file và ghi âm; ghim tin nhắn quan trọng để truy cập nhanh; tạo nhóm chat nhỏ với tối đa 10 thành viên; gọi thoại và video 1-1 hoặc nhóm với chất lượng HD; chia sẻ màn hình trong cuộc gọi; và tìm kiếm tin nhắn. Tất cả tính năng giao tiếp hoàn toàn miễn phí không giới hạn."
 			},
 			{
-				"question": "Cuộc gọi thoại và video trên Mezon hoạt động như thế nào?",
+				"question": "Cuộc Gọi Thoại Và Video Trên Mezon Hoạt Động Như Thế Nào?",
 				"answer": "Mezon cho phép bạn thực hiện cuộc gọi thoại và video 1-1 hoặc nhóm nhỏ trực tiếp trong ứng dụng. Trong cuộc gọi, bạn có thể bật/tắt micro hoặc camera bất cứ lúc nào, chia sẻ màn hình và tận hưởng kết nối ổn định với hỗ trợ video HD và thoại độ trễ thấp. Khi ai đó gọi cho bạn, điện thoại hoặc máy tính của bạn sẽ reo giống như cuộc gọi thông thường. Tất cả cuộc gọi đều miễn phí và sử dụng kết nối internet của bạn."
 			},
 			{
-				"question": "Giao tiếp của tôi trên Mezon có riêng tư và bảo mật không?",
+				"question": "Giao Tiếp Của Tôi Trên Mezon Có Riêng Tư Và Bảo Mật Không?",
 				"answer": "Có, Mezon ưu tiên quyền riêng tư và bảo mật. Bạn chỉ có thể nhắn tin với những người là bạn bè của bạn hoặc chia sẻ ít nhất một Clan với bạn, ngăn chặn spam và đảm bảo không gian riêng tư. Tin nhắn được đồng bộ hóa trên các nền tảng Web, Desktop và Mobile theo thời gian thực, vì vậy bạn không bao giờ bỏ lỡ điều gì. Khi nhóm của bạn trở nên hoạt động hơn, bạn có thể nâng cấp nó thành Clan để mở khóa các tính năng bổ sung như nhiều kênh và quyền quản trị."
 			}
 		]

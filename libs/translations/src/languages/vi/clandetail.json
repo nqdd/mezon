@@ -23,42 +23,43 @@
 	},
 	"features": [
 		{
-			"title": "Bạn có thể upload biểu cảm, nhãn dán và âm thanh",
+			"title": "Bạn Có Thể Upload Biểu Cảm, Nhãn Dán Và Âm Thanh",
 			"description": "Hoàn Toàn Miễn Phí  Tùy Chỉnh Biểu Cảm, Nhãn Dán Và Âm Thanh Của Riêng Bạn Để Thể Hiện Bản Thân Trong Cuộc Trò Chuyện."
 		},
 		{
-			"title": "Phân quyền cho thành viên trong Clan",
+			"title": "Phân Quyền Cho Thành Viên Trong Clan",
 			"description": "Dễ dàng quản lý quyền và vai trò của thành viên trong clan để đảm bảo mọi người đều có trải nghiệm phù hợp và an toàn."
 		},
 		{
-			"title": "Thành Viên khắp nơi có cùng sở thích",
+			"title": "Thành Viên Khắp Nơi Có Cùng Sở Thích",
 			"description": "Các thành viên sẽ tham gia vào clan của bạn thông qua lời mời hoặc khám phá công khai, tạo nên một cộng đồng đa dạng và sôi động."
 		},
 		{
-			"title": "Việc tạo clan trở nên dễ dàng hơn bao giờ hết",
+			"title": "Việc Tạo Clan Trở Nên Dễ Dàng Hơn Bao Giờ Hết",
 			"description": "Nhanh chóng phản hồi tin nhắn bằng biểu tượng cảm xúc mà không cần gõ chữ."
 		}
 	],
+	"featuresTitle": "Xây Dựng Cộng Đồng Của Bạn Vui Hơn",
 	"download": "Tải Xuống",
 	"faq": {
-		"title": "Cần thêm trợ giúp?",
-		"seeAll": "Xem tất cả FAQ",
-		"learnMore": "Tìm hiểu thêm",
+		"title": "Cần Thêm Trợ Giúp?",
+		"seeAll": "Xem Tất Cả FAQ",
+		"learnMore": "Tìm Hiểu Thêm",
 		"questions": [
 			{
-				"question": "Clan trên Mezon là gì?",
+				"question": "Clan Trên Mezon Là Gì?",
 				"answer": "Clan là trái tim của Mezon — nơi mọi người kết nối, cộng tác và chia sẻ thông qua các cộng đồng được xây dựng xung quanh sở thích, mục tiêu hoặc đam mê chung. Clan có thể là một nhóm bạn nhỏ hoặc một cộng đồng lớn với hàng nghìn thành viên. Trong Clan, bạn có thể trò chuyện qua các Kênh được tổ chức, tổ chức sự kiện qua Kênh thoại và nâng cao cộng đồng bằng Bot, Ứng dụng và Mezon Token."
 			},
 			{
-				"question": "Làm thế nào để tham gia Clan trên Mezon?",
-				"answer": "Bạn có thể khám phá và tham gia Clan bằng hai cách: thông qua nút Khám phá trong ứng dụng hoặc qua Trang web Clan tại mezon.ai/clans, hoặc bằng cách sử dụng liên kết mời được chia sẻ bởi bạn bè, đồng đội hoặc quản trị viên. Chỉ cần nhấp \"Tham gia\" để trở thành thành viên của cộng đồng. Mỗi người dùng có thể tham gia tối đa 50 Clan cùng một lúc. Hãy xem các Clan nổi bật như Student Clan, Gamer Clan và Business Clan."
+				"question": "Làm Thế Nào Để Tham Gia Clan Trên Mezon?",
+				"answer": "Bạn có thể khám phá và tham gia Clan bằng hai cách: thông qua nút Khám phá trong ứng dụng hoặc qua Trang web Clan tại mezon.ai/clans, hoặc bằng cách sử dụng liên kết mời được chia sẻ bởi bạn bè, đồng đội hoặc quản trị viên. Chỉ cần nhấp \"Tham Gia\" để trở thành thành viên của cộng đồng. Mỗi người dùng có thể tham gia tối đa 50 Clan cùng một lúc. Hãy xem các Clan nổi bật như Student Clan, Gamer Clan và Business Clan."
 			},
 			{
-				"question": "Làm thế nào để tạo Clan của riêng tôi?",
+				"question": "Làm Thế Nào Để Tạo Clan Của Riêng Tôi?",
 				"answer": "Tạo Clan rất đơn giản và linh hoạt. Điều hướng đến phần Clan và tạo Clan mới chỉ với vài cú nhấp chuột. Bạn có thể đặt tên, biểu tượng và cài đặt cơ bản để tùy chỉnh cộng đồng của mình. Sau khi tạo, bạn có thể mời bạn bè và đồng đội để bắt đầu trò chuyện, chia sẻ ý tưởng hoặc cộng tác cùng nhau. Bạn cũng có thể quản lý kênh, đặt quyền và chuyển quyền sở hữu nếu cần."
 			},
 			{
-				"question": "Tôi có thể rời Clan nếu không muốn tham gia nữa không?",
+				"question": "Tôi Có Thể Rời Clan Nếu Không Muốn Tham Gia Nữa Không?",
 				"answer": "Có, nếu bạn không còn muốn tham gia Clan, bạn có thể chọn 'Rời Clan' từ cài đặt của Clan. Sau khi rời, tất cả lịch sử tin nhắn và quyền truy cập vào các kênh của Clan đó sẽ bị xóa khỏi tài khoản của bạn. Bạn luôn có thể tham gia lại Clan sau này nếu có liên kết mời hoặc nếu Clan có thể khám phá công khai."
 			}
 		]
