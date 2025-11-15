@@ -75,7 +75,7 @@ const Canvas = () => {
 				const results = await dispatch(canvasAPIActions.getChannelCanvasDetail(detailBody) as any);
 				const dataUpdate = results?.payload;
 
-				if (dataUpdate && dataUpdate.content !== undefined) {
+				if (dataUpdate) {
 					const { content: canvasContent } = dataUpdate;
 					dispatch(canvasActions.setContent(canvasContent));
 					dispatch(canvasAPIActions.updateCanvas({ channelId, dataUpdate }));

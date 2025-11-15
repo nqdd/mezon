@@ -6,7 +6,7 @@ export const canvasLoader: CustomLoaderFunction = async ({ params, dispatch }) =
 	const { canvasId } = params;
 
 	if (!canvasId) {
-		throw new Error('Clan ID null');
+		throw new Error('Canvas ID is required');
 	}
 	dispatch(appActions.setIsShowCanvas(true));
 

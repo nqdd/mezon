@@ -112,6 +112,11 @@ errorListenerMiddleware.startListening({
 			return;
 		}
 
+		const errorMessage = error?.message || action?.error?.message || '';
+		if (typeof errorMessage === 'string' && errorMessage.includes('Request cancelled')) {
+			return;
+		}
+
 		trackError(error);
 
 		const toast = createErrorToast(error);

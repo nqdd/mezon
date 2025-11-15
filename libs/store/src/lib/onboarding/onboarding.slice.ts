@@ -87,7 +87,8 @@ export const fetchOnboardingCached = async (getState: () => RootState, mezon: Me
 
 	const response = await withRetry(() => mezon.client.listOnboarding(mezon.session, clan_id, undefined, 100), {
 		maxRetries: 3,
-		initialDelay: 1000
+		initialDelay: 1000,
+		scope: 'list-clan-onboarding'
 	});
 
 	markApiFirstCalled(apiKey);
@@ -236,7 +237,11 @@ export const fetchOnboardingStepCached = async (getState: () => RootState, mezon
 		};
 	}
 
-	const response = await withRetry(() => mezon.client.listOnboardingStep(mezon.session, clan_id), { maxRetries: 3, initialDelay: 1000 });
+	const response = await withRetry(() => mezon.client.listOnboardingStep(mezon.session, clan_id), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'clan-onboarding-steps'
+	});
 
 	markApiFirstCalled(apiKey);
 

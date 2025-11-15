@@ -1,11 +1,15 @@
 import { captureSentryError } from '@mezon/logger';
-import { EEventAction, EEventStatus, ERepeatType, IEventManagement, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiEventManagement, ApiGenerateMezonMeetResponse, ApiUserEventRequest } from 'mezon-js/api.gen';
-import { ApiCreateEventRequest, MezonUpdateEventBody } from 'mezon-js/dist/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IEventManagement, LoadingStatus } from '@mezon/utils';
+import { EEventAction, EEventStatus, ERepeatType } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiEventManagement, ApiGenerateMezonMeetResponse, ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiCreateEventRequest, MezonUpdateEventBody } from 'mezon-js/dist/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const EVENT_MANAGEMENT_FEATURE_KEY = 'eventmanagement';
 
@@ -33,7 +37,7 @@ export const fetchEventManagementCached = async (getState: () => RootState, ensu
 	if (!shouldForceCall) {
 		const events = selectCachedEventManagementByClan(state, clanId);
 		return {
-			events: events,
+			events,
 			time: Date.now(),
 			fromCache: true
 		};
@@ -88,7 +92,7 @@ export const fetchEventManagement = createAsyncThunk(
 			if (Date.now() - response.time > 1000) {
 				return {
 					events: [],
-					clanId: clanId,
+					clanId,
 					fromCache: true
 				};
 			}
@@ -150,17 +154,17 @@ export const fetchCreateEventManagement = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body = {
-				clan_id: clan_id,
+				clan_id,
 				channel_voice_id: channel_voice_id || '',
 				address: address || '',
-				title: title,
-				start_time: start_time,
-				end_time: end_time,
+				title,
+				start_time,
+				end_time,
 				description: description || '',
 				logo: logo || '',
-				channel_id: channel_id,
+				channel_id,
 				repeat_type: repeat_type || ERepeatType.DOES_NOT_REPEAT,
-				is_private: is_private
+				is_private
 			};
 			const response = await mezon.client.createEvent(mezon.session, body);
 
@@ -201,19 +205,19 @@ export const updateEventManagement = createAsyncThunk(
 	) => {
 		try {
 			const body: MezonUpdateEventBody = {
-				address: address,
-				channel_voice_id: channel_voice_id,
-				event_id: event_id,
-				description: description,
-				end_time: end_time,
-				logo: logo,
-				start_time: start_time,
-				title: title,
-				clan_id: clan_id,
-				creator_id: creator_id,
-				channel_id: channel_id,
-				channel_id_old: channel_id_old,
-				repeat_type: repeat_type
+				address,
+				channel_voice_id,
+				event_id,
+				description,
+				end_time,
+				logo,
+				start_time,
+				title,
+				clan_id,
+				creator_id,
+				channel_id,
+				channel_id_old,
+				repeat_type
 			};
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await mezon.client.updateEvent(mezon.session, event_id ?? '', body);

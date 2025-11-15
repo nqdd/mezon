@@ -102,11 +102,34 @@ export interface RetryConfig {
 	checkOnlineStatus?: boolean;
 	shouldRetry?: (error: RetryableError, attemptNumber: number) => boolean;
 	onRetry?: (error: RetryableError, attemptNumber: number, nextDelay: number) => void;
+	signal?: AbortSignal;
+	scope?: string;
 }
 
 let sharedConnectionCheckPromise: Promise<boolean> | null = null;
 let lastConnectionCheckTime = 0;
 const CONNECTION_CHECK_CACHE_MS = 2000;
+
+const activeScopeControllers = new Map<string, AbortController>();
+
+export function cancelPreviousRequestsInScope(scope: string): void {
+	const existingController = activeScopeControllers.get(scope);
+	if (existingController) {
+		existingController.abort();
+		activeScopeControllers.delete(scope);
+	}
+}
+
+export function createScopeAbortController(scope?: string): AbortController | undefined {
+	if (!scope) return undefined;
+
+	cancelPreviousRequestsInScope(scope);
+
+	const controller = new AbortController();
+	activeScopeControllers.set(scope, controller);
+
+	return controller;
+}
 
 async function checkInternetConnectionCached(): Promise<boolean> {
 	const now = Date.now();
@@ -143,7 +166,9 @@ async function checkInternetConnectionCached(): Promise<boolean> {
 	return sharedConnectionCheckPromise;
 }
 
-const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
+type RequiredRetryConfig = Required<Omit<RetryConfig, 'signal' | 'scope'>>;
+
+const DEFAULT_RETRY_CONFIG: RequiredRetryConfig = {
 	maxRetries: 3,
 	initialDelay: 1000,
 	maxDelay: 10000,
@@ -167,7 +192,7 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
 	}
 };
 
-function calculateRetryDelay(attemptNumber: number, config: Required<RetryConfig>): number {
+function calculateRetryDelay(attemptNumber: number, config: RequiredRetryConfig): number {
 	if (!config.useExponentialBackoff) {
 		return config.initialDelay;
 	}
@@ -185,37 +210,70 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 }
 
 export async function withRetry<T>(fn: () => Promise<T>, config: RetryConfig = {}): Promise<T> {
-	const mergedConfig: Required<RetryConfig> = { ...DEFAULT_RETRY_CONFIG, ...config };
+	const mergedConfig: RequiredRetryConfig = { ...DEFAULT_RETRY_CONFIG, ...config };
 	let lastError: RetryableError | undefined;
 
-	for (let attempt = 0; attempt <= mergedConfig.maxRetries; attempt++) {
-		try {
-			const result = await withTimeout(fn(), mergedConfig.timeout);
-			return result;
-		} catch (error) {
-			const retryableError = error as RetryableError;
-			lastError = retryableError;
+	const scopeController = createScopeAbortController(config.scope);
+	const signal = config.signal || scopeController?.signal;
 
-			if (attempt >= mergedConfig.maxRetries) {
-				break;
+	if (signal?.aborted) {
+		throw new Error('Request cancelled');
+	}
+
+	try {
+		for (let attempt = 0; attempt <= mergedConfig.maxRetries; attempt++) {
+			if (signal?.aborted) {
+				throw new Error('Request cancelled');
 			}
 
-			if (!mergedConfig.shouldRetry(retryableError, attempt + 1)) {
-				throw error;
-			}
+			try {
+				const result = await withTimeout(fn(), mergedConfig.timeout);
 
-			let delay = calculateRetryDelay(attempt + 1, mergedConfig);
-
-			if (mergedConfig.checkOnlineStatus) {
-				const hasConnection = await checkInternetConnectionCached();
-				if (!hasConnection) {
-					delay = Math.min(5000, mergedConfig.maxDelay);
+				if (config.scope && scopeController) {
+					activeScopeControllers.delete(config.scope);
 				}
+
+				return result;
+			} catch (error) {
+				if (signal?.aborted) {
+					throw new Error('Request cancelled');
+				}
+
+				const retryableError = error as RetryableError;
+				lastError = retryableError;
+
+				if (attempt >= mergedConfig.maxRetries) {
+					break;
+				}
+
+				if (!mergedConfig.shouldRetry(retryableError, attempt + 1)) {
+					throw error;
+				}
+
+				let delay = calculateRetryDelay(attempt + 1, mergedConfig);
+
+				if (mergedConfig.checkOnlineStatus) {
+					const hasConnection = await checkInternetConnectionCached();
+					if (!hasConnection) {
+						delay = Math.min(5000, mergedConfig.maxDelay);
+					}
+				}
+
+				mergedConfig.onRetry(retryableError, attempt + 1, delay);
+
+				await Promise.race([
+					sleep(delay),
+					new Promise((_, reject) => {
+						if (signal) {
+							signal.addEventListener('abort', () => reject(new Error('Request cancelled')), { once: true });
+						}
+					})
+				]);
 			}
-
-			mergedConfig.onRetry(retryableError, attempt + 1, delay);
-
-			await sleep(delay);
+		}
+	} finally {
+		if (config.scope && scopeController) {
+			activeScopeControllers.delete(config.scope);
 		}
 	}
 
@@ -285,7 +343,7 @@ export async function fetchDataWithSocketFallback<T>(
 	}
 
 	if (!response) {
-		response = await withRetry(restApiFallback, retryConfig);
+		response = await withRetry(restApiFallback, { ...retryConfig, scope: socketRequest.api_name });
 	}
 	return response;
 }

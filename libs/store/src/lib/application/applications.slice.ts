@@ -74,7 +74,11 @@ export const fetchApplicationsCached = async (getState: () => RootState, mezon: 
 		};
 	}
 
-	const response = await withRetry(() => mezon.client.listApps(mezon.session), { maxRetries: 3, initialDelay: 1000 });
+	const response = await withRetry(() => mezon.client.listApps(mezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'apps-list'
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -99,7 +103,11 @@ export const fetchApplications = createAsyncThunk('adminApplication/fetchApplica
 export const getApplicationDetail = createAsyncThunk('adminApplication/getApplicationDetail', async ({ appId }: { appId: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await withRetry(() => mezon.client.getApp(mezon.session, appId), { maxRetries: 3, initialDelay: 1000 });
+		const response = await withRetry(() => mezon.client.getApp(mezon.session, appId), {
+			maxRetries: 3,
+			initialDelay: 1000,
+			scope: 'app-detail'
+		});
 		thunkAPI.dispatch(setCurrentAppId(appId));
 		return response;
 	} catch (error) {
@@ -168,7 +176,8 @@ export const fetchMezonOauthClient = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await withRetry(() => mezon.client.getMezonOauthClient(mezon.session, appId, appName), {
 				maxRetries: 3,
-				initialDelay: 1000
+				initialDelay: 1000,
+				scope: '0auth-client'
 			});
 			return response;
 		} catch (error) {
