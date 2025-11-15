@@ -9,10 +9,10 @@
             "invite": "Mời"
         },
         "notification": {
-            "title": "",
-            "muteCategory": "Tắt tiếng thông báo",
-            "notification": "Cài đặt thông báo"
-        },
+			"title": "",
+			"muteCategory": "Tắt thông báo",
+			"notification": "Cài đặt thông báo"
+		},
         "organizationMenu": {
             "title": "",
             "createChannel": "Tạo kênh",

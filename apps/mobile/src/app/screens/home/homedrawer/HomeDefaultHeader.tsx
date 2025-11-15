@@ -2,7 +2,7 @@ import { useChatSending } from '@mezon/core';
 import { ActionEmitEvent, ENotificationActive, ETypeSearch, IOption } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { accountActions, selectAnonymousMode, selectChannelById, selectCurrentChannel, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { ChannelStatusEnum, TypeMessage, sleep } from '@mezon/utils';
+import { ChannelStatusEnum, TypeMessage } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,10 +19,20 @@ import HeaderTooltip from './components/HeaderTooltip';
 import { style } from './styles';
 
 const HomeDefaultHeader = React.memo(
-	({ navigation, openBottomSheet, onOpenDrawer }: { navigation: any; openBottomSheet: () => void; onOpenDrawer: () => void }) => {
+	({
+		navigation,
+		openBottomSheet,
+		onOpenDrawer,
+		isBanned = false
+	}: {
+		navigation: any;
+		openBottomSheet: () => void;
+		onOpenDrawer: () => void;
+		isBanned?: boolean;
+	}) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
-		const styles = style(themeValue, isTabletLandscape);
+		const styles = style(themeValue);
 		const { t } = useTranslation('message');
 		const currentChannel = useSelector(selectCurrentChannel);
 		const parent = useAppSelector((state) => selectChannelById(state, currentChannel?.parent_id || ''));
@@ -45,7 +55,7 @@ const HomeDefaultHeader = React.memo(
 				value: OptionChannelHeader.Buzz,
 				icon: <MezonIconCDN icon={IconCDN.buzz} color={themeValue.text} height={size.s_18} width={size.s_18} />
 			}
-		];
+		].filter((item) => !(isBanned && item?.value === OptionChannelHeader.Buzz));
 
 		const onPressOption = (option: IOption) => {
 			if (option?.value === OptionChannelHeader.Anonymous) {
@@ -56,8 +66,6 @@ const HomeDefaultHeader = React.memo(
 		};
 
 		const handleActionBuzzMessage = async () => {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-			await sleep(500);
 			const data = {
 				children: <ConfirmBuzzMessageModal onSubmit={handleBuzzMessage} />
 			};
@@ -140,8 +148,8 @@ const HomeDefaultHeader = React.memo(
 
 		return (
 			<View style={styles.homeDefaultHeader}>
-				<TouchableOpacity style={{ flex: 1 }} onPress={navigateMenuThreadDetail}>
-					<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<TouchableOpacity style={styles.headerTouchable} onPress={navigateMenuThreadDetail}>
+					<View style={styles.headerRowContainer}>
 						{!isTabletLandscape && (
 							<TouchableOpacity
 								hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -187,7 +195,7 @@ const HomeDefaultHeader = React.memo(
 				) : (
 					<View />
 				)}
-				<View style={{ position: 'relative', zIndex: 0 }}>
+				<View style={styles.headerTooltipContainer}>
 					<HeaderTooltip onPressOption={onPressOption} options={headerOptions} />
 				</View>
 			</View>

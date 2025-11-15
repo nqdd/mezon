@@ -2,7 +2,8 @@ import type { TrackReferenceOrPlaceholder } from '@livekit/components-core';
 import { getScrollBarWidth } from '@livekit/components-core';
 import { TrackLoop, useVisualStableUpdate } from '@livekit/components-react';
 import { useWindowSize } from '@mezon/utils';
-import { HTMLAttributes, ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const MIN_WIDTH = 140;
 const MIN_VISIBLE_TILES = 1;
@@ -27,7 +28,7 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 	};
 
 	useEffect(() => {
-		updateDimensions(); // Set initial size
+		updateDimensions();
 	}, []);
 
 	useWindowSize(() => {
@@ -52,6 +53,7 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 	useLayoutEffect(() => {
 		if (asideEl.current) {
 			asideEl.current.style.setProperty('--lk-max-visible-tiles', maxVisibleTiles.toString());
+			updateDimensions();
 		}
 	}, [maxVisibleTiles]);
 
@@ -62,13 +64,10 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 		}
 	};
 
+	const justifyClass = width === 0 || height === 0 ? '!justify-center' : tracks.length <= maxVisibleTiles ? '!justify-center' : '!justify-start';
+
 	return (
-		<aside
-			className={`lk-carousel pb-1 cursor-pointer ${sortedTiles.length <= maxVisibleTiles ? '!justify-center' : '!justify-start'} !overflow-x-auto`}
-			ref={asideEl}
-			onWheel={handleWheelScroll}
-			{...props}
-		>
+		<aside className={`lk-carousel pb-1 cursor-pointer ${justifyClass} !overflow-x-auto`} ref={asideEl} onWheel={handleWheelScroll} {...props}>
 			<style>
 				{`
         .lk-carousel::-webkit-scrollbar {

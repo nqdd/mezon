@@ -4,7 +4,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLoaderData, useParams } from 'react-router-dom';
 import { useAppearance } from '../../context/AppearanceContext';
-import { IAuthLoaderData } from '../../loader/authLoader';
+import type { IAuthLoaderData } from '../../loader/authLoader';
 import ModalAddApp from './ModalAddApp';
 import ModalAddBot from './ModalAddBot';
 import ModalTry from './ModalTry';
@@ -20,6 +20,7 @@ const Install: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const appDetail = useSelector(selectAppDetail);
 	const [openModalAdd, setOpenModalAdd] = useState(false);
+	const [isRedirect, setIsRedirect] = useState(false);
 	const handleOpenModalAdd = useCallback(() => {
 		setOpenModalAdd(!openModalAdd);
 	}, [openModalAdd]);
@@ -31,13 +32,24 @@ const Install: React.FC = () => {
 
 	const { isDarkMode } = useAppearance();
 
+	const navigateDeeplinkMobile = (applicationId: string) => {
+		try {
+			window.location.href = `mezon.ai://bot/install/${applicationId}`;
+		} catch (e) {
+			console.error('log  => navigateDeeplinkMobile error', e);
+		}
+	};
+
 	useEffect(() => {
 		if (applicationId) {
+			navigateDeeplinkMobile(applicationId);
 			dispatch(getApplicationDetail({ appId: applicationId }));
 		}
+		const timer = setTimeout(() => setIsRedirect(true), 400);
+		return () => clearTimeout(timer);
 	}, [applicationId, dispatch]);
 
-	if (!isLogin) {
+	if (!isLogin && isRedirect) {
 		return <Navigate to={redirect || '/login'} replace />;
 	}
 
@@ -52,13 +64,9 @@ const Install: React.FC = () => {
 				>
 					<div className="rounded-full dark:text-bgAvatarLight text-bgAvatarDark dark:bg-bgAvatarDark bg-bgAvatarLight text-2xl font-bold size-[80px] min-w-[80px] uppercase flex justify-center items-center">
 						{appDetail?.applogo ? (
-							<img
-								src={appDetail.applogo}
-								alt={`imageApp: ${appDetail.appname}`}
-								className="w-full h-full object-cover rounded-full"
-							/>
+							<img src={appDetail.applogo} alt={`imageApp: ${appDetail.appname}`} className="w-full h-full object-cover rounded-full" />
 						) : (
-								<span>{appDetail?.appname?.at(0)}</span>
+							<span>{appDetail?.appname?.at(0)}</span>
 						)}
 					</div>
 					<p className="text-2xl font-semibold mt-2 truncate max-w-full">{appDetail?.appname}</p>
@@ -69,18 +77,14 @@ const Install: React.FC = () => {
 				<>
 					{openModalAdd && (
 						<>
-							{modalType === MODAL_TYPE.BOT && (
-									<ModalAddBot handleOpenModal={handleOpenModalAdd} applicationId={applicationId || ''} />
-							)}
-							{modalType === MODAL_TYPE.APP && (
-									<ModalAddApp handleOpenModal={handleOpenModalAdd} applicationId={applicationId || ''} />
-							)}
+							{modalType === MODAL_TYPE.BOT && <ModalAddBot handleOpenModal={handleOpenModalAdd} applicationId={applicationId || ''} />}
+							{modalType === MODAL_TYPE.APP && <ModalAddApp handleOpenModal={handleOpenModalAdd} applicationId={applicationId || ''} />}
 							{modalType !== MODAL_TYPE.BOT && modalType !== MODAL_TYPE.APP && (
 								<div className="text-red-500 font-semibold text-lg">Invalid modal type: {modalType}</div>
 							)}
 						</>
 					)}
-						{openModalTry && <ModalTry nameApp={appDetail?.appname} handleOpenModal={handleOpenModalTry} />}
+					{openModalTry && <ModalTry nameApp={appDetail?.appname} handleOpenModal={handleOpenModalTry} />}
 				</>
 			)}
 		</div>

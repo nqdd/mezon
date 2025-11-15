@@ -8,20 +8,27 @@ import {
 	selectLogoCustom,
 	selectTheme,
 	toastActions,
-	useAppDispatch
+	useAppDispatch,
+	usersClanActions
 } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { DeleteAccountModal, Icons, InputField } from '@mezon/ui';
-import { ImageSourceObject, MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage } from '@mezon/utils';
+import type { ImageSourceObject } from '@mezon/utils';
+import { MAX_FILE_SIZE_10MB, MAX_FILE_SIZE_1MB, createImgproxyUrl, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ChangeEvent, useEffect, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { Coords } from '../../ChannelLink';
-import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
+import { toast } from 'react-toastify';
+import type { Coords } from '../../ChannelLink';
+import { ELimitSize } from '../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
 import PanelClan from '../../PanelClan';
 import ImageEditor from '../ImageEditor/ImageEditor';
-import PreviewSetting, { Profilesform } from '../SettingUserClanProfileCard';
+import type { Profilesform } from '../SettingUserClanProfileCard';
+import PreviewSetting from '../SettingUserClanProfileCard';
 import { processImage } from '../helper';
 
 const SettingRightUser = ({
@@ -43,6 +50,9 @@ const SettingRightUser = ({
 	dob: string;
 	logo: string;
 }) => {
+	const { t } = useTranslation('profileSetting');
+	const { t: tAccount } = useTranslation('accountSetting');
+	const { t: tInvitation } = useTranslation('invitation');
 	const [editAboutUser, setEditAboutUser] = useState(aboutMe);
 	const { sessionRef, clientRef } = useMezon();
 	const { userProfile } = useAuth();
@@ -56,12 +66,24 @@ const SettingRightUser = ({
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 	const currentClanId = useSelector(selectCurrentClanId) || '';
+	const sizeWarning = useRef<ELimitSize | null>(null);
 
 	const [valueDisplayName, setValueDisplayName] = useState<string>(currentDisplayName || '');
 
 	const handleUpdateUser = async () => {
 		if (name || urlImage || valueDisplayName || editAboutUser || dob) {
-			await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, logo);
+			const result = await updateUser(name, urlImage, valueDisplayName.trim(), editAboutUser, dob, userProfile?.logo || '');
+			if (result === true) handleSaveClose();
+			if (currentClanId && userProfile?.user?.id) {
+				await dispatch(
+					usersClanActions.updateUserDisplayName({
+						clanId: currentClanId,
+						userId: userProfile.user.id,
+						displayName: valueDisplayName.trim(),
+						avatarUrl: urlImage
+					})
+				);
+			}
 			if (currentChannelId && currentClanId) {
 				await dispatch(
 					channelMembersActions.fetchChannelMembers({
@@ -76,7 +98,6 @@ const SettingRightUser = ({
 		}
 	};
 
-	// Editor Avatar Profile//
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [imageObject, setImageObject] = useState<ImageSourceObject | null>(null);
 	const [imageCropped, setImageCropped] = useState<File | null>(null);
@@ -113,25 +134,20 @@ const SettingRightUser = ({
 			setOpenModalType(true);
 			return;
 		}
+		if (file.size > MAX_FILE_SIZE_10MB) {
+			sizeWarning.current = ELimitSize.MB_10;
+			e.target.value = '';
+			setOpenModal(true);
+			return;
+		}
 		if (file.type === fileTypeImage[2]) {
-			if (file.size > MAX_FILE_SIZE_1MB) {
-				dispatch(toastActions.addToastError({ message: 'File size exceeds 1MB limit' }));
-				return;
-			}
 			if (!clientRef.current || !sessionRef.current) {
 				dispatch(toastActions.addToastError({ message: 'Client or session is not initialized' }));
 				return;
 			}
 			setIsLoading(true);
 
-			const attachment = await handleUploadFile(
-				clientRef.current,
-				sessionRef.current,
-				currentClanId || '0',
-				userProfile?.user?.id || '0',
-				file.name,
-				file
-			);
+			const attachment = await handleUploadFile(clientRef.current, sessionRef.current, file.name, file, NaN, true);
 			setUrlImage(attachment?.url || '');
 			setFlags(true);
 			setIsLoading(false);
@@ -192,7 +208,9 @@ const SettingRightUser = ({
 			return;
 		}
 
-		if (e.target.files[0].size > 1000000) {
+		if (e.target.files[0].size > MAX_FILE_SIZE_1MB) {
+			sizeWarning.current = ELimitSize.MB;
+			e.target.value = '';
 			setOpenModal(true);
 			return;
 		}
@@ -203,20 +221,17 @@ const SettingRightUser = ({
 			throw new Error('Client or file is not initialized');
 		}
 
-		handleUploadFile(client, session, currentClanId || '0', currentChannelId || '0', e.target.files[0].name || '', e.target.files[0]).then(
-			(attachment) => {
-				dispatch(
-					clansActions.updateUser({
-						user_name: name,
-						avatar_url: urlImage,
-						display_name: valueDisplayName,
-						about_me: editAboutUser,
-						dob: dob,
-						logo: attachment.url
-					})
-				);
-			}
-		);
+		handleUploadFile(client, session, e.target.files[0].name || '', e.target.files[0]).then((attachment) => {
+			dispatch(
+				clansActions.updateUser({
+					avatar_url: urlImage,
+					display_name: valueDisplayName,
+					about_me: editAboutUser,
+					dob,
+					logo: attachment.url
+				})
+			);
+		});
 	};
 	const [coords, setCoords] = useState<Coords>({
 		mouseX: 0,
@@ -248,13 +263,65 @@ const SettingRightUser = ({
 		setOpenModalDeleteAcc(false);
 	};
 
+	const qrCodeProfile = useMemo(() => {
+		const qrData = {
+			id: userProfile?.user?.id || '',
+			name: userProfile?.user?.display_name || userProfile?.user?.username || '',
+			avatar: userProfile?.user?.avatar_url || ''
+		};
+		const endcodeData = btoa(encodeURIComponent(JSON.stringify(qrData)));
+		const qrDataLink = `https://mezon.ai/chat/${userProfile?.user?.username}?data=${endcodeData}`;
+
+		return qrDataLink;
+	}, [userProfile]);
+
+	const containerRef = useRef<HTMLDivElement | null>(null);
+
+	const handleCopyQR = async () => {
+		if (!containerRef.current) return;
+		const svg = containerRef.current.querySelector('svg');
+		if (!svg) return;
+
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(svg);
+
+		const img = new Image();
+		const svgBase64 = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svgString)))}`;
+		img.src = svgBase64;
+
+		img.onload = async () => {
+			const border = 40;
+			const canvas = document.createElement('canvas');
+			canvas.width = img.width + border * 2;
+			canvas.height = img.height + border * 2;
+
+			const ctx = canvas.getContext('2d');
+			if (!ctx) return;
+
+			ctx.fillStyle = 'white';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			ctx.drawImage(img, border, border);
+
+			canvas.toBlob(async (blob) => {
+				if (!blob) return;
+				try {
+					await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+					const successMessage = tInvitation('messages.qrCopiedSuccess');
+					toast.success(successMessage);
+				} catch (err) {
+					console.error(tInvitation('errors.copyFailed'), err);
+				}
+			});
+		};
+	};
 	return (
 		<>
 			<div className="flex-1 flex z-0 gap-x-8 sbm:flex-row flex-col">
 				<div className="flex-1 ">
-					<div>
+					<div data-e2e={generateE2eId(`user_setting.profile.user_profile.input.display_name`)}>
 						<label htmlFor="inputField" className="font-semibold tracking-wide text-sm">
-							DISPLAY NAME
+							{t('displayName')}
 						</label>
 						<br />
 						<InputField
@@ -269,11 +336,11 @@ const SettingRightUser = ({
 					</div>
 
 					<div className="mt-8">
-						<p className="font-semibold tracking-wide text-sm">AVATAR</p>
+						<p className="font-semibold tracking-wide text-sm">{t('avatar')}</p>
 						<div className="flex mt-[10px] gap-x-5">
 							<label>
 								<div className="font-medium btn-primary btn-primary-hover rounded-lg p-[8px] pr-[10px] pl-[10px] cursor-pointer text-[14px]">
-									Change avatar
+									{t('changeAvatar')}
 								</div>
 								<input type="file" onChange={(e) => handleFile(e)} className="w-full text-sm  hidden" />
 							</label>
@@ -281,7 +348,7 @@ const SettingRightUser = ({
 								className="bg-theme-input text-theme-primary-hover bg-secondary-button-hover border-theme-primary  font-medium rounded-lg p-[8px] pr-[10px] pl-[10px] text-nowrap text-[14px]"
 								onClick={handleRemoveButtonClick}
 							>
-								Remove avatar
+								{t('removeAvatar')}
 							</button>
 						</div>
 						<div className="mt-[30px] w-full">
@@ -293,9 +360,13 @@ const SettingRightUser = ({
 								value={editAboutUser}
 								rows={4}
 								maxLength={128}
+								data-e2e={generateE2eId('user_setting.profile.user_profile.input.about_me')}
 							></textarea>
 							<div className="w-full flex justify-end">
-								<span className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}>
+								<span
+									className={`text-${editAboutUser.length > 128 ? '[#EF1515]' : '[#797878]'}`}
+									data-e2e={generateE2eId('user_setting.profile.user_profile.text.about_me_length')}
+								>
 									{editAboutUser.length}/{128}
 								</span>
 							</div>
@@ -306,7 +377,7 @@ const SettingRightUser = ({
 						className="mt-8 flex items-center  bg-theme-input border-theme-primary p-4 rounded-lg justify-between"
 						onContextMenu={handleMouseClick}
 					>
-						<p className="font-semibold tracking-wide text-sm">Direct Message Icon</p>
+						<p className="font-semibold tracking-wide text-sm">{t('directMessageIcon')}</p>
 						<div className="flex gap-x-5  text-theme-primary text-theme-primary-hover bg-secondary-button-hover bg-button-secondary rounded-lg border-theme-primary">
 							<label
 								htmlFor="logo"
@@ -328,6 +399,7 @@ const SettingRightUser = ({
 									id="logo"
 									onChange={handleChangeLogo}
 									className="w-full absolute top-0 left-0 h-full text-sm hidden"
+									data-e2e={generateE2eId('user_setting.profile.user_profile.upload.direct_message_icon_input')}
 								/>
 							</label>
 						</div>
@@ -338,14 +410,14 @@ const SettingRightUser = ({
 								className="bg-[#ee4545] text-white hover:opacity-85 font-medium rounded-lg p-[8px] pr-[10px] pl-[10px] text-nowrap text-[14px]"
 								onClick={handleOpenModalDeleteAcc}
 							>
-								Delete account
+								{tAccount('deleteAccount')}
 							</button>
 						</div>
 					</div>
 				</div>
-				<div className="flex-1 flex flex-col gap-2">
-					<p className="mt-[20px]  font-semibold tracking-wide text-sm">PREVIEW</p>
-					<PreviewSetting isLoading={isLoading} profiles={editProfile} isDM={isDM} />
+				<div className="flex-1 flex flex-col gap-2 relative">
+					<p className="font-semibold tracking-wide text-sm">{t('preview')}</p>
+					<PreviewSetting isLoading={isLoading} profiles={editProfile} />
 				</div>
 			</div>
 			{(urlImage !== avatar && flags) ||
@@ -354,7 +426,7 @@ const SettingRightUser = ({
 			(editAboutUser !== aboutMe && flags) ? (
 				<div className="flex flex-row gap-2 border-theme-primary shadow-sm bg-modal-theme absolute max-w-[815px] w-full left-1/2 translate-x-[-50%] bottom-4 min-w-96 h-fit p-3 rounded-lg transform z-10">
 					<div className="flex-1 flex items-center text-nowrap">
-						<p className="text-theme-message">Careful - you have unsaved changes!</p>
+						<p className="text-theme-message">{t('unsavedChangesWarning')}</p>
 					</div>
 					<div className="flex flex-row justify-end gap-3">
 						<button
@@ -362,26 +434,27 @@ const SettingRightUser = ({
 							onClick={() => {
 								handleClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.reset`)}
 						>
-							Reset
+							{t('reset')}
 						</button>
 
 						<button
 							className=" btn-primary btn-primary-hover rounded-lg px-2 text-nowrap py-1  "
 							onClick={() => {
 								handleUpdateUser();
-								handleSaveClose();
 							}}
+							data-e2e={generateE2eId(`user_setting.profile.user_profile.button.save_changes`)}
 						>
-							Save Changes
+							{t('saveChanges')}
 						</button>
 					</div>
 				</div>
 			) : null}
 			{openModalDeleteAcc && <DeleteAccountModal handleLogOut={handleDeleteAccount} onClose={handleCloseModal} isDeleting={isDeleting} />}
 
-			<ModalOverData openModal={openModal} handleClose={() => setOpenModal(false)} />
-			<ModalErrorTypeUpload openModal={openModalType} handleClose={() => setOpenModalType(false)} />
+			<ModalOverData size={sizeWarning.current || ELimitSize.MB} open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
 		</>
 	);
 };

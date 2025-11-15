@@ -3,36 +3,37 @@ import {
 	channelsActions,
 	createNewChannel,
 	fetchApplications,
+	listChannelRenderAction,
 	selectAllApps,
 	selectChannelById,
 	selectCurrentCategory,
-	selectCurrentClan,
-	selectTheme,
+	selectCurrentClanId,
+	selectCurrentClanWelcomeChannelId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { AlertTitleTextWarning, Icons } from '@mezon/ui';
-import { ValidateURL } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import type { ApiApp, ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ChannelLableModal } from './ChannelLabel';
-import { ChannelNameModalRef, ChannelNameTextField } from './ChannelNameTextField';
+import type { ChannelNameModalRef } from './ChannelNameTextField';
+import { ChannelNameTextField } from './ChannelNameTextField';
 import { ChannelTypeComponent } from './ChannelType';
 import { CreateChannelButton } from './CreateChannelButton';
 
-import { Dropdown } from 'flowbite-react';
-import React from 'react';
 import { ChannelStatusModal } from './ChannelStatus';
 
 export const CreateNewChannelModal = () => {
+	const { t } = useTranslation('createChannel');
 	const dispatch = useAppDispatch();
 	const InputRef = useRef<ChannelNameModalRef>(null);
-	const appUrlInputRef = useRef<ChannelAppUrlModalRef>(null);
 	const [isInputError, setIsInputError] = useState<boolean>(true);
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const welcomeChannelId = useAppSelector(selectCurrentClanWelcomeChannelId);
 	const currentCategory = useAppSelector((state) => selectCurrentCategory(state));
 	const [validate, setValidate] = useState(true);
 	const [channelName, setChannelName] = useState<string>('');
@@ -46,8 +47,7 @@ export const CreateNewChannelModal = () => {
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
 	const isAppChannel = channelType === ChannelType.CHANNEL_TYPE_APP;
-	const channelWelcome = useAppSelector((state) => selectChannelById(state, currentClan?.welcome_channel_id as string)) || {};
-	const appearanceTheme = useSelector(selectTheme);
+	const channelWelcome = useAppSelector((state) => selectChannelById(state, welcomeChannelId as string)) || {};
 	const allApps = useAppSelector(selectAllApps);
 
 	useEffect(() => {
@@ -62,26 +62,26 @@ export const CreateNewChannelModal = () => {
 	};
 	const handleSubmit = async () => {
 		if (channelType === -1) {
-			setIsErrorType("Channel's type is required");
+			setIsErrorType(t('errors.typeRequired'));
 			return;
 		}
 		if (channelType !== ChannelType.CHANNEL_TYPE_APP && channelName === '') {
-			setIsErrorName("Channel's name is required");
+			setIsErrorName(t('errors.nameRequired'));
 			return;
 		}
 
 		if (isAppChannel && !selectedApp) {
-			setIsErrorAppUrl('Please select an application');
+			setIsErrorAppUrl(t('errors.selectApp'));
 			return;
 		}
 
 		if (!validate) {
-			setIsErrorName('Please enter a valid channel name');
+			setIsErrorName(t('errors.validName'));
 			return;
 		}
 
 		const body: ApiCreateChannelDescRequest = {
-			clan_id: currentClan?.clan_id,
+			clan_id: currentClanId as string,
 			type: channelType,
 			channel_label: channelName,
 			channel_private: isPrivate,
@@ -91,17 +91,22 @@ export const CreateNewChannelModal = () => {
 		};
 
 		const newChannelCreatedId = await dispatch(createNewChannel(body));
+		dispatch(channelsActions.invalidateCache({ clanId: currentClanId as string }));
 		const payload = newChannelCreatedId.payload as ApiCreateChannelDescRequest;
 		const channelID = payload.channel_id;
 		const typeChannel = payload.type;
+		if (currentCategory?.category_id) {
+			dispatch(
+				listChannelRenderAction.updateCategoryChannels({
+					clanId: currentClanId as string,
+					categoryId: currentCategory?.category_id,
+					channelId: channelID ?? ''
+				})
+			);
+		}
 
-		if (
-			newChannelCreatedId &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-			typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING
-		) {
-			const channelPath = toChannelPage(channelID ?? '', currentClan?.clan_id ?? '');
+		if (newChannelCreatedId && typeChannel !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && typeChannel !== ChannelType.CHANNEL_TYPE_STREAMING) {
+			const channelPath = toChannelPage(channelID ?? '', currentClanId ?? '');
 			navigate(channelPath);
 		}
 		clearDataAfterCreateNew();
@@ -112,7 +117,7 @@ export const CreateNewChannelModal = () => {
 		setIsErrorName('');
 		setIsErrorAppUrl('');
 		clearDataAfterCreateNew();
-		dispatch(channelsActions.openCreateNewModalChannel({ clanId: currentClan?.clan_id as string, isOpen: false }));
+		dispatch(channelsActions.openCreateNewModalChannel({ clanId: currentClanId as string, isOpen: false }));
 	};
 
 	const handleChannelNameChange = (value: string) => {
@@ -126,11 +131,6 @@ export const CreateNewChannelModal = () => {
 
 	const onChangeChannelType = (value: number) => {
 		setIsErrorType('');
-		setChannelType(value);
-	};
-
-	const onChangeChannelTypeVoice = (value: number) => {
-		setChannelTypeVoice(value);
 		setChannelType(value);
 	};
 
@@ -148,10 +148,9 @@ export const CreateNewChannelModal = () => {
 
 	const handleChangeValue = useCallback(() => {
 		const isValid = InputRef.current?.checkInput() ?? false;
-		const isAppUrlValid = appUrlInputRef.current?.checkInput() ?? false;
 
 		if (channelType === ChannelType.CHANNEL_TYPE_APP) {
-			const isInputError = isValid || isAppUrlValid;
+			const isInputError = isValid;
 			setIsInputError(isInputError);
 		} else {
 			setIsInputError(isValid);
@@ -160,8 +159,8 @@ export const CreateNewChannelModal = () => {
 
 	const modalRef = useRef<HTMLDivElement>(null);
 	const handleClose = useCallback(() => {
-		dispatch(channelsActions.openCreateNewModalChannel({ clanId: currentClan?.clan_id as string, isOpen: false }));
-	}, []);
+		dispatch(channelsActions.openCreateNewModalChannel({ clanId: currentClanId as string, isOpen: false }));
+	}, [currentClanId, dispatch]);
 	useEscapeKeyClose(modalRef, handleClose);
 
 	return (
@@ -177,7 +176,7 @@ export const CreateNewChannelModal = () => {
 					<div className="self-stretch px-5 pt-8 flex-col justify-start items-start gap-3 flex">
 						<div className="self-stretch h-14 flex-col justify-center items-start gap-1 flex">
 							<div className="flex flex-col items-start gap-x-2 sm:flex-row sm:items-center w-full relative">
-								<ChannelLableModal labelProp="CREATE A NEW CHANNEL IN" />
+								<ChannelLableModal labelProp={t('header.title')} />
 								<span>
 									<p className="self-stretch  text-sm font-bold leading-normal uppercase text-cyan-500">
 										{currentCategory?.category_name || channelWelcome?.category_name}
@@ -190,15 +189,13 @@ export const CreateNewChannelModal = () => {
 								</div>
 							</div>
 
-							<div className=" text-sm">Kindly set up a channel of your choice.</div>
+							<div className=" text-sm">{t('labels.description')}</div>
 						</div>
-						<div
-							className={`flex flex-col gap-3 w-full max-h-[430px] pr-2 overflow-y-scroll ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
-						>
+						<div className={`flex flex-col gap-3 w-full`}>
 							<div className="Frame407 self-stretch flex-col items-center gap-2 flex">
-								<ChannelLableModal labelProp="Choose channel's type:" />
+								<ChannelLableModal labelProp={t('labels.chooseType')} />
 								<div
-									className={`Frame405 self-stretch  flex-col justify-start items-start gap-2 flex sm:max-h-[200px] lg:h-fit lg:max-h-fit overflow-y-scroll max-xl:h-auto ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
+									className={`Frame405 self-stretch  flex-col justify-start items-start gap-2 flex sm:max-h-[200px] lg:h-fit lg:max-h-fit overflow-y-scroll max-xl:h-auto app-scroll`}
 								>
 									<ChannelTypeComponent
 										type={ChannelType.CHANNEL_TYPE_CHANNEL}
@@ -217,12 +214,6 @@ export const CreateNewChannelModal = () => {
 										onChange={onChangeChannelType}
 										error={isErrorType}
 									/>
-									{/* <ChannelTypeComponent
-										disable={false}
-										type={ChannelType.CHANNEL_TYPE_APP}
-										onChange={onChangeChannelType}
-										error={isErrorType}
-									/> */}
 								</div>
 							</div>
 							{channelType !== ChannelType.CHANNEL_TYPE_APP && (
@@ -231,60 +222,17 @@ export const CreateNewChannelModal = () => {
 									onChange={handleChannelNameChange}
 									onCheckValidate={checkValidate}
 									type={channelType}
-									channelNameProps="What is channel's name?"
+									channelNameProps={t('labels.channelName')}
 									error={isErrorName}
 									onHandleChangeValue={handleChangeValue}
-									placeholder={"Enter the channel's name"}
+									placeholder={t('labels.placeholder')}
 									shouldValidate={true}
 									categoryId={currentCategory?.category_id || channelWelcome?.category_id}
 								/>
 							)}
-							{channelType === ChannelType.CHANNEL_TYPE_APP && (
-								<div className={'mt-2 w-full'}>
-									<div className="Frame408 self-stretch flex-col justify-start items-start gap-2 flex mt-1">
-										<ChannelLableModal labelProp="Select an application:" />
-										<Dropdown
-											placement={'bottom-start'}
-											label={''}
-											renderTrigger={() => (
-												<div className="w-full h-10 rounded-md flex flex-row p-3 justify-between items-center uppercase text-sm bg-item-theme bg-item-hover text-theme-primary-hover">
-													<div className={' flex flex-row items-center'}>
-														<p>{selectedApp?.appname || 'Choose an application'}</p>
-													</div>
-													<div>
-														<Icons.ArrowDownFill />
-													</div>
-												</div>
-											)}
-											className={'h-fit max-h-[200px] text-xs overflow-y-scroll px-2 z-20'}
-										>
-											{allApps.apps?.map((app) => (
-												<Dropdown.Item
-													key={app.id}
-													className="flex flex-row items-center  rounded-sm text-sm w-full py-2 px-4 text-left cursor-pointer"
-													onClick={() => handleAppSelect(app)}
-												>
-													<p className="uppercase font-semibold">{app.appname}</p>
-												</Dropdown.Item>
-											))}
-										</Dropdown>
-									</div>
-								</div>
+							{channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (
+								<ChannelStatusModal onChangeValue={onChangeToggle} channelNameProps={t('labels.isPrivate')} />
 							)}
-							{/* {channelType === channelTypeVoice && (
-								<div className={'mt-2 w-full'}>
-									<ChannelVoicePlatformField
-										onChange={onChangeChannelTypeVoice}
-										channelVoicePlatformProp="Choose meeting platform:"
-										channelTypeVoiceProp={channelTypeVoice}
-									/>
-								</div>
-							)} */}
-							{channelType !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-								channelType !== ChannelType.CHANNEL_TYPE_STREAMING &&
-								channelType !== ChannelType.CHANNEL_TYPE_APP && (
-									<ChannelStatusModal onChangeValue={onChangeToggle} channelNameProps="Is private channel?" />
-								)}
 						</div>
 					</div>
 				</div>
@@ -293,142 +241,6 @@ export const CreateNewChannelModal = () => {
 			{isErrorType !== '' && <AlertTitleTextWarning description={isErrorType} />}
 			{isErrorName !== '' && <AlertTitleTextWarning description={isErrorName} />}
 			{isAppChannel && isErrorAppUrl !== '' && <AlertTitleTextWarning description={isErrorAppUrl} />}
-		</div>
-	);
-};
-
-interface ChannelAppUrlModalProps {
-	channelAppUrlProps: string;
-	onChange: (value: string) => void;
-	onCheckValidate?: (check: boolean) => void;
-	onHandleChangeValue?: () => void;
-	error?: string;
-	placeholder: string;
-	shouldValidate: boolean;
-	value?: string;
-	disabled?: boolean;
-}
-
-type ChannelAppUrlModalRef = {
-	checkInput: () => boolean;
-};
-
-const ChannelAppUrlTextField = forwardRef<ChannelAppUrlModalRef, ChannelAppUrlModalProps>((props, ref) => {
-	const { channelAppUrlProps, onChange, onCheckValidate, onHandleChangeValue, error, placeholder, shouldValidate, value, disabled } = props;
-	const [checkValidate, setCheckValidate] = useState(true);
-	const [checkAppUrlChannel, setCheckAppUrlChannel] = useState(true);
-	const theme = useAppSelector(selectTheme);
-
-	const handleInputChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const value = e.target.value;
-			onChange(value);
-			if (value === '') {
-				setCheckAppUrlChannel(true);
-			} else {
-				setCheckAppUrlChannel(false);
-			}
-
-			const regex = ValidateURL();
-			if (regex.test(value)) {
-				setCheckValidate(false);
-				if (onCheckValidate) {
-					onCheckValidate(true);
-				}
-			} else {
-				setCheckValidate(true);
-				if (onCheckValidate) {
-					onCheckValidate(false);
-				}
-			}
-		},
-		[onChange, setCheckValidate, onCheckValidate]
-	);
-	useImperativeHandle(ref, () => ({
-		checkInput: () => checkValidate || checkAppUrlChannel
-	}));
-
-	useEffect(() => {
-		if (onHandleChangeValue) {
-			onHandleChangeValue();
-		}
-	}, [checkValidate, checkAppUrlChannel, onHandleChangeValue]);
-
-	return (
-		<div className="Frame408 self-stretch flex-col justify-start items-start gap-2 flex mt-1">
-			<ChannelLableModal labelProp={channelAppUrlProps} />
-			<div className="ContentContainer self-stretch h-11 flex-col items-start flex ">
-				<div
-					className={`InputContainer self-stretch h-11 px-4 py-3 bg-item-theme rounded shadow border w-full ${error ? 'border border-red-500' : 'border-blue-600'}  justify-start items-center gap-2 inline-flex`}
-				>
-					<Icons.AppChannelIcon className="w-6 h-6" fill={theme} />
-					<div className="InputValue grow shrink basis-0 self-stretch justify-start items-center flex">
-						<input
-							className="Input grow shrink basis-0 h-10 outline-none bg-theme-input text-sm font-normal"
-							onChange={handleInputChange}
-							placeholder={placeholder}
-							value={value}
-							disabled={disabled}
-						/>
-					</div>
-				</div>
-			</div>
-			{shouldValidate && (checkValidate || checkAppUrlChannel) ? (
-				<p className="text-[#e44141] text-xs italic font-thin">Please enter a valid URL (e.g., https://example.com).</p>
-			) : null}
-		</div>
-	);
-});
-
-interface ChannelVoicePlatformModalProps {
-	channelVoicePlatformProp: string;
-	onChange: (value: number) => void;
-	channelTypeVoiceProp: number;
-}
-
-const ChannelVoicePlatformField: React.FC<ChannelVoicePlatformModalProps> = ({ channelVoicePlatformProp, onChange, channelTypeVoiceProp }) => {
-	const options = [
-		{ label: 'Mezon Meet', value: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
-		{ label: 'Google Meet', value: ChannelType.CHANNEL_TYPE_GMEET_VOICE }
-	];
-
-	const handleSelectPlatform = (value: number) => {
-		onChange(value);
-	};
-
-	const getSelectedLabel = () => {
-		const selectedOption = options.find((option) => option.value === channelTypeVoiceProp);
-		return selectedOption?.label;
-	};
-
-	return (
-		<div className="Frame408 self-stretch flex-col justify-start items-start gap-2 flex mt-1">
-			<ChannelLableModal labelProp={channelVoicePlatformProp} />
-			<Dropdown
-				placement={'bottom-start'}
-				label={''}
-				renderTrigger={() => (
-					<div className="w-full h-10 rounded-md flex flex-row p-3 justify-between items-center uppercase text-sm dark:bg-bgInputDark bg-bgLightModeThird border dark:text-textPrimary text-textPrimaryLight">
-						<div className={'dark:text-textPrimary text-textPrimary400 flex flex-row items-center'}>
-							<p>{getSelectedLabel()}</p>
-						</div>
-						<div>
-							<Icons.ArrowDownFill />
-						</div>
-					</div>
-				)}
-				className={'h-fit max-h-[200px] text-xs overflow-y-scroll customSmallScrollLightMode dark:bg-bgTertiary px-2 z-20'}
-			>
-				{options.map(({ label, value }) => (
-					<Dropdown.Item
-						key={value}
-						className="flex flex-row items-center dark:text-textPrimary text-textPrimaryLight rounded-sm dark:hover:bg-bgModifierHover hover:bg-bgIconDark text-sm w-full py-2 px-4 text-left cursor-pointer"
-						onClick={() => handleSelectPlatform(value)}
-					>
-						<p className="uppercase dark:text-textSecondary text-textSecondary800 font-semibold">{label}</p>
-					</Dropdown.Item>
-				))}
-			</Dropdown>
 		</div>
 	);
 };

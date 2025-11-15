@@ -1,12 +1,13 @@
-import { size } from '@mezon/mobile-ui';
-import { ClansEntity, getStore, selectChannelById } from '@mezon/store-mobile';
+import { size, useTheme } from '@mezon/mobile-ui';
+import type { ClansEntity } from '@mezon/store-mobile';
+import { getStore, selectChannelById } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Images from '../../../../../assets/Images';
 import MezonAvatar from '../../../../componentUI/MezonAvatar';
-import { styles } from './styles';
+import { style } from './styles';
 
 type SharingSuggestItemProps = {
 	item: any;
@@ -14,6 +15,8 @@ type SharingSuggestItemProps = {
 	onChooseItem: (item: any) => void;
 };
 const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestItemProps) => {
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const parentLabel = useMemo(() => {
 		const store = getStore();
 		const state = store.getState();
@@ -22,6 +25,7 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 	}, [item?.parent_id]);
 
 	const isGroupDM = useMemo(() => item?.type === ChannelType.CHANNEL_TYPE_GROUP, [item?.type]);
+	const isAvatar = useMemo(() => item?.channel_avatar && !item?.channel_avatar?.includes('avatar-group.png'), [item?.channel_avatar]);
 
 	const handleChooseItem = () => {
 		onChooseItem(item);
@@ -31,9 +35,17 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 		if (item?.type === ChannelType.CHANNEL_TYPE_DM) {
 			return {
 				name: item?.channel_label,
-				avatarUrl: item?.channel_avatar?.[0]
+				avatarUrl: item?.avatars?.[0]
 			};
 		}
+
+		if (item?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			return {
+				name: item?.channel_label,
+				avatarUrl: item?.channel_avatar
+			};
+		}
+
 		const clan = clans?.[item?.clan_id];
 		return {
 			name: clan?.clan_name,
@@ -43,15 +55,8 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 
 	return (
 		<TouchableOpacity style={styles.itemSuggestion} onPress={handleChooseItem}>
-			{isGroupDM ? (
-				<FastImage
-					source={Images.AVATAR_GROUP}
-					style={{
-						width: size.s_24,
-						height: size.s_24,
-						borderRadius: 50
-					}}
-				/>
+			{isGroupDM && !isAvatar ? (
+				<FastImage source={Images.AVATAR_GROUP} style={styles.avatarImage} />
 			) : (
 				<MezonAvatar avatarUrl={data?.avatarUrl} username={data?.name} width={size.s_24} height={size.s_24} />
 			)}

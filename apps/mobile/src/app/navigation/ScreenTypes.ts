@@ -1,15 +1,25 @@
-import { ETypeSearch, ICategoryChannelOption } from '@mezon/mobile-components';
-import { ChannelsEntity, DirectEntity, EventManagementEntity, NotiChannelCategorySettingEntity, RolesClanEntity } from '@mezon/store-mobile';
-import { ChannelThreads, ICategoryChannel, IChannel, IMessageWithUser, OptionEvent } from '@mezon/utils';
-import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { StackScreenProps } from '@react-navigation/stack';
-import { ApiWebhook } from 'mezon-js/api.gen';
+import type { ETypeSearch, ICategoryChannelOption } from '@mezon/mobile-components';
+import type {
+	ChannelMembersEntity,
+	ChannelsEntity,
+	DirectEntity,
+	EventManagementEntity,
+	NotiChannelCategorySettingEntity,
+	RolesClanEntity
+} from '@mezon/store-mobile';
+import type { ChannelThreads, ICategoryChannel, IChannel, IMessageWithUser, OptionEvent } from '@mezon/utils';
+import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { StackScreenProps } from '@react-navigation/stack';
+import type { ApiWebhook } from 'mezon-js/api.gen';
 
 export const APP_SCREEN = {
 	UN_AUTHORIZE: 'UN_AUTHORIZE',
 	LOGIN: 'LOGIN',
+	WELCOME: 'WELCOME',
 	REGISTER: 'REGISTER',
+	APP_BROWSER: 'APP_BROWSER',
+	VERIFY_OTP: 'VERIFY_OTP',
 
 	AUTHORIZE: 'AUTHORIZE',
 	BOTTOM_BAR: 'BOTTOM_BAR',
@@ -18,7 +28,10 @@ export const APP_SCREEN = {
 	HOME: 'HOME',
 	VIDEO_DETAIL: 'VIDEO_DETAIL',
 	CHANNEL_APP: 'CHANNEL_APP',
+	INVITE_CLAN: 'INVITE_CLAN',
 	WALLET: 'WALLET',
+	PROFILE_DETAIL: 'PROFILE_DETAIL',
+	INSTALL_CLAN: 'INSTALL_CLAN',
 
 	SERVERS: {
 		STACK: 'ROUTES.SERVERS.STACK',
@@ -41,6 +54,7 @@ export const APP_SCREEN = {
 		CHAT_STREAMING: 'ROUTES.MESSAGES.CHAT_STREAMING',
 		TOPIC_DISCUSSION: 'ROUTES.MESSAGES.TOPIC_DISCUSSION',
 		CHANNEL_APP: 'ROUTES.MESSAGES.CHANNEL_APP',
+		INVITE_CLAN: 'ROUTES.MESSAGES.INVITE_CLAN',
 		FORWARD_MESSAGE: 'ROUTES.MESSAGES.FORWARD_MESSAGE'
 	},
 
@@ -72,7 +86,7 @@ export const APP_SCREEN = {
 	},
 
 	MENU_CLAN: {
-		STACK: 'ROUTES.MENU_CLAN.STACk',
+		STACK: 'ROUTES.MENU_CLAN.STACK',
 		CREATE_CATEGORY: 'ROUTES.MENU_CLAN.CREATE_CATEGORY',
 		CREATE_CHANNEL: 'ROUTES.MENU_CLAN.CREATE_CHANNEL',
 		CREATE_EVENT: 'ROUTES.MENU_CLAN.CREATE_EVENT',
@@ -99,11 +113,14 @@ export const APP_SCREEN = {
 		FILTER_BY_USER: 'FILTER_BY_USER',
 		FILTER_BY_ACTION: 'FILTER_BY_ACTION',
 		SOUND_STICKER: 'ROUTES.MENU_CLAN.SOUND_STICKER',
-		CREATE_SOUND: 'ROUTES.MENU_CLAN.CREATE_SOUND'
+		CREATE_SOUND: 'ROUTES.MENU_CLAN.CREATE_SOUND',
+		TRANSFER_OWNERSHIP: 'ROUTES.MENU_CLAN.TRANSFER_OWNERSHIP',
+		MANAGE_USER: 'ROUTES.MENU_CLAN.MANAGE_USER',
+		ENABLE_COMMUNITY: 'ROUTES.MENU_CLAN.ENABLE_COMMUNITY'
 	},
 
 	MENU_CHANNEL: {
-		STACK: 'ROUTES.MENU_CHANNEL.STACk',
+		STACK: 'ROUTES.MENU_CHANNEL.STACK',
 		SETTINGS: 'ROUTES.MENU_CHANNEL.SETTINGS',
 		SEARCH_MESSAGE_CHANNEL: 'SEARCH_MESSAGE_CHANNEL',
 		CHANNEL_PERMISSION: 'CHANNEL_PERMISSION',
@@ -112,7 +129,9 @@ export const APP_SCREEN = {
 		SEARCH_MESSAGE_DM: 'SEARCH_MESSAGE_DM',
 		CANVAS: 'CANVAS',
 		CALL_DIRECT: 'CALL_DIRECT',
-		QUICK_ACTION: 'QUICK_ACTION'
+		QUICK_ACTION: 'QUICK_ACTION',
+		STREAM_BANNER: 'STREAM_BANNER',
+		LIST_BANNED_USERS: 'LIST_BANNED_USERS'
 	},
 
 	SETTINGS: {
@@ -128,7 +147,11 @@ export const APP_SCREEN = {
 		BLOCKED_USERS: 'ROUTES.SETTINGS.BLOCKED_USERS',
 		SEND_COFFEE: 'ROUTES.SETTINGS.SEND_COFFEE',
 		MY_QR_CODE: 'ROUTES.SETTINGS.MY_QR_CODE',
-		SET_PASSWORD: 'ROUTES.SETTINGS.SET_PASSWORD'
+		SET_PASSWORD: 'ROUTES.SETTINGS.SET_PASSWORD',
+		UPDATE_PHONE_NUMBER: 'ROUTES.SETTINGS.UPDATE_PHONE_NUMBER',
+		VERIFY_PHONE_NUMBER: 'ROUTES.SETTINGS.VERIFY_PHONE_NUMBER',
+		UPDATE_EMAIL: 'ROUTES.SETTINGS.UPDATE_EMAIL',
+		VERIFY_EMAIL: 'ROUTES.SETTINGS.VERIFY_EMAIL'
 	}
 } as const;
 
@@ -137,7 +160,7 @@ type ServerStackParamList = {
 };
 
 type NotificationStackParamList = {
-	[APP_SCREEN.NOTIFICATION.HOME]: undefined;
+	[APP_SCREEN.NOTIFICATION.HOME]: { initialTab?: string; version?: number };
 	[APP_SCREEN.NOTIFICATION.DETAIL]: undefined;
 };
 
@@ -209,11 +232,15 @@ export type MenuChannelStackParamList = {
 		channelId: string;
 		canvasId: string;
 	};
-	[APP_SCREEN.MENU_CHANNEL.CALL_DIRECT]: {
-		receiverId: string;
-		receiverAvatar?: string;
-		isVideoCall?: string;
-		directMessageId?: string;
+	[APP_SCREEN.MENU_CHANNEL.QUICK_ACTION]: {
+		channelId: string;
+	};
+	[APP_SCREEN.MENU_CHANNEL.STREAM_BANNER]: {
+		channelId: string;
+	};
+	[APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS]: {
+		channelId: string;
+		clanId: string;
 	};
 };
 
@@ -277,13 +304,22 @@ type MenuClanStackParamList = {
 	[APP_SCREEN.MENU_CLAN.CATEGORY_SETTING]: {
 		categoryId: string;
 	};
-	[APP_SCREEN.MENU_CLAN.INTEGRATIONS]: { channelId?: string };
-	[APP_SCREEN.MENU_CLAN.WEBHOOKS]: { channelId?: string };
+	[APP_SCREEN.MENU_CLAN.INTEGRATIONS]: { channelId?: string; isClanSetting?: boolean };
+	[APP_SCREEN.MENU_CLAN.WEBHOOKS]: { channelId?: string; clanId?: string; isClanSetting?: boolean; isClanIntegration?: boolean };
 	[APP_SCREEN.MENU_CLAN.WEBHOOKS_EDIT]: {
 		webhook: ApiWebhook;
+		isClanIntegration?: boolean;
+		isClanSetting?: boolean;
 	};
 	[APP_SCREEN.MENU_CLAN.SOUND_STICKER]: undefined;
 	[APP_SCREEN.MENU_CLAN.CREATE_SOUND]: undefined;
+	[APP_SCREEN.MENU_CLAN.TRANSFER_OWNERSHIP]: {
+		user: ChannelMembersEntity;
+	};
+	[APP_SCREEN.MENU_CLAN.MANAGE_USER]: {
+		user: ChannelMembersEntity;
+	};
+	[APP_SCREEN.MENU_CLAN.ENABLE_COMMUNITY]: undefined;
 };
 
 type SettingStackParamList = {
@@ -296,6 +332,17 @@ type SettingStackParamList = {
 	[APP_SCREEN.SETTINGS.BLOCKED_USERS]: undefined;
 	[APP_SCREEN.SETTINGS.MY_QR_CODE]: undefined;
 	[APP_SCREEN.SETTINGS.SET_PASSWORD]: undefined;
+	[APP_SCREEN.SETTINGS.UPDATE_PHONE_NUMBER]: {
+		currentPhone?: string;
+	};
+	[APP_SCREEN.SETTINGS.VERIFY_PHONE_NUMBER]: undefined;
+	[APP_SCREEN.SETTINGS.UPDATE_EMAIL]: {
+		currentEmail?: string;
+	};
+	[APP_SCREEN.SETTINGS.VERIFY_EMAIL]: {
+		email?: string;
+		requestId?: string;
+	};
 };
 
 type ChannelAppParamList = {
@@ -310,12 +357,15 @@ type ChannelAppParamList = {
 export type AppStackParamList = {
 	[APP_SCREEN.UN_AUTHORIZE]: undefined;
 	[APP_SCREEN.LOGIN]: undefined;
+	[APP_SCREEN.VERIFY_OTP]: undefined;
 	[APP_SCREEN.REGISTER]: undefined;
+	[APP_SCREEN.APP_BROWSER]: { url: string; title?: string };
 	[APP_SCREEN.AUTHORIZE]: undefined;
 	[APP_SCREEN.BOTTOM_BAR]: undefined;
 	[APP_SCREEN.DRAWER_BAR]: undefined;
 	[APP_SCREEN.HOME]: undefined;
 	[APP_SCREEN.HOME_DEFAULT]: undefined;
+	[APP_SCREEN.PROFILE_DETAIL]: { username?: string; data?: string };
 	[APP_SCREEN.SERVERS.STACK]: NavigatorScreenParams<ServerStackParamList>;
 	[APP_SCREEN.NOTIFICATION.STACK]: NavigatorScreenParams<NotificationStackParamList>;
 	[APP_SCREEN.MESSAGES.STACK]: NavigatorScreenParams<MessagesStackParamList>;

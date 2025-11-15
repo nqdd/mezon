@@ -1,16 +1,16 @@
-import { Colors, size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
 	wrapper: {
 		width: '100%',
-		backgroundColor: Colors.secondary,
+		backgroundColor: 'transparent',
 		paddingHorizontal: size.s_20,
-		marginTop: size.s_60
+		marginTop: size.s_40
 	},
 	headerText: {
 		fontSize: size.s_20,
-		color: Colors.white,
+		color: 'white',
 		fontWeight: '600'
 	},
 	imageBg: {
@@ -19,27 +19,37 @@ export const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: size.label,
-		color: Colors.white,
+		color: 'white',
 		fontWeight: '700',
 		textAlign: 'center'
 	},
 	description: {
 		fontSize: size.small,
-		color: Colors.textGray,
+		color: '#c7c7c7',
 		fontWeight: '500',
 		textAlign: 'center',
 		marginTop: size.s_10
 	},
 	addFriendsBtn: {
 		width: '100%',
-		padding: size.s_10,
-		backgroundColor: Colors.bgButton,
+		padding: size.s_12,
+		backgroundColor: baseColor.blurple,
 		borderRadius: size.s_50
 	},
 	textAddFriends: {
 		fontSize: size.medium,
-		color: Colors.white,
+		color: 'white',
 		fontWeight: '600',
 		textAlign: 'center'
+	},
+	imageWrapper: {
+		width: '100%',
+		height: size.s_100
+	},
+	contentContainer: {
+		marginTop: size.s_20
+	},
+	buttonContainer: {
+		marginTop: size.s_50
 	}
 });

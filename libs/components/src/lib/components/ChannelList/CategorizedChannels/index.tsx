@@ -5,18 +5,19 @@ import {
 	defaultNotificationCategoryActions,
 	FAVORITE_CATEGORY_ID,
 	selectCategoryExpandStateByCategoryId,
-	selectCurrentChannel,
-	selectCurrentClan,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission, ICategory, ICategoryChannel, IChannel, MouseButton } from '@mezon/utils';
+import type { ICategory, ICategoryChannel, IChannel } from '@mezon/utils';
+import { EPermission, generateE2eId, MouseButton } from '@mezon/utils';
 import React, { memo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
-import { useSelector } from 'react-redux';
 import { CategorySetting } from '../../CategorySetting';
-import { Coords } from '../../ChannelLink';
+import type { Coords } from '../../ChannelLink';
 import ModalConfirm from '../../ModalConfirm';
 import PanelCategory from '../../PanelCategory';
 
@@ -37,12 +38,11 @@ interface DeleteCategoryModalProps {
 }
 
 const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({ category, closeDeleteModal }) => {
+	const { t } = useTranslation('common');
 	const { handleDeleteCategory } = useCategory();
-	const currentChannel = useSelector(selectCurrentChannel);
 	const confirmDeleteCategory = async () => {
 		await handleDeleteCategory({
-			category: { ...category, channels: [] },
-			currenChannel: currentChannel as IChannel
+			category: { ...category, channels: [] }
 		});
 		closeDeleteModal();
 	};
@@ -53,23 +53,24 @@ const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({ category, clo
 			modalName={category.category_name || ''}
 			handleConfirm={confirmDeleteCategory}
 			title="delete"
-			buttonName="Delete category"
-			message="This cannot be undone"
-			customModalName="Category"
+			buttonName={t('deleteCategory')}
+			message={t('cannotBeUndone')}
+			customModalName={t('category')}
 		/>
 	);
 };
 
 const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 	const { userProfile } = useAuth();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
+	const currentClanId = useAppSelector(selectCurrentClanId);
 	const categoryExpandState = useAppSelector((state) => selectCategoryExpandStateByCategoryId(state, category.id));
 	const [hasAdminPermission, hasClanPermission, hasChannelManagePermission] = usePermissionChecker([
 		EPermission.administrator,
 		EPermission.manageClan,
 		EPermission.manageChannel
 	]);
-	const isClanOwner = currentClan?.creator_id === userProfile?.user?.id;
+	const isClanOwner = currentClanCreatorId === userProfile?.user?.id;
 
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [coords, setCoords] = useState<Coords>({
@@ -126,7 +127,7 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 		if (event.button === MouseButton.RIGHT) {
 			await dispatch(
 				defaultNotificationCategoryActions.getDefaultNotificationCategory({
-					clanId: currentClan?.id as string,
+					clanId: currentClanId as string,
 					categoryId: category?.id ?? ''
 				})
 			);
@@ -171,13 +172,21 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 
 	return (
 		category.category_name && (
-			<div className="flex flex-row px-2 relative gap-1" onMouseDown={handleMouseClick} ref={panelRef} role={'button'}>
+			<div
+				className="flex flex-row px-2 relative gap-1"
+				onMouseDown={handleMouseClick}
+				ref={panelRef}
+				role={'button'}
+				data-e2e={generateE2eId('clan_page.side_bar.channel_list.category')}
+			>
 				<button
 					onClick={handleToggleCategory}
 					className="text-theme-primary flex items-center px-0.5 w-full font-title tracking-wide text-theme-primary-hover uppercase text-sm font-medium"
 				>
 					{categoryExpandState ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
-					<span className="one-line">{category.category_name}</span>
+					<span className="one-line" data-e2e={generateE2eId('clan_page.side_bar.channel_list.category.name')}>
+						{category.category_name}
+					</span>
 				</button>
 
 				{!category.isFavor && (
@@ -185,6 +194,7 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 						<button
 							className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
 							onClick={() => handleOpenCreateChannelModal(category)}
+							data-e2e={generateE2eId('clan_page.side_bar.button.add_channel')}
 						>
 							<Icons.Plus />
 						</button>

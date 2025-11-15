@@ -1,12 +1,14 @@
-import { ActionEmitEvent, CheckIcon } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
-import { emojiRecentActions, useAppDispatch } from '@mezon/store-mobile';
-import { FOR_SALE_CATE } from '@mezon/utils';
+/* eslint-disable react/jsx-no-useless-fragment */
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { emojiRecentActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
+import { FOR_SALE_CATE, ITEM_TYPE } from '@mezon/utils';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, FlatList, ListRenderItem, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, FlatList, ListRenderItem, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
@@ -26,38 +28,46 @@ const ITEM_MARGIN = 8;
 
 const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	return (
-		<TouchableOpacity onPress={() => onPress(item)} style={[isAudio ? styles.audioContent : styles.content, { margin: ITEM_MARGIN / 2 }]}>
+		<>
 			{isAudio ? (
 				<>
-					<RenderAudioItem audioURL={item?.source} />
-					<Text style={styles.soundName} numberOfLines={1}>
-						{item?.shortname}
-					</Text>
+					{item?.source && (
+						<TouchableOpacity onPress={() => onPress(item)} style={[styles.audioContent, styles.itemMargin]}>
+							<RenderAudioItem audioURL={item?.source} />
+							<Text style={styles.soundName} numberOfLines={1}>
+								{item?.shortname}
+							</Text>
+						</TouchableOpacity>
+					)}
 				</>
 			) : (
-				<FastImage
-					source={{
-						uri: item?.source ? item?.source : `${process.env.NX_BASE_IMG_URL}/stickers/${item?.id}.webp`,
-						cache: FastImage.cacheControl.immutable,
-						priority: FastImage.priority.high
-					}}
-					style={{ height: '100%', width: '100%' }}
-				/>
+				<TouchableOpacity onPress={() => onPress(item)} style={[styles.content, styles.itemMargin]}>
+					<FastImage
+						source={{
+							uri: item?.source ? item?.source : `${process.env.NX_BASE_IMG_URL}/stickers/${item?.id}.webp`,
+							cache: FastImage.cacheControl.immutable,
+							priority: FastImage.priority.high
+						}}
+						style={styles.imageFull}
+					/>
+					{item?.is_for_sale && !item?.source && (
+						<View style={styles.wrapperIconLocked}>
+							<MezonIconCDN icon={IconCDN.lockIcon} color={styles.lockIconColor} width={size.s_30} height={size.s_30} />
+						</View>
+					)}
+				</TouchableOpacity>
 			)}
-			{item?.is_for_sale && !item?.source && (
-				<View style={styles.wrapperIconLocked}>
-					<MezonIconCDN icon={IconCDN.lockIcon} color={'#e1e1e1'} width={size.s_30} height={size.s_30} />
-				</View>
-			)}
-		</TouchableOpacity>
+		</>
 	);
 });
 
 export default memo(function Sticker({ stickerList, categoryName, onClickSticker, isAudio, forSale }: ISticker) {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
+	const widthScreen = useWindowDimensions().width;
+	const styles = style(themeValue, widthScreen);
 	const { t } = useTranslation(['token']);
 	const dispatch = useAppDispatch();
+	const userProfile = useSelector(selectAllAccount);
 	const [isExpanded, setIsExpanded] = useState(!(categoryName === FOR_SALE_CATE && forSale));
 
 	const stickersListByCategoryName = useMemo(() => {
@@ -85,13 +95,21 @@ export default memo(function Sticker({ stickerList, categoryName, onClickSticker
 		async (sticker: any) => {
 			try {
 				if (sticker.id) {
-					const resp = await dispatch(emojiRecentActions.buyItemForSale({ id: sticker?.id, type: 1 }));
+					const resp = await dispatch(
+						emojiRecentActions.buyItemForSale({
+							id: sticker?.id,
+							type: ITEM_TYPE.STICKER,
+							creatorId: sticker?.creator_id,
+							username: userProfile?.user?.username,
+							senderId: userProfile?.user?.id
+						})
+					);
 					if (!resp?.type?.includes('rejected')) {
 						Toast.show({
 							type: 'success',
 							props: {
 								text2: 'Buy item successfully!',
-								leadingIcon: <CheckIcon color={Colors.green} width={30} height={17} />
+								leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={30} height={17} />
 							}
 						});
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
@@ -104,7 +122,7 @@ export default memo(function Sticker({ stickerList, categoryName, onClickSticker
 				Toast.show({ type: 'error', text1: 'Failed to buy item.' });
 			}
 		},
-		[dispatch]
+		[dispatch, userProfile?.user?.id, userProfile?.user?.username]
 	);
 
 	const onPress = useCallback(
@@ -173,7 +191,7 @@ export default memo(function Sticker({ stickerList, categoryName, onClickSticker
 					getItemLayout={getItemLayout}
 					initialNumToRender={5}
 					style={styles.sessionContent}
-					columnWrapperStyle={{ justifyContent: 'space-between' }}
+					columnWrapperStyle={styles.columnWrapper}
 				/>
 			)}
 		</View>

@@ -1,38 +1,52 @@
-import { registerGlobals } from '@livekit/react-native';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, setBackgroundMessageHandler } from '@react-native-firebase/messaging';
-import { AppRegistry } from 'react-native';
+import { Buffer } from 'buffer';
+import { AppRegistry, Platform } from 'react-native';
+import 'react-native-get-random-values';
 import { enableScreens } from 'react-native-screens';
 import App from './app/navigation';
 import CustomIncomingCall from './app/screens/customIncomingCall';
 import { isNotificationProcessed } from './app/utils/notificationCache';
-import { createLocalNotification, setupIncomingCall } from './app/utils/pushNotificationHelpers';
+import { createLocalNotification, displayNativeCalling } from './app/utils/pushNotificationHelpers';
+global.Buffer = Buffer;
+
 const messaging = getMessaging(getApp());
 
 const isValidString = (value: unknown): value is string => {
 	return typeof value === 'string' && value.trim().length > 0;
 };
 
-registerGlobals();
 enableScreens(true);
 
 setBackgroundMessageHandler(messaging, async (remoteMessage) => {
 	try {
 		const offer = remoteMessage?.data?.offer;
 
-		// Safe handling of offer data (calls are always processed)
-		if (offer && isValidString(offer)) {
-			await setupIncomingCall(offer);
+		if (offer) {
+			if (Platform.OS === 'android') {
+				if (remoteMessage?.sentTime) {
+					const currentTime = Date.now();
+					const messageTime = remoteMessage.sentTime;
+					const timeDifference = currentTime - messageTime;
+					if (Math.floor(timeDifference) <= 60000) {
+						displayNativeCalling(remoteMessage?.data);
+					} else {
+						console.error('Ignoring outdated call notification, received', timeDifference / 1000, 'seconds ago');
+					}
+				} else {
+					// If no sentTime is available, process anyway
+					displayNativeCalling(remoteMessage?.data);
+				}
+			}
 			return;
 		}
-
 		// Safe handling of notification data
-		if (!remoteMessage?.notification && remoteMessage?.data) {
+		if (!remoteMessage?.notification && remoteMessage?.data && Platform.OS === 'android') {
 			const { title, body } = remoteMessage.data;
 
 			if (isValidString(title) && isValidString(body)) {
 				// Check if this notification was already processed
-				const isProcessed = await isNotificationProcessed(title, body);
+				const isProcessed = await isNotificationProcessed(title, body, remoteMessage?.sentTime?.toString() || '');
 
 				if (!isProcessed) {
 					// Only create notification if not a duplicate

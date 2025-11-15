@@ -10,10 +10,11 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnable
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.network.OkHttpClientProvider;
 import com.mezon.mobile.CustomClientFactory;
-import com.zoontek.rnbootsplash.RNBootSplash;
 import android.app.NotificationManager
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import com.swmansion.rnscreens.RNScreensPackage;
 
 class MainActivity : ReactActivity() {
 
@@ -32,12 +33,12 @@ class MainActivity : ReactActivity() {
             (widthInches.toDouble() * widthInches.toDouble()) +
                 (heightInches.toDouble() * heightInches.toDouble())
         )
-    return screenSize >= 7.0
+    return screenSize >= 7.5
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    RNBootSplash.init(this, R.style.BootTheme)
     super.onCreate(null);
+    setTheme(R.style.AppTheme)
 
     if (isTablet(this)) {
       requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -49,9 +50,13 @@ class MainActivity : ReactActivity() {
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent);
     setIntent(intent);
-    if (intent?.action == "ANSWER_CALL_ACTION") {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(1001)
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    try {
+        super.onWindowFocusChanged(hasFocus)
+    } catch (e: Exception) {
+        Log.e("MainActivity", "Error in onWindowFocusChanged: ${e.message}", e)
     }
   }
 

@@ -1,12 +1,13 @@
 import { usePermissionChecker } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectAllRolesClan, selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
-import { EPermission, UsersClanEntity } from '@mezon/utils';
+import { selectAllRolesClan, selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
+import type { UsersClanEntity } from '@mezon/utils';
+import { EPermission } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import MezonIconCDN from '../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../src/app/constants/icon_cdn';
-import MezonAvatar from '../../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import ImageNative from '../../../ImageNative';
 import { style } from './styles';
 
@@ -18,7 +19,7 @@ interface IUserItem {
 export const UserItem = memo<IUserItem>(({ userID, onMemberSelect }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, userID));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, userID));
 	const rolesClan = useAppSelector(selectAllRolesClan);
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 	const [isManageClan] = usePermissionChecker([EPermission.manageClan]);
@@ -36,13 +37,20 @@ export const UserItem = memo<IUserItem>(({ userID, onMemberSelect }) => {
 		});
 	}, [userID, rolesClan]);
 
+	const displayName = useMemo(() => {
+		return user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
+	}, [user?.clan_nick, user?.user?.display_name, user?.user?.username]);
+
+	const avatarUrl = useMemo(() => {
+		return user?.clan_avatar || user?.user?.avatar_url || '';
+	}, [user?.clan_avatar, user?.user?.avatar_url]);
+
 	const onPressMemberItem = useCallback(() => {
 		if (canEditRoles && onMemberSelect && user) {
 			onMemberSelect(user);
 		}
 	}, [canEditRoles, onMemberSelect, user]);
 
-	// Early return if user is not found to prevent crashes (after all hooks)
 	if (!user) {
 		return null;
 	}
@@ -50,10 +58,12 @@ export const UserItem = memo<IUserItem>(({ userID, onMemberSelect }) => {
 	return (
 		<Pressable onPress={onPressMemberItem}>
 			<View style={styles.container}>
-				<MezonAvatar avatarUrl={user?.user?.avatar_url || ''} username={user?.user?.username || ''} />
+				<View style={styles.avatarWrapper}>
+					<MezonClanAvatar alt={user?.user?.username || ''} image={avatarUrl} />
+				</View>
 				<View style={[styles.rightContent]}>
 					<View style={styles.content}>
-						<Text style={styles.displayName}>{user?.clan_nick || user?.user?.display_name || ''}</Text>
+						<Text style={styles.displayName}>{displayName}</Text>
 						<Text style={styles.username}>{user?.user?.username || ''}</Text>
 
 						{clanUserRole?.length > 0 && (

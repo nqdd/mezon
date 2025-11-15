@@ -1,5 +1,4 @@
-import {
-	EBacktickType,
+import type {
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	ILinkOnMessage,
@@ -9,6 +8,7 @@ import {
 	IMessageSendPayload,
 	INewPosMarkdown
 } from '../types';
+import { EBacktickType } from '../types';
 import { parseHtmlAsFormattedText, processMarkdownEntities } from './parseHtmlAsFormattedText';
 export const processSingleBacktick = (inputString: string, excludeRange: { start: number; end: number }) => {
 	const result: IMarkdownOnMessage[] = [];

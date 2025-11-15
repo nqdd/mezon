@@ -1,12 +1,13 @@
-import { PauseIcon, PlayIcon } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import LottieView from 'lottie-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Platform, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import type { ViewStyle } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
 import Sound from 'react-native-sound';
 import { WAY_AUDIO } from '../../../../../../assets/lottie';
-import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
+import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './styles';
 
 const formatTime = (millis: number) => {
@@ -17,9 +18,8 @@ const formatTime = (millis: number) => {
 
 const RenderAudioChat = React.memo(
 	({ audioURL, stylesContainerCustom, styleLottie }: { audioURL: string; stylesContainerCustom?: ViewStyle; styleLottie?: ViewStyle }) => {
-		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
-		const styles = style(themeValue, isTabletLandscape);
+		const styles = style(themeValue);
 		const recordingWaveRef = useRef(null);
 		const [isPlaying, setIsPlaying] = useState(false);
 		const [sound, setSound] = useState<Sound | null>(null);
@@ -27,18 +27,7 @@ const RenderAudioChat = React.memo(
 
 		useEffect(() => {
 			recordingWaveRef?.current?.reset();
-			// Configure Sound for iOS
-			if (Platform.OS === 'ios') {
-				Sound.setCategory('Playback', true); // Allow mixing with other audio
-				Sound.setMode('Default');
-			} else {
-				// Only use InCallManager for Android
-				InCallManager.setSpeakerphoneOn(true);
-				InCallManager.setForceSpeakerphoneOn(true);
-			}
-
 			return () => {
-				// Cleanup
 				if (Platform.OS === 'android') {
 					InCallManager.setSpeakerphoneOn(false);
 					InCallManager.setForceSpeakerphoneOn(false);
@@ -65,6 +54,7 @@ const RenderAudioChat = React.memo(
 
 			return () => {
 				if (newSound) {
+					newSound.stop();
 					newSound.release();
 				}
 			};
@@ -72,6 +62,13 @@ const RenderAudioChat = React.memo(
 
 		const playSound = () => {
 			if (sound) {
+				if (Platform.OS === 'ios') {
+					Sound.setCategory('Playback', true);
+				}
+				if (Platform.OS === 'android') {
+					InCallManager.setSpeakerphoneOn(true);
+					InCallManager.setForceSpeakerphoneOn(true);
+				}
 				sound.play((success) => {
 					if (success) {
 						sound.setCurrentTime(0);
@@ -103,31 +100,18 @@ const RenderAudioChat = React.memo(
 		}, [sound]);
 
 		return (
-			<View style={{ flex: 1, flexDirection: 'row' }}>
-				<TouchableOpacity
-					onPress={isPlaying ? pauseSound : playSound}
-					activeOpacity={0.6}
-					style={{ ...styles.container, ...stylesContainerCustom }}
-				>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<View
-							style={{
-								backgroundColor: baseColor.white,
-								borderRadius: size.s_30,
-								padding: size.s_8,
-								alignItems: 'center',
-								gap: size.s_10,
-								justifyContent: 'center'
-							}}
-						>
+			<View style={styles.wrapper}>
+				<TouchableOpacity onPress={isPlaying ? pauseSound : playSound} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]}>
+					<View style={styles.innerContainer}>
+						<View style={styles.playButton}>
 							{isPlaying ? (
-								<PauseIcon width={size.s_16} height={size.s_16} color={baseColor.bgDeepLavender} />
+								<MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />
 							) : (
-								<PlayIcon width={size.s_16} height={size.s_16} color={baseColor.bgDeepLavender} />
+								<MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />
 							)}
 						</View>
-						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={{ ...styles.soundLottie, ...styleLottie }} />
-						<Text style={[styles.currentTime, isPlaying && { opacity: 0 }]}>{`${formatTime(totalTime)}`}</Text>
+						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={[styles.soundLottie, styleLottie]} />
+						<Text style={[styles.currentTime, isPlaying && styles.currentTimeHidden]}>{`${formatTime(totalTime)}`}</Text>
 					</View>
 				</TouchableOpacity>
 			</View>

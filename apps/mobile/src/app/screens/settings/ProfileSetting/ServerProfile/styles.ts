@@ -1,4 +1,4 @@
-import { Attributes, Colors, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -37,7 +37,7 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center'
 		},
 		textAvatar: {
-			color: Colors.white
+			color: 'white'
 		},
 		clanName: {
 			color: colors.text,
@@ -46,7 +46,7 @@ export const style = (colors: Attributes) =>
 		btnIcon: {
 			padding: size.s_8,
 			borderRadius: size.s_10,
-			backgroundColor: Colors.bgViolet
+			backgroundColor: colors.bgViolet
 		},
 		btnGroup: {
 			flexDirection: 'row',
@@ -77,5 +77,17 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			gap: size.s_10,
 			alignItems: 'center'
+		},
+
+		keyboardAvoidingView: {
+			width: '100%'
+		},
+
+		clanNameWrapper: {
+			flex: 1
+		},
+
+		spacer: {
+			height: 250
 		}
 	});

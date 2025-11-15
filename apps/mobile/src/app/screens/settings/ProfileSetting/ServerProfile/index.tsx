@@ -1,8 +1,8 @@
 import { useClanProfileSetting } from '@mezon/core';
-import { ActionEmitEvent, CheckIcon } from '@mezon/mobile-components';
-import { Text, size, useTheme } from '@mezon/mobile-ui';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { size, useTheme } from '@mezon/mobile-ui';
+import type { ClansEntity } from '@mezon/store-mobile';
 import {
-	ClansEntity,
 	appActions,
 	checkDuplicateClanNickName,
 	selectAllAccount,
@@ -13,10 +13,10 @@ import {
 import { unwrapResult } from '@reduxjs/toolkit';
 import { forwardRef, memo, useEffect, useImperativeHandle, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Dimensions, FlatList, KeyboardAvoidingView, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Dimensions, FlatList, KeyboardAvoidingView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
-import { IClanProfileValue, IUserProfileValue } from '..';
+import type { IClanProfileValue, IUserProfileValue } from '..';
 import { SeparatorWithLine } from '../../../../../app/components/Common';
 import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
@@ -63,11 +63,6 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const checkIsDuplicateClanNickname = async (value: string) => {
 		try {
-			if (!value || value.trim() === '') {
-				setIsDuplicateClanNickname(false);
-				return;
-			}
-
 			const result = unwrapResult(
 				await dispatch(
 					checkDuplicateClanNickName({
@@ -95,9 +90,10 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 	const updateClanProfile = async () => {
 		const { displayName, imgUrl } = currentClanProfileValue;
-		const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
-		if (isDuplicateNickname) return;
-
+		if (displayName) {
+			const isDuplicateNickname = await checkIsDuplicateClanNickname(displayName?.trim() || '');
+			if (isDuplicateNickname) return;
+		}
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const response = await updateUserClanProfile(selectedClan?.clan_id ?? '', displayName?.trim() || '', imgUrl || '');
@@ -148,7 +144,9 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 										<Text style={styles.clanName}>{item?.clan_name}</Text>
 									</View>
-									{item?.clan_id === selectedClan?.clan_id ? <CheckIcon color="green" /> : null}
+									{item?.clan_id === selectedClan?.clan_id ? (
+										<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color="green" />
+									) : null}
 								</TouchableOpacity>
 							);
 						}}
@@ -166,16 +164,18 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 	}));
 
 	return (
-		<KeyboardAvoidingView behavior={'position'} style={{ width: Dimensions.get('screen').width }}>
-			<TouchableOpacity onPress={() => openBottomSheet()} style={styles.actionItem}>
-				<View style={[styles.clanAvatarWrapper]}>
-					<MezonClanAvatar image={selectedClan?.logo} alt={selectedClan?.clan_name} />
-				</View>
-				<View style={{ flex: 1 }}>
-					<Text style={styles.clanName}>{selectedClan?.clan_name}</Text>
-				</View>
-				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_15} width={size.s_15} color={themeValue.text} />
-			</TouchableOpacity>
+		<KeyboardAvoidingView behavior={'position'} style={[styles.keyboardAvoidingView, { width: Dimensions.get('screen').width }]}>
+			{!!clans?.length && (
+				<TouchableOpacity onPress={() => openBottomSheet()} style={styles.actionItem}>
+					<View style={[styles.clanAvatarWrapper]}>
+						<MezonClanAvatar image={selectedClan?.logo} alt={selectedClan?.clan_name} />
+					</View>
+					<View style={styles.clanNameWrapper}>
+						<Text style={styles.clanName}>{selectedClan?.clan_name}</Text>
+					</View>
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_15} width={size.s_15} color={themeValue.text} />
+				</TouchableOpacity>
+			)}
 
 			<BannerAvatar
 				avatar={currentClanProfileValue?.imgUrl || userProfile?.user?.avatar_url}
@@ -186,22 +186,25 @@ const ServerProfile = forwardRef(function ServerProfile({ navigation }: IServerP
 
 			<View style={styles.clanProfileDetail}>
 				<View style={styles.nameWrapper}>
-					<Text style={styles.displayNameText}>{currentClanProfileValue?.displayName}</Text>
+					<Text style={styles.displayNameText}>
+						{currentClanProfileValue?.displayName || userProfile?.user?.display_name || userProfile?.user?.username}
+					</Text>
 					<Text style={styles.usernameText}>{currentClanProfileValue?.username}</Text>
 				</View>
 
 				<MezonInput
 					value={currentClanProfileValue?.displayName}
 					onTextChange={(newValue) => onValueChange({ displayName: newValue })}
-					placeHolder={currentClanProfileValue?.username}
+					placeHolder={currentClanProfileValue?.displayName || userProfile?.user?.display_name || userProfile?.user?.username}
 					maxCharacter={32}
-					label={t('fields.clanName.label')}
+					label={t('fields.clanNickname.label')}
 					errorMessage={isDuplicateClanNickname ? 'The nick name already exists in the clan. Please enter another nick name.' : ''}
 					isValid={!isDuplicateClanNickname}
+					inputWrapperStyle={[{ backgroundColor: themeValue.primary }]}
 				/>
 			</View>
 
-			<View style={{ height: 250 }} />
+			<View style={styles.spacer} />
 		</KeyboardAvoidingView>
 	);
 });

@@ -1,12 +1,13 @@
 import { useCustomNavigate } from '@mezon/core';
-import { appActions, getStore, selectBadgeCountByClanId, selectIsUseProfileDM, useAppDispatch } from '@mezon/store';
+import { appActions, getStore, selectBadgeCountByClanId, selectClanHasUnreadMessage, selectIsUseProfileDM, useAppDispatch } from '@mezon/store';
 import { Image } from '@mezon/ui';
-import { IClan, createImgproxyUrl } from '@mezon/utils';
+import type { IClan } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import { memo, useState, useTransition } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import NavLinkComponent from '../NavLink';
 import PanelClan from '../PanelClan';
 
@@ -15,11 +16,13 @@ export type SidebarClanItemProps = {
 	active?: boolean;
 	onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
 	className?: string;
+	onClanClick?: () => void;
 };
 
-const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: SidebarClanItemProps) => {
+const SidebarClanItem = ({ option, active, onMouseDown, className = '', onClanClick }: SidebarClanItemProps) => {
 	const [_, startTransition] = useTransition();
 	const badgeCountClan = useSelector(selectBadgeCountByClanId(option?.clan_id ?? '')) || 0;
+	const hasUnreadMessage = useSelector(selectClanHasUnreadMessage(option?.clan_id ?? ''));
 	const navigate = useCustomNavigate();
 	const dispatch = useAppDispatch();
 
@@ -29,6 +32,7 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: Sideba
 		const channelId = idsSelectedChannel[option?.id] || option?.welcome_channel_id;
 		const link = `/chat/clans/${option?.id}${channelId ? `/channels/${channelId}` : ''}`;
 		const isShowDmProfile = selectIsUseProfileDM(store.getState());
+		onClanClick?.();
 
 		startTransition(() => {
 			navigate(link);
@@ -66,6 +70,7 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: Sideba
 			data-id={option?.id}
 			className={`relative h-[40px] ${className}`}
 			title={option?.clan_name}
+			data-e2e={generateE2eId('clan_page.side_bar.clan_item')}
 		>
 			<button onClick={handleClick} draggable="false">
 				<NavLinkComponent active={active}>
@@ -78,7 +83,10 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: Sideba
 						/>
 					) : (
 						option?.clan_name && (
-							<div className="w-[40px] h-[40px] bg-add-clan-hover theme-base-color rounded-xl flex justify-center items-center text-theme-primary text-theme-primary-hover hover:text-white text-[20px] clan">
+							<div
+								className="w-[40px] h-[40px] bg-add-clan-hover theme-base-color rounded-xl flex justify-center items-center text-theme-primary text-theme-primary-hover hover:text-white text-[20px] clan"
+								data-e2e={generateE2eId('clan_page.side_bar.clan_item.name')}
+							>
 								{(option?.clan_name || '').charAt(0).toUpperCase()}
 							</div>
 						)
@@ -94,6 +102,10 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '' }: Sideba
 				>
 					{badgeCountClan >= 100 ? '99+' : badgeCountClan}
 				</div>
+			)}
+
+			{hasUnreadMessage && badgeCountClan === 0 && !active && (
+				<div className="before:content-[''] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute before:top-3 before:left-[-14px] before:bg-white"></div>
 			)}
 		</div>
 	);

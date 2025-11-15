@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -11,7 +12,7 @@ export const style = (colors: Attributes) =>
 		},
 		dateText: {
 			fontSize: size.small,
-			color: Colors.gray72
+			color: baseColor.gray
 		},
 		name: {
 			fontSize: size.medium,
@@ -26,8 +27,8 @@ export const style = (colors: Attributes) =>
 		titlePanel: {
 			flexDirection: 'row',
 			justifyContent: 'center',
-			alignItems: 'flex-end',
-			height: size.s_20,
+			alignItems: 'center',
+			height: size.s_24,
 			gap: size.s_6
 		},
 		userInfo: {
@@ -39,10 +40,14 @@ export const style = (colors: Attributes) =>
 		headerPannel: {
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center'
+			alignItems: 'center',
+			paddingVertical: size.s_6
 		},
 		backButton: {
 			width: size.s_50,
 			paddingVertical: size.s_4
+		},
+		spacer: {
+			width: size.s_50
 		}
 	});

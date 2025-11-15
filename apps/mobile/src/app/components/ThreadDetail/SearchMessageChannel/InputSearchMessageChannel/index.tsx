@@ -1,20 +1,11 @@
-import { ArrowLeftIcon, FilterSearchIcon, IOption, IUerMention } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
+import type { IOption, IUerMention } from '@mezon/mobile-components';
+import { size, useTheme } from '@mezon/mobile-ui';
 import { useNavigation } from '@react-navigation/native';
 import debounce from 'lodash.debounce';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	NativeSyntheticEvent,
-	Platform,
-	Pressable,
-	StatusBar,
-	Text,
-	TextInput,
-	TextInputKeyPressEventData,
-	TouchableOpacity,
-	View
-} from 'react-native';
+import type { NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
+import { Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
@@ -60,7 +51,7 @@ const InputSearchMessageChannel = ({
 		if (optionFilter?.title || userMention?.display) {
 			return `${optionFilter?.title || ''} ${userMention?.display || ''}`;
 		}
-		return `in: ${nameChannel || ''}`;
+		return `in:${nameChannel || ''}`;
 	}, [optionFilter?.title, userMention?.display, nameChannel]);
 
 	const debouncedOnChangeText = useCallback(
@@ -107,25 +98,24 @@ const InputSearchMessageChannel = ({
 
 	return (
 		<View style={styles.wrapper}>
-			<TouchableOpacity onPress={onGoBack} style={{ height: '100%', paddingRight: size.s_10 }}>
-				<View style={{ alignSelf: 'center', justifyContent: 'center', flex: 1 }}>
-					<ArrowLeftIcon width={20} height={20} color={Colors.textGray} />
+			<TouchableOpacity onPress={onGoBack} style={styles.backButton}>
+				<View style={styles.backButtonInner}>
+					<MezonIconCDN icon={IconCDN.backArrowLarge} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				</View>
 			</TouchableOpacity>
 			<View style={styles.searchBox}>
-				<View style={{ marginRight: size.s_6 }}>
-					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={20} height={20} color={Colors.textGray} />
+				<View style={styles.iconWrapper}>
+					<MezonIconCDN icon={IconCDN.magnifyingIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 				</View>
 				{shouldShowBadge ? (
 					<View
-						style={{
-							backgroundColor: themeValue.badgeHighlight,
-							borderRadius: size.s_18,
-							paddingHorizontal: size.s_10,
-							paddingVertical: size.s_2,
-							maxWidth: size.s_100,
-							marginRight: Platform.OS === 'ios' ? size.s_6 : 0
-						}}
+						style={[
+							styles.badge,
+							{
+								backgroundColor: themeValue.badgeHighlight,
+								marginRight: Platform.OS === 'ios' ? size.s_6 : 0
+							}
+						]}
 					>
 						<Text numberOfLines={1} style={styles.textBadgeHighLight}>
 							{badgeText}
@@ -148,42 +138,44 @@ const InputSearchMessageChannel = ({
 					</Pressable>
 				) : null}
 			</View>
-			<Tooltip
-				isVisible={isVisibleToolTip}
-				closeOnBackgroundInteraction={true}
-				disableShadow={true}
-				closeOnContentInteraction={true}
-				content={
-					<ListOptionSearch
-						onPressOption={(option) => {
-							onChangeOptionFilter(option);
+			{!!nameChannel && (
+				<Tooltip
+					isVisible={isVisibleToolTip}
+					closeOnBackgroundInteraction={true}
+					disableShadow={true}
+					closeOnContentInteraction={true}
+					content={
+						<ListOptionSearch
+							onPressOption={(option) => {
+								onChangeOptionFilter(option);
+								if (inputSearchRef.current) {
+									inputSearchRef.current.focus();
+								}
+								setIsVisibleToolTip(false);
+							}}
+						/>
+					}
+					contentStyle={{ minWidth: size.s_220, padding: 0, borderRadius: size.s_10, backgroundColor: themeValue.primary }}
+					arrowSize={{ width: 0, height: 0 }}
+					placement="bottom"
+					onClose={() => setIsVisibleToolTip(false)}
+					showChildInTooltip={false}
+					topAdjustment={Platform.OS === 'android' ? -StatusBar.currentHeight : 0}
+				>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => {
+							setIsVisibleToolTip(true);
 							if (inputSearchRef.current) {
 								inputSearchRef.current.focus();
 							}
-							setIsVisibleToolTip(false);
 						}}
-					/>
-				}
-				contentStyle={{ minWidth: size.s_220, padding: 0, borderRadius: size.s_10, backgroundColor: Colors.primary }}
-				arrowSize={{ width: 0, height: 0 }}
-				placement="bottom"
-				onClose={() => setIsVisibleToolTip(false)}
-				showChildInTooltip={false}
-				topAdjustment={Platform.OS === 'android' ? -StatusBar.currentHeight : 0}
-			>
-				<TouchableOpacity
-					activeOpacity={0.7}
-					onPress={() => {
-						setIsVisibleToolTip(true);
-						if (inputSearchRef.current) {
-							inputSearchRef.current.focus();
-						}
-					}}
-					style={styles.listSearchIcon}
-				>
-					<FilterSearchIcon width={20} height={20} color={themeValue.textStrong} />
-				</TouchableOpacity>
-			</Tooltip>
+						style={styles.listSearchIcon}
+					>
+						<MezonIconCDN icon={IconCDN.filterHorizontalIcon} width={20} height={20} color={themeValue.textStrong} />
+					</TouchableOpacity>
+				</Tooltip>
+			)}
 		</View>
 	);
 };

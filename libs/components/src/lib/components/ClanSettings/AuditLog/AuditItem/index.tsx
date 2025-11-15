@@ -3,17 +3,17 @@ import {
 	selectActionAuditLog,
 	selectAllAuditLogData,
 	selectChannelById,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectMemberClanByUserId,
-	selectTotalCountAuditLog,
 	selectUserAuditLog,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { convertTimeString, createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
-import { ApiAuditLog } from 'mezon-js/api.gen';
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import type { ApiAuditLog } from 'mezon-js/api.gen';
+import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 
@@ -27,19 +27,18 @@ interface MainAuditLogProps {
 
 const MainAuditLog = ({ pageSize, setPageSize, currentPage, setCurrentPage, selectedDate }: MainAuditLogProps) => {
 	const auditLogData = useSelector(selectAllAuditLogData);
-	const totalCount = useSelector(selectTotalCountAuditLog);
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const auditLogFilterAction = useSelector(selectActionAuditLog);
 	const auditLogFilterUser = useSelector(selectUserAuditLog);
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
-		if (currentClan?.clan_id) {
+		if (currentClanId) {
 			const body = {
 				noCache: true,
 				actionLog: auditLogFilterAction ?? '',
 				userId: auditLogFilterUser?.userId ?? '',
-				clanId: currentClan?.clan_id ?? '',
+				clanId: currentClanId,
 				date_log: selectedDate
 			};
 			dispatch(auditLogList(body));
@@ -48,7 +47,6 @@ const MainAuditLog = ({ pageSize, setPageSize, currentPage, setCurrentPage, sele
 
 	return (
 		<div className="flex flex-col">
-			<div className="border-b-theme-primary my-[32px]" />
 			{auditLogData && auditLogData.length > 0 ? (
 				auditLogData.map((log) => <AuditLogItem key={log.id} logItem={log} />)
 			) : (
@@ -71,13 +69,13 @@ type AuditLogItemProps = {
 
 const AuditLogItem = ({ logItem }: AuditLogItemProps) => {
 	const auditLogTime = convertTimeString(logItem?.time_log as string);
-	const userAuditLogItem = useAppSelector(selectMemberClanByUserId(logItem?.user_id ?? ''));
+	const userAuditLogItem = useAppSelector((state) => selectMemberClanByUserId(state, logItem?.user_id ?? ''));
 	const username = userAuditLogItem?.user?.username;
 	const avatar = getAvatarForPrioritize(userAuditLogItem?.clan_avatar, userAuditLogItem?.user?.avatar_url);
 	const channel = useAppSelector((state) => selectChannelById(state, logItem?.channel_id || ''));
 
 	return (
-		<div className="dark:text-[#b5bac1] text-textLightTheme p-[10px] flex gap-3 items-center border dark:border-black border-[#d1d4d9] rounded-md dark:bg-[#2b2d31] bg-bgLightSecondary mb-4">
+		<div className=" p-[10px] flex gap-3 items-center border  rounded-md  mb-4 text-theme-primary border-theme-primary bg-item-theme ">
 			<div className="w-10 h-10 rounded-full">
 				<div className="w-10 h-10">
 					{userAuditLogItem ? (
@@ -98,20 +96,18 @@ const AuditLogItem = ({ logItem }: AuditLogItemProps) => {
 					{logItem?.channel_id !== '0' ? (
 						<span>
 							<span>{username}</span> <span className="lowercase">{logItem?.action_log}</span> :{' '}
-							<strong className="dark:text-white text-black font-medium"> {`${logItem?.entity_name} (${logItem?.entity_id})`}</strong>{' '}
-							in {channel?.parent_id !== '0' ? 'thread' : 'channel'}
-							<strong className="dark:text-white text-black font-medium">
-								{` ${logItem?.channel_label} (${logItem?.channel_id})`}
-							</strong>
+							<strong className="text-theme-primary-active font-medium"> {`${logItem?.entity_name} (${logItem?.entity_id})`}</strong> in{' '}
+							{channel?.parent_id !== '0' ? 'thread' : 'channel'}
+							<strong className="text-theme-primary-active font-medium">{` ${logItem?.channel_label} (${logItem?.channel_id})`}</strong>
 						</span>
 					) : (
 						<span>
 							<span>{username}</span> <span className="lowercase">{logItem?.action_log}</span> :{' '}
-							<strong className="dark:text-white text-black font-medium">{`${logItem?.entity_name} (${logItem?.entity_id})`}</strong>
+							<strong className="text-theme-primary-active font-medium">{`${logItem?.entity_name} (${logItem?.entity_id})`}</strong>
 						</span>
 					)}
 				</div>
-				<div className="text-sm text-gray-500">{auditLogTime}</div>
+				<div className="text-sm text-theme-primary">{auditLogTime}</div>
 			</div>
 		</div>
 	);

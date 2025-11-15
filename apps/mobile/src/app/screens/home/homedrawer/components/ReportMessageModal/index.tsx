@@ -1,19 +1,14 @@
-import { CheckIcon, ChevronIcon, DotIcon } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
-import { IMessageWithUser } from '@mezon/utils';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Animated, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, DeviceEventEmitter, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { MezonModal } from '../../../../../componentUI/MezonModal';
+import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { SeparatorWithSpace } from '../../../../../components/Common';
+import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
+import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './styles';
-
-interface IReportMessageModalProps {
-	isVisible: boolean;
-	onClose: () => void;
-	message: IMessageWithUser;
-}
 
 interface IReportOption {
 	title: string;
@@ -46,8 +41,7 @@ const reportOptionList: IReportOption[] = [
 	}
 ];
 
-export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
-	const { isVisible, onClose, message } = props;
+export const ReportMessageModal = memo(() => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [reportSelected, setReportSelected] = useState<IReportOption | null>(null);
@@ -58,6 +52,10 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 		if (!value) {
 			onClose();
 		}
+	};
+
+	const onClose = () => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
 	useEffect(() => {
@@ -76,20 +74,15 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 				type: 'success',
 				props: {
 					text2: t('reportMessage.reportSubmitted'),
-					leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
 				}
 			});
 		});
 	};
 
 	return (
-		<MezonModal
-			visible={isVisible}
-			rightClose={true}
-			onBack={() => setReportSelected(null)}
-			visibleBackButton={!!reportSelected}
-			visibleChange={onVisibleChange}
-		>
+		<View style={styles.container}>
+			<StatusBarHeight />
 			<View style={styles.reportMessageModalContainer}>
 				<View style={styles.contentWrapper}>
 					{reportSelected ? (
@@ -102,7 +95,7 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 								<Text style={styles.reportCategory}>{t('reportMessage.reportCategory')}</Text>
 
 								<View style={styles.reportCategoryWrapper}>
-									<DotIcon color={Colors.bgViolet} height={5} width={5} />
+									<MezonIconCDN icon={IconCDN.circleIcon} color={themeValue.bgViolet} height={5} width={5} />
 									<Text style={styles.reportCategoryTitle}>{reportSelected?.title}</Text>
 								</View>
 							</View>
@@ -128,7 +121,7 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 									return (
 										<TouchableOpacity onPress={() => setReportSelected(item)} style={styles.reportItem}>
 											<Text style={styles.reportTitle}>{item.title}</Text>
-											<ChevronIcon height={15} width={15} />
+											<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} />
 										</TouchableOpacity>
 									);
 								}}
@@ -146,12 +139,12 @@ export const ReportMessageModal = memo((props: IReportMessageModalProps) => {
 					</View>
 				) : (
 					<View style={styles.buttonWrapper}>
-						<TouchableOpacity onPress={() => onVisibleChange(false)}>
+						<TouchableOpacity style={styles.buttonCannel} onPress={() => onVisibleChange(false)}>
 							<Text style={styles.cannelText}>{t('reportMessage.cancel')}</Text>
 						</TouchableOpacity>
 					</View>
 				)}
 			</View>
-		</MezonModal>
+		</View>
 	);
 });

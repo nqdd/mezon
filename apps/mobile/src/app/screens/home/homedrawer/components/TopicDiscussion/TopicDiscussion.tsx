@@ -1,13 +1,24 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import { messagesActions, selectCurrentChannel, selectCurrentClanId, selectCurrentTopicId, topicsActions, useAppDispatch } from '@mezon/store-mobile';
+import {
+	messagesActions,
+	selectBanMemberCurrentClanById,
+	selectCurrentChannel,
+	selectCurrentClanId,
+	selectCurrentTopicId,
+	selectCurrentUserId,
+	topicsActions,
+	useAppDispatch
+} from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode } from 'mezon-js';
-import React, { useCallback, useEffect } from 'react';
-import { DeviceEventEmitter, Platform, StatusBar, View } from 'react-native';
+import { useCallback, useEffect, useRef } from 'react';
+import { DeviceEventEmitter, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
+import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import ChannelMessages from '../../ChannelMessages';
@@ -21,35 +32,45 @@ export default function TopicDiscussion() {
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannel = useSelector(selectCurrentChannel);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanned = useSelector((state) => selectBanMemberCurrentClanById(state, currentChannel?.channel_id, currentUserId));
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
+	const topicIdRef = useRef<string>('');
+
+	useEffect(() => {
+		if (currentTopicId) topicIdRef.current = currentTopicId;
+	}, [currentTopicId]);
 
 	useEffect(() => {
 		const focusedListener = navigation.addListener('focus', () => {
+			if (!currentTopicId && topicIdRef.current) {
+				dispatch(topicsActions.setCurrentTopicId(topicIdRef.current));
+			}
 			if (Platform.OS === 'android') {
 				StatusBar.setBackgroundColor(themeValue.primary);
 			}
-			StatusBar.setBarStyle(themeBasic === ThemeModeBase.DARK ? 'light-content' : 'dark-content');
+			StatusBar.setBarStyle(themeBasic === ThemeModeBase.LIGHT || themeBasic === ThemeModeBase.SUNRISE ? 'dark-content' : 'light-content');
 		});
 		const blurListener = navigation.addListener('blur', () => {
 			if (Platform.OS === 'android') {
 				StatusBar.setBackgroundColor(themeValue.secondary);
 			}
-			StatusBar.setBarStyle(themeBasic === ThemeModeBase.DARK ? 'light-content' : 'dark-content');
+			StatusBar.setBarStyle(themeBasic === ThemeModeBase.LIGHT || themeBasic === ThemeModeBase.SUNRISE ? 'dark-content' : 'light-content');
 		});
 		return () => {
 			focusedListener();
 			blurListener();
 		};
-	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary]);
+	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary, currentTopicId]);
 
 	const styles = style(themeValue);
 	useEffect(() => {
 		const fetchMsgResult = async () => {
 			await dispatch(
 				messagesActions.fetchMessages({
-					channelId: currentChannel?.channel_id,
-					clanId: currentClanId,
+					channelId: currentChannel?.channel_id || '',
+					clanId: currentClanId || '',
 					topicId: currentTopicId || ''
 				})
 			);
@@ -57,7 +78,7 @@ export default function TopicDiscussion() {
 		if (currentTopicId !== '') {
 			fetchMsgResult();
 		}
-	}, []);
+	}, [currentChannel?.channel_id, currentClanId, currentTopicId]);
 
 	useEffect(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
@@ -93,26 +114,31 @@ export default function TopicDiscussion() {
 	return (
 		<View style={styles.channelView}>
 			<StatusBarHeight />
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<KeyboardAvoidingView
 				style={styles.channelView}
 				behavior={'padding'}
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
-				<TopicHeader
-					mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-					handleBack={onGoBack}
-				/>
+				<TopicHeader handleBack={onGoBack} />
 				<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
-					<View style={{ flex: 1 }}>
+					<Animated.View style={styles.panGestureContainer}>
 						<ChannelMessages
 							channelId={currentTopicId}
 							topicId={currentTopicId}
 							clanId={currentClanId}
+							lastSeenMessageId={currentChannel?.last_seen_message?.id}
 							isPublic={isPublicChannel(currentChannel)}
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}
+							isBanned={!!isBanned}
 						/>
-					</View>
+					</Animated.View>
 				</PanGestureHandler>
 				<ChatBox
 					channelId={currentChannel?.channel_id}
@@ -122,6 +148,7 @@ export default function TopicDiscussion() {
 					}}
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={currentTopicId}
+					isBanned={!!isBanned}
 				/>
 				<PanelKeyboard currentChannelId={currentTopicId || currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
 			</KeyboardAvoidingView>

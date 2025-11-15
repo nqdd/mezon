@@ -1,8 +1,6 @@
+import { size, useTheme } from '@mezon/mobile-ui';
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
-
-import { SettingIcon } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, Text } from 'react-native';
 import { FriendScreen } from '../../../screens/friend';
@@ -10,28 +8,13 @@ import { AddFriendScreen } from '../../../screens/friend/AddFriend';
 import { RequestFriendScreen } from '../../../screens/friend/RequestFriend';
 import { SettingFriendRequestScreen } from '../../../screens/friend/SettingFriendRequest';
 import { APP_SCREEN } from '../../ScreenTypes';
+import { styles } from './styles';
 
 const AddFriendButton = ({ navigation }: { navigation: any }) => {
 	const { t } = useTranslation(['screen']);
 	return (
-		<Pressable
-			onPress={() => navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.ADD_FRIEND })}
-			style={{ marginRight: size.s_18 }}
-		>
-			<Text style={{ color: Colors.textViolet }}>{t('headerRight.addFriends')}</Text>
-		</Pressable>
-	);
-};
-
-const SettingFriendRequestButton = ({ navigation }: { navigation: any }) => {
-	const { t } = useTranslation(['screen']);
-	const { themeValue } = useTheme();
-	return (
-		<Pressable
-			onPress={() => navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.REQUEST_FRIEND_SETTING })}
-			style={{ marginRight: size.s_18 }}
-		>
-			<SettingIcon height={20} width={20} color={themeValue.text} />
+		<Pressable onPress={() => navigation.navigate(APP_SCREEN.FRIENDS.STACK, { screen: APP_SCREEN.FRIENDS.ADD_FRIEND })} style={styles.addFriendButton}>
+			<Text style={styles.addFriendText}>{t('headerRight.addFriends')}</Text>
 		</Pressable>
 	);
 };
@@ -98,7 +81,6 @@ export const FriendStacks = ({ navigation }: { navigation: any }) => {
 					headerStyle: {
 						backgroundColor: themeValue.primary
 					}
-					// headerRight: () => <SettingFriendRequestButton navigation={navigation} />
 				}}
 			/>
 			<Stack.Screen

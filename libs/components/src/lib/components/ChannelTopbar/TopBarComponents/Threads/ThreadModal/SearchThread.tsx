@@ -1,6 +1,7 @@
 import { selectSearchedThreadLoadingStatus, selectThreadInputSearchByChannelId, threadsActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 
@@ -8,6 +9,7 @@ type SearchThreadProps = {
 	channelId: string;
 };
 const SearchThread = ({ channelId }: SearchThreadProps) => {
+	const { t } = useTranslation('channelMenu');
 	const dispatch = useAppDispatch();
 	const statusSearching = useSelector(selectSearchedThreadLoadingStatus);
 	const isLoading = statusSearching === 'loading';
@@ -36,7 +38,7 @@ const SearchThread = ({ channelId }: SearchThreadProps) => {
 			<div className="transition-all duration-300 w-56 h-6 pl-4 pr-2 py-3 bg-theme-input rounded items-center inline-flex">
 				<input
 					type="text"
-					placeholder="Search for Thread Name"
+					placeholder={t('menu.thread.searchThreads')}
 					className="text-sm placeholder:text-sm outline-none bg-transparent w-full"
 					onChange={handleChange}
 					value={inputSearchValue}

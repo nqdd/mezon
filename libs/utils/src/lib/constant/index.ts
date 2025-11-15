@@ -1,6 +1,6 @@
-import { ThreadError } from '../types';
+import type { ThreadError } from '../types';
 
-export const TIME_COMBINE = 120;
+export const TIME_COMBINE_MS = 10 * 60 * 1000; // 10 minutes in milliseconds
 export const TIME_OFFSET = 3;
 export const LIMIT_MESSAGE = 50;
 export const LIMIT_CLAN_ITEM = 50;
@@ -8,29 +8,27 @@ export const SIZE_PAGE_SEARCH = 25;
 export const LIMIT_SIZE_UPLOAD_IMG = 1000000;
 export const MAX_FILE_NAME_EMOJI = 62;
 export const MAX_FILE_ATTACHMENTS = 50; // 50 items
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
 export const DEBOUNCE_TYPING_TIME = 700;
 export const TIME_OF_SHOWING_FIRST_POPUP = 1000 * 60 * 5;
 export const KEY_KEYBOARD = { BACKSPACE: 8, TAB: 9, ENTER: 13, ESC: 27, UP: 38, DOWN: 40, RIGHT: 39, LEFT: 27 };
 export const GROUP_CHAT_MAXIMUM_MEMBERS = 10;
-export const EVERYONE_ROLE_ID = '1825450696619593728';
 export const EVERYONE_ROLE_TITLE = 'Everyone';
 export const TITLE_MENTION_HERE = '@here';
 export const RECENT_EMOJI_CATEGORY = 'Recent';
 export const DONE_ONBOARDING_STATUS = 3;
-export const FOR_15_MINUTES = 15 * 60 * 1000;
-export const FOR_10_MINUTES = 10 * 60 * 1000;
-export const FOR_1_HOUR = 60 * 60 * 1000;
-export const FOR_3_HOURS = 3 * 60 * 60 * 1000;
-export const FOR_8_HOURS = 8 * 60 * 60 * 1000;
-export const FOR_24_HOURS = 24 * 60 * 60 * 1000;
+export const FOR_15_MINUTES_SEC = 15 * 60;
+export const FOR_10_MINUTES_SEC = 10 * 60;
+export const FORWARD_MESSAGE_TIME = 10 * 60 * 1000;
+export const FOR_1_HOUR_SEC = 60 * 60;
+export const FOR_3_HOURS_SEC = 3 * 60 * 60;
+export const FOR_8_HOURS_SEC = 8 * 60 * 60;
+export const FOR_24_HOURS_SEC = 24 * 60 * 60;
 export const MAX_LENGTH_MESSAGE_BUZZ = 160;
-export const ONE_MINUTE = 60000;
+export const ONE_MINUTE_MS = 60000;
 export const GUEST_NAME = 'guest';
 export const FOR_SALE_CATE = 'forsale';
 
-export const MUTE = 0;
-export const ACTIVE = 1;
 export const DEFAULT_ID = '0';
 export const LIMIT = 50;
 
@@ -98,7 +96,8 @@ export const DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR = '#17ac86';
 export const CHANNEL_INPUT_ID = 'editorReactMentionChannel';
 export const GENERAL_INPUT_ID = 'editorReactMention';
 export const AMOUNT_TOKEN = {
-	TEN_TOKENS: 10
+	TEN_TOKENS: 10,
+	TEN_THOUSAND_TOKENS: 10000
 };
 
 export const TOKEN_TO_AMOUNT = {
@@ -106,8 +105,6 @@ export const TOKEN_TO_AMOUNT = {
 };
 
 export const ADD_ROLE_CHANNEL_STATUS = 'Add Role Channel';
-export const KOMU_CLAN_ID = '1779484504377790464';
-export const WELCOME_CHANNEL_ID = '1827883133219901440';
 
 export const MEZON_MENTIONS_COPY_KEY = 'text/mezon-mentions';
 export enum UploadLimitReason {
@@ -115,7 +112,14 @@ export enum UploadLimitReason {
 	COUNT = 'count'
 }
 
+// SIZE MEMORY
 export const MAX_FILE_SIZE_1MB = 1 * 1024 * 1024; // 1MB
+export const MAX_FILE_SIZE_8MB = MAX_FILE_SIZE_1MB * 8; // 8MB
+export const MAX_FILE_SIZE_10MB = 10 * MAX_FILE_SIZE_1MB; // 10MB
+export const MAX_FILE_SIZE_256KB = MAX_FILE_SIZE_1MB / 4; // 256KB
+export const MAX_FILE_SIZE_512KB = MAX_FILE_SIZE_1MB / 2; // 512KB
+export const MAX_FILE_SIZE = 100 * MAX_FILE_SIZE_1MB; // 100MB
+export const IMAGE_MAX_FILE_SIZE = 50 * MAX_FILE_SIZE_1MB; // 50MB
 
 export enum MiniAppEventType {
 	PONG = 'PONG',
@@ -157,6 +161,26 @@ export const DEFAULT_POSITION = { x: 100, y: 100 };
 export const ASPECT_RATIO = 4 / 3;
 
 export enum EMuteState {
-	UN_MUTE = 0,
-	MUTED = 1
+	UN_MUTE = 1,
+	MUTED = 0
 }
+
+export const STICKER_WAVE = {
+	URL: 'https://cdn.mezon.ai/stickers/hello.gif',
+	NAME: 'hello'
+};
+
+export const MEZON_AVATAR_URL = 'https://cdn.mezon.ai/0/1840653409082937344/1782991817428439000/1748500199026_0logo_new.png';
+export const WAVE_SENDER_NAME = 'Mezon';
+
+export const CURRENCY = {
+	CODE: 'vi-VN',
+	SYMBOL: 'đồng'
+};
+
+export const ITEM_TYPE = {
+	EMOJI: 0,
+	STICKER: 1
+};
+
+export const MAX_CLAN_ITEM_SLOTS = 250;

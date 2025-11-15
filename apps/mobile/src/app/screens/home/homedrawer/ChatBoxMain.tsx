@@ -1,14 +1,15 @@
 import { ActionEmitEvent, load, save, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
 import { resetCachedMessageActionNeedToResolve } from '../../../utils/helpers';
+import { styles as stylesFn } from './ChatBoxMain.styles';
 import { ActionMessageSelected } from './components/ChatBox/ActionMessageSelected';
 import { ChatBoxBottomBar } from './components/ChatBox/ChatBoxBottomBar';
 import { EMessageActionType } from './enums';
-import { IMessageActionNeedToResolve } from './types';
+import type { IMessageActionNeedToResolve } from './types';
 
 interface IChatBoxProps {
 	channelId: string;
@@ -21,11 +22,14 @@ interface IChatBoxProps {
 	canSendMessage?: boolean;
 	isPublic: boolean;
 	topicChannelId?: string;
+	isBlocked?: boolean;
+	isBanned?: boolean;
 }
 
 export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['message']);
+	const styles = stylesFn(themeValue);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 	const isDM = useMemo(() => {
 		return [ChannelStreamMode.STREAM_MODE_DM, ChannelStreamMode.STREAM_MODE_GROUP].includes(props?.mode);
@@ -73,43 +77,15 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 	}, []);
 
 	return (
-		<View
-			style={{
-				backgroundColor: themeValue.primary,
-				borderTopWidth: 1,
-				borderTopColor: themeValue.border,
-				flexDirection: 'column',
-				justifyContent: 'space-between'
-			}}
-		>
+		<View style={[styles.container, { borderTopColor: themeValue.border }]}>
 			{messageActionNeedToResolve && (props?.canSendMessage || isDM) && (
 				<ActionMessageSelected messageActionNeedToResolve={messageActionNeedToResolve} onClose={deleteMessageActionNeedToResolve} />
 			)}
-			{!props?.canSendMessage && !isDM ? (
-				<View
-					style={{
-						zIndex: 10,
-						width: '95%',
-						marginVertical: size.s_6,
-						alignSelf: 'center',
-						marginBottom: size.s_20
-					}}
-				>
-					<View
-						style={{
-							backgroundColor: themeValue.charcoal,
-							padding: size.s_16,
-							borderRadius: size.s_20,
-							marginHorizontal: size.s_6
-						}}
-					>
-						<Text
-							style={{
-								color: themeValue.textDisabled,
-								textAlign: 'center'
-							}}
-						>
-							{t('noSendMessagePermission')}
+			{(!props?.canSendMessage && !isDM) || props?.isBlocked || props?.isBanned ? (
+				<View style={styles.warningContainer}>
+					<View style={[styles.warningBox, { backgroundColor: themeValue.charcoal }]}>
+						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>
+							{props?.isBanned ? t('isBanned') : t('noSendMessagePermission')}
 						</Text>
 					</View>
 				</View>

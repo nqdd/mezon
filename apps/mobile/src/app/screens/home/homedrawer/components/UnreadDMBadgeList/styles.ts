@@ -1,4 +1,4 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -7,7 +7,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		containerBottom: {
-			paddingBottom: size.s_20
+			paddingBottom: size.s_14
 		},
 		listDMBadge: {
 			maxHeight: '100%',
@@ -15,8 +15,15 @@ export const style = (colors: Attributes) =>
 			flexGrow: 0,
 			paddingHorizontal: size.s_10
 		},
+		dmAvatar: {
+			width: size.s_42,
+			height: size.s_42,
+			borderRadius: size.s_42,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
 		groupAvatar: {
-			backgroundColor: Colors.orange,
+			backgroundColor: baseColor.orange,
 			width: size.s_42,
 			height: size.s_42,
 			borderRadius: size.s_42,
@@ -24,11 +31,11 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		badge: {
-			backgroundColor: Colors.red,
+			backgroundColor: baseColor.redStrong,
 			position: 'absolute',
 			borderRadius: size.s_20,
 			borderWidth: size.s_2,
-			borderColor: Colors.secondary,
+			borderColor: colors.secondary,
 			minWidth: size.s_20,
 			paddingHorizontal: size.s_2,
 			paddingVertical: size.s_2,
@@ -39,7 +46,7 @@ export const style = (colors: Attributes) =>
 			right: -5
 		},
 		badgeText: {
-			color: Colors.white,
+			color: 'white',
 			fontWeight: 'bold',
 			fontSize: size.tiny
 		},
@@ -48,9 +55,14 @@ export const style = (colors: Attributes) =>
 		},
 		avatarWrapper: {
 			borderRadius: size.s_42,
-			backgroundColor: colors.colorAvatarDefault,
 			height: size.s_42,
 			width: size.s_42
+		},
+		groupAvatarWrapper: {
+			width: size.s_42,
+			height: size.s_42,
+			borderRadius: size.s_42,
+			overflow: 'hidden'
 		},
 		wrapperTextAvatar: {
 			width: size.s_42,
@@ -60,8 +72,9 @@ export const style = (colors: Attributes) =>
 		},
 		textAvatar: {
 			textAlign: 'center',
+			textTransform: 'uppercase',
 			fontSize: size.h5,
-			color: Colors.white
+			color: 'white'
 		},
 		lineBottom: {
 			width: '50%',
@@ -69,5 +82,15 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.textDisabled,
 			position: 'absolute',
 			bottom: 0
+		},
+		imageFull: {
+			width: '100%',
+			height: '100%'
+		},
+		animatedContainer: {
+			overflow: 'hidden'
+		},
+		animatedInner: {
+			paddingVertical: size.s_20
 		}
 	});

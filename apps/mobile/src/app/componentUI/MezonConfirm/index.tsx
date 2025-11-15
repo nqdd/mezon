@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
-import { ReactNode } from 'react';
+import { useTheme } from '@mezon/mobile-ui';
+import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { style } from './styles';
@@ -10,13 +11,15 @@ interface IMezonConfirmProps {
 	children?: ReactNode;
 	confirmText: string;
 	content?: string;
+	isDanger?: boolean;
 	onConfirm?: () => void;
 	onCancel?: () => void;
 }
-export default function MezonConfirm({ children, title, confirmText, content, onConfirm, onCancel }: IMezonConfirmProps) {
+export default function MezonConfirm({ children, title, confirmText, content, isDanger, onConfirm, onCancel }: IMezonConfirmProps) {
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, isTabletLandscape);
+	const { t } = useTranslation(['message']);
 
 	function handleClose() {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
@@ -37,11 +40,11 @@ export default function MezonConfirm({ children, title, confirmText, content, on
 				{children ? children : <Text style={styles.contentText}>{content || ''}</Text>}
 
 				<View style={styles.btnWrapper}>
-					<TouchableOpacity style={[styles.btn, styles.btnDanger]} onPress={() => handleConfirm()}>
-						<Text style={[styles.btnText, { color: baseColor.white }]}>{confirmText}</Text>
+					<TouchableOpacity style={[styles.btn, styles.btnDefault, isDanger && styles.btnDanger]} onPress={() => handleConfirm()}>
+						<Text style={[styles.btnText, styles.btnTextWhite]}>{confirmText}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.btn} onPress={() => handleClose()}>
-						<Text style={styles.btnText}>Cancel</Text>
+						<Text style={styles.btnText}>{t('buzz.cancel')}</Text>
 					</TouchableOpacity>
 				</View>
 			</View>

@@ -8,13 +8,12 @@ import {
 	selectGuestAccessToken,
 	selectGuestUserId,
 	selectJoinCallExtStatus,
-	selectShowCamera,
-	selectShowMicrophone,
 	useAppDispatch,
 	voiceActions
 } from '@mezon/store';
 import { GUEST_NAME, IS_MOBILE } from '@mezon/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -63,8 +62,12 @@ const PermissionsPopup = React.memo(({ onClose }: { onClose: () => void }) => {
 });
 
 export default function PreJoinCalling() {
+	const { t } = useTranslation('common');
+	const account = useSelector(selectAllAccount);
+	const getDisplayName = account?.user?.display_name || account?.user?.username;
+	const getAvatar = account?.user?.avatar_url;
 	const [cameraOn, setCameraOn] = useState(false);
-	const [username, setUsername] = useState('');
+	const [username, setUsername] = useState(getDisplayName || '');
 	const [avatar, setAvatar] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	// State for permissions
@@ -93,7 +96,7 @@ export default function PreJoinCalling() {
 			const decoded = atob(payload);
 			return JSON.parse(decoded);
 		} catch (error) {
-			toast.error('Invalid JWT');
+			toast.error(t('invalidJWT'));
 			return {};
 		}
 	}
@@ -127,13 +130,7 @@ export default function PreJoinCalling() {
 		}
 	}, [getJoinCallExtStatus]);
 
-	const showMicrophone = useSelector(selectShowMicrophone);
-	const showCamera = useSelector(selectShowCamera);
 	const serverUrl = process.env.NX_CHAT_APP_MEET_WS_URL;
-
-	const account = useSelector(selectAllAccount);
-	const getDisplayName = account?.user?.display_name;
-	const getAvatar = account?.user?.avatar_url;
 
 	const closePermissionsPopup = useCallback(() => {
 		setPermissionsState((prev) => ({
@@ -179,9 +176,7 @@ export default function PreJoinCalling() {
 
 		setError(null);
 		setAvatar(avatar as string);
-		const fullStringNameAndAvatar = isUser
-			? JSON.stringify({ extName: getDisplayName, extAvatar: getAvatar })
-			: JSON.stringify({ extName: username });
+		const fullStringNameAndAvatar = isUser ? JSON.stringify({ extName: username, extAvatar: getAvatar }) : JSON.stringify({ extName: username });
 
 		await dispatch(generateMeetTokenExternal({ token: code as string, displayName: fullStringNameAndAvatar, isGuest: !isUser as boolean }));
 	}, [dispatch, username, getDisplayName, code]);
@@ -216,13 +211,18 @@ export default function PreJoinCalling() {
 					id="livekitRoom"
 					key={getExternalToken}
 					audio={IS_MOBILE as boolean}
-					video={showCamera as boolean}
+					video={{
+						resolution: { width: 640, height: 360 },
+						frameRate: 24
+					}}
 					token={getExternalToken}
 					serverUrl={serverUrl}
 					data-lk-theme="default"
 					className="h-full flex-1 flex"
 				>
 					<MyVideoConference
+						token={getExternalToken}
+						url={serverUrl}
 						isExternalCalling={true}
 						channelLabel={'Private Room'}
 						onLeaveRoom={handleLeaveRoom}
@@ -243,13 +243,7 @@ export default function PreJoinCalling() {
 						<div className="w-full max-w-xl bg-zinc-800 rounded-lg overflow-hidden">
 							<div className="p-6 flex flex-col items-center">
 								<VideoPreview avatarExist={getAvatar} cameraOn={cameraOn} stream={streamRef.current} />
-								<JoinForm
-									displayNameExisted={getDisplayName}
-									loadingStatus={getJoinCallExtStatus}
-									username={username}
-									setUsername={setUsername}
-									onJoin={joinMeeting}
-								/>
+								<JoinForm loadingStatus={getJoinCallExtStatus} username={username} setUsername={setUsername} onJoin={joinMeeting} />
 
 								{/* Error message */}
 								{error && (

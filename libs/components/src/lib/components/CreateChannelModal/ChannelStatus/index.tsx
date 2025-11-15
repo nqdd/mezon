@@ -1,4 +1,6 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import { ChannelLableModal } from '../ChannelLabel';
 
 interface ChannelStatusModalProps {
@@ -7,6 +9,7 @@ interface ChannelStatusModalProps {
 }
 
 export const ChannelStatusModal: React.FC<ChannelStatusModalProps> = ({ channelNameProps, onChangeValue }) => {
+	const { t } = useTranslation('createChannel');
 	const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.checked ? 1 : 0;
 		onChangeValue(value);
@@ -20,7 +23,7 @@ export const ChannelStatusModal: React.FC<ChannelStatusModalProps> = ({ channelN
 						<div className="LiveArea w-5 h-5 left-[2px] top-[2px] absolute" />
 						<Icons.Private />
 					</div>
-					<ChannelLableModal labelProp={channelNameProps} />
+					<ChannelLableModal labelProp={t('privacy.private')} />
 				</div>
 				<div className="relative flex flex-wrap items-center">
 					<input
@@ -37,11 +40,12 @@ export const ChannelStatusModal: React.FC<ChannelStatusModalProps> = ({ channelN
 						value={1}
 						id="id-c01"
 						onChange={handleToggle}
+						data-e2e={generateE2eId('clan_page.modal.create_channel.toggle.is_private')}
 					/>
 				</div>
 			</div>
 			<div className="OnlySelectedMembersAndRolesWillBeAbleToViewThisChannel self-stretch text-zinc-400 text-xs font-normal leading-[18.20px]">
-				Only selected members and roles will be able to view this channel.
+				{t('privacy.description')}
 			</div>
 		</div>
 	);

@@ -1,7 +1,7 @@
 import {
 	fetchListNotification,
 	notificationActions,
-	selectCurrentClan,
+	selectCurrentClanId,
 	selectNotificationClan,
 	selectNotificationForYou,
 	selectNotificationMentions,
@@ -10,9 +10,11 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { INotification, NotificationCategory, sortNotificationsByDate } from '@mezon/utils';
-import { ApiSdTopic } from 'mezon-js/dist/api.gen';
+import type { INotification } from '@mezon/utils';
+import { NotificationCategory, sortNotificationsByDate } from '@mezon/utils';
+import type { ApiSdTopic } from 'mezon-js/dist/api.gen';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import AllNotification from './AllNotification';
 import EmptyNotification from './EmptyNotification';
@@ -25,13 +27,6 @@ const InboxType = {
 	TOPICS: 'topics'
 };
 
-const tabDataNotify = [
-	{ title: 'For you', value: InboxType.INDIVIDUAL },
-	{ title: 'Messages', value: InboxType.MESSAGES },
-	{ title: 'Mentions', value: InboxType.MENTIONS },
-	{ title: 'Topics', value: InboxType.TOPICS }
-];
-
 function InboxButton() {
 	return (
 		<div>
@@ -40,11 +35,26 @@ function InboxButton() {
 	);
 }
 
-export function NotificationTooltipContent() {
-	const currentClan = useSelector(selectCurrentClan);
+interface NotificationTooltipContentProps {
+	onCloseTooltip?: () => void;
+}
+
+export function NotificationTooltipContent({ onCloseTooltip }: NotificationTooltipContentProps) {
+	const { t } = useTranslation('notifications');
+	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
 	const appearanceTheme = useSelector(selectTheme);
 	const [currentTabNotify, setCurrentTabNotify] = useState(InboxType.MENTIONS);
+
+	const tabDataNotify = useMemo(
+		() => [
+			{ title: t('tabs.forYou'), value: InboxType.INDIVIDUAL },
+			{ title: t('tabs.messages'), value: InboxType.MESSAGES },
+			{ title: t('tabs.mentions'), value: InboxType.MENTIONS },
+			{ title: t('tabs.topics'), value: InboxType.TOPICS }
+		],
+		[t]
+	);
 
 	const handleChangeTab = (valueTab: string) => {
 		setCurrentTabNotify(valueTab);
@@ -68,7 +78,7 @@ export function NotificationTooltipContent() {
 	}, [allNotificationClan]);
 
 	useEffect(() => {
-		if (!currentClan?.clan_id) return;
+		if (!currentClanId) return;
 
 		const isAllNotificationForYouEmpty = !(allNotificationForYou?.data?.length > 0);
 		const isAllNotificationClanEmpty = !(allNotificationClan?.data?.length > 0);
@@ -85,9 +95,16 @@ export function NotificationTooltipContent() {
 		}
 
 		if (category) {
-			dispatch(notificationActions.fetchListNotification({ clanId: currentClan.clan_id, category }));
+			dispatch(notificationActions.fetchListNotification({ clanId: currentClanId, category }));
 		}
-	}, [currentTabNotify]);
+	}, [
+		currentTabNotify,
+		currentClanId,
+		allNotificationForYou?.data?.length,
+		allNotificationClan?.data?.length,
+		allNotificationMentions?.data?.length,
+		dispatch
+	]);
 
 	const listRefForYou = useRef<HTMLDivElement | null>(null);
 	const listRefMentions = useRef<HTMLDivElement | null>(null);
@@ -104,8 +121,8 @@ export function NotificationTooltipContent() {
 
 			dispatch(
 				fetchListNotification({
-					clanId: currentClan?.id || '',
-					category: category,
+					clanId: currentClanId || '',
+					category,
 					notificationId: lastId
 				})
 			);
@@ -113,12 +130,12 @@ export function NotificationTooltipContent() {
 	};
 
 	return (
-		<div className="flex flex-col gap-2 bg-theme-setting-primary text-[14px] text-theme-primary rounded-lg w-[480px] max-w-[600px] z-50 overflow-hidden">
+		<div className="flex flex-col gap-2 bg-theme-setting-primary text-[14px] text-theme-primary rounded-lg w-[480px] max-w-[600px] max-h-[80vh] z-50 overflow-hidden">
 			<div className="py-2 px-3 ">
 				<div className="flex flex-row items-center justify-between gap-2 font-bold text-[16px]">
 					<div className="flex flex-row items-center gap-4 justify-start">
 						<InboxButton />
-						<div>Inbox </div>
+						<div>{t('inbox')}</div>
 					</div>
 				</div>
 				<div className="flex flex-row border-b-theme-primary">
@@ -167,7 +184,11 @@ export function NotificationTooltipContent() {
 					>
 						{getAllNotificationMentions.length > 0 ? (
 							getAllNotificationMentions.map((notification: INotification, index: number) => (
-								<AllNotification notification={notification} key={`mention-${notification?.id}-${index}`} />
+								<AllNotification
+									notification={notification}
+									key={`mention-${notification?.id}-${index}`}
+									onCloseTooltip={onCloseTooltip}
+								/>
 							))
 						) : (
 							<EmptyNotification isEmptyMentions />
@@ -195,7 +216,7 @@ export function NotificationTooltipContent() {
 					<div>
 						{getAllTopic.length > 0 ? (
 							getAllTopic.map((topic: ApiSdTopic, index: number) => (
-								<TopicNotification topic={topic} key={`topic-${topic?.id}-${index}`} />
+								<TopicNotification topic={topic} key={`topic-${topic?.id}-${index}`} onCloseTooltip={onCloseTooltip} />
 							))
 						) : (
 							<EmptyNotification isEmptyMentions />

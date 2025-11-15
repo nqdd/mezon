@@ -1,29 +1,31 @@
+import type { ChannelsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	getStore,
-	selectChannelById2,
-	selectClanMemberMetaUserId,
+	selectChannelByChannelId,
+	selectChannelByIdAndClanId,
 	selectClanView,
 	selectCurrentChannel,
 	selectCurrentDM,
-	selectDirectMemberMetaUserId,
 	selectDmGroupCurrentId,
 	selectHashtagDmById,
-	selectMembeGroupByUserId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMemberDMByUserId,
+	selectMemberGroupByUserId,
+	selectUserStatusById,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
 
 export const useUserById = (userID: string | undefined): ChannelMembersEntity | undefined => {
 	return useAppSelector((state) => {
 		if (!userID) return undefined;
 		const currentDMId = selectDmGroupCurrentId(state);
 		const isClanView = selectClanView(state);
-		return isClanView
-			? (selectMemberClanByUserId2(state, userID ?? '') as unknown as ChannelMembersEntity)
-			: (selectMembeGroupByUserId(state, currentDMId as string, userID as string) as unknown as ChannelMembersEntity);
+		if (!isClanView) {
+			return selectMemberGroupByUserId(state, currentDMId as string, userID as string) as unknown as ChannelMembersEntity;
+		} else {
+			return selectMemberClanByUserId(state, userID ?? '') as unknown as ChannelMembersEntity;
+		}
 	});
 };
 
@@ -32,8 +34,8 @@ export const useUserMetaById = (userID: string | undefined): any | undefined => 
 		if (!userID) return undefined;
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectClanMemberMetaUserId(state, userID ?? '')?.status as any)
-			: (selectDirectMemberMetaUserId(state, userID as string)?.user?.metadata?.user_status as any);
+			? (selectUserStatusById(state, userID ?? '')?.status as string | undefined)
+			: (selectUserStatusById(state, userID as string)?.user_status as string | undefined);
 	});
 };
 
@@ -42,7 +44,7 @@ export const useUserByUserId = (userID: string | undefined): ChannelMembersEntit
 		if (!userID) return undefined;
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectMemberClanByUserId2(state, userID ?? '') as unknown as ChannelMembersEntity)
+			? (selectMemberClanByUserId(state, userID ?? '') as unknown as ChannelMembersEntity)
 			: (selectMemberDMByUserId(state, userID ?? '') as unknown as ChannelMembersEntity);
 	});
 };
@@ -52,16 +54,15 @@ export const useTagById = (tagId: string | undefined): ChannelsEntity | undefine
 		if (!tagId) return undefined;
 		const isClanView = selectClanView(state);
 		return isClanView
-			? (selectChannelById2(state, tagId) as unknown as ChannelsEntity)
+			? (selectChannelByChannelId(state, tagId) as unknown as ChannelsEntity)
 			: (selectHashtagDmById(state, tagId) as unknown as ChannelsEntity);
 	});
 };
 
-export const getTagByIdOnStored = (tagId: string | undefined): ChannelsEntity | undefined => {
+export const getTagByIdOnStored = (clanId: string, tagId: string | undefined): ChannelsEntity | undefined => {
 	const store = getStore();
 	if (!tagId) return undefined;
-	const isClanView = selectClanView(store.getState());
-	return isClanView ? selectChannelById2(store.getState(), tagId) : selectHashtagDmById(store.getState(), tagId);
+	return selectChannelByIdAndClanId(store.getState(), clanId, tagId) || selectHashtagDmById(store.getState(), tagId);
 };
 
 export const useCurrentInbox = (): ChannelsEntity | null => {

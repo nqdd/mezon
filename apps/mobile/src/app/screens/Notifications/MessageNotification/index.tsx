@@ -1,4 +1,4 @@
-import { Colors } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import { IMessageWithUser } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useMemo } from 'react';
@@ -7,12 +7,14 @@ import { Text, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { RenderTextMarkdownContent } from '../../home/homedrawer/components/RenderTextMarkdown';
-import { styles } from './MessageNotification.styles';
+import { style } from './MessageNotification.styles';
 
 interface IMessageNotificationProps {
 	message: IMessageWithUser;
 }
 const MessageNotification = React.memo(({ message }: IMessageNotificationProps) => {
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const { t } = useTranslation('message');
 
 	const isEdited = useMemo(() => {
@@ -29,7 +31,7 @@ const MessageNotification = React.memo(({ message }: IMessageNotificationProps) 
 			{message?.attachments?.length ? (
 				<View style={styles.attachmentBox}>
 					<Text style={styles.tapToSeeAttachmentText}>{t('tapToSeeAttachment')}</Text>
-					<MezonIconCDN icon={IconCDN.imageIcon} width={13} height={13} color={Colors.textGray} />
+					<MezonIconCDN icon={IconCDN.imageIcon} width={size.s_13} height={size.s_13} color={themeValue.textDisabled} />
 				</View>
 			) : null}
 			<RenderTextMarkdownContent

@@ -1,10 +1,14 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		newGroupContainer: {
 			backgroundColor: colors.primary,
+			flex: 1
+		},
+		wrapper: {
 			flex: 1
 		},
 		contentWrapper: {
@@ -32,11 +36,14 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			justifyContent: 'flex-end',
 			gap: size.s_20,
-			width: size.s_70,
+			width: size.s_70
 		},
 		actionText: {
-			color: Colors.textViolet,
+			color: '#5a62f4',
 			fontSize: size.medium
+		},
+		actionTextDisabled: {
+			opacity: 0.6
 		},
 		searchFriend: {
 			backgroundColor: colors.secondary,
@@ -52,5 +59,22 @@ export const style = (colors: Attributes) =>
 			color: colors.textStrong,
 			paddingVertical: size.s_6,
 			marginLeft: 5
+		},
+		friendListWrapper: {
+			flex: 1,
+			paddingTop: size.s_10
+		},
+
+		container: {
+			flex: 1
+		},
+
+		backButton: {
+			width: size.s_70,
+			height: '100%'
+		},
+
+		searchIcon: {
+			// Icon color will be dynamic
 		}
 	});

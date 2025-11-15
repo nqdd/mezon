@@ -1,9 +1,10 @@
-import { CheckIcon } from '@mezon/mobile-components';
-import { Colors, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { appActions, selectCurrentLanguage, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, Text, View } from 'react-native';
+import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../constants/icon_cdn';
 import { styles } from './styles';
 
 export const LanguageSetting = () => {
@@ -40,11 +41,11 @@ export const LanguageSetting = () => {
 			<FlatList
 				data={languageList}
 				keyExtractor={(item) => item.value}
-				ItemSeparatorComponent={() => <View style={{ height: 1 }} />}
+				ItemSeparatorComponent={() => <View style={themeStyles.itemSeparator} />}
 				renderItem={({ item }) => (
 					<Pressable onPress={() => changeLanguage(item.value)} style={[themeStyles.languageItem]}>
 						<Text style={themeStyles.optionText}>{item.title}</Text>
-						{currentLanguage === item.value ? <CheckIcon color={Colors.bgViolet} /> : null}
+						{currentLanguage === item.value ? <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={themeValue.bgViolet} /> : null}
 					</Pressable>
 				)}
 			/>

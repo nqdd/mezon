@@ -1,30 +1,29 @@
+import { useTranslation } from 'react-i18next';
+
 type ProfileTabsProps = {
 	activeTab: string;
 	onActiveTabChange: (tabId: string) => void;
 };
 
 export const typeTab = {
-	ABOUT_ME: 'About Me',
-	ACTIVITY: 'Activity',
-	MUTUAL_FRIENDS: 'Mutual Friends',
-	MUTUAL_SERVERS: 'Mutual Clans'
+	ABOUT_ME: 'aboutMe',
+	ACTIVITY: 'activity',
+	MUTUAL_FRIENDS: 'mutualFriends',
+	MUTUAL_SERVERS: 'mutualServers'
 };
 
-const profileTabs = [
-	{ id: typeTab.ABOUT_ME, name: typeTab.ABOUT_ME },
-	{ id: typeTab.ACTIVITY, name: typeTab.ACTIVITY },
-	{ id: typeTab.MUTUAL_FRIENDS, name: typeTab.MUTUAL_FRIENDS },
-	{ id: typeTab.MUTUAL_SERVERS, name: typeTab.MUTUAL_SERVERS }
-];
-
 const ProfileTabs = ({ activeTab, onActiveTabChange }: ProfileTabsProps) => {
+	const { t } = useTranslation('common');
+
+	const profileTabs = [{ id: typeTab.ABOUT_ME, name: t('userProfile.aboutMe') }];
+
 	const handleClickTab = (tabId: string) => {
 		onActiveTabChange(tabId);
 	};
 
 	return (
 		<div className="mt-4 mx-4">
-			<ul className="flex gap-8 h-[25px] text-theme-primary border-b-[1px]" style={{ borderColor: 'var(--text-theme-primary)' }}>
+			<ul className="flex gap-8 h-[25px] text-theme-primary border-b-[1px] border-[var(--text-theme-primary)]">
 				{profileTabs.map((tab) => (
 					<li
 						key={tab.id}

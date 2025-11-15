@@ -1,0 +1,158 @@
+{
+	"pageTitle": {
+		"channels": "Kênh",
+		"members": "Thành viên",
+		"guideClan": "Hướng dẫn"
+	},
+	"tooltips": {
+		"clickToEdit": "Nhấp để chỉnh sửa nhóm",
+		"startVoiceCall": "Bắt đầu cuộc gọi thoại",
+		"startVideoCall": "Bắt đầu cuộc gọi video",
+		"showMemberList": "Hiển thị danh sách thành viên",
+		"showUserProfile": "Hiển thị hồ sơ người dùng",
+		"files": "Tệp",
+		"canvas": "Canvas",
+		"threads": "Chủ đề",
+		"notificationSettings": "Cài đặt thông báo",
+		"pinnedMessages": "Tin nhắn đã ghim",
+		"members": "Thành viên",
+		"showChat": "Hiển thị cuộc trò chuyện",
+		"addFriendsToDM": "Thêm bạn bè vào DM",
+		"jump": "Nhảy đến",
+		"gallery": "Thư viện"
+	},
+	"directMessage": "Tin nhắn trực tiếp",
+	"activeThreads": "Chủ đề đang hoạt động",
+	"joinedThreadsLast30Days": "Chủ đề đã tham gia (30 ngày qua)",
+	"olderThreads": "Chủ đề cũ hơn",
+	"loading": "Đang tải...",
+	"callMessages": {
+		"startedVoiceCall": "Đã bắt đầu cuộc gọi thoại",
+		"startedVideoCall": "Đã bắt đầu cuộc gọi video"
+	},
+	"toastMessages": {
+		"groupChannelIdMissing": "Thiếu ID kênh nhóm",
+		"dmChannelIdMissing": "Thiếu ID kênh tin nhắn trực tiếp",
+		"youAreOnAnotherCall": "Bạn đang trong cuộc gọi khác"
+	},
+	"pinnedMessages": {
+		"emptyTitle": "Kênh này chưa có tin nhắn nào được ghim.",
+		"protip": "MẸO:",
+		"emptyDescription": "Người dùng có quyền 'Quản lý tin nhắn' có thể ghim tin nhắn từ menu ngữ cảnh.",
+		"unpinMessage": "Bỏ ghim tin nhắn",
+		"unpinConfirmation": "Bạn có chắc chắn muốn xóa tin nhắn đã ghim này không?",
+		"cancel": "Hủy",
+		"unpinIt": "Bỏ ghim"
+	},
+	"threads": {
+		"emptyTitle": "Không có chủ đề nào.",
+		"emptyDescription": "Tập trung vào cuộc trò chuyện với chủ đề - một kênh văn bản tạm thời.",
+		"createThread": "Tạo chủ đề"
+	},
+	"canvas": {
+		"emptyTitle": "Không có canvas nào.",
+		"emptyDescription": "Tập trung vào cuộc trò chuyện với canvas - một kênh văn bản tạm thời.",
+		"createCanvas": "Tạo Canvas"
+	},
+	"files": {
+		"emptyTitle": "Không có tệp nào.",
+		"emptyDescription": "Tập trung vào cuộc trò chuyện với tệp - một kênh văn bản tạm thời.",
+		"searchPlaceholder": "Tìm kiếm tên tệp"
+	},
+	"fileItem": {
+		"download": "Tải xuống",
+		"sharedBy": "Được chia sẻ bởi {{username}} {{time}}",
+		"attachmentFailed": "Không thể tải tệp đính kèm."
+	},
+	"notificationSetting": {
+		"muteChannel": "Tắt thông báo kênh",
+		"unmuteChannel": "Bật thông báo kênh",
+		"mutedUntil": "Tắt thông báo đến {{date}}",
+		"useCategoryDefault": "Sử dụng mặc định danh mục",
+		"muteOptions": {
+			"for15Minutes": "Trong 15 phút",
+			"for1Hour": "Trong 1 giờ",
+			"for3Hours": "Trong 3 giờ",
+			"for8Hours": "Trong 8 giờ",
+			"for24Hours": "Trong 24 giờ",
+			"untilTurnedBackOn": "Cho đến khi tôi bật lại"
+		}
+	},
+	"gallery": {
+		"title": "Thư viện",
+		"sentDate": "Ngày gửi",
+		"fromDate": "Từ ngày",
+		"toDate": "Đến ngày",
+		"filters": {
+			"all": "Tất cả",
+			"images": "Hình ảnh",
+			"videos": "Video"
+		},
+		"dateRange": {
+			"from": "Từ {{date}}",
+			"to": "Đến {{date}}",
+			"range": "{{startDate}} - {{endDate}}"
+		},
+		"validation": {
+			"startDateBeforeEnd": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc"
+		},
+		"buttons": {
+			"clearAll": "Xóa tất cả",
+			"apply": "Áp dụng",
+			"clearDateFilter": "Xóa bộ lọc ngày"
+		},
+		"emptyState": {
+			"noMediaFiles": "Không tìm thấy tệp phương tiện",
+			"noMediaFilesDateRange": "Không tìm thấy tệp phương tiện cho khoảng ngày đã chọn",
+			"noImages": "Không tìm thấy hình ảnh",
+			"noVideos": "Không tìm thấy video"
+		},
+		"loading": {
+			"olderImages": "Đang tải ảnh cũ hơn...",
+			"newerImages": "Đang tải ảnh mới hơn...",
+			"filterChange": "Đang tải phương tiện..."
+		},
+		"filesCount": "{{count}} tệp",
+		"imageError": "Lỗi"
+	},
+	"modals": {
+		"threads": {
+			"title": "Chủ đề",
+			"create": "Tạo",
+			"results": "Kết quả"
+		},
+		"canvas": {
+			"title": "Canvas",
+			"create": "Tạo"
+		},
+		"files": {
+			"title": "Tệp"
+		},
+		"pinnedMessages": {
+			"title": "Tin nhắn đã ghim"
+		}
+	},
+	"createThread": {
+		"newThread": "Chủ đề mới",
+		"inviteMessage": "Bạn có thể mời người mới bằng cách @nhắc đến họ.",
+		"validation": {
+			"invalidChannelName": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ chữ, số, _ hoặc -)."
+		},
+		"threadName": "Tên chủ đề",
+		"enterThreadName": "Nhập tên chủ đề",
+		"privateThread": "Chủ đề riêng tư",
+		"privateThreadDescription": "Chỉ những người bạn mời và người điều hành mới có thể xem",
+		"toast": {
+			"threadNameTooShort": "Tên chủ đề phải dài hơn 3 ký tự",
+			"threadNameExists": "Tên chủ đề đã tồn tại",
+			"initialMessageRequired": "Cần một tin nhắn ban đầu để bắt đầu chủ đề.",
+			"messageTooLong": "Tin nhắn vượt quá giới hạn 4000 ký tự",
+			"messageLimitExceeded": "Tin nhắn vượt quá giới hạn {{limit}} ký tự"
+		},
+		"placeholder": {
+			"threadName": "Nhập tên chủ đề"
+		}
+	},
+	"moreFile": "tệp nữa",
+	"moreFiles": "tệp nữa"
+}

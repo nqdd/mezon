@@ -1,10 +1,17 @@
 import { useGifsStickersEmoji } from '@mezon/core';
+import type { E2eKeyType } from '@mezon/utils';
 import { ILongPressType } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useRef, useState } from 'react';
 import GifStickerEmojiButtons from '../../GifsStickerEmojiButtons';
 import { useEmojiPopupModal } from '../EmojiPopupModal';
 
+export interface EmojiActionToolbarE2E {
+	gif: E2eKeyType;
+	sticker: E2eKeyType;
+	emoji: E2eKeyType;
+	mic: E2eKeyType;
+}
 interface ChatBoxToolbarWrapperProps {
 	isShowEmojiPicker: boolean;
 	hasPermissionEdit: boolean;
@@ -12,6 +19,8 @@ interface ChatBoxToolbarWrapperProps {
 	isRecording: boolean;
 	mode: ChannelStreamMode;
 	isTopic: boolean;
+	isThreadbox?: boolean;
+	onEmojiSelect?: (emojiId: string, emojiShortname: string) => void;
 }
 
 const ChatBoxToolbarWrapper: React.FC<ChatBoxToolbarWrapperProps> = ({
@@ -20,7 +29,9 @@ const ChatBoxToolbarWrapper: React.FC<ChatBoxToolbarWrapperProps> = ({
 	voiceLongPress = {} as ILongPressType,
 	isRecording = false,
 	mode = ChannelStreamMode.STREAM_MODE_CHANNEL,
-	isTopic = false
+	isTopic = false,
+	isThreadbox = false,
+	onEmojiSelect,
 }) => {
 	const [isEmojiPopupVisible, setIsEmojiPopupVisible] = useState<boolean>(false);
 	const popupRef = useRef<HTMLDivElement | null>(null);
@@ -32,7 +43,8 @@ const ChatBoxToolbarWrapper: React.FC<ChatBoxToolbarWrapperProps> = ({
 		isEmojiPopupVisible,
 		setIsEmojiPopupVisible,
 		setSubPanelActive,
-		isTopic
+		isTopic,
+		onEmojiSelect
 	});
 
 	return (
@@ -45,6 +57,7 @@ const ChatBoxToolbarWrapper: React.FC<ChatBoxToolbarWrapperProps> = ({
 				onToggleEmojiPopup={toggleEmojiPopup}
 				isEmojiPopupVisible={isEmojiPopupVisible}
 				isTopic={isTopic}
+				isThreadbox={isThreadbox}
 			/>
 		)
 	);

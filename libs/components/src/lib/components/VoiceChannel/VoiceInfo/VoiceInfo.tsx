@@ -11,11 +11,12 @@ import {
 	voiceActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ParticipantMeetState, useMediaPermissions } from '@mezon/utils';
+import { ParticipantMeetState, generateE2eId, useMediaPermissions } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
 import Tooltip from 'rc-tooltip';
-import React, { ReactNode, memo, useCallback, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { ButtonCopy } from '../../../components';
 import { useGroupCallSignaling, useGroupCallState } from '../../GroupCall';
@@ -47,13 +48,14 @@ const VoiceInfo = React.memo(() => {
 		}
 	};
 
-	const participantMeetState = async (state: ParticipantMeetState, clanId: string, channelId: string): Promise<void> => {
+	const participantMeetState = async (state: ParticipantMeetState, clanId: string, channelId: string, roomId: string): Promise<void> => {
 		await dispatch(
 			handleParticipantVoiceState({
 				clan_id: clanId,
 				channel_id: channelId,
 				display_name: userProfile?.user?.display_name ?? '',
-				state
+				state,
+				room_name: state === ParticipantMeetState.LEAVE ? 'leave' : roomId || ''
 			})
 		);
 	};
@@ -65,7 +67,7 @@ const VoiceInfo = React.memo(() => {
 			if (isGroupCall) {
 				groupCallState.endGroupCall();
 
-				if (currentDmGroup?.user_id && userProfile?.user?.id) {
+				if (currentDmGroup?.user_ids && userProfile?.user?.id) {
 					const participantLeftData = {
 						userId: userProfile.user.id,
 						userName: userProfile.user.display_name || userProfile.user.username,
@@ -73,7 +75,7 @@ const VoiceInfo = React.memo(() => {
 					};
 
 					groupCallSignaling.sendParticipantLeft(
-						currentDmGroup.user_id,
+						currentDmGroup.user_ids,
 						participantLeftData,
 						currentVoiceInfo.channelId,
 						userProfile.user.id
@@ -83,10 +85,14 @@ const VoiceInfo = React.memo(() => {
 				dispatch(voiceActions.setJoined(false));
 				dispatch(voiceActions.setToken(''));
 			} else {
-				dispatch(voiceActions.resetVoiceSettings());
+				dispatch(voiceActions.resetVoiceControl());
 			}
-
-			await participantMeetState(ParticipantMeetState.LEAVE, currentVoiceInfo.clanId, currentVoiceInfo.channelId);
+			await participantMeetState(
+				ParticipantMeetState.LEAVE,
+				currentVoiceInfo.clanId,
+				currentVoiceInfo.channelId,
+				currentVoiceInfo.roomId || ''
+			);
 		}
 	};
 
@@ -133,11 +139,12 @@ const VoiceInfo = React.memo(() => {
 				? `${process.env.NX_DOMAIN_URL}/chat/direct/message/${currentVoiceInfo.channelId}/${ChannelType.CHANNEL_TYPE_GROUP}`
 				: `${process.env.NX_DOMAIN_URL}/chat/clans/${currentVoiceInfo.clanId}/channels/${currentVoiceInfo.channelId}`;
 		}
-	}, []);
+	}, [currentVoiceInfo]);
 	return (
 		<div
 			className={`flex flex-col gap-2 rounded-t-lg border-b-2 border-theme-primary px-4 py-2 hover:bg-gray-550/[0.16] shadow-sm transition
 			bg-theme-chat w-full group`}
+			data-e2e={generateE2eId('modal.voice_management')}
 		>
 			<div className="flex justify-between items-center">
 				<div className="flex flex-col max-w-[200px]">
@@ -151,7 +158,7 @@ const VoiceInfo = React.memo(() => {
 						</div>
 					</button>
 				</div>
-				<ButtonCopy copyText={linkVoice} />
+				<ButtonCopy copyText={linkVoice} key={linkVoice} />
 			</div>
 			<div className="flex items-centerg gap-4 justify-between">
 				{hasMicrophoneAccess && (
@@ -203,19 +210,23 @@ interface ButtonControlVoiceProps {
 	danger?: boolean;
 	icon: ReactNode;
 }
+
+const TOOLTIP_OVERLAY_STYLE = { background: 'none', boxShadow: 'none' };
+
 const ButtonControlVoice = memo(({ onClick, overlay, danger = false, icon }: ButtonControlVoiceProps) => {
 	return (
 		<Tooltip
 			showArrow={{ className: '!bottom-1' }}
 			placement="top"
 			overlay={overlay}
-			overlayInnerStyle={{ background: 'none', boxShadow: 'none' }}
+			overlayInnerStyle={TOOLTIP_OVERLAY_STYLE}
 			overlayClassName="whitespace-nowrap z-50 !p-0 !pt-5"
 			destroyTooltipOnHide
 		>
 			<button
 				className={`flex h-8 flex-1 justify-center items-center ${danger ? 'bg-[#da373c] hover:bg-[#a12829]' : 'bg-buttonSecondary hover:bg-buttonSecondaryHover'} p-[6px] rounded-md`}
 				onClick={onClick}
+				data-e2e={generateE2eId('modal.voice_management.button.control_item')}
 			>
 				{icon}
 			</button>

@@ -6,6 +6,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, Platform, StatusBar, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
 import AgeRestrictedModal from '../../../components/AgeRestricted/AgeRestrictedModal';
 import NotificationSetting from '../../../components/NotificationSetting';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -27,6 +28,9 @@ const HomeDefault = React.memo(
 		const isPublicChannel = props?.isPublicChannel;
 		const isThread = props?.isThread;
 		const channelType = props?.channelType;
+		const lastSeenMessageId = props?.lastSeenMessageId;
+		const lastSentMessageId = props?.lastSentMessageId;
+		const isBanned = props?.isBanned;
 		const timeoutRef = useRef<any>(null);
 		const navigation = useNavigation<any>();
 
@@ -70,17 +74,26 @@ const HomeDefault = React.memo(
 			<KeyboardAvoidingView
 				style={styles.channelView}
 				behavior={'padding'}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
+				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
 			>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={styles.absoluteFill}
+				/>
 				{Platform.OS === 'ios' && <LicenseAgreement />}
 				<DrawerListener channelId={channelId} />
-				<HomeDefaultHeader openBottomSheet={openBottomSheet} navigation={props.navigation} onOpenDrawer={onOpenDrawer} />
-				<View style={{ flex: 1 }}>
+				<HomeDefaultHeader openBottomSheet={openBottomSheet} navigation={props.navigation} onOpenDrawer={onOpenDrawer} isBanned={isBanned} />
+				<View style={styles.flexOne}>
 					<ChannelMessages
 						channelId={channelId}
+						lastSeenMessageId={lastSeenMessageId}
+						lastSentMessageId={lastSentMessageId}
 						clanId={clanId}
 						isPublic={isPublicChannel}
 						mode={isThread ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
+						isBanned={isBanned}
 					/>
 				</View>
 				{isChannelApp && <ChannelAppHotbar channelId={channelId} clanId={clanId} />}
@@ -91,6 +104,8 @@ const HomeDefault = React.memo(
 						threadIcon: channelType === ChannelType.CHANNEL_TYPE_THREAD
 					}}
 					isPublic={isPublicChannel}
+					topicChannelId={''}
+					isBanned={isBanned}
 				/>
 				<PanelKeyboard currentChannelId={channelId} currentClanId={clanId} />
 
@@ -99,7 +114,7 @@ const HomeDefault = React.memo(
 		);
 	},
 	(prevProps, nextProps) => {
-		return prevProps?.channelId === nextProps?.channelId;
+		return prevProps?.channelId === nextProps?.channelId && prevProps?.isBanned === nextProps?.isBanned;
 	}
 );
 

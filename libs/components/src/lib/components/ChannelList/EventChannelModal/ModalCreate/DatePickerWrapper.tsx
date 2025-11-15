@@ -7,6 +7,11 @@ type DatePickerWrapperProps = {
 	minDate?: Date;
 	className?: string;
 	wrapperClassName?: string;
+	open?: boolean;
+	onClickOutside?: () => void;
+	onCalendarClose?: () => void;
+	onCalendarOpen?: () => void;
+	onFocus?: () => void;
 };
 
 const DatePickerWrapper = (props: DatePickerWrapperProps) => {
@@ -29,7 +34,7 @@ const DatePickerWrapper = (props: DatePickerWrapperProps) => {
 	}, []);
 
 	if (isLoading || !DatePickerComponent) {
-		return <div className="w-full h-[38px]  animate-pulse rounded"></div>;
+		return <div className="w-full h-[38px] bg-option-theme  animate-pulse rounded"></div>;
 	}
 
 	return <DatePickerComponent {...props} />;

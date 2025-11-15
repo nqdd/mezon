@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -51,7 +52,7 @@ export const style = (colors: Attributes) =>
 			height: size.s_10,
 			width: size.s_10,
 			borderRadius: size.s_6,
-			backgroundColor: Colors.bgToggleOnBtn
+			backgroundColor: '#008ECC'
 		},
 		icon: {
 			width: size.s_30,
@@ -65,5 +66,11 @@ export const style = (colors: Attributes) =>
 		roleIcon: {
 			height: size.s_10,
 			width: size.s_10
+		},
+		avatarWrapper: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_40,
+			overflow: 'hidden'
 		}
 	});

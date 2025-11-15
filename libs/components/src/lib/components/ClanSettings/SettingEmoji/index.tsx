@@ -1,13 +1,16 @@
 import { selectCurrentClanId, selectEmojiByClanId, settingClanStickerActions, useAppDispatch, useAppSelector } from '@mezon/store';
-import { ClanEmoji } from 'mezon-js';
-import { RefObject, useCallback, useState } from 'react';
+import { generateE2eId } from '@mezon/utils';
+import type { ClanEmoji } from 'mezon-js';
+import type { RefObject } from 'react';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ModalLayout } from '../../../components';
-import { ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
+import { ModalErrorTypeUpload, ModalLayout, ModalOverData } from '../../../components';
 import ModalSticker, { EGraphicType } from '../SettingSticker/ModalEditSticker';
 import SettingEmojiList from './SettingEmojiList';
 
 const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) => {
+	const { t } = useTranslation('clanSettings');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const [openModal, setOpenModal] = useState(false);
 	const [openModalType, setOpenModalType] = useState(false);
@@ -40,30 +43,31 @@ const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) =
 		<>
 			<div className="flex flex-col gap-3 pb-[40px] 0 text-sm">
 				<div className={'flex flex-col gap-2'}>
-					<p className={''}>
-						Add up to 250 custom emoji that anyone can use in this server. Animated GIF emoji may be used by members with Mezon Nitro
-					</p>
-					<p className={'uppercase text-xs'}>UPLOAD REQUIREMENTS</p>
+					<p className="font-bold text-xs uppercase text-theme-primary-active">{t('emoji.uploadInstructions')}</p>
+
+					<p className={''}>{t('emoji.description')}</p>
+					<p className={'uppercase text-xs'}>{t('emoji.uploadRequirements')}</p>
 					<ul className={'list-disc ml-[16px]'}>
-						<li>File type: JPEG, PNG, GIF</li>
-						<li>Recommended file size: 256 KB (We'll compress for you)</li>
-						<li>Recommended dimensions: 128x128</li>
-						<li>Naming: Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores</li>
+						<li>{t('emoji.requirements.fileType')}</li>
+						<li>{t('emoji.requirements.fileSize')}</li>
+						<li>{t('emoji.requirements.dimensions')}</li>
+						<li>{t('emoji.requirements.naming')}</li>
 					</ul>
 				</div>
 				<div
 					onClick={handleCreateEmoji}
-					className="h-[38px] font-semibold rounded-lg btn-primary btn-primary-hover w-28 relative flex flex-row items-center justify-center cursor-pointer"
+					className=" font-[500] capitalize disabled:opacity-50 disabled:cursor-not-allowed ease-linear transition-all duration-150  px-2 py-2.5 btn-primary btn-primary-hover rounded-lg cursor-pointer text-center max-w-max w-fit"
+					data-e2e={generateE2eId('clan_page.settings.emoji.upload')}
 				>
-					Upload emoji
+					{t('emoji.uploadEmoji')}
 				</div>
 			</div>
 
-			<SettingEmojiList title={'Emoji'} emojiList={emojiList} onUpdateEmoji={handleOpenUpdateEmojiModal} />
+			<SettingEmojiList title={t('emoji.title')} emojiList={emojiList} onUpdateEmoji={handleOpenUpdateEmojiModal} />
 
-			<ModalOverData openModal={openModal} handleClose={() => setOpenModal(false)} />
-			<ModalErrorTypeUpload openModal={openModalType} handleClose={() => setOpenModalType(false)} />
+			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
 
+			<ModalOverData open={openModal} onClose={() => setOpenModal(false)} />
 			{isOpenEditModal && (
 				<ModalLayout onClose={handleCloseModal}>
 					<ModalSticker graphic={selectedEmoji} handleCloseModal={handleCloseModal} type={EGraphicType.EMOJI} />

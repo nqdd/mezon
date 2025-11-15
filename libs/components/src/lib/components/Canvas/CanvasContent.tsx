@@ -1,10 +1,13 @@
-import { canvasActions } from '@mezon/store';
+import { canvasActions, selectCurrentChannelId, selectCurrentClanId } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { safeJSONParse } from 'mezon-js';
+import type { Delta } from 'quill';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { CanvasFormatType, QuillCodeBlockValue, QuillHeaderValue, QuillListValue, handlePaste, preventBase64Images } from './canvasPasteUtils';
 
 interface ActiveFormats {
 	bold: boolean;
@@ -40,10 +43,14 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 	const hasSetInitialContent = useRef(false);
 	const dispatch = useDispatch();
 	const [quill, setQuill] = useState<Quill | null>(null);
+
+	const { sessionRef, clientRef } = useMezon();
+	const currentClanId = useSelector(selectCurrentClanId) || '';
+	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 	const placeholderColor = 'var(--text-theme-primary)';
 	const [toolbarPosition, setToolbarPosition] = useState({ top: 0, left: 0 });
 
-	const [activeOption, setActiveOption] = useState('paragraph');
+	const [activeOption, setActiveOption] = useState(CanvasFormatType.PARAGRAPH);
 
 	const [isOpen, setIsOpen] = useState(false);
 	const selectRef = useRef<HTMLDivElement>(null);
@@ -52,18 +59,18 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 
 	const options = [
 		{
-			value: 'paragraph',
+			value: CanvasFormatType.PARAGRAPH,
 			label: 'Paragraph',
 			text: 'paragraph',
 			icon: <Icons.ParagraphIcon />
 		},
-		{ value: '1', label: 'Big Heading', text: 'h1', icon: <Icons.H1Icon /> },
-		{ value: '2', label: 'Medium Heading', text: 'h2', icon: <Icons.H2Icon /> },
-		{ value: '3', label: 'Small Heading', text: 'h3', icon: <Icons.H3Icon /> },
-		{ value: 'check', label: 'Checked list', text: 'check', icon: <Icons.CheckListIcon /> },
-		{ value: 'ordered', label: 'Ordered list', text: 'ordered', icon: <Icons.OrderedListIcon /> },
-		{ value: 'bullet', label: 'Bulleted list', text: 'bullet', icon: <Icons.BulletListIcon /> },
-		{ value: 'blockquote', label: 'Blockquote', text: 'blockquote', icon: <Icons.BlockquoteIcon /> }
+		{ value: CanvasFormatType.HEADING_1, label: 'Big Heading', text: 'h1', icon: <Icons.H1Icon /> },
+		{ value: CanvasFormatType.HEADING_2, label: 'Medium Heading', text: 'h2', icon: <Icons.H2Icon /> },
+		{ value: CanvasFormatType.HEADING_3, label: 'Small Heading', text: 'h3', icon: <Icons.H3Icon /> },
+		{ value: CanvasFormatType.CHECKED_LIST, label: 'Checked list', text: 'check', icon: <Icons.CheckListIcon /> },
+		{ value: CanvasFormatType.ORDERED_LIST, label: 'Ordered list', text: 'ordered', icon: <Icons.OrderedListIcon /> },
+		{ value: CanvasFormatType.BULLET_LIST, label: 'Bulleted list', text: 'bullet', icon: <Icons.BulletListIcon /> },
+		{ value: CanvasFormatType.BLOCKQUOTE, label: 'Blockquote', text: 'blockquote', icon: <Icons.BlockquoteIcon /> }
 	];
 
 	const [activeFormats, setActiveFormats] = useState<ActiveFormats>({
@@ -112,9 +119,6 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 				if (op.attributes && op.attributes.background) {
 					delete op.attributes.background;
 				}
-				// if (op.attributes && op.attributes.color) {
-				// 	op.attributes.color = isLightMode ? 'black' : 'white';
-				// }
 			});
 			return delta;
 		});
@@ -144,23 +148,24 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					italic: !!formats?.italic,
 					underline: !!formats?.underline,
 					strike: !!formats?.strike,
-					'code-block': formats?.['code-block'] === 'plain',
+					'code-block': formats?.['code-block'] === QuillCodeBlockValue.PLAIN,
 					link: (formats?.link as string) || '',
-					h1: formats?.header === 1,
-					h2: formats?.header === 2,
-					h3: formats?.header === 3,
+					h1: formats?.header === QuillHeaderValue.HEADER_1,
+					h2: formats?.header === QuillHeaderValue.HEADER_2,
+					h3: formats?.header === QuillHeaderValue.HEADER_3,
 					paragraph: !(
-						formats?.header === 1 ||
-						formats?.header === 2 ||
-						formats?.header === 3 ||
-						formats?.list === 'check' ||
-						formats?.list === 'ordered' ||
-						formats?.list === 'ordered' ||
+						formats?.header === QuillHeaderValue.HEADER_1 ||
+						formats?.header === QuillHeaderValue.HEADER_2 ||
+						formats?.header === QuillHeaderValue.HEADER_3 ||
+						formats?.list === QuillListValue.LIST_CHECKED ||
+						formats?.list === QuillListValue.LIST_UNCHECKED ||
+						formats?.list === QuillListValue.LIST_ORDERED ||
+						formats?.list === QuillListValue.LIST_BULLET ||
 						!!formats?.blockquote
 					),
-					check: formats?.list === 'check',
-					ordered: formats?.list === 'ordered',
-					bullet: formats?.list === 'bullet',
+					check: formats?.list === QuillListValue.LIST_CHECKED || formats?.list === QuillListValue.LIST_UNCHECKED,
+					ordered: formats?.list === QuillListValue.LIST_ORDERED,
+					bullet: formats?.list === QuillListValue.LIST_BULLET,
 					blockquote: !!formats?.blockquote,
 					image: (formats?.image as string) || ''
 				});
@@ -198,36 +203,54 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					});
 				});
 				const formats = quillRef.current?.getFormat(range) || {};
-				setActiveOption(
-					(formats?.header as string) || (formats?.list as string) || (formats?.blockquote === true ? 'blockquote' : 'paragraph')
-				);
+				let nextActiveOption = CanvasFormatType.PARAGRAPH; // Default to paragraph
+
+				if (formats?.header === QuillHeaderValue.HEADER_1) {
+					nextActiveOption = CanvasFormatType.HEADING_1;
+				} else if (formats?.header === QuillHeaderValue.HEADER_2) {
+					nextActiveOption = CanvasFormatType.HEADING_2;
+				} else if (formats?.header === QuillHeaderValue.HEADER_3) {
+					nextActiveOption = CanvasFormatType.HEADING_3;
+				} else if (formats?.list === QuillListValue.LIST_CHECKED || formats?.list === QuillListValue.LIST_UNCHECKED) {
+					nextActiveOption = CanvasFormatType.CHECKED_LIST;
+				} else if (formats?.list === QuillListValue.LIST_ORDERED) {
+					nextActiveOption = CanvasFormatType.ORDERED_LIST;
+				} else if (formats?.list === QuillListValue.LIST_BULLET) {
+					nextActiveOption = CanvasFormatType.BULLET_LIST;
+				} else if (formats?.blockquote === true) {
+					nextActiveOption = CanvasFormatType.BLOCKQUOTE;
+				}
+
+				setActiveOption(nextActiveOption);
 				setActiveFormats({
 					bold: !!formats.bold,
 					italic: !!formats.italic,
 					underline: !!formats.underline,
 					strike: !!formats.strike,
-					'code-block': formats?.['code-block'] === 'plain',
+					'code-block': formats?.['code-block'] === QuillCodeBlockValue.PLAIN,
 					link: formats?.link as string,
-					h1: formats?.header === 1,
-					h2: formats?.header === 2,
-					h3: formats?.header === 3,
+					h1: formats?.header === QuillHeaderValue.HEADER_1,
+					h2: formats?.header === QuillHeaderValue.HEADER_2,
+					h3: formats?.header === QuillHeaderValue.HEADER_3,
 					paragraph: !(
-						formats?.header === 1 ||
-						formats?.header === 2 ||
-						formats?.header === 3 ||
-						formats?.list === 'check' ||
-						formats?.list === 'ordered' ||
-						formats?.list === 'bullet' ||
+						formats?.header === QuillHeaderValue.HEADER_1 ||
+						formats?.header === QuillHeaderValue.HEADER_2 ||
+						formats?.header === QuillHeaderValue.HEADER_3 ||
+						formats?.list === QuillListValue.LIST_CHECKED ||
+						formats?.list === QuillListValue.LIST_UNCHECKED ||
+						formats?.list === QuillListValue.LIST_ORDERED ||
+						formats?.list === QuillListValue.LIST_BULLET ||
 						!!formats?.blockquote
 					),
-					check: formats?.list === 'check',
-					ordered: formats?.list === 'ordered',
-					bullet: formats?.list === 'bullet',
+					check: formats?.list === QuillListValue.LIST_CHECKED || formats?.list === QuillListValue.LIST_UNCHECKED,
+					ordered: formats?.list === QuillListValue.LIST_ORDERED,
+					bullet: formats?.list === QuillListValue.LIST_BULLET,
 					blockquote: !!formats?.blockquote,
 					image: (formats?.image as string) || ''
 				});
 			} else {
 				setToolbarVisible(false);
+				setActiveOption(CanvasFormatType.PARAGRAPH); // Reset to paragraph default
 				setActiveFormats({
 					bold: false,
 					italic: false,
@@ -288,13 +311,32 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 			}
 		};
 
+		const handlePasteEvent = async (e: ClipboardEvent) => {
+			await handlePaste({
+				event: e,
+				quillRef: quillRef.current,
+				sessionRef,
+				clientRef,
+				currentClanId,
+				currentChannelId
+			});
+		};
+
+		const preventBase64ImagesHandler = (delta: Delta, oldDelta: Delta, source: string) => {
+			preventBase64Images({ delta, oldDelta, source, quillRef: quillRef.current });
+		};
+
+		quillRef.current.on('text-change', preventBase64ImagesHandler);
 		quillRef.current.on('selection-change', handleSelectionChange);
 		quillRef.current.root.addEventListener('keydown', handleKeyDown);
+		quillRef.current.root.addEventListener('paste', handlePasteEvent);
 		document.addEventListener('mousedown', handleClickOutside);
 
 		return () => {
+			quillRef.current?.off('text-change', preventBase64ImagesHandler);
 			quillRef.current?.off('selection-change', handleSelectionChange);
 			quillRef.current?.root.removeEventListener('keydown', handleKeyDown);
+			quillRef.current?.root.removeEventListener('paste', handlePasteEvent);
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [isEditAndDelCanvas]);
@@ -336,24 +378,31 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 
 	const handleSelectChange = (value: string) => {
 		if (quill && isEditAndDelCanvas) {
-			if (value === '1') {
-				quill.format('header', 1);
-			} else if (value === '2') {
-				quill.format('header', 2);
-			} else if (value === '3') {
-				quill.format('header', 3);
-			} else if (value === 'paragraph') {
-				quill.format('header', true);
-			} else if (value === 'check') {
-				quill.format('list', 'check');
-			} else if (value === 'ordered') {
-				quill.format('list', 'ordered');
-			} else if (value === 'bullet') {
-				quill.format('list', 'bullet');
-			} else if (value === 'blockquote') {
+			if (value === CanvasFormatType.HEADING_1) {
+				quill.format('header', QuillHeaderValue.HEADER_1);
+			} else if (value === CanvasFormatType.HEADING_2) {
+				quill.format('header', QuillHeaderValue.HEADER_2);
+			} else if (value === CanvasFormatType.HEADING_3) {
+				quill.format('header', QuillHeaderValue.HEADER_3);
+			} else if (value === CanvasFormatType.PARAGRAPH) {
+				quill.format('header', false);
+				quill.format('list', false);
+				quill.format('blockquote', false);
+			} else if (value === CanvasFormatType.CHECKED_LIST) {
+				quill.format('list', QuillListValue.LIST_UNCHECKED);
+			} else if (value === CanvasFormatType.ORDERED_LIST) {
+				quill.format('list', QuillListValue.LIST_ORDERED);
+			} else if (value === CanvasFormatType.BULLET_LIST) {
+				quill.format('list', QuillListValue.LIST_BULLET);
+			} else if (value === CanvasFormatType.BLOCKQUOTE) {
 				quill.format('blockquote', true);
 			}
-			if (value === '1' || value === '2' || value === '3' || value === 'paragraph') {
+			if (
+				value === CanvasFormatType.HEADING_1 ||
+				value === CanvasFormatType.HEADING_2 ||
+				value === CanvasFormatType.HEADING_3 ||
+				value === CanvasFormatType.PARAGRAPH
+			) {
 				setActiveFormats((prevFormats) => {
 					const updatedFormats = {
 						...prevFormats,
@@ -361,7 +410,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					};
 					return updatedFormats;
 				});
-			} else if (value === 'check' || value === 'ordered' || value === 'bullet') {
+			} else if (value === CanvasFormatType.CHECKED_LIST || value === CanvasFormatType.ORDERED_LIST || value === CanvasFormatType.BULLET_LIST) {
 				setActiveFormats((prevFormats) => {
 					const updatedFormats = {
 						...prevFormats,
@@ -378,6 +427,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					return updatedFormats;
 				});
 			}
+			setActiveOption(value as CanvasFormatType);
 			setIsOpen(false);
 		}
 	};
@@ -397,17 +447,13 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 				borderRadius: '5px'
 			};
 		} else if (type === 'option') {
+			const isActive = String(activeOption) === value || (value === CanvasFormatType.BLOCKQUOTE && activeFormats['blockquote']);
 			return {
-				color: activeFormats[format] ? '#048dba' : 'var(--text-theme-primary)'
+				color: isActive ? '#048dba !important' : 'var(--text-theme-primary)'
 			};
 		}
 		return {};
 	};
-
-	useEffect(() => {
-		quillRef?.current?.setContents(quillRef.current.getContents());
-		quillRef?.current?.formatText(0, quillRef.current.getLength(), { color: isLightMode ? 'rgb(51, 51, 51)' : 'white' });
-	}, [isLightMode, idCanvas]);
 
 	useEffect(() => {
 		const handleClickOutside = (event: { target: any }) => {
@@ -423,24 +469,15 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 	}, []);
 
 	return (
-		<div className="note-canvas" style={{ position: 'relative' }}>
+		<div className="note-canvas relative">
 			{toolbarVisible && isEditAndDelCanvas && (
 				<div
 					ref={toolbarRef}
 					id="toolbar"
-					className="toolbar"
+					className="toolbar absolute flex items-center gap-2 bg-theme-contexify text-theme-primary rounded-[5px] z-[99] p-[5px]"
 					style={{
-						position: 'absolute',
 						top: `${toolbarPosition.top}px`,
 						left: `${toolbarPosition.left}px`,
-						padding: '5px',
-						display: 'flex',
-						alignItems: 'center',
-						gap: '8px',
-						background: 'var(--bg-theme-contexify)',
-						color: 'var(--text-theme-primary',
-						borderRadius: '5px',
-						zIndex: 99,
 						boxShadow: '0 0 0 1px #e8e8e840,0 1px 3px #00000014'
 					}}
 				>
@@ -451,21 +488,23 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						</div>
 						<div>
 							{isOpen && (
-								<ul
-									style={{ boxShadow: '0 0 0 1px #e8e8e840,0 1px 3px #00000014' }}
-									className="absolute left-0 bg-theme-contexify pt-[12px] pr-[0] pb-[12px] pl-[0] rounded-[6px] min-w-[200px] max-w-[calc(100vh - 62px)] overflow-y-auto"
-								>
+								<ul className="absolute left-0 bg-theme-contexify pt-[12px] pr-[0] pb-[12px] pl-[0] rounded-[6px] min-w-[200px] max-w-[calc(100vh - 62px)] overflow-y-auto shadow-[0_0_0_1px_#e8e8e840,0_1px_3px_#00000014]">
 									{options.map((option) => (
 										<React.Fragment key={option.value}>
 											<li
 												key={option.value}
 												onClick={() => handleSelectChange(option.value)}
-												style={getStyle('option', `${option.text}`)}
+												style={getStyle('option', option.value)}
 												value={option.value}
-												className="min-h-[28px] cursor-pointer pt-[0] pr-[24px] pb-[0] pl-[10px] flex items-center"
+												className={`min-h-[28px] cursor-pointer pt-[0] pr-[24px] pb-[0] pl-[10px] flex items-center ${
+													String(activeOption) === option.value ||
+													(option.value === CanvasFormatType.BLOCKQUOTE && activeFormats['blockquote'])
+														? 'text-[#048dba]'
+														: ''
+												}`}
 											>
 												{String(activeOption) === option.value ||
-												(option.value === 'blockquote' && activeFormats['blockquote']) ? (
+												(option.value === CanvasFormatType.BLOCKQUOTE && activeFormats['blockquote']) ? (
 													<span className="mr-[5px] w-[10px]">
 														<Icons.CheckedIcon color="#048dba" />
 													</span>
@@ -476,25 +515,23 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 													<span className="mr-[20px]">
 														{React.cloneElement(option.icon, {
 															color:
-																(String(activeOption) === option.value ||
-																	(option.value === 'blockquote' && activeFormats['blockquote'])) &&
-																'#048dba'
+																String(activeOption) === option.value ||
+																(option.value === CanvasFormatType.BLOCKQUOTE && activeFormats['blockquote'])
+																	? '#048dba'
+																	: 'currentColor'
 														})}
 													</span>
 												)}
 												{option.label}
 											</li>
-											{option.value === '3' && <hr className="border-gray-400 my-2" />}
+											{option.value === CanvasFormatType.HEADING_3 && <hr className="border-gray-400 my-2" />}
 										</React.Fragment>
 									))}
 								</ul>
 							)}
 						</div>
 					</div>
-					<span
-						className={`separator ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}
-						style={{ height: '20px', width: '1px', margin: '0 4px' }}
-					></span>
+					<span className={`separator h-5 w-px mx-1 ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}></span>
 
 					<button
 						className={`disabled:opacity-50 disabled:cursor-auto  ${activeFormats['bold'] ? 'bg-theme-contexify' : ''}`}
@@ -504,7 +541,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						title="Bold"
 						disabled={activeFormats['code-block']}
 					>
-						<svg data-5iu="true" data-qa="bold" aria-hidden="true" viewBox="0 0 20 20" style={{ width: '1em', height: '1em' }}>
+						<svg data-5iu="true" data-qa="bold" aria-hidden="true" viewBox="0 0 20 20" className="w-[1em] h-[1em]">
 							<path
 								fill="currentColor"
 								fillRule="evenodd"
@@ -522,7 +559,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						title="Italic"
 						disabled={activeFormats['code-block']}
 					>
-						<svg data-5iu="true" data-qa="italic" aria-hidden="true" viewBox="0 0 20 20" style={{ width: '1em', height: '1em' }}>
+						<svg data-5iu="true" data-qa="italic" aria-hidden="true" viewBox="0 0 20 20" className="w-[1em] h-[1em]">
 							<path
 								fill="currentColor"
 								fillRule="evenodd"
@@ -540,7 +577,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						title="Strikethrough"
 						disabled={activeFormats['code-block']}
 					>
-						<svg data-5iu="true" data-qa="strikethrough" aria-hidden="true" viewBox="0 0 20 20" style={{ width: '1em', height: '1em' }}>
+						<svg data-5iu="true" data-qa="strikethrough" aria-hidden="true" viewBox="0 0 20 20" className="w-[1em] h-[1em]">
 							<path
 								fill="currentColor"
 								fillRule="evenodd"
@@ -550,13 +587,10 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						</svg>
 					</button>
 
-					<span
-						className={`separator ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}
-						style={{ height: '20px', width: '1px', margin: '0 4px' }}
-					></span>
+					<span className={`separator h-5 w-px mx-1 ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}></span>
 
 					<button type="button" onClick={() => formatText('code-block')} style={getStyle('button', 'code-block')} title="Code Block">
-						<svg data-5iu="true" data-qa="code" aria-hidden="true" viewBox="0 0 20 20" style={{ width: '1em', height: '1em' }}>
+						<svg data-5iu="true" data-qa="code" aria-hidden="true" viewBox="0 0 20 20" className="w-[1em] h-[1em]">
 							<path
 								fill="currentColor"
 								fillRule="evenodd"
@@ -565,10 +599,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 							></path>
 						</svg>
 					</button>
-					<span
-						className={`separator ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}
-						style={{ height: '20px', width: '1px', margin: '0 4px' }}
-					></span>
+					<span className={`separator h-5 w-px mx-1 ${isLightMode ? 'bg-white' : 'bg-[#8080808f]'}`}></span>
 					<button
 						className="ql-link disabled:opacity-50 disabled:cursor-auto"
 						type="button"
@@ -577,7 +608,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 						title="Link"
 						disabled={activeFormats['code-block']}
 					>
-						<svg data-5iu="true" data-qa="link" aria-hidden="true" viewBox="0 0 20 20" style={{ width: '1em', height: '1em' }}>
+						<svg data-5iu="true" data-qa="link" aria-hidden="true" viewBox="0 0 20 20" className="w-[1em] h-[1em]">
 							<path
 								fill="currentColor"
 								fillRule="evenodd"
@@ -588,17 +619,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					</button>
 				</div>
 			)}
-			<div
-				id="editor"
-				ref={editorRef}
-				style={{
-					height: 'auto',
-					width: '100%',
-					fontSize: '15px',
-					color: 'var(--text-theme-primary',
-					border: 'none'
-				}}
-			/>
+			<div id="editor" ref={editorRef} className="h-auto w-full text-[15px] text-theme-primary !border-none" />
 			<style>
 				{`
 				#editor .ql-editor.ql-blank::before {

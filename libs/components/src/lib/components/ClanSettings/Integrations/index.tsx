@@ -1,7 +1,8 @@
 import { selectAllClanWebhooks, selectWebhooksByChannelId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ClanWebhooks from './ClanWebhooks';
 import MainClanIntegrations from './MainClanIntegration';
@@ -14,9 +15,12 @@ interface IIntegrationsProps {
 }
 
 const Integrations = ({ currentChannel, isClanSetting }: IIntegrationsProps) => {
+	const { t } = useTranslation('integrations');
 	const [isOpenWebhooks, setIsOpenWebhooks] = useState(false);
 	const [isOpenClanWebhooks, setIsOpenClanWebhooks] = useState(false);
-	const allWebhooks = useAppSelector((state) => selectWebhooksByChannelId(state, isClanSetting ? '0' : (currentChannel?.channel_id ?? '')));
+	const allWebhooks = useAppSelector((state) =>
+		selectWebhooksByChannelId(state, isClanSetting ? '0' : (currentChannel?.channel_id ?? ''), currentChannel?.clan_id ?? '')
+	);
 	const allClanWebhooks = useSelector(selectAllClanWebhooks);
 	return (
 		<div className="mt-[60px]">
@@ -28,17 +32,17 @@ const Integrations = ({ currentChannel, isClanSetting }: IIntegrationsProps) => 
 					}}
 					className={`${isOpenWebhooks || isOpenClanWebhooks ? ' cursor-pointer' : ''}`}
 				>
-					Integrations
+					{t('title')}
 				</div>{' '}
 				{isOpenClanWebhooks ? (
 					<div className="flex">
 						<Icons.ArrowDown defaultSize="-rotate-90 w-[20px]" />
-						Clan Webhooks
+						{t('clanWebhooks')}
 					</div>
 				) : isOpenWebhooks ? (
 					<div className="flex">
 						<Icons.ArrowDown defaultSize="-rotate-90 w-[20px]" />
-						Webhooks
+						{t('webhooks')}
 					</div>
 				) : (
 					''
@@ -51,7 +55,7 @@ const Integrations = ({ currentChannel, isClanSetting }: IIntegrationsProps) => 
 				<ClanWebhooks allClanWebhooks={allClanWebhooks} />
 			) : (
 				<div>
-					<MainIntegrations allWebhooks={allWebhooks} setIsOpenWebhooks={() => setIsOpenWebhooks(true)} />
+					{currentChannel && <MainIntegrations allWebhooks={allWebhooks} setIsOpenWebhooks={() => setIsOpenWebhooks(true)} />}
 					{isClanSetting && (
 						<MainClanIntegrations allClanWebhooks={allClanWebhooks} setIsOpenClanWebhooks={() => setIsOpenClanWebhooks(true)} />
 					)}

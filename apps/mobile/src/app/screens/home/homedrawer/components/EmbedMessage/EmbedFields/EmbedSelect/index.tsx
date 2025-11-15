@@ -1,6 +1,6 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { embedActions, useAppDispatch } from '@mezon/store-mobile';
-import { IMessageSelect, IMessageSelectOption } from '@mezon/utils';
+import type { IMessageSelect, IMessageSelectOption } from '@mezon/utils';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
@@ -22,10 +22,10 @@ export const EmbedSelect = memo(({ select, messageId, buttonId }: EmbedSelectPro
 
 	const checkMultipleSelect = useMemo(() => {
 		return (!!select?.min_options && select?.min_options > 1) || (!!select?.max_options && select?.max_options >= 2);
-	}, [select?.min_options, select.max_options]);
+	}, [select?.min_options, select?.max_options]);
 	useEffect(() => {
-		if (select.valueSelected) {
-			handleChangeDataInput(select.valueSelected.value, buttonId);
+		if (select?.valueSelected) {
+			handleSelectChanged({ value: select?.valueSelected.value, title: select?.valueSelected.label });
 		}
 	}, []);
 
@@ -34,10 +34,10 @@ export const EmbedSelect = memo(({ select, messageId, buttonId }: EmbedSelectPro
 			embedActions.addEmbedValue({
 				message_id: messageId,
 				data: {
-					id: id,
-					value: value
+					id,
+					value
 				},
-				multiple: true,
+				multiple: checkMultipleSelect,
 				onlyChooseOne: !checkMultipleSelect
 			})
 		);
@@ -65,12 +65,6 @@ export const EmbedSelect = memo(({ select, messageId, buttonId }: EmbedSelectPro
 		}
 		handleChangeDataInput(option?.value, buttonId);
 	};
-
-	useEffect(() => {
-		if (select?.valueSelected) {
-			handleChangeDataInput(select?.valueSelected?.value, buttonId);
-		}
-	}, []);
 
 	const handleRemoveOption = (option) => {
 		setSelectedOptions((prev) => prev.filter((opt) => opt?.value !== option?.value));
@@ -123,11 +117,12 @@ export const EmbedSelect = memo(({ select, messageId, buttonId }: EmbedSelectPro
 				})}
 				onChange={handleSelectChanged}
 				placeholder={getSelectNote()}
-				defaultValue={{ title: select?.valueSelected?.label, value: select?.valueSelected?.value }}
+				defaultValue={{ title: selectedOptions?.[0]?.title, value: selectedOptions?.[0]?.value }}
 			/>
 			{!!selectedOptions?.length && (
 				<View style={styles.selectGroup}>
-					{!!selectedOptions?.length && selectedOptions?.map((option) => <SelectOptionItem option={option} />)}
+					{!!selectedOptions?.length &&
+						selectedOptions?.map((option, index) => <SelectOptionItem key={`${option?.title}_${index}`} option={option} />)}
 				</View>
 			)}
 		</View>

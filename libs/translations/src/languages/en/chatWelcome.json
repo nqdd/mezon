@@ -1,0 +1,32 @@
+{
+	"onboard": {
+		"clickLaunchToStart": "Click Launch App To Start",
+		"inviteFriends": "Invite your friends",
+		"sendFirstMessage": "Send your first message",
+		"downloadApp": "Download the Mezon App",
+		"createChannel": "Create your channel"
+	},
+	"welcome": {
+		"welcomeToChannel": "Welcome to #{{channelName}}",
+		"startOfChannel": "This is the start of the #{{channelName}} {{channelType}} channel",
+		"startOfThread": "Started by {{username}}",
+		"welcomeToGroup": "Welcome to the beginning of the {{groupName}} group.",
+		"beginningOfDM": "This is the very beginning of your legendary conversation with {{userName}}",
+		"editGroup": "Edit Group",
+		"private": "private",
+		"friendRequestSent": "Sent you a friend request:",
+		"addFriend": "Add Friend",
+		"removeFriend": "Remove Friend",
+		"accept": "Accept",
+		"ignore": "Ignore",
+		"friendRequestSentButton": "Friend Request Sent",
+		"block": "Block",
+		"unblock": "Unblock"
+	},
+	"toast": {
+		"userBlockedSuccess": "User blocked successfully",
+		"failedToBlock": "Failed to block user",
+		"userUnblockedSuccess": "User unblocked successfully",
+		"failedToUnblock": "Failed to unblock user"
+	}
+}

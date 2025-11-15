@@ -1,16 +1,16 @@
 import { useRoles } from '@mezon/core';
-import { CheckIcon } from '@mezon/mobile-components';
-import { Colors, Text, size, useTheme } from '@mezon/mobile-ui';
-import { RolesClanEntity } from '@mezon/store-mobile';
-import { UsersClanEntity } from '@mezon/utils';
+import { useTheme } from '@mezon/mobile-ui';
+import type { RolesClanEntity } from '@mezon/store-mobile';
+import type { UsersClanEntity } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import Toast from 'react-native-toast-message';
-import MezonAvatar from '../../../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
+import { style } from './index.styles';
 
 interface IMemberItemProps {
 	member: UsersClanEntity;
@@ -26,14 +26,19 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation('clanRoles');
 	const { updateRole } = useRoles();
+	const styles = style(themeValue);
 
 	const isDisable = useMemo(() => {
 		return disabled || !isSelectMode;
 	}, [disabled, isSelectMode]);
 
+	const memberAvatarUrl = useMemo(() => {
+		return member?.clan_avatar || member?.user?.avatar_url || '';
+	}, [member?.clan_avatar, member?.user?.avatar_url]);
+
 	const memberName = useMemo(() => {
-		return member?.clan_nick || member?.user?.display_name;
-	}, [member?.user?.display_name, member?.clan_nick]);
+		return member?.clan_nick || member?.user?.display_name || member?.user?.username || '';
+	}, [member?.clan_nick, member?.user?.display_name, member?.user?.username]);
 
 	const onPressMemberItem = useCallback(() => {
 		if (isDisable) return;
@@ -48,54 +53,40 @@ export const MemberItem = memo((props: IMemberItemProps) => {
 		if (response) {
 			Toast.show({
 				type: 'success',
-				props: {
-					text2: t('setupMember.deletedMember', { memberName }),
-					leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />
-				}
+				text1: t('setupMember.deletedMember', { memberName })
 			});
 		} else {
 			Toast.show({
-				type: 'success',
-				props: {
-					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
-				}
+				type: 'error',
+				text1: t('failed')
 			});
 		}
 	}, [role, member?.id, updateRole, memberName, t]);
 
 	return (
 		<TouchableOpacity onPress={onPressMemberItem}>
-			<View
-				style={{
-					flexDirection: 'row',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					backgroundColor: themeValue.secondary,
-					padding: size.s_12,
-					gap: size.s_10
-				}}
-			>
-				<View style={{ flex: 1, flexDirection: 'row', gap: size.s_10, alignItems: 'center' }}>
-					<MezonAvatar avatarUrl={member?.user?.avatar_url} username={member?.user?.username} />
-					<View style={{ width: '80%' }}>
-						{memberName ? <Text color={themeValue.white}>{memberName}</Text> : null}
-						<Text color={themeValue.text}>{member?.user?.username}</Text>
+			<View style={styles.container}>
+				<View style={styles.memberInfoContainer}>
+					<View style={styles.imgWrapper}>
+						<MezonClanAvatar alt={member?.user?.username || ''} image={memberAvatarUrl} />
+					</View>
+					<View style={styles.memberTextContainer}>
+						<Text style={styles.memberName}>{memberName}</Text>
+						<Text style={styles.memberUsername}>{member?.user?.username || ''}</Text>
 					</View>
 				</View>
 
-				<View style={{ height: size.s_20, width: size.s_20 }}>
+				<View style={styles.actionContainer}>
 					{isSelectMode ? (
 						<BouncyCheckbox
 							size={20}
 							isChecked={isSelected}
 							onPress={(value) => onSelectChange(value, member?.id)}
-							fillColor={Colors.bgButton}
-							iconStyle={{ borderRadius: 5 }}
+							fillColor={'#5865f2'}
+							iconStyle={styles.checkboxIcon}
 							innerIconStyle={{
-								borderWidth: 1.5,
-								borderColor: isSelected ? Colors.bgButton : Colors.tertiary,
-								borderRadius: 5,
+								...styles.checkboxInnerIcon,
+								borderColor: isSelected ? '#5865f2' : '#ccc',
 								opacity: disabled ? 0.4 : 1
 							}}
 							disabled={disabled}

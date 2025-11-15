@@ -1,15 +1,16 @@
-import { BrowserWindow, Menu, MenuItemConstructorOptions, Notification, app, screen, shell } from 'electron';
+import type { MenuItemConstructorOptions } from 'electron';
+import { BrowserWindow, Menu, Notification, app, dialog, powerMonitor, screen, shell } from 'electron';
+import log from 'electron-log/main';
 import { autoUpdater } from 'electron-updater';
 import activeWindows from 'mezon-active-windows';
 import { join } from 'path';
-import { format } from 'url';
-import { rendererAppName, rendererAppPort } from './constants';
-
 import ua from 'universal-analytics';
+import { format } from 'url';
 import tray from '../Tray';
 import { EActivityCoding, EActivityGaming, EActivityMusic } from './activities';
 import setupAutoUpdates from './autoUpdates';
-import { ACTIVE_WINDOW, TRIGGER_SHORTCUT } from './events/constants';
+import { rendererAppName, rendererAppPort } from './constants';
+import { ACTIVE_WINDOW, LOCK_SCREEN, TRIGGER_SHORTCUT, UNLOCK_SCREEN } from './events/constants';
 import setupRequestPermission from './requestPermission';
 import { initBadge } from './services/badge';
 import { forceQuit } from './utils';
@@ -19,7 +20,19 @@ const ACTIVITY_CODING = Object.values(EActivityCoding);
 const ACTIVITY_MUSIC = Object.values(EActivityMusic);
 const ACTIVITY_GAMING = Object.values(EActivityGaming);
 
-const IMAGE_WINDOW_KEY = 'IMAGE_WINDOW_KEY';
+const _IMAGE_WINDOW_KEY = 'IMAGE_WINDOW_KEY';
+
+const isMac = process.platform === 'darwin';
+
+dialog.showErrorBox = function (_title, _content) {
+	// ignore
+};
+
+dialog.showOpenDialog = function (...args) {
+	log.error('[Disabled Dialog] showOpenDialog called:', args);
+	return Promise.resolve({ canceled: true, filePaths: [] });
+};
+
 export default class App {
 	// Keep a global reference of the window object, if you don't, the window will
 	// be closed automatically when the JavaScript object is garbage collected.
@@ -30,11 +43,27 @@ export default class App {
 	static attachmentData: any;
 	static imageScriptWindowLoaded = false;
 
+	private static updateCheckInterval: NodeJS.Timeout | null = null;
+	private static activityTrackingInterval: NodeJS.Timeout | null = null;
+	private static isActivityTrackingEnabled = true;
+
 	public static isDevelopmentMode() {
 		return !app.isPackaged;
 	}
 
+	private static cleanupIntervals() {
+		if (App.updateCheckInterval) {
+			clearInterval(App.updateCheckInterval);
+			App.updateCheckInterval = null;
+		}
+		if (App.activityTrackingInterval) {
+			clearInterval(App.activityTrackingInterval);
+			App.activityTrackingInterval = null;
+		}
+	}
+
 	private static onWindowAllClosed() {
+		App.cleanupIntervals();
 		App.application.quit();
 	}
 
@@ -61,6 +90,7 @@ export default class App {
 				setupAutoUpdates();
 				setupRequestPermission();
 			});
+			App.setupDetectLockScreen();
 		}
 
 		if (process.platform === 'win32') {
@@ -69,7 +99,9 @@ export default class App {
 
 		autoUpdater.checkForUpdates();
 		const updateCheckTimeInMilliseconds = 60 * 60 * 1000;
-		setInterval(() => {
+
+		// Store interval reference for cleanup
+		App.updateCheckInterval = setInterval(() => {
 			autoUpdater.checkForUpdates();
 		}, updateCheckTimeInMilliseconds);
 
@@ -78,13 +110,14 @@ export default class App {
 	}
 
 	private static onActivate() {
-		if (App.mainWindow === null) {
+		// Ensure a valid window exists or recreate if destroyed/null
+		if (!App.isWindowValid(App.mainWindow)) {
 			App.onReady();
 		}
 
-		// reopen window after soft quit on macos
-		if (process.platform === 'darwin' && !App.mainWindow?.isVisible()) {
-			App.mainWindow?.show();
+		// Reopen window after soft quit
+		if (App.mainWindow && App.isWindowValid(App.mainWindow) && !App.mainWindow.isVisible()) {
+			App.mainWindow.show();
 		}
 	}
 
@@ -95,13 +128,13 @@ export default class App {
 
 		// Create the browser window.
 		App.mainWindow = new BrowserWindow({
-			width: width,
-			height: height,
+			width,
+			height,
 			show: false,
 			frame: false,
-			titleBarOverlay: process.platform == 'darwin' ? true : false,
-			titleBarStyle: process.platform == 'darwin' ? 'hidden' : 'default',
-			trafficLightPosition: process.platform == 'darwin' ? { x: 10, y: 10 } : undefined,
+			titleBarOverlay: false,
+			titleBarStyle: process.platform == 'darwin' ? 'hiddenInset' : 'default',
+			trafficLightPosition: process.platform == 'darwin' ? { x: -100, y: -100 } : undefined,
 			fullscreenable: false,
 			webPreferences: {
 				nodeIntegration: false,
@@ -158,8 +191,8 @@ export default class App {
 		}
 
 		// Protocol handler for osx
-		App.application.on('open-url', function (event, url) {
-			event.preventDefault();
+		App.application.on('open-url', function (_event, url) {
+			_event.preventDefault();
 
 			if (url) {
 				const index = url.indexOf('=');
@@ -188,15 +221,46 @@ export default class App {
 			return { action: 'deny' };
 		});
 
-		// Emitted when the window is closed.
-		App.mainWindow.on('close', (event) => {
+		App.mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+			log.error(`Failed to load: ${validatedURL}, Error code: ${errorCode}, Description: ${errorDescription}`);
+		});
+
+		App.mainWindow.webContents.on('certificate-error', (event, url, error, _certificate, callback) => {
+			log.error(`Certificate error for ${url}: ${error}`);
+			event.preventDefault();
+			callback(false);
+		});
+
+		App.mainWindow.webContents.on('render-process-gone', (_event, details) => {
+			log.error('Render process gone:', details);
+			if (details.reason !== 'clean-exit') {
+				log.info('Attempting to reload after crash...');
+				setTimeout(() => {
+					if (App.isWindowValid(App.mainWindow)) {
+						App.mainWindow.reload();
+					}
+				}, 1000);
+			}
+		});
+
+		App.mainWindow.on('unresponsive', () => {
+			log.warn('Window became unresponsive');
+		});
+
+		App.mainWindow.webContents.on('console-message', (_event, _level, message, line, sourceId) => {
+			if (message.includes('ERR_NAME_NOT_RESOLVED') || message.includes('net::ERR_')) {
+				log.error(`Network error: ${message} at ${sourceId}:${line}`);
+			}
+		});
+
+		// Intercept close to hide the window unless force quit
+		App.mainWindow.on('close', (_event) => {
 			if (forceQuit.isEnabled) {
 				app.exit(0);
 				forceQuit.disable();
-			} else {
-				event.preventDefault();
-				App.mainWindow.hide();
+				return;
 			}
+			App.mainWindow.hide();
 		});
 
 		App.application.on('before-quit', async () => {
@@ -205,6 +269,8 @@ export default class App {
 			} catch (error) {
 				console.error('Update check failed:', error);
 			}
+			// Cleanup intervals to prevent memory leaks
+			App.cleanupIntervals();
 			tray.destroy();
 			App.application.exit();
 		});
@@ -213,7 +279,7 @@ export default class App {
 	private static generateQueryString(params: Record<string, string>): string {
 		return Object.keys(params)
 			.map((key) => {
-				return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+				return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
 			})
 			.join('&');
 	}
@@ -258,6 +324,36 @@ export default class App {
 		return window !== null && !window.isDestroyed();
 	}
 
+	public static ensureMainWindow(params?: Record<string, string>) {
+		if (!App.isWindowValid(App.mainWindow)) {
+			App.initMainWindow();
+			App.loadMainWindow(params ?? {});
+			return;
+		}
+
+		if (App.mainWindow.isMinimized()) {
+			App.mainWindow.restore();
+		}
+
+		if (!App.mainWindow.isVisible()) {
+			App.mainWindow.show();
+		}
+
+		App.mainWindow.focus();
+	}
+
+	public static setActivityTrackingEnabled(enabled: boolean) {
+		App.isActivityTrackingEnabled = enabled;
+		if (enabled) {
+			App.setupWindowManager();
+		} else {
+			if (App.activityTrackingInterval) {
+				clearInterval(App.activityTrackingInterval);
+				App.activityTrackingInterval = null;
+			}
+		}
+	}
+
 	/**
 	 * setup badge for the app
 	 */
@@ -266,9 +362,9 @@ export default class App {
 	}
 
 	private static setupWindowManager() {
+		if (!App.isActivityTrackingEnabled) return;
 		let defaultApp = null;
 		const usageThreshold = 30 * 60 * 1000;
-		let activityTimeout: NodeJS.Timeout | null = null;
 
 		const fetchActiveWindow = (): void => {
 			const window = activeWindows?.getActiveWindow();
@@ -303,13 +399,15 @@ export default class App {
 			console.error(ex);
 		}
 
-		if (activityTimeout) {
-			clearInterval(activityTimeout);
+		if (App.activityTrackingInterval) {
+			clearInterval(App.activityTrackingInterval);
 		}
 
-		activityTimeout = setInterval(() => {
+		App.activityTrackingInterval = setInterval(() => {
 			try {
-				fetchActiveWindow();
+				if (App.isActivityTrackingEnabled) {
+					fetchActiveWindow();
+				}
 			} catch (ex) {
 				console.error(ex);
 			}
@@ -317,8 +415,6 @@ export default class App {
 	}
 
 	private static setupMenu() {
-		const isMac = process.platform === 'darwin';
-
 		const appMenu: MenuItemConstructorOptions[] = [
 			{
 				label: app.name,
@@ -337,7 +433,7 @@ export default class App {
 								new Notification({
 									icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
 									title: 'Checking for updates..',
-									body: body
+									body
 								}).show();
 							});
 						}
@@ -367,7 +463,19 @@ export default class App {
 			// { role: 'fileMenu' }
 			{
 				label: 'File',
-				submenu: [isMac ? { role: 'close' } : { role: 'quit' }]
+				submenu: [
+					...(isMac
+						? ([
+								{
+									label: 'Hide Window',
+									accelerator: 'CmdOrCtrl+W',
+									click: () => {
+										App.mainWindow.hide();
+									}
+								}
+							] as MenuItemConstructorOptions[])
+						: ([{ role: 'quit' }] as MenuItemConstructorOptions[]))
+				]
 			},
 			// { role: 'editMenu' }
 			{
@@ -404,6 +512,13 @@ export default class App {
 							App.mainWindow.webContents.send('reload-app');
 						}
 					},
+					{
+						label: 'Hide',
+						accelerator: 'CmdOrCtrl+W',
+						click: () => {
+							App.mainWindow.hide();
+						}
+					},
 					{ type: 'separator' },
 					{ role: 'resetZoom' },
 					{ role: 'zoomIn' },
@@ -421,7 +536,7 @@ export default class App {
 					{ role: 'zoom' },
 					...(isMac
 						? ([{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }] as MenuItemConstructorOptions[])
-						: ([{ role: 'close' }] as MenuItemConstructorOptions[]))
+						: ([{ role: 'quit' }] as MenuItemConstructorOptions[]))
 				]
 			},
 			{
@@ -439,5 +554,15 @@ export default class App {
 
 		const menu = Menu.buildFromTemplate(template);
 		Menu.setApplicationMenu(menu);
+	}
+
+	private static setupDetectLockScreen() {
+		powerMonitor.on('lock-screen', () => {
+			App.mainWindow.webContents.send(LOCK_SCREEN);
+		});
+
+		powerMonitor.on('unlock-screen', () => {
+			App.mainWindow.webContents.send(UNLOCK_SCREEN);
+		});
 	}
 }

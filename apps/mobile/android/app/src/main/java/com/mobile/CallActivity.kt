@@ -8,6 +8,10 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
+import android.util.Log
+import android.view.WindowManager
+import android.os.Build
+import android.provider.Settings
 
 class CallActivity : ReactActivity() {
 
@@ -18,19 +22,31 @@ class CallActivity : ReactActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    // Cancel the notification when this activity starts
-    val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.cancel(1001)
-
-    // Stop the VibrationService
-    // val serviceIntent = Intent(this, VibrationService::class.java)
-    // stopService(serviceIntent)
+     try {
+        setShowWhenLocked(true);
+        setTurnScreenOn(true);
+        window.addFlags(
+          WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+          WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+          WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+          WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        )
+      } catch (e: Exception) {
+            Log.e("CallActivity", "window.addFlags: ${e.message}")
+      }
   }
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
+  }
+
+  override fun onWindowFocusChanged(hasFocus: Boolean) {
+    try {
+      super.onWindowFocusChanged(hasFocus)
+    } catch (e: Exception) {
+      Log.e("CallActivity", "Error in onWindowFocusChanged: ${e.message}", e)
+    }
   }
 
   /**

@@ -1,7 +1,8 @@
 import { channelMembersActions, selectCurrentClanId, useAppDispatch, userClanProfileActions } from '@mezon/store';
-import { Icons } from '@mezon/ui';
-import { Dropdown } from 'flowbite-react';
-import { ReactNode, useEffect, useState } from 'react';
+import { Icons, Menu } from '@mezon/ui';
+import type { ReactElement, ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../../components';
 
@@ -12,33 +13,37 @@ type ModalCustomStatusProps = {
 };
 
 const ModalCustomStatus = ({ name, status, onClose }: ModalCustomStatusProps) => {
+	const { t } = useTranslation(['userProfile'], { keyPrefix: 'statusProfile.customStatusModal' });
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
 		dispatch(userClanProfileActions.setShowModalFooterProfile(false));
-	}, []);
+	}, [dispatch]);
 
 	const handleChangeCustomStatus = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const updatedStatus = e.target.value.slice(0, 128).replace(/\\/g, '\\\\');
+		const updatedStatus = e.target.value.slice(0, 128).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "''");
 		setCustomStatus(updatedStatus);
 	};
 
-	const [timeSetReset, setTimeSetReset] = useState<string>('Today');
+	const [timeSetReset, setTimeSetReset] = useState<string>(t('timeOptions.today'));
 
-	const setStatusTimer = (minutes: number, noClear: boolean, option: string) => {
-		setTimeSetReset(option);
-		if (noClear) {
-			setNoClearStatus(noClear);
-		} else {
-			if (option === 'Today') {
-				const now = new Date();
-				const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-				const timeDifference = endOfDay.getTime() - now.getTime();
-				minutes = Math.floor(timeDifference / (1000 * 60));
+	const setStatusTimer = useCallback(
+		(minutes: number, noClear: boolean, option: string) => {
+			setTimeSetReset(option);
+			if (noClear) {
+				setNoClearStatus(noClear);
+			} else {
+				if (option === t('timeOptions.today')) {
+					const now = new Date();
+					const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+					const timeDifference = endOfDay.getTime() - now.getTime();
+					minutes = Math.floor(timeDifference / (1000 * 60));
+				}
+				setResetTimerStatus(minutes);
 			}
-			setResetTimerStatus(minutes);
-		}
-	};
+		},
+		[t]
+	);
 	const currentClanId = useSelector(selectCurrentClanId);
 
 	const [resetTimerStatus, setResetTimerStatus] = useState<number>(0);
@@ -58,22 +63,58 @@ const ModalCustomStatus = ({ name, status, onClose }: ModalCustomStatusProps) =>
 		onClose();
 	};
 
+	const menuTime = useMemo(() => {
+		const menuItems: ReactElement[] = [
+			<ItemSelect
+				key={'timeOptions.today'}
+				timeSetReset={timeSetReset}
+				children={t('timeOptions.today')}
+				onClick={() => setStatusTimer(0, false, t('timeOptions.today'))}
+			/>,
+			<ItemSelect
+				key={'timeOptions.fourHours'}
+				timeSetReset={timeSetReset}
+				children={t('timeOptions.fourHours')}
+				onClick={() => setStatusTimer(240, false, t('timeOptions.fourHours'))}
+			/>,
+			<ItemSelect
+				key={'timeOptions.oneHour'}
+				timeSetReset={timeSetReset}
+				children={t('timeOptions.oneHour')}
+				onClick={() => setStatusTimer(60, false, t('timeOptions.oneHour'))}
+			/>,
+			<ItemSelect
+				key={'timeOptions.thirtyMinutes'}
+				timeSetReset={timeSetReset}
+				children={t('timeOptions.thirtyMinutes')}
+				onClick={() => setStatusTimer(30, false, t('timeOptions.thirtyMinutes'))}
+			/>,
+			<ItemSelect
+				key={'timeOptions.dontClear'}
+				timeSetReset={timeSetReset}
+				children={t('timeOptions.dontClear')}
+				onClick={() => setStatusTimer(0, true, t('timeOptions.dontClear'))}
+			/>
+		];
+		return <div>{menuItems}</div>;
+	}, [timeSetReset, t, setStatusTimer]);
+
 	return (
 		<ModalLayout onClose={onClose}>
 			<div className="bg-theme-setting-primary pt-4 rounded w-[440px] ">
 				<div>
-					<h1 className="text-theme-primary-active text-xl font-semibold text-center">Set a custom status</h1>
+					<h1 className="text-theme-primary-active text-xl font-semibold text-center">{t('title')}</h1>
 				</div>
 				<div className="flex w-full flex-col gap-5 pt-4">
 					<div className="px-4">
 						<div className="mb-2 block">
-							<p className="text-theme-primary text-xs uppercase font-semibold">What's cookin', {name}</p>
+							<p className="text-theme-primary text-xs uppercase font-semibold">{t('whatsCookin', { name })}</p>
 						</div>
 						<input
 							type="text"
 							defaultValue={customStatus}
 							className="text-theme-primary bg-input-secondary outline-none w-full h-10 p-[10px] text-base rounded placeholder:text-sm border-theme-primary"
-							placeholder="What on your mind?"
+							placeholder={t('placeholder')}
 							maxLength={128}
 							autoFocus
 							onChange={handleChangeCustomStatus}
@@ -81,59 +122,25 @@ const ModalCustomStatus = ({ name, status, onClose }: ModalCustomStatusProps) =>
 					</div>
 					<div className="px-4">
 						<div className="mb-2 block">
-							<p className="text-theme-primary text-xs uppercase font-semibold">Clear after</p>
+							<p className="text-theme-primary text-xs uppercase font-semibold">{t('clearAfter')}</p>
 						</div>
-						<Dropdown
-							trigger="click"
-							dismissOnClick={false}
-							renderTrigger={() => (
-								<div className="flex items-center justify-between rounded-lg cursor-pointer h-9 text-theme-primary-hover bg-input-secondary px-3 text-theme-primary">
-									<li className="text-[14px] text-theme-primary w-full py-[6px] list-none select-none">{timeSetReset}</li>
-									<Icons.ArrowDown />
-								</div>
-							)}
-							label=""
-							placement="bottom-start"
-							className="bg-theme-setting-primary border-none py-0 w-[200px] [&>ul]:py-0"
-						>
-							<ItemSelect children="Today" onClick={() => setStatusTimer(0, false, 'Today')} />
-							<ItemSelect children="4 hours" onClick={() => setStatusTimer(240, false, '4 hours')} />
-							<ItemSelect children="1 hours" onClick={() => setStatusTimer(60, false, '1 hours')} />
-							<ItemSelect children="30 minutes" onClick={() => setStatusTimer(30, false, '30 minutes')} />
-							<ItemSelect children="Don't clear" onClick={() => setStatusTimer(0, true, "Don't clear")} />
-						</Dropdown>
-					</div>
-					<div className="px-4">
-						<div className="mb-2 block">
-							<label htmlFor="status" className="text-theme-primary text-xs uppercase font-semibold">
-								Status
-							</label>
-						</div>
-						<Dropdown
-							trigger="click"
-							dismissOnClick={false}
-							renderTrigger={() => (
-								<div className="flex items-center justify-between rounded-lg h-9 text-theme-primary-hover bg-input-secondary px-3 text-theme-primary">
-									<li className="text-[14px] text-theme-primary w-full py-[6px] cursor-pointer list-none select-none">Online</li>
-									<Icons.ArrowDown />
-								</div>
-							)}
-							label=""
-							placement="bottom-start"
-							className="bg-input-secondary border-none py-0 w-[200px] [&>ul]:py-0"
-						>
-							<ItemSelect children="Online" startIcon={<Icons.OnlineStatus />} />
-							<ItemSelect children="Idle" startIcon={<Icons.DarkModeIcon className="text-[#F0B232] -rotate-90" />} />
-							<ItemSelect children="Do Not Disturb" startIcon={<Icons.MinusCircleIcon />} />
-							<ItemSelect children="Invisible" startIcon={<Icons.OfflineStatus />} />
-						</Dropdown>
+						<Menu menu={menuTime} className="bg-[var(--theme-setting-primary)] border-none py-0 w-[200px] [&>ul]:py-0">
+							<div className="flex items-center justify-between rounded-lg cursor-pointer h-9 text-theme-primary-hover bg-input-secondary px-3 text-theme-primary">
+								<li className="text-[14px] text-theme-primary w-full py-[6px] list-none select-none">{timeSetReset}</li>
+								<Icons.ArrowDown />
+							</div>
+						</Menu>
 					</div>
 					<div className="flex justify-end p-4 gap-2 rounded-b-theme-primary ">
 						<button className="py-2 h-10 px-4 rounded-lg  hover:underline text-theme-primary" type="button" onClick={onClose}>
-							Cancel
+							{t('buttons.cancel')}
 						</button>
-						<button className="py-2 h-10 px-4 rounded-lg btn-primary-hover btn-primary " type="button" onClick={handleSaveCustomStatus}>
-							Save
+						<button
+							className="py-2 h-10 px-4 rounded-lg text-white !bg-[#5265ec] hover:!bg-[#4654c0]"
+							type="button"
+							onClick={handleSaveCustomStatus}
+						>
+							{t('buttons.save')}
 						</button>
 					</div>
 				</div>
@@ -144,20 +151,19 @@ const ModalCustomStatus = ({ name, status, onClose }: ModalCustomStatusProps) =>
 
 type ItemSelectProps = {
 	children: string;
-	dropdown?: boolean;
 	startIcon?: ReactNode;
 	onClick?: () => void;
+	timeSetReset: string;
 };
 
-const ItemSelect = ({ children, dropdown, startIcon, onClick }: ItemSelectProps) => {
+const ItemSelect = ({ children, startIcon, onClick, timeSetReset }: ItemSelectProps) => {
 	return (
-		<div
-			onClick={onClick}
-			className="flex items-center justify-between h-11 rounded-sm bg-theme-setting-nav text-theme-primary-hover cursor-pointer text-theme-primary bg-item-theme-hover-status px-3"
-		>
+		<div onClick={onClick} className="flex w-full items-center justify-between px-3 bg-item-hover cursor-pointer">
 			{startIcon && <div className="flex items-center justify-center h-[18px] w-[18px] mr-2">{startIcon}</div>}
-			<li className="text-[14px] w-full list-none leading-[44px] ">{children}</li>
-			<Icons.Check className="w-[18px] h-[18px]" />
+			<div>
+				<li className="text-[14px] w-full list-none leading-[44px] ">{children}</li>
+			</div>
+			{children === timeSetReset && <Icons.Check className="w-[18px] h-[18px]" />}
 		</div>
 	);
 };

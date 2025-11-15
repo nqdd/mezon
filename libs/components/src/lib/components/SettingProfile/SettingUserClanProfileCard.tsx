@@ -1,6 +1,7 @@
 import { useAuth, useMemberStatus } from '@mezon/core';
 import { selectAccountCustomStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
@@ -13,7 +14,6 @@ export type propProfilesform = {
 	profiles: Profilesform;
 	currentDisplayName?: string;
 	isLoading?: boolean;
-	isDM?: boolean;
 };
 const SettingUserClanProfileCard = (props: propProfilesform) => {
 	const { userProfile } = useAuth();
@@ -45,18 +45,22 @@ const SettingUserClanProfileCard = (props: propProfilesform) => {
 
 			<div style={{ backgroundColor: color }} className="h-[105px] rounded-tr-[10px] rounded-tl-[10px] "></div>
 			<AvatarProfile
-				avatar={profiles.urlImage}
+				avatar={profiles.urlImage || userProfile?.user?.avatar_url || ''}
 				username={userProfile?.user?.username}
 				userToDisplay={true}
 				customStatus={userStatusProfile}
 				userID={userProfile?.user?.id}
-				userStatus={userStatus}
+				statusOnline={userStatus.status}
+				identifierE2E="avatar_clan_profile"
 			/>
 
-			<div className="px-[16px]">
-				<div className="bg-theme-setting-primary text-theme-primary border-theme-primary shadow w-full p-4 my-[16px] rounded-[10px] flex flex-col gap-y-6 xl:gap-y-7">
+			<div className="p-4 flex flex-col gap-4">
+				<div className="bg-theme-setting-primary text-theme-primary border-theme-primary shadow w-full p-4 rounded-[10px] flex flex-col gap-y-6 xl:gap-y-7">
 					<div className="w-[300px]">
-						<p className="font-bold tracking-wider text-xl one-line">
+						<p
+							className="font-bold tracking-wider text-xl one-line"
+							data-e2e={generateE2eId('user_setting.profile.user_profile.preview.display_name')}
+						>
 							{profiles.displayName || currentDisplayName || userProfile?.user?.username}
 						</p>
 						<p className="font-medium tracking-wide text-sm">{userProfile?.user?.username}</p>

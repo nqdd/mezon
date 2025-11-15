@@ -1,21 +1,35 @@
 {
-    "header": {
-        "save": "Save"
-    },
-    "toast": {
-        "saveSuccess": "Save Successfully",
-        "reject": "Reject"
-    },
-    "button": {
-        "upload": "Upload Emoji"
-    },
-    "description": {
-        "descriptions": "Add up to 250 custom emoji that anyone can use in this server. Animated GIF emoji may be used by members with Mezon Nitro",
-        "requirements": "UPLOAD REQUIREMENTS",
-        "requireList": "•  File type: JPEG, PNG, GIF\n•  Recommended file size: 256 KB (We'll compress for you)\n•  Recommended dimensions: 128x128\n•  Naming: Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores"
-    },
-    "emojiList": {
-        "slotsDetails": "EMOJI - {{slots}} SLOTS AVAILABLE",
-        "delete": "DELETE"
-    }
+	"modal": {
+		"uploadAFile": "Upload a file",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "File should be a PNG or GIF, 256KB max",
+		"preview": "Preview",
+		"file": "File",
+		"thisCannotBeEdited": "This cannot be edited",
+		"browse": "Browse",
+		"chooseAFile": "Choose a file",
+		"stickerName": "Emoji name",
+		"exCatHug": "Ex: cat_hug",
+		"thisIsForSale": "This is for sale",
+		"neverMind": "Never Mind"
+	},
+	"header": {
+		"save": "Save"
+	},
+	"toast": {
+		"saveSuccess": "Save Successfully",
+		"reject": "Reject",
+		"errorSizeLimit": "Image size limit exceeded 256KB"
+	},
+	"button": {
+		"upload": "Upload Emoji"
+	},
+	"description": {
+		"descriptions": "Add custom emoji that anyone can use in this clan. Animated GIF emoji may be used by members with Mezon",
+		"requirements": "UPLOAD REQUIREMENTS",
+		"requireList": "•  File type: JPEG, PNG, GIF\n•  Recommended file size: 256 KB\n•  Recommended dimensions: 128x128\n•  Naming: Emoji names must be at least 2 characters long and can only contain alphanumeric characters and underscores"
+	},
+	"emojiList": {
+		"slotsDetails": "LIST EMOJIS",
+		"delete": "Delete"
+	}
 }

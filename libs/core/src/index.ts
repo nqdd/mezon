@@ -1,6 +1,7 @@
 export * from './lib/app/hooks/useAppNavigation';
 export * from './lib/app/hooks/useAppParams';
 export * from './lib/app/hooks/useMessages';
+export * from './lib/app/hooks/useMezonNavigateEvent';
 export * from './lib/auth/hooks/useAuth';
 export * from './lib/auth/hooks/useMemberStatus';
 export * from './lib/chat/contexts/ChatContext';

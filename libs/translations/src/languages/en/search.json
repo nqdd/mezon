@@ -1,0 +1,9 @@
+{
+  "searchMembers": "Search Members",
+  "searchActions": "Search Actions",
+  "allUsers": "All Users",
+  "noResults": {
+    "title": "Nope!",
+    "description": "Did you make a typo?"
+  }
+}

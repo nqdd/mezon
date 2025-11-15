@@ -1,33 +1,36 @@
 import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
 	appActions,
-	ChannelsEntity,
-	selectCurrentClan,
+	selectCurrentClanId,
+	selectCurrentClanName,
 	selectIsJoin,
 	selectIsShowChatStream,
-	selectMemberClanByGoogleId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectRemoteVideoStream,
 	selectStatusStream,
 	selectStreamMembersByChannelId,
-	selectTheme,
 	useAppDispatch,
 	useAppSelector,
 	usersStreamActions,
 	videoStreamActions
 } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { createImgproxyUrl, getAvatarForPrioritize, IChannelMember, IStreamInfo } from '@mezon/utils';
+import type { IChannelMember, IStreamInfo } from '@mezon/utils';
+import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
 	videoRef: RefObject<HTMLVideoElement>;
+	currentChannel?: ChannelsEntity | null;
 }
 
-function HLSPlayer({ videoRef }: MediaPlayerProps) {
+function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [isMuted, setIsMuted] = useState(false);
 	const [volume, setVolume] = useState(1);
@@ -112,26 +115,22 @@ function HLSPlayer({ videoRef }: MediaPlayerProps) {
 			onMouseMove={handleMouseMoveOrClick}
 			onClick={handleMouseMoveOrClick}
 		>
-			<div className="custom-video-container w-full h-full" style={{ position: 'relative' }}>
+			<div className="custom-video-container w-full h-full relative">
 				{!isRemoteVideoStream && (
 					<img
-						src="http://do78x13wq0td.cloudfront.net/prod/Uploads/images/imsv2/1734066191951-145%20(14).png"
-						alt="background"
+						src={currentChannel?.channel_avatar || 'assets/images/flahstream.png'}
+						alt="Stream Thumbnail"
 						className="w-full h-full object-cover"
 					/>
 				)}
 				<video
-					className="custom-video w-full h-full object-contain"
+					className={`custom-video w-full h-full object-contain ${isRemoteVideoStream ? 'block' : 'hidden'}`}
 					ref={videoRef}
 					autoPlay
 					playsInline
 					controls={false}
-					style={{
-						display: isRemoteVideoStream ? 'block' : 'none'
-					}}
 				/>
-			</div>
-
+			</div>{' '}
 			{/* {isLoading && (
 				<div className="absolute top-0 left-0 w-full h-full bg-gray-400 flex justify-center items-center text-white text-xl z-50">
 					Loading...
@@ -142,7 +141,6 @@ function HLSPlayer({ videoRef }: MediaPlayerProps) {
 					Cannot play video. Please try again later.
 				</div>
 			)}
-
 			<div
 				className={`bg-black bg-opacity-50 absolute bottom-0 flex items-center w-full justify-between p-2 transition-transform duration-300 ease-in-out ${showControls ? 'translate-y-0' : 'translate-y-full'}`}
 			>
@@ -237,20 +235,16 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 }
 
 function UserItem({ user }: { user: IChannelMember }) {
-	const member = useAppSelector((state) => selectMemberClanByGoogleId(state, user.user_id ?? ''));
-	const userStream = useAppSelector((state) => selectMemberClanByUserId2(state, user.user_id ?? ''));
-	const username = member ? member?.user?.username : userStream?.user?.username;
-	const clanAvatar = member ? member?.clan_avatar : userStream?.clan_avatar;
-	const avatarUrl = member ? member?.user?.avatar_url : userStream?.user?.avatar_url;
-	const avatar = getAvatarForPrioritize(clanAvatar, avatarUrl);
+	const userStream = useAppSelector((state) => selectMemberClanByUserId(state, user.user_id ?? ''));
+	const avatar = getAvatarForPrioritize(userStream?.clan_avatar, userStream?.user?.avatar_url);
 
 	return (
 		<div className="w-14 h-14 rounded-full">
 			<div className="w-14 h-14">
-				{member || userStream ? (
+				{userStream ? (
 					<AvatarImage
-						alt={username || ''}
-						username={username}
+						alt={userStream?.user?.username || ''}
+						username={userStream?.user?.username}
 						className="min-w-14 min-h-14 max-w-14 max-h-14"
 						srcImgProxy={createImgproxyUrl(avatar ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						src={avatar}
@@ -285,9 +279,9 @@ export default function ChannelStream({
 	const memberJoin = useAppSelector((state) => selectStreamMembersByChannelId(state, currentChannel?.channel_id || ''));
 	const streamPlay = useSelector(selectStatusStream);
 	const isJoin = useSelector(selectIsJoin);
-	const appearanceTheme = useSelector(selectTheme);
-	const { userProfile, session } = useAuth();
-	const accessToken = session?.token;
+	const { userProfile } = useAuth();
+	const { sessionRef } = useMezon();
+	const accessToken = sessionRef.current?.token;
 	const dispatch = useAppDispatch();
 	const [showMembers, setShowMembers] = useState(true);
 	const [showEndCallButton, setShowEndCallButton] = useState(true);
@@ -295,14 +289,15 @@ export default function ChannelStream({
 	const hideButtonsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isShowChatStream = useSelector(selectIsShowChatStream);
 
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanName = useSelector(selectCurrentClanName);
 	useEffect(() => {
-		if (!currentChannel || !currentClan || !currentStreamInfo) return;
+		if (!currentChannel || !currentClanId || !currentStreamInfo) return;
 		if (currentChannel.type !== ChannelType.CHANNEL_TYPE_STREAMING) return;
 		if (currentStreamInfo.streamId !== currentChannel.id || (!streamPlay && currentStreamInfo?.streamId === currentChannel.id)) {
 			dispatch(appActions.setIsShowChatStream(false));
 		}
-	}, [currentChannel, currentStreamInfo, currentClan]);
+	}, [currentChannel, currentStreamInfo, currentClanId]);
 
 	const handleLeaveChannel = async () => {
 		if (currentStreamInfo) {
@@ -317,12 +312,12 @@ export default function ChannelStream({
 	};
 
 	const handleJoinChannel = async () => {
-		if (!currentChannel || !currentClan) return;
+		if (!currentChannel || !currentClanId) return;
 		if (currentChannel.type !== ChannelType.CHANNEL_TYPE_STREAMING) return;
 		dispatch(
 			videoStreamActions.startStream({
-				clanId: currentClan.id as string,
-				clanName: currentClan.clan_name as string,
+				clanId: currentClanId as string,
+				clanName: currentClanName as string,
 				streamId: currentChannel.channel_id as string,
 				streamName: currentChannel.channel_label as string,
 				parentId: currentChannel.parent_id as string
@@ -331,7 +326,7 @@ export default function ChannelStream({
 		dispatch(videoStreamActions.setIsJoin(true));
 		disconnect();
 		handleChannelClick(
-			currentClan?.id as string,
+			currentClanId as string,
 			currentChannel?.channel_id as string,
 			userProfile?.user?.id as string,
 			currentChannel?.channel_id as string,
@@ -383,7 +378,11 @@ export default function ChannelStream({
 								? `${currentChannel.channel_label.substring(0, 20)}...`
 								: currentChannel?.channel_label}
 						</div>
-						{memberJoin.length > 0 ? <div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div> : <div className="text-gray-800 dark:text-white">No one is currently in stream</div>}
+						{memberJoin.length > 0 ? (
+							<div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div>
+						) : (
+							<div className="text-gray-800 dark:text-white">No one is currently in stream</div>
+						)}
 						<button
 							disabled={!memberJoin.length}
 							className={`bg-green-700 rounded-3xl p-2 ${memberJoin.length > 0 ? 'hover:bg-green-600' : 'opacity-50'}`}
@@ -405,7 +404,7 @@ export default function ChannelStream({
 							<div
 								className={`transition-all duration-300 h-full max-sm:w-full w-${showMembers && !isShowChatStream ? '[70%]' : '[100%]'}`}
 							>
-								<HLSPlayer videoRef={streamVideoRef} />
+								<HLSPlayer videoRef={streamVideoRef} currentChannel={currentChannel} />
 							</div>
 						) : (
 							<div className="sm:h-[250px] md:h-[350px] lg:h-[450px] xl:h-[550px] w-[70%] dark:text-[#AEAEAE] text-colorTextLightMode dark:bg-bgSecondary600 bg-channelTextareaLight text-5xl flex justify-center items-center text-center">

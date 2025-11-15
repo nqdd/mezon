@@ -1,33 +1,56 @@
 {
-  "bottomSheet": {
-    "title": "Cài đặt thông báo",
-    "muteUntil": "Bạn đã tắt thông báo cho kênh này cho đến khi",
-    "unMute": "Bật thông báo",
-    "mute": "Tắt thông báo",
-    "labelOptions": {
-      "reactionMessage": "Biểu cảm tin nhắn",
-      "categoryDefault": "Sử dụng cài đặt mặc định",
-      "allMessage": "Tất cả",
-      "notThingMessage": "Không có gì",
-      "mentionMessage": "Chỉ @mention"
-    },
-    "muteCategoryUntil": "Bạn đã tắt thông báo cho danh mục này cho đến khi"
-  },
-  "notifySettingThreadModal": {
-    "headerTitleMuteThread": "Tắt thông báo chủ đề này",
-    "headerTitleMuteChannel": "Tắt thông báo kênh này",
-    "muteThisConversation": "Tắt thông báo cuộc trò chuyện này",
-    "muteDuration": {
-      "forFifteenMinutes": "Trong 15 phút",
-      "forOneHour": "Trong 1 giờ",
-      "forThreeHours": "Trong 3 giờ",
-      "forEightHours": "Trong 8 giờ",
-      "forTwentyFourHours": "Trong 24 giờ",
-      "untilTurnItBackOn": "Cho đến khi bật lại"
-    },
-    "description": "Bạn đang nhận được thông báo từ tất cả tin nhắn trong clan này, nhưng bạn có thể thay đổi cài đặt tại đây"
-  },
-  "toast": {
-    "error": "Cập nhật thông báo lỗi: {{error}}"
-  }
+	"bottomSheet": {
+		"title": "Cài đặt thông báo",
+		"muteUntil": "Bạn đã tắt thông báo cho kênh này cho đến khi",
+		"unMute": "Bật thông báo",
+		"mute": "Tắt thông báo",
+		"labelOptions": {
+			"reactionMessage": "Biểu cảm tin nhắn",
+			"categoryDefault": "Sử dụng cài đặt mặc định",
+			"allMessage": "Tất cả",
+			"notThingMessage": "Không có gì",
+			"mentionMessage": "Chỉ @mention"
+		},
+		"muteCategoryUntil": "Bạn đã tắt thông báo cho danh mục này cho đến khi"
+	},
+	"notifySettingThreadModal": {
+		"headerTitleMuteThread": "Tắt thông báo chủ đề này",
+		"headerTitleMuteChannel": "Tắt thông báo kênh này",
+		"muteThisConversation": "Tắt thông báo cuộc trò chuyện này",
+		"muteDuration": {
+			"forFifteenMinutes": "Trong 15 phút",
+			"forOneHour": "Trong 1 giờ",
+			"forThreeHours": "Trong 3 giờ",
+			"forEightHours": "Trong 8 giờ",
+			"forTwentyFourHours": "Trong 24 giờ",
+			"untilTurnItBackOn": "Cho đến khi bật lại"
+		},
+		"description": "Bạn đang nhận được thông báo từ tất cả tin nhắn trong clan này, nhưng bạn có thể thay đổi cài đặt tại đây",
+		"muteSuccess": "Tắt thông báo thành công!",
+		"unMuteSuccess": "Bật thông báo thành công!",
+		"muteFailed": "Tắt thông báo không thành công!",
+		"unMuteFailed": "Bật thông báo không thành công!"
+	},
+	"toast": {
+		"error": "Cập nhật thông báo lỗi: {{error}}"
+	},
+	"title": "Cài đặt thông báo",
+	"clanNotificationSettings": "CÀI ĐẶT THÔNG BÁO CLAN",
+	"notificationOverrides": "GHI ĐÈ THÔNG BÁO",
+	"addChannelOverride": "Thêm kênh để ghi đè cài đặt thông báo mặc định",
+	"selectOrCreateOption": "Chọn hoặc tạo tùy chọn...",
+	"headers": {
+		"channelOrCategory": "KÊNH HOẶC DANH MỤC",
+		"all": "TẤT CẢ",
+		"mentions": "NHẮC ĐẾN",
+		"nothing": "KHÔNG CÓ GÌ",
+		"mute": "Tắt thông báo"
+	},
+	"menu": {
+		"notification": {
+			"all": "Tất cả",
+			"onlyMention": "Chỉ @mention",
+			"nothing": "Không có gì"
+		}
+	}
 }

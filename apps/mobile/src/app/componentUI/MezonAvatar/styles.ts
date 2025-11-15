@@ -1,4 +1,4 @@
-import { Attributes, baseColor, Colors, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, height: number, width: number, n = 1) =>
@@ -10,9 +10,17 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 			borderRadius: size.s_50,
 			position: 'relative'
 		},
+		emptyView: {
+			height,
+			width
+		},
 		boxImage: {
 			borderRadius: size.s_50,
 			overflow: 'hidden'
+		},
+		sizedContainer: {
+			height,
+			width
 		},
 		borderBoxImage: {
 			borderColor: colors.secondary,
@@ -24,7 +32,7 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 		},
 		textAvatarMessageBoxDefault: {
 			fontSize: size.s_30,
-			color: Colors.white
+			color: 'white'
 		},
 		statusCircle: {
 			position: 'absolute',
@@ -46,7 +54,7 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 		avatarMessageBoxDefault: {
 			width: '100%',
 			height: '100%',
-			backgroundColor: Colors.titleReset,
+			backgroundColor: '#949AA4FF',
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'center'
@@ -70,10 +78,14 @@ export const style = (colors: Attributes, height: number, width: number, n = 1) 
 			flex: 1,
 			justifyContent: 'center',
 			alignItems: 'center',
-			backgroundColor: Colors.white
+			backgroundColor: 'white'
 		},
 		countBadgeText: {
 			fontSize: size.s_14,
 			fontWeight: 'bold'
 		}
 	});
+
+export const createPositionStyle = (index: number) => ({
+	left: index * 20
+});

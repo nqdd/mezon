@@ -1,5 +1,5 @@
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import { IImageWindowProps } from '../../types';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { IImageWindowProps } from '../../types';
 
 export type ElectronBridgeHandler = (...args: any[]) => void;
 export type MezonElectronAPI = {
@@ -20,6 +20,7 @@ export type MezonElectronAPI = {
 			uploaderData: { name: string; avatar: string };
 			realUrl: string;
 			channelImagesData: IImageWindowProps;
+			isVideo?: boolean;
 		}
 	) => Promise<void>;
 	dowloadImage: (url: string) => Promise<void>;

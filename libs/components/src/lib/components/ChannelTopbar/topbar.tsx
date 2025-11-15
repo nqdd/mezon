@@ -1,9 +1,9 @@
 import { ChannelTopbar } from '@mezon/components';
 import { usePathMatch } from '@mezon/core';
-import { selectCloseMenu, selectStatusMenu } from '@mezon/store';
-import { IChannel } from '@mezon/utils';
-import { ChannelStreamMode } from 'mezon-js';
-import { memo } from 'react';
+import { selectCloseMenu, selectCurrentChannelChannelId, selectCurrentChannelClanId, selectStatusMenu, selectVoiceInfo, selectVoiceJoined } from '@mezon/store';
+import type { IChannel } from '@mezon/utils';
+import type { ChannelStreamMode } from 'mezon-js';
+import { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 export type ChannelTopbarProps = {
@@ -21,10 +21,17 @@ const Topbar = memo(({ isHidden = false }: { isHidden?: boolean }) => {
 	});
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
+	const isJoined = useSelector(selectVoiceJoined);
+	const voiceInfo = useSelector(selectVoiceInfo);
+	const currentChannelClanId = useSelector(selectCurrentChannelClanId);
+	const currentChannelId = useSelector(selectCurrentChannelChannelId);
+	const isInCurrentVoiceChannel = useMemo(() => {
+		return isJoined && voiceInfo?.clanId === currentChannelClanId && voiceInfo?.channelId === currentChannelId;
+	}, [isJoined, voiceInfo, currentChannelClanId, currentChannelId]);
 
 	return (
 		<div
-			className={`${isFriendPath || isHidden || (closeMenu && statusMenu) ? 'hidden' : ''} border-b-theme-primary bg-theme-chat max-sbm:z-20 flex h-heightTopBar p-3 min-w-0 items-center w-widthThumnailAttachment flex-shrink fixed right-0 z-10 border-b-theme-nav text-theme-primary`}
+			className={`${isFriendPath || isHidden || (closeMenu && statusMenu) || isInCurrentVoiceChannel ? 'hidden' : ''} border-b-theme-primary bg-theme-chat max-sbm:z-20 flex h-heightTopBar p-3 min-w-0 items-center w-widthThumnailAttachment flex-shrink fixed right-0 z-10 border-b-theme-nav text-theme-primary  `}
 		>
 			<ChannelTopbar />
 		</div>

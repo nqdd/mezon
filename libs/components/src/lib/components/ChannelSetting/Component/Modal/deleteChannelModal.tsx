@@ -1,17 +1,19 @@
 import { useAppNavigation, useEscapeKeyClose } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	channelsActions,
 	selectChannelById,
 	selectChannelFirst,
 	selectChannelSecond,
 	selectCurrentChannelId,
 	selectCurrentClanId,
+	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { checkIsThread } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,6 +25,7 @@ interface DeleteModalProps {
 }
 
 export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal, channelLabel, channelId }) => {
+	const { t } = useTranslation('channelSetting');
 	const dispatch = useAppDispatch();
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
@@ -39,6 +42,15 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal,
 
 	const handleDeleteChannel = async (channelId: string) => {
 		await dispatch(channelsActions.deleteChannel({ channelId, clanId: currentClanId as string }));
+
+		if (isThread) {
+			const parentChannelId = (selectedChannel?.parent_id as string) || '';
+			const threadId = selectedChannel?.id as string;
+			if (parentChannelId && threadId) {
+				await dispatch(threadsActions.remove(threadId));
+				await dispatch(threadsActions.removeThreadFromCache({ channelId: parentChannelId, threadId }));
+			}
+		}
 		if (channelId === currentChannelId) {
 			if (currentChannelId === channelNavId) {
 				channelNavId = channelSecond.id;
@@ -71,10 +83,14 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal,
 	return (
 		<div ref={modalRef} tabIndex={-1} className="fixed  inset-0 flex items-center justify-center z-50 dark:text-white text-black">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
-			<div className="relative z-10 dark:bg-gray-900 bg-bgLightModeSecond p-6 rounded-[5px] text-center">
-				<h2 className="text-[30px] font-semibold mb-4">Delete {isThread ? 'Thread' : 'Channel'}</h2>
-				<p className="text-white-600 mb-6 text-[16px]">
-					Are you sure you want to delete <b>{channelLabel}</b> ? This cannot be undone.
+			<div className="bg-theme-setting-primary relative z-10  p-6 rounded-[5px] text-center">
+				<h2 className="text-theme-primary-active text-[30px] font-semibold mb-4">
+					{isThread ? t('confirm.deleteThread.title') : t('confirm.deleteChannel.title')}
+				</h2>
+				<p className="text-theme-primary-active mb-6 text-[16px]">
+					{isThread
+						? t('confirm.deleteThread.content', { channelName: channelLabel })
+						: t('confirm.deleteChannel.content', { channelName: channelLabel })}
 				</p>
 				<div className="flex justify-center mt-10 text-[14px]">
 					<button
@@ -82,14 +98,14 @@ export const DeleteModal: React.FC<DeleteModalProps> = ({ onClose, onCloseModal,
 						onClick={onClose}
 						className="px-4 py-2 mr-5 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring focus:border-blue-300"
 					>
-						Cancel
+						{t('confirm.cancel')}
 					</button>
 					<button
 						color="blue"
 						onClick={() => handleDeleteChannel(channelId)}
 						className="px-4 py-2 bg-colorDanger dark:bg-colorDanger text-white rounded hover:bg-blue-500 focus:outline-none focus:ring focus:border-blue-300"
 					>
-						Delete {isThread ? 'Thread' : 'Channel'}
+						{isThread ? t('confirm.deleteThread.confirmText') : t('confirm.deleteChannel.confirmText')}
 					</button>
 				</div>
 			</div>

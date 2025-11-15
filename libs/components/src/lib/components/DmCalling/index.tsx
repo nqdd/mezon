@@ -22,18 +22,16 @@ import {
 	useAppSelector
 } from '@mezon/store';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { Icons } from '@mezon/ui';
+import { Icons, Menu } from '@mezon/ui';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { AvatarImage } from '@mezon/components';
 import { useWebRTCCall } from '@mezon/core';
 import { IMessageTypeCallLog, createImgproxyUrl, sleep } from '@mezon/utils';
-import { Dropdown } from 'flowbite-react';
-import { ChannelType, WebrtcSignalingType } from 'mezon-js';
+import { WebrtcSignalingType } from 'mezon-js';
+import type { ReactElement } from 'react';
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { SimpleMemberProfile } from '../MemberProfile';
 import DeviceSelector from './DeviceSelector';
-import LabelDm from './labelDm';
 
 type DmCallingProps = {
 	readonly dmGroupId?: Readonly<string>;
@@ -49,14 +47,15 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const userId = useMemo(() => userProfile?.user?.id, [userProfile]);
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
-	const avatarImages = currentDmGroup?.channel_avatar || [];
+	const avatarImages = currentDmGroup?.avatars || [];
+	const nameImages = currentDmGroup?.display_names || [];
 	const isMuteMicrophone = useSelector(selectIsMuteMicrophone);
 	const isShowShareScreen = useSelector(selectIsShowShareScreen);
 	const isShowMeetDM = useSelector(selectIsShowMeetDM);
 	const isInCall = useSelector(selectIsInCall);
 	const isPlayDialTone = useSelector(selectAudioDialTone);
 	const isPlayBusyTone = useSelector(selectAudioBusyTone);
-	const dmUserId = currentDmGroup?.user_id && currentDmGroup.user_id.length > 0 ? currentDmGroup?.user_id[0] : '';
+	const dmUserId = currentDmGroup?.user_ids && currentDmGroup.user_ids.length > 0 ? currentDmGroup?.user_ids[0] : '';
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const isRemoteAudio = useSelector(selectRemoteAudio);
 	const isRemoteVideo = useSelector(selectRemoteVideo);
@@ -68,8 +67,8 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		if (!isSignalDataOffer && !isInCall) {
 			return false;
 		}
-		return currentDmGroup?.user_id?.some((i) => i === signalingData?.[0]?.callerId);
-	}, [currentDmGroup?.user_id, isInCall, signalingData]);
+		return currentDmGroup?.user_ids?.some((i) => i === signalingData?.[0]?.callerId);
+	}, [currentDmGroup?.user_ids, isInCall, signalingData]);
 
 	const {
 		timeStartConnected,
@@ -169,7 +168,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		dispatch(DMCallActions.setIsInCall(false));
 		dispatch(DMCallActions.removeAll());
 		handleMuteSound();
-		dispatch(audioCallActions.startDmCall({}));
+		dispatch(audioCallActions.startDmCall(null));
 		dispatch(audioCallActions.setUserCallId(''));
 	};
 
@@ -184,6 +183,27 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		}
 	}, [isInCall, isRemoteVideo, isShowMeetDM]);
 
+	const menuDevice = useMemo(() => {
+		const menuItems: ReactElement[] = [
+			<DeviceSelector
+				key={'output-device-speaker'}
+				deviceList={audioOutputDevicesList}
+				currentDevice={currentOutputDevice}
+				icon={<Icons.Speaker defaultFill={'text-white ml-2'} />}
+				onSelectDevice={changeAudioOutputDevice}
+			/>,
+
+			<DeviceSelector
+				key={'input-device-mic'}
+				deviceList={audioInputDevicesList}
+				currentDevice={currentInputDevice}
+				icon={<Icons.MicEnable className={'h-5 w-5 text-white ml-2'} />}
+				onSelectDevice={changeAudioInputDevice}
+			/>
+		];
+		return <>{menuItems}</>;
+	}, [audioOutputDevicesList, audioInputDevicesList]);
+
 	if (!isInCall && !isInChannelCalled) return <div />;
 
 	return (
@@ -197,21 +217,6 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 					<div onClick={() => setStatusMenu(true)} className={`mx-6 ${closeMenu && !statusMenu ? '' : 'hidden'}`} role="button">
 						<Icons.OpenMenu defaultSize={`w-5 h-5`} />
 					</div>
-					<SimpleMemberProfile
-						numberCharacterCollapse={22}
-						avatar={
-							Number(currentDmGroup?.type) === ChannelType.CHANNEL_TYPE_GROUP
-								? 'assets/images/avatar-group.png'
-								: (currentDmGroup?.channel_avatar?.at(0) ?? '')
-						}
-						name={currentDmGroup?.channel_label ?? ''}
-						status={{ status: currentDmGroup?.is_online?.some(Boolean), isMobile: false }}
-						isHideStatus={true}
-						isHideIconStatus={Boolean(currentDmGroup?.user_id && currentDmGroup.user_id.length >= 2)}
-						key={currentDmGroup?.channel_id}
-						isHiddenAvatarPanel={true}
-					/>
-					<LabelDm dmGroupId={dmGroupId || ''} currentDmGroup={currentDmGroup} />
 				</div>
 			</div>
 
@@ -315,7 +320,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 								key={index}
 								height={'75px'}
 								alt={`Avatar ${index + 1}`}
-								username={`Avatar ${index + 1}`}
+								username={nameImages[index] ? nameImages[index] : `Avatar ${index + 1}`}
 								className="min-w-[75px] min-h-[75px] max-w-[75px] max-h-[75px] font-semibold"
 								srcImgProxy={createImgproxyUrl(avatar ?? '', {
 									width: 300,
@@ -373,33 +378,11 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 								/>
 							</div>
 
-							<Dropdown
-								label={''}
-								renderTrigger={() => (
-									<div className="h-[56px] w-[56px] relative rounded-full flex items-center justify-center cursor-pointer dark:bg-bgLightMode dark:hover:bg-neutral-400 bg-neutral-500 hover:bg-bgSecondary">
-										<Icons.ThreeDot className="text-white dark:text-bgTertiary" />
-									</div>
-								)}
-								className={'rounded-3xl'}
-							>
-								<div className="flex text-white px-1 w-[400px] min-w-max gap-2 h-full">
-									{/* Output */}
-									<DeviceSelector
-										deviceList={audioOutputDevicesList}
-										currentDevice={currentOutputDevice}
-										icon={<Icons.Speaker defaultFill={'text-white ml-2'} />}
-										onSelectDevice={changeAudioOutputDevice}
-									/>
-
-									{/* Input */}
-									<DeviceSelector
-										deviceList={audioInputDevicesList}
-										currentDevice={currentInputDevice}
-										icon={<Icons.MicEnable className={'h-5 w-5 text-white ml-2'} />}
-										onSelectDevice={changeAudioInputDevice}
-									/>
+							<Menu menu={menuDevice} className={'rounded-3xl'}>
+								<div className="h-[56px] w-[56px] relative rounded-full flex items-center justify-center cursor-pointer dark:bg-bgLightMode dark:hover:bg-neutral-400 bg-neutral-500 hover:bg-bgSecondary">
+									<Icons.ThreeDot className="text-white dark:text-bgTertiary" />
 								</div>
-							</Dropdown>
+							</Menu>
 							<div
 								className={`h-[56px] w-[56px] rounded-full bg-red-500 hover:bg-red-700 flex items-center justify-center cursor-pointer`}
 								onClick={handleCloseCall}

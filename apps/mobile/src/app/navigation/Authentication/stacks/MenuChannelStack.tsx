@@ -2,15 +2,16 @@ import { Fonts, size, useTheme } from '@mezon/mobile-ui';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
+import BannedUserListScreen from '../../../components/BannedUserList';
 import { CanvasScreen } from '../../../components/Canvas/CanvasBoard';
 import { ChangeCategory } from '../../../components/ChangeCategory';
 import { ChannelSetting } from '../../../components/ChannelSetting';
+import StreamBannerScreen from '../../../components/StreamBanner';
 import SearchMessageChannel from '../../../components/ThreadDetail/SearchMessageChannel';
 import SearchMessageDm from '../../../components/ThreadDetail/SearchMessageDm/SearchMessageDm';
 import { ChannelPermissionSetting } from '../../../screens/channelPermissionSetting';
 import { AdvancedPermissionOverrides } from '../../../screens/channelPermissionSetting/AdvancedPermissionOverrides';
 import { QuickAction } from '../../../screens/channelPermissionSetting/QuickAction';
-import { DirectMessageCall } from '../../../screens/messages/DirectMessageCall';
 import { APP_SCREEN } from '../../ScreenTypes';
 
 // eslint-disable-next-line no-empty-pattern
@@ -93,19 +94,14 @@ export function MenuChannelStacks({}: any) {
 				options={{
 					headerTitle: '',
 					headerStyle: {
-						backgroundColor: themeValue.charcoal
+						backgroundColor: themeValue?.primaryGradiant || themeValue.charcoal
 					},
 					headerTintColor: themeValue.white,
 					headerLeftLabelVisible: false
 				}}
 			/>
-			<Stack.Screen
-				name={APP_SCREEN.MENU_CHANNEL.CALL_DIRECT}
-				component={DirectMessageCall}
-				options={{
-					headerShown: false
-				}}
-			/>
+			<Stack.Screen name={APP_SCREEN.MENU_CHANNEL.STREAM_BANNER} component={StreamBannerScreen} options={{ headerShown: false }} />
+			<Stack.Screen name={APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS} component={BannedUserListScreen} options={{ headerShown: false }} />
 		</Stack.Navigator>
 	);
 }

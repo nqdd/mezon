@@ -1,8 +1,8 @@
 import { useRoles } from '@mezon/core';
 import {
-	getNewAddMembers,
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getNewSelectedPermissions,
 	getRemoveMemberRoles,
 	getRemovePermissions,
@@ -12,21 +12,23 @@ import {
 	selectCurrentRoleIcon
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ChooseIconModal from './ChooseIconModal';
 
 const RoleIcon = () => {
+	const { t } = useTranslation('clanRoles');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentRoleId = useSelector(getSelectedRoleId);
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 	const nameRoleNew = useSelector(getNewNameRole);
 	const colorRoleNew = useSelector(getNewColorRole);
 	const newSelectedPermissions = useSelector(getNewSelectedPermissions);
 	const removeMemberRoles = useSelector(getRemoveMemberRoles);
 	const removePermissions = useSelector(getRemovePermissions);
-	const newAddMembers = useSelector(getNewAddMembers);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { updateRole } = useRoles();
 	const dispatch = useDispatch();
@@ -34,54 +36,54 @@ const RoleIcon = () => {
 	const [openChooseIconModal, closeChooseIconModal] = useModal(() => {
 		return <ChooseIconModal onClose={closeChooseIconModal} />;
 	}, []);
+	const iconRole = useMemo<string | null>(() => newRoleIcon || currentRoleIcon || '', [newRoleIcon, currentRoleIcon]);
 
 	const handleChooseIconModal = () => {
 		openChooseIconModal();
 	};
 
 	const handleRemoveIcon = async () => {
+		dispatch(roleSlice.actions.setNewRoleIcon(''));
+		dispatch(roleSlice.actions.setCurrentRoleIcon(''));
+
 		await updateRole(
 			currentClanId || '',
 			currentRoleId || '',
 			nameRoleNew,
 			colorRoleNew,
-			newAddMembers,
+			[],
 			newSelectedPermissions,
 			removeMemberRoles,
 			removePermissions,
 			''
 		);
-		dispatch(roleSlice.actions.setCurrentRoleIcon(''));
 	};
 
 	return (
 		<div className="w-full flex flex-col text-[15px] dark:text-textSecondary text-textSecondary800 pr-5">
 			<div className="border-t-[1px] h-4 dark:border-borderDividerLight"></div>
-			<div className="text-xs font-bold uppercase mb-2">Role Icon</div>
-			<div className="text-xs mb-2">
-				Upload an image under 256 KB or pick a custom emoji from this clan. We recommended at least 64x64 pixels. Members will see the icon
-				for their highest role if they have multiple roles
-			</div>
+			<div className="text-xs font-bold uppercase mb-2">{t('roleManagement.roleIcon')}</div>
+			<div className="text-xs mb-2">{t('roleManagement.roleIconDescription')}</div>
 			<div className={'flex items-start gap-5'}>
-				{currentRoleIcon ? (
-					<img src={currentRoleIcon} alt="" className={'w-20 h-20'} />
+				{iconRole ? (
+					<img src={iconRole || ''} alt="" className={'w-20 h-20'} />
 				) : (
-					<div className={'dark:bg-bgSecondary600 bg-bgIconDark rounded flex justify-center items-center w-20 h-20'}>
-						<Icons.ImageUploadIcon className="w-6 h-6" />
+					<div className={'bg-theme-setting-nav flex justify-center items-center w-20 h-20'}>
+						<Icons.ImageUploadIcon className="w-6 h-6 text-theme-primary" />
 					</div>
 				)}
 				<input type="file" className={'hidden'} ref={fileInputRef} />
 				<button
 					className={
 						'flex justify-center items-center px-3 py-1 rounded border-[1px] ' +
-						'dark:border-textSecondary border-textSecondary800 ' +
-						'dark:hover:text-white dark:hover:border-white hover:text-black hover:border-black'
+						'border-theme-primary ' +
+						'text-theme-primary-active bg-item-theme-hover'
 					}
 					onClick={handleChooseIconModal}
 				>
-					Choose image
+					{t('roleManagement.chooseImage')}
 				</button>
-				{currentRoleIcon && (
+				{iconRole && (
 					<button
 						className={
 							'flex justify-center items-center px-3 py-1 rounded border-[1px] ' +
@@ -90,7 +92,7 @@ const RoleIcon = () => {
 						}
 						onClick={handleRemoveIcon}
 					>
-						Remove Icon
+						{t('roleManagement.removeIcon')}
 					</button>
 				)}
 			</div>

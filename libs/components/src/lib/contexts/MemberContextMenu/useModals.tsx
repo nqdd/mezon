@@ -1,4 +1,5 @@
-import { ChannelMembersEntity, clansActions, getStore, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { clansActions, getStore, selectCurrentClanId, toastActions, useAppDispatch } from '@mezon/store';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { ModalUserProfile } from '../../components';
@@ -113,7 +114,7 @@ export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 					classBanner="rounded-tl-lg rounded-tr-lg h-[105px]"
 					avatar={avatar}
 					name={username}
-					isDM={false}
+					isDM={!currentUser?.clan_id}
 					user={currentUser}
 				/>
 			</div>
@@ -128,6 +129,12 @@ export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 		const userIds = [currentUser.user?.id ?? ''];
 
 		await dispatch(clansActions.removeClanUsers({ clanId, userIds }));
+		dispatch(
+			toastActions.addToast({
+				message: 'Member removed successfully',
+				type: 'success'
+			})
+		);
 		setOpenModalRemoveMember(false);
 	};
 

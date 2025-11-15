@@ -1,4 +1,4 @@
-import { baseColor, Metrics, size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { MediaType, selectAllStickerSuggestion, useAppSelector } from '@mezon/store-mobile';
 import { FOR_SALE_CATE } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
@@ -8,6 +8,7 @@ import FastImage from 'react-native-fast-image';
 import { ScrollView } from 'react-native-gesture-handler';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
+import EmptySticker from './EmptySticker';
 import Sticker from './Sticker';
 import { style } from './styles';
 
@@ -88,29 +89,23 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 		setSelectedCategory(null);
 	}, [mediaType]);
 
+	if (!filteredStickers?.length) {
+		return <EmptySticker isAudio={isAudio} />;
+	}
+
 	return (
-		<ScrollView
-			scrollEventThrottle={16}
-			onScroll={onScroll}
-			style={{ maxHeight: Metrics.screenHeight / 1.07 }}
-			contentContainerStyle={{ paddingBottom: size.s_10 * 2 }}
-		>
+		<ScrollView scrollEventThrottle={16} onScroll={onScroll} style={styles.scrollView} contentContainerStyle={styles.scrollViewContainer}>
 			<ScrollView horizontal contentContainerStyle={styles.btnWrap}>
 				{categoryLogo?.length > 0 &&
 					categoryLogo?.map((item, index) => (
 						<TouchableOpacity
 							key={index.toString()}
 							onPress={() => handlePressCategory(item)}
-							style={[
-								styles.btnEmo,
-								{
-									backgroundColor: item?.id === selectedCategory?.id ? baseColor.blurple : 'transparent'
-								}
-							]}
+							style={[styles.btnEmo, item?.id === selectedCategory?.id ? styles.btnEmoSelected : styles.btnEmoUnselected]}
 						>
 							<View style={styles.btnEmoImage}>
 								{item?.forSale ? (
-									<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+									<View style={styles.btnEmoActive}>
 										<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />
 									</View>
 								) : item?.url ? (
@@ -121,7 +116,7 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 											cache: FastImage.cacheControl.immutable,
 											priority: FastImage.priority.high
 										}}
-										style={{ height: '100%', width: '100%' }}
+										style={styles.btnEmoImageFull}
 									/>
 								) : (
 									<View style={styles.forSaleContainer}>

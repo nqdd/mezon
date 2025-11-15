@@ -1,13 +1,19 @@
+'use client';
+
 import { Icons, Image } from '@mezon/ui';
-import { Platform, getPlatform } from '@mezon/utils';
+import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
-import { DropdownButton } from '..';
+import { useTranslation } from 'react-i18next';
+import { DropdownButton } from '../components';
+
 interface FooterProps {
 	downloadUrl: string;
 	universalUrl: string;
 	portableUrl: string;
 }
+
 const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
+	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const [isOpen, setIsOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -41,208 +47,225 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 	}, []);
 
 	return (
-		<div>
-			<div
-				className="bg-[#0A052C] relative flex flex-col items-center bg-no-repeat"
-				style={{ backgroundImage: 'url(../../../assets/ellipse.svg)' }}
-			>
-				<div className="pt-[64px] pb-[48px] max-md:py-[48px] flex flex-col w-10/12 max-lg:w-full">
-					<div className="w-full px-[32px] max-md:px-[16px] flex justify-between gap-[48px] max-lg:flex-col">
-						<div className="flex justify-between gap-[48px] max-lg:flex-col">
-							<div className="flex flex-col gap-[24px] max-w-[320px]">
-								<div className="flex items-center gap-[5px]">
-									<Image src={`assets/images/mezon-logo-black.svg`} width={32} height={32} className="aspect-square object-cover" />
-									<div className="text-[22.15px] leading-[26.58px] font-semibold text-[#FFFFFF]">mezon</div>
-								</div>
-								<div className="text-[16px] leading-[24px] font-normal text-[#8FA7BF]">
-									Mezon is great for playing games and chilling with friends, or even building a worldwide community.{' '}
-								</div>
-							</div>
-							<div className="flex gap-[32px] max-lg:flex-col">
-								<div className="flex flex-col gap-[12px]">
-									<a
-										href="https://mezon.ai/blogs/executive-summary"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Executive Summary
-									</a>
-									<a
-										href="https://mezon.ai/blogs/problem-statement"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Problem Statement
-									</a>
-									<a
-										href="https://mezon.ai/blogs/solution"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Solution
-									</a>
-									<a
-										href="https://mezon.ai/blogs/blockchain-economy"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Blockhain & Token Economy
-									</a>
-									<a
-										href="https://mezon.ai/developers"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Developer API Integration
-									</a>
-								</div>
-								<div className="flex flex-col gap-[12px]">
-									<a
-										href="https://mezon.ai/blogs/technica-architecture"
-										target="_blank"
-										rel="noreferrer"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-									>
-										Technical Architecture
-									</a>
-									<a
-										href="https://mezon.ai/blogs/readmap"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Product roadmap
-									</a>
-									<a
-										href="https://mezon.ai/blogs/tokenomics"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										{' '}
-										Tokenomics
-									</a>
-									<a
-										href="https://mezon.ai/blogs/team"
-										className="pr-[2px] pl-[2px] text-[16px] leading-[24px] font-semibold text-[#7C92AF]"
-										target="_blank"
-										rel="noreferrer"
-									>
-										Team
-									</a>
-								</div>
-							</div>
+		<footer className="bg-[#131221]">
+			<div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+				<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8 mb-8 md:mb-12 pb-8 md:pb-12 border-b border-white/20">
+					<div>
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Platform</h3>
+						<div className="space-y-2 md:space-y-3">
+							<a href="/about" className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block">
+								About
+							</a>
+							<a
+								href="https://mezon.ai/blogs/"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Blog
+							</a>
+							<a
+								href="https://mezon.ai/developers"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								{t('footer.links.developerApi')}
+							</a>
 						</div>
-						<div className="flex flex-col gap-[16px]">
-							<div className="text-[14px] leading-[20px] font-semibold text-[#F5F5F6]">Get the app</div>{' '}
-							<div className="flex flex-col gap-[16px]">
-								<a
-									href="https://apps.apple.com/vn/app/mezon/id6502750046"
-									target="_blank"
-									rel="noreferrer"
-									onClick={() => trackFooterDownloadEvent('iOS', 'App Store')}
-								>
-									<Image src={`assets/app-store.svg`} className="max-w-[135px]" />
-								</a>
-								<a
-									href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
-									target="_blank"
-									rel="noreferrer"
-									onClick={() => trackFooterDownloadEvent('Android', 'Google Play')}
-								>
-									<Image src={`assets/google-play.svg`} className="max-w-[135px]" />
-								</a>{' '}
-								{platform === Platform.MACOS ? (
-									<div className="relative inline-block leading-[0px]" ref={dropdownRef}>
-										<button onClick={toggleDropdown}>
-											<Icons.MacAppStoreDesktop className="max-w-full h-[40px] w-fit" />
-										</button>
+					</div>
 
-										{isOpen && (
-											<div className="absolute mt-[8px]">
-												<a
-													className="cursor-pointer leading-[0px] block"
-													href={downloadUrl}
-													target="_blank"
-													rel="noreferrer"
-													onClick={() => trackFooterDownloadEvent('macOS', 'Apple Silicon')}
-												>
-													<Icons.MacAppleSilicon className="max-w-full h-[40px] w-fit" />
-												</a>
-												<a
-													className="cursor-pointer leading-[0px] block mt-[4px]"
-													href={universalUrl}
-													target="_blank"
-													rel="noreferrer"
-													onClick={() => trackFooterDownloadEvent('macOS', 'Intel')}
-												>
-													<Icons.MacAppleIntel className="max-w-full h-[40px] w-fit" />
-												</a>
-											</div>
-										)}
+					<div>
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Resources</h3>
+						<div className="space-y-2 md:space-y-3">
+							<a
+								href="https://github.com/mezonai/mezon"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Github
+							</a>
+							<a
+								href="https://mezon.ai/docs/user/account-and-personalization"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								User Docs
+							</a>
+							<a
+								href="https://mezon.ai/docs/user/bots-and-apps"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Developer Docs
+							</a>
+						</div>
+					</div>
+
+					<div>
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Company</h3>
+						<div className="space-y-2 md:space-y-3">
+							<a
+								href="https://mezon.ai/blogs/mediakit"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Media Kit
+							</a>
+							<a
+								href="https://mezon.ai/blogs/contact"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Contact
+							</a>
+							<a
+								href="https://mezon.ai/blogs/mezon-clan"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Mezon Clan
+							</a>
+						</div>
+					</div>
+
+					<div>
+						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Legal</h3>
+						<div className="space-y-2 md:space-y-3">
+							<a
+								href="https://mezon.ai/blogs/privacy-policy"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Privacy Policy
+							</a>
+							<a
+								href="https://mezon.ai/blogs/terms-of-service"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
+							>
+								Terms of Service
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<div className="mb-8 md:mb-12">
+					<div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 lg:gap-8 xl:gap-12 2xl:gap-[100px]">
+						<a
+							href="https://apps.apple.com/vn/app/mezon/id6502750046"
+							target="_blank"
+							rel="noreferrer"
+							onClick={() => trackFooterDownloadEvent('iOS', 'App Store')}
+							className="transition-transform duration-300 hover:scale-105"
+						>
+							<Image src={`assets/app-store.svg`} className="w-24 md:w-36 lg:w-44" />
+						</a>
+						<a
+							href="https://play.google.com/store/apps/details?id=com.mezon.mobile"
+							target="_blank"
+							rel="noreferrer"
+							onClick={() => trackFooterDownloadEvent('Android', 'Google Play')}
+							className="transition-transform duration-300 hover:scale-105"
+						>
+							<Image src={`assets/google-play.svg`} className="w-24 md:w-36 lg:w-44" />
+						</a>
+						{platform === Platform.MACOS ? (
+							<div className="relative inline-block leading-none" ref={dropdownRef}>
+								<button onClick={toggleDropdown} className="transition-transform duration-300 hover:scale-105">
+									<Icons.MacAppStoreDesktop className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
+								</button>
+
+								{isOpen && (
+									<div className="absolute mt-3 bg-[#6B21A8] rounded-lg shadow-lg border border-white/20 p-2 z-10">
+										<a
+											className="cursor-pointer leading-none block p-2 hover:bg-[#7E22CE] rounded transition-colors"
+											href={downloadUrl}
+											target="_blank"
+											rel="noreferrer"
+											onClick={() => trackFooterDownloadEvent('macOS', 'Apple Silicon')}
+										>
+											<Icons.MacAppleSilicon className="max-w-full h-8 md:h-10 w-fit" />
+										</a>
+										<a
+											className="cursor-pointer leading-none block mt-2 p-2 hover:bg-[#7E22CE] rounded transition-colors"
+											href={universalUrl}
+											target="_blank"
+											rel="noreferrer"
+											onClick={() => trackFooterDownloadEvent('macOS', 'Intel')}
+										>
+											<Icons.MacAppleIntel className="max-w-full h-8 md:h-10 w-fit" />
+										</a>
 									</div>
-								) : platform === 'Linux' ? (
+								)}
+							</div>
+						) : platform === 'Linux' ? (
+							<a
+								className="cursor-pointer transition-transform duration-300 hover:scale-105"
+								href={downloadUrl}
+								target="_blank"
+								rel="noreferrer"
+								onClick={() => trackFooterDownloadEvent('Linux', 'DEB Package')}
+							>
+								<Image src={`assets/linux.svg`} className="w-24 md:w-36 lg:w-44" />
+							</a>
+						) : (
+							<DropdownButton
+								icon={
 									<a
-										className="cursor-pointer"
+										className="cursor-pointer transition-transform duration-300 hover:scale-105 inline-block"
 										href={downloadUrl}
 										target="_blank"
 										rel="noreferrer"
-										onClick={() => trackFooterDownloadEvent('Linux', 'DEB Package')}
+										onClick={() => trackFooterDownloadEvent('Windows', 'EXE Installer')}
 									>
-										<Image src={`assets/linux.svg`} className="max-w-[135px]" />
+										<Icons.MicrosoftDropdown className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
 									</a>
-								) : (
-									<DropdownButton
-										icon={
-											<a
-												className="cursor-pointer"
-												href={downloadUrl}
-												target="_blank"
-												rel="noreferrer"
-												onClick={() => trackFooterDownloadEvent('Windows', 'EXE Installer')}
-											>
-												<Icons.MicrosoftDropdown className="max-w-full h-[40px] w-fit" />
-											</a>
-										}
-										downloadLinks={[
-											{
-												url: portableUrl,
-												icon: <Icons.MicrosoftWinPortable className="max-w-full h-[40px] max-md:w-fit" />,
-												trackingData: { platform: 'Windows', type: 'Portable' }
-											}
-										]}
-										dropdownRef={dropdownRef}
-										downloadUrl={downloadUrl}
-										onDownloadClick={trackFooterDownloadEvent}
-									/>
-								)}
-							</div>
+								}
+								downloadLinks={[
+									{
+										url: portableUrl,
+										icon: <Icons.MicrosoftWinPortable className="max-w-full h-8 md:h-10 w-fit" />,
+										trackingData: { platform: 'Windows', type: 'Portable' }
+									}
+								]}
+								dropdownRef={dropdownRef}
+								downloadUrl={downloadUrl}
+								onDownloadClick={trackFooterDownloadEvent}
+								t={t}
+							/>
+						)}
+					</div>
+				</div>
+
+				<div className="border-t border-white/20 pt-4 md:pt-6">
+					<div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
+						<div
+							className="text-white/80 text-xs font-medium text-center md:text-left"
+							data-e2e={generateE2eId('homepage.footer.text.copyright')}
+						>
+							© 2025 Mezon. All rights reserved.
+						</div>
+						<div className="flex gap-4 md:gap-6 text-xs">
+							<a href="/about" className="text-white/80 hover:text-white transition-colors">
+								Privacy
+							</a>
+							<a href="/about" className="text-white/80 hover:text-white transition-colors">
+								Terms
+							</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="bg-[#0B0E2D] py-[48px] max-md:py-[24px] flex flex-col items-center">
-				<div className="w-10/12 px-[32px] max-md:px-[16px] flex items-center gap-[32px] justify-between max-lg:gap-[24px] max-lg:w-full max-lg:flex-col-reverse max-lg:items-start">
-					<div className="text-[16px] leading-[24px] font-normal text-[#7C92AF]">© 2024 Mezon. All rights reserved.</div>
-					<div className="flex items-center gap-[24px]">
-						<a href="https://www.linkedin.com/company/106435035" target="_blank" rel="noreferrer">
-							<Image src={`assets/instagram.svg`} />
-						</a>
-						<a href="https://www.facebook.com/mezonworld" target="_blank" rel="noreferrer">
-							<Image src={`assets/facebook.svg`} />
-						</a>
-						<a href="https://github.com/mezonai/mezon" target="_blank" rel="noreferrer">
-							<Image src={`assets/twitter.svg`} />
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
+		</footer>
 	);
 };
 

@@ -26,6 +26,13 @@ const EmojiMarkup = ({ shortname, emojiid }: IEmojiMarkup) => {
 	return `${EMOJI_KEY}${srcEmoji}${EMOJI_KEY}`;
 };
 
+const isHeadingText = (text?: string) => {
+	if (!text) return false;
+	const firstLine = text?.trimStart().split('\n')?.[0];
+	const headingMatchRegex = /^(#{1,6})\s+(.+)$/;
+	return headingMatchRegex?.test(firstLine?.trim());
+};
+
 const EMOJI_KEY = '[ICON_EMOJI]';
 export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleText?: any }) => {
 	const { themeValue } = useTheme();
@@ -60,12 +67,33 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		let startIndex = 0;
 		let endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
 
+		if (isHeadingText(formatEmojiInText)) {
+			const headingMatch = formatEmojiInText?.match(/^#{1,6}\s*([^\n[\]@#:\u{1F600}-\u{1F64F}]+)/u);
+			if (headingMatch) {
+				let headingContent = headingMatch[1];
+				const forbiddenRegex = /```[^`]+?```|(?<!`)`[^`\n]+?`(?!`)/g;
+				const firstForbiddenMatch = forbiddenRegex.exec(headingContent);
+				if (firstForbiddenMatch) {
+					headingContent = headingContent?.slice(0, firstForbiddenMatch?.index);
+				}
+
+				if (headingContent.length > 0) {
+					parts.push(
+						<Text key="heading" numberOfLines={1} style={[styles.message, props?.styleText && props?.styleText, { fontWeight: 'bold' }]}>
+							{headingContent}
+						</Text>
+					);
+				}
+			}
+			return parts;
+		}
+
 		while (endIndex !== -1) {
 			const textPart = formatEmojiInText.slice(startIndex, endIndex);
 			if (textPart) {
 				parts.push(
-					<Text key={`${endIndex}_${textPart}`} style={[styles.message, props?.styleText && props?.styleText]}>
-						{textPart}
+					<Text numberOfLines={1} key={`${endIndex}_${textPart}`} style={[styles.message, props?.styleText && props?.styleText]}>
+						{startIndex === 0 ? textPart?.trimStart() : textPart}
 					</Text>
 				);
 			}
@@ -75,7 +103,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 			if (endIndex !== -1) {
 				const emojiUrl = formatEmojiInText.slice(startIndex, endIndex);
-				parts.push(<ImageNative key={`${emojiUrl}_dm_item_last_${endIndex}`} style={styles.emoji} url={emojiUrl} resizeMode="contain" />);
+				parts.push(
+					<View style={styles.emojiWrap} key={`${emojiUrl}_dm_item_last_${endIndex}`}>
+						<ImageNative style={styles.emoji} url={emojiUrl} resizeMode="contain" />
+					</View>
+				);
 				startIndex = endIndex + EMOJI_KEY.length;
 				endIndex = formatEmojiInText.indexOf(EMOJI_KEY, startIndex);
 			}
@@ -83,7 +115,11 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 
 		if (startIndex < formatEmojiInText.length) {
 			parts.push(
-				<Text key={`${endIndex}_${formatEmojiInText.slice(startIndex)}`} style={[styles.message, props?.styleText && props?.styleText]}>
+				<Text
+					numberOfLines={1}
+					key={`${endIndex}_${formatEmojiInText.slice(startIndex)}`}
+					style={[styles.message, props?.styleText && props?.styleText, { flex: 1 }]}
+				>
 					{formatEmojiInText.slice(startIndex)}
 				</Text>
 			);
@@ -92,11 +128,5 @@ export const DmListItemLastMessage = (props: { content: IExtendedMessage; styleT
 		return parts;
 	};
 
-	return (
-		<View style={styles.container}>
-			<Text numberOfLines={1} style={[styles.dmMessageContainer, props?.styleText]}>
-				{convertTextToEmoji()}
-			</Text>
-		</View>
-	);
+	return <View style={styles.container}>{convertTextToEmoji()}</View>;
 };

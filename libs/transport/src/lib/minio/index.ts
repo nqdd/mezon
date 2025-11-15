@@ -1,6 +1,6 @@
 import { Buffer as BufferMobile } from 'buffer';
-import { Client, Session } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { Client, Session } from 'mezon-js';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 
 export class CustomFile extends File {
 	url?: string;
@@ -17,6 +17,11 @@ export const isValidUrl = (urlString: string) => {
 		return false;
 	}
 	return url.protocol === 'https:' || url.protocol === 'http:';
+};
+
+export const isContainsUrl = (text: string): boolean => {
+	if (!text) return false;
+	return /(https?:\/\/[^\s]+)/.test(text);
 };
 
 export function uploadImageToMinIO(url: string, stream: Buffer, size: number) {
@@ -67,11 +72,10 @@ function getFileType(mimeType: string): string {
 export async function handleUploadFile(
 	client: Client,
 	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
 	filename: string,
 	file: CustomFile,
-	index?: number
+	index?: number,
+	isOauth?: boolean
 ): Promise<ApiMessageAttachment> {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<ApiMessageAttachment>(async function (resolve, reject) {
@@ -83,7 +87,7 @@ export async function handleUploadFile(
 				fileType = `text/${fileExtension}`;
 			}
 			const shortFileType = getFileType(fileType);
-			const { filePath, originalFilename } = createUploadFilePath(session, currentClanId, currentChannelId, filename, false, index);
+			const { filePath, originalFilename } = createUploadFilePath(filename, false, index);
 			const buf = await file?.arrayBuffer();
 
 			resolve(
@@ -98,7 +102,8 @@ export async function handleUploadFile(
 					originalFilename,
 					file.width,
 					file.height,
-					file.thumbnail
+					file.thumbnail,
+					isOauth
 				)
 			);
 		} catch (error) {
@@ -110,10 +115,9 @@ export async function handleUploadFile(
 export async function handleUploadFileMobile(
 	client: Client,
 	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
 	filename: string,
-	file: any
+	file: any,
+	isOauth?: boolean
 ): Promise<ApiMessageAttachment> {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<ApiMessageAttachment>(async function (resolve, reject) {
@@ -130,8 +134,23 @@ export async function handleUploadFileMobile(
 					console.error('Failed to read file data.');
 					return;
 				}
-				const { filePath, originalFilename } = createUploadFilePath(session, currentClanId, currentChannelId, filename, true);
-				resolve(uploadFile(client, session, filePath, fileType, file.size, arrayBuffer, true, originalFilename, file?.width, file?.height));
+				const { filePath, originalFilename } = createUploadFilePath(filename, true);
+				resolve(
+					uploadFile(
+						client,
+						session,
+						filePath,
+						fileType,
+						file.size,
+						arrayBuffer,
+						true,
+						originalFilename,
+						file?.width,
+						file?.height,
+						'', // thumbnail
+						isOauth
+					)
+				);
 			}
 		} catch (error) {
 			reject(new Error(`${error}`));
@@ -139,27 +158,15 @@ export async function handleUploadFileMobile(
 	});
 }
 
-export function createUploadFilePath(
-	session: Session,
-	currentClanId: string,
-	currentChannelId: string,
-	filename: string,
-	isMobile: boolean,
-	index?: number
-): { filePath: string; originalFilename: string } {
+export function createUploadFilePath(filename: string, isMobile: boolean, index?: number): { filePath: string; originalFilename: string } {
 	const originalFilename = filename;
 	// Append milliseconds timestamp to filename
 	const ms = Date.now();
-	filename = isMobile ? ms + filename : ms + '_' + (index || '') + filename;
+	filename = isMobile ? ms + filename : `${ms}_${index || ''}${filename}`;
 	filename = filename.replace(/[^a-zA-Z0-9.]/g, '_');
 	// Ensure valid clan and channel IDs
-	if (!currentClanId) {
-		currentClanId = '0';
-	}
-	if (!currentChannelId) {
-		currentChannelId = '0';
-	}
-	const filePath = `${currentClanId}/${currentChannelId}/${session.user_id}/${filename}`;
+
+	const filePath = `${filename}`;
 	return { filePath, originalFilename };
 }
 
@@ -174,15 +181,20 @@ export async function uploadFile(
 	originalFilename?: string,
 	width?: number,
 	height?: number,
-	thumbnail?: string
+	thumbnail?: string,
+	isOauth?: boolean
 ): Promise<ApiMessageAttachment> {
 	// eslint-disable-next-line no-async-promise-executor
 	return new Promise<ApiMessageAttachment>(async function (resolve, reject) {
 		try {
-			const data = await client.uploadAttachmentFile(session, {
-				filename: filename,
+			let fn = client.uploadAttachmentFile.bind(client);
+			if (isOauth) {
+				fn = client.uploadOauthFile.bind(client);
+			}
+			const data = await fn(session, {
+				filename,
 				filetype: type,
-				size: size,
+				size,
 				width,
 				height
 			});
@@ -194,12 +206,15 @@ export async function uploadFile(
 			if (res.status !== 200) {
 				throw new Error('Failed to upload file to MinIO.');
 			}
-			const url = `${process.env.NX_BASE_IMG_URL}/` + filename;
+			let url = `${process.env.NX_BASE_IMG_URL}/${data.filename}`;
+			if (isOauth) {
+				url = `${process.env.NX_PROFILE_IMG_URL}/${data.filename}`;
+			}
 			resolve({
 				filename: originalFilename,
-				url: url,
+				url,
 				filetype: type,
-				size: size,
+				size,
 				width,
 				height,
 				thumbnail
@@ -209,6 +224,7 @@ export async function uploadFile(
 		}
 	});
 }
+
 export async function handleUrlInput(url: string): Promise<ApiMessageAttachment> {
 	if (!isValidUrl(url) || url.length >= 512) {
 		throw new Error('Invalid URL or URL too long.');

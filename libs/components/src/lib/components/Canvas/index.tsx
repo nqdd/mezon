@@ -7,6 +7,7 @@ import {
 	selectCanvasEntityById,
 	selectContent,
 	selectCurrentChannelId,
+	selectCurrentChannelParentId,
 	selectCurrentClanId,
 	selectIdCanvas,
 	selectTheme,
@@ -34,8 +35,9 @@ const Canvas = () => {
 	const content = useSelector(selectContent);
 	const idCanvas = useSelector(selectIdCanvas);
 	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
 	const currentClanId = useSelector(selectCurrentClanId);
-	const canvasById = useSelector((state) => selectCanvasEntityById(state, currentChannelId, idCanvas));
+	const canvasById = useSelector((state) => selectCanvasEntityById(state, currentChannelId, currentChannelParentId, idCanvas));
 
 	const [showLoading, setShowLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -116,10 +118,10 @@ const Canvas = () => {
 				const body = {
 					channel_id: currentChannelId,
 					clan_id: currentClanId?.toString(),
-					content: content,
+					content,
 					...(idCanvas && { id: idCanvas }),
 					...(canvasById?.is_default && { is_default: true }),
-					title: title,
+					title,
 					status: isCreate
 				};
 				const response = await dispatch(createEditCanvas(body) as any);

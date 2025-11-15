@@ -23,7 +23,7 @@ export function EmbedTitle({ title, url, onClick }: EmbedTitleProps) {
 					{title}
 				</a>
 			) : (
-				<span className="font-semibold text-theme-message">{title}</span>
+				<span className="font-semibold text-theme-message ">{title}</span>
 			)}
 		</div>
 	);

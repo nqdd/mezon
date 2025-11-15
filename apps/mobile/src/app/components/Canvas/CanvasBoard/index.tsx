@@ -4,13 +4,13 @@ import { sleep } from '@mezon/utils';
 import { useState } from 'react';
 import { StatusBar, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
-import WebView from 'react-native-webview';
 import { useSelector } from 'react-redux';
 import { APP_SCREEN, MenuChannelScreenProps } from '../../../navigation/ScreenTypes';
+import WebviewBase from '../../WebviewBase';
 import { style } from './styles';
 
 type ScreenChannelCanvas = typeof APP_SCREEN.MENU_CHANNEL.CANVAS;
-export function CanvasScreen({ route }: MenuChannelScreenProps<ScreenChannelCanvas>) {
+export function CanvasScreen({ navigation, route }: MenuChannelScreenProps<ScreenChannelCanvas>) {
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue);
 	const { clanId, channelId, canvasId } = route.params;
@@ -47,7 +47,10 @@ export function CanvasScreen({ route }: MenuChannelScreenProps<ScreenChannelCanv
 					persistApp.theme = JSON.stringify("${themeBasic}");
 					persistApp.themeApp = JSON.stringify("${themeBasic}");
 					localStorage.setItem('persist:apps', JSON.stringify(persistApp));
+					localStorage.setItem('current-theme', "${themeBasic}");
 				}
+			} else {
+				throw new Error('persist:apps data is not a valid string');
 			}
 		} catch (error) {
 			console.error('Error parsing persist:apps data:', error);
@@ -57,10 +60,14 @@ export function CanvasScreen({ route }: MenuChannelScreenProps<ScreenChannelCanv
 				themeApp: JSON.stringify("${themeBasic}")
 			};
 			localStorage.setItem('persist:apps', JSON.stringify(defaultAppData));
+			localStorage.setItem('current-theme', "${themeBasic}");
 		}
 	})();
 	true;
-	(function() {
+	`;
+
+	const injectedDataJS = `
+  	(function() {
       var style = document.createElement('style');
       style.innerHTML = \`
         .h-heightTopBar {
@@ -83,30 +90,20 @@ export function CanvasScreen({ route }: MenuChannelScreenProps<ScreenChannelCanv
 	return (
 		<View style={styles.container}>
 			{loading && (
-				<View
-					style={{
-						alignItems: 'center',
-						justifyContent: 'center',
-						position: 'absolute',
-						height: '100%',
-						zIndex: 1,
-						width: '100%',
-						backgroundColor: themeValue.charcoal,
-						flex: 1
-					}}
-				>
+				<View style={styles.loadingOverlay}>
 					<Chase color={'#cdcdcd'} />
 				</View>
 			)}
-			<StatusBar barStyle={themeBasic === ThemeModeBase.LIGHT ? 'dark-content' : 'light-content'} backgroundColor={themeValue.charcoal} />
-			<WebView
-				source={{
-					uri: uri
-				}}
-				originWhitelist={['*']}
+			<StatusBar
+				barStyle={themeBasic === ThemeModeBase.LIGHT || themeBasic === ThemeModeBase.SUNRISE ? 'dark-content' : 'light-content'}
+				backgroundColor={themeValue?.primaryGradiant || themeValue.charcoal}
+			/>
+			<WebviewBase
+				url={uri}
+				incognito={true}
 				style={styles.container}
 				injectedJavaScriptBeforeContentLoaded={injectedJS}
-				injectedJavaScript={injectedJS}
+				injectedJavaScript={injectedDataJS}
 				javaScriptEnabled={true}
 				onMessage={onMessage}
 				nestedScrollEnabled={true}
@@ -114,6 +111,7 @@ export function CanvasScreen({ route }: MenuChannelScreenProps<ScreenChannelCanv
 					await sleep(1000);
 					setLoading(false);
 				}}
+				onGoBack={() => navigation.goBack()}
 			/>
 		</View>
 	);

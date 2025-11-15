@@ -1,14 +1,12 @@
-import { IOptionsNotification, notifyLabels } from '@mezon/mobile-components';
+import { IOptionsNotification, getNotifyLabels } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
-	notifiReactMessageActions,
 	notificationSettingActions,
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDefaultNotificationCategory,
 	selectDefaultNotificationClan,
-	selectNotifiReactMessageByChannelId,
 	selectNotifiSettingsEntitiesById,
 	useAppDispatch,
 	useAppSelector
@@ -22,8 +20,6 @@ import { useSelector } from 'react-redux';
 import FilterCheckbox from './FilterCheckbox/FilterCheckbox';
 import { style } from './NotificationSetting.styles';
 
-// define temp
-const TYPE_REACT_MESSAGE = 4;
 export default function NotificationSetting({ channel }: { channel?: ChannelThreads }) {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['notificationSetting']);
@@ -56,19 +52,12 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 	];
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const notifyReactMessage = useAppSelector((state) => selectNotifiReactMessageByChannelId(state, channel?.channel_id || currentChannelId || ''));
 	const [radioBox, setRadioBox] = useState<IOptionsNotification[]>(optionNotifySetting);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channel?.id || currentChannelId || ''));
 	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, channel?.category_id as string));
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 	const [defaultNotifyName, setDefaultNotifyName] = useState('');
-	const checkBox = {
-		id: 4,
-		label: t('bottomSheet.labelOptions.reactionMessage'),
-		isChecked: notifyReactMessage?.id !== '0',
-		value: TYPE_REACT_MESSAGE
-	};
 
 	useEffect(() => {
 		if (!getNotificationChannelSelected?.notification_setting_type) {
@@ -79,17 +68,12 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 	}, [getNotificationChannelSelected]);
 
 	useEffect(() => {
-		if (!channel?.channel_id && !currentChannelId) return;
-		dispatch(notifiReactMessageActions.getNotifiReactMessage({ channelId: channel?.channel_id || currentChannelId }));
-	}, [channel?.channel_id, currentChannelId, dispatch]);
-
-	useEffect(() => {
 		if (defaultNotificationCategory?.notification_setting_type) {
-			setDefaultNotifyName(notifyLabels[defaultNotificationCategory?.notification_setting_type]);
+			setDefaultNotifyName(getNotifyLabels(t)[defaultNotificationCategory?.notification_setting_type]);
 		} else if (defaultNotificationClan?.notification_setting_type) {
-			setDefaultNotifyName(notifyLabels[defaultNotificationClan?.notification_setting_type]);
+			setDefaultNotifyName(getNotifyLabels(t)[defaultNotificationClan?.notification_setting_type]);
 		}
-	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan]);
+	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan, t]);
 
 	const handleRadioBoxPress = async (checked: boolean, id: number) => {
 		const notifyOptionSelected = radioBox.map((item) => item && { ...item, isChecked: item.id === id });
@@ -133,25 +117,6 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 		}
 	};
 
-	const handleCheckboxPress = async (check: boolean) => {
-		if (!channel?.channel_id && !currentChannelId) {
-			return;
-		}
-		try {
-			if (check) {
-				await dispatch(
-					notifiReactMessageActions.setNotifiReactMessage({ channel_id: channel?.channel_id || currentChannelId || '' })
-				).unwrap();
-			} else {
-				await dispatch(
-					notifiReactMessageActions.deleteNotifiReactMessage({ channel_id: channel?.channel_id || currentChannelId || '' })
-				).unwrap();
-			}
-		} catch (error) {
-			console.error('Toggle failed:', error);
-		}
-	};
-
 	return (
 		<View style={styles.container}>
 			<Text style={styles.headerTitle}>{t('bottomSheet.title')}</Text>
@@ -159,9 +124,6 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 				{radioBox?.map((item) => (
 					<FilterCheckbox item={item} key={`${item.id}`} defaultNotifyName={defaultNotifyName} onCheckboxPress={handleRadioBoxPress} />
 				))}
-			</View>
-			<View style={styles.optionsSetting}>
-				<FilterCheckbox type="checkbox" item={checkBox} onCheckboxPress={(isChecked) => handleCheckboxPress(isChecked)} />
 			</View>
 		</View>
 	);

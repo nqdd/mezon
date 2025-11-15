@@ -1,19 +1,25 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 
-import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
+import { registerGlobals } from '@livekit/react-native';
+import type { StackCardInterpolatedStyle, StackCardInterpolationProps, StackCardStyleInterpolator } from '@react-navigation/stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import { Dimensions, Platform, View } from 'react-native';
-import BootSplash from 'react-native-bootsplash';
 import CallingModalGroupWrapper from '../../components/CallingModalGroupWrapper';
 import CallingModalWrapper from '../../components/CallingModalWrapper';
+import ModalRootListener from '../../components/ModalRootListener';
+import AppBrowser from '../../screens/auth/AppBrowser';
 import HomeScreenTablet from '../../screens/home/HomeScreenTablet';
 import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
 import HomeDefaultWrapper from '../../screens/home/homedrawer/HomeDefaultWrapper';
 import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
-import { RenderVideoDetail } from '../../screens/home/homedrawer/components/RenderVideoDetail';
+import InstallClanScreen from '../../screens/installClan/InstallClanScreen';
+import InviteClanScreen from '../../screens/inviteClan/InviteClanScreen';
 import { DirectMessageDetailScreen } from '../../screens/messages/DirectMessageDetail';
+import { ProfileDetail } from '../../screens/profile/ProfileDetail';
 import { WalletScreen } from '../../screens/wallet';
 import { APP_SCREEN } from '../ScreenTypes';
 import { AuthenticationLoader } from './AuthenticationLoader';
+import { BadgeAppIconLoader } from './BadgeAppIconLoader';
 import BottomNavigatorWrapper from './BottomNavigatorWrapper';
 import { FCMNotificationLoader } from './FCMNotificationLoader';
 import { ListenerLoader } from './ListenerLoader';
@@ -26,22 +32,42 @@ import { NotificationStacks } from './stacks/NotificationStacks';
 import { ServersStacks } from './stacks/ServersStacks';
 import { SettingStacks } from './stacks/SettingStacks';
 import { ShopStack } from './stacks/ShopStack';
+import { styles } from './styles';
 const RootStack = createStackNavigator();
+registerGlobals();
 
 export const RootAuthStack = memo(
 	({ isTabletLandscape, notifyInit, initRouteName }: { isTabletLandscape: boolean; notifyInit: any; initRouteName: string }) => {
-		useEffect(() => {
-			requestAnimationFrame(async () => {
-				await BootSplash.hide({ fade: false });
-			});
-		}, []);
+		const customCardStyleInterpolator: StackCardStyleInterpolator = (props: StackCardInterpolationProps): StackCardInterpolatedStyle => {
+			const { current, layouts } = props;
+			return {
+				cardStyle: {
+					transform: [
+						{
+							translateX: current.progress.interpolate({
+								inputRange: [0, 1],
+								outputRange: [layouts.screen.width, 0],
+								extrapolate: 'clamp'
+							})
+						}
+					]
+				},
+				overlayStyle: {
+					opacity: current.progress.interpolate({
+						inputRange: [0, 1],
+						outputRange: [0, 0.5]
+					})
+				}
+			};
+		};
 
 		return (
-			<View style={{ flex: 1 }}>
+			<View style={styles.flexContainer}>
 				<RootStack.Navigator
 					initialRouteName={APP_SCREEN.BOTTOM_BAR}
 					screenOptions={{
 						headerShown: false,
+						animationEnabled: false,
 						gestureEnabled: Platform.OS === 'ios',
 						gestureDirection: 'horizontal'
 					}}
@@ -59,7 +85,23 @@ export const RootAuthStack = memo(
 							gestureEnabled: true,
 							gestureDirection: 'horizontal',
 							gestureResponseDistance: Dimensions.get('window').width,
-							cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+							cardStyleInterpolator: customCardStyleInterpolator,
+							transitionSpec: {
+								open: {
+									animation: 'timing',
+									config: {
+										duration: 150
+									}
+								},
+								close: {
+									animation: 'timing',
+									config: {
+										duration: 100
+									}
+								}
+							},
+							keyboardHandlingEnabled: false,
+							detachPreviousScreen: false
 						}}
 					/>
 					<RootStack.Screen
@@ -72,7 +114,23 @@ export const RootAuthStack = memo(
 							gestureEnabled: true,
 							gestureDirection: 'horizontal',
 							gestureResponseDistance: Dimensions.get('window').width,
-							cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+							cardStyleInterpolator: customCardStyleInterpolator,
+							keyboardHandlingEnabled: false,
+							detachPreviousScreen: false,
+							transitionSpec: {
+								open: {
+									animation: 'timing',
+									config: {
+										duration: 150
+									}
+								},
+								close: {
+									animation: 'timing',
+									config: {
+										duration: 100
+									}
+								}
+							}
 						}}
 					/>
 					<RootStack.Screen name={APP_SCREEN.SERVERS.STACK} children={(props) => <ServersStacks {...props} />} />
@@ -99,25 +157,30 @@ export const RootAuthStack = memo(
 							animationEnabled: Platform.OS === 'ios'
 						}}
 					/>
-
+					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
+					<RootStack.Screen name={APP_SCREEN.APP_BROWSER} component={AppBrowser} />
+					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen
-						name={APP_SCREEN.VIDEO_DETAIL}
-						component={RenderVideoDetail}
+						name={APP_SCREEN.PROFILE_DETAIL}
+						component={ProfileDetail}
 						options={{
 							headerShown: false,
-							headerShadowVisible: false
+							gestureEnabled: true,
+							gestureDirection: 'horizontal'
 						}}
 					/>
-					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
-					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen name={APP_SCREEN.SHOP.STACK} children={(props) => <ShopStack {...props} />} />
+					<RootStack.Screen name={APP_SCREEN.INVITE_CLAN} component={InviteClanScreen} />
+					<RootStack.Screen name={APP_SCREEN.INSTALL_CLAN} component={InstallClanScreen} />
 				</RootStack.Navigator>
+				<ModalRootListener />
 				<FCMNotificationLoader notifyInit={notifyInit} />
 				<AuthenticationLoader />
 				<CallingModalWrapper />
 				<CallingModalGroupWrapper />
 				<ChannelRouterListener />
 				<ListenerLoader />
+				<BadgeAppIconLoader />
 			</View>
 		);
 	}

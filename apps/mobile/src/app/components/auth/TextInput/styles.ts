@@ -1,17 +1,18 @@
-import { Attributes, Fonts, Metrics, baseColor, size, verticalScale } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			marginBottom: verticalScale(15)
+			marginBottom: size.s_10,
+			paddingHorizontal: size.s_20
 		},
 		label: {
-			fontSize: size.s_16,
-			marginTop: verticalScale(10),
-			marginBottom: verticalScale(10),
-			marginHorizontal: verticalScale(20),
-			color: colors.textStrong
+			fontSize: size.s_14,
+			marginVertical: size.s_10,
+			color: colors.text,
+			fontWeight: '600'
 		},
 		inputTexts: {
 			flexDirection: 'row',
@@ -21,21 +22,17 @@ export const style = (colors: Attributes) =>
 			borderColor: colors.border,
 			borderWidth: 1,
 			borderRadius: size.s_4,
-			paddingHorizontal: Metrics.size.m,
-			paddingLeft: Metrics.size.m,
-			marginRight: Metrics.size.xl,
-			marginLeft: Metrics.size.xl
+			paddingHorizontal: size.s_10,
+			paddingLeft: size.s_8
 		},
-
 		inputText: {
-			fontSize: size.s_16,
+			fontSize: size.s_14,
 			color: colors.textStrong,
 			width: '90%'
 		},
 		errorText: {
-			fontSize: Fonts.size.h7,
-			marginTop: Metrics.size.m,
-			marginHorizontal: Metrics.size.xl,
+			fontSize: size.s_12,
+			marginTop: size.s_8,
 			color: baseColor.red
 		},
 		require: {

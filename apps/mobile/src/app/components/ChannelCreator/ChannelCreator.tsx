@@ -1,21 +1,24 @@
-import { CrossIcon, getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
+import { size, useTheme } from '@mezon/mobile-ui';
 import { appActions, channelsActions, createNewChannel, getStoreAsync, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
-import { useEffect, useMemo, useState } from 'react';
+import type { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonInput from '../../componentUI/MezonInput';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
 import MezonOption from '../../componentUI/MezonOption';
 import MezonSwitch from '../../componentUI/MezonSwitch';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import { checkNotificationPermissionAndNavigate } from '../../utils/notificationPermissionHelper';
 import { validInput } from '../../utils/validate';
 import { style } from './styles';
 
@@ -32,34 +35,8 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 	const { t } = useTranslation(['channelCreator']);
 	const dispatch = useAppDispatch();
 
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerRight: () => (
-				<Pressable onPress={handleCreateChannel}>
-					<Text
-						style={{
-							color: baseColor.blurple,
-							fontWeight: 'bold',
-							paddingHorizontal: size.s_20,
-							opacity: channelName?.trim()?.length > 0 ? 1 : 0.5
-						}}
-					>
-						{t('actions.create')}
-					</Text>
-				</Pressable>
-			),
-
-			headerLeft: () => (
-				<Pressable style={{ padding: size.s_20 }} onPress={handleClose}>
-					<CrossIcon height={size.s_16} width={size.s_16} color={themeValue.text} />
-				</Pressable>
-			)
-		});
-	}, [channelName, navigation, t, themeValue.text, isChannelPrivate, channelType]);
-
-	async function handleCreateChannel() {
-		if (!validInput(channelName)) return;
+	const handleCreateChannel = useCallback(async () => {
+		if (!validInput(channelName, true)) return;
 		const store = await getStoreAsync();
 
 		const body: ApiCreateChannelDescRequest = {
@@ -67,7 +44,8 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 			type: channelType,
 			channel_label: channelName?.trim(),
 			channel_private: isChannelPrivate ? 1 : 0,
-			category_id: categoryId
+			category_id: categoryId,
+			parent_id: '0'
 		};
 		dispatch(appActions.setLoadingMainMobile(true));
 		const newChannelCreatedId = await dispatch(createNewChannel(body));
@@ -78,36 +56,66 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 		const error = (newChannelCreatedId as any).error;
 		if (newChannelCreatedId && error) {
 			Toast.show({
-				type: 'info',
+				type: 'error',
 				text1: t('fields.channelName.duplicateChannelName')
 			});
 			dispatch(appActions.setLoadingMainMobile(false));
 			return;
 		}
 
-		if (
-			newChannelCreatedId &&
-			channelType !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
-			channelType !== ChannelType.CHANNEL_TYPE_STREAMING &&
-			channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE
-		) {
-			navigation.replace(APP_SCREEN.HOME_DEFAULT);
-			requestAnimationFrame(async () => {
-				await store.dispatch(channelsActions.joinChannel({ clanId: clanID ?? '', channelId: channelID, noFetchMembers: false }));
-			});
-			const dataSave = getUpdateOrAddClanChannelCache(clanID, channelID);
-			save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-			await sleep(1000);
-		} else {
-			navigation.goBack();
-		}
+		await checkNotificationPermissionAndNavigate(async () => {
+			if (newChannelCreatedId && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+				navigation.replace(APP_SCREEN.HOME_DEFAULT);
+				requestAnimationFrame(async () => {
+					await store.dispatch(channelsActions.joinChannel({ clanId: clanID ?? '', channelId: channelID, noFetchMembers: false }));
+				});
+				const dataSave = getUpdateOrAddClanChannelCache(clanID, channelID);
+				save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
+				await sleep(1000);
+			} else {
+				navigation.goBack();
+			}
+		});
+
 		setChannelName('');
 		dispatch(appActions.setLoadingMainMobile(false));
-	}
+	}, [channelName, currentClanId, isChannelPrivate, channelType, categoryId, dispatch, navigation, t]);
 
-	function handleClose() {
-		navigation.goBack();
-	}
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
+			headerRight: () => (
+				<Pressable onPress={handleCreateChannel}>
+					<Text
+						style={[
+							styles.headerCreateButton,
+							{
+								opacity: channelName?.trim()?.length > 0 ? 1 : 0.5
+							}
+						]}
+					>
+						{t('actions.create')}
+					</Text>
+				</Pressable>
+			),
+
+			headerLeft: () => (
+				<Pressable style={styles.headerBackButton} onPress={() => navigation.goBack()}>
+					<MezonIconCDN icon={IconCDN.closeLargeIcon} height={size.s_16} width={size.s_16} color={themeValue.text} />
+				</Pressable>
+			)
+		});
+	}, [
+		channelName,
+		navigation,
+		t,
+		themeValue.text,
+		isChannelPrivate,
+		channelType,
+		handleCreateChannel,
+		styles.headerBackButton,
+		styles.headerCreateButton
+	]);
 
 	const menuPrivate = useMemo(
 		() =>
@@ -164,6 +172,7 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 					label={t('fields.channelName.title')}
 					errorMessage={t('fields.channelName.errorMessage')}
 					placeHolder={t('fields.channelName.placeholder')}
+					includeEmoji
 				/>
 
 				<MezonOption title={t('fields.channelType.title')} data={channelTypeList} onChange={handleChannelTypeChange} value={channelType} />

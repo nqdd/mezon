@@ -1,105 +1,76 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
+import type { MuteChannelPayload } from '@mezon/store';
 import {
-	notifiReactMessageActions,
 	notificationSettingActions,
-	selectCurrentChannel,
+	selectCurrentChannelCategoryId,
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDefaultNotificationCategory,
 	selectDefaultNotificationClan,
-	selectNotifiReactMessageByChannelId,
 	selectNotifiSettingsEntitiesById,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ENotificationTypes, FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import { Menu } from '@mezon/ui';
+import { EMuteState, ENotificationTypes, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
-import { Dropdown } from 'flowbite-react';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { notificationTypesList } from '../../../PanelChannel';
+import { createNotificationTypesListTranslated } from '../../../PanelChannel';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
 
 const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRef?: RefObject<HTMLElement> }) => {
-	const currentChannel = useSelector(selectCurrentChannel);
-	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannel?.id || ''));
+	const { t } = useTranslation('channelTopbar');
+	const tChannelMenu = useTranslation('channelMenu').t;
+	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);
+	const currentChannelObjectId = useSelector(selectCurrentChannelId);
+	const currentChannelCategoryId = useSelector(selectCurrentChannelCategoryId);
+	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObjectId || ''));
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const [nameChildren, setNameChildren] = useState('');
 	const [mutedUntil, setmutedUntil] = useState('');
-	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannel?.category_id as string));
+	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannelCategoryId as string));
 
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
-	const notifiReactMessage = useAppSelector((state) => selectNotifiReactMessageByChannelId(state, currentChannelId as string));
-
-	const [isNotifyReactMessage, setisNotifyReactMessage] = useState(notifiReactMessage?.id !== '0');
 
 	useEffect(() => {
-		if (!currentChannelId) return;
-		dispatch(notifiReactMessageActions.getNotifiReactMessage({ channelId: currentChannelId }));
-	}, [currentChannelId]);
-
-	useEffect(() => {
-		if (getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0') {
-			setNameChildren('Mute Channel');
-			setmutedUntil('');
+		if (getNotificationChannelSelected?.active === 1) {
+			setNameChildren(t('notificationSetting.muteChannel'));
 		} else {
-			setNameChildren('Unmute Channel');
+			setNameChildren(t('notificationSetting.unmuteChannel'));
 			if (getNotificationChannelSelected?.time_mute) {
 				const timeMute = new Date(getNotificationChannelSelected.time_mute);
 				const currentTime = new Date();
 				if (timeMute > currentTime) {
-					const timeDifference = timeMute.getTime() - currentTime.getTime();
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
-					setmutedUntil(`Muted until ${formattedDate}`);
-
-					setTimeout(() => {
-						const body = {
-							channel_id: currentChannelId || '',
-							notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-							clan_id: currentClanId || '',
-							active: 1
-						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-					}, timeDifference);
+					setmutedUntil(t('notificationSetting.mutedUntil', { date: formattedDate }));
 				}
 			}
 		}
 	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan]);
 
 	const handleScheduleMute = (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
-
-			const body = {
-				channel_id: currentChannelId || '',
-				notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				time_mute: unmuteTimeISO
-			};
-			dispatch(notificationSettingActions.setNotificationSetting(body));
-		} else {
-			const body = {
-				channel_id: currentChannelId || '',
-				notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: 0
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-		}
+		const body: MuteChannelPayload = {
+			channel_id: currentChannelId || '',
+			mute_time: duration !== Infinity ? duration : 0,
+			active: 0,
+			clan_id: currentClanId || ''
+		};
+		dispatch(notificationSettingActions.setMuteChannel(body));
 	};
 
 	const muteOrUnMuteChannel = (active: number) => {
 		const body = {
 			channel_id: currentChannelId || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
 			clan_id: currentClanId || '',
-			active: active
+			active,
+			mute_time: 0
 		};
-		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+		dispatch(notificationSettingActions.setMuteChannel(body));
 	};
 
 	const setNotification = (notificationType: number) => {
@@ -115,62 +86,89 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 		}
 	};
 
-	const setNotiReactMess = () => {
-		if (!isNotifyReactMessage) {
-			dispatch(notifiReactMessageActions.setNotifiReactMessage({ channel_id: currentChannelId || '' }));
-		} else {
-			dispatch(notifiReactMessageActions.deleteNotifiReactMessage({ channel_id: currentChannelId || '' }));
-		}
-		setisNotifyReactMessage(!isNotifyReactMessage);
-	};
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, onClose);
-	useOnClickOutside(modalRef, onClose, rootRef);
+	useOnClickOutside(
+		modalRef,
+		() => {
+			if (!checkMenuOpen.current) {
+				onClose();
+			}
+		},
+		rootRef
+	);
+	const checkMenuOpen = useRef<boolean>(false);
 
+	const menu = useMemo(() => {
+		const listItem: { key: number; label: string }[] = [
+			{ key: FOR_15_MINUTES_SEC, label: t('notificationSetting.muteOptions.for15Minutes') },
+			{ key: FOR_1_HOUR_SEC, label: t('notificationSetting.muteOptions.for1Hour') },
+			{
+				key: FOR_3_HOURS_SEC,
+				label: t('notificationSetting.muteOptions.for3Hours')
+			},
+			{
+				key: FOR_8_HOURS_SEC,
+				label: t('notificationSetting.muteOptions.for8Hours')
+			},
+			{
+				key: FOR_24_HOURS_SEC,
+				label: t('notificationSetting.muteOptions.for24Hours')
+			},
+			{
+				key: Infinity,
+				label: t('notificationSetting.muteOptions.untilTurnedBackOn')
+			}
+		];
+		const menuItems: ReactElement[] = [];
+		listItem.map((item) =>
+			menuItems.push(
+				<Menu.Item
+					key={item.key}
+					children={item.label}
+					onClick={() => {
+						checkMenuOpen.current = false;
+						handleScheduleMute(item.key);
+					}}
+					className="cursor-pointer bg-item-hover"
+				/>
+			)
+		);
+		return <>{menuItems}</>;
+	}, []);
+	const onVisibleChange = useCallback((visible: boolean) => {
+		checkMenuOpen.current = visible;
+	}, []);
 	return (
-		<div ref={modalRef} tabIndex={-1} className="absolute top-8 shadow-2xl shadow-black/20 rounded-lg z-[99999999] bg-theme-setting-primary  border-theme-primary ">
+		<div
+			ref={modalRef}
+			tabIndex={-1}
+			className="absolute top-8 shadow-2xl shadow-black/20 rounded-lg z-[99999999] bg-theme-setting-primary  border-theme-primary "
+		>
 			<div className="flex flex-col rounded-[4px] w-[202px] shadow-sm overflow-hidden py-[6px] px-[8px]">
 				<div className="flex flex-col pb-1 mb-1 border-b-theme-primary last:border-b-0 last:mb-0 last:pb-0 ">
-					{getNotificationChannelSelected?.active === 1 || getNotificationChannelSelected?.id === '0' ? (
-						<Dropdown
+					{getNotificationChannelSelected?.active === 1 ? (
+						<Menu
 							trigger="hover"
-							dismissOnClick={false}
-							renderTrigger={() => (
-								<div>
-									<ItemPanel
-										children={nameChildren}
-										subText={mutedUntil}
-										dropdown="change here"
-										onClick={() => muteOrUnMuteChannel(0)}
-									/>
-								</div>
-							)}
-							label=""
-							placement="right-start"
+							menu={menu}
+							onVisibleChange={onVisibleChange}
 							className="bg-theme-contexify text-theme-primary border-none ml-[3px] py-[6px] px-[8px] w-[200px] "
 						>
-							<ItemPanel children="For 15 Minutes" onClick={() => handleScheduleMute(FOR_15_MINUTES)} />
-							<ItemPanel children="For 1 Hour" onClick={() => handleScheduleMute(FOR_1_HOUR)} />
-							<ItemPanel children="For 3 Hours" onClick={() => handleScheduleMute(FOR_3_HOURS)} />
-							<ItemPanel children="For 8 Hours" onClick={() => handleScheduleMute(FOR_8_HOURS)} />
-							<ItemPanel children="For 24 Hours" onClick={() => handleScheduleMute(FOR_24_HOURS)} />
-							<ItemPanel children="Until I turn it back on" onClick={() => handleScheduleMute(Infinity)} />
-						</Dropdown>
+							<div>
+								<ItemPanel
+									children={nameChildren}
+									subText={mutedUntil}
+									dropdown="change here"
+									onClick={() => muteOrUnMuteChannel(EMuteState.MUTED)}
+								/>
+							</div>
+						</Menu>
 					) : (
-						<ItemPanel children={nameChildren} subText={mutedUntil} onClick={() => muteOrUnMuteChannel(1)} />
+						<ItemPanel children={nameChildren} subText={mutedUntil} onClick={() => muteOrUnMuteChannel(EMuteState.UN_MUTE)} />
 					)}
 				</div>
-				<div className="flex flex-col pb-2 mb-1 border-b-theme-primary last:border-b-0 last:mb-0 last:pb-0">
-					<ItemPanel
-						children="Reaction Message"
-						type="checkbox"
-						name="NotifiReactionSetting"
-						checked={isNotifyReactMessage}
-						onClick={setNotiReactMess}
-					/>
-				</div>
 				<ItemPanel
-					children="Use Category Default"
+					children={t('notificationSetting.useCategoryDefault')}
 					type="radio"
 					name="NotificationSetting"
 					defaultNotifi={true}

@@ -1,56 +1,55 @@
-import { RTCView } from '@livekit/react-native-webrtc';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { DMCallActions, selectAllAccount, selectRemoteVideo, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { size, useTheme } from '@mezon/mobile-ui';
+import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
+import notifee from '@notifee/react-native';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { memo, useEffect, useState } from 'react';
-import { BackHandler, DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RNCallKeep from 'react-native-callkeep';
-import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import Images from '../../../../assets/Images';
-import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
+import { RenderMainView } from './RenderMainView';
 import { style } from './styles';
 
 interface IDirectMessageCallProps {
 	route: any;
 }
 
-export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
+export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) => {
 	const { themeValue } = useTheme();
 	const dispatch = useAppDispatch();
 	const styles = style(themeValue);
-	const { receiverId, directMessageId } = route.params;
-	const receiverAvatar = route.params?.receiverAvatar;
-	const isVideoCall = route.params?.isVideoCall;
-	const isAnswerCall = route.params?.isAnswerCall;
-	const isFromNative = route.params?.isFromNative;
+	const { receiverId, directMessageId } = route?.params || {};
+	const isVideoCall = route?.params?.isVideoCall;
+	const isAnswerCall = route?.params?.isAnswerCall;
+	const isFromNative = route?.params?.isFromNative;
 	const userProfile = useSelector(selectAllAccount);
-	const [isShowControl, setIsShowControl] = useState<boolean>(true);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
-	const isRemoteVideo = useSelector(selectRemoteVideo);
-	const navigation = useNavigation<any>();
 	const [isMirror, setIsMirror] = useState<boolean>(true);
+	const { t } = useTranslation(['dmMessage']);
 
 	const {
 		callState,
 		localMediaControl,
 		timeStartConnected,
+		isConnected,
 		startCall,
 		handleEndCall,
 		toggleSpeaker,
 		toggleAudio,
 		toggleVideo,
 		handleSignalingMessage,
-		switchCamera
+		switchCamera,
+		handleToggleIsConnected,
+		playDialToneIOS
 	} = useWebRTCCallMobile({
 		dmUserId: receiverId,
 		userId: userProfile?.user?.id as string,
@@ -61,28 +60,30 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 		callerAvatar: userProfile?.user?.avatar_url
 	});
 
-	const initSpeakerConfig = async () => {
-		if (Platform.OS === 'android') {
-			const { CustomAudioModule } = NativeModules;
-			await CustomAudioModule.setSpeaker(false, null);
-			InCallManager.setSpeakerphoneOn(false);
-		} else {
-			InCallManager.setSpeakerphoneOn(false);
-			InCallManager.setForceSpeakerphoneOn(false);
+	useEffect(() => {
+		if (!isAnswerCall) {
+			try {
+				if (Platform.OS === 'ios') {
+					playDialToneIOS();
+				} else {
+					const { AudioSessionModule } = NativeModules;
+					AudioSessionModule.playDialTone();
+				}
+			} catch (e) {
+				console.error('e', e);
+			}
 		}
-	};
-
-	const toggleControl = async () => {
-		setIsShowControl(!isShowControl);
-	};
+		notifee.stopForegroundService();
+		notifee.cancelNotification('incoming-call', 'incoming-call');
+		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
+	}, [isAnswerCall]);
 
 	const onCancelCall = async () => {
 		try {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			if (Platform.OS === 'ios') {
 				RNCallKeep.endAllCalls();
 			}
-			await handleEndCall({ isCancelGoBack: false });
+			await handleEndCall({});
 			if (!timeStartConnected?.current) {
 				await dispatch(
 					DMCallActions.updateCallLog({
@@ -97,6 +98,7 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 					})
 				);
 			}
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		} catch (err) {
 			/* empty */
 		}
@@ -128,7 +130,7 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 						})
 					);
 				}
-				handleEndCall({ isCancelGoBack: dataType === WebrtcSignalingType.WEBRTC_SDP_TIMEOUT });
+				handleEndCall({});
 				if (dataType === WebrtcSignalingType.WEBRTC_SDP_JOINED_OTHER_CALL) {
 					Toast.show({
 						type: 'error',
@@ -137,10 +139,15 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 					});
 					if (isFromNative) {
 						InCallManager.stop();
-						BackHandler.exitApp();
+						if (Platform.OS === 'android') {
+							NativeModules?.DeviceUtils?.killApp();
+							BackHandler.exitApp();
+						} else {
+							BackHandler.exitApp();
+						}
 						return;
 					}
-					navigation.goBack();
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				}
 			}
 		}
@@ -153,9 +160,12 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 	useEffect(() => {
 		dispatch(DMCallActions.setIsInCall(true));
 		InCallManager.start({ media: 'audio' });
+		if (isAnswerCall) {
+			handleToggleIsConnected(false);
+		}
 		const timer = setTimeout(() => {
 			startCall(isVideoCall, isAnswerCall);
-		}, 2000);
+		}, 1000);
 
 		return () => {
 			clearTimeout(timer);
@@ -163,115 +173,91 @@ export const DirectMessageCall = memo(({ route }: IDirectMessageCallProps) => {
 		};
 	}, [isAnswerCall, isVideoCall]);
 
-	useEffect(() => {
-		initSpeakerConfig();
-	}, []);
-
 	return (
 		<View style={styles.container}>
 			{!isFromNative && <StatusBarHeight />}
-
-			{isShowControl && (
-				<View style={[styles.menuHeader]}>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
-						<TouchableOpacity
-							onPress={() => {
-								const data = {
-									children: (
-										<MezonConfirm onConfirm={onCancelCall} title="End Call" confirmText="Yes, End Call">
-											<Text style={styles.titleConfirm}>Are you sure you want to end the call?</Text>
-										</MezonConfirm>
-									)
-								};
-								DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-							}}
-							style={styles.buttonCircle}
-						>
-							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} />
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
+			<View style={[styles.menuHeader]}>
+				<View style={styles.headerControlsLeft}>
+					<TouchableOpacity
+						onPress={() => {
+							Alert.alert('End Call', 'Please confirm if you would like to end the call?', [
+								{
+									text: 'Cancel',
+									style: 'cancel'
+								},
+								{
+									text: 'OK',
+									onPress: () => {
+										onCancelCall();
+									}
+								}
+							]);
+						}}
+						style={styles.buttonCircle}
+					>
+						<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.white} height={size.s_24} width={size.s_24} />
+					</TouchableOpacity>
+				</View>
+				<View style={styles.headerControlsRight}>
+					{callState.localStream && localMediaControl?.camera && (
+						<View>
+							<TouchableOpacity onPress={handleSwitchCamera} style={[styles.buttonCircle]}>
+								<MezonIconCDN icon={IconCDN.cameraFront} height={size.s_24} width={size.s_24} color={themeValue.white} />
+							</TouchableOpacity>
+						</View>
+					)}
+					<View>
+						<TouchableOpacity style={[styles.buttonCircle, localMediaControl?.camera && styles.buttonCircleActive]} onPress={toggleVideo}>
+							{localMediaControl?.camera ? (
+								<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
+							) : (
+								<MezonIconCDN icon={IconCDN.videoSlashIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
+							)}
 						</TouchableOpacity>
 					</View>
-					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						{callState.localStream && localMediaControl?.camera && (
-							<View>
-								<TouchableOpacity onPress={handleSwitchCamera} style={[styles.buttonCircle]}>
-									<MezonIconCDN icon={IconCDN.cameraFront} height={size.s_24} width={size.s_24} color={themeValue.white} />
-								</TouchableOpacity>
-							</View>
+				</View>
+			</View>
+			<RenderMainView
+				route={route}
+				callState={callState}
+				isAnswerCall={isAnswerCall}
+				isConnected={isConnected}
+				isMirror={isMirror}
+				isOnLocalCamera={localMediaControl?.camera || false}
+			/>
+			<View style={[styles.menuFooter]}>
+				<View>
+					<TouchableOpacity onPress={toggleSpeaker} style={[styles.menuIcon, localMediaControl?.speaker && styles.menuIconActive]}>
+						<MezonIconCDN
+							icon={localMediaControl.speaker ? IconCDN.channelVoice : IconCDN.voiceLowIcon}
+							color={localMediaControl.speaker ? themeValue.secondaryLight : themeValue.white}
+						/>
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>{t('speaker')}</Text>
+				</View>
+				<View>
+					<TouchableOpacity onPress={onCancelCall} style={styles.endCallButton}>
+						<MezonIconCDN icon={IconCDN.phoneCallIcon} />
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>{t('end')}</Text>
+				</View>
+				<View>
+					<TouchableOpacity onPress={toggleAudio} style={[styles.menuIcon, localMediaControl?.mic && styles.menuIconActive]}>
+						{localMediaControl?.mic ? (
+							<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
+						) : (
+							<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.text} />
 						)}
-						<View>
-							<TouchableOpacity
-								onPress={toggleSpeaker}
-								style={[styles.buttonCircle, localMediaControl.speaker && styles.buttonCircleActive]}
-							>
-								<MezonIconCDN
-									icon={localMediaControl.speaker ? IconCDN.channelVoice : IconCDN.voiceLowIcon}
-									color={localMediaControl.speaker ? themeValue.border : themeValue.white}
-								/>
-							</TouchableOpacity>
-						</View>
-					</View>
+					</TouchableOpacity>
+					<Text style={styles.textDescControl}>Mic</Text>
 				</View>
-			)}
-
-			<TouchableOpacity activeOpacity={1} style={[styles.main, !isShowControl && { marginBottom: size.s_20 }]} onPress={toggleControl}>
-				<View style={{ flex: 1 }}>
-					{callState.remoteStream && isRemoteVideo ? (
-						<View style={styles.card}>
-							<RTCView streamURL={callState.remoteStream.toURL()} style={{ flex: 1 }} mirror={true} objectFit={'cover'} />
-						</View>
-					) : (
-						<View style={[styles.card, styles.cardNoVideo]}>
-							<FastImage source={receiverAvatar ? { uri: receiverAvatar } : Images.ANONYMOUS_AVATAR} style={styles.avatar} />
-						</View>
-					)}
-					{callState.localStream && localMediaControl?.camera ? (
-						<View style={styles.card}>
-							<RTCView streamURL={callState.localStream.toURL()} style={{ flex: 1 }} mirror={isMirror} objectFit={'cover'} />
-						</View>
-					) : (
-						<View style={[styles.card, styles.cardNoVideo]}>
-							<FastImage source={{ uri: userProfile?.user?.avatar_url }} style={styles.avatar} />
-						</View>
-					)}
-				</View>
-			</TouchableOpacity>
-			{isShowControl && (
-				<View style={[styles.menuFooter]}>
-					<View style={{ borderRadius: size.s_40, backgroundColor: themeValue.primary }}>
-						<View
-							style={{
-								gap: size.s_30,
-								flexDirection: 'row',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-								padding: size.s_14
-							}}
-						>
-							<TouchableOpacity onPress={toggleVideo} style={[styles.menuIcon, localMediaControl?.camera && styles.menuIconActive]}>
-								{localMediaControl?.camera ? (
-									<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
-								) : (
-									<MezonIconCDN icon={IconCDN.videoSlashIcon} width={size.s_24} height={size.s_24} color={themeValue.white} />
-								)}
-							</TouchableOpacity>
-							<TouchableOpacity onPress={toggleAudio} style={[styles.menuIcon, localMediaControl?.mic && styles.menuIconActive]}>
-								{localMediaControl?.mic ? (
-									<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_24} height={size.s_24} color={themeValue.black} />
-								) : (
-									<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_24} height={size.s_24} color={themeValue.white} />
-								)}
-							</TouchableOpacity>
-							<TouchableOpacity onPress={() => {}} style={styles.menuIcon}>
-								<MezonIconCDN icon={IconCDN.chatIcon} />
-							</TouchableOpacity>
-
-							<TouchableOpacity onPress={onCancelCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>
-								<MezonIconCDN icon={IconCDN.phoneCallIcon} />
-							</TouchableOpacity>
-						</View>
-					</View>
-				</View>
-			)}
+			</View>
 		</View>
 	);
 });

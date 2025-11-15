@@ -12,20 +12,18 @@ import {
 	subDays
 } from 'date-fns';
 import isElectron from 'is-electron';
-import { ChannelStreamMode, ChannelType, Client, Session, safeJSONParse } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiRole, ClanUserListClanUser } from 'mezon-js/api.gen';
-import { RoleUserListRoleUser } from 'mezon-js/dist/api.gen';
-import React from 'react';
+import type { Client, Session } from 'mezon-js';
+import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiRole, ClanUserListClanUser } from 'mezon-js/api.gen';
+import type { RoleUserListRoleUser } from 'mezon-js/dist/api.gen';
+import type React from 'react';
 import Resizer from 'react-image-file-resizer';
-import { MentionItem } from 'react-mentions';
 import { electronBridge } from '../bridge';
 import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from '../bridge/electron/constants';
-import { EVERYONE_ROLE_ID, ID_MENTION_HERE, TIME_COMBINE } from '../constant';
+import { CURRENCY, ID_MENTION_HERE } from '../constant';
 import { Platform } from '../hooks/platform';
-import {
+import type {
 	ChannelMembersEntity,
-	EBacktickType,
-	ETokenMessage,
 	IAttachmentEntity,
 	IChannel,
 	IEmojiOnMessage,
@@ -40,11 +38,14 @@ import {
 	IPermissonMedia,
 	IRolesClan,
 	MentionDataProps,
+	MentionItem,
 	NotificationEntity,
 	SearchItemProps,
 	SenderInfoOptionals,
 	UsersClanEntity
 } from '../types';
+import { EBacktickType, ETokenMessage, EUserStatus } from '../types';
+import { getDateLocale } from './dateI18n';
 import { Foreman } from './foreman';
 import { isMezonCdnUrl, isTenorUrl } from './urlSanitization';
 import { getPlatform } from './windowEnvironment';
@@ -53,8 +54,11 @@ export * from './audio';
 export * from './buildClassName';
 export * from './buildStyle';
 export * from './calculateAlbumLayout';
+export * from './call';
 export * from './callbacks';
 export * from './canvasLink';
+export * from './convertMessageToHtml';
+export * from './dateI18n';
 export * from './detectTokenMessage';
 export * from './file';
 export * from './forceReflow';
@@ -63,29 +67,31 @@ export * from './mediaDimensions';
 export * from './mergeRefs';
 export * from './message';
 export * from './parseHtmlAsFormattedText';
+export * from './processEntitiesDirectly';
 export * from './resetScroll';
 export * from './schedulers';
 export * from './select';
 export * from './signals';
+export * from './timeFormatterI18n';
 export * from './toggleSelection';
 export * from './transform';
 export * from './windowEnvironment';
 export * from './windowSize';
 
-export const convertTimeString = (dateString: string) => {
+export const convertTimeString = (dateString: string, t?: (key: string, options?: any) => string) => {
+	if (!dateString) {
+		return '';
+	}
 	const codeTime = new Date(dateString);
 	const today = startOfDay(new Date());
 	const yesterday = startOfDay(subDays(new Date(), 1));
 	if (isSameDay(codeTime, today)) {
-		// Date is today
 		const formattedTime = format(codeTime, 'HH:mm');
-		return `Today at ${formattedTime}`;
+		return t ? t('common:todayAtTime', { time: formattedTime }) : `Today at ${formattedTime}`;
 	} else if (isSameDay(codeTime, yesterday)) {
-		// Date is yesterday
 		const formattedTime = format(codeTime, 'HH:mm');
-		return `Yesterday at ${formattedTime}`;
+		return t ? t('common:yesterdayAtTime', { time: formattedTime }) : `Yesterday at ${formattedTime}`;
 	} else {
-		// Date is neither today nor yesterday
 		const formattedDate = format(codeTime, 'dd/MM/yyyy, HH:mm');
 		return formattedDate;
 	}
@@ -142,7 +148,7 @@ export const uniqueUsers = (
 	);
 
 	const allRoleUsers = rolesClan.reduce<RoleUserListRoleUser[]>((acc, role) => {
-		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id && mention.role_id !== EVERYONE_ROLE_ID);
+		const isMentionedRole = mentions.some((mention) => mention.role_id === role.id);
 		if (isMentionedRole && role.role_user_list?.role_users) {
 			acc.push(...role.role_user_list.role_users);
 		}
@@ -170,9 +176,18 @@ export const uniqueUsers = (
 	return userIdsNotInChannel;
 };
 
-export const convertTimeMessage = (timestamp: number) => {
-	const textTime = formatDistanceToNowStrict(new Date(timestamp * 1000), { addSuffix: true });
-	return textTime;
+export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1) => {
+	const target = new Date(Math.floor(timestampSec) * 1000);
+	const diffSec = Math.max(0, differenceInSeconds(Date.now(), target));
+
+	if (diffSec <= justNowThreshold) {
+		return languageCode.startsWith('vi') ? 'Vừa xong' : 'Just now';
+	}
+
+	return formatDistanceToNowStrict(target, {
+		addSuffix: true,
+		locale: getDateLocale(languageCode)
+	});
 };
 
 export const isGreaterOneMonth = (timestamp: number) => {
@@ -203,7 +218,7 @@ export {
 } from './urlSanitization';
 
 export const getVoiceChannelName = (clanName?: string, channelLabel?: string) => {
-	return clanName?.replace(' ', '-') + '-' + channelLabel?.replace(' ', '-');
+	return `${clanName?.replace(' ', '-')}-${channelLabel?.replace(' ', '-')}`;
 };
 
 export const removeDuplicatesById = (array: any) => {
@@ -246,20 +261,20 @@ export const convertMarkdown = (markdown: string, type: EBacktickType): string =
 		return substring;
 	}
 	if (start) {
-		return substring + '\n';
+		return `${substring}\n`;
 	}
 	if (end) {
-		return '\n' + substring;
+		return `\n${substring}`;
 	}
-	return '\n' + substring + '\n';
+	return `\n${substring}\n`;
 };
 
 export const getSrcEmoji = (id: string) => {
-	return process.env.NX_BASE_IMG_URL + '/emojis/' + id + '.webp';
+	return `${process.env.NX_BASE_IMG_URL}/emojis/${id}.webp`;
 };
 
 export const getSrcSound = (id: string) => {
-	return process.env.NX_BASE_IMG_URL + '/sounds/' + id + '.mp3';
+	return `${process.env.NX_BASE_IMG_URL}/sounds/${id}.mp3`;
 };
 
 export const checkLastChar = (text: string) => {
@@ -291,14 +306,32 @@ export const getAvatarForPrioritize = (clanAvatar: string | undefined, userAvata
 };
 
 export function compareObjects(a: any, b: any, searchText: string, prioritizeProp: string, nameProp?: string) {
-	const normalizedSearchText = searchText.toUpperCase();
+	const normalizedSearchText = normalizeSearchString(searchText);
 
-	const aIndex = a[prioritizeProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
-	const bIndex = b[prioritizeProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
+	const aPrioritizeName = normalizeSearchString(a[prioritizeProp] ?? '');
+	const bPrioritizeName = normalizeSearchString(b[prioritizeProp] ?? '');
+
+	const aIsExactMatch = aPrioritizeName === normalizedSearchText;
+	const bIsExactMatch = bPrioritizeName === normalizedSearchText;
+
+	if (aIsExactMatch && !bIsExactMatch) return -1;
+	if (!aIsExactMatch && bIsExactMatch) return 1;
+
+	const aIndex = aPrioritizeName.indexOf(normalizedSearchText);
+	const bIndex = bPrioritizeName.indexOf(normalizedSearchText);
 
 	if (nameProp) {
-		const aNameIndex = a[nameProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
-		const bNameIndex = b[nameProp]?.toUpperCase().indexOf(normalizedSearchText) ?? -1;
+		const aName = normalizeSearchString(a[nameProp] ?? '');
+		const bName = normalizeSearchString(b[nameProp] ?? '');
+
+		const aNameIsExactMatch = aName === normalizedSearchText;
+		const bNameIsExactMatch = bName === normalizedSearchText;
+
+		if (aNameIsExactMatch && !bNameIsExactMatch) return -1;
+		if (!aNameIsExactMatch && bNameIsExactMatch) return 1;
+
+		const aNameIndex = aName.indexOf(normalizedSearchText);
+		const bNameIndex = bName.indexOf(normalizedSearchText);
 
 		if (aIndex === -1 && bIndex === -1) {
 			return aNameIndex - bNameIndex;
@@ -321,8 +354,12 @@ export function compareObjects(a: any, b: any, searchText: string, prioritizePro
 			if (bIndex === -1) return -1;
 			return aIndex - bIndex;
 		}
-		return (a[prioritizeProp]?.toUpperCase() ?? '').localeCompare(b[prioritizeProp]?.toUpperCase() ?? '');
+		return aPrioritizeName.localeCompare(bPrioritizeName);
 	}
+}
+
+export function normalizeSearchString(str: string): string {
+	return normalizeString(str).replace(/-/g, ' ').replace(/_/g, ' ').replace(/\+/g, ' ');
 }
 
 export function normalizeString(str: string): string {
@@ -336,14 +373,12 @@ export function normalizeString(str: string): string {
 
 export function searchMentionsHashtag(searchValue: string, list: MentionDataProps[]) {
 	if (!searchValue) return list;
-	// Normalize and remove diacritical marks from the search value
-	const normalizedSearchValue = normalizeString(searchValue).toUpperCase();
+	const normalizedSearchValue = normalizeSearchString(searchValue);
 	const filteredList: MentionDataProps[] = list.filter((mention) => {
-		const displayNormalized = normalizeString(mention.display ?? '').toUpperCase();
-		const usernameNormalized = normalizeString(mention.username ?? '').toUpperCase();
+		const displayNormalized = normalizeSearchString(mention.display ?? '');
+		const usernameNormalized = normalizeSearchString(mention.username ?? '');
 		return displayNormalized.includes(normalizedSearchValue) || usernameNormalized.includes(normalizedSearchValue);
 	});
-	// Sort the filtered list
 	const sortedList = filteredList.sort((a, b) => compareObjects(a, b, normalizedSearchValue, 'display', 'display'));
 	return sortedList;
 }
@@ -361,10 +396,6 @@ export const checkSameDayByCreateTimeMs = (unixTime1: number, unixTime2: number)
 	const date2 = fromUnixTime(unixTime2 / 1000);
 
 	return isSameDay(date1, date2);
-};
-
-export const checkContinuousMessagesByCreateTimeMs = (unixTime1: number, unixTime2: number) => {
-	return Math.abs(unixTime1 - unixTime2) <= TIME_COMBINE;
 };
 
 export const checkSameDayByCreateTime = (createTime1: string | Date, createTime2: string | Date) => {
@@ -434,7 +465,7 @@ export function addAttributesSearchList(data: SearchItemProps[], dataUserClan: C
 			...item,
 			clanAvatar: avatarClanFinding,
 			clanNick: clanNickFinding,
-			prioritizeName: prioritizeName
+			prioritizeName
 		};
 	});
 }
@@ -442,11 +473,11 @@ export function addAttributesSearchList(data: SearchItemProps[], dataUserClan: C
 export function filterListByName(listSearch: SearchItemProps[], searchText: string, isSearchByUsername: boolean): SearchItemProps[] {
 	const result = listSearch.filter((item: SearchItemProps) => {
 		if (isSearchByUsername) {
-			const searchName = normalizeString(searchText.slice(1));
-			const itemDisplayName = item.displayName ? normalizeString(item.displayName) : '';
-			const itemName = item.name ? normalizeString(item.name) : '';
-			const itemPrioritizeName = item.prioritizeName ? normalizeString(item.prioritizeName) : '';
-			const searchNameAllClan = item.searchName ? normalizeString(item.searchName) : '';
+			const searchName = normalizeSearchString(searchText.slice(1));
+			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
+			const itemName = item.name ? normalizeSearchString(item.name) : '';
+			const itemPrioritizeName = item.prioritizeName ? normalizeSearchString(item.prioritizeName) : '';
+			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
 			return (
 				itemName.includes(searchName) ||
 				itemDisplayName.includes(searchName) ||
@@ -454,12 +485,11 @@ export function filterListByName(listSearch: SearchItemProps[], searchText: stri
 				searchNameAllClan.includes(searchName)
 			);
 		} else {
-			const searchUpper = normalizeString(searchText.startsWith('#') ? searchText.substring(1) : searchText);
-			const prioritizeName = item.prioritizeName ? normalizeString(item.prioritizeName) : '';
-			const itemName = item.name ? normalizeString(item.name) : '';
-			const itemDisplayName = item.displayName ? normalizeString(item.displayName) : '';
-			const searchNameAllClan = item.searchName ? normalizeString(item.searchName) : '';
-
+			const searchUpper = normalizeSearchString(searchText.startsWith('#') ? searchText.substring(1) : searchText);
+			const prioritizeName = item.prioritizeName ? normalizeSearchString(item.prioritizeName) : '';
+			const itemName = item.name ? normalizeSearchString(item.name) : '';
+			const itemDisplayName = item.displayName ? normalizeSearchString(item.displayName) : '';
+			const searchNameAllClan = item.searchName ? normalizeSearchString(item.searchName) : '';
 			return (
 				prioritizeName.includes(searchUpper) ||
 				itemName.includes(searchUpper) ||
@@ -688,10 +718,8 @@ export async function getWebUploadedAttachments(payload: {
 	attachments: ApiMessageAttachment[];
 	client: Client;
 	session: Session;
-	clanId: string;
-	channelId: string;
 }): Promise<ApiMessageAttachment[]> {
-	const { attachments, client, session, clanId, channelId } = payload;
+	const { attachments, client, session } = payload;
 	if (!attachments || attachments?.length === 0) {
 		return [];
 	}
@@ -718,7 +746,7 @@ export async function getWebUploadedAttachments(payload: {
 				createdFile.height = attachment.height || 0;
 				createdFile.thumbnail = attachment.thumbnail;
 
-				const result = await handleUploadFile(client, session, clanId, channelId, createdFile.name, createdFile, index);
+				const result = await handleUploadFile(client, session, createdFile.name, createdFile, index);
 
 				fileUploadForeman.releaseWorker();
 
@@ -751,10 +779,8 @@ export async function getMobileUploadedAttachments(payload: {
 	attachments: ApiMessageAttachment[];
 	client: Client;
 	session: Session;
-	clanId: string;
-	channelId: string;
 }): Promise<ApiMessageAttachment[]> {
-	const { attachments, client, session, clanId, channelId } = payload;
+	const { attachments, client, session } = payload;
 	if (!attachments || attachments?.length === 0) {
 		return [];
 	}
@@ -773,7 +799,7 @@ export async function getMobileUploadedAttachments(payload: {
 				width: att?.width,
 				fileData
 			};
-			return await handleUploadFileMobile(client, session, clanId, channelId, att?.filename || '', formattedFile);
+			return await handleUploadFileMobile(client, session, att?.filename || '', formattedFile);
 		});
 		return await Promise.all(uploadPromises);
 	}
@@ -886,7 +912,7 @@ type ImgproxyOptions = {
 
 export const createImgproxyUrl = (sourceImageUrl: string, options: ImgproxyOptions = { width: 100, height: 100, resizeType: 'fit' }) => {
 	if (!sourceImageUrl) return '';
-	if (!sourceImageUrl.startsWith('https://cdn.mezon')) {
+	if (!sourceImageUrl?.startsWith('https://cdn.mezon')) {
 		return sourceImageUrl;
 	}
 	const { width, height, resizeType } = options;
@@ -1114,20 +1140,25 @@ export const getAttachmentDataForWindow = (
 ) => {
 	return imageList.map((image) => {
 		const uploader = currentChatUsersEntities?.[image.uploader as string];
+		const isVideo = image?.isVideo || image?.filetype?.startsWith('video') || image.filetype?.includes('mp4') || image?.filetype?.includes('mov');
+
 		return {
 			...image,
 			uploaderData: {
 				avatar: (uploader?.clan_avatar ||
 					uploader?.user?.avatar_url ||
-					window.location.origin + '/assets/images/anonymous-avatar.png') as string,
+					`${window.location.origin}/assets/images/anonymous-avatar.png`) as string,
 				name: uploader?.clan_nick || uploader?.user?.display_name || uploader?.user?.username || 'Anonymous'
 			},
-			url: createImgproxyUrl(image.url || '', {
-				width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
-				height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
-				resizeType: 'fit'
-			}),
-			realUrl: image.url || ''
+			url: isVideo
+				? image.url || ''
+				: createImgproxyUrl(image.url || '', {
+						width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
+						height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
+						resizeType: 'fit'
+					}),
+			realUrl: image.url || '',
+			isVideo
 		};
 	});
 };
@@ -1186,6 +1217,19 @@ export function getYouTubeEmbedSize(url: string, isSearchMessage?: boolean) {
 		return { width: `${400 * 0.65}px`, height: `${225 * 0.65}px` };
 	}
 	return { width: '400px', height: '225px' };
+}
+
+export function isTikTokLink(url: string): boolean {
+	return /(?:tiktok\.com\/@[^/]+\/video\/\d+|vm\.tiktok\.com\/[a-zA-Z0-9]+|tiktok\.com\/t\/[a-zA-Z0-9]+)/.test(url);
+}
+
+export function getTikTokEmbedUrl(url: string): string {
+	const match = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+	return match ? `https://www.tiktok.com/player/v1/${match[1]}` : '';
+}
+
+export function getTikTokEmbedSize() {
+	return { width: '253px', height: '450px' };
 }
 
 export const formatMoney = (number: number) => {
@@ -1274,3 +1318,80 @@ export const getIdSaleItemFromSource = (src: string) => {
 	const idFromSource = fileName.split('.').slice(0, -1).join('.') || '';
 	return idFromSource;
 };
+
+export const saveParseUserStatus = (user_status: string): { status: string; user_status: EUserStatus } => {
+	return {
+		status: user_status,
+		user_status: EUserStatus.ONLINE
+	};
+};
+
+export const getParentChannelIdIfHas = (channel: IChannel) => {
+	const channelId = channel?.parent_id && channel?.parent_id !== '0' ? channel?.parent_id : channel?.channel_id;
+	return channelId;
+};
+
+export const searchNormalizeText = (string?: string, search?: string) => {
+	if (!string || !search) {
+		return '';
+	}
+	return string.toLocaleLowerCase()?.includes(search?.toLocaleLowerCase());
+};
+
+export function formatBalanceToString(balance?: string, decimals = 6): string {
+	if (!balance) return '0';
+	try {
+		const big = BigInt(balance);
+		let divisor = BigInt(1);
+		for (let i = 0; i < decimals; i++) {
+			divisor *= BigInt(10);
+		}
+
+		const integerPart = big / divisor;
+		const fractionalPart = big % divisor;
+
+		if (integerPart !== BigInt(0)) {
+			return formatNumber(Number(integerPart), CURRENCY.CODE);
+		}
+
+		if (fractionalPart === BigInt(0)) {
+			return integerPart.toString();
+		}
+
+		// Pad fractional part to ensure correct number of decimal places
+		const fractionalStr = fractionalPart.toString().padStart(decimals, '0');
+
+		// Remove trailing zeros
+		const fractionalTrimmed = fractionalStr.replace(/0+$/, '');
+
+		// If all fractional digits were zeros, return just the integer part
+		if (fractionalTrimmed === '') {
+			return integerPart.toString();
+		}
+
+		return `${integerPart.toString()},${fractionalTrimmed}`;
+	} catch {
+		throw new Error(`Invalid balance string: ${balance}`);
+	}
+}
+
+export function compareBigInt(a: string, b: string): -1 | 0 | 1 {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+
+	if (bigA < bigB) return -1;
+	if (bigA > bigB) return 1;
+	return 0;
+}
+
+export function addBigInt(a: string, b: string): string {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+	return (bigA + bigB).toString();
+}
+
+export function subBigInt(a: string, b: string): string {
+	const bigA = BigInt(a);
+	const bigB = BigInt(b);
+	return (bigA - bigB).toString();
+}

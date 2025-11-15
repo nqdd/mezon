@@ -2,7 +2,7 @@ import {
 	messagesActions,
 	selectAllAccount,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -26,17 +26,18 @@ export const ChatBoxTyping = memo(
 		const dispatch = useAppDispatch();
 		const currentClanId = useSelector(selectCurrentClanId);
 		const userProfile = useSelector(selectAllAccount);
-		const userClanProfile = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id));
+		const userClanProfile = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id));
 
 		const handleTyping = async () => {
-			if (anonymousMode || !!topicChannelId) return;
+			if (anonymousMode) return;
 			dispatch(
 				messagesActions.sendTypingUser({
 					clanId: currentClanId || '',
 					channelId,
 					mode,
 					isPublic,
-					username: userClanProfile?.clan_nick || userProfile?.user?.display_name || userProfile?.user?.username
+					username: userClanProfile?.clan_nick || userProfile?.user?.display_name || userProfile?.user?.username,
+					topicId: topicChannelId || ''
 				})
 			);
 		};
@@ -46,8 +47,8 @@ export const ChatBoxTyping = memo(
 				dispatch(
 					messagesActions.sendTypingUser({
 						clanId: '0',
-						channelId: channelId,
-						mode: mode,
+						channelId,
+						mode,
 						isPublic: false,
 						username: userProfile?.user?.display_name || userProfile?.user?.username
 					})

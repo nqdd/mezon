@@ -1,20 +1,23 @@
 import { usePermissionChecker, useRoles } from '@mezon/core';
-import { CheckIcon } from '@mezon/mobile-components';
-import { Colors, Text, size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { appActions, selectAllPermissionsDefault, selectAllRolesClan, useAppDispatch } from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Keyboard, Platform, Pressable, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { FlatList, Platform, Pressable, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../componentUI/MezonInput';
 import MezonSwitch from '../../../componentUI/MezonSwitch';
 import { SeparatorWithLine } from '../../../components/Common';
+import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { isEqualStringArrayUnordered, normalizeString } from '../../../utils/helpers';
+import { style } from './styles';
 
 type SetupPermissionsScreen = typeof APP_SCREEN.MENU_CLAN.SETUP_PERMISSIONS;
 export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<SetupPermissionsScreen>) => {
@@ -26,6 +29,7 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 	const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 	const [searchPermissionText, setSearchPermissionText] = useState('');
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const { updateRole } = useRoles();
 	const [hasAdminPermission, hasManageClanPermission, isClanOwner] = usePermissionChecker([
 		EPermission.administrator,
@@ -78,103 +82,62 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 	const handleEditPermissions = useCallback(async () => {
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const removePermissionList = permissionList?.filter((permission) => !selectedPermissions.includes(permission?.id)).map((it) => it?.id);
+			const listAddPermissions = selectedPermissions?.filter((permission) => !originSelectedPermissions?.includes(permission));
+			const removePermissionList = originSelectedPermissions?.filter((id) => !selectedPermissions?.includes(id));
 			const response = await updateRole(
 				clanRole?.clan_id,
 				clanRole?.id,
 				clanRole?.title,
 				clanRole?.color || '',
 				[],
-				selectedPermissions,
+				listAddPermissions,
 				[],
 				removePermissionList
 			);
-			if (response) {
+			if ((response as any)?.ok !== undefined && (response as any)?.ok === false) {
+				throw new Error('failed');
+			} else {
 				Toast.show({
 					type: 'success',
 					props: {
 						text2: t('roleDetail.changesSaved'),
-						leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />
+						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
 					}
 				});
 				navigation.goBack();
-			} else {
-				throw new Error('failed');
 			}
 		} catch (error) {
 			console.error(error);
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 				}
 			});
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [clanRole, navigation, permissionList, selectedPermissions, t, updateRole]);
-
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerTitle: !isEditRoleMode
-				? t('setupPermission.title')
-				: () => {
-						return (
-							<View>
-								<Text center bold h3 color={themeValue?.white}>
-									{clanRole?.title}
-								</Text>
-								<Text center color={themeValue?.text}>
-									{t('roleDetail.role')}
-								</Text>
-							</View>
-						);
-					},
-			headerLeft: () => {
-				if (isEditRoleMode) {
-					return (
-						<Pressable style={{ padding: 20 }} onPress={() => navigation.goBack()}>
-							<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={20} width={20} color={themeValue.textStrong} />
-						</Pressable>
-					);
-				}
-				return (
-					<Pressable style={{ padding: 20 }} onPress={() => navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING)}>
-						<MezonIconCDN icon={IconCDN.closeSmallBold} height={20} width={20} color={themeValue.textStrong} />
-					</Pressable>
-				);
-			},
-			headerRight: () => {
-				if (!isEditRoleMode || (isEditRoleMode && isNotChange)) return null;
-				return (
-					<TouchableOpacity onPress={() => handleEditPermissions()}>
-						<View
-							style={{
-								marginRight: size.s_14
-							}}
-						>
-							<Text h4 color={Colors.textViolet}>
-								{t('roleDetail.save')}
-							</Text>
-						</View>
-					</TouchableOpacity>
-				);
-			}
-		});
 	}, [
+		clanRole?.clan_id,
+		clanRole?.color,
+		clanRole?.id,
 		clanRole?.title,
-		isEditRoleMode,
-		isNotChange,
+		dispatch,
 		navigation,
-		t,
-		themeValue?.text,
-		themeValue.textStrong,
-		themeValue?.white,
+		originSelectedPermissions,
 		selectedPermissions,
-		handleEditPermissions
+		t,
+		updateRole
 	]);
+
+	const handleClose = useCallback(() => {
+		if (isEditRoleMode) {
+			navigation.goBack();
+		} else {
+			navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_SETTING);
+		}
+	}, [isEditRoleMode, navigation]);
 
 	const onSelectPermissionChange = useCallback((value: boolean, permissionId: string) => {
 		setSelectedPermissions((prevSelected) => {
@@ -192,19 +155,12 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 		const response = await updateRole(newRole?.clan_id, newRole?.id, newRole?.title, newRole?.color || '', [], selectedPermissions, [], []);
 		if (response) {
 			navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_ROLE_MEMBERS);
-			// Toast.show({
-			// 	type: 'success',
-			// 	props: {
-			// 		text2: t('setupPermission.setupPermissionSuccessfully'),
-			// 		leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />,
-			// 	},
-			// });
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 				}
 			});
 		}
@@ -219,20 +175,66 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 		}
 	}, [clanRole]);
 
+	const getPermissionTitle = useCallback(
+		(slug: string) => {
+			const titleKey = `permissionTitles.${slug}`;
+			const title = t(titleKey);
+			return title !== titleKey ? title : '';
+		},
+		[t]
+	);
+
+	const getPermissionDescription = useCallback(
+		(slug: string) => {
+			const descriptionKey = `permissionDescriptions.${slug}`;
+			const description = t(descriptionKey);
+			return description !== descriptionKey ? description : t('permissionDescriptions.notAvailable');
+		},
+		[t]
+	);
+
 	const filteredPermissionList = useMemo(() => {
 		return permissionList.filter((it) => normalizeString(it?.title).includes(normalizeString(searchPermissionText)));
 	}, [searchPermissionText, permissionList]);
 
 	return (
-		<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-			<View style={{ backgroundColor: themeValue.primary, flex: 1, paddingHorizontal: size.s_14, justifyContent: 'space-between' }}>
-				<View style={{ flex: 1 }}>
-					<View
-						style={{ paddingVertical: size.s_10, borderBottomWidth: 1, borderBottomColor: themeValue.borderDim, marginBottom: size.s_20 }}
-					>
-						<Text color={themeValue.white} h2 center bold>
-							{t('setupPermission.setupPermissionTitle')}
+		<KeyboardAvoidingView
+			behavior={'padding'}
+			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
+			style={styles.flex}
+		>
+			<StatusBarHeight />
+			<View style={styles.header}>
+				<Pressable style={styles.backButton} onPress={handleClose}>
+					<MezonIconCDN
+						icon={isEditRoleMode ? IconCDN.arrowLargeLeftIcon : IconCDN.closeSmallBold}
+						height={size.s_20}
+						width={size.s_20}
+						color={themeValue.textStrong}
+					/>
+				</Pressable>
+				{!isEditRoleMode ? (
+					<Text style={styles.title}>{t('setupPermission.title')}</Text>
+				) : (
+					<View style={styles.roleName}>
+						<Text style={styles.name} numberOfLines={1}>
+							{clanRole?.title}
 						</Text>
+						<Text style={styles.emptyText}>{t('roleDetail.role')}</Text>
+					</View>
+				)}
+				{!isEditRoleMode || (isEditRoleMode && isNotChange) ? null : (
+					<TouchableOpacity onPress={handleEditPermissions}>
+						<View style={styles.saveButton}>
+							<Text style={styles.saveText}>{t('roleDetail.save')}</Text>
+						</View>
+					</TouchableOpacity>
+				)}
+			</View>
+			<View style={styles.wrapper}>
+				<View style={styles.flex}>
+					<View style={styles.permissionTitle}>
+						<Text style={styles.text}>{t('setupPermission.setupPermissionTitle')}</Text>
 					</View>
 
 					<MezonInput
@@ -241,8 +243,8 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 						placeHolder={t('setupPermission.searchPermission')}
 					/>
 
-					<View style={{ marginVertical: size.s_10, flex: 1 }}>
-						<View style={{ borderRadius: size.s_10, overflow: 'hidden' }}>
+					<View style={styles.permissionPanel}>
+						<View style={styles.permissionListWrapper}>
 							<FlatList
 								data={filteredPermissionList}
 								keyExtractor={(item) => item.id}
@@ -256,25 +258,25 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 											onPress={() => onSelectPermissionChange(!selectedPermissions?.includes(item?.id), item?.id)}
 											disabled={item?.disabled}
 										>
-											<View
-												style={{
-													flexDirection: 'row',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-													backgroundColor: themeValue.secondary,
-													padding: size.s_12,
-													gap: size.s_10
-												}}
-											>
-												<View style={{ flex: 1 }}>
-													<Text color={item?.disabled ? themeValue.textDisabled : themeValue.white}>{item.title}</Text>
+											<View style={styles.permissionItem}>
+												<View style={styles.flex}>
+													<Text
+														style={{
+															color: item?.disabled ? themeValue.textDisabled : themeValue.white
+														}}
+													>
+														{item?.slug ? getPermissionTitle(item.slug) || item.title : item.title}
+													</Text>
+													<Text style={styles.permissionDescription}>{getPermissionDescription(item?.slug)}</Text>
 												</View>
 
-												<MezonSwitch
-													value={selectedPermissions?.includes(item?.id)}
-													onValueChange={(isSelect) => onSelectPermissionChange(isSelect, item?.id)}
-													disabled={item?.disabled}
-												/>
+												<View style={styles.switchContainer}>
+													<MezonSwitch
+														value={selectedPermissions?.includes(item?.id)}
+														onValueChange={(isSelect) => onSelectPermissionChange(isSelect, item?.id)}
+														disabled={item?.disabled}
+													/>
+												</View>
 											</View>
 										</TouchableOpacity>
 									);
@@ -285,25 +287,21 @@ export const SetupPermissions = ({ navigation, route }: MenuClanScreenProps<Setu
 				</View>
 
 				{!isEditRoleMode ? (
-					<View style={{ marginBottom: size.s_16, gap: size.s_10 }}>
+					<View style={styles.bottomButton}>
 						<TouchableOpacity onPress={() => handleNextStep()}>
-							<View style={{ backgroundColor: Colors.bgViolet, paddingVertical: size.s_14, borderRadius: size.s_8 }}>
-								<Text center color={Colors.white}>
-									{t('setupPermission.next')}
-								</Text>
+							<View style={styles.finishButton}>
+								<Text style={styles.buttonText}>{t('setupPermission.next')}</Text>
 							</View>
 						</TouchableOpacity>
 
 						<TouchableOpacity onPress={() => navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_ROLE_MEMBERS)}>
-							<View style={{ paddingVertical: size.s_14, borderRadius: size.s_8 }}>
-								<Text center color={themeValue.textStrong}>
-									{t('skipStep')}
-								</Text>
+							<View style={styles.cancelButton}>
+								<Text style={styles.buttonText}>{t('skipStep')}</Text>
 							</View>
 						</TouchableOpacity>
 					</View>
 				) : null}
 			</View>
-		</TouchableWithoutFeedback>
+		</KeyboardAvoidingView>
 	);
 };

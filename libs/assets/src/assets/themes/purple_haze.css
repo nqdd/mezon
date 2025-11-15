@@ -100,7 +100,7 @@
 		);
 	/* màu text bên channel và user khi active */
 	--text-secondary: #f7ffff;
-	--bg-item-hover: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+	--bg-item-hover: hsl(240 calc(1 * 4%) 60.784% /0.12156862745098039);
 	--bg-item-hover-chat: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
 	/* màu click vào member channel */
 	--bg-active-member-channel: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
@@ -165,4 +165,7 @@
 	--button-theme-primary: #5265ec;
 	/* border-avatar */
 	--border-color-avatar: #382e52;
+	/* border left highlight */
+	--border-left-highlight: #a569bd;
+	--text-separator-theme-primary: #bababa32;
 }

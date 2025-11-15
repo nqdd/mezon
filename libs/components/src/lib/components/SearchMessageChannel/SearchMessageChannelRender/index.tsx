@@ -5,13 +5,13 @@ import {
 	searchMessagesActions,
 	selectAllAccount,
 	selectChannelById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectTheme,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import { Pagination } from '@mezon/ui';
 import { convertSearchMessage, IMessageWithUser, SIZE_PAGE_SEARCH, UsersClanEntity } from '@mezon/utils';
-import { Pagination } from 'flowbite-react';
 import { ChannelMessage, ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -37,7 +37,7 @@ type GroupedMessages = {
 const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm, isLoading }: searchMessagesProps) => {
 	const dispatch = useAppDispatch();
 	const userId = useSelector(selectAllAccount)?.user?.id;
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, userId as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
 	const messageContainerRef = useRef<HTMLDivElement>(null);
 	const onPageChange = (page: number) => {
 		dispatch(searchMessagesActions.setCurrentPage({ channelId, page }));
@@ -126,28 +126,9 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 							{totalResult > 25 && (
 								<div className="mt-4 h-10">
 									<Pagination
-										className="flex justify-center"
-										currentPage={currentPage}
 										totalPages={Math.floor(totalResult / SIZE_PAGE_SEARCH)}
+										currentPage={currentPage}
 										onPageChange={onPageChange}
-										previousLabel="Back"
-										nextLabel="Next"
-										showIcons
-										theme={{
-											pages: {
-												previous: {
-													base: 'h-7 ml-0 mr-1 flex items-center justify-center rounded font-semibold border border-none px-3 py-2 text-theme-primary bg-[var(--bg-count-page)] hover:bg-[var(--bg-count-page-hover)] active:bg-[var(--bg-count-page-active)] hover:text-[var(--text-count-page-hover)] active:text-[var(--text-count-page-active)]',
-													icon: 'h-5 w-5'
-												},
-												next: {
-													base: 'h-7 ml-1 flex items-center justify-center rounded font-semibold border border-none px-3 py-2 text-theme-primary bg-[var(--bg-count-page)] hover:bg-[var(--bg-count-page-hover)] active:bg-[var(--bg-count-page-active)] hover:text-[var(--text-count-page-hover)] active:text-[var(--text-count-page-active)]',
-													icon: 'h-5 w-5'
-												},
-												selector: {
-													base: 'w-7 h-7 mx-1 flex items-center justify-center rounded-full font-semibold text-theme-primary bg-[var(--bg-count-page)] hover:bg-[var(--bg-count-page-hover)] active:bg-[var(--bg-count-page-active)] hover:text-[var(--text-count-page-hover)] active:text-[var(--text-count-page-active)]'
-												}
-											}
-										}}
 									/>
 								</div>
 							)}

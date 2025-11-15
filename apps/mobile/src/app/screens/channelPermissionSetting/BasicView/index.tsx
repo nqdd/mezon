@@ -1,11 +1,13 @@
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuth, useCheckOwnerForUser } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { Colors, Text, size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
+	IUpdateChannelRequest,
 	appActions,
 	channelsActions,
 	fetchUserChannels,
+	listChannelRenderAction,
 	rolesClanActions,
 	selectAllUserChannel,
 	selectAllUserClans,
@@ -14,9 +16,10 @@ import {
 } from '@mezon/store-mobile';
 import { isPublicChannel } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
+import { ApiChangeChannelPrivateRequest } from 'mezon-js/api.gen';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
@@ -27,9 +30,11 @@ import { MemberItem } from '../components/MemberItem';
 import { RoleItem } from '../components/RoleItem';
 import { EOverridePermissionType, ERequestStatus } from '../types/channelPermission.enum';
 import { IBasicViewProps } from '../types/channelPermission.type';
+import { style } from './styles';
 
 export const BasicView = memo(({ channel }: IBasicViewProps) => {
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const { userId } = useAuth();
 	const [checkClanOwner] = useCheckOwnerForUser();
 	const dispatch = useAppDispatch();
@@ -44,7 +49,7 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 	useEffect(() => {
 		dispatch(rolesClanActions.fetchRolesClan({ clanId: channel?.clan_id }));
 		dispatch(fetchUserChannels({ channelId: channel?.channel_id }));
-	}, [channel?.channel_id, channel?.clan_id]);
+	}, [channel?.channel_id, channel?.clan_id, dispatch]);
 
 	const clanOwner = useMemo(() => {
 		return allClanMembers?.find((member) => checkClanOwner(member?.user?.id));
@@ -59,7 +64,10 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 
 	const availableRoleList = useMemo(() => {
 		if (channel?.channel_private) {
-			return listOfChannelRole?.filter((role) => typeof role?.role_channel_active === 'number' && role?.role_channel_active === 1);
+			return listOfChannelRole?.filter(
+				(role) =>
+					typeof role?.role_channel_active === 'number' && role?.role_channel_active === 1 && role?.slug !== `everyone-${role?.clan_id}`
+			);
 		}
 		return [];
 	}, [listOfChannelRole, channel?.channel_private]);
@@ -83,19 +91,40 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 	};
 
 	const updateChannel = useCallback(
-		async (privateChannel: boolean) => {
+		async (isPublic: boolean) => {
 			try {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				dispatch(appActions.setLoadingMainMobile(true));
 
-				const response = await dispatch(
-					channelsActions.updateChannelPrivate({
-						channel_id: channel.id,
-						channel_private: privateChannel ? 1 : 0,
-						user_ids: [userId],
-						role_ids: []
+				const currentChannelPrivate = isPublic ? 1 : 0;
+				const updateUpdateChannelRequest: ApiChangeChannelPrivateRequest = {
+					clan_id: channel?.clan_id,
+					channel_id: channel?.channel_id || '',
+					channel_private: currentChannelPrivate,
+					user_ids: [userId],
+					role_ids: []
+				};
+
+				const response = await dispatch(channelsActions.updateChannelPrivate(updateUpdateChannelRequest));
+
+				dispatch(
+					channelsActions.updateChannelPrivateState({
+						clanId: channel?.clan_id || '',
+						channelId: channel?.channel_id || '',
+						channelPrivate: Number(!isPublic)
 					})
 				);
+				dispatch(
+					listChannelRenderAction.updateChannelInListRender({
+						channelId: channel?.channel_id || '',
+						clanId: channel?.clan_id || '',
+						dataUpdate: {
+							...updateUpdateChannelRequest,
+							channel_private: Number(!isPublic)
+						} as IUpdateChannelRequest
+					})
+				);
+
 				const isError = ERequestStatus.Rejected === response?.meta?.requestStatus;
 				if (isError) {
 					throw new Error();
@@ -104,7 +133,7 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 						type: 'success',
 						props: {
 							text2: t('channelPermission.toast.success'),
-							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={Colors.green} />
+							leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkLargeIcon} color={baseColor.green} />
 						}
 					});
 				}
@@ -126,10 +155,8 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 			const { type, headerTitle, isShowHeader } = item;
 			if (!type && headerTitle && isShowHeader) {
 				return (
-					<View style={{ paddingTop: size.s_12, paddingLeft: size.s_12 }}>
-						<Text color={themeValue.white} h4>
-							{headerTitle}:
-						</Text>
+					<View style={styles.headerItemContainer}>
+						<Text style={styles.headerItemText}>{headerTitle}:</Text>
 					</View>
 				);
 			}
@@ -143,7 +170,7 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 					return <View />;
 			}
 		},
-		[channel, themeValue]
+		[channel, styles]
 	);
 
 	const handlePressChangeChannelPrivate = useCallback(() => {
@@ -151,21 +178,11 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 	}, [isChannelPublic, onPrivateChannelChange]);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.container}>
 			<TouchableOpacity onPress={handlePressChangeChannelPrivate}>
-				<View
-					style={{
-						flexDirection: 'row',
-						justifyContent: 'space-between',
-						padding: size.s_14,
-						alignItems: 'center',
-						borderRadius: size.s_14,
-						backgroundColor: themeValue.secondary,
-						marginBottom: size.s_16
-					}}
-				>
-					<View style={{ alignItems: 'center' }}>
-						<Text color={themeValue.text}>{t('channelPermission.privateChannel')}</Text>
+				<View style={styles.privateChannelContainer}>
+					<View style={styles.privateChannelTextContainer}>
+						<Text style={styles.privateChannelText}>{t('channelPermission.privateChannel')}</Text>
 					</View>
 					<MezonSwitch value={!isChannelPublic} onValueChange={onPrivateChannelChange} />
 				</View>
@@ -173,23 +190,13 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 
 			{Boolean(channel?.channel_private) && (
 				<View>
-					<Text color={themeValue.textDisabled}>{t('channelPermission.basicViewDescription')}</Text>
+					<Text style={styles.descriptionText}>{t('channelPermission.basicViewDescription')}</Text>
 
 					<TouchableOpacity onPress={() => openBottomSheet()}>
-						<View
-							style={{
-								flexDirection: 'row',
-								justifyContent: 'space-between',
-								padding: size.s_14,
-								alignItems: 'center',
-								borderRadius: size.s_14,
-								backgroundColor: themeValue.secondary,
-								marginVertical: size.s_16
-							}}
-						>
-							<View style={{ flexDirection: 'row', gap: size.s_14, alignItems: 'center' }}>
+						<View style={styles.addMemberContainer}>
+							<View style={styles.addMemberLeftContent}>
 								<MezonIconCDN icon={IconCDN.circlePlusPrimaryIcon} color={themeValue.text} />
-								<Text color={themeValue.text}>{t('channelPermission.addMemberAndRoles')}</Text>
+								<Text style={styles.addMemberText}>{t('channelPermission.addMemberAndRoles')}</Text>
 							</View>
 							<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.text} />
 						</View>
@@ -197,9 +204,9 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 				</View>
 			)}
 
-			<View style={{ gap: size.s_10, marginBottom: size.s_10, flex: 1 }}>
-				<Text color={themeValue.textDisabled}>{t('channelPermission.whoCanAccess')}</Text>
-				<View style={{ backgroundColor: themeValue.secondary, borderRadius: size.s_14, flex: 1 }}>
+			<View style={styles.whoCanAccessContainer}>
+				<Text style={styles.descriptionText}>{t('channelPermission.whoCanAccess')}</Text>
+				<View style={styles.whoCanAccessListContainer}>
 					<FlashList
 						data={combineWhoCanAccessList}
 						keyboardShouldPersistTaps={'handled'}

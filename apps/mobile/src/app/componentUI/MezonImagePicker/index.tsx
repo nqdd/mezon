@@ -1,12 +1,13 @@
 import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectCurrentChannel } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { DeviceEventEmitter, DimensionValue, StyleProp, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { openPicker } from 'react-native-image-crop-picker';
+import { useTranslation } from 'react-i18next';
+import type { DimensionValue, StyleProp, ViewStyle } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
 import MezonClanAvatar from '../MezonClanAvatar';
 import { style as _style } from './styles';
 
@@ -18,6 +19,7 @@ export interface IFile {
 	fileData: any;
 	height?: number;
 	width?: number;
+	thumbnailPreview?: string;
 }
 
 interface IMezonImagePickerProps {
@@ -33,17 +35,14 @@ interface IMezonImagePickerProps {
 	alt?: string;
 	style?: StyleProp<ViewStyle>;
 	defaultColor?: string;
-	penPosition?: {
-		top?: number;
-		left?: number;
-		right?: number;
-		bottom?: number;
-	};
 	noDefaultText?: boolean;
 	disabled?: boolean;
 	onPressAvatar?: () => void;
 	imageWidth?: number;
 	imageHeight?: number;
+	autoCloseBottomSheet?: boolean;
+	isOauth?: boolean;
+	imageSizeLimit?: number;
 }
 
 export interface IMezonImagePickerHandler {
@@ -90,26 +89,23 @@ export default memo(
 			alt,
 			style,
 			defaultColor,
-			penPosition = {
-				bottom: undefined,
-				top: -7,
-				left: undefined,
-				right: -7
-			},
 			noDefaultText,
 			disabled,
 			onPressAvatar,
 			imageHeight,
-			imageWidth
+			imageWidth,
+			autoCloseBottomSheet = true,
+			isOauth = false,
+			imageSizeLimit
 		}: IMezonImagePickerProps,
 		ref
 	) {
 		const { themeValue } = useTheme();
 		const styles = _style(themeValue);
 		const [image, setImage] = useState<string>(defaultValue);
-		const currentChannel = useSelector(selectCurrentChannel);
 		const { sessionRef, clientRef } = useMezon();
 		const timerRef = useRef<any>(null);
+		const { t } = useTranslation(['profile']);
 
 		useEffect(() => {
 			setImage(defaultValue);
@@ -121,48 +117,81 @@ export default memo(
 			};
 		}, []);
 
-		async function handleUploadImage(file: IFile) {
+		async function handleUploadImage(file: IFile, isOauth = false) {
 			const session = sessionRef.current;
 			const client = clientRef.current;
 
 			if (!file || !client || !session) {
 				throw new Error('Client is not initialized');
 			}
-			const res = await handleUploadFileMobile(client, session, currentChannel?.clan_id, currentChannel?.channel_id, file.name, file);
+			const res = await handleUploadFileMobile(client, session, file.name, file, isOauth);
 			return res.url;
 		}
 
 		async function handleImage() {
 			try {
-				const croppedFile = await openPicker({
+				// First, let user select an image without cropping to check if it's a GIF
+				const selectedFile = await openPicker({
 					mediaType: 'photo',
 					includeBase64: true,
-					cropping: true,
-					compressImageQuality: QUALITY_IMAGE_UPLOAD,
-					...(typeof width === 'number' && { width: imageWidth || width * SCALE }),
-					...(typeof height === 'number' && { height: imageWidth || height * SCALE })
+					cropping: false
 				});
-				setImage(croppedFile.path);
-				onChange && onChange(croppedFile);
+
+				if (!!imageSizeLimit && selectedFile.size > imageSizeLimit) {
+					const maxSizeMB = Math.round(imageSizeLimit / 1024 / 1024);
+					Toast.show({
+						type: 'error',
+						text1: t('imageSizeLimit', { size: maxSizeMB })
+					});
+					return;
+				}
+
+				const isGif = selectedFile.mime === 'image/gif';
+
+				let finalFile;
+				if (isGif) {
+					// For GIFs, don't crop to preserve animation
+					finalFile = selectedFile;
+				} else {
+					// For other images, apply cropping and compression
+					finalFile = await openCropper({
+						path: selectedFile.path,
+						mediaType: 'photo',
+						includeBase64: true,
+						cropping: true,
+						compressImageQuality: QUALITY_IMAGE_UPLOAD,
+						...(typeof width === 'number' && { width: imageWidth || width * SCALE }),
+						...(typeof height === 'number' && { height: imageWidth || height * SCALE })
+					});
+				}
+
+				setImage(finalFile.path);
+				onChange && onChange(finalFile);
 				if (autoUpload) {
 					const uploadImagePayload = {
-						fileData: croppedFile?.data,
-						name: croppedFile?.filename || croppedFile?.path?.split?.('/')?.pop?.().trim() || 'image',
-						uri: croppedFile.path,
-						size: croppedFile.size,
-						type: croppedFile.mime,
-						height: croppedFile.height,
-						width: croppedFile.width
+						fileData: finalFile?.data,
+						name: finalFile?.filename || finalFile?.path?.split?.('/')?.pop?.().trim() || 'image',
+						uri: finalFile.path,
+						size: finalFile.size,
+						type: finalFile.mime,
+						height: finalFile.height,
+						width: finalFile.width
 					} as IFile;
-					const url = await handleUploadImage(uploadImagePayload);
+					const url = await handleUploadImage(uploadImagePayload, isOauth);
 					if (url) {
 						onLoad && onLoad(url);
 					}
 				}
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			} catch (error) {
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-				console.error('Error in handleImage:', error);
+				autoCloseBottomSheet && DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+				console.error('Error in handleImage:', error?.message || error);
+				if (error?.message && error?.code !== 'E_PICKER_CANCELLED') {
+					Toast.show({
+						type: 'error',
+						text1: error?.message
+					});
+				}
 			}
 		}
 
@@ -193,7 +222,7 @@ export default memo(
 								imageWidth={imageWidth}
 							/>
 						) : (
-							<Text style={styles.textPlaceholder}>Choose an image</Text>
+							<Text style={styles.textPlaceholder}>{t('chooseImage')}</Text>
 						)}
 					</View>
 				</View>

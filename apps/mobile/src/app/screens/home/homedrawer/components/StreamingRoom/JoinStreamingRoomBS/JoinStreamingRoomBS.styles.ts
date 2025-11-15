@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -17,7 +18,60 @@ export const style = (colors: Attributes) =>
 			height: size.s_50,
 			width: size.s_200,
 			justifyContent: 'center',
-			alignItems: 'center',
+			alignItems: 'center'
 		},
-		textBtnJoinVoice: { fontSize: size.s_16, fontWeight: '600', color: baseColor.black }
+		textBtnJoinVoice: { fontSize: size.s_16, fontWeight: '600', color: 'white' },
+		btnInviteChannel: {
+			backgroundColor: colors.tertiary,
+			padding: size.s_8,
+			borderRadius: size.s_22
+		},
+		logoIconContainer: {
+			width: size.s_100,
+			height: size.s_100,
+			borderRadius: size.s_50,
+			justifyContent: 'center',
+			alignItems: 'center',
+			backgroundColor: colors.tertiary
+		},
+		controlContainerOuter: {
+			borderRadius: size.s_40,
+			marginTop: size.s_20,
+			marginBottom: size.s_10
+		},
+		controlContainerInner: {
+			gap: size.s_20,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingBottom: size.s_16
+		},
+		controlContainer: {
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'relative',
+			width: size.s_50,
+			height: size.s_50,
+			backgroundColor: 'transparent',
+			borderRadius: size.s_30
+		},
+		btnJoinVoiceContainer: {
+			flexDirection: 'column',
+			flex: 1,
+			paddingHorizontal: size.s_16,
+			alignItems: 'center'
+		},
+		outerContainer: {
+			width: '100%',
+			paddingVertical: size.s_10,
+			paddingHorizontal: size.s_10
+		},
+		topButtonsRow: {
+			flexDirection: 'row',
+			justifyContent: 'space-between'
+		},
+		centerContent: {
+			alignItems: 'center',
+			gap: size.s_6
+		}
 	});

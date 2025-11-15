@@ -1,8 +1,9 @@
 import { useAppParams } from '@mezon/core';
-import { PinMessageEntity, selectClanView, selectCurrentChannelId, selectPinMessageByChannelId, useAppSelector } from '@mezon/store';
+import type { PinMessageEntity } from '@mezon/store';
+import { selectClanView, selectCurrentChannelId, selectPinMessageByChannelId, useAppSelector } from '@mezon/store';
 import { safeJSONParse } from 'mezon-js';
 import { useSelector } from 'react-redux';
-import { UnpinMessageObject } from '.';
+import type { UnpinMessageObject } from '.';
 import EmptyPinMess from './EmptyPinMess';
 import ItemPinMessage from './ItemPinMessage';
 

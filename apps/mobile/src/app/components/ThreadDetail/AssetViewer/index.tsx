@@ -42,19 +42,16 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 		if (currentChannel?.type !== ChannelType.CHANNEL_TYPE_DM && currentChannel?.type !== ChannelType.CHANNEL_TYPE_GROUP) {
 			return TabList;
 		}
-		const resultArray = TabList.slice(0, -1);
-		return resultArray;
-	}, []);
+		return TabList.slice(0, -1);
+	}, [TabList, currentChannel?.type]);
 
 	const handelHeaderTabChange = useCallback(
 		(index: number) => {
 			setTabActive(index);
 			if (index === 0) {
-				dispatch(
-					channelMembersActions.fetchChannelMembers({ clanId: currentClanId, channelId: channelId, channelType: currentChannel?.type })
-				);
+				dispatch(channelMembersActions.fetchChannelMembers({ clanId: currentClanId, channelId, channelType: currentChannel?.type }));
 			}
-			if (index === 1 || index === 2) dispatch(attachmentActions.fetchChannelAttachments({ clanId: currentClanId, channelId: channelId }));
+			if (index === 1 || index === 2) dispatch(attachmentActions.fetchChannelAttachments({ clanId: currentClanId, channelId }));
 		},
 		[channelId, currentChannel?.type, currentClanId, dispatch]
 	);
@@ -70,9 +67,11 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 				) : tabActive === 4 ? (
 					<Canvas
 						channelId={
-							[ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type)
-								? currentChannel?.channel_id
-								: channelId
+							currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD && currentChannel?.parent_id
+								? currentChannel?.parent_id
+								: [ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type)
+									? currentChannel?.channel_id
+									: channelId
 						}
 						clanId={currentClanId}
 					/>
@@ -90,6 +89,9 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 							[ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type)
 								? currentChannel?.channel_id
 								: channelId
+						}
+						currentClanId={
+							[ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type) ? '0' : currentClanId
 						}
 					/>
 				)}

@@ -1,4 +1,3 @@
-import { useAuth } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
@@ -6,6 +5,7 @@ import {
 	generateMeetToken,
 	getStoreAsync,
 	handleParticipantVoiceState,
+	selectAllAccount,
 	selectIsPiPMode,
 	selectVoiceInfo,
 	selectVoiceJoined,
@@ -15,9 +15,13 @@ import {
 } from '@mezon/store-mobile';
 import { ParticipantMeetState, sleep } from '@mezon/utils';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, BackHandler, DeviceEventEmitter, Keyboard, PanResponder } from 'react-native';
+import { Animated, BackHandler, DeviceEventEmitter, Dimensions, Keyboard, PanResponder } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import ChannelVoice from '../ChannelVoice';
+
+const MINIMIZED_WIDTH = size.s_100 * 2;
+const MINIMIZED_HEIGHT = size.s_150;
 
 const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const serverUrl = process.env.NX_CHAT_APP_MEET_WS_URL || '';
@@ -31,7 +35,35 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 	const [isGroupCall, setIsGroupCall] = useState(false);
 	const [participantsCount, setParticipantsCount] = useState(0);
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
+	const layoutRef = useRef({ width: 0, height: 0 });
+
+	const checkOrientation = () => {
+		const { width, height } = Dimensions.get('window');
+		layoutRef.current = { width, height };
+	};
+
+	const resetPosition = () => {
+		if (!isFullScreen.current && !isPiPMode) {
+			pan.setValue({ x: 0, y: 0 });
+		}
+	};
+
+	useEffect(() => {
+		checkOrientation();
+
+		const subscription = Dimensions.addEventListener('change', (handler) => {
+			const screen = handler?.screen;
+			if (screen?.width && screen?.height) {
+				layoutRef.current = { width: screen?.width, height: screen?.height };
+			}
+			resetPosition();
+		});
+
+		return () => {
+			subscription && subscription.remove();
+		};
+	}, []);
 
 	const panResponder = useRef(
 		PanResponder.create({
@@ -51,7 +83,18 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 					if (Math.abs(gestureState?.dx) > 10 || Math.abs(gestureState?.dy) > 10) {
 						isDragging.current = true;
 					}
-					Animated.event([null, { dx: pan?.x, dy: pan?.y }], { useNativeDriver: false })(e, gestureState);
+
+					const offsetX = (pan?.x as any)?._offset || 0;
+					const offsetY = (pan?.y as any)?._offset || 0;
+
+					const dx = Math.max(-offsetX, Math.min(layoutRef.current.width - MINIMIZED_WIDTH - offsetX, gestureState?.dx));
+					const dy = Math.max(-offsetY, Math.min(layoutRef.current.height - MINIMIZED_HEIGHT - offsetY, gestureState?.dy));
+
+					Animated.event([null, { dx: pan?.x, dy: pan?.y }], { useNativeDriver: false })(e, {
+						...gestureState,
+						dx,
+						dy
+					});
 				}
 			},
 			onPanResponderRelease: (e, gestureState) => {
@@ -72,22 +115,23 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 		})
 	).current;
 
-	const participantMeetState = async (state: ParticipantMeetState, clanId: string, channelId: string): Promise<void> => {
+	const participantMeetState = async (state: ParticipantMeetState, clanId: string, channelId: string, roomId = ''): Promise<void> => {
 		if (!clanId || !channelId || !userProfile?.user?.id) return;
 		await dispatch(
 			handleParticipantVoiceState({
 				clan_id: clanId,
 				channel_id: channelId,
 				display_name: userProfile?.user?.display_name ?? '',
-				state
+				state,
+				room_name: state === ParticipantMeetState.LEAVE ? 'leave' : roomId || ''
 			})
 		);
 	};
 
-	const handleLeaveRoom = async (clanId: string, channelId: string) => {
-		if (clanId && channelId) {
-			await participantMeetState(ParticipantMeetState.LEAVE, clanId, channelId);
-			dispatch(voiceActions.resetVoiceSettings());
+	const handleLeaveRoom = async (clanId: string, channelId: string, roomId: string) => {
+		if (channelId) {
+			await participantMeetState(ParticipantMeetState.LEAVE, clanId, channelId, roomId);
+			dispatch(voiceActions.resetVoiceControl());
 		}
 	};
 
@@ -133,18 +177,20 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 			Animated.timing(pan, {
 				toValue: { x: 0, y: 0 },
 				duration: 300,
-				useNativeDriver: false
+				useNativeDriver: true
 			}).start(() => {
 				setIsAnimationComplete(true);
+				dispatch(voiceActions.setFullScreen(true));
 			});
 		} else {
 			pan?.flattenOffset();
 			Animated.timing(pan, {
 				toValue: { x: 0, y: 0 },
 				duration: 300,
-				useNativeDriver: false
+				useNativeDriver: true
 			}).start(() => {
 				setIsAnimationComplete(false);
+				dispatch(voiceActions.setFullScreen(false));
 			});
 		}
 	}, [pan]);
@@ -169,7 +215,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				const isJoined = selectVoiceJoined(store.getState());
 				if (isJoined && !data?.isEndCall && voiceInfo?.channelId === data?.channelId) {
 					Toast.show({
-						type: 'info',
+						type: 'error',
 						text1: 'Already in the call',
 						text2: 'You are already in this voice channel.'
 					});
@@ -177,7 +223,7 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				}
 
 				if (isJoined && !data?.isEndCall && voiceInfo?.channelId !== data?.channelId) {
-					await handleLeaveRoom(voiceInfo?.clanId || '', voiceInfo?.channelId || '');
+					await handleLeaveRoom(voiceInfo?.clanId || '', voiceInfo?.channelId || '', data?.roomId);
 					setToken('');
 					setVoicePlay(false);
 					dispatch(appActions.setLoadingMainMobile(true));
@@ -185,12 +231,17 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				}
 
 				if (data?.isEndCall) {
-					await handleLeaveRoom(data?.clanId, data?.channelId);
+					await handleLeaveRoom(data?.clanId, data?.channelId, data?.roomId);
+					dispatch(voiceActions.setFullScreen(false));
+					setIsGroupCall(false);
 					setVoicePlay(false);
 					if (isFromNativeCall) {
 						BackHandler.exitApp();
 					}
 				} else {
+					if (isFullScreen?.current) {
+						dispatch(voiceActions.setFullScreen(true));
+					}
 					if (data?.isGroupCall) {
 						setIsGroupCall(true);
 						setParticipantsCount(data?.participantsCount || 0);
@@ -202,8 +253,10 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 				dispatch(appActions.setLoadingMainMobile(false));
 			}
 		});
+		const eventResizeRoom = DeviceEventEmitter.addListener(ActionEmitEvent.ON_VOICE_ROOM_RESIZE, handlePressMinimizeRoom);
 		return () => {
 			eventOpenMezonMeet.remove();
+			eventResizeRoom.remove();
 		};
 	}, [isFromNativeCall]);
 
@@ -212,12 +265,20 @@ const ChannelVoicePopup = ({ isFromNativeCall = false }) => {
 		<Animated.View
 			{...(!isAnimationComplete && !isPiPMode ? panResponder.panHandlers : {})}
 			style={[
-				pan?.getLayout(),
+				!isPiPMode && {
+					transform: [{ translateX: pan?.x }, { translateY: pan?.y }]
+				},
 				{
 					zIndex: 99,
 					position: 'absolute',
-					width: isAnimationComplete ? '100%' : size.s_100 * 2,
-					height: isAnimationComplete ? '100%' : size.s_150
+					width: isAnimationComplete || isPiPMode ? '100%' : MINIMIZED_WIDTH,
+					height: isAnimationComplete || isPiPMode ? '100%' : MINIMIZED_HEIGHT
+				},
+				isPiPMode && {
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0
 				}
 			]}
 		>

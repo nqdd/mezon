@@ -1,18 +1,12 @@
 import { useAuth, useFriends } from '@mezon/core';
-import {
-	ChannelMembersEntity,
-	EStateFriend,
-	giveCoffeeActions,
-	selectCurrentUserId,
-	selectInfoSendToken,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { EStateFriend, giveCoffeeActions, selectCurrentUserId, selectInfoSendToken, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IUser } from '@mezon/utils';
+import type { IUser } from '@mezon/utils';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { OpenModalProps } from '..';
+import type { OpenModalProps } from '..';
 import { PopupFriend } from './PopupShortUser';
 
 type GroupIconBannerProps = {
@@ -26,6 +20,7 @@ type GroupIconBannerProps = {
 
 const GroupIconBanner = (props: GroupIconBannerProps) => {
 	const { checkAddFriend, openModal, user, showPopupLeft, setOpenModal, kichUser } = props;
+	const { t } = useTranslation('common');
 	const transferDetail = useSelector(selectInfoSendToken);
 	const { addFriend, acceptFriend, deleteFriend } = useFriends();
 	const currentUserId = useAppSelector(selectCurrentUserId);
@@ -39,35 +34,37 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 
 	const buttonFriendProps = useMemo(() => {
 		switch (checkAddFriend) {
+			case EStateFriend.BLOCK:
+				return null;
 			case EStateFriend.FRIEND:
 				return [
 					{
-						title: 'Friend',
+						title: t('friend'),
 						icon: <Icons.IconFriend className="size-4" />
 					}
 				];
 			case EStateFriend.OTHER_PENDING:
 				return [
 					{
-						title: 'Pending',
+						title: t('pending'),
 						icon: <Icons.PendingFriend className="size-4 " />
 					}
 				];
 			case EStateFriend.MY_PENDING:
 				return [
 					{
-						title: 'Accept',
+						title: t('accept'),
 						icon: <Icons.IConAcceptFriend className="size-4" />
 					},
 					{
-						title: 'Ignore',
+						title: t('ignore'),
 						icon: <Icons.IConIgnoreFriend className="size-4" />
 					}
 				];
 			default:
 				return [
 					{
-						title: 'Add friend',
+						title: t('addFriend'),
 						icon: <Icons.AddPerson className="size-4 " />
 					}
 				];
@@ -96,38 +93,41 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 			default: {
 				handleDefault(e);
 				if (user) {
-					addFriend({
-						usernames: [user.user?.username || ''],
-						ids: []
-					});
+					if (user.user?.id) {
+						addFriend({
+							ids: [user.user.id]
+						});
+					} else {
+						addFriend({
+							usernames: [user.user?.username || '']
+						});
+					}
 				} else {
 					if (kichUser) {
 						addFriend({
-							usernames: [kichUser.username],
-							ids: []
+							usernames: [kichUser.username]
 						});
 					}
 				}
 			}
 		}
 	};
-
 	const handleOpenTransferModal = () => {
-		const note = 'Transfer funds';
+		const note = t('transferFunds');
 		dispatch(
 			giveCoffeeActions.setInfoSendToken({
 				sender_id: userProfile?.user?.id,
 				sender_name: userProfile?.user?.username,
 				receiver_id: user?.id,
 				amount: 0,
-				note: note,
+				note,
 				extra_attribute: transferDetail?.extra_attribute ?? '',
 				receiver_name: user ? (user.name ? user.name : user.user?.username) : ''
 			})
 		);
 		dispatch(giveCoffeeActions.setShowModalSendToken(true));
 	};
-	if (isMe) return null;
+	if (isMe || !user) return null;
 	return (
 		<>
 			<div
@@ -137,11 +137,11 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 					handleOpenTransferModal();
 				}}
 			>
-				<span title="Transfer">
+				<span title={t('transfer')}>
 					<Icons.Transaction className="size-4 iconWhiteImportant" />
 				</span>
 			</div>
-			{buttonFriendProps.map((button, index) => (
+			{buttonFriendProps?.map((button, index) => (
 				<div
 					className={`p-2 rounded-full bg-buttonMore hover:bg-buttonMoreHover relative h-fit cursor-pointer  ${checkAddFriend === EStateFriend.MY_PENDING || checkAddFriend === EStateFriend.OTHER_PENDING ? `p-2 rounded-full bg-[#4e5058] relative h-fit` : ''}`}
 					onClick={(e) => handleOnClickButtonFriend(e, index)}

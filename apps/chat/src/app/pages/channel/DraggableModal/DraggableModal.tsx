@@ -20,15 +20,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import {
-	ApiChannelAppResponseExtend,
-	COLLAPSED_SIZE,
-	DEFAULT_POSITION,
-	INIT_SIZE,
-	MIN_POSITION,
-	ParticipantMeetState,
-	useWindowSize
-} from '@mezon/utils';
+import type { ApiChannelAppResponseExtend } from '@mezon/utils';
+import { COLLAPSED_SIZE, DEFAULT_POSITION, INIT_SIZE, MIN_POSITION, ParticipantMeetState, useWindowSize } from '@mezon/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,7 +50,7 @@ const DraggableModalTabs: React.FC<DraggableModalTabsProps> = ({
 	const store = getStore();
 	const userProfile = useAppSelector((state) => state.account.userProfile);
 	const handleOnCloseCallback = useCallback(
-		async (event: React.MouseEvent, clanId: string, channelId: string) => {
+		async (event: React.MouseEvent, clanId: string, channelId: string, appId: string) => {
 			event.stopPropagation();
 
 			await dispatch(
@@ -65,7 +58,8 @@ const DraggableModalTabs: React.FC<DraggableModalTabsProps> = ({
 					clan_id: clanId,
 					channel_id: channelId,
 					display_name: userProfile?.user?.display_name ?? '',
-					state: ParticipantMeetState.LEAVE
+					state: ParticipantMeetState.LEAVE,
+					room_name: appId
 				})
 			);
 			dispatch(
@@ -92,7 +86,7 @@ const DraggableModalTabs: React.FC<DraggableModalTabsProps> = ({
 
 			const curClanId = selectCurrentClanId(store.getState());
 			dispatch(channelsActions.resetAppChannelsListShowOnPopUp({ clanId: curClanId as string }));
-			appChannelList.forEach((item) => handleOnCloseCallback(event, curClanId as string, item.channel_id as string));
+			appChannelList.forEach((item) => handleOnCloseCallback(event, curClanId as string, item.channel_id as string, item.app_id as string));
 		},
 		[dispatch, handleOnCloseCallback, appChannelList]
 	);
@@ -172,7 +166,7 @@ const DraggableModalTabs: React.FC<DraggableModalTabsProps> = ({
 interface DraggableModalTabItemProps {
 	app: ApiChannelAppResponseExtend;
 	handleFocused: (event: React.MouseEvent<HTMLDivElement>, app: ApiChannelAppResponseExtend) => void;
-	handleOnCloseCallback: (event: React.MouseEvent<HTMLButtonElement>, clanId: string, channelId: string) => void;
+	handleOnCloseCallback: (event: React.MouseEvent<HTMLButtonElement>, clanId: string, channelId: string, appId: string) => void;
 }
 
 const DraggableModalTabItem: React.FC<DraggableModalTabItemProps> = ({ app, handleFocused, handleOnCloseCallback }) => {
@@ -233,7 +227,7 @@ const DraggableModalTabItem: React.FC<DraggableModalTabItemProps> = ({ app, hand
 
 						<button
 							title="Close"
-							onClick={(e) => handleOnCloseCallback(e, app.clan_id as string, app.channel_id as string)}
+							onClick={(e) => handleOnCloseCallback(e, app.clan_id as string, app.channel_id as string, app.app_id as string)}
 							className="flex items-center justify-center text-[#B5BAC1] text-sm hover:text-white transition"
 						>
 							✕
@@ -486,8 +480,6 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 		};
 	}, [handleMouseMove, handleMouseUp]);
 
-	const modalStyle = inVisible ? { height: 0, visibility: 'hidden' as const } : {};
-
 	const [showModal, hideModal] = useModal(() => {
 		return (
 			isShowModal && (
@@ -499,10 +491,9 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 						top: `${(dragging ? modalPosition : storedPosition || DEFAULT_POSITION).y}px`,
 						width: `${modalSize.width}px`,
 						height: `${modalSize.height}px`,
-						display: 'flex',
+						display: inVisible ? 'none' : 'flex',
 						flexDirection: 'column',
-						minHeight: `${COLLAPSED_SIZE.height}px`,
-						...modalStyle
+						minHeight: `${COLLAPSED_SIZE.height}px`
 					}}
 					onMouseDown={handleMouseDown}
 				>
@@ -522,8 +513,8 @@ const DraggableModal: React.FC<DraggableModalProps> = memo(({ appChannelList, in
 		);
 	}, [
 		isShowModal,
-		modalStyle,
 		dragging,
+		inVisible,
 		modalPosition,
 		storedPosition,
 		modalSize,

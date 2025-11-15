@@ -1,27 +1,33 @@
-import { selectCurrentChannelId, selectCurrentClan, selectCurrentClanId } from '@mezon/store';
+import { selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import ModalValidateFile from '../../../ModalValidateFile';
+import { ELimitSize } from '../../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 
 type ClanLogoNameProps = {
 	onUpload: (url: string) => void;
 	onGetClanName: (clanName: string) => void;
+	resetTrigger?: boolean;
+	onResetComplete?: () => void;
+	handleRemovelogo?: () => void;
 };
 
-const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
+const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete, handleRemovelogo }: ClanLogoNameProps) => {
+	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanLogo = useSelector(selectCurrentClanLogo);
+	const currentClanName = useSelector(selectCurrentClanName);
 
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
-
-	const [urlLogo, setUrlLogo] = useState<string | undefined>(currentClan?.logo ?? '');
-	const [clanName, setClanName] = useState<string | undefined>(currentClan?.clan_name ?? '');
-	const [checkValidate, setCheckValidate] = useState(!ValidateSpecialCharacters().test(currentClan?.clan_name || ''));
+	const [urlLogo, setUrlLogo] = useState<string | undefined>(currentClanLogo ?? '');
+	const [clanName, setClanName] = useState<string | undefined>(currentClanName ?? '');
+	const [checkValidate, setCheckValidate] = useState(!ValidateSpecialCharacters().test(currentClanName || ''));
 	const [openModal, setOpenModal] = useState<boolean>(false);
+	const [openSizeModal, setOpenSizeModal] = useState<boolean>(false);
+
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleFile = (e: any) => {
@@ -30,7 +36,10 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 		const client = clientRef.current;
 
 		if (!file) return;
-
+		if (file.size > MAX_FILE_SIZE_1MB) {
+			setOpenSizeModal(true);
+			return;
+		}
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
@@ -41,7 +50,7 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 			return;
 		}
 
-		handleUploadFile(client, session, currentClanId, currentChannelId, file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setUrlLogo(attachment.url ?? '');
 			onUpload(attachment.url ?? '');
 		});
@@ -65,23 +74,24 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 		}
 	};
 
-	const handleCloseFile = (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.stopPropagation();
-		if (urlLogo && fileInputRef.current) {
-			setUrlLogo('');
-			fileInputRef.current.value = '';
-		}
-
-		if (fileInputRef.current && !urlLogo) {
-			fileInputRef.current.click();
-		}
-	};
-
 	useEffect(() => {
-		if (clanName === currentClan?.clan_name) {
+		if (clanName === currentClanName) {
 			setCheckValidate(false);
 		}
-	}, [clanName]);
+	}, [clanName, currentClanName]);
+
+	useEffect(() => {
+		if (resetTrigger) {
+			setUrlLogo(currentClanLogo ?? '');
+			setClanName(currentClanName ?? '');
+			onResetComplete?.();
+		}
+	}, [resetTrigger, currentClanLogo, currentClanName, onResetComplete]);
+
+	const handledeleteLogo = () => {
+		setUrlLogo('');
+		handleRemovelogo?.();
+	};
 
 	return (
 		<div className="flex sbm:flex-row flex-col gap-[10px]">
@@ -94,53 +104,68 @@ const ClanLogoName = ({ onUpload, onGetClanName }: ClanLogoNameProps) => {
 									style={{ backgroundImage: `url(${urlLogo})` }}
 									className={`flex items-center justify-center bg-cover bg-no-repeat bg-center w-[100px] h-[100px] bg-transparent rounded-full relative cursor-pointer overflow-hidden`}
 								>
-									{!urlLogo && <span className={'max-w-[70px] overflow-hidden text-theme-primary-active whitespace-nowrap text-lg max-h-[100px]'}>{currentClan?.clan_name}</span>}
+									{!urlLogo && (
+										<span
+											className={
+												'max-w-[70px] overflow-hidden text-theme-primary-active whitespace-nowrap text-lg max-h-[100px]'
+											}
+										>
+											{currentClanName}
+										</span>
+									)}
 								</div>
-								<input ref={fileInputRef} id="upload_logo" onChange={(e) => handleFile(e)} type="file" className="hidden" />
+								<input
+									ref={fileInputRef}
+									id="upload_logo"
+									onChange={(e) => handleFile(e)}
+									type="file"
+									className="hidden"
+									data-e2e={generateE2eId('clan_page.settings.upload.clan_logo_input')}
+								/>
 							</label>
-							<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
-								<Icons.SelectFileIcon />
-							</div>
+							{urlLogo ? (
+								<div
+									onClick={handledeleteLogo}
+									className="absolute text-sm right-[-15px] cursor-pointer top-[2px] p-[3px] text-theme-primary text-red-500 rounded-full z-50 shadow-xl border-theme-primary"
+								>
+									<Icons.CloseIcon />
+								</div>
+							) : (
+								<div className="absolute right-[-10px] top-0 p-[5px] text-theme-primary rounded-full z-50 shadow-xl border-theme-primary">
+									<Icons.SelectFileIcon />
+								</div>
+							)}
 						</div>
-						<p className="text-[10px] mt-[10px]">Minimum Size: 128x128</p>
+						<p className="text-[10px] mt-[10px]">{t('clanLogo.minimumSize')}</p>
 					</div>
 				</div>
 				<div className="flex flex-3 flex-col ml-[10px]">
-					<p className="text-sm mb-2">We recommend an image of at least 512x512 for the clan.</p>
+					<p className="text-sm mb-2">{t('clanLogo.recommendedSize')}</p>
 					<button
 						onClick={handleOpenFile}
 						className="h-10 text-theme-primary-active text-sm w-fit flex items-center px-2 justify-center mt-2 rounded-lg btn-primary btn-primary-hover"
 					>
-						Upload Image
+						{t('clanLogo.uploadImage')}
 					</button>
 				</div>
 			</div>
 			<div className="flex flex-1 flex-col">
-				<h3 className="text-xs font-bold uppercase mb-2">Clan Name</h3>
+				<h3 className="text-xs font-bold uppercase mb-2">{t('clanLogo.clanName')}</h3>
 				<div className="w-full">
 					<input
 						type="text"
 						value={clanName}
 						onChange={(e) => handleChangeClanName(e.target.value)}
 						className=" outline-none w-full h-10 p-[10px] bg-theme-input text-base rounded placeholder:text-sm"
-						placeholder="Support has arrived!"
+						data-e2e={generateE2eId('clan_page.settings.overview.input.clan_name')}
+						placeholder={t('clanLogo.namePlaceholder')}
 						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 					/>
 				</div>
-				{checkValidate && (
-					<p className="text-[#e44141] text-xs italic font-thin">
-						Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).
-					</p>
-				)}
+				{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{t('clanLogo.validationError')}</p>}
 			</div>
-			{openModal && (
-				<ModalValidateFile
-					onClose={() => setOpenModal(false)}
-					image="assets/images/file-and-folder.png"
-					title="Only image files are allowed"
-					content="Just upload type file (JPEG, PNG), please!"
-				/>
-			)}
+			<ModalErrorTypeUpload open={openModal} onClose={() => setOpenModal(false)} />
+			<ModalOverData size={ELimitSize.MB} open={openSizeModal} onClose={() => setOpenSizeModal(false)} />
 		</div>
 	);
 };

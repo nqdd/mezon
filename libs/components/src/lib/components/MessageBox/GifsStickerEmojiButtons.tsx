@@ -1,7 +1,8 @@
 import { useGifs, useGifsStickersEmoji } from '@mezon/core';
 import { reactionActions, referencesActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ILongPressType, SubPanelName } from '@mezon/utils';
+import type { E2eKeyType } from '@mezon/utils';
+import { ILongPressType, SubPanelName, generateE2eId } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 
 export type GifStickerEmojiButtonsProps = {
@@ -12,10 +13,11 @@ export type GifStickerEmojiButtonsProps = {
 	onToggleEmojiPopup?: (isVisible: boolean, event?: React.MouseEvent) => void;
 	isEmojiPopupVisible?: boolean;
 	isTopic: boolean;
+	isThreadbox: boolean;
 };
 
 const GifStickerEmojiButtons = memo(
-	({ hasPermissionEdit, voiceLongPress, isRecording, onToggleEmojiPopup, isTopic }: GifStickerEmojiButtonsProps) => {
+	({ hasPermissionEdit, voiceLongPress, isRecording, onToggleEmojiPopup, isTopic, isThreadbox }: GifStickerEmojiButtonsProps) => {
 		const dispatch = useAppDispatch();
 		const { setSubPanelActive, subPanelActive } = useGifsStickersEmoji();
 		const { setShowCategories, setClickedTrendingGif, setButtonArrowBack } = useGifs();
@@ -82,32 +84,45 @@ const GifStickerEmojiButtons = memo(
 
 		return (
 			<div className="flex flex-row absolute h-11 items-center gap-2 top-0 right-3 z-20">
-				{!isTopic && (
-					<div {...voiceLongPress} className={`w-5 h-5 ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+				{!isTopic && !isThreadbox && (
+					<div
+						{...voiceLongPress}
+						className={`w-5 h-5 ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+					>
 						<Icons.MicEnable className={`w-5 h-5 ${isRecording ? 'text-red-600' : 'text-theme-primary text-theme-primary-hover'} `} />
 					</div>
 				)}
 
-				<div
-					onClick={handleOpenGifs}
-					className={`block text-theme-primary-hover
+				{!isThreadbox && (
+					<div
+						onClick={handleOpenGifs}
+						className={`block text-theme-primary-hover
 						} max-sm:hidden w-5 h-5 ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-				>
-					<Icons.Gif className={`w-5 h-5 ${subPanelActive === SubPanelName.GIFS ? 'text-theme-primary-active' : 'text-theme-primary'}`} />
-				</div>
 
-				<div
-					onClick={handleOpenStickers}
-					className={`block text-theme-primary-hover  max-sm:hidden w-5 h-5 ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-				>
-					<Icons.Sticker
-						className={`w-5 h-5 ${subPanelActive === SubPanelName.STICKERS ? 'text-theme-primary-active' : 'text-theme-primary'}`}
-					/>
-				</div>
+					>
+						<Icons.Gif
+							className={`w-5 h-5 ${subPanelActive === SubPanelName.GIFS ? 'text-theme-primary-active' : 'text-theme-primary'}`}
+						/>
+					</div>
+				)}
+
+				{!isThreadbox && (
+					<div
+						onClick={handleOpenStickers}
+						className={`block text-theme-primary-hover
+						} max-sm:hidden w-5 h-5 ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+
+					>
+						<Icons.Sticker
+							className={`w-5 h-5 ${subPanelActive === SubPanelName.STICKERS ? 'text-theme-primary-active' : 'text-theme-primary'}`}
+						/>
+					</div>
+				)}
 
 				<div
 					onClick={handleOpenEmoji}
 					className={`w-5 h-5 text-theme-primary-hover  ${cursorPointer ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+
 				>
 					<Icons.Smile
 						className={`w-5 h-5 ${subPanelActive === SubPanelName.EMOJI ? 'text-theme-primary-active' : 'text-theme-primary'}`}

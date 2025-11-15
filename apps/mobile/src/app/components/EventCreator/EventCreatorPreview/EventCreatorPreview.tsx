@@ -1,14 +1,16 @@
-import { useAuth, useClans, useEventManagement } from '@mezon/core';
+import { useAuth, useEventManagement } from '@mezon/core';
 import { Fonts, useTheme } from '@mezon/mobile-ui';
-import { eventManagementActions, useAppDispatch } from '@mezon/store-mobile';
+import { eventManagementActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
 import { OptionEvent } from '@mezon/utils';
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
-import MezonButton, { EMezonButtonTheme } from '../../../componentUI/MezonButton2';
+import { useSelector } from 'react-redux';
+import MezonButton, { EMezonButtonTheme } from '../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { EventItem } from '../../Event/EventItem';
 import { style } from './styles';
 
@@ -19,12 +21,12 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 	const { t } = useTranslation(['eventCreator']);
 	const myUser = useAuth();
 	const { createEventManagement } = useEventManagement();
-	const { currentClanId } = useClans();
+	const currentClanId = useSelector(selectCurrentClanId);
 	const { type, channelId, location, startTime, endTime, title, description, frequency, eventChannelId, isPrivate, logo, onGoBack, currentEvent } =
 		route.params || {};
 	const dispatch = useAppDispatch();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerTitle: t('screens.eventPreview.headerTitle'),
@@ -33,22 +35,23 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 				color: themeValue.textDisabled
 			},
 			headerLeft: () => (
-				<TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
+				<TouchableOpacity style={styles.headerLeftButton} onPress={() => navigation.goBack()}>
 					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={Fonts.size.s_18} width={Fonts.size.s_18} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			),
 			headerRight: () => (
-				<TouchableOpacity style={{ marginRight: 20 }} onPress={handleClose}>
+				<TouchableOpacity
+					style={styles.headerRightButton}
+					onPress={() => {
+						onGoBack?.();
+						navigation.navigate(APP_SCREEN.HOME);
+					}}
+				>
 					<MezonIconCDN icon={IconCDN.closeLargeIcon} height={Fonts.size.s_18} width={Fonts.size.s_18} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			)
 		});
-	}, [navigation, t, themeValue.textDisabled, themeValue.textStrong]);
-
-	function handleClose() {
-		onGoBack?.();
-		navigation.navigate(APP_SCREEN.HOME);
-	}
+	}, [navigation, onGoBack, t, themeValue.textDisabled, themeValue.textStrong]);
 
 	async function handleCreate() {
 		const timeValueStart = startTime.toISOString();
@@ -62,10 +65,10 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 					channel_voice_id: channelId,
 					address: location,
 					creator_id: myUser.userId,
-					title: title,
-					description: description,
+					title,
+					description,
 					channel_id: eventChannelId,
-					logo: logo,
+					logo,
 					channel_id_old: currentEvent?.channel_id,
 					repeat_type: frequency,
 					clan_id: currentEvent?.clan_id
@@ -101,10 +104,11 @@ export function EventCreatorPreview({ navigation, route }: MenuClanScreenProps<C
 						address: location,
 						user_ids: [],
 						creator_id: myUser.userId,
-						title: title,
-						description: description,
+						title,
+						description,
 						channel_id: eventChannelId,
-						is_private: isPrivate
+						is_private: isPrivate,
+						logo
 					}}
 					showActions={false}
 					start={startTime.toISOString()}

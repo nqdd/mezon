@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -39,11 +40,12 @@ export const style = (colors: Attributes) =>
 		},
 		memberReactCount: {
 			marginLeft: size.s_12,
-			color: Colors.bgGrayDark,
+			color: colors.textDisabled,
 			fontSize: size.small,
 			fontWeight: 'bold'
 		},
 		reactCount: {
+			fontWeight: '600',
 			color: colors.text,
 			fontSize: size.small
 		},
@@ -70,15 +72,15 @@ export const style = (colors: Attributes) =>
 			padding: size.s_4,
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_4,
+			gap: size.s_6,
 			borderRadius: 8,
 			marginRight: 7
 		},
 		activeTab: {
-			backgroundColor: colors.border
+			backgroundColor: colors.secondary
 		},
 		originEmojiColor: {
-			color: Colors.white
+			color: 'white'
 		},
 		emojiTab: {
 			fontSize: size.input
@@ -94,36 +96,38 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: '100%',
 			borderRadius: size.s_50,
-			backgroundColor: Colors.titleReset,
+			backgroundColor: 'rgba(148, 154, 164, 1)',
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
 		textAvatarBoxDefault: {
 			fontSize: size.s_22,
-			color: Colors.white
+			color: 'white'
 		},
 		memberWrapper: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10
+			gap: size.s_6,
+			backgroundColor: colors.primary
 		},
 		imageWrapper: {
 			width: size.s_36,
 			height: size.s_36,
 			borderRadius: size.s_36,
 			overflow: 'hidden',
-			backgroundColor: Colors.bgGrayDark
+			backgroundColor: '#676b73'
 		},
 		image: {
 			width: '100%',
 			height: '100%'
 		},
 		memberName: {
+			fontWeight: '600',
 			marginLeft: size.s_12,
-			color: colors.white
+			color: colors.text
 		},
 		mentionText: {
-			color: Colors.bgGrayDark
+			color: '#676b73'
 		},
 		addEmojiIcon: {
 			width: size.s_18,
@@ -144,34 +148,57 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'space-between',
 			alignItems: 'center'
 		},
-		confirmDeleteEmoji: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			backgroundColor: Colors.red,
-			paddingVertical: size.s_8,
-			paddingHorizontal: size.s_14,
-			gap: size.s_6,
-			borderRadius: 50
+		deleteEmojiWrapper: {
+			minHeight: size.s_36
 		},
-		confirmText: {
-			color: Colors.white,
-			fontSize: size.label
+		confirmDeleteEmoji: {
+			backgroundColor: baseColor.redStrong,
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_8,
+			paddingVertical: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
 		},
 		emojiText: {
 			color: colors.text,
-			fontSize: size.label
+			fontWeight: '600',
+			fontSize: size.medium
 		},
 		noActionsWrapper: {
 			flex: 1,
+			paddingTop: size.s_20,
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
 		noActionTitle: {
-			color: Colors.white,
-			fontSize: size.h6
+			textAlign: 'center',
+			fontWeight: '600',
+			color: colors.textStrong,
+			marginBottom: size.s_4,
+			fontSize: size.h4
 		},
 		noActionContent: {
-			color: Colors.textGray,
+			textAlign: 'center',
+			color: colors.text,
 			fontSize: size.medium
+		},
+		reactionListItem: {
+			marginBottom: size.s_10
+		},
+		deleteSwipeButton: {
+			backgroundColor: baseColor.redStrong,
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_8,
+			borderRadius: size.s_8,
+			flexDirection: 'row',
+			gap: size.s_6
+		},
+		deleteSwipeText: {
+			color: baseColor.white,
+			fontSize: size.s_14,
+			fontWeight: '600'
 		}
 	});

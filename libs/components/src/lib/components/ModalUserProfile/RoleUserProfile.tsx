@@ -1,10 +1,10 @@
 import { usePermissionChecker, useRoles, UserRestrictionZone } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
+	rolesClanActions,
 	selectAllRolesClan,
-	selectCurrentClan,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectRolesClanEntities,
 	selectTheme,
 	selectUserMaxPermissionLevel,
@@ -13,9 +13,10 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_ID } from '@mezon/utils';
-import Tooltip from 'rc-tooltip';
-import { ChangeEvent, Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_TITLE, generateE2eId } from '@mezon/utils';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 type RoleUserProfileProps = {
@@ -23,11 +24,11 @@ type RoleUserProfileProps = {
 };
 
 const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
+	const { t } = useTranslation('userProfile');
 	const currentClanId = useSelector(selectCurrentClanId);
-	const userById = useAppSelector((state) => selectMemberClanByUserId2(state, userID || ''));
+	const userById = useAppSelector((state) => selectMemberClanByUserId(state, userID || ''));
 	const { updateRole } = useRoles();
 	const RolesClan = useSelector(selectAllRolesClan);
-	const currentClan = useSelector(selectCurrentClan);
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const activeRoles = RolesClan.filter((role) => role.active === 1);
@@ -48,21 +49,44 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 	const filteredListRoleBySearch = useMemo(() => {
 		return activeRolesWithoutUserRoles?.filter((role) => {
 			return (
-				role.id !== EVERYONE_ROLE_ID &&
-				!userById.role_id?.includes(role.id) &&
+				role.title !== EVERYONE_ROLE_TITLE &&
+				!userById?.role_id?.includes(role.id) &&
 				role.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
 				(isClanOwner || Number(maxPermissionLevel) > Number(rolesClanEntity[role.id]?.max_level_permission || -1))
 			);
 		});
-	}, [activeRolesWithoutUserRoles, searchTerm]);
+	}, [activeRolesWithoutUserRoles, searchTerm, userById?.role_id, isClanOwner, maxPermissionLevel, rolesClanEntity]);
 
 	const dispatch = useAppDispatch();
+
+	const updateRoleUsersList = (role: RolesClanEntity | undefined, action: 'add' | 'remove') => {
+		if (!role || !userById?.user?.id) return;
+
+		const updatedRoleUsers =
+			action === 'add'
+				? [...(role.role_user_list?.role_users || []), { id: userById.user.id }]
+				: role.role_user_list?.role_users?.filter((user) => user.id !== userById?.user?.id) || [];
+
+		dispatch(
+			rolesClanActions.update({
+				role: {
+					...role,
+					role_user_list: {
+						...role.role_user_list,
+						role_users: updatedRoleUsers
+					}
+				},
+				clanId: currentClanId as string
+			})
+		);
+	};
 
 	const addRole = async (roleId: string) => {
 		setIsVisible(false);
 		const activeRole = RolesClan.find((role) => role.id === roleId);
 		const userIDArray = userById?.user?.id?.split(',');
-		await updateRole(currentClan?.clan_id || '', roleId, activeRole?.title ?? '', activeRole?.color ?? '', userIDArray || [], [], [], []);
+
+		await updateRole(currentClanId || '', roleId, activeRole?.title ?? '', activeRole?.color ?? '', userIDArray || [], [], [], []);
 		await dispatch(
 			usersClanActions.addRoleIdUser({
 				id: roleId,
@@ -70,12 +94,14 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 				clanId: currentClanId as string
 			})
 		);
+
+		updateRoleUsersList(activeRole, 'add');
 	};
 
 	const deleteRole = async (roleId: string) => {
 		const activeRole = RolesClan.find((role) => role.id === roleId);
 		const userIDArray = userById?.user?.id?.split(',');
-		await updateRole(currentClan?.clan_id || '', roleId, activeRole?.title ?? '', activeRole?.color ?? '', [], [], userIDArray || [], []);
+		await updateRole(currentClanId || '', roleId, activeRole?.title ?? '', activeRole?.color ?? '', [], [], userIDArray || [], []);
 		await dispatch(
 			usersClanActions.removeRoleIdUser({
 				clanId: currentClanId as string,
@@ -83,10 +109,12 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 				userId: userById?.user?.id as string
 			})
 		);
+
+		updateRoleUsersList(activeRole, 'remove');
 	};
 	const appearanceTheme = useSelector(selectTheme);
-	const isLightMode = appearanceTheme === 'light';
 	const [isVisible, setIsVisible] = useState(false);
+	const [showAllRoles, setShowAllRoles] = useState(false);
 
 	const handleOpenAddRoleModal = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
@@ -95,11 +123,16 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 	const handleCloseAddRoleModal = () => {
 		setIsVisible(false);
 	};
+	const handleShowAllRoles = (e: React.MouseEvent<HTMLSpanElement>) => {
+		e.stopPropagation();
+		setShowAllRoles(!showAllRoles);
+	};
+
 	return (
 		<div className="flex flex-col" onClick={handleCloseAddRoleModal}>
 			{/* {userRolesClan.length > 0 && <div className="font-bold tracking-wider text-sm pt-2">ROLES</div>} */}
-			<div className="mt-2 flex flex-wrap gap-2">
-				{userRolesClan.slice(0, 6).map((role, index) => (
+			<div className={`mt-2 flex flex-wrap gap-2 ${showAllRoles ? 'max-h-[100px] thread-scroll overflow-y-auto' : ''}`}>
+				{(showAllRoles ? userRolesClan : userRolesClan.slice(0, 6)).map((role, index) => (
 					<RoleClanItem
 						key={`${role.id}_${index}`}
 						appearanceTheme={appearanceTheme}
@@ -109,44 +142,54 @@ const RoleUserProfile = ({ userID }: RoleUserProfileProps) => {
 						hasPermissionEditRole={hasPermissionEditRole}
 					/>
 				))}
-				{userRolesClan.length > 6 && (
-					<span className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-theme-input-primary hoverIconBlackImportant ml-1">
-						<Tooltip
-							overlay={
-								<div className={'flex flex-col items-start gap-1 bg-theme-surface '}>
-									{userRolesClan.slice(6, userRolesClan.length).map((userRole, index) => (
-										<RoleClanItem
-											key={`${userRole.id}_role`}
-											appearanceTheme={appearanceTheme}
-											deleteRole={deleteRole}
-											role={userRole}
-											index={index}
-											hasPermissionEditRole={hasPermissionEditRole}
-										/>
-									))}
-								</div>
-							}
-						>
-							<span className="text-xs font-medium px-1 cursor-pointer" style={{ lineHeight: '15px' }}>
-								+ {userRolesClan.length - 6}
-							</span>
-						</Tooltip>
+				{userRolesClan.length > 6 && !showAllRoles && (
+					<span
+						className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-theme-input-primary hoverIconBlackImportant ml-1 cursor-pointer"
+						onClick={handleShowAllRoles}
+					>
+						<span className="text-xs font-medium px-1 leading-[15px]">+ {userRolesClan.length - 6}</span>
 					</span>
 				)}
-				<UserRestrictionZone policy={hasPermissionEditRole}>
-					<div className="relative flex items-center justify-center">
-						{isVisible ? (
-							<div className="absolute bottom-8 dark:bg-transparent bg-transparent p-0 max-h-60 w-[300px]">
-								<AddRolesComp addRole={addRole} filteredListRoleBySearch={filteredListRoleBySearch} setSearchTerm={setSearchTerm} />
-							</div>
-						) : null}
-						<button title="Add roles" onClick={handleOpenAddRoleModal} className="flex gap-x-1 rounded p-1 items-center">
-							<Icons.Plus className="size-5 select-none" />
-							<p className="text-xs m-0 font-medium select-none">Add Role</p>
-						</button>
-					</div>
-				</UserRestrictionZone>
 			</div>
+			{showAllRoles && userRolesClan.length > 6 && (
+				<div className="mt-1 flex justify-start">
+					<span
+						className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-theme-input-primary hoverIconBlackImportant cursor-pointer"
+						onClick={handleShowAllRoles}
+					>
+						<span className="text-xs font-medium px-1 leading-[15px]">{t('labels.showLess')}</span>
+					</span>
+				</div>
+			)}
+			<UserRestrictionZone policy={hasPermissionEditRole}>
+				<div className="relative flex items-center justify-center border-theme-primary mt-1">
+					{isVisible ? (
+						<div className="absolute bottom-8 dark:bg-transparent bg-transparent p-0 max-h-60 w-full">
+							<AddRolesComp addRole={addRole} filteredListRoleBySearch={filteredListRoleBySearch} setSearchTerm={setSearchTerm} />
+						</div>
+					) : null}
+					<button title={t('labels.addRoles')} onClick={handleOpenAddRoleModal} className="flex gap-x-1 rounded p-1 items-center">
+						<Icons.Plus className="size-5 select-none" />
+						<p className="text-xs m-0 font-medium select-none">{t('labels.addRole')}</p>
+					</button>
+				</div>
+			</UserRestrictionZone>
+		</div>
+	);
+};
+
+const RoleListItem = ({ role, onAddRole }: { role: RolesClanEntity; onAddRole: (roleId: string) => void }) => {
+	const roleColor = role.color || DEFAULT_ROLE_COLOR;
+	const roleStyle = useMemo(() => ({ backgroundColor: roleColor }) as React.CSSProperties, [roleColor]);
+
+	return (
+		<div
+			className="text-base w-full  p-2 bg-transparent mr-2 bg-item-hover flex gap-2 items-center text-theme-primary"
+			onClick={() => onAddRole(role.id)}
+		>
+			<div className="size-3 min-w-3 rounded-full" style={roleStyle}></div>
+			{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
+			{role.title}
 		</div>
 	);
 };
@@ -160,17 +203,18 @@ const AddRolesComp = ({
 	filteredListRoleBySearch: RolesClanEntity[];
 	setSearchTerm: Dispatch<SetStateAction<string>>;
 }) => {
+	const { t } = useTranslation('userProfile');
 	const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value);
 	};
 
 	return (
-		<div className="w-[300px] max-h-60 dark:bg-[#323232] bg-white p-2 dark:text-white text-black overflow-y: auto rounded border border-slate-300 dark:border-slate-700 flex flex-col gap-3">
+		<div className="w-[300px] max-h-60 bg-theme-setting-primary rounded-lg text-theme-primary flex flex-col gap-3">
 			<div className="relative w-full h-9">
 				<input
 					type="text"
-					className="w-full border-[#1d1c1c] rounded-[5px] dark:bg-[#1d1c1c] bg-bgLightModeSecond p-2 mb-2"
-					placeholder="Role"
+					className="w-full bg-theme-setting-nav rounded-tl-lg rounded-tr-lg p-2 mb-2"
+					placeholder={t('labels.role')}
 					onChange={handleInputChange}
 					onClick={(e) => e.stopPropagation()}
 				/>
@@ -178,21 +222,11 @@ const AddRolesComp = ({
 			</div>
 			<div className="w-full flex-1 overflow-y-scroll overflow-x-hidden hide-scrollbar space-y-1">
 				{filteredListRoleBySearch.length > 0 ? (
-					filteredListRoleBySearch.map((role, index) => (
-						<div
-							key={index}
-							className="text-base w-full rounded-[10px] p-2 bg-transparent mr-2 dark:hover:bg-gray-800 hover:bg-bgLightModeButton flex gap-2 items-center text-theme-primary"
-							onClick={() => addRole(role.id)}
-						>
-							<div className="size-3 min-w-3 rounded-full" style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}></div>
-							{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
-							{role.title}
-						</div>
-					))
+					filteredListRoleBySearch.map((role, index) => <RoleListItem key={index} role={role} onAddRole={addRole} />)
 				) : (
 					<div className="flex flex-col py-4 gap-y-4 items-center">
-						<p className="font-medium dark:text-white text-black">Nope!</p>
-						<p className="font-normal dark:text-zinc-400 text-colorTextLightMode">Did you make a typo?</p>
+						<p className="font-medium text-theme-primary-active">{t('labels.nope')}</p>
+						<p className="font-normal text-theme-primary-active">{t('labels.typoError')}</p>
 					</div>
 				)}
 			</div>
@@ -202,10 +236,10 @@ const AddRolesComp = ({
 
 const RoleClanItem = ({
 	role,
-	index,
+	index: _index,
 	deleteRole,
 	hasPermissionEditRole,
-	appearanceTheme
+	appearanceTheme: _appearanceTheme
 }: {
 	role: RolesClanEntity;
 	index: number;
@@ -213,7 +247,11 @@ const RoleClanItem = ({
 	hasPermissionEditRole: boolean;
 	appearanceTheme: string;
 }) => {
+	const { t } = useTranslation('userProfile');
 	const [isHovered, setIsHovered] = useState(false);
+	const roleColor = role.color || DEFAULT_ROLE_COLOR;
+	const buttonStyle = useMemo(() => ({ backgroundColor: roleColor }) as React.CSSProperties, [roleColor]);
+
 	return (
 		<span className="inline-flex gap-x-1 items-center text-xs rounded p-1 bg-item-theme  text-theme-primary hoverIconBlackImportant">
 			{hasPermissionEditRole ? (
@@ -221,23 +259,30 @@ const RoleClanItem = ({
 					<button
 						className="p-0.5 rounded-full h-fit"
 						onClick={() => deleteRole(role.id)}
-						style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}
+						style={buttonStyle}
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
 					>
-						<span title="Remove role">
-							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : role.color || DEFAULT_ROLE_COLOR} />
+						<span title={t('labels.removeRole')}>
+							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : roleColor} />
 						</span>
 					</button>
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			) : (
 				<>
-					<div className="size-2 rounded-full" style={{ backgroundColor: role.color || DEFAULT_ROLE_COLOR }}></div>
+					<div className="size-2 rounded-full" style={buttonStyle}></div>
 					{role?.role_icon && <img src={role.role_icon} alt="" className={'size-3'} />}
 				</>
 			)}
-			<span className="text-xs font-medium">{role.title}</span>
+			<span
+				className="text-xs font-medium truncate overflow-hidden max-w-[120px] whitespace-nowrap"
+				title={role.title}
+				data-e2e={generateE2eId('clan_page.channel_list.members.role.role_name')}
+			>
+				{' '}
+				{role.title}{' '}
+			</span>
 		</span>
 	);
 };

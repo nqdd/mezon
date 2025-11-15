@@ -15,19 +15,19 @@ import {
 	selectToCheckAppIsOpening,
 	threadsActions,
 	useAppDispatch,
-	useAppSelector,
-	videoStreamActions,
-	voiceActions
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ApiChannelAppResponseExtend, ChannelStatusEnum, ChannelThreads, IChannel, openVoiceChannel } from '@mezon/utils';
+import type { ApiChannelAppResponseExtend, ChannelThreads, IChannel } from '@mezon/utils';
+import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import React, { DragEvent, memo, useCallback, useMemo, useRef } from 'react';
+import type { DragEvent } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
-import { IChannelLinkPermission } from '../ChannelList/CategorizedChannels';
+import type { IChannelLinkPermission } from '../ChannelList/CategorizedChannels';
 import SettingChannel from '../ChannelSetting';
 import EventSchedule from '../EventSchedule';
 import ModalConfirm from '../ModalConfirm';
@@ -119,14 +119,6 @@ const ChannelLinkComponent = ({
 		openProfileItem();
 	};
 
-	const handleVoiceChannel = (id: string) => {
-		if (channel.status === StatusVoiceChannel.Active) {
-			dispatch(channelsActions.setCurrentVoiceChannelId({ channelId: id, clanId: channel.clan_id as string }));
-			dispatch(voiceActions.setStatusCall(true));
-			dispatch(videoStreamActions.stopStream());
-		}
-	};
-
 	const handleOpenModalConfirm = () => {
 		openDeleteModal();
 		closeProfileItem();
@@ -168,25 +160,14 @@ const ChannelLinkComponent = ({
 		}
 	};
 
-	const openModalJoinVoiceChannel = useCallback(
-		(url: string) => {
-			if (channel.status === 1) {
-				openVoiceChannel(url);
-			}
-		},
-		[channel.status]
-	);
-
 	const isShowSettingChannel = isClanOwner || hasAdminPermission || hasClanPermission || hasChannelManagePermission;
 
 	const notVoiceOrAppOrStreamChannel =
-		channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE &&
 		channel.type !== ChannelType.CHANNEL_TYPE_APP &&
 		channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
 		channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	const showWhiteDot = isUnReadChannel && !isActive && notVoiceOrAppOrStreamChannel;
 	const hightLightTextChannel = (isActive || isUnReadChannel) && notVoiceOrAppOrStreamChannel;
-	const highLightVoiceChannel = isActive && !notVoiceOrAppOrStreamChannel;
 
 	const [openProfileItem, closeProfileItem] = useModal(() => {
 		return (
@@ -207,7 +188,7 @@ const ChannelLinkComponent = ({
 				handleCancel={closeDeleteModal}
 				channelId={channel.channel_id as string}
 				clanId={clanId as string}
-				modalName={`${channel.channel_label}`}
+				modalName={`${channel?.channel_label || 'Unknown Channel'}`}
 			/>
 		);
 	}, [channel.channel_id]);
@@ -219,42 +200,16 @@ const ChannelLinkComponent = ({
 	const isAgeRestrictedChannel = useMemo(() => {
 		return channel?.age_restricted === 1;
 	}, [channel?.age_restricted]);
+	const countNumberNotification = numberNotification && numberNotification > 99 ? '99+' : (numberNotification ?? 0);
 
 	return (
 		<div
 			onContextMenu={handleMouseClick}
 			id={channel.id}
 			role="button"
-			onDragStart={(e) => dragStart(e)}
-			onDragEnd={(e) => dragEnter(e)}
 			className={`relative group z-10   ${showWhiteDot ? 'before:bg-[var(--text-secondary)] :content-[""] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute  before:top-3' : ''}`}
 		>
-			{channelType === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? (
-				<span
-					ref={channelLinkRef}
-					className={`${classes[state]} pointer-events-none ${channel.status === StatusVoiceChannel.Active ? 'cursor-pointer' : 'cursor-not-allowed'} ${isActive ? 'bg-item-theme text-theme-primary-active' : ''}`}
-					onClick={() => {
-						handleVoiceChannel(channel.id);
-						openModalJoinVoiceChannel(channel.meeting_code || '');
-					}}
-					role="link"
-				>
-					{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
-					<div className="relative mt-[-5px]">
-						{isPrivate === ChannelStatusEnum.isPrivate && <Icons.SpeakerLocked defaultSize="w-5 h-5 " />}
-						{!isPrivate && <Icons.Speaker defaultSize="w-5 5-5 " defaultFill="text-theme-primary" />}
-					</div>
-					<p
-						className={`ml-2 w-full pointer-events-none text-base text-theme-primary  ${highLightVoiceChannel ? 'bg-item-theme text-theme-primary-hover font-semibold' : ''}`}
-						title={channel.channel_label && channel?.channel_label.length > 20 ? channel?.channel_label : undefined}
-					>
-						{channel.channel_label && channel?.channel_label.length > 20
-							? `${channel?.channel_label.substring(0, 20)}...`
-							: channel?.channel_label}
-					</p>
-					{channel.status === StatusVoiceChannel.No_Active && <Icons.LoadingSpinner />}
-				</span>
-			) : (
+			{
 				<Link
 					to={channelPath}
 					id={`${channel.category_id}-${channel.id}`}
@@ -268,24 +223,22 @@ const ChannelLinkComponent = ({
 					>
 						{state === 'inactiveUnread' && <div className="absolute left-0 -ml-2 w-1 h-2 bg-white rounded-r-full"></div>}
 
-						<div className={`relative`}>
-							{isPrivate === ChannelStatusEnum.isPrivate && channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && (
-								<Icons.SpeakerLocked defaultSize="w-5 h-5 " />
-							)}
+						<div className={`relative`} data-e2e={generateE2eId('clan_page.channel_list.item.icon')}>
 							{channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel && (
 								<Icons.HashtagWarning className="w-5 h-5 " />
 							)}
 							{isPrivate === ChannelStatusEnum.isPrivate &&
 								channel.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 								!isAgeRestrictedChannel && <Icons.HashtagLocked defaultSize="w-5 h-5" />}
-							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && <Icons.Speaker defaultSize="w-5 h-5 " />}
 							{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
 								<>{isPrivate ? <Icons.SpeakerLocked defaultSize="w-5 h-5 " /> : <Icons.Speaker defaultSize="w-5 h-5 " />}</>
 							)}
 							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && !isAgeRestrictedChannel && (
-								<Icons.Hashtag defaultSize="w-5 h-5 " />
+								<Icons.Hashtag defaultSize="w-5 h-5 " data-e2e={generateE2eId('clan_page.channel_list.item.icon.hashtag')} />
 							)}
-							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_STREAMING && <Icons.Stream defaultSize="w-5 h-5 " />}
+							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_STREAMING && (
+								<Icons.Stream defaultSize="w-5 h-5 " data-e2e={generateE2eId('clan_page.channel_list.item.icon.stream')} />
+							)}
 							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_APP && <Icons.AppChannelIcon className={'w-5 h-5'} />}
 							{isPrivate && channel.type === ChannelType.CHANNEL_TYPE_APP ? (
 								<Icons.PrivateAppChannelIcon className={'w-5 h-5'} />
@@ -295,6 +248,7 @@ const ChannelLinkComponent = ({
 						<p
 							className={`ml-2 w-full pointer-events-none text-base focus:bg-bgModifierHover`}
 							title={channel.channel_label && channel?.channel_label.length > 20 ? channel?.channel_label : undefined}
+							data-e2e={generateE2eId('clan_page.channel_list.item.name')}
 						>
 							{channel.channel_label && channel?.channel_label.length > 20
 								? `${channel?.channel_label.substring(0, 20)}...`
@@ -311,43 +265,29 @@ const ChannelLinkComponent = ({
 						/>
 					) : null}
 				</Link>
-			)}
+			}
 
 			{isShowSettingChannel ? (
 				numberNotification && numberNotification > 0 ? (
 					<>
-						{/* <Icons.AddPerson
-							className={`absolute ml-auto w-4 h-4  top-[6px] right-8 cursor-pointer hidden group-hover:block dark:text-white text-black `}
-							onClick={handleCreateLinkInvite}
-						/> */}
 						<Icons.SettingProfile
 							className={`absolute ml-auto w-4 h-4  top-[6px] right-3 cursor-pointer hidden group-hover:block text-theme-primary `}
 							onClick={handleOpenCreate}
 						/>
 						<div
-							className={`absolute ml-auto w-4 h-4 text-white right-3 group-hover:hidden bg-red-600 rounded-full text-xs text-center top-2`}
+							className={`absolute ml-auto w-5 h-5 text-white right-3 group-hover:hidden bg-red-600 rounded-full text-[12px] flex items-center justify-center top-2`}
 						>
-							{numberNotification}
+							{countNumberNotification}
 						</div>
 					</>
 				) : (
-					<>
-						{/* <Icons.AddPerson
-							className={`absolute ml-auto w-4 h-4 top-[6px] hidden group-hover:block dark:group-hover:text-white group-hover:text-black ${isActive ? 'dark:text-white text-black' : 'text-transparent'} right-8 cursor-pointer`}
-							onClick={handleCreateLinkInvite}
-						/> */}
-						<Icons.SettingProfile
-							className={`absolute ml-auto w-5 h-5 top-2 right-3 ${isActive ? 'text-theme-primary-active' : 'text-transparent'} hidden group-hover:block text-theme-primary-hover cursor-pointer`}
-							onClick={handleOpenCreate}
-						/>
-					</>
+					<Icons.SettingProfile
+						className={`absolute ml-auto w-5 h-5 top-2 right-3 ${isActive ? 'text-theme-primary-active' : 'text-transparent'} hidden group-hover:block text-theme-primary-hover cursor-pointer`}
+						onClick={handleOpenCreate}
+					/>
 				)
 			) : (
 				<>
-					{/* <Icons.AddPerson
-						className={`absolute ml-auto w-4 h-4  top-[6px] group-hover:block dark:group-hover:text-white group-hover:text-black  ${isActive ? 'dark:text-white text-black' : 'text-transparent'} hidden right-3 cursor-pointer`}
-						onClick={handleCreateLinkInvite}
-					/> */}
 					{numberNotification && numberNotification > 0 ? (
 						<div className="absolute ml-auto w-4 h-4 top-[9px] text-white right-3 group-hover:hidden bg-red-600 flex justify-center items-center rounded-full text-xs">
 							{numberNotification}

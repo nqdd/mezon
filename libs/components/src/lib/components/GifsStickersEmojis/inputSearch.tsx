@@ -1,10 +1,12 @@
 import { useGifs, useGifsStickersEmoji } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import { SubPanelName } from '@mezon/utils';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
 
 export const InputSearch: React.FC = () => {
+	const { t } = useTranslation('message');
 	const { subPanelActive } = useGifsStickersEmoji();
 	const { fetchGifsDataSearch } = useGifs();
 	const [valueSearchGif, setValueSearchGif] = useState('');
@@ -27,12 +29,13 @@ export const InputSearch: React.FC = () => {
 	};
 
 	useEffect(() => {
-		debouncedSetValueSearchGif(valueInput);
+		const trimmedValue = valueInput.trim();
+		debouncedSetValueSearchGif(trimmedValue);
 		setValueInputSearch(valueInput);
 	}, [valueInput]);
 
 	useEffect(() => {
-		if (subPanelActive === SubPanelName.GIFS && valueSearchGif !== '') {
+		if (subPanelActive === SubPanelName.GIFS && valueSearchGif.trim() !== '') {
 			fetchGifsDataSearch(valueSearchGif);
 		}
 	}, [valueSearchGif]);
@@ -54,6 +57,22 @@ export const InputSearch: React.FC = () => {
 		setValueInputSearch('');
 		setButtonArrowBack(false);
 	};
+	const placeHolder = useMemo(() => {
+		if (valuePlaceHolder) {
+			return valuePlaceHolder;
+		}
+		switch (subPanelActive) {
+			case SubPanelName.EMOJI:
+				return t('findThePerfectReaction');
+			case SubPanelName.STICKERS:
+				return t('findThePerfectSticker');
+			case SubPanelName.GIFS:
+				return t('findThePerfectGif');
+
+			default:
+				break;
+		}
+	}, [subPanelActive, valuePlaceHolder]);
 
 	return (
 		<div className="flex flex-row items-center pt-4">
@@ -74,7 +93,7 @@ export const InputSearch: React.FC = () => {
 					<input
 						onChange={handleInputChange}
 						type="text"
-						placeholder={valuePlaceHolder || 'search'}
+						placeholder={placeHolder}
 						className="bg-theme-input outline-none bg-theme-input flex-1 p-2 rounded-md "
 						value={valueInput}
 						ref={searchInputRef}

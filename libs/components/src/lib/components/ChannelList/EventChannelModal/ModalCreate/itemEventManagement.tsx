@@ -1,7 +1,6 @@
-import { ButtonCopy } from '@mezon/components';
 import { useAppNavigation, useAuth, useOnClickOutside, usePermissionChecker } from '@mezon/core';
+import type { EventManagementEntity } from '@mezon/store';
 import {
-	EventManagementEntity,
 	addUserEvent,
 	deleteUserEvent,
 	eventManagementActions,
@@ -9,23 +8,25 @@ import {
 	selectChannelFirst,
 	selectMeetRoomByEventId,
 	selectMemberClanByUserId,
-	toastActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl } from '@mezon/utils';
+import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
+import { ButtonCopy } from 'libs/components/src/lib/components';
 import { ChannelType } from 'mezon-js';
-import { ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
-import { Coords } from '../../../ChannelLink';
+import type { Coords } from '../../../ChannelLink';
 import ModalInvite from '../../../ListMemberInvite/modalInvite';
-import { timeFomat } from '../timeFomatEvent';
+import { createI18nTimeFormatter } from '../timeFomatEvent';
 import ModalDelEvent from './modalDelEvent';
 import ModalShareEvent from './modalShareEvent';
 import PanelEventItem from './panelEventItem';
@@ -72,13 +73,16 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const isChannelEvent = textChannelId && textChannelId !== '0';
 	const isPrivateEvent = !isChannelEvent && ((!isReviewEvent && event?.is_private) || (isReviewEvent && isPrivate));
 	const isClanEvent = !isChannelEvent && ((!isReviewEvent && !event?.is_private) || (isReviewEvent && !isPrivate));
-
+	const { t, i18n } = useTranslation(['eventMenu', 'eventCreator']);
 	const dispatch = useAppDispatch();
+
+	// Create i18n-aware time formatter
+	const formatTimeI18n = useMemo(() => createI18nTimeFormatter(i18n.language), [i18n.language]);
 	const channelFirst = useSelector(selectChannelFirst);
 	const channelVoice = useAppSelector((state) => selectChannelById(state, voiceChannel ?? '')) || {};
 	const textChannel = useAppSelector((state) => selectChannelById(state, textChannelId ?? '')) || {};
 	const isThread = textChannel?.type === ChannelType.CHANNEL_TYPE_THREAD;
-	const userCreate = useSelector(selectMemberClanByUserId(event?.creator_id || ''));
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const [isClanOwner] = usePermissionChecker([EPermission.clanOwner]);
 	const checkOptionVoice = useMemo(() => option === OptionEvent.OPTION_SPEAKER, [option]);
 	const checkOptionLocation = useMemo(() => option === OptionEvent.OPTION_LOCATION, [option]);
@@ -95,6 +99,23 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 	const getPrivateMeetingRoom = useAppSelector((state) => selectMeetRoomByEventId(state, event?.id as string));
 	const eventIsUpcomming = event?.event_status === EEventStatus.UPCOMING;
 	const eventIsOngoing = event?.event_status === EEventStatus.ONGOING;
+
+	const actualEventStatus = useMemo(() => {
+		if (!event?.start_time) return { isUpcoming: eventIsUpcomming, isOngoing: eventIsOngoing };
+
+		const startTime = new Date(event.start_time).getTime();
+		const currentTime = Date.now();
+		const endTime = event.end_time ? new Date(event.end_time).getTime() : startTime + 2 * 60 * 60 * 1000;
+
+		const isActuallyUpcoming = currentTime < startTime;
+		const isActuallyOngoing = currentTime >= startTime && currentTime <= endTime;
+
+		return {
+			isUpcoming: isActuallyUpcoming,
+			isOngoing: isActuallyOngoing
+		};
+	}, [event?.start_time, event?.end_time, eventIsUpcomming, eventIsOngoing]);
+
 	const externalLink = event?.meet_room?.external_link || getPrivateMeetingRoom?.external_link;
 	const hasLink = Boolean(externalLink);
 
@@ -102,12 +123,12 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 		if (isPrivateEvent) {
 			return `${process.env.NX_CHAT_APP_REDIRECT_URI}${externalLink}`;
 		}
-		return `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${event?.clan_id}/channels/${event?.channel_id}`;
+		return `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${event?.clan_id}/channels/${event?.channel_voice_id || event?.channel_id}`;
 	}, []);
 
 	const handleCopyLink = useCallback(() => {
 		navigator.clipboard.writeText(link).catch((err) => {
-			dispatch(toastActions.addToastError({ message: err?.message || 'Failed to copy link.' }));
+			toast.error(err?.message || 'Failed to copy link.');
 		});
 	}, [link]);
 
@@ -138,10 +159,25 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 
 	const panelRef = useRef(null);
 	useOnClickOutside(panelRef, () => setOpenPanel(false));
+	const timeUntilEvent = useMemo(() => {
+		if (!event?.start_time || !actualEventStatus.isUpcoming) return null;
+
+		const startTime = new Date(event.start_time).getTime();
+		const currentTime = Date.now();
+		const timeDiff = startTime - currentTime;
+		const minutesLeft = Math.ceil(timeDiff / (1000 * 60));
+		if (minutesLeft <= 10 && minutesLeft > 0) {
+			return minutesLeft === 1 ? t('countdown.joinIn_one') : t('countdown.joinIn_other', { count: minutesLeft });
+		}
+
+		return null;
+	}, [event?.start_time, actualEventStatus.isUpcoming, t]);
 
 	const cssEventStatus = useMemo(() => {
-		return eventIsUpcomming ? 'text-purple-500' : eventIsOngoing ? 'text-green-500' : '';
-	}, [event?.event_status]);
+		if (actualEventStatus.isOngoing) return 'text-green-500';
+		if (actualEventStatus.isUpcoming && timeUntilEvent) return 'text-purple-500';
+		return '';
+	}, [actualEventStatus.isOngoing, actualEventStatus.isUpcoming, timeUntilEvent]);
 
 	const { toChannelPage, navigate } = useAppNavigation();
 
@@ -194,20 +230,51 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				<div className="flex justify-between">
 					<div className="flex items-center gap-x-2 mb-4">
 						<Icons.IconEvents defaultSize={`font-semibold ${cssEventStatus}`} />
-						<p className={`font-semibold ${cssEventStatus}`}>
-							{eventIsUpcomming
-								? '10 minutes left. Join in!'
-								: eventIsOngoing
-									? 'Event is taking place!'
-									: timeFomat(event?.start_time || start)}
+						<p className={`font-semibold ${cssEventStatus}`} data-e2e={generateE2eId('clan_page.modal.create_event.review.start_time')}>
+							{actualEventStatus.isUpcoming
+								? timeUntilEvent || formatTimeI18n(event?.start_time || start)
+								: actualEventStatus.isOngoing
+									? t('countdown.joinNow')
+									: formatTimeI18n(event?.start_time || start)}
 						</p>
-						{isClanEvent && <p className="bg-blue-500 text-white rounded-sm px-1 text-center">Clan Event</p>}
-						{isChannelEvent && <p className="bg-orange-500 text-white rounded-sm px-1 text-center">Channel Event</p>}
-						{isPrivateEvent && <p className="bg-red-500 text-white rounded-sm px-1 text-center">Private Event</p>}
+						{isClanEvent && (
+							<p
+								className="bg-blue-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.clanEvent')}
+							</p>
+						)}
+						{isChannelEvent && (
+							<p
+								className="bg-orange-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.channelEvent')}
+							</p>
+						)}
+						{isPrivateEvent && (
+							<p
+								className="bg-red-500 text-white rounded-sm px-1 text-center"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.type')}
+							>
+								{t('eventCreator:eventDetail.privateEvent')}
+							</p>
+						)}
 					</div>
 					{event?.creator_id && (
-						<Tooltip overlay={<p style={{ width: 'max-content' }}>{`Created by ${userCreate?.user?.username}`}</p>}>
-							<div>
+						<Tooltip
+							placement="left"
+							overlay={
+								<p className="text-theme-primary-active w-[max-content]">
+									{t('eventCreator:eventDetail.createdBy', { username: userCreate?.user?.username })}
+								</p>
+							}
+						>
+							<div
+								className="flex  items-center gap-x-4 mb-3 mr-4"
+								data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.open_detail_modal')}
+							>
 								<AvatarImage
 									alt={userCreate?.user?.username || ''}
 									username={userCreate?.user?.username}
@@ -216,15 +283,33 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 									src={userCreate?.user?.avatar_url}
 									classNameText="text-[9px] pt-[3px]"
 								/>
+								<div
+									className="flex items-center gap-x-1 w-full justify-end px-2 py-1 rounded-full bg-theme-primary text-theme-primary-active"
+									title={t('eventCreator:eventDetail.personInterested', { count: event?.user_ids?.length })}
+								>
+									<span className="text-md">{event?.user_ids?.length}</span>
+									<Icons.MemberList defaultSize="h-4 w-4" />
+								</div>
 							</div>
 						</Tooltip>
 					)}
 				</div>
+
 				<div className="flex justify-between gap-4 select-text">
-					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'}`}>
-						<p className="hover:underline font-bold  text-base">{topic}</p>
-						<div className="break-all max-h-[75px] eventDescriptionTruncate">
-							{isReviewEvent ? reviewDescription : event?.description}
+					<div className={`${isReviewEvent || !logoRight ? 'w-full' : 'w-3/5'} `}>
+						<p
+							className="hover:underline font-bold  text-base"
+							data-e2e={generateE2eId('clan_page.modal.create_event.review.event_topic')}
+						>
+							{topic}
+						</p>
+						<div className="flex justify-between">
+							<div
+								className="break-all max-h-[75px] eventDescriptionTruncate whitespace-pre-wrap"
+								data-e2e={generateE2eId('clan_page.modal.create_event.review.description')}
+							>
+								{isReviewEvent ? reviewDescription : event?.description}
+							</div>
 						</div>
 					</div>
 					{logoRight && (
@@ -232,6 +317,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					)}
 				</div>
 			</div>
+
 			<div
 				onClick={(e) => {
 					handleStopPropagation(e);
@@ -247,26 +333,23 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					{checkOptionVoice &&
 						!isPrivateEvent &&
 						(() => {
-							const isGMeet = channelVoice.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE;
-							const linkProps = isGMeet
-								? { href: `https://meet.google.com/${channelVoice.meeting_code}`, rel: 'noreferrer', target: '_blank' }
-								: {
-										onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
-											handleStopPropagation(e);
-											redirectToVoice();
-										}
-									};
+							const linkProps = {
+								onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+									handleStopPropagation(e);
+									redirectToVoice();
+								}
+							};
 							return (
 								<a {...linkProps} className="flex gap-x-2 cursor-pointer">
 									<Icons.Speaker />
-									<p>{channelVoice?.channel_label}</p>
+									<p data-e2e={generateE2eId('clan_page.modal.create_event.review.voice_channel')}>{channelVoice?.channel_label}</p>
 								</a>
 							);
 						})()}
 					{checkOptionLocation && (
 						<>
 							<Icons.Location />
-							<p>{address}</p>
+							<p data-e2e={generateE2eId('clan_page.modal.create_event.review.location_name')}>{address}</p>
 						</>
 					)}
 					{option === '' && !address && !channelVoice && (
@@ -280,10 +363,10 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							<Icons.SpeakerLocked />
 							{link ? (
 								<a href={link} target="_blank" rel="noopener noreferrer" className="cursor-pointer whitespace-normal break-words">
-									Private Room
+									{t('eventCreator:eventDetail.privateRoom')}
 								</a>
 							) : (
-								<span className="whitespace-normal break-words cursor-not-allowed">Private Room</span>
+								<span className="whitespace-normal break-words cursor-not-allowed">{t('eventCreator:eventDetail.privateRoom')}</span>
 							)}
 						</div>
 					)}
@@ -296,7 +379,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							handleStopPropagation(e);
 						}}
 					>
-						<div className="text-theme-primary-hover" onClick={(e) => handleOpenPanel(e)}>
+						<div className="text-theme-primary-hover cursor-pointer" onClick={(e) => handleOpenPanel(e)}>
 							<Icons.IconEditThreeDot className="rotate-90" />
 						</div>
 
@@ -307,26 +390,24 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 							>
 								{checkOptionVoice && <Icons.IconShareEventVoice />}
 								{checkOptionLocation && <Icons.IConShareEventLocation />}
-								Share
+								{t('eventCreator:eventDetail.share')}
 							</button>
 						)}
 
-						{eventIsOngoing && isClanOwner ? (
+						{actualEventStatus.isOngoing && isClanOwner ? (
 							<button
 								className="flex gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary "
 								onClick={() => setOpenModalDelEvent(true)}
 							>
-								End event
+								{t('dashboard.endEvent')}
 							</button>
-						) : !eventIsOngoing ? (
+						) : !actualEventStatus.isOngoing ? (
 							<button
 								onClick={handleToggleUserEvent}
-								className="flex items-center gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary"
+								className="flex items-center gap-x-1 rounded-lg text-theme-primary-hover px-4 py-2 bg-theme-primary text-theme-primary-active"
 							>
-								{isInterested ? <Icons.MuteBell defaultSize="size-4 text-white" /> : <Icons.Bell className="size-4 text-white" />}
-								<span className="whitespace-nowrap">
-									{event.user_ids?.length} {isInterested ? 'UnInterested' : 'Interested'}
-								</span>
+								{isInterested ? <Icons.MuteBell defaultSize="size-4" /> : <Icons.Bell className="size-4 " />}
+								<span className="whitespace-nowrap">{isInterested ? t('dashboard.UnInterested') : t('dashboard.Interested')}</span>
 							</button>
 						) : (
 							<></>
@@ -337,19 +418,19 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 			<div className="flex gap-x-2 mx-4 mb-2">
 				{isPrivateEvent ? (
 					<span className="flex flex-row items-center gap-2">
-						<p className="">Only invited members can join.</p>
+						<p className="">{t('eventCreator:eventDetail.onlyInvitedMembers')}</p>
 						{hasLink && (
 							<>
 								<button onClick={handleOpenLink} className="text-blue-500 hover:underline">
-									Open Link
+									{t('eventCreator:eventDetail.openLink')}
 								</button>
 
 								<button onClick={handleInvite} className="text-blue-500 hover:underline">
-									Invite
+									{t('eventCreator:eventDetail.invite')}
 								</button>
 								<ButtonCopy
 									copyText={link}
-									title="Copy Link"
+									title={t('eventCreator:eventDetail.copyLink')}
 									className="bg-transparent flex-row-reverse hover:!bg-transparent !text-blue-500 hover:!underline"
 								/>
 							</>
@@ -358,13 +439,16 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 				) : isChannelEvent ? (
 					<span className="flex flex-row">
 						<p className="">
-							{`The audience consists of members from ${isThread ? 'thread: ' : 'channel: '}`}
-							<strong className="">{textChannel.channel_label}</strong>
+							{t('eventCreator:eventDetail.audienceConsists')}{' '}
+							{isThread ? t('eventCreator:eventDetail.thread') : t('eventCreator:eventDetail.channel')}
+							<strong className="" data-e2e={generateE2eId('clan_page.modal.create_event.review.text_channel')}>
+								{textChannel.channel_label}
+							</strong>
 						</p>
 					</span>
 				) : isClanEvent ? (
 					<span className="flex flex-row">
-						<p className="">This event is open to everyone in the clan.</p>
+						<p className="">{t('dashboard.noti')}</p>
 					</span>
 				) : null}
 			</div>

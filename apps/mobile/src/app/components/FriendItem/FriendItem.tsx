@@ -1,13 +1,11 @@
-import { CallIcon, CheckIcon, MessageIcon } from '@mezon/mobile-components';
-import { Colors, useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity } from '@mezon/store-mobile';
+import { useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox/build/dist/BouncyCheckbox';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
-import useTabletLandscape from '../../hooks/useTabletLandscape';
 import ImageNative from '../ImageNative';
 import { UserStatus } from '../UserStatus';
 import { style } from './styles';
@@ -33,13 +31,12 @@ export interface IFriendItem {
 export const FriendItem = React.memo(
 	({ friend, handleFriendAction, onSelectChange, isChecked, disabled = false, showAction = true, selectMode = false }: IFriendItem) => {
 		const { themeValue } = useTheme();
-		const styles = style(themeValue);
+		const styles = style(themeValue, isChecked, disabled);
 		const userStatus = { status: friend?.user?.online, isMobile: friend?.user?.is_mobile };
 
 		const isFriend = friend.state === 0;
 		const isSentRequestFriend = friend.state === 1;
 		const isPendingFriendRequest = [1, 2].includes(friend.state);
-		const isTabletLandscape = useTabletLandscape();
 
 		const onPressAction = (actionType: EFriendItemAction) => {
 			if (selectMode) {
@@ -81,7 +78,7 @@ export const FriendItem = React.memo(
 							</Text>
 						</View>
 					)}
-					{!isPendingFriendRequest ? <UserStatus status={userStatus} customStatus={friend?.user?.metadata?.user_status} /> : null}
+					{!isPendingFriendRequest ? <UserStatus status={userStatus} customStatus={friend?.user?.status} /> : null}
 				</View>
 				<View style={styles.fill}>
 					<View style={styles.friendItemContent}>
@@ -98,10 +95,10 @@ export const FriendItem = React.memo(
 						{isFriend && showAction && !selectMode ? (
 							<View style={styles.friendAction}>
 								<Pressable onPress={() => onPressAction(EFriendItemAction.Call)}>
-									<CallIcon width={24} height={18} color={themeValue.text} />
+									<MezonIconCDN icon={IconCDN.phoneCallIcon} width={24} height={18} color={themeValue.text} />
 								</Pressable>
 								<Pressable onPress={() => onPressAction(EFriendItemAction.MessageDetail)}>
-									<MessageIcon width={25} height={18} color={themeValue.text} />
+									<MezonIconCDN icon={IconCDN.chatIcon} width={25} height={18} color={themeValue.text} />
 								</Pressable>
 							</View>
 						) : null}
@@ -109,11 +106,11 @@ export const FriendItem = React.memo(
 						{isPendingFriendRequest && showAction && !selectMode ? (
 							<View style={styles.friendAction}>
 								<Pressable onPress={() => onPressAction(EFriendItemAction.Delete)}>
-									<MezonIconCDN icon={IconCDN.closeIcon} width={18} height={18} color={Colors.textGray} />
+									<MezonIconCDN icon={IconCDN.closeIcon} width={18} height={18} color={'#c7c7c7'} />
 								</Pressable>
 								{!isSentRequestFriend ? (
 									<Pressable onPress={() => onPressAction(EFriendItemAction.Approve)} style={styles.approveIcon}>
-										<CheckIcon width={25} height={18} color={Colors.white} />
+										<MezonIconCDN icon={IconCDN.checkmarkSmallIcon} width={25} height={18} color={'white'} />
 									</Pressable>
 								) : null}
 							</View>
@@ -126,14 +123,9 @@ export const FriendItem = React.memo(
 									disabled={disabled}
 									isChecked={isChecked}
 									onPress={(value) => onSelectChange(friend, value)}
-									fillColor={Colors.bgButton}
+									fillColor={'#5865f2'}
 									iconStyle={{ borderRadius: 5 }}
-									innerIconStyle={{
-										borderWidth: 1.5,
-										borderColor: isChecked ? Colors.bgButton : Colors.white,
-										borderRadius: 5,
-										opacity: disabled ? 0.4 : 1
-									}}
+									innerIconStyle={styles.innerIconStyle}
 									textStyle={{ fontFamily: 'JosefinSans-Regular' }}
 								/>
 							</View>

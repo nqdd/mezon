@@ -2,7 +2,12 @@ import { themeColors } from '../../themes';
 
 export enum ThemeModeBase {
 	LIGHT = 'light',
-	DARK = 'dark'
+	DARK = 'dark',
+	SUNRISE = 'sunrise',
+	REDDARK = 'redDark',
+	PURPLE_HAZE = 'purpleHaze',
+	ABYSS_DARK = 'abyssDark',
+	SUNSET = 'sunset'
 }
 
 export enum ThemeModeAuto {

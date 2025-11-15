@@ -1,101 +1,143 @@
 {
-    "screens": {
-        "eventType": {
-            "headerTitle": "Bước 1 trong 3",
-            "title": "Sự kiện của bạn ở đâu?",
-            "subtitle": "Để không ai bị lạc đường đến nơi",
-            "description": "Bạn có thể cho người khác quyền tạo sự kiện trong Clan > Cài đặt > Vai trò"
-        },
-        "eventDetails": {
-            "headerTitle": "Bước 2 trong 3",
-            "title": "Sự kiện của bạn nói về điều gì?",
-            "subtitle": "Điền thông tin chi tiết về sự kiện của bạn"
-        },
-        "eventPreview": {
-            "headerTitle": "Bước 3 trong 3",
-            "title": "Dưới đây là một bản xem trước sự kiện của bạn",
-            "subtitle": "Sự kiện này sẽ tự động bắt đầu khi đến giờ",
-            "subtitleVoice": "Khi đến giờ, hãy đến kênh thoại để bắt đầu sự kiện!"
-        },
-        "channelSelection": {
-            "title": "Khán giả là ai?",
-            "description": "Chọn thành viên trong kênh đã chỉ định.",
-            "channel": "Khán giả bao gồm các thành viên từ {{channel}}: "
-        },
-        "isPrivate": "Chỉ những người được mời mới có thể tham gia"
-    },
-    "fields": {
-        "channelType": {
-            "voiceChannel": {
-                "title": "Kênh thoại",
-                "description": "Giao lưu thoại, video, chia sẻ màn hình và phát trực tiếp."
-            },
-            "somewhere": {
-                "title": "Nơi khác",
-                "description": "Kênh văn bản, liên kết bên ngoài hoặc địa điểm trực tiếp."
-            },
-            "privateEvent": {
-                "title": "Tạo sự kiện riêng tư",
-                "description": "Phòng thoại và video chỉ dành cho người được mời!"
-            }
-        },
-        "channel": {
-            "title": "Chọn kênh"
-        },
-        "address": {
-            "title": "Địa điểm",
-            "placeholder": "Thêm địa điểm, liên kết hoặc cái gì đó"
-        },
-        "eventName": {
-            "title": "Chủ đề sự kiện",
-            "placeholder": "Sự kiện của bạn là gì?",
-            "errorMessage": "Cần có chủ đề cho sự kiện"
-        },
-        "startDate": {
-            "title": "Ngày bắt đầu",
-              "errorMessage": "Vui lòng chọn ngày hiện tại hoặc ngày trong tương lai"
-        },
-        "startTime": {
-            "title": "Giờ bắt đầu",
-            "errorMessage": "Vui lòng chọn giờ bắt đầu hợp lệ"
-        },
-        "endDate": {
-            "title": "Ngày kết thúc",
-              "errorMessage": "Vui lòng chọn ngày hiện tại hoặc ngày trong tương lai"
-        },
-        "endTime": {
-            "title": "Giờ kết thúc",
-            "errorMessage": "Vui lòng chọn giờ kết thúc hợp lệ"
-        },
-        "eventFrequency": {
-            "title": "Tần suất sự kiện",
-            "noRepeat": "Không lặp lại",
-            "weeklyOn": "Hàng tuần vào {{name}}",
-            "everyOther": "Cách tuần {{name}}",
-            "monthlyOn": "Hàng tháng vào {{name}}",
-            "annuallyOn": "Hàng năm vào {{name}}",
-            "everyWeekday": "Mỗi ngày làm việc (Thứ Hai đến Thứ Sáu)"
-        },
-        "description": {
-            "title": "Mô tả",
-            "description": "Hãy cho mọi người biết thêm một chút về sự kiện của bạn."
-        },
-        "cover": "Ảnh bìa"
-    },
-    "actions": {
-        "next": "Tiếp theo",
-        "create": "Tạo sự kiện",
-        "edit": "Cập nhật sự kiện"
-    },
-    "notify": {
-        "locationBlank": "Cần có một địa điểm",
-        "titleBlank": "Cần có một chủ đề cho sự kiện",
-        "time": "Thời gian bắt đầu hoặc kết thúc không hợp lệ",
-        "type": "Cần chọn loại sự kiện cần tổ chức"
-    },
-    "eventDetail": {
-        "eventIsTaking": "Sự kiện đang diễn ra!",
-        "tenMinutesLeft": "Còn 10 phút. Tham gia ngay!"
-    },
-    "selectUser": "Chọn channel để tạo sự kiện"
+	"screens": {
+		"eventType": {
+			"headerTitle": "Bước 1 trong 3",
+			"title": "Sự kiện của bạn ở đâu?",
+			"subtitle": "Để không ai bị lạc đường đến nơi",
+			"description": "Bạn có thể cho người khác quyền tạo sự kiện trong Clan > Cài đặt > Vai trò"
+		},
+		"eventDetails": {
+			"headerTitle": "Bước 2 trong 3",
+			"title": "Sự kiện của bạn nói về điều gì?",
+			"subtitle": "Điền thông tin chi tiết về sự kiện của bạn"
+		},
+		"eventPreview": {
+			"headerTitle": "Bước 3 trong 3",
+			"title": "Dưới đây là một bản xem trước sự kiện của bạn",
+			"subtitle": "Sự kiện này sẽ tự động bắt đầu khi đến giờ",
+			"subtitleVoice": "Khi đến giờ, hãy đến kênh thoại để bắt đầu sự kiện!"
+		},
+		"channelSelection": {
+			"title": "Khán giả là ai?",
+			"description": "Chọn thành viên trong kênh đã chỉ định.",
+			"channel": "Khán giả bao gồm các thành viên từ {{channel}}: "
+		},
+		"isPrivate": "Chỉ những người được mời mới có thể tham gia"
+	},
+	"fields": {
+		"channelType": {
+			"voiceChannel": {
+				"title": "Kênh thoại",
+				"description": "Giao lưu thoại, video, chia sẻ màn hình và phát trực tiếp."
+			},
+			"somewhere": {
+				"title": "Nơi khác",
+				"description": "Kênh văn bản, liên kết bên ngoài hoặc địa điểm trực tiếp."
+			},
+			"privateEvent": {
+				"title": "Tạo sự kiện riêng tư",
+				"description": "Phòng thoại và video chỉ dành cho người được mời!"
+			}
+		},
+		"channel": {
+			"title": "Chọn kênh"
+		},
+		"address": {
+			"title": "Địa điểm",
+			"placeholder": "Thêm địa điểm, liên kết hoặc cái gì đó"
+		},
+		"eventName": {
+			"title": "Chủ đề sự kiện",
+			"placeholder": "Sự kiện của bạn là gì?",
+			"errorMessage": "Cần có chủ đề cho sự kiện"
+		},
+		"startDate": {
+			"title": "Ngày bắt đầu",
+			"errorMessage": "Vui lòng chọn ngày hiện tại hoặc ngày trong tương lai"
+		},
+		"startTime": {
+			"title": "Giờ bắt đầu",
+			"errorMessage": "Vui lòng chọn giờ bắt đầu hợp lệ"
+		},
+		"endDate": {
+			"title": "Ngày kết thúc",
+			"errorMessage": "Vui lòng chọn ngày hiện tại hoặc ngày trong tương lai"
+		},
+		"endTime": {
+			"title": "Giờ kết thúc",
+			"errorMessage": "Vui lòng chọn giờ kết thúc hợp lệ"
+		},
+		"eventFrequency": {
+			"title": "Tần suất sự kiện",
+			"noRepeat": "Không lặp lại",
+			"weeklyOn": "Hàng tuần vào {{name}}",
+			"everyOther": "Cách tuần {{name}}",
+			"monthlyOn": "Hàng tháng vào {{name}}",
+			"annuallyOn": "Hàng năm vào {{name}}",
+			"everyWeekday": "Mỗi ngày làm việc (Thứ Hai đến Thứ Sáu)"
+		},
+		"description": {
+			"title": "Mô tả",
+			"description": "Hãy cho mọi người biết thêm một chút về sự kiện của bạn."
+		},
+		"cover": "Ảnh bìa"
+	},
+	"actions": {
+		"next": "Tiếp theo",
+		"create": "Tạo sự kiện",
+		"edit": "Cập nhật sự kiện",
+		"event_one": "1 Sự kiện",
+		"event_other": "{{count}} Sự kiện",
+		"noEvent": "Sự kiện",
+		"clearAudiences": "Xóa khán giả",
+		"startEvent": "Bắt đầu sự kiện",
+		"editEvent": "Chỉnh sửa sự kiện",
+		"cancelEvent": "Hủy sự kiện",
+		"copyEventLink": "Sao chép liên kết sự kiện",
+		"uploadImage": "Tải ảnh lên",
+		"neverMind": "Bỏ qua",
+		"cancelEventQuestion": "Hủy sự kiện?",
+		"confirmCancelEvent": "Bạn có chắc chắn muốn hủy sự kiện này không?",
+		"back": "Trở lại",
+		"cancel": "Hủy"
+	},
+	"tabs": {
+		"location": "Vị trí",
+		"eventInfo": "Thông tin sự kiện",
+		"review": "Xem trước"
+	},
+	"notify": {
+		"locationBlank": "Cần có một địa điểm",
+		"titleBlank": "Cần có một chủ đề cho sự kiện",
+		"time": "Thời gian bắt đầu hoặc kết thúc không hợp lệ",
+		"type": "Cần chọn loại sự kiện cần tổ chức"
+	},
+	"eventDetail": {
+		"eventIsTaking": "Sự kiện đang diễn ra!",
+		"tenMinutesLeft": "Còn {{minutes}} phút. Tham gia ngay!",
+		"eventInfo": "Thông tin sự kiện",
+		"interested": "Quan tâm",
+		"personInterested": "{{count}} người quan tâm",
+		"createdBy": "Được tạo bởi {{username}}",
+		"inviteFriends": "Mời bạn bè tham gia sự kiện?",
+		"shareLink": "Chia sẻ liên kết này với người khác để cấp quyền truy cập vào máy chủ này",
+		"onlyInvitedMembers": "Chỉ thành viên được mời mới có thể tham gia.",
+		"openLink": "Mở liên kết",
+		"invite": "Mời",
+		"copyLink": "Sao chép liên kết",
+		"audienceConsists": "Khán giả bao gồm các thành viên từ",
+		"thread": "chuỗi thảo luận:",
+		"channel": "kênh:",
+		"clanEvent": "Sự kiện Clan",
+		"channelEvent": "Sự kiện Kênh",
+		"privateEvent": "Sự kiện Riêng tư",
+		"privateRoom": "Phòng riêng tư",
+		"newEvent": "Mới",
+		"share": "Chia sẻ"
+	},
+	"errorMessages": {
+		"startTimeFuture": "Thời gian bắt đầu phải ở tương lai.",
+		"endTimeAfterStart": "Thời gian kết thúc phải lớn hơn thời gian bắt đầu."
+	},
+	"selectUser": "Chọn kênh hoặc chủ đề để tạo sự kiện"
 }

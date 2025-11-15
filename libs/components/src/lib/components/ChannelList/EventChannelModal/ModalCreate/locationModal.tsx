@@ -1,12 +1,15 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { ChannelsEntity, selectTheme } from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { selectTheme } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ContenSubmitEventProps, OptionEvent, filterOptionReactSelect } from '@mezon/utils';
+import type { ContenSubmitEventProps } from '@mezon/utils';
+import { OptionEvent, filterOptionReactSelect, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
-import { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
+import type { FilterOptionOption } from 'react-select/dist/declarations/src/filters';
 import { customStyles } from '../../../NotificationSetting';
 
 export type LocationModalProps = {
@@ -48,6 +51,7 @@ const LocationModal = (props: LocationModalProps) => {
 		isChannelEvent = false,
 		isPrivateEvent = false
 	} = props;
+	const { t } = useTranslation('eventCreator');
 	const [errorVoice, setErrorVoice] = useState(false);
 
 	const displaySelectAudiences = (!isEditEventAction && !choicePrivateEvent) || (isEditEventAction && isChannelEvent);
@@ -76,7 +80,7 @@ const LocationModal = (props: LocationModalProps) => {
 	const options = voicesChannel.map((voice) => ({
 		value: voice.id,
 		label: (
-			<div className="flex items-center gap-x-2 ">
+			<div className="flex items-center gap-x-2 " data-e2e={generateE2eId('clan_page.modal.create_event.location.channel.item')}>
 				{voice.channel_private ? <Icons.SpeakerLocked /> : <Icons.Speaker />}
 				{voice.channel_label}
 			</div>
@@ -133,7 +137,7 @@ const LocationModal = (props: LocationModalProps) => {
 				return {
 					value: channel.id,
 					label: (
-						<div className="flex items-center gap-x-2 ">
+						<div className="flex items-center gap-x-2 " data-e2e={generateE2eId('clan_page.modal.create_event.location.channel.item')}>
 							{icon}
 							{channel.channel_label}
 						</div>
@@ -154,17 +158,17 @@ const LocationModal = (props: LocationModalProps) => {
 	const memoizedFilterOption = useMemo<FilterOptionType>(() => (option, inputValue) => filterOptionReactSelect(option, inputValue), []);
 
 	return (
-		<div ref={modalRef}>
+		<div ref={modalRef} className="p-6" data-e2e={generateE2eId('clan_page.modal.create_event.location')}>
 			<div className="flex flex-col mb-4">
-				<h3 className="text-xl text-center font-semibold ">Where is your event?</h3>
-				<p className=" text-center">So no one gets lost on where to go.</p>
+				<h3 className="text-xl text-center font-semibold ">{t('screens.eventType.title')}</h3>
+				<p className=" text-center">{t('screens.eventType.subtitle')}</p>
 			</div>
 			<div className={`flex flex-col mb-4 ${errorVoice ? 'gap-y-2' : 'gap-y-4'}`}>
 				{displaySelectVoiceOrLocation && (
 					<TitleOptionEvent
 						icon={<Icons.Speaker />}
-						title="Voice Channel"
-						desc="Hang out with voice, video, Screen Share and Go Live."
+						title={t('fields.channelType.voiceChannel.title')}
+						desc={t('fields.channelType.voiceChannel.description')}
 						choose={choiceSpeaker}
 						id="Speaker"
 						onChange={voicesChannel.length > 0 ? () => handleOption(OptionEvent.OPTION_SPEAKER) : () => {}}
@@ -174,8 +178,8 @@ const LocationModal = (props: LocationModalProps) => {
 				{displaySelectVoiceOrLocation && (
 					<TitleOptionEvent
 						icon={<Icons.Location />}
-						title="Somewhere Else"
-						desc="Text channel, external link or in-person location."
+						title={t('fields.channelType.somewhere.title')}
+						desc={t('fields.channelType.somewhere.description')}
 						choose={choiceLocation}
 						id="Hashtag"
 						onChange={() => handleOption(OptionEvent.OPTION_LOCATION)}
@@ -185,8 +189,8 @@ const LocationModal = (props: LocationModalProps) => {
 				{displaySelectPrivate && (
 					<TitleOptionEvent
 						icon={<Icons.SpeakerLocked />}
-						title="Create Private Event"
-						desc="Invite-only voice & video room!"
+						title={t('fields.channelType.privateEvent.title')}
+						desc={t('fields.channelType.privateEvent.description')}
 						choose={!!choicePrivateEvent}
 						id="Private"
 						onChange={onChangePrivateEvent}
@@ -195,46 +199,57 @@ const LocationModal = (props: LocationModalProps) => {
 			</div>
 			{choiceSpeaker && (
 				<Select
+					classNames={{
+						menuList: () => 'thread-scroll'
+					}}
 					options={options}
 					value={options.find((option) => option.value === contentSubmit.voiceChannel)}
 					onChange={handleChangeVoice}
 					styles={customStyles}
-					placeholder="Search voice channels..."
+					placeholder={t('fields.channel.title')}
 					filterOption={memoizedFilterOption}
+					noOptionsMessage={() => t('invitation:noResults', 'No result')}
 				/>
 			)}
 			{choiceLocation && (
 				<div>
-					<h3 className="uppercase text-[11px] font-semibold  ">Enter a location</h3>
+					<h3 className="uppercase text-[11px] font-semibold  ">{t('fields.address.title')}</h3>
 					<input
 						type="text"
 						name="location"
 						value={contentSubmit.address}
 						onChange={onChangeAddress}
-						placeholder="Add a location, link or something."
+						placeholder={t('fields.address.placeholder')}
 						className={`font-[400] rounded w-full  outline-none text-[15px] border border-theme-primary px-4 py-3 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
+						data-e2e={generateE2eId('clan_page.modal.create_event.location.input')}
 					/>
 				</div>
 			)}
 			{displaySelectAudiences && (
 				<>
 					<div className="flex flex-col mb-2 mt-3">
-						<h3 className="text-xl text-center font-semibold  ">Who are audiences?</h3>
-						<p className=" text-center">Choose members in the specified channel.</p>
+						<h3 className="text-xl text-center font-semibold  ">{t('screens.channelSelection.title')}</h3>
+						<p className=" text-center">{t('screens.channelSelection.description')}</p>
 					</div>
 
 					<Select
+						classNames={{
+							menuList: () => 'thread-scroll',
+							control: () => 'cursor-pointer'
+						}}
 						options={optionsTextChannel}
 						value={isClear ? null : selectedOption}
 						onChange={handleSelectChannelAudience}
 						styles={customStyles}
-						placeholder="Search channels..."
+						placeholder={t('fields.channel.title')}
 						filterOption={memoizedFilterOption}
+						menuPlacement="top"
+						noOptionsMessage={() => t('invitation:noResults', 'No result')}
 					/>
 					{showClearButton && (
 						<div className="flex justify-end mt-1">
 							<button onClick={handleClearAudience} className="text-blue-500 hover:underline">
-								Clear audiences
+								{t('actions.clearAudiences')}
 							</button>
 						</div>
 					)}
@@ -260,11 +275,13 @@ const TitleOptionEvent = ({
 	id: string;
 }) => {
 	return (
-		<label className="w-full bg-item-theme rounded flex justify-between items-center p-2" htmlFor={id}>
+		<label className="w-full bg-item-theme rounded flex justify-between items-center p-2 cursor-pointer" htmlFor={id}>
 			<div className={`flex items-center gap-x-2 ${choose ? 'text-theme-primary-active' : ''} `}>
 				{icon}
 				<div>
-					<h4 className={`font-semibold`}>{title}</h4>
+					<h4 className={`font-semibold`} data-e2e={generateE2eId('clan_page.modal.create_event.location.type')}>
+						{title}
+					</h4>
 					<p>{desc}</p>
 				</div>
 			</div>

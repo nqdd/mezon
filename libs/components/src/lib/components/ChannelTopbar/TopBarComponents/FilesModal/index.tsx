@@ -1,8 +1,16 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
-import { attachmentActions, selectAllListDocumentByChannel, selectCurrentChannel, selectTheme, useAppDispatch, useAppSelector } from '@mezon/store';
+import {
+	attachmentActions,
+	selectAllListDocumentByChannel,
+	selectCurrentChannelChannelId,
+	selectCurrentChannelClanId,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { RefObject, useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import type { RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import EmptyFile from './EmptyFile';
 import FileItem from './FileItem';
 import SearchFile from './SearchFile';
@@ -13,19 +21,19 @@ type FileModalProps = {
 };
 
 const FileModal = ({ onClose, rootRef }: FileModalProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
-	const currentChannel = useSelector(selectCurrentChannel);
+	const channelId = useAppSelector(selectCurrentChannelChannelId);
+	const clanId = useAppSelector(selectCurrentChannelClanId);
 	const [keywordSearch, setKeywordSearch] = useState('');
 
-	const appearanceTheme = useSelector(selectTheme);
-	const allAttachments = useAppSelector((state) => selectAllListDocumentByChannel(state, (currentChannel?.channel_id ?? '') as string));
+	const allAttachments = useAppSelector((state) => selectAllListDocumentByChannel(state, (channelId ?? '') as string));
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		const { channel_id: channelId, clan_id: clanId } = currentChannel || {};
 		if (!channelId || !clanId) return;
-		dispatch(attachmentActions.fetchChannelAttachments({ clanId, channelId }));
-	}, []);
+		dispatch(attachmentActions.fetchChannelAttachments({ clanId, channelId, limit: 100 }));
+	}, [channelId, clanId, dispatch]);
 
 	const filteredAttachments = allAttachments.filter(
 		(attachment) => attachment.filename && attachment.filename.toLowerCase().includes(keywordSearch.toLowerCase())
@@ -44,7 +52,7 @@ const FileModal = ({ onClose, rootRef }: FileModalProps) => {
 				<div className=" bg-theme-setting-nav flex flex-row items-center justify-between p-[16px] h-12">
 					<div className="flex flex-row items-center border-r-[1px] border-color-theme pr-[16px] gap-4">
 						<Icons.FileIcon />
-						<span className="text-base font-semibold cursor-default ">File</span>
+						<span className="text-base font-semibold cursor-default ">{t('modals.files.title')}</span>
 					</div>
 					<SearchFile setKeywordSearch={setKeywordSearch} />
 					<div className="flex flex-row items-center gap-4 text-theme-primary-hover">

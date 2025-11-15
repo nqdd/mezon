@@ -1,4 +1,4 @@
-import { Colors } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import React from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -9,13 +9,14 @@ interface SearchInputProps {
 	text: string;
 }
 const SearchInput: React.FC<SearchInputProps> = ({ placeholder, setText, text }) => {
+	const { themeValue } = useTheme();
 	return (
 		<View style={styles.container}>
 			<Feather name="search" size={20} style={styles.icon} />
 			<TextInput
 				placeholder={placeholder}
 				style={styles.icon}
-				placeholderTextColor={Colors.gray48}
+				placeholderTextColor={themeValue.textDisabled}
 				onChangeText={setText}
 				defaultValue={text}
 			/>
@@ -32,12 +33,12 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		height: 80,
-		backgroundColor: Colors.black,
+		backgroundColor: 'black',
 		paddingLeft: 10,
 		paddingRight: 10,
 		gap: 10
 	},
 	icon: {
-		color: Colors.gray48
+		color: '#484848'
 	}
 });

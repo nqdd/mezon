@@ -37,10 +37,28 @@ export const AVAILABLE_THEMES: ThemeConfig[] = [
 		cssFile: 'assets/themes/redDark.css'
 	},
 	{
-		name: 'Abyss Dark',
+		name: 'abyss_dark',
 		displayName: 'Abyss Dark',
 		color: 'linear-gradient(135deg, #0f172a, #1e3a8a, #6d28d9)',
 		cssFile: 'assets/themes/abyss_dark_.css'
+	},
+	{
+		name: 'berrynade',
+		displayName: 'Berry nade',
+		color: 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), linear-gradient(161.03deg, rgb(175, 26, 108) 18.79%, rgb(194, 107, 32) 49.76%, rgb(231, 165, 37) 80.72%)',
+		cssFile: 'assets/themes/berrynade.css'
+	},
+	{
+		name: 'cisher',
+		displayName: 'Cisher',
+		color: 'linear-gradient(rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.65)), linear-gradient(rgb(243, 179, 54) 31.1%, rgb(238, 133, 88) 67.09%)',
+		cssFile: 'assets/themes/cisher.css'
+	},
+	{
+		name: 'sunset',
+		displayName: 'Sunset',
+		color: 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), linear-gradient(141.68deg, rgb(72, 40, 140) 27.57%, rgb(219, 127, 75) 71.25%)',
+		cssFile: 'assets/themes/sunset.css'
 	}
 ];
 
@@ -178,15 +196,15 @@ export class ThemeManager {
 		}
 	}
 
-	static getCurrentTheme(): string {
+	static getCurrentTheme(): 'light' | 'dark' | 'sunrise' | 'purple_haze' | 'redDark' | 'abyss_dark' {
 		const stored = localStorage.getItem('current-theme');
 		if (stored && AVAILABLE_THEMES.find((t) => t.name === stored)) {
-			return stored;
+			return stored as 'light' | 'dark' | 'sunrise' | 'purple_haze' | 'redDark' | 'abyss_dark';
 		}
 		return DEFAULT_THEME;
 	}
 
-	static async initializeTheme(): Promise<'light' | 'dark'> {
+	static async initializeTheme(): Promise<'sunrise' | 'dark' | 'light' | 'purple_haze' | 'redDark' | 'abyss_dark'> {
 		const currentTheme = this.getCurrentTheme();
 		try {
 			return await this.loadTheme(currentTheme, false);

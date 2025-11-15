@@ -1,16 +1,16 @@
-import { Attributes, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, widthScreen: number) =>
 	StyleSheet.create({
 		content: {
-			height: (Metrics.screenWidth - size.s_6 * size.s_10) / 5.1,
-			width: (Metrics.screenWidth - size.s_6 * size.s_10) / 5.1,
+			height: (widthScreen - size.s_6 * size.s_10) / 5.1,
+			width: (widthScreen - size.s_6 * size.s_10) / 5.1,
 			borderRadius: 10,
 			overflow: 'hidden'
 		},
 		audioContent: {
-			width: (Metrics.screenWidth - size.s_30) / 2.01,
+			width: (widthScreen - size.s_30) / 2.01,
 			height: size.s_90,
 			borderRadius: 10,
 			overflow: 'hidden',
@@ -85,5 +85,37 @@ export const style = (colors: Attributes) =>
 		},
 		chevronIcon: {
 			marginTop: size.s_10
+		},
+		scrollViewContainer: {
+			paddingBottom: size.s_10 * 2
+		},
+		btnEmoActive: {
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		btnEmoImageFull: {
+			height: '100%',
+			width: '100%'
+		},
+		scrollView: {
+			maxHeight: Metrics.screenHeight / 1.07
+		},
+		btnEmoSelected: {
+			backgroundColor: baseColor.blurple
+		},
+		btnEmoUnselected: {
+			backgroundColor: 'transparent'
+		},
+		itemMargin: {
+			margin: 4
+		},
+		imageFull: {
+			height: '100%',
+			width: '100%'
+		},
+		lockIconColor: '#e1e1e1',
+		columnWrapper: {
+			justifyContent: 'space-between'
 		}
 	});

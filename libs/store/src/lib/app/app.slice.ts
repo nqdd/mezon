@@ -1,5 +1,6 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
+import type { LoadingStatus } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
@@ -10,10 +11,11 @@ import { usersClanActions } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
 import { directActions } from '../direct/direct.slice';
 import { createCachedSelector, messagesActions } from '../messages/messages.slice';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 import { voiceActions } from '../voice/voice.slice';
 
 export const APP_FEATURE_KEY = 'app';
+const NUMBER_HISTORY = 10;
 
 export interface showSettingFooterProps {
 	status: boolean;
@@ -24,7 +26,7 @@ export interface showSettingFooterProps {
 }
 
 export interface AppState {
-	themeApp: 'light' | 'dark' | 'system';
+	themeApp: 'light' | 'dark' | 'sunrise' | 'purple_haze' | 'redDark' | 'abyss_dark';
 	currentLanguage: 'en' | 'vi';
 	loadingStatus: LoadingStatus;
 	error?: string | null;
@@ -46,12 +48,38 @@ export interface AppState {
 	isShowSettingFooter: showSettingFooterProps;
 	isShowPopupQuickMess: boolean;
 	categoryChannelOffsets: { [key: number]: number };
+	isShowWelcomeMobile: boolean;
+	history: {
+		url: string[];
+		current: number | null;
+	};
+	isShowUpdateUsername: boolean;
 }
+
+const getInitialLanguage = (): 'en' | 'vi' => {
+	if (typeof window !== 'undefined') {
+		const storedLang = localStorage.getItem('i18nextLng');
+		if (storedLang === 'vi' || storedLang === 'en') {
+			return storedLang;
+		}
+		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		if (timezone === 'Asia/Ho_Chi_Minh' || timezone === 'Asia/Saigon') {
+			return 'vi';
+		}
+
+		const browserLang = navigator.language.toLowerCase();
+		if (browserLang.startsWith('vi')) {
+			return 'vi';
+		}
+	}
+	return 'en';
+};
 
 export const initialAppState: AppState = {
 	loadingStatus: 'not loaded',
-	themeApp: 'dark',
-	currentLanguage: 'en',
+
+	themeApp: 'sunrise',
+	currentLanguage: getInitialLanguage(),
 	isShowMemberList: true,
 	isShowChatStream: false,
 	isShowChatVoice: false,
@@ -63,13 +91,19 @@ export const initialAppState: AppState = {
 	initialParams: {},
 	closeMenu: false,
 	statusMenu: true,
-	hiddenBottomTabMobile: true,
+	hiddenBottomTabMobile: false,
 	hasInternetMobile: true,
 	loadingMainMobile: false,
 	isFromFcmMobile: false,
 	isShowSettingFooter: { status: false, initTab: 'Account', isUserProfile: true, profileInitTab: 'USER_SETTING', clanId: '' },
 	isShowPopupQuickMess: false,
-	categoryChannelOffsets: {}
+	categoryChannelOffsets: {},
+	isShowWelcomeMobile: true,
+	history: {
+		url: [],
+		current: null
+	},
+	isShowUpdateUsername: false
 };
 
 export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id: string }, thunkAPI) => {
@@ -102,7 +136,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id
 			thunkAPI.dispatch(
 				messagesActions.fetchMessages({
 					clanId: clanId || '',
-					channelId: channelId,
+					channelId,
 					isFetchingLatestMessages: true,
 					isClearMessage: true,
 					noCache: true
@@ -121,7 +155,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id
 				voiceActions.fetchVoiceChannelMembers({
 					clanId: currentClanId ?? '',
 					channelId: '',
-					channelType: ChannelType.CHANNEL_TYPE_GMEET_VOICE
+					channelType: ChannelType.CHANNEL_TYPE_MEZON_VOICE
 				})
 			);
 		}
@@ -227,11 +261,100 @@ export const appSlice = createSlice({
 		setIsShowPopupQuickMess: (state, action) => {
 			state.isShowPopupQuickMess = action.payload;
 		},
-		setCategoryChannelOffsets: (state, action) => {
-			state.categoryChannelOffsets = {
-				...state.categoryChannelOffsets,
-				...action.payload
+		setIsShowWelcomeMobile: (state, action) => {
+			state.isShowWelcomeMobile = action.payload;
+		},
+		setHistory: (state, action) => {
+			if (!state.history) {
+				state.history = {
+					url: [],
+					current: null
+				};
+			}
+
+			const url = action.payload;
+			if (state.history.current !== null && state.history.url[state.history.current] === url) {
+				return;
+			}
+			if (state.history.current !== null && state.history.url.length - 2 >= state.history.current && state.history.current > 0) {
+				const history = [...state.history.url].splice(0, state.history.current + 1);
+				history.push(url);
+				state.history = {
+					url: history.slice(-NUMBER_HISTORY),
+					current: history.length > NUMBER_HISTORY ? NUMBER_HISTORY - 1 : history.length - 1
+				};
+				return;
+			}
+
+			const history = [...state.history.url, url];
+
+			state.history = {
+				url: history.slice(-NUMBER_HISTORY),
+				current: history.length > NUMBER_HISTORY ? NUMBER_HISTORY - 1 : history.length - 1
 			};
+		},
+		setBackHistory: (state, action) => {
+			if (!state.history) return;
+			if (state.history.current === null) return;
+			if (action.payload) {
+				if (!state.history.current) {
+					return;
+				}
+				state.history.current = state.history.current - 1;
+				return;
+			} else {
+				if (state.history.current === state.history.url.length - 1) {
+					return;
+				}
+				state.history.current = state.history.current + 1;
+			}
+		},
+		clearHistory: (state) => {
+			state.history = {
+				url: [],
+				current: null
+			};
+		},
+		cleanHistoryClan: (state, action: PayloadAction<string>) => {
+			const clanId = action.payload;
+			if (!state.history || !state.history?.url?.length) return;
+			const filteredHistory = state.history.url.filter((url) => !url.includes(`/clans/${clanId}/`));
+			let countCurrent = state.history?.current !== null ? state.history?.current : 0;
+			state.history.url.map((url, index) => {
+				if (index <= countCurrent && url.includes(`/clans/${clanId}/`)) {
+					if (!state.history?.current) {
+						return;
+					}
+					countCurrent = countCurrent - 1;
+				}
+			});
+			state.history = {
+				url: filteredHistory,
+				current: countCurrent
+			};
+		},
+		clearHistoryChannel: (state, action: PayloadAction<{ channelId: string }>) => {
+			const { channelId } = action.payload;
+			if (!state.history || !state.history?.url?.length) return;
+			const filteredHistory = state.history?.url.filter(
+				(url) => !(url.includes(`/channels/${channelId}`) || url.includes(`/message/${channelId}/`))
+			);
+			let countCurrent = state.history?.current !== null ? state.history.current : 0;
+			state.history.url.map((url, index) => {
+				if (index <= countCurrent && (url.includes(`/channels/${channelId}/`) || url.includes(`/message/${channelId}/`))) {
+					if (!state.history.current) {
+						return;
+					}
+					countCurrent = countCurrent - 1;
+				}
+			});
+			state.history = {
+				url: filteredHistory,
+				current: countCurrent
+			};
+		},
+		setIsShowUpdateUsername: (state, action) => {
+			state.isShowUpdateUsername = action.payload;
 		}
 	}
 });
@@ -247,7 +370,7 @@ export const getAppState = (rootState: { [APP_FEATURE_KEY]: AppState }): AppStat
 
 export const selectAllApp = createSelector(getAppState, (state: AppState) => state);
 
-export const selectTheme = createSelector(getAppState, (state: AppState) => state.themeApp || 'dark');
+export const selectTheme = createSelector(getAppState, (state: AppState) => state.themeApp);
 
 export const selectCurrentLanguage = createSelector(getAppState, (state: AppState) => state.currentLanguage || 'en');
 
@@ -286,4 +409,8 @@ export const selectIsShowSettingFooter = createSelector(getAppState, (state: App
 
 export const selectIsShowPopupQuickMess = createSelector(getAppState, (state: AppState) => state.isShowPopupQuickMess);
 
-export const selectCategoryChannelOffsets = createSelector(getAppState, (state: AppState) => state.categoryChannelOffsets);
+export const selectIsShowWelcomeMobile = createSelector(getAppState, (state: AppState) => state.isShowWelcomeMobile);
+
+export const selectHistory = createSelector(getAppState, (state: AppState) => state.history);
+
+export const selectIsShowUpdateUsername = createSelector(getAppState, (state: AppState) => state.isShowUpdateUsername);

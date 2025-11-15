@@ -1,26 +1,25 @@
-import { useAuth } from '@mezon/core';
 import { ActionEmitEvent, changeClan, getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
-	ChannelsEntity,
 	directActions,
 	getStore,
 	getStoreAsync,
+	selectAllAccount,
 	selectAllRolesClan,
 	selectAllUserClans,
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectDmGroupCurrentId,
-	selectGrouplMembers,
+	selectMemberByGroupId,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect } from 'react';
-import { DeviceEventEmitter, Linking, View } from 'react-native';
-import { useWebRTCStream } from '../../../components/StreamContext/StreamContext';
+import { DeviceEventEmitter, Keyboard, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
-import { linkGoogleMeet } from '../../../utils/helpers';
 import JoinChannelVoiceBS from './components/ChannelVoice/JoinChannelVoiceBS';
 import JoinStreamingRoomBS from './components/StreamingRoom/JoinStreamingRoomBS';
 import UserProfile from './components/UserProfile';
@@ -29,8 +28,7 @@ const ChannelMessageListener = React.memo(() => {
 	const store = getStore();
 	const navigation = useNavigation<any>();
 	const dispatch = useAppDispatch();
-	const { handleChannelClick, disconnect } = useWebRTCStream();
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 
 	const onMention = useCallback(
 		async (mentionedUser: string) => {
@@ -39,7 +37,7 @@ const ChannelMessageListener = React.memo(() => {
 				let listUser = [];
 				const currentDirectId = selectDmGroupCurrentId(store.getState());
 				if (!!currentDirectId && currentDirectId !== '0') {
-					listUser = selectGrouplMembers(store.getState(), currentDirectId);
+					listUser = selectMemberByGroupId(store.getState(), currentDirectId);
 				} else {
 					listUser = selectAllUserClans(store.getState());
 				}
@@ -71,23 +69,20 @@ const ChannelMessageListener = React.memo(() => {
 				const currentDirectId = selectDmGroupCurrentId(store.getState());
 				const currentClanId = currentDirectId ? '0' : clanIdStore;
 				const topicIdStore = selectCurrentTopicId(store.getState());
-
+				Keyboard.dismiss();
 				if (topicIdStore) {
 					navigation.goBack();
 				}
 
-				if (type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && channel?.meeting_code) {
-					const urlVoice = `${linkGoogleMeet}${channel?.meeting_code}`;
-					await Linking.openURL(urlVoice);
-				} else if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+				if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 					const data = {
-						snapPoints: ['45%'],
+						heightFitContent: true,
 						children: <JoinChannelVoiceBS channel={channel} />
 					};
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 				} else if (type === ChannelType.CHANNEL_TYPE_STREAMING) {
 					const data = {
-						snapPoints: ['45%'],
+						heightFitContent: true,
 						children: <JoinStreamingRoomBS channel={channel} />
 					};
 					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
@@ -112,7 +107,7 @@ const ChannelMessageListener = React.memo(() => {
 				/* empty */
 			}
 		},
-		[disconnect, dispatch, handleChannelClick, navigation, store, userProfile?.user?.id, userProfile?.user?.username]
+		[dispatch, navigation, store, userProfile?.user?.id, userProfile?.user?.username]
 	);
 
 	useEffect(() => {

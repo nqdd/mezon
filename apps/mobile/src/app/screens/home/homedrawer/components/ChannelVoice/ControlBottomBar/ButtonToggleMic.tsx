@@ -1,11 +1,11 @@
-import { useLocalParticipant } from '@livekit/react-native';
+import { useLocalParticipant, useRoomContext } from '@livekit/react-native';
 import { useTheme } from '@mezon/mobile-ui';
-import * as Sentry from '@sentry/react-native';
-import { Track, createLocalAudioTrack } from 'livekit-client';
+import { ActionEmitEvent } from 'libs/mobile-components/src/lib/constant/storage';
 import React from 'react';
-import { Alert, Linking, Platform, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { DeviceEventEmitter, Linking, Platform, TouchableOpacity } from 'react-native';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
-import Toast from 'react-native-toast-message';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { style } from '../styles';
@@ -13,7 +13,9 @@ import { style } from '../styles';
 const ButtonToggleMic = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { isMicrophoneEnabled, localParticipant } = useLocalParticipant();
+	const { isMicrophoneEnabled } = useLocalParticipant();
+	const room = useRoomContext();
+	const { t } = useTranslation(['common']);
 
 	const checkAndRequestMicPermission = async () => {
 		if (Platform.OS === 'ios') {
@@ -33,69 +35,31 @@ const ButtonToggleMic = () => {
 	};
 
 	const showPermissionAlert = () => {
-		Alert.alert('Microphone Permission Required', 'Please allow microphone access in your device settings to use this feature.', [
-			{ text: 'Cancel', style: 'cancel' },
-			{
-				text: 'Open Settings',
-				onPress: () => {
-					Linking.openSettings();
-				}
-			}
-		]);
-	};
-
-	const createAndPublishAudioTrack = async (localParticipant: any) => {
-		let newAudioTrack;
-		try {
-			newAudioTrack = await createLocalAudioTrack();
-		} catch (createError) {
-			console.error('Error enabling microphone:', createError);
-			Sentry.captureException('ToogleMicMezonMeet', { extra: { createError } });
-			try {
-				const devices = await navigator.mediaDevices.enumerateDevices();
-				const audioInputDevices = devices?.filter((device) => device?.kind === 'audioinput');
-				if (audioInputDevices?.length === 0) {
-					Toast.show({
-						type: 'error',
-						text1: 'No audio input devices found'
-					});
-					return;
-				}
-				newAudioTrack = await createLocalAudioTrack({
-					deviceId: { exact: audioInputDevices?.[0]?.deviceId }
-				});
-			} catch (deviceError) {
-				console.error('Error creating audio track with device:', deviceError);
-				Toast.show({
-					type: 'error',
-					text1: `Error creating audio device: ${JSON.stringify(deviceError)}`
-				});
-				return;
-			}
-		}
-
-		try {
-			const oldAudioPublication = Array.from(localParticipant.audioTrackPublications.values()).find(
-				(publication) => publication?.source === Track.Source.Microphone
-			);
-			if (oldAudioPublication && oldAudioPublication?.track) {
-				await localParticipant.unpublishTrack(oldAudioPublication?.track, true);
-			}
-			await localParticipant.publishTrack(newAudioTrack);
-		} catch (publishError) {
-			console.error('Error publish audio track:', publishError);
-		}
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('permissionNotification.microphonePermissionTitle')}
+					content={t('permissionNotification.microphonePermissionDesc')}
+					confirmText={t('openSettings')}
+					onConfirm={() => {
+						Linking.openSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleToggleMicrophone = async () => {
 		try {
 			if (isMicrophoneEnabled) {
-				await localParticipant.setMicrophoneEnabled(false);
+				await room.localParticipant.setMicrophoneEnabled(false);
 				return;
 			}
 
 			try {
-				await localParticipant.setMicrophoneEnabled(true);
+				await room.localParticipant.setMicrophoneEnabled(true);
 			} catch (enableError) {
 				console.error('Error enabling microphone:', enableError);
 
@@ -106,8 +70,6 @@ const ButtonToggleMic = () => {
 						return;
 					}
 				}
-
-				await createAndPublishAudioTrack(localParticipant);
 			}
 		} catch (error) {
 			console.error('Error toggling microphone:', error);

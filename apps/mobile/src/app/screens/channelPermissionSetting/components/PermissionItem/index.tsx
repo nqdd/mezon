@@ -1,35 +1,37 @@
-import { Colors, size, Text, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { EPermission } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import { EPermissionStatus } from '../../types/channelPermission.enum';
-import { IPermissionItemProps } from '../../types/channelPermission.type';
+import type { IPermissionItemProps } from '../../types/channelPermission.type';
+import { styles as stylesFn } from './PermissionItem.styles';
 
 export const PermissionItem = memo(({ permission, status, onPermissionStatusChange }: IPermissionItemProps) => {
 	const { slug, title } = permission;
 	const { themeValue } = useTheme();
+	const styles = stylesFn(themeValue);
 	const { t } = useTranslation('channelSetting');
 
 	const permissionOptionList = [
 		{
 			icon: (color: string) => <MezonIconCDN icon={IconCDN.closeIcon} color={color} />,
-			activeBackground: Colors.persianRed,
-			color: Colors.persianRed,
+			activeBackground: baseColor.redStrong,
+			color: baseColor.redStrong,
 			type: EPermissionStatus.Deny
 		},
 		{
 			icon: (color: string) => <MezonIconCDN icon={IconCDN.slashIcon} height={size.s_16} width={size.s_16} color={color} />,
-			activeBackground: Colors.outerSpace,
-			color: Colors.outerSpace,
+			activeBackground: '#404249',
+			color: '#404249',
 			type: EPermissionStatus.None
 		},
 		{
 			icon: (color: string) => <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={color} />,
-			activeBackground: Colors.jungleGreen,
-			color: Colors.jungleGreen,
+			activeBackground: baseColor.gray,
+			color: baseColor.gray,
 			type: EPermissionStatus.Allow
 		}
 	];
@@ -40,48 +42,30 @@ export const PermissionItem = memo(({ permission, status, onPermissionStatusChan
 				return t('channelPermission.description.viewChannel');
 			case EPermission.manageChannel:
 				return t('channelPermission.description.manageChannel');
-			case EPermission.manageThread:
-				return t('channelPermission.description.manageThread');
-			case EPermission.sendMessage:
-				return t('channelPermission.description.sendMessage');
-			case EPermission.deleteMessage:
-				return t('channelPermission.description.deleteMessage');
 			default:
 				return '';
 		}
 	}, [t, slug]);
 
 	return (
-		<View style={{ gap: size.s_6 }}>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-				<Text color={themeValue.textStrong} h4>
-					{title}
-				</Text>
-				<View style={{ flexDirection: 'row', borderRadius: size.s_4, overflow: 'hidden' }}>
+		<View style={styles.container}>
+			<View style={styles.headerRow}>
+				<Text style={styles.titleText}>{title}</Text>
+				<View style={styles.optionRow}>
 					{permissionOptionList?.map((option) => {
 						const { activeBackground, icon, type, color } = option;
 						const isActive = status === type;
 						return (
 							<TouchableOpacity key={type.toString()} onPress={() => onPermissionStatusChange(permission?.id, type)}>
-								<View
-									style={{
-										backgroundColor: isActive ? activeBackground : themeValue.primary,
-										alignItems: 'center',
-										justifyContent: 'center',
-										width: size.s_34,
-										height: size.s_30
-									}}
-								>
-									{icon(isActive ? Colors.white : color)}
+								<View style={[styles.optionButton, { backgroundColor: isActive ? activeBackground : themeValue.primary }]}>
+									{icon(isActive ? 'white' : color)}
 								</View>
 							</TouchableOpacity>
 						);
 					})}
 				</View>
 			</View>
-			<Text color={themeValue.textDisabled} h6>
-				{getPermissionDescription()}
-			</Text>
+			<Text style={styles.descriptionText}>{getPermissionDescription()}</Text>
 		</View>
 	);
 });

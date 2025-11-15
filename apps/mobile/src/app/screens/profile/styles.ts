@@ -1,4 +1,4 @@
-import { Attributes, baseColor, Colors, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -43,7 +43,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		},
 
 		whiteText: {
-			color: Colors.white,
+			color: 'white',
 			fontSize: isTabletLandscape ? size.label : size.s_14
 		},
 
@@ -58,7 +58,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			gap: size.s_8,
-			backgroundColor: Colors.bgViolet,
+			backgroundColor: colors.bgViolet,
 			borderRadius: 50,
 			flex: 1,
 			paddingVertical: size.s_10,
@@ -213,5 +213,48 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			backgroundColor: colors.text,
 			justifyContent: 'center',
 			alignItems: 'center'
+		},
+		buttonEnableWallet: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			gap: size.s_8,
+			flexShrink: 1,
+			backgroundColor: colors.primary,
+			borderRadius: 50,
+			paddingVertical: size.s_10,
+			flexDirection: 'row'
+		},
+		shopSettingRow: {
+			flexDirection: 'row',
+			gap: size.s_10
+		},
+		defaultAvatarContainer: {
+			backgroundColor: colors.colorAvatarDefault,
+			overflow: 'hidden',
+			width: '100%',
+			height: '100%',
+			borderRadius: isTabletLandscape ? size.s_70 : size.s_50,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		scrollContentContainer: {
+			paddingBottom: size.s_100
+		},
+		touchStatusMargin: {
+			marginBottom: size.s_10
+		},
+		tokenRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
+		},
+		tokenRowMargin: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10,
+			marginTop: size.s_10
+		},
+		contentGap: {
+			gap: size.s_20
 		}
 	});

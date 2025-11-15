@@ -1,9 +1,9 @@
 import { useExpandedGroupDragAndDrop } from '@mezon/core';
+import type { ClanGroup as ClanGroupType, RootState } from '@mezon/store';
 import {
-	ClanGroup as ClanGroupType,
-	RootState,
 	clansActions,
 	selectBadgeCountByClanId,
+	selectClanHasUnreadMessage,
 	selectClanView,
 	selectClansEntities,
 	selectCurrentClanId
@@ -39,9 +39,10 @@ export type ClanGroupProps = {
 	className?: string;
 	isGroupIntent?: boolean;
 	onClanMouseDown?: (e: React.MouseEvent<HTMLDivElement>, clanId: string, fromGroup: { groupId: string; clanId: string }) => void;
+	onClanClick?: () => void;
 };
 
-const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIntent, onClanMouseDown }: ClanGroupProps) => {
+const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIntent, onClanMouseDown, onClanClick }: ClanGroupProps) => {
 	const dispatch = useDispatch();
 	const allClansEntities = useSelector(selectClansEntities);
 
@@ -58,10 +59,17 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 		}, 0);
 	});
 
+	const hasUnreadInGroup = useSelector((state: RootState) => {
+		return group.clanIds.some((clanId) => {
+			return selectClanHasUnreadMessage(clanId)(state);
+		});
+	});
+
 	const expandedGroupDragAndDrop = useExpandedGroupDragAndDrop(group.id, group.clanIds);
 
 	const handleToggle = () => {
 		dispatch(clansActions.toggleGroupExpanded(group.id));
+		onClanClick?.();
 	};
 
 	const maxDisplayClans = 4;
@@ -100,7 +108,7 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 		dispatch(
 			clansActions.removeClanFromGroup({
 				groupId: group.id,
-				clanId: clanId
+				clanId
 			})
 		);
 	};
@@ -151,6 +159,7 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 										active={isActive(clan.id)}
 										className="scale-100 hover:scale-105 transition-transform duration-200"
 										onMouseDown={(e) => handleClanMouseDown(e, clan)}
+										onClanClick={onClanClick}
 									/>
 
 									{!expandedGroupDragAndDrop.draggingState.isDragging && (
@@ -283,6 +292,10 @@ const ClanGroup = ({ group, onMouseDown, onMouseEnter, className = '', isGroupIn
 				>
 					{totalBadgeCount >= 100 ? '99+' : totalBadgeCount}
 				</div>
+			)}
+
+			{hasUnreadInGroup && totalBadgeCount === 0 && (
+				<div className="before:content-[''] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute before:top-3 before:left-[-14px] before:bg-white"></div>
 			)}
 		</div>
 	);

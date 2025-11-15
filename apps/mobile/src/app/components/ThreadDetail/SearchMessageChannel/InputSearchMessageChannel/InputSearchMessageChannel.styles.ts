@@ -1,10 +1,10 @@
-import { Attributes, Colors, size, verticalScale } from '@mezon/mobile-ui';
+import { Attributes, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapper: {
 			flexDirection: 'row',
-			backgroundColor: Colors.transparent,
+			backgroundColor: 'transparent',
 			paddingBottom: size.s_20,
 			alignItems: 'center',
 			justifyContent: 'space-between',
@@ -15,7 +15,7 @@ export const style = (colors: Attributes) =>
 		searchBox: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondary,
 			borderRadius: verticalScale(50),
 			flex: 1,
 			height: size.s_40,
@@ -31,7 +31,7 @@ export const style = (colors: Attributes) =>
 			paddingVertical: 0
 		},
 		listSearchIcon: {
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondary,
 			opacity: 0.7,
 			padding: size.s_10,
 			borderRadius: verticalScale(50)
@@ -41,5 +41,23 @@ export const style = (colors: Attributes) =>
 			fontWeight: '600',
 			color: colors.white
 		},
-		textBadgeHighLight: { color: colors.white, fontSize: size.s_12, fontWeight: '500', width: '100%' }
+		textBadgeHighLight: { color: colors.white, fontSize: size.s_12, fontWeight: '500', width: '100%' },
+		backButton: {
+			height: '100%',
+			paddingRight: size.s_10
+		},
+		backButtonInner: {
+			alignSelf: 'center',
+			justifyContent: 'center',
+			flex: 1
+		},
+		iconWrapper: {
+			marginRight: size.s_6
+		},
+		badge: {
+			borderRadius: size.s_18,
+			paddingHorizontal: size.s_10,
+			paddingVertical: size.s_2,
+			maxWidth: size.s_100
+		}
 	});

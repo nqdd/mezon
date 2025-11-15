@@ -1,7 +1,11 @@
-import { useLocalParticipant, useLocalParticipantPermissions, usePersistentUserChoices, useTracks } from '@livekit/components-react';
+import { useLocalParticipant, useLocalParticipantPermissions, usePersistentUserChoices } from '@livekit/components-react';
 import {
+	selectCurrentChannelId,
 	selectGroupCallJoined,
+	selectNoiseSuppressionEnabled,
+	selectNoiseSuppressionLevel,
 	selectShowCamera,
+	selectShowMicrophone,
 	selectShowScreen,
 	selectShowSelectScreenModal,
 	selectStreamScreen,
@@ -16,29 +20,27 @@ import { ChannelStreamMode } from 'mezon-js';
 
 import { EmojiSuggestionProvider } from '@mezon/core';
 import isElectron from 'is-electron';
-import { LocalTrackPublication, RoomEvent, ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
+import type { LocalTrackPublication } from 'livekit-client';
+import { ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
 import Tooltip from 'rc-tooltip';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { usePopup } from '../../DraggablePopup/usePopup';
+import { toast } from 'react-toastify';
 import { GifStickerEmojiPopup } from '../../GifsStickersEmojis';
 import SoundSquare from '../../GifsStickersEmojis/SoundSquare';
 import ScreenSelectionModal from '../../ScreenSelectionModal/ScreenSelectionModal';
-import { ReactionChannelInfo } from '../MyVideoConference/Reaction/types';
 import { useSendReaction } from '../MyVideoConference/Reaction/useSendReaction';
-import VoicePopout from '../VoicePopout/VoicePopout';
-import { BackgroundEffectsMenu } from './BackgroundEffectsMenu';
+import { BackgroundEffectsMenu } from './BackgroundEffectMenu';
 import { MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
 import { ScreenShareToggleButton } from './TrackToggle/ScreenShareToggleButton';
 import { TrackToggle } from './TrackToggle/TrackToggle';
 interface ControlBarProps extends React.HTMLAttributes<HTMLDivElement> {
 	onDeviceError?: (error: { source: Track.Source; error: Error }) => void;
 	saveUserChoices?: boolean;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (self?: boolean) => void;
 	onFullScreen: () => void;
 	isExternalCalling?: boolean;
-	currentChannel?: ReactionChannelInfo;
 	isShowMember?: boolean;
 	isGridView?: boolean;
 }
@@ -49,32 +51,46 @@ const ControlBar = ({
 	onLeaveRoom,
 	onFullScreen,
 	isExternalCalling,
-	currentChannel,
 	isShowMember = true,
 	isGridView = true
 }: ControlBarProps) => {
 	const dispatch = useAppDispatch();
 	const audioScreenTrackRef = useRef<LocalTrackPublication | null>(null);
 
+	const isSupport = useMemo(() => {
+		const sender = RTCRtpSender.prototype as any;
+
+		const supports =
+			(typeof sender.createEncodedStreams === 'function' || typeof sender.createEncodedVideoStreams === 'function') &&
+			typeof (window as any).VideoFrame === 'function';
+		return supports;
+	}, []);
+
 	const { hasCameraAccess, hasMicrophoneAccess } = useMediaPermissions();
 
 	const isGroupCall = useSelector(selectGroupCallJoined);
 
-	const { sendEmojiReaction, sendSoundReaction } = useSendReaction({ currentChannel: currentChannel });
+	const { sendEmojiReaction, sendSoundReaction } = useSendReaction();
 
 	const screenTrackRef = useRef<LocalTrackPublication | null>(null);
 	const isDesktop = isElectron();
 	const stream = useSelector(selectStreamScreen);
+	const isPublishingScreenRef = useRef(false);
 	const visibleControls = { leave: true } as any;
 
 	const showScreen = useSelector(selectShowScreen);
 	const showCamera = useSelector(selectShowCamera);
+	const showMicrophone = useSelector(selectShowMicrophone);
+	const noiseSuppressionEnabled = useSelector(selectNoiseSuppressionEnabled);
+	const noiseSuppressionLevel = useSelector(selectNoiseSuppressionLevel);
 
 	const isFullScreen = useSelector(selectVoiceFullScreen);
 	const isShowSelectScreenModal = useSelector(selectShowSelectScreenModal);
 	const localPermissions = useLocalParticipantPermissions();
 	const localParticipant = useLocalParticipant();
 	const isOpenPopOut = useSelector(selectVoiceOpenPopOut);
+
+	const currentChannelId = useSelector(selectCurrentChannelId);
 
 	if (!localPermissions) {
 		visibleControls.camera = false;
@@ -92,12 +108,6 @@ const ControlBar = ({
 		preventSave: !saveUserChoices
 	});
 
-	useEffect(() => {
-		if (!isOpenPopOut) {
-			closeVoicePopup();
-		}
-	}, [isOpenPopOut]);
-
 	const handleRequestCameraPermission = useCallback(async () => {
 		const permissionStatus = await requestMediaPermission('video');
 		if (permissionStatus === 'granted') {
@@ -114,7 +124,7 @@ const ControlBar = ({
 
 	const microphoneOnChange = useCallback(
 		(enabled: boolean, isUserInitiated: boolean) => {
-			if (isUserInitiated) {
+			if (enabled !== showMicrophone) {
 				if (!hasMicrophoneAccess && enabled) {
 					handleRequestMicrophonePermission();
 				} else {
@@ -122,12 +132,12 @@ const ControlBar = ({
 				}
 			}
 		},
-		[hasMicrophoneAccess, dispatch, handleRequestMicrophonePermission]
+		[hasMicrophoneAccess, showMicrophone, handleRequestMicrophonePermission]
 	);
 
 	const cameraOnChange = useCallback(
 		(enabled: boolean, isUserInitiated: boolean) => {
-			if (isUserInitiated) {
+			if (enabled !== showCamera) {
 				if (!hasCameraAccess && enabled) {
 					handleRequestCameraPermission();
 				} else {
@@ -135,7 +145,7 @@ const ControlBar = ({
 				}
 			}
 		},
-		[hasCameraAccess, dispatch, handleRequestCameraPermission]
+		[showCamera, hasCameraAccess, handleRequestCameraPermission]
 	);
 
 	useEffect(() => {
@@ -157,46 +167,63 @@ const ControlBar = ({
 		}
 	}, [dispatch, showScreen]);
 
+	const handleLeaveRoom = useCallback(() => {
+		onLeaveRoom(true);
+	}, [onLeaveRoom]);
+
 	useEffect(() => {
 		const publishScreenTrack = async () => {
-			if (screenTrackRef.current?.track) {
-				screenTrackRef.current.track.stop?.();
-				await localParticipant.localParticipant.unpublishTrack(screenTrackRef.current.track);
-				screenTrackRef.current = null;
+			if (isPublishingScreenRef.current) {
+				return;
 			}
-			if (!stream) return;
-			const videoTrack = stream.getVideoTracks()[0];
+
+			isPublishingScreenRef.current = true;
+
 			try {
-				const trackPublication = await localParticipant.localParticipant.publishTrack(videoTrack, {
-					name: 'screen-share',
-					source: Track.Source.ScreenShare,
-					simulcast: false,
-					screenShareSimulcastLayers: [
-						// 720p
-						{
-							...VideoPresets.h720,
-							encoding: ScreenSharePresets.h720fps30.encoding,
-							resolution: ScreenSharePresets.h720fps30.resolution
-						},
-						// 1080p
-						{
-							...VideoPresets.h1080,
-							encoding: ScreenSharePresets.h1080fps30.encoding,
+				if (screenTrackRef.current?.track) {
+					screenTrackRef.current.track.stop?.();
+					await localParticipant.localParticipant.unpublishTrack(screenTrackRef.current.track);
+					screenTrackRef.current = null;
+				}
+				if (!stream) {
+					isPublishingScreenRef.current = false;
+					return;
+				}
+				const videoTrack = stream.getVideoTracks()[0];
+				try {
+					const trackPublication = await localParticipant.localParticipant.publishTrack(videoTrack, {
+						name: 'screen-share',
+						source: Track.Source.ScreenShare,
+						simulcast: false,
+						screenShareSimulcastLayers: [
+							// 720p
+							{
+								...VideoPresets.h720,
+								encoding: ScreenSharePresets.h720fps30.encoding,
+								resolution: ScreenSharePresets.h720fps30.resolution
+							},
+							// 1080p
+							{
+								...VideoPresets.h1080,
+								encoding: ScreenSharePresets.h1080fps30.encoding,
 
-							resolution: ScreenSharePresets.h1080fps30.resolution
-						},
-						{
-							...VideoPresets.h1440,
-							encoding: ScreenSharePresets.original.encoding,
+								resolution: ScreenSharePresets.h1080fps30.resolution
+							},
+							{
+								...VideoPresets.h1440,
+								encoding: ScreenSharePresets.original.encoding,
 
-							resolution: ScreenSharePresets.original.resolution
-						}
-					]
-				});
+								resolution: ScreenSharePresets.original.resolution
+							}
+						]
+					});
 
-				screenTrackRef.current = trackPublication;
-			} catch (error) {
-				console.error('Error publishing screen track:', error);
+					screenTrackRef.current = trackPublication;
+				} catch (error) {
+					console.error('Error publishing screen track:', error);
+				}
+			} finally {
+				isPublishingScreenRef.current = false;
 			}
 		};
 		const publishScreenAudioTrack = async () => {
@@ -235,18 +262,30 @@ const ControlBar = ({
 				localParticipant.localParticipant.unpublishTrack(audioScreenTrackRef.current.track);
 				audioScreenTrackRef.current = null;
 			}
+			isPublishingScreenRef.current = false;
 		};
 	}, [stream]);
 
-	const handleOpenScreenSelection = useCallback(() => {
+	const handleOpenScreenSelection = useCallback(async () => {
 		if (isDesktop) {
+			if (typeof document !== 'undefined' && document.fullscreenElement) {
+				try {
+					await document.exitFullscreen();
+				} catch (_e) {
+					void 0;
+				}
+				dispatch(voiceActions.setFullScreen(false));
+			} else if (isFullScreen) {
+				onFullScreen?.();
+			}
+
 			if (!showScreen) {
 				dispatch(voiceActions.setShowSelectScreenModal(true));
 			} else {
 				dispatch(voiceActions.setShowScreen(false));
 			}
 		}
-	}, [isDesktop, openScreenSelection, showScreen]);
+	}, [dispatch, isDesktop, isFullScreen, onFullScreen, showScreen]);
 
 	const onScreenShare = useCallback(
 		async (enabled: boolean, isUserInitiated: boolean) => {
@@ -261,41 +300,29 @@ const ControlBar = ({
 		[dispatch]
 	);
 
-	const screenShareTracks = useTracks(
-		[
-			{ source: Track.Source.Camera, withPlaceholder: true },
-			{ source: Track.Source.ScreenShare, withPlaceholder: false }
-		],
-		{ updateOnlyOn: [RoomEvent.ActiveSpeakersChanged], onlySubscribed: false }
-	);
-
-	const [openVoicePopup, closeVoicePopup] = usePopup(
-		({ closePopup }) => (
-			<VoicePopout
-				tracks={screenShareTracks}
-				onClose={() => {
-					closePopup();
-				}}
-			/>
-		),
-		{
-			title: 'Voice Channel',
-			handleClose: () => dispatch(voiceActions.setOpenPopOut(false))
-		}
-	);
-
-	const togglePopout = useCallback(() => {
-		if (isOpenPopOut) {
-			closeVoicePopup();
-			dispatch(voiceActions.setOpenPopOut(false));
+	const togglePopout = useCallback(async () => {
+		const video = document.getElementById('focusTrack') as HTMLVideoElement | null;
+		if (video) {
+			try {
+				if (document.pictureInPictureElement) {
+					await document.exitPictureInPicture();
+				} else {
+					await video.requestPictureInPicture();
+				}
+			} catch (err) {
+				console.error('PiP error:', err);
+			}
 		} else {
-			openVoicePopup();
-			dispatch(voiceActions.setOpenPopOut(true));
+			toast.warning('Please select a video track to popout !');
 		}
-	}, [dispatch, isOpenPopOut, openVoicePopup, closeVoicePopup]);
+	}, [dispatch]);
 
 	const [showEmojiPanel, setShowEmojiPanel] = useState(false);
 	const [showSoundPanel, setShowSoundPanel] = useState(false);
+	useEffect(() => {
+		setShowEmojiPanel(false);
+		setShowSoundPanel(false);
+	}, [currentChannelId]);
 
 	useEffect(() => {
 		if (!showEmojiPanel) return;
@@ -320,7 +347,7 @@ const ControlBar = ({
 	}, [showSoundPanel]);
 
 	const handleEmojiSelect = useCallback(
-		(emoji: string, emojiId: string) => {
+		(emojiId: string, emoji: string) => {
 			sendEmojiReaction(emoji, emojiId);
 		},
 		[sendEmojiReaction]
@@ -331,6 +358,19 @@ const ControlBar = ({
 			sendSoundReaction(soundId);
 		},
 		[sendSoundReaction]
+	);
+
+	const [showNoiseSuppressionTooltip, setShowNoiseSuppressionTooltip] = useState(false);
+
+	const toggleNoiseSuppression = useCallback(() => {
+		dispatch(voiceActions.setNoiseSuppressionEnabled(!noiseSuppressionEnabled));
+	}, [dispatch, noiseSuppressionEnabled]);
+
+	const handleNoiseSuppressionLevelChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			dispatch(voiceActions.setNoiseSuppressionLevel(Number(e.target.value)));
+		},
+		[dispatch]
 	);
 
 	return (
@@ -375,9 +415,8 @@ const ControlBar = ({
 							onVisibleChange={setShowSoundPanel}
 							overlay={
 								<SoundSquare
-									channel={currentChannel as any}
 									mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
-									onClose={() => {}}
+									onClose={() => setShowSoundPanel(false)}
 									onSoundSelect={handleSoundSelect}
 								/>
 							}
@@ -414,6 +453,41 @@ const ControlBar = ({
 						)}
 					</div>
 				)}
+				{visibleControls.microphone && isExternalCalling && (
+					<Tooltip
+						placement="top"
+						overlayClassName="w-64"
+						visible={showNoiseSuppressionTooltip && noiseSuppressionEnabled}
+						overlay={
+							<div className="p-2" onClick={(e) => e.stopPropagation()}>
+								<div className="flex justify-between items-center mb-2">
+									<span className="text-xs font-semibold">Noise Suppression</span>
+									<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
+								</div>
+								<input
+									type="range"
+									min="0"
+									max="100"
+									value={noiseSuppressionLevel}
+									onChange={handleNoiseSuppressionLevelChange}
+									className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+									disabled={!noiseSuppressionEnabled}
+								/>
+							</div>
+						}
+						onVisibleChange={setShowNoiseSuppressionTooltip}
+						destroyTooltipOnHide
+					>
+						<button
+							onClick={toggleNoiseSuppression}
+							className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
+								isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
+							} ${noiseSuppressionEnabled ? 'hover:bg-green-600 dark:hover:bg-green-700' : 'hover:bg-zinc-600 dark:hover:bg-zinc-800'}`}
+						>
+							<Icons.VoiceSoundControlIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
+						</button>
+					</Tooltip>
+				)}
 				{visibleControls.camera && (
 					<div className="relative rounded-full ">
 						<TrackToggle
@@ -425,16 +499,12 @@ const ControlBar = ({
 							onDeviceError={(error) => onDeviceError?.({ source: Track.Source.Camera, error })}
 						/>
 						{hasCameraAccess && (
-							<>
-								<MediaDeviceMenu
-									kind="videoinput"
-									onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
-								/>
-								{showCamera && typeof window !== 'undefined' && 'MediaStreamTrackGenerator' in window && (
-									<BackgroundEffectsMenu participant={localParticipant.localParticipant} />
-								)}
-							</>
+							<MediaDeviceMenu
+								kind="videoinput"
+								onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
+							/>
 						)}
+						{showCamera && isExternalCalling && isSupport && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
 					</div>
 				)}
 				{visibleControls.screenShare &&
@@ -464,7 +534,7 @@ const ControlBar = ({
 					))}
 				{visibleControls.leave && (
 					<div
-						onClick={onLeaveRoom}
+						onClick={handleLeaveRoom}
 						className="w-14 aspect-square max-md:w-10 bg-[#da373c] hover:bg-[#a12829] cursor-pointer rounded-full flex justify-center items-center"
 					>
 						<Icons.EndCall className="w-6 aspect-square max-md:w-4" />

@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -10,7 +11,7 @@ export const style = (colors: Attributes) =>
 		},
 		titleRequesting: {
 			fontSize: size.medium,
-			color: Colors.white
+			color: 'white'
 		},
 		iconSelected: {
 			position: 'absolute',
@@ -31,5 +32,21 @@ export const style = (colors: Attributes) =>
 		},
 		disable: {
 			opacity: 0.5
+		},
+		limitedPermissionBanner: {
+			padding: size.s_12,
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: size.s_8
+		},
+		limitedPermissionText: {
+			fontSize: size.s_14,
+			color: colors.text,
+			fontWeight: '600',
+			textAlign: 'center'
+		},
+		galleryContainer: {
+			flex: 1,
+			paddingTop: 0
 		}
 	});

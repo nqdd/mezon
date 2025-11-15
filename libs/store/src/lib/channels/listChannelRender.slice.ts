@@ -1,11 +1,12 @@
 import { captureSentryError } from '@mezon/logger';
-import { ICategoryChannel, IChannel } from '@mezon/utils';
-import { PayloadAction, createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiChannelDescription, ApiUpdateCategoryDescRequest } from 'mezon-js/api.gen';
-import { CategoriesEntity } from '../categories/categories.slice';
+import type { ICategoryChannel, IChannel } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiChannelDescription, ApiUpdateCategoryDescRequest } from 'mezon-js/api.gen';
+import type { CategoriesEntity } from '../categories/categories.slice';
 import { clansActions } from '../clans/clans.slice';
-import { RootState } from '../store';
-import { ChannelsEntity, IUpdateChannelRequest } from './channels.slice';
+import type { RootState } from '../store';
+import type { ChannelsEntity, IUpdateChannelRequest } from './channels.slice';
 
 export const CHANNEL_LIST_RENDER = 'CHANNEL_LIST_RENDER';
 
@@ -33,6 +34,26 @@ export const updateClanBadgeRender = createAsyncThunk(
 			thunkAPI.dispatch(clansActions.updateClanBadgeCount({ clanId, count: ((channelDelete[0] as IChannel)?.count_mess_unread || 0) * -1 }));
 		} catch (error) {
 			captureSentryError(error, 'listRender/updateClanBadge');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
+
+export const bulkUpdateClanBadgeRender = createAsyncThunk(
+	'listRender/bulkUpdateClanBadge',
+	async ({ channelIds, clanId }: { channelIds: string[]; clanId: string }, thunkAPI) => {
+		try {
+			const state = thunkAPI.getState() as RootState;
+			const listChannelRender = state.CHANNEL_LIST_RENDER.listChannelRender[clanId];
+			const totalBadgeCount = channelIds.reduce((total, channelId) => {
+				const channel = listChannelRender.find((channel) => channelId === channel.id) as IChannel;
+				return total + (channel?.count_mess_unread || 0);
+			}, 0);
+			if (totalBadgeCount > 0) {
+				thunkAPI.dispatch(clansActions.updateClanBadgeCount({ clanId, count: totalBadgeCount * -1 }));
+			}
+		} catch (error) {
+			captureSentryError(error, 'listRender/bulkUpdateClanBadge');
 			return thunkAPI.rejectWithValue(error);
 		}
 	}
@@ -78,6 +99,7 @@ export const listChannelRenderSlice = createSlice({
 					listChannelRender.push(channel);
 				});
 			});
+
 			const favorCate: ICategoryChannel = {
 				channels: listChannelFavor,
 				id: FAVORITE_CATEGORY_ID,
@@ -110,6 +132,12 @@ export const listChannelRenderSlice = createSlice({
 					return;
 				}
 				state.listChannelRender[clanId].splice(indexInsert + 1, 0, channelData);
+
+				const category = state.listChannelRender[clanId][indexInsert] as ICategoryChannel;
+				if (category.channels) {
+					category.channels = [...(category.channels as string[]), channelData.id];
+				}
+
 				state.listChannelRender[clanId].join();
 			}
 		},
@@ -118,14 +146,28 @@ export const listChannelRenderSlice = createSlice({
 			if (!state.listChannelRender[clanId]) {
 				return;
 			}
+
+			const channelToDelete = state.listChannelRender[clanId].find((channel) => channel.id === channelId) as IChannel;
+
 			state.listChannelRender[clanId] = state.listChannelRender[clanId].filter(
 				(channel) => channel.id !== channelId && (channel as IChannel).parent_id !== channelId
 			);
+
+			if (channelToDelete?.category_id) {
+				const indexInsert = state.listChannelRender[clanId].findIndex((item) => item.id === channelToDelete.category_id);
+				if (indexInsert !== -1) {
+					const category = state.listChannelRender[clanId][indexInsert] as ICategoryChannel;
+					if (category.channels) {
+						category.channels = (category.channels as string[]).filter((id) => id !== channelId);
+					}
+				}
+			}
 		},
 		updateChannelInListRender: (state, action: PayloadAction<{ channelId: string; clanId: string; dataUpdate: IUpdateChannelRequest }>) => {
 			const { channelId, clanId, dataUpdate } = action.payload;
 			if (state.listChannelRender[clanId]) {
 				const indexUpdate = state.listChannelRender[clanId].findIndex((channel) => channel.id === channelId);
+
 				if (indexUpdate === -1) {
 					return;
 				}
@@ -139,6 +181,37 @@ export const listChannelRenderSlice = createSlice({
 						? dataUpdate.channel_private || (state.listChannelRender[clanId][indexUpdate] as IChannel).channel_private
 						: 0
 				};
+				const existing = state.listChannelRender[clanId][indexUpdate] as IChannel;
+				if (state.listChannelRender?.[clanId]?.[indexUpdate]) {
+					const safeAvatar =
+						typeof dataUpdate?.channel_avatar === 'string' && dataUpdate?.channel_avatar?.trim() !== ''
+							? dataUpdate?.channel_avatar
+							: (existing?.channel_avatar ?? '');
+
+					(state.listChannelRender[clanId][indexUpdate] as IChannel).channel_avatar = safeAvatar;
+				}
+				if (state.listChannelRender[clanId][indexUpdate].category_id === FAVORITE_CATEGORY_ID) {
+					const indexNextUpdate = state.listChannelRender[clanId].findIndex(
+						(channel) => channel.id === channelId && channel.category_id !== FAVORITE_CATEGORY_ID
+					);
+					state.listChannelRender[clanId][indexNextUpdate] = {
+						...state.listChannelRender[clanId][indexNextUpdate],
+						channel_label: dataUpdate.channel_label || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_label,
+						e2ee: dataUpdate.e2ee || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).e2ee,
+						topic: dataUpdate.topic || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).topic,
+						age_restricted: dataUpdate.age_restricted,
+						channel_private: dataUpdate.channel_private
+							? dataUpdate.channel_private || (state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_private
+							: 0
+					};
+					const existingNext = state.listChannelRender[clanId][indexNextUpdate] as IChannel;
+					const avatarNext =
+						typeof dataUpdate?.channel_avatar === 'string' && dataUpdate?.channel_avatar?.trim() !== ''
+							? dataUpdate?.channel_avatar
+							: (existingNext?.channel_avatar ?? '');
+
+					(state.listChannelRender[clanId][indexNextUpdate] as IChannel).channel_avatar = avatarNext;
+				}
 			}
 		},
 		updateChannelPositionInRenderedList: (state, action: PayloadAction<{ channelId: string; clanId: string; categoryId: string }>) => {
@@ -146,14 +219,19 @@ export const listChannelRenderSlice = createSlice({
 			if (!state.listChannelRender[clanId]) {
 				return;
 			}
-			const oldIndexOfChannel = state.listChannelRender[clanId].findIndex((channel) => channel.id === channelId);
+			const oldIndexOfChannel = state.listChannelRender[clanId].findIndex(
+				(channel) => channel.id === channelId && channel?.category_id !== FAVORITE_CATEGORY_ID
+			);
 			const indexOfNewCategory = state.listChannelRender[clanId].findIndex((channel) => channel.id === categoryId);
 			if (oldIndexOfChannel === -1 || indexOfNewCategory === -1) {
 				return;
 			}
 
 			const newChannelWithThreads = state.listChannelRender[clanId].filter((item) => {
-				if ((item as IChannel).id === channelId || (item as IChannel).parent_id === channelId) {
+				if (
+					((item as IChannel).id === channelId || (item as IChannel).parent_id === channelId) &&
+					(item as IChannel)?.category_id !== FAVORITE_CATEGORY_ID
+				) {
 					return {
 						...item,
 						category_id: categoryId
@@ -179,7 +257,9 @@ export const listChannelRenderSlice = createSlice({
 			const { clanId, categoryId } = action.payload;
 
 			if (state.listChannelRender[clanId]) {
-				state.listChannelRender[clanId] = state.listChannelRender[clanId].filter((item) => item.id !== categoryId);
+				state.listChannelRender[clanId] = state.listChannelRender[clanId].filter(
+					(item) => item.id !== categoryId && (item as IChannel).category_id !== categoryId
+				);
 			}
 		},
 		updateCategory: (state, action: PayloadAction<{ clanId: string; cate: ApiUpdateCategoryDescRequest }>) => {
@@ -233,6 +313,26 @@ export const listChannelRenderSlice = createSlice({
 					return {
 						...channel,
 						count_mess_unread: ((channel as IChannel).count_mess_unread || 0) + 1
+					};
+				}
+				return channel;
+			});
+		},
+		updateChannelUnreadCount: (state, action: PayloadAction<{ channelId: string; clanId: string; count: number; isReset?: boolean }>) => {
+			const { channelId, clanId, count, isReset = false } = action.payload;
+			if (clanId === '0') {
+				return;
+			}
+			if (!state.listChannelRender[clanId]) {
+				return;
+			}
+			state.listChannelRender[clanId] = state.listChannelRender[clanId].map((channel) => {
+				if (channel.id === channelId) {
+					const currentCount = (channel as IChannel).count_mess_unread || 0;
+					const newCount = isReset ? count : Math.max(0, currentCount + count);
+					return {
+						...channel,
+						count_mess_unread: newCount
 					};
 				}
 				return channel;
@@ -427,13 +527,54 @@ export const listChannelRenderSlice = createSlice({
 					state.listChannelRender[clanId].join();
 				}
 			}
+		},
+		updateCategoryChannels: (state, action: PayloadAction<{ clanId: string; categoryId: string; channelId: string }>) => {
+			const { clanId, categoryId, channelId } = action.payload;
+			const index = state.listChannelRender[clanId]?.findIndex((item) => item.id === categoryId);
+			if (index !== undefined && index !== -1) {
+				const category = state.listChannelRender[clanId][index] as ICategoryChannel;
+				category.channels = [...((category.channels as string[]) || []), channelId] as string[];
+				state.listChannelRender[clanId][index] = category;
+			}
+		},
+
+		bulkDeleteChannelsInListRender: (state, action: PayloadAction<{ channelIds: string[]; clanId: string }>) => {
+			const { channelIds, clanId } = action.payload;
+			if (!state.listChannelRender[clanId]) {
+				return;
+			}
+
+			const channelsToDelete = channelIds
+				.map((channelId) => state.listChannelRender[clanId].find((channel) => channel.id === channelId) as IChannel)
+				.filter(Boolean);
+
+			state.listChannelRender[clanId] = state.listChannelRender[clanId].filter(
+				(channel) => !channelIds.includes(channel.id) && !channelIds.includes((channel as IChannel).parent_id || '')
+			);
+
+			channelsToDelete.forEach((channelToDelete) => {
+				if (channelToDelete?.category_id) {
+					const categoryIndex = state.listChannelRender[clanId].findIndex((item) => item.id === channelToDelete.category_id);
+					if (categoryIndex !== -1) {
+						const category = state.listChannelRender[clanId][categoryIndex] as ICategoryChannel;
+						if (category.channels) {
+							if (typeof category.channels[0] === 'string') {
+								category.channels = (category.channels as string[]).filter((id) => !channelIds.includes(id));
+							} else {
+								category.channels = (category.channels as IChannel[]).filter((channel) => !channelIds.includes(channel.id));
+							}
+						}
+					}
+				}
+			});
 		}
 	}
 });
 
 export const listChannelRenderAction = {
 	...listChannelRenderSlice.actions,
-	updateClanBadgeRender
+	updateClanBadgeRender,
+	bulkUpdateClanBadgeRender
 };
 
 export const listChannelRenderReducer = listChannelRenderSlice.reducer;
@@ -447,6 +588,25 @@ export const selectListChannelRenderByClanId = createSelector([getListChannelRen
 	}
 	return state.listChannelRender[clanId];
 });
+
+export const selectAllThreadUnreadBehind = createSelector(
+	[
+		getListChannelRenderState,
+		(state, clanId?: string) => clanId,
+		(_, __, channelId?: string) => channelId,
+		(_, __, ___, threadId?: string) => threadId
+	],
+	(state, clanId, channelId, threadId) => {
+		if (!clanId || !state.listChannelRender[clanId]) {
+			return undefined;
+		}
+		const list = state.listChannelRender[clanId];
+		const index = list.findIndex((c) => c.id === threadId);
+
+		const result = list.slice(index + 1).filter((channel) => (channel as IChannel)?.parent_id === channelId);
+		return result;
+	}
+);
 
 export const selectListOrderChannel = createSelector(getListChannelRenderState, (state) => {
 	return state.listOrderChannelByCate;
@@ -492,11 +652,6 @@ function sortChannels(channels: IChannel[], categoryId: string): IChannel[] {
 				const parentId = thread.parent_id || '';
 				if (thread.parent_id === channel.id) {
 					sortedChannels.push(thread);
-					if (channel.threadIds) {
-						channel.threadIds = [...channel.threadIds, thread.id];
-					} else {
-						channel.threadIds = [thread.id];
-					}
 				} else if (channel.id < parentId) {
 					indexThread--;
 					break;

@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 const style = (colors: Attributes) =>
@@ -9,6 +10,7 @@ const style = (colors: Attributes) =>
 			flex: 1
 		},
 		boxMembers: {
+			marginHorizontal: size.s_20,
 			marginTop: size.s_10,
 			borderRadius: size.s_14,
 			backgroundColor: colors.secondary,

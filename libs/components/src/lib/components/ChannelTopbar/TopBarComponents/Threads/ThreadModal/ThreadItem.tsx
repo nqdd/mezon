@@ -1,27 +1,29 @@
 import { useAppNavigation } from '@mezon/core';
+import type { ChannelsEntity, ThreadsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
-	ThreadsEntity,
 	appActions,
 	channelsActions,
 	selectAllChannelMembers,
 	selectChannelById,
 	selectLastMessageIdByChannelId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectMessageEntityById,
 	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ChannelMembersEntity, IChannel, IChannelMember, convertTimeMessage, createImgproxyUrl } from '@mezon/utils';
+import type { ChannelMembersEntity, IChannel, IChannelMember } from '@mezon/utils';
+import { convertTimeMessage, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { AvatarImage } from 'libs/components/src/lib/components';
 import { ChannelType } from 'mezon-js';
-import { MutableRefObject, useCallback, useMemo, useRef, useState } from 'react';
+import type { MutableRefObject } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AvatarGroup, { AvatarCount } from '../../../../Avatar/AvatarGroup';
-import { Coords } from '../../../../ChannelLink';
+import type { Coords } from '../../../../ChannelLink';
 import SettingChannel from '../../../../ChannelSetting';
 import { useMessageSender } from '../../../../MessageWithUser/useMessageSender';
 import ModalConfirm from '../../../../ModalConfirm';
@@ -37,10 +39,11 @@ type ThreadItemProps = {
 };
 
 const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasContext = true, preventClosePannel }: ThreadItemProps) => {
+	const { i18n } = useTranslation();
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
 	const dispatch = useAppDispatch();
-	const threadMembers = useSelector((state) => selectAllChannelMembers(state, thread.channel_id));
+	const threadMembers = useSelector((state) => selectAllChannelMembers(state, thread?.channel_id || ''));
 	const channelThread = useAppSelector((state) => selectChannelById(state, thread.id ?? '')) || {};
 
 	const messageId = useAppSelector((state) => selectLastMessageIdByChannelId(state, thread.channel_id as string));
@@ -48,7 +51,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 		selectMessageEntityById(state, thread.channel_id as string, messageId || thread?.last_sent_message?.id)
 	);
 	const user = useAppSelector((state) =>
-		selectMemberClanByUserId2(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
+		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
 	) as IChannelMember;
 	const { avatarImg, username } = useMessageSender(user);
 	const [openThreadSetting, closeThreadSetting] = useModal(() => {
@@ -79,15 +82,15 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 
 	const timeMessage = useMemo(() => {
 		if (message && message.create_time_seconds) {
-			const lastTime = convertTimeMessage(message.create_time_seconds);
+			const lastTime = convertTimeMessage(message.create_time_seconds, i18n.language);
 			return lastTime;
 		} else {
 			if (thread && thread.last_sent_message && thread.last_sent_message.timestamp_seconds) {
-				const lastTime = convertTimeMessage(thread.last_sent_message.timestamp_seconds);
+				const lastTime = convertTimeMessage(thread.last_sent_message.timestamp_seconds, i18n.language);
 				return lastTime;
 			}
 		}
-	}, [message, thread]);
+	}, [message, thread, i18n.language]);
 
 	const handleLinkThread = (channelId: string, clanId: string) => {
 		preventClosePannel.current = false;
@@ -121,6 +124,11 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 	const handleDeleteThread = async () => {
 		await dispatch(channelsActions.deleteChannel({ channelId: channelThread?.channel_id as string, clanId: channelThread?.clan_id as string }));
 		await dispatch(threadsActions.remove(channelThread.id));
+
+		const parentChannelId = (channelThread?.parent_id as string) || (thread?.parent_id as string) || '';
+		if (parentChannelId) {
+			await dispatch(threadsActions.removeThreadFromCache({ channelId: parentChannelId, threadId: thread.id }));
+		}
 		closeConfirmDelete();
 		dispatch(threadsActions.toggleThreadModal());
 		preventClosePannel.current = false;
@@ -135,7 +143,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 				}}
 				handleConfirm={handleDeleteThread}
 				title="delete"
-				modalName={`${channelThread?.channel_label}`}
+				modalName={`${channelThread?.channel_label || 'Unknown Thread'}`}
 			/>
 		);
 	}, [channelThread?.id]);
@@ -154,6 +162,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 			role="button"
 			ref={panelRef}
 			onContextMenu={handlePannelThread}
+			data-e2e={generateE2eId('chat.channel_message.header.button.thread.item')}
 		>
 			<div className="flex flex-row justify-between items-center">
 				<div className="flex flex-col gap-1">

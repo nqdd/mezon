@@ -17,12 +17,32 @@
           "unMuteChannel": "Bật thông báo kênh",
           "muteThread": "Tắt thông báo chủ đề",
           "unMuteThread": "Bật thông báo chủ đề",
-          "notification": "Cài đặt thông báo"
+          "notification": "Cài đặt thông báo",
+          "for15Minutes": "Trong 15 phút",
+          "for1Hour": "Trong 1 giờ",
+          "for3Hours": "Trong 3 giờ", 
+          "for8Hours": "Trong 8 giờ",
+          "for24Hours": "Trong 24 giờ",
+          "untilTurnedBackOn": "Cho đến khi tôi bật lại",
+          "useCategoryDefault": "Sử dụng mặc định danh mục",
+          "all": "Tất cả",
+          "onlyMention": "Chỉ @mention",
+          "nothing": "Không có gì",
+          "processing": "Đang xử lý...",
+          "muteChannelStatus": "Tắt thông báo kênh",
+          "muteThreadStatus": "Tắt thông báo chủ đề",
+          "unmuteChannelStatus": "Bật thông báo kênh", 
+          "unmuteThreadStatus": "Bật thông báo chủ đề",
+          "mutedUntil": "Tắt thông báo đến",
+          "muteSuccess": "Tắt thông báo thành công!",
+          "unMuteSuccess": "Bật thông báo thành công!",
+          "muteFailed": "Tắt thông báo không thành công!",
+          "unMuteFailed": "Bật thông báo không thành công!"
       },
       "thread": {
         "title": "",
         "threads": "Chủ đề",
-        "searchThreads": "Tìm kiếm chủ đề",
+        "searchThreads": "Tìm kiếm tên chủ đề",
         "searchFiles": "Tìm kiếm tệp",
         "searchCanvas": "Tìm kiếm tên canvas"
 
@@ -32,7 +52,12 @@
           "edit": "Chỉnh sửa kênh",
           "deleteChannel": "Xóa kênh",
           "duplicateChannel": "Nhân bản kênh",
-          "leaveChannel": "Rời kênh"
+          "leaveChannel": "Rời kênh",
+          "createTextChannel": "Tạo kênh văn bản",
+          "createVoiceChannel": "Tạo kênh thoại",
+          "openChat": "Mở cuộc trò chuyện",
+          "hideNames": "Ẩn tên",
+          "createThread": "Tạo chủ đề"
       },
       "devMode": {
           "title": "Chế độ phát triển",

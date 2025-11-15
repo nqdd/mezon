@@ -1,12 +1,13 @@
-import { ActionEmitEvent, CheckIcon } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
-import { emojiRecentActions, useAppDispatch } from '@mezon/store-mobile';
-import { IEmoji, getSrcEmoji } from '@mezon/utils';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { emojiRecentActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
+import { IEmoji, ITEM_TYPE, getSrcEmoji } from '@mezon/utils';
 import React, { FC, memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, FlatList, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../constants/icon_cdn';
@@ -38,20 +39,31 @@ const EmojiItem = memo(({ item, onPress }: { item: IEmoji; onPress: (emoji: IEmo
 const EmojisPanel: FC<EmojisPanelProps> = ({ emojisData, onEmojiSelect }) => {
 	const { t } = useTranslation(['token']);
 	const dispatch = useAppDispatch();
+	const userProfile = useSelector(selectAllAccount);
 	const COLUMNS = 9;
 	const ITEM_HEIGHT = 40;
-
+	const { themeValue } = useTheme();
+	const isTabletLandscape = useTabletLandscape();
+	const styles = style(themeValue, isTabletLandscape);
 	const onBuyEmoji = useCallback(
 		async (emoji: IEmoji) => {
 			try {
 				if (emoji.id) {
-					const resp = await dispatch(emojiRecentActions.buyItemForSale({ id: emoji?.id, type: 0 }));
+					const resp = await dispatch(
+						emojiRecentActions.buyItemForSale({
+							id: emoji?.id,
+							type: ITEM_TYPE.EMOJI,
+							creatorId: emoji?.creator_id,
+							username: userProfile?.user?.username,
+							senderId: userProfile?.user?.id
+						})
+					);
 					if (!resp?.type?.includes('rejected')) {
 						Toast.show({
 							type: 'success',
 							props: {
 								text2: 'Buy item successfully!',
-								leadingIcon: <CheckIcon color={Colors.green} width={30} height={17} />
+								leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={30} height={17} />
 							}
 						});
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
@@ -64,7 +76,7 @@ const EmojisPanel: FC<EmojisPanelProps> = ({ emojisData, onEmojiSelect }) => {
 				Toast.show({ type: 'error', text1: 'Failed to buy item.' });
 			}
 		},
-		[dispatch]
+		[dispatch, userProfile?.user?.id, userProfile?.user?.username]
 	);
 
 	const onPress = useCallback(
@@ -125,13 +137,13 @@ const EmojisPanel: FC<EmojisPanelProps> = ({ emojisData, onEmojiSelect }) => {
 			getItemLayout={getItemLayout}
 			removeClippedSubviews={true}
 			scrollEnabled={false}
-			columnWrapperStyle={{ justifyContent: 'space-between' }}
+			columnWrapperStyle={styles.columnWrapper}
 			maxToRenderPerBatch={10}
 			windowSize={10}
 			initialNumToRender={10}
 			keyboardShouldPersistTaps="handled"
 			showsVerticalScrollIndicator={false}
-			style={{ flex: 1 }}
+			style={styles.emojiListContainer}
 		/>
 	);
 };

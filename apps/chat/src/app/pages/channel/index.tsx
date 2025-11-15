@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { AgeRestricted, Canvas, FileUploadByDnD, MemberList, SearchMessageChannelRender } from '@mezon/components';
 import { useAppNavigation, useAuth, useDragAndDrop, usePermissionChecker, useSearchMessages, useSeenMessagePool } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	ETypeMission,
 	channelAppActions,
 	channelsActions,
@@ -11,17 +11,21 @@ import {
 	handleParticipantVoiceState,
 	onboardingActions,
 	selectAppChannelById,
+	selectBanMemberCurrentClanById,
 	selectChannelAppChannelId,
 	selectChannelAppClanId,
 	selectChannelById,
 	selectCloseMenu,
-	selectCurrentChannel,
-	selectCurrentClan,
+	selectCurrentChannelId,
+	selectCurrentClanId,
+	selectCurrentClanIsOnboarding,
 	selectIsSearchMessage,
 	selectIsShowCanvas,
 	selectIsShowCreateThread,
 	selectIsShowMemberList,
-	selectLastMessageByChannelId,
+	selectLastMessageViewportByChannelId,
+	selectLastSeenMessageId,
+	selectLastSentMessageStateByChannelId,
 	selectMissionDone,
 	selectMissionSum,
 	selectOnboardingByClan,
@@ -29,21 +33,18 @@ import {
 	selectProcessingByClan,
 	selectSearchMessagesLoadingStatus,
 	selectStatusMenu,
-	selectTheme,
 	selectToCheckAppIsOpening,
-	selectTopicByChannelId,
-	threadsActions,
-	topicsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { ApiChannelAppResponseExtend } from '@mezon/utils';
 import {
-	ApiChannelAppResponseExtend,
 	DONE_ONBOARDING_STATUS,
 	EOverriddenPermission,
 	ParticipantMeetState,
 	SubPanelName,
+	generateE2eId,
 	isBackgroundModeActive,
 	isLinuxDesktop,
 	isWindowsDesktop,
@@ -52,8 +53,10 @@ import {
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import { ApiOnboardingItem } from 'mezon-js/api.gen';
-import { DragEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ApiOnboardingItem } from 'mezon-js/api.gen';
+import type { DragEvent } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { ChannelMedia } from './ChannelMedia';
@@ -63,43 +66,71 @@ import { ChannelTyping } from './ChannelTyping';
 function useChannelSeen(channelId: string) {
 	const dispatch = useAppDispatch();
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId)) || {};
-	const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
-	const isFocus = !isBackgroundModeActive();
+	const lastMessageViewport = useAppSelector((state) => selectLastMessageViewportByChannelId(state, channelId));
+	const lastMessageChannel = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
+	const lastSeenMessageId = useAppSelector((state) => selectLastSeenMessageId(state, channelId));
+	const { markAsReadSeen } = useSeenMessagePool();
+
+	const isMounted = useRef(false);
+	const isWindowFocused = !isBackgroundModeActive();
+
+	const mode =
+		currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL || currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING
+			? ChannelStreamMode.STREAM_MODE_CHANNEL
+			: ChannelStreamMode.STREAM_MODE_THREAD;
+
+	const markMessageAsRead = useCallback(() => {
+		if (!lastMessageViewport || !lastMessageChannel || lastMessageViewport?.isSending) return;
+		if (lastSeenMessageId && lastMessageViewport?.id) {
+			try {
+				const distance = Math.round(Number((BigInt(lastMessageViewport.id) >> BigInt(22)) - (BigInt(lastSeenMessageId) >> BigInt(22))));
+				if (distance >= 0) {
+					markAsReadSeen(lastMessageViewport, mode, currentChannel?.count_mess_unread || 0);
+					return;
+				}
+			} catch (error) {
+				//
+			}
+		}
+
+		const isLastMessage = lastMessageViewport.id === lastMessageChannel.id;
+		if (isLastMessage) {
+			markAsReadSeen(lastMessageViewport, mode, currentChannel?.count_mess_unread || 0);
+		}
+	}, [lastMessageViewport, lastMessageChannel, lastSeenMessageId, markAsReadSeen, currentChannel, mode]);
+
+	const updateChannelSeenState = useCallback(
+		(_channelId: string) => {
+			if (currentChannel.type === ChannelType.CHANNEL_TYPE_THREAD) {
+				const channelWithActive = { ...currentChannel, active: 1 };
+				dispatch(
+					channelsActions.upsertOne({
+						clanId: currentChannel?.clan_id || '',
+						channel: channelWithActive as ChannelsEntity
+					})
+				);
+			}
+		},
+		[dispatch, currentChannel]
+	);
 
 	useEffect(() => {
 		dispatch(gifsStickerEmojiActions.setSubPanelActive(SubPanelName.NONE));
-	}, [channelId, currentChannel, dispatch, isFocus]);
-	const { markAsReadSeen } = useSeenMessagePool();
-	const handleReadMessage = useCallback(() => {
-		if (!lastMessage) {
-			return;
-		}
-		const mode =
-			currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL || currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING
-				? ChannelStreamMode.STREAM_MODE_CHANNEL
-				: ChannelStreamMode.STREAM_MODE_THREAD;
-		markAsReadSeen(lastMessage, mode, currentChannel?.count_mess_unread || 0);
-	}, [lastMessage, currentChannel, markAsReadSeen]);
+	}, [dispatch, channelId]);
 
 	useEffect(() => {
-		if (currentChannel.type === ChannelType.CHANNEL_TYPE_THREAD) {
-			const channelWithActive = { ...currentChannel, active: 1 };
-			dispatch(
-				channelsActions.upsertOne({
-					clanId: currentChannel?.clan_id || '',
-					channel: channelWithActive as ChannelsEntity
-				})
-			);
+		if (lastMessageViewport && isWindowFocused) {
+			markMessageAsRead();
 		}
-	}, [currentChannel?.id]);
+	}, [lastMessageViewport, isWindowFocused, markMessageAsRead, channelId]);
 
 	useEffect(() => {
-		if (lastMessage && isFocus) {
-			handleReadMessage();
-		}
-	}, [lastMessage, handleReadMessage, isFocus]);
+		if (isMounted.current || !lastMessageViewport) return;
+		isMounted.current = true;
+		updateChannelSeenState(channelId);
+	}, [channelId, lastMessageViewport, updateChannelSeenState]);
 
-	useBackgroundMode(undefined, handleReadMessage, isFocus);
+	useBackgroundMode(undefined, markMessageAsRead);
 }
 
 const ChannelSeenListener = memo(({ channelId }: { channelId: string }) => {
@@ -113,9 +144,11 @@ type ChannelMainContentTextProps = {
 };
 
 const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainContentTextProps) => {
+	const { t } = useTranslation('common');
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 	const dispatch = useDispatch();
 	const isShowMemberList = useSelector(selectIsShowMemberList);
+	const { userId } = useAuth();
 	const mode =
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ||
@@ -127,17 +160,18 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState(true);
 	const isAppChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
 
-	const currentClan = useSelector(selectCurrentClan);
-	const missionDone = useSelector(selectMissionDone);
-	const missionSum = useSelector(selectMissionSum);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanIsOnboarding = useSelector(selectCurrentClanIsOnboarding);
+	const missionDone = useSelector((state) => selectMissionDone(state, currentClanId as string));
+	const missionSum = useSelector((state) => selectMissionSum(state, currentClanId as string));
 	const onboardingClan = useAppSelector((state) => selectOnboardingByClan(state, currentChannel.clan_id as string));
 	const appIsOpen = useAppSelector((state) => selectToCheckAppIsOpening(state, channelId));
-	const appButtonLabel = appIsOpen ? 'Reset App' : 'Launch App';
+	const appButtonLabel = appIsOpen ? t('resetApp') : t('launchApp');
 
 	const currentMission = useMemo(() => {
-		return onboardingClan.mission[missionDone];
-	}, [missionDone, channelId]);
-	const selectUserProcessing = useSelector(selectProcessingByClan(currentClan?.clan_id as string));
+		return onboardingClan.mission[missionDone || 0];
+	}, [missionDone, channelId, onboardingClan.mission]);
+	const selectUserProcessing = useSelector((state) => selectProcessingByClan(state, currentClanId as string));
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	useEffect(() => {
@@ -159,19 +193,20 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 
 	const previewMode = useSelector(selectOnboardingMode);
 	const showPreviewMode = useMemo(() => {
-		if (previewMode) {
+		if (previewMode?.open && previewMode.clanId === currentClanId) {
 			return true;
 		}
-		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClan?.is_onboarding;
-	}, [selectUserProcessing?.onboarding_step, currentClan?.is_onboarding, previewMode]);
+		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
+	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
+	const isBanned = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannel.id, userId as string));
 
-	if (!canSendMessageDelayed) {
+	if (!canSendMessageDelayed || isBanned) {
 		return (
 			<div
-				style={{ height: 44 }}
-				className="opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 			>
-				You do not have permission to send messages in this channel.
+				{t('noPermissionToSendMessage')}
 			</div>
 		);
 	}
@@ -199,7 +234,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	};
 
 	return (
-		<div className={`flex-shrink flex flex-col bg-theme-chat h-auto relative ${isShowMemberList ? 'w-full' : 'w-full'}`}>
+		<div className={`flex-shrink flex flex-col bg-theme-chat h-auto relative ${isShowMemberList ? 'w-full' : ''}`}>
 			{showPreviewMode && <OnboardingGuide currentMission={currentMission} missionSum={missionSum} missionDone={missionDone} />}
 			{currentChannel && <ChannelMessageBox clanId={currentChannel?.clan_id} channel={currentChannel} mode={mode} />}
 			{isAppChannel && (
@@ -213,12 +248,14 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 					</div>
 					<div className="w-[calc(50%_-_4px)] border-theme-primary flex gap-1 items-center justify-center bg-item-theme py-2 px-2 rounded-md cursor-pointer font-medium text-theme-primary-hover">
 						<Icons.AppHelpIcon className="w-6" />
-						<div>Help</div>
+						<div>{t('help')}</div>
 					</div>
 				</div>
 			)}
-			{currentChannel && currentChannel?.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
+			{currentChannel && currentChannel?.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE ? (
 				<ChannelTyping channelId={currentChannel?.id} mode={mode} isPublic={currentChannel ? !currentChannel?.channel_private : false} />
+			) : (
+				<div className="h-4"></div>
 			)}
 		</div>
 	);
@@ -249,8 +286,6 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentChannel?.id));
 
 	const appChannel = useAppSelector((state) => selectAppChannelById(state, channelId as string));
-
-	const appearanceTheme = useSelector(selectTheme);
 
 	const [openUploadFileModal, closeUploadFileModal] = useModal(() => {
 		return <FileUploadByDnD currentId={currentChannel?.channel_id ?? ''} />;
@@ -283,11 +318,12 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 					clan_id: currentChannelAppClanId,
 					channel_id: currentChannelAppId,
 					display_name: userProfile?.user?.display_name ?? '',
-					state: ParticipantMeetState.LEAVE
+					state: ParticipantMeetState.LEAVE,
+					room_name: currentChannelAppId
 				})
 			);
 		}
-		dispatch(channelAppActions.setRoomId({ channelId: channelId, roomId: null }));
+		dispatch(channelAppActions.setRoomId({ channelId, roomId: null }));
 
 		if (isChannelApp) {
 			dispatch(channelAppActions.setChannelId(channelId));
@@ -336,22 +372,23 @@ const ChannelMainContent = ({ channelId }: ChannelMainContentProps) => {
 					)}
 					{isShowCanvas && !isShowAgeRestricted && !isChannelMezonVoice && !isChannelStream && (
 						<div
-							className={`flex flex-1 justify-center thread-scroll overflow-x-hidden scroll-big ${isElectron() ? 'h-[calc(100%_-_23px)]' : ''} ${appearanceTheme === 'light' ? 'customScrollLightMode' : ''}`}
+							className={`flex flex-1 justify-center thread-scroll overflow-x-hidden scroll-big ${isElectron() ? 'h-[calc(100%_-_23px)]' : ''}`}
 						>
 							<Canvas />
 						</div>
 					)}
 
 					{!isShowCanvas && isShowAgeRestricted && !isChannelMezonVoice && !isChannelStream && (
-						<div className={`flex flex-1 justify-center overflow-x-hidden ${appearanceTheme === 'light' ? 'customScrollLightMode' : ''}`}>
+						<div className={`flex flex-1 justify-center overflow-x-hidden`}>
 							<AgeRestricted closeAgeRestricted={closeAgeRestricted} />
 						</div>
 					)}
 					{isShowMemberList && !isChannelMezonVoice && !isChannelStream && (
 						<div
 							onContextMenu={(event) => event.preventDefault()}
-							className={`border-l border-solid border-color-primary text-theme-primary relative overflow-y-scroll hide-scrollbar ${currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE ? 'hidden' : 'flex'} ${closeMenu && !statusMenu && isShowMemberList ? 'w-full' : 'w-widthMemberList'}`}
+							className={`border-l border-solid border-color-primary text-theme-primary relative overflow-y-scroll hide-scrollbar flex} ${closeMenu && !statusMenu && isShowMemberList ? 'w-full' : 'w-widthMemberList'}`}
 							id="memberList"
+							data-e2e={generateE2eId('clan_page.secondary_side_bar')}
 						>
 							<MemberList />
 						</div>
@@ -369,28 +406,10 @@ interface IChannelMainProps {
 }
 
 export default function ChannelMain({ topicChannelId }: IChannelMainProps) {
-	const currentChannel = useSelector(selectCurrentChannel);
-	const isOpenTopic = useSelector(selectTopicByChannelId(currentChannel?.channel_id ?? ''));
-	const dispatch = useAppDispatch();
-	useEffect(() => {
-		if (isOpenTopic && isOpenTopic !== '0' && currentChannel) {
-			dispatch(topicsActions.setIsShowCreateTopic(true));
-			dispatch(
-				threadsActions.setIsShowCreateThread({
-					channelId: currentChannel.channel_id || '',
-					isShowCreateThread: false
-				})
-			);
-			dispatch(topicsActions.setCurrentTopicId(isOpenTopic));
-			dispatch(topicsActions.setChannelTopic({ channelId: currentChannel.channel_id || '', topicId: '0' }));
-		}
-	}, [isOpenTopic]);
-	let chlId = currentChannel?.id || '';
-	if (topicChannelId) {
-		chlId = topicChannelId;
-	}
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const chlId = topicChannelId || currentChannelId;
 
-	if (!currentChannel) {
+	if (!chlId) {
 		return null;
 	}
 	return (
@@ -403,7 +422,7 @@ export default function ChannelMain({ topicChannelId }: IChannelMainProps) {
 
 const SearchMessageChannel = () => {
 	const { totalResult, currentPage, searchMessages } = useSearchMessages();
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelId = useSelector(selectCurrentChannelId);
 	const isLoading = useAppSelector(selectSearchMessagesLoadingStatus) === 'loading';
 
 	return (
@@ -411,7 +430,7 @@ const SearchMessageChannel = () => {
 			searchMessages={searchMessages}
 			currentPage={currentPage}
 			totalResult={totalResult}
-			channelId={currentChannel?.id || ''}
+			channelId={currentChannelId || ''}
 			isDm={false}
 			isLoading={isLoading}
 		/>
@@ -465,7 +484,7 @@ const OnboardingGuide = ({
 	return (
 		// eslint-disable-next-line react/jsx-no-useless-fragment
 		<>
-			{missionDone < missionSum && currentMission ? (
+			{(missionDone || 0) < missionSum && currentMission ? (
 				<div
 					className="relative rounded-t-md w-[calc(100%_-_32px)] h-14 left-4 bu bg-theme-contexify top-2 flex pt-2 px-4 pb-4 items-center gap-3"
 					onClick={handleDoNextMission}

@@ -1,8 +1,9 @@
 import { Metrics, size, useTheme } from '@mezon/mobile-ui';
 import { EMimeTypes, createImgproxyUrl } from '@mezon/utils';
 import * as Sentry from '@sentry/react-native';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Platform, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { getAspectRatioSize, useImageResolution } from 'react-native-zoom-toolkit';
 import ImageNative from '../../../../../components/ImageNative';
@@ -21,11 +22,11 @@ type ImageProps = {
 
 type RenderImageProps = {
 	image: ImageProps;
-	imageOriginal: ImageProps;
-	index: number;
+	imageOriginal?: ImageProps;
+	index?: number;
 	disable?: boolean;
 	onPress: (image: ImageProps) => void;
-	onLongPress?: () => void;
+	onLongPress?: (image?: ApiMessageAttachment) => void;
 	isMultiple?: boolean;
 	remainingImagesCount?: number;
 	isTablet?: boolean;
@@ -71,7 +72,7 @@ const RenderImageChat = React.memo(({ image, index, disable, onPress, onLongPres
 	const [loadError, setLoadError] = useState(false);
 	const [retryCount, setRetryCount] = useState(0);
 	const [imageOriginal, setImageOriginal] = useState<ImageProps | null>(null);
-	const MAX_RETRY_COUNT = 2;
+	const MAX_RETRY_COUNT = 1;
 
 	const handleImageError = useCallback(
 		(error: any) => {
@@ -177,20 +178,8 @@ const ImageRenderer = React.memo(
 		const photoSize = useMemo(() => {
 			if (imageSize?.width) {
 				return {
-					width: isUploading
-						? isMultiple
-							? widthMedia / 2
-							: widthMedia
-						: isMultiple
-							? widthMedia / 2
-							: Math.min(imageSize.width, widthMedia),
-					height: isUploading
-						? isMultiple
-							? heightMedia / 2
-							: heightMedia
-						: isMultiple
-							? heightMedia / 2
-							: (imageSize.height * Math.min(imageSize.width, widthMedia)) / imageSize.width
+					width: isMultiple ? widthMedia / 2 : Math.min(imageSize.width, widthMedia),
+					height: isMultiple ? heightMedia / 2 : (imageSize.height * Math.min(imageSize.width, widthMedia)) / imageSize.width
 				};
 			} else {
 				return {
@@ -222,7 +211,7 @@ const ImageRenderer = React.memo(
 				}) as string,
 				urlOriginal: image.url
 			};
-		}, [image?.filetype, image?.height, image?.url, image?.width]);
+		}, [image.filetype, image?.height, image.url, image?.width, imageOriginal?.url]);
 
 		if (!image.url) {
 			return null;
@@ -237,42 +226,58 @@ const ImageRenderer = React.memo(
 
 		const containerStyle = [styles.imageMessageRender, imageStyle];
 
+		const handleLongPressImage = () => {
+			if (!remainingImagesCount) {
+				onLongPress?.(image);
+			}
+		};
+
 		return (
 			<TouchableOpacity
 				disabled={isUploading || disable}
-				activeOpacity={0.8}
-				key={`${index}-${retryAttempt}`} // Add retry attempt to force re-render
+				activeOpacity={0.3}
+				key={`${index}-${retryAttempt}`}
 				onPress={() => onPress(image)}
-				onLongPress={onLongPress}
+				onLongPress={handleLongPressImage}
 				style={containerStyle}
 			>
-				{imageProxyObj?.isProxyImage ? (
+				{isUploading && Platform.OS === 'ios' ? (
+					<Image
+						source={{
+							uri: image?.url
+						}}
+						resizeMode={isMultiple ? 'cover' : 'contain'}
+						style={styles.imageFullSize}
+					/>
+				) : imageProxyObj?.isProxyImage ? (
 					<ImageNative
 						url={imageProxyObj?.url}
 						urlOriginal={image?.url}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 					/>
 				) : (
 					<FastImage
 						source={{
 							uri: imageProxyObj?.url,
-							priority: FastImage.priority.high,
+							priority: FastImage.priority.normal,
 							cache: FastImage.cacheControl.immutable
 						}}
 						resizeMode={isMultiple ? 'cover' : 'contain'}
-						style={{ width: '100%', height: '100%' }}
+						style={styles.imageFullSize}
 						onError={() => onError(new Error(`FastImage load failed for ${imageProxyObj?.url}`))}
 					/>
 				)}
 
 				{!!remainingImagesCount && (
 					<View
-						style={{
-							...styles.overlay,
-							width: photoSize?.width / (isTablet ? 1.8 : 1),
-							height: photoSize?.height / (isTablet ? 1.8 : 1)
-						}}
+						style={[
+							styles.overlay,
+							{
+								width: photoSize?.width / (isTablet ? 1.8 : 1),
+								height: photoSize?.height / (isTablet ? 1.8 : 1)
+							}
+						]}
 					>
 						<Text style={styles.moreText}>+{remainingImagesCount}</Text>
 					</View>

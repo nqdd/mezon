@@ -1,6 +1,7 @@
 import { useChatTypings } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ChannelTypingProps = {
 	channelId: string;
@@ -10,6 +11,7 @@ type ChannelTypingProps = {
 };
 
 export function ChannelTyping({ channelId, mode, isPublic, isDM }: ChannelTypingProps) {
+	const { t } = useTranslation('common');
 	const { typingUsers } = useChatTypings({ channelId, mode, isPublic, isDM });
 	const typingLabel = useMemo(() => {
 		if (typingUsers.length === 1) {
@@ -19,19 +21,15 @@ export function ChannelTyping({ channelId, mode, isPublic, isDM }: ChannelTyping
 						<Icons.IconLoadingTyping />
 					</span>
 					<span className="text-theme-primary-active text-xs font-semibold mr-[2px] ">{`${typingUsers[0].typingName}`}</span>
-					is typing...
+					{t('isTyping')}
 				</>
 			);
 		}
 		if (typingUsers.length > 1) {
-			return 'Several people are typing...';
+			return t('severalPeopleTyping');
 		}
 		return '';
-	}, [typingUsers]);
+	}, [typingUsers, t]);
 
-	return (
-		<div className="text-xs dark:text-bgIconDark text-textPrimaryLight relative left-4 pl-4 w-widthMessageViewChat" style={{ height: 16 }}>
-			{typingLabel}
-		</div>
-	);
+	return <div className="text-xs dark:text-bgIconDark text-textPrimaryLight relative left-4 pl-4 w-widthMessageViewChat h-4">{typingLabel}</div>;
 }

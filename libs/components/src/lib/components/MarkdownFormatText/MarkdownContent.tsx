@@ -1,10 +1,20 @@
 import { channelsActions, getStore, inviteActions, selectAppChannelById, selectTheme, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EBacktickType, getYouTubeEmbedSize, getYouTubeEmbedUrl, isYouTubeLink } from '@mezon/utils';
+import {
+	EBacktickType,
+	getTikTokEmbedSize,
+	getTikTokEmbedUrl,
+	getYouTubeEmbedSize,
+	getYouTubeEmbedUrl,
+	isTikTokLink,
+	isYouTubeLink
+} from '@mezon/utils';
+import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useMessageContextMenu } from '../ContextMenu';
 import InviteAcceptModal from '../InviteAcceptModal';
 
 type MarkdownContentOpt = {
@@ -17,6 +27,8 @@ type MarkdownContentOpt = {
 	typeOfBacktick?: EBacktickType;
 	isReply?: boolean;
 	isSearchMessage?: boolean;
+	messageId?: string;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 };
 
 const extractChannelParams = (url: string) => {
@@ -53,14 +65,34 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 	isBacktick,
 	typeOfBacktick,
 	isReply,
-	isSearchMessage
+	isSearchMessage,
+	messageId,
+	onContextMenu
 }) => {
 	const appearanceTheme = useSelector(selectTheme);
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const origin = process.env.NX_CHAT_APP_REDIRECT_URI + '/invite/';
-	const originClan = process.env.NX_CHAT_APP_REDIRECT_URI + '/chat/clans/';
-	const originDirect = process.env.NX_CHAT_APP_REDIRECT_URI + '/chat/direct/message/';
+	const { showMessageContextMenu } = useMessageContextMenu();
+	const origin = `${process.env.NX_CHAT_APP_REDIRECT_URI}/invite/`;
+	const originClan = `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/`;
+	const originDirect = `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/direct/message/`;
+
+	const handleContextMenu = useCallback(
+		(event: React.MouseEvent<HTMLElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+
+			if (isLink && content && messageId) {
+				showMessageContextMenu(event, messageId, ChannelStreamMode.STREAM_MODE_CHANNEL, false, {
+					linkContent: content,
+					isLinkContent: true
+				});
+			} else if (onContextMenu) {
+				onContextMenu(event);
+			}
+		},
+		[isLink, content, messageId, showMessageContextMenu, onContextMenu]
+	);
 
 	const [isLoadingInvite, setIsLoadingInvite] = useState(false);
 	const [inviteError, setInviteError] = useState<string | null>(null);
@@ -205,10 +237,17 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 	const posInReply = isJumMessageEnabled && !isTokenClickAble;
 
 	return (
-		<div className={` inline${!isLink ? ' bg-item-theme' : ''} ${isJumMessageEnabled ? 'whitespace-nowrap' : ''}`}>
+		<div
+			onContextMenu={handleContextMenu}
+			className={` inline${!isLink ? ' bg-item-theme rounded-lg' : ''} ${isJumMessageEnabled ? 'whitespace-nowrap' : ''}`}
+		>
 			{isLink && content && isGoogleMapsLink(content) ? (
 				<a
-					onClick={() => onClickLink(content)}
+					href={content}
+					onClick={(e) => {
+						e.preventDefault();
+						onClickLink(content);
+					}}
 					rel="noopener noreferrer"
 					className="text-blue-500 cursor-pointer break-words underline tagLink"
 					target="_blank"
@@ -218,7 +257,11 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 			) : (
 				isLink && (
 					<a
-						onClick={() => onClickLink(content ?? '')}
+						href={content ?? '#'}
+						onClick={(e) => {
+							e.preventDefault();
+							onClickLink(content ?? '');
+						}}
 						rel="noopener noreferrer"
 						className="text-blue-500 cursor-pointer break-words underline tagLink"
 						target="_blank"
@@ -227,7 +270,11 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 					</a>
 				)
 			)}
-			{!isReply && isLink && content && isYouTubeLink(content) && <YouTubeEmbed url={content} isSearchMessage={isSearchMessage} />}
+
+			{!isReply && isLink && content && isYouTubeLink(content) && (
+				<SocialEmbed url={content} platform="youtube" isSearchMessage={isSearchMessage} isInPinMsg={isInPinMsg} />
+			)}
+			{!isReply && isLink && content && isTikTokLink(content) && <SocialEmbed url={content} platform="tiktok" isInPinMsg={isInPinMsg} />}
 			{!isLink && isBacktick && (typeOfBacktick === EBacktickType.SINGLE || typeOfBacktick === EBacktickType.CODE) ? (
 				<SingleBacktick contentBacktick={content} isInPinMsg={isInPinMsg} isLightMode={isLightMode} posInNotification={posInNotification} />
 			) : isBacktick && (typeOfBacktick === EBacktickType.TRIPLE || typeOfBacktick === EBacktickType.PRE) && !isLink ? (
@@ -236,8 +283,7 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 				) : (
 					<div className={`py-[4px] relative bg-item-theme `}>
 						<pre
-							className={`w-full pre ${isInPinMsg ? `flex items-start  ${isLightMode ? 'pin-msg-modeLight' : 'pin-msg'}` : ''}`}
-							style={{ padding: 0, fontFamily: 'sans-serif' }}
+							className={`w-full pre p-0 font-sans ${isInPinMsg ? `flex items-start  ${isLightMode ? 'pin-msg-modeLight' : 'pin-msg'}` : ''}`}
 						>
 							<code className={`${isInPinMsg ? 'whitespace-pre-wrap block break-words w-full' : ''}`}>{content}</code>
 						</pre>
@@ -259,23 +305,15 @@ type BacktickOpt = {
 	posInNotification?: boolean;
 };
 
-const SingleBacktick: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, isInPinMsg, posInNotification }) => {
+const SingleBacktick: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode: _isLightMode, isInPinMsg, posInNotification }) => {
 	const posInPinOrNotification = isInPinMsg || posInNotification;
+
 	return (
-		<span
-			className={!posInPinOrNotification ? 'text-theme-primary-active rounded-md bg-markdown-code p-2' : 'w-full'}
-			style={{ display: posInPinOrNotification ? '' : 'inline', padding: 2, margin: 0 }}
-		>
+		<span className={`${!posInPinOrNotification ? 'inline text-theme-primary-active rounded-md p-0.5 m-0' : 'w-full'}`}>
 			<code
-				className={`w-full text-sm font-sans px-2 ${
-					posInPinOrNotification ? 'whitespace-pre-wrap break-words' : ''
-				} ${posInPinOrNotification && isLightMode ? 'pin-msg-modeLight' : posInPinOrNotification && !isLightMode ? 'pin-msg' : null}`}
-				style={{
-					fontFamily: 'sans-serif',
-					wordWrap: 'break-word',
-					overflowWrap: 'break-word',
-					whiteSpace: posInPinOrNotification ? 'normal' : 'break-spaces'
-				}}
+				className={`w-full text-sm font-sans px-2 break-words ${
+					posInPinOrNotification ? 'whitespace-normal' : 'whitespace-break-spaces'
+				} ${posInPinOrNotification && ' text-theme-primary rounded-lg'}`}
 			>
 				{contentBacktick.trim() === '' ? contentBacktick : contentBacktick.trim()}
 			</code>
@@ -283,7 +321,7 @@ const SingleBacktick: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, i
 	);
 };
 
-const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, isInPinMsg }) => {
+const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode: _isLightMode, isInPinMsg }) => {
 	const [copied, setCopied] = useState(false);
 
 	useEffect(() => {
@@ -294,7 +332,6 @@ const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, 
 		return () => clearTimeout(timer);
 	}, [copied]);
 
-	// TODO: continue test
 	const handleCopyClick = () => {
 		navigator.clipboard
 			.writeText(contentBacktick)
@@ -303,14 +340,17 @@ const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, 
 	};
 
 	return (
-		<div className={`py-[4px] relative`}>
-			<pre className={`pre whitespace-pre-wrap p-3 bg-markdown-code border-theme-primary rounded-lg ${isInPinMsg ? `flex items-start ` : ''}`}>
-				<button className={`absolute right-2 top-3`} onClick={handleCopyClick}>
+		<div className="py-1 relative">
+			<pre
+				className={`pre whitespace-pre-wrap break-words break-all w-full p-3 bg-markdown-code border-theme-primary rounded-lg ${isInPinMsg ? `flex items-start` : ''}`}
+				style={{ wordBreak: 'break-all', overflowWrap: 'break-word' }}
+			>
+				<button className="absolute right-2 top-3" onClick={handleCopyClick}>
 					{copied ? <Icons.PasteIcon /> : <Icons.CopyIcon />}
 				</button>
 				<code
-					style={{ fontFamily: 'sans-serif' }}
-					className={`text-sm w-full   whitespace-pre-wrap text-theme-message ${isInPinMsg ? 'whitespace-pre-wrap block break-words w-full' : ''}`}
+					style={{ fontFamily: 'sans-serif', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+					className={`text-sm w-full whitespace-pre-wrap break-words break-all text-theme-message ${isInPinMsg ? 'whitespace-pre-wrap block break-words w-full' : ''}`}
 				>
 					{contentBacktick}
 				</code>
@@ -319,20 +359,53 @@ const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode, 
 	);
 };
 
-const YouTubeEmbed: React.FC<{ url: string; isSearchMessage?: boolean }> = ({ url, isSearchMessage }) => {
-	const embedUrl = getYouTubeEmbedUrl(url);
-	const { width, height } = getYouTubeEmbedSize(url, isSearchMessage);
+type SocialPlatform = 'youtube' | 'tiktok';
+
+const SocialEmbed: React.FC<{ url: string; platform: SocialPlatform; isSearchMessage?: boolean; isInPinMsg?: boolean }> = ({
+	url,
+	platform,
+	isSearchMessage,
+	isInPinMsg
+}) => {
+	const getEmbedData = () => {
+		switch (platform) {
+			case 'youtube':
+				return {
+					embedUrl: getYouTubeEmbedUrl(url),
+					size: getYouTubeEmbedSize(url, isSearchMessage),
+					borderColor: '#ff001f',
+					allowAttributes: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+				};
+			case 'tiktok':
+				return {
+					embedUrl: getTikTokEmbedUrl(url),
+					size: getTikTokEmbedSize(),
+					borderColor: '#ff0050',
+					allowAttributes: 'fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture'
+				};
+			default:
+				return null;
+		}
+	};
+
+	const embedData = getEmbedData();
+
+	if (!embedData || !embedData.embedUrl) return null;
+
+	const { embedUrl, size, borderColor, allowAttributes } = embedData;
+	const { width, height } = size;
 
 	return (
-		<div className="flex">
-			<div className="border-l-4 rounded-l border-[#ff001f]"></div>
-			<div className="p-4 bg-[#2b2d31] rounded">
+		<div className={`flex ${isInPinMsg ? 'w-full' : ''}`}>
+			<div className="border-l-4 rounded-l" style={{ borderColor }}></div>
+			<div className={`p-4 bg-[#2b2d31] rounded ${isInPinMsg ? 'flex-1 min-w-0' : ''}`}>
 				<iframe
-					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+					allow={allowAttributes}
 					title={url}
 					src={embedUrl}
-					style={{ width, height, border: 'none' }}
+					style={{ width, height, border: 'none', maxWidth: '100%' }}
 					allowFullScreen
+					referrerPolicy={'strict-origin-when-cross-origin'}
 				></iframe>
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 import { useRoomContext } from '@livekit/react-native';
-import { CallSignalingData } from '@mezon/components';
+import type { CallSignalingData } from '@mezon/components';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import {
 	getStore,
 	groupCallActions,
@@ -27,7 +27,7 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 	const styles = style(themeValue);
 	const isShowPreCallInterface = useSelector(selectIsShowPreCallInterface);
 	const { sendSignalingToParticipants } = useSendSignaling();
-	const room = useRoomContext();
+	const room: any = useRoomContext();
 
 	const handleGroupCallEnd = (type: 'cancel' | 'quit') => {
 		dispatch(groupCallActions.endGroupCall());
@@ -45,8 +45,31 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 		};
 
 		if (type === 'quit') {
+			if (room?.numParticipants === 1) {
+				dispatch(
+					messagesActions.sendMessage({
+						channelId: currentDmGroup?.channel_id,
+						clanId: '0',
+						mode: ChannelStreamMode.STREAM_MODE_GROUP,
+						isPublic: true,
+						content: {
+							t: 'Group call ended',
+							callLog: {
+								isVideo: false,
+								callLogType: IMessageTypeCallLog.FINISHCALL,
+								showCallBack: false
+							}
+						},
+						anonymous: false,
+						senderId: userProfile?.user?.id || '',
+						avatar: userProfile?.user?.avatar_url || '',
+						isMobile: true,
+						username: currentDmGroup?.channel_label || ''
+					})
+				);
+			}
 			sendSignalingToParticipants(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_QUIT,
 				baseData as CallSignalingData,
 				currentDmGroup?.channel_id || '',
@@ -61,7 +84,7 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 				reason: 'cancelled'
 			};
 			sendSignalingToParticipants(
-				currentDmGroup?.user_id || [],
+				currentDmGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_CANCEL,
 				cancelAction as CallSignalingData,
 				currentDmGroup?.channel_id || '',
@@ -90,6 +113,12 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 				})
 			);
 		}
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
+			isEndCall: true,
+			clanId: '',
+			channelId: currentDmGroup?.channel_id,
+			roomId: room?.roomInfo?.sid
+		});
 	};
 
 	const handleEndCall = () => {
@@ -97,11 +126,13 @@ const ButtonEndCall = ({ channelId, clanId, isGroupCall = false }: { channelId: 
 			handleGroupCallEnd(isShowPreCallInterface ? 'cancel' : 'quit');
 		}
 		room.disconnect();
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, { isEndCall: true, clanId: clanId, channelId: channelId });
+		if (!isGroupCall) {
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, { isEndCall: true, clanId, channelId, roomId: room?.roomInfo?.sid });
+		}
 	};
 
 	return (
-		<TouchableOpacity onPress={handleEndCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>
+		<TouchableOpacity onPress={handleEndCall} style={[styles.menuIcon, styles.endCallButton]}>
 			<MezonIconCDN icon={IconCDN.phoneCallIcon} />
 		</TouchableOpacity>
 	);

@@ -1,6 +1,6 @@
 import { useDraftCompose } from '@mezon/core';
 import { selectIsShowMemberListDM, selectIsUseProfileDM } from '@mezon/store';
-import { MentionReactInputProps } from '@mezon/utils';
+import { MentionReactInputProps, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';

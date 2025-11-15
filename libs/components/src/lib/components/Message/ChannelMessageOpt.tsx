@@ -1,8 +1,5 @@
 import { useAuth, useChatReaction, useDirect, useEmojiConverted, useGifs, usePermissionChecker, useSendInviteMessage } from '@mezon/core';
 import {
-	CanvasAPIEntity,
-	ChannelsEntity,
-	createEditCanvas,
 	getStore,
 	gifsStickerEmojiActions,
 	giveCoffeeActions,
@@ -11,8 +8,10 @@ import {
 	referencesActions,
 	selectClickedOnTopicStatus,
 	selectCurrentChannel,
+	selectCurrentChannelId,
+	selectCurrentChannelParentId,
+	selectCurrentChannelType,
 	selectCurrentClanId,
-	selectDefaultCanvasByChannelId,
 	selectIsMessageChannelIdMatched,
 	selectMessageByMessageId,
 	threadsActions,
@@ -21,13 +20,10 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { IMessageWithUser, MenuBuilder } from '@mezon/utils';
 import {
-	AMOUNT_TOKEN,
-	EEventAction,
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
-	IMessageWithUser,
-	MenuBuilder,
 	SYSTEM_NAME,
 	SYSTEM_SENDER_ID,
 	SubPanelName,
@@ -35,13 +31,14 @@ import {
 	TypeMessage,
 	findParentByClass,
 	formatMoney,
+	generateE2eId,
 	isPublicChannel,
 	useMenuBuilder,
 	useMenuBuilderPlugin
 } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import clx from 'classnames';
-import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ReactionPart from '../ContextMenu/ReactionPart';
@@ -83,24 +80,24 @@ const ChannelMessageOpt = ({
 	isTopic,
 	canSendMessage
 }: ChannelMessageOptProps) => {
-	const currentChannel = useSelector(selectCurrentChannel);
-	const isAppChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
+	const currentChannelType = useSelector(selectCurrentChannelType);
+	const isAppChannel = currentChannelType === ChannelType.CHANNEL_TYPE_APP;
 	const refOpt = useRef<HTMLDivElement>(null);
-	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannel?.id ?? '');
-	const isShowIconThread = !!(currentChannel && !Snowflake.isValid(currentChannel.parent_id ?? '') && canManageThread);
-	const defaultCanvas = useAppSelector((state) => selectDefaultCanvasByChannelId(state, currentChannel?.channel_id ?? ''));
+	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannelId ?? '');
+	const isShowIconThread = !!(currentChannelId && !Snowflake.isValid(currentChannelParentId ?? '') && canManageThread);
 	const replyMenu = useMenuReplyMenuBuilder(message, hasPermission);
 	const editMenu = useEditMenuBuilder(message);
 	const reactMenu = useReactMenuBuilder(message);
 	const threadMenu = useThreadMenuBuilder(message, isShowIconThread, hasPermission, isAppChannel);
 	const optionMenu = useOptionMenuBuilder(handleContextMenu);
-	const addToNote = useAddToNoteBuilder(message, defaultCanvas, currentChannel, mode);
 	const giveACoffeeMenu = useGiveACoffeeMenuBuilder(message, isTopic);
 	const checkMessageOnTopic = useAppSelector((state) => selectIsMessageChannelIdMatched(state, message?.channel_id ?? ''));
 	const checkMessageHasTopic = useAppSelector((state) => selectIsMessageChannelIdMatched(state, message?.topic_id ?? ''));
 	const doNotAllowCreateTopic = (isTopic && checkMessageOnTopic) || (isTopic && checkMessageHasTopic) || !hasPermission || !canSendMessage;
 	const createTopicMenu = useTopicMenuBuilder(message, doNotAllowCreateTopic);
-	const items = useMenuBuilder([createTopicMenu, reactMenu, replyMenu, editMenu, threadMenu, addToNote, giveACoffeeMenu, optionMenu]);
+	const items = useMenuBuilder([createTopicMenu, reactMenu, replyMenu, editMenu, threadMenu, giveACoffeeMenu, optionMenu]);
 	return (
 		<div
 			className={`chooseForText z-[1] absolute min-h-[34px] p-0.5 bg-theme-contexify rounded-lg block ${!isCombine ? (message?.references ? '-top-5' : 'top-0') : '-top-5'} ${isDifferentDay ? '-top-12 mt-1' : ''} right-6 w-fit`}
@@ -110,7 +107,13 @@ const ChannelMessageOpt = ({
 					<RecentEmoji message={message} isTopic={isTopic} />
 					{items
 						.filter((item) => {
-							return currentChannel?.type !== ChannelType.CHANNEL_TYPE_STREAMING || item.id !== EMessageOpt.THREAD;
+							if (currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING && item.id === EMessageOpt.THREAD) {
+								return false;
+							}
+							if (message?.content?.tp && item.id === 'edit') {
+								return false;
+							}
+							return true;
 						})
 						.map((item, index) => (
 							<button
@@ -121,6 +124,7 @@ const ChannelMessageOpt = ({
 									'h-full p-1 rounded-lg cursor-pointer popup-btn text-theme-primary text-theme-primary-hover bg-item-hover',
 									item.classNames
 								)}
+								data-e2e={generateE2eId('chat.hover_message_actions.button.base')}
 							>
 								{item.icon}
 							</button>
@@ -134,8 +138,8 @@ const ChannelMessageOpt = ({
 export default memo(ChannelMessageOpt);
 
 function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: boolean) {
-	const currentChannel = useSelector(selectCurrentChannel);
-	const realTimeMessage = useAppSelector((state) => selectMessageByMessageId(state, currentChannel?.channel_id, message?.id || ''));
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const realTimeMessage = useAppSelector((state) => selectMessageByMessageId(state, currentChannelId, message?.id || ''));
 	const dispatch = useAppDispatch();
 	const clanId = useSelector(selectCurrentClanId);
 	const notAllowedType =
@@ -143,16 +147,17 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 		message?.code !== TypeMessage.CreatePin &&
 		message?.code !== TypeMessage.MessageBuzz &&
 		message?.code !== TypeMessage.AuditLog &&
-		message?.code !== TypeMessage.Welcome;
+		message?.code !== TypeMessage.Welcome &&
+		message?.code !== TypeMessage.UpcomingEvent;
 
 	const setIsShowCreateTopic = useCallback(
 		(isShowCreateTopic: boolean, channelId?: string) => {
 			dispatch(topicsActions.setIsShowCreateTopic(isShowCreateTopic));
 			dispatch(
-				threadsActions.setIsShowCreateThread({ channelId: channelId ? channelId : (currentChannel?.id as string), isShowCreateThread: false })
+				threadsActions.setIsShowCreateThread({ channelId: channelId ? channelId : (currentChannelId as string), isShowCreateThread: false })
 			);
 		},
-		[currentChannel?.id, dispatch]
+		[currentChannelId, dispatch]
 	);
 
 	const setCurrentTopicInitMessage = useCallback(
@@ -176,7 +181,7 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 				builder.when(
 					clanId && clanId !== '0' && realTimeMessage?.code !== TypeMessage.Topic && !doNotAllowCreateTopic && notAllowedType,
 					(builder: MenuBuilder) => {
-						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIcon2 className="w-5 h-5 " />);
+						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIconOption className="w-5 h-5 " />);
 					}
 				);
 			}
@@ -215,7 +220,6 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 	const { userId } = useAuth();
 	const { reactionMessageDispatch } = useChatReaction();
 	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
-	const channel = useSelector(selectCurrentChannel);
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
 
@@ -245,8 +249,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 					clan_id: message.clan_id ?? '',
 					message_ref_id: message.id,
 					receiver_id: message.sender_id,
-					sender_id: userId,
-					token_count: AMOUNT_TOKEN.TEN_TOKENS
+					sender_id: userId
 				})
 			).unwrap();
 			if (checkSendCoffee === true) {
@@ -258,7 +261,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 					count: 1,
 					message_sender_id: message?.sender_id ?? '',
 					action_delete: false,
-					is_public: isPublicChannel(channel),
+					is_public: isPublicChannel(currentChannel),
 					clanId: message.clan_id ?? '',
 					channelId: isTopic ? currentChannel?.id || '' : (message?.channel_id ?? ''),
 					isFocusTopicBox,
@@ -275,7 +278,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 		} catch (error) {
 			console.error('Failed to give cofffee message', error);
 		}
-	}, [isFocusTopicBox, channel]);
+	}, [isFocusTopicBox]);
 
 	return useMenuBuilderPlugin((builder) => {
 		builder.when(
@@ -285,98 +288,6 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 				message.username !== SYSTEM_NAME,
 			(builder) => {
 				builder.addMenuItem('giveacoffee', 'Give a coffee', handleItemClick, <Icons.DollarIcon defaultSize="w-5 h-5" />);
-			}
-		);
-	});
-}
-
-function useAddToNoteBuilder(message: IMessageWithUser, defaultCanvas: CanvasAPIEntity | null, currentChannel: ChannelsEntity | null, mode: number) {
-	const dispatch = useAppDispatch();
-	const { userId } = useAuth();
-
-	const handleItemClick = useCallback(
-		(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-			e.currentTarget.classList.add('animate-wiggle');
-			if (!message) return;
-
-			const createCanvasBody = (content?: string, id?: string) => ({
-				channel_id: message.channel_id,
-				clan_id: message.clan_id,
-				content,
-				is_default: true,
-				...(id && { id }),
-				title: defaultCanvas?.title || 'Note',
-				status: defaultCanvas ? 0 : EEventAction.CREATED
-			});
-
-			const insertImageToJson = (jsonObject: JsonObject, imageUrl?: string) => {
-				if (!imageUrl) return;
-				const imageInsert = { insert: { image: imageUrl } };
-				jsonObject.ops.push(imageInsert);
-				jsonObject.ops.push({ attributes: { list: 'ordered' }, insert: '\n' });
-			};
-
-			const updateJsonWithInsert = (jsonObject: JsonObject, newInsert: string) => {
-				jsonObject.ops.push({ insert: newInsert });
-				jsonObject.ops.push({ attributes: { list: 'ordered' }, insert: '\n' });
-			};
-
-			const isContentExists = (jsonObject: JsonObject, newInsert: string) => {
-				return jsonObject.ops.some((op) => op.insert === newInsert);
-			};
-
-			const isImageExists = (jsonObject: JsonObject, imageUrl?: string) => {
-				return jsonObject.ops.some((op) => {
-					return typeof op.insert === 'object' && op.insert !== null && op.insert.image === imageUrl;
-				});
-			};
-
-			let formattedString;
-
-			if (!defaultCanvas || (defaultCanvas && !defaultCanvas.content)) {
-				const messageContent = message.content.t;
-				const jsonObject: JsonObject = { ops: [] };
-				if (message.attachments?.length) {
-					const newImageUrl = message.attachments[0].url;
-					insertImageToJson(jsonObject, newImageUrl);
-				}
-				if (messageContent) {
-					jsonObject.ops.push({ insert: messageContent });
-					jsonObject.ops.push({ attributes: { list: 'ordered' }, insert: '\n' });
-				}
-				formattedString = JSON.stringify(jsonObject);
-			} else {
-				const jsonObject: JsonObject = safeJSONParse(defaultCanvas.content as string);
-
-				if (message.attachments?.length) {
-					const newImageUrl = message.attachments[0].url;
-					if (!isImageExists(jsonObject, newImageUrl)) {
-						insertImageToJson(jsonObject, newImageUrl);
-					} else {
-						return;
-					}
-				} else {
-					const newInsert = message.content.t;
-					if (newInsert && !isContentExists(jsonObject, newInsert)) {
-						updateJsonWithInsert(jsonObject, newInsert);
-					} else {
-						return;
-					}
-				}
-
-				formattedString = JSON.stringify(jsonObject);
-			}
-
-			dispatch(createEditCanvas(createCanvasBody(formattedString, defaultCanvas?.id)));
-		},
-		[dispatch, message, defaultCanvas]
-	);
-
-	return useMenuBuilderPlugin((builder) => {
-		builder.when(
-			userId === currentChannel?.creator_id && mode !== ChannelStreamMode.STREAM_MODE_DM && mode !== ChannelStreamMode.STREAM_MODE_GROUP,
-			(builder) => {
-				builder.addMenuItem('addtonote', 'Add To Note', handleItemClick, <Icons.CanvasIcon defaultSize="w-5 h-5" />);
 			}
 		);
 	});
@@ -527,7 +438,7 @@ function useOptionMenuBuilder(handleContextMenu: any) {
 	const useHandleClickOption = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement>) => {
 			const target = event.target as HTMLElement;
-			const btn = findParentByClass(target, 'popup-btn');
+			const btn = target.classList.contains('popup-btn') ? target : findParentByClass(target, 'popup-btn');
 			const btnX = btn?.getBoundingClientRect()?.left ?? 0;
 			const btnY = btn?.getBoundingClientRect()?.top ?? 0;
 			const y = btnY;
@@ -544,7 +455,7 @@ function useOptionMenuBuilder(handleContextMenu: any) {
 			'option',
 			'option',
 			useHandleClickOption,
-			<Icons.ThreeDot defaultSize={'w-5 h-5 dark:hover:text-white hover:text-black'} />
+			<Icons.ThreeDot defaultSize={'w-5 h-5 text-theme-primary text-theme-primary-hover'} />
 		);
 	});
 }

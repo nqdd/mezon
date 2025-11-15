@@ -1,9 +1,10 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { ChannelStatusEnum, IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { ChannelStatusEnum } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useRef } from 'react';
 import Button from '../Button';
-import { Hashtag, HashtagLocked, Speaker, SpeakerLocked } from '../Icons';
+import { Hashtag, HashtagLocked } from '../Icons';
 
 export type ModalProps = {
 	children: React.ReactNode;
@@ -18,6 +19,8 @@ export type ModalProps = {
 	classNameWrapperChild?: string;
 	hasChannel?: IChannel;
 	isInviteModal?: boolean;
+	className?: string;
+	classNameHeader?: string;
 };
 
 const Modal = (props: ModalProps) => {
@@ -32,7 +35,8 @@ const Modal = (props: ModalProps) => {
 		classSubTitleBox,
 		classNameWrapperChild,
 		hasChannel,
-		isInviteModal
+		isInviteModal,
+		classNameHeader
 	} = props;
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, onClose);
@@ -54,18 +58,13 @@ const Modal = (props: ModalProps) => {
 					<div className="fixed inset-0 bg-black opacity-80"></div>
 					<div className={`relative w-full ${isInviteModal ? 'max-w-[480px]' : 'max-w-[684px]'} sm:h-auto ${classNameBox}`}>
 						<div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-theme-setting-primary outline-none focus:outline-none h-full sm:h-auto">
-							<div className={`flex items-start justify-between p-4 border-b-theme-primary rounded-t`}>
+							<div className={`flex items-start justify-between p-4 border-b-theme-primary rounded-t ${classNameHeader} `}>
 								<div>
-									<h3 className="text-[22px] font-semibold text-theme-primary-active cursor-default">{title}</h3>
+									<h3 className="text-[22px] font-semibold text-theme-primary-active cursor-default ">{title}</h3>
 									{hasChannel && (
 										<div className="inline-flex gap-x-2">
 											{hasChannel.channel_private === ChannelStatusEnum.isPrivate &&
-												hasChannel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && <SpeakerLocked defaultSize="w-5 h-5" />}
-											{hasChannel.channel_private === ChannelStatusEnum.isPrivate &&
 												hasChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL && <HashtagLocked defaultSize="w-5 h-5 " />}
-											{hasChannel.channel_private === undefined && hasChannel.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE && (
-												<Speaker defaultSize="w-5 5-5" />
-											)}
 											{hasChannel.channel_private === undefined && hasChannel.type === ChannelType.CHANNEL_TYPE_CHANNEL && (
 												<Hashtag defaultSize="w-5 h-5" />
 											)}

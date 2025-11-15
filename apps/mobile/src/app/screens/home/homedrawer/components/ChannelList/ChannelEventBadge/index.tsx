@@ -4,11 +4,11 @@ import { selectChannelById, selectEventsByChannelId, useAppSelector } from '@mez
 import { EEventStatus } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo } from 'react';
-import { DeviceEventEmitter, Linking, Pressable, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, View } from 'react-native';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
-import { linkGoogleMeet } from '../../../../../../utils/helpers';
 import JoinChannelVoiceBS from '../../ChannelVoice/JoinChannelVoiceBS';
+import { style } from './styles';
 
 type EventBadgeProps = {
 	clanId: string;
@@ -21,13 +21,9 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 
 	const hanleEventChannel = async () => {
 		if (!events?.[0] && !events?.[0]?.channel_voice_id) return;
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `${linkGoogleMeet}${channelVoice?.meeting_code}`;
-			await Linking.openURL(urlVoice);
-		} else if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
-				snapPoints: ['45%'],
+				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
@@ -36,11 +32,7 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 
 	if (events?.length && (events?.[0]?.event_status === EEventStatus.UPCOMING || events?.[0]?.event_status === EEventStatus.ONGOING)) {
 		return (
-			<View
-				style={{
-					marginLeft: size.s_8
-				}}
-			>
+			<View style={style.container}>
 				<Pressable onPress={hanleEventChannel}>
 					<MezonIconCDN icon={IconCDN.calendarIcon} height={size.s_18} width={size.s_18} color={colorStatusEvent} />
 				</Pressable>

@@ -7,7 +7,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
+import { IChannel, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useImperativeHandle, useRef } from 'react';
 import { useModal } from 'react-modal-hook';
@@ -21,7 +21,7 @@ import PanelChannel from '../PanelChannel';
 
 type ThreadLinkProps = {
 	thread: IChannel;
-	isFirstThread: boolean;
+	hasLine: boolean;
 	isActive: boolean;
 	handleClick: (thread: IChannel) => void;
 };
@@ -30,7 +30,7 @@ export type ThreadLinkRef = {
 	scrollToIntoView: (options?: ScrollIntoViewOptions) => void;
 };
 
-const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, isFirstThread, isActive, handleClick }: ThreadLinkProps, ref) => {
+const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, hasLine, isActive, handleClick }: ThreadLinkProps, ref) => {
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadChannelById(state, thread.id));
 	const numberNotification = thread.count_mess_unread ? thread.count_mess_unread : 0;
 	const panelRef = useRef<HTMLDivElement | null>(null);
@@ -95,13 +95,15 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, i
 
 	return (
 		<div
+			id={thread.id}
 			className={`flex flex-row items-center h-[34px] relative ${isUnReadChannel ? 'before:bg-[var(--text-secondary)] :content-[""] before:w-1 before:h-2 before:rounded-[0px_4px_4px_0px] before:absolute  before:top-3' : ''}`}
 			ref={panelRef}
 			role={'button'}
 			onContextMenu={(event) => handleMouseClick(event)}
 		>
-			<span className={`absolute ${isFirstThread ? 'top-2 left-5' : 'top-[-18px] left-[21px]'} `}>
-				{isFirstThread ? <Icons.ShortCorner /> : <Icons.LongCorner />}
+			<span className={`absolute top-2 left-5 `}>
+				<Icons.ShortCorner />
+				{hasLine && <Icons.LongCorner className="absolute -left-[5px] top-2" />}
 			</span>
 
 			<Link
@@ -117,7 +119,11 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, i
 				<div className="flex items-center gap-2">
 					{events[0] && <EventSchedule event={events[0]} className="inline" />}
 
-					<span title={thread?.channel_label && thread?.channel_label?.length >= 15 ? thread?.channel_label : ''} className="truncate">
+					<span
+						title={thread?.channel_label && thread?.channel_label?.length >= 15 ? thread?.channel_label : ''}
+						className="truncate"
+						data-e2e={generateE2eId('clan_page.channel_list.thread_item.name')}
+					>
 						{thread.channel_label}
 					</span>
 				</div>
@@ -141,5 +147,5 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, i
 	);
 });
 export default memo(ThreadLink, (next, curr) => {
-	return next.isActive === curr.isActive && next.isFirstThread === curr.isFirstThread && next.thread === curr.thread;
+	return next.isActive === curr.isActive && next.hasLine === curr.hasLine && next.thread === curr.thread;
 });

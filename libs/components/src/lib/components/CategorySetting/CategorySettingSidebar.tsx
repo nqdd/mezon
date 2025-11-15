@@ -1,10 +1,13 @@
 import { useCategory } from '@mezon/core';
-import { selectCurrentChannel, selectWelcomeChannelByClanId } from '@mezon/store';
-import { ICategoryChannel, IChannel } from '@mezon/utils';
+import { selectWelcomeChannelByClanId } from '@mezon/store';
+import type { ICategoryChannel } from '@mezon/utils';
+import { generateE2eId } from '@mezon/utils';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { ItemObjProps, categorySettingList } from '../ClanSettings/ItemObj';
+import type { ItemObjProps } from '../ClanSettings/ItemObj';
+import { categorySettingList } from '../ClanSettings/ItemObj';
 import SettingItem from '../ClanSettings/SettingItem';
 import ModalConfirm from '../ModalConfirm';
 
@@ -13,12 +16,19 @@ interface ICategorySettingSidebarProps {
 	handleMenu: (value: boolean) => void;
 	currentSetting: ItemObjProps;
 	category: ICategoryChannel;
+	displayCategoryName?: string;
 }
 
-const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClickItem, handleMenu, currentSetting, category }) => {
+const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({
+	onClickItem,
+	handleMenu,
+	currentSetting,
+	category,
+	displayCategoryName
+}) => {
+	const { t } = useTranslation('clan');
 	const [showModal, setShowModal] = useState(false);
 	const { handleDeleteCategory } = useCategory();
-	const currenChannel = useSelector(selectCurrentChannel);
 	const handleClickButtonSidebar = (setting: ItemObjProps) => {
 		onClickItem(setting);
 	};
@@ -26,14 +36,14 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 
 	const openModalDeleteCategory = () => {
 		if (hasWelcomeChannel) {
-			toast.error('This category has welcome channel');
+			toast.error(t('categoryOverview.hasWelcomeChannelError'));
 			return;
 		}
 		setShowModal(true);
 	};
 
 	const confirmDeleteCategory = async () => {
-		handleDeleteCategory({ category, currenChannel: currenChannel as IChannel });
+		handleDeleteCategory({ category });
 		setShowModal(false);
 	};
 	const hasWelcomeChannel = useMemo(() => {
@@ -49,7 +59,9 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 	return (
 		<div className="flex flex-row flex-1 justify-end">
 			<div className="w-[220px] py-[60px] pl-5 pr-[6px]">
-				<p className="text-[#84ADFF] pl-[10px] pb-[6px] font-bold text-sm tracking-wider uppercase truncate">{category.category_name}</p>
+				<p className="text-[#84ADFF] pl-[10px] pb-[6px] font-bold text-sm tracking-wider uppercase truncate">
+					{displayCategoryName ?? category.category_name}
+				</p>
 				{categorySettingList.map((settingItem) => (
 					<SettingItem
 						key={settingItem.id}
@@ -61,10 +73,11 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 				))}
 				<div className={'border-t-[0.08px] dark:border-borderDividerLight border-bgModifierHoverLight'}></div>
 				<button
-					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left dark:hover:bg-bgHover hover:bg-bgModifierHoverLight ${hasWelcomeChannel ? '!text-bgTertiary' : ''}`}
+					className={`mt-[5px] text-red-500 w-full py-1 px-[10px] mb-1 text-[16px] font-medium rounded text-left hover:bg-[#f67e882a] ${hasWelcomeChannel ? 'text-red-500' : ''}`}
 					onClick={openModalDeleteCategory}
+					data-e2e={generateE2eId('clan_page.modal.delete_category.button.delete')}
 				>
-					Delete Category
+					{t('categoryOverview.deleteCategory')}
 				</button>
 				{showModal && (
 					<ModalConfirm
@@ -72,9 +85,9 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({ onClic
 						modalName={category?.category_name || ''}
 						handleConfirm={confirmDeleteCategory}
 						title="delete"
-						buttonName="Delete category"
-						message="This cannot be undone"
-						customModalName="Category"
+						buttonName={t('categoryOverview.deleteCategoryButton')}
+						message={t('categoryOverview.cannotBeUndone')}
+						customModalName={t('categoryOverview.categoryLabel')}
 					/>
 				)}
 			</div>

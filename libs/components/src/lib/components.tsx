@@ -23,20 +23,31 @@ export { default as ModalInvite } from './components/ListMemberInvite/modalInvit
 export { default as EmojiMarkup } from './components/MarkdownFormatText/EmojiMarkup';
 export { default as MarkdownContent } from './components/MarkdownFormatText/MarkdownContent';
 export { default as PlainText } from './components/MarkdownFormatText/PlainText';
+export { default as PreClass } from './components/MarkdownFormatText/PreClass';
 export { default as StreamInfo } from './components/StreamInfo';
 export { default as UpdateButton } from './components/UpdateButton/UpdateButton';
 
-export { default as PreClass } from './components/MarkdownFormatText/PreClass';
-
+export * from './components/AvatarImage/AvatarImage';
+export { default as AppDirectoryList } from './components/ClanSettings/AppDirectory/AppDirectoryList';
+export { default as ModalSaveChanges } from './components/ClanSettings/ClanSettingOverview/ModalSaveChanges';
+export { default as SettingOnBoarding } from './components/ClanSettings/SettingOnBoarding';
+export { default as CustomDropdown } from './components/CustomDropdown';
 export { default as TooManyUpload } from './components/DragAndDrop/TooManyUpload';
+export { default as FileUploadByDnD } from './components/DragAndDrop/UploadFileByDnd';
+export { default as FirstJoinPopup } from './components/FirstJoinPopup';
+export { default as ForwardMessageModal } from './components/ForwardMessage';
+export * from './components/LoginForm';
 export { default as CanvasHashtag } from './components/MarkdownFormatText/CanvasHashtag';
 export { default as ChannelHashtag } from './components/MarkdownFormatText/HashTag';
 export { default as MentionUser } from './components/MarkdownFormatText/MentionUser';
+export { default as ModalUnknowChannel } from './components/MarkdownFormatText/ModalUnknowChannel';
+export { default as ModalWalletNotAvailable } from './components/MarkdownFormatText/ModalWalletNotAvailable';
 export { default as MemberList } from './components/MemberList';
-export { MemberProfile, SimpleMemberProfile } from './components/MemberProfile';
+export { default as BaseProfile } from './components/MemberProfile/BaseProfile';
 export { default as Message } from './components/Message';
 export { default as ChannelMessageOpt } from './components/Message/ChannelMessageOpt';
 export { default as UnreadMessageBreak } from './components/Message/UnreadMessageBreak';
+export * from './components/MessageBox';
 export { MessageBox } from './components/MessageBox';
 export { default as AttachmentLoading } from './components/MessageBox/AttachmentLoading';
 export { default as AttachmentPreviewThumbnail } from './components/MessageBox/AttachmentPreviewThumbnail';
@@ -48,37 +59,26 @@ export { default as MessageModalImage } from './components/MessageWithUser/Messa
 export { default as MessageReaction } from './components/MessageWithUser/MessageReaction/MessageReaction';
 export { default as ReactionBottom } from './components/MessageWithUser/MessageReaction/ReactionBottom';
 export { default as UserReactionPanel } from './components/MessageWithUser/MessageReaction/UserReactionPanel';
-export { default as ModalNotificationSetting } from './components/NotificationSetting';
-export { default as SearchModal } from './components/SearchModal';
-export { default as MzToast } from './components/ToastController/MzToast';
-export { default as ToastController } from './components/ToastController/ToastController';
-
-export * from './components/AvatarImage/AvatarImage';
-export { default as AppDirectoryList } from './components/ClanSettings/AppDirectory/AppDirectoryList';
-export { default as ModalSaveChanges } from './components/ClanSettings/ClanSettingOverview/ModalSaveChanges';
-export { default as SettingOnBoarding } from './components/ClanSettings/SettingOnBoarding';
-export { default as CustomDropdown } from './components/CustomDropdown';
-export { default as FileUploadByDnD } from './components/DragAndDrop/UploadFileByDnd';
-export { default as FirstJoinPopup } from './components/FirstJoinPopup';
-export { default as ForwardMessageModal } from './components/ForwardMessage';
-export * from './components/LoginForm';
-export { default as ModalUnknowChannel } from './components/MarkdownFormatText/ModalUnknowChannel';
-export * from './components/MessageBox';
 export { default as MessageVideo } from './components/MessageWithUser/MessageVideo';
-export { ModalErrorTypeUpload, ModalOverData } from './components/ModalError';
 export { default as SidebarLogoItem } from './components/ModalListClans/SidebarLogoItem';
 export { default as SidebarTooltip } from './components/ModalListClans/SidebarTooltip';
 export { default as SidebarClanItem } from './components/ModalListClans/index';
 export { default as ModalUserProfile } from './components/ModalUserProfile';
+export { ModalErrorTypeUpload, ModalOverData } from './components/ModalValidateFile/ModalOverData';
 export { default as NavLinkComponent } from './components/NavLink';
+export { default as ModalNotificationSetting } from './components/NotificationSetting';
 export { ReplyMessageBox } from './components/ReplyMessageBox';
 export { default as SearchMessageChannelRender } from './components/SearchMessageChannel/SearchMessageChannelRender';
+export { default as SearchModal } from './components/SearchModal';
 export { default as SettingAccount } from './components/SettingAccount';
+export { default as SettingActivity } from './components/SettingActivity';
 export { default as SettingAppearance } from './components/SettingAppearance';
+export { SettingLanguage } from './components/SettingLanguage';
 export { default as SettingNotifications } from './components/SettingNotifications';
 export * from './components/SettingProfile';
 export { getColorAverageFromURL } from './components/SettingProfile/AverageColor';
-export { default as ShortUserProfile } from './components/ShortUserProfile/ShortUserProfile';
+export { default as MzToast } from './components/ToastController/MzToast';
+export { default as ToastController } from './components/ToastController/ToastController';
 export { default as UserListVoiceChannel } from './components/UserListVoiceChannel';
 
 export { UserMentionList } from './components/UserMentionList';
@@ -93,7 +93,7 @@ export { default as ModalDeleteMess } from './components/DeleteMessageModal/Moda
 export { default as FailLoginModal } from './components/FailLoginModal';
 export { default as ModalRemoveMemberClan } from './components/MemberProfile/ModalRemoveMemberClan';
 export { default as processMention } from './components/MessageBox/ReactionMentionInput/processMention';
-export { default as PanelMember } from './components/PanelMember';
+export { default as PanelMemberTable } from './components/PanelMember/PanelMemberTable';
 export { default as UserProfileModalInner } from './components/UserProfileModalInner';
 
 export * from './components/ThumbnailAttachmentRender';
@@ -107,9 +107,8 @@ export { default as DmCalling } from './components/DmCalling';
 export { default as EventSchedule } from './components/EventSchedule';
 export { default as ModalCall } from './components/ModalCall';
 export { default as MultiStepModalE2ee } from './components/ModalSendCode';
+export { default as SettingComunity } from './components/SettingComunity';
 export { WebRTCStreamProvider, useWebRTCStream } from './components/StreamContext/StreamContext';
-
-export * from './components/HtmlCanvas';
 
 export { MentionFloatButton } from './components/MentionFloatButton';
 export { AudioAttachment } from './components/ThumbnailAttachmentRender/ThumbnailAttachmentRender';
@@ -134,9 +133,12 @@ export { default as PreCallInterface } from './components/GroupCall/PreCallInter
 export { CallControls } from './components/GroupCall/components/CallControls';
 export { CallStatus } from './components/GroupCall/components/CallStatus';
 
-export * from './components/ButtonSwich';
-export { default as ButtonCopy } from './components/ButtonSwich/CopyButtonComponent';
+export * from './components/ButtonSwitchCustom';
+export { default as ButtonCopy } from './components/ButtonSwitchCustom/CopyButtonComponent';
+export { default as CustomCookieConsent } from './components/CustomCookieConsent';
 export * from './components/DmCall';
 export { DmCallManager } from './components/DmCall/DmCallManager';
 export { default as InternetStatusPopover } from './components/InternetStatusPopover';
 export { default as ModalLayout } from './components/Modal';
+export { default as ModalEditGroup } from './components/ModalEditGroup';
+export { default as SidebarHistory } from './components/ModalListClans/SidebarHistory';

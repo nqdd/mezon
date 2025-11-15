@@ -1,8 +1,11 @@
 import { useAuth } from '@mezon/core';
-import { channelsActions, useAppDispatch } from '@mezon/store';
+import { channelsActions, selectAllCategories, selectChannelById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel } from '@mezon/utils';
-import { MutableRefObject, RefObject, memo, useCallback, useRef, useState } from 'react';
+import { generateE2eId, type IChannel } from '@mezon/utils';
+import type { MutableRefObject, RefObject } from 'react';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { AddMemRole } from '../Modal/addMemRoleModal';
 import ModalAskChangeChannel from '../Modal/modalAskChangeChannel';
 import PermissionManage from './PermissionManage';
@@ -13,10 +16,24 @@ export type PermissionsChannelProps = {
 	channel: IChannel;
 	openModalAdd: MutableRefObject<boolean>;
 	parentRef: RefObject<HTMLDivElement>;
+	clanId?: string;
 };
 
 const PermissionsChannel = (props: PermissionsChannelProps) => {
-	const { channel, openModalAdd, parentRef } = props;
+	const { channel, openModalAdd, parentRef, clanId } = props;
+	const realTimeChannel = useAppSelector((state) => selectChannelById(state, channel.channel_id || ''));
+	const listCategory = useSelector(selectAllCategories);
+	const categoryName = useMemo(() => {
+		if (realTimeChannel?.category_name) {
+			return realTimeChannel.category_name;
+		}
+		if (realTimeChannel?.category_id) {
+			const category = listCategory.find((cat) => cat.id === realTimeChannel.category_id);
+			return category?.category_name || '';
+		}
+		return '';
+	}, [realTimeChannel?.category_name, realTimeChannel?.category_id, listCategory]);
+	const { t } = useTranslation('channelSetting');
 	const [showAddMemRole, setShowAddMemRole] = useState(false);
 	const [valueToggleInit, setValueToggleInit] = useState(!!channel.channel_private);
 	const [valueToggle, setValueToggle] = useState(valueToggleInit);
@@ -40,12 +57,12 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 			resetTriggerRef.current();
 		}
 	}, [valueToggleInit]);
-
 	const handleSaveChannelPrivateChanged = useCallback(async () => {
 		setValueToggleInit(valueToggle);
 		const updatedUserIds = userProfile?.user?.id ? [...selectedUserIds, userProfile?.user.id] : selectedUserIds;
 		await dispatch(
 			channelsActions.updateChannelPrivate({
+				clan_id: clanId,
 				channel_id: channel.id,
 				channel_private: channel.channel_private || 0,
 				user_ids: updatedUserIds,
@@ -74,7 +91,7 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 			openModalAdd.current = false;
 			parentRef?.current?.focus();
 		}, 0);
-	}, []);
+	}, [openModalAdd, parentRef]);
 
 	const handleSelectedUsersChange = useCallback((newSelectedUserIds: string[]) => {
 		setSelectedUserIds(newSelectedUserIds);
@@ -88,17 +105,15 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 		<>
 			<div className="overflow-y-auto flex flex-col flex-1 shrink bg-theme-setting-primary w-1/2 pt-[94px] sbm:pb-7 sbm:px-[40px] p-4 overflow-x-hidden min-w-full sbm:min-w-[700px] 2xl:min-w-[900px] max-w-[740px] hide-scrollbar relative">
 				<div className="dark:text-white text-[15px] text-black">
-					<HeaderModal name={channel.category_name} />
+					<HeaderModal name={categoryName} />
 					<div className="rounded-md overflow-hidden mt-4">
 						<div className="bg-theme-setting-nav flex justify-between items-start p-4 border-theme-primary border-2 rounded-lg">
 							<div>
-								<div className="inline-flex mb-2">
-									<Icons.LockIcon className="text-[var(--text-theme-primary)]" />
-									<p className="ml-2 font-bold text-theme-primary">Private Channel</p>
+								<div className="inline-flex mb-2 text-theme-primary-active">
+									<Icons.LockIcon />
+									<p className="ml-2 font-bold text-theme-primary">{t('channelPermission.privateChannel')}</p>
 								</div>
-								<p className="text-xs text-theme-primary">
-									By making a channel private, only select members and roles will be able to view this channel.
-								</p>
+								<p className="text-xs text-theme-primary">{t('channelPermission.basicViewDescription')}</p>
 							</div>
 							<input
 								className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg
@@ -114,28 +129,40 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 								checked={valueToggle}
 								id="id-c01"
 								onChange={handleToggle}
+								data-e2e={generateE2eId('channel_setting_page.permissions.button.change_status')}
 							/>
 						</div>
 						{valueToggle && (
-							<div className="p-4 bg-theme-setting-nav border-theme-primary">
+							<div
+								className="p-4 bg-theme-setting-nav border-theme-primary"
+								data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management')}
+							>
 								<div className="flex justify-between items-center pb-4">
-									<p className="uppercase font-bold text-xs text-theme-primary">Who can access this channel?</p>
+									<p className="uppercase font-bold text-xs text-theme-primary">{t('channelPermission.whoCanAccess')}</p>
 									<button className="btn-primary btn-primary-hover px-4 py-1 rounded-lg " onClick={openAddMemRoleModal}>
-										Add members or roles
+										{t('channelPermission.addMemberAndRoles')}
 									</button>
 								</div>
 								<hr className="border-t border-solid dark:border-borderDefault border-bgModifierHoverLight" />
 								<div className="py-4">
-									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">Roles</p>
-									<div>
-										<ListRolePermission channel={channel} selectedRoleIds={selectedRoleIds} />
+									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.roles')}</p>
+									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.role_list')}>
+										<ListRolePermission
+											channel={channel}
+											selectedRoleIds={selectedRoleIds}
+											setSelectedRoleIds={setSelectedRoleIds}
+										/>
 									</div>
 								</div>
 								<hr className="border-t border-solid dark:border-borderDefault border-bgModifierHoverLight" />
 								<div className="py-4">
-									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">Members</p>
-									<div>
-										<ListMemberPermission channel={channel} selectedUserIds={selectedUserIds} />
+									<p className="uppercase font-bold text-xs pb-4 text-theme-primary">{t('channelPermission.members')}</p>
+									<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.member_list')}>
+										<ListMemberPermission
+											channel={channel}
+											selectedUserIds={selectedUserIds}
+											setSelectedUserIds={setSelectedUserIds}
+										/>
 									</div>
 								</div>
 							</div>
@@ -177,13 +204,14 @@ type HeaderModalProps = {
 
 const HeaderModal = memo((props: HeaderModalProps) => {
 	const { name = '' } = props;
+	const { t } = useTranslation('channelSetting');
 	return (
 		<>
-			<h3 className="mb-4 font-bold text-xl text-theme-primary-active ">Channel Permissions</h3>
-			<p className="mb-3 text-theme-primary">Use permissions to customise who can do what in this channel.</p>
+			<h3 className="mb-4 font-bold text-xl text-theme-primary-active ">{t('channelPermission.header.title')}</h3>
+			<p className="mb-3 text-theme-primary">{t('channelPermission.header.description')}</p>
 			<div className="flex mt-4 p-4">
 				<Icons.SyncIcon defaultFill="#F0B033" defaultSize="mr-2" />
-				<p className="text-theme-primary">Permissions synced with category: </p>
+				<p className="text-theme-primary">{t('channelPermission.header.syncedWithCategory')} </p>
 				<p className="font-bold pl-1 text-theme-primary"> {name}</p>
 			</div>
 		</>

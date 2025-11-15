@@ -2,7 +2,7 @@ import { usePermissionChecker } from '@mezon/core';
 import { deleteSticker, selectCurrentClanId, selectCurrentUserId, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EPermission } from '@mezon/utils';
-import { ClanSticker } from 'mezon-js';
+import type { ClanSticker } from 'mezon-js';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -12,7 +12,7 @@ type SettingEmojiListProps = {
 };
 
 const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) => {
-	const dataAuthor = useSelector(selectMemberClanByUserId(sticker.creator_id ?? ''));
+	const dataAuthor = useAppSelector((state) => selectMemberClanByUserId(state, sticker.creator_id ?? ''));
 	const dispatch = useAppDispatch();
 	const [canManageClan] = usePermissionChecker([EPermission.manageClan]);
 	const currentUserId = useAppSelector(selectCurrentUserId);
@@ -34,21 +34,27 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 				'group relative text-xs w-[116px] h-[140px] rounded-lg flex flex-col items-center p-3 bg-item-theme bg-item-hover justify-between'
 			}
 		>
-			<div className="aspect-square h-[72px] overflow-hidden flex justify-center">
+			<div className="aspect-square h-[72px]  flex justify-center">
 				<img
 					className={' w-auto h-full object-cover select-none'}
-					src={`${!sticker.source ? `${process.env.NX_BASE_IMG_URL}/stickers/` + sticker.id + `.webp` : sticker.source}`}
+					src={`${!sticker.source ? `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp` : sticker.source}`}
 					alt=""
 				/>
 			</div>
-			<p className="font-semibold ">{sticker.shortname}</p>
+			<p
+				title={sticker.shortname}
+				className="font-semibold truncate w-full text-center text-theme-primary-active text-ellipsis whitespace-nowrap max-w-[85px]"
+			>
+				{sticker.shortname}
+			</p>
+
 			<div className="flex items-end justify-center gap-1">
 				<img
 					className="w-4 h-4 rounded-full select-none object-cover"
-					src={dataAuthor?.user?.avatar_url ?? process.env.NX_LOGO_MEZON}
+					src={(dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url) ?? process.env.NX_LOGO_MEZON}
 					alt=""
 				/>
-				<p className=" max-w-20 truncate">{dataAuthor?.user?.username}</p>
+				<p className=" max-w-20 truncate">{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 			</div>
 			{hasDeleteOrEditPermission && (
 				<div className="group-hover:flex absolute flex-col right-[-12px] top-[-12px] gap-1 hidden select-none">

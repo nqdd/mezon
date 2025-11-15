@@ -4,12 +4,12 @@ import { useTheme } from '@mezon/mobile-ui';
 import { selectChannelById, selectClanById, useAppSelector } from '@mezon/store-mobile';
 import { getNameForPrioritize } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
-import React, { useMemo } from 'react';
-import { Text, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { memo, useMemo } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MessageNotification from '../MessageNotification';
-import { ENotifyBsToShow, NotifyProps } from '../types';
+import type { NotifyProps } from '../types';
+import { ENotifyBsToShow } from '../types';
 import { style } from './NotificationMentionItem.styles';
 
 export function parseObject(obj: any) {
@@ -55,7 +55,7 @@ export function parseObject(obj: any) {
 	return parsedObj;
 }
 
-const NotificationMentionItem = React.memo(({ notify, onLongPressNotify, onPressNotify }: NotifyProps) => {
+const NotificationMentionItem = memo(({ notify, onLongPressNotify, onPressNotify }: NotifyProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const channelInfo = useAppSelector((state) => selectChannelById(state, notify?.content?.channel_id || ''));

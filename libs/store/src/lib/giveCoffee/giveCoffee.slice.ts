@@ -1,10 +1,15 @@
 import { captureSentryError } from '@mezon/logger';
-import { LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiGiveCoffeeEvent } from 'mezon-js/api.gen';
-import { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
+import type { LoadingStatus } from '@mezon/utils';
+import { AMOUNT_TOKEN } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiGiveCoffeeEvent } from 'mezon-js/api.gen';
+import type { ApiTokenSentEvent } from 'mezon-js/dist/api.gen';
+import type { AddTxResponse } from 'mmn-client-js';
+import { ETransferType } from 'mmn-client-js';
 import { ensureSession, getMezonCtx } from '../helpers';
 import { toastActions } from '../toasts/toasts.slice';
+import { walletActions } from '../wallet/wallet.slice';
 
 export const GIVE_COFEE = 'giveCoffee';
 export const TOKEN_SUCCESS_STATUS = 'SUCCESS';
@@ -28,31 +33,55 @@ export interface GiveCoffeeState extends EntityState<GiveCoffeeEntity, string> {
 		tokenEvent: ApiTokenSentEvent;
 		status: string;
 	} | null;
+	pendingGiveCoffee: boolean;
 }
 
 export const giveCoffeeAdapter = createEntityAdapter<GiveCoffeeEntity>();
 
 export const updateGiveCoffee = createAsyncThunk(
 	'giveCoffee/updateGiveCoffee',
-	async ({ channel_id, clan_id, message_ref_id, receiver_id, sender_id, token_count }: ApiGiveCoffeeEvent, thunkAPI) => {
-		try {
-			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+	async ({ channel_id, clan_id, message_ref_id, receiver_id, sender_id }: ApiGiveCoffeeEvent, thunkAPI) => {
+		const state = thunkAPI.getState() as any;
+		if (!state.giveCoffee.pendingGiveCoffee) {
+			try {
+				thunkAPI.dispatch(giveCoffeeActions.setPendingGiveCoffee(true));
 
-			const response = await mezon.client.givecoffee(mezon.session, {
-				channel_id,
-				clan_id,
-				message_ref_id,
-				receiver_id,
-				sender_id,
-				token_count
-			});
-			if (!response) {
-				return thunkAPI.rejectWithValue([]);
+				const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+				const response = await thunkAPI
+					.dispatch(
+						walletActions.sendTransaction({
+							sender: sender_id,
+							recipient: receiver_id,
+							amount: AMOUNT_TOKEN.TEN_THOUSAND_TOKENS,
+							textData: 'givecoffee',
+							extraInfo: {
+								type: ETransferType.GiveCoffee,
+								ChannelId: channel_id || '',
+								ClanId: clan_id || '',
+								MessageRefId: message_ref_id || '',
+								UserReceiverId: receiver_id || '',
+								UserSenderId: sender_id || '',
+								UserSenderUsername: mezon.session.username || ''
+							}
+						})
+					)
+					.then((action) => action?.payload as AddTxResponse);
+
+				if (response?.ok) {
+					thunkAPI.dispatch(toastActions.addToast({ message: 'Coffee sent', type: 'success' }));
+					return response.ok;
+				} else {
+					return thunkAPI.rejectWithValue('');
+				}
+			} catch (error) {
+				captureSentryError(error, 'giveCoffee/updateGiveCoffee');
+				return thunkAPI.rejectWithValue(error);
+			} finally {
+				setTimeout(() => {
+					thunkAPI.dispatch(giveCoffeeActions.setPendingGiveCoffee(false));
+				}, 300);
 			}
-			return response;
-		} catch (error) {
-			captureSentryError(error, 'giveCoffee/updateGiveCoffee');
-			return thunkAPI.rejectWithValue(error);
 		}
 	}
 );
@@ -65,31 +94,54 @@ export const initialGiveCoffeeState: GiveCoffeeState = giveCoffeeAdapter.getInit
 	tokenSocket: {},
 	tokenUpdate: {},
 	infoSendToken: null,
-	sendTokenEvent: null
+	sendTokenEvent: null,
+	pendingGiveCoffee: false
 });
 
-export const sendToken = createAsyncThunk('token/sendToken', async (tokenEvent: ApiTokenSentEvent, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.sendToken(mezon.session, {
-			receiver_id: tokenEvent.receiver_id,
-			amount: tokenEvent.amount,
-			note: tokenEvent.note,
-			extra_attribute: tokenEvent.extra_attribute
-		});
+export const sendToken = createAsyncThunk(
+	'token/sendToken',
+	async ({ tokenEvent, isSendByAddress }: { tokenEvent: ApiTokenSentEvent; isSendByAddress?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-		if (response) {
-			thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
-			thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
-			return response;
-		} else {
-			thunkAPI.dispatch(toastActions.addToast({ message: 'An error occurred, please try again', type: 'error' }));
+			const response = await thunkAPI
+				.dispatch(
+					walletActions.sendTransaction({
+						sender: tokenEvent.sender_id,
+						recipient: tokenEvent.receiver_id,
+						amount: tokenEvent.amount,
+						textData: tokenEvent.note,
+						extraInfo: {
+							type: ETransferType.TransferToken,
+							UserReceiverId: tokenEvent.receiver_id || '',
+							UserSenderId: tokenEvent.sender_id || '',
+							UserSenderUsername: mezon.session.username || '',
+							ExtraAttribute: tokenEvent?.extra_attribute || ''
+						},
+						isSendByAddress
+					})
+				)
+				.then((action) => action?.payload as AddTxResponse);
+
+			if (response?.ok) {
+				thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
+				thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
+				return { ...response, tx_hash: response.tx_hash };
+			} else {
+				return thunkAPI.rejectWithValue('');
+			}
+		} catch (error) {
+			captureSentryError(error, 'token/sendToken');
+			thunkAPI.dispatch(
+				toastActions.addToast({
+					message: error instanceof Error ? error.message : 'Transaction failed',
+					type: 'error'
+				})
+			);
+			return thunkAPI.rejectWithValue(error);
 		}
-	} catch (error) {
-		captureSentryError(error, 'token/sendToken');
-		return thunkAPI.rejectWithValue(error);
 	}
-});
+);
 
 export const giveCoffeeSlice = createSlice({
 	name: GIVE_COFEE,
@@ -128,6 +180,9 @@ export const giveCoffeeSlice = createSlice({
 			if (currentUserId === tokenEvent.receiver_id) {
 				state.tokenUpdate[currentUserId] += tokenEvent.amount || 0;
 			}
+		},
+		setPendingGiveCoffee: (state, action: PayloadAction<boolean>) => {
+			state.pendingGiveCoffee = action.payload;
 		}
 	}
 });

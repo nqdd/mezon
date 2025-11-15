@@ -1,21 +1,27 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			height: size.s_50,
-			width: '80%',
-			backgroundColor: colors.primary,
-			borderRadius: size.s_40,
+			height: size.s_60,
+			width: '90%',
+			backgroundColor: 'transparent',
 			flexDirection: 'row',
 			alignItems: 'center',
 			borderLeftColor: 'transparent',
-			paddingHorizontal: size.s_20
+			paddingLeft: size.s_20,
+			borderLeftWidth: 0,
+			shadowColor: 'transparent',
+			elevation: 2,
+			overflow: 'hidden'
 		},
 		iconWrapper: {
-			width: size.s_20,
-			height: size.s_20
+			padding: size.s_4,
+			backgroundColor: baseColor.white,
+			justifyContent: 'center',
+			alignItems: 'center',
+			borderRadius: size.s_50
 		},
 		text: {
 			color: colors.text
@@ -27,7 +33,10 @@ export const style = (colors: Attributes) =>
 			width: '90%',
 			height: 'auto',
 			flex: 1,
-			backgroundColor: colors.primary,
+			top: size.s_2,
+			backgroundColor: colors.secondary,
+			borderWidth: size.s_2,
+			borderColor: colors.primary,
 			borderRadius: size.s_16,
 			overflow: 'hidden',
 			shadowOffset: { width: 0, height: 0 },
@@ -50,7 +59,72 @@ export const style = (colors: Attributes) =>
 		},
 		lottieProgressBar: {
 			width: '100%',
-			height: size.s_8,
-			marginBottom: -size.s_4
+			height: size.s_8
+		},
+		toastWrapper: {
+			top: size.s_2,
+			borderRadius: size.s_20,
+			overflow: 'hidden',
+			width: '90%'
+		},
+		titleBaseStyle: {
+			fontSize: size.medium,
+			color: baseColor.black,
+			fontWeight: '600'
+		},
+		descriptionBaseStyle: {
+			fontSize: size.small,
+			color: baseColor.black,
+			fontWeight: '400'
+		},
+		toastSuccessBackground: {
+			backgroundColor: '#b6e1c6'
+		},
+		toastErrorBackground: {
+			backgroundColor: '#efc3ca'
+		},
+		toastInfoBackground: {
+			backgroundColor: '#b6e1c6'
+		},
+		contentContainerStyle: {
+			paddingHorizontal: size.s_20
+		},
+		trailingIconContainer: {
+			marginRight: -size.s_30
+		},
+		notificationTextContainer: {
+			flexDirection: 'column',
+			flex: 1
+		},
+		notificationTitle: {
+			fontSize: size.h5,
+			marginLeft: 0,
+			marginRight: 0,
+			fontWeight: 'bold',
+			color: colors.white
+		},
+		notificationBody: {
+			fontSize: size.h6,
+			marginLeft: 0,
+			marginRight: 0,
+			color: colors.textStrong
+		},
+		notificationProgressBarContainer: {
+			transform: [{ rotateY: '180deg' }],
+			height: size.s_4,
+			overflow: 'hidden'
+		}
+	});
+
+export const createBubbleStyle = (size: number, position: any, color: string) =>
+	StyleSheet.create({
+		bubble: {
+			position: 'absolute',
+			backgroundColor: color,
+			height: size,
+			width: size,
+			borderRadius: size / 2,
+			...position,
+			elevation: 1
 		}
 	});

@@ -8,5 +8,11 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			paddingHorizontal: size.s_20,
 			paddingVertical: size.s_10
+		},
+		headerLeftButton: {
+			padding: size.s_20
+		},
+		contentContainer: {
+			paddingBottom: size.s_50
 		}
 	});

@@ -1,7 +1,10 @@
 import { useVirtualizer } from '@mezon/components';
-import { FriendsEntity, selectAllActivities, selectAllUserDM, selectTheme } from '@mezon/store';
-import { IUserItemActivity, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
+import type { FriendsEntity } from '@mezon/store';
+import { selectAllActivities, selectAllUserDM, selectTheme } from '@mezon/store';
+import type { IUserProfileActivity } from '@mezon/utils';
+import { isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityListItem from './ActivityListItem';
 
@@ -13,7 +16,7 @@ type ListActivityProps = {
 };
 
 type ActivityUserItemProps = {
-	user?: IUserItemActivity;
+	user?: IUserProfileActivity;
 };
 
 const MemoizedMemberItem = memo((props: ActivityUserItemProps) => {
@@ -28,26 +31,23 @@ const MemoizedMemberItem = memo((props: ActivityUserItemProps) => {
 });
 
 const ActivityList = ({ listFriend }: ListActivityProps) => {
+	const { t } = useTranslation('friendsPage');
 	const listUserDM = useSelector(selectAllUserDM);
 	const mergeListFriendAndListUserDM = useMemo(() => {
 		return [
 			...listFriend.map((friend) => ({
-				user: {
-					avatar_url: friend?.user?.avatar_url,
-					display_name: friend?.user?.display_name,
-					id: friend?.user?.id,
-					username: friend?.user?.username,
-					online: friend?.user?.online,
-					metadata: friend?.user?.metadata
-				},
-				id: friend?.id
+				avatar_url: friend?.user?.avatar_url,
+				display_name: friend?.user?.display_name,
+				id: friend?.user?.id,
+				username: friend?.user?.username,
+				online: friend?.user?.online
 			})),
 			...listUserDM
 		];
 	}, [listFriend, listUserDM]);
 
 	const listUser = Array.from(new Map(mergeListFriendAndListUserDM.map((item) => [item?.id, item])).values());
-	const userIds = listUser?.filter((user) => user?.user?.online).map((item) => item?.id);
+	const userIds = listUser?.filter((user) => user?.online).map((item) => item?.id);
 
 	const activities = useSelector(selectAllActivities);
 
@@ -106,15 +106,13 @@ const ActivityList = ({ listFriend }: ListActivityProps) => {
 			ref={parentRef}
 			className={`flex h-full flex-col overflow-y-auto w-full custom-member-list ${appearanceTheme === 'light' ? 'customSmallScrollLightMode' : 'thread-scroll'}`}
 			style={{
-				height: height,
-				overflow: 'auto'
+				height
 			}}
 		>
 			<div
+				className="w-full relative"
 				style={{
-					height: `${rowVirtualizer.getTotalSize()}px`,
-					width: '100%',
-					position: 'relative'
+					height: `${rowVirtualizer.getTotalSize()}px`
 				}}
 			>
 				{rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -122,11 +120,8 @@ const ActivityList = ({ listFriend }: ListActivityProps) => {
 					return (
 						<div
 							key={virtualRow.index}
+							className="absolute top-0 left-0 w-full"
 							style={{
-								position: 'absolute',
-								top: 0,
-								left: 0,
-								width: '100%',
 								height: `${virtualRow.size}px`,
 								transform: `translateY(${virtualRow.start}px)`
 							}}
@@ -134,18 +129,18 @@ const ActivityList = ({ listFriend }: ListActivityProps) => {
 							<div className="flex items-center px-4 h-full">
 								{typeof user === 'object' && 'visualCodeSeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Coding - {listActivities.codeCount}
+										{t('activity.coding')} - {listActivities.codeCount}
 									</p>
 								) : typeof user === 'object' && 'spotifySeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Music - {listActivities.spotifyCount}
+										{t('activity.music')} - {listActivities.spotifyCount}
 									</p>
 								) : typeof user === 'object' && 'lOLSeparate' in user ? (
 									<p className="text-theme-primary text-[14px] font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-										Activity - Gaming - {listActivities.lolCount}
+										{t('activity.gaming')} - {listActivities.lolCount}
 									</p>
 								) : (
-									<MemoizedMemberItem user={user?.user} />
+									<MemoizedMemberItem user={user.user as IUserProfileActivity} />
 								)}
 							</div>
 						</div>

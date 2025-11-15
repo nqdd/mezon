@@ -1,13 +1,16 @@
 import { useChatSending } from '@mezon/core';
-import { ActionEmitEvent, Icons } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectChannelById, selectDmGroupCurrent, useAppSelector } from '@mezon/store-mobile';
+import { selectChannelById, selectCurrentTopicId, selectDmGroupCurrent, selectIsShowCreateTopic, useAppSelector } from '@mezon/store-mobile';
 import { EBacktickType, IMessageSendPayload, filterEmptyArrays, processText } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../constants/icon_cdn';
+import { EMessageActionType } from '../../screens/home/homedrawer/enums';
 import { style } from './styles';
 
 type IGeoLocation = {
@@ -15,11 +18,23 @@ type IGeoLocation = {
 	longitude: number;
 };
 
-const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: ChannelStreamMode; channelId: string; geoLocation: IGeoLocation }) => {
+const ShareLocationConfirmModal = ({
+	mode,
+	channelId,
+	geoLocation,
+	messageAction
+}: {
+	mode: ChannelStreamMode;
+	channelId: string;
+	geoLocation: IGeoLocation;
+	messageAction?: EMessageActionType;
+}) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
+	const currentTopicId = useSelector(selectCurrentTopicId);
+	const isCreateTopic = useSelector(selectIsShowCreateTopic);
 
 	const [links, setLinks] = useState([]);
 	const { t } = useTranslation('message');
@@ -28,7 +43,8 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 	const { sendMessage } = useChatSending({
 		mode,
 		channelOrDirect:
-			mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD ? currentChannel : currentDmGroup
+			mode === ChannelStreamMode.STREAM_MODE_CHANNEL || mode === ChannelStreamMode.STREAM_MODE_THREAD ? currentChannel : currentDmGroup,
+		fromTopic: isCreateTopic || !!currentTopicId
 	});
 	useEffect(() => {
 		if (geoLocation) {
@@ -46,14 +62,20 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 			hg: [],
 			ej: [],
 			lk: links || [],
-			mk: [{
-				s: 0,
-				e: googleMapsLink.length,
-				type: EBacktickType.LINK
-			}],
+			mk: [
+				{
+					s: 0,
+					e: googleMapsLink.length,
+					type: EBacktickType.LINK
+				}
+			],
 			vk: []
 		};
-		await sendMessage(filterEmptyArrays(payloadSendMessage), [], [], [], false, false, true);
+		if (messageAction === EMessageActionType.CreateThread) {
+			DeviceEventEmitter.emit(ActionEmitEvent.SEND_MESSAGE, { content: filterEmptyArrays(payloadSendMessage) });
+		} else {
+			await sendMessage(filterEmptyArrays(payloadSendMessage), [], [], [], false, false, true);
+		}
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	};
 
@@ -74,7 +96,7 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 				</View>
 				<View style={styles.modalContent}>
 					<View style={styles.circleIcon}>
-						<Icons.LocationIcon />
+						<MezonIconCDN icon={IconCDN.locationIcon} height={16} width={16} color={themeValue.textStrong} />
 					</View>
 					<Text
 						style={styles.textContent}
@@ -82,7 +104,7 @@ const ShareLocationConfirmModal = ({ mode, channelId, geoLocation }: { mode: Cha
 				</View>
 				<View style={styles.modalFooter}>
 					<TouchableOpacity style={styles.button} onPress={handelCancelModal}>
-						<Text style={styles.textButton}>{t('shareLocationModal.cancel')}</Text>
+						<Text style={[styles.textButton, { color: themeValue.text }]}>{t('shareLocationModal.cancel')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.button} onPress={handleSendMessage}>
 						<Text style={styles.textButton}>{t('shareLocationModal.send')}</Text>

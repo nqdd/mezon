@@ -1,5 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { directActions, DirectEntity, selectDirectById, selectDirectsUnreadlist, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import type { DirectEntity } from '@mezon/store-mobile';
+import { directActions, selectDirectById, selectDirectsUnreadlist, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -10,7 +11,9 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../app/navigation/ScreenTypes';
+import ImageNative from '../../../../../components/ImageNative';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
+import { UnreadDMLoading } from './UnreadDMLoading';
 import { style } from './styles';
 
 const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: number }) => {
@@ -25,13 +28,13 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 			case ChannelType.CHANNEL_TYPE_DM:
 				return (
 					<View style={styles.avatarWrapper}>
-						{dm?.channel_avatar?.[0] ? (
+						{dm?.avatars?.[0] ? (
 							<FastImage
 								source={{
-									uri: createImgproxyUrl(dm?.channel_avatar?.[0] ?? '', { width: 100, height: 100, resizeType: 'fit' })
+									uri: createImgproxyUrl(dm?.avatars?.[0] ?? '', { width: 100, height: 100, resizeType: 'fit' })
 								}}
 								resizeMode="cover"
-								style={styles.groupAvatar}
+								style={styles.dmAvatar}
 							/>
 						) : (
 							<View style={styles.wrapperTextAvatar}>
@@ -47,8 +50,17 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 				);
 			case ChannelType.CHANNEL_TYPE_GROUP:
 				return (
-					<View style={styles.groupAvatar}>
-						<MezonIconCDN icon={IconCDN.userGroupIcon} />
+					<View style={styles.avatarWrapper}>
+						{dm?.channel_avatar && !dm?.channel_avatar?.includes('avatar-group.png') ? (
+							<View style={styles.groupAvatarWrapper}>
+								<ImageNative url={createImgproxyUrl(dm?.channel_avatar ?? '')} style={styles.imageFull} resizeMode={'cover'} />
+							</View>
+						) : (
+							<View style={styles.groupAvatar}>
+								<MezonIconCDN icon={IconCDN.userGroupIcon} />
+							</View>
+						)}
+
 						{numUnread > 0 && (
 							<View style={styles.badge}>
 								<Text style={styles.badgeText}>{numUnread}</Text>
@@ -84,6 +96,7 @@ export const UnreadDMBadgeList = React.memo(() => {
 	const unReadDM = useSelector(selectDirectsUnreadlist);
 	return (
 		<View style={[styles.container, !!unReadDM?.length && styles.containerBottom]}>
+			<UnreadDMLoading />
 			{!!unReadDM?.length &&
 				unReadDM?.map((dm: DirectEntity, index) => {
 					return <UnreadDMBadgeItem key={`${dm?.id}_${index}`} dmId={dm?.id} numUnread={dm?.count_mess_unread || 0} />;

@@ -3,13 +3,17 @@ import { createSticker, emojiSuggestionActions, selectCurrentClanId, updateStick
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 
 import { Button, ButtonLoading, Checkbox, Icons, InputField } from '@mezon/ui';
-import { LIMIT_SIZE_UPLOAD_IMG, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { ClanEmoji, ClanSticker } from 'mezon-js';
-import { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
-import { ChangeEvent, KeyboardEvent, useMemo, useRef, useState } from 'react';
+import type { ClanEmoji, ClanSticker } from 'mezon-js';
+import type { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
+import type { ChangeEvent, KeyboardEvent } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ELimitSize, ModalErrorTypeUpload, ModalOverData } from '../../ModalError';
+
+import { ELimitSize } from '../../ModalValidateFile';
+import { ModalErrorTypeUpload, ModalOverData } from '../../ModalValidateFile/ModalOverData';
 
 export enum EGraphicType {
 	EMOJI = 'emoji',
@@ -38,6 +42,11 @@ const EMOJI_DIMENSION = {
 
 const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps) => {
 	const isSticker = type === EGraphicType.STICKER;
+	const tSticker = useTranslation('clanStickerSetting', { keyPrefix: 'modal' }).t;
+	const tEmoji = useTranslation('clanEmojiSetting', { keyPrefix: 'modal' }).t;
+	const tStickerNs = useTranslation('clanStickerSetting').t;
+	const tEmojiNs = useTranslation('clanEmojiSetting').t;
+	const t = isSticker ? tSticker : tEmoji;
 	const graphicSource = isSticker ? (graphic as ClanSticker)?.source : (graphic as ClanEmoji)?.src;
 	const [editingGraphic, setEditingGraphic] = useState<EditingGraphic>({
 		fileName: graphicSource?.split('/').pop() ?? null,
@@ -57,19 +66,37 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 	const limitSizeDisplay = isSticker ? ELimitSize.KB_512 : ELimitSize.KB_256;
 	const limitSize = isSticker ? LIMIT_SIZE_UPLOAD_IMG / 2 : LIMIT_SIZE_UPLOAD_IMG / 4;
 
+	const isValidPreview = (url: string): boolean => {
+		try {
+			const parsedUrl = new URL(url);
+			return parsedUrl.protocol === 'blob:' || parsedUrl.protocol === 'data:';
+		} catch {
+			return false;
+		}
+	};
+
 	const handleChooseFile = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
+			if (!fileTypeImage.includes(e.target.files[0].type)) {
+				setOpenModalType(true);
+				return;
+			}
+
 			if (e.target.files[0]?.size > limitSize) {
 				setOpenModal(true);
 				return;
 			}
 
 			const srcPreview = URL.createObjectURL(e.target.files[0]);
-			setEditingGraphic({
-				...editingGraphic,
-				source: srcPreview,
-				fileName: e.target.files[0].name
-			});
+			if (isValidPreview(srcPreview)) {
+				setEditingGraphic({
+					...editingGraphic,
+					source: srcPreview,
+					fileName: e.target.files[0].name
+				});
+			} else {
+				console.error('Invalid preview URL.');
+			}
 		} else {
 			console.error('No files selected.');
 		}
@@ -78,7 +105,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 	const handleChangeShortName = (e: ChangeEvent<HTMLInputElement>) => {
 		setEditingGraphic({
 			...editingGraphic,
-			shortname: e.target.value
+			shortname: e.target.value.replace(/[^a-zA-Z0-9_-]/g, '')
 		});
 	};
 
@@ -87,7 +114,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			const updateData: MezonUpdateClanEmojiByIdBody = {
 				source: graphicSource,
 				category: graphic?.category,
-				shortname: isSticker ? editingGraphic.shortname : ':' + editingGraphic.shortname + ':',
+				shortname: isSticker ? editingGraphic.shortname : `:${editingGraphic.shortname}:`,
 				clan_id: currentClanId || ''
 			};
 
@@ -126,7 +153,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 
 		const category = isSticker ? 'Among Us' : 'Custom';
 		const id = Snowflake.generate();
-		const path = (isSticker ? 'stickers/' : 'emojis/') + id + '.webp';
+		const path = `${(isSticker ? 'stickers/' : 'emojis/') + id}.webp`;
 		let resizeFile = file;
 		if (!file.name.endsWith('.gif')) {
 			resizeFile = (await resizeFileImage(file, dimension.maxWidth, dimension.maxHeight, 'file')) as File;
@@ -135,17 +162,17 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 		const realImage = await handleUploadEmoticon(client, session, path, resizeFile as File);
 
 		const request: ApiClanStickerAddRequest = {
-			id: id,
-			category: category,
+			id,
+			category,
 			clan_id: currentClanId,
 			source: realImage.url,
-			shortname: isSticker ? editingGraphic.shortname : ':' + editingGraphic.shortname + ':',
+			shortname: isSticker ? editingGraphic.shortname : `:${editingGraphic.shortname}:`,
 			is_for_sale: isForSale
 		};
 		if (isForSale) {
 			const idPreview = Snowflake.generate();
 			const fileBlur = await createBlurredWatermarkedImageFile(resizeFile, 'SOLD', 2);
-			const pathPreview = (isSticker ? 'stickers/' : 'emojis/') + idPreview + '.webp';
+			const pathPreview = `${(isSticker ? 'stickers/' : 'emojis/') + idPreview}.webp`;
 			await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
 			request.id = idPreview;
 		}
@@ -157,7 +184,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 
 		isSticker
 			? dispatch(createSticker({ request: requestData, clanId: currentClanId }))
-			: dispatch(emojiSuggestionActions.createEmojiSetting({ request: request, clanId: currentClanId }));
+			: dispatch(emojiSuggestionActions.createEmojiSetting({ request, clanId: currentClanId }));
 
 		handleCloseModal();
 	};
@@ -222,12 +249,12 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						const newFile = new File([blob], 'blurred-watermarked.png', { type: 'image/png' });
 						resolve(newFile);
 					} else {
-						reject(new Error('Không thể chuyển canvas thành file.'));
+						reject(new Error('Cannot convert canvas to file'));
 					}
 				}, 'image/png');
 			};
 
-			img.onerror = () => reject(new Error('Không thể load ảnh.'));
+			img.onerror = () => reject(new Error('Cannot load image'));
 		});
 	}
 
@@ -248,11 +275,11 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 				</div>
 				<div className={`w-full flex-1 flex flex-col  overflow-y-auto gap-4 relative px-5 py-4 bg-transparent hide-scrollbar`}>
 					<div className={`flex flex-col gap-2 items-center select-none `}>
-						<p className="text-2xl font-semibold text-theme-primary-active">Upload a file</p>
-						<p className="text-base">File should be APNG, PNG, or GIF (512KB max)</p>
+						<p className="text-2xl font-semibold text-theme-primary-active">{t('uploadAFile')}</p>
+						<p className="text-base">{t('fileShouldBeAPNGPNGOrGIF256KBMax')}</p>
 					</div>
 					<div className={'flex flex-col select-none '}>
-						<p className="text-xs font-bold h-6 uppercase text-theme-primary-active">PREVIEW</p>
+						<p className="text-xs font-bold h-6 uppercase text-theme-primary-active">{t('preview')}</p>
 						<div className={'flex items-center justify-center rounded-lg border-theme-primary overflow-hidden'}>
 							<div className={'relative h-56 w-[50%] flex items-center justify-center bg-item-theme '}>
 								{editingGraphic.source ? (
@@ -273,15 +300,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 					<div className={'flex flex-row gap-4 '}>
 						<div className={'w-1/2 flex flex-col gap-2'}>
 							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>
-								FILE {graphic && ' (THIS CANNOT BE EDITED)'}
+								{t('file')} {graphic && ` (${t('thisCannotBeEdited')})`}
 							</p>
 							<div
 								className={` border-theme-primary flex flex-row rounded-lg justify-between items-center py-[6px] px-3  ${editingGraphic.fileName && 'cursor-not-allowed'}`}
 							>
-								<p className="select-none flex-1 truncate">{editingGraphic.fileName ?? 'Choose a file'}</p>
+								<p className="select-none flex-1 truncate">{editingGraphic.fileName ?? t('chooseAFile')}</p>
 								{!graphic && (
 									<button className="btn-primary btn-primary-hover rounded-lg py-[2px] px-2 text-nowrap relative select-none overflow-hidden">
-										Browse
+										{t('browse')}
 										<input
 											className="absolute w-full h-full cursor-pointer top-0 right-0 z-10 opacity-0 file:cursor-pointer"
 											type="file"
@@ -291,13 +318,14 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 											onChange={handleChooseFile}
 											ref={fileRef}
 											onKeyDown={handleOnEnter}
+											data-e2e={generateE2eId('clan_page.settings.upload.emoji_input')}
 										/>
 									</button>
 								)}
 							</div>
 						</div>
 						<div className={'w-1/2 flex flex-col gap-2'}>
-							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>Sticker Name</p>
+							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>{t('stickerName')}</p>
 							<div
 								className={
 									'border-theme-primary bg-input-secondary flex flex-row rounded-lg justify-between items-center p-2 pl-3  box-border overflow-hidden'
@@ -305,7 +333,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 							>
 								<InputField
 									type="string"
-									placeholder="ex. cat hug"
+									placeholder={t('exCatHug')}
 									className={'px-[8px] bg-transparent '}
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
@@ -315,18 +343,20 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 						</div>
 					</div>
 					<div className={`w-full h-[54px] bottom-0 flex items-center justify-end select-none gap-2`}>
-						<div className="flex items-center flex-1 h-full gap-2">
-							<Checkbox ref={isForSaleRef} id="sale_item" className="accent-blue-600 w-4 h-4" />
-							<label htmlFor="sale_item" className="">
-								This is for sale
-							</label>
-						</div>
+						{!graphic && (
+							<div className="flex items-center flex-1 h-full gap-2">
+								<Checkbox ref={isForSaleRef} id="sale_item" className="accent-blue-600 w-4 h-4" />
+								<label htmlFor="sale_item" className="">
+									{t('thisIsForSale')}
+								</label>
+							</div>
+						)}
 						<Button className="px-2 py-1 border-none hover:underline hover:bg-transparent bg-transparent" onClick={handleCloseModal}>
-							Never Mind
+							{t('neverMind')}
 						</Button>
 						<ButtonLoading
 							className="px-2 py-1 h-9 min-w-fit btn-primary btn-primary-hover rounded-lg"
-							label="Upload"
+							label={isSticker ? tStickerNs('btn.upload') : tEmojiNs('button.upload')}
 							disabled={validateSaveChange}
 							onClick={onSaveChange}
 						/>
@@ -334,8 +364,9 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 				</div>
 			</div>
 
-			<ModalOverData openModal={openModal} handleClose={handleCloseOverModal} sizeLimit={limitSizeDisplay} />
-			<ModalErrorTypeUpload openModal={openModalType} handleClose={handleCloseTypeModal} />
+			<ModalErrorTypeUpload open={openModalType} onClose={handleCloseTypeModal} />
+
+			<ModalOverData open={openModal} onClose={handleCloseOverModal} size={limitSizeDisplay} />
 		</>
 	);
 };

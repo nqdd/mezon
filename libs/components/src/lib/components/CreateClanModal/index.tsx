@@ -1,14 +1,14 @@
 import { toChannelPage, useAppNavigation, useClans } from '@mezon/core';
-import { channelsActions, checkDuplicateNameClan, selectCurrentChannelId, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import { channelsActions, checkDuplicateNameClan, selectAllClans, triggerClanLimitModal, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Button, ButtonLoading, Icons, InputField } from '@mezon/ui';
-import { DEBOUNCE_TYPING_TIME, LIMIT_SIZE_UPLOAD_IMG, ValidateSpecialCharacters, fileTypeImage } from '@mezon/utils';
+import { DEBOUNCE_TYPING_TIME, LIMIT_SIZE_UPLOAD_IMG, ValidateSpecialCharacters, checkClanLimit, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
-import { ModalLayout } from '../../components';
-import { ModalErrorTypeUpload, ModalOverData } from '../ModalError';
+import { ModalErrorTypeUpload, ModalLayout, ModalOverData } from '../../components';
 
 export type ModalCreateClansProps = {
 	open: boolean;
@@ -20,13 +20,14 @@ type openModalErrorProps = {
 	errorSize: boolean;
 };
 enum EValidateListMessage {
-	INVALID_NAME = 'Please enter a valid clan name (max 64 characters, only words, numbers, _ or -)',
-	DUPLICATE_NAME = 'The clan name already exists. Please enter another name.',
+	INVALID_NAME = 'INVALID_NAME',
+	DUPLICATE_NAME = 'DUPLICATE_NAME',
 	VALIDATED = 'VALIDATED'
 }
 
 const ModalCreateClans = (props: ModalCreateClansProps) => {
-	const { open, onClose } = props;
+	const { t } = useTranslation('clan');
+	const { onClose } = props;
 	const [urlImage, setUrlImage] = useState('');
 	const [nameClan, setNameClan] = useState('');
 	const [checkvalidate, setCheckValidate] = useState<EValidateListMessage | null>(EValidateListMessage.INVALID_NAME);
@@ -34,8 +35,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 	const { navigate, toClanPage } = useAppNavigation();
 	const { createClans } = useClans();
 	const dispatch = useAppDispatch();
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
+	const allClans = useSelector(selectAllClans);
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		setNameClan(value);
@@ -88,13 +88,22 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 			e.target.value = null;
 			return;
 		}
-		handleUploadFile(client, session, currentClanId || '0', currentChannelId || '0', file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setUrlImage(attachment.url ?? '');
 		});
 	};
 
 	const handleCreateClan = async () => {
+		const clanLimitCheck = checkClanLimit(allClans.length, 'create');
+
+		if (!clanLimitCheck.canProceed) {
+			handleClose();
+			dispatch(triggerClanLimitModal({ type: 'create', clanCount: allClans.length }));
+			return;
+		}
+
 		const res = await createClans(nameClan.trim(), urlImage);
+
 		if (res && res.clan_id) {
 			const result = await dispatch(channelsActions.fetchChannels({ clanId: res.clan_id, noCache: true }));
 			const channels = (result?.payload as any)?.channels || [];
@@ -118,11 +127,11 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 		onClose();
 		setUrlImage('');
 		setNameClan('');
-	}, []);
+	}, [onClose]);
 
 	return (
 		<ModalLayout onClose={handleClose}>
-			<div className="bg-theme-setting-primary rounded-xl flex flex-col">
+			<div className="bg-theme-setting-primary rounded-xl flex flex-col" data-e2e={generateE2eId('clan_page.modal.create_clan')}>
 				<div className="flex-1 flex items-center justify-end border-b-theme-primary rounded-t p-4">
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
@@ -133,10 +142,8 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 				</div>
 				<div className="flex flex-col px-5 py-4 max-w-[684px]">
 					<div className="flex items-center flex-col justify-center ">
-						<span className=" text-[24px] pb-4 font-[700] leading-8">Customize Your Clan</span>
-						<p className="  text-center text-[20px] leading-6 font-[400]">
-							Give your new clan a personality with a name and an icon. You can always change it later.
-						</p>
+						<span className=" text-[24px] pb-4 font-[700] leading-8">{t('createClanModal.title')}</span>
+						<p className="text-center text-[20px] leading-6 font-[400]">{t('createClanModal.description')}</p>
 						<label className="block mt-8 mb-4">
 							{urlImage ? (
 								<img id="preview_img" className="h-[81px] w-[81px] object-cover rounded-full" src={urlImage} alt="Current profile" />
@@ -149,47 +156,57 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 										<Icons.AddIcon />
 									</div>
 									<Icons.UploadImage className="" />
-									<span className="text-[14px]">Upload</span>
+									<span className="text-[14px]">{t('createClanModal.upload')}</span>
 								</div>
 							)}
-							<input id="preview_img" type="file" onChange={(e) => handleFile(e)} className="w-full text-sm hidden" />
+							<input
+								id="preview_img"
+								type="file"
+								onChange={(e) => handleFile(e)}
+								className="w-full text-sm hidden"
+								data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')}
+							/>
 						</label>
 						<div className="w-full">
-							<span className="font-[700] text-[16px] leading-6">CLAN NAME</span>
+							<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>
 							<InputField
 								onChange={handleInputChange}
 								type="text"
 								className="mb-2 mt-4 py-2"
-								placeholder={`Enter the clan name`}
+								placeholder={t('createClanModal.placeholder')}
 								maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
+								data-e2e={generateE2eId('clan_page.modal.create_clan.input.clan_name')}
 							/>
 							{checkvalidate !== EValidateListMessage.VALIDATED && (
-								<p className="text-[#e44141] text-xs italic font-thin">{checkvalidate}</p>
+								<p className="text-[#e44141] text-xs italic font-thin">
+									{checkvalidate === EValidateListMessage.INVALID_NAME && t('createClanModal.invalidName')}
+									{checkvalidate === EValidateListMessage.DUPLICATE_NAME && t('createClanModal.duplicateName')}
+								</p>
 							)}
-							<span className="text-[14px] ">
-								By creating a clan, you agree to Mezon's <span className="text-contentBrandLight">Community Guidelines</span>.
+							<span className="text-[14px]">
+								{t('createClanModal.agreement')}{' '}
+								<span className="text-contentBrandLight">{t('createClanModal.communityGuidelines')}</span>
+								{'.'}
 							</span>
 						</div>
 					</div>
 					<ModalErrorTypeUpload
-						openModal={openModalError.errorType}
-						handleClose={() => seOpenModalError((prev) => ({ ...prev, errorType: false }))}
+						open={openModalError.errorType}
+						onClose={() => seOpenModalError((prev) => ({ ...prev, errorType: false }))}
 					/>
-					<ModalOverData
-						openModal={openModalError.errorSize}
-						handleClose={() => seOpenModalError((prev) => ({ ...prev, errorSize: false }))}
-					/>
+
+					<ModalOverData open={openModalError.errorSize} onClose={() => seOpenModalError((prev) => ({ ...prev, errorSize: false }))} />
 					<div className="flex items-center border-t border-solid dark:border-borderDefault rounded-b justify-between pt-4">
 						<Button
 							className="text-contentBrandLight px-4 py-2 background-transparent font-semibold text-sm outline-none focus:outline-none rounded-lg"
 							onClick={onClose}
 						>
-							Back
+							{t('createClanModal.back')}
 						</Button>
 						<ButtonLoading
-							className={`font-semibold text-sm px-4 py-2 shadow hover:shadow-lg rounded-lg ${checkvalidate !== EValidateListMessage.VALIDATED ? 'opacity-50 cursor-not-allowed' : ''}`}
+							className={`font-semibold btn-primary btn-primary-hover text-sm px-4 py-2 shadow hover:shadow-lg rounded-lg ${checkvalidate !== EValidateListMessage.VALIDATED ? 'opacity-50 cursor-not-allowed' : ''}`}
 							onClick={handleCreateClan}
-							label="Create"
+							label={t('createClanModal.create')}
 							disabled={checkvalidate !== EValidateListMessage.VALIDATED}
 						/>
 					</div>

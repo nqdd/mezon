@@ -1,23 +1,26 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { MessagesEntity } from '@mezon/store';
+import type { MessagesEntity } from '@mezon/store';
+import { topicsActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { ObserveFn, UsersClanEntity } from '@mezon/utils';
 import {
 	HEIGHT_PANEL_PROFILE,
 	HEIGHT_PANEL_PROFILE_DM,
 	ID_MENTION_HERE,
-	ObserveFn,
 	TOPIC_MAX_WIDTH,
 	TypeMessage,
-	UsersClanEntity,
 	WIDTH_CHANNEL_LIST_BOX,
 	WIDTH_CLAN_SIDE_BAR,
-	convertDateString,
-	convertTimeHour
+	convertDateStringI18n,
+	convertTimeHour,
+	generateE2eId
 } from '@mezon/utils';
 import classNames from 'classnames';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
-import { ApiMessageMention } from 'mezon-js/api.gen';
-import React, { ReactNode, useCallback, useRef, useState } from 'react';
+import type { ApiMessageMention } from 'mezon-js/api.gen';
+import type { ReactNode } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import CallLogMessage from '../CallLogMessage/CallLogMessage';
 import { EmbedMessageWrap } from '../EmbedMessage/EmbedMessageWrap';
@@ -48,7 +51,7 @@ export type MessageWithUserProps = {
 	isShowFull?: boolean;
 	isHighlight?: boolean;
 	editor?: JSX.Element;
-	onContextMenu?: (event: React.MouseEvent<HTMLParagraphElement>) => void;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 	popup?: () => ReactNode;
 	isSearchMessage?: boolean;
 	allowDisplayShortProfile: boolean;
@@ -61,6 +64,7 @@ export type MessageWithUserProps = {
 	observeIntersectionForLoading?: ObserveFn;
 	user: UsersClanEntity;
 	isSelected?: boolean;
+	previousMessage?: MessagesEntity;
 };
 
 function MessageWithUser({
@@ -81,8 +85,10 @@ function MessageWithUser({
 	isTopic,
 	user,
 	observeIntersectionForLoading,
-	isSelected
+	isSelected,
+	previousMessage
 }: Readonly<MessageWithUserProps>) {
+	const dispatch = useAppDispatch();
 	const userId = user?.user?.id as string;
 	const positionShortUser = useRef<{ top: number; left: number } | null>(null);
 	const shortUserId = useRef('');
@@ -90,6 +96,20 @@ function MessageWithUser({
 	const checkAnonymous = message?.sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID;
 	const checkAnonymousOnReplied = message?.references && message?.references[0]?.message_sender_id === NX_CHAT_APP_ANNONYMOUS_USER_ID;
 	const showMessageHead = !(message?.references?.length === 0 && isCombine && !isShowFull);
+
+	const shouldShowForwardedText = useMemo(() => {
+		if (!message?.content?.fwd) return false;
+
+		if (!previousMessage) return true;
+
+		if (!previousMessage?.content?.fwd) return true;
+
+		const timeDiff = Date.parse(message.create_time) - Date.parse(previousMessage.create_time);
+		const isDifferentSender = message.sender_id !== previousMessage.sender_id;
+		const isTimeGap = timeDiff > 600000;
+
+		return isDifferentSender || isTimeGap;
+	}, [message, previousMessage]);
 
 	const checkReplied = userId && message?.references && message?.references[0]?.message_sender_id === userId;
 
@@ -111,8 +131,10 @@ function MessageWithUser({
 		return includesUser || includesRole;
 	})();
 
-	const checkMessageHasReply = !!message?.references?.length && message?.code === TypeMessage.Chat;
+	const checkMessageHasReply = !!message?.references?.length && !!message?.references?.[0]?.message_ref_id;
 	const isEphemeralMessage = message?.code === TypeMessage.Ephemeral;
+
+	const shouldRenderMessageReply = checkMessageHasReply && !isEphemeralMessage;
 
 	const handleOpenShortUser = useCallback(
 		(e: React.MouseEvent<HTMLImageElement, MouseEvent>, userId: string, isClickOnReply = false) => {
@@ -137,6 +159,13 @@ function MessageWithUser({
 		},
 		[mode]
 	);
+
+	const handleLeaveComment = useCallback(() => {
+		dispatch(topicsActions.setIsShowCreateTopic(true));
+		dispatch(topicsActions.setCurrentTopicInitMessage(message));
+		dispatch(topicsActions.setCurrentTopicId(''));
+		dispatch(topicsActions.setFirstMessageOfCurrentTopic(message));
+	}, [dispatch, message]);
 
 	const isDM = mode === ChannelStreamMode.STREAM_MODE_GROUP || mode === ChannelStreamMode.STREAM_MODE_DM;
 
@@ -168,6 +197,8 @@ function MessageWithUser({
 		);
 	}, [message]);
 
+	// (message?.content as any)?.isCard
+
 	return (
 		<>
 			{message && showDivider && <MessageDateDivider message={message} />}
@@ -187,7 +218,11 @@ function MessageWithUser({
 						},
 						{
 							'bg-highlight-no-hover':
-								(hasIncludeMention || checkReplied) && !messageReplyHighlight && !checkMessageTargetToMoved && !isEphemeralMessage
+								(hasIncludeMention || checkReplied) &&
+								!messageReplyHighlight &&
+								!checkMessageTargetToMoved &&
+								!isEphemeralMessage &&
+								!isTopic
 						},
 						{ '!bg-bgMessageReplyHighline': messageReplyHighlight },
 						{ 'bg-highlight': isHighlight },
@@ -197,12 +232,15 @@ function MessageWithUser({
 						},
 						{ 'bg-item-msg-selected': isSelected },
 						{ 'pointer-events-none': message.isSending },
-						{ 'is-error pointer-events-none': message.isError }
+						{ 'is-error pointer-events-none': message.isError },
+						{
+							'max-w-[37rem] bg-tertiary border-theme-primary rounded-lg mx-2 my-1 p-3': message.content?.isCard
+						}
 					)}
 					create_time={message.create_time}
 					showMessageHead={showMessageHead}
 				>
-					{checkMessageHasReply && !isEphemeralMessage && (
+					{shouldRenderMessageReply && (
 						<MessageReply
 							message={message}
 							mode={mode}
@@ -215,10 +253,11 @@ function MessageWithUser({
 										}
 							}
 							isAnonymousReplied={checkAnonymousOnReplied}
+							isTopic={isTopic}
 						/>
 					)}
 					<div
-						className={`pl-[72px] justify-start inline-flex flex-wrap w-full relative h-fit overflow-visible ${isSearchMessage ? '' : 'pr-12'}`}
+						className={`pl-[72px] justify-start inline-flex flex-wrap w-full mb-1 relative h-fit overflow-visible ${isSearchMessage ? '' : 'pr-12'}`}
 					>
 						{showMessageHead && (
 							<>
@@ -253,10 +292,10 @@ function MessageWithUser({
 						{!!message?.content?.fwd && (
 							<div
 								style={{ height: `${!isCombine ? 'calc(100% - 50px)' : '100%'}` }}
-								className="border-l-4  rounded absolute left-[45px] bottom-0"
+								className="border-l-4 border-[var(--text-theme-primary)]  rounded absolute left-[58px] bottom-0"
 							></div>
 						)}
-						{!!message?.content?.fwd && (
+						{!!message?.content?.fwd && shouldShowForwardedText && (
 							<div className="flex gap-1 items-center italic font-medium w-full text-theme-primary opacity-60">
 								<Icons.ForwardRightClick defaultSize="w-4 h-4" />
 								<p>Forwarded</p>
@@ -283,6 +322,7 @@ function MessageWithUser({
 									isSearchMessage={isSearchMessage}
 									isInTopic={isTopic}
 									isEphemeral={isEphemeralMessage}
+									onContextMenu={onContextMenu}
 								/>
 								{isEphemeralMessage && (
 									<div className="flex items-center gap-1 mt-1 mb-1 text-xs italic text-theme-primary opacity-60">
@@ -318,7 +358,7 @@ function MessageWithUser({
 						{!!message?.content?.callLog?.callLogType && (
 							<CallLogMessage
 								userId={userId || ''}
-								username={user?.user?.display_name || ''}
+								username={message?.display_name || message?.username || ''}
 								channelId={message?.channel_id}
 								messageId={message?.id}
 								senderId={message?.sender_id}
@@ -342,6 +382,19 @@ function MessageWithUser({
 							))}
 					</div>
 					{!isEphemeralMessage && <MessageReaction message={message} isTopic={!!isTopic} />}
+
+					{!isTopic && message?.content?.isCard && !isEphemeralMessage && message?.code !== TypeMessage.Topic && (
+						<div
+							className="border-t-theme-primary border-divider mt-3 pt-3 flex items-center justify-between cursor-pointer hover:bg-accent transition-colors duration-150 rounded-b-lg -mx-3 -mb-3 px-3 py-2"
+							onClick={handleLeaveComment}
+						>
+							<div className="flex items-center gap-2 text-sm text-theme-primary opacity-75">
+								<Icons.MessageSquareIcon className="w-5 h-5" />
+								<span>Go to Topic</span>
+							</div>
+							<Icons.ArrowRight className="w-4 h-4 text-theme-primary opacity-50" />
+						</div>
+					)}
 				</HoverStateWrapper>
 			)}
 		</>
@@ -349,7 +402,8 @@ function MessageWithUser({
 }
 
 const MessageDateDivider = ({ message }: { message: MessagesEntity }) => {
-	const messageDate = !message.create_time ? '' : convertDateString(message.create_time as string);
+	const { t, i18n } = useTranslation('common');
+	const messageDate = !message.create_time ? '' : convertDateStringI18n(message.create_time as string, t, i18n.language);
 	return (
 		<div className="mt-5 mb-2  w-full h-px flex items-center justify-center border-b-theme-primary">
 			<span className="px-4 bg-item text-theme-primary text-xs font-semibold bg-theme-primary rounded-lg ">{messageDate}</span>
@@ -361,7 +415,7 @@ interface HoverStateWrapperProps {
 	children: ReactNode;
 	popup?: () => ReactNode;
 	isSearchMessage?: boolean;
-	onContextMenu?: (event: React.MouseEvent<HTMLParagraphElement>) => void;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 	messageId?: string;
 	className?: string;
 	create_time?: string;
@@ -401,7 +455,7 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
 	return (
 		<div
 			className={classNames(
-				'message-list-item relative message-container',
+				'message-list-item relative message-container bg-item-hover transition-colors duration-150',
 				{
 					'w-full': isSearchMessage
 				},
@@ -411,6 +465,7 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
 			onMouseLeave={handleMouseLeave}
 			onContextMenu={onContextMenu}
 			id={`msg-${messageId}`}
+			data-e2e={generateE2eId(`message.item`)}
 		>
 			{children}
 			{isHover && (

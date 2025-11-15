@@ -1,13 +1,13 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { EventManagementEntity, selectChannelById, useAppSelector } from '@mezon/store-mobile';
+import type { EventManagementEntity } from '@mezon/store-mobile';
+import { selectChannelById, useAppSelector } from '@mezon/store-mobile';
 import { OptionEvent } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { DeviceEventEmitter, Linking, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import JoinChannelVoiceBS from '../../../screens/home/homedrawer/components/ChannelVoice/JoinChannelVoiceBS';
-import { linkGoogleMeet } from '../../../utils/helpers';
 import { style } from './styles';
 
 interface IEventLocation {
@@ -21,12 +21,9 @@ export function EventLocation({ event }: IEventLocation) {
 	const channelVoice = useAppSelector((state) => selectChannelById(state, event?.channel_voice_id || ''));
 
 	const joinVoiceChannel = async () => {
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `${linkGoogleMeet}${channelVoice?.meeting_code}`;
-			await Linking.openURL(urlVoice);
-		} else if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
-				snapPoints: ['45%', '45%'],
+				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
@@ -56,13 +53,6 @@ export function EventLocation({ event }: IEventLocation) {
 					<Text style={styles.smallText}>{event?.address}</Text>
 				</View>
 			)}
-
-			{/* {option === '' && !event && !channelVoice && (
-                <>
-                    <Icons.Location />
-                    <p className="hover:underline text-slate-400">{channelFirst.channel_label}</p>
-                </>
-            )} */}
 		</View>
 	);
 }

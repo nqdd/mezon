@@ -9,8 +9,8 @@ import {
 	videoStreamActions
 } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useMemo } from 'react';
-import { Dimensions, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Dimensions, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
@@ -22,14 +22,34 @@ import { style } from './StreamingRoom.styles';
 import { StreamingScreenComponent } from './StreamingScreen';
 import UserStreamingRoom from './UserStreamingRoom';
 
-const { width, height } = Dimensions.get('window');
-
 function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMinimizeRoom: () => void; isAnimationComplete: boolean }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentStreamInfo = useSelector(selectCurrentStreamInfo);
 	const streamChannelMember = useAppSelector((state) => selectStreamMembersByChannelId(state, currentStreamInfo?.streamId || ''));
 	const isTabletLandscape = useTabletLandscape();
+	const [isVisibleControl, setIsVisibleControl] = useState(true);
+	const [layout, setLayout] = useState(() => {
+		const { width, height } = Dimensions.get('screen');
+		return {
+			width,
+			height
+		};
+	});
+
+	useEffect(() => {
+		const subscription = Dimensions.addEventListener('change', () => {
+			const { width, height } = Dimensions.get('screen');
+			setLayout({
+				width,
+				height
+			});
+		});
+
+		return () => {
+			subscription && subscription.remove();
+		};
+	}, []);
 
 	const userId = useMemo(() => {
 		return load(STORAGE_MY_USER_ID);
@@ -62,70 +82,70 @@ function StreamingRoom({ onPressMinimizeRoom, isAnimationComplete }: { onPressMi
 		onPressMinimizeRoom();
 	};
 
+	const toggleControl = () => {
+		setIsVisibleControl(!isVisibleControl);
+	};
+
 	return (
 		<View
-			style={{
-				width: isAnimationComplete ? width : 200,
-				height: isAnimationComplete ? height : 100,
-				backgroundColor: themeValue?.primary
-			}}
+			style={[
+				isAnimationComplete
+					? { ...styles.streamingRoomWrapperExpanded, width: layout.width, height: layout.height }
+					: styles.streamingRoomWrapper,
+				{ backgroundColor: themeValue?.primary }
+			]}
 		>
 			{isAnimationComplete && <StatusBarHeight />}
-			<View style={styles.container}>
-				{isAnimationComplete && (
-					<View style={[styles.menuHeader]}>
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>
-							<TouchableOpacity
-								onPress={() => {
-									onPressMinimizeRoom();
-								}}
-								style={styles.buttonCircle}
-							>
-								<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} />
-							</TouchableOpacity>
-						</View>
-						{/*<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20 }}>*/}
-						{/*	<TouchableOpacity onPress={handleAddPeopleToVoice} style={styles.buttonCircle}>*/}
-						{/*		<Icons.UserPlusIcon />*/}
-						{/*	</TouchableOpacity>*/}
-						{/*</View>*/}
-					</View>
-				)}
-
-				<View
-					style={{
-						...styles.userStreamingRoomContainer,
-						width: isAnimationComplete ? '100%' : '100%',
-						height: isAnimationComplete ? '60%' : '100%'
-					}}
-				>
-					<StreamingScreenComponent />
-				</View>
-				{isAnimationComplete && <UserStreamingRoom streamChannelMember={streamChannelMember} />}
-				{isAnimationComplete && (
-					<View style={[styles.menuFooter]}>
-						<View style={{ borderRadius: size.s_40, backgroundColor: themeValue.secondary }}>
-							<View
-								style={{
-									gap: size.s_40,
-									flexDirection: 'row',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-									padding: size.s_14
-								}}
-							>
-								<TouchableOpacity onPress={handleShowChat} style={styles.menuIcon}>
-									<MezonIconCDN icon={IconCDN.chatIcon} />
-								</TouchableOpacity>
-
-								<TouchableOpacity onPress={handleEndCall} style={{ ...styles.menuIcon, backgroundColor: baseColor.redStrong }}>
-									<MezonIconCDN icon={IconCDN.phoneCallIcon} />
+			{isAnimationComplete ? (
+				<TouchableWithoutFeedback onPress={toggleControl}>
+					<View style={styles.container}>
+						<View style={[styles.menuHeader]}>
+							<View style={styles.menuHeaderContainer}>
+								<TouchableOpacity
+									onPress={() => {
+										onPressMinimizeRoom();
+									}}
+									style={styles.buttonCircle}
+								>
+									<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} />
 								</TouchableOpacity>
 							</View>
 						</View>
+
+						<View style={[styles.userStreamingRoomContainer, styles.userStreamingFullSize]}>
+							<StreamingScreenComponent isAnimationComplete={true} />
+						</View>
+						<View style={[layout.width > layout.height && { marginTop: -size.s_28 }]}>
+							<UserStreamingRoom streamChannelMember={streamChannelMember} />
+						</View>
+
+						{isVisibleControl && (
+							<View style={[styles.menuFooter]}>
+								<View style={styles.menuFooterContainer}>
+									<View style={styles.controlContainer}>
+										<TouchableOpacity onPress={handleShowChat} style={styles.menuIcon}>
+											<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />
+										</TouchableOpacity>
+
+										<TouchableOpacity
+											onPress={handleEndCall}
+											style={[styles.menuIconEndCall, { backgroundColor: baseColor.redStrong }]}
+										>
+											<MezonIconCDN icon={IconCDN.phoneCallIcon} />
+										</TouchableOpacity>
+									</View>
+								</View>
+							</View>
+						)}
 					</View>
-				)}
-			</View>
+				</TouchableWithoutFeedback>
+			) : (
+				<View style={styles.container}>
+					<View style={[styles.userStreamingRoomContainer, styles.userStreamingMiniSize]}>
+						<StreamingScreenComponent isAnimationComplete={false} />
+					</View>
+				</View>
+			)}
 		</View>
 	);
 }

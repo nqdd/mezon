@@ -21,6 +21,7 @@ import { Icons } from '@mezon/ui';
 import { DEFAULT_ROLE_COLOR, EDragBorderPosition } from '@mezon/utils';
 import { ApiUpdateRoleOrderRequest } from 'mezon-js/api.gen';
 import { forwardRef, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -32,6 +33,7 @@ type closeEditRole = {
 	handleUpdateUser: () => Promise<void>;
 };
 const SettingListRole = (props: closeEditRole) => {
+	const { t } = useTranslation('clanRoles');
 	const { RolesClan, handleClose, handleUpdateUser } = props;
 	const dispatch = useAppDispatch();
 	const appearanceTheme = useSelector(selectTheme);
@@ -78,7 +80,7 @@ const SettingListRole = (props: closeEditRole) => {
 					dispatch(rolesClanActions.setAll({ roles: currentRoles, clanId: currentClanId as string }));
 				})
 				.catch(() => {
-					toast('Failed to update role order.');
+					toast(t('roleManagement.failedToUpdateRoleOrder'));
 					setRolesList(RolesClan);
 				})
 				.finally(() => {
@@ -89,7 +91,7 @@ const SettingListRole = (props: closeEditRole) => {
 		});
 	};
 
-	const isNewRole = clickedRole === 'New Role';
+	const isNewRole = clickedRole === t('roleManagement.newRoleDefault');
 	const handleRoleClick = (roleId: string) => {
 		if (!isChange || isNewRole) {
 			if (isNewRole) handleUpdateUser();
@@ -131,11 +133,11 @@ const SettingListRole = (props: closeEditRole) => {
 	return (
 		<div className="w-1/3 pr-3 flex flex-col mb-20">
 			<div className="font-semibold mb-4 flex cursor-pointer" onClick={() => handleClose()}>
-				<div className="rotate-90 -ml-[10px] dark:text-textDarkTheme text-textLightTheme">
+				<div className="rotate-90 -ml-[10px] text-theme-primary-active">
 					<Icons.ArrowDown />
 				</div>
-				<div className="tracking-wide text-base dark:text-textSecondary text-textSecondary800" role="button">
-					BACK
+				<div className="tracking-wide text-base text-theme-primary" role="button">
+					{t('roleManagement.back')}
 				</div>
 			</div>
 			<div
@@ -168,7 +170,9 @@ const SettingListRole = (props: closeEditRole) => {
 						/>
 					</div>
 				))}
-				{isNewRole && <ItemRole ref={newRoleRef} title={nameRoleNew ?? 'New Role'} color={colorRoleNew ?? ''} isChoose />}
+				{isNewRole && (
+					<ItemRole ref={newRoleRef} title={nameRoleNew ?? t('roleManagement.newRoleDefault')} color={colorRoleNew ?? ''} isChoose />
+				)}
 			</div>
 		</div>
 	);
@@ -188,8 +192,8 @@ const ItemRole = forwardRef<HTMLDivElement, ItemRoleProps>(({ title, color, isCh
 	return (
 		<div ref={ref} onClick={onHandle}>
 			<button
-				className={`w-full py-1.5 px-[10px] text-[15px] dark:hover:bg-bgModifierHover hover:bg-bgLightModeButton font-medium inline-flex gap-x-2 items-center rounded dark:text-textDarkTheme text-textLightTheme
-					${isChoose ? 'dark:bg-[#4e5058] bg-bgLightModeButton' : ''}
+				className={`w-full py-1.5 px-[10px] text-[15px] bg-item-theme-hover font-medium inline-flex gap-x-2 items-center rounded text-theme-primary
+					${isChoose ? 'bg-theme-primary-active bg-item-theme ' : ''}
 				`}
 			>
 				<div className="size-3 rounded-full min-w-3" style={{ backgroundColor: color || DEFAULT_ROLE_COLOR }}></div>

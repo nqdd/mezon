@@ -4,7 +4,8 @@ import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapper: {
-			flex: 1
+			flex: 1,
+			backgroundColor: colors.primary
 		},
 		backHeader: {
 			width: size.s_50,
@@ -163,5 +164,49 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			bottom: size.s_60,
 			left: size.s_30
+		},
+		headerContainer: {
+			zIndex: 100,
+			flexDirection: 'row',
+			position: 'absolute',
+			justifyContent: 'space-between',
+			top: size.s_40,
+			flex: 1,
+			paddingHorizontal: size.s_10,
+			width: '100%'
+		},
+		myQRCodeButton: {
+			paddingHorizontal: size.s_20,
+			borderRadius: size.s_30,
+			backgroundColor: 'rgba(0,0,0,0.5)',
+			flexDirection: 'row',
+			height: '100%',
+			alignItems: 'center',
+			gap: size.s_10,
+			justifyContent: 'center'
+		},
+		transparentSpacer: {
+			width: size.s_50,
+			backgroundColor: 'transparent'
+		},
+		scannerContainer: {
+			flex: 1
+		},
+		cameraStyle: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0
+		},
+		popupBackground: {
+			backgroundColor: 'rgba(0,0,0,0.16)'
+		},
+		buttonBorderDark: {
+			backgroundColor: '#292929'
+		},
+		buttonTransparent: {
+			backgroundColor: 'transparent',
+			marginTop: size.s_10
 		}
 	});

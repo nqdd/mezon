@@ -1,12 +1,11 @@
-import { useDirect, useFriends } from '@mezon/core';
-import { ChevronIcon } from '@mezon/mobile-components';
+import { useDirect } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, directActions, getStore, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
+import { FriendsEntity, directActions, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
 import { User } from 'mezon-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { SeparatorWithLine } from '../../../components/Common';
@@ -17,8 +16,8 @@ import { IconCDN } from '../../../constants/icon_cdn';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { normalizeString } from '../../../utils/helpers';
+import { checkNotificationPermissionAndNavigate } from '../../../utils/notificationPermissionHelper';
 import { style } from './styles';
-
 export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
@@ -26,7 +25,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 	const [searchText, setSearchText] = useState<string>('');
 	const [selectedUser, setSelectedUser] = useState<User | null>(null);
 	const { t } = useTranslation(['']);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const { createDirectMessageWithUser } = useDirect();
 	const store = getStore();
 	const dispatch = useAppDispatch();
@@ -57,7 +56,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 
 			const directMessage = listDM.find((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === user?.user?.id;
 			});
 			if (directMessage?.id) {
@@ -76,23 +75,22 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 				user?.user?.avatar_url || ''
 			);
 			if (response?.channel_id) {
-				if (isTabletLandscape) {
-					await dispatch(directActions.setDmGroupCurrentId(response?.channel_id));
-					navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-				} else {
-					navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: response?.channel_id });
-				}
+				await checkNotificationPermissionAndNavigate(() => {
+					if (isTabletLandscape) {
+						dispatch(directActions.setDmGroupCurrentId(response?.channel_id));
+						navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+					} else {
+						navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: response?.channel_id });
+					}
+				});
 			}
 		},
-		[createDirectMessageWithUser, navigation, store]
+		[createDirectMessageWithUser, dispatch, isTabletLandscape, navigation, store]
 	);
 
 	const handleFriendAction = useCallback(
 		(friend: FriendsEntity, action: EFriendItemAction) => {
 			switch (action) {
-				case EFriendItemAction.Call:
-					Toast.show({ type: 'info', text1: 'Updating...' });
-					break;
 				case EFriendItemAction.MessageDetail:
 					directMessageWithUser(friend);
 					break;
@@ -134,7 +132,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 						<MezonIconCDN icon={IconCDN.userGroupIcon} />
 					</View>
 					<Text style={styles.actionTitle}>{t('message:newMessage.newGroup')}</Text>
-					<ChevronIcon height={15} width={15} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} color={themeValue.text} />
 				</TouchableOpacity>
 				<SeparatorWithLine />
 				<TouchableOpacity onPress={() => navigateToAddFriendScreen()} style={styles.actionItem}>
@@ -142,7 +140,7 @@ export const NewMessageScreen = ({ navigation }: { navigation: any }) => {
 						<MezonIconCDN icon={IconCDN.userIcon} />
 					</View>
 					<Text style={styles.actionTitle}>{t('message:newMessage.addFriend')}</Text>
-					<ChevronIcon height={15} width={15} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={15} width={15} color={themeValue.text} />
 				</TouchableOpacity>
 			</View>
 

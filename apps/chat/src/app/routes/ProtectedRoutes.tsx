@@ -11,7 +11,7 @@ const ProtectedRoutes = () => {
 	const location = useLocation();
 	const dispatch = useAppDispatch();
 	useEffect(() => {
-		dispatch(stickerSettingActions.fetchStickerByUserId({}));
+		dispatch(stickerSettingActions.fetchStickerByUserId({ noCache: false, clanId: '' }));
 	}, [dispatch]);
 	if (!isLogin) {
 		dispatch(authActions.setRedirectUrl(location.pathname));

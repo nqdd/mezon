@@ -1,10 +1,7 @@
-import { useAuth } from '@mezon/core';
 import {
 	ActionEmitEvent,
 	STORAGE_CHANNEL_CURRENT_CACHE,
-	STORAGE_DATA_CLAN_CHANNEL_CACHE,
 	STORAGE_KEY_TEMPORARY_ATTACHMENT,
-	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES,
 	STORAGE_MY_USER_ID,
 	load,
 	remove
@@ -12,57 +9,98 @@ import {
 import {
 	DMCallActions,
 	appActions,
-	authActions,
 	channelsActions,
-	clansActions,
 	directActions,
 	getStoreAsync,
 	messagesActions,
+	selectAllAccount,
 	selectCurrentChannel,
 	selectCurrentClan,
 	selectCurrentLanguage,
+	selectCurrentTopicId,
 	selectDmGroupCurrentId,
 	selectLoadingMainMobile,
+	selectVoiceFullScreen,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
+import { TypeMessage } from '@mezon/utils';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
-import { WebrtcSignalingFwd, WebrtcSignalingType } from 'mezon-js';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { WebrtcSignalingFwd } from 'mezon-js';
+import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Linking, Platform, StatusBar } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
 import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import Sound from 'react-native-sound';
 import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
-import MezonConfirm from '../../componentUI/MezonConfirm';
+import ExpiredSessionModal from '../../components/ExpiredSessionModal/ExpiredSessionModal';
 import LoadingModal from '../../components/LoadingModal/LoadingModal';
 import { useCheckUpdatedVersion } from '../../hooks/useCheckUpdatedVersion';
+import useTabletLandscape from '../../hooks/useTabletLandscape';
+import { DirectMessageCallMain } from '../../screens/messages/DirectMessageCall';
 import { Sharing } from '../../screens/settings/Sharing';
-import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex } from '../../utils/helpers';
+import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex, getQueryParam } from '../../utils/helpers';
 import { isShowNotification, navigateToNotification } from '../../utils/pushNotificationHelpers';
 import { APP_SCREEN } from '../ScreenTypes';
 
 const messaging = getMessaging(getApp());
 export const AuthenticationLoader = () => {
 	const navigation = useNavigation<any>();
-	const { userProfile } = useAuth();
+	const userProfile = useSelector(selectAllAccount);
 	const currentClan = useSelector(selectCurrentClan);
 	const mezon = useMezon();
+	const isTabletLandscape = useTabletLandscape();
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
+	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isLoadingMain = useSelector(selectLoadingMainMobile);
+	const isFullVoiceScreen = useSelector(selectVoiceFullScreen);
 	const dispatch = useDispatch();
-	const [fileShared, setFileShared] = useState<any>();
 	const currentDmGroupIdRef = useRef(currentDmGroupId);
 	const currentChannelRef = useRef(currentClan);
+	const currentTopicRef = useRef(currentTopicId);
+	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+	const voiceFullScreenRef = useRef(isFullVoiceScreen);
+
+	useEffect(() => {
+		const subscription = AppState.addEventListener('change', (nextAppState) => {
+			appStateRef.current = nextAppState;
+		});
+
+		return () => {
+			subscription.remove();
+		};
+	}, []);
 
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
 	const { i18n } = useTranslation();
 
 	useCheckUpdatedVersion();
+
+	useEffect(() => {
+		const eventDeeplink = DeviceEventEmitter.addListener(ActionEmitEvent.ON_NAVIGATION_DEEPLINK, (path) => onNavigationDeeplink(path));
+		const initializeApp = async () => {
+			try {
+				setTimeout(() => {
+					loadFileSharing();
+					initFirebaseMessaging();
+				}, 100);
+				await remove(STORAGE_CHANNEL_CURRENT_CACHE);
+				await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
+			} catch (error) {
+				console.error('Error in initialization:', error);
+			}
+		};
+
+		initializeApp();
+		return () => {
+			eventDeeplink.remove();
+		};
+	}, []);
 
 	useEffect(() => {
 		const getUrl = async () => {
@@ -77,24 +115,6 @@ export const AuthenticationLoader = () => {
 		};
 		getUrl();
 	}, []);
-
-	useEffect(() => {
-		const eventDeeplink = DeviceEventEmitter.addListener(ActionEmitEvent.ON_NAVIGATION_DEEPLINK, (path) => onNavigationDeeplink(path));
-		initLoader();
-
-		return () => {
-			eventDeeplink.remove();
-		};
-	}, []);
-
-	const initLoader = async () => {
-		try {
-			await remove(STORAGE_CHANNEL_CURRENT_CACHE);
-			await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
-		} catch (error) {
-			console.error('Error in tasks:', error);
-		}
-	};
 
 	const extractChannelParams = (url: string) => {
 		const regex = /channel-app\/(\d+)\/(\d+)(?:\?[^#]*)?/;
@@ -124,12 +144,37 @@ export const AuthenticationLoader = () => {
 				const subpath = parts.subpath;
 				if (clanId && channelId) {
 					navigation.navigate(APP_SCREEN.CHANNEL_APP, {
-						channelId: channelId,
-						clanId: clanId,
-						code: code,
-						subpath: subpath
+						channelId,
+						clanId,
+						code,
+						subpath
 					});
 				}
+			}
+		} else if (path?.includes?.('/invite/')) {
+			const inviteMatch = path.match(/invite\/(\d+)/);
+			const inviteId = inviteMatch?.[1];
+			if (inviteId) {
+				navigation.navigate(APP_SCREEN.INVITE_CLAN, {
+					code: inviteId
+				});
+			}
+		} else if (path?.includes?.('/chat/')) {
+			const chatMatch = path.match(/(?:^|\/)chat\/([^/?#]+)/);
+			const username = chatMatch?.[1];
+			if (username) {
+				const dataParam = getQueryParam(path, 'data');
+				navigation.navigate(APP_SCREEN.PROFILE_DETAIL, {
+					username,
+					data: dataParam || undefined
+				});
+			}
+		} else if (path?.includes?.('bot/install/')) {
+			const applicationId = path?.match?.(/bot\/install\/(\d+)/)?.[1];
+			if (applicationId) {
+				navigation.navigate(APP_SCREEN.INSTALL_CLAN, {
+					appId: applicationId
+				});
 			}
 		}
 	};
@@ -147,6 +192,14 @@ export const AuthenticationLoader = () => {
 	useEffect(() => {
 		currentChannelRef.current = currentChannel;
 	}, [currentChannel]);
+
+	useEffect(() => {
+		currentTopicRef.current = currentTopicId;
+	}, [currentTopicId]);
+
+	useEffect(() => {
+		voiceFullScreenRef.current = isFullVoiceScreen;
+	}, [isFullVoiceScreen]);
 
 	useEffect(() => {
 		let timer;
@@ -180,15 +233,17 @@ export const AuthenticationLoader = () => {
 			);
 			timer = setTimeout(() => {
 				dispatch(appActions.setLoadingMainMobile(false));
-				navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
-					screen: APP_SCREEN.MENU_CHANNEL.CALL_DIRECT,
-					params: {
-						receiverId: payload?.callerId,
-						receiverAvatar: payload?.callerAvatar,
-						directMessageId: payload?.channelId,
-						isAnswerCall: true
-					}
-				});
+				const params = {
+					receiverId: payload?.callerId,
+					receiverAvatar: payload?.callerAvatar,
+					receiverName: payload?.callerName,
+					directMessageId: payload?.channelId,
+					isAnswerCall: true
+				};
+				const data = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			}, 1000);
 		});
 
@@ -198,84 +253,128 @@ export const AuthenticationLoader = () => {
 		};
 	}, [dispatch, navigation, userProfile?.user?.id]);
 
-	useEffect(() => {
-		const listener = DeviceEventEmitter.addListener(ActionEmitEvent.ON_SHOW_POPUP_SESSION_EXPIRED, () => {
-			const data = {
-				children: (
-					<MezonConfirm
-						onConfirm={logout}
-						title={'Session Expired or Network Error'}
-						confirmText={'Login Again'}
-						content={'Your session has expired. Please log in again to continue.'}
-					/>
-				)
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-		});
+	const getTopRoute = useCallback(() => {
+		try {
+			const navigationState = navigation?.getState?.();
+			const routes = navigationState?.routes || [];
+			const activeScreenIndex = routes[navigationState?.index]?.state?.index || 0;
+			const activeState = routes[navigationState?.index]?.state || {};
+			const currentRoute = activeState?.routes[activeScreenIndex]?.params?.screen || activeState?.routes[activeScreenIndex]?.name || '';
+			if (isTabletLandscape && currentRoute === APP_SCREEN.BOTTOM_BAR) {
+				const bottomBarIndex = activeState?.routes[activeScreenIndex]?.state?.index || 0;
+				const bottomBarRoute =
+					activeState?.routes[activeScreenIndex]?.state?.routes?.[bottomBarIndex]?.params?.screen ||
+					activeState?.routes[activeScreenIndex]?.state?.routes?.[bottomBarIndex]?.name ||
+					'';
+				if (bottomBarRoute) return bottomBarRoute;
+			}
 
-		return () => {
-			listener.remove();
-		};
-	}, [dispatch, navigation, userProfile?.user?.id]);
+			return currentRoute;
+		} catch (error) {
+			console.warn('Error getting top route:', error);
+			return '';
+		}
+	}, [isTabletLandscape, navigation]);
 
-	useEffect(() => {
+	const initFirebaseMessaging = () => {
 		const unsubscribe = onMessage(messaging, (remoteMessage) => {
-			if (isShowNotification(currentChannelRef.current?.id, currentDmGroupIdRef.current, remoteMessage)) {
-				// Case: FCM start call
-				const title = remoteMessage?.notification?.title || remoteMessage?.data?.title;
-				const body = remoteMessage?.notification?.body || remoteMessage?.data?.body;
-				if (
-					title === 'Incoming call' ||
-					(body && ['video call', 'audio call', 'Untitled message'].some((text) => body?.includes?.(text))) ||
-					!body ||
-					!title ||
-					body?.includes?.('"Untitled message"')
-				) {
-					return;
-				}
-				Toast.show({
-					type: 'notification',
-					topOffset: Platform.OS === 'ios' ? undefined : StatusBar.currentHeight + 10,
-					props: {
-						title,
-						body
-					},
-					swipeable: true,
-					visibilityTime: 5000,
-					onPress: async () => {
-						Toast.hide();
-						const store = await getStoreAsync();
-						store.dispatch(directActions.setDmGroupCurrentId(''));
-						store.dispatch(appActions.setIsFromFCMMobile(true));
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
-							isShow: false
-						});
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-						requestAnimationFrame(async () => {
-							await navigateToNotification(store, remoteMessage, navigation);
-						});
+			try {
+				const message = remoteMessage?.data?.message;
+				const messageData = safeJSONParse(message as string);
+
+				let messageCode = 0;
+				if (messageData?.code) {
+					if (typeof messageData.code === 'number') {
+						messageCode = messageData.code;
+					} else if (typeof messageData.code === 'object' && messageData.code?.value !== undefined) {
+						messageCode = messageData.code.value;
 					}
-				});
-			}
-			//Payload from FCM need messageType and sound
-			if (remoteMessage?.notification?.body === 'Buzz!!') {
-				playBuzzSound();
-				handleBuzz(remoteMessage);
+				}
+
+				const topRoute = getTopRoute();
+
+				// Determine current view state for suppression decision
+				const isViewingChannel =
+					topRoute === APP_SCREEN.HOME_DEFAULT ||
+					topRoute === APP_SCREEN.MESSAGES.CHAT_STREAMING ||
+					(topRoute === APP_SCREEN.HOME && isTabletLandscape);
+				const isViewingDirectMessage = topRoute === APP_SCREEN.MESSAGES.MESSAGE_DETAIL || topRoute === APP_SCREEN.MESSAGES.HOME;
+
+				if (
+					isShowNotification(
+						currentChannelRef.current?.id,
+						currentDmGroupIdRef.current,
+						remoteMessage,
+						{
+							isViewingChannel,
+							isViewingDirectMessage
+						},
+						currentTopicRef.current,
+						voiceFullScreenRef.current
+					)
+				) {
+					// Case: FCM start call
+					const title = remoteMessage?.notification?.title || remoteMessage?.data?.title;
+					const body: any = remoteMessage?.notification?.body || remoteMessage?.data?.body;
+					if (
+						title === 'Incoming call' ||
+						(body && ['video call', 'audio call', 'voice call', 'Untitled message'].some((text) => body?.includes?.(text))) ||
+						!body ||
+						!title ||
+						body?.includes?.('"Untitled message"')
+					) {
+						return;
+					}
+					Toast.show({
+						type: 'notification',
+						topOffset: Platform.OS === 'ios' ? undefined : StatusBar.currentHeight + 10,
+						props: {
+							title,
+							body
+						},
+						swipeable: true,
+						visibilityTime: 5000,
+						onPress: async () => {
+							Toast.hide();
+							const store = await getStoreAsync();
+							store.dispatch(directActions.setDmGroupCurrentId(''));
+							store.dispatch(messagesActions.setIdMessageToJump(null));
+							store.dispatch(appActions.setIsFromFCMMobile(true));
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_VOICE_ROOM_RESIZE);
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
+								isShow: false
+							});
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+							requestAnimationFrame(async () => {
+								Keyboard.dismiss();
+								await navigateToNotification(store, remoteMessage, navigation, isTabletLandscape);
+							});
+						}
+					});
+				}
+				//Payload from FCM need messageType and sound
+				if (messageCode === TypeMessage.MessageBuzz || messageCode === TypeMessage.SendToken) {
+					const isAppActive = appStateRef.current === 'active';
+					if (isAppActive) {
+						playCustomSoundNotify(messageCode === TypeMessage.MessageBuzz ? 'buzz' : 'bank');
+					}
+
+					if (messageCode === TypeMessage.MessageBuzz) handleBuzz(remoteMessage);
+				}
+			} catch (e) {
+				console.error('log  => e', e);
 			}
 		});
-		// To get All Received Urls
-		loadFileSharing();
 
 		// To clear Intents
-		return () => {
-			unsubscribe();
-		};
-	}, []);
+		return unsubscribe;
+	};
 
-	const playBuzzSound = () => {
+	const playCustomSoundNotify = (name: string) => {
 		Sound.setCategory('Playback');
-		const sound = new Sound('buzz.mp3', Sound.MAIN_BUNDLE, (error) => {
+		const soundName = name + (Platform.OS === 'android' ? '.mp3' : '.wav');
+		const sound = new Sound(soundName, Sound.MAIN_BUNDLE, (error) => {
 			if (error) {
 				console.error('failed to load the sound', error);
 				return;
@@ -305,7 +404,7 @@ export const AuthenticationLoader = () => {
 		} else {
 			const linkDirectMessageMatch = link.match(clanDirectMessageLinkRegex);
 			const channelId = linkDirectMessageMatch[1];
-			dispatch(directActions.setBuzzStateDirect({ channelId: channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
+			dispatch(directActions.setBuzzStateDirect({ channelId, buzzState: { isReset: true, senderId: '', timestamp } }));
 		}
 	};
 
@@ -313,9 +412,21 @@ export const AuthenticationLoader = () => {
 		try {
 			ReceiveSharingIntent.getReceivedFiles(
 				(files: any) => {
-					setFileShared(files);
+					try {
+						console.warn('log => files getReceivedFiles: ', files);
+						// Timeout to wait modal ready if the app was opened from sharing
+						setTimeout(() => {
+							const data = {
+								children: <Sharing data={files} />
+							};
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+						}, 500);
+					} catch (error) {
+						console.error('log => error OPEN ON_TRIGGER_MODAL: ', error);
+					}
 				},
 				(error: any) => {
+					console.error('log => error ReceiveSharingIntent: ', error);
 					/* empty */
 				},
 				'mezon.mobile.sharing'
@@ -325,31 +436,10 @@ export const AuthenticationLoader = () => {
 		}
 	};
 
-	const onCloseFileShare = useCallback(() => {
-		setFileShared(undefined);
-		navigation.goBack();
-	}, []);
-
-	const logout = useCallback(async () => {
-		const store = await getStoreAsync();
-		store.dispatch(channelsActions.removeAll());
-		store.dispatch(messagesActions.removeAll());
-		store.dispatch(clansActions.setCurrentClanId(''));
-		store.dispatch(clansActions.removeAll());
-		store.dispatch(clansActions.refreshStatus());
-
-		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
-		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
-		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);
-		await remove(STORAGE_KEY_TEMPORARY_ATTACHMENT);
-		store.dispatch(authActions.logOut({ device_id: userProfile?.user?.username, platform: Platform.OS }));
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	}, []);
-
 	return (
 		<>
 			<LoadingModal isVisible={isLoadingMain} />
-			{!!fileShared && !isLoadingMain && <Sharing data={fileShared} onClose={onCloseFileShare} />}
+			<ExpiredSessionModal />
 		</>
 	);
 };

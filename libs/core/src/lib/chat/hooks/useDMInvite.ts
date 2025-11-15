@@ -1,58 +1,73 @@
 import {
 	channelMembersActions,
+	EStateFriend,
 	inviteActions,
-	selectAllChannelMembers,
 	selectAllChannels,
 	selectAllDirectMessages,
 	selectAllUserClans,
-	useAppDispatch,
-	useAppSelector
+	selectFriendsEntities,
+	useAppDispatch
 } from '@mezon/store';
 import { ChannelType } from 'mezon-js';
-import { ApiLinkInviteUser } from 'mezon-js/api.gen';
+import type { ApiLinkInviteUser } from 'mezon-js/api.gen';
 import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 export function useDMInvite(channelID?: string) {
 	const dispatch = useAppDispatch();
 	const dmGroupChatList = useSelector(selectAllDirectMessages);
-	const rawMembers = useAppSelector((state) => selectAllChannelMembers(state, channelID as string));
+	const { userId } = useAuth();
 	const usersClan = useSelector(selectAllUserClans);
 	const allChannels = useSelector(selectAllChannels);
 	const isChannelPrivate = allChannels.find((channel) => channel.channel_id === channelID)?.channel_private === 1;
+	const friendList = useSelector(selectFriendsEntities);
+
 	const listDMInvite = useMemo(() => {
 		const userIdInClanArray = usersClan.map((user) => user.id);
-		const memberIds = rawMembers.map((member) => member.user?.id);
+		const listId = new Set<string>();
 		const filteredListUserClan = dmGroupChatList.filter((item) => {
+			const friend = friendList[item.user_ids?.[0] || ''];
+			const hasBlockedUser = friend?.state === EStateFriend.BLOCK && (friend?.source_id === userId || friend.user?.id === userId);
+			if (hasBlockedUser) {
+				return false;
+			}
+
 			if (
-				(item.user_id && item.user_id.length > 1) ||
-				(item.user_id && item.user_id.length === 1 && !userIdInClanArray.includes(item.user_id[0]))
+				(item.user_ids && item.user_ids.length > 1) ||
+				(item.user_ids && item.user_ids.length === 1 && !userIdInClanArray.includes(item.user_ids[0]))
 			) {
+				listId.add(item.user_ids[0]);
 				return true;
 			}
 			return false;
 		});
-		if (!channelID) {
-			return filteredListUserClan;
-		}
-		const filteredListUserChannel = dmGroupChatList.filter((item) => {
-			if ((item.user_id && item.user_id.length > 1) || (item.user_id && item.user_id.length === 1 && !memberIds.includes(item.user_id[0]))) {
-				return true;
+
+		Object.values(friendList).forEach((friend) => {
+			const hasBlockedUser = friend?.state === EStateFriend.BLOCK && (friend?.source_id === userId || friend.user?.id === userId);
+			if (hasBlockedUser || listId.has(friend.user?.id || '')) {
+				return;
 			}
-			return false;
+			filteredListUserClan.push({
+				id: friend.user?.id || '',
+				user_ids: [friend.user?.id || ''],
+				usernames: [friend.user?.username || ''],
+				channel_label: friend.user?.display_name || friend.user?.username || '',
+				avatars: [friend.user?.avatar_url || ''],
+				type: ChannelType.CHANNEL_TYPE_DM
+			});
+			listId.add(friend.user?.id || '');
 		});
-		if (!isChannelPrivate) {
-			return filteredListUserChannel;
-		}
-	}, [channelID, dmGroupChatList, usersClan, rawMembers, isChannelPrivate]);
+		return filteredListUserClan;
+	}, [channelID, dmGroupChatList, usersClan, isChannelPrivate, friendList]);
 
 	const createLinkInviteUser = React.useCallback(
 		async (clan_id: string, channel_id: string, expiry_time: number) => {
 			const action = await dispatch(
 				inviteActions.createLinkInviteUser({
-					clan_id: clan_id,
-					channel_id: channel_id,
-					expiry_time: expiry_time
+					clan_id,
+					channel_id,
+					expiry_time
 				})
 			);
 			const payload = action.payload as ApiLinkInviteUser;
@@ -61,27 +76,18 @@ export function useDMInvite(channelID?: string) {
 		[dispatch]
 	);
 
-	const listUserInvite = useMemo(() => {
-		const memberIds = rawMembers.map((member) => member.user?.id);
-		const usersClanFiltered = usersClan.filter((user) => !memberIds.some((userId) => userId === user.id));
-		if (isChannelPrivate) {
-			return usersClanFiltered;
-		}
-	}, [usersClan, rawMembers, isChannelPrivate]);
-
 	useEffect(() => {
 		if (channelID)
 			dispatch(
 				channelMembersActions.fetchChannelMembers({ clanId: '', channelId: channelID || '', channelType: ChannelType.CHANNEL_TYPE_CHANNEL })
 			);
-	}, [channelID]);
+	}, [channelID, dispatch]);
 
 	return useMemo(
 		() => ({
 			listDMInvite,
-			listUserInvite,
 			createLinkInviteUser
 		}),
-		[listDMInvite, createLinkInviteUser, listUserInvite]
+		[listDMInvite, createLinkInviteUser]
 	);
 }

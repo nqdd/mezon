@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
+import { ErrorInput } from '../../ErrorInput';
 import { style } from './styles';
 
 interface UserTextInputProps {
@@ -63,7 +64,7 @@ export const TextInputUser: React.FC<UserTextInputProps> = ({
 				)}
 			</View>
 
-			{touched && error && <Text style={styles.errorText}>{error}</Text>}
+			{touched && error && <ErrorInput errorMessage={error} style={styles.errorText} />}
 		</View>
 	);
 };

@@ -1,4 +1,4 @@
-import { AttachmentEntity, selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
+import { AttachmentEntity, selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useCallback, useMemo } from 'react';
 import { TouchableOpacity, View } from 'react-native';
@@ -13,7 +13,7 @@ interface IMediaItemProps {
 }
 export const MediaItem = React.memo(({ data, onPress }: IMediaItemProps) => {
 	const checkIsImage = useMemo(() => isImage(data?.url), [data?.url]);
-	const uploader = useAppSelector((state) => selectMemberClanByUserId2(state, data?.uploader || ''));
+	const uploader = useAppSelector((state) => selectMemberClanByUserId(state, data?.uploader || ''));
 	const handlePress = useCallback(() => {
 		onPress(data);
 	}, [onPress, data]);

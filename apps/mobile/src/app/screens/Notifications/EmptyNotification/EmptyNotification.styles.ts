@@ -12,5 +12,19 @@ export const style = (colors: Attributes) =>
 			fontWeight: '400',
 			color: colors.text,
 			textAlign: 'center'
+		},
+		container: {
+			position: 'relative',
+			width: '100%',
+			height: '100%'
+		},
+		contentWrapper: {
+			position: 'absolute',
+			left: size.s_10,
+			right: size.s_10,
+			top: '20%',
+			flexDirection: 'column',
+			alignItems: 'center',
+			gap: size.s_10
 		}
 	});

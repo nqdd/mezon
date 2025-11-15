@@ -1,30 +1,19 @@
-import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, useTheme } from '@mezon/mobile-ui';
-import {
-	EventManagementEntity,
-	selectAllAccount,
-	selectAllTextChannel,
-	selectCurrentClanId,
-	selectEventsByClanId,
-	useAppSelector
-} from '@mezon/store-mobile';
-import { EPermission } from '@mezon/utils';
+import type { EventManagementEntity } from '@mezon/store-mobile';
+import { selectAllTextChannel, selectCurrentClanId, selectCurrentUserId, selectEventsByClanId, useAppSelector } from '@mezon/store-mobile';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonTab from '../../componentUI/MezonTab';
 import { IconCDN } from '../../constants/icon_cdn';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
-import { EventDetail } from './EventDetail';
 import { EventItem } from './EventItem';
-import { EventMember } from './EventMember';
+import { EventTab } from './EventTime/EventTab';
 import { style } from './styles';
 
 export function EventViewer({ handlePressEventCreate }: { handlePressEventCreate: () => void }) {
-	// const { dismiss } = useBottomSheetModal()
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -33,46 +22,34 @@ export function EventViewer({ handlePressEventCreate }: { handlePressEventCreate
 	const currentClanId = useSelector(selectCurrentClanId);
 	const allEventManagement = useAppSelector((state) => selectEventsByClanId(state, currentClanId as string));
 	const allThreadChannelPrivate = useSelector(selectAllTextChannel);
-	const allThreadChannelPrivateIds = allThreadChannelPrivate.map((channel) => channel.channel_id);
-	const userId = useSelector(selectAllAccount)?.user?.id;
+	const allThreadChannelPrivateIds = allThreadChannelPrivate.map((channel) => channel?.channel_id);
+	const userId = useSelector(selectCurrentUserId);
 
 	const listEventToShow = useMemo(() => {
 		return allEventManagement?.filter(
 			(event) =>
-				(!event?.is_private || event.creator_id === userId) &&
-				(!event.channel_id || event.channel_id === '0' || allThreadChannelPrivateIds.includes(event.channel_id))
+				(!event?.is_private || event?.creator_id === userId) &&
+				(!event?.channel_id || event?.channel_id === '0' || allThreadChannelPrivateIds?.includes(event?.channel_id))
 		);
 	}, [allEventManagement, allThreadChannelPrivateIds, userId]);
 
-	const [hasAdminPermission, hasManageClanPermission, isClanOwner] = usePermissionChecker([
-		EPermission.administrator,
-		EPermission.manageClan,
-		EPermission.clanOwner
-	]);
-
-	const isCanManageEvent = useMemo(() => {
-		return hasAdminPermission || isClanOwner || hasManageClanPermission;
-	}, [hasAdminPermission, hasManageClanPermission, isClanOwner]);
-
-	function handlePress(event: EventManagementEntity) {
+	const handlePress = (event: EventManagementEntity) => {
 		const data = {
 			heightFitContent: true,
-			children: (
-				<MezonTab
-					views={[<EventDetail event={event} />, <EventMember event={event} />]}
-					titles={[t('detail.eventInfo'), t('item.interested')]}
-					isBottomSheet={isTabletLandscape}
-				/>
-			)
+			children: <EventTab event={event} t={t} isBottomSheet={isTabletLandscape} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-	}
+	};
+
+	const countEventToShow = useMemo(() => {
+		return listEventToShow?.length > 0 ? listEventToShow.length : '';
+	}, [listEventToShow]);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
 				<View style={[styles.section, styles.sectionRight]}></View>
-				<Text style={[styles.section, styles.sectionTitle]}>{`${listEventToShow?.length} ${t('dashboard.title')}`}</Text>
+				<Text style={[styles.section, styles.sectionTitle]}>{`${countEventToShow} ${t('dashboard.title')}`}</Text>
 				<View style={[styles.section, styles.sectionRight]}>
 					<TouchableOpacity onPress={handlePressEventCreate}>
 						<Text style={[styles.emptyText, { color: baseColor.blurple, fontWeight: 'bold' }]}>{t('dashboard.createButton')}</Text>

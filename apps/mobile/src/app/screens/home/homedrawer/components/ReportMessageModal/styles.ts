@@ -1,9 +1,15 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
+		container: {
+			backgroundColor: colors.primary,
+			flex: 1
+		},
 		reportMessageModalContainer: {
+			padding: size.s_18,
 			gap: size.s_18,
 			flex: 1,
 			justifyContent: 'space-between'
@@ -13,23 +19,25 @@ export const style = (colors: Attributes) =>
 			borderTopColor: colors.borderDim
 		},
 		buttonWrapper: {
-			paddingBottom: size.s_30,
-			borderTopWidth: 1,
-			borderTopColor: colors.borderDim
+			paddingBottom: size.s_30
+		},
+		buttonCannel: {
+			backgroundColor: baseColor.blurple,
+			borderRadius: size.s_10
 		},
 		cannelText: {
 			paddingVertical: size.s_18,
-			color: colors.white,
+			color: baseColor.white,
 			textAlign: 'center'
 		},
 		SubmitButton: {
 			margin: size.s_10,
-			backgroundColor: Colors.red,
+			backgroundColor: baseColor.redStrong,
 			borderRadius: size.s_4
 		},
 		SubmitText: {
 			paddingVertical: size.s_10,
-			color: Colors.white,
+			color: 'white',
 			textAlign: 'center'
 		},
 		messageBox: {
@@ -50,7 +58,7 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			alignItems: 'center',
-			backgroundColor: colors.bgInputPrimary,
+			backgroundColor: colors.secondary,
 			padding: size.s_14,
 			borderRadius: size.s_8
 		},
@@ -84,5 +92,8 @@ export const style = (colors: Attributes) =>
 		categoryTitle: {
 			marginVertical: 20,
 			gap: size.s_10
+		},
+		animatedContainer: {
+			transform: [{ translateX: 0 }]
 		}
 	});

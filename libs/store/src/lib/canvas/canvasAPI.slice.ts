@@ -1,10 +1,14 @@
 import { captureSentryError } from '@mezon/logger';
-import { CanvasUpdate, ICanvas, LIMIT, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiEditChannelCanvasRequest } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { CanvasUpdate, ICanvas, LoadingStatus } from '@mezon/utils';
+import { LIMIT } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiEditChannelCanvasRequest } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
+import type { RootState } from '../store';
 
 export const CANVAS_API_FEATURE_KEY = 'canvasapi';
 
@@ -14,7 +18,7 @@ export const CANVAS_API_FEATURE_KEY = 'canvasapi';
 export interface CanvasAPIEntity extends ICanvas {
 	id: string; // Primary ID
 	countCanvas?: number;
-	update_time?: string;
+	create_time?: string;
 }
 
 export interface CanvasAPIState {
@@ -33,12 +37,12 @@ export interface CanvasAPIState {
 export const canvasAPIAdapter = createEntityAdapter({
 	selectId: (canvas: CanvasAPIEntity) => canvas.id || '',
 	sortComparer: (a, b) => {
-		if (a.update_time && b.update_time) {
-			return new Date(b.update_time).getTime() - new Date(a.update_time).getTime();
+		if (a.create_time && b.create_time) {
+			return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
 		}
 
-		if (a.update_time && !b.update_time) return -1;
-		if (!a.update_time && b.update_time) return 1;
+		if (a.create_time && !b.create_time) return -1;
+		if (!a.create_time && b.create_time) return 1;
 
 		return b.id.localeCompare(a.id);
 	}
@@ -67,12 +71,12 @@ const selectCachedCanvasByChannel = createSelector(
 		//TODO: recheck
 		const entities = Object.values(channelData.entities || {});
 		return entities.sort((a, b) => {
-			if (a.update_time && b.update_time) {
-				return new Date(b.update_time).getTime() - new Date(a.update_time).getTime();
+			if (a.create_time && b.create_time) {
+				return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
 			}
 
-			if (a.update_time && !b.update_time) return -1;
-			if (!a.update_time && b.update_time) return 1;
+			if (a.create_time && !b.create_time) return -1;
+			if (!a.create_time && b.create_time) return 1;
 
 			return b.id.localeCompare(a.id);
 		});
@@ -102,7 +106,10 @@ const fetchCanvasListCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page);
+	const response = await withRetry(() => mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -132,7 +139,10 @@ const fetchCanvasDetailCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id);
+	const response = await withRetry(() => mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -154,7 +164,7 @@ export const createEditCanvas = createAsyncThunk('canvas/editChannelCanvases', a
 			title: body.title,
 			content: body.content,
 			is_default: body.is_default,
-			update_time: new Date().toISOString()
+			create_time: new Date().toISOString()
 		};
 
 		if (body.channel_id && result.id) {
@@ -165,8 +175,7 @@ export const createEditCanvas = createAsyncThunk('canvas/editChannelCanvases', a
 						dataUpdate: {
 							id: result.id,
 							title: body.title as string,
-							content: body.content as string,
-							update_time: result.update_time
+							content: body.content as string
 						}
 					})
 				);
@@ -262,17 +271,17 @@ const handleSetManyCanvas = ({
 	if (!state.channelCanvas[channelId]) {
 		state.channelCanvas[channelId] = canvasAPIAdapter.getInitialState({
 			id: channelId,
-			countCanvas: countCanvas
+			countCanvas
 		});
 	}
 
 	const sortedPayload = [...adapterPayload].sort((a, b) => {
-		if (a.update_time && b.update_time) {
-			return new Date(b.update_time).getTime() - new Date(a.update_time).getTime();
+		if (a.create_time && b.create_time) {
+			return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
 		}
 
-		if (a.update_time && !b.update_time) return -1;
-		if (!a.update_time && b.update_time) return 1;
+		if (a.create_time && !b.create_time) return -1;
+		if (!a.create_time && b.create_time) return 1;
 
 		return b.id.localeCompare(a.id);
 	});
@@ -290,13 +299,12 @@ export const canvasAPISlice = createSlice({
 		// ...
 		updateCanvas: (state, action: PayloadAction<{ channelId: string; dataUpdate: CanvasUpdate }>) => {
 			const { channelId, dataUpdate } = action.payload;
-			const { id, title, content, update_time } = dataUpdate;
+			const { id, title, content } = dataUpdate;
 			canvasAPIAdapter.updateOne(state.channelCanvas[channelId], {
-				id: id,
+				id,
 				changes: {
-					title: title,
-					content: content,
-					update_time: update_time || new Date().toISOString()
+					title,
+					content
 				}
 			});
 		},
@@ -314,8 +322,7 @@ export const canvasAPISlice = createSlice({
 				});
 			}
 			const canvasWithTimestamp = {
-				...canvas,
-				update_time: canvas.update_time || new Date().toISOString()
+				...canvas
 			};
 
 			const currentEntities = Object.values(state.channelCanvas[channel_id].entities || {});
@@ -358,7 +365,7 @@ export const canvasAPISlice = createSlice({
 					state,
 					channelId,
 					adapterPayload: reversedCanvas,
-					countCanvas: countCanvas
+					countCanvas
 				});
 			})
 			.addCase(getChannelCanvasList.rejected, (state: CanvasAPIState, action) => {
@@ -446,12 +453,12 @@ export const selectCanvasIdsByChannelId = createSelector(
 				title: entity.title || 'Untitled'
 			}))
 			.sort((a, b) => {
-				if (a.update_time && b.update_time) {
-					return new Date(b.update_time).getTime() - new Date(a.update_time).getTime();
+				if (a.create_time && b.create_time) {
+					return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
 				}
 
-				if (a.update_time && !b.update_time) return -1;
-				if (!a.update_time && b.update_time) return 1;
+				if (a.create_time && !b.create_time) return -1;
+				if (!a.create_time && b.create_time) return 1;
 
 				return b.id.localeCompare(a.id);
 			});
@@ -461,9 +468,15 @@ export const selectCanvasIdsByChannelId = createSelector(
 );
 
 export const selectCanvasEntityById = createSelector(
-	[getCanvasApiState, getChannelIdCanvasAsSecondParam, (_, __, canvasId) => canvasId],
-	(canvasState, channelId, canvasId) => {
-		return canvasState.channelCanvas[channelId]?.entities?.[canvasId];
+	[getCanvasApiState, getChannelIdCanvasAsSecondParam, getChannelIdCanvasAsParrent, (_, __, ___, canvasId) => canvasId],
+	(canvasState, channelId, parentId, canvasId) => {
+		if (!parentId) {
+			return canvasState.channelCanvas[channelId]?.entities?.[canvasId];
+		}
+		const canvastCurrent = canvasState?.channelCanvas[channelId]?.entities || {};
+		const canvasParrent = canvasState.channelCanvas[parentId]?.entities || {};
+		const wrapCanvast = { ...canvastCurrent, ...canvasParrent };
+		return wrapCanvast[canvasId];
 	}
 );
 

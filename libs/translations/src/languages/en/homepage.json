@@ -1,0 +1,142 @@
+{
+	"title": {
+		"part1": "The",
+		"live": "Live",
+		"work": "Work",
+		"and": "and",
+		"playPlatform": "Play Platform",
+		"theBest": "the best",
+		"discord": "Discord",
+		"alternative": "Alternative"
+	},
+	"description": {
+		"part1": "is great for playing games and chilling with friends, or even building a worldwide community.",
+		"part2": "Customize your own space to",
+		"talk": "talk",
+		"play": "play",
+		"and": "and",
+		"hangOut": "hang out"
+	},
+	"download": {
+		"getItFrom": "Get it from",
+		"cdnUrl": "CDN Url"
+	},
+	"header": {
+		"home": "Home",
+		"overview": "Overview",
+		"features": "Features",
+		"developers": "Developers",
+		"botsApps": "Bots/Apps",
+		"documents": "Documents",
+		"discover": "Discover",
+		"blogs": "Blogs",
+		"openMezon": "Open Mezon",
+		"login": "Login"
+	},
+	"layout": {
+		"overview": {
+			"title": "Overview",
+			"subtitle": "is a new way to communicate with your team.",
+			"description": "It's faster, better organized, better for WFH."
+		},
+		"features": {
+			"title": "Our features",
+			"subtitle": "Comprehensive Communication Tools"
+		},
+		"cards": {
+			"workstation": {
+				"title": "Workstation",
+				"description": "A digital workspace that streamlines communication, collaboration, and task management by integrating with various systems and tools. It provides structured spaces for teams, projects, and departments while ensuring seamless access to information and workflows"
+			},
+			"ecosystem": {
+				"title": "Ecosystem",
+				"description": "A dynamic digital environment that combines work and social elements, offering interactive and recreational features. It supports virtual transactions, engagement activities, and community-building to enhance user experience."
+			},
+			"aiAgent": {
+				"title": "AI Agent",
+				"description": "An intelligent system that automates tasks, assists with information management, and optimizes workflows. It enhances productivity through features like reminders, monitoring, and automated communication."
+			}
+		},
+		"featureCards": {
+			"mezonMainnet": {
+				"title": "Mezon Mainnet",
+				"subtitle": "The Zero-Fee, High-Speed Layer 1",
+				"description": "Blockchain"
+			},
+			"developerApi": {
+				"title": "Advanced Developer",
+				"subtitle": "API Platform"
+			},
+			"gaming": {
+				"title": "Gaming",
+				"subtitle": "& Entertainment"
+			},
+			"customizable": {
+				"title": "Customizable",
+				"subtitle": "& Scalable Platform"
+			}
+		}
+	},
+	"sections": {
+		"hero": {
+			"title": {
+				"your": "Your",
+				"live": "Live",
+				"work": "Work",
+				"play": "Play",
+				"platform": "Platform.",
+				"theBest": "The best",
+				"discordAlternative": "Discord Alternative"
+			},
+			"description": "is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to",
+			"talk": "talk",
+			"play": "play",
+			"and": "and",
+			"hangOut": "hang out",
+			"tryButton": "Try Mezon, its free !",
+			"choosePlatform": "Choose your platform"
+		},
+		"textChannel": {
+			"title": "Super-Fast Messaging",
+			"description": "Built for Chat, Collaborate and Connect.",
+			"description2": "Super-Fast Messaging. Zero Limits. Instant Delivery.",
+			"learnMore": "Learn more"
+		},
+		"clanDiscover": {
+			"title": "Your Clan Your World",
+			"description": "From hobbies and discussions to news and trends, there's a clan for everything.",
+			"learnMore": "Learn more"
+		},
+		"aiAgent": {
+			"title": "AI Agents for Clan and Always-On Assistance",
+			"description": "Voice AI agent (Summarize content in voice channel conversations, or act as an interviewer in interviews), assistance , BOT shawdow mode (summary content in channel text).",
+			"learnMore": "Learn more"
+		},
+		"communityPayments": {
+			"title": "In-Community Payments",
+			"description": "Send money instantly, reward creators, and shop with partner brands — all with zero platform fee. Built on transparency and security.",
+			"learnMore": "Learn more"
+		},
+		"enterpriseIntegrations": {
+			"title": "Enterprise Integrations",
+			"description": "Mezon enables you to connect with customers globally and deliver captivating large-scale experiences.",
+			"learnMore": "Learn more"
+		}
+	},
+	"footer": {
+		"description": "Mezon is great for playing games and chilling with friends, or even building a worldwide community.",
+		"getTheApp": "Get the app",
+		"copyright": "© 2024 Mezon. All rights reserved.",
+		"links": {
+			"executiveSummary": "Executive Summary",
+			"problemStatement": "Problem Statement",
+			"solution": "Solution",
+			"blockchainEconomy": "Blockchain & Token Economy",
+			"developerApi": "Developer API Integration",
+			"technicalArchitecture": "Technical Architecture",
+			"productRoadmap": "Product roadmap",
+			"tokenomics": "Tokenomics",
+			"team": "Team"
+		}
+	}
+}

@@ -1,0 +1,58 @@
+{
+	"directMessages": "TIN NHẮN TRỰC TIẾP",
+	"createDM": "Tạo tin nhắn",
+	"friends": "Bạn bè",
+	"yourMessages": "Tin nhắn của bạn",
+	"selectConversation": "Chọn một cuộc trò chuyện để bắt đầu nhắn tin",
+	"createMessageGroup": {
+		"selectFriends": "Chọn bạn bè",
+		"canAddMoreFriends": "Bạn có thể thêm {{count}} bạn bè nữa.",
+		"searchPlaceholder": "Nhập tên người dùng của bạn bè",
+		"addToGroupChat": "Thêm vào nhóm chat",
+		"createDMOrGroupChat": "Tạo tin nhắn hoặc nhóm chat",
+		"createDM": "Tạo tin nhắn",
+		"createGroupChat": "Tạo nhóm chat",
+		"noFriendsFound": "Không tìm thấy bạn bè nào chưa có trong cuộc trò chuyện này.",
+		"creating": "Đang tạo..."
+	},
+	"editGroup": {
+		"title": "Chỉnh sửa nhóm",
+		"uploadImageText": "Nhấp để tải lên hình ảnh",
+		"removeAvatar": "Xóa ảnh đại diện",
+		"groupNameLabel": "Tên nhóm",
+		"groupNamePlaceholder": "Nhập tên nhóm",
+		"validationError": "Vui lòng nhập tên nhóm hợp lệ (chỉ từ, số, _ hoặc -).",
+		"cancel": "Hủy",
+		"save": "Lưu",
+		"saving": "Đang lưu..."
+	},
+	"contextMenu": {
+		"editGroup": "Chỉnh sửa nhóm",
+		"addFriend": "Thêm bạn",
+		"leaveGroup": "Rời nhóm",
+		"closeDM": "Đóng tin nhắn",
+		"markAsRead": "Đánh dấu đã đọc",
+		"invitePeople": "Mời người khác",
+		"hideConversation": "Ẩn cuộc trò chuyện",
+		"profile": "Hồ sơ",
+		"message": "Nhắn tin",
+		"removeFriend": "Xóa bạn",
+		"block": "Chặn",
+		"unblock": "Bỏ chặn",
+		"removeFromGroup": "Xóa khỏi nhóm",
+		"mute": "Tắt thông báo",
+		"unmute": "Bật thông báo",
+		"for15Minutes": "Trong vòng 15 Phút",
+		"for1Hour": "Trong vòng 1 Giờ",
+		"for3Hours": "Trong vòng 3 Giờ",
+		"for8Hours": "Trong vòng 8 Giờ",
+		"for24Hours": "Trong vòng 24 Giờ",
+		"untilTurnBackOn": "Cho đến khi bật lại",
+		"mutedUntil": "Tắt thông báo đến {{time}}"
+	},
+	"remove": {
+		"content": "Cuộc trò chuyện ở kênh này không còn khả dụng!",
+		"title": "Trò chuyện không khả dụng",
+		"button": "Xác nhận"
+	}
+}

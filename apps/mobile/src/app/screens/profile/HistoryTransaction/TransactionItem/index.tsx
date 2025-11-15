@@ -1,26 +1,29 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { fetchDetailTransaction, selectDetailedger, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { formatNumber } from '@mezon/utils';
+import { fetchTransactionDetail, selectAllUsersByUser, selectDetailTransaction, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { CURRENCY, formatBalanceToString } from '@mezon/utils';
+import Clipboard from '@react-native-clipboard/clipboard';
 import { safeJSONParse } from 'mezon-js';
-import { ApiWalletLedger } from 'mezon-js/api.gen';
+import type { Transaction } from 'mmn-client-js';
 import moment from 'moment';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Animated, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { TRANSACTION_ITEM } from '../../../../constants/transaction';
+import { TRANSACTION_DETAIL, TRANSACTION_ITEM } from '../../../../constants/transaction';
 import { style } from './styles';
 
-const valueText = (v: number) => (v > 0 ? `+${formatNumber(v, 'vi-VN', 'VND')}` : formatNumber(v, 'vi-VN', 'VND'));
-
-export const TransactionItem = ({ item, isExpand, onPress }: { item: ApiWalletLedger; isExpand: boolean; onPress: (id: string) => void }) => {
+export const TransactionItem = ({ item, walletAddress }: { item: Transaction; walletAddress: string }) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['token']);
 	const styles = style(themeValue);
+	const usersClan = useSelector(selectAllUsersByUser);
+	const [isExpand, setIsExpand] = useState(false);
 
 	const dispatch = useAppDispatch();
-	const detailLedger = useAppSelector((s) => selectDetailedger(s));
+	const detailLedger = useAppSelector((state) => selectDetailTransaction(state));
 
 	const [loadingDetail, setLoadingDetail] = useState(false);
 
@@ -31,7 +34,7 @@ export const TransactionItem = ({ item, isExpand, onPress }: { item: ApiWalletLe
 		if (isExpand) {
 			Animated.timing(animation, {
 				toValue: detailHeight,
-				duration: 50,
+				duration: 100,
 				useNativeDriver: false
 			}).start();
 		} else {
@@ -41,78 +44,101 @@ export const TransactionItem = ({ item, isExpand, onPress }: { item: ApiWalletLe
 
 	const onPressItem = async () => {
 		if (!isExpand) {
-			onPress(item.transaction_id);
-            setDetailHeight(size.s_80);
+			setIsExpand(true);
+			setDetailHeight(size.s_80);
 			setLoadingDetail(true);
-			await dispatch(fetchDetailTransaction({ transId: item.transaction_id }));
+			dispatch(fetchTransactionDetail({ txHash: item.hash }));
 			setLoadingDetail(false);
 		} else {
-			onPress('');
+			setIsExpand(false);
 		}
 	};
 
 	const formatDate = useMemo(() => {
 		if (!isExpand) return '';
-		return moment(detailLedger?.create_time).format('HH:mm – DD/MM/YYYY');
-	}, [detailLedger?.create_time, isExpand]);
+		return moment(new Date((detailLedger?.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm');
+	}, [detailLedger?.transaction_timestamp, isExpand]);
 
-	const note = useMemo(() => {
-		if (!isExpand) return '';
-		if (typeof detailLedger?.metadata === 'string') return detailLedger.metadata;
-		const m = safeJSONParse(detailLedger?.metadata);
-		return m?.note || detailLedger?.metadata || '';
-	}, [detailLedger?.metadata, isExpand]);
+	const onContainerLayout = (e) => {
+		const h = e.nativeEvent.layout.height;
+		if (h && h !== detailHeight) {
+			setDetailHeight(h);
+			if (isExpand) animation.setValue(h);
+		}
+	};
 
-    const onContainerLayout = (e) => {
-        const h = e.nativeEvent.layout.height;
-        if (h && h !== detailHeight) {
-            setDetailHeight(h);
-            if (isExpand) animation.setValue(h);
-        }
-    }
-
-	const detailView = (
-		!loadingDetail ? <View
-			style={styles.detail}
-			onLayout={onContainerLayout}
-		>
-			{[
-				{
-					label: t('historyTransaction.detail.transactionId'),
-					value: detailLedger?.trans_id
-				},
-				{
-					label: t('historyTransaction.detail.senderName'),
-					value: detailLedger?.sender_username
-				},
-				{
-					label: t('historyTransaction.detail.time'),
-					value: formatDate
-				},
-				{
-					label: t('historyTransaction.detail.receiverName'),
-					value: detailLedger?.receiver_username
-				},
-				{
-					label: t('historyTransaction.detail.note'),
-					value: note
-				},
-				{
-					label: t('historyTransaction.detail.amount'),
-					value: valueText(item.value)
+	const copyTransactionId = () => {
+		if (detailLedger?.hash) {
+			Clipboard.setString(detailLedger?.hash);
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('historyTransaction.copied'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.copyIcon} color={themeValue.text} />
 				}
-			].map((field, idx) => (
-				<View key={`${item.transaction_id}_${idx}`} style={styles.row}>
+			});
+		}
+	};
+	const detailFields = useMemo(() => {
+		const extraInfo = safeJSONParse(detailLedger?.extra_info || '{}');
+		const sender = extraInfo?.UserSenderId ? usersClan.find((user) => user.id === extraInfo?.UserSenderId) : null;
+		const receiver = extraInfo?.UserReceiverId ? usersClan.find((user) => user.id === extraInfo?.UserReceiverId) : null;
+		return [
+			{
+				label: t('historyTransaction.detail.transactionId'),
+				value: detailLedger?.hash
+			},
+			{
+				label: t('historyTransaction.detail.senderName'),
+				value: sender?.username || ''
+			},
+			{
+				label: t('historyTransaction.detail.time'),
+				value: formatDate
+			},
+			{
+				label: t('historyTransaction.detail.receiverName'),
+				value: receiver?.username || ''
+			},
+			{
+				label: t('historyTransaction.detail.note'),
+				value: detailLedger?.text_data || TRANSACTION_DETAIL.DEFAULT_NOTE
+			},
+			{
+				label: t('historyTransaction.detail.amount'),
+				value: `${formatBalanceToString(detailLedger?.value)} ${CURRENCY.SYMBOL}`
+			}
+		];
+	}, [detailLedger, usersClan, t, formatDate]);
+
+	const detailView = !loadingDetail ? (
+		<View style={styles.detail} onLayout={onContainerLayout}>
+			{detailFields.map((field, idx) => (
+				<View key={`${item.hash}_${idx}`} style={styles.row}>
 					<View style={styles.field}>
-						<Text style={styles.title}>{field.label}</Text>
+						<TouchableOpacity
+							disabled={field.label !== t('historyTransaction.detail.transactionId')}
+							onPress={copyTransactionId}
+							style={styles.touchableRow}
+						>
+							<Text style={styles.title}>{field.label}</Text>
+							{field.label === t('historyTransaction.detail.transactionId') && detailLedger?.hash && (
+								<View style={styles.copyIconWrapper}>
+									<Pressable onPress={copyTransactionId} style={styles.copyButton}>
+										<MezonIconCDN icon={IconCDN.copyIcon} color={themeValue.text} width={size.s_16} height={size.s_16} />
+									</Pressable>
+								</View>
+							)}
+						</TouchableOpacity>
 						<Text style={styles.description}>{field.value ?? ''}</Text>
 					</View>
 				</View>
 			))}
 		</View>
-        : <View style={styles.loading}>
-            <ActivityIndicator size="small" color={themeValue.text} />
-        </View>
+	) : (
+		<View style={styles.loading}>
+			<ActivityIndicator size="small" color={themeValue.text} />
+		</View>
 	);
 
 	return (
@@ -122,14 +148,14 @@ export const TransactionItem = ({ item, isExpand, onPress }: { item: ApiWalletLe
 					style={[
 						styles.expandIcon,
 						{
-							backgroundColor: item.value > 0 ? 'rgba(20,83,45,0.2)' : 'rgba(127,29,29,0.2)',
+							backgroundColor: walletAddress !== item?.from_address ? 'rgba(20,83,45,0.2)' : 'rgba(127,29,29,0.2)',
 							transform: [{ rotateZ: isExpand ? '90deg' : '0deg' }]
 						}
 					]}
 				>
 					<MezonIconCDN
 						icon={IconCDN.chevronSmallRightIcon}
-						color={item.value > 0 ? baseColor.bgSuccess : baseColor.buzzRed}
+						color={walletAddress !== item?.from_address ? baseColor.bgSuccess : baseColor.buzzRed}
 						width={size.s_20}
 						height={size.s_20}
 					/>
@@ -141,27 +167,29 @@ export const TransactionItem = ({ item, isExpand, onPress }: { item: ApiWalletLe
 							style={[
 								styles.title,
 								{
-									color: item.value > 0 ? baseColor.bgSuccess : baseColor.buzzRed,
+									color: walletAddress !== item?.from_address ? baseColor.bgSuccess : baseColor.buzzRed,
 									fontWeight: 'bold'
 								}
 							]}
 						>
-							{valueText(item.value)}
+							{formatBalanceToString((item.value || 0)?.toString())}
 						</Text>
-						<Text style={styles.code}>{item.value > 0 ? t('historyTransaction.received') : t('historyTransaction.sent')}</Text>
+						<Text style={styles.code}>
+							{walletAddress !== item?.from_address ? t('historyTransaction.detail.received') : t('historyTransaction.detail.sent')}
+						</Text>
 					</View>
 					<View style={styles.userRowHeader}>
 						<Text style={styles.code}>
 							{t('historyTransaction.transactionCode', {
-								code: item.transaction_id.slice(-TRANSACTION_ITEM.ID_LENGTH)
+								code: item.hash?.slice?.(-TRANSACTION_ITEM.ID_LENGTH)
 							})}
 						</Text>
-						<Text style={styles.code}>{moment(item.create_time).format('DD/MM/YYYY')}</Text>
+						<Text style={styles.code}>{moment(new Date((item?.transaction_timestamp ?? 0) * 1000)).format('DD/MM/YYYY HH:mm')}</Text>
 					</View>
 				</View>
 			</View>
 
-			<Animated.View style={{ height: animation, overflow: 'hidden' }}>{detailView}</Animated.View>
+			<Animated.View style={[styles.animatedContainer, { height: animation }]}>{detailView}</Animated.View>
 		</Pressable>
 	);
 };

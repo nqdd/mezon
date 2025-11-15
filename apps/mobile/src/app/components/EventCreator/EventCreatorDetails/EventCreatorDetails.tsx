@@ -1,10 +1,10 @@
 import { ActionEmitEvent, getDayName, getDayWeekName, getDayYearName, getNearTime } from '@mezon/mobile-components';
 import { Fonts, size, useTheme } from '@mezon/mobile-ui';
-import { ERepeatType, OptionEvent } from '@mezon/utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ERepeatType, MAX_FILE_SIZE_1MB, OptionEvent } from '@mezon/utils';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import MezonButton, { EMezonButtonTheme } from '../../../componentUI/MezonButton2';
+import MezonButton, { EMezonButtonTheme } from '../../../componentUI/MezonButton';
 import MezonDateTimePicker from '../../../componentUI/MezonDateTimePicker';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../../componentUI/MezonImagePicker';
@@ -24,7 +24,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 	const language = useMemo(() => (i18n.language === 'vi' ? 'vi' : 'en'), [i18n]);
 	const today = new Date();
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerTitle: t('screens.eventDetails.headerTitle'),
@@ -33,22 +33,23 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 				color: themeValue.textDisabled
 			},
 			headerLeft: () => (
-				<TouchableOpacity style={{ marginLeft: 20 }} onPress={() => navigation.goBack()}>
+				<TouchableOpacity style={styles.headerLeftButton} onPress={() => navigation.goBack()}>
 					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={Fonts.size.s_18} width={Fonts.size.s_18} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			),
 			headerRight: () => (
-				<TouchableOpacity style={{ marginRight: 20 }} onPress={handleClose}>
+				<TouchableOpacity
+					style={styles.headerRightButton}
+					onPress={() => {
+						onGoBack?.();
+						navigation.navigate(APP_SCREEN.HOME);
+					}}
+				>
 					<MezonIconCDN icon={IconCDN.closeLargeIcon} height={Fonts.size.s_18} width={Fonts.size.s_18} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			)
 		});
-	}, [navigation, t, themeValue.textDisabled, themeValue.textStrong]);
-
-	function handleClose() {
-		onGoBack?.();
-		navigation.navigate(APP_SCREEN.HOME);
-	}
+	}, [navigation, onGoBack, t, themeValue.textDisabled, themeValue.textStrong]);
 
 	const currentStartDate = currentEvent?.start_time ? new Date(currentEvent?.start_time) : undefined;
 	const currentEndDate = currentEvent?.end_time ? new Date(currentEvent?.end_time) : undefined;
@@ -186,7 +187,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 							errorMessage={t('fields.eventName.errorMessage')}
 						/>
 						<View style={styles.inlineSec}>
-							<View style={{ flex: 2 }}>
+							<View style={styles.dateFlexTwo}>
 								<MezonDateTimePicker
 									title={t('fields.startDate.title')}
 									titleUppercase
@@ -196,7 +197,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 									error={isErrorStartDate ? t('fields.startDate.errorMessage') : ''}
 								/>
 							</View>
-							<View style={{ flex: 1 }}>
+							<View style={styles.dateFlexOne}>
 								<MezonDateTimePicker
 									title={t('fields.startTime.title')}
 									titleUppercase
@@ -210,7 +211,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 							</View>
 						</View>
 						<View style={styles.inlineSec}>
-							<View style={{ flex: 2 }}>
+							<View style={styles.dateFlexTwo}>
 								<MezonDateTimePicker
 									title={t('fields.endDate.title')}
 									titleUppercase
@@ -220,7 +221,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 									error={isErrorEndDate ? t('fields.endDate.errorMessage') : ''}
 								/>
 							</View>
-							<View style={{ flex: 1 }}>
+							<View style={styles.dateFlexOne}>
 								<MezonDateTimePicker
 									title={t('fields.endTime.title')}
 									titleUppercase
@@ -249,7 +250,7 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 							initValue={eventFrequency}
 						/>
 						<Text style={styles.label}>{t('fields.cover')}</Text>
-						<View style={{ alignSelf: 'center' }}>
+						<View style={styles.imagePickerCenter}>
 							<MezonImagePicker
 								defaultValue={eventLogo}
 								height={size.s_100 * 2}
@@ -257,6 +258,9 @@ export function EventCreatorDetails({ navigation, route }: MenuClanScreenProps<C
 								onLoad={handleLoad}
 								showHelpText
 								autoUpload
+								imageSizeLimit={MAX_FILE_SIZE_1MB}
+								imageHeight={400}
+								imageWidth={400}
 							/>
 						</View>
 					</View>

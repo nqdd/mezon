@@ -1,17 +1,14 @@
 import { ChatContext } from '@mezon/core';
 import {
+	ActionEmitEvent,
 	getAttachmentUnique,
 	getUpdateOrAddClanChannelCache,
-	PenIcon,
-	PlayIcon,
 	save,
-	SearchIcon,
-	SendIcon,
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE
 } from '@mezon/mobile-components';
-import { Colors, size } from '@mezon/mobile-ui';
-import { selectDirectsOpenlist } from '@mezon/store';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { selectBanMemberCurrentClanById, selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist } from '@mezon/store';
 import {
 	channelMetaActions,
 	channelsActions,
@@ -21,152 +18,134 @@ import {
 	getStoreAsync,
 	selectAllChannelsByUser,
 	selectClansEntities,
-	selectCurrentChannelId,
 	selectCurrentClanId,
+	selectDirectById,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
-import { checkIsThread, createImgproxyUrl, EBacktickType, ILinkOnMessage, isPublicChannel, isYouTubeLink } from '@mezon/utils';
-import debounce from 'lodash.debounce';
+import type { ILinkOnMessage } from '@mezon/utils';
+import { checkIsThread, createImgproxyUrl, EBacktickType, IMAGE_MAX_FILE_SIZE, isPublicChannel, isYouTubeLink, MAX_FILE_SIZE } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Image as ImageRN, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import {
+	ActivityIndicator,
+	DeviceEventEmitter,
+	FlatList,
+	Image as ImageRN,
+	Platform,
+	ScrollView,
+	StatusBar,
+	Text,
+	TextInput,
+	TouchableOpacity,
+	View
+} from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import { Image, Video } from 'react-native-compressor';
 import FastImage from 'react-native-fast-image';
 import RNFS from 'react-native-fs';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
-import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { isImage, isVideo } from '../../../utils/helpers';
 import AttachmentFilePreview from '../../home/homedrawer/components/AttachmentFilePreview';
+import { RecentInteractiveSearch } from './SearchBar/RecentInteractiveSearch';
 import SharingSuggestItem from './SharingSuggestItem';
-import { styles } from './styles';
+import { style } from './styles';
 interface ISharing {
+	topUserSuggestionId?: string;
 	data: any;
 	onClose?: (isSend?: boolean) => void;
 }
 
-export const Sharing = ({ data, onClose }: ISharing) => {
+export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	const store = getStore();
 	const dispatch = useAppDispatch();
-
-	const listDM = useSelector(selectDirectsOpenlist);
-
-	useEffect(() => {
-		if (!listDM?.length) dispatch(directActions.fetchDirectMessage({ noCache: true }));
-	}, [listDM?.length]);
-
-	const clans = useMemo(() => {
-		return selectClansEntities(store.getState() as any);
-	}, []);
-
-	const listChannelsText = useMemo(() => {
-		const listChannels = selectAllChannelsByUser(store.getState() as any);
-		return listChannels.filter(
-			(channel) => channel.type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE && channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE
-		);
-	}, [store]);
-
-	const listDMText = useMemo(() => {
-		try {
-			const data = listDM?.filter?.((channel) => !!channel?.channel_label);
-			if (data?.length) return data;
-			return [];
-		} catch (e) {
-			return [];
-		}
-	}, [listDM?.length]);
-
+	const { themeValue } = useTheme();
+	const { t } = useTranslation(['sharing']);
+	const styles = style(themeValue);
 	const mezon = useMezon();
 	const [dataText, setDataText] = useState<string>('');
 	const [dataShareTo, setDataShareTo] = useState<any>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [inputFocus, setInputFocus] = useState<boolean>(false);
-	const [searchText, setSearchText] = useState<string>('');
 	const [channelSelected, setChannelSelected] = useState<any>();
-	const inputSearchRef = useRef<any>(null);
 	const [attachmentUpload, setAttachmentUpload] = useState<any>([]);
+	const [attachmentPreview, setAttachmentPreview] = useState<any[]>([]);
+
+	const listDM = useSelector(selectDirectsOpenlist);
+	const topUserSuggestion = useRef(useSelector((state: any) => selectDirectById(state, topUserSuggestionId)));
+	const listChannels = useRef(useSelector(selectAllChannelsByUser));
+	const clans = useRef(useSelector(selectClansEntities));
+	const listBlockUsers = useSelector(selectBlockedUsersForMessage);
 	const { handleReconnect } = useContext(ChatContext);
-	const dataMedia = useMemo(() => {
-		return data?.filter((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
-	}, [data]);
-
-	const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-	useEffect(() => {
-		if (data) {
-			if (data?.length === 1 && (data?.[0]?.weblink || data?.[0]?.text)) {
-				setDataText(data?.[0]?.weblink || data?.[0]?.text);
-			}
-		}
-	}, [data]);
 
 	useEffect(() => {
 		handleReconnect('Initial reconnect attempt');
 	}, [handleReconnect]);
 
+	const onCloseSharing = (isSend = false) => {
+		onClose && onClose(isSend);
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	};
+
 	useEffect(() => {
-		if (dataMedia?.length) {
-			convertFileFormat();
+		if (!listDM?.length) dispatch(directActions.fetchDirectMessage({ noCache: true }));
+		if (data && data?.length === 1 && (data?.[0]?.weblink || data?.[0]?.text)) setDataText(data?.[0]?.weblink || data?.[0]?.text);
+		if (dataMedia?.length) convertFileFormat();
+	}, [data, dispatch, listDM?.length]);
+
+	const listChannelsText = useMemo(() => {
+		return listChannels.current
+			?.filter((channel) => channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE)
+			.sort((a, b) => {
+				const aLastSeen = a?.last_seen_message?.timestamp_seconds || 0;
+				const bLastSeen = b?.last_seen_message?.timestamp_seconds || 0;
+				return bLastSeen - aLastSeen;
+			});
+	}, []);
+
+	const listDMText = useMemo(() => {
+		try {
+			const data = (
+				listDM?.filter?.(
+					(channel) =>
+						!!channel?.channel_label &&
+						channel?.id !== topUserSuggestionId &&
+						!listBlockUsers?.some((user) => user?.id === channel?.user_ids?.[0])
+				) || []
+			).sort((a, b) => {
+				const aLastSeen = a?.last_seen_message?.timestamp_seconds || 0;
+				const bLastSeen = b?.last_seen_message?.timestamp_seconds || 0;
+				return bLastSeen - aLastSeen;
+			});
+
+			return data || [];
+		} catch (e) {
+			return [];
 		}
-	}, [dataMedia]);
-
-	// Memoize the combined channels list to avoid recreating it on every search
-	const combinedChannels = useMemo(() => {
-		return [...(listDMText || []), ...(listChannelsText || [])];
-	}, [listDMText, listChannelsText]);
+	}, [listDM, topUserSuggestionId]);
 
 	useEffect(() => {
-		setDataShareTo(combinedChannels);
-	}, [combinedChannels]);
+		setDataShareTo([...(topUserSuggestion.current ? [topUserSuggestion.current] : []), ...listDMText, ...listChannelsText]);
+	}, [listChannelsText, listDMText]);
 
-	// Optimized search function with better performance
-	const generateChannelMatch = useCallback(
-		(searchText: string) => {
-			if (!searchText.trim()) return combinedChannels;
+	const dataMedia = useMemo(() => {
+		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
+	}, [data]);
 
-			const normalizedSearch = searchText.trim().toLowerCase();
-			const matchChannels: any[] = [];
-			const matchChannelIds = new Set<string>();
+	const handleSearchResults = useCallback((results: any[]) => {
+		setDataShareTo(results);
+	}, []);
 
-			// Single pass to find matching channels and collect their IDs
-			for (const channel of combinedChannels) {
-				const channelLabel = channel?.channel_label?.toString()?.toLowerCase();
-				// Check if channel has user information for DM channels
-				const hasUserMatch = (channel as any)?.usernames?.some?.((username: string) => username?.toLowerCase()?.includes(normalizedSearch));
-
-				const isMatch = channelLabel?.includes(normalizedSearch) || hasUserMatch;
-
-				if (isMatch) {
-					matchChannels.push(channel);
-					if (channel?.channel_id) {
-						matchChannelIds.add(channel.channel_id);
-					}
-				}
-			}
-
-			// Find child channels in a single pass
-			const childChannels = combinedChannels.filter((item) => item?.parent_id && matchChannelIds.has(item.parent_id));
-
-			return [...matchChannels, ...childChannels];
-		},
-		[combinedChannels]
-	);
-
-	const debouncedSearch = useCallback(
-		debounce((keyword: string) => {
-			const matchedChannels = generateChannelMatch(keyword);
-			setDataShareTo(matchedChannels);
-		}, 300),
-		[generateChannelMatch]
-	);
+	const handleChannelSelection = useCallback((channel: any) => {
+		setChannelSelected(channel);
+	}, []);
 
 	const onChooseSuggestion = useCallback(async (channel: any) => {
-		setInputFocus(false);
-		// Send to DM message
 		if (channel?.type === ChannelStreamMode.STREAM_MODE_DM || channel.type === ChannelStreamMode.STREAM_MODE_GROUP) {
 			const store = await getStoreAsync();
 			store.dispatch(
@@ -178,47 +157,54 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 			);
 		}
 
-		setChannelSelected(channel);
+		handleChannelSelection(channel);
 	}, []);
 
 	const sendToDM = async (dataSend: { text: any; links: any[] }) => {
-		const store = await getStoreAsync();
-		await store.dispatch(
-			channelsActions.joinChat({
-				clanId: channelSelected?.clan_id,
-				channelId: channelSelected?.channel_id,
-				channelType: channelSelected?.type,
-				isPublic: false
-			})
-		);
+		try {
+			const store = await getStoreAsync();
+			await store.dispatch(
+				channelsActions.joinChat({
+					clanId: '0',
+					channelId: channelSelected?.channel_id || '',
+					channelType: channelSelected?.type,
+					isPublic: false
+				})
+			);
 
-		await mezon.socketRef.current.writeChatMessage(
-			'0',
-			channelSelected?.id,
-			Number(channelSelected?.user_id?.length) === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
-			false,
-			{
-				t: dataSend.text,
-				mk: dataSend.links || []
-			},
-			[],
-			getAttachmentUnique(attachmentUpload) || [],
-			[]
-		);
+			await mezon.socketRef.current.writeChatMessage(
+				'0',
+				channelSelected?.id || '',
+				channelSelected?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP,
+				false,
+				{
+					t: dataSend.text,
+					mk: dataSend.links || []
+				},
+				[],
+				getAttachmentUnique(attachmentUpload) || [],
+				[]
+			);
+		} catch (e) {
+			Toast.show({ type: 'error', text1: e?.message });
+		}
 	};
 
-	useEffect(() => {
-		return () => {
-			if (timerRef.current) {
-				clearTimeout(timerRef.current);
-			}
-		};
-	}, []);
-
-	const sendToGroup = async (dataSend: { text: any; links: any[] }) => {
+	const sendToChannel = async (dataSend: { text: any; links: any[] }) => {
 		const clanIdStore = selectCurrentClanId(store.getState());
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
+		const currentUserId = selectCurrentUserId(store.getState());
+		const isBannedChannel = selectBanMemberCurrentClanById(store.getState(), channelSelected?.channel_id, currentUserId);
+
+		if (isBannedChannel) {
+			Toast.show({
+				type: 'error',
+				text1: t('bannedChannel', { channelName: channelSelected?.channel_label })
+			});
+			return;
+		}
+
 		requestAnimationFrame(async () => {
 			if (isDiffClan) {
 				await store.dispatch(clansActions.joinClan({ clanId: channelSelected?.clan_id }));
@@ -241,7 +227,7 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 				clanId: channelSelected?.clan_id,
 				channelId: channelSelected?.channel_id,
 				channelType: channelSelected?.type,
-				isPublic: isPublic
+				isPublic
 			})
 		);
 
@@ -304,10 +290,10 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 		if (channelSelected.type === ChannelType.CHANNEL_TYPE_GROUP || channelSelected.type === ChannelType.CHANNEL_TYPE_DM) {
 			await sendToDM(dataSend);
 		} else {
-			await sendToGroup(dataSend);
+			await sendToChannel(dataSend);
 		}
 		setIsLoading(false);
-		onClose(true);
+		onCloseSharing(true);
 	};
 
 	const getSizeImage = async (media: any) => {
@@ -322,11 +308,16 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 		try {
 			const fileFormats = await Promise.all(
 				dataMedia.map(async (media) => {
-					if (!media?.filePath && !media?.contentUri) return null;
 					const fileName = media?.fileName || media?.contentUri || media?.filePath;
-					setAttachmentUpload((prev) => [
+					// Add to preview immediately
+					setAttachmentPreview((prev) => [
 						...prev,
-						{ url: media?.contentUri || media?.filePath, filename: fileName?.originalFilename || fileName }
+						{
+							url: media?.contentUri || media?.filePath,
+							filename: fileName?.originalFilename || fileName,
+							isUploaded: false,
+							error: false
+						}
 					]);
 					const fileSize = await getSizeImage(media);
 					const checkIsVideo =
@@ -337,12 +328,39 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 						(media?.filetype && media?.filetype?.startsWith('image')) ||
 						(media?.mimeType && media?.mimeType?.startsWith('image')) ||
 						isImage(media?.filePath?.toLowerCase());
+
+					const maxAllowedSize = checkIsImage ? IMAGE_MAX_FILE_SIZE : MAX_FILE_SIZE;
+					if (fileSize > maxAllowedSize) {
+						const fileTypeText = checkIsImage ? t('common:image') : t('common:files');
+						const maxSizeMB = Math.round(maxAllowedSize / (1024 * 1024));
+
+						Toast.show({
+							type: 'error',
+							text1: t('fileTooLarge'),
+							text2: t('fileSizeExceeded', { fileType: fileTypeText, maxSize: maxSizeMB })
+						});
+
+						setAttachmentPreview((prev) =>
+							prev.map((p) => (p.url === (media?.contentUri || media?.filePath) ? { ...p, error: true, isUploaded: false } : p))
+						);
+
+						if (media?.filePath?.includes('/cache/')) await RNFS.unlink(media?.filePath);
+						return null;
+					}
+
 					const pathCompressed = checkIsVideo
 						? await compressVideo(media?.filePath || media?.contentUri)
 						: checkIsImage
 							? await compressImage(media?.filePath || media?.contentUri)
-							: null;
-					const fileData = await RNFS.readFile(pathCompressed || media?.filePath || media?.contentUri, 'base64');
+							: media?.filePath || media?.contentUri;
+					let cleanPath = pathCompressed || '';
+					if (Platform.OS === 'ios') {
+						cleanPath = cleanPath.replace(/^file:\/\//, '');
+						cleanPath = decodeURIComponent(cleanPath);
+					} else {
+						cleanPath = cleanPath?.replace?.('%20', ' ');
+					}
+					const fileData = await RNFS.readFile(cleanPath, 'base64');
 					let width = 600;
 					let height = 900;
 					if (checkIsImage) {
@@ -372,7 +390,7 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 					};
 				})
 			);
-			handleFiles(fileFormats);
+			handleFiles(fileFormats.filter((file) => !!file));
 		} catch (e) {
 			console.error(e);
 		}
@@ -382,7 +400,7 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 		try {
 			return await Image.compress(image, {
 				compressionMethod: 'auto',
-				quality: 0.9
+				quality: 1
 			});
 		} catch (error) {
 			console.error('log  => error compressImage', error);
@@ -404,8 +422,6 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 	const handleFiles = async (files: any) => {
 		const maxRetries = 5;
 		const retryDelay = 4000; // 4 seconds
-		const clanIdStore = selectCurrentClanId(store.getState());
-		const currentChannelId = selectCurrentChannelId(store.getState() as any);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
@@ -416,11 +432,22 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 				}
 
 				const promises = Array.from(files).map((file: any) => {
-					return handleUploadFileMobile(client, session, clanIdStore, currentChannelId, file.name, file);
+					return handleUploadFileMobile(client, session, file.name, file);
 				});
 
 				const response = await Promise.all(promises);
-				setAttachmentUpload(response);
+				setAttachmentUpload((prev: any) => [...response, ...prev]);
+				setAttachmentPreview((prev) =>
+					prev.map((p) => {
+						const matched = response.find(
+							(r: any) =>
+								r?.filename?.toLowerCase() === p?.filename?.toLowerCase() ||
+								r?.name?.toLowerCase() === p?.filename?.toLowerCase() ||
+								r?.url?.toLowerCase() === p?.url?.toLowerCase()
+						);
+						return matched ? { ...p, isUploaded: true, url: matched?.url || p.url } : p;
+					})
+				);
 				break;
 			} catch (error) {
 				if (attempt === maxRetries) {
@@ -435,69 +462,94 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 
 	function removeAttachmentByUrl(urlToRemove: string) {
 		setAttachmentUpload((prevAttachments) => prevAttachments.filter((attachment) => attachment.url !== urlToRemove));
+		setAttachmentPreview((prev) => prev.filter((attachment) => attachment.url !== urlToRemove));
 	}
 
 	const isAttachmentUploaded = useMemo(() => {
-		if (!attachmentUpload) return true;
+		if (!attachmentPreview?.length) return true;
+		return attachmentPreview.every((item) => item.isUploaded || item.error);
+	}, [attachmentPreview]);
 
-		return attachmentUpload.every((attachment: any) => attachment?.url?.includes('http'));
-	}, [attachmentUpload]);
-
-	const renderItemSuggest = useCallback(
-		({ item, index }) => {
-			return (
-				<SharingSuggestItem
-					key={`${item?.channel_id}_${index}_share_suggest_item`}
-					item={item}
-					clans={clans}
-					onChooseItem={onChooseSuggestion}
-				/>
-			);
-		},
-		[clans]
-	);
+	const renderItemSuggest = useCallback(({ item, index }) => {
+		return (
+			<SharingSuggestItem
+				key={`${item?.channel_id}_${index}_share_suggest_item`}
+				item={item}
+				clans={clans.current}
+				onChooseItem={onChooseSuggestion}
+			/>
+		);
+	}, []);
 
 	return (
 		<View style={styles.wrapper}>
-			<StatusBarHeight />
-			<View style={styles.header}>
-				<TouchableOpacity onPress={() => onClose()}>
-					<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_28} height={size.s_28} />
-				</TouchableOpacity>
-				<Text style={styles.titleHeader}>Share</Text>
-				{channelSelected && isAttachmentUploaded ? (
-					isLoading ? (
-						<Flow size={size.s_28} color={Colors.white} />
-					) : (
-						<TouchableOpacity onPress={onSend}>
-							<SendIcon width={size.s_28} height={size.s_20} color={Colors.white} />
-						</TouchableOpacity>
-					)
-				) : (
-					<View style={{ width: size.s_28 }} />
-				)}
-			</View>
-			<View style={styles.container}>
-				<View style={[styles.rowItem, inputFocus && { display: 'none' }]}>
-					<Text style={styles.title}>Message preview</Text>
-					{!!getAttachmentUnique(attachmentUpload)?.length && (
-						<View style={[styles.inputWrapper, { marginBottom: size.s_16 }]}>
-							<ScrollView horizontal style={styles.wrapperMedia}>
-								{getAttachmentUnique(attachmentUpload)?.map((media: any, index) => {
+			<KeyboardAvoidingView
+				style={styles.keyboardAvoidingView}
+				behavior={'padding'}
+				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
+			>
+				<StatusBarHeight />
+				<View style={styles.header}>
+					<TouchableOpacity onPress={() => onCloseSharing()}>
+						<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_28} height={size.s_28} color={themeValue.white} />
+					</TouchableOpacity>
+					<Text style={styles.titleHeader}>{t('share')}</Text>
+				</View>
+				<RecentInteractiveSearch
+					clans={clans.current}
+					topUserSuggestionUser={topUserSuggestion.current}
+					listDMText={listDMText}
+					listChannelsText={listChannelsText}
+					onSearchResults={handleSearchResults}
+					onChannelSelected={handleChannelSelection}
+					selectedChannel={channelSelected}
+					placeholder={t('selectChannelPlaceholder')}
+				/>
+
+				<View style={styles.container}>
+					<View>
+						<Text style={styles.title}>{t('suggestions')}</Text>
+						<FlatList
+							data={dataShareTo?.length ? dataShareTo : []}
+							keyExtractor={(item, index) => `${item?.id}_${index}_suggestion`}
+							renderItem={renderItemSuggest}
+							keyboardShouldPersistTaps={'handled'}
+							onEndReachedThreshold={0.1}
+							initialNumToRender={1}
+							maxToRenderPerBatch={5}
+							windowSize={100}
+							updateCellsBatchingPeriod={10}
+							decelerationRate={'fast'}
+							disableVirtualization={true}
+							showsVerticalScrollIndicator={false}
+							removeClippedSubviews={true}
+							getItemLayout={(_, index) => ({
+								length: size.s_42,
+								offset: size.s_42 * index,
+								index
+							})}
+						/>
+					</View>
+				</View>
+				<View style={styles.chatArea}>
+					{!!attachmentPreview?.length && (
+						<View style={styles.attachmentRow}>
+							<ScrollView horizontal keyboardShouldPersistTaps={'always'}>
+								{attachmentPreview?.map((media: any, index) => {
 									const isFile =
 										Platform.OS === 'android'
 											? !isImage(media?.filename?.toLowerCase()) && !isVideo(media?.filename?.toLowerCase())
 											: !isImage(media?.url?.toLowerCase()) && !isVideo(media?.url?.toLowerCase());
-									const isUploaded = media?.url?.includes('http');
+									const isUploaded = media?.isUploaded;
 
 									return (
 										<View
 											key={`${media?.url}_${index}_media_sharing`}
-											style={[styles.wrapperItemMedia, isFile && { height: size.s_60, width: size.s_50 * 3 }]}
+											style={[styles.wrapperItemMedia, isFile && styles.mediaWrapperFile]}
 										>
 											{isVideo(media?.filename?.toLowerCase()) && isVideo(media?.url?.toLowerCase()) && (
 												<View style={styles.videoOverlay}>
-													<PlayIcon width={size.s_20} height={size.s_20} />
+													<MezonIconCDN icon={IconCDN.playIcon} width={size.s_20} height={size.s_20} />
 												</View>
 											)}
 											{isFile ? (
@@ -510,7 +562,7 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 													style={styles.itemMedia}
 												/>
 											)}
-											{isUploaded && (
+											{(isUploaded || media?.error) && (
 												<TouchableOpacity
 													style={styles.iconRemoveMedia}
 													onPress={() => removeAttachmentByUrl(media.url ?? '')}
@@ -519,9 +571,21 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 												</TouchableOpacity>
 											)}
 
-											{!isUploaded && (
+											{!isUploaded && !media?.error && (
 												<View style={styles.videoOverlay}>
 													<ActivityIndicator size={'small'} color={'white'} />
+												</View>
+											)}
+											{media?.error && (
+												<View style={styles.videoOverlay}>
+													<View style={styles.errorIconWrapper}>
+														<MezonIconCDN
+															icon={IconCDN.circleExlaimionIcon}
+															width={size.s_14}
+															height={size.s_14}
+															color={baseColor.redStrong}
+														/>
+													</View>
 												</View>
 											)}
 										</View>
@@ -531,112 +595,39 @@ export const Sharing = ({ data, onClose }: ISharing) => {
 						</View>
 					)}
 
-					<View style={styles.inputWrapper}>
-						<View style={styles.iconLeftInput}>
-							<PenIcon width={size.s_18} />
-						</View>
-						<TextInput
-							style={styles.textInput}
-							value={dataText}
-							onChangeText={(text) => setDataText(text)}
-							placeholder={'Add a Comment (Optional)'}
-							placeholderTextColor={Colors.tertiary}
-						/>
-						{!!dataText?.length && (
-							<TouchableOpacity activeOpacity={0.8} onPress={() => setDataText('')} style={styles.iconRightInput}>
-								<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_18} />
-							</TouchableOpacity>
-						)}
-					</View>
-				</View>
-
-				<View style={styles.rowItem}>
-					<Text style={styles.title}>Share to</Text>
-					<View style={styles.inputWrapper}>
-						{channelSelected ? (
-							<View style={styles.iconLeftInput}>
-								<MezonAvatar
-									avatarUrl={channelSelected?.channel_avatar?.[0] || clans?.[channelSelected?.clan_id]?.logo}
-									username={clans?.[channelSelected?.clan_id]?.clan_name || channelSelected?.channel_label}
-									width={size.s_18}
-									height={size.s_18}
-								/>
-							</View>
-						) : (
-							<View style={styles.iconLeftInput}>
-								<SearchIcon width={size.s_18} height={size.s_18} />
-							</View>
-						)}
-						{channelSelected ? (
-							<Text style={styles.textChannelSelected}>{channelSelected?.channel_label}</Text>
-						) : (
+					<View style={styles.inputRow}>
+						<View style={styles.chatInput}>
 							<TextInput
-								ref={inputSearchRef}
-								style={styles.textInput}
-								onChangeText={(value) => {
-									setSearchText(value);
-									debouncedSearch(value);
-								}}
-								onFocus={() => setInputFocus(true)}
-								onBlur={() => setInputFocus(false)}
-								placeholder={'Select a channel or category...'}
-								placeholderTextColor={Colors.tertiary}
+								style={[styles.textInput, styles.textInputHeight]}
+								value={dataText}
+								onChangeText={(text) => setDataText(text)}
+								placeholder={t('addCommentPlaceholder')}
+								placeholderTextColor={themeValue.textDisabled}
 							/>
-						)}
-						{channelSelected ? (
-							<TouchableOpacity
-								activeOpacity={0.8}
-								onPress={() => {
-									setChannelSelected(undefined);
-									inputSearchRef?.current?.focus?.();
-								}}
-								style={styles.iconRightInput}
-							>
-								<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_18} />
-							</TouchableOpacity>
-						) : (
-							!!searchText?.length && (
-								<TouchableOpacity
-									activeOpacity={0.8}
-									onPress={() => {
-										setSearchText('');
-										inputSearchRef?.current?.clear?.();
-										debouncedSearch('');
-									}}
-									style={styles.iconRightInput}
-								>
+							{!!dataText?.length && (
+								<TouchableOpacity activeOpacity={0.8} onPress={() => setDataText('')} style={styles.iconRightInput}>
 									<MezonIconCDN icon={IconCDN.closeIcon} width={size.s_18} />
 								</TouchableOpacity>
-							)
-						)}
+							)}
+						</View>
+
+						<TouchableOpacity
+							onPress={onSend}
+							disabled={!channelSelected || !isAttachmentUploaded}
+							style={[
+								styles.sendButton,
+								channelSelected && isAttachmentUploaded ? styles.sendButtonEnabled : styles.sendButtonDisabled
+							]}
+						>
+							{isLoading ? (
+								<Flow size={size.s_28} color={'white'} />
+							) : (
+								<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_28} height={size.s_20} color={'white'} />
+							)}
+						</TouchableOpacity>
 					</View>
 				</View>
-
-				{!!dataShareTo?.length && (
-					<View style={styles.rowItem}>
-						<Text style={styles.title}>Suggestions</Text>
-						<FlatList
-							data={dataShareTo}
-							keyExtractor={(item, index) => `${item?.id}_${index}_suggestion`}
-							renderItem={renderItemSuggest}
-							keyboardShouldPersistTaps={'handled'}
-							onEndReachedThreshold={0.1}
-							initialNumToRender={1}
-							maxToRenderPerBatch={5}
-							windowSize={15}
-							updateCellsBatchingPeriod={10}
-							decelerationRate={'fast'}
-							disableVirtualization={true}
-							removeClippedSubviews={true}
-							getItemLayout={(_, index) => ({
-								length: size.s_42,
-								offset: size.s_42 * index,
-								index
-							})}
-						/>
-					</View>
-				)}
-			</View>
+			</KeyboardAvoidingView>
 		</View>
 	);
 };

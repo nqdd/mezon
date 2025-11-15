@@ -1,12 +1,17 @@
-import { IUserAccount, LoadingStatus } from '@mezon/utils';
-import { PayloadAction, createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
+import { captureSentryError } from '@mezon/logger';
+import type { IUserAccount, LoadingStatus } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
+import { t } from 'i18next';
+import type { ApiAccountEmail, ApiLinkAccountConfirmRequest, ApiLinkAccountMezon, ApiUserStatusUpdate } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
-import { CacheMetadata, clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
-
+import type { CacheMetadata } from '../cache-metadata';
+import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
+import type { RootState } from '../store';
+import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
 export interface IAccount {
 	email: string;
@@ -18,15 +23,16 @@ export interface AccountState {
 	account?: IAccount | null;
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
-	logo?: string;
 	cache?: CacheMetadata;
+	avatarVersion: number;
 }
 
 export const initialAccountState: AccountState = {
 	loadingStatus: 'not loaded',
 	account: null,
 	userProfile: null,
-	anonymousMode: false
+	anonymousMode: false,
+	avatarVersion: 0
 };
 
 export const fetchUserProfileCached = async (getState: () => RootState, mezon: MezonValueContext, noCache = false) => {
@@ -44,7 +50,7 @@ export const fetchUserProfileCached = async (getState: () => RootState, mezon: M
 		};
 	}
 
-	const response = await mezon.client.getAccount(mezon.session);
+	const response = await withRetry(() => mezon.client.getAccount(mezon.session), { maxRetries: 3, initialDelay: 1000 });
 
 	markApiFirstCalled(apiKey);
 
@@ -84,13 +90,105 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 
 		const response = await mezon.client.deleteAccount(mezon.session);
 		thunkAPI.dispatch(authActions.setLogout());
+		thunkAPI.dispatch(walletActions.setLogout());
 		clearApiCallTracker();
 		return response;
 	} catch (error) {
 		//Todo: check clan owner before deleting account
+		// TODO: This toast needs i18n but it's in Redux slice, need to handle differently
 		toast.error('Error: You are the owner of the clan');
+		throw error;
 		// captureSentryError(error, 'account/deleteaccount');
 		// return thunkAPI.rejectWithValue(error);
+	}
+});
+
+export const addPhoneNumber = createAsyncThunk(
+	'account/addPhoneNumber',
+	async ({ data, isMobile = false }: { data: ApiLinkAccountMezon; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkMezon(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/addPhoneNumber');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
+			}
+		}
+	}
+);
+
+export const linkEmail = createAsyncThunk(
+	'account/linkEmail',
+	async ({ data, isMobile = false }: { data: ApiAccountEmail; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkEmail(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/linkEmail');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
+			}
+		}
+	}
+);
+
+export const verifyPhone = createAsyncThunk(
+	'account/verifyPhone',
+	async ({ data, isMobile = false }: { data: ApiLinkAccountConfirmRequest; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/verifyPhone');
+			toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			}
+		}
+	}
+);
+
+export const updateAccountStatus = createAsyncThunk('userstatusapi/updateUserStatus', async (request: ApiUserStatusUpdate, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+
+		const response = await mezon.client.updateUserStatus(mezon.session, request);
+		if (!response) {
+			return '';
+		}
+		return request.status || '';
+	} catch (error) {
+		captureSentryError(error, 'userstatusapi/updateUserStatus');
+		return thunkAPI.rejectWithValue(error);
 	}
 });
 
@@ -106,20 +204,18 @@ export const accountSlice = createSlice({
 		},
 		setCustomStatus(state, action: PayloadAction<string>) {
 			if (state?.userProfile?.user) {
-				const userMetadata = safeJSONParse(state.userProfile.user.metadata || '{}');
-				const updatedUserMetadata = { ...userMetadata, status: action.payload };
-				state.userProfile.user.metadata = JSON.stringify(updatedUserMetadata);
+				state.userProfile.user.user_status = action.payload;
 			}
 		},
 		setWalletMetadata(state, action: PayloadAction<any>) {
 			if (state?.userProfile?.user) {
-				const userMetadata = safeJSONParse(state.userProfile.user.metadata || '{}');
-				const updatedUserMetadata = { ...userMetadata, wallet: action.payload };
-				state.userProfile.user.metadata = JSON.stringify(updatedUserMetadata);
+				state.userProfile.user.user_status = action.payload;
 			}
 		},
 		setLogoCustom(state, action: PayloadAction<string | undefined>) {
-			state.logo = action.payload;
+			if (state.userProfile) {
+				state.userProfile.logo = action.payload;
+			}
 		},
 		setWalletValue(state, action: PayloadAction<number>) {
 			if (state.userProfile?.wallet) {
@@ -140,13 +236,9 @@ export const accountSlice = createSlice({
 			}
 		},
 		updateUserStatus(state: AccountState, action: PayloadAction<string>) {
-			if (state.userProfile?.user?.metadata) {
+			if (state.userProfile?.user?.status) {
 				try {
-					const metadataObj = JSON.parse(state.userProfile.user.metadata);
-					if (metadataObj && typeof metadataObj === 'object') {
-						metadataObj.user_status = action.payload;
-						state.userProfile.user.metadata = JSON.stringify(metadataObj);
-					}
+					state.userProfile.user.status = action.payload;
 				} catch (error) {
 					console.error('Error updating user status in metadata:', error);
 				}
@@ -155,10 +247,28 @@ export const accountSlice = createSlice({
 		setUpdateAccount(state, action: PayloadAction<IUserAccount>) {
 			state.userProfile = {
 				...state.userProfile,
+				...action.payload,
 				user: { ...state.userProfile?.user, ...action.payload.user },
 				encrypt_private_key: action.payload.encrypt_private_key
 			};
-			state.logo = action.payload.logo;
+		},
+		incrementAvatarVersion(state) {
+			state.avatarVersion = (state.avatarVersion || 0) + 1;
+		},
+		updatePhoneNumber(state, action: PayloadAction<string>) {
+			if (state?.userProfile?.user) {
+				state.userProfile.user.phone_number = action.payload;
+			}
+		},
+		setPasswordSetted(state, action: PayloadAction<boolean>) {
+			if (state?.userProfile) {
+				state.userProfile.password_setted = action.payload;
+			}
+		},
+		updateEmail(state, action: PayloadAction<string>) {
+			if (state?.userProfile) {
+				state.userProfile.email = action.payload;
+			}
 		}
 	},
 	extraReducers: (builder) => {
@@ -170,7 +280,6 @@ export const accountSlice = createSlice({
 				const { fromCache, ...profileData } = action.payload;
 				if (!fromCache) {
 					state.userProfile = profileData;
-					state.logo = profileData.logo;
 					state.cache = createCacheMetadata();
 				}
 
@@ -188,7 +297,7 @@ export const accountSlice = createSlice({
  */
 export const accountReducer = accountSlice.reducer;
 
-export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount };
+export const accountActions = { ...accountSlice.actions, getUserProfile, deleteAccount, addPhoneNumber, verifyPhone, updateAccountStatus, linkEmail };
 
 export const getAccountState = (rootState: { [ACCOUNT_FEATURE_KEY]: AccountState }): AccountState => rootState[ACCOUNT_FEATURE_KEY];
 
@@ -198,10 +307,10 @@ export const selectCurrentUserId = createSelector(getAccountState, (state: Accou
 
 export const selectAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.anonymousMode);
 
-export const selectAccountMetadata = createSelector(getAccountState, (state: AccountState) =>
-	safeJSONParse(state.userProfile?.user?.metadata || '{}')
-);
+export const selectAccountCustomStatus = createSelector(getAccountState, (state: AccountState) => state.userProfile?.user?.user_status || '');
 
-export const selectAccountCustomStatus = createSelector(selectAccountMetadata, (metadata) => metadata?.status || '');
+export const selectLogoCustom = createSelector(getAccountState, (state) => state?.userProfile?.logo);
 
-export const selectLogoCustom = createSelector(getAccountState, (state) => state.logo);
+export const selectAvatarVersion = createSelector(getAccountState, (state) => state.avatarVersion);
+
+export const selectCurrentUsername = createSelector(getAccountState, (state: AccountState) => state.userProfile?.user?.username || '');

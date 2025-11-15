@@ -3,14 +3,16 @@ import {
 	selectClanView,
 	selectClickedOnThreadBoxStatus,
 	selectClickedOnTopicStatus,
-	selectCurrentChannel,
+	selectCurrentChannelType,
 	selectCurrentTopicId,
 	selectIdMessageRefReaction
 } from '@mezon/store';
-import { EmojiPlaces, RequestInput, SubPanelName } from '@mezon/utils';
+import type { RequestInput } from '@mezon/utils';
+import { EmojiPlaces, SubPanelName } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription } from 'mezon-js/api.gen';
+import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import EmojiPickerComp from '../EmojiPicker';
 import SoundSquare from './SoundSquare';
@@ -48,7 +50,7 @@ export const GifStickerEmojiPopup = ({
 }: GifStickerEmojiPopupOptions) => {
 	const { subPanelActive, setSubPanelActive, setValueInputSearch } = useGifsStickersEmoji();
 	const idMessageRefReaction = useSelector(selectIdMessageRefReaction);
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelType = useSelector(selectCurrentChannelType);
 	const emojiRefParentDiv = useRef<HTMLDivElement>(null);
 
 	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
@@ -82,7 +84,7 @@ export const GifStickerEmojiPopup = ({
 
 	const isShowEmojiPicker = useMemo(() => {
 		const isMobile = window.innerWidth <= 640;
-		const isStreaming = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
+		const isStreaming = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 
 		return (
 			(subPanelActive === SubPanelName.EMOJI_REACTION_RIGHT && isMobile) ||
@@ -93,10 +95,10 @@ export const GifStickerEmojiPopup = ({
 			(subPanelActive === SubPanelName.EMOJI_REACTION_RIGHT && isStreaming) ||
 			(subPanelActive === SubPanelName.EMOJI_REACTION_BOTTOM && isStreaming)
 		);
-	}, [subPanelActive, emojiAction, currentChannel?.type]);
+	}, [subPanelActive, emojiAction]);
 
 	const containerClassName = useMemo(() => {
-		const isStreaming = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
+		const isStreaming = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 		const baseClasses = 'w-[370px] max-sm:w-full max-sm:pt-0 max-sm:rounded-none max-sm:mt-[-0.5rem]';
 		const widthClasses = isStreaming ? 'sbm:w-[430px]' : 'sbm:w-[500px]';
 		const heightClasses =
@@ -106,13 +108,13 @@ export const GifStickerEmojiPopup = ({
 					? 'min-h-[350px]'
 					: 'min-h-[500px]';
 
-		return `${baseClasses} ${widthClasses} max-sbm:w-[calc(100dvw_-_24px)] max-sbm:rounded-lg h-fit rounded-lg text-theme-primary bg-theme-setting-primary shadow shadow-neutral-900 z-30 ${heightClasses}`;
-	}, [currentChannel?.type, emojiAction, isShowEmojiPicker]);
+		return `${baseClasses} ${widthClasses} max-sbm:w-[calc(100dvw_-_24px)] max-sbm:rounded-lg h-fit rounded-lg text-theme-primary bg-theme-setting-primary shadow shadow-neutral-900 z-20 ${heightClasses}`;
+	}, [emojiAction, isShowEmojiPicker]);
 
 	const contentWidthClass = useMemo(() => {
-		const isStreaming = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
+		const isStreaming = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 		return isStreaming ? 'md:w-[430px]' : 'md:w-[500px]';
-	}, [currentChannel?.type]);
+	}, []);
 
 	return (
 		<div onClick={(e) => e.stopPropagation()} className={containerClassName}>
@@ -160,6 +162,7 @@ const TabBar = React.memo(
 			sounds?: boolean;
 		};
 	}) => {
+		const { t } = useTranslation('common');
 		const getTabClassName = useCallback((isActive: boolean) => {
 			return `relative px-2 mx-2 text-sm rounded-md ${isActive ? 'text-theme-primary-active font-semibold' : 'text-theme-primary'}`;
 		}, []);
@@ -168,22 +171,22 @@ const TabBar = React.memo(
 			<div className="flex justify-start flex-row mt-3 pt-1 max-sm:justify-evenly">
 				{showTabs.gifs && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.GIFS)} onClick={() => onTabClick(SubPanelName.GIFS)}>
-						Gifs
+						{t('gifs')}
 					</button>
 				)}
 				{showTabs.stickers && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.STICKERS)} onClick={() => onTabClick(SubPanelName.STICKERS)}>
-						Stickers
+						{t('stickers')}
 					</button>
 				)}
 				{showTabs.emojis && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.EMOJI)} onClick={() => onTabClick(SubPanelName.EMOJI)}>
-						Emojis
+						{t('emojis')}
 					</button>
 				)}
 				{showTabs.sounds && (
 					<button className={getTabClassName(subPanelActive === SubPanelName.SOUNDS)} onClick={() => onTabClick(SubPanelName.SOUNDS)}>
-						Sounds
+						{t('sounds')}
 					</button>
 				)}
 			</div>
@@ -221,7 +224,7 @@ const ContentPanel = React.memo(
 		setBuzzInputRequest?: (value: RequestInput) => void;
 		toggleEmojiPanel?: () => void;
 		isTopic: boolean;
-		onEmojiSelect?: (emoji: string, emojiId: string) => void;
+		onEmojiSelect?: (emojiId: string, emoji: string) => void;
 	}) => {
 		const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
 		const isFocusThreadBox = useSelector(selectClickedOnThreadBoxStatus);
@@ -275,7 +278,7 @@ const ContentPanel = React.memo(
 		if (subPanelActive === SubPanelName.SOUNDS) {
 			return (
 				<div className={`flex h-full pr-2 w-full ${contentWidthClass}`}>
-					<SoundSquare channel={channelOrDirect} mode={channelMode as number} onClose={onClose} isTopic={isTopic} />
+					<SoundSquare mode={channelMode as number} onClose={onClose} isTopic={isTopic} />
 				</div>
 			);
 		}

@@ -1,6 +1,5 @@
-import { Icons } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { accountActions, useAppDispatch } from '@mezon/store-mobile';
+import { accountActions, selectAllAccount, useAppDispatch, walletActions } from '@mezon/store-mobile';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,8 +9,8 @@ import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../constants/icon_cdn';
 import { HistoryTransactionScreen } from '../profile/HistoryTransaction';
 import { SendTokenScreen } from '../profile/SendToken';
-import { WalletManageScreen } from '../profile/WalletManage';
 import { style } from './styles';
+import { useSelector } from 'react-redux';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const DRAWER_WIDTH = SCREEN_WIDTH * 0.7;
@@ -40,19 +39,8 @@ const CustomDrawer = ({ onClose, onChangeActiveScreen, navigation, activeScreen 
 						}}
 						style={[styles.menuItem, activeScreen === 'transfer' && { backgroundColor: themeValue?.secondaryLight }]}
 					>
-						<Icons.SendMoney height={size.s_20} width={size.s_20} color={baseColor.gray} />
+						<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_20} width={size.s_20} color={baseColor.bgSuccess} />
 						<Text style={styles.menuText}>{tStack('settingStack.sendToken')}</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => {
-							onChangeActiveScreen('manage');
-						}}
-						style={[styles.menuItem, activeScreen === 'manage' && { backgroundColor: themeValue?.secondaryLight }]}
-					>
-						<View style={{ transform: [{ rotate: '180deg' }] }}>
-							<Icons.SendMoney height={size.s_20} width={size.s_20} color={baseColor.gray} />
-						</View>
-						<Text style={styles.menuText}>{tStack('settingStack.walletManagement')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={[styles.menuItem, activeScreen === 'history' && { backgroundColor: themeValue?.secondaryLight }]}
@@ -60,7 +48,7 @@ const CustomDrawer = ({ onClose, onChangeActiveScreen, navigation, activeScreen 
 							onChangeActiveScreen('history');
 						}}
 					>
-						<Icons.History height={size.s_20} width={size.s_20} color={baseColor.gray} />
+						<MezonIconCDN icon={IconCDN.historyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
 						<Text style={styles.menuText}>{tStack('settingStack.historyTransaction')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
@@ -90,11 +78,17 @@ export const WalletScreen = React.memo(({ navigation, route }: any) => {
 	const overlayOpacity = useRef(new Animated.Value(0)).current;
 	const [activeScreen, setActiveScreen] = useState(route?.params?.activeScreen || 'transfer');
 	const dispatch = useAppDispatch();
+	const userProfile = useSelector(selectAllAccount);
 
 	useFocusEffect(
 		useCallback(() => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
-		}, [dispatch])
+			dispatch(
+				walletActions.fetchWalletDetail({
+					userId: userProfile?.user?.id
+				})
+			);
+		}, [dispatch, userProfile?.user?.id])
 	);
 
 	const openDrawer = () => {
@@ -157,8 +151,6 @@ export const WalletScreen = React.memo(({ navigation, route }: any) => {
 
 			{activeScreen === 'transfer' ? (
 				<SendTokenScreen navigation={navigation} route={route} />
-			) : activeScreen === 'manage' ? (
-				<WalletManageScreen />
 			) : activeScreen === 'history' ? (
 				<HistoryTransactionScreen />
 			) : (

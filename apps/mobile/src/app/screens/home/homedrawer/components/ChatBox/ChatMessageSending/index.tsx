@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useChannelMembers, useChatSending } from '@mezon/core';
-import { ActionEmitEvent, ID_MENTION_HERE, IRoleMention, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
+import type { IRoleMention } from '@mezon/mobile-components';
+import { ActionEmitEvent, ID_MENTION_HERE, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
-	ChannelsEntity,
 	emojiSuggestionActions,
 	getStore,
 	referencesActions,
@@ -13,37 +14,36 @@ import {
 	selectChannelById,
 	selectDmGroupCurrent,
 	selectIsShowCreateTopic,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	sendEphemeralMessage,
 	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import {
+import type {
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	ILinkOnMessage,
 	ILinkVoiceRoomOnMessage,
 	IMarkdownOnMessage,
 	IMentionOnMessage,
-	IMessageSendPayload,
-	ThreadStatus,
-	checkIsThread,
-	filterEmptyArrays,
-	uniqueUsers
+	IMessageSendPayload
 } from '@mezon/utils';
+import { ThreadStatus, checkIsThread, filterEmptyArrays, uniqueUsers } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { MutableRefObject, memo, useCallback, useMemo } from 'react';
-import { DeviceEventEmitter, Keyboard, View } from 'react-native';
+import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { MutableRefObject } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { DeviceEventEmitter, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { EMessageActionType } from '../../../enums';
-import { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
+import type { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
 import { style } from '../ChatBoxBottomBar/style';
-import { BaseRecordAudioMessage } from '../RecordAudioMessage';
+import { RecordMessageSending } from './RecordMessageSending';
+import { styles as localStyles } from './styles';
 
 interface IChatMessageSendingProps {
 	isAvailableSending: boolean;
@@ -103,7 +103,7 @@ export const ChatMessageSending = memo(
 		const currentChannel = useAppSelector((state) => selectChannelById(state, channelId || ''));
 		const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
 		const { membersOfChild, membersOfParent, addMemberToThread, joinningToThread } = useChannelMembers({
-			channelId: channelId,
+			channelId,
 			mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0
 		});
 		const userId = useMemo(() => {
@@ -115,7 +115,7 @@ export const ChatMessageSending = memo(
 		const isPublic = !channelOrDirect?.channel_private;
 		const { editSendMessage, sendMessage } = useChatSending({
 			mode,
-			channelOrDirect: channelOrDirect,
+			channelOrDirect,
 			fromTopic: isCreateTopic || !!currentTopicId
 		});
 
@@ -124,7 +124,7 @@ export const ChatMessageSending = memo(
 		}, [attachmentFilteredByChannelId]);
 
 		const roleList = useMemo(() => {
-			const rolesInClan = selectAllRolesClan(store.getState());
+			const rolesInClan = selectAllRolesClan(store.getState() as any);
 			return rolesInClan?.map((item) => ({
 				roleId: item.id ?? '',
 				roleName: item?.title ?? ''
@@ -136,7 +136,7 @@ export const ChatMessageSending = memo(
 			return text
 				?.replace?.(/@\[(.*?)\]/g, '@$1')
 				?.replace?.(/<#(.*?)>/g, '#$1')
-				?.replace?.(/\*\*(.*?)\*\*/g, '$1');
+				?.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
 		};
 
 		const onEditMessage = useCallback(
@@ -153,7 +153,7 @@ export const ChatMessageSending = memo(
 		};
 
 		const getUsersNotExistingInThread = (mentions) => {
-			const rolesInClan = selectAllRolesClan(store.getState());
+			const rolesInClan = selectAllRolesClan(store.getState() as any);
 			const userIds = uniqueUsers(mentions, membersOfChild, rolesInClan, [messageActionNeedToResolve?.targetMessage?.sender_id || '']);
 			const usersNotExistingInThread = userIds?.filter((userId) => membersOfParent?.some((member) => member?.id === userId)) as string[];
 
@@ -211,7 +211,7 @@ export const ChatMessageSending = memo(
 			}
 			if (ephemeralTargetUserId) {
 				const userProfile = selectAllAccount(store.getState());
-				const profileInTheClan = selectMemberClanByUserId2(store.getState(), userProfile?.user?.id ?? '');
+				const profileInTheClan = selectMemberClanByUserId(store.getState(), userProfile?.user?.id ?? '');
 				const priorityAvatar =
 					mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
 						? profileInTheClan?.clan_avatar
@@ -230,8 +230,8 @@ export const ChatMessageSending = memo(
 					receiverId: ephemeralTargetUserId,
 					channelId: currentTopicId || channelId,
 					clanId: currentChannel?.clan_id || '',
-					mode: mode,
-					isPublic: isPublic,
+					mode,
+					isPublic,
 					content: payloadSendMessage,
 					mentions: simplifiedMentionList,
 					attachments: attachmentDataRef,
@@ -246,29 +246,25 @@ export const ChatMessageSending = memo(
 				return;
 			}
 			const { targetMessage, type } = messageActionNeedToResolve || {};
-			const isCanSendReference = currentDmGroup
-				? currentDmGroup?.user_id?.includes?.(targetMessage?.sender_id) || targetMessage?.sender_id === userId
-				: true;
-			const reference =
-				targetMessage && isCanSendReference
-					? ([
-							{
-								message_id: '',
-								message_ref_id: targetMessage.id,
-								ref_type: 0,
-								message_sender_id: targetMessage?.sender_id,
-								message_sender_username: targetMessage?.username,
-								mesages_sender_avatar: targetMessage.clan_avatar ? targetMessage.clan_avatar : targetMessage.avatar,
-								message_sender_clan_nick: targetMessage?.clan_nick,
-								message_sender_display_name: targetMessage?.display_name,
-								content: JSON.stringify(targetMessage.content),
-								has_attachment: Boolean(targetMessage?.attachments?.length),
-								channel_id: targetMessage.channel_id ?? '',
-								mode: targetMessage.mode ?? 0,
-								channel_label: targetMessage.channel_label
-							}
-						] as Array<ApiMessageRef>)
-					: undefined;
+			const reference = targetMessage
+				? ([
+						{
+							message_id: '',
+							message_ref_id: targetMessage.id,
+							ref_type: 0,
+							message_sender_id: targetMessage?.sender_id,
+							message_sender_username: targetMessage?.username,
+							mesages_sender_avatar: targetMessage.clan_avatar ? targetMessage.clan_avatar : targetMessage.avatar,
+							message_sender_clan_nick: targetMessage?.clan_nick,
+							message_sender_display_name: targetMessage?.display_name,
+							content: JSON.stringify(targetMessage.content),
+							has_attachment: Boolean(targetMessage?.attachments?.length),
+							channel_id: targetMessage.channel_id ?? '',
+							mode: targetMessage.mode ?? 0,
+							channel_label: targetMessage.channel_label
+						}
+					] as Array<ApiMessageRef>)
+				: undefined;
 			dispatch(emojiSuggestionActions.setSuggestionEmojiPicked(''));
 			dispatch(
 				referencesActions.setAtachmentAfterUpload({
@@ -312,32 +308,10 @@ export const ChatMessageSending = memo(
 			requestAnimationFrame(async () => {
 				sendMessageAsync().catch((error) => {});
 			});
-			// comment todo check performance
-			// InteractionManager.runAfterInteractions(() => {
-			// 	setTimeout(() => {
-			// 		sendMessageAsync().catch((error) => {
-			// 			console.log('Error sending message:', error);
-			// 		});
-			// 	}, 0);
-			// });
-		};
-
-		const startRecording = async () => {
-			const data = {
-				snapPoints: ['50%'],
-				children: <BaseRecordAudioMessage channelId={channelId} mode={mode} topicId={currentTopicId} />
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-			Keyboard.dismiss();
 		};
 
 		return (
-			<View
-				style={{
-					alignItems: 'center',
-					justifyContent: 'center'
-				}}
-			>
+			<View style={localStyles.sendingContainer}>
 				{isAvailableSending || !!attachmentDataRef?.length ? (
 					<Pressable
 						android_ripple={{
@@ -349,9 +323,7 @@ export const ChatMessageSending = memo(
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_18} height={size.s_18} color={baseColor.white} />
 					</Pressable>
 				) : (
-					<Pressable onLongPress={startRecording} style={[styles.btnIcon, styles.iconVoice]}>
-						<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_18} height={size.s_18} color={themeValue.textStrong} />
-					</Pressable>
+					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} />
 				)}
 			</View>
 		);

@@ -1,4 +1,5 @@
-import { Middleware, ThunkDispatch, UnknownAction, configureStore } from '@reduxjs/toolkit';
+import type { Middleware, ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -24,8 +25,8 @@ import { notificationReducer } from './notification/notify.slice';
 import { POLICIES_FEATURE_KEY, policiesDefaultReducer, policiesReducer } from './policies/policies.slice';
 import { reactionReducer } from './reactionMessage/reactionMessage.slice';
 
-import { MezonContextValue } from '@mezon/transport';
-import { activitiesAPIReducer } from './activities/activitiesAPI.slice';
+import type { MezonContextValue } from '@mezon/transport';
+import { ACTIVITIES_API_FEATURE_KEY, activitiesAPIReducer } from './activities/activitiesAPI.slice';
 import { adminApplicationReducer } from './application/applications.slice';
 import { attachmentReducer } from './attachment/attachments.slice';
 import { auditLogReducer } from './auditLog/auditLog.slice';
@@ -39,11 +40,10 @@ import { channelMetaReducer } from './channels/channelmeta.slice';
 import { hashtagDmReducer } from './channels/hashtagDm.slice';
 import { CHANNEL_LIST_RENDER, listChannelRenderReducer } from './channels/listChannelRender.slice';
 import { listUsersByUserReducer } from './channels/listUsers.slice';
-import { clanMembersMetaReducer } from './clanMembers/clan.members.meta';
 import { integrationClanWebhookReducer } from './clanWebhook/clanWebhook.slide';
 import { settingChannelReducer } from './clans/clanSettingChannel.slice';
-import { directMembersMetaReducer } from './direct/direct.members.meta';
-import { directMetaReducer } from './direct/directmeta.slice';
+import { COMUNITY_FEATURE_KEY, comunityReducer } from './comunity/comunity.slice';
+import { USER_STATUS_FEATURE_KEY, statusReducer } from './direct/status.slice';
 import { audioCallReducer } from './dmcall/audioCall.slice';
 import { DMCallReducer } from './dmcall/dmcall.slice';
 import { dragAndDropReducer } from './dragAndDrop/dragAndDrop.slice';
@@ -54,10 +54,10 @@ import { ERRORS_FEATURE_KEY, errorsReducer } from './errors/errors.slice';
 import { eventManagementReducer } from './eventManagement/eventManagement.slice';
 import { fcmReducer } from './fcm/fcm.slice';
 import { popupForwardReducer } from './forwardMessage/forwardMessage.slice';
+import { galleryReducer } from './gallery/gallery.slice';
 import { giveCoffeeReducer } from './giveCoffee/giveCoffee.slice';
 import { walletLedgerReducer } from './giveCoffee/historyTransaction.slice';
 import { EMBED_MESSAGE, embedReducer } from './messages/embedMessage.slice';
-import { notifiReactMessageReducer } from './notificationSetting/notificationReactMessage.slice';
 import { channelCategorySettingReducer, defaultNotificationCategoryReducer } from './notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingReducer } from './notificationSetting/notificationSettingChannel.slice';
 import { defaultNotificationClanReducer } from './notificationSetting/notificationSettingClan.slice';
@@ -77,9 +77,11 @@ import { threadsReducer } from './threads/threads.slice';
 import { toastListenerMiddleware } from './toasts/toasts.listener';
 import { TOASTS_FEATURE_KEY, toastsReducer } from './toasts/toasts.slice';
 import { topicsReducer } from './topicDiscussion/topicDiscussions.slice';
-import { USER_STATUS_API_FEATURE_KEY, userStatusAPIReducer } from './userstatus/userstatusAPI.slice';
 import { voiceReducer } from './voice/voice.slice';
+import { TRANSACTION_HISTORY_FEATURE_KEY, transactionHistoryReducer } from './wallet/transactionHistory.slice';
+import { WALLET_FEATURE_KEY, walletReducer } from './wallet/wallet.slice';
 import { integrationWebhookReducer } from './webhook/webhook.slice';
+import { WINDOW_CONTROLS_FEATURE_KEY, windowControlsReducer } from './windowControls/windowControls.slice';
 
 const persistedReducer = persistReducer(
 	{
@@ -109,7 +111,9 @@ const persistedAppReducer = persistReducer(
 			'isShowChatStream',
 			'chatStreamWidth',
 			'isShowCanvas',
-			'isShowSettingFooter'
+			'isShowSettingFooter',
+			'isShowWelcomeMobile',
+			'history'
 		]
 	},
 	appReducer
@@ -143,7 +147,7 @@ const persistedChannelReducer = persistReducer(
 	{
 		key: 'channels',
 		storage,
-		blacklist: ['request', 'previousChannels', 'scrollOffset', 'showScrollDownButton']
+		blacklist: ['request', 'previousChannels', 'showScrollDownButton', 'scrollPosition']
 	},
 	channelsReducer
 );
@@ -258,14 +262,6 @@ const persistedHashTagDmReducer = persistReducer(
 	hashtagDmReducer
 );
 
-const persistedNotiReactMsgReducer = persistReducer(
-	{
-		key: 'notifireactmessage',
-		storage
-	},
-	notifiReactMessageReducer
-);
-
 const persistedGifsStickerEmojiReducer = persistReducer(
 	{
 		key: 'gifsstickersemojis',
@@ -292,14 +288,6 @@ const persistedsettingClanStickerReducer = persistReducer(
 	settingStickerReducer
 );
 
-const persisteduserChannelsReducer = persistReducer(
-	{
-		key: 'allUsersByAddChannel',
-		storage
-	},
-	userChannelsReducer
-);
-
 const persistedOnboardingReducer = persistReducer(
 	{
 		key: ONBOARDING_FEATURE_KEY,
@@ -307,6 +295,13 @@ const persistedOnboardingReducer = persistReducer(
 		whitelist: ['keepAnswers', 'answerByClanId']
 	},
 	onboardingReducer
+);
+const persistedComunityReducer = persistReducer(
+	{
+		key: COMUNITY_FEATURE_KEY,
+		storage
+	},
+	comunityReducer
 );
 
 const persistedChannelAppReducer = persistReducer(
@@ -326,16 +321,34 @@ const persistedCompose = persistReducer(
 	composeReducer
 );
 
+const persistedWalletStore = persistReducer(
+	{
+		key: WALLET_FEATURE_KEY,
+		storage
+	},
+	walletReducer
+);
+
+const persistedActivitiesReducer = persistReducer(
+	{
+		key: ACTIVITIES_API_FEATURE_KEY,
+		storage,
+		whitelist: ['isActivityTrackingEnabled']
+	},
+	activitiesAPIReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	account: accountReducer,
 	auth: persistedReducer,
 	attachments: attachmentReducer,
+	gallery: galleryReducer,
 	clans: persistedClansReducer,
 	channels: persistedChannelReducer,
 	channelmeta: persistedChannelMetaReducer,
 	settingSticker: persistedsettingClanStickerReducer,
-	allUsersByAddChannel: persisteduserChannelsReducer,
+	allUsersByAddChannel: userChannelsReducer,
 	listchannelbyusers: persistedListchannelsByUserReducer,
 	listpermissionroleschannel: persistedPermissionRoleChannelReducer,
 	channelMembers: channelMembersReducer,
@@ -352,7 +365,6 @@ const reducer = {
 	userClanProfile: userClanProfileReducer,
 	friends: friendsReducer,
 	direct: directReducer,
-	directmeta: directMetaReducer,
 	roleId: roleIdReducer,
 	policiesDefaultSlice: policiesDefaultReducer,
 	[OVERRIDDEN_POLICIES_FEATURE_KEY]: overriddenPoliciesReducer,
@@ -362,7 +374,6 @@ const reducer = {
 	defaultnotificationcategory: persistedDefaultNotiCatReducer,
 	notichannelcategorysetting: persistedChannelCatSettingReducer,
 	hashtagdm: persistedHashTagDmReducer,
-	notifireactmessage: persistedNotiReactMsgReducer,
 	invite: inviteReducer,
 	isshow: IsShowReducer,
 	forwardmessage: popupForwardReducer,
@@ -373,7 +384,7 @@ const reducer = {
 	channelApp: persistedChannelAppReducer,
 	canvas: canvasReducer,
 	canvasapi: canvasAPIReducer,
-	activitiesapi: activitiesAPIReducer,
+	activitiesapi: persistedActivitiesReducer,
 	auditlog: auditLogReducer,
 	audiocall: audioCallReducer,
 	fcm: fcmReducer,
@@ -393,18 +404,20 @@ const reducer = {
 	systemMessages: systemMessageReducer,
 	giveCoffee: giveCoffeeReducer,
 	settingClanChannel: settingChannelReducer,
-	clanMembersMeta: clanMembersMetaReducer,
-	directmembersmeta: directMembersMetaReducer,
 	[ONBOARDING_FEATURE_KEY]: persistedOnboardingReducer,
 	dmcall: DMCallReducer,
-	[USER_STATUS_API_FEATURE_KEY]: userStatusAPIReducer,
 	[E2EE_FEATURE_KEY]: e2eeReducer,
 	[EMBED_MESSAGE]: embedReducer,
 	walletLedger: walletLedgerReducer,
 	[CHANNEL_LIST_RENDER]: listChannelRenderReducer,
 	[COMPOSE_FEATURE_KEY]: persistedCompose,
 	groupCall: groupCallReducer,
-	[QUICK_MENU_FEATURE_KEY]: quickMenuReducer
+	[QUICK_MENU_FEATURE_KEY]: quickMenuReducer,
+	[COMUNITY_FEATURE_KEY]: persistedComunityReducer,
+	[WINDOW_CONTROLS_FEATURE_KEY]: windowControlsReducer,
+	[TRANSACTION_HISTORY_FEATURE_KEY]: transactionHistoryReducer,
+	[WALLET_FEATURE_KEY]: persistedWalletStore,
+	[USER_STATUS_FEATURE_KEY]: statusReducer
 };
 
 let storeInstance = configureStore({
@@ -439,7 +452,7 @@ const limitDataMiddleware: Middleware = () => (next) => (action: any) => {
 export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRootState) => {
 	const store = configureStore({
 		reducer,
-		devTools: process.env.NODE_ENV !== 'production',
+		devTools: false,
 		preloadedState,
 		middleware: (getDefaultMiddleware) =>
 			getDefaultMiddleware({
@@ -455,6 +468,11 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 	storeInstance = store;
 	storeCreated = true;
 	const persistor = persistStore(store);
+
+	import('./auth/auth.slice').then(({ setupSessionSyncListener }) => {
+		setupSessionSyncListener(store);
+	});
+
 	return { store, persistor };
 };
 

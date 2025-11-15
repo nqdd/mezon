@@ -1,5 +1,6 @@
-import { IStreamInfo } from '@mezon/utils';
-import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { IStreamInfo } from '@mezon/utils';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 
 export const VIDEO_STREAM_FEATURE_KEY = 'videostream';
 

@@ -1,5 +1,5 @@
-import { IS_TABLET } from '@mezon/mobile-components';
-import { Attributes, Colors, Fonts, Metrics, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -10,7 +10,7 @@ export const style = (colors: Attributes) =>
 		titleNameWrapper: {
 			display: 'flex',
 			flexDirection: 'row',
-			gap: IS_TABLET ? Metrics.size.m : Metrics.size.s,
+			gap: Metrics.size.s,
 			alignItems: 'center',
 			paddingBottom: size.s_4
 		},
@@ -35,7 +35,7 @@ export const style = (colors: Attributes) =>
 		},
 
 		textInfo: {
-			color: Colors.gray72,
+			color: baseColor.gray,
 			fontSize: Fonts.size.h9
 		},
 		actions: {
@@ -47,20 +47,18 @@ export const style = (colors: Attributes) =>
 			borderBottomWidth: 1,
 			paddingVertical: size.s_14,
 			borderBottomColor: colors.border,
-			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_12,
-			elevation: 10,
 			zIndex: 2
 		},
 		wrapperSearch: {
 			flex: 1,
 			flexDirection: 'row',
 			justifyContent: 'center',
+			overflow: 'hidden',
 			alignItems: 'center',
 			height: size.s_36,
 			gap: size.s_8,
 			borderRadius: size.s_20,
-			backgroundColor: colors.primary,
 			borderWidth: 1,
 			borderColor: colors.secondaryLight
 		},
@@ -76,5 +74,21 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.primary,
 			width: size.s_36,
 			height: size.s_36
+		},
+		dot: {
+			width: size.s_4,
+			height: size.s_4,
+			borderRadius: size.s_4,
+			backgroundColor: colors.textDisabled,
+			marginHorizontal: size.s_8
+		},
+		row: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		navigationBar: {
+			marginTop: size.s_10,
+			flexDirection: 'row',
+			gap: size.s_8
 		}
 	});

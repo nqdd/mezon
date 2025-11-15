@@ -1,15 +1,11 @@
 import { useMessageValue } from '@mezon/core';
 import { selectComposeInputByChannelId, selectCurrentChannelId, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ApiChannelDescription } from 'mezon-js/api.gen';
+import { generateE2eId } from '@mezon/utils';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-type TopicHeaderProps = {
-	topicCurrentChannel?: ApiChannelDescription | null;
-};
-
-const TopicHeader = ({ topicCurrentChannel }: TopicHeaderProps) => {
+const TopicHeader = () => {
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
 
@@ -41,12 +37,19 @@ const TopicHeader = ({ topicCurrentChannel }: TopicHeaderProps) => {
 	);
 
 	return (
-		<div className="flex flex-row items-center justify-between px-4 h-[48px] min-h-[50px] border-b-theme-primary z-10 bg-theme-chat">
+		<div
+			className="flex flex-row items-center justify-between px-4 h-[48px] min-h-[50px] border-b-theme-primary z-10 bg-theme-chat"
+			data-e2e={generateE2eId('chat.topic.header')}
+		>
 			<div className="flex flex-row items-center text-theme-primary gap-2 pointer-events-none">
 				<Icons.TopicIcon />
 				<span className="text-base font-semibold text-theme-primary-active">{'Topic'}</span>
 			</div>
-			<button onClick={(e) => handleCloseModal(e)} className="relative right-0 text-theme-primary hover:text-red-500">
+			<button
+				onClick={(e) => handleCloseModal(e)}
+				className="relative right-0 text-theme-primary hover:text-red-500"
+				data-e2e={generateE2eId('chat.topic.header.button.close')}
+			>
 				<Icons.Close />
 			</button>
 		</div>

@@ -1,6 +1,6 @@
 import { audioCallActions, DMCallActions, selectAudioBusyTone, selectIsShowMeetDM, toastActions, useAppDispatch } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import { IMessageTypeCallLog, requestMediaPermission } from '@mezon/utils';
+import { compress, decompress, IMessageTypeCallLog, requestMediaPermission } from '@mezon/utils';
 import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -31,33 +31,6 @@ interface ControlState {
 	micEnabled: boolean;
 }
 
-// Todo: move to utils
-const compress = async (str: string, encoding = 'gzip' as CompressionFormat) => {
-	const byteArray = new TextEncoder().encode(str);
-	const cs = new CompressionStream(encoding);
-	const writer = cs.writable.getWriter();
-	writer.write(byteArray);
-	writer.close();
-	const arrayBuffer = await new Response(cs.readable).arrayBuffer();
-	return btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-};
-
-// Todo: move to utils
-const decompress = async (compressedStr: string, encoding = 'gzip' as CompressionFormat) => {
-	const binaryString = atob(compressedStr);
-	const byteArray = new Uint8Array(binaryString.length);
-	for (let i = 0; i < binaryString.length; i++) {
-		byteArray[i] = binaryString.charCodeAt(i);
-	}
-
-	const cs = new DecompressionStream(encoding);
-	const writer = cs.writable.getWriter();
-	writer.write(byteArray);
-	writer.close();
-
-	const arrayBuffer = await new Response(cs.readable).arrayBuffer();
-	return new TextDecoder().decode(arrayBuffer);
-};
 interface IWebRTCCallParams {
 	dmUserId: string;
 	channelId: string;
@@ -68,10 +41,6 @@ interface IWebRTCCallParams {
 }
 
 export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerAvatar, isInChannelCalled }: IWebRTCCallParams) {
-	const getScreen = async () => {
-		const screenSources = await window.electron.getScreenSources('screen');
-		return screenSources[0];
-	};
 	const [callState, setCallState] = useState<CallState>({
 		localStream: null,
 		remoteStream: null,
@@ -98,6 +67,8 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	const [audioOutputDevicesList, setAudioOutputDevicesList] = useState<MediaDeviceInfo[]>([]);
 	const [currentInputDevice, setCurrentInputDevice] = useState<MediaDeviceInfo | null>(null);
 	const [currentOutputDevice, setCurrentOutputDevice] = useState<MediaDeviceInfo | null>(null);
+	const [isConnected, setIsConnected] = useState<boolean | null>(null);
+	const hasSyncRemoteMediaRef = useRef<boolean>(false);
 
 	useEffect(() => {
 		return () => {
@@ -107,6 +78,19 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			timeStartConnected.current = null;
 		};
 	}, [callState.localStream]);
+
+	useEffect(() => {
+		if (isConnected && !hasSyncRemoteMediaRef?.current) {
+			mezon.socketRef.current?.forwardWebrtcSignaling(
+				dmUserId,
+				WebrtcSignalingType.WEBRTC_SDP_STATUS_REMOTE_MEDIA,
+				`{"cameraEnabled": ${controlState?.cameraEnabled}, "micEnabled": ${controlState?.micEnabled}}`,
+				channelId,
+				userId
+			);
+			hasSyncRemoteMediaRef.current = true;
+		}
+	}, [channelId, dmUserId, isConnected, controlState?.cameraEnabled, controlState?.micEnabled, mezon?.socketRef, userId]);
 
 	// Initialize peer connection with proper configuration
 	const initializePeerConnection = () => {
@@ -125,7 +109,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 					remoteVideoRef.current.srcObject = remoteStream;
 					setCallState((prev) => ({
 						...prev,
-						remoteStream: remoteStream
+						remoteStream
 					}));
 				}
 			});
@@ -135,7 +119,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 					remoteVideoRef.current.srcObject = remoteStream;
 					setCallState((prev) => ({
 						...prev,
-						remoteStream: remoteStream
+						remoteStream
 					}));
 				}
 			});
@@ -149,6 +133,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 				dispatch(audioCallActions.setIsDialTone(false));
 				await mezon.socketRef.current?.forwardWebrtcSignaling(dmUserId, WebrtcSignalingType.WEBRTC_SDP_INIT, '', channelId, userId);
 				await cancelCallFCMMobile();
+				setIsConnected(true);
 				if (callTimeout.current) {
 					clearTimeout(callTimeout.current);
 					callTimeout.current = null;
@@ -156,6 +141,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			}
 
 			if (pc.iceConnectionState === 'disconnected') {
+				setIsConnected(null);
 				dispatch(toastActions.addToast({ message: 'Connection disconnected', type: 'warning', autoClose: 3000 }));
 				dispatch(audioCallActions.setIsJoinedCall(false));
 				handleEndCall();
@@ -167,10 +153,6 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 		};
 
 		return pc;
-	};
-
-	const isScreenTrack = (track: MediaStreamTrack | null) => {
-		return track?.kind === 'video' && (track?.label.toLowerCase().includes('screen') || track?.label.toLowerCase().includes('window'));
 	};
 
 	const getConstraintsLocal = async (isVideoCall: boolean) => {
@@ -249,7 +231,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 				});
 				await pc.setLocalDescription(new RTCSessionDescription(offer));
 				// Send offer through signaling server
-				const compressedOffer = await compress(JSON.stringify(offer));
+				const compressedOffer = await compress(JSON.stringify({ ...offer, callerName, callerAvatar }));
 				await mezon.socketRef.current?.forwardWebrtcSignaling(
 					dmUserId,
 					WebrtcSignalingType.WEBRTC_SDP_OFFER,
@@ -262,6 +244,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 					callerName,
 					callerAvatar,
 					callerId: userId,
+					isVideoCall,
 					channelId
 				};
 				await mezon.socketRef.current?.makeCallPush(dmUserId, JSON.stringify(bodyFCMMobile), channelId, userId);
@@ -287,7 +270,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 							}
 						})
 					);
-					handleEndCall(true);
+					handleEndCall();
 				}, 30000);
 				if (localVideoRef.current) {
 					localVideoRef.current.srcObject = stream;
@@ -553,12 +536,13 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 			if (!isPlayBusyTone) {
 				dispatch(audioCallActions.setIsEndTone(true));
 			}
+			dispatch(audioCallActions.reset());
 			dispatch(audioCallActions.setIsRingTone(false));
 			dispatch(audioCallActions.setIsRemoteAudio(true));
 			dispatch(audioCallActions.setIsRemoteVideo(false));
 			dispatch(DMCallActions.setIsShowMeetDM(false));
 			dispatch(DMCallActions.setIsShowShareScreen(false));
-			dispatch(audioCallActions.startDmCall({}));
+			dispatch(audioCallActions.startDmCall(null));
 			dispatch(audioCallActions.setUserCallId(''));
 			dispatch(DMCallActions.removeAll());
 			setCallState({
@@ -584,7 +568,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 
 				dispatch(
 					DMCallActions.updateCallLog({
-						channelId: channelId,
+						channelId,
 						content: {
 							t: `Call duration: ${timeCall}`,
 							callLog: {

@@ -55,6 +55,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>GIDClientID</key>
 	<string>648946579638-funno2n4iiib3idaa0pqt2js4u1nal26.apps.googleusercontent.com</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>itms-apps</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -69,6 +73,15 @@
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>mezon.ai</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
@@ -94,6 +107,8 @@
 	<string>Mezon app needs access to the photo library to select and send images in messages</string>
 	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
 	<string>Allow Mezon to select photos so that they can be sent in the chat</string>
+	<key>NSPasteboardUsageDescription</key>
+	<string>Mezon needs access to the clipboard to paste content/images from other apps</string>
 	<key>RTCAppGroupIdentifier</key>
 	<string>group.mezon.mobile.ScreenBroadcast</string>
 	<key>RTCScreenSharingExtension</key>
@@ -155,5 +170,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>hermes_enabled</key>
+	<true/>
 </dict>
 </plist>

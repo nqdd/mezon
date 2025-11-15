@@ -1,6 +1,7 @@
-import { AppDispatch, appActions, authActions, userStatusActions } from '@mezon/store';
+import type { AppDispatch } from '@mezon/store';
+import { appActions, authActions, channelsActions } from '@mezon/store';
 import { safeJSONParse } from 'mezon-js';
-import { LoaderFunctionArgs } from 'react-router-dom';
+import type { LoaderFunctionArgs } from 'react-router-dom';
 
 export interface IAppLoaderData {
 	pathname: string;
@@ -31,7 +32,7 @@ export const appLoader: CustomLoaderFunction = async ({ dispatch }) => {
 	const result = Object.fromEntries(params.entries());
 	const { deepLinkUrl, notificationPath } = result;
 	if (deepLinkUrl) {
-		redirectTo = '/desktop/login?deepLinkUrl=' + deepLinkUrl;
+		redirectTo = `/desktop/login?deepLinkUrl=${deepLinkUrl}`;
 		try {
 			const session = deepLinkUrl.split('#')[0];
 			await dispatch(authActions.setSession(safeJSONParse(decodeURIComponent(session))));
@@ -44,7 +45,7 @@ export const appLoader: CustomLoaderFunction = async ({ dispatch }) => {
 	if (notificationPath) {
 		redirectTo = notificationPath;
 	}
-	dispatch(userStatusActions.getUserStatus({}));
+	dispatch(channelsActions.clearAllAppChannelsListShowOnPopUp());
 	dispatch(appActions.setInitialParams(params));
 	return {
 		pathname,

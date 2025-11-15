@@ -1,7 +1,7 @@
 import { useClans } from '@mezon/core';
 import { createSystemMessage, fetchSystemMessageByClanId, selectCurrentClan, updateSystemMessage, useAppDispatch } from '@mezon/store';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
+import type { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ClanBannerBackground from './ClanBannerBackground';
@@ -23,6 +23,7 @@ const ClanSettingOverview = () => {
 
 	const [systemMessage, setSystemMessage] = useState<ApiSystemMessage | null>(null);
 	const [updateSystemMessageRequest, setUpdateSystemMessageRequest] = useState<ApiSystemMessageRequest | null>(null);
+	const [resetTrigger, setResetTrigger] = useState<boolean>(false);
 
 	const dispatch = useAppDispatch();
 
@@ -69,7 +70,12 @@ const ClanSettingOverview = () => {
 		if (currentClan && clanRequest) {
 			const hasChanges = Object.keys(clanRequest).some((key) => {
 				const typedKey = key as keyof typeof clanRequest;
-				if (clanRequest[typedKey] || currentClan[typedKey]) {
+				if (
+					typedKey !== 'description' &&
+					typedKey !== 'about' &&
+					typedKey !== 'short_url' &&
+					(clanRequest[typedKey] || currentClan[typedKey])
+				) {
 					return clanRequest[typedKey] !== currentClan[typedKey];
 				}
 			});
@@ -126,7 +132,12 @@ const ClanSettingOverview = () => {
 		}
 	};
 
+	const handleRemovelogo = () => {
+		setClanRequest({ ...clanRequest, logo: '' });
+	};
+
 	const handleReset = () => {
+		setResetTrigger(true);
 		setClanRequest({
 			banner: currentClan?.banner ?? '',
 			clan_name: currentClan?.clan_name ?? '',
@@ -137,15 +148,26 @@ const ClanSettingOverview = () => {
 		});
 		setUpdateSystemMessageRequest(systemMessage);
 	};
+
+	const handleResetComplete = () => {
+		setResetTrigger(false);
+	};
 	return (
 		<div className="h-full pb-10">
-			<ClanLogoName onUpload={handleUploadLogo} onGetClanName={handleChangeName} />
+			<ClanLogoName
+				onUpload={handleUploadLogo}
+				onGetClanName={handleChangeName}
+				resetTrigger={resetTrigger}
+				onResetComplete={handleResetComplete}
+				handleRemovelogo={handleRemovelogo}
+			/>
 			<ClanBannerBackground onUpload={handleUploadBackground} urlImage={clanRequest?.banner} />
 			{systemMessage && (
 				<SystemMessagesManagement
 					updateSystem={updateSystemMessageRequest}
 					setUpdateSystemMessageRequest={setUpdateSystemMessageRequest}
 					channelSelectedId={updateSystemMessageRequest?.channel_id as string}
+					setClanRequest={setClanRequest}
 				/>
 			)}
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
-import { MentionItem } from 'react-mentions';
 import { isYouTubeLink } from '.';
-import { EBacktickType, ETypeMEntion, IMarkdownOnMessage, RequestInput, SymbolsAndIdsLengthOfMentionValue } from '../types';
+import type { IMarkdownOnMessage, MentionItem } from '../types';
+import { EBacktickType, ETypeMEntion } from '../types';
 
 export enum ApiMessageEntityTypes {
 	Bold = 'MessageEntityBold',
@@ -160,7 +160,7 @@ function parseMarkdown(html: string) {
 
 	// Pre
 	parsedHtml = parsedHtml.replace(/`{3}([\s\S]*?)`{3}/g, function (match, p1) {
-		return '<pre>' + p1.replace(/\n/g, '___#new_line___') + '</pre>';
+		return `<pre>${p1.replace(/\n/g, '___#new_line___')}</pre>`;
 	});
 
 	// parsedHtml = parsedHtml.replace(/^`{3}[\n\r]?(.*?)[\n\r]?`{3}/gms, '<pre>$1</pre>');
@@ -170,32 +170,125 @@ function parseMarkdown(html: string) {
 	parsedHtml = parsedHtml.replace(/(?!<(code|pre)[^<]*|<\/)[`]{1}([^`\n]+)[`]{1}(?![^<]*<\/(code|pre)>)/g, '<code>$2</code>');
 
 	// Process bold markdown, but skip mentions
-	parsedHtml = parsedHtml.replace(/(?!<(code|pre)[^<]*|<\/)[*]{2}([^*\n]+)[*]{2}(?![^<]*<\/(code|pre)>)/g, '<b>$2</b>');
+	parsedHtml = parsedHtml.replace(/(?!<(code|pre)[^<]*|<\/)[*]{2}([^*]*?)[*]{2}(?![^<]*<\/(code|pre)>)/g, '<b>$2</b>');
 
 	return parsedHtml;
 }
 
-const LINK_TEMPLATE =
-	/(ftp|http|https):\/\/(((www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z][-a-zA-Z0-9]{1,62})|localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?([-a-zA-Z0-9()@:%_+.,~#?&\/=!*';$\[\]{}^\\|`<>]*)/gi;
+const protocolAndDomainRE = /^(?:\w+:)?\/\/(\S+)$/;
+const localhostDomainRE = /^localhost[\:?\d]*(?:[^\:?\d]\S*)?$/;
+const nonLocalhostDomainRE = /^[^\s\.]+\.\S{2,}$/;
+
+function isUrl(string: string): boolean {
+	if (typeof string !== 'string') {
+		return false;
+	}
+
+	const match = string.match(protocolAndDomainRE);
+	if (!match) {
+		return false;
+	}
+
+	const everythingAfterProtocol = match[1];
+	if (!everythingAfterProtocol) {
+		return false;
+	}
+
+	if (localhostDomainRE.test(everythingAfterProtocol) || nonLocalhostDomainRE.test(everythingAfterProtocol)) {
+		return true;
+	}
+
+	return false;
+}
+
+function getCleanUrlAndTrailing(match: string, fullText: string, matchIndex: number): { cleanMatch: string; trailingPunctuation: string } {
+	const beforeMatch = fullText.substring(0, matchIndex);
+
+	const wrappingPairs = [
+		{ open: '(', close: ')' },
+		{ open: '[', close: ']' },
+		{ open: '{', close: '}' },
+		{ open: '<', close: '>' }
+	];
+
+	let cleanMatch = match;
+	let trailingPunctuation = '';
+
+	let isWrapped = false;
+	for (const pair of wrappingPairs) {
+		if (beforeMatch.endsWith(pair.open) && match.endsWith(pair.close)) {
+			cleanMatch = match.slice(0, -1);
+			trailingPunctuation = pair.close;
+			isWrapped = true;
+			break;
+		}
+	}
+
+	if (!isWrapped) {
+		const commonTrailingPunctuation = /[.,;:!?'"]+$/;
+		const trailingMatch = match.match(commonTrailingPunctuation);
+		if (trailingMatch) {
+			cleanMatch = match.slice(0, -trailingMatch[0].length);
+			trailingPunctuation = trailingMatch[0];
+		}
+	}
+
+	return { cleanMatch, trailingPunctuation };
+}
+
+const LINK_TEMPLATE = /(?:\w+:)?\/\/\S+/gi;
 
 function parseMarkdownLinks(html: string) {
-	const parts = html.split(/(`{1,3})/);
-	let isInCode = false;
-	let result = '';
+	if (!html || html.length === 0) return html;
+
+	const codeSections: string[] = [];
+	let result = html;
+
+	result = result.replace(/```[\s\S]*?```/g, (match) => {
+		const index = codeSections.length;
+		codeSections.push(match);
+		return `__CODE_BLOCK_${index}__`;
+	});
+
+	result = result.replace(/`[^`\n]+`/g, (match) => {
+		if (match.includes('__CODE_BLOCK_')) {
+			return match;
+		}
+
+		const index = codeSections.length;
+		codeSections.push(match);
+		return `__INLINE_CODE_${index}__`;
+	});
+
+	const placeholderRegex = /__(?:CODE_BLOCK|INLINE_CODE)_\d+__/g;
+	const parts = result.split(placeholderRegex);
+	const placeholders = result.match(placeholderRegex) || [];
 
 	for (let i = 0; i < parts.length; i++) {
-		const part = parts[i];
-		if (part.match(/^`{1,3}$/)) {
-			isInCode = !isInCode;
-			result += part;
-			continue;
+		if (parts[i]) {
+			const partText = parts[i];
+			parts[i] = partText.replace(LINK_TEMPLATE, (match, offset) => {
+				const { cleanMatch, trailingPunctuation } = getCleanUrlAndTrailing(match, partText, offset);
+				if (isUrl(cleanMatch)) {
+					return `<a href="${cleanMatch}" target="_blank">${cleanMatch}</a>${trailingPunctuation}`;
+				}
+				return match;
+			});
 		}
+	}
 
-		if (isInCode) {
-			result += part;
-		} else {
-			result += part.replace(LINK_TEMPLATE, '<a href="$&" target="_blank">$&</a>');
+	result = '';
+	for (let i = 0; i < parts.length; i++) {
+		result += parts[i];
+		if (i < placeholders.length) {
+			result += placeholders[i];
 		}
+	}
+
+	if (codeSections.length > 0) {
+		result = result.replace(/__(?:CODE_BLOCK|INLINE_CODE)_(\d+)__/g, (match, index) => {
+			return codeSections[parseInt(index, 10)] || match;
+		});
 	}
 
 	return result;
@@ -371,99 +464,4 @@ export const processBoldEntities = (entities: MentionItem[], markdown: IMarkdown
 		}
 	}
 	return boldMarkdownArr;
-};
-
-function addSymbolsAndIdsLengthOfMention(value: number, mentionType: number) {
-	let newValue = value;
-	if (mentionType === ETypeMEntion.HASHTAG || mentionType === ETypeMEntion.MENTION) {
-		newValue += SymbolsAndIdsLengthOfMentionValue.MENTION_OR_HASHTAG;
-	} else if (mentionType === ETypeMEntion.EMOJI) {
-		newValue += SymbolsAndIdsLengthOfMentionValue.EMOJI;
-	} else {
-		newValue += SymbolsAndIdsLengthOfMentionValue.BOLD;
-	}
-	return newValue;
-}
-
-function sortMentionsByIndex(mentions: MentionItem[]) {
-	return [...mentions].sort((a, b) => a.index - b.index);
-}
-
-interface IHandleBoldShortCutParams {
-	setRequestInput: (request: RequestInput, isThread?: boolean) => void;
-	request: RequestInput;
-	editorRef: React.MutableRefObject<HTMLInputElement | null>;
-}
-
-export const handleBoldShortCut = ({ editorRef, request, setRequestInput }: IHandleBoldShortCutParams) => {
-	if (!editorRef.current) return;
-	let plainTextStart = editorRef.current.selectionStart ?? 0;
-	let plainTextEnd = editorRef.current.selectionEnd ?? 0;
-	if (plainTextStart === plainTextEnd) return;
-
-	let valueStart = plainTextStart;
-	let valueEnd = plainTextEnd;
-	const sortedMentionsArr = sortMentionsByIndex(request.mentionRaw);
-	const newMentionArr: MentionItem[] = [];
-
-	let selectedTextIsInsideMention = false;
-
-	for (let index = 0; index < sortedMentionsArr.length; index++) {
-		const item = sortedMentionsArr[index];
-		const plainMentionStartPosition = item.plainTextIndex;
-		const plainMentionEndPosition = item.plainTextIndex + item.display.length;
-		const mentionWithValueStartPosition = item.index;
-		const mentionWithValueEndPosition = item.index + addSymbolsAndIdsLengthOfMention(item.display.length, item.childIndex);
-
-		if (plainTextStart > plainMentionStartPosition && plainTextEnd > plainMentionEndPosition) {
-			newMentionArr.push(item);
-			valueStart = addSymbolsAndIdsLengthOfMention(valueStart, item.childIndex);
-			valueEnd = addSymbolsAndIdsLengthOfMention(valueEnd, item.childIndex);
-			if (plainTextStart < plainMentionEndPosition) {
-				valueStart = mentionWithValueEndPosition;
-				plainTextStart = plainMentionEndPosition;
-			}
-		} else if (plainTextStart >= plainMentionStartPosition && plainTextEnd <= plainMentionEndPosition) {
-			selectedTextIsInsideMention = true;
-			break;
-		} else if (plainTextStart <= plainMentionStartPosition && plainTextEnd >= plainMentionEndPosition) {
-			selectedTextIsInsideMention = true;
-			break;
-		} else {
-			const mentionWithNewIndex: MentionItem = {
-				...item,
-				index: item.index + 4
-			};
-			newMentionArr.push(mentionWithNewIndex);
-			if (plainTextStart < plainMentionStartPosition && plainTextEnd <= plainMentionEndPosition && plainTextEnd > plainMentionStartPosition) {
-				valueEnd = mentionWithValueStartPosition;
-				plainTextEnd = plainMentionStartPosition;
-			}
-		}
-	}
-	const boldedText = request.content.substring(plainTextStart, plainTextEnd);
-
-	if (boldedText.trim() === '' || selectedTextIsInsideMention) return;
-
-	const mentionItem: MentionItem = {
-		display: boldedText,
-		id: '',
-		childIndex: ETypeMEntion.BOLD,
-		index: valueStart,
-		plainTextIndex: plainTextStart
-	};
-
-	if (request.mentionRaw.length > 0) {
-		setRequestInput({
-			...request,
-			mentionRaw: [...newMentionArr, mentionItem],
-			valueTextInput: request.valueTextInput.slice(0, valueStart) + `**${boldedText}**` + request.valueTextInput.slice(valueEnd)
-		});
-	} else {
-		setRequestInput({
-			...request,
-			mentionRaw: [mentionItem],
-			valueTextInput: request.valueTextInput.slice(0, valueStart) + `**${boldedText}**` + request.valueTextInput.slice(valueEnd)
-		});
-	}
 };

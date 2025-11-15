@@ -1,26 +1,29 @@
 import { useAppParams, useAttachments } from '@mezon/core';
 import {
 	attachmentActions,
+	getStore,
 	selectAllListAttachmentByChannel,
 	selectAttachment,
+	selectAttachmentPaginationByChannel,
 	selectCurrentAttachmentShowImage,
 	selectCurrentChannel,
 	selectCurrentChannelId,
-	selectDmGroupCurrent,
-	selectMembeGroupByUserId,
-	selectMemberClanByUserId2,
+	selectCurrentClanId,
+	selectDmChannelLabelById,
+	selectMemberClanByUserId,
+	selectMemberGroupByUserId,
 	selectMessageIdAttachment,
 	selectModeAttachment,
 	selectModeResponsive,
 	selectOpenModalAttachment,
+	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ModeResponsive, SHOW_POSITION, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
-import { format } from 'date-fns';
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { MessageContextMenuProps, useMessageContextMenu } from '../../ContextMenu';
+import { ETypeLinkMedia, ModeResponsive, SHOW_POSITION, convertTimeString, createImgproxyUrl, handleSaveImage } from '@mezon/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { MessageContextMenuProps } from '../../ContextMenu';
+import { useMessageContextMenu } from '../../ContextMenu';
 import ListAttachment from './listAttachment';
 export const MAX_SCALE_IMAGE = 5;
 
@@ -28,36 +31,138 @@ const MessageModalImage = () => {
 	const { directId } = useAppParams();
 	const [scale, setScale] = useState(1);
 	const [rotate, setRotate] = useState(0);
+	const modalRef = useRef<HTMLDivElement>(null);
+	const videoRef = useRef<HTMLVideoElement>(null);
 
 	const [showList, setShowList] = useState(true);
-	const currentChannelId = useSelector(selectCurrentChannelId);
-	const attachments = useSelector((state) => selectAllListAttachmentByChannel(state, (directId ?? currentChannelId) as string));
+	const currentChannelId = useAppSelector(selectCurrentChannelId);
+	const currentClanId = useAppSelector(selectCurrentClanId) ?? '';
+	const attachments = useAppSelector((state) => selectAllListAttachmentByChannel(state, (directId ?? currentChannelId) as string));
+	const paginationState = useAppSelector((state) => selectAttachmentPaginationByChannel(state, (directId ?? currentChannelId) as string));
 	const { setOpenModalAttachment } = useAttachments();
-	const openModalAttachment = useSelector(selectOpenModalAttachment);
-	const attachment = useSelector(selectAttachment);
+	const openModalAttachment = useAppSelector(selectOpenModalAttachment);
+	const attachment = useAppSelector(selectAttachment);
+	const currentAttachment = useAppSelector(selectCurrentAttachmentShowImage);
 	const [urlImg, setUrlImg] = useState(attachment);
 	const [currentIndexAtt, setCurrentIndexAtt] = useState(-1);
 	const { showMessageContextMenu, setPositionShow, setImageURL } = useMessageContextMenu();
+	const [isPlaying, setIsPlaying] = useState(false);
 
-	const mode = useSelector(selectModeAttachment);
-	const messageId = useSelector(selectMessageIdAttachment);
-	const dispatch = useDispatch();
+	const isVideo = useMemo(() => {
+		if (currentAttachment?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX)) {
+			return true;
+		}
+
+		if (urlImg) {
+			const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.m4v'];
+			const lowerUrl = urlImg.toLowerCase();
+			return videoExtensions.some((ext) => lowerUrl.includes(ext));
+		}
+
+		return false;
+	}, [currentAttachment?.filetype, urlImg]);
+
+	const mode = useAppSelector(selectModeAttachment);
+	const messageId = useAppSelector(selectMessageIdAttachment);
+	const dispatch = useAppDispatch();
 	const handleShowList = () => {
 		setShowList(!showList);
 	};
 
+	const handleLoadMoreAttachments = useCallback(
+		async (direction: 'before' | 'after') => {
+			const channelId = (directId ?? currentChannelId) as string;
+			if (paginationState.isLoading || !channelId) {
+				return;
+			}
+
+			if (direction === 'before' && !paginationState.hasMoreBefore) {
+				return;
+			}
+			if (direction === 'after' && !paginationState.hasMoreAfter) {
+				return;
+			}
+
+			dispatch(attachmentActions.setAttachmentLoading({ channelId, isLoading: true }));
+
+			try {
+				const state = getStore()?.getState();
+				const currentAttachments = selectAllListAttachmentByChannel(state, channelId);
+				const timestamp =
+					direction === 'before' ? currentAttachments?.[currentAttachments.length - 1]?.create_time : currentAttachments?.[0]?.create_time;
+				const timestampNumber = timestamp ? Math.floor(new Date(timestamp).getTime() / 1000) : undefined;
+
+				const clanId = currentClanId === '0' ? '0' : currentClanId;
+
+				let beforeParam: number | undefined;
+				let afterParam: number | undefined;
+
+				if (direction === 'before') {
+					beforeParam = timestampNumber;
+				} else {
+					afterParam = timestampNumber;
+				}
+
+				await dispatch(
+					attachmentActions.fetchChannelAttachments({
+						clanId,
+						channelId,
+						limit: paginationState.limit,
+						direction,
+						...(beforeParam && { before: beforeParam }),
+						...(afterParam && { after: afterParam }),
+						noCache: true
+					})
+				);
+			} catch (error) {
+				console.error('Error loading more attachments:', error);
+				dispatch(attachmentActions.setAttachmentLoading({ channelId, isLoading: false }));
+			}
+		},
+		[
+			paginationState.isLoading,
+			paginationState.limit,
+			paginationState.hasMoreBefore,
+			paginationState.hasMoreAfter,
+			currentChannelId,
+			directId,
+			currentClanId,
+			dispatch
+		]
+	);
+
+	const toggleVideoPlayback = useCallback(() => {
+		if (videoRef.current) {
+			if (isPlaying) {
+				videoRef.current.pause();
+			} else {
+				videoRef.current.play();
+			}
+			setIsPlaying(!isPlaying);
+		}
+	}, [isPlaying]);
+
 	useEffect(() => {
 		setShowList(true);
 		setScale(1);
+		setRotate(0);
 		setUrlImg(attachment);
-	}, [openModalAttachment]);
+		setIsPlaying(false);
+		if (videoRef.current) {
+			videoRef.current.pause();
+			videoRef.current.currentTime = 0;
+		}
+		if (openModalAttachment && modalRef.current) {
+			modalRef.current.focus();
+		}
+	}, [openModalAttachment, attachment]);
 
 	useEffect(() => {
 		if (attachments && attachments.length > 0) {
 			const indexImage = attachments.findIndex((img) => img.url === urlImg);
 			setCurrentIndexAtt(indexImage);
 		}
-	}, [attachments]);
+	}, [attachments, urlImg]);
 
 	const handleDrag = (e: any) => {
 		e.preventDefault();
@@ -94,30 +199,38 @@ const MessageModalImage = () => {
 		[showMessageContextMenu, messageId, mode, setPositionShow, setImageURL, urlImg]
 	);
 
-	const handleKeyDown = (event: any) => {
-		if (event.key === 'Escape') {
-			closeModal();
-			return;
-		}
-		if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-			handleSelectNextImage();
-		}
-		if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-			handleSelectPreviousImage();
-		}
-	};
+	const handleKeyDown = useCallback(
+		(event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				closeModal();
+				return;
+			}
+			if (event.key === ' ' && isVideo) {
+				event.preventDefault();
+				toggleVideoPlayback();
+				return;
+			}
+			if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+				handleSelectNextImage();
+			}
+			if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+				handleSelectPreviousImage();
+			}
+		},
+		[isVideo, toggleVideoPlayback]
+	);
 
 	const handleSelectNextImage = () => {
-		const newIndex = currentIndexAtt > 0 ? currentIndexAtt - 1 : currentIndexAtt;
+		if (!attachments) {
+			return;
+		}
+		const newIndex = currentIndexAtt < attachments.length - 1 ? currentIndexAtt + 1 : currentIndexAtt;
 		if (newIndex !== currentIndexAtt) {
 			handleSelectImage(newIndex);
 		}
 	};
 	const handleSelectPreviousImage = () => {
-		if (!attachments) {
-			return;
-		}
-		const newIndex = currentIndexAtt < attachments.length - 1 ? currentIndexAtt + 1 : currentIndexAtt;
+		const newIndex = currentIndexAtt > 0 ? currentIndexAtt - 1 : currentIndexAtt;
 		if (newIndex !== currentIndexAtt) {
 			handleSelectImage(newIndex);
 		}
@@ -137,7 +250,7 @@ const MessageModalImage = () => {
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [urlImg, currentIndexAtt]);
+	}, [handleKeyDown]);
 
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -165,8 +278,8 @@ const MessageModalImage = () => {
 		setDragging(false);
 	};
 
-	const currentChannel = useSelector(selectCurrentChannel);
-	const currentDM = useSelector(selectDmGroupCurrent(directId as string));
+	const currentChannel = useAppSelector(selectCurrentChannel);
+	const currentDmLabel = useAppSelector((state) => selectDmChannelLabelById(state, (directId as string) || ''));
 
 	const handleRotateImg = (direction: 'LEFT' | 'RIGHT') => {
 		if (direction === 'LEFT') {
@@ -204,10 +317,12 @@ const MessageModalImage = () => {
 
 	return (
 		<div
-			className={`justify-center items-center flex flex-col fixed z-40 inset-0 outline-none focus:outline-nonebg-black text-colorTextLightMode select-none`}
+			ref={modalRef}
+			tabIndex={-1}
+			className={`justify-center items-center flex flex-col fixed z-40 inset-0 outline-none focus:outline-none bg-black text-colorTextLightMode select-none`}
 		>
 			<div className="flex justify-center items-center bg-[#2e2e2e] w-full h-[30px] relative">
-				<div className="text-textDarkTheme">{currentDM?.channel_label || currentChannel?.channel_label}</div>
+				<div className="text-textDarkTheme">{currentDmLabel || currentChannel?.channel_label}</div>
 				<div onClick={closeModal} className="w-4 absolute right-2 top-2 cursor-pointer">
 					<Icons.MenuClose className="text-white w-full" />
 				</div>
@@ -217,26 +332,42 @@ const MessageModalImage = () => {
 					className="flex-1 flex justify-center items-center px-5 py-3 overflow-hidden h-full w-full relative"
 					onClick={handleClickOutsideImage}
 				>
-					<img
-						src={createImgproxyUrl(urlImg ?? '', { width: 0, height: 0, resizeType: 'force' })}
-						alt={urlImg}
-						className={`max-h-full object-scale-down rounded-[10px] cursor-default ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
-						onDragStart={handleDrag}
-						onWheel={handleWheel}
-						onMouseUp={handleMouseUp}
-						onMouseMove={handleMouseMove}
-						onMouseDown={handleMouseDown}
-						onMouseLeave={handleMouseUp}
-						style={{
-							transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px) `,
-							transition: `${dragging ? '' : 'transform 0.2s ease'}`,
-							rotate: `${rotate}deg`
-						}}
-						onContextMenu={handleContextMenu}
-						onClick={stopPropagation}
-					/>
+					{isVideo ? (
+						<video
+							ref={videoRef}
+							src={urlImg ?? ''}
+							className="max-h-full max-w-full object-scale-down rounded-[10px] cursor-pointer"
+							controls
+							onContextMenu={handleContextMenu}
+							onClick={(e) => {
+								e.stopPropagation();
+								toggleVideoPlayback();
+							}}
+							onPlay={() => setIsPlaying(true)}
+							onPause={() => setIsPlaying(false)}
+						/>
+					) : (
+						<img
+							src={createImgproxyUrl(urlImg ?? '', { width: 0, height: 0, resizeType: 'force' })}
+							alt={urlImg}
+							className={`max-h-full object-scale-down rounded-[10px] cursor-default ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
+							onDragStart={handleDrag}
+							onWheel={handleWheel}
+							onMouseUp={handleMouseUp}
+							onMouseMove={handleMouseMove}
+							onMouseDown={handleMouseDown}
+							onMouseLeave={handleMouseUp}
+							style={{
+								transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px) `,
+								transition: `${dragging ? '' : 'transform 0.2s ease'}`,
+								rotate: `${rotate}deg`
+							}}
+							onContextMenu={handleContextMenu}
+							onClick={stopPropagation}
+						/>
+					)}
 					<div
-						className={`h-full w-12 absolute flex flex-col right-0 gap-2 justify-center ${scale === 1 ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+						className={`h-full w-12 absolute flex flex-col right-0 gap-2 justify-center ${scale === 1 && !isVideo ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
 						onClick={stopPropagation}
 					>
 						<div
@@ -263,6 +394,10 @@ const MessageModalImage = () => {
 						setPosition={setPosition}
 						setCurrentIndexAtt={setCurrentIndexAtt}
 						currentIndexAtt={currentIndexAtt}
+						onLoadMore={handleLoadMoreAttachments}
+						isLoading={paginationState.isLoading}
+						hasMoreBefore={paginationState.hasMoreBefore}
+						hasMoreAfter={paginationState.hasMoreAfter}
 					/>
 				)}
 			</div>
@@ -274,24 +409,28 @@ const MessageModalImage = () => {
 					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={handleDownloadImage}>
 						<Icons.HomepageDownload className="w-5 h-5" />
 					</div>
-					<div className="">
-						<Icons.StraightLineIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('LEFT')}>
-						<Icons.RotateLeftIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('RIGHT')}>
-						<Icons.RotateRightIcon className="w-5" />
-					</div>
-					<div className="">
-						<Icons.StraightLineIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(true)}>
-						<Icons.ZoomIcon className="w-5" />
-					</div>
-					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(false)}>
-						<Icons.AspectRatioIcon className="w-5" />
-					</div>
+					{!isVideo && (
+						<>
+							<div className="">
+								<Icons.StraightLineIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('LEFT')}>
+								<Icons.RotateLeftIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleRotateImg('RIGHT')}>
+								<Icons.RotateRightIcon className="w-5" />
+							</div>
+							<div className="">
+								<Icons.StraightLineIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(true)}>
+								<Icons.ZoomIcon className="w-5" />
+							</div>
+							<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={() => handleScaleImage(false)}>
+								<Icons.AspectRatioIcon className="w-5" />
+							</div>
+						</>
+					)}
 				</div>
 				<div className="flex justify-end flex-1">
 					<div className="p-2 hover:bg-[#434343] rounded-md cursor-pointer" onClick={handleShowList}>
@@ -305,9 +444,9 @@ const MessageModalImage = () => {
 
 const SenderUser = () => {
 	const { directId } = useAppParams();
-	const attachment = useSelector(selectCurrentAttachmentShowImage);
-	const clanUser = useAppSelector((state) => selectMemberClanByUserId2(state, attachment?.uploader as string));
-	const dmUser = useAppSelector((state) => selectMembeGroupByUserId(state, directId as string, attachment?.uploader as string));
+	const attachment = useAppSelector(selectCurrentAttachmentShowImage);
+	const clanUser = useAppSelector((state) => selectMemberClanByUserId(state, attachment?.uploader as string));
+	const dmUser = useAppSelector((state) => selectMemberGroupByUserId(state, directId as string, attachment?.uploader as string));
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const user = modeResponsive === ModeResponsive.MODE_CLAN ? clanUser : dmUser;
 
@@ -325,7 +464,7 @@ const SenderUser = () => {
 					{user?.clan_nick ?? user?.user?.display_name ?? user?.user?.username}
 				</div>
 				<div className="text-[12px] text-bgTextarea truncate max-sm:w-12">
-					{format(attachment?.create_time as string, 'dd/L/yyyy hh:mm a')}
+					{attachment?.create_time ? convertTimeString(attachment.create_time) : 'N/A'}
 				</div>
 			</div>
 		</div>

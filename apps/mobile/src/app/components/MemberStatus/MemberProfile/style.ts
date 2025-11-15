@@ -30,12 +30,31 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			gap: size.s_6,
 			flexGrow: 1,
-			paddingVertical: size.s_16,
-			borderBottomColor: colors.borderDim
+			borderBottomColor: colors.borderDim,
+			borderBottomWidth: 1,
+			minHeight: size.s_50,
+			alignItems: 'center',
+			paddingVertical: size.s_8
 		},
 		nameItem: {
 			gap: size.s_4,
-			justifyContent: 'center'
+			justifyContent: 'center',
+			width: '100%'
+		},
+		nameRowContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_4
+		},
+		voiceContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: 4
+		},
+		voiceText: {
+			color: colors.textDisabled,
+			fontSize: size.s_12,
+			fontWeight: '500'
 		},
 
 		container: {

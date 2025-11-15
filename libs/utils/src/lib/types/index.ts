@@ -1,5 +1,6 @@
-import { ChannelDescription, ChannelMessage, ChannelStreamMode, ChannelType, HashtagDm, NotificationType, WebrtcSignalingFwd } from 'mezon-js';
-import {
+import type { ChannelDescription, ChannelMessage, ChannelStreamMode, ChannelType, HashtagDm, WebrtcSignalingFwd } from 'mezon-js';
+import { NotificationType } from 'mezon-js';
+import type {
 	ApiAccount,
 	ApiCategoryDesc,
 	ApiChannelAppResponse,
@@ -26,17 +27,17 @@ import {
 	ClanUserListClanUser,
 	RoleUserListRoleUser
 } from 'mezon-js/api.gen';
-import {
+import type {
 	ApiAllUsersAddChannelResponse,
 	ApiNotifiReactMessage,
 	ApiNotificationChannelCategorySetting,
 	ApiPermissionRoleChannel
 } from 'mezon-js/dist/api.gen';
-import { HTMLInputTypeAttribute } from 'react';
-import { MentionItem } from 'react-mentions';
-import { ILongPressType } from '../hooks';
-import { CanvasDataResponse } from './htmlCanvas';
-import {
+import type { HTMLInputTypeAttribute } from 'react';
+import type { ILongPressType } from '../hooks';
+import type { CanvasDataResponse } from './htmlCanvas';
+import type { MentionItem } from './message';
+import type {
 	IBoldMessage,
 	IEmojiOnMessage,
 	IHashtagOnMessage,
@@ -100,7 +101,7 @@ export type IDefaultNotificationClan = ApiNotificationSetting;
 
 export type IDefaultNotificationCategory = ApiNotificationSetting & {
 	active?: number;
-	time_mute?: string;
+	time_mute?: string | null;
 };
 
 export type IDefaultNotification = ApiNotificationSetting & {
@@ -184,6 +185,7 @@ export type IThread = {
 	create_time_seconds?: number | string | undefined;
 	update_time_seconds?: number | string | undefined;
 	last_sent_message?: ApiChannelMessageHeader;
+	channel_private?: number;
 };
 
 export type IContextMenuItemAction = 'REST';
@@ -309,6 +311,7 @@ export interface IMessageRatioOption {
 	value: string;
 	style?: EButtonMessageStyle;
 	disabled?: boolean;
+	extraData?: string[];
 }
 
 export interface IMessageInput {
@@ -318,6 +321,7 @@ export interface IMessageInput {
 	textarea?: boolean;
 	style?: EButtonMessageStyle;
 	defaultValue?: string;
+	disabled?: boolean;
 }
 
 export interface IMessageDatePicker {
@@ -426,6 +430,8 @@ export interface IMessageSendPayload {
 	cid?: string;
 	fwd?: boolean;
 	lky?: ILinkYoutubeOnMessage[];
+	isCard?: boolean;
+	rpl?: number;
 }
 
 export type IUser = {
@@ -436,6 +442,7 @@ export type IUser = {
 
 export type MetaDateStatusUser = {
 	status: string;
+	user_status?: string;
 };
 
 export type IVoice = {
@@ -774,6 +781,7 @@ export type IMessageLine = {
 
 export interface UsersClanEntity extends IUsersClan {
 	id: string; // Primary ID
+	ban_list?: Record<string, string>;
 }
 
 export interface ChannelMembersEntity extends IChannelMember {
@@ -803,6 +811,12 @@ export type RemoveClanUsers = {
 };
 
 export type RemoveChannelUsers = {
+	channelId: string;
+	userIds: string[];
+};
+
+export type BanClanUsers = {
+	clanId: string;
 	channelId: string;
 	userIds: string[];
 };
@@ -1014,7 +1028,8 @@ export enum ETypeLinkMedia {
 export type RequestInput = {
 	valueTextInput: string;
 	content: string;
-	mentionRaw: MentionItem[];
+	mentionRaw?: MentionItem[];
+	entities?: any[];
 };
 
 export type BuzzArgs = {
@@ -1039,6 +1054,7 @@ export enum EUserSettings {
 	FRIEND_REQUESTS = 'Friend Requests',
 	APP_SETTINGS = 'APP SETTINGS',
 	APPEARANCE = 'Appearance',
+	ACTIVITY = 'Activity',
 	ACCESSIBILITY = 'Accessibility',
 	VOICE_VIDEO = 'Voice & Video',
 	TEXT_IMAGE = 'Text & Image',
@@ -1098,7 +1114,8 @@ export enum TypeCheck {
 
 export enum ThreadStatus {
 	activePublic = 2,
-	joined = 1
+	joined = 1,
+	activePrivate = 3
 }
 
 export type ICanvas = {
@@ -1167,7 +1184,8 @@ export enum TypeMessage {
 	Topic = 9,
 	AuditLog = 10,
 	SendToken = 11,
-	Ephemeral = 12
+	Ephemeral = 12,
+	UpcomingEvent = 13
 }
 
 export enum ServerSettingsMenuValue {
@@ -1336,20 +1354,17 @@ export type IUserAuditLog = {
 export type IUserProfileActivity = {
 	avatar_url?: string;
 	display_name?: string;
-	id?: string;
+	id: string;
 	username?: string;
 	online?: boolean;
-	metadata?: { status?: string; user_status?: string };
-};
-
-export type IUserItemActivity = {
-	id: string;
-	user?: IUserProfileActivity;
+	status?: string;
+	user_status?: string;
+	is_mobile?: boolean;
 };
 
 export type UserStatus = {
-	user_id: string;
 	status: string;
+	user_status: string;
 };
 
 export type UserStatusUpdate = {
@@ -1363,6 +1378,13 @@ export enum EUserStatus {
 	IDLE = 'Idle',
 	DO_NOT_DISTURB = 'Do Not Disturb',
 	INVISIBLE = 'Invisible'
+}
+
+export enum ETabUserStatus {
+	ALL = 'all',
+	ONLINE = 'online',
+	BLOCK = 'block',
+	PENDING = 'pending'
 }
 
 export type IDmCallInfo = {
@@ -1403,6 +1425,7 @@ export type MentionReactInputProps = {
 	readonly listMentions?: MentionDataProps[] | undefined;
 	readonly isThread?: boolean;
 	readonly isTopic?: boolean;
+	readonly isThreadbox?: boolean;
 	readonly handlePaste?: (event: React.ClipboardEvent<any>, anonymousMessage?: boolean) => Promise<void>;
 	readonly handleConvertToFile?: (valueContent: string, anonymousMessage?: boolean) => Promise<void>;
 	readonly currentClanId?: string;
@@ -1441,6 +1464,7 @@ export interface IAttachmentEntity extends ApiChannelAttachment {
 	id: string;
 	channelId?: string;
 	clanId?: string;
+	isVideo?: boolean;
 }
 
 export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
@@ -1449,6 +1473,7 @@ export interface IAttachmentEntityWithUploader extends IAttachmentEntity {
 		name: string;
 	};
 	realUrl: string;
+	isVideo?: boolean;
 }
 
 export interface IImageWindowProps {
@@ -1489,6 +1514,7 @@ export type IvoiceInfo = {
 	channelId: string;
 	channelLabel: string;
 	channelPrivate: number;
+	roomId?: string;
 };
 
 export type ImageSourceObject = {
@@ -1501,7 +1527,7 @@ export type ImageSourceObject = {
 export type HistoryItem = {
 	valueTextInput: string;
 	content: string;
-	mentionRaw: any[];
+	mentionRaw?: any[];
 };
 
 export enum SymbolsAndIdsLengthOfMentionValue {

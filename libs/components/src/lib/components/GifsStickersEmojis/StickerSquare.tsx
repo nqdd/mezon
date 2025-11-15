@@ -1,16 +1,17 @@
-import { useChatSending, useCurrentInbox, useEscapeKeyClose, useGifsStickersEmoji } from '@mezon/core';
+import { useAuth, useChatSending, useCurrentInbox, useEscapeKeyClose, useGifsStickersEmoji } from '@mezon/core';
 import {
 	MediaType,
 	emojiRecentActions,
 	referencesActions,
 	selectAllStickerSuggestion,
-	selectCurrentClan,
+	selectCurrentClanName,
 	selectDataReferences,
+	selectPendingUnlockMap,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { FOR_SALE_CATE, SubPanelName, blankReferenceObj } from '@mezon/utils';
+import { FOR_SALE_CATE, ITEM_TYPE, SubPanelName, blankReferenceObj } from '@mezon/utils';
 import { ClanSticker } from 'mezon-js';
 import { ApiChannelDescription, ApiMessageRef } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -32,6 +33,7 @@ interface ICategorizedStickerProps {
 		clanName: string | undefined;
 		clanId: string | undefined;
 		forSale: boolean | undefined;
+		shortname: string;
 	}[];
 	categoryName: string;
 	logo?: string;
@@ -53,6 +55,8 @@ type StickerPanel = {
 	forSale?: boolean;
 	clanName?: string;
 	clanId?: string;
+	creatorId?: string;
+	shortname?: string;
 };
 
 const searchStickers = (stickers: ClanSticker[], searchTerm: string) => {
@@ -62,6 +66,7 @@ const searchStickers = (stickers: ClanSticker[], searchTerm: string) => {
 };
 
 function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessageBoxProps) {
+	const { userProfile } = useAuth();
 	const allStickers = useAppSelector(selectAllStickerSuggestion);
 	const clanStickers = useMemo(
 		() => allStickers.filter((sticker) => (sticker as any).media_type === undefined || (sticker as any).media_type === MediaType.STICKER),
@@ -108,7 +113,9 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 				type: sticker.clan_name,
 				clanName: sticker.category,
 				clanId: sticker.clan_id,
-				forSale: sticker.is_for_sale
+				forSale: sticker.is_for_sale,
+				creatorId: sticker.creator_id,
+				shortname: sticker.shortname || ''
 			}))
 		].filter(Boolean);
 	}, [searchedStickers]);
@@ -160,11 +167,19 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 	const [openModalListBuy, closeModalListBuy] = useModal(() => {
 		const handleConfirmBuyItem = async () => {
 			if (stickerBuy) {
-				await dispatch(emojiRecentActions.buyItemForSale({ id: stickerBuy.id, type: 1 }));
+				await dispatch(
+					emojiRecentActions.buyItemForSale({
+						id: stickerBuy.id,
+						type: ITEM_TYPE.STICKER,
+						creatorId: stickerBuy.creatorId,
+						senderId: userProfile?.user?.id,
+						username: userProfile?.user?.username
+					})
+				);
 			}
 		};
 		return <ModalBuyItem onConfirm={handleConfirmBuyItem} onCancel={closeModalListBuy} />;
-	}, [stickerBuy]);
+	}, [stickerBuy, userProfile?.user?.id]);
 
 	return (
 		<div ref={modalRef} tabIndex={-1} className="outline-none flex h-full w-full md:w-[500px] max-sm:ml-1 pt-3">
@@ -237,7 +252,7 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 		categoryName === FOR_SALE_CATE ? sticker.forSale : sticker.type === categoryName && !sticker.forSale
 	);
 	const [isShowStickerList, setIsShowStickerList] = useState(categoryName === FOR_SALE_CATE ? false : true);
-	const currentClan = useAppSelector(selectCurrentClan);
+	const currentClanName = useAppSelector(selectCurrentClanName);
 
 	const handleToggleButton = () => {
 		setIsShowStickerList(!isShowStickerList);
@@ -260,7 +275,7 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 				)}
 
 				<p className={'ml-2 uppercase text-left truncate text-xs font-semibold'}>
-					{categoryName !== 'custom' ? categoryName : currentClan?.clan_name}
+					{categoryName !== 'custom' ? categoryName : currentClanName}
 				</p>
 				<span className={`${isShowStickerList ? ' rotate-90' : ''}`}>
 					<Icons.ArrowRight defaultSize="w-4 h-4" />
@@ -274,38 +289,63 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 };
 
 const StickerPanel: React.FC<IStickerPanelProps> = ({ stickerList, onClickSticker, onOpenBuySticker }) => {
+	const { setPlaceHolderInput } = useGifsStickersEmoji();
+	const pendingUnlockItemMap = useAppSelector(selectPendingUnlockMap);
+
 	return (
 		// eslint-disable-next-line react/jsx-no-useless-fragment
 		<>
 			{stickerList.length > 0 && (
 				<div key={stickerList[0].id} className="w-auto pb-2 px-2">
 					<div className="grid grid-cols-3 gap-4">
-						{stickerList.map((sticker: StickerPanel) => (
-							<div
-								className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center rounded-lg cursor-pointer"
-								key={sticker.id}
-							>
-								<img
-									src={sticker.url ? sticker.url : `${process.env.NX_BASE_IMG_URL}/stickers/` + sticker.id + `.webp`}
-									alt="sticker"
-									className={`w-full h-full aspect-square object-cover  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
-									onClick={() => (!sticker.forSale || sticker.url ? onClickSticker(sticker) : onOpenBuySticker(sticker))}
-									role="button"
-								/>
-								{sticker.forSale && (
-									<>
-										{!sticker.url && (
-											<div className="absolute left-8 flex items-center justify-center aspect-square pointer-events-none group">
-												<Icons.LockIcon defaultSize="w-16 h-16 text-white block group-hover:hidden" defaultFill="white" />
-												<Icons.UnLockIcon defaultSize="w-16 h-16 text-white hidden group-hover:block" defaultFill="white" />
-											</div>
-										)}
+						{stickerList.map((sticker: StickerPanel) => {
+							const isItemPendingUnlock = !!(sticker.id && pendingUnlockItemMap[sticker.id]);
+							return (
+								<div
+									className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center rounded-lg cursor-pointer"
+									key={sticker.id}
+									onMouseEnter={() => setPlaceHolderInput(sticker.shortname || '')}
+								>
+									<img
+										src={sticker.url ? sticker.url : `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp`}
+										alt="sticker"
+										className={`w-full h-full aspect-square object-cover  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
+										onClick={() => {
+											if (!sticker.forSale || sticker.url) {
+												onClickSticker(sticker);
+											} else if (!isItemPendingUnlock) {
+												onOpenBuySticker(sticker);
+											}
+										}}
+										role="button"
+									/>
+									{sticker.forSale && (
+										<>
+											{!sticker.url && (
+												<div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center aspect-square pointer-events-none group">
+													{isItemPendingUnlock ? (
+														<Icons.LoadingSpinner className="w-8 h-8 text-white block group-hover:hidden" />
+													) : (
+														<>
+															<Icons.LockIcon
+																defaultSize="w-16 h-16 text-white block group-hover:hidden"
+																defaultFill="white"
+															/>
+															<Icons.UnLockIcon
+																defaultSize="w-16 h-16 text-white hidden group-hover:block"
+																defaultFill="white"
+															/>
+														</>
+													)}
+												</div>
+											)}
 
-										<Icons.MarketIcons className="absolute top-1 right-1 w-4 h-4 text-yellow-300" />
-									</>
-								)}
-							</div>
-						))}
+											<Icons.MarketIcons className="absolute top-1 right-1 w-4 h-4 text-yellow-300" />
+										</>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			)}

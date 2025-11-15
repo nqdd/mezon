@@ -1,7 +1,9 @@
 import { captureSentryError } from '@mezon/logger';
-import { IInvite, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiInviteUserRes, ApiLinkInviteUser } from 'mezon-js/api.gen';
+import { createClient } from '@mezon/transport';
+import type { IInvite, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiInviteUserRes, ApiLinkInviteUser } from 'mezon-js/api.gen';
 import { ensureSession, getMezonCtx } from '../helpers';
 
 export const INVITE_FEATURE_KEY = 'invite';
@@ -34,9 +36,9 @@ export const createLinkInviteUser = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body = {
-				channel_id: channel_id,
-				clan_id: clan_id,
-				expiry_time: expiry_time
+				channel_id,
+				clan_id,
+				expiry_time
 			};
 			const response = await mezon.client.createLinkInviteUser(mezon.session, body);
 			if (!response) {
@@ -71,13 +73,37 @@ export const inviteUser = createAsyncThunk('invite/inviteUser', async ({ inviteI
 
 export const getLinkInvite = createAsyncThunk('invite/getLinkInvite', async ({ inviteId }: InviteUser, thunkAPI) => {
 	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.getLinkInvite(mezon.session, inviteId);
+		const gw_login = {
+			host: process.env.NX_CHAT_APP_API_GW_HOST as string,
+			port: process.env.NX_CHAT_APP_API_GW_PORT as string,
+			key: process.env.NX_CHAT_APP_API_KEY as string,
+			ssl: process.env.NX_CHAT_APP_API_SECURE === 'true'
+		};
+		const mezon = createClient(gw_login);
+		const response = await mezon.getLinkInvite(inviteId);
+
 		if (!response) {
 			return thunkAPI.rejectWithValue([]);
 		}
 
 		return mapInviteToEntity(response, inviteId);
+	} catch (error) {
+		captureSentryError(error, 'invite/getLinkInvite');
+		return thunkAPI.rejectWithValue(error);
+	}
+});
+
+export const checkMutableRelationship = createAsyncThunk('invite/getMutableRelation', async ({ userId }: { userId: string }, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const response = await mezon.client.isFollower(mezon.session, {
+			follow_id: userId
+		});
+		if (!response) {
+			return thunkAPI.rejectWithValue([]);
+		}
+
+		return response;
 	} catch (error) {
 		captureSentryError(error, 'invite/getLinkInvite');
 		return thunkAPI.rejectWithValue(error);

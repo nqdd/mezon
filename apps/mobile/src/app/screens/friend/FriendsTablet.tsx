@@ -1,27 +1,31 @@
-import { useDirect, useFriends } from '@mezon/core';
-import { ChevronIcon, PaperPlaneIcon } from '@mezon/mobile-components';
+import { useDirect } from '@mezon/core';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, getStore, selectDirectsOpenlist } from '@mezon/store-mobile';
+import { DMCallActions, FriendsEntity, directActions, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
 import { User } from 'mezon-js';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text, TextInput, View } from 'react-native';
-import Toast from 'react-native-toast-message';
+import { DeviceEventEmitter, Pressable, Text, TextInput, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
+import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { EFriendItemAction } from '../../components/FriendItem';
 import { FriendListByAlphabet } from '../../components/FriendListByAlphabet';
 import { UserInformationBottomSheet } from '../../components/UserInformationBottomSheet';
+import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import { normalizeString } from '../../utils/helpers';
+import { DirectMessageCallMain } from '../messages/DirectMessageCall';
 import { style } from './styles';
 
 export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
+	const dispatch = useAppDispatch();
 	const [searchText, setSearchText] = useState<string>('');
 	const { t } = useTranslation(['common', 'friends']);
-	const { friends: allUser } = useFriends();
+	const allUser = useSelector(selectAllFriends);
 	const { createDirectMessageWithUser } = useDirect();
 	const store = getStore();
 	const friendList: FriendsEntity[] = useMemo(() => {
@@ -48,11 +52,12 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 		async (user: FriendsEntity) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
 			const directMessage = listDM.find((dm) => {
-				const userIds = dm?.user_id;
+				const userIds = dm?.user_ids;
 				return Array.isArray(userIds) && userIds.length === 1 && userIds[0] === user?.user?.id;
 			});
+			dispatch(directActions.setDmGroupCurrentId(directMessage?.id));
+
 			if (directMessage?.id) {
-				navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
 				return;
 			}
 			const response = await createDirectMessageWithUser(
@@ -61,18 +66,63 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 				user?.user?.username,
 				user?.user?.avatar_url
 			);
-			if (response?.channel_id) {
-				navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: response?.channel_id });
-			}
+			dispatch(directActions.setDmGroupCurrentId(response?.channel_id));
 		},
 		[createDirectMessageWithUser, navigation]
+	);
+
+	const handleCallUser = useCallback(
+		async (user: FriendsEntity) => {
+			const listDM = selectDirectsOpenlist(store.getState() as any);
+			const directMessage = listDM?.find?.((dm) => {
+				const userIds = dm?.user_ids;
+				if (!Array.isArray(userIds) || userIds.length !== 1) {
+					return false;
+				}
+				return userIds[0] === user?.user?.id;
+			});
+			if (directMessage?.id) {
+				dispatch(DMCallActions.removeAll());
+				const params = {
+					receiverId: user?.user?.id,
+					receiverAvatar: user?.user?.avatar_url,
+					receiverName: user?.user?.display_name || user?.user?.username,
+					directMessageId: directMessage?.id
+				};
+				const dataModal = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
+				return;
+			}
+			const response = await createDirectMessageWithUser(
+				user?.user?.id,
+				user?.user?.display_name,
+				user?.user?.username,
+				user?.user?.avatar_url
+			);
+			if (response?.channel_id) {
+				dispatch(DMCallActions.removeAll());
+				const params = {
+					receiverId: user?.user?.id,
+					receiverAvatar: user?.user?.avatar_url,
+					receiverName: user?.user?.display_name || user?.user?.username,
+					directMessageId: response?.channel_id
+				};
+				const dataModal = {
+					children: <DirectMessageCallMain route={{ params }} />
+				};
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
+			}
+		},
+		[createDirectMessageWithUser, navigation, store]
 	);
 
 	const handleFriendAction = useCallback(
 		(friend: FriendsEntity, action: EFriendItemAction) => {
 			switch (action) {
 				case EFriendItemAction.Call:
-					Toast.show({ type: 'info', text1: 'Updating...' });
+					handleCallUser(friend);
 					break;
 				case EFriendItemAction.MessageDetail:
 					directMessageWithUser(friend);
@@ -113,7 +163,7 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 
 			{!searchText?.trim()?.length || filteredFriendList?.length === 0 ? (
 				<Pressable style={styles.requestFriendWrapper} onPress={() => navigateToRequestFriendScreen()}>
-					<PaperPlaneIcon width={25} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.paperPlaneIcon} width={25} color={themeValue.text} />
 					<View style={styles.fill}>
 						<Text style={styles.defaultText}>{t('friends:friendRequest.title')}</Text>
 						<View style={styles.requestContentWrapper}>
@@ -126,7 +176,7 @@ export const FriendsTablet = React.memo(({ navigation }: { navigation: any }) =>
 							</Text>
 						</View>
 					</View>
-					<ChevronIcon width={25} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={25} color={themeValue.text} />
 				</Pressable>
 			) : null}
 			<FriendListByAlphabet

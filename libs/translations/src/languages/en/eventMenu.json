@@ -1,36 +1,47 @@
 {
-    "menu": {
-        "startEvent": "Start Event",
-        "markAsNotInterested": "Mark As Not Interested",
-        "markAsInterested": "Mark As Interested",
-        "editEvent": "Edit Event",
-        "cancelEvent": "Cancel Event",
-        "reportEvent": "Report Event",
-        "copyEventLink": "Copy Event Link",
-        "copyEventID": "Copy Event ID"
-    },
-    "confirm": {
-        "title": "Cancel Event",
-        "content": "Are you sure you want to cancel this event?"
-    },
-    "dashboard": {
-        "title": "Events",
-        "noEvent": "There are no upcoming events.",
-        "noEventDescription": "Schedule an event for any planned activity in your clan. You can give other people permission to create event in Clan Settings > Roles.",
-        "createButton": "Create"
-    },
-    "item": {
-        "interested": "Interested",
-        "uninterested": "Uninterested"
-    },
-    "detail": {
-        "eventInfo": "Event Info",
-        "interested": "Interested"
-    },
-    "share": {
-        "title": "Share Event to friends",
-        "search": "Search",
-        "share": "Share",
-        "copied": "Link Copied!"
-    }
+	"menu": {
+		"startEvent": "Start Event",
+		"markAsNotInterested": "Mark As Not Interested",
+		"markAsInterested": "Mark As Interested",
+		"editEvent": "Edit Event",
+		"cancelEvent": "Cancel Event",
+		"reportEvent": "Report Event",
+		"copyEventLink": "Copy Event Link",
+		"copyEventID": "Copy Event ID"
+	},
+	"confirm": {
+		"title": "Cancel Event",
+		"content": "Please confirm if you would like to cancel this event?"
+	},
+	"dashboard": {
+		"title": "Events",
+		"noEvent": "There are no upcoming events.",
+		"noEventDescription": "Schedule an event for any planned activity in your clan. You can give other people permission to create event in Clan Settings > Roles.",
+		"createButton": "Create",
+		"noti": "This event is open to everyone in the clan.",
+		"endEvent": "End Event",
+		"UnInterested": "Uninterested",
+		"Interested": "Interested"
+	},
+	"item": {
+		"interested": "Interested",
+		"uninterested": "Uninterested"
+	},
+	"detail": {
+		"eventInfo": "Event Info",
+		"interested": "Interested",
+		"personInterested": "{{count}} person is interested",
+		"createdBy": "Created by "
+	},
+	"share": {
+		"title": "Share Event to friends",
+		"search": "Search",
+		"share": "Share",
+		"copied": "Link Copied!"
+	},
+	"countdown": {
+		"joinIn_other": "will start in {{count}} minutes",
+		"joinNow": "Event is taking place!",
+		"joinIn_one": "sẽ bắt đầu trong 1 phút"
+	}
 }

@@ -1,5 +1,4 @@
-import { selectMemberClanByUserId } from '@mezon/store';
-import { useSelector } from 'react-redux';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 
 type Props = {
 	readonly id: string;
@@ -8,6 +7,10 @@ type Props = {
 };
 
 export function NameComponent({ id, name }: Props) {
-	const user = useSelector(selectMemberClanByUserId(id));
-	return <p className="text-sm font-medium text-theme-primary">{name ? name : user?.user?.username}</p>;
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, id));
+	return (
+		<p title={name ? name : user?.user?.username} className="text-sm font-medium text-theme-primary truncate max-w-[150px] inline-no-wrap">
+			{name ? name : user?.user?.username}
+		</p>
+	);
 }

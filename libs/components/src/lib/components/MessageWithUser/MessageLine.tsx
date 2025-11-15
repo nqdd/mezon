@@ -1,9 +1,10 @@
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { getTagByIdOnStored } from '@mezon/core';
-import { ChannelsEntity, getStore, selectCanvasIdsByChannelId, selectGmeetVoice } from '@mezon/store';
-import { EBacktickType, ETokenMessage, IExtendedMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
+import { getStore, selectCanvasIdsByChannelId } from '@mezon/store';
+import type { IExtendedMessage } from '@mezon/utils';
+import { EBacktickType, ETokenMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { CanvasHashtag, ChannelHashtag, EmojiMarkup, MarkdownContent, MentionUser, PlainText } from '../../components';
 
 interface RenderContentProps {
@@ -25,6 +26,7 @@ interface RenderContentProps {
 	className?: string;
 	isEphemeral?: boolean;
 	isSending?: boolean;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
 export interface ElementToken {
@@ -61,46 +63,46 @@ const formatMarkdownHeadings = (text: string, isReply: boolean): React.ReactNode
 			hasHeadings = true;
 			const headingLevel = headingMatch[1].length;
 			const headingText = headingMatch[2].trim();
-
+			const replyText = 'text-sm pb-1';
 			switch (headingLevel) {
 				case 1:
 					formattedLines.push(
-						<h1 key={`h1-${index}`} className={`${isReply ? 'text-sm' : 'text-4xl'} my-1 font-bold text-theme-message`}>
+						<h1 key={`h1-${index}`} className={`${isReply ? replyText : 'text-4xl my-1'} font-bold`}>
 							{headingText}
 						</h1>
 					);
 					break;
 				case 2:
 					formattedLines.push(
-						<h2 key={`h2-${index}`} className="text-3xl my-1 font-bold text-theme-message">
+						<h2 key={`h2-${index}`} className={` ${isReply ? replyText : 'text-3xl my-1'} font-bold`}>
 							{headingText}
 						</h2>
 					);
 					break;
 				case 3:
 					formattedLines.push(
-						<h3 key={`h3-${index}`} className="text-2xl my-1 font-bold text-theme-message">
+						<h3 key={`h3-${index}`} className={` ${isReply ? replyText : 'text-2xl my-1'} font-bold`}>
 							{headingText}
 						</h3>
 					);
 					break;
 				case 4:
 					formattedLines.push(
-						<h4 key={`h4-${index}`} className="text-xl my-1 font-bold text-theme-message">
+						<h4 key={`h4-${index}`} className={` ${isReply ? replyText : 'text-xl my-1'}  font-bold`}>
 							{headingText}
 						</h4>
 					);
 					break;
 				case 5:
 					formattedLines.push(
-						<h5 key={`h5-${index}`} className="text-lg my-1 font-bold text-theme-message">
+						<h5 key={`h5-${index}`} className={`${isReply ? replyText : 'text-lg my-1'}  font-bold`}>
 							{headingText}
 						</h5>
 					);
 					break;
 				case 6:
 					formattedLines.push(
-						<h6 key={`h6-${index}`} className="text-base my-1 font-bold text-theme-message">
+						<h6 key={`h6-${index}`} className={`${isReply ? replyText : 'text-base my-1'}  font-bold`}>
 							{headingText}
 						</h6>
 					);
@@ -110,7 +112,18 @@ const formatMarkdownHeadings = (text: string, isReply: boolean): React.ReactNode
 					break;
 			}
 		} else {
-			formattedLines.push(line + '\n');
+			const lastElement = formattedLines[formattedLines.length - 1];
+			const isAfterHeading =
+				lastElement &&
+				typeof lastElement === 'object' &&
+				React.isValidElement(lastElement) &&
+				['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(lastElement.type as string);
+
+			if (isAfterHeading && line.trim()) {
+				formattedLines.push(<span key={`inline-${index}`}>{line}</span>);
+			} else {
+				formattedLines.push(`\n${line}`);
+			}
 		}
 	});
 
@@ -188,7 +201,8 @@ export const MessageLine = ({
 	isReply,
 	onClickToMessage,
 	isEphemeral,
-	isSending
+	isSending,
+	onContextMenu
 }: RenderContentProps) => {
 	mode = mode ?? ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const { t, mentions = [], hg = [], ej = [], mk = [], lk = [], vk = [], lky = [] } = content || {};
@@ -206,7 +220,15 @@ export const MessageLine = ({
 		...lkm,
 		...lkym,
 		...vkm
-	].sort((a, b) => (a.s ?? 0) - (b.s ?? 0));
+	]
+		.sort((a, b) => (a.s ?? 0) - (b.s ?? 0))
+		.filter((element, index, sortedArray) => {
+			if (index === 0) return true;
+			const prevElement = sortedArray[index - 1];
+			const currentStart = element.s ?? 0;
+			const prevEnd = prevElement.e ?? 0;
+			return currentStart >= prevEnd;
+		});
 
 	let lastindex = 0;
 	const content2 = (() => {
@@ -291,6 +313,8 @@ export const MessageLine = ({
 						index={index}
 						s={s}
 						contentInElement={contentInElement}
+						messageId={messageId}
+						onContextMenu={onContextMenu}
 					/>
 				);
 			} else if (element.kindOf === ETokenMessage.MARKDOWNS) {
@@ -329,7 +353,7 @@ export const MessageLine = ({
 								/>
 							);
 						} else if (!isCanvas && contentHasChannelLink) {
-							const channelFound = getTagByIdOnStored(channelId);
+							const channelFound = getTagByIdOnStored(clanId, channelId);
 							if (channelId && channelFound?.id) {
 								componentToRender = (
 									<ChannelHashtag
@@ -352,6 +376,8 @@ export const MessageLine = ({
 									content={contentInElement}
 									isReply={isReply}
 									isSearchMessage={isSearchMessage}
+									messageId={messageId}
+									onContextMenu={onContextMenu}
 								/>
 							)
 						);
@@ -366,6 +392,8 @@ export const MessageLine = ({
 									content={contentInElement}
 									isReply={isReply}
 									isSearchMessage={isSearchMessage}
+									messageId={messageId}
+									onContextMenu={onContextMenu}
 								/>
 							)
 						);
@@ -383,6 +411,8 @@ export const MessageLine = ({
 							index={index}
 							s={s}
 							contentInElement={contentInElement}
+							messageId={messageId}
+							onContextMenu={onContextMenu}
 						/>
 					);
 				} else {
@@ -408,6 +438,8 @@ export const MessageLine = ({
 							content={content}
 							isInPinMsg={isInPinMsg}
 							typeOfBacktick={element.type}
+							messageId={messageId}
+							onContextMenu={onContextMenu}
 						/>
 					);
 				}
@@ -494,28 +526,30 @@ interface VoiceLinkContentProps {
 	index: number;
 	s: number;
 	contentInElement: string | undefined;
+	messageId?: string;
+	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
-export const VoiceLinkContent = ({ meetingCode, isTokenClickAble, isJumMessageEnabled, index, s, contentInElement }: VoiceLinkContentProps) => {
-	const getVoiceChannelByMeetingCode = (meetingCode: string) => {
-		const store = getStore();
-		const allChannelVoice = selectGmeetVoice(store.getState());
-		return allChannelVoice?.find((channel) => channel.meeting_code === meetingCode) || null;
-	};
-	const voiceChannelFound = getVoiceChannelByMeetingCode(meetingCode as string) || null;
-
-	if (voiceChannelFound) {
-		return (
-			<ChannelHashtag
-				channelOnLinkFound={voiceChannelFound as ChannelsEntity}
-				isTokenClickAble={isTokenClickAble}
-				isJumMessageEnabled={isJumMessageEnabled}
-				channelHastagId={`<#${voiceChannelFound?.channel_id}>`}
-			/>
-		);
-	}
-
-	return <MarkdownContent isLink={true} isTokenClickAble={isTokenClickAble} isJumMessageEnabled={isJumMessageEnabled} content={contentInElement} />;
+export const VoiceLinkContent = ({
+	meetingCode,
+	isTokenClickAble,
+	isJumMessageEnabled,
+	index,
+	s,
+	contentInElement,
+	messageId,
+	onContextMenu
+}: VoiceLinkContentProps) => {
+	return (
+		<MarkdownContent
+			isLink={true}
+			isTokenClickAble={isTokenClickAble}
+			isJumMessageEnabled={isJumMessageEnabled}
+			content={contentInElement}
+			messageId={messageId}
+			onContextMenu={onContextMenu}
+		/>
+	);
 };
 
 interface MentionContentProps {

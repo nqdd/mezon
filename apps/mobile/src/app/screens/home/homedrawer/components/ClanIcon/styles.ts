@@ -1,4 +1,4 @@
-import { Attributes, Colors, size, verticalScale } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -40,7 +40,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: verticalScale(15)
 		},
 		lineActiveClan: {
-			backgroundColor: Colors.azureBlue,
+			backgroundColor: baseColor.azureBlue,
 			width: size.s_6,
 			height: '80%',
 			top: '10%',
@@ -50,11 +50,11 @@ export const style = (colors: Attributes) =>
 			position: 'absolute'
 		},
 		badge: {
-			backgroundColor: Colors.red,
+			backgroundColor: baseColor.redStrong,
 			position: 'absolute',
 			borderRadius: size.s_20,
 			borderWidth: size.s_2,
-			borderColor: Colors.secondary,
+			borderColor: colors.secondary,
 			minWidth: size.s_20,
 			height: size.s_20,
 			alignItems: 'center',
@@ -62,9 +62,24 @@ export const style = (colors: Attributes) =>
 			bottom: -5,
 			right: 5
 		},
+		unreadDot: {
+			backgroundColor: colors.text,
+			position: 'absolute',
+			borderRadius: size.s_8,
+			width: size.s_8,
+			height: size.s_8,
+			alignItems: 'center',
+			justifyContent: 'center',
+			bottom: size.s_16,
+			left: -size.s_4
+		},
 		badgeText: {
-			color: Colors.white,
+			color: 'white',
 			fontWeight: 'bold',
 			fontSize: size.tiny
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

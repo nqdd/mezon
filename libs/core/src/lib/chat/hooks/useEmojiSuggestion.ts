@@ -8,7 +8,8 @@ import {
 	selectTextToSearchEmojiSuggestion,
 	useAppDispatch
 } from '@mezon/store';
-import { IEmoji, getIdSaleItemFromSource } from '@mezon/utils';
+import type { IEmoji } from '@mezon/utils';
+import { getIdSaleItemFromSource } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -17,25 +18,31 @@ interface EmojiSuggestionProps {
 }
 
 const filterEmojiData = (emojis: IEmoji[]) => {
-	return emojis.map(({ id, src, shortname, category, is_for_sale }) => {
-		if (is_for_sale && src) {
-			const idSale = getIdSaleItemFromSource(src);
+	return emojis
+		.filter((emoji) => emoji.id && emoji.shortname)
+		.map(({ id, src, shortname, category, is_for_sale, creator_id }) => {
+			if (is_for_sale && src) {
+				const idSale = getIdSaleItemFromSource(src);
+				return {
+					id: idSale!,
+					display: shortname!,
+					src,
+					category,
+					shortname,
+					is_for_sale,
+					creator_id
+				};
+			}
 			return {
-				id: idSale,
+				id: id!,
+				display: shortname!,
 				src,
 				category,
 				shortname,
-				is_for_sale
+				is_for_sale,
+				creator_id
 			};
-		}
-		return {
-			id,
-			src,
-			category,
-			shortname,
-			is_for_sale
-		};
-	});
+		});
 };
 
 export function useEmojiSuggestion({ isMobile = false }: EmojiSuggestionProps = {}) {
@@ -43,7 +50,6 @@ export function useEmojiSuggestion({ isMobile = false }: EmojiSuggestionProps = 
 	const emojiConverted = useSelector(selectAllEmojiRecent);
 
 	const emojis = useMemo(() => filterEmojiData([...(emojiMetadata || []), ...(emojiConverted || [])]), [emojiMetadata, emojiConverted]);
-
 	const isEmojiListShowed = useSelector(selectEmojiListStatus);
 	const emojiPicked = useSelector(selectEmojiObjSuggestion);
 
@@ -102,7 +108,7 @@ export function useEmojiSuggestion({ isMobile = false }: EmojiSuggestionProps = 
 	}, [categoryEmoji]);
 
 	const categoriesEmoji = useMemo(() => {
-		const defaultCategories = ['Recent', 'Frequency', 'People', 'Nature', 'Food', 'Activities', 'Travel', 'Objects', 'Symbols', 'Flags'];
+		const defaultCategories = ['Recent', 'Frequently', 'People', 'Nature', 'Food', 'Activities', 'Travel', 'Objects', 'Symbols', 'Flags'];
 		const mergedCategories = [...defaultCategories.slice(0, 2), ...clanNames, ...defaultCategories.slice(2)];
 		return [...new Set(mergedCategories)];
 	}, [clanNames]);

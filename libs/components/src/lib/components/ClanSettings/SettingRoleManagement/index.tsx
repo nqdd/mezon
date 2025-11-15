@@ -1,21 +1,27 @@
 import { useRoles } from '@mezon/core';
+import type { RolesClanEntity } from '@mezon/store';
 import {
-	RolesClanEntity,
 	getIsShow,
 	getNewAddMembers,
 	getNewAddPermissions,
 	getNewColorRole,
 	getNewNameRole,
+	getNewRoleIcon,
 	getRemovePermissions,
 	getSelectedRoleId,
-	selectCurrentClan,
+	roleSlice,
+	selectCurrentClanId,
 	selectCurrentRoleIcon,
 	setColorRoleNew,
+	setCurrentRoleIcon,
 	setNameRoleNew,
 	setSelectedPermissions,
 	setSelectedRoleId
 } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import { SettingUserClanProfileSave } from '../../SettingProfile/SettingRightClanProfile/SettingUserClanProfileSave';
 import SettingListRole from './SettingListRole';
 import SettingValueDisplayRole from './SettingOptionRole';
@@ -27,10 +33,10 @@ type EditNewRole = {
 export type ModalSettingSave = {
 	flagOption: boolean;
 	handleClose: () => void;
-	handleSaveClose: () => void;
 	handleUpdateUser: () => Promise<void>;
 };
 const ServerSettingRoleManagement = (props: EditNewRole) => {
+	const { t } = useTranslation('clanRoles');
 	const { rolesClan, flagOption } = props;
 	const { createRole, updateRole } = useRoles();
 	const clickRole = useSelector(getSelectedRoleId);
@@ -40,9 +46,11 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 	const removePermissions = useSelector(getRemovePermissions);
 	const addUsers = useSelector(getNewAddMembers);
 	const dispatch = useDispatch();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
 	const isChange = useSelector(getIsShow);
-	const isCreateNewRole = clickRole === 'New Role';
+	const isCreateNewRole = clickRole === t('roleManagement.newRoleDefault');
+
+	const newRoleIcon = useSelector(getNewRoleIcon);
 	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 
 	const handleClose = () => {
@@ -50,41 +58,53 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 			props.handleClose();
 		} else {
 			const activeRole = rolesClan.find((role) => role.id === clickRole);
+
 			const permissions = activeRole?.permission_list?.permissions;
 			const permissionIds = permissions ? permissions.filter((permission) => permission.active === 1).map((permission) => permission.id) : [];
-
 			dispatch(setNameRoleNew(activeRole?.title));
 			dispatch(setColorRoleNew(activeRole?.color));
 			dispatch(setSelectedPermissions(permissionIds));
+			dispatch(setCurrentRoleIcon(activeRole?.role_icon || ''));
+			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}
 	};
-	const handleSaveClose = () => null;
 
 	const handleUpdateUser = async (hasChangeRole?: boolean) => {
+		if (!nameRole || nameRole.trim() === '') {
+			toast.error(t('roleManagement.roleNameIsRequired'));
+			return;
+		}
 		if (isCreateNewRole) {
-			const respond = await createRole(currentClan?.id || '', nameRole, colorRole, addUsers, addPermissions);
-			if (!hasChangeRole) dispatch(setSelectedRoleId((respond as any).id));
+			const respond = await createRole(currentClanId || '', nameRole, colorRole, addUsers, addPermissions);
+			if (!hasChangeRole) dispatch(setSelectedRoleId(respond?.id || ''));
 		} else {
-			await updateRole(currentClan?.id ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, currentRoleIcon || '');
+			const roleIcon = newRoleIcon || currentRoleIcon || '';
+			await updateRole(currentClanId ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
+			dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon));
+			dispatch(roleSlice.actions.setNewRoleIcon(''));
 		}
 	};
 
 	const saveProfile: ModalSettingSave = {
 		flagOption: isChange,
 		handleClose,
-		handleSaveClose,
 		handleUpdateUser
 	};
 	return flagOption ? (
 		<>
-			<div className="absolute top-0 left-0 w-full h-full pl-2 flex flex-row flex-1 shrink bg-theme-setting-primary overflow-hidden sbm:pt-[-60px] pt-[10px]">
+			<div
+				className="absolute top-0 left-0 w-full h-full pl-2 flex flex-row flex-1 shrink bg-theme-setting-primary overflow-hidden sbm:pt-[-60px] pt-[10px]"
+				data-e2e={generateE2eId('clan_page.settings.role.container')}
+			>
 				<SettingListRole handleClose={props.handleClose} RolesClan={rolesClan} handleUpdateUser={() => handleUpdateUser(true)} />
 				<div className="w-2/3">
-					<div className="font-semibold pl-3 dark:text-white text-black">
+					<div className="font-semibold pl-3 text-theme-primary-active">
 						{isCreateNewRole ? (
-							<div className="tracking-wide text-base mb-4 pr-5">NEW ROLE</div>
+							<div className="tracking-wide text-theme-primary-active mb-4 pr-5">{t('roleManagement.newRole')}</div>
 						) : (
-							<div className="tracking-wide mb-4 text-base uppercase pr-5">EDIT ROLE - {nameRole}</div>
+							<div className="tracking-wide mb-4 text-theme-primary-active uppercase pr-5">
+								{t('roleManagement.editRole')} - {nameRole}
+							</div>
 						)}
 						<SettingValueDisplayRole RolesClan={rolesClan} />
 					</div>

@@ -1,13 +1,15 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { selectCurrentChannel } from '@mezon/store-mobile';
+import { selectBanMemberCurrentClanById, selectCurrentChannel, selectCurrentUserId } from '@mezon/store-mobile';
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback } from 'react';
-import { Platform, StatusBar, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
+import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
+import type { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
 import ChannelMessages from '../../../ChannelMessages';
 import { ChatBox } from '../../../ChatBox';
 import PanelKeyboard from '../../../PanelKeyboard';
@@ -18,6 +20,8 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentChannel = useSelector(selectCurrentChannel);
+	const currentUserId = useSelector(selectCurrentUserId);
+	const isBanned = useSelector((state) => selectBanMemberCurrentClanById(state, currentChannel?.channel_id, currentUserId));
 
 	const onHandlerStateChange = useCallback((event: { nativeEvent: { translationX: any; velocityX: any } }) => {
 		const { translationX, velocityX } = event.nativeEvent;
@@ -32,15 +36,22 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 			behavior={'padding'}
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 85 : StatusBar.currentHeight + 40}
 		>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
-				<View style={{ flex: 1 }}>
+				<Animated.View style={styles.messageContainer}>
 					<ChannelMessages
 						channelId={currentChannel?.channel_id}
 						clanId={currentChannel?.clan_id}
 						isPublic={isPublicChannel(currentChannel)}
 						mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
+						isBanned={!!isBanned}
 					/>
-				</View>
+				</Animated.View>
 			</PanGestureHandler>
 
 			<ChatBox
@@ -50,6 +61,8 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 				channelId={currentChannel?.channel_id}
 				mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 				isPublic={isPublicChannel(currentChannel)}
+				topicChannelId={''}
+				isBanned={!!isBanned}
 			/>
 			<PanelKeyboard currentChannelId={currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
 		</KeyboardAvoidingView>

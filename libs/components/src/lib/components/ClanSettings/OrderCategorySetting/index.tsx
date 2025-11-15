@@ -10,8 +10,10 @@ import {
 import { EDragBorderPosition, ICategoryChannel } from '@mezon/utils';
 import { ApiCategoryOrderUpdate } from 'mezon-js/api.gen';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CategoryOrderSetting = () => {
+	const { t } = useTranslation('common');
 	const categoryList: CategoriesEntity[] = useAppSelector(selectAllCategories);
 	const currentClanId = useAppSelector(selectCurrentClanId);
 	const [categoryListState, setCategoryListState] = useState<CategoriesEntity[]>(categoryList);
@@ -112,10 +114,10 @@ const CategoryOrderSetting = () => {
 			{hasChanged && (
 				<div className="flex flex-row justify-end gap-[20px] mt-10">
 					<button onClick={handleReset} className="rounded px-4 py-1.5 hover:underline ">
-						Reset
+						{t('reset')}
 					</button>
 					<button onClick={handleSave} className="btn-primary btn-primary-hover rounded-lg px-4 py-1.5 text-nowrap ">
-						Save Changes
+						{t('saveChanges')}
 					</button>
 				</div>
 			)}

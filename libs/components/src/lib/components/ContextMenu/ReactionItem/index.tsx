@@ -1,6 +1,7 @@
 import { useAuth, useChatReaction } from '@mezon/core';
-import { selectCurrentChannel, selectMemberClanByUserId2, useAppSelector } from '@mezon/store';
-import { IMessageWithUser, getSrcEmoji, isPublicChannel } from '@mezon/utils';
+import { selectCurrentChannelId, selectCurrentChannelParentId, selectCurrentChannelPrivate } from '@mezon/store';
+import type { IMessageWithUser } from '@mezon/utils';
+import { getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -19,8 +20,10 @@ const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messag
 	const getUrl = getSrcEmoji(emojiId);
 	const { userProfile } = useAuth();
 
-	const currentChannel = useSelector(selectCurrentChannel);
-	const clanProfile = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id || ''));
+	// Select individual channel properties to avoid unnecessary rerenders
+	const currentChannelObjectId = useSelector(selectCurrentChannelId);
+	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
+	const currentChannelPrivate = useSelector(selectCurrentChannelPrivate);
 
 	const handleClickEmoji = useCallback(async () => {
 		await reactionMessageDispatch({
@@ -31,16 +34,24 @@ const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messag
 			count: 1,
 			message_sender_id: (message.sender_id || userProfile?.user?.id) ?? '',
 			action_delete: false,
-			is_public: isPublicChannel(currentChannel),
+			is_public: isPublicChannel({ parent_id: currentChannelParentId, channel_private: currentChannelPrivate }),
 			clanId: message?.clan_id ?? '',
-			channelId: isTopic ? currentChannel?.id || '' : (message?.channel_id ?? ''),
+			channelId: isTopic ? currentChannelObjectId || '' : (message?.channel_id ?? ''),
 			isFocusTopicBox: isTopic,
-			channelIdOnMessage: message?.channel_id,
-			sender_name: !clanProfile
-				? userProfile?.user?.display_name || userProfile?.user?.username
-				: clanProfile.prioritizeName || clanProfile.clan_nick || userProfile?.user?.username
+			channelIdOnMessage: message?.channel_id
 		});
-	}, [reactionMessageDispatch, message, emojiId, emojiShortCode, userProfile, currentChannel, isTopic, clanProfile]);
+	}, [
+		reactionMessageDispatch,
+		message,
+		emojiId,
+		messageId,
+		emojiShortCode,
+		userProfile,
+		currentChannelParentId,
+		currentChannelPrivate,
+		currentChannelObjectId,
+		isTopic
+	]);
 
 	return (
 		<div

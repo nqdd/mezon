@@ -9,7 +9,7 @@ import {
 } from '@mezon/store';
 import { MessageCrypt, UploadLimitReason } from '@mezon/utils';
 
-import { TooManyUpload, WebRTCStreamProvider } from '@mezon/components';
+import { TooManyUpload, WebRTCStreamProvider, useClanLimitModalErrorHandler } from '@mezon/components';
 import { selectTotalUnreadDM, useAppSelector } from '@mezon/store';
 import { MezonSuspense } from '@mezon/transport';
 import { SubPanelName, electronBridge, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
@@ -22,6 +22,7 @@ import ChannelVoice from '../pages/channel/ChannelVoice';
 const GlobalEventListener = () => {
 	const { handleReconnect } = useContext(ChatContext);
 	const dispatch = useAppDispatch();
+	useClanLimitModalErrorHandler();
 
 	const allNotificationReplyMentionAllClan = useSelector(selectBadgeCountAllClan);
 
@@ -34,7 +35,6 @@ const GlobalEventListener = () => {
 	const hasUnreadChannel = useAppSelector((state) => selectAnyUnreadChannel(state));
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout | null = null;
-
 		const reconnectSocket = () => {
 			if (timeoutId) {
 				clearTimeout(timeoutId);
@@ -111,11 +111,17 @@ const GlobalEventListener = () => {
 
 const TooManyUploadWrapper = memo(
 	() => {
-		const { isOverUploading, setOverUploadingState, overLimitReason } = useDragAndDrop();
+		const { isOverUploading, setOverUploadingState, overLimitReason, limitSize } = useDragAndDrop();
 
 		if (!isOverUploading) return null;
 
-		return <TooManyUpload togglePopup={() => setOverUploadingState(false, UploadLimitReason.COUNT)} limitReason={overLimitReason} />;
+		return (
+			<TooManyUpload
+				togglePopup={() => setOverUploadingState(false, UploadLimitReason.COUNT, limitSize)}
+				limitReason={overLimitReason}
+				limitSize={limitSize}
+			/>
+		);
 	},
 	() => true
 );

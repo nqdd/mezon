@@ -1,0 +1,50 @@
+{
+	"title": "Stream Thumbnail",
+	"uploadThumbnail": "Upload Thumbnail",
+	"currentThumbnail": "Current Thumbnail",
+	"requirementsTitle": "Requirements",
+	"buttons": {
+		"change": "Change",
+		"remove": "Remove",
+		"selectFile": "Select File",
+		"uploading": "Uploading...",
+		"cancel": "Cancel",
+		"confirmUpload": "Confirm Upload",
+		"removing": "Removing...",
+		"removeThumbnail": "Remove Thumbnail"
+	},
+	"upload": {
+		"title": "Upload Your Thumbnail",
+		"description": "Click to browse or drag and drop your image"
+	},
+	"confirmModal": {
+		"uploadTitle": "Confirm Upload",
+		"uploadDescription": "Set this image as your stream thumbnail?",
+		"uploadMessage": "This thumbnail will be displayed when your stream is offline. All members will see this update immediately.",
+		"removeTitle": "Remove Thumbnail",
+		"removeQuestion": "Are you sure?",
+		"removeMessage": "This will remove your stream thumbnail. The default splash screen will be displayed instead when your stream is offline.",
+		"removeWarning": "This action cannot be undone."
+	},
+	"requirements": {
+		"format": {
+			"title": "Format",
+			"value": "JPG, PNG, GIF, WEBP"
+		},
+		"resolution": {
+			"title": "Resolution",
+			"value": "1920 x 1080 recommended"
+		},
+		"sizeLimit": {
+			"title": "Size Limit",
+			"value": "Maximum 10 MB"
+		}
+	},
+	"errors": {
+		"channelNotFound": "Channel not found",
+		"clientNotReady": "Client/session not ready",
+		"uploadFailed": "Failed to upload thumbnail. Please try again.",
+		"removeFailed": "Failed to remove thumbnail. Please try again."
+	},
+	"saved": "Thumbnail saved"
+}

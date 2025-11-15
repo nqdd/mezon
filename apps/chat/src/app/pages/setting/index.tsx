@@ -1,9 +1,20 @@
-import { ExitSetting, SettingAccount, SettingAppearance, SettingItem, SettingNotifications, SettingRightProfile } from '@mezon/components';
+import {
+	ExitSetting,
+	SettingAccount,
+	SettingActivity,
+	SettingAppearance,
+	SettingItem,
+	SettingLanguage,
+	SettingNotifications,
+	SettingRightProfile
+} from '@mezon/components';
 import { useEscapeKeyClose, useSettingFooter } from '@mezon/core';
-import { selectIsShowSettingFooter, showSettingFooterProps } from '@mezon/store';
+import type { showSettingFooterProps } from '@mezon/store';
+import { selectIsShowSettingFooter } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EUserSettings } from '@mezon/utils';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 
 interface settingProps {
@@ -34,15 +45,17 @@ const SettingContent = ({ isDM, isShowSettingFooter }: { isDM: boolean; isShowSe
 	useEscapeKeyClose(modalRef, closeSetting);
 
 	return (
-		<div ref={modalRef} tabIndex={-1} className="z-20 flex fixed inset-0 w-screen bg-theme-setting-primary text-theme-primary">
-			<div className="flex text-gray- w-screen relative">
-				<div className={`${!menuIsOpen ? 'hidden' : 'flex'} text-gray- w-1/6 xl:w-1/4 min-w-56 relative`}>
+		<div ref={modalRef} tabIndex={-1} className="z-50 flex fixed inset-0 w-screen bg-theme-setting-primary text-theme-primary">
+			<div className="flex w-screen relative">
+				<div className={`${!menuIsOpen ? 'hidden' : 'flex'} w-1/6 xl:w-1/4 min-w-56 relative`}>
 					<SettingItem onItemClick={handleSettingItemClick} initSetting={currentSetting} />
 				</div>
 				{currentSetting === EUserSettings.ACCOUNT && <SettingAccount menuIsOpen={menuIsOpen} onSettingProfile={handleSettingItemClick} />}
 				{currentSetting === EUserSettings.PROFILES && <SettingRightProfile menuIsOpen={menuIsOpen} isDM={isDM} />}
 				{currentSetting === EUserSettings.APPEARANCE && <SettingAppearance menuIsOpen={menuIsOpen} />}
+				{currentSetting === EUserSettings.LANGUAGE && <SettingLanguage menuIsOpen={menuIsOpen} />}
 				{currentSetting === EUserSettings.NOTIFICATIONS && <SettingNotifications menuIsOpen={menuIsOpen} />}
+				{currentSetting === EUserSettings.ACTIVITY && <SettingActivity menuIsOpen={menuIsOpen} />}
 				<ExitSetting onClose={closeSetting} />
 
 				{menuIsOpen ? (
@@ -67,12 +80,18 @@ const SettingContent = ({ isDM, isShowSettingFooter }: { isDM: boolean; isShowSe
 
 const Setting = ({ isDM }: settingProps) => {
 	const isShowSettingFooter = useSelector(selectIsShowSettingFooter);
+	const [openSettingModal, closeSettingModal] = useModal(() => {
+		return <SettingContent isDM={isDM} isShowSettingFooter={isShowSettingFooter} />;
+	}, [isDM]);
 
-	if (!isShowSettingFooter?.status) {
-		return null;
-	}
-
-	return <SettingContent isDM={isDM} isShowSettingFooter={isShowSettingFooter} />;
+	useEffect(() => {
+		if (isShowSettingFooter?.status) {
+			openSettingModal();
+		} else {
+			closeSettingModal();
+		}
+	}, [isShowSettingFooter?.status]);
+	return null;
 };
 
 export default memo(Setting);

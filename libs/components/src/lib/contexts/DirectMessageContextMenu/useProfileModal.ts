@@ -9,13 +9,12 @@ export function useProfileModal({ currentUser }: UseProfileModalParams) {
 	const [openUserProfile, closeUserProfile] = useModal(() => {
 		if (!currentUser) return null;
 
-		const userId = currentUser?.id || currentUser?.user_id?.[0];
+		const userId = currentUser?.user_ids?.[0] || currentUser?.id;
 		const directId = (currentUser as any)?.channel_id || currentUser?.channelId;
-		const avatar = currentUser?.avatar_url || currentUser?.channel_avatar?.[0];
+		const avatar = currentUser?.avatar_url || currentUser?.avatars?.[0];
 		const name = currentUser?.display_name || currentUser?.username || currentUser?.display_names?.[0];
-		const isOnline = typeof currentUser?.metadata === 'object' ? currentUser?.metadata?.status === 'ONLINE' : false;
+		const isOnline = !!currentUser?.online?.[0];
 		const isMobile = currentUser?.is_mobile;
-		const customStatus = typeof currentUser?.metadata === 'object' ? currentUser?.metadata?.status : undefined;
 
 		return UserProfileModalInner({
 			userId,
@@ -28,8 +27,7 @@ export function useProfileModal({ currentUser }: UseProfileModalParams) {
 			status: {
 				status: isOnline,
 				isMobile
-			},
-			customStatus
+			}
 		});
 	}, [currentUser]);
 

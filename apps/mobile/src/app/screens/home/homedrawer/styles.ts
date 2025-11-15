@@ -1,4 +1,5 @@
-import { Attributes, Colors, Fonts, Metrics, baseColor, horizontalScale, size, verticalScale } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { Fonts, Metrics, baseColor, horizontalScale, size, verticalScale } from '@mezon/mobile-ui';
 import { Dimensions, Platform, StyleSheet } from 'react-native';
 const width = Dimensions.get('window').width;
 const inputWidth = width * 0.6;
@@ -20,8 +21,8 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.tertiary
 		},
 		closeIcon: {
-			color: Colors.bgDarkSlate,
-			backgroundColor: Colors.white,
+			color: '#2a2e31',
+			backgroundColor: 'white',
 			borderRadius: size.s_50,
 			fontSize: size.s_20
 		},
@@ -41,8 +42,6 @@ export const style = (colors: Attributes) =>
 		wrapperInput: {
 			position: 'relative',
 			justifyContent: 'center',
-			// backgroundColor: Colors.secondaryLight,
-			// paddingVertical: size.s_4,
 			borderRadius: size.s_22
 		},
 		inputStyle: {
@@ -69,7 +68,7 @@ export const style = (colors: Attributes) =>
 		containerDrawerContent: {
 			flex: 1,
 			flexDirection: 'row',
-			backgroundColor: Colors.secondary
+			backgroundColor: colors.secondary
 		},
 		homeDefault: {
 			backgroundColor: colors.primary,
@@ -78,8 +77,7 @@ export const style = (colors: Attributes) =>
 		},
 		wrapperChannelMessage: {
 			flex: 1,
-			justifyContent: 'space-between',
-			backgroundColor: colors.primary
+			justifyContent: 'space-between'
 		},
 		listChannels: {
 			paddingTop: size.s_14,
@@ -111,7 +109,7 @@ export const style = (colors: Attributes) =>
 			textTransform: 'uppercase',
 			fontSize: size.s_15,
 			fontWeight: 'bold',
-			color: Colors.tertiary,
+			color: colors.tertiary,
 			flexBasis: '75%'
 		},
 		channelListItem: {
@@ -122,22 +120,22 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_4
 		},
 		channelListItemActive: {
-			backgroundColor: Colors.secondaryLight,
+			backgroundColor: colors.secondaryLight,
 			borderRadius: size.s_10,
 			borderWidth: 0.4,
-			borderColor: Colors.gray48
+			borderColor: baseColor.gray
 		},
 		channelListItemTitle: {
 			fontSize: size.s_14,
 			fontWeight: '600',
 			marginLeft: size.s_6,
-			color: Colors.tertiary
+			color: colors.tertiary
 		},
 		channelListItemTitleActive: {
-			color: Colors.white
+			color: 'white'
 		},
 		channelDotWrapper: {
-			backgroundColor: Colors.textRed,
+			backgroundColor: baseColor.redStrong,
 			height: size.s_10,
 			width: size.s_10,
 			display: 'flex',
@@ -146,7 +144,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_10
 		},
 		channelDot: {
-			color: Colors.white,
+			color: 'white',
 			fontSize: Fonts.size.h8
 		},
 		dotIsNew: {
@@ -155,7 +153,7 @@ export const style = (colors: Attributes) =>
 			width: size.s_6,
 			height: size.s_6,
 			borderRadius: size.s_6,
-			backgroundColor: Colors.white
+			backgroundColor: 'white'
 		},
 		channelListSearch: {
 			width: '100%',
@@ -166,7 +164,7 @@ export const style = (colors: Attributes) =>
 			gap: size.s_8
 		},
 		channelListSearchWrapperInput: {
-			backgroundColor: Colors.tertiaryWeight,
+			backgroundColor: colors.tertiary,
 			flex: 1,
 			borderRadius: size.s_16,
 			alignItems: 'center',
@@ -191,9 +189,9 @@ export const style = (colors: Attributes) =>
 			overflow: 'hidden',
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: Colors.tertiaryWeight,
+			backgroundColor: colors.tertiary,
 			borderWidth: 1,
-			borderColor: Colors.borderDim
+			borderColor: colors.borderDim
 		},
 		logoClan: {
 			height: verticalScale(70),
@@ -201,7 +199,7 @@ export const style = (colors: Attributes) =>
 			resizeMode: 'cover'
 		},
 		textLogoClanIcon: {
-			color: Colors.titleReset,
+			color: colors.textDisabled,
 			fontSize: size.s_22,
 			fontWeight: '600'
 		},
@@ -215,7 +213,7 @@ export const style = (colors: Attributes) =>
 			paddingBottom: size.s_4
 		},
 		lineActiveClan: {
-			backgroundColor: Colors.azureBlue,
+			backgroundColor: baseColor.azureBlue,
 			width: size.s_4,
 			height: '80%',
 			top: '10%',
@@ -225,7 +223,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute'
 		},
 		clanIconActive: {
-			backgroundColor: Colors.black,
+			backgroundColor: 'black',
 			borderRadius: verticalScale(15)
 		},
 		containerThreadList: {
@@ -237,7 +235,7 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			fontWeight: '600',
 			marginLeft: size.s_6,
-			color: Colors.tertiary,
+			color: colors.tertiary,
 			top: size.s_6
 		},
 		iconBar: {
@@ -252,7 +250,7 @@ export const style = (colors: Attributes) =>
 			paddingTop: size.s_20,
 			width: '22%',
 			justifyContent: 'flex-start',
-			backgroundColor: Colors.primary,
+			backgroundColor: colors.primary,
 			alignItems: 'center',
 			gap: size.s_10
 		},
@@ -260,13 +258,15 @@ export const style = (colors: Attributes) =>
 			marginHorizontal: size.s_20,
 			paddingVertical: size.s_10,
 			flexDirection: 'row',
-			justifyContent: 'space-between'
+			justifyContent: 'space-between',
+			alignItems: 'center'
 		},
 		friendItemWrapperInvited: {
 			opacity: 0.6
 		},
 		friendItemContent: {
-			flexDirection: 'row'
+			flexDirection: 'row',
+			maxWidth: '70%'
 		},
 		friendItemName: {
 			paddingTop: size.s_10,
@@ -289,10 +289,10 @@ export const style = (colors: Attributes) =>
 			alignItems: 'flex-end'
 		},
 		threadItemActive: {
-			backgroundColor: Colors.secondaryLight,
+			backgroundColor: colors.secondaryLight,
 			borderRadius: size.s_10,
 			borderWidth: 0.4,
-			borderColor: Colors.gray48,
+			borderColor: baseColor.gray,
 			position: 'absolute',
 			width: '95%',
 			height: '90%',
@@ -303,10 +303,10 @@ export const style = (colors: Attributes) =>
 			height: '160%',
 			right: 0,
 			top: size.s_2,
-			backgroundColor: Colors.secondaryLight,
+			backgroundColor: colors.secondaryLight,
 			borderRadius: size.s_10,
 			borderWidth: 0.4,
-			borderColor: Colors.gray48
+			borderColor: baseColor.gray
 		},
 		wrapperMessageBox: {
 			flexDirection: 'row',
@@ -333,7 +333,7 @@ export const style = (colors: Attributes) =>
 			width: size.s_20,
 			height: size.s_20,
 			borderRadius: size.s_50,
-			backgroundColor: Colors.gray48,
+			backgroundColor: baseColor.gray,
 			overflow: 'hidden'
 		},
 		messageWrapper: {
@@ -353,14 +353,14 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.reactionBg
 		},
 		highlightMessageReply: {
-			backgroundColor: Colors.bgMessageHighlight,
-			borderLeftColor: Colors.borderMessageHighlight,
+			backgroundColor: 'rgba(201,157,7,0.1)',
+			borderLeftColor: '#F0B132',
 			borderLeftWidth: 2,
 			paddingVertical: size.s_2
 		},
 		repliedTextAvatar: {
 			fontSize: size.s_12,
-			color: Colors.white
+			color: 'white'
 		},
 		repliedMessageWrapper: {
 			flexDirection: 'row',
@@ -385,7 +385,7 @@ export const style = (colors: Attributes) =>
 			marginBottom: size.s_6
 		},
 		replyDisplayName: {
-			color: Colors.caribbeanGreen,
+			color: baseColor.caribbeanGreen,
 			fontSize: size.small
 		},
 		replyContentWrapper: {
@@ -403,18 +403,18 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			marginRight: size.s_10,
 			fontWeight: '700',
-			color: Colors.caribbeanGreen
+			color: baseColor.caribbeanGreen
 		},
 		dateMessageBox: {
 			fontSize: size.small,
-			color: Colors.gray72
+			color: baseColor.gray
 		},
 		contentMessageCombine: {
 			padding: size.s_2
 		},
 		contentMessageLink: {
 			fontSize: size.medium,
-			color: Colors.textLink,
+			color: baseColor.link,
 			lineHeight: size.s_20
 		},
 		loadMoreChannelMessage: {
@@ -426,19 +426,19 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			height: '100%',
 			borderRadius: size.s_50,
-			backgroundColor: Colors.titleReset,
+			backgroundColor: colors.text,
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
 		textAvatarMessageBoxDefault: {
 			fontSize: size.s_22,
-			color: Colors.white
+			color: 'white'
 		},
 		imageMessageRender: {
 			borderRadius: verticalScale(5),
 			marginVertical: size.s_6,
 			borderWidth: 0.5,
-			borderColor: Colors.borderPrimary
+			borderColor: colors.border
 		},
 		wrapperTypingLabel: {
 			position: 'absolute',
@@ -458,7 +458,7 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			display: 'flex',
 			borderRadius: size.s_50,
-			backgroundColor: Colors.tertiaryWeight,
+			backgroundColor: colors.tertiary,
 			width: size.s_30,
 			height: size.s_30
 		},
@@ -471,12 +471,31 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'column',
 			alignItems: 'center'
 		},
+		groupAvatar: {
+			backgroundColor: baseColor.orange,
+			width: size.s_50,
+			height: size.s_50,
+			borderRadius: 50,
+			justifyContent: 'center',
+			alignItems: 'center',
+			overflow: 'hidden'
+		},
+		groupAvatarWrapper: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_20,
+			overflow: 'hidden'
+		},
+		defaultAvatar: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_20
+		},
 		channelView: {
-			flex: 1,
-			backgroundColor: colors.primary
+			flex: 1
 		},
 		iconWelcomeMessage: {
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondaryLight,
 			marginBottom: size.s_10,
 			width: size.s_70,
 			height: size.s_70,
@@ -515,8 +534,8 @@ export const style = (colors: Attributes) =>
 			marginBottom: size.s_10
 		},
 		wrapperAttachmentPreview: {
-			backgroundColor: Colors.secondary,
-			borderTopColor: Colors.gray48,
+			backgroundColor: colors.secondary,
+			borderTopColor: baseColor.gray,
 			paddingVertical: size.s_10
 		},
 		fileViewer: {
@@ -528,15 +547,15 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			borderRadius: size.s_6,
 			flexDirection: 'row',
-			backgroundColor: Colors.bgPrimary
+			backgroundColor: colors.primary
 		},
 		fileName: {
 			fontSize: size.small,
-			color: Colors.white
+			color: 'white'
 		},
 		typeFile: {
 			fontSize: size.small,
-			color: Colors.textGray,
+			color: baseColor.gray,
 			textTransform: 'uppercase'
 		},
 		logoUser: {
@@ -556,7 +575,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			right: size.s_10,
 			bottom: size.s_28,
-			backgroundColor: colors.border,
+			backgroundColor: colors.secondary,
 			borderColor: colors.textDisabled,
 			borderWidth: 1,
 			width: size.s_40,
@@ -569,10 +588,10 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			alignSelf: 'center',
 			alignItems: 'center',
-			width: width,
+			width,
 			paddingBottom: verticalScale(60),
 			paddingTop: verticalScale(20),
-			backgroundColor: Colors.secondary
+			backgroundColor: colors.secondary
 		},
 		footerImagesModal: {
 			maxWidth: '70%'
@@ -583,13 +602,13 @@ export const style = (colors: Attributes) =>
 			marginHorizontal: horizontalScale(5),
 			borderRadius: horizontalScale(5),
 			borderWidth: 1,
-			borderColor: Colors.tertiaryWeight
+			borderColor: colors.tertiary
 		},
 		imageFooterModalActive: {
 			width: horizontalScale(80),
 			height: verticalScale(50),
 			borderWidth: 1,
-			borderColor: Colors.bgViolet
+			borderColor: colors.bgViolet
 		},
 		headerImagesModal: {
 			padding: size.s_10,
@@ -610,7 +629,7 @@ export const style = (colors: Attributes) =>
 			overflow: 'hidden',
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: Colors.secondaryLight
+			backgroundColor: colors.secondaryLight
 		},
 		overlay: {
 			position: 'absolute',
@@ -648,7 +667,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		iconMessageDeleteReply: {
-			backgroundColor: Colors.bgCharcoal,
+			backgroundColor: '#313338',
 			width: size.s_20,
 			height: size.s_20,
 			flexDirection: 'row',
@@ -659,17 +678,17 @@ export const style = (colors: Attributes) =>
 		},
 		messageDeleteReplyText: {
 			fontSize: size.small,
-			color: Colors.tertiary,
+			color: colors.text,
 			overflow: 'hidden',
 			width: '80%',
 			fontStyle: 'italic'
 		},
 		badge: {
-			backgroundColor: Colors.red,
+			backgroundColor: baseColor.redStrong,
 			position: 'absolute',
 			borderRadius: size.s_14,
 			borderWidth: 3,
-			borderColor: Colors.secondary,
+			borderColor: colors.secondary,
 			minWidth: size.s_22,
 			height: size.s_22,
 			alignItems: 'center',
@@ -678,7 +697,7 @@ export const style = (colors: Attributes) =>
 			right: -5
 		},
 		badgeText: {
-			color: Colors.white,
+			color: 'white',
 			fontWeight: 'bold',
 			fontSize: size.small
 		},
@@ -686,7 +705,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			borderRadius: size.s_50,
-			backgroundColor: Colors.tertiaryWeight,
+			backgroundColor: colors.tertiary,
 			width: size.s_40,
 			height: size.s_40
 		},
@@ -703,7 +722,7 @@ export const style = (colors: Attributes) =>
 			gap: size.s_10
 		},
 		addFriendButton: {
-			backgroundColor: Colors.green,
+			backgroundColor: baseColor.green,
 			justifyContent: 'center',
 			alignItems: 'center',
 			paddingHorizontal: size.s_12,
@@ -711,7 +730,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_16
 		},
 		deleteFriendButton: {
-			backgroundColor: Colors.vividScarlet,
+			backgroundColor: baseColor.redStrong,
 			justifyContent: 'center',
 			alignItems: 'center',
 			paddingHorizontal: size.s_12,
@@ -719,7 +738,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_16
 		},
 		blockButton: {
-			backgroundColor: Colors.red,
+			backgroundColor: baseColor.redStrong,
 			justifyContent: 'center',
 			alignItems: 'center',
 			paddingHorizontal: size.s_12,
@@ -728,7 +747,7 @@ export const style = (colors: Attributes) =>
 		},
 		buttonText: {
 			fontSize: size.s_14,
-			color: Colors.white
+			color: 'white'
 		},
 		containerDrawerEmpty: {
 			flex: 1,
@@ -753,18 +772,18 @@ export const style = (colors: Attributes) =>
 		},
 		forward: {
 			fontSize: size.s_12,
-			color: Colors.gray72,
+			color: baseColor.gray,
 			fontStyle: 'italic'
 		},
 		messageTime: { fontSize: size.s_10, color: colors.textDisabled },
 		textMention: {
-			fontSize: size.small,
+			fontSize: size.medium,
 			color: colors.textLink,
 			backgroundColor: colors.midnightBlue,
-			fontWeight: 'bold'
+			fontWeight: '600'
 		},
 		textPinMessage: {
-			fontSize: size.small,
+			fontSize: size.medium,
 			color: colors.white,
 			fontWeight: '700'
 		},
@@ -841,7 +860,7 @@ export const style = (colors: Attributes) =>
 			flex: 1,
 			justifyContent: 'center',
 			alignItems: 'center',
-			backgroundColor: colors.secondaryLight,
+			backgroundColor: colors.secondary,
 			paddingVertical: size.s_10,
 			marginBottom: size.s_6,
 			borderRadius: size.s_10
@@ -857,10 +876,10 @@ export const style = (colors: Attributes) =>
 		textAvatar: {
 			textAlign: 'center',
 			fontSize: size.h1,
-			color: Colors.white
+			color: 'white'
 		},
 		ephemeralMessage: {
-			backgroundColor: baseColor.blurple + '1A',
+			backgroundColor: `${baseColor.blurple}1A`,
 			borderLeftWidth: size.s_4,
 			borderColor: baseColor.blurple,
 			borderRadius: size.s_6
@@ -875,5 +894,121 @@ export const style = (colors: Attributes) =>
 			color: colors.textDisabled,
 			fontStyle: 'italic',
 			marginLeft: size.s_4
+		},
+		replyMessage: {
+			borderRadius: size.s_40,
+			width: size.s_40,
+			marginHorizontal: size.s_20,
+			paddingVertical: size.s_2,
+			alignSelf: 'center',
+			justifyContent: 'center',
+			alignItems: 'center',
+			backgroundColor: colors.bgViolet
+		},
+		cardMsg: {
+			padding: size.s_10,
+			paddingTop: size.s_6,
+			borderWidth: 1,
+			borderColor: colors.border,
+			borderRadius: size.s_8
+		},
+		headerTouchable: {
+			flex: 1
+		},
+		headerRowContainer: {
+			flexDirection: 'row',
+			alignItems: 'center'
+		},
+		headerTooltipContainer: {
+			position: 'relative',
+			zIndex: 0
+		},
+		messageWrapperCombine: {
+			marginTop: 0
+		},
+		rowMessageBoxFullWidth: {
+			width: '100%'
+		},
+		forwardBorder: {
+			display: 'flex',
+			borderLeftWidth: 2,
+			borderColor: 'gray',
+			paddingLeft: 10
+		},
+		userNameFullWidth: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '90%'
+		},
+		marginLeft30: {
+			marginLeft: size.s_30,
+			marginRight: -size.s_4
+		},
+		heightAuto: {
+			height: size.s_50
+		},
+		paddingVertical20: {
+			paddingVertical: 20
+		},
+		errorTextColor: {
+			color: baseColor.redStrong
+		},
+		absoluteFill: {
+			position: 'absolute',
+			top: 0,
+			left: 0,
+			right: 0,
+			bottom: 0
+		},
+		flexOne: {
+			flex: 1
+		},
+		imageFull: {
+			width: '100%',
+			height: '100%'
+		},
+		flexRow: {
+			flexDirection: 'row'
+		},
+		addFriendButtonOpacity: {
+			opacity: 0.6
+		},
+		textAlignCenter: {
+			textAlign: 'center'
+		},
+		spacerHeight8: {
+			height: size.s_8
+		},
+		columnFlexDirection: {
+			flexDirection: 'column'
+		},
+		systemMessageContainer: {
+			marginVertical: size.s_10,
+			paddingLeft: 0
+		},
+		pressedMessageIOS: (secondaryWeight: string) => ({
+			backgroundColor: secondaryWeight,
+			opacity: 0.8
+		}),
+		contentDisplay: {
+			display: 'flex'
+		},
+		opacityErrorRetry: {
+			opacity: 0.6
+		},
+		opacityNormal: {
+			opacity: 1
+		},
+		channelAppHotbarContainer: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			paddingVertical: size.s_6,
+			paddingHorizontal: size.s_10,
+			gap: size.s_10,
+			backgroundColor: 'transparent'
+		},
+		channelMessagesWrapperContainer: {
+			flex: 1
 		}
 	});

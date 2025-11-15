@@ -1,7 +1,6 @@
-//TODO: recheck
 import { ToastController } from '@mezon/components';
-import { useCustomNavigate } from '@mezon/core';
-import { fcmActions, handleTopicNotification, selectAllAccount, selectAllSession, selectIsLogin, useAppDispatch } from '@mezon/store';
+import { useCustomNavigate, useMezonNavigateEvent } from '@mezon/core';
+import { fcmActions, selectAllAccount, selectAllSession, selectIsLogin, useAppDispatch } from '@mezon/store';
 import { Icons, MezonUiProvider } from '@mezon/ui';
 import {
 	CLOSE_APP,
@@ -11,6 +10,7 @@ import {
 	TITLE_BAR_ACTION,
 	UNMAXIMIZE_WINDOW,
 	isLinuxDesktop,
+	isMacDesktop,
 	isWindowsDesktop,
 	notificationService
 } from '@mezon/utils';
@@ -19,8 +19,8 @@ import { Session } from 'mezon-js';
 import React, { useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Outlet, useLoaderData, useLocation } from 'react-router-dom';
-import { IAppLoaderData } from '../loaders/appLoader';
-const theme = 'dark';
+import type { IAppLoaderData } from '../loaders/appLoader';
+import { MacOSWindowControls } from './MacWindowsControl';
 
 type TitleBarProps = {
 	eventName: string;
@@ -89,24 +89,24 @@ const AppLayout = () => {
 	const dispatch = useAppDispatch();
 	const isLogin = useSelector(selectIsLogin);
 	const sessions = useSelector(selectAllSession);
-	const currentUserId = useSelector(selectAllAccount)?.user?.id;
+	const account = useSelector(selectAllAccount);
+	const currentUserId = account?.user?.id;
+	const userStatus = account?.user?.status;
 
 	useEffect(() => {
-		currentUserId && notificationService.setCurrentActiveUserId(currentUserId);
-	}, [currentUserId]);
-
-	useEffect(() => {
-		if (!isLogin) {
-			notificationService.isActive && notificationService.disconnectAll();
-			return;
+		if (currentUserId) {
+			notificationService.setCurrentActiveUserId(currentUserId);
+			if (userStatus) {
+				notificationService.setUserStatus(currentUserId, userStatus);
+			}
 		}
-		handleConnectNoti();
-	}, [isLogin, sessions]);
+	}, [currentUserId, userStatus]);
 
 	const handleConnectNoti = useCallback(async () => {
 		if (sessions) {
 			const tasks = Object.keys(sessions).map((key) => async () => {
 				const sessionData = sessions[key];
+
 				const session = new Session(
 					sessionData.token,
 					sessionData.refresh_token,
@@ -129,27 +129,24 @@ const AppLayout = () => {
 
 			await Promise.all(tasks.map((fn) => fn()));
 		}
-	}, [sessions, currentUserId]);
-	const navigate = useCustomNavigate();
+	}, [sessions, dispatch]);
+
 	useEffect(() => {
-		const handleCustomNavigation = (event: CustomEvent) => {
-			if (event.detail && event.detail.url) {
-				navigate(event.detail.url);
-				if (event.detail?.msg) {
-					dispatch(handleTopicNotification({ msg: event.detail?.msg }));
-				}
-			}
-		};
+		if (!isLogin) {
+			notificationService.isActive && notificationService.disconnectAll();
+			return;
+		}
+		const timerId = setTimeout(() => {
+			handleConnectNoti();
+		}, 3000);
 
-		window.addEventListener('mezon:navigate', handleCustomNavigation as EventListener);
+		return () => clearTimeout(timerId);
+	}, [isLogin, sessions, handleConnectNoti]);
 
-		return () => {
-			window.removeEventListener('mezon:navigate', handleCustomNavigation as EventListener);
-		};
-	}, [navigate]);
+	useMezonNavigateEvent();
 
 	return (
-		<MezonUiProvider themeName={theme}>
+		<MezonUiProvider>
 			<ViewModeHandler />
 			<ToastController />
 			<Outlet />
@@ -189,6 +186,10 @@ const ViewModeHandler: React.FC = () => {
 
 	if (isWindowsDesktop || isLinuxDesktop) {
 		return <TitleBar eventName={viewMode === 'image' ? IMAGE_WINDOW_TITLE_BAR_ACTION : TITLE_BAR_ACTION} />;
+	}
+
+	if (isMacDesktop) {
+		return <MacOSWindowControls />;
 	}
 
 	return null;

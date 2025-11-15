@@ -1,9 +1,9 @@
-import { ChannelMembersEntity, RolesClanEntity } from '@mezon/store';
-import { ETypeMEntion, IEmojiOnMessage, IHashtagOnMessage, IMentionOnMessage, getRoleList, uniqueUsers } from '@mezon/utils';
-import { MentionItem } from 'react-mentions';
+import type { ChannelMembersEntity, RolesClanEntity } from '@mezon/store';
+import type { IEmojiOnMessage, IHashtagOnMessage, IMentionOnMessage, MentionItem } from '@mezon/utils';
+import { ETypeMEntion, getRoleList, uniqueUsers } from '@mezon/utils';
 
 const processMention = (
-	mentionsRaw: MentionItem[],
+	mentionsRaw: MentionItem[] | undefined,
 	roles: RolesClanEntity[],
 	membersOfChild: ChannelMembersEntity[],
 	membersOfParent: ChannelMembersEntity[],

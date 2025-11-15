@@ -1,11 +1,12 @@
-import { ActionEmitEvent, ETypeSearch, VerifyIcon } from '@mezon/mobile-components';
+import { ActionEmitEvent, ETypeSearch } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { getStoreAsync, selectCurrentChannel, selectCurrentClan, selectMembersClanCount } from '@mezon/store-mobile';
+import { useAppSelector } from '@mezon/store';
+import { selectCurrentClanId, selectCurrentClanIsCommunity, selectCurrentClanName, selectMembersClanCount } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Text, View } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../app/componentUI/MezonIconCDN';
 import { EventViewer } from '../../../../../../components/Event';
@@ -17,26 +18,25 @@ import { style } from './styles';
 const ChannelListHeader = () => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['clanMenu']);
-	const currentClan = useSelector(selectCurrentClan);
 	const navigation = useNavigation<any>();
 	const styles = style(themeValue);
 	const members = useSelector(selectMembersClanCount);
 	const previousClanName = useRef<string | null>(null);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanName = useSelector(selectCurrentClanName);
+	const currentClanClanIsCommunity = useAppSelector(selectCurrentClanIsCommunity);
 
 	useEffect(() => {
-		previousClanName.current = currentClan?.clan_name || '';
-	}, [currentClan?.clan_name]);
+		previousClanName.current = currentClanName || '';
+	}, [currentClanName]);
 
-	const clanName = !currentClan?.id || currentClan?.id === '0' ? previousClanName.current : currentClan?.clan_name;
+	const clanName = !currentClanId || currentClanId === '0' ? previousClanName.current : currentClanName;
 
 	const navigateToSearchPage = async () => {
-		const store = await getStoreAsync();
-		const currentChannel = selectCurrentChannel(store.getState() as any);
 		navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 			screen: APP_SCREEN.MENU_CHANNEL.SEARCH_MESSAGE_CHANNEL,
 			params: {
-				typeSearch: ETypeSearch.SearchAll,
-				currentChannel
+				typeSearch: ETypeSearch.SearchAll
 			}
 		});
 	};
@@ -69,49 +69,58 @@ const ChannelListHeader = () => {
 
 	const handlePress = () => {
 		const data = {
+			heightFitContent: true,
 			children: <ClanMenu />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	};
 
 	return (
-		<View style={[styles.container]}>
-			<Pressable onPress={handlePress} style={styles.listHeader}>
-				<View style={styles.titleNameWrapper}>
-					<Text numberOfLines={1} style={styles.titleServer}>
-						{clanName}
-					</Text>
-					<VerifyIcon width={size.s_18} height={size.s_18} color={baseColor.blurple} />
-				</View>
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-					<Text numberOfLines={1} style={[styles.subTitle, {color: themeValue.textStrong}]}>
-						{`${members} ${t('info.members')}`}
-					</Text>
-					<View
-						style={{
-							width: size.s_4,
-							height: size.s_4,
-							borderRadius: size.s_4,
-							backgroundColor: themeValue.textDisabled,
-							marginHorizontal: size.s_8
-						}}
+		<View style={styles.container}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
+			{!!clanName && (
+				<TouchableOpacity onPressIn={handlePress} style={styles.listHeader}>
+					<View style={styles.titleNameWrapper}>
+						<Text numberOfLines={1} style={styles.titleServer}>
+							{clanName}
+						</Text>
+						<MezonIconCDN icon={IconCDN.verifyIcon} width={size.s_18} height={size.s_18} color={baseColor.blurple} />
+					</View>
+					<View style={styles.row}>
+						<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
+							{`${members} ${t('info.members')}`}
+						</Text>
+						{currentClanClanIsCommunity && <View style={styles.dot} />}
+						{currentClanClanIsCommunity && (
+							<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
+								{t('common.community')}
+							</Text>
+						)}
+					</View>
+				</TouchableOpacity>
+			)}
+			<View style={styles.navigationBar}>
+				<TouchableOpacity onPressIn={navigateToSearchPage} style={styles.wrapperSearch}>
+					<LinearGradient
+						start={{ x: 1, y: 0 }}
+						end={{ x: 0, y: 0 }}
+						colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+						style={[StyleSheet.absoluteFillObject]}
 					/>
-					<Text numberOfLines={1} style={[styles.subTitle, {color: themeValue.textStrong}]}>
-						{t('common.community')}
-					</Text>
-				</View>
-			</Pressable>
-			<View style={{ marginTop: size.s_10, flexDirection: 'row', gap: size.s_8 }}>
-				<Pressable onPress={navigateToSearchPage} style={styles.wrapperSearch}>
 					<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
 					<Text style={styles.placeholderSearchBox}>{t('common.search')}</Text>
-				</Pressable>
-				<Pressable onPress={onOpenScanQR} style={styles.iconWrapper}>
-					<MezonIconCDN icon={IconCDN.scanQR} height={size.s_18} width={size.s_18} color={themeValue.text} />
-				</Pressable>
-				<Pressable onPress={onOpenEvent} style={styles.iconWrapper}>
+				</TouchableOpacity>
+				<TouchableOpacity onPressIn={onOpenScanQR} style={styles.iconWrapper}>
+					<MezonIconCDN icon={IconCDN.myQRcodeIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
+				</TouchableOpacity>
+				<TouchableOpacity onPressIn={onOpenEvent} style={styles.iconWrapper}>
 					<MezonIconCDN icon={IconCDN.calendarIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
-				</Pressable>
+				</TouchableOpacity>
 			</View>
 		</View>
 	);

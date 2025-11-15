@@ -1,18 +1,21 @@
-import { Attributes, baseColor, Colors, horizontalScale, size, verticalScale } from '@mezon/mobile-ui';
+import { Attributes, baseColor, horizontalScale, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			backgroundColor: colors.primary,
 			borderTopColor: colors.border,
-			padding: size.s_16
+			padding: size.s_8,
+			position: 'relative',
+			width: '100%',
+			height: size.s_100
 		},
 		attachmentItem: {
 			marginRight: size.s_14,
 			borderRadius: size.s_6,
 			height: verticalScale(80),
-			paddingTop: size.s_10
+			paddingTop: size.s_10,
+			flexShrink: 0
 		},
 		attachmentItemImage: {
 			width: verticalScale(70),
@@ -48,15 +51,25 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			borderRadius: size.s_6,
 			flexDirection: 'row',
-			backgroundColor: Colors.bgPrimary
+			backgroundColor: colors.primary
 		},
 		fileName: {
 			fontSize: size.small,
-			color: Colors.white
+			color: 'white'
 		},
 		typeFile: {
 			fontSize: size.small,
-			color: Colors.textGray,
+			color: '#c7c7c7',
 			textTransform: 'uppercase'
+		},
+		gradientBackground: {
+			...StyleSheet.absoluteFillObject
+		},
+		scrollViewContainer: {
+			flex: 1
+		},
+		scrollViewContent: {
+			paddingRight: verticalScale(20),
+			alignItems: 'center'
 		}
 	});

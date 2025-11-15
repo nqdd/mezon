@@ -1,6 +1,7 @@
 import { baseColor, useTheme } from '@mezon/mobile-ui';
 import React, { ReactNode, useEffect, useState } from 'react';
-import { SwitchProps, TouchableOpacity, View } from 'react-native';
+import { SwitchProps, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 import { IconCDN } from '../../constants/icon_cdn';
 import MezonIconCDN from '../MezonIconCDN';
 import { style } from './styles';
@@ -27,11 +28,11 @@ export const MezonSwitch = ({ value, onValueChange, iconYesNo, iconOn, iconOff, 
 	};
 
 	return (
-		<TouchableOpacity
-			activeOpacity={1}
+		<Pressable
 			style={[styles.switchContainer, isEnabled ? styles.switchContainerEnabled : {}, disabled ? styles.disabled : {}]}
 			onPress={toggleSwitch}
 			disabled={disabled}
+			onStartShouldSetResponder={() => true}
 		>
 			<View style={[styles.circle, isEnabled ? styles.circleEnabled : {}]}>
 				{iconYesNo ? (
@@ -46,7 +47,7 @@ export const MezonSwitch = ({ value, onValueChange, iconYesNo, iconOn, iconOff, 
 					iconOff
 				)}
 			</View>
-		</TouchableOpacity>
+		</Pressable>
 	);
 };
 

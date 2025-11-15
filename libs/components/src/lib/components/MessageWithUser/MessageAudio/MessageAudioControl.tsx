@@ -52,6 +52,17 @@ export const MessageAudioControl = forwardRef((props: AudioControlProps, ref) =>
 		};
 	}, [audioUrl]);
 
+	useEffect(() => {
+		const audio = audioRef.current;
+		return () => {
+			if (audio) {
+				audio.pause();
+				audio.removeAttribute('src');
+				audio.load();
+			}
+		};
+	}, []);
+
 	const getAudioDuration = async () => {
 		const abortController = new AbortController();
 

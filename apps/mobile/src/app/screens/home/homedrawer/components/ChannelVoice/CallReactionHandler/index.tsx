@@ -1,15 +1,15 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useMezon } from '@mezon/transport';
-import { getSrcEmoji } from '@mezon/utils';
-import { VoiceReactionSend } from 'mezon-js';
+import { getSrcEmoji, getSrcSound, UsersClanEntity } from '@mezon/utils';
+import type { VoiceReactionSend } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Easing, View } from 'react-native';
+import { Animated, Dimensions, Easing, Platform, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import Sound from 'react-native-sound';
 import { style } from '../styles';
 
 const { width, height } = Dimensions.get('window');
 
-// Constants for better performance and maintainability
 const ANIMATION_CONFIG = {
 	EMOJI_SIZE: size.s_36,
 	START_X: width / 2,
@@ -20,7 +20,7 @@ const ANIMATION_CONFIG = {
 	FLIGHT_HEIGHT_VARIANCE: 0.2,
 	MAX_ROTATION: 120,
 	DURATIONS: {
-		TOTAL: 4000, // Reduced from 6000 for better UX
+		TOTAL: 4000,
 		SCALE_BOUNCE: 300,
 		SCALE_GROW: 500,
 		FADE_IN: 200,
@@ -39,51 +39,49 @@ interface EmojiItem {
 	opacity: Animated.Value;
 	startX: number;
 	startY: number;
+	displayName?: string;
 }
 
 interface ReactProps {
 	channelId: string;
 	isAnimatedCompleted: boolean;
+	onSoundReaction: (senderId: string, soundId: string) => void;
+	allUserClans: UsersClanEntity[];
 }
 
 // Memoized emoji component for better performance
-const AnimatedEmoji = memo(({ item }: { item: EmojiItem }) => {
+const AnimatedEmoji = memo(({ item, styles }: { item: EmojiItem; styles: any }) => {
 	return (
 		<Animated.View
-			style={{
-				position: 'absolute',
-				bottom: 0,
-				left: '50%',
-				width: ANIMATION_CONFIG.EMOJI_SIZE,
-				height: ANIMATION_CONFIG.EMOJI_SIZE,
-				transform: [{ translateY: item.translateY }, { translateX: item.translateX }, { scale: item.scale }],
-				opacity: item.opacity,
-				alignItems: 'center',
-				justifyContent: 'center',
-				zIndex: ANIMATION_CONFIG.Z_INDEX
-			}}
+			style={[
+				styles.animatedEmojiContainer,
+				{
+					transform: [{ translateY: item.translateY }, { translateX: item.translateX }, { scale: item.scale }],
+					opacity: item.opacity
+				}
+			]}
 		>
-			<FastImage
-				source={{ uri: getSrcEmoji(item.emojiId) }}
-				style={{
-					width: ANIMATION_CONFIG.EMOJI_SIZE,
-					height: ANIMATION_CONFIG.EMOJI_SIZE
-				}}
-				resizeMode="contain"
-			/>
+			<FastImage source={{ uri: getSrcEmoji(item.emojiId) }} style={styles.emojiImage} resizeMode="contain" />
+			{item?.displayName && (
+				<View style={styles.reactionSenderEmojiContainer}>
+					<Text numberOfLines={1} style={styles.senderName}>
+						{item.displayName}
+					</Text>
+				</View>
+			)}
 		</Animated.View>
 	);
 });
 
 AnimatedEmoji.displayName = 'AnimatedEmoji';
 
-export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: ReactProps) => {
+export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSoundReaction, allUserClans }: ReactProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [displayedEmojis, setDisplayedEmojis] = useState<EmojiItem[]>([]);
 	const { socketRef } = useMezon();
 	const animationTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
-
+	const soundRefs = useRef<Map<string, Sound>>(new Map());
 	// Cleanup function for timeouts
 	const cleanupTimeouts = useCallback(() => {
 		animationTimeoutsRef.current.forEach(clearTimeout);
@@ -170,7 +168,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 
 	// Optimized emoji creation and animation trigger
 	const createAndAnimateEmoji = useCallback(
-		(emojiId: string) => {
+		(emojiId: string, displayName = '') => {
 			const horizontalOffset = (Math.random() - 0.5) * ANIMATION_CONFIG.MAX_HORIZONTAL_OFFSET;
 			const verticalOffset = Math.random() * ANIMATION_CONFIG.MAX_VERTICAL_OFFSET;
 
@@ -182,7 +180,8 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 				scale: new Animated.Value(0),
 				opacity: new Animated.Value(0),
 				startX: ANIMATION_CONFIG.START_X + horizontalOffset * 0.2,
-				startY: ANIMATION_CONFIG.START_Y - verticalOffset
+				startY: ANIMATION_CONFIG.START_Y - verticalOffset,
+				displayName
 			};
 
 			setDisplayedEmojis((prev) => [...prev, newEmoji]);
@@ -204,6 +203,44 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 		[createEmojiAnimation, removeEmoji]
 	);
 
+	const playSound = useCallback((soundUrl: string, soundId: string) => {
+		try {
+			if (!soundUrl) {
+				console.warn('Invalid sound URL');
+				return;
+			}
+			const currentSound = soundRefs.current.get(soundId);
+			if (currentSound) {
+				currentSound.pause();
+				currentSound.setCurrentTime(0);
+				soundRefs?.current?.delete?.(soundId);
+			}
+			Sound.setCategory('Playback', true);
+			const sound = new Sound(soundUrl, null, (error) => {
+				if (error) {
+					console.error('Failed to load sound reaction:', error);
+					return;
+				}
+
+				if (Platform.OS === 'ios') {
+					sound.setNumberOfLoops(0);
+				}
+				sound.setVolume(1.0);
+				soundRefs.current.set(soundId, sound);
+
+				sound.play((success) => {
+					if (!success) {
+						console.error('Sound playback failed');
+					}
+					sound.release();
+					soundRefs.current.delete(soundId);
+				});
+			});
+		} catch (error) {
+			console.error('Error playing sound reaction:', error);
+		}
+	}, []);
+
 	// Optimized socket message handler
 	const handleVoiceReactionMessage = useCallback(
 		(message: VoiceReactionSend) => {
@@ -212,15 +249,29 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 			try {
 				const emojis = message.emojis || [];
 				const emojiId = emojis[0];
+				const senderId = message.sender_id;
 
 				if (emojiId) {
-					createAndAnimateEmoji(emojiId);
+					if (emojiId.startsWith('sound:')) {
+						const soundId = emojiId.replace('sound:', '');
+						const soundUrl = getSrcSound(soundId);
+
+						playSound(soundUrl, soundId);
+						if (onSoundReaction && senderId) {
+							onSoundReaction(senderId, soundId);
+						}
+					} else {
+						const members = allUserClans.find((item) => item.id === senderId);
+						const displayName = members?.clan_nick || members?.user?.display_name || members?.user?.username || '';
+
+						createAndAnimateEmoji(emojiId, displayName);
+					}
 				}
 			} catch (error) {
 				console.error('Error handling voice reaction:', error);
 			}
 		},
-		[channelId, createAndAnimateEmoji]
+		[allUserClans, channelId, createAndAnimateEmoji, onSoundReaction, playSound]
 	);
 
 	// Effect for socket handling with proper cleanup
@@ -234,6 +285,12 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 			if (currentSocket) {
 				currentSocket.onvoicereactionmessage = () => {};
 			}
+			if (soundRefs.current && soundRefs.current.size > 0) {
+				soundRefs.current.forEach((sound) => {
+					sound.pause();
+				});
+				soundRefs.current?.clear();
+			}
 			cleanupTimeouts();
 		};
 	}, [handleVoiceReactionMessage, socketRef, cleanupTimeouts]);
@@ -245,11 +302,17 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted }: Rea
 		};
 	}, [cleanupTimeouts]);
 
-	if (displayedEmojis.length === 0 || !isAnimatedCompleted) {
+	if (displayedEmojis?.length === 0 || !isAnimatedCompleted) {
 		return null;
 	}
 
-	return <View style={styles.reactionContainer}>{displayedEmojis?.map((item) => <AnimatedEmoji key={item.id} item={item} />)}</View>;
+	return (
+		<View style={styles.reactionContainer}>
+			{displayedEmojis.map((item) => (
+				<AnimatedEmoji key={item.id} item={item} styles={styles} />
+			))}
+		</View>
+	);
 });
 
 CallReactionHandler.displayName = 'CallReactionHandler';

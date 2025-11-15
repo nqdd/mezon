@@ -1,23 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useChatSending, useCurrentInbox, useEscapeKeyClose, useGifsStickersEmoji } from '@mezon/core';
+import type { ChannelsEntity } from '@mezon/store';
 import {
 	MediaType,
 	referencesActions,
 	selectAllStickerSuggestion,
-	selectCurrentClan,
 	selectCurrentClanId,
+	selectCurrentClanName,
 	selectDataReferences,
 	soundEffectActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, SubPanelName, blankReferenceObj } from '@mezon/utils';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { IMessageSendPayload } from '@mezon/utils';
+import { SubPanelName, blankReferenceObj } from '@mezon/utils';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type ChannelMessageBoxProps = {
-	channel: ApiChannelDescription | undefined;
 	mode: number;
 	onClose: () => void;
 	isTopic?: boolean;
@@ -48,10 +49,11 @@ const searchSounds = (sounds: ExtendedApiMessageAttachment[], searchTerm: string
 	return sounds.filter((item) => item?.filename?.toLowerCase().includes(lowerCaseSearchTerm));
 };
 
-function SoundSquare({ channel, mode, onClose, isTopic = false, onSoundSelect }: ChannelMessageBoxProps) {
+function SoundSquare({ mode, onClose, isTopic = false, onSoundSelect }: ChannelMessageBoxProps) {
 	const dispatch = useAppDispatch();
+	const channelOrDirect = useCurrentInbox() as ChannelsEntity;
 	const { sendMessage } = useChatSending({
-		channelOrDirect: channel,
+		channelOrDirect,
 		mode,
 		fromTopic: isTopic
 	});
@@ -69,7 +71,7 @@ function SoundSquare({ channel, mode, onClose, isTopic = false, onSoundSelect }:
 	);
 
 	useEffect(() => {
-		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false }));
+		dispatch(soundEffectActions.fetchSoundByUserId({ noCache: false, clanId: currentClanId }));
 	}, [dispatch]);
 
 	const userSounds = useMemo(() => {
@@ -199,7 +201,7 @@ function SoundSquare({ channel, mode, onClose, isTopic = false, onSoundSelect }:
 					))}
 				</div>
 			</div>
-			<div className="flex flex-col h-[400px] overflow-y-auto flex-1 hide-scrollbar bg-item-theme rounded-r-lg" ref={containerRef}>
+			<div className="flex flex-col h-[400px] overflow-y-auto flex-1 hide-scrollbar bg-theme-setting-primary rounded-r-lg" ref={containerRef}>
 				{valueInputToCheckHandleSearch ? (
 					<SoundPanel soundList={searchedSounds} onClickSendSound={onClickSendSound} />
 				) : (
@@ -236,7 +238,7 @@ const CategorizedSounds: React.FC<ICategorizedSoundProps> = React.memo(
 	({ soundList, categoryName, onClickSendSound, valueInputToCheckHandleSearch }) => {
 		const soundListByCategoryName = useMemo(() => soundList.filter((sound) => sound.clan_name === categoryName), [soundList, categoryName]);
 		const [isShowSoundList, setIsShowSoundList] = useState(true);
-		const currentClan = useAppSelector(selectCurrentClan);
+		const currentClanName = useAppSelector(selectCurrentClanName);
 
 		const handleToggleButton = useCallback(() => {
 			setIsShowSoundList((prev) => !prev);
@@ -246,13 +248,13 @@ const CategorizedSounds: React.FC<ICategorizedSoundProps> = React.memo(
 			<div className="mb-3">
 				<button
 					onClick={handleToggleButton}
-					className=" w-full flex flex-row justify-between items-center px-4 py-2 gap-[2px] sticky top-[-0.5rem]  bg-theme-setting-nav max-h-full"
+					className=" w-full flex flex-row justify-between items-center px-4 py-2 gap-[2px] sticky top-[-0.5rem]  bg-theme-setting-nav max-h-full z-10"
 				>
 					<p className="uppercase font-semibold text-xs tracking-wider text-theme-primary-active">
-						{categoryName !== 'custom' ? categoryName : currentClan?.clan_name}
+						{categoryName !== 'custom' ? categoryName : currentClanName}
 					</p>
-					<span className={`transition-transform duration-200 ${isShowSoundList ? 'rotate-90' : ''}`}>
-						<Icons.ArrowRight defaultFill="currentColor" className="w-3.5 h-3.5 opacity-70" />
+					<span className={`transition-transform duration-200 text-theme-primary ${isShowSoundList ? 'rotate-90' : ''}`}>
+						<Icons.ArrowRight defaultFill="currentColor" className="w-3.5 h-3.5 opacity-70 " />
 					</span>
 				</button>
 				{isShowSoundList && <SoundPanel soundList={soundListByCategoryName} onClickSendSound={onClickSendSound} />}

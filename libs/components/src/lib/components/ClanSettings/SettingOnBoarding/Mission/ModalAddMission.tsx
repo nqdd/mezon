@@ -9,10 +9,11 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { ChannelStatusEnum } from '@mezon/utils';
-import { ApiOnboardingItem } from 'mezon-js/api.gen';
-import { ChangeEvent, useMemo, useState } from 'react';
+import type { ApiOnboardingItem } from 'mezon-js/api.gen';
+import type { ChangeEvent } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import GuideItemLayout from '../GuideItemLayout';
 import ModalControlRule, { ControlInput } from '../ModalControlRule';
 type TypeMission = {
 	id: number;
@@ -20,35 +21,47 @@ type TypeMission = {
 	name: string;
 };
 const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void; missionEdit?: ApiOnboardingItem; tempId?: number }) => {
+	const { t } = useTranslation('onboardingMissions');
+
 	const listTypeMisstion: TypeMission[] = [
 		{
 			id: ETypeMission.SEND_MESSAGE,
-			description: 'Member sends a message in the channel',
-			name: 'mission1'
+			description: t('missions.sendMessage.description'),
+			name: t('missions.sendMessage.name')
 		},
 		{
 			id: ETypeMission.VISIT,
-			description: 'Member visits the channel',
-			name: 'mission2'
+			description: t('missions.visit.description'),
+			name: t('missions.visit.name')
 		},
 		{
 			id: ETypeMission.DOSOMETHING,
-			description: 'Reading this mission',
-			name: 'mission3'
+			description: t('missions.doSomething.description'),
+			name: t('missions.doSomething.name')
 		}
 	];
 	const currentClanId = useSelector(selectCurrentClanId);
 	const allChannel = useAppSelector(selectAllChannels);
 	const listMissionChannel = useMemo(() => {
-		return allChannel.filter((channel) => channel.channel_private !== ChannelStatusEnum.isPrivate);
+		return allChannel.filter((channel) => channel.channel_private !== ChannelStatusEnum.isPrivate && channel.id);
 	}, [allChannel]);
 
 	const [title, setTitle] = useState(missionEdit?.title || '');
 	const [missionChannel, setMissionChannel] = useState(missionEdit?.channel_id || listMissionChannel[0]?.id || '');
 	const [mission, setMission] = useState<ETypeMission>(missionEdit?.task_type || ETypeMission.SEND_MESSAGE);
+	const [error, setError] = useState('');
 	const dispatch = useAppDispatch();
 	const handleChangeTitle = (e: ChangeEvent<HTMLInputElement>) => {
 		setTitle(e.target.value);
+		if (!e.target.value.length) {
+			setError(t('form.required'));
+			return;
+		}
+		if (e.target.value.length < 7) {
+			setError(t('form.minCharacters'));
+		} else {
+			setError('');
+		}
 	};
 
 	const handleSetMission = (value: number) => {
@@ -59,14 +72,43 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		setMissionChannel(e.target.value);
 	};
 
+	const hasChanges = useMemo(() => {
+		if (missionEdit?.id) {
+			if (title !== missionEdit?.title) {
+				return true;
+			}
+			if (missionChannel !== missionEdit?.channel_id) {
+				return true;
+			}
+			if (mission !== missionEdit?.task_type) {
+				return true;
+			}
+			return false;
+		}
+		return title.length >= 7;
+	}, [title, mission, missionChannel, missionEdit?.id, missionEdit]);
+
 	const handleAddTask = () => {
+		if (!title) {
+			setError(t('form.required'));
+			return;
+		}
+		if (title.length < 7) {
+			setError(t('form.minCharacters'));
+			return;
+		}
+
+		if (!hasChanges) {
+			missionEdit?.id && onClose();
+			return;
+		}
 		if (missionEdit?.id) {
 			dispatch(
 				editOnboarding({
 					clan_id: currentClanId as string,
 					idOnboarding: missionEdit?.id as string,
 					content: {
-						title: title,
+						title,
 						guide_type: EGuideType.TASK,
 						task_type: mission || 0,
 						channel_id: missionChannel
@@ -80,7 +122,7 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		dispatch(
 			onboardingActions.addMission({
 				data: {
-					title: title,
+					title,
 					guide_type: EGuideType.TASK,
 					task_type: mission || 0,
 					channel_id: missionChannel
@@ -93,6 +135,9 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 
 	const handleRemoveTask = () => {
 		if (!missionEdit) {
+			setTitle('');
+			setMissionChannel(listMissionChannel[0]?.id || '');
+			setMission(ETypeMission.SEND_MESSAGE);
 			return;
 		}
 		if (tempId !== undefined) {
@@ -116,14 +161,14 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 		<ModalControlRule
 			onClose={onClose}
 			onSave={handleAddTask}
-			bottomLeftBtn={missionEdit ? 'Remove' : undefined}
+			bottomLeftBtn={missionEdit ? t('buttons.remove') : undefined}
 			bottomLeftBtnFunction={handleRemoveTask}
 		>
-			<div className="flex flex-col ">
+			<div className="flex flex-col pb-3">
 				<ControlInput
-					message="Actions must be at least 7 characters"
-					placeholder="Ex. Post a photo of your pet"
-					title="What should the new member do?"
+					message={error}
+					placeholder={t('form.placeholder')}
+					title={t('form.title')}
 					onChange={handleChangeTitle}
 					value={title}
 					required
@@ -131,40 +176,35 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
 
 				<div className="flex flex-col gap-2">
-					<h1 className="text-base font-semibold text-gray-800 dark:text-white">
-						Where should they do it? <span className="text-red-500">*</span>
+					<h1 className="text-base font-semibold text-theme-primary-active">
+						{t('form.channelTitle')} <span className="text-red-500">*</span>
 					</h1>
 					<div className="flex flex-col">
 						<select
-							className="w-full p-[10px] outline-none rounded bg-gray-100 dark:bg-borderDefault text-gray-800 dark:text-white border border-gray-200 dark:border-transparent"
+							className="w-full p-[10px] outline-none rounded text-theme-primary bg-theme-input"
 							onChange={handleSetChannelMission}
 							value={missionChannel}
 						>
 							{listMissionChannel.map((channel) => (
-								<option value={channel.id} key={channel.id}>
+								<option
+									value={channel.id}
+									key={channel.id}
+									className="text-theme-primary bg-theme-setting-primary bg-item-them-hover"
+								>
 									{channel.channel_label}
 								</option>
 							))}
 						</select>
 
-						<span className="text-xs mt-1 text-gray-500 dark:text-gray-400">Channels must be viewable by @everyone (public channel)</span>
+						<span className="text-xs mt-1 text-theme-primary">{t('form.channelNote')}</span>
 					</div>
 				</div>
 
 				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
 
-				<GuideItemLayout
-					className="!p-0"
-					background="bg-transparent hover:bg-transparent"
-					title="Upload a custom thumbnail"
-					description="72x72 minimum. 1:1 aspect ratio. PNG, JPG"
-				/>
-
-				<div className="w-full h-[1px] my-6 bg-gray-300 dark:bg-channelTextLabel"></div>
-
 				<div className="flex flex-col">
-					<h1 className="text-base font-semibold text-gray-800 dark:text-white">
-						This task is complete when: <span className="text-red-500">*</span>
+					<h1 className="text-base font-semibold text-theme-primary-active">
+						{t('form.completeWhen')} <span className="text-red-500">*</span>
 					</h1>
 
 					{listTypeMisstion.map((missions) => (
@@ -173,11 +213,14 @@ const ModalAddMission = ({ onClose, missionEdit, tempId }: { onClose: () => void
 								id={missions.name}
 								onChange={(e) => handleSetMission(missions.id)}
 								type="radio"
-								className={`appearance-none w-5 h-5 bg-transparent relative rounded-full accent-indigo-500 border-2 border-gray-400 dark:border-channelTextLabel checked:after:absolute checked:after:w-3 checked:after:h-3 checked:after:top-[2.4px] checked:after:left-[2.4px] checked:after:bg-indigo-500 dark:checked:after:bg-white checked:after:content-[""] checked:after:rounded-full ${mission === missions.id ? 'border-indigo-500 dark:border-white' : ''} `}
+								className={`appearance-none w-5 h-5 bg-transparent relative rounded-full accent-indigo-500 border-2 border-gray-400 dark:border-channelTextLabel checked:after:absolute checked:after:w-3 checked:after:h-3 checked:after:top-[2.4px] checked:after:left-[2.4px] checked:after:bg-indigo-500 checked:after:content-[""] checked:after:rounded-full ${mission === missions.id ? 'border-indigo-500' : ''} `}
 								name="mission"
 								checked={mission === missions.id}
 							/>
-							<label htmlFor={missions.name} className={`text-base font-medium ${mission === missions.id ? 'text-indigo-600 dark:text-white' : 'text-gray-700 dark:text-gray-400'}`}>
+							<label
+								htmlFor={missions.name}
+								className={`text-base font-medium ${mission === missions.id ? 'text-indigo-600 text-theme-primary-active' : 'text-theme-primary'}`}
+							>
 								{missions.description}
 							</label>
 						</div>

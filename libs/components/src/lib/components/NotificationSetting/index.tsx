@@ -1,26 +1,26 @@
-import { useCategorizedAllChannels } from '@mezon/core';
+import { useCategorizedAllChannels, useEscapeKeyClose } from '@mezon/core';
+import type { MuteCatePayload, MuteChannelPayload } from '@mezon/store';
 import {
-	SetDefaultNotificationPayload,
 	defaultNotificationActions,
 	defaultNotificationCategoryActions,
 	notificationSettingActions,
-	selectAllchannelCategorySetting,
+	selectChannelCategorySettingsByCurrentClan,
 	selectCurrentChannel,
-	selectCurrentClan,
 	selectCurrentClanId,
+	selectCurrentClanName,
 	selectDefaultNotificationClan,
 	selectNotifiSettingsEntitiesById,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Button } from '@mezon/ui';
-import { ICategoryChannel, IChannel } from '@mezon/utils';
-import { ChannelType } from 'mezon-js';
-import React, { useState } from 'react';
+import type { ICategoryChannel, IChannel } from '@mezon/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Creatable from 'react-select/creatable';
 import { ModalLayout } from '../../components';
-import { notificationTypesList } from '../PanelChannel';
+import { createNotificationTypesListTranslated } from '../PanelChannel';
 export type ModalParam = {
 	onClose: () => void;
 	open: boolean;
@@ -31,7 +31,8 @@ export const customStyles = {
 		...provided,
 		backgroundColor: 'var(--bg-tertiary)',
 		borderRadius: '8px',
-		color: 'var(--text-secondary)'
+		color: 'var(--text-secondary)',
+		cursor: 'pointer'
 	}),
 	menu: (provided: any) => ({
 		...provided,
@@ -40,7 +41,8 @@ export const customStyles = {
 	option: (provided: any, state: any) => ({
 		...provided,
 		backgroundColor: state.isFocused ? 'var(--bg-option-active)' : '',
-		color: 'var(--text-secondary)'
+		color: 'var(--text-secondary)',
+		cursor: 'pointer'
 	}),
 	multiValue: (provided: any) => ({
 		...provided,
@@ -65,17 +67,24 @@ export const customStyles = {
 	singleValue: (provided: any) => ({
 		...provided,
 		color: 'var(--text-secondary)'
+	}),
+	menuList: (provided: any) => ({
+		...provided,
+		maxHeight: 250,
+		overflowY: 'auto'
 	})
 };
 
 const ModalNotificationSetting = (props: ModalParam) => {
-	const currentClan = useSelector(selectCurrentClan);
+	const { t } = useTranslation('notificationSetting');
+	const notificationTypesListTranslated = createNotificationTypesListTranslated(t);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanName = useSelector(selectCurrentClanName);
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const notificatonSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannel?.id || ''));
 
-	const channelCategorySettings = useSelector(selectAllchannelCategorySetting);
-	const currentClanId = useSelector(selectCurrentClanId);
+	const channelCategorySettings = useSelector(selectChannelCategorySettingsByCurrentClan);
 	const dispatch = useAppDispatch();
 	const sortedChannelCategorySettings = React.useMemo(() => {
 		const settingsCopy = [...channelCategorySettings];
@@ -93,19 +102,22 @@ const ModalNotificationSetting = (props: ModalParam) => {
 		return settingsCopy;
 	}, [channelCategorySettings]);
 	const handleNotificationClanChange = (event: any, notification: number) => {
-		dispatch(defaultNotificationActions.setDefaultNotificationClan({ clan_id: currentClan?.id, notification_type: notification }));
+		dispatch(defaultNotificationActions.setDefaultNotificationClan({ clan_id: currentClanId as string, notification_type: notification }));
 	};
 	const categorizedChannels = useCategorizedAllChannels();
 	const options = categorizedChannels.reduce<Array<{ id: string; label: string; title: string }>>((acc, category) => {
-		if ((category as IChannel).type !== ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
+		const isAlreadySelected = sortedChannelCategorySettings.some((setting) => setting.id === category.id);
+		if (!isAlreadySelected) {
 			acc.push({
 				id: category.id,
 				label: (category as IChannel).channel_label || category.category_name || '',
 				title: (category as ICategoryChannel).channels ? 'category' : 'channel'
 			});
 		}
+
 		return acc;
 	}, []);
+
 	const [selectedOption, setSelectedOption] = useState(null);
 	const handleChange = (newValue: any) => {
 		setSelectedOption(newValue);
@@ -139,24 +151,24 @@ const ModalNotificationSetting = (props: ModalParam) => {
 		}
 	};
 
-	const handleMuteNotificationChange = (notificationType: any, channelCategoryId: any, title: string, active: number) => {
+	const handleMuteChange = (channelCategoryId: string, title: string, active: number) => {
 		if (title === 'category') {
-			const payload: SetDefaultNotificationPayload = {
-				category_id: channelCategoryId || '',
-				notification_type: notificationType,
-				clan_id: currentClan?.clan_id || '',
-				active: active
+			const payload: MuteCatePayload = {
+				id: channelCategoryId || '',
+				mute_time: 0,
+				active,
+				clan_id: currentClanId || ''
 			};
 			dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 		}
 		if (title === 'channel') {
-			const body = {
+			const payload: MuteChannelPayload = {
 				channel_id: channelCategoryId || '',
-				notification_type: notificationType,
-				clan_id: currentClanId || '',
-				active: active
+				mute_time: 0,
+				active,
+				clan_id: currentClanId || ''
 			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			dispatch(notificationSettingActions.setMuteChannel(payload));
 		}
 	};
 
@@ -184,14 +196,15 @@ const ModalNotificationSetting = (props: ModalParam) => {
 	const handleRemoveOverride = (title: string, id: string, active: number, channelCategoryId: string) => {
 		if (title === 'category') {
 			if (active === 0) {
-				const payload: SetDefaultNotificationPayload = {
-					category_id: channelCategoryId || '',
-					clan_id: currentClan?.clan_id || '',
-					active: 1
+				const payload: MuteCatePayload = {
+					id,
+					mute_time: 0,
+					active: 1,
+					clan_id: currentClanId || ''
 				};
 				dispatch(defaultNotificationCategoryActions.setMuteCategory(payload));
 			}
-			dispatch(defaultNotificationCategoryActions.deleteDefaultNotificationCategory({ category_id: id, clan_id: currentClan?.clan_id }));
+			dispatch(defaultNotificationCategoryActions.deleteDefaultNotificationCategory({ category_id: id, clan_id: currentClanId as string }));
 		}
 		if (title === 'channel') {
 			if (active === 0) {
@@ -200,19 +213,32 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					clan_id: currentClanId || '',
 					active: 1
 				};
-				dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+				dispatch(notificationSettingActions.setNotificationSetting(body));
 			}
 			dispatch(notificationSettingActions.deleteNotiChannelSetting({ channel_id: id, clan_id: currentClanId || '' }));
 		}
 	};
+	const modalRef = useRef<HTMLDivElement>(null);
+	useEscapeKeyClose(modalRef, props.onClose);
+
+	useEffect(() => {
+		if (modalRef.current) {
+			modalRef.current.focus();
+		}
+	}, []);
 
 	return (
 		<ModalLayout onClose={props.onClose}>
-			<div className="flex flex-col bg-theme-setting-primary rounded-xl overflow-hidden max-w-[684px] w-screen">
+			<div
+				ref={modalRef}
+				className="flex flex-col bg-theme-setting-primary rounded-xl overflow-hidden max-w-[684px] w-screen"
+				tabIndex={-1}
+				autoFocus
+			>
 				<div className="flex-1 flex items-center justify-between border-b-theme-primary rounded-t p-4">
 					<div className="flex flex-col">
-						<p className="font-bold text-xl text-theme-primary-active">Notification Setting</p>
-						<p>{currentClan?.clan_name}</p>
+						<p className="font-bold text-xl text-theme-primary-active">{t('title')}</p>
+						<p>{currentClanName}</p>
 					</div>
 					<Button
 						className="rounded-full aspect-square w-6 h-6 text-5xl leading-3 !p-0 opacity-50 text-theme-primary-hover"
@@ -222,9 +248,9 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					</Button>
 				</div>
 				<div className={`px-5 py-4 max-h-[500px] overflow-y-auto hide-scrollbar`}>
-					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">CLAN NOTIFICATION SETTINGS</div>
+					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">{t('clanNotificationSettings')}</div>
 					<div className="space-y-2">
-						{notificationTypesList.map((notificationType, index) => (
+						{notificationTypesListTranslated.map((notificationType, index) => (
 							<div key={index} className="flex items-center gap-x-3 p-[12px]  rounded text-sm">
 								<input
 									type="radio"
@@ -241,34 +267,42 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					</div>
 
 					<hr className="border-zinc-500 my-4" />
-					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">NOTIFICATION OVERRIDES</div>
-					<div className="text-sm font-normal  mb-2">Add a channel to override its default notification settings</div>
+					<div className="text-xs font-bold  uppercase mb-2 text-theme-primary-active">{t('notificationOverrides')}</div>
+					<div className="text-sm font-normal  mb-2">{t('addChannelOverride')}</div>
 					<div className="bg-theme-setting-primary">
 						<Creatable
 							isClearable
 							onChange={handleChange}
 							options={options}
 							value={selectedOption}
-							placeholder="Select or create an option..."
+							placeholder={t('selectOrCreateOption')}
 							styles={customStyles}
+							classNames={{
+								menuList: () => 'thread-scroll'
+							}}
+							menuPlacement="top"
 						/>
 					</div>
 					<div className={`mt-4 overflow-visible bg-theme-setting-primary `}>
 						<table className="w-full mt-4 hide-scrollbar overflow-hidden space-y-2">
 							<thead>
 								<tr className="grid grid-cols-7 text-theme-primary-active">
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">CHANNEL OR CATEGORY</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">ALL</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">MENTIONS</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">NOTHING</th>
-									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">Mute</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-3">
+										{t('headers.channelOrCategory')}
+									</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.all')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">
+										{t('headers.mentions')}
+									</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.nothing')}</th>
+									<th className="text-xs font-bold  uppercase mb-2 text-theme-primary-active col-span-1">{t('headers.mute')}</th>
 								</tr>
 							</thead>
 							<tbody>
 								{sortedChannelCategorySettings.map((channelCategorySetting) => (
 									<tr key={channelCategorySetting.id} className="group relative grid grid-cols-7 mb-2.5  rounded p-[10px]">
 										<td className="col-span-3">{channelCategorySetting.channel_category_label}</td>
-										{notificationTypesList.map((notificationType) => (
+										{notificationTypesListTranslated.map((notificationType) => (
 											<td key={notificationType.value} className="col-span-1 text-center">
 												<input
 													type="radio"
@@ -289,8 +323,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 												type="checkbox"
 												checked={channelCategorySetting.action !== 1}
 												onChange={() =>
-													handleMuteNotificationChange(
-														0,
+													handleMuteChange(
 														channelCategorySetting.id,
 														channelCategorySetting.channel_category_title || '',
 														channelCategorySetting.action === 1 ? 0 : 1

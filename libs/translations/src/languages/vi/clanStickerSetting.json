@@ -1,18 +1,40 @@
 {
-    "btn": {
-        "upload": "Tải lên nhãn dán",
-        "delete": "Xóa"
-    },
-    "content": {
-        "description": "Thêm tối đa 250 nhãn dán tùy chỉnh mà bất kỳ ai cũng có thể sử dụng trong clan này.",
-        "requirements": "Yêu cầu tải lên",
-        "reqType": "- Có thể là ảnh tĩnh (PNG) hoặc ảnh động (GIF).",
-        "reqDim": "- Phải chính xác 320 x 320 pixel.",
-        "reqSize": "- Không lớn hơn 512KB.",
-        "available": "Có {{left}} KHOẢNG TRỐNG NHÃN DÁN CÓ SẴN"
-    },
-    "toast": {
-        "errorUpdating": "Lỗi cập nhật",
-        "errorSizeLimit": "Kích thước ảnh quá lớn"
-    }
+	"btn": {
+		"upload": "Tải lên nhãn dán",
+		"delete": "Xóa"
+	},
+	"modal": {
+		"uploadAFile": "Tải lên tệp",
+		"fileShouldBeAPNGPNGOrGIF256KBMax": "Tệp phải là PNG hoặc GIF, tối đa 512KB",
+		"preview": "Xem trước",
+		"file": "Tệp",
+		"thisCannotBeEdited": "Không thể chỉnh sửa",
+		"browse": "Duyệt",
+		"chooseAFile": "Chọn tệp",
+		"stickerName": "Tên nhãn dán",
+		"exCatHug": "VD: cat_hug",
+		"thisIsForSale": "Đây là sản phẩm bán",
+		"neverMind": "Bỏ qua"
+	},
+	"content": {
+		"description": "Thêm tối đa 250 nhãn dán tùy chỉnh mà bất kỳ ai cũng có thể sử dụng trong clan này.",
+		"requirements": "Yêu cầu tải lên",
+		"reqType": "•  Có thể là ảnh tĩnh (PNG) hoặc ảnh động (GIF).",
+		"reqDim": "•  Phải chính xác 320 x 320 pixel.",
+		"reqSize": "•  Không lớn hơn 512KB.",
+		"available": "Có {{left}} KHOẢNG TRỐNG NHÃN DÁN CÓ SẴN"
+	},
+	"toast": {
+		"errorUpdating": "Lỗi cập nhật",
+		"errorSizeLimit": "Kích thước ảnh vượt quá 512KB"
+	},
+	"empty": {
+		"tip": "MẸO",
+		"voiceSticker": {
+			"title": "Chưa có hiệu ứng âm thanh nào"
+		},
+		"sticker": {
+			"title": "Chưa có nhãn dán nào"
+		}
+	}
 }

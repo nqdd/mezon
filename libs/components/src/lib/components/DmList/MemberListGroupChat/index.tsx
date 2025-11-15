@@ -1,8 +1,11 @@
-import { useAppParams } from '@mezon/core';
-import { ChannelMembersEntity, selectGrouplMembers, useAppSelector } from '@mezon/store';
-import { MemberProfileType } from '@mezon/utils';
+import { useAppParams, useAuth } from '@mezon/core';
+import type { ChannelMembersEntity } from '@mezon/store';
+import { selectMemberByGroupId, useAppSelector } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MemberContextMenuProvider } from '../../../contexts';
 import MemberItem from '../../MemberList/MemberItem';
 
 export type MemberListProps = {
@@ -16,40 +19,35 @@ export type DataMemberCreate = {
 };
 
 function MemberListGroupChat({ directMessageId, createId }: MemberListProps) {
+	const { t } = useTranslation('common');
 	const { directId } = useAppParams();
-	const rawMembers = useAppSelector((state) => selectGrouplMembers(state, directId as string));
-
-	const memberGroups = rawMembers.sort((a, b) => {
-		const nameA = a.user?.display_name?.toLowerCase() || a.user?.username?.toLowerCase() || '';
-		const nameB = b.user?.display_name?.toLowerCase() || b.user?.username?.toLowerCase() || '';
-		return nameA.localeCompare(nameB);
-	});
-
-	const dataMemberCreate: DataMemberCreate = { createId: createId || '' };
+	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, directId as string));
+	const { userId } = useAuth();
 
 	return (
 		<div className="self-stretch w-full h-[268px] flex-col justify-start items-start flex pt-[16px] pb-[16px] ml-2 mr-1 gap-[24px]">
 			<div className="w-full">
-				<p className="mb-3 ml-2 font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase">
-					MEMBER - {memberGroups.length}
+				<p
+					className="mb-3 ml-2 font-semibold flex items-center gap-[4px] font-title text-xs tracking-wide uppercase"
+					data-e2e={generateE2eId(`chat.direct_message.member_list.member_count`)}
+				>
+					{t('members').toUpperCase()} - {rawMembers?.length}
 				</p>
 				{
-					<div className={`flex flex-col  ${isElectron() ? 'pb-8' : ''}`}>
-						{memberGroups.map((user: ChannelMembersEntity) => (
-							<div key={user.id} className="p-2 rounded bg-item-hover">
-								<MemberItem
-									user={user}
-									name={user.user?.display_name || user.user?.username}
-									positionType={MemberProfileType.DM_MEMBER_GROUP}
-									listProfile={true}
-									dataMemberCreate={dataMemberCreate}
-									directMessageId={directMessageId}
-									isOffline={!user.user?.online}
-									isMobile={user.user?.is_mobile}
-									isDM={true}
-								/>
-							</div>
-						))}
+					<div className={`flex flex-col ${isElectron() ? 'pb-8' : ''}`}>
+						<MemberContextMenuProvider>
+							{rawMembers?.map((user: ChannelMembersEntity, index) => (
+								<div key={user.id} className="p-2 rounded bg-item-hover">
+									<MemberItem
+										user={user}
+										directMessageId={directMessageId}
+										isMobile={user.user?.is_mobile}
+										isMe={userId === user.id}
+										createId={createId}
+									/>
+								</div>
+							))}
+						</MemberContextMenuProvider>
 					</div>
 				}
 			</div>

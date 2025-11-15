@@ -4,20 +4,18 @@ import {
 	selectChannelById,
 	selectDirectById,
 	selectIdMessageRefEdit,
+	selectMessageByMessageId,
 	selectOpenEditMessageState,
 	useAppSelector
 } from '@mezon/store';
-import { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
+import type { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useChatSending } from './useChatSending';
 
 export const useEditMessage = (channelId: string, channelLabel: string, mode: number, message: IMessageWithUser) => {
-	const clanIdInMes = useMemo(() => {
-		return message.clan_id;
-	}, [message.clan_id]);
 	const attachmentsOnMessage = useMemo(() => {
 		return message.attachments;
 	}, [message.attachments]);
@@ -35,6 +33,10 @@ export const useEditMessage = (channelId: string, channelLabel: string, mode: nu
 
 	const dispatch = useDispatch();
 	const { editSendMessage } = useChatSending({ channelOrDirect: currentDirectOrChannel, mode });
+	const oldMentionsString = useAppSelector((state) => {
+		const entity = selectMessageByMessageId(state, channelId, message?.id || '');
+		return entity?.mentions ? JSON.stringify(entity.mentions) : '';
+	});
 	const openEditMessageState = useSelector(selectOpenEditMessageState);
 	const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 
@@ -57,11 +59,11 @@ export const useEditMessage = (channelId: string, channelLabel: string, mode: nu
 				messagesActions.setChannelDraftMessage({
 					channelId: channelId as string,
 					channelDraftMessage: {
-						message_id: message_id,
-						draftContent: draftContent,
-						draftMention: draftMention,
+						message_id,
+						draftContent,
+						draftMention,
 						draftAttachment: attachmentsOnMessage,
-						draftTopicId: draftTopicId
+						draftTopicId
 					}
 				})
 			);
@@ -71,11 +73,12 @@ export const useEditMessage = (channelId: string, channelLabel: string, mode: nu
 
 	const handleSend = useCallback(
 		(editMessage: IMessageSendPayload, messageId: string, draftMention: ApiMessageMention[], topic_id: string, isTopic?: boolean) => {
-			editSendMessage(editMessage, messageId, draftMention, attachmentsOnMessage, false, topic_id, isTopic);
+			const oldMentions = oldMentionsString;
+			editSendMessage(editMessage, messageId, draftMention, attachmentsOnMessage, false, topic_id, isTopic, oldMentions);
 			setChannelDraftMessage(channelId, messageId, editMessage, draftMention, attachmentsOnMessage ?? [], topic_id as string);
 			dispatch(referencesActions.setOpenEditMessageState(false));
 		},
-		[editSendMessage, attachmentsOnMessage, setChannelDraftMessage, channelId, dispatch, clanIdInMes, mode, message]
+		[editSendMessage, attachmentsOnMessage, setChannelDraftMessage, channelId, dispatch, oldMentionsString]
 	);
 
 	return {

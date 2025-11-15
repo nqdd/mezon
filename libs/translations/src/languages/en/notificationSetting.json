@@ -1,33 +1,56 @@
 {
-  "bottomSheet": {
-    "title": "Notification Settings",
-    "muteUntil": "You have muted this channel until",
-    "unMute": "Unmute",
-    "mute": "Mute",
-    "labelOptions": {
-      "reactionMessage": "Reaction Message",
-      "categoryDefault": "Use Category Default",
-      "allMessage": "All",
-      "notThingMessage": "Nothing",
-      "mentionMessage": "Only @mention"
-    },
-    "muteCategoryUntil": "You have muted this category until"
-  },
-  "notifySettingThreadModal": {
-    "headerTitleMuteThread": "Mute this thread",
-    "headerTitleMuteChannel": "Mute this channel",
-    "muteThisConversation": "Mute this conversation",
-    "muteDuration": {
-      "forFifteenMinutes": "For 15 Minutes",
-      "forOneHour": "For 1 Hour",
-      "forThreeHours": "For 3 Hours",
-      "forEightHours": "For 8 Hours",
-      "forTwentyFourHours": "For 24 Hours",
-      "untilTurnItBackOn": "Until turn it back on"
-    },
-    "description": "You are receiving notifications from all messages in this clan, but you can override it here"
-  },
-  "toast": {
-    "error": "Error update notification: {{error}}"
-  }
+	"bottomSheet": {
+		"title": "Notification Settings",
+		"muteUntil": "You have muted this channel until",
+		"unMute": "Unmute",
+		"mute": "Mute",
+		"labelOptions": {
+			"reactionMessage": "Reaction Message",
+			"categoryDefault": "Use Category Default",
+			"allMessage": "All",
+			"notThingMessage": "Nothing",
+			"mentionMessage": "Only @mention"
+		},
+		"muteCategoryUntil": "You have muted this category until"
+	},
+	"notifySettingThreadModal": {
+		"headerTitleMuteThread": "Mute this thread",
+		"headerTitleMuteChannel": "Mute this channel",
+		"muteThisConversation": "Mute this conversation",
+		"muteDuration": {
+			"forFifteenMinutes": "For 15 Minutes",
+			"forOneHour": "For 1 Hour",
+			"forThreeHours": "For 3 Hours",
+			"forEightHours": "For 8 Hours",
+			"forTwentyFourHours": "For 24 Hours",
+			"untilTurnItBackOn": "Until turn it back on"
+		},
+		"description": "You are receiving notifications from all messages in this clan, but you can override it here",
+		"muteSuccess": "Muted successfully!",
+		"unMuteSuccess": "Unmuted successfully!",
+		"muteFailed": "Failed to mute!",
+		"unMuteFailed": "Failed to unmute!"
+	},
+	"toast": {
+		"error": "Error update notification: {{error}}"
+	},
+	"title": "Notification Setting",
+	"clanNotificationSettings": "CLAN NOTIFICATION SETTINGS",
+	"notificationOverrides": "NOTIFICATION OVERRIDES",
+	"addChannelOverride": "Add a channel to override its default notification settings",
+	"selectOrCreateOption": "Select or create an option...",
+	"headers": {
+		"channelOrCategory": "CHANNEL OR CATEGORY",
+		"all": "ALL",
+		"mentions": "MENTIONS",
+		"nothing": "NOTHING",
+		"mute": "Mute"
+	},
+	"menu": {
+		"notification": {
+			"all": "All",
+			"onlyMention": "Only @mention",
+			"nothing": "Nothing"
+		}
+	}
 }

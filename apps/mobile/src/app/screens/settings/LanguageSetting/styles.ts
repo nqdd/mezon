@@ -16,6 +16,10 @@ export const styles = (theme: any) =>
 		},
 		optionText: {
 			color: theme.text,
-			fontSize: size.medium
+			fontSize: size.s_14,
+			paddingVertical: size.s_3
+		},
+		itemSeparator: {
+			height: 1
 		}
 	});

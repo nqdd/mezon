@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import { TrackReferenceOrPlaceholder, VideoTrack } from '@livekit/components-react';
+import type { TrackReferenceOrPlaceholder } from '@livekit/components-react';
+import { VideoTrack } from '@livekit/components-react';
 import { useAuth } from '@mezon/core';
 import { handleParticipantVoiceState, selectVoiceInfo, useAppDispatch, voiceActions } from '@mezon/store';
 import { ParticipantMeetState } from '@mezon/utils';
@@ -16,7 +17,7 @@ const VoicePopout: React.FC<{
 	const dispatch = useAppDispatch();
 	const { userProfile } = useAuth();
 
-	const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string): Promise<void> => {
+	const participantMeetState = async (state: ParticipantMeetState, clanId?: string, channelId?: string, roomId?: string): Promise<void> => {
 		if (!clanId || !channelId || !userProfile?.user?.id) return;
 
 		await dispatch(
@@ -24,7 +25,8 @@ const VoicePopout: React.FC<{
 				clan_id: clanId,
 				channel_id: channelId,
 				display_name: userProfile?.user?.display_name ?? '',
-				state
+				state,
+				room_name: roomId || ''
 			})
 		);
 	};
@@ -32,7 +34,7 @@ const VoicePopout: React.FC<{
 	const handleLeaveRoom = useCallback(async () => {
 		if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
 
-		dispatch(voiceActions.resetVoiceSettings());
+		dispatch(voiceActions.resetVoiceControl());
 		await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId);
 
 		if (onClose) {

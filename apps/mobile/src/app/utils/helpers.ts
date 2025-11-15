@@ -1,27 +1,11 @@
 import { load, save, STORAGE_KEY_TEMPORARY_INPUT_MESSAGES, STORAGE_MESSAGE_ACTION_NEED_TO_RESOLVE } from '@mezon/mobile-components';
-import { EmojiDataOptionals } from '@mezon/utils';
-import { safeJSONParse } from 'mezon-js';
-import { Platform } from 'react-native';
+import type { EmojiDataOptionals } from '@mezon/utils';
+import { deflate, inflate } from 'react-native-gzip';
 
 export const sleep = (milliseconds: number) => {
 	return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-export const isAndroid = Platform.OS === 'android';
-export const isIOS = Platform.OS === 'android';
-
-export const getSnapToOffets = (imageWidth: number, padding: number, width: number, array) => {
-	const imageWidthWithPadding = imageWidth + padding;
-	const snapToOffsets = array.map((_, id: number) => {
-		if (id === 1) {
-			return id * (imageWidthWithPadding - ((width - imageWidth) / 2 - padding * 2 + 2));
-		} else {
-			return id * imageWidthWithPadding - ((width - imageWidth) / 2 - padding * 2 + 2);
-		}
-	});
-
-	return snapToOffsets;
-};
 export const isImage = (url?: string) => {
 	return /\.(jpg|jpeg|png|webp|avif|gif|svg|heic|PNG)/.test(url);
 };
@@ -43,26 +27,12 @@ export const normalizeString = (str: string) => {
 	const normalizedStr = str?.replace?.(/\s+/g, '')?.trim();
 	return normalizedStr?.toLowerCase?.();
 };
-export const urlPattern = /((?:https?:\/\/|www\.)[^\s]+|(?<![.])\b[^\s]+\.(?:[a-zA-Z]{2,}|[a-zA-Z]{2}\.[a-zA-Z]{2}))/g;
 export const highlightEmojiRegex = /(:[^:]+:)/g;
-export const urlRegex = /(https?:\/\/[^\s]+)/g;
-export const markdownDefaultUrlRegex = /^\[.*?\]\(https?:\/\/[^\s]+\)$/;
-export const emojiRegex = /:[a-zA-Z0-9_]+:/g;
-export const channelIdRegex = /<#(\d+)>/;
-export const codeBlockRegex = /^```[\s\S]*```$/;
-export const codeBlockRegexGlobal = /```[\s\S]*?```/g;
-export const splitBlockCodeRegex =
-	/(```[\s\S]*?```)|(https?:\/\/[^\s]+)|(<#\d+>)|(@[\w.]+)|(\w+)|(\s+)|(\[.*?\]\(https?:\/\/[^\s]+\))|(:[a-zA-Z0-9_]+:)/g;
-
-export const validURL = (string: string) => {
-	const res = string?.match?.(urlPattern);
-	return res !== null;
-};
-
 export const clanAndChannelIdLinkRegex = /clans\/(\d+)\/channels\/(\d+)/;
 export const clanDirectMessageLinkRegex = /chat\/direct\/message\/(\d+)\/(\d+)$/;
 
 export const validTextInputRegex = /^(?![_\-\s])[a-zA-Z0-9\p{L}\p{N}_\-\s]{1,64}$/u;
+export const validTextInputRegexEmoji = /^(?![_\-\s])(?:(?!')[a-zA-Z0-9\p{L}\p{N}\p{So}_\-\s]){1,64}$/u;
 export const linkGoogleMeet = 'https://meet.google.com/';
 
 export const resetCachedMessageActionNeedToResolve = (channelId: string) => {
@@ -85,12 +55,10 @@ export const resetCachedChatbox = (channelId: string) => {
 	}
 };
 
-export const getUserStatusByMetadata = (metadata: string | { status: string; user_status: string }) => {
-	return typeof metadata === 'string' ? safeJSONParse(metadata)?.user_status : metadata?.user_status;
-};
-
 export function combineMessageReactions(reactions: any[], message_id: string): any[] {
 	const dataCombined: Record<string, EmojiDataOptionals> = {};
+
+	if (!reactions) return [];
 
 	for (const reaction of reactions) {
 		const emojiId = reaction?.emoji_id || ('' as string);
@@ -106,12 +74,12 @@ export function combineMessageReactions(reactions: any[], message_id: string): a
 				emoji,
 				senders: [],
 				action: false,
-				message_id: message_id,
+				message_id,
 				id: '',
 				channel_id: ''
 			};
 		}
-		if (!reaction?.sender_name) continue;
+		//if (!reaction?.sender_name) continue;
 		const newSender = {
 			sender_id: reaction?.sender_id,
 			count: reaction?.count
@@ -141,3 +109,34 @@ export function isEqualStringArrayUnordered(a: string[], b: string[]): boolean {
 		return false;
 	}
 }
+
+export const getQueryParam = (url: string, key: string): string | null => {
+	if (!url) return null;
+	const qIndex = url.indexOf('?');
+	if (qIndex === -1) return null;
+	const hashIndex = url.indexOf('#', qIndex);
+	const search = url.slice(qIndex + 1, hashIndex === -1 ? undefined : hashIndex);
+	try {
+		const params = new URLSearchParams(search);
+		return params.get(key);
+	} catch {
+		return null;
+	}
+};
+
+export const compress = async (str: string) => {
+	return await deflate(str);
+};
+
+export const decompress = async (compressedStr: string) => {
+	return await inflate(compressedStr);
+};
+
+export const removeDiacritics = (str) => {
+	if (!str) return '';
+	return str
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '')
+		.replace(/đ/g, 'd')
+		.replace(/Đ/g, 'D');
+};

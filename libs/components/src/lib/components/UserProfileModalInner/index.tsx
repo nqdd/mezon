@@ -1,28 +1,13 @@
-import {
-	useAppNavigation,
-	useDirect,
-	useEscapeKeyClose,
-	useMemberCustomStatus,
-	useMemberStatus,
-	useOnClickOutside,
-	useSettingFooter,
-	useUserById
-} from '@mezon/core';
-import {
-	ChannelMembersEntity,
-	notificationActions,
-	selectCurrentClan,
-	selectCurrentUserId,
-	selectFriendStatus,
-	selectModeResponsive,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import { useEscapeKeyClose, useMemberStatus, useOnClickOutside, useSettingFooter, useUserById } from '@mezon/core';
+import type { ChannelMembersEntity, RootState } from '@mezon/store';
+import { selectCurrentClanId, selectCurrentUserId, selectFriendById, selectModeResponsive, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EUserSettings, INotification, ModeResponsive } from '@mezon/utils';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import type { INotification } from '@mezon/utils';
+import { EUserSettings, ModeResponsive } from '@mezon/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { OpenModalProps } from '../ModalUserProfile';
+import type { OpenModalProps } from '../ModalUserProfile';
 import AvatarProfile from '../ModalUserProfile/AvatarProfile';
 import GroupIconBanner from '../ModalUserProfile/StatusProfile/groupIconBanner';
 import ItemPanel from '../PanelChannel/ItemPanel';
@@ -66,17 +51,17 @@ const UserProfileModalInner = ({
 	status,
 	customStatus
 }: UserProfileModalInnerProps) => {
-	const dispatch = useAppDispatch();
+	const { t } = useTranslation('common');
 	const userProfileRef = useRef<HTMLDivElement | null>(null);
 	const modeResponsive = useAppSelector(selectModeResponsive);
 	const userById = useUserById(userId);
-	const checkAddFriend = useSelector(selectFriendStatus(userById?.user?.id || userId || ''));
-	const userCustomStatus = useMemberCustomStatus(userId || '', isDM);
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userById?.user?.id || userId || ''));
+	const checkAddFriend = useMemo(() => {
+		return infoFriend?.state;
+	}, [infoFriend]);
 	const [openGroupIconBanner, setGroupIconBanner] = useState<OpenModalProps>(initOpenModal);
 	const [activeTab, setActiveTab] = useState<string>(typeTab.ABOUT_ME);
 	const [color, setColor] = useState<string>('');
-	const { createDirectMessageWithUser } = useDirect();
-	const { toDmGroupPageFromMainApp, navigate } = useAppNavigation();
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const isSelf = currentUserId === userId;
 	const [isOPenEditOption, setIsOPenEditOption] = useState(false);
@@ -86,16 +71,7 @@ const UserProfileModalInner = ({
 	const displayAvatar = userById?.clan_avatar || userById?.user?.avatar_url;
 	const displayUsername = name || userById?.clan_nick || userById?.user?.display_name || userById?.user?.username;
 	const userStatus = useMemberStatus(userId || '');
-	const currentClan = useSelector(selectCurrentClan);
-	const directMessageWithUser = async (userId: string) => {
-		const response = await createDirectMessageWithUser(userId);
-		if (response.channel_id) {
-			const directChat = toDmGroupPageFromMainApp(response.channel_id, Number(response.type));
-			await navigate('/' + directChat);
-			onClose?.();
-			dispatch(notificationActions.setIsShowInbox(false));
-		}
-	};
+	const currentClanId = useSelector(selectCurrentClanId);
 
 	const handleActiveTabChange = (tabId: string) => {
 		setActiveTab(tabId);
@@ -147,7 +123,7 @@ const UserProfileModalInner = ({
 		setIsUserProfile(false);
 		setIsShowSettingFooterInitTab(EUserSettings.PROFILES);
 		setIsShowSettingProfileInitTab(EActiveType.CLAN_SETTING);
-		setClanIdSettingProfile(currentClan?.clan_id || '');
+		setClanIdSettingProfile(currentClanId || '');
 		setIsShowSettingFooterStatus(true);
 		if (onClose) {
 			onClose();
@@ -185,9 +161,9 @@ const UserProfileModalInner = ({
 							avatar={avatar || displayAvatar}
 							username={displayUsername || notify?.content?.username}
 							userToDisplay={userById}
-							customStatus={customStatus || userCustomStatus}
+							customStatus={customStatus || (userStatus.user_status as string)}
 							userID={userId}
-							userStatus={status || userStatus}
+							statusOnline={userStatus?.status}
 							styleAvatar="w-[120px] h-[120px] rounded-full"
 						/>
 						{isSelf ? (
@@ -197,7 +173,7 @@ const UserProfileModalInner = ({
 									className="relative flex items-center h-8 px-4 rounded-[3px] text-theme-primary text-theme-primary-hover"
 								>
 									<Icons.PenEdit />
-									<span className="text-sm font-semibold one-line text-theme-primary-active">Edit Profile</span>
+									<span className="text-sm font-semibold one-line text-theme-primary-active">{t('userProfile.editProfile')}</span>
 								</button>
 								{isOPenEditOption && (
 									<div
@@ -205,23 +181,13 @@ const UserProfileModalInner = ({
 										className={`absolute left-[calc(100%_+_10px)] top-[38px] bg-theme-setting-primary rounded-sm p-2 z-[1] mr-2 w-fit shadow-lg outline-none`}
 									>
 										{modeResponsive === ModeResponsive.MODE_CLAN && (
-											<ItemPanel children="Edit Clan Profile" onClick={handleOpenClanProfileSetting} />
+											<ItemPanel children={t('userProfile.editClanProfile')} onClick={handleOpenClanProfileSetting} />
 										)}
-										<ItemPanel children="Edit Main Profile" onClick={handleOpenUserProfileSetting} />
+										<ItemPanel children={t('userProfile.editMainProfile')} onClick={handleOpenUserProfileSetting} />
 									</div>
 								)}
 							</div>
-						) : (
-							<div className="flex items-end pr-4">
-								{/* <button
-									onClick={() => directMessageWithUser(userId || '')}
-									className="flex items-center h-8 px-4 rounded-[3px] dark:bg-buttonProfile bg-buttonMessageHover dark:hover:bg-buttonMessageHover hover:bg-buttonProfile"
-								>
-									<Icons.MessageIcon className="text-bgLightPrimary" />
-									<span className="text-sm text-bgLightPrimary font-semibold">Message</span>
-								</button> */}
-							</div>
-						)}
+						) : null}
 					</div>
 				</div>
 				<div className="bg-theme-contexify pt-[60px] pb-4 px-4 rounded-b-md w-full flex-1">

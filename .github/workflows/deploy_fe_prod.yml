@@ -1,4 +1,6 @@
 name: Deploy Mezon FE Prod
+permissions:
+  contents: read
 on:
   release:
     types: [published]
@@ -15,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           echo "Environments"
-          echo "NODE_ENV: $(which node)"
+          echo "NODE_ENV: ${{ env.NODE_ENV }}"
           export nv=$(node -v)
           echo "Node version: $nv"
           echo "Installing dependencies"
@@ -80,6 +82,7 @@ jobs:
           envkey_NX_MAX_LENGTH_NAME_ALLOWED: 64
           envkey_NX_LOGO_MEZON: https://cdn.mezon.ai/images/mezon_logo.png
           envkey_NX_BASE_IMG_URL: https://cdn.mezon.ai
+          envkey_NX_PROFILE_IMG_URL: https://profile.mezon.ai
           envkey_NX_CHAT_APP_OAUTH2_LOG_OUT_CALLBACK: https://mezon.ai/logout/callback
           envkey_NX_CHAT_APP_OAUTH2_LOG_OUT: https://oauth2.mezon.ai/oauth2/sessions/logout
           envkey_NX_CLI_SET: true
@@ -90,6 +93,9 @@ jobs:
           envkey_NX_CHAT_APP_API_GW_HOST: ${{ secrets.NX_CHAT_APP_API_GW_HOST }}
           envkey_NX_CHAT_APP_API_GW_PORT: ${{ secrets.NX_CHAT_APP_API_GW_PORT }}
           envkey_NX_DOMAIN_URL: https://mezon.ai
+          envkey_NX_CHAT_APP_MMN_API_URL: https://dong.mezon.ai/mmn-api
+          envkey_NX_CHAT_APP_INDEXER_API_URL: https://dong.mezon.ai/indexer-api
+          envkey_NX_CHAT_APP_ZK_API_URL: https://dong.mezon.ai/zk-api
 
       - name: Build
         run: |
@@ -132,4 +138,3 @@ jobs:
           cd /var/www/mezon-fe/
           ls -la
           unzip mezon-fe-prod.zip
-

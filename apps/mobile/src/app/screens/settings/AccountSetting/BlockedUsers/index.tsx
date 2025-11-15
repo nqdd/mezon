@@ -1,13 +1,15 @@
 import { useFriends } from '@mezon/core';
-import { CheckIcon, CloseIcon } from '@mezon/mobile-components';
-import { Colors, useTheme } from '@mezon/mobile-ui';
-import { FriendsEntity, selectBlockedUsers } from '@mezon/store-mobile';
+import { baseColor, useTheme } from '@mezon/mobile-ui';
+import type { FriendsEntity } from '@mezon/store-mobile';
+import { selectBlockedUsers } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import { useTranslation } from 'react-i18next';
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import { APP_SCREEN, SettingScreenProps } from '../../../../navigation/ScreenTypes';
+import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../../constants/icon_cdn';
+import type { APP_SCREEN, SettingScreenProps } from '../../../../navigation/ScreenTypes';
 import { style } from './styles';
 
 type BlockedUsersScreen = typeof APP_SCREEN.SETTINGS.BLOCKED_USERS;
@@ -26,7 +28,7 @@ export const BlockedUsers = ({ navigation }: SettingScreenProps<BlockedUsersScre
 					type: 'success',
 					props: {
 						text2: t('notification.unblockUser.success', { ns: 'userProfile' }),
-						leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />
+						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
 					}
 				});
 			}
@@ -35,7 +37,7 @@ export const BlockedUsers = ({ navigation }: SettingScreenProps<BlockedUsersScre
 				type: 'error',
 				props: {
 					text2: t('notification.unblockUser.error', { ns: 'userProfile' }),
-					leadingIcon: <CloseIcon color={Colors.red} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 				}
 			});
 		}
@@ -51,7 +53,7 @@ export const BlockedUsers = ({ navigation }: SettingScreenProps<BlockedUsersScre
 						<Text style={styles.avatarText}>{(item?.user?.username?.[0] || '').toUpperCase()}</Text>
 					</View>
 				)}
-				<Text style={styles.username}>{item?.user?.username}</Text>
+				<Text style={styles.username}>{item?.user?.display_name || item?.user?.username}</Text>
 			</View>
 
 			<TouchableOpacity style={styles.unblockButton} onPress={() => handleUnblockFriend(item)}>

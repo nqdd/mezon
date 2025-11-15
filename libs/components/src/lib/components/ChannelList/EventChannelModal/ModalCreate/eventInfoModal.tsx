@@ -1,11 +1,13 @@
 import { useEscapeKeyClose } from '@mezon/core';
-import { selectCurrentChannelId, selectCurrentClanId, selectTheme } from '@mezon/store';
+import { selectTheme } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { TextArea, TimePicker } from '@mezon/ui';
-import { ContenSubmitEventProps, ERepeatType, fileTypeImage } from '@mezon/utils';
+import type { ContenSubmitEventProps } from '@mezon/utils';
+import { ERepeatType, MAX_FILE_SIZE_1MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalError';
+import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 import { checkError } from '../eventHelper';
 
 const DatePickerWrapper = lazy(() => import('./DatePickerWrapper'));
@@ -24,13 +26,11 @@ export type EventInfoModalProps = {
 
 const EventInfoModal = (props: EventInfoModalProps) => {
 	const { contentSubmit, timeStartDefault, setErrorTime, setContentSubmit, choiceLocation, onClose } = props;
+	const { t } = useTranslation('eventCreator');
 	const [countCharacterDescription, setCountCharacterDescription] = useState(1000);
 	const [errorStart, setErrorStart] = useState(false);
 	const [errorEnd, setErrorEnd] = useState(false);
 	const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 
 	const startDate = contentSubmit.selectedDateStart.getDate();
 	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -62,20 +62,20 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 
 	const frequencies = useMemo(() => {
 		const options = [
-			{ value: ERepeatType.DOES_NOT_REPEAT, label: 'Does not repeat' },
-			{ value: ERepeatType.WEEKLY_ON_DAY, label: `Weekly on ${startDayOfWeek}` },
-			{ value: ERepeatType.EVERY_OTHER_DAY, label: `Every other ${startDayOfWeek}` },
+			{ value: ERepeatType.DOES_NOT_REPEAT, label: t('fields.eventFrequency.noRepeat') },
+			{ value: ERepeatType.WEEKLY_ON_DAY, label: t('fields.eventFrequency.weeklyOn', { name: startDayOfWeek }) },
+			{ value: ERepeatType.EVERY_OTHER_DAY, label: t('fields.eventFrequency.everyOther', { name: startDayOfWeek }) },
 			{
 				value: ERepeatType.MONTHLY,
-				label: `Monthly on the ${weekdayOccurrence} ${startDayOfWeek}`
+				label: t('fields.eventFrequency.monthlyOn', { name: `${weekdayOccurrence} ${startDayOfWeek}` })
 			},
-			{ value: ERepeatType.ANNUALLY, label: `Annually on ${startDate} ${startMonth}` }
+			{ value: ERepeatType.ANNUALLY, label: t('fields.eventFrequency.annuallyOn', { name: `${startDate} ${startMonth}` }) }
 		];
 
 		if (startDayOfWeek !== 'Sunday' && startDayOfWeek !== 'Saturday') {
 			options.push({
 				value: ERepeatType.EVERY_WEEKDAY,
-				label: 'Every weekday (Monday to Friday)'
+				label: t('fields.eventFrequency.everyWeekday')
 			});
 		}
 
@@ -163,19 +163,19 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 		if (!client || !session) {
 			throw new Error('Client or file is not initialized');
 		}
-		const allowedTypes = fileTypeImage;
-		if (!allowedTypes.includes(file.type)) {
+
+		if (!fileTypeImage.includes(file.type)) {
 			setOpenModalType(true);
 			e.target.value = null;
 			return;
 		}
 
-		if (sizeImage > 1000000) {
+		if (sizeImage > MAX_FILE_SIZE_1MB) {
 			setOpenModal(true);
 			e.target.value = null;
 			return;
 		}
-		handleUploadFile(client, session, currentClanId, currentChannelId, file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setContentSubmit((prev) => ({ ...prev, logo: attachment.url ?? '' }));
 		});
 	};
@@ -187,23 +187,24 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 		<div ref={modalRef} className="max-h-[500px] overflow-y-auto hide-scrollbar">
 			<div className="mb-4">
 				<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
-					Event Topic
+					{t('fields.eventName.title')}
 					<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
 				</h3>
 				<input
 					type="text"
 					name="location"
-					placeholder="What's your event?"
+					placeholder={t('fields.eventName.placeholder')}
 					onChange={(e) => setContentSubmit((prev) => ({ ...prev, topic: e.target.value }))}
 					value={contentSubmit.topic}
 					className={`font-[400] rounded w-full  outline-none text-[15px]border border-theme-primary p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''}`}
 					maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED) * 2}
+					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_topic')}
 				/>
 			</div>
 			<div className="mb-4 flex gap-x-4">
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.start_date')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
-						Start Date
+						{t('fields.startDate.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
 					</h3>
 					<Suspense fallback={<DatePickerPlaceholder />}>
@@ -217,18 +218,18 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 						/>
 					</Suspense>
 				</div>
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.start_time')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
-						Start Time
+						{t('fields.startTime.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
 					</h3>
 					<TimePicker value={contentSubmit.timeStart} name="timeStart" handleChangeTime={handleChangeTimeStart} />
 				</div>
 			</div>
 			<div className="mb-4 flex gap-x-4">
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.end_date')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
-						End Date
+						{t('fields.endDate.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
 					</h3>
 					<Suspense fallback={<DatePickerPlaceholder />}>
@@ -242,38 +243,39 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 						/>
 					</Suspense>
 				</div>
-				<div className="w-1/2">
+				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.end_time')}>
 					<h3 className="uppercase text-[11px] font-semibold inline-flex gap-x-2">
-						End Time
+						{t('fields.endTime.title')}
 						<p className="w-fit h-fit text-left text-xs font-medium leading-[150%] text-[#dc2626]">✱</p>
 					</h3>
 					<TimePicker value={contentSubmit.timeEnd} name="timeEnd" handleChangeTime={handleChangeTimeEnd} />
 				</div>
 			</div>
 			<div className="mb-4">
-				<h3 className="uppercase text-[11px] font-semibold">Event Frequency</h3>
+				<h3 className="uppercase text-[11px] font-semibold">{t('fields.eventFrequency.title')}</h3>
 				<select
 					name="frequency"
-					className={`block w-full bg-theme-input border-theme-primary rounded p-2 font-normal text-sm tracking-wide outline-none border-none ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
+					className={`cursor-pointer block w-full bg-theme-input   bg-option-theme rounded p-2 font-normal text-sm tracking-wide outline-none border-none ${appearanceTheme === 'light' ? 'customScrollLightMode' : 'app-scroll'}`}
 					value={selectedFrequency}
 					onChange={handleFrequencyChange}
+					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_frequency')}
 				>
 					{frequencies.map((frequency) => (
-						<option key={frequency.value} value={frequency.value}>
+						<option className="text-sm bg-option-theme text-theme-primary" key={frequency.value} value={frequency.value}>
 							{frequency.label}
 						</option>
 					))}
 				</select>
 				{errorStart && selectedFrequency === ERepeatType.DOES_NOT_REPEAT ? (
-					<p className="text-[#e44141] text-xs font-thin">The start time must be in the future.</p>
+					<p className="text-[#e44141] text-xs font-thin">{t('errorMessages.startTimeFuture')}</p>
 				) : null}
-				{errorEnd && <p className="text-[#e44141] text-xs font-thin">The end time must be bigger than start time.</p>}
+				{errorEnd && <p className="text-[#e44141] text-xs font-thin">{t('errorMessages.endTimeAfterStart')}</p>}
 			</div>
 			<div className="mb-4">
-				<h3 className="uppercase text-[11px] font-semibold">Description</h3>
-				<div className="relative">
+				<h3 className="uppercase text-[11px] font-semibold">{t('fields.description.title')}</h3>
+				<div className="relative" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.description')}>
 					<TextArea
-						placeholder="Let everyone know how to use this channel!"
+						placeholder={t('fields.description.description')}
 						className="resize-none h-auto min-h-[87px] w-full bg-theme-input overflow-y-hidden outline-none py-2 pl-3 pr-5"
 						value={contentSubmit.description}
 						onChange={handleChangeTextArea}
@@ -285,20 +287,28 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 				</div>
 			</div>
 			<div className="mb-4 cursor-default">
-				<h3 className="uppercase text-[11px] font-semibold">Cover Image</h3>
+				<h3 className="uppercase text-[11px] font-semibold">{t('fields.cover')}</h3>
 				<label className="w-fit block">
 					<div
 						className="text-white font-medium bg-bgSelectItem hover:bg-bgSelectItemHover rounded px-4 py-2 my-2 w-fit cursor-pointer"
 						onChange={(e) => handleFile(e)}
 					>
-						Upload Image
+						{t('actions.uploadImage')}
 					</div>
-					<input type="file" hidden onChange={(e) => handleFile(e)} className="w-full text-sm text-slate-500 " />
+					<input
+						type="file"
+						hidden
+						onChange={(e) => handleFile(e)}
+						className="w-full text-sm text-slate-500 "
+						data-e2e={generateE2eId('clan_page.modal.create_event.upload.image_cover_input')}
+					/>
 				</label>
 				{contentSubmit.logo && <img src={contentSubmit.logo} alt="logo" className="max-h-[180px] rounded w-full object-cover" />}
 			</div>
-			<ModalOverData openModal={openModal} handleClose={() => setOpenModal(false)} />
-			<ModalErrorTypeUpload openModal={openModalType} handleClose={() => setOpenModalType(false)} />
+
+			<ModalErrorTypeUpload open={openModalType} onClose={() => setOpenModalType(false)} />
+
+			<ModalOverData open={openModal} onClose={() => setOpenModal(false)} />
 		</div>
 	);
 };

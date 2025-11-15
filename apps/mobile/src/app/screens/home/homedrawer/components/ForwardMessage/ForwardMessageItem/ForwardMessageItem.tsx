@@ -1,14 +1,16 @@
-import { Colors, size, Text, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { createImgproxyUrl } from '@mezon/utils';
+import ImageNative from 'apps/mobile/src/app/components/ImageNative';
 import { ChannelType } from 'mezon-js';
 import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import FastImage from 'react-native-fast-image';
-import { IForwardIObject } from '..';
+import type { IForwardIObject } from '..';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
-import { styles } from '../styles';
+import { style } from '../styles';
+import { getCheckboxInnerIconStyle, style as localStyles } from './ForwardMessageItem.styles';
 
 function ForwardMessageItem({
 	item,
@@ -20,6 +22,8 @@ function ForwardMessageItem({
 	isItemChecked: boolean;
 }) {
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
+	const componentStyles = localStyles(themeValue);
 	const [isChecked, setIsChecked] = useState<boolean>(isItemChecked);
 
 	const renderAvatar = (item: IForwardIObject) => {
@@ -37,35 +41,29 @@ function ForwardMessageItem({
 					);
 				}
 				return (
-					<View
-						style={{
-							height: size.s_34,
-							width: size.s_34,
-							justifyContent: 'center',
-							borderRadius: 50,
-							backgroundColor: themeValue.colorAvatarDefault
-						}}
-					>
-						<Text center>{item?.name?.charAt(0)?.toUpperCase()}</Text>
+					<View style={styles.memberAvatarDefaultContainer}>
+						<Text style={styles.memberAvatarDefaultText}>{item?.name?.charAt(0)?.toUpperCase()}</Text>
 					</View>
 				);
 			case ChannelType.CHANNEL_TYPE_GROUP:
-				return (
-					<View style={styles.groupAvatar}>
-						<MezonIconCDN icon={IconCDN.userGroupIcon} />
+				return item?.avatar && !item?.avatar?.includes('avatar-group.png') ? (
+					<View style={styles.groupAvatarContainer}>
+						<ImageNative url={createImgproxyUrl(item?.avatar ?? '')} style={componentStyles.imageFullSize} resizeMode={'cover'} />
+					</View>
+				) : (
+					<View style={styles.groupAvatarDefaultContainer}>
+						<MezonIconCDN icon={IconCDN.userGroupIcon} width={size.s_16} height={size.s_16} color={themeValue.white} />
 					</View>
 				);
 			case ChannelType.CHANNEL_TYPE_CHANNEL:
 				return (
-					<View style={{ width: size.s_16, height: size.s_34, justifyContent: 'center' }}>
-						<Text center h3 color={themeValue.white}>
-							#
-						</Text>
+					<View style={styles.iconTextContainer}>
+						<Text style={componentStyles.channelHashText}>#</Text>
 					</View>
 				);
 			case ChannelType.CHANNEL_TYPE_THREAD:
 				return (
-					<View style={{ width: size.s_16, height: size.s_34, justifyContent: 'center' }}>
+					<View style={styles.iconTextContainer}>
 						<MezonIconCDN icon={IconCDN.threadIcon} width={16} height={16} color={themeValue.white} />
 					</View>
 				);
@@ -85,32 +83,27 @@ function ForwardMessageItem({
 				handleSelectChange(!isChecked);
 			}}
 		>
-			<View style={{ flexDirection: 'row', padding: size.s_10, gap: size.s_6, justifyContent: 'center' }}>
+			<View style={styles.renderContentContainer}>
 				<View>{renderAvatar(item)}</View>
-				<View style={{ flex: 1, justifyContent: 'center' }}>
+				<View style={componentStyles.nameContainer}>
 					{item.type === ChannelType.CHANNEL_TYPE_CHANNEL ? (
-						<Text color={themeValue.textStrong} numberOfLines={1}>{`${item.name} (${item.clanName})`}</Text>
+						<Text style={componentStyles.nameText} numberOfLines={1}>{`${item.name} (${item.clanName})`}</Text>
 					) : (
-						<Text color={themeValue.textStrong} numberOfLines={1}>
+						<Text style={componentStyles.nameText} numberOfLines={1}>
 							{item.name}
 						</Text>
 					)}
 				</View>
-				<View style={{ justifyContent: 'center' }}>
+				<View style={componentStyles.checkboxContainer}>
 					<BouncyCheckbox
-						size={20}
+						size={size.s_20}
 						isChecked={isChecked}
 						onPress={(value) => {
 							handleSelectChange(value);
 						}}
-						fillColor={Colors.bgButton}
-						iconStyle={{ borderRadius: 5 }}
-						innerIconStyle={{
-							borderWidth: 1.5,
-							borderColor: isChecked ? Colors.bgButton : themeValue.white,
-							borderRadius: 5,
-							opacity: 1
-						}}
+						fillColor={baseColor.bgButtonPrimary}
+						iconStyle={componentStyles.checkboxIconStyle}
+						innerIconStyle={getCheckboxInnerIconStyle(isChecked, themeValue)}
 						textStyle={{ fontFamily: 'JosefinSans-Regular' }}
 					/>
 				</View>

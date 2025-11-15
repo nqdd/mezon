@@ -1,16 +1,14 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_10,
 			paddingBottom: size.s_10
 		},
-
 		text: {
-			backgroundColor: colors.secondary,
 			color: colors.text,
 			marginTop: size.s_10
 		},
@@ -30,7 +28,7 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'space-between',
 			alignItems: 'center',
 			padding: size.s_10,
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondary,
 			borderRadius: 15,
 			marginBottom: size.s_10
 		},

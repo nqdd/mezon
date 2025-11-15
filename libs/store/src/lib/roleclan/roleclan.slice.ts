@@ -1,13 +1,17 @@
 import { captureSentryError } from '@mezon/logger';
-import { IRolesClan, LoadingStatus, UsersClanEntity } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUpdateRoleRequest } from 'mezon-js';
-import { ApiRole, ApiRoleListEventResponse, ApiUpdateRoleOrderRequest, RoleUserListRoleUser } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { IRolesClan, LoadingStatus, UsersClanEntity } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUpdateRoleRequest } from 'mezon-js';
+import type { ApiRole, ApiRoleListEventResponse, ApiUpdateRoleOrderRequest, RoleUserListRoleUser } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { selectEntitesUserClans } from '../clanMembers/clan.members';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { PermissionUserEntity, selectAllPermissionsDefaultEntities } from '../policies/policies.slice';
-import { RootState } from '../store';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx, withRetry } from '../helpers';
+import type { PermissionUserEntity } from '../policies/policies.slice';
+import { selectAllPermissionsDefaultEntities } from '../policies/policies.slice';
+import type { RootState } from '../store';
 
 export const ROLES_CLAN_FEATURE_KEY = 'rolesclan';
 export const ROLE_FEATURE_KEY = 'roleId';
@@ -103,7 +107,8 @@ export const fetchRolesClanCached = async (getState: () => RootState, ensuredMez
 			}
 		},
 		() => ensuredMezon.client.listRoles(ensuredMezon.session, clanId, 500, 1, ''),
-		'role_event_list'
+		'role_event_list',
+		{ maxRetries: 5 }
 	)) as ApiRoleListEventResponse;
 
 	markApiFirstCalled(apiKey);
@@ -150,7 +155,7 @@ export const fetchRolesClan = createAsyncThunk(
 				.map(mapRolesClanToEntity);
 
 			const payload: FetchRoleClanPayload = {
-				roles: roles,
+				roles,
 				clanId: clanId || '',
 				fromCache: !!response?.fromCache
 			};
@@ -174,13 +179,13 @@ type FetchMembersRolePayload = {
 export const fetchMembersRole = createAsyncThunk('MembersRole/fetchMembersRole', async ({ roleId, clanId }: FetchMembersRolePayload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.listRoleUsers(mezon.session, roleId, 100, '');
+		const response = await withRetry(() => mezon.client.listRoleUsers(mezon.session, roleId, 100, ''), { maxRetries: 3, initialDelay: 1000 });
 		if (!response.role_users) {
 			return thunkAPI.rejectWithValue([]);
 		}
 		return {
 			roleID: roleId,
-			clanId: clanId,
+			clanId,
 			members: response.role_users
 		} as FetchReturnMembersRole & { clanId: string };
 	} catch (error) {
@@ -397,7 +402,7 @@ export const RolesClanSlice = createSlice({
 
 			RolesClanAdapter.updateOne(state, {
 				id: role.id || '',
-				changes: changes
+				changes
 			});
 		},
 		setAll: (state, action: PayloadAction<{ roles: RolesClanEntity[]; clanId: string }>) => {
@@ -469,6 +474,28 @@ export const RolesClanSlice = createSlice({
 			});
 
 			return RolesClanAdapter.setAll(state, updatedRoles);
+		},
+		addRoleByChannel: (state, action: PayloadAction<{ channelId: string; roleIds: string[]; clanId: string }>) => {
+			const { channelId, roleIds, clanId } = action.payload;
+			const clanData = state?.byClans?.[clanId];
+			if (!clanData?.roles || !Array.isArray(roleIds)) return;
+
+			for (const roleId of roleIds) {
+				const role = clanData?.roles?.[roleId];
+				if (!role) continue;
+
+				const channels = Array.isArray(role?.channel_ids) ? role?.channel_ids : [];
+				if (!channels?.includes(channelId)) {
+					role.channel_ids = [...channels, channelId];
+				}
+			}
+		},
+		removeChannelRole: (state, action: PayloadAction<{ channelId: string; roleId: string; clanId: string }>) => {
+			const { channelId, roleId, clanId } = action.payload;
+			const role = state?.byClans?.[clanId]?.roles?.[roleId];
+			if (!role) return;
+
+			role.channel_ids = Array.isArray(role?.channel_ids) ? role?.channel_ids?.filter((id) => id && id !== channelId) : [];
 		},
 		setCurrentRoleId: (state, action: PayloadAction<string>) => {
 			state.currentRoleId = action.payload;
@@ -552,6 +579,7 @@ export type RoleState = {
 	removePermissions: string[];
 	removeMemberRoles: string[];
 	currentRoleIcon: string;
+	newRoleIcon: string;
 };
 
 const roleStateInitialState: RoleState = {
@@ -563,7 +591,8 @@ const roleStateInitialState: RoleState = {
 	addMemberRoles: [],
 	removePermissions: [],
 	removeMemberRoles: [],
-	currentRoleIcon: ''
+	currentRoleIcon: '',
+	newRoleIcon: ''
 };
 
 export const roleSlice = createSlice({
@@ -596,6 +625,9 @@ export const roleSlice = createSlice({
 		},
 		setCurrentRoleIcon: (state, action) => {
 			state.currentRoleIcon = action.payload;
+		},
+		setNewRoleIcon: (state, action) => {
+			state.newRoleIcon = action.payload;
 		}
 	}
 });
@@ -611,7 +643,8 @@ export const {
 	setRemovePermissions,
 	setRemoveMemberRoles,
 	setSelectedPermissions,
-	setCurrentRoleIcon
+	setCurrentRoleIcon,
+	setNewRoleIcon
 } = roleSlice.actions;
 
 export const getRoleState = (rootState: { [ROLE_FEATURE_KEY]: RoleState }): RoleState => rootState[ROLE_FEATURE_KEY];
@@ -630,6 +663,8 @@ export const getNewAddMembers = (state: RootState) => state.roleId.addMemberRole
 export const getRemovePermissions = (state: RootState) => state.roleId.removePermissions;
 
 export const getRemoveMemberRoles = (state: RootState) => state.roleId.removeMemberRoles;
+
+export const getNewRoleIcon = (state: RootState) => state.roleId.newRoleIcon;
 
 export const selectCurrentRoleIcon = createSelector(getRoleState, (state) => state.currentRoleIcon);
 
@@ -694,7 +729,10 @@ export const selectRolesClanEntities = createSelector(
 		return clanData ? clanData.roles : {};
 	}
 );
-
+export const selectRolesByClanId = createSelector([getRolesClanState, (state: RootState, clanId: string) => clanId], (state, clanId) => {
+	const clanData = state.byClans[clanId];
+	return clanData ? clanData.roles : {};
+});
 const handleMapUpdateRole = (
 	role: RolesClanEntity,
 	body: ApiUpdateRoleRequest,
@@ -725,8 +763,10 @@ const handleMapUpdateRole = (
 	const existingUsers = role.role_user_list?.role_users || [];
 
 	const userUpdate = existingUsers.filter((u) => (u.id ? !removeUserSet.has(u.id) : false));
+	const existingUserIdSet = new Set(userUpdate.map((u) => u.id).filter((id): id is string => Boolean(id)));
 	for (const id of add_user_ids) {
-		if (removeUserSet.has(id)) continue; // không thêm nếu đã nằm trong danh sách remove
+		if (removeUserSet.has(id)) continue;
+		if (existingUserIdSet.has(id)) continue;
 		const u = users[id];
 		if (!u) continue;
 
@@ -739,6 +779,7 @@ const handleMapUpdateRole = (
 			location: u.user?.location,
 			online: u.user?.online
 		});
+		existingUserIdSet.add(id);
 	}
 
 	return {

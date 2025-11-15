@@ -1,7 +1,6 @@
 import { useCheckVoiceStatus } from '@mezon/core';
-import { Icons } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelsEntity } from '@mezon/store-mobile';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import { ChannelStatusEnum, checkIsThread, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
@@ -37,7 +36,7 @@ const SuggestItem = memo(
 
 			const isThread = checkIsThread(channel as ChannelsEntity);
 
-			const isChannelVoice = channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
+			const isChannelVoice = channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 			const isChannelStream = channel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
 			const isChannelApp = channel?.type === ChannelType.CHANNEL_TYPE_APP;
 
@@ -57,7 +56,7 @@ const SuggestItem = memo(
 			<View>
 				{isRoleUser && (
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<Icons.RoleIcon width={size.s_20} height={size.s_20} />
+						<MezonIconCDN icon={IconCDN.shieldUserIcon} color={color ?? themeValue.textRoleLink} width={size.s_20} height={size.s_20} />
 						<Text style={[styles.roleText, { color: color ?? themeValue.textRoleLink }]}>{`${name}`}</Text>
 					</View>
 				)}

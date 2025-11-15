@@ -11,12 +11,18 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { ApiPermissionUpdate } from 'mezon-js/api.gen';
+import type { ApiPermissionUpdate } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { TypeChoose } from './ItemPermission';
-import ListPermission, { ListPermissionHandle } from './ListPermission';
+import type { ListPermissionHandle } from './ListPermission';
+import ListPermission from './ListPermission';
 import ListRoleMember from './ListRoleMember';
+
+export const ENTITY_TYPE = {
+	ROLE: 0,
+	USER: 1
+} as const;
 
 type MainPermissionManageProps = {
 	channelId: string;
@@ -39,23 +45,33 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 	}, [permissions]);
 	const [currentRoleId, setCurrentRoleId] = useState<{ id: string; type: number }>();
 	const listPermission = useSelector(selectPermissionChannel);
-	const listPermissionRoleChannel = useAppSelector((state) => selectAllPermissionRoleChannel(state, channelId));
+	const listPermissionRoleChannel = useAppSelector((state) =>
+		selectAllPermissionRoleChannel(
+			state,
+			channelId,
+			currentRoleId?.type === ENTITY_TYPE.ROLE ? currentRoleId.id : undefined,
+			currentRoleId?.type === ENTITY_TYPE.USER ? currentRoleId.id : undefined
+		)
+	);
 	const rolesClan = useSelector(selectAllRolesClan);
 	const rolesInChannel = useSelector(selectRolesByChannelId(channelId));
 	const rawMembers = useSelector(selectAllUserChannel(channelId));
 	const currentClanId = useSelector(selectCurrentClanId);
-	const combinedArray = [
-		...rolesInChannel.map((role) => ({
-			id: role.id,
-			title: role.title,
-			type: 0
-		})),
-		...rawMembers.map((member) => ({
-			id: member.id,
-			title: member.user?.username,
-			type: 1
-		}))
-	];
+	const combinedArray = useMemo(
+		() => [
+			...rolesInChannel.map((role) => ({
+				id: role.id,
+				title: role.title,
+				type: ENTITY_TYPE.ROLE
+			})),
+			...rawMembers.map((member) => ({
+				id: member.id,
+				title: member.user?.username,
+				type: ENTITY_TYPE.USER
+			}))
+		],
+		[rolesInChannel, rawMembers]
+	);
 
 	const { maxPermissionId } = useMyRole();
 	const dispatch = useAppDispatch();
@@ -102,10 +118,19 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 
 	const handleSelectRole = useCallback(
 		(id: string, type: number) => {
-			setCurrentRoleId({ id: id, type: type });
+			setPermissions({});
+			setCurrentRoleId({ id, type });
+			listPermissionRef.current?.reset();
 		},
 		[setCurrentRoleId]
 	);
+
+	useEffect(() => {
+		if (!currentRoleId && combinedArray.length > 0) {
+			const firstItem = combinedArray[0];
+			handleSelectRole(firstItem.id, firstItem.type);
+		}
+	}, [combinedArray, currentRoleId, handleSelectRole]);
 
 	const handleReset = () => {
 		setPermissions({});
@@ -127,13 +152,13 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 				type: matchingRoleChannel ? (matchingRoleChannel.active ? TypeChoose.Tick : TypeChoose.Remove) : TypeChoose.Or
 			});
 		});
-		if (type === 0) {
+		if (type === ENTITY_TYPE.ROLE) {
 			await dispatch(
 				permissionRoleChannelActions.setPermissionRoleChannel({
-					channelId: channelId,
+					channelId,
 					roleId: id || '',
 					permission: permissionsArray,
-					maxPermissionId: maxPermissionId,
+					maxPermissionId,
 					userId: '',
 					clanId: currentClanId || ''
 				})
@@ -141,10 +166,10 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 		} else {
 			await dispatch(
 				permissionRoleChannelActions.setPermissionRoleChannel({
-					channelId: channelId,
+					channelId,
 					roleId: '',
 					permission: permissionsArray,
-					maxPermissionId: maxPermissionId,
+					maxPermissionId,
 					userId: id || '',
 					clanId: currentClanId || ''
 				})
@@ -182,7 +207,13 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 					onSelect={handleSelectRole}
 					canChange={permissionsLength === 0}
 				/>
-				<ListPermission channelId={channelId} listPermission={listPermission} onSelect={handleSelect} ref={listPermissionRef} />
+				<ListPermission
+					channelId={channelId}
+					listPermission={listPermission}
+					onSelect={handleSelect}
+					currentRoleId={currentRoleId}
+					ref={listPermissionRef}
+				/>
 			</div>
 		)
 	);

@@ -1,4 +1,4 @@
-import { Colors, size } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
 		left: 0
 	},
 	textTitle: {
-		color: Colors.white
+		color: 'white'
 	},
 	content: {
 		position: 'relative',
@@ -23,6 +23,10 @@ const styles = StyleSheet.create({
 		flexBasis: 170,
 		borderRadius: 10,
 		overflow: 'hidden'
+	},
+	fastImage: {
+		height: '100%',
+		width: '100%'
 	},
 	container: {
 		marginTop: 20,

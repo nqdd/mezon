@@ -1,26 +1,33 @@
 import { useAppParams, useFriends } from '@mezon/core';
+import type { ChannelsEntity, RootState } from '@mezon/store';
 import {
-	ChannelsEntity,
 	EStateFriend,
-	RootState,
 	selectAllAccount,
-	selectCurrentChannel,
+	selectChannelById,
+	selectCurrentChannelId,
+	selectCurrentChannelLabel,
+	selectCurrentChannelType,
 	selectDirectById,
 	selectFriendById,
-	selectFriendStatus,
 	selectIsShowCreateThread,
 	selectMemberClanByUserId,
 	selectThreadCurrentChannel,
+	selectUpdateDmGroupError,
+	selectUpdateDmGroupLoading,
 	selectUserIdCurrentDm,
+	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ChannelStatusEnum, createImgproxyUrl } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { useEditGroupModal } from '../../hooks/useEditGroupModal';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
+import ModalEditGroup from '../ModalEditGroup';
 
 export type ChatWelComeProp = {
 	readonly name?: Readonly<string>;
@@ -33,10 +40,27 @@ export type ChatWelComeProp = {
 };
 
 function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeProp) {
+	const { t } = useTranslation('chatWelcome');
 	const { directId } = useAppParams();
+	const dispatch = useAppDispatch();
 	const directChannel = useAppSelector((state) => selectDirectById(state, directId));
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId || ''));
+	const currentChannelType = useSelector(selectCurrentChannelType);
+	const currentChannelLabel = useSelector(selectCurrentChannelLabel);
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
+	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(directChannel?.channel_id || '')(state));
+	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(directChannel?.channel_id || '')(state));
+	const editGroupModal = useEditGroupModal({
+		channelId: directChannel?.channel_id,
+		currentGroupName: name || directChannel?.channel_label || 'Group',
+		currentAvatar: directChannel?.channel_avatar || ''
+	});
+
+	const handleOpenEditModal = useCallback(() => {
+		editGroupModal.openEditModal();
+	}, [editGroupModal]);
+
 	const selectedChannel =
 		mode === ChannelStreamMode.STREAM_MODE_DM || mode === ChannelStreamMode.STREAM_MODE_GROUP
 			? directChannel
@@ -44,29 +68,28 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 				? threadCurrentChannel || currentChannel
 				: currentChannel;
 
-	const user = useSelector(selectMemberClanByUserId(selectedChannel?.creator_id as string));
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, selectedChannel?.creator_id as string));
 	const preferredUserName = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
 	const classNameSubtext = 'text-theme-primary opacity-60 text-sm';
-	const showName = <span className="font-medium">{name || username}</span>;
 
 	const isChannel = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const isThread = mode === ChannelStreamMode.STREAM_MODE_THREAD;
 	const isDm = mode === ChannelStreamMode.STREAM_MODE_DM;
 	const isDmGroup = mode === ChannelStreamMode.STREAM_MODE_GROUP;
-	const isChatStream = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
+	const isChatStream = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 
 	return (
 		<div className="flex flex-col gap-3">
-			<div className="space-y-2 px-4 mb-0  flex-1 flex flex-col justify-end">
+			<div className="space-y-2 px-4 mb-0  flex-1 flex flex-col justify-end" data-e2e={generateE2eId('chat_welcome')}>
 				{
 					<>
 						{isChannel && (
 							<WelComeChannel
-								name={currentChannel?.channel_label}
+								name={currentChannelLabel}
 								classNameSubtext={classNameSubtext}
-								showName={showName}
 								channelPrivate={Boolean(selectedChannel?.channel_private)}
 								isChatStream={isChatStream}
+								t={t}
 							/>
 						)}
 						{isThread && (
@@ -76,21 +99,35 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 								classNameSubtext={classNameSubtext}
 								username={preferredUserName}
 								isPrivate={isPrivate}
+								t={t}
 							/>
 						)}
 						{(isDm || isDmGroup) && (
 							<WelComeDm
 								name={isDmGroup ? name || `${selectedChannel?.creator_name}'s Groups` : name || username}
 								username={username}
-								avatar={avatarDM}
+								avatar={isDmGroup ? directChannel?.channel_avatar || 'assets/images/avatar-group.png' : avatarDM}
 								classNameSubtext={classNameSubtext}
-								showName={showName}
 								isDmGroup={isDmGroup}
+								onEditGroup={isDmGroup ? handleOpenEditModal : undefined}
+								t={t}
 							/>
 						)}
 					</>
 				}
 			</div>
+
+			<ModalEditGroup
+				isOpen={editGroupModal.isEditModalOpen}
+				onClose={editGroupModal.closeEditModal}
+				onSave={editGroupModal.handleSave}
+				onImageUpload={editGroupModal.handleImageUpload}
+				groupName={editGroupModal.groupName}
+				onGroupNameChange={editGroupModal.setGroupName}
+				imagePreview={editGroupModal.imagePreview}
+				isLoading={updateDmGroupLoading}
+				error={updateDmGroupError}
+			/>
 		</div>
 	);
 }
@@ -100,13 +137,14 @@ export default ChatWelCome;
 type WelComeChannelProps = {
 	name?: string;
 	classNameSubtext: string;
-	showName: JSX.Element;
 	channelPrivate: boolean;
 	isChatStream?: boolean;
+	t: (key: string, options?: any) => string;
 };
 
 const WelComeChannel = (props: WelComeChannelProps) => {
-	const { name = '', classNameSubtext, showName, channelPrivate, isChatStream } = props;
+	const { name = '', classNameSubtext, channelPrivate, isChatStream, t } = props;
+
 	return (
 		<>
 			<div
@@ -115,12 +153,15 @@ const WelComeChannel = (props: WelComeChannelProps) => {
 				{isChatStream ? <Icons.Chat defaultSize="w-10 h-10 " /> : <Icons.Hashtag defaultSize="w-10 h-10" />}
 			</div>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
-					Welcome to #{name}
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">
+					{t('welcome.welcomeToChannel', { channelName: name })}
 				</p>
 			</div>
 			<p className={classNameSubtext}>
-				This is the start of the #{showName} {channelPrivate ? 'private' : ''} channel
+				{t('welcome.startOfChannel', {
+					channelName: name,
+					channelType: channelPrivate ? t('welcome.private') : ''
+				})}
 			</p>
 		</>
 	);
@@ -132,10 +173,11 @@ type WelcomeChannelThreadProps = {
 	username?: string;
 	currentThread: ChannelsEntity | null;
 	isPrivate?: number;
+	t: (key: string, options?: any) => string;
 };
 
 const WelcomeChannelThread = (props: WelcomeChannelThreadProps) => {
-	const { name = '', classNameSubtext, username = '', currentThread, isPrivate } = props;
+	const { name = '', classNameSubtext, username = '', currentThread, isPrivate, t } = props;
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentThread?.id as string));
 	return (
 		<>
@@ -147,13 +189,11 @@ const WelcomeChannelThread = (props: WelcomeChannelThreadProps) => {
 				)}
 			</div>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">
 					{isShowCreateThread ? name : currentThread?.channel_label}
 				</p>
 			</div>
-			<p className={classNameSubtext}>
-				Started by <span className="text font-medium">{username}</span>
-			</p>
+			<p className={classNameSubtext}>{t('welcome.startOfThread', { username })}</p>
 		</>
 	);
 };
@@ -164,15 +204,19 @@ type WelComeDmProps = {
 
 	avatar?: string;
 	classNameSubtext: string;
-	showName: JSX.Element;
 	isDmGroup: boolean;
+	onEditGroup?: () => void;
+	t: (key: string, options?: any) => string;
 };
 
 const WelComeDm = (props: WelComeDmProps) => {
-	const { name = '', username = '', avatar = '', classNameSubtext, showName, isDmGroup } = props;
+	const { name = '', username = '', avatar = '', classNameSubtext, isDmGroup, onEditGroup, t } = props;
 
 	const userID = useSelector(selectUserIdCurrentDm);
-	const checkAddFriend = useSelector(selectFriendStatus(userID[0] || ''));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID?.[0] || ''));
+	const checkAddFriend = useMemo(() => {
+		return infoFriend?.state;
+	}, [infoFriend]);
 
 	return (
 		<>
@@ -186,21 +230,34 @@ const WelComeDm = (props: WelComeDmProps) => {
 				classNameText="!text-4xl font-semibold"
 			/>
 			<div>
-				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active" style={{ wordBreak: 'break-word' }}>
-					{name}
-				</p>
+				<p className="text-xl md:text-3xl font-bold pt-1 text-theme-primary-active break-words">{name}</p>
 			</div>
 			{!isDmGroup && <p className="font-medium text-2xl text-theme-primary">{username}</p>}
 			<div className="text-base">
 				<p className={classNameSubtext}>
-					{isDmGroup ? (
-						<>Welcome to the beginning of the {showName} group.</>
-					) : (
-						<>This is the beginning of your direct message history with {showName}</>
-					)}
+					{isDmGroup ? <>{t('welcome.welcomeToGroup', { groupName: name })}</> : <>{t('welcome.beginningOfDM', { userName: name })}</>}
 				</p>
 			</div>
-			{!isDmGroup && <StatusFriend username={username} checkAddFriend={checkAddFriend} userID={userID[0]} />}
+			{isDmGroup && onEditGroup && (
+				<button
+					onClick={onEditGroup}
+					className="inline-flex items-center gap-2 px-3 py-2 mt-2 bg-item-theme  text-theme-primary text-sm font-medium rounded-md transition-all duration-150 hover:shadow-lg hover:scale-[1.02] group w-fit"
+					title="Edit Group"
+					data-e2e={generateE2eId(`chat.direct_message.edit_group.button`)}
+				>
+					<svg
+						className="w-4 h-4 transition-transform group-hover:scale-110 "
+						viewBox="0 0 16 16"
+						fill="currentColor"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path d="M8.29289 3.70711L1 11V15H5L12.2929 7.70711L8.29289 3.70711Z" />
+						<path d="M9.70711 2.29289L13.7071 6.29289L15.1716 4.82843C15.702 4.29799 16 3.57857 16 2.82843C16 1.26633 14.7337 0 13.1716 0C12.4214 0 11.702 0.297995 11.1716 0.828428L9.70711 2.29289Z" />
+					</svg>
+					{t('welcome.editGroup')}
+				</button>
+			)}
+			{!isDmGroup && <StatusFriend username={username} checkAddFriend={checkAddFriend} userID={userID[0]} t={t} />}
 		</>
 	);
 };
@@ -210,10 +267,11 @@ type StatusFriendProps = {
 
 	checkAddFriend?: number;
 	userID: string;
+	t: (key: string, options?: any) => string;
 };
 
 const StatusFriend = memo((props: StatusFriendProps) => {
-	const { username = '', checkAddFriend, userID } = props;
+	const { username = '', checkAddFriend, userID, t } = props;
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, userID));
 	const userProfile = useSelector(selectAllAccount);
 
@@ -233,15 +291,15 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 			case EStateFriend.BLOCK:
 				return [];
 			case EStateFriend.MY_PENDING:
-				return ['Accept', 'Ignore'];
+				return [t('welcome.accept'), t('welcome.ignore')];
 			case EStateFriend.OTHER_PENDING:
-				return ['Friend Request Sent'];
+				return [t('welcome.friendRequestSentButton')];
 			case EStateFriend.FRIEND:
-				return ['Remove Friend'];
+				return [t('welcome.removeFriend')];
 			default:
-				return ['Add Friend'];
+				return [t('welcome.addFriend')];
 		}
-	}, [checkAddFriend]);
+	}, [checkAddFriend, t]);
 
 	const handleOnClickButtonFriend = (index: number) => {
 		switch (checkAddFriend) {
@@ -259,10 +317,15 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 				deleteFriend(username, userID);
 				break;
 			default:
-				addFriend({
-					ids: [userID],
-					usernames: [username]
-				});
+				addFriend(
+					userID
+						? {
+								ids: [userID]
+							}
+						: {
+								usernames: [username]
+							}
+				);
 		}
 	};
 
@@ -270,10 +333,10 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 		try {
 			const isBlocked = await blockFriend(username, userID);
 			if (isBlocked) {
-				toast.success('User blocked successfully');
+				toast.success(t('toast.userBlockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to block user');
+			toast.error(t('toast.failedToBlock'));
 		}
 	};
 
@@ -281,10 +344,10 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 		try {
 			const isUnblocked = await unBlockFriend(username, userID);
 			if (isUnblocked) {
-				toast.success('User unblocked successfully');
+				toast.success(t('toast.userUnblockedSuccess'));
 			}
 		} catch (error) {
-			toast.error('Failed to unblock user');
+			toast.error(t('toast.failedToUnblock'));
 		}
 	};
 
@@ -295,24 +358,26 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 	return (
 		<div className="flex gap-x-2 items-center text-sm">
 			{checkAddFriend === EStateFriend.MY_PENDING && (
-				<p className="dark:text-contentTertiary text-colorTextLightMode">Sent you a friend request:</p>
+				<p className="dark:text-contentTertiary text-colorTextLightMode">{t('welcome.friendRequestSent')}</p>
 			)}
-			{title.map((button, index) => (
-				<button
-					className={`rounded-lg   border border-theme-primary px-4 py-0.5 font-medium  ${checkAddFriend === EStateFriend.OTHER_PENDING ? 'cursor-not-allowed' : ''} ${checkAddFriend === EStateFriend.FRIEND ? 'bg-button-secondary text-theme-primary text-theme-primary-hover' : 'btn-primary btn-primary-hover'}`}
-					onClick={() => handleOnClickButtonFriend(index)}
-					key={button}
-				>
-					{button}
-				</button>
-			))}
+			{userID !== userProfile?.user?.id &&
+				title.map((button, index) => (
+					<button
+						className={`rounded-lg border border-theme-primary px-4 py-0.5 font-medium ${checkAddFriend === EStateFriend.OTHER_PENDING ? 'cursor-not-allowed' : ''} ${checkAddFriend === EStateFriend.FRIEND ? 'bg-button-secondary text-theme-primary text-theme-primary-hover' : 'btn-primary btn-primary-hover'}`}
+						onClick={() => handleOnClickButtonFriend(index)}
+						key={button}
+					>
+						{button}
+					</button>
+				))}
 
 			{(isFriend || didIBlockUser) && (
 				<button
 					onClick={didIBlockUser ? handleUnblockFriend : handleBlockFriend}
 					className="rounded-lg text-theme-primary-hover border border-theme-primary bg-button-secondary px-4 py-0.5 font-medium text-theme-primary"
+					data-e2e={generateE2eId(`chat.direct_message.${didIBlockUser ? 'unblock' : 'block'}.button`)}
 				>
-					{didIBlockUser ? 'Unblock' : 'Block'}
+					{didIBlockUser ? t('welcome.unblock') : t('welcome.block')}
 				</button>
 			)}
 		</div>

@@ -1,12 +1,13 @@
 import { usePermissionChecker } from '@mezon/core';
 import {
-	ClansEntity,
 	FAVORITE_CATEGORY_ID,
 	categoriesActions,
 	listChannelRenderAction,
 	selectCtrlKFocusChannel,
 	selectCurrentChannelId,
-	selectCurrentClan,
+	selectCurrentClanBanner,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
 	selectCurrentUserId,
 	selectIsElectronDownloading,
 	selectIsElectronUpdateAvailable,
@@ -18,17 +19,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import {
-	ChannelThreads,
-	EPermission,
-	ICategoryChannel,
-	IChannel,
-	createImgproxyUrl,
-	isLinuxDesktop,
-	isWindowsDesktop,
-	toggleDisableHover,
-	useSyncEffect
-} from '@mezon/utils';
+import type { ChannelThreads, ICategoryChannel, IChannel } from '@mezon/utils';
+import { EPermission, createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, toggleDisableHover } from '@mezon/utils';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -36,7 +28,8 @@ import { CreateNewChannelModal } from '../CreateChannelModal';
 import { MentionFloatButton } from '../MentionFloatButton';
 import { ThreadLinkWrapper } from '../ThreadListChannel';
 import { useVirtualizer } from '../virtual-core/useVirtualizer';
-import CategorizedItem, { IChannelLinkPermission } from './CategorizedChannels';
+import type { IChannelLinkPermission } from './CategorizedChannels';
+import CategorizedItem from './CategorizedChannels';
 import { Events } from './ChannelListComponents';
 import ChannelListItem from './ChannelListItem';
 export type ChannelListProps = { className?: string };
@@ -46,8 +39,9 @@ const clanTopbarEle = 50;
 function ChannelList() {
 	const isOpenModal = useAppSelector((state) => selectIsOpenCreateNewChannel(state));
 	const [openCreateChannel, closeCreateChannel] = useModal(() => <CreateNewChannelModal />, []);
-	const currentClan = useSelector(selectCurrentClan);
-	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClan?.clan_id));
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanCreatorId = useSelector(selectCurrentClanCreatorId);
+	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
 
 	const userId = useSelector(selectCurrentUserId);
 	const [hasAdminPermission, hasClanPermission, hasChannelManagePermission] = usePermissionChecker([
@@ -55,7 +49,7 @@ function ChannelList() {
 		EPermission.manageClan,
 		EPermission.manageChannel
 	]);
-	const isClanOwner = currentClan?.creator_id === userId;
+	const isClanOwner = currentClanCreatorId === userId;
 	const permissions = useMemo(
 		() => ({
 			hasAdminPermission,
@@ -95,13 +89,13 @@ function ChannelList() {
 	);
 }
 
-const ChannelBannerAndEvents = memo(({ currentClan }: { currentClan: ClansEntity | null }) => {
+const ChannelBannerAndEvents = memo(({ banner }: { banner?: string }) => {
 	return (
 		<>
-			{currentClan?.banner && (
+			{banner && (
 				<div className="h-[136px]">
 					<img
-						src={createImgproxyUrl(currentClan?.banner ?? '', { width: 300, height: 300, resizeType: 'fit' })}
+						src={createImgproxyUrl(banner ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						alt="imageCover"
 						className="h-full w-full object-cover"
 					/>
@@ -116,19 +110,19 @@ const ChannelBannerAndEvents = memo(({ currentClan }: { currentClan: ClansEntity
 });
 
 const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLinkPermission }) => {
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanBanner = useSelector(selectCurrentClanBanner);
 	const [showFullList, setShowFullList] = useState(false);
 	const prevClanIdRef = useRef<string | null>(null);
 
-	useSyncEffect(() => {
-		const currentClanId = currentClan?.clan_id ?? null;
+	useEffect(() => {
 		if (prevClanIdRef.current !== currentClanId) {
-			prevClanIdRef.current = currentClanId;
+			prevClanIdRef.current = currentClanId as string;
 			if (showFullList) {
 				setShowFullList(false);
 			}
 		}
-	}, [currentClan]);
+	}, [currentClanId]);
 
 	const isShowEmptyCategory = useSelector(selectIsShowEmptyCategory);
 	const streamPlay = useSelector(selectStatusStream);
@@ -138,8 +132,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const ctrlKFocusChannel = useSelector(selectCtrlKFocusChannel);
 	const dispatch = useAppDispatch();
 
-	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClan?.clan_id));
-
+	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
 	const firstChannelWithBadgeCount = useMemo(() => {
 		return listChannelRender?.find((item) => (item as IChannel)?.count_mess_unread && ((item as IChannel)?.count_mess_unread || 0) > 0) || null;
 	}, [listChannelRender]);
@@ -167,11 +160,12 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	useEffect(() => {
 		const calculateHeight = () => {
 			const clanFooterEle = document.getElementById('clan-footer');
-			const rect = clanFooterEle?.getBoundingClientRect();
-			const distanceFromBottom = window.innerHeight - (rect?.bottom || 0);
-			const totalHeight = clanTopbarEle + (clanFooterEle?.clientHeight || 0) + 8 + distanceFromBottom;
+			const clanFooterHeight = clanFooterEle?.clientHeight || 0;
+			const mdBottomMargin = window.innerWidth >= 768 ? 16 : 0;
+			const totalHeight = clanTopbarEle + clanFooterHeight + mdBottomMargin + 5;
 			const outsideHeight = totalHeight;
 			const titleBarHeight = isWindowsDesktop || isLinuxDesktop ? 21 : 0;
+
 			setHeight(window.innerHeight - outsideHeight - titleBarHeight);
 		};
 		calculateHeight();
@@ -336,7 +330,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 		<div
 			ref={parentRef}
 			style={{
-				height: height
+				height
 			}}
 			className={`thread-scroll`}
 			onWheelCapture={() => {
@@ -344,10 +338,9 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 			}}
 		>
 			<div
+				className="relative w-full"
 				style={{
-					height: virtualizer.getTotalSize(),
-					width: '100%',
-					position: 'relative'
+					height: virtualizer.getTotalSize()
 				}}
 			>
 				{firstChannelWithBadgeCount && isChannelRefOutOfViewport() && (
@@ -357,26 +350,22 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 				)}
 				<div
 					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						width: '100%',
 						transform: `translateY(${items[0]?.start ?? 0}px)`
 					}}
-					className="channel-wrap"
+					className="channel-wrap absolute top-0 left-0 w-full"
 				>
 					{items.map((virtualRow, index) => {
 						const item = data[virtualRow.index];
 						if (virtualRow.index === 0) {
 							return (
 								<div key={virtualRow.key} data-index={virtualRow.index} ref={virtualizer.measureElement}>
-									<ChannelBannerAndEvents currentClan={currentClan} />
+									<ChannelBannerAndEvents banner={currentClanBanner} />
 								</div>
 							);
 						} else if (item.channels) {
 							return (
 								<div
-									style={{ padding: '10px 0 6px' }}
+									className="pt-[10px] pb-[6px]"
 									key={virtualRow.key}
 									data-index={virtualRow.index}
 									ref={virtualizer.measureElement}
@@ -395,10 +384,8 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 										data-index={virtualRow.index}
 										draggable
 										onClick={handleChannelClick}
-										onDragStart={(e) => handleDragStart(virtualRow.index, e, `${item.category_id}-${item.id}`)}
-										onDragEnter={(e) => handleDragEnter(virtualRow.index, e, `${item.category_id}-${item.id}`)}
-										onDragEnd={() => handleDragEnd(virtualRow.index)}
 										ref={virtualizer.measureElement}
+										data-e2e={generateE2eId('clan_page.channel_list.item')}
 									>
 										<ChannelListItem
 											isActive={currentChannelId === (item as IChannel).channel_id && !(item as IChannel).isFavor}
@@ -417,7 +404,11 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 											key={item.id}
 											isActive={currentChannelId === item.id}
 											thread={item}
-											isFirstThread={(data[virtualRow.index - 1] as IChannel).parent_id === '0'}
+											notLastThread={
+												data[virtualRow.index + 1] &&
+												(data[virtualRow.index + 1] as IChannel)?.parent_id !== '0' &&
+												!(data[virtualRow.index + 1] as ICategoryChannel)?.channels
+											}
 										/>
 									</div>
 								);

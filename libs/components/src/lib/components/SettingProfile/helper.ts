@@ -1,7 +1,8 @@
 import { toastActions } from '@mezon/store';
 import { handleUploadFile } from '@mezon/transport';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
-import { ApiAccount } from 'mezon-js/api.gen';
+import type { ApiAccount } from 'mezon-js/api.gen';
+import { toast } from 'react-toastify';
 
 export const processImage = async (
 	imageCropped: File | null,
@@ -20,7 +21,7 @@ export const processImage = async (
 	let isMounted = true;
 
 	if (!(imageCropped instanceof File)) {
-		dispatch(toastActions.addToastError({ message: 'Invalid file format' }));
+		toast.error('Invalid file format');
 		return;
 	}
 
@@ -29,7 +30,7 @@ export const processImage = async (
 			setOpenModal(true);
 			setImageObject(null);
 			setImageCropped(null);
-			dispatch(toastActions.addToastError({ message: 'File size exceeds 1MB limit' }));
+			toast.error('File size exceeds 1MB limit');
 		}
 		return;
 	}
@@ -44,14 +45,7 @@ export const processImage = async (
 
 		const imageAvatarResize = imageCropped as File;
 
-		const attachment = await handleUploadFile(
-			clientRef.current,
-			sessionRef.current,
-			clanId,
-			userProfile?.user?.id || '0',
-			imageAvatarResize.name,
-			imageAvatarResize
-		);
+		const attachment = await handleUploadFile(clientRef.current, sessionRef.current, imageAvatarResize.name, imageAvatarResize, NaN, true);
 
 		if (isMounted) {
 			setUrlImage(attachment.url || '');
@@ -62,7 +56,7 @@ export const processImage = async (
 		}
 	} catch (error) {
 		if (isMounted) {
-			dispatch(toastActions.addToastError({ message: 'Error uploading avatar image' }));
+			toast.error('Error uploading avatar image');
 		}
 	}
 

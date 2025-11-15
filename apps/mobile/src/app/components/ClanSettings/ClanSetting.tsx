@@ -2,14 +2,16 @@ import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { EPermission } from '@mezon/utils';
-import { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Platform, Pressable, ScrollView, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps, reserve } from '../../componentUI/MezonMenu';
+import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
 import InviteToChannel from '../../screens/home/homedrawer/components/InviteToChannel';
+import StatusBarHeight from '../StatusBarHeight/StatusBarHeight';
 import { LogoClanSelector } from './LogoClanSelector';
 import { style } from './styles';
 
@@ -18,7 +20,7 @@ type ClanSettingsScreen = typeof APP_SCREEN.MENU_CLAN.SETTINGS;
 export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScreen>) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['clanSetting']);
+	const { t } = useTranslation(['clanSetting', 'screenStack']);
 	const [hasAdminPermission, hasManageClanPermission, isClanOwner] = usePermissionChecker([
 		EPermission.administrator,
 		EPermission.manageClan,
@@ -29,21 +31,6 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 		return hasAdminPermission || isClanOwner || hasManageClanPermission;
 	}, [hasAdminPermission, hasManageClanPermission, isClanOwner]);
 
-	useEffect(() => {
-		navigation.setOptions({
-			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
-			headerLeft: () => (
-				<Pressable style={{ padding: 20 }} onPress={handleClose}>
-					<MezonIconCDN icon={IconCDN.closeSmallBold} color={themeValue.textStrong} />
-				</Pressable>
-			)
-		});
-	}, [navigation, themeValue.textStrong]);
-
-	function handleClose() {
-		navigation.goBack();
-	}
-
 	const settingsMenu: IMezonMenuItemProps[] = [
 		{
 			title: t('menu.settings.overview'),
@@ -53,12 +40,6 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.circleInformation} color={themeValue.text} />
 		},
-		// {
-		// 	title: t('menu.settings.moderation'),
-		// 	onPress: () => reserve(),
-		// 	expandable: true,
-		// 	icon: <Icons.ModerationIcon color={themeValue.text} />,
-		// },
 		{
 			title: t('menu.settings.auditLog'),
 			onPress: () => {
@@ -68,20 +49,16 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			icon: <MezonIconCDN icon={IconCDN.clipboardIcon} color={themeValue.text} />,
 			isShow: isCanEditRole
 		},
-		// {
-		// 	title: t('menu.settings.channels'),
-		// 	onPress: () => reserve(),
-		// 	expandable: true,
-		// 	icon: <Icons.ChannelListIcon color={themeValue.text} />,
-		// },
 		{
 			title: t('menu.settings.integrations'),
 			onPress: () => {
-				navigation.navigate(APP_SCREEN.MENU_CLAN.INTEGRATIONS);
+				navigation.navigate(APP_SCREEN.MENU_CLAN.INTEGRATIONS, {
+					isClanSetting: true
+				});
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.gameControllerIcon} color={themeValue.text} />,
-			isShow: hasAdminPermission
+			isShow: hasAdminPermission || hasManageClanPermission
 		},
 		{
 			title: t('menu.settings.emoji'),
@@ -106,36 +83,15 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			},
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.channelVoice} color={themeValue.text} />
-		}
-		// {
-		// 	title: t('menu.settings.webhooks'),
-		// 	onPress: () => reserve(),
-		// 	expandable: true,
-		// 	icon: <Icons.WebhookIcon color={themeValue.text} />
-		// }
-		// {
-		// 	title: t('menu.settings.security'),
-		// 	onPress: () => reserve(),
-		// 	expandable: true,
-		// 	icon: <Icons.ShieldUserIcon color={themeValue.text} />,
-		// },
-	];
-
-	const communityMenu: IMezonMenuItemProps[] = [
+		},
 		{
-			title: t('menu.community.enableCommunity'),
-			onPress: () => reserve(),
+			title: t('menu.settings.enableCommunity'),
+			onPress: async () => {
+				navigation.navigate(APP_SCREEN.MENU_CLAN.ENABLE_COMMUNITY);
+			},
 			expandable: true,
-			icon: <MezonIconCDN icon={IconCDN.treeHouse} color={themeValue.text} />
-		}
-	];
-
-	const subscriptionMenu: IMezonMenuItemProps[] = [
-		{
-			title: t('menu.subscriptions.getStarted'),
-			onPress: () => reserve(),
-			expandable: true,
-			icon: <MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.text} />
+			isShow: hasManageClanPermission,
+			icon: <MezonIconCDN icon={IconCDN.communityIcon} color={themeValue.text} />
 		}
 	];
 
@@ -169,12 +125,6 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			expandable: true,
 			icon: <MezonIconCDN icon={IconCDN.linkIcon} color={themeValue.text} />
 		}
-		// {
-		// 	title: t('menu.userManagement.bans'),
-		// 	onPress: () => reserve(),
-		// 	expandable: true,
-		// 	icon: <Icons.HammerIcon color={themeValue.text} />
-		// }
 	];
 
 	const menu: IMezonMenuSectionProps[] = [
@@ -182,14 +132,6 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 			title: t('menu.settings.title'),
 			items: settingsMenu
 		},
-		// {
-		// 	title: t('menu.community.title'),
-		// 	items: communityMenu,
-		// },
-		// {
-		// 	title: t('menu.subscriptions.title'),
-		// 	items: subscriptionMenu,
-		// },
 		{
 			title: t('menu.userManagement.title'),
 			items: userManagementMenu
@@ -197,8 +139,22 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 	];
 
 	return (
-		<View style={{ flex: 1, backgroundColor: themeValue.secondary }}>
-			<ScrollView contentContainerStyle={styles.container} style={{ flex: 1, backgroundColor: themeValue.primary }}>
+		<View style={styles.rootContainer}>
+			<StatusBarHeight />
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
+			<View style={styles.headerWrapper}>
+				<Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+					<MezonIconCDN icon={IconCDN.closeSmallBold} color={themeValue.textStrong} />
+				</Pressable>
+				<Text style={styles.headerTitle}>{t('menuClanStack.clanSetting', { ns: 'screenStack' })}</Text>
+				<View style={styles.headerSpacer} />
+			</View>
+			<ScrollView contentContainerStyle={styles.container} style={styles.scrollContainer}>
 				<LogoClanSelector />
 				<MezonMenu menu={menu} />
 			</ScrollView>

@@ -1,9 +1,8 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { DirectEntity, RootState, directActions, getStoreAsync, selectDirectsOpenlistOrder, selectDmGroupCurrentId } from '@mezon/store-mobile';
-import React, { useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AppState, DeviceEventEmitter, FlatList, Pressable, Text, View } from 'react-native';
+import type { RootState } from '@mezon/store-mobile';
+import { directActions, getStoreAsync, selectDirectsOpenlistOrder, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import React, { useEffect } from 'react';
+import { AppState, FlatList, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -13,10 +12,9 @@ import { FriendsTablet } from '../friend/FriendsTablet';
 import ProfileBar from '../home/homedrawer/ProfileBar';
 import ServerList from '../home/homedrawer/ServerList';
 import UserEmptyMessage from '../home/homedrawer/UserEmptyClan/UserEmptyMessage';
-import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { DirectMessageDetailTablet } from './DirectMessageDetailTablet';
 import { DmListItem } from './DmListItem';
-import SearchDmList from './SearchDmList';
+import MessageHeader from './MessageHeader';
 import { style } from './styles';
 
 const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
@@ -24,7 +22,6 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 	const isTabletLandscape = useTabletLandscape();
 	const styles = style(themeValue, isTabletLandscape);
 	const dmGroupChatList = useSelector(selectDirectsOpenlistOrder);
-	const { t } = useTranslation(['dmMessage', 'common']);
 	const clansLoadingStatus = useSelector((state: RootState) => state?.clans?.loadingStatus);
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
 
@@ -55,33 +52,14 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, { screen: APP_SCREEN.MESSAGES.NEW_MESSAGE });
 	};
 
-	const handleLongPress = useCallback((directMessage: DirectEntity) => {
-		const data = {
-			snapPoints: ['40%', '70%'],
-			children: <MessageMenu messageInfo={directMessage} />
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
-	}, []);
-
 	return (
 		<View style={styles.containerMessages}>
 			<View style={styles.leftContainer}>
 				<View style={styles.containerMessages}>
-					<View>
-						<ServerList />
-					</View>
+					<ServerList hideActive />
 
 					<View style={styles.container}>
-						<View style={styles.headerWrapper}>
-							<Text style={styles.headerTitle}>{t('dmMessage:title')}</Text>
-							<Pressable style={styles.addFriendWrapper} onPress={() => navigateToAddFriendScreen()}>
-								<MezonIconCDN icon={IconCDN.userPlusIcon} height={size.s_16} width={size.s_16} color={themeValue.textStrong} />
-								<Text style={styles.addFriendText}>{t('dmMessage:addFriend')}</Text>
-							</Pressable>
-						</View>
-
-						<SearchDmList />
-
+						<MessageHeader />
 						{clansLoadingStatus === 'loaded' && !dmGroupChatList?.length ? (
 							<UserEmptyMessage
 								onPress={() => {
@@ -92,11 +70,11 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 							<FlatList
 								data={dmGroupChatList}
 								showsVerticalScrollIndicator={false}
-								keyExtractor={(dm) => dm + 'DM_MSG_ITEM'}
+								keyExtractor={(dm) => `${dm}_DM_MSG_ITEM`}
 								initialNumToRender={1}
 								maxToRenderPerBatch={1}
 								windowSize={2}
-								renderItem={({ item }) => <DmListItem id={item} navigation={navigation} key={item} onLongPress={handleLongPress} />}
+								renderItem={({ item }) => <DmListItem id={item} />}
 							/>
 						)}
 
@@ -107,7 +85,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 				</View>
 				{isTabletLandscape && <ProfileBar />}
 			</View>
-			<View style={{ height: '100%', width: size.s_4 }} />
+			<View style={styles.separator} />
 			<View style={styles.containerDetailMessage}>
 				{currentDmGroupId ? <DirectMessageDetailTablet directMessageId={currentDmGroupId} /> : <FriendsTablet navigation={navigation} />}
 			</View>

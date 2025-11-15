@@ -1,0 +1,71 @@
+{
+	"sections": {
+		"section1": {
+			"title": "Chill with friends, hang out in voice channels",
+			"description": "Mezon is great for friends to hang out and spend time together, whether taking an afternoon break or staying late into the night."
+		},
+		"section2": {
+			"title": "Connect easily, chat smoothly with voice channels",
+			"description": "You can effortlessly connect with friends by opening a voice channel – and it's free forever. The more you use Mezon, the more you'll realize how easy it is to keep in touch all day long."
+		},
+		"section3": {
+			"title": "Stream and Announcements for everyone to follow",
+			"description": "Catch up on announcements and livestreams as quickly as possible. Join a livestream at any time or react to important news from the channel or team."
+		},
+		"section4": {
+			"title": "Channel Apps that make your life easier",
+			"description": "Channel Apps help you stay up to date with everything – from notifications, notes, calendars to todo list management. Mezon provides a unique App system with a wide range of choices for every lifestyle."
+		},
+		"section5": {
+			"title": "Super intelligent bot for the entire clan",
+			"description": "Bots help you complete tasks quickly and efficiently, from managing schedules to quick responses. Mezon Bots are built to serve the entire clan, making work easier and more organized."
+		}
+	},
+	"discover": {
+		"title": "Discover more Mezon features",
+		"description": "Explore other features of Mezon. Chat with friends, Voice Channel, Stream, Apps, Bots ... and many more",
+		"viewAll": "View all",
+		"slides": [
+			{
+				"title": "Relationship first – Connect with teammates through clan, events, chat & voice",
+				"description": "Stay connected with the people who matter most through conversations"
+			},
+			{
+				"title": "Culture builder – Create a unique work environment",
+				"description": "Build a unique work culture with customizable channels and integrations"
+			},
+			{
+				"title": "Work anytime, anywhere, without limits",
+				"description": "Work seamlessly across all devices and locations"
+			},
+			{
+				"title": "Personal Protected - Anonymous Messaging",
+				"description": "Your privacy is protected with end-to-end encryption"
+			}
+		]
+	},
+	"faq": {
+		"title": "Need more help?",
+		"seeAll": "See all FAQs",
+		"learnMore": "Learn more",
+		"questions": [
+			{
+				"question": "How do I add friends on Mezon?",
+				"answer": "To add friends on Mezon, go to the Friends page and enter a Mezon Username in the 'Add Friend' section. You can manage your friend list with filters like All, Online, Pending (friend requests), and Block (blocked users). You can also see your friends' online status in real time and view what they're doing through the Activity section, which shows if they're coding, listening to music, or gaming."
+			},
+			{
+				"question": "What messaging features does Mezon offer?",
+				"answer": "Mezon offers comprehensive messaging features including: sending text, emojis, stickers, images, videos, files, and voice recordings; pinning important messages for quick access; creating small group chats with up to 10 members; making 1-on-1 or group voice and video calls with HD quality; screen sharing during calls; and message search. All communication features are completely free with no limits."
+			},
+			{
+				"question": "How do voice and video calls work on Mezon?",
+				"answer": "Mezon allows you to make 1-on-1 or small group voice and video calls directly within the app. During calls, you can turn your microphone or camera on/off anytime, share your screen, and enjoy stable connections with HD video and low-latency voice support. When someone calls you, your phone or computer will ring just like a regular call. All calls are free and use your internet connection."
+			},
+			{
+				"question": "Is my communication on Mezon private and secure?",
+				"answer": "Yes, Mezon prioritizes privacy and security. You can only message people who are your friends or share at least one Clan with you, preventing spam and ensuring a private space. Messages are synchronized across Web, Desktop, and Mobile platforms in real-time, so you never miss anything. When your group becomes more active, you can upgrade it into a Clan to unlock additional features like multiple channels and admin permissions."
+			}
+		]
+	},
+	"download": "Download"
+}

@@ -1,6 +1,6 @@
 import { ChannelTypeHeader } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelUsersEntity } from '@mezon/store-mobile';
+import type { ChannelUsersEntity } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +18,7 @@ export const ChannelsSearchTab = ({ listChannelSearch }: ChannelsSearchTabProps)
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const listVoiceChannel = useMemo(
-		() =>
-			listChannelSearch?.filter(
-				(channel) => channel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
-			),
+		() => listChannelSearch?.filter((channel) => channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE),
 		[listChannelSearch]
 	);
 	const listTextChannel = useMemo(
@@ -54,38 +51,33 @@ export const ChannelsSearchTab = ({ listChannelSearch }: ChannelsSearchTabProps)
 		if (item?.type === ChannelTypeHeader) {
 			return <Text style={styles.title}>{item.title}</Text>;
 		}
-		return <ChannelItem channelData={item} key={item?.id} />;
+		return <ChannelItem channelData={item} />;
 	}, []);
-	const keyExtractor = useCallback((item, index) => item?.id?.toString() + `${index}_item_search_channel` + item?.title, []);
+	const keyExtractor = useCallback((item, index) => `${item?.id?.toString()}${index}_item_search_channel${item?.title}`, []);
 
 	return (
 		<View style={styles.container}>
-			{listChannelSearch?.length > 0 ? (
-				<View style={styles.listBox}>
-					<FlatList
-						data={combinedListChannel}
-						renderItem={renderItem}
-						keyExtractor={keyExtractor}
-						showsVerticalScrollIndicator={false}
-						initialNumToRender={1}
-						maxToRenderPerBatch={1}
-						windowSize={2}
-						updateCellsBatchingPeriod={50}
-						scrollEventThrottle={16}
-						removeClippedSubviews={true}
-						keyboardShouldPersistTaps={'handled'}
-						viewabilityConfig={{
-							itemVisiblePercentThreshold: 50,
-							minimumViewTime: 300
-						}}
-						contentOffset={{ x: 0, y: 0 }}
-						disableVirtualization
-						contentContainerStyle={{ paddingBottom: size.s_50 }}
-					/>
-				</View>
-			) : (
-				<EmptySearchPage />
-			)}
+			<FlatList
+				data={listChannelSearch?.length > 0 ? combinedListChannel : []}
+				renderItem={renderItem}
+				keyExtractor={keyExtractor}
+				showsVerticalScrollIndicator={false}
+				initialNumToRender={1}
+				maxToRenderPerBatch={1}
+				windowSize={2}
+				updateCellsBatchingPeriod={50}
+				scrollEventThrottle={16}
+				removeClippedSubviews={true}
+				keyboardShouldPersistTaps={'handled'}
+				viewabilityConfig={{
+					itemVisiblePercentThreshold: 50,
+					minimumViewTime: 300
+				}}
+				style={styles.listBox}
+				contentOffset={{ x: 0, y: 0 }}
+				contentContainerStyle={{ paddingBottom: size.s_50 }}
+				ListEmptyComponent={() => <EmptySearchPage />}
+			/>
 		</View>
 	);
 };

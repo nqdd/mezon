@@ -1,16 +1,18 @@
-import { AudioSession, LiveKitRoom, TrackReference, useConnectionState } from '@livekit/react-native';
+import type { TrackReference } from '@livekit/react-native';
+import { AudioSession, LiveKitRoom, useConnectionState } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
+import { selectAllUserClans, selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, NativeModules, Platform, View } from 'react-native';
+import { AppState, BackHandler, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
+import { useSoundReactions } from '../../../../../hooks/useSoundReactions';
 import { CallReactionHandler } from './CallReactionHandler';
 import HeaderRoomView from './HeaderRoomView';
 import RoomView from './RoomView';
-
-const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule } = NativeModules;
+const { CustomAudioModule, KeepAwake, KeepAwakeIOS, AudioSessionModule, PipModule } = NativeModules;
 
 // Audio output types
 export type AudioOutput = {
@@ -112,10 +114,13 @@ function ChannelVoice({
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
 	const dispatch = useAppDispatch();
 	const isRequestingPermission = useRef(false);
-
+	const timeoutRef = useRef(null);
 	const channelId = useMemo(() => {
 		return voiceInfo?.channelId;
 	}, [voiceInfo]);
+	const allUserClans = useSelector(selectAllUserClans, (_a, _b) => true);
+
+	const { handleSoundReaction, activeSoundReactions } = useSoundReactions();
 	const clanId = useMemo(() => {
 		return voiceInfo?.clanId;
 	}, [voiceInfo]);
@@ -126,6 +131,9 @@ function ChannelVoice({
 				isRequestingPermission.current = true;
 				await request(PERMISSIONS.ANDROID.BLUETOOTH_CONNECT);
 				await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+				timeoutRef.current = setTimeout(() => {
+					isRequestingPermission.current = false;
+				}, 2000);
 			} catch (error) {
 				console.error('Permission request failed:', error);
 			} finally {
@@ -133,6 +141,20 @@ function ChannelVoice({
 			}
 		}
 	};
+
+	useEffect(() => {
+		const handleBackPress = () => {
+			if (isAnimationComplete) {
+				onPressMinimizeRoom();
+				return true;
+			}
+			return false;
+		};
+
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+		return () => backHandler.remove();
+	}, [isAnimationComplete]);
 
 	useEffect(() => {
 		checkPermissions();
@@ -167,36 +189,54 @@ function ChannelVoice({
 		};
 	}, []);
 
+	const setupPipMode = async () => {
+		if (Platform.OS === 'android') {
+			try {
+				await PipModule?.setupDefaultPipMode?.();
+			} catch (error) {
+				console.error('Error entering PiP mode:', error);
+			}
+		}
+	};
 	useEffect(() => {
-		const subscription = AppState.addEventListener('change', async (state) => {
-			if (isRequestingPermission?.current || Platform.OS === 'ios') {
-				return;
-			}
-			if (state === 'background') {
-				if (Platform.OS === 'android') {
-					const isPipSupported = await NativeModules.PipModule.isPipSupported();
-					if (isPipSupported) {
-						NativeModules.PipModule.enablePipMode();
-						dispatch(voiceActions.setPiPModeMobile(true));
-					}
-				}
-			} else {
-				if (Platform.OS === 'android') {
-					dispatch(voiceActions.setPiPModeMobile(false));
-				}
-			}
-		});
+		setupPipMode();
+		const subscription =
+			Platform.OS === 'ios'
+				? null
+				: AppState.addEventListener('change', async (state) => {
+						try {
+							if (isRequestingPermission?.current) {
+								return;
+							}
+							if (state === 'background') {
+								StatusBar.setHidden(true);
+								StatusBar.setTranslucent(false);
+								PipModule?.enterPipMode?.();
+								dispatch(voiceActions.setPiPModeMobile(true));
+							} else {
+								StatusBar.setHidden(false);
+								StatusBar.setTranslucent(true);
+								PipModule?.showStatusBar?.();
+								dispatch(voiceActions.setPiPModeMobile(false));
+							}
+						} catch (e) {
+							StatusBar.setHidden(false);
+							StatusBar.setTranslucent(true);
+							dispatch(voiceActions.setPiPModeMobile(false));
+						}
+					});
 		return () => {
 			if (Platform.OS === 'android') {
+				PipModule?.exitPipMode?.();
+				PipModule?.showStatusBar?.();
+				StatusBar.setHidden(false);
+				StatusBar.setTranslucent(true);
 				dispatch(voiceActions.setPiPModeMobile(false));
 			}
-			subscription.remove();
+			timeoutRef?.current && clearTimeout(timeoutRef.current);
+			subscription && subscription.remove();
 		};
 	}, [dispatch]);
-
-	if (!voiceInfo) {
-		return null;
-	}
 
 	return (
 		<View>
@@ -205,8 +245,7 @@ function ChannelVoice({
 				style={[
 					{
 						width: isAnimationComplete ? '100%' : size.s_100 * 2,
-						height: isAnimationComplete ? '100%' : size.s_150,
-						backgroundColor: isAnimationComplete ? themeValue?.primary : themeValue?.secondary
+						height: isAnimationComplete ? '100%' : size.s_150
 					},
 					!isAnimationComplete && {
 						borderWidth: 1,
@@ -216,17 +255,27 @@ function ChannelVoice({
 					}
 				]}
 			>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<LiveKitRoom serverUrl={serverUrl} token={token} connect={true}>
 					<HeaderRoomView
 						channelId={channelId}
-						clanId={clanId}
 						onPressMinimizeRoom={onPressMinimizeRoom}
 						isGroupCall={isGroupCall}
 						isShow={isAnimationComplete && !focusedScreenShare && !isPiPMode}
 					/>
 					<ConnectionMonitor />
 					{!isGroupCall && !isPiPMode && isAnimationComplete && (
-						<CallReactionHandler channelId={channelId} isAnimatedCompleted={isAnimationComplete} />
+						<CallReactionHandler
+							channelId={channelId}
+							isAnimatedCompleted={isAnimationComplete}
+							onSoundReaction={handleSoundReaction}
+							allUserClans={allUserClans}
+						/>
 					)}
 					<RoomView
 						channelId={channelId}
@@ -236,6 +285,8 @@ function ChannelVoice({
 						onFocusedScreenChange={setFocusedScreenShare}
 						isGroupCall={isGroupCall}
 						participantsCount={participantsCount}
+						activeSoundReactions={activeSoundReactions}
+						allUserClans={allUserClans}
 					/>
 				</LiveKitRoom>
 			</View>

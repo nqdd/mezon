@@ -1,23 +1,35 @@
 {
-    "friendRequest": {
-        "title": "Yêu cầu kết bạn",
-        "received": "Đã nhận",
-        "sent": "Đã gửi"
-    },
-    "addFriend": {
-        "incomingFriendRequest": "Yêu cầu kết bạn được nhận",
-        "findYourFriend": "Tìm bạn bè",
-        "addByUserName": "Thêm bằng tên người dùng",
-        "searchUsernamePlaceholder": "Nhập tên người dùng",
-        "whoYouWantToAddFriend": "Bạn muốn thêm ai làm bạn bè",
-        "byTheWay": "À nhân tiện, tên người dùng của bạn là",
-        "sendRequestButton": "Gửi yêu cầu kết bạn",
-        "addFriendToast": "Đã gửi yêu cầu kết bạn"
-    },
-    "friends": "Bạn bè",
-    "noFriendsResultsFound": "không tìm thấy kết quả bạn bè",
-    "toast": {
-        "sendAddFriendSuccess": "Yêu cầu kết bạn đã được gửi",
-        "sendAddFriendFail": "Không có ID hoặc tên người dùng hợp lệ được cung cấp."
-    }
+	"friendRequest": {
+		"title": "Yêu cầu kết bạn",
+		"received": "Đã nhận",
+		"sent": "Đã gửi",
+		"emptyReceived": {
+			"title": "Không có yêu cầu kết bạn đến",
+			"description": "Tại đây bạn sẽ thấy tất cả các yêu cầu kết bạn mà mọi người gửi cho bạn."
+		},
+		"emptySent": {
+			"title": "Không có yêu cầu kết bạn đi",
+			"description": "Tại đây bạn sẽ thấy tất cả các yêu cầu kết bạn mà bạn đã gửi cho người khác."
+		}
+	},
+	"addFriend": {
+		"incomingFriendRequest": "Yêu cầu kết bạn được nhận",
+		"findYourFriend": "Tìm bạn bè",
+		"addByUserName": "Thêm bằng tên người dùng",
+		"addByUsername": "Thêm bởi {{username}}",
+		"searchUsernamePlaceholder": "Nhập tên người dùng",
+		"whoYouWantToAddFriend": "Bạn muốn thêm ai làm bạn bè",
+		"byTheWay": "À nhân tiện, tên người dùng của bạn là",
+		"sendRequestButton": "Gửi yêu cầu kết bạn",
+		"addFriendToast": "Đã gửi yêu cầu kết bạn"
+	},
+	"friends": "Bạn bè",
+	"noFriendsResultsFound": "Không tìm thấy kết quả bạn bè",
+	"toast": {
+		"sendAddFriendSuccess": "Yêu cầu kết bạn đã được gửi thành công!",
+		"acceptAddFriendSuccess": "Chấp nhận lời mời kết bạn!",
+		"sendAddFriendFail": "Hmm, có lỗi xảy ra. Vui lòng kiểm tra lại tên người dùng có đúng không.",
+		"somethingWentWrong": "Có lỗi xảy ra"
+	},
+	"you": "bạn"
 }

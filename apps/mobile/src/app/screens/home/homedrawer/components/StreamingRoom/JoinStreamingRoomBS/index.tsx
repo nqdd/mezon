@@ -17,7 +17,7 @@ import {
 	useAppDispatch,
 	videoStreamActions
 } from '@mezon/store-mobile';
-import { IChannel } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React from 'react';
@@ -98,8 +98,8 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	};
 
 	return (
-		<View style={{ width: '100%', paddingVertical: size.s_10, paddingHorizontal: size.s_10 }}>
-			<View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+		<View style={styles.outerContainer}>
+			<View style={styles.topButtonsRow}>
 				<TouchableOpacity
 					onPress={() => {
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -116,71 +116,29 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 						};
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 					}}
-					style={{
-						backgroundColor: themeValue.tertiary,
-						padding: size.s_8,
-						borderRadius: size.s_22
-					}}
+					style={styles.btnInviteChannel}
 				>
 					<MezonIconCDN icon={IconCDN.userPlusIcon} color={themeValue.textStrong} />
 				</TouchableOpacity>
 			</View>
-			<View style={{ alignItems: 'center', gap: size.s_6 }}>
-				<View
-					style={{
-						width: size.s_100,
-						height: size.s_100,
-						borderRadius: size.s_50,
-						justifyContent: 'center',
-						alignItems: 'center',
-						backgroundColor: themeValue.tertiary
-					}}
-				>
+			<View style={styles.centerContent}>
+				<View style={styles.logoIconContainer}>
 					<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
 				</View>
 				<Text style={styles.text}>{t('joinStreamingRoomBS.stream')}</Text>
 				<Text style={styles.textDisable}>{t('joinStreamingRoomBS.noOne')}</Text>
 				<Text style={styles.textDisable}>{t('joinStreamingRoomBS.readyTalk')}</Text>
 			</View>
-			<View style={{ borderRadius: size.s_40, marginTop: size.s_20, marginBottom: size.s_10 }}>
-				<View
-					style={{
-						gap: size.s_20,
-						flexDirection: 'row',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						paddingHorizontal: size.s_16,
-						paddingBottom: size.s_16
-					}}
-				>
-					<View
-						style={{
-							justifyContent: 'center',
-							alignItems: 'center',
-							position: 'relative',
-							width: size.s_50,
-							height: size.s_50,
-							backgroundColor: 'transparent',
-							borderRadius: size.s_30
-						}}
-					/>
-					<View style={{ flexDirection: 'column', flex: 1, alignItems: 'center' }}>
+			<View style={styles.controlContainerOuter}>
+				<View style={styles.controlContainerInner}>
+					<View style={styles.controlContainer} />
+					<View style={styles.btnJoinVoiceContainer}>
 						<TouchableOpacity style={styles.btnJoinVoice} onPress={handleJoinVoice}>
 							<Text style={styles.textBtnJoinVoice}>{t('joinStreamingRoomBS.joinStream')}</Text>
 						</TouchableOpacity>
 					</View>
 					<TouchableOpacity onPress={handleShowChat}>
-						<View
-							style={{
-								justifyContent: 'center',
-								alignItems: 'center',
-								position: 'relative',
-								width: size.s_50,
-								height: size.s_50,
-								backgroundColor: themeValue.border,
-								borderRadius: size.s_30
-							}}
-						>
+						<View style={[styles.controlContainer, { backgroundColor: themeValue.tertiary }]}>
 							<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 						</View>
 					</TouchableOpacity>

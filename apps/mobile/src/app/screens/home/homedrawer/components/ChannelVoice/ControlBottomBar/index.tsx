@@ -1,7 +1,6 @@
 import { TrackReference, useLocalParticipant } from '@livekit/react-native';
 import {
 	ActionEmitEvent,
-	Icons,
 	STORAGE_CLAN_ID,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
 	getUpdateOrAddClanChannelCache,
@@ -14,9 +13,11 @@ import { clansActions, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { Track, createLocalVideoTrack } from 'livekit-client';
 import React, { useEffect } from 'react';
-import { Alert, DeviceEventEmitter, Linking, NativeModules, Platform, TouchableOpacity, View, findNodeHandle } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { DeviceEventEmitter, Linking, Platform, TouchableOpacity, View } from 'react-native';
 import { PERMISSIONS, RESULTS, check, request } from 'react-native-permissions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
@@ -48,6 +49,7 @@ const ControlBottomBar = ({
 	const { isCameraEnabled, isScreenShareEnabled, localParticipant } = useLocalParticipant();
 	const screenCaptureRef = React.useRef(null);
 	const insets = useSafeAreaInsets();
+	const { t } = useTranslation(['common']);
 
 	useEffect(() => {
 		if (localParticipant) {
@@ -76,16 +78,22 @@ const ControlBottomBar = ({
 		}
 		return false;
 	};
+
 	const showPermissionCameraAlert = () => {
-		Alert.alert('Camera Permission Required', 'Please allow camera access in your device settings to use this feature.', [
-			{ text: 'Cancel', style: 'cancel' },
-			{
-				text: 'Open Settings',
-				onPress: () => {
-					Linking.openSettings();
-				}
-			}
-		]);
+		const data = {
+			children: (
+				<MezonConfirm
+					title={t('permissionNotification.cameraPermissionTitle')}
+					content={t('permissionNotification.cameraPermissionDesc')}
+					confirmText={t('openSettings')}
+					onConfirm={() => {
+						Linking.openSettings();
+						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					}}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const handleToggleCamera = async () => {
@@ -124,23 +132,23 @@ const ControlBottomBar = ({
 		}
 	};
 
-	const startBroadcastIOS = async () => {
-		const reactTag = findNodeHandle(screenCaptureRef.current);
-		await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
-		await localParticipant.setScreenShareEnabled(true);
-	};
+	// const startBroadcastIOS = async () => {
+	// 	const reactTag = findNodeHandle(screenCaptureRef.current);
+	// 	await NativeModules.ScreenCapturePickerViewManager.show(reactTag);
+	// 	await localParticipant.setScreenShareEnabled(true);
+	// };
 
-	const handleToggleScreenShare = async () => {
-		try {
-			if (Platform.OS === 'ios') {
-				await startBroadcastIOS();
-			} else {
-				await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
-			}
-		} catch (error) {
-			console.error('Error toggling screen share:', error);
-		}
-	};
+	// const handleToggleScreenShare = async () => {
+	// 	try {
+	// 		if (Platform.OS === 'ios') {
+	// 			await startBroadcastIOS();
+	// 		} else {
+	// 			await localParticipant.setScreenShareEnabled(!isScreenShareEnabled);
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error toggling screen share:', error);
+	// 	}
+	// };
 
 	const handleShowChat = () => {
 		if (!isTabletLandscape) {
@@ -183,7 +191,7 @@ const ControlBottomBar = ({
 				}
 			]}
 		>
-			<View style={{ gap: size.s_10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: size.s_6 }}>
+			<View style={styles.controlBarContainer}>
 				<TouchableOpacity onPress={handleToggleCamera} style={styles.menuIcon}>
 					<MezonIconCDN icon={isCameraEnabled ? IconCDN.videoIcon : IconCDN.videoSlashIcon} color={themeValue.textStrong} />
 				</TouchableOpacity>
@@ -193,15 +201,16 @@ const ControlBottomBar = ({
 						<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 				)}
-				{!isGroupCall && (
-					<TouchableOpacity onPress={handleToggleScreenShare} style={styles.menuIcon}>
-						{isScreenShareEnabled ? (
-							<Icons.ShareScreenIcon color={themeValue.textStrong} />
-						) : (
-							<Icons.ShareScreenSlashIcon color={themeValue.textStrong} />
-						)}
-					</TouchableOpacity>
-				)}
+				{/* remove */}
+				{/*{!isGroupCall && (*/}
+				{/*	<TouchableOpacity onPress={handleToggleScreenShare} style={styles.menuIcon}>*/}
+				{/*		{isScreenShareEnabled ? (*/}
+				{/*			<MezonIconCDN icon={IconCDN.shareScreenIcon} color={themeValue.textStrong} />*/}
+				{/*		) : (*/}
+				{/*			<MezonIconCDN icon={IconCDN.shareScreenSlashIcon} color={themeValue.textStrong} />*/}
+				{/*		)}*/}
+				{/*	</TouchableOpacity>*/}
+				{/*)}*/}
 				<ButtonEndCall isGroupCall={isGroupCall} channelId={channelId} clanId={clanId} />
 			</View>
 		</View>

@@ -1,14 +1,14 @@
 import { convertTimestampToTimeAgo } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
-import React from 'react';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
 import { Text, TouchableOpacity, View } from 'react-native';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
-import { ENotifyBsToShow, NotifyProps } from '../types';
+import type { NotifyProps } from '../types';
+import { ENotifyBsToShow } from '../types';
 import { style } from './NotificationIndividualItem.styles';
 
-function NotificationIndividualItem({ notify, onLongPressNotify, onPressNotify }: NotifyProps) {
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, notify?.sender_id ?? ''));
+const NotificationIndividualItem = ({ notify, onLongPressNotify }: NotifyProps) => {
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, notify?.sender_id ?? ''));
 	const username = notify?.content?.username || user?.user?.username;
 	const unixTimestamp = Math.floor(new Date(notify?.create_time).getTime() / 1000);
 	const messageTimeDifference = convertTimestampToTimeAgo(unixTimestamp);
@@ -28,9 +28,6 @@ function NotificationIndividualItem({ notify, onLongPressNotify, onPressNotify }
 
 	return (
 		<TouchableOpacity
-			onPress={() => {
-				onPressNotify(notify);
-			}}
 			onLongPress={() => {
 				onLongPressNotify(ENotifyBsToShow.removeNotification, notify);
 			}}
@@ -42,7 +39,7 @@ function NotificationIndividualItem({ notify, onLongPressNotify, onPressNotify }
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
 							<Text numberOfLines={2} style={styles.notifyUserName}>
 								{username || extractedUsername}
-							</Text>{' '}
+							</Text>
 							{notice}
 						</Text>
 					</View>
@@ -51,6 +48,6 @@ function NotificationIndividualItem({ notify, onLongPressNotify, onPressNotify }
 			</View>
 		</TouchableOpacity>
 	);
-}
+};
 
 export default NotificationIndividualItem;

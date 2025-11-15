@@ -1,14 +1,17 @@
 import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
+	LOCK_SCREEN,
 	SENDER_ID,
+	SHOW_NOTIFICATION,
 	START_NOTIFICATION_SERVICE,
 	TRIGGER_SHORTCUT,
+	UNLOCK_SCREEN,
 	UPDATE_AVAILABLE,
 	UPDATE_ERROR
 } from './constants';
-import { NotificationData, SHOW_NOTIFICATION } from './notification';
-import { ElectronBridgeHandler, IElectronBridge, MezonDownloadFile, MezonElectronAPI, MezonNotificationOptions } from './types';
+import type { NotificationData } from './notification';
+import type { ElectronBridgeHandler, IElectronBridge, MezonDownloadFile, MezonElectronAPI, MezonNotificationOptions } from './types';
 
 export class ElectronBridge implements IElectronBridge {
 	private readonly bridge: MezonElectronAPI = window.electron;
@@ -40,6 +43,7 @@ export class ElectronBridge implements IElectronBridge {
 		this.setupUpdateAvaiable();
 		this.setupDownloadProgress();
 		this.setupUpdateError();
+		this.setLockScreen();
 		this.hasListeners = true;
 	}
 
@@ -49,6 +53,8 @@ export class ElectronBridge implements IElectronBridge {
 		this.bridge.removeListener(UPDATE_AVAILABLE, this.triggerUpdateAvaiable);
 		this.bridge.removeListener(DOWNLOAD_PROGRESS, this.triggerDownloadprogress);
 		this.bridge.removeListener(UPDATE_ERROR, this.triggerUpdateError);
+		this.bridge.removeListener(LOCK_SCREEN, this.triggerLockSceen);
+		this.bridge.removeListener(UNLOCK_SCREEN, this.triggerUnlockSceen);
 		this.hasListeners = false;
 	}
 
@@ -66,6 +72,11 @@ export class ElectronBridge implements IElectronBridge {
 
 	public setActiveWindow() {
 		this.bridge.on(ACTIVE_WINDOW, this.listenerHandlers[ACTIVE_WINDOW]);
+	}
+
+	public setLockScreen() {
+		this.bridge.on(LOCK_SCREEN, this.listenerHandlers[LOCK_SCREEN]);
+		this.bridge.on(UNLOCK_SCREEN, this.listenerHandlers[UNLOCK_SCREEN]);
 	}
 
 	public pushNotification(title: string, options: MezonNotificationOptions, msg?: NotificationData) {
@@ -93,6 +104,18 @@ export class ElectronBridge implements IElectronBridge {
 	private triggerActiveWindow = (_: unknown, name: string) => {
 		if (this.handlers?.[ACTIVE_WINDOW]) {
 			this.handlers?.[ACTIVE_WINDOW](name);
+		}
+	};
+
+	private triggerLockSceen = (_: unknown) => {
+		if (this.handlers?.[LOCK_SCREEN]) {
+			this.handlers?.[LOCK_SCREEN]();
+		}
+	};
+
+	private triggerUnlockSceen = (_: unknown) => {
+		if (this.handlers?.[UNLOCK_SCREEN]) {
+			this.handlers?.[UNLOCK_SCREEN]();
 		}
 	};
 
@@ -131,7 +154,9 @@ export class ElectronBridge implements IElectronBridge {
 		[ACTIVE_WINDOW]: this.triggerActiveWindow,
 		[UPDATE_AVAILABLE]: this.triggerUpdateAvaiable,
 		[DOWNLOAD_PROGRESS]: this.triggerDownloadprogress,
-		[UPDATE_ERROR]: this.triggerUpdateError
+		[UPDATE_ERROR]: this.triggerUpdateError,
+		[LOCK_SCREEN]: this.triggerLockSceen,
+		[UNLOCK_SCREEN]: this.triggerUnlockSceen
 	};
 }
 

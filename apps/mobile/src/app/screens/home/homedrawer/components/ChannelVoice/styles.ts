@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
@@ -24,7 +25,7 @@ export const style = (colors: Attributes) =>
 		menuFooter: {
 			position: 'absolute',
 			borderRadius: size.s_80,
-			backgroundColor: 'rgba(48,48,48,0.55)',
+			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_4,
 			alignItems: 'center',
@@ -37,7 +38,9 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500'
 		},
 		buttonCircle: {
-			backgroundColor: colors.border,
+			backgroundColor: colors.secondary,
+			borderColor: colors.border,
+			borderWidth: 1,
 			padding: size.s_8,
 			alignItems: 'center',
 			justifyContent: 'center',
@@ -69,10 +72,10 @@ export const style = (colors: Attributes) =>
 			position: 'relative',
 			width: size.s_50,
 			height: size.s_50,
-			backgroundColor: colors.border,
+			backgroundColor: colors.tertiary,
+			borderRadius: size.s_30,
 			borderWidth: 0.5,
-			borderColor: colors.textDisabled,
-			borderRadius: size.s_50
+			borderColor: colors.textDisabled
 		},
 		addPeopleBtn: {
 			padding: size.s_20,
@@ -103,14 +106,16 @@ export const style = (colors: Attributes) =>
 		},
 		userView: {
 			display: 'flex',
-			flexDirection: 'row',
+			flexDirection: 'column',
 			justifyContent: 'center',
 			alignItems: 'center',
-			width: '100%',
-			height: size.s_150 + size.s_100,
-			backgroundColor: colors.border,
+			backgroundColor: colors.secondary,
 			gap: size.s_10,
-			borderRadius: size.s_10
+			borderRadius: size.s_10,
+			width: '48%',
+			height: size.s_150,
+			borderWidth: 1,
+			borderColor: colors.borderDim
 		},
 		userName: {
 			position: 'absolute',
@@ -155,5 +160,183 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			marginHorizontal: size.s_10,
 			alignSelf: 'center'
+		},
+		soundEffectIcon: {
+			position: 'absolute',
+			top: size.s_4,
+			right: size.s_4,
+			padding: size.s_6,
+			borderRadius: size.s_20,
+			backgroundColor: colors.bgViolet
+		},
+		muteIcon: {
+			padding: size.s_4,
+			borderRadius: size.s_20,
+			borderWidth: 1,
+			borderColor: colors.border
+		},
+		muteOptions: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_8,
+			position: 'absolute',
+			right: size.s_4,
+			top: size.s_4
+		},
+		reactionSenderEmojiContainer: {
+			padding: size.s_4,
+			marginTop: size.s_4,
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_10,
+			width: size.s_90
+		},
+		senderName: {
+			fontSize: size.s_10,
+			color: colors.text,
+			textAlign: 'center'
+		},
+		focusedContainer: {
+			width: '100%',
+			flex: 1,
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		focusedVideoWrapper: {
+			height: size.s_150,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoStyle: {
+			height: size.s_150,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoStyleSmall: {
+			height: 100,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedVideoWrapperSmall: {
+			height: 100,
+			width: '100%',
+			alignSelf: 'center'
+		},
+		focusedAvatarWrapper: {
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: 10
+		},
+		focusedUsernameWrapper: {
+			display: 'flex',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		avatarContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			marginBottom: size.s_10
+		},
+		participantContainer: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'center',
+			gap: size.s_10,
+			alignItems: 'center'
+		},
+		participantContainerPiP: {
+			flexDirection: 'row',
+			flexWrap: 'wrap',
+			justifyContent: 'space-between',
+			gap: size.s_2,
+			alignItems: 'flex-start'
+		},
+		spacer: {
+			height: size.s_300
+		},
+		controlBarContainer: {
+			gap: size.s_10,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			padding: size.s_6
+		},
+		userNameCentered: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		scrollViewMargin: {
+			marginHorizontal: size.s_10
+		},
+		scrollViewMarginZero: {
+			marginHorizontal: 0
+		},
+		userViewTabletHeight: {
+			height: size.s_150 + size.s_100
+		},
+		userViewPiPScreenShare: {
+			width: '100%',
+			height: size.s_100 * 1.2,
+			marginBottom: size.s_100
+		},
+		userViewPiPVideo: {
+			height: size.s_60 * 2,
+			width: '45%',
+			marginHorizontal: size.s_4
+		},
+		userViewSpeaking: {
+			borderWidth: 1
+		},
+		userNameFullWidth: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			width: '90%'
+		},
+		subTitleFullWidth: {
+			width: '100%'
+		},
+		bottomSheetZIndex: {
+			zIndex: 1001
+		},
+		// CallReactionHandler styles
+		animatedEmojiContainer: {
+			position: 'absolute',
+			bottom: 0,
+			left: '50%',
+			width: size.s_36,
+			height: size.s_36,
+			alignItems: 'center',
+			justifyContent: 'center',
+			zIndex: 1000
+		},
+		emojiImage: {
+			width: size.s_36,
+			height: size.s_36
+		},
+		// ButtonEndCall styles
+		endCallButton: {
+			backgroundColor: baseColor.redStrong
+		},
+		// HeaderRoomView styles
+		headerRowLeft: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_20,
+			flexGrow: 1,
+			flexShrink: 1
+		},
+		headerTextTitle: {
+			flexGrow: 1,
+			flexShrink: 1
+		},
+		headerRowRight: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_10
 		}
 	});

@@ -1,7 +1,8 @@
 import { getShowName, useUserById } from '@mezon/core';
-import { messagesActions, selectClanView, useAppDispatch } from '@mezon/store';
+import { getStoreAsync, messagesActions, selectClanView, selectCurrentChannelId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageWithUser, createImgproxyUrl } from '@mezon/utils';
+import type { IMessageWithUser } from '@mezon/utils';
+import { MEZON_AVATAR_URL, createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 
 import { useCallback, useRef } from 'react';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
@@ -14,10 +15,11 @@ type MessageReplyProps = {
 	mode?: number;
 	onClick?: (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => void;
 	isAnonymousReplied?: boolean;
+	isTopic?: boolean;
 };
 
 // TODO: refactor component for message lines
-const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, mode, isAnonymousReplied }) => {
+const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, isAnonymousReplied }) => {
 	const senderIdMessageRef = message?.references?.[0]?.message_sender_id as string;
 	const messageIdRef = message?.references?.[0]?.message_ref_id;
 	const messageUsernameSenderRef = message?.references?.[0]?.message_sender_username ?? '';
@@ -29,13 +31,22 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, mode, isA
 	const dispatch = useAppDispatch();
 
 	const getIdMessageToJump = useCallback(
-		(e: React.MouseEvent<HTMLDivElement | HTMLSpanElement>) => {
+		async (e: React.MouseEvent<HTMLDivElement | HTMLSpanElement>) => {
 			e.stopPropagation();
 			if (messageIdRef) {
-				dispatch(messagesActions.jumpToMessage({ clanId: message?.clan_id || '', messageId: messageIdRef, channelId: message?.channel_id }));
+				const store = await getStoreAsync();
+				const currentChannelId = selectCurrentChannelId(store.getState());
+				dispatch(
+					messagesActions.jumpToMessage({
+						clanId: message?.clan_id || '',
+						messageId: messageIdRef,
+						channelId: currentChannelId || message?.channel_id || '',
+						topicId: isTopic ? message?.channel_id || '' : undefined
+					})
+				);
 			}
 		},
-		[dispatch, message?.channel_id, message?.clan_id, messageIdRef]
+		[dispatch, message?.channel_id, message?.clan_id, messageIdRef, isTopic]
 	);
 
 	const markUpOnReplyParent = useRef<HTMLDivElement | null>(null);
@@ -49,28 +60,39 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, mode, isA
 
 	const isClanView = useSelector(selectClanView);
 
+	const getAvatarProps = () => {
+		if (senderIdMessageRef === '0') {
+			return {
+				srcImgProxy: createImgproxyUrl(MEZON_AVATAR_URL, { width: 100, height: 100, resizeType: 'fit' }),
+				src: MEZON_AVATAR_URL
+			};
+		}
+
+		const messageRefAvatar = message?.references?.[0]?.mesages_sender_avatar ?? '';
+		const userAvatar = getAvatarForPrioritize(messageSender?.clan_avatar, messageSender?.user?.avatar_url) || '';
+
+		const finalAvatar = !isClanView ? messageRefAvatar : userAvatar || messageRefAvatar;
+		return {
+			srcImgProxy: createImgproxyUrl(finalAvatar, { width: 100, height: 100, resizeType: 'fit' }),
+			src: finalAvatar
+		};
+	};
+
+	const avatarProps = getAvatarProps();
+
 	return (
-		<div className="overflow-hidden max-w-[97%]" style={{ height: 24 }} ref={markUpOnReplyParent}>
+		<div className="overflow-hidden max-w-[97%] h-[24px]" ref={markUpOnReplyParent}>
 			{message.references?.[0].message_ref_id ? (
 				<div className="rounded flex flex-row gap-1 items-center justify-start w-fit text-[14px] ml-9 mb-[-5px] replyMessage">
 					<Icons.ReplyCorner />
-					<div className="flex flex-row gap-1 pr-12 items-center w-full">
+					<div className="flex flex-row gap-1 pr-12 items-center w-full h-[33px] pb-[4px]">
 						<div onClick={onClick} className="w-5 h-5">
 							<AvatarImage
 								className="w-5 h-5"
 								alt="user avatar"
 								username={messageUsernameSenderRef}
-								srcImgProxy={createImgproxyUrl(
-									(!isClanView
-										? (message?.references?.[0]?.mesages_sender_avatar ?? '')
-										: messageSender?.clan_avatar || messageSender?.user?.avatar_url) ?? '',
-									{ width: 100, height: 100, resizeType: 'fit' }
-								)}
-								src={
-									!isClanView
-										? (message?.references?.[0]?.mesages_sender_avatar ?? '')
-										: messageSender?.clan_avatar || messageSender?.user?.avatar_url
-								}
+								srcImgProxy={avatarProps.srcImgProxy}
+								src={avatarProps.src}
 								isAnonymous={isAnonymousReplied}
 							/>
 						</div>
@@ -109,10 +131,7 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, mode, isA
 					</div>
 				</div>
 			) : (
-				<div
-					className="rounded flex flex-row gap-1 items-center justify-start w-fit text-[14px] ml-9 mb-[-5px] mt-1 replyMessage"
-					style={{ height: 24 }}
-				>
+				<div className="rounded flex flex-row gap-1 items-center justify-start w-fit text-[14px] ml-9 mb-[-5px] mt-1 replyMessage h-[24px]">
 					<Icons.ReplyCorner />
 					<div className="flex flex-row gap-1 mb-2 pr-12 items-center">
 						<div className="rounded-full dark:bg-bgSurface bg-bgLightModeButton size-4">

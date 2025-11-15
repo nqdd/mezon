@@ -1,6 +1,8 @@
-import { ChannelMessageOpt, ChatWelcome, MessageContextMenuProps, MessageWithSystem, MessageWithUser, OnBoardWelcome } from '@mezon/components';
-import { MessagesEntity } from '@mezon/store';
-import { FOR_10_MINUTES, ObserveFn, TypeMessage, UsersClanEntity } from '@mezon/utils';
+import type { MessageContextMenuProps } from '@mezon/components';
+import { ChannelMessageOpt, ChatWelcome, MessageWithSystem, MessageWithUser, OnBoardWelcome, UnreadMessageBreak } from '@mezon/components';
+import type { MessagesEntity } from '@mezon/store';
+import type { ObserveFn, UsersClanEntity } from '@mezon/utils';
+import { TIME_COMBINE_MS, TypeMessage } from '@mezon/utils';
 import { isSameDay } from 'date-fns';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback } from 'react';
@@ -15,7 +17,6 @@ export type MessageProps = {
 	avatarDM?: string;
 	username?: string;
 	isPrivate?: number;
-	isLastSeen?: boolean;
 	index: number;
 	checkMessageTargetToMoved?: boolean;
 	messageReplyHighlight?: boolean;
@@ -35,6 +36,7 @@ export type MessageProps = {
 	) => void;
 	isSelected?: boolean;
 	isEditing?: boolean;
+	shouldShowUnreadBreak?: boolean;
 };
 
 export type MessageRef = {
@@ -67,12 +69,12 @@ export const ChannelMessage: ChannelMessageComponent = ({
 	observeIntersectionForLoading,
 	showMessageContextMenu,
 	isSelected,
-	isEditing
+	isEditing,
+	shouldShowUnreadBreak
 }: Readonly<MessageProps>) => {
 	const isSameUser = message?.user?.id === previousMessage?.user?.id;
 	const isTimeGreaterThan60Minutes =
-		!!message?.create_time && Date.parse(message.create_time) - Date.parse(previousMessage?.create_time) < FOR_10_MINUTES;
-
+		!!message?.create_time && Date.parse(message.create_time) - Date.parse(previousMessage?.create_time) < TIME_COMBINE_MS;
 	const isDifferentDay =
 		!!message?.create_time && !!previousMessage?.create_time && !isSameDay(new Date(message.create_time), new Date(previousMessage?.create_time));
 
@@ -115,41 +117,48 @@ export const ChannelMessage: ChannelMessageComponent = ({
 
 	const isMessageSystem =
 		message?.code === TypeMessage.Welcome ||
+		message?.code === TypeMessage.UpcomingEvent ||
 		message?.code === TypeMessage.CreateThread ||
 		message?.code === TypeMessage.CreatePin ||
 		message?.code === TypeMessage.AuditLog;
 
 	const isMessageIndicator = message.code === TypeMessage.Indicator;
 
-	return isMessageIndicator && mode === ChannelStreamMode.STREAM_MODE_CHANNEL ? (
+	return (
 		<>
-			<OnBoardWelcome nextMessageId={nextMessageId} />
-			{isMessageIndicator ? (
+			{shouldShowUnreadBreak && <UnreadMessageBreak key={`unread-${messageId}`} />}
+			{isMessageIndicator && mode === ChannelStreamMode.STREAM_MODE_CHANNEL ? (
+				<>
+					<OnBoardWelcome nextMessageId={nextMessageId} />
+					{isMessageIndicator ? (
+						<ChatWelcome isPrivate={isPrivate} key={messageId} name={channelLabel} avatarDM={avatarDM} username={username} mode={mode} />
+					) : null}
+				</>
+			) : isMessageIndicator ? (
 				<ChatWelcome isPrivate={isPrivate} key={messageId} name={channelLabel} avatarDM={avatarDM} username={username} mode={mode} />
-			) : null}
+			) : isMessageSystem ? (
+				<MessageWithSystem message={mess} popup={popup} onContextMenu={handleContextMenu} showDivider={isDifferentDay} isTopic={isTopic} />
+			) : (
+				<MessageWithUser
+					allowDisplayShortProfile={true}
+					message={mess}
+					mode={mode}
+					isEditing={isEditing}
+					isHighlight={isHighlight}
+					popup={popup}
+					onContextMenu={handleContextMenu}
+					isCombine={isCombine}
+					showDivider={isDifferentDay}
+					checkMessageTargetToMoved={checkMessageTargetToMoved}
+					messageReplyHighlight={messageReplyHighlight}
+					isTopic={isTopic}
+					observeIntersectionForLoading={observeIntersectionForLoading}
+					user={user}
+					isSelected={isSelected}
+					previousMessage={previousMessage}
+				/>
+			)}
 		</>
-	) : isMessageIndicator ? (
-		<ChatWelcome isPrivate={isPrivate} key={messageId} name={channelLabel} avatarDM={avatarDM} username={username} mode={mode} />
-	) : isMessageSystem ? (
-		<MessageWithSystem message={mess} popup={popup} onContextMenu={handleContextMenu} showDivider={isDifferentDay} isTopic={isTopic} />
-	) : (
-		<MessageWithUser
-			allowDisplayShortProfile={true}
-			message={mess}
-			mode={mode}
-			isEditing={isEditing}
-			isHighlight={isHighlight}
-			popup={popup}
-			onContextMenu={handleContextMenu}
-			isCombine={isCombine}
-			showDivider={isDifferentDay}
-			checkMessageTargetToMoved={checkMessageTargetToMoved}
-			messageReplyHighlight={messageReplyHighlight}
-			isTopic={isTopic}
-			observeIntersectionForLoading={observeIntersectionForLoading}
-			user={user}
-			isSelected={isSelected}
-		/>
 	);
 };
 
@@ -167,7 +176,8 @@ export const MemorizedChannelMessage = memo(ChannelMessage, (prev, curr) => {
 		prev.isHighlight === curr.isHighlight &&
 		prev.isSelected === curr.isSelected &&
 		prev.isEditing === curr.isEditing &&
-		prev.message?.isError === curr.message?.isError
+		prev.message?.isError === curr.message?.isError &&
+		prev.shouldShowUnreadBreak === curr.shouldShowUnreadBreak
 	);
 });
 

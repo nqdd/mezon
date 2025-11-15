@@ -2,11 +2,14 @@ import { useInvite } from '@mezon/core';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { channelsActions, clansActions, inviteActions, selectInviteById, useAppDispatch } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 export default function InvitePage() {
+	const { t } = useTranslation('common');
 	const { inviteId: inviteIdParam } = useParams();
 	const selectInvite = useSelector(selectInviteById(inviteIdParam || ''));
 	const navigate = useNavigate();
@@ -41,7 +44,7 @@ export default function InvitePage() {
 					dispatch(channelsActions.add({ clanId: selectInvite.channel_desc?.clan_id as string, channel: { ...channel, active: 1 } }));
 				}
 			} catch (err) {
-				setError('Failed to join the channel. Please try again.');
+				setError(t('invite.failedToJoin'));
 			} finally {
 				setLoading(false);
 			}
@@ -51,6 +54,13 @@ export default function InvitePage() {
 	const handleJoinChannel = () => {
 		joinChannel();
 		handleBackNavigate();
+		navigate(`/mezon`);
+		try {
+			window.location.href = `mezon.ai://invite/${inviteIdParam}`;
+			setLoading(false);
+		} catch (e) {
+			console.error('log  => handleJoinChannel error', e);
+		}
 	};
 
 	const appDispatch = useAppDispatch();
@@ -61,7 +71,7 @@ export default function InvitePage() {
 	useEffect(() => {
 		if (userJoined) {
 			navigate(`/chat/clans/${clanId}/channels/${channeId}`);
-			toast.info('You are already a member!');
+			toast.info(t('invite.alreadyMember'));
 		} else {
 			const handleKeyDown = (event: KeyboardEvent) => {
 				if (event.key === 'Escape') {
@@ -93,20 +103,20 @@ export default function InvitePage() {
 				</div>
 
 				<div className="text-center mb-4 w-full">
-					<p className="text-sm mb-1">You've been invited to join</p>
+					<p className="text-sm mb-1">{t('invite.invitedToJoin')}</p>
 					<h1
-						className="text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
-						style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-						title={selectInvite?.clan_name || 'Mezon Clan'}
+						className="truncate text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
+						title={selectInvite?.clan_name || t('invite.defaultClanName')}
 					>
-						{selectInvite?.clan_name || 'Mezon Clan'}
+						{selectInvite?.clan_name || t('invite.defaultClanName')}
 					</h1>
 
 					<div className="flex justify-center gap-5 text-sm">
 						<div className="flex items-center">
 							<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 							<span className="">
-								{Number(selectInvite?.member_count || 1).toLocaleString()} Member{selectInvite?.member_count > 1 ? 's' : ''}
+								{Number(selectInvite?.member_count || 1).toLocaleString()}{' '}
+								{t('invite.member', { count: selectInvite?.member_count || 1 })}
 							</span>
 						</div>
 						{/* <div className="flex items-center">
@@ -118,8 +128,8 @@ export default function InvitePage() {
 
 				<div className="w-full bg-input-secondary rounded-md p-3 mb-5 flex items-center">
 					<div>
-						<div className=" text-xs font-medium uppercase tracking-wide">Server Settings</div>
-						<div className="text-xs">You can customize these at any time</div>
+						<div className=" text-xs font-medium uppercase tracking-wide">{t('invite.clanSettings')}</div>
+						<div className="text-xs">{t('invite.customizeAnytime')}</div>
 					</div>
 				</div>
 
@@ -128,8 +138,9 @@ export default function InvitePage() {
 					onClick={handleJoinChannel}
 					disabled={loading}
 					className={`text-white w-full py-[10px] text-base font-medium rounded-md ${loading ? 'bg-gray-500 cursor-not-allowed' : 'btn-primary btn-primary-hover '}`}
+					data-e2e={generateE2eId('acceptModal.button.acceptInvite')}
 				>
-					{loading ? 'Joining...' : 'Accept Invite'}
+					{loading ? t('invite.joining') : t('invite.acceptInvite')}
 				</button>
 			</div>
 		</div>

@@ -20,19 +20,21 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DONE_ONBOARDING_STATUS, titleMission } from '@mezon/utils';
-import { ApiOnboardingItem } from 'mezon-js/api.gen';
+import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 function GuideBody() {
+	const { t } = useTranslation('common');
 	const onboadingMode = useSelector(selectOnboardingMode);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const { navigate, toChannelPage } = useAppNavigation();
 	const dispatch = useAppDispatch();
 	const formOnboarding = useSelector(selectFormOnboarding);
-	const missionSum = useSelector(selectMissionSum);
-	const missionDone = useSelector(selectMissionDone);
-	const selectUserProcessing = useSelector(selectProcessingByClan(currentClanId as string));
+	const missionSum = useSelector((state) => selectMissionSum(state, currentClanId as string));
+	const missionDone = useSelector((state) => selectMissionDone(state, currentClanId as string));
+	const selectUserProcessing = useSelector((state) => selectProcessingByClan(state, currentClanId as string));
 	const answerByClanId = useAppSelector((state) => selectAnswerByClanId(state, currentClanId as string));
 
 	const handleDoMission = useCallback(
@@ -91,7 +93,7 @@ function GuideBody() {
 			<div className="flex gap-6">
 				<div className="flex-1 flex flex-col gap-2">
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Questions</p>
+						<p className="p-2 text-xl font-bold ">{t('guide.questions')}</p>
 						<div className=" flex flex-col gap-2 rounded-lg relative shadow-sm dark:shadow-none">
 							{onboardingItem?.question.length > 0 ? (
 								<>
@@ -112,7 +114,7 @@ function GuideBody() {
 								<>
 									{(!onboadingMode || (onboadingMode && formOnboarding?.questions?.length === 0)) && (
 										<div className="flex gap-2 h-20 p-4 w-full text-lg items-center font-semibold justify-between bg-item-theme rounded-lg shadow-sm">
-											You don't have any questions. Setting questions for this clan first !!
+											{t('guide.noQuestions')}
 										</div>
 									)}
 								</>
@@ -120,7 +122,7 @@ function GuideBody() {
 						</div>
 					</div>
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Resources</p>
+						<p className="p-2 text-xl font-bold ">{t('guide.resources')}</p>
 						{onboardingItem?.rule?.length > 0 ? (
 							onboardingItem.rule.map((rule) => (
 								<GuideItemLayout
@@ -142,7 +144,7 @@ function GuideBody() {
 							<>
 								{(!onboadingMode || (onboadingMode && formOnboarding?.rules?.length === 0)) && (
 									<div className="flex gap-2 h-20 p-4 w-full text-lg items-center  font-semibold justify-between  rounded-lg shadow-sm bg-item-theme">
-										You don't have any rule. Setting rule for this clan first !!
+										{t('guide.noRules')}
 									</div>
 								)}
 							</>
@@ -156,15 +158,15 @@ function GuideBody() {
 									hightLightIcon={true}
 									description={rule.content}
 									icon={<Icons.RuleIcon />}
-									background="bg-white dark:bg-gray-800"
-									className="shadow-sm dark:shadow-none text-white"
+									background=""
+									className="shadow-sm dark:shadow-none text-theme-primary bg-theme-setting-nav"
 									action={<div className="w-[72px] aspect-square  rounded-lg"></div>}
 								/>
 							))}
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">Missions </p>
+						<p className="p-2 text-xl font-bold ">{t('guide.missions')} </p>
 						{onboardingItem?.mission?.length > 0 ? (
 							onboardingItem.mission.map((mission, index) => (
 								<GuideItemMission
@@ -178,7 +180,7 @@ function GuideBody() {
 							<>
 								{(!onboadingMode || (onboadingMode && formOnboarding?.task?.length === 0)) && (
 									<div className="flex gap-2 h-20 p-4 w-full text-lg items-center  font-semibold justify-between  rounded-lg shadow-sm bg-item-theme">
-										You don't have any mission. Setting mision for this clan first !!
+										{t('guide.noMissions')}
 									</div>
 								)}
 							</>
@@ -191,8 +193,8 @@ function GuideBody() {
 					</div>
 				</div>
 				<div className="mt-8 flex flex-col gap-2 h-20 p-4 w-[300px] bg-item-theme text-base justify-between  rounded-lg shadow-sm ">
-					<div className="font-bold ">About</div>
-					<div className=" text-xs">Members online</div>
+					<div className="font-bold ">{t('guide.about')}</div>
+					<div className=" text-xs">{t('guide.membersOnline')}</div>
 				</div>
 			</div>
 		</div>
@@ -211,15 +213,15 @@ const GuideItemMission = ({ mission, onClick, tick }: TypeItemMission) => {
 		<GuideItemLayout
 			key={mission.id}
 			title={mission.title}
-			className="cursor-pointer shadow-sm dark:shadow-none"
+			className="cursor-pointer shadow-sm dark:shadow-none text-theme-primary bg-item-theme"
 			hightLightIcon={true}
-			icon={<Icons.TargetIcon defaultSize="w-6 h-6 " defaultFill="#e4e4e4" />}
+			icon={<Icons.TargetIcon defaultSize="w-6 h-6 " />}
 			onClick={onClick}
-			background="bg-white dark:bg-gray-800"
+			background=""
 			description={
 				<span className="">
 					{titleMission[mission.task_type ? mission.task_type - 1 : 0] || ''}{' '}
-					<span className="font-semibold text-blue-600 dark:text-channelActiveColor"> #{channelById?.channel_label} </span>{' '}
+					<span className="font-semibold text-theme-primary-active"> #{channelById?.channel_label} </span>{' '}
 				</span>
 			}
 			action={

@@ -1,37 +1,41 @@
+import { useMemberStatus } from '@mezon/core';
 import {
-	selectAllChannelMembers2,
-	selectClanMemberMetaUserId,
+	selectAllChannelMembersClan,
 	selectClanMemberWithStatusIds,
 	selectCurrentChannelId,
-	selectCurrentClan,
-	selectMemberClanByUserId2,
-	selectMemberCustomStatusById2,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
+	selectMemberClanByUserId,
+	selectMemberCustomStatusByUserId,
+	selectStatusInVoice,
 	selectTheme,
 	useAppSelector
 } from '@mezon/store';
-import { createImgproxyUrl, isLinuxDesktop, isWindowsDesktop, useSyncEffect, useWindowSize } from '@mezon/utils';
+import { Icons } from '@mezon/ui';
+import { createImgproxyUrl, generateE2eId, isLinuxDesktop, isWindowsDesktop, useWindowSize } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage, useVirtualizer } from '../../components';
+import { useMemberContextMenu } from '../../contexts';
 import { UserStatusIconClan } from '../MemberProfile';
-import { BaseMemberProfile, ClanUserName } from '../MemberProfile/MemberProfile2';
+import { BaseMemberProfile, ClanUserName } from '../MemberProfile/MemberProfile';
 
 const heightTopBar = 50;
 const titleBarHeight = isWindowsDesktop || isLinuxDesktop ? 21 : 0;
 
 type TempMemberItemProps = {
 	id: string;
-	creator_id?: string;
+	isOwner?: boolean;
 };
 
-const TempMemberItem = memo(({ id, creator_id }: TempMemberItemProps) => {
-	const user = useAppSelector((state) => selectMemberClanByUserId2(state, id));
-	const userMeta = useAppSelector((state) => selectClanMemberMetaUserId(state, id));
-	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusById2(state, user.user?.id || ''));
+const TempMemberItem = memo(({ id, isOwner }: TempMemberItemProps) => {
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, id));
+	const userMeta = useMemberStatus(id);
+	const currentChannelID = useAppSelector(selectCurrentChannelId);
+	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusByUserId(state, user.user?.id || ''));
 	const avatar = user.clan_avatar ? user.clan_avatar : (user?.user?.avatar_url ?? '');
 	const username = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
-	const isOwnerClan = creator_id === user?.user?.id;
 
 	return (
 		<div className="cursor-pointer flex items-center gap-[9px] relative ">
@@ -45,42 +49,80 @@ const TempMemberItem = memo(({ id, creator_id }: TempMemberItemProps) => {
 					src={avatar}
 				/>
 				<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm ">
-					<UserStatusIconClan status={userMeta?.status} online={userMeta?.online} />
+					<UserStatusIconClan channelId={currentChannelID || ''} userId={id || ''} status={userMeta?.status} />
 				</div>
 			</div>
 
 			<div className="flex flex-col font-medium">
-				<ClanUserName userId={user.user?.id as string} name={username} isOwnerClan={isOwnerClan} />
+				<ClanUserName userId={user.user?.id as string} name={username} isOwner={!!isOwner} />
 				<p className="text-theme-primary w-full text-[12px] line-clamp-1 break-all max-w-[176px] ">{userCustomStatus}</p>
 			</div>
 		</div>
 	);
 });
-
-type MemberItemProps = {
+type MemberClanProps = {
 	id: string;
+	isOwner?: boolean;
 	temp: boolean;
-	creator_id?: string;
 };
 
-const MemoizedMemberItem = memo((props: MemberItemProps) => {
-	const { id, temp, creator_id } = props;
-
-	return temp ? <TempMemberItem id={id} creator_id={creator_id} /> : <BaseMemberProfile id={id} creator_id={creator_id} />;
+const MemoizedMemberItem = memo((props: MemberClanProps) => {
+	const { id, isOwner, temp } = props;
+	const user = useAppSelector((state) => selectMemberClanByUserId(state, id));
+	const userMeta = useMemberStatus(id);
+	const userCustomStatus = useAppSelector((state) => selectMemberCustomStatusByUserId(state, user?.user?.id || ''));
+	const userVoiceStatus = useAppSelector((state) => selectStatusInVoice(state, user.user?.id || ''));
+	const avatar = user.clan_avatar ? user.clan_avatar : (user?.user?.avatar_url ?? '');
+	const username = user?.clan_nick || user?.user?.display_name || user?.user?.username || '';
+	const { showContextMenu, openProfileItem, setCurrentUser } = useMemberContextMenu();
+	const handleClick = (event: React.MouseEvent) => {
+		setCurrentUser(user);
+		openProfileItem(event, user);
+	};
+	return temp ? (
+		<TempMemberItem id={id} isOwner={isOwner} />
+	) : (
+		<BaseMemberProfile
+			userStatus={
+				<>
+					{userVoiceStatus && userMeta.online ? (
+						<span className="flex items-center gap-1" data-e2e={generateE2eId('clan_page.secondary_side_bar.member.in_voice')}>
+							<Icons.Speaker className="text-green-500 !w-3 !h-3" />
+							In voice
+						</span>
+					) : (
+						userCustomStatus
+					)}
+				</>
+			}
+			user={user}
+			userMeta={{
+				status: userMeta.status,
+				online: userMeta.online
+			}}
+			avatar={avatar}
+			username={username}
+			id={id}
+			isOwner={isOwner}
+			onContextMenu={showContextMenu}
+			onClick={handleClick}
+		/>
+	);
 });
 
 const ListMember = () => {
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanCreatorId = useSelector(selectCurrentClanCreatorId);
 
 	const [showFullList, setShowFullList] = useState(false);
-	useSyncEffect(() => {
+	useEffect(() => {
 		if (showFullList) {
 			setShowFullList(false);
 		}
-	}, [currentClan]);
+	}, [currentClanId]);
 
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const userChannels = useAppSelector((state) => selectAllChannelMembers2(state, currentChannelId as string));
+	const userChannels = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannelId as string));
 	const members = useSelector(selectClanMemberWithStatusIds);
 
 	const [height, setHeight] = useState(window.innerHeight - heightTopBar - titleBarHeight);
@@ -172,7 +214,7 @@ const ListMember = () => {
 			ref={parentRef}
 			className={`custom-member-list ${appearanceTheme === 'light' ? 'customSmallScrollLightMode' : 'thread-scroll'} ${isElectron() ? 'scroll-big' : ''} `}
 			style={{
-				height: height,
+				height,
 				overflow: 'auto'
 			}}
 		>
@@ -196,6 +238,7 @@ const ListMember = () => {
 								height: `${virtualRow.size}px`,
 								transform: `translateY(${virtualRow.start}px)`
 							}}
+							data-e2e={generateE2eId('chat.channel_message.member_list.item')}
 						>
 							<div className="flex items-center px-4 h-full">
 								{typeof user === 'object' && 'onlineSeparate' in user ? (
@@ -207,7 +250,7 @@ const ListMember = () => {
 										Offline - {lisMembers.offlineCount}
 									</p>
 								) : (
-									<MemoizedMemberItem id={user} temp={!showFullList} creator_id={currentClan?.creator_id} />
+									<MemoizedMemberItem id={user} temp={!showFullList} isOwner={currentClanCreatorId === user} />
 								)}
 							</div>
 						</div>

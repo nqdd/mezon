@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
@@ -8,34 +9,30 @@ export const style = (colors: Attributes) =>
 		input: {
 			height: size.s_40,
 			padding: 10,
-			backgroundColor: Colors.charcoalBlack,
+			backgroundColor: baseColor.azureBlue,
 			borderRadius: 8,
-			color: Colors.white,
+			color: 'white',
 			marginBottom: size.s_6
 		},
 		wrapperCreateClanModal: {
 			flex: 1,
-			backgroundColor: colors.primary,
 			paddingHorizontal: size.s_20,
-			paddingTop: size.s_50,
 			width: '100%',
 			height: '100%'
 		},
-		headerTitle: {
-			fontSize: size.s_20,
-			fontWeight: '700',
-			color: colors.textStrong,
-			textAlign: 'center',
-			marginBottom: size.s_8
-		},
-		headerSubTitle: {
-			fontSize: size.label,
-			fontWeight: '400',
+		title: {
+			fontSize: size.h4,
 			color: colors.text,
+			fontWeight: '600',
 			textAlign: 'center',
-			marginBottom: size.s_6
+			marginBottom: size.s_10
 		},
-
+		description: {
+			fontSize: size.medium,
+			fontWeight: '500',
+			color: colors.textDisabled,
+			textAlign: 'center'
+		},
 		uploadImage: {
 			width: size.s_100,
 			height: size.s_100,
@@ -70,7 +67,7 @@ export const style = (colors: Attributes) =>
 		serverName: {
 			fontSize: size.label,
 			fontWeight: '600',
-			color: Colors.textGray,
+			color: '#c7c7c7',
 			marginBottom: size.s_6
 		},
 		community: {
@@ -80,35 +77,50 @@ export const style = (colors: Attributes) =>
 			marginBottom: size.s_6
 		},
 		communityGuideLines: {
-			color: Colors.azureBlue
+			color: baseColor.azureBlue
 		},
 		button: {
 			width: '100%',
 			marginTop: size.s_10,
-			height: size.s_50,
-			backgroundColor: Colors.bgButton,
-			borderRadius: 50,
+			paddingVertical: size.s_12,
+			backgroundColor: '#5865f2',
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center'
 		},
 		buttonText: {
-			fontSize: size.regular,
+			fontSize: size.s_14,
 			fontWeight: '600',
-			color: Colors.white
+			color: 'white'
 		},
 		uploadText: {
-			fontSize: size.regular,
+			fontSize: size.s_14,
 			fontWeight: '500',
 			color: colors.textDisabled
 		},
 		overflowImage: {
-			overflow: 'hidden'
+			overflow: 'hidden',
+			borderRadius: size.s_100
 		},
 		image: {
 			width: '100%',
 			height: '100%',
 			borderRadius: 50
 		},
-		errorMessage: { paddingRight: size.s_20 }
+		errorMessage: { paddingRight: size.s_20 },
+		backButton: {
+			position: 'absolute',
+			left: -size.s_16,
+			top: size.s_10,
+			justifyContent: 'center',
+			alignItems: 'center',
+			zIndex: 10,
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_20
+		},
+		headerContainer: {
+			marginBottom: size.s_40,
+			paddingTop: size.s_20
+		}
 	});

@@ -1,5 +1,4 @@
 import { IOption, ITypeOptionSearch, IUerMention } from '@mezon/mobile-components';
-import { size } from '@mezon/mobile-ui';
 import { DirectEntity, selectCurrentChannel } from '@mezon/store-mobile';
 import { IChannel } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
@@ -9,6 +8,7 @@ import { View } from 'react-native';
 import { useSelector } from 'react-redux';
 import UseMentionList from '../../../../hooks/useUserMentionList';
 import { EmptySearchPage } from '../../../EmptySearchPage';
+import { style } from './SearchOptionPage.styles';
 import UserInfoSearch from './UserInfoSearch';
 
 interface ISeachOptionPageProps {
@@ -20,8 +20,10 @@ interface ISeachOptionPageProps {
 
 function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPageProps) {
 	const currentChannel = useSelector(selectCurrentChannel);
+	const styles = style();
 
 	const userListData = UseMentionList({
+		channelDetail: currentChannel,
 		channelID: (currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD ? currentChannel?.parent_id : currentChannel?.channel_id) || '',
 		channelMode: currentChannel?.type
 	});
@@ -50,9 +52,9 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 		return userListDataSearchByMention;
 	}, [searchText, userListDataSearchByMention]);
 	return (
-		<View style={{ paddingHorizontal: size.s_20, width: '100%', height: '100%' }}>
+		<View style={styles.container}>
 			{[ITypeOptionSearch.MENTIONS, ITypeOptionSearch.FROM].includes(optionFilter?.title as ITypeOptionSearch) && (
-				<View style={{ height: '100%', width: '100%', paddingBottom: size.s_100 }}>
+				<View style={styles.listContainer}>
 					{searchUserListByMention?.length ? (
 						<FlashList
 							showsVerticalScrollIndicator={false}

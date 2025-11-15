@@ -1,6 +1,6 @@
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import { EMessageActionType } from '../enums';
-import { IMessageAction } from '../types';
+import type { IMessageAction } from '../types';
 
 export const getMessageActions = (t: TFunction): IMessageAction[] => {
 	return [
@@ -8,16 +8,6 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			id: 17,
 			title: t('message:actions.resend'),
 			type: EMessageActionType.ResendMessage
-		},
-		{
-			id: 1,
-			title: t('message:actions.forward'),
-			type: EMessageActionType.ForwardMessage
-		},
-		{
-			id: 2,
-			title: t('message:actions.forwardAllMessages'),
-			type: EMessageActionType.ForwardAllMessages
 		},
 		{
 			id: 16,
@@ -35,6 +25,16 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			type: EMessageActionType.Reply
 		},
 		{
+			id: 1,
+			title: t('message:actions.forward'),
+			type: EMessageActionType.ForwardMessage
+		},
+		{
+			id: 2,
+			title: t('message:actions.forwardAllMessages'),
+			type: EMessageActionType.ForwardAllMessages
+		},
+		{
 			id: 5,
 			title: t('message:actions.createThread'),
 			type: EMessageActionType.CreateThread
@@ -43,6 +43,21 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			id: 6,
 			title: t('message:actions.copyText'),
 			type: EMessageActionType.CopyText
+		},
+		{
+			id: 21,
+			title: t('message:actions.copyImage'),
+			type: EMessageActionType.CopyImage
+		},
+		{
+			id: 22,
+			title: t('message:actions.shareImage'),
+			type: EMessageActionType.ShareImage
+		},
+		{
+			id: 19,
+			title: t('message:actions.markUnRead'),
+			type: EMessageActionType.MarkUnRead
 		},
 		{
 			id: 18,
@@ -77,12 +92,17 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 		{
 			id: 14,
 			title: t('message:actions.saveImage'),
-			type: EMessageActionType.SaveImage
+			type: EMessageActionType.SaveMedia
 		},
 		{
 			id: 15,
 			title: t('message:actions.markMessage'),
 			type: EMessageActionType.MarkMessage
 		},
+		{
+			id: 20,
+			title: t('message:actions.quickMenu'),
+			type: EMessageActionType.QuickMenu
+		}
 	];
 };

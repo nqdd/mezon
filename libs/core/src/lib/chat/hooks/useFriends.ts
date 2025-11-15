@@ -1,11 +1,11 @@
+import type { requestAddFriendParam } from '@mezon/store';
 import {
 	EStateFriend,
 	friendsActions,
-	requestAddFriendParam,
 	selectAllFriends,
 	selectCurrentUserId,
 	selectDmGroupCurrentId,
-	selectGrouplMembers,
+	selectMemberByGroupId,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -16,8 +16,8 @@ import { useSelector } from 'react-redux';
 export function useFriends() {
 	const friends = useSelector(selectAllFriends);
 	const currentDM = useSelector(selectDmGroupCurrentId);
-	const groupDmMember = useAppSelector((state) => selectGrouplMembers(state, currentDM as string));
-	const numberMemberInDmGroup = useMemo(() => groupDmMember.length, [groupDmMember]);
+	const groupDmMember = useAppSelector((state) => selectMemberByGroupId(state, currentDM as string));
+	const numberMemberInDmGroup = useMemo(() => groupDmMember?.length || 0, [groupDmMember]);
 	const currentUserId = useSelector(selectCurrentUserId);
 	const dispatch = useAppDispatch();
 
@@ -36,7 +36,8 @@ export function useFriends() {
 		(username: string, id: string) => {
 			const body = {
 				usernames: [username],
-				ids: [id]
+				ids: [id],
+				isAcceptingRequest: true
 			};
 			dispatch(friendsActions.sendRequestAddFriend(body));
 		},
@@ -57,22 +58,20 @@ export function useFriends() {
 	const blockFriend = useCallback(
 		async (username: string, id: string) => {
 			const body = {
-				usernames: [username],
 				ids: [id]
 			};
 			const response = await dispatch(friendsActions.sendRequestBlockFriend(body));
 
-			if (response?.meta?.requestStatus === 'fulfilled') {
+			if (response?.meta?.requestStatus === 'fulfilled' && currentUserId) {
 				dispatch(
 					friendsActions.updateFriendState({
 						userId: id,
-						friendState: EStateFriend.BLOCK,
 						sourceId: currentUserId
 					})
 				);
 				return true;
 			}
-			return false;
+			throw new Error('BLOCK_FRIEND_FAILED');
 		},
 		[dispatch, currentUserId]
 	);
@@ -80,34 +79,44 @@ export function useFriends() {
 	const unBlockFriend = useCallback(
 		async (username: string, id: string) => {
 			const body = {
-				usernames: [username],
 				ids: [id]
 			};
-			const response = await dispatch(friendsActions.sendRequestDeleteFriend(body));
-			if (response?.meta?.requestStatus === 'fulfilled') {
+			const response = await dispatch(friendsActions.sendRequestUnblockFriend(body));
+			if (response?.meta?.requestStatus === 'fulfilled' && currentUserId) {
+				dispatch(
+					friendsActions.updateFriendState({
+						userId: id
+					})
+				);
 				return true;
 			}
-			return false;
+			throw new Error('UNBLOCK_FRIEND_FAILED');
 		},
-		[dispatch]
+		[currentUserId, dispatch]
 	);
 
 	const filteredFriends = useCallback(
 		(searchTerm: string, isAddMember?: boolean) => {
 			if (isAddMember) {
 				return friends.filter((friend) => {
+					if (friend.state === EStateFriend.BLOCK) {
+						return false;
+					}
+
 					if (friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)) {
-						if (!Object.values(groupDmMember)?.some((user) => user.id === friend.id)) {
+						if (!groupDmMember || !Object.values(groupDmMember)?.some((user) => user.id === friend.id)) {
 							return friend;
 						}
 					}
 				});
 			}
 			return friends.filter(
-				(friend) => friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm)
+				(friend) =>
+					friend.state !== EStateFriend.BLOCK &&
+					(friend.user?.display_name?.toUpperCase().includes(searchTerm) || friend.user?.username?.toUpperCase().includes(searchTerm))
 			);
 		},
-		[friends]
+		[friends, groupDmMember]
 	);
 
 	return useMemo(
@@ -122,16 +131,6 @@ export function useFriends() {
 			filteredFriends,
 			numberMemberInDmGroup
 		}),
-		[
-			friends,
-			quantityPendingRequest,
-			addFriend,
-			acceptFriend,
-			deleteFriend,
-			blockFriend,
-			unBlockFriend,
-			filteredFriends,
-			numberMemberInDmGroup
-		]
+		[friends, quantityPendingRequest, addFriend, acceptFriend, deleteFriend, blockFriend, unBlockFriend, filteredFriends, numberMemberInDmGroup]
 	);
 }

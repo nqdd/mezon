@@ -1,5 +1,7 @@
 import { selectAllClans } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Select from 'react-select';
 import SettingUserClanProfileEdit from './SettingUserClanProfileEdit';
@@ -9,24 +11,23 @@ interface SettingUserClanProfileEditProps {
 }
 
 const SettingRightClan: React.FC<SettingUserClanProfileEditProps> = ({ clanId }) => {
+	const { t } = useTranslation('profileSetting');
 	const clans = useSelector(selectAllClans);
 	const [flagOption, setFlagOption] = useState<boolean>(false);
 	const [selectedClanId, setSelectedClanId] = useState<string | undefined>(clanId as string);
 
-	console.log('clans', selectedClanId);
-	console.log(
-		'clans',
-		clans.find((clan) => clan.id === selectedClanId)
-	);
-
 	return (
 		<div className="flex flex-col">
 			<div className="flex flex-col xl:flex-row gap-x-1 text-sm font-normal">
-				<p className="">Show who you are with different profiles for each of your clans</p>
+				<p className="">{t('showProfilesDescription')}</p>
 			</div>
-			<p className="mt-[20px] font-bold text-sm  tracking-wide">CHOOSE A CLAN</p>
+			<p className="mt-[20px] font-bold text-sm  tracking-wide">{t('chooseAClan')}</p>
 
 			<Select
+				data-e2e={generateE2eId(`user_setting.profile.clan_profile.select`)}
+				classNames={{
+					menuList: () => 'thread-scroll'
+				}}
 				className=" mt-1 text-theme-primary-active bg-input-secondary rounded-lg	"
 				classNamePrefix="select"
 				value={

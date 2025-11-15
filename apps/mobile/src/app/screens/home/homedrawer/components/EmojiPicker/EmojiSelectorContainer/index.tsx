@@ -1,16 +1,6 @@
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useEmojiSuggestionContext } from '@mezon/core';
-import {
-	ActionEmitEvent,
-	BicycleIcon,
-	BowlIcon,
-	debounce,
-	HeartIcon,
-	LeafIcon,
-	ObjectIcon,
-	RibbonIcon,
-	SmilingFaceIcon
-} from '@mezon/mobile-components';
+import { ActionEmitEvent, debounce } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { emojiSuggestionActions, getStore, selectCurrentChannelId, selectCurrentTopicId, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import { FOR_SALE_CATE, IEmoji, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
@@ -98,14 +88,14 @@ export default function EmojiSelectorContainer({
 			<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			...clanEmojis,
-			<SmilingFaceIcon height={size.s_24} width={size.s_24} color={themeValue.textStrong} />,
-			<LeafIcon color={themeValue.textStrong} />,
-			<BowlIcon color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.leafIcon} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.bowlIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.gameControllerIcon} color={themeValue.textStrong} />,
-			<BicycleIcon color={themeValue.textStrong} />,
-			<ObjectIcon color={themeValue.textStrong} />,
-			<HeartIcon color={themeValue.textStrong} />,
-			<RibbonIcon color={themeValue.textStrong} />
+			<MezonIconCDN icon={IconCDN.bicycleIcon} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.objectIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.heartIcon} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.redFlag} color={themeValue.textStrong} />
 		];
 	}, [categoryEmoji, themeValue]);
 
@@ -175,9 +165,9 @@ export default function EmojiSelectorContainer({
 
 	const ListCategoryArea = useCallback(() => {
 		return (
-			<View style={{ backgroundColor: themeBasic === 'dark' || isReactMessage ? themeValue.primary : themeValue.tertiary }}>
+			<View style={styles.primaryBackground}>
 				<View style={styles.textInputWrapper}>
-					<MezonIconCDN icon={IconCDN.magnifyingIcon} height={18} width={18} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
 					<TextInput
 						onFocus={handleBottomSheetExpand}
 						placeholder={t('findThePerfectReaction')}
@@ -239,24 +229,23 @@ export default function EmojiSelectorContainer({
 			if (targetIndex !== -1) {
 				handleBottomSheetExpand?.();
 
-				try {
-					if (flatListRef.current) {
-						if (timeoutRef?.current) {
-							clearTimeout(timeoutRef.current);
-						}
-
-						timeoutRef.current = setTimeout(() => {
+				if (timeoutRef?.current) {
+					clearTimeout(timeoutRef.current);
+				}
+				timeoutRef.current = setTimeout(() => {
+					try {
+						if (flatListRef.current) {
 							flatListRef.current.scrollToIndex({
 								index: targetIndex,
 								animated: true,
 								viewPosition: 0,
 								viewOffset: 120
 							});
-						}, 300);
+						}
+					} catch (error) {
+						console.warn('Scroll error:', error);
 					}
-				} catch (error) {
-					console.warn('Scroll error:', error);
-				}
+				}, 300);
 			}
 		},
 		[data]
@@ -284,9 +273,8 @@ export default function EmojiSelectorContainer({
 			removeClippedSubviews={true}
 			showsVerticalScrollIndicator={false}
 			keyboardShouldPersistTaps="handled"
-			disableVirtualization
-			style={{ marginBottom: -size.s_20 }}
-			contentContainerStyle={{ minHeight: '100%' }}
+			style={styles.flatListStyle}
+			contentContainerStyle={styles.flatListContentContainer}
 			onScrollToIndexFailed={(info) => {
 				if (info?.highestMeasuredFrameIndex) {
 					const wait = new Promise((resolve) => setTimeout(resolve, 100));

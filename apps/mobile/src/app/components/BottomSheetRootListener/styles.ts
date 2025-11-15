@@ -1,4 +1,5 @@
-import { Attributes, Fonts, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { Fonts, size } from '@mezon/mobile-ui';
 import { Dimensions, StyleSheet } from 'react-native';
 
 const marginWidth = Dimensions.get('screen').width * 0.3;
@@ -13,7 +14,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			alignItems: 'center',
-			paddingBottom: size.s_10
+			paddingVertical: size.s_10
 		},
 
 		section: {
@@ -48,10 +49,13 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			justifyContent: 'flex-start'
 		},
 		handleIndicator: {
-			backgroundColor: colors.primary,
-			height: size.s_10,
-			borderTopLeftRadius: size.s_10,
-			borderTopRightRadius: size.s_10,
+			backgroundColor: 'rgba(255, 255, 255, 0.8)',
+			height: size.s_6,
+			top: -size.s_6,
+			marginTop: size.s_16,
+			width: size.s_50,
+			borderRadius: size.s_10,
+			alignSelf: 'center'
 		},
 		container: {
 			overflow: 'hidden',

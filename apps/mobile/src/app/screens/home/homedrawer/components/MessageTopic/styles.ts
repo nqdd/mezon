@@ -1,4 +1,4 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -10,16 +10,19 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_10
 		},
 		container: {
-			paddingTop: size.s_6,
-			marginVertical: size.s_2,
-			marginBottom: size.s_4,
+			paddingVertical: size.s_6,
+			paddingHorizontal: size.s_10,
+			marginVertical: size.s_4,
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_4
+			gap: size.s_4,
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_6
 		},
 		dateMessageBox: {
+			paddingLeft: size.small,
 			fontSize: size.small,
-			color: Colors.gray72
+			color: baseColor.gray
 		},
 		repliesText: {
 			fontSize: size.small,
@@ -28,5 +31,8 @@ export const style = (colors: Attributes) =>
 		username: {
 			fontSize: size.small,
 			fontWeight: 'bold'
+		},
+		outerWrapper: {
+			flexDirection: 'row'
 		}
 	});

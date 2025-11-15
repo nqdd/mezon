@@ -2,20 +2,23 @@ import { MessageBox, ReplyMessageBox, UserMentionList } from '@mezon/components'
 import { useChatSending, useEscapeKey } from '@mezon/core';
 import {
 	ETypeMission,
+	getStoreAsync,
 	onboardingActions,
 	referencesActions,
 	selectAnonymousMode,
-	selectCurrentClan,
+	selectCurrentClanIsOnboarding,
 	selectDataReferences,
 	selectMissionDone,
 	selectOnboardingByClan,
+	selectProcessingByClan,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IMessageSendPayload, ThreadValue, blankReferenceObj } from '@mezon/utils';
+import type { IMessageSendPayload, ThreadValue } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS, blankReferenceObj } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
@@ -27,7 +30,7 @@ export type ChannelMessageBoxProps = {
 };
 
 export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMessageBoxProps>) {
-	const currentMission = useSelector(selectMissionDone);
+	const currentMission = useSelector((state) => selectMissionDone(state, clanId as string));
 	const channelId = useMemo(() => {
 		return channel?.channel_id;
 	}, [channel?.channel_id]);
@@ -38,7 +41,7 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 	const anonymousMode = useSelector(selectAnonymousMode);
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const chatboxRef = useRef<HTMLDivElement | null>(null);
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanIsOnboarding = useSelector(selectCurrentClanIsOnboarding);
 	const onboardingList = useSelector((state) => selectOnboardingByClan(state, clanId as string));
 
 	const handleSend = useCallback(
@@ -57,12 +60,15 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 			sendMessage(content, mentions, attachments, references, anonymous, mentionEveryone, false, undefined, ephemeralReceiverId);
 			handDoMessageMission();
 		},
-		[sendMessage, currentMission]
+		[sendMessage, currentMission, onboardingList?.mission]
 	);
 
-	const handDoMessageMission = () => {
+	const handDoMessageMission = async () => {
+		const store = (await getStoreAsync()).getState();
+		const processingClan = selectProcessingByClan(store, clanId as string);
 		if (
-			currentClan?.is_onboarding &&
+			processingClan?.onboarding_step !== DONE_ONBOARDING_STATUS &&
+			currentClanIsOnboarding &&
 			onboardingList?.mission?.[currentMission]?.channel_id === channel?.channel_id &&
 			onboardingList?.mission?.[currentMission]?.task_type === ETypeMission.SEND_MESSAGE
 		) {
@@ -86,16 +92,6 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 			})
 		);
 	}, [dataReferences.message_ref_id]);
-
-	const handleBotSendMessage = useCallback(
-		(text: string) => {
-			const content: IMessageSendPayload = {
-				t: text
-			};
-			handleSend(content);
-		},
-		[handleSend]
-	);
 
 	useEscapeKey(handleCloseReplyMessageBox, { preventEvent: !dataReferences.message_ref_id });
 

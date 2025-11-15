@@ -3,7 +3,12 @@ import { Platform, StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
-			paddingHorizontal: size.s_2
+			paddingHorizontal: size.s_2,
+			overflow: 'visible'
+		},
+		wrapper: {
+			flexDirection: 'row',
+			zIndex: 10
 		},
 		btnIcon: {
 			width: size.s_40,
@@ -62,7 +67,7 @@ export const style = (colors: Attributes) =>
 			paddingLeft: Platform.OS === 'ios' ? size.s_16 : size.s_20,
 			paddingRight: size.s_40,
 			fontSize: size.medium,
-			paddingTop: size.s_8,
+			paddingTop: Platform.OS === 'ios' ? size.s_10 : size.s_8,
 			paddingBottom: size.s_12,
 			backgroundColor: colors.tertiary,
 			color: colors.textStrong,
@@ -74,10 +79,53 @@ export const style = (colors: Attributes) =>
 			left: 0,
 			right: 0,
 			maxHeight: size.s_615,
-			backgroundColor: colors.primary,
+			backgroundColor: Platform.OS === 'android' ? 'transparent' : colors.primary,
 			borderTopColor: colors.secondaryLight,
 			borderRadius: size.s_8,
 			overflow: 'hidden',
 			zIndex: 10
+		},
+		pasteTooltip: {
+			position: 'absolute',
+			bottom: size.s_50,
+			left: 0,
+			zIndex: 1000,
+			shadowColor: baseColor.black,
+			shadowOffset: {
+				width: 0,
+				height: 12
+			},
+			shadowOpacity: 0.58,
+			shadowRadius: 16.0,
+			elevation: 24
+		},
+		tooltipContent: {
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_8,
+			paddingHorizontal: size.s_12,
+			paddingVertical: size.s_8,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			minHeight: size.s_36
+		},
+		tooltipText: {
+			color: colors.textStrong,
+			fontSize: size.small,
+			fontWeight: '500'
+		},
+		tooltipArrow: {
+			position: 'absolute',
+			bottom: -size.s_6,
+			left: '50%',
+			marginLeft: -size.s_6,
+			width: 0,
+			height: 0,
+			borderLeftWidth: size.s_6,
+			borderRightWidth: size.s_6,
+			borderTopWidth: size.s_6,
+			borderLeftColor: 'transparent',
+			borderRightColor: 'transparent',
+			borderTopColor: colors.secondaryLight
 		}
 	});

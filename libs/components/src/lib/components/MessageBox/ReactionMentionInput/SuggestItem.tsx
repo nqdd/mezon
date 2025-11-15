@@ -1,15 +1,10 @@
-import {
-	ChannelsEntity,
-	selectAllChannelsByUser,
-	selectAllHashtagDm,
-	selectChannelById,
-	selectNumberMemberVoiceChannel,
-	selectTheme,
-	useAppSelector
-} from '@mezon/store';
+import type { ChannelsEntity } from '@mezon/store';
+import { selectAllChannelsByUser, selectAllHashtagDm, selectChannelById, selectNumberMemberVoiceChannel, useAppSelector } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
-import { SearchItemProps, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
-import { ChannelType, HashtagDm } from 'mezon-js';
+import type { SearchItemProps } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, getSrcEmoji } from '@mezon/utils';
+import type { HashtagDm } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -58,15 +53,10 @@ const SuggestItem = ({
 
 	const { directId } = useParams();
 	const commonChannels = useSelector(selectAllHashtagDm);
-	const theme = useSelector(selectTheme);
 	const [specificChannel, setSpecificChannel] = useState<ChannelsEntity | HashtagDm | null>(null);
 	const numberMembersVoice = useAppSelector((state) => selectNumberMemberVoiceChannel(state, channelId as string));
 	const checkVoiceStatus = useMemo(() => {
-		if (
-			channelId !== undefined &&
-			numberMembersVoice &&
-			(specificChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE || specificChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE)
-		) {
+		if (channelId !== undefined && numberMembersVoice && specificChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			return numberMembersVoice >= 2;
 		}
 		return false;
@@ -94,13 +84,6 @@ const SuggestItem = ({
 			}
 		}
 
-		if (type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			if (!channel_private || channel_private === 0) {
-				return <Icons.Speaker defaultSize="w-5 5-5" />;
-			}
-			return <Icons.SpeakerLocked defaultSize="w-5 h-5" />;
-		}
-
 		if (type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			if (!channel_private || channel_private === 0) {
 				return <Icons.Speaker defaultSize="w-5 5-5" />;
@@ -113,11 +96,11 @@ const SuggestItem = ({
 		}
 
 		if (type === ChannelType.CHANNEL_TYPE_APP) {
-			return <Icons.AppChannelIcon className={'w-5 h-5'} fill={theme} />;
+			return <Icons.AppChannelIcon className={'w-5 h-5'} />;
 		}
 
 		return null;
-	}, [specificChannel, theme]);
+	}, [specificChannel]);
 
 	useEffect(() => {
 		if (channel) {
@@ -138,8 +121,11 @@ const SuggestItem = ({
 	}, []);
 
 	return (
-		<div className={`flex flex-row items-center h-[24px] ${wrapSuggestItemStyle ?? 'justify-between'}`}>
-			<div className="flex flex-row items-center gap-2 py-[3px] text-theme-primary-hover text-theme-primary-hover">
+		<div
+			className={`flex flex-row items-center h-[24px] w-full ${wrapSuggestItemStyle ?? 'justify-between'}`}
+			data-e2e={generateE2eId('suggest_item')}
+		>
+			<div className="flex flex-row items-center gap-2 py-[3px] text-theme-primary text-theme-primary-hover">
 				{showAvatar && (
 					<div>
 						{color ? (
@@ -162,7 +148,7 @@ const SuggestItem = ({
 				{channelIcon}
 
 				{display && (
-					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`} style={{ color: color }}>
+					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`} style={{ color }}>
 						<span
 							className={`${isUnread || (count && count > 0) ? 'text-theme-primary-active font-semibold' : 'font-medium text-theme-primary '}`}
 						>
@@ -177,7 +163,10 @@ const SuggestItem = ({
 				)}
 				{checkVoiceStatus && <i className="text-[15px] font-thin text-colorDanger ">(busy)</i>}
 			</div>
-			<span className={`text-[10px] font-semibold text-theme-primary one-line ${subTextStyle}`}>
+			<span
+				className={`text-[10px] font-semibold text-theme-primary one-line ${subTextStyle}`}
+				data-e2e={generateE2eId('suggest_item.username')}
+			>
 				{getChannel?.type === ChannelType.CHANNEL_TYPE_THREAD ? (
 					<RenderChannelLabelForThread channel_id={getChannel?.parent_id as string} />
 				) : (

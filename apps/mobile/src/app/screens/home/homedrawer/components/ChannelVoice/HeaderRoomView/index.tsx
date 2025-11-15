@@ -1,16 +1,16 @@
 import { AudioSession } from '@livekit/react-native';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectChannelById2 } from '@mezon/store-mobile';
+import { getStore, selectChannelById } from '@mezon/store-mobile';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter, NativeModules, Platform, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
-import { EMessageBSToShow } from '../../../enums';
 import AudioOutputTooltip from '../../AudioOutputTooltip';
 import { ContainerMessageActionModal } from '../../MessageItemBS/ContainerMessageActionModal';
 import { style } from '../styles';
+import SendVoiceSound from './SendVoiceSound';
 import SwitchCamera from './SwitchCamera';
 const { AudioSessionModule } = NativeModules;
 
@@ -23,12 +23,11 @@ export type AudioOutput = {
 type headerProps = {
 	isShow: boolean;
 	channelId: string;
-	clanId: string;
 	onPressMinimizeRoom: () => void;
 	isGroupCall?: boolean;
 };
 
-const HeaderRoomView = memo(({ channelId, clanId, onPressMinimizeRoom, isGroupCall = false, isShow }: headerProps) => {
+const HeaderRoomView = memo(({ channelId, onPressMinimizeRoom, isGroupCall = false, isShow }: headerProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [currentAudioOutput, setCurrentAudioOutput] = useState<string>('earpiece');
@@ -125,22 +124,20 @@ const HeaderRoomView = memo(({ channelId, clanId, onPressMinimizeRoom, isGroupCa
 
 	const channelLabel = useMemo(() => {
 		const store = getStore();
-		const channel = selectChannelById2(store.getState(), channelId);
+		const channel = selectChannelById(store.getState(), channelId);
 		return channel?.channel_label || '';
 	}, [channelId]);
 
 	const handleOpenEmojiPicker = () => {
 		const data = {
-			snapPoints: ['45%', '75%'],
+			snapPoints: ['75%'],
 			children: (
 				<ContainerMessageActionModal
 					message={undefined}
 					mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
-					type={EMessageBSToShow.MessageAction}
 					senderDisplayName={''}
 					isOnlyEmojiPicker={true}
 					channelId={channelId}
-					clanId={clanId}
 				/>
 			),
 			containerStyle: { zIndex: 1001 },
@@ -151,23 +148,24 @@ const HeaderRoomView = memo(({ channelId, clanId, onPressMinimizeRoom, isGroupCa
 
 	return (
 		<View style={[styles.menuHeader, !isShow && { display: 'none' }]}>
-			<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_20, flexGrow: 1, flexShrink: 1 }}>
+			<View style={styles.headerRowLeft}>
 				{!isGroupCall && (
 					<TouchableOpacity onPress={onPressMinimizeRoom} style={styles.buttonCircle}>
-						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} />
+						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.white} />
 					</TouchableOpacity>
 				)}
-				<Text numberOfLines={1} style={[styles.text, { flexGrow: 1, flexShrink: 1 }]}>
+				<Text numberOfLines={1} style={[styles.text, styles.headerTextTitle]}>
 					{channelLabel}
 				</Text>
 			</View>
 
-			<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
+			<View style={styles.headerRowRight}>
 				{!isGroupCall && (
 					<TouchableOpacity onPress={handleOpenEmojiPicker} style={[styles.buttonCircle]}>
-						<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.white} />
+						<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_20} width={size.s_20} color={themeValue.white} />
 					</TouchableOpacity>
 				)}
+				{!isGroupCall && <SendVoiceSound channelId={channelId} />}
 				<SwitchCamera />
 				<AudioOutputTooltip
 					onSelectOutput={switchAudioOutput}

@@ -1,9 +1,9 @@
+import type { TrackReferenceOrPlaceholder } from '@livekit/components-react';
 import {
 	ConnectionStateToast,
 	isTrackReference,
 	LayoutContextProvider,
 	RoomAudioRenderer,
-	TrackReferenceOrPlaceholder,
 	useCreateLayoutContext,
 	usePinnedTracks,
 	useTracks
@@ -19,14 +19,15 @@ import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 
 interface GroupVideoConferenceProps {
 	channelLabel?: string;
-	onLeaveRoom: () => void;
+	onLeaveRoom: (userTracks: number) => void;
 	onFullScreen: () => void;
 	isExternalCalling?: boolean;
 	tracks?: TrackReferenceOrPlaceholder[];
 	isShowChatVoice?: boolean;
 	onToggleChat?: () => void;
-	currentChannel?: any;
 }
+
+const TOOLTIP_OVERLAY_STYLE = { background: 'none', boxShadow: 'none' } as const;
 
 export function GroupVideoConference({
 	channelLabel,
@@ -106,6 +107,8 @@ export function GroupVideoConference({
 	};
 
 	const userTracks = tracks.filter((track) => track.source !== 'screen_share' && track.source !== 'screen_share_audio');
+
+	const handleLeaveRoom = useCallback(() => onLeaveRoom(userTracks?.length), [userTracks?.length]);
 
 	return (
 		<div className="lk-video-conference flex-1">
@@ -200,7 +203,7 @@ export function GroupVideoConference({
 											{focusTrack ? 'Grid' : 'Focus'}
 										</span>
 									}
-									overlayInnerStyle={{ background: 'none', boxShadow: 'none' }}
+									overlayInnerStyle={TOOLTIP_OVERLAY_STYLE}
 									overlayClassName="whitespace-nowrap z-50 !p-0 !pt-4"
 									getTooltipContainer={() => document.getElementById('livekitRoom') || document.body}
 								>
@@ -226,7 +229,7 @@ export function GroupVideoConference({
 					>
 						<ControlBar
 							isExternalCalling={isExternalCalling}
-							onLeaveRoom={onLeaveRoom}
+							onLeaveRoom={handleLeaveRoom}
 							onFullScreen={onFullScreen}
 							isShowMember={isShowMember}
 						/>

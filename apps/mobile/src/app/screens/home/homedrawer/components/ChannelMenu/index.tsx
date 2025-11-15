@@ -1,28 +1,26 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { useMarkAsRead, usePermissionChecker } from '@mezon/core';
-import {
-	ActionEmitEvent,
-	ENotificationActive,
-	ENotificationChannelId
-} from '@mezon/mobile-components';
-import { Colors, baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { ActionEmitEvent, ENotificationActive, ENotificationChannelId } from '@mezon/mobile-components';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
-	channelUsersActions,
 	channelsActions,
 	fetchSystemMessageByClanId,
 	listChannelRenderAction,
 	notificationSettingActions,
 	selectAllChannelsFavorite,
 	selectClanSystemMessage,
-	selectCurrentClan,
+	selectCurrentClanId,
+	selectCurrentClanLogo,
+	selectCurrentClanName,
 	selectCurrentUserId,
 	selectNotifiSettingsEntitiesById,
 	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelThreads, EOverriddenPermission, EPermission, sleep } from '@mezon/utils';
+import type { ChannelThreads } from '@mezon/utils';
+import { EMuteState, EOverriddenPermission, EPermission, sleep } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -33,10 +31,12 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
-import { APP_SCREEN, AppStackScreenProps } from '../../../../../../app/navigation/ScreenTypes';
+import type { AppStackScreenProps } from '../../../../../../app/navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../../../../app/navigation/ScreenTypes';
 import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../componentUI/MezonMenu';
+import MezonMenu from '../../../../../componentUI/MezonMenu';
 import NotificationSetting from '../../../../../components/NotificationSetting';
 import { style } from './styles';
 
@@ -49,11 +49,12 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 	const { t } = useTranslation(['channelMenu']);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	// const { setOpenThreadMessageState } = useReference();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanLogo = useSelector(selectCurrentClanLogo);
+	const currentClanName = useSelector(selectCurrentClanName);
 	const dispatch = useAppDispatch();
-	const [isCanManageThread, isCanManageChannel] = usePermissionChecker(
-		[EOverriddenPermission.manageThread, EPermission.manageChannel],
+	const [isCanManageThread, isCanManageChannel, isAdminstrator, isClanOwner] = usePermissionChecker(
+		[EOverriddenPermission.manageThread, EPermission.manageChannel, EPermission.administrator, EPermission.clanOwner],
 		channel?.channel_id ?? ''
 	);
 	const currentSystemMessage = useSelector(selectClanSystemMessage);
@@ -61,7 +62,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 	useEffect(() => {
 		dispatch(notificationSettingActions.getNotificationSetting({ channelId: channel?.channel_id }));
 		dispatch(fetchSystemMessageByClanId({ clanId: channel?.clan_id }));
-	}, []);
+	}, [channel?.channel_id, channel?.clan_id, dispatch]);
 
 	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channel?.channel_id || ''));
 
@@ -96,7 +97,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 	}, [channel, handleMarkAsReadChannel]);
 
 	const handleCopyLink = () => {
-		Clipboard.setString(process.env.NX_CHAT_APP_REDIRECT_URI + `/chat/clans/${channel?.clan_id}/channels/${channel?.channel_id}`);
+		Clipboard.setString(`${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${channel?.clan_id}/channels/${channel?.channel_id}`);
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	};
 
@@ -132,80 +133,37 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 			onPress: () => handleCopyLink(),
 			icon: <MezonIconCDN icon={IconCDN.linkIcon} color={themeValue.textStrong} />
 		}
-		//TODO: update later
-		// {
-		// 	title: t('menu.inviteMenu.favorite'),
-		// 	onPress: () => {
-		// 		inviteRef?.current?.present();
-		// 		dismiss();
-		// 	},
-		// 	icon: <Icons.StarIcon color={themeValue.textStrong} />,
-		// },
-		// {
-		// 	title: t('menu.inviteMenu.copyLink'),
-		// 	onPress: () => {
-		// 		inviteRef?.current?.present();
-		// 		dismiss();
-		// 	},
-		// 	icon: <Icons.LinkIcon color={themeValue.textStrong} />,
-		// },
 	];
 
 	const markFavoriteChannel = () => {
-		dispatch(channelsActions.addFavoriteChannel({ channel_id: channel?.id, clan_id: currentClan?.id }));
-		dispatch(listChannelRenderAction.handleMarkFavor({ channelId: channel?.id, clanId: currentClan?.id as string, mark: true }));
+		dispatch(channelsActions.addFavoriteChannel({ channel_id: channel?.id, clan_id: currentClanId }));
+		dispatch(listChannelRenderAction.handleMarkFavor({ channelId: channel?.id, clanId: currentClanId as string, mark: true }));
 	};
 
 	const removeFavoriteChannel = () => {
-		dispatch(channelsActions.removeFavoriteChannel({ channelId: channel?.id, clanId: currentClan?.id || '' }));
-		dispatch(listChannelRenderAction.handleMarkFavor({ channelId: channel?.id, clanId: currentClan?.id as string, mark: false }));
+		dispatch(channelsActions.removeFavoriteChannel({ channelId: channel?.id, clanId: currentClanId || '' }));
+		dispatch(listChannelRenderAction.handleMarkFavor({ channelId: channel?.id, clanId: currentClanId as string, mark: false }));
 	};
 
-	const muteOrUnMuteChannel = (active: ENotificationActive) => {
-		const body = {
-			channel_id: channel?.channel_id || '',
-			notification_type: getNotificationChannelSelected?.notification_setting_type || 0,
-			clan_id: currentClan?.clan_id || '',
-			active
-		};
-		dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-	};
-
-	const handleConfirmLeaveChannel = useCallback(async () => {
+	const handleUnmuteChannel = async () => {
 		try {
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-			dispatch(appActions.setLoadingMainMobile(true));
 			const body = {
-				channelId: channel.id,
-				userId: currentUserId,
-				channelType: channel.type,
-				clanId: channel.clan_id
+				channel_id: channel?.channel_id || '',
+				clan_id: currentClanId || '',
+				active: EMuteState.UN_MUTE,
+				mute_time: 0
 			};
-			const response = await dispatch(channelUsersActions.removeChannelUsers(body));
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
 			if (response?.meta?.requestStatus === 'rejected') {
 				throw new Error(response?.meta?.requestStatus);
 			}
-			navigation.navigate(APP_SCREEN.HOME);
 		} catch (error) {
-			Toast.show({ type: 'error', text1: t('modalConFirmLeaveChannel.error', { error }) });
-		} finally {
-			dispatch(appActions.setLoadingMainMobile(false));
+			console.error('Error setting unmute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('menu.notification.muteError')
+			});
 		}
-	}, [channel?.channel_private, channel?.clan_id, channel?.id, channel?.type, currentUserId]);
-
-	const handlePressLeaveChannel = () => {
-		const data = {
-			children: (
-				<MezonConfirm
-					onConfirm={handleConfirmLeaveChannel}
-					title={t('modalConFirmLeaveChannel.title')}
-					confirmText={t('modalConFirmLeaveChannel.yesButton')}
-					content={t('modalConFirmLeaveChannel.textConfirm')}
-				/>
-			)
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 	};
 
 	const notificationMenu: IMezonMenuItemProps[] = [
@@ -215,7 +173,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				: `${isChannelUnmute ? t('menu.notification.muteThread') : t('menu.notification.unMuteThread')}`,
 			onPress: () => {
 				if (!isChannelUnmute) {
-					muteOrUnMuteChannel(ENotificationActive.ON);
+					handleUnmuteChannel();
 				} else {
 					navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
 						screen: APP_SCREEN.MENU_THREAD.MUTE_THREAD_DETAIL_CHANNEL,
@@ -276,15 +234,9 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 			icon: <MezonIconCDN icon={IconCDN.settingIcon} color={themeValue.textStrong} />,
 			isShow: isCanManageChannel
 		},
-		// {
-		// 	title: t('menu.organizationMenu.duplicateChannel'),
-		// 	onPress: () => reserve(),
-		// 	icon: <Icons.CopyIcon color={themeValue.textStrong} />,
-		// 	isShow: isCanManageChannel
-		// },
 		{
 			title: t('menu.organizationMenu.deleteChannel'),
-			icon: <MezonIconCDN icon={IconCDN.closeSmallBold} color={Colors.textRed} />,
+			icon: <MezonIconCDN icon={IconCDN.closeSmallBold} color={baseColor.redStrong} />,
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				await sleep(500);
@@ -301,25 +253,16 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			},
 			textStyle: {
-				color: Colors.textRed
+				color: baseColor.redStrong
 			},
 			isShow: isCanManageChannel
-		},
-		{
-			title: t('menu.organizationMenu.leaveChannel'),
-			icon: <MezonIconCDN icon={IconCDN.leaveGroupIcon} color={Colors.textRed} />,
-			onPress: handlePressLeaveChannel,
-			textStyle: {
-				color: Colors.textRed
-			},
-			isShow: channel?.creator_id !== currentUserId && channel?.channel_private === 1
 		}
 	];
 
 	const manageThreadMenu: IMezonMenuItemProps[] = [
 		{
 			title: t('menu.manageThreadMenu.leaveThread'),
-			icon: <MezonIconCDN icon={IconCDN.leaveGroupIcon} color={Colors.textRed} />,
+			icon: <MezonIconCDN icon={IconCDN.leaveGroupIcon} color={baseColor.redStrong} />,
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				await sleep(500);
@@ -336,22 +279,10 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			},
 			textStyle: {
-				color: Colors.textRed
+				color: baseColor.redStrong
 			},
 			isShow: channel?.creator_id !== currentUserId
 		},
-		// {
-		// 	title: t('menu.manageThreadMenu.closeThread'),
-		// 	icon: <MezonIconCDN icon={IconCDN.closeSmallBold} color={themeValue.textStrong} />,
-		// 	onPress: () => reserve(),
-		// 	isShow: isCanManageThread
-		// },
-		// {
-		// 	title: t('menu.manageThreadMenu.lockThread'),
-		// 	icon: <MezonIconCDN icon={IconCDN.lockIcon} color={themeValue.textStrong} />,
-		// 	onPress: () => reserve(),
-		// 	isShow: isCanManageThread
-		// },
 		{
 			title: t('menu.manageThreadMenu.editThread'),
 			icon: <MezonIconCDN icon={IconCDN.pencilIcon} color={themeValue.textStrong} />,
@@ -364,11 +295,11 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 					}
 				});
 			},
-			isShow: channel?.creator_id === currentUserId || isCanManageThread
+			isShow: (channel?.creator_id === currentUserId && isCanManageThread) || isAdminstrator || isClanOwner
 		},
 		{
 			title: t('menu.manageThreadMenu.deleteThread'),
-			icon: <MezonIconCDN icon={IconCDN.trashIcon} color={Colors.textRed} />,
+			icon: <MezonIconCDN icon={IconCDN.trashIcon} color={baseColor.redStrong} />,
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				await sleep(500);
@@ -385,16 +316,10 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 			},
 			textStyle: {
-				color: Colors.textRed
+				color: baseColor.redStrong
 			},
-			isShow: channel?.creator_id === currentUserId || isCanManageThread
+			isShow: (channel?.creator_id === currentUserId && isCanManageThread) || isAdminstrator || isClanOwner
 		}
-		// {
-		// 	title: t('menu.manageThreadMenu.copyLink'),
-		// 	icon: <Icons.LinkIcon color={themeValue.textStrong} />,
-		// 	onPress: () => reserve(),
-		// 	isShow: isCanManageThread
-		// }
 	];
 
 	const mainChannelMenu: IMezonMenuSectionProps[] = [
@@ -438,7 +363,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 					channelsActions.deleteChannel({ channelId: channel?.channel_id || '', clanId: channel?.clan_id || '' })
 				);
 				if (response?.meta?.requestStatus === 'rejected') {
-					throw response?.error?.message;
+					Toast.show({ type: 'error', text1: response?.error?.message });
 				}
 			}
 		} catch (error) {
@@ -451,25 +376,26 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 	const handleConfirmLeaveThread = useCallback(async () => {
 		await dispatch(
 			threadsActions.leaveThread({
-				clanId: currentClan?.id || '',
+				clanId: currentClanId || '',
 				channelId: channel?.parent_id || '',
 				threadId: channel?.id || '',
 				isPrivate: channel.channel_private || 0
 			})
 		);
+		dispatch(channelsActions.setCurrentChannelId({ clanId: currentClanId || '', channelId: '' }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	}, [channel?.channel_private, channel?.id, channel?.parent_id, currentClan?.id, dispatch]);
+	}, [channel?.channel_private, channel?.id, channel?.parent_id, currentClanId, dispatch]);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
 				<View style={styles.avatarWrapper}>
-					<MezonClanAvatar alt={currentClan?.clan_name} image={currentClan?.logo} defaultColor={baseColor.blurple} />
+					<MezonClanAvatar alt={currentClanName} image={currentClanLogo} defaultColor={baseColor.blurple} />
 				</View>
 				<Text style={styles.serverName}>{channel?.channel_label}</Text>
 			</View>
 
-			<View style={{ flex: 1 }}>
+			<View style={styles.flexOne}>
 				<MezonMenu menu={isChannel ? mainChannelMenu : mainThreadMenu} />
 			</View>
 		</View>

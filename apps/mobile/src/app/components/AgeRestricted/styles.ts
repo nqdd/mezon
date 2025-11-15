@@ -35,12 +35,46 @@ export const style = (colors: Attributes) =>
 		},
 		btnText: {
 			fontSize: size.s_16,
-			color: colors.text,
+			color: 'white',
 			textAlign: 'center',
 			fontWeight: 'bold'
 		},
 		datePicker: {
 			backgroundColor: colors.secondaryLight,
 			marginVertical: size.s_20
+		},
+		container: {
+			backgroundColor: colors.secondary,
+			borderRadius: size.s_10,
+			padding: size.s_20
+		},
+		iconContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center'
+		},
+		buttonContainer: {
+			marginTop: size.s_20,
+			flexDirection: 'row',
+			justifyContent: 'center',
+			gap: size.s_30
+		},
+		formContainer: {
+			backgroundColor: colors.primary,
+			borderRadius: size.s_10,
+			padding: size.s_20,
+			margin: size.s_10
+		},
+		modalOverlay: {
+			flex: 1,
+			position: 'absolute',
+			width: '100%',
+			height: '100%',
+			zIndex: 99,
+			top: 0,
+			left: 0,
+			justifyContent: 'center',
+			alignItems: 'center',
+			backgroundColor: colors.secondary
 		}
 	});

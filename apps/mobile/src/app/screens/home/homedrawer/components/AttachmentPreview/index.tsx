@@ -1,8 +1,10 @@
-import { PlayIcon } from '@mezon/mobile-components';
-import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import React, { memo } from 'react';
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, TouchableOpacity, View } from 'react-native';
+import FastImage from 'react-native-fast-image';
+import { ScrollView } from 'react-native-gesture-handler';
+import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import AttachmentFilePreview from '../AttachmentFilePreview';
@@ -24,7 +26,7 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 		dispatch(
 			referencesActions.removeAttachment({
 				channelId: channelId || '',
-				index: index
+				index
 			})
 		);
 	};
@@ -34,37 +36,51 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 	}
 
 	return (
-		<ScrollView
-			horizontal
-			style={styles.container}
-			showsHorizontalScrollIndicator={false}
-			contentContainerStyle={{ paddingRight: verticalScale(20) }}
-		>
-			{attachmentFilteredByChannelId.files.map((attachment, index) => {
-				const isFile = !attachment?.filetype?.includes?.('video') && !attachment?.filetype?.includes?.('image');
-				const isVideo = attachment?.filetype?.includes?.('video');
+		<View style={styles.container}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={styles.gradientBackground}
+			/>
+			<ScrollView
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				nestedScrollEnabled={true}
+				scrollEventThrottle={16}
+				bounces={false}
+				alwaysBounceHorizontal={false}
+				contentContainerStyle={styles.scrollViewContent}
+				style={styles.scrollViewContainer}
+			>
+				{attachmentFilteredByChannelId.files.map((attachment, index) => {
+					const isFile = !attachment?.filetype?.includes?.('video') && !attachment?.filetype?.includes?.('image');
+					const isVideo = attachment?.filetype?.includes?.('video');
+					const isGifIOS = attachment?.filetype?.includes('gif') && Platform.OS === 'ios';
+					return (
+						<View key={`${index}_${attachment.filename}`} style={styles.attachmentItem}>
+							{isFile ? (
+								<AttachmentFilePreview attachment={attachment} />
+							) : isGifIOS ? (
+								<FastImage source={{ uri: attachment?.url }} style={styles.attachmentItemImage} />
+							) : (
+								<Image source={{ uri: attachment?.thumbnail ?? attachment?.url }} style={styles.attachmentItemImage} />
+							)}
 
-				return (
-					<View key={index + attachment.filename} style={styles.attachmentItem}>
-						{isFile ? (
-							<AttachmentFilePreview attachment={attachment} />
-						) : (
-							<Image source={{ uri: attachment.url }} style={styles.attachmentItemImage} />
-						)}
+							<TouchableOpacity style={styles.iconClose} activeOpacity={0.8} onPress={() => handleRemoveAttachment(index)}>
+								<MezonIconCDN icon={IconCDN.closeSmallBold} width={size.s_18} height={size.s_18} color={baseColor.white} />
+							</TouchableOpacity>
 
-						<TouchableOpacity style={styles.iconClose} activeOpacity={0.8} onPress={() => handleRemoveAttachment(index)}>
-							<MezonIconCDN icon={IconCDN.closeSmallBold} width={size.s_18} height={size.s_18} color={baseColor.white} />
-						</TouchableOpacity>
-
-						{isVideo && (
-							<View style={styles.videoOverlay}>
-								<PlayIcon width={size.s_20} height={size.s_20} />
-							</View>
-						)}
-					</View>
-				);
-			})}
-		</ScrollView>
+							{isVideo && (
+								<View style={styles.videoOverlay}>
+									<MezonIconCDN icon={IconCDN.playIcon} width={size.s_20} height={size.s_20} />
+								</View>
+							)}
+						</View>
+					);
+				})}
+			</ScrollView>
+		</View>
 	);
 });
 

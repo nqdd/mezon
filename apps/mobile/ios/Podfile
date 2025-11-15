@@ -55,8 +55,11 @@ target 'Mobile' do
 
   pod 'FirebaseCore', :modular_headers => true
   pod 'Firebase/Analytics', :modular_headers => true
+  pod 'Firebase/Messaging', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
   pod 'SDWebImage', :modular_headers => true
+  pod 'SDWebImageWebPCoder', :modular_headers => true
+  pod 'MobileVLCKit', :modular_headers => true
   pod 'RNFS', :path => '../node_modules/react-native-fs'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   pod 'RNCallKeep', :path => '../node_modules/react-native-callkeep'

@@ -1,25 +1,33 @@
-import { Attributes, baseColor, Fonts, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			backgroundColor: colors.primary,
-			paddingVertical: size.s_16
+			backgroundColor: colors.primary
+		},
+		header: {
+			marginHorizontal: size.s_20,
+			paddingBottom: size.s_20
 		},
 		text: {
-			color: colors.textStrong,
-			marginHorizontal: size.s_16
+			color: colors.textStrong
 		},
 		textTitle: {
-			fontSize: Fonts.size.h7,
-			textTransform: 'uppercase',
-			color: colors.textStrong,
+			fontSize: size.s_14,
 			fontWeight: 'bold',
+			textTransform: 'uppercase',
+			color: colors.borderRadio,
 			marginTop: size.s_6,
-			marginBottom: size.s_4,
-			marginHorizontal: size.s_16
+			marginBottom: size.s_4
+		},
+		textDescription: {
+			marginLeft: size.s_10,
+			lineHeight: size.s_16,
+			fontSize: size.s_12,
+			color: colors.borderRadio
 		},
 		btn: {
 			marginBottom: size.s_20,
@@ -30,7 +38,6 @@ export const style = (colors: Attributes) =>
 			color: baseColor.white
 		},
 		addButton: {
-			marginHorizontal: size.s_16,
 			height: size.s_30,
 			backgroundColor: baseColor.blurple,
 			alignItems: 'center',
@@ -42,5 +49,5 @@ export const style = (colors: Attributes) =>
 			fontSize: size.s_14,
 			color: baseColor.white,
 			fontWeight: '500'
-		},
+		}
 	});

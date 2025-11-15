@@ -14,12 +14,12 @@ type AuditLogItemProps = {
 //
 export const AuditLogItem = memo(({ data }: AuditLogItemProps) => {
 	const auditLogTime = convertTimeString(data?.time_log as string);
-	const userAuditLogItem = useAppSelector(selectMemberClanByUserId(data?.user_id ?? ''));
+	const userAuditLogItem = useAppSelector((state) => selectMemberClanByUserId(state, data?.user_id ?? ''));
 	const username = userAuditLogItem?.user?.username;
 	const avatar = getAvatarForPrioritize(userAuditLogItem?.clan_avatar, userAuditLogItem?.user?.avatar_url);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const userMention = useAppSelector(selectMemberClanByUserId(data?.entity_id ?? ''));
+	const userMention = useAppSelector((state) => selectMemberClanByUserId(state, data?.entity_id ?? ''));
 	const usernameMention = userMention?.user?.username;
 	const channel = useAppSelector((state) => selectChannelById(state, data?.channel_id || ''));
 	const { t } = useTranslation('auditLog');
@@ -38,21 +38,9 @@ export const AuditLogItem = memo(({ data }: AuditLogItemProps) => {
 			: '';
 
 	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				padding: size.s_10,
-				backgroundColor: themeValue.secondary,
-				borderRadius: size.s_10,
-				gap: size.s_10,
-				alignItems: 'center',
-				borderWidth: 1,
-				borderColor: themeValue.tertiary,
-				marginVertical: size.s_6
-			}}
-		>
+		<View style={styles.itemContainer}>
 			<MezonAvatar avatarUrl={avatar} username={username} height={size.s_36} width={size.s_36} />
-			<View style={{ flex: 1 }}>
+			<View style={styles.itemContent}>
 				<View>
 					{isChannelAction && data?.channel_id !== '0' ? (
 						<Text style={styles.actionText}>

@@ -1,24 +1,24 @@
 import { useAuth, usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { EventManagementEntity } from '@mezon/store-mobile';
 import {
-	EventManagementEntity,
 	addUserEvent,
 	deleteUserEvent,
 	selectClanById,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectUserMaxPermissionLevel,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
 import { EEventStatus, EPermission, sleep } from '@mezon/utils';
-import { ApiUserEventRequest } from 'mezon-js/api.gen';
+import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
-import MezonButton from '../../../componentUI/MezonButton2';
+import MezonButton from '../../../componentUI/MezonButton';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import ImageNative from '../../ImageNative';
@@ -36,8 +36,8 @@ interface IEventDetailProps {
 export function EventDetail({ event }: IEventDetailProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['eventMenu']);
-	const userCreate = useAppSelector((state) => selectMemberClanByUserId2(state, event?.creator_id || ''));
+	const { t } = useTranslation(['eventMenu', 'eventCreator']);
+	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const clans = useSelector(selectClanById(event?.clan_id || ''));
 	const { userId, userProfile } = useAuth();
 	const [isInterested, setIsInterested] = useState<boolean>(false);
@@ -111,7 +111,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{!!event?.channel_id && event.channel_id !== '0' && !event?.is_private && (
 				<View style={styles.privateArea}>
 					<View style={[styles.privatePanel, { backgroundColor: baseColor.orange }]}>
-						<Text style={styles.privateText}>Channel Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.channelEvent')}</Text>
 					</View>
 				</View>
 			)}
@@ -119,7 +119,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{event?.is_private && (
 				<View style={styles.privateArea}>
 					<View style={styles.privatePanel}>
-						<Text style={styles.privateText}>Private Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.privateEvent')}</Text>
 					</View>
 				</View>
 			)}
@@ -127,7 +127,7 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{!event?.is_private && !event?.channel_id && (
 				<View style={styles.privateArea}>
 					<View style={[styles.privatePanel, { backgroundColor: baseColor.blurple }]}>
-						<Text style={styles.privateText}>Clan Event</Text>
+						<Text style={styles.privateText}>{t('eventCreator:eventDetail.clanEvent')}</Text>
 					</View>
 				</View>
 			)}
@@ -144,14 +144,15 @@ export function EventDetail({ event }: IEventDetailProps) {
 
 					<View style={styles.inline}>
 						<MezonIconCDN icon={IconCDN.bellIcon} height={16} width={16} color={themeValue.text} />
-						<Text style={styles.smallText}>{eventInterested}</Text>
-						<Text style={styles.smallText}>{eventInterested > 1 ? 'people are interested' : 'person is interested'}</Text>
+						<Text style={styles.smallText}>{t('detail.personInterested', { count: eventInterested })}</Text>
 					</View>
 
 					<View style={styles.inline}>
 						<MezonAvatar avatarUrl={userCreate?.user?.avatar_url} username={userCreate?.user?.username} height={20} width={20} />
-						<Text style={styles.smallText}>Created by</Text>
-						<Text style={[styles.smallText, styles.highlight]}>{userCreate?.user?.username}</Text>
+						<Text style={styles.smallText}>
+							{t('detail.createdBy')}
+							<Text style={styles.highlight}>{userCreate?.user?.username}</Text>
+						</Text>
 					</View>
 				</View>
 			</View>
@@ -159,7 +160,6 @@ export function EventDetail({ event }: IEventDetailProps) {
 			{event.description && <Text style={styles.description}>{event.description}</Text>}
 
 			<View style={styles.inline}>
-				{/* <MezonButton title="End event" fluid /> */}
 				<MezonButton
 					icon={
 						isInterested ? (
@@ -173,7 +173,6 @@ export function EventDetail({ event }: IEventDetailProps) {
 					border
 					onPress={handleToggleUserEvent}
 				/>
-				{/* <MezonButton title="Start event" fluid type="success" /> */}
 				{!event?.address && (
 					<MezonButton
 						onPress={handleShareEvent}

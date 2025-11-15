@@ -1,20 +1,24 @@
 import { EMuteState } from '@mezon/utils';
 import { useCallback } from 'react';
-import { DirectMessageContextMenuHandlers } from './types';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import type { DirectMessageContextMenuHandlers } from './types';
 
 interface UseDefaultHandlersParams {
 	openUserProfile: () => void;
 	handleDirectMessageWithUser: (user?: any) => Promise<void>;
-	addFriend: (params: { usernames: string[]; ids: string[] }) => void;
+	addFriend: (params: { usernames?: string[]; ids?: string[] }) => void;
 	deleteFriend: (username: string, userId: string) => void;
 	handleMarkAsRead: (channelId: string) => void;
-	handleScheduleMute: (channelId: string, channelType: number, duration: number) => void;
-	muteOrUnMuteChannel: (channelId: string, active: number) => void;
+	handleScheduleMute: (channelId: string, duration: number) => void;
+	muteOrUnMuteChannel: (channelId: string, active: number, channelType?: number) => void;
 	handleEnableE2ee: (directId?: string, e2ee?: number) => Promise<void>;
 	handleRemoveMemberFromGroup: (userId: string, channelId: string) => Promise<void>;
 	handleLeaveDmGroup: (channelId: string, isLastOne: boolean) => Promise<void>;
 	blockFriend: (username: string, userId: string) => Promise<boolean>;
 	unBlockFriend: (username: string, userId: string) => Promise<boolean>;
+	openEditGroupModal?: () => void;
+	openLeaveGroupModal?: () => void;
 }
 
 export function useDefaultHandlers({
@@ -29,10 +33,13 @@ export function useDefaultHandlers({
 	handleRemoveMemberFromGroup,
 	handleLeaveDmGroup,
 	blockFriend,
-	unBlockFriend
+	unBlockFriend,
+	openEditGroupModal,
+	openLeaveGroupModal
 }: UseDefaultHandlersParams) {
+	const { t } = useTranslation('friendsPage');
 	const createDefaultHandlers = useCallback(
-		(user?: any): DirectMessageContextMenuHandlers => {
+		(channelId: string, user?: any): DirectMessageContextMenuHandlers => {
 			return {
 				handleViewProfile: () => {
 					if (user) {
@@ -47,28 +54,33 @@ export function useDefaultHandlers({
 				handleAddFriend: () => {
 					if (!user) return;
 
-					addFriend({ usernames: [user.usernames[0]], ids: [user.user_id[0]] });
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+
+					addFriend(ids.length > 0 ? { ids } : { usernames });
 				},
 				handleRemoveFriend: () => {
 					if (!user) return;
-					deleteFriend(user.usernames[0], user.user_id[0]);
+
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+
+					deleteFriend(usernames[0], ids[0]);
 				},
 				handleMarkAsRead: () => {
-					const channelId = (user as any)?.channelId || (user as any)?.channel_id;
 					if (channelId) {
 						handleMarkAsRead(channelId);
 					}
 				},
-				handleMute: (duration = Infinity) => {
-					const channelId = user?.channelId || user?.channel_id;
-					handleScheduleMute(channelId, user?.type, duration);
+				handleMute: (duration = 0) => {
+					handleScheduleMute(channelId, duration);
 				},
 				handleUnmute: () => {
-					const channelId = user?.channelId || user?.channel_id;
-					muteOrUnMuteChannel(channelId, EMuteState.UN_MUTE);
+					muteOrUnMuteChannel(channelId, EMuteState.UN_MUTE, user?.type);
 				},
 				handleEnableE2EE: () => {
-					const channelId = user?.channelId || user?.channel_id;
 					const e2ee = user?.e2ee;
 					if (channelId) {
 						handleEnableE2ee(channelId, e2ee);
@@ -76,21 +88,45 @@ export function useDefaultHandlers({
 				},
 				handleRemoveFromGroup: () => {
 					const userId = user?.id;
-					const channelId = user?.channelId || user.channel_id;
 					if (userId && channelId) {
 						handleRemoveMemberFromGroup(userId, channelId);
 					}
 				},
 				handleLeaveGroup: () => {
-					const channelId = user?.channelId || user.channel_id;
-					const isLastOne = (user?.user_id?.length || 0) < 1;
-					handleLeaveDmGroup(channelId, isLastOne);
+					if (openLeaveGroupModal) {
+						openLeaveGroupModal();
+					}
 				},
 				handleBlockFriend: async () => {
-					await blockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+					try {
+						const isBlocked = await blockFriend(usernames[0], ids[0]);
+						if (isBlocked) {
+							toast.success(t('toast.userBlockedSuccess'));
+						}
+					} catch (error) {
+						toast.error(t('toast.userBlockedFailed'));
+					}
 				},
 				handleUnblockFriend: async () => {
-					await unBlockFriend(user?.usernames?.[0], user?.user_id?.[0]);
+					const usernames = user?.usernames || (user?.user ? [user.user.username] : []);
+					const ids = user?.user_ids || (user?.user ? [user.user.id] : []);
+					if (usernames.length === 0 || ids.length === 0) return;
+					try {
+						const isUnblocked = await unBlockFriend(usernames[0], ids[0]);
+						if (isUnblocked) {
+							toast.success(t('toast.userUnblockedSuccess'));
+						}
+					} catch (error) {
+						toast.error(t('toast.userUnblockedFailed'));
+					}
+				},
+				handleEditGroup: () => {
+					if (openEditGroupModal) {
+						openEditGroupModal();
+					}
 				}
 			};
 		},
@@ -104,9 +140,11 @@ export function useDefaultHandlers({
 			muteOrUnMuteChannel,
 			handleEnableE2ee,
 			handleRemoveMemberFromGroup,
-			handleLeaveDmGroup,
+			openLeaveGroupModal,
 			blockFriend,
-			unBlockFriend
+			t,
+			unBlockFriend,
+			openEditGroupModal
 		]
 	);
 

@@ -8,25 +8,29 @@ export const style = (colors: Attributes) =>
 			paddingRight: size.s_10,
 			marginVertical: size.s_4,
 			borderRadius: size.s_8,
-			backgroundColor: colors.primary,
+			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_16,
 			gap: size.s_8,
 			flexDirection: 'row',
 			alignItems: 'center'
 		},
+		content: {
+			flex: 1
+		},
 		fileName: {
 			color: colors.textStrong,
 			maxWidth: '90%'
 		},
 		footer: {
+			flex: 1,
 			flexDirection: 'row',
-			gap: size.s_10
+			gap: size.s_10,
+			justifyContent: 'space-between'
 		},
 		footerTitle: {
 			color: colors.text,
-			fontSize: size.small,
-			maxWidth: '70%'
+			fontSize: size.small
 		},
 		footerTime: {
 			color: colors.textDisabled,

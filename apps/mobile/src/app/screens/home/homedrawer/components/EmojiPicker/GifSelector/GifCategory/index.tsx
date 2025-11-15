@@ -1,5 +1,5 @@
 import { useGifs, useGifsStickersEmoji } from '@mezon/core';
-import { Colors } from '@mezon/mobile-ui';
+import { baseColor } from '@mezon/mobile-ui';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import FastImage from 'react-native-fast-image';
@@ -21,7 +21,7 @@ export default function GifCategory({ loading, data }: GifCategoryProps) {
 	if (loading) {
 		return (
 			<View style={styles.containerLoading}>
-				<Flow color={Colors.bgViolet} />
+				<Flow color={baseColor.purple} />
 			</View>
 		);
 	}
@@ -31,7 +31,7 @@ export default function GifCategory({ loading, data }: GifCategoryProps) {
 			{!!data?.length &&
 				data?.map?.((item, index) => (
 					<TouchableOpacity onPress={() => handlePressCategory(item.searchterm)} style={styles.content} key={index.toString()}>
-						<FastImage source={{ uri: item.image }} style={{ height: '100%', width: '100%' }} />
+						<FastImage source={{ uri: item.image }} style={styles.fastImage} />
 						<View style={styles.textWrapper}>
 							<Text style={styles.textTitle}>{item.name}</Text>
 						</View>

@@ -1,7 +1,7 @@
 import { isEqual } from '@mezon/mobile-components';
-import { createImgproxyUrl } from '@mezon/utils';
 import React, { memo, useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
+import { styles } from './styles';
 
 function computeInputOutputRanges(frames) {
 	if (!frames || frames.length === 0) return { base: 0, inputRangeX: [0], outputRangeX: [0] };
@@ -99,30 +99,24 @@ const SpriteAnimationComponent = ({
 
 	if (!repeat) {
 		return (
-			<View
-				style={{
-					overflow: 'hidden',
-					width: frameWidth,
-					height: frameHeight,
-					backgroundColor: 'transparent'
-				}}
-				removeClippedSubviews={true}
-			>
+			<View style={[styles.frameContainer, { width: frameWidth, height: frameHeight }]} removeClippedSubviews={true}>
 				{frames?.map((frame, i) => (
 					<Animated.Image
 						key={`frame-${i}`}
 						source={{ uri: spriteUrl }}
-						style={{
-							position: 'absolute',
-							width: spriteWidth,
-							height: spriteHeight,
-							transform: [{ translateX: -frame.x }, { translateY: -frame.y }],
-							opacity: animation.interpolate({
-								inputRange: [i - 0.8, i, i + 0.8],
-								outputRange: [0, 2, 0],
-								extrapolate: 'clamp'
-							})
-						}}
+						style={[
+							styles.absoluteImage,
+							{
+								width: spriteWidth,
+								height: spriteHeight,
+								transform: [{ translateX: -frame.x }, { translateY: -frame.y }],
+								opacity: animation.interpolate({
+									inputRange: [i - 0.8, i, i + 0.8],
+									outputRange: [0, 2, 0],
+									extrapolate: 'clamp'
+								})
+							}
+						]}
 					/>
 				))}
 			</View>
@@ -130,13 +124,13 @@ const SpriteAnimationComponent = ({
 	}
 
 	return (
-		<View style={{ overflow: 'hidden', width: frameWidth, height: frameHeight }}>
+		<View style={[styles.simpleFrameContainer, { width: frameWidth, height: frameHeight }]}>
 			<Animated.Image
 				source={{ uri: spriteUrl }}
 				style={{
 					width: spriteWidth,
 					height: spriteHeight,
-					transform: [{ translateX: translateX }, { translateY: translateY }]
+					transform: [{ translateX }, { translateY }]
 				}}
 			/>
 		</View>

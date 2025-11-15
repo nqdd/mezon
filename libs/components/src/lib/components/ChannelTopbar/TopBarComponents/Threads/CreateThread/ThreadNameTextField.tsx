@@ -1,6 +1,7 @@
 import { selectNameThreadError, threadsActions, useAppDispatch } from '@mezon/store';
-import { ValidateSpecialCharacters, threadError } from '@mezon/utils';
+import { ValidateSpecialCharacters, generateE2eId, threadError } from '@mezon/utils';
 import { KeyboardEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface ThreadNameTextFieldProps {
@@ -13,7 +14,8 @@ interface ThreadNameTextFieldProps {
 	className?: string;
 }
 
-const ThreadNameTextField = ({ label, error, placeholder, value, className, onChange, onKeyDown }: ThreadNameTextFieldProps) => {
+const ThreadNameTextField = ({ label, placeholder, value, className, onChange, onKeyDown }: ThreadNameTextFieldProps) => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const nameThreadError = useSelector(selectNameThreadError);
 	const [checkValidate, setCheckValidate] = useState(false);
@@ -44,16 +46,15 @@ const ThreadNameTextField = ({ label, error, placeholder, value, className, onCh
 				value={value}
 				onChange={handleInputChange}
 				type="text"
-				placeholder={placeholder}
+				placeholder={t('createThread.placeholder.threadName')}
 				className={className}
 				onKeyDown={handleKeyDown}
 				maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
+				data-e2e={generateE2eId('chat.channel_message.thread_box.input.thread_name')}
 			/>
-			{nameThreadError && <span className="text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
-			{checkValidate && (
-				<span className="text-[#e44141] text-xs italic font-thin">
-					Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).
-				</span>
+			{nameThreadError && <span className="mt-1 text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
+			{checkValidate && value.length > 0 && (
+				<span className="mt-1 text-[#e44141] text-xs italic font-thin">{t('createThread.validation.invalidChannelName')}</span>
 			)}
 		</div>
 	);

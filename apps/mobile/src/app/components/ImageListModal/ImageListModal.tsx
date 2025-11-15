@@ -1,18 +1,22 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { Colors, size, Text } from '@mezon/mobile-ui';
-import { AttachmentEntity, selectAllListAttachmentByChannel } from '@mezon/store-mobile';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { AttachmentEntity, selectAllListAttachmentByChannel, sleep } from '@mezon/store-mobile';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, useWindowDimensions, View } from 'react-native';
+import { DeviceEventEmitter, Dimensions, Text, View, useWindowDimensions } from 'react-native';
 import GalleryAwesome, { GalleryRef, RenderItemInfo } from 'react-native-awesome-gallery';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
+import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../constants/icon_cdn';
 import LoadingModal from '../LoadingModal/LoadingModal';
 import { ItemImageModal } from './ItemImageModal';
 import { RenderFooterModal } from './RenderFooterModal';
 import { RenderHeaderModal } from './RenderHeaderModal';
+import { style as stylesFn } from './styles';
 
 interface IImageListModalProps {
 	imageSelected?: AttachmentEntity;
@@ -30,15 +34,17 @@ const TIME_TO_SHOW_SAVE_IMAGE_SUCCESS = 3000;
 export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const { width, height } = useWindowDimensions();
 	const { imageSelected, channelId } = props;
-	const { t } = useTranslation('common');
-	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(null);
+	const { t } = useTranslation(['common', 'message']);
+	const { themeValue } = useTheme();
+	const styles = stylesFn(themeValue);
+	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(imageSelected);
 	const [visibleToolbarConfig, setVisibleToolbarConfig] = useState<IVisibleToolbarConfig>({ showHeader: true, showFooter: false });
-	const [currentScale, setCurrentScale] = useState(1);
 	const [showSavedImage, setShowSavedImage] = useState(false);
 	const [isLoadingSaveImage, setIsLoadingSaveImage] = useState(false);
 	const attachments = useSelector((state) => selectAllListAttachmentByChannel(state, channelId));
 	const ref = useRef<GalleryRef>(null);
 	const footerTimeoutRef = useRef<NodeJS.Timeout>(null);
+	const currentScaleRef = useRef<number>(1);
 	const imageSavedTimeoutRef = useRef<NodeJS.Timeout>(null);
 
 	const initialIndex = useMemo(() => {
@@ -63,9 +69,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				: [];
 	}, [attachments, imageSelected]);
 
-	const onClose = () => {
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	};
+	const onClose = useCallback(() => {
+		if (Math.floor(currentScaleRef?.current) === 1) DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+	}, []);
 
 	const updateToolbarConfig = useCallback(
 		(newValue: Partial<IVisibleToolbarConfig>) => {
@@ -74,12 +80,28 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		[visibleToolbarConfig]
 	);
 
-	const onIndexChange = useCallback((newIndex: number) => {
-		if (formattedImageList[newIndex]?.id !== currentImage?.id) {
-			setCurrentImage(formattedImageList[newIndex]);
-			ref.current?.reset();
+	useEffect(() => {
+		if (currentImage?.url && formattedImageList?.length > 0) {
+			try {
+				const newIndex = formattedImageList?.findIndex((item) => item?.url === currentImage.url);
+				if (newIndex !== -1) {
+					ref.current?.setIndex(newIndex);
+				}
+			} catch (error) {
+				console.error('Error finding image index:', error);
+			}
 		}
-	}, []);
+	}, [currentImage?.url, formattedImageList]);
+
+	const onIndexChange = useCallback(
+		(newIndex: number) => {
+			if (formattedImageList?.[newIndex]?.id !== currentImage?.id) {
+				setCurrentImage(formattedImageList[newIndex]);
+				ref.current?.reset();
+			}
+		},
+		[currentImage, formattedImageList]
+	);
 
 	const setTimeoutHideFooter = useCallback(() => {
 		footerTimeoutRef.current = setTimeout(() => {
@@ -89,39 +111,42 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		}, TIME_TO_HIDE_THUMBNAIL);
 	}, [updateToolbarConfig]);
 
-	const onTap = () => {
+	const onTap = useCallback(() => {
 		updateToolbarConfig({
 			showHeader: !visibleToolbarConfig.showHeader,
 			showFooter: !visibleToolbarConfig.showHeader
 		});
-	};
+	}, [updateToolbarConfig, visibleToolbarConfig?.showHeader]);
 
 	const clearTimeoutFooter = () => {
 		footerTimeoutRef.current && clearTimeout(footerTimeoutRef.current);
 	};
 
-	const onPanStart = () => {
+	const onPanStart = useCallback(() => {
 		clearTimeoutFooter();
 		if (visibleToolbarConfig.showFooter) {
 			setTimeoutHideFooter();
 			return;
 		}
-		if (!visibleToolbarConfig.showFooter && currentScale === 1) {
+		if (!visibleToolbarConfig.showFooter && currentScaleRef?.current === 1) {
 			updateToolbarConfig({ showFooter: true });
 			setTimeoutHideFooter();
 			return;
 		}
-	};
+	}, [setTimeoutHideFooter, updateToolbarConfig, visibleToolbarConfig?.showFooter]);
 
-	const onDoubleTap = (toScale: number) => {
-		if (toScale > ORIGIN_SCALE) {
-			clearTimeoutFooter();
-			updateToolbarConfig({
-				showHeader: false,
-				showFooter: false
-			});
-		}
-	};
+	const onDoubleTap = useCallback(
+		(toScale: number) => {
+			if (toScale > ORIGIN_SCALE) {
+				clearTimeoutFooter();
+				updateToolbarConfig({
+					showHeader: false,
+					showFooter: false
+				});
+			}
+		},
+		[updateToolbarConfig]
+	);
 
 	const onImageThumbnailChange = useCallback(
 		(image: AttachmentEntity) => {
@@ -140,9 +165,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		[formattedImageList, setTimeoutHideFooter, visibleToolbarConfig?.showFooter]
 	);
 
-	const renderItem = ({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
+	const renderItem = useCallback(({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
 		return <ItemImageModal index={index} item={item} setImageDimensions={setImageDimensions} />;
-	};
+	}, []);
 
 	const onImageSaved = useCallback(() => {
 		setShowSavedImage(true);
@@ -153,6 +178,43 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 
 	const onLoading = useCallback((isLoading) => {
 		setIsLoadingSaveImage(isLoading);
+	}, []);
+
+	const onImageCopy = useCallback((error?: string) => {
+		if (!error) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('copyImage'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.copyIcon} width={size.s_20} height={size.s_20} color={'#676b73'} />
+				}
+			});
+		} else {
+			Toast.show({
+				type: 'error',
+				text1: t('copyImageFailed', { error })
+			});
+		}
+	}, []);
+
+	const onImageShare = useCallback((error?: string) => {
+		if (!error) {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('message:toast.shareImageSuccess'),
+					leadingIcon: <MezonIconCDN icon={IconCDN.shareIcon} color={baseColor.green} />
+				}
+			});
+		} else {
+			Toast.show({
+				type: 'success',
+				props: {
+					text2: t('message:toast.shareImageFailed', { error }),
+					leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
+				}
+			});
+		}
 	}, []);
 
 	useEffect(() => {
@@ -169,16 +231,33 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		};
 	}, []);
 
-	const setScaleDebounced = useThrottledCallback(setCurrentScale, 300);
+	useEffect(() => {
+		const sub = Dimensions.addEventListener('change', async ({ window }) => {
+			await sleep(100);
+			ref?.current?.reset();
+		});
+		return () => sub.remove();
+	}, []);
+
+	const setScaleDebounced = useThrottledCallback((scale: number) => {
+		currentScaleRef.current = scale;
+	}, 300);
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={styles.container}>
 			{visibleToolbarConfig.showHeader && (
-				<RenderHeaderModal onClose={onClose} imageSelected={currentImage} onImageSaved={onImageSaved} onLoading={onLoading} />
+				<RenderHeaderModal
+					imageSelected={currentImage}
+					onImageSaved={onImageSaved}
+					onLoading={onLoading}
+					onImageCopy={onImageCopy}
+					onImageShare={onImageShare}
+				/>
 			)}
 			<GalleryAwesome
 				ref={ref}
-				style={{ flex: 1 }}
+				style={styles.galleryContainer}
+				numToRender={1}
 				containerDimensions={{ height, width }}
 				initialIndex={initialIndex === -1 ? 0 : initialIndex}
 				data={formattedImageList}
@@ -198,9 +277,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				onImageThumbnailChange={onImageThumbnailChange}
 			/>
 			{showSavedImage && (
-				<View style={{ position: 'absolute', top: '50%', width: '100%', alignItems: 'center' }}>
-					<View style={{ backgroundColor: Colors.bgDarkSlate, padding: size.s_10, borderRadius: size.s_10 }}>
-						<Text style={{ color: Colors.white }}>{t('savedSuccessfully')}</Text>
+				<View style={styles.savedImageContainer}>
+					<View style={styles.savedImageBox}>
+						<Text style={styles.savedImageText}>{t('savedSuccessfully')}</Text>
 					</View>
 				</View>
 			)}

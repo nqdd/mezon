@@ -1,7 +1,7 @@
-import { Attributes, baseColor, Colors, Fonts, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Fonts, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, isMsgReply = false) =>
 	StyleSheet.create({
 		image: {
 			height: '100%',
@@ -13,7 +13,6 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			justifyContent: 'center',
 			alignItems: 'center'
-			// backgroundColor: baseColor.blurple
 		},
 
 		altText: {
@@ -30,13 +29,18 @@ export const style = (colors: Attributes) =>
 		avatarMessageBoxDefault: {
 			width: '100%',
 			height: '100%',
-			borderRadius: size.s_50,
 			backgroundColor: colors.colorAvatarDefault,
 			justifyContent: 'center',
 			alignItems: 'center'
 		},
-		textAvatarMessageBoxDefault: {
-			fontSize: size.h4,
-			color: Colors.white
+			textAvatarMessageBoxDefault: {
+			fontSize: isMsgReply ? size.h8 : size.h7,
+			color: baseColor.white,
+			textTransform: 'uppercase'
+		},
+		defaultImageStyle: {
+			width: '100%',
+			height: '100%',
+			borderRadius: size.s_100
 		}
 	});

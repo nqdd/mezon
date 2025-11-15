@@ -1,14 +1,18 @@
-import { ActionEmitEvent, ENotificationActive, ICategoryChannelOption } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
-import { NotiChannelCategorySettingEntity, notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
-import { FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import type { ICategoryChannelOption } from '@mezon/mobile-components';
+import { ActionEmitEvent, ENotificationActive } from '@mezon/mobile-components';
+import { useTheme } from '@mezon/mobile-ui';
+import type { NotiChannelCategorySettingEntity } from '@mezon/store-mobile';
+import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { format } from 'date-fns';
-import { ApiNotificationUserChannel } from 'mezon-js/api.gen';
+import type { ApiNotificationUserChannel } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import MezonMenu, { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
+import type { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
+import MezonMenu from '../../../componentUI/MezonMenu';
 import { style } from './MuteClanNotificationBS.styles';
 
 type MuteClanNotificationBSProps = {
@@ -34,31 +38,31 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 						{
 							title: t('notifySettingThreadModal.muteDuration.forFifteenMinutes'),
 							onPress: () => {
-								handleScheduleMute(FOR_15_MINUTES);
+								handleScheduleMute(FOR_15_MINUTES_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forOneHour'),
 							onPress: () => {
-								handleScheduleMute(FOR_1_HOUR);
+								handleScheduleMute(FOR_1_HOUR_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forThreeHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_3_HOURS);
+								handleScheduleMute(FOR_3_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forEightHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_8_HOURS);
+								handleScheduleMute(FOR_8_HOURS_SEC);
 							}
 						},
 						{
 							title: t('notifySettingThreadModal.muteDuration.forTwentyFourHours'),
 							onPress: () => {
-								handleScheduleMute(FOR_24_HOURS);
+								handleScheduleMute(FOR_24_HOURS_SEC);
 							}
 						},
 						{
@@ -73,20 +77,31 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 		[]
 	);
 
-	const handleMuteOrUnmute = () => {
+	const handleMuteOrUnmute = async () => {
 		if (!isUnmute) {
-			const body = {
-				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: ENotificationActive.ON
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			try {
+				const body = {
+					channel_id: currentChannel?.id || '',
+					clan_id: currentClanId || '',
+					mute_time: 0,
+					active: EMuteState.UN_MUTE
+				};
+				const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+				if (response?.meta?.requestStatus === 'rejected') {
+					throw new Error(response?.meta?.requestStatus);
+				}
+			} catch (error) {
+				console.error('Error setting unmute channel:', error);
+				Toast.show({
+					type: 'error',
+					text1: t('notifySettingThreadModal.unMuteError')
+				});
+			}
 		} else {
 			const data = {
 				snapPoints: ['55%'],
 				children: (
-					<View style={{ paddingHorizontal: size.s_20 }}>
+					<View style={styles.bottomSheetContent}>
 						<Text style={styles.headerBS}>{t('clanNotificationBS.title', { ns: 'clanNotificationsSetting' })}</Text>
 						<MezonMenu menu={menu} />
 					</View>
@@ -100,29 +115,27 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	};
 
-	const handleScheduleMute = (duration: number) => {
-		if (duration !== Infinity) {
-			const now = new Date();
-			const unmuteTime = new Date(now.getTime() + duration);
-			const unmuteTimeISO = unmuteTime.toISOString();
-
+	const handleScheduleMute = async (duration: number) => {
+		try {
 			const body = {
 				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
 				clan_id: currentClanId || '',
-				time_mute: unmuteTimeISO
+				mute_time: duration !== Infinity ? duration : 0,
+				active: EMuteState.MUTED
 			};
-			dispatch(notificationSettingActions.setNotificationSetting(body));
-		} else {
-			const body = {
-				channel_id: currentChannel?.id || '',
-				notification_type: notificationChannelSelected?.notification_setting_type || 0,
-				clan_id: currentClanId || '',
-				active: ENotificationActive.OFF
-			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+			const response = await dispatch(notificationSettingActions.setMuteChannel(body));
+			if (response?.meta?.requestStatus === 'rejected') {
+				throw new Error(response?.meta?.requestStatus);
+			} else {
+				onDismissBS();
+			}
+		} catch (error) {
+			console.error('Error setting mute channel:', error);
+			Toast.show({
+				type: 'error',
+				text1: t('notifySettingThreadModal.muteError')
+			});
 		}
-		onDismissBS();
 	};
 
 	useEffect(() => {
@@ -140,11 +153,11 @@ export const MuteClanNotificationBS = ({ currentChannel, description = '', notif
 					idTimeOut = setTimeout(() => {
 						const body = {
 							channel_id: currentChannel?.id || '',
-							notification_type: notificationChannelSelected?.notification_setting_type || 0,
 							clan_id: currentClanId || '',
-							active: ENotificationActive.ON
+							mute_time: 0,
+							active: EMuteState.UN_MUTE
 						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+						dispatch(notificationSettingActions.setMuteChannel(body));
 						clearTimeout(idTimeOut);
 					}, timeDifference);
 				}

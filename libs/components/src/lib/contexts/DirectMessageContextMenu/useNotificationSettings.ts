@@ -1,8 +1,10 @@
-import { SetMuteNotificationPayload, SetNotificationPayload, notificationSettingActions, useAppDispatch } from '@mezon/store';
+import type { MuteChannelPayload } from '@mezon/store';
+import { notificationSettingActions, selectCurrentClanId, useAppDispatch } from '@mezon/store';
 import { EMuteState } from '@mezon/utils';
 import { format } from 'date-fns';
-import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 interface UseNotificationSettingsParams {
 	channelId?: string;
@@ -11,56 +13,39 @@ interface UseNotificationSettingsParams {
 }
 
 export function useNotificationSettings({ channelId, notificationSettings, getChannelId }: UseNotificationSettingsParams) {
+	const { t } = useTranslation('directMessage');
 	const dispatch = useAppDispatch();
+	const currentClanId = useSelector(selectCurrentClanId);
 	const [mutedUntilText, setMutedUntilText] = useState<string>('');
 	const [nameChildren, setNameChildren] = useState<string>('');
 
 	const muteOrUnMuteChannel = useCallback(
 		(channelId: string, active: number) => {
 			if (!channelId) return;
-
+			dispatch(notificationSettingActions.updateNotiState({ channelId, active }));
 			const body = {
 				channel_id: channelId,
-				notification_type: 0,
-				clan_id: '',
-				active: active,
-				is_current_channel: true
+				mute_time: 0,
+				active
 			};
-			dispatch(notificationSettingActions.setMuteNotificationSetting(body));
+
+			dispatch(notificationSettingActions.setMuteChannel(body));
 		},
 		[dispatch]
 	);
 
 	const handleScheduleMute = useCallback(
-		(channelId: string, channelType: number, duration: number) => {
+		(channelId: string, duration: number) => {
 			if (!channelId) return;
-
-			if (duration !== Infinity) {
-				const now = new Date();
-				const unmuteTime = new Date(now.getTime() + duration);
-				const unmuteTimeISO = unmuteTime.toISOString();
-
-				const body: SetNotificationPayload = {
-					channel_id: channelId,
-					notification_type: 0,
-					clan_id: '',
-					time_mute: unmuteTimeISO,
-					is_current_channel: true,
-					is_direct: channelType === ChannelType.CHANNEL_TYPE_DM || channelType === ChannelType.CHANNEL_TYPE_GROUP
-				};
-				dispatch(notificationSettingActions.setNotificationSetting(body));
-			} else {
-				const body: SetMuteNotificationPayload = {
-					channel_id: channelId,
-					notification_type: 0,
-					clan_id: '',
-					active: EMuteState.MUTED,
-					is_current_channel: true
-				};
-				dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-			}
+			const body: MuteChannelPayload = {
+				channel_id: channelId,
+				mute_time: duration,
+				active: EMuteState.MUTED,
+				clan_id: currentClanId || ''
+			};
+			dispatch(notificationSettingActions.setMuteChannel(body));
 		},
-		[dispatch]
+		[dispatch, currentClanId]
 	);
 
 	const getNotificationSetting = useCallback(
@@ -68,7 +53,7 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 			if (channelId) {
 				await dispatch(
 					notificationSettingActions.getNotificationSetting({
-						channelId: channelId
+						channelId
 					})
 				);
 			}
@@ -77,39 +62,14 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 	);
 
 	useEffect(() => {
-		const checkUnMute = notificationSettings?.active === EMuteState.UN_MUTE || notificationSettings?.id === '0';
-		const checkMuteTime = notificationSettings?.time_mute ? new Date(notificationSettings?.time_mute) > new Date() : false;
+		const hasActiveMuteTime = notificationSettings?.active === EMuteState.MUTED;
+		setNameChildren(hasActiveMuteTime ? t('contextMenu.unmute') : t('contextMenu.mute'));
 
-		if (checkUnMute && !checkMuteTime) {
-			setNameChildren(`Mute`);
-			setMutedUntilText('');
-		} else {
-			setNameChildren(`UnMute`);
-		}
-
-		if (notificationSettings?.time_mute && checkMuteTime && checkUnMute) {
-			const timeMute = new Date(notificationSettings.time_mute);
-			const currentTime = new Date();
-			if (timeMute > currentTime) {
-				const timeDifference = timeMute.getTime() - currentTime.getTime();
-				const formattedDate = format(timeMute, 'dd/MM, HH:mm');
-				setMutedUntilText(`Muted until ${formattedDate}`);
-
-				setTimeout(() => {
-					const channelId = getChannelId;
-					if (channelId) {
-						const body = {
-							channel_id: channelId,
-							notification_type: notificationSettings?.notification_setting_type || 0,
-							clan_id: '',
-							active: 1,
-							is_current_channel: true
-						};
-						dispatch(notificationSettingActions.setMuteNotificationSetting(body));
-					}
-				}, timeDifference);
-			}
-		}
+		setMutedUntilText(
+			hasActiveMuteTime && new Date(notificationSettings?.time_mute).getFullYear() !== 1
+				? t('contextMenu.mutedUntil', { time: format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm') })
+				: ''
+		);
 	}, [notificationSettings, dispatch, getChannelId]);
 
 	return {

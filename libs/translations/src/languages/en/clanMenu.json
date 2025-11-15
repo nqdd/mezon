@@ -2,7 +2,7 @@
     "menu": {
         "watchMenu": {
             "title": "",
-            "markAsRead": "Mark As Read",
+            "markAsRead": "Mark as Read",
             "browseChannels": "Browse Channels"
         },
         "organizationMenu": {
@@ -24,7 +24,7 @@
             "auditLog": "Audit Log"
         },
         "optionShowEmptyCategories": {
-            "title": "Show Empty Categoties",
+            "title": "Show Empty Categories",
             "show": "Show",
             "hide": "Hide"
         },
@@ -48,5 +48,15 @@
         "search": "Search",
         "community": "Community",
         "searchMembers": "Search Members"
+    },
+    "modalPanel": {
+        "createCategory": "Create Category",
+        "markAsRead": "Mark as Read",
+        "processing": "Processing...",
+        "invitePeople": "Invite People",
+        "clanSettings": "Clan Settings", 
+        "notificationSettings": "Notification Settings",
+        "showEmptyCategories": "Show Empty Categories",
+        "leaveClan": "Leave Clan"
     }
 }

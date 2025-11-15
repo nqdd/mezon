@@ -1,8 +1,10 @@
 import { useEscapeKeyClose, useMarkAsRead, useOnClickOutside, usePermissionChecker } from '@mezon/core';
 import { selectCurrentClanId } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission } from '@mezon/utils';
-import React, { RefObject, useEffect } from 'react';
+import { EPermission, generateE2eId } from '@mezon/utils';
+import type { RefObject } from 'react';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ItemModal from './ItemModal';
 
@@ -33,6 +35,7 @@ const ModalPanel: React.FC<ModalPanelProps> = ({
 }) => {
 	const [canManageClan] = usePermissionChecker([EPermission.manageClan]);
 	const currentClanId = useSelector(selectCurrentClanId);
+	const { t } = useTranslation(['clanMenu']);
 	useEscapeKeyClose(rootRef, () => setIsShowModalPanelClan(false));
 	useOnClickOutside(rootRef, () => setIsShowModalPanelClan(false));
 
@@ -42,6 +45,7 @@ const ModalPanel: React.FC<ModalPanelProps> = ({
 			setIsShowModalPanelClan(false);
 		}
 	}, [statusMarkAsReadClan]);
+
 	return (
 		<div
 			onClick={(e) => e.stopPropagation()}
@@ -52,7 +56,7 @@ const ModalPanel: React.FC<ModalPanelProps> = ({
 					<ItemModal
 						className="text-theme-primary-hover bg-item-theme-hover"
 						onClick={handleShowCreateCategory}
-						children="Create Category"
+						children={t('modalPanel.createCategory')}
 						endIcon={<Icons.CreateCategoryIcon />}
 					/>
 				)}
@@ -61,36 +65,37 @@ const ModalPanel: React.FC<ModalPanelProps> = ({
 					onClick={statusMarkAsReadClan === 'pending' ? undefined : () => handleMarkAsReadClan(currentClanId as string)}
 					disabled={statusMarkAsReadClan === 'pending'}
 				>
-					{statusMarkAsReadClan === 'pending' ? 'Processing...' : 'Mark As Read'}
+					{statusMarkAsReadClan === 'pending' ? t('modalPanel.processing') : t('modalPanel.markAsRead')}
 				</ItemModal>
 
 				<ItemModal
 					className="text-theme-primary-hover bg-item-theme-hover"
 					onClick={handleShowInviteClanModal}
-					children="Invite People"
+					children={t('modalPanel.invitePeople')}
 					endIcon={<Icons.AddPerson />}
 				/>
 				<ItemModal
 					className="text-theme-primary-hover bg-item-theme-hover"
 					onClick={handleShowServerSettings}
-					children="Clan Settings"
+					children={t('modalPanel.clanSettings')}
 					endIcon={<Icons.SettingProfile className="text-theme-primary-hover" />}
 				/>
 				<ItemModal
 					className="text-theme-primary-hover bg-item-theme-hover"
 					onClick={handleShowNotificationSetting}
-					children="Notification Settings"
+					children={t('modalPanel.notificationSettings')}
 					endIcon={<Icons.Bell className=" text-theme-primary-hover" />}
 				/>
 				<button
 					onClick={toggleShowEmptyCategory}
-					className="flex items-center w-full justify-between rounded-sm  text-theme-primary-hover bg-item-hover"
+					className="flex items-center w-full justify-between rounded-sm  text-theme-primary-hover bg-item-hover pr-2"
+					data-e2e={generateE2eId(`clan_page.header.modal_panel.item`)}
 				>
-					<li className="text-[14px]  font-medium w-full py-[6px] px-[8px] text-left cursor-pointer list-none ">Show Empty Categories</li>
+					<li className="text-[14px] font-medium flex-1 py-[6px] px-[8px] text-left cursor-pointer list-none">{t('modalPanel.showEmptyCategories')}</li>
 					<input
-						className="peer relative h-4 w-8 cursor-pointer appearance-none rounded-lg
-                            bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-4 after:w-4 after:rounded-full
-                            after:bg-slate-500 after:transition-all checked:bg-blue-200 checked:after:left-4 checked:after:bg-blue-500
+						className="peer relative h-3 w-6 cursor-pointer appearance-none rounded-lg
+                            bg-slate-300 transition-colors after:absolute after:top-0 after:left-0 after:h-3 after:w-3 after:rounded-full
+                            after:bg-slate-500 after:transition-all checked:bg-blue-200 checked:after:left-3 checked:after:bg-blue-500
                             hover:bg-slate-400 after:hover:bg-slate-600 checked:hover:bg-blue-300 checked:after:hover:bg-blue-600
                             focus:outline-none checked:focus:bg-blue-400 checked:after:focus:bg-blue-700 focus-visible:outline-none disabled:cursor-not-allowed
                             disabled:bg-slate-200 disabled:after:bg-slate-300"
@@ -104,8 +109,11 @@ const ModalPanel: React.FC<ModalPanelProps> = ({
 					<button
 						onClick={toggleLeaveClanPopup}
 						className="flex items-center w-full justify-between rounded-sm hover:bg-red-600 text-red-600 hover:text-white group pr-2"
+						data-e2e={generateE2eId(`clan_page.header.modal_panel.item`)}
 					>
-						<li className="text-[14px]  font-medium w-full py-[6px] px-[8px] text-left cursor-pointer list-none ">Leave Clan</li>
+						<li className="text-[14px]  font-medium w-full py-[6px] px-[8px] text-left cursor-pointer list-none ">
+							{t('modalPanel.leaveClan')}
+						</li>
 						<div className="flex items-center justify-center h-[18px] w-[18px]">
 							<Icons.LeaveClanIcon className="text-red-600 group-hover:text-white" />
 						</div>

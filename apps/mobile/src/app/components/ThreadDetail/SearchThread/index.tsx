@@ -1,4 +1,4 @@
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import debounce from 'lodash.debounce';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,10 +11,10 @@ type SearchThreadsProps = {
 	inputValue?: string;
 	onTextChanged?: (value: string) => void;
 };
-export const SearchThreadsBar = ({ onTextChanged, inputValue }: SearchThreadsProps) => {
+export const SearchThreadsBar = ({ onTextChanged, inputValue = '' }: SearchThreadsProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const [searchInput, setSearchInput] = useState<string>(inputValue);
+	const [searchInput, setSearchInput] = useState<string>(inputValue || '');
 	const { t } = useTranslation(['channelMenu']);
 
 	const clearSearchInput = () => {
@@ -36,7 +36,7 @@ export const SearchThreadsBar = ({ onTextChanged, inputValue }: SearchThreadsPro
 			<TextInput
 				style={styles.searchInput}
 				placeholder={t('menu.thread.searchThreads')}
-				placeholderTextColor={Colors.tertiary}
+				placeholderTextColor={themeValue.textDisabled}
 				onChangeText={handleTextChange}
 				value={searchInput}
 			/>

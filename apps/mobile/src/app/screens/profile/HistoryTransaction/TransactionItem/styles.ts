@@ -41,18 +41,18 @@ export const style = (colors: Attributes) =>
 			color: colors.text,
 			fontSize: Fonts.size.h7,
 			marginVertical: size.s_6,
+			paddingRight: size.s_12,
 			textAlign: 'left'
 		},
 		row: {
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center',
-			gap: 10,
+			gap: size.s_10,
 			marginBottom: size.s_10,
 			width: '50%'
 		},
 		field: {
-			alignItems: 'flex-start'
+			alignItems: 'flex-start',
 		},
 		expandIcon: {
 			alignItems: 'center',
@@ -72,5 +72,21 @@ export const style = (colors: Attributes) =>
 			padding: size.s_10,
 			flexDirection: 'row',
 			flexWrap: 'wrap'
+		},
+		touchableRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between'
+		},
+		copyIconWrapper: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: 4
+		},
+		copyButton: {
+			padding: 4
+		},
+		animatedContainer: {
+			overflow: 'hidden'
 		}
 	});

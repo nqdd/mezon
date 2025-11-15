@@ -1,8 +1,10 @@
 import isElectron from 'is-electron';
 import { Suspense, lazy, memo, useCallback, useEffect, useMemo } from 'react';
-import { LoaderFunctionArgs, Outlet, RouterProvider, createBrowserRouter, createHashRouter, useNavigation } from 'react-router-dom';
+import type { LoaderFunctionArgs } from 'react-router-dom';
+import { Navigate, Outlet, RouterProvider, createBrowserRouter, createHashRouter, useNavigation } from 'react-router-dom';
 
-import { CustomLoaderFunction, appLoader, shouldRevalidateApp } from '../loaders/appLoader';
+import type { CustomLoaderFunction } from '../loaders/appLoader';
+import { appLoader, shouldRevalidateApp } from '../loaders/appLoader';
 import { authLoader, shouldRevalidateAuth } from '../loaders/authLoader';
 import { channelLoader, shouldRevalidateChannel } from '../loaders/channelLoader';
 import { clanLoader, shouldRevalidateServer } from '../loaders/clanLoader';
@@ -47,11 +49,20 @@ const DirectMessage = lazy(() => import(/* webpackChunkName: "dm-pages" */ '../p
 const FriendsPage = lazy(() => import(/* webpackChunkName: "dm-pages" */ '../pages/directMessage/FriendsPage'));
 const GuideMain = lazy(() => import(/* webpackChunkName: "guide-pages" */ '../pages/guide'));
 const MezonPage = lazy(() => import(/* webpackChunkName: "homepage" */ '../pages/homepage/mezonpage'));
+const AboutMezon = lazy(() => import(/* webpackChunkName: "about" */ '../pages/aboutmezon'));
 const InvitePage = lazy(() => import(/* webpackChunkName: "invite-pages" */ '../pages/invite'));
+const TextChannelPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/textchannel'));
+const MezonDongPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/mezondong'));
+const IntegrationsPage = lazy(() => import(/* webpackChunkName: "integrations-page" */ '../pages/integrations'));
+const ClanDetailPage = lazy(() => import(/* webpackChunkName: "clandetail-page" */ '../pages/clandetail'));
+const OrganizePage = lazy(() => import(/* webpackChunkName: "organize-page" */ '../pages/organize'));
+const CustomizePage = lazy(() => import(/* webpackChunkName: "customize-page" */ '../pages/customize'));
+const AIGenerationPage = lazy(() => import(/* webpackChunkName: "aigeneration-page" */ '../pages/aigeneration'));
 const Login = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/login'));
 const LoginCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/loginCallback'));
 const LogoutCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/logoutCallback'));
 const Main = lazy(() => import(/* webpackChunkName: "main-pages" */ '../pages/main'));
+const AddFriendPage = lazy(() => import(/* webpackChunkName: "main-pages" */ '../pages/invite/addFriendPage'));
 const MemberMain = lazy(() => import(/* webpackChunkName: "member-pages" */ '../pages/member'));
 const ChannelSettingMain = lazy(() => import(/* webpackChunkName: "setting-pages" */ '../pages/setting/channelSetting'));
 const ThreadsMain = lazy(() => import(/* webpackChunkName: "thread-pages" */ '../pages/thread'));
@@ -111,7 +122,7 @@ export const Routes = memo(() => {
 				path: '',
 				loader: loaderWithStore(appLoader),
 				shouldRevalidate: shouldRevalidateApp,
-				HydrateFallback: HydrateFallback,
+				HydrateFallback,
 				element: (
 					<Suspense fallback={<SuspenseFallback />}>
 						<RouterMonitor />
@@ -192,6 +203,71 @@ export const Routes = memo(() => {
 						)
 					},
 					{
+						path: '/about',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<AboutMezon />
+							</Suspense>
+						)
+					},
+					{
+						path: '/fastmessage',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<TextChannelPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/mezondong',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<MezonDongPage />
+							</Suspense>
+						)
+					},
+
+					{
+						path: '/integrations',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<IntegrationsPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/clanword',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<ClanDetailPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/organize',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<OrganizePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/customize',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<CustomizePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/aigeneration',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<AIGenerationPage />
+							</Suspense>
+						)
+					},
+					{
 						path: 'desktop',
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
@@ -247,6 +323,10 @@ export const Routes = memo(() => {
 											</Suspense>
 										),
 										children: [
+											{
+												path: '',
+												element: <Navigate to="direct" />
+											},
 											{
 												path: 'clans',
 												element: (
@@ -466,6 +546,14 @@ export const Routes = memo(() => {
 												]
 											}
 										]
+									},
+									{
+										path: ':username',
+										element: (
+											<Suspense fallback={<SuspenseFallback />}>
+												<AddFriendPage />
+											</Suspense>
+										)
 									}
 								]
 							}
@@ -473,13 +561,6 @@ export const Routes = memo(() => {
 					},
 					{
 						path: 'invite',
-						loader: loaderWithStore(authLoader),
-						shouldRevalidate: shouldRevalidateAuth,
-						element: (
-							<Suspense fallback={<SuspenseFallback />}>
-								<ProtectedRoutes />
-							</Suspense>
-						),
 						children: [
 							{
 								path: ':inviteId',

@@ -124,4 +124,8 @@
 	--button-theme-primary: #5265ec;
 	/* border-avatar */
 	--border-color-avatar: #f0f2f5;
+	/* border left highlight */
+	--border-left-highlight: #2980b9;
+	--text-separator-theme-primary: #25252521;
+	
 }

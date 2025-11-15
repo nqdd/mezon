@@ -1,16 +1,29 @@
 import { useEscapeKeyClose, usePermissionChecker } from '@mezon/core';
-import { fetchClanWebhooks, fetchWebhooks, selectCloseMenu, selectCurrentChannel, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import {
+	deleteClan,
+	fetchClanWebhooks,
+	fetchWebhooks,
+	onboardingActions,
+	selectCloseMenu,
+	selectCurrentChannel,
+	selectCurrentClanId,
+	selectCurrentClanName,
+	useAppDispatch
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission } from '@mezon/utils';
+import { EPermission, generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import DeleteClanModal from '../DeleteClanModal';
+import SettingComunity from '../SettingComunity';
 import { ExitSetting } from '../SettingProfile';
 import AuditLog from './AuditLog';
 import ClanSettingOverview from './ClanSettingOverview';
 import Integrations from './Integrations';
-import { ItemObjProps, ItemSetting, listItemSetting } from './ItemObj';
-import NotificationSoundSetting from './NotificationSoundSetting';
+import type { ItemObjProps } from './ItemObj';
+import { ItemSetting, createTranslatedListItemSetting } from './ItemObj';
 import CategoryOrderSetting from './OrderCategorySetting';
 import SettingEmoji from './SettingEmoji';
 import ServerSettingMainRoles from './SettingMainRoles';
@@ -25,20 +38,40 @@ export type ModalSettingProps = {
 };
 
 const ClanSetting = (props: ModalSettingProps) => {
+	const { t } = useTranslation('clanSettings');
 	const { onClose, initialSetting } = props;
+
+	const listItemSetting = createTranslatedListItemSetting(t);
+
+	const allSettings: ItemObjProps[] = [
+		{ id: ItemSetting.OVERVIEW, name: t('sidebar.items.overview') },
+		{ id: ItemSetting.ROLES, name: t('sidebar.items.roles') },
+		{ id: ItemSetting.CATEGORY_ORDER, name: t('sidebar.items.categoryOrder') },
+		{ id: ItemSetting.EMOJI, name: t('sidebar.items.emoji') },
+		{ id: ItemSetting.IMAGE_STICKERS, name: t('sidebar.items.imageStickers') },
+		{ id: ItemSetting.VOIDE_STICKERS, name: t('sidebar.items.voiceStickers') },
+		{ id: ItemSetting.INTEGRATIONS, name: t('sidebar.items.integrations') },
+		{ id: ItemSetting.AUDIT_LOG, name: t('sidebar.items.auditLog') },
+		{ id: ItemSetting.ON_BOARDING, name: t('sidebar.items.onboarding') },
+		{ id: ItemSetting.ON_COMUNITY, name: t('sidebar.items.enableCommunity') }
+	];
 	const [currentSettingId, setCurrentSettingId] = useState<string>(() => (initialSetting ? initialSetting : listItemSetting[0].id));
 	const currentSetting = useMemo(() => {
-		return listItemSetting.find((item) => item.id === currentSettingId);
+		return allSettings.find((item) => item.id === currentSettingId);
 	}, [currentSettingId]);
 
 	const dispatch = useAppDispatch();
-	const [canManageClan] = usePermissionChecker([EPermission.manageClan]);
+	const [canManageClan, canManagerChannel] = usePermissionChecker([EPermission.manageClan, EPermission.manageChannel]);
 
 	const handleSettingItemClick = (settingItem: ItemObjProps) => {
 		setCurrentSettingId(settingItem.id);
-		if (settingItem.id === ItemSetting.INTEGRATIONS && canManageClan) {
-			dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
-			dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+		if (settingItem.id === ItemSetting.INTEGRATIONS) {
+			if (canManageClan) {
+				dispatch(fetchClanWebhooks({ clanId: currentClanId }));
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			} else if (canManagerChannel) {
+				dispatch(fetchWebhooks({ channelId: '0', clanId: currentClanId }));
+			}
 		}
 	};
 
@@ -47,6 +80,9 @@ const ClanSetting = (props: ModalSettingProps) => {
 	const [isShowDeletePopup, setIsShowDeletePopup] = useState<boolean>(false);
 	const currentChannel = useSelector(selectCurrentChannel) || undefined;
 	const currentClanId = useSelector(selectCurrentClanId) as string;
+	const currentClanName = useSelector(selectCurrentClanName);
+	const navigate = useNavigate();
+	const [_isCommunityEnabled, setIsCommunityEnabled] = useState(false);
 
 	const currentSettingPage = () => {
 		switch (currentSettingId) {
@@ -58,8 +94,8 @@ const ClanSetting = (props: ModalSettingProps) => {
 				return <Integrations isClanSetting currentChannel={currentChannel} />;
 			case ItemSetting.EMOJI:
 				return <SettingEmoji parentRef={modalRef} />;
-			case ItemSetting.NOTIFICATION_SOUND:
-				return <NotificationSoundSetting />;
+			// case ItemSetting.NOTIFICATION_SOUND:
+			// 	return <NotificationSoundSetting />;
 			case ItemSetting.IMAGE_STICKERS:
 				return <SettingSticker parentRef={modalRef} />;
 			case ItemSetting.VOIDE_STICKERS:
@@ -70,6 +106,8 @@ const ClanSetting = (props: ModalSettingProps) => {
 				return <AuditLog currentClanId={currentClanId} />;
 			case ItemSetting.ON_BOARDING:
 				return <SettingOnBoarding onClose={onClose} />;
+			case ItemSetting.ON_COMUNITY:
+				return <SettingComunity clanId={currentClanId} onClose={onClose} onCommunityEnabledChange={setIsCommunityEnabled} />;
 		}
 	};
 
@@ -77,13 +115,19 @@ const ClanSetting = (props: ModalSettingProps) => {
 		if (currentSettingId === ItemSetting.DELETE_SERVER) {
 			setIsShowDeletePopup(true);
 		}
-	}, [currentSettingId]);
+		if (currentSettingId === ItemSetting.ON_BOARDING) {
+			dispatch(onboardingActions.closeToOnboard());
+		}
+	}, [currentSettingId, dispatch]);
 
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, onClose);
-
+	const handleDeleteCurrentClan = async () => {
+		await dispatch(deleteClan({ clanId: currentClanId || '' }));
+		navigate('/mezon');
+	};
 	return (
-		<div ref={modalRef} tabIndex={-1} className="  flex fixed inset-0  w-screen z-30">
+		<div ref={modalRef} tabIndex={-1} className="  flex fixed inset-0  w-screen z-30" data-e2e={generateE2eId('clan_page.settings')}>
 			<div className="flex flex-row w-screen">
 				<div className="z-50 h-fit absolute top-5 right-5 block sbm:hidden">
 					<div onClick={() => onClose()} className="rounded-full p-[10px] border-theme-primary">
@@ -102,7 +146,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 					<SettingSidebar
 						onClickItem={handleSettingItemClick}
 						handleMenu={(value: boolean) => setMenu(value)}
-						currentSetting={currentSetting?.id || ''}
+						currentSetting={currentSettingId}
 						setIsShowDeletePopup={() => setIsShowDeletePopup(true)}
 					/>
 				</div>
@@ -111,7 +155,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 					<div className="flex flex-row flex-1 justify-start h-full">
 						<div className="w-[740px] pl-7 sbm:pl-10 pr-7">
 							<div className="relative max-h-full sbm:min-h-heightRolesEdit min-h-heightRolesEditMobile text-theme-primary">
-								{!(currentSetting?.id === ItemSetting.INTEGRATIONS) ? (
+								{!(currentSetting?.id === ItemSetting.INTEGRATIONS || currentSetting?.id === ItemSetting.AUDIT_LOG) ? (
 									<h2 className="text-xl font-semibold mb-5 sbm:mt-[60px] mt-[10px] text-theme-primary-active">
 										{currentSetting?.name}
 									</h2>
@@ -121,7 +165,14 @@ const ClanSetting = (props: ModalSettingProps) => {
 								{currentSettingPage()}
 							</div>
 						</div>
-						{isShowDeletePopup && <DeleteClanModal onClose={() => setIsShowDeletePopup(false)} />}
+						{isShowDeletePopup && (
+							<DeleteClanModal
+								onClose={() => setIsShowDeletePopup(false)}
+								buttonLabel="Delete clan"
+								title={`Delete '${currentClanName}'`}
+								onClick={handleDeleteCurrentClan}
+							/>
+						)}
 						<ExitSetting onClose={onClose} />
 					</div>
 				</div>

@@ -1,14 +1,15 @@
-import { convertMarkdown, EBacktickType, ETokenMessage, IMarkdownOnMessage, parseHtmlAsFormattedText, processMarkdownEntities } from '@mezon/utils';
+import type { EBacktickType, IMarkdownOnMessage } from '@mezon/utils';
+import { ETokenMessage, convertMarkdown, parseHtmlAsFormattedText, processMarkdownEntities } from '@mezon/utils';
 import { useMemo } from 'react';
 import { MarkdownContent } from '../../MarkdownFormatText/MarkdownContent';
-import { ElementToken } from '../../MessageWithUser/MessageLine';
+import type { ElementToken } from '../../MessageWithUser/MessageLine';
 
 interface EmbedDescriptionProps {
 	description: string;
 }
 
 export function EmbedDescription({ description }: EmbedDescriptionProps) {
-	const { text, entities } = parseHtmlAsFormattedText(description);
+	const { text, entities } = parseHtmlAsFormattedText(String(description || ''));
 	const markdownList: IMarkdownOnMessage[] = processMarkdownEntities(text, entities);
 
 	const mkm = markdownList.map((item) => ({ ...item, kindOf: ETokenMessage.MARKDOWNS }));
@@ -26,7 +27,7 @@ export function EmbedDescription({ description }: EmbedDescriptionProps) {
 
 			if (lastindex < s) {
 				formattedContent.push(
-					<p key={`plain-${lastindex}`} className="whitespace-pre-line " style={{ wordBreak: 'break-word' }}>
+					<p key={`plain-${lastindex}`} className="whitespace-pre-line break-words">
 						{text?.slice(lastindex, s) ?? ''}
 					</p>
 				);
@@ -53,7 +54,7 @@ export function EmbedDescription({ description }: EmbedDescriptionProps) {
 
 		if (text && lastindex < text?.length) {
 			formattedContent.push(
-				<p key={`plain-${lastindex}-end`} className="whitespace-pre-line" style={{ wordBreak: 'break-word' }}>
+				<p key={`plain-${lastindex}-end`} className="whitespace-pre-line break-words">
 					{text.slice(lastindex)}
 				</p>
 			);

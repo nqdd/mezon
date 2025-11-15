@@ -44,7 +44,7 @@
 	--bg-theme-direct-message: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)),
 		linear-gradient(48.17deg, rgb(83, 72, 202) 11.21%, rgb(63, 34, 207) 61.92%);
 
-	--bg-item-hover: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+	--bg-item-hover: hsl(240 calc(1 * 4%) 60.784% /0.12156862745098039);
 	--bg-item-hover-chat: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
 	--bg-active-member-channel: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
 
@@ -115,4 +115,7 @@
 
 	/* border-avatar */
 	--border-color-avatar: #09091f;
+	/* border left highlight */
+	--border-left-highlight: #5dade2;
+	--text-separator-theme-primary: #bababa32;
 }

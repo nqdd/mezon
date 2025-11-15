@@ -1,13 +1,15 @@
 import { MemberProvider } from '@mezon/core';
-import { onboardingActions, selectCurrentClan, selectCurrentClanId, selectFormOnboarding, useAppDispatch } from '@mezon/store';
+import { onboardingActions, selectCurrentClanId, selectCurrentClanIsOnboarding, selectFormOnboarding, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
-import { Icons, Image } from '@mezon/ui';
+import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { ApiOnboardingContent } from 'mezon-js/api.gen';
-import { useEffect, useMemo, useState } from 'react';
+import type { ApiOnboardingContent } from 'mezon-js/api.gen';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import EnableCommunity from '../../EnableComnunity';
+import EnableOnboarding from '../../EnableOnboarding';
 import ModalSaveChanges from '../ClanSettingOverview/ModalSaveChanges';
 import GuideItemLayout from './GuideItemLayout';
 import ClanGuideSetting from './Mission/ClanGuideSetting';
@@ -19,10 +21,12 @@ export enum EOnboardingStep {
 	MAIN
 }
 const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
+	const { t } = useTranslation('onBoardingClan');
 	const dispatch = useAppDispatch();
-	const currentClan = useSelector(selectCurrentClan);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanIsOnboarding = useSelector(selectCurrentClanIsOnboarding);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isCommunityEnabled, setIsCommunityEnabled] = useState(!!currentClan?.is_onboarding);
+	const [isCommunityEnabled, setIsCommunityEnabled] = useState(!!currentClanIsOnboarding);
 	const [currentPage, setCurrentPage] = useState<EOnboardingStep>(EOnboardingStep.MAIN);
 	const [description, setDescription] = useState('');
 	const [about, setAbout] = useState('');
@@ -40,7 +44,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 		if (!enable) {
 			dispatch(
 				onboardingActions.enableOnboarding({
-					clan_id: currentClan?.clan_id as string,
+					clan_id: currentClanId as string,
 					onboarding: false
 				})
 			);
@@ -52,7 +56,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 		setIsSaving(true);
 		try {
 			if (!checkCreateValidate) {
-				toast.error('You need to create at least one task, question, or rule before enabling the community.!');
+				toast.error(t('errors.needAtLeastOneItem'));
 				setShowOnboardingHighlight(true);
 				setTimeout(() => setShowOnboardingHighlight(false), 2000);
 				return;
@@ -60,7 +64,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			await handleCreateOnboarding();
 			await dispatch(
 				onboardingActions.enableOnboarding({
-					clan_id: currentClan?.clan_id as string,
+					clan_id: currentClanId as string,
 					onboarding: true
 				})
 			);
@@ -69,10 +73,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			setInitialDescription(description);
 			setInitialAbout(about);
 			setOpenModalSaveChanges(false);
-			toast.success('Community enabled successfully!');
+			toast.success(t('messages.communityEnabledSuccess'));
 		} catch (error) {
 			console.error('Error enabling community:', error);
-			toast.error('Failed to enable community. Please try again.');
+			toast.error(t('errors.failedToEnableCommunity'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -93,10 +97,11 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					return undefined;
 				}
 				const id = Snowflake.generate();
-				const path = 'onboarding/' + id + '.webp';
+				const path = `onboarding/${id}.webp`;
 				if (clientRef.current && sessionRef.current) {
 					return handleUploadEmoticon(clientRef.current, sessionRef.current, path, item.file);
 				}
+				return undefined;
 			});
 			const imageUrl = await Promise.all(uploadImageRule);
 
@@ -120,7 +125,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 
 			await dispatch(
 				onboardingActions.createOnboardingTask({
-					clan_id: currentClan?.clan_id as string,
+					clan_id: currentClanId as string,
 					content: formOnboardingData
 				})
 			);
@@ -128,10 +133,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			setInitialDescription(description);
 			setInitialAbout(about);
 			setOpenModalSaveChanges(false);
-			toast.success('Changes saved successfully!');
+			toast.success(t('messages.changesSavedSuccess'));
 		} catch (error) {
 			console.error('Error saving changes:', error);
-			toast.error('Failed to save changes. Please try again.');
+			toast.error(t('errors.failedToSaveChanges'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -147,14 +152,6 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 		setDescription(initialDescription);
 		setAbout(initialAbout);
 	};
-	const handleChangeDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setOpenModalSaveChanges(true);
-		setDescription(e.target.value.slice(0, 300));
-	};
-	const handleChangeAbout = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setOpenModalSaveChanges(true);
-		setAbout(e.target.value.slice(0, 300));
-	};
 
 	const isDescriptionOrAboutChanged = useMemo(() => {
 		return description !== initialDescription || about !== initialAbout;
@@ -163,76 +160,42 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 	const renderOnboardingContent = () => (
 		<div className="text-theme-primary text-sm">
 			{currentPage === EOnboardingStep.MAIN && (
-				<MainIndex
-					handleGoToPage={handleGoToPage}
-					isEnableOnBoarding={isCommunityEnabled}
-					toggleEnableStatus={toggleEnableStatus}
-					onCloseSetting={onClose}
-					showOnboardingHighlight={showOnboardingHighlight}
-				/>
+				<MainIndex handleGoToPage={handleGoToPage} onCloseSetting={onClose} showOnboardingHighlight={showOnboardingHighlight} />
 			)}
-			{currentPage === EOnboardingStep.QUESTION && <Questions handleGoToPage={handleGoToPage} />}
+			{currentPage === EOnboardingStep.QUESTION && (
+				<Questions handleGoToPage={handleGoToPage} setOpenModalSaveChanges={setOpenModalSaveChanges} />
+			)}
 			{currentPage === EOnboardingStep.MISSION && (
 				<MemberProvider>
 					<div className="flex flex-col gap-8">
 						<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
 							<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary" />
-							<div className="font-semibold text-theme-primary">BACK</div>
+							<div className="font-semibold text-theme-primary">{t('buttons.back')}</div>
 						</div>
 						<ClanGuideSetting setOpenModalSaveChanges={setOpenModalSaveChanges} />
 					</div>
 				</MemberProvider>
 			)}
-
-			{/* Description Section */}
-			<div className="bg-theme-setting-nav p-4 rounded-lg mt-6 ">
-				<h4 className="text-lg font-semibold text-theme-primary-active mb-2">Description</h4>
-				<div className="relative">
-					<textarea
-						className="w-full h-32 bg-theme-setting-primary text-theme-primary rounded-md p-2 resize-none border border-theme-primary bg-theme-setting-primary focus-input"
-						placeholder="Enter your clan description..."
-						value={description}
-						onChange={handleChangeDescription}
-						maxLength={300}
-					/>
-					<div className="absolute bottom-2 right-2 text-sm text-theme-primary">{description.length}/300</div>
-				</div>
-			</div>
-
-			{/* About Section */}
-			<div className="bg-theme-setting-nav p-4 rounded-lg mt-6 ">
-				<h4 className="text-lg font-semibold text-theme-primary-active mb-2">About</h4>
-				<div className="relative">
-					<textarea
-						className="w-full h-32 bg-theme-setting-primary text-theme-primary rounded-md p-2 resize-none border border-theme-primary bg-theme-setting-primary focus-input"
-						placeholder="Tell us about your clan..."
-						value={about}
-						onChange={handleChangeAbout}
-						maxLength={300}
-					/>
-					<div className="absolute bottom-2 right-2 text-sm text-theme-primary">{about.length}/300</div>
-				</div>
-			</div>
 		</div>
 	);
 
 	if (!isCommunityEnabled) {
 		return (
 			<>
-				<EnableCommunity onEnable={handleEnableCommunity} />
+				<EnableOnboarding onEnable={handleEnableCommunity} />
 				{isModalOpen && (
 					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 						<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin  [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-[#5865F2] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-gray-200">
 							<div className="flex justify-between items-center mb-6">
-								<h3 className="text-xl font-semibold text-theme-primary-active">Community Settings</h3>
-								<button onClick={() => setIsModalOpen(false)} className=" hover:text-white ">
+								<h3 className="text-xl font-semibold text-theme-primary-active">{t('modal.title')}</h3>
+								<button onClick={() => setIsModalOpen(false)} className=" text-theme-primary text-theme-primary-hover ">
 									<Icons.CloseIcon className="w-6 h-6" />
 								</button>
 							</div>
 							{renderOnboardingContent()}
 							<div className="flex justify-end gap-4 mt-6">
 								<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
-									Cancel
+									{t('buttons.cancel')}
 								</button>
 								<button
 									onClick={handleConfirm}
@@ -242,10 +205,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 									{isSaving ? (
 										<>
 											<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-											Saving...
+											{t('buttons.saving')}
 										</>
 									) : (
-										'Confirm'
+										t('buttons.confirm')
 									)}
 								</button>
 							</div>
@@ -258,12 +221,11 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 
 	return (
 		<>
-			{/* Onboarding Modal */}
 			{isModalOpen && (
 				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 					<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
 						<div className="flex justify-between items-center mb-6">
-							<h3 className="text-xl font-semibold text-theme-primary">Community Settings</h3>
+							<h3 className="text-xl font-semibold text-theme-primary">{t('modal.title')}</h3>
 							<button onClick={() => setIsModalOpen(false)} className=" bg-item-theme hover:text-white">
 								<Icons.CloseIcon className="w-6 h-6" />
 							</button>
@@ -271,7 +233,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 						{renderOnboardingContent()}
 						<div className="flex justify-end gap-4 mt-6">
 							<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
-								Cancel
+								{t('buttons.cancel')}
 							</button>
 							<button
 								onClick={handleConfirm}
@@ -281,10 +243,10 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 								{isSaving ? (
 									<>
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
-										Saving...
+										{t('buttons.saving')}
 									</>
 								) : (
-									'Confirm'
+									t('buttons.confirm')
 								)}
 							</button>
 						</div>
@@ -292,19 +254,18 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 				</div>
 			)}
 
-			{/* Main Onboarding UI */}
 			{isCommunityEnabled && (
 				<div className="text-theme-primary text-sm pb-10">
 					<div className="flex items-center justify-between p-4 bg-theme-setting-primary rounded-lg mb-6">
 						<div className="flex flex-col">
-							<h3 className="text-lg font-semibold text-theme-primary">Community Onboarding</h3>
-							<p className="text-sm text-theme-primary">Community features are enabled</p>
+							<h3 className="text-lg font-semibold text-theme-primary">{t('onboarding.title')}</h3>
+							<p className="text-sm text-theme-primary">{t('onboarding.featuresEnabled')}</p>
 						</div>
 						<button
 							onClick={() => toggleEnableStatus(false)}
 							className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
 						>
-							Disable Community
+							{t('buttons.disable')}
 						</button>
 					</div>
 					{renderOnboardingContent()}
@@ -318,96 +279,60 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 };
 
 interface IMainIndexProps {
-	isEnableOnBoarding: boolean;
-	toggleEnableStatus: (enable: boolean) => void;
 	handleGoToPage: (page: EOnboardingStep) => void;
 	onCloseSetting?: () => void;
 	showOnboardingHighlight?: boolean;
 }
 
-const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
+const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: IMainIndexProps) => {
+	const { t } = useTranslation('onBoardingClan');
+	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
 	const openOnboardingPreviewMode = () => {
-		dispatch(onboardingActions.openOnboardingPreviewMode());
+		dispatch(
+			onboardingActions.openOnboardingPreviewMode({
+				clan_id: currentClanId || ''
+			})
+		);
 		if (onCloseSetting) {
 			onCloseSetting();
 		}
 	};
-	const currentClanId = useSelector(selectCurrentClanId);
-
-	useEffect(() => {
-		dispatch(onboardingActions.fetchOnboarding({ clan_id: currentClanId as string }));
-	}, []);
 
 	return (
 		<div className="flex flex-col gap-6 flex-1">
 			<div className="flex flex-col gap-2">
-				<div className="text-[20px] text-theme-primary-active font-semibold">On Boarding</div>
+				<div className="text-[20px] text-theme-primary-active font-semibold">{t('onboarding.title')}</div>
 				<div className="font-medium text-theme-primary">
-					Give your members a simple starting experience with custom channels, roles and first steps.
-				</div>
-				<div className="flex gap-2 items-center">
-					<div className="cursor-pointer text-blue-500 hover:underline">See examples</div>
-					<div className="w-1 h-1 rounded-full bg-item-theme" />
-					<div className="cursor-pointer text-blue-500 hover:underline" onClick={openOnboardingPreviewMode}>
-						Preview
-					</div>
-					<div className="w-1 h-1 rounded-full bg-item-theme" />
-					<div className="cursor-pointer text-blue-500 hover:underline">Switch to Advanced Mode</div>
+					{t('onboarding.description')}
+					<p className="ml-3 inline-block cursor-pointer text-blue-500 hover:underline" onClick={openOnboardingPreviewMode}>
+						{t('buttons.preview')}
+					</p>
 				</div>
 			</div>
-			<GuideItemLayout
-				icon={
-					<Image
-						src={`assets/images/wumpus_addbba.svg`}
-						width={40}
-						height={40}
-						className="aspect-square object-cover w-[40px] text-theme-primary bg-theme-setting-nav"
-					/>
-				}
-				title="Recent Updates"
-				description={
-					<div className="font-medium text-sm text-theme-primary">
-						<div>• You can now upload custom images for New-Member To-Dos and Resource Pages.</div>
-						<div>• Added a custom description option for Resource pages</div>
-					</div>
-				}
-			/>
 
 			<div className="text-theme-primary">
 				<GuideItemLayout
-					title="Onboarding Is Enabled"
-					description="Changes will not take effect until you save."
+					title={t('onboarding.enabledTitle')}
+					description={t('onboarding.enabledDescription')}
 					className=" bg-theme-setting-nav rounded-none rounded-t-lg "
 					noNeedHover
 				/>
 
-				<GuideItemLayout
-					hightLightIcon
-					icon={<Icons.HashIcon className="w-6 text--theme-primary" />}
-					title="Default Channels"
-					description="You have 7 Default Channels"
-					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
-					action={
-						<div className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover">
-							Edit
-						</div>
-					}
-				/>
 				<div className="mx-4 border-t border-theme-primary text-theme-primary-hover" />
 
 				<GuideItemLayout
 					hightLightIcon
 					icon={<Icons.People className="w-6 text-theme-primary" />}
-					title="Questions"
-					description="7 of 7 public channels are assignable through Questions and Default Channels."
+					title={t('questions.title')}
+					description={t('questions.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div
 							onClick={() => handleGoToPage(EOnboardingStep.QUESTION)}
 							className="px-3 py-2 flex gap-2 justify-center items-center rounded-lg btn-primary btn-primary-hover  cursor-pointer"
 						>
-							<div>Set up</div> <Icons.LongArrowRight className="w-3" />
+							<div>{t('buttons.setup')}</div> <Icons.LongArrowRight className="w-3" />
 						</div>
 					}
 				/>
@@ -415,16 +340,17 @@ const MainIndex = ({ isEnableOnBoarding, toggleEnableStatus, handleGoToPage, onC
 				<GuideItemLayout
 					hightLightIcon
 					icon={<Icons.GuideIcon defaultSize="w-6  " className="text-theme-primary" />}
-					title="Clan Guide"
-					description="Your Welcome Message, Banner, To-Do tasks and Resources are all set up"
+					title={t('clanGuide.title')}
+					description={t('clanGuide.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div className="flex items-center gap-4">
 							<div
 								className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover  cursor-pointer"
 								onClick={() => handleGoToPage(EOnboardingStep.MISSION)}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.clan_guide')}
 							>
-								Edit
+								{t('buttons.edit')}
 							</div>
 						</div>
 					}

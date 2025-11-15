@@ -45,5 +45,21 @@ export const style = (colors: Attributes) =>
 			left: '50%',
 			transform: [{ translateX: -12 }, { translateY: -12 }],
 			zIndex: 999
+		},
+		container: {
+			alignItems: 'center',
+			justifyContent: 'center',
+			paddingHorizontal: size.s_40,
+			paddingVertical: size.s_20
+		},
+		textSection: {
+			marginTop: size.s_20
+		},
+		buttonsRow: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			marginVertical: size.s_20,
+			width: '80%'
 		}
 	});

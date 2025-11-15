@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
@@ -23,7 +24,7 @@ export const style = (colors: Attributes) =>
 		},
 		menuFooter: {
 			position: 'absolute',
-			bottom: '5%',
+			bottom: '8%',
 			width: '100%',
 			padding: size.s_20,
 			gap: size.s_10,
@@ -58,10 +59,12 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			position: 'relative',
-			width: size.s_60,
-			height: size.s_60,
-			backgroundColor: colors.badgeHighlight,
-			borderRadius: size.s_30
+			width: size.s_50,
+			height: size.s_50,
+			backgroundColor: colors.tertiary,
+			borderRadius: size.s_30,
+			borderWidth: 0.5,
+			borderColor: colors.textDisabled
 		},
 		addPeopleBtn: {
 			padding: size.s_20,
@@ -74,5 +77,48 @@ export const style = (colors: Attributes) =>
 		bgVoice: {
 			width: '100%',
 			height: '100%'
+		},
+		menuFooterContainer: {
+			borderRadius: size.s_40,
+			backgroundColor: colors.secondary
+		},
+		menuHeaderContainer: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_20
+		},
+		controlContainer: {
+			gap: size.s_10,
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'space-between',
+			paddingVertical: size.s_12,
+			paddingHorizontal: size.s_16
+		},
+		streamingRoomWrapper: {
+			width: size.s_100 * 2,
+			height: size.s_100
+		},
+		streamingRoomWrapperExpanded: {
+			width: '100%',
+			height: '100%'
+		},
+		userStreamingFullSize: {
+			width: '100%',
+			height: '60%'
+		},
+		userStreamingMiniSize: {
+			width: '100%',
+			height: '100%'
+		},
+		menuIconEndCall: {
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'relative',
+			width: size.s_50,
+			height: size.s_50,
+			borderRadius: size.s_30,
+			borderWidth: 0.5,
+			borderColor: colors.textDisabled
 		}
 	});

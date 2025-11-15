@@ -1,10 +1,10 @@
-import { Attributes, size, verticalScale } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		imageMessageRender: {
 			borderRadius: verticalScale(5),
-			marginTop: size.s_2,
 			overflow: 'hidden'
 		},
 		wrapperTypingLabel: {
@@ -28,8 +28,12 @@ export const style = (colors: Attributes) =>
 			borderRadius: verticalScale(5)
 		},
 		moreText: {
-			color: colors.white,
+			color: '#fff',
 			fontSize: 20,
 			fontWeight: 'bold'
+		},
+		imageFullSize: {
+			width: '100%',
+			height: '100%'
 		}
 	});

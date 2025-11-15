@@ -3,6 +3,7 @@ import { EOptionOverridesType } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { IChannel } from '@mezon/utils';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, TextInput, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -14,6 +15,7 @@ const NotificationOverrides = () => {
 	const styles = style(themeValue);
 	const categorizedChannels = useCategorizedAllChannels();
 	const [searchText, setSearchText] = useState<string>('');
+	const { t } = useTranslation(['common']);
 
 	const options = useMemo(() => {
 		if (!categorizedChannels?.length) return [];
@@ -36,31 +38,13 @@ const NotificationOverrides = () => {
 	};
 
 	return (
-		<View style={{ flex: 1 }}>
-			<View style={{ backgroundColor: themeValue.primary, width: '100%', height: '100%' }}>
-				<View
-					style={{
-						paddingHorizontal: size.s_20,
-						paddingVertical: size.s_10,
-						borderTopColor: themeValue.border,
-						borderBottomColor: themeValue.border,
-						borderWidth: 1
-					}}
-				>
-					<View
-						style={{
-							backgroundColor: themeValue.tertiary,
-							flexDirection: 'row',
-							alignItems: 'center',
-							justifyContent: 'space-between',
-							borderRadius: size.s_6,
-							paddingHorizontal: size.s_10,
-							paddingVertical: size.s_4
-						}}
-					>
+		<View style={styles.container}>
+			<View style={styles.contentContainer}>
+				<View style={styles.searchContainer}>
+					<View style={styles.searchInputWrapper}>
 						<TextInput
 							placeholderTextColor={themeValue.textDisabled}
-							placeholder={'Search'}
+							placeholder={t('searchPlaceHolder')}
 							style={styles.input}
 							value={searchText}
 							onChangeText={onTextChange}

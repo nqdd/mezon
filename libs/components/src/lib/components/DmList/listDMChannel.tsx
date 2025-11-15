@@ -7,7 +7,7 @@ import {
 	selectStatusStream,
 	selectVoiceJoined
 } from '@mezon/store';
-import { isLinuxDesktop, isWindowsDesktop, toggleDisableHover } from '@mezon/utils';
+import { generateE2eId, isLinuxDesktop, isWindowsDesktop, toggleDisableHover } from '@mezon/utils';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -77,12 +77,13 @@ const ListDMChannel = ({ listDM }: ListDMChannelProps) => {
 			ref={parentRef}
 			className={`thread-scroll show-scroll`}
 			style={{
-				height: height,
+				height,
 				overflow: 'auto'
 			}}
 			onWheelCapture={() => {
 				toggleDisableHover(parentRef.current, scrollTimeoutId2);
 			}}
+			data-e2e={generateE2eId('chat.direct_message.chat_list_container')}
 		>
 			<div
 				style={{

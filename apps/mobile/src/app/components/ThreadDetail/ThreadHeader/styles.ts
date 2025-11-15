@@ -1,4 +1,4 @@
-import { Attributes, Colors, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -31,11 +31,20 @@ export const style = (colors: Attributes) =>
 			fontSize: size.h5,
 			fontWeight: '700'
 		},
+		groupAvatarWrapper: {
+			width: size.s_50,
+			height: size.s_50,
+			borderRadius: size.s_28,
+			overflow: 'hidden'
+		},
 		groupAvatar: {
-			backgroundColor: Colors.orange,
+			width: size.s_50,
+			height: size.s_50,
+			backgroundColor: baseColor.orange,
 			borderRadius: 50,
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			overflow: 'hidden'
 		},
 		friendAvatar: {
 			borderRadius: 50
@@ -51,18 +60,19 @@ export const style = (colors: Attributes) =>
 			borderColor: colors.secondary
 		},
 		online: {
-			backgroundColor: Colors.green
+			backgroundColor: baseColor.green
 		},
 		offline: {
-			backgroundColor: Colors.bgGrayDark
+			backgroundColor: '#676b73'
 		},
 		avatarSize: {
 			width: size.s_50,
 			height: size.s_50
 		},
 		avatarWrapper: {
+			marginTop: size.s_10,
 			alignItems: 'center',
-			gap: size.s_14
+			gap: size.s_4
 		},
 		iconBackHeader: {
 			zIndex: 1000,

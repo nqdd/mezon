@@ -1,8 +1,8 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import {
 	selectChannelMemberByUserIds,
-	selectCurrentChannel,
 	selectCurrentChannelId,
+	selectCurrentChannelType,
 	selectDmGroupCurrentId,
 	selectMemberByUsername,
 	useAppSelector
@@ -14,10 +14,12 @@ import {
 	WIDTH_CHANNEL_LIST_BOX,
 	WIDTH_CLAN_SIDE_BAR,
 	WIDTH_PANEL_PROFILE,
+	generateE2eId,
 	getNameForPrioritize
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { RefObject, memo, useCallback, useMemo, useState } from 'react';
+import type { RefObject } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ModalUserProfile from '../ModalUserProfile';
@@ -114,7 +116,7 @@ const MentionUser = ({
 	}, [positionShortUser]);
 
 	const handleOpenShortUser = useCallback(
-		(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		(e: React.MouseEvent<HTMLElement, MouseEvent>) => {
 			if (checkAnonymous) {
 				return;
 			}
@@ -163,15 +165,17 @@ const MentionUser = ({
 				</span>
 			)}
 			{displayToken?.type === MentionType.USER_EXIST && (
-				<button
-					// eslint-disable-next-line @typescript-eslint/no-empty-function
+				<a
+					contentEditable="false"
+					data-entity-type="MessageEntityMentionName"
+					data-user-id={tagUserId}
 					onMouseDown={!isJumMessageEnabled || isTokenClickAble ? (e) => handleOpenShortUser(e) : () => {}}
-					// eslint-disable-next-line @typescript-eslint/no-empty-function
-					style={{ textDecoration: 'none' }}
-					className={`outline-none font-medium px-0.1 rounded-sm whitespace-nowrap bg-mention color-mention hover-mention   ${isJumMessageEnabled ? '' : 'hover:none'}`}
+					className={`no-underline select-all cursor-pointer outline-none font-medium px-0.1 rounded-sm whitespace-nowrap bg-mention color-mention hover-mention   ${isJumMessageEnabled ? '' : 'hover:none'}`}
+					suppressContentEditableWarning={true}
+					data-e2e={generateE2eId('chat.channel_message.mention_user')}
 				>
 					{displayToken.display}
-				</button>
+				</a>
 			)}
 		</>
 	);
@@ -195,8 +199,8 @@ const UserProfilePopup = ({ username, userID, channelId, mode, isDm, positionSho
 	}, [getUserByUserId, getUserByUsername]);
 	const userId = userGetByNameOrId?.id ?? userID;
 
-	const currentChannel = useSelector(selectCurrentChannel);
-	const positionStyle = currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ? { right: `120px` } : { left: `${positionShortUser?.left}px` };
+	const currentChannelType = useSelector(selectCurrentChannelType);
+	const positionStyle = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING ? { right: `120px` } : { left: `${positionShortUser?.left}px` };
 	const prioritizeName = getNameForPrioritize(
 		userGetByNameOrId?.clan_nick ?? '',
 		userGetByNameOrId?.user?.display_name ?? '',

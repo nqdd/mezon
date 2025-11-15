@@ -2,9 +2,13 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ColorRoleProvider } from '@mezon/mobile-ui';
+import { selectIsShowUpdateUsername } from '@mezon/store-mobile';
 import notifee from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
 import { getInitialNotification, getMessaging } from '@react-native-firebase/messaging';
+import { Platform } from 'react-native';
+import { useSelector } from 'react-redux';
+import UpdateUserName from '../../components/UpdateUserName';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex } from '../../utils/helpers';
 import { APP_SCREEN } from '../ScreenTypes';
@@ -14,17 +18,12 @@ export const Authentication = memo(() => {
 	const isTabletLandscape = useTabletLandscape();
 	const [initRouteName, setInitRouteName] = useState<string>('');
 	const notiInitRef = useRef<any>(null);
-
+	const isShowUpdateUsername = useSelector(selectIsShowUpdateUsername);
 	const getInitRouterName = async () => {
 		let routeName: string = APP_SCREEN.BOTTOM_BAR;
 		try {
-			const [remoteMessage, remoteMessageNotifee] = await Promise.all([getInitialNotification(messaging), notifee.getInitialNotification()]);
-			let notification;
-			if (remoteMessage) {
-				notification = { ...remoteMessage?.notification, data: remoteMessage?.data };
-			} else if (remoteMessageNotifee) {
-				notification = { ...remoteMessageNotifee?.notification, data: remoteMessageNotifee?.notification?.data };
-			}
+			const remoteMessage: any = Platform.OS === 'ios' ? await getInitialNotification(messaging) : await notifee.getInitialNotification();
+			const notification = { ...(remoteMessage?.notification || {}), data: remoteMessage?.data || remoteMessage?.notification?.data };
 
 			if (notification?.data?.link) {
 				notiInitRef.current = notification;
@@ -35,7 +34,6 @@ export const Authentication = memo(() => {
 					routeName = APP_SCREEN.MESSAGES.MESSAGE_DETAIL;
 				}
 			}
-
 			setInitRouteName(routeName);
 		} catch (e) {
 			console.error('log  => error getInitRouterName', e);
@@ -49,6 +47,7 @@ export const Authentication = memo(() => {
 
 	if (!initRouteName) return null;
 
+	if (isShowUpdateUsername) return <UpdateUserName />;
 	return (
 		<BottomSheetModalProvider>
 			<ColorRoleProvider>

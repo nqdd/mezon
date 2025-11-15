@@ -1,4 +1,4 @@
-import { Attributes, Metrics, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -34,16 +34,17 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.bgInputPrimary
 		},
 		yesButton: {
-			paddingVertical: size.s_10,
-			borderRadius: 50,
+			height: size.s_40,
+			borderRadius: size.s_8,
+			justifyContent: 'center',
+			alignItems: 'center',
 			backgroundColor: colors.bgViolet
 		},
 		buttonText: {
-			color: colors.white,
+			color: baseColor.white,
 			textAlign: 'center'
 		},
 		buttonsWrapper: {
-			maxHeight: 90,
 			gap: size.s_10
 		},
 		title: {
@@ -56,10 +57,11 @@ export const style = (colors: Attributes) =>
 		},
 		textBox: {
 			borderWidth: 1,
-			borderColor: colors.text,
+			borderColor: colors.textDisabled,
 			borderRadius: size.s_8,
 			marginBottom: size.s_20,
-			padding: size.s_4
+			padding: size.s_4,
+			paddingHorizontal: size.s_12
 		},
 		input: {
 			paddingVertical: size.s_10,

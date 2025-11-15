@@ -1,28 +1,32 @@
 /* eslint-disable no-console */
 import { useSendForwardMessage } from '@mezon/core';
-import { CheckIcon } from '@mezon/mobile-components';
-import { Colors, Text, size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity, MessagesEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
-	MessagesEntity,
 	getIsFowardAll,
 	getSelectedMessage,
 	getStore,
 	selectAllChannelsByUser,
+	selectBanMemberCurrentClanById,
+	selectBlockedUsersForMessage,
 	selectCurrentChannelId,
+	selectCurrentUserId,
 	selectDirectsOpenlist,
 	selectDmGroupCurrentId,
 	selectMessageEntitiesByChannelId,
+	selectMessageIdsByChannelId,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelThreads, IMessageWithUser, normalizeString } from '@mezon/utils';
+import type { ChannelThreads, IMessageWithUser } from '@mezon/utils';
+import { FOR_1_HOUR_SEC, normalizeString } from '@mezon/utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StatusBar, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -30,7 +34,7 @@ import MezonInput from '../../../../../componentUI/MezonInput';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import ForwardMessageItem from './ForwardMessageItem/ForwardMessageItem';
-import { styles } from './styles';
+import { style } from './styles';
 
 export interface IForwardIObject {
 	channelId: string;
@@ -52,6 +56,7 @@ const ForwardMessageScreen = () => {
 	const { sendForwardMessage } = useSendForwardMessage();
 	const { t } = useTranslation('message');
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const store = getStore();
 	const isForwardAll = useSelector(getIsFowardAll);
 	const currentDmId = useSelector(selectDmGroupCurrentId);
@@ -63,20 +68,13 @@ const ForwardMessageScreen = () => {
 	const allMessagesEntities = useAppSelector((state) =>
 		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
 	);
-	const convertedAllMessagesEntities: MessagesEntity[] = allMessagesEntities ? Object.values(allMessagesEntities) : [];
-	const allMessagesBySenderId = useMemo(() => {
-		return convertedAllMessagesEntities?.filter((message) => message.sender_id === selectedMessage?.user?.id);
-	}, [allMessagesEntities, selectedMessage?.user?.id]);
-
-	const startIndex = useMemo(() => {
-		return allMessagesBySenderId.findIndex((message) => message.id === selectedMessage?.id);
-	}, [allMessagesEntities, selectedMessage?.id]);
+	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || ''));
 
 	const mapDirectMessageToForwardObject = (dm: DirectEntity): IForwardIObject => {
 		return {
 			channelId: dm?.id,
 			type: dm?.type,
-			avatar: dm?.type === ChannelType.CHANNEL_TYPE_DM ? dm?.channel_avatar?.[0] : 'assets/images/avatar-group.png',
+			avatar: dm?.type === ChannelType.CHANNEL_TYPE_DM ? dm?.avatars?.[0] : dm?.channel_avatar,
 			name: dm?.channel_label,
 			clanId: '',
 			clanName: '',
@@ -99,8 +97,12 @@ const ForwardMessageScreen = () => {
 	const allForwardObject = useMemo(() => {
 		const listChannels = selectAllChannelsByUser(store.getState() as any);
 		const dmGroupChatList = selectDirectsOpenlist(store.getState() as any);
+		const listBlockUsers = selectBlockedUsersForMessage(store.getState() as any);
 		const listDMForward = dmGroupChatList
-			?.filter((dm) => dm?.type === ChannelType.CHANNEL_TYPE_DM && dm?.channel_label)
+			?.filter(
+				(dm) =>
+					dm?.type === ChannelType.CHANNEL_TYPE_DM && dm?.channel_label && !listBlockUsers?.some((user) => user?.id === dm?.user_ids?.[0])
+			)
 			.map(mapDirectMessageToForwardObject);
 
 		const listGroupForward = dmGroupChatList
@@ -115,14 +117,37 @@ const ForwardMessageScreen = () => {
 			)
 			.map(mapChannelToForwardObject);
 
-		return [...listTextChannel, ...listGroupForward, ...listDMForward];
+		return [...listTextChannel, ...listDMForward, ...listGroupForward];
 	}, [store]);
 
 	const filteredForwardObjects = useMemo(() => {
 		if (searchText?.trim()?.charAt(0) === '#') {
 			return allForwardObject.filter((ob) => ob?.type === ChannelType.CHANNEL_TYPE_CHANNEL || ob?.type === ChannelType.CHANNEL_TYPE_THREAD);
 		}
-		return allForwardObject.filter((ob) => normalizeString(ob?.name).includes(normalizeString(searchText)));
+
+		const filtered = allForwardObject.filter((ob) => normalizeString(ob?.name).includes(normalizeString(searchText)));
+		if (!searchText?.trim()) {
+			return filtered;
+		}
+
+		const normalizedSearch = normalizeString(searchText);
+
+		return filtered.sort((a, b) => {
+			const normalizedA = normalizeString(a?.name);
+			const normalizedB = normalizeString(b?.name);
+
+			const isExactA = normalizedA === normalizedSearch;
+			const isExactB = normalizedB === normalizedSearch;
+			if (isExactA && !isExactB) return -1;
+			if (!isExactA && isExactB) return 1;
+
+			const startsWithA = normalizedA.startsWith(normalizedSearch);
+			const startsWithB = normalizedB.startsWith(normalizedSearch);
+			if (startsWithA && !startsWithB) return -1;
+			if (!startsWithA && startsWithB) return 1;
+
+			return normalizedA.localeCompare(normalizedB);
+		});
 	}, [searchText, allForwardObject]);
 
 	const isChecked = (forwardObject: IForwardIObject) => {
@@ -145,17 +170,35 @@ const ForwardMessageScreen = () => {
 			const combineMessages: MessagesEntity[] = [];
 			combineMessages.push(selectedMessage);
 
-			let index = startIndex + 1;
-			while (
-				index < allMessagesBySenderId.length &&
-				!allMessagesBySenderId[index].isStartedMessageGroup &&
-				allMessagesBySenderId[index].sender_id === selectedMessage?.user?.id
-			) {
-				combineMessages.push(allMessagesBySenderId[index]);
-				index++;
+			const revertIds = [...(allMessageIds || [])]?.reverse();
+			const startIndex = revertIds?.findIndex((id) => id === selectedMessage?.id);
+
+			let index = startIndex - 1;
+
+			while (index >= 0) {
+				const messageEntity = allMessagesEntities?.[revertIds?.[index]];
+				if (!messageEntity) break;
+
+				const differentTime = Date.parse(selectedMessage.create_time) - Date.parse(messageEntity.create_time);
+
+				if (differentTime <= FOR_1_HOUR_SEC * 1000 && messageEntity?.sender_id === selectedMessage?.user?.id) {
+					combineMessages.push(messageEntity);
+					index--;
+				} else {
+					break;
+				}
 			}
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
-				const { type, channelId, clanId = '' } = selectedObjectSend;
+				const { type, channelId, clanId = '', name } = selectedObjectSend;
+				const currentUserId = selectCurrentUserId(store.getState());
+				const isBanFromChannel = selectBanMemberCurrentClanById(store.getState(), channelId, currentUserId);
+				if (isBanFromChannel) {
+					Toast.show({
+						type: 'error',
+						text1: t('bannedChannel', { channelName: name })
+					});
+					return;
+				}
 				switch (type) {
 					case ChannelType.CHANNEL_TYPE_DM:
 						for (const message of combineMessages) {
@@ -186,7 +229,7 @@ const ForwardMessageScreen = () => {
 				type: 'success',
 				props: {
 					text2: t('forwardMessagesSuccessfully'),
-					leadingIcon: <CheckIcon color={Colors.green} width={30} height={17} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={30} height={17} />
 				}
 			});
 		} catch (error) {
@@ -199,7 +242,16 @@ const ForwardMessageScreen = () => {
 		if (!selectedForwardObjectsRef.current?.length) return;
 		try {
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
-				const { type, channelId, clanId = '', isChannelPublic } = selectedObjectSend;
+				const { type, channelId, clanId = '', isChannelPublic, name } = selectedObjectSend;
+				const currentUserId = selectCurrentUserId(store.getState());
+				const isBanFromChannel = selectBanMemberCurrentClanById(store.getState(), channelId, currentUserId);
+				if (isBanFromChannel) {
+					Toast.show({
+						type: 'error',
+						text1: t('bannedChannel', { channelName: name })
+					});
+					return;
+				}
 				switch (type) {
 					case ChannelType.CHANNEL_TYPE_DM:
 						sendForwardMessage('', channelId, ChannelStreamMode.STREAM_MODE_DM, false, message);
@@ -221,7 +273,7 @@ const ForwardMessageScreen = () => {
 				type: 'success',
 				props: {
 					text2: t('forwardMessagesSuccessfully'),
-					leadingIcon: <CheckIcon color={Colors.green} width={30} height={17} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={30} height={17} />
 				}
 			});
 		} catch (error) {
@@ -250,19 +302,23 @@ const ForwardMessageScreen = () => {
 		<KeyboardAvoidingView
 			behavior="padding"
 			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-			style={{ flex: 1, backgroundColor: themeValue.primary, paddingHorizontal: size.s_16, paddingTop: size.s_16 }}
+			style={styles.container}
 		>
 			<StatusBarHeight />
-			<View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: size.s_18 }}>
-				<View style={{ flex: 1 }}>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
+			<View style={styles.header}>
+				<View style={styles.headerSide}>
 					<TouchableOpacity onPress={onClose}>
 						<MezonIconCDN icon={IconCDN.closeLargeIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 				</View>
-				<Text h3 color={themeValue.white}>
-					{t('forwardTo')}
-				</Text>
-				<View style={{ flex: 1 }} />
+				<Text style={styles.headerTitle}>{t('forwardTo')}</Text>
+				<View style={styles.headerSide} />
 			</View>
 
 			<MezonInput
@@ -270,13 +326,13 @@ const ForwardMessageScreen = () => {
 				onTextChange={setSearchText}
 				value={searchText}
 				prefixIcon={<MezonIconCDN icon={IconCDN.magnifyingIcon} color={themeValue.text} height={20} width={20} />}
-				inputWrapperStyle={{ backgroundColor: themeValue.primary, paddingHorizontal: size.s_6 }}
+				inputWrapperStyle={styles.inputWrapper}
 			/>
 
-			<View style={{ marginTop: size.s_12, marginBottom: size.s_12, flex: 1 }}>
+			<View style={styles.contentWrapper}>
 				<FlashList
 					keyExtractor={(item) => `${item.channelId}_${item.type}`}
-					estimatedItemSize={70}
+					estimatedItemSize={size.s_50}
 					data={filteredForwardObjects}
 					renderItem={renderForwardObject}
 					keyboardShouldPersistTaps="handled"
@@ -288,7 +344,7 @@ const ForwardMessageScreen = () => {
 				onPress={handleForward}
 			>
 				<Text style={styles.btnText}>
-					{'Send'}
+					{t('buzz.confirmText')}
 					{count}
 				</Text>
 			</TouchableOpacity>

@@ -1,9 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { IClanProfile, LoadingStatus, TypeCheck } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiUpdateClanProfileRequest } from 'mezon-js';
-import { ApiClanProfile } from 'mezon-js/api.gen';
-import { ensureClient, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import type { IClanProfile, LoadingStatus } from '@mezon/utils';
+import { TypeCheck } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiUpdateClanProfileRequest } from 'mezon-js';
+import type { ApiClanProfile } from 'mezon-js/api.gen';
+import { accountActions } from '../account/account.slice';
+import { setUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
+import { ensureClient, ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 export const USER_CLAN_PROFILE_FEATURE_KEY = 'userClanProfile';
 
@@ -32,7 +36,7 @@ type fetchUserClanProfilePayload = {
 
 export const fetchUserClanProfile = createAsyncThunk('userclanProfile/userClanProfile', async ({ clanId }: fetchUserClanProfilePayload, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	const response = await mezon.client.getUserProfileOnClan(mezon.session, clanId);
+	const response = await withRetry(() => mezon.client.getUserProfileOnClan(mezon.session, clanId), { maxRetries: 3, initialDelay: 1000 });
 	if (!response) {
 		return thunkAPI.rejectWithValue([]);
 	}
@@ -75,27 +79,38 @@ export const updateUserClanProfile = createAsyncThunk(
 			const currentUserClanProfile = state.userClanProfile.entities[`${clanId}${currentUser?.user?.id}`];
 			const mezon = ensureClient(getMezonCtx(thunkAPI));
 			const body: Partial<ApiUpdateClanProfileRequest> = {
-				clan_id: clanId
+				clan_id: clanId,
+				nick_name: username,
+				avatar: avatarUrl
 			};
 
-			if (username && username !== currentUserClanProfile?.nick_name) {
-				body.nick_name = username || '';
-			}
+			if (
+				(username && username !== currentUserClanProfile?.nick_name) ||
+				(avatarUrl && avatarUrl !== '' && avatarUrl !== currentUserClanProfile?.avatar)
+			) {
+				const response = await mezon.client.updateUserProfileByClan(mezon.session, clanId, body as ApiUpdateClanProfileRequest);
+				if (!response) {
+					return thunkAPI.rejectWithValue([]);
+				}
 
-			if (avatarUrl && avatarUrl !== '' && avatarUrl !== currentUserClanProfile?.avatar) {
-				body.avatar = avatarUrl || '';
-			}
+				thunkAPI.dispatch(
+					userClanProfileSlice.actions.updateOne({
+						id: `${clanId}${currentUser?.user?.id}`,
+						changes: {
+							nick_name: username,
+							avatar: avatarUrl
+						}
+					})
+				);
 
-			const hasChanges = Object.keys(body).length > 1;
-			if (!hasChanges) {
-				return true;
+				if (avatarUrl && currentUser?.user?.id) {
+					setUserClanAvatarOverride(currentUser.user.id, clanId, avatarUrl);
+					thunkAPI.dispatch(accountActions.incrementAvatarVersion());
+				}
+
+				thunkAPI.dispatch(fetchUserClanProfile({ clanId }));
 			}
-			const response = await mezon.client.updateUserProfileByClan(mezon.session, clanId, body as ApiUpdateClanProfileRequest);
-			if (!response) {
-				return thunkAPI.rejectWithValue([]);
-			}
-			thunkAPI.dispatch(fetchUserClanProfile({ clanId }));
-			return response as true;
+			return true;
 		} catch (error) {
 			captureSentryError(error, 'userClanProfile/updateUserClanProfile');
 			return thunkAPI.rejectWithValue(error);
@@ -116,6 +131,7 @@ export const userClanProfileSlice = createSlice({
 	reducers: {
 		add: userClanProfileAdapter.addOne,
 		remove: userClanProfileAdapter.removeOne,
+		updateOne: userClanProfileAdapter.updateOne,
 		changeUserClanProfile: (state, action: PayloadAction<string>) => {
 			state.currentUserClanProfileId = action.payload;
 		},

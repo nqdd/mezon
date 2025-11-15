@@ -1,6 +1,7 @@
 import { useRoles } from '@mezon/core';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectAllRolesClan } from '@mezon/store-mobile';
+import { MAX_FILE_SIZE_256KB } from '@mezon/utils';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -11,7 +12,7 @@ import MezonImagePicker from '../../../componentUI/MezonImagePicker';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { style } from './styles';
 
-function RoleImagePicker({ roleId }: { roleId: string }) {
+function RoleImagePicker({ roleId, disable = false }: { roleId: string; disable?: boolean }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const rolesClan = useSelector(selectAllRolesClan);
@@ -26,10 +27,10 @@ function RoleImagePicker({ roleId }: { roleId: string }) {
 				return;
 			} else {
 				Toast.show({
-					type: 'success',
+					type: 'error',
 					props: {
 						text2: t('failed'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
+						leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 					}
 				});
 			}
@@ -42,10 +43,10 @@ function RoleImagePicker({ roleId }: { roleId: string }) {
 			return;
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 				}
 			});
 		}
@@ -56,12 +57,21 @@ function RoleImagePicker({ roleId }: { roleId: string }) {
 			<View style={styles.roleButton}>
 				<Text style={styles.textBtn}>{t('roleImagePicker')}</Text>
 				<View style={styles.tailButton}>
-					{!!activeRole?.role_icon && (
+					{!!activeRole?.role_icon && !disable && (
 						<TouchableOpacity style={styles.deleteButton} onPress={handleRemoveIcon}>
-							<Text style={styles.deleteText}>remove</Text>
+							<Text style={styles.deleteText}>{t('removeImage')}</Text>
 						</TouchableOpacity>
 					)}
-					<MezonImagePicker defaultValue={activeRole?.role_icon} height={size.s_50} width={size.s_50} onLoad={handleOnLoad} autoUpload />
+					<MezonImagePicker
+						defaultValue={activeRole?.role_icon}
+						height={size.s_50}
+						width={size.s_50}
+						onLoad={handleOnLoad}
+						autoUpload
+						disabled={disable}
+						imageSizeLimit={MAX_FILE_SIZE_256KB}
+						style={styles.imagePicker}
+					/>
 				</View>
 			</View>
 		</View>

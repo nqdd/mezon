@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -33,10 +34,17 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			borderRadius: 8,
 			padding: size.s_20
 		},
+		actionGroupDM: {
+			backgroundColor: colors.secondary,
+			marginBottom: size.s_20,
+			borderRadius: 8,
+			paddingHorizontal: size.s_16
+		},
 		username: {
 			color: colors.textStrong,
 			fontSize: size.h6,
-			fontWeight: '600'
+			fontWeight: '600',
+			marginBottom: size.s_2
 		},
 		subUserName: {
 			color: colors.text,
@@ -45,7 +53,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		},
 		userAction: {
 			marginTop: size.s_20,
-			gap: size.s_20,
+			gap: size.s_14,
 			flexDirection: 'row',
 			alignItems: 'center'
 			// justifyContent: 'space-between',
@@ -54,6 +62,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			flexDirection: 'column',
 			alignItems: 'center',
 			padding: size.s_10,
+			minWidth: size.s_80,
 			gap: size.s_6,
 			backgroundColor: colors.primary,
 			borderRadius: 8
@@ -83,16 +92,19 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		roleItem: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: 8,
+			gap: size.s_8,
 			backgroundColor: colors.charcoal,
-			minWidth: 80,
+			minWidth: size.s_80,
+			maxWidth: size.s_200,
 			padding: size.s_6,
-			borderRadius: 8
+			borderRadius: size.s_8,
+			overflow: 'hidden'
 		},
 		textRole: {
 			color: colors.white,
 			fontSize: size.medium,
-			fontWeight: '400'
+			fontWeight: '400',
+			maxWidth: '85%'
 		},
 		title: {
 			color: colors.white,
@@ -162,5 +174,81 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			height: size.s_20,
 			borderRadius: size.s_20,
 			backgroundColor: colors.badgeHighlight
+		},
+		wrapManageVoice: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_12
+		},
+		voiceJoinButton: {
+			flexDirection: 'row',
+			gap: size.s_6,
+			backgroundColor: baseColor.bgSuccess,
+			borderRadius: size.s_50,
+			justifyContent: 'center',
+			paddingVertical: size.s_8,
+			alignItems: 'center'
+		},
+		rowContainer: {
+			flexDirection: 'row'
+		},
+		topActionButton: {
+			position: 'absolute',
+			right: size.s_10,
+			top: size.s_10,
+			padding: size.s_6,
+			borderRadius: size.s_20,
+			backgroundColor: colors.primary
+		},
+		transferFundsButton: {
+			position: 'absolute',
+			right: size.s_50,
+			top: size.s_10,
+			padding: size.s_6,
+			borderRadius: size.s_20,
+			backgroundColor: colors.primary
+		},
+		userInfoGap: {
+			gap: size.s_10
+		},
+		mediumFontSize: {
+			fontSize: size.medium
+		},
+		actionItemRow: {
+			flexDirection: 'row',
+			gap: size.s_6
+		},
+		friendRequestContainer: {
+			marginTop: size.s_16
+		},
+		friendRequestActions: {
+			flexDirection: 'row',
+			gap: size.s_10,
+			marginTop: size.s_10
+		},
+		acceptButton: {
+			backgroundColor: baseColor.green
+		},
+		ignoreButton: {
+			backgroundColor: baseColor.bgButtonSecondary
+		},
+		aboutMeContainer: {
+			paddingVertical: size.s_16
+		},
+		roleIcon: {
+			width: size.s_15,
+			height: size.s_15,
+			borderRadius: size.s_50
+		},
+		roleColorDot: {
+			width: size.s_15,
+			height: size.s_15,
+			borderRadius: size.s_50
+		},
+		actionTextGreen: {
+			color: baseColor.green
+		},
+		actionTextYellow: {
+			color: baseColor.goldenrodYellow
 		}
 	});

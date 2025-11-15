@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 type GuideItemLayoutProps = {
 	icon?: ReactNode;
@@ -31,7 +31,7 @@ export const GuideItemLayout = ({
 		<div
 			className={`p-4 flex items-start rounded-lg ${noNeedHover ? '' : 'bg-item-hover border-theme-primary bg-theme-setting-nav text-theme-primary-hover'} ${height ? height : 'h-full'} ${background} ${className}`}
 			style={{
-				gap: gap
+				gap
 			}}
 			onClick={onClick}
 		>
@@ -40,7 +40,7 @@ export const GuideItemLayout = ({
 					<div className={`${hightLightIcon ? 'rounded-full w-12 aspect-square ' : ''}  flex items-center justify-center`}>{icon}</div>
 				</div>
 			)}
-			<div className={`flex flex-1 text-base flex-col h-full justify-start text-theme-primary`}>
+			<div className={`flex flex-1 text-base flex-col h-full justify-center text-theme-primary `}>
 				{title && <div className="font-bold text-theme-primary-active">{title}</div>}
 				{description && <div className="text-xs flex-1">{description}</div>}
 			</div>

@@ -1,28 +1,32 @@
-import { useAppParams } from '@mezon/core';
+import { useAppNavigation, useAppParams } from '@mezon/core';
+import type { ChannelMembersEntity, RootState } from '@mezon/store';
 import {
-	ChannelMembersEntity,
 	EStateFriend,
-	RootState,
+	directActions,
 	selectAllAccount,
 	selectFriendById,
 	selectHasKeyE2ee,
 	selectNotifiSettingsEntitiesById,
+	selectUpdateDmGroupError,
+	selectUpdateDmGroupLoading,
+	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EMuteState, FOR_15_MINUTES, FOR_1_HOUR, FOR_24_HOURS, FOR_3_HOURS, FOR_8_HOURS } from '@mezon/utils';
+import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { FC, createContext, useCallback, useContext, useMemo, useState } from 'react';
+import type { FC } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Menu, Submenu, useContextMenu } from 'react-contexify';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import LeaveGroupModal from '../../components/LeaveGroupModal';
+import ModalEditGroup from '../../components/ModalEditGroup';
 import ItemPanelMember from '../../components/PanelMember/ItemPanelMember';
+import { useEditGroupModal } from '../../hooks/useEditGroupModal';
 import { MemberMenuItem } from '../MemberContextMenu';
-import {
-	DIRECT_MESSAGE_CONTEXT_MENU_ID,
-	DMCT_GROUP_CHAT_ID,
-	DirectMessageContextMenuContextType,
-	DirectMessageContextMenuHandlers,
-	DirectMessageContextMenuProps
-} from './types';
+import { useModals } from '../MemberContextMenu/useModals';
+import type { DirectMessageContextMenuContextType, DirectMessageContextMenuHandlers, DirectMessageContextMenuProps } from './types';
+import { DIRECT_MESSAGE_CONTEXT_MENU_ID, DMCT_GROUP_CHAT_ID } from './types';
 import { useContextMenuHandlers } from './useContextMenu';
 import { useDefaultHandlers } from './useDefaultHandlers';
 import { useMenuHandlers } from './useMenuHandlers';
@@ -37,17 +41,20 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	contextMenuId = DIRECT_MESSAGE_CONTEXT_MENU_ID,
 	dataMemberCreate
 }) => {
+	const { t } = useTranslation('directMessage');
 	const [currentUser, setCurrentUser] = useState<ChannelMembersEntity | any>(null);
 	const [currentHandlers, setCurrentHandlers] = useState<DirectMessageContextMenuHandlers | null>(null);
+	const [isLeaveGroupModalOpen, setIsLeaveGroupModalOpen] = useState(false);
+	const dispatch = useAppDispatch();
 
 	const userProfile = useSelector(selectAllAccount);
 	const hasKeyE2ee = useAppSelector(selectHasKeyE2ee);
 	const { directId } = useAppParams();
+	const { navigate } = useAppNavigation();
 	const { show } = useContextMenu({ id: contextMenuId });
 
 	const getChannelId = currentUser?.channelId || currentUser?.channel_id;
 	const getChannelType = currentUser?.type;
-	const getChannelE2ee = currentUser?.e2ee;
 	const isDmGroup = getChannelType === ChannelType.CHANNEL_TYPE_GROUP;
 	const isDm = getChannelType === ChannelType.CHANNEL_TYPE_DM;
 	const channelId = getChannelId;
@@ -56,7 +63,31 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const [warningStatus, setWarningStatus] = useState<string>('var(--bg-item-hover)');
 
 	const { openUserProfile } = useProfileModal({ currentUser });
+	const { openProfileItem } = useModals({
+		currentUser
+	});
+	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(currentUser?.channel_id || '')(state));
+	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(currentUser?.channel_id || '')(state));
 
+	const editGroupModal = useEditGroupModal({
+		channelId: currentUser?.channelId || currentUser?.channel_id,
+		currentGroupName: currentUser?.channel_label || 'Group',
+		currentAvatar: currentUser?.channel_avatar || ''
+	});
+
+	const openLeaveGroupModal = useCallback(() => {
+		setIsLeaveGroupModalOpen(true);
+	}, []);
+
+	const closeLeaveGroupModal = useCallback(() => {
+		setIsLeaveGroupModalOpen(false);
+	}, []);
+
+	useEffect(() => {
+		if (currentUser?.channel_id) {
+			dispatch(directActions.fetchDirectMessage({ noCache: true }));
+		}
+	}, [currentUser?.channel_id, dispatch]);
 	const showMenu = useCallback(
 		(event: React.MouseEvent) => {
 			show({ event });
@@ -104,10 +135,12 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		handleRemoveMemberFromGroup,
 		handleLeaveDmGroup,
 		blockFriend,
-		unBlockFriend
+		unBlockFriend,
+		openEditGroupModal: editGroupModal.openEditModal,
+		openLeaveGroupModal
 	});
 
-	const { showContextMenu, openProfileItem } = useContextMenuHandlers({
+	const { showContextMenu } = useContextMenuHandlers({
 		setCurrentUser,
 		setCurrentHandlers,
 		showMenu,
@@ -116,18 +149,20 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		openUserProfile
 	});
 
-	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_id?.includes(userProfile?.user?.id);
-	const isMuted = notificationSettings?.active === EMuteState.MUTED;
-	const hasMuteTime = notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
+	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_ids?.includes(userProfile?.user?.id);
+
+	const isDefaultSetting = !notificationSettings?.id || notificationSettings?.id === '0';
+	const isMuted = !isDefaultSetting && notificationSettings?.active === EMuteState.MUTED;
+	const hasMuteTime = !isDefaultSetting && notificationSettings?.time_mute ? new Date(notificationSettings.time_mute) > new Date() : false;
+	const shouldShowUnmute = isMuted || hasMuteTime;
+
+	const shouldShowMuteSubmenu = !isMuted && !hasMuteTime;
+
 	const isOwnerClanOrGroup = userProfile?.user?.id && dataMemberCreate?.createId && userProfile?.user?.id === dataMemberCreate.createId;
-	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_id?.[0] || ''));
+	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentUser?.user_ids?.[0] || currentUser?.id || ''));
 	const didIBlockUser = useMemo(() => {
-		return (
-			infoFriend?.state === EStateFriend.BLOCK &&
-			infoFriend?.source_id === userProfile?.user?.id &&
-			infoFriend?.user?.id === currentUser?.user_id?.[0]
-		);
-	}, [currentUser?.user_id, infoFriend, userProfile?.user?.id]);
+		return infoFriend?.state === EStateFriend.BLOCK && infoFriend?.source_id === userProfile?.user?.id;
+	}, [currentUser?.user_ids, infoFriend, userProfile?.user?.id]);
 
 	const contextValue: DirectMessageContextMenuContextType = {
 		setCurrentHandlers,
@@ -140,30 +175,51 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		mutedUntilText
 	};
 
+	const shouldShowMenu = currentHandlers && !isSelf;
+
 	return (
 		<DirectMessageContextMenuContext.Provider value={contextValue}>
 			{children}
 
-			<Menu id={contextMenuId} style={menuStyles} className="z-50 rounded-lg border-theme-primary" animation={false}>
-				{currentHandlers && (
+			<Menu
+				id={contextMenuId}
+				style={menuStyles}
+				className={`z-50 rounded-lg border-theme-primary ${!shouldShowMenu && '!opacity-0'}`}
+				animation={false}
+			>
+				{currentHandlers && !isSelf && (
 					<>
-						{isDm && <MemberMenuItem label="Profile" onClick={currentHandlers.handleViewProfile} setWarningStatus={setWarningStatus} />}
+						{isDm && (
+							<MemberMenuItem
+								label={t('contextMenu.profile')}
+								onClick={currentHandlers.handleViewProfile}
+								setWarningStatus={setWarningStatus}
+							/>
+						)}
 
 						{channelId && (
-							<MemberMenuItem label="Mark as Read" onClick={currentHandlers.handleMarkAsRead} setWarningStatus={setWarningStatus} />
+							<MemberMenuItem
+								label={t('contextMenu.markAsRead')}
+								onClick={currentHandlers.handleMarkAsRead}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
-						{!isSelf && !isDm && !isDmGroup && (
-							<MemberMenuItem label="Message" onClick={currentHandlers.handleMessage} setWarningStatus={setWarningStatus} />
+						{!isDm && !isDmGroup && (
+							<MemberMenuItem
+								label={t('contextMenu.message')}
+								onClick={currentHandlers.handleMessage}
+								setWarningStatus={setWarningStatus}
+							/>
 						)}
 
-						{!isSelf && !isDmGroup && infoFriend?.state !== EStateFriend.BLOCK && (
+						{!isDmGroup && infoFriend?.state !== EStateFriend.BLOCK && (
 							<>
 								{infoFriend?.state !== EStateFriend.FRIEND &&
 									infoFriend?.state !== EStateFriend.MY_PENDING &&
 									infoFriend?.state !== EStateFriend.OTHER_PENDING && (
 										<MemberMenuItem
-											label="Add Friend"
+											label={t('contextMenu.addFriend')}
 											onClick={currentHandlers.handleAddFriend}
 											setWarningStatus={setWarningStatus}
 										/>
@@ -171,7 +227,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 
 								{infoFriend?.state === EStateFriend.FRIEND && (
 									<MemberMenuItem
-										label="Remove Friend"
+										label={t('contextMenu.removeFriend')}
 										onClick={currentHandlers.handleRemoveFriend}
 										isWarning={true}
 										setWarningStatus={setWarningStatus}
@@ -180,97 +236,100 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 							</>
 						)}
 
-						{!isSelf && !isDmGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && (
+						{!isDmGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && (
 							<MemberMenuItem
-								label={didIBlockUser ? 'Unblock' : 'Block'}
+								label={didIBlockUser ? t('contextMenu.unblock') : t('contextMenu.block')}
 								onClick={didIBlockUser ? currentHandlers.handleUnblockFriend : currentHandlers.handleBlockFriend}
 								isWarning={!didIBlockUser}
 								setWarningStatus={setWarningStatus}
 							/>
 						)}
 
-						{/* {channelId && (
-							<MemberMenuItem
-								label={getChannelE2ee ? 'Disable E2EE' : 'Enable E2EE'}
-								onClick={currentHandlers.handleEnableE2EE}
-								rightElement={
-									getChannelE2ee ? (
-										<span className="ml-2 text-xs" role="img" aria-label="Secure, encrypted">
-											🔒
-										</span>
-									) : (
-										<span className="ml-2 text-xs" role="img" aria-label="Not encrypted">
-											🔓
-										</span>
-									)
-								}
-								setWarningStatus={setWarningStatus}
-							/>
-						)} */}
-
 						{contextMenuId !== DMCT_GROUP_CHAT_ID &&
 							channelId &&
-							(isMuted || hasMuteTime ? (
+							(shouldShowUnmute ? (
 								<MemberMenuItem
 									label={nameChildren}
 									onClick={currentHandlers.handleUnmute}
 									rightElement={mutedUntilText ? <span className="ml-2 text-xs">{mutedUntilText}</span> : undefined}
 									setWarningStatus={setWarningStatus}
 								/>
-							) : (
+							) : shouldShowMuteSubmenu ? (
 								<Submenu
 									label={
-										<span
-											className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1 "
-											style={{ fontFamily: `'gg sans', 'Noto Sans', sans-serif`, padding: 8 }}
-										>
+										<span className="flex truncate justify-between items-center w-full font-sans text-sm font-medium text-theme-primary text-theme-primary-hover p-1.5">
 											{nameChildren}
 										</span>
 									}
 								>
 									<MemberMenuItem
-										label="For 15 Minutes"
-										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES)}
+										label={t('contextMenu.for15Minutes')}
+										onClick={() => currentHandlers.handleMute(FOR_15_MINUTES_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 1 Hour"
-										onClick={() => currentHandlers.handleMute(FOR_1_HOUR)}
+										label={t('contextMenu.for1Hour')}
+										onClick={() => currentHandlers.handleMute(FOR_1_HOUR_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 3 Hour"
-										onClick={() => currentHandlers.handleMute(FOR_3_HOURS)}
+										label={t('contextMenu.for3Hours')}
+										onClick={() => currentHandlers.handleMute(FOR_3_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 8 Hour"
-										onClick={() => currentHandlers.handleMute(FOR_8_HOURS)}
+										label={t('contextMenu.for8Hours')}
+										onClick={() => currentHandlers.handleMute(FOR_8_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="For 24 Hour"
-										onClick={() => currentHandlers.handleMute(FOR_24_HOURS)}
+										label={t('contextMenu.for24Hours')}
+										onClick={() => currentHandlers.handleMute(FOR_24_HOURS_SEC)}
 										setWarningStatus={setWarningStatus}
 									/>
 									<MemberMenuItem
-										label="Until I turn it back on"
+										label={t('contextMenu.untilTurnBackOn')}
 										onClick={() => currentHandlers.handleMute()}
 										setWarningStatus={setWarningStatus}
 									/>
 								</Submenu>
-							))}
-
-						{contextMenuId === DMCT_GROUP_CHAT_ID && !isSelf && isOwnerClanOrGroup && (
-							<ItemPanelMember children="Remove From Group" onClick={currentHandlers.handleRemoveFromGroup} danger />
+							) : null)}
+						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
+							<ItemPanelMember children={t('contextMenu.editGroup')} onClick={currentHandlers.handleEditGroup} />
+						)}
+						{contextMenuId === DMCT_GROUP_CHAT_ID && isOwnerClanOrGroup && (
+							<ItemPanelMember children={t('contextMenu.removeFromGroup')} onClick={currentHandlers.handleRemoveFromGroup} danger />
 						)}
 
 						{contextMenuId !== DMCT_GROUP_CHAT_ID && isDmGroup && (
-							<ItemPanelMember children={'Leave Group'} danger onClick={currentHandlers.handleLeaveGroup} />
+							<ItemPanelMember children={t('contextMenu.leaveGroup')} danger onClick={currentHandlers.handleLeaveGroup} />
 						)}
 					</>
 				)}
 			</Menu>
+
+			<ModalEditGroup
+				isOpen={editGroupModal.isEditModalOpen}
+				onClose={editGroupModal.closeEditModal}
+				onSave={editGroupModal.handleSave}
+				onImageUpload={editGroupModal.handleImageUpload}
+				groupName={editGroupModal.groupName}
+				onGroupNameChange={editGroupModal.setGroupName}
+				imagePreview={editGroupModal.imagePreview}
+				isLoading={updateDmGroupLoading}
+				error={updateDmGroupError}
+			/>
+
+			{isLeaveGroupModalOpen && currentUser && (
+				<LeaveGroupModal
+					onClose={closeLeaveGroupModal}
+					groupWillBeLeave={currentUser}
+					navigateToFriends={() => {
+						dispatch(directActions.setDmGroupCurrentId(''));
+						navigate('/chat/direct/friends');
+					}}
+				/>
+			)}
 		</DirectMessageContextMenuContext.Provider>
 	);
 };

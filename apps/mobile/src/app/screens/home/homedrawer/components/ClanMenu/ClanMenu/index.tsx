@@ -1,10 +1,12 @@
 import { useMarkAsRead, usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { useTheme } from '@mezon/mobile-ui';
+import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
 	categoriesActions,
-	selectCurrentClan,
+	selectCurrentClanId,
+	selectCurrentClanLogo,
+	selectCurrentClanName,
 	selectDefaultNotificationClan,
 	selectIsShowEmptyCategory,
 	useAppDispatch
@@ -37,12 +39,13 @@ enum StatusMarkAsReadClan {
 }
 
 export default function ClanMenu() {
-	const currentClan = useSelector(selectCurrentClan);
 	const { t } = useTranslation(['clanMenu']);
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
-
+	const currentClanLogo = useSelector(selectCurrentClanLogo);
+	const currentClanId = useSelector(selectCurrentClanId);
+	const currentClanName = useSelector(selectCurrentClanName);
 	const navigation = useNavigation<AppStackScreenProps['navigation']>();
 	const dispatch = useAppDispatch();
 	const { handleMarkAsReadClan, statusMarkAsReadClan } = useMarkAsRead();
@@ -76,16 +79,13 @@ export default function ClanMenu() {
 	}, [navigation]);
 
 	const organizationMenu: IMezonMenuItemProps[] = [
-		// {
-		// 	onPress: () => reserve(),
-		// 	title: t('menu.organizationMenu.createChannel'),
-		// },
 		{
 			onPress: () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, { screen: APP_SCREEN.MENU_CLAN.CREATE_CATEGORY });
 			},
-			title: t('menu.organizationMenu.createCategory')
+			title: t('menu.organizationMenu.createCategory'),
+			isShow: isCanEditRole
 		},
 		{
 			onPress: () => {
@@ -117,28 +117,6 @@ export default function ClanMenu() {
 			title: t('menu.optionsMenu.auditLog'),
 			isShow: isCanEditRole
 		},
-
-		// {
-		// 	title: t('menu.optionsMenu.showAllChannels'),
-		// 	component: <MezonSwitch />,
-		// },
-		// {
-		// 	title: t('menu.optionsMenu.hideMutedChannels'),
-		// 	component: <MezonSwitch />,
-		// },
-		// {
-		// 	title: t('menu.optionsMenu.allowDirectMessage'),
-		// 	component: <MezonSwitch />,
-		// },
-		// {
-		// 	title: t('menu.optionsMenu.allowMessageRequest'),
-
-		// 	component: <MezonSwitch />,
-		// },
-		// {
-		// 	onPress: () => reserve(),
-		// 	title: t('menu.optionsMenu.reportServer'),
-		// },
 		{
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
@@ -150,7 +128,7 @@ export default function ClanMenu() {
 			},
 			isShow: !isClanOwner,
 			title: t('menu.optionsMenu.leaveServer'),
-			textStyle: { color: 'red' }
+			textStyle: { color: baseColor.redStrong }
 		},
 		{
 			onPress: async () => {
@@ -163,7 +141,7 @@ export default function ClanMenu() {
 			},
 			isShow: isClanOwner,
 			title: t('menu.optionsMenu.deleteClan'),
-			textStyle: { color: 'red' }
+			textStyle: { color: baseColor.redStrong }
 		}
 	];
 
@@ -177,7 +155,7 @@ export default function ClanMenu() {
 	const watchMenu: IMezonMenuItemProps[] = [
 		{
 			onPress: async () => {
-				await handleMarkAsReadClan(currentClan?.clan_id);
+				await handleMarkAsReadClan(currentClanId);
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			},
 			title: t('menu.watchMenu.markAsRead')
@@ -200,9 +178,9 @@ export default function ClanMenu() {
 
 	function handleToggleEmptyCategories(value: boolean) {
 		if (value) {
-			dispatch(categoriesActions.setShowEmptyCategory(currentClan?.clan_id));
+			dispatch(categoriesActions.setShowEmptyCategory(currentClanId));
 		} else {
-			dispatch(categoriesActions.setHideEmptyCategory(currentClan?.clan_id));
+			dispatch(categoriesActions.setHideEmptyCategory(currentClanId));
 		}
 		setShowEmptyCategories(value);
 	}
@@ -215,17 +193,12 @@ export default function ClanMenu() {
 		<View style={styles.container}>
 			<View style={styles.header}>
 				<View style={styles.avatarWrapper}>
-					<MezonClanAvatar image={currentClan?.logo} alt={currentClan?.clan_name} />
+					<MezonClanAvatar image={currentClanLogo} alt={currentClanName} />
 				</View>
-				<Text style={styles.serverName}>{currentClan?.clan_name}</Text>
-				<ClanMenuInfo clan={currentClan} />
+				<Text style={styles.serverName}>{currentClanName}</Text>
+				<ClanMenuInfo />
 
 				<ScrollView contentContainerStyle={styles.actionWrapper} horizontal>
-					{/*<MezonButtonIcon*/}
-					{/*	title={`18 ${t('actions.boot')}`}*/}
-					{/*	icon={<Icons.BoostTier2Icon color={baseColor.purple} />}*/}
-					{/*	onPress={() => reserve()}*/}
-					{/*/>*/}
 					<MezonButtonIcon
 						title={t('actions.invite')}
 						icon={<MezonIconCDN icon={IconCDN.groupPlusIcon} color={themeValue.textStrong} />}

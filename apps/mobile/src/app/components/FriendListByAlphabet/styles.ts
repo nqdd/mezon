@@ -1,4 +1,5 @@
-import { Attributes, Colors, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -19,11 +20,10 @@ export const style = (colors: Attributes) =>
 			paddingVertical: size.s_6
 		},
 		groupWrapper: {
-			borderRadius: size.s_12,
-			overflow: 'hidden'
+			borderRadius: size.s_12
 		},
 		friendText: {
-			color: Colors.textGray,
+			color: colors.text,
 			paddingVertical: size.s_18
 		}
 	});

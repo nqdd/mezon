@@ -6,6 +6,7 @@ import { WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
 import { safeJSONParse, WebrtcSignalingFwd } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
@@ -139,6 +140,7 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 	const ringtoneRef = useRef<Sound | null>(null);
 	const userId = useSelector(selectCurrentUserId);
 	const { sendSignalingToParticipants } = useSendSignaling();
+	const { t } = useTranslation('message');
 
 	const callData = useMemo(() => {
 		return parseSignalingData(dataCall?.json_data as string);
@@ -154,9 +156,23 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 	};
 
 	useEffect(() => {
+		if (!isVisible) {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		}
+	}, [isVisible]);
+
+	useEffect(() => {
+		return () => {
+			stopAndReleaseSound();
+			Vibration.cancel();
+		};
+	}, []);
+
+	useEffect(() => {
 		if (dataCall?.caller_id && callData) {
 			setIsVisible(true);
-			Sound.setCategory('Playback');
+			Sound.setCategory(Platform.OS === 'ios' ? 'Playback' : 'Ambient', Platform.OS === 'ios');
 
 			// Initialize ringtone
 			const sound = new Sound('ringing.mp3', Sound.MAIN_BUNDLE, (error) => {
@@ -198,7 +214,8 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 			const data = {
 				channelId: dataCall.channel_id || '',
 				roomName: callData?.meeting_code,
-				clanId: ''
+				clanId: '',
+				isGroupCall: true
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
 			const joinAction = {
@@ -246,10 +263,10 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 
 	return (
 		<View style={styles.centeredView}>
-			<View style={{ flex: 1, paddingRight: size.s_10 }}>
-				<View style={{ alignItems: 'center', flexDirection: 'row' }}>
+			<View style={styles.headerContainer}>
+				<View style={styles.headerRow}>
 					<Text numberOfLines={1} style={styles.headerTitle}>
-						Mezon audio
+						{t('callLog.incomingCall')}
 					</Text>
 					<LottieView
 						source={themeBasic === ThemeModeBase.DARK ? TYPING_DARK_MODE : TYPING_LIGHT_MODE}
@@ -267,7 +284,7 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 					{`${callData?.participants.length} members in this group`}
 				</Text>
 			</View>
-			<View style={{ gap: size.s_10, flexDirection: 'row' }}>
+			<View style={styles.buttonContainer}>
 				<TouchableOpacity onPress={onDeniedCall} style={[styles.btnControl, styles.btnDenied]}>
 					<MezonIconCDN icon={IconCDN.closeLargeIcon} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>

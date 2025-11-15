@@ -1,5 +1,7 @@
 import { useEscapeKeyClose } from '@mezon/core';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ModalConfirmProps {
 	handleCancel: () => void;
@@ -16,16 +18,20 @@ interface ModalConfirmProps {
 
 const ModalConfirm = ({
 	handleCancel,
-	title = 'Title Modal',
-	buttonName = 'OK',
+	title,
+	buttonName,
 	modalName,
 	handleConfirm,
 	buttonColor = 'bg-red-600 hover:bg-red-700',
-	message = `You won’t be able to re-join this
-            server unless you are re-invited.`,
+	message,
 	customModalName,
 	customTitle = ''
 }: ModalConfirmProps) => {
+	const { t } = useTranslation('common');
+
+	const defaultTitle = title || t('modalConfirm.defaultTitle');
+	const defaultButtonName = buttonName || t('modalConfirm.defaultButtonName');
+	const defaultMessage = message || t('modalConfirm.defaultMessage');
 	useEffect(() => {
 		const handleEnterKey = (event: KeyboardEvent) => {
 			if (event.key === 'Enter') {
@@ -48,29 +54,27 @@ const ModalConfirm = ({
 			<div className="relative z-10 w-[440px]" onClick={(e) => e.stopPropagation()}>
 				<div className="bg-theme-setting-primary pt-[16px] px-[16px] rounded-t-md">
 					<div className=" text-theme-primary-active text-[20px] font-semibold pb-[16px]">
-						<span className="capitalize mr-1">{title}</span>
+						<span className="capitalize mr-1">{defaultTitle}</span>
 						{customModalName ? customModalName : modalName}
 					</div>
 					<div className=" pb-[20px] text-theme-primary">
-						{customTitle !== '' ? (
-							<span>{customTitle}</span>
-						) : (
-							<span>
-								Are you sure you want to {title} {''}
-								<b className="font-semibold">{modalName}</b>? {message}
-							</span>
-						)}
+						{customTitle !== '' ? <span>{customTitle}</span> : <span>{defaultMessage && ` ${defaultMessage}`}</span>}
 					</div>
 				</div>
 				<div className="bg-theme-setting-nav  flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium rounded-b-md">
 					<div
 						onClick={handleCancel}
 						className="hover:underline px-4 rounded-lg text-theme-primary text-theme-primary-hover  cursor-pointer"
+						data-e2e={generateE2eId('modal.confirm_modal.button.cancel')}
 					>
-						Cancel
+						{t('cancel')}
 					</div>
-					<div className={`${buttonColor}  text-white rounded-lg px-[25px] py-[8px] cursor-pointer`} onClick={handleConfirm}>
-						{buttonName}
+					<div
+						className={`${buttonColor}  text-white rounded-lg px-[25px] py-[8px] cursor-pointer`}
+						onClick={handleConfirm}
+						data-e2e={generateE2eId('modal.confirm_modal.button.confirm')}
+					>
+						{defaultButtonName}
 					</div>
 				</div>
 			</div>

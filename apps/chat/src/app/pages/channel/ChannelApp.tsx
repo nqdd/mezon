@@ -23,7 +23,8 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Loading } from '@mezon/ui';
-import { ApiChannelAppResponseExtend, MiniAppEventType, ParticipantMeetState } from '@mezon/utils';
+import type { ApiChannelAppResponseExtend } from '@mezon/utils';
+import { MiniAppEventType, ParticipantMeetState } from '@mezon/utils';
 import { Track } from 'livekit-client';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -32,7 +33,7 @@ import useMiniAppEventListener from './useMiniAppEventListener';
 function AudioConference() {
 	const tracks = useTracks([{ source: Track.Source.Microphone, withPlaceholder: true }], { onlySubscribed: false });
 	return (
-		<GridLayout tracks={tracks} style={{ height: 'calc(100vh - var(--lk-control-bar-height))' }}>
+		<GridLayout tracks={tracks} className="h-[calc(100vh-var(--lk-control-bar-height))]">
 			<ParticipantTile />
 		</GridLayout>
 	);
@@ -51,15 +52,7 @@ export function AudiRoom({ token, serverUrl }: { token: string; serverUrl: strin
 			className="w-full h-full flex justify-center items-center"
 		>
 			<RoomAudioRenderer />
-			<div
-				style={{
-					position: 'relative',
-					width: '100%',
-					height: '100%',
-					backgroundColor: '#000',
-					overflow: 'hidden'
-				}}
-			>
+			<div className="relative w-full h-full bg-black overflow-hidden">
 				<AudioConference />
 				<AudioControls />
 			</div>
@@ -108,7 +101,8 @@ export const ChannelApps = React.memo(({ appChannel }: { appChannel: ApiChannelA
 					clan_id: currentChannelAppClanId,
 					channel_id: currentChannelAppId,
 					display_name: userProfile?.user?.display_name ?? '',
-					state: ParticipantMeetState.LEAVE
+					state: ParticipantMeetState.LEAVE,
+					room_name: roomId as string
 				})
 			);
 		}
@@ -144,7 +138,7 @@ export const ChannelApps = React.memo(({ appChannel }: { appChannel: ApiChannelA
 	const getUserHashInfo = useCallback(
 		async (appId: string) => {
 			try {
-				const response = await dispatch(channelAppActions.generateAppUserHash({ appId: appId })).unwrap();
+				const response = await dispatch(channelAppActions.generateAppUserHash({ appId })).unwrap();
 
 				return response;
 			} catch (error) {
@@ -208,7 +202,8 @@ export const ChannelApps = React.memo(({ appChannel }: { appChannel: ApiChannelA
 						clan_id: appChannel.clan_id ?? '',
 						channel_id: channelId,
 						display_name: userProfile?.user?.display_name ?? '',
-						state
+						state,
+						room_name: roomId as string
 					})
 				);
 			} catch (err) {

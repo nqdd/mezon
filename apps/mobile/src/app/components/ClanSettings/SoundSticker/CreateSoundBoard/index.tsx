@@ -4,7 +4,7 @@ import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { pick, types } from '@react-native-documents/picker';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -12,24 +12,26 @@ import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
+import type { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
 import RenderAudioChat from '../../../../screens/home/homedrawer/components/RenderAudioChat/RenderAudioChat';
 import { style } from './styles';
 
 type ClanSettingsScreen = typeof APP_SCREEN.MENU_CLAN.CREATE_SOUND;
 export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettingsScreen>) {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
-	const { t } = useTranslation(['clanSoundSetting']);
 	const [audioFile, setAudioFile] = useState<any>(null);
-	const [audioUrl, setAudioUrl] = useState<string>('');
 	const [soundName, setSoundName] = useState<string>('');
+	const isDisabledUpload = useMemo(() => !audioFile || !soundName.trim(), [audioFile, soundName]);
+	const styles = style(themeValue, isDisabledUpload);
+	const { t } = useTranslation(['clanSoundSetting']);
+	const [audioUrl, setAudioUrl] = useState<string>('');
 	const buttonRef = useRef<any>(null);
 	const { sessionRef, clientRef } = useMezon();
 	const dispatch = useAppDispatch();
 	const currentClanId = useAppSelector(selectCurrentClanId);
 
 	const onAudioPick = async () => {
+		setAudioUrl('');
 		try {
 			buttonRef.current.disabled = true;
 			const res = await pick({
@@ -80,7 +82,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 			}
 
 			const id = Snowflake.generate();
-			const path = 'sounds/' + id + '.' + audioFile.name.split('.').pop();
+			const path = `sounds/${id}.${audioFile.name.split('.').pop()}`;
 
 			const base64 = await RNFS.readFile(audioUrl, 'base64');
 			const arrayBuffer = BufferMobile.from(base64, 'base64');
@@ -89,7 +91,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 
 			if (attachment && attachment.url) {
 				const request = {
-					id: id,
+					id,
 					category: 'Among Us',
 					clan_id: currentClanId,
 					shortname: soundName.trim(),
@@ -114,21 +116,21 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 				<View>
 					<Text style={styles.title}>{t('content.preview')}</Text>
 					<View style={styles.preview}>
-						<RenderAudioChat audioURL={audioUrl || ''} />
+						<RenderAudioChat audioURL={audioUrl || ''} stylesContainerCustom={styles.previewContainer} />
 					</View>
 				</View>
 			)}
 			<View style={styles.audioFile}>
 				<View style={styles.inputContainer}>
-					<MezonInput label={t('content.audioFile')} disabled placeHolder="Choose an audio file" value={audioFile?.name || ''} />
+					<MezonInput label={t('content.audioFile')} disabled placeHolder={t('content.chooseAudioFile')} value={audioFile?.name || ''} />
 				</View>
 				<Pressable style={styles.uploadButton} onPress={onAudioPick} ref={buttonRef}>
-					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color={themeValue.textStrong} />
+					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color="white" />
 				</Pressable>
 			</View>
 			<MezonInput label={t('content.audioName')} placeHolder="Ex.cathug" maxCharacter={30} onTextChange={setSoundName} />
-			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef}>
-				<Text style={styles.buttonTitle}>{'Upload'}</Text>
+			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef} disabled={isDisabledUpload}>
+				<Text style={styles.buttonTitle}>{t('button.uploadDetailScreen')}</Text>
 			</Pressable>
 		</View>
 	);

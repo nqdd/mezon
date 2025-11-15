@@ -1,49 +1,33 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size } from '@mezon/mobile-ui';
-import { RootState, selectAllClans } from '@mezon/store-mobile';
-import React, { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Image, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '@mezon/mobile-ui';
+import { RootState, selectCountClanJoined } from '@mezon/store-mobile';
+import React, { memo } from 'react';
+import { StyleSheet, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
-import Images from '../../../../../assets/Images';
-import CreateClanModal from '../components/CreateClanModal';
-import JoinClanModal from '../components/JoinClanModal';
-import { styles } from './styles';
+import { DiscoverMobileProvider } from '../Discover/DiscoverMobileContext';
+import DiscoverScreen from '../Discover/DiscoverScreen';
+import HeaderUserEmptyClan from './HeaderUserEmptyClan';
+import { style } from './styles';
 
 const UserEmptyClan = () => {
-	const clans = useSelector(selectAllClans);
+	const countClanJoined = useSelector(selectCountClanJoined);
 	const clansLoadingStatus = useSelector((state: RootState) => state?.clans?.loadingStatus);
-	const [isVisibleJoinClanModal, setIsVisibleJoinClanModal] = useState<boolean>(false);
-	const { t } = useTranslation('userEmptyClan');
-	const onCreateClanModal = useCallback(() => {
-		const data = {
-			children: <CreateClanModal />
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, []);
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 
-	if (clansLoadingStatus === 'loaded' && !clans?.length) {
+	if (clansLoadingStatus === 'loaded' && countClanJoined === 0) {
 		return (
 			<View style={styles.wrapper}>
-				<Text style={styles.headerText}>{t('emptyClans.clans')}</Text>
-				<Image style={styles.imageBg} source={Images.CHAT_PANA} />
-				<View>
-					<Text style={styles.title}>{t('emptyClans.readyChat')}</Text>
-					<Text style={styles.description}>{t('emptyClans.buildYourCommunity')}</Text>
-				</View>
-				<View
-					style={{
-						marginTop: size.s_20
-					}}
-				>
-					<TouchableOpacity onPress={() => setIsVisibleJoinClanModal(!isVisibleJoinClanModal)} style={styles.joinClan}>
-						<Text style={styles.textJoinClan}>{t('emptyClans.joinClan')}</Text>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={onCreateClanModal} style={styles.createClan}>
-						<Text style={styles.textCreateClan}>{t('emptyClans.createClan')}</Text>
-					</TouchableOpacity>
-				</View>
-				<JoinClanModal visible={isVisibleJoinClanModal} setVisible={(value) => setIsVisibleJoinClanModal(value)} />
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
+				<DiscoverMobileProvider>
+					<HeaderUserEmptyClan />
+					<DiscoverScreen />
+				</DiscoverMobileProvider>
 			</View>
 		);
 	}
@@ -51,4 +35,4 @@ const UserEmptyClan = () => {
 	return null;
 };
 
-export default UserEmptyClan;
+export default memo(UserEmptyClan);

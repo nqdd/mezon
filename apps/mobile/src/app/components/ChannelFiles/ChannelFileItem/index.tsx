@@ -1,9 +1,11 @@
-import { FileIcon } from '@mezon/mobile-components';
-import { Colors, size, useTheme } from '@mezon/mobile-ui';
-import { selectMemberClanByUserId2, useAppSelector } from '@mezon/store-mobile';
-import { IAttachmentEntity, convertTimeString } from '@mezon/utils';
+import { size, useTheme } from '@mezon/mobile-ui';
+import { selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
+import { IAttachmentEntity, convertTimeHour } from '@mezon/utils';
 import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Linking, Text, TouchableOpacity, View } from 'react-native';
+import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../constants/icon_cdn';
 import { style } from './styles';
 
 type ChannelFileItemProps = {
@@ -13,9 +15,10 @@ type ChannelFileItemProps = {
 const ChannelFileItem = memo(({ file }: ChannelFileItemProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const userSendAttachment = useAppSelector((state) => selectMemberClanByUserId2(state, file?.uploader ?? ''));
+	const userSendAttachment = useAppSelector((state) => selectMemberClanByUserId(state, file?.uploader ?? ''));
 	const username = userSendAttachment?.user?.username;
-	const attachmentSendTime = convertTimeString(file?.create_time as string);
+	const { t } = useTranslation('message');
+	const attachmentSendTime = convertTimeHour(file?.create_time as string);
 
 	const onPressItem = () => {
 		Linking.openURL(file?.url);
@@ -23,14 +26,14 @@ const ChannelFileItem = memo(({ file }: ChannelFileItemProps) => {
 
 	return (
 		<TouchableOpacity style={styles.container} onPress={onPressItem}>
-			<FileIcon height={size.s_34} width={size.s_34} color={Colors.bgViolet} />
-			<View>
-				<Text style={[styles.fileName, { color: Colors.bgViolet }]} numberOfLines={1} ellipsizeMode="tail">
+			<MezonIconCDN icon={IconCDN.fileIcon} height={size.s_34} width={size.s_34} color={themeValue.bgViolet} />
+			<View style={styles.content}>
+				<Text style={[styles.fileName, { color: themeValue.bgViolet }]} numberOfLines={1} ellipsizeMode="tail">
 					{file?.filename}
 				</Text>
 				<View style={styles.footer}>
 					<Text style={styles.footerTitle} numberOfLines={1} ellipsizeMode="tail">
-						shared by {username}
+						{t('sharedBy', { username: username })}
 					</Text>
 					<Text style={styles.footerTime} numberOfLines={1}>
 						{attachmentSendTime}

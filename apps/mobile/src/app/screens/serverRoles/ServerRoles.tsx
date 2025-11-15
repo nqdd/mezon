@@ -1,22 +1,26 @@
 import { usePermissionChecker } from '@mezon/core';
-import { Text, size, useTheme } from '@mezon/mobile-ui';
-import { RolesClanEntity, selectAllRolesClan } from '@mezon/store-mobile';
-import { EPermission, EVERYONE_ROLE_ID } from '@mezon/utils';
-import { useEffect, useMemo } from 'react';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { RolesClanEntity } from '@mezon/store-mobile';
+import { selectAllRolesClan } from '@mezon/store-mobile';
+import { EPermission } from '@mezon/utils';
+import { useLayoutEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Platform, Pressable, TouchableOpacity, View } from 'react-native';
+import { FlatList, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { SeparatorWithLine } from '../../components/Common';
 import ImageNative from '../../components/ImageNative';
 import { IconCDN } from '../../constants/icon_cdn';
-import { APP_SCREEN, MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import type { MenuClanScreenProps } from '../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import { style } from './styles';
 
 type ClanSettingsScreen = typeof APP_SCREEN.MENU_CLAN.ROLE_SETTING;
 export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScreen>) => {
 	const { t } = useTranslation('clanRoles');
 	const rolesClan = useSelector(selectAllRolesClan);
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const [hasAdminPermission, hasManageClanPermission, isClanOwner] = usePermissionChecker([
 		EPermission.administrator,
 		EPermission.manageClan,
@@ -27,50 +31,43 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 		return (rolesClan || []).map((role) => ({ ...role, isView: !(hasAdminPermission || hasManageClanPermission || isClanOwner) }));
 	}, [rolesClan, hasAdminPermission, hasManageClanPermission, isClanOwner]);
 
-	useEffect(() => {
+	const everyoneRole = useMemo(() => {
+		return rolesClan?.find((role) => role?.slug === `everyone-${role?.clan_id}`);
+	}, [rolesClan]);
+
+	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerStatusBarHeight: Platform.OS === 'android' ? 0 : undefined,
 			headerRight: () => (
-				<Pressable style={{ padding: 20 }} onPress={() => navigation.navigate(APP_SCREEN.MENU_CLAN.CREATE_NEW_ROLE)}>
-					<MezonIconCDN icon={IconCDN.plusLargeIcon} height={20} width={20} color={themeValue.textStrong} />
+				<Pressable style={styles.addRole} onPress={() => navigation.navigate(APP_SCREEN.MENU_CLAN.CREATE_NEW_ROLE)}>
+					<MezonIconCDN icon={IconCDN.plusLargeIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 				</Pressable>
 			)
 		});
-	}, [navigation, t, themeValue.textStrong]);
+	}, [navigation, styles, t, themeValue.textStrong]);
 
 	const navigateToRoleEveryone = () => {
-		navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_PERMISSIONS, { roleId: EVERYONE_ROLE_ID });
+		navigation.navigate(APP_SCREEN.MENU_CLAN.SETUP_PERMISSIONS, { roleId: everyoneRole?.id });
 	};
 
 	const navigateToRoleDetail = (clanRole: RolesClanEntity) => {
 		navigation.navigate(APP_SCREEN.MENU_CLAN.ROLE_DETAIL, { role: clanRole });
 	};
 	return (
-		<View style={{ backgroundColor: themeValue.primary, flex: 1, paddingHorizontal: size.s_14 }}>
-			<View style={{ paddingVertical: size.s_14 }}>
-				<Text center color={themeValue.text}>
-					{t('roleDescription')}
-				</Text>
+		<View style={styles.container}>
+			<View style={styles.header}>
+				<Text style={styles.description}>{t('roleDescription')}</Text>
 			</View>
 
 			<TouchableOpacity onPress={navigateToRoleEveryone}>
-				<View
-					style={{
-						flexDirection: 'row',
-						alignItems: 'center',
-						justifyContent: 'space-between',
-						backgroundColor: themeValue.secondary,
-						padding: size.s_12,
-						borderRadius: size.s_12
-					}}
-				>
-					<View style={{ flexDirection: 'row', flex: 1, gap: 10 }}>
-						<View style={{ backgroundColor: themeValue.tertiary, borderRadius: 50, padding: size.s_8 }}>
+				<View style={styles.everyOneRole}>
+					<View style={styles.editButton}>
+						<View style={styles.leadIcon}>
 							<MezonIconCDN icon={IconCDN.groupIcon} color={themeValue.text} />
 						</View>
-						<View style={{ flex: 1 }}>
-							<Text color={themeValue.white}>@everyone</Text>
-							<Text color={themeValue.text} numberOfLines={1}>
+						<View style={styles.flex}>
+							<Text style={styles.text}>@everyone</Text>
+							<Text style={styles.normalText} numberOfLines={1}>
 								{t('defaultRole')}
 							</Text>
 						</View>
@@ -79,13 +76,13 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 				</View>
 			</TouchableOpacity>
 
-			<View style={{ marginTop: size.s_10, flex: 1 }}>
-				<Text color={themeValue.text}>
-					{t('roles')} - {allClanRoles?.length - 1 || '0'}
+			<View style={styles.roles}>
+				<Text style={styles.normalText}>
+					{t('roles')} - {allClanRoles?.length || '0'}
 				</Text>
 				{allClanRoles.length ? (
-					<View style={{ marginVertical: size.s_10, flex: 1 }}>
-						<View style={{ borderRadius: size.s_10, overflow: 'hidden' }}>
+					<View style={styles.listRolePanel}>
+						<View style={styles.roleList}>
 							<FlatList
 								data={allClanRoles}
 								scrollEnabled
@@ -95,26 +92,21 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 								maxToRenderPerBatch={1}
 								windowSize={2}
 								renderItem={({ item, index }) => {
-									if (item.slug === 'everyone') return null;
 									return (
 										<TouchableOpacity onPress={() => navigateToRoleDetail(item)}>
-											<View
-												style={{
-													flexDirection: 'row',
-													alignItems: 'center',
-													justifyContent: 'space-between',
-													backgroundColor: themeValue.secondary,
-													padding: size.s_12,
-													gap: size.s_10
-												}}
-											>
-												<MezonIconCDN icon={IconCDN.shieldUserIcon} color={'gray'} height={size.s_32} width={size.s_32} />
+											<View style={styles.roleItem}>
+												<MezonIconCDN
+													icon={IconCDN.shieldUserIcon}
+													color={item?.color || baseColor.gray}
+													height={size.s_32}
+													width={size.s_32}
+												/>
 												{!!item?.role_icon && (
 													<ImageNative url={item?.role_icon} style={{ height: size.s_32, width: size.s_32 }} />
 												)}
-												<View style={{ flex: 1 }}>
-													<View style={{ flexDirection: 'row', gap: size.s_6 }}>
-														<Text color={themeValue.white}>{item.title}</Text>
+												<View style={styles.flex}>
+													<View style={styles.itemTitle}>
+														<Text style={styles.text}>{item.title}</Text>
 														{item?.isView && (
 															<MezonIconCDN
 																icon={IconCDN.lockIcon}
@@ -124,8 +116,10 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 															/>
 														)}
 													</View>
-													<Text color={themeValue.text}>
-														{item?.role_user_list?.role_users?.length || '0'} - {t('members')}
+													<Text style={styles.normalText}>
+														{item?.id === everyoneRole?.id
+															? t('allMembers')
+															: `${item?.role_user_list?.role_users?.length || '0'} - ${t('members')}`}
 													</Text>
 												</View>
 												<View>
@@ -140,10 +134,8 @@ export const ServerRoles = ({ navigation }: MenuClanScreenProps<ClanSettingsScre
 						</View>
 					</View>
 				) : (
-					<View style={{ marginTop: size.s_20 }}>
-						<Text color={themeValue.text} center>
-							{t('noRole')}
-						</Text>
+					<View style={styles.emptyRole}>
+						<Text style={styles.emptyText}>{t('noRole')}</Text>
 					</View>
 				)}
 			</View>

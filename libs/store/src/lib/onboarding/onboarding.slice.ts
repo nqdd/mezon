@@ -1,11 +1,15 @@
 import { captureSentryError } from '@mezon/logger';
-import { AnswerByClanArgs, DONE_ONBOARDING_STATUS } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiOnboardingContent, ApiOnboardingItem, ApiOnboardingSteps } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { AnswerByClanArgs } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiOnboardingContent, ApiOnboardingItem, ApiOnboardingSteps } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { clansActions } from '../clans/clans.slice';
-import { MezonValueContext, ensureSession, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
+import type { RootState } from '../store';
 
 export const ONBOARDING_FEATURE_KEY = 'ONBOARDING_FEATURE_KEY';
 
@@ -25,11 +29,19 @@ export interface RuleType extends ApiOnboardingContent {
 }
 
 export interface OnboardingState extends EntityState<ApiOnboardingSteps, string> {
-	onboardingPreviewMode: boolean;
-	missionDone: number;
-	missionSum: number;
-	guideFinished: boolean;
-	listOnboarding: Record<string, OnboardingClanType>;
+	onboardingPreviewMode: {
+		open: boolean;
+		clanId: string | null;
+	};
+	toOnboard: boolean | null;
+	listOnboarding: Record<
+		string,
+		OnboardingClanType & {
+			sumMission?: number;
+			doneMission?: number;
+			allDone?: boolean;
+		}
+	>;
 	formOnboarding: {
 		greeting: ApiOnboardingContent | null;
 		rules: RuleType[];
@@ -63,10 +75,9 @@ export const fetchOnboardingCached = async (getState: () => RootState, mezon: Me
 	const clanData = onboardingState.onboardingCache[clan_id] || getInitialOnboardingState();
 
 	const apiKey = createApiKey('fetchOnboarding', clan_id, mezon.session.username || '');
-
 	const shouldForceCall = shouldForceApiCall(apiKey, clanData.cache, noCache);
 
-	if (!shouldForceCall && clanData.onboarding?.length) {
+	if (!shouldForceCall) {
 		return {
 			list_onboarding: clanData.onboarding,
 			fromCache: true,
@@ -74,7 +85,10 @@ export const fetchOnboardingCached = async (getState: () => RootState, mezon: Me
 		};
 	}
 
-	const response = await mezon.client.listOnboarding(mezon.session, clan_id, undefined, 100);
+	const response = await withRetry(() => mezon.client.listOnboarding(mezon.session, clan_id, undefined, 100), {
+		maxRetries: 3,
+		initialDelay: 1000
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -186,7 +200,7 @@ export const enableOnboarding = createAsyncThunk(
 
 			const response = await mezon.client.updateClanDesc(mezon.session, clan_id, {
 				is_onboarding: onboarding,
-				banner: banner
+				banner
 			});
 
 			if (!response) {
@@ -214,7 +228,7 @@ export const fetchOnboardingStepCached = async (getState: () => RootState, mezon
 
 	const shouldForceCall = shouldForceApiCall(apiKey, onboardingState.onboardingStepCache, noCache);
 
-	if (!shouldForceCall && onboardingState.entities && Object.keys(onboardingState.entities).length > 0) {
+	if (!shouldForceCall) {
 		return {
 			list_onboarding_step: Object.values(onboardingState.entities).filter(Boolean),
 			fromCache: true,
@@ -222,7 +236,7 @@ export const fetchOnboardingStepCached = async (getState: () => RootState, mezon
 		};
 	}
 
-	const response = await mezon.client.listOnboardingStep(mezon.session, clan_id);
+	const response = await withRetry(() => mezon.client.listOnboardingStep(mezon.session, clan_id), { maxRetries: 3, initialDelay: 1000 });
 
 	markApiFirstCalled(apiKey);
 
@@ -275,7 +289,11 @@ export const doneOnboarding = createAsyncThunk('onboarding/doneOnboarding', asyn
 });
 
 export const initialOnboardingState: OnboardingState = onboardingUserAdapter.getInitialState({
-	onboardingPreviewMode: false,
+	onboardingPreviewMode: {
+		open: false,
+		clanId: null
+	},
+	toOnboard: null,
 	missionDone: 0,
 	missionSum: 0,
 	guideFinished: false,
@@ -308,21 +326,30 @@ export const onboardingSlice = createSlice({
 	name: ONBOARDING_FEATURE_KEY,
 	initialState: initialOnboardingState,
 	reducers: {
-		openOnboardingPreviewMode: (state) => {
-			state.onboardingPreviewMode = true;
+		openOnboardingPreviewMode: (state, action: PayloadAction<{ clan_id: string }>) => {
+			state.onboardingPreviewMode = {
+				open: true,
+				clanId: action.payload.clan_id
+			};
 		},
 		closeOnboardingPreviewMode: (state) => {
-			state.onboardingPreviewMode = false;
+			state.onboardingPreviewMode = {
+				open: false,
+				clanId: null
+			};
+			state.toOnboard = true;
+		},
+		closeToOnboard: (state) => {
+			state.toOnboard = false;
 		},
 		doneMission: (state, action: PayloadAction<{ clan_id: string }>) => {
+			const missionDone = state.listOnboarding[action.payload.clan_id].doneMission || 0;
+			const sumMission = state.listOnboarding[action.payload.clan_id].sumMission || 0;
 			if (
-				state.missionDone < state.missionSum &&
+				missionDone < sumMission &&
 				onboardingUserAdapter.getSelectors().selectById(state, action.payload.clan_id)?.onboarding_step !== DONE_ONBOARDING_STATUS
 			) {
-				state.missionDone = state.missionDone + 1;
-				if (state.missionDone + 1 === state.missionSum) {
-					state.guideFinished = true;
-				}
+				state.listOnboarding[action.payload.clan_id].doneMission = (state.listOnboarding[action.payload.clan_id].doneMission || 0) + 1;
 			}
 		},
 		addGreeting: (state, action: PayloadAction<ApiOnboardingContent>) => {
@@ -451,7 +478,7 @@ export const onboardingSlice = createSlice({
 					});
 
 					state.listOnboarding[clan_id] = onboardingClan;
-					state.missionSum = onboardingClan.mission.length;
+					state.listOnboarding[clan_id].sumMission = onboardingClan.mission.length;
 
 					if (!state.onboardingCache[clan_id]) {
 						state.onboardingCache[clan_id] = getInitialOnboardingState();
@@ -538,7 +565,7 @@ export const onboardingSlice = createSlice({
 			})
 			.addCase(fetchProcessingOnboarding.fulfilled, (state, action) => {
 				if (action.payload && !action.payload.fromCache) {
-					onboardingUserAdapter.setAll(state, action.payload.steps);
+					onboardingUserAdapter.setMany(state, action.payload.steps);
 					state.onboardingStepCache = {
 						lastFetched: Date.now(),
 						expiresAt: Date.now() + 1000 * 60 * 60,
@@ -598,16 +625,20 @@ export const onboardingActions = {
 	editOnboarding
 };
 
-const { selectAll, selectEntities, selectById } = onboardingUserAdapter.getSelectors();
+const { selectById } = onboardingUserAdapter.getSelectors();
 
 export const getOnboardingState = (rootState: { [ONBOARDING_FEATURE_KEY]: OnboardingState }): OnboardingState => rootState[ONBOARDING_FEATURE_KEY];
 
 export const selectOnboardingMode = createSelector(getOnboardingState, (state) => state.onboardingPreviewMode);
+export const selectToOnboard = createSelector(getOnboardingState, (state) => state.toOnboard);
 
-export const selectMissionDone = createSelector(getOnboardingState, (state) => state.missionDone);
+export const selectMissionDone = createSelector([getOnboardingState, (state, clan_id: string) => clan_id], (state, clan_id) => {
+	return state.listOnboarding[clan_id]?.doneMission || 0;
+});
 
-export const selectMissionSum = createSelector(getOnboardingState, (state) => state.missionSum);
-export const selectFinishGuide = createSelector(getOnboardingState, (state) => state.guideFinished);
+export const selectMissionSum = createSelector([getOnboardingState, (state, clan_id: string) => clan_id], (state, clan_id) => {
+	return state.listOnboarding[clan_id]?.sumMission || 0;
+});
 
 export const selectFormOnboarding = createSelector(getOnboardingState, (state) => state.formOnboarding);
 
@@ -617,12 +648,15 @@ export const selectOnboardingByClan = createSelector([getOnboardingState, (state
 			greeting: null,
 			mission: [],
 			question: [],
-			rule: []
+			rule: [],
+			sumMission: 0
 		}
 	);
 });
 
-export const selectProcessingByClan = (clanId: string) => createSelector(getOnboardingState, (state) => selectById(state, clanId));
+export const selectProcessingByClan = createSelector([getOnboardingState, (state, clan_id: string) => clan_id], (state, clan_id) => {
+	return selectById(state, clan_id);
+});
 export const selectCurrentMission = createSelector(
 	[getOnboardingState, (state, clan_id: string) => clan_id, selectMissionDone],
 	(state, clan_id, missionIndex) => {

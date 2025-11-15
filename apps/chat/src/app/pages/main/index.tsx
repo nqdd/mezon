@@ -10,17 +10,20 @@ import {
 	MessageModalImage,
 	ModalCreateClan,
 	ModalUnknowChannel,
+	ModalWalletNotAvailable,
 	MultiStepModalE2ee,
 	NavLinkComponent,
 	SearchModal,
 	SidebarClanItem,
+	SidebarHistory,
 	SidebarLogoItem,
 	Topbar,
 	useWebRTCStream
 } from '@mezon/components';
 import { useAppParams, useAuth, useClanGroupDragAndDrop, useMenu, useReference } from '@mezon/core';
+import type { ClanGroupItem } from '@mezon/store';
 import {
-	ClanGroupItem,
+	EErrorType,
 	accountActions,
 	clansActions,
 	e2eeActions,
@@ -28,12 +31,14 @@ import {
 	getIsShowPopupForward,
 	onboardingActions,
 	selectAllAppChannelsListShowOnPopUp,
+	selectChannelById,
 	selectChatStreamWidth,
 	selectClanNumber,
 	selectClanView,
 	selectClansEntities,
 	selectCloseMenu,
-	selectCurrentChannel,
+	selectCurrentChannelId,
+	selectCurrentChannelType,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
 	selectDirectsUnreadlist,
@@ -50,10 +55,11 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { PLATFORM_ENV, Platform, TIME_OF_SHOWING_FIRST_POPUP, isLinuxDesktop, isMacDesktop, isWindowsDesktop } from '@mezon/utils';
+import { PLATFORM_ENV, Platform, TIME_OF_SHOWING_FIRST_POPUP, generateE2eId, isLinuxDesktop, isMacDesktop, isWindowsDesktop } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ChannelStream from '../channel/ChannelStream';
@@ -94,8 +100,8 @@ function MyApp() {
 	const { userProfile } = useAuth();
 	const calculateJoinedTime = new Date().getTime() - new Date(userProfile?.user?.create_time ?? '').getTime();
 	const isNewGuy = calculateJoinedTime <= TIME_OF_SHOWING_FIRST_POPUP;
-	const numberOfCLanJoined = useSelector(selectClanNumber);
-	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfCLanJoined === 0);
+	const numberOfClanJoined = useSelector(selectClanNumber);
+	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfClanJoined === 0);
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
@@ -152,19 +158,14 @@ function MyApp() {
 		setOpenOptionMessageState(false);
 	}, []);
 
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentChannel = useSelector((state) => selectChannelById(state, currentChannelId || ''));
+	const currentChannelType = useSelector(selectCurrentChannelType);
 	const currentStreamInfo = useSelector(selectCurrentStreamInfo);
 	const isShowChatStream = useSelector(selectIsShowChatStream);
 	const chatStreamWidth = useSelector(selectChatStreamWidth);
 	const openModalE2ee = useSelector(selectOpenModalE2ee);
 	const hasKeyE2ee = useSelector(selectHasKeyE2ee);
-
-	useEffect(() => {
-		if (currentChannel?.type === ChannelType.CHANNEL_TYPE_GMEET_VOICE) {
-			const urlVoice = `https://meet.google.com/${currentChannel.meeting_code}`;
-			window.open(urlVoice, '_blank', 'noreferrer');
-		}
-	}, []);
 
 	const isShowPopupQuickMess = useSelector(selectIsShowPopupQuickMess);
 
@@ -179,6 +180,9 @@ function MyApp() {
 	const handleClose = () => {
 		dispatch(e2eeActions.setOpenModalE2ee(false));
 	};
+	const openDiscoverPage = () => {
+		window.open('https://mezon.ai/clans', '_blank');
+	};
 
 	return (
 		<div className="relative overflow-hidden w-full h-full">
@@ -190,12 +194,11 @@ function MyApp() {
 				className={`flex h-dvh min-[480px]:pl-[72px] ${closeMenu ? (statusMenu ? 'pl-[72px]' : '') : ''} overflow-hidden text-gray-100 relative  `}
 				onClick={handleClick}
 			>
-				{previewMode && <PreviewOnboardingMode />}
+				{previewMode?.open && previewMode.clanId === currentClanId && <PreviewOnboardingMode />}
 				{openPopupForward && <ForwardMessageModal />}
-				<SidebarMenu openCreateClanModal={openCreateClanModal} />
-				<Topbar isHidden={currentClanId !== '0' ? !currentChannel?.id : !directId} />
+				<SidebarMenu openCreateClanModal={openCreateClanModal} openDiscoverPage={openDiscoverPage} />
+				<Topbar isHidden={currentClanId !== '0' ? false : !directId} />
 				<MainContent />
-
 				<FooterProfile
 					name={userProfile?.user?.display_name || userProfile?.user?.username || ''}
 					status={userProfile?.user?.online}
@@ -203,12 +206,11 @@ function MyApp() {
 					userId={userProfile?.user?.id || ''}
 					isDM={currentClanId !== '0'}
 				/>
-
 				<div
-					className={`fixed ${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'} bottom-0 ${closeMenu ? (statusMenu ? 'hidden' : 'w-full') : isShowChatStream ? 'max-sm:hidden' : 'w-full'} ${currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING && currentClanId !== '0' && memberPath !== currentURL ? 'flex flex-1 justify-center items-center' : 'hidden pointer-events-none'}`}
+					className={`fixed ${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'} bottom-0 ${closeMenu ? (statusMenu ? 'hidden' : 'w-full') : isShowChatStream ? 'max-sm:hidden' : 'w-full'} ${currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING && currentClanId !== '0' && memberPath !== currentURL ? 'flex flex-1 justify-center items-center' : 'hidden pointer-events-none'}`}
 					style={streamStyle}
 				>
-					{isStream || currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ? (
+					{isStream || currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING ? (
 						<ChannelStream
 							key={currentStreamInfo?.streamId}
 							currentChannel={currentChannel}
@@ -220,11 +222,8 @@ function MyApp() {
 						/>
 					) : null}
 				</div>
-
 				<DmCallManager userId={userProfile?.user?.id || ''} directId={directId} />
-				<GroupCallManager />
-
-				{openModalE2ee && !hasKeyE2ee && <MultiStepModalE2ee onClose={handleClose} />}
+				<GroupCallManager /> {openModalE2ee && !hasKeyE2ee && <MultiStepModalE2ee onClose={handleClose} />}
 				{openModalAttachment && <MessageModalImageWrapper />}
 				{isShowFirstJoinPopup && <FirstJoinPopup openCreateClanModal={openCreateClanModal} onclose={() => setIsShowFirstJoinPopup(false)} />}
 				{isShowPopupQuickMess && <PopupQuickMess />}
@@ -241,39 +240,54 @@ type ShowModal = () => void;
 
 const DirectUnreadList = memo(() => {
 	const listUnreadDM = useSelector(selectDirectsUnreadlist);
-	const [listDmRender, setListDmRender] = useState(listUnreadDM);
-	const countUnreadRender = useRef(listDmRender.map((channel) => channel.id));
+	const [listDmRender, setListDmRender] = useState(() => [...listUnreadDM]);
+	const previousIdsRef = useRef(listDmRender.map((channel) => channel.id));
 
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
 	useEffect(() => {
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
 			timerRef.current = null;
 		}
-		if (listUnreadDM.length > countUnreadRender.current.length) {
-			setListDmRender(listUnreadDM);
-			countUnreadRender.current = listUnreadDM.map((channel) => channel.id);
+
+		const currentIds = previousIdsRef.current;
+		const newIds = listUnreadDM.map((channel) => channel.id);
+
+		if (listUnreadDM.length > currentIds.length) {
+			setListDmRender([...listUnreadDM]);
+			previousIdsRef.current = newIds;
 		} else {
-			countUnreadRender.current = listUnreadDM.map((channel) => channel.id);
 			timerRef.current = setTimeout(() => {
-				setListDmRender(listUnreadDM);
-			}, 1000);
+				setListDmRender([...listUnreadDM]);
+				previousIdsRef.current = listUnreadDM.map((channel) => channel.id);
+			}, 200);
 		}
 	}, [listUnreadDM]);
 
-	return (
-		!!listDmRender?.length &&
-		listDmRender.map((dmGroupChatUnread) => (
-			<DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} checkMoveOut={countUnreadRender.current} />
-		))
+	const validIdsSet = useMemo(() => new Set(listUnreadDM.map((channel) => channel.id)), [listUnreadDM]);
+
+	const renderItems = useMemo(
+		() =>
+			listDmRender.map((dmGroupChatUnread) => {
+				const shouldAnimateOut = !validIdsSet.has(dmGroupChatUnread.id);
+				return <DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} shouldAnimateOut={shouldAnimateOut} />;
+			}),
+		[listDmRender, validIdsSet]
 	);
+
+	if (!listDmRender?.length) return null;
+
+	return <div>{renderItems}</div>;
 });
 
 const SidebarMenu = memo(
-	({ openCreateClanModal }: { openCreateClanModal: ShowModal }) => {
+	({ openCreateClanModal, openDiscoverPage }: { openCreateClanModal: ShowModal; openDiscoverPage: ShowModal }) => {
+		const { t } = useTranslation('common');
 		const closeMenu = useSelector(selectCloseMenu);
 		const statusMenu = useSelector(selectStatusMenu);
 		const { setCloseMenu, setStatusMenu } = useMenu();
+		const [isAtTop, setIsAtTop] = useState(true);
 
 		useEffect(() => {
 			const handleSizeWidth = () => {
@@ -324,28 +338,69 @@ const SidebarMenu = memo(
 
 		return (
 			<div
-				className={`contain-strict  h-dvh fixed z-10 left-0 top-0 w-[72px]  duration-100 ${isWindowsDesktop || isLinuxDesktop ? 'mt-[21px]' : ''} ${isMacDesktop ? 'pt-[18px]' : ''} ${closeMenu ? (statusMenu ? '' : 'max-sm:hidden') : ''}`}
+				className={`contain-strict h-dvh fixed z-10 left-0 top-0 w-[72px] duration-100 ${isWindowsDesktop || isLinuxDesktop || isMacDesktop ? 'mt-[21px]' : ''} ${closeMenu ? (statusMenu ? '' : 'max-sm:hidden') : ''}`}
 				onClick={() => handleMenu}
 				id="menu"
 			>
 				<div
-					className={`top-0 left-0 right-0 flex flex-col items-center pt-4 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
+					className={`top-0 left-0 right-0 flex flex-col items-center pt-0 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
+					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 				>
-					<div className="flex flex-col items-center">
+					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+						<SidebarHistory />
 						<SidebarLogoItem />
 						<DirectUnreadList />
+						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
 					</div>
 
-					<ClansList />
-
-					<div className="mt-3">
-						<NavLinkComponent>
-							<div className="flex items-center justify-between text-theme-primary group" onClick={openCreateClanModal}>
-								<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
-									<p className="text-2xl font-semibold ">+</p>
+					<div className="pb-12">
+						<ClansList />
+						<div className="mt-3">
+							<NavLinkComponent>
+								<div
+									className="flex items-center justify-between text-theme-primary group"
+									onClick={openDiscoverPage}
+									title={t('discover')}
+								>
+									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
+										<svg
+											className="text-theme-primary-active size-5"
+											viewBox="0 0 16 16"
+											fill="currentColor"
+											xmlns="http://www.w3.org/2000/svg"
+											width={40}
+											height={40}
+										>
+											<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+											<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+											<g id="SVGRepo_iconCarrier">
+												{' '}
+												<path d="M8 9C8.55229 9 9 8.55229 9 8C9 7.44772 8.55229 7 8 7C7.44772 7 7 7.44772 7 8C7 8.55229 7.44772 9 8 9Z"></path>{' '}
+												<path
+													fillRule="evenodd"
+													clipRule="evenodd"
+													d="M16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8ZM6 6L4 11L5 12L10 10L12 5L11 4L6 6Z"
+												></path>{' '}
+											</g>
+										</svg>
+									</div>
 								</div>
-							</div>
-						</NavLinkComponent>
+							</NavLinkComponent>
+						</div>
+						<div className="mt-3">
+							<NavLinkComponent>
+								<div
+									className="flex items-center justify-between text-theme-primary group"
+									onClick={openCreateClanModal}
+									title={t('createClan')}
+									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
+								>
+									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
+										<p className="text-2xl font-semibold ">+</p>
+									</div>
+								</div>
+							</NavLinkComponent>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -573,19 +628,20 @@ const ClansList = memo(() => {
 });
 
 const PreviewOnboardingMode = () => {
+	const { t } = useTranslation('common');
 	const dispatch = useDispatch();
 	const handleClosePreview = () => {
 		dispatch(onboardingActions.closeOnboardingPreviewMode());
 	};
 	return (
-		<div className="fixed z-50 top-0 left-0 w-screen  bg-black flex px-4 py-2 h-12 items-center justify-center ">
-			<div className="absolute cursor-pointer hover:bg-slate-950 left-6 px-2 flex gap-1 border-2 py-1 items-center justify-center  border-white rounded bg-transparent">
-				<Icons.LeftArrowIcon className="fill-white text-white" />
-				<p className="text-white text-xs font-medium" onClick={handleClosePreview}>
-					Close preview mode
+		<div className="fixed z-50 top-0 left-0 w-screen  bg-theme-setting-primary flex px-4 py-2 h-12 items-center justify-center ">
+			<div className="absolute cursor-pointer bg-item-theme-hover left-6 px-2 flex gap-1 border-2 py-1 items-center justify-center  border-theme-primary rounded bg-transparent">
+				<Icons.LeftArrowIcon className="fill-theme-primary-active text-theme-primary-active" />
+				<p className="text-theme-primary-active text-xs font-medium" onClick={handleClosePreview}>
+					{t('closePreviewMode')}
 				</p>
 			</div>
-			<div className="text-base text-white font-semibold">You are viewing the clan as a new member. You have no roles.</div>
+			<div className="text-base text-theme-primary-active font-semibold">{t('previewModeDescription')}</div>
 		</div>
 	);
 };
@@ -601,9 +657,23 @@ const MessageModalImageWrapper = () => {
 const MemoizedErrorModals: React.FC = React.memo(() => {
 	const toastError = useSelector(selectToastErrors);
 
-	if (!toastError || toastError?.length < 1) {
-		return null;
-	}
 	const error = toastError[0];
-	return <ModalUnknowChannel key={error.id} isError={true} errMessage={error.message} idErr={error.id} />;
+	const [openError, closeError] = useModal(
+		() =>
+			error?.errType === EErrorType.WALLET ? (
+				<ModalWalletNotAvailable isError={true} errMessage={error?.message || ''} idErr={error?.id || ''} />
+			) : (
+				<ModalUnknowChannel isError={true} errMessage={toastError?.[0]?.message || ''} idErr={toastError?.[0]?.id || ''} />
+			),
+		[error]
+	);
+
+	useEffect(() => {
+		if (toastError && toastError?.length > 0) {
+			openError();
+		} else {
+			closeError();
+		}
+	}, [toastError]);
+	return null;
 });

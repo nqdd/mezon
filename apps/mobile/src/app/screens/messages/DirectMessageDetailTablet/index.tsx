@@ -1,24 +1,27 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { selectDmGroupCurrent } from '@mezon/store-mobile';
-import { ChannelStreamMode, ChannelType } from 'mezon-js';
+import { EStateFriend, selectDmGroupCurrent, selectFriendById } from '@mezon/store-mobile';
+import { ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { ChatMessageWrapper } from '../ChatMessageWrapper';
 import { DirectMessageDetailListener } from '../DirectMessageDetail/DirectMessageDetailListener';
-import HeaderDirectMessage, { ChannelSeen } from '../DirectMessageDetail/HeaderDirectMessage';
+import HeaderDirectMessage from '../DirectMessageDetail/HeaderDirectMessage';
 import { style } from './styles';
 
 export const DirectMessageDetailTablet = ({ directMessageId }: { directMessageId?: string }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(directMessageId ?? ''));
+	const infoFriend = useSelector((state) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
+
+	const isBlocked = useMemo(() => {
+		if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
+		return infoFriend?.state === EStateFriend.BLOCK;
+	}, [currentDmGroup?.type, infoFriend?.state]);
+
 	const isModeDM = useMemo(() => {
 		return Number(currentDmGroup?.type) === ChannelType.CHANNEL_TYPE_DM;
-	}, [currentDmGroup?.type]);
-
-	const streamMode = useMemo(() => {
-		return currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
 	}, [currentDmGroup?.type]);
 
 	const dmType = useMemo(() => {
@@ -27,10 +30,17 @@ export const DirectMessageDetailTablet = ({ directMessageId }: { directMessageId
 
 	return (
 		<View style={styles.dmMessageContainer}>
-			<ChannelSeen channelId={directMessageId || ''} streamMode={streamMode} />
 			<DirectMessageDetailListener directMessageId={directMessageId} dmType={dmType} />
-			<HeaderDirectMessage directMessageId={directMessageId} styles={styles} themeValue={themeValue} />
-			{directMessageId && <ChatMessageWrapper directMessageId={directMessageId} isModeDM={isModeDM} currentClanId={'0'} />}
+			<HeaderDirectMessage directMessageId={directMessageId} styles={styles} themeValue={themeValue} isBlocked={isBlocked} />
+			{directMessageId && (
+				<ChatMessageWrapper
+					directMessageId={directMessageId}
+					lastSeenMessageId={currentDmGroup?.last_seen_message?.id}
+					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
+					isModeDM={isModeDM}
+					isBlocked={isBlocked}
+				/>
+			)}
 		</View>
 	);
 };

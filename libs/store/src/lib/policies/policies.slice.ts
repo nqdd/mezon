@@ -1,10 +1,13 @@
-import { IPermissionUser, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiPermission, ApiRole } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ThunkConfigWithError } from '../errors';
-import { MezonValueContext, ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
-import { RootState } from '../store';
+import type { IPermissionUser, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiPermission, ApiRole } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { ThunkConfigWithError } from '../errors';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const POLICIES_FEATURE_KEY = 'policies';
 
@@ -27,7 +30,7 @@ export interface PoliciesState extends EntityState<PermissionUserEntity, string>
 	error?: string | null;
 	PermissionsUserId?: string | null;
 	cache?: CacheMetadata;
-	permissionUser: ApiRole[];
+	maxPermissionUser: number;
 }
 
 export const policiesAdapter = createEntityAdapter<PermissionUserEntity>();
@@ -49,13 +52,14 @@ export const fetchPermissionsUser = createAsyncThunk<any, fetchPermissionsUserPa
 				}
 			},
 			() => mezon.client.GetRoleOfUserInTheClan(mezon.session, clanId),
-			'role_list'
+			'role_list',
+			{ maxRetries: 5 }
 		);
 
 		if (!response.roles) {
 			return [];
 		}
-		return response.roles.map(mapPermissionUserToEntity);
+		return response.max_level_permission || 0;
 	}
 );
 
@@ -82,7 +86,8 @@ export const fetchPermissionCached = async (getState: () => RootState, mezon: Me
 			api_name: 'GetListPermission'
 		},
 		() => mezon.client.getListPermission(mezon.session),
-		'permission_list'
+		'permission_list',
+		{ maxRetries: 5 }
 	);
 
 	markApiFirstCalled(apiKey);
@@ -121,7 +126,7 @@ export const fetchPermission = createAsyncThunk('policies/fetchPermission', asyn
 
 export const initialPoliciesState: PoliciesState = policiesAdapter.getInitialState({
 	loadingStatus: 'not loaded',
-	permissionUser: [],
+	maxPermissionUser: 0,
 	error: null
 });
 
@@ -142,7 +147,7 @@ export const policiesSlice = createSlice({
 				}
 			} else {
 				policiesAdapter.addOne(state, {
-					id: id,
+					id,
 					max_level_permission: changes.max_level_permission,
 					title: changes.title,
 					slug: changes.slug
@@ -151,6 +156,13 @@ export const policiesSlice = createSlice({
 		},
 		updateCache: (state) => {
 			state.cache = createCacheMetadata(LIST_PERMISSION_CACHED_TIME);
+		},
+		addPermissionCurrentClan: (state, action: PayloadAction<ApiRole>) => {
+			const role = action.payload;
+			if (role.max_level_permission && role.max_level_permission > state.maxPermissionUser) {
+				state.maxPermissionUser = role.max_level_permission;
+			}
+			state.cache = createCacheMetadata(LIST_PERMISSION_CACHED_TIME);
 		}
 	},
 	extraReducers: (builder) => {
@@ -158,8 +170,8 @@ export const policiesSlice = createSlice({
 			.addCase(fetchPermissionsUser.pending, (state: PoliciesState) => {
 				state.loadingStatus = 'loading';
 			})
-			.addCase(fetchPermissionsUser.fulfilled, (state: PoliciesState, action: PayloadAction<IPermissionUser[]>) => {
-				state.permissionUser = action.payload;
+			.addCase(fetchPermissionsUser.fulfilled, (state: PoliciesState, action: PayloadAction<number>) => {
+				state.maxPermissionUser = action.payload;
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchPermissionsUser.rejected, (state: PoliciesState, action) => {
@@ -226,14 +238,7 @@ export const getPoliciesDefaultState = (rootState: { ['policiesDefaultSlice']: P
 export const selectAllPermissionsUser = createSelector(getPoliciesState, selectAll);
 
 export const selectUserMaxPermissionLevel = createSelector([getPoliciesState], (state) => {
-	let maxPermissionLevel: number | null = null;
-	for (const permission of state.permissionUser) {
-		if (Number.isInteger(permission?.max_level_permission)) {
-			const permissionLevel = permission.max_level_permission as number;
-			maxPermissionLevel = maxPermissionLevel === null ? permissionLevel : Math.max(maxPermissionLevel, permissionLevel);
-		}
-	}
-	return maxPermissionLevel ?? null;
+	return state.maxPermissionUser ?? null;
 });
 
 export const selectAllPermissionsDefault = createSelector(getPoliciesDefaultState, selectAll);

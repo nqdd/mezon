@@ -10,7 +10,7 @@ type ListSearchForwardMessageProps = {
 	listSearch: any[];
 	searchText: string;
 	selectedObjectIdSends: any[];
-	handleToggle: (id: string, type: number, isPublic: boolean, clanId?: string, channelLabel?: string) => void;
+	handleToggle: (id: string, type: number, isPublic: boolean, clanId?: string, channelLabel?: string, isFriend?: boolean) => void;
 };
 
 const ListSearchForwardMessage = (props: ListSearchForwardMessageProps) => {
@@ -29,13 +29,13 @@ const ListSearchForwardMessage = (props: ListSearchForwardMessageProps) => {
 				<div key={item.id} className="flex items-center px-4 py-1 rounded bg-item-hover">
 					{isTypeDm ? (
 						<ItemDm
-							id={item.idDM}
+							id={item.idDM || item.id}
 							avatar={item.avatarUser}
 							name={item.prioritizeName}
 							searchText={searchText}
-							checked={selectedObjectIdSends.some((selectedItem: any) => selectedItem.id === item.idDM)}
-							handleToggle={() => handleToggle(item.idDM, item.typeChat || 0, false)}
-							username={item.username}
+							checked={selectedObjectIdSends.some((selectedItem) => selectedItem.id === (item.idDM || item.id))}
+							handleToggle={() => handleToggle(item.idDM || item.id, item.typeChat || 0, false, '', '', item.isFriend)}
+							username={item.name}
 							hiddenSubText={item.typeChat === ChannelType.CHANNEL_TYPE_GROUP}
 						/>
 					) : (
@@ -44,8 +44,8 @@ const ListSearchForwardMessage = (props: ListSearchForwardMessageProps) => {
 							name={item.prioritizeName}
 							subText={item.subText}
 							searchText={searchText}
-							checked={selectedObjectIdSends.some((selectedItem: any) => selectedItem.id === item.id)}
-							handleToggle={() => handleToggle(item.id, item.type || 0, item.isPublic, item.clanId, item.channelLabel || '')}
+							checked={selectedObjectIdSends.some((selectedItem) => selectedItem.id === item.id)}
+							handleToggle={() => handleToggle(item.id, item.type || 0, item.isPublic, item.clanId, item.channelLabel || '', false)}
 							clanId={item.clanId}
 						/>
 					)}
@@ -70,6 +70,7 @@ type ItemDmProps = {
 
 const ItemDm = (props: ItemDmProps) => {
 	const { id, name, avatar, searchText, checked, handleToggle, username, hiddenSubText } = props;
+
 	return (
 		<>
 			<div className="flex-1 mr-1" onClick={handleToggle}>
@@ -100,7 +101,7 @@ type ItemChannelProps = {
 };
 
 const ItemChannel = (props: ItemChannelProps) => {
-	const { id, name, subText, searchText, checked, handleToggle, clanId } = props;
+	const { id, name, searchText, checked, handleToggle, clanId } = props;
 	const clanByClanId = useSelector(selectClanById(clanId));
 
 	return (

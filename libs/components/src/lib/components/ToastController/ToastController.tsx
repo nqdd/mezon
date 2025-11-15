@@ -1,4 +1,5 @@
-import { ToastPayload, selectTheme, selectToasts } from '@mezon/store';
+import type { ToastPayload } from '@mezon/store';
+import { removeToast, selectTheme, selectToasts } from '@mezon/store';
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer, toast as showToast } from 'react-toastify';
@@ -29,6 +30,15 @@ const ToastController: React.FC = () => {
 	const currentTheme = isDarkMode ? 'dark' : 'light';
 
 	useEffect(() => {
+		const currentToastIds = new Set(toasts.map((toast) => toast.id));
+
+		for (const [toastId, reactToastifyId] of Object.entries(trackedToasts.current)) {
+			if (!currentToastIds.has(toastId)) {
+				showToast.dismiss(toastId);
+				delete trackedToasts.current[toastId];
+			}
+		}
+
 		for (const toast of toasts) {
 			if (trackedToasts.current[toast.id]) {
 				continue;
@@ -44,7 +54,11 @@ const ToastController: React.FC = () => {
 				pauseOnHover: toast.pauseOnHover,
 				draggable: toast.draggable,
 				theme: toast.theme || currentTheme, // Use dynamic theme
-				toastId: toast.id
+				toastId: toast.id,
+				onClose: () => {
+					dispatch(removeToast(toast.id));
+					delete trackedToasts.current[toast.id];
+				}
 			});
 
 			trackedToasts.current[toast.id] = id;
@@ -64,9 +78,6 @@ const ToastController: React.FC = () => {
 			pauseOnHover
 			theme={currentTheme}
 			limit={5}
-			toastStyle={{
-				fontFamily: '"gg sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
-			}}
 		/>
 	);
 };

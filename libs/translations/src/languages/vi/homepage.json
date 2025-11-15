@@ -1,0 +1,142 @@
+{
+	"title": {
+		"part1": "Nền tảng",
+		"live": "Kết nối",
+		"work": "Làm việc",
+		"and": "và",
+		"playPlatform": "Giải trí",
+		"theBest": "sự thay thế tuyệt vời cho",
+		"discord": "Discord",
+		"alternative": ""
+	},
+	"description": {
+		"part1": "là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu.",
+		"part2": "Tùy chỉnh không gian riêng của bạn để",
+		"talk": "trò chuyện",
+		"play": "giải trí",
+		"and": "và",
+		"hangOut": "kết nối"
+	},
+	"download": {
+		"getItFrom": "Tải từ",
+		"cdnUrl": "CDN Url"
+	},
+	"header": {
+		"home": "Trang chủ",
+		"overview": "Tổng quan",
+		"features": "Tính năng",
+		"developers": "Nhà phát triển",
+		"botsApps": "Bots/Apps",
+		"documents": "Tài liệu",
+		"discover": "Khám phá",
+		"blogs": "Blog",
+		"openMezon": "Open Mezon",
+		"login": "Đăng nhập"
+	},
+	"layout": {
+		"overview": {
+			"title": "Tổng quan",
+			"subtitle": "là cách thức mới để giao tiếp với đội ngũ của bạn.",
+			"description": "Nhanh hơn, tổ chức tốt hơn, hoàn hảo cho làm việc từ xa."
+		},
+		"features": {
+			"title": "Tính năng của chúng tôi",
+			"subtitle": "Công cụ giao tiếp toàn diện"
+		},
+		"cards": {
+			"workstation": {
+				"title": "Không gian làm việc",
+				"description": "Không gian làm việc số hóa giúp tối ưu hóa giao tiếp, cộng tác và quản lý công việc bằng cách tích hợp với nhiều hệ thống và công cụ khác nhau. Cung cấp không gian có cấu trúc cho các nhóm, dự án và phòng ban đồng thời đảm bảo truy cập thông tin và quy trình làm việc một cách liền mạch"
+			},
+			"ecosystem": {
+				"title": "Hệ sinh thái",
+				"description": "Môi trường số động kết hợp yếu tố công việc và xã hội, cung cấp các tính năng tương tác và giải trí phong phú. Hỗ trợ giao dịch ảo, hoạt động cộng đồng và xây dựng mối quan hệ để nâng cao trải nghiệm người dùng."
+			},
+			"aiAgent": {
+				"title": "AI Agent",
+				"description": "Hệ thống thông minh tự động hóa các tác vụ, hỗ trợ quản lý thông tin và tối ưu hóa quy trình làm việc. Nâng cao năng suất thông qua các tính năng như nhắc nhở, giám sát và giao tiếp tự động."
+			}
+		},
+		"featureCards": {
+			"mezonMainnet": {
+				"title": "Mezon Mainnet",
+				"subtitle": "Layer 1 tốc độ cao, không phí",
+				"description": "Blockchain"
+			},
+			"developerApi": {
+				"title": "API nâng cao",
+				"subtitle": "cho nhà phát triển"
+			},
+			"gaming": {
+				"title": "Trò chơi",
+				"subtitle": "& Giải trí"
+			},
+			"customizable": {
+				"title": "Tùy chỉnh linh hoạt",
+				"subtitle": "& Mở rộng dễ dàng"
+			}
+		}
+	},
+	"sections": {
+		"hero": {
+			"title": {
+				"your": "Nền tảng",
+				"live": "Kết nối",
+				"work": "Làm việc",
+				"play": "Giải trí",
+				"platform": "của bạn.",
+				"theBest": "Sự thay thế tuyệt vời cho",
+				"discordAlternative": "Discord"
+			},
+			"description": "là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu. Tùy chỉnh không gian riêng của bạn để",
+			"talk": "trò chuyện",
+			"play": "giải trí",
+			"and": "và",
+			"hangOut": "kết nối",
+			"tryButton": "Dùng thử Mezon, miễn phí!",
+			"choosePlatform": "Chọn nền tảng của bạn"
+		},
+		"textChannel": {
+			"title": "Nhắn tin siêu nhanh",
+			"description": "Được xây dựng để Trò chuyện, Cộng tác và Kết nối.",
+			"description2": "Nhắn tin siêu nhanh. Không giới hạn. Gửi tức thì.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"clanDiscover": {
+			"title": "Clan của bạn, Thế giới của bạn",
+			"description": "Từ sở thích, thảo luận đến tin tức và xu hướng, có một clan cho mọi thứ.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"aiAgent": {
+			"title": "AI Agent cho Clan và Hỗ trợ 24/7",
+			"description": "AI Agent giọng nói (Tóm tắt nội dung trong cuộc trò chuyện kênh voice, hoặc đóng vai người phỏng vấn), trợ lý AI, BOT chế độ ẩn (tóm tắt nội dung trong kênh text).",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"communityPayments": {
+			"title": "Thanh toán trong cộng đồng",
+			"description": "Gửi tiền ngay lập tức, thưởng cho người sáng tạo và mua sắm với các thương hiệu đối tác — tất cả đều không mất phí nền tảng. Xây dựng trên sự minh bạch và bảo mật.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"enterpriseIntegrations": {
+			"title": "Tích hợp doanh nghiệp",
+			"description": "Mezon cho phép bạn kết nối với khách hàng trên toàn cầu và mang đến những trải nghiệm quy mô lớn hấp dẫn.",
+			"learnMore": "Tìm hiểu thêm"
+		}
+	},
+	"footer": {
+		"description": "Mezon là nơi tuyệt vời để chơi game và thư giãn với bạn bè, hoặc xây dựng một cộng đồng toàn cầu.",
+		"getTheApp": "Tải ứng dụng",
+		"copyright": "© 2024 Mezon. All rights reserved.",
+		"links": {
+			"executiveSummary": "Tóm tắt điều hành",
+			"problemStatement": "Vấn đề đặt ra",
+			"solution": "Giải pháp",
+			"blockchainEconomy": "Blockchain & Token Economy",
+			"developerApi": "Tích hợp API cho nhà phát triển",
+			"technicalArchitecture": "Kiến trúc kỹ thuật",
+			"productRoadmap": "Lộ trình sản phẩm",
+			"tokenomics": "Tokenomics",
+			"team": "Đội ngũ"
+		}
+	}
+}

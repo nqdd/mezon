@@ -4,15 +4,15 @@ import {
 	selectAnonymousMode,
 	selectCurrentTopicId,
 	selectCurrentTopicInitMessage,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	topicsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import { IMessageSendPayload } from '@mezon/utils';
+import type { IMessageSendPayload } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic, ApiSdTopicRequest } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic, ApiSdTopicRequest } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -32,7 +32,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 
 	const userProfile = useSelector(selectAllAccount);
 
-	const profileInTheClan = useAppSelector((state) => selectMemberClanByUserId2(state, userProfile?.user?.id ?? ''));
+	const profileInTheClan = useAppSelector((state) => selectMemberClanByUserId(state, userProfile?.user?.id ?? ''));
 	const priorityAvatar =
 		mode === ChannelStreamMode.STREAM_MODE_THREAD || mode === ChannelStreamMode.STREAM_MODE_CHANNEL
 			? profileInTheClan?.clan_avatar
@@ -84,9 +84,9 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 						channelId: channelIdOrDirectId ?? '',
 						clanId: getClanId || '',
 						mode,
-						isPublic: isPublic,
-						content: content,
-						mentions: mentions,
+						isPublic,
+						content,
+						mentions,
 						attachments,
 						references,
 						senderId: currentUserId,
@@ -105,16 +105,16 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 							topicsActions.handleSendTopic({
 								clanId: getClanId as string,
 								channelId: channelIdOrDirectId as string,
-								mode: mode,
+								mode,
 								anonymous: false,
-								attachments: attachments,
+								attachments,
 								code: 0,
-								content: content,
-								isMobile: isMobile,
-								isPublic: isPublic,
-								mentionEveryone: mentionEveryone,
-								mentions: mentions,
-								references: references,
+								content,
+								isMobile,
+								isPublic,
+								mentionEveryone,
+								mentions,
+								references,
 								topicId: topic?.id as string
 							})
 						);
@@ -126,16 +126,16 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 					topicsActions.handleSendTopic({
 						clanId: getClanId as string,
 						channelId: channelIdOrDirectId as string,
-						mode: mode,
+						mode,
 						anonymous: false,
-						attachments: attachments,
+						attachments,
 						code: 0,
-						content: content,
-						isMobile: isMobile,
-						isPublic: isPublic,
-						mentionEveryone: mentionEveryone,
-						mentions: mentions,
-						references: references,
+						content,
+						isMobile,
+						isPublic,
+						mentionEveryone,
+						mentions,
+						references,
 						topicId: currentTopicId as string
 					})
 				);
@@ -146,9 +146,9 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 					channelId: channelIdOrDirectId ?? '',
 					clanId: getClanId || '',
 					mode,
-					isPublic: isPublic,
-					content: content,
-					mentions: mentions,
+					isPublic,
+					content,
+					mentions,
 					attachments,
 					references,
 					anonymous: getClanId !== '0' ? anonymousMode : false,
@@ -157,7 +157,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 					avatar: priorityAvatar,
 					isMobile,
 					username: priorityNameToShow,
-					code: code
+					code
 				})
 			);
 		},
@@ -184,12 +184,13 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 					clanId: getClanId || '',
 					channelId: channelIdOrDirectId ?? '',
 					mode,
-					isPublic: isPublic,
-					username: priorityNameToShow || ''
+					isPublic,
+					username: priorityNameToShow || '',
+					topicId: fromTopic ? currentTopicId || '' : ''
 				})
 			);
 		}
-	}, [priorityNameToShow, channelIdOrDirectId, getClanId, dispatch, isPublic, mode, anonymousMode]);
+	}, [anonymousMode, dispatch, getClanId, channelIdOrDirectId, mode, isPublic, priorityNameToShow, fromTopic, currentTopicId]);
 
 	// Move this function to to a new action of messages slice
 	const editSendMessage = React.useCallback(
@@ -200,7 +201,8 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 			attachments?: ApiMessageAttachment[],
 			hide_editted?: boolean,
 			topic_id?: string,
-			isTopic?: boolean
+			isTopic?: boolean,
+			oldMentions?: string
 		) => {
 			const session = sessionRef.current;
 			const client = clientRef.current;
@@ -224,10 +226,11 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 				attachments,
 				hide_editted,
 				topic_id,
-				!!isTopic
+				!!isTopic,
+				oldMentions
 			);
 			if (topic_id && !isTopic) {
-				dispatch(topicsActions.updateInitMessage({ content: trimContent, mentions: mentions }));
+				dispatch(topicsActions.updateInitMessage({ content: trimContent, mentions }));
 			}
 		},
 		[sessionRef, clientRef, socketRef, channelOrDirect, getClanId, channelIdOrDirectId, mode, isPublic]

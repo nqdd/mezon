@@ -1,25 +1,25 @@
-import { Attributes, Colors, baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	ChannelsEntity,
-	RootState,
-	getStore,
-	selectAllChannelMembers,
-	selectAllUserClans,
-	selectChannelsEntities,
-	selectHashtagDmEntities
-} from '@mezon/store-mobile';
-import { EBacktickType, ETokenMessage, IExtendedMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
-import { TFunction } from 'i18next';
+import { ActionEmitEvent } from '@mezon/mobile-components';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { RootState } from '@mezon/store-mobile';
+import { getStore, selectAllChannelMembers, selectAllUserClans, selectChannelsEntities, selectHashtagDmEntities } from '@mezon/store-mobile';
+import type { IExtendedMessage } from '@mezon/utils';
+import { EBacktickType, ETokenMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
+import type { TFunction } from 'i18next';
 import { ChannelType } from 'mezon-js';
-import { Dimensions, Linking, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { DeviceEventEmitter, Linking, StyleSheet, Text, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import CustomIcon from '../../../../../../../src/assets/CustomIcon';
 import ImageNative from '../../../../../components/ImageNative';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
+import LinkOptionModal from '../LinkOptions/LinkOptionModal';
 import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
+import { styles as componentStyles, getMessageReplyMaxHeight } from './index.styles';
+import FastImage from 'react-native-fast-image';
 
 export default function openUrl(url, customCallback) {
 	if (customCallback) {
@@ -49,8 +49,6 @@ export const TYPE_MENTION = {
  * custom style for markdown
  * react-native-markdown-display/src/lib/styles.js to see more
  */
-const screenWidth = Dimensions.get('window').width;
-const codeBlockMaxWidth = screenWidth - size.s_70;
 
 export const markdownStyles = (
 	colors: Attributes,
@@ -65,34 +63,34 @@ export const markdownStyles = (
 	};
 	return StyleSheet.create({
 		heading1: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h1,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading2: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h2,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading3: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h3,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading4: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h4,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading5: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h5,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		heading6: {
-			color: colors.text,
+			color: commonHeadingStyle.color,
 			fontSize: size.h6,
-			fontWeight: '600'
+			fontWeight: 'bold'
 		},
 		body: commonHeadingStyle,
 		em: commonHeadingStyle,
@@ -117,7 +115,7 @@ export const markdownStyles = (
 		},
 		fence: {
 			color: colors.text,
-			width: isTabletLandscape ? codeBlockMaxWidth * 0.6 : codeBlockMaxWidth,
+			width: isTabletLandscape ? '70%' : '100%',
 			backgroundColor: colors.secondaryLight,
 			borderColor: colors.black,
 			borderRadius: size.s_4,
@@ -159,8 +157,8 @@ export const markdownStyles = (
 			backgroundColor: colors.midnightBlue
 		},
 		blockquote: {
-			backgroundColor: Colors.tertiaryWeight,
-			borderColor: Colors.textGray
+			backgroundColor: '#1E1E1E',
+			borderColor: '#c7c7c7'
 		},
 		tr: {
 			borderColor: colors.border
@@ -188,7 +186,9 @@ export const markdownStyles = (
 		threadIcon: { marginBottom: size.s_2 },
 		privateChannel: {
 			color: colors.text,
-			backgroundColor: colors.secondaryLight
+			backgroundColor: colors.secondaryLight,
+			fontWeight: '600',
+			fontSize: size.medium
 		},
 		boldText: {
 			fontSize: size.medium,
@@ -196,36 +196,16 @@ export const markdownStyles = (
 			color: colors.text
 		},
 		blockSpacing: {
-			paddingVertical: size.s_4
+			paddingVertical: size.s_4,
+			width: '99.9%'
 		}
 	});
 };
-
-const styleMessageReply = (colors: Attributes) =>
-	StyleSheet.create({
-		body: {
-			color: colors.text,
-			fontSize: size.small
-		},
-		textVoiceChannel: {
-			fontSize: size.small,
-			color: colors.textDisabled,
-			lineHeight: size.s_20
-		},
-		mention: {
-			fontSize: size.small,
-			color: colors.textLink,
-			backgroundColor: colors.midnightBlue,
-			lineHeight: size.s_20
-		}
-	});
 
 export type IMarkdownProps = {
 	content: IExtendedMessage;
 	isEdited?: boolean;
 	translate?: TFunction;
-	onMention?: (url: string) => void;
-	onChannelMention?: (channel: ChannelsEntity) => void;
 	isNumberOfLine?: boolean;
 	isMessageReply?: boolean;
 	mode?: number;
@@ -236,7 +216,6 @@ export type IMarkdownProps = {
 	isUnReadChannel?: boolean;
 	isLastMessage?: boolean;
 	isBuzzMessage?: boolean;
-	onLongPress?: () => void;
 };
 
 function parseMarkdownLink(text: string) {
@@ -268,20 +247,21 @@ export function extractIds(url: string): { clanId: string | null; channelId: str
 }
 
 const renderChannelIcon = (channelType: number, channelId: string, themeValue: Attributes) => {
-	if (channelType === ChannelType.CHANNEL_TYPE_GMEET_VOICE || channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
-		return <CustomIcon name="voice" size={size.s_14} color={Colors.textLink} style={{ marginTop: size.s_10 }} />;
+	const iconStyle = componentStyles().channelIcon;
+	if (channelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		return <CustomIcon name="voice" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_THREAD) {
-		return <CustomIcon name="thread" size={size.s_14} color={Colors.textLink} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="thread" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_STREAMING) {
-		return <CustomIcon name="stream" size={size.s_14} color={Colors.textLink} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="stream" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelType === ChannelType.CHANNEL_TYPE_APP) {
-		return <CustomIcon name="app" size={size.s_14} color={Colors.textLink} style={{ marginTop: size.s_10 }} />;
+		return <CustomIcon name="app" size={size.s_14} color={baseColor.link} style={iconStyle} />;
 	}
 	if (channelId === 'undefined') {
-		return <Feather name="lock" size={size.s_14} color={themeValue.text} style={{ marginTop: size.s_10 }} />;
+		return <Feather name="lock" size={size.s_14} color={themeValue.text} style={iconStyle} />;
 	}
 	return null;
 };
@@ -316,7 +296,12 @@ const renderTextPalainContain = (
 
 			if (headingLevel) {
 				headingFormattedLines.push(
-					<Text key={`line-${idx}_${headingText}`} style={[themeValue ? markdownStyles(themeValue)?.[`heading${headingLevel}`] : {}]}>
+					<Text
+						key={`line-${idx}_${headingText}`}
+						style={[
+							themeValue ? markdownStyles(themeValue, isUnReadChannel, isLastMessage, isBuzzMessage)?.[`heading${headingLevel}`] : {}
+						]}
+					>
 						{headingText}
 						{idx !== lines.length - 1 || !isLastText ? '\n' : ''}
 					</Text>
@@ -349,7 +334,7 @@ const renderTextPalainContain = (
 			</Text>
 		);
 	} else {
-		return <Text>{headingFormattedLines}</Text>;
+		return <Text key={`heading-text-${lastIndex}`}>{headingFormattedLines}</Text>;
 	}
 };
 
@@ -357,8 +342,6 @@ export const RenderTextMarkdownContent = ({
 	content,
 	isEdited,
 	translate,
-	onMention,
-	onChannelMention,
 	isNumberOfLine,
 	isMessageReply,
 	mode,
@@ -368,33 +351,41 @@ export const RenderTextMarkdownContent = ({
 	isOnlyContainEmoji,
 	isUnReadChannel = false,
 	isLastMessage = false,
-	isBuzzMessage = false,
-	onLongPress
+	isBuzzMessage = false
 }: IMarkdownProps) => {
 	const { themeValue } = useTheme();
 	const isTabletLandscape = useTabletLandscape();
 
-	const { t, mentions = [], hg = [], ej = [], mk = [], lk = [] } = content || {};
+	const { t, embed, mentions = [], hg = [], ej = [], mk = [] } = content || {};
+	const embedNotificationMessage = embed?.[0]?.title;
 	let lastIndex = 0;
 	const textParts: React.ReactNode[] = [];
+	const textTripleParts: React.ReactNode[] = [];
 	const markdownBlackParts: React.ReactNode[] = [];
 
 	const elements = [
 		...hg.map((item) => ({ ...item, kindOf: ETokenMessage.HASHTAGS })),
 		...(mentions?.map?.((item) => ({ ...item, kindOf: ETokenMessage.MENTIONS })) || []),
 		...ej.map((item) => ({ ...item, kindOf: ETokenMessage.EMOJIS })),
-		...(mk?.map?.((item) => ({ ...item, kindOf: ETokenMessage.MARKDOWNS })) || []),
-		...(lk.map((item) => ({ ...item, kindOf: ETokenMessage.MARKDOWNS, type: EBacktickType.LINK })) || [])
+		...(mk?.map?.((item) => ({ ...item, kindOf: ETokenMessage.MARKDOWNS })) || [])
 	].sort((a, b) => (a.s ?? 0) - (b.s ?? 0));
 
 	const store = elements?.length > 0 ? getStore() : null;
+
+	const handleLongPressLink = useCallback((link: string) => {
+		const data = {
+			heightFitContent: true,
+			children: <LinkOptionModal visible={true} link={link} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+	}, []);
 
 	elements.forEach((element, index) => {
 		const s = element.s ?? 0;
 		const e = element.e ?? 0;
 		const contentInElement = t?.substring(s, e);
 
-		if (lastIndex < s) {
+		if (lastIndex < s && !!(textParts.length || t?.slice?.(lastIndex, s)?.trim())) {
 			textParts.push(renderTextPalainContain(themeValue, t?.slice(lastIndex, s) ?? '', index, isUnReadChannel, isLastMessage, isBuzzMessage));
 		}
 
@@ -403,8 +394,8 @@ export const RenderTextMarkdownContent = ({
 				const srcEmoji = getSrcEmoji(element?.emojiid);
 				textParts.push(
 					<View key={`emoji-${index}`} style={!isOnlyContainEmoji && markdownStyles(themeValue).emojiInMessageContain}>
-						<ImageNative
-							url={srcEmoji}
+						<FastImage
+							source={{ uri: srcEmoji }}
 							style={
 								isOnlyContainEmoji ? markdownStyles(themeValue).onlyIconEmojiInMessage : markdownStyles(themeValue).iconEmojiInMessage
 							}
@@ -440,7 +431,9 @@ export const RenderTextMarkdownContent = ({
 								backgroundColor: themeValue.darkMossGreen
 							}
 						]}
-						onPress={() => onMention?.(isRoleMention ? link.replace('@role', '@') : link)}
+						onPress={() => {
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_MENTION_USER_MESSAGE_ITEM, isRoleMention ? link.replace('@role', '@') : link);
+						}}
 					>
 						{text || contentInElement}
 					</Text>
@@ -463,7 +456,7 @@ export const RenderTextMarkdownContent = ({
 					const { text, link } = parseMarkdownLink(mention);
 
 					const urlFormat = link.replace(/##voice|#thread|#stream|#app|#%22|%22|"|#/g, '');
-					const dataChannel = urlFormat.split('_');
+					const dataChannel = urlFormat.split('***');
 					const payloadChannel = {
 						type: Number(dataChannel?.[0] || 1),
 						id: dataChannel?.[1],
@@ -486,7 +479,7 @@ export const RenderTextMarkdownContent = ({
 							]}
 							onPress={() => {
 								if (!payloadChannel?.channel_id) return;
-								onChannelMention?.(payloadChannel);
+								DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, payloadChannel);
 							}}
 						>
 							{renderChannelIcon(payloadChannel?.type, payloadChannel?.channel_id, themeValue)}
@@ -542,7 +535,14 @@ export const RenderTextMarkdownContent = ({
 										</Text>
 									</View>
 								</View>
-								{s !== 0 && e !== t?.length && '\n'}
+							</Text>
+						);
+						textTripleParts.push(
+							<Text key={`code-triple-${index}`} style={themeValue ? markdownStyles(themeValue).code_block : {}}>
+								{(contentInElement?.startsWith('```') && contentInElement?.endsWith('```')
+									? contentInElement?.slice(3, -3)
+									: contentInElement
+								)?.replace(/^\n+|\n+$/g, '')}
 							</Text>
 						);
 						break;
@@ -557,6 +557,20 @@ export const RenderTextMarkdownContent = ({
 						break;
 					case EBacktickType.VOICE_LINK:
 					case EBacktickType.LINK: {
+						if (isYouTubeLink(contentInElement || '')) {
+							const videoId = extractYoutubeVideoId(contentInElement);
+							markdownBlackParts.push(
+								<RenderYoutubeVideo
+									videoKey={`youtube-link-${videoId}-${index}`}
+									videoId={videoId}
+									contentInElement={contentInElement}
+									onPress={() => openUrl(contentInElement, null)}
+									onLongPress={() => handleLongPressLink?.(contentInElement)}
+									linkStyle={themeValue ? markdownStyles(themeValue).link : {}}
+								/>
+							);
+							break;
+						}
 						const { clanId, channelId, canvasId } = extractIds(contentInElement);
 
 						const basePath = '/chat/clans/';
@@ -586,7 +600,7 @@ export const RenderTextMarkdownContent = ({
 								const { text, link } = parseMarkdownLink(mention);
 
 								const urlFormat = link.replace(/##voice|#thread|#stream|#app|#%22|%22|"|#/g, '');
-								const dataChannel = urlFormat.split('_');
+								const dataChannel = urlFormat.split('***');
 								const payloadChannel = {
 									type: Number(dataChannel?.[0] || 1),
 									id: dataChannel?.[1],
@@ -609,7 +623,7 @@ export const RenderTextMarkdownContent = ({
 										]}
 										onPress={() => {
 											if (!payloadChannel?.channel_id) return;
-											onChannelMention?.(payloadChannel);
+											DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, payloadChannel);
 										}}
 									>
 										{renderChannelIcon(payloadChannel?.type, payloadChannel?.channel_id, themeValue)}
@@ -634,7 +648,7 @@ export const RenderTextMarkdownContent = ({
 									key={`link-${index}`}
 									style={themeValue ? markdownStyles(themeValue).link : {}}
 									onPress={() => openUrl(contentInElement, null)}
-									onLongPress={onLongPress}
+									onLongPress={() => handleLongPressLink?.(contentInElement)}
 								>
 									{contentInElement}
 								</Text>
@@ -649,11 +663,11 @@ export const RenderTextMarkdownContent = ({
 
 							markdownBlackParts.push(
 								<RenderYoutubeVideo
-									key={`youtube-${index}`}
+									videoKey={`youtube-linkyoutube-${videoId}-${index}`}
 									videoId={videoId}
 									contentInElement={contentInElement}
 									onPress={() => openUrl(contentInElement, null)}
-									onLongPress={onLongPress}
+									onLongPress={() => handleLongPressLink?.(contentInElement)}
 									linkStyle={themeValue ? markdownStyles(themeValue).link : {}}
 								/>
 							);
@@ -663,7 +677,7 @@ export const RenderTextMarkdownContent = ({
 									key={`link-${index}`}
 									style={themeValue ? markdownStyles(themeValue).link : {}}
 									onPress={() => openUrl(contentInElement, null)}
-									onLongPress={onLongPress}
+									onLongPress={() => handleLongPressLink?.(contentInElement)}
 								>
 									{contentInElement}
 								</Text>
@@ -685,7 +699,7 @@ export const RenderTextMarkdownContent = ({
 		textParts.push(
 			renderTextPalainContain(
 				themeValue,
-				t?.slice(lastIndex).replace(/^\n|\n$/, ''),
+				t?.slice(lastIndex)?.replace(!textParts?.length ? /^\n|\n$/g : '', ''),
 				lastIndex,
 				isUnReadChannel,
 				isLastMessage,
@@ -693,40 +707,52 @@ export const RenderTextMarkdownContent = ({
 				true
 			)
 		);
+	} else if (embedNotificationMessage) {
+		textParts.push(renderTextPalainContain(themeValue, embedNotificationMessage, lastIndex, isUnReadChannel, isLastMessage, isBuzzMessage, true));
 	}
 
-	return (
-		<View
-			style={{
-				flexDirection: 'row',
-				flexWrap: 'wrap',
-				alignItems: 'center',
-				...(isNumberOfLine && {
-					flex: 1,
-					maxHeight: isMessageReply ? size.s_17 : size.s_20 * 10 - size.s_10,
-					overflow: 'hidden'
-				})
-			}}
-		>
-			{isMessageReply && (
-				<View
-					style={{
-						position: 'absolute',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						zIndex: 1
-					}}
-				/>
-			)}
+	if (isEdited && textParts?.length > 0 && !markdownBlackParts?.length) {
+		textParts.push(
+			<Text key={`edited-${textParts}`} style={themeValue ? markdownStyles(themeValue).editedText : {}}>
+				{` ${translate('edited')}`}
+			</Text>
+		);
+	}
 
-			<View style={{ flexDirection: 'row', gap: size.s_6, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-				<View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+	const isCodeTripleOnly = useMemo(() => {
+		return (
+			textParts?.[0]?.key?.includes('code-triple') &&
+			textParts?.length <= 2 &&
+			(textParts.length === 1 || textParts[1]?.key?.includes('edited'))
+		);
+	}, [textParts]);
+
+	if (isCodeTripleOnly) {
+		const fenceStyle = themeValue
+			? markdownStyles(themeValue, isUnReadChannel, isLastMessage, isBuzzMessage, isTabletLandscape).fence
+			: undefined;
+
+		return <View style={fenceStyle}>{textTripleParts}</View>;
+	}
+
+	const localStyles = componentStyles(themeValue);
+	const containerStyle = [
+		localStyles.containerWrapper,
+		isNumberOfLine && localStyles.containerWithLineLimit,
+		isNumberOfLine && { maxHeight: getMessageReplyMaxHeight(isMessageReply) }
+	];
+
+	return (
+		<View style={containerStyle}>
+			{isMessageReply && <View style={localStyles.messageReplyOverlay} />}
+
+			<View style={localStyles.textPartsContainer}>
+				<View style={localStyles.textPartsColumn}>
 					{textParts?.length > 0 && <Text key={`textParts${t}_${lastIndex}`}>{textParts}</Text>}
-					{markdownBlackParts?.length > 0 && markdownBlackParts.map((item) => item)}
+					{markdownBlackParts?.length > 0 &&
+						markdownBlackParts.map((item, index) => <View key={`markdown-black-part-${index}`}>{item}</View>)}
 				</View>
-				{isEdited && (
+				{isEdited && markdownBlackParts?.length > 0 && (
 					<View>
 						<Text key={`edited-${textParts}`} style={themeValue ? markdownStyles(themeValue).editedText : {}}>
 							{translate('edited')}

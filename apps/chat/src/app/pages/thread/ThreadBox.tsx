@@ -1,6 +1,7 @@
 import {
 	AttachmentPreviewThumbnail,
 	ChannelMessageThread,
+	FileSelectionButton,
 	MentionReactInput,
 	PrivateThread,
 	ThreadNameTextField,
@@ -16,42 +17,50 @@ import {
 	referencesActions,
 	selectAllChannelMembers,
 	selectAllRolesClan,
+	selectCloseMenu,
 	selectComposeInputByChannelId,
-	selectCurrentChannel,
+	selectCurrentChannelCategoryId,
 	selectCurrentChannelId,
+	selectCurrentChannelParentId,
 	selectCurrentClanId,
-	selectMemberClanByUserId2,
+	selectMemberClanByUserId,
 	selectOpenThreadMessageState,
 	selectSession,
-	selectTheme,
+	selectStatusMenu,
 	selectThreadCurrentChannel,
 	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import {
-	CREATING_THREAD,
+import type {
 	ChannelMembersEntity,
 	HistoryItem,
 	IEmojiOnMessage,
 	IHashtagOnMessage,
 	IMarkdownOnMessage,
 	IMessageSendPayload,
-	MAX_FILE_ATTACHMENTS,
 	RequestInput,
-	ThreadValue,
+	ThreadValue
+} from '@mezon/utils';
+import {
+	CREATING_THREAD,
+	MAX_FILE_ATTACHMENTS,
 	UploadLimitReason,
+	ValidateSpecialCharacters,
 	adjustPos,
 	filterEmptyArrays,
+	generateE2eId,
 	parseHtmlAsFormattedText,
 	processFile,
 	processMarkdownEntities
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { Fragment, KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { KeyboardEvent } from 'react';
+import React, { Fragment, useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useThrottledCallback } from 'use-debounce';
@@ -59,28 +68,31 @@ import MemoizedChannelMessages from '../channel/ChannelMessages';
 import { CONSTANT } from './constant';
 
 const ThreadBox = () => {
+	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const currentChannel = useSelector(selectCurrentChannel);
+	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
+	const currentChannelCategoryId = useSelector(selectCurrentChannelCategoryId);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const sessionUser = useSelector(selectSession);
-	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId2(state, sessionUser?.user_id as string));
+	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, sessionUser?.user_id as string));
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const currentInputChannelId = threadCurrentChannel?.channel_id || CREATING_THREAD;
 	const { removeAttachmentByIndex, checkAttachment, attachmentFilteredByChannelId } = useReference(currentInputChannelId);
 	const { setOverUploadingState } = useDragAndDrop();
-	const appearanceTheme = useSelector(selectTheme);
-	const { messageThreadError, isPrivate, nameValueThread, valueThread } = useThreads();
+	const { messageThreadError, isPrivate, nameValueThread, valueThread, setNameValueThread } = useThreads();
 	const [undoHistory, setUndoHistory] = useState<HistoryItem[]>([]);
 	const [redoHistory, setRedoHistory] = useState<HistoryItem[]>([]);
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
 	const { setRequestInput } = useMessageValue();
-	const request = useAppSelector((state) => selectComposeInputByChannelId(state, currentChannelId + 'true'));
+	const request = useAppSelector((state) => selectComposeInputByChannelId(state, `${currentChannelId}true`));
 	const rolesClan = useSelector(selectAllRolesClan);
 	const { membersOfChild } = useChannelMembers({ channelId: currentChannelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
 	const membersOfParent = useAppSelector((state) =>
 		threadCurrentChannel?.parent_id ? selectAllChannelMembers(state, threadCurrentChannel?.parent_id as string) : null
 	);
+	const closeMenu = useSelector(selectCloseMenu);
+	const statusMenu = useSelector(selectStatusMenu);
 	const { mentionList, hashtagList, emojiList } = useMemo(() => {
 		return processMention(request?.mentionRaw, rolesClan, membersOfChild as ChannelMembersEntity[], membersOfParent as ChannelMembersEntity[]);
 	}, [request?.mentionRaw, rolesClan, membersOfChild, membersOfParent]);
@@ -90,7 +102,7 @@ const ThreadBox = () => {
 		} else {
 			return attachmentFilteredByChannelId.files;
 		}
-	}, [attachmentFilteredByChannelId?.files]);
+	}, [attachmentFilteredByChannelId]);
 
 	const { sendMessageThread, sendMessageTyping } = useThreadMessage({
 		channelId: threadCurrentChannel?.id as string,
@@ -104,28 +116,39 @@ const ThreadBox = () => {
 
 	const createThread = useCallback(
 		async (value: ThreadValue, messageContent?: IMessageSendPayload) => {
-			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
-				toast('Thread name must be longer than 3 characters');
+			const idParent = currentChannelParentId !== '0' ? currentChannelParentId : (currentChannelId as string);
+
+			if (!value.nameValueThread || !value.nameValueThread.trim()) {
 				return;
 			}
-			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: currentChannelId as string }));
+			if (value.nameValueThread.length <= CONSTANT.MINIMUM_CHAT_NAME_LENGTH) {
+				toast(t('createThread.toast.threadNameTooShort'));
+				return;
+			}
+
+			const regex = ValidateSpecialCharacters().test(value.nameValueThread);
+			if (!regex) {
+				return;
+			}
+
+			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
 			if (isDuplicate?.payload) {
-				toast('Thread name already exists');
+				toast(t('createThread.toast.threadNameExists'));
 				return;
 			}
 
 			if (!messageContent?.t && !checkAttachment) {
-				toast.warning('An Initial message is required to start a thread.');
+				toast.warning(t('createThread.toast.initialMessageRequired'));
 				return;
 			}
 
 			const timestamp = Date.now() / 1000;
-			const body: any = {
+			const body: Record<string, unknown> = {
 				clan_id: currentClanId?.toString(),
 				channel_label: value.nameValueThread,
 				channel_private: value.isPrivate,
-				parent_id: currentChannelId as string,
-				category_id: currentChannel?.category_id,
+				parent_id: idParent,
+				category_id: currentChannelCategoryId,
 				type: ChannelType.CHANNEL_TYPE_THREAD,
 				lastSeenTimestamp: timestamp,
 				lastSentTimestamp: timestamp
@@ -134,7 +157,7 @@ const ThreadBox = () => {
 			const thread = await dispatch(createNewChannel(body));
 			return thread.payload;
 		},
-		[checkAttachment, currentChannel?.category_id, currentChannelId, currentClanId]
+		[checkAttachment, currentChannelCategoryId, currentChannelParentId, currentChannelId, currentClanId, dispatch, t]
 	);
 
 	const handleSend = useCallback(
@@ -172,6 +195,7 @@ const ThreadBox = () => {
 							})
 						);
 						setRequestInput({ ...request, valueTextInput: '', content: '' }, true);
+						setNameValueThread('');
 					}
 				} else {
 					await sendMessageThread(content, mentions, attachments, references, threadCurrentChannel);
@@ -180,7 +204,18 @@ const ThreadBox = () => {
 				console.error('Session is not available');
 			}
 		},
-		[createThread, currentClanId, dispatch, sendMessageThread, threadCurrentChannel, sessionUser]
+		[
+			createThread,
+			currentClanId,
+			dispatch,
+			sendMessageThread,
+			threadCurrentChannel,
+			sessionUser,
+			setRequestInput,
+			currentInputChannelId,
+			request,
+			setNameValueThread
+		]
 	);
 	const handleSendWithLimitCheck = useCallback(
 		async (
@@ -190,14 +225,26 @@ const ThreadBox = () => {
 			references?: Array<ApiMessageRef>,
 			value?: ThreadValue
 		): Promise<boolean> => {
+			if (!threadCurrentChannel && valueThread) {
+				if (valueThread.content?.t && valueThread.content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
+					toast.error(t('createThread.toast.messageTooLong'));
+					return false;
+				}
+				await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+					nameValueThread: nameValueThread ?? valueThread?.content.t,
+					isPrivate
+				});
+				return true;
+			}
+
 			if (content?.t && content.t.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-				toast.error('Message exceeds the 4000-character limit');
+				toast.error(t('createThread.toast.messageTooLong'));
 				return false;
 			}
 			await handleSend(content, mentions, attachments, references, value);
 			return true;
 		},
-		[handleSend]
+		[handleSend, t, threadCurrentChannel, valueThread, attachmentData, nameValueThread, isPrivate]
 	);
 
 	const handleTyping = useCallback(() => {
@@ -205,6 +252,10 @@ const ThreadBox = () => {
 	}, [sendMessageTyping]);
 
 	const handleTypingDebounced = useThrottledCallback(handleTyping, 1000);
+
+	const handleChildContextMenu = (event: React.MouseEvent) => {
+		event.stopPropagation();
+	};
 
 	const onPastedFiles = useCallback(
 		async (event: React.ClipboardEvent<HTMLDivElement>) => {
@@ -231,14 +282,14 @@ const ThreadBox = () => {
 				})
 			);
 		},
-		[currentChannelId, currentClanId, attachmentFilteredByChannelId?.files?.length]
+		[attachmentFilteredByChannelId?.files?.length, currentInputChannelId, dispatch, setOverUploadingState]
 	);
 
 	const handleChangeNameThread = useCallback(
 		(nameThread: string) => {
 			dispatch(threadsActions.setNameValueThread({ channelId: currentChannelId as string, nameValue: nameThread }));
 		},
-		[currentChannelId]
+		[currentChannelId, dispatch]
 	);
 
 	const onKeyDown = async (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>): Promise<void> => {
@@ -260,9 +311,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -274,7 +325,7 @@ const ThreadBox = () => {
 
 				setUndoHistory((prevUndoHistory) => [
 					...prevUndoHistory,
-					{ valueTextInput: request.valueTextInput, content: request.content, mentionRaw: request.mentionRaw }
+					{ valueTextInput: request.valueTextInput, content: request.content, mentionRaw: request?.mentionRaw }
 				]);
 
 				setRedoHistory((prevRedoHistory) => prevRedoHistory.slice(1));
@@ -282,9 +333,9 @@ const ThreadBox = () => {
 				setRequestInput(
 					{
 						...request,
-						valueTextInput: valueTextInput,
-						content: content,
-						mentionRaw: mentionRaw
+						valueTextInput,
+						content,
+						mentionRaw
 					},
 					true
 				);
@@ -296,7 +347,16 @@ const ThreadBox = () => {
 				if (shiftKey || isComposing) {
 					return;
 				} else {
-					const hasToken = request?.mentionRaw?.length > 0;
+					if (!threadCurrentChannel && valueThread) {
+						event.preventDefault();
+						await handleSend(valueThread.content, valueThread.mentions || [], attachmentData, valueThread?.references, {
+							nameValueThread: nameValueThread ?? valueThread?.content.t,
+							isPrivate
+						});
+						return;
+					}
+
+					const hasToken = request?.mentionRaw && request?.mentionRaw?.length > 0;
 
 					const emptyRequest: RequestInput = {
 						content: '',
@@ -305,7 +365,7 @@ const ThreadBox = () => {
 					};
 					const checkedRequest = request ? request : emptyRequest;
 					if (checkedRequest.content.length > CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH) {
-						toast.error(`Message exceeds the ${CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH}-character limit`);
+						toast.error(t('createThread.toast.messageLimitExceeded', { limit: CONSTANT.LIMIT_CHARACTER_REACTION_INPUT_LENGTH }));
 						event.preventDefault();
 						return;
 					}
@@ -335,7 +395,10 @@ const ThreadBox = () => {
 	};
 
 	return (
-		<div className="flex flex-col flex-1 justify-end border-l border-color-primary bg-theme-chat pt-4">
+		<div
+			className="flex flex-col flex-1 justify-end border-l border-color-primary bg-theme-chat pt-4"
+			data-e2e={generateE2eId('discussion.box.thread')}
+		>
 			{threadCurrentChannel && (
 				<div className={`overflow-y-auto  max-w-widthMessageViewChat overflow-x-hidden flex-1`}>
 					<MemoizedChannelMessages
@@ -352,7 +415,7 @@ const ThreadBox = () => {
 				</div>
 			)}
 			{!threadCurrentChannel && (
-				<div className={`flex flex-col overflow-y-auto }  ww-full px-3`}>
+				<div className={`flex flex-col overflow-y-auto w-full  px-3`} onPaste={onPastedFiles}>
 					<div className="flex flex-col justify-end flex-grow">
 						{!threadCurrentChannel && (
 							<div className="relative flex text-theme-primary-active items-center justify-center mx-4 mt-4 w-16 h-16 bg-item-theme rounded-full pointer-events-none">
@@ -368,12 +431,22 @@ const ThreadBox = () => {
 							onChange={handleChangeNameThread}
 							onKeyDown={onKeyDown}
 							value={nameValueThread ?? ''}
-							label="Thread Name"
-							placeholder={openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : 'Enter Thread Name'}
+							label={t('createThread.threadName')}
+							placeholder={
+								openThreadMessageState && valueThread?.content.t !== '' ? valueThread?.content.t : t('createThread.enterThreadName')
+							}
 							className="h-10 p-[10px] bg-item-theme text-theme-message border-theme-primary text-base outline-none rounded-lg placeholder:text-sm"
 						/>
-						{!openThreadMessageState && <PrivateThread title="Private Thread" label="Only people you invite and moderators can see" />}
-						{valueThread && openThreadMessageState && <ChannelMessageThread user={currentClanUser} message={valueThread} />}
+						{!openThreadMessageState && !valueThread && (
+							<PrivateThread title={t('createThread.privateThread')} label={t('createThread.privateThreadDescription')} />
+						)}
+						{valueThread && (
+							<div className="max-h-[60vh] overflow-y-auto overflow-x-hidden  thread-scroll ">
+								<div className="px-3">
+									<ChannelMessageThread user={currentClanUser} message={valueThread} />
+								</div>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
@@ -403,22 +476,51 @@ const ThreadBox = () => {
 				</div>
 			)}
 			<div
-				className={`flex-shrink-0 flex flex-col ${isElectron() ? 'pb-[46px]' : 'pb-4'} px-3  h-auto relative ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}`}
+				className={`flex-shrink-0 flex flex-col ${isElectron() ? 'pb-[36px]' : 'pb-4'} px-3  h-auto relative ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}`}
 			>
 				<div
 					className={`h-fit w-full bg-transparent shadow-md rounded-lg min-h-[45px] ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}`}
 				>
-					<MentionReactInput
-						currentChannelId={currentInputChannelId}
-						handlePaste={onPastedFiles}
-						onSend={handleSendWithLimitCheck}
-						onTyping={handleTypingDebounced}
-						listMentions={UserMentionList({
-							channelID: currentChannel?.channel_id as string,
-							channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
-						})}
-						isThread={true}
-					/>
+					{!threadCurrentChannel ? (
+						<div className={`w-full border-none rounded-r-lg gap-3 relative whitespace-pre-wrap`} onContextMenu={handleChildContextMenu}>
+							<MentionReactInput
+								currentChannelId={currentInputChannelId}
+								handlePaste={onPastedFiles}
+								onSend={handleSendWithLimitCheck}
+								onTyping={handleTypingDebounced}
+								listMentions={UserMentionList({
+									channelID: currentChannelId as string,
+									channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
+								})}
+								isThread={true}
+							/>
+						</div>
+					) : (
+						<div
+							className={`flex flex-inline items-start gap-2 box-content max-sm:mb-0 bg-theme-surface rounded-lg relative shadow-md border-theme-primary ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}
+						${closeMenu && !statusMenu ? 'max-w-wrappBoxChatViewMobile' : 'w-wrappBoxChatView'}`}
+						>
+							<FileSelectionButton currentChannelId={currentInputChannelId} />
+							<div className={`w-[calc(100%_-_58px)] bg-transparent gap-3 flex items-center rounded-e-md`}>
+								<div
+									className={`w-full border-none rounded-r-lg gap-3 relative whitespace-pre-wrap`}
+									onContextMenu={handleChildContextMenu}
+								>
+									<MentionReactInput
+										currentChannelId={currentInputChannelId}
+										handlePaste={onPastedFiles}
+										onSend={handleSend}
+										onTyping={handleTypingDebounced}
+										listMentions={UserMentionList({
+											channelID: currentChannelId as string,
+											channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
+										})}
+										isThreadbox
+									/>
+								</div>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

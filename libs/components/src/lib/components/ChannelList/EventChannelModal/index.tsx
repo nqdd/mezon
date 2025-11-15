@@ -1,4 +1,5 @@
 import { selectShowModelDetailEvent } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ModalLayout } from '../../../components';
@@ -30,11 +31,14 @@ const EventModal = (props: EventModalProps) => {
 		<ModalLayout onClose={onClose}>
 			<div className={`relative w-full sm:h-auto rounded-lg ${openModal ? 'max-w-[472px]' : 'max-w-[600px]'}`}>
 				{!openModal ? (
-					<div className="rounded-lg text-sm overflow-hidden bg-theme-setting-primary text-theme-primary">
+					<div
+						className="rounded-lg text-sm overflow-hidden bg-theme-setting-primary text-theme-primary"
+						data-e2e={generateE2eId('clan_page.modal.create_event.start_modal')}
+					>
 						<StartEventModal onClose={onClose} onOpenCreate={() => setOpenModal(true)} onEventUpdateId={onEventUpdateId} />
 					</div>
 				) : (
-					<div className="rounded-lg text-sm">
+					<div className="rounded-lg text-sm" data-e2e={generateE2eId('clan_page.modal.create_event')}>
 						<ModalCreate
 							onClose={() => setOpenModal(false)}
 							onCloseEventModal={onClose}
@@ -44,7 +48,7 @@ const EventModal = (props: EventModalProps) => {
 					</div>
 				)}
 			</div>
-			{showModalDetailEvent && <ModalDetailItemEvent />}
+			{showModalDetailEvent && <ModalDetailItemEvent onCloseAll={onClose} />}
 		</ModalLayout>
 	);
 };

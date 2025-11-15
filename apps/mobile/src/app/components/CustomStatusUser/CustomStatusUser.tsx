@@ -1,40 +1,37 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectUserStatus, useAppDispatch, userStatusActions } from '@mezon/store-mobile';
-import { useEffect, useMemo, useState } from 'react';
+import { accountActions, selectAccountCustomStatus, useAppDispatch } from '@mezon/store-mobile';
+import { EUserStatus } from '@mezon/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import MezonMenu, { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
-import MezonOption, { IMezonOptionData } from '../../componentUI/MezonOption';
+import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
+import MezonMenu from '../../componentUI/MezonMenu';
+import type { IMezonOptionData } from '../../componentUI/MezonOption';
+import MezonOption from '../../componentUI/MezonOption';
 import { IconCDN } from '../../constants/icon_cdn';
 import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
+import { styles } from './CustomStatusUser.styles';
 
 interface ICustomStatusUserProps {
 	onPressSetCustomStatus?: () => void;
-	userCustomStatus?: string;
+	userStatus?: string;
 	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
 }
 
-export enum EUserStatus {
-	ONLINE = 'active',
-	IDLE = 'Idle',
-	DO_NOT_DISTURB = 'Do Not Disturb',
-	INVISIBLE = 'Invisible'
-}
 export const CustomStatusUser = (props: ICustomStatusUserProps) => {
-	const { onPressSetCustomStatus, userCustomStatus, handleCustomUserStatus } = props;
+	const { onPressSetCustomStatus, userStatus, handleCustomUserStatus } = props;
 	const { t } = useTranslation(['customUserStatus']);
-	const userStatus = useSelector(selectUserStatus);
 	const dispatch = useAppDispatch();
 	const { dismiss } = useBottomSheetModal();
-
 	const { themeValue } = useTheme();
 	const [userStatusOption, setUserStatusOption] = useState<string>(EUserStatus.ONLINE);
+	const userCustomStatus = useSelector(selectAccountCustomStatus);
 
 	useEffect(() => {
-		switch (userStatus?.status) {
+		switch (userStatus) {
 			case EUserStatus.ONLINE:
 				setUserStatusOption(EUserStatus.ONLINE);
 				break;
@@ -53,18 +50,21 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 		}
 	}, [userStatus]);
 
-	function handleStatusChange(value: string) {
-		if (!value) return;
-		dismiss();
-		dispatch(
-			userStatusActions.updateUserStatus({
-				status: value,
-				minutes: 0,
-				until_turn_on: true
-			})
-		);
-		setUserStatusOption(value);
-	}
+	const handleStatusChange = useCallback(
+		(value: string) => {
+			if (!value) return;
+			dismiss();
+			dispatch(
+				accountActions.updateAccountStatus({
+					status: value,
+					minutes: 0,
+					until_turn_on: true
+				})
+			);
+			setUserStatusOption(value);
+		},
+		[dismiss, dispatch]
+	);
 
 	const statusOptions = useMemo(
 		() =>
@@ -111,11 +111,11 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 					]
 				}
 			] as IMezonMenuSectionProps[],
-		[userCustomStatus]
+		[handleCustomUserStatus, onPressSetCustomStatus, t, themeValue.textDisabled, themeValue.textStrong, userCustomStatus]
 	);
 
 	return (
-		<View style={{ paddingHorizontal: size.s_20, paddingVertical: size.s_10 }}>
+		<View style={styles.container}>
 			<MezonOption title={t('onlineStatus')} data={statusOptions} value={userStatusOption} onChange={handleStatusChange} />
 
 			<MezonMenu menu={statusMenu} />

@@ -1,18 +1,19 @@
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useRoles } from '@mezon/core';
-import { CheckIcon, debounce } from '@mezon/mobile-components';
-import { Colors, Text, size, useTheme } from '@mezon/mobile-ui';
+import { debounce } from '@mezon/mobile-components';
+import { baseColor, size, useTheme, verticalScale } from '@mezon/mobile-ui';
 import { RolesClanEntity } from '@mezon/store-mobile';
 import { UsersClanEntity } from '@mezon/utils';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { normalizeString } from '../../../../../utils/helpers';
 import { MemberItem } from '../MemberItem';
+import { styles as localStyles } from './AddMemberBsContent.styles';
 
 interface IAddMemberBsContentProps {
 	memberList?: UsersClanEntity[];
@@ -60,35 +61,31 @@ export const AddMemberBsContent = memo((props: IAddMemberBsContentProps) => {
 				type: 'success',
 				props: {
 					text2: t('setupMember.addedMember'),
-					leadingIcon: <CheckIcon color={Colors.green} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={20} height={20} />
 				}
 			});
 		} else {
 			Toast.show({
-				type: 'success',
+				type: 'error',
 				props: {
 					text2: t('failed'),
-					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={Colors.red} width={20} height={20} />
+					leadingIcon: <MezonIconCDN icon={IconCDN.closeIcon} color={baseColor.redStrong} width={20} height={20} />
 				}
 			});
 		}
 	}, [updateRole, role?.clan_id, role?.id, role?.title, role?.color, selectedMemberIdList, onClose, t]);
 
+	const componentStyles = localStyles(themeValue);
+
 	return (
-		<View style={{ flex: 1, paddingHorizontal: size.s_15 }}>
-			<View style={{ marginBottom: size.s_14 }}>
-				<Text center color={themeValue.white} h3>
-					{t('setupMember.addMember')}
-				</Text>
-				<Text center color={themeValue.text}>
-					{role?.title}
-				</Text>
+		<View style={componentStyles.container}>
+			<View style={componentStyles.headerContainer}>
+				<Text style={componentStyles.title}>{t('setupMember.addMember')}</Text>
+				<Text style={componentStyles.roleTitle}>{role?.title}</Text>
 				{selectedMemberIdList?.length ? (
-					<View style={{ position: 'absolute', right: 0 }}>
-						<TouchableOpacity onPress={handleAddMemberToRole} style={{ padding: size.s_6 }}>
-							<Text color={Colors.textViolet} h5>
-								{t('setupMember.add')}
-							</Text>
+					<View style={componentStyles.addButtonContainer}>
+						<TouchableOpacity onPress={handleAddMemberToRole} style={componentStyles.addButton}>
+							<Text style={componentStyles.addButtonText}>{t('setupMember.add')}</Text>
 						</TouchableOpacity>
 					</View>
 				) : null}
@@ -112,9 +109,7 @@ export const AddMemberBsContent = memo((props: IAddMemberBsContentProps) => {
 				/>
 			) : (
 				<View>
-					<Text center color={themeValue.text}>
-						{t('setupMember.noMembersFound')}
-					</Text>
+					<Text style={componentStyles.noMembersText}>{t('setupMember.noMembersFound')}</Text>
 				</View>
 			)}
 		</View>

@@ -1,33 +1,34 @@
 {
-    "menu": {
-        "settings": {
-            "title": "Cài đặt",
-            "overview": "Tổng quan",
-            "moderation": "Điều chỉnh",
-            "auditLog": "Nhật ký chỉnh sửa",
-            "channels": "Kênh",
-            "integrations": "Tích hợp",
-            "emoji": "Emoji",
-            "sticker": "Sticker",
-            "webhooks": "Webhook",
-            "security": "Bảo mật",
-            "permissionDenied": "Bạn không có quyền để chỉnh sửa",
-            "sound": "Hiệu ứng âm thanh"
-        },
-        "community": {
-            "title": "Cộng đồng",
-            "enableCommunity": "Kích hoạt cộng đồng"
-        },
-        "subscriptions": {
-            "title": "Gói đăng ký clan",
-            "getStarted": "Bắt đâu"
-        },
-        "userManagement": {
-            "title": "Quản lý người dùng",
-            "members": "Thành viên",
-            "role": "Vai trò",
-            "invite": "Lời mời",
-            "bans": "Chặn"
-        }
-    }
+	"menu": {
+		"settings": {
+			"title": "Cài đặt",
+			"overview": "Tổng quan",
+			"moderation": "Điều chỉnh",
+			"auditLog": "Nhật ký chỉnh sửa",
+			"channels": "Kênh",
+			"integrations": "Tích hợp",
+			"emoji": "Biểu cảm",
+			"sticker": "Nhãn dán",
+			"webhooks": "Webhook",
+			"security": "Bảo mật",
+			"permissionDenied": "Bạn không có quyền để chỉnh sửa",
+			"sound": "Hiệu ứng âm thanh",
+			"enableCommunity": "Kích hoạt cộng đồng"
+		},
+		"community": {
+			"title": "Cộng đồng",
+			"enableCommunity": "Kích hoạt cộng đồng"
+		},
+		"subscriptions": {
+			"title": "Gói đăng ký clan",
+			"getStarted": "Bắt đầu"
+		},
+		"userManagement": {
+			"title": "Quản lý người dùng",
+			"members": "Thành viên",
+			"role": "Vai trò",
+			"invite": "Lời mời",
+			"bans": "Chặn"
+		}
+	}
 }

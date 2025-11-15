@@ -1,51 +1,73 @@
 {
-    "accountSettings": {
-        "title": "Account Settings",
-        "getNitro": "Get Nitro",
-        "account": "Account",
-        "privacySafety": "Privacy & Safety",
-        "familyCenter": "Family Center",
-        "authorizedApp": "Authorized Apps",
-        "device": "Devices",
-        "connection": "Connections",
-        "clip": "Clips",
-        "friendRequests": "Friend Requests",
-        "QRScan": "Scan QR Code",
-        "MyQRCode": "My QR code"
-    },
-    "paymentSettings": {
-        "title": "Payment Settings",
-        "serverBoost": "Clan Boost",
-        "nitroGift": "Nitro Gifting",
-        "restoreSubscription": "Restore Subscription"
-    },
-    "appSettings": {
-        "title": "App Settings",
-        "voice": "Voice",
-        "appearance": "Appearance",
-        "accessibility": "Accessibility",
-        "language": "Language",
-        "chat": "Chat",
-        "webBrowser": "Web Browser",
-        "notifications": "Notifications",
-        "appIcon": "App Icon",
-        "advanced": "Advanced"
-    },
-    "supportSettings": {
-        "title": "Support",
-        "support": "Support",
-        "uploadLog": "Upload debug logs to Mezon Support",
-        "acknowledgement": "Acknowledgement"
-    },
-    "whatsNew": {
-        "title": "What's new",
-        "whatsNew": "What's new"
-    },
-    "updateGate": {
-    "outOfDateVersion": "Out of Date Version",
-    "updateExperience": "Let's update to have the best experience!",
-    "updateNow": "Update Now"
-  },
-    "logOut": "Logout",
-    "removeAccount": "Remove Account"
+	"accountSettings": {
+		"title": "Account Settings",
+		"getNitro": "Get Nitro",
+		"account": "Account",
+		"profiles": "Profiles",
+		"privacySafety": "Privacy & Safety",
+		"familyCenter": "Family Center",
+		"authorizedApp": "Authorized Apps",
+		"device": "Devices",
+		"connection": "Connections",
+		"clip": "Clips",
+		"friendRequests": "Friend Requests",
+		"QRScan": "Scan QR Code",
+		"MyQRCode": "My QR code"
+	},
+	"paymentSettings": {
+		"title": "Payment Settings",
+		"serverBoost": "Clan Boost",
+		"nitroGift": "Nitro Gifting",
+		"restoreSubscription": "Restore Subscription"
+	},
+	"appSettings": {
+		"title": "App Settings",
+		"voice": "Voice",
+		"appearance": "Appearance",
+		"accessibility": "Accessibility",
+		"language": "Language",
+		"activity": "Activity",
+		"notifications": "Notifications",
+		"chat": "Chat",
+		"webBrowser": "Web Browser",
+		"appIcon": "App Icon",
+		"advanced": "Advanced"
+	},
+	"activity": {
+		"title": "Show my activity",
+		"description": "Show your current activities to friends. This lets them see what you're up to and makes it easier to connect."
+	},
+	"supportSettings": {
+		"title": "Support",
+		"support": "Support",
+		"uploadLog": "Upload debug logs to Mezon Support",
+		"acknowledgement": "Acknowledgement"
+	},
+	"whatsNew": {
+		"title": "What's new",
+		"whatsNew": "What's new"
+	},
+	"updateGate": {
+		"outOfDateVersion": "Out of Date Version",
+		"updateExperience": "Let's update to have the best experience!",
+		"updateNow": "Update Now"
+	},
+	"language": {
+		"title": "Language",
+		"description": "Select your preferred language.",
+		"english": "English",
+		"vietnamese": "Tiếng Việt"
+	},
+	"logOut": "Logout",
+	"logOutPopup": {
+		"description": "Please confirm if you would like to log out?",
+		"noConfirm": "No",
+		"yesConfirm": "Yes"
+	},
+	"removeAccount": "Remove Account",
+	"channelSetting": {
+		"recentChannels": "Recent Channels",
+		"searchByChannelLabel": "Search by channel label"
+	},
+	"setting": "Setting"
 }

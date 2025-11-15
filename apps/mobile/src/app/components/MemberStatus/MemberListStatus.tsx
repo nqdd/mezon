@@ -1,17 +1,9 @@
-import { ActionEmitEvent, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	DirectEntity,
-	selectAllChannelMembers,
-	selectAllUserClans,
-	selectClanMembersMetaEntities,
-	selectGrouplMembers,
-	useAppSelector
-} from '@mezon/store-mobile';
-import { ChannelMembersEntity, EUserStatus, UsersClanEntity } from '@mezon/utils';
+import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
+import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import { ApiUser } from 'mezon-js/api.gen';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
@@ -20,7 +12,6 @@ import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import InviteToChannel from '../../screens/home/homedrawer/components/InviteToChannel';
-import { getUserStatusByMetadata } from '../../utils/helpers';
 import { threadDetailContext } from '../ThreadDetail/MenuThreadDetail';
 import { UserInformationBottomSheet } from '../UserInformationBottomSheet';
 import { MemoizedMemberItem } from './MemberItem';
@@ -39,9 +30,9 @@ export const MemberListStatus = React.memo(() => {
 	const styles = style(themeValue);
 	const currentChannel = useContext(threadDetailContext);
 	const navigation = useNavigation<any>();
-	const membersChannel = useSelector(selectAllUserClans);
-	const membersMetaEntities = useSelector(selectClanMembersMetaEntities);
-	const membersDM = useAppSelector((state) => selectGrouplMembers(state, currentChannel?.channel_id as string));
+	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
+	const channelMembers = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannel?.channel_id));
+	const currentUserId = useSelector(selectCurrentUserId);
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
 	const { t } = useTranslation();
@@ -51,94 +42,58 @@ export const MemberListStatus = React.memo(() => {
 		[EActionButton.InviteMembers]: t('common:inviteMembers')
 	};
 
-	const myUserId = useMemo(() => {
-		return load(STORAGE_MY_USER_ID);
-	}, []);
+	const isChatWithMyself = useMemo(() => {
+		if (Number(currentChannel?.type) !== ChannelType.CHANNEL_TYPE_DM) return false;
+		return currentChannel?.user_ids?.[0] === currentUserId;
+	}, [currentChannel?.type, currentChannel?.user_ids, currentUserId]);
 
 	const isDMThread = useMemo(() => {
 		return [ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type);
 	}, [currentChannel]);
+
 	const handleAddOrInviteMembers = useCallback((action: EActionButton) => {
 		if (action === EActionButton.InviteMembers) {
 			const data = {
 				snapPoints: ['70%', '90%'],
-				children: <InviteToChannel isUnknownChannel={false} isDMThread={isDMThread} />
+				children: <InviteToChannel isUnknownChannel={false} />
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 		}
 		if (action === EActionButton.AddMembers) navigateToNewGroupScreen();
 	}, []);
 
-	const getUserOnlineStatus = (user: ApiUser) => {
-		if (user?.id === myUserId) {
-			return getUserStatusByMetadata(user?.metadata) !== EUserStatus.INVISIBLE;
-		}
-		return user?.online;
-	};
-
-	const getIsMobileStatus = (user: ApiUser) => (user?.id === myUserId ? true : user?.is_mobile);
-
 	const listMembersChannelGroupDM = useMemo(() => {
-		const members = isDMThread ? membersDM : membersChannel;
-		if (!membersMetaEntities || !members) {
+		const members = isDMThread ? rawMembers : channelMembers;
+
+		if (!members) {
 			return {
 				online: [],
 				offline: []
 			};
 		}
 
-		const users = members?.map((item: ChannelMembersEntity | UsersClanEntity) => ({
-			...item,
-			user: {
-				...item.user,
-				online: isDMThread
-					? getUserOnlineStatus(item?.user)
-					: item?.id === myUserId
-						? membersMetaEntities[item.id]?.status !== EUserStatus.INVISIBLE
-						: membersMetaEntities[item.id]?.status === EUserStatus.INVISIBLE
-							? false
-							: !!membersMetaEntities[item.id]?.online,
-				is_mobile: isDMThread ? getIsMobileStatus(item?.user) : !!membersMetaEntities[item.id]?.isMobile
-			}
-		})) as UsersClanEntity[];
-
-		users?.sort((a, b) => {
+		members?.sort((a, b) => {
 			if (a.user?.online === b.user?.online) {
 				return getName(a).localeCompare(getName(b));
 			}
 			return a.user?.online ? -1 : 1;
 		});
-		const firstOfflineIndex = users.findIndex((user) => !user?.user?.online);
-		const onlineUsers = firstOfflineIndex === -1 ? users : users?.slice(0, firstOfflineIndex);
-		const offlineUsers = firstOfflineIndex === -1 ? [] : users?.slice(firstOfflineIndex);
+		const firstOfflineIndex = members.findIndex((user) => !user?.user?.online);
+		const onlineUsers = firstOfflineIndex === -1 ? members : members?.slice(0, firstOfflineIndex);
+		const offlineUsers = firstOfflineIndex === -1 ? [] : members?.slice(firstOfflineIndex);
 
 		return {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [isDMThread, membersDM, membersChannel, membersMetaEntities]);
+	}, [currentChannel?.id, isDMThread, rawMembers, channelMembers]);
 
-	const userChannels = useAppSelector((state) => selectAllChannelMembers(state, currentChannel?.channel_id));
-	const lisMembers = useMemo(() => {
-		if (!userChannels || !listMembersChannelGroupDM) {
-			return {
-				onlineMembers: [],
-				offlineMembers: []
-			};
-		}
-		const users = new Map(userChannels.map((item) => [item.id, true]));
-		return {
-			onlineMembers: listMembersChannelGroupDM?.online?.filter((m) => users.has(m?.id)),
-			offlineMembers: listMembersChannelGroupDM?.offline?.filter((m) => users.has(m?.id))
-		};
-	}, [listMembersChannelGroupDM, userChannels]);
-
-	const { onlineMembers, offlineMembers } = lisMembers;
+	const { online, offline } = listMembersChannelGroupDM;
 
 	const navigateToNewGroupScreen = () => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.NEW_GROUP,
-			params: { directMessage: currentChannel as DirectEntity }
+			params: { directMessageId: currentChannel?.id || currentChannel?.channel_id || '' }
 		});
 	};
 
@@ -150,13 +105,16 @@ export const MemberListStatus = React.memo(() => {
 		setSelectedUser(user);
 	}, []);
 
-	const renderMemberItem = ({ item }) => {
-		return <MemoizedMemberItem onPress={handleUserPress} user={item} currentChannel={currentChannel} isDMThread={isDMThread} />;
-	};
+	const renderMemberItem = useCallback(
+		({ item }) => {
+			return <MemoizedMemberItem onPress={handleUserPress} user={item} creatorChannelId={currentChannel?.creator_id} isDMThread={isDMThread} />;
+		},
+		[currentChannel?.creator_id, handleUserPress, isDMThread]
+	);
 
 	return (
 		<View style={styles.container}>
-			{currentChannel?.type === ChannelType.CHANNEL_TYPE_DM ? (
+			{currentChannel?.type === ChannelType.CHANNEL_TYPE_DM && currentChannel?.usernames?.[0] ? (
 				<TouchableOpacity onPress={() => navigateToNewGroupScreen()} style={styles.actionItem}>
 					<View style={[styles.actionIconWrapper]}>
 						<MezonIconCDN icon={IconCDN.groupIcon} height={20} width={20} color={baseColor.white} />
@@ -193,17 +151,17 @@ export const MemberListStatus = React.memo(() => {
 				</Pressable>
 			) : null}
 
-			{onlineMembers?.length > 0 || offlineMembers?.length > 0 ? (
+			{(online?.length > 0 || offline?.length > 0) && !isChatWithMyself ? (
 				<SectionList
 					sections={[
-						{ title: t('common:members'), data: onlineMembers },
-						{ title: t('common:offlines'), data: offlineMembers }
+						{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
+						{ title: t('common:offlines'), data: offline, key: 'offlineMembers' }
 					]}
-					keyExtractor={(_, index) => `channelMember[${index}]`}
+					keyExtractor={(item, index) => `channelMember[${index}]_${item?.id}`}
 					renderItem={renderMemberItem}
 					renderSectionHeader={({ section: { title } }) => (
 						<Text style={styles.text}>
-							{title} - {title === t('common:members') ? onlineMembers?.length : offlineMembers?.length}
+							{title} - {title === t('common:onlines') ? online?.length : offline?.length}
 						</Text>
 					)}
 					contentContainerStyle={{ paddingBottom: size.s_60 }}

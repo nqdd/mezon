@@ -17,6 +17,7 @@ interface IMezonClanAvatarProps {
 	lightMode?: boolean;
 	imageHeight?: number;
 	imageWidth?: number;
+	isMsgReply?: boolean;
 }
 
 export default memo(function MezonClanAvatar({
@@ -27,11 +28,12 @@ export default memo(function MezonClanAvatar({
 	noDefaultText = false,
 	lightMode,
 	imageHeight = 100,
-	imageWidth = 100
+	imageWidth = 100,
+	isMsgReply = false
 }: IMezonClanAvatarProps) {
 	const { themeValue } = useTheme();
 
-	const styles = style(themeValue);
+	const styles = style(themeValue, isMsgReply);
 
 	if (image) {
 		return (
@@ -53,10 +55,7 @@ export default memo(function MezonClanAvatar({
 	return (
 		<View style={[styles.fakeBox, { backgroundColor: defaultColor || themeValue.colorAvatarDefault }]}>
 			{!noDefaultText ? (
-				<FastImage
-					source={alt === 'Anonymous' ? IconCDN.anonymousAvatar : Images.ANONYMOUS_AVATAR}
-					style={{ width: '100%', height: '100%', borderRadius: size.s_100 }}
-				/>
+				<FastImage source={alt === 'Anonymous' ? IconCDN.anonymousAvatar : Images.ANONYMOUS_AVATAR} style={styles.defaultImageStyle} />
 			) : null}
 		</View>
 	);
