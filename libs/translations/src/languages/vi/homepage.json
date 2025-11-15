@@ -1,55 +1,55 @@
 {
 	"title": {
-		"part1": "Nền tảng",
-		"live": "Kết nối",
-		"work": "Làm việc",
-		"and": "và",
-		"playPlatform": "Giải trí",
-		"theBest": "sự thay thế tuyệt vời cho",
+		"part1": "Nền Tảng",
+		"live": "Kết Nối",
+		"work": "Làm Việc",
+		"and": "Và",
+		"playPlatform": "Giải Trí",
+		"theBest": "Sự Thay Thế Tuyệt Vời Cho",
 		"discord": "Discord",
 		"alternative": ""
 	},
 	"description": {
-		"part1": "là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu.",
+		"part1": "Là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu.",
 		"part2": "Tùy chỉnh không gian riêng của bạn để",
-		"talk": "trò chuyện",
-		"play": "giải trí",
-		"and": "và",
-		"hangOut": "kết nối"
+		"talk": "Trò Chuyện",
+		"play": "Giải Trí",
+		"and": "Và",
+		"hangOut": "Kết Nối"
 	},
 	"download": {
-		"getItFrom": "Tải từ",
+		"getItFrom": "Tải Từ",
 		"cdnUrl": "CDN Url"
 	},
 	"header": {
-		"home": "Trang chủ",
-		"overview": "Tổng quan",
-		"features": "Tính năng",
-		"developers": "Nhà phát triển",
+		"home": "Trang Chủ",
+		"overview": "Tổng Quan",
+		"features": "Tính Năng",
+		"developers": "Nhà Phát Triển",
 		"botsApps": "Bots/Apps",
-		"documents": "Tài liệu",
-		"discover": "Khám phá",
+		"documents": "Tài Liệu",
+		"discover": "Khám Phá",
 		"blogs": "Blog",
 		"openMezon": "Open Mezon",
-		"login": "Đăng nhập"
+		"login": "Đăng Nhập"
 	},
 	"layout": {
 		"overview": {
-			"title": "Tổng quan",
-			"subtitle": "là cách thức mới để giao tiếp với đội ngũ của bạn.",
+			"title": "Tổng Quan",
+			"subtitle": "Là cách thức mới để giao tiếp với đội ngũ của bạn.",
 			"description": "Nhanh hơn, tổ chức tốt hơn, hoàn hảo cho làm việc từ xa."
 		},
 		"features": {
-			"title": "Tính năng của chúng tôi",
-			"subtitle": "Công cụ giao tiếp toàn diện"
+			"title": "Tính Năng Của Chúng Tôi",
+			"subtitle": "Công Cụ Giao Tiếp Toàn Diện"
 		},
 		"cards": {
 			"workstation": {
-				"title": "Không gian làm việc",
-				"description": "Không gian làm việc số hóa giúp tối ưu hóa giao tiếp, cộng tác và quản lý công việc bằng cách tích hợp với nhiều hệ thống và công cụ khác nhau. Cung cấp không gian có cấu trúc cho các nhóm, dự án và phòng ban đồng thời đảm bảo truy cập thông tin và quy trình làm việc một cách liền mạch"
+				"title": "Không Gian Làm Việc",
+				"description": "Không gian làm việc số hóa giúp tối ưu hóa giao tiếp, cộng tác và quản lý công việc bằng cách tích hợp với nhiều hệ thống và công cụ khác nhau. Cung cấp không gian có cấu trúc cho các nhóm, dự án và phòng ban đồng thời đảm bảo truy cập thông tin và quy trình làm việc một cách liền mạch."
 			},
 			"ecosystem": {
-				"title": "Hệ sinh thái",
+				"title": "Hệ Sinh Thái",
 				"description": "Môi trường số động kết hợp yếu tố công việc và xã hội, cung cấp các tính năng tương tác và giải trí phong phú. Hỗ trợ giao dịch ảo, hoạt động cộng đồng và xây dựng mối quan hệ để nâng cao trải nghiệm người dùng."
 			},
 			"aiAgent": {
@@ -60,83 +60,83 @@
 		"featureCards": {
 			"mezonMainnet": {
 				"title": "Mezon Mainnet",
-				"subtitle": "Layer 1 tốc độ cao, không phí",
+				"subtitle": "Layer 1 Tốc Độ Cao, Không Phí",
 				"description": "Blockchain"
 			},
 			"developerApi": {
-				"title": "API nâng cao",
-				"subtitle": "cho nhà phát triển"
+				"title": "API Nâng Cao",
+				"subtitle": "Cho Nhà Phát Triển"
 			},
 			"gaming": {
-				"title": "Trò chơi",
-				"subtitle": "& Giải trí"
+				"title": "Trò Chơi",
+				"subtitle": "& Giải Trí"
 			},
 			"customizable": {
-				"title": "Tùy chỉnh linh hoạt",
-				"subtitle": "& Mở rộng dễ dàng"
+				"title": "Tùy Chỉnh Linh Hoạt",
+				"subtitle": "& Mở Rộng Dễ Dàng"
 			}
 		}
 	},
 	"sections": {
 		"hero": {
 			"title": {
-				"your": "Nền tảng",
-				"live": "Kết nối",
-				"work": "Làm việc",
-				"play": "Giải trí",
-				"platform": "của bạn.",
-				"theBest": "Sự thay thế tuyệt vời cho",
+				"your": "Nền Tảng",
+				"live": "Kết Nối",
+				"work": "Làm Việc",
+				"play": "Giải Trí",
+				"platform": "Của Bạn.",
+				"theBest": "Sự Thay Thế Tuyệt Vời Cho",
 				"discordAlternative": "Discord"
 			},
-			"description": "là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu. Tùy chỉnh không gian riêng của bạn để",
-			"talk": "trò chuyện",
-			"play": "giải trí",
-			"and": "và",
-			"hangOut": "kết nối",
-			"tryButton": "Dùng thử Mezon, miễn phí!",
-			"choosePlatform": "Chọn nền tảng của bạn"
+			"description": "Là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu. Tùy chỉnh không gian riêng của bạn để",
+			"talk": "Trò Chuyện",
+			"play": "Giải Trí",
+			"and": "Và",
+			"hangOut": "Kết Nối",
+			"tryButton": "Dùng Thử Mezon, Miễn Phí!",
+			"choosePlatform": "Chọn Nền Tảng Của Bạn"
 		},
 		"textChannel": {
-			"title": "Nhắn tin siêu nhanh",
-			"description": "Được xây dựng để Trò chuyện, Cộng tác và Kết nối.",
+			"title": "Nhắn Tin Siêu Nhanh",
+			"description": "Được xây dựng để Trò Chuyện, Cộng Tác và Kết Nối.",
 			"description2": "Nhắn tin siêu nhanh. Không giới hạn. Gửi tức thì.",
-			"learnMore": "Tìm hiểu thêm"
+			"learnMore": "Tìm Hiểu Thêm"
 		},
 		"clanDiscover": {
-			"title": "Clan của bạn, Thế giới của bạn",
+			"title": "Clan Của Bạn, Thế Giới Của Bạn",
 			"description": "Từ sở thích, thảo luận đến tin tức và xu hướng, có một clan cho mọi thứ.",
-			"learnMore": "Tìm hiểu thêm"
+			"learnMore": "Tìm Hiểu Thêm"
 		},
 		"aiAgent": {
-			"title": "AI Agent cho Clan và Hỗ trợ 24/7",
-			"description": "AI Agent giọng nói (Tóm tắt nội dung trong cuộc trò chuyện kênh voice, hoặc đóng vai người phỏng vấn), trợ lý AI, BOT chế độ ẩn (tóm tắt nội dung trong kênh text).",
-			"learnMore": "Tìm hiểu thêm"
+			"title": "AI Agent Cho Clan Và Hỗ Trợ 24/7",
+			"description": "AI Agent giọng nói (tóm tắt nội dung trong cuộc trò chuyện kênh voice, hoặc đóng vai người phỏng vấn), trợ lý AI, BOT chế độ ẩn (tóm tắt nội dung trong kênh text).",
+			"learnMore": "Tìm Hiểu Thêm"
 		},
 		"communityPayments": {
-			"title": "Thanh toán trong cộng đồng",
+			"title": "Thanh Toán Trong Cộng Đồng",
 			"description": "Gửi tiền ngay lập tức, thưởng cho người sáng tạo và mua sắm với các thương hiệu đối tác — tất cả đều không mất phí nền tảng. Xây dựng trên sự minh bạch và bảo mật.",
-			"learnMore": "Tìm hiểu thêm"
+			"learnMore": "Tìm Hiểu Thêm"
 		},
 		"enterpriseIntegrations": {
-			"title": "Tích hợp doanh nghiệp",
+			"title": "Tích Hợp Doanh Nghiệp",
 			"description": "Mezon cho phép bạn kết nối với khách hàng trên toàn cầu và mang đến những trải nghiệm quy mô lớn hấp dẫn.",
-			"learnMore": "Tìm hiểu thêm"
+			"learnMore": "Tìm Hiểu Thêm"
 		}
 	},
 	"footer": {
 		"description": "Mezon là nơi tuyệt vời để chơi game và thư giãn với bạn bè, hoặc xây dựng một cộng đồng toàn cầu.",
-		"getTheApp": "Tải ứng dụng",
-		"copyright": "© 2024 Mezon. All rights reserved.",
+		"getTheApp": "Tải Ứng Dụng",
+		"copyright": "© 2024 Mezon. All Rights Reserved.",
 		"links": {
-			"executiveSummary": "Tóm tắt điều hành",
-			"problemStatement": "Vấn đề đặt ra",
-			"solution": "Giải pháp",
+			"executiveSummary": "Tóm Tắt Điều Hành",
+			"problemStatement": "Vấn Đề Đặt Ra",
+			"solution": "Giải Pháp",
 			"blockchainEconomy": "Blockchain & Token Economy",
-			"developerApi": "Tích hợp API cho nhà phát triển",
-			"technicalArchitecture": "Kiến trúc kỹ thuật",
-			"productRoadmap": "Lộ trình sản phẩm",
+			"developerApi": "Tích Hợp API Cho Nhà Phát Triển",
+			"technicalArchitecture": "Kiến Trúc Kỹ Thuật",
+			"productRoadmap": "Lộ Trình Sản Phẩm",
 			"tokenomics": "Tokenomics",
-			"team": "Đội ngũ"
+			"team": "Đội Ngũ"
 		}
 	}
 }

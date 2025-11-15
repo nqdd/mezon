@@ -1,0 +1,46 @@
+{
+	"download": "Tải xuống",
+	"sections": {
+		"section1": {
+			"title": "Everything You Need, In One Place",
+			"description": "Với Mezon, ứng dụng tập trung mọi công cụ bạn cần vào một không gian duy nhất. Không phải chuyển đổi qua nhiều tài nguyên rời rạc - chỉ cần hiệu suất và hiệu quả."
+		},
+		"section2": {
+			"title": "Unleash The Power Of Your Business With Seamless Low-Code Integration",
+			"description": "Với chi phí và thời gian giảm thiểu, chúng tôi nâng cao tích hợp với doanh nghiệp muốn giảm chi phí phát triển năng lực - chỉ cần tốc độ và sự linh hoạt"
+		},
+		"section3": {
+			"title": "Automate Processes For Individuals And Organizations: ",
+			"titleHighlight": "Bot/App Integration",
+			"titleEnd": "",
+			"description": "Kết nối bot và ứng dụng để tự động hóa các tác vụ từ nhân viên đến sản xuất. Nhanh hơn, chính xác hơn và không cần giải quyết các thuật toán phức tạp nữa."
+		},
+		"section4": {
+			"title": "ERP System",
+			"description": "Với các mô-đun và tính năng dễ dàng tùy chỉnh, ERP sẽ đáp ứng đầy đủ nhu cầu của doanh nghiệp và có thể tự động hóa các hoạt động liên quan đến nguồn lực doanh nghiệp để giảm thời gian xử lý và tối ưu hóa quản lý nguồn lực"
+		}
+	},
+	"faq": {
+		"title": "Câu Hỏi Thường Gặp",
+		"seeAll": "Xem Tất Cả FAQ",
+		"learnMore": "Tìm hiểu thêm",
+		"questions": [
+			{
+				"question": "Làm cách nào để bắt đầu tích hợp công cụ của tôi với Mezon?",
+				"answer": "Bắt đầu rất đơn giản. Điều hướng đến trang tích hợp, chọn dịch vụ mong muốn và làm theo hướng dẫn thiết lập từng bước."
+			},
+			{
+				"question": "Những loại tích hợp nào được hỗ trợ?",
+				"answer": "Mezon hỗ trợ nhiều loại tích hợp bao gồm webhooks, bots, ứng dụng bên thứ ba và hệ thống ERP. Kiểm tra tài liệu của chúng tôi để biết danh sách đầy đủ."
+			},
+			{
+				"question": "Tôi có thể tạo tích hợp tùy chỉnh không?",
+				"answer": "Có! Nền tảng của chúng tôi cung cấp API và SDK cho phép bạn xây dựng tích hợp tùy chỉnh phù hợp với nhu cầu cụ thể của bạn."
+			},
+			{
+				"question": "Có giới hạn số lượng tích hợp tôi có thể thêm không?",
+				"answer": "Số lượng tích hợp bạn có thể thêm phụ thuộc vào gói của bạn. Các gói doanh nghiệp cung cấp tích hợp không giới hạn."
+			}
+		]
+	}
+}
