@@ -60,24 +60,23 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 						{t('sections.hero.title.theBest')} {t('sections.hero.title.discordAlternative')}
 					</h1>
 
-					<p className="text-xl max-md:text-lg text-gray-600 max-w-3xl">
-						<span className="text-purple-600 font-semibold">Mezon </span>
-						{t('sections.hero.description')} <span className="text-purple-600 font-semibold">{t('sections.hero.talk')}</span>,{' '}
-						{t('sections.hero.play')} {t('sections.hero.and')}{' '}
-						<span className="text-purple-600 font-semibold">{t('sections.hero.hangOut')}</span>.
+					<p className="font-svnAvo text-xl max-md:text-lg text-gray-600 max-w-3xl">
+						<span className="text-purple-600 ">Mezon </span>
+						{t('sections.hero.description')} <span className="text-purple-600 ">{t('sections.hero.talk')}</span>,{' '}
+						{t('sections.hero.play')} {t('sections.hero.and')} <span className="text-purple-600 ">{t('sections.hero.hangOut')}</span>.
 					</p>
 
 					<div className="relative" ref={dropdownRef}>
 						<button
 							onClick={handleTryMezon}
-							className="px-[17px] py-[8px] md:px-8 md:py-4  bg-purple-600 text-white rounded-full text-lg font-semibold hover:bg-purple-700 transition-all border-4 border-purple-300 shadow-lg"
+							className="px-[17px] py-[8px] md:px-8 md:py-4  bg-purple-600 text-white rounded-full text-lg  hover:bg-purple-700 transition-all border-4 border-purple-300 shadow-lg"
 						>
 							{t('sections.hero.tryButton')}
 						</button>
 
 						{isDropdownOpen && (
 							<div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl p-4 min-w-[250px] z-50 border border-purple-200">
-								<div className="text-center mb-3 text-sm font-semibold text-gray-700">{t('sections.hero.choosePlatform')}</div>
+								<div className="text-center mb-3 text-sm  text-gray-700">{t('sections.hero.choosePlatform')}</div>
 								<div className="flex flex-col gap-2">
 									<a
 										href={downloadLinks.windows}

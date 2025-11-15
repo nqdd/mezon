@@ -254,6 +254,9 @@ const ClanDetailPage = () => {
 			</section>
 			<section ref={featuresRef} className="section-animate relative w-full bg-white py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
+					<h2 className="font-svnAvo text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-stone-900 text-center mb-12 md:mb-16 lg:mb-20">
+						{t('featuresTitle')}
+					</h2>
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
 						<div className="order-2 lg:order-1 flex justify-center items-center">
 							<div className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
