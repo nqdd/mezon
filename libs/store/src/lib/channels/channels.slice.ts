@@ -211,8 +211,7 @@ export const fetchChannelsCached = async (
 			}
 		},
 		() => ensuredMezon.client.listChannelDescs(ensuredMezon.session, limit, state, '', clanId, channelType),
-		'channel_desc_list',
-		{ maxRetries: 5 }
+		'channel_desc_list'
 	);
 
 	markApiFirstCalled(apiKey);
@@ -249,8 +248,7 @@ export const fetchListFavoriteChannelCached = async (getState: () => RootState, 
 			}
 		},
 		() => ensuredMezon.client.getListFavoriteChannel(ensuredMezon.session, clanId),
-		'favorite_channel_list',
-		{ maxRetries: 5 }
+		'favorite_channel_list'
 	);
 
 	markApiFirstCalled(apiKey);
@@ -286,8 +284,7 @@ export const fetchAppChannelCached = async (getState: () => RootState, ensuredMe
 			}
 		},
 		() => ensuredMezon.client.listChannelApps(ensuredMezon.session, clanId),
-		'channel_apps_list',
-		{ maxRetries: 5 }
+		'channel_apps_list'
 	);
 
 	markApiFirstCalled(apiKey);
@@ -369,15 +366,16 @@ export const joinChannel = createAsyncThunk(
 						})
 					);
 				}
-				if (channel) {
-					if (channel?.channel_private) {
-						thunkAPI.dispatch(
-							channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL })
-						);
-					} else {
-						thunkAPI.dispatch(channelMembersActions.checkBanInChannel({ clanId, channelId }));
-					}
-				}
+				// if (channel) {
+				// 	if (channel?.channel_private) {
+				// 		thunkAPI.dispatch(
+				// 			channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL })
+				// 		);
+				// 	} else {
+				// 		thunkAPI.dispatch(channelMembersActions.checkBanInChannel({ clanId, channelId }));
+				// 	}
+				// }
+				thunkAPI.dispatch(channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL }));
 			}
 			thunkAPI.dispatch(userChannelsActions.fetchUserChannels({ channelId }));
 			thunkAPI.dispatch(channelsActions.setModeResponsive({ clanId, mode: ModeResponsive.MODE_CLAN }));

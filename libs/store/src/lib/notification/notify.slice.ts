@@ -79,7 +79,11 @@ export const fetchListNotificationCached = async (
 				category,
 				Direction_Mode.BEFORE_TIMESTAMP
 			),
-		{ maxRetries: 3, initialDelay: 1000 }
+		{
+			maxRetries: 3,
+			initialDelay: 1000,
+			scope: 'notifications'
+		}
 	);
 
 	markApiFirstCalled(apiKey);

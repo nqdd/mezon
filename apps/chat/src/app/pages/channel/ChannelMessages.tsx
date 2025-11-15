@@ -831,6 +831,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 			runDebouncedForScroll(() => {
 				requestAnimationFrame(() => {
+					if (isScrollTopJustUpdatedRef.current) {
+						return;
+					}
+
+					if (!userActiveScroll.current) return;
+
 					const { scrollTop } = container;
 
 					if (scrollTop < 1000 && messageIds.length > 0) {

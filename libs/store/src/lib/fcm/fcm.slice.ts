@@ -28,7 +28,8 @@ export const registFcmDeviceToken = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await withRetry(() => mezon.client.registFCMDeviceToken(session, tokenId, deviceId, platform || '', voipToken || ''), {
 				maxRetries: 3,
-				initialDelay: 1000
+				initialDelay: 1000,
+				scope: 'regist-fcm'
 			});
 			if (!response) {
 				return thunkAPI.rejectWithValue(null);
