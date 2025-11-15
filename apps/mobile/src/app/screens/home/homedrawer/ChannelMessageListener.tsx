@@ -1,7 +1,7 @@
 import { ActionEmitEvent, changeClan, getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
-	ChannelsEntity,
 	directActions,
 	getStore,
 	getStoreAsync,
