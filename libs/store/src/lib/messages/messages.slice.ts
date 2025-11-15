@@ -30,13 +30,13 @@ import { getCurrentChannelBadgeCount, resetChannelBadgeCount } from '../badge/ba
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { channelsActions, selectChannelById, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanExists, selectClanHasUnreadMessage, selectClansLoadingStatus } from '../clans/clans.slice';
-import { selectCurrentDM } from '../direct/direct.slice';
+import { selectCurrentDM, selectDirectMessageEntities } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { ReactionEntity } from '../reactionMessage/reactionMessage.slice';
 import type { AppDispatch, RootState } from '../store';
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
@@ -236,26 +236,14 @@ export const fetchMessagesCached = async (
 	// 	'channel_message_list'
 	// );
 
-	async function listChannelMessagesWithRetry(retryCount = 5) {
-		try {
-			return await ensuredMezon.client.listChannelMessages(
-				ensuredMezon.session,
-				clanId,
-				channelId,
-				messageId,
-				direction,
-				LIMIT_MESSAGE,
-				topicId
-			);
-		} catch (error) {
-			if (retryCount > 1) {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				return listChannelMessagesWithRetry(retryCount - 1);
-			}
+	const response = await withRetry(
+		() => ensuredMezon.client.listChannelMessages(ensuredMezon.session, clanId, channelId, messageId, direction, LIMIT_MESSAGE, topicId),
+		{
+			maxRetries: 5,
+			initialDelay: 1000,
+			scope: 'channel-messages'
 		}
-	}
-
-	const response = await listChannelMessagesWithRetry();
+	);
 
 	markApiFirstCalled(apiKey);
 
@@ -687,9 +675,23 @@ export const updateLastSeenMessage = createAsyncThunk(
 	'messages/updateLastSeenMessage',
 	async ({ clanId, channelId, messageId, mode, badge_count, message_time, updateLast = false }: UpdateMessageArgs, thunkAPI) => {
 		try {
+			// check
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 			const now = Math.floor(Date.now() / 1000);
 			const state = thunkAPI.getState() as RootState;
+
+			if (clanId !== '0') {
+				const channel = selectChannelById(state, channelId);
+				if (!channel) {
+					return;
+				}
+			} else {
+				const dmEntities = selectDirectMessageEntities(state);
+				if (!dmEntities[channelId]) {
+					return;
+				}
+			}
+
 			const channelsLoadingStatus = selectLoadingStatus(state);
 			const clansLoadingStatus = selectClansLoadingStatus(state);
 			if (clanId !== '0' && (channelsLoadingStatus === 'loading' || clansLoadingStatus === 'loading')) {

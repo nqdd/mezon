@@ -1,4 +1,5 @@
-import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 
 export const CANVAS_FEATURE_KEY = 'canvas';
 

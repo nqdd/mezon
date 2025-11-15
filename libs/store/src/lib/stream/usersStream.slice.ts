@@ -1,7 +1,8 @@
 import { captureSentryError } from '@mezon/logger';
-import { IChannelMember, IUserStream, LoadingStatus } from '@mezon/utils';
-import { EntityState, PayloadAction, createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ChannelType } from 'mezon-js';
+import type { IChannelMember, IUserStream, LoadingStatus } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ChannelType } from 'mezon-js';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 
 export const USERS_STREAM_FEATURE_KEY = 'usersstream';

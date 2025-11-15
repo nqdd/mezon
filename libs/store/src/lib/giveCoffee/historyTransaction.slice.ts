@@ -19,7 +19,8 @@ export const fetchListWalletLedger = createAsyncThunk(
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const response = await withRetry(() => mezon.client.listWalletLedger(mezon.session, 8, filter, '', page), {
 			maxRetries: 3,
-			initialDelay: 1000
+			initialDelay: 1000,
+			scope: 'wallet-ledger'
 		});
 		return {
 			ledgers: response.wallet_ledger || [],
@@ -31,7 +32,11 @@ export const fetchListWalletLedger = createAsyncThunk(
 
 export const fetchDetailTransaction = createAsyncThunk('walletLedger/fetchDetailTransaction', async ({ transId }: { transId: string }, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	const response = await withRetry(() => mezon.client.listTransactionDetail(mezon.session, transId), { maxRetries: 3, initialDelay: 1000 });
+	const response = await withRetry(() => mezon.client.listTransactionDetail(mezon.session, transId), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'transaction-detail'
+	});
 	return {
 		detailLedger: response
 	};

@@ -49,7 +49,11 @@ export const fetchListUsersByUserCached = async (getState: () => RootState, mezo
 		};
 	}
 
-	const response = await withRetry(() => mezon.client.listUserClansByUserId(mezon.session), { maxRetries: 3, initialDelay: 1000 });
+	const response = await withRetry(() => mezon.client.listUserClansByUserId(mezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'user-clans'
+	});
 
 	markApiFirstCalled(apiKey);
 
