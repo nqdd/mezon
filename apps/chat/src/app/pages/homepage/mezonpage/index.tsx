@@ -62,7 +62,7 @@ function MezonPage() {
 	};
 
 	const version = mezonPackage.version;
-
+	console.log(version);
 	const downloadUrl: string = useMemo(() => {
 		if (platform === Platform.MACOS) {
 			return `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`;

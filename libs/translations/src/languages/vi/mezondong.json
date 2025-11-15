@@ -1,0 +1,44 @@
+{
+	"sections": {
+		"section1": {
+			"title": "Minh bạch, An toàn, Miễn phí",
+			"description": "Mezon Đồng được tạo ra để giúp giao dịch số trở nên đơn giản và minh bạch hơn – nền tảng cho một nền kinh tế cộng đồng kiểu mới."
+		},
+		"section2": {
+			"title": "Nhanh chóng Không gián đoạn",
+			"description": "Gửi Mezon Đồng dễ như gửi một tin nhắn. Tặng bạn bè, đóng góp cho cộng đồng hoặc mua sắm – tất cả đều diễn ra tức thì và không mất phí."
+		},
+		"section3": {
+			"title": "Nâng Tầm Môi Trường Làm Việc Với Mezon Đồng",
+			"description": "Mezon không chỉ dành cho cộng đồng – doanh nghiệp cùng có thể sử dụng Mezon như một nền tảng nội bộ để giao tiếp và thanh toán. Thưởng nhân viên, quản lý phúc lợi hay lạo uu dài nội bộ – tất cả đều được xử lý mượt mà và linh hoạt với Mezon Đồng."
+		},
+		"section4": {
+			"title": "Thương Mại Tích Hợp",
+			"description": "Các thương hiệu đối tác có thể chấp nhận Mezon Đồng cho sản phẩm và dịch vụ của mình. Từ hàng hóa số đến sản phẩm thực tế, cộng đồng có thể mua sắm trực tiếp chỉ với một cú nhấp chuột."
+		}
+	},
+	"faq": {
+		"title": "Cần thêm trợ giúp?",
+		"seeAll": "Xem tất cả câu hỏi",
+		"learnMore": "Tìm hiểu thêm",
+		"questions": [
+			{
+				"question": "Mezon Đồng là gì?",
+				"answer": "Mezon Đồng là một đơn vị giá trị số được sử dụng như công cụ trao đổi nội bộ trong nền tảng Mezon. Đây là hệ thống thanh toán số được tích hợp sẵn, giúp bạn gửi và chuyển tiền một cách dễ dàng, minh bạch và an toàn."
+			},
+			{
+				"question": "Làm thế nào để gửi và chuyển Mezon Đồng?",
+				"answer": "Mezon Đồng không chỉ dùng để chi tiêu mà còn để chia sẻ. Bạn có thể gửi tokens cho bạn bè, đồng nghiệp hoặc thành viên Clan chỉ trong vài bước đơn giản. Gửi Mezon Đồng dễ như gửi một tin nhắn - mở cuộc trò chuyện, nhấn vào biểu tượng Mezon Đồng, nhập số tiền và xác nhận. Giao dịch được xử lý ngay lập tức và không mất phí."
+			},
+			{
+				"question": "Doanh nghiệp có thể sử dụng Mezon Đồng như thế nào?",
+				"answer": "Doanh nghiệp có thể sử dụng Mezon như một nền tảng nội bộ để giao tiếp và thanh toán. Bạn có thể thưởng nhân viên, quản lý phúc lợi hoặc tạo các chương trình khuyến khích nội bộ. Tất cả đều được xử lý mượt mà và linh hoạt với Mezon Đồng."
+			},
+			{
+				"question": "Làm sao để chấp nhận thanh toán bằng Mezon Đồng cho cửa hàng?",
+				"answer": "Các thương hiệu đối tác có thể chấp nhận Mezon Đồng cho sản phẩm và dịch vụ của mình. Từ hàng hóa số đến sản phẩm thực tế, cộng đồng có thể mua sắm trực tiếp chỉ với một cú nhấp chuột. Liên hệ với đội ngũ Mezon để thiết lập tài khoản thương gia và tích hợp Mezon Đồng vào cửa hàng của bạn."
+			}
+		]
+	},
+	"download": "Tải Xuống"
+}

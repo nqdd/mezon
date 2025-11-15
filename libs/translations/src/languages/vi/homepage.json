@@ -77,6 +77,52 @@
 			}
 		}
 	},
+	"sections": {
+		"hero": {
+			"title": {
+				"your": "Nền tảng",
+				"live": "Kết nối",
+				"work": "Làm việc",
+				"play": "Giải trí",
+				"platform": "của bạn.",
+				"theBest": "Sự thay thế tuyệt vời cho",
+				"discordAlternative": "Discord"
+			},
+			"description": "là nơi tuyệt vời để chơi game, trò chuyện cùng bạn bè hoặc xây dựng một cộng đồng toàn cầu. Tùy chỉnh không gian riêng của bạn để",
+			"talk": "trò chuyện",
+			"play": "giải trí",
+			"and": "và",
+			"hangOut": "kết nối",
+			"tryButton": "Dùng thử Mezon, miễn phí!",
+			"choosePlatform": "Chọn nền tảng của bạn"
+		},
+		"textChannel": {
+			"title": "Nhắn tin siêu nhanh",
+			"description": "Được xây dựng để Trò chuyện, Cộng tác và Kết nối.",
+			"description2": "Nhắn tin siêu nhanh. Không giới hạn. Gửi tức thì.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"clanDiscover": {
+			"title": "Clan của bạn, Thế giới của bạn",
+			"description": "Từ sở thích, thảo luận đến tin tức và xu hướng, có một clan cho mọi thứ.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"aiAgent": {
+			"title": "AI Agent cho Clan và Hỗ trợ 24/7",
+			"description": "AI Agent giọng nói (Tóm tắt nội dung trong cuộc trò chuyện kênh voice, hoặc đóng vai người phỏng vấn), trợ lý AI, BOT chế độ ẩn (tóm tắt nội dung trong kênh text).",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"communityPayments": {
+			"title": "Thanh toán trong cộng đồng",
+			"description": "Gửi tiền ngay lập tức, thưởng cho người sáng tạo và mua sắm với các thương hiệu đối tác — tất cả đều không mất phí nền tảng. Xây dựng trên sự minh bạch và bảo mật.",
+			"learnMore": "Tìm hiểu thêm"
+		},
+		"enterpriseIntegrations": {
+			"title": "Tích hợp doanh nghiệp",
+			"description": "Mezon cho phép bạn kết nối với khách hàng trên toàn cầu và mang đến những trải nghiệm quy mô lớn hấp dẫn.",
+			"learnMore": "Tìm hiểu thêm"
+		}
+	},
 	"footer": {
 		"description": "Mezon là nơi tuyệt vời để chơi game và thư giãn với bạn bè, hoặc xây dựng một cộng đồng toàn cầu.",
 		"getTheApp": "Tải ứng dụng",
