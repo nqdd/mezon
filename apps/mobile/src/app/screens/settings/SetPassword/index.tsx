@@ -1,4 +1,4 @@
-import { baseColor, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { accountActions, appActions, authActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,9 +6,7 @@ import { Platform, Pressable, StatusBar, Text } from 'react-native';
 import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { TextInputUser } from '../../../components/auth/TextInput';
-import { IconCDN } from '../../../constants/icon_cdn';
 import { style } from './styles';
 
 const SetPassword = ({ navigation }) => {
@@ -110,20 +108,19 @@ const SetPassword = ({ navigation }) => {
 					isMobile: true
 				})
 			);
+
 			if (response?.meta?.requestStatus === 'fulfilled') {
 				dispatch(accountActions.setPasswordSetted(true));
 				Toast.show({
 					type: 'success',
-					props: {
-						text2: t('setPasswordAccount.toast.success'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} />
-					}
+					text1: t('setPasswordAccount.toast.success')
 				});
 				navigation.goBack();
 			} else if (response?.meta?.requestStatus === 'rejected') {
 				Toast.show({
 					type: 'error',
-					text1: t('setPasswordAccount.toast.error')
+					text1: t('setPasswordAccount.toast.error'),
+					text2: response?.payload?.message || ''
 				});
 			}
 		} catch (error) {
@@ -131,7 +128,7 @@ const SetPassword = ({ navigation }) => {
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [confirmPassword, currentPassword, dispatch, navigation, password, t, userProfile?.email, validatePassword]);
+	}, [confirmPassword, currentPassword, password, t, userProfile?.email, validatePassword, hasPassword]);
 
 	useLayoutEffect(() => {
 		navigation.setOptions({

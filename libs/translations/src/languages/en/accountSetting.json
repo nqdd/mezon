@@ -30,6 +30,9 @@
 		"yesConfirm": "Yes"
 	},
 	"setPasswordAccount": {
+		"linkEmailRequiredTitle": "Link Email Required",
+		"linkEmailRequiredDescription": "You need to link your email before setting a password",
+		"goTo": "Go to",
 		"title": "Set Password",
 		"email": "Email",
 		"password": "Password",
@@ -52,8 +55,8 @@
 			"incorrectCurrent": "Incorrect password. Please try again"
 		},
 		"toast": {
-			"success": "Password set successfully",
-			"error": "Current password is incorrect"
+			"success": "Password updated successfully",
+			"error": "Password update failed"
 		},
 		"placeholder": {
 			"currentPassword": "Enter your current password",
