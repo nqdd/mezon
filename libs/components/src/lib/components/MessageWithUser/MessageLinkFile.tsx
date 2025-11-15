@@ -1,9 +1,10 @@
 import { selectCurrentUserId, selectTheme } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DOWNLOAD_FILE, EFailAttachment, EMimeTypes, IMessageWithUser, electronBridge } from '@mezon/utils';
+import type { IMessageWithUser } from '@mezon/utils';
+import { DOWNLOAD_FILE, EFailAttachment, EMimeTypes, electronBridge } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { ChannelStreamMode } from 'mezon-js';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ChannelStreamMode } from 'mezon-js';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { Suspense, lazy, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
@@ -19,11 +20,11 @@ export type MessageImage = {
 };
 function formatFileSize(bytes: number) {
 	if (bytes >= 1000000) {
-		return (bytes / 1000000).toFixed(1) + ' MB';
+		return `${(bytes / 1000000).toFixed(1)} MB`;
 	} else if (bytes >= 1000) {
-		return (bytes / 1000).toFixed(1) + ' kB';
+		return `${(bytes / 1000).toFixed(1)} kB`;
 	} else {
-		return bytes + ' bytes';
+		return `${bytes} bytes`;
 	}
 }
 
@@ -156,7 +157,7 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 		<div
 			onMouseEnter={hoverOptButton}
 			onMouseLeave={() => setHoverShowOptButtonStatus(false)}
-			className={`break-all w-full cursor-default gap-3 flex items-center mt-[10px] py-3 pl-3 pr-3 rounded-lg max-w-full ${hideTheInformationFile ? 'bg-item-theme border-theme-primary ' : ''}  relative`}
+			className={`break-all w-full relative cursor-default gap-3 flex items-center mt-[10px] py-3 pl-3 pr-3 rounded-lg max-w-full ${hideTheInformationFile ? 'bg-item-theme border-theme-primary ' : ''}  relative`}
 			role="button"
 		>
 			{message?.isSending ? (
@@ -174,10 +175,10 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 							<p className="text-theme-primary">size: {formatFileSize(attachmentData.size || 0)}</p>
 						</div>
 						{hoverShowOptButtonStatus && (
-							<div className="flex space-x-2">
+							<div className="flex space-x-2 absolute right-4">
 								<button
 									onClick={handleDownload}
-									className="rounded-md w-8 h-8 flex justify-center bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary items-center cursor-pointer "
+									className="rounded-md w-8 h-8 flex justify-center  bg-theme-contexify bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary items-center cursor-pointer "
 									title="Download"
 								>
 									<Icons.Download defaultSize="w-4 h-4" />
@@ -185,7 +186,7 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 								{isOwner && (
 									<button
 										onClick={handleOpenRemoveAttachementModal}
-										className="rounded-md w-8 h-8 flex justify-center items-center cursor-pointer   bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary"
+										className="rounded-md w-8 h-8 flex justify-center items-center cursor-pointer bg-theme-contexify bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary"
 										title="Remove"
 									>
 										<Icons.TrashIcon className="w-4 h-4 " />
