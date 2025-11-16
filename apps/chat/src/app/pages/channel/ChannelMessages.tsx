@@ -117,8 +117,10 @@ const MESSAGE_ANIMATION_DURATION = 500;
 const BOTTOM_THRESHOLD = 100;
 const BOTTOM_FOCUS_MARGIN = 20;
 const SCROLL_DEBOUNCE = 200;
+const WHEEL_DEBOUNCE = 100;
 
 const runDebouncedForScroll = debounce((cb) => cb(), SCROLL_DEBOUNCE, false);
+const runDebouncedForWheel = debounce((cb) => cb(), WHEEL_DEBOUNCE, false);
 
 const hasScrolledToUnreadMap = new Map<string, boolean>();
 
@@ -816,6 +818,77 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			}
 		}, [idMessageToJump]);
 
+		const updateScrollPosition = useLastCallback(() => {
+			const container = chatRef.current;
+			if (!container) return;
+
+			const isAtBottom =
+				chatRef?.current &&
+				Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
+
+			if (isAtBottom) {
+				onChange(LoadMoreDirection.Forwards);
+				const store = getStore();
+				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
+				const lastMsgId = messageIds?.at(-1);
+				if (lastMsgId) {
+					const message = entities[lastMsgId];
+
+					if (message && !message.isSending) {
+						dispatch(
+							channelsActions.setScrollPosition({
+								channelId,
+								messageId: lastMsgId
+							})
+						);
+						if (lastMsgId && !hasMoreBottom) {
+							lastSeenAtBottomRef.current = lastMsgId;
+						}
+					}
+				}
+
+				if (hasMoreBottom) return;
+				const showFAB = selectShowScrollDownButton(store.getState(), channelId);
+				if (!showFAB) return;
+				dispatch(
+					channelsActions.setScrollDownVisibility({
+						channelId: topicId || channelId,
+						isVisible: false
+					})
+				);
+				return;
+			}
+
+			const containerRect = container.getBoundingClientRect();
+			const containerTop = containerRect.top;
+			const containerBottom = containerRect.bottom;
+
+			const messageElements = Array.from(container.querySelectorAll<HTMLDivElement>('.message-list-item'));
+			let visibleMessageId: string | null = null;
+
+			for (const msgElement of messageElements) {
+				const rect = msgElement.getBoundingClientRect();
+
+				if (rect.top >= containerTop && rect.top <= containerBottom) {
+					visibleMessageId = msgElement.id.replace('msg-', '');
+					break;
+				}
+
+				if (rect.top > containerBottom) {
+					break;
+				}
+			}
+
+			if (visibleMessageId) {
+				dispatch(
+					channelsActions.setScrollPosition({
+						channelId,
+						messageId: visibleMessageId
+					})
+				);
+			}
+		});
+
 		const handleScroll = useLastCallback(() => {
 			if (isScrollTopJustUpdatedRef.current) {
 				return;
@@ -834,79 +907,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					if (isScrollTopJustUpdatedRef.current) {
 						return;
 					}
-
 					if (!userActiveScroll.current) return;
 
 					const { scrollTop } = container;
 
 					if (scrollTop < 1000 && messageIds.length > 0) {
 						onChange(LoadMoreDirection.Backwards);
-					}
-
-					const isAtBottom =
-						chatRef?.current &&
-						Math.abs(chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop) <= BOTTOM_THRESHOLD;
-
-					if (isAtBottom) {
-						onChange(LoadMoreDirection.Forwards);
-						const store = getStore();
-						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
-						const lastMsgId = messageIds?.at(-1);
-						if (lastMsgId) {
-							const message = entities[lastMsgId];
-
-							if (message && !message.isSending) {
-								dispatch(
-									channelsActions.setScrollPosition({
-										channelId,
-										messageId: lastMsgId
-									})
-								);
-								if (lastMsgId && !hasMoreBottom) {
-									lastSeenAtBottomRef.current = lastMsgId;
-								}
-							}
-						}
-
-						if (hasMoreBottom) return;
-						const showFAB = selectShowScrollDownButton(store.getState(), channelId);
-						if (!showFAB) return;
-						dispatch(
-							channelsActions.setScrollDownVisibility({
-								channelId: topicId || channelId,
-								isVisible: false
-							})
-						);
-						return;
-					}
-
-					const containerRect = container.getBoundingClientRect();
-					const containerTop = containerRect.top;
-					const containerBottom = containerRect.bottom;
-
-					const messageElements = Array.from(container.querySelectorAll<HTMLDivElement>('.message-list-item'));
-					let visibleMessageId: string | null = null;
-
-					for (const msgElement of messageElements) {
-						const rect = msgElement.getBoundingClientRect();
-
-						if (rect.top >= containerTop && rect.top <= containerBottom) {
-							visibleMessageId = msgElement.id.replace('msg-', '');
-							break;
-						}
-
-						if (rect.top > containerBottom) {
-							break;
-						}
-					}
-
-					if (visibleMessageId) {
-						dispatch(
-							channelsActions.setScrollPosition({
-								channelId,
-								messageId: visibleMessageId
-							})
-						);
 					}
 				});
 			});
@@ -1205,20 +1211,41 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		]);
 
 		const scrollTimeoutId2 = useRef<NodeJS.Timeout | null>(null);
+
+		const handleWheel = useLastCallback(() => {
+			toggleDisableHover(chatRef.current, scrollTimeoutId2);
+			userActiveScroll.current = true;
+			skipCalculateScroll.current = false;
+			runDebouncedForWheel(() => {
+				requestAnimationFrame(() => {
+					if (!userActiveScroll.current) return;
+					updateScrollPosition();
+				});
+			});
+		});
+
+		const handleTouchStart = useLastCallback(() => {
+			userActiveScroll.current = true;
+			skipCalculateScroll.current = false;
+		});
+
+		const handleTouchEnd = useLastCallback(() => {
+			runDebouncedForWheel(() => {
+				requestAnimationFrame(() => {
+					if (!userActiveScroll.current) return;
+					updateScrollPosition();
+				});
+			});
+		});
+
 		return (
 			<div className="w-full h-full relative messages-container select-text bg-theme-chat ">
 				<StickyLoadingIndicator messageCount={messageIds?.length} />
 				<div
 					onScroll={handleScroll}
-					onWheelCapture={() => {
-						toggleDisableHover(chatRef.current, scrollTimeoutId2);
-						userActiveScroll.current = true;
-						skipCalculateScroll.current = false;
-					}}
-					onTouchStart={() => {
-						userActiveScroll.current = true;
-						skipCalculateScroll.current = false;
-					}}
+					onWheelCapture={handleWheel}
+					onTouchStart={handleTouchStart}
+					onTouchEnd={handleTouchEnd}
 					onMouseDown={() => {
 						userActiveScroll.current = true;
 						skipCalculateScroll.current = false;
