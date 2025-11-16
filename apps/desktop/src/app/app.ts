@@ -1,5 +1,5 @@
 import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, Menu, Notification, app, dialog, powerMonitor, screen, shell } from 'electron';
+import { BrowserWindow, Menu, Notification, app, dialog, powerMonitor, screen, session, shell } from 'electron';
 import log from 'electron-log/main';
 import { autoUpdater } from 'electron-updater';
 import activeWindows from 'mezon-active-windows';
@@ -76,6 +76,22 @@ export default class App {
 	}
 
 	private static onReady() {
+		if (App.application.isPackaged) {
+			session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+				const YOUTUBE_REGEX = /^https:\/\/(?:[A-Za-z0-9-]+\.)*youtube\.com\/embed\/.*/;
+				if (details.url.match(YOUTUBE_REGEX)) {
+					callback({
+						requestHeaders: {
+							...details.requestHeaders,
+							referer: 'https://mezon.ai'
+						}
+					});
+					return;
+				}
+				callback({});
+			});
+		}
+
 		if (rendererAppName) {
 			App.application.setLoginItemSettings({
 				openAtLogin: false
