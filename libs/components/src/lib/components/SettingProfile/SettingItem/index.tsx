@@ -75,7 +75,7 @@ const SettingItem = ({ onItemClick, initSetting }: { onItemClick?: (settingName:
 						Friend Requests
 					</button>
 				</div>
-				<hr className="border-t-theme-primary mt-4" />
+				<hr className="border-t-theme-primary-active mt-4" />
 				<button className="pt-2  mt-4 font-bold text-sm tracking-wider">{t('setting:appSettings.title')}</button>
 				<br />
 				<button
