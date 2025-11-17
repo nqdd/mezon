@@ -15,7 +15,7 @@ import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -49,7 +49,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const { t } = useTranslation(['profile']);
 	const { t: tUser } = useTranslation('customUserStatus');
 	const { t: tStack } = useTranslation('screenStack');
-	const [isVisibleAddStatusUserModal, setIsVisibleAddStatusUserModal] = useState<boolean>(false);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const dispatch = useAppDispatch();
 	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
@@ -111,13 +110,9 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		return moment(userProfile?.user?.create_time).format('MMM DD, YYYY');
 	}, [userProfile?.user?.create_time]);
 
-	const handlePressSetCustomStatus = useCallback(() => {
-		setIsVisibleAddStatusUserModal(!isVisibleAddStatusUserModal);
-	}, [isVisibleAddStatusUserModal]);
-
 	const handleCustomUserStatus = useCallback(
 		(customStatus = '', type: ETypeCustomUserStatus, duration?: number, noClearStatus?: boolean) => {
-			setIsVisibleAddStatusUserModal(false);
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			dispatch(
 				channelMembersActions.updateCustomStatus({
 					clanId: currentClanId ?? '',
@@ -129,6 +124,17 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		},
 		[currentClanId, dispatch]
 	);
+
+	const showUpdateCustomStatus = useCallback(() => {
+		const data = {
+			children: <AddStatusUserModal userCustomStatus={userCustomStatus} handleCustomUserStatus={handleCustomUserStatus} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [handleCustomUserStatus, userCustomStatus]);
+
+	const handlePressSetCustomStatus = useCallback(() => {
+		showUpdateCustomStatus();
+	}, [showUpdateCustomStatus]);
 
 	const showUserStatusBottomSheet = () => {
 		const data = {
@@ -229,15 +235,11 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					<View style={styles.badgeStatus}>
 						<View style={styles.badgeStatusInside} />
 						{!userCustomStatus && (
-							<TouchableOpacity
-								activeOpacity={1}
-								onPress={() => setIsVisibleAddStatusUserModal(!isVisibleAddStatusUserModal)}
-								style={styles.iconAddStatus}
-							>
+							<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()} style={styles.iconAddStatus}>
 								<MezonIconCDN icon={IconCDN.plusLargeIcon} height={size.s_12} width={size.s_12} color={themeValue.primary} />
 							</TouchableOpacity>
 						)}
-						<TouchableOpacity activeOpacity={1} onPress={() => setIsVisibleAddStatusUserModal(!isVisibleAddStatusUserModal)}>
+						<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()}>
 							<Text numberOfLines={1} style={styles.textStatus}>
 								{userCustomStatus ? userCustomStatus : t('addStatus')}
 							</Text>
@@ -377,14 +379,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					/>
 				</TouchableOpacity>
 			</ScrollView>
-			<AddStatusUserModal
-				userCustomStatus={userCustomStatus}
-				isVisible={isVisibleAddStatusUserModal}
-				setIsVisible={(value) => {
-					setIsVisibleAddStatusUserModal(value);
-				}}
-				handleCustomUserStatus={handleCustomUserStatus}
-			/>
 		</View>
 	);
 };
