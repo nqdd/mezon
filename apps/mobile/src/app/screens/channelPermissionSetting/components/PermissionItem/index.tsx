@@ -10,10 +10,10 @@ import type { IPermissionItemProps } from '../../types/channelPermission.type';
 import { styles as stylesFn } from './PermissionItem.styles';
 
 export const PermissionItem = memo(({ permission, status, onPermissionStatusChange }: IPermissionItemProps) => {
-	const { slug, title } = permission;
+	const { slug } = permission;
 	const { themeValue } = useTheme();
 	const styles = stylesFn(themeValue);
-	const { t } = useTranslation('channelSetting');
+	const { t } = useTranslation(['channelSetting', 'clanRoles']);
 
 	const permissionOptionList = [
 		{
@@ -47,10 +47,14 @@ export const PermissionItem = memo(({ permission, status, onPermissionStatusChan
 		}
 	}, [t, slug]);
 
+	const getPermissionTitle = (slug: string) => {
+		return t(`clanRoles:permissionTitles.${slug}`, { defaultValue: '' });
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={styles.headerRow}>
-				<Text style={styles.titleText}>{title}</Text>
+				<Text style={styles.titleText}>{getPermissionTitle(slug)}</Text>
 				<View style={styles.optionRow}>
 					{permissionOptionList?.map((option) => {
 						const { activeBackground, icon, type, color } = option;

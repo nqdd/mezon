@@ -311,7 +311,7 @@ export const QRScanner = () => {
 							<Text style={styles.subTitle}>{t('neverScanALoginQRCodeFromAnotherUser')}</Text>
 						)}
 						<TouchableOpacity style={styles.button} onPress={isSuccess ? onGoback : onConfirmLogin}>
-							<Text style={styles.buttonTextOutline}>{isSuccess ? `${t('startTalking')}` : `${t('logIn')}`}</Text>
+							<Text style={styles.buttonTextOutlineWhite}>{isSuccess ? `${t('startTalking')}` : `${t('logIn')}`}</Text>
 						</TouchableOpacity>
 						{!isSuccess && (
 							<TouchableOpacity style={[styles.button, styles.buttonTransparent]} onPress={onGoback}>

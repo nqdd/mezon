@@ -10,29 +10,27 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_22
 		},
 		text: { fontSize: size.s_20, fontWeight: '600', color: colors.text },
-		textDisable: { fontSize: size.s_16, fontWeight: '400', color: colors.textDisabled },
+		textDisable: { fontSize: size.s_16, fontWeight: '400', color: colors.textDisabled, textAlign: 'center' },
 		lineBtn: { width: '100%', alignItems: 'center', padding: size.s_10 },
 		btnJoinVoice: {
 			borderRadius: size.s_40,
 			backgroundColor: baseColor.green,
 			height: size.s_50,
-			width: size.s_200,
+			minWidth: size.s_200,
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			paddingHorizontal: size.s_12
 		},
-		textBtnJoinVoice: { fontSize: size.s_16, fontWeight: '600', color: 'white' },
+		textBtnJoinVoice: {
+			fontSize: size.s_16,
+			fontWeight: '600',
+			color: 'white',
+			textAlign: 'center'
+		},
 		btnInviteChannel: {
 			backgroundColor: colors.tertiary,
 			padding: size.s_8,
 			borderRadius: size.s_22
-		},
-		logoIconContainer: {
-			width: size.s_100,
-			height: size.s_100,
-			borderRadius: size.s_50,
-			justifyContent: 'center',
-			alignItems: 'center',
-			backgroundColor: colors.tertiary
 		},
 		controlContainerOuter: {
 			borderRadius: size.s_40,
@@ -72,6 +70,51 @@ export const style = (colors: Attributes) =>
 		},
 		centerContent: {
 			alignItems: 'center',
-			gap: size.s_6
+			gap: size.s_6,
+			marginTop: size.s_20
+		},
+		avatarContainer: {
+			paddingVertical: size.s_10,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		iconVoice: {
+			padding: size.s_20,
+			borderRadius: '100%',
+			backgroundColor: colors.tertiary,
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		avatarRow: {
+			flexDirection: 'row'
+		},
+		badgeContainer: {
+			width: size.s_40,
+			height: size.s_40,
+			borderRadius: size.s_50,
+			borderWidth: 1,
+			borderColor: colors.white,
+			backgroundColor: colors.tertiary,
+			justifyContent: 'center',
+			alignItems: 'center',
+			marginLeft: -5
+		},
+		textBadge: {
+			fontSize: size.s_12,
+			fontWeight: '600',
+			textAlign: 'center',
+			color: colors.text
+		},
+		headerLeftContent: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			gap: 10,
+			flexGrow: 1,
+			flexShrink: 1
+		},
+		textFlexible: {
+			flexGrow: 1,
+			flexShrink: 1
 		}
 	});

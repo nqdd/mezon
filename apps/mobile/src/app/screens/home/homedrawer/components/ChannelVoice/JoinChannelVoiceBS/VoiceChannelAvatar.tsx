@@ -1,8 +1,8 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { selectMemberClanByUserId, useAppSelector } from '@mezon/store-mobile';
-import MezonClanAvatar from 'apps/mobile/src/app/componentUI/MezonClanAvatar';
-import React from 'react';
+import { memo, useMemo } from 'react';
 import { View } from 'react-native';
+import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
 import { style } from './JoinChannelVoiceBS.styles';
 
 const VoiceChannelAvatar = ({ userId }) => {
@@ -10,12 +10,15 @@ const VoiceChannelAvatar = ({ userId }) => {
 	const styles = style(themeValue);
 
 	const member = useAppSelector((state) => selectMemberClanByUserId(state, userId));
+	const avatarUrl = useMemo(() => {
+		return member?.clan_avatar || member?.user?.avatar_url || '';
+	}, [member?.clan_avatar, member?.user?.avatar_url]);
 
 	return (
 		<View style={styles.avatarCircle}>
-			<MezonClanAvatar alt={member?.user?.username} image={member?.clan_avatar || member?.user?.avatar_url} lightMode />
+			<MezonClanAvatar alt={member?.user?.username || ''} image={avatarUrl} />
 		</View>
 	);
 };
 
-export default React.memo(VoiceChannelAvatar);
+export default memo(VoiceChannelAvatar);
