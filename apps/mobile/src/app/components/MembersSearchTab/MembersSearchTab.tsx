@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { ChannelMembersEntity, DirectEntity, directActions, getStore, selectCurrentDM, useAppDispatch } from '@mezon/store-mobile';
+import type { ChannelMembersEntity, DirectEntity } from '@mezon/store-mobile';
+import { directActions, getStore, selectCurrentDM, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React, { memo, useCallback, useMemo } from 'react';
 import { DeviceEventEmitter, FlatList, Keyboard, View } from 'react-native';

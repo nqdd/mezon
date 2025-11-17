@@ -48,7 +48,8 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 				} else {
 					Toast.show({
 						type: 'error',
-						text1: t('phoneNumberSetting.verifyPhoneNumber.failed')
+						text1: t('phoneNumberSetting.updatePhoneNumber.failed'),
+						text2: response?.payload?.message || ''
 					});
 				}
 			} catch (error) {
@@ -57,7 +58,7 @@ export const VerifyPhoneNumber = memo(({ navigation, route }: IVerifyPhoneNumber
 				dispatch(appActions.setLoadingMainMobile(false));
 			}
 		},
-		[dispatch, navigation, requestId, t]
+		[requestId, t]
 	);
 
 	const handleOtpChange = useCallback((otp: string[]) => {

@@ -718,10 +718,8 @@ export async function getWebUploadedAttachments(payload: {
 	attachments: ApiMessageAttachment[];
 	client: Client;
 	session: Session;
-	clanId: string;
-	channelId: string;
 }): Promise<ApiMessageAttachment[]> {
-	const { attachments, client, session, clanId, channelId } = payload;
+	const { attachments, client, session } = payload;
 	if (!attachments || attachments?.length === 0) {
 		return [];
 	}
@@ -748,7 +746,7 @@ export async function getWebUploadedAttachments(payload: {
 				createdFile.height = attachment.height || 0;
 				createdFile.thumbnail = attachment.thumbnail;
 
-				const result = await handleUploadFile(client, session, clanId, channelId, createdFile.name, createdFile, index);
+				const result = await handleUploadFile(client, session, createdFile.name, createdFile, index);
 
 				fileUploadForeman.releaseWorker();
 
@@ -781,10 +779,8 @@ export async function getMobileUploadedAttachments(payload: {
 	attachments: ApiMessageAttachment[];
 	client: Client;
 	session: Session;
-	clanId: string;
-	channelId: string;
 }): Promise<ApiMessageAttachment[]> {
-	const { attachments, client, session, clanId, channelId } = payload;
+	const { attachments, client, session } = payload;
 	if (!attachments || attachments?.length === 0) {
 		return [];
 	}
@@ -803,7 +799,7 @@ export async function getMobileUploadedAttachments(payload: {
 				width: att?.width,
 				fileData
 			};
-			return await handleUploadFileMobile(client, session, clanId, channelId, att?.filename || '', formattedFile);
+			return await handleUploadFileMobile(client, session, att?.filename || '', formattedFile);
 		});
 		return await Promise.all(uploadPromises);
 	}

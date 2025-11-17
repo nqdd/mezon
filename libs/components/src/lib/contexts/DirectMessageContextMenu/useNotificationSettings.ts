@@ -65,12 +65,26 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 		const hasActiveMuteTime = notificationSettings?.active === EMuteState.MUTED;
 		setNameChildren(hasActiveMuteTime ? t('contextMenu.unmute') : t('contextMenu.mute'));
 
+		const timeMute = notificationSettings?.time_mute;
+		const isValidTimeMute = timeMute && timeMute !== null && timeMute !== undefined;
+
 		setMutedUntilText(
-			hasActiveMuteTime && notificationSettings?.time_mute
-				? t('contextMenu.mutedUntil', { time: format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm') })
+			hasActiveMuteTime && isValidTimeMute
+				? (() => {
+						try {
+							const muteDate = new Date(timeMute);
+							if (isNaN(muteDate.getTime()) || muteDate.getFullYear() === 1) {
+								return '';
+							}
+							return t('contextMenu.mutedUntil', { time: format(muteDate, 'dd/MM, HH:mm') });
+						} catch (error) {
+							console.error('Error formatting mute time:', error);
+							return '';
+						}
+					})()
 				: ''
 		);
-	}, [notificationSettings, dispatch, getChannelId]);
+	}, [notificationSettings, t]);
 
 	return {
 		mutedUntilText,

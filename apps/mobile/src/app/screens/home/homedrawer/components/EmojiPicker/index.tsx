@@ -12,10 +12,10 @@ import {
 } from '@mezon/store-mobile';
 import type { IMessageSendPayload } from '@mezon/utils';
 import { checkIsThread } from '@mezon/utils';
-import { ChannelStreamMode } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Platform, Text, TextInput, View } from 'react-native';
 import { Pressable } from 'react-native-gesture-handler';
@@ -72,9 +72,13 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isCreateTopic = useSelector(selectIsShowCreateTopic);
 
-	const dmMode = currentDirectMessage
-		? Number(currentDirectMessage?.user_ids?.length === 1 ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)
-		: '';
+	const dmMode = useMemo(() => {
+		return currentDirectMessage
+			? currentDirectMessage?.type === ChannelType.CHANNEL_TYPE_DM
+				? ChannelStreamMode.STREAM_MODE_DM
+				: ChannelStreamMode.STREAM_MODE_GROUP
+			: '';
+	}, [currentDirectMessage]);
 
 	const { sendMessage } = useChatSending({
 		mode: dmMode ? dmMode : checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL,

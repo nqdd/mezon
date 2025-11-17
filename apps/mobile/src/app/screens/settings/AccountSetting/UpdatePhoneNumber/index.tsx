@@ -2,6 +2,7 @@
 import { load, save } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { accountActions, appActions, useAppDispatch } from '@mezon/store-mobile';
+import type { ApiLinkAccountMezon } from 'mezon-js/api.gen';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
@@ -286,18 +287,19 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			});
 			return;
 		}
+
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const response = await dispatch(accountActions.addPhoneNumber({ phone_number: fullPhoneNumber }));
+			const response = await dispatch(
+				accountActions.addPhoneNumber({
+					data: {
+						phone_number: fullPhoneNumber
+					} as ApiLinkAccountMezon,
+					isMobile: true
+				})
+			);
 			const requestId = response?.payload?.req_id;
 
-			if (response?.payload?.status === 400) {
-				Toast.show({
-					type: 'error',
-					text1: t('setPhoneModal.alreadyLinkedToAnother')
-				});
-				return false;
-			}
 			if (response?.meta?.requestStatus === 'fulfilled' && requestId) {
 				startCooldownTimer(fullPhoneNumber);
 
@@ -309,7 +311,8 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 			} else {
 				Toast.show({
 					type: 'error',
-					text1: t('phoneNumberSetting.updatePhoneNumber.failed')
+					text1: t('phoneNumberSetting.updatePhoneNumber.failed'),
+					text2: response?.payload?.message || ''
 				});
 			}
 		} catch (error) {
@@ -317,7 +320,7 @@ export const UpdatePhoneNumber = memo(({ navigation, route }: { navigation: any;
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [selectedCountry.prefix, phoneNumber, t, checkCooldown, startCooldownTimer, dispatch, navigation]);
+	}, [checkCooldown, phoneNumber, selectedCountry.prefix, startCooldownTimer, t]);
 
 	useEffect(() => {
 		return () => {

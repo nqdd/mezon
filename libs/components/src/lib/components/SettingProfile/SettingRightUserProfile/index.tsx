@@ -147,16 +147,7 @@ const SettingRightUser = ({
 			}
 			setIsLoading(true);
 
-			const attachment = await handleUploadFile(
-				clientRef.current,
-				sessionRef.current,
-				currentClanId || '0',
-				userProfile?.user?.id || '0',
-				file.name,
-				file,
-				NaN,
-				true
-			);
+			const attachment = await handleUploadFile(clientRef.current, sessionRef.current, file.name, file, NaN, true);
 			setUrlImage(attachment?.url || '');
 			setFlags(true);
 			setIsLoading(false);
@@ -230,19 +221,17 @@ const SettingRightUser = ({
 			throw new Error('Client or file is not initialized');
 		}
 
-		handleUploadFile(client, session, currentClanId || '0', currentChannelId || '0', e.target.files[0].name || '', e.target.files[0]).then(
-			(attachment) => {
-				dispatch(
-					clansActions.updateUser({
-						avatar_url: urlImage,
-						display_name: valueDisplayName,
-						about_me: editAboutUser,
-						dob,
-						logo: attachment.url
-					})
-				);
-			}
-		);
+		handleUploadFile(client, session, e.target.files[0].name || '', e.target.files[0]).then((attachment) => {
+			dispatch(
+				clansActions.updateUser({
+					avatar_url: urlImage,
+					display_name: valueDisplayName,
+					about_me: editAboutUser,
+					dob,
+					logo: attachment.url
+				})
+			);
+		});
 	};
 	const [coords, setCoords] = useState<Coords>({
 		mouseX: 0,

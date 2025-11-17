@@ -1,4 +1,4 @@
-import { selectCurrentChannelId, selectCurrentClanId, selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store';
+import { selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_1MB, ValidateSpecialCharacters, fileTypeImage, generateE2eId } from '@mezon/utils';
@@ -21,9 +21,6 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete, 
 	const { sessionRef, clientRef } = useMezon();
 	const currentClanLogo = useSelector(selectCurrentClanLogo);
 	const currentClanName = useSelector(selectCurrentClanName);
-
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 
 	const [urlLogo, setUrlLogo] = useState<string | undefined>(currentClanLogo ?? '');
 	const [clanName, setClanName] = useState<string | undefined>(currentClanName ?? '');
@@ -53,7 +50,7 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete, 
 			return;
 		}
 
-		handleUploadFile(client, session, currentClanId, currentChannelId, file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			setUrlLogo(attachment.url ?? '');
 			onUpload(attachment.url ?? '');
 		});

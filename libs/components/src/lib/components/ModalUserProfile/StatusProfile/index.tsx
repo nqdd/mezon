@@ -3,8 +3,6 @@ import type { ChannelMembersEntity } from '@mezon/store';
 import {
 	accountActions,
 	authActions,
-	clansActions,
-	clearApiCallTracker,
 	giveCoffeeActions,
 	selectOthersSession,
 	selectZkProofs,
@@ -16,7 +14,6 @@ import { createClient as createMezonClient, useMezon } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
 import { CURRENCY, EUserStatus, formatBalanceToString } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { Session } from 'mezon-js';
 import type { ReactElement, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +22,6 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ButtonCopy } from '../../../components';
 import TransactionHistory from '../../TransactionHistory';
-import ItemProfile from './ItemProfile';
 import ItemStatus from './ItemStatus';
 import ItemStatusUpdate from './ItemStatusUpdate';
 
@@ -134,26 +130,6 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		return <AddAccountModal handleSetAccount={handleSetAccount} handleCloseModalAddAccount={handleCloseModalAddAccount} />;
 	});
 
-	const handleSwitchAccount = async () => {
-		if (isElectron()) {
-			clearApiCallTracker();
-			localStorage.removeItem('remember_channel');
-
-			dispatch(clansActions.setCurrentClanId('0'));
-			navigate('/chat/direct/friend');
-			await createSocket();
-
-			if (allAccount) {
-				const { token, refresh_token, created, api_url, is_remember, user_id } = allAccount;
-
-				const session = new Session(token, refresh_token, created, api_url, !!is_remember);
-
-				await connectWithSession({ ...session, is_remember: true });
-				if (user_id) dispatch(authActions.switchAccount(user_id));
-			}
-		}
-	};
-
 	const handleOpenSwitchAccount = useCallback(() => {
 		if (isElectron()) {
 			openModalAddAccount();
@@ -208,12 +184,6 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		modalRef.current = visible;
 	};
 
-	const menuAccount = useMemo(() => {
-		if (!allAccount) {
-			return (<ItemStatus children={t('statusProfile.manageAccounts')} onClick={handleOpenSwitchAccount} />) as ReactElement;
-		}
-		return (<ItemProfile username={allAccount?.username} onClick={handleSwitchAccount} />) as ReactElement;
-	}, [allAccount, handleOpenSwitchAccount, handleSwitchAccount, t]);
 	return (
 		<>
 			<div className="max-md:relative">

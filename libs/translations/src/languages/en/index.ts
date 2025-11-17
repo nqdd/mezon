@@ -28,6 +28,7 @@ import clanSetting from './clanSetting.json';
 import clanSettings from './clanSettings.json';
 import clanSoundSetting from './clanSoundSetting.json';
 import clanStickerSetting from './clanStickerSetting.json';
+import clandetail from './clandetail.json';
 import common from './common.json';
 import confirmations from './confirmations.json';
 import contextMenu from './contextMenu.json';
@@ -45,6 +46,7 @@ import friends from './friends.json';
 import friendsPage from './friendsPage.json';
 import homepage from './homepage.json';
 import integrations from './integrations.json';
+import integrationspage from './integrationspage.json';
 import invitation from './invitation.json';
 import inviteToChannel from './inviteToChannel.json';
 import leaveGroup from './leaveGroup.json';
@@ -57,6 +59,7 @@ import menuCustomDM from './menuCustomDM.json';
 import message from './message.json';
 import messageBox from './messageBox.json';
 import messageBuzz from './messageBuzz.json';
+import mezondong from './mezondong.json';
 import modalControls from './modalControls.json';
 import notification from './notification.json';
 import notificationSetting from './notificationSetting.json';
@@ -78,6 +81,7 @@ import setting from './setting.json';
 import sharing from './sharing.json';
 import streamThumbnail from './streamThumbnail.json';
 import streamingRoom from './streamingRoom.json';
+import textchannel from './textchannel.json';
 import token from './token.json';
 import transactionHistory from './transactionHistory.json';
 import transferOwner from './transferOwner.json';
@@ -100,6 +104,7 @@ export default {
 	friends,
 	friendsPage,
 	integrations,
+	integrationspage,
 	clan,
 	profileSetting,
 	clanSettings,
@@ -169,5 +174,8 @@ export default {
 	forwardMessage,
 	chatWelcome,
 	linkAppInstall,
-	discover
+	discover,
+	mezondong,
+	textchannel,
+	clandetail
 };

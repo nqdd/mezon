@@ -30,6 +30,9 @@
 		"yesConfirm": "Yes"
 	},
 	"setPasswordAccount": {
+		"linkEmailRequiredTitle": "Link Email Required",
+		"linkEmailRequiredDescription": "You need to link your email before setting a password",
+		"goTo": "Go to",
 		"title": "Set Password",
 		"email": "Email",
 		"password": "Password",
@@ -52,8 +55,8 @@
 			"incorrectCurrent": "Incorrect password. Please try again"
 		},
 		"toast": {
-			"success": "Password set successfully",
-			"error": "Current password is incorrect"
+			"success": "Password updated successfully",
+			"error": "Password update failed"
 		},
 		"placeholder": {
 			"currentPassword": "Enter your current password",
@@ -110,14 +113,12 @@
 		"verifyPhoneNumber": {
 			"description": "Enter the 6-digit code we sent to",
 			"verifyButton": "Verify",
-			"success": "Phone number updated successfully",
-			"failed": "Invalid OTP"
+			"success": "Phone number updated successfully"
 		}
 	},
 	"emailSetting": {
 		"updateEmail": {
 			"newEmail": "New Email",
-			"currentPassword": "Current Password",
 			"nextButton": "Next",
 			"failed": "Email update failed",
 			"invalidEmail": "Invalid email",

@@ -102,10 +102,23 @@ const Photo = <T,>({
 				isInWebPage
 			});
 
-	const { mediaData, loadProgress } = useMediaWithLoadProgress(
-		createImgproxyUrl(photo.url ?? '', { width, height, resizeType: 'fit' }),
-		!isIntersecting
-	);
+	const resizeType = (() => {
+		if (hasZeroDimension || !width || !height) {
+			return 'fill';
+		}
+
+		if (!realWidth || !realHeight) {
+			return 'fill';
+		}
+
+		if (realWidth < width || realHeight < height) {
+			return 'fill-down';
+		}
+
+		return 'fill';
+	})();
+
+	const { mediaData, loadProgress } = useMediaWithLoadProgress(createImgproxyUrl(photo.url ?? '', { width, height, resizeType }), !isIntersecting);
 	const fullMediaData = localBlobUrl || mediaData;
 
 	const withBlurredBackground = Boolean(forcedWidth);

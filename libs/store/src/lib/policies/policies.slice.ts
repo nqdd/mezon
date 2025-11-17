@@ -52,8 +52,7 @@ export const fetchPermissionsUser = createAsyncThunk<any, fetchPermissionsUserPa
 				}
 			},
 			() => mezon.client.GetRoleOfUserInTheClan(mezon.session, clanId),
-			'role_list',
-			{ maxRetries: 5 }
+			'role_list'
 		);
 
 		if (!response.roles) {
@@ -86,8 +85,7 @@ export const fetchPermissionCached = async (getState: () => RootState, mezon: Me
 			api_name: 'GetListPermission'
 		},
 		() => mezon.client.getListPermission(mezon.session),
-		'permission_list',
-		{ maxRetries: 5 }
+		'permission_list'
 	);
 
 	markApiFirstCalled(apiKey);

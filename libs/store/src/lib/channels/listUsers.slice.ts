@@ -49,7 +49,11 @@ export const fetchListUsersByUserCached = async (getState: () => RootState, mezo
 		};
 	}
 
-	const response = await withRetry(() => mezon.client.listUserClansByUserId(mezon.session), { maxRetries: 3, initialDelay: 1000 });
+	const response = await withRetry(() => mezon.client.listUserClansByUserId(mezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'user-clans'
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -96,7 +100,11 @@ export const initialListUsersByUserState: ListUsersState = listUsersAdapter.getI
 export const listUsersByUserSlice = createSlice({
 	name: LIST_USERS_BY_USER_FEATURE_KEY,
 	initialState: initialListUsersByUserState,
-	reducers: {},
+	reducers: {
+		updateUserInList: (state, action: PayloadAction<UsersEntity>) => {
+			listUsersAdapter.upsertOne(state, action.payload);
+		}
+	},
 	extraReducers: (builder) => {
 		builder
 			.addCase(fetchListUsersByUser.pending, (state: ListUsersState) => {

@@ -105,7 +105,6 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 		);
 	};
 	const { sessionRef, clientRef } = useMezon();
-	const currentClanId = useSelector(selectCurrentClanId);
 	const avatarRef = useRef<HTMLInputElement>(null);
 
 	const webhookChannel = useAppSelector((state) => selectChannelById(state, webhookItem.channel_id ?? '')) || {};
@@ -154,14 +153,12 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 			if (!client || !session) {
 				throw new Error('Client or file is not initialized');
 			}
-			handleUploadFile(client, session, currentClanId || '', currentChannel?.channel_id || '', e.target.files[0].name, e.target.files[0]).then(
-				(attachment: ApiMessageAttachment) => {
-					setDataForUpdate({
-						...dataForUpdate,
-						webhookAvatarUrl: attachment.url
-					});
-				}
-			);
+			handleUploadFile(client, session, e.target.files[0].name, e.target.files[0]).then((attachment: ApiMessageAttachment) => {
+				setDataForUpdate({
+					...dataForUpdate,
+					webhookAvatarUrl: attachment.url
+				});
+			});
 		}
 	};
 	const clanId = useSelector(selectCurrentClanId) as string;

@@ -1,7 +1,7 @@
 import { useClans } from '@mezon/core';
 import { ActionEmitEvent, save, setDefaultChannelLoader, STORAGE_CLAN_ID } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { channelsActions, checkDuplicateNameClan, clansActions, getStoreAsync, selectCurrentChannel } from '@mezon/store-mobile';
+import { channelsActions, checkDuplicateNameClan, clansActions, getStoreAsync } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo, useEffect, useState } from 'react';
@@ -12,7 +12,6 @@ import type { CameraOptions } from 'react-native-image-picker';
 import * as ImagePicker from 'react-native-image-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { useSelector } from 'react-redux';
 import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import MezonButton from '../../../../../componentUI/MezonButton';
 import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
@@ -31,7 +30,6 @@ const CreateClanModal = memo(() => {
 	const [urlImage, setUrlImage] = useState('');
 	const [isCheckValid, setIsCheckValid] = useState<boolean>();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const currentChannel = useSelector(selectCurrentChannel);
 	const { t } = useTranslation(['clan']);
 	const { sessionRef, clientRef } = useMezon();
 	const { createClans } = useClans();
@@ -120,7 +118,7 @@ const CreateClanModal = memo(() => {
 		if (!file || !client || !session) {
 			throw new Error('Client or files are not initialized');
 		}
-		const res = await handleUploadFileMobile(client, session, currentChannel?.clan_id, currentChannel?.channel_id, file.name, file);
+		const res = await handleUploadFileMobile(client, session, file.name, file);
 		if (!res.url) return;
 		setUrlImage(res.url);
 	};

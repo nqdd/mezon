@@ -1,10 +1,8 @@
-import { selectCurrentChannelId, selectCurrentClanId } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_10MB, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { ELimitSize } from '../../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
 
@@ -16,9 +14,6 @@ type ClanBannerBackgroundProps = {
 const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps) => {
 	const { t } = useTranslation('clanSettings');
 	const { sessionRef, clientRef } = useMezon();
-
-	const currentClanId = useSelector(selectCurrentClanId) || '';
-	const currentChannelId = useSelector(selectCurrentChannelId) || '';
 
 	const [openModal, setOpenModal] = useState<boolean>(false);
 	const [openTypeModal, setOpenTypeModal] = useState<boolean>(false);
@@ -53,7 +48,7 @@ const ClanBannerBackground = ({ onUpload, urlImage }: ClanBannerBackgroundProps)
 			return;
 		}
 
-		handleUploadFile(client, session, currentClanId, currentChannelId, file?.name, file).then((attachment: any) => {
+		handleUploadFile(client, session, file?.name, file).then((attachment: any) => {
 			onUpload(attachment.url ?? '');
 		});
 	};
