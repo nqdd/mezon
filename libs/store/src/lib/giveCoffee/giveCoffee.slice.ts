@@ -1,4 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
+import i18n from '@mezon/translations';
 import type { LoadingStatus } from '@mezon/utils';
 import { AMOUNT_TOKEN } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
@@ -124,7 +125,7 @@ export const sendToken = createAsyncThunk(
 				.then((action) => action?.payload as AddTxResponse);
 
 			if (response?.ok) {
-				thunkAPI.dispatch(toastActions.addToast({ message: 'Funds Transferred', type: 'success' }));
+				thunkAPI.dispatch(toastActions.addToast({ message: i18n.t('token:toast.success.sendSuccess'), type: 'success' }));
 				thunkAPI.dispatch(giveCoffeeActions.updateTokenUser({ tokenEvent }));
 				return { ...response, tx_hash: response.tx_hash };
 			} else {

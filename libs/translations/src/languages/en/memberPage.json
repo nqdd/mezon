@@ -1,4 +1,9 @@
 {
 	"show": "Show",
-	"membersOf": "members of {{count}}"
+	"membersOf": "members of {{count}}",
+	"addedBy": "Added by {{name}}",
+	"you": "you",
+	"inVoice": "In voice",
+	"onlineCount": "Online - {{count}}",
+	"offlineCount": "Offline - {{count}}"
 }

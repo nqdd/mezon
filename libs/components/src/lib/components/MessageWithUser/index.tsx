@@ -88,6 +88,7 @@ function MessageWithUser({
 	isSelected,
 	previousMessage
 }: Readonly<MessageWithUserProps>) {
+	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const userId = user?.user?.id as string;
 	const positionShortUser = useRef<{ top: number; left: number } | null>(null);
@@ -298,10 +299,9 @@ function MessageWithUser({
 						{!!message?.content?.fwd && shouldShowForwardedText && (
 							<div className="flex gap-1 items-center italic font-medium w-full text-theme-primary opacity-60">
 								<Icons.ForwardRightClick defaultSize="w-4 h-4" />
-								<p>Forwarded</p>
+								<p>{t('forwarded')}</p>
 							</div>
-						)}
-
+						)}{' '}
 						{isEditing && (
 							<MessageInput
 								messageId={message?.id}
@@ -327,12 +327,11 @@ function MessageWithUser({
 								{isEphemeralMessage && (
 									<div className="flex items-center gap-1 mt-1 mb-1 text-xs italic text-theme-primary opacity-60">
 										<Icons.EyeClose className="w-3 h-3" />
-										<span>Only visible to recipient</span>
+										<span>{t('onlyVisibleToRecipient')}</span>
 									</div>
 								)}
 							</>
 						)}
-
 						{(message?.attachments?.length as number) > 0 && (
 							<MessageAttachment
 								observeIntersectionForLoading={observeIntersectionForLoading}
@@ -343,7 +342,6 @@ function MessageWithUser({
 								defaultMaxWidth={isTopic ? TOPIC_MAX_WIDTH : undefined}
 							/>
 						)}
-
 						{Array.isArray(message?.content?.embed) && (
 							<EmbedMessageWrap
 								observeIntersectionForLoading={observeIntersectionForLoading}
@@ -354,7 +352,6 @@ function MessageWithUser({
 							/>
 						)}
 						{!isTopic && message?.code === TypeMessage.Topic && <TopicViewButton message={message} />}
-
 						{!!message?.content?.callLog?.callLogType && (
 							<CallLogMessage
 								userId={userId || ''}
@@ -366,9 +363,7 @@ function MessageWithUser({
 								contentMsg={message?.content?.t || ''}
 							/>
 						)}
-
 						{!!(message.code === TypeMessage.SendToken) && <TokenTransactionMessage message={message} />}
-
 						{message?.content?.components &&
 							message?.content.components.map((actionRow, index) => (
 								<div className={'flex flex-col w-full'} key={index}>
@@ -390,7 +385,7 @@ function MessageWithUser({
 						>
 							<div className="flex items-center gap-2 text-sm text-theme-primary opacity-75">
 								<Icons.MessageSquareIcon className="w-5 h-5" />
-								<span>Go to Topic</span>
+								<span>{t('goToTopic')}</span>
 							</div>
 							<Icons.ArrowRight className="w-4 h-4 text-theme-primary opacity-50" />
 						</div>

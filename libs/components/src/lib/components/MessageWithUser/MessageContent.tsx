@@ -13,7 +13,6 @@ import {
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
 import { EBacktickType, ETypeLinkMedia, addMention, convertTimeMessage, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
-import i18n from 'libs/translations/src/i18n.config';
 import { safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +65,7 @@ const MessageContent = ({ message, mode, isSearchMessage, isEphemeral, isSending
 };
 
 export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
-	const { t } = useTranslation('message');
+	const { t, i18n } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id));
 	const rplCount = latestMessage?.content?.rpl || 0;
@@ -89,7 +88,7 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 			const lastTime = convertTimeMessage(topic.last_sent_message.timestamp_seconds, i18n.language);
 			return lastTime;
 		}
-	}, [topic]);
+	}, [topic, i18n.language]);
 
 	return (
 		<div

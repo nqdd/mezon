@@ -189,6 +189,8 @@
 	"reply": "{{number}} tin nhắn",
 	"numberReplies": "{{number}} tin nhắn",
 	"replies": "Tin nhắn",
+	"forwarded": "Đã chuyển tiếp",
+	"onlyVisibleToRecipient": "Chỉ hiển thị cho người nhận",
 	"attachments": {
 		"image": "Hình ảnh",
 		"video": "Video",

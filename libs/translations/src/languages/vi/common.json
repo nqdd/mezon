@@ -5,6 +5,12 @@
 	"yes": "Có",
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
+	"errorBoundary": {
+		"title": "Ồ, điều này thật khó xử",
+		"crashMessage": "Có vẻ như Mezon đã gặp sự cố bất ngờ....",
+		"trackedMessage": "Chúng tôi đã theo dõi lỗi và sẽ khắc phục ngay lập tức.",
+		"reload": "Tải lại"
+	},
 	"newMessage": "Tin nhắn mới",
 	"newMention": "Đề cập mới",
 	"discover": "Khám phá",
@@ -168,6 +174,9 @@
 	"actions": "Hành động",
 	"copiedCanvasLink": "Đã sao chép liên kết canvas vào bộ nhớ tạm",
 	"forwarded": "Đã chuyển tiếp",
+	"dropFilesToUploadToTopic": "Thả tệp vào đây để tải lên chủ đề",
+	"uploadToChannel": "Tải lên #{{channelName}}",
+	"uploadInstructions": "Bạn có thể thêm bình luận trước khi tải lên. Giữ shift để tải lên trực tiếp.",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",

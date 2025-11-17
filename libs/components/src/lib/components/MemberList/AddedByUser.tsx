@@ -1,5 +1,7 @@
-import { RootState, selectAllAccount, selectUserAddedByUserId } from '@mezon/store';
+import type { RootState } from '@mezon/store';
+import { selectAllAccount, selectUserAddedByUserId } from '@mezon/store';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 export type MemberItemProps = {
 	groupId: string;
@@ -7,6 +9,7 @@ export type MemberItemProps = {
 };
 
 function AddedByUser({ groupId, userId }: MemberItemProps) {
+	const { t } = useTranslation('memberPage');
 	const userProfile = useSelector(selectAllAccount);
 	const addedByUser = useSelector((state: RootState) => selectUserAddedByUserId(state, groupId, userId));
 
@@ -18,7 +21,7 @@ function AddedByUser({ groupId, userId }: MemberItemProps) {
 	if (!nameUserAdded) return;
 	return (
 		<p className={`text-theme-primary opacity-70 w-full text-[14px] line-clamp-1 break-all max-w-[176px] mt-1`} title={nameUserAdded}>
-			Added by {nameUserAdded}
+			{t('addedBy', { name: nameUserAdded })}
 		</p>
 	);
 }

@@ -56,6 +56,7 @@ import memberTable from './memberTable.json';
 import menuCustomDM from './menuCustomDM.json';
 import message from './message.json';
 import messageBox from './messageBox.json';
+import messageBuzz from './messageBuzz.json';
 import modalControls from './modalControls.json';
 import notification from './notification.json';
 import notificationSetting from './notificationSetting.json';
@@ -87,6 +88,7 @@ export default {
 	inviteToChannel,
 	notification,
 	message,
+	messageBuzz,
 	screen,
 	setting,
 	dmMessage,

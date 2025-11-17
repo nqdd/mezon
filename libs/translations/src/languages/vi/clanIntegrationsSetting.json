@@ -31,7 +31,7 @@
 		"deleteCaptionHook": "Xóa Webhook",
 		"deleteWebhookConfirmation": "Bạn có chắc chắn muốn xóa webhook {{webhookName}}? Hành động này không thể hoàn tác.",
 		"resetToken": "Đặt lại token",
-		"name": "Tên webhook"
+		"name": "TÊN"
 	},
 	"webhooksEmpty": {
 		"noWebhooks": "KHÔNG CÓ WEBHOOK",
