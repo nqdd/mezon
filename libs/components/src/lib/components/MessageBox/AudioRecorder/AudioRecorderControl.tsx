@@ -2,7 +2,7 @@ import { useChatSending, useCurrentInbox } from '@mezon/core';
 import { referencesActions } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { blobToFile, getChannelMode, processFile } from '@mezon/utils';
-import { ApiChannelDescription, ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { AudioRecorderUI } from './AudioRecorderUI';
@@ -118,14 +118,7 @@ const AudioRecorderControl: React.FC<AudioRecorderProps> = React.memo(({ onSendR
 		if (!client || !session) return;
 
 		const timestamp = new Date().getTime();
-		const fileUploaded = await handleUploadFile(
-			client,
-			session,
-			'',
-			`${currentInbox?.id}`,
-			`${currentInbox?.id}` + timestamp + 'voice_record.mp3',
-			blobToFile(blob)
-		);
+		const fileUploaded = await handleUploadFile(client, session, `${currentInbox?.id}${timestamp}voice_record.mp3`, blobToFile(blob));
 
 		const attachmentsArray = [fileUploaded];
 		setAudioList(attachmentsArray);

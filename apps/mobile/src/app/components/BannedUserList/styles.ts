@@ -6,7 +6,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			paddingHorizontal: size.s_16
+			paddingHorizontal: size.s_16,
+			backgroundColor: colors.primary
 		},
 		imagePicker: {
 			marginBottom: size.s_10,
@@ -22,7 +23,8 @@ export const style = (colors: Attributes) =>
 		},
 		backButton: {
 			paddingVertical: size.s_16,
-			paddingHorizontal: size.s_6
+			paddingHorizontal: size.s_6,
+			zIndex: 2
 		},
 		resetButton: {
 			color: baseColor.blurple
@@ -47,7 +49,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			alignSelf: 'center',
 			width: '100%',
-			zIndex: -1
+			zIndex: 1
 		},
 		label: {
 			marginBottom: size.s_8,

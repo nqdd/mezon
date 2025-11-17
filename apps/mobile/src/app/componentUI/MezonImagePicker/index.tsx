@@ -1,6 +1,5 @@
 import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectCurrentChannel } from '@mezon/store-mobile';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
 import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +8,6 @@ import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
-import { useSelector } from 'react-redux';
 import MezonClanAvatar from '../MezonClanAvatar';
 import { style as _style } from './styles';
 
@@ -105,7 +103,6 @@ export default memo(
 		const { themeValue } = useTheme();
 		const styles = _style(themeValue);
 		const [image, setImage] = useState<string>(defaultValue);
-		const currentChannel = useSelector(selectCurrentChannel);
 		const { sessionRef, clientRef } = useMezon();
 		const timerRef = useRef<any>(null);
 		const { t } = useTranslation(['profile']);
@@ -127,7 +124,7 @@ export default memo(
 			if (!file || !client || !session) {
 				throw new Error('Client is not initialized');
 			}
-			const res = await handleUploadFileMobile(client, session, currentChannel?.clan_id, currentChannel?.channel_id, file.name, file, isOauth);
+			const res = await handleUploadFileMobile(client, session, file.name, file, isOauth);
 			return res.url;
 		}
 

@@ -7,7 +7,7 @@ import type { ApiEditChannelCanvasRequest } from 'mezon-js/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 
 export const CANVAS_API_FEATURE_KEY = 'canvasapi';
@@ -106,7 +106,11 @@ const fetchCanvasListCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page);
+	const response = await withRetry(() => mezon.client.getChannelCanvasList(mezon.session, channel_id, clan_id, limit || LIMIT, page), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'channel-canvas-list'
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -128,7 +132,6 @@ const fetchCanvasDetailCached = async (
 	const channelData = state[CANVAS_API_FEATURE_KEY].channelCanvas[channel_id];
 	const apiKey = createApiKey('fetchCanvasDetail', id, clan_id, channel_id);
 	const shouldForceCall = shouldForceApiCall(apiKey, channelData?.cache, noCache);
-
 	if (!shouldForceCall) {
 		return {
 			canvas: channelData.entities[id],
@@ -136,12 +139,19 @@ const fetchCanvasDetailCached = async (
 		};
 	}
 
-	const response = await mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id);
+	const response = await withRetry(() => mezon.client.getChannelCanvasDetail(mezon.session, id, clan_id, channel_id), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'channel-canvas-detail'
+	});
 
 	markApiFirstCalled(apiKey);
 
 	return {
-		...response,
+		canvas: {
+			...response,
+			channel_id
+		},
 		fromCache: false
 	};
 };
@@ -372,6 +382,21 @@ export const canvasAPISlice = createSlice({
 			})
 			.addCase(getChannelCanvasDetail.fulfilled, (state: CanvasAPIState, action: PayloadAction<any>) => {
 				state.loadingStatus = 'loaded';
+
+				if (!action.payload.fromCache && action.payload.canvas) {
+					const canvas = action.payload.canvas;
+					const channelId = canvas.channel_id;
+
+					if (channelId && canvas.id) {
+						if (!state.channelCanvas[channelId]) {
+							state.channelCanvas[channelId] = canvasAPIAdapter.getInitialState({
+								id: channelId
+							});
+						}
+
+						canvasAPIAdapter.upsertOne(state.channelCanvas[channelId], canvas);
+					}
+				}
 			})
 			.addCase(getChannelCanvasDetail.rejected, (state: CanvasAPIState, action) => {
 				state.loadingStatus = 'error';

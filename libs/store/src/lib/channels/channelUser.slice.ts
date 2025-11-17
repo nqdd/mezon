@@ -6,7 +6,7 @@ import type { ChannelDescription } from 'mezon-js';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 
 export const LIST_CHANNELS_USER_FEATURE_KEY = 'listchannelbyusers';
 
@@ -62,7 +62,11 @@ export const fetchListChannelsByUserCached = async (getState: () => RootState, e
 		};
 	}
 
-	const response = await ensuredMezon.client.listChannelByUserId(ensuredMezon.session);
+	const response = await withRetry(() => ensuredMezon.client.listChannelByUserId(ensuredMezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'user-channels'
+	});
 
 	markApiFirstCalled(apiKey);
 

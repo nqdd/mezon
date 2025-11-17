@@ -30,13 +30,13 @@ import { getCurrentChannelBadgeCount, resetChannelBadgeCount } from '../badge/ba
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { channelsActions, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
+import { channelsActions, selectChannelById, selectLoadingStatus, selectShowScrollDownButton } from '../channels/channels.slice';
 import { selectUserClanProfileByClanID } from '../clanProfile/clanProfile.slice';
 import { clansActions, selectClanExists, selectClanHasUnreadMessage, selectClansLoadingStatus } from '../clans/clans.slice';
-import { selectCurrentDM } from '../direct/direct.slice';
+import { selectCurrentDM, selectDirectMessageEntities } from '../direct/direct.slice';
 import { checkE2EE, selectE2eeByUserIds } from '../e2ee/e2ee.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { ReactionEntity } from '../reactionMessage/reactionMessage.slice';
 import type { AppDispatch, RootState } from '../store';
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
@@ -236,28 +236,14 @@ export const fetchMessagesCached = async (
 	// 	'channel_message_list'
 	// );
 
-	async function listChannelMessagesWithRetry(retryCount = 5) {
-		try {
-			return await ensuredMezon.client.listChannelMessages(
-				ensuredMezon.session,
-				clanId,
-				channelId,
-				messageId,
-				direction,
-				LIMIT_MESSAGE,
-				topicId
-			);
-		} catch (error) {
-			if (retryCount > 1) {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				return listChannelMessagesWithRetry(retryCount - 1);
-			} else {
-				throw error;
-			}
+	const response = await withRetry(
+		() => ensuredMezon.client.listChannelMessages(ensuredMezon.session, clanId, channelId, messageId, direction, LIMIT_MESSAGE, topicId),
+		{
+			maxRetries: 5,
+			initialDelay: 1000,
+			scope: 'channel-messages'
 		}
-	}
-
-	const response = await listChannelMessagesWithRetry();
+	);
 
 	markApiFirstCalled(apiKey);
 
@@ -388,7 +374,7 @@ export const fetchMessages = createAsyncThunk(
 			);
 
 			// Fallback
-			if (messageId && (!response.messages || response.messages.length === 0)) {
+			if (!topicId && messageId && (!response.messages || response.messages.length === 0)) {
 				/* eslint-disable */
 				console.log('FALLBACK GET MESSAGES', { clanId, channelId, messageId });
 				response = await fetchMessagesCached(
@@ -689,9 +675,23 @@ export const updateLastSeenMessage = createAsyncThunk(
 	'messages/updateLastSeenMessage',
 	async ({ clanId, channelId, messageId, mode, badge_count, message_time, updateLast = false }: UpdateMessageArgs, thunkAPI) => {
 		try {
+			// check
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 			const now = Math.floor(Date.now() / 1000);
 			const state = thunkAPI.getState() as RootState;
+
+			if (clanId !== '0') {
+				const channel = selectChannelById(state, channelId);
+				if (!channel) {
+					return;
+				}
+			} else {
+				const dmEntities = selectDirectMessageEntities(state);
+				if (!dmEntities[channelId]) {
+					return;
+				}
+			}
+
 			const channelsLoadingStatus = selectLoadingStatus(state);
 			const clansLoadingStatus = selectClansLoadingStatus(state);
 			if (clanId !== '0' && (channelsLoadingStatus === 'loading' || clansLoadingStatus === 'loading')) {
@@ -837,16 +837,12 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			if (isMobile) {
 				uploadedFiles = await getMobileUploadedAttachments({
 					attachments,
-					channelId,
-					clanId,
 					client,
 					session
 				});
 			} else {
 				uploadedFiles = await getWebUploadedAttachments({
 					attachments,
-					channelId,
-					clanId,
 					client,
 					session
 				});
@@ -1015,8 +1011,6 @@ export const sendEphemeralMessage = createAsyncThunk('messages/sendEphemeralMess
 		if (attachments && attachments.length > 0) {
 			uploadedFiles = await getWebUploadedAttachments({
 				attachments,
-				channelId,
-				clanId,
 				client,
 				session
 			});
@@ -1494,12 +1488,15 @@ export const messagesSlice = createSlice({
 				[action.payload.channelId]: action.payload.messageId
 			};
 		},
-		UpdateChannelLastMessage: (state, action: PayloadAction<{ channelId: string }>) => {
-			const lastMess = state.channelViewPortMessageIds?.[action.payload.channelId]?.at(-1);
-			state.unreadMessagesEntries = {
-				...state.unreadMessagesEntries,
-				[action.payload.channelId]: lastMess || ''
-			};
+		UpdateChannelLastMessage: (state, action: PayloadAction<{ channelId: string; messageId: string }>) => {
+			const { channelId, messageId } = action.payload;
+
+			if (messageId) {
+				state.unreadMessagesEntries = {
+					...state.unreadMessagesEntries,
+					[channelId]: messageId
+				};
+			}
 		},
 		setUserTyping: (state, action: PayloadAction<SetUserTypingArgs>) => {
 			const { channelId, userId, typingName } = action.payload || {};
@@ -1892,10 +1889,10 @@ export const selectHasMoreMessageByChannelId = createSelector([getMessagesState,
 	const firstMessageId = state.firstMessageId[channelId];
 	if (!firstMessageId) return true;
 
-	const isFirstMessageInChannel = state.channelMessages[channelId]?.entities[firstMessageId];
+	const viewportIds = state.channelViewPortMessageIds[channelId] || [];
+	const isFirstMessageInViewport = viewportIds.includes(firstMessageId);
 
-	// if the first message is not in the channel's messages, then there are more messages
-	return !isFirstMessageInChannel;
+	return !isFirstMessageInViewport;
 });
 
 export const selectHasMoreBottomByChannelId = createSelector([getMessagesState, getChannelIdAsSecondParam], (state, channelId) => {
@@ -2009,10 +2006,6 @@ export const selectLassSendMessageEntityBySenderId = createCachedSelector(
 
 export const selectChannelDraftMessage = createCachedSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
 	return messagesState.channelDraftMessage[channelId];
-});
-
-export const selectFirstMessageId = createCachedSelector([getMessagesState, getChannelIdAsSecondParam], (messagesState, channelId) => {
-	return messagesState.firstMessageId[channelId] ?? '';
 });
 
 // select selectLatestMessage's id

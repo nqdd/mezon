@@ -1,0 +1,46 @@
+{
+	"download": "Download",
+	"sections": {
+		"section1": {
+			"title": "Everything You Need, In One Place",
+			"description": "With Mezon, a centralized app that consolidates all the tools you need into one unified space. No need to switch between multiple resources - just efficiency and effectiveness."
+		},
+		"section2": {
+			"title": "Unleash The Power Of Your Business With Seamless Low-Code Integration",
+			"description": "With reduced costs and time, we enhance integration for businesses that want to minimize development expenses - just speed and flexibility."
+		},
+		"section3": {
+			"title": "Automate Processes For Individuals And Organizations: ",
+			"titleHighlight": "Bot/App Integration",
+			"titleEnd": "",
+			"description": "Connect bots and apps to automate employee tasks and production. Faster, more accurate, and no need to solve complex algorithms anymore."
+		},
+		"section4": {
+			"title": "ERP System",
+			"description": "With easy-to-customize modules and features, ERP will fully meet the needs of their business and can automate activities related to enterprises resources to reduce processing time and optimize resource management"
+		}
+	},
+	"faq": {
+		"title": "Frequently Asked Questions",
+		"seeAll": "See All FAQs",
+		"learnMore": "Learn more",
+		"questions": [
+			{
+				"question": "How do I start integrating my tools with Mezon?",
+				"answer": "Getting started is simple. Navigate to the integrations page, select your desired service, and follow the step-by-step setup guide."
+			},
+			{
+				"question": "What types of integrations are supported?",
+				"answer": "Mezon supports a wide range of integrations including webhooks, bots, third-party apps, and ERP systems. Check our documentation for the complete list."
+			},
+			{
+				"question": "Can I create custom integrations?",
+				"answer": "Yes! Our platform provides APIs and SDKs that allow you to build custom integrations tailored to your specific needs."
+			},
+			{
+				"question": "Is there a limit to how many integrations I can add?",
+				"answer": "The number of integrations you can add depends on your plan. Enterprise plans offer unlimited integrations."
+			}
+		]
+	}
+}

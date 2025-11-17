@@ -113,10 +113,10 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 			setOtp(Array(6).fill(''));
 			const response = await dispatch(
 				accountActions.addPhoneNumber({
-					phone_number: parsePhoneVN(phone)
+					data: { phone_number: parsePhoneVN(phone) }
 				})
 			).unwrap();
-			if (response.req_id) {
+			if (response?.req_id) {
 				setErrors({});
 				setCount(60);
 				setOpenConfirm(true);

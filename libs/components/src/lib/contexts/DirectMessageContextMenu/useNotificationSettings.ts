@@ -66,7 +66,7 @@ export function useNotificationSettings({ channelId, notificationSettings, getCh
 		setNameChildren(hasActiveMuteTime ? t('contextMenu.unmute') : t('contextMenu.mute'));
 
 		setMutedUntilText(
-			hasActiveMuteTime && notificationSettings?.time_mute
+			hasActiveMuteTime && new Date(notificationSettings?.time_mute).getFullYear() !== 1
 				? t('contextMenu.mutedUntil', { time: format(new Date(notificationSettings.time_mute), 'dd/MM, HH:mm') })
 				: ''
 		);

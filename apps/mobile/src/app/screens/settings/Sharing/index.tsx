@@ -8,7 +8,7 @@ import {
 	STORAGE_DATA_CLAN_CHANNEL_CACHE
 } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist, selectIsUserBannedInChannel } from '@mezon/store';
+import { selectBanMemberCurrentClanById, selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist } from '@mezon/store';
 import {
 	channelMetaActions,
 	channelsActions,
@@ -18,7 +18,6 @@ import {
 	getStoreAsync,
 	selectAllChannelsByUser,
 	selectClansEntities,
-	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDirectById,
 	useAppDispatch
@@ -196,7 +195,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
 		const currentUserId = selectCurrentUserId(store.getState());
-		const isBannedChannel = selectIsUserBannedInChannel(store.getState(), channelSelected?.channel_id, currentUserId);
+		const isBannedChannel = selectBanMemberCurrentClanById(store.getState(), channelSelected?.channel_id, currentUserId);
 
 		if (isBannedChannel) {
 			Toast.show({
@@ -423,8 +422,6 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	const handleFiles = async (files: any) => {
 		const maxRetries = 5;
 		const retryDelay = 4000; // 4 seconds
-		const clanIdStore = selectCurrentClanId(store.getState());
-		const currentChannelId = selectCurrentChannelId(store.getState() as any);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
@@ -435,7 +432,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				}
 
 				const promises = Array.from(files).map((file: any) => {
-					return handleUploadFileMobile(client, session, clanIdStore, currentChannelId, file.name, file);
+					return handleUploadFileMobile(client, session, file.name, file);
 				});
 
 				const response = await Promise.all(promises);

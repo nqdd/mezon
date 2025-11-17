@@ -164,7 +164,26 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				break;
 			}
 			case EAccountSettingType.SetPassword:
-				navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.SET_PASSWORD });
+				if (!userProfile?.email) {
+					const linkEmailRequiredData = {
+						children: (
+							<MezonConfirm
+								title={t('setPasswordAccount.linkEmailRequiredTitle')}
+								content={t('setPasswordAccount.linkEmailRequiredDescription')}
+								confirmText={t('setPasswordAccount.goTo')}
+								onConfirm={() => {
+									navigation.navigate(APP_SCREEN.SETTINGS.STACK, {
+										screen: APP_SCREEN.SETTINGS.UPDATE_EMAIL
+									});
+									DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+								}}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: linkEmailRequiredData });
+				} else {
+					navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.SET_PASSWORD });
+				}
 				break;
 			default:
 				break;

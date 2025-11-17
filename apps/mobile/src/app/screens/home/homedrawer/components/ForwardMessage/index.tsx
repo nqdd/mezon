@@ -7,12 +7,12 @@ import {
 	getSelectedMessage,
 	getStore,
 	selectAllChannelsByUser,
+	selectBanMemberCurrentClanById,
 	selectBlockedUsersForMessage,
 	selectCurrentChannelId,
 	selectCurrentUserId,
 	selectDirectsOpenlist,
 	selectDmGroupCurrentId,
-	selectIsUserBannedInChannel,
 	selectMessageEntitiesByChannelId,
 	selectMessageIdsByChannelId,
 	useAppSelector
@@ -191,12 +191,13 @@ const ForwardMessageScreen = () => {
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
 				const { type, channelId, clanId = '', name } = selectedObjectSend;
 				const currentUserId = selectCurrentUserId(store.getState());
-				const isBanFromChannel = selectIsUserBannedInChannel(store.getState(), channelId, currentUserId);
+				const isBanFromChannel = selectBanMemberCurrentClanById(store.getState(), channelId, currentUserId);
 				if (isBanFromChannel) {
 					Toast.show({
 						type: 'error',
 						text1: t('bannedChannel', { channelName: name })
 					});
+					return;
 				}
 				switch (type) {
 					case ChannelType.CHANNEL_TYPE_DM:
@@ -243,7 +244,7 @@ const ForwardMessageScreen = () => {
 			for (const selectedObjectSend of selectedForwardObjectsRef.current) {
 				const { type, channelId, clanId = '', isChannelPublic, name } = selectedObjectSend;
 				const currentUserId = selectCurrentUserId(store.getState());
-				const isBanFromChannel = selectIsUserBannedInChannel(store.getState(), channelId, currentUserId);
+				const isBanFromChannel = selectBanMemberCurrentClanById(store.getState(), channelId, currentUserId);
 				if (isBanFromChannel) {
 					Toast.show({
 						type: 'error',

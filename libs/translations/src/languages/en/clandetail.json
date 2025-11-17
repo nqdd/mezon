@@ -1,0 +1,67 @@
+{
+	"sections": {
+		"section1": {
+			"title": "Build Your Community With More Fun",
+			"description": "More than just chat - this is where you organize, connect with teams, friends, and communities while having fun."
+		},
+		"section2": {
+			"title": "The Best WFH Experience For Your Organization",
+			"description": "Work from home doesn't mean working alone. Collaborate, communicate, and celebrate together — sometimes apart. The best WFH experience for your organization."
+		},
+		"section3": {
+			"title": "Member Relationship Oriented",
+			"description": "We believe strong relationships build strong organizations. Every feature is designed to bring members closer. Member relationships, amplified."
+		},
+		"section4": {
+			"title": "Contribute To Earn",
+			"description": "Participate, earn credits, and receive tokens as you help the community grow. Your voice is your value. Contribute to earn."
+		},
+		"section5": {
+			"title": "Rich And Clear Reports",
+			"description": "Track your community's growth and engagement with detailed analytics and reports. Stay informed, make better decisions."
+		}
+	},
+	"features": [
+		{
+			"title": "Share Photos And Videos",
+			"description": "Easily share photos, videos, and media files with your team in high quality."
+		},
+		{
+			"title": "Send Video Notes",
+			"description": "Capture the feel of the moment by instantly recording and sharing video messages up to a minute long in the chat."
+		},
+		{
+			"title": "Say Even More With Stickers And GIFs",
+			"description": "Express yourself with a wide variety of stickers, GIFs, and animated emojis."
+		},
+		{
+			"title": "React With An Emoji",
+			"description": "Quickly respond to messages with emoji reactions without typing a word."
+		}
+	],
+	"featuresTitle": "Build Your Community With More Fun",
+	"download": "Download",
+	"faq": {
+		"title": "Need More Help?",
+		"seeAll": "See All FAQs",
+		"learnMore": "Learn More",
+		"questions": [
+			{
+				"question": "What Is A Clan On Mezon?",
+				"answer": "A Clan is the heart of Mezon — where people connect, collaborate, and share through communities built around shared interests, goals, or passions. A Clan can be a small group of friends or a large-scale community with thousands of members. Within a Clan, you can chat through organized Channels, host events via Voice Channels, and enhance your community using Bots, Apps, and Mezon Tokens."
+			},
+			{
+				"question": "How Do I Join A Clan On Mezon?",
+				"answer": "You can discover and join Clans in two ways: through the Discover button within the app or via the Clans Website at mezon.ai/clans, or by using an invite link shared by friends, teammates, or admins. Simply click \"Join\" to become part of the community. Each user can join up to 50 Clans at a time. Check out featured Clans like Student Clan, Gamer Clan, and Business Clan."
+			},
+			{
+				"question": "How Do I Create My Own Clan?",
+				"answer": "Creating a Clan is simple and highly flexible. Navigate to the Clans section and create a new Clan with just a few clicks. You can set a name, icon, and basic settings to customize your community. Once created, you can invite friends and teammates to start conversations, share ideas, or collaborate together. You can also manage channels, set permissions, and transfer ownership if needed."
+			},
+			{
+				"question": "Can I Leave A Clan If I No Longer Want To Participate?",
+				"answer": "Yes, if you no longer wish to participate in a Clan, you can select 'Leave Clan' from the Clan's settings. Once you leave, all message history and access to that Clan's channels will be removed from your account. You can always rejoin the Clan later if you have an invite link or if the Clan is publicly discoverable."
+			}
+		]
+	}
+}

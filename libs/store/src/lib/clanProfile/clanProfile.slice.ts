@@ -7,7 +7,7 @@ import type { ApiUpdateClanProfileRequest } from 'mezon-js';
 import type { ApiClanProfile } from 'mezon-js/api.gen';
 import { accountActions } from '../account/account.slice';
 import { setUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
-import { ensureClient, ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { ensureClient, ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 export const USER_CLAN_PROFILE_FEATURE_KEY = 'userClanProfile';
 
@@ -36,7 +36,11 @@ type fetchUserClanProfilePayload = {
 
 export const fetchUserClanProfile = createAsyncThunk('userclanProfile/userClanProfile', async ({ clanId }: fetchUserClanProfilePayload, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	const response = await mezon.client.getUserProfileOnClan(mezon.session, clanId);
+	const response = await withRetry(() => mezon.client.getUserProfileOnClan(mezon.session, clanId), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'user-clan-profile'
+	});
 	if (!response) {
 		return thunkAPI.rejectWithValue([]);
 	}

@@ -114,14 +114,7 @@ const SettingUserClanProfileEdit: React.FC<SettingUserClanProfileEditProps> = ({
 			}
 			setIsLoading(true);
 
-			const attachment = await handleUploadFile(
-				clientRef.current,
-				sessionRef.current,
-				clanId || '0',
-				userProfile?.user?.id || '0',
-				file.name,
-				file
-			);
+			const attachment = await handleUploadFile(clientRef.current, sessionRef.current, file.name, file);
 			setUrlImage(attachment.url || '');
 			setFlagOption(attachment.url !== userProfile?.user?.avatar_url);
 			setIsLoading(false);

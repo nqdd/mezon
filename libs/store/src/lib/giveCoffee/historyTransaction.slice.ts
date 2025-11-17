@@ -1,7 +1,7 @@
-import { LoadingStatus } from '@mezon/utils';
+import type { LoadingStatus } from '@mezon/utils';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import { ApiTransactionDetail, ApiWalletLedger } from 'mezon-js/api.gen';
-import { ensureSession, getMezonCtx } from '../helpers';
+import type { ApiTransactionDetail, ApiWalletLedger } from 'mezon-js/api.gen';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 
 export const WALLET_LEDGER_FEATURE_KEY = 'walletLedger';
 
@@ -17,7 +17,11 @@ export const fetchListWalletLedger = createAsyncThunk(
 	'walletLedger/fetchList',
 	async ({ page, filter }: { page?: number; filter?: number }, thunkAPI) => {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.listWalletLedger(mezon.session, 8, filter, '', page);
+		const response = await withRetry(() => mezon.client.listWalletLedger(mezon.session, 8, filter, '', page), {
+			maxRetries: 3,
+			initialDelay: 1000,
+			scope: 'wallet-ledger'
+		});
 		return {
 			ledgers: response.wallet_ledger || [],
 			count: response.count || 0,
@@ -28,7 +32,11 @@ export const fetchListWalletLedger = createAsyncThunk(
 
 export const fetchDetailTransaction = createAsyncThunk('walletLedger/fetchDetailTransaction', async ({ transId }: { transId: string }, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	const response = await mezon.client.listTransactionDetail(mezon.session, transId);
+	const response = await withRetry(() => mezon.client.listTransactionDetail(mezon.session, transId), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'transaction-detail'
+	});
 	return {
 		detailLedger: response
 	};

@@ -8,7 +8,7 @@ import type { ApiChannelMessageHeader, ApiNotification } from 'mezon-js/api.gen'
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { MessagesEntity } from '../messages/messages.slice';
 import type { RootState } from '../store';
 
@@ -69,13 +69,21 @@ export const fetchListNotificationCached = async (
 		};
 	}
 
-	const response = await ensuredMezon.client.listNotifications(
-		ensuredMezon.session,
-		clanId,
-		LIMIT_NOTIFICATION,
-		notificationId || '',
-		category,
-		Direction_Mode.BEFORE_TIMESTAMP
+	const response = await withRetry(
+		() =>
+			ensuredMezon.client.listNotifications(
+				ensuredMezon.session,
+				clanId,
+				LIMIT_NOTIFICATION,
+				notificationId || '',
+				category,
+				Direction_Mode.BEFORE_TIMESTAMP
+			),
+		{
+			maxRetries: 3,
+			initialDelay: 1000,
+			scope: 'notifications'
+		}
 	);
 
 	markApiFirstCalled(apiKey);

@@ -7,7 +7,7 @@ import type { ApiPermissionRoleChannelListEventResponse } from 'mezon-js/dist/ap
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import { overriddenPoliciesActions } from '../policies/overriddenPolicies.slice';
 import type { RootState } from '../store';
 
@@ -69,7 +69,11 @@ export const fetchPermissionRoleChannelCached = async (
 		};
 	}
 
-	const response = await ensuredMezon.client.getPermissionByRoleIdChannelId(ensuredMezon.session, roleId, channelId, userId);
+	const response = await withRetry(() => ensuredMezon.client.getPermissionByRoleIdChannelId(ensuredMezon.session, roleId, channelId, userId), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'channel-permissions'
+	});
 
 	markApiFirstCalled(apiKey);
 

@@ -45,16 +45,7 @@ export const processImage = async (
 
 		const imageAvatarResize = imageCropped as File;
 
-		const attachment = await handleUploadFile(
-			clientRef.current,
-			sessionRef.current,
-			clanId,
-			userProfile?.user?.id || '0',
-			imageAvatarResize.name,
-			imageAvatarResize,
-			NaN,
-			true
-		);
+		const attachment = await handleUploadFile(clientRef.current, sessionRef.current, imageAvatarResize.name, imageAvatarResize, NaN, true);
 
 		if (isMounted) {
 			setUrlImage(attachment.url || '');

@@ -1,8 +1,8 @@
 import { useFriends } from '@mezon/core';
 import { ActionEmitEvent, ENotificationActive, ENotificationChannelId } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
 	EStateFriend,
 	deleteChannel,
 	directActions,

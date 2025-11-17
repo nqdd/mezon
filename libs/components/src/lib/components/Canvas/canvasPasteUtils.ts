@@ -1,7 +1,8 @@
 import { handleUploadFile } from '@mezon/transport';
 import { fileTypeImage } from '@mezon/utils';
-import { Client, Session } from 'mezon-js';
-import Quill, { Delta } from 'quill';
+import type { Client, Session } from 'mezon-js';
+import type Quill from 'quill';
+import type { Delta } from 'quill';
 
 export enum CanvasFormatType {
 	PARAGRAPH = 'paragraph',
@@ -109,9 +110,7 @@ export const handlePaste = async ({ event, quillRef, sessionRef, clientRef, curr
 const handleImagePaste = async ({
 	file,
 	sessionRef,
-	clientRef,
-	currentClanId,
-	currentChannelId
+	clientRef
 }: {
 	file: File;
 	sessionRef: React.MutableRefObject<Session | null>;
@@ -132,14 +131,7 @@ const handleImagePaste = async ({
 	}
 
 	try {
-		const attachment = await handleUploadFile(
-			client,
-			session,
-			currentClanId,
-			currentChannelId,
-			file.name || `pasted-image-${Date.now()}.png`,
-			file
-		);
+		const attachment = await handleUploadFile(client, session, file.name || `pasted-image-${Date.now()}.png`, file);
 		return attachment.url || null;
 	} catch (error) {
 		console.error('Error uploading pasted image:', error);

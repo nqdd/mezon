@@ -1,20 +1,11 @@
-import { IOption, IUerMention } from '@mezon/mobile-components';
+import type { IOption, IUerMention } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useNavigation } from '@react-navigation/native';
 import debounce from 'lodash.debounce';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	NativeSyntheticEvent,
-	Platform,
-	Pressable,
-	StatusBar,
-	Text,
-	TextInput,
-	TextInputKeyPressEventData,
-	TouchableOpacity,
-	View
-} from 'react-native';
+import type { NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
+import { Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';

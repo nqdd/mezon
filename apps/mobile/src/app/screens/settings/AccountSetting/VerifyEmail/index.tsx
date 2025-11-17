@@ -58,7 +58,8 @@ export const VerifyEmail = memo(({ navigation, route }: IVerifyEmailProps) => {
 					setIsError(true);
 					Toast.show({
 						type: 'error',
-						text1: t('emailSetting.updateEmail.failed')
+						text1: t('emailSetting.updateEmail.failed'),
+						text2: response?.payload?.message || ''
 					});
 				}
 			} catch (error) {

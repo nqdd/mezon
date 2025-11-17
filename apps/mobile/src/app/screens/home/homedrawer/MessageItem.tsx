@@ -470,7 +470,7 @@ const MessageItem = React.memo(
 								{message?.code === TypeMessage.Topic && message?.content?.isCard && <MessageTopic message={message} />}
 							</View>
 							{message.isError && <Text style={styles.errorTextColor}>{t('unableSendMessage')}</Text>}
-							{!preventAction && !!message?.reactions?.length ? (
+							{message?.reactions?.length ? (
 								<MessageAction
 									userId={userId}
 									message={message}

@@ -9,7 +9,7 @@ import { ETransferType } from 'mmn-client-js';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 import { walletActions } from '../wallet/wallet.slice';
 import { selectAllEmojiSuggestion } from './emojiSuggestion.slice';
@@ -53,7 +53,11 @@ export const fetchEmojiRecentCached = async (getState: () => RootState, ensuredM
 			fromCache: true
 		};
 	}
-	const response = await ensuredMezon.client.emojiRecentList(ensuredMezon.session);
+	const response = await withRetry(() => ensuredMezon.client.emojiRecentList(ensuredMezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'emoji-recent'
+	});
 
 	markApiFirstCalled(apiKey);
 

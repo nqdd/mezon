@@ -11,7 +11,6 @@ import {
 	selectChannelById,
 	selectClanSystemMessage,
 	selectCurrentUserId,
-	selectIsUserBannedInChannel,
 	threadsActions,
 	useAppDispatch,
 	useAppSelector
@@ -69,8 +68,6 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 	}, [originSettingValue, currentSettingValue]);
 
 	const currentUserId = useSelector(selectCurrentUserId);
-
-	const isBannedUser = useSelector((state) => selectIsUserBannedInChannel(state, channelId, currentUserId as string));
 
 	const [isCanManageThread, isCanManageChannel, isAdminstrator, isClanOwner] = usePermissionChecker(
 		[EOverriddenPermission.manageThread, EPermission.manageChannel, EPermission.administrator, EPermission.clanOwner],
@@ -225,7 +222,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					title: t('banList'),
 					expandable: true,
 					icon: <MezonIconCDN icon={IconCDN.hammerIcon} color={themeValue.text} />,
-					isShow: isBannedUser ? isAdminstrator : isCanManageChannel,
+					isShow: isAdminstrator,
 					onPress: () => {
 						navigation.navigate(APP_SCREEN.MENU_CHANNEL.STACK, {
 							screen: APP_SCREEN.MENU_CHANNEL.LIST_BANNED_USERS,

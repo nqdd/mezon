@@ -68,7 +68,7 @@ export function useThreadMessage({ channelId, mode, username }: UseThreadMessage
 			if (attachments && attachments.length > 0) {
 				if (isMobile) {
 					try {
-						uploadedFiles = await getMobileUploadedAttachments({ attachments, channelId, clanId: currentClanId, client, session });
+						uploadedFiles = await getMobileUploadedAttachments({ attachments, client, session });
 					} catch (error: any) {
 						console.error('Error uploading attachments:', error);
 						if (error?.code === 'ENOENT') {
@@ -76,7 +76,7 @@ export function useThreadMessage({ channelId, mode, username }: UseThreadMessage
 						}
 					}
 				} else {
-					uploadedFiles = await getWebUploadedAttachments({ attachments, channelId, clanId: currentClanId, client, session });
+					uploadedFiles = await getWebUploadedAttachments({ attachments, client, session });
 				}
 			}
 

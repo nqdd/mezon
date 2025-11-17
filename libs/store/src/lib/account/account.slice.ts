@@ -9,7 +9,7 @@ import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
 import { walletActions } from '../wallet/wallet.slice';
 export const ACCOUNT_FEATURE_KEY = 'account';
@@ -50,7 +50,11 @@ export const fetchUserProfileCached = async (getState: () => RootState, mezon: M
 		};
 	}
 
-	const response = await mezon.client.getAccount(mezon.session);
+	const response = await withRetry(() => mezon.client.getAccount(mezon.session), {
+		maxRetries: 3,
+		initialDelay: 1000,
+		scope: 'account'
+	});
 
 	markApiFirstCalled(apiKey);
 
@@ -103,44 +107,75 @@ export const deleteAccount = createAsyncThunk('account/deleteaccount', async (_,
 	}
 });
 
-export const addPhoneNumber = createAsyncThunk('account/addPhoneNumber', async (data: ApiLinkAccountMezon, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+export const addPhoneNumber = createAsyncThunk(
+	'account/addPhoneNumber',
+	async ({ data, isMobile = false }: { data: ApiLinkAccountMezon; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkMezon(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/addPhoneNumber');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
 
-		const response = await mezon.client.linkMezon(mezon.session, data);
-
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'account/addPhoneNumber');
-		return thunkAPI.rejectWithValue(error);
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
+			}
+		}
 	}
-});
+);
 
-export const linkEmail = createAsyncThunk('account/linkEmail', async (data: ApiAccountEmail, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.linkEmail(mezon.session, data);
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'account/linkEmail');
-		return thunkAPI.rejectWithValue(error);
+export const linkEmail = createAsyncThunk(
+	'account/linkEmail',
+	async ({ data, isMobile = false }: { data: ApiAccountEmail; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.linkEmail(mezon.session, data);
+			return response;
+		} catch (error) {
+			captureSentryError(error, 'account/linkEmail');
+			if (isMobile) {
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
+			} else {
+				return thunkAPI.rejectWithValue(error);
+			}
+		}
 	}
-});
+);
 
 export const verifyPhone = createAsyncThunk(
 	'account/verifyPhone',
 	async ({ data, isMobile = false }: { data: ApiLinkAccountConfirmRequest; isMobile?: boolean }, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-
 			const response = await mezon.client.confirmLinkMezonOTP(mezon.session, data);
-
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'account/verifyPhone');
 			toast.error(t('accountSetting:setPhoneModal.updatePhoneFail'));
 			if (isMobile) {
-				return thunkAPI.rejectWithValue(error);
+				const err = error as any;
+				let messageData = '';
+
+				if (typeof err?.json === 'function') {
+					const data = await err.json().catch(() => null);
+					messageData = data?.message || '';
+				}
+				return thunkAPI.rejectWithValue({ ...err, message: messageData });
 			}
 		}
 	}
