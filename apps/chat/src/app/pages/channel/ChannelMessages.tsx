@@ -834,7 +834,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (lastMsgId) {
 					const message = entities[lastMsgId];
 
-					if (message && !message.isSending) {
+					if (message && !message?.isSending) {
 						dispatch(
 							channelsActions.setScrollPosition({
 								channelId,
@@ -1139,7 +1139,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const renderedMessages = useMemo(() => {
 			// Use lastSeenAtBottomRef (saved when user was at bottom) or fallback to lastMessageUnreadId
 			const baseUnreadMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
-
 			return messageIds.map((messageId, index) => {
 				const checkMessageTargetToMoved = msgIdJumpHightlight.current === messageId && messageId !== lastMessageId;
 				const messageReplyHighlight = (dataReferences?.message_ref_id && dataReferences?.message_ref_id === messageId) || false;
