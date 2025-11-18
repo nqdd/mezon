@@ -12,19 +12,20 @@ import {
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
 	selectFriendStatus,
-	selectTheme,
 	useAppDispatch,
 	useAppSelector,
 	usersClanActions
 } from '@mezon/store';
+import { Menu as MenuDropdown } from '@mezon/ui';
 import { EPermission } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { CSSProperties, FC } from 'react';
-import { createContext, useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { Menu, useContextMenu } from 'react-contexify';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ModalRemoveMemberClan from '../../components/MemberProfile/ModalRemoveMemberClan';
+import ItemPanel from '../../components/PanelChannel/ItemPanel';
 import { MemberMenuItem } from './MemberMenuItem';
 import type { MemberContextMenuContextType, MemberContextMenuHandlers, MemberContextMenuProps } from './types';
 import { MEMBER_CONTEXT_MENU_ID } from './types';
@@ -159,7 +160,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 	);
 
 	const handleBanChatUser = useCallback(
-		async (userId?: string) => {
+		async (userId: string, banTime: number) => {
 			if (!userId || !currentChannelId || !currentClanId) return;
 
 			try {
@@ -167,7 +168,8 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 					channelMembersActions.banUserChannel({
 						channelId: currentChannelId,
 						userIds: [userId],
-						clanId: currentClanId
+						clanId: currentClanId,
+						banTime: banTime !== Infinity ? banTime : undefined
 					})
 				);
 			} catch (error) {
@@ -251,12 +253,12 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 					handleRemoveMemberFromThread(user.user.id);
 				}
 			},
-			handleBanChat: (isBan: boolean) => {
+			handleBanChat: (isBan: boolean, banTime?: number) => {
 				if (user?.user?.id) {
 					if (isBan) {
 						handleUnBanChatUser(user.user.id);
-					} else {
-						handleBanChatUser(user.user.id);
+					} else if (banTime) {
+						handleBanChatUser(user.user.id, banTime);
 					}
 				}
 			}
@@ -291,9 +293,6 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 		showContextMenu
 	};
 
-	const appearanceTheme = useSelector(selectTheme);
-
-	const isLightMode = appearanceTheme === 'light';
 	const [warningStatus, setWarningStatus] = useState<string>('var(--bg-item-hover)');
 
 	const className: CSSProperties = {
@@ -311,6 +310,21 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 		'--contexify-separator-color': '#ADB3B9',
 		border: '1px solid var(--border-primary)'
 	} as CSSProperties;
+
+	const menuBan = useMemo(() => {
+		if (!currentHandlers) {
+			return <></>;
+		}
+		const menuItems = [
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor15Minutes')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor1Hour')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor3Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor8Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor24Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteUntilTurnedBack')}</ItemPanel>
+		];
+		return <>{menuItems}</>;
+	}, [t, currentHandlers]);
 	return (
 		<MemberContextMenuContext.Provider value={contextValue}>
 			{children}
@@ -344,10 +358,25 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 								setWarningStatus={setWarningStatus}
 							/>
 						)}
-						{shouldShow('banChat') && (
+						{shouldShow('banChat') && !isBan && (
+							<MenuDropdown
+								trigger="hover"
+								menu={menuBan}
+								align={{
+									points: ['bl', 'br']
+								}}
+								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
+							>
+								<div>
+									<ItemPanel dropdown="change here">{t('member.banChat')}</ItemPanel>
+								</div>
+							</MenuDropdown>
+						)}
+
+						{shouldShow('banChat') && isBan && (
 							<MemberMenuItem
-								label={isBan ? t('member.unBanChat') : t('member.banChat')}
-								onClick={() => currentHandlers.handleBanChat(isBan)}
+								label={t('member.unBanChat')}
+								onClick={() => currentHandlers.handleBanChat(true)}
 								isWarning={true}
 								setWarningStatus={setWarningStatus}
 							/>
