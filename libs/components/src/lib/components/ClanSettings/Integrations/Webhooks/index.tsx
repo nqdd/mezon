@@ -45,7 +45,7 @@ const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps
 
 	return (
 		<div className="pb-5">
-			<div className=" text-sm pt-5 text-theme-primary">
+			<div className="font-semibold text-sm pt-5 text-theme-primary">
 				{t('webhookDescription')}
 				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer"> {t('learnMoreWebhook')}</b> {t('orTry')}{' '}
 				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('buildWebhook')}</b>

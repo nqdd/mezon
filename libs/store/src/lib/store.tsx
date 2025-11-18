@@ -26,6 +26,7 @@ import { POLICIES_FEATURE_KEY, policiesDefaultReducer, policiesReducer } from '.
 import { reactionReducer } from './reactionMessage/reactionMessage.slice';
 
 import type { MezonContextValue } from '@mezon/transport';
+import { safeJSONParse } from 'mezon-js';
 import { ACTIVITIES_API_FEATURE_KEY, activitiesAPIReducer } from './activities/activitiesAPI.slice';
 import { adminApplicationReducer } from './application/applications.slice';
 import { attachmentReducer } from './attachment/attachments.slice';
@@ -468,6 +469,51 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 	storeInstance = store;
 	storeCreated = true;
 	const persistor = persistStore(store);
+
+	if (typeof window !== 'undefined') {
+		let lastStorageValue: string | null = null;
+		const handleStorageChange = async (e: StorageEvent) => {
+			if (e.key === 'persist:auth' && e.newValue) {
+				try {
+					if (e.newValue === lastStorageValue) {
+						return;
+					}
+					lastStorageValue = e.newValue;
+
+					const newAuthState = safeJSONParse(e.newValue);
+					const sessionData = newAuthState.session ? safeJSONParse(newAuthState.session) : null;
+					const activeAccount = newAuthState.activeAccount ? safeJSONParse(newAuthState.activeAccount) : null;
+
+					const currentState = store.getState();
+					const currentActiveAccount = currentState.auth?.activeAccount;
+					const currentSession = currentState.auth?.session?.[currentActiveAccount || ''];
+
+					const newSession = sessionData && activeAccount ? sessionData[activeAccount] : null;
+					const hasSessionChanged =
+						newSession?.token !== currentSession?.token || newSession?.refresh_token !== currentSession?.refresh_token;
+
+					console.log(hasSessionChanged, 'hasSessionChanged');
+
+					if (hasSessionChanged) {
+						if (newSession) {
+							window.dispatchEvent(
+								new CustomEvent('mezon:session-refreshed', {
+									detail: { session: newSession }
+								})
+							);
+						} else if (!sessionData) {
+							const { authActions } = await import('./auth/auth.slice');
+							store.dispatch(authActions.setLogout());
+						}
+					}
+				} catch (err) {
+					console.error('[Storage Sync] Failed to sync auth state:', err);
+				}
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+	}
 
 	import('./auth/auth.slice').then(({ setupSessionSyncListener }) => {
 		setupSessionSyncListener(store);

@@ -2,10 +2,13 @@ import { channelsActions, getStore, inviteActions, selectAppChannelById, selectT
 import { Icons } from '@mezon/ui';
 import {
 	EBacktickType,
+	getFacebookEmbedSize,
+	getFacebookEmbedUrl,
 	getTikTokEmbedSize,
 	getTikTokEmbedUrl,
 	getYouTubeEmbedSize,
 	getYouTubeEmbedUrl,
+	isFacebookLink,
 	isTikTokLink,
 	isYouTubeLink
 } from '@mezon/utils';
@@ -274,6 +277,9 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 			{!isReply && isLink && content && isYouTubeLink(content) && (
 				<SocialEmbed url={content} platform="youtube" isSearchMessage={isSearchMessage} isInPinMsg={isInPinMsg} />
 			)}
+			{!isReply && isLink && content && isFacebookLink(content) && (
+				<SocialEmbed url={content} platform="facebook" isSearchMessage={isSearchMessage} isInPinMsg={isInPinMsg} />
+			)}
 			{!isReply && isLink && content && isTikTokLink(content) && <SocialEmbed url={content} platform="tiktok" isInPinMsg={isInPinMsg} />}
 			{!isLink && isBacktick && (typeOfBacktick === EBacktickType.SINGLE || typeOfBacktick === EBacktickType.CODE) ? (
 				<SingleBacktick contentBacktick={content} isInPinMsg={isInPinMsg} isLightMode={isLightMode} posInNotification={posInNotification} />
@@ -359,7 +365,7 @@ const TripleBackticks: React.FC<BacktickOpt> = ({ contentBacktick, isLightMode: 
 	);
 };
 
-type SocialPlatform = 'youtube' | 'tiktok';
+type SocialPlatform = 'youtube' | 'tiktok' | 'facebook';
 
 const SocialEmbed: React.FC<{ url: string; platform: SocialPlatform; isSearchMessage?: boolean; isInPinMsg?: boolean }> = ({
 	url,
@@ -382,6 +388,13 @@ const SocialEmbed: React.FC<{ url: string; platform: SocialPlatform; isSearchMes
 					size: getTikTokEmbedSize(),
 					borderColor: '#ff0050',
 					allowAttributes: 'fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture'
+				};
+			case 'facebook':
+				return {
+					embedUrl: getFacebookEmbedUrl(url),
+					size: getFacebookEmbedSize(),
+					borderColor: '#1877f2',
+					allowAttributes: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share'
 				};
 			default:
 				return null;

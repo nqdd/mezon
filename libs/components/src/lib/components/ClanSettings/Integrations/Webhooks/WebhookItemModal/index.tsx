@@ -226,7 +226,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 						<div className="flex gap-6 w-full">
 							<div className="w-1/2">
 								<div className="dark:text-[#b5bac1] text-textLightTheme text-[12px] mb-[10px]">
-									<b>NAME</b>
+									<b>{t('webhooksEdit.nameLabel').toUpperCase()}</b>
 								</div>
 								<input
 									onChange={(e) =>

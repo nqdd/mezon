@@ -5,7 +5,14 @@
 	"yes": "Có",
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
+	"errorBoundary": {
+		"title": "Ồ, điều này thật khó xử",
+		"crashMessage": "Có vẻ như Mezon đã gặp sự cố bất ngờ....",
+		"trackedMessage": "Chúng tôi đã theo dõi lỗi và sẽ khắc phục ngay lập tức.",
+		"reload": "Tải lại"
+	},
 	"newMessage": "Tin nhắn mới",
+	"newMention": "Đề cập mới",
 	"discover": "Khám phá",
 	"createClan": "Tạo Clan",
 	"closePreviewMode": "Đóng chế độ xem trước",
@@ -45,6 +52,7 @@
 	"gifs": "Gif",
 	"stickers": "Nhãn dán",
 	"emojis": "Biểu cảm",
+	"shop": "Cửa hàng",
 	"sounds": "Âm thanh",
 	"friend": "Bạn bè",
 	"pending": "Đang chờ",
@@ -61,9 +69,9 @@
 	"itemLockedMessage": "Vật phẩm này đã bị khóa. Chi tiêu 500 token để mở vật phẩm này. Bấm xác nhận để mua.",
 	"confirm": "Xác nhận",
 	"everyoneWaitingInside": "Mọi người đang chờ bạn bên trong",
-	"noOneInVoice": "Hiện tại không có ai trong voice",
+	"noOneInVoice": "Hiện không có ai trong phòng",
 	"joining": "Đang tham gia...",
-	"joinVoice": "Tham gia Voice",
+	"joinVoice": "Tham gia thoại",
 	"reset": "Đặt lại",
 	"saveChanges": "Lưu thay đổi",
 	"timeFormat": {
@@ -167,6 +175,9 @@
 	"actions": "Hành động",
 	"copiedCanvasLink": "Đã sao chép liên kết canvas vào bộ nhớ tạm",
 	"forwarded": "Đã chuyển tiếp",
+	"dropFilesToUploadToTopic": "Thả tệp vào đây để tải lên chủ đề",
+	"uploadToChannel": "Tải lên #{{channelName}}",
+	"uploadInstructions": "Bạn có thể thêm bình luận trước khi tải lên. Giữ shift để tải lên trực tiếp.",
 	"searchModal": {
 		"placeholder": "Bạn muốn đi đâu?",
 		"protip": "MẸO HAY:",
@@ -409,5 +420,10 @@
 		"searchPlaceholder": "Tìm kiếm menu nhanh...",
 		"noQuickMenu": "Không tìm thấy menu nhanh nào",
 		"noQuickMenuAvailable": "Không có menu nhanh nào đang khả dụng"
+	},
+	"outputDevice": {
+		"speaker": "Loa ngoài",
+		"earpiece": "Loa thoại",
+		"headphones": "Tai nghe"
 	}
 }

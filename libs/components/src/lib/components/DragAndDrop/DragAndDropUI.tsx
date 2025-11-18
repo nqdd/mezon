@@ -1,6 +1,7 @@
 import { useCurrentInbox, useDragAndDrop } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import type { DragEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type DragAndDropUIProps = {
 	channelID?: string;
@@ -11,6 +12,7 @@ type DragAndDropUIProps = {
 	onDrop: (e: DragEvent<HTMLElement>) => void;
 };
 function DragAndDropUI({ onDrop }: DragAndDropUIProps) {
+	const { t } = useTranslation('common');
 	const currentChannel = useCurrentInbox();
 	const { setDraggingState } = useDragAndDrop();
 
@@ -52,10 +54,12 @@ function DragAndDropUI({ onDrop }: DragAndDropUIProps) {
 				<div className="border-2 border-white w-[90%] h-[86%] rounded-lg border-dashed">
 					<div className="flex flex-col justify-center mt-14">
 						<div className=" w-full flex flex-row justify-center">
-							<h1 className=" font-bold text-2xl mt-[1rem] text-center truncate">Upload To #{currentChannel?.channel_label}</h1>
+							<h1 className=" font-bold text-2xl mt-[1rem] text-center truncate">
+								{t('uploadToChannel', { channelName: currentChannel?.channel_label })}
+							</h1>
 						</div>
 						<div className=" w-full flex flex-row justify-center text-center mt-[1rem]">
-							<p className="w-[85%]">You can add comments before uploading. Hold shift to upload directly.</p>
+							<p className="w-[85%]">{t('uploadInstructions')}</p>
 						</div>
 					</div>
 				</div>

@@ -5,7 +5,14 @@
 	"yes": "Yes",
 	"settings": "Setting",
 	"search": "Search",
+	"errorBoundary": {
+		"title": "Well, this is awkward",
+		"crashMessage": "Looks like Mezon has crashed unexpectedly....",
+		"trackedMessage": "We've tracked the error and will get right on it.",
+		"reload": "Reload"
+	},
 	"newMessage": "New",
+	"newMention": "New mention",
 	"discover": "Discover",
 	"createClan": "Create Clan",
 	"closePreviewMode": "Close preview mode",
@@ -45,6 +52,7 @@
 	"gifs": "Gifs",
 	"stickers": "Stickers",
 	"emojis": "Emojis",
+	"shop": "Shop",
 	"sounds": "Sounds",
 	"friend": "Friend",
 	"pending": "Pending",
@@ -61,7 +69,7 @@
 	"itemLockedMessage": "This item is locked. Spend 500 tokens to open this item. Please purchase to unlock.",
 	"confirm": "Confirm",
 	"everyoneWaitingInside": "Everyone is waiting for you inside",
-	"noOneInVoice": "No one is currently in voice",
+	"noOneInVoice": "No one is currently in room",
 	"joining": "Joining...",
 	"joinVoice": "Join Voice",
 	"reset": "Reset",
@@ -167,6 +175,9 @@
 	"actions": "Actions",
 	"copiedCanvasLink": "Copied canvas link to clipboard",
 	"forwarded": "Forwarded",
+	"dropFilesToUploadToTopic": "Drop files here to upload to topic",
+	"uploadToChannel": "Upload To #{{channelName}}",
+	"uploadInstructions": "You can add comments before uploading. Hold shift to upload directly.",
 	"searchModal": {
 		"placeholder": "Where would you like to go?",
 		"protip": "PROTIP:",
@@ -409,5 +420,10 @@
 		"searchPlaceholder": "Search quick menu...",
 		"noQuickMenu": "No quick menu items found",
 		"noQuickMenuAvailable": "No quick menu items available"
+	},
+	"outputDevice": {
+		"speaker": "Speaker",
+		"earpiece": "Earpiece",
+		"headphones": "Headphones"
 	}
 }

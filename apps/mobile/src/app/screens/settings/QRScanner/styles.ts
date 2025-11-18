@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -208,5 +209,11 @@ export const style = (colors: Attributes) =>
 		buttonTransparent: {
 			backgroundColor: 'transparent',
 			marginTop: size.s_10
+		},
+		buttonTextOutlineWhite: {
+			color: 'white',
+			fontSize: size.s_14,
+			fontWeight: '600',
+			paddingVertical: size.s_2
 		}
 	});

@@ -43,7 +43,7 @@ import { integrationClanWebhookReducer } from './clanWebhook/clanWebhook.slide';
 import { settingChannelReducer } from './clans/clanSettingChannel.slice';
 import { COMPOSE_FEATURE_KEY, composeReducer } from './compose/compose.slice';
 import { COMUNITY_FEATURE_KEY, comunityReducer } from './comunity/comunity.slice';
-import { USER_STATUS_FEATURE_KEY, statusReducer } from './direct/status.slice';
+import { statusReducer, USER_STATUS_FEATURE_KEY } from './direct/status.slice';
 import { audioCallReducer } from './dmcall/audioCall.slice';
 import { DMCallReducer } from './dmcall/dmcall.slice';
 import { dragAndDropReducer } from './dragAndDrop/dragAndDrop.slice';
@@ -58,7 +58,10 @@ import { galleryReducer } from './gallery/gallery.slice';
 import { giveCoffeeReducer } from './giveCoffee/giveCoffee.slice';
 import { walletLedgerReducer } from './giveCoffee/historyTransaction.slice';
 import { EMBED_MESSAGE, embedReducer } from './messages/embedMessage.slice';
-import { channelCategorySettingReducer, defaultNotificationCategoryReducer } from './notificationSetting/notificationSettingCategory.slice';
+import {
+	channelCategorySettingReducer,
+	defaultNotificationCategoryReducer
+} from './notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingReducer } from './notificationSetting/notificationSettingChannel.slice';
 import { defaultNotificationClanReducer } from './notificationSetting/notificationSettingClan.slice';
 import { ONBOARDING_FEATURE_KEY, onboardingReducer } from './onboarding/onboarding.slice';
@@ -66,7 +69,7 @@ import { permissionRoleChannelReducer } from './permissionChannel/permissionRole
 import { pinMessageReducer } from './pinMessages/pinMessage.slice';
 import { OVERRIDDEN_POLICIES_FEATURE_KEY, overriddenPoliciesReducer } from './policies/overriddenPolicies.slice';
 import { QUICK_MENU_FEATURE_KEY, quickMenuReducer } from './quickMenu/quickMenu.slice';
-import { IsShowReducer, RolesClanReducer, roleIdReducer } from './roleclan/roleclan.slice';
+import { IsShowReducer, roleIdReducer, RolesClanReducer } from './roleclan/roleclan.slice';
 import { SEARCH_MESSAGES_FEATURE_KEY, searchMessageReducer } from './searchmessages/searchmessage.slice';
 import { settingStickerReducer } from './settingSticker/settingSticker.slice';
 import { groupCallReducer } from './slices/groupCall.slice';
@@ -98,7 +101,7 @@ const persistedClansReducer = persistReducer(
 	{
 		key: 'clans',
 		storage,
-		blacklist: ['invitePeople']
+		blacklist: ['invitePeople', 'loadingStatus']
 	},
 	clansReducer
 );
@@ -420,6 +423,15 @@ const persistedCompose = persistReducer(
 	composeReducer
 );
 
+const persistedAttachmentReducer = persistReducer(
+	{
+		key: 'attachments',
+		storage,
+		whitelist: ['isSendHDImageMobile']
+	},
+	attachmentReducer
+);
+
 const persistedWalletStore = persistReducer(
 	{
 		key: WALLET_FEATURE_KEY,
@@ -432,7 +444,7 @@ const reducer = {
 	app: persistedAppReducer,
 	account: persistAccountReducer,
 	auth: persistedReducer,
-	attachments: attachmentReducer,
+	attachments: persistedAttachmentReducer,
 	gallery: galleryReducer,
 	clans: persistedClansReducer,
 	channels: persistedChannelReducer,
@@ -519,7 +531,7 @@ export type RootState = ReturnType<typeof storeInstance.getState>;
 
 export type PreloadedRootState = RootState | undefined;
 
-// const LIMIT_CHANNEL_CACHE = 10;
+const LIMIT_CHANNEL_CACHE = 15;
 const limitDataMiddleware: Middleware = () => (next) => (action: any) => {
 	// Check if the action is of type 'persist/REHYDRATE' and the key is 'channels'
 	if (action?.type === 'persist/REHYDRATE' && action?.key === 'channels') {
@@ -532,20 +544,20 @@ const limitDataMiddleware: Middleware = () => (next) => (action: any) => {
 		}
 	}
 	// comment logic cache messages
-	// if (action.type === 'persist/REHYDRATE' && action.key === 'messages') {
-	// 	const { channelMessages } = action.payload || {};
-	// 	if (channelMessages && typeof channelMessages === 'object') {
-	// 		const keys = Object.keys(channelMessages);
-	// 		if (channelMessages && keys?.length > LIMIT_CHANNEL_CACHE) {
-	// 			while (keys.length > LIMIT_CHANNEL_CACHE) {
-	// 				const oldestKey = keys.shift();
-	// 				if (oldestKey) {
-	// 					delete channelMessages[oldestKey];
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
+	if (action.type === 'persist/REHYDRATE' && action.key === 'messages') {
+		const { channelMessages } = action.payload || {};
+		if (channelMessages && typeof channelMessages === 'object') {
+			const keys = Object.keys(channelMessages);
+			if (channelMessages && keys?.length > LIMIT_CHANNEL_CACHE) {
+				while (keys.length > LIMIT_CHANNEL_CACHE) {
+					const oldestKey = keys.shift();
+					if (oldestKey) {
+						delete channelMessages[oldestKey];
+					}
+				}
+			}
+		}
+	}
 	// Pass the action to the next middleware or reducer
 	return next(action);
 };

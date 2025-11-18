@@ -293,11 +293,15 @@ export const authSlice = createSlice({
 		},
 
 		updateSession(state, action: PayloadAction<ISession>) {
-			if (action.payload.user_id && state.session && state.session[action.payload.user_id]) {
-				state.session[action.payload.user_id] = {
-					...state.session[action.payload.user_id],
-					...action.payload
-				};
+			if (action?.payload?.user_id && state.session && state.session[action.payload.user_id]) {
+				const currentSession = state.session[action.payload.user_id];
+
+				if (currentSession.token !== action.payload.token || currentSession.refresh_token !== action.payload.refresh_token) {
+					state.session[action.payload.user_id] = {
+						...currentSession,
+						...action.payload
+					};
+				}
 			}
 		},
 		setLogout(state) {

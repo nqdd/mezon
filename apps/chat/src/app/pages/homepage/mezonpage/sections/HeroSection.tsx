@@ -20,7 +20,9 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 
 	const downloadLinks = {
 		windows: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`,
+		windowsPortable: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`,
 		macos: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`,
+		macosIntel: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`,
 		linux: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
 	};
 
@@ -63,7 +65,8 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					<p className="font-svnAvo text-xl max-md:text-lg text-gray-600 max-w-3xl">
 						<span className="text-purple-600 ">Mezon </span>
 						{t('sections.hero.description')} <span className="text-purple-600 ">{t('sections.hero.talk')}</span>,{' '}
-						{t('sections.hero.play')} {t('sections.hero.and')} <span className="text-purple-600 ">{t('sections.hero.hangOut')}</span>.
+						<span className="text-purple-600 ">{t('sections.hero.play')}</span>
+						{t('sections.hero.and')} <span className="text-purple-600 ">{t('sections.hero.hangOut')}</span>.
 					</p>
 
 					<div className="relative" ref={dropdownRef}>
@@ -75,7 +78,7 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 						</button>
 
 						{isDropdownOpen && (
-							<div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl p-4 min-w-[250px] z-50 border border-purple-200">
+							<div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 bg-white rounded-2xl shadow-2xl p-4 min-w-[250px] z-[9999] border border-purple-200">
 								<div className="text-center mb-3 text-sm  text-gray-700">{t('sections.hero.choosePlatform')}</div>
 								<div className="flex flex-col gap-2">
 									<a
@@ -83,14 +86,28 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
 									>
 										<Icons.Windows className="w-6 h-6 " />
-										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows</span>
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows (Installer)</span>
+									</a>
+									<a
+										href={downloadLinks.windowsPortable}
+										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
+									>
+										<Icons.Windows className="w-6 h-6 " />
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows (Portable)</span>
 									</a>
 									<a
 										href={downloadLinks.macos}
 										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
 									>
 										<Icons.Apple className="w-6 h-6 " />
-										<span className="font-medium text-gray-800 group-hover:text-purple-600">macOS</span>
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">macOS (Apple)</span>
+									</a>
+									<a
+										href={downloadLinks.macosIntel}
+										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
+									>
+										<Icons.Apple className="w-6 h-6 " />
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">macOS (Intel)</span>
 									</a>
 									<a
 										href={downloadLinks.linux}

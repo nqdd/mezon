@@ -12,7 +12,8 @@ import {
 	useAppSelector,
 	voiceActions
 } from '@mezon/store-mobile';
-import { UsersClanEntity } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
+import type { TFunction } from 'i18next';
 import type { Participant, TrackPublication } from 'livekit-client';
 import { DisconnectReason, RoomEvent, Track } from 'livekit-client';
 import LottieView from 'lottie-react-native';
@@ -40,18 +41,19 @@ const RoomViewListener = memo(
 		focusedScreenShare,
 		setFocusedScreenShare,
 		channelId,
-		clanId
+		clanId,
+		t
 	}: {
 		isShowPreCallInterface: boolean;
 		focusedScreenShare: TrackReference;
 		setFocusedScreenShare: any;
 		channelId: string;
 		clanId: string;
+		t: TFunction;
 	}) => {
 		const participants = useParticipants();
 		const dispatch = useAppDispatch();
 		const room: any = useRoomContext();
-		const { t } = useTranslation(['channelVoice']);
 		const voiceInfo = useSelector(selectVoiceInfo);
 
 		useEffect(() => {
@@ -182,6 +184,7 @@ const RoomView = ({
 	const screenCaptureRef = React.useRef(null);
 	const isShowPreCallInterface = useSelector(selectIsShowPreCallInterface);
 	const layoutRef = useRef({ width: 0, height: 0 });
+	const { t } = useTranslation(['channelVoice']);
 
 	const checkOrientation = () => {
 		const { width, height } = Dimensions.get('window');
@@ -277,6 +280,7 @@ const RoomView = ({
 					setFocusedScreenShare={setFocusedScreenShareProp}
 					channelId={channelId}
 					clanId={clanId}
+					t={t}
 				/>
 			</View>
 		);
@@ -304,7 +308,7 @@ const RoomView = ({
 						loop
 						style={localStyles.lottieView}
 					/>
-					<Text style={styles.text}>{`${participantsCount} members will be notified`}</Text>
+					<Text style={styles.text}>{t('membersWillBeNotified', { participantsCount })}</Text>
 				</View>
 			)}
 			<ControlBottomBar
@@ -322,6 +326,7 @@ const RoomView = ({
 				setFocusedScreenShare={setFocusedScreenShareProp}
 				channelId={channelId}
 				clanId={clanId}
+				t={t}
 			/>
 		</View>
 	);

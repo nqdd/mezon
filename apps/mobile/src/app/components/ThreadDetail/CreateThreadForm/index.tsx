@@ -92,14 +92,14 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 			};
 			try {
 				const newThreadResponse = await dispatch(createNewChannel(body));
-				if (newThreadResponse.meta.requestStatus === 'rejected') {
+				if (newThreadResponse?.meta?.requestStatus === 'rejected') {
 					Toast.show({
 						type: 'error',
 						text1: t('threadFailed.title'),
 						text2: t('threadFailed.content')
 					});
 				} else {
-					handleRouteData(newThreadResponse.payload as IChannel);
+					handleRouteData(newThreadResponse?.payload as IChannel);
 					return newThreadResponse?.payload;
 				}
 			} catch (error) {
@@ -131,13 +131,12 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 						dispatch(appActions.setLoadingMainMobile(true));
 						const thread = (await createThread(value)) as ApiChannelDescription;
 						if (thread) {
-							// sleep for waiting server check exist after insert
 							await sleep(100);
 							await dispatch(
 								channelsActions.joinChat({
 									clanId: currentClanId as string,
-									channelId: thread.channel_id as string,
-									channelType: thread.type as number,
+									channelId: thread?.channel_id as string,
+									channelType: thread?.type as number,
 									isPublic: false
 								})
 							);
@@ -155,7 +154,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 							await sendMessageThread(content, mentions, attachments, references, thread, true);
 							await dispatch(
 								messagesActions.fetchMessages({
-									channelId: thread.channel_id as string,
+									channelId: thread?.channel_id as string,
 									isFetchingLatestMessages: true,
 									clanId: currentClanId
 								})
@@ -213,7 +212,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 		if (isTabletLandscape) {
 			navigation.navigate(APP_SCREEN.HOME);
 		} else {
-			navigation.navigate(APP_SCREEN.HOME_DEFAULT);
+			navigation.replace(APP_SCREEN.HOME_DEFAULT);
 		}
 	};
 

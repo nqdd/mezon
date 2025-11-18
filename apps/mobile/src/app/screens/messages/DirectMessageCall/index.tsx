@@ -163,12 +163,9 @@ export const DirectMessageCallMain = memo(({ route }: IDirectMessageCallProps) =
 		if (isAnswerCall) {
 			handleToggleIsConnected(false);
 		}
-		const timer = setTimeout(() => {
-			startCall(isVideoCall, isAnswerCall);
-		}, 1000);
+		startCall(isVideoCall, isAnswerCall);
 
 		return () => {
-			clearTimeout(timer);
 			InCallManager.stop();
 		};
 	}, [isAnswerCall, isVideoCall]);

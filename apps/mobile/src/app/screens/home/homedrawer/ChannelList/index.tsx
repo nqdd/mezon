@@ -95,9 +95,12 @@ const ChannelList = () => {
 				const isActive = item?.id === currentChannelId;
 				const isHaveParentActive = item?.threadIds?.includes(currentChannelId);
 				return (
-					<View key={`${item?.id}_${item?.isFavor}_${index}_ItemChannel}`} style={[item?.threadIds && styles.channelItemWrapper]}>
-						<ChannelListItem data={item} isChannelActive={isActive} isHaveParentActive={isHaveParentActive} />
-					</View>
+					<ChannelListItem
+						key={`${item?.id}_${item?.isFavor}_${index}_ItemChannel}`}
+						data={item}
+						isChannelActive={isActive}
+						isHaveParentActive={isHaveParentActive}
+					/>
 				);
 			}
 		},

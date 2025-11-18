@@ -35,6 +35,7 @@
 		"categoryNamePlaceholder": "Enter your category name here...",
 		"hasWelcomeChannelError": "This category has welcome channel",
 		"deleteCategory": "Delete Category",
+		"deleteCategoryTitle": "Delete Category",
 		"deleteCategoryButton": "Delete category",
 		"cannotBeUndone": "This cannot be undone",
 		"categoryLabel": "Category"

@@ -834,7 +834,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (lastMsgId) {
 					const message = entities[lastMsgId];
 
-					if (message && !message.isSending) {
+					if (message && !message?.isSending) {
 						dispatch(
 							channelsActions.setScrollPosition({
 								channelId,
@@ -1004,7 +1004,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
 						newScrollTop = scrollHeight;
-						shouldUpdateScrollPosition = !message.isSending;
+						shouldUpdateScrollPosition = !message?.isSending;
 					} else if (anchor && !isScrollTopJustUpdatedRef.current) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
@@ -1017,12 +1017,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						} else {
 							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
-							shouldUpdateScrollPosition = !message.isSending;
+							shouldUpdateScrollPosition = !message?.isSending;
 						}
 					} else {
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
-						shouldUpdateScrollPosition = !message.isSending;
+						shouldUpdateScrollPosition = !message?.isSending;
 					}
 
 					return () => {
@@ -1130,13 +1130,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-
-			return () => {
-				if (jumpHighlightTimeoutRef.current) {
-					clearSafeTimeout(jumpHighlightTimeoutRef.current);
-					jumpHighlightTimeoutRef.current = null;
-				}
-			};
 		}, [idMessageToJump, channelId, clearSafeTimeout, dispatch, setSafeTimeout]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);
@@ -1146,7 +1139,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const renderedMessages = useMemo(() => {
 			// Use lastSeenAtBottomRef (saved when user was at bottom) or fallback to lastMessageUnreadId
 			const baseUnreadMessageId = lastSeenAtBottomRef.current || lastMessageUnreadId;
-
 			return messageIds.map((messageId, index) => {
 				const checkMessageTargetToMoved = msgIdJumpHightlight.current === messageId && messageId !== lastMessageId;
 				const messageReplyHighlight = (dataReferences?.message_ref_id && dataReferences?.message_ref_id === messageId) || false;

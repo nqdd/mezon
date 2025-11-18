@@ -1,23 +1,20 @@
 {
 	"joinChannelVoiceBS": {
-		"channelVoice": "Kênh thoại",
-		"noOne": "Chưa có ai ở đây!",
-		"readyTalk": "Khi bạn sẵn sàng nói chuyện, chỉ cần tham gia vào.",
+		"channelVoice": "Phòng thoại",
 		"joinVoice": "Tham gia thoại"
 	},
-	"selectAudioOutput": {
-		"title": "Chọn đầu ra âm thanh",
-		"speaker": "Loa ngoài",
-		"phone": "Điện thoại"
-	},
-	"channelVoiceRoom": {
-		"channelVoice": "Kênh thoại",
-		"addPeople": "Thêm người vào cuộc trò chuyện thoại",
-		"leftTheGroup": "Đã rời nhóm. Những người khác đã được thông báo về sự hiện diện của bạn!"
-	},
-	"noChannelVoice": "Không có kênh thoại",
 	"chat": "Trò chuyện",
+	"membersWillBeNotified": "{{participantsCount}} thành viên sẽ được thông báo",
 	"noDisplay": "Không hiển thị kênh thoại",
+	"videoConnected": "Đã kết nối Video",
+	"voiceConnected": "Đã kết nối Thoại",
+	"turnOffMicrophone": "Tắt microphone",
+	"turnOnMicrophone": "Bật microphone",
+	"turnOffCamera": "Tắt camera",
+	"turnOnCamera": "Bật camera",
+	"stopScreenShare": "Dừng chia sẻ màn hình",
+	"shareYourScreen": "Chia sẻ màn hình",
+	"disconnect": "Ngắt kết nối",
 	"muteModal": {
 		"title": "Tắt tiếng thành viên",
 		"content": "Bạn có chắc muốn tắt tiếng \"{{userName}}\"?",

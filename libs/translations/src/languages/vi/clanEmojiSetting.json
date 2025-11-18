@@ -10,7 +10,8 @@
 		"stickerName": "Tên biểu cảm",
 		"exCatHug": "VD: cat_hug",
 		"thisIsForSale": "Đây là sản phẩm bán",
-		"neverMind": "Bỏ qua"
+		"neverMind": "Bỏ qua",
+		"characters": "Tên phải từ 3 đến 64 ký tự"
 	},
 	"header": {
 		"save": "Lưu"
@@ -29,7 +30,10 @@
 		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của biểu cảm phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
 	},
 	"emojiList": {
-		"slotsDetails": "DANH SÁCH BIỂU CẢM",
+		"slotsDetails": "DANH SÁCH EMOJI",
 		"delete": "Xóa"
-	}
+	},
+	"image": "HÌNH ẢNH",
+	"name": "TÊN",
+	"uploadedBy": "TẢI LÊN BỚI"
 }

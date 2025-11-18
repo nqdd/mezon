@@ -4,11 +4,12 @@ import type { ChannelsEntity } from '@mezon/store-mobile';
 import { getStoreAsync, referencesActions, selectChannelById, selectCurrentDM } from '@mezon/store-mobile';
 import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
+import type { DocumentPickerResponse } from '@react-native-documents/picker';
 import { errorCodes, pick, types } from '@react-native-documents/picker';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Image, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import { useDispatch } from 'react-redux';
@@ -19,6 +20,12 @@ import ShareLocationConfirmModal from '../../../../../components/ShareLocationCo
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import type { EMessageActionType } from '../../enums';
 import { style } from './styles';
+
+type FileWithDimensions = DocumentPickerResponse & {
+	width?: number;
+	height?: number;
+};
+
 export type HeaderAttachmentPickerProps = {
 	currentChannelId?: string;
 	onCancel?: (isForcesKeyboard?: boolean) => void;
@@ -31,12 +38,26 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 	const { t } = useTranslation(['message', 'sharing', 'common']);
 	const dispatch = useDispatch();
 
+	const getImageDimension = useCallback((imageUri: string): Promise<{ width: number; height: number }> => {
+		return new Promise((resolve) => {
+			Image.getSize(
+				imageUri,
+				(width, height) => {
+					resolve({ width, height });
+				},
+				(error) => {
+					console.error('Error getting image dimensions:', error);
+				}
+			);
+		});
+	}, []);
+
 	const onPickFiles = async () => {
 		try {
 			const res = await pick({
 				type: [types.allFiles]
 			});
-			const file = res?.[0];
+			const file = res?.[0] as FileWithDimensions;
 			if (file && isFileSizeExceeded(file as any)) {
 				const maxSize = getMaxFileSize(file as any);
 				const maxSizeMB = Math.round(maxSize / 1024 / 1024);
@@ -50,6 +71,12 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 				});
 				return;
 			}
+			if (!file?.width || !file?.height) {
+				const { width = 0, height = 0 } = await getImageDimension(file?.uri);
+
+				file.width = width;
+				file.height = height;
+			}
 
 			dispatch(
 				referencesActions.setAtachmentAfterUpload({
@@ -59,7 +86,9 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 							filename: file?.name || file?.uri,
 							url: file?.uri || (file as any)?.fileCopyUri,
 							filetype: file?.type,
-							size: file.size as number
+							size: file.size as number,
+							width: file?.width,
+							height: file?.height
 						}
 					]
 				})

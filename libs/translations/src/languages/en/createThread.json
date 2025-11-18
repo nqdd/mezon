@@ -20,7 +20,7 @@
 	"searchThreads": "search threads",
 	"searchThread": "search thread",
 	"threadFailed": {
-		"title": "Created Thread Failed",
+		"title": "Create Thread Failed",
 		"content": "Thread not found or you're not allowed to update"
 	}
 }

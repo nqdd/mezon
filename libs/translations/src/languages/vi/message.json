@@ -93,6 +93,7 @@
 	"tapToSeeAttachment": "Nhấn để xem tệp đính kèm",
 	"findThePerfectReaction": "Tìm biểu cảm hoàn hảo",
 	"findThePerfectGif": "Tìm ảnh động hoàn hảo",
+	"findThePerfectSound": "Tìm nhãn âm thanh hoàn hảo",
 	"findThePerfectSticker": "Tìm nhãn dán hoàn hảo",
 	"searchResult": "Kết quả tìm kiếm",
 	"pinMessage": "Ghim tin nhắn",
@@ -187,7 +188,10 @@
 		"cancel": "Hủy"
 	},
 	"reply": "{{number}} tin nhắn",
+	"numberReplies": "{{number}} tin nhắn",
 	"replies": "Tin nhắn",
+	"forwarded": "Đã chuyển tiếp",
+	"onlyVisibleToRecipient": "Chỉ hiển thị cho người nhận",
 	"attachments": {
 		"image": "Hình ảnh",
 		"video": "Video",

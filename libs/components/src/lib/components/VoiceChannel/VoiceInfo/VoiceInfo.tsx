@@ -17,11 +17,13 @@ import { ChannelType } from 'mezon-js';
 import Tooltip from 'rc-tooltip';
 import type { ReactNode } from 'react';
 import React, { memo, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ButtonCopy } from '../../../components';
 import { useGroupCallSignaling, useGroupCallState } from '../../GroupCall';
 
 const VoiceInfo = React.memo(() => {
+	const { t } = useTranslation('channelVoice');
 	const { userProfile } = useAuth();
 	const dispatch = useAppDispatch();
 	const { toChannelPage, toDmGroupPage, navigate } = useAppNavigation();
@@ -150,7 +152,7 @@ const VoiceInfo = React.memo(() => {
 				<div className="flex flex-col max-w-[200px]">
 					<div className="flex items-center gap-1">
 						<Icons.NetworkStatus defaultSize="w-4 h-4 dark:text-green-600" />
-						<span className="text-green-600 font-medium text-base">{showCamera ? 'Video' : 'Voice'} Connected</span>
+						<span className="text-green-600 font-medium text-base">{t(showCamera ? 'videoConnected' : 'voiceConnected')}</span>
 					</div>
 					<button className="w-fit" onClick={redirectToVoice}>
 						<div className="hover:underline font-medium text-xs text-theme-primary">
@@ -166,7 +168,7 @@ const VoiceInfo = React.memo(() => {
 						overlay={
 							hasMicrophoneAccess ? (
 								<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">
-									{showMicrophone ? 'Turn Off Microphone' : 'Turn On Microphone'}
+									{t(showMicrophone ? 'turnOffMicrophone' : 'turnOnMicrophone')}
 								</span>
 							) : null
 						}
@@ -179,7 +181,7 @@ const VoiceInfo = React.memo(() => {
 					<ButtonControlVoice
 						overlay={
 							hasCameraAccess ? (
-								<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">{showCamera ? 'Turn Off Camera' : 'Turn On Camera'}</span>
+								<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">{t(showCamera ? 'turnOffCamera' : 'turnOnCamera')}</span>
 							) : null
 						}
 						onClick={handleToggleShareCamera}
@@ -189,14 +191,14 @@ const VoiceInfo = React.memo(() => {
 
 				<ButtonControlVoice
 					overlay={
-						<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">{showScreen ? 'Stop screen share' : 'Share Your Screen'}</span>
+						<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">{t(showScreen ? 'stopScreenShare' : 'shareYourScreen')}</span>
 					}
 					onClick={handleToggleShareScreen}
 					icon={showScreen ? <Icons.VoiceScreenShareStopIcon className="w-5 h-5" /> : <Icons.VoiceScreenShareIcon className="w-5 h-5" />}
 				/>
 				<ButtonControlVoice
 					danger={true}
-					overlay={<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">Disconnect</span>}
+					overlay={<span className="bg-[#2B2B2B] p-[6px] text-[14px] rounded">{t('disconnect')}</span>}
 					onClick={leaveVoice}
 					icon={<Icons.EndCall className="w-5 h-5" />}
 				/>

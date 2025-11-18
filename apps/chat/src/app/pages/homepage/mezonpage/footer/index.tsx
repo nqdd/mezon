@@ -117,7 +117,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								Media Kit
 							</a>
 							<a
-								href="https://mezon.ai/blogs/contact"
+								href="https://mezon.ai/contact-us"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -125,7 +125,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								Contact
 							</a>
 							<a
-								href="https://mezon.ai/blogs/mezon-clan"
+								href="https://mezon.ai/clans/"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -139,7 +139,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Legal</h3>
 						<div className="space-y-2 md:space-y-3">
 							<a
-								href="https://mezon.ai/blogs/privacy-policy"
+								href="https://doc-hosting.flycricket.io/mezon/87aa352a-ee20-4b2d-9866-e858f2dd5bd6/privacy"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -147,7 +147,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								Privacy Policy
 							</a>
 							<a
-								href="https://mezon.ai/blogs/terms-of-service"
+								href="https://mezon.ai/terms-of-service"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -185,7 +185,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								</button>
 
 								{isOpen && (
-									<div className="absolute mt-3 bg-[#6B21A8] rounded-lg shadow-lg border border-white/20 p-2 z-10">
+									<div className="absolute mt-3 bg-[#6B21A8] rounded-lg shadow-lg border border-white/20 p-2 z-[9999]">
 										<a
 											className="cursor-pointer leading-none block p-2 hover:bg-[#7E22CE] rounded transition-colors"
 											href={downloadUrl}

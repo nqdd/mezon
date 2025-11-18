@@ -68,7 +68,8 @@ export const InputSearch: React.FC = () => {
 				return t('findThePerfectSticker');
 			case SubPanelName.GIFS:
 				return t('findThePerfectGif');
-
+			case SubPanelName.SOUNDS:
+				return t('findThePerfectSound');
 			default:
 				break;
 		}
