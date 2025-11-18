@@ -60,6 +60,7 @@ export * from './canvasLink';
 export * from './convertMessageToHtml';
 export * from './dateI18n';
 export * from './detectTokenMessage';
+export * from './embed-social';
 export * from './file';
 export * from './forceReflow';
 export * from './heavyAnimation';
@@ -1194,43 +1195,6 @@ export const isElementInViewport = (element: HTMLElement) => {
 		rect.right <= (window.innerWidth || document.documentElement.clientWidth)
 	);
 };
-
-export function isYouTubeLink(url: string): boolean {
-	return /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|e\/|shorts\/)|youtu\.be\/)/.test(url);
-}
-
-export function getYouTubeEmbedUrl(url: string): string {
-	// check xss
-	const match = url.match(/(?:youtube\.com\/(?:watch\?v=|v\/|e\/|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-	return match ? `https://www.youtube.com/embed/${match[1]}` : '';
-}
-
-export function isYouTubeShorts(url: string) {
-	return /youtube\.com\/shorts\//.test(url);
-}
-
-export function getYouTubeEmbedSize(url: string, isSearchMessage?: boolean) {
-	if (isYouTubeShorts(url)) {
-		return { width: '169px', height: '300px' };
-	}
-	if (isSearchMessage) {
-		return { width: `${400 * 0.65}px`, height: `${225 * 0.65}px` };
-	}
-	return { width: '400px', height: '225px' };
-}
-
-export function isTikTokLink(url: string): boolean {
-	return /(?:tiktok\.com\/@[^/]+\/video\/\d+|vm\.tiktok\.com\/[a-zA-Z0-9]+|tiktok\.com\/t\/[a-zA-Z0-9]+)/.test(url);
-}
-
-export function getTikTokEmbedUrl(url: string): string {
-	const match = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
-	return match ? `https://www.tiktok.com/player/v1/${match[1]}` : '';
-}
-
-export function getTikTokEmbedSize() {
-	return { width: '253px', height: '450px' };
-}
 
 export const formatMoney = (number: number) => {
 	if (number === 0) {
