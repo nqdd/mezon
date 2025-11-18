@@ -450,9 +450,6 @@ const limitDataMiddleware: Middleware = () => (next) => (action: any) => {
 	return next(action);
 };
 
-// No custom middleware needed - redux-persist handles storage updates
-// Storage event listener handles cross-tab sync
-
 export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRootState) => {
 	const store = configureStore({
 		reducer,
@@ -494,6 +491,8 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 					const newSession = sessionData && activeAccount ? sessionData[activeAccount] : null;
 					const hasSessionChanged =
 						newSession?.token !== currentSession?.token || newSession?.refresh_token !== currentSession?.refresh_token;
+
+					console.log(hasSessionChanged, 'hasSessionChanged');
 
 					if (hasSessionChanged) {
 						if (newSession) {
