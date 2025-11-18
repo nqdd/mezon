@@ -61,6 +61,8 @@
 	"transfer": "Chuyển",
 	"transferFunds": "Chuyển tiền",
 	"noPermissionToSendMessage": "Bạn không có quyền gửi tin nhắn trong kênh này.",
+	"timeout": "Cấm",
+	"timeoutDesc": "Bạn không thể gửi tin nhắn, phản hồi, chuyển tiếp trong thời gian bị cấm.",
 	"resetApp": "Đặt lại ứng dụng",
 	"launchApp": "Khởi chạy ứng dụng",
 	"help": "Trợ giúp",

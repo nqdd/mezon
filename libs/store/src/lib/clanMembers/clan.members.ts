@@ -365,8 +365,11 @@ export const UsersClanSlice = createSlice({
 				}
 			});
 		},
-		addBannedUser: (state, action: PayloadAction<{ clanId: string; channelId: string; userIds: string[]; banner_id: string }>) => {
-			const { clanId, channelId, userIds, banner_id } = action.payload;
+		addBannedUser: (
+			state,
+			action: PayloadAction<{ clanId: string; channelId: string; userIds: string[]; banner_id?: string; ban_time?: number }>
+		) => {
+			const { clanId, channelId, userIds, banner_id, ban_time } = action.payload;
 			const banList: Update<UsersClanEntity, string>[] = userIds.map((id) => {
 				const oldBanList = state.byClans?.[clanId]?.entities?.entities[id].ban_list || {};
 				return {
@@ -374,7 +377,10 @@ export const UsersClanSlice = createSlice({
 					changes: {
 						ban_list: {
 							...oldBanList,
-							[channelId]: banner_id
+							[channelId]: {
+								banner_id,
+								ban_time: ban_time ? Date.now() + (ban_time || 0) : ban_time
+							}
 						}
 					}
 				};
@@ -404,14 +410,20 @@ export const UsersClanSlice = createSlice({
 			const updates: Update<UsersClanEntity, string>[] = [];
 			for (let i = 0; i < users.length; i++) {
 				const user = users[i];
-				if (!user.is_banned) continue;
+				if (!user?.is_banned) continue;
 
 				if (!user?.user_id) return;
 				const userEntity = clanEntities[user.user_id];
 				if (!userEntity) continue;
 
 				const oldBanList = userEntity.ban_list || {};
-				const newBanList = { ...oldBanList, [channelId]: '' };
+				const newBanList = {
+					...oldBanList,
+					[channelId]: {
+						ban_time: user?.expired_ban_time ? Date.now() + (user?.expired_ban_time || 0) : undefined,
+						banner_id: ''
+					}
+				};
 				updates.push({
 					id: user.user_id,
 					changes: { ban_list: newBanList }
@@ -465,14 +477,22 @@ export const UsersClanSlice = createSlice({
 					if (!state.byClans[clanId]) {
 						state.byClans[clanId] = getInitialClanState();
 					}
-					const grouped: Record<string, Record<string, string>> = {};
+					const grouped: Record<string, Record<string, { banner_id?: string; ban_time?: number }>> = {};
 
 					for (const user of ban_list) {
 						if (!user.banned_id || !user.channel_id) continue;
 						if (grouped[user.banned_id]) {
-							grouped[user.banned_id][user.channel_id] = user.banner_id || '';
+							grouped[user.banned_id][user.channel_id] = {
+								banner_id: user.banner_id || '',
+								ban_time: user?.ban_time ? Date.now() + (user?.ban_time || 0) : user?.ban_time
+							};
 						} else {
-							grouped[user.banned_id] = { [user.channel_id]: user.banner_id || '' };
+							grouped[user.banned_id] = {
+								[user.channel_id]: {
+									banner_id: user.banner_id || '',
+									ban_time: user?.ban_time ? Date.now() + (user?.ban_time || 0) : user?.ban_time
+								}
+							};
 						}
 					}
 
@@ -622,7 +642,7 @@ export const selectBanMemberCurrentClanById = createSelector(
 	(state, clanId, channelId, userId) => {
 		const clanState = state.byClans?.[clanId]?.entities;
 		if (!clanState) return false;
-		return Object.prototype.hasOwnProperty.call(selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list || {}, channelId);
+		return selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list?.[channelId];
 	}
 );
 export const selectBanMemberByChannelId = createSelector(

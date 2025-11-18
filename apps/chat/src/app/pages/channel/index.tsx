@@ -35,13 +35,19 @@ import {
 	selectStatusMenu,
 	selectToCheckAppIsOpening,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ApiChannelAppResponseExtend } from '@mezon/utils';
 import {
 	DONE_ONBOARDING_STATUS,
 	EOverriddenPermission,
+	FOR_10_MINUTES_SEC,
+	FOR_1_HOUR_SEC,
+	FOR_24_HOURS_SEC,
+	ONE_MILISECONDS,
+	ONE_MINUTE_MS,
 	ParticipantMeetState,
 	SubPanelName,
 	generateE2eId,
@@ -199,8 +205,18 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
 	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
 	const isBanned = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannel.id, userId as string));
+	if (isBanned) {
+		return (
+			<BanCountDown
+				userId={userId || ''}
+				clanId={currentClanId || ''}
+				channelId={currentChannel.id}
+				banTime={isBanned.ban_time ? isBanned.ban_time - Date.now() : Infinity}
+			/>
+		);
+	}
 
-	if (!canSendMessageDelayed || isBanned) {
+	if (!canSendMessageDelayed) {
 		return (
 			<div
 				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
@@ -501,5 +517,83 @@ const OnboardingGuide = ({
 				</div>
 			) : null}
 		</>
+	);
+};
+
+const BanCountDown = ({ banTime, clanId, channelId, userId }: { banTime: number; clanId: string; channelId: string; userId: string }) => {
+	const dispatch = useDispatch();
+	const { t } = useTranslation('common');
+	const [time, setTime] = useState<number | null>(null);
+	const countdown = useMemo(() => {
+		if (banTime > FOR_24_HOURS_SEC) {
+			return t('timeFormat.timeAgo.days', { count: Math.round(banTime / FOR_24_HOURS_SEC) });
+		}
+		if (banTime < FOR_10_MINUTES_SEC * 6) {
+			return t('timeFormat.timeAgo.minutes', { count: Math.round(banTime / 60) });
+		}
+		if (banTime > FOR_1_HOUR_SEC) {
+			return t('timeFormat.timeAgo.hours', { count: Math.round(banTime / FOR_1_HOUR_SEC) });
+		}
+		return null;
+	}, []);
+
+	useEffect(() => {
+		if (banTime < 0) {
+			dispatch(
+				usersClanActions.removeBannedUser({
+					clanId,
+					channelId,
+					userIds: [userId]
+				})
+			);
+			return;
+		}
+		if (banTime < FOR_10_MINUTES_SEC) {
+			const timer = setTimeout(
+				() => {
+					setTime(banTime < 60 ? banTime : 60);
+				},
+				banTime * ONE_MILISECONDS - ONE_MINUTE_MS
+			);
+			return () => clearTimeout(timer);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (time === null) return;
+		if (time <= 0) {
+			dispatch(
+				usersClanActions.removeBannedUser({
+					clanId,
+					channelId,
+					userIds: [userId]
+				})
+			);
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			setTime(time - 1);
+		}, 1000);
+
+		return () => clearTimeout(timer);
+	}, [time]);
+
+	return (
+		<div className="flex h-12 gap-3 items-center opacity-80 bg-theme-contexify text-theme-primary-active ml-4 mb-4 p-2 w-widthInputViewChannelPermission rounded">
+			<svg width="28" height="28" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+				<path
+					fill="#e03c47"
+					d="M33.77 15.39H22.23A3.69 3.69 0 0 1 19 13.56c0-.09-.09-.18-.13-.27v5.11l5 3.39a1 1 0 0 1-1.11 1.66l-5.9-4v-8.7a1 1 0 0 1 1.91-.41 4 4 0 0 1 .23-.45L20.74 7A11.2 11.2 0 0 0 18 6.6a11.39 11.39 0 0 0-2.69 22.47L15 30.63A13 13 0 0 1 18 5a12.8 12.8 0 0 1 3.57.51l1.53-2.66A16 16 0 1 0 34 18a16 16 0 0 0-.23-2.61"
+				/>
+				<path fill="#e03c47" d="M26.85 1.14 21.13 11a1.28 1.28 0 0 0 1.1 2h11.45a1.28 1.28 0 0 0 1.1-2l-5.72-9.86a1.28 1.28 0 0 0-2.21 0" />
+			</svg>
+			<div className="flex flex-col gap-1 flex-1">
+				<span className="leading-[14px] font-semibold text-sm">{t('timeout')}</span>
+				<span className="leading-3 text-xs">{t('timeoutDesc')}</span>
+			</div>
+
+			<span>{time ? `${time}s` : banTime !== Infinity && countdown}</span>
+		</div>
 	);
 };
