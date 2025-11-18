@@ -36,8 +36,8 @@ export const ComunityPaymentsSection = () => {
 
 	return (
 		<section ref={sectionRef} className="relative w-full bg-[#e6ebf0] py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
-			<div className="max-w-[1600px] 2xl:max-w-[2400px]  mx-auto px-10">
-				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse ">
+			<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
+				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse gap-8 lg:gap-12 xl:gap-16">
 					<div
 						ref={imageRef}
 						className={`flex-shrink-0 transition-all duration-700 relative ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
@@ -48,7 +48,7 @@ export const ComunityPaymentsSection = () => {
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/payment.webp"
 							alt="Customize"
-							className="max-w-[34vw] lg:max-w-[32vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
+							className="max-w-[68vw] lg:max-w-[34vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
 							loading="lazy"
 							onLoad={() => setImageLoaded(true)}
 						/>
@@ -56,7 +56,7 @@ export const ComunityPaymentsSection = () => {
 
 					<div
 						ref={contentRef}
-						className={`flex flex-col justify-center items-center pl-8 lg:pl-16 xl:pl-24 max-lg:px-4 transition-all duration-700 delay-300 ${
+						className={`flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4 transition-all duration-700 delay-300 ${
 							isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
 						}`}
 					>
