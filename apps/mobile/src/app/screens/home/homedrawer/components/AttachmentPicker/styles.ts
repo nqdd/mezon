@@ -9,7 +9,7 @@ export const style = (colors: Attributes) =>
 			minHeight: Metrics.screenHeight * 0.8
 		},
 		wrapperHeader: {
-			paddingHorizontal: size.s_10,
+			paddingHorizontal: size.s_16,
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			gap: size.s_10,
@@ -18,7 +18,7 @@ export const style = (colors: Attributes) =>
 		buttonHeader: {
 			width: '30%',
 			gap: size.s_6,
-			paddingVertical: size.s_14,
+			paddingVertical: size.s_10,
 			borderRadius: size.s_20,
 			backgroundColor: colors.secondaryLight,
 			flexDirection: 'row',
@@ -28,8 +28,8 @@ export const style = (colors: Attributes) =>
 		buttonAlbum: {
 			width: '35%',
 			gap: size.s_6,
-			paddingVertical: size.s_14,
-			borderRadius: size.s_20,
+			paddingVertical: size.s_8,
+			borderRadius: size.s_10,
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'center'
