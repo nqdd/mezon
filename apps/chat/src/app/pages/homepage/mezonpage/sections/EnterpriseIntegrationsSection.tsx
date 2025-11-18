@@ -48,7 +48,7 @@ export const EnterpriseIntegrationsSection = () => {
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/integrationn.webp"
 							alt="Voice Channel"
-							className="max-w-[35vw] lg:max-w-[32vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
+							className="max-w-[68vw] lg:max-w-[35vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
 							loading="lazy"
 							onLoad={() => setImageLoaded(true)}
 						/>

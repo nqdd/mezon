@@ -6,6 +6,7 @@ import type { IEmojiOnMessage, RequestInput } from '@mezon/utils';
 import { EmojiPlaces, MAX_LENGTH_MESSAGE_BUZZ, ThemeApp, TypeMessage, generateE2eId } from '@mezon/utils';
 import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { OnChangeHandlerFunc } from 'react-mentions';
 import { Mention, MentionsInput } from 'react-mentions';
 import { useSelector } from 'react-redux';
@@ -20,6 +21,7 @@ type ModalInputMessageBuzzProps = {
 };
 
 const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentChannel, mode, closeBuzzModal }) => {
+	const { t } = useTranslation('messageBuzz');
 	const { sendMessage } = useChatSending({ channelOrDirect: currentChannel || undefined, mode });
 	const [inputRequest, setInputRequest] = useState<RequestInput>({ content: '', mentionRaw: [], valueTextInput: '' });
 	const panelRef = useRef(null);
@@ -131,7 +133,7 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 			<div ref={panelRef} className="bg-theme-setting-primary p-4 rounded-lg w-[400px]">
 				<div className="flex justify-between mb-4">
 					<h3 className="text-lg font-bold " data-e2e={generateE2eId('chat.direct_message.message_buzz.header')}>
-						Enter your message buzz
+						{t('enterMessage')}
 					</h3>
 					<button
 						onClick={handleClosePopup}
@@ -153,7 +155,7 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 						forceSuggestionsAboveCursor={true}
 						style={appearanceTheme === ThemeApp.Light ? lightMentionsInputStyle : darkMentionsInputStyle}
 						customSuggestionsContainer={(children: React.ReactNode) => {
-							return <CustomModalMentions children={children} titleModalMention={'Emoji matching'} />;
+							return <CustomModalMentions children={children} titleModalMention={t('emojiMatching')} />;
 						}}
 						maxLength={MAX_LENGTH_MESSAGE_BUZZ}
 						data-e2e={generateE2eId('chat.direct_message.message_buzz.input.message')}
@@ -183,7 +185,7 @@ const ModalInputMessageBuzz: React.FC<ModalInputMessageBuzzProps> = ({ currentCh
 						className="w-[70px] flex justify-center items-center px-4 py-2 btn-primary btn-primary-hover rounded-lg "
 						data-e2e={generateE2eId('chat.direct_message.message_buzz.button.send')}
 					>
-						Send
+						{t('send')}
 					</button>
 				</div>
 			</div>

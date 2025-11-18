@@ -1130,13 +1130,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-
-			return () => {
-				if (jumpHighlightTimeoutRef.current) {
-					clearSafeTimeout(jumpHighlightTimeoutRef.current);
-					jumpHighlightTimeoutRef.current = null;
-				}
-			};
 		}, [idMessageToJump, channelId, clearSafeTimeout, dispatch, setSafeTimeout]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);

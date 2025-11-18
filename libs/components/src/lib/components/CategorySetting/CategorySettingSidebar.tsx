@@ -84,7 +84,7 @@ const CategorySettingSidebar: React.FC<ICategorySettingSidebarProps> = ({
 						handleCancel={() => setShowModal(false)}
 						modalName={category?.category_name || ''}
 						handleConfirm={confirmDeleteCategory}
-						title="delete"
+						title={t('categoryOverview.deleteCategoryTitle')}
 						buttonName={t('categoryOverview.deleteCategoryButton')}
 						message={t('categoryOverview.cannotBeUndone')}
 						customModalName={t('categoryOverview.categoryLabel')}

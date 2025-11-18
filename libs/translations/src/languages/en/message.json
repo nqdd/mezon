@@ -192,6 +192,8 @@
 	"reply": "{{number}} reply",
 	"numberReplies": "{{number}} replies",
 	"replies": "Replies",
+	"forwarded": "Forwarded",
+	"onlyVisibleToRecipient": "Only visible to recipient",
 	"attachments": {
 		"image": "Image",
 		"video": "Video",

@@ -1,10 +1,11 @@
 'use client';
 
 import mezonPackage from '@mezon/package-js';
+import { Icons } from '@mezon/ui';
 import { getPlatform, Platform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DownloadButton } from '../homepage/mezonpage/components';
+import { ModalDownload } from '../homepage/mezonpage/components';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
 
@@ -14,6 +15,7 @@ const ClanDetailPage = () => {
 	const version = mezonPackage.version;
 	const [imageLoaded, setImageLoaded] = useState(false);
 	const [openFAQ, setOpenFAQ] = useState<number | null>(0);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const downloadUrl: string =
 		platform === Platform.MACOS
@@ -217,7 +219,13 @@ const ClanDetailPage = () => {
 										{t('sections.section1.description')}
 									</p>
 								</div>
-								<DownloadButton buttonText={t('download')} />
+								<button
+									onClick={() => setIsModalOpen(true)}
+									className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								>
+									<span>{t('download')}</span>
+									<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
@@ -246,7 +254,13 @@ const ClanDetailPage = () => {
 										{t('sections.section2.description')}
 									</p>
 								</div>
-								<DownloadButton buttonText={t('download')} />
+								<button
+									onClick={() => setIsModalOpen(true)}
+									className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								>
+									<span>{t('download')}</span>
+									<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
@@ -326,7 +340,13 @@ const ClanDetailPage = () => {
 										{t('sections.section3.description')}
 									</p>
 								</div>
-								<DownloadButton buttonText={t('download')} />
+								<button
+									onClick={() => setIsModalOpen(true)}
+									className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								>
+									<span>{t('download')}</span>
+									<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
@@ -355,7 +375,13 @@ const ClanDetailPage = () => {
 										{t('sections.section4.description')}
 									</p>
 								</div>
-								<DownloadButton buttonText={t('download')} />
+								<button
+									onClick={() => setIsModalOpen(true)}
+									className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								>
+									<span>{t('download')}</span>
+									<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
@@ -384,7 +410,13 @@ const ClanDetailPage = () => {
 										{t('sections.section5.description')}
 									</p>
 								</div>
-								<DownloadButton buttonText={t('download')} />
+								<button
+									onClick={() => setIsModalOpen(true)}
+									className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								>
+									<span>{t('download')}</span>
+									<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								</button>
 							</div>
 						</div>
 					</div>
@@ -434,17 +466,12 @@ const ClanDetailPage = () => {
 										className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-[#eef0f3] transition-colors duration-200"
 									>
 										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
-											<span className="text-slate-700 mt-1 transition-all duration-300">{openFAQ === index ? '✓' : '>'}</span>
+											<span className="text-slate-700 mt-1 transition-all duration-300">
+												{openFAQ === index ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
+											</span>
+
 											<span>{faq.question}</span>
 										</span>
-										<svg
-											className={`faq-icon w-5 h-5 text-slate-600 flex-shrink-0 ${openFAQ === index ? 'rotate-180' : 'rotate-0'}`}
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-										>
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-										</svg>
 									</button>
 									<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
 										<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
@@ -469,9 +496,9 @@ const ClanDetailPage = () => {
 				</div>
 			</section>
 
+			<ModalDownload isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
 		</div>
 	);
 };
-
 export default ClanDetailPage;

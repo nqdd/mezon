@@ -1,9 +1,11 @@
 import { restoreLocalStorage } from '@mezon/store';
 import { Image } from '@mezon/ui';
 import isElectron from 'is-electron';
+import { useTranslation } from 'react-i18next';
 import { useRouteError } from 'react-router-dom';
 
 const ErrorRoutes = () => {
+	const { t } = useTranslation('common');
 	const error = useRouteError();
 	console.error(error);
 
@@ -39,15 +41,15 @@ const ErrorRoutes = () => {
 				<div className="flex justify-center">
 					<Image src={`assets/images/error-boundary.svg`} />
 				</div>
-				<h2 className="mt-6 text-2xl leading-[8px] mb-4 font-semibold text-center text-white leading-none">Well, this is awkward</h2>
-				<p className="m-3.5 text-base leading-none">Looks like Mezon has crashed unexpectedly....</p>
-				<p className="m-3.5 text-base leading-none">We've tracked the error and will get right on it.</p>
+				<h2 className="mt-6 text-2xl leading-[8px] mb-4 font-semibold text-center text-white leading-none">{t('errorBoundary.title')}</h2>
+				<p className="m-3.5 text-base leading-none">{t('errorBoundary.crashMessage')}</p>
+				<p className="m-3.5 text-base leading-none">{t('errorBoundary.trackedMessage')}</p>
 				<div className="mt-6">
 					<button
 						className="bg-[#5864f2] hover:bg-indigo-600 text-white font-medium w-[130px] h-[44px] px-4 rounded text-sm"
 						onClick={handleClick}
 					>
-						Reload
+						{t('errorBoundary.reload')}
 					</button>
 				</div>
 			</div>

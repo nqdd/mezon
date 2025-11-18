@@ -5,7 +5,14 @@
 	"yes": "Yes",
 	"settings": "Setting",
 	"search": "Search",
+	"errorBoundary": {
+		"title": "Well, this is awkward",
+		"crashMessage": "Looks like Mezon has crashed unexpectedly....",
+		"trackedMessage": "We've tracked the error and will get right on it.",
+		"reload": "Reload"
+	},
 	"newMessage": "New",
+	"newMention": "New mention",
 	"discover": "Discover",
 	"createClan": "Create Clan",
 	"closePreviewMode": "Close preview mode",
@@ -167,6 +174,9 @@
 	"actions": "Actions",
 	"copiedCanvasLink": "Copied canvas link to clipboard",
 	"forwarded": "Forwarded",
+	"dropFilesToUploadToTopic": "Drop files here to upload to topic",
+	"uploadToChannel": "Upload To #{{channelName}}",
+	"uploadInstructions": "You can add comments before uploading. Hold shift to upload directly.",
 	"searchModal": {
 		"placeholder": "Where would you like to go?",
 		"protip": "PROTIP:",

@@ -52,6 +52,8 @@ const MezonPage = lazy(() => import(/* webpackChunkName: "homepage" */ '../pages
 const AboutMezon = lazy(() => import(/* webpackChunkName: "about" */ '../pages/aboutmezon'));
 const InvitePage = lazy(() => import(/* webpackChunkName: "invite-pages" */ '../pages/invite'));
 const TextChannelPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/textchannel'));
+const TermOfServicePage = lazy(() => import(/* webpackChunkName: "termofservice-page" */ '../pages/termofservices'));
+const ContactUsPage = lazy(() => import(/* webpackChunkName: "contactus-page" */ '../pages/contactus'));
 const MezonDongPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/mezondong'));
 const IntegrationsPage = lazy(() => import(/* webpackChunkName: "integrations-page" */ '../pages/integrations'));
 const ClanDetailPage = lazy(() => import(/* webpackChunkName: "clandetail-page" */ '../pages/clandetail'));
@@ -215,6 +217,22 @@ export const Routes = memo(() => {
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<TextChannelPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/contact-us',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<ContactUsPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/term-of-service',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<TermOfServicePage />
 							</Suspense>
 						)
 					},

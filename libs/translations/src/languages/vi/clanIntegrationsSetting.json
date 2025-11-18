@@ -20,6 +20,7 @@
 		"save": "Lưu",
 		"cancel": "Hủy",
 		"channel": "Kênh",
+		"nameLabel": "Tên",
 		"recommendImage": "Khuyến nghị sử dụng hình ảnh có kích thước tối thiểu 128x128 px",
 		"webhookURL": "URL Webhook",
 		"copy": "Sao chép",
@@ -30,7 +31,7 @@
 		"deleteCaptionHook": "Xóa Webhook",
 		"deleteWebhookConfirmation": "Bạn có chắc chắn muốn xóa webhook {{webhookName}}? Hành động này không thể hoàn tác.",
 		"resetToken": "Đặt lại token",
-		"name": "Tên webhook"
+		"name": "TÊN"
 	},
 	"webhooksEmpty": {
 		"noWebhooks": "KHÔNG CÓ WEBHOOK",
