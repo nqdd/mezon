@@ -19,7 +19,7 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
 	const updateDimensions = () => {
-		if (asideEl.current) {
+		if (asideEl.current?.offsetWidth && asideEl.current?.offsetHeight) {
 			setDimensions({
 				width: asideEl.current.offsetWidth,
 				height: asideEl.current.offsetHeight
@@ -41,9 +41,10 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 
 	const tilesThatFit = Math.max((width - scrollBarWidth) / Math.max(height * ASPECT_RATIO, MIN_WIDTH), MIN_VISIBLE_TILES);
 
-	let maxVisibleTiles = Math.round(tilesThatFit);
+	let maxVisibleTiles = Math.floor(tilesThatFit);
+
 	if (Math.abs(tilesThatFit - prevTiles) < 0.5) {
-		maxVisibleTiles = Math.round(prevTiles);
+		maxVisibleTiles = Math.floor(prevTiles);
 	} else if (prevTiles !== tilesThatFit) {
 		setPrevTiles(tilesThatFit);
 	}
