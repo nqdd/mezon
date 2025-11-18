@@ -140,3 +140,15 @@ export const removeDiacritics = (str) => {
 		.replace(/đ/g, 'd')
 		.replace(/Đ/g, 'D');
 };
+
+export const maskEmail = (email: string) => {
+	if (!email) return '';
+	const atIndex = email.indexOf('@');
+	return `${'*'.repeat(atIndex)}${email.slice(atIndex)}`;
+};
+
+export const maskPhoneNumber = (phone: string) => {
+	if (!phone) return '';
+	if (phone.length <= 4) return phone;
+	return `${'*'.repeat(phone.length - 4)}${phone.slice(-4)}`;
+};
