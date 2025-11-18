@@ -1,8 +1,9 @@
 import { size, useTheme } from '@mezon/mobile-ui';
+import { useTranslation } from 'react-i18next';
 import { Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
-import { AudioOutput } from '../ChannelVoice';
+import type { AudioOutput } from '../ChannelVoice';
 import { style } from './styles';
 
 interface IAudioOutputOptionsProps {
@@ -14,6 +15,7 @@ interface IAudioOutputOptionsProps {
 const AudioOutputOptions = ({ onSelectOutput, availableOutputs, currentOutput }: IAudioOutputOptionsProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
+	const { t } = useTranslation(['common']);
 
 	const handleSelectOutput = (outputType: string) => {
 		onSelectOutput?.(outputType);
@@ -35,10 +37,10 @@ const AudioOutputOptions = ({ onSelectOutput, availableOutputs, currentOutput }:
 
 	const getOutputLabel = (output: AudioOutput) => {
 		const labels = {
-			speaker: 'Speaker',
-			earpiece: 'Earpiece',
+			speaker: t('outputDevice.speaker'),
+			earpiece: t('outputDevice.earpiece'),
 			bluetooth: 'Bluetooth',
-			headphones: 'Headphones'
+			headphones: t('outputDevice.headphones')
 		};
 		return labels[output.type] || output.name;
 	};

@@ -10,7 +10,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_22
 		},
 		text: { fontSize: size.s_20, fontWeight: '600', color: colors.text },
-		textDisable: { fontSize: size.s_16, fontWeight: '400', color: colors.textDisabled },
+		textDisable: { fontSize: size.s_16, fontWeight: '400', color: colors.textDisabled, textAlign: 'center' },
 		lineBtn: { width: '100%', alignItems: 'center', padding: size.s_10 },
 		btnJoinVoice: {
 			borderRadius: size.s_40,

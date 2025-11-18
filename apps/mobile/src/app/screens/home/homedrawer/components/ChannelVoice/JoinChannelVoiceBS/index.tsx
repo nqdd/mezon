@@ -26,11 +26,9 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { dismiss } = useBottomSheetModal();
-	const { t } = useTranslation(['channelVoice']);
+	const { t } = useTranslation(['channelVoice', 'common']);
 	const currentClanId = useSelector(selectCurrentClanId);
-
 	const voiceChannelMembers = useAppSelector((state) => selectVoiceChannelMembersByChannelId(state, channel.channel_id));
-
 	const badge = useMemo(() => (voiceChannelMembers?.length > 3 ? voiceChannelMembers?.length - 3 : 0), [voiceChannelMembers]);
 
 	const handleJoinVoice = async () => {
@@ -109,7 +107,7 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 					) : (
 						<View style={styles.avatarRow}>
 							{voiceChannelMembers?.slice?.(0, 3)?.map((m) => {
-								return <VoiceChannelAvatar key={`${m.user_id}_user_join_voice`} userId={m.user_id} />;
+								return <VoiceChannelAvatar key={`${m?.user_id}_user_join_voice`} userId={m?.user_id} />;
 							})}
 							{badge > 0 && (
 								<View style={styles.badgeContainer}>
@@ -120,7 +118,9 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 					)}
 				</View>
 				<Text style={styles.text}>{t('joinChannelVoiceBS.channelVoice')}</Text>
-				<Text style={styles.textDisable}>{t('joinChannelVoiceBS.readyTalk')}</Text>
+				<Text style={styles.textDisable}>
+					{voiceChannelMembers?.length > 0 ? t('common:everyoneWaitingInside') : t('common:noOneInVoice')}
+				</Text>
 			</View>
 			<View style={styles.controlContainerOuter}>
 				<View style={styles.controlContainerInner}>

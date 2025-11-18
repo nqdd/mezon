@@ -14,13 +14,14 @@ import {
 	selectCurrentStreamInfo,
 	selectSession,
 	selectStatusStream,
+	selectStreamMembersByChannelId,
 	useAppDispatch,
 	videoStreamActions
 } from '@mezon/store-mobile';
 import type { IChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React from 'react';
+import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -28,13 +29,14 @@ import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { useWebRTCStream } from '../../../../../../components/StreamContext/StreamContext';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
+import VoiceChannelAvatar from '../../ChannelVoice/JoinChannelVoiceBS/VoiceChannelAvatar';
 import InviteToChannel from '../../InviteToChannel';
 import { style } from './JoinStreamingRoomBS.styles';
 function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { dismiss } = useBottomSheetModal();
-	const { t } = useTranslation(['streamingRoom']);
+	const { t } = useTranslation(['streamingRoom', 'common']);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentStreamInfo = useSelector(selectCurrentStreamInfo);
 	const playStream = useSelector(selectStatusStream);
@@ -42,6 +44,8 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	const { handleChannelClick } = useWebRTCStream();
 	const userProfile = useSelector(selectAllAccount);
 	const sessionUser = useSelector(selectSession);
+	const memberJoin = useSelector((state) => selectStreamMembersByChannelId(state, channel?.channel_id || ''));
+	const badge = useMemo(() => (memberJoin?.length > 3 ? memberJoin?.length - 3 : 0), [memberJoin]);
 
 	const handleJoinVoice = () => {
 		requestAnimationFrame(async () => {
@@ -100,14 +104,19 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	return (
 		<View style={styles.outerContainer}>
 			<View style={styles.topButtonsRow}>
-				<TouchableOpacity
-					onPress={() => {
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-					}}
-					style={styles.buttonCircle}
-				>
-					<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.textStrong} />
-				</TouchableOpacity>
+				<View style={styles.headerLeftContent}>
+					<TouchableOpacity
+						onPress={() => {
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+						}}
+						style={styles.buttonCircle}
+					>
+						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.textStrong} />
+					</TouchableOpacity>
+					<Text numberOfLines={2} style={[styles.text, styles.textFlexible]}>
+						{channel?.channel_label}
+					</Text>
+				</View>
 				<TouchableOpacity
 					onPress={() => {
 						const data = {
@@ -122,18 +131,36 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 				</TouchableOpacity>
 			</View>
 			<View style={styles.centerContent}>
-				<View style={styles.logoIconContainer}>
-					<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
+				<View style={styles.avatarContainer}>
+					{memberJoin?.length === 0 ? (
+						<View style={styles.iconVoice}>
+							<MezonIconCDN icon={IconCDN.channelStream} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
+						</View>
+					) : (
+						<View style={styles.avatarRow}>
+							{memberJoin?.slice?.(0, 3)?.map((m) => {
+								return <VoiceChannelAvatar key={`${m?.user_id}_user_join_streaming`} userId={m?.user_id} />;
+							})}
+							{badge > 0 && (
+								<View style={styles.badgeContainer}>
+									<Text style={styles.textBadge}>+{badge}</Text>
+								</View>
+							)}
+						</View>
+					)}
 				</View>
 				<Text style={styles.text}>{t('joinStreamingRoomBS.stream')}</Text>
-				<Text style={styles.textDisable}>{t('joinStreamingRoomBS.noOne')}</Text>
-				<Text style={styles.textDisable}>{t('joinStreamingRoomBS.readyTalk')}</Text>
+				<Text style={styles.textDisable}>{memberJoin?.length > 0 ? t('common:everyoneWaitingInside') : t('common:noOneInVoice')}</Text>
 			</View>
 			<View style={styles.controlContainerOuter}>
 				<View style={styles.controlContainerInner}>
 					<View style={styles.controlContainer} />
 					<View style={styles.btnJoinVoiceContainer}>
-						<TouchableOpacity style={styles.btnJoinVoice} onPress={handleJoinVoice}>
+						<TouchableOpacity
+							disabled={!memberJoin?.length}
+							style={[styles.btnJoinVoice, !memberJoin?.length && { backgroundColor: themeValue.textDisabled }]}
+							onPress={handleJoinVoice}
+						>
 							<Text style={styles.textBtnJoinVoice}>{t('joinStreamingRoomBS.joinStream')}</Text>
 						</TouchableOpacity>
 					</View>
@@ -148,4 +175,4 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	);
 }
 
-export default React.memo(JoinStreamingRoomBS);
+export default memo(JoinStreamingRoomBS);

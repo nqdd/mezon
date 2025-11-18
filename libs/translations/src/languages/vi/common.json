@@ -52,6 +52,7 @@
 	"gifs": "Gif",
 	"stickers": "Nhãn dán",
 	"emojis": "Biểu cảm",
+	"shop": "Cửa hàng",
 	"sounds": "Âm thanh",
 	"friend": "Bạn bè",
 	"pending": "Đang chờ",
@@ -68,7 +69,7 @@
 	"itemLockedMessage": "Vật phẩm này đã bị khóa. Chi tiêu 500 token để mở vật phẩm này. Bấm xác nhận để mua.",
 	"confirm": "Xác nhận",
 	"everyoneWaitingInside": "Mọi người đang chờ bạn bên trong",
-	"noOneInVoice": "Hiện tại không có ai trong thoại",
+	"noOneInVoice": "Hiện không có ai trong phòng",
 	"joining": "Đang tham gia...",
 	"joinVoice": "Tham gia thoại",
 	"reset": "Đặt lại",
@@ -419,5 +420,10 @@
 		"searchPlaceholder": "Tìm kiếm menu nhanh...",
 		"noQuickMenu": "Không tìm thấy menu nhanh nào",
 		"noQuickMenuAvailable": "Không có menu nhanh nào đang khả dụng"
+	},
+	"outputDevice": {
+		"speaker": "Loa ngoài",
+		"earpiece": "Loa thoại",
+		"headphones": "Tai nghe"
 	}
 }
