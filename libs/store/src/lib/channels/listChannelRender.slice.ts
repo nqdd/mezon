@@ -646,12 +646,18 @@ function sortChannels(channels: IChannel[], categoryId: string): IChannel[] {
 	for (let i = 0; i < numOfParent; i++) {
 		const channel = channels[i];
 		if (channel.category_id === categoryId) {
-			sortedChannels.push(channel);
+			const newChannel = { ...channel };
+			sortedChannels.push(newChannel);
 			for (; indexThread < numOfChannel; indexThread++) {
 				const thread = channels[indexThread];
 				const parentId = thread.parent_id || '';
+				sortedChannels.push(thread);
 				if (thread.parent_id === channel.id) {
-					sortedChannels.push(thread);
+					if (newChannel.threadIds) {
+						newChannel.threadIds = [...newChannel.threadIds, thread.id];
+					} else {
+						newChannel.threadIds = [thread.id];
+					}
 				} else if (channel.id < parentId) {
 					indexThread--;
 					break;
