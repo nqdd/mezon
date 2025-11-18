@@ -149,6 +149,5 @@ export const maskEmail = (email: string) => {
 
 export const maskPhoneNumber = (phone: string) => {
 	if (!phone) return '';
-	if (phone.length <= 4) return phone;
 	return `${'*'.repeat(phone.length - 4)}${phone.slice(-4)}`;
 };
