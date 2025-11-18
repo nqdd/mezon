@@ -42,6 +42,7 @@
 		"upload": "Tải lên",
 		"errorFileType": "Hỗ trợ file .mp3 hoặc .wav",
 		"errorFileSize": "File quá lớn, tối đa 1MB",
-		"errorUploadFailed": "Không thể tải lên âm thanh"
+		"errorUploadFailed": "Không thể tải lên âm thanh",
+		"characters": "Tên phải từ 3 đến 64 ký tự"
 	}
 }

@@ -23,6 +23,7 @@ import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
 import React, { memo, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -326,6 +327,15 @@ const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCan
 		handleConfirmDeleteChannel(channelId, clanId);
 		handleCancel();
 	};
+	const { t } = useTranslation(['channelMenu']);
 
-	return <ModalConfirm handleCancel={handleCancel} handleConfirm={handleDeleteChannel} title="delete" modalName={modalName} />;
+	return (
+		<ModalConfirm
+			handleCancel={handleCancel}
+			handleConfirm={handleDeleteChannel}
+			title="delete channel"
+			modalName={modalName}
+			customTitle={t('modalConfirm.channel.content')}
+		/>
+	);
 };

@@ -1,16 +1,10 @@
 import { useAuth, useChatReaction, useUserById } from '@mezon/core';
 import { getStore, selectClickedOnTopicStatus, selectCurrentChannel } from '@mezon/store';
 import { Icons, NameComponent } from '@mezon/ui';
-import {
-	EmojiDataOptionals,
-	IMessageWithUser,
-	SenderInfoOptionals,
-	calculateTotalCount,
-	createImgproxyUrl,
-	getSrcEmoji,
-	isPublicChannel
-} from '@mezon/utils';
-import { ForwardedRef, Fragment, forwardRef, useCallback } from 'react';
+import type { EmojiDataOptionals, IMessageWithUser, SenderInfoOptionals } from '@mezon/utils';
+import { calculateTotalCount, createImgproxyUrl, getSrcEmoji, isPublicChannel } from '@mezon/utils';
+import type { ForwardedRef } from 'react';
+import { Fragment, forwardRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
 
@@ -107,7 +101,9 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({ emojiId, emojiName, count }) 
 			<div className="flex flex-row items-center p-2 text-theme-primary border-b-theme-primary">
 				<img src={getSrcEmoji(emojiId ?? '')} className="w-5 h-5 min-h-5 min-w-5" alt="" />
 				<p className="text-sm ml-2">{count}</p>
-				<p className="text-sm ml-2">{emojiName}</p>
+				<p title={emojiName} className="text-sm ml-2 truncate max-w-[200px] overflow-hidden">
+					{emojiName}
+				</p>
 			</div>
 		</div>
 	);

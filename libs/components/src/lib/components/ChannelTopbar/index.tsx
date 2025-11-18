@@ -710,7 +710,7 @@ const DmTopbarTools = memo(() => {
 					{!isBlockUser && <AddMemberToGroupDm currentDmGroup={currentDmGroup} />}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
 						<button
-							title={t('tooltips.showMemberList')}
+							title={!isShowMemberListDM ? t('tooltips.showMemberList') : t('tooltips.hideMemberList')}
 							onClick={() => setIsShowMemberListDM(!isShowMemberListDM)}
 							data-e2e={generateE2eId(`chat.direct_message.member_list.button`)}
 							className={`text-theme-primary-hover ${isShowMemberListDM ? 'text-theme-primary-active' : ''}`}
@@ -722,7 +722,7 @@ const DmTopbarTools = memo(() => {
 					)}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && (
 						<button
-							title={t('tooltips.showUserProfile')}
+							title={!isUseProfileDM ? t('tooltips.showUserProfile') : t('tooltips.hideUserProfile')}
 							onClick={() => setIsUseProfileDM(!isUseProfileDM)}
 							data-e2e={generateE2eId(`chat.direct_message.header.right_container.user_profile`)}
 							className={`text-theme-primary-hover ${isUseProfileDM ? 'text-theme-primary-active' : ''}`}
