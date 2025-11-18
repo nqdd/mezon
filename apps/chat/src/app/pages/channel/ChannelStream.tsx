@@ -23,6 +23,7 @@ import { createImgproxyUrl, getAvatarForPrioritize } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { RefObject } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
@@ -31,12 +32,13 @@ interface MediaPlayerProps {
 }
 
 function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
+	const { t } = useTranslation('channelStream');
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [isMuted, setIsMuted] = useState(false);
 	const [volume, setVolume] = useState(1);
 	const [isFullscreen, setIsFullscreen] = useState(false);
 	const [showControls, setShowControls] = useState(false);
-	const [errorLimitReached, setErrorLimitReached] = useState(false);
+	const [_errorLimitReached, _setErrorLimitReached] = useState(false);
 	const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const isRemoteVideoStream = useSelector(selectRemoteVideoStream);
 
@@ -119,7 +121,7 @@ function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 				{!isRemoteVideoStream && (
 					<img
 						src={currentChannel?.channel_avatar || 'assets/images/flahstream.png'}
-						alt="Stream Thumbnail"
+						alt={t('streamThumbnail')}
 						className="w-full h-full object-cover"
 					/>
 				)}
@@ -136,9 +138,9 @@ function HLSPlayer({ videoRef, currentChannel }: MediaPlayerProps) {
 					Loading...
 				</div>
 			)} */}
-			{errorLimitReached && (
+			{_errorLimitReached && (
 				<div className="absolute top-0 left-0 w-full h-full bg-gray-400 flex justify-center items-center text-white text-xl z-50">
-					Cannot play video. Please try again later.
+					{t('videoError')}
 				</div>
 			)}
 			<div
@@ -276,6 +278,7 @@ export default function ChannelStream({
 	disconnect,
 	isStream
 }: ChannelStreamProps) {
+	const { t } = useTranslation('channelStream');
 	const memberJoin = useAppSelector((state) => selectStreamMembersByChannelId(state, currentChannel?.channel_id || ''));
 	const streamPlay = useSelector(selectStatusStream);
 	const isJoin = useSelector(selectIsJoin);
@@ -379,16 +382,16 @@ export default function ChannelStream({
 								: currentChannel?.channel_label}
 						</div>
 						{memberJoin.length > 0 ? (
-							<div className="text-gray-800 dark:text-white">Everyone is waiting for you inside</div>
+							<div className="text-gray-800 dark:text-white">{t('everyoneWaiting')}</div>
 						) : (
-							<div className="text-gray-800 dark:text-white">No one is currently in stream</div>
+							<div className="text-gray-800 dark:text-white">{t('noOneInStream')}</div>
 						)}
 						<button
 							disabled={!memberJoin.length}
 							className={`bg-green-700 rounded-3xl p-2 ${memberJoin.length > 0 ? 'hover:bg-green-600' : 'opacity-50'}`}
 							onClick={handleJoinChannel}
 						>
-							Join stream
+							{t('joinStream')}
 						</button>
 					</div>
 				</div>
@@ -408,7 +411,7 @@ export default function ChannelStream({
 							</div>
 						) : (
 							<div className="sm:h-[250px] md:h-[350px] lg:h-[450px] xl:h-[550px] w-[70%] dark:text-[#AEAEAE] text-colorTextLightMode dark:bg-bgSecondary600 bg-channelTextareaLight text-5xl flex justify-center items-center text-center">
-								<span>No stream today</span>
+								<span>{t('noStreamToday')}</span>
 							</div>
 						)}
 						{memberJoin.length > 0 && (
@@ -416,7 +419,7 @@ export default function ChannelStream({
 								className={`absolute z-50 opacity-0 transition-opacity duration-300 ${showMembers ? '-bottom-10' : `${isShowChatStream ? 'bottom-20' : 'bottom-20 max-[1700px]:bottom-2'}`} group-hover:opacity-100`}
 							>
 								<div
-									title={showMembers ? 'Hide Members' : 'Show Members'}
+									title={showMembers ? t('hideMembers') : t('showMembers')}
 									onClick={toggleMembers}
 									className={`flex gap-1 items-center cursor-pointer bg-neutral-700 hover:bg-bgSecondary600 rounded-3xl px-2 py-[6px] ${showMembersButton ? 'opacity-100' : 'opacity-0'}`}
 								>

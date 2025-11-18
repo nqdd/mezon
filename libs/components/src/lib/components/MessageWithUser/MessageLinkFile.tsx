@@ -192,16 +192,16 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 										<Icons.TrashIcon className="w-4 h-4 " />
 									</button>
 								)}
+								{isPDF && (
+									<button
+										onClick={openPDFViewer}
+										className="px-3 py-1 text-sm rounded transition-all duration-200  btn-primary btn-primary-hover"
+										title="View PDF"
+									>
+										View
+									</button>
+								)}
 							</div>
-						)}
-						{isPDF && (
-							<button
-								onClick={openPDFViewer}
-								className="px-3 py-1 text-sm rounded transition-all duration-200  btn-primary btn-primary-hover"
-								title="View PDF"
-							>
-								View
-							</button>
 						)}
 					</>
 				)

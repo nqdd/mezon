@@ -85,7 +85,11 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 				<View style={styles.warningContainer}>
 					<View style={[styles.warningBox, { backgroundColor: themeValue.charcoal }]}>
 						<Text style={[styles.warningText, { color: themeValue.textDisabled }]}>
-							{props?.canSendMessage && props?.isBanned ? t('isBanned') : t('noSendMessagePermission')}
+							{(!props?.canSendMessage && !isDM) || props?.isBlocked
+								? t('noSendMessagePermission')
+								: props?.isBanned
+									? t('isBanned')
+									: ''}
 						</Text>
 					</View>
 				</View>

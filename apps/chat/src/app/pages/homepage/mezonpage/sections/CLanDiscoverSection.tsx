@@ -48,7 +48,7 @@ export const CLanDiscoverSection = () => {
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/clanpagee.webp"
 							alt="Organize"
-							className="max-w-[42vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
+							className="max-w-[68vw] lg:max-w-[42vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
 							loading="lazy"
 							onLoad={() => setImageLoaded(true)}
 						/>

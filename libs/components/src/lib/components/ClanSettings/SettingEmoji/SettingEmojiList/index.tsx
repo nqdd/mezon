@@ -1,4 +1,5 @@
-import { ClanEmoji } from 'mezon-js';
+import type { ClanEmoji } from 'mezon-js';
+import { useTranslation } from 'react-i18next';
 import SettingEmojiItem from '../SettingEmojiItem';
 
 type SettingEmojiListProps = {
@@ -8,12 +9,13 @@ type SettingEmojiListProps = {
 };
 
 const SettingEmojiList = ({ title, emojiList, onUpdateEmoji }: SettingEmojiListProps) => {
+	const { t } = useTranslation('clanEmojiSetting');
 	return (
 		<div className={'flex flex-col gap-3 pb-[60px]'}>
 			<div className={'flex items-center flex-row w-full '}>
-				<p className={'w-14 text-xs font-bold '}>IMAGE</p>
-				<p className={'flex-1 text-xs font-bold'}>NAME</p>
-				<p className={'flex-1 flex text-xs font-bold'}>UPLOADED BY</p>
+				<p className={'min-w-14  text-xs font-bold '}>{t('image')}</p>
+				<p className={'flex-1 pl-5 text-xs font-bold'}>{t('name')}</p>
+				<p className={'flex-1 flex text-xs font-bold'}>{t('uploadedBy')}</p>
 			</div>
 			<div className={'flex flex-col w-full'}>
 				{emojiList.map((emoji) => (

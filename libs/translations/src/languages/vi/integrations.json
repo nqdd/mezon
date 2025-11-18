@@ -2,7 +2,7 @@
 	"title": "Tích hợp",
 	"clanWebhooks": "Webhook Clan",
 	"webhooks": "Webhook",
-	"description": "Tùy chỉnh CLan của bạn với các tích hợp. Quản lý webhook, kênh theo dõi và ứng dụng, cũng như cài đặt Twitch và YouTube cho người tạo nội dung.",
+	"description": "Tùy chỉnh Clan của bạn với các tích hợp. Quản lý webhook, kênh theo dõi và ứng dụng, cũng như cài đặt Twitch và YouTube cho người tạo nội dung.",
 	"learnMore": "Tìm hiểu thêm về quản lý tích hợp.",
 	"webhook": "webhook",
 	"webhooksPlural": "webhook",

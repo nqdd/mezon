@@ -36,7 +36,7 @@ export const TextChannelSection = () => {
 						<img
 							src="https://cdn.mezon.ai/landing-page-mezon/messapage.webp"
 							alt="Text Channel"
-							className="w-auto h-auto max-w-[60vw] lg:max-w-[50vw] 3xl:max-w-[30vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
+							className="w-auto h-auto max-w-[81vw] lg:max-w-[50vw] 3xl:max-w-[30vw] object-contain  rounded-2xl relative z-10"
 							loading="lazy"
 							onLoad={() => setImageLoaded(true)}
 						/>

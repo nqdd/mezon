@@ -44,7 +44,7 @@ import {
 } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelStreamMode } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, View } from 'react-native';
@@ -76,7 +76,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const { socketRef } = useMezon();
 	const store = getStore();
 
-	const { t } = useTranslation(['message']);
+	const { t } = useTranslation(['message', 'token']);
 	const [currentMessageActionType, setCurrentMessageActionType] = useState<EMessageActionType | null>(null);
 	const [isShowQuickMenuModal, setIsShowQuickMenuModal] = useState(false);
 	const { enableWallet } = useWallet();
@@ -182,9 +182,11 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const [isAllowDelMessage] = usePermissionChecker([EOverriddenPermission.deleteMessage], message?.channel_id ?? '');
 	const { downloadImage, saveMediaToCameraRoll, getImageAsBase64OrFile } = useImage();
 	const allMessagesEntities = useAppSelector((state) =>
-		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
+		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentTopicId ? currentTopicId : currentChannelId) || '')
 	);
-	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || ''));
+	const allMessageIds = useAppSelector((state) =>
+		selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentTopicId ? currentTopicId : currentChannelId) || '')
+	);
 	const messagePosition = useMemo(() => {
 		return allMessageIds?.findIndex((id: string) => id === message?.id);
 	}, [allMessageIds, message?.id]);
@@ -243,7 +245,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				const response = await createDirectMessageWithUser(message?.sender_id, message?.user?.name, message?.user?.username, message?.avatar);
 				if (response?.channel_id) {
 					sendInviteMessage(
-						`Funds Transferred: ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | Give coffee action`,
+						`${t('tokensSent', { ns: 'token' })} ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | ${t('giveCoffeeAction', { ns: 'token' })}`,
 						response?.channel_id,
 						ChannelStreamMode.STREAM_MODE_DM,
 						TypeMessage.SendToken
@@ -682,8 +684,15 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const isMessageError = message?.isError;
 		const isHidePinMessage = !!currentTopicId;
 		const isUnPinMessage = listPinMessages.some((pinMessage) => pinMessage?.message_id === message?.id);
-		const isHideCreateThread = isDM || ((!isCanManageThread || !isCanManageChannel) && !isClanOwner) || currentChannel?.parent_id !== '0';
-		const isHideThread = currentChannel?.parent_id !== '0';
+		const isHideCreateThread =
+			isDM ||
+			((!isCanManageThread || !isCanManageChannel) && !isClanOwner) ||
+			[
+				ChannelType.CHANNEL_TYPE_APP,
+				ChannelType.CHANNEL_TYPE_MEZON_VOICE,
+				ChannelType.CHANNEL_TYPE_STREAMING,
+				ChannelType.CHANNEL_TYPE_THREAD
+			].includes(currentChannel?.type);
 		const isTopicFirstMessage = message?.code === TypeMessage.Topic;
 		const isHideDeleteMessage = !((isAllowDelMessage && !isDM) || isMyMessage) || isTopicFirstMessage;
 		const isHideTopicDiscussion =
@@ -702,7 +711,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			!message?.attachments?.every((a) => a?.filetype?.startsWith('image') || a?.filetype?.startsWith('video'));
 
 		const isShowForwardAll = () => {
-			if (messagePosition === -1 || messagePosition === 0) return false;
+			if ((messagePosition === -1 || messagePosition === 0) && !currentTopicId) return false;
 
 			const currentMessage = allMessagesEntities?.[allMessageIds?.[messagePosition]];
 			const nextMessage = allMessagesEntities?.[allMessageIds?.[messagePosition + 1]];
@@ -719,7 +728,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		const listOfActionShouldHide = [
 			isHidePinMessage && EMessageActionType.PinMessage,
 			isUnPinMessage ? EMessageActionType.PinMessage : EMessageActionType.UnPinMessage,
-			(!isShowForwardAll() || isHideThread) && EMessageActionType.ForwardAllMessages,
+			!isShowForwardAll() && EMessageActionType.ForwardAllMessages,
 			isHideCreateThread && EMessageActionType.CreateThread,
 			isHideDeleteMessage && EMessageActionType.DeleteMessage,
 			((!isMessageError && isMyMessage) || !isMyMessage) && EMessageActionType.ResendMessage,
@@ -786,6 +795,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		isAllowDelMessage,
 		canSendMessage,
 		currentChannelId,
+		currentTopicId,
 		isMessageSystem,
 		isAnonymous,
 		messagePosition,

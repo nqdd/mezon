@@ -40,6 +40,7 @@ import { Snowflake } from '@theinternetfolks/snowflake';
 import clx from 'classnames';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ReactionPart from '../ContextMenu/ReactionPart';
 
@@ -215,6 +216,7 @@ const RecentEmoji: React.FC<RecentEmojiProps> = ({ message, isTopic }) => {
 };
 
 function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) {
+	const { t } = useTranslation('token');
 	const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 	const dispatch = useAppDispatch();
 	const { userId } = useAuth();
@@ -229,7 +231,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 			if (response.channel_id) {
 				const channelMode = ChannelStreamMode.STREAM_MODE_DM;
 				sendInviteMessage(
-					`Funds Transferred: ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | Give coffee action`,
+					`${t('tokensSent')} ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | ${t('giveCoffeeAction')}`,
 					response.channel_id,
 					channelMode,
 					TypeMessage.SendToken
@@ -287,7 +289,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 				message?.sender_id !== SYSTEM_SENDER_ID &&
 				message.username !== SYSTEM_NAME,
 			(builder) => {
-				builder.addMenuItem('giveacoffee', 'Give a coffee', handleItemClick, <Icons.DollarIcon defaultSize="w-5 h-5" />);
+				builder.addMenuItem('giveacoffee', t('giveACoffee', { ns: 'message' }), handleItemClick, <Icons.DollarIcon defaultSize="w-5 h-5" />);
 			}
 		);
 	});

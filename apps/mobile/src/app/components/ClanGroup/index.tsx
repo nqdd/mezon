@@ -16,6 +16,7 @@ interface ClanGroupProps {
 	clans: any[];
 	drag: () => void;
 	isActive?: boolean;
+	isActiveCurrentClan?: boolean;
 }
 
 export const ClanGroup = memo(({ group, onClanPress, clans, drag, isActive }: ClanGroupProps) => {

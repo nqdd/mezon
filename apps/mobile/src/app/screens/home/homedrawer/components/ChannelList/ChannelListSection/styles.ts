@@ -5,6 +5,7 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		channelListSection: {
 			width: '100%',
+			zIndex: 1,
 			marginHorizontal: size.s_8
 		},
 		channelListHeader: {

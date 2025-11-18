@@ -1,6 +1,7 @@
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import { getAuthState } from '@mezon/store-mobile';
+import { authActions, getAuthState, useAppDispatch } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
+import { safeJSONParse } from 'mezon-js';
 import { useState } from 'react';
 import { StatusBar, View } from 'react-native';
 import { Chase } from 'react-native-animated-spinkit';
@@ -17,6 +18,7 @@ export function CanvasScreen({ navigation, route }: MenuChannelScreenProps<Scree
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
 	const [loading, setLoading] = useState(true);
+	const dispatch = useAppDispatch();
 
 	const uri = `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/canvas-mobile/${clanId}/${channelId}/${canvasId}`;
 
@@ -84,7 +86,15 @@ export function CanvasScreen({ navigation, route }: MenuChannelScreenProps<Scree
   `;
 
 	const onMessage = (event: any) => {
-		console.error('Received message from WebView:', event?.nativeEvent?.data);
+		try {
+			const messageData = event?.nativeEvent?.data;
+			const parsedMessage = safeJSONParse(messageData);
+			if (parsedMessage?.type === 'mezon:session-refreshed' && parsedMessage?.data?.session) {
+				dispatch(authActions.updateSession(parsedMessage.data.session));
+			}
+		} catch (error) {
+			console.error('Non-JSON message received:', event?.nativeEvent?.data);
+		}
 	};
 
 	return (

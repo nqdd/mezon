@@ -80,10 +80,11 @@
 		"uploadEmoji": "Tải lên biểu cảm"
 	},
 	"stickers": {
-		"uploadInstructions": "HƯỚNG DẪN TẢI LÊN",
+		"uploadInstructions": "HƯớNG DẪN TẢI LÊN",
 		"description": "Nhãn dán có thể là tĩnh (PNG) hoặc động (APNG, GIF). Nhãn dán phải có kích thước chính xác 320 x 320 pixel và không lớn hơn 512KB. Chúng tôi sẽ tự động thay đổi kích thước nhãn dán PNG tĩnh và GIF động cho bạn.",
 		"uploadHere": "Tải lên ở đây!",
 		"customizeMessage": "Hãy tùy chỉnh những nhãn dán tuyệt vời theo sở thích của bạn",
 		"uploadSticker": "Tải lên nhãn dán"
-	}
+	},
+	"deleteClanTitle": "Xóa '{{clanName}}'"
 }

@@ -13,6 +13,7 @@ import channelCreator from './channelCreator.json';
 import channelList from './channelList.json';
 import channelMenu from './channelMenu.json';
 import channelSetting from './channelSetting.json';
+import channelStream from './channelStream.json';
 import channelTopbar from './channelTopbar.json';
 import channelVoice from './channelVoice.json';
 import chatWelcome from './chatWelcome.json';
@@ -52,10 +53,12 @@ import leaveGroup from './leaveGroup.json';
 import linkAppInstall from './linkAppInstall.json';
 import linkMessageInvite from './linkMessageInvite.json';
 import media from './media.json';
+import memberPage from './memberPage.json';
 import memberTable from './memberTable.json';
 import menuCustomDM from './menuCustomDM.json';
 import message from './message.json';
 import messageBox from './messageBox.json';
+import messageBuzz from './messageBuzz.json';
 import mezondong from './mezondong.json';
 import modalControls from './modalControls.json';
 import notification from './notification.json';
@@ -89,6 +92,7 @@ export default {
 	inviteToChannel,
 	notification,
 	message,
+	messageBuzz,
 	screen,
 	setting,
 	dmMessage,
@@ -120,6 +124,7 @@ export default {
 	eventCreator,
 	channelMenu,
 	channelSetting,
+	channelStream,
 	channelTopbar,
 	messageBox,
 	createChannel,
@@ -158,6 +163,7 @@ export default {
 	onboardingRules,
 	modalControls,
 	memberTable,
+	memberPage,
 	transferOwner,
 	leaveGroup,
 	notifications,

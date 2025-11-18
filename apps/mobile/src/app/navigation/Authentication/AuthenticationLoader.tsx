@@ -279,7 +279,7 @@ export const AuthenticationLoader = () => {
 	const initFirebaseMessaging = () => {
 		const unsubscribe = onMessage(messaging, (remoteMessage) => {
 			try {
-				const message = remoteMessage?.data?.message;
+				const message = remoteMessage?.data?.message || '{}';
 				const messageData = safeJSONParse(message as string);
 
 				let messageCode = 0;
