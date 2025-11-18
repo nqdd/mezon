@@ -34,11 +34,10 @@ type ThreadItemProps = {
 	thread: ThreadsEntity;
 	setIsShowThread: () => void;
 	isPublicThread?: boolean;
-	isHasContext?: boolean;
 	preventClosePannel: MutableRefObject<boolean>;
 };
 
-const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasContext = true, preventClosePannel }: ThreadItemProps) => {
+const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventClosePannel }: ThreadItemProps) => {
 	const { i18n } = useTranslation();
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
@@ -109,18 +108,6 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [isShowPanelChannel, setIsShowPanelChannel] = useState<boolean>(false);
 
-	const handlePannelThread = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-		if (!isHasContext) {
-			return;
-		}
-		const mouseX = event.clientX;
-		const mouseY = event.clientY;
-		const windowHeight = window.innerHeight;
-		const distanceToBottom = windowHeight - event.clientY;
-		setCoords({ mouseX, mouseY, distanceToBottom });
-		setIsShowPanelChannel((s) => !s);
-	};
-
 	const handleDeleteThread = async () => {
 		await dispatch(channelsActions.deleteChannel({ channelId: channelThread?.channel_id as string, clanId: channelThread?.clan_id as string }));
 		await dispatch(threadsActions.remove(channelThread.id));
@@ -161,7 +148,6 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 			className="relative overflow-y-hidden p-4 mb-2 cursor-pointer rounded-lg h-[72px] bg-item-theme"
 			role="button"
 			ref={panelRef}
-			onContextMenu={handlePannelThread}
 			data-e2e={generateE2eId('chat.channel_message.header.button.thread.item')}
 		>
 			<div className="flex flex-row justify-between items-center">
