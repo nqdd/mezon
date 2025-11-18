@@ -76,7 +76,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const { socketRef } = useMezon();
 	const store = getStore();
 
-	const { t } = useTranslation(['message']);
+	const { t } = useTranslation(['message', 'token']);
 	const [currentMessageActionType, setCurrentMessageActionType] = useState<EMessageActionType | null>(null);
 	const [isShowQuickMenuModal, setIsShowQuickMenuModal] = useState(false);
 	const { enableWallet } = useWallet();
@@ -243,7 +243,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				const response = await createDirectMessageWithUser(message?.sender_id, message?.user?.name, message?.user?.username, message?.avatar);
 				if (response?.channel_id) {
 					sendInviteMessage(
-						`Funds Transferred: ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | Give coffee action`,
+						`${t('tokensSent', { ns: 'token' })} ${formatMoney(TOKEN_TO_AMOUNT.ONE_THOUNSAND * 10)}₫ | ${t('giveCoffeeAction', { ns: 'token' })}`,
 						response?.channel_id,
 						ChannelStreamMode.STREAM_MODE_DM,
 						TypeMessage.SendToken

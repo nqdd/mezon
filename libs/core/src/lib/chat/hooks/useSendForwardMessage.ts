@@ -1,10 +1,12 @@
 import { toastActions, useAppDispatch } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
+import type { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function useSendForwardMessage() {
+	const { t } = useTranslation('forwardMessage');
 	const { clientRef, sessionRef, socketRef } = useMezon();
 
 	const dispatch = useAppDispatch();
@@ -50,19 +52,19 @@ export function useSendForwardMessage() {
 				dispatch(
 					toastActions.addToast({
 						type: 'success',
-						message: 'Message forwarded successfully'
+						message: t('successMessage')
 					})
 				);
 			} catch (e) {
 				dispatch(
 					toastActions.addToast({
 						type: 'error',
-						message: 'Failed to forward message'
+						message: t('errorMessage')
 					})
 				);
 			}
 		},
-		[sessionRef, clientRef, socketRef]
+		[sessionRef, clientRef, socketRef, dispatch, t]
 	);
 
 	return useMemo(

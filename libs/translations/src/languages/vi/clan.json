@@ -35,8 +35,9 @@
 		"categoryNamePlaceholder": "Nhập tên danh mục của bạn tại đây...",
 		"hasWelcomeChannelError": "Danh mục này có kênh chào mừng",
 		"deleteCategory": "Xóa danh mục",
+		"deleteCategoryTitle": "Xóa danh mục",
 		"deleteCategoryButton": "Xóa danh mục",
-		"cannotBeUndone": "Hành động này không thể hoàn tác",
+		"cannotBeUndone": "Hành động này không thể khôi phục",
 		"categoryLabel": "Danh mục"
 	},
 	"createClanModal": {

@@ -1,62 +1,62 @@
 {
-    "menu": {
-        "watchMenu": {
-            "title": "",
-            "markAsRead": "Đánh dấu là đã đọc",
-            "browseChannels": "Tìm kênh"
-        },
-        "organizationMenu": {
-            "title": "",
-            "createChannel": "Tạo kênh",
-            "createCategory": "Tạo danh mục",
-            "createEvent": "Tạo sự kiện"
-        },
-        "optionsMenu": {
-            "title": "",
-            "editServerProfile": "Sửa hồ sơ clan",
-            "showAllChannels": "Hiện tất cả các kênh",
-            "hideMutedChannels": "Ẩn tất cả các kênh",
-            "allowDirectMessage": "Cho phép gửi tin nhắn trực tiếp",
-            "allowMessageRequest": "Cho phép gửi yêu cầu tin nhắn",
-            "reportServer": "Báo cáo clan",
-            "leaveServer": "Rời clan",
-            "deleteClan": "Xóa clan",
-            "auditLog": "Nhật ký kiểm tra"
-        },
-        "optionShowEmptyCategories": {
-            "title": "Hiển thị danh mục trống",
-            "show": "Hiển thị",
-            "hide": "Ẩn"
-        },
-        "devMode": {
-            "title": "Chế độ nhà phát triển",
-            "copyServerID": "Sao chép ID clan",
-            "serverIDCopied": "Đã sao chép ID clan"
-        }
-    },
-    "actions": {
-        "boot": "Nâng cấp",
-        "invite": "Lời mời",
-        "notifications": "Thông báo",
-        "settings": "Cài đặt"
-    },
-    "info": {
-        "online": "Trực tuyến",
-        "members": "Thành viên"
-    },
-    "common": {
-        "search": "Tìm kiếm",
-        "community": "Cộng đồng",
-        "searchMembers": "Tìm kiếm thành viên"
-    },
-    "modalPanel": {
-        "createCategory": "Tạo danh mục",
-        "markAsRead": "Đánh dấu là đã đọc",
-        "processing": "Đang xử lý...",
-        "invitePeople": "Mời người tham gia",
-        "clanSettings": "Cài đặt clan",
-        "notificationSettings": "Cài đặt thông báo",
-        "showEmptyCategories": "Hiển thị danh mục trống",
-        "leaveClan": "Rời clan"
-    }
+	"menu": {
+		"watchMenu": {
+			"title": "",
+			"markAsRead": "Đánh dấu là đã đọc",
+			"browseChannels": "Tìm kênh"
+		},
+		"organizationMenu": {
+			"title": "",
+			"createChannel": "Tạo kênh",
+			"createCategory": "Tạo danh mục",
+			"createEvent": "Tạo sự kiện"
+		},
+		"optionsMenu": {
+			"title": "",
+			"editServerProfile": "Sửa hồ sơ clan",
+			"showAllChannels": "Hiện tất cả các kênh",
+			"hideMutedChannels": "Ẩn tất cả các kênh",
+			"allowDirectMessage": "Cho phép gửi tin nhắn trực tiếp",
+			"allowMessageRequest": "Cho phép gửi yêu cầu tin nhắn",
+			"reportServer": "Báo cáo clan",
+			"leaveServer": "Rời clan",
+			"deleteClan": "Xóa clan",
+			"auditLog": "Nhật ký kiểm tra"
+		},
+		"optionShowEmptyCategories": {
+			"title": "Hiển thị danh mục trống",
+			"show": "Hiển thị",
+			"hide": "Ẩn"
+		},
+		"devMode": {
+			"title": "Chế độ nhà phát triển",
+			"copyServerID": "Sao chép ID clan",
+			"serverIDCopied": "Đã sao chép ID clan"
+		}
+	},
+	"actions": {
+		"boot": "Nâng cấp",
+		"invite": "Lời mời",
+		"notifications": "Thông báo",
+		"settings": "Cài đặt"
+	},
+	"info": {
+		"online": "Trực tuyến",
+		"members": "Thành viên"
+	},
+	"common": {
+		"search": "Tìm kiếm",
+		"community": "Cộng đồng",
+		"searchMembers": "Tìm kiếm thành viên"
+	},
+	"modalPanel": {
+		"createCategory": "Tạo danh mục",
+		"markAsRead": "Đánh Dấu Là Đã Đọc",
+		"processing": "Đang xử lý...",
+		"invitePeople": "Mời Người Tham Gia",
+		"clanSettings": "Cài Đặt Clan",
+		"notificationSettings": "Cài Đặt Thông Báo",
+		"showEmptyCategories": "Hiển Thị Danh Mục Trống",
+		"leaveClan": "Rời Clan"
+	}
 }

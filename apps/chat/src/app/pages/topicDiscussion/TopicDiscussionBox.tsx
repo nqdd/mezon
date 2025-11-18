@@ -33,12 +33,14 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { DragEvent } from 'react';
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MemoizedChannelMessages from '../channel/ChannelMessages';
 import { ChannelTyping } from '../channel/ChannelTyping';
 
 const TopicDiscussionBox = () => {
+	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentChannelType = useSelector(selectCurrentChannelType);
@@ -247,7 +249,7 @@ const TopicDiscussionBox = () => {
 			{topicDraggingState && (
 				<div className="absolute inset-0 bg-blue-500 bg-opacity-20 border-2 border-dashed border-blue-500 rounded-lg z-50 flex items-center justify-center">
 					<div className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg">
-						<p className="text-lg font-semibold">Drop files here to upload to topic</p>
+						<p className="text-lg font-semibold">{t('dropFilesToUploadToTopic')}</p>
 					</div>
 				</div>
 			)}
