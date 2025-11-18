@@ -103,10 +103,13 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 	};
 
 	const handleChangeShortName = (e: ChangeEvent<HTMLInputElement>) => {
-		setEditingGraphic({
-			...editingGraphic,
-			shortname: e.target.value.replace(/[^a-zA-Z0-9_-]/g, '')
-		});
+		const newValue = e.target.value.replace(/[^a-zA-Z0-9_-]/g, '');
+		if (newValue.length <= 64) {
+			setEditingGraphic({
+				...editingGraphic,
+				shortname: newValue
+			});
+		}
 	};
 
 	const onSaveChange = async () => {
@@ -204,7 +207,8 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 	};
 
 	const validateSaveChange = useMemo(() => {
-		return !(editingGraphic.fileName && editingGraphic.shortname && editingGraphic.shortname !== graphic?.shortname);
+		const isValidLength = (editingGraphic?.shortname?.length ?? 0) >= 3 && (editingGraphic?.shortname?.length ?? 0) <= 64;
+		return !(editingGraphic.fileName && editingGraphic.shortname && editingGraphic.shortname !== graphic?.shortname && isValidLength);
 	}, [editingGraphic.fileName, editingGraphic.shortname, graphic?.shortname]);
 
 	const modalRef = useRef<HTMLDivElement>(null);
@@ -325,10 +329,15 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 							</div>
 						</div>
 						<div className={'w-1/2 flex flex-col gap-2'}>
-							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>{t('stickerName')}</p>
+							<p className={`text-xs font-bold uppercase select-none text-theme-primary-active`}>
+								{t('stickerName')}{' '}
+								<span title={t('characters')} className="text-red-500 cursor-pointer">
+									*
+								</span>
+							</p>{' '}
 							<div
 								className={
-									'border-theme-primary bg-input-secondary flex flex-row rounded-lg justify-between items-center p-2 pl-3  box-border overflow-hidden'
+									'border-theme-primary bg-input-secondary flex flex-row rounded-lg justify-between items-center p-2 pl-3  box-border overflow-hidden relative'
 								}
 							>
 								<InputField
@@ -339,6 +348,11 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 									onChange={handleChangeShortName}
 									onKeyDown={handleOnEnter}
 								/>
+								<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+									<span className={`text-xs font-medium ${(editingGraphic?.shortname?.length ?? 0) > 25 ? 'text-[#faa61a]' : ''}`}>
+										{editingGraphic?.shortname?.length ?? 0}/64
+									</span>
+								</div>
 							</div>
 						</div>
 					</div>

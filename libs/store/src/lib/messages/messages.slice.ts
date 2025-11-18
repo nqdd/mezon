@@ -1691,10 +1691,6 @@ export const messagesSlice = createSlice({
 							return !existingMessage || existingMessage.avatar !== avatar;
 						});
 
-					if (!direction && (!isNew || !channelId) && (!isClearMessage || (isClearMessage && fromCache)) && !foundE2ee) {
-						return;
-					}
-
 					if (!fromCache && channelId) {
 						if (!state.channelMessages[channelId]) {
 							state.channelMessages[channelId] = channelMessagesAdapter.getInitialState({
@@ -1702,6 +1698,10 @@ export const messagesSlice = createSlice({
 							});
 						}
 						state.channelMessages[channelId].cache = createCacheMetadata();
+					}
+
+					if (!direction && (!isNew || !channelId) && (!isClearMessage || (isClearMessage && fromCache)) && !foundE2ee) {
+						return;
 					}
 
 					direction = direction || Direction_Mode.BEFORE_TIMESTAMP;

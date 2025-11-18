@@ -52,6 +52,7 @@
 	"gifs": "Gifs",
 	"stickers": "Stickers",
 	"emojis": "Emojis",
+	"shop": "Shop",
 	"sounds": "Sounds",
 	"friend": "Friend",
 	"pending": "Pending",
@@ -70,7 +71,7 @@
 	"itemLockedMessage": "This item is locked. Spend 500 tokens to open this item. Please purchase to unlock.",
 	"confirm": "Confirm",
 	"everyoneWaitingInside": "Everyone is waiting for you inside",
-	"noOneInVoice": "No one is currently in voice",
+	"noOneInVoice": "No one is currently in room",
 	"joining": "Joining...",
 	"joinVoice": "Join Voice",
 	"reset": "Reset",
@@ -421,5 +422,10 @@
 		"searchPlaceholder": "Search quick menu...",
 		"noQuickMenu": "No quick menu items found",
 		"noQuickMenuAvailable": "No quick menu items available"
+	},
+	"outputDevice": {
+		"speaker": "Speaker",
+		"earpiece": "Earpiece",
+		"headphones": "Headphones"
 	}
 }

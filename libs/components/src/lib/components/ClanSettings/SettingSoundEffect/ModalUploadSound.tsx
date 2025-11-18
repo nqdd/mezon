@@ -269,19 +269,24 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 								</div>
 
 								<div className="w-full md:w-1/2 flex flex-col gap-1">
-									<p className="text-xs font-bold uppercase text-theme-primary-active	">{t('modal.soundName')}</p>
+									<p className="text-xs font-bold uppercase text-theme-primary-active	">
+										{t('modal.soundName')}{' '}
+										<span title={t('modal.characters')} className="text-red-500 cursor-pointer">
+											*
+										</span>
+									</p>
 									<div className="relative border-theme-primary bg-item-theme rounded-md h-[60px] flex items-center">
 										<input
 											type="text"
 											placeholder={t('modal.placeholder')}
 											value={name}
-											maxLength={30}
+											maxLength={64}
 											onChange={(e) => setName(e.target.value)}
 											className="w-full h-full px-3 py-2 bg-transparent text-theme-messaga=e border-none rounded-md text-sm focus:outline-none focus:ring-0 focus:border-none "
 										/>
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
 											<span className={`text-xs font-medium ${name.length > 25 ? 'text-[#faa61a]' : ''}`}>
-												{name.length}/30
+												{name.length}/64
 											</span>
 										</div>
 									</div>
@@ -316,7 +321,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 							<button
 								className="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 								onClick={handleUpload}
-								disabled={(!file && !sound) || !name.trim() || isUploading}
+								disabled={(!file && !sound) || !name.trim() || isUploading || name.length < 3 || name.length > 64}
 							>
 								{isUploading ? (
 									<span className="flex items-center gap-1.5">

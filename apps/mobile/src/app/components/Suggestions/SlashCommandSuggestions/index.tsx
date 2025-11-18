@@ -22,7 +22,7 @@ interface SlashCommandSuggestionsProps {
 }
 
 export const SlashCommandSuggestions = memo(({ keyword, onSelectCommand, channelId }: SlashCommandSuggestionsProps) => {
-	const { t } = useTranslation('message');
+	const { t } = useTranslation(['message', 'messageBox']);
 	const dispatch = useAppDispatch();
 	const slashCommands: SlashCommand[] = [
 		{
@@ -73,7 +73,7 @@ export const SlashCommandSuggestions = memo(({ keyword, onSelectCommand, channel
 		<View style={styles.container}>
 			{filteredCommands?.length > 0 && (
 				<View style={styles.commandItem}>
-					<Text style={styles.headerTitle}>COMMANDS</Text>
+					<Text style={styles.headerTitle}>{t('messageBox:mentionCategories.commands')}</Text>
 				</View>
 			)}
 			<FlatList

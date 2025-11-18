@@ -189,6 +189,7 @@ export enum IconCDN {
 	community = require('./iconPNG/community.png'),
 	hammerIcon = require('./iconPNG/hammerIcon.png'),
 	forwardAllIcon = require('./iconPNG/forwardAll.png'),
+	streamBanner = require('./iconPNG/streamBanner.png'),
 	hdIcon = require('./iconPNG/hdIcon.png'),
 	hdFullIcon = require('./iconPNG/hdFullIcon.png')
 }
