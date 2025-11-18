@@ -2,12 +2,7 @@ import EventEmitter from 'events';
 import type { Client, Socket } from 'mezon-js';
 import { Session } from 'mezon-js';
 import { WebSocketAdapterPb } from 'mezon-js-protobuf';
-import type {
-	ApiConfirmLoginRequest,
-	ApiLinkAccountConfirmRequest,
-	ApiLoginIDResponse,
-	ApiSession
-} from 'mezon-js/dist/api.gen';
+import type { ApiConfirmLoginRequest, ApiLinkAccountConfirmRequest, ApiLoginIDResponse, ApiSession } from 'mezon-js/dist/api.gen';
 import type { IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
 import React, { useCallback } from 'react';
 import type { CreateMezonClientOptions } from '../mezon';
@@ -638,6 +633,39 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			});
 		}
 	}, [connect, createClient, createSocket]);
+
+	React.useEffect(() => {
+		if (typeof window === 'undefined' || isFromMobile) return;
+
+		const handleSessionRefresh = (event: Event) => {
+			const customEvent = event as CustomEvent;
+			const sessionData = customEvent.detail?.session;
+
+			if (sessionData && sessionRef.current?.token !== sessionData.token) {
+				const newSession = new Session(
+					sessionData.token,
+					sessionData.refresh_token,
+					sessionData.created || false,
+					sessionData.api_url,
+					sessionData.is_remember || false
+				);
+
+				if (sessionData.username) newSession.username = sessionData.username;
+				if (sessionData.user_id) newSession.user_id = sessionData.user_id;
+				if (sessionData.vars) newSession.vars = sessionData.vars;
+				if (sessionData.expires_at) newSession.expires_at = sessionData.expires_at;
+				if (sessionData.refresh_expires_at) newSession.refresh_expires_at = sessionData.refresh_expires_at;
+
+				sessionRef.current = newSession;
+			}
+		};
+
+		window.addEventListener('mezon:session-refreshed', handleSessionRefresh);
+
+		return () => {
+			window.removeEventListener('mezon:session-refreshed', handleSessionRefresh);
+		};
+	}, [isFromMobile]);
 
 	return <MezonContext.Provider value={value}>{children}</MezonContext.Provider>;
 };
