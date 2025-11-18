@@ -211,8 +211,12 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 				<p>{t('eventDetail.personInterested', { count: event?.user_ids?.length || 0 })}</p>
 			</div>
 			<div className="flex items-center gap-x-3">
-				<img src={userCreate?.user?.avatar_url} alt={userCreate?.user?.avatar_url} className="size-5 rounded-full" />
-				<p>{t('eventDetail.createdBy', { username: userCreate?.user?.username })}</p>
+				<img
+					src={createImgproxyUrl(userCreate?.clan_avatar || userCreate?.user?.avatar_url || '')}
+					alt={userCreate?.clan_nick || userCreate?.user?.username}
+					className="size-5 rounded-full"
+				/>
+				<p>{t('eventDetail.createdBy', { username: userCreate?.clan_nick || userCreate?.user?.username })}</p>
 			</div>
 			<div className="break-all" data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item.description')}>
 				{event?.description}
@@ -233,8 +237,12 @@ const InterestedDetail = ({ userIds }: InterestedDetailProps) => {
 		<div className="p-4 space-y-1 dark:text-zinc-300 text-colorTextLightMode text-base font-semibold max-h-[250px] h-[250px] hide-scrollbar overflow-auto">
 			{userData.map((user, index) => (
 				<div key={index} className="flex items-center gap-x-3 rounded dark:hover:bg-slate-600 hover:bg-bgLightModeButton p-2">
-					<img src={createImgproxyUrl(user?.user?.avatar_url ?? '')} alt={user?.user?.avatar_url} className="size-7 rounded-full" />
-					<p>{user?.user?.username}</p>
+					<img
+						src={createImgproxyUrl(user?.clan_avatar || user?.user?.avatar_url || '')}
+						alt={user?.clan_nick || user?.user?.username}
+						className="size-7 rounded-full"
+					/>
+					<p>{user?.clan_nick || user?.user?.username}</p>
 				</div>
 			))}
 		</div>
