@@ -31,7 +31,6 @@ export const size = {
 	label: verticalScale(17),
 
 	s_2: verticalScale(2),
-	s_3: verticalScale(3),
 	s_8: verticalScale(8),
 	s_4: verticalScale(4),
 	s_6: verticalScale(6),
