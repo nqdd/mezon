@@ -1,3 +1,4 @@
+import { useChannels } from '@mezon/core';
 import {
 	notificationSettingActions,
 	selectBuzzStateByChannelId,
@@ -10,13 +11,14 @@ import { Icons } from '@mezon/ui';
 import { IChannel, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useImperativeHandle, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { Link } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
 import { Coords, classes } from '../ChannelLink';
 import SettingChannel from '../ChannelSetting';
-import { DeleteModal } from '../ChannelSetting/Component/Modal/deleteChannelModal';
 import EventSchedule from '../EventSchedule';
+import ModalConfirm from '../ModalConfirm';
 import PanelChannel from '../PanelChannel';
 
 type ThreadLinkProps = {
@@ -81,8 +83,15 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 	}, [thread.count_mess_unread]);
 
 	const [openDeleteModal, closeDeleteModal] = useModal(() => {
-		return <DeleteModal onClose={closeDeleteModal} channelLabel={thread.channel_label || ''} channelId={thread.channel_id as string} />;
-	}, []);
+		return (
+			<ModalConfirmComponent
+				handleCancel={closeDeleteModal}
+				channelId={thread.channel_id as string}
+				clanId={thread.clan_id as string}
+				modalName={`${thread?.channel_label || 'Unknown Channel'}`}
+			/>
+		);
+	}, [thread.channel_id, thread?.channel_label]);
 
 	const handleDeleteChannel = useCallback(() => {
 		openDeleteModal();
@@ -91,7 +100,7 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 
 	const [openSettingModal, closeSettingModal] = useModal(() => {
 		return <SettingChannel onClose={closeSettingModal} channel={thread} />;
-	}, []);
+	}, [thread.channel_label]);
 
 	return (
 		<div
@@ -149,3 +158,29 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 export default memo(ThreadLink, (next, curr) => {
 	return next.isActive === curr.isActive && next.hasLine === curr.hasLine && next.thread === curr.thread;
 });
+
+type ModalConfirmComponentProps = {
+	handleCancel: () => void;
+	channelId: string;
+	clanId: string;
+	modalName: string;
+};
+const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCancel, channelId, clanId, modalName }) => {
+	const { handleConfirmDeleteChannel } = useChannels();
+	console.log('moioooo', modalName);
+	const handleDeleteChannel = () => {
+		handleConfirmDeleteChannel(channelId, clanId);
+		handleCancel();
+	};
+	const { t } = useTranslation('channelSetting');
+
+	return (
+		<ModalConfirm
+			handleCancel={handleCancel}
+			handleConfirm={handleDeleteChannel}
+			title={t('confirm.deleteThread.title')}
+			modalName={modalName}
+			customTitle={t('confirm.deleteThread.content', { channelName: modalName || 'Unknown Channel' })}
+		/>
+	);
+};
