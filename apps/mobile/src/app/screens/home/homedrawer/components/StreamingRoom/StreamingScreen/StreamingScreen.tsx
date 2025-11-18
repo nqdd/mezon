@@ -9,7 +9,9 @@ import { Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import InCallManager from 'react-native-incall-manager';
 import { useSelector } from 'react-redux';
+import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { useWebRTCStream } from '../../../../../../components/StreamContext/StreamContext';
+import { IconCDN } from '../../../../../../constants/icon_cdn';
 
 interface IStreamingScreenProps {
 	isAnimationComplete?: boolean;
@@ -29,13 +31,16 @@ export function StreamingScreen({ isAnimationComplete = true }: IStreamingScreen
 		<View style={styles.container}>
 			{remoteStream && isStream ? (
 				<View style={styles.streamContainer}>
-					{!isRemoteVideoStream && !!currentChannel?.channel_avatar && (
-						<FastImage
-							source={{ uri: currentChannel?.channel_avatar }}
-							style={styles.imageFullSize}
-							resizeMode={isAnimationComplete ? 'contain' : 'cover'}
-						/>
-					)}
+					{!isRemoteVideoStream &&
+						(currentChannel?.channel_avatar ? (
+							<FastImage
+								source={{ uri: currentChannel?.channel_avatar }}
+								style={styles.imageFullSize}
+								resizeMode={isAnimationComplete ? 'contain' : 'cover'}
+							/>
+						) : (
+							<MezonIconCDN icon={IconCDN.streamBanner} color={themeValue.text} customStyle={styles.imageFullSize} useOriginalColor />
+						))}
 					<RTCView streamURL={remoteStream?.toURL?.()} style={styles.rtcViewFlex} mirror={true} objectFit={'cover'} />
 				</View>
 			) : (
