@@ -14,6 +14,7 @@ import MezonInput from '../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import type { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
 import RenderAudioChat from '../../../../screens/home/homedrawer/components/RenderAudioChat/RenderAudioChat';
+import { CLAN_MEDIA_NAME_REGEX, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '../../Emoji/EmojiPreview';
 import { style } from './styles';
 
 type ClanSettingsScreen = typeof APP_SCREEN.MENU_CLAN.CREATE_SOUND;
@@ -25,6 +26,7 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 	const styles = style(themeValue, isDisabledUpload);
 	const { t } = useTranslation(['clanSoundSetting']);
 	const [audioUrl, setAudioUrl] = useState<string>('');
+	const [error, setError] = useState<string>('');
 	const buttonRef = useRef<any>(null);
 	const { sessionRef, clientRef } = useMezon();
 	const dispatch = useAppDispatch();
@@ -72,6 +74,16 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 	const uploadSound = async () => {
 		if (!audioFile || !soundName.trim()) return;
 
+		if (!(soundName?.trim()?.length >= MIN_NAME_LENGTH && soundName?.length <= MAX_NAME_LENGTH && CLAN_MEDIA_NAME_REGEX.test(soundName))) {
+			setError(
+				t('modal.errorName', {
+					max: MAX_NAME_LENGTH,
+					min: MIN_NAME_LENGTH
+				})
+			);
+			return;
+		}
+
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
 			const session = sessionRef.current;
@@ -110,6 +122,11 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 		}
 	};
 
+	const handleSetSoundName = (value: string) => {
+		setError('');
+		setSoundName(value);
+	};
+
 	return (
 		<View style={styles.container}>
 			{!!audioUrl && (
@@ -128,7 +145,13 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 					<MezonIconCDN icon={IconCDN.shareIcon} height={Fonts.size.s_20} width={Fonts.size.s_20} color="white" />
 				</Pressable>
 			</View>
-			<MezonInput label={t('content.audioName')} placeHolder="Ex.cathug" maxCharacter={30} onTextChange={setSoundName} />
+			<MezonInput
+				label={t('content.audioName')}
+				placeHolder="Ex.cathug"
+				maxCharacter={MAX_NAME_LENGTH}
+				onTextChange={handleSetSoundName}
+				errorMessage={error}
+			/>
 			<Pressable style={styles.button} onPress={uploadSound} ref={buttonRef} disabled={isDisabledUpload}>
 				<Text style={styles.buttonTitle}>{t('button.uploadDetailScreen')}</Text>
 			</Pressable>
