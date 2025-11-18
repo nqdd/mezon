@@ -2,9 +2,11 @@
 
 import { Icons } from '@mezon/ui';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
 export const EnterpriseIntegrationsSection = () => {
+	const { t } = useTranslation('homepage');
 	const sectionRef = useRef<HTMLElement>(null);
 	const imageRef = useRef<HTMLDivElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
@@ -38,12 +40,15 @@ export const EnterpriseIntegrationsSection = () => {
 				<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 gap-8 lg:gap-12 xl:gap-16">
 					<div
 						ref={imageRef}
-						className={`flex-shrink-0 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+						className={`flex-shrink-0 transition-all duration-700 relative ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
 					>
+						<div
+							className={`absolute inset-0 bg-gradient-to-br from-[#8661df] to-[#7979ed] rounded-2xl transition-opacity duration-300 ${imageLoaded ? 'opacity-0' : 'opacity-100'}`}
+						/>
 						<img
-							src="https://cdn.mezon.ai/landing-page-mezon/integraytionnew.webp"
+							src="https://cdn.mezon.ai/landing-page-mezon/integrationn.webp"
 							alt="Voice Channel"
-							className={`max-w-[35vw] max-lg:max-w-[60vw] object-contain drop-shadow-2xl rounded-2xl ${!imageLoaded ? 'bg-gradient-to-br from-[#8661df] to-[#7979ed]' : ''}`}
+							className="max-w-[68vw] lg:max-w-[35vw] object-contain drop-shadow-2xl rounded-2xl relative z-10"
 							loading="lazy"
 							onLoad={() => setImageLoaded(true)}
 						/>
@@ -58,17 +63,17 @@ export const EnterpriseIntegrationsSection = () => {
 						<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 							<div>
 								<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
-									<span className="text-stone-900">Enterprise Integrations</span>
+									<span className="text-stone-900">{t('sections.enterpriseIntegrations.title')}</span>
 								</h2>
 								<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
-									Mezon enables you to connect with customers globally and deliver captivating large-scale experiences.
+									{t('sections.enterpriseIntegrations.description')}
 								</p>
 							</div>
 							<Link
-								to="/"
+								to="/integrations"
 								className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
 							>
-								<span>Tìm hiểu thêm</span>
+								<span>{t('sections.enterpriseIntegrations.learnMore')}</span>
 								<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
 							</Link>
 						</div>

@@ -50,12 +50,14 @@ const FriendsPage = lazy(() => import(/* webpackChunkName: "dm-pages" */ '../pag
 const GuideMain = lazy(() => import(/* webpackChunkName: "guide-pages" */ '../pages/guide'));
 const MezonPage = lazy(() => import(/* webpackChunkName: "homepage" */ '../pages/homepage/mezonpage'));
 const AboutMezon = lazy(() => import(/* webpackChunkName: "about" */ '../pages/aboutmezon'));
-const EconomyPage = lazy(() => import(/* webpackChunkName: "economy-page" */ '../pages/economy'));
 const InvitePage = lazy(() => import(/* webpackChunkName: "invite-pages" */ '../pages/invite'));
 const TextChannelPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/textchannel'));
-const VoiceChannelPage = lazy(() => import(/* webpackChunkName: "voicechannel-page" */ '../pages/voicechannel'));
+const TermOfServicePage = lazy(() => import(/* webpackChunkName: "termofservice-page" */ '../pages/termofservices'));
+const ContactUsPage = lazy(() => import(/* webpackChunkName: "contactus-page" */ '../pages/contactus'));
+const MezonDongPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/mezondong'));
+const IntegrationsPage = lazy(() => import(/* webpackChunkName: "integrations-page" */ '../pages/integrations'));
+const ClanDetailPage = lazy(() => import(/* webpackChunkName: "clandetail-page" */ '../pages/clandetail'));
 const OrganizePage = lazy(() => import(/* webpackChunkName: "organize-page" */ '../pages/organize'));
-const EngagePage = lazy(() => import(/* webpackChunkName: "engage-page" */ '../pages/engage'));
 const CustomizePage = lazy(() => import(/* webpackChunkName: "customize-page" */ '../pages/customize'));
 const AIGenerationPage = lazy(() => import(/* webpackChunkName: "aigeneration-page" */ '../pages/aigeneration'));
 const Login = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/login'));
@@ -203,14 +205,6 @@ export const Routes = memo(() => {
 						)
 					},
 					{
-						path: '/economy',
-						element: (
-							<Suspense fallback={<SuspenseFallback />}>
-								<EconomyPage />
-							</Suspense>
-						)
-					},
-					{
 						path: '/about',
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
@@ -219,7 +213,7 @@ export const Routes = memo(() => {
 						)
 					},
 					{
-						path: '/textchannel',
+						path: '/fastmessage',
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<TextChannelPage />
@@ -227,10 +221,43 @@ export const Routes = memo(() => {
 						)
 					},
 					{
-						path: '/voicechannel',
+						path: '/contact-us',
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
-								<VoiceChannelPage />
+								<ContactUsPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/term-of-service',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<TermOfServicePage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/mezondong',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<MezonDongPage />
+							</Suspense>
+						)
+					},
+
+					{
+						path: '/integrations',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<IntegrationsPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/clanword',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<ClanDetailPage />
 							</Suspense>
 						)
 					},
@@ -239,14 +266,6 @@ export const Routes = memo(() => {
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<OrganizePage />
-							</Suspense>
-						)
-					},
-					{
-						path: '/engage',
-						element: (
-							<Suspense fallback={<SuspenseFallback />}>
-								<EngagePage />
 							</Suspense>
 						)
 					},

@@ -1,7 +1,8 @@
+import type { Attributes } from '@mezon/mobile-ui';
 import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const styles = (theme: any) =>
+export const styles = (theme: Attributes) =>
 	StyleSheet.create({
 		languageSettingContainer: {
 			backgroundColor: theme.primary,
@@ -12,12 +13,13 @@ export const styles = (theme: any) =>
 			flexDirection: 'row',
 			backgroundColor: theme.secondary,
 			padding: size.s_10,
-			justifyContent: 'space-between'
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			height: size.s_42
 		},
 		optionText: {
 			color: theme.text,
-			fontSize: size.s_14,
-			paddingVertical: size.s_3
+			fontSize: size.s_14
 		},
 		itemSeparator: {
 			height: 1

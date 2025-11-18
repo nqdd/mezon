@@ -123,13 +123,6 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							>
 								{t('header.blogs')}
 							</a>
-							<Link
-								to={'/economy'}
-								className="text-[16px] leading-[24px] text-white font-semibold flex flex-row items-center px-2 py-1 rounded-lg hover:bg-[#de82e6]"
-								data-e2e={generateE2eId('homepage.header.link')}
-							>
-								Economy
-							</Link>
 						</div>
 					</div>
 					<div className={`w-fit lg:pl-5 min-[1505px]:pl-0`}>

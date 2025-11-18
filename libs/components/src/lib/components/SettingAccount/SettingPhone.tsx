@@ -94,6 +94,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 			).unwrap();
 			if (validate && onClose) {
 				toast.success(t('setPhoneModal.updatePhoneSuccess'));
+				dispatch(accountActions.updatePhoneNumber(parsePhoneVN(phone)));
 				onClose();
 			}
 

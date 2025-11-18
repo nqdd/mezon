@@ -14,6 +14,7 @@ import { convertTimeString, createImgproxyUrl, getAvatarForPrioritize } from '@m
 import type { ApiAuditLog } from 'mezon-js/api.gen';
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 
@@ -26,6 +27,7 @@ interface MainAuditLogProps {
 }
 
 const MainAuditLog = ({ pageSize, setPageSize, currentPage, setCurrentPage, selectedDate }: MainAuditLogProps) => {
+	const { t } = useTranslation('auditLog');
 	const auditLogData = useSelector(selectAllAuditLogData);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const auditLogFilterAction = useSelector(selectActionAuditLog);
@@ -52,8 +54,8 @@ const MainAuditLog = ({ pageSize, setPageSize, currentPage, setCurrentPage, sele
 			) : (
 				<div className="flex flex-col items-center justify-center text-center py-10 max-w-[440px] mx-auto">
 					<div className="flex flex-col items-center justify-center text-center max-w-[300px]">
-						<div className="text-lg font-semibold">NO LOGS YET</div>
-						<p className=" mt-2">Once moderators begin moderating, you can moderate the moderation here.</p>
+						<div className="text-lg font-semibold">{t('emptyAuditLog.noLogsYet')}</div>
+						<p className=" mt-2">{t('emptyAuditLog.description')}</p>
 					</div>
 				</div>
 			)}

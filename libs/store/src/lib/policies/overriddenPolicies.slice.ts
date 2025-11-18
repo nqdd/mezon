@@ -1,10 +1,13 @@
 import { captureSentryError } from '@mezon/logger';
-import { EOverriddenPermission } from '@mezon/utils';
-import { createAsyncThunk, createEntityAdapter, createSelector, createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-import { ApiPermission } from 'mezon-js/api.gen';
-import { CacheMetadata, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { ensureSession, fetchDataWithSocketFallback, getMezonCtx, MezonValueContext } from '../helpers';
-import { RootState } from '../store';
+import type { EOverriddenPermission } from '@mezon/utils';
+import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import type { ApiPermission } from 'mezon-js/api.gen';
+import type { CacheMetadata } from '../cache-metadata';
+import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { MezonValueContext } from '../helpers';
+import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
+import type { RootState } from '../store';
 
 export const OVERRIDDEN_POLICIES_FEATURE_KEY = 'overriddenPolicies';
 
@@ -162,7 +165,7 @@ export const fetchMaxChannelPermission = createAsyncThunk(
 
 			if (response.fromCache) {
 				return {
-					channelId: channelId,
+					channelId,
 					channelPermission: response as ChannelPermission,
 					fromCache: true
 				};

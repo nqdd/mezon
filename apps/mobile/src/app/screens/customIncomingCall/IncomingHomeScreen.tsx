@@ -1,10 +1,11 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { DMCallActions, appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { appActions, DMCallActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
+import { WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
-import { WebrtcSignalingFwd, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
+import type { WebrtcSignalingFwd } from 'mezon-js';
+import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useEffect, useRef } from 'react';
 import {
@@ -36,6 +37,7 @@ import { style } from './styles';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import BG_CALLING from './bgCalling.png';
+
 registerGlobals();
 const AVATAR_DEFAULT = `${process.env.NX_BASE_IMG_URL}/1775731152322039808/1820659489792069632/mezon_logo.png`;
 const IncomingHomeScreen = memo((props: any) => {
@@ -305,7 +307,6 @@ const IncomingHomeScreen = memo((props: any) => {
 				isGroupCall: true,
 				clanId: ''
 			};
-			await sleep(1000);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
 			const joinAction = {
 				participant_id: userId,

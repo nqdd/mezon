@@ -110,7 +110,6 @@ const AppLayout = () => {
 				const session = new Session(
 					sessionData.token,
 					sessionData.refresh_token,
-					sessionData.user_id || '',
 					sessionData.created,
 					sessionData.api_url,
 					!!sessionData.is_remember

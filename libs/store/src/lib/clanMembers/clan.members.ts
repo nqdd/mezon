@@ -71,8 +71,7 @@ export const fetchUsersClanCached = async (getState: () => RootState, ensuredMez
 			}
 		},
 		() => ensuredMezon.client.listClanUsers(ensuredMezon.session, clanId),
-		'clan_user_list',
-		{ maxRetries: 5 }
+		'clan_user_list'
 	);
 
 	const users = response?.clan_users?.map(mapUsersClanToEntity) || [];
@@ -126,18 +125,7 @@ export const fetchListBanMembersCached = async (
 		};
 	}
 
-	const response = await fetchDataWithSocketFallback(
-		ensuredMezon,
-		{
-			api_name: 'listBannedUsers',
-			list_channel_users_req: {
-				channel_id: channelId,
-				clan_id: clanId
-			}
-		},
-		() => ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId),
-		'ban_list'
-	);
+	const response = await ensuredMezon.client.listBannedUsers(ensuredMezon.session, clanId, channelId);
 
 	markApiFirstCalled(apiKey);
 

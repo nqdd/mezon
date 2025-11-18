@@ -1,0 +1,67 @@
+{
+	"sections": {
+		"section1": {
+			"title": "Xây Dựng Cộng Đồng Vui Vẻ Hơn",
+			"description": "Không chỉ là chat – đây là nơi bạn tổ chức, kết nối với nhóm, bạn bè và cộng đồng một cách vui vẻ."
+		},
+		"section2": {
+			"title": "Trải Nghiệm WFH Tốt Nhất Cho Tổ Chức",
+			"description": "Làm việc tại nhà không có nghĩa là làm việc một mình. Hợp tác, giao tiếp và ăn mừng cùng nhau — đôi khi ở xa. Trải nghiệm WFH tốt nhất cho tổ chức của bạn."
+		},
+		"section3": {
+			"title": "Định Hướng Mối Quan Hệ Thành Viên",
+			"description": "Chúng tôi tin rằng mối quan hệ bền chặt xây dựng nên tổ chức vững mạnh. Mọi tính năng được thiết kế để gắn kết thành viên. Mối quan hệ thành viên, được khuếch đại."
+		},
+		"section4": {
+			"title": "Đóng Góp Để Kiếm Thưởng",
+			"description": "Tham gia, kiếm tín dụng và nhận token khi bạn giúp cộng đồng phát triển. Tiếng nói của bạn là giá trị của bạn. Đóng góp để kiếm thưởng."
+		},
+		"section5": {
+			"title": "Báo Cáo Chi Tiết Và Rõ Ràng",
+			"description": "Theo dõi sự phát triển và tương tác của cộng đồng với phân tích và báo cáo chi tiết. Luôn nắm bắt thông tin, đưa ra quyết định tốt hơn."
+		}
+	},
+	"features": [
+		{
+			"title": "Bạn Có Thể Upload Biểu Cảm, Nhãn Dán Và Âm Thanh",
+			"description": "Hoàn Toàn Miễn Phí  Tùy Chỉnh Biểu Cảm, Nhãn Dán Và Âm Thanh Của Riêng Bạn Để Thể Hiện Bản Thân Trong Cuộc Trò Chuyện."
+		},
+		{
+			"title": "Phân Quyền Cho Thành Viên Trong Clan",
+			"description": "Dễ dàng quản lý quyền và vai trò của thành viên trong clan để đảm bảo mọi người đều có trải nghiệm phù hợp và an toàn."
+		},
+		{
+			"title": "Thành Viên Khắp Nơi Có Cùng Sở Thích",
+			"description": "Các thành viên sẽ tham gia vào clan của bạn thông qua lời mời hoặc khám phá công khai, tạo nên một cộng đồng đa dạng và sôi động."
+		},
+		{
+			"title": "Việc Tạo Clan Trở Nên Dễ Dàng Hơn Bao Giờ Hết",
+			"description": "Nhanh chóng phản hồi tin nhắn bằng biểu tượng cảm xúc mà không cần gõ chữ."
+		}
+	],
+	"featuresTitle": "Xây Dựng Cộng Đồng Của Bạn Vui Hơn",
+	"download": "Tải Xuống",
+	"faq": {
+		"title": "Cần Thêm Trợ Giúp?",
+		"seeAll": "Xem Tất Cả FAQ",
+		"learnMore": "Tìm Hiểu Thêm",
+		"questions": [
+			{
+				"question": "Clan Trên Mezon Là Gì?",
+				"answer": "Clan là trái tim của Mezon — nơi mọi người kết nối, cộng tác và chia sẻ thông qua các cộng đồng được xây dựng xung quanh sở thích, mục tiêu hoặc đam mê chung. Clan có thể là một nhóm bạn nhỏ hoặc một cộng đồng lớn với hàng nghìn thành viên. Trong Clan, bạn có thể trò chuyện qua các Kênh được tổ chức, tổ chức sự kiện qua Kênh thoại và nâng cao cộng đồng bằng Bot, Ứng dụng và Mezon Token."
+			},
+			{
+				"question": "Làm Thế Nào Để Tham Gia Clan Trên Mezon?",
+				"answer": "Bạn có thể khám phá và tham gia Clan bằng hai cách: thông qua nút Khám phá trong ứng dụng hoặc qua Trang web Clan tại mezon.ai/clans, hoặc bằng cách sử dụng liên kết mời được chia sẻ bởi bạn bè, đồng đội hoặc quản trị viên. Chỉ cần nhấp \"Tham Gia\" để trở thành thành viên của cộng đồng. Mỗi người dùng có thể tham gia tối đa 50 Clan cùng một lúc. Hãy xem các Clan nổi bật như Student Clan, Gamer Clan và Business Clan."
+			},
+			{
+				"question": "Làm Thế Nào Để Tạo Clan Của Riêng Tôi?",
+				"answer": "Tạo Clan rất đơn giản và linh hoạt. Điều hướng đến phần Clan và tạo Clan mới chỉ với vài cú nhấp chuột. Bạn có thể đặt tên, biểu tượng và cài đặt cơ bản để tùy chỉnh cộng đồng của mình. Sau khi tạo, bạn có thể mời bạn bè và đồng đội để bắt đầu trò chuyện, chia sẻ ý tưởng hoặc cộng tác cùng nhau. Bạn cũng có thể quản lý kênh, đặt quyền và chuyển quyền sở hữu nếu cần."
+			},
+			{
+				"question": "Tôi Có Thể Rời Clan Nếu Không Muốn Tham Gia Nữa Không?",
+				"answer": "Có, nếu bạn không còn muốn tham gia Clan, bạn có thể chọn 'Rời Clan' từ cài đặt của Clan. Sau khi rời, tất cả lịch sử tin nhắn và quyền truy cập vào các kênh của Clan đó sẽ bị xóa khỏi tài khoản của bạn. Bạn luôn có thể tham gia lại Clan sau này nếu có liên kết mời hoặc nếu Clan có thể khám phá công khai."
+			}
+		]
+	}
+}

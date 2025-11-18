@@ -10,6 +10,7 @@ import {
 	selectBanMemberCurrentClanById,
 	selectBlockedUsersForMessage,
 	selectCurrentChannelId,
+	selectCurrentTopicId,
 	selectCurrentUserId,
 	selectDirectsOpenlist,
 	selectDmGroupCurrentId,
@@ -18,7 +19,7 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { ChannelThreads, IMessageWithUser } from '@mezon/utils';
-import { FOR_1_HOUR_SEC, normalizeString } from '@mezon/utils';
+import { FORWARD_MESSAGE_TIME, normalizeString } from '@mezon/utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -61,14 +62,17 @@ const ForwardMessageScreen = () => {
 	const isForwardAll = useSelector(getIsFowardAll);
 	const currentDmId = useSelector(selectDmGroupCurrentId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
+	const currentTopicId = useSelector(selectCurrentTopicId);
 	const selectedMessage = useSelector(getSelectedMessage);
 	const [count, setCount] = useState('');
 	const selectedForwardObjectsRef = useRef<IForwardIObject[]>([]);
 
 	const allMessagesEntities = useAppSelector((state) =>
-		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || '')
+		selectMessageEntitiesByChannelId(state, (currentDmId ? currentDmId : currentTopicId ? currentTopicId : currentChannelId) || '')
 	);
-	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentChannelId) || ''));
+	const allMessageIds = useAppSelector((state) =>
+		selectMessageIdsByChannelId(state, (currentDmId ? currentDmId : currentTopicId ? currentTopicId : currentChannelId) || '')
+	);
 
 	const mapDirectMessageToForwardObject = (dm: DirectEntity): IForwardIObject => {
 		return {
@@ -176,12 +180,13 @@ const ForwardMessageScreen = () => {
 			let index = startIndex - 1;
 
 			while (index >= 0) {
+				const previousMessageEntity = allMessagesEntities?.[revertIds?.[index + 1]];
 				const messageEntity = allMessagesEntities?.[revertIds?.[index]];
 				if (!messageEntity) break;
 
-				const differentTime = Date.parse(selectedMessage.create_time) - Date.parse(messageEntity.create_time);
+				const differentTime = Date.parse(messageEntity?.create_time) - Date.parse(previousMessageEntity?.create_time);
 
-				if (differentTime <= FOR_1_HOUR_SEC * 1000 && messageEntity?.sender_id === selectedMessage?.user?.id) {
+				if (differentTime <= FORWARD_MESSAGE_TIME && messageEntity?.sender_id === selectedMessage?.user?.id) {
 					combineMessages.push(messageEntity);
 					index--;
 				} else {

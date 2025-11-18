@@ -44,7 +44,7 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 	return (
 		<View
 			style={[
-				{ backgroundColor: themeBasic === ThemeModeBase.LIGHT ? themeValue.secondaryWeight : themeValue.secondaryLight },
+				{ zIndex: 1, backgroundColor: themeBasic === ThemeModeBase.LIGHT ? themeValue.secondaryWeight : themeValue.secondaryLight },
 				isActive && styles.channelListItemActive
 			]}
 		>
@@ -86,10 +86,6 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 						{data?.channel_label}
 					</Text>
 				</View>
-				{data?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && data?.status === StatusVoiceChannel.No_Active && (
-					<ActivityIndicator color={themeValue.white} />
-				)}
-
 				<BuzzBadge channelId={data?.channel_id as string} clanId={data?.clan_id as string} mode={ChannelStreamMode.STREAM_MODE_CHANNEL} />
 
 				{Number(numberNotification || 0) > 0 && <ChannelBadgeUnread countMessageUnread={Number(numberNotification || 0)} />}

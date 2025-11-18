@@ -168,8 +168,8 @@ const ClanSetting = (props: ModalSettingProps) => {
 						{isShowDeletePopup && (
 							<DeleteClanModal
 								onClose={() => setIsShowDeletePopup(false)}
-								buttonLabel="Delete clan"
-								title={`Delete '${currentClanName}'`}
+								buttonLabel={t('sidebar.deleteClan')}
+								title={t('deleteClanTitle', { clanName: currentClanName })}
 								onClick={handleDeleteCurrentClan}
 							/>
 						)}

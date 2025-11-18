@@ -254,6 +254,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 	) => {
 		const inputRef = useRef<HTMLDivElement>(null);
 		const popoverRef = useRef<HTMLDivElement>(null);
+		const anchorRef = useRef<HTMLDivElement>(null);
 		const [contextMenuPosition, setContextMenuPosition] = useState<{ x: number; y: number } | null>(null);
 
 		const [html, setHtml] = useState(value);
@@ -1207,9 +1208,11 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 				<div
 					ref={(node) => {
 						refs.setFloating(node);
-						(popoverRef as any).current = node;
+						if (popoverRef) {
+							(popoverRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+						}
 					}}
-					className="mention-popover-container bg-ping-member mt-[-5px] z-[999]"
+					className="mention-popover-container bg-ping-member"
 					style={{
 						...floatingStyles,
 						borderRadius: '8px',
@@ -1228,9 +1231,13 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			<div className={`mention-input relative ${className} `} style={style} onContextMenu={handleContextMenu}>
 				<div
 					ref={(node) => {
-						(inputRef as any).current = node;
+						(anchorRef as any).current = node;
 						refs.setReference(node);
 					}}
+					className="sticky top-0 left-0 w-full h-0 pointer-events-none"
+				/>
+				<div
+					ref={inputRef}
 					id={id}
 					contentEditable={!disabled}
 					className="mention-input-editor"

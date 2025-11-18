@@ -622,7 +622,7 @@ function MessageContextMenu({
 				'addReaction', // id
 				t('addReaction'), // label
 				handleItemClick,
-				<Icons.RightArrowRightClick />
+				<Icons.RightArrowRightClick defaultSize="w-4 h-4" />
 			);
 		});
 

@@ -31,5 +31,8 @@
 	"emojiList": {
 		"slotsDetails": "LIST EMOJIS",
 		"delete": "Delete"
-	}
+	},
+	"image": "IMAGE",
+	"name": "NAME",
+	"uploadedBy": "UPLOADED BY"
 }

@@ -46,6 +46,7 @@ import { EmojiPlaces, generateE2eId, isBackgroundModeActive, isLinuxDesktop, isW
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ChannelMessages from '../../channel/ChannelMessages';
@@ -126,6 +127,7 @@ function DirectSeenListener({ channelId, mode, currentChannel }: { channelId: st
 }
 
 const DirectMessage = () => {
+	const { t } = useTranslation('message');
 	// TODO: move selector to store
 	const currentDirect = useSelector(selectCurrentDM);
 	const currentDirectId = useSelector(selectDmGroupCurrentId);
@@ -304,7 +306,7 @@ const DirectMessage = () => {
 									className="h-11 opacity-80 bg-theme-input  ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission text-theme-primary rounded one-line"
 									data-e2e={generateE2eId('chat.message_box.input.no_permission')}
 								>
-									You do not have permission to send message
+									{t('noSendMessagePermission')}
 								</div>
 							) : (
 								<>

@@ -1,10 +1,12 @@
 import { useMemberContext } from '@mezon/core';
 import { Icons, Menu, Pagination } from '@mezon/ui';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 import MemberTopBar from './MemberTopBar';
 import TableMember from './TableMember';
 
 const MemberClan = () => {
+	const { t } = useTranslation('memberPage');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
 	const { filteredMembers, searchQuery } = useMemberContext();
@@ -47,14 +49,14 @@ const MemberClan = () => {
 
 				<div className="flex flex-row justify-center lg:justify-between items-center px-4 h-[54px] my-2">
 					<div className={'hidden lg:flex flex-row items-center'}>
-						Show
+						{t('show')}
 						<Menu menu={menu}>
 							<div className={'flex flex-row items-center justify-center text-center rounded mx-1 px-3 w-12'}>
 								<span className="mr-1">{pageSize}</span>
 								<Icons.ArrowDown />
 							</div>
 						</Menu>
-						members of {filteredMembers.length}
+						{t('membersOf', { count: filteredMembers.length })}
 					</div>
 					<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={onPageChange} />
 				</div>

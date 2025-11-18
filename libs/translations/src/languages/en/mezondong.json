@@ -1,0 +1,44 @@
+{
+	"sections": {
+		"section1": {
+			"title": "Transparent, Secure, Free",
+			"description": "Mezon Dong was created to make digital transactions simpler and more transparent – the foundation for a new type of community economy."
+		},
+		"section2": {
+			"title": "Fast, Uninterrupted",
+			"description": "Sending Mezon Dong is as easy as sending a message. Gift friends, contribute to the community, or shop – everything happens instantly and with zero fees."
+		},
+		"section3": {
+			"title": "Elevate The Workplace With Mezon Dong",
+			"description": "Mezon isn't just for communities – businesses can also use Mezon as an internal platform for communication and payments. Reward employees, manage benefits, or create internal incentives – all handled smoothly and flexibly with Mezon Dong."
+		},
+		"section4": {
+			"title": "Integrated Commerce",
+			"description": "Partner brands can accept Mezon Dong for their products and services. From digital goods to physical products, the community can shop directly with just one click."
+		}
+	},
+	"faq": {
+		"title": "Need more help?",
+		"seeAll": "See all FAQs",
+		"learnMore": "Learn more",
+		"questions": [
+			{
+				"question": "What is Mezon Dong?",
+				"answer": "Mezon Dong is a digital unit of value used as an internal exchange tool within the Mezon platform. It is a built-in digital payment system that helps you send and transfer money easily, transparently, and securely."
+			},
+			{
+				"question": "How do I send and transfer Mezon Dong?",
+				"answer": "Mezon Dong is not just for spending but also for sharing. You can send tokens to friends, colleagues, or Clan members in just a few simple steps. Sending Mezon Dong is as easy as sending a message - open a conversation, tap the Mezon Dong icon, enter the amount, and confirm. Transactions are processed instantly and with no fees."
+			},
+			{
+				"question": "How can businesses use Mezon Dong?",
+				"answer": "Businesses can use Mezon as an internal platform for communication and payments. You can reward employees, manage benefits, or create internal incentive programs. Everything is handled smoothly and flexibly with Mezon Dong."
+			},
+			{
+				"question": "How do I accept Mezon Dong payments for my store?",
+				"answer": "Partner brands can accept Mezon Dong for their products and services. From digital goods to physical products, the community can shop directly with just one click. Contact the Mezon team to set up a merchant account and integrate Mezon Dong into your store."
+			}
+		]
+	},
+	"download": "Download"
+}

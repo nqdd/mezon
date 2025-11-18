@@ -1,12 +1,14 @@
 {
-  "modal": {
-    "title": "Forward Message",
-    "searchPlaceholder": "Search",
-    "noResults": "Can't seem to find what you're looking for?",
-    "searchFriendsUsers": "Search friend and users",
-    "searchingChannel": "Searching channel",
-    "sharedContent": "Shared content",
-    "cancel": "Cancel",
-    "send": "Send"
-  }
+	"modal": {
+		"title": "Forward Message",
+		"searchPlaceholder": "Search",
+		"noResults": "Can't seem to find what you're looking for?",
+		"searchFriendsUsers": "Search friend and users",
+		"searchingChannel": "Searching channel",
+		"sharedContent": "Shared content",
+		"cancel": "Cancel",
+		"send": "Send"
+	},
+	"successMessage": "Message forwarded successfully",
+	"errorMessage": "Failed to forward message"
 }

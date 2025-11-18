@@ -6,9 +6,9 @@ import { Animated, DeviceEventEmitter, FlatList, Text, TouchableOpacity, View } 
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { SeparatorWithSpace } from '../../../../../components/Common';
+import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './styles';
-import StatusBarHeight from '../../../../../components/StatusBarHeight/StatusBarHeight';
 
 interface IReportOption {
 	title: string;
