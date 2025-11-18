@@ -17,15 +17,15 @@ interface webviewBaseComponentProps {
 	setSupportMultipleWindows?: boolean;
 	iosTimeoutInMilliseconds?: number;
 	androidTimeoutInMilliseconds?: number;
-    startInLoadingState?: boolean;
+	startInLoadingState?: boolean;
 	style?: StyleProp<ViewStyle>;
 	onMessage?: (event: WebViewMessageEvent) => void;
 	onLoadEnd?: () => void;
 	onLoadStart?: () => void;
 	onError?: (error: WebViewErrorEvent) => void;
 	onGoBack?: () => void;
-    onRefresh?: () => void
-    onShouldStartLoadWithRequest?: (state: any) => boolean
+	onRefresh?: () => void;
+	onShouldStartLoadWithRequest?: (state: any) => boolean;
 }
 
 const WebviewBase = (props: webviewBaseComponentProps) => {
@@ -41,15 +41,15 @@ const WebviewBase = (props: webviewBaseComponentProps) => {
 		setSupportMultipleWindows,
 		iosTimeoutInMilliseconds,
 		androidTimeoutInMilliseconds,
-        startInLoadingState,
+		startInLoadingState,
 		style,
 		onMessage,
 		onLoadEnd,
 		onLoadStart,
 		onError,
 		onGoBack,
-        onRefresh,
-        onShouldStartLoadWithRequest
+		onRefresh,
+		onShouldStartLoadWithRequest
 	} = props;
 	const [error, setError] = useState(null);
 	const webviewRef = useRef<WebView>(null);
@@ -63,7 +63,7 @@ const WebviewBase = (props: webviewBaseComponentProps) => {
 
 	const handleRefresh = () => {
 		dispatch(appActions.setLoadingMainMobile(true));
-        onRefresh && onRefresh();
+		onRefresh && onRefresh();
 		webviewRef?.current?.reload();
 	};
 
@@ -86,14 +86,14 @@ const WebviewBase = (props: webviewBaseComponentProps) => {
 				incognito={incognito}
 				domStorageEnabled={domStorageEnabled}
 				nestedScrollEnabled={nestedScrollEnabled}
-                startInLoadingState={startInLoadingState}
+				startInLoadingState={startInLoadingState}
 				style={style}
 				onMessage={onMessage}
 				onLoadEnd={onLoadEnd}
 				onLoadStart={onLoadStart}
 				onError={handleError}
 				onLoad={handleLoadEnd}
-                onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+				onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
 				iosTimeoutInMilliseconds={iosTimeoutInMilliseconds}
 				androidTimeoutInMilliseconds={androidTimeoutInMilliseconds}
 			/>
