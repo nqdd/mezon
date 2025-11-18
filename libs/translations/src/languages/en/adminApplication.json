@@ -171,7 +171,7 @@
 	},
 	"oauth2": {
 		"title": "OAuth2",
-		"subtitle": "Use Mezon as an authorization system or use our API on behalf of your users. Add a redirect URI, pick your scopes, roll a D20 for good luck, and go!",
+		"subtitle": "Use Mezon for user authorization or call our API on your users’ behalf. Just add a redirect URI, select your scopes, and start building.",
 		"learnMore": "Learn more about OAuth2",
 		"generator": {
 			"title": "OAuth2 URL Generator",
