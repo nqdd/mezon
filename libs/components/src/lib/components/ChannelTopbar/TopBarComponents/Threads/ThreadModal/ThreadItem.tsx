@@ -4,30 +4,22 @@ import {
 	appActions,
 	channelsActions,
 	selectAllChannelMembers,
-	selectChannelById,
 	selectLastMessageIdByChannelId,
 	selectMemberClanByUserId,
 	selectMessageEntityById,
-	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import type { ChannelMembersEntity, IChannel, IChannelMember } from '@mezon/utils';
+import type { ChannelMembersEntity, IChannelMember } from '@mezon/utils';
 import { convertTimeMessage, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { AvatarImage } from 'libs/components/src/lib/components';
-import { ChannelType } from 'mezon-js';
 import type { MutableRefObject } from 'react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AvatarGroup, { AvatarCount } from '../../../../Avatar/AvatarGroup';
-import type { Coords } from '../../../../ChannelLink';
-import SettingChannel from '../../../../ChannelSetting';
 import { useMessageSender } from '../../../../MessageWithUser/useMessageSender';
-import ModalConfirm from '../../../../ModalConfirm';
-import PanelChannel from '../../../../PanelChannel';
 import ThreadModalContent from './ThreadModalContent';
 
 type ThreadItemProps = {
@@ -43,7 +35,6 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 	const { toChannelPage } = useAppNavigation();
 	const dispatch = useAppDispatch();
 	const threadMembers = useSelector((state) => selectAllChannelMembers(state, thread?.channel_id || ''));
-	const channelThread = useAppSelector((state) => selectChannelById(state, thread.id ?? '')) || {};
 
 	const messageId = useAppSelector((state) => selectLastMessageIdByChannelId(state, thread.channel_id as string));
 	const message = useAppSelector((state) =>
@@ -53,9 +44,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
 	) as IChannelMember;
 	const { avatarImg, username } = useMessageSender(user);
-	const [openThreadSetting, closeThreadSetting] = useModal(() => {
-		return <SettingChannel onClose={closeThreadSetting} channel={{ ...channelThread, type: ChannelType.CHANNEL_TYPE_THREAD }} />;
-	}, [channelThread?.id]);
+
 
 	const getRandomElements = (array: ChannelMembersEntity[], count: number) => {
 		const result: ChannelMembersEntity[] = [];
@@ -99,55 +88,15 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 		setIsShowThread();
 	};
 
-	const [coords, setCoords] = useState<Coords>({
-		mouseX: 0,
-		mouseY: 0,
-		distanceToBottom: 0
-	});
 
-	const panelRef = useRef<HTMLDivElement | null>(null);
-	const [isShowPanelChannel, setIsShowPanelChannel] = useState<boolean>(false);
 
-	const handleDeleteThread = async () => {
-		await dispatch(channelsActions.deleteChannel({ channelId: channelThread?.channel_id as string, clanId: channelThread?.clan_id as string }));
-		await dispatch(threadsActions.remove(channelThread.id));
 
-		const parentChannelId = (channelThread?.parent_id as string) || (thread?.parent_id as string) || '';
-		if (parentChannelId) {
-			await dispatch(threadsActions.removeThreadFromCache({ channelId: parentChannelId, threadId: thread.id }));
-		}
-		closeConfirmDelete();
-		dispatch(threadsActions.toggleThreadModal());
-		preventClosePannel.current = false;
-	};
-
-	const [openConfirmDelete, closeConfirmDelete] = useModal(() => {
-		return (
-			<ModalConfirm
-				handleCancel={() => {
-					closeConfirmDelete();
-					preventClosePannel.current = false;
-				}}
-				handleConfirm={handleDeleteThread}
-				title="delete"
-				modalName={`${channelThread?.channel_label || 'Unknown Thread'}`}
-			/>
-		);
-	}, [channelThread?.id]);
-
-	const handleOpenConfirmDelete = useCallback(() => {
-		setIsShowPanelChannel(false);
-		dispatch(threadsActions.toggleThreadModal());
-		preventClosePannel.current = true;
-		openConfirmDelete();
-	}, []);
 
 	return (
 		<div
 			onClick={() => handleLinkThread(thread.channel_id as string, thread.clan_id || '')}
 			className="relative overflow-y-hidden p-4 mb-2 cursor-pointer rounded-lg h-[72px] bg-item-theme"
 			role="button"
-			ref={panelRef}
 			data-e2e={generateE2eId('chat.channel_message.header.button.thread.item')}
 		>
 			<div className="flex flex-row justify-between items-center">
@@ -196,47 +145,9 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 					)}
 				</div>
 			</div>
-			{isShowPanelChannel && (
-				<PannelThreadItem
-					channelThread={{ ...channelThread, type: ChannelType.CHANNEL_TYPE_THREAD }}
-					coords={coords}
-					panelRef={panelRef}
-					setIsShowPanelChannel={setIsShowPanelChannel}
-					openThreadSetting={openThreadSetting}
-					handleOpenConfirmDelete={handleOpenConfirmDelete}
-				/>
-			)}
 		</div>
 	);
 };
 
-const PannelThreadItem = ({
-	channelThread,
-	coords,
-	setIsShowPanelChannel,
-	panelRef,
-	openThreadSetting,
-	handleOpenConfirmDelete
-}: {
-	panelRef: React.MutableRefObject<HTMLDivElement | null>;
-	channelThread: IChannel;
-	coords: Coords;
-	setIsShowPanelChannel: React.Dispatch<React.SetStateAction<boolean>>;
-	openThreadSetting: () => void;
-	handleOpenConfirmDelete: () => void;
-}) => {
-	return (
-		<div onClick={(e) => e.stopPropagation()}>
-			<PanelChannel
-				selectedChannel={channelThread?.id}
-				onDeleteChannel={handleOpenConfirmDelete}
-				channel={channelThread as IChannel}
-				coords={coords}
-				openSetting={openThreadSetting}
-				setIsShowPanelChannel={setIsShowPanelChannel}
-				rootRef={panelRef}
-			/>
-		</div>
-	);
-};
+
 export default ThreadItem;
