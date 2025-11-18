@@ -94,6 +94,21 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				return <Icons.OfflineStatus />;
 		}
 	};
+
+	const getStatusText = (status: string): string => {
+		switch (status) {
+			case EUserStatus.ONLINE:
+				return t('statusProfile.statusOptions.online');
+			case EUserStatus.IDLE:
+				return t('statusProfile.statusOptions.idle');
+			case EUserStatus.DO_NOT_DISTURB:
+				return t('statusProfile.statusOptions.doNotDisturb');
+			case EUserStatus.INVISIBLE:
+				return t('statusProfile.statusOptions.invisible');
+			default:
+				return t('statusProfile.statusOptions.online');
+		}
+	};
 	const updateUserStatus = (status: string, minutes: number, untilTurnOn: boolean) => {
 		dispatch(
 			accountActions.updateAccountStatus({
@@ -165,6 +180,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.doNotDisturb')}
+				description={t('statusProfile.statusOptionsDescriptions.doNotDisturb')}
 				statusValue={EUserStatus.DO_NOT_DISTURB}
 				startIcon={<Icons.MinusCircleIcon />}
 				dropdown
@@ -173,6 +189,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 				onClick={onClose}
 				modalRef={modalRef}
 				children={t('statusProfile.statusOptions.invisible')}
+				description={t('statusProfile.statusOptionsDescriptions.invisible')}
 				statusValue={EUserStatus.INVISIBLE}
 				startIcon={<Icons.OfflineStatus />}
 				dropdown
@@ -233,7 +250,12 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
 				>
 					<div className="capitalize ml-[1px] text-theme-primary">
-						<ItemStatus children={status.status} dropdown startIcon={statusIcon(status.status)} />
+						<ItemStatus
+							children={getStatusText(status.status)}
+							dropdown
+							startIcon={statusIcon(status.status)}
+							isdoNotDisturb={status.status === EUserStatus.DO_NOT_DISTURB}
+						/>
 					</div>
 				</Menu>
 			</div>

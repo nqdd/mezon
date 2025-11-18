@@ -16,9 +16,10 @@ type ItemStatusUpdateProps = {
 	onClick?: () => void;
 	disabled?: boolean;
 	modalRef: React.MutableRefObject<boolean>;
+	description?: string;
 };
 
-const ItemStatusUpdate = ({ children, statusValue, dropdown, startIcon, onClick, modalRef }: ItemStatusUpdateProps) => {
+const ItemStatusUpdate = ({ children, statusValue, dropdown, startIcon, onClick, modalRef, description }: ItemStatusUpdateProps) => {
 	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 	const { userProfile } = useAuth();
@@ -67,7 +68,7 @@ const ItemStatusUpdate = ({ children, statusValue, dropdown, startIcon, onClick,
 			}}
 		>
 			<div>
-				<ItemStatus children={children} dropdown={dropdown} startIcon={startIcon} />
+				<ItemStatus children={children} description={description} dropdown={dropdown} startIcon={startIcon} />
 			</div>
 		</Menu>
 	);
