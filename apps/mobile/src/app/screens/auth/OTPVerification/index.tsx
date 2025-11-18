@@ -263,6 +263,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 							isError={isError}
 							resetTrigger={resetTrigger}
 							isSms={!!phoneNumber}
+							styleTextOtp={styles.textInputOtp}
 						/>
 
 						<TouchableOpacity
