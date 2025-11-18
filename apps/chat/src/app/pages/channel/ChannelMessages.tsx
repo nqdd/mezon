@@ -992,7 +992,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							new Date().getTime() - new Date(lastMessage.create_time).getTime() < 1000)
 					) {
 						newScrollTop = scrollHeight;
-						shouldUpdateScrollPosition = !message.isSending;
+						shouldUpdateScrollPosition = !message?.isSending;
 					} else if (anchor && !isScrollTopJustUpdatedRef.current) {
 						const newAnchorTop = anchor.getBoundingClientRect().top;
 						newScrollTop = scrollTop + (newAnchorTop - (anchorTopRef.current || 0));
@@ -1005,12 +1005,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						} else {
 							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
-							shouldUpdateScrollPosition = !message.isSending;
+							shouldUpdateScrollPosition = !message?.isSending;
 						}
 					} else {
 						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
-						shouldUpdateScrollPosition = !message.isSending;
+						shouldUpdateScrollPosition = !message?.isSending;
 					}
 
 					return () => {
