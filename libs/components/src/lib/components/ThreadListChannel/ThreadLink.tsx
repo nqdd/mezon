@@ -167,7 +167,6 @@ type ModalConfirmComponentProps = {
 };
 const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCancel, channelId, clanId, modalName }) => {
 	const { handleConfirmDeleteChannel } = useChannels();
-	console.log('moioooo', modalName);
 	const handleDeleteChannel = () => {
 		handleConfirmDeleteChannel(channelId, clanId);
 		handleCancel();
