@@ -486,8 +486,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			if (!socketRef.current) {
 				return session;
 			}
-			const session2 = await socketRef.current.connect(session, true, isFromMobile ? '1' : '0');
-			sessionRef.current = session2;
+			await socketRef.current.connect(session, true, isFromMobile ? '1' : '0');
 			return session;
 		},
 		[clientRef, socketRef, isFromMobile]
@@ -535,12 +534,8 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 							);
 						}
 
-						const connectedSession = await socket.connect(newSession || sessionRef.current, true, isFromMobile ? '1' : '0');
+						await socket.connect(newSession || sessionRef.current, true, isFromMobile ? '1' : '0');
 						await socket.joinClanChat(clanId);
-
-						socketRef.current = socket;
-						sessionRef.current = connectedSession;
-						extractAndSaveConfig(connectedSession, isFromMobile);
 
 						return socket;
 					} catch (error) {
