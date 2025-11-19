@@ -15,20 +15,23 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 	const { t } = useTranslation('deleteClan');
 	const currentClanName = useSelector(selectCurrentClanName);
 	const [inputValue, setInputValue] = useState('');
-	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState(false);
+	const [inputValueIsMatchClanName, setInputValueIsMatchClanName] = useState<boolean | null>(null);
 
 	const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInputValue(e.target.value);
 		if (e.target.value === currentClanName) {
 			setInputValueIsMatchClanName(true);
-		} else if ((currentClanName || '').length < e.target.value.length && e.target.value !== currentClanName) {
+		} else if (
+			((currentClanName || '').length < e.target.value.length && e.target.value !== currentClanName) ||
+			((currentClanName || '').length > e.target.value.length && inputValueIsMatchClanName)
+		) {
 			setInputValueIsMatchClanName(false);
 		}
 	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (inputValueIsMatchClanName && onClick) {
+		if (inputValue.length === (currentClanName || '').length && inputValueIsMatchClanName && onClick) {
 			onClick();
 			onClose();
 			return;
@@ -56,7 +59,7 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 							onChange={handleOnchange}
 							data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.input')}
 						/>
-						{!inputValueIsMatchClanName ? <div className="text-[#fa777c] text-xs font-semibold">{t('incorrectName')}</div> : ''}
+						{inputValueIsMatchClanName === false ? <div className="text-[#fa777c] text-xs font-semibold">{t('incorrectName')}</div> : ''}
 					</div>
 				</div>
 				<div className="bottom-block flex justify-end p-[16px]  items-center gap-[20px] font-semibold rounded-[5px] bg-theme-setting-nav">
