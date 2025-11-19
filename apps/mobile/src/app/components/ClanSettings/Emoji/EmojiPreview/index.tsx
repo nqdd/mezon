@@ -14,12 +14,17 @@ interface IShareEventModalProps {
 	image: Image;
 	onConfirm?: (image: Image, emojiName: string, isForSale: boolean) => void;
 }
+export const MIN_NAME_LENGTH = 3;
+export const MAX_NAME_LENGTH = 64;
+export const CLAN_MEDIA_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
+
 export const EmojiPreview = memo(({ isSticker = false, image, onConfirm }: IShareEventModalProps) => {
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue, isTabletLandscape);
 	const [isForSale, setIsForSale] = useState<boolean>(false);
 	const [emojiName, setEmojiName] = useState<string>(`${isSticker ? 'sticker' : 'emoji'}_${Date.now()}`);
+	const [error, setError] = useState<string>('');
 	const { t } = useTranslation(['common']);
 
 	function handleClose() {
@@ -27,11 +32,28 @@ export const EmojiPreview = memo(({ isSticker = false, image, onConfirm }: IShar
 	}
 
 	function handleUploadConfirm() {
-		if (onConfirm) {
-			onConfirm(image, emojiName, isForSale);
-			handleClose();
+		if (emojiName?.trim()?.length >= MIN_NAME_LENGTH && emojiName?.length <= MAX_NAME_LENGTH && CLAN_MEDIA_NAME_REGEX.test(emojiName)) {
+			setError('');
+			if (onConfirm) {
+				onConfirm(image, emojiName, isForSale);
+				handleClose();
+			}
+		} else {
+			setError(
+				t('itemClanPreview.lenghtError', {
+					max: MAX_NAME_LENGTH,
+					min: MIN_NAME_LENGTH,
+					type: isSticker ? t('itemClanPreview.sticker') : t('itemClanPreview.emoji')
+				})
+			);
+			return;
 		}
 	}
+
+	const handleTextChange = (text: string) => {
+		setError('');
+		setEmojiName(text);
+	};
 
 	return (
 		<View style={styles.main}>
@@ -43,7 +65,8 @@ export const EmojiPreview = memo(({ isSticker = false, image, onConfirm }: IShar
 				<Text style={styles.title}>
 					{t('itemClanPreview.name', { type: isSticker ? t('itemClanPreview.sticker') : t('itemClanPreview.emoji') })}
 				</Text>
-				<TextInput style={styles.textInput} value={emojiName} onChangeText={setEmojiName} />
+				<TextInput style={styles.textInput} value={emojiName} onChangeText={handleTextChange} />
+				{error && <Text style={styles.error}>{error}</Text>}
 				<View style={styles.row}>
 					<MezonSwitch value={isForSale} onValueChange={setIsForSale} />
 					<Text style={styles.title}>{t('itemClanPreview.forSale')}</Text>

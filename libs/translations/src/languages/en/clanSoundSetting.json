@@ -43,6 +43,7 @@
 		"errorFileType": "Support file .mp3 or .wav",
 		"errorFileSize": "File too big, max 1MB",
 		"errorUploadFailed": "Failed to upload voice",
-		"characters": "The name must be between 3 and 64 characters"
+		"characters": "The name must be between 3 and 64 characters",
+		"errorName": "Voice name must be between {{min}} and {{max}} characters, only letters, numbers, _ and - are allowed"
 	}
 }

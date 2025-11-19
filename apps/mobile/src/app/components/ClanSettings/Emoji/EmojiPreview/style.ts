@@ -69,5 +69,11 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		},
 		buttonText: {
 			color: baseColor.white
+		},
+		error: {
+			color: baseColor.redStrong,
+			fontSize: size.small,
+			marginHorizontal: size.s_4,
+			marginBottom: size.s_4
 		}
 	});
