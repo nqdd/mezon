@@ -1,5 +1,5 @@
 import { usePermissionChecker } from '@mezon/core';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { clansActions, selectCurrentClan } from '@mezon/store';
 import { useAppDispatch } from '@mezon/store-mobile';
 import { EPermission, MAX_FILE_SIZE_1MB } from '@mezon/utils';
@@ -80,11 +80,7 @@ const LogoClanSelector = () => {
 					imageSizeLimit={MAX_FILE_SIZE_1MB}
 				/>
 				{isHavePermission && currentClan?.logo && (
-					<TouchableOpacity
-						disabled={!isHavePermission}
-						style={{ position: 'absolute', top: -size.s_6, right: -size.s_6 }}
-						onPress={handleRemoveClanAvatar}
-					>
+					<TouchableOpacity disabled={!isHavePermission} style={styles.removeButton} onPress={handleRemoveClanAvatar}>
 						<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} />
 					</TouchableOpacity>
 				)}
