@@ -88,7 +88,8 @@ export const style = (colors: Attributes) =>
 			backgroundColor: '#b6e1c6'
 		},
 		contentContainerStyle: {
-			paddingHorizontal: size.s_20
+			paddingLeft: size.s_20,
+			paddingRight: size.s_30
 		},
 		trailingIconContainer: {
 			marginRight: -size.s_40

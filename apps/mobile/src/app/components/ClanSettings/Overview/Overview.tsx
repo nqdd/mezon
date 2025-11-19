@@ -79,11 +79,11 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 
 	const dispatch = useAppDispatch();
 
-	const handleCheckDuplicateClanname = async () => {
+	const handleCheckDuplicateClanname = useCallback(async () => {
 		const store = await getStoreAsync();
 		const isDuplicate = await store.dispatch(checkDuplicateNameClan(clanName?.trim()));
 		return isDuplicate?.payload || false;
-	};
+	}, [clanName]);
 
 	const channelsList = useSelector(selectAllChannels);
 	const listChannelWithoutVoice = channelsList.filter(
@@ -93,6 +93,22 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			channel?.type === ChannelType?.CHANNEL_TYPE_CHANNEL &&
 			channel?.channel_id !== selectedChannelMessage?.channel_id
 	);
+
+	const hasSystemMessageChanges = useMemo(() => {
+		if (!systemMessage && updateSystemMessageRequest) {
+			return true;
+		}
+		if (systemMessage && updateSystemMessageRequest) {
+			const hasSystemMessageChanges = Object.keys(systemMessage)?.some((key) => {
+				const typedKey = key as keyof ApiSystemMessageRequest;
+				return updateSystemMessageRequest[typedKey] !== systemMessage[typedKey];
+			});
+			if (hasSystemMessageChanges) {
+				return true;
+			}
+		}
+		return false;
+	}, [systemMessage, updateSystemMessageRequest]);
 
 	useEffect(() => {
 		const isClanNameChanged = clanName !== currentClanName;
@@ -146,7 +162,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		return !(hasAdminPermission || hasManageClanPermission || clanOwnerPermission);
 	}, [clanOwnerPermission, hasAdminPermission, hasManageClanPermission]);
 
-	const handleUpdateSystemMessage = async () => {
+	const handleUpdateSystemMessage = useCallback(async () => {
 		if (systemMessage && Object.keys(systemMessage).length > 0 && currentClanId && updateSystemMessageRequest) {
 			const cachedMessageUpdate: ApiSystemMessage = {
 				channel_id: updateSystemMessageRequest?.channel_id === systemMessage?.channel_id ? '' : updateSystemMessageRequest?.channel_id,
@@ -175,7 +191,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			}
 		}
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-	};
+	}, [systemMessage, currentClanId, updateSystemMessageRequest, dispatch]);
 
 	const handleChangeOptionNotification = useCallback(async (value: number) => {
 		try {
@@ -230,7 +246,9 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				})
 			);
 
-			await handleUpdateSystemMessage();
+			if (hasSystemMessageChanges) {
+				await handleUpdateSystemMessage();
+			}
 
 			Toast.show({
 				type: 'info',
@@ -257,6 +275,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		currentClanIsOnboarding,
 		currentClanLogo,
 		welcomeChannelId,
+		hasSystemMessageChanges,
 		handleUpdateSystemMessage,
 		t,
 		navigation,
