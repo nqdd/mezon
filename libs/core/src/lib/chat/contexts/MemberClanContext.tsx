@@ -1,12 +1,13 @@
 import { selectAllUserClans } from '@mezon/store';
-import { getNameForPrioritize, IUsersClan, normalizeString } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
+import { getNameForPrioritize, normalizeString } from '@mezon/utils';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface MemberContextType {
 	searchQuery: string;
 	setSearchQuery: (query: string) => void;
-	filteredMembers: IUsersClan[];
+	filteredMembers: UsersClanEntity[];
 	isSort: boolean;
 	setIsSort: (isSort: boolean) => void;
 }
@@ -25,7 +26,7 @@ export const MemberProvider = ({ children }: { children: React.ReactNode }) => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isSort, setIsSort] = useState(false);
 	const usersClan = useSelector(selectAllUserClans);
-	const usersWithPrioritizeName = usersClan.map((member: IUsersClan) => ({
+	const usersWithPrioritizeName = usersClan.map((member: UsersClanEntity) => ({
 		...member,
 		prioritizeName: getNameForPrioritize(member.clan_nick ?? '', member.user?.display_name ?? '', member.user?.username ?? '')
 	}));
