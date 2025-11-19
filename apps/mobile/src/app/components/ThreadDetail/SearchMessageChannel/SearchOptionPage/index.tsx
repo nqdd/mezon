@@ -1,9 +1,12 @@
-import { IOption, ITypeOptionSearch, IUerMention } from '@mezon/mobile-components';
-import { DirectEntity, selectCurrentChannel } from '@mezon/store-mobile';
-import { IChannel } from '@mezon/utils';
+import type { IOption, IUerMention } from '@mezon/mobile-components';
+import { ITypeOptionSearch } from '@mezon/mobile-components';
+import type { DirectEntity } from '@mezon/store-mobile';
+import { selectCurrentChannel } from '@mezon/store-mobile';
+import type { IChannel } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { useSelector } from 'react-redux';
 import UseMentionList from '../../../../hooks/useUserMentionList';
@@ -21,6 +24,7 @@ interface ISeachOptionPageProps {
 function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPageProps) {
 	const currentChannel = useSelector(selectCurrentChannel);
 	const styles = style();
+	const { t } = useTranslation(['media']);
 
 	const userListData = UseMentionList({
 		channelDetail: currentChannel,
@@ -65,7 +69,7 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 							keyboardShouldPersistTaps="handled"
 						/>
 					) : (
-						<EmptySearchPage emptyDescription="Unfortunately, we could not find any suggestions" />
+						<EmptySearchPage emptyDescription={t('emptyDescription')} />
 					)}
 				</View>
 			)}

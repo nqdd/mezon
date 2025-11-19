@@ -23,6 +23,7 @@ import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { DragEvent } from 'react';
 import React, { memo, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -90,7 +91,6 @@ const ChannelLinkComponent = ({
 		mouseY: 0,
 		distanceToBottom: 0
 	});
-
 	const buzzState = useAppSelector((state) => selectBuzzStateByChannelId(state, channel?.channel_id ?? ''));
 	const events = useAppSelector((state) => selectEventsByChannelId(state, channel.clan_id ?? '', channel?.channel_id ?? ''));
 
@@ -191,7 +191,7 @@ const ChannelLinkComponent = ({
 				modalName={`${channel?.channel_label || 'Unknown Channel'}`}
 			/>
 		);
-	}, [channel.channel_id]);
+	}, [channel.channel_id, channel?.channel_label]);
 
 	const [openSettingModal, closeSettingModal] = useModal(() => {
 		return <SettingChannel onClose={closeSettingModal} channel={channel} />;
@@ -321,11 +321,19 @@ type ModalConfirmComponentProps = {
 
 const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCancel, channelId, clanId, modalName }) => {
 	const { handleConfirmDeleteChannel } = useChannels();
-
 	const handleDeleteChannel = () => {
 		handleConfirmDeleteChannel(channelId, clanId);
 		handleCancel();
 	};
+	const { t } = useTranslation('channelSetting');
 
-	return <ModalConfirm handleCancel={handleCancel} handleConfirm={handleDeleteChannel} title="delete" modalName={modalName} />;
+	return (
+		<ModalConfirm
+			handleCancel={handleCancel}
+			handleConfirm={handleDeleteChannel}
+			title={t('confirm.deleteChannel.title')}
+			modalName={modalName}
+			customTitle={t('confirm.deleteChannel.content', { channelName: modalName || 'Unknown Channel' })}
+		/>
+	);
 };

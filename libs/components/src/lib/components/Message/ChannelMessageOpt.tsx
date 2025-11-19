@@ -337,6 +337,7 @@ function useEditMenuBuilder(message: IMessageWithUser) {
 	const dispatch = useAppDispatch();
 	const { userId } = useAuth();
 	const messageId = message.id;
+	const isForwardedMessage = Boolean(message?.content?.fwd);
 
 	const handleItemClick = useCallback(() => {
 		dispatch(reactionActions.setReactionRightState(false));
@@ -359,7 +360,10 @@ function useEditMenuBuilder(message: IMessageWithUser) {
 
 	return useMenuBuilderPlugin((builder) => {
 		builder.when(
-			userId === message.sender_id && !message?.content?.callLog?.callLogType && !(message.code === TypeMessage.SendToken),
+			userId === message.sender_id &&
+				!message?.content?.callLog?.callLogType &&
+				!(message.code === TypeMessage.SendToken) &&
+				!isForwardedMessage,
 			(builder) => {
 				builder.addMenuItem('edit', 'Edit', handleItemClick, <Icons.PenEdit className={`w-5 h-5`} />);
 			}

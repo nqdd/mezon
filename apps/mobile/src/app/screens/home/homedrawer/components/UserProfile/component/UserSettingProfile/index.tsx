@@ -82,29 +82,32 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 		}
 	}, []);
 
-	const handleSettingUserProfile = useCallback((action?: EActionSettingUserProfile) => {
-		switch (action) {
-			case EActionSettingUserProfile.Manage:
-				navigateToManageUser();
-				break;
-			case EActionSettingUserProfile.TimeOut:
-				break;
-			case EActionSettingUserProfile.Kick:
-				confirmKickUserClan();
-				break;
-			case EActionSettingUserProfile.Ban:
-				confirmBanUserChannel();
-				break;
-			case EActionSettingUserProfile.ThreadRemove:
-				confirmRemoveFromThread();
-				break;
-			case EActionSettingUserProfile.TransferOwnership:
-				navigateToTransferOwnership();
-				break;
-			default:
-				break;
-		}
-	}, []);
+	const handleSettingUserProfile = useCallback(
+		(action?: EActionSettingUserProfile) => {
+			switch (action) {
+				case EActionSettingUserProfile.Manage:
+					navigateToManageUser();
+					break;
+				case EActionSettingUserProfile.TimeOut:
+					break;
+				case EActionSettingUserProfile.Kick:
+					confirmKickUserClan();
+					break;
+				case EActionSettingUserProfile.Ban:
+					confirmBanUserChannel();
+					break;
+				case EActionSettingUserProfile.ThreadRemove:
+					confirmRemoveFromThread();
+					break;
+				case EActionSettingUserProfile.TransferOwnership:
+					navigateToTransferOwnership();
+					break;
+				default:
+					break;
+			}
+		},
+		[isBannedUser]
+	);
 
 	const profileSetting: IProfileSetting[] = useMemo(() => {
 		const settingList = [

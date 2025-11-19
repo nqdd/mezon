@@ -1,4 +1,5 @@
 import { useTheme } from '@mezon/mobile-ui';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import MezonMenuItem, { IMezonMenuItemProps } from '../MezonMenuItem';
 import { style } from './styles';
@@ -11,6 +12,7 @@ export interface IMezonMenuSectionProps {
 
 export default function MezonMenuSection({ title, items, bottomDescription }: IMezonMenuSectionProps) {
 	const styles = style(useTheme().themeValue);
+	const lastItemIndex = useMemo(() => items?.findLastIndex((item) => item?.isShow !== false) ?? -1, [items]);
 
 	return (
 		<View>
@@ -18,7 +20,7 @@ export default function MezonMenuSection({ title, items, bottomDescription }: IM
 
 			<View style={styles.section}>
 				{items.map((item, index) => (
-					<MezonMenuItem isLast={index === items?.length - 1} key={index.toString()} {...item} />
+					<MezonMenuItem isLast={index === lastItemIndex} key={`item_${index}_${item?.title}`} {...item} />
 				))}
 			</View>
 

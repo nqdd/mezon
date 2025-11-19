@@ -51,7 +51,7 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 						<input
 							type="text"
 							placeholder={currentClanName || ''}
-							className="w-full bg-input-secondary border-theme-primary text-theme-message rounded-lg outline-none p-[10px] my-[7px] truncate overflow-auto max-w-[400px] "
+							className="w-full bg-input-secondary border-theme-primary text-theme-message rounded-lg outline-none p-[10px] my-[7px]  "
 							value={inputValue}
 							onChange={handleOnchange}
 							data-e2e={generateE2eId('clan_page.settings.modal.delete_clan.input')}

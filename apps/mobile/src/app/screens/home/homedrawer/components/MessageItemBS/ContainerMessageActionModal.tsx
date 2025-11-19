@@ -738,7 +738,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isHideActionImage && EMessageActionType.CopyImage,
 			isHideActionImage && EMessageActionType.ShareImage,
 			isHideActionMedia && EMessageActionType.SaveMedia,
-			isTopicFirstMessage && EMessageActionType.EditMessage
+			(isTopicFirstMessage || message?.content?.fwd) && EMessageActionType.EditMessage
 		];
 
 		let availableMessageActions: IMessageAction[] = [];
