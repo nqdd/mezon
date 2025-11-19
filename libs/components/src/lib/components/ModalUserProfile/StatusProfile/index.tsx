@@ -10,7 +10,7 @@ import {
 	useWallet,
 	userClanProfileActions
 } from '@mezon/store';
-import { createClient as createMezonClient, useMezon } from '@mezon/transport';
+import { createClient as createMezonClient } from '@mezon/transport';
 import { Icons, Menu } from '@mezon/ui';
 import { CURRENCY, EUserStatus, formatBalanceToString } from '@mezon/utils';
 import isElectron from 'is-electron';
@@ -105,7 +105,6 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 		dispatch(accountActions.updateUserStatus(status));
 	};
 
-	const { createSocket, connectWithSession } = useMezon();
 	const navigate = useNavigate();
 	const handleSetAccount = (email: string, password: string) => {
 		if (isElectron()) {

@@ -91,7 +91,6 @@ const ChannelLinkComponent = ({
 		mouseY: 0,
 		distanceToBottom: 0
 	});
-
 	const buzzState = useAppSelector((state) => selectBuzzStateByChannelId(state, channel?.channel_id ?? ''));
 	const events = useAppSelector((state) => selectEventsByChannelId(state, channel.clan_id ?? '', channel?.channel_id ?? ''));
 
@@ -192,7 +191,7 @@ const ChannelLinkComponent = ({
 				modalName={`${channel?.channel_label || 'Unknown Channel'}`}
 			/>
 		);
-	}, [channel.channel_id]);
+	}, [channel.channel_id, channel?.channel_label]);
 
 	const [openSettingModal, closeSettingModal] = useModal(() => {
 		return <SettingChannel onClose={closeSettingModal} channel={channel} />;
@@ -322,20 +321,19 @@ type ModalConfirmComponentProps = {
 
 const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCancel, channelId, clanId, modalName }) => {
 	const { handleConfirmDeleteChannel } = useChannels();
-
 	const handleDeleteChannel = () => {
 		handleConfirmDeleteChannel(channelId, clanId);
 		handleCancel();
 	};
-	const { t } = useTranslation(['channelMenu']);
+	const { t } = useTranslation('channelSetting');
 
 	return (
 		<ModalConfirm
 			handleCancel={handleCancel}
 			handleConfirm={handleDeleteChannel}
-			title="delete channel"
+			title={t('confirm.deleteChannel.title')}
 			modalName={modalName}
-			customTitle={t('modalConfirm.channel.content')}
+			customTitle={t('confirm.deleteChannel.content', { channelName: modalName || 'Unknown Channel' })}
 		/>
 	);
 };

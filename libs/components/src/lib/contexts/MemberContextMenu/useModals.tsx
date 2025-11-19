@@ -1,5 +1,4 @@
 import type { ChannelMembersEntity } from '@mezon/store';
-import { clansActions, getStore, selectCurrentClanId, toastActions, useAppDispatch } from '@mezon/store';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { ModalUserProfile } from '../../components';
@@ -21,19 +20,12 @@ export interface ModalsState {
 	hideUserProfileModal: () => void;
 	showProfileItemModal: () => void;
 	hideProfileItemModal: () => void;
-	openModalRemoveMember: boolean;
-	setOpenModalRemoveMember: (open: boolean) => void;
-	handleRemoveMember: () => Promise<void>;
-	closeRemoveMemberModal: () => void;
 	openUserProfile: (user: ChannelMembersEntity, avatar?: string) => void;
 	openProfileItem: (event: React.MouseEvent, user: ChannelMembersEntity) => void;
-	openRemoveMemberModal: (user: ChannelMembersEntity) => void;
 }
 
 export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 	const [positionShortUser, setPositionShortUser] = useState<{ top: number; left: number } | null>(null);
-	const [openModalRemoveMember, setOpenModalRemoveMember] = useState<boolean>(false);
-	const dispatch = useAppDispatch();
 	const [popupHeight, setPopupHeight] = useState<number>(500);
 
 	const modalState = useRef({
@@ -121,23 +113,6 @@ export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 		);
 	}, [currentUser, positionShortUser]);
 
-	const handleRemoveMember = async () => {
-		if (!currentUser) return;
-
-		const store = getStore();
-		const clanId = selectCurrentClanId(store.getState()) as string;
-		const userIds = [currentUser.user?.id ?? ''];
-
-		await dispatch(clansActions.removeClanUsers({ clanId, userIds }));
-		dispatch(
-			toastActions.addToast({
-				message: 'Member removed successfully',
-				type: 'success'
-			})
-		);
-		setOpenModalRemoveMember(false);
-	};
-
 	const openUserProfile = useCallback(
 		(user: ChannelMembersEntity, avatar?: string) => {
 			if (modalState.current.profileItem) {
@@ -191,24 +166,6 @@ export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 		[showProfileItemModal]
 	);
 
-	const openRemoveMemberModal = useCallback(
-		(user: ChannelMembersEntity) => {
-			setOpenModalRemoveMember(true);
-
-			if (modalState.current.profileItem) {
-				hideProfileItemModal();
-			}
-			if (modalState.current.userProfile) {
-				hideUserProfileModal();
-			}
-		},
-		[hideProfileItemModal, hideUserProfileModal]
-	);
-
-	const closeRemoveMemberModal = useCallback(() => {
-		setOpenModalRemoveMember(false);
-	}, []);
-
 	return {
 		modalState,
 		currentUser,
@@ -218,12 +175,7 @@ export const useModals = ({ currentUser }: ModalsProps): ModalsState => {
 		hideUserProfileModal,
 		showProfileItemModal,
 		hideProfileItemModal,
-		openModalRemoveMember,
-		setOpenModalRemoveMember,
-		handleRemoveMember,
-		closeRemoveMemberModal,
 		openUserProfile,
-		openProfileItem,
-		openRemoveMemberModal
+		openProfileItem
 	};
 };
