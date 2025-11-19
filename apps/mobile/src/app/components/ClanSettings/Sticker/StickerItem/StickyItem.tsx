@@ -15,7 +15,7 @@ import Toast from 'react-native-toast-message';
 import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { CLAN_MEDIA_NAME_REGEX } from '../../Emoji/EmojiPreview';
+import { CLAN_MEDIA_NAME_REGEX, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '../../Emoji/EmojiPreview';
 import { style } from './styles';
 
 interface IStickerItem {
@@ -96,11 +96,11 @@ export const StickerSettingItem = forwardRef(({ data, clanID, onSwipeOpen }: ISt
 				setStickerName(sticker?.shortname);
 				return;
 			}
-			if (!CLAN_MEDIA_NAME_REGEX.test(stickerName)) {
+			if (!CLAN_MEDIA_NAME_REGEX.test(stickerName) || stickerName?.length < MIN_NAME_LENGTH || stickerName?.length > MAX_NAME_LENGTH) {
 				setStickerName(sticker?.shortname);
 				Toast.show({
 					type: 'error',
-					text1: t('toast.validateName')
+					text1: t('toast.validateName', { min: MIN_NAME_LENGTH, max: MAX_NAME_LENGTH })
 				});
 				return;
 			}

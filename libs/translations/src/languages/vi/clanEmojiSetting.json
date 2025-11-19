@@ -20,7 +20,7 @@
 		"saveSuccess": "Lưu thành công",
 		"reject": "Từ chối",
 		"errorSizeLimit": "Kích thước ảnh vượt quá 256 KB",
-		"validateName": "Chỉ cho phép chữ cái, chữ số, _ và -"
+		"validateName": "Độ dài phải từ {{min}} đến {{max}} ký tự. Chỉ cho phép chữ cái, chữ số, _ và -"
 	},
 	"button": {
 		"upload": "Tải lên biểu cảm"

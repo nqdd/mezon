@@ -16,7 +16,7 @@ import Toast from 'react-native-toast-message';
 import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
-import { CLAN_MEDIA_NAME_REGEX } from '../EmojiPreview';
+import { CLAN_MEDIA_NAME_REGEX, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '../EmojiPreview';
 import { style } from './styles';
 
 type ServerDetailProps = {
@@ -85,11 +85,11 @@ export const EmojiDetail = forwardRef(({ item, onSwipeOpen }: ServerDetailProps,
 
 	const handleBlur = () => {
 		setIsFocused(false);
-		if (!CLAN_MEDIA_NAME_REGEX.test(emojiName)) {
+		if (!CLAN_MEDIA_NAME_REGEX.test(emojiName) || emojiName?.length < MIN_NAME_LENGTH || emojiName?.length > MAX_NAME_LENGTH) {
 			setEmojiName(item?.shortname?.split(':')?.join(''));
 			Toast.show({
 				type: 'error',
-				text1: t('toast.validateName')
+				text1: t('toast.validateName', { min: MIN_NAME_LENGTH, max: MAX_NAME_LENGTH })
 			});
 			return;
 		}

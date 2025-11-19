@@ -20,7 +20,7 @@
 		"saveSuccess": "Save Successfully",
 		"reject": "Reject",
 		"errorSizeLimit": "Image size limit exceeded 256KB",
-		"validateName": "Only letters, numbers, _ and - are allowed."
+		"validateName": "Length must {{min}} - {{max}} characters. Only letters, numbers, _ and - are allowed."
 	},
 	"button": {
 		"upload": "Upload Emoji"
