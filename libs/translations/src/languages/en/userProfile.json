@@ -99,6 +99,11 @@
 			"doNotDisturb": "Do Not Disturb",
 			"invisible": "Invisible"
 		},
+		"statusOptionsDescriptions": {
+			"doNotDisturb": "You will not receive desktop notifications",
+			"invisible": "You will appear offline"
+		},
+
 		"statusDuration": {
 			"for30Minutes": "For 30 Minutes",
 			"for1Hour": "For 1 hour",
@@ -214,7 +219,7 @@
 			"oneDay": "1 day",
 			"threeDays": "3 days"
 		},
-		"banList": "Ban List",
+		"banList": "Ban list",
 		"search": "Search banned users",
 		"banListEmpty": "No banned users found"
 	}

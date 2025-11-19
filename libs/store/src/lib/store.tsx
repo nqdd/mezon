@@ -492,8 +492,6 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 					const hasSessionChanged =
 						newSession?.token !== currentSession?.token || newSession?.refresh_token !== currentSession?.refresh_token;
 
-					console.log(hasSessionChanged, 'hasSessionChanged');
-
 					if (hasSessionChanged) {
 						if (newSession) {
 							window.dispatchEvent(

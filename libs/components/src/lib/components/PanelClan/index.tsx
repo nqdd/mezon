@@ -4,7 +4,6 @@ import {
 	useIsClanOwner,
 	useMarkAsRead,
 	useOnClickOutside,
-	usePermissionChecker,
 	UserRestrictionZone,
 	useSettingFooter
 } from '@mezon/core';
@@ -18,7 +17,7 @@ import {
 } from '@mezon/store';
 import { Menu } from '@mezon/ui';
 import type { IClan } from '@mezon/utils';
-import { EPermission, EUserSettings } from '@mezon/utils';
+import { EUserSettings } from '@mezon/utils';
 import type { ApiAccount } from 'mezon-js/dist/api.gen';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -47,7 +46,6 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [positionTop, setPositionTop] = useState(false);
 	const isOwnerOfContextClan = useIsClanOwner(clan?.clan_id || clan?.id || '');
-	const [_, canManageClan] = usePermissionChecker([EPermission.clanOwner, EPermission.manageClan], '', clan?.clan_id ?? '');
 	const dispatch = useAppDispatch();
 
 	const defaultNotificationClan = useSelector((state) =>
@@ -208,7 +206,7 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 						<ItemPanel children={t('editClanProfile')} onClick={handleOpenClanProfileSetting} />
 					</GroupPanels>
 
-					<UserRestrictionZone policy={!(isOwnerOfContextClan || canManageClan)}>
+					<UserRestrictionZone policy={!isOwnerOfContextClan}>
 						<GroupPanels>
 							<ItemPanel children={t('leaveClan')} danger onClick={toggleLeaveClanPopup} />
 						</GroupPanels>

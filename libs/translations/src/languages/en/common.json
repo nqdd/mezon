@@ -62,6 +62,8 @@
 	"transfer": "Transfer",
 	"transferFunds": "Transfer funds",
 	"noPermissionToSendMessage": "You do not have permission to send messages in this channel.",
+	"timeout": "Banned",
+	"timeoutDesc": "You can not chat, reply, react, forward while you are banned.",
 	"resetApp": "Reset App",
 	"launchApp": "Launch App",
 	"help": "Help",

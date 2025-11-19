@@ -371,7 +371,8 @@ export const joinChannel = createAsyncThunk(
 						thunkAPI.dispatch(
 							channelMembersActions.fetchChannelMembers({ clanId, channelId, channelType: ChannelType.CHANNEL_TYPE_CHANNEL })
 						);
-					} else {
+					}
+					if (!channel?.channel_private) {
 						thunkAPI.dispatch(channelMembersActions.checkBanInChannel({ clanId, channelId }));
 					}
 				}

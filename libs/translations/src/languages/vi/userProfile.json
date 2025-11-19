@@ -99,6 +99,10 @@
 			"doNotDisturb": "Không làm phiền",
 			"invisible": "Ẩn"
 		},
+		"statusOptionsDescriptions": {
+			"doNotDisturb": "Bạn sẽ không nhận được thông báo trên máy tính",
+			"invisible": "Bạn sẽ hiển thị trạng thái ngoại tuyến"
+		},
 		"statusDuration": {
 			"for30Minutes": "30 phút",
 			"for1Hour": "1 giờ",
@@ -214,7 +218,7 @@
 			"oneDay": "1 ngày",
 			"threeDays": "3 ngày"
 		},
-		"banList" : "Danh sách cấm",
+		"banList": "Danh sách cấm",
 		"search": "Tìm người dùng bị cấm",
 		"banListEmpty": "Không tìm thấy người dùng bị cấm nào"
 	}
