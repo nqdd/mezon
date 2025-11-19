@@ -4,7 +4,7 @@ import { Item } from 'react-contexify';
 
 interface MemberMenuItemProps {
 	label: string;
-	onClick: () => void;
+	onClick?: () => void;
 	isWarning?: boolean;
 	rightElement?: ReactNode;
 	setWarningStatus?: (status: string) => void;
