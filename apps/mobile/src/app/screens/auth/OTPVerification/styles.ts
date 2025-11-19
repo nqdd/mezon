@@ -149,5 +149,8 @@ export const style = () =>
 		},
 		activityIndicator: {
 			zIndex: 10
+		},
+		textInputOtp: {
+			color: '#000000'
 		}
 	});

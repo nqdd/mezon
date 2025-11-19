@@ -1,6 +1,6 @@
 import { useTheme } from '@mezon/mobile-ui';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { NativeEventEmitter, NativeModules, Platform, TextInput, View } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform, TextInput, TextStyle, View } from 'react-native';
 import { style } from './styles';
 
 const OTP_LENGTH = 6;
@@ -10,11 +10,12 @@ interface OTPInputProps {
 	isError?: boolean;
 	resetTrigger?: any;
 	isSms?: boolean;
+	styleTextOtp?: TextStyle;
 }
 
 const { SmsUserConsent } = NativeModules;
 
-const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError = false, resetTrigger, isSms = false }) => {
+const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError = false, resetTrigger, isSms = false, styleTextOtp }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [otp, setOtp] = useState<string[]>(new Array(OTP_LENGTH).fill(''));
@@ -143,7 +144,7 @@ const OTPInput: React.FC<OTPInputProps> = ({ onOtpChange, onOtpComplete, isError
 				<TextInput
 					key={index}
 					ref={(ref) => (inputRefs.current[index] = ref)}
-					style={[styles.input, digit !== '' ? styles.inputFilled : styles.inputEmpty, isError && styles.inputError]}
+					style={[styles.input, digit !== '' ? [styles.inputFilled, styleTextOtp] : styles.inputEmpty, isError && styles.inputError]}
 					value={digit?.[0] || ''}
 					onChangeText={(value) => handleOtpChange(value, index)}
 					onKeyPress={(e) => handleKeyPress(e, index)}

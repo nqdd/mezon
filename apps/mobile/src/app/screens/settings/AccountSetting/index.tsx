@@ -34,6 +34,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import type { SettingScreenProps } from '../../../navigation/ScreenTypes';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
+import { maskEmail, maskPhoneNumber } from '../../../utils/helpers';
 import { style } from './styles';
 
 enum EAccountSettingType {
@@ -204,12 +205,12 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			},
 			{
 				title: 'Email',
-				description: userProfile?.email || '',
+				description: maskEmail(userProfile?.email),
 				type: EAccountSettingType.Email
 			},
 			{
 				title: t('phoneNumberSetting.title'),
-				description: userProfile?.user?.phone_number || '',
+				description: maskPhoneNumber(userProfile?.user?.phone_number),
 				type: EAccountSettingType.PhoneNumber
 			}
 		];

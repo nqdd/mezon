@@ -29,7 +29,7 @@ export const BanUserChannelModal = memo((props: IBuzzMessageModalProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { user, clanId, channelId } = props;
-	const [timeOption, setTimeOption] = useState(10);
+	const [timeOption, setTimeOption] = useState(BANTIME_10_MINUTES);
 	const { t } = useTranslation('userProfile');
 	const dispatch = useAppDispatch();
 
