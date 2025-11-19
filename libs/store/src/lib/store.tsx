@@ -499,9 +499,6 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 									detail: { session: newSession }
 								})
 							);
-						} else if (!sessionData) {
-							const { authActions } = await import('./auth/auth.slice');
-							store.dispatch(authActions.setLogout());
 						}
 					}
 				} catch (err) {

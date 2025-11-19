@@ -1,5 +1,6 @@
 import isElectron from 'is-electron';
-import { FC, useCallback, useEffect, useState } from 'react';
+import type { FC } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -8,20 +9,9 @@ import { PDFControls } from './PDFControls';
 import type { PDFDocumentProxy, PDFViewerModalProps } from './types';
 
 function getPDFWorkerPath(): string {
-	if (isElectron()) {
-		const pathParts = window.location.pathname.split('/');
-		const chatIndex = pathParts.findIndex((part) => part === 'chat');
-		if (chatIndex !== -1) {
-			const appPath = pathParts.slice(0, chatIndex + 1).join('/');
-			return `file://${appPath}/pdf.worker.min.mjs`;
-		} else {
-			return 'file://' + window.location.pathname.replace(/\/index\.html.*$/, '/pdf.worker.min.mjs');
-		}
-	} else {
-		const baseUrl = window.location.origin;
-		const possiblePaths = [`${baseUrl}/pdf.worker.min.mjs`, `${baseUrl}/assets/pdf.worker.min.mjs`];
-		return possiblePaths[0];
-	}
+	const baseUrl = window.location.origin;
+	const possiblePaths = [`${baseUrl}/pdf.worker.min.mjs`, `${baseUrl}/assets/pdf.worker.min.mjs`];
+	return possiblePaths[0];
 }
 
 async function validateWorkerPath(path: string): Promise<boolean> {
@@ -39,16 +29,12 @@ async function setupPDFWorker(): Promise<void> {
 		return;
 	}
 
-	const baseUrl = window.location.origin;
-
-	const possiblePaths = [
-		`https://cdn.mezon.ai/js/libs/4.8.69/pdf.worker.min.mjs`
-	];
+	const possiblePaths = [`https://cdn.mezon.ai/js/libs/4.8.69/pdf.worker.min.mjs`];
 
 	for (const path of possiblePaths) {
 		try {
 			const isValid = await validateWorkerPath(path);
-			
+
 			if (isValid) {
 				pdfjs.GlobalWorkerOptions.workerSrc = path;
 				return;
