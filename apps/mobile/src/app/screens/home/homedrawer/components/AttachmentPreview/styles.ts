@@ -9,7 +9,7 @@ export const style = (colors: Attributes) =>
 			paddingBottom: 0,
 			position: 'relative',
 			width: '100%',
-			height: size.s_120
+			height: size.s_100
 		},
 		attachmentItem: {
 			marginRight: size.s_14,

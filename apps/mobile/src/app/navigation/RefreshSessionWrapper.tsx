@@ -7,6 +7,7 @@ import { Session } from 'mezon-js';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 import { useSelector } from 'react-redux';
+import { fetchWithTimeout } from '../components/NetworkInfo';
 
 const MAX_RETRIES_SESSION = 5;
 
@@ -65,6 +66,11 @@ const RefreshSessionWrapper = ({ children }) => {
 		let retries = MAX_RETRIES_SESSION;
 		while (retries > 0) {
 			try {
+				const responseNetwork = await fetchWithTimeout(`${process.env.NX_CHAT_APP_REDIRECT_URI}/favicon.ico`, 8000);
+				if (!responseNetwork.ok) {
+					await sleep(500);
+					return;
+				}
 				const response = await dispatch(authActions.refreshSession());
 				if ((response as unknown as IWithError).error) {
 					retries -= 1;
