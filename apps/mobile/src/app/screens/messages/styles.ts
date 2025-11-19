@@ -182,7 +182,8 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			backgroundColor: baseColor.orange,
 			width: size.s_40,
 			height: size.s_40,
-			borderRadius: size.s_50,
+			borderRadius: size.s_20,
+			overflow: 'hidden',
 			justifyContent: 'center',
 			alignItems: 'center'
 		},

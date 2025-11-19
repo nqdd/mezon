@@ -1,7 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { getStoreAsync, referencesActions, selectChannelById, selectCurrentDM } from '@mezon/store-mobile';
+import {
+	attachmentActions,
+	getStoreAsync,
+	referencesActions,
+	selectChannelById,
+	selectCurrentDM,
+	selectIsSendHDImageMobile,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
 import type { DocumentPickerResponse } from '@react-native-documents/picker';
@@ -37,6 +45,7 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'sharing', 'common']);
 	const dispatch = useDispatch();
+	const isSendHDImageMobile = useAppSelector(selectIsSendHDImageMobile);
 
 	const getImageDimension = useCallback((imageUri: string): Promise<{ width: number; height: number }> => {
 		return new Promise((resolve) => {
@@ -300,21 +309,40 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 		}
 	}, [handleSelectedAttachments, t]);
 
+	const onToggleSendHDImage = () => {
+		dispatch(attachmentActions.setIsSendHDImageMobile({ status: !isSendHDImageMobile }));
+	};
+
 	return (
-		<View style={styles.wrapperHeader}>
-			<TouchableOpacity activeOpacity={0.8} style={styles.buttonHeader} onPress={() => handleLinkGoogleMap()}>
-				<MezonIconCDN icon={IconCDN.locationIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
-				<Text style={styles.titleButtonHeader}>{t('message:actions.location')}</Text>
-			</TouchableOpacity>
-			<TouchableOpacity activeOpacity={0.8} style={styles.buttonAlbum} onPress={() => handleShowAllAlbums()}>
-				<View style={styles.albumButtonGroup}>
-					<Text style={styles.albumTitle}>{t('message:actions.allAlbums')}</Text>
-					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.textStrong} height={size.s_16} width={size.s_16} />
-				</View>
-			</TouchableOpacity>
-			<TouchableOpacity activeOpacity={0.8} onPress={onPickFiles} style={styles.buttonHeader}>
-				<MezonIconCDN icon={IconCDN.attachmentIcon} height={20} width={20} color={themeValue.text} />
-				<Text style={styles.titleButtonHeader}>{t('message:actions.files')}</Text>
+		<View>
+			<View style={styles.wrapperHeader}>
+				<TouchableOpacity activeOpacity={0.8} style={styles.buttonHeader} onPress={() => handleLinkGoogleMap()}>
+					<MezonIconCDN icon={IconCDN.locationIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+					<Text style={styles.titleButtonHeader}>{t('message:actions.location')}</Text>
+				</TouchableOpacity>
+				<TouchableOpacity activeOpacity={0.8} style={styles.buttonAlbum} onPress={() => handleShowAllAlbums()}>
+					<View style={styles.albumButtonGroup}>
+						<Text style={styles.albumTitle}>{t('message:actions.allAlbums')}</Text>
+						<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} color={themeValue.textStrong} height={size.s_16} width={size.s_16} />
+					</View>
+				</TouchableOpacity>
+				<TouchableOpacity activeOpacity={0.8} onPress={onPickFiles} style={styles.buttonHeader}>
+					<MezonIconCDN icon={IconCDN.attachmentIcon} height={20} width={20} color={themeValue.text} />
+					<Text style={styles.titleButtonHeader}>{t('message:actions.files')}</Text>
+				</TouchableOpacity>
+			</View>
+			<TouchableOpacity style={styles.buttonHd} onPress={onToggleSendHDImage}>
+				<MezonIconCDN
+					icon={isSendHDImageMobile ? IconCDN.hdFullIcon : IconCDN.hdIcon}
+					width={size.s_24}
+					height={size.s_24}
+					color={isSendHDImageMobile ? baseColor.blurple : themeValue.text}
+				/>
+				{isSendHDImageMobile && (
+					<View style={styles.iconCheckedHD}>
+						<MezonIconCDN icon={IconCDN.checkmarkLargeIcon} width={size.s_10} height={size.s_10} color={baseColor.white} />
+					</View>
+				)}
 			</TouchableOpacity>
 		</View>
 	);
