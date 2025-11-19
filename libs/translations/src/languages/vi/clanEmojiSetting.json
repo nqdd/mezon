@@ -19,7 +19,8 @@
 	"toast": {
 		"saveSuccess": "Lưu thành công",
 		"reject": "Từ chối",
-		"errorSizeLimit": "Kích thước ảnh vượt quá 256 KB"
+		"errorSizeLimit": "Kích thước ảnh vượt quá 256 KB",
+		"validateName": "Độ dài phải từ {{min}} đến {{max}} ký tự. Chỉ cho phép chữ cái, chữ số, _ và -"
 	},
 	"button": {
 		"upload": "Tải lên biểu cảm"
@@ -27,7 +28,7 @@
 	"description": {
 		"descriptions": "Thêm biểu cảm tùy chỉnh mà tất cả người dùng trong clan này đều có thể sử dụng. Mọi thành viên trong Mezon đều có thể sử dụng được các biểu cảm GIF động.",
 		"requirements": "YÊU CẦU TẢI LÊN",
-		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của biểu cảm phải có ít nhất 2 kí tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
+		"requireList": "•  Loại tệp: JPEG, PNG, GIF.\n•  Kích thước đề xuất: 256 KB.\n•  Kích cỡ ảnh đề nghị: 128x128.\n•  Đặt tên: Tên của biểu cảm phải có ít nhất 3 ký tự và chỉ được chứa ký tự chữ, ký tự số và dấu gạch dưới."
 	},
 	"emojiList": {
 		"slotsDetails": "DANH SÁCH EMOJI",

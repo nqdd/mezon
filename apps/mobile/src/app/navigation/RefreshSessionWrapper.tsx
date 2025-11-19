@@ -1,11 +1,13 @@
-import { ActionEmitEvent, STORAGE_SESSION_KEY, load } from '@mezon/mobile-components';
+import { ActionEmitEvent, load, STORAGE_SESSION_KEY } from '@mezon/mobile-components';
 import { authActions, selectHasInternetMobile, selectIsLogin, useAppDispatch } from '@mezon/store-mobile';
 import { MobileEventSessionEmitter, useMezon } from '@mezon/transport';
 import type { IWithError } from '@mezon/utils';
 import { sleep } from '@mezon/utils';
+import { Session } from 'mezon-js';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 import { useSelector } from 'react-redux';
+import { fetchWithTimeout } from '../components/NetworkInfo';
 
 const MAX_RETRIES_SESSION = 5;
 
@@ -64,6 +66,11 @@ const RefreshSessionWrapper = ({ children }) => {
 		let retries = MAX_RETRIES_SESSION;
 		while (retries > 0) {
 			try {
+				const responseNetwork = await fetchWithTimeout(`${process.env.NX_CHAT_APP_REDIRECT_URI}/favicon.ico`, 8000);
+				if (!responseNetwork.ok) {
+					await sleep(500);
+					return;
+				}
 				const response = await dispatch(authActions.refreshSession());
 				if ((response as unknown as IWithError).error) {
 					retries -= 1;
@@ -91,16 +98,20 @@ const RefreshSessionWrapper = ({ children }) => {
 		}
 	}, [clientRef, dispatch]);
 
-	const onSessionRefresh = (session) => {
-		if (session?.session) dispatch(authActions.updateSession(session?.session));
-	};
-
 	useEffect(() => {
-		MobileEventSessionEmitter.addListener('mezon:session-refreshed', onSessionRefresh);
-		return () => {
-			MobileEventSessionEmitter.removeListener('mezon:session-refreshed', () => {});
-		};
-	}, []);
+		MobileEventSessionEmitter.addListener('mezon:session-refreshed', ({ session }) => {
+			if (session) {
+				const newSession = new Session(
+					session.token,
+					session.refresh_token,
+					session.created || false,
+					session.api_url,
+					session?.is_remember || false
+				);
+				dispatch(authActions.updateSession(newSession));
+			}
+		});
+	}, [dispatch]);
 
 	useEffect(() => {
 		if (isLoggedIn && hasInternet) {
@@ -108,7 +119,7 @@ const RefreshSessionWrapper = ({ children }) => {
 		} else {
 			setIsSessionReady(true);
 		}
-	}, [isLoggedIn, hasInternet]);
+	}, [isLoggedIn, hasInternet, refreshSessionLoader]);
 
 	return <SessionContext.Provider value={{ isSessionReady }}>{children}</SessionContext.Provider>;
 };
