@@ -50,7 +50,8 @@ export const TextChannelSection = () => {
 						<div className="flex flex-col items-start gap-4 md:gap-6 lg:gap-8 px-4 lg:px-0">
 							<div>
 								<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
-									<span className="text-stone-900">{t('sections.textChannel.title')}</span>
+									<span className="">{t('sections.textChannel.titlesuper')}</span>
+									<p>{t('sections.textChannel.titlemessage')}</p>
 								</h2>
 								<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
 									{t('sections.textChannel.description')} <p>{t('sections.textChannel.description2')}</p>

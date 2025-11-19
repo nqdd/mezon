@@ -97,7 +97,8 @@
 			"choosePlatform": "Chọn Nền Tảng Của Bạn"
 		},
 		"textChannel": {
-			"title": "Nhắn Tin Siêu Nhanh",
+			"titlesuper": "Nhắn Tin ",
+			"titlemessage": "Siêu Nhanh",
 			"description": "Được xây dựng để Trò Chuyện, Cộng Tác và Kết Nối.",
 			"description2": "Nhắn tin siêu nhanh. Không giới hạn. Gửi tức thì.",
 			"learnMore": "Tìm Hiểu Thêm"

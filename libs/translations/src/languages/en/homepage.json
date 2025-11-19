@@ -97,7 +97,8 @@
 			"choosePlatform": "Choose Your Platform"
 		},
 		"textChannel": {
-			"title": "Super-Fast Messaging",
+			"titlesuper": "Super-Fast",
+			"titlemessage": "Messaging",
 			"description": "Built For Chat, Collaboration, And Connection.",
 			"description2": "Super-Fast Messaging. Zero Limits. Instant Delivery.",
 			"learnMore": "Learn more"
