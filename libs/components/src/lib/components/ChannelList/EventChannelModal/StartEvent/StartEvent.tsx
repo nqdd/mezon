@@ -1,10 +1,8 @@
 import { useEventManagementQuantity } from '@mezon/core';
-import { selectCurrentClanId, selectEventsByClanId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import ListEventManagement from './ListEventManagement';
 import { generateE2eId } from '@mezon/utils';
+import { useTranslation } from 'react-i18next';
+import ListEventManagement from './ListEventManagement';
 
 type StartEventModalProps = {
 	onClose: () => void;
@@ -14,9 +12,7 @@ type StartEventModalProps = {
 
 export const StartEventModal = (props: StartEventModalProps) => {
 	const { onClose, onOpenCreate, onEventUpdateId } = props;
-	const { numberEventManagement } = useEventManagementQuantity();
-	const currentClanId = useSelector(selectCurrentClanId);
-	const allEventManagement = useAppSelector((state) => selectEventsByClanId(state, currentClanId as string));
+	const { numberEventManagement, eventsByUser } = useEventManagementQuantity();
 	const { t } = useTranslation(['eventCreator']);
 
 	return (
@@ -49,10 +45,10 @@ export const StartEventModal = (props: StartEventModalProps) => {
 				</span>
 			</div>
 
-			{allEventManagement.length !== 0 ? (
+			{eventsByUser.length !== 0 ? (
 				<div className=" h-fit min-h-80 max-h-[80vh]  overflow-y-scroll hide-scrollbar p-4 gap-y-4 flex flex-col">
 					<ListEventManagement
-						allEventManagement={allEventManagement}
+						allEventManagement={eventsByUser}
 						openModelUpdate={onOpenCreate}
 						onUpdateEventId={onEventUpdateId}
 						onClose={onClose}
