@@ -28,11 +28,7 @@ export function reloadWindows(isAutoUpdateEnabled = true): void {
 	BrowserWindow.getAllWindows().forEach((window: BrowserWindow) => {
 		const { hash } = new URL(window.webContents.getURL());
 
-		if (isAutoUpdateEnabled) {
-			window.loadURL(`${process.env.BASE_URL}${hash}`);
-		} else {
-			window.loadURL(`file://${__dirname}/index.html${hash}`);
-		}
+		window.loadURL(`${process.env.BASE_URL}${hash}`);
 	});
 }
 
