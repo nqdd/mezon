@@ -160,7 +160,7 @@ export const ContactUs = ({ isOpen, onClose }: ContactUsProps) => {
 								rows={3}
 								value={formData.message}
 								onChange={(e) => handleChange('message', e.target.value)}
-								className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+								className="w-full px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none bg-white text-gray-900"
 							/>
 						</div>
 

@@ -254,7 +254,7 @@ export const Routes = memo(() => {
 						)
 					},
 					{
-						path: '/clanword',
+						path: '/clanworld',
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<ClanDetailPage />
