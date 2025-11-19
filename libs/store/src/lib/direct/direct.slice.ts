@@ -44,7 +44,15 @@ export interface DirectRootState {
 	[DIRECT_FEATURE_KEY]: DirectState;
 }
 
-export const directAdapter = createEntityAdapter<DirectEntity>();
+export const directAdapter = createEntityAdapter<DirectEntity>({
+	sortComparer: (a, b) => {
+		const timestampA = a.last_sent_message?.timestamp_seconds ?? a.create_time_seconds ?? 0;
+
+		const timestampB = b.last_sent_message?.timestamp_seconds ?? b.create_time_seconds ?? 0;
+
+		return timestampB - timestampA;
+	}
+});
 
 export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEntity?: DirectEntity) => {
 	const mapped = { ...channelRes, id: channelRes.channel_id || '' };
@@ -68,7 +76,7 @@ export const fetchDirectDetail = createAsyncThunk('direct/fetchDirectDetail', as
 
 		return mapDmGroupToEntity(response);
 	} catch (error) {
-		captureSentryError(error, 'direct/closeDirectMessage');
+		captureSentryError(error, 'direct/fetchDirectDetail');
 		return thunkAPI.rejectWithValue(error);
 	}
 });
@@ -99,7 +107,11 @@ export const createNewDirectMessage = createAsyncThunk(
 							(Array.isArray(display_names) ? display_names.join(',') : Array.isArray(username) ? username.join(',') : ''),
 						channel_avatar: response.channel_avatar || 'assets/images/avatar-group.png',
 						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
-						user_ids: body.user_ids
+						user_ids: body.user_ids,
+						active: 1,
+						last_sent_message: {
+							timestamp_seconds: Date.now()
+						}
 					})
 				);
 
@@ -922,7 +934,7 @@ const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {
 	return true;
 };
 
-const { selectAll, selectEntities } = directAdapter.getSelectors();
+const { selectAll, selectEntities, selectIds } = directAdapter.getSelectors();
 
 export const getDirectState = (rootState: { [DIRECT_FEATURE_KEY]: DirectState }): DirectState => rootState[DIRECT_FEATURE_KEY];
 export const selectDirectMessageEntities = createSelector(getDirectState, selectEntities);
@@ -1041,13 +1053,7 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, (di
 });
 
 export const selectDirectsOpenlistOrder = createSelector(selectDirectsOpenlist, (data) => {
-	return data
-		.sort((a, b) => {
-			const timestampA = a.last_sent_message?.timestamp_seconds || a.create_time_seconds || 0;
-			const timestampB = b.last_sent_message?.timestamp_seconds || b.create_time_seconds || 0;
-			return timestampB - timestampA;
-		})
-		.map((dm) => dm.id);
+	return data.map((dm) => dm.id);
 });
 
 export const selectDirectById = createSelector([selectDirectMessageEntities, (state, id) => id], (clansEntities, id) => clansEntities?.[id]);
