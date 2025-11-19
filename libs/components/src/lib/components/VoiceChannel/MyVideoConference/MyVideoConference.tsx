@@ -53,7 +53,7 @@ export function MyVideoConference({
 	const [isGridView, setIsGridView] = useState<boolean>(true);
 	const { activeSoundReactions, handleSoundReaction } = useSoundReactions();
 
-	useDeepFilterNet3({ enabled: isExternalCalling ? undefined : false });
+	useDeepFilterNet3({ enabled: isExternalCalling ? undefined : undefined });
 
 	const tracksFromHook = useTracks(
 		[
