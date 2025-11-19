@@ -22,13 +22,7 @@ const GroupThreads = ({ title, threads, measureRef, preventClosePannel }: GroupT
 					const isLast = index === threads.length - 1;
 					return (
 						<li key={thread.id} ref={isLast ? measureRef : undefined}>
-							<ThreadItem
-								preventClosePannel={preventClosePannel}
-								isPublicThread={true}
-								thread={thread}
-								setIsShowThread={() => {}}
-								isHasContext={false}
-							/>
+							<ThreadItem preventClosePannel={preventClosePannel} isPublicThread={true} thread={thread} setIsShowThread={() => {}} />
 						</li>
 					);
 				})}

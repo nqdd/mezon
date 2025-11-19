@@ -4,6 +4,7 @@ import {
 	EStateFriend,
 	channelMembersActions,
 	channelUsersActions,
+	clansActions,
 	selectAllAccount,
 	selectBanMemberCurrentClanById,
 	selectCurrentChannelCreatorId,
@@ -12,6 +13,7 @@ import {
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
 	selectFriendStatus,
+	toastActions,
 	useAppDispatch,
 	useAppSelector,
 	usersClanActions
@@ -23,6 +25,7 @@ import type { CSSProperties, FC } from 'react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { Menu, useContextMenu } from 'react-contexify';
 import { useTranslation } from 'react-i18next';
+import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ModalRemoveMemberClan from '../../components/MemberProfile/ModalRemoveMemberClan';
 import ItemPanel from '../../components/PanelChannel/ItemPanel';
@@ -51,9 +54,63 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 	const { createDirectMessageWithUser } = useDirect();
 	const { toDmGroupPageFromMainApp, navigate } = useAppNavigation();
 
-	const { openModalRemoveMember, closeRemoveMemberModal, handleRemoveMember, openUserProfile, openProfileItem, openRemoveMemberModal } = useModals({
+	const { openUserProfile, openProfileItem, hideProfileItemModal, hideUserProfileModal } = useModals({
 		currentUser
 	});
+	const handleRemoveMember = useCallback(async () => {
+		if (!currentUser?.user?.id || !currentClanId) return;
+
+		try {
+			await dispatch(
+				clansActions.removeClanUsers({
+					clanId: currentClanId,
+					userIds: [currentUser.user.id]
+				})
+			);
+			dispatch(
+				toastActions.addToast({
+					message: 'Member removed successfully',
+					type: 'success'
+				})
+			);
+		} catch (error) {
+			dispatch(
+				toastActions.addToast({
+					message: 'Failed to remove member',
+					type: 'error'
+				})
+			);
+		}
+	}, [currentUser, currentClanId, dispatch]);
+	const [showRemoveMemberModal, hideRemoveMemberModal] = useModal(() => {
+		if (!currentUser) return null;
+
+		return (
+			<ModalRemoveMemberClan
+				username={currentUser?.user?.username}
+				onClose={hideRemoveMemberModal}
+				onRemoveMember={async () => {
+					await handleRemoveMember();
+					hideRemoveMemberModal();
+				}}
+			/>
+		);
+	}, [currentUser, handleRemoveMember]);
+	const openRemoveMemberModal = useCallback(
+		(user?: ChannelMembersEntity) => {
+			if (user) {
+				setCurrentUser(user);
+			}
+			if (hideProfileItemModal) {
+				hideProfileItemModal();
+			}
+			if (hideUserProfileModal) {
+				hideUserProfileModal();
+			}
+			showRemoveMemberModal();
+		},
+		[hideProfileItemModal, hideUserProfileModal, setCurrentUser, showRemoveMemberModal]
+	);
 
 	const [currentHandlers, setCurrentHandlers] = useState<MemberContextMenuHandlers | null>(null);
 
@@ -402,10 +459,6 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 					</>
 				)}
 			</Menu>
-
-			{openModalRemoveMember && currentUser && (
-				<ModalRemoveMemberClan username={currentUser?.user?.username} onClose={closeRemoveMemberModal} onRemoveMember={handleRemoveMember} />
-			)}
 		</MemberContextMenuContext.Provider>
 	);
 };
