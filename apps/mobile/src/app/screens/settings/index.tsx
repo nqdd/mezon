@@ -21,7 +21,7 @@ import {
 	selectAllAccount
 } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, ScrollView, View } from 'react-native';
 import WebView from 'react-native-webview';
@@ -136,7 +136,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 					icon: <MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.textStrong} width={size.s_24} height={size.s_24} />
 				}
 			] satisfies IMezonMenuItemProps[],
-		[navigation, t, themeValue.textStrong, i18n.language]
+		[navigation, t, themeValue.textStrong]
 	);
 
 	const AppMenu = useMemo(
@@ -177,10 +177,10 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 					icon: <MezonIconCDN icon={IconCDN.doorExitIcon} color={baseColor.redStrong} width={size.s_24} height={size.s_24} />
 				}
 			] satisfies IMezonMenuItemProps[],
-		[i18n.language]
+		[t]
 	);
 
-	const menu: IMezonMenuSectionProps[] = [
+	const menu: IMezonMenuSectionProps[] = useMemo(() => [
 		{
 			title: t('accountSettings.title'),
 			items: AccountMenu
@@ -192,14 +192,14 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		{
 			items: LogOut
 		}
-	];
+	], [AccountMenu, AppMenu, LogOut]);
 
 	const renderedMenu = useMemo(() => {
 		if (searchText.trim() === '') {
 			return menu;
 		}
 		return filteredMenu;
-	}, [filteredMenu, themeValue.textStrong, i18n.language]);
+	}, [filteredMenu, menu]);
 
 	const debouncedHandleSearchChange = useCallback(
 		debounce((text) => {
@@ -218,12 +218,6 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		}, 300),
 		[menu]
 	);
-
-	useEffect(() => {
-		if (searchText.trim() !== '') {
-			debouncedHandleSearchChange(searchText);
-		}
-	}, [i18n.language]);
 
 	const handleSearchChange = (text: string) => {
 		setSearchText(text);
