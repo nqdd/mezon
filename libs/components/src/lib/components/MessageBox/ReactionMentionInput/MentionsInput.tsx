@@ -1,5 +1,5 @@
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react';
-import { ID_MENTION_HERE, generateE2eId } from '@mezon/utils';
+import { ID_MENTION_HERE, IS_SAFARI, generateE2eId } from '@mezon/utils';
 import React, {
 	Children,
 	cloneElement,
@@ -78,6 +78,7 @@ export interface MentionsInputProps {
 	hasFilesToSend?: boolean;
 	setCaretToEnd?: boolean;
 	currentChannelId?: string;
+	allowEmptySend?: boolean;
 }
 
 export interface MentionsInputHandle {
@@ -226,6 +227,54 @@ const positionCaretAfterEmoji = (inputEl: HTMLElement, config: any, markup: stri
 	return false;
 };
 
+const positionCaretAfterMention = (inputEl: HTMLElement, config: any) => {
+	const entityTypeMap: Record<string, string> = {
+		':': '[data-entity-type="MessageEntityCustomEmoji"]',
+		'#': '[data-entity-type="MessageEntityHashtag"]',
+		'@': '[data-entity-type="MessageEntityMentionName"], [data-entity-type="MessageEntityMentionRole"]'
+	};
+
+	const trigger = config.trigger;
+	const selector = entityTypeMap[trigger];
+
+	if (!selector) {
+		return false;
+	}
+
+	const mentionElements = inputEl.querySelectorAll(selector);
+	const lastMentionElement = mentionElements[mentionElements.length - 1] as HTMLElement;
+
+	if (lastMentionElement) {
+		const selection = window.getSelection();
+		if (selection) {
+			const range = document.createRange();
+
+			const shouldAddSpace = config.appendSpaceOnAdd !== false;
+
+			const nextNode = lastMentionElement.nextSibling;
+			const hasSpaceAfter = nextNode?.nodeType === Node.TEXT_NODE && nextNode.textContent?.startsWith('\u00A0');
+
+			if (shouldAddSpace && !hasSpaceAfter) {
+				const spaceNode = document.createTextNode('\u00A0');
+				if (lastMentionElement.nextSibling) {
+					lastMentionElement.parentNode?.insertBefore(spaceNode, lastMentionElement.nextSibling);
+				} else {
+					lastMentionElement.parentNode?.appendChild(spaceNode);
+				}
+				range.setStartAfter(spaceNode);
+			} else {
+				range.setStartAfter(lastMentionElement);
+			}
+
+			range.collapse(true);
+			selection.removeAllRanges();
+			selection.addRange(range);
+			return true;
+		}
+	}
+	return false;
+};
+
 const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProps>(
 	(
 		{
@@ -248,7 +297,8 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			maxHistorySize = 50,
 			hasFilesToSend = false,
 			setCaretToEnd = false,
-			currentChannelId
+			currentChannelId,
+			allowEmptySend = false
 		},
 		ref
 	) => {
@@ -619,7 +669,8 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 					requestNextMutation(() => {
 						inputEl.focus();
 
-						if (!positionCaretAfterEmoji(inputEl, config, markup)) {
+						const positioned = IS_SAFARI ? positionCaretAfterMention(inputEl, config) : positionCaretAfterEmoji(inputEl, config, markup);
+						if (!positioned) {
 							const spaceOffset = shouldAddSpace ? 1 : 0;
 							const newCaretPosition = caretPosition + shiftCaretPosition + spaceOffset;
 							if (newCaretPosition >= 0) {
@@ -702,6 +753,13 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 				const newHtml = inputEl.innerHTML;
 				setHtml(newHtml);
 				onChange?.(newHtml);
+
+				IS_SAFARI &&
+					requestNextMutation(() => {
+						inputEl.focus();
+						const emojiConfig = { trigger: ':' };
+						positionCaretAfterMention(inputEl, emojiConfig);
+					});
 
 				savedCaretPositionRef.current = null;
 			},
@@ -1059,10 +1117,10 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 						((messageSendKeyCombo === 'enter' && !e.shiftKey) || (messageSendKeyCombo === 'ctrl-enter' && (e.ctrlKey || e.metaKey)))
 					) {
 						e.preventDefault();
-						if (onSend && (html.trim() || hasFilesToSend)) {
+						if (onSend && (html.trim() || hasFilesToSend || allowEmptySend)) {
 							const formattedText = parseHtmlAsFormattedText(html, true, false) as FormattedText;
 							const hasActualContent = formattedText.text.trim().length > 0;
-							if (hasActualContent || hasFilesToSend) {
+							if (hasActualContent || hasFilesToSend || allowEmptySend) {
 								onSend(formattedText);
 								setHtml('');
 								if (inputRef.current) {
@@ -1147,7 +1205,8 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 				undo,
 				redo,
 				hasFilesToSend,
-				suggestionsCount
+				suggestionsCount,
+				allowEmptySend
 			]
 		);
 
@@ -1190,6 +1249,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 		const { refs, floatingStyles } = useFloating({
 			open: !!activeMentionContext,
 			placement: 'top-start',
+			strategy: 'fixed',
 			middleware: [offset({ mainAxis: 8, crossAxis: -55 }), flip(), shift({ padding: 8 })],
 			whileElementsMounted: autoUpdate
 		});
@@ -1215,6 +1275,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 					className="mention-popover-container bg-ping-member"
 					style={{
 						...floatingStyles,
+						zIndex: 10000,
 						borderRadius: '8px',
 						border: '1px solid var(--border-color)',
 						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -1231,7 +1292,9 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			<div className={`mention-input relative ${className} `} style={style} onContextMenu={handleContextMenu}>
 				<div
 					ref={(node) => {
-						(anchorRef as any).current = node;
+						if (anchorRef) {
+							(anchorRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+						}
 						refs.setReference(node);
 					}}
 					className="sticky top-0 left-0 w-full h-0 pointer-events-none"

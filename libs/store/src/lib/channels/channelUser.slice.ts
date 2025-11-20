@@ -166,6 +166,7 @@ export const listChannelsByUserSlice = createSlice({
 				});
 			}
 		},
+
 		updateChannelBadgeCount: (state: ListChannelsByUserState, action: PayloadAction<{ channelId: string; count: number; isReset?: boolean }>) => {
 			const { channelId, count, isReset = false } = action.payload;
 			if (state.entities) {
@@ -173,7 +174,7 @@ export const listChannelsByUserSlice = createSlice({
 				if (entity) {
 					const newCountMessUnread = isReset ? 0 : (entity.count_mess_unread ?? 0) + count;
 					if (entity.count_mess_unread !== newCountMessUnread || isReset) {
-						const last_sent_message = state.entities[state.ids[state.ids.length - 1]].last_sent_message;
+						const last_sent_message = state.entities[state.ids[state.ids.length - 1]]?.last_sent_message;
 						listChannelsByUserAdapter.updateOne(state, {
 							id: channelId,
 							changes: {

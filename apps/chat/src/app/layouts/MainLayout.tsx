@@ -7,7 +7,7 @@ import {
 	selectBadgeCountAllClan,
 	useAppDispatch
 } from '@mezon/store';
-import { MessageCrypt, UploadLimitReason } from '@mezon/utils';
+import { IS_SAFARI, MessageCrypt, UploadLimitReason } from '@mezon/utils';
 
 import { TooManyUpload, WebRTCStreamProvider, useClanLimitModalErrorHandler } from '@mezon/components';
 import { selectTotalUnreadDM, useAppSelector } from '@mezon/store';
@@ -33,6 +33,18 @@ const GlobalEventListener = () => {
 	const { quantityPendingRequest } = useFriends();
 
 	const hasUnreadChannel = useAppSelector((state) => selectAnyUnreadChannel(state));
+
+	useEffect(() => {
+		const mainLayout = document.getElementById('main-layout');
+		if (!mainLayout) return;
+		if (IS_SAFARI) {
+			mainLayout.classList.add('is-safari');
+		}
+		return () => {
+			mainLayout.classList.remove('is-safari');
+		};
+	}, []);
+
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout | null = null;
 		const reconnectSocket = () => {

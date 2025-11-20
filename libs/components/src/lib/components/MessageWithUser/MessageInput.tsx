@@ -242,6 +242,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 					onKeyDown={handleKeyDown}
 					placeholder="Edit message..."
 					className={`w-full bg-theme-surface border-theme-primary rounded-lg p-[10px] text-theme-message customScrollLightMode mt-[5px] min-h-[40px]`}
+					allowEmptySend={true}
 				>
 					<Mention
 						trigger="@"
