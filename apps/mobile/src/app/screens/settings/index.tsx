@@ -46,9 +46,6 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
 	const userProfile = useSelector(selectAllAccount);
-
-
-
 	const logout = async () => {
 		const store = await getStoreAsync();
 		store.dispatch(directActions.removeAll());
