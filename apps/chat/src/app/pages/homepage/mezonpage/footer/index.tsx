@@ -145,7 +145,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 								Privacy Policy
 							</a>
 							<a
-								href="https://mezon.ai/term-of-service"
+								href="https://mezon.ai/terms-of-service"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -238,11 +238,16 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 							© 2025 Mezon. All rights reserved.
 						</div>
 						<div className="flex gap-4 md:gap-6 text-xs">
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Privacy
+							<a href="https://github.com/mezonai/mezon" className="text-white/80 hover:text-white transition-colors">
+								Github
 							</a>
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Terms
+							<a
+								href="https://www.linkedin.com/company/mezon-ai"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/80 hover:text-white transition-colors"
+							>
+								Linkedin
 							</a>
 						</div>
 					</div>
