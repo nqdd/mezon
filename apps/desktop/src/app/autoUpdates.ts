@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Notification } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Notification, shell } from 'electron';
 import type { UpdateInfo } from 'electron-updater';
 import { autoUpdater, DOWNLOAD_PROGRESS } from 'electron-updater';
 
@@ -17,6 +17,10 @@ export default function setupAutoUpdates() {
 	autoUpdater.autoInstallOnAppQuit = true;
 
 	ipcMain.handle(INSTALL_UPDATE, () => {
+		if (process.platform === 'win32') {
+			shell.openExternal('https://apps.microsoft.com/detail/9pf25lf1fj17');
+			return;
+		}
 		new Notification({
 			icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
 			title: 'Mezon Installation',
