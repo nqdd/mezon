@@ -50,19 +50,6 @@ export const DmListItem = React.memo((props: { id: string }) => {
 		return Number(directMessage?.type) === ChannelType.CHANNEL_TYPE_GROUP;
 	}, [directMessage?.type]);
 
-	const otherMemberList = useMemo(() => {
-		const DMClone = JSON.parse(JSON.stringify(directMessage));
-		const userIdList = DMClone.user_ids;
-		const usernameList = DMClone?.usernames || [];
-		const displayNameList = DMClone?.display_names || [];
-
-		return usernameList?.map((username, index) => ({
-			userId: userIdList?.[index],
-			username,
-			displayName: displayNameList?.[index]
-		}));
-	}, [directMessage]);
-
 	const lastMessageTime = useMemo(() => {
 		if (directMessage?.last_sent_message?.timestamp_seconds) {
 			const timestamp = Number(directMessage?.last_sent_message?.timestamp_seconds);
@@ -149,7 +136,8 @@ export const DmListItem = React.memo((props: { id: string }) => {
 				<MessagePreviewLastest
 					isUnReadChannel={isUnReadChannel}
 					type={directMessage?.type}
-					otherMemberList={otherMemberList}
+					senderName={directMessage?.display_names?.[0] || directMessage.usernames?.[0]}
+					userId={directMessage?.user_ids?.[0] || ''}
 					senderId={directMessage?.last_sent_message?.sender_id}
 					lastSentMessage={directMessage?.last_sent_message}
 				/>
