@@ -103,7 +103,7 @@ export const MessagePreviewLastest = React.memo(
 				case 'text':
 					return `[${t('attachments.file')}] ${fileName || ''}`;
 				default:
-					return `[${t('attachments.file')}]`;
+					return isTypeDMGroup ? `${t('directMessage.groupCreated')}` : '';
 			}
 		};
 
