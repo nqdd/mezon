@@ -1,9 +1,8 @@
 import mezonPackage from '@mezon/package-js';
-import { Icons } from '@mezon/ui';
-import { getPlatform, Platform } from '@mezon/utils';
+import { Button, Icons } from '@mezon/ui';
+import { Platform, getPlatform } from '@mezon/utils';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
 
@@ -58,6 +57,7 @@ const AboutMezon = () => {
 	const version = mezonPackage.version;
 	const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
 	const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+	const [openAboutUs, setOpenAboutUs] = useState(false);
 	const desktopDropdownRef = useRef<HTMLDivElement>(null);
 	const mobileDropdownRef = useRef<HTMLDivElement>(null);
 	const downloadUrl: string = useMemo(() => {
@@ -88,7 +88,12 @@ const AboutMezon = () => {
 			setIsDesktopDropdownOpen(!isDesktopDropdownOpen);
 		}
 	};
-
+	const handleOpenAboutUs = () => {
+		setOpenAboutUs(true);
+	};
+	const handleCloseAboutUs = () => {
+		setOpenAboutUs(false);
+	};
 	const handleDownloadMobile = () => {
 		if (platform === Platform.IOS) {
 			window.open('https://apps.apple.com/vn/app/mezon/id6502750046', '_blank');
@@ -315,7 +320,10 @@ const AboutMezon = () => {
 					<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3">
 						Whether you're learning, working, or just chilling with friends, our support team and community are right by your side.
 					</p>
-					<button className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[16px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity mb-[48px]">
+					<button
+						className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[16px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity mb-[48px]"
+						onClick={handleOpenAboutUs}
+					>
 						Reach Us Anytime
 					</button>
 
@@ -341,13 +349,12 @@ const AboutMezon = () => {
 						Ready to make every{' '}
 						<span className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] bg-clip-text text-transparent">chat count</span>?
 					</h2>
-					<Link
+					<Button
 						className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[18px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity inline-flex items-center justify-center"
-						to={'/mezon'}
-						onClick={() => trackHeaderLoginClick('Create Mezon Account')}
+						onClick={handleOpenAboutUs}
 					>
 						Reach Us Anytime
-					</Link>
+					</Button>
 				</div>
 			</AnimatedSection>
 			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />

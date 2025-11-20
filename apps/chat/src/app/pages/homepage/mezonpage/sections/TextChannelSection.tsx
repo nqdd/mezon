@@ -50,7 +50,8 @@ export const TextChannelSection = () => {
 						<div className="flex flex-col items-start gap-4 md:gap-6 lg:gap-8 px-4 lg:px-0">
 							<div>
 								<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
-									<span className="text-stone-900">{t('sections.textChannel.title')}</span>
+									<span className="">{t('sections.textChannel.titlesuper')}</span>
+									<p>{t('sections.textChannel.titlemessage')}</p>
 								</h2>
 								<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
 									{t('sections.textChannel.description')} <p>{t('sections.textChannel.description2')}</p>
@@ -58,10 +59,12 @@ export const TextChannelSection = () => {
 							</div>
 							<Link
 								to="/fastmessage"
-								className="font-svnAvo inline-flex items-center justify-center gap-2 px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px]"
+								className="group flex items-center gap-2 text-sm md:text-base lg:text-lg text-purple-600 hover:text-purple-700 font-svnAvo"
 							>
-								<span>{t('sections.textChannel.learnMore')}</span>
-								<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								<span className="relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-purple-600 after:transition-all after:duration-300 group-hover:after:w-full">
+									{t('sections.textChannel.learnMore')}
+								</span>
+								<Icons.TopRight className="w-4 h-4 sm:w-5 sm:h-5" />
 							</Link>
 						</div>
 					</div>

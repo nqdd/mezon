@@ -145,7 +145,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 								Privacy Policy
 							</a>
 							<a
-								href="https://mezon.ai/terms-of-service"
+								href="https://mezon.ai/term-of-service"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
