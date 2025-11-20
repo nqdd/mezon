@@ -90,12 +90,7 @@ const ContactUsPage = () => {
 						<h2 className="text-3xl  text-gray-900 mb-4 select-text">Privacy Policy Questions</h2>
 						<p className="text-base sm:text-lg text-gray-700 mb-6 select-text">
 							For all questions related to our Privacy Policy,{' '}
-							<a
-								className="text-purple-600 underline"
-								href="https://github.com/mezonai/privacy-policy"
-								target="_blank"
-								rel="noreferrer"
-							>
+							<a className="text-purple-600 underline" href="/privacy-policy" target="_blank" rel="noreferrer">
 								Click here
 							</a>
 						</p>
