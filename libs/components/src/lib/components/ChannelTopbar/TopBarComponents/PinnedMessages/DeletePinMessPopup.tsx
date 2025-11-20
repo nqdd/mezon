@@ -24,7 +24,7 @@ export const ModalDeletePinMess = (props: ModalDeletePinMessProps) => {
 	return (
 		<div
 			ref={modalref}
-			className="w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
+			className="outline-none w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
 		>
 			<div className="w-fit h-fit bg-theme-setting-primary text-theme-primary rounded-lg flex-col justify-start  items-start gap-3 inline-flex overflow-hidden max-w-[440px]">
 				<div className="px-4 py-4">

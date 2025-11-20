@@ -74,7 +74,10 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 				const processor = new DeepFilterNoiseFilterProcessor({
 					sampleRate,
 					noiseReductionLevel: currentLevel,
-					enabled: true
+					enabled: true,
+					assetConfig: {
+						cdnUrl: 'https://cdn.mezon.ai/AI/models/datas/noise_suppression/deepfilternet3'
+					}
 				});
 
 				// console.log('start set processor');

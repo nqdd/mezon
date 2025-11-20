@@ -58,7 +58,6 @@ import {
 	useStateRef,
 	useSyncEffect
 } from '@mezon/utils';
-import classNames from 'classnames';
 import type { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
 import type { ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -1221,6 +1220,22 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			skipCalculateScroll.current = false;
 		});
 
+		const handleKeyboardEvent = useLastCallback((event: KeyboardEvent) => {
+			if (!chatRef.current?.contains(event.target as Node)) return;
+			if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+				userActiveScroll.current = true;
+				skipCalculateScroll.current = false;
+				handleWheel();
+			}
+		});
+
+		useEffect(() => {
+			document.addEventListener('keydown', handleKeyboardEvent);
+			return () => {
+				document.removeEventListener('keydown', handleKeyboardEvent);
+			};
+		}, [handleKeyboardEvent]);
+
 		const handleTouchEnd = useLastCallback(() => {
 			runDebouncedForWheel(() => {
 				requestAnimationFrame(() => {
@@ -1234,6 +1249,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			<div className="w-full h-full relative messages-container select-text bg-theme-chat ">
 				<StickyLoadingIndicator messageCount={messageIds?.length} />
 				<div
+					tabIndex={-1}
 					onScroll={handleScroll}
 					onWheelCapture={handleWheel}
 					onTouchStart={handleTouchStart}
@@ -1243,14 +1259,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						skipCalculateScroll.current = false;
 					}}
 					ref={chatRef}
-					className={classNames([
-						'messages-scroll',
-						'w-full',
-						{
-							customScrollLightMode: appearanceTheme === 'light'
-						},
-						'scroll-big'
-					])}
+					className={'messages-scroll outline-none w-full scroll-big'}
 				>
 					<div className="messages-wrap flex flex-col min-h-full mt-auto justify-end">
 						{isTopic && convertedFirstMsgOfThisTopic && (
