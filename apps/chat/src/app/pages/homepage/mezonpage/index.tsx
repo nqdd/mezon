@@ -73,7 +73,6 @@ function MezonPage() {
 	}, [platform, version]);
 
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const scrollToSection = (id: string, event: React.MouseEvent) => {
 		event.preventDefault();
@@ -147,7 +146,7 @@ function MezonPage() {
 				{sideBarIsOpen && <SideBarMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
 			</div>
 
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 			{!isElectron() && <CustomCookieConsent />}
 		</div>
 	);
