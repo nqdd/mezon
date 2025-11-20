@@ -1,13 +1,16 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { acitvitiesActions, directActions, useAppDispatch } from '@mezon/store-mobile';
+import { acitvitiesActions, directActions, getStore, messagesActions, selectDirectById, useAppDispatch } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
-import React, { memo, useCallback, useMemo, useState } from 'react';
-import { FlatList, Keyboard, Platform, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { DeviceEventEmitter, FlatList, Keyboard, Platform, Pressable, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
+import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
+import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { DmListItem } from './DmListItem';
 import MessageActivity from './MessageActivity';
 import MessageHeader from './MessageHeader';
@@ -33,6 +36,7 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
+	const isTabletLandscape = useTabletLandscape();
 
 	const navigateToNewMessageScreen = useCallback(() => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, { screen: APP_SCREEN.MESSAGES.NEW_MESSAGE });
@@ -46,9 +50,48 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 		setIsRefreshing(false);
 	}, [dispatch]);
 
-	const renderItem = useCallback(({ item }: { item: string }) => {
-		return <DmListItem id={item} />;
+	useEffect(() => {
+		const dmItemRouter = DeviceEventEmitter.addListener('CHANGE_CHANNEL_DM_DETAIL', ({ dmId = '' }) => {
+			requestAnimationFrame(async () => {
+				if (!isTabletLandscape) {
+					navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
+						directMessageId: dmId
+					});
+				}
+				dispatch(directActions.setDmGroupCurrentId(dmId));
+				dispatch(messagesActions.setIdMessageToJump(null));
+			});
+		});
+		return () => {
+			dmItemRouter.remove();
+		};
+	}, [dispatch, isTabletLandscape, navigation]);
+
+	const handleLongPress = useCallback((dmId: string) => {
+		const store = getStore();
+		const directMessage = selectDirectById(store.getState(), dmId);
+		const data = {
+			heightFitContent: true,
+			children: <MessageMenu messageInfo={directMessage} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	}, []);
+
+	const renderItem = useCallback(
+		({ item }: { item: string }) => {
+			return (
+				<TouchableOpacity
+					onPress={() => {
+						DeviceEventEmitter.emit('CHANGE_CHANNEL_DM_DETAIL', { dmId: item });
+					}}
+					onLongPress={() => handleLongPress(item)}
+				>
+					<DmListItem id={item} />
+				</TouchableOpacity>
+			);
+		},
+		[handleLongPress]
+	);
 
 	const HeaderComponent = useMemo(() => <MessageActivity />, []);
 
@@ -61,25 +104,26 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 				style={[StyleSheet.absoluteFillObject]}
 			/>
 			<MessageHeader />
-			<FlatList
-				data={dmGroupChatList?.length > 0 ? dmGroupChatList : []}
-				renderItem={renderItem}
-				contentContainerStyle={{
-					paddingBottom: size.s_100
-				}}
-				keyExtractor={(dm) => `${dm}DM_MSG_ITEM`}
-				showsVerticalScrollIndicator={true}
-				removeClippedSubviews={Platform.OS === 'android'}
-				initialNumToRender={10}
-				windowSize={2}
-				onEndReachedThreshold={0.7}
-				onMomentumScrollBegin={() => Keyboard.dismiss()}
-				ListHeaderComponent={HeaderComponent}
-				keyboardShouldPersistTaps={'handled'}
-				refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
-				disableVirtualization
-				ListEmptyComponent={() => <MessagesScreenEmpty />}
-			/>
+			<View style={{ flex: 1 }}>
+				<FlatList
+					data={dmGroupChatList}
+					renderItem={renderItem}
+					contentContainerStyle={{
+						paddingBottom: size.s_100
+					}}
+					keyExtractor={(dm) => `${dm}DM_MSG_ITEM`}
+					showsVerticalScrollIndicator={true}
+					removeClippedSubviews={Platform.OS === 'android'}
+					initialNumToRender={15}
+					windowSize={5}
+					onEndReachedThreshold={0.5}
+					onMomentumScrollBegin={() => Keyboard.dismiss()}
+					ListHeaderComponent={HeaderComponent}
+					keyboardShouldPersistTaps={'handled'}
+					refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+					ListEmptyComponent={() => <MessagesScreenEmpty />}
+				/>
+			</View>
 			<Pressable style={styles.addMessage} onPress={navigateToNewMessageScreen}>
 				<MezonIconCDN icon={IconCDN.messagePlusIcon} width={size.s_22} height={size.s_22} />
 			</Pressable>
