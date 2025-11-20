@@ -1,7 +1,8 @@
 import mezonPackage from '@mezon/package-js';
 import { Icons } from '@mezon/ui';
 import { getPlatform, Platform } from '@mezon/utils';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
@@ -77,7 +78,6 @@ const AboutMezon = () => {
 		}
 	};
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const handleDownloadDesktop = () => {
 		if (platform === Platform.IOS) {
@@ -153,7 +153,9 @@ const AboutMezon = () => {
 							{isDesktopDropdownOpen && platform !== Platform.IOS && platform !== Platform.ANDROID && (
 								<div className="absolute top-full mt-3 left-0 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 min-w-[220px] overflow-hidden">
 									<a
-										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`}
+										href="https://apps.microsoft.com/detail/9pf25lf1fj17?hl=en-US&gl=VN"
+										target="_blank"
+										rel="noopener noreferrer"
 										className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
@@ -162,14 +164,28 @@ const AboutMezon = () => {
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`}
+										target="_blank"
+										rel="noopener noreferrer"
 										className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
 										<Icons.Apple className="w-5 h-5" />
-										<span className="text-gray-700 font-svnAvo">macOS</span>
+										<span className="text-gray-700 font-svnAvo">macOS (Apple)</span>
+									</a>
+									<a
+										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"
+										onClick={() => setIsDesktopDropdownOpen(false)}
+									>
+										<Icons.Apple className="w-5 h-5" />
+										<span className="text-gray-700 font-svnAvo">macOS (Intel)</span>
 									</a>
 									<a
 										href={`${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`}
+										target="_blank"
+										rel="noopener noreferrer"
 										className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors text-purple-600 hover:text-pink-600"
 										onClick={() => setIsDesktopDropdownOpen(false)}
 									>
@@ -334,7 +350,7 @@ const AboutMezon = () => {
 					</Link>
 				</div>
 			</AnimatedSection>
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 		</div>
 	);
 };
