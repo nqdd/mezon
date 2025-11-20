@@ -21,7 +21,7 @@ import {
 	selectAllAccount
 } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, ScrollView, View } from 'react-native';
 import WebView from 'react-native-webview';
@@ -42,7 +42,6 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 
 	const [filteredMenu, setFilteredMenu] = useState<IMezonMenuSectionProps[]>([]);
 	const [searchText, setSearchText] = useState<string>('');
-	const [isShowCancel, setIsShowCancel] = useState<boolean>(false);
 	const [linkRedirectLogout, setLinkRedirectLogout] = useState<string>('');
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
@@ -206,10 +205,8 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		debounce((text) => {
 			const results: IMezonMenuItemProps[] = [];
 			menu.forEach((section) => {
-				if (section.title) {
-					const matchedItems = section.items.filter((item) => item.title.toLowerCase().includes(text.toLowerCase()));
-					results.push(...matchedItems);
-				}
+				const matchedItems = section.items.filter((item) => item.title.toLowerCase().startsWith(text.toLowerCase()));
+				results.push(...matchedItems);
 			});
 
 			setFilteredMenu([
@@ -219,21 +216,19 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 				}
 			]);
 		}, 300),
-		[]
+		[menu]
 	);
+
+	useEffect(() => {
+		if (searchText.trim() !== '') {
+			debouncedHandleSearchChange(searchText);
+		}
+	}, [i18n.language]);
 
 	const handleSearchChange = (text: string) => {
 		setSearchText(text);
 		debouncedHandleSearchChange(text);
 	};
-
-	const handleSearchFocus = useCallback(() => {
-		setIsShowCancel(true);
-	}, []);
-
-	const handleCancelButton = useCallback(() => {
-		setIsShowCancel(false);
-	}, []);
 
 	const injectedJS = `
     (function() {
@@ -254,10 +249,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 			<ScrollView contentContainerStyle={styles.settingScroll} keyboardShouldPersistTaps={'handled'}>
 				<MezonSearch
 					value={searchText}
-					isShowCancel={isShowCancel}
 					onChangeText={handleSearchChange}
-					onFocusText={handleSearchFocus}
-					onCancelButton={handleCancelButton}
 				/>
 
 				<MezonMenu menu={renderedMenu} />
