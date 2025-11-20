@@ -18,7 +18,6 @@ const ContactUsPage = () => {
 				? `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
 				: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`;
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	useEffect(() => {
 		window.scrollTo(0, 0);
@@ -122,7 +121,7 @@ const ContactUsPage = () => {
 				</div>
 			</div>
 
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 
 			<ContactUs isOpen={isContactFormOpen} onClose={() => setIsContactFormOpen(false)} />
 		</div>

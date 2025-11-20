@@ -24,7 +24,6 @@ const MezonDongPage = () => {
 				? `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
 				: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`;
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const section1Ref = useRef<HTMLDivElement>(null);
 	const section2Ref = useRef<HTMLDivElement>(null);
@@ -233,7 +232,6 @@ const MezonDongPage = () => {
 				</div>
 			</section>
 
-			{/* Section 3: Nâng Tầm Môi Trường Làm Việc Với Mezon Đồng */}
 			<section ref={section3Ref} className="section-animate relative w-full bg-white py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse gap-8 lg:gap-12 xl:gap-16">
@@ -360,7 +358,7 @@ const MezonDongPage = () => {
 			</section>
 
 			<ModalDownload isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 		</div>
 	);
 };
