@@ -292,12 +292,10 @@ export const authSlice = createSlice({
 			if (action?.payload?.user_id && state.session && state.session[action.payload.user_id]) {
 				const currentSession = state.session[action.payload.user_id];
 
-				if (currentSession.token !== action.payload.token || currentSession.refresh_token !== action.payload.refresh_token) {
-					state.session[action.payload.user_id] = {
-						...currentSession,
-						...action.payload
-					};
-				}
+				state.session[action.payload.user_id] = {
+					...currentSession,
+					...action.payload
+				};
 			}
 		},
 		setLogout(state) {
@@ -563,7 +561,7 @@ export const selectAllSession = createSelector(getAuthState, (state: AuthState) 
 
 export const setupSessionSyncListener = (store: any) => {
 	if (typeof window !== 'undefined') {
-		const handleSessionRefresh = (event: Event) => {
+		const handleSessionRefresh = async (event: Event) => {
 			const customEvent = event as CustomEvent;
 			const session = customEvent.detail?.session;
 			if (session) {
