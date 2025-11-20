@@ -389,7 +389,7 @@ const createVirtualizer = () => {
 				const item = this.items[index];
 				if (!item) return this.baseItemHeight;
 				const currentDate = this.formatDate(item.create_time);
-				const nextItem = this.items[index + 1];
+				const nextItem = this.items[index - 1];
 				const nextDate = nextItem ? this.formatDate(nextItem.create_time) : null;
 				const hasDateLabel = currentDate !== nextDate;
 				const height = hasDateLabel ? this.baseItemHeight + this.dateLabelHeight : this.baseItemHeight;
@@ -592,7 +592,7 @@ const createVirtualizer = () => {
 					wrapper.style.position = 'absolute';
 					wrapper.style.top = this.getItemStart(i) + 'px';
 					const currentDate = this.formatDate(item.create_time);
-					const nextItem = this.items[i + 1];
+					const nextItem = this.items[i - 1];
 					const nextDate = nextItem ? this.formatDate(nextItem.create_time) : null;
 					const hasDateLabel = currentDate !== nextDate;
 					if (hasDateLabel) {
