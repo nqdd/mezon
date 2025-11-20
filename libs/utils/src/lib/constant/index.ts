@@ -24,6 +24,7 @@ export const FOR_1_HOUR_SEC = 60 * 60;
 export const FOR_3_HOURS_SEC = 3 * 60 * 60;
 export const FOR_8_HOURS_SEC = 8 * 60 * 60;
 export const FOR_24_HOURS_SEC = 24 * 60 * 60;
+export const ONE_MILISECONDS = 1000;
 export const MAX_LENGTH_MESSAGE_BUZZ = 160;
 export const ONE_MINUTE_MS = 60000;
 export const GUEST_NAME = 'guest';

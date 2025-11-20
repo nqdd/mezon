@@ -288,6 +288,7 @@ We welcome contributions from the community! Here's how you can help:
 -   [**Go SDK**](https://github.com/mezonai/mezon-go-sdk) - Official Go SDK
 -   [**Java SDK**](https://github.com/mezonai/mezon-java-sdk) - Official Java SDK
 -   [**Python SDK**](https://github.com/phuvinh010701/mezon-sdk-python) - Official Python SDK
+-   [**NestJS SDK**](https://github.com/n0xgg04/nezon) - Official NestJs SDK
 -   [**Mezon WebJs SDK**](https://github.com/mezonai/mezon-web-js) - SDK for channel apps integration
 -   [**MCP Integration**](https://github.com/mezonai/mezon-mcp) - AI-ready integration
 

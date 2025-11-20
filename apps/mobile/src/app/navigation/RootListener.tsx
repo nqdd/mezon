@@ -1,5 +1,5 @@
 import { ChatContext } from '@mezon/core';
-import { STORAGE_CLAN_ID, STORAGE_IS_DISABLE_LOAD_BACKGROUND, STORAGE_MY_USER_ID, load, save, setCurrentClanLoader } from '@mezon/mobile-components';
+import { load, save, setCurrentClanLoader, STORAGE_CLAN_ID, STORAGE_IS_DISABLE_LOAD_BACKGROUND, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import {
 	accountActions,
 	appActions,
@@ -280,7 +280,7 @@ const RootListener = () => {
 			requestIdleCallback(() => {
 				setTimeout(() => {
 					profileLoader();
-				}, 2000);
+				}, 1);
 			});
 		}
 	}, [isLoggedIn, profileLoader]);

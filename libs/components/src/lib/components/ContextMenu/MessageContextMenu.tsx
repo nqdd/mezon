@@ -613,7 +613,7 @@ function MessageContextMenu({
 	);
 
 	const quickMenuItems = useAppSelector((state) => selectQuickMenuByChannelId(state, currentChannelId || ''));
-
+	const isForwardedMessage = Boolean(message?.content?.fwd);
 	const items = useMemo<ContextMenuItem[]>(() => {
 		const builder = new MenuBuilder();
 
@@ -678,22 +678,22 @@ function MessageContextMenu({
 				);
 			}
 		);
-
-		builder.when(enableEditMessageItem, (builder) => {
-			builder.addMenuItem(
-				'editMessage',
-				t('editMessage'),
-				async () => {
-					try {
-						handleEditMessage();
-					} catch (error) {
-						console.error(t('errors.failedToEditMessage'), error);
-					}
-				},
-
-				<Icons.EditMessageRightClick defaultSize="w-4 h-4" />
-			);
-		});
+		if (!isForwardedMessage) {
+			builder.when(enableEditMessageItem, (builder) => {
+				builder.addMenuItem(
+					'editMessage',
+					t('editMessage'),
+					async () => {
+						try {
+							handleEditMessage();
+						} catch (error) {
+							console.error(t('errors.failedToEditMessage'), error);
+						}
+					},
+					<Icons.EditMessageRightClick defaultSize="w-4 h-4" />
+				);
+			});
+		}
 
 		builder.when(!isTopic && pinMessageStatus === false, (builder) => {
 			builder.addMenuItem('unPinMessage', t('unpinMessage'), () => handleUnPinMessage(), <Icons.PinMessageRightClick defaultSize="w-4 h-4" />);

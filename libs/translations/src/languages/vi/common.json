@@ -62,6 +62,8 @@
 	"transfer": "Chuyển",
 	"transferFunds": "Chuyển tiền",
 	"noPermissionToSendMessage": "Bạn không có quyền gửi tin nhắn trong kênh này.",
+	"timeout": "Cấm",
+	"timeoutDesc": "Bạn không thể gửi tin nhắn, phản hồi, chuyển tiếp trong thời gian bị cấm.",
 	"resetApp": "Đặt lại ứng dụng",
 	"launchApp": "Khởi chạy ứng dụng",
 	"help": "Trợ giúp",
@@ -368,7 +370,8 @@
 		"forSale": "Để bán",
 		"upload": "Tải lên",
 		"sticker": "nhãn dán",
-		"emoji": "biểu cảm"
+		"emoji": "biểu cảm",
+		"lenghtError": "Tên {{type}} phải từ {{min}} đến {{max}} kí tự, chỉ bao gồm chữ cái, chữ số, _ và -"
 	},
 	"openSettings": "Mở cài đặt",
 	"permissionNotification": {

@@ -1,12 +1,5 @@
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import {
-	attachmentActions,
-	referencesActions,
-	selectAttachmentByChannelId,
-	selectIsSendHDImageMobile,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
+import { referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import React, { memo } from 'react';
 import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
@@ -28,7 +21,6 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 
 	const attachmentFilteredByChannelId = useAppSelector((state) => selectAttachmentByChannelId(state, channelId));
 	const checkAttachment = attachmentFilteredByChannelId?.files?.length > 0;
-	const isSendHDImageMobile = useAppSelector(selectIsSendHDImageMobile);
 
 	const handleRemoveAttachment = (index: number) => {
 		dispatch(
@@ -42,9 +34,6 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 	if (!checkAttachment) {
 		return null;
 	}
-	const onToggleSendHDImage = () => {
-		dispatch(attachmentActions.setIsSendHDImageMobile({ status: !isSendHDImageMobile }));
-	};
 	return (
 		<View style={styles.container}>
 			<LinearGradient
@@ -90,19 +79,6 @@ const AttachmentPreview = memo(({ channelId }: IProps) => {
 					);
 				})}
 			</ScrollView>
-			<TouchableOpacity style={styles.buttonHd} onPress={onToggleSendHDImage}>
-				<MezonIconCDN
-					icon={isSendHDImageMobile ? IconCDN.hdFullIcon : IconCDN.hdIcon}
-					width={size.s_24}
-					height={size.s_24}
-					color={isSendHDImageMobile ? baseColor.blurple : themeValue.text}
-				/>
-				{isSendHDImageMobile && (
-					<View style={styles.iconCheckedHD}>
-						<MezonIconCDN icon={IconCDN.checkmarkLargeIcon} width={size.s_10} height={size.s_10} color={baseColor.white} />
-					</View>
-				)}
-			</TouchableOpacity>
 		</View>
 	);
 });

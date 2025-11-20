@@ -68,7 +68,7 @@ export const fetchDirectDetail = createAsyncThunk('direct/fetchDirectDetail', as
 
 		return mapDmGroupToEntity(response);
 	} catch (error) {
-		captureSentryError(error, 'direct/closeDirectMessage');
+		captureSentryError(error, 'direct/fetchDirectDetail');
 		return thunkAPI.rejectWithValue(error);
 	}
 });
@@ -99,7 +99,11 @@ export const createNewDirectMessage = createAsyncThunk(
 							(Array.isArray(display_names) ? display_names.join(',') : Array.isArray(username) ? username.join(',') : ''),
 						channel_avatar: response.channel_avatar || 'assets/images/avatar-group.png',
 						avatars: Array.isArray(avatar) ? avatar : avatar ? [avatar] : [],
-						user_ids: body.user_ids
+						user_ids: body.user_ids,
+						active: 1,
+						last_sent_message: {
+							timestamp_seconds: Date.now()
+						}
 					})
 				);
 
@@ -922,7 +926,7 @@ const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {
 	return true;
 };
 
-const { selectAll, selectEntities } = directAdapter.getSelectors();
+const { selectAll, selectEntities, selectIds } = directAdapter.getSelectors();
 
 export const getDirectState = (rootState: { [DIRECT_FEATURE_KEY]: DirectState }): DirectState => rootState[DIRECT_FEATURE_KEY];
 export const selectDirectMessageEntities = createSelector(getDirectState, selectEntities);

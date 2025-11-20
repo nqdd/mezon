@@ -11,6 +11,7 @@ import {
 	voiceActions
 } from '@mezon/store-mobile';
 import type { ICategoryChannel } from '@mezon/utils';
+import { useFocusEffect } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Platform, RefreshControl, View } from 'react-native';
@@ -37,11 +38,23 @@ const ChannelList = () => {
 	const dispatch = useAppDispatch();
 	const flashListRef = useRef(null);
 
+	const triggerScrollFlatList = useCallback(() => {
+		flashListRef?.current?.scrollToOffset?.({ animated: true, offset: 1 });
+	}, []);
+
 	useEffect(() => {
 		if (currentClanId) {
-			flashListRef?.current?.scrollToOffset?.({ animated: true, offset: 0 });
+			triggerScrollFlatList();
 		}
-	}, [currentClanId]);
+	}, [currentClanId, triggerScrollFlatList]);
+
+	useFocusEffect(() => {
+		// Re-try call fetch channels when focus and list is empty
+		if (currentClanId && !listChannelRender?.length) {
+			dispatch(channelsActions.fetchChannels({ clanId: currentClanId, noCache: true, isMobile: true }));
+			triggerScrollFlatList();
+		}
+	});
 
 	const handleRefresh = useCallback(async () => {
 		setRefreshing(true);

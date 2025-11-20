@@ -299,7 +299,7 @@ export const banUserChannel = createAsyncThunk(
 			if (!response) {
 				return;
 			}
-			thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds, banner_id: '' }));
+			thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds, banner_id: '', ban_time: banTime }));
 			return true;
 		} catch (error) {
 			captureSentryError(error, 'channelMembers/banUserChannel');
@@ -341,13 +341,10 @@ export const checkBanInChannelCached = async (
 	const shouldForceCall = shouldForceApiCall(apiKey, clanMemberState.byClans?.[clanId]?.cache, noCache);
 
 	if (!shouldForceCall) {
-		const isBanned = Object.prototype.hasOwnProperty.call(
-			clanMemberState.byClans?.[clanId]?.entities?.entities?.[userId]?.ban_list || {},
-			channelId
-		);
+		const isBanned = clanMemberState.byClans?.[clanId]?.entities?.entities?.[userId]?.ban_list?.[channelId];
 		return {
-			isBan: isBanned,
-			time: Date.now(),
+			isBan: !!isBanned,
+			time: !isBanned ? undefined : isBanned.ban_time || Infinity,
 			fromCache: true
 		};
 	}
@@ -358,7 +355,7 @@ export const checkBanInChannelCached = async (
 
 	return {
 		isBan: response.is_banned || false,
-		time: Date.now(),
+		time: !response.is_banned ? undefined : response.expired_ban_time || Infinity,
 		fromCache: false
 	};
 };
@@ -372,13 +369,12 @@ export const checkBanInChannel = createAsyncThunk(
 			if (!userId) {
 				return;
 			}
-
 			const response = await checkBanInChannelCached(thunkAPI.getState as () => RootState, mezon, clanId, channelId, userId, false);
 			if (!response) {
 				return;
 			}
 			if (response.isBan) {
-				thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds: [userId], banner_id: '' }));
+				thunkAPI.dispatch(usersClanActions.addBannedUser({ clanId, channelId, userIds: [userId], banner_id: '', ban_time: response.time }));
 			}
 			return true;
 		} catch (error) {

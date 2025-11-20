@@ -27,7 +27,8 @@
 	},
 	"toast": {
 		"errorUpdating": "Error updating",
-		"errorSizeLimit": "Image size limit exceeded 512KB"
+		"errorSizeLimit": "Image size limit exceeded 512KB",
+		"validateName": "Length must {{min}} - {{max}} characters. Only letters, numbers, _ and - are allowed."
 	},
 	"empty": {
 		"tip": "TIP",

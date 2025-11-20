@@ -453,7 +453,7 @@ const ControlBar = ({
 						)}
 					</div>
 				)}
-				{visibleControls.microphone && isExternalCalling && (
+				{visibleControls.microphone && (
 					<Tooltip
 						placement="top"
 						overlayClassName="w-64"
@@ -484,7 +484,7 @@ const ControlBar = ({
 								isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
 							} ${noiseSuppressionEnabled ? 'hover:bg-green-600 dark:hover:bg-green-700' : 'hover:bg-zinc-600 dark:hover:bg-zinc-800'}`}
 						>
-							<Icons.VoiceSoundControlIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
+							<Icons.NoiseSupressionIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
 						</button>
 					</Tooltip>
 				)}

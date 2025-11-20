@@ -1,9 +1,9 @@
 import {
-	MezonStoreProvider,
 	appActions,
 	attachmentActions,
 	getStore,
 	initStore,
+	MezonStoreProvider,
 	selectAllListAttachmentByChannel,
 	selectAttachmentPaginationByChannel,
 	selectClanView,
@@ -16,24 +16,24 @@ import {
 	setIsElectronUpdateAvailable
 } from '@mezon/store';
 import i18n from '@mezon/translations';
-import { MezonContextProvider, clearSessionFromStorage, clearSessionRefreshFromStorage, getMezonConfig, useMezon } from '@mezon/transport';
+import { clearSessionFromStorage, getMezonConfig, MezonContextProvider, useMezon } from '@mezon/transport';
 
 import { PopupManagerProvider } from '@mezon/components';
-import { PermissionProvider, getCurrentChatData, useActivities, useSettingFooter } from '@mezon/core';
+import { getCurrentChatData, PermissionProvider, useActivities, useSettingFooter } from '@mezon/core';
 import { captureSentryError } from '@mezon/logger';
 import {
 	ACTIVE_WINDOW,
 	DOWNLOAD_PROGRESS,
+	electronBridge,
 	EMimeTypes,
 	ETypeLinkMedia,
+	getAttachmentDataForWindow,
 	LOCK_SCREEN,
 	TRIGGER_SHORTCUT,
 	UNLOCK_SCREEN,
 	UPDATE_ACTIVITY_TRACKING,
 	UPDATE_AVAILABLE,
-	UPDATE_ERROR,
-	electronBridge,
-	getAttachmentDataForWindow
+	UPDATE_ERROR
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
@@ -107,7 +107,6 @@ const AppInitializer = () => {
 	if (clientRef?.current?.setBasePath) {
 		if (!isLogin) {
 			clearSessionFromStorage();
-			clearSessionRefreshFromStorage();
 			clientRef.current.setBasePath(
 				process.env.NX_CHAT_APP_API_GW_HOST as string,
 				process.env.NX_CHAT_APP_API_GW_PORT as string,

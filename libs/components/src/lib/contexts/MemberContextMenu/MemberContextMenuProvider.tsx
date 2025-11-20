@@ -19,7 +19,7 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Menu as MenuDropdown } from '@mezon/ui';
-import { EPermission } from '@mezon/utils';
+import { EPermission, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { CSSProperties, FC } from 'react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
@@ -166,7 +166,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 			case 'markAsRead':
 				return !!currentUser;
 			case 'banChat':
-				return hasAdminPermission;
+				return hasAdminPermission && !isSelf;
 			default:
 				return true;
 		}
@@ -373,11 +373,11 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 			return <></>;
 		}
 		const menuItems = [
-			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor15Minutes')}</ItemPanel>,
-			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor1Hour')}</ItemPanel>,
-			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor3Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor8Hours')}</ItemPanel>,
-			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteFor24Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, FOR_15_MINUTES_SEC)}>{t('muteFor15Minutes')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, FOR_1_HOUR_SEC)}>{t('muteFor1Hour')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, FOR_3_HOURS_SEC)}>{t('muteFor3Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, FOR_8_HOURS_SEC)}>{t('muteFor8Hours')}</ItemPanel>,
+			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, FOR_24_HOURS_SEC)}>{t('muteFor24Hours')}</ItemPanel>,
 			<ItemPanel onClick={() => currentHandlers.handleBanChat(false, Infinity)}>{t('muteUntilTurnedBack')}</ItemPanel>
 		];
 		return <>{menuItems}</>;
@@ -425,7 +425,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<ItemPanel dropdown="change here">{t('member.banChat')}</ItemPanel>
+									<MemberMenuItem label={t('member.banChat')} isWarning={true} setWarningStatus={setWarningStatus} />
 								</div>
 							</MenuDropdown>
 						)}

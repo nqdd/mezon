@@ -1,6 +1,6 @@
-import isElectron from 'is-electron';
-import { MediaWorkerApi } from '../mediaWorker/index.worker';
-import { Connector, createConnector } from '../worker/PostMessageConnector';
+import type { MediaWorkerApi } from '../mediaWorker/index.worker';
+import type { Connector } from '../worker/PostMessageConnector';
+import { createConnector } from '../worker/PostMessageConnector';
 
 export const MAX_WORKERS = Math.min(navigator.hardwareConcurrency || 4, 4);
 
@@ -18,19 +18,7 @@ function getBlurhashPath() {
 		return cachedBlurhashPath;
 	}
 
-	if (isElectron()) {
-		const pathParts = window.location.pathname.split('/');
-		const chatIndex = pathParts.findIndex((part) => part === 'chat');
-
-		if (chatIndex !== -1) {
-			const appPath = pathParts.slice(0, chatIndex + 1).join('/');
-			cachedBlurhashPath = `file://${appPath}/assets/js/blurhash.js`;
-		} else {
-			cachedBlurhashPath = 'file://' + window.location.pathname.replace(/\/index\.html.*$/, '/assets/js/blurhash.js');
-		}
-	} else {
-		cachedBlurhashPath = window.location.origin + '/assets/js/blurhash.js';
-	}
+	cachedBlurhashPath = `https://mezon.ai/assets/js/blurhash.js`;
 
 	return cachedBlurhashPath;
 }

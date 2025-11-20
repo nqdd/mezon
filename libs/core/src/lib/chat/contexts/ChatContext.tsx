@@ -788,42 +788,43 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 							const parentChannelId = currentChannel?.parent_id;
 							if (parentChannelId) {
 								navigate(`/chat/clans/${clanId}/channels/${parentChannelId}`);
-								return;
+							} else {
+								const defaultChannelId = selectDefaultChannelIdByClanId(store.getState() as unknown as RootState, clanId as string);
+								const allChannels = selectAllChannels(store.getState() as unknown as RootState);
+								const fallbackChannelId = allChannels.find((ch) => ch.clan_id === clanId && !checkIsThread(ch))?.id;
+
+								const redirectChannelId = defaultChannelId || fallbackChannelId;
+
+								if (redirectChannelId) {
+									navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
+								} else {
+									navigate(`/chat/clans/${clanId}/member-safety`);
+								}
 							}
-						}
-						const defaultChannelId = selectDefaultChannelIdByClanId(store.getState() as unknown as RootState, clanId as string);
-						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
-						const fallbackChannelId = allChannels.find((ch) => ch.clan_id === clanId && !checkIsThread(ch))?.id;
-
-						const redirectChannelId = defaultChannelId || fallbackChannelId;
-
-						if (redirectChannelId) {
-							navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
-						} else {
-							navigate(`/chat/clans/${clanId}/member-safety`);
 						}
 					}
 					if (directId === user.channel_id) {
 						navigate(`/chat/direct/friends`);
 					}
 					dispatch(directSlice.actions.removeByDirectID(user.channel_id));
-					// TODO:  backend send clan_id
 					dispatch(channelsSlice.actions.removeByChannelID({ channelId: user.channel_id, clanId: clanId as string }));
 
 					if (user.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
-						dispatch(threadsActions.remove(user.channel_id));
+						const currentState = store.getState() as unknown as RootState;
+						const thread = selectChannelById(currentState, user.channel_id);
 
-						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
-						const parentChannels = allChannels.filter((ch) => !checkIsThread(ch));
-
-						const removeActions = parentChannels.map((parentChannel) =>
-							threadsActions.removeThreadFromCache({
-								channelId: parentChannel.channel_id || parentChannel.id,
-								threadId: user.channel_id
-							})
-						);
-
-						removeActions.forEach((action) => dispatch(action));
+						if (thread && thread.channel_private === ChannelStatusEnum.isPrivate) {
+							dispatch(threadsActions.remove(user.channel_id));
+							const allChannels = selectAllChannels(currentState);
+							const parentChannels = allChannels.filter((ch) => !checkIsThread(ch));
+							const removeActions = parentChannels.map((parentChannel) =>
+								threadsActions.removeThreadFromCache({
+									channelId: parentChannel.channel_id || parentChannel.id,
+									threadId: user.channel_id
+								})
+							);
+							removeActions.forEach((action) => dispatch(action));
+						}
 					}
 					dispatch(listChannelsByUserActions.remove(userID));
 					dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: user.channel_id, clanId: user.clan_id }));
@@ -964,6 +965,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 								channel_label: channel_desc.channel_label,
 								clan_id: channel_desc.clan_id || (clanId as string),
 								parent_id: channel_desc.parent_id,
+								creator_id: caller?.user_id || '',
 								last_sent_message: {
 									timestamp_seconds: userAdds.create_time_second
 								},

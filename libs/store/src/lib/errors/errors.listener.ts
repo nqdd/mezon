@@ -97,6 +97,7 @@ errorListenerMiddleware.startListening({
 					hasDispatchedRefreshOnce = true;
 					try {
 						await listenerApi.dispatch(authActions.refreshSession());
+						hasDispatchedRefreshOnce = false;
 					} finally {
 						isRefreshing = false;
 					}

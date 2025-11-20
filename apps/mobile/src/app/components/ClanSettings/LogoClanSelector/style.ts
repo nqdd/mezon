@@ -1,4 +1,4 @@
-import { Attributes } from '@mezon/mobile-ui';
+import { Attributes, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -8,7 +8,7 @@ export const style = (colors: Attributes) =>
 		},
 
 		logoSection: {
-			paddingVertical: 40,
+			paddingVertical: size.s_40,
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center'
@@ -16,7 +16,13 @@ export const style = (colors: Attributes) =>
 
 		clanName: {
 			color: colors.textStrong,
-			fontSize: 14,
-			marginTop: 10
+			fontSize: size.s_14,
+			marginTop: size.s_10
+		},
+
+		removeButton: {
+			position: 'absolute',
+			top: -size.s_6,
+			right: -size.s_6
 		}
 	});

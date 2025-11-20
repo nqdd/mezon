@@ -8,31 +8,33 @@ import { useDispatch, useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 
+export const fetchWithTimeout = async (url, timeout = 8000) => {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+	try {
+		const response = await fetch(url, {
+			cache: 'no-cache',
+			signal: controller.signal
+		});
+		clearTimeout(timeoutId);
+		return response;
+	} catch (error) {
+		console.error('log  => error', error);
+		clearTimeout(timeoutId);
+		if (error.name === 'AbortError') {
+			throw new Error('Request timed out');
+		}
+		throw error;
+	}
+};
+
 const NetInfoComp = () => {
 	const hasInternet = useSelector(selectHasInternetMobile);
 	const dispatch = useDispatch();
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const { t } = useTranslation(['common']);
-	const fetchWithTimeout = async (url, timeout = 8000) => {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-		try {
-			const response = await fetch(url, {
-				cache: 'no-cache',
-				signal: controller.signal
-			});
-			clearTimeout(timeoutId);
-			return response;
-		} catch (error) {
-			console.error('log  => error', error);
-			clearTimeout(timeoutId);
-			if (error.name === 'AbortError') {
-				throw new Error('Request timed out');
-			}
-			throw error;
-		}
-	};
 	const checkConnectionQuality = async () => {
 		try {
 			const startTime = Date.now();
