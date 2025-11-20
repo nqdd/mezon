@@ -51,7 +51,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, isHasCont
 		selectMessageEntityById(state, thread.channel_id as string, messageId || thread?.last_sent_message?.id)
 	);
 	const user = useAppSelector((state) =>
-		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
+		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id || thread?.creator_id) as string)
 	) as IChannelMember;
 	const { avatarImg, username } = useMessageSender(user);
 	const [openThreadSetting, closeThreadSetting] = useModal(() => {
