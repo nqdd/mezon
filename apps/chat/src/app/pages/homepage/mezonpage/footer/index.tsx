@@ -217,7 +217,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 							</a>
 						) : (
 							<a
-								href="https://apps.microsoft.com/detail/9pf25lf1fj17?hl=en-US&gl=VN"
+								href="https://apps.microsoft.com/detail/9pf25lf1fj17"
 								target="_blank"
 								rel="noreferrer"
 								onClick={() => trackFooterDownloadEvent('Windows', 'Microsoft Store')}

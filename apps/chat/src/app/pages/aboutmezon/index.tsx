@@ -153,7 +153,7 @@ const AboutMezon = () => {
 							{isDesktopDropdownOpen && platform !== Platform.IOS && platform !== Platform.ANDROID && (
 								<div className="absolute top-full mt-3 left-0 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 min-w-[220px] overflow-hidden">
 									<a
-										href="https://apps.microsoft.com/detail/9pf25lf1fj17?hl=en-US&gl=VN"
+										href="https://apps.microsoft.com/detail/9pf25lf1fj17"
 										target="_blank"
 										rel="noopener noreferrer"
 										className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-purple-600 hover:text-pink-600"

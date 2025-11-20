@@ -12,7 +12,7 @@ export const ModalDownload: React.FC<ModalDownloadProps> = ({ isOpen, onClose })
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const downloadLinks = {
-		windows: 'https://apps.microsoft.com/detail/9pf25lf1fj17?hl=en-US&gl=VN',
+		windows: 'https://apps.microsoft.com/detail/9pf25lf1fj17',
 		macos: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`,
 		macosIntel: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`,
 		linux: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
