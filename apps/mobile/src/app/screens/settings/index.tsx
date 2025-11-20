@@ -21,7 +21,7 @@ import {
 	selectAllAccount
 } from '@mezon/store-mobile';
 import { sleep } from '@mezon/utils';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, ScrollView, View } from 'react-native';
 import WebView from 'react-native-webview';
@@ -46,6 +46,9 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	const authState = useSelector(getAuthState);
 	const session = JSON.stringify(authState.session);
 	const userProfile = useSelector(selectAllAccount);
+
+
+
 	const logout = async () => {
 		const store = await getStoreAsync();
 		store.dispatch(directActions.removeAll());
@@ -223,6 +226,10 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		setSearchText(text);
 		debouncedHandleSearchChange(text);
 	};
+
+	useEffect(() => {
+		handleSearchChange('');
+	}, [t]);
 
 	const injectedJS = `
     (function() {
