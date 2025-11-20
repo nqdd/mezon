@@ -11,10 +11,10 @@ import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 
 export const MessagePreviewLastest = React.memo(
-	(props: { type: ChannelType; senderId: string; otherMember: any; lastSentMessage: any; isUnReadChannel: boolean }) => {
+	(props: { type: ChannelType; senderId: string; senderName: string; userId: string; lastSentMessage: any; isUnReadChannel: boolean }) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
-		const { lastSentMessage, type, senderId, otherMember, isUnReadChannel } = props || {};
+		const { lastSentMessage, type, senderId, senderName, userId, isUnReadChannel } = props || {};
 
 		const content = useMemo(() => {
 			return typeof lastSentMessage?.content === 'object' ? lastSentMessage?.content : safeJSONParse(lastSentMessage?.content || '{}');
@@ -57,12 +57,12 @@ export const MessagePreviewLastest = React.memo(
 				return `${t('directMessage.you')}: `;
 			}
 
-			if (otherMember && otherMember?.userId === senderId) {
-				return `${otherMember?.displayName || otherMember?.username}: `;
+			if (senderName && senderId === userId) {
+				return `${senderName}: `;
 			}
 
 			return '';
-		}, [senderId, isYourAccount, otherMember, t]);
+		}, [senderId, isYourAccount, senderName, userId, t]);
 
 		const getLastMessageAttachmentContent = async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
 			if (embed) {
