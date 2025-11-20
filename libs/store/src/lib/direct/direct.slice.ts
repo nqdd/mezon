@@ -44,15 +44,7 @@ export interface DirectRootState {
 	[DIRECT_FEATURE_KEY]: DirectState;
 }
 
-export const directAdapter = createEntityAdapter<DirectEntity>({
-	sortComparer: (a, b) => {
-		const timestampA = a.last_sent_message?.timestamp_seconds ?? a.create_time_seconds ?? 0;
-
-		const timestampB = b.last_sent_message?.timestamp_seconds ?? b.create_time_seconds ?? 0;
-
-		return timestampB - timestampA;
-	}
-});
+export const directAdapter = createEntityAdapter<DirectEntity>();
 
 export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEntity?: DirectEntity) => {
 	const mapped = { ...channelRes, id: channelRes.channel_id || '' };
@@ -1053,7 +1045,13 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, (di
 });
 
 export const selectDirectsOpenlistOrder = createSelector(selectDirectsOpenlist, (data) => {
-	return data.map((dm) => dm.id);
+	return data
+		.sort((a, b) => {
+			const timestampA = a.last_sent_message?.timestamp_seconds || a.create_time_seconds || 0;
+			const timestampB = b.last_sent_message?.timestamp_seconds || b.create_time_seconds || 0;
+			return timestampB - timestampA;
+		})
+		.map((dm) => dm.id);
 });
 
 export const selectDirectById = createSelector([selectDirectMessageEntities, (state, id) => id], (clansEntities, id) => clansEntities?.[id]);
