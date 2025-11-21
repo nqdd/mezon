@@ -4,7 +4,7 @@ import {
 	defaultNotificationActions,
 	defaultNotificationCategoryActions,
 	notificationSettingActions,
-	selectChannelCategorySettingsByCurrentClan,
+	selectAllchannelCategorySetting,
 	selectCurrentChannel,
 	selectCurrentClanId,
 	selectCurrentClanName,
@@ -84,7 +84,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 	const currentChannel = useSelector(selectCurrentChannel);
 	const notificatonSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannel?.id || ''));
 
-	const channelCategorySettings = useSelector(selectChannelCategorySettingsByCurrentClan);
+	const channelCategorySettings = useSelector(selectAllchannelCategorySetting);
 	const dispatch = useAppDispatch();
 	const sortedChannelCategorySettings = React.useMemo(() => {
 		const settingsCopy = [...channelCategorySettings];
@@ -124,19 +124,23 @@ const ModalNotificationSetting = (props: ModalParam) => {
 		if (newValue?.title === 'category') {
 			dispatch(
 				defaultNotificationCategoryActions.setDefaultNotificationCategory({
-					category_id: newValue.id,
+					category_id: newValue?.id,
 					notification_type: defaultNotificationClan?.notification_setting_type,
-					clan_id: currentClanId || ''
+					clan_id: currentClanId || '',
+					label: newValue?.label,
+					title: newValue?.title
 				})
 			);
 		}
-		if (newValue.title === 'channel') {
+		if (newValue?.title === 'channel') {
 			if (notificatonSelected?.notification_setting_type === 0 || notificatonSelected?.notification_setting_type === undefined) {
 				dispatch(
 					notificationSettingActions.setNotificationSetting({
-						channel_id: newValue.id,
+						channel_id: newValue?.id,
 						notification_type: defaultNotificationClan?.notification_setting_type,
-						clan_id: currentClanId || ''
+						clan_id: currentClanId || '',
+						label: newValue?.label,
+						title: newValue?.title
 					})
 				);
 			} else {
@@ -144,7 +148,9 @@ const ModalNotificationSetting = (props: ModalParam) => {
 					notificationSettingActions.setNotificationSetting({
 						channel_id: newValue.id,
 						notification_type: notificatonSelected?.notification_setting_type,
-						clan_id: currentClanId || ''
+						clan_id: currentClanId || '',
+						label: newValue?.label,
+						title: newValue?.title
 					})
 				);
 			}
@@ -308,6 +314,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 													type="radio"
 													name={`notification-${channelCategorySetting.id}`}
 													checked={notificationType.value === channelCategorySetting.notification_setting_type}
+													className="cursor-pointer"
 													onChange={() =>
 														handleDefaultNotificationChange(
 															notificationType.value,
@@ -322,6 +329,7 @@ const ModalNotificationSetting = (props: ModalParam) => {
 											<input
 												type="checkbox"
 												checked={channelCategorySetting.action !== 1}
+												className="cursor-pointer"
 												onChange={() =>
 													handleMuteChange(
 														channelCategorySetting.id,

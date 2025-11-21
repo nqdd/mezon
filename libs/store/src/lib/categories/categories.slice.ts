@@ -222,7 +222,26 @@ export const updateCategoriesOrder = createAsyncThunk(
 export const updateCategory = createAsyncThunk('categories/updateCategory', async ({ clanId, request }: updatCategoryPayload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		await mezon.client.updateCategory(mezon.session, clanId, request);
+		const _response = await mezon.client.updateCategory(mezon.session, clanId, request);
+
+		if (request.category_id && _response) {
+			const updatedCategory: CategoriesEntity = {
+				id: request.category_id,
+				category_name: request.category_name || '',
+				clan_id: clanId
+			};
+
+			thunkAPI.dispatch(
+				categoriesActions.updateOne({
+					clanId,
+					category: updatedCategory
+				})
+			);
+
+			return { clanId, category: updatedCategory };
+		}
+
+		return { clanId, categoryId: request.category_id };
 	} catch (error) {
 		captureSentryError(error, 'categories/updateCategory');
 		return thunkAPI.rejectWithValue(error);
