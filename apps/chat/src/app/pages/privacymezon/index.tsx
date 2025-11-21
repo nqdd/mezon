@@ -202,8 +202,8 @@ const PrivacyMezonPage = () => {
 						<h2 className="text-3xl font-semibold text-gray-900 mb-4 select-text">Contact Us</h2>
 						<p className="text-gray-700 leading-relaxed text-lg select-text">
 							If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us at{' '}
-							<a href="mailto:info@ncc.asia" className="text-blue-600 hover:underline font-medium">
-								info@ncc.asia
+							<a href="mailto:hello@mezon.vn" className="text-blue-600 hover:underline font-medium">
+								hello@mezon.vn
 							</a>
 							.
 						</p>
