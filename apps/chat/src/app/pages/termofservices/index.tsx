@@ -93,16 +93,16 @@ const TermOfServivePage = () => {
 			</div>
 
 			<div className="max-w-4xl mx-auto px-6 py-12">
-				<p className="text-gray-700 leading-relaxed mb-6">
+				<p className="text-gray-700 leading-relaxed mb-6 select-text">
 					By accessing or using our services, you ("you", "your", "User") agree to be bound by these Terms of Service (these "Terms"). If
 					you do not agree to all of these Terms, you may not access or use the Mezon platform (the "Service"). Your use of the Service
 					indicates your acceptance of these Terms.
 				</p>
 
-				<div className="prose prose-lg max-w-none">
+				<div className="prose prose-lg max-w-none select-text">
 					<section className="mb-8" id="definitions" ref={definitionsRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Definitions</h2>
-						<div className="space-y-3 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">1. Definitions</h2>
+						<div className="space-y-3 text-gray-700 select-text">
 							<p>
 								<strong>"Account"</strong> means the unique user account created for you to access the Service.
 							</p>
@@ -128,12 +128,12 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="scope" ref={scopeRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">2. Scope of Service</h2>
-						<p className="text-gray-700 leading-relaxed mb-4">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">2. Scope of Service</h2>
+						<p className="text-gray-700 leading-relaxed mb-4 select-text">
 							We provide you the Service subject to these Terms. We may add, change, suspend or remove features at our discretion,
 							including introducing new subscription plans, modifying pricing, or restricting access to certain modules.
 						</p>
-						<p className="text-gray-700 leading-relaxed">
+						<p className="text-gray-700 leading-relaxed select-text">
 							You understand and agree that the Service is provided on an "AS IS" and "AS AVAILABLE" basis. We do not guarantee
 							uninterrupted or error-free operation, and we reserve the right to suspend or terminate Service for maintenance, upgrades,
 							or for any other reason.
@@ -141,8 +141,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="accounts" ref={accountsRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">3. Accounts, Registration & Use</h2>
-						<div className="space-y-4 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">3. Accounts, Registration & Use</h2>
+						<div className="space-y-4 text-gray-700 select-text">
 							<p>
 								To use certain parts of the Service you must register for an Account and provide accurate, complete and up-to-date
 								information.
@@ -160,9 +160,9 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="acceptable-use" ref={acceptableUseRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Acceptable Use & Prohibited Conduct</h2>
-						<p className="text-gray-700 mb-4">You agree not to engage in any of the following:</p>
-						<ul className="list-disc pl-6 space-y-2 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">4. Acceptable Use & Prohibited Conduct</h2>
+						<p className="text-gray-700 mb-4 select-text">You agree not to engage in any of the following:</p>
+						<ul className="list-disc pl-6 space-y-2 text-gray-700 select-text">
 							<li>Use the Service in violation of any applicable law, regulation or third-party right.</li>
 							<li>Upload, post or transmit any Content that is unlawful, infringing, defamatory, obscene, offensive or harmful.</li>
 							<li>
@@ -177,15 +177,15 @@ const TermOfServivePage = () => {
 							</li>
 							<li>Share or resell access to the Service without our express permission.</li>
 						</ul>
-						<p className="text-gray-700 mt-4">
+						<p className="text-gray-700 mt-4 select-text">
 							We reserve the right to suspend or terminate your Account (or features thereof) if you breach these Terms or engage in
 							misconduct.
 						</p>
 					</section>
 
 					<section className="mb-8" id="subscription" ref={subscriptionRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Subscription, Billing & Payments</h2>
-						<ul className="list-disc pl-6 space-y-2 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">5. Subscription, Billing & Payments</h2>
+						<ul className="list-disc pl-6 space-y-2 text-gray-700 select-text">
 							<li>If you select a Subscription Plan, you agree to pay all fees applicable to the plan.</li>
 							<li>You authorize us (or our payment processor) to charge your chosen payment method.</li>
 							<li>All fees are non-refundable unless otherwise stated.</li>
@@ -198,8 +198,10 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="content" ref={contentRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Content, User Applications & Intellectual Property</h2>
-						<div className="space-y-4 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">
+							6. Content, User Applications & Intellectual Property
+						</h2>
+						<div className="space-y-4 text-gray-700 select-text">
 							<p>
 								You retain all right, title and interest in the Content you upload or transmit through the Service. You grant us a
 								worldwide, royalty-free, non-exclusive license to use, display, reproduce, modify, and distribute your Content to
@@ -221,8 +223,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="termination" ref={terminationRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Termination & Suspension</h2>
-						<div className="space-y-4 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">7. Termination & Suspension</h2>
+						<div className="space-y-4 text-gray-700 select-text">
 							<p>
 								We may suspend or terminate your Account or your access to the Service (or certain features) at any time, with or
 								without cause, upon notice to you (if feasible).
@@ -236,8 +238,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="liability" ref={liabilityRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Disclaimers & Limitation of Liability</h2>
-						<div className="space-y-4 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">8. Disclaimers & Limitation of Liability</h2>
+						<div className="space-y-4 text-gray-700 select-text">
 							<p>
 								To the maximum extent permitted by law, we disclaim all warranties, whether express or implied, including
 								merchantability, fitness for a particular purpose, uninterrupted service, or non-infringement.
@@ -259,8 +261,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="indemnification" ref={indemnificationRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Indemnification</h2>
-						<p className="text-gray-700 leading-relaxed">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">9. Indemnification</h2>
+						<p className="text-gray-700 leading-relaxed select-text">
 							You agree to defend, indemnify and hold harmless us and our affiliates, officers, directors, employees and agents from and
 							against any claims, losses, damages, liabilities and expenses (including legal fees) arising out of: (a) your use of the
 							Service; (b) your Content or User Applications; (c) your violation of these Terms; or (d) your violation of third-party
@@ -269,16 +271,16 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="privacy" ref={privacyRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Privacy</h2>
-						<p className="text-gray-700 leading-relaxed">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">10. Privacy</h2>
+						<p className="text-gray-700 leading-relaxed select-text">
 							Your use of the Service is also governed by our Privacy Policy [link to Privacy Policy]. Please review it carefully. By
 							using the Service you consent to our collection and use of your information as described therein.
 						</p>
 					</section>
 
 					<section className="mb-8" id="modifications" ref={modificationsRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Modifications to Terms</h2>
-						<p className="text-gray-700 leading-relaxed">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">11. Modifications to Terms</h2>
+						<p className="text-gray-700 leading-relaxed select-text">
 							We may revise these Terms from time to time. When we do, we will post the updated Terms and indicate the "Last updated"
 							date. If you continue to use the Service after the revised Terms are posted, you agree to the new Terms. If you do not
 							agree to the changes, you must stop using the Service.
@@ -286,8 +288,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="governing-law" ref={governingLawRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Governing Law & Dispute Resolution</h2>
-						<div className="space-y-4 text-gray-700">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">12. Governing Law & Dispute Resolution</h2>
+						<div className="space-y-4 text-gray-700 select-text">
 							<p>
 								These Terms and your use of the Service shall be governed by and construed in accordance with the laws of
 								[Jurisdiction – e.g., Singapore] without regard to its conflict of law provisions.
@@ -302,16 +304,16 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="severability" ref={severabilityRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">13. Severability & Waiver</h2>
-						<p className="text-gray-700 leading-relaxed">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">13. Severability & Waiver</h2>
+						<p className="text-gray-700 leading-relaxed select-text">
 							If any provision of these Terms is invalid or unenforceable under applicable law, the remaining provisions will continue
 							in full force and effect. No waiver by us of any right or breach will be deemed a further or continuing waiver.
 						</p>
 					</section>
 
 					<section className="mb-8" id="entire-agreement" ref={entireAgreementRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">14. Entire Agreement</h2>
-						<p className="text-gray-700 leading-relaxed">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">14. Entire Agreement</h2>
+						<p className="text-gray-700 leading-relaxed select-text">
 							These Terms, together with any documents they incorporate by reference (e.g., Privacy Policy), constitute the entire
 							agreement between you and us regarding the Service, superseding any prior agreements between you and us relating to the
 							Service.
@@ -319,8 +321,8 @@ const TermOfServivePage = () => {
 					</section>
 
 					<section className="mb-8" id="contact" ref={contactInfoRef}>
-						<h2 className="text-2xl font-semibold text-gray-900 mb-4">15. Contact Information</h2>
-						<p className="text-gray-700 mb-4">
+						<h2 className="text-2xl font-semibold text-gray-900 mb-4 select-text">15. Contact Information</h2>
+						<p className="text-gray-700 mb-4 select-text">
 							If you have any questions about these Terms, please contact us at:{' '}
 							<span
 								onClick={() => setIsContactFormOpen(true)}
@@ -329,7 +331,7 @@ const TermOfServivePage = () => {
 								Contact Mezon
 							</span>
 						</p>
-						<div className="text-gray-700 ">
+						<div className="text-gray-700 select-text">
 							<p>Address: 2nd Floor, CT3 The Pride, To Huu Street, Ha Dong, Ha Noi, Vietnam</p>
 							<p>
 								Email:{' '}
