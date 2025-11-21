@@ -51,6 +51,7 @@ import {
 	selectAllChannels,
 	selectAllTextChannel,
 	selectAllUserClans,
+	selectCategoryById,
 	selectChannelById,
 	selectChannelByIdAndClanId,
 	selectChannelThreads,
@@ -1383,7 +1384,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			}
 		}
 		if (channelCreated && channelCreated.channel_private === 0 && (channelCreated.parent_id === '' || channelCreated.parent_id === '0')) {
-			dispatch(channelsActions.createChannelSocket(channelCreated));
+			const store = await getStoreAsync();
+			const category = channelCreated.category_id ? selectCategoryById(store.getState(), channelCreated.category_id) : null;
+			const channelWithCategoryName = {
+				...channelCreated,
+				category_name: category?.category_name || ''
+			};
+			dispatch(channelsActions.createChannelSocket(channelWithCategoryName));
 			dispatch(
 				listChannelsByUserActions.addOneChannel({ id: channelCreated.channel_id, type: channelCreated.channel_type, ...channelCreated })
 			);
