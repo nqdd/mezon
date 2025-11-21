@@ -12,7 +12,6 @@ import {
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
 import i18n from '@mezon/translations';
-import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import type { NotificationAndroid } from '@notifee/react-native/src/types/NotificationAndroid';
 import {
@@ -34,6 +33,7 @@ import MezonConfirm from '../componentUI/MezonConfirm';
 import { APP_SCREEN } from '../navigation/ScreenTypes';
 import { InboxType } from '../screens/Notifications';
 import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex } from './helpers';
+
 const messaging = getMessaging(getApp());
 
 // Type definitions and validation helpers
@@ -180,6 +180,7 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 		smallIconLevel: 10,
 		importance: AndroidImportance.HIGH,
 		showTimestamp: true,
+		vibrationPattern: [300, 500, 300, 500],
 		badgeIconType: AndroidBadgeIconType.LARGE,
 		actions: [],
 		pressAction: {
@@ -257,7 +258,9 @@ const createNotificationChannel = async (channelId: string, groupId: string, sou
 			name: channelId,
 			groupId,
 			importance: AndroidImportance.HIGH,
-			sound: sound ? sound : 'default'
+			sound: sound ? sound : 'default',
+			vibration: true,
+			vibrationPattern: [300, 500, 300, 500]
 		});
 	} catch (error) {
 		console.error('Error creating notification channel:', error);
@@ -584,7 +587,6 @@ export const navigateToNotification = async (store: any, notification: any, navi
 
 const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId: string, navigation: any) => {
 	const promises = [];
-	await sleep(500);
 	promises.push(store.dispatch(topicsActions.setCurrentTopicInitMessage(null)));
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
 	promises.push(store.dispatch(topicsActions.setIsShowCreateTopic(true)));

@@ -70,11 +70,13 @@ export const CLanDiscoverSection = () => {
 								</p>
 							</div>
 							<Link
-								to="/clanword"
-								className="font-svnAvo inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white text-sm sm:text-base lg:text-lg font-medium rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px] sm:min-w-[240px] lg:min-w-[280px] px-8 py-2 sm:px-10 sm:py-3 lg:px-12 lg:py-4"
+								to="/clanworld"
+								className="group flex items-center gap-2 text-sm md:text-base lg:text-lg text-purple-600 hover:text-purple-400 font-svnAvo"
 							>
-								<span>{t('sections.clanDiscover.learnMore')}</span>
-								<Icons.ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+								<span className="relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-0 after:bg-purple-600 after:transition-all after:duration-300 group-hover:after:w-full">
+									{t('sections.textChannel.learnMore')}
+								</span>
+								<Icons.TopRight className="w-4 h-4 sm:w-5 sm:h-5" />
 							</Link>
 						</div>
 					</div>

@@ -565,7 +565,7 @@ input:-webkit-autofill:active {
 	overflow-x: hidden;
 
 	pointer-events: auto;
-
+	scrollbar-width: auto;
 	transition: scrollbar-color 0.3s ease;
 
 	-webkit-overflow-scrolling: touch;
@@ -583,6 +583,11 @@ input:-webkit-autofill:active {
 		background-color: var(--thread-scroll);
 		box-shadow: 0 0 1px rgba(255, 255, 255, 0.01);
 	}
+}
+
+#main-layout.is-safari .thread-scroll {
+	@extend .messages-scroll;
+	scrollbar-color: var(--thread-scroll) transparent;
 }
 
 .mentions__suggestions__list::-webkit-scrollbar {
@@ -855,10 +860,6 @@ input:-webkit-autofill:active {
 		scale: 1;
 	}
 }
-
-// .custom-member-list {
-// 	-ms-overflow-style: none;
-// }
 
 .error-boundary {
 	overflow: hidden;

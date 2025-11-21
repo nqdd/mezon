@@ -4,15 +4,13 @@ import { Icons, Image } from '@mezon/ui';
 import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DropdownButton } from '../components';
 
 interface FooterProps {
 	downloadUrl: string;
 	universalUrl: string;
-	portableUrl: string;
 }
 
-const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
+const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const [isOpen, setIsOpen] = useState(false);
@@ -117,7 +115,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								Media Kit
 							</a>
 							<a
-								href="https://mezon.ai/contact-us"
+								href="/contact-us"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -139,7 +137,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Legal</h3>
 						<div className="space-y-2 md:space-y-3">
 							<a
-								href="https://doc-hosting.flycricket.io/mezon/87aa352a-ee20-4b2d-9866-e858f2dd5bd6/privacy"
+								href="/privacy-policy"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -147,7 +145,7 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								Privacy Policy
 							</a>
 							<a
-								href="https://mezon.ai/terms-of-service"
+								href="/terms-of-service"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -218,30 +216,15 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 								<Image src={`assets/linux.svg`} className="w-24 md:w-36 lg:w-44" />
 							</a>
 						) : (
-							<DropdownButton
-								icon={
-									<a
-										className="cursor-pointer transition-transform duration-300 hover:scale-105 inline-block"
-										href={downloadUrl}
-										target="_blank"
-										rel="noreferrer"
-										onClick={() => trackFooterDownloadEvent('Windows', 'EXE Installer')}
-									>
-										<Icons.MicrosoftDropdown className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
-									</a>
-								}
-								downloadLinks={[
-									{
-										url: portableUrl,
-										icon: <Icons.MicrosoftWinPortable className="max-w-full h-8 md:h-10 w-fit" />,
-										trackingData: { platform: 'Windows', type: 'Portable' }
-									}
-								]}
-								dropdownRef={dropdownRef}
-								downloadUrl={downloadUrl}
-								onDownloadClick={trackFooterDownloadEvent}
-								t={t}
-							/>
+							<a
+								href="https://apps.microsoft.com/detail/9pf25lf1fj17"
+								target="_blank"
+								rel="noreferrer"
+								onClick={() => trackFooterDownloadEvent('Windows', 'Microsoft Store')}
+								className="transition-transform duration-300 hover:scale-105"
+							>
+								<Image src={`assets/microsoft.svg`} className="w-24 md:w-36 lg:w-44" />
+							</a>
 						)}
 					</div>
 				</div>
@@ -255,11 +238,21 @@ const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 							© 2025 Mezon. All rights reserved.
 						</div>
 						<div className="flex gap-4 md:gap-6 text-xs">
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Privacy
+							<a
+								href="https://github.com/mezonai/mezon"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/80 hover:text-white transition-colors"
+							>
+								Github
 							</a>
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Terms
+							<a
+								href="https://www.linkedin.com/company/mezon-ai"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/80 hover:text-white transition-colors"
+							>
+								Linkedin
 							</a>
 						</div>
 					</div>

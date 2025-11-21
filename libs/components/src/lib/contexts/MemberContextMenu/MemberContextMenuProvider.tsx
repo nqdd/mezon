@@ -425,12 +425,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 								className="bg-theme-contexify text-theme-primary border-theme-primary ml-[3px] py-[6px] px-[8px] w-[200px]"
 							>
 								<div>
-									<MemberMenuItem
-										label={t('member.banChat')}
-										onClick={() => currentHandlers.handleBanChat(true)}
-										isWarning={true}
-										setWarningStatus={setWarningStatus}
-									/>
+									<MemberMenuItem label={t('member.banChat')} isWarning={true} setWarningStatus={setWarningStatus} />
 								</div>
 							</MenuDropdown>
 						)}

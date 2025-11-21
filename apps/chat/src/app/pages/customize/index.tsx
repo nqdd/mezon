@@ -18,7 +18,6 @@ const CustomizePage = () => {
 				? `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
 				: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`;
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const [activeFeature, setActiveFeature] = useState(0);
 
@@ -192,7 +191,7 @@ const CustomizePage = () => {
 				</div>
 			</section>
 
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 		</div>
 	);
 };

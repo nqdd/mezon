@@ -46,7 +46,7 @@ export const ModalAddPinMess = (props: ModalAddPinMessProps) => {
 		<div
 			ref={modalRef}
 			tabIndex={-1}
-			className="w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
+			className="outline-none w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
 		>
 			<div className="w-fit h-fit text-theme-primary bg-theme-setting-primary rounded-lg flex-col justify-start  items-start gap-3 inline-flex overflow-hidden max-w-[440px]">
 				<div className=" max-w-full">

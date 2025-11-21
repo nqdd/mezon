@@ -24,7 +24,6 @@ const MezonDongPage = () => {
 				? `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
 				: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64.exe`;
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
-	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const section1Ref = useRef<HTMLDivElement>(null);
 	const section2Ref = useRef<HTMLDivElement>(null);
@@ -178,10 +177,10 @@ const MezonDongPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section1.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section1.description')}
 									</p>
 								</div>
@@ -213,10 +212,10 @@ const MezonDongPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section2.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section2.description')}
 									</p>
 								</div>
@@ -233,7 +232,6 @@ const MezonDongPage = () => {
 				</div>
 			</section>
 
-			{/* Section 3: Nâng Tầm Môi Trường Làm Việc Với Mezon Đồng */}
 			<section ref={section3Ref} className="section-animate relative w-full bg-white py-20 2xl:py-[193px] max-md:py-12 overflow-hidden">
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 flex-row-reverse gap-8 lg:gap-12 xl:gap-16">
@@ -249,10 +247,10 @@ const MezonDongPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section3.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section3.description')}
 									</p>
 								</div>
@@ -284,10 +282,10 @@ const MezonDongPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section4.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section4.description')}
 									</p>
 								</div>
@@ -308,7 +306,7 @@ const MezonDongPage = () => {
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="max-w-4xl mx-auto">
 						<div className="flex items-start justify-between mb-8 md:mb-12">
-							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold">{t('faq.title')}</h2>
+							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold select-text">{t('faq.title')}</h2>
 							<a
 								href="https://mezon.ai/docs/en/user/mezondong"
 								target="_blank"
@@ -329,7 +327,7 @@ const MezonDongPage = () => {
 										onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
 										className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-gray-100 transition-colors duration-200"
 									>
-										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
+										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2 select-text">
 											<span className="text-slate-700 mt-1 transition-all duration-300">
 												{openFAQ === index ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
 											</span>
@@ -338,7 +336,9 @@ const MezonDongPage = () => {
 									</button>
 									<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
 										<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
-											<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4">{faq.answer}</p>
+											<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4 select-text">
+												{faq.answer}
+											</p>
 											<a
 												href="https://mezon.ai/docs/en/user/mezon-dong"
 												target="_blank"
@@ -360,7 +360,7 @@ const MezonDongPage = () => {
 			</section>
 
 			<ModalDownload isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
 		</div>
 	);
 };

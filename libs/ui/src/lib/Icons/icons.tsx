@@ -1097,6 +1097,29 @@ export const ArrowRight: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4
 		</svg>
 	);
 };
+
+export const TopRight: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4' }) => {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={defaultSize}>
+			<g id="Live area" clipPath="url(#clip0_429_11179)">
+				<path
+					id="Vector"
+					d="M7 7H17M17 7V17M17 7L7 17"
+					stroke="currentColor"
+					strokeWidth="1.5"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</g>
+			<defs>
+				<clipPath id="clip0_429_11179">
+					<rect width="24" height="24" fill="white" />
+				</clipPath>
+			</defs>
+		</svg>
+	);
+};
+
 export const ArrowLeft: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4' }) => {
 	return (
 		<svg viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" className={defaultSize}>
