@@ -1,4 +1,4 @@
-import { Attributes, baseColor, Fonts, size } from '@mezon/mobile-ui';
+import { Attributes, Fonts, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -54,12 +54,9 @@ export const style = (colors: Attributes) =>
 			width: '100%',
 			alignItems: 'center'
 		},
-		backButton: {
-			paddingVertical: size.s_10
-		},
 		stickerModeButton: {
 			paddingVertical: size.s_10,
-			backgroundColor: baseColor.blurple,
+			backgroundColor: colors.bgViolet,
 			padding: size.s_10,
 			borderRadius: size.s_4
 		},

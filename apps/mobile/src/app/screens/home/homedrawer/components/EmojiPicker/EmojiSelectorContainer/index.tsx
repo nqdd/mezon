@@ -17,7 +17,6 @@ import { style } from './styles';
 
 type EmojiSelectorContainerProps = {
 	onSelected: (emojiId: string, shortname: string) => void;
-	searchText?: string;
 	isReactMessage?: boolean;
 	handleBottomSheetExpand?: () => void;
 	handleBottomSheetCollapse?: () => void;
