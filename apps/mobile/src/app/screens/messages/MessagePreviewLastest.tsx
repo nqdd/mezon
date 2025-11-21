@@ -1,10 +1,10 @@
-import { load, STORAGE_MY_USER_ID, validLinkGoogleMapRegex } from '@mezon/mobile-components';
+import { isEmpty, load, STORAGE_MY_USER_ID, validLinkGoogleMapRegex } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { isContainsUrl } from '@mezon/transport';
 import { EMimeTypes } from '@mezon/utils';
 import { ChannelType, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { DmListItemLastMessage } from './DMListItemLastMessage';
@@ -60,56 +60,59 @@ export const MessagePreviewLastest = React.memo(
 				return `${t('directMessage.you')}: `;
 			}
 
-			if (senderName && senderId === userId) {
+			if (senderName) {
 				return `${senderName}: `;
 			}
 
 			return '';
-		}, [senderId, isYourAccount, senderName, userId, t]);
+		}, [senderId, isYourAccount, senderName, t]);
 
-		const getLastMessageAttachmentContent = async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
-			if (embed) {
-				return `${embed?.title || embed?.description || ''}`;
-			}
-			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
-			if (isGoogleMapsLink) {
-				return `[${t('attachments.location')}]`;
-			}
-			if (isLinkMessage) {
-				return `[${t('attachments.link')}] ${text}`;
-			}
+		const getLastMessageAttachmentContent = useCallback(
+			async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
+				if (embed) {
+					return `${embed?.title || embed?.description || ''}`;
+				}
+				const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
+				if (isGoogleMapsLink) {
+					return `[${t('attachments.location')}]`;
+				}
+				if (isLinkMessage) {
+					return `[${t('attachments.link')}] ${text}`;
+				}
 
-			const fileName = attachment?.filename;
-			const fileType = attachment?.filetype;
-			const url = attachment?.url;
+				const fileName = attachment?.filename;
+				const fileType = attachment?.filetype;
+				const url = attachment?.url;
 
-			const type = fileType?.split('/')?.[0];
+				const type = fileType?.split('/')?.[0];
 
-			switch (type) {
-				case 'image': {
-					if (url?.includes(EMimeTypes.tenor)) {
-						return `[${t('attachments.gif')}]`;
+				switch (type) {
+					case 'image': {
+						if (url?.includes(EMimeTypes.tenor)) {
+							return `[${t('attachments.gif')}]`;
+						}
+						if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
+							return `[${t('attachments.sticker')}]`;
+						}
+						return `[${t('attachments.image')}]`;
 					}
-					if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
-						return `[${t('attachments.sticker')}]`;
+					case 'video': {
+						return `[${t('attachments.video')}]`;
 					}
-					return `[${t('attachments.image')}]`;
+					case 'audio': {
+						return `[${t('attachments.audio')}]`;
+					}
+					case 'application':
+					case 'text':
+						return `[${t('attachments.file')}] ${fileName || ''}`;
+					default:
+						return `[${t('attachments.file')}]`;
 				}
-				case 'video': {
-					return `[${t('attachments.video')}]`;
-				}
-				case 'audio': {
-					return `[${t('attachments.audio')}]`;
-				}
-				case 'application':
-				case 'text':
-					return `[${t('attachments.file')}] ${fileName || ''}`;
-				default:
-					return isTypeDMGroup ? `${t('directMessage.groupCreated')}` : '';
-			}
-		};
+			},
+			[t]
+		);
 
-		if (!content) {
+		if (isEmpty(content)) {
 			if (isTypeDMGroup) {
 				return (
 					<View style={styles.contentMessage}>

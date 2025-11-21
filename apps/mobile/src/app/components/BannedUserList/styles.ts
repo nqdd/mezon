@@ -6,6 +6,10 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
+			backgroundColor: colors.primary
+		},
+		wrapper: {
+			flex: 1,
 			paddingHorizontal: size.s_16,
 			backgroundColor: colors.primary
 		},

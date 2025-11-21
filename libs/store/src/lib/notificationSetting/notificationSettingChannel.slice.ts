@@ -85,7 +85,7 @@ export const fetchNotificationSettingCached = async (getState: () => RootState, 
 
 export const getNotificationSetting = createAsyncThunk(
 	'notificationsetting/getNotificationSetting',
-	async ({ channelId, isCurrentChannel = true, noCache }: FetchNotificationSettingsArgs, thunkAPI) => {
+	async ({ channelId, isCurrentChannel: _isCurrentChannel = true, noCache }: FetchNotificationSettingsArgs, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await fetchNotificationSettingCached(thunkAPI.getState as () => RootState, mezon, channelId, Boolean(noCache));
@@ -121,11 +121,16 @@ export type SetNotificationPayload = {
 	clan_id: string;
 	is_current_channel?: boolean;
 	is_direct?: boolean;
+	label?: string;
+	title?: string;
 };
 
 export const setNotificationSetting = createAsyncThunk(
 	'notificationsetting/setNotificationSetting',
-	async ({ channel_id, notification_type, mute_time, clan_id, is_current_channel = true, is_direct = false }: SetNotificationPayload, thunkAPI) => {
+	async (
+		{ channel_id, notification_type, mute_time, clan_id, is_current_channel = true, is_direct = false, label, title }: SetNotificationPayload,
+		thunkAPI
+	) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const body: ApiSetNotificationRequest = {
@@ -145,7 +150,7 @@ export const setNotificationSetting = createAsyncThunk(
 				}
 			}
 
-			return response;
+			return { ...body, clan_id, label, title };
 		} catch (error) {
 			captureSentryError(error, 'notificationsetting/setNotificationSetting');
 			return thunkAPI.rejectWithValue(error);
@@ -197,7 +202,7 @@ type DeleteNotiChannelSettingPayload = {
 
 export const deleteNotiChannelSetting = createAsyncThunk(
 	'notificationsetting/deleteNotiChannelSetting',
-	async ({ channel_id, clan_id, is_current_channel = true }: DeleteNotiChannelSettingPayload, thunkAPI) => {
+	async ({ channel_id, clan_id: _clan_id, is_current_channel: _is_current_channel = true }: DeleteNotiChannelSettingPayload, thunkAPI) => {
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await mezon.client.deleteNotificationChannel(mezon.session, channel_id || '');
@@ -233,7 +238,7 @@ export const notificationSettingSlice = createSlice({
 			};
 			NotificationSettingsAdapter.upsertOne(state, notificationEntity);
 			if (state?.byChannels?.[channel_id]) {
-				state.byChannels[channel_id].notificationSetting = notificationEntity as any;
+				state.byChannels[channel_id].notificationSetting = notificationEntity as INotificationUserChannel;
 				state.byChannels[channel_id].cache = createCacheMetadata();
 			} else {
 				state.byChannels[channel_id] = getInitialChannelState();
@@ -262,14 +267,14 @@ export const notificationSettingSlice = createSlice({
 				state.byChannels[channelId] = getInitialChannelState();
 			}
 
-			let notificationSetting = state?.byChannels?.[channelId]?.notificationSetting as any;
+			let notificationSetting = state?.byChannels?.[channelId]?.notificationSetting as INotificationUserChannel | undefined;
 			if (!notificationSetting) {
 				notificationSetting = {
 					id: channelId,
 					channel_id: channelId,
 					active,
 					notification_type: 0
-				} as any;
+				} as INotificationUserChannel;
 				state.byChannels[channelId].notificationSetting = notificationSetting;
 			}
 
@@ -310,7 +315,7 @@ export const notificationSettingSlice = createSlice({
 						};
 						NotificationSettingsAdapter.upsertOne(state, notificationEntity);
 
-						state.byChannels[channelId].notificationSetting = notifiSetting as any;
+						state.byChannels[channelId].notificationSetting = notifiSetting as INotificationUserChannel;
 						state.byChannels[channelId].cache = createCacheMetadata();
 					}
 
