@@ -2,7 +2,8 @@
 	"fields": {
 		"categoryName": {
 			"title": "Category Name",
-			"placeholder": "Text Channels"
+			"placeholder": "Text Channels",
+			"errorMessage": "Please enter a valid category name (max 64 characters, only words, numbers, _ or -)."
 		},
 		"categoryPermission": {
 			"title": "",
