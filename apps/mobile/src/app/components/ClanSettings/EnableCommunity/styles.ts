@@ -57,7 +57,7 @@ export const style = (colors: Attributes) =>
 			marginHorizontal: size.s_16,
 			borderRadius: size.s_8,
 			alignItems: 'center',
-			marginBottom: size.s_12
+			marginBottom: size.s_20
 		},
 		buttonDisabled: {
 			backgroundColor: baseColor.flamingo

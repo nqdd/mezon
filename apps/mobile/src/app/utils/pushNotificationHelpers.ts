@@ -12,6 +12,7 @@ import {
 } from '@mezon/mobile-components';
 import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
 import i18n from '@mezon/translations';
+import { sleep } from '@mezon/utils';
 import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import type { NotificationAndroid } from '@notifee/react-native/src/types/NotificationAndroid';
 import {
@@ -586,6 +587,7 @@ export const navigateToNotification = async (store: any, notification: any, navi
 };
 
 const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId: string, navigation: any) => {
+	await sleep(1000);
 	const promises = [];
 	promises.push(store.dispatch(topicsActions.setCurrentTopicInitMessage(null)));
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
@@ -593,7 +595,6 @@ const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId:
 	promises.push(store.dispatch(getFirstMessageOfTopic(topicId || '')));
 
 	await Promise.all(promises);
-
 	if (navigation) {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.TOPIC_DISCUSSION

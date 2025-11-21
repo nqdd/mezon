@@ -4,12 +4,6 @@ import { StyleSheet } from 'react-native';
 
 export const styles = (themeValue?: Attributes) =>
 	StyleSheet.create({
-		textPartsContainer: {
-			flexDirection: 'row',
-			gap: size.s_6,
-			flexWrap: 'wrap',
-			alignItems: 'flex-end'
-		},
 		editedText: {
 			fontSize: size.small,
 			color: themeValue?.textDisabled,
