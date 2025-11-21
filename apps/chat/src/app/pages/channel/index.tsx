@@ -541,7 +541,7 @@ export const BanCountDown = ({ banTime, clanId, channelId, userId }: { banTime: 
 			return t('timeFormat.timeAgo.hours', { count: Math.round(banTime / FOR_1_HOUR_SEC) });
 		}
 		return null;
-	}, []);
+	}, [banTime, t]);
 
 	useEffect(() => {
 		if (banTime < 0) {

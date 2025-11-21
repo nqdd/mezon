@@ -385,8 +385,9 @@ export const UsersClanSlice = createSlice({
 					}
 				};
 			});
-
-			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+			if (state.byClans[clanId]?.entities) {
+				UsersClanAdapter.updateMany(state.byClans[clanId]?.entities, banList);
+			}
 		},
 		removeBannedUser: (state, action: PayloadAction<{ clanId: string; channelId: string; userIds: string[] }>) => {
 			const { clanId, channelId, userIds } = action.payload;
@@ -401,7 +402,9 @@ export const UsersClanSlice = createSlice({
 					}
 				};
 			});
-			UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
+			if (state.byClans[clanId]?.entities) {
+				UsersClanAdapter.updateMany(state.byClans[clanId]?.entities, banList);
+			}
 		},
 		upsertBanFromChannel: (state, action: PayloadAction<{ clanId: string; channelId: string; users: ChannelUserListChannelUser[] }>) => {
 			const { clanId, channelId, users } = action.payload;
@@ -495,17 +498,17 @@ export const UsersClanSlice = createSlice({
 							};
 						}
 					}
+					if (state.byClans[clanId]?.entities) {
+						const banList: Update<UsersClanEntity, string>[] = Object.entries(grouped).map(([banned_id, channelSet]) => ({
+							id: banned_id,
+							changes: {
+								ban_list: channelSet
+							}
+						}));
 
-					const banList: Update<UsersClanEntity, string>[] = Object.entries(grouped).map(([banned_id, channelSet]) => ({
-						id: banned_id,
-						changes: {
-							ban_list: channelSet
-						}
-					}));
-
-					UsersClanAdapter.updateMany(state.byClans[clanId].entities, banList);
-
-					state.byClans[clanId].cache = createCacheMetadata();
+						UsersClanAdapter.updateMany(state.byClans[clanId]?.entities, banList);
+						state.byClans[clanId].cache = createCacheMetadata();
+					}
 				}
 			});
 	}

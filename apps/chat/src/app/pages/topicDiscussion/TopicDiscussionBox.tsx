@@ -239,7 +239,10 @@ const TopicDiscussionBox = () => {
 			setIsFetchMessageDone(true);
 		}
 	}, [currentTopicId, currentChannelId, currentClanId, dispatch]);
-
+	const mentionsList = UserMentionList({
+		channelID: currentChannelId as string,
+		channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
+	});
 	return (
 		<div
 			onDragEnter={handleDragEnter}
@@ -274,7 +277,7 @@ const TopicDiscussionBox = () => {
 			<div className={`flex-shrink flex flex-col bg-theme-chat h-auto relative ${isDesktop && 'pb-5'}`}>
 				{isBanned ? (
 					<BanCountDown
-						banTime={isBanned.ban_time || Infinity}
+						banTime={isBanned.ban_time ? isBanned.ban_time - Date.now() : Infinity}
 						channelId={currentChannelId || ''}
 						clanId={currentClanId || ''}
 						userId={sessionUser?.user_id || ''}
@@ -323,10 +326,7 @@ const TopicDiscussionBox = () => {
 											handlePaste={onPastedFiles}
 											onSend={handleSend}
 											onTyping={handleTypingDebounced}
-											listMentions={UserMentionList({
-												channelID: currentChannelId as string,
-												channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
-											})}
+											listMentions={mentionsList}
 											isTopic
 											handleConvertToFile={onConvertToFiles}
 											currentChannelId={currentInputChannelId}
