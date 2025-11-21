@@ -1,5 +1,5 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { directActions, EStateFriend, selectDmGroupCurrent, selectFriendById, topicsActions, useAppDispatch } from '@mezon/store-mobile';
+import { directActions, EStateFriend, selectDirectById, selectFriendById, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -18,7 +18,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 	const dispatch = useAppDispatch();
 
 	const from = route.params?.from;
-	const currentDmGroup = useSelector(selectDmGroupCurrent(directMessageId ?? ''));
+	const currentDmGroup = useAppSelector((state) => selectDirectById(state, directMessageId));
 	const infoFriend = useSelector((state) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
 
 	const isBlocked = useMemo(() => {

@@ -8,6 +8,7 @@ import {
 	directActions,
 	emojiSuggestionActions,
 	fcmActions,
+	FetchClansPayload,
 	friendsActions,
 	getStore,
 	gifsActions,
@@ -52,7 +53,7 @@ const RootListener = () => {
 				setTimeout(() => {
 					initAppLoading();
 					mainLoader();
-				}, 2000);
+				}, 3000);
 			});
 		}
 	}, [isLoggedIn]);
@@ -248,16 +249,19 @@ const RootListener = () => {
 			try {
 				const store = getStore();
 				const currentClanId = selectCurrentClanId(store.getState() as any);
+				const response = await dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 				dispatch(appActions.setLoadingMainMobile(false));
 				const currentClanIdCached = await load(STORAGE_CLAN_ID);
-				const clanId = currentClanId?.toString() !== '0' ? currentClanId : currentClanIdCached;
+				const payload = response?.payload as FetchClansPayload;
+				const clans = payload?.clans ?? [];
+				const isExistClanId = clans?.some((clan) => clan?.clan_id?.toString() === currentClanId);
+				const clanId = !isExistClanId ? clans?.[0]?.clan_id : currentClanId?.toString() !== '0' ? currentClanId : currentClanIdCached;
 				const promises = [];
 				if (!isFromFCM && clanId) {
 					save(STORAGE_CLAN_ID, clanId);
 					promises.push(dispatch(clansActions.joinClan({ clanId })));
 					promises.push(dispatch(clansActions.changeCurrentClan({ clanId })));
 				}
-				promises.push(dispatch(clansActions.fetchClans({ noCache: true, isMobile: true })));
 				const results = await Promise.all(promises);
 				if (!isFromFCM && !clanId) {
 					const clanResp = results.find((result) => result.type === 'clans/fetchClans/fulfilled');
@@ -280,7 +284,7 @@ const RootListener = () => {
 			requestIdleCallback(() => {
 				setTimeout(() => {
 					profileLoader();
-				}, 1);
+				}, 2000);
 			});
 		}
 	}, [isLoggedIn, profileLoader]);

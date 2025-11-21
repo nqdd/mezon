@@ -33,7 +33,6 @@ export const DirectMessageDetailListener = memo(({ dmType, directMessageId }: { 
 		// Rejoin previous clan (other than 0) when exiting the DM detail screen
 		dispatch(clansActions.joinClan({ clanId: currentClanIdCached }));
 		handleReconnect('DM detail reconnect attempt');
-		dispatch(directActions.fetchDirectMessage({ noCache: true }));
 	};
 
 	const directMessageLoader = useCallback(async () => {

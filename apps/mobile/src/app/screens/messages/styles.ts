@@ -8,11 +8,6 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			flexDirection: 'row',
 			backgroundColor: colors.tertiary
 		},
-
-		containerServerlist: {
-			paddingHorizontal: size.s_10
-		},
-
 		container: {
 			flex: 1,
 			backgroundColor: colors.primary
