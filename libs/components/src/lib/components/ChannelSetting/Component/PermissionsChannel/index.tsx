@@ -107,7 +107,9 @@ const PermissionsChannel = (props: PermissionsChannelProps) => {
 				<div className="dark:text-white text-[15px] text-black">
 					<HeaderModal name={categoryName} />
 					<div className="rounded-md overflow-hidden mt-4">
-						<div className="bg-theme-setting-nav flex justify-between items-start p-4 border-theme-primary border-1 border-b-0 rounded-tl-lg rounded-tr-lg">
+						<div
+							className={`bg-theme-setting-nav flex justify-between items-start p-4 border-theme-primary border-1 ${valueToggle ? 'border-b-0 rounded-tl-lg rounded-tr-lg' : 'rounded-lg'} `}
+						>
 							<div>
 								<div className="inline-flex mb-2 text-theme-primary-active">
 									<Icons.LockIcon />

@@ -1,5 +1,5 @@
 import { useEventManagement, useOnClickOutside } from '@mezon/core';
-import { EventManagementEntity } from '@mezon/store';
+import type { EventManagementEntity } from '@mezon/store';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -45,7 +45,7 @@ const ModalDelEvent = (props: ModalDelEventProps) => {
 			ref={modalRef}
 			tabIndex={-1}
 			onKeyDown={handleKeyDown}
-			className="w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
+			className="outline-none w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
 		>
 			<div
 				ref={panelRef}

@@ -1,9 +1,8 @@
 import mezonPackage from '@mezon/package-js';
-import { Icons } from '@mezon/ui';
-import { getPlatform, Platform } from '@mezon/utils';
+import { Button, Icons } from '@mezon/ui';
+import { Platform, getPlatform } from '@mezon/utils';
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
 
@@ -58,6 +57,7 @@ const AboutMezon = () => {
 	const version = mezonPackage.version;
 	const [isDesktopDropdownOpen, setIsDesktopDropdownOpen] = useState(false);
 	const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+	const [openAboutUs, setOpenAboutUs] = useState(false);
 	const desktopDropdownRef = useRef<HTMLDivElement>(null);
 	const mobileDropdownRef = useRef<HTMLDivElement>(null);
 	const downloadUrl: string = useMemo(() => {
@@ -88,7 +88,12 @@ const AboutMezon = () => {
 			setIsDesktopDropdownOpen(!isDesktopDropdownOpen);
 		}
 	};
-
+	const handleOpenAboutUs = () => {
+		setOpenAboutUs(true);
+	};
+	const handleCloseAboutUs = () => {
+		setOpenAboutUs(false);
+	};
 	const handleDownloadMobile = () => {
 		if (platform === Platform.IOS) {
 			window.open('https://apps.apple.com/vn/app/mezon/id6502750046', '_blank');
@@ -133,10 +138,10 @@ const AboutMezon = () => {
 			<AnimatedSection className="py-[90px] px-[32px] max-md:px-[16px] bg-white pt-[120px]">
 				<div className="max-w-[1000px] mx-auto flex flex-col gap-[32px] text-left">
 					<div className="space-y-[16px]">
-						<h1 className="text-[64px] max-lg:text-[48px] max-md:text-[36px] font-svnAvo text-black">
+						<h1 className="text-[64px] max-lg:text-[48px] max-md:text-[36px] font-svnAvo text-black select-text">
 							What is <span className="text-[#7E00FF]">Mezon</span> ?
 						</h1>
-						<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3">
+						<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3 select-text">
 							Mezon is the super app that unites <span className="text-[#7E00FF] font-svnAvo">communication</span>,{' '}
 							<span className="text-[#7E00FF] font-svnAvo">collaboration</span>, and fun — free, safe, and for everyone. No juggling
 							apps. No friction. Just one place to live, work, and play.
@@ -244,8 +249,8 @@ const AboutMezon = () => {
 			<AnimatedSection className="py-[90px] px-[32px] max-md:px-[16px] bg-[#F2F4FF]">
 				<div className="max-w-[1000px] mx-auto flex flex-col gap-[32px] text-left">
 					<div className="space-y-[16px]">
-						<h2 className="text-[56px] max-md:text-[40px] font-svnAvo text-black">Our Purpose</h2>
-						<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3">
+						<h2 className="text-[56px] max-md:text-[40px] font-svnAvo text-black select-text">Our Mission</h2>
+						<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3 select-text">
 							At Mezon, we use technology to continually optimize and redefine how people live, work, and connect — shaping a more open,
 							connected society.
 						</p>
@@ -263,8 +268,8 @@ const AboutMezon = () => {
 
 			<AnimatedSection className="py-[80px] px-[32px] max-md:px-[16px]">
 				<div className="max-w-[1000px] mx-auto text-left mb-[40px]">
-					<h2 className="text-[56px] max-md:text-[36px] font-svnAvo text-black">Our Core Values</h2>
-					<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3">
+					<h2 className="text-[56px] max-md:text-[36px] font-svnAvo text-black select-text">Our Core Values</h2>
+					<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3 select-text">
 						At Mezon, we believe connection is the heart of growth. Creating a space where people can learn, work, and chill together is
 						the experience we always strive to bring.
 					</p>
@@ -299,8 +304,8 @@ const AboutMezon = () => {
 								<img src={value.image} alt={value.title} className="w-full h-full object-cover" loading="lazy" />
 							</div>
 							<div className="px-[24px] py-[28px] flex-1 flex flex-col">
-								<h3 className="text-[28px] font-svnAvo text-black mb-[16px]">{value.title}</h3>
-								<p className="text-[18px] leading-[28px] text-gray-600 font-svnAvo">{value.description}</p>
+								<h3 className="text-[28px] font-svnAvo text-black mb-[16px] select-text">{value.title}</h3>
+								<p className="text-[18px] leading-[28px] text-gray-600 font-svnAvo select-text">{value.description}</p>
 							</div>
 						</div>
 					))}
@@ -309,13 +314,16 @@ const AboutMezon = () => {
 
 			<AnimatedSection className="py-[80px] px-[32px] max-md:px-[16px] bg-[#F3F5FF]">
 				<div className="max-w-[1000px] mx-auto text-left">
-					<h2 className="text-6xl max-md:text-[36px] font-svnAvo mb-[32px]">
+					<h2 className="text-6xl max-md:text-[36px] font-svnAvo mb-[32px] select-text">
 						<span className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] bg-clip-text text-transparent">Always</span> here for you
 					</h2>
-					<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3">
+					<p className="text-[22px] max-md:text-[18px] leading-[34px] text-gray-800 font-svnAvo py-3 select-text">
 						Whether you're learning, working, or just chilling with friends, our support team and community are right by your side.
 					</p>
-					<button className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[16px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity mb-[48px]">
+					<button
+						className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[16px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity mb-[48px]"
+						onClick={handleOpenAboutUs}
+					>
 						Reach Us Anytime
 					</button>
 
@@ -337,17 +345,16 @@ const AboutMezon = () => {
 
 			<AnimatedSection className="py-[80px] px-[32px] max-md:px-[16px] bg-white">
 				<div className="max-w-[1000px] mx-auto text-left">
-					<h2 className="text-6xl max-md:text-[38px] font-svnAvo mb-[24px]">
+					<h2 className="text-6xl max-md:text-[38px] font-svnAvo mb-[24px] select-text">
 						Ready to make every{' '}
 						<span className="bg-gradient-to-r from-[#7E00FF] to-[#9C3FE9] bg-clip-text text-transparent">chat count</span>?
 					</h2>
-					<Link
+					<Button
 						className="bg-gradient-to-r from-[#8661df] to-[#7979ed] hover:bg-gradient-to-l text-white px-[40px] py-[18px] rounded-full text-[20px] font-svnAvo hover:opacity-90 transition-opacity inline-flex items-center justify-center"
-						to={'/mezon'}
-						onClick={() => trackHeaderLoginClick('Create Mezon Account')}
+						onClick={handleOpenAboutUs}
 					>
 						Reach Us Anytime
-					</Link>
+					</Button>
 				</div>
 			</AnimatedSection>
 			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />

@@ -163,7 +163,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			? ChannelStreamMode.STREAM_MODE_CHANNEL
 			: ChannelStreamMode.STREAM_MODE_THREAD;
 
-	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState(true);
+	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState<boolean | null>(null);
 	const isAppChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
 
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -205,17 +205,14 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
 	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
 	const isBanned = useAppSelector((state) => selectBanMemberCurrentClanById(state, currentChannel.id, userId as string));
-	if (isBanned) {
+	if (canSendMessageDelayed === null) {
 		return (
-			<BanCountDown
-				userId={userId || ''}
-				clanId={currentClanId || ''}
-				channelId={currentChannel.id}
-				banTime={isBanned.ban_time ? isBanned.ban_time - Date.now() : Infinity}
-			/>
+			<div
+				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
+				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
+			></div>
 		);
 	}
-
 	if (!canSendMessageDelayed) {
 		return (
 			<div
@@ -224,6 +221,15 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			>
 				{t('noPermissionToSendMessage')}
 			</div>
+		);
+	} else if (isBanned) {
+		return (
+			<BanCountDown
+				userId={userId || ''}
+				clanId={currentClanId || ''}
+				channelId={currentChannel.id}
+				banTime={isBanned.ban_time ? isBanned.ban_time - Date.now() : Infinity}
+			/>
 		);
 	}
 

@@ -11,10 +11,13 @@ import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 
 export const MessagePreviewLastest = React.memo(
-	(props: { type: ChannelType; senderId: string; otherMemberList: any; lastSentMessage: any; isUnReadChannel: boolean }) => {
+	(props: { type: ChannelType; senderId: string; senderName: string; userId: string; lastSentMessageStr: string; isUnReadChannel: boolean }) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
-		const { lastSentMessage, type, senderId, otherMemberList, isUnReadChannel } = props || {};
+		const { lastSentMessageStr, type, senderId, senderName, userId, isUnReadChannel } = props || {};
+		const lastSentMessage = useMemo(() => {
+			return safeJSONParse(lastSentMessageStr || '{}');
+		}, [lastSentMessageStr]);
 
 		const content = useMemo(() => {
 			return typeof lastSentMessage?.content === 'object' ? lastSentMessage?.content : safeJSONParse(lastSentMessage?.content || '{}');
@@ -57,13 +60,12 @@ export const MessagePreviewLastest = React.memo(
 				return `${t('directMessage.you')}: `;
 			}
 
-			const lastMessageSender = otherMemberList?.find?.((it) => it?.userId === senderId);
-			if (lastMessageSender?.username) {
-				return `${lastMessageSender?.displayName || lastMessageSender?.username}: `;
+			if (senderName && senderId === userId) {
+				return `${senderName}: `;
 			}
 
 			return '';
-		}, [isYourAccount, otherMemberList, senderId, t]);
+		}, [senderId, isYourAccount, senderName, userId, t]);
 
 		const getLastMessageAttachmentContent = async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
 			if (embed) {
@@ -103,7 +105,7 @@ export const MessagePreviewLastest = React.memo(
 				case 'text':
 					return `[${t('attachments.file')}] ${fileName || ''}`;
 				default:
-					return `[${t('attachments.file')}]`;
+					return isTypeDMGroup ? `${t('directMessage.groupCreated')}` : '';
 			}
 		};
 
@@ -162,5 +164,6 @@ export const MessagePreviewLastest = React.memo(
 				)}
 			</View>
 		);
-	}
+	},
+	(prev, next) => prev.lastSentMessageStr === next.lastSentMessageStr && prev.isUnReadChannel === next.isUnReadChannel
 );

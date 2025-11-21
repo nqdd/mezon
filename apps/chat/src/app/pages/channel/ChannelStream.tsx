@@ -230,7 +230,9 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 				</div>
 			))}
 			{remainingCount > 0 && (
-				<div className="w-14 h-14 rounded-full bg-gray-300 text-black font-medium flex items-center justify-center">+{remainingCount}</div>
+				<div className="w-14 h-14 rounded-full bg-item-theme text-theme-primary-active font-medium flex items-center justify-center">
+					+{remainingCount}
+				</div>
 			)}
 		</div>
 	);

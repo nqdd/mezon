@@ -88,39 +88,40 @@
 				"theBest": "The Best",
 				"discordAlternative": "Discord Alternative"
 			},
-			"description": "Is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to",
+			"description": "is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to",
 			"talk": "Talk",
-			"play": "Play",
+			"play": "Play ",
 			"and": "And",
 			"hangOut": "Hang Out",
 			"tryButton": "Try Mezon For Free!",
 			"choosePlatform": "Choose Your Platform"
 		},
 		"textChannel": {
-			"title": "Super-Fast Messaging",
+			"titlesuper": "Super-Fast",
+			"titlemessage": "Messaging",
 			"description": "Built For Chat, Collaboration, And Connection.",
 			"description2": "Super-Fast Messaging. Zero Limits. Instant Delivery.",
-			"learnMore": "Learn More"
+			"learnMore": "Learn more"
 		},
 		"clanDiscover": {
 			"title": "Your Clan, Your World",
 			"description": "From hobbies and discussions to news and trends, there's a clan for everything.",
-			"learnMore": "Learn More"
+			"learnMore": "Learn more"
 		},
 		"aiAgent": {
 			"title": "AI Agents For Clan And Always-On Assistance",
 			"description": "AI Agents for Clans and Always-On Assistance Voice AI Agent (summarizes voice channel conversations or acts as an interviewer), Assistant Mode, and Bot Shadow Mode (summarizes text channel content). ",
-			"learnMore": "Learn More"
+			"learnMore": "Learn more"
 		},
 		"communityPayments": {
 			"title": "In-Community Payments",
-			"description": "Send Mezon Dong, reward creators, and shop with partner brands — all with zero platform fees. Built on transparency and security.",
-			"learnMore": "Learn More"
+			"description": "Send money instantly, reward creators, and shop with partner brands — all with zero platform fees. Built on transparency and security.",
+			"learnMore": "Learn more"
 		},
 		"enterpriseIntegrations": {
 			"title": "Enterprise Integrations",
 			"description": "Mezon enables you to connect with customers globally and deliver captivating, large-scale experiences.",
-			"learnMore": "Learn More"
+			"learnMore": "Learn more"
 		}
 	},
 	"footer": {

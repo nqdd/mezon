@@ -75,7 +75,7 @@ const ListDMChannel = ({ listDM }: ListDMChannelProps) => {
 	return (
 		<div
 			ref={parentRef}
-			className={`thread-scroll show-scroll`}
+			className={`messages-scroll`}
 			style={{
 				height,
 				overflow: 'auto'

@@ -57,8 +57,8 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					<h1 className="font-svnAvo text-6xl max-md:text-4xl max-sm:text-3xl font-bold max-w-4xl text-stone-900">
 						{t('sections.hero.title.your')} <span className="text-purple-600">{t('sections.hero.title.live')}</span>,{' '}
 						<span className="text-purple-600">{t('sections.hero.title.work')}</span>,{' '}
-						<span className="text-purple-600">{t('sections.hero.title.play')}</span> {t('sections.hero.title.platform')}{' '}
-						{t('sections.hero.title.theBest')} {t('sections.hero.title.discordAlternative')}
+						<span className="text-purple-600">{t('sections.hero.title.play')}</span>
+						{t('sections.hero.title.platform')} {t('sections.hero.title.theBest')} {t('sections.hero.title.discordAlternative')}
 					</h1>
 
 					<p className="font-svnAvo text-xl max-md:text-lg text-gray-600 max-w-3xl">

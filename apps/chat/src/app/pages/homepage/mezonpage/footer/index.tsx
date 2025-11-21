@@ -115,7 +115,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 								Media Kit
 							</a>
 							<a
-								href="https://mezon.ai/contact-us"
+								href="/contact-us"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -137,7 +137,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Legal</h3>
 						<div className="space-y-2 md:space-y-3">
 							<a
-								href="https://doc-hosting.flycricket.io/mezon/87aa352a-ee20-4b2d-9866-e858f2dd5bd6/privacy"
+								href="/privacy-policy"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -145,7 +145,7 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 								Privacy Policy
 							</a>
 							<a
-								href="https://mezon.ai/terms-of-service"
+								href="/terms-of-service"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
@@ -238,11 +238,21 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 							© 2025 Mezon. All rights reserved.
 						</div>
 						<div className="flex gap-4 md:gap-6 text-xs">
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Privacy
+							<a
+								href="https://github.com/mezonai/mezon"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/80 hover:text-white transition-colors"
+							>
+								Github
 							</a>
-							<a href="/about" className="text-white/80 hover:text-white transition-colors">
-								Terms
+							<a
+								href="https://www.linkedin.com/company/mezon-ai"
+								target="_blank"
+								rel="noreferrer"
+								className="text-white/80 hover:text-white transition-colors"
+							>
+								Linkedin
 							</a>
 						</div>
 					</div>
