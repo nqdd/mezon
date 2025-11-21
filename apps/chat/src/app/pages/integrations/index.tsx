@@ -177,10 +177,10 @@ const IntegrationsPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section1.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section1.description')}
 									</p>
 								</div>
@@ -212,10 +212,10 @@ const IntegrationsPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section2.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section2.description')}
 									</p>
 								</div>
@@ -247,14 +247,14 @@ const IntegrationsPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">
 											{t('sections.section3.title')}{' '}
 											<span className="text-purple-600">{t('sections.section3.titleHighlight')}</span>{' '}
 											{t('sections.section3.titleEnd')}
 										</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section3.description')}
 									</p>
 								</div>
@@ -286,10 +286,10 @@ const IntegrationsPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section4.title')} </span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section4.description')}
 									</p>
 								</div>
@@ -310,9 +310,9 @@ const IntegrationsPage = () => {
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="max-w-4xl mx-auto">
 						<div className="flex items-start justify-between mb-8 md:mb-12">
-							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold">{t('faq.title')}</h2>
+							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold select-text">{t('faq.title')}</h2>
 							<a
-								href="https://mezon.ai/docs/en/user/integrations"
+								href="https://mezon.ai/docs/en/user/welcome"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="font-svnAvo text-[#b625d3] hover:text-[#9920ba] underline inline-flex items-center gap-1 text-base sm:text-lg transition-colors"
@@ -332,16 +332,18 @@ const IntegrationsPage = () => {
 											onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
 											className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-gray-100 transition-colors duration-200"
 										>
-											<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
+											<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2 select-text">
 												<span className="text-slate-700 mt-1 transition-all duration-300">
 													{openFAQ === index ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
 												</span>
 												<span>{faq.question}</span>
 											</span>
 										</button>
-										<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
+										<div className="faq-content ${openFAQ === index ? 'open' : ''}">
 											<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
-												<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4">{faq.answer}</p>
+												<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4 select-text">
+													{faq.answer}
+												</p>
 												<a
 													href="https://mezon.ai/help"
 													target="_blank"

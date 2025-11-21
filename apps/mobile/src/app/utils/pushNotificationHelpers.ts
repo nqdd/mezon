@@ -181,6 +181,7 @@ const getConfigDisplayNotificationAndroid = async (data: Record<string, string |
 		smallIconLevel: 10,
 		importance: AndroidImportance.HIGH,
 		showTimestamp: true,
+		vibrationPattern: [300, 500, 300, 500],
 		badgeIconType: AndroidBadgeIconType.LARGE,
 		actions: [],
 		pressAction: {
@@ -258,7 +259,9 @@ const createNotificationChannel = async (channelId: string, groupId: string, sou
 			name: channelId,
 			groupId,
 			importance: AndroidImportance.HIGH,
-			sound: sound ? sound : 'default'
+			sound: sound ? sound : 'default',
+			vibration: true,
+			vibrationPattern: [300, 500, 300, 500]
 		});
 	} catch (error) {
 		console.error('Error creating notification channel:', error);

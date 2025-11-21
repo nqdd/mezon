@@ -226,10 +226,10 @@ const TextChannelPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section1.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section1.description')}
 									</p>
 								</div>
@@ -260,10 +260,10 @@ const TextChannelPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section2.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section2.description')}
 									</p>
 								</div>
@@ -295,10 +295,10 @@ const TextChannelPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section3.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section3.description')}
 									</p>
 								</div>
@@ -330,10 +330,10 @@ const TextChannelPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pl-4 lg:pl-8 xl:pl-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section4.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section4.description')}
 									</p>
 								</div>
@@ -365,10 +365,10 @@ const TextChannelPage = () => {
 						<div className="content-right flex flex-col justify-center items-center pr-4 lg:pr-8 xl:pr-12 max-lg:px-4">
 							<div className="max-w-[520px] 2xl:max-w-[22vw] flex flex-col items-start gap-4 md:gap-6 lg:gap-8">
 								<div>
-									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6">
+									<h2 className="font-svnAvo text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-stone-900 mb-3 md:mb-4 lg:mb-6 select-text">
 										<span className="text-stone-900">{t('sections.section5.title')}</span>
 									</h2>
-									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed">
+									<p className="font-svnAvo text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 leading-relaxed select-text">
 										{t('sections.section5.description')}
 									</p>
 								</div>
@@ -390,10 +390,10 @@ const TextChannelPage = () => {
 					<div className="grid grid-cols-1-reverse lg:grid-cols-2 gap-8 lg:gap-16 items-center">
 						<div className="space-y-6 lg:space-y-8 relative z-10 order-1 lg:order-1">
 							<div className="space-y-4">
-								<h2 className="font-svnAvo text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-900 leading-tight">
+								<h2 className="font-svnAvo text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-slate-900 leading-tight select-text">
 									{t('discover.title')}
 								</h2>
-								<p className="font-svnAvo text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-lg">
+								<p className="font-svnAvo text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-lg select-text">
 									{t('discover.description')}
 								</p>
 							</div>{' '}
@@ -491,10 +491,10 @@ const TextChannelPage = () => {
 															/>
 														</div>
 														<div className="p-4 sm:p-5 md:p-6 space-y-2 sm:space-y-3 flex-grow flex flex-col">
-															<h3 className="text-lg sm:text-xl font-bold text-slate-900 line-clamp-2 min-h-[3rem] sm:min-h-[3.5rem]">
+															<h3 className="text-lg sm:text-xl font-bold text-slate-900 line-clamp-2 min-h-[3rem] sm:min-h-[3.5rem] select-text">
 																{slide.title}
 															</h3>
-															<p className="font-svnAvo text-sm sm:text-base text-slate-600 line-clamp-3 min-h-[3.5rem] sm:min-h-[4.5rem]">
+															<p className="font-svnAvo text-sm sm:text-base text-slate-600 line-clamp-3 min-h-[3.5rem] sm:min-h-[4.5rem] select-text">
 																{slide.description}
 															</p>
 														</div>
@@ -514,7 +514,7 @@ const TextChannelPage = () => {
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="max-w-4xl mx-auto">
 						<div className="flex items-start justify-between mb-8 md:mb-12">
-							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold">{t('faq.title')}</h2>
+							<h2 className="font-svnAvo text-3xl sm:text-4xl lg:text-5xl text-slate-900 font-bold select-text">{t('faq.title')}</h2>
 							<a
 								href="https://mezon.ai/docs/en/user/friends-and-messaging"
 								target="_blank"
@@ -535,7 +535,7 @@ const TextChannelPage = () => {
 										onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
 										className="w-full py-4 md:py-6 flex items-center justify-between text-left hover:bg-[#e6ebf0] transition-colors duration-200"
 									>
-										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2">
+										<span className="font-svnAvo text-base sm:text-lg text-slate-900 pr-4 flex items-start gap-2 select-text">
 											<span className="text-slate-700 mt-1 transition-all duration-300">
 												{openFAQ === index ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
 											</span>
@@ -544,7 +544,9 @@ const TextChannelPage = () => {
 									</button>
 									<div className={`faq-content ${openFAQ === index ? 'open' : ''}`}>
 										<div className="pb-4 md:pb-6 pl-6 md:pl-8 pr-4">
-											<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4">{faq.answer}</p>
+											<p className="font-svnAvo text-sm sm:text-base text-slate-600 leading-relaxed mb-4 select-text">
+												{faq.answer}
+											</p>
 											<a
 												href="https://mezon.ai/docs/en/user/friends-and-messaging"
 												target="_blank"

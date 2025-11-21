@@ -120,7 +120,7 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 							className={`absolute inset-0 bg-purple-600 rounded-lg transition-opacity duration-300 ${isImageLoaded ? 'opacity-0' : 'opacity-100'}`}
 						/>
 						<img
-							src="/assets/homepage-bg.webp"
+							src="https://cdn.mezon.ai/landing-page-mezon/herosectionmezon.webp"
 							alt="Mezon Platform Preview"
 							className="w-full h-auto relative z-10"
 							onLoad={() => setIsImageLoaded(true)}
