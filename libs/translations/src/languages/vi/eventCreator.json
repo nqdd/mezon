@@ -116,7 +116,7 @@
 		"eventIsTaking": "Sự kiện đang diễn ra!",
 		"tenMinutesLeft": "Còn {{minutes}} phút. Tham gia ngay!",
 		"eventInfo": "Thông tin sự kiện",
-		"interested": "Quan tâm",
+		"interested": "{{count}} Quan tâm",
 		"personInterested": "{{count}} người quan tâm",
 		"createdBy": "Được tạo bởi {{username}}",
 		"inviteFriends": "Mời bạn bè tham gia sự kiện?",
