@@ -18,7 +18,7 @@ export default function setupAutoUpdates() {
 
 	ipcMain.handle(INSTALL_UPDATE, () => {
 		if (process.platform === 'win32') {
-			shell.openExternal('https://apps.microsoft.com/detail/9pf25lf1fj17');
+			shell.openExternal('ms-windows-store://pdp/?ProductId=9pf25lf1fj17');
 			return;
 		}
 		new Notification({
