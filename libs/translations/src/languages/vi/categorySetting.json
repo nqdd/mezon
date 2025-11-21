@@ -2,7 +2,8 @@
     "fields": {
         "categoryName": {
             "title": "Tên danh mục",
-            "placeholder": "Nhập vào tên danh mục"
+            "placeholder": "Nhập vào tên danh mục",
+            "errorMessage": "Vui lòng nhập tên danh mục hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -)."
         },
         "categoryPermission": {
             "title": "",
