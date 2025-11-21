@@ -6,7 +6,11 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			paddingHorizontal: size.s_16
+			backgroundColor: colors.primary
+		},
+		wrapper: {
+			flex: 1,
+			marginHorizontal: size.s_16
 		},
 		imagePicker: {
 			marginBottom: size.s_10,
@@ -14,6 +18,7 @@ export const style = (colors: Attributes) =>
 			borderColor: colors.secondaryLight
 		},
 		header: {
+			zIndex: 1,
 			flexDirection: 'row',
 			justifyContent: 'space-between',
 			marginBottom: size.s_16,

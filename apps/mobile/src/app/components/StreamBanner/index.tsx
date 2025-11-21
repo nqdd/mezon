@@ -73,61 +73,63 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 	return (
 		<View style={styles.container}>
 			<StatusBarHeight />
-			<View style={styles.header}>
-				<Pressable style={styles.backButton} onPress={navigation.goBack}>
-					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
-				</Pressable>
-				<View style={styles.titleWrapper}>
-					<Text style={styles.name} numberOfLines={1}>
-						{t('title')}
-					</Text>
+			<View style={styles.wrapper}>
+				<View style={styles.header}>
+					<Pressable style={styles.backButton} onPress={navigation.goBack}>
+						<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
+					</Pressable>
+					<View style={styles.titleWrapper}>
+						<Text style={styles.name} numberOfLines={1}>
+							{t('title')}
+						</Text>
+					</View>
+					{isBannerChanged && (
+						<Pressable style={styles.backButton} onPress={handleSave}>
+							<Text style={styles.resetButton}>{t('buttons.change')}</Text>
+						</Pressable>
+					)}
 				</View>
-				{isBannerChanged && (
-					<Pressable style={styles.backButton} onPress={handleSave}>
-						<Text style={styles.resetButton}>{t('buttons.change')}</Text>
-					</Pressable>
-				)}
-			</View>
-			<View>
-				<MezonImagePicker
-					defaultValue={banner}
-					height={size.s_200}
-					width={width - size.s_32}
-					onLoad={handleLoad}
-					showHelpText
-					autoUpload
-					imageSizeLimit={MAX_FILE_SIZE_10MB}
-					imageHeight={400}
-					imageWidth={400}
-					style={[styles.imagePicker]}
-				/>
-				{banner && (
-					<Pressable style={styles.clearBannerButton} onPress={handleClearBanner}>
-						<MezonIconCDN icon={IconCDN.circleXIcon} height={25} width={25} color={themeValue.white} />
-					</Pressable>
-				)}
-			</View>
+				<View>
+					<MezonImagePicker
+						defaultValue={banner}
+						height={size.s_200}
+						width={width - size.s_32}
+						onLoad={handleLoad}
+						showHelpText
+						autoUpload
+						imageSizeLimit={MAX_FILE_SIZE_10MB}
+						imageHeight={400}
+						imageWidth={400}
+						style={[styles.imagePicker]}
+					/>
+					{banner && (
+						<Pressable style={styles.clearBannerButton} onPress={handleClearBanner}>
+							<MezonIconCDN icon={IconCDN.circleXIcon} height={25} width={25} color={themeValue.white} />
+						</Pressable>
+					)}
+				</View>
 
-			<Text style={styles.label}>{t('requirementsTitle')}</Text>
-			<View style={styles.requirementCard}>
-				<MezonIconCDN icon={IconCDN.imageIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				<View>
-					<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.format.title')}</Text>
-					<Text style={styles.requirementCardText}>{t('requirements.format.value')}</Text>
+				<Text style={styles.label}>{t('requirementsTitle')}</Text>
+				<View style={styles.requirementCard}>
+					<MezonIconCDN icon={IconCDN.imageIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
+					<View>
+						<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.format.title')}</Text>
+						<Text style={styles.requirementCardText}>{t('requirements.format.value')}</Text>
+					</View>
 				</View>
-			</View>
-			<View style={styles.requirementCard}>
-				<MezonIconCDN icon={IconCDN.uploadPlusIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				<View>
-					<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.resolution.title')}</Text>
-					<Text style={styles.requirementCardText}>{t('requirements.resolution.value')}</Text>
+				<View style={styles.requirementCard}>
+					<MezonIconCDN icon={IconCDN.uploadPlusIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
+					<View>
+						<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.resolution.title')}</Text>
+						<Text style={styles.requirementCardText}>{t('requirements.resolution.value')}</Text>
+					</View>
 				</View>
-			</View>
-			<View style={styles.requirementCard}>
-				<MezonIconCDN icon={IconCDN.attachmentIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				<View>
-					<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.sizeLimit.title')}</Text>
-					<Text style={styles.requirementCardText}>{t('requirements.sizeLimit.value')}</Text>
+				<View style={styles.requirementCard}>
+					<MezonIconCDN icon={IconCDN.attachmentIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
+					<View>
+						<Text style={[styles.requirementCardText, styles.semibold]}>{t('requirements.sizeLimit.title')}</Text>
+						<Text style={styles.requirementCardText}>{t('requirements.sizeLimit.value')}</Text>
+					</View>
 				</View>
 			</View>
 		</View>

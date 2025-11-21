@@ -15,7 +15,7 @@ import {
 	useAppDispatch,
 	useWallet
 } from '@mezon/store-mobile';
-import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezon/utils';
+import { CURRENCY, formatBalanceToString, formatMoney, TypeMessage } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
@@ -227,7 +227,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 			if (res?.meta?.requestStatus === 'rejected' || !res) {
 				Toast.show({
 					type: 'error',
-					text1: t('toast.error.anErrorOccurred')
+					text1: res?.payload || t('toast.error.anErrorOccurred')
 				});
 			} else {
 				if (!walletAddress) {
@@ -271,7 +271,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 		} catch (err) {
 			Toast.show({
 				type: 'error',
-				text1: t('toast.error.anErrorOccurred')
+				text1: err?.message || t('toast.error.anErrorOccurred')
 			});
 			setDisableButton(false);
 		} finally {

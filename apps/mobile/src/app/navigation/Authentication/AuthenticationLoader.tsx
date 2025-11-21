@@ -1,16 +1,16 @@
 import {
 	ActionEmitEvent,
+	load,
+	remove,
 	STORAGE_CHANNEL_CURRENT_CACHE,
 	STORAGE_KEY_TEMPORARY_ATTACHMENT,
-	STORAGE_MY_USER_ID,
-	load,
-	remove
+	STORAGE_MY_USER_ID
 } from '@mezon/mobile-components';
 import {
-	DMCallActions,
 	appActions,
 	channelsActions,
 	directActions,
+	DMCallActions,
 	getStoreAsync,
 	messagesActions,
 	selectAllAccount,
@@ -29,7 +29,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
 import type { WebrtcSignalingFwd } from 'mezon-js';
-import { WebrtcSignalingType, safeJSONParse } from 'mezon-js';
+import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, AppStateStatus, DeviceEventEmitter, Keyboard, Linking, Platform, StatusBar } from 'react-native';
@@ -114,6 +114,20 @@ export const AuthenticationLoader = () => {
 			}
 		};
 		getUrl();
+
+		const urlListener =
+			Platform.OS === 'ios'
+				? Linking.addEventListener('url', ({ url }) => {
+						if (url) {
+							onNavigationDeeplink(url);
+						}
+					})
+				: undefined;
+		return () => {
+			if (Platform.OS === 'ios') {
+				urlListener?.remove?.();
+			}
+		};
 	}, []);
 
 	const extractChannelParams = (url: string) => {
@@ -152,7 +166,7 @@ export const AuthenticationLoader = () => {
 				}
 			}
 		} else if (path?.includes?.('/invite/')) {
-			const inviteMatch = path.match(/invite\/(\d+)/);
+			const inviteMatch = path?.match?.(/invite\/(\d+)/) || path?.match?.(/invite\/chat\/(\d+)/);
 			const inviteId = inviteMatch?.[1];
 			if (inviteId) {
 				navigation.navigate(APP_SCREEN.INVITE_CLAN, {

@@ -62,7 +62,7 @@ export default function TopicDiscussion() {
 			focusedListener();
 			blurListener();
 		};
-	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary, currentTopicId]);
+	}, [navigation, themeBasic, themeValue.primary, themeValue.secondary, currentTopicId, dispatch]);
 
 	const styles = style(themeValue);
 	useEffect(() => {
@@ -78,7 +78,7 @@ export default function TopicDiscussion() {
 		if (currentTopicId !== '') {
 			fetchMsgResult();
 		}
-	}, [currentChannel?.channel_id, currentClanId, currentTopicId]);
+	}, [currentChannel?.channel_id, currentClanId, currentTopicId, dispatch]);
 
 	useEffect(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
@@ -88,7 +88,8 @@ export default function TopicDiscussion() {
 		});
 		return () => {
 			if (topicIdRef.current) {
-				dispatch(topicsActions.attemptClearTopicId(topicIdRef.current));
+				dispatch(topicsActions.setCurrentTopicId(''));
+				dispatch(topicsActions.setIsShowCreateTopic(false));
 			}
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
