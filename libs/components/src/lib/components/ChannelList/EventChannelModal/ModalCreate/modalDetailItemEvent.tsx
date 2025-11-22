@@ -83,7 +83,7 @@ const ModalDetailItemEvent = (props?: ModalDetailItemEventProps) => {
 								className={`pb-4 ${currentTab === tabs.interest ? 'text-theme-primary-active border-b border-white' : 'text-zinc-400'}`}
 								onClick={() => setCurrentTab(tabs.interest)}
 							>
-								{t('eventDetail.interested')}
+								{t('eventDetail.interested', { count: event?.user_ids?.length || 0 })}
 							</h4>
 						</div>
 					</div>

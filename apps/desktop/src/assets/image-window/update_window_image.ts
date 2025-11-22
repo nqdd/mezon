@@ -32,6 +32,8 @@ function updateImagePopup(imageData: ImageData, imageWindow: BrowserWindow) {
 
 	// Use safer DOM manipulation instead of innerHTML injection
 	imageWindow.webContents.executeJavaScript(`
+		const selectedImage = document.getElementById('selectedMedia');
+
 		${App.imageScriptWindowLoaded === false ? `let currentIndex = ${activeIndex};` : `currentIndex =  ${activeIndex};`}
 		(function() {
 			// Use textContent for text content to prevent XSS
@@ -52,7 +54,6 @@ function updateImagePopup(imageData: ImageData, imageWindow: BrowserWindow) {
 			}
 
 			// Use safe property assignment for images
-			const selectedImage = document.getElementById('selectedImage');
 			if (selectedImage) {
 				selectedImage.src = ${JSON.stringify(sanitizeUrl(imageData.url))};
 			}

@@ -3,7 +3,7 @@
 	"membersOf": "Tổng thành viên {{count}}",
 	"addedBy": "Được thêm bởi {{name}}",
 	"you": "bạn",
-	"inVoice": "Đang thoại",
+	"inVoice": "Trong kênh thoại",
 	"onlineCount": "Trực tuyến - {{count}}",
 	"offlineCount": "Ngoại tuyến - {{count}}"
 }
