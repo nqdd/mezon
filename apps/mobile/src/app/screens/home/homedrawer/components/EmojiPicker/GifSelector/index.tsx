@@ -49,7 +49,13 @@ export default function GifSelector({ onSelected, searchText, onScroll }: GifSel
 	}
 
 	return (
-		<ScrollView scrollEventThrottle={16} onScroll={onScroll} style={styles.scrollViewStyle} contentContainerStyle={styles.scrollViewContent}>
+		<ScrollView
+			showsVerticalScrollIndicator={false}
+			scrollEventThrottle={16}
+			onScroll={onScroll}
+			style={styles.scrollViewStyle}
+			contentContainerStyle={styles.scrollViewContent}
+		>
 			{valueInputToCheckHandleSearch === '' ? (
 				<GifCategory loading={loadingStatusGifs === 'loading'} data={dataGifCategories} />
 			) : (
