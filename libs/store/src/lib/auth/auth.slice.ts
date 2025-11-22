@@ -8,7 +8,7 @@ import type { ApiLinkAccountConfirmRequest } from 'mezon-js/dist/api.gen';
 import { toast } from 'react-toastify';
 import { clearApiCallTracker } from '../cache-metadata';
 import { listChannelsByUserActions } from '../channels/channelUser.slice';
-import { ensureClientAsync, ensureSession, getMezonCtx } from '../helpers';
+import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 import { walletActions } from '../wallet/wallet.slice';
 
 export const AUTH_FEATURE_KEY = 'auth';
