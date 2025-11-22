@@ -414,6 +414,10 @@ export default class App {
 					{
 						label: 'Check for Updates',
 						click: () => {
+							if (process.platform === 'win32') {
+								shell.openExternal('ms-windows-store://pdp/?ProductId=9pf25lf1fj17');
+								return;
+							}
 							autoUpdater.checkForUpdates().then((data) => {
 								if (!data?.updateInfo) return;
 								const appVersion = app.getVersion();
