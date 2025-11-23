@@ -10,6 +10,7 @@ import { clearApiCallTracker } from '../cache-metadata';
 import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 import { walletActions } from '../wallet/wallet.slice';
+
 export const AUTH_FEATURE_KEY = 'auth';
 
 export interface AuthState {
@@ -35,6 +36,7 @@ export interface ISession {
 	vars?: object;
 	is_remember?: boolean;
 	api_url: string;
+	id_token?: string;
 }
 
 export const initialAuthState: AuthState = {
@@ -75,6 +77,14 @@ export type AuthenticatePhoneSMSOTPRequestPayload = {
 export const authenticateEmail = createAsyncThunk('auth/authenticateEmail', async ({ email, password }: AuthenticateEmailPayload, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const session = await mezon?.authenticateEmail(email, password);
+	if (session && session?.id_token && session?.user_id) {
+		const proofInput = {
+			userId: session?.user_id?.toString() || '',
+			jwt: session.id_token
+		};
+
+		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+	}
 	if (!session) {
 		return thunkAPI.rejectWithValue('Invalid session');
 	}
@@ -107,7 +117,14 @@ export const refreshSession = createAsyncThunk('auth/refreshSession', async (_, 
 		return thunkAPI.rejectWithValue('Invalid session tokens');
 	}
 
-	let session = new Session(sessionState.token, sessionState.refresh_token, sessionState.created, sessionState.api_url, !!sessionState.is_remember);
+	let session = new Session(
+		sessionState.token,
+		sessionState.refresh_token,
+		sessionState.created,
+		sessionState.api_url,
+		sessionState.id_token || '',
+		!!sessionState.is_remember
+	);
 
 	try {
 		session = (await mezon?.refreshSession({
@@ -164,6 +181,13 @@ export const authenticateEmailOTPRequest = createAsyncThunk(
 export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const session = await mezon?.confirmEmailOTP(data);
+	if (session && session?.id_token && session?.user_id) {
+		const proofInput = {
+			userId: session.user_id?.toString() || '',
+			jwt: session.id_token
+		};
+		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+	}
 	if (!session) {
 		return thunkAPI.rejectWithValue('Invalid session');
 	}
@@ -224,6 +248,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 	const mezon = getMezonCtx(thunkAPI);
 
 	const session = await mezon?.confirmLoginRequest({ login_id: loginId });
+	if (session?.id_token && session?.user_id) {
+		const proofInput = {
+			userId: session.user_id,
+			jwt: session.id_token
+		};
+
+		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+	}
 	if (session) {
 		return normalizeSession(session);
 	}

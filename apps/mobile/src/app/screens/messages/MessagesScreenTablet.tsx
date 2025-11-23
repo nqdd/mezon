@@ -1,8 +1,18 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
-import { directActions, getStoreAsync, selectDirectsOpenlistOrder, selectDmGroupCurrentId } from '@mezon/store-mobile';
-import React, { useEffect } from 'react';
-import { AppState, FlatList, Pressable, View } from 'react-native';
+import {
+	directActions,
+	getStore,
+	getStoreAsync,
+	messagesActions,
+	selectDirectById,
+	selectDirectsOpenlistOrder,
+	selectDmGroupCurrentId,
+	useAppDispatch
+} from '@mezon/store-mobile';
+import React, { useCallback, useEffect } from 'react';
+import { AppState, DeviceEventEmitter, FlatList, Pressable, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -12,6 +22,7 @@ import { FriendsTablet } from '../friend/FriendsTablet';
 import ProfileBar from '../home/homedrawer/ProfileBar';
 import ServerList from '../home/homedrawer/ServerList';
 import UserEmptyMessage from '../home/homedrawer/UserEmptyClan/UserEmptyMessage';
+import MessageMenu from '../home/homedrawer/components/MessageMenu';
 import { DirectMessageDetailTablet } from './DirectMessageDetailTablet';
 import { DmListItem } from './DmListItem';
 import MessageHeader from './MessageHeader';
@@ -24,6 +35,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 	const dmGroupChatList = useSelector(selectDirectsOpenlistOrder);
 	const clansLoadingStatus = useSelector((state: RootState) => state?.clans?.loadingStatus);
 	const currentDmGroupId = useSelector(selectDmGroupCurrentId);
+	const dispatch = useAppDispatch();
 
 	useEffect(() => {
 		const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
@@ -52,6 +64,43 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, { screen: APP_SCREEN.MESSAGES.NEW_MESSAGE });
 	};
 
+	useEffect(() => {
+		const dmItemRouter = DeviceEventEmitter.addListener('CHANGE_CHANNEL_DM_DETAIL_TABLET', ({ dmId = '' }) => {
+			requestAnimationFrame(async () => {
+				dispatch(directActions.setDmGroupCurrentId(dmId));
+				dispatch(messagesActions.setIdMessageToJump(null));
+			});
+		});
+		return () => {
+			dmItemRouter.remove();
+		};
+	}, [dispatch, isTabletLandscape, navigation]);
+
+	const handleLongPress = useCallback((dmId: string) => {
+		const store = getStore();
+		const directMessage = selectDirectById(store.getState(), dmId);
+		const data = {
+			heightFitContent: true,
+			children: <MessageMenu messageInfo={directMessage} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
+	}, []);
+
+	const renderItem = useCallback(
+		({ item }: { item: string }) => {
+			return (
+				<TouchableOpacity
+					onPress={() => {
+						DeviceEventEmitter.emit('CHANGE_CHANNEL_DM_DETAIL_TABLET', { dmId: item });
+					}}
+					onLongPress={() => handleLongPress(item)}
+				>
+					<DmListItem id={item} />
+				</TouchableOpacity>
+			);
+		},
+		[handleLongPress]
+	);
 	return (
 		<View style={styles.containerMessages}>
 			<View style={styles.leftContainer}>
@@ -74,7 +123,7 @@ const MessagesScreenTablet = ({ navigation }: { navigation: any }) => {
 								initialNumToRender={1}
 								maxToRenderPerBatch={1}
 								windowSize={2}
-								renderItem={({ item }) => <DmListItem id={item} />}
+								renderItem={renderItem}
 							/>
 						)}
 
