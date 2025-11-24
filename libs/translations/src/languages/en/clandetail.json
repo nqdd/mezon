@@ -6,7 +6,7 @@
 		},
 		"section2": {
 			"title": "The Best WFH Experience For Your Organization",
-			"description": "Work from home doesn't mean working alone. Collaborate, communicate, and celebrate together — sometimes apart. The best WFH experience for your organization."
+			"description": " Working from home doesn't mean working alone. Collaborate, communicate, and celebrate together — sometimes apart. The best WFH experience for your organization."
 		},
 		"section3": {
 			"title": "Member Relationship Oriented",
@@ -23,20 +23,20 @@
 	},
 	"features": [
 		{
-			"title": "Share Photos And Videos",
-			"description": "Easily share photos, videos, and media files with your team in high quality."
+			"title": "Upload Your Own Reactions, Stickers, and Sounds",
+			"description": "Completely free to customize your own reactions, stickers, and sound effects to express yourself in every conversation."
 		},
 		{
-			"title": "Send Video Notes",
-			"description": "Capture the feel of the moment by instantly recording and sharing video messages up to a minute long in the chat."
+			"title": "Assign Roles and Permissions in Your Clan",
+			"description": "Easily manage member roles and permissions within your clan to ensure everyone has a safe and suitable experience."
 		},
 		{
-			"title": "Say Even More With Stickers And GIFs",
-			"description": "Express yourself with a wide variety of stickers, GIFs, and animated emojis."
+			"title": "Connect With Members Who Share Your Interests",
+			"description": "Members can join your clan through invitations or public discovery, creating a diverse and vibrant community."
 		},
 		{
-			"title": "React With An Emoji",
-			"description": "Quickly respond to messages with emoji reactions without typing a word."
+			"title": "Creating a Clan Has Never Been Easier",
+			"description": "Quickly respond to messages with emojis without having to type a word."
 		}
 	],
 	"featuresTitle": "Build Your Community With More Fun",
@@ -52,7 +52,7 @@
 			},
 			{
 				"question": "How Do I Join A Clan On Mezon?",
-				"answer": "You can discover and join Clans in two ways: through the Discover button within the app or via the Clans Website at mezon.ai/clans, or by using an invite link shared by friends, teammates, or admins. Simply click \"Join\" to become part of the community. Each user can join up to 50 Clans at a time. Check out featured Clans like Student Clan, Gamer Clan, and Business Clan."
+				"answer": "You can discover and join Clans in two ways: through the Discover button within the app or via the Clans Website at mezon.ai/clans, or by using an invite link shared by friends, teammates, or admins. Simply click \"Join\" to become part of the community. Each user can join up to 50 Clans at once. Explore featured Clans like Student Clan, Gamer Clan, and Business Clan."
 			},
 			{
 				"question": "How Do I Create My Own Clan?",
@@ -60,7 +60,7 @@
 			},
 			{
 				"question": "Can I Leave A Clan If I No Longer Want To Participate?",
-				"answer": "Yes, if you no longer wish to participate in a Clan, you can select 'Leave Clan' from the Clan's settings. Once you leave, all message history and access to that Clan's channels will be removed from your account. You can always rejoin the Clan later if you have an invite link or if the Clan is publicly discoverable."
+				"answer": "Yes. If you no longer wish to be part of a Clan, you can select 'Leave Clan' from the Clan's settings. Once you leave, all message history and access to that Clan's channels will be removed from your account. You can always rejoin the Clan later if you have an invite link or if the Clan is publicly discoverable."
 			}
 		]
 	}
