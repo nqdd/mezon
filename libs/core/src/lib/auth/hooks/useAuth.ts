@@ -26,9 +26,9 @@ export function useAuth() {
 		[dispatch]
 	);
 
-	const confirmEmailOTP = useCallback(
+	const confirmAuthenticateOTP = useCallback(
 		async (data: ApiLinkAccountConfirmRequest) => {
-			const action = await dispatch(authActions.confirmEmailOTP(data));
+			const action = await dispatch(authActions.confirmAuthenticateOTP(data));
 			const session = action.payload;
 			dispatch(accountActions.setAccount(session));
 			return session;
@@ -80,7 +80,7 @@ export function useAuth() {
 			userProfile,
 			userId,
 			loginByEmail,
-			confirmEmailOTP,
+			confirmAuthenticateOTP,
 			authenticateEmailPassword,
 			qRCode,
 			checkLoginRequest,
@@ -91,7 +91,7 @@ export function useAuth() {
 			userProfile,
 			userId,
 			loginByEmail,
-			confirmEmailOTP,
+			confirmAuthenticateOTP,
 			authenticateEmailPassword,
 			qRCode,
 			checkLoginRequest,

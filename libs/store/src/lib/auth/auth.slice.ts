@@ -178,9 +178,9 @@ export const authenticateEmailOTPRequest = createAsyncThunk(
 	}
 );
 
-export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
+export const confirmAuthenticateOTP = createAsyncThunk('auth/confirmAuthenticateOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
-	const session = await mezon?.confirmEmailOTP(data);
+	const session = await mezon?.confirmAuthenticateOTP(data);
 	if (session && session?.id_token && session?.user_id) {
 		const proofInput = {
 			userId: session.user_id?.toString() || '',
@@ -503,10 +503,10 @@ export const authSlice = createSlice({
 				state.error = action.error.message;
 			});
 		builder
-			.addCase(confirmEmailOTP.pending, (state: AuthState) => {
+			.addCase(confirmAuthenticateOTP.pending, (state: AuthState) => {
 				state.loadingStatus = 'loading';
 			})
-			.addCase(confirmEmailOTP.fulfilled, (state: AuthState, action) => {
+			.addCase(confirmAuthenticateOTP.fulfilled, (state: AuthState, action) => {
 				state.loadingStatus = 'loaded';
 				if (action.payload.user_id) {
 					if (!state.session) {
@@ -520,7 +520,7 @@ export const authSlice = createSlice({
 				}
 				state.isLogin = true;
 			})
-			.addCase(confirmEmailOTP.rejected, (state: AuthState, action) => {
+			.addCase(confirmAuthenticateOTP.rejected, (state: AuthState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			});
@@ -556,7 +556,7 @@ export const authActions = {
 	authenticateEmail,
 	checkSessionWithToken,
 	authenticateEmailOTPRequest,
-	confirmEmailOTP,
+	confirmAuthenticateOTP,
 	authenticatePhoneSMSOTPRequest
 };
 
