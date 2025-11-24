@@ -17,7 +17,7 @@ import {
 	useMaybeTrackRefContext,
 	useParticipantTile
 } from '@livekit/components-react';
-import { useAuth, usePermissionChecker } from '@mezon/core';
+import { useAuth, useOnClickOutside, usePermissionChecker } from '@mezon/core';
 import { selectMemberClanByUserName, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EPermission, createImgproxyUrl } from '@mezon/utils';
@@ -25,8 +25,11 @@ import type { Participant, Room } from 'livekit-client';
 import { ConnectionQuality, Track } from 'livekit-client';
 import { safeJSONParse } from 'mezon-js';
 import type { PropsWithChildren } from 'react';
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useModal } from 'react-modal-hook';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
+import ButtonCopy from '../../../ButtonSwitchCustom/CopyButtonComponent';
 import type { ActiveSoundReaction } from '../Reaction/types';
 import { FocusToggle } from './FocusToggle';
 
@@ -84,6 +87,7 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 	ref
 ) {
 	const trackReference = useEnsureTrackRef(trackRef);
+	const { t } = useTranslation('contextMenu');
 
 	const checkOpenMic = useMemo(() => {
 		const participant = room?.remoteParticipants.get(trackReference.participant.identity);
@@ -192,6 +196,73 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 	const [canMangeVoice] = usePermissionChecker([EPermission.manageChannel]);
 	const { userProfile } = useAuth();
 
+	const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+	const focusRef = useRef<HTMLDivElement>(null);
+
+	const [openContextVoiceMember, closeContextVoiceMember] = useModal(() => {
+		const className = {
+			'--contexify-menu-bgColor': 'var(--bg-theme-contexify)',
+			'--contexify-activeItem-color': 'var(--text-secondary)',
+			'--contexify-rightSlot-color': 'var(--text-secondary)',
+			'--contexify-activeRightSlot-color': 'var(--text-secondary)',
+			'--contexify-arrow-color': 'var(--text-theme-primary)',
+			'--contexify-activeArrow-color': 'var(--text-secondary)',
+			'--contexify-separator-color': 'var(--text-separator-theme-primary)',
+			'--contexify-menu-radius': '8px',
+			'--contexify-item-color': 'var(--text-theme-primary)',
+			border: '1px solid var(--border-primary)'
+		} as React.CSSProperties;
+
+		return (
+			<div
+				className="contexify !bg-theme-contexify font-medium !opacity-100 flex flex-col w-52 rounded-md bg-theme-setting-nav text-theme-primary fixed z-30 p-2"
+				style={{
+					top: dragOffset?.x,
+					left: dragOffset?.y,
+					...className
+				}}
+				ref={focusRef}
+			>
+				<div className="p-2 w-full justify-between rounded-md cursor-pointer bg-item-hover items-center flex " onClick={handleRemoveMember}>
+					{t('member.menu')}
+				</div>
+				<div className="contexify_separator"></div>
+				{checkOpenMic && (
+					<div
+						className="text-[#E13542] p-2 w-full justify-between rounded-md cursor-pointer bg-item-hover items-center flex"
+						onClick={handleMuteMember}
+					>
+						{t('muteMic')}
+						<Icons.VoiceMicDisabledIcon className="w-4 h-4" />
+					</div>
+				)}
+
+				<div
+					className="text-[#E13542] p-2 w-full justify-between rounded-md cursor-pointer bg-item-hover items-center flex "
+					onClick={handleRemoveMember}
+				>
+					{t('member.kick')}
+					<Icons.CloseIcon className="w-4 h-4" />
+				</div>
+				<div className="contexify_separator"></div>
+
+				<ButtonCopy className="flex flex-row-reverse justify-between p-2" title={t('copyUserId')} copyText={member?.id} />
+			</div>
+		);
+	}, [member?.id, checkOpenMic, dragOffset]);
+
+	const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
+		closeContextVoiceMember();
+		if (roomName && canMangeVoice && userProfile?.user?.id !== member?.id) {
+			setDragOffset({
+				x: event.clientY,
+				y: event.clientX
+			});
+			openContextVoiceMember();
+		}
+	};
+	useOnClickOutside(focusRef, () => closeContextVoiceMember());
+
 	return (
 		<div ref={ref} className="relative" {...elementProps}>
 			<TrackRefContextIfNeeded trackRef={trackReference}>
@@ -250,25 +321,11 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 							</div>
 						</>
 					)}
-					<FocusToggle className="peer w-full h-full absolute top-0 right-0 bg-transparent" trackRef={trackReference} />
-					{roomName && canMangeVoice && userProfile?.user?.id !== member?.id && (
-						<div className="hover:opacity-100 peer-hover:opacity-100 opacity-0 absolute top-2 right-2 gap-2 flex rounded-full items-center justify-center cursor-pointer">
-							{checkOpenMic && (
-								<div
-									className="w-6 h-6 rounded-full hover:bg-bgSecondaryHover flex items-center justify-center"
-									onClick={handleMuteMember}
-								>
-									<Icons.VoiceMicDisabledIcon className="w-4 h-4" />
-								</div>
-							)}
-							<div
-								className="w-6 h-6 rounded-full hover:bg-bgSecondaryHover flex items-center justify-center"
-								onClick={handleRemoveMember}
-							>
-								<Icons.CloseIcon className="w-4 h-4" />
-							</div>
-						</div>
-					)}
+					<FocusToggle
+						className="peer w-full h-full absolute top-0 right-0 bg-transparent"
+						trackRef={trackReference}
+						onContextMenu={handleContextMenu}
+					/>
 				</ParticipantContextIfNeeded>
 			</TrackRefContextIfNeeded>
 		</div>
