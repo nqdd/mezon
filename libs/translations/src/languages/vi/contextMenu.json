@@ -53,6 +53,8 @@
 	"editCategory": "Chỉnh sửa danh mục",
 	"deleteCategory": "Xóa danh mục",
 	"useClanDefault": "Sử dụng mặc định của Clan",
+	"muteMic": "Tắt micro",
+	"menu": "Tùy chọn",
 	"mutedUntil": "Tắt thông báo đến {{time}}",
 	"muteFor15Minutes": "15 phút",
 	"muteFor1Hour": "1 giờ",
