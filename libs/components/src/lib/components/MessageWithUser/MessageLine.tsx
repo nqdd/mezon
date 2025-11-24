@@ -5,6 +5,7 @@ import type { IExtendedMessage } from '@mezon/utils';
 import { EBacktickType, ETokenMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CanvasHashtag, ChannelHashtag, EmojiMarkup, MarkdownContent, MentionUser, PlainText } from '../../components';
 
 interface RenderContentProps {
@@ -204,6 +205,7 @@ export const MessageLine = ({
 	isSending,
 	onContextMenu
 }: RenderContentProps) => {
+	const { t: translate } = useTranslation('common');
 	mode = mode ?? ChannelStreamMode.STREAM_MODE_CHANNEL;
 	const { t, mentions = [], hg = [], ej = [], mk = [], lk = [], vk = [], lky = [] } = content || {};
 	const hgm = Array.isArray(hg) ? hg.map((item) => ({ ...item, kindOf: ETokenMessage.HASHTAGS })) : [];
@@ -467,7 +469,7 @@ export const MessageLine = ({
 					key={`edited-status-${lastindex}-end`}
 					className="ml-[5px] inline opacity-50 text-[9px] self-center font-semibold text-theme-message w-[50px] select-none"
 				>
-					(edited)
+					({translate('message.edited')})
 				</p>
 			);
 		}

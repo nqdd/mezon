@@ -1,5 +1,8 @@
 {
 	"addReaction": "Add Reaction",
+	"reactions": "React",
+	"topic": "Topic",
+	"option": "Option",
 	"giveACoffee": "Give A Coffee",
 	"editMessage": "Edit Message",
 	"pinMessage": "Pin Message",
@@ -26,6 +29,8 @@
 	"removeAllReactions": "Remove All Reactions",
 	"loadingCommands": "Loading commands...",
 	"noCommandsFound": "No commands found",
+	"noCommandsAvailable": "No commands available",
+	"typeToSearchSlashCommands": "Type to search slash commands...",
 	"viewMore": "View More",
 	"member": {
 		"profile": "Profile",
@@ -46,6 +51,7 @@
 	"privacySettings": "Privacy Settings",
 	"editClanProfile": "Edit Clan Profile",
 	"leaveClan": "Leave Clan",
+	"leave": "Leave",
 	"collapseCategory": "Collapse Category",
 	"collapseAllCategories": "Collapse All Categories",
 	"muteCategory": "Mute Category",

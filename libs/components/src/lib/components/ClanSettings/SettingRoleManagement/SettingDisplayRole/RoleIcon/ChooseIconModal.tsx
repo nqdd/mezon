@@ -1,10 +1,10 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
-import type { RootState } from '@mezon/store';
-import { getStoreAsync, roleSlice, selectTheme } from '@mezon/store';
+import { roleSlice, selectTheme } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { MAX_FILE_SIZE_256KB, fileTypeImage, resizeFileImage } from '@mezon/utils';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { AttachmentLoader } from '../../../../MessageWithUser/MessageLinkFile';
 import { ELimitSize } from '../../../../ModalValidateFile';
@@ -20,6 +20,7 @@ enum ESelectRoleIconMethod {
 }
 
 const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
+	const { t } = useTranslation('common');
 	const modalRef = useRef<HTMLDivElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [selectMethod, setSelectMethod] = useState<ESelectRoleIconMethod>(ESelectRoleIconMethod.IMAGE);
@@ -56,9 +57,6 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 			return;
 		}
 
-		const store = await getStoreAsync();
-		const state = store.getState() as RootState;
-
 		setIsLoading(true);
 		const resizeFile = (await resizeFileImage(file, 64, 64, 'file')) as File;
 
@@ -91,7 +89,7 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 						} rounded px-5 py-1 font-semibold cursor-pointer bg-item-theme-hover `}
 						onClick={() => handleChangeSelectMethod(ESelectRoleIconMethod.IMAGE)}
 					>
-						Upload image
+						{t('roleIcon.uploadImage')}
 					</div>
 
 					{/*WIP*/}
@@ -101,7 +99,7 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 						} rounded px-5 py-1 font-semibold cursor-pointer bg-item-theme-hover  `}
 						onClick={() => handleChangeSelectMethod(ESelectRoleIconMethod.EMOJI)}
 					>
-						Emoji
+						{t('roleIcon.emoji')}
 					</div>
 				</div>
 				<div className={'flex-1 w-full flex flex-col justify-center items-center gap-2 px-2'}>
@@ -113,7 +111,7 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 					>
 						<Icons.ImageUploadIcon className="w-6 h-6 text-theme-primary group-hover:scale-110 ease-in-out duration-75" />
 					</div>
-					<p className={'text-theme-primary'}>Choose an image to upload</p>
+					<p className={'text-theme-primary'}>{t('roleIcon.chooseImageToUpload')}</p>
 					<input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleChooseImage} />
 				</div>
 			</div>

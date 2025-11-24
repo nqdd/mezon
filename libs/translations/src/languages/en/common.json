@@ -24,6 +24,14 @@
 	"noRolesAvailable": "No roles available.",
 	"role": "Role",
 	"noRoles": "No Roles",
+	"roleIcon": {
+		"uploadImage": "Upload image",
+		"emoji": "Emoji",
+		"chooseImageToUpload": "Choose an image to upload"
+	},
+	"message": {
+		"edited": "edited"
+	},
 	"member": "Member",
 	"cannotFetchClans": "Cannot fetch clans, please try again later",
 	"cannotFetchClan": "Cannot fetch clan, please try again later",
@@ -428,5 +436,27 @@
 		"speaker": "Speaker",
 		"earpiece": "Earpiece",
 		"headphones": "Headphones"
+	},
+	"canvas": {
+		"loadingCanvas": "Loading canvas...",
+		"error": "Error",
+		"failedToRefresh": "Failed to refresh canvas data",
+		"titlePlaceholder": "Your canvas title",
+		"typePlaceholder": "Type / to insert...",
+		"untitled": "Untitled"
+	},
+	"emojiCategories": {
+		"forsale": "For Sale",
+		"Recent": "Recent",
+		"Frequently": "Frequently",
+		"People": "People",
+		"Nature": "Nature",
+		"Food": "Food",
+		"Activities": "Activities",
+		"Travel": "Travel",
+		"Objects": "Objects",
+		"Symbols": "Symbols",
+		"Flags": "Flags",
+		"Custom": "Custom"
 	}
 }

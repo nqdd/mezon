@@ -15,6 +15,7 @@ import {
 } from '@mezon/store';
 import { EEventAction } from '@mezon/utils';
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
@@ -24,6 +25,7 @@ const CanvasContent = lazy(() => import('./CanvasContent'));
 const CanvasContentPlaceholder = () => <div className="w-full h-[calc(100vh-120px)] animate-pulse bg-gray-200 dark:bg-gray-700 rounded"></div>;
 
 const Canvas = () => {
+	const { t } = useTranslation('common');
 	const dispatch = useDispatch();
 	const { clanId, channelId, canvasId } = useParams<{
 		clanId: string;
@@ -83,7 +85,7 @@ const Canvas = () => {
 
 				clearTimeout(loadingTimeout);
 			} catch (err) {
-				setError('Failed to refresh canvas data');
+				setError(t('canvas.failedToRefresh') || 'Failed to refresh canvas data');
 			} finally {
 				setShowLoading(false);
 			}
@@ -167,7 +169,7 @@ const Canvas = () => {
 			<div className="w-full h-[calc(100vh-50px)] max-w-[80%] flex items-center justify-center text-theme-message">
 				<div className="flex flex-col items-center gap-4">
 					<div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-					<span className="">Loading canvas...</span>
+					<span className="">{t('canvas.loadingCanvas') || 'Loading canvas...'}</span>
 				</div>
 			</div>
 		);
@@ -181,7 +183,7 @@ const Canvas = () => {
 						<span role="img" aria-label="warning">
 							⚠️
 						</span>
-						Error
+						{t('canvas.error') || 'Error'}
 					</div>
 					<span className="">{error}</span>
 				</div>
@@ -193,7 +195,7 @@ const Canvas = () => {
 		<div className="w-full h-[calc(100vh-50px)] max-w-[80%]">
 			<textarea
 				ref={textAreaRef}
-				placeholder="Your canvas title"
+				placeholder={t('canvas.titlePlaceholder') || 'Your canvas title'}
 				value={title || ''}
 				onChange={handleInputChange}
 				rows={1}

@@ -4,7 +4,7 @@
 	"voiceChannels": "Voice Channels",
 	"streamingChannels": "Streaming Channels",
 	"search": "Search",
-	"filterResults":"Filter results...",
+	"filterResults": "Filter results...",
 	"members": "Members",
 	"channels": "Channels",
 	"media": "Media",
@@ -34,5 +34,14 @@
 		"from": "from:",
 		"mentions": "mentions:",
 		"has": "has:"
+	},
+	"searching": "Searching...",
+	"noResults": "No Results",
+	"resultsCount": "{{count}} Results",
+	"jump": "Jump",
+	"hasOptions": {
+		"video": "video",
+		"link": "link",
+		"image": "image"
 	}
 }

@@ -28,6 +28,8 @@
 	"joinedThreadsLast30Days": "Joined Threads (Last 30 Days)",
 	"olderThreads": "Older Threads",
 	"loading": "Loading...",
+	"topic": "Topic",
+	"reactions": "React",
 	"callMessages": {
 		"startedVoiceCall": "Started voice call",
 		"startedVideoCall": "Started video call"
