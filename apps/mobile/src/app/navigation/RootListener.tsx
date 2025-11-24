@@ -1,5 +1,12 @@
 import { ChatContext } from '@mezon/core';
-import { load, save, setCurrentClanLoader, STORAGE_CLAN_ID, STORAGE_IS_DISABLE_LOAD_BACKGROUND, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import {
+	load,
+	save,
+	setCurrentClanLoader,
+	STORAGE_CLAN_ID,
+	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
+	STORAGE_MY_USER_ID
+} from '@mezon/mobile-components';
 import {
 	accountActions,
 	appActions,
@@ -18,11 +25,9 @@ import {
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDmGroupCurrentId,
-	selectIsEnabledWallet,
 	selectIsFromFCMMobile,
 	selectIsLogin,
 	selectSession,
-	selectZkProofs,
 	settingClanStickerActions,
 	topicsActions,
 	useAppDispatch,
@@ -43,8 +48,6 @@ const RootListener = () => {
 	const { handleReconnect } = useContext(ChatContext);
 	const dispatch = useAppDispatch();
 	const appStateRef = useRef(AppState.currentState);
-	const zkProofs = useSelector(selectZkProofs);
-	const isEnabledWallet = useSelector(selectIsEnabledWallet);
 
 	useEffect(() => {
 		if (isLoggedIn) {
@@ -205,29 +208,19 @@ const RootListener = () => {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
 			const { id = '', username = '' } = profileResponse?.payload?.user || {};
-			if (id && isEnabledWallet) {
+			if (id) {
+				save(STORAGE_MY_USER_ID, id?.toString());
 				await dispatch(
 					walletActions.fetchWalletDetail({
 						userId: id
 					})
 				);
-				if (!zkProofs) {
-					await dispatch(walletActions.fetchEphemeralKeyPair());
-					await dispatch(walletActions.fetchAddress({ userId: id }));
-					await dispatch(
-						walletActions.fetchZkProofs({
-							userId: id,
-							jwt: sessionMain?.token
-						})
-					);
-				}
 			}
-			if (id) save(STORAGE_MY_USER_ID, id?.toString());
 			await loadFRMConfig(username, sessionMain);
 		} catch (e) {
 			console.error('log => profileLoader: ', e);
 		}
-	}, [dispatch, loadFRMConfig, zkProofs, isEnabledWallet]);
+	}, [dispatch, loadFRMConfig]);
 
 	const mainLoader = useCallback(async () => {
 		try {
