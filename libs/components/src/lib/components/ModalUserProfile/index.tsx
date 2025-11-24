@@ -8,7 +8,8 @@ import {
 	useOnClickOutside,
 	useSendInviteMessage,
 	useSettingFooter,
-	useUserById
+	useUserById,
+	useUserByUserId
 } from '@mezon/core';
 import type { RootState } from '@mezon/store';
 import { EStateFriend, selectAllAccount, selectChannelByChannelId, selectFriendById, selectStatusInVoice, useAppSelector } from '@mezon/store';
@@ -86,12 +87,14 @@ const ModalUserProfile = ({
 	const { t } = useTranslation('userProfile');
 
 	const userProfile = useSelector(selectAllAccount);
+
 	const { userId } = useAuth();
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();
 	const userInvoice = useSelector((state) => selectStatusInVoice(state, userID as string));
 	const status = useMemberStatus(userID || '');
 	const userById = useUserById(userID);
+	const currentUserId = useUserByUserId(userID);
 	const userStatusById = useMemberStatus(userID || '');
 	const userStatus = useMemo(() => {
 		if (userID === userId) {
@@ -101,7 +104,7 @@ const ModalUserProfile = ({
 			};
 		}
 		return userStatusById;
-	}, [userStatusById]);
+	}, [userStatusById, userID, userProfile, userId]);
 
 	const modalRef = useRef<boolean>(false);
 	const onLoading = useRef<boolean>(false);
@@ -179,7 +182,7 @@ const ModalUserProfile = ({
 
 	const usernameShow = useMemo(() => {
 		if (isFooterProfile) {
-			return userProfile?.user?.username;
+			return userProfile?.user?.username || currentUserId?.username;
 		}
 		if (userById) {
 			return userById?.user?.username;
@@ -250,10 +253,14 @@ const ModalUserProfile = ({
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick || userById?.user?.display_name || userById?.user?.username || usernameShow}
+									: userById?.clan_nick ||
+										userById?.user?.display_name ||
+										userById?.user?.username ||
+										currentUserId?.display_name ||
+										usernameShow}
 						</p>
 						<p className="text-base font-semibold tracking-wide text-theme-primary my-0 truncate">
-							{isUserRemoved ? t('labels.unknownUser') : usernameShow}
+							{isUserRemoved ? t('labels.unknownUser') : usernameShow || currentUserId?.username}
 						</p>
 					</div>
 
