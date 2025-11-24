@@ -1,6 +1,7 @@
-import { ACTIVE_TAB, ETypeSearch, IUerMention } from '@mezon/mobile-components';
+import type { ETypeSearch, IUerMention } from '@mezon/mobile-components';
+import { ACTIVE_TAB } from '@mezon/mobile-components';
+import type { DirectEntity } from '@mezon/store-mobile';
 import {
-	DirectEntity,
 	getStore,
 	listChannelsByUserActions,
 	selectAllChannelMembers,
@@ -11,7 +12,8 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { IChannel, SearchItemProps, compareObjects, normalizeString } from '@mezon/utils';
+import type { IChannel, SearchItemProps } from '@mezon/utils';
+import { compareObjects, normalizeString } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -205,9 +207,16 @@ function SearchMessagePage({ searchText, currentChannel, userMention, typeSearch
 		setActiveTab(index);
 	}, []);
 
-	useEffect(() => {
-		setActiveTab(TabList[0]?.index);
+	const handleSetActiveTab = useCallback(() => {
+		const isValidActiveTab = TabList.some((tab) => tab?.index === activeTab);
+		if (!isValidActiveTab) {
+			setActiveTab(TabList[0]?.index);
+		}
 	}, [TabList]);
+
+	useEffect(() => {
+		handleSetActiveTab();
+	}, [handleSetActiveTab]);
 
 	const renderContent = () => {
 		switch (activeTab) {

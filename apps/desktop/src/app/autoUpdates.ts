@@ -21,6 +21,10 @@ export default function setupAutoUpdates() {
 			shell.openExternal('ms-windows-store://pdp/?ProductId=9pf25lf1fj17');
 			return;
 		}
+		if (process.platform === 'darwin') {
+			shell.openExternal('macappstore://itunes.apple.com/mezon.desktop');
+			return;
+		}
 		new Notification({
 			icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
 			title: 'Mezon Installation',

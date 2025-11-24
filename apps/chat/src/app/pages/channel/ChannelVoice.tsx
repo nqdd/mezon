@@ -73,6 +73,7 @@ const ChannelVoice = memo(
 			dispatch(voiceActions.setOpenPopOut(false));
 			dispatch(voiceActions.setShowScreen(false));
 			dispatch(voiceActions.setStreamScreen(null));
+			dispatch(voiceActions.setNoiseSuppressionEnabled(false));
 			dispatch(voiceActions.setShowMicrophone(false));
 			const store = getStore();
 			const currentClanId = selectCurrentClanId(store.getState());
