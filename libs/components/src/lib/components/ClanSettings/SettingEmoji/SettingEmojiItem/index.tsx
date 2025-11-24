@@ -74,7 +74,9 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 			handleUpdateEmoji();
 		}
 	};
-
+	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.username || '';
+	const avatarLetter = avatarDefault.trim().charAt(0).toUpperCase();
+	const avatarUrl = dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url;
 	const handleInputFocus = () => {
 		setIsInputFocused(true);
 	};
@@ -138,11 +140,17 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 
 				<div className={'flex-1 flex gap-[6px]  select-none max-md:min-w-[40%]'}>
 					<div className={'w-6 h-6 rounded-[50%] overflow-hidden flex items-center justify-center'}>
-						<img
-							className={'w-full h-auto object-cover'}
-							src={dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url}
-							alt="User avatar"
-						/>
+						{avatarUrl ? (
+							<img
+								className={'w-full h-auto object-cover'}
+								src={dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url}
+								alt="User avatar"
+							/>
+						) : (
+							<div className="size-6 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-[16px]">
+								{avatarLetter}
+							</div>
+						)}
 					</div>
 					<p className={'text-sm h-auto leading-6'}>{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 				</div>
