@@ -11,7 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { FOR_SALE_CATE, ITEM_TYPE, SubPanelName, blankReferenceObj, getStickerUrl } from '@mezon/utils';
+import { FOR_SALE_CATE, ITEM_TYPE, SubPanelName, blankReferenceObj } from '@mezon/utils';
 import type { ClanSticker } from 'mezon-js';
 import type { ApiChannelDescription, ApiMessageRef } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -307,7 +307,7 @@ const StickerPanel: React.FC<IStickerPanelProps> = ({ stickerList, onClickSticke
 									onMouseEnter={() => setPlaceHolderInput(sticker.shortname || '')}
 								>
 									<img
-										src={sticker.url ? sticker.url : getStickerUrl(sticker)}
+										src={sticker.url ? sticker.url : `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp`}
 										alt="sticker"
 										className={`w-full h-full aspect-square object-cover  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
 										onClick={() => {

@@ -2,7 +2,7 @@ import type { ChannelsEntity } from '@mezon/store';
 import { selectAllChannelsByUser, selectAllHashtagDm, selectChannelById, selectNumberMemberVoiceChannel, useAppSelector } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
 import type { SearchItemProps } from '@mezon/utils';
-import { createImgproxyUrl, generateE2eId, getEmojiUrl } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, getSrcEmoji } from '@mezon/utils';
 import type { HashtagDm } from 'mezon-js';
 import { ChannelType } from 'mezon-js';
 import { memo, useEffect, useMemo, useState } from 'react';
@@ -21,7 +21,6 @@ type SuggestItemProps = {
 	isOpenSearchModal?: boolean;
 	wrapSuggestItemStyle?: string;
 	emojiId?: string;
-	creator_id?: string;
 	display?: string;
 	isHightLight?: boolean;
 	channel?: SearchItemProps;
@@ -40,7 +39,6 @@ const SuggestItem = ({
 	showAvatar,
 	wrapSuggestItemStyle,
 	emojiId,
-	creator_id: _creator_id,
 	display,
 	isHightLight = true,
 	channel,
@@ -57,7 +55,6 @@ const SuggestItem = ({
 	const commonChannels = useSelector(selectAllHashtagDm);
 	const [specificChannel, setSpecificChannel] = useState<ChannelsEntity | HashtagDm | null>(null);
 	const numberMembersVoice = useAppSelector((state) => selectNumberMemberVoiceChannel(state, channelId as string));
-
 	const checkVoiceStatus = useMemo(() => {
 		if (channelId !== undefined && numberMembersVoice && specificChannel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			return numberMembersVoice >= 2;
@@ -146,7 +143,7 @@ const SuggestItem = ({
 					</div>
 				)}
 				{emojiId && (
-					<img src={getEmojiUrl(emojiId)} alt={getEmojiUrl(emojiId)} style={{ width: '32px', height: '32px', objectFit: 'cover' }} />
+					<img src={getSrcEmoji(emojiId)} alt={getSrcEmoji(emojiId)} style={{ width: '32px', height: '32px', objectFit: 'cover' }} />
 				)}
 				{channelIcon}
 

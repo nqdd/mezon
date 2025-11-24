@@ -3,7 +3,7 @@ import { createSticker, emojiSuggestionActions, selectCurrentClanId, updateStick
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 
 import { Button, ButtonLoading, Checkbox, Icons, InputField } from '@mezon/ui';
-import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, getIdSaleItemFromSource, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ClanEmoji, ClanSticker } from 'mezon-js';
 import type { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
@@ -177,9 +177,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			const fileBlur = await createBlurredWatermarkedImageFile(resizeFile, 'SOLD', 2);
 			const pathPreview = `${(isSticker ? 'stickers/' : 'emojis/') + idPreview}.webp`;
 			const img = await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
-			const lastSlashIndex = img?.url?.lastIndexOf('/');
-			const lastDotIndex = img?.url?.lastIndexOf('.');
-			const id = img?.url?.substring((lastSlashIndex || 0) + 1, lastDotIndex);
+			const id = getIdSaleItemFromSource(img?.url || '');
 			request.id = id;
 		}
 

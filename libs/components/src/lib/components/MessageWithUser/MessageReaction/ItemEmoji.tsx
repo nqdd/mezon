@@ -1,7 +1,7 @@
 import { useChatReaction } from '@mezon/core';
 import { getStore, selectAllAccount, selectCurrentChannel } from '@mezon/store';
 import type { EmojiDataOptionals, IMessageWithUser, SenderInfoOptionals } from '@mezon/utils';
-import { calculateTotalCount, getEmojiUrl, isPublicChannel } from '@mezon/utils';
+import { calculateTotalCount, getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import Tooltip from 'rc-tooltip';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
@@ -15,13 +15,7 @@ type EmojiItemProps = {
 
 function ItemEmoji({ emoji, message, isTopic }: EmojiItemProps) {
 	const { reactionMessageDispatch } = useChatReaction();
-	const emojiData = {
-		src: emoji.url,
-		id: emoji.id,
-		emojiId: emoji.emojiId,
-		creator_id: emoji.creator_id
-	};
-	const getUrlItem = getEmojiUrl(emojiData);
+	const getUrlItem = getSrcEmoji(emoji.emojiId || '');
 	const count = calculateTotalCount(emoji.senders);
 	const userId = useSelector(selectAllAccount)?.user?.id as string;
 	const userSenderCount = emoji.senders?.find((sender: SenderInfoOptionals) => sender.sender_id === userId)?.count;

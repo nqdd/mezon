@@ -1,4 +1,4 @@
-import { getEmojiUrl } from '@mezon/utils';
+import { getSrcEmoji } from '@mezon/utils';
 import PlainText from './PlainText';
 
 type EmojiMarkupOpt = {
@@ -8,8 +8,8 @@ type EmojiMarkupOpt = {
 	isOne: boolean;
 };
 
-export const EmojiMarkup: React.FC<EmojiMarkupOpt> = ({ emojiId, emojiSyntax, onlyEmoji }) => {
-	const srcEmoji = getEmojiUrl(emojiId);
+export const EmojiMarkup: React.FC<EmojiMarkupOpt> = ({ emojiId, emojiSyntax, onlyEmoji, isOne }) => {
+	const srcEmoji = getSrcEmoji(emojiId);
 
 	return srcEmoji ? (
 		<img

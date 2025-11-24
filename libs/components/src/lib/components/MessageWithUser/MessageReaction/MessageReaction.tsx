@@ -1,6 +1,6 @@
 import { useIdleRender } from '@mezon/core';
-import { selectEmojiSuggestionEntities, selectMessageByMessageId, useAppSelector } from '@mezon/store';
-import type { EmojiDataOptionals, IEmoji, IMessageWithUser } from '@mezon/utils';
+import { selectMessageByMessageId, useAppSelector } from '@mezon/store';
+import type { EmojiDataOptionals, IMessageWithUser } from '@mezon/utils';
 import React, { useRef, useState } from 'react';
 import ItemEmoji from './ItemEmoji';
 import ItemEmojiSkeleton from './ItemEmojiSkeleton';
@@ -38,14 +38,10 @@ const ReactionContent: React.FC<MessageReactionProps> = ({ message, isTopic }) =
 
 const MessageReaction: React.FC<MessageReactionProps> = ({ message, isTopic }) => {
 	const messageReaction = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id));
-	const emojiEntities = useAppSelector(selectEmojiSuggestionEntities);
 
 	if (messageReaction?.reactions && messageReaction?.reactions?.length > 0) {
 		return (
-			<ReactionContent
-				message={{ ...message, reactions: combineMessageReactions(messageReaction.reactions, message.id, emojiEntities) as any }}
-				isTopic={isTopic}
-			/>
+			<ReactionContent message={{ ...message, reactions: combineMessageReactions(messageReaction.reactions, message.id) }} isTopic={isTopic} />
 		);
 	}
 	return null;
@@ -53,7 +49,7 @@ const MessageReaction: React.FC<MessageReactionProps> = ({ message, isTopic }) =
 
 export default MessageReaction;
 
-export function combineMessageReactions(reactions: any[], message_id: string, emojiEntities: Record<string, IEmoji> = {}): EmojiDataOptionals[] {
+export function combineMessageReactions(reactions: any[], message_id: string): any[] {
 	const dataCombined: Record<string, EmojiDataOptionals> = {};
 
 	for (const reaction of reactions) {

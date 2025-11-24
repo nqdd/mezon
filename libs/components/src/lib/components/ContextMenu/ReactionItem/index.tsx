@@ -1,35 +1,23 @@
 import { useAuth, useChatReaction } from '@mezon/core';
 import { selectCurrentChannelId, selectCurrentChannelParentId, selectCurrentChannelPrivate } from '@mezon/store';
-import type { IEmoji, IMessageWithUser } from '@mezon/utils';
-import { getEmojiUrl, isPublicChannel } from '@mezon/utils';
+import type { IMessageWithUser } from '@mezon/utils';
+import { getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import { memo, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
 interface IReactionItem {
 	emojiShortCode: string;
 	emojiId: string;
-	creator_id?: string;
 	messageId: string;
 	isOption: boolean;
 	isAddReactionPanel?: boolean;
 	message: IMessageWithUser;
 	isTopic: boolean;
-	emojis?: IEmoji[];
 }
 
-const ReactionItem: React.FC<IReactionItem> = ({
-	emojiShortCode,
-	emojiId,
-	creator_id,
-	messageId,
-	isOption,
-	isAddReactionPanel,
-	message,
-	isTopic,
-	emojis
-}) => {
+const ReactionItem: React.FC<IReactionItem> = ({ emojiShortCode, emojiId, messageId, isOption, isAddReactionPanel, message, isTopic }) => {
 	const { reactionMessageDispatch } = useChatReaction();
-	const getUrl = emojis?.find((e) => e.id === emojiId && e.creator_id === creator_id)?.src || getEmojiUrl({ id: emojiId, creator_id });
+	const getUrl = getSrcEmoji(emojiId);
 	const { userProfile } = useAuth();
 
 	// Select individual channel properties to avoid unnecessary rerenders

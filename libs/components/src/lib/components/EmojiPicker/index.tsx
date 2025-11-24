@@ -27,8 +27,8 @@ import {
 	ModeResponsive,
 	RECENT_EMOJI_CATEGORY,
 	SubPanelName,
-	getEmojiUrl,
 	getIdSaleItemFromSource,
+	getSrcEmoji,
 	isPublicChannel
 } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -135,8 +135,6 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 	const { reactionMessageDispatch } = useChatReaction();
 	const { setSubPanelActive, setPlaceHolderInput } = useGifsStickersEmoji();
 	const [emojiId, setEmojiId] = useState<string>('');
-	const [creatorId, setCreatorId] = useState<string | undefined>();
-	const [emojiSrc, setEmojiSrc] = useState<string | undefined>();
 	const [emojiHoverShortCode, setEmojiHoverShortCode] = useState<string>('');
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
 	const handleEmojiSelect = useCallback(
@@ -216,8 +214,6 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 
 	const handleOnHover = useCallback((emojiHover: any) => {
 		setEmojiId(emojiHover.id);
-		setCreatorId(emojiHover.creator_id);
-		setEmojiSrc(emojiHover.src);
 		setEmojiHoverShortCode(emojiHover.shortname);
 		setPlaceHolderInput(emojiHover.shortname);
 	}, []);
@@ -330,7 +326,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 						{' '}
 						<EmojisPanel emojisData={emojisSearch} onEmojiSelect={handleEmojiSelect} onEmojiHover={handleOnHover} />
 					</div>
-					<EmojiHover emojiHoverShortCode={emojiHoverShortCode} emojiId={emojiId} creator_id={creatorId} emojiSrc={emojiSrc} />
+					<EmojiHover emojiHoverShortCode={emojiHoverShortCode} isReaction={props.isReaction} emojiId={emojiId} />
 				</div>
 			) : (
 				<div className="flex flex-col w-[90%]">
@@ -354,7 +350,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 							);
 						})}
 					</div>
-					<EmojiHover emojiHoverShortCode={emojiHoverShortCode} emojiId={emojiId} creator_id={creatorId} emojiSrc={emojiSrc} />
+					<EmojiHover emojiHoverShortCode={emojiHoverShortCode} isReaction={props.isReaction} emojiId={emojiId} />
 				</div>
 			)}
 		</div>
@@ -491,7 +487,12 @@ const EmojisPanel = React.memo(function EmojisPanel({
 						}}
 						disabled={isItemPendingUnlock}
 					>
-						<img draggable="false" src={getEmojiUrl(item)} alt={item.shortname} className={'max-h-full max-w-full'} />
+						<img
+							draggable="false"
+							src={!item.src ? getSrcEmoji(item?.id || '') : item.src}
+							alt={item.shortname}
+							className={'max-h-full max-w-full'}
+						/>
 						{item.is_for_sale && !item.src && (
 							<div className="absolute left-3 flex items-center justify-center aspect-square pointer-events-none">
 								{isItemPendingUnlock ? (
@@ -525,18 +526,15 @@ const EmojisPanel = React.memo(function EmojisPanel({
 
 type EmojiHoverProps = {
 	emojiHoverShortCode: string;
+	isReaction: boolean | undefined;
 	emojiId: string;
-	creator_id?: string;
-	emojiSrc?: string;
 };
 
-const EmojiHover = React.memo(function EmojiHover({ emojiHoverShortCode, emojiId, creator_id, emojiSrc }: EmojiHoverProps) {
+const EmojiHover = React.memo(function EmojiHover({ emojiHoverShortCode, isReaction, emojiId }: EmojiHoverProps) {
 	return (
-		<div className={`w-full  max-h-12 flex-1 bg-item-theme flex flex-row items-center pl-1 gap-x-1 justify-start py-1`}>
-			{emojiId ? (
-				<img draggable="false" className="max-w-10 max-h-full" src={getEmojiUrl({ id: emojiId, creator_id, src: emojiSrc })} alt="" />
-			) : null}
-			<span className="truncate overflow-hidden max-w-[300px]">{emojiHoverShortCode}</span>
+		<div className={`w-full max-h-12 flex-1 bg-item-theme flex flex-row items-center pl-1 gap-x-1 justify-start py-1`}>
+			{emojiId ? <img draggable="false" className="max-w-10 max-h-full" src={getSrcEmoji(emojiId)} /> : null}
+			{emojiHoverShortCode}
 		</div>
 	);
 });
