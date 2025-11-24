@@ -34,5 +34,14 @@
 		"from": "từ:",
 		"mentions": "nhắc đến:",
 		"has": "có:"
+	},
+	"searching": "Đang tìm kiếm...",
+	"noResults": "Không có kết quả",
+	"resultsCount": "{{count}} Kết quả",
+	"jump": "Nhảy tới",
+	"hasOptions": {
+		"video": "video",
+		"link": "liên kết",
+		"image": "hình ảnh"
 	}
 }

@@ -14,5 +14,7 @@
 	"onboarding": {
 		"getStarted": "Bắt đầu",
 		"of": "trên"
-	}
+	},
+	"favoriteChannel": "Kênh yêu thích",
+	"publicChannels": "Kênh công khai"
 }

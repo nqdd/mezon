@@ -6,6 +6,7 @@ import type { Delta } from 'quill';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { CanvasFormatType, QuillCodeBlockValue, QuillHeaderValue, QuillListValue, handlePaste, preventBase64Images } from './canvasPasteUtils';
 
@@ -36,6 +37,7 @@ type CanvasContentProps = {
 };
 
 function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onCanvasChange }: CanvasContentProps) {
+	const { t } = useTranslation('common');
 	const [toolbarVisible, setToolbarVisible] = useState(false);
 	const quillRef = useRef<Quill | null>(null);
 	const editorRef = useRef<HTMLDivElement | null>(null);
@@ -110,7 +112,7 @@ function CanvasContent({ isLightMode, content, idCanvas, isEditAndDelCanvas, onC
 					matchVisual: false
 				}
 			},
-			placeholder: 'Type / to insert...'
+			placeholder: t('canvas.typePlaceholder') || 'Type / to insert...'
 		});
 		setQuill(quillRef.current);
 
