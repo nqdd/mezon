@@ -11,7 +11,7 @@
 	"startTalking": "Start talking",
 	"logIn": "Log in",
 	"requestCameraPermission": "Request Camera Permission",
-	"myQRCode": "My QR code",
+	"myQRCode": "My QR Code",
 	"selectPhotoWithQRCode": "Select a photo containing a QR code",
 	"qrCodeNotValid": "The QR code is not valid"
 }
