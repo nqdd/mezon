@@ -126,16 +126,6 @@ export const handleTopicNotification = createAsyncThunk('topics/handleTopicNotif
 	}
 });
 
-export const attemptClearTopicId = createAsyncThunk('topics/attemptClearTopicId', async (topicIdToClear: string, thunkAPI) => {
-	const state = thunkAPI.getState() as RootState;
-	const currentTopicId = state.topicdiscussions.currentTopicId;
-
-	if (currentTopicId === topicIdToClear) {
-		thunkAPI.dispatch(topicsActions.setCurrentTopicId(''));
-		thunkAPI.dispatch(topicsActions.setIsShowCreateTopic(false));
-	}
-});
-
 type SendTopicPayload = {
 	clanId: string;
 	channelId: string;
@@ -304,7 +294,7 @@ export const topicsReducer = topicsSlice.reducer;
  *
  * See: https://react-redux.js.org/next/api/hooks#usedispatch
  */
-export const topicsActions = { ...topicsSlice.actions, createTopic, fetchTopics, handleSendTopic, attemptClearTopicId };
+export const topicsActions = { ...topicsSlice.actions, createTopic, fetchTopics, handleSendTopic };
 
 /*
  * Export selectors to query state. For use with the `useSelector` hook.

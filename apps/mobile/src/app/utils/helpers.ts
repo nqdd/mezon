@@ -151,3 +151,14 @@ export const maskPhoneNumber = (phone: string) => {
 	if (!phone) return '';
 	return `${'*'.repeat(phone.length - 4)}${phone.slice(-4)}`;
 };
+
+export const getEmojiAndStickerId = (url?: string): string => {
+	try {
+		if (!url) return '';
+		const fileName = url.split('/').pop() || '';
+		return fileName.replace(/\.[^/.]+$/, '');
+	} catch (error) {
+		console.error('Failed to get emoji/sticker id:', error);
+		return '';
+	}
+};
