@@ -21,28 +21,10 @@ const TextChannelPage = () => {
 	const [isMobile, setIsMobile] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	const slides = [
-		{
-			title: 'Relationship first – Gắn kết đồng đội qua clan, event, chat & voice',
-			image: 'https://cdn.mezon.ai/landing-page-mezon/feat1.webp',
-			description: 'Duy trì kết nối những người quan trọng với bạn qua cuộc trò chuyện'
-		},
-		{
-			title: 'Culture builder – Tạo môi trường làm việc đậm chất riêng',
-			image: 'https://cdn.mezon.ai/landing-page-mezon/feat2.webp',
-			description: 'Xây dựng văn hóa làm việc độc đáo với các kênh và tích hợp tùy chỉnh'
-		},
-		{
-			title: 'Làm việc mọi lúc, mọi nơi, không giới hạn',
-			image: 'https://cdn.mezon.ai/landing-page-mezon/feat3.webp',
-			description: 'Làm việc liền mạch trên mọi thiết bị và địa điểm'
-		},
-		{
-			title: 'Personal Protected - Anonymous Messaging',
-			image: 'https://cdn.mezon.ai/landing-page-mezon/feat4.webp',
-			description: 'Quyền riêng tư của bạn được bảo vệ với mã hóa đầu cuối'
-		}
-	];
+	const slides = (t('discover.slides', { returnObjects: true }) as Array<{ title: string; description: string }>).map((slide, index) => ({
+		...slide,
+		image: `https://cdn.mezon.ai/landing-page-mezon/feat${index + 1}.webp`
+	}));
 
 	const downloadUrl: string =
 		platform === Platform.MACOS
@@ -285,7 +267,7 @@ const TextChannelPage = () => {
 					<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 gap-8 lg:gap-12 xl:gap-16">
 						<div className="image-animate flex-shrink-0">
 							<img
-								src="https://cdn.mezon.ai/landing-page-mezon/stream.webp"
+								src="https://cdn.mezon.ai/landing-page-mezon/dtcalnvoice.webp"
 								alt="Stream and Announcements"
 								className="max-w-[74vw] lg:max-w-[39vw] object-contain drop-shadow-2xl rounded-2xl"
 								loading="lazy"
@@ -491,7 +473,7 @@ const TextChannelPage = () => {
 															/>
 														</div>
 														<div className="p-4 sm:p-5 md:p-6 space-y-2 sm:space-y-3 flex-grow flex flex-col">
-															<h3 className="text-lg sm:text-xl font-bold text-slate-900 line-clamp-2 min-h-[3rem] sm:min-h-[3.5rem] select-text">
+															<h3 className=" font-svnAvo text-lg sm:text-xl text-slate-900 line-clamp-2 min-h-[3rem] sm:min-h-[3.5rem] select-text">
 																{slide.title}
 															</h3>
 															<p className="font-svnAvo text-sm sm:text-base text-slate-600 line-clamp-3 min-h-[3.5rem] sm:min-h-[4.5rem] select-text">

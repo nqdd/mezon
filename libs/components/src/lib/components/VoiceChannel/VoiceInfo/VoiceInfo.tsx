@@ -3,6 +3,8 @@ import {
 	handleParticipantVoiceState,
 	selectDmGroupCurrent,
 	selectIsGroupCallActive,
+	selectNoiseSuppressionEnabled,
+	selectNoiseSuppressionLevel,
 	selectShowCamera,
 	selectShowMicrophone,
 	selectShowScreen,
@@ -144,8 +146,7 @@ const VoiceInfo = React.memo(() => {
 	}, [currentVoiceInfo]);
 	return (
 		<div
-			className={`flex flex-col gap-2 rounded-t-lg border-b-2 border-theme-primary px-4 py-2 hover:bg-gray-550/[0.16] shadow-sm transition
-			bg-theme-chat w-full group`}
+			className={`flex flex-col gap-2 rounded-t-lg border-b-2 border-theme-primary px-4 py-2 hover:bg-gray-550/[0.16] shadow-sm transition bg-theme-chat w-full group`}
 			data-e2e={generateE2eId('modal.voice_management')}
 		>
 			<div className="flex justify-between items-center">
@@ -160,7 +161,10 @@ const VoiceInfo = React.memo(() => {
 						</div>
 					</button>
 				</div>
-				<ButtonCopy copyText={linkVoice} key={linkVoice} />
+				<div className="flex items-center gap-2">
+					<ButtonNoiseControl />
+					<ButtonCopy copyText={linkVoice} key={linkVoice} />
+				</div>
 			</div>
 			<div className="flex items-centerg gap-4 justify-between">
 				{hasMicrophoneAccess && (
@@ -231,6 +235,64 @@ const ButtonControlVoice = memo(({ onClick, overlay, danger = false, icon }: But
 				data-e2e={generateE2eId('modal.voice_management.button.control_item')}
 			>
 				{icon}
+			</button>
+		</Tooltip>
+	);
+});
+
+const ButtonNoiseControl = memo(() => {
+	const dispatch = useAppDispatch();
+
+	const noiseSuppressionEnabled = useSelector(selectNoiseSuppressionEnabled);
+	const toggleNoiseSuppression = useCallback(() => {
+		dispatch(voiceActions.setNoiseSuppressionEnabled(!noiseSuppressionEnabled));
+	}, [dispatch, noiseSuppressionEnabled]);
+	const noiseSuppressionLevel = useSelector(selectNoiseSuppressionLevel);
+	const handleNoiseSuppressionLevelChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			dispatch(voiceActions.setNoiseSuppressionLevel(Number(e.target.value)));
+		},
+		[dispatch]
+	);
+
+	if (!noiseSuppressionEnabled) {
+		return (
+			<button onClick={toggleNoiseSuppression}>
+				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-red-400`}>
+					<path d="M3 21 L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+				</Icons.NoiseSupressionIcon>
+			</button>
+		);
+	}
+
+	return (
+		<Tooltip
+			placement="top"
+			overlay={
+				noiseSuppressionEnabled ? (
+					<div className="p-2" onClick={(e) => e.stopPropagation()}>
+						<div className="flex justify-between items-center mb-2">
+							<span className="text-xs font-semibold">Noise Suppression</span>
+							<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
+						</div>
+						<input
+							type="range"
+							min="0"
+							max="100"
+							value={noiseSuppressionLevel}
+							onChange={handleNoiseSuppressionLevelChange}
+							className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+							disabled={!noiseSuppressionEnabled}
+						/>
+					</div>
+				) : null
+			}
+			overlayInnerStyle={TOOLTIP_OVERLAY_STYLE}
+			overlayClassName="whitespace-nowrap z-50 !p-0 !pt-5"
+			destroyTooltipOnHide
+		>
+			<button onClick={toggleNoiseSuppression}>
+				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-green-400`} />
 			</button>
 		</Tooltip>
 	);
