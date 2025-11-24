@@ -1,6 +1,6 @@
 import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { createSticker, selectCurrentClanId, selectStickersByClanId, useAppDispatch } from '@mezon/store-mobile';
+import { createSticker, selectCurrentClanId, selectCurrentUserId, selectStickersByClanId, useAppDispatch } from '@mezon/store-mobile';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { LIMIT_SIZE_UPLOAD_IMG, MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
@@ -14,6 +14,7 @@ import Toast from 'react-native-toast-message';
 import { WebView } from 'react-native-webview';
 import { useSelector } from 'react-redux';
 import type { IFile } from '../../../componentUI/MezonImagePicker';
+import { getEmojiAndStickerId } from '../../../utils/helpers';
 import { EmojiPreview } from '../Emoji/EmojiPreview';
 import { StickerList } from './StickerList';
 import { style } from './styles';
@@ -26,6 +27,7 @@ export function StickerSetting({ navigation }) {
 	const listSticker = useSelector(selectStickersByClanId(currentClanId));
 	const dispatch = useAppDispatch();
 	const { t } = useTranslation(['clanStickerSetting', 'common']);
+	const currentUserId = useSelector(selectCurrentUserId);
 
 	const [watermarkState, setWatermarkState] = useState<{
 		isProcessing: boolean;
@@ -132,9 +134,10 @@ export function StickerSetting({ navigation }) {
 		const id = Snowflake.generate();
 		const path = `stickers/${id}.webp`;
 		const attachment = await handleUploadEmoticon(client, session, path, file as unknown as File, true, arrayBuffer);
+		const stickerId = getEmojiAndStickerId(attachment?.url);
 
 		return {
-			id,
+			id: stickerId,
 			url: attachment?.url
 		};
 	}, []);

@@ -3,6 +3,7 @@ import { MediaType, appActions, selectCurrentClanId, soundEffectActions, useAppD
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { pick, types } from '@react-native-documents/picker';
 import { Snowflake } from '@theinternetfolks/snowflake';
+import { getEmojiAndStickerId } from 'apps/mobile/src/app/utils/helpers';
 import { Buffer as BufferMobile } from 'buffer';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -101,9 +102,11 @@ export function CreateSoundScreen({ navigation }: MenuClanScreenProps<ClanSettin
 
 			const attachment = await handleUploadEmoticon(client, session, path, audioFile, true, arrayBuffer);
 
+			const soundId = getEmojiAndStickerId(attachment?.url);
+
 			if (attachment && attachment.url) {
 				const request = {
-					id,
+					id: soundId,
 					category: 'Among Us',
 					clan_id: currentClanId,
 					shortname: soundName.trim(),
