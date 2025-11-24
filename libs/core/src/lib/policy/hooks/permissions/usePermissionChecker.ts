@@ -5,7 +5,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EOverriddenPermission, EPermission } from '@mezon/utils';
+import type { EOverriddenPermission, EPermission } from '@mezon/utils';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { usePermissionContext } from '../../context/PermissionContext';

@@ -453,7 +453,7 @@ const ControlBar = ({
 						)}
 					</div>
 				)}
-				{visibleControls.microphone && (
+				{visibleControls.microphone && isExternalCalling && (
 					<Tooltip
 						placement="top"
 						overlayClassName="w-64"
