@@ -1,6 +1,4 @@
-import { selectEmojiSuggestionEntities, useAppSelector } from '@mezon/store';
-import type { IEmoji } from '@mezon/utils';
-import { getEmojiUrl, getIdSaleItemFromSource } from '@mezon/utils';
+import { getSrcEmoji } from '@mezon/utils';
 import PlainText from './PlainText';
 
 type EmojiMarkupOpt = {
@@ -10,31 +8,8 @@ type EmojiMarkupOpt = {
 	isOne: boolean;
 };
 
-export const EmojiMarkup: React.FC<EmojiMarkupOpt> = ({ emojiId, emojiSyntax, onlyEmoji }) => {
-	const emojiEntities = useAppSelector(selectEmojiSuggestionEntities);
-
-	let emojiMetadata: IEmoji | undefined = emojiEntities[emojiId];
-
-	if (!emojiMetadata) {
-		emojiMetadata = Object.values(emojiEntities).find((e) => {
-			if (e.is_for_sale && e.src) {
-				const extractedId = getIdSaleItemFromSource(e.src);
-				return extractedId === emojiId;
-			}
-			return false;
-		});
-	}
-
-	const emojiData = emojiMetadata
-		? {
-				src: emojiMetadata.src,
-				id: emojiMetadata.id,
-				emojiId,
-				creator_id: emojiMetadata.creator_id
-			}
-		: emojiId;
-
-	const srcEmoji = getEmojiUrl(emojiData);
+export const EmojiMarkup: React.FC<EmojiMarkupOpt> = ({ emojiId, emojiSyntax, onlyEmoji, isOne }) => {
+	const srcEmoji = getSrcEmoji(emojiId);
 
 	return srcEmoji ? (
 		<img
