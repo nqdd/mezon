@@ -792,6 +792,9 @@ export interface ChannelMembersEntity extends IChannelMember {
 	id: string; // Primary ID
 	name?: string;
 	clanNick?: string;
+	display_name?: string;
+	username?: string;
+	avatar_url?: string;
 }
 
 export type SortChannel = {

@@ -194,7 +194,7 @@ const ModalUserProfile = ({
 			return message?.username;
 		}
 		return message?.references?.[0].message_sender_username;
-	}, [userById, userID]);
+	}, [userById, userID, currentUserId?.username, userProfile?.user?.username, isFooterProfile, checkAnonymous, message]);
 
 	const handleOnKeyPress = useCallback(
 		(e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -260,7 +260,7 @@ const ModalUserProfile = ({
 										usernameShow}
 						</p>
 						<p className="text-base font-semibold tracking-wide text-theme-primary my-0 truncate">
-							{isUserRemoved ? t('labels.unknownUser') : usernameShow || currentUserId?.username}
+							{isUserRemoved ? t('labels.unknownUser') : usernameShow || currentUserId?.username || ''}
 						</p>
 					</div>
 

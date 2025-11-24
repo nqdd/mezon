@@ -39,7 +39,7 @@ export const useUserMetaById = (userID: string | undefined): any | undefined => 
 	});
 };
 
-export const useUserByUserId = (userID: string | undefined): ChannelMembersEntity | any => {
+export const useUserByUserId = (userID: string | undefined): ChannelMembersEntity | undefined => {
 	return useAppSelector((state) => {
 		if (!userID) return undefined;
 		const isClanView = selectClanView(state);
