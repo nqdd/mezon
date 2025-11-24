@@ -243,7 +243,7 @@ const InterestedDetail = ({ userIds }: InterestedDetailProps) => {
 	return (
 		<div className="p-4 space-y-1 dark:text-zinc-300 text-colorTextLightMode text-base font-semibold max-h-[250px] h-[250px] hide-scrollbar overflow-auto">
 			{userData.map((user, index) => {
-				const name = user?.clan_nick || user?.user?.username;
+				const name = user?.clan_nick || user?.user?.display_name || user?.user?.username;
 				const avatarUrl = user?.clan_avatar || user?.user?.avatar_url;
 				const avatarLetter = name?.trim().charAt(0).toUpperCase();
 

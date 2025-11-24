@@ -74,7 +74,7 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 			handleUpdateEmoji();
 		}
 	};
-	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.username || '';
+	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username || '';
 	const avatarLetter = avatarDefault.trim().charAt(0).toUpperCase();
 	const avatarUrl = dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url;
 	const handleInputFocus = () => {

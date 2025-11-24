@@ -172,7 +172,7 @@ const SettingSoundEffect = () => {
 
 const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
 	const creator = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
-	const avatarDefault = creator?.clan_nick || creator?.user?.username || '';
+	const avatarDefault = creator?.clan_nick || creator?.user?.display_name || creator?.user?.username || '';
 	const avatarLetter = avatarDefault.trim().charAt(0).toUpperCase();
 	const avatarUrl = creator?.clan_avatar || creator?.user?.avatar_url;
 	if (!creator) return null;

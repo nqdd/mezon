@@ -350,10 +350,11 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
 									onKeyDown={handleOnEnter}
+									maxLength={62}
 								/>
 								<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
 									<span className={`text-xs font-medium ${(editingGraphic?.shortname?.length ?? 0) > 25 ? 'text-[#faa61a]' : ''}`}>
-										{editingGraphic?.shortname?.length ?? 0}/64
+										{editingGraphic?.shortname?.length ?? 0}/62
 									</span>
 								</div>
 							</div>
