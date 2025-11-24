@@ -116,7 +116,7 @@
 		"eventIsTaking": "Event is taking place!",
 		"tenMinutesLeft": "{{minutes}} minutes left. Join in!",
 		"eventInfo": "Event Info",
-		"interested": "Interested",
+		"interested": "{{count}} Interested",
 		"personInterested": "{{count}} person is interested",
 		"createdBy": "Created by {{username}}",
 		"inviteFriends": "Invite friends to event?",

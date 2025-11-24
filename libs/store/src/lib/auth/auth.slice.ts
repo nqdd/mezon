@@ -10,6 +10,7 @@ import { clearApiCallTracker } from '../cache-metadata';
 import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { ensureClientAsync, ensureSession, getMezonCtx, restoreLocalStorage } from '../helpers';
 import { walletActions } from '../wallet/wallet.slice';
+
 export const AUTH_FEATURE_KEY = 'auth';
 
 export interface AuthState {
@@ -76,9 +77,9 @@ export type AuthenticatePhoneSMSOTPRequestPayload = {
 export const authenticateEmail = createAsyncThunk('auth/authenticateEmail', async ({ email, password }: AuthenticateEmailPayload, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
 	const session = await mezon?.authenticateEmail(email, password);
-	if (session && session.id_token && session.user_id) {
+	if (session && session?.id_token && session?.user_id) {
 		const proofInput = {
-			userId: session.user_id,
+			userId: session?.user_id?.toString() || '',
 			jwt: session.id_token
 		};
 
@@ -185,15 +186,14 @@ export const authenticateEmailOTPRequest = createAsyncThunk(
 	}
 );
 
-export const confirmEmailOTP = createAsyncThunk('auth/confirmEmailOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
+export const confirmAuthenticateOTP = createAsyncThunk('auth/confirmAuthenticateOTP', async (data: ApiLinkAccountConfirmRequest, thunkAPI) => {
 	const mezon = getMezonCtx(thunkAPI);
-	const session = await mezon?.confirmEmailOTP(data);
-	if (session && session.id_token && session.user_id) {
+	const session = await mezon?.confirmAuthenticateOTP(data);
+	if (session && session?.id_token && session?.user_id) {
 		const proofInput = {
-			userId: session.user_id,
+			userId: session.user_id?.toString() || '',
 			jwt: session.id_token
 		};
-
 		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
 	}
 	if (!session) {
@@ -264,6 +264,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 	const mezon = getMezonCtx(thunkAPI);
 
 	const session = await mezon?.confirmLoginRequest({ login_id: loginId });
+	if (session?.id_token && session?.user_id) {
+		const proofInput = {
+			userId: session.user_id,
+			jwt: session.id_token
+		};
+
+		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+	}
 	if (session) {
 		if (session.id_token && session.user_id) {
 			const proofInput = {
@@ -519,10 +527,10 @@ export const authSlice = createSlice({
 				state.error = action.error.message;
 			});
 		builder
-			.addCase(confirmEmailOTP.pending, (state: AuthState) => {
+			.addCase(confirmAuthenticateOTP.pending, (state: AuthState) => {
 				state.loadingStatus = 'loading';
 			})
-			.addCase(confirmEmailOTP.fulfilled, (state: AuthState, action) => {
+			.addCase(confirmAuthenticateOTP.fulfilled, (state: AuthState, action) => {
 				state.loadingStatus = 'loaded';
 				if (action.payload.user_id) {
 					if (!state.session) {
@@ -536,7 +544,7 @@ export const authSlice = createSlice({
 				}
 				state.isLogin = true;
 			})
-			.addCase(confirmEmailOTP.rejected, (state: AuthState, action) => {
+			.addCase(confirmAuthenticateOTP.rejected, (state: AuthState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			});
@@ -572,7 +580,7 @@ export const authActions = {
 	authenticateEmail,
 	checkSessionWithToken,
 	authenticateEmailOTPRequest,
-	confirmEmailOTP,
+	confirmAuthenticateOTP,
 	authenticatePhoneSMSOTPRequest
 };
 

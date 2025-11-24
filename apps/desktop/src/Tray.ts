@@ -1,4 +1,5 @@
-import { app, Menu, MenuItem, MenuItemConstructorOptions, Notification, Tray } from 'electron';
+import type { MenuItem, MenuItemConstructorOptions } from 'electron';
+import { Menu, Notification, Tray, app, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { join } from 'path';
 import App from './app/app';
@@ -32,6 +33,14 @@ export class TrayIcon {
 					label: 'Check for updates',
 					type: 'normal',
 					click: () => {
+						if (process.platform === 'win32') {
+							shell.openExternal('ms-windows-store://pdp/?ProductId=9pf25lf1fj17');
+							return;
+						}
+						if (process.platform === 'darwin') {
+							shell.openExternal('macappstore://itunes.apple.com/mezon.desktop');
+							return;
+						}
 						autoUpdater.checkForUpdates().then((data) => {
 							if (!data?.updateInfo) return;
 							const appVersion = app.getVersion();
@@ -42,7 +51,7 @@ export class TrayIcon {
 							new Notification({
 								icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
 								title: 'Checking for updates..',
-								body: body
+								body
 							}).show();
 						});
 					}
@@ -50,7 +59,7 @@ export class TrayIcon {
 				{
 					label: 'Show Mezon',
 					type: 'normal',
-					click: function () {
+					click() {
 						if (App.mainWindow) {
 							App.mainWindow.show();
 						}
@@ -59,7 +68,7 @@ export class TrayIcon {
 				{
 					label: 'Quit Mezon',
 					type: 'normal',
-					click: function () {
+					click() {
 						isQuitting = true;
 						App.application.quit();
 					}

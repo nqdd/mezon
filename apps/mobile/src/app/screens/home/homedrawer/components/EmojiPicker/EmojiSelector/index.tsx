@@ -3,7 +3,6 @@ import EmojiSelectorContainer from '../EmojiSelectorContainer';
 
 type EmojiSelectorProps = {
 	onSelected: (emojiId: string, shortname: string) => void;
-	searchText?: string;
 	isReactMessage?: boolean;
 	handleBottomSheetExpand?: () => void;
 	handleBottomSheetCollapse?: () => void;

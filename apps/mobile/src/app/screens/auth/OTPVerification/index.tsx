@@ -43,7 +43,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 	const styles = style();
 	const { t } = useTranslation('common');
 	const { reqId, email = '', phoneNumber = '' } = route.params;
-	const { confirmEmailOTP } = useAuth();
+	const { confirmAuthenticateOTP } = useAuth();
 
 	const [currentOtp, setCurrentOtp] = useState<string[]>(new Array(6).fill(''));
 	const [reqIdSent, setReqIdSent] = useState<string>(reqId);
@@ -142,7 +142,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 			try {
 				if (otpConfirm?.length === 6) {
 					setIsLoading(true);
-					const resp: any = await confirmEmailOTP({ otp_code: otpConfirm, req_id: reqIdSent });
+					const resp: any = await confirmAuthenticateOTP({ otp_code: otpConfirm, req_id: reqIdSent });
 
 					if (!resp) {
 						Toast.show({
@@ -174,7 +174,7 @@ const OTPVerificationScreen: React.FC<OTPVerificationScreenProps> = ({ navigatio
 				});
 			}
 		},
-		[confirmEmailOTP, dispatch, phoneNumber, reqIdSent, t]
+		[confirmAuthenticateOTP, dispatch, phoneNumber, reqIdSent, t]
 	);
 
 	const handleResendOTP = async () => {

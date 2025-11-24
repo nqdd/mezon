@@ -10,11 +10,10 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { ChannelStatusEnum, OptionEvent } from '@mezon/utils';
-import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import { memo, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, FlatList, Platform, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonButton, { EMezonButtonTheme } from '../../../componentUI/MezonButton';
@@ -24,6 +23,7 @@ import MezonOption, { IMezonOptionData } from '../../../componentUI/MezonOption'
 import MezonSelect from '../../../componentUI/MezonSelect';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import BottomsheetSelectChannel from './BottomsheetSelectChannel';
 import { style } from './styles';
 
 type CreateEventScreenType = typeof APP_SCREEN.MENU_CLAN.CREATE_EVENT;
@@ -35,7 +35,6 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 	const { t } = useTranslation(['eventCreator']);
 	const voicesChannel = useSelector(selectVoiceChannelAll);
 	const textChannels = useSelector(selectAllTextChannel);
-	const [searchText, setSearchText] = useState<string>('');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentEvent = useAppSelector((state) => selectEventById(state, currentClanId ?? '', eventId ?? ''));
 	const currentEventChannel = useSelector((state) => selectChannelById(state, currentEvent ? currentEvent.channel_id || '' : ''));
@@ -103,21 +102,6 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 			] satisfies IMezonOptionData,
 		[]
 	);
-
-	const filteredOptionsChannels = useMemo(() => {
-		return textChannels.filter((user) => user.channel_label.toLowerCase().includes(searchText.toLowerCase()));
-	}, [searchText, textChannels]);
-
-	const renderItem = ({ item }: { item: ChannelsEntity }) => {
-		return (
-			<Pressable key={`channel_event_${item.channel_id}`} onPress={() => hanleSelectChannel(item)} style={styles.items}>
-				{channelIcon(item.type, item.channel_private === ChannelStatusEnum.isPrivate)}
-				<Text style={styles.inputValue} numberOfLines={1} ellipsizeMode="tail">
-					{item.channel_label}
-				</Text>
-			</Pressable>
-		);
-	};
 
 	const channelIcon = (type: ChannelType, isPrivate: boolean) => {
 		if (type === ChannelType.CHANNEL_TYPE_CHANNEL) {
@@ -200,10 +184,6 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	}
 
-	const handleSearchText = debounce((value: string) => {
-		setSearchText(value);
-	}, 500);
-
 	const handleOpenSelectChannel = () => {
 		handleShowBottomSheetChannel();
 	};
@@ -215,19 +195,7 @@ export const EventCreatorType = memo(function ({ navigation, route }: MenuClanSc
 
 	const handleShowBottomSheetChannel = () => {
 		const data = {
-			children: (
-				<View style={styles.bottomSheetContainer}>
-					<MezonInput
-						inputWrapperStyle={styles.searchText}
-						placeHolder={t('selectUser')}
-						onTextChange={handleSearchText}
-						prefixIcon={<MezonIconCDN icon={IconCDN.magnifyingIcon} color={themeValue.text} height={20} width={20} />}
-					/>
-					<View style={styles.bottomSheetContent}>
-						<FlatList data={filteredOptionsChannels} contentContainerStyle={{ flexGrow: 1 }} renderItem={renderItem} />
-					</View>
-				</View>
-			)
+			children: <BottomsheetSelectChannel data={textChannels} onSelect={hanleSelectChannel} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 	};
