@@ -98,6 +98,14 @@ export const authenticateMezon = createAsyncThunk('auth/authenticateMezon', asyn
 			console.error(data.message);
 		});
 	});
+	if (session && session.id_token && session.user_id) {
+		const proofInput = {
+			userId: session.user_id,
+			jwt: session.id_token
+		};
+
+		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+	}
 
 	if (!session) {
 		return thunkAPI.rejectWithValue('Invalid session');
@@ -238,6 +246,14 @@ export const checkLoginRequest = createAsyncThunk(
 
 		const session = await mezon?.checkLoginRequest({ login_id: loginId, is_remember: isRemember });
 		if (session) {
+			if (session.id_token && session.user_id) {
+				const proofInput = {
+					userId: session.user_id,
+					jwt: session.id_token
+				};
+
+				await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+			}
 			return normalizeSession(session);
 		}
 		return null;
@@ -257,6 +273,14 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
 	}
 	if (session) {
+		if (session.id_token && session.user_id) {
+			const proofInput = {
+				userId: session.user_id,
+				jwt: session.id_token
+			};
+
+			await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
+		}
 		return normalizeSession(session);
 	}
 	return null;
