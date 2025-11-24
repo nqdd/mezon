@@ -65,7 +65,7 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 		// window.open(attachmentData.);
 		const store = getStore();
 		const appState = store.getState() as RootState;
-		const isBanned = selectBanMeInChannel(appState, message?.channel_id || '');
+		const isBanned = selectBanMeInChannel(appState, message?.channel_id);
 
 		if (isBanned) {
 			return;

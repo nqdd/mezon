@@ -45,7 +45,7 @@ type KeyPressListenerProps = {
 
 const KeyPressListener = ({ currentChannel, mode }: KeyPressListenerProps) => {
 	const isListenerAttached = useRef(false);
-	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannel?.id || ''));
+	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannel?.id));
 
 	useEffect(() => {
 		if (isListenerAttached.current || isBanned) return;

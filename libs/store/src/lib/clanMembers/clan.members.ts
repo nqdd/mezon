@@ -654,9 +654,10 @@ export const selectBanMeInChannel = createSelector(
 		getUsersClanState,
 		selectCurrentUserId,
 		(state: RootState) => state.clans.currentClanId as string,
-		(_: RootState, channelId: string) => channelId
+		(_: RootState, channelId?: string | null) => channelId
 	],
 	(state, userId, clanId, channelId) => {
+		if (!channelId) return false;
 		const clanState = state.byClans?.[clanId]?.entities;
 		if (!clanState) return false;
 		return selectById(state.byClans?.[clanId]?.entities, userId)?.ban_list?.[channelId];

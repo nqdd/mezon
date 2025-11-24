@@ -108,7 +108,7 @@ const HoverStateWrapper: React.FC<HoverStateWrapperProps> = ({
 	const handleMouseEnter = () => {
 		const store = getStore();
 		const appState = store.getState() as RootState;
-		const isBanned = selectBanMeInChannel(appState, channelId || '');
+		const isBanned = selectBanMeInChannel(appState, channelId);
 
 		if (isBanned) {
 			return;

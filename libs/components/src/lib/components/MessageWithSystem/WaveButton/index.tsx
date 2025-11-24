@@ -30,7 +30,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	const handleSendWaveSticker = () => {
 		const store = getStore();
 		const appState = store.getState() as RootState;
-		const isBanned = selectBanMeInChannel(appState, currenChannel?.id || '');
+		const isBanned = selectBanMeInChannel(appState, currenChannel?.id);
 
 		if (isBanned) {
 			return null;

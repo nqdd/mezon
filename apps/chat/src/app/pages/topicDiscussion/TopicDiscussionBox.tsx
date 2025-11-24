@@ -61,7 +61,7 @@ const TopicDiscussionBox = () => {
 	const closeMenu = useSelector(selectCloseMenu);
 	const statusMenu = useSelector(selectStatusMenu);
 	const isDesktop = isElectron();
-	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannelId || ''));
+	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannelId));
 
 	const mode =
 		currentChannelType === ChannelType.CHANNEL_TYPE_THREAD ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL;

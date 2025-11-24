@@ -241,7 +241,7 @@ export const MessageContextMenuProvider = ({ children, channelId }: { children: 
 		(event: React.MouseEvent<HTMLElement>, props: MessageContextMenuProps) => {
 			const store = getStore();
 			const appState = store.getState() as RootState;
-			const isBanned = selectBanMeInChannel(appState, channelId || '');
+			const isBanned = selectBanMeInChannel(appState, channelId);
 
 			if (isBanned) {
 				return;
