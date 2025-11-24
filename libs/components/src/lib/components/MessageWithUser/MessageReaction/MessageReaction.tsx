@@ -1,7 +1,6 @@
 import { useIdleRender } from '@mezon/core';
 import { selectEmojiSuggestionEntities, selectMessageByMessageId, useAppSelector } from '@mezon/store';
 import type { EmojiDataOptionals, IEmoji, IMessageWithUser } from '@mezon/utils';
-import { getIdSaleItemFromSource } from '@mezon/utils';
 import React, { useRef, useState } from 'react';
 import ItemEmoji from './ItemEmoji';
 import ItemEmojiSkeleton from './ItemEmojiSkeleton';
@@ -66,17 +65,6 @@ export function combineMessageReactions(reactions: any[], message_id: string, em
 		}
 
 		if (!dataCombined[emojiId]) {
-			let emojiMetadata: IEmoji | undefined = emojiEntities[emojiId];
-			if (!emojiMetadata) {
-				emojiMetadata = Object.values(emojiEntities).find((e) => {
-					if (e.is_for_sale && e.src) {
-						const extractedId = getIdSaleItemFromSource(e.src);
-						return extractedId === emojiId;
-					}
-					return false;
-				});
-			}
-
 			dataCombined[emojiId] = {
 				emojiId,
 				emoji,
@@ -84,9 +72,7 @@ export function combineMessageReactions(reactions: any[], message_id: string, em
 				action: false,
 				message_id,
 				id: '',
-				channel_id: '',
-				url: reaction.url || emojiMetadata?.src || '',
-				creator_id: reaction.creator_id || emojiMetadata?.creator_id || ''
+				channel_id: ''
 			};
 		}
 		//if (!reaction.sender_name) continue;
