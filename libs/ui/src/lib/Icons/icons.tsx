@@ -5459,7 +5459,7 @@ export function VoiceEmojiControlIcon(props: React.HTMLAttributes<SVGElement>) {
 
 export function NoiseSupressionIcon(props: React.HTMLAttributes<SVGElement>) {
 	return (
-		<svg width="28px" height="28px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+		<svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
 			<path
 				d="M3 11V13M6 8V16M9 10V14M12 7V17M15 4V20M18 9V15M21 11V13"
 				stroke="currentColor"
