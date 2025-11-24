@@ -2,7 +2,14 @@ import { useMezon } from '@mezon/transport';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import type { WalletDetail } from '../..';
-import { selectAllAccount, selectIsEnabledWallet, selectIsWalletAvailable, selectWalletDetail, useAppDispatch, walletActions } from '../..';
+import {
+	selectAllAccount,
+	selectIsEnabledWallet,
+	selectIsWalletAvailable,
+	selectWalletDetail,
+	useAppDispatch,
+	walletActions
+} from '../..';
 
 export function useWallet(): {
 	isEnableWallet?: boolean;
@@ -27,7 +34,7 @@ export function useWallet(): {
 		} catch (error) {
 			console.error(`Error loading wallet detail:`, error);
 		}
-	}, [isEnableWallet, userProfile, dispatch]);
+	}, [dispatch, userProfile?.user?.id]);
 
 	useEffect(() => {
 		if (!firstRender.current) {
@@ -39,10 +46,10 @@ export function useWallet(): {
 
 	const enableWallet = useCallback(async () => {
 		const userId = userProfile?.user?.id || '';
-		if (sessionRef.current?.token && userId) {
+		if (sessionRef.current?.id_token && userId) {
 			const proofInput = {
 				userId,
-				jwt: sessionRef.current.token
+				jwt: sessionRef.current.id_token
 			};
 
 			await dispatch(walletActions.fetchZkProofs(proofInput));
@@ -51,7 +58,7 @@ export function useWallet(): {
 
 	const disableWallet = useCallback(async () => {
 		await dispatch(walletActions.resetState());
-	}, []);
+	}, [dispatch]);
 
 	return { isEnableWallet, walletDetail, isWalletAvailable, fetchWalletData, enableWallet, disableWallet };
 }

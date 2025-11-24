@@ -20,12 +20,10 @@ const ReactionPart: React.FC<IReactionPart> = ({ emojiList, messageId, isOption,
 						key={index}
 						emojiShortCode={item.shortname || ''}
 						emojiId={item.id || ''}
-						creator_id={item.creator_id}
 						messageId={messageId}
 						isOption={isOption}
 						message={message}
 						isTopic={isTopic}
-						emojis={emojiList}
 					/>
 				))}
 		</div>

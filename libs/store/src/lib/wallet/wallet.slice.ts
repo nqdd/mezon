@@ -82,7 +82,11 @@ const fetchZkProofs = createAsyncThunk('wallet/fetchZkProofs', async (req: { use
 			thunkAPI.dispatch(walletActions.setIsEnabledWallet(true));
 		}
 
-		return response;
+		return {
+			response,
+			ephemeralKeyPair,
+			address
+		};
 	} catch (error) {
 		if (error instanceof Error) {
 			thunkAPI.dispatch(
@@ -238,6 +242,8 @@ export const walletSlice = createSlice({
 			state.zkProofs = undefined;
 			state.ephemeralKeyPair = undefined;
 			state.loadingStatus = 'not loaded';
+			state.error = null;
+			state.isEnabled = false;
 		},
 		resetState(state) {
 			state.isEnabled = false;
@@ -288,7 +294,13 @@ export const walletSlice = createSlice({
 				state.loadingStatus = 'loading';
 			})
 			.addCase(fetchZkProofs.fulfilled, (state: WalletState, action) => {
-				state.zkProofs = action.payload;
+				state.zkProofs = action.payload?.response;
+				if (action?.payload?.ephemeralKeyPair) {
+					state.ephemeralKeyPair = action.payload.ephemeralKeyPair;
+				}
+				if (action?.payload?.address) {
+					state.address = action.payload.address;
+				}
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchZkProofs.rejected, (state: WalletState, action) => {

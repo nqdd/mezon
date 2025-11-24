@@ -17,6 +17,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import type { IFile } from '../../../componentUI/MezonImagePicker';
 import type { APP_SCREEN, MenuClanScreenProps } from '../../../navigation/ScreenTypes';
+import { getEmojiAndStickerId } from '../../../utils/helpers';
 import { EmojiList } from './EmojiList';
 import { EmojiPreview } from './EmojiPreview';
 import { style } from './styles';
@@ -60,9 +61,10 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 			const id = Snowflake.generate();
 			const path = `emojis/${id}.webp`;
 			const attachment = await handleUploadEmoticon(client, session, path, file as unknown as File, true, arrayBuffer);
+			const emojiId = getEmojiAndStickerId(attachment?.url);
 
 			return {
-				id,
+				id: emojiId,
 				url: attachment.url
 			};
 		},
