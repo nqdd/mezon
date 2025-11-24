@@ -10,8 +10,8 @@ import {
 import { MAX_FILE_SIZE_10MB } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dimensions, Keyboard, Platform, Pressable, StatusBar, Text, TouchableOpacity, View } from 'react-native';
-import { KeyboardAvoidingView, KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { Dimensions, Keyboard, Platform, Pressable, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import Toast from 'react-native-toast-message';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonImagePicker from '../../../componentUI/MezonImagePicker';
@@ -290,57 +290,58 @@ const EnableCommunityScreen = ({ navigation }: MenuClanScreenProps<ClanSettingsS
 					</Pressable>
 				)}
 			</View>
-			<KeyboardAwareScrollView bottomOffset={100} style={styles.form} keyboardShouldPersistTaps="handled">
-				<View style={styles.banner}>
-					<MezonIconCDN icon={IconCDN.community} height={size.s_200} width={width - size.s_100} useOriginalColor />
+			<ScrollView keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
+				<View style={styles.form}>
+					<View style={styles.banner}>
+						<MezonIconCDN icon={IconCDN.community} height={size.s_200} width={width - size.s_100} useOriginalColor />
+					</View>
+
+					<Text style={styles.label}>{t('communitySettings.banner.title')}</Text>
+					<MezonImagePicker
+						defaultValue={communityData?.bannerUri}
+						height={size.s_100}
+						width={width - size.s_32}
+						onLoad={handleLoad}
+						showHelpText
+						autoUpload
+						imageSizeLimit={MAX_FILE_SIZE_10MB}
+						imageHeight={400}
+						imageWidth={400}
+						style={[styles.imagePicker, errors.banner && styles.inputError]}
+					/>
+
+					<Text style={styles.label}>{t('communitySettings.description.title')}</Text>
+					<MezonInput
+						value={communityData?.description}
+						onTextChange={(val) => handleChange('description', val)}
+						placeHolder={t('communitySettings.description.placeholder')}
+						inputWrapperStyle={[styles.multiline, errors.description && styles.inputError]}
+						maxCharacter={100}
+						textarea
+					/>
+
+					<Text style={styles.label}>{t('communitySettings.about.title')}</Text>
+					<MezonInput
+						value={communityData?.about}
+						onTextChange={(val) => handleChange('about', val)}
+						placeHolder={t('communitySettings.about.placeholder')}
+						inputWrapperStyle={[styles.multiline, errors.about && styles.inputError]}
+						maxCharacter={300}
+						textarea
+					/>
+
+					<Text style={styles.label}>{t('communitySettings.vanityUrl.title')}</Text>
+					<Text style={styles.description}>{t('communitySettings.vanityUrl.description')}</Text>
+					<MezonInput
+						value={communityData?.vanityUrl}
+						onTextChange={(val) => handleChange('vanityUrl', val)}
+						placeHolder={t('communitySettings.vanityUrl.placeholder')}
+						inputWrapperStyle={[styles.input, errors.vanityUrl && styles.inputError]}
+						keyboardType="url"
+						prefixIcon={<URLPrefix styles={styles} />}
+					/>
 				</View>
-
-				<Text style={styles.label}>{t('communitySettings.banner.title')}</Text>
-				<MezonImagePicker
-					defaultValue={communityData?.bannerUri}
-					height={size.s_100}
-					width={width - size.s_32}
-					onLoad={handleLoad}
-					showHelpText
-					autoUpload
-					imageSizeLimit={MAX_FILE_SIZE_10MB}
-					imageHeight={400}
-					imageWidth={400}
-					style={[styles.imagePicker, errors.banner && styles.inputError]}
-				/>
-
-				<Text style={styles.label}>{t('communitySettings.description.title')}</Text>
-				<MezonInput
-					value={communityData?.description}
-					onTextChange={(val) => handleChange('description', val)}
-					placeHolder={t('communitySettings.description.placeholder')}
-					inputWrapperStyle={[styles.multiline, errors.description && styles.inputError]}
-					maxCharacter={100}
-					textarea
-				/>
-
-				<Text style={styles.label}>{t('communitySettings.about.title')}</Text>
-				<MezonInput
-					value={communityData?.about}
-					onTextChange={(val) => handleChange('about', val)}
-					placeHolder={t('communitySettings.about.placeholder')}
-					inputWrapperStyle={[styles.multiline, errors.about && styles.inputError]}
-					maxCharacter={300}
-					textarea
-				/>
-
-				<Text style={styles.label}>{t('communitySettings.vanityUrl.title')}</Text>
-				<Text style={styles.description}>{t('communitySettings.vanityUrl.description')}</Text>
-				<MezonInput
-					value={communityData?.vanityUrl}
-					onTextChange={(val) => handleChange('vanityUrl', val)}
-					placeHolder={t('communitySettings.vanityUrl.placeholder')}
-					inputWrapperStyle={[styles.input, errors.vanityUrl && styles.inputError]}
-					keyboardType="url"
-					prefixIcon={<URLPrefix styles={styles} />}
-				/>
-			</KeyboardAwareScrollView>
-
+			</ScrollView>
 			<TouchableOpacity
 				style={[styles.submitButton, isEnabled && !hasCommunityChanged && styles.buttonDisabled]}
 				onPress={handlePressSaveButton}

@@ -50,7 +50,7 @@ const ChannelList = () => {
 
 	useFocusEffect(() => {
 		// Re-try call fetch channels when focus and list is empty
-		if (currentClanId && !listChannelRender?.length) {
+		if (currentClanId && (listChannelRender?.length === 1 || !listChannelRender?.length)) {
 			dispatch(channelsActions.fetchChannels({ clanId: currentClanId, noCache: true, isMobile: true }));
 			triggerScrollFlatList();
 		}

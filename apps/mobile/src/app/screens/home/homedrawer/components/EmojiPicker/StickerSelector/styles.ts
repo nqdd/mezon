@@ -1,7 +1,7 @@
 import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes, widthScreen: number) =>
+export const style = (colors: Attributes, widthScreen?: number) =>
 	StyleSheet.create({
 		content: {
 			height: (widthScreen - size.s_6 * size.s_10) / 5.1,

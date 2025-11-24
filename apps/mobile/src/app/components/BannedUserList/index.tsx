@@ -58,50 +58,52 @@ const BannedUserListScreen = ({ navigation, route }: MenuChannelScreenProps<Chan
 	return (
 		<View style={styles.container}>
 			<StatusBarHeight />
-			<View style={styles.header}>
-				<Pressable style={styles.backButton} onPress={navigation.goBack}>
-					<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
-				</Pressable>
-				<View style={styles.titleWrapper}>
-					<Text style={styles.name} numberOfLines={1}>
-						{t('ban.banList')}
-					</Text>
-				</View>
-			</View>
-			{!listUserClanBanned?.length ? (
-				<View style={styles.emptyListWrapper}>
-					<MezonIconCDN icon={IconCDN.hammerIcon} height={size.s_80} width={size.s_80} color={themeValue.textDisabled} />
-					<Text style={styles.emptyList}>{t('ban.banListEmpty')}</Text>
-				</View>
-			) : (
-				<View>
-					<View style={styles.searchBox}>
-						<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
-						<TextInput
-							ref={searchInputRef}
-							placeholder={t('ban.search')}
-							placeholderTextColor={themeValue.textDisabled}
-							style={styles.searchInput}
-							onChangeText={(text) => typingSearchDebounce(text)}
-						/>
-						{!!searchText?.length && (
-							<Pressable onPress={clearTextInput}>
-								<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
-							</Pressable>
-						)}
+			<View style={styles.wrapper}>
+				<View style={styles.header}>
+					<Pressable style={styles.backButton} onPress={navigation.goBack}>
+						<MezonIconCDN icon={IconCDN.arrowLargeLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
+					</Pressable>
+					<View style={styles.titleWrapper}>
+						<Text style={styles.name} numberOfLines={1}>
+							{t('ban.banList')}
+						</Text>
 					</View>
-
-					<FlatList
-						data={filteredBannedUserList}
-						renderItem={renderItem}
-						keyExtractor={(item) => `banned_user_${item?.id}`}
-						showsVerticalScrollIndicator={false}
-						initialNumToRender={1}
-						maxToRenderPerBatch={1}
-						windowSize={2}
-					/>
 				</View>
-			)}
+				{!listUserClanBanned?.length ? (
+					<View style={styles.emptyListWrapper}>
+						<MezonIconCDN icon={IconCDN.hammerIcon} height={size.s_80} width={size.s_80} color={themeValue.textDisabled} />
+						<Text style={styles.emptyList}>{t('ban.banListEmpty')}</Text>
+					</View>
+				) : (
+					<View>
+						<View style={styles.searchBox}>
+							<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+							<TextInput
+								ref={searchInputRef}
+								placeholder={t('ban.search')}
+								placeholderTextColor={themeValue.textDisabled}
+								style={styles.searchInput}
+								onChangeText={(text) => typingSearchDebounce(text)}
+							/>
+							{!!searchText?.length && (
+								<Pressable onPress={clearTextInput}>
+									<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+								</Pressable>
+							)}
+						</View>
+
+						<FlatList
+							data={filteredBannedUserList}
+							renderItem={renderItem}
+							keyExtractor={(item) => `banned_user_${item?.id}`}
+							showsVerticalScrollIndicator={false}
+							initialNumToRender={1}
+							maxToRenderPerBatch={1}
+							windowSize={2}
+						/>
+					</View>
+				)}
+			</View>
 		</View>
 	);
 };

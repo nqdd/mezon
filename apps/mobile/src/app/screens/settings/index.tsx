@@ -180,19 +180,22 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		[t]
 	);
 
-	const menu: IMezonMenuSectionProps[] = useMemo(() => [
-		{
-			title: t('accountSettings.title'),
-			items: AccountMenu
-		},
-		{
-			title: t('appSettings.title'),
-			items: AppMenu
-		},
-		{
-			items: LogOut
-		}
-	], [AccountMenu, AppMenu, LogOut]);
+	const menu: IMezonMenuSectionProps[] = useMemo(
+		() => [
+			{
+				title: t('accountSettings.title'),
+				items: AccountMenu
+			},
+			{
+				title: t('appSettings.title'),
+				items: AppMenu
+			},
+			{
+				items: LogOut
+			}
+		],
+		[AccountMenu, AppMenu, LogOut, t]
+	);
 
 	const renderedMenu = useMemo(() => {
 		if (searchText.trim() === '') {
@@ -245,10 +248,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 	return (
 		<View style={styles.settingContainer}>
 			<ScrollView contentContainerStyle={styles.settingScroll} keyboardShouldPersistTaps={'handled'}>
-				<MezonSearch
-					value={searchText}
-					onChangeText={handleSearchChange}
-				/>
+				<MezonSearch value={searchText} onChangeText={handleSearchChange} />
 
 				<MezonMenu menu={renderedMenu} />
 			</ScrollView>

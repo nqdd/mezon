@@ -45,14 +45,17 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 		if (filteredStickers?.length === 0) return [];
 
 		const uniqueCategories = new Map();
-		const result = [
-			{
-				id: Snowflake.generate(),
-				type: FOR_SALE_CATE,
-				url: '',
-				forSale: true
-			}
-		];
+		const result =
+			mediaType === MediaType.STICKER
+				? [
+						{
+							id: Snowflake.generate(),
+							type: FOR_SALE_CATE,
+							url: '',
+							forSale: true
+						}
+					]
+				: [];
 
 		for (const sticker of filteredStickers) {
 			const item = {
@@ -94,8 +97,14 @@ const StickerSelector = ({ onSelected, onScroll, mediaType = MediaType.STICKER, 
 	}
 
 	return (
-		<ScrollView scrollEventThrottle={16} onScroll={onScroll} style={styles.scrollView} contentContainerStyle={styles.scrollViewContainer}>
-			<ScrollView horizontal contentContainerStyle={styles.btnWrap}>
+		<ScrollView
+			showsVerticalScrollIndicator={false}
+			scrollEventThrottle={16}
+			onScroll={onScroll}
+			style={styles.scrollView}
+			contentContainerStyle={styles.scrollViewContainer}
+		>
+			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.btnWrap}>
 				{categoryLogo?.length > 0 &&
 					categoryLogo?.map((item, index) => (
 						<TouchableOpacity

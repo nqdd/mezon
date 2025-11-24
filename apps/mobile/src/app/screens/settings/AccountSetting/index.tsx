@@ -1,4 +1,6 @@
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import {
+	ActionEmitEvent,
 	remove,
 	STORAGE_CHANNEL_CURRENT_CACHE,
 	STORAGE_DATA_CLAN_CHANNEL_CACHE,
@@ -22,13 +24,9 @@ import {
 } from '@mezon/store-mobile';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, Platform, Text, TouchableOpacity, View } from 'react-native';
-// eslint-disable-next-line @nx/enforce-module-boundaries
-import { ActionEmitEvent } from '@mezon/mobile-components';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, Platform, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
-import { SeparatorWithLine } from '../../../components/Common';
 import MezonConfirm from '../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
@@ -249,95 +247,80 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			<View style={styles.settingGroup}>
 				<Text style={styles.settingGroupTitle}>{t('accountInformation')}</Text>
 				<View style={styles.optionListWrapper}>
-					<FlatList
-						data={settingOptions.accountInformationOptions}
-						keyExtractor={(item) => item.type.toString()}
-						ItemSeparatorComponent={SeparatorWithLine}
-						renderItem={({ item }) => {
-							return (
-								<TouchableOpacity onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
-									<Text style={styles.optionTitle}>{item.title}</Text>
-									<View style={styles.optionRightSide}>
-										{item?.description ? (
-											<Text numberOfLines={1} style={styles.optionDescription}>
-												{item.description}
-											</Text>
-										) : null}
-										<MezonIconCDN
-											icon={IconCDN.chevronSmallRightIcon}
-											height={size.s_16}
-											width={size.s_16}
-											color={themeValue?.text}
-										/>
-									</View>
-								</TouchableOpacity>
-							);
-						}}
-					/>
+					{settingOptions.accountInformationOptions?.map((item) => {
+						return (
+							<TouchableOpacity key={item.type.toString()} onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
+								<Text style={styles.optionTitle}>{item.title}</Text>
+								<View style={styles.optionRightSide}>
+									{item?.description ? (
+										<Text numberOfLines={1} style={styles.optionDescription}>
+											{item.description}
+										</Text>
+									) : null}
+									<MezonIconCDN
+										icon={IconCDN.chevronSmallRightIcon}
+										height={size.s_16}
+										width={size.s_16}
+										color={themeValue?.text}
+									/>
+								</View>
+							</TouchableOpacity>
+						);
+					})}
 				</View>
 			</View>
 
 			<View style={styles.settingGroup}>
 				<Text style={styles.settingGroupTitle}>{t('users')}</Text>
 				<View style={styles.optionListWrapper}>
-					<FlatList
-						data={settingOptions.usersOptions}
-						keyExtractor={(item) => item.type.toString()}
-						ItemSeparatorComponent={SeparatorWithLine}
-						renderItem={({ item }) => {
-							return (
-								<TouchableOpacity onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
-									<Text style={styles.optionTitle}>{item.title}</Text>
-									<View style={styles.optionRightSide}>
-										{item?.description ? (
-											<Text numberOfLines={1} style={styles.optionDescription}>
-												{item.description}
-											</Text>
-										) : null}
-										<MezonIconCDN
-											icon={IconCDN.chevronSmallRightIcon}
-											height={size.s_16}
-											width={size.s_16}
-											color={themeValue?.text}
-										/>
-									</View>
-								</TouchableOpacity>
-							);
-						}}
-					/>
+					{settingOptions.usersOptions?.map((item) => {
+						return (
+							<TouchableOpacity key={item.type.toString()} onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
+								<Text style={styles.optionTitle}>{item.title}</Text>
+								<View style={styles.optionRightSide}>
+									{item?.description ? (
+										<Text numberOfLines={1} style={styles.optionDescription}>
+											{item.description}
+										</Text>
+									) : null}
+									<MezonIconCDN
+										icon={IconCDN.chevronSmallRightIcon}
+										height={size.s_16}
+										width={size.s_16}
+										color={themeValue?.text}
+									/>
+								</View>
+							</TouchableOpacity>
+						);
+					})}
 				</View>
 			</View>
 
 			<View style={styles.settingGroup}>
 				<Text style={styles.settingGroupTitle}>{t('accountManagement')}</Text>
 				<View style={styles.optionListWrapper}>
-					<FlatList
-						data={settingOptions.accountManagementOptions}
-						keyExtractor={(item) => item.type.toString()}
-						ItemSeparatorComponent={SeparatorWithLine}
-						renderItem={({ item }) => {
-							return (
-								<TouchableOpacity onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
-									<Text style={[styles.optionTitle, [EAccountSettingType.DeleteAccount].includes(item.type) && styles.textRed]}>
-										{item.title}
-									</Text>
-									<View style={styles.optionRightSide}>
-										{item?.description ? (
-											<Text numberOfLines={1} style={styles.optionDescription}>
-												{item.description}
-											</Text>
-										) : null}
-										<MezonIconCDN
-											icon={IconCDN.chevronSmallRightIcon}
-											height={size.s_16}
-											width={size.s_16}
-											color={themeValue?.text}
-										/>
-									</View>
-								</TouchableOpacity>
-							);
-						}}
-					/>
+					{settingOptions.accountManagementOptions?.map((item) => {
+						return (
+							<TouchableOpacity key={item.type.toString()} onPress={() => handleSettingOption(item.type)} style={styles.optionItem}>
+								<Text style={[styles.optionTitle, [EAccountSettingType.DeleteAccount].includes(item.type) && styles.textRed]}>
+									{item.title}
+								</Text>
+								<View style={styles.optionRightSide}>
+									{item?.description ? (
+										<Text numberOfLines={1} style={styles.optionDescription}>
+											{item.description}
+										</Text>
+									) : null}
+									<MezonIconCDN
+										icon={IconCDN.chevronSmallRightIcon}
+										height={size.s_16}
+										width={size.s_16}
+										color={themeValue?.text}
+									/>
+								</View>
+							</TouchableOpacity>
+						);
+					})}
 				</View>
 			</View>
 		</View>

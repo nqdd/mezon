@@ -4,8 +4,8 @@ import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
-	channelUsersActions,
 	channelsActions,
+	channelUsersActions,
 	fetchSystemMessageByClanId,
 	selectAllChannels,
 	selectChannelById,
@@ -15,7 +15,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { EOverriddenPermission, EPermission, checkIsThread } from '@mezon/utils';
+import { checkIsThread, EOverriddenPermission, EPermission } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -234,7 +234,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					}
 				}
 			] satisfies IMezonMenuItemProps[],
-		[channel, channelId, currentSystemMessage?.channel_id, isChannel, navigation, t, themeValue.text]
+		[channel, channelId, currentSystemMessage?.channel_id, isAdminstrator, isChannel, navigation, t, themeValue.text]
 	);
 
 	const webhookMenu = useMemo(

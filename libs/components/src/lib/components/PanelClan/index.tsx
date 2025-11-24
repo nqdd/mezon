@@ -149,7 +149,7 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 					name={t('notificationSetting')}
 					key={notification.value}
 					onClick={() => handleChangeSettingType(notification.value)}
-					checked={defaultNotificationClan?.notification_setting_type === notification.value}
+					checked={(defaultNotificationClan?.notification_setting_type || 1) === notification.value}
 				/>
 			)
 		);
