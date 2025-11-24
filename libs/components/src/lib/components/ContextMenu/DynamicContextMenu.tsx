@@ -252,7 +252,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 			</Item>
 		);
 		return <>{reactItems}</>;
-	}, [firstFourElements]);
+	}, [firstFourElements, handleClickEmoji, isTopic, items, message, messageId, t]);
 
 	const dropdownSlashCommands = useMemo(() => {
 		if (isLoadingCommands) {
@@ -262,7 +262,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="animate-spin">
 							<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="30" strokeDashoffset="30" />
 						</svg>
-						<span>Loading commands...</span>
+						<span>{t('loadingCommands')}</span>
 					</div>
 				</div>
 			);
@@ -271,7 +271,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		if (slashCommandOptions.length === 0) {
 			return (
 				<div className="w-[320px] p-4 text-center text-gray-500">
-					<span>No commands available</span>
+					<span>{t('noCommandsAvailable')}</span>
 				</div>
 			);
 		}
@@ -281,14 +281,14 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				<SearchableCommandList
 					options={slashCommandOptions}
 					onChange={handleCommandSelect}
-					placeholder="Type to search slash commands..."
+					placeholder={t('typeToSearchSlashCommands')}
 					isLoading={isLoadingCommands}
 					className="w-[320px]"
 					autoFocus={true}
 				/>
 			</Item>
 		);
-	}, [isLoadingCommands, slashCommandOptions, handleCommandSelect]);
+	}, [isLoadingCommands, slashCommandOptions, handleCommandSelect, t]);
 
 	const children = useMemo(() => {
 		const elements: React.ReactNode[] = [];
@@ -415,7 +415,10 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 		handleCommandSelect,
 		isTopic,
 		message,
-		shouldShowQuickMenu
+		shouldShowQuickMenu,
+		dropdownReact,
+		dropdownSlashCommands,
+		t
 	]);
 
 	return (

@@ -104,7 +104,7 @@ const SearchInput = ({
 						search={valueHighlight}
 						isFocused={focused}
 						title={t('prefixes.from')}
-						content={suggestion.display}
+						content={t(suggestion.display) || suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
@@ -122,7 +122,7 @@ const SearchInput = ({
 						search={valueHighlight}
 						isFocused={focused}
 						title={t('prefixes.mentions')}
-						content={suggestion.display}
+						content={t(suggestion.display) || suggestion.display}
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
@@ -136,7 +136,13 @@ const SearchInput = ({
 				trigger="&"
 				displayTransform={(id: string, display: string) => `has:${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
-					<SelectItemUser search={search} isFocused={focused} title={t('prefixes.has')} content={suggestion.display} key={suggestion.id} />
+					<SelectItemUser
+						search={search}
+						isFocused={focused}
+						title={t('prefixes.has')}
+						content={t(`hasOptions.${suggestion.display}`) || suggestion.display}
+						key={suggestion.id}
+					/>
 				)}
 				className=""
 			/>

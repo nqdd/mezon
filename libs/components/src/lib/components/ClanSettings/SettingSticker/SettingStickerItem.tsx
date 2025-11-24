@@ -28,6 +28,9 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			await dispatch(deleteSticker({ stickerId: sticker.id, clan_id: clanId as string, stickerLabel: sticker.shortname as string }));
 		}
 	};
+	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username;
+	const avatarLetter = avatarDefault?.trim().charAt(0).toUpperCase();
+	const avatarUrl = dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url;
 	return (
 		<div
 			className={
@@ -49,11 +52,13 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			</p>
 
 			<div className="flex items-end justify-center gap-1">
-				<img
-					className="w-4 h-4 rounded-full select-none object-cover"
-					src={(dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url) ?? process.env.NX_LOGO_MEZON}
-					alt=""
-				/>
+				{avatarUrl ? (
+					<img className="w-4 h-4 rounded-full select-none object-cover" src={avatarUrl} alt="" />
+				) : (
+					<div className="size-4 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-[12px]">
+						{avatarLetter}
+					</div>
+				)}
 				<p className=" max-w-20 truncate">{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 			</div>
 			{hasDeleteOrEditPermission && (

@@ -1,7 +1,6 @@
+import type { ChannelsEntity, SearchMessageEntity } from '@mezon/store';
 import {
-	ChannelsEntity,
 	messagesActions,
-	SearchMessageEntity,
 	searchMessagesActions,
 	selectAllAccount,
 	selectChannelById,
@@ -11,9 +10,12 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Pagination } from '@mezon/ui';
-import { convertSearchMessage, IMessageWithUser, SIZE_PAGE_SEARCH, UsersClanEntity } from '@mezon/utils';
-import { ChannelMessage, ChannelStreamMode, ChannelType } from 'mezon-js';
+import type { IMessageWithUser, UsersClanEntity } from '@mezon/utils';
+import { SIZE_PAGE_SEARCH, convertSearchMessage } from '@mezon/utils';
+import type { ChannelMessage } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { MessageContextMenuProvider } from '../../ContextMenu';
@@ -34,7 +36,8 @@ type GroupedMessages = {
 	messages: SearchMessageEntity[];
 }[];
 
-const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm, isLoading }: searchMessagesProps) => {
+const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm: _isDm, isLoading }: searchMessagesProps) => {
+	const { t } = useTranslation('searchMessageChannel');
 	const dispatch = useAppDispatch();
 	const userId = useSelector(selectAllAccount)?.user?.id;
 	const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, userId as string));
@@ -53,7 +56,7 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 		const label = message.channel_label ?? '';
 		if (label !== currentLabel) {
 			if (currentGroup.length > 0) {
-				groupedMessages.push({ label: currentLabel!, messages: currentGroup });
+				groupedMessages.push({ label: currentLabel ?? '', messages: currentGroup });
 				currentGroup = [];
 			}
 			currentLabel = label;
@@ -62,7 +65,7 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 	});
 
 	if (currentGroup.length > 0) {
-		groupedMessages.push({ label: currentLabel!, messages: currentGroup });
+		groupedMessages.push({ label: currentLabel ?? '', messages: currentGroup });
 	}
 
 	useEffect(() => {
@@ -79,7 +82,7 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 				<div className="w-1 h-full bg-theme-primary"></div>
 				<div className="flex flex-col w-[420px] h-full">
 					<div className="flex flex-row justify-between items-center h-14 p-4 text-textLightTheme dark:text-textPrimary bg-bgLightTertiary dark:bg-bgTertiary">
-						<h3 className="select-none">Searching...</h3>
+						<h3 className="select-none">{t('searching')}</h3>
 					</div>
 					<div className="flex items-center justify-center flex-1 bg-bgLightSecondary dark:bg-bgSecondary">
 						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-textPrimary"></div>
@@ -94,7 +97,7 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 			<div className="w-1 h-full bg-theme-primary"></div>
 			<div className="flex flex-col w-[420px] h-full">
 				<div className="flex flex-row justify-between items-center h-14 p-4 text-theme-primary bg-theme-chat">
-					<h3 className="select-none">{`${totalResult < 1 ? 'No Results' : `${totalResult} Results`}`}</h3>
+					<h3 className="select-none">{totalResult < 1 ? t('noResults') : t('resultsCount', { count: totalResult })}</h3>
 				</div>
 				<MessageContextMenuProvider channelId={channelId}>
 					{groupedMessages.length > 0 ? (
@@ -149,6 +152,7 @@ interface ISearchedItemProps {
 }
 
 const SearchedItem = ({ searchMessage, searchChannel, user }: ISearchedItemProps) => {
+	const { t } = useTranslation('searchMessageChannel');
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
@@ -172,7 +176,7 @@ const SearchedItem = ({ searchMessage, searchChannel, user }: ISearchedItemProps
 				onClick={handleClickJump}
 				className="absolute py-1 px-2 text-textLightTheme dark:text-textDarkTheme dark:bg-bgSecondary bg-bgLightTertiary top-[10px] z-50 right-3 text-[10px] rounded-[6px] transition-all duration-300 group-hover:block hidden"
 			>
-				Jump
+				{t('jump')}
 			</button>
 			<MessageWithUser
 				allowDisplayShortProfile={false}

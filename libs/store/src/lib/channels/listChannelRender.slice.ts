@@ -68,6 +68,8 @@ export interface DataChannelAndCate {
 }
 
 export const FAVORITE_CATEGORY_ID = 'favorCate';
+export const FAVORITE_CATEGORY_NAME = 'favoriteChannel';
+export const PUBLIC_CHANNELS_NAME = 'PUBLIC CHANNELS';
 
 export const listChannelRenderSlice = createSlice({
 	name: CHANNEL_LIST_RENDER,
@@ -104,7 +106,7 @@ export const listChannelRenderSlice = createSlice({
 				channels: listChannelFavor,
 				id: FAVORITE_CATEGORY_ID,
 				category_id: FAVORITE_CATEGORY_ID,
-				category_name: 'Favorite Channel',
+				category_name: FAVORITE_CATEGORY_NAME, // This will be translated at component level
 				clan_id: clanId,
 				creator_id: '0',
 				category_order: 1,

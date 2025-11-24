@@ -4,6 +4,7 @@ import {
 	channelsActions,
 	defaultNotificationCategoryActions,
 	FAVORITE_CATEGORY_ID,
+	PUBLIC_CHANNELS_NAME,
 	selectCategoryExpandStateByCategoryId,
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
@@ -61,6 +62,7 @@ const DeleteCategoryModal: React.FC<DeleteCategoryModalProps> = ({ category, clo
 };
 
 const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
+	const { t } = useTranslation('channelList');
 	const { userProfile } = useAuth();
 	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
 	const currentClanId = useAppSelector(selectCurrentClanId);
@@ -185,7 +187,11 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 				>
 					{categoryExpandState ? <Icons.ArrowDown /> : <Icons.ArrowRight />}
 					<span className="one-line" data-e2e={generateE2eId('clan_page.side_bar.channel_list.category.name')}>
-						{category.category_name}
+						{category.id === FAVORITE_CATEGORY_ID
+							? t('favoriteChannel')
+							: category.category_name === PUBLIC_CHANNELS_NAME
+								? t('publicChannels')
+								: category.category_name}
 					</span>
 				</button>
 
