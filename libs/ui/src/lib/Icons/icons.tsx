@@ -5467,6 +5467,7 @@ export function NoiseSupressionIcon(props: React.HTMLAttributes<SVGElement>) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
+			{props.children}
 		</svg>
 	);
 }

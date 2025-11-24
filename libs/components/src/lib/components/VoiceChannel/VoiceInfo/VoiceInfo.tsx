@@ -254,9 +254,19 @@ const ButtonNoiseControl = memo(() => {
 		},
 		[dispatch]
 	);
+
+	if (!noiseSuppressionEnabled) {
+		return (
+			<button onClick={toggleNoiseSuppression}>
+				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-red-400`}>
+					<path d="M3 21 L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+				</Icons.NoiseSupressionIcon>
+			</button>
+		);
+	}
+
 	return (
 		<Tooltip
-			showArrow={{ className: '!bottom-1' }}
 			placement="top"
 			overlay={
 				noiseSuppressionEnabled ? (
@@ -282,7 +292,7 @@ const ButtonNoiseControl = memo(() => {
 			destroyTooltipOnHide
 		>
 			<button onClick={toggleNoiseSuppression}>
-				<Icons.NoiseSupressionIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
+				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-green-400`} />
 			</button>
 		</Tooltip>
 	);
