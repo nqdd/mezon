@@ -66,11 +66,11 @@ const ModalDetailItemEvent = (props?: ModalDetailItemEventProps) => {
 		>
 			<div
 				ref={panelRef}
-				className="w-[600px] min-h-[400px] max-h-[600px] rounded-lg overflow-hidden text-base dark:bg-[#313339] bg-white dark:text-white text-black"
+				className="w-[600px] min-h-[400px] max-h-[600px] rounded-lg overflow-hidden text-base bg-theme-setting-primary text-theme-primary"
 				data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.modal_detail_item')}
 			>
 				{event?.logo && <img src={event?.logo} alt={event?.title} className="w-full h-44 object-cover" />}
-				<div className="flex justify-between items-center pt-4 border-b font-bold border-zinc-600 cursor-pointer ">
+				<div className="flex justify-between items-center pt-4 border-b font-bold  cursor-pointer ">
 					<div className="flex items-center gap-x-4 ml-4">
 						<div className="gap-x-6 flex items-center">
 							<h4
@@ -88,7 +88,7 @@ const ModalDetailItemEvent = (props?: ModalDetailItemEventProps) => {
 						</div>
 					</div>
 					<span
-						className="text-base leading-3 dark:hover:text-white hover:text-black mr-4 -mt-[14px] text-theme-primary-"
+						className=" leading-3  mr-4 -mt-[14px] text-theme-primary-active hover:text-red-500 cursor-pointer"
 						onClick={() => clearChooseEvent()}
 						data-e2e={generateE2eId('clan_page.modal.create_event.event_management.item.button.close_detail_modal')}
 					>
@@ -117,6 +117,7 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 
 	const currentClanLogo = useSelector(selectCurrentClanLogo);
 	const currentClanName = useSelector(selectCurrentClanName);
+	const avatarClan = currentClanName?.charAt(0).toUpperCase();
 	const userCreate = useAppSelector((state) => selectMemberClanByUserId(state, event?.creator_id || ''));
 	const time = useMemo(() => timeFomat(event?.start_time || ''), [event?.start_time]);
 
@@ -157,7 +158,13 @@ const EventInfoDetail = (props: EventInfoDetailProps) => {
 				{event?.title}
 			</p>
 			<div className="flex items-center gap-x-3">
-				<img src={currentClanLogo} alt={currentClanName} className="size-5 rounded-full" />
+				{currentClanLogo ? (
+					<img src={currentClanLogo} alt={currentClanName} className="size-5 rounded-full" />
+				) : (
+					<div className="size-5 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-lg font-bold">
+						{avatarClan}
+					</div>
+				)}
 				<p className="hover:underline">{currentClanName}</p>
 			</div>
 			<div
@@ -235,16 +242,24 @@ const InterestedDetail = ({ userIds }: InterestedDetailProps) => {
 
 	return (
 		<div className="p-4 space-y-1 dark:text-zinc-300 text-colorTextLightMode text-base font-semibold max-h-[250px] h-[250px] hide-scrollbar overflow-auto">
-			{userData.map((user, index) => (
-				<div key={index} className="flex items-center gap-x-3 rounded dark:hover:bg-slate-600 hover:bg-bgLightModeButton p-2">
-					<img
-						src={createImgproxyUrl(user?.clan_avatar || user?.user?.avatar_url || '')}
-						alt={user?.clan_nick || user?.user?.username}
-						className="size-7 rounded-full"
-					/>
-					<p>{user?.clan_nick || user?.user?.username}</p>
-				</div>
-			))}
+			{userData.map((user, index) => {
+				const name = user?.clan_nick || user?.user?.username;
+				const avatarUrl = user?.clan_avatar || user?.user?.avatar_url;
+				const avatarLetter = name?.trim().charAt(0).toUpperCase();
+
+				return (
+					<div key={index} className="flex items-center gap-x-3 rounded bg-item-theme-hover p-2">
+						{avatarUrl ? (
+							<img src={createImgproxyUrl(avatarUrl)} alt={name} className="size-7 rounded-full object-cover" />
+						) : (
+							<div className="size-7 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight">
+								{avatarLetter || '?'}
+							</div>
+						)}
+						<p className="text-theme-primary">{name}</p>
+					</div>
+				);
+			})}
 		</div>
 	);
 };
