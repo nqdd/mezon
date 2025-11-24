@@ -172,15 +172,24 @@ const SettingSoundEffect = () => {
 
 const CreatorInfo = ({ creatorId }: { creatorId: string }) => {
 	const creator = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
-
+	const avatarDefault = creator?.clan_nick || creator?.user?.display_name || creator?.user?.username || '';
+	const avatarLetter = avatarDefault?.trim().charAt(0).toUpperCase();
+	const avatarUrl = creator?.clan_avatar || creator?.user?.avatar_url;
 	if (!creator) return null;
 	return (
 		<div className="flex items-center justify-center gap-1 mt-1">
-			<img
-				className="w-4 h-4 rounded-full select-none object-cover"
-				src={(creator?.clan_avatar || creator?.user?.avatar_url || '') ?? process.env.NX_LOGO_MEZON}
-				alt="User avatar"
-			/>
+			{avatarUrl ? (
+				<img
+					className="w-4 h-4 rounded-full select-none object-cover"
+					src={(creator?.clan_avatar || creator?.user?.avatar_url || '') ?? process.env.NX_LOGO_MEZON}
+					alt="User avatar"
+				/>
+			) : (
+				<div className="size-4 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-[12px]">
+					{avatarLetter}
+				</div>
+			)}
+
 			<p className="text-xs text-theme-primary max-w-20 truncate">{creator?.clan_nick || creator?.user?.username}</p>
 		</div>
 	);
