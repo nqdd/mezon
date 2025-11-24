@@ -24,6 +24,14 @@
 	"noRolesAvailable": "Không có vai trò nào.",
 	"role": "Vai trò",
 	"noRoles": "Chưa có vai trò",
+	"roleIcon": {
+		"uploadImage": "Tải lên hình ảnh",
+		"emoji": "Biểu tượng cảm xúc",
+		"chooseImageToUpload": "Chọn một hình ảnh để tải lên"
+	},
+	"message": {
+		"edited": "đã chỉnh sửa"
+	},
 	"member": "Thành viên",
 	"cannotFetchClans": "Không thể tải danh sách clan, vui lòng thử lại sau",
 	"cannotFetchClan": "Không thể tải clan, vui lòng thử lại sau",
@@ -428,5 +436,27 @@
 		"speaker": "Loa ngoài",
 		"earpiece": "Loa thoại",
 		"headphones": "Tai nghe"
+	},
+	"canvas": {
+		"loadingCanvas": "Đang tải canvas...",
+		"error": "Lỗi",
+		"failedToRefresh": "Không thể làm mới dữ liệu canvas",
+		"titlePlaceholder": "Tiêu đề canvas của bạn",
+		"typePlaceholder": "Nhập / để chèn...",
+		"untitled": "Chưa đặt tên"
+	},
+	"emojiCategories": {
+		"forsale": "Đang bán",
+		"Recent": "Gần đây",
+		"Frequently": "Thường dùng",
+		"People": "Con người",
+		"Nature": "Thiên nhiên",
+		"Food": "Đồ ăn",
+		"Activities": "Hoạt động",
+		"Travel": "Du lịch",
+		"Objects": "Đồ vật",
+		"Symbols": "Ký hiệu",
+		"Flags": "Cờ",
+		"Custom": "Tùy chỉnh"
 	}
 }

@@ -1,6 +1,6 @@
 import { MediaType, selectCurrentClanId, soundEffectActions, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
-import { Icons, Modal } from '@mezon/ui';
+import { Icons, InputField, Modal } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import React, { useEffect, useRef, useState } from 'react';
@@ -276,17 +276,17 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 										</span>
 									</p>
 									<div className="relative border-theme-primary bg-item-theme rounded-md h-[60px] flex items-center">
-										<input
+										<InputField
 											type="text"
 											placeholder={t('modal.placeholder')}
 											value={name}
-											maxLength={64}
+											maxLength={62}
 											onChange={(e) => setName(e.target.value)}
 											className="w-full h-full px-3 py-2 bg-transparent text-theme-messaga=e border-none rounded-md text-sm focus:outline-none focus:ring-0 focus:border-none "
 										/>
 										<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
 											<span className={`text-xs font-medium ${name.length > 25 ? 'text-[#faa61a]' : ''}`}>
-												{name.length}/64
+												{name.length}/62
 											</span>
 										</div>
 									</div>

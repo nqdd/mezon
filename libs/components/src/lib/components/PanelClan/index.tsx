@@ -218,7 +218,7 @@ const PanelClan: React.FC<IPanelClanProps> = ({ coords, clan, setShowClanListMen
 					handleCancel={toggleLeaveClanPopup}
 					handleConfirm={handleLeaveClan}
 					modalName={clan?.clan_name}
-					title="leave"
+					title={t('leave')}
 					buttonName={t('leaveClan')}
 				/>
 			)}

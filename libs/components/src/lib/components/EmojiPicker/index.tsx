@@ -25,6 +25,7 @@ import {
 	ITEM_TYPE,
 	MAX_LENGTH_MESSAGE_BUZZ,
 	ModeResponsive,
+	PREDEFINED_EMOJI_CATEGORIES,
 	RECENT_EMOJI_CATEGORY,
 	SubPanelName,
 	getEmojiUrl,
@@ -32,6 +33,7 @@ import {
 	isPublicChannel
 } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MentionItem } from 'react-mentions';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -61,6 +63,7 @@ const searchEmojis = (emojis: IEmoji[], searchTerm: string) => {
 };
 
 function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
+	const { t } = useTranslation('common');
 	const { buzzInputRequest, setBuzzInputRequest, toggleEmojiPanel, isFocusThreadBox, isFocusTopicBox, messageEmojiId, currenTopicId } = props;
 	const dispatch = useDispatch();
 	const currentChannelId = useSelector(selectCurrentChannelId);
@@ -69,8 +72,15 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 	const currentChannelParentId = useSelector(selectCurrentChannelParentId);
 	const addEmojiState = useSelector(selectAddEmojiState);
 
-	const { categoryEmoji, categoriesEmoji, emojis, setAddEmojiActionChatbox, shiftPressedState, setSuggestionEmojiObjPicked, setShiftPressed } =
-		useEmojiSuggestionContext();
+	const {
+		categoryEmoji,
+		categoriesEmoji,
+		emojis,
+		setAddEmojiActionChatbox,
+		shiftPressedState: _shiftPressedState,
+		setSuggestionEmojiObjPicked,
+		setShiftPressed
+	} = useEmojiSuggestionContext();
 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -111,16 +121,16 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 
 	const categoriesWithIcons: { name: string; icon: JSX.Element }[] = useMemo(() => {
 		const categories = categoriesEmoji.map((category, index) => ({
-			name: category,
+			name: PREDEFINED_EMOJI_CATEGORIES.includes(category) ? t(`emojiCategories.${category}`) || category : category,
 			icon: categoryIcons[index + 1]
 		}));
 		categories.splice(0, 0, {
-			name: FOR_SALE_CATE,
+			name: t(`emojiCategories.${FOR_SALE_CATE}`) || FOR_SALE_CATE,
 			icon: categoryIcons[0]
 		});
 
 		return categories;
-	}, [categoriesEmoji, categoryIcons]);
+	}, [categoriesEmoji, categoryIcons, t]);
 
 	const channelID = props.isClanView ? currentChannelId : props.directId;
 	const currentThread = useAppSelector(selectThreadCurrentChannel);
@@ -139,12 +149,20 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 	const [emojiSrc, setEmojiSrc] = useState<string | undefined>();
 	const [emojiHoverShortCode, setEmojiHoverShortCode] = useState<string>('');
 	const [selectedCategory, setSelectedCategory] = useState<string>('');
+	const {
+		emojiAction,
+		messageEmojiId: propMessageEmojiId,
+		isFocusTopicBox: propIsFocusTopicBox,
+		isFromTopicView: propIsFromTopicView,
+		onEmojiSelect: propOnEmojiSelect
+	} = props;
+
 	const handleEmojiSelect = useCallback(
 		async (emojiId: string, emojiPicked: string) => {
 			if (subPanelActive === SubPanelName.EMOJI_REACTION_RIGHT || subPanelActive === SubPanelName.EMOJI_REACTION_BOTTOM) {
 				await reactionMessageDispatch({
 					id: emojiId,
-					messageId: props.messageEmojiId ?? '',
+					messageId: propMessageEmojiId ?? '',
 					emoji_id: emojiId.trim(),
 					emoji: emojiPicked.trim(),
 					count: 1,
@@ -152,8 +170,8 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 					action_delete: false,
 					is_public: isPublicChannel({ parent_id: currentChannelParentId, channel_private: currentChannelPrivate }),
 					clanId: currentChannelClanId ?? '',
-					channelId: props.isFromTopicView ? currentChannelId || '' : (messageEmoji?.channel_id ?? ''),
-					isFocusTopicBox: props.isFocusTopicBox,
+					channelId: propIsFromTopicView ? currentChannelId || '' : (messageEmoji?.channel_id ?? ''),
+					isFocusTopicBox: propIsFocusTopicBox,
 					channelIdOnMessage: messageEmoji?.channel_id
 				});
 				setSubPanelActive(SubPanelName.NONE);
@@ -161,14 +179,14 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 			} else if (subPanelActive === SubPanelName.EMOJI) {
 				dispatch(emojiSuggestionActions.setSuggestionEmojiObjPicked({ shortName: '', id: '', isReset: true }));
 				setAddEmojiActionChatbox(!addEmojiState);
-				setSuggestionEmojiObjPicked(emojiId, emojiPicked, props.isFromTopicView);
+				setSuggestionEmojiObjPicked(emojiId, emojiPicked, propIsFromTopicView);
 			}
-			if (props.emojiAction === EmojiPlaces.EMOJI_EDITOR_BUZZ) {
+			if (emojiAction === EmojiPlaces.EMOJI_EDITOR_BUZZ) {
 				const lastIndexOfInputPlainText = (buzzInputRequest?.content ?? '')?.length;
 				if (lastIndexOfInputPlainText > MAX_LENGTH_MESSAGE_BUZZ) return;
 				// const buzzInputRequestMentionArr = buzzInputRequest?.mentionRaw ?? [];
 				const lastIndexOfInputValue = (buzzInputRequest?.valueTextInput ?? '')?.length;
-				const newEmoji: MentionItem = {
+				const _newEmoji: MentionItem = {
 					childIndex: 0,
 					display: emojiPicked,
 					index: lastIndexOfInputValue > 0 ? lastIndexOfInputValue : 0,
@@ -186,16 +204,17 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 					toggleEmojiPanel();
 				}
 			}
-			if (props.onEmojiSelect) {
-				props.onEmojiSelect(emojiId, emojiPicked);
+			if (propOnEmojiSelect) {
+				propOnEmojiSelect(emojiId, emojiPicked);
 			}
 		},
 		[
 			subPanelActive,
-			props.emojiAction,
-			props.messageEmojiId,
-			props.isFocusTopicBox,
-			props.isFromTopicView,
+			emojiAction,
+			propMessageEmojiId,
+			propIsFocusTopicBox,
+			propIsFromTopicView,
+			propOnEmojiSelect,
 			reactionMessageDispatch,
 			messageEmoji?.sender_id,
 			messageEmoji?.channel_id,
@@ -204,13 +223,14 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 			setAddEmojiActionChatbox,
 			addEmojiState,
 			setSuggestionEmojiObjPicked,
-			shiftPressedState,
 			buzzInputRequest?.content,
-			// buzzInputRequest?.mentionRaw,
 			buzzInputRequest?.valueTextInput,
 			setBuzzInputRequest,
 			toggleEmojiPanel,
-			props.onEmojiSelect
+			currentChannelClanId,
+			currentChannelId,
+			currentChannelParentId,
+			currentChannelPrivate
 		]
 	);
 
@@ -277,23 +297,23 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 		}
 	}, []);
 
-	const handleShiftKeyDown = (event: KeyboardEvent) => {
-		if (event.shiftKey) {
-			setShiftPressed(true);
-		}
-	};
-	const handleShiftKeyUp = () => {
-		setShiftPressed(false);
-	};
-
 	useEffect(() => {
+		const handleShiftKeyDown = (event: KeyboardEvent) => {
+			if (event.shiftKey) {
+				setShiftPressed(true);
+			}
+		};
+		const handleShiftKeyUp = () => {
+			setShiftPressed(false);
+		};
+
 		window.addEventListener('keydown', handleShiftKeyDown);
 		window.addEventListener('keyup', handleShiftKeyUp);
 		return () => {
 			window.removeEventListener('keydown', handleShiftKeyDown);
 			window.removeEventListener('keyup', handleShiftKeyUp);
 		};
-	}, []);
+	}, [setShiftPressed]);
 
 	const modalRef = useRef<HTMLDivElement>(null);
 	useEscapeKeyClose(modalRef, props.onClose);
@@ -364,7 +384,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 type DisplayByCategoriesProps = {
 	readonly categoryName?: string;
 	readonly onEmojiSelect: (emoji_id: string, emoji: string) => void;
-	readonly onEmojiHover: (item: any) => void;
+	readonly onEmojiHover: (item: IEmoji) => void;
 	readonly emojisData: IEmoji[];
 	onClickAddButton?: () => void;
 	showAddButton?: boolean;
@@ -392,6 +412,9 @@ const DisplayByCategories = React.memo(function DisplayByCategories({
 	showAddButton,
 	categoryIcons
 }: DisplayByCategoriesProps) {
+	const { t } = useTranslation('common');
+
+	const shouldTranslate = categoryName && PREDEFINED_EMOJI_CATEGORIES.includes(categoryName);
 	const emojisByCategoryName = useMemo(() => getEmojisByCategories(emojisData, categoryName ?? ''), [emojisData, categoryName]);
 
 	const [emojisPanel, setEmojisPanelStatus] = useState<boolean>(categoryName === FOR_SALE_CATE ? false : true);
@@ -402,7 +425,9 @@ const DisplayByCategories = React.memo(function DisplayByCategories({
 				className="w-full flex flex-row justify-start items-center pl-1 mb-1 mt-0 py-1 sticky z-10  bg-theme-setting-primary"
 			>
 				<div className="w-4 !h-4 flex items-center justify-center !text-xs">{categoryIcons}</div>
-				<p className={'ml-2 uppercase text-left truncate text-xs font-semibold'}>{categoryName}</p>
+				<p className={'ml-2 uppercase text-left truncate text-xs font-semibold'}>
+					{shouldTranslate ? t(`emojiCategories.${categoryName}`) || categoryName : categoryName}
+				</p>
 				<span className={`${emojisPanel ? ' rotate-90' : ''}`}>
 					<Icons.ArrowRight defaultSize={`w-4 h-4`} />
 				</span>
@@ -438,10 +463,6 @@ const EmojisPanel = React.memo(function EmojisPanel({
 	}, [hasClanPermission, categoryName, showAddButton]);
 
 	const [itemUnlock, setItemUnlock] = useState<IEmoji | null>(null);
-	const handleOpenUnlockItem = (item: IEmoji) => {
-		setItemUnlock(item);
-		openModalBuy();
-	};
 	const dispatch = useAppDispatch();
 	const handleConfirmBuyItem = async () => {
 		if (itemUnlock) {
@@ -460,16 +481,27 @@ const EmojisPanel = React.memo(function EmojisPanel({
 		return <ModalBuyItem onCancel={closeModalBuy} onConfirm={handleConfirmBuyItem} />;
 	}, [itemUnlock]);
 
-	const onClickEmoji = useCallback((item: IEmoji) => {
-		const { is_for_sale, src, shortname, id } = item;
-		if (!id || !shortname) return;
+	const handleOpenUnlockItem = useCallback(
+		(item: IEmoji) => {
+			setItemUnlock(item);
+			openModalBuy();
+		},
+		[openModalBuy]
+	);
 
-		if (is_for_sale) {
-			return src ? onEmojiSelect(getIdSaleItemFromSource(src), shortname || '') : handleOpenUnlockItem(item);
-		}
+	const onClickEmoji = useCallback(
+		(item: IEmoji) => {
+			const { is_for_sale, src, shortname, id } = item;
+			if (!id || !shortname) return;
 
-		onEmojiSelect(id, shortname);
-	}, []);
+			if (is_for_sale) {
+				return src ? onEmojiSelect(getIdSaleItemFromSource(src), shortname || '') : handleOpenUnlockItem(item);
+			}
+
+			onEmojiSelect(id, shortname);
+		},
+		[onEmojiSelect, handleOpenUnlockItem]
+	);
 
 	const pendingUnlockItemMap = useAppSelector(selectPendingUnlockMap);
 
@@ -509,8 +541,8 @@ const EmojisPanel = React.memo(function EmojisPanel({
 					className={`${shiftPressedState ? 'border-none outline-none' : ''} text-2xl  emoji-button  rounded-md  bg-item-hover hover:rounded-md  p-1 flex items-center justify-center w-full`}
 					onMouseEnter={() =>
 						onEmojiHover({
-							shortname: 'Upload a custom emoji',
-							src: ''
+							id: '',
+							shortname: 'Upload a custom emoji'
 						})
 					}
 				>

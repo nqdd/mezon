@@ -1,5 +1,8 @@
 {
 	"addReaction": "Thêm biểu cảm",
+	"reactions": "Biểu cảm",
+	"topic": "Chủ đề",
+	"option": "Tùy chọn",
 	"giveACoffee": "Tặng coffee",
 	"editMessage": "Chỉnh sửa tin nhắn",
 	"pinMessage": "Ghim tin nhắn",
@@ -26,6 +29,8 @@
 	"removeAllReactions": "Xóa tất cả biểu cảm",
 	"loadingCommands": "Đang tải lệnh...",
 	"noCommandsFound": "Không tìm thấy lệnh nào",
+	"noCommandsAvailable": "Không có lệnh nào",
+	"typeToSearchSlashCommands": "Nhập để tìm kiếm lệnh gạch chéo...",
 	"viewMore": "Xem thêm",
 	"member": {
 		"profile": "Hồ sơ",
@@ -46,6 +51,7 @@
 	"privacySettings": "Cài đặt riêng tư",
 	"editClanProfile": "Chỉnh sửa hồ sơ Clan",
 	"leaveClan": "Rời Clan",
+	"leave": "Rời",
 	"collapseCategory": "Thu gọn danh mục",
 	"collapseAllCategories": "Thu gọn tất cả danh mục",
 	"muteCategory": "Tắt thông báo danh mục",

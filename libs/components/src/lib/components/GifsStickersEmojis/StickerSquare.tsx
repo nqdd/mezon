@@ -11,10 +11,11 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { FOR_SALE_CATE, ITEM_TYPE, SubPanelName, blankReferenceObj, getStickerUrl } from '@mezon/utils';
+import { FOR_SALE_CATE, ITEM_TYPE, PREDEFINED_EMOJI_CATEGORIES, SubPanelName, blankReferenceObj, getStickerUrl } from '@mezon/utils';
 import type { ClanSticker } from 'mezon-js';
 import type { ApiChannelDescription, ApiMessageRef } from 'mezon-js/api.gen';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import ModalBuyItem from './ModalBuyItem';
 
@@ -248,11 +249,14 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 export default StickerSquare;
 
 const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, categoryName, onClickSticker, onOpenBuySticker, logo }) => {
+	const { t } = useTranslation('common');
 	const stickersListByCategoryName = stickerList.filter((sticker) =>
 		categoryName === FOR_SALE_CATE ? sticker.forSale : sticker.type === categoryName && !sticker.forSale
 	);
 	const [isShowStickerList, setIsShowStickerList] = useState(categoryName === FOR_SALE_CATE ? false : true);
 	const currentClanName = useAppSelector(selectCurrentClanName);
+
+	const shouldTranslate = categoryName && PREDEFINED_EMOJI_CATEGORIES.includes(categoryName);
 
 	const handleToggleButton = () => {
 		setIsShowStickerList(!isShowStickerList);
@@ -267,7 +271,11 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 				{logo === FOR_SALE_CATE ? (
 					<Icons.MarketIcons className="w-4 h4" />
 				) : logo !== '' ? (
-					<img src={logo} className="w-4 !h-4 flex items-center justify-center rounded-full object-cover" />
+					<img
+						src={logo}
+						alt={categoryName || 'category'}
+						className="w-4 !h-4 flex items-center justify-center rounded-full object-cover"
+					/>
 				) : (
 					<div className="dark:text-textDarkTheme text-xs text-textLightTheme w-4 h-4 rounded-full bg-theme-primary">
 						{categoryName?.charAt(0).toUpperCase()}
@@ -275,7 +283,11 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 				)}
 
 				<p className={'ml-2 uppercase text-left truncate text-xs font-semibold'}>
-					{categoryName !== 'custom' ? categoryName : currentClanName}
+					{categoryName !== 'custom'
+						? shouldTranslate
+							? t(`emojiCategories.${categoryName}`) || categoryName
+							: categoryName
+						: currentClanName}
 				</p>
 				<span className={`${isShowStickerList ? ' rotate-90' : ''}`}>
 					<Icons.ArrowRight defaultSize="w-4 h-4" />

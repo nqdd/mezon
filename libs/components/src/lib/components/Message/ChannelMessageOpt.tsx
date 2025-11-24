@@ -88,7 +88,7 @@ const ChannelMessageOpt = ({
 	const refOpt = useRef<HTMLDivElement>(null);
 	const [canManageThread] = usePermissionChecker([EOverriddenPermission.manageThread], currentChannelId ?? '');
 	const isShowIconThread = !!(currentChannelId && !Snowflake.isValid(currentChannelParentId ?? '') && canManageThread);
-	const replyMenu = useMenuReplyMenuBuilder(message, hasPermission);
+	const replyMenu = useReplyMenuBuilder(message, hasPermission);
 	const editMenu = useEditMenuBuilder(message);
 	const reactMenu = useReactMenuBuilder(message);
 	const threadMenu = useThreadMenuBuilder(message, isShowIconThread, hasPermission, isAppChannel);
@@ -139,6 +139,7 @@ const ChannelMessageOpt = ({
 export default memo(ChannelMessageOpt);
 
 function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: boolean) {
+	const { t } = useTranslation('contextMenu');
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const realTimeMessage = useAppSelector((state) => selectMessageByMessageId(state, currentChannelId, message?.id || ''));
 	const dispatch = useAppDispatch();
@@ -182,13 +183,13 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 				builder.when(
 					clanId && clanId !== '0' && realTimeMessage?.code !== TypeMessage.Topic && !doNotAllowCreateTopic && notAllowedType,
 					(builder: MenuBuilder) => {
-						builder.addMenuItem('topic', 'Topic', handleCreateTopic, <Icons.TopicIconOption className="w-5 h-5 " />);
+						builder.addMenuItem('topic', t('topic'), handleCreateTopic, <Icons.TopicIconOption className="w-5 h-5 " />);
 					}
 				);
 			}
 		};
 		return plugin;
-	}, [doNotAllowCreateTopic, clanId, handleCreateTopic, realTimeMessage?.code]);
+	}, [doNotAllowCreateTopic, clanId, handleCreateTopic, realTimeMessage?.code, notAllowedType]);
 
 	return menuPlugin;
 }
@@ -216,7 +217,7 @@ const RecentEmoji: React.FC<RecentEmojiProps> = ({ message, isTopic }) => {
 };
 
 function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) {
-	const { t } = useTranslation('token');
+	const { t } = useTranslation(['token', 'contextMenu']);
 	const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 	const dispatch = useAppDispatch();
 	const { userId } = useAuth();
@@ -238,7 +239,7 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 				);
 			}
 		},
-		[createDirectMessageWithUser, sendInviteMessage]
+		[createDirectMessageWithUser, sendInviteMessage, t]
 	);
 
 	const handleItemClick = useCallback(async () => {
@@ -289,7 +290,12 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 				message?.sender_id !== SYSTEM_SENDER_ID &&
 				message.username !== SYSTEM_NAME,
 			(builder) => {
-				builder.addMenuItem('giveacoffee', t('giveACoffee', { ns: 'message' }), handleItemClick, <Icons.DollarIcon defaultSize="w-5 h-5" />);
+				builder.addMenuItem(
+					'giveacoffee',
+					t('giveACoffee', { ns: 'contextMenu' }),
+					handleItemClick,
+					<Icons.DollarIcon defaultSize="w-5 h-5" />
+				);
 			}
 		);
 	});
@@ -297,7 +303,8 @@ function useGiveACoffeeMenuBuilder(message: IMessageWithUser, isTopic: boolean) 
 
 // Menu items plugins
 // maybe should be moved to separate files
-function useMenuReplyMenuBuilder(message: IMessageWithUser, hasPermission: boolean) {
+function useReplyMenuBuilder(message: IMessageWithUser, hasPermission: boolean) {
+	const { t } = useTranslation('contextMenu');
 	const dispatch = useAppDispatch();
 	const { userId } = useAuth();
 	const messageId = message.id;
@@ -328,12 +335,13 @@ function useMenuReplyMenuBuilder(message: IMessageWithUser, hasPermission: boole
 
 	return useMenuBuilderPlugin((builder) => {
 		builder.when(userId !== message.sender_id && hasPermission, (builder) => {
-			builder.addMenuItem('reply', 'Reply', handleItemClick, <Icons.Reply />, null, false, false, 'rotate-180');
+			builder.addMenuItem('reply', t('reply'), handleItemClick, <Icons.Reply />, null, false, false, 'rotate-180');
 		});
 	});
 }
 
 function useEditMenuBuilder(message: IMessageWithUser) {
+	const { t } = useTranslation('contextMenu');
 	const dispatch = useAppDispatch();
 	const { userId } = useAuth();
 	const messageId = message.id;
@@ -365,13 +373,14 @@ function useEditMenuBuilder(message: IMessageWithUser) {
 				!(message.code === TypeMessage.SendToken) &&
 				!isForwardedMessage,
 			(builder) => {
-				builder.addMenuItem('edit', 'Edit', handleItemClick, <Icons.PenEdit className={`w-5 h-5`} />);
+				builder.addMenuItem('edit', t('editMessage'), handleItemClick, <Icons.PenEdit className={`w-5 h-5`} />);
 			}
 		);
 	});
 }
 
 function useReactMenuBuilder(message: IMessageWithUser) {
+	const { t } = useTranslation('contextMenu');
 	const dispatch = useAppDispatch();
 	const { setClickedTrendingGif, setButtonArrowBack } = useGifs();
 
@@ -395,11 +404,12 @@ function useReactMenuBuilder(message: IMessageWithUser) {
 	);
 
 	return useMenuBuilderPlugin((builder) => {
-		builder.addMenuItem('react', 'React', handleItemClick, <Icons.Smile defaultSize="w-5 h-5" />);
+		builder.addMenuItem('react', t('reactions'), handleItemClick, <Icons.Smile defaultSize="w-5 h-5" />);
 	});
 }
 
 function useThreadMenuBuilder(message: IMessageWithUser, isShowIconThread: boolean, hasPermission: boolean, isAppChannel: boolean) {
+	const { t } = useTranslation('contextMenu');
 	const [thread, setThread] = useState(false);
 	const dispatch = useAppDispatch();
 
@@ -435,12 +445,14 @@ function useThreadMenuBuilder(message: IMessageWithUser, isShowIconThread: boole
 
 	return useMenuBuilderPlugin((builder) => {
 		builder.when(isShowIconThread && hasPermission && !isAppChannel, (builder) => {
-			builder.addMenuItem('thread', 'Thread', handleItemClick, <Icons.ThreadIcon isWhite={thread} />);
+			builder.addMenuItem('thread', t('createThread'), handleItemClick, <Icons.ThreadIcon isWhite={thread} />);
 		});
 	});
 }
 
 function useOptionMenuBuilder(handleContextMenu: any) {
+	const { t } = useTranslation('contextMenu');
+
 	const useHandleClickOption = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement>) => {
 			const target = event.target as HTMLElement;
@@ -459,7 +471,7 @@ function useOptionMenuBuilder(handleContextMenu: any) {
 	return useMenuBuilderPlugin((builder) => {
 		builder.addMenuItem(
 			'option',
-			'option',
+			t('option'),
 			useHandleClickOption,
 			<Icons.ThreeDot defaultSize={'w-5 h-5 text-theme-primary text-theme-primary-hover'} />
 		);
