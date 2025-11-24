@@ -28,7 +28,7 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 
 	const handleSubmit = useCallback(async () => {
 		if (reqId) {
-			const response = await dispatch(authActions.confirmEmailOTP({ otp_code: otp.join(''), req_id: reqId })).unwrap();
+			const response = await dispatch(authActions.confirmAuthenticateOTP({ otp_code: otp.join(''), req_id: reqId })).unwrap();
 			return;
 		}
 

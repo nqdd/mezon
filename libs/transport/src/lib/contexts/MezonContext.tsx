@@ -151,7 +151,7 @@ export type MezonContextValue = {
 	confirmLoginRequest: (ConfirmRequest: ApiConfirmLoginRequest) => Promise<Session | null>;
 	authenticateEmail: (email: string, password: string) => Promise<Session>;
 	authenticateEmailOTPRequest: (email: string) => Promise<ApiLinkAccountConfirmRequest>;
-	confirmEmailOTP: (data: ApiLinkAccountConfirmRequest) => Promise<Session>;
+	confirmAuthenticateOTP: (data: ApiLinkAccountConfirmRequest) => Promise<Session>;
 	authenticateSMSOTPRequest: (phone: string) => Promise<ApiLinkAccountConfirmRequest>;
 
 	logOutMezon: (device_id?: string, platform?: string, clearSession?: boolean) => Promise<void>;
@@ -338,7 +338,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
 			}
-			const session = await clientRef.current.authenticateEmail(email, password);
+			const session = await clientRef.current.authenticateEmail(email, password, undefined, isFromMobile ? { m: 'true' } : undefined);
 			sessionRef.current = session;
 
 			const config = extractAndSaveConfig(session);
@@ -359,15 +359,18 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		[createSocket, isFromMobile]
 	);
 
-	const authenticateEmailOTPRequest = useCallback(async (email: string) => {
-		if (!clientRef.current) {
-			throw new Error('Mezon client not initialized');
-		}
+	const authenticateEmailOTPRequest = useCallback(
+		async (email: string) => {
+			if (!clientRef.current) {
+				throw new Error('Mezon client not initialized');
+			}
 
-		return await clientRef.current.authenticateEmailOTPRequest(email);
-	}, []);
+			return await clientRef.current.authenticateEmailOTPRequest(email, undefined, isFromMobile ? { m: 'true' } : undefined);
+		},
+		[isFromMobile]
+	);
 
-	const confirmEmailOTP = useCallback(
+	const confirmAuthenticateOTP = useCallback(
 		async (data: ApiLinkAccountConfirmRequest) => {
 			if (!clientRef.current) {
 				throw new Error('Mezon client not initialized');
@@ -394,13 +397,16 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 		[createSocket, isFromMobile]
 	);
 
-	const authenticateSMSOTPRequest = useCallback(async (phone: string) => {
-		if (!clientRef.current) {
-			throw new Error('Mezon client not initialized');
-		}
+	const authenticateSMSOTPRequest = useCallback(
+		async (phone: string) => {
+			if (!clientRef.current) {
+				throw new Error('Mezon client not initialized');
+			}
 
-		return await clientRef.current.authenticateSMSOTPRequest(phone);
-	}, []);
+			return await clientRef.current.authenticateSMSOTPRequest(phone, undefined, isFromMobile ? { m: 'true' } : undefined);
+		},
+		[isFromMobile]
+	);
 
 	const logOutMezon = useCallback(
 		async (device_id?: string, platform?: string, clearSession?: boolean) => {
@@ -601,7 +607,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			authenticateEmail,
 			connectWithSession,
 			authenticateEmailOTPRequest,
-			confirmEmailOTP,
+			confirmAuthenticateOTP,
 			authenticateSMSOTPRequest
 		}),
 		[
@@ -626,7 +632,7 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 			authenticateEmail,
 			connectWithSession,
 			authenticateEmailOTPRequest,
-			confirmEmailOTP,
+			confirmAuthenticateOTP,
 			authenticateSMSOTPRequest
 		]
 	);
