@@ -208,7 +208,11 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 		debounce((text) => {
 			const results: IMezonMenuItemProps[] = [];
 			menu.forEach((section) => {
-				const matchedItems = section.items.filter((item) => item.title.toLowerCase().startsWith(text.toLowerCase()));
+				const matchedItems = section.items.filter((item) => {
+					const lowerTitle = item.title.toLowerCase();
+					const lowerText = text.toLowerCase();
+					return lowerTitle.startsWith(lowerText) || lowerTitle.includes(` ${lowerText}`)
+				});
 				results.push(...matchedItems);
 			});
 
@@ -229,7 +233,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 
 	useEffect(() => {
 		handleSearchChange('');
-	}, [t]);
+	}, [t, themeValue]);
 
 	const injectedJS = `
     (function() {
