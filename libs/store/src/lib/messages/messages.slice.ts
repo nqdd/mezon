@@ -1359,7 +1359,8 @@ export const messagesSlice = createSlice({
 
 					break;
 				}
-				case TypeMessage.ChatUpdate: {
+				case TypeMessage.ChatUpdate:
+				case TypeMessage.UpdateEphemeralMsg: {
 					channelMessagesAdapter.updateOne(channelEntity, {
 						id: action.payload.id,
 						changes: {
@@ -1392,6 +1393,8 @@ export const messagesSlice = createSlice({
 					}
 					break;
 				}
+
+				case TypeMessage.DeleteEphemeralMsg:
 				case TypeMessage.ChatRemove: {
 					updateReferenceMessage({
 						state,
