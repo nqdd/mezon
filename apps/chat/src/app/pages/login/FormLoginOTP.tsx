@@ -48,15 +48,22 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 		setOtp(e);
 	};
 
-	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setEmail(value);
-		setOtp(Array(6).fill(''));
-		setErrors((prev) => ({
-			...prev,
-			email: validateEmail(value)
-		}));
-	}, []);
+	const handleEmailChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			console.log('step: ', step);
+			if (step) {
+				return;
+			}
+			const value = e.target.value;
+			setEmail(value);
+			setOtp(Array(6).fill(''));
+			setErrors((prev) => ({
+				...prev,
+				email: validateEmail(value)
+			}));
+		},
+		[step]
+	);
 
 	useEffect(() => {
 		if (!reqId) return;
@@ -105,7 +112,7 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 					</div>
 				)}
 
-				<div className="flex overflow-hidden items-center  gap-2">
+				<div className="flex overflow-hidden items-center gap-3">
 					<div className={`flex flex-col w-full shrink-0 ${step === null ? '' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
 						<div className="flex flex-col gap-2">
 							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300 leading-10 ml-2 ">
@@ -125,17 +132,17 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 						{errors.email && <FormError message={errors.email} />}
 					</div>
 					<div className={`flex flex-col w-full shrink-0 ${step === null ? 'hidden' : step ? 'animate-login_otp' : 'animate-login_email'}`}>
-						<p className="text-sm text-gray-700 dark:text-gray-300 text-center mb-4">
+						<p className="text-sm text-gray-700 dark:text-gray-300 text-center mb-6">
 							{t('login.otpSentMessage', {
 								email: email.replace(/^(.{3})(.*)(@.*)$/, (_, p1, p2, p3) => `${p1}${'*'.repeat(p2.length)}${p3}`)
 							})}
 						</p>
 						<div className={`flex flex-col gap-2`}>
-							<OtpConfirm otp={otp} handleSetOTP={handleSetOTP} />
+							<OtpConfirm otp={otp} handleSetOTP={handleSetOTP} className="pr-[5px]" />
 						</div>
 					</div>
 				</div>
-				<div className="p-1 mt-2">
+				<div className="p-1 mt-3">
 					<ButtonLoading
 						className="w-full h-10 btn-primary btn-primary-hover"
 						disabled={!step ? !!errors.email || (step === null && errors.email === undefined) || disabled : disabled || count > 0}

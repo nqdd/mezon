@@ -2,7 +2,7 @@ import { useAuth, useChatReaction, useUserById } from '@mezon/core';
 import { getStore, selectClickedOnTopicStatus, selectCurrentChannel } from '@mezon/store';
 import { Icons, NameComponent } from '@mezon/ui';
 import type { EmojiDataOptionals, IMessageWithUser, SenderInfoOptionals } from '@mezon/utils';
-import { calculateTotalCount, createImgproxyUrl, getEmojiUrl, isPublicChannel } from '@mezon/utils';
+import { calculateTotalCount, createImgproxyUrl, getSrcEmoji, isPublicChannel } from '@mezon/utils';
 import type { ForwardedRef } from 'react';
 import { Fragment, forwardRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
@@ -59,7 +59,7 @@ const UserReactionPanel = forwardRef(({ emojiShowPanel, message, isTopic }: User
 						onClick={(e) => e.stopPropagation()}
 						className={`z-50 w-[18rem] bg-theme-pop border-color-primary rounded-lg min-h-5 max-h-[25rem] ${window.innerWidth < 640 ? 'flex flex-col justify-center' : 'p-1 bottom-0'}`}
 					>
-						<PanelHeader emojiShowPanel={emojiShowPanel} emojiName={emojiShowPanel?.emoji ?? ''} count={count} />
+						<PanelHeader emojiId={emojiShowPanel?.emojiId} emojiName={emojiShowPanel?.emoji ?? ''} count={count} />
 						<div ref={ref} tabIndex={-1} className="max-h-40 overflow-y-auto hide-scrollbar focus-visible:outline-none">
 							{emojiShowPanel?.senders.map((sender: SenderInfoOptionals, index: number) => {
 								if (sender.count && sender.count > 0) {
@@ -90,23 +90,16 @@ UserReactionPanel.displayName = 'UserReactionPanel';
 export default UserReactionPanel;
 
 type PanelHeaderProps = {
-	emojiShowPanel: EmojiDataOptionals;
+	emojiId: string | undefined;
 	emojiName: string;
 	count: number;
 };
 
-const PanelHeader: React.FC<PanelHeaderProps> = ({ emojiShowPanel, emojiName, count }) => {
-	const emojiData = {
-		src: emojiShowPanel.url,
-		id: emojiShowPanel.id,
-		emojiId: emojiShowPanel.emojiId,
-		creator_id: emojiShowPanel.creator_id
-	};
-
+const PanelHeader: React.FC<PanelHeaderProps> = ({ emojiId, emojiName, count }) => {
 	return (
 		<div>
 			<div className="flex flex-row items-center p-2 text-theme-primary border-b-theme-primary">
-				<img src={getEmojiUrl(emojiData)} className="w-5 h-5 min-h-5 min-w-5" alt="" />
+				<img src={getSrcEmoji(emojiId ?? '')} className="w-5 h-5 min-h-5 min-w-5" alt="" />
 				<p className="text-sm ml-2">{count}</p>
 				<p title={emojiName} className="text-sm ml-2 truncate max-w-[200px] overflow-hidden">
 					{emojiName}

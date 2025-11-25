@@ -8,7 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission, MAX_FILE_NAME_EMOJI, getEmojiUrl } from '@mezon/utils';
+import { EPermission, MAX_FILE_NAME_EMOJI, getSrcEmoji } from '@mezon/utils';
 import type { ClanEmoji } from 'mezon-js';
 import type { MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
 import type { ChangeEvent } from 'react';
@@ -74,7 +74,9 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 			handleUpdateEmoji();
 		}
 	};
-
+	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username || '';
+	const avatarLetter = avatarDefault?.trim().charAt(0).toUpperCase();
+	const avatarUrl = dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url;
 	const handleInputFocus = () => {
 		setIsInputFocused(true);
 	};
@@ -88,7 +90,7 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 			<div className={`w-full h-full flex flex-row gap-1 border-b-theme-primary items-center`}>
 				<div className={'w-14 h-8'}>
 					<div className={'w-8 h-8 overflow-hidden flex items-center justify-center select-none '}>
-						<img className={'w-auto max-h-full object-cover'} src={getEmojiUrl(emoji)} alt={emoji.shortname} />
+						<img className={'w-auto max-h-full object-cover'} src={getSrcEmoji(emoji.id as string)} alt={emoji.shortname} />
 					</div>
 				</div>
 
@@ -138,11 +140,17 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 
 				<div className={'flex-1 flex gap-[6px]  select-none max-md:min-w-[40%]'}>
 					<div className={'w-6 h-6 rounded-[50%] overflow-hidden flex items-center justify-center'}>
-						<img
-							className={'w-full h-auto object-cover'}
-							src={dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url}
-							alt="User avatar"
-						/>
+						{avatarUrl ? (
+							<img
+								className={'w-full h-auto object-cover'}
+								src={dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url}
+								alt="User avatar"
+							/>
+						) : (
+							<div className="size-6 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-[16px]">
+								{avatarLetter}
+							</div>
+						)}
 					</div>
 					<p className={'text-sm h-auto leading-6'}>{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 				</div>

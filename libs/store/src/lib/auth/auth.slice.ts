@@ -273,14 +273,6 @@ export const confirmLoginRequest = createAsyncThunk('auth/confirmLoginRequest', 
 		await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
 	}
 	if (session) {
-		if (session.id_token && session.user_id) {
-			const proofInput = {
-				userId: session.user_id,
-				jwt: session.id_token
-			};
-
-			await thunkAPI.dispatch(walletActions.fetchZkProofs(proofInput));
-		}
 		return normalizeSession(session);
 	}
 	return null;

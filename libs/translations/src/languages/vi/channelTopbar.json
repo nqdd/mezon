@@ -28,6 +28,8 @@
 	"joinedThreadsLast30Days": "Chủ đề đã tham gia (30 ngày qua)",
 	"olderThreads": "Chủ đề cũ hơn",
 	"loading": "Đang tải...",
+	"topic": "Chủ đề",
+	"reactions": "Biểu cảm",
 	"callMessages": {
 		"startedVoiceCall": "Đã bắt đầu cuộc gọi thoại",
 		"startedVideoCall": "Đã bắt đầu cuộc gọi video"

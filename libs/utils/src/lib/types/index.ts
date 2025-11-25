@@ -613,8 +613,6 @@ export enum MemberProfileType {
 export type IReaction = ApiMessageReaction & {
 	id: string;
 	message_id: string;
-	url?: string;
-	creator_id?: string;
 };
 
 export type IEmoji = {
@@ -689,8 +687,6 @@ export type EmojiDataOptionals = {
 	senders: SenderInfoOptionals[];
 	channel_id?: string;
 	message_id?: string;
-	url?: string;
-	creator_id?: string;
 };
 
 export type SenderInfoOptionals = {
@@ -1189,7 +1185,9 @@ export enum TypeMessage {
 	AuditLog = 10,
 	SendToken = 11,
 	Ephemeral = 12,
-	UpcomingEvent = 13
+	UpcomingEvent = 13,
+	UpdateEphemeralMsg = 14,
+	DeleteEphemeralMsg = 15
 }
 
 export enum ServerSettingsMenuValue {
@@ -1438,6 +1436,14 @@ export type MentionReactInputProps = {
 	hasPermissionEdit?: boolean;
 	voiceLongPress?: ILongPressType;
 	isRecording?: boolean;
+	readonly onEditEphemeral?: (
+		messageId: string,
+		content: IMessageSendPayload,
+		mentions?: Array<ApiMessageMention>,
+		attachments?: Array<ApiMessageAttachment>,
+		ephemeralReceiverId?: string,
+		senderId?: string
+	) => void;
 };
 
 export type IOtherCall = {
@@ -1531,7 +1537,7 @@ export type ImageSourceObject = {
 export type HistoryItem = {
 	valueTextInput: string;
 	content: string;
-	mentionRaw?: any[];
+	mentionRaw?: MentionItem[];
 };
 
 export enum SymbolsAndIdsLengthOfMentionValue {

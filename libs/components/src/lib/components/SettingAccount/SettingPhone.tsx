@@ -234,7 +234,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 	);
 };
 
-export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP: (e: string[]) => void }) => {
+export const OtpConfirm = ({ otp, handleSetOTP, className }: { otp: string[]; handleSetOTP: (e: string[]) => void; className?: string }) => {
 	useEffect(() => {
 		const firstInput = document.getElementById('otp-0');
 		if (firstInput) {
@@ -282,7 +282,7 @@ export const OtpConfirm = ({ otp, handleSetOTP }: { otp: string[]; handleSetOTP:
 
 	return (
 		<div className="flex flex-col">
-			<div className="flex items-center justify-around gap-3">
+			<div className={`flex items-center justify-between gap-3 ${className}`}>
 				{otp.map((digit, index) => (
 					<input
 						key={index}

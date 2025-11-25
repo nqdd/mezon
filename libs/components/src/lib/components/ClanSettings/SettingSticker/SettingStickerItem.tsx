@@ -1,7 +1,7 @@
 import { usePermissionChecker } from '@mezon/core';
 import { deleteSticker, selectCurrentClanId, selectCurrentUserId, selectMemberClanByUserId, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EPermission, getStickerUrl } from '@mezon/utils';
+import { EPermission } from '@mezon/utils';
 import type { ClanSticker } from 'mezon-js';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -28,6 +28,9 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			await dispatch(deleteSticker({ stickerId: sticker.id, clan_id: clanId as string, stickerLabel: sticker.shortname as string }));
 		}
 	};
+	const avatarDefault = dataAuthor?.clan_nick || dataAuthor?.user?.display_name || dataAuthor?.user?.username;
+	const avatarLetter = avatarDefault?.trim().charAt(0).toUpperCase();
+	const avatarUrl = dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url;
 	return (
 		<div
 			className={
@@ -35,7 +38,11 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			}
 		>
 			<div className="aspect-square h-[72px]  flex justify-center">
-				<img className={' w-auto h-full object-cover select-none'} src={sticker.source ? sticker.source : getStickerUrl(sticker)} alt="" />
+				<img
+					className={' w-auto h-full object-cover select-none'}
+					src={`${!sticker.source ? `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp` : sticker.source}`}
+					alt=""
+				/>
 			</div>
 			<p
 				title={sticker.shortname}
@@ -45,11 +52,13 @@ const SettingStickerItem = ({ sticker, updateSticker }: SettingEmojiListProps) =
 			</p>
 
 			<div className="flex items-end justify-center gap-1">
-				<img
-					className="w-4 h-4 rounded-full select-none object-cover"
-					src={(dataAuthor?.clan_avatar || dataAuthor?.user?.avatar_url) ?? process.env.NX_LOGO_MEZON}
-					alt=""
-				/>
+				{avatarUrl ? (
+					<img className="w-4 h-4 rounded-full select-none object-cover" src={avatarUrl} alt="" />
+				) : (
+					<div className="size-4 bg-bgAvatarDark rounded-full flex justify-center items-center text-bgAvatarLight text-[12px]">
+						{avatarLetter}
+					</div>
+				)}
 				<p className=" max-w-20 truncate">{dataAuthor?.clan_nick || dataAuthor?.user?.username}</p>
 			</div>
 			{hasDeleteOrEditPermission && (

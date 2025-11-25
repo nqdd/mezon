@@ -3,7 +3,7 @@ import { createSticker, emojiSuggestionActions, selectCurrentClanId, updateStick
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 
 import { Button, ButtonLoading, Checkbox, Icons, InputField } from '@mezon/ui';
-import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
+import { LIMIT_SIZE_UPLOAD_IMG, fileTypeImage, generateE2eId, getIdSaleItemFromSource, resizeFileImage, sanitizeUrlSecure } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ClanEmoji, ClanSticker } from 'mezon-js';
 import type { ApiClanStickerAddRequest, MezonUpdateClanEmojiByIdBody } from 'mezon-js/api.gen';
@@ -163,9 +163,9 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 		}
 		const isForSale = isForSaleRef.current?.checked;
 		const realImage = await handleUploadEmoticon(client, session, path, resizeFile as File);
-
+		const finalId = getIdSaleItemFromSource(realImage?.url || '');
 		const request: ApiClanStickerAddRequest = {
-			id,
+			id: finalId,
 			category,
 			clan_id: currentClanId,
 			source: realImage.url,
@@ -176,11 +176,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			const idPreview = Snowflake.generate();
 			const fileBlur = await createBlurredWatermarkedImageFile(resizeFile, 'SOLD', 2);
 			const pathPreview = `${(isSticker ? 'stickers/' : 'emojis/') + idPreview}.webp`;
-			const img = await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
-			const lastSlashIndex = img?.url?.lastIndexOf('/');
-			const lastDotIndex = img?.url?.lastIndexOf('.');
-			const id = img?.url?.substring((lastSlashIndex || 0) + 1, lastDotIndex);
-			request.id = id;
+			await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
 		}
 
 		const requestData = {
@@ -350,10 +346,11 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
 									onKeyDown={handleOnEnter}
+									maxLength={62}
 								/>
 								<div className="absolute right-3 top-1/2 transform -translate-y-1/2">
 									<span className={`text-xs font-medium ${(editingGraphic?.shortname?.length ?? 0) > 25 ? 'text-[#faa61a]' : ''}`}>
-										{editingGraphic?.shortname?.length ?? 0}/64
+										{editingGraphic?.shortname?.length ?? 0}/62
 									</span>
 								</div>
 							</div>

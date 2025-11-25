@@ -257,7 +257,10 @@ const ButtonNoiseControl = memo(() => {
 
 	if (!noiseSuppressionEnabled) {
 		return (
-			<button onClick={toggleNoiseSuppression}>
+			<button
+				onClick={toggleNoiseSuppression}
+				className="flex items-center rounded-sm bg-bgSecondary bg-item-theme-hover text-theme-primary gap-2 p-[2px] text-sm bg-transparent bg-item-theme-hover"
+			>
 				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-red-400`}>
 					<path d="M3 21 L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
 				</Icons.NoiseSupressionIcon>
@@ -291,7 +294,10 @@ const ButtonNoiseControl = memo(() => {
 			overlayClassName="whitespace-nowrap z-50 !p-0 !pt-5"
 			destroyTooltipOnHide
 		>
-			<button onClick={toggleNoiseSuppression}>
+			<button
+				onClick={toggleNoiseSuppression}
+				className="flex items-center rounded-sm bg-bgSecondary bg-item-theme-hover text-theme-primary gap-2 p-[2px] text-sm bg-transparent bg-item-theme-hover"
+			>
 				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-green-400`} />
 			</button>
 		</Tooltip>
