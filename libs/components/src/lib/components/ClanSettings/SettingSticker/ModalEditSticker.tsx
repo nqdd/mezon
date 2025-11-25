@@ -163,9 +163,9 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 		}
 		const isForSale = isForSaleRef.current?.checked;
 		const realImage = await handleUploadEmoticon(client, session, path, resizeFile as File);
-
+		const finalId = getIdSaleItemFromSource(realImage?.url || '');
 		const request: ApiClanStickerAddRequest = {
-			id,
+			id: finalId,
 			category,
 			clan_id: currentClanId,
 			source: realImage.url,
@@ -176,9 +176,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			const idPreview = Snowflake.generate();
 			const fileBlur = await createBlurredWatermarkedImageFile(resizeFile, 'SOLD', 2);
 			const pathPreview = `${(isSticker ? 'stickers/' : 'emojis/') + idPreview}.webp`;
-			const img = await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
-			const id = getIdSaleItemFromSource(img?.url || '');
-			request.id = id;
+			await handleUploadEmoticon(client, session, pathPreview, fileBlur as File);
 		}
 
 		const requestData = {
