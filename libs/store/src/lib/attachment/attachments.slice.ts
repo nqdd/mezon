@@ -129,7 +129,8 @@ export const fetchChannelAttachmentsCached = async (
 export const mapChannelAttachmentsToEntity = (attachmentRes: ApiChannelAttachment, channelId?: string, clanId?: string) => {
 	const isVideo =
 		attachmentRes?.filetype?.startsWith('video') || attachmentRes?.filetype?.includes('mp4') || attachmentRes?.filetype?.includes('mov');
-	const attachmentEntity: IAttachmentEntity = { ...attachmentRes, id: attachmentRes.id || '', channelId, clanId, isVideo };
+	const uniqueId = `${attachmentRes.message_id}_${attachmentRes.url}`;
+	const attachmentEntity: IAttachmentEntity = { ...attachmentRes, id: uniqueId, channelId, clanId, isVideo };
 	return attachmentEntity;
 };
 

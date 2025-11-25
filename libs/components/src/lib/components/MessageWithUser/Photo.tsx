@@ -40,7 +40,7 @@ export type OwnProps<T> = {
 	isProtected?: boolean;
 	className?: string;
 	clickArg?: T;
-	onClick?: (url?: string) => void;
+	onClick?: (url?: string, attachmentId?: string) => void;
 	onContextMenu?: (event: React.MouseEvent<HTMLImageElement>) => void;
 	onCancelUpload?: (arg: T) => void;
 	isInSearchMessage?: boolean;
@@ -192,7 +192,7 @@ const Photo = <T,>({
 			className={`relative max-w-full ${componentClassName}`}
 			style={style}
 			onClick={() => {
-				onClick?.(photo?.url);
+				onClick?.(photo?.url, id);
 			}}
 		>
 			{withBlurredBackground && <canvas ref={blurredBackgroundRef} className="thumbnail blurred-bg" />}

@@ -1151,13 +1151,7 @@ export const getAttachmentDataForWindow = (
 					`${window.location.origin}/assets/images/anonymous-avatar.png`) as string,
 				name: uploader?.clan_nick || uploader?.user?.display_name || uploader?.user?.username || 'Anonymous'
 			},
-			url: isVideo
-				? image.url || ''
-				: createImgproxyUrl(image.url || '', {
-						width: image.width ? (image.width > 1920 ? 1920 : image.width) : 0,
-						height: image.height ? (image.height > 1080 ? 1080 : image.height) : 0,
-						resizeType: 'fit'
-					}),
+			url: image.url,
 			realUrl: image.url || '',
 			isVideo
 		};

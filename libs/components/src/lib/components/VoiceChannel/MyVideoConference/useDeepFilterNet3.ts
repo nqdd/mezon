@@ -29,6 +29,11 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 		levelRef.current = level;
 	}, [level]);
 
+	const enabledRef = useRef<boolean>(enabled);
+	useEffect(() => {
+		enabledRef.current = enabled;
+	}, [enabled]);
+
 	useEffect(() => {
 		if (!room || !localParticipant) {
 			return;
@@ -80,11 +85,14 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 					}
 				});
 
-				// console.log('start set processor');
+				await processor.setEnabled(true);
 
-				await track.setProcessor(processor);
+				if (enabledRef.current) {
+					await track.setProcessor(processor);
+				} else {
+					await processor.audioContext?.suspend();
+				}
 
-				// console.log('set process success');
 				processor.setSuppressionLevel(currentLevel);
 				processorsRef.current.set(trackSid, { processor, track: publication });
 			} catch (error) {
@@ -148,7 +156,7 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 			});
 			processorsMap.clear();
 		};
-	}, [room, localParticipant, sampleRate, enabled]);
+	}, [room, localParticipant, sampleRate]);
 
 	useEffect(() => {
 		if (!enabled || !room || !localParticipant) {
@@ -165,10 +173,21 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 	}, [level, enabled, room, localParticipant]);
 
 	useEffect(() => {
-		processorsRef.current.forEach((processorData) => {
-			processorData.processor.setEnabled(enabled).catch((error) => {
+		processorsRef.current.forEach(async (processorData) => {
+			try {
+				const track = processorData.track.track;
+				if (!track) return;
+
+				if (enabled) {
+					await processorData.processor.audioContext?.resume();
+					await track.setProcessor(processorData.processor);
+				} else {
+					await track.stopProcessor();
+					await processorData.processor.audioContext?.suspend();
+				}
+			} catch (error) {
 				console.error('Failed to toggle noise suppression:', error);
-			});
+			}
 		});
 	}, [enabled]);
 };
