@@ -15,6 +15,7 @@ import {
 	channelMembers,
 	channelMembersActions,
 	channelMetaActions,
+	channelSettingActions,
 	channelsActions,
 	channelsSlice,
 	clansActions,
@@ -1436,8 +1437,24 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				);
 			}
 		}
-	}, []);
 
+		if (channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_DM && channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_GROUP) {
+			dispatch(
+				channelSettingActions.addChannelFromSocket({
+					id: channelCreated.channel_id,
+					channel_id: channelCreated.channel_id,
+					channel_label: channelCreated.channel_label,
+					parent_id: channelCreated.parent_id,
+					category_id: channelCreated.category_id,
+					clan_id: channelCreated.clan_id,
+					channel_private: channelCreated.channel_private,
+					channel_type: channelCreated.channel_type,
+					creator_id: channelCreated.creator_id,
+					app_id: channelCreated.app_id
+				})
+			);
+		}
+	}, []);
 	const oncategoryevent = useCallback(async (categoryEvent: CategoryEvent) => {
 		if (categoryEvent.status === EEventAction.CREATED) {
 			dispatch(
@@ -1567,6 +1584,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(voiceActions.resetVoiceControl());
 			}
 
+			if (channelDeleted.channel_id !== '0') {
+				dispatch(channelSettingActions.removeChannelFromSocket(channelDeleted.channel_id));
+			}
+
 			if (channelDeleted?.deletor === userId) {
 				dispatch(channelsActions.deleteChannelSocket(channelDeleted));
 				dispatch(listChannelsByUserActions.remove(channelDeleted.channel_id));
@@ -1684,7 +1705,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				}
 				return dispatch(directActions.updateOne({ ...channelUpdated, currentUserId: userId }));
 			}
-
+			if (channelUpdated.channel_type !== ChannelType.CHANNEL_TYPE_DM && channelUpdated.channel_type !== ChannelType.CHANNEL_TYPE_GROUP) {
+				dispatch(
+					channelSettingActions.updateChannelFromSocket({
+						id: channelUpdated.channel_id,
+						channel_id: channelUpdated.channel_id,
+						channel_label: channelUpdated.channel_label,
+						parent_id: channelUpdated.parent_id,
+						category_id: channelUpdated.category_id,
+						clan_id: channelUpdated.clan_id,
+						channel_private: channelUpdated.channel_private,
+						channel_type: channelUpdated.channel_type,
+						creator_id: channelUpdated.creator_id,
+						app_id: channelUpdated.app_id
+					})
+				);
+			}
 			// Switch public to private
 			if (channelUpdated.channel_private && channelExist && channelExist.channel_private !== channelUpdated.channel_private) {
 				const result = await dispatch(
@@ -2747,3 +2783,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider };
+
