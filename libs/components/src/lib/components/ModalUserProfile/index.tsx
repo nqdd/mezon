@@ -236,7 +236,9 @@ const ModalUserProfile = ({
 			</div>
 			<AvatarProfile
 				avatar={avatar || avatarByUserId}
-				username={(isFooterProfile && userProfile?.user?.username) || message?.username || userById?.user?.username}
+				username={
+					(isFooterProfile && userProfile?.user?.username) || message?.username || userById?.user?.username || currentUserId?.username
+				}
 				userToDisplay={isFooterProfile ? userProfile : userById}
 				customStatus={status.user_status}
 				isAnonymous={checkAnonymous}
