@@ -95,7 +95,7 @@ import {
 	webhookActions
 } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import type { EOverriddenPermission, IMessageSendPayload, IUserProfileActivity, NotificationCategory } from '@mezon/utils';
+import type { IMessageSendPayload, IUserProfileActivity, NotificationCategory } from '@mezon/utils';
 import {
 	ADD_ROLE_CHANNEL_STATUS,
 	AMOUNT_TOKEN,
@@ -103,6 +103,7 @@ import {
 	EEventAction,
 	EEventStatus,
 	EMuteState,
+	EOverriddenPermission,
 	ERepeatType,
 	EUserStatus,
 	IMessageTypeCallLog,
@@ -1848,7 +1849,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					...(userPermission.default_permissions?.map((perm) => ({
 						id: perm.permission_id as string,
 						slug: perm.slug as EOverriddenPermission,
-						active: perm.type || 0
+						active: perm.slug === EOverriddenPermission.sendMessage ? 1 : 0
 					})) || [])
 				];
 				dispatch(
