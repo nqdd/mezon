@@ -48,15 +48,22 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 		setOtp(e);
 	};
 
-	const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setEmail(value);
-		setOtp(Array(6).fill(''));
-		setErrors((prev) => ({
-			...prev,
-			email: validateEmail(value)
-		}));
-	}, []);
+	const handleEmailChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			console.log('step: ', step);
+			if (step) {
+				return;
+			}
+			const value = e.target.value;
+			setEmail(value);
+			setOtp(Array(6).fill(''));
+			setErrors((prev) => ({
+				...prev,
+				email: validateEmail(value)
+			}));
+		},
+		[step]
+	);
 
 	useEffect(() => {
 		if (!reqId) return;
