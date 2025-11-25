@@ -344,7 +344,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 			const isMobile = false;
 			const currentDirectId = selectDmGroupCurrentId(store.getState());
 
-			if (message.id === '0') {
+			if (!message.id || message.id === '0') {
 				const lastMessage = selectLastMessageByChannelId(store.getState(), message.channel_id);
 				if (lastMessage?.id) {
 					message.id = (BigInt(lastMessage.id) + BigInt(1)).toString();
@@ -405,7 +405,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 					dispatch(attachmentActions.removeAttachments({ messageId: message?.message_id as string, channelId: message.channel_id }));
 				}
 
-				if (message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove) {
+				if (
+					message.code === TypeMessage.ChatUpdate ||
+					message.code === TypeMessage.ChatRemove ||
+					message.code === TypeMessage.UpdateEphemeralMsg ||
+					message.code === TypeMessage.DeleteEphemeralMsg
+				) {
 					dispatch(messagesActions.newMessage(mess));
 
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {

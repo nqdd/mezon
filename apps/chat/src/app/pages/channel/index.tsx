@@ -163,7 +163,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			? ChannelStreamMode.STREAM_MODE_CHANNEL
 			: ChannelStreamMode.STREAM_MODE_THREAD;
 
-	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState<boolean | null>(null);
+	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState<boolean>(false);
 	const isAppChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
 
 	const currentClanId = useSelector(selectCurrentClanId);
@@ -205,14 +205,6 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		return selectUserProcessing?.onboarding_step !== DONE_ONBOARDING_STATUS && currentClanIsOnboarding;
 	}, [selectUserProcessing?.onboarding_step, currentClanIsOnboarding, previewMode, currentClanId]);
 	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannel.id));
-	if (canSendMessageDelayed === null) {
-		return (
-			<div
-				className="h-11 opacity-80 bg-theme-input text-theme-primary ml-4 mb-4 py-2 pl-2 w-widthInputViewChannelPermission rounded one-line"
-				data-e2e={generateE2eId('chat.message_box.input.no_permission')}
-			></div>
-		);
-	}
 	if (!canSendMessageDelayed) {
 		return (
 			<div

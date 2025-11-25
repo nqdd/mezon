@@ -8,7 +8,6 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx, withRetry } from '../helpers';
-import { overriddenPoliciesActions } from '../policies/overriddenPolicies.slice';
 import type { RootState } from '../store';
 
 export const LIST_PERMISSION_ROLE_CHANNEL_FEATURE_KEY = 'listpermissionroleschannel';
@@ -126,10 +125,7 @@ export const setPermissionRoleChannel = createAsyncThunk(
 				user_id: userId
 			};
 			const response = await mezon.client.setRoleChannelPermission(mezon.session, body);
-			if (response) {
-				await thunkAPI.dispatch(fetchPermissionRoleChannel({ channelId, roleId, userId, noCache: true }));
-				thunkAPI.dispatch(overriddenPoliciesActions.fetchMaxChannelPermission({ clanId, channelId, noCache: true }));
-			}
+			return response;
 		} catch (error) {
 			return thunkAPI.rejectWithValue([]);
 		}
