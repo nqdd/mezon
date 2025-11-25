@@ -164,7 +164,7 @@ const BrandCenterPage = () => {
 							</div>
 
 							<div id="donts" ref={dontsRef} className="scroll-mt-24 pt-8">
-								<h3 className="text-3xl font-bold text-gray-900 mb-2 select-text">Don't's</h3>
+								<h3 className="text-3xl font-bold text-gray-900 mb-2 select-text">Don'ts</h3>
 								<div className="h-1 w-12 bg-red-500 rounded-full mb-8" />
 								<div className="space-y-5">
 									{[
