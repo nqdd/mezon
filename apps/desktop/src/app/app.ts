@@ -2,7 +2,6 @@ import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, Menu, Notification, app, dialog, powerMonitor, screen, shell } from 'electron';
 import log from 'electron-log/main';
 import { autoUpdater } from 'electron-updater';
-import { LogLevel, setLogLevel } from 'livekit-client';
 import activeWindows from 'mezon-active-windows';
 import { join } from 'path';
 import ua from 'universal-analytics';
@@ -274,9 +273,6 @@ export default class App {
 			tray.destroy();
 			App.application.exit();
 		});
-
-		// set log level to silent
-		setLogLevel(LogLevel.silent);
 	}
 
 	private static generateQueryString(params: Record<string, string>): string {
