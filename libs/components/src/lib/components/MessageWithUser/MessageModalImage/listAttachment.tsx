@@ -85,20 +85,17 @@ const ListAttachment = (props: ListAttachmentProps) => {
 	}, [virtualItems, hasMoreBefore, hasMoreAfter, onLoadMore, isLoadingMore, isLoading, reversedAttachments.length]);
 
 	useEffect(() => {
-		if (reversedAttachments.length > 0 && currentIndexAtt !== undefined && scrollContainerRef.current && virtualizer) {
+		if (isFirstRenderRef.current && reversedAttachments.length > 0 && currentIndexAtt !== undefined && scrollContainerRef.current) {
 			const reversedIndex = attachments.length - 1 - currentIndexAtt;
 
-			if (isFirstRenderRef.current) {
+			if (scrollContainerRef.current && virtualizer) {
 				virtualizer.scrollToIndex(reversedIndex, { align: 'center' });
 				setTimeout(() => {
 					isFirstRenderRef.current = false;
 				}, 300);
-			} else {
-				// Auto-scroll when navigating with keyboard
-				virtualizer.scrollToIndex(reversedIndex, { align: 'center', behavior: 'smooth' });
 			}
 		}
-	}, [currentIndexAtt, reversedAttachments.length, attachments.length, virtualizer]);
+	}, [reversedAttachments.length, currentIndexAtt, attachments.length, virtualizer]);
 
 	useLayoutEffect(() => {
 		if (isLoadingMore && !isLoading) {

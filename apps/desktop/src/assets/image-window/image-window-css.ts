@@ -390,23 +390,16 @@ width : 0 !important;
     }
 
     .skeleton {
-        background: linear-gradient(
-            90deg,
-            #2e2e2e 0%,
-            #3e3e3e 50%,
-            #2e2e2e 100%
-        );
-        background-size: 200% 100%;
-        animation: skeleton-loading 1.5s ease-in-out infinite;
+        animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         border-radius: 6px;
     }
 
-    @keyframes skeleton-loading {
-        0% {
-            background-position: 200% 0;
+    @keyframes skeleton-pulse {
+        0%, 100% {
+            opacity: 1;
         }
-        100% {
-            background-position: -200% 0;
+        50% {
+            opacity: 0.5;
         }
     }
 
@@ -416,11 +409,21 @@ width : 0 !important;
         display: none;
         opacity: 0;
         transition: opacity 0.3s ease-in-out;
+        background-color: #2e2e2e;
+        border-radius: 10px;
+        align-items: center;
+        justify-content: center;
     }
 
     .skeleton-main.visible {
-        display: block;
+        display: flex;
         opacity: 1;
+    }
+
+    .skeleton-icon {
+        width: 64px;
+        height: 64px;
+        color: #4a4a4a;
     }
 
     .skeleton-thumbnail {

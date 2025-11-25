@@ -47,6 +47,9 @@ const MessageModalImage = () => {
 	const [currentIndexAtt, setCurrentIndexAtt] = useState(-1);
 	const { showMessageContextMenu, setPositionShow, setImageURL } = useMessageContextMenu();
 	const [isPlaying, setIsPlaying] = useState(false);
+	const [isMediaLoading, setIsMediaLoading] = useState(true);
+	const [showSkeleton, setShowSkeleton] = useState(false);
+	const skeletonTimerRef = useRef<NodeJS.Timeout | null>(null);
 
 	const isVideo = useMemo(() => {
 		if (currentAttachment?.filetype?.startsWith(ETypeLinkMedia.VIDEO_PREFIX)) {
@@ -142,6 +145,36 @@ const MessageModalImage = () => {
 		}
 	}, [isPlaying]);
 
+	const handleMediaLoaded = useCallback(() => {
+		if (skeletonTimerRef.current) {
+			clearTimeout(skeletonTimerRef.current);
+			skeletonTimerRef.current = null;
+		}
+		setShowSkeleton(false);
+		setIsMediaLoading(false);
+	}, []);
+
+	useEffect(() => {
+		if (!currentAttachment) return;
+
+		setIsMediaLoading(true);
+		setShowSkeleton(false);
+
+		if (skeletonTimerRef.current) {
+			clearTimeout(skeletonTimerRef.current);
+		}
+
+		skeletonTimerRef.current = setTimeout(() => {
+			setShowSkeleton(true);
+		}, 100);
+
+		return () => {
+			if (skeletonTimerRef.current) {
+				clearTimeout(skeletonTimerRef.current);
+			}
+		};
+	}, [currentAttachment]);
+
 	useEffect(() => {
 		setShowList(true);
 		setScale(1);
@@ -158,13 +191,8 @@ const MessageModalImage = () => {
 	}, [openModalAttachment, attachment]);
 
 	useEffect(() => {
-		console.log(currentAttachment, 'currentAttachment');
-		console.log(attachments, 'attachments');
-
 		if (attachments && attachments.length > 0 && currentAttachment?.id) {
-			// ID format is now consistent: ${message_id}_${filename}
 			const indexImage = attachments.findIndex((img) => img.id === currentAttachment.id);
-			console.log('Found index:', indexImage, 'for ID:', currentAttachment.id);
 			setCurrentIndexAtt(indexImage);
 		}
 	}, [attachments, currentAttachment?.id]);
@@ -206,12 +234,12 @@ const MessageModalImage = () => {
 
 	const handleSelectImage = useCallback(
 		(newIndex: number) => {
-			console.log(newIndex, 'newIndex');
-			console.log(attachments, 'attachments');
-
 			if (!attachments) {
 				return;
 			}
+			setScale(1);
+			setRotate(0);
+			setPosition({ x: 0, y: 0 });
 			setUrlImg(attachments[newIndex]?.url || '');
 			setCurrentIndexAtt(newIndex);
 			dispatch(attachmentActions.setCurrentAttachment(attachments[newIndex]));
@@ -220,8 +248,6 @@ const MessageModalImage = () => {
 	);
 
 	const handleSelectNextImage = useCallback(() => {
-		console.log(attachments?.length, 'attachments');
-
 		if (!attachments) {
 			return;
 		}
@@ -233,12 +259,7 @@ const MessageModalImage = () => {
 	}, [attachments, currentIndexAtt, handleSelectImage]);
 
 	const handleSelectPreviousImage = useCallback(() => {
-		console.log('handleSelectPreviousImage');
-
 		const newIndex = currentIndexAtt > 0 ? currentIndexAtt - 1 : currentIndexAtt;
-		console.log(newIndex, 'newIndex');
-		console.log(currentIndexAtt, 'currentIndexAtt');
-
 		if (newIndex !== currentIndexAtt) {
 			handleSelectImage(newIndex);
 		}
@@ -246,8 +267,6 @@ const MessageModalImage = () => {
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
-			console.log(event.key, 'handleKeyDown');
-
 			if (event.repeat) {
 				return;
 			}
@@ -262,13 +281,11 @@ const MessageModalImage = () => {
 				return;
 			}
 			if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
-				handleSelectNextImage();
+				handleSelectPreviousImage();
 			}
 
-			console.log(event.key, 'event.key');
-
 			if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
-				handleSelectPreviousImage();
+				handleSelectNextImage();
 			}
 		},
 		[isVideo, toggleVideoPlayback, handleSelectNextImage, handleSelectPreviousImage]
@@ -362,11 +379,40 @@ const MessageModalImage = () => {
 					className="flex-1 flex justify-center items-center px-5 py-3 overflow-hidden h-full w-full relative"
 					onClick={handleClickOutsideImage}
 				>
+					{showSkeleton && isMediaLoading && (
+						<div
+							role="status"
+							className="absolute flex items-center justify-center rounded-[10px] bg-[#2e2e2e] animate-pulse"
+							style={{
+								width: currentAttachment?.width ? `${currentAttachment.width}px` : '60%',
+								height: currentAttachment?.height ? `${currentAttachment.height}px` : '60%',
+								maxWidth: '100%',
+								maxHeight: '100%'
+							}}
+						>
+							<svg
+								className="w-16 h-16 text-[#4a4a4a]"
+								aria-hidden="true"
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke="currentColor"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth="2"
+									d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+								/>
+							</svg>
+							<span className="sr-only">Loading...</span>
+						</div>
+					)}
 					{isVideo ? (
 						<video
 							ref={videoRef}
 							src={urlImg ?? ''}
-							className="max-h-full max-w-full object-scale-down rounded-[10px] cursor-pointer"
+							className={`max-h-full max-w-full object-scale-down rounded-[10px] cursor-pointer transition-opacity duration-300 ${isMediaLoading ? 'opacity-0' : 'opacity-100'}`}
 							controls
 							onContextMenu={handleContextMenu}
 							onClick={(e) => {
@@ -375,12 +421,14 @@ const MessageModalImage = () => {
 							}}
 							onPlay={() => setIsPlaying(true)}
 							onPause={() => setIsPlaying(false)}
+							onLoadedData={handleMediaLoaded}
+							onError={handleMediaLoaded}
 						/>
 					) : (
 						<img
 							src={createImgproxyUrl(urlImg ?? '', { width: 0, height: 0, resizeType: 'force' })}
 							alt={urlImg}
-							className={`max-h-full object-scale-down rounded-[10px] cursor-default ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
+							className={`max-h-full object-scale-down rounded-[10px] cursor-default transition-opacity duration-300 ${isMediaLoading ? 'opacity-0' : 'opacity-100'} ${rotate % 180 === 90 ? 'w-[calc(100vh_-_30px_-_56px)] h-auto' : 'h-auto'}`}
 							onDragStart={handleDrag}
 							onWheel={handleWheel}
 							onMouseUp={handleMouseUp}
@@ -394,6 +442,8 @@ const MessageModalImage = () => {
 							}}
 							onContextMenu={handleContextMenu}
 							onClick={stopPropagation}
+							onLoad={handleMediaLoaded}
+							onError={handleMediaLoaded}
 						/>
 					)}
 					<div

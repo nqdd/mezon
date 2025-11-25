@@ -79,25 +79,20 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 				const processor = new DeepFilterNoiseFilterProcessor({
 					sampleRate,
 					noiseReductionLevel: currentLevel,
-					enabled: true, // Always enable internally
+					enabled: true,
 					assetConfig: {
 						cdnUrl: 'https://cdn.mezon.ai/AI/models/datas/noise_suppression/deepfilternet3'
 					}
 				});
 
-				// console.log('start set processor');
-
-				// Always enable the processor internally, we control via attachment
 				await processor.setEnabled(true);
 
 				if (enabledRef.current) {
 					await track.setProcessor(processor);
 				} else {
-					// If disabled, ensure context is suspended to save CPU
 					await processor.audioContext?.suspend();
 				}
 
-				// console.log('set process success');
 				processor.setSuppressionLevel(currentLevel);
 				processorsRef.current.set(trackSid, { processor, track: publication });
 			} catch (error) {

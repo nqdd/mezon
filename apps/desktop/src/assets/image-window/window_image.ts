@@ -131,10 +131,14 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   <div id="channel-label" class="channel-label">${escapeHtml(imageData.channelImagesData.channelLabel)}</div>
   <div class="image-view">
     <div class="selected-image-wrapper" id="selected-image-wrapper">
-      <div id="skeleton-main" class="skeleton skeleton-main" style="width: ${imageData.width}px; height: ${imageData.height}px; max-width: 100%; max-height: 100%;"></div>
+      <div id="skeleton-main" class="skeleton skeleton-main" style="width: ${imageData.width}px; height: ${imageData.height}px; max-width: 100%; max-height: 100%;">
+        <svg class="skeleton-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"/>
+        </svg>
+      </div>
       ${
 			imageData.isVideo || imageData.filetype?.startsWith('video') || imageData.filetype?.includes('mp4') || imageData.filetype?.includes('mov')
-				? `<video id="selectedMedia" class="selected-image image-loading" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
+				? `<video id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
 				: `<img id="selectedMedia" class="selected-image image-loading" src="${sanitizeUrl(imageData.url)}" />`
 		}
     </div>
@@ -254,37 +258,49 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
             skeletonMain.style.display = 'none';
           }, 300);
         }
-        if (selectedMedia) {
-          selectedMedia.classList.remove('image-loading');
-          selectedMedia.classList.add('image-loaded');
+        const currentMedia = document.getElementById('selectedMedia');
+        if (currentMedia) {
+          currentMedia.classList.remove('image-loading');
+          currentMedia.classList.add('image-loaded');
         }
       };
 
-      const handleMediaLoading = () => {
+      const handleMediaLoading = (forceForImage = false) => {
         if (skeletonTimer) {
           clearTimeout(skeletonTimer);
         }
-        skeletonTimer = setTimeout(() => {
-          if (skeletonMain) {
-            skeletonMain.style.display = 'block';
-            requestAnimationFrame(() => {
-              skeletonMain.classList.add('visible');
-            });
-          }
-        }, 1000);
+        const currentMedia = document.getElementById('selectedMedia');
+        const currentIsVideo = currentMedia && currentMedia.tagName === 'VIDEO';
+        const shouldShowSkeleton = forceForImage || !currentIsVideo;
 
-        if (selectedMedia) {
-          selectedMedia.classList.add('image-loading');
-          selectedMedia.classList.remove('image-loaded');
+        if (shouldShowSkeleton) {
+          skeletonTimer = setTimeout(() => {
+            if (skeletonMain) {
+              skeletonMain.style.display = 'block';
+              requestAnimationFrame(() => {
+                skeletonMain.classList.add('visible');
+              });
+            }
+          }, 1000);
+
+          if (currentMedia) {
+            currentMedia.classList.add('image-loading');
+            currentMedia.classList.remove('image-loaded');
+          }
         }
       };
 
-      handleMediaLoading();
+      if (!isVideo) {
+        handleMediaLoading();
+      }
 
       if (selectedMedia) {
         if (isVideo) {
           selectedMedia.addEventListener('loadeddata', handleMediaLoaded);
           selectedMedia.addEventListener('error', handleMediaLoaded);
+          if (selectedMedia.readyState >= 2) {
+            handleMediaLoaded();
+          }
         } else {
           if (selectedMedia.complete && selectedMedia.naturalHeight !== 0) {
             handleMediaLoaded();
@@ -396,7 +412,6 @@ const createThumbProxyUrlScript = () => {
 			const path = '/' + processingOptions + '/plain/' + sourceImageUrl + '@webp';
 			const base = ${JSON.stringify(base)};
 			const key = ${JSON.stringify(key)};
-			console.log({base,key}, 'key');
 			if (!base || !key) return sourceImageUrl;
 			return base + '/' + key + path;
 		};
@@ -706,9 +721,6 @@ const createVirtualizer = () => {
 						if (index === currentIndex && currentIndex >= 0) {
 							img.classList.add('active');
 						}
-							console.log( createThumbProxyUrl(item.url), ' createThumbProxyUrl(item.url)');
-
-						console.log(item.url, 'item.url');
 						img.src = createThumbProxyUrl(item.url);
 						img.alt = item.filename || '';
 						img.setAttribute('data-index', index);
@@ -790,7 +802,6 @@ const createVirtualizer = () => {
 			}
 			scrollToIndex(index, smooth = false) {
 
-			    console.log('scrollToIndex');
 				const itemStart = this.getItemStart(index);
 				const itemHeight = this.getItemHeight(index);
 				const targetScroll = Math.max(
@@ -933,8 +944,6 @@ export const listThumnails = (_listImage: IAttachmentEntityWithUploader[], _inde
 	return '';
 };
 export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], indexSelect: number) => {
-	console.log(listImage, 'listImage');
-
 	const reversedImages = [...listImage].reverse();
 	const reversedIndexSelect = indexSelect >= 0 ? reversedImages.length - 1 - indexSelect : -1;
 	const initialImagesData = reversedImages.map((image: IAttachmentEntityWithUploader) => ({
@@ -968,13 +977,9 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 				}
 			);
 			virtualizer.onThumbnailClick = function(itemId) {
-				console.log(itemId, 'itemId')
 				const imageData = imagesData.find(img => (img.id || img.url) === itemId);
-					console.log(imageData, 'imageData')
 				if (!imageData) return;
 				resetTransform();
-
-				handleMediaLoading();
 
 				const selectedMedia = document.getElementById('selectedMedia');
 				if (selectedMedia) {
@@ -986,24 +991,44 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 						imageData.filetype?.includes('mov');
 					const wasVideo = selectedMedia.tagName === 'VIDEO';
 
+					if (!isNewVideo) {
+						handleMediaLoading(true);
+					}
+
 					if (isNewVideo !== wasVideo) {
 						const wrapper = document.getElementById('selected-image-wrapper');
 						if (wrapper) {
 							wrapper.innerHTML = '';
-							const newSkeleton = document.createElement('div');
-							newSkeleton.id = 'skeleton-main';
-							newSkeleton.className = 'skeleton skeleton-main';
-							if (imageData.width && imageData.height) {
-								newSkeleton.style.width = imageData.width + 'px';
-								newSkeleton.style.height = imageData.height + 'px';
-								newSkeleton.style.maxWidth = '100%';
-								newSkeleton.style.maxHeight = '100%';
+
+							if (!isNewVideo) {
+								const newSkeleton = document.createElement('div');
+								newSkeleton.id = 'skeleton-main';
+								newSkeleton.className = 'skeleton skeleton-main';
+								if (imageData.width && imageData.height) {
+									newSkeleton.style.width = imageData.width + 'px';
+									newSkeleton.style.height = imageData.height + 'px';
+									newSkeleton.style.maxWidth = '100%';
+									newSkeleton.style.maxHeight = '100%';
+								}
+								const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+								iconSvg.setAttribute('class', 'skeleton-icon');
+								iconSvg.setAttribute('fill', 'none');
+								iconSvg.setAttribute('viewBox', '0 0 24 24');
+								const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+								path.setAttribute('stroke', 'currentColor');
+								path.setAttribute('stroke-linecap', 'round');
+								path.setAttribute('stroke-linejoin', 'round');
+								path.setAttribute('stroke-width', '2');
+								path.setAttribute('d', 'm3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z');
+								iconSvg.appendChild(path);
+								newSkeleton.appendChild(iconSvg);
+								wrapper.appendChild(newSkeleton);
 							}
-							wrapper.appendChild(newSkeleton);
+
 							if (isNewVideo) {
 								const video = document.createElement('video');
 								video.id = 'selectedMedia';
-								video.className = 'selected-image image-loading';
+								video.className = 'selected-image image-loaded';
 								video.src = imageData.realUrl || imageData.url;
 								video.controls = true;
 								video.autoplay = true;
@@ -1015,22 +1040,30 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 								const img = document.createElement('img');
 								img.id = 'selectedMedia';
 								img.className = 'selected-image image-loading';
-								img.src = imageData.url;
 								img.addEventListener('load', handleMediaLoaded);
 								img.addEventListener('error', handleMediaLoaded);
+								img.src = imageData.url;
 								wrapper.appendChild(img);
+								if (img.complete && img.naturalHeight !== 0) {
+									handleMediaLoaded();
+								}
 							}
 						}
 					} else {
-						selectedMedia.classList.add('image-loading');
-						selectedMedia.classList.remove('image-loaded');
-						selectedMedia.src = isNewVideo ? (imageData.realUrl || imageData.url) : imageData.url;
 						if (wasVideo) {
+							selectedMedia.src = imageData.realUrl || imageData.url;
 							selectedMedia.addEventListener('loadeddata', handleMediaLoaded, { once: true });
 							selectedMedia.load();
 							selectedMedia.play();
 						} else {
+							selectedMedia.classList.add('image-loading');
+							selectedMedia.classList.remove('image-loaded');
 							selectedMedia.addEventListener('load', handleMediaLoaded, { once: true });
+							selectedMedia.addEventListener('error', handleMediaLoaded, { once: true });
+							selectedMedia.src = imageData.url;
+							if (selectedMedia.complete && selectedMedia.naturalHeight !== 0) {
+								handleMediaLoaded();
+							}
 						}
 					}
 				}
@@ -1132,7 +1165,6 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 
 						if (window.thumbnailVirtualizer.onThumbnailClick) {
 
-						console.log('onThumbnailClick');
 							window.thumbnailVirtualizer.onThumbnailClick(newItemId);
 						}
 
