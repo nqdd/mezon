@@ -107,12 +107,12 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 						<h3 className="font-semibold text-xs md:text-md uppercase tracking-wider mb-4 md:mb-5 text-white">Company</h3>
 						<div className="space-y-2 md:space-y-3">
 							<a
-								href="https://mezon.ai/blogs/mediakit"
+								href="brand-center"
 								target="_blank"
 								rel="noreferrer"
 								className="text-white/90 hover:text-white transition-colors text-xs md:text-sm leading-relaxed block"
 							>
-								Media Kit
+								Brand Center
 							</a>
 							<a
 								href="/contact-us"
