@@ -1795,10 +1795,21 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children }) =
 				dispatch(listChannelsByUserActions.upsertOne({ id: channelUpdated.channel_id, ...channelUpdated }));
 			}
 			if (channelUpdated.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
+				const cleanDataThread: Record<string, string | number | boolean | string[]> = {};
+
+				Object.keys(channelUpdated).forEach((key) => {
+					const value = channelUpdated[key as keyof ChannelUpdatedEvent];
+					if (value !== undefined && value !== '') {
+						cleanDataThread[key as keyof typeof cleanDataThread] = value;
+					}
+				});
 				dispatch(
-					channelsActions.upsertOne({
+					channelsActions.update({
 						clanId: channelUpdated.clan_id as string,
-						channel: { ...channelUpdated, active: 1, id: channelUpdated.channel_id } as ChannelsEntity
+						update: {
+							id: channelUpdated.channel_id,
+							changes: { ...cleanDataThread, active: 1, id: channelUpdated.channel_id }
+						}
 					})
 				);
 			}
