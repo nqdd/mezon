@@ -389,6 +389,57 @@ width : 0 !important;
         opacity: 1;
     }
 
+    .skeleton {
+        background: linear-gradient(
+            90deg,
+            #2e2e2e 0%,
+            #3e3e3e 50%,
+            #2e2e2e 100%
+        );
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s ease-in-out infinite;
+        border-radius: 6px;
+    }
+
+    @keyframes skeleton-loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    .skeleton-main {
+        position: absolute;
+        z-index: 1;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .skeleton-main.visible {
+        display: block;
+        opacity: 1;
+    }
+
+    .skeleton-thumbnail {
+        width: 88px;
+        height: 88px;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .image-loading {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .image-loaded {
+        opacity: 1;
+    }
+
 
 `;
 export default image_window_css;

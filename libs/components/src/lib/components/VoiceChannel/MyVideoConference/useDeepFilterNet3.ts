@@ -29,6 +29,11 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 		levelRef.current = level;
 	}, [level]);
 
+	const enabledRef = useRef<boolean>(enabled);
+	useEffect(() => {
+		enabledRef.current = enabled;
+	}, [enabled]);
+
 	useEffect(() => {
 		if (!room || !localParticipant) {
 			return;
@@ -74,7 +79,7 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 				const processor = new DeepFilterNoiseFilterProcessor({
 					sampleRate,
 					noiseReductionLevel: currentLevel,
-					enabled: true,
+					enabled: true, // Always enable internally
 					assetConfig: {
 						cdnUrl: 'https://cdn.mezon.ai/AI/models/datas/noise_suppression/deepfilternet3'
 					}
@@ -82,7 +87,15 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 
 				// console.log('start set processor');
 
-				await track.setProcessor(processor);
+				// Always enable the processor internally, we control via attachment
+				await processor.setEnabled(true);
+
+				if (enabledRef.current) {
+					await track.setProcessor(processor);
+				} else {
+					// If disabled, ensure context is suspended to save CPU
+					await processor.audioContext?.suspend();
+				}
 
 				// console.log('set process success');
 				processor.setSuppressionLevel(currentLevel);
@@ -148,7 +161,7 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 			});
 			processorsMap.clear();
 		};
-	}, [room, localParticipant, sampleRate, enabled]);
+	}, [room, localParticipant, sampleRate]);
 
 	useEffect(() => {
 		if (!enabled || !room || !localParticipant) {
@@ -165,10 +178,21 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 	}, [level, enabled, room, localParticipant]);
 
 	useEffect(() => {
-		processorsRef.current.forEach((processorData) => {
-			processorData.processor.setEnabled(enabled).catch((error) => {
+		processorsRef.current.forEach(async (processorData) => {
+			try {
+				const track = processorData.track.track;
+				if (!track) return;
+
+				if (enabled) {
+					await processorData.processor.audioContext?.resume();
+					await track.setProcessor(processorData.processor);
+				} else {
+					await track.stopProcessor();
+					await processorData.processor.audioContext?.suspend();
+				}
+			} catch (error) {
 				console.error('Failed to toggle noise suppression:', error);
-			});
+			}
 		});
 	}, [enabled]);
 };

@@ -131,10 +131,11 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   <div id="channel-label" class="channel-label">${escapeHtml(imageData.channelImagesData.channelLabel)}</div>
   <div class="image-view">
     <div class="selected-image-wrapper" id="selected-image-wrapper">
+      <div id="skeleton-main" class="skeleton skeleton-main" style="width: ${imageData.width}px; height: ${imageData.height}px; max-width: 100%; max-height: 100%;"></div>
       ${
 			imageData.isVideo || imageData.filetype?.startsWith('video') || imageData.filetype?.includes('mp4') || imageData.filetype?.includes('mov')
-				? `<video id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
-				: `<img id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.url)}" />`
+				? `<video id="selectedMedia" class="selected-image image-loading" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
+				: `<img id="selectedMedia" class="selected-image image-loading" src="${sanitizeUrl(imageData.url)}" />`
 		}
     </div>
     <div id="thumbnails" class="thumbnail-container">
@@ -239,6 +240,61 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 		popupWindow.webContents.executeJavaScript(`
 	    const selectedMedia = document.getElementById('selectedMedia');
       const isVideo = selectedMedia && selectedMedia.tagName === 'VIDEO';
+      const skeletonMain = document.getElementById('skeleton-main');
+      let skeletonTimer = null;
+
+      const handleMediaLoaded = () => {
+        if (skeletonTimer) {
+          clearTimeout(skeletonTimer);
+          skeletonTimer = null;
+        }
+        if (skeletonMain) {
+          skeletonMain.classList.remove('visible');
+          setTimeout(() => {
+            skeletonMain.style.display = 'none';
+          }, 300);
+        }
+        if (selectedMedia) {
+          selectedMedia.classList.remove('image-loading');
+          selectedMedia.classList.add('image-loaded');
+        }
+      };
+
+      const handleMediaLoading = () => {
+        if (skeletonTimer) {
+          clearTimeout(skeletonTimer);
+        }
+        skeletonTimer = setTimeout(() => {
+          if (skeletonMain) {
+            skeletonMain.style.display = 'block';
+            requestAnimationFrame(() => {
+              skeletonMain.classList.add('visible');
+            });
+          }
+        }, 1000);
+
+        if (selectedMedia) {
+          selectedMedia.classList.add('image-loading');
+          selectedMedia.classList.remove('image-loaded');
+        }
+      };
+
+      handleMediaLoading();
+
+      if (selectedMedia) {
+        if (isVideo) {
+          selectedMedia.addEventListener('loadeddata', handleMediaLoaded);
+          selectedMedia.addEventListener('error', handleMediaLoaded);
+        } else {
+          if (selectedMedia.complete && selectedMedia.naturalHeight !== 0) {
+            handleMediaLoaded();
+          } else {
+            selectedMedia.addEventListener('load', handleMediaLoaded);
+            selectedMedia.addEventListener('error', handleMediaLoaded);
+          }
+        }
+      }
+
       let currentImageUrl = {
         fileName : '${imageData.filename}',
         url : '${imageData.url}',
@@ -314,9 +370,7 @@ document.addEventListener('keydown', (e) => {
 	App.imageViewerWindow = popupWindow;
 	return popupWindow;
 }
-function formatDate(dateString) {
-	return new Date(dateString).toLocaleDateString();
-}
+
 function formatDateTime(dateString) {
 	const options = {
 		year: 'numeric',
@@ -328,6 +382,26 @@ function formatDateTime(dateString) {
 	};
 	return new Date(dateString).toLocaleString('vi-VN');
 }
+const createThumbProxyUrlScript = () => {
+	const base = process.env.NX_IMGPROXY_BASE_URL || 'https://imgproxy.mezon.ai';
+	const key = process.env.NX_IMGPROXY_KEY || 'K0YUZRIosDOcz5lY6qrgC6UIXmQgWzLjZv7VJ1RAA8c';
+
+	return `
+		const createThumbProxyUrl = (sourceImageUrl) => {
+			if (!sourceImageUrl) return '';
+			const width = 88;
+			const height = 88;
+			const resizeType = 'fit';
+			const processingOptions = 'rs:' + resizeType + ':' + width + ':' + height + ':1/mb:2097152';
+			const path = '/' + processingOptions + '/plain/' + sourceImageUrl + '@webp';
+			const base = ${JSON.stringify(base)};
+			const key = ${JSON.stringify(key)};
+			console.log({base,key}, 'key');
+			if (!base || !key) return sourceImageUrl;
+			return base + '/' + key + path;
+		};
+	`;
+};
 const createVirtualizer = () => {
 	return `
 		const debounce = (fn, ms) => {
@@ -341,20 +415,6 @@ const createVirtualizer = () => {
 		const getRect = (element) => {
 			const { offsetWidth, offsetHeight } = element;
 			return { width: offsetWidth, height: offsetHeight };
-		};
-
-		const createThumbProxyUrl = (sourceImageUrl) => {
-			if (!sourceImageUrl) return '';
-			if (!sourceImageUrl.startsWith('https://cdn.mezon')) return sourceImageUrl;
-			const width = 88;
-			const height = 88;
-			const resizeType = 'fit';
-			const processingOptions = 'rs:' + resizeType + ':' + width + ':' + height + ':1/mb:2097152';
-			const path = '/' + processingOptions + '/plain/' + sourceImageUrl + '@webp';
-			const base = '${process.env.NX_IMGPROXY_BASE_URL || ''}';
-			const key = '${process.env.NX_IMGPROXY_KEY || ''}';
-			if (!base || !key) return sourceImageUrl;
-			return base + '/' + key + path;
 		};
 		class ThumbnailVirtualizer {
 			constructor(container, items, options = {}) {
@@ -604,9 +664,13 @@ const createVirtualizer = () => {
 					const isVideoThumbnail = item.isVideo || item.filetype?.startsWith('video') || item.filetype?.includes('mp4') || item.filetype?.includes('mov');
 					const currentIndex = this.findIndexById(this.currentItemId);
 
+					const skeleton = document.createElement('div');
+					skeleton.className = 'skeleton skeleton-thumbnail';
+					wrapper.appendChild(skeleton);
+
 					if (isVideoThumbnail) {
 						const video = document.createElement('video');
-						video.className = 'thumbnail';
+						video.className = 'thumbnail image-loading';
 						if (index === currentIndex && currentIndex >= 0) {
 							video.classList.add('active');
 						}
@@ -621,6 +685,14 @@ const createVirtualizer = () => {
 							const itemId = e.target.getAttribute('data-id');
 							this.onThumbnailClick(itemId);
 						});
+						video.addEventListener('loadeddata', () => {
+							skeleton.style.display = 'none';
+							video.classList.remove('image-loading');
+							video.classList.add('image-loaded');
+						});
+						video.addEventListener('error', () => {
+							skeleton.style.display = 'none';
+						});
 						wrapper.appendChild(video);
 
 						const playIcon = document.createElement('div');
@@ -630,17 +702,28 @@ const createVirtualizer = () => {
 						wrapper.appendChild(playIcon);
 					} else {
 						const img = document.createElement('img');
-						img.className = 'thumbnail';
+						img.className = 'thumbnail image-loading';
 						if (index === currentIndex && currentIndex >= 0) {
 							img.classList.add('active');
 						}
-						img.src = (item.thumbnailUrl && item.thumbnailUrl.length > 0) ? item.thumbnailUrl : createThumbProxyUrl(item.url);
+							console.log( createThumbProxyUrl(item.url), ' createThumbProxyUrl(item.url)');
+
+						console.log(item.url, 'item.url');
+						img.src = createThumbProxyUrl(item.url);
 						img.alt = item.filename || '';
 						img.setAttribute('data-index', index);
 						img.setAttribute('data-id', itemId);
 						img.addEventListener('click', (e) => {
 							const itemId = e.target.getAttribute('data-id');
 							this.onThumbnailClick(itemId);
+						});
+						img.addEventListener('load', () => {
+							skeleton.style.display = 'none';
+							img.classList.remove('image-loading');
+							img.classList.add('image-loaded');
+						});
+						img.addEventListener('error', () => {
+							skeleton.style.display = 'none';
 						});
 						wrapper.appendChild(img);
 					}
@@ -706,6 +789,8 @@ const createVirtualizer = () => {
 			onLoadMore(direction) {
 			}
 			scrollToIndex(index, smooth = false) {
+
+			    console.log('scrollToIndex');
 				const itemStart = this.getItemStart(index);
 				const itemHeight = this.getItemHeight(index);
 				const targetScroll = Math.max(
@@ -848,6 +933,8 @@ export const listThumnails = (_listImage: IAttachmentEntityWithUploader[], _inde
 	return '';
 };
 export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], indexSelect: number) => {
+	console.log(listImage, 'listImage');
+
 	const reversedImages = [...listImage].reverse();
 	const reversedIndexSelect = indexSelect >= 0 ? reversedImages.length - 1 - indexSelect : -1;
 	const initialImagesData = reversedImages.map((image: IAttachmentEntityWithUploader) => ({
@@ -860,11 +947,14 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 		create_time: image.create_time,
 		time: escapeHtml(formatDateTime(image.create_time)),
 		isVideo: image.isVideo,
-		filetype: image.filetype
+		filetype: image.filetype,
+		width: image.width || 600,
+		height: image.height || 400
 	}));
 
 	const imagesDataStr = JSON.stringify(initialImagesData);
 	return `
+		${createThumbProxyUrlScript()}
 		${createVirtualizer()}
 		const thumbnailContainer = document.getElementById('thumbnails-content');
 		let imagesData = ${imagesDataStr};
@@ -878,9 +968,14 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 				}
 			);
 			virtualizer.onThumbnailClick = function(itemId) {
+				console.log(itemId, 'itemId')
 				const imageData = imagesData.find(img => (img.id || img.url) === itemId);
+					console.log(imageData, 'imageData')
 				if (!imageData) return;
 				resetTransform();
+
+				handleMediaLoading();
+
 				const selectedMedia = document.getElementById('selectedMedia');
 				if (selectedMedia) {
 					const isNewVideo = imageData.isVideo ||
@@ -895,28 +990,47 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 						const wrapper = document.getElementById('selected-image-wrapper');
 						if (wrapper) {
 							wrapper.innerHTML = '';
+							const newSkeleton = document.createElement('div');
+							newSkeleton.id = 'skeleton-main';
+							newSkeleton.className = 'skeleton skeleton-main';
+							if (imageData.width && imageData.height) {
+								newSkeleton.style.width = imageData.width + 'px';
+								newSkeleton.style.height = imageData.height + 'px';
+								newSkeleton.style.maxWidth = '100%';
+								newSkeleton.style.maxHeight = '100%';
+							}
+							wrapper.appendChild(newSkeleton);
 							if (isNewVideo) {
 								const video = document.createElement('video');
 								video.id = 'selectedMedia';
-								video.className = 'selected-image';
+								video.className = 'selected-image image-loading';
 								video.src = imageData.realUrl || imageData.url;
 								video.controls = true;
 								video.autoplay = true;
 								video.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
+								video.addEventListener('loadeddata', handleMediaLoaded);
+								video.addEventListener('error', handleMediaLoaded);
 								wrapper.appendChild(video);
 							} else {
 								const img = document.createElement('img');
 								img.id = 'selectedMedia';
-								img.className = 'selected-image';
+								img.className = 'selected-image image-loading';
 								img.src = imageData.url;
+								img.addEventListener('load', handleMediaLoaded);
+								img.addEventListener('error', handleMediaLoaded);
 								wrapper.appendChild(img);
 							}
 						}
 					} else {
+						selectedMedia.classList.add('image-loading');
+						selectedMedia.classList.remove('image-loaded');
 						selectedMedia.src = isNewVideo ? (imageData.realUrl || imageData.url) : imageData.url;
 						if (wasVideo) {
+							selectedMedia.addEventListener('loadeddata', handleMediaLoaded, { once: true });
 							selectedMedia.load();
 							selectedMedia.play();
+						} else {
+							selectedMedia.addEventListener('load', handleMediaLoaded, { once: true });
 						}
 					}
 				}
@@ -979,7 +1093,9 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 							create_time: att.create_time,
 							time: att.create_time,
 							isVideo: att.isVideo,
-							filetype: att.filetype
+							filetype: att.filetype,
+							width: att.width || 600,
+							height: att.height || 400
 						}));
 						imagesData = updatedImagesData;
 						const preservedItemId = window.thumbnailVirtualizer.currentItemId || currentItemId;
@@ -994,6 +1110,38 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 					}
 				});
 			}
+
+			document.addEventListener('keydown', (e) => {
+			   if (e.repeat) {
+      return;
+    }
+				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+					e.preventDefault();
+					const currentIndex = window.thumbnailVirtualizer.findIndexById(currentItemId);
+					let newIndex = -1;
+
+					if (e.key === 'ArrowUp') {
+						newIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
+					} else if (e.key === 'ArrowDown') {
+						newIndex = currentIndex < imagesData.length - 1 ? currentIndex + 1 : currentIndex;
+					}
+
+					if (newIndex >= 0 && newIndex < imagesData.length) {
+						const newImageData = imagesData[newIndex];
+						const newItemId = newImageData.id || newImageData.url;
+
+						if (window.thumbnailVirtualizer.onThumbnailClick) {
+
+						console.log('onThumbnailClick');
+							window.thumbnailVirtualizer.onThumbnailClick(newItemId);
+						}
+
+						requestAnimationFrame(() => {
+							window.thumbnailVirtualizer.scrollToIndex(newIndex, false);
+						});
+					}
+				}
+			});
 		}
 	`;
 };

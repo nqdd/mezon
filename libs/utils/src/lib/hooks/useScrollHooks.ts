@@ -15,8 +15,8 @@ export enum LoadMoreDirection {
 
 export const MESSAGE_LIST_SENSITIVE_AREA = 1500;
 
-const FAB_THRESHOLD = 600;
-const NOTCH_THRESHOLD = 600;
+const FAB_THRESHOLD = 200;
+const NOTCH_THRESHOLD = 200;
 const CONTAINER_HEIGHT_DEBOUNCE = 200;
 const TOOLS_FREEZE_TIMEOUT = 350;
 

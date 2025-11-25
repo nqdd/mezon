@@ -1,6 +1,12 @@
-import { AlbumRectPart, ApiPhoto, IAlbum, IAlbumLayout, ObserveFn } from '@mezon/utils';
-import { FC } from 'react';
+import type { ApiPhoto, IAlbum, IAlbumLayout, ObserveFn } from '@mezon/utils';
+import { AlbumRectPart } from '@mezon/utils';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { FC } from 'react';
 import Photo from './Photo';
+
+const generateAttachmentId = (attachment: ApiMessageAttachment, messageId: string): string => {
+	return `${messageId}_${attachment.filename || attachment.url}`;
+};
 
 type OwnProps = {
 	album: IAlbum;
@@ -9,11 +15,13 @@ type OwnProps = {
 	isOwn?: boolean;
 	isProtected?: boolean;
 	albumLayout: IAlbumLayout;
-	onClick?: (url?: string) => void;
+	onClick?: (url?: string, attachmentId?: string) => void;
 	onContextMenu?: (event: React.MouseEvent<HTMLImageElement>) => void;
 	isInSearchMessage?: boolean;
 	isSending?: boolean;
 	isMobile?: boolean;
+	messageId?: string;
+	images?: ApiMessageAttachment[];
 };
 
 const Album: FC<OwnProps> = ({
@@ -27,7 +35,9 @@ const Album: FC<OwnProps> = ({
 	onContextMenu,
 	isInSearchMessage,
 	isSending,
-	isMobile
+	isMobile,
+	messageId,
+	images
 }) => {
 	const mediaCount = (album as any)?.length;
 
@@ -43,7 +53,7 @@ const Album: FC<OwnProps> = ({
 
 			const photoProps = {
 				mediaType: 'photo',
-				id: index + '',
+				id: `${index}`,
 				url: attachment?.url,
 				width: attachment?.width || 0,
 				height: attachment?.height || 150
@@ -54,9 +64,10 @@ const Album: FC<OwnProps> = ({
 					dataUri: attachment.thumbnail
 				});
 
+			const attachmentId = messageId && images?.[index] ? generateAttachmentId(images[index], messageId) : `album-media-${index}`;
 			return (
 				<Photo
-					id={`album-media-${index}`}
+					id={attachmentId}
 					key={index}
 					photo={photoProps}
 					isOwn={isOwn}

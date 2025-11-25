@@ -158,11 +158,16 @@ const MessageModalImage = () => {
 	}, [openModalAttachment, attachment]);
 
 	useEffect(() => {
-		if (attachments && attachments.length > 0) {
-			const indexImage = attachments.findIndex((img) => img.url === urlImg);
+		console.log(currentAttachment, 'currentAttachment');
+		console.log(attachments, 'attachments');
+
+		if (attachments && attachments.length > 0 && currentAttachment?.id) {
+			// ID format is now consistent: ${message_id}_${filename}
+			const indexImage = attachments.findIndex((img) => img.id === currentAttachment.id);
+			console.log('Found index:', indexImage, 'for ID:', currentAttachment.id);
 			setCurrentIndexAtt(indexImage);
 		}
-	}, [attachments, urlImg]);
+	}, [attachments, currentAttachment?.id]);
 
 	const handleDrag = (e: any) => {
 		e.preventDefault();
@@ -199,8 +204,54 @@ const MessageModalImage = () => {
 		[showMessageContextMenu, messageId, mode, setPositionShow, setImageURL, urlImg]
 	);
 
+	const handleSelectImage = useCallback(
+		(newIndex: number) => {
+			console.log(newIndex, 'newIndex');
+			console.log(attachments, 'attachments');
+
+			if (!attachments) {
+				return;
+			}
+			setUrlImg(attachments[newIndex]?.url || '');
+			setCurrentIndexAtt(newIndex);
+			dispatch(attachmentActions.setCurrentAttachment(attachments[newIndex]));
+		},
+		[attachments, dispatch]
+	);
+
+	const handleSelectNextImage = useCallback(() => {
+		console.log(attachments?.length, 'attachments');
+
+		if (!attachments) {
+			return;
+		}
+
+		const newIndex = currentIndexAtt < attachments.length - 1 ? currentIndexAtt + 1 : currentIndexAtt;
+		if (newIndex !== currentIndexAtt) {
+			handleSelectImage(newIndex);
+		}
+	}, [attachments, currentIndexAtt, handleSelectImage]);
+
+	const handleSelectPreviousImage = useCallback(() => {
+		console.log('handleSelectPreviousImage');
+
+		const newIndex = currentIndexAtt > 0 ? currentIndexAtt - 1 : currentIndexAtt;
+		console.log(newIndex, 'newIndex');
+		console.log(currentIndexAtt, 'currentIndexAtt');
+
+		if (newIndex !== currentIndexAtt) {
+			handleSelectImage(newIndex);
+		}
+	}, [currentIndexAtt, handleSelectImage]);
+
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
+			console.log(event.key, 'handleKeyDown');
+
+			if (event.repeat) {
+				return;
+			}
+
 			if (event.key === 'Escape') {
 				closeModal();
 				return;
@@ -213,36 +264,15 @@ const MessageModalImage = () => {
 			if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
 				handleSelectNextImage();
 			}
+
+			console.log(event.key, 'event.key');
+
 			if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
 				handleSelectPreviousImage();
 			}
 		},
-		[isVideo, toggleVideoPlayback]
+		[isVideo, toggleVideoPlayback, handleSelectNextImage, handleSelectPreviousImage]
 	);
-
-	const handleSelectNextImage = () => {
-		if (!attachments) {
-			return;
-		}
-		const newIndex = currentIndexAtt < attachments.length - 1 ? currentIndexAtt + 1 : currentIndexAtt;
-		if (newIndex !== currentIndexAtt) {
-			handleSelectImage(newIndex);
-		}
-	};
-	const handleSelectPreviousImage = () => {
-		const newIndex = currentIndexAtt > 0 ? currentIndexAtt - 1 : currentIndexAtt;
-		if (newIndex !== currentIndexAtt) {
-			handleSelectImage(newIndex);
-		}
-	};
-	const handleSelectImage = (newIndex: number) => {
-		if (!attachments) {
-			return;
-		}
-		setUrlImg(attachments[newIndex]?.url || '');
-		setCurrentIndexAtt(newIndex);
-		dispatch(attachmentActions.setCurrentAttachment(attachments[newIndex]));
-	};
 
 	useEffect(() => {
 		window.addEventListener('keydown', handleKeyDown);
