@@ -41,17 +41,6 @@ const fetchWalletDetail = createAsyncThunk('wallet/fetchWalletDetail', async ({ 
 	};
 });
 
-const fetchAddress = createAsyncThunk('wallet/fetchAddress', async ({ userId }: { userId: string }, thunkAPI) => {
-	const mezon = await ensureSession(getMezonCtx(thunkAPI));
-	if (!mezon.mmnClient) {
-		return thunkAPI.rejectWithValue('MmnClient not initialized');
-	}
-	const address = await mezon.mmnClient.getAddressFromUserId(userId);
-	return {
-		address
-	};
-});
-
 const fetchEphemeralKeyPair = createAsyncThunk('wallet/fetchEphemeralKeyPair', async (_, thunkAPI) => {
 	const mezon = await ensureSession(getMezonCtx(thunkAPI));
 	if (!mezon.mmnClient) {
@@ -84,8 +73,7 @@ const fetchZkProofs = createAsyncThunk('wallet/fetchZkProofs', async (req: { use
 
 		return {
 			response,
-			ephemeralKeyPair,
-			address
+			ephemeralKeyPair
 		};
 	} catch (error) {
 		if (error instanceof Error) {
@@ -261,21 +249,11 @@ export const walletSlice = createSlice({
 			})
 			.addCase(fetchWalletDetail.fulfilled, (state: WalletState, action) => {
 				state.wallet = action.payload.wallet;
+				state.address = action.payload.wallet.address;
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchWalletDetail.rejected, (state: WalletState, action) => {
 				state.wallet = undefined;
-				state.loadingStatus = 'error';
-				state.error = action.error.message;
-			})
-			.addCase(fetchAddress.pending, (state: WalletState) => {
-				state.loadingStatus = 'loading';
-			})
-			.addCase(fetchAddress.fulfilled, (state: WalletState, action) => {
-				state.address = action.payload.address;
-				state.loadingStatus = 'loaded';
-			})
-			.addCase(fetchAddress.rejected, (state: WalletState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			})
@@ -298,9 +276,6 @@ export const walletSlice = createSlice({
 				if (action?.payload?.ephemeralKeyPair) {
 					state.ephemeralKeyPair = action.payload.ephemeralKeyPair;
 				}
-				if (action?.payload?.address) {
-					state.address = action.payload.address;
-				}
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchZkProofs.rejected, (state: WalletState, action) => {
@@ -315,7 +290,6 @@ export const walletReducer = walletSlice.reducer;
 export const walletActions = {
 	...walletSlice.actions,
 	fetchWalletDetail,
-	fetchAddress,
 	fetchEphemeralKeyPair,
 	fetchZkProofs,
 	sendTransaction
