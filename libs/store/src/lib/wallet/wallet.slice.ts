@@ -20,7 +20,6 @@ export interface WalletState {
 	wallet?: WalletDetail;
 	zkProofs?: IZkProof;
 	ephemeralKeyPair?: IEphemeralKeyPair;
-	address?: string | null;
 	isEnabled?: boolean;
 }
 
@@ -225,7 +224,6 @@ export const walletSlice = createSlice({
 			}
 		},
 		setLogout(state) {
-			state.address = undefined;
 			state.wallet = undefined;
 			state.zkProofs = undefined;
 			state.ephemeralKeyPair = undefined;
@@ -249,7 +247,6 @@ export const walletSlice = createSlice({
 			})
 			.addCase(fetchWalletDetail.fulfilled, (state: WalletState, action) => {
 				state.wallet = action.payload.wallet;
-				state.address = action.payload.wallet.address;
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchWalletDetail.rejected, (state: WalletState, action) => {
@@ -301,7 +298,7 @@ export const selectZkProofs = createSelector(getWalletState, (state) => state?.z
 
 export const selectEphemeralKeyPair = createSelector(getWalletState, (state) => state?.ephemeralKeyPair);
 
-export const selectAddress = createSelector(getWalletState, (state) => state?.address);
+export const selectAddress = createSelector(getWalletState, (state) => state?.wallet?.address);
 
 export const selectIsEnabledWallet = createSelector(getWalletState, (state) => state?.isEnabled);
 
