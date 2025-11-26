@@ -6,6 +6,7 @@ import {
 	ETypeLinkMedia,
 	calculateAlbumLayout,
 	createImgproxyUrl,
+	generateAttachmentId,
 	getAttachmentDataForWindow,
 	isMediaTypeNotSupported,
 	useAppLayout
@@ -178,7 +179,7 @@ const ImageAlbum = memo(
 		const dispatch = useAppDispatch();
 
 		const handleClick = useCallback(
-			async (url?: string) => {
+			async (url?: string, attachmentId?: string) => {
 				// move code from old image view component
 				const state = getStore()?.getState();
 				const currentClanId = selectCurrentClanId(state);
@@ -186,7 +187,9 @@ const ImageAlbum = memo(
 				const currentChannel = selectCurrentChannel(state);
 				const currentChannelId = currentChannel?.id;
 				const currentDmGroupId = currentDm?.id;
-				const attachmentData = images.find((item) => item.url === url);
+				const attachmentData = attachmentId
+					? images.find((item) => generateAttachmentId(item, message.id) === attachmentId)
+					: images.find((item) => item.url === url);
 				if (!attachmentData) return;
 
 				const enhancedAttachmentData = {
@@ -310,7 +313,7 @@ const ImageAlbum = memo(
 				dispatch(
 					attachmentActions.setCurrentAttachment({
 						...enhancedAttachmentData,
-						id: enhancedAttachmentData.message_id as string,
+						id: generateAttachmentId(attachmentData, message.id),
 						uploader: enhancedAttachmentData.sender_id || message.sender_id,
 						create_time: enhancedAttachmentData.create_time
 					})
@@ -381,16 +384,20 @@ const ImageAlbum = memo(
 						isInSearchMessage={isInSearchMessage}
 						isSending={message.isSending}
 						isMobile={isMobile}
+						messageId={message.id}
+						images={images}
 					/>
 				</div>
 			);
 		}
 
 		if (images.length === 1 && photoProps) {
+			const firstImage = images[0];
+			const attachmentId = firstImage ? generateAttachmentId(firstImage, message.id) : message.id;
 			return (
 				<div className="w-full py-1">
 					<Photo
-						id={message.id}
+						id={attachmentId}
 						key={message.id}
 						photo={photoProps}
 						observeIntersection={observeIntersectionForLoading}

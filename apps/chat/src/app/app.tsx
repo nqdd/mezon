@@ -46,6 +46,9 @@ import { preloadedState } from './mock/state';
 import { Routes } from './routes';
 
 import { ThemeManager } from '@mezon/themes';
+import { LogLevel, setLogLevel } from 'livekit-client';
+
+setLogLevel(LogLevel.silent);
 
 ThemeManager.initializeTheme();
 

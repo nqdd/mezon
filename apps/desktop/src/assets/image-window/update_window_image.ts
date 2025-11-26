@@ -86,6 +86,12 @@ function updateImagePopup(imageData: ImageData, imageWindow: BrowserWindow) {
 
 	imageWindow.webContents.executeJavaScript(`
       function handleKeydown(e){
+
+	e.preventDefault();
+    if (e.repeat) {
+      return;
+    }
+
     uploaderData = [${uploaderData}];
 
 		switch (e.key) {

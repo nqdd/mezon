@@ -54,6 +54,7 @@ const InvitePage = lazy(() => import(/* webpackChunkName: "invite-pages" */ '../
 const TextChannelPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/textchannel'));
 const TermOfServivePage = lazy(() => import(/* webpackChunkName: "termofservice-page" */ '../pages/termofservices'));
 const PrivacyMezonPage = lazy(() => import(/* webpackChunkName: "privacymetzon-page" */ '../pages/privacymezon'));
+const BrandCenterPage = lazy(() => import(/* webpackChunkName: "brandcenter-page" */ '../pages/brandcenter'));
 const ContactUsPage = lazy(() => import(/* webpackChunkName: "contactus-page" */ '../pages/contactus'));
 const MezonDongPage = lazy(() => import(/* webpackChunkName: "textchannel-page" */ '../pages/mezondong'));
 const IntegrationsPage = lazy(() => import(/* webpackChunkName: "integrations-page" */ '../pages/integrations'));
@@ -242,6 +243,14 @@ export const Routes = memo(() => {
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<PrivacyMezonPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/brand-center',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<BrandCenterPage />
 							</Suspense>
 						)
 					},

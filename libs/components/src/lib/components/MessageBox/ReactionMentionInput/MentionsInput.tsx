@@ -1254,6 +1254,16 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			whileElementsMounted: autoUpdate
 		});
 
+		const handleReferenceRef = useCallback(
+			(node: HTMLDivElement | null) => {
+				if (anchorRef) {
+					(anchorRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+				}
+				refs.setReference(node);
+			},
+			[refs]
+		);
+
 		useEffect(() => {
 			if (activeMentionContext && inputRef.current) {
 				const parentElement = inputRef.current.closest('.max-w-wrappBoxChatViewMobile, .w-wrappBoxChatView');
@@ -1262,16 +1272,21 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			}
 		}, [activeMentionContext]);
 
+		const handleFloatingRef = useCallback(
+			(node: HTMLDivElement | null) => {
+				refs.setFloating(node);
+				if (popoverRef) {
+					(popoverRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+				}
+			},
+			[refs]
+		);
+
 		const tooltipOverlay = useMemo(() => {
 			if (!activeMentionContext) return null;
 			return (
 				<div
-					ref={(node) => {
-						refs.setFloating(node);
-						if (popoverRef) {
-							(popoverRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-						}
-					}}
+					ref={handleFloatingRef}
 					className="mention-popover-container bg-ping-member"
 					style={{
 						...floatingStyles,
@@ -1290,15 +1305,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 
 		return (
 			<div className={`mention-input relative ${className} `} style={style} onContextMenu={handleContextMenu}>
-				<div
-					ref={(node) => {
-						if (anchorRef) {
-							(anchorRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
-						}
-						refs.setReference(node);
-					}}
-					className="sticky top-0 left-0 w-full h-0 pointer-events-none"
-				/>
+				<div ref={handleReferenceRef} className="sticky top-0 left-0 w-full h-0 pointer-events-none" />
 				<div
 					ref={inputRef}
 					id={id}
