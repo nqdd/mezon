@@ -289,6 +289,8 @@ const MezonContextProvider: React.FC<MezonContextProviderProps> = ({ children, m
 
 		const socket = await createSocket();
 		socketRef.current = socket;
+		sessionRef.current = session;
+
 		return session;
 	}, []);
 

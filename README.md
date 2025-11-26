@@ -28,7 +28,7 @@
 
 ## The Live, Work, and Play Platform the best Discord Alternative
 
-Mezon is great for playing games and chilling with friends, or even building a worldwide community. Customize your own space to talk, play, and hang out., Mezon delivers enterprise-grade performance with sub-millisecond response times and support for millions of concurrent connections.
+Mezon is a Live, Work, and Play platform. It’s perfect for gaming and chilling with friends, or even building a global community. Customize your own space to talk, play, and hang out. Mezon also delivers enterprise-grade performance with sub-millisecond response times and support for millions of concurrent connections.
 
 <div align="center">
   <img src="docs/mezon_header_bot_battle.png" alt="Mezon Platform Overview" width="100%">

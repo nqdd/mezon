@@ -1,7 +1,6 @@
 {
 	"accountSettings": {
 		"title": "Cài đặt tài khoản",
-		"getNitro": "Mua Nitro",
 		"account": "Tài khoản",
 		"profiles": "Hồ sơ",
 		"privacySafety": "Bảo mật và an toàn",
@@ -16,8 +15,6 @@
 	},
 	"paymentSettings": {
 		"title": "Cài đặt thanh toán",
-		"serverBoost": "Nâng cấp clan",
-		"nitroGift": "Tặng nitro",
 		"restoreSubscription": "Khôi phục đăng ký"
 	},
 	"appSettings": {

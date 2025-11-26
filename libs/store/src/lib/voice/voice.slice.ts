@@ -231,7 +231,9 @@ export const voiceSlice = createSlice({
 			state.token = action.payload;
 		},
 		setVoiceInfo: (state, action: PayloadAction<IvoiceInfo>) => {
-			state.voiceInfo = action.payload;
+			if (state.voiceInfo?.channelId !== action.payload.channelId) {
+				state.voiceInfo = action.payload;
+			}
 		},
 		setVoiceInfoId: (state, action: PayloadAction<string>) => {
 			if (state.voiceInfo) {
@@ -276,7 +278,7 @@ export const voiceSlice = createSlice({
 			state.showCamera = false;
 			state.showScreen = false;
 			state.noiseSuppressionEnabled = true;
-			state.noiseSuppressionLevel = 50;
+			state.noiseSuppressionLevel = 20;
 			state.voiceConnectionState = false;
 			state.voiceInfo = null;
 			state.fullScreen = false;

@@ -1,7 +1,7 @@
 import { MediaType, selectCurrentClanId, soundEffectActions, useAppDispatch } from '@mezon/store';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { Icons, InputField, Modal } from '@mezon/ui';
-import { generateE2eId } from '@mezon/utils';
+import { generateE2eId, getIdSaleItemFromSource } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -110,12 +110,13 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 
 			if (!file) return;
 
-			const id = sound?.id || Snowflake.generate();
-			const path = `sounds/${id}.${file.name.split('.').pop()}`;
+			const tempId = sound?.id || Snowflake.generate();
+			const path = `sounds/${tempId}.${file.name.split('.').pop()}`;
 
 			const attachment = await handleUploadEmoticon(client, session, path, file);
 
 			if (attachment && attachment.url) {
+				const id = getIdSaleItemFromSource(attachment.url);
 				const request = {
 					id,
 					category: 'Among Us',
