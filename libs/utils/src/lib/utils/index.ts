@@ -1353,3 +1353,7 @@ export function subBigInt(a: string, b: string): string {
 	const bigB = BigInt(b);
 	return (bigA - bigB).toString();
 }
+
+export const generateAttachmentId = (attachment: ApiMessageAttachment, messageId: string): string => {
+	return `${messageId}_${attachment.url}`;
+};
