@@ -253,7 +253,6 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				type: 'info',
 				text1: t('toast.saveSuccess')
 			});
-			// setIsCheckValid(false);
 		} catch (error) {
 			Toast.show({
 				type: 'error',
