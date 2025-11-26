@@ -148,61 +148,57 @@ export const settingClanChannelSlice = createSlice({
 	reducers: {
 		addChannelFromSocket: (state, action) => {
 			const channel = action.payload;
-			if (channel?.id) {
-				if (channel.parent_id && channel.parent_id !== '0') {
-					state.threadCount += 1;
-					if (!state.threadsByChannel[channel.parent_id]) {
-						state.threadsByChannel[channel.parent_id] = [];
-					}
-					const existingThread = state.threadsByChannel[channel.parent_id].find((t) => t.id === channel.id);
-					if (!existingThread) {
-						state.threadsByChannel[channel.parent_id].push(channel);
-					}
-				} else {
-					channelSettingAdapter.addOne(state, channel);
-					state.channelCount += 1;
+			if (!channel?.id) return;
+			if (channel.parent_id && channel.parent_id !== '0') {
+				if (!state.threadsByChannel[channel.parent_id]) {
+					state.threadsByChannel[channel.parent_id] = [];
 				}
+				const existingThread = state.threadsByChannel[channel.parent_id].find((t) => t.id === channel.id);
+				if (!existingThread) {
+					state.threadsByChannel[channel.parent_id].push(channel);
+					state.threadCount += 1;
+				}
+				return;
 			}
+			channelSettingAdapter.addOne(state, channel);
+			state.channelCount += 1;
 		},
 		removeChannelFromSocket: (state, action) => {
 			const channelId = action.payload;
-			const channel = state.entities[channelId];
-
-			if (channel) {
+			if (state.entities[channelId]) {
 				channelSettingAdapter.removeOne(state, channelId);
 				state.channelCount = Math.max(0, state.channelCount - 1);
-			} else {
-				for (const parentId in state.threadsByChannel) {
-					const threads = state.threadsByChannel[parentId];
-					const threadIndex = threads.findIndex((t) => t.id === channelId);
-					if (threadIndex !== -1) {
-						state.threadsByChannel[parentId] = threads.filter((t) => t.id !== channelId);
-						state.threadCount = Math.max(0, state.threadCount - 1);
-						break;
-					}
-				}
+				return;
 			}
+			Object.keys(state.threadsByChannel).some((parentId) => {
+				const threads = state.threadsByChannel[parentId];
+				const threadExists = threads.some((t) => t.id === channelId);
+				if (threadExists) {
+					state.threadsByChannel[parentId] = threads.filter((t) => t.id !== channelId);
+					state.threadCount = Math.max(0, state.threadCount - 1);
+					return true;
+				}
+				return false;
+			});
 		},
 		updateChannelFromSocket: (state, action) => {
 			const channel = action.payload;
-			if (channel?.id) {
-				if (state.entities[channel.id]) {
-					channelSettingAdapter.updateOne(state, {
-						id: channel.id,
-						changes: channel
-					});
-				} else {
-					for (const parentId in state.threadsByChannel) {
-						const threads = state.threadsByChannel[parentId];
-						const threadIndex = threads.findIndex((t) => t.id === channel.id);
-						if (threadIndex !== -1) {
-							state.threadsByChannel[parentId][threadIndex] = {
-								...threads[threadIndex],
-								...channel
-							};
-							break;
-						}
-					}
+			if (!channel?.id) return;
+			if (state.entities[channel.id]) {
+				channelSettingAdapter.updateOne(state, {
+					id: channel.id,
+					changes: channel
+				});
+				return;
+			}
+			if (channel.parent_id && state.threadsByChannel[channel.parent_id]) {
+				const threads = state.threadsByChannel[channel.parent_id];
+				const threadIndex = threads.findIndex((t) => t.id === channel.id);
+				if (threadIndex !== -1) {
+					state.threadsByChannel[channel.parent_id][threadIndex] = {
+						...threads[threadIndex],
+						...channel
+					};
 				}
 			}
 		}
