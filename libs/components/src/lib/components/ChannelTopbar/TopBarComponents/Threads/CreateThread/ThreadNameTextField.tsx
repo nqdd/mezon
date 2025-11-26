@@ -1,6 +1,7 @@
 import { selectNameThreadError, threadsActions, useAppDispatch } from '@mezon/store';
 import { ValidateSpecialCharacters, generateE2eId, threadError } from '@mezon/utils';
-import { KeyboardEvent, useCallback, useState } from 'react';
+import type { KeyboardEvent } from 'react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
@@ -9,7 +10,7 @@ interface ThreadNameTextFieldProps {
 	placeholder?: string;
 	value: string;
 	onChange: (value: string) => void;
-	onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => Promise<void>;
+	onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => Promise<void>;
 	error?: string;
 	className?: string;
 }
