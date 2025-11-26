@@ -201,25 +201,26 @@ export const permissionRoleChannelSlice = createSlice({
 				state.error = action.error.message;
 			})
 			.addCase(setPermissionRoleChannel.fulfilled, (state: PermissionRoleChannelState, action) => {
-				if (action.payload) {
-					const { userId, roleId, permission, channelId } = action.payload;
-
-					const listUpdate: ApiPermissionRoleChannel[] = permission
-						.filter((item) => item.type)
-						.map((role) => ({
-							active: role.type === 1 ? true : false,
-							permission_id: role.permission_id
-						}));
-					state.cacheByChannels[channelId] = {
-						permissionRoleChannel: {
-							role_id: roleId,
-							user_id: userId,
-							channel_id: channelId,
-							permission_role_channel: listUpdate
-						},
-						cache: createCacheMetadata()
-					};
+				if (!action.payload) {
+					return;
 				}
+				const { userId, roleId, permission, channelId } = action.payload;
+
+				const listUpdate: ApiPermissionRoleChannel[] = permission
+					.filter((item) => item.type)
+					.map((role) => ({
+						active: role.type === 1 ? true : false,
+						permission_id: role.permission_id
+					}));
+				state.cacheByChannels[channelId] = {
+					permissionRoleChannel: {
+						role_id: roleId,
+						user_id: userId,
+						channel_id: channelId,
+						permission_role_channel: listUpdate
+					},
+					cache: createCacheMetadata()
+				};
 			});
 	}
 });
