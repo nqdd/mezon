@@ -24,7 +24,6 @@ import { rolesClanActions } from '../roleclan/roleclan.slice';
 import { settingClanStickerSlice, soundEffectActions } from '../settingSticker/settingSticker.slice';
 import type { RootState } from '../store';
 import { usersStreamActions } from '../stream/usersStream.slice';
-import { topicsActions } from '../topicDiscussion/topicDiscussions.slice';
 import { voiceActions } from '../voice/voice.slice';
 
 export const CLANS_FEATURE_KEY = 'clans';
@@ -107,7 +106,6 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 			const state = thunkAPI.getState() as RootState;
 			const targetClan = state.clans.entities[clanId];
 			const hasUnreadCount = (targetClan?.badge_count ?? 0) > 0;
-
 			if (hasUnreadCount && !noCache) {
 				thunkAPI.dispatch(fetchClans({ noCache: true }));
 			}
@@ -138,7 +136,6 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 						channelType: ChannelType.CHANNEL_TYPE_STREAMING
 					})
 				);
-				thunkAPI.dispatch(topicsActions.fetchTopics({ clanId }));
 			});
 		} catch (error) {
 			captureSentryError(error, 'clans/changeCurrentClan');
