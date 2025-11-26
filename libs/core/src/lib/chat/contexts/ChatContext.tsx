@@ -991,7 +991,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						);
 						dispatch(
 							listChannelRenderAction.addThreadToListRender({
-								channel,
+								channel: {
+									...channel,
+									active: 1
+								},
 								clanId: channel.clan_id || ''
 							})
 						);
@@ -2880,4 +2883,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-
