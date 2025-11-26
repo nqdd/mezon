@@ -795,7 +795,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							channelType: user.channel_type
 						});
 					}
-					if (channelId === user.channel_id) {
+					if (channelId === user.channel_id && !isMobile) {
 						if (user.channel_type === ChannelType.CHANNEL_TYPE_THREAD) {
 							const parentChannelId = currentChannel?.parent_id;
 							if (parentChannelId) {
@@ -815,7 +815,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							}
 						}
 					}
-					if (directId === user.channel_id) {
+					if (!isMobile && directId === user.channel_id) {
 						navigate(`/chat/direct/friends`);
 					}
 					dispatch(directSlice.actions.removeByDirectID(user.channel_id));
@@ -900,8 +900,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 								channelType: 0,
 								isRemoveClan: true
 							});
+						} else {
+							navigate(`/chat/direct/friends`);
 						}
-						navigate(`/chat/direct/friends`);
 					}
 					if (user.clan_id === currentVoice?.clanId) {
 						dispatch(voiceActions.resetVoiceControl());
@@ -1646,7 +1647,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 
 					if (!clanId) {
-						navigate(`/chat/direct/friends`);
+						if (!isMobile) navigate(`/chat/direct/friends`);
 						return;
 					}
 
@@ -1657,10 +1658,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					const redirectChannelId = welcomeChannelId || defaultChannelId || fallbackChannelId;
 
-					if (redirectChannelId) {
-						navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
-					} else {
-						navigate(`/chat/clans/${clanId}/member-safety`);
+					if (!isMobile) {
+						if (redirectChannelId) {
+							navigate(`/chat/clans/${clanId}/channels/${redirectChannelId}`);
+						} else {
+							navigate(`/chat/clans/${clanId}/member-safety`);
+						}
 					}
 				}
 
@@ -1769,7 +1772,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					});
 					dispatch(channelsActions.setCurrentChannelId({ clanId: channelUpdated.clan_id as string, channelId: '' }));
 				}
-				if (result && currentChannelId === channelUpdated.channel_id) {
+				if (!isMobile && result && currentChannelId === channelUpdated.channel_id) {
 					navigate(`/chat/clans/${channelUpdated.clan_id}/member-safety`);
 				}
 			} else if (channelExist) {
