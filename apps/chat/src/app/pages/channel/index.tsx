@@ -39,7 +39,6 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { ApiChannelAppResponseExtend } from '@mezon/utils';
 import {
 	DONE_ONBOARDING_STATUS,
 	EOverriddenPermission,
@@ -152,7 +151,6 @@ type ChannelMainContentTextProps = {
 const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainContentTextProps) => {
 	const { t } = useTranslation('common');
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
-	const dispatch = useDispatch();
 	const isShowMemberList = useSelector(selectIsShowMemberList);
 	const { userId } = useAuth();
 	const mode =
@@ -229,21 +227,9 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		if (isAppChannel) {
 			const store = getStore();
 			const appChannel = selectAppChannelById(store.getState(), channelId);
-			if (appIsOpen) {
-				const appSize = store.getState().channelApp.size;
-				const windowWidth = window.innerWidth;
-				const windowHeight = window.innerHeight;
-				const centerX = Math.max(0, (windowWidth - appSize.width) / 2);
-				const centerY = Math.max(0, (windowHeight - appSize.height) / 2);
-				dispatch(channelAppActions.setPosition({ x: centerX, y: centerY }));
+			if (appChannel.app_url) {
+				window.open(appChannel.app_url, currentChannel.channel_label, 'width=900,height=700,toolbar=no,menubar=no,location=no');
 			}
-			dispatch(
-				channelsActions.setAppChannelsListShowOnPopUp({
-					clanId: appChannel?.clan_id as string,
-					channelId: appChannel?.channel_id as string,
-					appChannel: appChannel as ApiChannelAppResponseExtend
-				})
-			);
 		}
 	};
 
