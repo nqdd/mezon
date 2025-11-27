@@ -152,7 +152,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 	const { t } = useTranslation('common');
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 	const isShowMemberList = useSelector(selectIsShowMemberList);
-	const { userId } = useAuth();
+	const { userId, userProfile } = useAuth();
 	const mode =
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ||
@@ -194,6 +194,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			}
 		};
 	}, [canSendMessage]);
+	const dispatch = useAppDispatch();
 
 	const previewMode = useSelector(selectOnboardingMode);
 	const showPreviewMode = useMemo(() => {
@@ -223,12 +224,21 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		);
 	}
 
-	const handleLaunchApp = () => {
+	const handleLaunchApp = async () => {
 		if (isAppChannel) {
 			const store = getStore();
 			const appChannel = selectAppChannelById(store.getState(), channelId);
-			if (appChannel.app_url) {
-				window.open(appChannel.app_url, currentChannel.channel_label, 'width=900,height=700,toolbar=no,menubar=no,location=no');
+			if (appChannel.app_id && appChannel.app_url) {
+				const hashData = await dispatch(
+					channelAppActions.generateAppUserHash({
+						appId: appChannel.app_id
+					})
+				).unwrap();
+				if (hashData.web_app_data) {
+					const encodedHash = encodeURIComponent(hashData.web_app_data);
+					const urlWithHash = `${appChannel.app_url}?data=${encodedHash}`;
+					window.open(urlWithHash, currentChannel.channel_label, 'width=900,height=700');
+				}
 			}
 		}
 	};
