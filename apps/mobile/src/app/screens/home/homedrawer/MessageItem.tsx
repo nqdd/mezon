@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegexFlexible } from '@mezon/mobile-components';
+import { ActionEmitEvent, validLinkGoogleMapRegex, validLinkInviteRegex } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
 import {
@@ -101,7 +101,7 @@ const MessageItem = React.memo(
 
 		const isEphemeralMessage = useMemo(() => message?.code === TypeMessage.Ephemeral, [message?.code]);
 
-		const isInviteLink = useMemo(() => Array.isArray(lk) && validLinkInviteRegexFlexible.test(contentMessage), [lk, contentMessage]);
+		const isInviteLink = useMemo(() => Array.isArray(lk) && validLinkInviteRegex.test(contentMessage), [lk, contentMessage]);
 		const isMessageCallLog = useMemo(() => !!message?.content?.callLog, [message?.content?.callLog]);
 		const isGoogleMapsLink = useMemo(() => Array.isArray(lk) && validLinkGoogleMapRegex.test(contentMessage), [lk, contentMessage]);
 

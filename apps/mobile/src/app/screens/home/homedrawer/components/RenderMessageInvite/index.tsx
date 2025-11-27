@@ -1,4 +1,4 @@
-import { inviteLinkRegexFlexible } from '@mezon/mobile-components';
+import { inviteLinkRegex } from '@mezon/mobile-components';
 import { memo, useMemo } from 'react';
 import LinkInvite from './LinkInvite';
 
@@ -9,7 +9,7 @@ interface IRenderMessageInviteProps {
 function RenderMessageInvite({ content }: IRenderMessageInviteProps) {
 	const extractInviteIds = useMemo(() => {
 		if (!content) return [];
-		const matches = [...content.matchAll(inviteLinkRegexFlexible)];
+		const matches = [...content.matchAll(new RegExp(inviteLinkRegex, 'g'))];
 		return [...new Set(matches.map((match) => match[1]))];
 	}, [content]);
 

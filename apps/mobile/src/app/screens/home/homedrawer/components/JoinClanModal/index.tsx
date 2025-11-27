@@ -29,11 +29,12 @@ const JoinClanModal = () => {
 	const { themeValue } = useTheme();
 
 	const joinClan = async () => {
-		setIsValidInvite(validLinkInviteRegex.test(inviteLink));
-		if (!validLinkInviteRegex.test(inviteLink)) return;
+		const inviteId = extractIdFromUrl(inviteLink.trim());
+		const isValidLinkInvite = Boolean(inviteId?.length === 19 && validLinkInviteRegex.test(inviteLink.trim()));
+		setIsValidInvite(isValidLinkInvite);
+		if (!isValidLinkInvite) return;
 		const store = await getStoreAsync();
-		const inviteId = extractIdFromUrl(inviteLink || '');
-		inviteUser(inviteId || '').then(async (res) => {
+		inviteUser(inviteId).then(async (res) => {
 			if (res && res?.clan_id) {
 				await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 				save(STORAGE_CLAN_ID, res?.clan_id);
@@ -45,9 +46,9 @@ const JoinClanModal = () => {
 		});
 	};
 
-	const extractIdFromUrl = (url: string): string | null => {
+	const extractIdFromUrl = (url: string) => {
 		const match = url?.match(inviteLinkRegex);
-		return match ? match[1] : null;
+		return match ? match[1] : '';
 	};
 
 	const onBack = () => {
