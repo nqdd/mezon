@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useChannelMembers, useChatSending } from '@mezon/core';
 import type { IRoleMention } from '@mezon/mobile-components';
-import { ActionEmitEvent, ID_MENTION_HERE, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, ID_MENTION_HERE, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
@@ -29,13 +29,7 @@ import type {
 	IMentionOnMessage,
 	IMessageSendPayload
 } from '@mezon/utils';
-import {
-	checkIsThread,
-	filterEmptyArrays,
-	THREAD_ARCHIVE_DURATION_SECONDS,
-	ThreadStatus,
-	uniqueUsers
-} from '@mezon/utils';
+import { ThreadStatus, checkIsThread, filterEmptyArrays, uniqueUsers } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
@@ -166,29 +160,6 @@ export const ChatMessageSending = memo(
 			return usersNotExistingInThread || [];
 		};
 
-		const handleThreadActivation = useCallback(
-			async (channel: ChannelsEntity | null | undefined) => {
-				const currentTime = Math.floor(Date.now() / 1000);
-				const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
-				const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
-				const needsJoin = channel.active === ThreadStatus.activePublic;
-
-				if (isArchived || (needsJoin && joinningToThread)) {
-					await dispatch(
-						threadsActions.writeActiveArchivedThread({
-							clanId: channel.clan_id ?? '',
-							channelId: channel.channel_id ?? ''
-						})
-					);
-				}
-				if (needsJoin && joinningToThread) {
-					dispatch(threadsActions.updateActiveCodeThread({ channelId: channel.id, activeCode: ThreadStatus.joined }));
-					joinningToThread(channel, [userId ?? '']);
-				}
-			},
-			[dispatch, joinningToThread, userId]
-		);
-
 		const handleSendMessage = async () => {
 			const simplifiedMentionList = !mentionsOnMessage?.current
 				? []
@@ -209,11 +180,16 @@ export const ChatMessageSending = memo(
 							};
 						}
 					});
-			if (checkIsThread(currentChannel as ChannelsEntity)) {
-				const usersNotExistingInThread = getUsersNotExistingInThread(simplifiedMentionList);
+			const usersNotExistingInThread = getUsersNotExistingInThread(simplifiedMentionList);
+			if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0) {
+				await addMemberToThread(currentChannel, usersNotExistingInThread);
+			}
 
-				if (usersNotExistingInThread?.length > 0) await addMemberToThread(currentChannel, usersNotExistingInThread);
-				await handleThreadActivation(currentChannel);
+			if (currentChannel?.parent_id !== '0' && currentChannel?.active === ThreadStatus.activePublic) {
+				await dispatch(
+					threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined })
+				);
+				joinningToThread(currentChannel, [userId ?? '']);
 			}
 			const payloadSendMessage: IMessageSendPayload = {
 				t: removeTags(valueInputRef?.current),
@@ -315,7 +291,7 @@ export const ChatMessageSending = memo(
 							simplifiedMentionList || []
 						);
 					} else {
-						const isMentionEveryOne = simplifiedMentionList?.some?.((mention) => mention.user_id === ID_MENTION_HERE);
+						const isMentionEveryOne = mentionsOnMessage?.current?.some?.((mention) => mention.user_id === ID_MENTION_HERE);
 						await sendMessage(
 							filterEmptyArrays(payloadSendMessage),
 							simplifiedMentionList || [],

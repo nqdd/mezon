@@ -262,7 +262,7 @@ const QuestionItems = ({ question }: { question: ApiOnboardingItem }) => {
 	const hightLight = useCallback(
 		(index: number) => {
 			if (selectAnswer.includes(index)) {
-				return 'bg-item-theme text-theme-primary-active border-theme-primary cursor-pointer';
+				return 'bg-blue-50 dark:bg-bgSurface hover:border-blue-200 dark:hover:border-bgSurface hover:bg-blue-100 dark:hover:bg-[#212121] text-blue-700 dark:text-primary hover:border-gray-400 dark:hover:border-white border-blue-500 dark:border-channelActiveColor';
 			}
 			return;
 		},
@@ -270,7 +270,7 @@ const QuestionItems = ({ question }: { question: ApiOnboardingItem }) => {
 	);
 	return (
 		<div className="w-full p-4 flex flex-col gap-2 bg-white dark:bg-transparent">
-			<p className="text-theme-primary-active font-semibold">{question.title}</p>
+			<p className="text-blue-600 dark:text-channelActiveColor font-semibold">{question.title}</p>
 			<div className="flex flex-wrap gap-2 flex-1">
 				{question.answers &&
 					question.answers.map((answer, index) => (
@@ -281,7 +281,7 @@ const QuestionItems = ({ question }: { question: ApiOnboardingItem }) => {
 							title={answer.title}
 							height={'h-auto'}
 							onClick={() => handleOnClickQuestion(index)}
-							className={` w-fit h-fit rounded-xl hover:bg-transparent  justify-center items-center px-4 py-2 border-2 bg-item-theme-hover cursor-pointer font-medium flex gap-2 ${hightLight(index)}`}
+							className={` w-fit h-fit rounded-xl hover:bg-transparent  justify-center items-center px-4 py-2 border-2 border-gray-200 dark:border-[#4e5058] hover:border-gray-400 dark:hover:border-[#7d808c] font-medium flex gap-2 ${hightLight(index)}`}
 							background="bg-white dark:bg-transparent"
 						/>
 					))}

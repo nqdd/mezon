@@ -31,8 +31,6 @@ export const MESSAGE_LIST_SLICE = isBigScreen ? 60 : 40;
 export const MESSAGE_LIST_VIEWPORT_LIMIT = MESSAGE_LIST_SLICE * 2;
 
 export const ARCHIVE_MINIMIZED_HEIGHT = 36;
-
-export const THREAD_ARCHIVE_DURATION_SECONDS = 7 * 24 * 60 * 60;
 export const CHAT_HEIGHT_PX = 72;
 export const TOPIC_HEIGHT_PX = 65;
 export const PEER_PICKER_ITEM_HEIGHT_PX = 56;

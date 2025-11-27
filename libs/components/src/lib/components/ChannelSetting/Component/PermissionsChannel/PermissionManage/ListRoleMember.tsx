@@ -1,9 +1,16 @@
 import type { RolesClanEntity } from '@mezon/store';
-import { channelUsersActions, selectChannelById, selectCurrentClanId, useAppDispatch, useAppSelector } from '@mezon/store';
+import {
+	channelUsersActions,
+	permissionRoleChannelActions,
+	selectChannelById,
+	selectCurrentClanId,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
-import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, searchNormalizeText } from '@mezon/utils';
-import { memo, useMemo, useRef, useState } from 'react';
+import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize, searchNormalizeText } from '@mezon/utils';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../../AvatarImage/AvatarImage';
@@ -27,18 +34,47 @@ type ListRoleMemberProps = {
 const ListRoleMember = memo((props: ListRoleMemberProps) => {
 	const { listManageInChannel, usersClan, channelId, onSelect, canChange, listManageNotInChannel } = props;
 	const [selectedItemId, setSelectedItemId] = useState<string | null>(listManageInChannel[0].id);
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		if (listManageInChannel.length > 0) {
+			onSelect(listManageInChannel[0].id, listManageInChannel[0].type);
+			if (listManageInChannel[0].type === 0) {
+				dispatch(
+					permissionRoleChannelActions.fetchPermissionRoleChannel({
+						channelId,
+						roleId: listManageInChannel[0].id,
+						userId: ''
+					})
+				);
+			} else {
+				dispatch(
+					permissionRoleChannelActions.fetchPermissionRoleChannel({
+						channelId,
+						roleId: '',
+						userId: listManageInChannel[0].id
+					})
+				);
+			}
+		}
+	}, [channelId]);
 
 	const handleItemClick = (item: any) => {
 		if (canChange) {
 			setSelectedItemId(item.id);
 			onSelect(item.id, item.type);
+			if (item.type === 0) {
+				dispatch(permissionRoleChannelActions.fetchPermissionRoleChannel({ channelId, roleId: item.id, userId: '', noCache: true }));
+			} else {
+				dispatch(permissionRoleChannelActions.fetchPermissionRoleChannel({ channelId, roleId: '', userId: item.id, noCache: true }));
+			}
 		}
 	};
 
 	return (
 		<div className="basis-1/3">
 			<HeaderAddRoleMember listManageNotInChannel={listManageNotInChannel} usersClan={usersClan} channelId={channelId} />
-			<div className="mt-2">
+			<div className="mt-2" data-e2e={generateE2eId('channel_setting_page.permissions.section.list_roles_members')}>
 				{listManageInChannel.map((item) => (
 					<div
 						key={item.id}
@@ -46,6 +82,7 @@ const ListRoleMember = memo((props: ListRoleMemberProps) => {
 						className={`w-full py-1.5 px-[10px] text-[15px] text-theme-primary bg-item-hover font-medium inline-flex gap-x-2 items-center rounded ${
 							selectedItemId === item.id ? 'bg-item-theme' : ''
 						}`}
+						data-e2e={generateE2eId('channel_setting_page.permissions.section.list_roles_members.role_member_item')}
 					>
 						{item.title}
 					</div>

@@ -10,7 +10,7 @@ export const BadgeAppIconLoader = () => {
 	const allNotificationReplyMentionAllClan = useSelector(selectBadgeCountAllClan);
 	const totalUnreadMessages = useSelector(selectTotalUnreadDM);
 	const { quantityPendingRequest } = useFriends();
-	const appState = useRef<string>(AppState.currentState);
+	const appState = useRef(AppState.currentState);
 
 	const updateBadgeCount = () => {
 		try {

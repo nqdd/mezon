@@ -36,7 +36,7 @@ export const GuideItemLayout = ({
 			onClick={onClick}
 		>
 			{icon && (
-				<div className="h-full flex items-center justify-center text-theme-primary">
+				<div className="h-full flex items-center justify-center">
 					<div className={`${hightLightIcon ? 'rounded-full w-12 aspect-square ' : ''}  flex items-center justify-center`}>{icon}</div>
 				</div>
 			)}

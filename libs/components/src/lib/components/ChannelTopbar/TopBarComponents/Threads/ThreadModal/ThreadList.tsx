@@ -1,6 +1,5 @@
 import { useOnScreen } from '@mezon/core';
-import type { ThreadsEntity } from '@mezon/store';
-import { selectTheme, useAppSelector } from '@mezon/store';
+import { selectCurrentClanId, selectTheme, ThreadsEntity, useAppSelector } from '@mezon/store';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import GroupThreads from './GroupThreads';
@@ -16,6 +15,8 @@ type ThreadListProps = {
 export default function ThreadList({ isLoading, threads, loadMore, preventClosePannel }: ThreadListProps) {
 	const { t } = useTranslation('channelTopbar');
 	const ulRef = useRef<HTMLUListElement | null>(null);
+
+	const currentClanId = useAppSelector(selectCurrentClanId);
 
 	const activeThreads = getActiveThreads(threads);
 	const joinedThreads = getJoinedThreadsWithinLast30Days(threads);

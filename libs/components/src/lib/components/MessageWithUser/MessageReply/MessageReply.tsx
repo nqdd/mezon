@@ -105,10 +105,10 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 								{!isClanView ? message?.references?.[0]?.message_sender_display_name || messageUsernameSenderRef : nameShowed}
 							</span>
 							{hasAttachmentInMessageRef || isEmbedMessage ? (
-								<div className=" flex flex-row items-center text-theme-primary">
+								<div className=" flex flex-row items-center">
 									<div
 										onClick={getIdMessageToJump}
-										className="text-[14px] pr-1  cursor-pointer italic   w-fit one-line break-all pt-0"
+										className="text-[14px] pr-1 dark:hover:text-white dark:text-[#A8BAB8] text-[#818388]  hover:text-[#060607] cursor-pointer italic   w-fit one-line break-all pt-0"
 									>
 										Click to see attachment
 									</div>
