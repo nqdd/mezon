@@ -1,5 +1,5 @@
-import { inviteLinkRegex } from '@mezon/mobile-components';
-import React, { useMemo } from 'react';
+import { inviteLinkRegexFlexible } from '@mezon/mobile-components';
+import { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import LinkInvite from './LinkInvite';
 
@@ -9,17 +9,19 @@ interface IRenderMessageInviteProps {
 
 function RenderMessageInvite({ content }: IRenderMessageInviteProps) {
 	const extractInviteIds = useMemo(() => {
-		const matches = content?.matchAll(new RegExp(inviteLinkRegex, 'g'));
-		return [...new Set([...matches]?.map((match) => match?.[1]))];
+		if (!content) return [];
+		const matches = [...content.matchAll(inviteLinkRegexFlexible)];
+		return [...new Set(matches.map((match) => match[1]))];
 	}, [content]);
 
 	return (
 		<View>
-			{extractInviteIds?.map((id) => {
-				return <LinkInvite inviteID={id} key={id} />;
-			})}
+			{extractInviteIds.length > 0 &&
+				extractInviteIds.map((id, idx) => {
+					return <LinkInvite inviteID={id} key={`invite_${id}_${idx}`} />;
+				})}
 		</View>
 	);
 }
 
-export default React.memo(RenderMessageInvite);
+export default memo(RenderMessageInvite);

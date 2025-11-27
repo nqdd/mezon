@@ -32,6 +32,7 @@ import {
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
+	inviteActions,
 	listChannelRenderAction,
 	listChannelsByUserActions,
 	listUsersByUserActions,
@@ -1575,6 +1576,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const onclandeleted = useCallback(
 		(clanDelete: ClanDeletedEvent) => {
 			if (!clanDelete?.clan_id) return;
+			dispatch(inviteActions.removeByClanId(clanDelete.clan_id));
 			const store = getStore();
 			const currentClanId = selectCurrentClanId(store.getState());
 			dispatch(listChannelsByUserActions.removeByClanId({ clanId: clanDelete.clan_id }));
@@ -2831,4 +2833,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-
