@@ -269,8 +269,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					})
 				);
 			}
-			if (needsJoin) {
-				joinningToThread && joinningToThread(channel, [userProfile?.user?.id ?? '']);
+			if (needsJoin && joinningToThread) {
+				dispatch(threadsActions.updateActiveCodeThread({ channelId: channel.id, activeCode: ThreadStatus.joined }));
+				joinningToThread(channel, [userProfile?.user?.id ?? '']);
 			}
 		},
 		[userProfile?.user?.id]
