@@ -1069,12 +1069,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						user: {
 							id: user.user_id,
 							avatar_url: user.avatar,
-							about_me: user.about_me,
+							//about_me: user.about_me,
 							display_name: user.display_name,
 							metadata: user.custom_status,
 							username: user.username,
 							create_time: new Date(create_time_second * 1000).toISOString(),
-							online: true
+							online: user.online
 						}
 					}));
 
@@ -1112,7 +1112,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							...userJoinClan.user,
 							avatar_url: userJoinClan.user.avatar,
 							id: userJoinClan.user.user_id,
-							about_me: userJoinClan.user.about_me,
+							//about_me: userJoinClan.user.about_me,
 							display_name: userJoinClan.user.display_name,
 							metadata: userJoinClan.user.custom_status,
 							username: userJoinClan.user.username,
