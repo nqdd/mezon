@@ -93,7 +93,7 @@ export const MemberListStatus = React.memo(() => {
 	const navigateToNewGroupScreen = () => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
 			screen: APP_SCREEN.MESSAGES.NEW_GROUP,
-			params: { directMessageId: currentChannel?.id || currentChannel?.channel_id || '' }
+			params: { directMessageId: currentChannel?.id || currentChannel?.channel_id || '', fromUser: true }
 		});
 	};
 

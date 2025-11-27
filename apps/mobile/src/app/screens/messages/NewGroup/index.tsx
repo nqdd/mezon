@@ -35,7 +35,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const directMessageId = route?.params?.directMessageId;
+	const { directMessageId, fromUser = false } = route?.params || {};
 	const [searchText, setSearchText] = useState<string>('');
 	const { t } = useTranslation(['common', 'friends']);
 	const [friendIdSelectedList, setFriendIdSelectedList] = useState<string[]>([]);
@@ -165,10 +165,18 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 					navigation.navigate(APP_SCREEN.MESSAGES.HOME);
 				} else {
 					directMessageIdRef.current = resPayload?.channel_id || '';
-					navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
-						directMessageId: resPayload.channel_id,
-						from: APP_SCREEN.MESSAGES.NEW_GROUP
-					});
+					if (fromUser) {
+						navigation.popToTop();
+						navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
+							directMessageId: resPayload.channel_id,
+							from: APP_SCREEN.MESSAGES.NEW_GROUP
+						});
+					} else {
+						navigation.replace(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, {
+							directMessageId: resPayload.channel_id,
+							from: APP_SCREEN.MESSAGES.NEW_GROUP
+						});
+					}
 				}
 			});
 		}
