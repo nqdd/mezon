@@ -4,7 +4,7 @@ import { ActiveDm } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezon-js';
-import { ChannelType } from 'mezon-js';
+import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiChannelMessageHeader, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
 import { selectAllAccount } from '../account/account.slice';
@@ -387,7 +387,7 @@ const mapMessageToConversation = (message: ChannelMessage): DirectEntity => {
 		parent_id: '0',
 		channel_id: message.channel_id,
 		category_id: '0',
-		type: ChannelType.CHANNEL_TYPE_DM,
+		type: message?.mode === ChannelStreamMode.STREAM_MODE_GROUP ? ChannelType.CHANNEL_TYPE_GROUP : ChannelType.CHANNEL_TYPE_DM,
 		creator_id: message.sender_id,
 		channel_label: message.display_name || message.username,
 		channel_private: 1,
