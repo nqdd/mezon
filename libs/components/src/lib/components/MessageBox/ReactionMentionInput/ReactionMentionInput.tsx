@@ -39,27 +39,27 @@ import type {
 	RequestInput
 } from '@mezon/utils';
 import {
+	CHANNEL_INPUT_ID,
+	CREATING_TOPIC,
+	ID_MENTION_HERE,
+	MIN_THRESHOLD_CHARS,
+	QUICK_MENU_TYPE,
+	RECENT_EMOJI_CATEGORY,
+	SubPanelName,
+	THREAD_ARCHIVE_DURATION_SECONDS,
+	TITLE_MENTION_HERE,
+	ThreadStatus,
 	addMention,
 	adjustPos,
 	blankReferenceObj,
-	CHANNEL_INPUT_ID,
 	checkIsThread,
-	CREATING_TOPIC,
 	extractCanvasIdsFromText,
 	filterEmptyArrays,
-	ID_MENTION_HERE,
-	MIN_THRESHOLD_CHARS,
 	processBoldEntities,
 	processEntitiesDirectly,
 	processMarkdownEntities,
-	QUICK_MENU_TYPE,
-	RECENT_EMOJI_CATEGORY,
 	searchMentionsHashtag,
-	SubPanelName,
-	THREAD_ARCHIVE_DURATION_SECONDS,
-	threadError,
-	ThreadStatus,
-	TITLE_MENTION_HERE
+	threadError
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
