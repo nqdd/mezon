@@ -29,7 +29,13 @@ import type {
 	IMentionOnMessage,
 	IMessageSendPayload
 } from '@mezon/utils';
-import { checkIsThread, filterEmptyArrays, ThreadStatus, uniqueUsers } from '@mezon/utils';
+import {
+	checkIsThread,
+	filterEmptyArrays,
+	THREAD_ARCHIVE_DURATION_SECONDS,
+	ThreadStatus,
+	uniqueUsers
+} from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
@@ -160,6 +166,29 @@ export const ChatMessageSending = memo(
 			return usersNotExistingInThread || [];
 		};
 
+		const handleThreadActivation = useCallback(
+			async (channel: ChannelsEntity | null | undefined) => {
+				const currentTime = Math.floor(Date.now() / 1000);
+				const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
+				const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
+				const needsJoin = channel.active === ThreadStatus.activePublic;
+
+				if (isArchived || (needsJoin && joinningToThread)) {
+					await dispatch(
+						threadsActions.writeActiveArchivedThread({
+							clanId: channel.clan_id ?? '',
+							channelId: channel.channel_id ?? ''
+						})
+					);
+				}
+				if (needsJoin && joinningToThread) {
+					dispatch(threadsActions.updateActiveCodeThread({ channelId: channel.id, activeCode: ThreadStatus.joined }));
+					joinningToThread(channel, [userId ?? '']);
+				}
+			},
+			[dispatch, joinningToThread, userId]
+		);
+
 		const handleSendMessage = async () => {
 			const simplifiedMentionList = !mentionsOnMessage?.current
 				? []
@@ -184,11 +213,7 @@ export const ChatMessageSending = memo(
 				const usersNotExistingInThread = getUsersNotExistingInThread(simplifiedMentionList);
 
 				if (usersNotExistingInThread?.length > 0) await addMemberToThread(currentChannel, usersNotExistingInThread);
-
-				if (currentChannel?.active === ThreadStatus.activePublic) {
-					dispatch(threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined }));
-					joinningToThread(currentChannel, [userId ?? '']);
-				}
+				await handleThreadActivation(currentChannel);
 			}
 			const payloadSendMessage: IMessageSendPayload = {
 				t: removeTags(valueInputRef?.current),

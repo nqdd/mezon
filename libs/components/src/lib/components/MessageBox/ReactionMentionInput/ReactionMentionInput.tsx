@@ -261,7 +261,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
 			const needsJoin = channel.active === ThreadStatus.activePublic;
 
-			if (isArchived) {
+			if (isArchived || (needsJoin && joinningToThread)) {
 				await dispatch(
 					threadsActions.writeActiveArchivedThread({
 						clanId: channel.clan_id ?? '',
