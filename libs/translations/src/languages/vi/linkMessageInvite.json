@@ -1,8 +1,12 @@
 {
-  "title": "MỜi THAM GIA CLAN",
-  "offline": "ngoại tuyến",
-  "online": "trực tuyến",
-  "join": "Tham gia",
-  "inviteTo": "MỜI THAM GIA {{clanName}}",
-  "noThanks": "Không cảm ơn"
+	"title": "MỜI THAM GIA CLAN",
+	"offline": "ngoại tuyến",
+	"online": "trực tuyến",
+	"join": "Tham gia",
+	"inviteTo": "MỜI THAM GIA {{clanName}}",
+	"noThanks": "Không cảm ơn",
+	"invalidInvite": {
+		"title": "Lời mời không hợp lệ",
+		"message": "Hãy thử gửi một lời mời khác!"
+	}
 }

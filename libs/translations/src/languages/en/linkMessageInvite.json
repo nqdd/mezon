@@ -1,8 +1,12 @@
 {
-  "title": "INVITE TO JOIN A CLAN",
-  "offline": "offline",
-  "online": "online",
-  "join": "Join",
-  "inviteTo": "INVITE TO {{clanName}}",
-  "noThanks": "No, Thanks"
+	"title": "INVITE TO JOIN A CLAN",
+	"offline": "offline",
+	"online": "online",
+	"join": "Join",
+	"inviteTo": "INVITE TO {{clanName}}",
+	"noThanks": "No, Thanks",
+	"invalidInvite": {
+		"title": "Invalid Invite",
+		"message": "Try sending a new invite!"
+	}
 }
