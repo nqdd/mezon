@@ -32,10 +32,10 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => {
 			const element = event.target as HTMLInputElement;
+
 			if (!(element.value || '').trim()) {
 				dispatch(threadsActions.setNameThreadError(threadError.name));
 			}
-			onKeyDown(event);
 		},
 		[dispatch, onKeyDown]
 	);
