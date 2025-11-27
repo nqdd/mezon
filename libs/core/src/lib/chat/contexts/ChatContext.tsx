@@ -991,7 +991,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						);
 						dispatch(
 							listChannelRenderAction.addThreadToListRender({
-								channel,
+								channel: {
+									...channel,
+									active: 1
+								},
 								clanId: channel.clan_id || ''
 							})
 						);
@@ -1235,7 +1238,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(
 				channelMembersActions.setCustomStatusUser({
 					userId: statusEvent.user_id,
-					status: statusEvent.status
+					status: statusEvent.status,
+					time_reset: statusEvent.time_reset
 				})
 			);
 
@@ -2879,4 +2883,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

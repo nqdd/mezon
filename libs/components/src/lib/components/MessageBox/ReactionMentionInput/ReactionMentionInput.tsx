@@ -250,7 +250,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	);
 
 	const handleSendInternal = useCallback(
-		(checkedRequest: RequestInput, anonymousMessage?: boolean) => {
+		async (checkedRequest: RequestInput, anonymousMessage?: boolean) => {
 			//TODO: break logic send width thread box, channel, topic box, dm
 			if (props.isThread && !nameValueThread?.trim() && !props.isTopic && !threadCurrentChannel) {
 				dispatch(threadsActions.setNameThreadError(threadError.name));
@@ -276,7 +276,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 							const existsInChild = props.membersOfChild?.some((member) => member.user?.id === mention.user_id);
 							const existsInParent = props.membersOfParent?.some((member) => member.user?.id === mention.user_id);
 
-							if (!existsInChild && existsInParent && mention.user_id) {
+							if ((!existsInChild || props.isThreadbox) && existsInParent && mention?.user_id) {
 								usersNotExistingInThreadSet.add(mention.user_id);
 							}
 						} else if (mention?.role_id) {
@@ -341,7 +341,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				const attachmentData = attachmentFiltered?.files || [];
 
 				if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0 && addMemberToThread) {
-					addMemberToThread(currentChannel!, usersNotExistingInThread);
+					await addMemberToThread(currentChannel!, usersNotExistingInThread);
 				}
 
 				if (checkIsThread(currentChannel as ChannelsEntity) && currentChannel?.active === ThreadStatus.activePublic && joinningToThread) {
@@ -360,7 +360,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						mentionEveryone,
 						undefined,
 						undefined,
-						ephemeralTargetUserId || undefined
+						ephemeralTargetUserId || undefined,
+						usersNotExistingInThread
 					);
 					setMentionEveryone(false);
 					dispatch(referencesActions.resetAfterReply(props.currentChannelId ?? ''));
@@ -375,7 +376,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						mentionEveryone,
 						undefined,
 						undefined,
-						ephemeralTargetUserId || undefined
+						ephemeralTargetUserId || undefined,
+						usersNotExistingInThread
 					);
 				} else if (isReplyOnTopic) {
 					props.onSend(
@@ -388,7 +390,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						mentionEveryone,
 						undefined,
 						undefined,
-						ephemeralTargetUserId || undefined
+						ephemeralTargetUserId || undefined,
+						usersNotExistingInThread
 					);
 					setMentionEveryone(false);
 					dispatch(
@@ -408,7 +411,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 						mentionEveryone,
 						undefined,
 						undefined,
-						ephemeralTargetUserId || undefined
+						ephemeralTargetUserId || undefined,
+						usersNotExistingInThread
 					);
 					setMentionEveryone(false);
 				}
