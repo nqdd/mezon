@@ -6,9 +6,9 @@
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
 	"errorBoundary": {
-		"title": "Ồ, điều này thật khó xử",
-		"crashMessage": "Có vẻ như Mezon đã gặp sự cố bất ngờ....",
-		"trackedMessage": "Chúng tôi đã theo dõi lỗi và sẽ khắc phục ngay lập tức.",
+		"title": "Ôi, Hơi ngại một chút!",
+		"crashMessage": "Có vẻ như Mezon vừa gặp sự cố bất ngờ....",
+		"trackedMessage": "Chúng tôi đã ghi nhận lỗi và xử lý ngay.",
 		"reload": "Tải lại"
 	},
 	"newMessage": "Tin nhắn mới",
