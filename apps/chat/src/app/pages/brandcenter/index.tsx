@@ -93,6 +93,8 @@ const BrandCenterPage = () => {
 									is always represented with consistency, accuracy, and respect. By using our brand assets, you also agree to our{' '}
 									<a
 										href="/terms-of-service"
+										target="_blank"
+										rel="noopener noreferrer"
 										className="text-[#6B5FE0] hover:text-[#5A6FE8] font-semibold hover:underline transition-colors"
 									>
 										Terms of Service
@@ -100,9 +102,11 @@ const BrandCenterPage = () => {
 									and{' '}
 									<a
 										href="/privacy-policy"
+										target="_blank"
+										rel="noopener noreferrer"
 										className="text-[#6B5FE0] hover:text-[#5A6FE8] font-semibold hover:underline transition-colors"
 									>
-										privacy-policy Policy
+										Privacy Policy
 									</a>
 									.
 								</p>
@@ -232,7 +236,9 @@ const BrandCenterPage = () => {
 										<>
 											Use Mezon's brand assets in ways that violate our{' '}
 											<a
-												href="/terms"
+												href="/terms-of-service"
+												target="_blank"
+												rel="noopener noreferrer"
 												className="text-[#6B5FE0] hover:text-[#5A6FE8] font-semibold hover:underline transition-colors"
 											>
 												Terms of Service
@@ -240,6 +246,8 @@ const BrandCenterPage = () => {
 											,{' '}
 											<a
 												href="/privacy-policy"
+												target="_blank"
+												rel="noopener noreferrer"
 												className="text-[#6B5FE0] hover:text-[#5A6FE8] font-semibold hover:underline transition-colors"
 											>
 												Privacy Policy
@@ -267,6 +275,8 @@ const BrandCenterPage = () => {
 									If you become aware of any misuse of Mezon's brand assets, please report it to us at{' '}
 									<a
 										href="mailto:hello@mezon.vn"
+										target="_blank"
+										rel="noopener noreferrer"
 										className="text-[#6B5FE0] hover:text-[#5A6FE8] font-semibold hover:underline transition-colors"
 									>
 										hello@mezon.vn
@@ -311,11 +321,13 @@ const BrandCenterPage = () => {
 										</li>
 									))}
 								</ul>
-								<div className="flex justify-center pt-4">
-									<button className="px-10 py-4 bg-gradient-to-r from-[#6B5FE0] to-[#5A6FE8] text-white text-lg font-semibold rounded-lg hover:shadow-xl hover:shadow-[#6B5FE0]/20 transition-all duration-300 transform hover:scale-105 active:scale-95">
-										Download Complete Brand Resource Kit
-									</button>
-								</div>
+								<a href="http://cdn.mezon.ai/landing-page-mezon/Mezon-Brand-Resource.zip" target="_blank" rel="noopener noreferrer">
+									<div className="flex justify-center pt-4">
+										<button className="px-10 py-4 bg-gradient-to-r from-[#6B5FE0] to-[#5A6FE8] text-white text-lg font-semibold rounded-lg hover:shadow-xl hover:shadow-[#6B5FE0]/20 transition-all duration-300 transform hover:scale-105 active:scale-95">
+											Download Complete Brand Resource Kit
+										</button>
+									</div>
+								</a>
 							</div>
 
 							<p className="text-gray-600 text-base select-text">
@@ -342,6 +354,8 @@ const BrandCenterPage = () => {
 								<p className="font-semibold text-gray-900 mb-4 text-xl">Contact our Brand Team:</p>
 								<a
 									href="mailto:hello@mezon.vn"
+									target="_blank"
+									rel="noopener noreferrer"
 									className="text-2xl font-bold text-[#6B5FE0] hover:text-[#5A6FE8] transition-colors hover:underline"
 								>
 									hello@mezon.vn
