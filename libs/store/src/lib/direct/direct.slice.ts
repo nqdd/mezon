@@ -721,7 +721,7 @@ export const directSlice = createSlice({
 		},
 		updateMoreData: (state, action: PayloadAction<DirectEntity>) => {
 			const data = action.payload;
-			const channelId = data.id;
+			const channelId = data?.channel_id || data.id;
 			const currentData = state.entities[channelId];
 			if (!currentData) return;
 
