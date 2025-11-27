@@ -1073,8 +1073,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							display_name: user.display_name,
 							metadata: user.custom_status,
 							username: user.username,
-							create_time: new Date(user.create_time_second * 1000).toISOString(),
-							online: user.online
+							create_time: new Date(create_time_second * 1000).toISOString(),
+							online: true
 						}
 					}));
 
@@ -2890,4 +2890,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-
