@@ -10,7 +10,7 @@ import {
 	selectThreadCurrentChannel,
 	useAppSelector
 } from '@mezon/store';
-import { MentionReactInputProps } from '@mezon/utils';
+import type { MentionReactInputProps } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import { memo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
