@@ -344,9 +344,19 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					await addMemberToThread(currentChannel!, usersNotExistingInThread);
 				}
 
-				if (checkIsThread(currentChannel as ChannelsEntity) && currentChannel?.active === ThreadStatus.activePublic && joinningToThread) {
-					dispatch(threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined }));
-					joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
+				if (
+					checkIsThread(currentChannel as ChannelsEntity) &&
+					currentChannel &&
+					(currentChannel.active === ThreadStatus.activePublic || currentChannel.active === 0 || currentChannel.active === undefined)
+				) {
+					await dispatch(
+						threadsActions.writeActiveArchivedThreadDM({
+							clanId: currentChannel.clan_id ?? '',
+							channelId: currentChannel.channel_id ?? ''
+						})
+					);
+
+					joinningToThread && joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
 				}
 
 				if (isReplyOnChannel) {
@@ -551,10 +561,19 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0 && addMemberToThread) {
 				addMemberToThread(currentChannel!, usersNotExistingInThread);
 			}
+			if (
+				checkIsThread(currentChannel as ChannelsEntity) &&
+				currentChannel &&
+				(currentChannel.active === ThreadStatus.activePublic || currentChannel.active === 0 || currentChannel.active === undefined)
+			) {
+				await dispatch(
+					threadsActions.writeActiveArchivedThreadDM({
+						clanId: currentChannel.clan_id ?? '',
+						channelId: currentChannel.channel_id ?? ''
+					})
+				);
 
-			if (checkIsThread(currentChannel as ChannelsEntity) && currentChannel?.active === ThreadStatus.activePublic && joinningToThread) {
-				dispatch(threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined }));
-				joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
+				joinningToThread && joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
 			}
 
 			if (isReplyOnChannel) {
