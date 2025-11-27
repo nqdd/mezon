@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
 
 type SettingNotificationsProps = {
 	menuIsOpen: boolean;
@@ -8,44 +7,37 @@ type SettingNotificationsProps = {
 
 const SettingNotifications = ({ menuIsOpen }: SettingNotificationsProps) => {
 	const { t } = useTranslation('common');
-	const [hideNotifications, setHideNotifications] = useState(false);
+	const [hideNotifications, setHideNotifications] = useState(() => localStorage.getItem('hideNotificationContent') === 'true');
 
-	useEffect(() => {
-		const saved = localStorage.getItem('hideNotificationContent');
-		if (saved === 'true') {
-			setHideNotifications(true);
-		}
-	}, []);
-
-	const handleSave = () => {
-		localStorage.setItem('hideNotificationContent', hideNotifications.toString());
-		toast.success(t('settingsSaved'));
+	const handleToggle = (checked: boolean) => {
+		setHideNotifications(checked);
+		localStorage.setItem('hideNotificationContent', checked.toString());
 	};
 
 	return (
 		<div
-			className={`overflow-y-auto flex flex-col flex-1 shrink  w-1/2 pt-[94px] pb-7 pr-[10px] sbm:pl-[40px] pl-[10px] overflow-x-hidden ${menuIsOpen ? 'min-w-[700px]' : ''} 2xl:min-w-[900px] max-w-[740px] hide-scrollbar text-theme-primary text-sm`}
+			className={`overflow-y-auto flex flex-col flex-1 shrink w-1/2 pt-[94px] pb-7 pr-[10px] sbm:pl-[40px] pl-[10px] overflow-x-hidden ${menuIsOpen ? 'min-w-[700px]' : ''} 2xl:min-w-[900px] max-w-[740px] hide-scrollbar text-theme-primary text-sm`}
 		>
 			<h1 className="text-xl font-semibold tracking-wider mb-8 text-theme-primary-active">{t('notifications')}</h1>
+
 			<div className="rounded-lg bg-theme-setting-nav p-4">
-				<div className="flex items-center mb-4">
-					<input
-						type="checkbox"
-						id="hideNotifications"
-						checked={hideNotifications}
-						onChange={(e) => setHideNotifications(e.target.checked)}
-						className="mr-2"
-					/>
-					<label htmlFor="hideNotifications" className="text-sm font-medium">
-						{t('hideNotificationsContent')}
-					</label>
+				<div className="flex items-center justify-between mb-2">
+					<div className="flex flex-col">
+						<h2 className="text-base font-medium text-theme-primary-active mb-1">{t('hideNotificationsContent')}</h2>
+						<p className="text-sm text-theme-primary">{hideNotifications ? t('hideNotificationDesc') : t('showNotificationDesc')}</p>
+					</div>
+					<div className="ml-4 flex-shrink-0">
+						<label className="relative inline-flex items-center cursor-pointer">
+							<input
+								type="checkbox"
+								checked={hideNotifications}
+								onChange={(e) => handleToggle(e.target.checked)}
+								className="sr-only peer"
+							/>
+							<div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+						</label>
+					</div>
 				</div>
-
-				{hideNotifications ? <p className="mb-4">{t('hideNotificationDesc')}</p> : <p className="mb-4">{t('showNotificationDesc')}</p>}
-
-				<button onClick={handleSave} className="mt-4  px-4 py-2 rounded btn-primary btn-primary-hover ">
-					{t('save')}
-				</button>
 			</div>
 		</div>
 	);
