@@ -26,7 +26,7 @@ const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFo
 
 	return (
 		<div className={`space-y-2 ${className ? className : ''}`}>
-			<label htmlFor={id} className="block text-sm font-medium text-gray-900 dark:text-gray-200">
+			<label htmlFor={id} className="block text-sm font-medium text-theme-primary">
 				{label}
 				<span className="text-red-500">*</span>
 			</label>
@@ -37,20 +37,16 @@ const PasswordInput = memo(({ id, label, value, onChange, error, isLoading, onFo
 					value={value}
 					onChange={onChange}
 					className={`w-full px-3 py-2 rounded-md pr-10 border
-						${error ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'}
-						bg-white dark:bg-[#1e1e1e]
-						text-black dark:text-white
+						${error ? 'border-red-500 dark:border-red-400' : 'border-theme-primary'}
+						bg-theme-input
+						text-theme-primary
 						focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 `}
 					readOnly={isLoading}
 					autoComplete="off"
 					placeholder={label === 'Password' ? t('enterPassword') : t('confirmPassword')}
 					onFocus={onFocus}
 				/>
-				<button
-					type="button"
-					onClick={togglePasswordVisibility}
-					className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400"
-				>
+				<button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-primary">
 					{showPassword ? <Icons.EyeClose className="w-5 h-5" /> : <Icons.EyeOpen className="w-5 h-5" />}
 				</button>
 			</div>
