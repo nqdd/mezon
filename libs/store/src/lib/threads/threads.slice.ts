@@ -283,16 +283,16 @@ export const leaveThread = createAsyncThunk(
 	}
 );
 
-export const writeActiveArchivedThreadDM = createAsyncThunk(
-	'threads/writeActiveArchivedThreadDM',
+export const writeActiveArchivedThread = createAsyncThunk(
+	'threads/writeActiveArchivedThread',
 	async ({ clanId, channelId }: { clanId: string; channelId: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-			await mezon.socketRef.current?.writeActiveArchivedThreadDM(clanId, channelId);
+			await mezon.socketRef.current?.writeActiveArchivedThread(clanId, channelId);
 			thunkAPI.dispatch(threadsActions.updateActiveCodeThread({ channelId, activeCode: ThreadStatus.joined }));
 			return { channelId, activeCode: ThreadStatus.joined };
 		} catch (error) {
-			captureSentryError(error, 'threads/writeActiveArchivedThreadDM');
+			captureSentryError(error, 'threads/writeActiveArchivedThread');
 			return thunkAPI.rejectWithValue(error);
 		}
 	}
@@ -531,7 +531,7 @@ export const threadsActions = {
 	leaveThread,
 	updateCacheOnThreadCreation,
 	searchedThreads,
-	writeActiveArchivedThreadDM
+	writeActiveArchivedThread
 };
 
 /*

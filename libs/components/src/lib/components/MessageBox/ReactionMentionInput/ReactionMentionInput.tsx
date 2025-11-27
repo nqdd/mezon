@@ -46,6 +46,7 @@ import {
 	QUICK_MENU_TYPE,
 	RECENT_EMOJI_CATEGORY,
 	SubPanelName,
+	THREAD_ARCHIVE_DURATION_SECONDS,
 	TITLE_MENTION_HERE,
 	ThreadStatus,
 	addMention,
@@ -249,6 +250,32 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		]
 	);
 
+	const handleThreadActivation = useCallback(
+		async (channel: ChannelsEntity | null | undefined) => {
+			if (!checkIsThread(channel as ChannelsEntity) || !channel) {
+				return;
+			}
+
+			const currentTime = Math.floor(Date.now() / 1000);
+			const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
+			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
+			const needsJoin = channel.active === ThreadStatus.activePublic;
+
+			if (isArchived) {
+				await dispatch(
+					threadsActions.writeActiveArchivedThread({
+						clanId: channel.clan_id ?? '',
+						channelId: channel.channel_id ?? ''
+					})
+				);
+			}
+			if (needsJoin) {
+				joinningToThread && joinningToThread(channel, [userProfile?.user?.id ?? '']);
+			}
+		},
+		[userProfile?.user?.id]
+	);
+
 	const handleSendInternal = useCallback(
 		async (checkedRequest: RequestInput, anonymousMessage?: boolean) => {
 			//TODO: break logic send width thread box, channel, topic box, dm
@@ -344,20 +371,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					await addMemberToThread(currentChannel!, usersNotExistingInThread);
 				}
 
-				if (
-					checkIsThread(currentChannel as ChannelsEntity) &&
-					currentChannel &&
-					(currentChannel.active === ThreadStatus.activePublic || currentChannel.active === 0 || currentChannel.active === undefined)
-				) {
-					await dispatch(
-						threadsActions.writeActiveArchivedThreadDM({
-							clanId: currentChannel.clan_id ?? '',
-							channelId: currentChannel.channel_id ?? ''
-						})
-					);
-
-					joinningToThread && joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
-				}
+				await handleThreadActivation(currentChannel);
 
 				if (isReplyOnChannel) {
 					props.onSend(
@@ -561,20 +575,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0 && addMemberToThread) {
 				addMemberToThread(currentChannel!, usersNotExistingInThread);
 			}
-			if (
-				checkIsThread(currentChannel as ChannelsEntity) &&
-				currentChannel &&
-				(currentChannel.active === ThreadStatus.activePublic || currentChannel.active === 0 || currentChannel.active === undefined)
-			) {
-				await dispatch(
-					threadsActions.writeActiveArchivedThreadDM({
-						clanId: currentChannel.clan_id ?? '',
-						channelId: currentChannel.channel_id ?? ''
-					})
-				);
 
-				joinningToThread && joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
-			}
+			await handleThreadActivation(currentChannel);
 
 			if (isReplyOnChannel) {
 				props.onSend(
@@ -708,7 +710,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			currentChannel,
 			setOpenThreadMessageState,
 			updateDraft,
-			setSubPanelActive
+			setSubPanelActive,
+			handleThreadActivation
 		]
 	);
 
