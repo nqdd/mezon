@@ -461,8 +461,8 @@ const ControlBar = ({
 						overlay={
 							<div className="p-2" onClick={(e) => e.stopPropagation()}>
 								<div className="flex justify-between items-center mb-2">
-									<span className="text-xs font-semibold">Noise Suppression</span>
-									<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
+									<span className="text-xs font-semibold text-theme-primary-active">Noise Suppression</span>
+									<span className="text-xs text-theme-primary-active">{noiseSuppressionLevel}%</span>
 								</div>
 								<input
 									type="range"

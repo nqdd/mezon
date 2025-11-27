@@ -20,6 +20,7 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 
 	const downloadLinks = {
 		windows: 'https://apps.microsoft.com/detail/9pf25lf1fj17',
+		windowsPortable: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`,
 		macos: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-arm64.dmg`,
 		macosIntel: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`,
 		linux: `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-linux-amd64.deb`
@@ -57,7 +58,7 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 					<h1 className="font-svnAvo text-6xl max-md:text-4xl max-sm:text-3xl font-bold max-w-4xl text-stone-900">
 						{t('sections.hero.title.your')} <span className="text-purple-600">{t('sections.hero.title.live')}</span>,{' '}
 						<span className="text-purple-600">{t('sections.hero.title.work')}</span>,{' '}
-						<span className="text-purple-600">{t('sections.hero.title.play')}</span>, {t('sections.hero.title.platform')}{' '}
+						<span className="text-purple-600">{t('sections.hero.title.play')}</span> {t('sections.hero.title.platform')}{' '}
 						{t('sections.hero.title.theBest')} {t('sections.hero.title.discordAlternative')}
 					</h1>
 
@@ -87,7 +88,16 @@ export const HeroSection = ({ homeRef, isVisible }: HeroSectionProps) => {
 										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
 									>
 										<Icons.Windows className="w-6 h-6 " />
-										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows</span>
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows (Store)</span>
+									</a>
+									<a
+										href={downloadLinks.windowsPortable}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 transition-all border border-gray-200 hover:border-purple-300  text-purple-500 hover:text-pink-500 "
+									>
+										<Icons.Windows className="w-6 h-6 " />
+										<span className="font-medium text-gray-800 group-hover:text-purple-600">Windows (Portable)</span>
 									</a>
 									<a
 										href={downloadLinks.macos}

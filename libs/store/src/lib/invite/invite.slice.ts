@@ -20,6 +20,7 @@ export interface InviteState extends EntityState<InvitesEntity, string> {
 	loadingStatus: LoadingStatus;
 	error?: string | null;
 	isClickInvite: boolean;
+	loadingById: Record<string, LoadingStatus>;
 }
 
 export const inviteAdapter = createEntityAdapter<InvitesEntity>();
@@ -114,7 +115,8 @@ export const initialInviteState: InviteState = inviteAdapter.getInitialState({
 	loadingStatus: 'not loaded',
 	clans: [],
 	error: null,
-	isClickInvite: false
+	isClickInvite: false,
+	loadingById: {}
 });
 
 export const inviteSlice = createSlice({
@@ -125,20 +127,30 @@ export const inviteSlice = createSlice({
 		remove: inviteAdapter.removeOne,
 		setIsClickInvite: (state, action) => {
 			state.isClickInvite = action.payload;
+		},
+		removeByClanId: (state, action: PayloadAction<string>) => {
+			for (const id of state.ids) {
+				if (state.entities[id]?.clan_id === action.payload) {
+					inviteAdapter.removeOne(state, id);
+				}
+			}
 		}
 	},
 	extraReducers: (builder) => {
 		builder
-			.addCase(getLinkInvite.pending, (state: InviteState) => {
+			.addCase(getLinkInvite.pending, (state: InviteState, action) => {
 				state.loadingStatus = 'loading';
+				state.loadingById[action.meta.arg.inviteId] = 'loading';
 			})
-			.addCase(getLinkInvite.fulfilled, (state: InviteState, action: PayloadAction<IInvite>) => {
+			.addCase(getLinkInvite.fulfilled, (state: InviteState, action) => {
 				inviteAdapter.upsertOne(state, action.payload);
 				state.loadingStatus = 'loaded';
+				state.loadingById[action.meta.arg.inviteId] = 'loaded';
 			})
 			.addCase(getLinkInvite.rejected, (state: InviteState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
+				state.loadingById[action.meta.arg.inviteId] = 'error';
 			});
 	}
 });
@@ -197,3 +209,5 @@ export const selectInviteEntities = createSelector(getInviteState, selectEntitie
 export const selectInviteById = (id: string) => createSelector(selectInviteEntities, (inviteEntities) => inviteEntities[id]);
 
 export const selectIsClickInvite = createSelector(getInviteState, (state) => state.isClickInvite);
+
+export const selectInviteLoadingById = (inviteId: string) => createSelector(getInviteState, (state) => state.loadingById[inviteId]);

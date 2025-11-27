@@ -1,27 +1,35 @@
 import { useInvite } from '@mezon/core';
 import { remove, save, STORAGE_CHANNEL_CURRENT_CACHE, STORAGE_CLAN_ID } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
-import { appActions, clansActions, getStoreAsync, inviteActions, selectInviteById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { useTheme } from '@mezon/mobile-ui';
+import {
+	appActions,
+	clansActions,
+	getStoreAsync,
+	inviteActions,
+	selectInviteById,
+	selectInviteLoadingById,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
-import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../constants/icon_cdn';
 import useCheckClanLimit from '../../../../../../hooks/useCheckClanLimit';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { style } from '../RenderMessageInvite.styles';
 
 function LinkInvite({ inviteID }: { inviteID: string }) {
-	const { themeValue } = useTheme();
-	const styles = style(themeValue);
+	const { themeValue, themeBasic } = useTheme();
+	const styles = style(themeValue, themeBasic);
 	const { inviteUser } = useInvite();
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
 	const { t } = useTranslation('linkMessageInvite');
 	const selectInvite = useAppSelector(selectInviteById(inviteID || ''));
+	const loadingStatus = useAppSelector(selectInviteLoadingById(inviteID || ''));
 	const { checkClanLimit } = useCheckClanLimit();
 
 	const fetchInviteData = useCallback(() => {
@@ -33,6 +41,10 @@ function LinkInvite({ inviteID }: { inviteID: string }) {
 	useEffect(() => {
 		fetchInviteData();
 	}, [fetchInviteData]);
+
+	const isLoading = useMemo(() => {
+		return loadingStatus === 'loading';
+	}, [loadingStatus]);
 
 	const handleJoinClanInvite = async () => {
 		const store = await getStoreAsync();
@@ -67,11 +79,22 @@ function LinkInvite({ inviteID }: { inviteID: string }) {
 		}
 	};
 
-	return (
-		<View style={styles.inviteContainer}>
-			<Text style={styles.inviteTitle}>{t('title')}</Text>
+	const renderInvalidInvite = () => {
+		return (
+			<View style={styles.clanInfoRow}>
+				<View style={styles.invalidInviteAvatar} />
 
-			{selectInvite && (
+				<View style={styles.clanTextInfo}>
+					<Text style={styles.invalidInviteTitle}>{t('invalidInvite.title')}</Text>
+					<Text style={styles.channelName}>{t('invalidInvite.message')}</Text>
+				</View>
+			</View>
+		);
+	};
+
+	const renderValidCLanInfo = () => {
+		return (
+			<>
 				<View style={styles.clanInfoRow}>
 					{selectInvite?.clan_logo ? (
 						<FastImage
@@ -83,32 +106,34 @@ function LinkInvite({ inviteID }: { inviteID: string }) {
 						/>
 					) : (
 						<View style={styles.defaultAvatar}>
-							<Text style={styles.defaultAvatarText}>{selectInvite?.clan_name?.charAt(0)?.toUpperCase()}</Text>
+							<Text style={styles.defaultAvatarText}>{selectInvite?.clan_name?.charAt(0)?.toUpperCase() || ''}</Text>
 						</View>
 					)}
 
 					<View style={styles.clanTextInfo}>
-						<View style={styles.clanNameRow}>
-							<Text style={styles.clanName} numberOfLines={1}>
-								{selectInvite?.clan_name}
-							</Text>
-							{selectInvite?.clan_name && (
-								<MezonIconCDN icon={IconCDN.verifyIcon} width={size.s_16} height={size.s_16} color={themeValue.textStrong} />
-							)}
-						</View>
+						<Text style={styles.clanName} numberOfLines={1}>
+							{selectInvite?.clan_name || ''}
+						</Text>
 
 						{selectInvite?.channel_label && (
 							<Text style={styles.channelName} numberOfLines={1}>
-								# {selectInvite?.channel_label}
+								# {selectInvite.channel_label}
 							</Text>
 						)}
 					</View>
 				</View>
-			)}
 
-			<TouchableOpacity style={styles.joinButton} onPress={handleJoinClanInvite} activeOpacity={0.8}>
-				<Text style={styles.joinButtonText}>{t('join')}</Text>
-			</TouchableOpacity>
+				<TouchableOpacity style={styles.joinButton} onPress={handleJoinClanInvite} activeOpacity={0.8}>
+					<Text style={styles.joinButtonText}>{t('join')}</Text>
+				</TouchableOpacity>
+			</>
+		);
+	};
+
+	return (
+		<View style={styles.inviteContainer}>
+			<Text style={styles.inviteTitle}>{t('title')}</Text>
+			{isLoading ? <ActivityIndicator size="small" color={themeValue.text} /> : selectInvite ? renderValidCLanInfo() : renderInvalidInvite()}
 		</View>
 	);
 }

@@ -39,6 +39,7 @@ export interface ThreadsState extends EntityState<ThreadsEntity, string> {
 	loadingStatusSearchedThread?: LoadingStatus;
 	threadSearchedResult?: Record<string, ThreadsEntity[] | null>;
 	inputSearchThread?: Record<string, string>;
+	shouldTriggerSendFromThreadName?: boolean;
 }
 
 export const threadsAdapter = createEntityAdapter({
@@ -242,7 +243,8 @@ export const initialThreadsState: ThreadsState = threadsAdapter.getInitialState(
 	isThreadModalVisible: false,
 	loadingStatusSearchedThread: 'not loaded',
 	threadSearchedResult: {},
-	inputSearchThread: {}
+	inputSearchThread: {},
+	shouldTriggerSendFromThreadName: false
 });
 
 export const checkDuplicateThread = createAsyncThunk(
@@ -276,6 +278,21 @@ export const leaveThread = createAsyncThunk(
 			}
 		} catch (error) {
 			captureSentryError(error, 'threads/leavethread');
+			return thunkAPI.rejectWithValue(error);
+		}
+	}
+);
+
+export const writeActiveArchivedThread = createAsyncThunk(
+	'threads/writeActiveArchivedThread',
+	async ({ clanId, channelId }: { clanId: string; channelId: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
+			await mezon.socketRef.current?.writeActiveArchivedThread(clanId, channelId);
+			thunkAPI.dispatch(threadsActions.updateActiveCodeThread({ channelId, activeCode: ThreadStatus.joined }));
+			return { channelId, activeCode: ThreadStatus.joined };
+		} catch (error) {
+			captureSentryError(error, 'threads/writeActiveArchivedThread');
 			return thunkAPI.rejectWithValue(error);
 		}
 	}
@@ -396,6 +413,12 @@ export const threadsSlice = createSlice({
 			if (state?.threadSearchedResult) {
 				state.threadSearchedResult[channelId] = null;
 			}
+		},
+		triggerSendFromThreadName: (state: ThreadsState) => {
+			state.shouldTriggerSendFromThreadName = true;
+		},
+		resetTriggerSendFromThreadName: (state: ThreadsState) => {
+			state.shouldTriggerSendFromThreadName = false;
 		}
 	},
 	extraReducers: (builder) => {
@@ -501,7 +524,15 @@ export const threadsReducer = threadsSlice.reducer;
  *
  * See: https://react-redux.js.org/next/api/hooks#usedispatch
  */
-export const threadsActions = { ...threadsSlice.actions, fetchThreads, fetchThread, leaveThread, updateCacheOnThreadCreation, searchedThreads };
+export const threadsActions = {
+	...threadsSlice.actions,
+	fetchThreads,
+	fetchThread,
+	leaveThread,
+	updateCacheOnThreadCreation,
+	searchedThreads,
+	writeActiveArchivedThread
+};
 
 /*
  * Export selectors to query state. For use with the `useSelector` hook.
@@ -576,3 +607,5 @@ export const selectThreadsByParentChannelId = createSelector(
 		return selectAll(channelState);
 	}
 );
+
+export const selectShouldTriggerSendFromThreadName = createSelector(getThreadsState, (state) => state.shouldTriggerSendFromThreadName);

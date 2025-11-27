@@ -1,16 +1,9 @@
 import type { RolesClanEntity } from '@mezon/store';
-import {
-	channelUsersActions,
-	permissionRoleChannelActions,
-	selectChannelById,
-	selectCurrentClanId,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import { channelUsersActions, selectChannelById, selectCurrentClanId, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
 import { createImgproxyUrl, getAvatarForPrioritize, getNameForPrioritize, searchNormalizeText } from '@mezon/utils';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../../AvatarImage/AvatarImage';
@@ -34,40 +27,11 @@ type ListRoleMemberProps = {
 const ListRoleMember = memo((props: ListRoleMemberProps) => {
 	const { listManageInChannel, usersClan, channelId, onSelect, canChange, listManageNotInChannel } = props;
 	const [selectedItemId, setSelectedItemId] = useState<string | null>(listManageInChannel[0].id);
-	const dispatch = useAppDispatch();
-
-	useEffect(() => {
-		if (listManageInChannel.length > 0) {
-			onSelect(listManageInChannel[0].id, listManageInChannel[0].type);
-			if (listManageInChannel[0].type === 0) {
-				dispatch(
-					permissionRoleChannelActions.fetchPermissionRoleChannel({
-						channelId,
-						roleId: listManageInChannel[0].id,
-						userId: ''
-					})
-				);
-			} else {
-				dispatch(
-					permissionRoleChannelActions.fetchPermissionRoleChannel({
-						channelId,
-						roleId: '',
-						userId: listManageInChannel[0].id
-					})
-				);
-			}
-		}
-	}, [channelId]);
 
 	const handleItemClick = (item: any) => {
 		if (canChange) {
 			setSelectedItemId(item.id);
 			onSelect(item.id, item.type);
-			if (item.type === 0) {
-				dispatch(permissionRoleChannelActions.fetchPermissionRoleChannel({ channelId, roleId: item.id, userId: '', noCache: true }));
-			} else {
-				dispatch(permissionRoleChannelActions.fetchPermissionRoleChannel({ channelId, roleId: '', userId: item.id, noCache: true }));
-			}
 		}
 	};
 

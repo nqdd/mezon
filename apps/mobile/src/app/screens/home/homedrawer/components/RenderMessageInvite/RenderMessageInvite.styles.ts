@@ -1,7 +1,7 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import { Attributes, baseColor, size, ThemeModeBase } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, themeBasic: any) =>
 	StyleSheet.create({
 		clanName: {
 			color: colors.text,
@@ -85,9 +85,17 @@ export const style = (colors: Attributes) =>
 			letterSpacing: 0.5
 		},
 
-		clanNameRow: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			gap: size.s_2
+		invalidInviteAvatar: {
+			width: size.s_48,
+			height: size.s_48,
+			borderRadius: size.s_8,
+			backgroundColor:
+				themeBasic === ThemeModeBase.LIGHT || themeBasic === ThemeModeBase.SUNRISE ? colors.secondaryWeight : colors.secondaryLight
+		},
+
+		invalidInviteTitle: {
+			color: baseColor.red,
+			fontSize: size.s_14,
+			fontWeight: '700'
 		}
 	});

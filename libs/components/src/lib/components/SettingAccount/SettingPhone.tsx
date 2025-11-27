@@ -133,7 +133,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 				<button
 					onClick={onClose}
 					title={t('setPhoneModal.close')}
-					className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none dark:text-gray-300 dark:hover:text-gray-100"
+					className="absolute top-4 right-4  focus:outline-none text-theme-primary-active hover:text-red-500"
 				>
 					✕
 				</button>

@@ -259,7 +259,7 @@ const ButtonNoiseControl = memo(() => {
 		return (
 			<button
 				onClick={toggleNoiseSuppression}
-				className="flex items-center rounded-sm bg-bgSecondary bg-item-theme-hover text-theme-primary gap-2 p-[2px] text-sm bg-transparent bg-item-theme-hover"
+				className="flex items-center rounded-sm bg-item-theme-hover text-red-500 gap-2 p-[2px] text-sm bg-transparent bg-item-theme-hover"
 			>
 				<Icons.NoiseSupressionIcon className={`w-5 h-5`}>
 					<path d="M3 21 L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -275,8 +275,8 @@ const ButtonNoiseControl = memo(() => {
 				noiseSuppressionEnabled ? (
 					<div className="p-2" onClick={(e) => e.stopPropagation()}>
 						<div className="flex justify-between items-center mb-2">
-							<span className="text-xs font-semibold">Noise Suppression</span>
-							<span className="text-xs text-gray-400">{noiseSuppressionLevel}%</span>
+							<span className="text-xs font-semibold text-theme-primary-active">Noise Suppression</span>
+							<span className="text-xs text-theme-primary-active">{noiseSuppressionLevel}%</span>
 						</div>
 						<input
 							type="range"
@@ -284,7 +284,7 @@ const ButtonNoiseControl = memo(() => {
 							max="100"
 							value={noiseSuppressionLevel}
 							onChange={handleNoiseSuppressionLevelChange}
-							className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+							className="w-full h-2 bg-theme-setting-nav rounded-lg appearance-none cursor-pointer border-theme-primary"
 							disabled={!noiseSuppressionEnabled}
 						/>
 					</div>
@@ -298,7 +298,7 @@ const ButtonNoiseControl = memo(() => {
 				onClick={toggleNoiseSuppression}
 				className="flex items-center rounded-sm bg-bgSecondary bg-item-theme-hover text-theme-primary gap-2 p-[2px] text-sm bg-transparent bg-item-theme-hover"
 			>
-				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-green-400`} />
+				<Icons.NoiseSupressionIcon className={`w-5 h-5 text-theme-primary-active`} />
 			</button>
 		</Tooltip>
 	);
