@@ -42,8 +42,7 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 				permissionRoleChannelActions.fetchPermissionRoleChannel({
 					channelId: props.channelId,
 					roleId: currentRoleId.type === ENTITY_TYPE.ROLE ? currentRoleId.id : '',
-					userId: currentRoleId.type === ENTITY_TYPE.USER ? currentRoleId.id : '',
-					noCache: true
+					userId: currentRoleId.type === ENTITY_TYPE.USER ? currentRoleId.id : ''
 				})
 			);
 		}
