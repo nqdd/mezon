@@ -1,7 +1,7 @@
-import { channelsActions, clansActions, emojiSuggestionActions, topicsActions } from '@mezon/store';
+import { channelsActions, clansActions, emojiSuggestionActions, settingClanStickerActions, topicsActions } from '@mezon/store';
 import { ModeResponsive } from '@mezon/utils';
-import { ShouldRevalidateFunction } from 'react-router-dom';
-import { CustomLoaderFunction } from './appLoader';
+import type { ShouldRevalidateFunction } from 'react-router-dom';
+import type { CustomLoaderFunction } from './appLoader';
 import { waitForSocketConnection } from './socketUtils';
 
 export type ClanLoaderData = {
@@ -17,6 +17,7 @@ export const clanLoader: CustomLoaderFunction = async ({ params, dispatch }) => 
 	await dispatch(waitForSocketConnection());
 
 	dispatch(emojiSuggestionActions.fetchEmoji({ clanId, noCache: false }));
+	dispatch(settingClanStickerActions.fetchStickerByUserId({ clanId, noCache: false }));
 	dispatch(clansActions.joinClan({ clanId }));
 	dispatch(clansActions.changeCurrentClan({ clanId }));
 	dispatch(channelsActions.setModeResponsive({ clanId, mode: ModeResponsive.MODE_CLAN }));

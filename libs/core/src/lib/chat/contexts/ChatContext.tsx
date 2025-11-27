@@ -889,6 +889,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			user?.user_ids.forEach((id: string) => {
 				dispatch(voiceActions.removeFromClanInvoice(id));
 				if (id === userId) {
+					dispatch(emojiSuggestionActions.invalidateCache());
+					dispatch(stickerSettingActions.invalidateCache());
+
 					if (clanId === user.clan_id) {
 						if (isMobile) {
 							const clanList = selectOrderedClans(store.getState());
@@ -1601,6 +1604,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			const currentClanId = selectCurrentClanId(store.getState());
 			dispatch(listChannelsByUserActions.removeByClanId({ clanId: clanDelete.clan_id }));
 			dispatch(stickerSettingActions.removeStickersByClanId(clanDelete.clan_id));
+			dispatch(emojiSuggestionActions.invalidateCache());
+			dispatch(stickerSettingActions.invalidateCache());
 			if (clanDelete.deletor !== userId && currentClanId === clanDelete.clan_id) {
 				if (isMobile) {
 					const isVoiceJoined = selectVoiceInfo(store.getState());
@@ -2883,3 +2888,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+
