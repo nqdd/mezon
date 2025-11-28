@@ -452,6 +452,112 @@ width : 0 !important;
         opacity: 1;
     }
 
+    .image-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #2e2e2e;
+        color: #888;
+        min-width: 300px;
+        min-height: 300px;
+        flex-direction: column;
+        gap: 12px;
+        border-radius: 8px;
+    }
 
+    .image-error-icon {
+        width: 64px;
+        height: 64px;
+        opacity: 0.5;
+    }
+
+    .image-error-text {
+        font-size: 14px;
+        color: #999;
+    }
+
+    .thumbnail-error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #2e2e2e;
+        width: 88px;
+        height: 88px;
+        border-radius: 6px;
+    }
+
+    .thumbnail-error svg {
+        width: 32px;
+        height: 32px;
+        opacity: 0.5;
+        color: #666;
+    }
+
+    .navigation-buttons {
+        position: absolute;
+        right: 120px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 10;
+    }
+
+    .nav-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(46, 46, 46, 0.8);
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(4px);
+    }
+
+    .nav-button:hover {
+        background-color: rgba(67, 67, 67, 0.9);
+        transform: scale(1.1);
+    }
+
+    .nav-button:active {
+        background-color: rgba(88, 88, 88, 0.9);
+        transform: scale(0.95);
+    }
+
+    .nav-button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .nav-button:disabled:hover {
+        background-color: rgba(46, 46, 46, 0.8);
+        transform: scale(1);
+    }
+
+    .nav-button svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    @media (max-width: 480px) {
+        .navigation-buttons {
+            right: 10px;
+        }
+
+        .nav-button {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+
+	.nav-button:focus {
+		outline: none;
+	}
 `;
 export default image_window_css;

@@ -166,7 +166,7 @@ const MessageModalImage = () => {
 
 		skeletonTimerRef.current = setTimeout(() => {
 			setShowSkeleton(true);
-		}, 100);
+		}, 300);
 
 		return () => {
 			if (skeletonTimerRef.current) {
