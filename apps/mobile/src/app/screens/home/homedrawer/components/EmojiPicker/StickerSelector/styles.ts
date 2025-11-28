@@ -1,4 +1,5 @@
-import { Attributes, baseColor, Metrics, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, widthScreen?: number) =>
@@ -38,14 +39,12 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 			gap: size.s_6,
 			marginTop: size.s_10
 		},
-		session: {},
 		sessionTitle: {
 			fontSize: size.medium,
 			color: colors.text,
 			fontWeight: 'bold',
 			textTransform: 'uppercase',
-			marginTop: size.s_20,
-			marginBottom: size.s_10
+			marginTop: size.s_20
 		},
 		sessionContent: {
 			display: 'flex'
@@ -84,7 +83,7 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 			gap: size.s_2
 		},
 		chevronIcon: {
-			marginTop: size.s_10
+			marginTop: size.s_20
 		},
 		scrollViewContainer: {
 			paddingBottom: size.s_10 * 2
