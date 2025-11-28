@@ -10,8 +10,6 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
-			borderBottomColor: colors.border,
-			borderBottomWidth: 1,
 			gap: size.s_10
 		},
 		categoryLabel: {

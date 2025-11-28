@@ -10,19 +10,23 @@ import { styles } from './styles';
 export const CategoryChannel = React.memo(() => {
 	const channelCategorySettings = useSelector(selectAllchannelCategorySetting);
 	const sortedChannelCategorySettings = React.useMemo(() => {
-		const settingOptions = [...channelCategorySettings];
-		settingOptions?.sort((a, b) => {
-			if (a.channel_category_label && b.channel_category_label) {
-				if (a.channel_category_label < b.channel_category_label) {
-					return -1;
+		try {
+			const settingOptions = [...channelCategorySettings];
+			settingOptions?.sort((a, b) => {
+				if (a.channel_category_label && b.channel_category_label) {
+					if (a.channel_category_label < b.channel_category_label) {
+						return -1;
+					}
+					if (a.channel_category_label > b.channel_category_label) {
+						return 1;
+					}
 				}
-				if (a.channel_category_label > b.channel_category_label) {
-					return 1;
-				}
-			}
-			return 0;
-		});
-		return settingOptions;
+				return 0;
+			});
+			return settingOptions;
+		} catch (error) {
+			return [];
+		}
 	}, [channelCategorySettings]);
 
 	return (
