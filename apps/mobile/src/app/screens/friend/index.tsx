@@ -1,8 +1,10 @@
 import { useDirect } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { DMCallActions, FriendsEntity, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
-import { User } from 'mezon-js';
+import type { FriendsEntity } from '@mezon/store-mobile';
+import { DMCallActions, getStore, selectAllFriends, selectDirectsOpenlist, useAppDispatch } from '@mezon/store-mobile';
+import { ChannelType } from 'mezon-js';
+import type { ApiUser } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, TextInput, View } from 'react-native';
@@ -31,7 +33,7 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 	const friendList: FriendsEntity[] = useMemo(() => {
 		return allUser.filter((user) => user.state === 0);
 	}, [allUser]);
-	const [selectedUser, setSelectedUser] = useState<User | null>(null);
+	const [selectedUser, setSelectedUser] = useState<ApiUser | null>(null);
 	const dispatch = useAppDispatch();
 
 	const navigateToRequestFriendScreen = () => {
@@ -56,13 +58,15 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 	const directMessageWithUser = useCallback(
 		async (user: FriendsEntity) => {
 			const listDM = selectDirectsOpenlist(store.getState() as any);
-			const directMessage = listDM?.find?.((dm) => {
-				const userIds = dm?.user_ids;
-				if (!Array.isArray(userIds) || userIds.length !== 1) {
-					return false;
-				}
-				return userIds[0] === user?.user?.id;
-			});
+			const directMessage = listDM
+				?.filter?.((dm) => dm.type === ChannelType.CHANNEL_TYPE_DM)
+				?.find?.((dm) => {
+					const userIds = dm?.user_ids;
+					if (!Array.isArray(userIds) || userIds.length !== 1) {
+						return false;
+					}
+					return userIds[0] === user?.user?.id;
+				});
 
 			if (directMessage?.id) {
 				navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: directMessage?.id });
@@ -127,7 +131,7 @@ export const FriendScreen = React.memo(({ navigation }: { navigation: any }) => 
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: dataModal });
 			}
 		},
-		[createDirectMessageWithUser, navigation, store]
+		[createDirectMessageWithUser, dispatch, store]
 	);
 
 	const handleFriendAction = useCallback(

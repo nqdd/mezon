@@ -210,7 +210,7 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 		const extraMembers = membersToShow.length - maxMembers;
 
 		setDisplayedMembers(membersToShow.slice(0, maxMembers));
-		setRemainingCount(extraMembers > 0 ? extraMembers : 0);
+		setRemainingCount(extraMembers > 99 ? 99 : extraMembers > 0 ? extraMembers : 0);
 	}, [memberJoin, memberMax, isShowChat]);
 
 	useEffect(() => {
@@ -231,7 +231,7 @@ export function UserListStreamChannel({ memberJoin = [], memberMax, isShowChat }
 			))}
 			{remainingCount > 0 && (
 				<div className="w-14 h-14 rounded-full bg-item-theme text-theme-primary-active font-medium flex items-center justify-center">
-					+{remainingCount}
+					{remainingCount}+
 				</div>
 			)}
 		</div>

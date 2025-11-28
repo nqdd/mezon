@@ -174,12 +174,14 @@ function ChannelMessages({
 	topicId,
 	isPrivate
 }: ChannelMessagesProps) {
+	const effectiveChannelId = topicId || channelId;
+
 	const appearanceTheme = useSelector(selectTheme);
 	const currentChannelId = useSelector(selectCurrentChannelId);
-	const messageIds = useAppSelector((state) => selectMessageViewportIdsByChannelId(state, channelId));
+	const messageIds = useAppSelector((state) => selectMessageViewportIdsByChannelId(state, effectiveChannelId));
 	const idMessageNotified = useSelector(selectMessageNotified);
-	const lastMessage = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
-	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
+	const lastMessage = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, effectiveChannelId));
+	const dataReferences = useAppSelector((state) => selectDataReferences(state, effectiveChannelId ?? ''));
 	const lastMessageId = lastMessage?.id;
 
 	const userActiveScroll = useRef<boolean>(false);
@@ -217,11 +219,11 @@ function ChannelMessages({
 			if (!channelId) return;
 
 			const state = getStore()?.getState();
-			const currentMessageIds = selectMessageViewportIdsByChannelId(state, channelId);
+			const currentMessageIds = selectMessageViewportIdsByChannelId(state, effectiveChannelId);
 			const lastMessageViewport = currentMessageIds?.at(-1);
 
 			if (lastMessageViewport) {
-				const lastSeenMessageId = selectUnreadMessageIdByChannelId(state, channelId);
+				const lastSeenMessageId = selectUnreadMessageIdByChannelId(state, effectiveChannelId);
 
 				let shouldUpdate = true;
 				if (lastSeenMessageId) {
@@ -243,7 +245,7 @@ function ChannelMessages({
 				}
 			}
 
-			const scrollPosition = selectScrollPositionByChannelId(state, channelId);
+			const scrollPosition = selectScrollPositionByChannelId(state, effectiveChannelId);
 			if (!scrollPosition?.messageId && lastMessageViewport) {
 				dispatch(
 					channelsActions.setScrollPosition({
@@ -271,15 +273,15 @@ function ChannelMessages({
 			}
 
 			if (direction === ELoadMoreDirection.bottom) {
-				const hasMoreBottom = selectHasMoreBottomByChannelId(state as RootState, channelId);
+				const hasMoreBottom = selectHasMoreBottomByChannelId(state as RootState, effectiveChannelId);
 				if (!hasMoreBottom || preventScrollbottom.current) {
-					dispatch(messagesActions.setViewingOlder({ channelId, status: false }));
+					dispatch(messagesActions.setViewingOlder({ channelId: effectiveChannelId, status: false }));
 					return;
 				}
 			}
 
 			if (direction === ELoadMoreDirection.top) {
-				const hasMoreTop = selectHasMoreMessageByChannelId(state as RootState, topicId || channelId);
+				const hasMoreTop = selectHasMoreMessageByChannelId(state as RootState, effectiveChannelId);
 				if (!hasMoreTop) {
 					return;
 				}
@@ -339,7 +341,7 @@ function ChannelMessages({
 
 			return true;
 		},
-		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId]
+		[isTopicBox, dispatch, clanId, channelId, currentChannelId, topicId, effectiveChannelId]
 	);
 
 	const getChatScrollBottomOffset = useCallback(() => {
@@ -413,21 +415,21 @@ function ChannelMessages({
 		(isVisible: boolean) => {
 			const store = getStore();
 
-			const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
+			const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), effectiveChannelId);
 
 			if (hasMoreBottom) return;
 
-			const showFAB = selectShowScrollDownButton(store.getState(), channelId);
+			const showFAB = selectShowScrollDownButton(store.getState(), effectiveChannelId);
 			if (showFAB === isVisible) return;
 
 			dispatch(
 				channelsActions.setScrollDownVisibility({
-					channelId: topicId || channelId,
+					channelId: effectiveChannelId,
 					isVisible
 				})
 			);
 		},
-		[channelId]
+		[effectiveChannelId, dispatch]
 	);
 
 	const [isNotchShown, setIsNotchShown] = useState<boolean | undefined>();
@@ -503,6 +505,7 @@ function ChannelMessages({
 			)}
 			<ScrollDownButton
 				channelId={channelId}
+				effectiveChannelId={effectiveChannelId}
 				clanId={clanId}
 				messageIds={messageIds}
 				chatRef={chatRef}
@@ -521,6 +524,7 @@ function ChannelMessages({
 const ScrollDownButton = memo(
 	({
 		channelId,
+		effectiveChannelId,
 		clanId,
 		messageIds,
 		chatRef,
@@ -531,6 +535,7 @@ const ScrollDownButton = memo(
 		setAnchor
 	}: {
 		channelId: string;
+		effectiveChannelId: string;
 		clanId: string;
 		messageIds: string[];
 		chatRef: React.RefObject<HTMLDivElement>;
@@ -545,10 +550,10 @@ const ScrollDownButton = memo(
 		const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
 		const jumpToPresentTimeoutRef = useRef<number | null>(null);
 
-		const isVisible = useAppSelector((state) => selectShowScrollDownButton(state, channelId));
+		const isVisible = useAppSelector((state) => selectShowScrollDownButton(state, effectiveChannelId));
 		const appearanceTheme = useAppSelector(selectTheme);
-		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId));
-		const lastSent = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, channelId));
+		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, effectiveChannelId));
+		const lastSent = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, effectiveChannelId));
 		const currentUserId = useAppSelector(selectCurrentUserId);
 
 		const unreadCount = useMemo(() => {
@@ -588,7 +593,7 @@ const ScrollDownButton = memo(
 			if (!messagesContainer) return;
 			const state = getStore().getState();
 
-			const lastSentMessageId = selectLatestMessageId(state, channelId);
+			const lastSentMessageId = selectLatestMessageId(state, effectiveChannelId);
 
 			const jumpPresent = !!lastSentMessageId && !messageIds.includes(lastSentMessageId as string) && messageIds.length >= 20;
 
@@ -621,7 +626,7 @@ const ScrollDownButton = memo(
 					isJumpingToPresentRef.current = false;
 					dispatch(
 						channelsActions.setScrollPosition({
-							channelId,
+							channelId: effectiveChannelId,
 							messageId: lastSentMessageId
 						})
 					);
@@ -731,20 +736,22 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		lastSeenAtBottomRef,
 		isJumpingToPresentRef
 	}) => {
+		const effectiveChannelId = topicId || channelId;
+
 		const dispatch = useAppDispatch();
 		const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
 		const removeForceScrollTimeoutRef = useRef<number | null>(null);
 		const user = useSelector(selectAllAccount);
 		const currentClanUser = useAppSelector((state) => selectMemberClanByUserId(state, user?.user?.id as string));
-		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
+		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, effectiveChannelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
-		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, topicId || channelId));
+		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, effectiveChannelId));
 		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
-		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, channelId as string));
+		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, effectiveChannelId));
 
 		const openEditMessageState = useSelector(selectOpenEditMessageState);
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
-		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, channelId));
+		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, effectiveChannelId));
 
 		const topicCreatorOfInitMsg = useAppSelector((state) =>
 			selectMemberClanByUserId(state, (firstMsgOfThisTopic?.message?.sender_id as string) || '')
@@ -762,16 +769,16 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		useSyncEffect(() => {
 			const store = getStore();
 			const state = store.getState();
-			let scrollPosition = selectScrollPositionByChannelId(state, channelId);
+			let scrollPosition = selectScrollPositionByChannelId(state, effectiveChannelId);
 			if (!scrollPosition?.messageId) {
-				if (lastMessageUnreadId && !hasScrolledToUnreadMap.get(channelId) && messageIds?.length > 0) {
+				if (lastMessageUnreadId && !hasScrolledToUnreadMap.get(effectiveChannelId) && messageIds?.length > 0) {
 					scrollPosition = { messageId: lastMessageUnreadId };
-					hasScrolledToUnreadMap.set(channelId, true);
+					hasScrolledToUnreadMap.set(effectiveChannelId, true);
 				}
 			}
 
 			scrollPositionRef.current = scrollPosition;
-		}, [channelId, lastMessageUnreadId, messageIds?.length]);
+		}, [effectiveChannelId, lastMessageUnreadId, messageIds?.length]);
 
 		const [getContainerHeight, prevContainerHeightRef] = useContainerHeight(chatRef, true);
 
@@ -828,7 +835,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (isAtBottom) {
 				onChange(LoadMoreDirection.Forwards);
 				const store = getStore();
-				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), channelId);
+				const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState(), effectiveChannelId);
 				const lastMsgId = messageIds?.at(-1);
 				if (lastMsgId) {
 					const message = entities[lastMsgId];
@@ -836,7 +843,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					if (message && !message?.isSending) {
 						dispatch(
 							channelsActions.setScrollPosition({
-								channelId,
+								channelId: effectiveChannelId,
 								messageId: lastMsgId
 							})
 						);
@@ -847,11 +854,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				}
 
 				if (hasMoreBottom) return;
-				const showFAB = selectShowScrollDownButton(store.getState(), channelId);
+				const showFAB = selectShowScrollDownButton(store.getState(), effectiveChannelId);
 				if (!showFAB) return;
 				dispatch(
 					channelsActions.setScrollDownVisibility({
-						channelId: topicId || channelId,
+						channelId: effectiveChannelId,
 						isVisible: false
 					})
 				);
@@ -881,7 +888,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			if (visibleMessageId) {
 				dispatch(
 					channelsActions.setScrollPosition({
-						channelId,
+						channelId: effectiveChannelId,
 						messageId: visibleMessageId
 					})
 				);
@@ -969,7 +976,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					const { scrollTop, scrollHeight } = container;
 
 					const store = getStore();
-					const isAtBottom = !selectShowScrollDownButton(store.getState(), topicId || channelId);
+					const isAtBottom = !selectShowScrollDownButton(store.getState(), effectiveChannelId);
 
 					const isAlreadyFocusing = false;
 					if (isAtBottom && !isAlreadyFocusing) {
@@ -1014,12 +1021,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 							const containerRect = container.getBoundingClientRect();
 							newScrollTop = scrollTop + (savedMessageRect.top - containerRect.top);
 						} else {
-							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+							const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, effectiveChannelId);
 							newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 							shouldUpdateScrollPosition = !message?.isSending;
 						}
 					} else {
-						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, channelId);
+						const hasMoreBottom = selectHasMoreBottomByChannelId(store.getState() as RootState, effectiveChannelId);
 						newScrollTop = scrollHeight - (hasMoreBottom ? 1000 : 0);
 						shouldUpdateScrollPosition = !message?.isSending;
 					}
@@ -1031,7 +1038,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 						if (message && shouldUpdateScrollPosition) {
 							dispatch(
 								channelsActions.setScrollPosition({
-									channelId,
+									channelId: effectiveChannelId,
 									messageId: lastMsgId
 								})
 							);
@@ -1046,7 +1053,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					};
 				});
 			},
-			[messageIds, isViewportNewest, getContainerHeight, prevContainerHeightRef]
+			[messageIds, isViewportNewest, getContainerHeight, prevContainerHeightRef, effectiveChannelId]
 		);
 
 		const rememberScrollPositionRef = useStateRef(() => {
@@ -1112,7 +1119,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				}
 			};
 			const store = getStore();
-			const isMessageExist = selectIsMessageIdExist(store.getState() as RootState, channelId, idMessageToJump?.id);
+			const isMessageExist = selectIsMessageIdExist(store.getState() as RootState, effectiveChannelId, idMessageToJump?.id);
 
 			if (idMessageToJump && isMessageExist) {
 				if (idMessageToJump.id === 'temp') return;
@@ -1129,7 +1136,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-		}, [idMessageToJump, channelId, clearSafeTimeout, dispatch, setSafeTimeout]);
+		}, [
+			idMessageToJump,
+			effectiveChannelId,
+			clearSafeTimeout,
+			dispatch,
+			setSafeTimeout,
+			chatRef,
+			isScrollTopJustUpdatedRef,
+			setAnchor,
+			userActiveScroll
+		]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);
 

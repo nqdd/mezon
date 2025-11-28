@@ -4,6 +4,7 @@ import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
 	categoriesActions,
+	defaultNotificationCategoryActions,
 	selectCurrentClanId,
 	selectCurrentClanLogo,
 	selectCurrentClanName,
@@ -74,9 +75,10 @@ export default function ClanMenu() {
 	}, [navigation]);
 
 	const handelOpenNotifications = useCallback(() => {
+		dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: currentClanId || '' }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, { screen: APP_SCREEN.MENU_CLAN.NOTIFICATION_SETTING });
-	}, [navigation]);
+	}, [navigation, currentClanId]);
 
 	const organizationMenu: IMezonMenuItemProps[] = [
 		{

@@ -209,7 +209,7 @@ export const ChatMessageSending = memo(
 							};
 						}
 					});
-			if (checkIsThread(currentChannel as ChannelsEntity)) {
+			if (checkIsThread(currentChannel as ChannelsEntity) && !!currentChannel) {
 				const usersNotExistingInThread = getUsersNotExistingInThread(simplifiedMentionList);
 
 				if (usersNotExistingInThread?.length > 0) await addMemberToThread(currentChannel, usersNotExistingInThread);

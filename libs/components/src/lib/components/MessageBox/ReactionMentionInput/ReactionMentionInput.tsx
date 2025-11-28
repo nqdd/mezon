@@ -261,7 +261,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
 			const needsJoin = channel.active === ThreadStatus.activePublic;
 
-			if (isArchived || (needsJoin && joinningToThread)) {
+			if (isArchived) {
 				await dispatch(
 					threadsActions.writeActiveArchivedThread({
 						clanId: channel.clan_id ?? '',
@@ -274,7 +274,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				joinningToThread(channel, [userProfile?.user?.id ?? '']);
 			}
 		},
-		[userProfile?.user?.id]
+		[dispatch, joinningToThread, userProfile?.user?.id]
 	);
 
 	const handleSendInternal = useCallback(
@@ -372,7 +372,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					await addMemberToThread(currentChannel!, usersNotExistingInThread);
 				}
 
-				await handleThreadActivation(currentChannel);
+				handleThreadActivation(currentChannel);
 
 				if (isReplyOnChannel) {
 					props.onSend(
@@ -577,7 +577,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				addMemberToThread(currentChannel!, usersNotExistingInThread);
 			}
 
-			await handleThreadActivation(currentChannel);
+			handleThreadActivation(currentChannel);
 
 			if (isReplyOnChannel) {
 				props.onSend(

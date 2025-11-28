@@ -271,9 +271,11 @@ export const leaveThread = createAsyncThunk(
 			const response = await mezon.client.leaveThread(mezon.session, clanId, threadId);
 			if (response) {
 				thunkAPI.dispatch(channelsActions.removeByChannelID({ channelId: threadId, clanId }));
-				thunkAPI.dispatch(threadsActions.remove(threadId));
+				if (isPrivate) {
+					thunkAPI.dispatch(threadsActions.remove(threadId));
+					thunkAPI.dispatch(threadsActions.removeThreadFromCache({ channelId, threadId }));
+				}
 				thunkAPI.dispatch(listChannelRenderAction.leaveChannelListRender({ channelId: threadId, clanId }));
-				thunkAPI.dispatch(threadsActions.removeThreadFromCache({ channelId, threadId }));
 				return threadId;
 			}
 		} catch (error) {
