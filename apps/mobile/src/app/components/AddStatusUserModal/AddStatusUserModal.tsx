@@ -17,26 +17,13 @@ export interface IAddStatusUserModalProps {
 	timeResetStatus: number;
 }
 
-const getInitialStatusDuration = (minutes: number) => {
-	switch (minutes) {
-		case 240:
-			return 240;
-		case 60:
-			return 60;
-		case 30:
-			return 30;
-		case 0:
-			return 0;
-		default:
-			return -1;
-	}
-};
+const STATUS_DURATION_MINUTES = [240, 60, 30, 0];
 
 export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus, timeResetStatus }: IAddStatusUserModalProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['customUserStatus']);
 	const [lineStatus, setLineStatus] = useState<string>(userCustomStatus);
-	const [statusDuration, setStatusDuration] = useState<number>(getInitialStatusDuration(timeResetStatus));
+	const [statusDuration, setStatusDuration] = useState<number>(STATUS_DURATION_MINUTES.includes(timeResetStatus) ? timeResetStatus : -1);
 	const timeOptions = useMemo(
 		() =>
 			[

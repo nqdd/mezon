@@ -180,14 +180,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}
 	};
 
-	const rendenPencilIcon = () => {
-		return <MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={baseColor.white} />;
-	};
-
-	const rendenWalletIcon = () => {
-		return <MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={baseColor.white} />;
-	};
-
 	return (
 		<View style={styles.container}>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
@@ -257,7 +249,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						<MezonButton
 							containerStyle={styles.button}
 							onPress={() => enableWallet()}
-							icon={rendenWalletIcon()}
+							icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={baseColor.white} />}
 							title={t('enableWallet')}
 							titleStyle={styles.whiteText}
 						/>
@@ -265,7 +257,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					<MezonButton
 						containerStyle={styles.button}
 						onPress={() => navigateToProfileSetting()}
-						icon={rendenPencilIcon()}
+						icon={<MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={baseColor.white} />}
 						title={t('editStatus')}
 						titleStyle={styles.whiteText}
 					/>
@@ -326,7 +318,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 								<MezonButton
 									containerStyle={styles.button}
 									onPress={() => enableWallet()}
-									icon={rendenWalletIcon()}
+									icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={baseColor.white} />}
 									title={t('enableWallet')}
 									titleStyle={styles.whiteText}
 								/>
@@ -334,7 +326,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							<MezonButton
 								containerStyle={styles.button}
 								onPress={() => navigateToProfileSetting()}
-								icon={rendenPencilIcon()}
+								icon={<MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={baseColor.white} />}
 								title={t('editStatus')}
 								titleStyle={styles.whiteText}
 							/>
