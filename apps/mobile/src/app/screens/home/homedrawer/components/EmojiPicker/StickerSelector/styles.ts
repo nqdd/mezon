@@ -47,6 +47,7 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 			marginTop: size.s_10
 		},
 		sessionContent: {
+			marginBottom: size.s_6,
 			display: 'flex'
 		},
 		soundName: {
