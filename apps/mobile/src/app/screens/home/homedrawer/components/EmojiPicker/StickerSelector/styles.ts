@@ -44,7 +44,7 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 			color: colors.text,
 			fontWeight: 'bold',
 			textTransform: 'uppercase',
-			marginTop: size.s_20
+			marginTop: size.s_10
 		},
 		sessionContent: {
 			display: 'flex'
@@ -80,10 +80,11 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 		sessionHeader: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_2
+			gap: size.s_2,
+			marginBottom: size.s_10
 		},
 		chevronIcon: {
-			marginTop: size.s_20
+			marginTop: size.s_10
 		},
 		scrollViewContainer: {
 			paddingBottom: size.s_10 * 2
