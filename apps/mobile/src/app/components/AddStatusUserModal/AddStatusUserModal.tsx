@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -8,21 +8,35 @@ import MezonInput from '../../componentUI/MezonInput';
 import type { IMezonOptionData } from '../../componentUI/MezonOption';
 import MezonOption from '../../componentUI/MezonOption';
 import { IconCDN } from '../../constants/icon_cdn';
-import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
 import StatusBarHeight from '../StatusBarHeight/StatusBarHeight';
 import { styles } from './AddStatusUserModal.styles';
 
 export interface IAddStatusUserModalProps {
 	userCustomStatus: string;
-	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus, duration: number, noClearStatus: boolean) => void;
+	handleCustomUserStatus: (customStatus: string, duration: number, noClearStatus: boolean) => void;
+	timeResetStatus: number;
 }
 
-export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus }: IAddStatusUserModalProps) => {
-	const [lineStatus, setLineStatus] = useState<string>('');
-	const { themeValue } = useTheme();
+const getInitialStatusDuration = (minutes: number) => {
+	switch (minutes) {
+		case 240:
+			return 240;
+		case 60:
+			return 60;
+		case 30:
+			return 30;
+		case 0:
+			return 0;
+		default:
+			return -1;
+	}
+};
 
+export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus, timeResetStatus }: IAddStatusUserModalProps) => {
+	const { themeValue } = useTheme();
 	const { t } = useTranslation(['customUserStatus']);
-	const [statusDuration, setStatusDuration] = useState<number>(-1);
+	const [lineStatus, setLineStatus] = useState<string>(userCustomStatus);
+	const [statusDuration, setStatusDuration] = useState<number>(getInitialStatusDuration(timeResetStatus));
 	const timeOptions = useMemo(
 		() =>
 			[
@@ -50,14 +64,9 @@ export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus }:
 		[t]
 	);
 
-	useEffect(() => {
-		setLineStatus(userCustomStatus);
-		setStatusDuration(-1);
-	}, [userCustomStatus]);
-
-	function handleTimeOptionChange(value: number) {
+	const handleTimeOptionChange = (value: number) => {
 		setStatusDuration(value);
-	}
+	};
 
 	const handleSaveCustomStatus = () => {
 		let minutes = statusDuration;
@@ -71,7 +80,7 @@ export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus }:
 		if (statusDuration === 0) {
 			noClear = true;
 		}
-		handleCustomUserStatus(lineStatus?.trim(), ETypeCustomUserStatus.Save, minutes, noClear);
+		handleCustomUserStatus(lineStatus?.trim(), minutes, noClear);
 	};
 
 	const onClose = () => {

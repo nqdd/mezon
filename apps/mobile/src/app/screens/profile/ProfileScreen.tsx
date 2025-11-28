@@ -7,6 +7,7 @@ import {
 	selectAllAccount,
 	selectAllFriends,
 	selectCurrentClanId,
+	selectMemberCustomStatusById,
 	useAppDispatch,
 	useWallet,
 	walletActions
@@ -15,7 +16,7 @@ import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -46,15 +47,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const styles = style(themeValue, isTabletLandscape);
 	const allUser = useSelector(selectAllFriends);
 	const { color } = useMixImageColor(userProfile?.user?.avatar_url);
-	const { t } = useTranslation(['profile']);
-	const { t: tUser } = useTranslation('customUserStatus');
-	const { t: tStack } = useTranslation('screenStack');
+	const { t } = useTranslation(['profile', 'customUserStatus', 'screenStack']);
 	const currentClanId = useSelector(selectCurrentClanId);
+	const userMemberStatus = useSelector((state) => selectMemberCustomStatusById(state, userProfile?.user?.id || ''));
 	const dispatch = useAppDispatch();
 	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
 
 	useFocusEffect(
-		React.useCallback(() => {
+		useCallback(() => {
 			dispatch(accountActions.getUserProfile({ noCache: true }));
 			dispatch(
 				walletActions.fetchWalletDetail({
@@ -64,20 +64,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}, [dispatch, userProfile?.user?.id])
 	);
 
-	const userCustomStatus = useMemo(() => {
-		return userProfile?.user?.user_status || '';
-	}, [userProfile?.user?.user_status]);
-
-	const userStatus = useMemo(() => {
-		return userProfile?.user?.status || '';
-	}, [userProfile?.user?.status]);
-
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
 	}, [walletDetail?.balance]);
 
 	const friendList: FriendsEntity[] = useMemo(() => {
-		return allUser?.filter?.((user) => user.state === 0);
+		return allUser?.filter((user) => user?.state === 0) || [];
 	}, [allUser]);
 
 	const navigateToFriendScreen = () => {
@@ -91,18 +83,18 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		navigation.navigate(APP_SCREEN.SHOP.STACK, { screen: APP_SCREEN.SHOP.HOME });
 	};
 
-	const navigateGoback = () => {
-		navigation.goBack();
-	};
-
 	const navigateToProfileSetting = () => {
 		navigation.navigate(APP_SCREEN.SETTINGS.STACK, { screen: APP_SCREEN.SETTINGS.PROFILE });
 	};
 
+	const displayName = useMemo(() => {
+		return userProfile?.user?.display_name || userProfile?.user?.username || '';
+	}, [userProfile?.user?.display_name, userProfile?.user?.username]);
+
 	const firstFriendImageList = useMemo(() => {
-		return friendList?.slice?.(0, 5)?.map((friend) => ({
-			avatarUrl: friend?.user?.avatar_url,
-			username: friend?.user?.username || friend?.user?.display_name
+		return friendList.slice(0, 5).map((friend) => ({
+			avatarUrl: friend?.user?.avatar_url || '',
+			username: friend?.user?.username || friend?.user?.display_name || ''
 		}));
 	}, [friendList]);
 
@@ -111,40 +103,43 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	}, [userProfile?.user?.create_time]);
 
 	const handleCustomUserStatus = useCallback(
-		(customStatus = '', type: ETypeCustomUserStatus, duration?: number, noClearStatus?: boolean) => {
+		(customStatus = '', duration?: number, noClearStatus?: boolean) => {
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			dispatch(
 				channelMembersActions.updateCustomStatus({
 					clanId: currentClanId ?? '',
 					customStatus,
 					minutes: duration,
-					noClear: noClearStatus
+					noClear: noClearStatus,
+					isMobile: true
 				})
 			);
 		},
-		[currentClanId, dispatch]
+		[currentClanId]
 	);
 
 	const showUpdateCustomStatus = useCallback(() => {
 		const data = {
-			children: <AddStatusUserModal userCustomStatus={userCustomStatus} handleCustomUserStatus={handleCustomUserStatus} />
+			children: (
+				<AddStatusUserModal
+					userCustomStatus={userMemberStatus?.status || ''}
+					handleCustomUserStatus={handleCustomUserStatus}
+					timeResetStatus={userMemberStatus?.time_reset}
+				/>
+			)
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, [handleCustomUserStatus, userCustomStatus]);
-
-	const handlePressSetCustomStatus = useCallback(() => {
-		showUpdateCustomStatus();
-	}, [showUpdateCustomStatus]);
+	}, [handleCustomUserStatus, userMemberStatus?.status, userMemberStatus?.time_reset]);
 
 	const showUserStatusBottomSheet = () => {
 		const data = {
 			heightFitContent: true,
-			title: tUser('changeOnlineStatus'),
+			title: t('customUserStatus:changeOnlineStatus'),
 			children: (
 				<CustomStatusUser
-					userStatus={userStatus}
-					onPressSetCustomStatus={handlePressSetCustomStatus}
+					userStatus={userProfile?.user?.status || ''}
 					handleCustomUserStatus={handleCustomUserStatus}
+					currentUserId={userProfile?.user?.id || ''}
 				/>
 			)
 		};
@@ -185,12 +180,20 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}
 	};
 
+	const rendenPencilIcon = () => {
+		return <MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={baseColor.white} />;
+	};
+
+	const rendenWalletIcon = () => {
+		return <MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={baseColor.white} />;
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
 				<View style={[styles.backgroundListIcon, isTabletLandscape && { justifyContent: 'space-between' }]}>
 					{isTabletLandscape && (
-						<TouchableOpacity style={styles.backgroundSetting} onPress={navigateGoback}>
+						<TouchableOpacity style={styles.backgroundSetting} onPress={navigation.goBack()}>
 							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 						</TouchableOpacity>
 					)}
@@ -210,21 +213,21 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							isTabletLandscape ? (
 								<Image
 									source={{
-										uri: createImgproxyUrl(userProfile?.user?.avatar_url ?? '', { width: 300, height: 300, resizeType: 'fit' })
+										uri: createImgproxyUrl(userProfile.user.avatar_url, { width: 300, height: 300, resizeType: 'fit' })
 									}}
 									style={styles.imgWrapper}
 								/>
 							) : (
 								<View style={styles.imgWrapper}>
 									<ImageNative
-										url={createImgproxyUrl(userProfile?.user?.avatar_url ?? '', { width: 300, height: 300, resizeType: 'fit' })}
+										url={createImgproxyUrl(userProfile.user.avatar_url, { width: 300, height: 300, resizeType: 'fit' })}
 										style={styles.imgWrapper}
 									/>
 								</View>
 							)
 						) : (
 							<View style={styles.defaultAvatarContainer}>
-								<Text style={styles.textAvatar}>{userProfile?.user?.username?.charAt?.(0)?.toUpperCase()}</Text>
+								<Text style={styles.textAvatar}>{userProfile?.user?.username?.charAt?.(0)?.toUpperCase() || ''}</Text>
 							</View>
 						)}
 
@@ -234,14 +237,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 					<View style={styles.badgeStatus}>
 						<View style={styles.badgeStatusInside} />
-						{!userCustomStatus && (
+						{!userMemberStatus?.status && (
 							<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()} style={styles.iconAddStatus}>
 								<MezonIconCDN icon={IconCDN.plusLargeIcon} height={size.s_12} width={size.s_12} color={themeValue.primary} />
 							</TouchableOpacity>
 						)}
 						<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()}>
 							<Text numberOfLines={1} style={styles.textStatus}>
-								{userCustomStatus ? userCustomStatus : t('addStatus')}
+								{userMemberStatus?.status ? userMemberStatus.status : t('addStatus')}
 							</Text>
 						</TouchableOpacity>
 					</View>
@@ -254,7 +257,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						<MezonButton
 							containerStyle={styles.button}
 							onPress={() => enableWallet()}
-							icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={'white'} />}
+							icon={rendenWalletIcon()}
 							title={t('enableWallet')}
 							titleStyle={styles.whiteText}
 						/>
@@ -262,7 +265,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					<MezonButton
 						containerStyle={styles.button}
 						onPress={() => navigateToProfileSetting()}
-						icon={<MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={'white'} />}
+						icon={rendenPencilIcon()}
 						title={t('editStatus')}
 						titleStyle={styles.whiteText}
 					/>
@@ -273,10 +276,10 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				<View style={styles.contentContainer}>
 					<TouchableOpacity onPress={showUserStatusBottomSheet} style={styles.touchStatusMargin}>
 						<View style={styles.viewInfo}>
-							<Text style={styles.textName}>{userProfile?.user?.display_name || userProfile?.user?.username}</Text>
+							<Text style={styles.textName}>{displayName}</Text>
 							<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
 						</View>
-						<Text style={styles.text}>{userProfile?.user?.username}</Text>
+						<Text style={styles.text}>{userProfile?.user?.username || ''}</Text>
 					</TouchableOpacity>
 					{isEnableWallet && (
 						<View>
@@ -298,7 +301,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							>
 								<MezonIconCDN icon={IconCDN.sendMoneyIcon} height={size.s_22} width={size.s_22} color={baseColor.bgSuccess} />
 								<View style={styles.token}>
-									<Text style={styles.text}>{tStack('settingStack.sendToken')}</Text>
+									<Text style={styles.text}>{t('screenStack:settingStack.sendToken')}</Text>
 								</View>
 							</TouchableOpacity>
 							<TouchableOpacity
@@ -311,7 +314,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							>
 								<MezonIconCDN icon={IconCDN.historyIcon} height={size.s_24} width={size.s_24} color={baseColor.bgSuccess} />
 								<View style={styles.token}>
-									<Text style={styles.text}>{tStack('settingStack.historyTransaction')}</Text>
+									<Text style={styles.text}>{t('screenStack:settingStack.historyTransaction')}</Text>
 								</View>
 							</TouchableOpacity>
 						</View>
@@ -323,7 +326,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 								<MezonButton
 									containerStyle={styles.button}
 									onPress={() => enableWallet()}
-									icon={<MezonIconCDN icon={IconCDN.wallet} height={size.s_18} width={size.s_18} color={'white'} />}
+									icon={rendenWalletIcon()}
 									title={t('enableWallet')}
 									titleStyle={styles.whiteText}
 								/>
@@ -331,7 +334,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							<MezonButton
 								containerStyle={styles.button}
 								onPress={() => navigateToProfileSetting()}
-								icon={<MezonIconCDN icon={IconCDN.pencilIcon} height={size.s_18} width={size.s_18} color={'white'} />}
+								icon={rendenPencilIcon()}
 								title={t('editStatus')}
 								titleStyle={styles.whiteText}
 							/>
@@ -344,7 +347,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						{userProfile?.user?.about_me ? (
 							<View>
 								<Text style={styles.textTitle}>{t('aboutMe')}</Text>
-								<Text style={styles.text}>{userProfile?.user?.about_me}</Text>
+								<Text style={styles.text}>{userProfile.user.about_me}</Text>
 							</View>
 						) : null}
 
@@ -363,7 +366,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						icon={IconCDN.chevronSmallRightIcon}
 						width={size.s_18}
 						height={size.s_18}
-						customStyle={{ marginLeft: size.s_4 }}
+						customStyle={styles.customStyleIcon}
 						color={themeValue.textStrong}
 					/>
 				</TouchableOpacity>
@@ -374,7 +377,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 						icon={IconCDN.idIcon}
 						width={size.s_18}
 						height={size.s_18}
-						customStyle={{ marginLeft: size.s_4 }}
+						customStyle={styles.customStyleIcon}
 						color={themeValue.textStrong}
 					/>
 				</TouchableOpacity>
