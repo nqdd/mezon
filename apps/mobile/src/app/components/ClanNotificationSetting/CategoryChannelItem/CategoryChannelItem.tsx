@@ -61,18 +61,18 @@ export const CategoryChannelItem = React.memo(
 						<MezonIconCDN icon={IconCDN.forderIcon} width={16} height={16} color={themeValue.channelNormal} />
 					)}
 					<View style={styles.channelLabelContainer}>
-						{categoryLabel && (
+						{!!categoryLabel && (
 							<Text style={styles.categoryLabel} numberOfLines={1}>
 								{categoryLabel}
 							</Text>
 						)}
-						{categorySubtext && <Text style={styles.categorySubtext}>{categorySubtext}</Text>}
+						{!!categorySubtext && <Text style={styles.categorySubtext}>{categorySubtext}</Text>}
 					</View>
 				</View>
 
 				<View style={styles.notificationType}>
-					{notificationStatus && <Text style={styles.customStatus}>{getTitleFromValue(notificationStatus, t)}</Text>}
-					{expandable && <MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={18} width={18} color={themeValue.text} />}
+					{!!notificationStatus && <Text style={styles.customStatus}>{getTitleFromValue(notificationStatus, t)}</Text>}
+					{!!expandable && <MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={18} width={18} color={themeValue.text} />}
 				</View>
 			</TouchableOpacity>
 		);
