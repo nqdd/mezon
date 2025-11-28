@@ -157,7 +157,7 @@ const CollapsedMemberList = ({ channelMemberList, isPttList }: ICollapsedMemberL
 				<AvatarUserShort id={member.user_id || ''} key={(member.user_id || '') + index} />
 			))}
 			{channelMemberList && channelMemberList.length > 5 && (
-				<AvatarCount number={channelMemberList?.length - 5 > 50 ? 50 : channelMemberList?.length - 5} />
+				<AvatarCount number={channelMemberList?.length - 5 > 99 ? 99 : channelMemberList?.length - 5} />
 			)}
 		</AvatarGroup>
 	);

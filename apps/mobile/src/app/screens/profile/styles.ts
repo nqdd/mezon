@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -256,5 +257,8 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		},
 		contentGap: {
 			gap: size.s_20
+		},
+		customStyleIcon: {
+			marginLeft: size.s_4
 		}
 	});
