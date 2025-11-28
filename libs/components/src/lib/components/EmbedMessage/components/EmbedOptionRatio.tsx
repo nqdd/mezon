@@ -106,6 +106,7 @@ const EmbedOptionRatioItem = ({
 				<EmbedDescription description={option.description || ''} />
 			</div>
 			<MessageRatioButton
+				key={`${option.name ? option.name + message_id : `ratio_button${message_id}_${checked}`}`}
 				name={option.name ? option.name + message_id : `ratio_button${message_id}`}
 				onCheckRatio={handleCheckedOptionItem}
 				checked={checked}
