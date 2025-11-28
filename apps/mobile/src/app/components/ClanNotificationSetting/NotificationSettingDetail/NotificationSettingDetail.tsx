@@ -1,5 +1,7 @@
+import type { ICategoryChannelOption } from '@mezon/mobile-components';
 import { ENotificationActive, ENotificationChannelId, EOptionOverridesType, optionNotification } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
+import type { NotiChannelCategorySettingEntity } from '@mezon/store-mobile';
 import {
 	defaultNotificationCategoryActions,
 	notificationSettingActions,
@@ -21,12 +23,21 @@ const NotificationSettingDetail = memo(({ route }: { route: any }) => {
 	const currentChannelId = notifyChannelCategorySetting?.id;
 	const currentClanId = useSelector(selectCurrentClanId);
 	const { t } = useTranslation(['clanNotificationsSetting']);
-	const [selectedOption, setSelectedOption] = useState(notifyChannelCategorySetting?.notification_setting_type);
+	const [selectedOption, setSelectedOption] = useState(
+		notifyChannelCategorySetting?.type || notifyChannelCategorySetting?.notification_setting_type
+	);
 	const { themeValue } = useTheme();
 	const dispatch = useAppDispatch();
 	const styles = style(themeValue);
 	const title = useMemo(() => {
 		return notifyChannelCategorySetting?.channel_category_title || notifyChannelCategorySetting?.title;
+	}, [notifyChannelCategorySetting]);
+
+	const label = useMemo(() => {
+		return (
+			(notifyChannelCategorySetting as ICategoryChannelOption)?.label ||
+			(notifyChannelCategorySetting as NotiChannelCategorySettingEntity)?.channel_category_label
+		);
 	}, [notifyChannelCategorySetting]);
 
 	useEffect(() => {
@@ -51,7 +62,9 @@ const NotificationSettingDetail = memo(({ route }: { route: any }) => {
 					defaultNotificationCategoryActions.setDefaultNotificationCategory({
 						category_id: currentChannelId,
 						notification_type: value,
-						clan_id: currentClanId || ''
+						clan_id: currentClanId || '',
+						title,
+						label
 					})
 				);
 			}
@@ -60,12 +73,14 @@ const NotificationSettingDetail = memo(({ route }: { route: any }) => {
 					notificationSettingActions.setNotificationSetting({
 						channel_id: currentChannelId,
 						notification_type: value,
-						clan_id: currentClanId || ''
+						clan_id: currentClanId || '',
+						title,
+						label
 					})
 				);
 			}
 		},
-		[title, currentChannelId, currentClanId, dispatch]
+		[title, currentChannelId, currentClanId, label, dispatch]
 	);
 
 	const handleRemoveOverride = useCallback(() => {

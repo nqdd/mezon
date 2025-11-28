@@ -1,3 +1,4 @@
+import { EOptionOverridesType } from '@mezon/mobile-components';
 import { selectAllchannelCategorySetting } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React from 'react';
@@ -31,7 +32,9 @@ export const CategoryChannel = React.memo(() => {
 						<CategoryChannelItem
 							categoryLabel={item?.channel_category_label}
 							categorySubtext={item?.channel_category_title}
-							typePreviousIcon={ChannelType.CHANNEL_TYPE_CHANNEL}
+							typePreviousIcon={
+								item?.channel_category_title === 'category' ? EOptionOverridesType.Category : ChannelType.CHANNEL_TYPE_CHANNEL
+							}
 							expandable={true}
 							notificationStatus={item.notification_setting_type}
 							data={item}
