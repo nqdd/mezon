@@ -250,14 +250,15 @@ type UpdateCustomStatus = {
 	customStatus: string;
 	minutes: number;
 	noClear: boolean;
+	isMobile?: boolean;
 };
 
 export const updateCustomStatus = createAsyncThunk(
 	'channelMembers/updateCustomStatusUser',
-	async ({ clanId, customStatus, minutes, noClear }: UpdateCustomStatus, thunkAPI) => {
+	async ({ clanId, customStatus, minutes, noClear, isMobile = false }: UpdateCustomStatus, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-			if (minutes === 0) {
+			if (minutes === 0 && !isMobile) {
 				const now = new Date();
 				const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 				const timeDifference = endOfDay.getTime() - now.getTime();
