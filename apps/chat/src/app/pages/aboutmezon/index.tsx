@@ -78,6 +78,7 @@ const AboutMezon = () => {
 		}
 	};
 	const universalUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-mac-x64.dmg`;
+	const portableUrl = `${process.env.NX_BASE_IMG_URL}/release/mezon-${version}-win-x64-portable.exe`;
 
 	const handleDownloadDesktop = () => {
 		if (platform === Platform.IOS) {
@@ -357,7 +358,7 @@ const AboutMezon = () => {
 					</Button>
 				</div>
 			</AnimatedSection>
-			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} />
+			<Footer downloadUrl={downloadUrl} universalUrl={universalUrl} portableUrl={portableUrl} />
 		</div>
 	);
 };

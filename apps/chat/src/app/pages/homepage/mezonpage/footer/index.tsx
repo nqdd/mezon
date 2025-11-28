@@ -4,13 +4,15 @@ import { Icons, Image } from '@mezon/ui';
 import { Platform, generateE2eId, getPlatform } from '@mezon/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DropdownButton } from '../components';
 
 interface FooterProps {
 	downloadUrl: string;
 	universalUrl: string;
+	portableUrl: string;
 }
 
-const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
+const Footer = ({ downloadUrl, universalUrl, portableUrl }: FooterProps) => {
 	const { t } = useTranslation('homepage');
 	const platform = getPlatform();
 	const [isOpen, setIsOpen] = useState(false);
@@ -216,15 +218,30 @@ const Footer = ({ downloadUrl, universalUrl }: FooterProps) => {
 								<Image src={`assets/linux.svg`} className="w-24 md:w-36 lg:w-44" />
 							</a>
 						) : (
-							<a
-								href="https://apps.microsoft.com/detail/9pf25lf1fj17"
-								target="_blank"
-								rel="noreferrer"
-								onClick={() => trackFooterDownloadEvent('Windows', 'Microsoft Store')}
-								className="transition-transform duration-300 hover:scale-105"
-							>
-								<Image src={`assets/microsoft.svg`} className="w-24 md:w-36 lg:w-44" />
-							</a>
+							<DropdownButton
+								icon={
+									<a
+										href="https://apps.microsoft.com/detail/9pf25lf1fj17"
+										target="_blank"
+										rel="noreferrer"
+										onClick={() => trackFooterDownloadEvent('Windows', 'Microsoft Store')}
+										className="transition-transform duration-300 hover:scale-105"
+									>
+										<Icons.MicrosoftDropdown className="max-w-full h-8 md:h-12 lg:h-14 w-fit" />
+									</a>
+								}
+								downloadLinks={[
+									{
+										url: portableUrl,
+										icon: <Icons.MicrosoftWinPortable className="max-w-full h-8 md:h-10 w-fit" />,
+										trackingData: { platform: 'Windows', type: 'Portable' }
+									}
+								]}
+								dropdownRef={dropdownRef}
+								downloadUrl={downloadUrl}
+								onDownloadClick={trackFooterDownloadEvent}
+								t={t}
+							/>
 						)}
 					</div>
 				</div>

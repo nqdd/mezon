@@ -33,6 +33,7 @@ import {
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
+	inviteActions,
 	listChannelRenderAction,
 	listChannelsByUserActions,
 	listUsersByUserActions,
@@ -889,6 +890,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			user?.user_ids.forEach((id: string) => {
 				dispatch(voiceActions.removeFromClanInvoice(id));
 				if (id === userId) {
+					dispatch(emojiSuggestionActions.invalidateCache());
+					dispatch(stickerSettingActions.invalidateCache());
+
 					if (clanId === user.clan_id) {
 						if (isMobile) {
 							const clanList = selectOrderedClans(store.getState());
@@ -1065,7 +1069,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						user: {
 							id: user.user_id,
 							avatar_url: user.avatar,
-							about_me: user.about_me,
+							//about_me: user.about_me,
 							display_name: user.display_name,
 							metadata: user.custom_status,
 							username: user.username,
@@ -1108,7 +1112,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							...userJoinClan.user,
 							avatar_url: userJoinClan.user.avatar,
 							id: userJoinClan.user.user_id,
-							about_me: userJoinClan.user.about_me,
+							//about_me: userJoinClan.user.about_me,
 							display_name: userJoinClan.user.display_name,
 							metadata: userJoinClan.user.custom_status,
 							username: userJoinClan.user.username,
@@ -1597,10 +1601,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const onclandeleted = useCallback(
 		(clanDelete: ClanDeletedEvent) => {
 			if (!clanDelete?.clan_id) return;
+			dispatch(inviteActions.removeByClanId(clanDelete.clan_id));
 			const store = getStore();
 			const currentClanId = selectCurrentClanId(store.getState());
 			dispatch(listChannelsByUserActions.removeByClanId({ clanId: clanDelete.clan_id }));
 			dispatch(stickerSettingActions.removeStickersByClanId(clanDelete.clan_id));
+			dispatch(emojiSuggestionActions.invalidateCache());
+			dispatch(stickerSettingActions.invalidateCache());
 			if (clanDelete.deletor !== userId && currentClanId === clanDelete.clan_id) {
 				if (isMobile) {
 					const isVoiceJoined = selectVoiceInfo(store.getState());

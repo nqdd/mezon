@@ -197,14 +197,6 @@ const persistedListchannelsByUserReducer = persistReducer(
 	listchannelsByUserReducer
 );
 
-const persistedPermissionRoleChannelReducer = persistReducer(
-	{
-		key: 'listpermissionroleschannel',
-		storage
-	},
-	permissionRoleChannelReducer
-);
-
 const persistedRolesClanReducer = persistReducer(
 	{
 		key: 'rolesclan',
@@ -351,7 +343,7 @@ const reducer = {
 	settingSticker: persistedsettingClanStickerReducer,
 	allUsersByAddChannel: userChannelsReducer,
 	listchannelbyusers: persistedListchannelsByUserReducer,
-	listpermissionroleschannel: persistedPermissionRoleChannelReducer,
+	listpermissionroleschannel: permissionRoleChannelReducer,
 	channelMembers: channelMembersReducer,
 	listusersbyuserid: persistedListUsersByUserReducer,
 	threads: persistedThreadReducer,

@@ -39,7 +39,6 @@ import {
 	usersClanActions
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { ApiChannelAppResponseExtend } from '@mezon/utils';
 import {
 	DONE_ONBOARDING_STATUS,
 	EOverriddenPermission,
@@ -152,9 +151,8 @@ type ChannelMainContentTextProps = {
 const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainContentTextProps) => {
 	const { t } = useTranslation('common');
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
-	const dispatch = useDispatch();
 	const isShowMemberList = useSelector(selectIsShowMemberList);
-	const { userId } = useAuth();
+	const { userId, userProfile } = useAuth();
 	const mode =
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
 		currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING ||
@@ -196,6 +194,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			}
 		};
 	}, [canSendMessage]);
+	const dispatch = useAppDispatch();
 
 	const previewMode = useSelector(selectOnboardingMode);
 	const showPreviewMode = useMemo(() => {
@@ -225,25 +224,22 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 		);
 	}
 
-	const handleLaunchApp = () => {
+	const handleLaunchApp = async () => {
 		if (isAppChannel) {
 			const store = getStore();
 			const appChannel = selectAppChannelById(store.getState(), channelId);
-			if (appIsOpen) {
-				const appSize = store.getState().channelApp.size;
-				const windowWidth = window.innerWidth;
-				const windowHeight = window.innerHeight;
-				const centerX = Math.max(0, (windowWidth - appSize.width) / 2);
-				const centerY = Math.max(0, (windowHeight - appSize.height) / 2);
-				dispatch(channelAppActions.setPosition({ x: centerX, y: centerY }));
+			if (appChannel.app_id && appChannel.app_url) {
+				const hashData = await dispatch(
+					channelAppActions.generateAppUserHash({
+						appId: appChannel.app_id
+					})
+				).unwrap();
+				if (hashData.web_app_data) {
+					const encodedHash = encodeURIComponent(hashData.web_app_data);
+					const urlWithHash = `${appChannel.app_url}?data=${encodedHash}`;
+					window.open(urlWithHash, currentChannel.channel_label, 'width=900,height=700');
+				}
 			}
-			dispatch(
-				channelsActions.setAppChannelsListShowOnPopUp({
-					clanId: appChannel?.clan_id as string,
-					channelId: appChannel?.channel_id as string,
-					appChannel: appChannel as ApiChannelAppResponseExtend
-				})
-			);
 		}
 	};
 

@@ -1,7 +1,6 @@
 import type { IPermissionRoleChannel, LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
 import type { ApiPermissionRoleChannel, ApiPermissionUpdate } from 'mezon-js/api.gen';
 import type { ApiPermissionRoleChannelListEventResponse } from 'mezon-js/dist/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
@@ -19,20 +18,21 @@ export interface PermissionRoleChannelsEntity extends IPermissionRoleChannel {
 	id: string; // Primary ID
 }
 
-export interface PermissionRoleChannelState extends EntityState<PermissionRoleChannelsEntity, string> {
+export interface PermissionRoleChannelState {
 	loadingStatus: LoadingStatus;
 	error?: string | null;
-	permission: ApiPermissionRoleChannelListEventResponse | null;
 	cacheByChannels: Record<
 		string,
 		{
-			permissionRoleChannel?: ApiPermissionRoleChannelListEventResponse | null;
+			permissionRoleChannel: EntityState<ApiPermissionRoleChannelListEventResponse, string>;
 			cache?: CacheMetadata;
 		}
 	>;
 }
 
-export const permissionRoleChannelAdapter = createEntityAdapter<PermissionRoleChannelsEntity>();
+export const permissionRoleChannelAdapter = createEntityAdapter({
+	selectId: (permission: ApiPermissionRoleChannelListEventResponse) => permission.user_id || permission.role_id || ''
+});
 
 type fetchChannelsArgs = {
 	roleId: string;
@@ -62,7 +62,7 @@ export const fetchPermissionRoleChannelCached = async (
 
 	if (!shouldForceCall) {
 		return {
-			...channelData.permissionRoleChannel,
+			...channelData.permissionRoleChannel.entities[roleId || userId],
 			fromCache: true,
 			time: channelData.cache?.lastFetched || Date.now()
 		};
@@ -152,27 +152,21 @@ export const permissionRoleChannelSlice = createSlice({
 	name: LIST_PERMISSION_ROLE_CHANNEL_FEATURE_KEY,
 	initialState: initialPermissionRoleChannelState,
 	reducers: {
-		add: permissionRoleChannelAdapter.addOne,
-		removeAll: permissionRoleChannelAdapter.removeAll,
-		remove: permissionRoleChannelAdapter.removeOne,
-		update: permissionRoleChannelAdapter.updateOne,
 		updatePermission: (state, action: PayloadAction<{ roleId: string; channelId: string; permissionRole?: ApiPermissionUpdate[] }>) => {
 			const { roleId, channelId, permissionRole } = action.payload;
-			let permission;
-			if (typeof state.permission === 'string') {
-				permission = safeJSONParse(state.permission);
-			} else {
-				permission = state.permission;
-			}
-
-			if (permission && permission.role_id === roleId && permission.channel_id === channelId) {
-				permission.permission_role_channel = permissionRole;
-			}
 
 			if (state.cacheByChannels[channelId]?.permissionRoleChannel) {
 				const channelPermission = state.cacheByChannels[channelId].permissionRoleChannel;
-				if (channelPermission && channelPermission.role_id === roleId && channelPermission.channel_id === channelId) {
-					channelPermission.permission_role_channel = permissionRole;
+				if (!state.cacheByChannels?.[channelId]?.permissionRoleChannel) {
+					state.cacheByChannels[channelId].permissionRoleChannel = permissionRoleChannelAdapter.getInitialState();
+				}
+				if (channelPermission && channelPermission.entities[roleId]) {
+					permissionRoleChannelAdapter.updateOne(channelPermission, {
+						id: roleId,
+						changes: {
+							permission_role_channel: permissionRole
+						}
+					});
 				}
 			}
 		}
@@ -186,14 +180,19 @@ export const permissionRoleChannelSlice = createSlice({
 				const { channel_id, fromCache } = action.payload;
 
 				if (!state.cacheByChannels[channel_id]) {
-					state.cacheByChannels[channel_id] = getInitialChannelState();
+					state.cacheByChannels[channel_id] = {
+						permissionRoleChannel: permissionRoleChannelAdapter.getInitialState()
+					};
 				}
 
 				if (!fromCache) {
-					state.cacheByChannels[channel_id].permissionRoleChannel = action.payload;
+					state.cacheByChannels[channel_id].permissionRoleChannel = permissionRoleChannelAdapter.addOne(
+						state.cacheByChannels[channel_id].permissionRoleChannel,
+						action.payload
+					);
+
 					state.cacheByChannels[channel_id].cache = createCacheMetadata();
 				}
-				state.permission = action.payload;
 				state.loadingStatus = 'loaded';
 			})
 			.addCase(fetchPermissionRoleChannel.rejected, (state: PermissionRoleChannelState, action) => {
@@ -212,15 +211,13 @@ export const permissionRoleChannelSlice = createSlice({
 						active: role.type === 1 ? true : false,
 						permission_id: role.permission_id
 					}));
-				state.cacheByChannels[channelId] = {
-					permissionRoleChannel: {
-						role_id: roleId,
-						user_id: userId,
-						channel_id: channelId,
-						permission_role_channel: listUpdate
-					},
-					cache: createCacheMetadata()
-				};
+
+				permissionRoleChannelAdapter.upsertOne(state.cacheByChannels[channelId].permissionRoleChannel, {
+					role_id: roleId,
+					user_id: userId,
+					channel_id: channelId,
+					permission_role_channel: listUpdate
+				});
 			});
 	}
 });
@@ -277,22 +274,14 @@ export const getPermissionRoleChannelState = (rootState: {
 	[LIST_PERMISSION_ROLE_CHANNEL_FEATURE_KEY]: PermissionRoleChannelState;
 }): PermissionRoleChannelState => rootState[LIST_PERMISSION_ROLE_CHANNEL_FEATURE_KEY];
 
+const { selectById } = permissionRoleChannelAdapter.getSelectors();
 export const selectAllPermissionRoleChannel = createSelector(
 	[getPermissionRoleChannelState, (state: RootState, channelId: string, roleId?: string, userId?: string) => ({ channelId, roleId, userId })],
 	(state, { channelId, roleId, userId }) => {
-		if (!roleId && !userId) {
-			return state.permission;
-		}
-		const currentPermission = state.cacheByChannels[channelId]?.permissionRoleChannel || state.permission;
-
-		if (currentPermission) {
-			const isMatchingRole = roleId && currentPermission.role_id === roleId;
-			const isMatchingUser = userId && currentPermission.user_id === userId;
-
-			if (isMatchingRole || isMatchingUser) {
-				return currentPermission;
-			}
-		}
-		return null;
+		if (!state.cacheByChannels?.[channelId]?.permissionRoleChannel) return null;
+		const idSelect = userId ?? roleId;
+		if (idSelect == null) return null;
+		const currentPermission = selectById(state.cacheByChannels[channelId]?.permissionRoleChannel, idSelect);
+		return currentPermission ?? null;
 	}
 );
