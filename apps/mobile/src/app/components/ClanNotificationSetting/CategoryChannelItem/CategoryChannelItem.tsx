@@ -49,7 +49,7 @@ export const CategoryChannelItem = React.memo(
 					notifyChannelCategorySetting: dataNotificationsSetting || data
 				}
 			});
-		}, []);
+		}, [dataNotificationsSetting, data]);
 
 		return (
 			<TouchableOpacity onPress={navigateToNotificationDetail} style={[styles.categoryItem, stylesItem]}>
