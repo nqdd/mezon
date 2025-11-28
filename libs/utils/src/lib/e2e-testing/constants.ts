@@ -20,7 +20,7 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	button: {
 		base: '',
-		copy: '',
+		copy: ''
 	},
 	base_profile: {
 		display_name: ''
@@ -243,6 +243,13 @@ export const DATA_E2E_IDENTIFIER = {
 							close_detail_modal: ''
 						}
 					}
+				}
+			},
+			kick_member: {
+				reason_input: '',
+				button: {
+					kick: '',
+					cancel: ''
 				}
 			}
 		},
