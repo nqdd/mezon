@@ -1,5 +1,5 @@
 import { generateE2eId } from '@mezon/utils';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 interface IAvatarGroup {
 	children: ReactNode;
@@ -19,7 +19,7 @@ export const AvatarCount = ({ number }: { number: number }) => {
 			className="h-6 w-6 rounded-full aspect-square text-xs font-medium border-2 border-bgModifierHover flex items-center justify-center dark:text-bgLightPrimary text-bgPrimary ring-transparent dark:bg-bgTertiary bg-bgLightTertiary dark:hover:bg-bgTertiary hover:bg-bgLightTertiary"
 			data-e2e={generateE2eId('clan_page.channel_list.item.user_list_collapsed.item_count')}
 		>
-			+{number}
+			{number}+
 		</div>
 	);
 };
