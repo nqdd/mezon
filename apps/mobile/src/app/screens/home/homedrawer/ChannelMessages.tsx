@@ -43,6 +43,7 @@ type ChannelMessagesProps = {
 	isPublic?: boolean;
 	topicChannelId?: string;
 	isBanned?: boolean;
+	dmType?: number;
 };
 
 const getEntitiesArray = (state: any) => {
@@ -51,7 +52,19 @@ const getEntitiesArray = (state: any) => {
 };
 
 const ChannelMessages = React.memo(
-	({ channelId, lastSeenMessageId, lastSentMessageId, topicId, clanId, mode, isDM, isPublic, topicChannelId, isBanned }: ChannelMessagesProps) => {
+	({
+		channelId,
+		lastSeenMessageId,
+		lastSentMessageId,
+		topicId,
+		clanId,
+		mode,
+		isDM,
+		isPublic,
+		topicChannelId,
+		isBanned,
+		dmType
+	}: ChannelMessagesProps) => {
 		const dispatch = useAppDispatch();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
@@ -317,7 +330,7 @@ const ChannelMessages = React.memo(
 			<View style={styles.wrapperChannelMessage}>
 				<TopAlert />
 
-				<ChannelMessageLoading channelId={channelId} isEmptyMsg={!messages?.length} />
+				<ChannelMessageLoading channelId={channelId} isDM={isDM} dmType={dmType} isEmptyMsg={!messages?.length} />
 				{isLoadMore.current?.[ELoadMoreDirection.top] && <ViewLoadMore isLoadMoreTop={true} />}
 				{messages?.length ? (
 					<ChannelMessageList

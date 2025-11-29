@@ -1,5 +1,13 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { directActions, EStateFriend, selectDirectById, selectFriendById, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	directActions,
+	EStateFriend,
+	selectDirectById,
+	selectFriendById,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -56,6 +64,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
 					isModeDM={Number(dmType) === ChannelType.CHANNEL_TYPE_DM}
 					isBlocked={isBlocked}
+					dmType={dmType}
 				/>
 			)}
 		</View>
