@@ -120,7 +120,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 							topicId: topic?.id as string
 						})
 					);
-					dispatch(topicsActions.setCurrentTopicId(topic?.id as string));
+					return dispatch(topicsActions.setCurrentTopicId(topic?.id as string));
 				}
 
 				dispatch(

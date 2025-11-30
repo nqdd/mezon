@@ -1,10 +1,11 @@
 import { QRSection } from '@mezon/components';
 import { useAppNavigation, useAuth } from '@mezon/core';
-import { selectIsLogin } from '@mezon/store';
+import { authActions, selectIsLogin } from '@mezon/store';
+import { useMezon } from '@mezon/transport';
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLoaderData } from 'react-router-dom';
 import type { ILoginLoaderData } from '../../loaders/loginLoader';
 import FormLoginEmail from './FormLoginEmail';
@@ -22,6 +23,15 @@ function Login() {
 	const [isRemember, setIsRemember] = useState<boolean>(false);
 	const [loginMethod, setLoginMethod] = useState(true);
 	const [otpStep, setOtpStep] = useState<boolean | null>(null);
+	const dispatch = useDispatch();
+	const { sessionRef } = useMezon();
+
+	useEffect(() => {
+		if (sessionRef) {
+			sessionRef.current = null;
+		}
+		dispatch(authActions.resetSession());
+	}, []);
 
 	useEffect(() => {
 		const fetchQRCode = async () => {
