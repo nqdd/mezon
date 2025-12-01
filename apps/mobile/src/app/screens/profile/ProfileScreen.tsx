@@ -7,12 +7,11 @@ import {
 	selectAllAccount,
 	selectAllFriends,
 	selectCurrentClanId,
-	selectMemberCustomStatusById,
 	useAppDispatch,
 	useWallet,
 	walletActions
 } from '@mezon/store-mobile';
-import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
+import { createImgproxyUrl, CURRENCY, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
@@ -35,11 +34,6 @@ import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import StatusProfile from './StatusProfile';
 import { style } from './styles';
 
-export enum ETypeCustomUserStatus {
-	Save = 'Save',
-	Close = 'Close'
-}
-
 const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const isTabletLandscape = useTabletLandscape();
 	const userProfile = useSelector(selectAllAccount);
@@ -49,9 +43,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 	const { color } = useMixImageColor(userProfile?.user?.avatar_url);
 	const { t } = useTranslation(['profile', 'customUserStatus', 'screenStack']);
 	const currentClanId = useSelector(selectCurrentClanId);
-	const userMemberStatus = useSelector((state) => selectMemberCustomStatusById(state, userProfile?.user?.id || ''));
 	const dispatch = useAppDispatch();
 	const { isEnableWallet, walletDetail, enableWallet } = useWallet();
+
+	const userCustomStatus = useMemo(() => {
+		return userProfile?.user?.user_status;
+	}, [userProfile?.user?.user_status]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -122,14 +119,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		const data = {
 			children: (
 				<AddStatusUserModal
-					userCustomStatus={userMemberStatus?.status || ''}
+					userCustomStatus={userCustomStatus || ''}
 					handleCustomUserStatus={handleCustomUserStatus}
-					timeResetStatus={userMemberStatus?.time_reset}
+					userId={userProfile?.user?.id}
 				/>
 			)
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, [handleCustomUserStatus, userMemberStatus?.status, userMemberStatus?.time_reset]);
+	}, [handleCustomUserStatus, userCustomStatus, userProfile?.user?.id]);
 
 	const showUserStatusBottomSheet = () => {
 		const data = {
@@ -229,14 +226,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 					<View style={styles.badgeStatus}>
 						<View style={styles.badgeStatusInside} />
-						{!userMemberStatus?.status && (
+						{!userCustomStatus && (
 							<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()} style={styles.iconAddStatus}>
 								<MezonIconCDN icon={IconCDN.plusLargeIcon} height={size.s_12} width={size.s_12} color={themeValue.primary} />
 							</TouchableOpacity>
 						)}
 						<TouchableOpacity activeOpacity={1} onPress={() => showUpdateCustomStatus()}>
 							<Text numberOfLines={1} style={styles.textStatus}>
-								{userMemberStatus?.status ? userMemberStatus.status : t('addStatus')}
+								{userCustomStatus ? userCustomStatus : t('addStatus')}
 							</Text>
 						</TouchableOpacity>
 					</View>

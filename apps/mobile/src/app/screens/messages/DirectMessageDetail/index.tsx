@@ -1,13 +1,5 @@
 import { useTheme } from '@mezon/mobile-ui';
-import {
-	directActions,
-	EStateFriend,
-	selectDirectById,
-	selectFriendById,
-	topicsActions,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
+import { directActions, EStateFriend, selectDirectById, selectFriendById, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
