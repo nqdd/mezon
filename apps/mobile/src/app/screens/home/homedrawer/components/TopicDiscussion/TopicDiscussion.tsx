@@ -87,10 +87,8 @@ export default function TopicDiscussion() {
 			mode: ''
 		});
 		return () => {
-			if (topicIdRef.current) {
-				dispatch(topicsActions.setCurrentTopicId(''));
-				dispatch(topicsActions.setIsShowCreateTopic(false));
-			}
+			dispatch(topicsActions.setCurrentTopicId(''));
+			dispatch(topicsActions.setIsShowCreateTopic(false));
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false,
