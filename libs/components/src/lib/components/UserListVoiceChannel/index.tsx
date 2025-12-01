@@ -1,5 +1,5 @@
-import { UsersStreamEntity, VoiceEntity } from '@mezon/store';
-import { IChannelMember } from '@mezon/utils';
+import type { UsersStreamEntity, VoiceEntity } from '@mezon/store';
+import type { IChannelMember } from '@mezon/utils';
 import UserListItem from './UserListItemVoiceChannel';
 
 export type UserListVoiceChannelProps = {
@@ -12,7 +12,7 @@ export type UserListVoiceChannelProps = {
 function UserListVoiceChannel({ channelID, channelType, memberList, isPttList }: UserListVoiceChannelProps) {
 	return memberList?.map((item: IChannelMember, index: number) => {
 		return (
-			<div key={item.id} className={isPttList ? 'w-full' : ''}>
+			<div key={item.id} className={isPttList ? 'w-full' : 'mt-[1px]'}>
 				<UserListItem isPttList={isPttList} user={item} channelID={channelID} />
 			</div>
 		);

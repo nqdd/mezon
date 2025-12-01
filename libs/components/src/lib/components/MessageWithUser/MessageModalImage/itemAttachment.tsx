@@ -31,7 +31,7 @@ const ItemAttachment = (props: ItemAttachmentProps) => {
 		attachment.filetype?.includes(EMimeTypes.mov);
 
 	return (
-		<div className={`attachment-item w-fit h-fit `} ref={isSelected ? selectedImageRef : null}>
+		<div className={`attachment-item`} ref={isSelected ? selectedImageRef : null}>
 			{showDate && <div className={`dark:text-white text-black mb-1 text-center`}>{previousDate}</div>}
 			<div
 				className={`rounded-md cursor-pointer ${isSelected ? 'flex items-center border-2 border-white' : 'relative'}`}
@@ -41,7 +41,7 @@ const ItemAttachment = (props: ItemAttachmentProps) => {
 					<div className="relative">
 						<video
 							src={attachment.url ?? ''}
-							className={`size-[88px] max-w-[88px] max-h-[88px] max-[480px]:size-16 mx-auto gap-5 object-cover rounded-md cursor-pointer ${isSelected ? '' : 'overlay'} border-2 ${isSelected ? 'dark:bg-slate-700 bg-bgLightModeButton border-colorTextLightMode' : 'border-transparent'}`}
+							className={`size-[88px] max-w-[88px] max-h-[88px] max-[480px]:size-16 w-full mx-auto gap-5 object-cover rounded-md cursor-pointer ${isSelected ? '' : 'overlay'} border-2 ${isSelected ? 'dark:bg-slate-700 bg-bgLightModeButton border-colorTextLightMode' : 'border-transparent'}`}
 							muted
 							playsInline
 							preload="metadata"
@@ -62,7 +62,7 @@ const ItemAttachment = (props: ItemAttachmentProps) => {
 					<img
 						src={createImgproxyUrl(attachment.url ?? '', { width: 300, height: 300, resizeType: 'fit' })}
 						alt={attachment.url}
-						className={`size-[88px] max-w-[88px] max-h-[88px] max-[480px]:size-16  mx-auto gap-5 object-cover rounded-md cursor-pointer ${isSelected ? '' : 'overlay'} border-2 ${isSelected ? 'dark:bg-slate-700 bg-bgLightModeButton border-colorTextLightMode' : 'border-transparent'}`}
+						className={`size-[88px] max-w-[88px] max-h-[88px] max-[480px]:size-16 w-full mx-auto gap-5 object-cover rounded-md cursor-pointer ${isSelected ? '' : 'overlay'} border-2 ${isSelected ? 'dark:bg-slate-700 bg-bgLightModeButton border-colorTextLightMode' : 'border-transparent'}`}
 						onDragStart={handleDrag}
 						onKeyDown={(event) => {
 							if (event.key === 'Enter') {

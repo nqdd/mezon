@@ -1,4 +1,5 @@
-import { IOptionsNotification, getNotifyLabels } from '@mezon/mobile-components';
+import type { IOptionsNotification } from '@mezon/mobile-components';
+import { getNotifyLabels } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
@@ -11,8 +12,9 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { ChannelThreads, ENotificationTypes, sleep } from '@mezon/utils';
-import React, { useEffect, useState } from 'react';
+import type { ChannelThreads } from '@mezon/utils';
+import { ENotificationTypes, sleep } from '@mezon/utils';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -64,7 +66,12 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 			setRadioBox((prev) => prev.map((item) => (item.id === 0 ? { ...item, isChecked: true } : item)));
 			return;
 		}
-		setRadioBox(radioBox.map((item) => item && { ...item, isChecked: getNotificationChannelSelected?.notification_setting_type === item.value }));
+		setRadioBox((prev) =>
+			prev.map((item) => ({
+				...item,
+				isChecked: getNotificationChannelSelected?.notification_setting_type === item.value
+			}))
+		);
 	}, [getNotificationChannelSelected]);
 
 	useEffect(() => {
@@ -75,47 +82,50 @@ export default function NotificationSetting({ channel }: { channel?: ChannelThre
 		}
 	}, [getNotificationChannelSelected, defaultNotificationCategory, defaultNotificationClan, t]);
 
-	const handleRadioBoxPress = async (checked: boolean, id: number) => {
-		const notifyOptionSelected = radioBox.map((item) => item && { ...item, isChecked: item.id === id });
-		setRadioBox(notifyOptionSelected);
-		if (notifyOptionSelected?.length) {
-			const notifyOptionSettingSelected = notifyOptionSelected.find((option) => option.isChecked);
-			try {
-				dispatch(appActions.setLoadingMainMobile(true));
-				if (
-					[ENotificationTypes.ALL_MESSAGE, ENotificationTypes.MENTION_MESSAGE, ENotificationTypes.NOTHING_MESSAGE].includes(
-						notifyOptionSettingSelected?.value
-					)
-				) {
-					const body = {
-						channel_id: channel?.channel_id || currentChannelId || '',
-						notification_type: notifyOptionSettingSelected?.value || 0,
-						clan_id: currentClanId || ''
-					};
-					const res = await dispatch(notificationSettingActions.setNotificationSetting(body));
-					if (res?.meta?.requestStatus === 'rejected') {
-						throw res?.meta?.requestStatus;
-					}
-				} else {
-					const res = await dispatch(
-						notificationSettingActions.deleteNotiChannelSetting({
+	const handleRadioBoxPress = useCallback(
+		async (checked: boolean, id: number) => {
+			const notifyOptionSelected = radioBox.map((item) => ({ ...item, isChecked: item.id === id }));
+			setRadioBox(notifyOptionSelected);
+			if (notifyOptionSelected?.length) {
+				const notifyOptionSettingSelected = notifyOptionSelected.find((option) => option.isChecked);
+				try {
+					dispatch(appActions.setLoadingMainMobile(true));
+					if (
+						[ENotificationTypes.ALL_MESSAGE, ENotificationTypes.MENTION_MESSAGE, ENotificationTypes.NOTHING_MESSAGE].includes(
+							notifyOptionSettingSelected?.value
+						)
+					) {
+						const body = {
 							channel_id: channel?.channel_id || currentChannelId || '',
-							clan_id: currentClanId || ''
-						})
-					);
-					if (res?.meta?.requestStatus === 'rejected') {
-						throw res?.meta?.requestStatus;
+							notification_type: notifyOptionSettingSelected?.value || 0,
+							clan_id: channel?.clan_id || currentClanId || ''
+						};
+						const res = await dispatch(notificationSettingActions.setNotificationSetting(body));
+						if (res?.meta?.requestStatus === 'rejected') {
+							throw res?.meta?.requestStatus;
+						}
+					} else {
+						const res = await dispatch(
+							notificationSettingActions.deleteNotiChannelSetting({
+								channel_id: channel?.channel_id || currentChannelId || '',
+								clan_id: channel?.clan_id || currentClanId || ''
+							})
+						);
+						if (res?.meta?.requestStatus === 'rejected') {
+							throw res?.meta?.requestStatus;
+						}
 					}
+				} catch (error) {
+					Toast.show({ type: 'error', text1: t('toast.error', { error }) });
+					await sleep(100);
+					setRadioBox(radioBox);
+				} finally {
+					dispatch(appActions.setLoadingMainMobile(false));
 				}
-			} catch (error) {
-				Toast.show({ type: 'error', text1: t('toast.error', { error: error }) });
-				await sleep(100);
-				setRadioBox(radioBox);
-			} finally {
-				dispatch(appActions.setLoadingMainMobile(false));
 			}
-		}
-	};
+		},
+		[channel?.channel_id, channel?.clan_id, currentChannelId, currentClanId, dispatch, radioBox, t]
+	);
 
 	return (
 		<View style={styles.container}>

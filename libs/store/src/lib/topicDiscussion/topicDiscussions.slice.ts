@@ -96,7 +96,6 @@ export const createTopic = createAsyncThunk('topics/createTopic', async (body: A
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const response = await mezon.client.createSdTopic(mezon.session, body);
 		if (response) {
-			await thunkAPI.dispatch(fetchTopics({ clanId: body.clan_id as string, noCache: true }));
 			return response;
 		} else {
 			return thunkAPI.rejectWithValue([]);
@@ -265,6 +264,23 @@ export const topicsSlice = createSlice({
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			})
+			.addCase(createTopic.fulfilled, (state: TopicDiscussionsState, action) => {
+				const newTopic = action.payload as ApiSdTopic;
+				const clanId = newTopic.clan_id;
+
+				if (clanId && newTopic.id) {
+					if (!state.clanTopics[clanId]) {
+						state.clanTopics[clanId] = topicsAdapter.getInitialState();
+					}
+
+					const topicEntity: TopicDiscussionsEntity = {
+						...newTopic,
+						id: newTopic.id
+					};
+
+					topicsAdapter.addOne(state.clanTopics[clanId], topicEntity);
+				}
+			})
 			.addCase(getFirstMessageOfTopic.fulfilled, (state: TopicDiscussionsState, action) => {
 				state.firstMessageOfCurrentTopic = action.payload;
 			});
@@ -310,15 +326,13 @@ export const topicsActions = { ...topicsSlice.actions, createTopic, fetchTopics,
  *
  * See: https://react-redux.js.org/next/api/hooks#useselector
  */
-const { selectAll, selectEntities } = topicsAdapter.getSelectors();
+const { selectAll } = topicsAdapter.getSelectors();
 
 export const getTopicsState = (rootState: { [TOPIC_DISCUSSIONS_FEATURE_KEY]: TopicDiscussionsState }): TopicDiscussionsState =>
 	rootState[TOPIC_DISCUSSIONS_FEATURE_KEY];
 export const selectAllTopics = createSelector([getTopicsState, (state: RootState) => state.clans.currentClanId as string], (state, clanId) =>
 	selectAll(state.clanTopics[clanId] ?? topicsAdapter.getInitialState())
 );
-
-export const selectTopicsEntities = createSelector(getTopicsState, selectEntities);
 
 export const selectMessageTopicError = createSelector(getTopicsState, (state) => state.messageTopicError);
 

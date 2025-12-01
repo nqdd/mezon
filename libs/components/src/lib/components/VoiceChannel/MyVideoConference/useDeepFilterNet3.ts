@@ -1,7 +1,7 @@
 import { useLocalParticipant, useRoomContext } from '@livekit/components-react';
 import { selectNoiseSuppressionEnabled, selectNoiseSuppressionLevel, useAppSelector } from '@mezon/store';
 import { DeepFilterNoiseFilterProcessor } from 'deepfilternet3-noise-filter';
-import type { LocalParticipant, LocalTrackPublication } from 'livekit-client';
+import type { LocalParticipant, LocalTrackPublication, Participant, TrackPublication } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
 import { useEffect, useRef } from 'react';
 
@@ -45,55 +45,25 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 			}
 
 			const track = publication.track;
-			if (!track || track.kind !== 'audio') {
+			if (!track || track.kind !== 'audio' || !enabled) {
 				return;
 			}
 
 			const trackSid = track.sid;
-			if (!trackSid) {
-				return;
-			}
-
-			if (!enabled) {
-				const processorData = processorsRef.current.get(trackSid);
-				if (processorData) {
-					try {
-						await track.stopProcessor().catch(() => {});
-						processorData.processor.destroy?.().catch(() => {});
-						processorsRef.current.delete(trackSid);
-					} catch (error) {
-						if (process.env.NODE_ENV === 'development') {
-							console.error('Failed to remove DeepFilterNet3 processor:', error);
-						}
-					}
-				}
-				return;
-			}
-
-			if (processorsRef.current.has(trackSid)) {
+			if (!trackSid || processorsRef.current.has(trackSid)) {
 				return;
 			}
 
 			try {
-				const currentLevel = levelRef.current;
 				const processor = new DeepFilterNoiseFilterProcessor({
-					sampleRate,
-					noiseReductionLevel: currentLevel,
-					enabled: true,
+					sampleRate: publication.track?.mediaStreamTrack?.getSettings().sampleRate ?? sampleRate,
+					noiseReductionLevel: levelRef.current,
+					enabled,
 					assetConfig: {
 						cdnUrl: 'https://cdn.mezon.ai/AI/models/datas/noise_suppression/deepfilternet3'
 					}
 				});
-
-				await processor.setEnabled(true);
-
-				if (enabledRef.current) {
-					await track.setProcessor(processor);
-				} else {
-					await processor.audioContext?.suspend();
-				}
-
-				processor.setSuppressionLevel(currentLevel);
+				await track.setProcessor(processor);
 				processorsRef.current.set(trackSid, { processor, track: publication });
 			} catch (error) {
 				console.error('Failed to apply DeepFilterNet3 processor:', error);
@@ -123,7 +93,6 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 						if (track) {
 							await track.stopProcessor().catch(() => {});
 						}
-						processorData.processor.destroy?.().catch(() => {});
 						processorsRef.current.delete(trackSid);
 					} catch (error) {
 						if (process.env.NODE_ENV === 'development') {
@@ -134,14 +103,38 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 			}
 		};
 
+		const handleTrackMuted = async (publication: TrackPublication, participant: Participant) => {
+			if (participant.sid === localParticipant.sid && publication.source === Track.Source.Microphone) {
+				for (const processorData of processorsRef.current.values()) {
+					if (processorData.track.trackSid === publication.trackSid) {
+						await processorData.processor.suspend();
+					}
+				}
+			}
+		};
+
+		const handleTrackUnmuted = async (publication: TrackPublication, participant: Participant) => {
+			if (participant.sid === localParticipant.sid && publication.source === Track.Source.Microphone) {
+				for (const processorData of processorsRef.current.values()) {
+					if (processorData.track.trackSid === publication.trackSid) {
+						await processorData.processor.resume();
+					}
+				}
+			}
+		};
+
 		room.on(RoomEvent.LocalTrackPublished, handleTrackPublished);
 		room.on(RoomEvent.LocalTrackUnpublished, handleTrackUnpublished);
+		room.on(RoomEvent.TrackMuted, handleTrackMuted);
+		room.on(RoomEvent.TrackUnmuted, handleTrackUnmuted);
 
 		const processorsMap = processorsRef.current;
 
 		return () => {
 			room.off(RoomEvent.LocalTrackPublished, handleTrackPublished);
 			room.off(RoomEvent.LocalTrackUnpublished, handleTrackUnpublished);
+			room.off(RoomEvent.TrackMuted, handleTrackMuted);
+			room.off(RoomEvent.TrackUnmuted, handleTrackUnmuted);
 
 			processorsMap.forEach((processorData) => {
 				try {
@@ -149,7 +142,6 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 					if (track) {
 						track.stopProcessor().catch(() => {});
 					}
-					processorData.processor.destroy?.().catch(() => {});
 				} catch (error) {
 					console.error('Failed to cleanup processor on unmount:', error);
 				}
@@ -162,7 +154,6 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 		if (!enabled || !room || !localParticipant) {
 			return;
 		}
-
 		processorsRef.current.forEach((processorData) => {
 			try {
 				processorData.processor.setSuppressionLevel(level);
@@ -179,11 +170,9 @@ export const useDeepFilterNet3 = (options?: UseDeepFilterNet3Options) => {
 				if (!track) return;
 
 				if (enabled) {
-					await processorData.processor.audioContext?.resume();
 					await track.setProcessor(processorData.processor);
 				} else {
 					await track.stopProcessor();
-					await processorData.processor.audioContext?.suspend();
 				}
 			} catch (error) {
 				console.error('Failed to toggle noise suppression:', error);

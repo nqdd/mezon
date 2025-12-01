@@ -374,6 +374,12 @@ export const authSlice = createSlice({
 		},
 		switchAccount(state, action: PayloadAction<string>) {
 			state.activeAccount = action.payload;
+		},
+		resetSession(state) {
+			state.activeAccount = null;
+			state.session = null;
+			state.isLogin = false;
+			state.loadingStatus = 'not loaded';
 		}
 	},
 	extraReducers: (builder) => {

@@ -61,7 +61,6 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 		};
 
 		const topic = (await dispatch(topicsActions.createTopic(body))).payload as ApiSdTopic;
-		dispatch(topicsActions.setCurrentTopicId(topic.id || ''));
 		return topic;
 	}, [channelIdOrDirectId, dispatch, getClanId, initMessageOfTopic?.id]);
 
@@ -100,26 +99,28 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 			if (fromTopic) {
 				if (!currentTopicId) {
 					const topic = (await createTopic()) as ApiSdTopic;
-					if (topic) {
-						dispatch(
-							topicsActions.handleSendTopic({
-								clanId: getClanId as string,
-								channelId: channelIdOrDirectId as string,
-								mode,
-								anonymous: false,
-								attachments,
-								code: 0,
-								content,
-								isMobile,
-								isPublic,
-								mentionEveryone,
-								mentions,
-								references,
-								topicId: topic?.id as string
-							})
-						);
+					if (!topic) {
 						return;
 					}
+
+					await dispatch(
+						topicsActions.handleSendTopic({
+							clanId: getClanId as string,
+							channelId: channelIdOrDirectId as string,
+							mode,
+							anonymous: false,
+							attachments,
+							code: 0,
+							content,
+							isMobile,
+							isPublic,
+							mentionEveryone,
+							mentions,
+							references,
+							topicId: topic?.id as string
+						})
+					);
+					return dispatch(topicsActions.setCurrentTopicId(topic?.id as string));
 				}
 
 				dispatch(
