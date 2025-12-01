@@ -217,8 +217,8 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 			<div
 				className="contexify !bg-theme-contexify font-medium !opacity-100 flex flex-col w-52 rounded-md bg-theme-setting-nav text-theme-primary fixed z-30 p-2"
 				style={{
-					top: dragOffset?.x,
-					left: dragOffset?.y,
+					top: dragOffset?.y,
+					left: dragOffset?.x,
 					...className
 				}}
 				ref={focusRef}
@@ -252,9 +252,11 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 	const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
 		closeContextVoiceMember();
 		if (roomName && canMangeVoice && userProfile?.user?.id !== member?.id) {
+			const heightWindow = window.innerHeight;
+			const widthWindow = window.innerWidth;
 			setDragOffset({
-				x: event.clientY,
-				y: event.clientX
+				y: heightWindow - event.clientY < 200 ? heightWindow - 200 : event.clientY,
+				x: widthWindow - event.clientX < 220 ? widthWindow - 220 : event.clientX
 			});
 			openContextVoiceMember();
 		}
