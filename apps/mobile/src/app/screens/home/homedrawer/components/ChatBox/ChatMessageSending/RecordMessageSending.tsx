@@ -13,14 +13,15 @@ interface IRecordMessageSendingProps {
 	mode: ChannelStreamMode;
 	channelId: string;
 	currentTopicId?: string;
+	isCreateTopic?: boolean;
 }
-export const RecordMessageSending = memo(({ channelId, mode, currentTopicId = '' }: IRecordMessageSendingProps) => {
+export const RecordMessageSending = memo(({ channelId, mode, currentTopicId = '', isCreateTopic = false }: IRecordMessageSendingProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const startRecording = async () => {
 		const data = {
 			snapPoints: ['50%'],
-			children: <BaseRecordAudioMessage channelId={channelId} mode={mode} topicId={currentTopicId} />
+			children: <BaseRecordAudioMessage channelId={channelId} mode={mode} topicId={currentTopicId} isCreateTopic={isCreateTopic} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 		Keyboard.dismiss();
