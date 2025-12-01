@@ -1651,6 +1651,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
 			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id }));
+			dispatch(
+				threadsActions.setIsShowCreateThread({
+					channelId: channelDeleted.channel_id as string,
+					isShowCreateThread: false
+				})
+			);
+
+			if (channelDeleted?.parent_id) {
+				dispatch(
+					threadsActions.setIsShowCreateThread({
+						channelId: channelDeleted.parent_id as string,
+						isShowCreateThread: false
+					})
+				);
+			}
+
 			const isVoiceJoined = selectVoiceInfo(store.getState());
 			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
 				//Leave Room If It's been deleted
