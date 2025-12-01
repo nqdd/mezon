@@ -16,9 +16,10 @@ import type { IChannel } from '@mezon/utils';
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -113,17 +114,30 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 		}
 	];
 
-	const handleLeaveGroupConfirm = async () => {
-		const isLeaveOrDeleteGroup = lastOne
-			? await dispatch(deleteChannel({ clanId: '0', channelId: currentChannel?.channel_id ?? '', isDmGroup: true }))
-			: await dispatch(removeMemberChannel({ channelId: currentChannel?.channel_id || '', userIds: [currentUserId], kickMember: false }));
-		if (!isLeaveOrDeleteGroup) {
-			return;
+	const handleLeaveGroupConfirm = useCallback(async () => {
+		try {
+			dispatch(directActions.setDmGroupCurrentId(''));
+
+			const resultLeaveOrDeleteGroup = lastOne
+				? await dispatch(deleteChannel({ clanId: '0', channelId: currentChannel?.channel_id ?? '', isDmGroup: true }))
+				: await dispatch(removeMemberChannel({ channelId: currentChannel?.channel_id || '', userIds: [currentUserId], kickMember: false }));
+
+			if (resultLeaveOrDeleteGroup?.meta?.requestStatus === 'rejected') {
+				throw new Error(resultLeaveOrDeleteGroup?.meta?.requestStatus);
+			} else {
+				await dispatch(fetchDirectMessage({ noCache: true }));
+				navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+			}
+		} catch (error) {
+			Toast.show({
+				type: 'error',
+				text1: t('toast.leaveGroupError', { error })
+			});
+			dispatch(directActions.setDmGroupCurrentId(currentChannel?.id || ''));
+		} finally {
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		}
-		await dispatch(fetchDirectMessage({ noCache: true }));
-		navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	};
+	}, [currentChannel?.channel_id, currentChannel?.id, currentUserId, dispatch, lastOne, navigation, t]);
 
 	return (
 		<View style={{ paddingVertical: size.s_10, paddingHorizontal: size.s_20 }}>

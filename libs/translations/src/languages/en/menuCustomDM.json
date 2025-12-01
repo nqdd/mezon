@@ -7,5 +7,8 @@
   "save": "Save",
   "removeAvatar": "Remove avatar",
   "invalidGroupName": "Invalid group name",
-  "uploadImage": "Upload an Image"
+  "uploadImage": "Upload an Image",
+  "toast": {
+    "leaveGroupError": "Error when leaving group: {{error}}"
+  }
 }

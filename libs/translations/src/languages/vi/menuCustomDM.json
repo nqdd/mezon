@@ -7,5 +7,8 @@
   "save": "Lưu",
   "removeAvatar": "Xóa ảnh",
   "invalidGroupName": "Tên nhóm không hợp lệ",
-  "uploadImage": "Tải lên hình ảnh"
+  "uploadImage": "Tải lên hình ảnh",
+  "toast": {
+    "leaveGroupError": "Lỗi khi rời nhóm: {{error}}"
+  }
 }
