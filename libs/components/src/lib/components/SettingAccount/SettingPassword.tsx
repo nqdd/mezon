@@ -118,26 +118,26 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-			<div className="w-full max-w-md bg-white rounded-lg shadow-sm relative dark:bg-[#313338] dark:text-white ">
+			<div className="w-full max-w-md rounded-lg shadow-sm relative bg-theme-setting-primary  text-theme-primary">
 				<button
 					onClick={onClose}
 					title={t('setPasswordModal.close')}
-					className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none dark:text-gray-300 dark:hover:text-gray-100"
+					className="absolute top-4 right-4  focus:outline-none text-theme-primary-active hover:text-red-500"
 				>
 					✕
 				</button>
 
-				<div className="p-6 border-b border-gray-200 dark:border-gray-600">
-					<div className="text-xl font-semibold text-gray-900 dark:text-white">
+				<div className="p-6 border-b bg-theme-setting-nav">
+					<div className="text-xl font-semibold text-theme-primary">
 						{hasPassword ? t('setPasswordAccount.changePassword') : t('setPasswordModal.title')}
 					</div>
-					<p className="mt-1 text-sm text-gray-500 dark:text-gray-300">{t('setPasswordModal.description')}</p>
+					<p className="mt-1 text-sm text-theme-primary">{t('setPasswordModal.description')}</p>
 				</div>
 
 				<form onSubmit={handleSubmit}>
 					<div className="space-y-4 p-6">
 						<div className="space-y-2">
-							<label htmlFor="email" className="block text-sm font-medium text-black dark:text-gray-300">
+							<label htmlFor="email" className="block text-sm font-medium text-theme-primary">
 								{t('setPasswordAccount.email')}
 							</label>
 							<Input
@@ -146,7 +146,7 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 								value={email}
 								onChange={handleEmailChange}
 								placeholder={t('setPasswordModal.emailPlaceholder')}
-								className={`dark:bg-[#1e1e1e] dark:border-gray-600 dark:placeholder-gray-400 ${errors.email ? 'border-red-500 dark:border-red-400' : ''}`}
+								className={`bg-theme-input text-theme-primary ${errors.email ? 'border-red-500 dark:border-red-400' : ''}`}
 								readOnly={true}
 								autoComplete="off"
 							/>
@@ -168,7 +168,7 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 								onChange={handlePasswordChange}
 								error={errors.password}
 							/>
-							<p className="text-sm text-gray-500 mt-2 dark:text-gray-400">{t('setPasswordAccount.description')}</p>
+							<p className="text-sm text-theme-primary mt-2">{t('setPasswordAccount.description')}</p>
 						</div>
 						<PasswordInput
 							id="confirmPassword"

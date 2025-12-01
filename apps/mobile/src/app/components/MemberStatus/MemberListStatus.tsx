@@ -1,8 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
-import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
-import { EUserStatus } from '@mezon/utils';
+import { ChannelMembersEntity, EUserStatus, UsersClanEntity } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useMemo, useState } from 'react';

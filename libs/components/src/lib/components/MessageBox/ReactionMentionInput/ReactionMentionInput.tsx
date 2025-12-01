@@ -46,6 +46,7 @@ import {
 	QUICK_MENU_TYPE,
 	RECENT_EMOJI_CATEGORY,
 	SubPanelName,
+	THREAD_ARCHIVE_DURATION_SECONDS,
 	TITLE_MENTION_HERE,
 	ThreadStatus,
 	addMention,
@@ -710,7 +711,8 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			currentChannel,
 			setOpenThreadMessageState,
 			updateDraft,
-			setSubPanelActive
+			setSubPanelActive,
+			handleThreadActivation
 		]
 	);
 

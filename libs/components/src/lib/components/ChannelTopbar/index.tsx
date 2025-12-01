@@ -955,7 +955,10 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 
 export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
 	return (
-		<div className="focus-visible:outline-none text-theme-primary text-theme-primary-hover">
+		<div
+			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"
+			data-e2e={generateE2eId('chat.channel_message.header.button.inbox')}
+		>
 			<NotificationTooltip />
 		</div>
 	);

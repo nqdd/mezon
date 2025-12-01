@@ -23,13 +23,11 @@ import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconC
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonButtonIcon from '../../../../../../componentUI/MezonButtonIcon';
 import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
-import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../../componentUI/MezonMenu';
-import MezonMenu from '../../../../../../componentUI/MezonMenu';
+import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../../componentUI/MezonMenu';
 import MezonSwitch from '../../../../../../componentUI/MezonSwitch';
 import DeleteClanModal from '../../../../../../components/DeleteClanModal';
 import type { AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
-import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import { EProfileTab } from '../../../../../settings/ProfileSetting';
+import { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
 import InviteToChannel from '../../InviteToChannel';
 import ClanMenuInfo from '../ClanMenuInfo';
 import { style } from './styles';
