@@ -139,6 +139,7 @@ export default function TopicDiscussion() {
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}
 							isBanned={!!isBanned}
+							isFromTopic={true}
 						/>
 					</Animated.View>
 				</PanGestureHandler>
