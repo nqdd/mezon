@@ -1,12 +1,10 @@
 /* eslint-disable no-empty */
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
-import { channelAppActions, getAuthState, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
+import { channelAppActions, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Dimensions, Modal, Platform, Text, TouchableOpacity, View } from 'react-native';
-import { Wave } from 'react-native-animated-spinkit';
-import { useSelector } from 'react-redux';
+import { Dimensions, Modal, Platform, Text, TouchableOpacity } from 'react-native';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../components/StatusBarHeight/StatusBarHeight';
 import WebviewBase from '../../../../components/WebviewBase';
@@ -19,9 +17,6 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	const paramsRoute = route?.params;
 	const styles = style(themeValue);
 	const { t } = useTranslation(['common']);
-	const authState = useSelector(getAuthState);
-	const session = JSON.stringify(authState.session);
-	const [loading, setLoading] = useState(true);
 	const [uri, setUri] = useState<string>('');
 	const [orientation, setOrientation] = useState<'Portrait' | 'Landscape'>('Portrait');
 	const appChannel = useAppSelector((state) => selectAppChannelById(state, paramsRoute?.channelId || ''));
@@ -68,12 +63,6 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	return (
 		<Modal style={styles.container} visible={true} supportedOrientations={['portrait', 'landscape']}>
 			{orientation === 'Portrait' && Platform.OS === 'ios' && <StatusBarHeight />}
-			{loading && (
-				<View style={styles.loadingContainer}>
-					<Wave color={themeValue.text} />
-					<Text style={styles.textLoading}>{t('loadingData')}</Text>
-				</View>
-			)}
 			<TouchableOpacity onPress={onClose} style={styles.backButton}>
 				<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} />
 				<Text style={styles.buttonText}>{t('close')}</Text>
