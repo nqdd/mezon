@@ -43,6 +43,7 @@ type ChannelMessagesProps = {
 	isPublic?: boolean;
 	topicChannelId?: string;
 	isBanned?: boolean;
+	isFromTopic?: boolean;
 	dmType?: number;
 };
 
@@ -63,6 +64,7 @@ const ChannelMessages = React.memo(
 		isPublic,
 		topicChannelId,
 		isBanned,
+		isFromTopic,
 		dmType
 	}: ChannelMessagesProps) => {
 		const dispatch = useAppDispatch();
@@ -330,7 +332,7 @@ const ChannelMessages = React.memo(
 			<View style={styles.wrapperChannelMessage}>
 				<TopAlert />
 
-				<ChannelMessageLoading channelId={channelId} isDM={isDM} dmType={dmType} isEmptyMsg={!messages?.length} />
+				<ChannelMessageLoading isFromTopic={isFromTopic} channelId={channelId} isDM={isDM} dmType={dmType} isEmptyMsg={!messages?.length} />
 				{isLoadMore.current?.[ELoadMoreDirection.top] && <ViewLoadMore isLoadMoreTop={true} />}
 				{messages?.length ? (
 					<ChannelMessageList

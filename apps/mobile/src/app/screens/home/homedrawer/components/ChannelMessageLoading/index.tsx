@@ -6,13 +6,14 @@ import { useSelector } from 'react-redux';
 import MessageItemSkeleton from '../../../../../components/Skeletons/MessageItemSkeleton';
 
 interface IProps {
+	isFromTopic?: boolean;
 	channelId: string;
 	isEmptyMsg: boolean;
 	isDM: boolean;
 	dmType?: number;
 }
 const DELAY_TIME_REJOIN_CHANNEL = 2000;
-export const ChannelMessageLoading = React.memo(({ channelId, isEmptyMsg, isDM, dmType }: IProps) => {
+export const ChannelMessageLoading = React.memo(({ isFromTopic = false, channelId, isEmptyMsg, isDM, dmType }: IProps) => {
 	const isLoading = useSelector((state: RootState) => state?.messages?.loadingStatus);
 	const clanId = useSelector(selectCurrentClanId);
 	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -34,7 +35,7 @@ export const ChannelMessageLoading = React.memo(({ channelId, isEmptyMsg, isDM, 
 		if (timeoutRef.current) {
 			clearTimeout(timeoutRef.current);
 		}
-		if (isEmptyMsg) {
+		if (isEmptyMsg && !isFromTopic) {
 			timeoutRef.current = setTimeout(async () => {
 				// Re-check if messages are still empty after 2 seconds
 				const store = await getStoreAsync();
@@ -72,7 +73,7 @@ export const ChannelMessageLoading = React.memo(({ channelId, isEmptyMsg, isDM, 
 				clearTimeout(timeoutRef.current);
 			}
 		};
-	}, [isEmptyMsg, channelId, clanId, isDM, dmType]);
+	}, [isEmptyMsg, channelId, clanId, isDM, dmType, isFromTopic]);
 
 	if (isLoading === 'loading' && !checkChannelCacheLoading && isEmptyMsg) {
 		return <MessageItemSkeleton skeletonNumber={8} />;
