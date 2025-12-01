@@ -11,7 +11,7 @@ function UserListItem({ user, channelID, isPttList }: { user: IChannelMember; ch
 
 	return (
 		<div
-			className={`bg-item-hover text-theme-primary-hover w-[90%] flex p-1 ${isPttList ? 'w-full' : 'ml-5'} items-center gap-3 cursor-pointer rounded-sm`}
+			className={`bg-item-hover text-theme-primary-hover w-[90%] flex p-1 rounded-lg ${isPttList ? 'w-full' : 'ml-[18px]'} items-center gap-3 cursor-pointer`}
 			data-e2e={generateE2eId('clan_page.channel_list.item.user_list.item')}
 		>
 			<div className="w-5 h-5 rounded-full scale-75">

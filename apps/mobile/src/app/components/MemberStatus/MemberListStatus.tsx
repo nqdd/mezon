@@ -2,6 +2,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
+import { EUserStatus } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
@@ -73,12 +74,18 @@ export const MemberListStatus = React.memo(() => {
 		}
 
 		members?.sort((a, b) => {
-			if (a.user?.online === b.user?.online) {
-				return getName(a).localeCompare(getName(b));
+			const aOnline = !!a.user?.online && a.user?.status !== EUserStatus.INVISIBLE;
+			const bOnline = !!b.user?.online && b.user?.status !== EUserStatus.INVISIBLE;
+
+			if (aOnline === bOnline) {
+				const nameA = getName(a as UsersClanEntity);
+				const nameB = getName(b as UsersClanEntity);
+				return nameA.localeCompare(nameB);
 			}
-			return a.user?.online ? -1 : 1;
+
+			return aOnline ? -1 : 1;
 		});
-		const firstOfflineIndex = members.findIndex((user) => !user?.user?.online);
+		const firstOfflineIndex = members.findIndex((user) => !user.user?.online || user.user?.status === EUserStatus.INVISIBLE);
 		const onlineUsers = firstOfflineIndex === -1 ? members : members?.slice(0, firstOfflineIndex);
 		const offlineUsers = firstOfflineIndex === -1 ? [] : members?.slice(firstOfflineIndex);
 
@@ -86,7 +93,7 @@ export const MemberListStatus = React.memo(() => {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [currentChannel?.id, isDMThread, rawMembers, channelMembers]);
+	}, [isDMThread, rawMembers, channelMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
 
@@ -153,17 +160,24 @@ export const MemberListStatus = React.memo(() => {
 
 			{(online?.length > 0 || offline?.length > 0) && !isChatWithMyself ? (
 				<SectionList
-					sections={[
-						{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
-						{ title: t('common:offlines'), data: offline, key: 'offlineMembers' }
-					]}
+					sections={
+						isDMThread
+							? [{ title: t('common:members'), data: online, key: 'onlineMembers' }]
+							: [
+									{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
+									{ title: t('common:offlines'), data: offline, key: 'offlineMembers' }
+								]
+					}
 					keyExtractor={(item, index) => `channelMember[${index}]_${item?.id}`}
 					renderItem={renderMemberItem}
-					renderSectionHeader={({ section: { title } }) => (
-						<Text style={styles.text}>
-							{title} - {title === t('common:onlines') ? online?.length : offline?.length}
-						</Text>
-					)}
+					renderSectionHeader={({ section: { title } }) => {
+						if (isDMThread) return null;
+						return (
+							<Text style={styles.text}>
+								{title} - {title === t('common:onlines') ? online?.length : offline?.length}
+							</Text>
+						);
+					}}
 					contentContainerStyle={{ paddingBottom: size.s_60 }}
 					nestedScrollEnabled
 					removeClippedSubviews={true}

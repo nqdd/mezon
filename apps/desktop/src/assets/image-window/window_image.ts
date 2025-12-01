@@ -152,6 +152,18 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"/>
         </svg>
       </div>
+      <div class="navigation-buttons">
+        <button class="nav-button" id="prevImageBtn" title="Previous image (↑)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="nav-button" id="nextImageBtn" title="Next image (↓)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
       ${
 			imageData.isVideo || imageData.filetype?.startsWith('video') || imageData.filetype?.includes('mp4') || imageData.filetype?.includes('mov')
 				? `<video id="selectedMedia" class="selected-image" src="${sanitizeUrl(imageData.realUrl || imageData.url)}" controls autoplay style="max-width: 100%; max-height: 100%; object-fit: contain;"></video>`
@@ -281,6 +293,32 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
         }
       };
 
+      const handleMediaError = () => {
+        if (skeletonTimer) {
+          clearTimeout(skeletonTimer);
+          skeletonTimer = null;
+        }
+        if (skeletonMain) {
+          skeletonMain.classList.remove('visible');
+          skeletonMain.style.display = 'none';
+        }
+        const currentMedia = document.getElementById('selectedMedia');
+        if (currentMedia) {
+          currentMedia.style.display = 'none';
+        }
+
+        const wrapper = document.getElementById('selected-image-wrapper');
+        if (wrapper) {
+          const existingError = wrapper.querySelector('.image-error');
+          if (!existingError) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'image-error';
+            errorDiv.innerHTML = '<svg class="image-error-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z" stroke="currentColor" stroke-width="2"/><path d="M3 16L8 11L13 16M16 14L19 11L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/></svg><div class="image-error-text">Failed to load media</div>';
+            wrapper.insertBefore(errorDiv, wrapper.querySelector('.navigation-buttons'));
+          }
+        }
+      };
+
       const handleMediaLoading = (forceForImage = false) => {
         if (skeletonTimer) {
           clearTimeout(skeletonTimer);
@@ -297,7 +335,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
                 skeletonMain.classList.add('visible');
               });
             }
-          }, 1000);
+          }, 300);
 
           if (currentMedia) {
             currentMedia.classList.add('image-loading');
@@ -313,7 +351,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
       if (selectedMedia) {
         if (isVideo) {
           selectedMedia.addEventListener('loadeddata', handleMediaLoaded);
-          selectedMedia.addEventListener('error', handleMediaLoaded);
+          selectedMedia.addEventListener('error', handleMediaError);
           if (selectedMedia.readyState >= 2) {
             handleMediaLoaded();
           }
@@ -322,7 +360,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
             handleMediaLoaded();
           } else {
             selectedMedia.addEventListener('load', handleMediaLoaded);
-            selectedMedia.addEventListener('error', handleMediaLoaded);
+            selectedMedia.addEventListener('error', handleMediaError);
           }
         }
       }
@@ -362,7 +400,7 @@ window.electron.handleActionShowImage('saveImage',currentImageUrl.realUrl);
   }
   document.getElementById('thumbnails').classList.add('thumbnail-contain-hide');
   });
-document.getElementById('selected-image-wrapper').addEventListener('click', (e)=>{
+  document.getElementById('selected-image-wrapper').addEventListener('click', (e)=>{
       window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::CLOSE_IMAGE_WINDOW');
 })
 document.getElementById('selectedMedia').addEventListener('click', (e)=>{
@@ -383,6 +421,32 @@ document.addEventListener('keydown', (e) => {
 				break;
 		}
 	});
+
+	const prevImageBtn = document.getElementById('prevImageBtn');
+	const nextImageBtn = document.getElementById('nextImageBtn');
+	const navigationButtons = document.querySelector('.navigation-buttons');
+
+	if (navigationButtons) {
+		navigationButtons.addEventListener('click', (e) => {
+			e.stopPropagation();
+		});
+	}
+
+	if (prevImageBtn) {
+		prevImageBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const event = new KeyboardEvent('keydown', { key: 'ArrowUp' });
+			document.dispatchEvent(event);
+		});
+	}
+
+	if (nextImageBtn) {
+		nextImageBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			const event = new KeyboardEvent('keydown', { key: 'ArrowDown' });
+			document.dispatchEvent(event);
+		});
+	}
       ${scriptRotateAndZoom()}
       ${scriptDrag()}
       document.body.insertAdjacentHTML('beforeend', '${menu}');
@@ -439,6 +503,9 @@ const createThumbProxyUrlScript = () => {
 
 		const createThumbProxyUrl = (sourceImageUrl) => {
 			if (!sourceImageUrl) return '';
+			if (!sourceImageUrl?.startsWith('https://cdn.mezon') && !sourceImageUrl?.startsWith('https://profile.mezon')) {
+				return sourceImageUrl;
+			}
 			const sanitized = sanitizeImageUrl(sourceImageUrl);
 			if (!sanitized) return '';
 			const width = 88;
@@ -454,6 +521,9 @@ const createThumbProxyUrlScript = () => {
 
 		const createImageProxyUrl = (sourceImageUrl) => {
 			if (!sourceImageUrl) return '';
+			if (!sourceImageUrl?.startsWith('https://cdn.mezon') && !sourceImageUrl?.startsWith('https://profile.mezon')) {
+				return sourceImageUrl;
+			}
 			const sanitized = sanitizeImageUrl(sourceImageUrl);
 			if (!sanitized) return '';
 			const width = 0;
@@ -762,6 +832,16 @@ const createVirtualizer = () => {
 						});
 						video.addEventListener('error', () => {
 							skeleton.style.display = 'none';
+							video.style.display = 'none';
+							const errorDiv = document.createElement('div');
+							errorDiv.className = 'thumbnail-error';
+							errorDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z" stroke="currentColor" stroke-width="2"/><path d="M3 16L8 11L13 16M16 14L19 11L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/></svg>';
+							errorDiv.setAttribute('data-id', itemId);
+							errorDiv.addEventListener('click', (e) => {
+								const itemId = e.currentTarget.getAttribute('data-id');
+								this.onThumbnailClick(itemId);
+							});
+							wrapper.appendChild(errorDiv);
 						});
 						wrapper.appendChild(video);
 
@@ -791,6 +871,19 @@ const createVirtualizer = () => {
 						});
 						img.addEventListener('error', () => {
 							skeleton.style.display = 'none';
+							img.style.display = 'none';
+							const errorDiv = document.createElement('div');
+							errorDiv.className = 'thumbnail-error';
+							errorDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z" stroke="currentColor" stroke-width="2"/><path d="M3 16L8 11L13 16M16 14L19 11L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/></svg>';
+							errorDiv.setAttribute('data-id', itemId);
+							errorDiv.addEventListener('click', (e) => {
+								const itemId = e.currentTarget.getAttribute('data-id');
+								this.onThumbnailClick(itemId);
+							});
+							if (index === currentIndex && currentIndex >= 0) {
+								errorDiv.classList.add('active');
+							}
+							wrapper.appendChild(errorDiv);
 						});
 						wrapper.appendChild(img);
 					}
@@ -1022,6 +1115,21 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 		${createVirtualizer()}
 		const thumbnailContainer = document.getElementById('thumbnails-content');
 		let imagesData = ${imagesDataStr};
+		let currentItemId = null;
+
+		const updateNavigationButtons = () => {
+			const currentIndex = imagesData.findIndex(img => (img.id || img.url) === currentItemId);
+			const prevBtn = document.getElementById('prevImageBtn');
+			const nextBtn = document.getElementById('nextImageBtn');
+
+			if (prevBtn) {
+				prevBtn.disabled = currentIndex <= 0;
+			}
+			if (nextBtn) {
+				nextBtn.disabled = currentIndex >= imagesData.length - 1;
+			}
+		};
+
 		if (thumbnailContainer && window.ThumbnailVirtualizer) {
 			const virtualizer = new window.ThumbnailVirtualizer(
 				thumbnailContainer,
@@ -1035,6 +1143,8 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 				const imageData = imagesData.find(img => (img.id || img.url) === itemId);
 				if (!imageData) return;
 				resetTransform();
+				currentItemId = itemId;
+				updateNavigationButtons();
 
 				const selectedMedia = document.getElementById('selectedMedia');
 				if (selectedMedia) {
@@ -1053,7 +1163,12 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 					if (isNewVideo !== wasVideo) {
 						const wrapper = document.getElementById('selected-image-wrapper');
 						if (wrapper) {
-							wrapper.innerHTML = '';
+							const skeleton = document.getElementById('skeleton-main');
+							const media = document.getElementById('selectedMedia');
+							const errorDiv = wrapper.querySelector('.image-error');
+							if (skeleton) skeleton.remove();
+							if (media) media.remove();
+							if (errorDiv) errorDiv.remove();
 
 							if (!isNewVideo) {
 								const newSkeleton = document.createElement('div');
@@ -1077,7 +1192,7 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 								path.setAttribute('d', 'm3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z');
 								iconSvg.appendChild(path);
 								newSkeleton.appendChild(iconSvg);
-								wrapper.appendChild(newSkeleton);
+								wrapper.insertBefore(newSkeleton, wrapper.firstChild);
 							}
 
 							if (isNewVideo) {
@@ -1092,27 +1207,34 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 								video.autoplay = true;
 								video.style.cssText = 'max-width: 100%; max-height: 100%; object-fit: contain;';
 								video.addEventListener('loadeddata', handleMediaLoaded);
-								video.addEventListener('error', handleMediaLoaded);
-								wrapper.appendChild(video);
+								video.addEventListener('error', handleMediaError);
+								wrapper.insertBefore(video, wrapper.querySelector('.navigation-buttons'));
 							} else {
 								const img = document.createElement('img');
 								img.id = 'selectedMedia';
 								img.className = 'selected-image image-loading';
 								img.addEventListener('load', handleMediaLoaded);
-								img.addEventListener('error', handleMediaLoaded);
+								img.addEventListener('error', handleMediaError);
 								img.src = createImageProxyUrl(imageData.url);
-								wrapper.appendChild(img);
+								wrapper.insertBefore(img, wrapper.querySelector('.navigation-buttons'));
 								if (img.complete && img.naturalHeight !== 0) {
 									handleMediaLoaded();
 								}
 							}
 						}
 					} else {
+						const wrapper = document.getElementById('selected-image-wrapper');
+						const errorDiv = wrapper?.querySelector('.image-error');
+						if (errorDiv) errorDiv.remove();
+
+						selectedMedia.style.display = '';
+
 						if (wasVideo) {
 							const videoUrl = sanitizeImageUrl(imageData.realUrl || imageData.url);
 							if (videoUrl) {
 								selectedMedia.src = videoUrl;
 								selectedMedia.addEventListener('loadeddata', handleMediaLoaded, { once: true });
+								selectedMedia.addEventListener('error', handleMediaError, { once: true });
 								selectedMedia.load();
 								selectedMedia.play();
 							}
@@ -1120,7 +1242,7 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 							selectedMedia.classList.add('image-loading');
 							selectedMedia.classList.remove('image-loaded');
 							selectedMedia.addEventListener('load', handleMediaLoaded, { once: true });
-							selectedMedia.addEventListener('error', handleMediaLoaded, { once: true });
+							selectedMedia.addEventListener('error', handleMediaError, { once: true });
 							selectedMedia.src = createImageProxyUrl(imageData.url);
 							if (selectedMedia.complete && selectedMedia.naturalHeight !== 0) {
 								handleMediaLoaded();
@@ -1146,15 +1268,14 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 					realUrl: imageData.realUrl,
 					isVideo: imageData.url && (imageData.url.includes('.mp4') || imageData.url.includes('.mov'))
 				};
-				currentItemId = itemId;
 				virtualizer.updateActiveState(itemId);
+				updateNavigationButtons();
 			};
 			virtualizer.onLoadMore = function(direction) {
 				if (window.electron && window.electron.send) {
 					window.electron.send('APP::LOAD_MORE_ATTACHMENTS', { direction });
 				}
 			};
-				let currentItemId = null;
 				let currentIndex = ${reversedIndexSelect} >= 0 ? ${reversedIndexSelect} : -1;
 				if (currentIndex >= 0 && imagesData[currentIndex]) {
 					currentItemId = imagesData[currentIndex].id || imagesData[currentIndex].url;
@@ -1231,10 +1352,13 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 
 						requestAnimationFrame(() => {
 							window.thumbnailVirtualizer.scrollToIndex(newIndex, false);
+							updateNavigationButtons();
 						});
 					}
 				}
 			});
+
+			updateNavigationButtons();
 		}
 	`;
 };

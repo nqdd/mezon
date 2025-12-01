@@ -46,8 +46,7 @@ export const createActivity = createAsyncThunk('activity/createActiviy', async (
 			id: response.user_id
 		};
 	} catch (error) {
-		captureSentryError(error, 'activity/createActiviy');
-		return thunkAPI.rejectWithValue(error);
+		return null;
 	}
 });
 

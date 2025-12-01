@@ -46,6 +46,8 @@ const ListAttachment = (props: ListAttachmentProps) => {
 	const previousScrollHeightRef = useRef<number>(0);
 	const previousScrollTopRef = useRef<number>(0);
 	const isFirstRenderRef = useRef<boolean>(true);
+	const previousIndexRef = useRef<number>(currentIndexAtt);
+	const previousAttachmentsLengthRef = useRef<number>(attachments.length);
 
 	const reversedAttachments = useMemo(() => [...attachments].reverse(), [attachments]);
 
@@ -96,6 +98,21 @@ const ListAttachment = (props: ListAttachmentProps) => {
 			}
 		}
 	}, [reversedAttachments.length, currentIndexAtt, attachments.length, virtualizer]);
+
+	useEffect(() => {
+		const indexChanged = previousIndexRef.current !== currentIndexAtt;
+		const lengthChanged = previousAttachmentsLengthRef.current !== attachments.length;
+
+		if (!isFirstRenderRef.current && indexChanged && !lengthChanged && currentIndexAtt !== undefined && currentIndexAtt >= 0) {
+			const reversedIndex = attachments.length - 1 - currentIndexAtt;
+			if (virtualizer && reversedIndex >= 0 && reversedIndex < reversedAttachments.length) {
+				virtualizer.scrollToIndex(reversedIndex, { align: 'center', behavior: 'smooth' });
+			}
+		}
+
+		previousIndexRef.current = currentIndexAtt;
+		previousAttachmentsLengthRef.current = attachments.length;
+	}, [currentIndexAtt, attachments.length, reversedAttachments.length, virtualizer]);
 
 	useLayoutEffect(() => {
 		if (isLoadingMore && !isLoading) {

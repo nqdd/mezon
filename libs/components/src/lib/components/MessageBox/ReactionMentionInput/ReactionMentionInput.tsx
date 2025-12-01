@@ -249,6 +249,33 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		]
 	);
 
+	const handleThreadActivation = useCallback(
+		async (channel: ChannelsEntity | null | undefined) => {
+			if (!checkIsThread(channel as ChannelsEntity) || !channel) {
+				return;
+			}
+
+			const currentTime = Math.floor(Date.now() / 1000);
+			const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
+			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
+			const needsJoin = channel.active === ThreadStatus.activePublic;
+
+			if (isArchived) {
+				await dispatch(
+					threadsActions.writeActiveArchivedThread({
+						clanId: channel.clan_id ?? '',
+						channelId: channel.channel_id ?? ''
+					})
+				);
+			}
+			if (needsJoin && joinningToThread) {
+				dispatch(threadsActions.updateActiveCodeThread({ channelId: channel.id, activeCode: ThreadStatus.joined }));
+				joinningToThread(channel, [userProfile?.user?.id ?? '']);
+			}
+		},
+		[dispatch, joinningToThread, userProfile?.user?.id]
+	);
+
 	const handleSendInternal = useCallback(
 		async (checkedRequest: RequestInput, anonymousMessage?: boolean) => {
 			//TODO: break logic send width thread box, channel, topic box, dm
@@ -344,10 +371,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					await addMemberToThread(currentChannel!, usersNotExistingInThread);
 				}
 
-				if (checkIsThread(currentChannel as ChannelsEntity) && currentChannel?.active === ThreadStatus.activePublic && joinningToThread) {
-					dispatch(threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined }));
-					joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
-				}
+				handleThreadActivation(currentChannel);
 
 				if (isReplyOnChannel) {
 					props.onSend(
@@ -552,10 +576,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				addMemberToThread(currentChannel!, usersNotExistingInThread);
 			}
 
-			if (checkIsThread(currentChannel as ChannelsEntity) && currentChannel?.active === ThreadStatus.activePublic && joinningToThread) {
-				dispatch(threadsActions.updateActiveCodeThread({ channelId: currentChannel.channel_id ?? '', activeCode: ThreadStatus.joined }));
-				joinningToThread(currentChannel, [userProfile?.user?.id ?? '']);
-			}
+			handleThreadActivation(currentChannel);
 
 			if (isReplyOnChannel) {
 				props.onSend(

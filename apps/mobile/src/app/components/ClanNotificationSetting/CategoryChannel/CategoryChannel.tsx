@@ -1,3 +1,4 @@
+import { EOptionOverridesType } from '@mezon/mobile-components';
 import { selectAllchannelCategorySetting } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React from 'react';
@@ -9,19 +10,23 @@ import { styles } from './styles';
 export const CategoryChannel = React.memo(() => {
 	const channelCategorySettings = useSelector(selectAllchannelCategorySetting);
 	const sortedChannelCategorySettings = React.useMemo(() => {
-		const settingOptions = [...channelCategorySettings];
-		settingOptions?.sort((a, b) => {
-			if (a.channel_category_label && b.channel_category_label) {
-				if (a.channel_category_label < b.channel_category_label) {
-					return -1;
+		try {
+			const settingOptions = [...channelCategorySettings];
+			settingOptions?.sort((a, b) => {
+				if (a.channel_category_label && b.channel_category_label) {
+					if (a.channel_category_label < b.channel_category_label) {
+						return -1;
+					}
+					if (a.channel_category_label > b.channel_category_label) {
+						return 1;
+					}
 				}
-				if (a.channel_category_label > b.channel_category_label) {
-					return 1;
-				}
-			}
-			return 0;
-		});
-		return settingOptions;
+				return 0;
+			});
+			return settingOptions;
+		} catch (error) {
+			return [];
+		}
 	}, [channelCategorySettings]);
 
 	return (
@@ -31,7 +36,9 @@ export const CategoryChannel = React.memo(() => {
 						<CategoryChannelItem
 							categoryLabel={item?.channel_category_label}
 							categorySubtext={item?.channel_category_title}
-							typePreviousIcon={ChannelType.CHANNEL_TYPE_CHANNEL}
+							typePreviousIcon={
+								item?.channel_category_title === 'category' ? EOptionOverridesType.Category : ChannelType.CHANNEL_TYPE_CHANNEL
+							}
 							expandable={true}
 							notificationStatus={item.notification_setting_type}
 							data={item}

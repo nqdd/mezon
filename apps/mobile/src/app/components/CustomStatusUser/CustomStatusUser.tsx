@@ -1,10 +1,11 @@
 import { useBottomSheetModal } from '@gorhom/bottom-sheet';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { accountActions, selectAccountCustomStatus, useAppDispatch } from '@mezon/store-mobile';
+import { accountActions, selectMemberCustomStatusById, useAppDispatch } from '@mezon/store-mobile';
 import { EUserStatus } from '@mezon/utils';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import type { IMezonMenuSectionProps } from '../../componentUI/MezonMenu';
@@ -12,59 +13,50 @@ import MezonMenu from '../../componentUI/MezonMenu';
 import type { IMezonOptionData } from '../../componentUI/MezonOption';
 import MezonOption from '../../componentUI/MezonOption';
 import { IconCDN } from '../../constants/icon_cdn';
-import { ETypeCustomUserStatus } from '../../screens/profile/ProfileScreen';
+import { AddStatusUserModal } from '../AddStatusUserModal';
 import { styles } from './CustomStatusUser.styles';
 
 interface ICustomStatusUserProps {
-	onPressSetCustomStatus?: () => void;
-	userStatus?: string;
-	handleCustomUserStatus?: (customStatus: string, type: ETypeCustomUserStatus) => void;
+	userStatus: string;
+	handleCustomUserStatus: (customStatus: string) => void;
+	currentUserId: string;
 }
 
-export const CustomStatusUser = (props: ICustomStatusUserProps) => {
-	const { onPressSetCustomStatus, userStatus, handleCustomUserStatus } = props;
+export const CustomStatusUser = ({ userStatus, handleCustomUserStatus, currentUserId }: ICustomStatusUserProps) => {
 	const { t } = useTranslation(['customUserStatus']);
 	const dispatch = useAppDispatch();
 	const { dismiss } = useBottomSheetModal();
 	const { themeValue } = useTheme();
-	const [userStatusOption, setUserStatusOption] = useState<string>(EUserStatus.ONLINE);
-	const userCustomStatus = useSelector(selectAccountCustomStatus);
+	const [userStatusOption, setUserStatusOption] = useState<string>(userStatus || EUserStatus.ONLINE);
+	const userMemberStatus = useSelector((state) => selectMemberCustomStatusById(state, currentUserId));
 
-	useEffect(() => {
-		switch (userStatus) {
-			case EUserStatus.ONLINE:
-				setUserStatusOption(EUserStatus.ONLINE);
-				break;
-			case EUserStatus.DO_NOT_DISTURB:
-				setUserStatusOption(EUserStatus.DO_NOT_DISTURB);
-				break;
-			case EUserStatus.IDLE:
-				setUserStatusOption(EUserStatus.IDLE);
-				break;
-			case EUserStatus.INVISIBLE:
-				setUserStatusOption(EUserStatus.INVISIBLE);
-				break;
-			default:
-				setUserStatusOption(EUserStatus.ONLINE);
-				break;
-		}
-	}, [userStatus]);
+	const handleStatusChange = useCallback(async (value: string) => {
+		const response = await dispatch(
+			accountActions.updateAccountStatus({
+				status: value,
+				minutes: 0,
+				until_turn_on: true
+			})
+		);
 
-	const handleStatusChange = useCallback(
-		(value: string) => {
-			if (!value) return;
-			dismiss();
-			dispatch(
-				accountActions.updateAccountStatus({
-					status: value,
-					minutes: 0,
-					until_turn_on: true
-				})
-			);
+		if (response?.meta?.requestStatus === 'fulfilled') {
 			setUserStatusOption(value);
-		},
-		[dismiss, dispatch]
-	);
+		}
+		dismiss();
+	}, []);
+
+	const handlePressSetCustomStatus = useCallback(() => {
+		const data = {
+			children: (
+				<AddStatusUserModal
+					userCustomStatus={userMemberStatus?.status || ''}
+					handleCustomUserStatus={handleCustomUserStatus}
+					timeResetStatus={userMemberStatus?.time_reset}
+				/>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [handleCustomUserStatus, userMemberStatus?.status, userMemberStatus?.time_reset]);
 
 	const statusOptions = useMemo(
 		() =>
@@ -90,7 +82,7 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 					icon: <MezonIconCDN icon={IconCDN.offlineStatusIcon} color="#AEAEAE" height={size.s_12} width={size.s_20} />
 				}
 			] as IMezonOptionData,
-		[]
+		[t]
 	);
 
 	const statusMenu = useMemo(
@@ -99,25 +91,24 @@ export const CustomStatusUser = (props: ICustomStatusUserProps) => {
 				{
 					items: [
 						{
-							title: userCustomStatus ? userCustomStatus : t('setCustomStatus'),
-							icon: <MezonIconCDN icon={IconCDN.reactionIcon} height={20} width={20} color={themeValue.textDisabled} />,
-							onPress: () => onPressSetCustomStatus(),
-							component: userCustomStatus ? (
-								<Pressable onPress={() => handleCustomUserStatus('', ETypeCustomUserStatus.Close)}>
+							title: userMemberStatus?.status ? userMemberStatus.status : t('setCustomStatus'),
+							icon: <MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_20} width={size.s_20} color={themeValue.textDisabled} />,
+							onPress: () => handlePressSetCustomStatus(),
+							component: userMemberStatus?.status && (
+								<Pressable onPress={() => handleCustomUserStatus('')}>
 									<MezonIconCDN icon={IconCDN.closeIcon} color={themeValue.textStrong} />
 								</Pressable>
-							) : null
+							)
 						}
 					]
 				}
 			] as IMezonMenuSectionProps[],
-		[handleCustomUserStatus, onPressSetCustomStatus, t, themeValue.textDisabled, themeValue.textStrong, userCustomStatus]
+		[handleCustomUserStatus, handlePressSetCustomStatus, t, userMemberStatus.status]
 	);
 
 	return (
 		<View style={styles.container}>
 			<MezonOption title={t('onlineStatus')} data={statusOptions} value={userStatusOption} onChange={handleStatusChange} />
-
 			<MezonMenu menu={statusMenu} />
 		</View>
 	);

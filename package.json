@@ -1,6 +1,6 @@
 {
   "name": "mezon",
-  "version": "1.4.54",
+  "version": "1.4.55",
   "license": "MIT",
   "description": "Mezon application",
   "productName": "mezon",
@@ -53,7 +53,7 @@
     "@xyflow/react": "^12.2.1",
     "copy-to-clipboard": "^3.3.3",
     "date-fns": "^3.3.1",
-    "deepfilternet3-noise-filter": "^1.1.1",
+    "deepfilternet3-noise-filter": "1.1.2",
     "device-uuid": "^1.0.4",
     "electron-log": "^5.2.0",
     "electron-store": "8.2.0",

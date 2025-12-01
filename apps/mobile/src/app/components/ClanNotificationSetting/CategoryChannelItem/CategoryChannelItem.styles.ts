@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -10,8 +11,6 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
-			borderBottomColor: colors.border,
-			borderBottomWidth: 1,
 			gap: size.s_10
 		},
 		categoryLabel: {

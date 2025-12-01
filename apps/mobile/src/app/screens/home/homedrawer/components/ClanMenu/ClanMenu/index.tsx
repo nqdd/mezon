@@ -4,6 +4,7 @@ import { baseColor, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
 	categoriesActions,
+	defaultNotificationCategoryActions,
 	selectCurrentClanId,
 	selectCurrentClanLogo,
 	selectCurrentClanName,
@@ -22,10 +23,12 @@ import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconC
 import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonButtonIcon from '../../../../../../componentUI/MezonButtonIcon';
 import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
-import MezonMenu, { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../../componentUI/MezonMenu';
+import type { IMezonMenuItemProps, IMezonMenuSectionProps } from '../../../../../../componentUI/MezonMenu';
+import MezonMenu from '../../../../../../componentUI/MezonMenu';
 import MezonSwitch from '../../../../../../componentUI/MezonSwitch';
 import DeleteClanModal from '../../../../../../components/DeleteClanModal';
-import { APP_SCREEN, AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
+import type { AppStackScreenProps } from '../../../../../../navigation/ScreenTypes';
+import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { EProfileTab } from '../../../../../settings/ProfileSetting';
 import InviteToChannel from '../../InviteToChannel';
 import ClanMenuInfo from '../ClanMenuInfo';
@@ -74,9 +77,10 @@ export default function ClanMenu() {
 	}, [navigation]);
 
 	const handelOpenNotifications = useCallback(() => {
+		dispatch(defaultNotificationCategoryActions.fetchChannelCategorySetting({ clanId: currentClanId || '' }));
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		navigation.navigate(APP_SCREEN.MENU_CLAN.STACK, { screen: APP_SCREEN.MENU_CLAN.NOTIFICATION_SETTING });
-	}, [navigation]);
+	}, [navigation, currentClanId]);
 
 	const organizationMenu: IMezonMenuItemProps[] = [
 		{
