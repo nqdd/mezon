@@ -63,14 +63,27 @@ function MessageVideo({ attachmentData, isMobile = false, isPreview = false }: M
 		};
 	}, []);
 
-	const handleDownloadVideo = () => {
+	const handleDownloadVideo = async () => {
 		if (attachmentData.url) {
-			const a = document.createElement('a');
-			a.href = attachmentData.url;
-			a.download = attachmentData.filename || 'video';
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
+			try {
+				const response = await fetch(attachmentData.url, {
+					mode: 'cors'
+				});
+
+				if (!response.ok) throw new Error('Network response was not ok');
+				const blob = await response.blob();
+
+				const blobUrl = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = blobUrl;
+				a.download = attachmentData.filename || 'video';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(blobUrl);
+			} catch (err) {
+				console.error('Download failed:', err);
+			}
 		}
 	};
 
