@@ -7,6 +7,7 @@ import {
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectDefaultChannelIdByClanId,
+	selectIsShowCreateThread,
 	selectWelcomeChannelByClanId,
 	threadsActions,
 	useAppDispatch
@@ -21,6 +22,7 @@ export function useChannels() {
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const dispatch = useAppDispatch();
+	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, currentChannelId as string));
 
 	const handleConfirmDeleteChannel = async (channelId: string, clanId: string) => {
 		const store = getStore();
@@ -50,6 +52,15 @@ export function useChannels() {
 		await dispatch(channelsActions.deleteChannel({ channelId, clanId: clanId as string }));
 
 		if (isThread && channelToDelete?.parent_id) {
+			if (isShowCreateThread) {
+				dispatch(
+					threadsActions.setIsShowCreateThread({
+						channelId: currentChannelId as string,
+						isShowCreateThread: false
+					})
+				);
+			}
+
 			await dispatch(threadsActions.remove(channelId));
 			await dispatch(
 				threadsActions.removeThreadFromCache({
