@@ -2362,7 +2362,6 @@ export function MenuClose(props: React.HTMLAttributes<SVGElement>) {
 			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
 			<g id="SVGRepo_iconCarrier">
-				<title>close [#1511]</title> <desc>Created with Sketch.</desc> <defs> </defs>
 				<g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 					<g id="Dribbble-Light-Preview" transform="translate(-419.000000, -240.000000)" fill="currentColor">
 						<g id="icons" transform="translate(56.000000, 160.000000)">
@@ -4550,8 +4549,6 @@ export function CDNIcon(props: React.HTMLAttributes<SVGElement>) {
 			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
 			<g id="SVGRepo_iconCarrier">
-				{' '}
-				<title>91</title> <defs> </defs>{' '}
 				<g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 					{' '}
 					<g fill="currentColor">
@@ -5176,8 +5173,6 @@ export function InPttCall(props: React.HTMLAttributes<SVGElement>) {
 			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
 			<g id="SVGRepo_iconCarrier">
-				{' '}
-				<title>ic_fluent_person_voice_24_filled</title> <desc>Created with Sketch.</desc>{' '}
 				<g id="🔍-Product-Icons" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
 					{' '}
 					<g id="ic_fluent_person_voice_24_filled" fill="currentColor" fillRule="nonzero">
@@ -5633,7 +5628,6 @@ export function VoiceFocusIcon(props: React.HTMLAttributes<SVGElement>) {
 export function RotateIcon(props: React.HTMLAttributes<SVGElement>) {
 	return (
 		<svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" {...props}>
-			<title>Rotate Image</title>
 			<path
 				fill="currentColor"
 				d="M8.3 1.3a1 1 0 0 0 0 1.4l.29.3H6a4 4 0 0 0-4 4v3a1 1 0 1 0 2 0V7c0-1.1.9-2 2-2h2.59l-.3.3a1 1 0 0 0 1.42 1.4l2-2a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.42 0ZM22 11a3 3 0 0 0-3-3h-8a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-8Z"
