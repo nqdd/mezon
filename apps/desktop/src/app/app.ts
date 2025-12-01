@@ -330,7 +330,11 @@ export default class App {
 			App.mainWindow.show();
 		}
 
+		App.mainWindow.setAlwaysOnTop(true);
 		App.mainWindow.focus();
+		setImmediate(() => {
+			App.mainWindow.setAlwaysOnTop(false);
+		});
 	}
 
 	public static setActivityTrackingEnabled(enabled: boolean) {
