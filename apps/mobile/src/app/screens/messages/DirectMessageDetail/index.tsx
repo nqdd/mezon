@@ -56,6 +56,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
 					isModeDM={Number(dmType) === ChannelType.CHANNEL_TYPE_DM}
 					isBlocked={isBlocked}
+					dmType={dmType}
 				/>
 			)}
 		</View>
