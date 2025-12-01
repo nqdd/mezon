@@ -1,7 +1,7 @@
 import { useAuth } from '@mezon/core';
 import { appActions, canvasActions, canvasAPIActions, selectIdCanvas, useAppDispatch } from '@mezon/store';
 import { ICanvas } from '@mezon/utils';
-import { ButtonCopy } from 'libs/components/src/lib/components';
+import { ButtonCopy } from '@mezon/components';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 type GroupCanvasProps = {

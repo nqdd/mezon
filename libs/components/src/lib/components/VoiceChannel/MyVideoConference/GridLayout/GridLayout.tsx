@@ -2,7 +2,7 @@ import { createInteractingObservable, type TrackReferenceOrPlaceholder } from '@
 import type { UseParticipantsOptions } from '@livekit/components-react';
 import { TrackLoop, useGridLayout, usePagination, useSwipe } from '@livekit/components-react';
 import type { HTMLAttributes, ReactNode, RefAttributes } from 'react';
-import { createRef, forwardRef, useEffect, useState } from 'react';
+import React, { createRef, forwardRef, useEffect, useState } from 'react';
 
 export interface GridLayoutProps extends HTMLAttributes<HTMLDivElement>, Pick<UseParticipantsOptions, 'updateOnlyOn'> {
 	children: ReactNode;
@@ -10,7 +10,7 @@ export interface GridLayoutProps extends HTMLAttributes<HTMLDivElement>, Pick<Us
 	isExternalCalling?: boolean;
 }
 
-export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutProps) {
+function _GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutProps) {
 	const gridEl = createRef<HTMLDivElement>();
 	const { layout } = useGridLayout(gridEl, tracks.length);
 	const pagination = usePagination(layout.maxTiles, tracks);
@@ -71,6 +71,8 @@ export function GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutPr
 		</div>
 	);
 }
+
+export const GridLayout = React.memo(_GridLayout);
 
 interface PaginationIndicatorProps {
 	totalPageCount: number;

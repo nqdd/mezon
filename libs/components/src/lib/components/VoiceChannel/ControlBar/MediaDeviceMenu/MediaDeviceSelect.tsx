@@ -1,7 +1,7 @@
-/* eslint-disable prettier/prettier */
 import { useMaybeRoomContext, useMediaDeviceSelect } from '@livekit/components-react';
 import { RoomEvent, type LocalAudioTrack, type LocalVideoTrack } from 'livekit-client';
 import * as React from 'react';
+import { mergeProps } from '../../lib/mergeProps';
 
 /** @public */
 export interface MediaDeviceSelectProps extends Omit<React.HTMLAttributes<HTMLUListElement>, 'onError'> {
@@ -132,25 +132,3 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 			</ul>
 		);
 	});
-
-function mergeProps(...args: Record<string, any>[]) {
-	return args.reduce(
-		(acc, props) => {
-			Object.entries(props).forEach(([key, value]) => {
-				if (key === 'className' && typeof value === 'string') {
-					acc[key] = acc[key] ? `${acc[key]} ${value}` : value;
-				} else if (typeof acc[key] === 'function' && typeof value === 'function') {
-					const prevFn = acc[key];
-					acc[key] = (...eventArgs: any[]) => {
-						prevFn(...eventArgs);
-						value(...eventArgs);
-					};
-				} else {
-					acc[key] = value !== undefined ? value : acc[key];
-				}
-			});
-			return acc;
-		},
-		{} as Record<string, any>
-	);
-}
