@@ -454,39 +454,52 @@ const ControlBar = ({
 					</div>
 				)}
 				{visibleControls.microphone && isExternalCalling && (
-					<Tooltip
-						placement="top"
-						overlayClassName="w-64"
-						visible={showNoiseSuppressionTooltip && noiseSuppressionEnabled}
-						overlay={
-							<div className="p-2" onClick={(e) => e.stopPropagation()}>
-								<div className="flex justify-between items-center mb-2">
-									<span className="text-xs font-semibold text-theme-primary-active">Noise Suppression</span>
-									<span className="text-xs text-theme-primary-active">{noiseSuppressionLevel}%</span>
-								</div>
-								<input
-									type="range"
-									min="0"
-									max="100"
-									value={noiseSuppressionLevel}
-									onChange={handleNoiseSuppressionLevelChange}
-									className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-									disabled={!noiseSuppressionEnabled}
-								/>
-							</div>
-						}
-						onVisibleChange={setShowNoiseSuppressionTooltip}
-						destroyTooltipOnHide
-					>
-						<button
-							onClick={toggleNoiseSuppression}
-							className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
-								isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
-							} ${noiseSuppressionEnabled ? 'hover:bg-green-600 dark:hover:bg-green-700' : 'hover:bg-zinc-600 dark:hover:bg-zinc-800'}`}
-						>
-							<Icons.NoiseSupressionIcon className={`w-5 h-5 ${noiseSuppressionEnabled ? 'text-green-400' : 'text-gray-400'}`} />
-						</button>
-					</Tooltip>
+					<>
+						{noiseSuppressionEnabled ? (
+							<Tooltip
+								placement="top"
+								overlayClassName="w-64"
+								visible={showNoiseSuppressionTooltip && noiseSuppressionEnabled}
+								overlay={
+									<div className="p-2" onClick={(e) => e.stopPropagation()}>
+										<div className="flex justify-between items-center mb-2">
+											<span className="text-xs font-semibold text-theme-primary-active">Noise Suppression</span>
+											<span className="text-xs text-theme-primary-active">{noiseSuppressionLevel}%</span>
+										</div>
+										<input
+											type="range"
+											min="0"
+											max="100"
+											value={noiseSuppressionLevel}
+											onChange={handleNoiseSuppressionLevelChange}
+											className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+											disabled={!noiseSuppressionEnabled}
+										/>
+									</div>
+								}
+								onVisibleChange={setShowNoiseSuppressionTooltip}
+								destroyTooltipOnHide
+							>
+								<button
+									onClick={toggleNoiseSuppression}
+									className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
+										isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
+									} 'hover:bg-green-600 dark:hover:bg-green-700`}
+								>
+									<Icons.NoiseSupressionIcon className={`w-5 h-5 text-green-400`} />
+								</button>
+							</Tooltip>
+						) : (
+							<button
+								onClick={toggleNoiseSuppression}
+								className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none transition-colors ${
+									isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
+								} hover:bg-zinc-600 dark:hover:bg-zinc-800`}
+							>
+								<Icons.NoiseSupressionIcon className={`w-5 h-5 text-gray-400`} />
+							</button>
+						)}
+					</>
 				)}
 				{visibleControls.camera && (
 					<div className="relative rounded-full ">
