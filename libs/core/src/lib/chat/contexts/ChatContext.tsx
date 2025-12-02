@@ -812,8 +812,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 
 						const defaultChannelId = selectDefaultChannelIdByClanId(store.getState() as unknown as RootState, clanId as string);
-						const allChannels = selectAllChannels(store.getState() as unknown as RootState);
-						const fallbackChannelId = allChannels.find((ch) => ch.clan_id === clanId && !checkIsThread(ch))?.id;
+						const clanChannels = selectChannelsByClanId(store.getState() as unknown as RootState, clanId as string);
+						const fallbackChannelId = clanChannels.find((ch) => !checkIsThread(ch))?.id;
 
 						const redirectChannelId = defaultChannelId || fallbackChannelId;
 
