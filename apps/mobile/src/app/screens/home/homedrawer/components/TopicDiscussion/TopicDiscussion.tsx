@@ -87,10 +87,8 @@ export default function TopicDiscussion() {
 			mode: ''
 		});
 		return () => {
-			if (topicIdRef.current) {
-				dispatch(topicsActions.setCurrentTopicId(''));
-				dispatch(topicsActions.setIsShowCreateTopic(false));
-			}
+			dispatch(topicsActions.setCurrentTopicId(''));
+			dispatch(topicsActions.setIsShowCreateTopic(false));
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false,
@@ -139,6 +137,7 @@ export default function TopicDiscussion() {
 							mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 							topicChannelId={currentChannel?.channel_id}
 							isBanned={!!isBanned}
+							isFromTopic={true}
 						/>
 					</Animated.View>
 				</PanGestureHandler>

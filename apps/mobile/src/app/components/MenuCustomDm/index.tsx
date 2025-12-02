@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
 import {
 	deleteChannel,
@@ -16,9 +16,10 @@ import type { IChannel } from '@mezon/utils';
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -64,8 +65,8 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 		{
 			title: lastOne ? t('dmMessage:menu.deleteGroup') : t('dmMessage:menu.leaveGroup'),
 			expandable: false,
-			icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_22} height={size.s_22} color={themeValue.text} />,
-			textStyle: styles.label,
+			icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_22} height={size.s_22} color={baseColor.redStrong} />,
+			textStyle: [styles.label, styles.redText],
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				await sleep(500);
@@ -101,8 +102,8 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 				{
 					title: t('closeDM'),
 					expandable: false,
-					icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />,
-					textStyle: styles.label,
+					icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_18} height={size.s_18} color={baseColor.red} />,
+					textStyle: [styles.label, styles.redText],
 					onPress: async () => {
 						await dispatch(directActions.closeDirectMessage({ channel_id: currentChannel?.channel_id }));
 						navigation.navigate(APP_SCREEN.MESSAGES.HOME);
@@ -113,17 +114,30 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 		}
 	];
 
-	const handleLeaveGroupConfirm = async () => {
-		const isLeaveOrDeleteGroup = lastOne
-			? await dispatch(deleteChannel({ clanId: '0', channelId: currentChannel?.channel_id ?? '', isDmGroup: true }))
-			: await dispatch(removeMemberChannel({ channelId: currentChannel?.channel_id || '', userIds: [currentUserId], kickMember: false }));
-		if (!isLeaveOrDeleteGroup) {
-			return;
+	const handleLeaveGroupConfirm = useCallback(async () => {
+		try {
+			dispatch(directActions.setDmGroupCurrentId(''));
+
+			const resultLeaveOrDeleteGroup = lastOne
+				? await dispatch(deleteChannel({ clanId: '0', channelId: currentChannel?.channel_id ?? '', isDmGroup: true }))
+				: await dispatch(removeMemberChannel({ channelId: currentChannel?.channel_id || '', userIds: [currentUserId], kickMember: false }));
+
+			if (resultLeaveOrDeleteGroup?.meta?.requestStatus === 'rejected') {
+				throw new Error(resultLeaveOrDeleteGroup?.meta?.requestStatus);
+			} else {
+				await dispatch(fetchDirectMessage({ noCache: true }));
+				navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+			}
+		} catch (error) {
+			Toast.show({
+				type: 'error',
+				text1: t('toast.leaveGroupError', { error })
+			});
+			dispatch(directActions.setDmGroupCurrentId(currentChannel?.id || ''));
+		} finally {
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		}
-		await dispatch(fetchDirectMessage({ noCache: true }));
-		navigation.navigate(APP_SCREEN.MESSAGES.HOME);
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-	};
+	}, [currentChannel?.channel_id, currentChannel?.id, currentUserId, dispatch, lastOne, navigation, t]);
 
 	return (
 		<View style={{ paddingVertical: size.s_10, paddingHorizontal: size.s_20 }}>

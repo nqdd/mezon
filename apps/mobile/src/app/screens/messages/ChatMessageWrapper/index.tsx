@@ -14,9 +14,10 @@ interface IChatMessageWrapperProps {
 	lastSentMessageId: string;
 	isModeDM: boolean;
 	isBlocked?: boolean;
+	dmType?: number;
 }
 export const ChatMessageWrapper = memo(
-	({ directMessageId, lastSeenMessageId, lastSentMessageId, isModeDM, isBlocked }: IChatMessageWrapperProps) => {
+	({ directMessageId, lastSeenMessageId, lastSentMessageId, isModeDM, isBlocked, dmType }: IChatMessageWrapperProps) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 
@@ -35,6 +36,7 @@ export const ChatMessageWrapper = memo(
 						mode={Number(isModeDM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)}
 						isPublic={false}
 						isDM={true}
+						dmType={dmType}
 					/>
 				</View>
 				<ChatBox

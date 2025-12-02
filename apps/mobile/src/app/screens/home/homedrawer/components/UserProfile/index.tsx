@@ -510,11 +510,11 @@ const UserProfile = React.memo(
 									>
 										<MezonIconCDN
 											icon={IconCDN.microphoneSlashIcon}
-											color={themeValue.text}
+											color={baseColor.redStrong}
 											width={size.s_18}
 											height={size.s_18}
 										/>
-										<Text style={[styles.actionText]}>{t('muteVoice')}</Text>
+										<Text style={[styles.warningActionText]}>{t('muteVoice')}</Text>
 									</TouchableOpacity>
 								)}
 
@@ -522,8 +522,8 @@ const UserProfile = React.memo(
 									onPress={() => onActionVoice?.(IActionVoiceUser.KICK)}
 									style={[styles.actionItem, styles.actionItemRow]}
 								>
-									<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.text} width={size.s_18} height={size.s_18} />
-									<Text style={[styles.actionText]}>{t('kickVoice')}</Text>
+									<MezonIconCDN icon={IconCDN.removeFriend} color={baseColor.redStrong} width={size.s_18} height={size.s_18} />
+									<Text style={[styles.warningActionText]}>{t('kickVoice')}</Text>
 								</TouchableOpacity>
 							</View>
 						</View>

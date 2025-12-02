@@ -6,11 +6,17 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { DisplayedEmoji, ReactionCallHandlerProps } from './types';
 
+const MAX_EMOJIS_DISPLAYED = 20;
+const EMOJI_RATE_LIMIT_MS = 150;
+
 export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ onSoundReaction }) => {
 	const [displayedEmojis, setDisplayedEmojis] = useState<DisplayedEmoji[]>([]);
 	const { socketRef } = useMezon();
 	const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
+	const emojiQueueRef = useRef<DisplayedEmoji[]>([]);
+	const lastEmojiTimestampRef = useRef<number>(0);
 	const channelId = useSelector(selectCurrentChannelId);
+	const rafRef = useRef<number>();
 
 	const generatePosition = useCallback(() => {
 		const horizontalOffset = (Math.random() - 0.5) * 40;
@@ -31,22 +37,18 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 
 	const playSound = useCallback((soundUrl: string, soundId: string) => {
 		try {
-			const currentAudio = audioRefs.current.get(soundId);
-			if (currentAudio) {
-				currentAudio.pause();
-				currentAudio.currentTime = 0;
+			let audio = audioRefs.current.get(soundId);
+			if (audio) {
+				audio.pause();
+				audio.currentTime = 0;
+			} else {
+				audio = new Audio(soundUrl);
+				audio.volume = 0.3;
+				audioRefs.current.set(soundId, audio);
 			}
-
-			const audio = new Audio(soundUrl);
-			audio.volume = 0.3;
-			audioRefs.current.set(soundId, audio);
 
 			audio.play().catch((error) => {
 				console.error('Failed to play sound reaction:', error);
-			});
-
-			audio.addEventListener('ended', () => {
-				audioRefs.current.delete(soundId);
 			});
 		} catch (error) {
 			console.error('Error playing sound reaction:', error);
@@ -54,9 +56,31 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 	}, []);
 
 	useEffect(() => {
+		const handleAnimationFrame = () => {
+			if (emojiQueueRef.current.length) {
+				setDisplayedEmojis((prev) => {
+					const merged = [...prev, ...emojiQueueRef.current];
+					emojiQueueRef.current = [];
+					return merged.slice(-MAX_EMOJIS_DISPLAYED);
+				});
+			}
+			rafRef.current = requestAnimationFrame(handleAnimationFrame);
+		};
+
+		rafRef.current = requestAnimationFrame(handleAnimationFrame);
+
+		return () => {
+			if (rafRef.current) {
+				cancelAnimationFrame(rafRef.current);
+			}
+		};
+	}, []);
+
+	useEffect(() => {
 		if (!socketRef.current || !channelId) return;
 
 		const currentSocket = socketRef.current;
+		const audioMap = audioRefs.current;
 
 		currentSocket.onvoicereactionmessage = (message: VoiceReactionSend) => {
 			if (channelId === message.channel_id) {
@@ -75,32 +99,32 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 								onSoundReaction(senderId, soundId);
 							}
 						} else {
-							Array.from({ length: 1 }).forEach(async (_, index) => {
+							const now = Date.now();
+							if (now - lastEmojiTimestampRef.current < EMOJI_RATE_LIMIT_MS) {
+								return;
+							}
+							lastEmojiTimestampRef.current = now;
+
+							(async () => {
 								const position = generatePosition();
-								const delay = index * 300;
 								const state = (await getStoreAsync()).getState();
 								const members = selectMemberClanByUserId(state, senderId);
-								const newEmoji = {
-									id: `${Date.now()}-${firstEmojiId}-${index}-${Math.random()}`,
+								const newEmoji: DisplayedEmoji = {
+									id: `${now}-${firstEmojiId}-${Math.random()}`,
 									emoji: '',
 									emojiId: firstEmojiId,
-									timestamp: Date.now(),
+									timestamp: now,
 									displayName: members?.clan_nick || members?.user?.display_name || members?.user?.username || '',
-									position: {
-										...position,
-										delay: `${delay}ms`
-									}
+									position
 								};
 
-								setTimeout(() => {
-									setDisplayedEmojis((prev) => [...prev, newEmoji]);
-								}, delay);
+								emojiQueueRef.current.push(newEmoji);
 
-								const durationMs = parseFloat(position.duration) * 1000 + delay + 500;
+								const durationMs = parseFloat(position.duration) * 1000 + 500;
 								setTimeout(() => {
 									setDisplayedEmojis((prev) => prev.filter((item) => item.id !== newEmoji.id));
 								}, durationMs);
-							});
+							})();
 						}
 					}
 				} catch (error) {
@@ -113,10 +137,10 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 			if (currentSocket) {
 				currentSocket.onvoicereactionmessage = () => {};
 			}
-			audioRefs.current.forEach((audio) => {
+			audioMap.forEach((audio) => {
 				audio.pause();
 			});
-			audioRefs.current?.clear();
+			audioMap.clear();
 		};
 	}, [socketRef, channelId, generatePosition, playSound, onSoundReaction]);
 

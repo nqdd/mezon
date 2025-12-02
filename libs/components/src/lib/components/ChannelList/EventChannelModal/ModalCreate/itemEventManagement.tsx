@@ -14,7 +14,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { EEventStatus, EPermission, OptionEvent, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { ButtonCopy } from 'libs/components/src/lib/components';
+import { ButtonCopy } from '@mezon/components';
 import { ChannelType } from 'mezon-js';
 import type { ApiUserEventRequest } from 'mezon-js/api.gen';
 import Tooltip from 'rc-tooltip';

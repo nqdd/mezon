@@ -39,6 +39,7 @@ export const DirectMessageDetailTablet = ({ directMessageId }: { directMessageId
 					lastSentMessageId={currentDmGroup?.last_sent_message?.id}
 					isModeDM={isModeDM}
 					isBlocked={isBlocked}
+					dmType={dmType}
 				/>
 			)}
 		</View>

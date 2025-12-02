@@ -1,8 +1,8 @@
-import { computeMenuPosition } from '@livekit/components-core';
+import { computeMenuPosition, wasClickOutside } from '@livekit/components-core';
 import { Icons } from '@mezon/ui';
 import type { LocalAudioTrack, LocalVideoTrack } from 'livekit-client';
 import type { ButtonHTMLAttributes } from 'react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { MediaDeviceSelect } from './MediaDeviceSelect';
 
 export interface MediaDeviceMenuProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -41,25 +41,41 @@ export function MediaDeviceMenu({
 	}, [isOpen]);
 
 	useLayoutEffect(() => {
+		let cleanup: ReturnType<typeof computeMenuPosition> | undefined;
 		if (button.current && tooltip.current && (devices || updateRequired)) {
-			computeMenuPosition(button.current, tooltip.current)();
+			cleanup = computeMenuPosition(button.current, tooltip.current, (x, y) => {
+				if (tooltip.current) {
+					Object.assign(tooltip.current.style, { left: `${x}px`, top: `${y}px` });
+				}
+			});
 		}
 		setUpdateRequired(false);
+		return () => {
+			cleanup?.();
+		};
 	}, [button, tooltip, devices, updateRequired]);
 
-	const handleClickOutside = (event: MouseEvent) => {
-		if (!tooltip.current || !button.current) return;
-		if (!button.current.contains(event.target as Node) && !tooltip.current.contains(event.target as Node)) {
-			setIsOpen(false);
-		}
-	};
+	const handleClickOutside = useCallback(
+		(event: MouseEvent) => {
+			if (!tooltip.current) {
+				return;
+			}
+			if (event.target === button.current) {
+				return;
+			}
+			if (isOpen && wasClickOutside(tooltip.current, event)) {
+				setIsOpen(false);
+			}
+		},
+		[isOpen, tooltip, button]
+	);
 
 	useEffect(() => {
-		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener<'click'>('click', handleClickOutside);
 		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener<'click'>('click', handleClickOutside);
 		};
-	}, []);
+	}, [handleClickOutside]);
 
 	return (
 		<>
@@ -82,7 +98,7 @@ export function MediaDeviceMenu({
 			</button>
 			{!props.disabled && (
 				<div className={`lk-device-menu bottom-0 h-fit !top-auto ${isOpen ? 'visible' : 'invisible'}`} ref={tooltip}>
-					{kind && (
+					{kind ? (
 						<MediaDeviceSelect
 							initialSelection={initialSelection}
 							onActiveDeviceChange={(deviceId) => handleActiveDeviceChange(kind, deviceId)}
@@ -91,6 +107,25 @@ export function MediaDeviceMenu({
 							track={tracks?.[kind]}
 							requestPermissions={needPermissions}
 						/>
+					) : (
+						<>
+							<div className="lk-device-menu-heading">Audio inputs</div>
+							<MediaDeviceSelect
+								kind="audioinput"
+								onActiveDeviceChange={(deviceId) => handleActiveDeviceChange('audioinput', deviceId)}
+								onDeviceListChange={setDevices}
+								track={tracks?.audioinput}
+								requestPermissions={needPermissions}
+							/>
+							<div className="lk-device-menu-heading">Video inputs</div>
+							<MediaDeviceSelect
+								kind="videoinput"
+								onActiveDeviceChange={(deviceId) => handleActiveDeviceChange('videoinput', deviceId)}
+								onDeviceListChange={setDevices}
+								track={tracks?.videoinput}
+								requestPermissions={needPermissions}
+							/>
+						</>
 					)}
 				</div>
 			)}

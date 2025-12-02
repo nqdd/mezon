@@ -1,8 +1,9 @@
+import { useDirect } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectAllAccount, selectAllActivities, selectAllFriends, selectAllUserDM } from '@mezon/store-mobile';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, FlatList, Text, View } from 'react-native';
+import { Animated, DeviceEventEmitter, Easing, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../componentUI/MezonAvatar';
 import ImageNative from '../../components/ImageNative';
@@ -15,6 +16,7 @@ function MessageActivity() {
 	const friends = useSelector(selectAllFriends);
 	const activities = useSelector(selectAllActivities);
 	const userId = useSelector(selectAllAccount)?.user?.id;
+	const { createDirectMessageWithUser } = useDirect();
 
 	const mergeListFriendAndListUserDM = useMemo(() => {
 		try {
@@ -67,8 +69,11 @@ function MessageActivity() {
 
 						acc.push({
 							activityName,
+							id: user?.id,
 							avatar: user?.avatar_url,
-							name: user?.display_name || user?.username
+							name: user?.display_name || user?.username,
+							display_name: user?.display_name,
+							username: user?.username
 						});
 					}
 					return acc;
@@ -91,9 +96,16 @@ function MessageActivity() {
 		}).start();
 	}, [animatedHeight, data?.length]);
 
+	const onPressItem = async (item) => {
+		const response = await createDirectMessageWithUser(item?.id, item?.display_name || item?.name, item?.username || item?.name, item?.avatar);
+		if (response?.channel_id) {
+			DeviceEventEmitter.emit('CHANGE_CHANNEL_DM_DETAIL', { dmId: response?.channel_id });
+		}
+	};
+
 	const renderItem = ({ item }) => {
 		return (
-			<View style={styles.wrapperItemActivity}>
+			<TouchableOpacity onPress={() => onPressItem(item)} style={styles.wrapperItemActivity}>
 				{item?.avatar ? (
 					<View style={styles.avatarActivity}>
 						<ImageNative
@@ -113,7 +125,7 @@ function MessageActivity() {
 						{item?.activityName}
 					</Text>
 				</View>
-			</View>
+			</TouchableOpacity>
 		);
 	};
 

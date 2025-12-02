@@ -54,11 +54,7 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500',
 			color: colors.textStrong
 		},
-		textLoading: {
-			marginTop: size.s_6,
-			fontSize: size.s_14,
-			color: colors.text
-		},
+
 		buttonText: {
 			fontSize: size.s_12,
 			color: 'white',
@@ -81,15 +77,5 @@ export const style = (colors: Attributes) =>
 			top: 0,
 			right: 0,
 			zIndex: 1000
-		},
-		loadingContainer: {
-			alignItems: 'center',
-			justifyContent: 'center',
-			position: 'absolute',
-			height: '100%',
-			zIndex: 1,
-			width: '100%',
-			backgroundColor: colors.primary,
-			flex: 1
 		}
 	});

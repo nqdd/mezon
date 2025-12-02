@@ -1,8 +1,10 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
+import { selectMemberCustomStatusById } from '@mezon/store';
+import { useAppSelector } from '@mezon/store-mobile';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
+import { DeviceEventEmitter, Pressable, ScrollView, Text, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import MezonInput from '../../componentUI/MezonInput';
 import type { IMezonOptionData } from '../../componentUI/MezonOption';
@@ -14,14 +16,16 @@ import { styles } from './AddStatusUserModal.styles';
 export interface IAddStatusUserModalProps {
 	userCustomStatus: string;
 	handleCustomUserStatus: (customStatus: string, duration: number, noClearStatus: boolean) => void;
-	timeResetStatus: number;
+	userId: string;
 }
 
 const STATUS_DURATION_MINUTES = [240, 60, 30, 0];
 
-export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus, timeResetStatus }: IAddStatusUserModalProps) => {
+export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus, userId }: IAddStatusUserModalProps) => {
 	const { themeValue } = useTheme();
 	const { t } = useTranslation(['customUserStatus']);
+	const userMemberStatus = useAppSelector((state) => selectMemberCustomStatusById(state, userId || ''));
+	const timeResetStatus = userMemberStatus?.time_reset;
 	const [lineStatus, setLineStatus] = useState<string>(userCustomStatus);
 	const [statusDuration, setStatusDuration] = useState<number>(STATUS_DURATION_MINUTES.includes(timeResetStatus) ? timeResetStatus : -1);
 	const timeOptions = useMemo(
@@ -86,10 +90,10 @@ export const AddStatusUserModal = ({ userCustomStatus, handleCustomUserStatus, t
 					<Text style={[styles.buttonSave]}>{t('save')}</Text>
 				</Pressable>
 			</View>
-			<View style={styles.from}>
+			<ScrollView bounces={false} keyboardShouldPersistTaps={'handled'} style={styles.from}>
 				<MezonInput value={lineStatus} onTextChange={setLineStatus} placeHolder={t('placeholder')} textarea={true} maxCharacter={128} />
 				<MezonOption title={t('statusDuration.label')} value={statusDuration} data={timeOptions} onChange={handleTimeOptionChange} />
-			</View>
+			</ScrollView>
 		</View>
 	);
 };
