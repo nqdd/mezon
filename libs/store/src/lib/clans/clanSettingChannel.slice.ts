@@ -205,7 +205,6 @@ export const settingClanChannelSlice = createSlice({
 				}
 			}
 
-			// 2) Fallback: brute-force search in all parents
 			for (const pid in state.threadsByChannel) {
 				const threads = state.threadsByChannel[pid];
 				const index = threads.findIndex((t) => t.id === channel.id);
