@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { MessagesEntity, channelsActions, messagesActions, selectAllChannelMemberIds, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import type { MessagesEntity } from '@mezon/store-mobile';
+import { channelsActions, messagesActions, selectAllChannelMemberIds, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { ETokenMessage, TypeMessage, convertTimeString, parseThreadInfo } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -117,20 +118,21 @@ export const MessageLineSystem = memo(({ message }: { message: MessagesEntity })
 		const formattedContent = [];
 		if (message?.code === TypeMessage.CreatePin) {
 			if (mentions?.[0]) {
+				const mentionText = t?.substring(mentions[0]?.s ?? 0, mentions[0]?.e ?? 0);
 				formattedContent.push(
-					<Text style={styles.textMention} key="mention-user" onPress={() => onMention(`@${mentions[0]?.username || ''}`)}>
-						{`@${mentions[0]?.username || ''}`}
+					<Text style={styles.textMention} onPress={() => onMention(`@${mentions[0]?.username || ''}`)}>
+						{mentionText}
 					</Text>
 				);
 			}
 
 			formattedContent.push(
 				<Text key="pin-message">
-					{' ' + translateMessage('systemMessages.pinned') + ' '}
+					{` ${translateMessage('systemMessages.pinned')} `}
 					<Text onPress={handleJumpToPinMessage} style={styles.textPinMessage}>
 						{translateMessage('systemMessages.aMessage')}
 					</Text>
-					{' ' + translateMessage('systemMessages.toThisChannel') + ' ' + translateMessage('systemMessages.allPinned') + ' '}
+					{` ${translateMessage('systemMessages.toThisChannel')} ${translateMessage('systemMessages.allPinned')} `}
 					{translateMessage('systemMessages.messages')}
 				</Text>
 			);
