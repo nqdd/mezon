@@ -107,12 +107,7 @@ export const MyVideoConference = memo(
 					layoutContext.pin.dispatch?.({ msg: 'set_pin', trackReference: updatedFocusTrack });
 				}
 			}
-		}, [
-			screenShareTracks.map((ref) => `${ref.publication.trackSid}_${ref.publication.isSubscribed}`).join(),
-			focusTrack?.publication?.trackSid,
-			tracks,
-			layoutContext.pin
-		]);
+		}, [screenShareTracks, focusTrack, tracks, layoutContext.pin]);
 
 		useEffect(() => {
 			if (!focusTrack && document.pictureInPictureElement) {
@@ -138,9 +133,10 @@ export const MyVideoConference = memo(
 
 		useEffect(() => {
 			const handleDisconnected = async (reason?: DisconnectReason) => {
+				if (reason === DisconnectReason.CLIENT_INITIATED) return;
+
 				if (
 					reason === DisconnectReason.SERVER_SHUTDOWN ||
-					reason === DisconnectReason.CLIENT_INITIATED ||
 					reason === DisconnectReason.PARTICIPANT_REMOVED ||
 					reason === DisconnectReason.SIGNAL_CLOSE ||
 					reason === DisconnectReason.JOIN_FAILURE ||
@@ -169,7 +165,7 @@ export const MyVideoConference = memo(
 				}
 			};
 
-			const handleLocalTrackPublished = (publication: LocalTrackPublication, participant: LocalParticipant) => {
+			const handleLocalTrackPublished = (publication: LocalTrackPublication, _participant: LocalParticipant) => {
 				if (publication.source === Track.Source.Microphone) {
 					dispatch(voiceActions.setShowMicrophone(true));
 				}
@@ -209,7 +205,7 @@ export const MyVideoConference = memo(
 					layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
 				}
 			};
-			const handleTrackUnpublish = async (publication: RemoteTrackPublication, participant: RemoteParticipant) => {
+			const handleTrackUnpublish = async (publication: RemoteTrackPublication, _participant: RemoteParticipant) => {
 				if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureElement) {
 					await document.exitPictureInPicture();
 				}
@@ -229,13 +225,13 @@ export const MyVideoConference = memo(
 				room?.off('participantDisconnected', handleUserDisconnect);
 				room?.off('trackUnpublished', handleTrackUnpublish);
 			};
-		}, [room, focusTrack?.participant.sid]);
+		}, [room, focusTrack, dispatch, layoutContext.pin, onJoinRoom, onLeaveRoom, token, url]);
 
 		useEffect(() => {
 			if (room?.name) {
 				dispatch(voiceActions.setVoiceInfoId(room?.name));
 			}
-		}, [room?.name]);
+		}, [dispatch, room?.name]);
 
 		const onToggleChatBox = () => {
 			if (isExternalCalling) {

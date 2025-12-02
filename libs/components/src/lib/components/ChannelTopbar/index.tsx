@@ -1,5 +1,5 @@
 import { toChannelPage, useChatSending, useCustomNavigate, useGifsStickersEmoji, useMemberStatus, useMenu, usePathMatch } from '@mezon/core';
-import type { DirectEntity, RootState } from '@mezon/store';
+import type { ChannelMembersEntity, DirectEntity, RootState } from '@mezon/store';
 import {
 	DMCallActions,
 	EStateFriend,
@@ -42,6 +42,7 @@ import {
 	selectIsShowPinBadgeByDmId,
 	selectIsThreadModalVisible,
 	selectIsUseProfileDM,
+	selectMemberByGroupId,
 	selectNotifiSettingsEntitiesById,
 	selectOpenVoiceCall,
 	selectSession,
@@ -482,6 +483,8 @@ const DmTopbarTools = memo(() => {
 	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const currentDmGroup = useSelector(selectCurrentDM);
+	const rawMembers = useAppSelector((state: RootState) => (currentDmGroup?.id ? selectMemberByGroupId(state, currentDmGroup.id) || [] : []));
+
 	const isShowMemberListDM = useSelector(selectIsShowMemberListDM);
 	const selectOpenVoice = useSelector(selectOpenVoiceCall);
 	const isUseProfileDM = useSelector(selectIsUseProfileDM);
@@ -494,9 +497,12 @@ const DmTopbarTools = memo(() => {
 	const voiceInfo = useSelector((state: RootState) => state.voice?.voiceInfo || null);
 	const infoFriend = useAppSelector((state: RootState) => selectFriendById(state, currentDmGroup?.user_ids?.[0] || ''));
 	const userCurrent = useSelector(selectAllAccount);
-	const isBlockUser = useMemo(() => {
-		return infoFriend?.state === EStateFriend.BLOCK;
-	}, [currentDmGroup?.user_ids?.[0], infoFriend]);
+	const isBlockUser = useMemo(() => infoFriend?.state === EStateFriend.BLOCK, [infoFriend]);
+
+	const groupParticipants = useMemo(
+		() => rawMembers.map((member: ChannelMembersEntity) => member?.user?.id || member?.id).filter((id): id is string => Boolean(id)),
+		[rawMembers]
+	);
 
 	const closeMenuOnMobile = useCallback(() => {
 		const isMobile = window.innerWidth < 640;
@@ -570,10 +576,10 @@ const DmTopbarTools = memo(() => {
 					groupCallActions.setIncomingCallData({
 						groupId: currentDmGroup.channel_id,
 						groupName: currentDmGroup.channel_label || currentDmGroup.usernames?.join(',') || 'Group Call',
-						groupAvatar: currentDmGroup.channel_avatar?.[0],
+						groupAvatar: currentDmGroup.channel_avatar,
 						meetingCode: currentDmGroup.meeting_code,
 						clanId: currentDmGroup.clan_id,
-						participants: [...(currentDmGroup?.user_ids || []), userProfile?.user_id?.toString() as string],
+						participants: [...groupParticipants, userProfile?.user_id?.toString() as string],
 						callerInfo: {
 							id: userProfile?.user_id || '',
 							name: userProfile?.username || '',
@@ -676,8 +682,9 @@ const DmTopbarTools = memo(() => {
 	}, [selectOpenVoice, currentDmGroup, sendMessage]);
 
 	const isMe = useMemo(() => {
+		if (currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_DM) return false;
 		return currentDmGroup?.user_ids?.[0] === userCurrent?.user?.id?.toString();
-	}, [currentDmGroup, userCurrent]);
+	}, [currentDmGroup?.type, currentDmGroup?.user_ids, userCurrent?.user?.id]);
 
 	return (
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
@@ -953,7 +960,7 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 	);
 }
 
-export function InboxButton({ isVoiceChannel }: { isVoiceChannel?: boolean }) {
+export function InboxButton() {
 	return (
 		<div
 			className="focus-visible:outline-none text-theme-primary text-theme-primary-hover"

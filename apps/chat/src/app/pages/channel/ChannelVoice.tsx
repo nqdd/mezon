@@ -1,4 +1,4 @@
-import { LiveKitRoom } from '@livekit/components-react';
+import { RoomContext } from '@livekit/components-react';
 import '@livekit/components-styles';
 
 import { EmojiSuggestionProvider, useAppParams, useAuth } from '@mezon/core';
@@ -30,10 +30,13 @@ import {
 
 import { MyVideoConference, PreJoinVoiceChannel } from '@mezon/components';
 import { ParticipantMeetState, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
+import type { RoomConnectOptions, RoomOptions } from 'livekit-client';
+import { Room, ScreenSharePresets, VideoPresets } from 'livekit-client';
 import { ChannelType } from 'mezon-js';
-import { Suspense, memo, useCallback, useRef, useState } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ChatStream from '../chatStream';
+import { useLowCPUOptimizer } from './hooks/useLowCPUOptimizer';
 
 const ChannelVoiceInner = () => {
 	const isJoined = useSelector(selectVoiceJoined);
@@ -54,6 +57,50 @@ const ChannelVoiceInner = () => {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const { userProfile } = useAuth();
 
+	const roomOptions = useMemo(
+		(): RoomOptions => ({
+			videoCaptureDefaults: {
+				resolution: VideoPresets.h1080.resolution
+			},
+			publishDefaults: {
+				videoEncoding: { maxBitrate: 3_000_000, maxFramerate: 30 },
+				screenShareEncoding: { maxBitrate: 5_000_000, maxFramerate: 30 },
+				videoSimulcastLayers: [VideoPresets.h720, VideoPresets.h360],
+				screenShareSimulcastLayers: [ScreenSharePresets.h720fps15, ScreenSharePresets.h360fps3],
+				simulcast: true
+			}
+		}),
+		[]
+	);
+
+	const room = useMemo(() => new Room(roomOptions), [roomOptions]);
+
+	const connectOptions = useMemo(
+		(): RoomConnectOptions => ({
+			autoSubscribe: true
+		}),
+		[]
+	);
+
+	const handleError = useCallback((error: Error) => {
+		console.error('Room error:', error);
+	}, []);
+
+	useEffect(() => {
+		if (!token || !serverUrl) return;
+		room.connect(serverUrl, token).catch((error) => {
+			handleError(error);
+		});
+	}, [token, serverUrl, room, connectOptions, handleError]);
+
+	const lowPowerMode = useLowCPUOptimizer(room);
+
+	useEffect(() => {
+		if (lowPowerMode) {
+			console.warn('Low power mode enabled');
+		}
+	}, [lowPowerMode]);
+
 	const participantMeetState = useCallback(
 		async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
 			if (!clanId || !channelId || !userProfile?.user?.id) return;
@@ -72,6 +119,12 @@ const ChannelVoiceInner = () => {
 	);
 
 	const handleJoinRoom = useCallback(async () => {
+		try {
+			await room.disconnect();
+		} catch (error) {
+			console.error('Failed to disconnect previous LiveKit room before joining:', error);
+		}
+
 		dispatch(voiceActions.setOpenPopOut(false));
 		dispatch(voiceActions.setShowScreen(false));
 		dispatch(voiceActions.setStreamScreen(null));
@@ -120,16 +173,24 @@ const ChannelVoiceInner = () => {
 		currentChannelMeetingCode,
 		currentChannelPrivate,
 		dispatch,
-		participantMeetState
+		participantMeetState,
+		room
 	]);
 
 	const handleLeaveRoom = useCallback(
 		async (self?: boolean) => {
 			if (!voiceInfo?.clanId || !voiceInfo?.channelId) return;
+
+			try {
+				await room.disconnect();
+			} catch (error) {
+				console.error('Failed to disconnect LiveKit room:', error);
+			}
+
 			dispatch(voiceActions.resetVoiceControl());
 			await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
 		},
-		[dispatch, participantMeetState, voiceInfo]
+		[dispatch, participantMeetState, room, voiceInfo]
 	);
 
 	const handleFullScreen = useCallback(() => {
@@ -147,6 +208,14 @@ const ChannelVoiceInner = () => {
 	const { channelId } = useAppParams();
 	const isOpenPopOut = useSelector(selectVoiceOpenPopOut);
 	const isOnMenu = useSelector(selectStatusMenu);
+
+	useEffect(() => {
+		return () => {
+			room.disconnect().catch((error) => {
+				console.error('Error disconnecting LiveKit room on unmount:', error);
+			});
+		};
+	}, [room]);
 	return (
 		<Suspense fallback={<div>loading ...</div>}>
 			<div
@@ -183,16 +252,7 @@ const ChannelVoiceInner = () => {
 							className={`${!isShow || isOpenPopOut ? '!hidden' : ''} lk-room-container flex ${isVoiceFullScreen ? 'w-full h-full' : ''}`}
 							data-lk-theme="default"
 						>
-							<LiveKitRoom
-								ref={containerRef}
-								id="livekitRoom11"
-								key={token}
-								className={`${!isShow || isOpenPopOut ? '!hidden' : ''} flex ${isVoiceFullScreen ? 'w-full h-full' : ''}`}
-								video={false}
-								token={token}
-								serverUrl={serverUrl}
-								data-lk-theme="default"
-							>
+							<RoomContext.Provider value={room}>
 								<div className="flex-1 relative flex overflow-hidden">
 									<MyVideoConference
 										token={token}
@@ -212,7 +272,7 @@ const ChannelVoiceInner = () => {
 										)}
 									</EmojiSuggestionProvider>
 								</div>
-							</LiveKitRoom>
+							</RoomContext.Provider>
 						</div>
 					</>
 				)}
