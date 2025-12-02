@@ -182,10 +182,12 @@ export enum EMuteState {
 }
 
 export const STICKER_WAVE = {
-	URL_HELLO: 'https://cdn.mezon.ai/stickers/hellomezon.gif',
 	NAME: 'hello',
-	URL_BOY: 'https://cdn.mezon.ai/stickers/music_boy.gif',
-	URL_GIRL: 'https://cdn.mezon.ai/stickers/music_girl.gif'
+	LIST_STICKER: [
+		'https://cdn.mezon.ai/stickers/hellomezon.gif',
+		'https://cdn.mezon.ai/stickers/music_boy.gif',
+		'https://cdn.mezon.ai/stickers/music_girl.gif'
+	]
 };
 
 export const MEZON_AVATAR_URL = 'https://cdn.mezon.ai/0/1840653409082937344/1782991817428439000/1748500199026_0logo_new.png';
