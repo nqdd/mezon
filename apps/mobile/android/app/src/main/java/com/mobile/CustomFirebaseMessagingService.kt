@@ -31,12 +31,27 @@ class CustomFirebaseMessagingService : ReactNativeFirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         val data = remoteMessage.data
-        if (data.isNotEmpty()) {
+       if (data.isNotEmpty()) {
+            val activityManager = applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            var appInForeground = false
+            val runningProcs = activityManager.runningAppProcesses ?: emptyList<ActivityManager.RunningAppProcessInfo>()
+            for (proc in runningProcs) {
+                if (proc.processName == applicationContext.packageName && proc.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                    appInForeground = true
+                    break
+                }
+            }
+            if (appInForeground) {
+                Log.d(TAG, "App is in foreground, ignoring incoming notification")
+                return
+            }
+
             val offer = data["offer"]
             if (offer != null) {
                 if (offer == "{\"offer\":\"CANCEL_CALL\"}") {
                     cancelCallNotification()
                 } else {
+                    handleIncomingCall(data)
                     saveNotificationData(data)
                 }
             } else {
@@ -44,6 +59,31 @@ class CustomFirebaseMessagingService : ReactNativeFirebaseMessagingService() {
             }
         }
     }
+
+    private fun handleIncomingCall(data: Map<String, String>) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                val offerString = data["offer"] ?: ""
+                val offerJson = JSONObject(offerString)
+                val callerName = offerJson.optString("callerName", "Unknown Caller")
+                val callerId = offerJson.optString("callerId", "")
+
+                val callManager = CallManager.getInstance(applicationContext)
+                val success = callManager.showIncomingCall(callerName, callerId)
+
+                if (success) {
+                    Log.d(TAG, "Successfully displayed incoming call")
+                } else {
+                    Log.e(TAG, "Failed to display incoming call, falling back to notification")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error handling incoming call: ${e.message}", e)
+            }
+        } else {
+            Log.d(TAG, "ConnectionService not supported on this Android version")
+        }
+    }
+
 
     private fun saveNotificationData(data: Map<String, String>) {
         try {
