@@ -82,7 +82,7 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 			await Share.open({
 				url: `file://${shareFilePath}`,
 				type: 'image/png',
-				title: `Invite_link_${inviteLink}`,
+				title: `QR_Invite_${inviteLink}`,
 				message: `Join ${currentClanName ? currentClanName : 'Clan'} on Mezon with me: ${inviteLink}`,
 				failOnCancel: false
 			});
