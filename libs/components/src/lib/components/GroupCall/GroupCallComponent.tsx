@@ -72,19 +72,23 @@ const GroupCallComponent = memo(
 			dispatch(DMCallActions.setIsShowMeetDM(videoEnabled));
 			groupCall.state.setLoading(true);
 
-			const callGroup: any =
-				groupCall.state.isAnsweringCall && groupCall.state.storedCallData
-					? {
-							channel_id: groupCall.state.storedCallData.groupId,
-							meeting_code: groupCall.state.storedCallData.meetingCode,
-							clan_id: groupCall.state.storedCallData.clanId,
-							channel_label: groupCall.state.storedCallData.groupName,
-							clan_name: groupCall.state.storedCallData.groupName,
-							user_id: groupCall.state.storedCallData.participants
-						}
-					: currentDmGroup;
+			const storedCallData = groupCall.state.storedCallData;
+			const baseParticipants = storedCallData?.participants ?? currentDmGroup?.user_ids ?? [];
+
+			const callGroup: any = storedCallData
+				? {
+						channel_id: storedCallData.groupId,
+						meeting_code: storedCallData.meetingCode,
+						clan_id: storedCallData.clanId,
+						channel_label: storedCallData.groupName,
+						clan_name: storedCallData.groupName
+					}
+				: currentDmGroup;
 
 			if (!callGroup?.meeting_code) return;
+
+			const callerId = userProfile?.user?.id || '';
+			const participants = [...baseParticipants, callerId.toString()];
 
 			// Create call data using utility
 			const callData = createCallSignalingData({
@@ -92,24 +96,19 @@ const GroupCallComponent = memo(
 				groupId: callGroup?.channel_id,
 				groupName: callGroup?.channel_label || callGroup?.usernames?.join(','),
 				groupAvatar: callGroup?.channel_avatar?.[0],
-				callerId: userProfile?.user?.id || '',
+				callerId,
 				callerName: userProfile?.user?.display_name || userProfile?.user?.username || '',
 				callerAvatar: userProfile?.user?.avatar_url,
 				meetingCode: callGroup?.meeting_code,
 				clanId: callGroup?.clan_id,
-				participants: [...(callGroup?.user_id || []), userProfile?.user?.id?.toString() as string]
+				participants
 			});
 
 			// Send signaling using hook
 			if (!groupCall.state.isAnsweringCall) {
 				// Play dial tone and send offer
 				groupCall.audio.playDialTone();
-				groupCall.signaling.sendGroupCallOffer(
-					callGroup?.user_id || [],
-					callData,
-					callGroup?.channel_id as string,
-					userProfile?.user?.id as string
-				);
+				groupCall.signaling.sendGroupCallOffer(baseParticipants, callData, callGroup?.channel_id as string, userProfile?.user?.id as string);
 			} else {
 				// Stop ring tone and send answer
 				groupCall.audio.stopAllAudio();

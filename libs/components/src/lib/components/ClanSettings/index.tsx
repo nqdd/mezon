@@ -5,7 +5,6 @@ import {
 	fetchWebhooks,
 	onboardingActions,
 	selectCloseMenu,
-	selectCurrentChannel,
 	selectCurrentClanId,
 	selectCurrentClanName,
 	useAppDispatch
@@ -78,7 +77,6 @@ const ClanSetting = (props: ModalSettingProps) => {
 	const [menu, setMenu] = useState(true);
 	const closeMenu = useSelector(selectCloseMenu);
 	const [isShowDeletePopup, setIsShowDeletePopup] = useState<boolean>(false);
-	const currentChannel = useSelector(selectCurrentChannel) || undefined;
 	const currentClanId = useSelector(selectCurrentClanId) as string;
 	const currentClanName = useSelector(selectCurrentClanName);
 	const navigate = useNavigate();
@@ -91,7 +89,7 @@ const ClanSetting = (props: ModalSettingProps) => {
 			case ItemSetting.ROLES:
 				return <ServerSettingMainRoles />;
 			case ItemSetting.INTEGRATIONS:
-				return <Integrations isClanSetting currentChannel={currentChannel} />;
+				return <Integrations isClanSetting />;
 			case ItemSetting.EMOJI:
 				return <SettingEmoji parentRef={modalRef} />;
 			// case ItemSetting.NOTIFICATION_SOUND:

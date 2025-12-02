@@ -1,7 +1,7 @@
 import { useLocalParticipantPermissions } from '@livekit/components-react';
 import { useAppDispatch, voiceActions } from '@mezon/store';
 import isElectron from 'is-electron';
-import { Track, VideoPresets } from 'livekit-client';
+import { ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
 import { memo, useCallback } from 'react';
 import { ScreenShareToggleButton } from './TrackToggle/ScreenShareToggleButton';
 import { TrackToggle } from './TrackToggle/TrackToggle';
@@ -14,6 +14,8 @@ interface ScreenShareControlProps {
 	onDeviceError?: (error: Error) => void;
 	onDesktopScreenShare?: () => void;
 }
+
+const SCREEN_SHARE_PRESET = VideoPresets.h1080;
 
 export const ScreenShareControl = memo(
 	({ showScreen, isShowMember, saveUserChoices = true, onDeviceError, onDesktopScreenShare }: ScreenShareControlProps) => {
@@ -61,13 +63,16 @@ export const ScreenShareControl = memo(
 				initialState={showScreen}
 				className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none ${isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'}`}
 				source={Track.Source.ScreenShare}
-				captureOptions={{ audio: true, selfBrowserSurface: 'include', resolution: VideoPresets.h720.resolution }}
+				captureOptions={{
+					audio: true,
+					selfBrowserSurface: 'include',
+					resolution: SCREEN_SHARE_PRESET.resolution,
+					contentHint: 'detail'
+				}}
 				publishOptions={{
-					simulcast: false,
-					videoEncoding: {
-						...VideoPresets.h720.encoding,
-						priority: 'high'
-					}
+					simulcast: true,
+					screenShareSimulcastLayers: [ScreenSharePresets.h720fps15],
+					videoEncoding: SCREEN_SHARE_PRESET.encoding
 				}}
 				onChange={handleChange}
 				onDeviceError={onDeviceError}

@@ -1,6 +1,5 @@
-import { selectAllClanWebhooks, selectWebhooksByChannelId, useAppSelector } from '@mezon/store';
+import { selectAllClanWebhooks, selectCurrentChannel, selectWebhooksByChannelId, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { IChannel } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -10,18 +9,20 @@ import MainIntegrations from './MainIntegrations';
 import Webhooks from './Webhooks';
 
 interface IIntegrationsProps {
-	currentChannel?: IChannel;
 	isClanSetting?: boolean;
 }
 
-const Integrations = ({ currentChannel, isClanSetting }: IIntegrationsProps) => {
+const Integrations = ({ isClanSetting }: IIntegrationsProps) => {
 	const { t } = useTranslation('integrations');
 	const [isOpenWebhooks, setIsOpenWebhooks] = useState(false);
 	const [isOpenClanWebhooks, setIsOpenClanWebhooks] = useState(false);
+	const currentChannel = useSelector(selectCurrentChannel) || undefined;
+
 	const allWebhooks = useAppSelector((state) =>
 		selectWebhooksByChannelId(state, isClanSetting ? '0' : (currentChannel?.channel_id ?? ''), currentChannel?.clan_id ?? '')
 	);
 	const allClanWebhooks = useSelector(selectAllClanWebhooks);
+
 	return (
 		<div className="mt-[60px]">
 			<h2 className="text-xl font-semibold mb-5 flex text-theme-primary-active">
