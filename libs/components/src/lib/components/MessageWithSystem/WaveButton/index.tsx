@@ -29,19 +29,10 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 
 	const urlIcon = useMemo(() => {
 		if (!message.create_time_seconds) {
-			return STICKER_WAVE.URL_HELLO;
+			return STICKER_WAVE.LIST_STICKER[0];
 		}
-		switch (message.create_time_seconds % 3) {
-			case 0:
-				return STICKER_WAVE.URL_HELLO;
 
-			case 1:
-				return STICKER_WAVE.URL_GIRL;
-
-			case 2:
-				return STICKER_WAVE.URL_BOY;
-		}
-		return STICKER_WAVE.URL_HELLO;
+		return STICKER_WAVE.LIST_STICKER[message.create_time_seconds % STICKER_WAVE.LIST_STICKER.length];
 	}, [message.create_time_seconds]);
 
 	const handleSendWaveSticker = () => {
