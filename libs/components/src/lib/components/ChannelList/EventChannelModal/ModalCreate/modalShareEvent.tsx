@@ -1,7 +1,7 @@
 import { useOnClickOutside } from '@mezon/core';
 import { ChannelsEntity } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ButtonCopy } from 'libs/components/src/lib/components';
+import { ButtonCopy } from '@mezon/components';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 

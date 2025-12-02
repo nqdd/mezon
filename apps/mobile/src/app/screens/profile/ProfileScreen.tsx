@@ -11,7 +11,7 @@ import {
 	useWallet,
 	walletActions
 } from '@mezon/store-mobile';
-import { createImgproxyUrl, CURRENCY, formatBalanceToString } from '@mezon/utils';
+import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
