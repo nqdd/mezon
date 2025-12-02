@@ -447,8 +447,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				if (mess.mode === ChannelStreamMode.STREAM_MODE_DM || mess.mode === ChannelStreamMode.STREAM_MODE_GROUP) {
 					const isContentMutation = message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove;
 					if (!isContentMutation) {
-						const newDm = await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
-						!newDm && dispatch(directMetaActions.updateDMSocket(message));
+						await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
 					}
 
 					const isClanView = selectClanView(store.getState());
@@ -1652,6 +1651,22 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 			dispatch(voiceActions.removeInVoiceInChannel(channelDeleted?.channel_id));
 			dispatch(appActions.clearHistoryChannel({ channelId: channelDeleted.channel_id }));
+			dispatch(
+				threadsActions.setIsShowCreateThread({
+					channelId: channelDeleted.channel_id as string,
+					isShowCreateThread: false
+				})
+			);
+
+			if (channelDeleted?.parent_id) {
+				dispatch(
+					threadsActions.setIsShowCreateThread({
+						channelId: channelDeleted.parent_id as string,
+						isShowCreateThread: false
+					})
+				);
+			}
+
 			const isVoiceJoined = selectVoiceInfo(store.getState());
 			if (channelDeleted?.channel_id === isVoiceJoined?.channelId) {
 				//Leave Room If It's been deleted
@@ -2890,3 +2905,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+

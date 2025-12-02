@@ -1,10 +1,18 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectChannelById, selectDmGroupCurrent, useAppSelector } from '@mezon/store-mobile';
+import {
+	selectChannelById,
+	selectCurrentTopicInitMessage,
+	selectDmGroupCurrent,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { getMobileUploadedAttachments } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
 import { ChannelStreamMode } from 'mezon-js';
+import type { ApiSdTopic, ApiSdTopicRequest } from 'mezon-js/api.gen';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImageStyle } from 'react-native';
@@ -27,9 +35,10 @@ interface IRecordAudioMessageProps {
 	channelId: string;
 	mode: ChannelStreamMode;
 	topicId?: string;
+	isCreateTopic?: boolean;
 }
 
-export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: IRecordAudioMessageProps) => {
+export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isCreateTopic = false }: IRecordAudioMessageProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['recordChatMessage', 'common']);
@@ -39,11 +48,13 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 	const { sessionRef, clientRef, socketRef } = useMezon();
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId || ''));
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
+	const initMessageOfTopic = useSelector(selectCurrentTopicInitMessage);
 	const [recordUrl, setRecordUrl] = useState<string>('');
 	const [isPreviewRecord, setIsPreviewRecord] = useState<boolean>(false);
 	const meterSoundRef = useRef(null);
 	const [isConfirmRecordModalVisible, setIsConfirmRecordModalVisible] = useState<boolean>(false);
 	const audioRecorderPlayerRef = useRef<AudioRecorderPlayer | null>(null);
+	const dispatch = useAppDispatch();
 
 	const getAudioRecorderPlayer = useCallback(() => {
 		if (!audioRecorderPlayerRef.current) {
@@ -131,6 +142,17 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 		}
 	}, [setIsDisplay]);
 
+	const createTopic = useCallback(async () => {
+		const body: ApiSdTopicRequest = {
+			clan_id: currentChannelDM?.clan_id as string,
+			channel_id: currentChannelDM?.channel_id as string,
+			message_id: initMessageOfTopic?.id as string
+		};
+
+		const topic = (await dispatch(topicsActions.createTopic(body))).payload as ApiSdTopic;
+		return topic;
+	}, [currentChannelDM?.channel_id, dispatch, initMessageOfTopic?.id]);
+
 	const sendMessage = useCallback(async () => {
 		try {
 			let recordingUrl;
@@ -147,13 +169,24 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 			const channelId = currentChannelDM?.channel_id;
 			const isPublic = !currentChannelDM?.channel_private;
 
+			let topicIdToUse = topicId;
+			if (isCreateTopic && !topicId) {
+				const topic = (await createTopic()) as ApiSdTopic;
+				if (topic) {
+					topicIdToUse = topic?.id;
+				}
+			}
+
 			const attachments = await getAudioFileInfo(recordingUrl);
 			const uploadedFiles = await getMobileUploadedAttachments({
 				attachments,
 				client,
 				session
 			});
-			await socket.writeChatMessage(clanId, channelId, mode, isPublic, { t: '' }, [], uploadedFiles, [], false, false, '', 0, topicId);
+			await socket.writeChatMessage(clanId, channelId, mode, isPublic, { t: '' }, [], uploadedFiles, [], false, false, '', 0, topicIdToUse);
+			if (isCreateTopic && !topicId) {
+				dispatch(topicsActions.setCurrentTopicId(topicIdToUse as string));
+			}
 			setIsDisplay(false);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		} catch (error) {
@@ -169,18 +202,18 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 		currentChannelDM?.channel_id,
 		currentChannelDM?.channel_private,
 		topicId,
+		isCreateTopic,
 		mode,
-		setIsDisplay,
 		recordUrl,
 		stopRecording,
-		topicId
+		createTopic
 	]);
 
 	const normalizeFilePath = (path) => {
 		return path.replace(/^file:\/*/, 'file:///');
 	};
 
-	const getAudioFileInfo = async (uri) => {
+	const getAudioFileInfo = useCallback(async (uri) => {
 		try {
 			const fixedPath = normalizeFilePath(uri);
 			const fileInfo = await RNFS.stat(fixedPath);
@@ -199,7 +232,7 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '' }: I
 		} catch (error) {
 			return null;
 		}
-	};
+	}, []);
 
 	const handlePreviewRecord = async () => {
 		meterSoundRef.current?.pause();

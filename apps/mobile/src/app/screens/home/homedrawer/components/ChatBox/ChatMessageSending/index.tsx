@@ -347,7 +347,7 @@ export const ChatMessageSending = memo(
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_18} height={size.s_18} color={baseColor.white} />
 					</Pressable>
 				) : (
-					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} />
+					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} isCreateTopic={isCreateTopic} />
 				)}
 			</View>
 		);

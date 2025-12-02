@@ -161,7 +161,7 @@ export const MemberListStatus = React.memo(() => {
 				<SectionList
 					sections={
 						isDMThread
-							? [{ title: t('common:members'), data: online, key: 'onlineMembers' }]
+							? [{ title: t('common:members'), data: [...(online ?? []), ...(offline ?? [])], key: 'onlineMembers' }]
 							: [
 									{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
 									{ title: t('common:offlines'), data: offline, key: 'offlineMembers' }
@@ -170,10 +170,14 @@ export const MemberListStatus = React.memo(() => {
 					keyExtractor={(item, index) => `channelMember[${index}]_${item?.id}`}
 					renderItem={renderMemberItem}
 					renderSectionHeader={({ section: { title } }) => {
-						if (isDMThread) return null;
 						return (
 							<Text style={styles.text}>
-								{title} - {title === t('common:onlines') ? online?.length : offline?.length}
+								{title} -
+								{isDMThread
+									? (online?.length ?? 0) + (offline?.length ?? 0)
+									: title === t('common:onlines')
+										? online?.length
+										: offline?.length}
 							</Text>
 						);
 					}}

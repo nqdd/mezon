@@ -3,6 +3,7 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
 import { channelAppActions, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dimensions, Modal, Platform, Text, TouchableOpacity } from 'react-native';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../components/StatusBarHeight/StatusBarHeight';
@@ -15,6 +16,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	const dispatch = useAppDispatch();
 	const paramsRoute = route?.params;
 	const styles = style(themeValue);
+	const { t } = useTranslation(['common']);
 	const [uri, setUri] = useState<string>('');
 	const [orientation, setOrientation] = useState<'Portrait' | 'Landscape'>('Portrait');
 	const appChannel = useAppSelector((state) => selectAppChannelById(state, paramsRoute?.channelId || ''));
@@ -63,7 +65,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 			{orientation === 'Portrait' && Platform.OS === 'ios' && <StatusBarHeight />}
 			<TouchableOpacity onPress={onClose} style={styles.backButton}>
 				<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} />
-				<Text style={styles.buttonText}>Close</Text>
+				<Text style={styles.buttonText}>{t('close')}</Text>
 			</TouchableOpacity>
 			<WebviewBase url={uri} incognito={true} style={styles.container} javaScriptEnabled={true} nestedScrollEnabled={true} onGoBack={onClose} />
 		</Modal>
