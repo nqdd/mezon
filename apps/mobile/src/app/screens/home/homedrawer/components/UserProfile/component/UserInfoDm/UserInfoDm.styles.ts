@@ -1,5 +1,5 @@
 import type { Attributes } from '@mezon/mobile-ui';
-import { size } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -17,5 +17,8 @@ export const style = (colors: Attributes) =>
 		},
 		kickBtnContainer: {
 			backgroundColor: colors.primary
+		},
+		kickBtnText: {
+			color: baseColor.redStrong
 		}
 	});

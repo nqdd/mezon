@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import type { IMezonOptionData } from '../../../../../../../componentUI/MezonOption';
 import MezonOption from '../../../../../../../componentUI/MezonOption';
-import useTabletLandscape from '../../../../../../../hooks/useTabletLandscape';
 import { style } from './styles';
 
 interface IBuzzMessageModalProps {
@@ -25,7 +24,6 @@ const BANTIME_1_DAY = 86400;
 const BANTIME_3_DAYS = 259200;
 
 export const BanUserChannelModal = memo((props: IBuzzMessageModalProps) => {
-	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { user, clanId, channelId } = props;
@@ -83,7 +81,7 @@ export const BanUserChannelModal = memo((props: IBuzzMessageModalProps) => {
 
 	return (
 		<View style={styles.main}>
-			<View style={[styles.container, isTabletLandscape && { maxWidth: '40%' }]}>
+			<View style={[styles.container]}>
 				<Text style={styles.modalTitle}>{`${t('ban.title')} ${user?.clan_nick || user?.user?.display_name || user?.user?.username}`}</Text>
 				<MezonOption title={t('ban.time.title')} value={timeOption} data={timeOptions} onChange={handleTimeOptionChange} />
 				<TouchableOpacity onPress={onConfirm} style={styles.yesButton}>
