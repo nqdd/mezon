@@ -135,7 +135,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 
 		return () => {
 			if (currentSocket) {
-				currentSocket.onvoicereactionmessage = undefined;
+				currentSocket.onvoicereactionmessage = () => {};
 			}
 			audioMap.forEach((audio) => {
 				audio.pause();
