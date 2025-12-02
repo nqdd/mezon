@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { appActions, clansActions, selectAllAccount, selectLogoCustom, useAppDispatch } from '@mezon/store-mobile';
 import { MAX_FILE_SIZE_1MB } from '@mezon/utils';
 import React, { memo } from 'react';
@@ -79,7 +79,7 @@ export const DirectMessageLogo = memo(() => {
 			/>
 			{!!logoCustom && (
 				<TouchableOpacity style={styles.removeButton} onPress={handleShowConfirmModal}>
-					<MezonIconCDN icon={IconCDN.circleXIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+					<MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.redStrong} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 			)}
 		</View>

@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { notificationActions, useAppDispatch } from '@mezon/store-mobile';
 import { INotification, NotificationCategory } from '@mezon/utils';
 import { memo, useCallback, useMemo } from 'react';
@@ -9,6 +9,7 @@ import { InboxType } from '..';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import MezonMenu, { IMezonMenuSectionProps } from '../../../componentUI/MezonMenu';
 import { IconCDN } from '../../../constants/icon_cdn';
+import { style } from '../Notifications.styles';
 
 const mappingCategory = (selectedTab: string) => {
 	switch (selectedTab) {
@@ -26,6 +27,7 @@ const mappingCategory = (selectedTab: string) => {
 export default memo(function NotificationItemOption({ currentNotify, currentCategory }: { currentNotify: INotification; currentCategory: string }) {
 	const { t } = useTranslation(['notification']);
 	const { themeValue } = useTheme();
+	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 
 	const handleDeleteNotify = useCallback(() => {
@@ -44,8 +46,9 @@ export default memo(function NotificationItemOption({ currentNotify, currentCate
 					items: [
 						{
 							title: t('removeNotification'),
-							icon: <MezonIconCDN icon={IconCDN.trashIcon} height={20} width={20} color={themeValue.textStrong} />,
-							onPress: handleDeleteNotify
+							icon: <MezonIconCDN icon={IconCDN.trashIcon} height={20} width={20} color={baseColor.redStrong} />,
+							onPress: handleDeleteNotify,
+							textStyle: styles.warningText
 						}
 					]
 				}
