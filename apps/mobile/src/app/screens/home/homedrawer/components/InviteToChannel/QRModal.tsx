@@ -1,11 +1,14 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
+import { ActionEmitEvent, inviteLinkRegex } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import Share from 'react-native-share';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
+import RNFetchBlob from 'rn-fetch-blob';
 import RNQRGenerator from 'rn-qr-generator';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
@@ -28,7 +31,7 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 		if (!inviteLink) return;
 
 		if (qrCodeCache.current.has(inviteLink)) {
-			const cachedUri = qrCodeCache.current.get(inviteLink)!;
+			const cachedUri = qrCodeCache.current.get(inviteLink);
 			setQrCodeUri(cachedUri);
 			return;
 		}
@@ -53,23 +56,44 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 		try {
 			if (!qrCodeUri) return;
 			const filePath = qrCodeUri.startsWith('file://') ? qrCodeUri : `file://${qrCodeUri}`;
-			await saveMediaToCameraRoll(filePath, 'image', true);
-		} catch (e) {
-			console.log(t('qrModal.downloadError'), e);
+			await saveMediaToCameraRoll(filePath, 'image', true, false);
+		} catch (error) {
+			console.error('Error downloading QR code:', error);
 		}
 	}, [qrCodeUri]);
 
 	const handleShareQRCode = useCallback(async () => {
+		if (!qrCodeUri) return;
+
 		try {
-			if (!qrCodeUri) return;
-			await Share.share({
-				url: qrCodeUri,
-				message: inviteLink || ''
+			const baseDir = `${RNFetchBlob.fs.dirs.CacheDir}/mezon_invite_qr`;
+			const exists = await RNFetchBlob.fs.exists(baseDir);
+			if (!exists) await RNFetchBlob.fs.mkdir(baseDir);
+
+			const match = inviteLink.match(inviteLinkRegex);
+			const inviteId = match ? match[1] : Date.now().toString();
+
+			const shareFilePath = `${baseDir}/qr_share_${inviteId}.png`;
+			const fileExists = await RNFetchBlob.fs.exists(shareFilePath);
+			if (!fileExists) {
+				await RNFetchBlob.fs.cp(qrCodeUri.replace('file://', ''), shareFilePath);
+			}
+
+			await Share.open({
+				url: `file://${shareFilePath}`,
+				type: 'image/png',
+				title: `Invite_link_${inviteLink}`,
+				message: `Join ${currentClanName ? currentClanName : 'Clan'} on Mezon with me: ${inviteLink}`,
+				failOnCancel: false
 			});
-		} catch (e) {
-			console.log(t('qrModal.shareError'), e);
+		} catch (error) {
+			Toast.show({
+				type: 'error',
+				text1: t('qrModal.shareError')
+			});
+			console.error('Error sharing QR code:', error);
 		}
-	}, [qrCodeUri, inviteLink]);
+	}, [currentClanName, inviteLink, qrCodeUri]);
 
 	const handleCloseModal = useCallback(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
