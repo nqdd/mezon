@@ -177,12 +177,16 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}
 	};
 
+	const handleBack = () => {
+		navigation.goBack();
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
 				<View style={[styles.backgroundListIcon, isTabletLandscape && { justifyContent: 'space-between' }]}>
 					{isTabletLandscape && (
-						<TouchableOpacity style={styles.backgroundSetting} onPress={navigation.goBack()}>
+						<TouchableOpacity style={styles.backgroundSetting} onPress={handleBack}>
 							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 						</TouchableOpacity>
 					)}
