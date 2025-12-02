@@ -1,4 +1,4 @@
-import { RoomContext } from '@livekit/components-react';
+import { LiveKitRoom } from '@livekit/components-react';
 import '@livekit/components-styles';
 
 import { EmojiSuggestionProvider, useAppParams, useAuth } from '@mezon/core';
@@ -28,26 +28,12 @@ import {
 	voiceActions
 } from '@mezon/store';
 
+import { MyVideoConference, PreJoinVoiceChannel } from '@mezon/components';
 import { ParticipantMeetState, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
-import type { RoomConnectOptions, RoomOptions, VideoCodec } from 'livekit-client';
-import { Room, VideoPresets } from 'livekit-client';
 import { ChannelType } from 'mezon-js';
-import { Suspense, lazy, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, memo, useCallback, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import ChatStream from '../chatStream';
-import { useLowCPUOptimizer } from './hooks/useLowCPUOptimizer';
-
-const PreJoinVoiceChannel = lazy(() =>
-	import('@mezon/components').then((module) => ({
-		default: module.PreJoinVoiceChannel
-	}))
-);
-
-const MyVideoConference = lazy(() =>
-	import('@mezon/components').then((module) => ({
-		default: module.MyVideoConference
-	}))
-);
 
 const ChannelVoiceInner = () => {
 	const isJoined = useSelector(selectVoiceJoined);
@@ -67,51 +53,6 @@ const ChannelVoiceInner = () => {
 	const isChannelMezonVoice = currentChannelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const { userProfile } = useAuth();
-
-	const roomOptions = useMemo(
-		(): RoomOptions => ({
-			videoCaptureDefaults: {
-				resolution: VideoPresets.h720
-			},
-			publishDefaults: {
-				dtx: false,
-				videoSimulcastLayers: [VideoPresets.h540, VideoPresets.h216],
-				videoCodec: 'vp9' as VideoCodec
-			},
-			adaptiveStream: true,
-			dynacast: true,
-			singlePeerConnection: true
-		}),
-		[]
-	);
-
-	const room = useMemo(() => new Room(roomOptions), [roomOptions]);
-
-	const connectOptions = useMemo(
-		(): RoomConnectOptions => ({
-			autoSubscribe: true
-		}),
-		[]
-	);
-
-	const handleError = useCallback((error: Error) => {
-		console.error('Room error:', error);
-	}, []);
-
-	useEffect(() => {
-		if (!token || !serverUrl) return;
-		room.connect(serverUrl, token, connectOptions).catch((error) => {
-			handleError(error);
-		});
-	}, [token, serverUrl, room, connectOptions, handleError]);
-
-	const lowPowerMode = useLowCPUOptimizer(room);
-
-	useEffect(() => {
-		if (lowPowerMode) {
-			console.warn('Low power mode enabled');
-		}
-	}, [lowPowerMode]);
 
 	const participantMeetState = useCallback(
 		async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
@@ -242,7 +183,16 @@ const ChannelVoiceInner = () => {
 							className={`${!isShow || isOpenPopOut ? '!hidden' : ''} lk-room-container flex ${isVoiceFullScreen ? 'w-full h-full' : ''}`}
 							data-lk-theme="default"
 						>
-							<RoomContext.Provider value={room}>
+							<LiveKitRoom
+								ref={containerRef}
+								id="livekitRoom11"
+								key={token}
+								className={`${!isShow || isOpenPopOut ? '!hidden' : ''} flex ${isVoiceFullScreen ? 'w-full h-full' : ''}`}
+								video={false}
+								token={token}
+								serverUrl={serverUrl}
+								data-lk-theme="default"
+							>
 								<div className="flex-1 relative flex overflow-hidden">
 									<MyVideoConference
 										token={token}
@@ -262,7 +212,7 @@ const ChannelVoiceInner = () => {
 										)}
 									</EmojiSuggestionProvider>
 								</div>
-							</RoomContext.Provider>
+							</LiveKitRoom>
 						</div>
 					</>
 				)}
