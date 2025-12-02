@@ -70,7 +70,7 @@ const QRModalComponent: React.FC<QRModalProps> = ({ inviteLink }) => {
 			const exists = await RNFetchBlob.fs.exists(baseDir);
 			if (!exists) await RNFetchBlob.fs.mkdir(baseDir);
 
-			const match = inviteLink.match(inviteLinkRegex);
+			const match = inviteLink?.match(inviteLinkRegex);
 			const inviteId = match ? match[1] : Date.now().toString();
 
 			const shareFilePath = `${baseDir}/qr_share_${inviteId}.png`;
