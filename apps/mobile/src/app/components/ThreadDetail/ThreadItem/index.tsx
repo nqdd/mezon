@@ -1,9 +1,10 @@
 import { getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity, MessagesEntity, ThreadsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
 	getStoreAsync,
+	listChannelRenderAction,
 	selectLastMessageIdByChannelId,
 	selectMemberClanByUserId,
 	selectMessageEntityById,
@@ -52,9 +53,15 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 			navigation.navigate(APP_SCREEN.HOME_DEFAULT);
 		}
 		const channelId = thread?.channel_id;
+		store.dispatch(
+			listChannelRenderAction.addThreadToListRender({
+				clanId: clanId ?? '',
+				channel: thread as ChannelsEntity
+			})
+		);
 		requestAnimationFrame(async () => {
 			store.dispatch(channelsActions.upsertOne({ clanId: clanId ?? '', channel: thread as ChannelsEntity }));
-			await store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId: thread.channel_id, noFetchMembers: false }));
+			await store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId, noFetchMembers: false }));
 		});
 		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);

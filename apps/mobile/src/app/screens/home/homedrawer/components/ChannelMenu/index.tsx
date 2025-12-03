@@ -364,6 +364,9 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				);
 				if (response?.meta?.requestStatus === 'rejected') {
 					Toast.show({ type: 'error', text1: response?.error?.message });
+				} else if (!isChannel && channel?.parent_id && channel?.channel_id) {
+					dispatch(threadsActions.remove(channel.channel_id));
+					dispatch(threadsActions.removeThreadFromCache({ channelId: channel.parent_id, threadId: channel.channel_id }));
 				}
 			}
 		} catch (error) {
@@ -371,7 +374,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [dispatch, channel?.channel_id, channel?.clan_id, currentSystemMessage?.channel_id, t]);
+	}, [channel?.channel_id, channel?.clan_id, channel?.parent_id, currentSystemMessage?.channel_id, t, isChannel]);
 
 	const handleConfirmLeaveThread = useCallback(async () => {
 		await dispatch(

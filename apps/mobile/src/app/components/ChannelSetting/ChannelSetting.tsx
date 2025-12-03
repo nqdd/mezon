@@ -4,8 +4,8 @@ import { ActionEmitEvent, isEqual } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
-	channelsActions,
 	channelUsersActions,
+	channelsActions,
 	fetchSystemMessageByClanId,
 	selectAllChannels,
 	selectChannelById,
@@ -15,9 +15,9 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { checkIsThread, EOverriddenPermission, EPermission } from '@mezon/utils';
+import { EOverriddenPermission, EPermission, checkIsThread } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -37,7 +37,6 @@ import { style } from './styles';
 interface IChannelSettingValue {
 	channelName: string;
 	channelTopic: string;
-	//TODO: update more
 }
 
 type ScreenChannelSetting = typeof APP_SCREEN.MENU_CHANNEL.SETTINGS;
@@ -316,6 +315,9 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 			);
 			if (response?.meta?.requestStatus === 'rejected') {
 				throw response?.error?.message;
+			} else if (!isChannel && channel?.parent_id && channel?.channel_id) {
+				dispatch(threadsActions.remove(channel.channel_id));
+				dispatch(threadsActions.removeThreadFromCache({ channelId: channel.parent_id, threadId: channel.channel_id }));
 			}
 			navigation.navigate(APP_SCREEN.HOME);
 			if (channel?.parent_id !== '0') {
@@ -332,7 +334,7 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 		}
-	}, [channel?.channel_id, channel?.clan_id, channel?.parent_id, currentSystemMessage?.channel_id]);
+	}, [channel?.channel_id, channel?.clan_id, channel?.parent_id, currentSystemMessage?.channel_id, isChannel]);
 
 	const handleConfirmLeaveThread = useCallback(async () => {
 		try {
