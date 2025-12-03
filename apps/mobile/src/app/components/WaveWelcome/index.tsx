@@ -1,7 +1,8 @@
 import { useChatSending } from '@mezon/core';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentChannel, selectDmGroupCurrent } from '@mezon/store-mobile';
-import { IMessage, IMessageSendPayload, MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME, createImgproxyUrl } from '@mezon/utils';
+import type { IMessage, IMessageSendPayload } from '@mezon/utils';
+import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME, createImgproxyUrl } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -31,32 +32,40 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 		channelOrDirect: currentDmGroup || currenChannel
 	});
 
+	const waveIcon = useMemo(() => {
+		if (!message?.create_time_seconds) {
+			return STICKER_WAVE.LIST_STICKER[0];
+		}
+
+		return STICKER_WAVE.LIST_STICKER[message.create_time_seconds % STICKER_WAVE.LIST_STICKER.length];
+	}, [message?.create_time_seconds]);
+
 	const handleSendWaveSticker = async () => {
 		try {
 			const content: IMessageSendPayload = { t: '' };
 			const ref = {
 				message_id: '',
-				message_ref_id: message.id,
+				message_ref_id: message?.id,
 				ref_type: 0,
 				message_sender_id: message?.sender_id,
 				message_sender_username: WAVE_SENDER_NAME,
 				mesages_sender_avatar: MEZON_AVATAR_URL,
 				message_sender_clan_nick: WAVE_SENDER_NAME,
 				message_sender_display_name: WAVE_SENDER_NAME,
-				content: JSON.stringify(message.content),
+				content: JSON.stringify(message?.content),
 				has_attachment: false,
-				channel_id: message.channel_id ?? '',
-				mode: message.mode ?? 0,
-				channel_label: message.channel_label
+				channel_id: message?.channel_id ?? '',
+				mode: message?.mode ?? 0,
+				channel_label: message?.channel_label
 			};
 			const attachments = [
 				{
-					url: STICKER_WAVE.URL,
+					url: waveIcon.URL,
 					filetype: 'image/gif',
 					filename: STICKER_WAVE.NAME,
-					size: 374892,
-					width: 150,
-					height: 150
+					size: waveIcon.SIZE,
+					width: 200,
+					height: 200
 				}
 			];
 
@@ -69,7 +78,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	return (
 		<TouchableOpacity style={styles.waveButton} onPress={handleSendWaveSticker}>
 			<ImageNative
-				url={createImgproxyUrl(STICKER_WAVE.URL ?? '', { width: 50, height: 50, resizeType: 'fit' })}
+				url={createImgproxyUrl(waveIcon.URL, { width: 50, height: 50, resizeType: 'fit' })}
 				style={styles.waveIcon}
 				resizeMode="contain"
 			/>
