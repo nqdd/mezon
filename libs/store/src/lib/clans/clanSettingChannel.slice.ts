@@ -187,7 +187,6 @@ export const settingClanChannelSlice = createSlice({
 		updateChannelFromSocket: (state, action) => {
 			const channel = action.payload;
 			if (!channel?.id) return;
-
 			if (state.entities[channel.id]) {
 				channelSettingAdapter.updateOne(state, {
 					id: channel.id,
@@ -195,7 +194,6 @@ export const settingClanChannelSlice = createSlice({
 				});
 				return;
 			}
-
 			if (channel.parent_id && state.threadsByChannel[channel.parent_id]) {
 				const threads = state.threadsByChannel[channel.parent_id];
 				const index = threads.findIndex((t) => t.id === channel.id);
@@ -230,7 +228,6 @@ export const settingClanChannelSlice = createSlice({
 				if (!fromCache && response) {
 					state.loadingStatus = 'loaded';
 					const cleanedList = (response.channel_setting_list || []).map(cleanUndefinedFields);
-
 					switch (typeFetch) {
 						case ETypeFetchChannelSetting.FETCH_CHANNEL:
 							channelSettingAdapter.upsertMany(state, cleanedList);
