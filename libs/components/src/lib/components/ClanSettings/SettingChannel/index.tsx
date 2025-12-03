@@ -171,6 +171,10 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 		return channelParent.channel_type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 	}, [channelParent.channel_type]);
 
+	const isStreamChannel = useMemo(() => {
+		return channelParent.channel_type === ChannelType.CHANNEL_TYPE_STREAMING;
+	}, [channelParent.channel_type]);
+
 	return (
 		<div className="flex flex-col border-b-[1px] border-b-theme-primary last:border-b-0">
 			<div className="relative" onClick={handleFetchThreads}>
@@ -178,14 +182,14 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 					creatorId={channelParent.creator_id as string}
 					label={channelParent?.channel_label as string}
 					privateChannel={channelParent?.channel_private as number}
-					isThread={channelParent?.parent_id !== '0'}
+					isThread={false}
 					key={channelParent?.id}
 					userIds={channelParent?.user_ids || []}
 					channelId={channelParent?.id as string}
 					isVoice={isVoiceChannel}
 					messageCount={channelParent?.message_count || 0}
 					lastMessage={channelParent?.last_sent_message}
-					isStream={channelParent?.channel_type === ChannelType.CHANNEL_TYPE_STREAMING}
+					isStream={isStreamChannel}
 				/>
 				{!isVoiceChannel && !searchFilter && (
 					<div
@@ -204,12 +208,14 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 								creatorId={thread?.creator_id as string}
 								label={thread?.channel_label as string}
 								privateChannel={thread?.channel_private as number}
-								isThread={thread?.parent_id !== '0'}
+								isThread={thread?.channel_type === ChannelType.CHANNEL_TYPE_THREAD}
 								key={`${thread?.id}_thread`}
 								userIds={thread?.user_ids || []}
 								channelId={thread?.id as string}
 								messageCount={thread?.message_count || 0}
 								lastMessage={thread.last_sent_message}
+								isVoice={thread?.channel_type === ChannelType.CHANNEL_TYPE_MEZON_VOICE}
+								isStream={thread?.channel_type === ChannelType.CHANNEL_TYPE_STREAMING}
 							/>
 						))
 					) : (
