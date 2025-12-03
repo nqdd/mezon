@@ -20,6 +20,7 @@ import ControlBar from '../ControlBar/ControlBar';
 import { CarouselLayout } from './FocusLayout/CarouselLayout/CarouselLayout';
 import { FocusLayout, FocusLayoutContainer } from './FocusLayout/FocusLayoutContainer';
 import { GridLayout } from './GridLayout/GridLayout';
+import { useScreenSharePublisher } from './hooks/useScreenSharePublisher';
 import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 import { ReactionCallHandler } from './Reaction';
 import { useSoundReactions } from './Reaction/useSoundReactions';
@@ -68,6 +69,10 @@ export const MyVideoConference = memo(
 		);
 
 		const tracks = propTracks || tracksFromHook;
+		const dispatch = useAppDispatch();
+		const room = useRoomContext();
+
+		useScreenSharePublisher(room);
 
 		const layoutContext = useCreateLayoutContext();
 
@@ -84,9 +89,6 @@ export const MyVideoConference = memo(
 		const handleShowMember = useCallback(() => {
 			setIsShowMember((prevState) => !prevState);
 		}, []);
-
-		const dispatch = useAppDispatch();
-		const room = useRoomContext();
 
 		useEffect(() => {
 			if (screenShareTracks.some((track) => track.publication.isSubscribed) && lastAutoFocusedScreenShareTrack.current === null) {
@@ -364,5 +366,8 @@ export const MyVideoConference = memo(
 		cur.token === prev.token &&
 		cur.url === prev.url &&
 		cur.isShowChatVoice === prev.isShowChatVoice &&
-		cur.isExternalCalling === prev.isExternalCalling
+		cur.isExternalCalling === prev.isExternalCalling &&
+		cur.onLeaveRoom === prev.onLeaveRoom &&
+		cur.onFullScreen === prev.onFullScreen &&
+		cur.onJoinRoom === prev.onJoinRoom
 );

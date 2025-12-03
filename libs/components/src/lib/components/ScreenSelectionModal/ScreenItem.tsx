@@ -19,24 +19,14 @@ const ScreenItems = memo(({ id, name, thumbnail, onClose, audio }: ScreenItemsPr
 
 		setIsSelecting(true);
 		try {
-			const stream = await navigator.mediaDevices.getUserMedia({
-				video: {
-					mandatory: {
-						chromeMediaSource: 'desktop',
-						chromeMediaSourceId: id
-					}
-				},
-				audio: audio
-					? {
-							mandatory: {
-								chromeMediaSource: 'desktop',
-								chromeMediaSourceId: id
-							}
-						}
-					: false
-			} as MediaStreamConstraints);
 			dispatch(voiceActions.setShowSelectScreenModal(false));
-			dispatch(voiceActions.setStreamScreen(stream));
+			dispatch(
+				voiceActions.setScreenSource({
+					id,
+					audio,
+					mode: 'electron'
+				})
+			);
 			dispatch(voiceActions.setShowScreen(true));
 			onClose?.();
 		} catch (error) {

@@ -91,6 +91,9 @@ const VoiceInfo = React.memo(() => {
 			} else {
 				dispatch(voiceActions.resetVoiceControl());
 			}
+			if (userProfile?.user?.id) {
+				dispatch(voiceActions.removeFromClanInvoice(userProfile.user.id));
+			}
 			await participantMeetState(
 				ParticipantMeetState.LEAVE,
 				currentVoiceInfo.clanId,
@@ -143,7 +146,7 @@ const VoiceInfo = React.memo(() => {
 				? `${process.env.NX_DOMAIN_URL}/chat/direct/message/${currentVoiceInfo.channelId}/${ChannelType.CHANNEL_TYPE_GROUP}`
 				: `${process.env.NX_DOMAIN_URL}/chat/clans/${currentVoiceInfo.clanId}/channels/${currentVoiceInfo.channelId}`;
 		}
-	}, [currentVoiceInfo]);
+	}, [currentVoiceInfo, isGroupCallActive]);
 	return (
 		<div
 			className={`flex flex-col gap-2 rounded-t-lg border-b-2 border-theme-primary px-4 py-2 hover:bg-gray-550/[0.16] shadow-sm transition bg-theme-chat w-full group`}

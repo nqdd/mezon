@@ -1,3 +1,4 @@
+import { loadUserChoices, saveUserChoices } from '@livekit/components-core';
 import { RoomContext } from '@livekit/components-react';
 import '@livekit/components-styles';
 
@@ -187,10 +188,20 @@ const ChannelVoiceInner = () => {
 				console.error('Failed to disconnect LiveKit room:', error);
 			}
 
+			const currentUserChoices = loadUserChoices();
+			saveUserChoices({
+				...currentUserChoices,
+				audioEnabled: false,
+				videoEnabled: false
+			});
+
 			dispatch(voiceActions.resetVoiceControl());
+			if (userProfile?.user?.id) {
+				dispatch(voiceActions.removeFromClanInvoice(userProfile.user.id));
+			}
 			await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
 		},
-		[dispatch, participantMeetState, room, voiceInfo]
+		[dispatch, participantMeetState, room, userProfile?.user?.id, voiceInfo]
 	);
 
 	const handleFullScreen = useCallback(() => {
