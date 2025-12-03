@@ -22,6 +22,9 @@ export const style = (colors: Attributes) =>
 			fontWeight: '600',
 			color: colors.text
 		},
+		redText: {
+			color: baseColor.redStrong
+		},
 		headerCustomGroup: {
 			fontSize: size.regular,
 			fontWeight: '600',

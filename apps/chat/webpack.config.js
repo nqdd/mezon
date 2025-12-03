@@ -2,7 +2,6 @@ const path = require('path');
 const { composePlugins, withNx } = require('@nx/webpack');
 const { withReact } = require('@nx/react');
 const { merge } = require('webpack-merge');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
@@ -83,33 +82,6 @@ module.exports = composePlugins(
 			config.output.assetModuleFilename = `assets/[name].${versionHash}.[contenthash][ext]`;
 		}
 
-		config.plugins.push(
-			new CopyWebpackPlugin({
-				patterns: [
-					{
-						from: path.resolve(__dirname, '../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs'),
-						to: 'pdf.worker.min.mjs',
-						noErrorOnMissing: true
-					},
-					{
-						from: path.resolve(__dirname, '../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs'),
-						to: 'assets/pdf.worker.min.mjs',
-						noErrorOnMissing: true
-					},
-					{
-						from: path.resolve(__dirname, '../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs'),
-						to: 'pdf.worker.min.js',
-						noErrorOnMissing: true
-					},
-					{
-						from: path.resolve(__dirname, '../../node_modules/pdfjs-dist/build/pdf.worker.min.mjs'),
-						to: 'assets/pdf.worker.min.js',
-						noErrorOnMissing: true
-					}
-				]
-			})
-		);
-
 		config.devServer = config.devServer || {};
 
 		config.devServer.allowedHosts = 'all';
@@ -148,29 +120,12 @@ module.exports = composePlugins(
 
 		const cspPolicy = [...basePolicies, ...resourcePolicies, ...iframePolicies].join('; ');
 
-		// Add security headers to prevent XSS attacks
 		config.devServer.headers = {
 			'Content-Security-Policy': cspPolicy,
 			'X-Content-Type-Options': 'nosniff',
 			'X-Frame-Options': 'SAMEORIGIN',
 			'X-XSS-Protection': '1; mode=block',
 			'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
-			// 'Cross-Origin-Opener-Policy': 'same-origin',
-			// 'Cross-Origin-Embedder-Policy': 'credentialless'
-		};
-
-		config.devServer.setupMiddlewares = (middlewares, devServer) => {
-			if (!devServer) {
-				throw new Error('webpack-dev-server is not defined');
-			}
-
-			devServer.app.use((req, res, next) => {
-				res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-				res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
-				next();
-			});
-
-			return middlewares;
 		};
 
 		config.devServer.static = {

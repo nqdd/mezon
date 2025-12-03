@@ -1,5 +1,5 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
 import {
 	deleteChannel,
@@ -65,8 +65,8 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 		{
 			title: lastOne ? t('dmMessage:menu.deleteGroup') : t('dmMessage:menu.leaveGroup'),
 			expandable: false,
-			icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_22} height={size.s_22} color={themeValue.text} />,
-			textStyle: styles.label,
+			icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_22} height={size.s_22} color={baseColor.redStrong} />,
+			textStyle: [styles.label, styles.redText],
 			onPress: async () => {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 				await sleep(500);
@@ -102,8 +102,8 @@ const MenuCustomDm = ({ currentChannel, channelLabel }: { currentChannel: IChann
 				{
 					title: t('closeDM'),
 					expandable: false,
-					icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />,
-					textStyle: styles.label,
+					icon: <MezonIconCDN icon={IconCDN.circleXIcon} width={size.s_18} height={size.s_18} color={baseColor.red} />,
+					textStyle: [styles.label, styles.redText],
 					onPress: async () => {
 						await dispatch(directActions.closeDirectMessage({ channel_id: currentChannel?.channel_id }));
 						navigation.navigate(APP_SCREEN.MESSAGES.HOME);

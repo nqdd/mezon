@@ -12,12 +12,11 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { Icons, Image, InputField, TextArea } from '@mezon/ui';
+import { Icons, Image, InputField, Menu as Dropdown, TextArea } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import { ValidateSpecialCharacters, ValidateURL, checkIsThread, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { ModalSaveChanges } from 'libs/components/src/lib/components';
-import Dropdown from 'libs/ui/src/lib/DropDown';
+import { ModalSaveChanges } from '@mezon/components';
 import { ChannelType } from 'mezon-js';
 import type { ReactElement } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';

@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { appActions, channelsActions, selectChannelById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { MAX_FILE_SIZE_10MB } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -104,7 +104,7 @@ const StreamBannerScreen = ({ navigation, route }: MenuChannelScreenProps<Channe
 					/>
 					{banner && (
 						<Pressable style={styles.clearBannerButton} onPress={handleClearBanner}>
-							<MezonIconCDN icon={IconCDN.circleXIcon} height={25} width={25} color={themeValue.white} />
+							<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_24} width={size.s_24} color={baseColor.redStrong} />
 						</Pressable>
 					)}
 				</View>

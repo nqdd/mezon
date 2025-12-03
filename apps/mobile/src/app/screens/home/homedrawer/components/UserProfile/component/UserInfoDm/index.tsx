@@ -31,7 +31,8 @@ export default function UserInfoDm({
 				handleRemoveMemberChannel();
 			},
 			styleBtn: styles.kickBtnContainer,
-			isShow: isShowRemoveGroup
+			isShow: isShowRemoveGroup,
+			textStyle: styles.kickBtnText
 		}
 	];
 

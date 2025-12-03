@@ -207,8 +207,8 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 			},
 			title: t('menu.closeDm'),
 			isShow: !isGroup,
-			icon: <MezonIconCDN icon={IconCDN.closeDMIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_4 }} />,
-			textStyle: styles.menuTextMarginLeft
+			icon: <MezonIconCDN icon={IconCDN.closeDMIcon} color={baseColor.redStrong} customStyle={{ marginBottom: size.s_4 }} />,
+			textStyle: [styles.menuTextMarginLeft, styles.redText]
 		},
 		{
 			onPress: infoFriend?.state === EStateFriend.FRIEND ? handleDeleteFriend : handleAddFriend,
@@ -221,20 +221,22 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 				!isChatWithMyself,
 			icon:
 				infoFriend?.state === EStateFriend.FRIEND ? (
-					<MezonIconCDN icon={IconCDN.removeFriend} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
+					<MezonIconCDN icon={IconCDN.removeFriend} color={baseColor.redStrong} customStyle={{ marginBottom: size.s_2 }} />
 				) : (
-					<MezonIconCDN icon={IconCDN.userPlusIcon} color={themeValue.textStrong} customStyle={{ marginBottom: size.s_2 }} />
-				)
+					<MezonIconCDN icon={IconCDN.userPlusIcon} color={baseColor.redStrong} customStyle={{ marginBottom: size.s_2 }} />
+				),
+			textStyle: [styles.menuTextMarginLeft, styles.redText]
 		},
 		{
 			onPress: didIBlockUser ? handleUnblockFriend : handleBlockFriend,
 			title: didIBlockUser ? t('menu.unblockUser') : t('menu.blockUser'),
 			isShow: !isGroup && (infoFriend?.state === EStateFriend.FRIEND || didIBlockUser) && !isChatWithMyself,
 			icon: didIBlockUser ? (
-				<MezonIconCDN icon={IconCDN.unblockUser} color={themeValue.textStrong} />
+				<MezonIconCDN icon={IconCDN.unblockUser} color={baseColor.redStrong} />
 			) : (
-				<MezonIconCDN icon={IconCDN.blockUser} color={themeValue.textStrong} />
-			)
+				<MezonIconCDN icon={IconCDN.blockUser} color={baseColor.redStrong} />
+			),
+			textStyle: [styles.menuTextMarginLeft, styles.redText]
 		}
 	];
 

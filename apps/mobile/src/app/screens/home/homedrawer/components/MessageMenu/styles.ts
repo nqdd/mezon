@@ -1,4 +1,5 @@
-import { Attributes, baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -76,5 +77,8 @@ export const style = (colors: Attributes) =>
 		imageFullSize: {
 			width: '100%',
 			height: '100%'
+		},
+		redText: {
+			color: baseColor.redStrong
 		}
 	});
