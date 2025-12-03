@@ -28,12 +28,12 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	});
 
 	const urlIcon = useMemo(() => {
-		if (!message?.create_time_seconds) {
+		if (!message.create_time_seconds) {
 			return STICKER_WAVE.LIST_STICKER[0];
 		}
 
 		return STICKER_WAVE.LIST_STICKER[message.create_time_seconds % STICKER_WAVE.LIST_STICKER.length];
-	}, [message?.create_time_seconds]);
+	}, [message.create_time_seconds]);
 
 	const handleSendWaveSticker = () => {
 		const store = getStore();
@@ -47,18 +47,18 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 			const content: IMessageSendPayload = { t: '' };
 			const ref = {
 				message_id: '',
-				message_ref_id: message?.id,
+				message_ref_id: message.id,
 				ref_type: 0,
 				message_sender_id: message?.sender_id,
 				message_sender_username: WAVE_SENDER_NAME,
 				mesages_sender_avatar: MEZON_AVATAR_URL,
 				message_sender_clan_nick: WAVE_SENDER_NAME,
 				message_sender_display_name: WAVE_SENDER_NAME,
-				content: JSON.stringify(message?.content),
+				content: JSON.stringify(message.content),
 				has_attachment: false,
-				channel_id: message?.channel_id ?? '',
-				mode: message?.mode ?? 0,
-				channel_label: message?.channel_label
+				channel_id: message.channel_id ?? '',
+				mode: message.mode ?? 0,
+				channel_label: message.channel_label
 			};
 			const attachments = [
 				{
