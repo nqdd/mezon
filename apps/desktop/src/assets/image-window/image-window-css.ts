@@ -4,12 +4,13 @@ body {
     font-family: Arial, sans-serif;
     height: 100vh;
     /*display: flex;*/
-    background-color: #1a1a1a;
+    background-color: transparent;
     color: white;
     overflow: hidden;
 }
 
 .title-bar {
+    border-radius: 8px 8px 0px 0px;
     height: 21px;
     display: flex;
     justify-content: space-between;
@@ -20,6 +21,30 @@ body {
     z-index: 2;
     position: fixed;
 }
+
+.footer-bar {
+    border-radius: 0px 0px 8px 8px;
+    height: 21px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: #1E1F22;
+    width: 100vw;
+    z-index: 2;
+    position: fixed;
+	padding: 4px 0;
+	bottom : 0;
+}
+.window-wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
 
 .app-title {
     width: fit-content;
@@ -32,8 +57,9 @@ body {
 }
 
 .functional-bar {
-    display: grid;
-    grid-template-columns: repeat(3, 27px);
+    display: flex;
+	padding : 0 12px;
+	gap:4px;
     position: absolute;
     top: 0;
     right: 0;
