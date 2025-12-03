@@ -6,8 +6,8 @@ import {
 	selectAttachment,
 	selectAttachmentPaginationByChannel,
 	selectCurrentAttachmentShowImage,
-	selectCurrentChannel,
 	selectCurrentChannelId,
+	selectCurrentChannelLabel,
 	selectCurrentClanId,
 	selectDmChannelLabelById,
 	selectMemberClanByUserId,
@@ -325,7 +325,7 @@ const MessageModalImage = () => {
 		setDragging(false);
 	};
 
-	const currentChannel = useAppSelector(selectCurrentChannel);
+	const currentChannelLabel = useAppSelector(selectCurrentChannelLabel);
 	const currentDmLabel = useAppSelector((state) => selectDmChannelLabelById(state, (directId as string) || ''));
 
 	const handleRotateImg = (direction: 'LEFT' | 'RIGHT') => {
@@ -369,7 +369,7 @@ const MessageModalImage = () => {
 			className={`justify-center items-center flex flex-col fixed z-40 inset-0 outline-none focus:outline-none bg-black text-colorTextLightMode select-none`}
 		>
 			<div className="flex justify-center items-center bg-[#2e2e2e] w-full h-[30px] relative">
-				<div className="text-textDarkTheme">{currentDmLabel || currentChannel?.channel_label}</div>
+				<div className="text-textDarkTheme">{currentDmLabel || currentChannelLabel}</div>
 				<div onClick={closeModal} className="w-4 absolute right-2 top-2 cursor-pointer">
 					<Icons.MenuClose className="text-white w-full" />
 				</div>

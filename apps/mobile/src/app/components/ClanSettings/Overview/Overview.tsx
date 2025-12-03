@@ -443,7 +443,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 
 				{banner && (
 					<Pressable style={styles.clearBannerButton} onPress={handleClearBanner}>
-						<MezonIconCDN icon={IconCDN.circleXIcon} height={25} width={25} color={themeValue.white} />
+						<MezonIconCDN icon={IconCDN.circleXIcon} height={size.s_24} width={size.s_24} color={baseColor.redStrong} />
 					</Pressable>
 				)}
 

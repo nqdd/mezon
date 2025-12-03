@@ -11,7 +11,7 @@ import {
 	useWallet,
 	walletActions
 } from '@mezon/store-mobile';
-import { createImgproxyUrl, CURRENCY, formatBalanceToString } from '@mezon/utils';
+import { CURRENCY, createImgproxyUrl, formatBalanceToString } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
@@ -177,12 +177,16 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 		}
 	};
 
+	const handleBack = () => {
+		navigation.goBack();
+	};
+
 	return (
 		<View style={styles.container}>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
 				<View style={[styles.backgroundListIcon, isTabletLandscape && { justifyContent: 'space-between' }]}>
 					{isTabletLandscape && (
-						<TouchableOpacity style={styles.backgroundSetting} onPress={navigation.goBack()}>
+						<TouchableOpacity style={styles.backgroundSetting} onPress={handleBack}>
 							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
 						</TouchableOpacity>
 					)}

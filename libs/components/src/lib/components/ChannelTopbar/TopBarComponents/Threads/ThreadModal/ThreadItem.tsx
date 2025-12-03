@@ -12,7 +12,7 @@ import {
 } from '@mezon/store';
 import type { ChannelMembersEntity, IChannelMember } from '@mezon/utils';
 import { convertTimeMessage, createImgproxyUrl, generateE2eId } from '@mezon/utils';
-import { AvatarImage } from 'libs/components/src/lib/components';
+import { AvatarImage } from '@mezon/components';
 import type { MutableRefObject } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

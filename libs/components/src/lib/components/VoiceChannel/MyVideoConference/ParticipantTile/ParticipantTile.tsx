@@ -169,30 +169,6 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 
 	const dispatch = useAppDispatch();
 
-	const handleRemoveMember = useCallback(async () => {
-		if (!roomName) {
-			return;
-		}
-		dispatch(
-			voiceActions.kickVoiceMember({
-				room_name: roomName,
-				username: member?.user?.username
-			})
-		);
-	}, [roomName]);
-
-	const handleMuteMember = useCallback(async () => {
-		if (!roomName) {
-			return;
-		}
-		dispatch(
-			voiceActions.muteVoiceMember({
-				room_name: roomName,
-				username: member?.user?.username
-			})
-		);
-	}, [roomName]);
-
 	const [canMangeVoice] = usePermissionChecker([EPermission.manageChannel]);
 	const { userProfile } = useAuth();
 
@@ -215,7 +191,7 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 
 		return (
 			<div
-				className="contexify !bg-theme-contexify font-medium !opacity-100 flex flex-col w-52 rounded-md bg-theme-setting-nav text-theme-primary fixed z-30 p-2"
+				className="contexify !bg-theme-contexify font-medium text-sm !opacity-100 flex flex-col w-52 rounded-md bg-theme-setting-nav text-theme-primary fixed z-30 p-2"
 				style={{
 					top: dragOffset?.y,
 					left: dragOffset?.x,
@@ -223,7 +199,7 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 				}}
 				ref={focusRef}
 			>
-				<div className="p-2 w-full justify-between rounded-md cursor-pointer bg-item-hover items-center flex">{t('menu')}</div>
+				<div className="p-2 w-full justify-between rounded-md items-center flex">{t('menu')}</div>
 				<div className="contexify_separator"></div>
 				{checkOpenMic && (
 					<div
@@ -248,6 +224,32 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 			</div>
 		);
 	}, [member?.id, checkOpenMic, dragOffset]);
+
+	const handleRemoveMember = useCallback(async () => {
+		closeContextVoiceMember();
+		if (!roomName) {
+			return;
+		}
+		dispatch(
+			voiceActions.kickVoiceMember({
+				room_name: roomName,
+				username: member?.user?.username
+			})
+		);
+	}, [roomName, closeContextVoiceMember]);
+
+	const handleMuteMember = useCallback(async () => {
+		closeContextVoiceMember();
+		if (!roomName) {
+			return;
+		}
+		dispatch(
+			voiceActions.muteVoiceMember({
+				room_name: roomName,
+				username: member?.user?.username
+			})
+		);
+	}, [roomName, closeContextVoiceMember]);
 
 	const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
 		closeContextVoiceMember();

@@ -71,6 +71,10 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			color: colors.text,
 			fontSize: size.medium
 		},
+		warningActionText: {
+			color: baseColor.redStrong,
+			fontSize: size.medium
+		},
 		aboutMe: {
 			color: colors.textStrong,
 			fontSize: size.label,

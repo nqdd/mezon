@@ -15,7 +15,6 @@ type PreCallInterfaceProps = {
 const PreCallInterface = memo(({ onJoinCall, onCancel, loading, directId }: PreCallInterfaceProps) => {
 	const currentDmGroup = useSelector(selectDmGroupCurrent(directId ?? ''));
 	const dispatch = useAppDispatch();
-	const avatarImages = currentDmGroup?.channel_avatar || [];
 	const isDmGroup = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP;
 	const isDm = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM;
 	const isVideoCall = useSelector(selectIsVideoGroupCall);
@@ -44,30 +43,19 @@ const PreCallInterface = memo(({ onJoinCall, onCancel, loading, directId }: PreC
 		onCancel();
 	};
 
-	const handleJoin = () => {
-		onJoinCall(isVideoCall);
-	};
-
 	if (!isDmGroup && !isDm) return null;
 
 	const groupName = currentDmGroup?.channel_label || currentDmGroup?.usernames?.join(',') || 'Group Call';
-	const groupAvatar = avatarImages?.[0];
 
 	return (
 		<div className="flex flex-col w-full h-full bg-black/95 items-center justify-center text-white p-4">
 			<div className="flex flex-col items-center gap-6 max-w-md w-full">
-				{/* Call type indicator */}
-				{/* <div className="flex items-center gap-2 text-xl bg-gray-800/60 px-4 py-2 rounded-full animate-pulse">
-					{isVideoCall ? <Icons.IconMeetDM className="h-5 w-5" /> : <Icons.IconPhoneDM className="h-5 w-5" />}
-					<span className="font-medium">{isVideoCall ? 'Starting video call' : 'Starting voice call'}</span>
-				</div> */}
-
 				<CallStatus
 					isConnecting={isConnecting || loading}
 					isConnected={false}
 					participantCount={currentDmGroup?.user_ids?.length || 0}
 					groupName={groupName}
-					groupAvatar={groupAvatar}
+					groupAvatar={currentDmGroup.channel_avatar}
 				/>
 
 				<CallControls onCancel={handleCancel} loading={loading} isVideo={isVideoCall} />

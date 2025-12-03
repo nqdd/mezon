@@ -1,6 +1,7 @@
 import { selectShowScreen } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import type { ButtonHTMLAttributes } from 'react';
+import { forwardRef } from 'react';
 import { useSelector } from 'react-redux';
 
 export interface ScreenShareToggleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
