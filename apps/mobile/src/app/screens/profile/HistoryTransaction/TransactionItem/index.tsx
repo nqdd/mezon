@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { fetchTransactionDetail, selectAllUsersByUser, useAppDispatch } from '@mezon/store-mobile';
+import { selectAllUsersByUser } from '@mezon/store-mobile';
 import { formatBalanceToString } from '@mezon/utils';
 import type { Transaction } from 'mmn-client-js';
 import moment from 'moment';
@@ -20,15 +20,12 @@ export const TransactionItem = ({ item, walletAddress }: { item: Transaction; wa
 	const styles = style(themeValue);
 	const usersClan = useSelector(selectAllUsersByUser);
 
-	const dispatch = useAppDispatch();
-
 	const onPressItem = useCallback(async () => {
-		dispatch(fetchTransactionDetail({ txHash: item.hash }));
 		const data = {
-			children: <TransactionDetailModal usersClan={usersClan} />
+			children: <TransactionDetailModal usersClan={usersClan} transactionHash={item.hash} />
 		};
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, [dispatch, item, usersClan]);
+	}, [item, usersClan]);
 
 	return (
 		<Pressable style={styles.container} onPress={onPressItem}>

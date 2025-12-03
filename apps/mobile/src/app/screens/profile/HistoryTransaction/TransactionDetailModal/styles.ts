@@ -1,4 +1,5 @@
-import { Attributes, baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, Fonts, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes, isTabletLandscape: boolean) =>
@@ -95,11 +96,11 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			width: '50%'
 		},
 		field: {
-			alignItems: 'flex-start'
+			alignItems: 'flex-start',
+			width: '100%'
 		},
 		detail: {
 			backgroundColor: colors.secondaryLight,
-			padding: size.s_10,
 			flexDirection: 'row',
 			flexWrap: 'wrap'
 		},
@@ -117,5 +118,24 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 		},
 		copyButton: {
 			padding: 4
+		},
+		noteContainer: {
+			maxHeight: size.s_100,
+			borderColor: colors.borderHighlight,
+			borderWidth: 1,
+			borderRadius: size.s_4,
+			padding: size.s_8,
+			width: '100%'
+		},
+		noteText: {
+			color: colors.text,
+			fontSize: Fonts.size.h8,
+			textAlign: 'left'
+		},
+		loading: {
+			height: size.s_80,
+			justifyContent: 'center',
+			alignItems: 'center',
+			padding: size.s_20
 		}
 	});
