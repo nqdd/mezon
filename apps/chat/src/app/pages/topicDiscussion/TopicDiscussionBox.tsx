@@ -13,7 +13,7 @@ import {
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectDataReferences,
-	selectFirstMessageOfCurrentTopic,
+	selectInitTopicMessageId,
 	selectSession,
 	selectStatusMenu,
 	useAppDispatch,
@@ -114,7 +114,7 @@ const TopicDiscussionBox = () => {
 
 	const handleTypingDebounced = useThrottledCallback(handleTyping, 1000);
 
-	const firstMessageOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
+	const initTopicMessageId = useSelector(selectInitTopicMessageId);
 	const onConvertToFiles = useCallback(
 		async (content: string, anonymousMessage?: boolean) => {
 			const fileContent = new Blob([content], { type: 'text/plain' });
@@ -259,7 +259,7 @@ const TopicDiscussionBox = () => {
 					</div>
 				</div>
 			)}
-			{(isFetchMessageDone || firstMessageOfThisTopic) && (
+			{(isFetchMessageDone || initTopicMessageId) && (
 				<div className={`relative flex-1 ${isElectron() ? 'h-[calc(100%_-_50px_-_30px)]' : 'h-full'}`}>
 					<MemoizedChannelMessages
 						isPrivate={currentChannelPrivate}

@@ -435,7 +435,7 @@ function MessageContextMenu({
 		dispatch(topicsActions.setOpenTopicMessageState(true));
 		setCurrentTopicInitMessage(message);
 		dispatch(topicsActions.setCurrentTopicId(''));
-		dispatch(topicsActions.setFirstMessageOfCurrentTopic(message));
+		dispatch(topicsActions.setInitTopicMessageId(message.id));
 	}, [dispatch, message, setIsShowCreateTopic, setCurrentTopicInitMessage]);
 
 	const handleMarkMessageNoti = useCallback(async () => {

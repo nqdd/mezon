@@ -134,7 +134,7 @@ function MessageWithUser({
 		return includesUser || includesRole;
 	})();
 
-	const checkMessageHasReply = !!message?.references?.length && !!message?.references?.[0]?.message_ref_id;
+	const checkMessageHasReply = !!message?.references?.length && message?.code === TypeMessage.Chat;
 	const isEphemeralMessage = message?.code === TypeMessage.Ephemeral;
 
 	const shouldRenderMessageReply = checkMessageHasReply && !isEphemeralMessage;
@@ -167,7 +167,7 @@ function MessageWithUser({
 		dispatch(topicsActions.setIsShowCreateTopic(true));
 		dispatch(topicsActions.setCurrentTopicInitMessage(message));
 		dispatch(topicsActions.setCurrentTopicId(''));
-		dispatch(topicsActions.setFirstMessageOfCurrentTopic(message));
+		dispatch(topicsActions.setInitTopicMessageId(message.id));
 	}, [dispatch, message]);
 
 	const isDM = mode === ChannelStreamMode.STREAM_MODE_GROUP || mode === ChannelStreamMode.STREAM_MODE_DM;
