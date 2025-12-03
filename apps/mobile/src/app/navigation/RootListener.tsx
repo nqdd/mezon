@@ -1,5 +1,6 @@
 import { ChatContext } from '@mezon/core';
 import { load, save, setCurrentClanLoader, STORAGE_CLAN_ID, STORAGE_IS_DISABLE_LOAD_BACKGROUND, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import type { FetchClansPayload } from '@mezon/store-mobile';
 import {
 	accountActions,
 	appActions,
@@ -8,7 +9,6 @@ import {
 	directActions,
 	emojiSuggestionActions,
 	fcmActions,
-	FetchClansPayload,
 	friendsActions,
 	getStore,
 	gifsActions,
@@ -217,6 +217,7 @@ const RootListener = () => {
 
 	const mainLoader = useCallback(async () => {
 		try {
+			await profileLoader();
 			const store = getStore();
 			const currentClanId = selectCurrentClanId(store.getState() as any);
 			const promises = [];
@@ -271,16 +272,6 @@ const RootListener = () => {
 		},
 		[dispatch]
 	);
-
-	useEffect(() => {
-		if (isLoggedIn) {
-			requestIdleCallback(() => {
-				setTimeout(() => {
-					profileLoader();
-				}, 2000);
-			});
-		}
-	}, [isLoggedIn, profileLoader]);
 
 	return null;
 };

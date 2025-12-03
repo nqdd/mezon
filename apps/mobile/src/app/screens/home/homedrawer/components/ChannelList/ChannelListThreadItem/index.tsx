@@ -1,9 +1,9 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { selectIsUnreadChannelById, useAppSelector } from '@mezon/store-mobile';
-import { ChannelThreads } from '@mezon/utils';
+import type { ChannelThreads } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import React from 'react';
+import { useMemo } from 'react';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../../../../../../app/componentUI/MezonIconCDN';
 import BuzzBadge from '../../../../../../components/BuzzBadge/BuzzBadge';
@@ -20,9 +20,12 @@ const ChannelListThreadItem = ({ onLongPress, thread, isActive }: IChannelListTh
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue);
 
-	const isUnReadChannel = useAppSelector((state) => selectIsUnreadChannelById(state, thread.id));
+	const isUnReadChannel = useAppSelector((state) => selectIsUnreadChannelById(state, thread?.id));
+	const numberNotification = thread?.count_mess_unread ? thread.count_mess_unread : 0;
 
-	const numberNotification = thread?.count_mess_unread ? thread?.count_mess_unread : 0;
+	const isHideThread = useMemo(() => {
+		return thread?.active !== 1 && !isActive && !isUnReadChannel;
+	}, [isActive, isUnReadChannel, thread?.active]);
 
 	const onPressThreadItem = () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel: thread });
@@ -32,8 +35,12 @@ const ChannelListThreadItem = ({ onLongPress, thread, isActive }: IChannelListTh
 		onLongPress && onLongPress(thread);
 	};
 
+	if (isHideThread) {
+		return null;
+	}
+
 	return (
-		<View key={thread.id} style={[styles.channelListLink]}>
+		<View key={thread?.id} style={[styles.channelListLink]}>
 			<View style={[styles.threadItem]}>
 				<View style={styles.cornerIconWrapper}>
 					<MezonIconCDN icon={IconCDN.longCorner} height={size.s_36} width={size.s_12} color={'#535353'} />
