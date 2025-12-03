@@ -142,7 +142,6 @@ const TopBarChannelText = memo(() => {
 		closeMenu();
 	};
 	const currentDmGroup = useSelector(selectCurrentDM);
-	const userProfile = useSelector(selectAllAccount);
 	const channelDmGroupLabel = useMemo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP) {
 			return currentDmGroup?.channel_label || currentDmGroup?.usernames?.join(',');
@@ -157,7 +156,7 @@ const TopBarChannelText = memo(() => {
 		if (currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM && currentDmGroup?.user_ids) {
 			return currentDmGroup.avatars?.at(-1) || undefined;
 		}
-	}, [currentDmGroup, userProfile?.user?.id]);
+	}, [currentDmGroup]);
 
 	const updateDmGroupLoading = useAppSelector((state) => selectUpdateDmGroupLoading(currentDmGroup?.channel_id || '')(state));
 	const updateDmGroupError = useAppSelector((state) => selectUpdateDmGroupError(currentDmGroup?.channel_id || '')(state));
@@ -714,7 +713,7 @@ const DmTopbarTools = memo(() => {
 					)}
 					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
 
-					{!isBlockUser && <AddMemberToGroupDm currentDmGroup={currentDmGroup} />}
+					{!isBlockUser && !isMe && <AddMemberToGroupDm currentDmGroup={currentDmGroup} />}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
 						<button
 							title={!isShowMemberListDM ? t('tooltips.showMemberList') : t('tooltips.hideMemberList')}
