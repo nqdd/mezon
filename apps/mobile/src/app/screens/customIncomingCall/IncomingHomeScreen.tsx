@@ -27,6 +27,9 @@ import BG_CALLING from './bgCalling.png';
 
 registerGlobals();
 const AVATAR_DEFAULT = `${process.env.NX_BASE_IMG_URL}/1775731152322039808/1820659489792069632/mezon_logo.png`;
+let retryCount = 0;
+const maxRetries = 5;
+const retryInterval = 500;
 const IncomingHomeScreen = memo((props: any) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -46,8 +49,9 @@ const IncomingHomeScreen = memo((props: any) => {
 	const callDetailRef = useRef<CallDetailNativeRef>(null);
 	const buttonAnswerCallGroupRef = useRef<ButtonAnswerCallGroupRef>(null);
 
-	const stopAndReleaseSound = useCallback(() => {
+	const stopAndReleaseSound = useCallback(async () => {
 		try {
+			await NotificationPreferences.clearValue('notificationDataCalling');
 			if (ringtoneRef.current) {
 				ringtoneRef.current.pause();
 				ringtoneRef.current.stop();
@@ -123,7 +127,6 @@ const IncomingHomeScreen = memo((props: any) => {
 			const dataObj = await safeJSONParse(data?.offer || '{}');
 			if (dataObj?.isGroupCall) {
 				setDataCallGroup(dataObj);
-				await NotificationPreferences.clearValue('notificationDataCalling');
 				return;
 			}
 			if (data?.offer !== 'CANCEL_CALL' && !!data?.offer && !dataObj?.isGroupCall) {
@@ -160,11 +163,6 @@ const IncomingHomeScreen = memo((props: any) => {
 					ringtoneRef.current = sound;
 					playVibration();
 				});
-				await NotificationPreferences.clearValue('notificationDataCalling');
-			} else if (notificationData) {
-				await NotificationPreferences.clearValue('notificationDataCalling');
-			} else {
-				/* empty */
 			}
 		} catch (error) {
 			console.error('Failed to retrieve data', error);
@@ -186,6 +184,7 @@ const IncomingHomeScreen = memo((props: any) => {
 
 	const onDeniedCall = async () => {
 		stopAndReleaseSound();
+		await NotificationPreferences.clearValue('notificationDataCalling');
 		if (dataCallGroup) {
 			await buttonAnswerCallGroupRef?.current?.onDeniedCall();
 			onKillApp();
@@ -209,6 +208,7 @@ const IncomingHomeScreen = memo((props: any) => {
 	};
 
 	const onJoinCall = async () => {
+		await NotificationPreferences.clearValue('notificationDataCalling');
 		if (Platform.OS === 'android') {
 			try {
 				NativeModules?.CallStateModule?.setIsInCall?.(true);
@@ -216,8 +216,23 @@ const IncomingHomeScreen = memo((props: any) => {
 				console.error('Error calling native methods:', error);
 			}
 		}
-		if (callDetailRef?.current) {
-			await callDetailRef.current?.handleICECandidate?.();
+		const tryHandleICECandidate = async () => {
+			if (callDetailRef?.current) {
+				await callDetailRef.current?.handleICECandidate?.();
+				return true;
+			}
+			return false;
+		};
+		const success = await tryHandleICECandidate();
+		if (!success) {
+			const retryTimer = setInterval(async () => {
+				retryCount++;
+				const retrySuccess = await tryHandleICECandidate();
+
+				if (retrySuccess || retryCount >= maxRetries) {
+					clearInterval(retryTimer);
+				}
+			}, retryInterval);
 		}
 		dispatch(DMCallActions.setIsInCall(true));
 		stopAndReleaseSound();
@@ -228,9 +243,7 @@ const IncomingHomeScreen = memo((props: any) => {
 		let timer;
 		if (!isInCall) {
 			if (isForceAnswer && signalingData?.[signalingData?.length - 1]?.callerId) {
-				timer = setTimeout(() => {
-					onJoinCall();
-				}, 1000);
+				onJoinCall();
 			}
 
 			if (signalingData?.[signalingData?.length - 1]?.signalingData.data_type === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
