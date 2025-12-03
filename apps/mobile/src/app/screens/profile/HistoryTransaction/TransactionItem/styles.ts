@@ -37,56 +37,11 @@ export const style = (colors: Attributes) =>
 			fontSize: Fonts.size.small,
 			fontWeight: '400'
 		},
-		description: {
-			color: colors.text,
-			fontSize: Fonts.size.h7,
-			marginVertical: size.s_6,
-			paddingRight: size.s_12,
-			textAlign: 'left'
-		},
-		row: {
-			flexDirection: 'row',
-			justifyContent: 'space-between',
-			gap: size.s_10,
-			marginBottom: size.s_10,
-			width: '50%'
-		},
-		field: {
-			alignItems: 'flex-start',
-		},
 		expandIcon: {
 			alignItems: 'center',
 			justifyContent: 'center',
 			height: size.s_30,
 			width: size.s_30,
 			borderRadius: size.s_15
-		},
-		loading: {
-			height: size.s_80,
-			justifyContent: 'center',
-			alignItems: 'center',
-			padding: size.s_20
-		},
-		detail: {
-			backgroundColor: colors.secondaryLight,
-			padding: size.s_10,
-			flexDirection: 'row',
-			flexWrap: 'wrap'
-		},
-		touchableRow: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			justifyContent: 'space-between'
-		},
-		copyIconWrapper: {
-			flexDirection: 'row',
-			alignItems: 'center',
-			gap: 4
-		},
-		copyButton: {
-			padding: 4
-		},
-		animatedContainer: {
-			overflow: 'hidden'
 		}
 	});
