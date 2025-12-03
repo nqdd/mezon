@@ -32,7 +32,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 		channelOrDirect: currentDmGroup || currenChannel
 	});
 
-	const waveIcon = useMemo(() => {
+	const urlIcon = useMemo(() => {
 		if (!message?.create_time_seconds) {
 			return STICKER_WAVE.LIST_STICKER[0];
 		}
@@ -60,12 +60,12 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 			};
 			const attachments = [
 				{
-					url: waveIcon.URL,
+					url: urlIcon,
 					filetype: 'image/gif',
 					filename: STICKER_WAVE.NAME,
-					size: waveIcon.SIZE,
-					width: 200,
-					height: 200
+					size: 374892,
+					width: 150,
+					height: 150
 				}
 			];
 
@@ -78,7 +78,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	return (
 		<TouchableOpacity style={styles.waveButton} onPress={handleSendWaveSticker}>
 			<ImageNative
-				url={createImgproxyUrl(waveIcon.URL, { width: 50, height: 50, resizeType: 'fit' })}
+				url={createImgproxyUrl(urlIcon, { width: 50, height: 50, resizeType: 'fit' })}
 				style={styles.waveIcon}
 				resizeMode="contain"
 			/>

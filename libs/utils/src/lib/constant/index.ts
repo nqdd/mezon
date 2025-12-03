@@ -2,7 +2,7 @@ import type { ThreadError } from '../types';
 
 export const TIME_COMBINE_MS = 10 * 60 * 1000; // 10 minutes in milliseconds
 export const TIME_OFFSET = 3;
-export const LIMIT_MESSAGE = 30;
+export const LIMIT_MESSAGE = 50;
 export const LIMIT_CLAN_ITEM = 50;
 export const SIZE_PAGE_SEARCH = 25;
 export const LIMIT_SIZE_UPLOAD_IMG = 1000000;
@@ -184,18 +184,9 @@ export enum EMuteState {
 export const STICKER_WAVE = {
 	NAME: 'hello',
 	LIST_STICKER: [
-		{
-			URL: 'https://cdn.mezon.ai/stickers/hellomezon.gif',
-			SIZE: 308032
-		},
-		{
-			URL: 'https://cdn.mezon.ai/stickers/music_boy.gif',
-			SIZE: 417829
-		},
-		{
-			URL: 'https://cdn.mezon.ai/stickers/music_girl.gif',
-			SIZE: 305919
-		}
+		'https://cdn.mezon.ai/stickers/hellomezon.gif',
+		'https://cdn.mezon.ai/stickers/music_boy.gif',
+		'https://cdn.mezon.ai/stickers/music_girl.gif'
 	]
 };
 

@@ -27,7 +27,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 		channelOrDirect: channelOrDirect as ApiChannelDescription
 	});
 
-	const waveIcon = useMemo(() => {
+	const urlIcon = useMemo(() => {
 		if (!message?.create_time_seconds) {
 			return STICKER_WAVE.LIST_STICKER[0];
 		}
@@ -62,12 +62,12 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 			};
 			const attachments = [
 				{
-					url: waveIcon.URL,
+					url: urlIcon,
 					filetype: 'image/gif',
 					filename: STICKER_WAVE.NAME,
-					size: waveIcon.SIZE,
-					width: 200,
-					height: 200
+					size: 374892,
+					width: 150,
+					height: 150
 				}
 			];
 
@@ -83,7 +83,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 				className="bg-theme-primary py-1 px-3 rounded flex flex-row items-center gap-2 hover:scale-102 transition-all duration-200 ease-in-out hover:shadow-md"
 				onClick={handleSendWaveSticker}
 			>
-				<img src={waveIcon.URL} alt="Wave Icon" className="object-contain mb-1" width={32} height={32} />
+				<img src={urlIcon} alt="Wave Icon" className="object-contain mb-1" width={32} height={32} />
 				<p className="text-theme-secondary text-sm font-medium text-center">Wave to say hi!</p>
 			</button>
 		</div>
