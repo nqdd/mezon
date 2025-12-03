@@ -39,6 +39,7 @@ export default class App {
 	static application: Electron.App;
 	static BrowserWindow: typeof Electron.BrowserWindow;
 	static imageViewerWindow: Electron.BrowserWindow | null = null;
+	static channelAppWindow: Electron.BrowserWindow | null = null;
 	static attachmentData: any;
 	static imageScriptWindowLoaded = false;
 
