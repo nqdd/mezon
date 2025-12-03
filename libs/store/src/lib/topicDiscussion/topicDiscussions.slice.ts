@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import type { IMentionOnMessage, IMessageSendPayload, IMessageWithUser, LoadingStatus } from '@mezon/utils';
+import type { IMessageSendPayload, IMessageWithUser, LoadingStatus } from '@mezon/utils';
 import { getMobileUploadedAttachments, getWebUploadedAttachments } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
@@ -7,6 +7,7 @@ import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic
 import type { ApiChannelMessageHeader, ApiSdTopicRequest } from 'mezon-js/dist/api.gen';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
+import { selectMessageEntitiesByChannelId } from '../messages/messages.slice';
 import type { RootState } from '../store';
 import { threadsActions } from '../threads/threads.slice';
 
@@ -27,7 +28,7 @@ export interface TopicDiscussionsState extends EntityState<TopicDiscussionsEntit
 	currentTopicInitMessage: IMessageWithUser | null;
 	openTopicMessageState: boolean;
 	currentTopicId?: string;
-	firstMessageOfCurrentTopic?: ApiSdTopic;
+	initTopicMessageId?: string;
 	isFocusTopicBox: boolean;
 	channelTopics: Record<string, string>;
 	clanTopics: Record<string, EntityState<TopicDiscussionsEntity, string>>;
@@ -88,7 +89,8 @@ export const initialTopicsState: TopicDiscussionsState = topicsAdapter.getInitia
 	openTopicMessageState: false,
 	isFocusTopicBox: false,
 	channelTopics: {},
-	clanTopics: {}
+	clanTopics: {},
+	initTopicMessageId: undefined
 });
 
 export const createTopic = createAsyncThunk('topics/createTopic', async (body: ApiSdTopicRequest, thunkAPI) => {
@@ -202,9 +204,6 @@ export const topicsSlice = createSlice({
 		setCurrentTopicId: (state, action: PayloadAction<string>) => {
 			state.currentTopicId = action.payload;
 		},
-		setFirstMessageOfCurrentTopic(state, action) {
-			state.firstMessageOfCurrentTopic = action.payload;
-		},
 		setChannelTopic: (state, action: PayloadAction<{ channelId: string; topicId: string }>) => {
 			const { channelId, topicId } = action.payload;
 			state.channelTopics[channelId] = topicId;
@@ -223,14 +222,6 @@ export const topicsSlice = createSlice({
 				topic.last_sent_message.timestamp_seconds = timestamp_seconds;
 			}
 		},
-		updateInitMessage(state, action: PayloadAction<{ content: IMessageSendPayload; mentions: IMentionOnMessage[] }>) {
-			if (!state.firstMessageOfCurrentTopic?.message) return;
-			const { content, mentions } = action.payload;
-			const stringifiedContent = JSON.stringify(content, null, 4);
-			const stringifiedMentions = JSON.stringify(mentions, null, 4);
-			state.firstMessageOfCurrentTopic.message.content = stringifiedContent;
-			state.firstMessageOfCurrentTopic.message.mentions = stringifiedMentions;
-		},
 		setFocusTopicBox(state, action: PayloadAction<boolean>) {
 			state.isFocusTopicBox = action.payload;
 		},
@@ -240,6 +231,9 @@ export const topicsSlice = createSlice({
 				state.clanTopics[clanId] = topicsAdapter.getInitialState();
 			}
 			topicsAdapter.addOne(state.clanTopics[clanId], topic);
+		},
+		setInitTopicMessageId: (state, action: PayloadAction<string>) => {
+			state.initTopicMessageId = action.payload;
 		}
 	},
 	extraReducers: (builder) => {
@@ -282,7 +276,7 @@ export const topicsSlice = createSlice({
 				}
 			})
 			.addCase(getFirstMessageOfTopic.fulfilled, (state: TopicDiscussionsState, action) => {
-				state.firstMessageOfCurrentTopic = action.payload;
+				state.initTopicMessageId = action.payload.id;
 			});
 	}
 });
@@ -349,7 +343,11 @@ export const selectIsMessageChannelIdMatched = createSelector(
 
 export const selectIsShowCreateTopic = createSelector(getTopicsState, (state) => state.isShowCreateTopic);
 
-export const selectFirstMessageOfCurrentTopic = createSelector(getTopicsState, (state) => state.firstMessageOfCurrentTopic);
+export const selectInitTopicMessageId = createSelector(getTopicsState, (state) => state.initTopicMessageId);
+export const selectFirstMessageOfCurrentTopic = createSelector([getTopicsState, selectMessageEntitiesByChannelId], (state, entities) => {
+	if (!state.initTopicMessageId) return null;
+	return entities?.[state.initTopicMessageId];
+});
 
 export const selectTopicsSort = createSelector(selectAllTopics, (data) => {
 	return data.sort((a, b) => {

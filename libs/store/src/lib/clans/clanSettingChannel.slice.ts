@@ -25,6 +25,9 @@ export interface SettingClanChannelState extends EntityState<ApiChannelSettingIt
 export const channelSettingAdapter = createEntityAdapter({
 	selectId: (channel: ApiChannelSettingItem) => channel.id || ''
 });
+const cleanUndefinedFields = (item: ApiChannelSettingItem): ApiChannelSettingItem => {
+	return Object.fromEntries(Object.entries(item).filter(([_, value]) => value !== undefined)) as ApiChannelSettingItem;
+};
 
 export const initialSettingClanChannelState: SettingClanChannelState = channelSettingAdapter.getInitialState({
 	loadingStatus: 'not loaded',
@@ -193,13 +196,27 @@ export const settingClanChannelSlice = createSlice({
 			}
 			if (channel.parent_id && state.threadsByChannel[channel.parent_id]) {
 				const threads = state.threadsByChannel[channel.parent_id];
-				const threadIndex = threads.findIndex((t) => t.id === channel.id);
-				if (threadIndex !== -1) {
-					state.threadsByChannel[channel.parent_id][threadIndex] = {
-						...threads[threadIndex],
-						...channel
-					};
+				const index = threads.findIndex((t) => t.id === channel.id);
+				if (index !== -1) {
+					threads[index] = { ...threads[index], ...channel };
+					return;
 				}
+			}
+
+			for (const pid in state.threadsByChannel) {
+				const threads = state.threadsByChannel[pid];
+				const index = threads.findIndex((t) => t.id === channel.id);
+				if (index !== -1) {
+					threads[index] = { ...threads[index], ...channel };
+					return;
+				}
+			}
+
+			if (channel.parent_id && channel.parent_id !== '0') {
+				state.threadsByChannel[channel.parent_id] ??= [];
+				state.threadsByChannel[channel.parent_id].push(channel);
+			} else {
+				channelSettingAdapter.addOne(state, channel);
 			}
 		}
 	},
@@ -210,12 +227,13 @@ export const settingClanChannelSlice = createSlice({
 
 				if (!fromCache && response) {
 					state.loadingStatus = 'loaded';
+					const cleanedList = (response.channel_setting_list || []).map(cleanUndefinedFields);
 					switch (typeFetch) {
 						case ETypeFetchChannelSetting.FETCH_CHANNEL:
-							channelSettingAdapter.setAll(state, response.channel_setting_list || []);
+							channelSettingAdapter.upsertMany(state, cleanedList);
 							break;
 						case ETypeFetchChannelSetting.MORE_CHANNEL:
-							channelSettingAdapter.setMany(state, response.channel_setting_list || []);
+							channelSettingAdapter.upsertMany(state, cleanedList);
 							break;
 						case ETypeFetchChannelSetting.FETCH_THREAD:
 							state.threadsByChannel[actions.payload.parentId] = response.channel_setting_list || [];

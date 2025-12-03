@@ -174,7 +174,7 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 		dispatch(topicsActions.setOpenTopicMessageState(true));
 		setCurrentTopicInitMessage(realTimeMessage);
 		dispatch(topicsActions.setCurrentTopicId(''));
-		dispatch(topicsActions.setFirstMessageOfCurrentTopic(message));
+		dispatch(topicsActions.setInitTopicMessageId(message.id));
 	}, [dispatch, message, realTimeMessage, setIsShowCreateTopic, setCurrentTopicInitMessage]);
 
 	const menuPlugin = useMemo(() => {
