@@ -1,7 +1,8 @@
 import { useTheme } from '@mezon/mobile-ui';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Animated, AppState, Linking, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, AppState, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { getNotificationPermission } from '../../../utils/pushNotificationHelpers';
 import { styles } from './styles';
 
@@ -104,6 +105,12 @@ export const TopAlert: React.FC = () => {
 				}
 			]}
 		>
+			<LinearGradient
+				start={{ x: 1, y: 0 }}
+				end={{ x: 0, y: 0 }}
+				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+				style={[StyleSheet.absoluteFillObject]}
+			/>
 			<View style={style.content}>
 				<View style={style.textContainer}>
 					<Text style={style.title}>{t('seeWhenAnswersAppear', { ns: 'notification' })}</Text>

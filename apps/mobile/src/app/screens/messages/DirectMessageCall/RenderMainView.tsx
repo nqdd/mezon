@@ -22,55 +22,64 @@ interface IRenderMainViewProps {
 	isConnected: boolean;
 	isAnswerCall: boolean;
 	isOnLocalCamera: boolean;
-	route: any;
+	route?: any;
 	isMirror: boolean;
+	receiverAvatarProp?: string;
+	receiverNameProp?: string;
 }
-export const RenderMainView = memo(({ callState, route, isAnswerCall, isConnected, isMirror, isOnLocalCamera }: IRenderMainViewProps) => {
-	const { themeValue } = useTheme();
-	const isRemoteVideo = useSelector(selectRemoteVideo);
-	const isRemoteAudio = useSelector(selectRemoteAudio);
-	const receiverAvatar = route?.params?.receiverAvatar;
-	const receiverName = route?.params?.receiverName;
-	const styles = style(themeValue);
-	const { t } = useTranslation(['dmMessage']);
+export const RenderMainView = memo(
+	({ callState, route, isAnswerCall, isConnected, isMirror, isOnLocalCamera, receiverAvatarProp, receiverNameProp }: IRenderMainViewProps) => {
+		const { themeValue } = useTheme();
+		const isRemoteVideo = useSelector(selectRemoteVideo);
+		const isRemoteAudio = useSelector(selectRemoteAudio);
+		const receiverAvatar = route?.params?.receiverAvatar || receiverAvatarProp;
+		const receiverName = route?.params?.receiverName || receiverNameProp;
+		const styles = style(themeValue);
+		const { t } = useTranslation(['dmMessage']);
 
-	return (
-		<View style={styles.flexContainer}>
-			{callState.remoteStream && isRemoteVideo && isConnected ? (
-				<View style={styles.flexContainer}>
-					<RenderVideoStream stream={callState?.remoteStream} mirror={false} />
-					{!isRemoteAudio && (
-						<View style={styles.mutedAudioContainer}>
+		return (
+			<View style={styles.flexContainer}>
+				{callState.remoteStream && isRemoteVideo && isConnected ? (
+					<View style={styles.flexContainer}>
+						<RenderVideoStream stream={callState?.remoteStream} mirror={false} />
+						{!isRemoteAudio && (
+							<View style={styles.mutedAudioContainer}>
+								<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+								<Text style={styles.mutedAudioText}>
+									{receiverName || ''} {t('turnedMicOff')}
+								</Text>
+							</View>
+						)}
+					</View>
+				) : (
+					<View>
+						<AvatarCall
+							receiverAvatar={receiverAvatar}
+							receiverName={receiverName}
+							isAnswerCall={isAnswerCall}
+							isConnected={isConnected}
+						/>
+						<View style={isRemoteAudio ? styles.mutedAudioAvatarContainerHidden : styles.mutedAudioAvatarContainerVisible}>
 							<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
 							<Text style={styles.mutedAudioText}>
 								{receiverName || ''} {t('turnedMicOff')}
 							</Text>
 						</View>
-					)}
-				</View>
-			) : (
-				<View>
-					<AvatarCall receiverAvatar={receiverAvatar} receiverName={receiverName} isAnswerCall={isAnswerCall} isConnected={isConnected} />
-					<View style={isRemoteAudio ? styles.mutedAudioAvatarContainerHidden : styles.mutedAudioAvatarContainerVisible}>
-						<MezonIconCDN icon={IconCDN.microphoneDenyIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
-						<Text style={styles.mutedAudioText}>
-							{receiverName || ''} {t('turnedMicOff')}
-						</Text>
 					</View>
-				</View>
-			)}
-			{isConnected && (
-				<View style={callState.remoteStream && isRemoteVideo ? styles.callDurationTopVideo : styles.callDurationTopAvatar}>
-					<CallDuration isConnected={isConnected} />
-				</View>
-			)}
-			{callState.localStream && isOnLocalCamera ? (
-				<View style={styles.cardMyVideoCall}>
-					<RenderVideoStream stream={callState?.localStream} mirror={isMirror} isLocal={true} />
-				</View>
-			) : (
-				<View />
-			)}
-		</View>
-	);
-});
+				)}
+				{isConnected && (
+					<View style={callState.remoteStream && isRemoteVideo ? styles.callDurationTopVideo : styles.callDurationTopAvatar}>
+						<CallDuration isConnected={isConnected} />
+					</View>
+				)}
+				{callState.localStream && isOnLocalCamera ? (
+					<View style={styles.cardMyVideoCall}>
+						<RenderVideoStream stream={callState?.localStream} mirror={isMirror} isLocal={true} />
+					</View>
+				) : (
+					<View />
+				)}
+			</View>
+		);
+	}
+);

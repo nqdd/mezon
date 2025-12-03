@@ -6,7 +6,7 @@ import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import { ImageListModal } from '../../../../../components/ImageListModal';
-import { checkFileTypeImage, isVideo } from '../../../../../utils/helpers';
+import { checkFileTypeImage, isImage, isVideo } from '../../../../../utils/helpers';
 import { RenderDocumentsChat } from '../RenderDocumentsChat';
 import { RenderImageChat } from '../RenderImageChat';
 import { RenderVideoChat } from '../RenderVideoChat';
@@ -88,7 +88,8 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 
 			const isShowImage = checkFileTypeImage(document?.filetype);
 			const checkImage = notImplementForGifOrStickerSendFromPanel(document);
-			if (isShowImage || checkImage) {
+			const checkIsImage = isImage(document?.url || '');
+			if (isShowImage || checkIsImage || checkIsImage) {
 				return (
 					<RenderImageChat
 						disable={checkImage}
