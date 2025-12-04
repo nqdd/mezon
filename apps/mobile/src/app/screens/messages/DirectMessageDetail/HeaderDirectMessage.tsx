@@ -4,8 +4,8 @@ import type { IOption } from '@mezon/mobile-components';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
-	DMCallActions,
 	directMetaActions,
+	DMCallActions,
 	getStore,
 	groupCallActions,
 	messagesActions,
@@ -14,10 +14,11 @@ import {
 	selectDmGroupCurrent,
 	selectLastMessageByChannelId,
 	selectLastSentMessageStateByChannelId,
+	selectRawDataUserGroup,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl } from '@mezon/utils';
+import { createImgproxyUrl, IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
@@ -134,16 +135,18 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			isShow: false
 		});
 		if (isTypeDMGroup) {
+			const store = getStore();
+			const state = store.getState();
+			const rawDataUserGroup = selectRawDataUserGroup(state, currentDmGroup.channel_id);
 			const data = {
 				channelId: currentDmGroup.channel_id || '',
 				roomName: currentDmGroup?.meeting_code,
 				clanId: '',
 				isGroupCall: true,
-				participantsCount: currentDmGroup?.user_ids?.length || 0
+				participantsCount: rawDataUserGroup?.user_ids?.length || 0
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
-			const store = getStore();
-			const state = store.getState();
+
 			const userProfile = selectAllAccount(state);
 			dispatch(
 				groupCallActions.showPreCallInterface({
@@ -162,10 +165,10 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 				meeting_code: currentDmGroup?.meeting_code,
 				clan_id: '',
 				timestamp: Date.now(),
-				participants: currentDmGroup?.user_ids || []
+				participants: rawDataUserGroup?.user_ids || []
 			};
 			sendSignalingToParticipants(
-				currentDmGroup?.user_ids || [],
+				rawDataUserGroup?.user_ids || [],
 				WEBRTC_SIGNALING_TYPES.GROUP_CALL_OFFER,
 				callOfferAction as CallSignalingData,
 				currentDmGroup?.channel_id || '',

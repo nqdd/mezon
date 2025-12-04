@@ -15,7 +15,7 @@ import {
 	useAppDispatch,
 	useWallet
 } from '@mezon/store-mobile';
-import { CURRENCY, formatBalanceToString, formatMoney, TypeMessage } from '@mezon/utils';
+import { CURRENCY, TypeMessage, formatBalanceToString, formatMoney } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import debounce from 'lodash.debounce';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
@@ -54,6 +54,7 @@ const formatTokenAmount = (amount: any) => {
 };
 
 const ITEM_HEIGHT = size.s_60;
+const MAX_NOTE_LENGTH = 512;
 export const SendTokenScreen = ({ navigation, route }: any) => {
 	const { t } = useTranslation(['token', 'common']);
 	const { t: tMsg } = useTranslation(['message']);
@@ -490,7 +491,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 								<Text style={styles.amountText}>{tokenCount} ₫</Text>
 							</View>
 
-							<View style={styles.modalBody}>
+							<View>
 								<View style={styles.infoRow}>
 									<Text style={styles.label}>{t('receiver')}</Text>
 									<Text style={[styles.value, { fontSize: size.s_20 }]} numberOfLines={1}>
@@ -500,7 +501,7 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 
 								<View style={styles.infoRow}>
 									<Text style={styles.label}>{t('note')}</Text>
-									<Text style={styles.value}>{note?.replace?.(/\s+/g, ' ')?.trim() || ''}</Text>
+									<Text style={styles.note}>{note?.replace?.(/\s+/g, ' ')?.trim() || ''}</Text>
 								</View>
 
 								<View style={styles.infoRow}>
@@ -619,7 +620,11 @@ export const SendTokenScreen = ({ navigation, route }: any) => {
 								multiline={true}
 								textAlignVertical="top"
 								onChangeText={(text) => setNote(text)}
+								maxLength={MAX_NOTE_LENGTH}
 							/>
+							<Text style={styles.characterCount}>
+								{note?.length || 0}/{MAX_NOTE_LENGTH}
+							</Text>
 						</View>
 					</View>
 				</KeyboardAwareScrollView>

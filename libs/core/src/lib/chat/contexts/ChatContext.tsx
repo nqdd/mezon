@@ -966,6 +966,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					dispatch(channelsActions.add({ clanId: channel_desc.clan_id as string, channel: { ...channel, active: 1 } }));
 					dispatch(listChannelsByUserActions.add(channel));
 
+					dispatch(
+						channelSettingActions.addChannelFromSocket({
+							id: channel_desc.channel_id,
+							channel_id: channel_desc.channel_id,
+							channel_label: channel_desc.channel_label,
+							parent_id: channel_desc.parent_id,
+							clan_id: channel_desc.clan_id,
+							channel_private: channel_desc.channel_private,
+							channel_type: channel_desc.type,
+							creator_id: caller?.user_id || ''
+						})
+					);
+
 					if (
 						channel_desc.type === ChannelType.CHANNEL_TYPE_CHANNEL ||
 						channel_desc.type === ChannelType.CHANNEL_TYPE_APP ||
@@ -2906,3 +2919,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+

@@ -7,7 +7,7 @@ import { useTheme } from '@mezon/mobile-ui';
 import { notificationSettingActions, selectCurrentUserId, useAppDispatch } from '@mezon/store-mobile';
 import { EOverriddenPermission, EPermission } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -32,7 +32,6 @@ export const ActionRow = React.memo(() => {
 	const currentChannel = useContext(threadDetailContext);
 	const currentUserId = useSelector(selectCurrentUserId);
 	const navigation = useNavigation<AppStackScreenProps['navigation']>();
-	const [isChannel, setIsChannel] = useState<boolean>();
 	const [isCanManageThread, isCanManageChannel] = usePermissionChecker(
 		[EOverriddenPermission.manageThread, EPermission.manageChannel],
 		currentChannel?.channel_id ?? ''
@@ -48,8 +47,8 @@ export const ActionRow = React.memo(() => {
 		return currentChannel?.user_ids?.[0] === currentUserId;
 	}, [currentChannel?.type, currentChannel?.user_ids, currentUserId]);
 
-	useEffect(() => {
-		setIsChannel(!!currentChannel?.channel_label && !Number(currentChannel?.parent_id));
+	const isChannel = useMemo(() => {
+		return !!currentChannel?.channel_label && currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL;
 	}, [currentChannel]);
 
 	useEffect(() => {

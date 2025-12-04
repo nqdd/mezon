@@ -3,7 +3,7 @@ import {
 	selectAllAccount,
 	selectAnonymousMode,
 	selectCurrentTopicId,
-	selectCurrentTopicInitMessage,
+	selectInitTopicMessageId,
 	selectMemberClanByUserId,
 	topicsActions,
 	useAppDispatch,
@@ -50,19 +50,19 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 
 	const currentUserId = userProfile?.user?.id || '';
 	const anonymousMode = useSelector(selectAnonymousMode);
-	const initMessageOfTopic = useSelector(selectCurrentTopicInitMessage);
+	const initTopicMessageId = useSelector(selectInitTopicMessageId);
 	const { clientRef, sessionRef, socketRef } = useMezon();
 
 	const createTopic = useCallback(async () => {
 		const body: ApiSdTopicRequest = {
 			clan_id: getClanId as string,
 			channel_id: channelIdOrDirectId as string,
-			message_id: initMessageOfTopic?.id as string
+			message_id: initTopicMessageId as string
 		};
 
 		const topic = (await dispatch(topicsActions.createTopic(body))).payload as ApiSdTopic;
 		return topic;
-	}, [channelIdOrDirectId, dispatch, getClanId, initMessageOfTopic?.id]);
+	}, [channelIdOrDirectId, dispatch, getClanId, initTopicMessageId]);
 
 	const sendMessage = React.useCallback(
 		async (
@@ -230,9 +230,6 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 				!!isTopic,
 				oldMentions
 			);
-			if (topic_id && !isTopic) {
-				dispatch(topicsActions.updateInitMessage({ content: trimContent, mentions }));
-			}
 		},
 		[sessionRef, clientRef, socketRef, channelOrDirect, getClanId, channelIdOrDirectId, mode, isPublic]
 	);

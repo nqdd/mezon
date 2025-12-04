@@ -240,7 +240,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 				icon: !currentInviteLink ? (
 					<Chase color={themeValue.text} size={size.s_24} />
 				) : (
-					<MezonIconCDN icon={IconCDN.myQRcodeIcon} color={themeValue.text} />
+					<MezonIconCDN icon={IconCDN.scanQR} color={themeValue.text} />
 				),
 				onPress: () => (!currentInviteLink ? null : handleShowQRModal())
 			}

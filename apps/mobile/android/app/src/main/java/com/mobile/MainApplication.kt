@@ -22,6 +22,7 @@ import com.mezon.mobile.DeviceUtilsPackage;
 import com.mezon.mobile.NavigationBarPackage;
 import com.mezon.mobile.NotificationPreferencesPackage;
 import com.mezon.mobile.CallStatePackage;
+import com.mezon.mobile.CallConnectionPackage;
 import com.mezon.mobile.AudioSessionPackage;
 import com.mezon.mobile.ImageClipboardPackage;
 import com.mezon.mobile.BadgePackage;
@@ -49,6 +50,7 @@ class MainApplication : Application(), ReactApplication {
               add(ReactNativeFirebaseAnalyticsPackage())
               add(AudioSessionPackage())
               add(CallStatePackage())
+              add(CallConnectionPackage())
               add(RNScreensPackage())
               add(ImageClipboardPackage())
               add(BadgePackage())

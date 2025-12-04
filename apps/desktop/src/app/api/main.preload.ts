@@ -3,6 +3,7 @@ import {
 	ACTION_SHOW_IMAGE,
 	GET_APP_VERSION,
 	GET_DEVICE_ID,
+	LAUNCH_APP_WINDOW,
 	NOTIFICATION_CLICKED,
 	OPEN_NEW_WINDOW,
 	REQUEST_PERMISSION_SCREEN,
@@ -47,5 +48,8 @@ contextBridge.exposeInMainWorld('electron', {
 		return ipcRenderer.invoke(ACTION_SHOW_IMAGE, { payload: { action, fileURL: url } });
 	},
 	getScreenSources: (source: string) => ipcRenderer.invoke(REQUEST_PERMISSION_SCREEN, source),
-	setRatioWindow: (ratio: boolean) => ipcRenderer.invoke(SET_RATIO_WINDOW, ratio)
+	setRatioWindow: (ratio: boolean) => ipcRenderer.invoke(SET_RATIO_WINDOW, ratio),
+	launchAppWindow: (props: string) => {
+		return ipcRenderer.invoke(LAUNCH_APP_WINDOW, props);
+	}
 });

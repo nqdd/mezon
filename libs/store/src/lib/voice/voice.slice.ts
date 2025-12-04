@@ -43,11 +43,24 @@ export interface VoiceState extends EntityState<VoiceEntity, string> {
 	openChatBox?: boolean;
 	externalGroup?: boolean;
 	listInVoiceStatus: Record<string, string>;
+	screenSource?: {
+		id: string;
+		audio: boolean;
+		mode: 'electron';
+	} | null;
 }
 
 export const voiceAdapter = createEntityAdapter({
 	selectId: (voice: VoiceEntity) => voice.id
 });
+
+const normalizeVoiceEntity = (voice: VoiceEntity): VoiceEntity => {
+	const normalizedId = voice.id && voice.id.length > 0 ? voice.id : `${voice.user_id || ''}${voice.voice_channel_id || ''}`;
+	return {
+		...voice,
+		id: normalizedId
+	};
+};
 
 type fetchVoiceChannelMembersPayload = {
 	clanId: string;
@@ -185,10 +198,22 @@ export const voiceSlice = createSlice({
 	reducers: {
 		setAll: voiceAdapter.setAll,
 		add: (state, action: PayloadAction<VoiceEntity>) => {
-			voiceAdapter.upsertOne(state, action.payload);
-			state.listInVoiceStatus[action.payload.user_id] = action.payload.voice_channel_id;
+			const normalizedVoice = normalizeVoiceEntity(action.payload);
+			const duplicateEntry = Object.values(state.entities).find(
+				(member) =>
+					member?.user_id === normalizedVoice.user_id &&
+					member?.voice_channel_id === normalizedVoice.voice_channel_id &&
+					member?.id !== normalizedVoice.id
+			);
+			if (duplicateEntry?.id) {
+				voiceAdapter.removeOne(state, duplicateEntry.id);
+			}
+
+			voiceAdapter.upsertOne(state, normalizedVoice);
+			if (normalizedVoice.user_id) {
+				state.listInVoiceStatus[normalizedVoice.user_id] = normalizedVoice.voice_channel_id;
+			}
 		},
-		addMany: voiceAdapter.addMany,
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
 			const voice = action.payload;
 			const keyRemove = voice.voice_user_id + voice.voice_channel_id;
@@ -269,6 +294,20 @@ export const voiceSlice = createSlice({
 		},
 		setStreamScreen: (state, action: PayloadAction<MediaStream | null | undefined>) => {
 			state.stream = action.payload;
+		},
+		setScreenSource: (
+			state,
+			action: PayloadAction<
+				| {
+						id: string;
+						audio: boolean;
+						mode: 'electron';
+				  }
+				| null
+				| undefined
+			>
+		) => {
+			state.screenSource = action.payload ?? null;
 		},
 		setFullScreen: (state, action: PayloadAction<boolean>) => {
 			state.fullScreen = action.payload;
@@ -459,6 +498,8 @@ export const selectVoiceChannelMembersByChannelId = createSelector([selectAllVoi
 	return members.filter((member) => member && member.voice_channel_id === channelId);
 });
 export const selectStreamScreen = createSelector(getVoiceState, (state) => state.stream);
+
+export const selectScreenSource = createSelector(getVoiceState, (state) => state.screenSource);
 
 export const selectShowSelectScreenModal = createSelector(getVoiceState, (state) => state.showSelectScreenModal);
 

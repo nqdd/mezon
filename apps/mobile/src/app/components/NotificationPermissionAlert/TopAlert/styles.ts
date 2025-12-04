@@ -1,17 +1,17 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const styles = (colors: Attributes) => {
 	return StyleSheet.create({
 		container: {
-			backgroundColor: colors.primary,
 			paddingHorizontal: size.s_16,
-			paddingTop: size.s_24,
+			paddingTop: size.s_14,
 			paddingBottom: size.s_10,
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
-			shadowColor: '#000',
+			shadowColor: baseColor.gray,
 			shadowOffset: {
 				width: 0,
 				height: 4
@@ -20,7 +20,7 @@ export const styles = (colors: Attributes) => {
 			shadowRadius: 8,
 			elevation: 8,
 			position: 'relative',
-			borderBottomWidth: 1,
+			borderBottomWidth: 0.5,
 			borderBottomColor: colors.border,
 			zIndex: 1000
 		},
@@ -63,7 +63,7 @@ export const styles = (colors: Attributes) => {
 		},
 
 		enableButtonText: {
-			color: colors.white,
+			color: baseColor.white,
 			fontSize: size.s_14,
 			fontWeight: '700',
 			textAlign: 'center'

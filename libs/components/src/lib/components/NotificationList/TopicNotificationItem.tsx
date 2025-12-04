@@ -1,7 +1,7 @@
 import { useAuth, useGetPriorityNameFromUserClan } from '@mezon/core';
+import type { MessagesEntity } from '@mezon/store';
 import {
 	appActions,
-	getFirstMessageOfTopic,
 	getStore,
 	messagesActions,
 	notificationActions,
@@ -80,7 +80,7 @@ function TopicNotificationItem({ topic, onCloseTooltip }: TopicProps) {
 				})
 			);
 
-			const waitForMessage = (timeout = 5000): Promise<unknown> =>
+			const waitForMessage = (timeout = 5000): Promise<MessagesEntity | null> =>
 				new Promise((resolve) => {
 					const startTime = Date.now();
 					const checkMessage = () => {
@@ -102,6 +102,7 @@ function TopicNotificationItem({ topic, onCloseTooltip }: TopicProps) {
 
 			if (fullMessage) {
 				dispatch(topicsActions.setCurrentTopicInitMessage(fullMessage as IMessageWithUser));
+				dispatch(topicsActions.setInitTopicMessageId(fullMessage.id));
 			} else {
 				console.error('Failed to load message, cannot set currentTopicInitMessage');
 			}
@@ -109,7 +110,6 @@ function TopicNotificationItem({ topic, onCloseTooltip }: TopicProps) {
 			dispatch(topicsActions.setIsShowCreateTopic(true));
 			dispatch(threadsActions.setIsShowCreateThread({ channelId: topic.channel_id as string, isShowCreateThread: false }));
 			dispatch(topicsActions.setCurrentTopicId(topic.id || ''));
-			dispatch(getFirstMessageOfTopic(topic.id || ''));
 		}
 	};
 	const allTabProps = {
@@ -173,18 +173,6 @@ function AllTabContent({ messageReplied, subject, lastMessageTopic, topic }: ITo
 						})}
 						src={priorityAvatar ? priorityAvatar : lastSentUser?.user?.avatar_url}
 					/>
-					{/* The below component will be used in the future! */}
-					{/* <AvatarImage
-						alt="second avatar"
-						className="w-8 h-8 rounded-lg border-2 border-[#FFFFFF] dark:border-[#313338] absolute -bottom-1 -right-2 z-0"
-						username="Second User"
-						srcImgProxy={createImgproxyUrl((priorityAvatar ? priorityAvatar : userLastSent?.user?.avatar_url) ?? '', {
-							width: 300,
-							height: 300,
-							resizeType: 'fit'
-						})}
-						src={priorityAvatar ? priorityAvatar : user?.user?.avatar_url || user?.user?.avatar_url}
-					/> */}
 				</div>
 				<div className="h-full flex-1 max-w-full min-w-0">
 					<div>
