@@ -26,6 +26,7 @@ export type MezonElectronAPI = {
 	dowloadImage: (url: string) => Promise<void>;
 	getScreenSources: (source: string) => Promise<{ id: string; name: string; thumbnail: string; icon: string }[]>;
 	setRatioWindow: (ratio: boolean) => void;
+	launchAppWindow: (url: string) => Promise<void>;
 };
 declare global {
 	interface Window {

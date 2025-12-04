@@ -215,7 +215,7 @@ export default function ChannelMenu({ channel }: IChannelMenuProps) {
 				});
 			},
 			icon: <MezonIconCDN icon={IconCDN.threadIcon} color={themeValue.textStrong} />,
-			isShow: !isStreamOrVoiceChannel
+			isShow: channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL
 		}
 	];
 

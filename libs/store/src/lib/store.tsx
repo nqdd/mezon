@@ -162,24 +162,6 @@ const persistedThreadReducer = persistReducer(
 	threadsReducer
 );
 
-const persistedTopicReducer = persistReducer(
-	{
-		key: 'topicdiscussions',
-		storage,
-		blacklist: ['isShowCreateTopic', 'isFocusTopicBox']
-	},
-	topicsReducer
-);
-
-const persistedChannelMembersReducer = persistReducer(
-	{
-		key: 'channelmembers',
-		storage,
-		blacklist: ['onlineStatusUser']
-	},
-	channelMembersReducer
-);
-
 const persistedListUsersByUserReducer = persistReducer(
 	{
 		key: 'listusersbyuserid',
@@ -347,7 +329,7 @@ const reducer = {
 	channelMembers: channelMembersReducer,
 	listusersbyuserid: persistedListUsersByUserReducer,
 	threads: persistedThreadReducer,
-	topicdiscussions: persistedTopicReducer,
+	topicdiscussions: topicsReducer,
 	[SEARCH_MESSAGES_FEATURE_KEY]: searchMessageReducer,
 	messages: messagesReducer,
 	categories: persistedCatReducer,
