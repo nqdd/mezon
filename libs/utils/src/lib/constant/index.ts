@@ -196,7 +196,8 @@ export const STICKER_WAVE = {
 		'https://cdn.mezon.ai/stickers/zalo.gif',
 		'https://cdn.mezon.ai/stickers/telegram.gif',
 		'https://cdn.mezon.ai/stickers/slack.gif',
-		'https://cdn.mezon.ai/stickers/discord.gif'
+		'https://cdn.mezon.ai/stickers/discord.gif',
+		'https://cdn.mezon.ai/stickers/mezon.gif'
 	]
 };
 
