@@ -43,7 +43,7 @@ body {
   height: 100%;
   border-radius: 8px;
   overflow: hidden;
-  background-color: white;
+  background-color: #1a1a1a;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
