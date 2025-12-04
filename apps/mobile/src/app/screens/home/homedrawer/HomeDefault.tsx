@@ -101,7 +101,7 @@ const HomeDefault = React.memo(
 					channelId={channelId}
 					mode={isThread ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 					hiddenIcon={{
-						threadIcon: channelType === ChannelType.CHANNEL_TYPE_THREAD
+						threadIcon: channelType === ChannelType.CHANNEL_TYPE_THREAD || channelType === ChannelType.CHANNEL_TYPE_APP
 					}}
 					isPublic={isPublicChannel}
 					topicChannelId={''}

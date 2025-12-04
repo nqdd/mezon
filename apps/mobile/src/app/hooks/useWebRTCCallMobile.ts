@@ -1,11 +1,11 @@
-import { MediaStream, RTCIceCandidate, RTCPeerConnection, RTCSessionDescription, mediaDevices } from '@livekit/react-native-webrtc';
+import { mediaDevices, MediaStream, RTCIceCandidate, RTCPeerConnection, RTCSessionDescription } from '@livekit/react-native-webrtc';
 import { useChatSending } from '@mezon/core';
 import { ActionEmitEvent, sessionConstraints } from '@mezon/mobile-components';
-import { DMCallActions, RootState, audioCallActions, selectAllAccount, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
+import { audioCallActions, DMCallActions, RootState, selectAllAccount, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import type { IMessageSendPayload } from '@mezon/utils';
 import { IMessageTypeCallLog, sleep } from '@mezon/utils';
-import { ChannelStreamMode, ChannelType, WebrtcSignalingType, safeJSONParse } from 'mezon-js';
+import { ChannelStreamMode, ChannelType, safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, DeviceEventEmitter, Linking, NativeModules, Platform } from 'react-native';
@@ -68,6 +68,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		speaker: false
 	});
 	const [isConnected, setIsConnected] = useState<boolean | null>(null);
+	const [candidateCache, setCandidateCache] = useState(null);
 	const pendingCandidatesRef = useRef<(RTCIceCandidate | null)[]>([]);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
@@ -434,9 +435,9 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		}
 	};
 
-	const handleICECandidate = async (data: any) => {
+	const handleICECandidate = async (candidate: any) => {
 		if (!peerConnection?.current) return;
-
+		const data = candidate || candidateCache;
 		try {
 			if (data) {
 				const candidate = new RTCIceCandidate(data);
@@ -483,7 +484,11 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 
 				case WebrtcSignalingType.WEBRTC_ICE_CANDIDATE: {
 					const candidate = safeJSONParse(signalingData?.json_data || '{}');
-					await handleICECandidate(candidate);
+					if (isFromNative) {
+						setCandidateCache(candidate);
+					} else {
+						await handleICECandidate(candidate);
+					}
 
 					break;
 				}
@@ -736,6 +741,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		localMediaControl,
 		timeStartConnected,
 		isConnected,
+		candidateCache,
 		startCall,
 		handleEndCall,
 		toggleAudio,
@@ -744,6 +750,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		switchCamera,
 		handleSignalingMessage,
 		handleToggleIsConnected,
-		playDialToneIOS
+		playDialToneIOS,
+		handleICECandidate
 	};
 }

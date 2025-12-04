@@ -237,6 +237,10 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 				if (hashData.web_app_data) {
 					const encodedHash = encodeURIComponent(hashData.web_app_data);
 					const urlWithHash = `${appChannel.app_url}?data=${encodedHash}`;
+					if (isElectron()) {
+						window.electron.launchAppWindow(urlWithHash);
+						return;
+					}
 					window.open(urlWithHash, currentChannel.channel_label, 'width=900,height=700');
 				}
 			}

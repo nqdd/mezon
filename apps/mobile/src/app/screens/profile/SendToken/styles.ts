@@ -130,6 +130,11 @@ export const style = (colors: Attributes) =>
 			fontWeight: 'bold',
 			color: colors.white
 		},
+		note: {
+			fontSize: size.s_14,
+			color: colors.white,
+			fontWeight: '500'
+		},
 		confirmButton: {
 			backgroundColor: colors.white,
 			justifyContent: 'center',
@@ -218,5 +223,11 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'space-between',
 			paddingRight: size.s_10
+		},
+		characterCount: {
+			alignSelf: 'flex-end',
+			color: colors.textDisabled,
+			marginBottom: size.s_2,
+			marginRight: size.s_2
 		}
 	});

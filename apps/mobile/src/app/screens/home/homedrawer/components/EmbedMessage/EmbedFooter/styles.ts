@@ -6,6 +6,8 @@ export const style = (colors: Attributes) =>
 		container: {
 			flexDirection: 'row',
 			alignItems: 'center',
+			flexWrap: 'wrap',
+			flexShrink: 1,
 			gap: size.s_6
 		},
 		text: {

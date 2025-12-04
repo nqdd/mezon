@@ -1,3 +1,4 @@
+import type { MessagesEntity } from '@mezon/store';
 import {
 	appActions,
 	getFirstMessageOfTopic,
@@ -75,7 +76,7 @@ export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isT
 				})
 			);
 
-			const waitForMessage = (timeout = 5000): Promise<unknown> =>
+			const waitForMessage = (timeout = 5000): Promise<MessagesEntity | null> =>
 				new Promise((resolve) => {
 					const startTime = Date.now();
 					const checkMessage = () => {
@@ -97,6 +98,7 @@ export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isT
 
 			if (fullMessage) {
 				dispatch(topicsActions.setCurrentTopicInitMessage(fullMessage as IMessageWithUser));
+				dispatch(topicsActions.setInitTopicMessageId(fullMessage.id));
 			}
 
 			dispatch(topicsActions.setIsShowCreateTopic(true));

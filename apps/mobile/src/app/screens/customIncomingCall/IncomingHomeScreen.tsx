@@ -1,45 +1,35 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
+import { registerGlobals } from '@livekit/react-native';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { appActions, DMCallActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
+import notifee from '@notifee/react-native';
 import LottieView from 'lottie-react-native';
 import type { WebrtcSignalingFwd } from 'mezon-js';
 import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
-import { memo, useEffect, useRef } from 'react';
-import {
-	BackHandler,
-	DeviceEventEmitter,
-	Image,
-	ImageBackground,
-	NativeModules,
-	Platform,
-	Text,
-	TouchableOpacity,
-	Vibration,
-	View
-} from 'react-native';
+import { memo, useCallback, useEffect, useRef } from 'react';
+import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import { Bounce } from 'react-native-animated-spinkit';
-import { useSelector } from 'react-redux';
-import { useSendSignaling } from '../../components/CallingGroupModal';
-import NotificationPreferences from '../../utils/NotificationPreferences';
-import { DirectMessageCallMain } from '../messages/DirectMessageCall';
-
-import { registerGlobals } from '@livekit/react-native';
-import notifee from '@notifee/react-native';
 import Sound from 'react-native-sound';
+import { useSelector } from 'react-redux';
+import NotificationPreferences from '../../utils/NotificationPreferences';
 import ChannelVoicePopup from '../home/homedrawer/components/ChannelVoicePopup';
+import type { ButtonAnswerCallGroupRef } from './ButtonAnswerCallGroup';
+import ButtonAnswerCallGroup from './ButtonAnswerCallGroup';
+import type { CallDetailNativeRef } from './CallDetailNative';
+import { CallDetailNative } from './CallDetailNative';
 import LOTTIE_PHONE_DECLINE from './phone-decline.json';
 import LOTTIE_PHONE_RING from './phone-ring.json';
 import { style } from './styles';
-
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import BG_CALLING from './bgCalling.png';
 
 registerGlobals();
 const AVATAR_DEFAULT = `${process.env.NX_BASE_IMG_URL}/1775731152322039808/1820659489792069632/mezon_logo.png`;
+let retryCount = 0;
+const maxRetries = 5;
+const retryInterval = 500;
 const IncomingHomeScreen = memo((props: any) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -49,12 +39,34 @@ const IncomingHomeScreen = memo((props: any) => {
 	const [isForceDecline, setIsForceDecline] = React.useState(false);
 	const [isInGroupCall, setIsInGroupCall] = React.useState(false);
 	const [dataCalling, setDataCalling] = React.useState<any>();
+	const [isSocketConnected, setIsSocketConnected] = React.useState(false);
+	const [isCallConnected, setIsCallConnected] = React.useState(false);
 	const userId = useSelector(selectCurrentUserId);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
-	const mezon = useMezon();
+	const { socketRef } = useMezon();
 	const ringtoneRef = useRef<Sound | null>(null);
-	const { sendSignalingToParticipants } = useSendSignaling();
 	const [dataCallGroup, setDataCallGroup] = React.useState<any>(null);
+	const callDetailRef = useRef<CallDetailNativeRef>(null);
+	const buttonAnswerCallGroupRef = useRef<ButtonAnswerCallGroupRef>(null);
+
+	const stopAndReleaseSound = useCallback(async () => {
+		try {
+			await NotificationPreferences.clearValue('notificationDataCalling');
+			if (ringtoneRef.current) {
+				ringtoneRef.current.pause();
+				ringtoneRef.current.stop();
+				ringtoneRef.current.release();
+				ringtoneRef.current = null;
+			}
+			Vibration.cancel();
+		} catch (e) {
+			console.error('log  => topAndReleaseSound', e);
+		}
+	}, []);
+
+	const playVibration = useCallback(() => {
+		Vibration.vibrate([300, 500, 300, 500], true);
+	}, []);
 
 	const loadDataInit = async () => {
 		const dataInit = await notifee.getInitialNotification();
@@ -67,45 +79,54 @@ const IncomingHomeScreen = memo((props: any) => {
 			//
 		}
 	};
-	useEffect(() => {
-		loadDataInit();
-	}, []);
 
-	const onKillApp = () => {
+	useEffect(() => {
+		let intervalId: NodeJS.Timeout | null = null;
+		const checkSocketStatus = () => {
+			const isOpen = socketRef?.current?.isOpen?.();
+			setIsSocketConnected(!!isOpen);
+			if (isOpen && intervalId) {
+				clearInterval(intervalId);
+				intervalId = null;
+			}
+		};
+		checkSocketStatus();
+
+		if (!socketRef?.current?.isOpen?.()) {
+			intervalId = setInterval(checkSocketStatus, 500);
+		}
+
+		return () => {
+			if (intervalId) {
+				clearInterval(intervalId);
+			}
+		};
+	}, [socketRef]);
+
+	const onKillApp = useCallback(async () => {
 		try {
 			if (Platform.OS === 'android') {
-				notifee.cancelNotification('incoming-call', 'incoming-call');
+				await notifee.cancelNotification('incoming-call', 'incoming-call');
 				NativeModules?.DeviceUtils?.killApp();
 				BackHandler.exitApp();
 			} else {
 				BackHandler.exitApp();
 			}
 		} catch (e) {
-			console.error('log  => onKillApp', e);
 			BackHandler.exitApp();
 		}
-	};
+	}, []);
 
-	const getDataNotifyObject = async (data) => {
-		try {
-			const dataObj = safeJSONParse(data?.offer || '{}');
-			return dataObj || {};
-		} catch (e) {
-			console.error('log  => getDataNotiObject', e);
-			return {};
-		}
-	};
-	const getDataCall = async () => {
+	const getDataCall = useCallback(async () => {
 		try {
 			const notificationData = await NotificationPreferences.getValue('notificationDataCalling');
 			if (!notificationData) return;
 
 			const notificationDataParse = safeJSONParse(notificationData || '{}');
 			const data = safeJSONParse(notificationDataParse?.offer || '{}');
-			const dataObj = await getDataNotifyObject(data);
+			const dataObj = await safeJSONParse(data?.offer || '{}');
 			if (dataObj?.isGroupCall) {
 				setDataCallGroup(dataObj);
-				await NotificationPreferences.clearValue('notificationDataCalling');
 				return;
 			}
 			if (data?.offer !== 'CANCEL_CALL' && !!data?.offer && !dataObj?.isGroupCall) {
@@ -142,16 +163,11 @@ const IncomingHomeScreen = memo((props: any) => {
 					ringtoneRef.current = sound;
 					playVibration();
 				});
-				await NotificationPreferences.clearValue('notificationDataCalling');
-			} else if (notificationData) {
-				await NotificationPreferences.clearValue('notificationDataCalling');
-			} else {
-				/* empty */
 			}
 		} catch (error) {
 			console.error('Failed to retrieve data', error);
 		}
-	};
+	}, [dispatch, playVibration, userId]);
 
 	useEffect(() => {
 		notifee.stopForegroundService();
@@ -166,90 +182,21 @@ const IncomingHomeScreen = memo((props: any) => {
 		return () => clearTimeout(timer);
 	}, [isInCall, isInGroupCall]);
 
-	useEffect(() => {
-		let timer;
-		if (isForceAnswer && signalingData?.[signalingData?.length - 1]?.callerId) {
-			timer = setTimeout(() => {
-				onJoinCall();
-			}, 1000);
-		}
-
-		if (
-			(signalingData?.[signalingData?.length - 1]?.signalingData.data_type === WebrtcSignalingType.WEBRTC_SDP_QUIT ||
-				signalingData?.[signalingData?.length - 1]?.signalingData.data_type === WebrtcSignalingType.WEBRTC_SDP_INIT) &&
-			!isInCall
-		) {
-			stopAndReleaseSound();
-			onKillApp();
-		}
-
-		return () => {
-			if (timer) {
-				clearTimeout(timer);
-			}
-		};
-	}, [isForceAnswer, isInCall, signalingData]);
-
-	useEffect(() => {
-		let timer;
-		if (isForceDecline) {
-			timer = setTimeout(() => {
-				onDeniedCall();
-			}, 1500);
-		}
-		return () => {
-			if (timer) {
-				clearTimeout(timer);
-			}
-		};
-	}, [isForceDecline, signalingData]);
-
-	useEffect(() => {
-		if (props && props?.payload) {
-			playVibration();
-			getDataCall();
-		}
-
-		return () => {
-			stopAndReleaseSound();
-		};
-	}, [props]);
-
-	const params = {
-		receiverId: signalingData?.[signalingData?.length - 1]?.callerId,
-		receiverAvatar: props?.avatar || dataCalling?.callerAvatar || '',
-		isAnswerCall: true,
-		isFromNative: true
-	};
-
 	const onDeniedCall = async () => {
 		stopAndReleaseSound();
+		await NotificationPreferences.clearValue('notificationDataCalling');
 		if (dataCallGroup) {
-			const quitAction = {
-				is_video: false,
-				group_id: dataCallGroup.groupId || '',
-				caller_id: userId,
-				caller_name: dataCallGroup.groupName || '',
-				timestamp: Date.now(),
-				action: 'decline'
-			};
-			sendSignalingToParticipants(
-				[dataCallGroup?.callerId],
-				WEBRTC_SIGNALING_TYPES.GROUP_CALL_QUIT,
-				quitAction,
-				dataCallGroup?.groupId || '',
-				userId || ''
-			);
+			await buttonAnswerCallGroupRef?.current?.onDeniedCall();
 			onKillApp();
 			return;
 		}
 		const latestSignalingEntry = signalingData?.[signalingData?.length - 1];
-		if (!latestSignalingEntry || !mezon.socketRef.current) {
+		if (!latestSignalingEntry || !socketRef.current) {
 			onKillApp();
 			return;
 		}
 
-		await mezon.socketRef.current?.forwardWebrtcSignaling(
+		await socketRef.current?.forwardWebrtcSignaling(
 			latestSignalingEntry?.callerId,
 			WebrtcSignalingType.WEBRTC_SDP_QUIT,
 			'{}',
@@ -261,6 +208,7 @@ const IncomingHomeScreen = memo((props: any) => {
 	};
 
 	const onJoinCall = async () => {
+		await NotificationPreferences.clearValue('notificationDataCalling');
 		if (Platform.OS === 'android') {
 			try {
 				NativeModules?.CallStateModule?.setIsInCall?.(true);
@@ -268,114 +216,162 @@ const IncomingHomeScreen = memo((props: any) => {
 				console.error('Error calling native methods:', error);
 			}
 		}
-		if (dataCallGroup) {
-			await handleJoinCallGroup(dataCallGroup);
-			setIsInGroupCall(true);
-			stopAndReleaseSound();
-			return;
+		const tryHandleICECandidate = async () => {
+			if (callDetailRef?.current) {
+				await callDetailRef.current?.handleICECandidate?.();
+				return true;
+			}
+			return false;
+		};
+		const success = await tryHandleICECandidate();
+		if (!success) {
+			const retryTimer = setInterval(async () => {
+				retryCount++;
+				const retrySuccess = await tryHandleICECandidate();
+
+				if (retrySuccess || retryCount >= maxRetries) {
+					clearInterval(retryTimer);
+				}
+			}, retryInterval);
 		}
 		dispatch(DMCallActions.setIsInCall(true));
-		if (!signalingData?.[signalingData?.length - 1]?.callerId) return;
 		stopAndReleaseSound();
 		setIsInCall(true);
 	};
 
-	const playVibration = () => {
-		Vibration.vibrate([300, 500, 300, 500], true);
-	};
-
-	const stopAndReleaseSound = () => {
-		try {
-			if (ringtoneRef.current) {
-				ringtoneRef.current.pause();
-				ringtoneRef.current.stop();
-				ringtoneRef.current.release();
-				ringtoneRef.current = null;
+	useEffect(() => {
+		let timer;
+		if (!isInCall) {
+			if (isForceAnswer && signalingData?.[signalingData?.length - 1]?.callerId) {
+				onJoinCall();
 			}
-			Vibration.cancel();
-		} catch (e) {
-			console.error('log  => topAndReleaseSound', e);
-		}
-	};
 
-	const handleJoinCallGroup = async (dataCall: any) => {
-		if (dataCall?.groupId) {
-			if (!dataCall?.meetingCode) return;
-			const data = {
-				channelId: dataCall.groupId || '',
-				roomName: dataCall?.meetingCode,
-				isGroupCall: true,
-				clanId: ''
-			};
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
-			const joinAction = {
-				participant_id: userId,
-				participant_name: '',
-				participant_avatar: '',
-				timestamp: Date.now()
-			};
-			sendSignalingToParticipants(
-				[dataCall?.callerId],
-				WEBRTC_SIGNALING_TYPES.GROUP_CALL_PARTICIPANT_JOINED,
-				joinAction,
-				dataCall?.channel_id || '',
-				userId || ''
-			);
+			if (signalingData?.[signalingData?.length - 1]?.signalingData.data_type === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+				stopAndReleaseSound();
+				onKillApp();
+			}
 		}
-	};
-	if (isInCall) {
-		return <DirectMessageCallMain route={{ params }} />;
-	}
+
+		return () => {
+			if (timer) {
+				clearTimeout(timer);
+			}
+		};
+	}, [isForceAnswer, isInCall, onKillApp, signalingData, stopAndReleaseSound]);
+
+	useEffect(() => {
+		if (isForceDecline && isSocketConnected) {
+			buttonAnswerCallGroupRef?.current?.onDeniedCall();
+			onDeniedCall();
+		}
+	}, [isForceDecline, isSocketConnected, onDeniedCall, signalingData]);
+
+	useEffect(() => {
+		loadDataInit();
+		if (props && props?.payload) {
+			playVibration();
+			getDataCall();
+		}
+
+		return () => {
+			stopAndReleaseSound();
+		};
+	}, [props]);
+
+	const onDeniedCallGroup = useCallback(() => {
+		stopAndReleaseSound();
+		onKillApp();
+	}, [onKillApp, stopAndReleaseSound]);
+
+	const onJoinCallGroup = useCallback(() => {
+		if (Platform.OS === 'android') {
+			try {
+				NativeModules?.CallStateModule?.setIsInCall?.(true);
+			} catch (error) {
+				console.error('Error calling native methods:', error);
+			}
+		}
+		setIsInGroupCall(true);
+		stopAndReleaseSound();
+	}, [stopAndReleaseSound]);
+
+	const onIsConnected = useCallback(() => {
+		setIsCallConnected(true);
+	}, []);
 
 	return (
-		<ImageBackground
-			source={BG_CALLING}
-			style={[
-				styles.container,
-				isInGroupCall && {
-					paddingVertical: 0,
-					paddingHorizontal: 0
-				}
-			]}
-		>
-			<ChannelVoicePopup isFromNativeCall={true} />
-			{/* Caller Info */}
-			<View style={styles.headerCall}>
-				<Text style={styles.callerName}>{dataCallGroup ? 'Group ' : ''}Incoming Call</Text>
-				<Image
-					source={{
-						uri: dataCallGroup?.groupAvatar || dataCalling?.callerAvatar || AVATAR_DEFAULT
-					}}
-					style={styles.callerImage}
+		<View style={{ flex: 1 }}>
+			{!!dataCalling?.callerId && isSocketConnected && (
+				<CallDetailNative
+					ref={callDetailRef}
+					receiverId={dataCalling?.callerId}
+					directMessageId={dataCalling?.channelId}
+					isVideoCall={dataCalling?.isVideoCall}
+					onIsConnected={onIsConnected}
+					receiverAvatar={props?.avatar || dataCalling?.callerAvatar || ''}
+					receiverName={dataCalling?.callerName || ''}
+					isAnswerCall={true}
+					isFromNative={true}
 				/>
-				<Text style={styles.callerInfo}>{dataCallGroup?.groupName || dataCalling?.callerName || ''}</Text>
-			</View>
-
-			{/* Decline and Answer Buttons */}
-			{isForceAnswer && dataCallGroup === null ? (
-				<View style={styles.wrapperConnecting}>
-					<Bounce size={size.s_80} color="#fff" />
-					<Text style={styles.callerName}>Connecting...</Text>
-				</View>
-			) : isForceDecline && dataCallGroup === null ? (
-				<View style={styles.wrapperConnecting}>
-					<Bounce size={size.s_80} color={baseColor.redStrong} />
-					<Text style={[styles.callerName, { color: baseColor.redStrong }]}>Cancel Call</Text>
-				</View>
-			) : (
-				<View style={styles.buttonContainer}>
-					<TouchableOpacity onPress={onDeniedCall}>
-						{/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-						{/*// @ts-expect-error*/}
-						<LottieView source={LOTTIE_PHONE_DECLINE} autoPlay loop style={styles.deniedCall} />
-					</TouchableOpacity>
-
-					<TouchableOpacity onPress={onJoinCall}>
-						<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
-					</TouchableOpacity>
-				</View>
 			)}
-		</ImageBackground>
+			{!isCallConnected && (
+				<ImageBackground
+					source={BG_CALLING}
+					style={[
+						styles.container,
+						isInGroupCall && {
+							paddingVertical: 0,
+							paddingHorizontal: 0
+						}
+					]}
+				>
+					{!!dataCallGroup && <ChannelVoicePopup isFromNativeCall={true} />}
+					{/* Caller Info */}
+					<View style={styles.headerCall}>
+						<Text style={styles.callerName}>{dataCallGroup ? 'Group ' : ''}Incoming Call</Text>
+						<Image
+							source={{
+								uri: dataCallGroup?.groupAvatar || dataCalling?.callerAvatar || AVATAR_DEFAULT
+							}}
+							style={styles.callerImage}
+						/>
+						<Text style={styles.callerInfo}>{dataCallGroup?.groupName || dataCalling?.callerName || ''}</Text>
+					</View>
+
+					{/* Decline and Answer Buttons */}
+					{isForceAnswer && dataCallGroup === null ? (
+						<View style={styles.wrapperConnecting}>
+							<Bounce size={size.s_80} color="#fff" />
+							<Text style={styles.callerName}>Connecting...</Text>
+						</View>
+					) : isForceDecline && dataCallGroup === null ? (
+						<View style={styles.wrapperConnecting}>
+							<Bounce size={size.s_80} color={baseColor.redStrong} />
+							<Text style={[styles.callerName, { color: baseColor.redStrong }]}>Cancel Call</Text>
+						</View>
+					) : dataCallGroup ? (
+						<ButtonAnswerCallGroup
+							ref={buttonAnswerCallGroupRef}
+							dataCallGroup={dataCallGroup}
+							onDeniedCallGroup={onDeniedCallGroup}
+							onJoinCallGroup={onJoinCallGroup}
+						/>
+					) : (
+						<View style={styles.buttonContainer}>
+							<TouchableOpacity onPress={onDeniedCall}>
+								{/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+								{/*// @ts-expect-error*/}
+								<LottieView source={LOTTIE_PHONE_DECLINE} autoPlay loop style={styles.deniedCall} />
+							</TouchableOpacity>
+
+							<TouchableOpacity onPress={onJoinCall}>
+								<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
+							</TouchableOpacity>
+						</View>
+					)}
+				</ImageBackground>
+			)}
+		</View>
 	);
 });
 

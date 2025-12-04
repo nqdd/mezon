@@ -78,21 +78,26 @@ export const ThreadHeader = memo(() => {
 	const renderChannelIcon = () => {
 		const isPrivateChannel = currentChannel?.channel_private === ChannelStatusEnum.isPrivate;
 		const isTextOrThreadChannel = [ChannelType.CHANNEL_TYPE_CHANNEL, ChannelType.CHANNEL_TYPE_THREAD].includes(currentChannel?.type);
+		const isChannelApp = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
 		if (currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel) {
 			return <MezonIconCDN icon={IconCDN.channelTextWarning} width={20} height={20} color={themeValue.text} />;
 		}
 		if (isPrivateChannel && isTextOrThreadChannel) {
 			return isChannel ? (
-				<MezonIconCDN icon={IconCDN.channelTextLock} width={20} height={20} color={themeValue.text} />
+				<MezonIconCDN icon={IconCDN.channelTextLock} width={size.s_20} height={size.s_20} color={themeValue.text} />
 			) : (
-				<MezonIconCDN icon={IconCDN.threadLockIcon} width={20} height={20} color={themeValue.text} />
+				<MezonIconCDN icon={IconCDN.threadLockIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 			);
 		}
 
+		if (isChannelApp) {
+			return <MezonIconCDN icon={IconCDN.channelApp} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+		}
+
 		return isChannel ? (
-			<MezonIconCDN icon={IconCDN.channelText} width={20} height={20} color={themeValue.text} />
+			<MezonIconCDN icon={IconCDN.channelText} width={size.s_20} height={size.s_20} color={themeValue.text} />
 		) : (
-			<MezonIconCDN icon={IconCDN.threadIcon} width={20} height={20} color={themeValue.text} />
+			<MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
 		);
 	};
 

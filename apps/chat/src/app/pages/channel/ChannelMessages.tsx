@@ -2,7 +2,7 @@ import type { IBeforeRenderCb } from '@mezon/chat-scroll';
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { MessageContextMenuProvider, MessageWithUser, useMessageContextMenu } from '@mezon/components';
 import { useMessageObservers, usePermissionChecker } from '@mezon/core';
-import type { MessagesEntity, RootState } from '@mezon/store';
+import type { RootState } from '@mezon/store';
 import {
 	channelsActions,
 	getStore,
@@ -35,14 +35,13 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import type { BooleanToVoidFunction, ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
+import type { BooleanToVoidFunction, ChannelMembersEntity } from '@mezon/utils';
 import {
 	Direction_Mode,
 	EOverriddenPermission,
 	LoadMoreDirection,
 	animateScroll,
 	buildClassName,
-	convertInitialMessageOfTopic,
 	debounce,
 	forceMeasure,
 	isAnimatingScroll,
@@ -58,7 +57,7 @@ import {
 	useStateRef,
 	useSyncEffect
 } from '@mezon/utils';
-import type { ChannelMessage as ChannelMessageType, ChannelType } from 'mezon-js';
+import type { ChannelType } from 'mezon-js';
 import type { ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -746,16 +745,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, effectiveChannelId));
 		const idMessageToJump = useSelector(selectIdMessageToJump);
 		const entities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, effectiveChannelId));
-		const firstMsgOfThisTopic = useSelector(selectFirstMessageOfCurrentTopic);
+		const firstMsgOfThisTopic = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, channelId));
 		const lastMessageUnreadId = useAppSelector((state) => selectUnreadMessageIdByChannelId(state, effectiveChannelId));
 
 		const openEditMessageState = useSelector(selectOpenEditMessageState);
 		const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 		const channelDraftMessage = useAppSelector((state) => selectChannelDraftMessage(state, effectiveChannelId));
-
-		const topicCreatorOfInitMsg = useAppSelector((state) =>
-			selectMemberClanByUserId(state, (firstMsgOfThisTopic?.message?.sender_id as string) || '')
-		);
 
 		const getIsEditing = useCallback(
 			(messageId: string) => {
@@ -1085,21 +1080,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		useEffect(() => rememberScrollPositionRef.current(), [getContainerHeight, rememberScrollPositionRef]);
 
-		const convertedFirstMsgOfThisTopic = useMemo(() => {
-			if (!firstMsgOfThisTopic?.message) {
-				return firstMsgOfThisTopic as MessagesEntity;
-			}
-			const baseEntity = convertInitialMessageOfTopic(firstMsgOfThisTopic.message as ChannelMessageType);
-			const topicCreator = topicCreatorOfInitMsg as UsersClanEntity | undefined;
-			return {
-				...baseEntity,
-				avatar: baseEntity.avatar || topicCreator?.user?.avatar_url || baseEntity.avatar,
-				clan_avatar: baseEntity.clan_avatar || topicCreator?.clan_avatar || baseEntity.clan_avatar,
-				clan_nick: baseEntity.clan_nick || topicCreator?.clan_nick || baseEntity.clan_nick,
-				username: baseEntity.username || topicCreator?.user?.username || baseEntity.username
-			} as MessagesEntity;
-		}, [firstMsgOfThisTopic, topicCreatorOfInitMsg]);
-
 		const msgIdJumpHightlight = useRef<string | null>(null);
 		const jumpHighlightTimeoutRef = useRef<number | null>(null);
 
@@ -1279,16 +1259,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					className={'messages-scroll outline-none w-full scroll-big'}
 				>
 					<div className="messages-wrap flex flex-col min-h-full mt-auto justify-end">
-						{isTopic && convertedFirstMsgOfThisTopic && (
-							<div
-								className={`fullBoxText relative group ${convertedFirstMsgOfThisTopic?.references?.[0]?.message_ref_id ? 'pt-3' : ''}`}
-							>
+						{isTopic && firstMsgOfThisTopic && (
+							<div className={`fullBoxText relative group ${firstMsgOfThisTopic?.references?.[0]?.message_ref_id ? 'pt-3' : ''}`}>
 								<MessageWithUser
 									isTopic={isTopic}
 									allowDisplayShortProfile={true}
-									message={convertedFirstMsgOfThisTopic}
+									message={firstMsgOfThisTopic}
 									mode={mode}
-									user={topicCreatorOfInitMsg}
+									user={currentClanUser || user}
 								/>
 							</div>
 						)}

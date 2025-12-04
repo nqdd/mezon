@@ -11,6 +11,7 @@ import {
 	DOWNLOAD_FILE,
 	GET_WINDOW_STATE,
 	IMAGE_WINDOW_TITLE_BAR_ACTION,
+	LAUNCH_APP_WINDOW,
 	LOAD_MORE_ATTACHMENTS,
 	MAC_WINDOWS_ACTION,
 	MAXIMIZE_WINDOW,
@@ -29,6 +30,7 @@ import SquirrelEvents from './app/events/squirrel.events';
 import { forceQuit } from './app/utils';
 import updateImagePopup from './assets/image-window/update_window_image';
 import openImagePopup from './assets/image-window/window_image';
+import openNewWindow from './assets/window/new-window';
 import { environment } from './environments/environment';
 
 export type ImageWindowProps = {
@@ -207,9 +209,23 @@ const handleMacWindowsAction = async (window: BrowserWindow, action: string) => 
 			break;
 	}
 };
+ipcMain.handle(LAUNCH_APP_WINDOW, (event, props: any) => {
+	const channelApp = openNewWindow(props, App.mainWindow);
+	if (!App.channelAppWindow) {
+		App.channelAppWindow = channelApp;
+		return;
+	}
+	App.channelAppWindow.close();
+	App.channelAppWindow = channelApp;
+});
+
+ipcMain.on('APP::CLOSE_APP_CHANNEL', (event) => {
+	const win = BrowserWindow.fromWebContents(event.sender);
+	win?.close();
+	App.channelAppWindow = null;
+});
 
 ipcMain.handle(OPEN_NEW_WINDOW, (event, props: any, _options?: Electron.BrowserWindowConstructorOptions, _params?: Record<string, string>) => {
-	// const newWindow = App.openImageWindow(props, options, params);
 	if (App.imageViewerWindow) {
 		updateImagePopup(props, App.imageViewerWindow);
 		return;
