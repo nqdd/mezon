@@ -105,9 +105,9 @@ const ForwardMessageScreen = () => {
 		try {
 			const attachments = selectedMessage?.attachments || [];
 			return {
-				images: attachments.filter((a) => a?.filetype?.includes('image')),
-				videos: attachments.filter((a) => a?.filetype?.includes('video')),
-				files: attachments.filter((a) => !a?.filetype?.includes('image') && !a?.filetype?.includes('video'))
+				images: attachments?.filter((a) => a?.filetype?.includes('image')),
+				videos: attachments?.filter((a) => a?.filetype?.includes('video')),
+				files: attachments?.filter((a) => !a?.filetype?.includes('image') && !a?.filetype?.includes('video'))
 			};
 		} catch (error) {
 			console.error('Error processing message attachments:', error);
