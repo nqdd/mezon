@@ -26,8 +26,9 @@ import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -316,13 +317,19 @@ const ForwardMessageScreen = () => {
 	};
 
 	return (
-		<View style={styles.wrapper}>
-			<KeyboardAvoidingView
-				behavior="padding"
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-				style={styles.container}
-			>
-				<StatusBarHeight />
+		<KeyboardAvoidingView
+			behavior="padding"
+			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
+			style={styles.container}
+		>
+			<StatusBarHeight />
+			<View style={styles.wrapper}>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
 				<View style={styles.header}>
 					<View style={styles.headerSide}>
 						<TouchableOpacity onPress={onClose}>
@@ -399,7 +406,7 @@ const ForwardMessageScreen = () => {
 							)}
 						</View>
 						{message?.attachments?.length > 0 && (
-							<RenderForwardMedia document={message?.attachments?.[0]} count={message?.attachments?.length - 1} />
+							<RenderForwardMedia attachment={message?.attachments?.[0]} count={message?.attachments?.length - 1} />
 						)}
 					</View>
 				</View>
@@ -430,8 +437,8 @@ const ForwardMessageScreen = () => {
 						</Text>
 					</TouchableOpacity>
 				</View>
-			</KeyboardAvoidingView>
-		</View>
+			</View>
+		</KeyboardAvoidingView>
 	);
 };
 

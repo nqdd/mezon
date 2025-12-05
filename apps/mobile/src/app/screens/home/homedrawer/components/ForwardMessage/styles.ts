@@ -70,9 +70,7 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center'
 		},
 		container: {
-			flex: 1,
-			paddingHorizontal: size.s_16,
-			paddingTop: size.s_16
+			flex: 1
 		},
 		header: {
 			flexDirection: 'row',
@@ -180,6 +178,8 @@ export const style = (colors: Attributes) =>
 		},
 		wrapper: {
 			flex: 1,
-			backgroundColor: colors.primary
+			backgroundColor: colors.primary,
+			paddingHorizontal: size.s_16,
+			paddingTop: size.s_16
 		}
 	});
