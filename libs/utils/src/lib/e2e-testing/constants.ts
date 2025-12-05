@@ -24,7 +24,8 @@ export const DATA_E2E_IDENTIFIER = {
 		copy: ''
 	},
 	base_profile: {
-		display_name: ''
+		display_name: '',
+		user_status: ''
 	},
 	short_profile: {
 		display_name: '',
