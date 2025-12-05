@@ -8,7 +8,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			borderRadius: size.s_6,
-			backgroundColor: colors.selectedOverlay
+			backgroundColor: colors.borderDim
 		},
 		fileName: {
 			fontSize: size.small,

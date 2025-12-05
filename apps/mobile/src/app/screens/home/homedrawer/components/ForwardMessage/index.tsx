@@ -406,7 +406,7 @@ const ForwardMessageScreen = () => {
 							)}
 						</View>
 						{message?.attachments?.length > 0 && (
-							<RenderForwardMedia document={message?.attachments?.[0]} count={message?.attachments?.length - 1} />
+							<RenderForwardMedia attachment={message?.attachments?.[0]} count={message?.attachments?.length - 1} />
 						)}
 					</View>
 				</View>
