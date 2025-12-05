@@ -57,7 +57,7 @@ const ForwardMessageScreen = () => {
 	const navigation = useNavigation();
 	const route = useRoute();
 	const params = route.params as { message: IMessageWithUser; isPublic?: boolean };
-	const { message } = params;
+	const { message } = params || {};
 	const { sendForwardMessage } = useSendForwardMessage();
 	const { t } = useTranslation('message');
 	const { themeValue } = useTheme();
@@ -73,7 +73,7 @@ const ForwardMessageScreen = () => {
 
 	const selectedForwardObjectsRef = useRef<IForwardIObject[]>([]);
 
-	const currentId = currentDmId || currentTopicId || currentChannelId || '';
+	const currentId = useMemo(() => currentDmId || currentTopicId || currentChannelId || '', [currentDmId, currentTopicId, currentChannelId]);
 	const allMessagesEntities = useAppSelector((state) => selectMessageEntitiesByChannelId(state, currentId));
 	const allMessageIds = useAppSelector((state) => selectMessageIdsByChannelId(state, currentId));
 
@@ -102,12 +102,21 @@ const ForwardMessageScreen = () => {
 	};
 
 	const messageAttachments = useMemo(() => {
-		const attachments = selectedMessage?.attachments || [];
-		return {
-			images: attachments.filter((a) => a?.filetype?.includes('image')),
-			videos: attachments.filter((a) => a?.filetype?.includes('video')),
-			files: attachments.filter((a) => !a?.filetype?.includes('image') && !a?.filetype?.includes('video'))
-		};
+		try {
+			const attachments = selectedMessage?.attachments || [];
+			return {
+				images: attachments.filter((a) => a?.filetype?.includes('image')),
+				videos: attachments.filter((a) => a?.filetype?.includes('video')),
+				files: attachments.filter((a) => !a?.filetype?.includes('image') && !a?.filetype?.includes('video'))
+			};
+		} catch (error) {
+			console.error('Error processing message attachments:', error);
+			return {
+				images: [],
+				videos: [],
+				files: []
+			};
+		}
 	}, [selectedMessage?.attachments]);
 
 	const allForwardObject = useMemo(() => {
@@ -201,7 +210,7 @@ const ForwardMessageScreen = () => {
 			const currentUserId = selectCurrentUserId(store.getState());
 
 			for (const target of targets) {
-				const { type, channelId, clanId = '', isChannelPublic, name } = target;
+				const { type, channelId, clanId = '', isChannelPublic, name } = target || {};
 				const isBanFromChannel = selectBanMemberCurrentClanById(store.getState(), channelId, currentUserId);
 
 				if (isBanFromChannel) {
@@ -307,7 +316,7 @@ const ForwardMessageScreen = () => {
 	};
 
 	return (
-		<View style={{ flex: 1, backgroundColor: themeValue.primary }}>
+		<View style={styles.wrapper}>
 			<KeyboardAvoidingView
 				behavior="padding"
 				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}

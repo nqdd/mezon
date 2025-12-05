@@ -177,5 +177,9 @@ export const style = (colors: Attributes) =>
 		titleText: {
 			color: colors.textDisabled,
 			fontSize: size.s_12
+		},
+		wrapper: {
+			flex: 1,
+			backgroundColor: colors.primary
 		}
 	});
