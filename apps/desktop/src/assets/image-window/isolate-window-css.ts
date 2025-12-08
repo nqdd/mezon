@@ -1,4 +1,4 @@
-const image_window_css = `
+const isolate_window_css = `
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -589,4 +589,4 @@ width : 0 !important;
 		outline: none;
 	}
 `;
-export default image_window_css;
+export default isolate_window_css;
