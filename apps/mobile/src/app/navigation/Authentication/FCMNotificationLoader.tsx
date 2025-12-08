@@ -5,7 +5,8 @@ import notifee, { EventType } from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onNotificationOpenedApp } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelMessage, safeJSONParse } from 'mezon-js';
+import type { ChannelMessage } from 'mezon-js';
+import { safeJSONParse } from 'mezon-js';
 import moment from 'moment/moment';
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { AppState, NativeModules, Platform } from 'react-native';
@@ -191,16 +192,16 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 			}
 			if (Platform.OS === 'android') {
 				NativeModules?.BadgeModule?.clearAllNotifications();
+				await notifee.cancelAllNotifications();
+				await notifee.cancelDisplayedNotifications();
 			}
-			await notifee.cancelAllNotifications();
-			await notifee.cancelDisplayedNotifications();
 		} catch (error) {
 			if (Platform.OS === 'android') {
 				NativeModules?.BadgeModule?.clearAllNotifications();
+				await deleteAllChannelGroupsNotifee();
+				await notifee.cancelAllNotifications();
+				await notifee.cancelDisplayedNotifications();
 			}
-			await deleteAllChannelGroupsNotifee();
-			await notifee.cancelAllNotifications();
-			await notifee.cancelDisplayedNotifications();
 			console.error('Error processing notifications:', error);
 		}
 	};

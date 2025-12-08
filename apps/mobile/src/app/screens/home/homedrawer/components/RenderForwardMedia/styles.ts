@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -8,7 +9,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center',
 			justifyContent: 'center',
 			borderRadius: size.s_6,
-			backgroundColor: colors.selectedOverlay
+			backgroundColor: colors.borderDim
 		},
 		fileName: {
 			fontSize: size.small,
