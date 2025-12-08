@@ -279,11 +279,9 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 			if (Platform.OS === 'android') {
 				const { CustomAudioModule } = NativeModules;
 				await CustomAudioModule.setSpeaker(isSpeaker, null);
-				InCallManager.setSpeakerphoneOn(isSpeaker);
-			} else {
-				InCallManager.setSpeakerphoneOn(isSpeaker);
-				InCallManager.setForceSpeakerphoneOn(isSpeaker);
 			}
+			InCallManager.setSpeakerphoneOn(isSpeaker);
+			InCallManager.setForceSpeakerphoneOn(isSpeaker);
 			setLocalMediaControl((prev) => ({
 				...prev,
 				speaker: isSpeaker

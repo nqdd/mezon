@@ -5,7 +5,8 @@ import debounce from 'lodash.debounce';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
-import { Platform, Pressable, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../constants/icon_cdn';
@@ -131,9 +132,9 @@ const InputSearchMessageChannel = ({
 					placeholderTextColor={themeValue.textDisabled}
 					placeholder={optionFilter?.title || userMention?.display ? '' : t('search')}
 					autoFocus
-				></TextInput>
+				/>
 				{textInput?.length ? (
-					<Pressable onPress={() => clearTextInput()}>
+					<Pressable onPress={clearTextInput} style={styles.btnClear}>
 						<MezonIconCDN icon={IconCDN.circleXIcon} height={18} width={18} color={themeValue.text} />
 					</Pressable>
 				) : null}
