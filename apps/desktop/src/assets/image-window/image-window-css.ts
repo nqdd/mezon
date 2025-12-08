@@ -89,6 +89,8 @@ body {
 
 .svg-button {
     width: 14px;
+	color: #ffffff !important;
+	fill: #ffffff !important;
 }
 
 .zoom-button {
