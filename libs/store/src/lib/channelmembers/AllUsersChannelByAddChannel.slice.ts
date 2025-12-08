@@ -5,7 +5,6 @@ import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } fr
 import type { ApiAllUsersAddChannelResponse } from 'mezon-js/api.gen';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import { selectAllUserClans, selectEntitesUserClans } from '../clanMembers/clan.members';
 import { convertStatusGroup, statusActions } from '../direct/status.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
@@ -215,6 +214,11 @@ export const getUserChannelsState = (rootState: { [ALL_USERS_BY_ADD_CHANNEL]: Us
 const { selectEntities, selectById } = UserChannelAdapter.getSelectors();
 
 export const selectUserChannelUCEntities = createSelector(getUserChannelsState, selectEntities);
+export const selectUserChannelIds = createSelector(
+	[getUserChannelsState, (state, channelId: string) => channelId],
+	(state, channelId) => selectById(state, channelId)?.user_ids || []
+);
+
 export const selectRawDataUserGroup = createSelector([getUserChannelsState, (state, channelId: string) => channelId], (state, channelId) =>
 	selectById(state, channelId)
 );
@@ -238,20 +242,3 @@ export const selectMemberByGroupId = createSelector([getUserChannelsState, (stat
 	});
 	return listMember;
 });
-
-export const selectAllUserChannel = (channelId: string) =>
-	createSelector([selectUserChannelUCEntities, selectAllUserClans, selectEntitesUserClans], (channelMembers, allUserClans, usersClanEntities) => {
-		let membersOfChannel: ChannelMembersEntity[] = [];
-
-		if (!allUserClans?.length) return membersOfChannel;
-
-		const members = { ids: channelMembers?.[channelId]?.user_ids };
-
-		if (!members?.ids) return membersOfChannel;
-		const ids = members.ids || [];
-		membersOfChannel = ids.map((id: string) => ({
-			...usersClanEntities[id]
-		}));
-
-		return membersOfChannel;
-	});
