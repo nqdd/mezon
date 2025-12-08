@@ -76,8 +76,13 @@ export const addChannelRoles = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId, noCache: true }));
-
+			thunkAPI.dispatch(
+				rolesClanActions.addRoleByChannel({
+					channelId,
+					roleIds,
+					clanId
+				})
+			);
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'channelUsers/addChannelRoles');
@@ -101,7 +106,7 @@ export const removeChannelRole = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue([]);
 			}
-			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId, noCache: true }));
+			thunkAPI.dispatch(rolesClanActions.removeChannelRole({ clanId, channelId, roleId }));
 
 			return response;
 		} catch (error) {
