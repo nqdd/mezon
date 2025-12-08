@@ -1010,5 +1010,9 @@ export const style = (colors: Attributes) =>
 		},
 		channelMessagesWrapperContainer: {
 			flex: 1
+		},
+		waveButtonContainer: {
+			marginTop: size.s_10,
+			alignSelf: 'center'
 		}
 	});

@@ -61,6 +61,7 @@ export type MessageItemProps = {
 	isSearchTab?: boolean;
 	userId?: string;
 	isHighlight?: boolean;
+	messageCount?: number;
 };
 
 const MessageItem = React.memo(
@@ -75,7 +76,8 @@ const MessageItem = React.memo(
 			channelId = '',
 			topicChannelId,
 			isSearchTab = false,
-			isHighlight = false
+			isHighlight = false,
+			messageCount = 0
 		} = props;
 		const dispatch = useAppDispatch();
 		const { t } = useTranslation(['message', 'common']);
@@ -290,9 +292,8 @@ const MessageItem = React.memo(
 			return Boolean(t && !embed && !mentions?.length && !hg?.length && !ej?.length && !mk?.length);
 		}, [message?.content, message?.mentions]);
 
-		// Message welcome
 		if (message?.sender_id === '0' && !message?.content?.t && message?.username?.toLowerCase() === 'system') {
-			return <WelcomeMessage channelId={props.channelId} />;
+			return <WelcomeMessage channelId={props.channelId} message={message} messageCount={messageCount} />;
 		}
 
 		const panResponder = PanResponder.create({
@@ -510,7 +511,8 @@ const MessageItem = React.memo(
 				prevProps?.message?.content?.t +
 				prevProps?.message?.attachments?.length +
 				prevProps?.message?.references?.[0]?.content +
-				prevProps?.preventAction ===
+				prevProps?.preventAction +
+				prevProps?.messageCount ===
 			nextProps?.message?.id +
 				nextProps?.message?.update_time +
 				nextProps?.previousMessage?.id +
@@ -520,7 +522,8 @@ const MessageItem = React.memo(
 				nextProps?.message?.content?.t +
 				nextProps?.message?.attachments?.length +
 				nextProps?.message?.references?.[0]?.content +
-				nextProps?.preventAction
+				nextProps?.preventAction +
+				nextProps?.messageCount
 		);
 	}
 );
