@@ -1,5 +1,6 @@
 import { Attributes, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
+
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		wrapper: {
@@ -59,5 +60,10 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_2,
 			maxWidth: size.s_100
+		},
+		btnClear: {
+			height: '100%',
+			justifyContent: 'center',
+			paddingLeft: size.s_8
 		}
 	});

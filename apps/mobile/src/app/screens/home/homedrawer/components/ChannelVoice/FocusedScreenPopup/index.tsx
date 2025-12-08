@@ -1,12 +1,12 @@
 import { useLocalParticipant, useParticipants, useTracks, VideoTrack } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { UsersClanEntity } from '@mezon/utils';
+import type { UsersClanEntity } from '@mezon/utils';
 import { RoomEvent, Track } from 'livekit-client';
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
+import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { style } from '../styles';
 
 const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => {
@@ -26,9 +26,9 @@ const FocusedScreenPopup = ({ clanUsers }: { clanUsers: UsersClanEntity[] }) => 
 	const otherParticipants = participants.filter((p) => p.identity !== localParticipant.identity);
 	const selfParticipant = participants.find((p) => p.identity === localParticipant.identity);
 	const randomParticipant = participants[0];
-	const username = randomParticipant.identity;
-	const member = clanUsers?.find((u) => u?.user?.username === username);
-	const voiceUsername = member?.clan_nick || member?.user?.display_name || username;
+	const identity = randomParticipant.identity;
+	const member = clanUsers?.find((u) => u?.user?.id === identity);
+	const voiceUsername = member?.clan_nick || member?.user?.display_name || member?.user?.username || '';
 	const avatar = useMemo(() => {
 		return member?.clan_avatar || member?.user?.avatar_url || '';
 	}, [member]);
