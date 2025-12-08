@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { join } from 'path';
 import App from '../../app/app';
+import { sanitizeUrl } from '../../app/utils';
 import image_window_css from '../image-window/image-window-css';
 
 function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow) {
@@ -107,7 +108,7 @@ function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow
 
 	`);
 
-		popupWindow.webContents.executeJavaScript(`window.location.url = ${JSON.stringify(url)};`).catch((err) => console.error(err));
+		popupWindow.webContents.executeJavaScript(`window.location.url = ${JSON.stringify(sanitizeUrl(url))};`).catch((err) => console.error(err));
 	});
 
 	return popupWindow;
