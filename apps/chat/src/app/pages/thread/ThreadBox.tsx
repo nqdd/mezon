@@ -33,11 +33,19 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IMessageSendPayload, ThreadValue } from '@mezon/utils';
-import { CREATING_THREAD, MAX_FILE_ATTACHMENTS, UploadLimitReason, ValidateSpecialCharacters, generateE2eId, processFile } from '@mezon/utils';
+import {
+	CHANNEL_INPUT_ID,
+	CREATING_THREAD,
+	MAX_FILE_ATTACHMENTS,
+	UploadLimitReason,
+	ValidateSpecialCharacters,
+	generateE2eId,
+	processFile
+} from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { Fragment, useCallback, useMemo } from 'react';
+import React, { Fragment, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -312,8 +320,38 @@ const ThreadBox = () => {
 		[currentChannelId, dispatch]
 	);
 
+	const threadBoxRef = useRef<HTMLDivElement | null>(null);
+
+	const handleThreadNameKeyDown = useCallback(
+		async (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+			if (event.key !== 'Enter') {
+				return;
+			}
+
+			event.preventDefault();
+
+			const mentionInput = threadBoxRef.current?.querySelector<HTMLElement>(`#${CHANNEL_INPUT_ID}`);
+
+			if (!mentionInput?.innerHTML) {
+				toast.warning(t('createThread.toast.initialMessageRequired'));
+				return;
+			}
+
+			mentionInput.focus();
+			mentionInput.dispatchEvent(
+				new KeyboardEvent('keydown', {
+					key: 'Enter',
+					code: 'Enter',
+					bubbles: true
+				})
+			);
+		},
+		[t]
+	);
+
 	return (
 		<div
+			ref={threadBoxRef}
 			className="flex flex-col flex-1 justify-end border-l border-color-primary bg-theme-chat pt-4"
 			data-e2e={generateE2eId('discussion.box.thread')}
 		>
@@ -347,6 +385,7 @@ const ThreadBox = () => {
 						)}
 						<ThreadNameTextField
 							onChange={handleChangeNameThread}
+							onKeyDown={handleThreadNameKeyDown}
 							value={nameValueThread ?? ''}
 							label={t('createThread.threadName')}
 							placeholder={
