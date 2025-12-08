@@ -485,6 +485,13 @@ export const channelCategorySettingSlice = createSlice({
 					return;
 				}
 
+				if (!state?.byClans?.[clan_id]) {
+					state.byClans[clan_id] = {
+						loadingStatus: 'not loaded',
+						list: channelCategorySettingAdapter.getInitialState()
+					};
+				}
+
 				const existingEntity = state.byClans[clan_id]?.list.entities[channel_category_id];
 				if (existingEntity) {
 					channelCategorySettingAdapter.updateOne(state.byClans[clan_id].list, {
