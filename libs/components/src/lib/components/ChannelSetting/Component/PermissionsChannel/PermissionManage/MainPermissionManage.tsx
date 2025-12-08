@@ -3,11 +3,11 @@ import {
 	permissionRoleChannelActions,
 	selectAllPermissionRoleChannel,
 	selectAllRolesClan,
-	selectAllUserChannel,
 	selectAllUserClans,
 	selectCurrentClanId,
 	selectPermissionChannel,
 	selectRolesByChannelId,
+	selectUserChannelIds,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -55,8 +55,9 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 	);
 	const rolesClan = useSelector(selectAllRolesClan);
 	const rolesInChannel = useSelector(selectRolesByChannelId(channelId));
-	const rawMembers = useSelector(selectAllUserChannel(channelId));
+	const userIds = useSelector((state) => selectUserChannelIds(state, channelId));
 	const currentClanId = useSelector(selectCurrentClanId);
+	const usersClan = useSelector(selectAllUserClans);
 	const combinedArray = useMemo(
 		() => [
 			...rolesInChannel.map((role) => ({
@@ -64,13 +65,13 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 				title: role.title,
 				type: ENTITY_TYPE.ROLE
 			})),
-			...rawMembers.map((member) => ({
-				id: member.id,
-				title: member.user?.username,
+			...userIds.map((id) => ({
+				id: usersClan[id].id,
+				title: usersClan[id].user?.username,
 				type: ENTITY_TYPE.USER
 			}))
 		],
-		[rolesInChannel, rawMembers]
+		[rolesInChannel, userIds, usersClan]
 	);
 
 	const { maxPermissionId } = useMyRole();
@@ -80,7 +81,6 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 		const roleInChannelIds = new Set(rolesInChannel.map((roleInChannel) => roleInChannel.id));
 		return rolesClan.filter((role) => !roleInChannelIds.has(role.id));
 	}, [rolesClan, rolesInChannel]);
-	const usersClan = useSelector(selectAllUserClans);
 
 	const listPermissionRef = useRef<ListPermissionHandle>(null);
 
