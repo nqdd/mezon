@@ -5,6 +5,7 @@ import {
 	selectAllRolesClan,
 	selectAllUserClans,
 	selectCurrentClanId,
+	selectEntitesUserClans,
 	selectPermissionChannel,
 	selectRolesByChannelId,
 	selectUserChannelIds,
@@ -57,6 +58,7 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 	const rolesInChannel = useSelector(selectRolesByChannelId(channelId));
 	const userIds = useSelector((state) => selectUserChannelIds(state, channelId));
 	const currentClanId = useSelector(selectCurrentClanId);
+	const usersClanEntities = useSelector(selectEntitesUserClans);
 	const usersClan = useSelector(selectAllUserClans);
 	const combinedArray = useMemo(
 		() => [
@@ -66,12 +68,12 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 				type: ENTITY_TYPE.ROLE
 			})),
 			...userIds.map((id) => ({
-				id: usersClan[id].id,
-				title: usersClan[id].user?.username,
+				id: usersClanEntities[id]?.id,
+				title: usersClanEntities[id].user?.username,
 				type: ENTITY_TYPE.USER
 			}))
 		],
-		[rolesInChannel, userIds, usersClan]
+		[rolesInChannel, userIds, usersClanEntities]
 	);
 
 	const { maxPermissionId } = useMyRole();
