@@ -268,12 +268,25 @@ const ChannelMessages = React.memo(
 							topicChannelId={topicChannelId}
 							isHighlight={idMessageToJump?.id?.toString() === item?.id?.toString()}
 							preventAction={isBanned}
+							messageCount={messages?.length}
 						/>
 						{shouldShowUnreadBreak && <MessageNewLine key={`unread-${previousMessageId}`} />}
 					</>
 				);
 			},
-			[channelId, haveScrollToBottom, idMessageToJump?.id, isBanned, lastMessageId, lastSeenMessageId, messages, mode, topicChannelId, userId]
+			[
+				channelId,
+				haveScrollToBottom,
+				idMessageToJump?.id,
+				isBanned,
+				lastMessageId,
+				lastSeenMessageId,
+				messages,
+				mode,
+				topicChannelId,
+				userId,
+				messages?.length
+			]
 		);
 
 		const handleJumpToPresent = useCallback(async () => {

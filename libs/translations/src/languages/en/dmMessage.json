@@ -40,6 +40,7 @@
 		"unMuteFailed": "Failed to unmute!"
 	},
 	"waveWelcome": "Wave to say hi!",
+	"waveWelcomeDM": "Wave to {{username}}",
 	"members": "members",
 	"speaker": "Speaker",
 	"end": "End",
