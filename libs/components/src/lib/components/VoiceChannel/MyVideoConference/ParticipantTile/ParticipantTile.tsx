@@ -252,11 +252,6 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 	const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
 		event.preventDefault();
 		event.stopPropagation();
-		document.querySelectorAll('.contexify').forEach((el) => {
-			const element = el as HTMLElement;
-			element.style.display = 'none';
-		});
-
 		closeContextVoiceMember();
 
 		if (roomName && canMangeVoice && userProfile?.user?.id !== member?.id) {
