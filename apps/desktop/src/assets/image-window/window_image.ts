@@ -4,7 +4,7 @@ import { join } from 'path';
 import App from '../../app/app';
 import { escapeHtml, sanitizeUrl } from '../../app/utils';
 import menu from '../menu-context';
-import isolate_window_css from './isolate-window-css';
+import new_window_css from '../window/new-window-css';
 
 function createImgProxyUrl(sourceImageUrl: string, width = 0, height = 0, resizeType = 'force'): string {
 	if (!sourceImageUrl) return '';
@@ -94,7 +94,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   <link rel="stylesheet" href="image-window.css">
   <link rel="stylesheet" href="../menu-context/index.css">
   <style>
-    ${isolate_window_css}
+    ${new_window_css}
   </style>
   <script>
   function closeWindow() {

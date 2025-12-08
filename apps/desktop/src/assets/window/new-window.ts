@@ -2,8 +2,8 @@ import { BrowserWindow } from 'electron';
 import { join } from 'path';
 import App from '../../app/app';
 import { sanitizeUrl } from '../../app/utils';
-import isolate_window_css from '../image-window/isolate-window-css';
 
+import new_window_css from './new-window-css';
 function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow) {
 	const parentBounds = parentWindow.getBounds();
 	const width = Math.floor(parentBounds.width * 0.5);
@@ -43,7 +43,7 @@ function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow
 	<link rel="stylesheet" href="../window_image/image-window.css">
 	<link rel="stylesheet" href="../menu-context/index.css">
 	<style>
-		${isolate_window_css}
+		${new_window_css}
 	</style>
 
 </head>
