@@ -52,7 +52,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					video: {
 						mandatory: {
 							chromeMediaSource: 'desktop',
-							sharetrackId: screenSource.id
+							chromeMediaSourceId: screenSource.id
 						}
 					},
 					audio: screenSource.audio
