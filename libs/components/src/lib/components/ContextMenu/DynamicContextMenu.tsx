@@ -467,7 +467,7 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 				style={className}
 				className="z-50 rounded-lg text-theme-primary text-theme-primary-hover border-theme-primary thread-scroll"
 			>
-				{checkPos && (
+				{checkPos && !message?.isError && (
 					<ReactionPart emojiList={firstFourElements} messageId={messageId} isOption={false} message={message} isTopic={!!isTopic} />
 				)}
 				{children}

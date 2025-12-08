@@ -39,6 +39,9 @@ import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { ReactionEntity } from '../reactionMessage/reactionMessage.slice';
 import type { AppDispatch, RootState } from '../store';
+
+type ChannelMessageWithClientMeta = ChannelMessage & { client_send_time?: number; temp_id?: string };
+const sendTimeoutMap = new Map<string, ReturnType<typeof setTimeout>>();
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
 export const MESSAGES_FEATURE_KEY = 'messages';
@@ -74,6 +77,7 @@ export interface MessagesEntity extends IMessageWithUser {
 	isStartedMessageOfTheDay?: boolean;
 	hide_editted?: boolean;
 	code: number;
+	originalSendPayload?: Partial<SendMessagePayload>;
 }
 
 export interface UserTypingState {
@@ -797,6 +801,8 @@ type SendMessagePayload = {
 	isMobile?: boolean;
 	username?: string;
 	code?: number;
+	clientSendTime?: number;
+	tempId?: string;
 };
 
 export const sendMessage = createAsyncThunk('messages/sendMessage', async (payload: SendMessagePayload, thunkAPI) => {
@@ -818,6 +824,13 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 	} = payload;
 
 	let content = payload.content;
+	const clientSendTime = Date.now();
+	const tempId = `${payload.channelId}-${clientSendTime}`;
+	const originalSendPayload: SendMessagePayload = {
+		...payload,
+		clientSendTime,
+		tempId
+	};
 
 	const checkEnableE2EE = checkE2EE(clanId, channelId, thunkAPI);
 
@@ -922,7 +935,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		const finalAvatar = overrideAvatar || avatar;
 
-		const fakeMessage: ChannelMessage = {
+		const fakeMessage: ChannelMessageWithClientMeta = {
 			id,
 			code: code || 0, // Add new message
 			channel_id: channelId,
@@ -930,7 +943,9 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			// @ts-expect-error
 			content,
 			attachments,
-			create_time: new Date().toISOString(),
+			create_time: new Date(clientSendTime).toISOString(),
+			client_send_time: clientSendTime,
+			temp_id: tempId,
 			sender_id: anonymous ? NX_CHAT_APP_ANNONYMOUS_USER_ID : senderId,
 			username: anonymous ? 'Anonymous' : username || '',
 			avatar: anonymous ? '' : finalAvatar,
@@ -958,14 +973,34 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			thunkAPI.dispatch(messagesActions.markAsSent({ id, mess: fakeMess }));
-			const message = await sendWithRetry(1);
-			if (!isViewingOlderMessages && message) {
+			const SEND_TIMEOUT_MS = 30_000;
+			let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+			const messageResult = (await Promise.race([
+				sendWithRetry(1),
+				new Promise((_, reject) => {
+					timeoutId = setTimeout(() => {
+						const timeoutError = new Error('SEND_TIMEOUT');
+						timeoutError.name = 'SendTimeoutError';
+						reject(timeoutError);
+					}, SEND_TIMEOUT_MS);
+					if (timeoutId) {
+						sendTimeoutMap.set(tempId, timeoutId);
+					}
+				})
+			])) as { message_id?: string };
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				sendTimeoutMap.delete(tempId);
+			}
+
+			if (!isViewingOlderMessages && messageResult?.message_id) {
 				const timestamp = Date.now() / 1000;
 				thunkAPI.dispatch(
 					channelMetaActions.setChannelLastSeenTimestamp({
 						channelId,
 						timestamp,
-						messageId: message.message_id
+						messageId: messageResult.message_id
 					})
 				);
 			}
@@ -973,7 +1008,19 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			if (error instanceof Error && error.name === 'SocketTimeoutError') {
 				return;
 			}
-			thunkAPI.dispatch(messagesActions.markAsError({ messageId: id, channelId }));
+			const payload = originalSendPayload;
+			if (sendTimeoutMap.has(tempId)) {
+				clearTimeout(sendTimeoutMap.get(tempId));
+				sendTimeoutMap.delete(tempId);
+			}
+
+			thunkAPI.dispatch(
+				messagesActions.markAsError({
+					messageId: id,
+					channelId,
+					originalSendPayload: payload
+				})
+			);
 			captureSentryError(error, 'messages/sendMessage');
 			throw error;
 		}
@@ -1001,6 +1048,39 @@ type SendEphemeralMessagePayload = {
 	avatar?: string;
 	username?: string;
 };
+
+export const resendMessage = createAsyncThunk(
+	'messages/resendMessage',
+	async (
+		{
+			messageId,
+			channelId
+		}: {
+			messageId: string;
+			channelId: string;
+		},
+		thunkAPI
+	) => {
+		const state = thunkAPI.getState() as RootState;
+		const message = selectMessageEntityById(state, channelId, messageId);
+
+		if (!message) {
+			throw new Error('Message not found');
+		}
+
+		if (!message.isError) {
+			throw new Error('Message is not in error state');
+		}
+
+		if (!message.originalSendPayload) {
+			throw new Error('Original send payload not found');
+		}
+
+		const payload = message.originalSendPayload;
+		thunkAPI.dispatch(messagesActions.remove({ channelId, messageId }));
+		await thunkAPI.dispatch(sendMessage(payload as SendMessagePayload)).unwrap();
+	}
+);
 
 export const sendEphemeralMessage = createAsyncThunk('messages/sendEphemeralMessage', async (payload: SendEphemeralMessagePayload, thunkAPI) => {
 	const { receiverId, clanId, channelId, content, mentions, attachments, references, mode, senderId, isPublic, avatar, username } = payload;
@@ -1350,6 +1430,14 @@ export const messagesSlice = createSlice({
 									// temporary remove sending message that has the same content
 									// for later update, we could use some kind of id to identify the message
 									if (message?.content?.t === newContent?.t && message?.channel_id === channelId) {
+										const tempId = (message as ChannelMessageWithClientMeta | undefined)?.temp_id;
+										if (tempId) {
+											if (sendTimeoutMap.has(tempId)) {
+												clearTimeout(sendTimeoutMap.get(tempId));
+												sendTimeoutMap.delete(tempId);
+											}
+										}
+
 										state.channelMessages[channelId] = handleRemoveOneMessage({
 											state,
 											channelId,
@@ -1464,6 +1552,7 @@ export const messagesSlice = createSlice({
 			action: PayloadAction<{
 				messageId: string;
 				channelId: string;
+				originalSendPayload?: Partial<SendMessagePayload>;
 			}>
 		) => {
 			const channelId = action.payload.channelId;
@@ -1475,7 +1564,8 @@ export const messagesSlice = createSlice({
 			channelMessagesAdapter.updateOne(state.channelMessages[channelId], {
 				id: action.payload.messageId,
 				changes: {
-					isError: true
+					isError: true,
+					originalSendPayload: action.payload.originalSendPayload
 				}
 			});
 		},
@@ -1804,6 +1894,7 @@ export const messagesActions = {
 	...messagesSlice.actions,
 	addNewMessage,
 	sendMessage,
+	resendMessage,
 	sendEphemeralMessage,
 	fetchMessages,
 	updateLastSeenMessage,

@@ -1,4 +1,3 @@
-import isElectron from 'is-electron';
 import type { FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { pdfjs } from 'react-pdf';
@@ -7,12 +6,6 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { PDFContent } from './PDFContent';
 import { PDFControls } from './PDFControls';
 import type { PDFDocumentProxy, PDFViewerModalProps } from './types';
-
-function getPDFWorkerPath(): string {
-	const baseUrl = window.location.origin;
-	const possiblePaths = [`${baseUrl}/pdf.worker.min.mjs`, `${baseUrl}/assets/pdf.worker.min.mjs`];
-	return possiblePaths[0];
-}
 
 async function validateWorkerPath(path: string): Promise<boolean> {
 	try {
@@ -24,11 +17,6 @@ async function validateWorkerPath(path: string): Promise<boolean> {
 }
 
 async function setupPDFWorker(): Promise<void> {
-	if (isElectron()) {
-		pdfjs.GlobalWorkerOptions.workerSrc = getPDFWorkerPath();
-		return;
-	}
-
 	const possiblePaths = [`https://cdn.mezon.ai/js/libs/4.8.69/pdf.worker.min.mjs`];
 
 	for (const path of possiblePaths) {
