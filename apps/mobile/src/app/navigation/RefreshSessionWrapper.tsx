@@ -1,5 +1,5 @@
 import { ActionEmitEvent, load, STORAGE_SESSION_KEY } from '@mezon/mobile-components';
-import { authActions, selectHasInternetMobile, selectIsLogin, useAppDispatch } from '@mezon/store-mobile';
+import { authActions, directActions, selectHasInternetMobile, selectIsLogin, useAppDispatch } from '@mezon/store-mobile';
 import { MobileEventSessionEmitter, useMezon } from '@mezon/transport';
 import type { IWithError } from '@mezon/utils';
 import { sleep } from '@mezon/utils';
@@ -66,23 +66,25 @@ const RefreshSessionWrapper = ({ children }) => {
 		let retries = MAX_RETRIES_SESSION;
 		while (retries > 0) {
 			try {
-				const responseNetwork = await fetchWithTimeout(`${process.env.NX_CHAT_APP_REDIRECT_URI}/favicon.ico`, 8000);
-				if (!responseNetwork.ok) {
-					await sleep(500);
-					return;
-				}
 				const response = await dispatch(authActions.refreshSession());
 				if ((response as unknown as IWithError).error) {
 					retries -= 1;
 					setIsSessionReady(true);
 					if (retries === 0) {
 						await sleep(500);
-						DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_POPUP_SESSION_EXPIRED);
+						if (response?.payload?.status === 500) {
+							const responseNetwork = await fetchWithTimeout(`${process.env.NX_CHAT_APP_REDIRECT_URI}/favicon.ico`, 8000);
+							if (!responseNetwork.ok) {
+								return;
+							}
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_POPUP_SESSION_EXPIRED);
+						}
 						return;
 					}
 					await sleep(1000 * (MAX_RETRIES_SESSION - retries));
 					continue;
 				}
+				dispatch(directActions.fetchDirectMessage({ noCache: true }));
 				setIsSessionReady(true);
 				break;
 			} catch (error) {
@@ -90,7 +92,6 @@ const RefreshSessionWrapper = ({ children }) => {
 				setIsSessionReady(true);
 				if (retries === 0) {
 					await sleep(500);
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_POPUP_SESSION_EXPIRED);
 					return;
 				}
 				await sleep(1000 * (MAX_RETRIES_SESSION - retries));
@@ -106,6 +107,7 @@ const RefreshSessionWrapper = ({ children }) => {
 					session.refresh_token,
 					session.created || false,
 					session.api_url,
+					session?.id_token || '',
 					session?.is_remember || false
 				);
 				dispatch(authActions.updateSession(newSession));

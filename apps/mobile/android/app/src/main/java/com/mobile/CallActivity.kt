@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.WindowManager
 import android.os.Build
 import android.provider.Settings
+import android.media.AudioManager
 
 class CallActivity : ReactActivity() {
 
@@ -23,6 +24,10 @@ class CallActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
      try {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
+        setVolumeControlStream(AudioManager.STREAM_VOICE_CALL)
+
         setShowWhenLocked(true);
         setTurnScreenOn(true);
         window.addFlags(
@@ -47,6 +52,16 @@ class CallActivity : ReactActivity() {
     } catch (e: Exception) {
       Log.e("CallActivity", "Error in onWindowFocusChanged: ${e.message}", e)
     }
+  }
+
+  override fun onDestroy() {
+    try {
+      val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+      audioManager.mode = AudioManager.MODE_NORMAL
+    } catch (e: Exception) {
+      Log.e("CallActivity", "Error resetting audio mode: ${e.message}", e)
+    }
+    super.onDestroy()
   }
 
   /**
