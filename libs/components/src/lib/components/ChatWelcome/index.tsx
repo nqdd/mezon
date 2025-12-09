@@ -15,7 +15,6 @@ import {
 	selectUpdateDmGroupError,
 	selectUpdateDmGroupLoading,
 	selectUserIdCurrentDm,
-	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
@@ -42,7 +41,6 @@ export type ChatWelComeProp = {
 function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeProp) {
 	const { t } = useTranslation('chatWelcome');
 	const { directId } = useAppParams();
-	const dispatch = useAppDispatch();
 	const directChannel = useAppSelector((state) => selectDirectById(state, directId));
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId || ''));
@@ -105,7 +103,7 @@ function ChatWelCome({ name, username, avatarDM, mode, isPrivate }: ChatWelComeP
 						{(isDm || isDmGroup) && (
 							<WelComeDm
 								name={isDmGroup ? name || `${selectedChannel?.creator_name}'s Groups` : name || username}
-								username={username}
+								username={username || name}
 								avatar={isDmGroup ? directChannel?.channel_avatar || 'assets/images/avatar-group.png' : avatarDM}
 								classNameSubtext={classNameSubtext}
 								isDmGroup={isDmGroup}
