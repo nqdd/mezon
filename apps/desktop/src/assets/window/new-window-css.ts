@@ -1,4 +1,4 @@
-const image_window_css = `
+const new_window_css = `
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -89,6 +89,8 @@ body {
 
 .svg-button {
     width: 14px;
+	color: #ffffff !important;
+	fill: #ffffff !important;
 }
 
 .zoom-button {
@@ -587,4 +589,4 @@ width : 0 !important;
 		outline: none;
 	}
 `;
-export default image_window_css;
+export default new_window_css;
