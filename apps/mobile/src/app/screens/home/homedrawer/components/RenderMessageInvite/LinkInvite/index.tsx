@@ -4,10 +4,12 @@ import { useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
 	clansActions,
+	emojiSuggestionActions,
 	getStoreAsync,
 	inviteActions,
 	selectInviteById,
 	selectInviteLoadingById,
+	settingClanStickerActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
@@ -63,6 +65,8 @@ function LinkInvite({ inviteID }: { inviteID: string }) {
 					await store.dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 					store.dispatch(clansActions.joinClan({ clanId: res?.clan_id }));
 					store.dispatch(clansActions.changeCurrentClan({ clanId: res?.clan_id }));
+					store.dispatch(emojiSuggestionActions.fetchEmoji({ clanId: res?.clan_id, noCache: true }));
+					store.dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: res?.clan_id }));
 					save(STORAGE_CLAN_ID, res?.clan_id);
 					store.dispatch(appActions.setLoadingMainMobile(false));
 				});
