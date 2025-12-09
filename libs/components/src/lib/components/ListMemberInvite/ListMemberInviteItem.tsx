@@ -1,6 +1,6 @@
 import { useSendInviteMessage, useSilentSendMess } from '@mezon/core';
 import type { DirectEntity } from '@mezon/store';
-import { getStore, selectDirectById } from '@mezon/store';
+import { getStore, selectAllAccount, selectDirectById, useAppDispatch, userChannelsActions } from '@mezon/store';
 import type { UsersClanEntity } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -23,19 +23,45 @@ const ListMemberInviteItem = (props: ItemPorp) => {
 	const [isInviteSent, setIsInviteSent] = useState(isSent);
 	const { sendInviteMessage } = useSendInviteMessage();
 	const { createSilentSendMess } = useSilentSendMess();
+	const dispatch = useAppDispatch();
 	const directMessageWithUser = async (userId: string) => {
 		const response = await createSilentSendMess(userId);
 		if (response.channel_id) {
 			sendInviteMessage(url, response.channel_id, ChannelStreamMode.STREAM_MODE_DM);
 		}
+		return response;
 	};
 
 	const handleButtonClick = async (directParamId?: string, type?: number, userId?: string) => {
 		const store = getStore();
 		const getDirect = selectDirectById(store.getState(), directParamId);
 		setIsInviteSent(true);
+
 		if (userId && !directParamId) {
-			directMessageWithUser(userId);
+			const username = usersInviteExternal?.username || dmGroup?.usernames?.toString() || '';
+			const displayName = usersInviteExternal?.clan_nick || dmGroup?.channel_label || '';
+			const avatar =
+				usersInviteExternal?.clan_avatar || dmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP
+					? dmGroup?.topic || 'assets/images/avatar-group.png'
+					: dmGroup?.avatars?.at(0) || '';
+
+			const response = await directMessageWithUser(userId);
+
+			if (response?.channel_id) {
+				const currentUser = selectAllAccount(store.getState())?.user;
+				dispatch(
+					userChannelsActions.upsertMany([
+						{
+							id: response.channel_id,
+							channel_id: response.channel_id,
+							user_ids: [currentUser?.id || '', userId],
+							usernames: [currentUser?.username || '', username],
+							display_names: [currentUser?.display_name || '', displayName],
+							avatars: [currentUser?.avatar_url || avatar, '']
+						}
+					])
+				);
+			}
 			return;
 		}
 		if (directParamId && getDirect) {

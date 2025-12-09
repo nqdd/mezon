@@ -5,10 +5,11 @@ import notifee, { EventType } from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onNotificationOpenedApp } from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
-import { ChannelMessage, safeJSONParse } from 'mezon-js';
+import type { ChannelMessage } from 'mezon-js';
+import { safeJSONParse } from 'mezon-js';
 import moment from 'moment/moment';
 import { useCallback, useContext, useEffect, useRef } from 'react';
-import { AppState, NativeModules, Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { checkNotificationPermission, processNotification } from '../../utils/pushNotificationHelpers';
@@ -162,22 +163,10 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 	const startupFCMRunning = async (navigation: any, isTabletLandscape: boolean) => {
 		await setupNotificationListeners(navigation, isTabletLandscape);
 	};
-	const deleteAllChannelGroupsNotifee = async () => {
-		try {
-			const channelGroups = await notifee.getChannelGroups(); // Fetch all channel groups
-			for (const group of channelGroups) {
-				await notifee.deleteChannel(group.id);
-				await notifee.deleteChannelGroup(group.id);
-			}
-		} catch (error) {
-			console.error('Error deleting channel groups:', error);
-		}
-	};
 
 	const handleNotificationOpenedApp = async () => {
 		try {
 			if (Platform.OS === 'android') {
-				await deleteAllChannelGroupsNotifee();
 				const notificationDataPushed = await NotificationPreferences.getValue('notificationDataPushed');
 				const notificationDataPushedParse = safeJSONParse(notificationDataPushed || '[]');
 				mapMessageNotificationToSlice(notificationDataPushedParse?.length ? notificationDataPushedParse.slice(0, 10) : []);
@@ -189,18 +178,7 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 				});
 				mapMessageNotificationToSlice(notificationDataPushedParse?.length ? notificationDataPushedParse.slice(0, 10) : []);
 			}
-			if (Platform.OS === 'android') {
-				NativeModules?.BadgeModule?.clearAllNotifications();
-				await notifee.cancelAllNotifications();
-				await notifee.cancelDisplayedNotifications();
-			}
 		} catch (error) {
-			if (Platform.OS === 'android') {
-				NativeModules?.BadgeModule?.clearAllNotifications();
-				await deleteAllChannelGroupsNotifee();
-				await notifee.cancelAllNotifications();
-				await notifee.cancelDisplayedNotifications();
-			}
 			console.error('Error processing notifications:', error);
 		}
 	};

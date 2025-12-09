@@ -8,7 +8,7 @@ import {
 	validLinkInviteRegex
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { clansActions, getStoreAsync, inviteActions } from '@mezon/store-mobile';
+import { clansActions, emojiSuggestionActions, getStoreAsync, inviteActions, settingClanStickerActions } from '@mezon/store-mobile';
 import type { ApiInviteUserRes } from 'mezon-js/api.gen';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,6 +44,8 @@ const JoinClanModal = () => {
 				save(STORAGE_CLAN_ID, payload.clan_id);
 				store.dispatch(clansActions.joinClan({ clanId: payload.clan_id }));
 				store.dispatch(clansActions.changeCurrentClan({ clanId: payload.clan_id }));
+				store.dispatch(emojiSuggestionActions.fetchEmoji({ clanId: payload?.clan_id, noCache: true }));
+				store.dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: payload?.clan_id }));
 				await store.dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			} else {

@@ -192,6 +192,10 @@ function MessageContextMenu({
 		return message?.sender_id === userId && !message?.content?.callLog?.callLogType && !(message?.code === TypeMessage.SendToken);
 	}, [message?.sender_id, message?.content?.callLog?.callLogType, message?.code, userId]);
 
+	const isErrorMessage = useMemo(() => {
+		return message?.isError === true && isMyMessage;
+	}, [message?.isError, isMyMessage]);
+
 	const checkMessageHasText = useMemo(() => {
 		return message?.content.t !== '';
 	}, [message?.content.t]);
@@ -495,6 +499,23 @@ function MessageContextMenu({
 		[sendChatMessage]
 	);
 
+	const handleResendMessage = useCallback(async () => {
+		if (!message || !message.channel_id) return;
+
+		try {
+			await dispatch(
+				messagesActions.resendMessage({
+					messageId: message.id,
+					channelId: message.channel_id
+				})
+			).unwrap();
+			showSimpleToast(t('messageResent'));
+		} catch (error) {
+			console.error(t('errors.failedToResendMessage'), error);
+			toast.error(t('errors.failedToResendMessage'));
+		}
+	}, [dispatch, message, t]);
+
 	const checkPos = useMemo(() => {
 		if (posShowMenu === SHOW_POSITION.NONE || posShowMenu === SHOW_POSITION.IN_STICKER || posShowMenu === SHOW_POSITION.IN_EMOJI) {
 			return true;
@@ -616,6 +637,11 @@ function MessageContextMenu({
 	const isForwardedMessage = Boolean(message?.content?.fwd);
 	const items = useMemo<ContextMenuItem[]>(() => {
 		const builder = new MenuBuilder();
+
+		if (message?.isError) {
+			builder.addMenuItem('resendMessage', t('resendMessage'), handleResendMessage, <Icons.ResendMessageRightClick defaultSize="w-4 h-4" />);
+			return builder.build();
+		}
 
 		builder.when(checkPos, (builder) => {
 			builder.addMenuItem(
@@ -889,10 +915,11 @@ function MessageContextMenu({
 		urlImage,
 		handleItemClick,
 		handleCreateTopic,
-
 		handleSlashCommands,
 		handleAddToNote,
-		isTopic
+		isTopic,
+		isErrorMessage,
+		handleResendMessage
 	]);
 	/* eslint-disable no-console */
 

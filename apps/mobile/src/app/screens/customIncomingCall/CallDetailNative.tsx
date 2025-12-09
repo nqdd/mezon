@@ -1,17 +1,15 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { IMessageTypeCallLog } from '@mezon/utils';
 import { WebrtcSignalingType } from 'mezon-js';
 import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, BackHandler, NativeModules, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../hooks/useWebRTCCallMobile';
 import { RenderMainView } from '../messages/DirectMessageCall/RenderMainView';
@@ -19,8 +17,6 @@ import { style } from './styles';
 
 interface IDirectMessageCallProps {
 	isVideoCall?: boolean;
-	isFromNative: boolean;
-	isAnswerCall: boolean;
 	receiverId: string;
 	directMessageId: string;
 	receiverAvatar: string;
@@ -36,7 +32,7 @@ const maxRetries = 10;
 const retryDelayMs = 500;
 export const CallDetailNative = memo(
 	forwardRef<CallDetailNativeRef, IDirectMessageCallProps>(
-		({ isVideoCall = false, isAnswerCall, isFromNative, directMessageId, receiverId, onIsConnected, receiverName, receiverAvatar }, ref) => {
+		({ isVideoCall = false, directMessageId, receiverId, onIsConnected, receiverName, receiverAvatar }, ref) => {
 			const { themeValue } = useTheme();
 			const dispatch = useAppDispatch();
 			const styles = style(themeValue);
@@ -66,7 +62,7 @@ export const CallDetailNative = memo(
 				userId: userProfile?.user?.id as string,
 				channelId: directMessageId as string,
 				isVideoCall,
-				isFromNative,
+				isFromNative: true,
 				callerName: userProfile?.user?.username,
 				callerAvatar: userProfile?.user?.avatar_url
 			});
@@ -102,7 +98,7 @@ export const CallDetailNative = memo(
 				};
 
 				await executePush(retryCountRef.current);
-			}, [handleICECandidate]);
+			}, [handleICECandidate, peerConnection]);
 
 			useImperativeHandle(
 				ref,
@@ -129,7 +125,6 @@ export const CallDetailNative = memo(
 							})
 						);
 					}
-					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				} catch (err) {
 					/* empty */
 				}
@@ -170,17 +165,10 @@ export const CallDetailNative = memo(
 								text1: 'User is currently on another call',
 								text2: 'Please call back later!'
 							});
-							if (isFromNative) {
-								InCallManager.stop();
-								if (Platform.OS === 'android') {
-									NativeModules?.DeviceUtils?.killApp();
-									BackHandler.exitApp();
-								} else {
-									BackHandler.exitApp();
-								}
-								return;
-							}
-							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+							InCallManager.stop();
+							NativeModules?.DeviceUtils?.killApp();
+							BackHandler.exitApp();
+							return;
 						}
 					}
 				}
@@ -193,15 +181,13 @@ export const CallDetailNative = memo(
 			useEffect(() => {
 				dispatch(DMCallActions.setIsInCall(true));
 				InCallManager.start({ media: 'audio' });
-				if (isAnswerCall) {
-					handleToggleIsConnected(false);
-				}
-				startCall(isVideoCall, isAnswerCall);
+				handleToggleIsConnected(false);
+				startCall(isVideoCall, true);
 
 				return () => {
 					InCallManager.stop();
 				};
-			}, [isAnswerCall, isVideoCall]);
+			}, [isVideoCall]);
 
 			if (!isConnected) {
 				return <View />;
@@ -209,7 +195,6 @@ export const CallDetailNative = memo(
 
 			return (
 				<View style={styles.containerCallDetail}>
-					{!isFromNative && <StatusBarHeight />}
 					<LinearGradient
 						start={{ x: 1, y: 0 }}
 						end={{ x: 0, y: 0 }}
@@ -264,7 +249,7 @@ export const CallDetailNative = memo(
 						receiverAvatarProp={receiverAvatar}
 						receiverNameProp={receiverName}
 						callState={callState}
-						isAnswerCall={isAnswerCall}
+						isAnswerCall={true}
 						isConnected={isConnected}
 						isMirror={isMirror}
 						isOnLocalCamera={localMediaControl?.camera || false}

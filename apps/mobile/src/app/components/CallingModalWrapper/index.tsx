@@ -1,6 +1,6 @@
 import { ActionEmitEvent, isEmpty } from '@mezon/mobile-components';
 import { appActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { sleep, WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
+import { WEBRTC_SIGNALING_TYPES, sleep } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { AppState, DeviceEventEmitter, NativeModules, Platform, View } from 'react-native';

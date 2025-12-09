@@ -322,7 +322,9 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 						);
 
 						const currentUsername = userProfile?.user?.username;
-						const memberItem = clanUsers?.find((u) => u?.user?.username === participant?.identity);
+						const memberItem = clanUsers?.find(
+							(u) => u?.user?.username === participant?.identity || u?.user?.id === participant?.identity
+						);
 
 						return (
 							<ParticipantItem

@@ -3,10 +3,10 @@ import type { RolesClanEntity } from '@mezon/store';
 import {
 	channelUsersActions,
 	selectAllRolesClan,
-	selectAllUserChannel,
 	selectAllUserClans,
 	selectCurrentClanId,
 	selectRolesByChannelId,
+	selectUserChannelIds,
 	useAppDispatch
 } from '@mezon/store';
 import { ButtonLoading, Icons, InputField } from '@mezon/ui';
@@ -65,29 +65,23 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 	);
 
 	const usersClan = useSelector(selectAllUserClans);
-	const rawMembers = useSelector(selectAllUserChannel(channel.channel_id || ''));
+	const userChannelIds = useSelector((state) => selectUserChannelIds(state, channel.channel_id || ''));
 	const listUserInvite = useMemo(() => {
 		if (channel.channel_private !== 1) {
 			return usersClan.filter((user) => user.id !== userProfile?.user?.id && !selectedUserIds.includes(user.id));
 		}
-		const memberIds = rawMembers.map((member) => member.user?.id || '');
-		return usersClan.filter((user) => !memberIds.some((userId) => userId === user.id) && !selectedUserIds.includes(user.id));
-	}, [usersClan, rawMembers, channel.channel_private, userProfile?.user?.id, selectedUserIds]);
+		const channelUserSet = new Set(userChannelIds);
+		const selectedUserSet = new Set(selectedUserIds);
 
-	const listMembersNotInChannel = useMemo(
-		() =>
-			listUserInvite
-				? listUserInvite.map((member: any) => ({ ...member?.user, clanNick: member?.clan_nick, clanAvatar: member?.clan_avatar }))
-				: [],
-		[listUserInvite]
-	);
+		return usersClan.filter((user) => !channelUserSet.has(user.id) && !selectedUserSet.has(user.id));
+	}, [usersClan, userChannelIds, channel.channel_private, userProfile?.user?.id, selectedUserIds]);
 
 	const initFilter: filterItemProps = useMemo(
 		() => ({
-			listMembersNotInChannel,
+			listMembersNotInChannel: listUserInvite,
 			listRolesNotAddChannel
 		}),
-		[listRolesNotAddChannel, listMembersNotInChannel]
+		[listRolesNotAddChannel, listUserInvite]
 	);
 	const [filterItem, setFilterItem] = useState<filterItemProps>(initFilter);
 
@@ -150,10 +144,11 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 			const inputData = input.trim().toLowerCase();
 			if (inputData.startsWith('@')) {
 				const searchValue = inputData.substring(1);
-				const filteredMembers = listMembersNotInChannel.filter((member) => {
-					const clanName = member?.clanNick?.toLowerCase();
-					const displayName = member?.display_name?.toLowerCase();
-					const username = member?.username?.toLowerCase();
+				const filteredMembers = listUserInvite.filter((member) => {
+					const user = member.user;
+					const clanName = member?.clan_nick?.toLowerCase();
+					const displayName = user?.display_name?.toLowerCase();
+					const username = user?.username?.toLowerCase();
 					return (
 						(clanName?.includes(searchValue) || displayName?.includes(searchValue) || username?.includes(searchValue)) &&
 						!selectedUserIds.includes(member?.id || '')
@@ -165,10 +160,11 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 				});
 				return;
 			}
-			const filteredMembers = listMembersNotInChannel.filter((member) => {
-				const clanName = member?.clanNick?.toLowerCase();
-				const displayName = member?.display_name?.toLowerCase();
-				const username = member?.username?.toLowerCase();
+			const filteredMembers = listUserInvite.filter((member) => {
+				const user = member.user;
+				const clanName = member?.clan_nick?.toLowerCase();
+				const displayName = user?.display_name?.toLowerCase();
+				const username = user?.username?.toLowerCase();
 				return (
 					(clanName?.includes(inputData) || displayName?.includes(inputData) || username?.includes(inputData)) &&
 					!selectedUserIds.includes(member?.id || '')
@@ -185,7 +181,7 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 				listRolesNotAddChannel: filteredRoles
 			});
 		},
-		[listRolesNotAddChannel, listMembersNotInChannel, selectedUserIds, selectedRoleIds]
+		[listRolesNotAddChannel, listUserInvite, selectedUserIds, selectedRoleIds]
 	);
 
 	const debouncedSetValueSearch = useDebouncedCallback((value) => {
@@ -239,12 +235,12 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 							</div>
 						</div>
 					)}
-					{filterItem.listMembersNotInChannel.length !== 0 && (
+					{userChannelIds.length !== 0 && (
 						<div className="mt-2">
 							<p className="uppercase font-bold text-xs pb-4">{t('addMembersRoles.members')}</p>
 							<div>
 								<ListMembers
-									listItem={filterItem.listMembersNotInChannel}
+									listItem={listUserInvite}
 									selectedUserIds={selectedUserIds}
 									handleCheckboxUserChange={handleCheckboxUserChange}
 								/>
