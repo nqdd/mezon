@@ -36,7 +36,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			height: size.s_20,
 			width: size.s_20,
-			borderRadius: size.s_10,
+			borderRadius: size.s_4,
 			right: -size.s_2,
 			bottom: -size.s_2,
 			alignItems: 'center',
@@ -44,7 +44,7 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.bgViolet
 		},
 		countText: {
-			fontSize: size.small,
+			fontSize: size.s_10,
 			color: baseColor.white
 		},
 		image: {
