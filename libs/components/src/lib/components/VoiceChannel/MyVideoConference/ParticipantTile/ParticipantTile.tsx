@@ -244,7 +244,7 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 		dispatch(
 			voiceActions.muteVoiceMember({
 				room_name: roomName,
-				username: member?.user?.username
+				username: member?.user?.id
 			})
 		);
 	}, [roomName, closeContextVoiceMember]);
