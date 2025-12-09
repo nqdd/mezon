@@ -6,7 +6,7 @@ import { LIMIT_SIZE_UPLOAD_IMG, MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
 import type { ApiClanStickerAddRequest } from 'mezon-js/api.gen';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, Text, View } from 'react-native';
 import { openCropper, openPicker } from 'react-native-image-crop-picker';
@@ -37,6 +37,7 @@ export function StickerSetting({ navigation }) {
 		isProcessing: false,
 		html: ''
 	});
+	const isPickerOpenRef = useRef(false);
 
 	const createBlurredWatermarkedImageFile = (base64Data: string, watermarkText = 'SOLD') => {
 		return new Promise((resolve, reject) => {
@@ -149,7 +150,13 @@ export function StickerSetting({ navigation }) {
 			});
 			return;
 		}
+
+		if (isPickerOpenRef.current) {
+			return;
+		}
+
 		try {
+			isPickerOpenRef.current = true;
 			const selectedFile = await openPicker({
 				mediaType: 'photo',
 				includeBase64: true,
@@ -192,6 +199,8 @@ export function StickerSetting({ navigation }) {
 					text1: 'Error uploading sticker'
 				});
 			}
+		} finally {
+			isPickerOpenRef.current = false;
 		}
 	};
 

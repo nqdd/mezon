@@ -1,7 +1,17 @@
 import { useInvite } from '@mezon/core';
 import { STORAGE_CHANNEL_CURRENT_CACHE, STORAGE_CLAN_ID, remove, save } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { appActions, clansActions, getStoreAsync, inviteActions, selectInviteById, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	appActions,
+	clansActions,
+	emojiSuggestionActions,
+	getStoreAsync,
+	inviteActions,
+	selectInviteById,
+	settingClanStickerActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +63,8 @@ const InviteClanScreen = ({ route }: { route: any }) => {
 					await store.dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 					store.dispatch(clansActions.joinClan({ clanId: res?.clan_id }));
 					store.dispatch(clansActions.changeCurrentClan({ clanId: res?.clan_id }));
+					store.dispatch(emojiSuggestionActions.fetchEmoji({ clanId: res?.clan_id, noCache: true }));
+					store.dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: res?.clan_id }));
 					save(STORAGE_CLAN_ID, res?.clan_id);
 					store.dispatch(appActions.setLoadingMainMobile(false));
 					navigation.navigate(APP_SCREEN.BOTTOM_BAR);
