@@ -564,16 +564,13 @@ export const updateChannelPrivate = createAsyncThunk('channels/updateChannelPriv
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const response = await mezon.client.updateChannelPrivate(mezon.session, body);
-		const clanID = selectClanId()(thunkAPI.getState() as RootState) || '';
 
 		if (response) {
-			thunkAPI.dispatch(rolesClanActions.fetchRolesClan({ clanId: clanID, channelId: body.channel_id, noCache: true }));
 			thunkAPI.dispatch(
-				channelMembersActions.fetchChannelMembers({
-					clanId: clanID,
-					channelId: body.channel_id || '',
-					noCache: true,
-					channelType: ChannelType.CHANNEL_TYPE_CHANNEL
+				rolesClanActions.addRoleByChannel({
+					roleIds: body.role_ids || [],
+					channelId: body.channel_id as string,
+					clanId: body.clan_id as string
 				})
 			);
 		}

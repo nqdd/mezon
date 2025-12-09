@@ -10,7 +10,7 @@ interface ThreadNameTextFieldProps {
 	placeholder?: string;
 	value: string;
 	onChange: (value: string) => void;
-	onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => Promise<void>;
+	onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => Promise<void>;
 	error?: string;
 	className?: string;
 }
@@ -32,10 +32,10 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => {
 			const element = event.target as HTMLInputElement;
-
 			if (!(element.value || '').trim()) {
 				dispatch(threadsActions.setNameThreadError(threadError.name));
 			}
+			onKeyDown(event);
 		},
 		[dispatch, onKeyDown]
 	);

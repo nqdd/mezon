@@ -236,7 +236,7 @@ function MessageWithUser({
 						},
 						{ 'bg-item-msg-selected': isSelected },
 						{ 'pointer-events-none': message.isSending },
-						{ 'is-error pointer-events-none': message.isError },
+						{ 'is-error': message.isError },
 						{
 							'max-w-[37rem] bg-tertiary border-theme-primary rounded-lg mx-2 my-1 p-3': message.content?.isCard
 						}

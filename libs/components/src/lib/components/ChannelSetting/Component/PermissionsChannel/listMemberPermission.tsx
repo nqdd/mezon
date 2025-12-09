@@ -1,10 +1,9 @@
 import { useAppNavigation, useAuth, useCustomNavigate } from '@mezon/core';
 import type { removeChannelUsersPayload } from '@mezon/store';
-import { channelUsersActions, selectAllUserChannel, selectAllUserClans, selectCurrentClanId, useAppDispatch } from '@mezon/store';
+import { channelUsersActions, selectCurrentClanId, selectMemberClanByUserId, selectUserChannelIds, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
@@ -19,9 +18,7 @@ const ListMemberPermission = (props: ListMemberPermissionProps) => {
 	const { channel } = props;
 
 	const dispatch = useAppDispatch();
-	const rawMembers = useSelector(selectAllUserChannel(channel.channel_id || ''));
-
-	const usersClan = useSelector(selectAllUserClans);
+	const idUsers = useSelector((state) => selectUserChannelIds(state, channel.id));
 	const currentClanId = useSelector(selectCurrentClanId);
 	const navigate = useCustomNavigate();
 	const userProfile = useAuth();
@@ -39,26 +36,12 @@ const ListMemberPermission = (props: ListMemberPermissionProps) => {
 		}
 	};
 
-	const listMembersInChannel = useMemo(() => {
-		if (channel.channel_private === 0 || channel.channel_private === undefined) {
-			const filteredMembers = usersClan.filter((member) => member.user && member.user.id && props.selectedUserIds.includes(member.user.id));
-			return filteredMembers.map((member) => ({ ...member.user, clanNick: member.clan_nick, clanAvatar: member.clan_avatar }));
-		}
-		const filteredMembers = rawMembers.filter((member) => member.userChannelId !== '0' && member.id);
-		return filteredMembers.map((member) => ({ ...member.user, clanNick: member.clan_nick, clanAvatar: member.clan_avatar }));
-	}, [usersClan, props.selectedUserIds, channel.channel_private, rawMembers]);
-
-	return listMembersInChannel.map((user) => (
+	return idUsers.map((id) => (
 		<ItemMemberPermission
-			key={user.id}
-			id={user.id}
-			username={user.username}
-			displayName={user.display_name}
-			clanName={user.clanNick}
-			clanAvatar={user.clanAvatar}
-			avatar={user.avatar_url}
-			onDelete={() => deleteMember(user.id as string)}
-			channelOwner={channel.creator_id === user.id}
+			key={id}
+			id={id}
+			onDelete={() => deleteMember(id as string)}
+			channelOwner={channel.creator_id === id}
 			selectedUserIds={props.selectedUserIds}
 			setSelectedUserIds={props.setSelectedUserIds}
 		/>
@@ -81,20 +64,10 @@ type ItemMemberPermissionProps = {
 };
 
 const ItemMemberPermission = (props: ItemMemberPermissionProps) => {
-	const {
-		id = '',
-		username = '',
-		displayName = '',
-		clanName = '',
-		clanAvatar = '',
-		avatar = '',
-		onDelete,
-		channelOwner,
-		selectedUserIds = [],
-		setSelectedUserIds
-	} = props;
-	const namePrioritize = getNameForPrioritize(clanName, displayName, username);
-	const avatarPrioritize = getAvatarForPrioritize(clanAvatar, avatar);
+	const { id = '', onDelete, channelOwner, selectedUserIds = [], setSelectedUserIds } = props;
+	const user = useSelector((state) => selectMemberClanByUserId(state, id));
+	const namePrioritize = getNameForPrioritize(user?.clan_nick, user?.user?.display_name, user?.user?.username);
+	const avatarPrioritize = getAvatarForPrioritize(user?.clan_avatar, user.user?.avatar_url);
 
 	const handleDelete = () => {
 		if (setSelectedUserIds && selectedUserIds) {
@@ -106,7 +79,6 @@ const ItemMemberPermission = (props: ItemMemberPermissionProps) => {
 		}
 	};
 	const { t } = useTranslation('channelSetting');
-
 	return (
 		<div
 			className={`flex justify-between py-2 rounded text-theme-primary`}
@@ -115,15 +87,15 @@ const ItemMemberPermission = (props: ItemMemberPermissionProps) => {
 		>
 			<div className="flex gap-x-2 items-center">
 				<AvatarImage
-					alt={username}
-					username={username}
+					alt={namePrioritize || ''}
+					username={user?.user?.username || ''}
 					className="min-w-6 min-h-6 max-w-6 max-h-6"
 					srcImgProxy={createImgproxyUrl(avatarPrioritize ?? '')}
 					src={avatarPrioritize}
 					classNameText="text-[9px] pt-[3px]"
 				/>
 				<p className="text-sm font-semibold text-theme-primary-active">{namePrioritize}</p>
-				<p className=" font-light">{username}</p>
+				<p className=" font-light">{user?.user?.username || ''}</p>
 			</div>
 			<div className="flex items-center gap-x-2">
 				<p className="text-xs ">{channelOwner && t('channelPermission.ChannelCreator')}</p>

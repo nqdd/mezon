@@ -2,7 +2,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { selectCurrentChannel, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import notifee from '@notifee/react-native';
 import { memo, useCallback, useEffect } from 'react';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
 
 const RemoveNotificationListener = () => {
@@ -13,7 +13,15 @@ const RemoveNotificationListener = () => {
 		try {
 			const displayedNotifications = await notifee.getDisplayedNotifications();
 			const notificationsToRemove = displayedNotifications.filter((item) => item.notification?.data?.channel === channelId);
-
+			if (Platform.OS === 'android') {
+				const channelGroups = await notifee.getChannelGroups();
+				for (const group of channelGroups) {
+					if (group?.id === channelId) {
+						await notifee.deleteChannel(group.id);
+						await notifee.deleteChannelGroup(group.id);
+					}
+				}
+			}
 			for (const notification of notificationsToRemove) {
 				if (notification.id) {
 					await notifee.cancelDisplayedNotification(notification.id);

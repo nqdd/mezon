@@ -39,11 +39,11 @@ export function useThreadMessage({ channelId, mode, username }: UseThreadMessage
 		mode: ChannelStreamMode.STREAM_MODE_THREAD
 	});
 
-	const membersOfChild = useAppSelector((state) => (thread?.channel_id ? selectAllChannelMembers(state, thread?.channel_id as string) : null));
+	const membersOfChild = useAppSelector((state) => (channelId ? selectAllChannelMembers(state, channelId) : null));
 	const rolesClan = useSelector(selectAllRolesClan);
 
 	const mapToMemberIds = useMemo(() => {
-		return membersOfChild?.map((item) => item.id);
+		return membersOfChild?.map((item) => item.id) || [];
 	}, [membersOfChild]);
 
 	const sendMessageThread = React.useCallback(
@@ -92,7 +92,7 @@ export function useThreadMessage({ channelId, mode, username }: UseThreadMessage
 			);
 
 			const userIds = uniqueUsers(mentions as ApiMessageMention[], membersOfChild, rolesClan, []).slice(0, -1);
-			const usersNotExistingInThread = userIds.filter((userId) => !mapToMemberIds?.includes(userId as string));
+			const usersNotExistingInThread = mapToMemberIds.filter((userId) => !userIds?.includes(userId as string));
 			if (usersNotExistingInThread.length > 0) {
 				addMemberToThread(thread as ChannelsEntity, usersNotExistingInThread as string[]);
 			}

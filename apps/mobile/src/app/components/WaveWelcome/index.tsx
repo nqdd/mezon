@@ -6,7 +6,7 @@ import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME, createImgproxyUrl } f
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import ImageNative from '../ImageNative';
 import { style } from './styles';
@@ -21,11 +21,20 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	const currenChannel = useSelector(selectCurrentChannel);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(message?.channel_id ?? ''));
 
+	const isDM = useMemo(() => {
+		return currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM;
+	}, [currentDmGroup?.type]);
+
 	const mode = useMemo(() => {
 		if (!currentDmGroup) return ChannelStreamMode.STREAM_MODE_CHANNEL;
 
-		return currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
-	}, [currentDmGroup]);
+		return isDM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
+	}, [currentDmGroup, isDM]);
+
+	const displayName = useMemo(() => {
+		if (!isDM) return '';
+		return currentDmGroup?.channel_label || currentDmGroup?.display_names?.[0] || currentDmGroup?.usernames?.[0] || '';
+	}, [currentDmGroup?.channel_label, currentDmGroup?.display_names?.[0], currentDmGroup?.usernames?.[0], isDM]);
 
 	const { sendMessage } = useChatSending({
 		mode,
@@ -43,21 +52,25 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 	const handleSendWaveSticker = async () => {
 		try {
 			const content: IMessageSendPayload = { t: '' };
-			const ref = {
-				message_id: '',
-				message_ref_id: message?.id,
-				ref_type: 0,
-				message_sender_id: message?.sender_id,
-				message_sender_username: WAVE_SENDER_NAME,
-				mesages_sender_avatar: MEZON_AVATAR_URL,
-				message_sender_clan_nick: WAVE_SENDER_NAME,
-				message_sender_display_name: WAVE_SENDER_NAME,
-				content: JSON.stringify(message?.content),
-				has_attachment: false,
-				channel_id: message?.channel_id ?? '',
-				mode: message?.mode ?? 0,
-				channel_label: message?.channel_label
-			};
+			const ref = isDM
+				? []
+				: [
+						{
+							message_id: '',
+							message_ref_id: message?.id,
+							ref_type: 0,
+							message_sender_id: message?.sender_id,
+							message_sender_username: WAVE_SENDER_NAME,
+							mesages_sender_avatar: MEZON_AVATAR_URL,
+							message_sender_clan_nick: WAVE_SENDER_NAME,
+							message_sender_display_name: WAVE_SENDER_NAME,
+							content: JSON.stringify(message?.content),
+							has_attachment: false,
+							channel_id: message?.channel_id ?? '',
+							mode: message?.mode ?? 0,
+							channel_label: message?.channel_label
+						}
+					];
 			const attachments = [
 				{
 					url: urlIcon,
@@ -69,11 +82,26 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 				}
 			];
 
-			sendMessage(content, [], attachments, [ref], false, false, true);
+			sendMessage(content, [], attachments, ref, false, false, true);
 		} catch (error) {
 			console.error('Error sending wave sticker:', error);
 		}
 	};
+
+	if (isDM) {
+		return (
+			<View style={styles.waveContainerDM}>
+				<ImageNative
+					url={createImgproxyUrl(urlIcon, { width: 100, height: 100, resizeType: 'fit' })}
+					style={styles.waveIconDM}
+					resizeMode="contain"
+				/>
+				<TouchableOpacity style={styles.waveButtonDM} onPress={handleSendWaveSticker}>
+					<Text style={styles.waveButtonTextDM}>{t('waveWelcomeDM', { username: displayName })}</Text>
+				</TouchableOpacity>
+			</View>
+		);
+	}
 
 	return (
 		<TouchableOpacity style={styles.waveButton} onPress={handleSendWaveSticker}>

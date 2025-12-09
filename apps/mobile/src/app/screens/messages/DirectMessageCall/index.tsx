@@ -1,3 +1,4 @@
+import { AudioSession } from '@livekit/react-native';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
@@ -17,6 +18,8 @@ import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
 import { RenderMainView } from './RenderMainView';
 import { style } from './styles';
+
+const { AudioSessionModule } = NativeModules;
 
 interface IDirectMessageCallProps {
 	route: any;
@@ -159,6 +162,16 @@ export const DirectMessageCallMain = memo(({ route, onCloseModal }: IDirectMessa
 	useEffect(() => {
 		dispatch(DMCallActions.setIsInCall(true));
 		InCallManager.start({ media: 'audio' });
+		if (Platform.OS === 'ios') {
+			AudioSession.configureAudio({
+				ios: {
+					defaultOutput: 'earpiece'
+				}
+			});
+			AudioSessionModule?.setAudioDevice?.('earpiece');
+			InCallManager.setSpeakerphoneOn(false);
+			InCallManager.setForceSpeakerphoneOn(false);
+		}
 		if (isAnswerCall) {
 			handleToggleIsConnected(false);
 		}

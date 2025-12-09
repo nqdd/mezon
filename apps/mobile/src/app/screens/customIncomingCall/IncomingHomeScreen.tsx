@@ -307,8 +307,6 @@ const IncomingHomeScreen = memo((props: any) => {
 					onIsConnected={onIsConnected}
 					receiverAvatar={props?.avatar || dataCalling?.callerAvatar || ''}
 					receiverName={dataCalling?.callerName || ''}
-					isAnswerCall={true}
-					isFromNative={true}
 				/>
 			)}
 			{!isCallConnected && (

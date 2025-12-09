@@ -1,12 +1,5 @@
 /* eslint-disable no-console */
-import {
-	appActions,
-	initStore,
-	MezonStoreProvider,
-	selectHiddenBottomTabMobile,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store-mobile';
+import { appActions, initStore, MezonStoreProvider, selectHiddenBottomTabMobile, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { extractAndSaveConfig, useMezon } from '@mezon/transport';
 import type { LinkingOptions } from '@react-navigation/native';
 import { getStateFromPath, NavigationContainer } from '@react-navigation/native';

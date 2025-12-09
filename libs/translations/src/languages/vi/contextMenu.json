@@ -16,6 +16,7 @@
 	"topicDiscussion": "Thảo luận chủ đề",
 	"forwardMessage": "Chuyển tiếp tin nhắn",
 	"forwardAllMessage": "Chuyển tiếp tất cả tin nhắn",
+	"resendMessage": "Gửi lại tin nhắn",
 	"deleteMessage": "Xóa tin nhắn",
 	"reportMessage": "Báo cáo tin nhắn",
 	"copyLink": "Sao chép liên kết",
@@ -69,6 +70,7 @@
 	"muteFor24Hours": "24 giờ",
 	"muteUntilTurnedBack": "Cho đến khi tôi bật lại",
 	"imageCopiedToClipboard": "Đã sao chép hình ảnh",
+	"messageResent": "Đã gửi lại tin nhắn thành công",
 	"errors": {
 		"failedToNoteMessage": "Không thể ghi chú tin nhắn này",
 		"failedToEditMessage": "Không thể chỉnh sửa tin nhắn",
@@ -77,6 +79,7 @@
 		"failedToCopyImage": "Không thể sao chép hình ảnh:",
 		"failedToSaveImage": "Không thể lưu hình ảnh:",
 		"failedToGiveCoffee": "Không thể tặng coffee tin nhắn",
-		"errorSendingSlashCommand": "Lỗi gửi lệnh gạch chéo:"
+		"errorSendingSlashCommand": "Lỗi gửi lệnh gạch chéo:",
+		"failedToResendMessage": "Không thể gửi lại tin nhắn"
 	}
 }

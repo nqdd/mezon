@@ -252,6 +252,23 @@ export const ReportMessageRightClick: React.FC<IconProps> = ({ defaultFill = '#A
 	);
 };
 
+export const ResendMessageRightClick: React.FC<IconProps> = ({ defaultFill = '#AEAEAE', defaultSize = 'w-4 h-4' }) => {
+	return (
+		<svg
+			className={defaultSize}
+			aria-hidden="true"
+			role="img"
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			fill="none"
+			viewBox="0 0 24 24"
+		>
+			<path fill="currentColor" stroke="none" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z" />
+		</svg>
+	);
+};
+
 export const CanvasIconRightClick: React.FC<IconProps> = ({ defaultFill = '#AEAEAE', defaultSize = 'w-4 h-4' }) => {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24" className={defaultSize}>

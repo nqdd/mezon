@@ -16,6 +16,7 @@
 	"topicDiscussion": "Topic Discussion",
 	"forwardMessage": "Forward Message",
 	"forwardAllMessage": "Forward All Messages",
+	"resendMessage": "Resend Message",
 	"deleteMessage": "Delete Message",
 	"reportMessage": "Report Message",
 	"copyLink": "Copy Link",
@@ -70,6 +71,7 @@
 	"muteFor24Hours": "For 24 Hours",
 	"muteUntilTurnedBack": "Until I turn it back on",
 	"imageCopiedToClipboard": "Copied to clipboard",
+	"messageResent": "Message resent successfully",
 	"errors": {
 		"failedToNoteMessage": "Failed to note this message",
 		"failedToEditMessage": "Failed to edit message",
@@ -78,6 +80,7 @@
 		"failedToCopyImage": "Failed to copy image:",
 		"failedToSaveImage": "Failed to save image:",
 		"failedToGiveCoffee": "Failed to give cofffee message",
-		"errorSendingSlashCommand": "Error sending slash command message:"
+		"errorSendingSlashCommand": "Error sending slash command message:",
+		"failedToResendMessage": "Failed to resend message"
 	}
 }
