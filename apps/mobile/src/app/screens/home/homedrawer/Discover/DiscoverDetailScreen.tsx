@@ -1,8 +1,7 @@
 import { ActionEmitEvent, remove, save, STORAGE_CHANNEL_CURRENT_CACHE, STORAGE_CLAN_ID } from '@mezon/mobile-components';
 import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { clansActions, inviteActions } from '@mezon/store';
-import { getStoreAsync, useAppDispatch } from '@mezon/store-mobile';
+import { clansActions, emojiSuggestionActions, getStoreAsync, inviteActions, settingClanStickerActions, useAppDispatch } from '@mezon/store-mobile';
 import type { ApiClanDiscover, ApiInviteUserRes } from 'mezon-js/api.gen';
 import moment from 'moment/moment';
 import React, { memo, useState } from 'react';
@@ -255,6 +254,8 @@ const DiscoverDetailScreen: React.FC<DiscoverDetailScreenProps> = ({ clanDetail 
 				await store.dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
 				store.dispatch(clansActions.joinClan({ clanId: payload?.clan_id }));
 				store.dispatch(clansActions.changeCurrentClan({ clanId: payload?.clan_id }));
+				store.dispatch(emojiSuggestionActions.fetchEmoji({ clanId: payload?.clan_id, noCache: true }));
+				store.dispatch(settingClanStickerActions.fetchStickerByUserId({ noCache: true, clanId: payload?.clan_id }));
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 			}
 			setLoadingJoinClan(false);
