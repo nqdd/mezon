@@ -240,7 +240,7 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 							<p className="uppercase font-bold text-xs pb-4">{t('addMembersRoles.members')}</p>
 							<div>
 								<ListMembers
-									listItem={filterItem.listMembersNotInChannel}
+									listItem={listUserInvite}
 									selectedUserIds={selectedUserIds}
 									handleCheckboxUserChange={handleCheckboxUserChange}
 								/>
