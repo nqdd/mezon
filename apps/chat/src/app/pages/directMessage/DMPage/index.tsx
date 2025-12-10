@@ -354,7 +354,6 @@ const DirectMessage = () => {
 								userID={Array.isArray(currentDmGroup?.user_ids) ? currentDmGroup?.user_ids[0] : currentDmGroup?.user_ids}
 								classWrapper="w-full"
 								classBanner="h-[120px]"
-								hiddenRole={true}
 								showNote={true}
 								showPopupLeft={true}
 								avatar={
