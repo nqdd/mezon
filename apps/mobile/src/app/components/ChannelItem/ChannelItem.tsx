@@ -5,7 +5,7 @@ import { clansActions, getStore, selectChannelById, selectCurrentClanId, useAppS
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -18,7 +18,7 @@ type ChannelItemProps = {
 	channelData?: ChannelUsersEntity;
 };
 
-export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
+export const ChannelItem = memo(({ channelData }: ChannelItemProps) => {
 	const { t } = useTranslation(['searchMessageChannel']);
 	const { themeValue } = useTheme();
 	const parentChannel = useAppSelector((state) => selectChannelById(state, channelData?.parent_id || ''));
@@ -62,7 +62,6 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 								<Text style={styles.channelName} numberOfLines={1}>
 									{channelData?.channel_label}
 								</Text>
-								<MezonIconCDN icon={IconCDN.lockIcon} width={10} height={10} color={'#c7c7c7'} />
 							</View>
 							{!!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
 						</View>
