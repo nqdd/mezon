@@ -321,7 +321,11 @@ const BrandCenterPage = () => {
 										</li>
 									))}
 								</ul>
-								<a href="http://cdn.mezon.ai/landing-page-mezon/Mezon-Brand-Resource.zip" download>
+								<a
+									href={`${process.env.NX_BASE_IMG_URL}/landing-page-mezon/Mezon-Brand-Resource.zip`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									<div className="flex justify-center pt-4">
 										<button className="px-10 py-4 bg-gradient-to-r from-[#6B5FE0] to-[#5A6FE8] text-white text-lg font-semibold rounded-lg hover:shadow-xl hover:shadow-[#6B5FE0]/20 transition-all duration-300 transform hover:scale-105 active:scale-95">
 											Download Complete Brand Resource Kit
