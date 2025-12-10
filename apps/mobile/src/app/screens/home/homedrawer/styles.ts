@@ -1012,7 +1012,8 @@ export const style = (colors: Attributes) =>
 			flex: 1
 		},
 		waveButtonContainer: {
-			marginTop: size.s_10,
+			marginTop: size.s_20,
+			marginBottom: -size.s_30,
 			alignSelf: 'center'
 		}
 	});

@@ -92,12 +92,14 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 		return (
 			<View style={styles.waveContainerDM}>
 				<ImageNative
-					url={createImgproxyUrl(urlIcon, { width: 100, height: 100, resizeType: 'fit' })}
+					url={createImgproxyUrl(urlIcon, { width: 270, height: 270, resizeType: 'fit' })}
 					style={styles.waveIconDM}
 					resizeMode="contain"
 				/>
 				<TouchableOpacity style={styles.waveButtonDM} onPress={handleSendWaveSticker}>
-					<Text style={styles.waveButtonTextDM}>{t('waveWelcomeDM', { username: displayName })}</Text>
+					<Text numberOfLines={1} style={styles.waveButtonTextDM}>
+						{t('waveWelcomeDM', { username: displayName })}
+					</Text>
 				</TouchableOpacity>
 			</View>
 		);

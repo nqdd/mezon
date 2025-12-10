@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -32,15 +33,16 @@ export const style = (colors: Attributes) =>
 			marginTop: size.s_20
 		},
 		waveIconDM: {
-			width: size.s_100,
-			height: size.s_100
+			width: size.s_90,
+			height: size.s_90
 		},
 		waveButtonDM: {
 			marginTop: size.s_12,
 			backgroundColor: colors.bgViolet,
 			paddingVertical: size.s_10,
-			paddingHorizontal: size.s_20,
-			borderRadius: size.s_20
+			paddingHorizontal: size.s_16,
+			borderRadius: size.s_20,
+			width: size.s_165
 		},
 		waveButtonTextDM: {
 			color: baseColor.white,
