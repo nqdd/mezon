@@ -1093,7 +1093,7 @@ function GalleryButton() {
 	}, []);
 
 	return (
-		<div className="relative leading-5 h-5" ref={galleryRef}>
+		<div className="relative leading-5 h-5" ref={galleryRef} data-e2e={generateE2eId('chat.channel_message.header.button.gallery')}>
 			<button
 				title={t('tooltips.gallery')}
 				className={`focus-visible:outline-none text-theme-primary text-theme-primary-hover ${isShowGallery ? 'text-theme-primary-active' : ''}`}

@@ -297,6 +297,16 @@ export const DATA_E2E_IDENTIFIER = {
 					kick: '',
 					cancel: ''
 				}
+			},
+			gallery: {
+				all: '',
+				image: '',
+				video: '',
+				tab: {
+					all: '',
+					image: '',
+					video: ''
+				}
 			}
 		},
 		settings: {
@@ -642,7 +652,8 @@ export const DATA_E2E_IDENTIFIER = {
 						},
 						item: ''
 					},
-					chat: ''
+					chat: '',
+					gallery: ''
 				}
 			},
 			actions: {
