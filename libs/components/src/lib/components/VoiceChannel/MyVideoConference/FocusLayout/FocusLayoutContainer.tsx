@@ -1,4 +1,5 @@
 import type { ParticipantClickEvent, TrackReferenceOrPlaceholder } from '@livekit/components-core';
+import type { UsersClanEntity } from '@mezon/utils';
 import type { Room } from 'livekit-client';
 import * as React from 'react';
 import { ParticipantTile } from '../ParticipantTile/ParticipantTile';
@@ -20,8 +21,9 @@ export interface FocusLayoutProps extends React.HTMLAttributes<HTMLElement> {
 	onParticipantClick?: (evt: ParticipantClickEvent) => void;
 	isExtCalling?: boolean;
 	room?: Room;
+	groupMembers?: UsersClanEntity[];
 }
 
-export function FocusLayout({ trackRef, isExtCalling = false, ...htmlProps }: FocusLayoutProps) {
-	return <ParticipantTile isExtCalling={isExtCalling} trackRef={trackRef} {...htmlProps} />;
+export function FocusLayout({ trackRef, isExtCalling = false, groupMembers, ...htmlProps }: FocusLayoutProps) {
+	return <ParticipantTile isExtCalling={isExtCalling} trackRef={trackRef} groupMembers={groupMembers} {...htmlProps} />;
 }
