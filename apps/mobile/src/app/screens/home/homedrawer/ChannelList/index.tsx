@@ -26,6 +26,7 @@ import ChannelListSection from '../components/ChannelList/ChannelListSection';
 import { ChannelOnboarding } from '../components/ChannelList/ChannelOnboarding';
 import ButtonNewUnread from './ButtonNewUnread';
 import { style } from './styles';
+import ChannelAppsListing from '../components/ChannelList/ChannelAppsListing';
 
 const ChannelList = () => {
 	const { themeValue } = useTheme();
@@ -79,6 +80,7 @@ const ChannelList = () => {
 			{ id: 'backgroundHeader' },
 			{ id: 'listHeader' },
 			{ id: 'onBoarding' },
+			{ id: 'channelApps' },
 			...(listChannelRender
 				? isShowEmptyCategory
 					? listChannelRender
@@ -102,6 +104,8 @@ const ChannelList = () => {
 				return <ChannelListHeader key={`header-${index}`} />;
 			} else if (index === 2) {
 				return <ChannelOnboarding key={`onBoarding-${index}`} />;
+			} else if (index === 3) {
+				return <ChannelAppsListing key={`channelApps-${index}`} />;
 			} else if (item.channels) {
 				return <ChannelListSection data={item} />;
 			} else {

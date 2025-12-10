@@ -256,5 +256,11 @@ export const style = (colors: Attributes) =>
 		},
 		callDurationTopAvatar: {
 			top: size.s_70
+		},
+		answerCallLoading: {
+			width: size.s_100,
+			height: size.s_100,
+			justifyContent: 'center',
+			alignItems: 'center'
 		}
 	});
