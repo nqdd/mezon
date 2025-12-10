@@ -57,7 +57,7 @@ export const ChannelItem = memo(({ channelData }: ChannelItemProps) => {
 				<View style={styles.voiceChannelContainer}>
 					<View style={styles.channelRow}>
 						<IconChannel channelPrivate={channelData?.channel_private} type={channelData?.type} />
-						<View>
+						<View style={styles.channelNameWrapper}>
 							<View style={styles.channelInfo}>
 								<Text style={styles.channelName} numberOfLines={1}>
 									{channelData?.channel_label}
