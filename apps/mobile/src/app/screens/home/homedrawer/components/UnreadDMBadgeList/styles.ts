@@ -67,8 +67,10 @@ export const style = (colors: Attributes) =>
 		wrapperTextAvatar: {
 			width: size.s_42,
 			height: size.s_42,
+			borderRadius: size.s_42,
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			backgroundColor: colors.colorAvatarDefault
 		},
 		textAvatar: {
 			textAlign: 'center',

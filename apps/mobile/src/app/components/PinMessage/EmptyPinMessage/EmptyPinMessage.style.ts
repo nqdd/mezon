@@ -1,4 +1,4 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import { Attributes, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -17,13 +17,5 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500',
 			textAlign: 'center',
 			marginTop: size.s_30
-		},
-		emptyPinMessageHeaderText: { fontSize: size.label, color: baseColor.caribbeanGreen, fontWeight: '500', textAlign: 'center' },
-		emptyPinMessageDescription: {
-			maxWidth: 400,
-			fontSize: size.label,
-			color: colors.text,
-			fontWeight: '500',
-			textAlign: 'center'
 		}
 	});

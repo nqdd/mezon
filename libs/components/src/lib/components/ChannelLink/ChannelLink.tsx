@@ -230,13 +230,11 @@ const ChannelLinkComponent = ({
 							{isPrivate === ChannelStatusEnum.isPrivate &&
 								channel.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 								!isAgeRestrictedChannel && <Icons.HashtagLocked defaultSize="w-5 h-5" />}
-							{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
-								<>{isPrivate ? <Icons.SpeakerLocked defaultSize="w-5 h-5 " /> : <Icons.Speaker defaultSize="w-5 h-5 " />}</>
-							)}
+							{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && <Icons.Speaker defaultSize="w-5 h-5 " />}
 							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_CHANNEL && !isAgeRestrictedChannel && (
 								<Icons.Hashtag defaultSize="w-5 h-5 " data-e2e={generateE2eId('clan_page.channel_list.item.icon.hashtag')} />
 							)}
-							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_STREAMING && (
+							{channel.type === ChannelType.CHANNEL_TYPE_STREAMING && (
 								<Icons.Stream defaultSize="w-5 h-5 " data-e2e={generateE2eId('clan_page.channel_list.item.icon.stream')} />
 							)}
 							{isPrivate !== 1 && channel.type === ChannelType.CHANNEL_TYPE_APP && <Icons.AppChannelIcon className={'w-5 h-5'} />}

@@ -61,7 +61,7 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 			<AssetsHeader tabActive={tabActive} onChange={handelHeaderTabChange} tabList={headerTablist} />
 			<View style={styles.container}>
 				{tabActive === 0 ? (
-					<MemberListStatus />
+					<MemberListStatus currentChannel={currentChannel} />
 				) : tabActive === 1 ? (
 					<MediaChannel
 						channelId={channelId}

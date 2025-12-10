@@ -1,8 +1,8 @@
 import type { TrackReference } from '@livekit/react-native';
-import { VideoTrack, useParticipants, useRoomContext } from '@livekit/react-native';
+import { useParticipants, useRoomContext, VideoTrack } from '@livekit/react-native';
 import { ScreenCapturePickerView } from '@livekit/react-native-webrtc';
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { ThemeModeBase, size, useTheme } from '@mezon/mobile-ui';
+import { size, ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import {
 	groupCallActions,
 	selectIsPiPMode,
@@ -12,7 +12,6 @@ import {
 	useAppSelector,
 	voiceActions
 } from '@mezon/store-mobile';
-import type { UsersClanEntity } from '@mezon/utils';
 import type { TFunction } from 'i18next';
 import type { Participant, TrackPublication } from 'livekit-client';
 import { DisconnectReason, RoomEvent, Track } from 'livekit-client';
@@ -161,8 +160,7 @@ const RoomView = ({
 	onFocusedScreenChange,
 	isGroupCall = false,
 	participantsCount = 0,
-	activeSoundReactions,
-	allUserClans
+	activeSoundReactions
 }: {
 	isAnimationComplete: boolean;
 	onPressMinimizeRoom: () => void;
@@ -172,7 +170,6 @@ const RoomView = ({
 	isGroupCall?: boolean;
 	participantsCount?: number;
 	activeSoundReactions: Map<string, ActiveSoundReaction>;
-	allUserClans: UsersClanEntity[];
 }) => {
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue);
@@ -289,7 +286,7 @@ const RoomView = ({
 	return (
 		<View style={[styles.roomViewContainer, isPiPMode && styles.roomViewContainerPiP]}>
 			{!isAnimationComplete ? (
-				<FocusedScreenPopup clanUsers={allUserClans} />
+				<FocusedScreenPopup />
 			) : (
 				<ParticipantScreen
 					setFocusedScreenShare={setFocusedScreenShareProp}
@@ -297,7 +294,6 @@ const RoomView = ({
 					isGroupCall={isGroupCall}
 					clanId={clanId}
 					channelId={channelId}
-					clanUsers={allUserClans}
 				/>
 			)}
 			{isAnimationComplete && isGroupCall && isShowPreCallInterface && (

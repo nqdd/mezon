@@ -697,8 +697,8 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 		save(STORAGE_LATEST_CALL_CACHE, JSON.stringify(dataObj));
 
 		const channel = await notifee.createChannel({
-			id: 'calls',
-			name: 'Incoming Calls',
+			id: notificationId,
+			name: notificationId,
 			importance: AndroidImportance.HIGH,
 			visibility: AndroidVisibility.PUBLIC,
 			sound: appInBackground ? undefined : 'ringing',

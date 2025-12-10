@@ -56,12 +56,13 @@ import AttachmentFilePreview from '../../home/homedrawer/components/AttachmentFi
 import { RecentInteractiveSearch } from './SearchBar/RecentInteractiveSearch';
 import SharingSuggestItem from './SharingSuggestItem';
 import { style } from './styles';
+
 interface ISharing {
 	topUserSuggestionId?: string;
 	data: any;
 	onClose?: (isSend?: boolean) => void;
 }
-
+let retryCount = 0;
 export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	const store = getStore();
 	const dispatch = useAppDispatch();
@@ -351,7 +352,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					const pathCompressed = checkIsVideo
 						? await compressVideo(media?.filePath || media?.contentUri)
 						: checkIsImage
-							? await compressImage(media?.filePath || media?.contentUri)
+							? await compressImage(media?.filePath || media?.contentUri, media?.contentUri)
 							: media?.filePath || media?.contentUri;
 					let cleanPath = pathCompressed || '';
 					if (Platform.OS === 'ios') {
@@ -396,7 +397,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		}
 	};
 
-	const compressImage = async (image: string) => {
+	const compressImage = async (image: string, imageFallback?: string) => {
 		try {
 			return await Image.compress(image, {
 				compressionMethod: 'auto',
@@ -404,6 +405,10 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			});
 		} catch (error) {
 			console.error('log  => error compressImage', error);
+			if (imageFallback && retryCount === 0) {
+				retryCount++;
+				return compressImage(imageFallback, image);
+			}
 			return image;
 		}
 	};

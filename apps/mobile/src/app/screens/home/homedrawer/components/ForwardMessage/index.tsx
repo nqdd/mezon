@@ -20,7 +20,7 @@ import {
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import type { ChannelThreads, IMessageWithUser } from '@mezon/utils';
-import { FORWARD_MESSAGE_TIME, MIN_THRESHOLD_CHARS, isValidEmojiData, normalizeString } from '@mezon/utils';
+import { FORWARD_MESSAGE_TIME, isValidEmojiData, normalizeString } from '@mezon/utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -50,10 +50,11 @@ export interface IForwardIObject {
 	isChannelPublic?: boolean;
 }
 
+const MAX_RAW_TEXT_LENGTH = 2000;
+
 const ForwardMessageScreen = () => {
 	const [searchText, setSearchText] = useState('');
 	const [personalRawMessages, setPersonalRawMessages] = useState<string>('');
-	const [count, setCount] = useState('');
 
 	const navigation = useNavigation();
 	const route = useRoute();
@@ -102,10 +103,40 @@ const ForwardMessageScreen = () => {
 		};
 	};
 
+	const messagesToForward = useMemo(() => {
+		if (!selectedMessage) return [];
+		const messages: MessagesEntity[] = [selectedMessage];
+
+		if (!isForwardAll) return messages;
+
+		const revertIds = [...(allMessageIds || [])].reverse();
+		const startIndex = revertIds.findIndex((id) => id === selectedMessage?.id);
+
+		let index = startIndex - 1;
+		while (index >= 0) {
+			const previousMessageEntity = allMessagesEntities?.[revertIds?.[index + 1]];
+			const messageEntity = allMessagesEntities?.[revertIds?.[index]];
+
+			if (!messageEntity) break;
+
+			const differentTime = Date.parse(messageEntity?.create_time) - Date.parse(previousMessageEntity?.create_time);
+
+			if (differentTime <= FORWARD_MESSAGE_TIME && messageEntity?.sender_id === selectedMessage?.user?.id) {
+				messages.push(messageEntity);
+				index--;
+			} else {
+				break;
+			}
+		}
+
+		return messages;
+	}, [selectedMessage, isForwardAll, allMessageIds, allMessagesEntities]);
+
 	const messageAttachments = useMemo(() => {
 		try {
-			const attachments = selectedMessage?.attachments || [];
+			const attachments = messagesToForward?.flatMap((msg) => msg?.attachments || []);
 			return {
+				all: attachments,
 				images: attachments?.filter((a) => a?.filetype?.includes('image')),
 				videos: attachments?.filter((a) => a?.filetype?.includes('video')),
 				files: attachments?.filter((a) => !a?.filetype?.includes('image') && !a?.filetype?.includes('video'))
@@ -113,12 +144,13 @@ const ForwardMessageScreen = () => {
 		} catch (error) {
 			console.error('Error processing message attachments:', error);
 			return {
+				all: [],
 				images: [],
 				videos: [],
 				files: []
 			};
 		}
-	}, [selectedMessage?.attachments]);
+	}, [messagesToForward]);
 
 	const allForwardObject = useMemo(() => {
 		const listChannels = selectAllChannelsByUser(store.getState() as any);
@@ -249,40 +281,11 @@ const ForwardMessageScreen = () => {
 		[store, t, sendForwardMessage, handleSendMessage]
 	);
 
-	const getMessagesToForward = useCallback(async () => {
-		const messages: MessagesEntity[] = [selectedMessage];
-
-		if (!isForwardAll) return messages;
-
-		const revertIds = [...(allMessageIds || [])].reverse();
-		const startIndex = revertIds.findIndex((id) => id === selectedMessage?.id);
-
-		let index = startIndex - 1;
-		while (index >= 0) {
-			const previousMessageEntity = allMessagesEntities?.[revertIds?.[index + 1]];
-			const messageEntity = allMessagesEntities?.[revertIds?.[index]];
-
-			if (!messageEntity) break;
-
-			const differentTime = Date.parse(messageEntity?.create_time) - Date.parse(previousMessageEntity?.create_time);
-
-			if (differentTime <= FORWARD_MESSAGE_TIME && messageEntity?.sender_id === selectedMessage?.user?.id) {
-				messages.push(messageEntity);
-				index--;
-			} else {
-				break;
-			}
-		}
-
-		return messages;
-	}, [selectedMessage, isForwardAll, allMessageIds, allMessagesEntities]);
-
 	const handleForward = useCallback(async () => {
 		if (!selectedForwardObjectsRef.current?.length) return;
 
 		try {
-			const messages = await getMessagesToForward();
-			await sendMessagesToTargets(selectedForwardObjectsRef.current, messages);
+			await sendMessagesToTargets(selectedForwardObjectsRef.current, messagesToForward);
 
 			Toast.show({
 				type: 'success',
@@ -296,7 +299,7 @@ const ForwardMessageScreen = () => {
 		} catch (error) {
 			console.error('Forward error:', error);
 		}
-	}, [getMessagesToForward, sendMessagesToTargets, onClose, t]);
+	}, [messagesToForward, sendMessagesToTargets, onClose, t]);
 
 	const isOnlyContainEmoji = useMemo(() => isValidEmojiData(message.content), [message.content]);
 
@@ -307,7 +310,6 @@ const ForwardMessageScreen = () => {
 		} else {
 			selectedForwardObjectsRef.current = selectedForwardObjectsRef.current.filter((ob) => ob.channelId !== item.channelId);
 		}
-		setCount(selectedForwardObjectsRef.current?.length ? ` (${selectedForwardObjectsRef.current?.length})` : '');
 	}, []);
 
 	const renderForwardObject = ({ item }: { item: IForwardIObject }) => {
@@ -405,8 +407,8 @@ const ForwardMessageScreen = () => {
 								</View>
 							)}
 						</View>
-						{message?.attachments?.length > 0 && (
-							<RenderForwardMedia attachment={message?.attachments?.[0]} count={message?.attachments?.length - 1} />
+						{messageAttachments?.all?.length > 0 && (
+							<RenderForwardMedia attachment={messageAttachments?.all?.[0]} count={messageAttachments?.all?.length - 1} />
 						)}
 					</View>
 				</View>
@@ -419,7 +421,7 @@ const ForwardMessageScreen = () => {
 							onChangeText={setPersonalRawMessages}
 							placeholder={t('addAMessage')}
 							placeholderTextColor={themeValue.textDisabled}
-							maxLength={MIN_THRESHOLD_CHARS}
+							maxLength={MAX_RAW_TEXT_LENGTH}
 						/>
 						{!!personalRawMessages?.length && (
 							<TouchableOpacity activeOpacity={0.8} onPress={() => setPersonalRawMessages('')} style={styles.iconRightInput}>
@@ -431,10 +433,7 @@ const ForwardMessageScreen = () => {
 						style={[styles.btn, !selectedForwardObjectsRef.current?.length && { backgroundColor: themeValue.textDisabled }]}
 						onPress={handleForward}
 					>
-						<Text style={styles.btnText} numberOfLines={1}>
-							{t('buzz.confirmText')}
-							{count}
-						</Text>
+						<MezonIconCDN icon={IconCDN.sendMessageIcon} color={baseColor.white} height={size.s_18} width={size.s_18} />
 					</TouchableOpacity>
 				</View>
 			</View>

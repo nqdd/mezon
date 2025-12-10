@@ -2,7 +2,15 @@ import { useParticipants, useRoomContext, useTracks, VideoTrack } from '@livekit
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectAllAccount, selectCurrentClanId, selectIsPiPMode, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
+import {
+	selectAllAccount,
+	selectCurrentClanId,
+	selectIsPiPMode,
+	selectMemberClanByUserId,
+	useAppDispatch,
+	useAppSelector,
+	voiceActions
+} from '@mezon/store-mobile';
 import { EPermission } from '@mezon/utils';
 import type { Participant } from 'livekit-client';
 import { RoomEvent, Track } from 'livekit-client';
@@ -11,9 +19,9 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../../src/app/componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../../../src/app/constants/icon_cdn';
 import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
+import { IconCDN } from '../../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
 import type { IManageVoiceUser } from '../../UserProfile';
 import UserProfile, { IActionVoiceUser } from '../../UserProfile';
@@ -21,7 +29,7 @@ import { style } from '../styles';
 
 const ParticipantItem = memo(
 	({
-		username,
+		userId,
 		isMicrophoneEnabled,
 		isSpeaking,
 		screenTrackRef,
@@ -31,16 +39,15 @@ const ParticipantItem = memo(
 		room,
 		isGroupCall,
 		canMangeVoice,
-		currentUsername,
-		member
+		currentUsername
 	}: any) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 		const { t } = useTranslation(['channelVoice']);
-
+		const member = useAppSelector((state) => selectMemberClanByUserId(state, userId));
 		const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
-		const voiceUsername = member?.clan_nick || member?.user?.display_name || username;
+		const voiceUsername = member?.clan_nick || member?.user?.display_name || member?.user?.username || '';
 		const avatar = useMemo(() => {
 			return member?.clan_avatar || member?.user?.avatar_url || '';
 		}, [member]);
@@ -51,9 +58,9 @@ const ParticipantItem = memo(
 		};
 
 		const hasActiveSoundReaction = useMemo(() => {
-			const activeSoundReaction = activeSoundReactions?.get(username);
+			const activeSoundReaction = activeSoundReactions?.get(userId);
 			return Boolean(activeSoundReaction);
-		}, [activeSoundReactions, username]);
+		}, [activeSoundReactions, userId]);
 
 		const renderSoundEffectIcon = () => {
 			return (
@@ -66,14 +73,14 @@ const ParticipantItem = memo(
 		const onConfirmActionVoice = useCallback(
 			(action: IActionVoiceUser) => {
 				if (action === IActionVoiceUser.MUTE) {
-					dispatch(voiceActions.muteVoiceMember({ room_name: room, username }));
+					dispatch(voiceActions.muteVoiceMember({ room_name: room, username: userId || '' }));
 				} else {
-					dispatch(voiceActions.kickVoiceMember({ room_name: room, username }));
+					dispatch(voiceActions.kickVoiceMember({ room_name: room, username: userId || '' }));
 				}
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 			},
-			[dispatch, room, username]
+			[dispatch, room, userId]
 		);
 
 		const onActionVoice = useCallback(
@@ -95,7 +102,7 @@ const ParticipantItem = memo(
 
 		const onPressInfoUser = useCallback(
 			async (userIsCurrentOnMic = false) => {
-				const isHavePermission = currentUsername !== username && !isPiPMode && !isGroupCall && canMangeVoice;
+				const isHavePermission = currentUsername !== member?.user?.username && !isPiPMode && !isGroupCall && canMangeVoice;
 				const manageVoiceUser: IManageVoiceUser = {
 					isHavePermission,
 					isShowMute: userIsCurrentOnMic
@@ -108,7 +115,7 @@ const ParticipantItem = memo(
 					backdropStyle: styles.bottomSheetZIndex,
 					children: (
 						<UserProfile
-							user={member?.user || { username }}
+							user={member?.user || { username: member?.user?.username }}
 							showAction={false}
 							showRole={false}
 							currentChannel={undefined}
@@ -119,7 +126,7 @@ const ParticipantItem = memo(
 				};
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 			},
-			[canMangeVoice, currentUsername, isGroupCall, isPiPMode, member?.user, onActionVoice, username]
+			[canMangeVoice, currentUsername, isGroupCall, isPiPMode, member?.user, onActionVoice, styles.bottomSheetZIndex]
 		);
 
 		return (
@@ -238,7 +245,7 @@ const ParticipantItem = memo(
 	}
 );
 
-const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId, clanUsers }) => {
+const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGroupCall, clanId, channelId }) => {
 	const participants = useParticipants();
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -322,14 +329,11 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 						);
 
 						const currentUsername = userProfile?.user?.username;
-						const memberItem = clanUsers?.find(
-							(u) => u?.user?.username === participant?.identity || u?.user?.id === participant?.identity
-						);
 
 						return (
 							<ParticipantItem
 								key={participant.identity}
-								username={participant.identity}
+								userId={participant.identity}
 								participant={participant}
 								isSpeaking={isSpeaking}
 								isMicrophoneEnabled={isMicrophoneEnabled}
@@ -342,7 +346,6 @@ const ParticipantScreen = ({ setFocusedScreenShare, activeSoundReactions, isGrou
 								isGroupCall={isGroupCall}
 								canMangeVoice={userCanManageVoice}
 								currentUsername={currentUsername}
-								member={memberItem}
 							/>
 						);
 					})}

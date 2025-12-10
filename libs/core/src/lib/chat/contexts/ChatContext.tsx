@@ -2536,7 +2536,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					clanId: user.clan_id,
 					banner_id: user.banner_id,
 					channelId: user.channel_id,
-					userIds: user?.user_ids
+					userIds: user?.user_ids,
+					ban_time: user?.ban_time
 				})
 			);
 		} else {
