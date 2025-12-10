@@ -76,7 +76,7 @@ export const RenderForwardMedia = React.memo(({ attachment, count }: any) => {
 	if (checkIsVideo) {
 		return (
 			<View style={styles.fileViewer}>
-				<ImageNative url={thumbPath || attachment?.thumbnail_url} style={styles.video} />
+				<ImageNative url={thumbPath || attachment?.thumbnail_url} style={styles.image} />
 				<View style={styles.videoOverlay}>
 					<MezonIconCDN icon={IconCDN.playIcon} color={themeValue.bgViolet} />
 				</View>

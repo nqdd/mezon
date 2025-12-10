@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		fileViewer: {
-			width: size.s_60,
-			height: size.s_60,
+			width: size.s_50,
+			height: size.s_50,
 			alignItems: 'center',
 			justifyContent: 'center',
 			borderRadius: size.s_6,
@@ -48,13 +48,8 @@ export const style = (colors: Attributes) =>
 			color: baseColor.white
 		},
 		image: {
-			width: size.s_60,
-			height: size.s_60,
-			borderRadius: size.s_6
-		},
-		video: {
-			width: size.s_60,
-			height: size.s_60,
+			width: size.s_50,
+			height: size.s_50,
 			borderRadius: size.s_6
 		}
 	});
