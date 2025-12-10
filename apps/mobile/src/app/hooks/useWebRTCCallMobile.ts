@@ -1,7 +1,8 @@
 import { mediaDevices, MediaStream, RTCIceCandidate, RTCPeerConnection, RTCSessionDescription } from '@livekit/react-native-webrtc';
 import { useChatSending } from '@mezon/core';
 import { ActionEmitEvent, sessionConstraints } from '@mezon/mobile-components';
-import { audioCallActions, DMCallActions, RootState, selectAllAccount, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
+import type { RootState } from '@mezon/store-mobile';
+import { audioCallActions, DMCallActions, selectAllAccount, selectDmGroupCurrent, useAppDispatch } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import type { IMessageSendPayload } from '@mezon/utils';
 import { IMessageTypeCallLog, sleep } from '@mezon/utils';
@@ -67,7 +68,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		speaker: false
 	});
 	const [isConnected, setIsConnected] = useState<boolean | null>(null);
-	const [candidateCache, setCandidateCache] = useState(null);
+	const [offerCache, setOfferCache] = useState(null);
 	const pendingCandidatesRef = useRef<(RTCIceCandidate | null)[]>([]);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
 	const mode = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP;
@@ -77,6 +78,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 	const dialToneRef = useRef<Sound | null>(null);
 	const trackEventTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const hasSyncRemoteMediaRef = useRef<boolean>(false);
+	const isMyCaller = useRef<boolean>(false);
 
 	const playDialToneIOS = () => {
 		Sound.setCategory('Playback');
@@ -300,6 +302,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		try {
 			await setIsSpeaker({ isSpeaker: false });
 			if (!isAnswer) {
+				isMyCaller.current = true;
 				const constraints = await getConstraintsLocal(isVideoCall);
 				const stream = await mediaDevices.getUserMedia(constraints);
 				handleSend(
@@ -377,9 +380,10 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		}
 	};
 
-	const handleOffer = async (signalingData: any) => {
+	const handleOffer = async (offer: any) => {
 		const pc = peerConnection?.current || initializePeerConnection();
 
+		const signalingData = offer || offerCache;
 		if (!callState?.localStream) {
 			const constraints = await getConstraintsLocal(localMediaControl.camera);
 			const stream = await mediaDevices.getUserMedia(constraints);
@@ -433,9 +437,9 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		}
 	};
 
-	const handleICECandidate = async (candidate: any) => {
+	const handleICECandidate = async (data: any) => {
 		if (!peerConnection?.current) return;
-		const data = candidate || candidateCache;
+
 		try {
 			if (data) {
 				const candidate = new RTCIceCandidate(data);
@@ -467,7 +471,11 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 				case WebrtcSignalingType.WEBRTC_SDP_OFFER: {
 					const decompressedData = await decompress(signalingData.json_data);
 					const offer = safeJSONParse(decompressedData || '{}');
-					await handleOffer(offer);
+					if (isFromNative) {
+						setOfferCache(offer);
+					} else {
+						await handleOffer(offer);
+					}
 
 					break;
 				}
@@ -482,11 +490,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 
 				case WebrtcSignalingType.WEBRTC_ICE_CANDIDATE: {
 					const candidate = safeJSONParse(signalingData?.json_data || '{}');
-					if (isFromNative) {
-						setCandidateCache(candidate);
-					} else {
-						await handleICECandidate(candidate);
-					}
+					await handleICECandidate(candidate);
 
 					break;
 				}
@@ -510,7 +514,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 			if (!isCallerEndCall) {
 				await mezon.socketRef.current?.forwardWebrtcSignaling(dmUserId, WebrtcSignalingType.WEBRTC_SDP_QUIT, '', channelId, userId);
 			}
-			if (timeStartConnected?.current) {
+			if (timeStartConnected?.current && isMyCaller.current) {
 				let timeCall = '';
 				const startTime = new Date(timeStartConnected.current);
 				const endTime = new Date();
@@ -735,8 +739,7 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		localMediaControl,
 		timeStartConnected,
 		isConnected,
-		candidateCache,
-		peerConnection,
+		offerCache,
 		startCall,
 		handleEndCall,
 		toggleAudio,
@@ -746,6 +749,6 @@ export function useWebRTCCallMobile({ dmUserId, channelId, userId, isVideoCall, 
 		handleSignalingMessage,
 		handleToggleIsConnected,
 		playDialToneIOS,
-		handleICECandidate
+		handleOffer
 	};
 }

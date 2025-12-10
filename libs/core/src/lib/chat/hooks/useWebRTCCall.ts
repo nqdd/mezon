@@ -69,6 +69,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	const [currentOutputDevice, setCurrentOutputDevice] = useState<MediaDeviceInfo | null>(null);
 	const [isConnected, setIsConnected] = useState<boolean | null>(null);
 	const hasSyncRemoteMediaRef = useRef<boolean>(false);
+	const isMyCaller = useRef<boolean>(false);
 
 	useEffect(() => {
 		return () => {
@@ -201,6 +202,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 		try {
 			callTimeout?.current && clearTimeout(callTimeout.current);
 			if (!isAnswer) {
+				isMyCaller.current = true;
 				const constraints = await getConstraintsLocal(isVideoCall);
 				const stream = await navigator.mediaDevices.getUserMedia(constraints);
 				const pc = initializePeerConnection();
@@ -422,7 +424,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	const handleSignalingMessage = async (signalingData: any) => {
 		const dataType = signalingData.data_type;
 		if ([WebrtcSignalingType.WEBRTC_SDP_QUIT, WebrtcSignalingType.WEBRTC_SDP_TIMEOUT].includes(dataType)) {
-			if (!timeStartConnected?.current) {
+			if (!timeStartConnected?.current && isMyCaller?.current) {
 				const callLogType =
 					dataType === WebrtcSignalingType.WEBRTC_SDP_TIMEOUT ? IMessageTypeCallLog.TIMEOUTCALL : IMessageTypeCallLog.REJECTCALL;
 				dispatch(
@@ -556,8 +558,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 				micEnabled: true
 			});
 			peerConnection.current = null;
-
-			if (timeStartConnected?.current) {
+			if (timeStartConnected?.current && isMyCaller?.current) {
 				let timeCall = '';
 				const startTime = new Date(timeStartConnected.current);
 				const endTime = new Date();
@@ -763,6 +764,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	return {
 		callState,
 		timeStartConnected,
+		isMyCaller,
 		startCall,
 		handleEndCall,
 		toggleAudio,

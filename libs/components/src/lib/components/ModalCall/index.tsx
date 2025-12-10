@@ -3,8 +3,9 @@ import { audioCallActions, DMCallActions, selectIsInCall, selectJoinedCall, useA
 import { useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
 import { createImgproxyUrl, decompress } from '@mezon/utils';
-import { safeJSONParse, WebrtcSignalingFwd } from 'mezon-js';
-import { useEffect, useState } from 'react';
+import type { WebrtcSignalingFwd } from 'mezon-js';
+import { safeJSONParse } from 'mezon-js';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 
@@ -68,29 +69,37 @@ const ModalCall = ({ dataCall, userId, triggerCall, clearCallState }: ModalCallP
 		}
 	};
 
+	const callerName = useMemo(() => {
+		return callerInfo?.name ?? user?.clan_nick ?? user?.user?.display_name ?? user?.user?.username ?? '';
+	}, [callerInfo?.name, user]);
+
+	const callerAvatar = useMemo(() => {
+		return callerInfo?.avatar ?? user?.clan_avatar ?? user?.user?.avatar_url;
+	}, [callerInfo?.avatar, user]);
+
 	return (
-		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50'>
-			<div className='bg-black p-6 rounded-lg shadow-xl flex flex-col gap-6 items-center justify-center w-[232px]'>
-				<div className='w-16 h-16'>
+		<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+			<div className="bg-black p-6 rounded-lg shadow-xl flex flex-col gap-6 items-center justify-center w-[232px]">
+				<div className="w-16 h-16">
 					<AvatarImage
-						className='w-16 h-16'
-						alt='user avatar'
-						username={user?.clan_nick || user?.user?.display_name || user?.user?.username}
-						srcImgProxy={createImgproxyUrl((callerInfo?.avatar || user?.clan_avatar || user?.user?.avatar_url) ?? '', {
+						className="w-16 h-16"
+						alt="user avatar"
+						username={callerName}
+						srcImgProxy={createImgproxyUrl(callerAvatar ?? '', {
 							width: 300,
 							height: 300,
 							resizeType: 'fit'
 						})}
-						src={callerInfo?.avatar || user?.clan_avatar || user?.user?.avatar_url}
+						src={callerAvatar}
 					/>
 				</div>
 
-				<div className='text-center'>
-					<p className='font-semibold text-xl'>{callerInfo?.name || user?.user?.username}</p>
-					<p className='text-gray-600'>Incoming Call...</p>
+				<div className="text-center">
+					<p className="font-semibold text-xl">{callerName}</p>
+					<p className="text-gray-600">Incoming Call...</p>
 				</div>
 
-				<div className='flex gap-4 items-center'>
+				<div className="flex gap-4 items-center">
 					<div
 						onClick={handleCloseCall}
 						className={`h-[56px] w-[56px] rounded-full bg-red-500 hover:bg-red-700 flex items-center justify-center cursor-pointer`}

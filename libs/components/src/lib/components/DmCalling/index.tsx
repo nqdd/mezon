@@ -1,7 +1,7 @@
-import { useMenu } from '@mezon/core';
+import { useMenu, useWebRTCCall } from '@mezon/core';
 import {
-	DMCallActions,
 	audioCallActions,
+	DMCallActions,
 	selectAllAccount,
 	selectAudioBusyTone,
 	selectAudioDialTone,
@@ -10,7 +10,6 @@ import {
 	selectIsInCall,
 	selectIsMuteMicrophone,
 	selectIsShowMeetDM,
-	selectIsShowShareScreen,
 	selectJoinedCall,
 	selectOtherCall,
 	selectRemoteAudio,
@@ -25,8 +24,7 @@ import {
 import { Icons, Menu } from '@mezon/ui';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { AvatarImage } from '@mezon/components';
-import { useWebRTCCall } from '@mezon/core';
-import { IMessageTypeCallLog, createImgproxyUrl, sleep } from '@mezon/utils';
+import { createImgproxyUrl, IMessageTypeCallLog } from '@mezon/utils';
 import { WebrtcSignalingType } from 'mezon-js';
 import type { ReactElement } from 'react';
 import { forwardRef, memo, useEffect, useImperativeHandle, useMemo, useState } from 'react';
@@ -50,7 +48,6 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const avatarImages = currentDmGroup?.avatars || [];
 	const nameImages = currentDmGroup?.display_names || [];
 	const isMuteMicrophone = useSelector(selectIsMuteMicrophone);
-	const isShowShareScreen = useSelector(selectIsShowShareScreen);
 	const isShowMeetDM = useSelector(selectIsShowMeetDM);
 	const isInCall = useSelector(selectIsInCall);
 	const isPlayDialTone = useSelector(selectAudioDialTone);
@@ -72,6 +69,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 
 	const {
 		timeStartConnected,
+		isMyCaller,
 		startCall,
 		handleEndCall,
 		toggleAudio,
@@ -111,7 +109,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 
 	useEffect(() => {
 		if (isPlayBusyTone) {
-			dispatch(toastActions.addToast({ message: `${currentDmGroup.usernames} on another call`, type: 'warning', autoClose: 3000 }));
+			dispatch(toastActions.addToast({ message: `${currentDmGroup?.usernames} on another call`, type: 'warning', autoClose: 3000 }));
 			handleEndCall(true);
 		}
 	}, [isPlayBusyTone]);
@@ -145,12 +143,11 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		dispatch(DMCallActions.setIsInCall(true));
 		dispatch(audioCallActions.setIsRingTone(false));
 		dispatch(DMCallActions.setIsShowMeetDM(isVideoCall));
-		await sleep(1000);
 		await startCall(isVideoCall, isAnswer);
 	};
 
 	const handleCloseCall = async () => {
-		if (!timeStartConnected.current) {
+		if (!timeStartConnected.current && isMyCaller?.current) {
 			await dispatch(
 				DMCallActions.updateCallLog({
 					channelId: dmGroupId || '',
