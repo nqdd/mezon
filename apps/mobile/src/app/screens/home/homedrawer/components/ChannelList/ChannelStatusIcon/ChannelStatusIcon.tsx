@@ -13,16 +13,6 @@ export const ChannelStatusIcon = memo(({ channel, isUnRead }: { channel: Channel
 	return (
 		<>
 			{channel?.channel_private === ChannelStatusEnum.isPrivate &&
-				channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-				!isAgeRestrictedChannel && (
-					<MezonIconCDN
-						icon={IconCDN.channelVoiceLock}
-						height={size.s_18}
-						width={size.s_18}
-						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
-					/>
-				)}
-			{channel?.channel_private === ChannelStatusEnum.isPrivate &&
 				channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 				!isAgeRestrictedChannel && (
 					<MezonIconCDN
@@ -32,7 +22,7 @@ export const ChannelStatusIcon = memo(({ channel, isUnRead }: { channel: Channel
 						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
 					/>
 				)}
-			{channel?.channel_private !== ChannelStatusEnum.isPrivate && channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
+			{channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
 				<MezonIconCDN
 					icon={IconCDN.channelVoice}
 					height={size.s_18}

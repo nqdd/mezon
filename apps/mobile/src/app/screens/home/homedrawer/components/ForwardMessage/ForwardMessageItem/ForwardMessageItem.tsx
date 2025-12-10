@@ -58,13 +58,21 @@ function ForwardMessageItem({
 			case ChannelType.CHANNEL_TYPE_CHANNEL:
 				return (
 					<View style={styles.iconTextContainer}>
-						<Text style={componentStyles.channelHashText}>#</Text>
+						{item?.isChannelPublic ? (
+							<MezonIconCDN icon={IconCDN.channelText} width={16} height={16} color={themeValue.white} />
+						) : (
+							<MezonIconCDN icon={IconCDN.channelTextLock} width={16} height={16} color={themeValue.white} />
+						)}
 					</View>
 				);
 			case ChannelType.CHANNEL_TYPE_THREAD:
 				return (
 					<View style={styles.iconTextContainer}>
-						<MezonIconCDN icon={IconCDN.threadIcon} width={16} height={16} color={themeValue.white} />
+						{item?.isChannelPublic ? (
+							<MezonIconCDN icon={IconCDN.threadIcon} width={16} height={16} color={themeValue.white} />
+						) : (
+							<MezonIconCDN icon={IconCDN.threadLockIcon} width={16} height={16} color={themeValue.white} />
+						)}
 					</View>
 				);
 			default:
