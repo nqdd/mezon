@@ -31,7 +31,7 @@ const AVATAR_DEFAULT = `${process.env.NX_BASE_IMG_URL}/1775731152322039808/18206
 let retryCount = 0;
 const maxRetries = 5;
 const retryInterval = 500;
-const IncomingHomeScreen = memo((props: any) => {
+const IncomingHomeScreen = memo(() => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
@@ -168,10 +168,22 @@ const IncomingHomeScreen = memo((props: any) => {
 		}
 	}, [dispatch, userId]);
 
+	const removeNotifyCalling = async () => {
+		try {
+			const notifyId = 'incoming-call';
+			await loadDataInit();
+			await notifee.deleteChannel(notifyId);
+			await notifee.deleteChannelGroup(notifyId);
+			await notifee.cancelNotification(notifyId, notifyId);
+			await notifee.cancelDisplayedNotification(notifyId, notifyId);
+			await notifee.stopForegroundService();
+			playVibrationAndSound();
+		} catch (error) {
+			playVibrationAndSound();
+		}
+	};
+
 	useEffect(() => {
-		notifee.stopForegroundService();
-		notifee.cancelNotification('incoming-call', 'incoming-call');
-		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 		const timer = setTimeout(() => {
 			if (!isInCall && !isInGroupCall) {
 				onDeniedCall();
@@ -264,15 +276,12 @@ const IncomingHomeScreen = memo((props: any) => {
 	}, [isForceDecline, isSocketConnected, onDeniedCall, signalingData]);
 
 	useEffect(() => {
-		if (props && props?.payload) {
-			playVibrationAndSound();
-			getDataCall();
-		}
-		loadDataInit();
+		removeNotifyCalling();
+		getDataCall();
 		return () => {
 			stopAndReleaseSound();
 		};
-	}, [props]);
+	}, []);
 
 	const onDeniedCallGroup = useCallback(() => {
 		stopAndReleaseSound();
@@ -305,7 +314,7 @@ const IncomingHomeScreen = memo((props: any) => {
 					directMessageId={dataCalling?.channelId}
 					isVideoCall={dataCalling?.isVideoCall}
 					onIsConnected={onIsConnected}
-					receiverAvatar={props?.avatar || dataCalling?.callerAvatar || ''}
+					receiverAvatar={dataCalling?.callerAvatar || ''}
 					receiverName={dataCalling?.callerName || ''}
 				/>
 			)}
