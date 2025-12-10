@@ -3,7 +3,7 @@ import { referencesActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { blankReferenceObj } from '@mezon/utils';
 import classNames from 'classnames';
-import { ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiMessageRef } from 'mezon-js/api.gen';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
@@ -26,7 +26,7 @@ export function ReplyMessageBox({ channelId, dataReferences, className }: Messag
 	const handleRemoveReply = () => {
 		dispatch(
 			referencesActions.setDataReferences({
-				channelId: channelId,
+				channelId,
 				dataReferences: blankReferenceObj
 			})
 		);

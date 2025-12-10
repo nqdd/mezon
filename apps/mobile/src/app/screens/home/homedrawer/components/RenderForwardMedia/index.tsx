@@ -1,5 +1,5 @@
 import { size, useTheme } from '@mezon/mobile-ui';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { NativeModules, Platform, Text, View } from 'react-native';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import ImageNative from '../../../../../components/ImageNative';
@@ -15,6 +15,13 @@ export const RenderForwardMedia = React.memo(({ attachment, count }: any) => {
 
 	const isShowImage = checkFileTypeImage(attachment?.filetype);
 	const checkIsVideo = isVideo(attachment?.url?.toLowerCase());
+
+	const attachmentCount = useMemo(() => {
+		if (count <= 99) {
+			return `+${count}`;
+		}
+		return '99+';
+	}, [count]);
 
 	const generateThumbnailIOS = async (videoPath = '') => {
 		try {
@@ -59,7 +66,7 @@ export const RenderForwardMedia = React.memo(({ attachment, count }: any) => {
 				<ImageNative url={attachment?.url} style={styles.image} />
 				{!!count && (
 					<View style={styles.countOverlay}>
-						<Text style={styles.countText}>+{count}</Text>
+						<Text style={styles.countText}>{attachmentCount}</Text>
 					</View>
 				)}
 			</View>
@@ -69,13 +76,13 @@ export const RenderForwardMedia = React.memo(({ attachment, count }: any) => {
 	if (checkIsVideo) {
 		return (
 			<View style={styles.fileViewer}>
-				<ImageNative url={thumbPath || attachment?.thumbnail_url} style={styles.video} />
+				<ImageNative url={thumbPath || attachment?.thumbnail_url} style={styles.image} />
 				<View style={styles.videoOverlay}>
 					<MezonIconCDN icon={IconCDN.playIcon} color={themeValue.bgViolet} />
 				</View>
 				{!!count && (
 					<View style={styles.countOverlay}>
-						<Text style={styles.countText}>+{count}</Text>
+						<Text style={styles.countText}>{attachmentCount}</Text>
 					</View>
 				)}
 			</View>
@@ -87,7 +94,7 @@ export const RenderForwardMedia = React.memo(({ attachment, count }: any) => {
 			<MezonIconCDN icon={IconCDN.fileIcon} width={size.s_30} height={size.s_30} color={themeValue.bgViolet} />
 			{!!count && (
 				<View style={styles.countOverlay}>
-					<Text style={styles.countText}>+{count}</Text>
+					<Text style={styles.countText}>{attachmentCount}</Text>
 				</View>
 			)}
 		</View>

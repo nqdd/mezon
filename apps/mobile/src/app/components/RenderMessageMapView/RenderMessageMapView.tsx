@@ -1,7 +1,7 @@
 import { useTheme } from '@mezon/mobile-ui';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Linking, Pressable, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { style } from './styles';
@@ -42,7 +42,7 @@ function RenderMessageMapView({ content, avatarUrl, isSelf, senderName }: Render
 	if (!coordinate) return null;
 
 	return (
-		<TouchableOpacity onPress={handlePress} style={styles.card} activeOpacity={0.8}>
+		<Pressable onPress={handlePress} style={styles.card}>
 			<MapView
 				style={styles.map}
 				initialRegion={{
@@ -67,7 +67,7 @@ function RenderMessageMapView({ content, avatarUrl, isSelf, senderName }: Render
 					{isSelf ? t('mapView.yourLocation') : t('mapView.locationOf', { name: senderName || t('mapView.sender') })}
 				</Text>
 			</View>
-		</TouchableOpacity>
+		</Pressable>
 	);
 }
 

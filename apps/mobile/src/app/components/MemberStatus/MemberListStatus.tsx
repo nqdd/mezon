@@ -1,11 +1,12 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import type { DirectEntity } from '@mezon/store-mobile';
 import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
-import type { ChannelMembersEntity, UsersClanEntity } from '@mezon/utils';
+import type { ChannelMembersEntity, IChannel, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -13,10 +14,13 @@ import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import InviteToChannel from '../../screens/home/homedrawer/components/InviteToChannel';
-import { threadDetailContext } from '../ThreadDetail/MenuThreadDetail';
 import { UserInformationBottomSheet } from '../UserInformationBottomSheet';
 import { MemoizedMemberItem } from './MemberItem';
 import style from './style';
+
+interface IMemberListStatusProps {
+	currentChannel: IChannel | DirectEntity;
+}
 
 enum EActionButton {
 	AddMembers = 'Add Members',
@@ -26,10 +30,9 @@ enum EActionButton {
 export const getName = (user: UsersClanEntity) =>
 	user.clan_nick?.toLowerCase() || user.user?.display_name?.toLowerCase() || user.user?.username?.toLowerCase() || '';
 
-export const MemberListStatus = React.memo(() => {
+export const MemberListStatus = memo(({ currentChannel }: IMemberListStatusProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const currentChannel = useContext(threadDetailContext);
 	const navigation = useNavigation<any>();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
 	const channelMembers = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannel?.channel_id));
@@ -48,7 +51,7 @@ export const MemberListStatus = React.memo(() => {
 		return currentChannel?.user_ids?.[0] === currentUserId;
 	}, [currentChannel?.type, currentChannel?.user_ids, currentUserId]);
 
-	const isDMThread = useMemo(() => {
+	const isDM = useMemo(() => {
 		return [ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type);
 	}, [currentChannel]);
 
@@ -64,7 +67,7 @@ export const MemberListStatus = React.memo(() => {
 	}, []);
 
 	const listMembersChannelGroupDM = useMemo(() => {
-		const members = isDMThread ? rawMembers : channelMembers;
+		const members = isDM ? rawMembers : channelMembers;
 
 		if (!members) {
 			return {
@@ -93,7 +96,7 @@ export const MemberListStatus = React.memo(() => {
 			online: onlineUsers?.map((item) => item),
 			offline: offlineUsers?.map((item) => item)
 		};
-	}, [isDMThread, rawMembers, channelMembers]);
+	}, [isDM, rawMembers, channelMembers]);
 
 	const { online, offline } = listMembersChannelGroupDM;
 
@@ -114,9 +117,9 @@ export const MemberListStatus = React.memo(() => {
 
 	const renderMemberItem = useCallback(
 		({ item }) => {
-			return <MemoizedMemberItem onPress={handleUserPress} user={item} creatorChannelId={currentChannel?.creator_id} isDMThread={isDMThread} />;
+			return <MemoizedMemberItem onPress={handleUserPress} user={item} isDM={isDM} currentChannel={currentChannel} />;
 		},
-		[currentChannel?.creator_id, handleUserPress, isDMThread]
+		[currentChannel, handleUserPress, isDM]
 	);
 
 	return (
@@ -139,7 +142,7 @@ export const MemberListStatus = React.memo(() => {
 			{currentChannel?.type !== ChannelType.CHANNEL_TYPE_DM ? (
 				<Pressable
 					onPress={() => {
-						handleAddOrInviteMembers(isDMThread ? EActionButton.AddMembers : EActionButton.InviteMembers);
+						handleAddOrInviteMembers(isDM ? EActionButton.AddMembers : EActionButton.InviteMembers);
 					}}
 				>
 					<View style={styles.inviteBtn}>
@@ -148,7 +151,7 @@ export const MemberListStatus = React.memo(() => {
 								<MezonIconCDN icon={IconCDN.userPlusIcon} height={20} width={20} color={baseColor.white} />
 							</View>
 							<Text style={styles.textInvite}>
-								{isDMThread ? actionButtons[EActionButton.AddMembers] : actionButtons[EActionButton.InviteMembers]}
+								{isDM ? actionButtons[EActionButton.AddMembers] : actionButtons[EActionButton.InviteMembers]}
 							</Text>
 						</View>
 						<View>
@@ -161,7 +164,7 @@ export const MemberListStatus = React.memo(() => {
 			{(online?.length > 0 || offline?.length > 0) && !isChatWithMyself ? (
 				<SectionList
 					sections={
-						isDMThread
+						isDM
 							? [{ title: t('common:members'), data: [...(online ?? []), ...(offline ?? [])], key: 'onlineMembers' }]
 							: [
 									{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
@@ -173,12 +176,13 @@ export const MemberListStatus = React.memo(() => {
 					renderSectionHeader={({ section: { title } }) => {
 						return (
 							<Text style={styles.text}>
-								{title} -
-								{isDMThread
-									? (online?.length ?? 0) + (offline?.length ?? 0)
-									: title === t('common:onlines')
-										? online?.length
-										: offline?.length}
+								{`${title} - ${
+									isDM
+										? (online?.length ?? 0) + (offline?.length ?? 0)
+										: title === t('common:onlines')
+											? online?.length
+											: offline?.length
+								}`}
 							</Text>
 						);
 					}}

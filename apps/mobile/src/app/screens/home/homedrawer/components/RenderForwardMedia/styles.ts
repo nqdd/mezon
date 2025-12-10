@@ -4,8 +4,8 @@ import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		fileViewer: {
-			width: size.s_60,
-			height: size.s_60,
+			width: size.s_50,
+			height: size.s_50,
 			alignItems: 'center',
 			justifyContent: 'center',
 			borderRadius: size.s_6,
@@ -36,7 +36,7 @@ export const style = (colors: Attributes) =>
 			position: 'absolute',
 			height: size.s_20,
 			width: size.s_20,
-			borderRadius: size.s_10,
+			borderRadius: size.s_4,
 			right: -size.s_2,
 			bottom: -size.s_2,
 			alignItems: 'center',
@@ -44,17 +44,12 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.bgViolet
 		},
 		countText: {
-			fontSize: size.small,
+			fontSize: size.s_10,
 			color: baseColor.white
 		},
 		image: {
-			width: size.s_60,
-			height: size.s_60,
-			borderRadius: size.s_6
-		},
-		video: {
-			width: size.s_60,
-			height: size.s_60,
+			width: size.s_50,
+			height: size.s_50,
 			borderRadius: size.s_6
 		}
 	});
