@@ -1,6 +1,9 @@
+import { useInvite } from '@mezon/core';
+import { clansActions, useAppDispatch } from '@mezon/store';
 import { Icons, Image } from '@mezon/ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface IFirstJoinPopup {
 	onclose: () => void;
@@ -11,14 +14,23 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 	const { t } = useTranslation('common');
 	const [inputValue, setInputValue] = useState('');
 	const [error, setError] = useState(false);
-	const handleJoinClan = () => {
+	const navigate = useNavigate();
+	const { inviteUser } = useInvite();
+	const dispatch = useAppDispatch();
+
+	const handleJoinClan = async () => {
 		//mezon.ai
 		const url = `${process.env.NX_DOMAIN_URL}/invite/`;
 		const lengthInviteCode = 19;
 		if (inputValue.startsWith(url) && inputValue.length === url.length + lengthInviteCode) {
 			const idInvite = inputValue.split('/').pop();
 			if (idInvite && idInvite.length === lengthInviteCode && idInvite.match('\\d+')) {
-				window.open(inputValue, '_blank');
+				await inviteUser(idInvite).then((res) => {
+					if (res?.channel_id && res?.clan_id) {
+						navigate(`/chat/clans/${res.clan_id}/channels/${res.channel_id}`);
+					}
+				});
+				dispatch(clansActions.fetchClans({ noCache: true }));
 			}
 		} else {
 			setError(true);
