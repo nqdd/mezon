@@ -1,9 +1,13 @@
-import { useAppNavigation, useEventManagementQuantity, usePathMatch, usePermissionChecker } from '@mezon/core';
+import { useAppNavigation, useEventManagementQuantity, useOnClickOutside, usePathMatch, usePermissionChecker } from '@mezon/core';
 import type { EventManagementOnGogoing } from '@mezon/store';
 import {
+	channelAppActions,
 	channelsActions,
 	clansActions,
 	eventManagementActions,
+	getStore,
+	selectAppChannelsList,
+	selectChannelById,
 	selectCurrentChannelId,
 	selectCurrentClanId,
 	selectCurrentClanIsOnboarding,
@@ -20,7 +24,9 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { DONE_ONBOARDING_STATUS, EPermission, generateE2eId } from '@mezon/utils';
-import { memo, useCallback, useMemo } from 'react';
+import isElectron from 'is-electron';
+import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -183,6 +189,7 @@ export const Events = memo(() => {
 					</div>
 				</Link>
 			) : null}
+			<ChannelAppList />
 		</>
 	);
 });
@@ -248,6 +255,156 @@ const OnboardingGetStart = ({ link, clanId }: { link: string; clanId: string }) 
 				></div>
 			</div>
 			<hr className="absolute bottom-1 left-0 h-[0.08px] w-full " />
+		</div>
+	);
+};
+
+const NUMBER_APPS_SHOW_OFF = 4;
+const NUMBER_APPS_IN_ROW = 4;
+const ChannelAppList = memo(() => {
+	const allChannelApp = useSelector(selectAppChannelsList);
+	const expandRef = useRef<HTMLDivElement>(null);
+	const dispatch = useAppDispatch();
+	const showList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(0, NUMBER_APPS_SHOW_OFF) : allChannelApp;
+	const menuList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(NUMBER_APPS_SHOW_OFF, allChannelApp.length) : [];
+	const showRef = useRef<boolean>(false);
+
+	const handleCloseListApp = (event: Event) => {
+		if (expandRef.current?.contains(event.target as Node)) {
+			return;
+		}
+		if (showRef.current) closeListApp();
+		showRef.current = false;
+	};
+
+	const handleOpenApp = async (appChannel: ApiChannelAppResponse) => {
+		if (appChannel.app_id && appChannel.app_url && appChannel.channel_id) {
+			const hashData = await dispatch(
+				channelAppActions.generateAppUserHash({
+					appId: appChannel.app_id
+				})
+			).unwrap();
+			if (hashData.web_app_data) {
+				const store = getStore();
+				const channel = selectChannelById(store.getState(), appChannel.channel_id);
+				const encodedHash = encodeURIComponent(hashData.web_app_data);
+				const urlWithHash = `${appChannel.app_url}?data=${encodedHash}`;
+				if (isElectron()) {
+					window.electron.launchAppWindow(urlWithHash);
+					return;
+				}
+				window.open(urlWithHash, channel.channel_label, 'width=900,height=700');
+			}
+		}
+	};
+	const [openListApp, closeListApp] = useModal(() => {
+		const rect = expandRef.current?.getBoundingClientRect();
+
+		return (
+			<div
+				style={{
+					top: rect?.top,
+					left: rect?.left && rect?.left + 60,
+					width: menuList.length >= NUMBER_APPS_IN_ROW ? 200 : menuList.length * 40 + (menuList.length - 1) * 8 + 16,
+					height: Math.ceil(menuList.length / NUMBER_APPS_IN_ROW) * 40 + (Math.ceil(menuList.length / NUMBER_APPS_IN_ROW) - 1) * 8 + 16
+				}}
+				className="fixed h-44 bg-theme-pop rounded-lg"
+			>
+				<ListChannelApp menuList={menuList} onClose={handleCloseListApp} handleOpenApp={handleOpenApp} />
+			</div>
+		);
+	}, [allChannelApp, menuList, handleCloseListApp, handleOpenApp]);
+
+	const handleOpenListApp = () => {
+		if (showRef.current) {
+			return;
+		}
+		openListApp();
+		showRef.current = true;
+	};
+	if (!allChannelApp.length) {
+		return null;
+	}
+
+	return (
+		<>
+			<hr className="w-full ml-[3px] border-t-theme-primary" />
+			<div className="grow w-full flex-row items-center justify-center gap-2 flex py-1">
+				{showList.map((item) => (
+					<div
+						className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
+						onClick={() => handleOpenApp(item)}
+					>
+						{item.app_logo ? (
+							<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
+						) : (
+							<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+								<g>
+									<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
+									<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
+									<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
+									<path
+										d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
+		c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l2.1-2.1l2.1,2.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3
+		c0.4-0.4,0.4-1,0-1.4L24.4,23l2.1-2.1C26.9,20.5,26.9,19.9,26.5,19.5z"
+									/>
+								</g>
+							</svg>
+						)}
+					</div>
+				))}
+				{allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 && (
+					<div
+						ref={expandRef}
+						className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
+						onClick={handleOpenListApp}
+					>
+						<Icons.RightIcon defaultSize="w-6 h-6" />
+					</div>
+				)}
+			</div>
+		</>
+	);
+});
+
+const ListChannelApp = ({
+	onClose,
+	menuList,
+	handleOpenApp
+}: {
+	onClose: (event: Event) => void;
+	menuList: ApiChannelAppResponse[];
+	handleOpenApp: (appChannel: ApiChannelAppResponse) => Promise<void>;
+}) => {
+	const panelRef = useRef<HTMLDivElement | null>(null);
+
+	useOnClickOutside(panelRef, onClose);
+
+	return (
+		<div ref={panelRef} className="w-full h-full flex flex-wrap gap-2 p-2">
+			{menuList.map((item) => (
+				<div
+					className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
+					onClick={() => handleOpenApp(item)}
+				>
+					{item.app_logo ? (
+						<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
+					) : (
+						<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+							<g>
+								<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
+								<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
+								<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
+								<path
+									d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
+		c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l2.1-2.1l2.1,2.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3
+		c0.4-0.4,0.4-1,0-1.4L24.4,23l2.1-2.1C26.9,20.5,26.9,19.9,26.5,19.5z"
+								/>
+							</g>
+						</svg>
+					)}
+				</div>
+			))}
 		</div>
 	);
 };
