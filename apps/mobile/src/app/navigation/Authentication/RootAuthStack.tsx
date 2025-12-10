@@ -11,6 +11,7 @@ import AppBrowser from '../../screens/auth/AppBrowser';
 import HomeScreenTablet from '../../screens/home/HomeScreenTablet';
 import ChannelAppScreen from '../../screens/home/homedrawer/ChannelApp';
 import HomeDefaultWrapper from '../../screens/home/homedrawer/HomeDefaultWrapper';
+import ChannelAppShowAll from '../../screens/home/homedrawer/components/ChannelList/ChannelAppsListing/ChannelAppShowAll';
 import ChannelRouterListener from '../../screens/home/homedrawer/components/ChannelList/ChannelRouterListener';
 import RemoveNotificationListener from '../../screens/home/homedrawer/components/ChannelList/RemoveNotificationListener';
 import InstallClanScreen from '../../screens/installClan/InstallClanScreen';
@@ -160,6 +161,7 @@ export const RootAuthStack = memo(
 						}}
 					/>
 					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP} component={ChannelAppScreen} />
+					<RootStack.Screen name={APP_SCREEN.CHANNEL_APP_SHOW_ALL} component={ChannelAppShowAll} />
 					<RootStack.Screen name={APP_SCREEN.APP_BROWSER} component={AppBrowser} />
 					<RootStack.Screen name={APP_SCREEN.WALLET} component={WalletScreen} />
 					<RootStack.Screen
