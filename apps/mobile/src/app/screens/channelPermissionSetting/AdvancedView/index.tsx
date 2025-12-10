@@ -1,5 +1,12 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { fetchUserChannels, rolesClanActions, selectAllUserChannel, selectRolesByChannelId, useAppDispatch } from '@mezon/store-mobile';
+import {
+	fetchUserChannels,
+	rolesClanActions,
+	selectAllUserClans,
+	selectRolesByChannelId,
+	selectUserChannelIds,
+	useAppDispatch
+} from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { memo, useCallback, useEffect, useMemo } from 'react';
@@ -18,9 +25,13 @@ export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedView
 	const styles = stylesFn(themeValue);
 	const navigation = useNavigation<any>();
 	const { t } = useTranslation('channelSetting');
+	const allClanMembers = useSelector(selectAllUserClans);
 	const listOfChannelRole = useSelector(selectRolesByChannelId(channel?.channel_id));
-	const allUserInChannel = useSelector(selectAllUserChannel(channel?.channel_id));
 	const dispatch = useAppDispatch();
+	const listChannelMemberIds = useSelector((state) => selectUserChannelIds(state, channel.channel_id));
+	const allUserInChannel = useMemo(() => {
+		return allClanMembers?.filter((member) => listChannelMemberIds?.includes(member?.user?.id));
+	}, [allClanMembers, listChannelMemberIds]);
 
 	useEffect(() => {
 		dispatch(rolesClanActions.fetchRolesClan({ clanId: channel?.clan_id }));

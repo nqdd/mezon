@@ -40,7 +40,7 @@ const ParticipantItem = memo(
 		const { t } = useTranslation(['channelVoice']);
 
 		const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
-		const voiceUsername = member?.clan_nick || member?.user?.display_name || username;
+		const voiceUsername = member?.clan_nick || member?.user?.display_name || member?.user?.username || '';
 		const avatar = useMemo(() => {
 			return member?.clan_avatar || member?.user?.avatar_url || '';
 		}, [member]);

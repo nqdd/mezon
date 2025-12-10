@@ -213,14 +213,6 @@ const persistedPinMsgReducer = persistReducer(
 	pinMessageReducer
 );
 
-const persistedDefaultNotiClanReducer = persistReducer(
-	{
-		key: 'defaultnotificationclan',
-		storage
-	},
-	defaultNotificationClanReducer
-);
-
 const persistedDefaultNotiCatReducer = persistReducer(
 	{
 		key: 'defaultnotificationcategory',
@@ -344,7 +336,7 @@ const reducer = {
 	[OVERRIDDEN_POLICIES_FEATURE_KEY]: overriddenPoliciesReducer,
 	notificationsetting: notificationSettingReducer,
 	pinmessages: persistedPinMsgReducer,
-	defaultnotificationclan: persistedDefaultNotiClanReducer,
+	defaultnotificationclan: defaultNotificationClanReducer,
 	defaultnotificationcategory: persistedDefaultNotiCatReducer,
 	notichannelcategorysetting: persistedChannelCatSettingReducer,
 	hashtagdm: persistedHashTagDmReducer,

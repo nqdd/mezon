@@ -243,7 +243,7 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 							<p className="uppercase font-bold text-xs pb-4">{t('addMembersRoles.members')}</p>
 							<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.modal.member_list')}>
 								<ListMembers
-									listItem={filterItem.listMembersNotInChannel}
+									listItem={listUserInvite}
 									selectedUserIds={selectedUserIds}
 									handleCheckboxUserChange={handleCheckboxUserChange}
 								/>

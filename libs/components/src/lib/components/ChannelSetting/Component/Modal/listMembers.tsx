@@ -1,24 +1,24 @@
 import { Icons } from '@mezon/ui';
+import type { UsersClanEntity } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId, getAvatarForPrioritize, getNameForPrioritize } from '@mezon/utils';
-import type { ApiUser } from 'mezon-js/api.gen';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 
 type ListMembersProps = {
-	listItem: (ApiUser | undefined)[];
+	listItem: UsersClanEntity[];
 	selectedUserIds: string[];
 	handleCheckboxUserChange: (event: React.ChangeEvent<HTMLInputElement>, userId: string) => void;
 };
 
 const ListMembers = (props: ListMembersProps) => {
 	const { listItem, selectedUserIds, handleCheckboxUserChange } = props;
-	return listItem.map((user: any) => (
+	return listItem.map((user: UsersClanEntity) => (
 		<ItemMember
 			key={user?.id}
-			username={user?.username}
-			displayName={user?.display_name}
-			clanAvatar={user.clanAvatar}
-			avatar={user?.avatar_url}
-			clanName={user.clanNick}
+			username={user?.user?.username}
+			displayName={user?.user?.display_name}
+			clanAvatar={user.clan_avatar}
+			avatar={user?.clan_avatar || user.user?.avatar_url}
+			clanName={user.clan_nick}
 			checked={selectedUserIds.includes(user?.id || '')}
 			onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheckboxUserChange(event, user?.id || '')}
 		/>

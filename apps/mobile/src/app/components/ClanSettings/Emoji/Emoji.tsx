@@ -6,7 +6,7 @@ import { LIMIT_SIZE_UPLOAD_IMG, MAX_CLAN_ITEM_SLOTS } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import { Buffer as BufferMobile } from 'buffer';
 import type { ApiClanEmojiCreateRequest } from 'mezon-js/api.gen';
-import { useCallback, useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Dimensions, Platform, Pressable, Text, View } from 'react-native';
 import { Image as ImageCompressor } from 'react-native-compressor';
@@ -32,6 +32,7 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 	const { sessionRef, clientRef } = useMezon();
 	const { t } = useTranslation(['clanEmojiSetting', 'common']);
 	const emojiList = useAppSelector((state) => selectEmojiByClanId(state, currentClanId || ''));
+	const isPickerOpenRef = useRef(false);
 
 	useLayoutEffect(() => {
 		navigation.setOptions({
@@ -79,7 +80,13 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 			});
 			return;
 		}
+
+		if (isPickerOpenRef.current) {
+			return;
+		}
+
 		try {
+			isPickerOpenRef.current = true;
 			const selectedFile = await openPicker({
 				mediaType: 'photo',
 				includeBase64: true,
@@ -98,10 +105,8 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 
 			let croppedFile;
 			if (isGif) {
-				// For GIFs, don't crop to preserve animation
 				croppedFile = selectedFile;
 			} else {
-				// For other images, apply cropping and compression
 				croppedFile = await openCropper({
 					path: selectedFile.path,
 					mediaType: 'photo',
@@ -123,6 +128,8 @@ export function ClanEmojiSetting({ navigation }: MenuClanScreenProps<ClanSetting
 					text1: 'Error uploading emoji'
 				});
 			}
+		} finally {
+			isPickerOpenRef.current = false;
 		}
 	};
 
