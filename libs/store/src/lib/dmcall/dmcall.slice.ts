@@ -25,6 +25,7 @@ export interface DMCallState extends EntityState<DMCallEntity, string> {
 	isInCall: boolean;
 	otherCall: IOtherCall | null;
 	callMessageId: string;
+	isForceQuitCallNative: boolean;
 }
 
 export const DMCallAdapter = createEntityAdapter<DMCallEntity>();
@@ -62,7 +63,8 @@ export const initialDMCallState: DMCallState = DMCallAdapter.getInitialState({
 	localStream: null,
 	isInCall: false,
 	otherCall: null,
-	callMessageId: ''
+	callMessageId: '',
+	isForceQuitCallNative: false
 });
 
 export const DMCallSlice = createSlice({
@@ -117,6 +119,9 @@ export const DMCallSlice = createSlice({
 		},
 		setCallMessageId: (state, action) => {
 			state.callMessageId = action.payload;
+		},
+		setIsForceQuitCallNative(state, action) {
+			state.isForceQuitCallNative = action.payload;
 		}
 		// ...
 	}
@@ -195,3 +200,5 @@ export const selectIsInCall = createSelector(getDMCallState, (state) => state.is
 export const selectOtherCall = createSelector(getDMCallState, (state) => state.otherCall);
 
 export const selectCallMessageId = createSelector(getDMCallState, (state) => state.callMessageId);
+
+export const selectIsForceQuitCallNative = createSelector(getDMCallState, (state) => state.isForceQuitCallNative);
