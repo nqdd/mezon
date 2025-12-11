@@ -800,7 +800,7 @@ export const fetchChannels = createAsyncThunk(
 				const channels = response.channeldesc.map((channel) => ({
 					...mapChannelToEntity(channel),
 					last_seen_message: channel.last_seen_message ? channel.last_seen_message : { timestamp_seconds: 0 },
-					clan_name: clanData.clan_name || ''
+					clan_name: clanData?.clan_name || ''
 				}));
 				thunkAPI.dispatch(listChannelsByUserActions.upsertMany(channels));
 				const [favorChannels, listCategory] = await Promise.all([
