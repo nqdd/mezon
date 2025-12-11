@@ -1430,14 +1430,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					channel_label: channelCreated.channel_label,
 					channel_private: channelCreated.channel_private,
 					type: channelCreated.channel_type,
-					//status: channelCreated.status,
 					app_id: channelCreated.app_id,
 					clan_id: channelCreated.clan_id
 				};
 				dispatch(listChannelRenderAction.addThreadToListRender({ clanId: channelCreated?.clan_id as string, channel: thread }));
 			}
 
-			if (channelCreated.channel_private === 1 && !channelCreated.parent_id) {
+			if (channelCreated.channel_private === 1 && channelCreated.channel_type === ChannelType.CHANNEL_TYPE_CHANNEL) {
 				dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
 			}
 		}
@@ -1508,6 +1507,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					channel_type: channelCreated.channel_type,
 					creator_id: channelCreated.creator_id,
 					app_id: channelCreated.app_id
+				})
+			);
+		}
+
+		if (channelCreated.channel_type === ChannelType.CHANNEL_TYPE_DM) {
+			dispatch(
+				directActions.upsertOne({
+					id: channelCreated.channel_id,
+					channel_label: channelCreated.channel_label,
+					type: channelCreated.channel_type,
+					active: 1
 				})
 			);
 		}
