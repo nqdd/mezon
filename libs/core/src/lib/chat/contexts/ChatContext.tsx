@@ -2246,8 +2246,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	);
 
 	const onwebrtcsignalingfwd = useCallback(async (event: WebrtcSignalingFwd) => {
+		// Define type 50 for clear call on all platforms
+		const WEBRTC_CLEAR_CALL = 50;
 		// Handle Group Call Events (>= 9)
-		if (event.data_type >= 9) {
+		if (event.data_type >= 9 && event.data_type !== WEBRTC_CLEAR_CALL) {
 			const store = await getStoreAsync();
 			const state = store.getState() as unknown as RootState;
 
@@ -2281,7 +2283,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			);
 			return;
 		}
-		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT || event.data_type === WEBRTC_CLEAR_CALL) {
 			dispatch(DMCallActions.removeAll());
 			dispatch(audioCallActions.reset());
 			dispatch(DMCallActions.cancelCall({}));
@@ -2289,6 +2291,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(audioCallActions.setUserCallId(''));
 			dispatch(audioCallActions.setIsJoinedCall(false));
 			dispatch(DMCallActions.setOtherCall({}));
+			if (event.data_type !== WEBRTC_CLEAR_CALL) {
+				socketRef.current?.forwardWebrtcSignaling(event?.caller_id, WEBRTC_CLEAR_CALL, '', event?.channel_id, userId || '');
+			} else if (event.data_type === WEBRTC_CLEAR_CALL) {
+				// Force quit call for android
+				dispatch(DMCallActions.setIsForceQuitCallNative(true));
+			}
 		}
 		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_INIT) {
 			dispatch(audioCallActions.setIsJoinedCall(true));
@@ -2307,7 +2315,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			return;
 		}
 
-		if (signalingType <= 8) {
+		if (signalingType <= 8 || event.data_type === WEBRTC_CLEAR_CALL) {
 			dispatch(
 				DMCallActions.addOrUpdate({
 					calleeId: event?.receiver_id,
