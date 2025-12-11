@@ -6,7 +6,7 @@ import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEventEmitter, View } from 'react-native';
 import { ImageListModal } from '../../../../../components/ImageListModal';
-import { checkFileTypeImage, isImage, isVideo } from '../../../../../utils/helpers';
+import { checkFileTypeImage, checkFileTypeVideo, isImage, isVideo } from '../../../../../utils/helpers';
 import { RenderDocumentsChat } from '../RenderDocumentsChat';
 import { RenderImageChat } from '../RenderImageChat';
 import { RenderVideoChat } from '../RenderVideoChat';
@@ -100,10 +100,17 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 					/>
 				);
 			}
-			const checkIsVideo = isVideo(document?.url?.toLowerCase());
+			const checkIsVideo = isVideo(document?.url?.toLowerCase()) || checkFileTypeVideo(document?.filetype);
 
 			if (checkIsVideo) {
-				return <RenderVideoChat key={`${document?.url}_${index}`} videoURL={document.url} onLongPress={() => onLongPressImage(document)} />;
+				return (
+					<RenderVideoChat
+						key={`${document?.url}_${index}`}
+						videoURL={document.url}
+						onLongPress={() => onLongPressImage(document)}
+						thumbnailPreview={document?.thumbnail}
+					/>
+				);
 			}
 
 			return (

@@ -11,6 +11,7 @@ export const isImage = (url?: string) => {
 };
 
 export const checkFileTypeImage = (type: string) => type?.startsWith('image/');
+export const checkFileTypeVideo = (type: string) => type?.startsWith('video/');
 
 export const isVideo = (url?: string) => {
 	return /\.(mp4|webm|mov|mkv)/.test(url);
