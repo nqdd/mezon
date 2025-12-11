@@ -58,8 +58,7 @@ import {
 	processBoldEntities,
 	processEntitiesDirectly,
 	processMarkdownEntities,
-	searchMentionsHashtag,
-	threadError
+	searchMentionsHashtag
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
@@ -281,8 +280,23 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		async (checkedRequest: RequestInput, anonymousMessage?: boolean) => {
 			//TODO: break logic send width thread box, channel, topic box, dm
 			if (props.isThread && !nameValueThread?.trim() && !props.isTopic && !threadCurrentChannel) {
-				dispatch(threadsActions.setNameThreadError(threadError.name));
+				dispatch(threadsActions.setNameThreadError(t('channelTopbar:createThread.validation.threadNameRequired')));
+				updateDraft?.({
+					valueTextInput: '',
+					content: '',
+					mentionRaw: [],
+					entities: []
+				});
+
 				return;
+			}
+
+			if (props.isThread && !threadCurrentChannel) {
+				const hasContent = checkedRequest.content?.trim() || checkedRequest.valueTextInput?.trim();
+				if (!hasContent && !checkAttachment) {
+					dispatch(threadsActions.setMessageThreadError(t('channelTopbar:createThread.validation.starterMessageRequired')));
+					return;
+				}
 			}
 
 			const store = getStore();
@@ -560,17 +574,17 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				mentionData?.length === 0
 			) {
 				if (!nameValueThread?.trim() && props.isThread && !threadCurrentChannel) {
-					dispatch(threadsActions.setMessageThreadError(threadError.message));
-					dispatch(threadsActions.setNameThreadError(threadError.name));
+					dispatch(threadsActions.setMessageThreadError(t('channelTopbar:createThread.validation.starterMessageRequired')));
+					dispatch(threadsActions.setNameThreadError(t('channelTopbar:createThread.validation.threadNameRequired')));
 					return;
 				}
 				if (props.isThread && !threadCurrentChannel) {
-					dispatch(threadsActions.setMessageThreadError(threadError.message));
+					dispatch(threadsActions.setMessageThreadError(t('channelTopbar:createThread.validation.starterMessageRequired')));
 				}
 				return;
 			}
 			if (!nameValueThread?.trim() && props.isThread && !props.isTopic && !threadCurrentChannel && !openThreadMessageState) {
-				dispatch(threadsActions.setNameThreadError(threadError.name));
+				dispatch(threadsActions.setNameThreadError(t('channelTopbar:createThread.validation.threadNameRequired')));
 				return;
 			}
 			if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0 && addMemberToThread) {
@@ -786,7 +800,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 		const previousPlainText = prevPlainTextRef.current;
 		const newMentions = entities?.filter((item) => item.type === ApiMessageEntityTypes.MentionName) || [];
 
-		dispatch(threadsActions.setMessageThreadError(''));
 		if (isEphemeralMode && newMentions.length > 0) {
 			const selectedUser = newMentions[0] as { userId?: string; offset: number; length: number };
 			if (selectedUser) {
@@ -1053,6 +1066,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					maxHistorySize={50}
 					hasFilesToSend={attachmentData.length > 0}
 					currentChannelId={props.currentChannelId}
+					allowEmptySend={props.allowEmptySend}
 				>
 					<Mention
 						trigger="@"

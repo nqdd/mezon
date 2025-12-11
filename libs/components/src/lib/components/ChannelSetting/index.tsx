@@ -65,7 +65,7 @@ const SettingChannel = (props: ModalSettingProps) => {
 
 	useEffect(() => {
 		dispatch(fetchUserChannels({ channelId: channel.channel_id as string }));
-	}, [channel.channel_id, dispatch]);
+	}, [channel?.channel_id]);
 
 	const closeMenu = useSelector(selectCloseMenu);
 

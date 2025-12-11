@@ -49,8 +49,8 @@ export const DEFAULT_ID = '0';
 export const LIMIT = 50;
 
 export const threadError: ThreadError = {
-	name: 'Thread Name is required',
-	message: 'Starter Message is required'
+	name: 'channelTopbar:createThread.validation.threadNameRequired',
+	message: 'channelTopbar:createThread.validation.starterMessageRequired'
 };
 
 export const titleMission = ['Send a message in', 'Visit a channel', 'Do anything you want'];

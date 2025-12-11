@@ -1448,6 +1448,7 @@ export type MentionReactInputProps = {
 		ephemeralReceiverId?: string,
 		senderId?: string
 	) => void;
+	allowEmptySend?: boolean;
 };
 
 export type IOtherCall = {
