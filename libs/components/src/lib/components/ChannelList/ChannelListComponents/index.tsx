@@ -293,7 +293,7 @@ const ChannelAppList = memo(() => {
 					window.electron.launchAppWindow(urlWithHash);
 					return;
 				}
-				window.open(urlWithHash, channel.channel_label, 'width=900,height=700');
+				window.open(urlWithHash, channel?.channel_label, 'width=900,height=700');
 			}
 		}
 	};
