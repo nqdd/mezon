@@ -43,6 +43,10 @@ export default function openUrl(url, customCallback) {
 
 export const checkUrl = async (url: string, clanId: string, channelId: string) => {
 	const store = getStore();
+	if (!clanId || !channelId) {
+		Linking.openURL(url);
+		return;
+	}
 	const userClan = selectClanById(clanId)(store.getState() as RootState);
 	if (userClan?.id) {
 		const response = await store.dispatch(channelsActions.fetchChannels({ clanId: userClan?.id, noCache: true }));
