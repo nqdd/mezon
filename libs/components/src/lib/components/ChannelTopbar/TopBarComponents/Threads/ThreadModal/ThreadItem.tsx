@@ -1,3 +1,4 @@
+import { AvatarImage } from '@mezon/components';
 import { useAppNavigation } from '@mezon/core';
 import type { ChannelsEntity, ThreadsEntity } from '@mezon/store';
 import {
@@ -12,7 +13,6 @@ import {
 } from '@mezon/store';
 import type { ChannelMembersEntity, IChannelMember } from '@mezon/utils';
 import { convertTimeMessage, createImgproxyUrl, generateE2eId } from '@mezon/utils';
-import { AvatarImage } from '@mezon/components';
 import type { MutableRefObject } from 'react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +44,6 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id || thread?.creator_id) as string)
 	) as IChannelMember;
 	const { avatarImg, username } = useMessageSender(user);
-
 
 	const getRandomElements = (array: ChannelMembersEntity[], count: number) => {
 		const result: ChannelMembersEntity[] = [];
@@ -88,10 +87,6 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 		setIsShowThread();
 	};
 
-
-
-
-
 	return (
 		<div
 			onClick={() => handleLinkThread(thread.channel_id as string, thread.clan_id || '')}
@@ -115,7 +110,7 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 							src={user?.clan_avatar || avatarImg}
 						/>
 						<span className="max-w-[150px] overflow-hidden text-ellipsis whitespace-nowrap text-[#17AC86] text-sm font-semibold leading-4">
-							{user?.clan_nick ?? user?.user?.display_name ?? username}:&nbsp;
+							{user?.clan_nick || user?.user?.display_name || username}:&nbsp;
 						</span>
 						<div className="overflow-hidden max-w-[140px]">
 							<ThreadModalContent message={message} thread={thread as ChannelsEntity} />
@@ -148,6 +143,5 @@ const ThreadItem = ({ thread, setIsShowThread, isPublicThread = false, preventCl
 		</div>
 	);
 };
-
 
 export default ThreadItem;
