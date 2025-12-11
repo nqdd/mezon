@@ -1,21 +1,20 @@
-import type { ChannelsEntity } from '@mezon/store-mobile';
-import type { HashtagDm } from 'mezon-js';
-import { ChannelStreamMode, ChannelType } from 'mezon-js';
+import { type ChannelsEntity } from '@mezon/store-mobile';
+import { ChannelStreamMode, ChannelType, HashtagDm } from 'mezon-js';
 
 type IChannelHashtag = {
 	channelHashtagId: string;
 	currentChannelId?: string;
-	hashtagDmEntities?: Record<string, HashtagDm>;
-	channelsEntities: Record<string, ChannelsEntity>;
+	hashtagDmEntity?: HashtagDm;
+	channelEntity: ChannelsEntity;
 	mode?: number;
 };
-export const ChannelHashtag = ({ channelHashtagId, currentChannelId, mode, hashtagDmEntities, channelsEntities }: IChannelHashtag) => {
+export const ChannelHashtag = ({ channelHashtagId, currentChannelId, mode, hashtagDmEntity, channelEntity }: IChannelHashtag) => {
 	const getChannelById = (channelHashtagId: string): ChannelsEntity => {
 		let channel;
 		if (currentChannelId && [ChannelStreamMode.STREAM_MODE_DM].includes(mode)) {
-			channel = hashtagDmEntities?.[channelHashtagId];
+			channel = hashtagDmEntity;
 		} else {
-			channel = channelsEntities[channelHashtagId];
+			channel = channelEntity;
 		}
 		if (channel) {
 			return channel;
