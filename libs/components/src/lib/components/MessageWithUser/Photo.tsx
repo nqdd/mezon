@@ -1,22 +1,25 @@
 import type { ApiMediaExtendedPreview, ApiPhoto, IMediaDimensions, ObserveFn } from '@mezon/utils';
-import {
-	MIN_MEDIA_HEIGHT,
-	SHOW_POSITION,
-	buildClassName,
-	calculateMediaDimensions,
-	createImgproxyUrl,
-	getMediaFormat,
-	getMediaTransferState,
-	getPhotoMediaHash,
-	useBlurredMediaThumbRef,
-	useIsIntersecting,
-	useMediaTransition,
-	useMediaWithLoadProgress,
-	usePreviousDeprecated,
-	useShowTransition
-} from '@mezon/utils';
-import { useCallback, useRef, useState } from 'react';
+import { MIN_MEDIA_HEIGHT, SHOW_POSITION, buildClassName, calculateMediaDimensions, createImgproxyUrl, useIsIntersecting } from '@mezon/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMessageContextMenu } from '../ContextMenu';
+
+const loadedMediaUrls = new Map<string, boolean>();
+const urlQueue: string[] = [];
+const MAX_LOADED_CACHE = 500;
+
+const rememberLoadedUrl = (url: string) => {
+	if (loadedMediaUrls.has(url)) return;
+
+	loadedMediaUrls.set(url, true);
+	urlQueue.push(url);
+
+	if (urlQueue.length > MAX_LOADED_CACHE) {
+		const oldestUrl = urlQueue.shift();
+		if (oldestUrl) {
+			loadedMediaUrls.delete(oldestUrl);
+		}
+	}
+};
 
 export type OwnProps<T> = {
 	id?: string;
@@ -76,15 +79,12 @@ const Photo = <T,>({
 	isMobile
 }: OwnProps<T>) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const isPaidPreview = photo.mediaType === 'extendedMediaPreview';
-	const localBlobUrl = (photo as any).blobUrl;
 
 	const isIntersecting = useIsIntersecting(ref, observeIntersection);
 
 	const { setImageURL, setPositionShow } = useMessageContextMenu();
 
-	const [isLoadAllowed, setIsLoadAllowed] = useState(canAutoLoad);
-	const shouldLoad = isLoadAllowed && isIntersecting;
+	const shouldLoad = canAutoLoad && isIntersecting;
 
 	const { width: realWidth, height: realHeight } = photo;
 	const hasZeroDimension = !realWidth || !realHeight;
@@ -118,46 +118,53 @@ const Photo = <T,>({
 		return 'fill';
 	})();
 
-	const { mediaData, loadProgress } = useMediaWithLoadProgress(createImgproxyUrl(photo.url ?? '', { width, height, resizeType }), !isIntersecting);
-	const fullMediaData = localBlobUrl || mediaData;
+	const [fullMediaData, setFullMediaData] = useState<string | undefined>();
 
-	const withBlurredBackground = Boolean(forcedWidth);
-	const [withThumb] = useState(!fullMediaData);
-	const noThumb = Boolean(fullMediaData);
-	const thumbRef = useBlurredMediaThumbRef(photo, false);
-	useMediaTransition(!noThumb, { ref: thumbRef, className: 'fast' });
-	const blurredBackgroundRef = useBlurredMediaThumbRef(photo, !withBlurredBackground);
+	useEffect(() => {
+		if (!shouldLoad || !photo.url) {
+			return;
+		}
 
-	const { loadProgress: downloadProgress } = useMediaWithLoadProgress(
-		!isPaidPreview ? getPhotoMediaHash(photo, 'download') : undefined,
-		!isDownloading,
-		!isPaidPreview ? getMediaFormat(photo, 'download') : undefined
-	);
+		const targetUrl = createImgproxyUrl(photo.url, { width, height, resizeType });
+		const image = new Image();
+		let canceled = false;
 
-	const { isUploading, isTransferring, transferProgress } = getMediaTransferState(
-		uploadProgress || (isDownloading ? downloadProgress : loadProgress),
-		shouldLoad && !fullMediaData,
-		uploadProgress !== undefined
-	);
+		if (loadedMediaUrls.has(targetUrl)) {
+			setFullMediaData(targetUrl);
+			return () => {
+				canceled = true;
+			};
+		}
 
-	const wasLoadDisabled = usePreviousDeprecated(isLoadAllowed) === false;
+		setFullMediaData(undefined);
 
-	const { ref: spinnerRef, shouldRender: shouldRenderSpinner } = useShowTransition({
-		isOpen: isTransferring,
-		noMountTransition: wasLoadDisabled,
-		className: 'fast',
-		withShouldRender: true,
-		isSending
-	});
+		image.onload = () => {
+			if (!canceled) {
+				setFullMediaData(targetUrl);
+				rememberLoadedUrl(targetUrl);
+			}
+		};
 
-	const { ref: downloadButtonRef, shouldRender: shouldRenderDownloadButton } = useShowTransition({
-		isOpen: !fullMediaData && !isLoadAllowed,
-		withShouldRender: true
-	});
+		image.onerror = () => {
+			if (!canceled) {
+				setFullMediaData(undefined);
+			}
+		};
+
+		image.src = targetUrl;
+
+		return () => {
+			canceled = true;
+			image.onload = null;
+			image.onerror = null;
+		};
+	}, [height, photo.url, resizeType, shouldLoad, width]);
+
+	const shouldRenderSkeleton = !fullMediaData && !isSending;
 
 	const componentClassName = buildClassName(
 		'media-inner',
-		!isUploading && !nonInteractive && 'interactive',
+		!nonInteractive && 'interactive',
 		isSmall && 'small-image',
 		(width === height || size === 'pictogram') && 'square-image',
 		height < MIN_MEDIA_HEIGHT && 'fix-min-height',
@@ -177,6 +184,9 @@ const Photo = <T,>({
 				}
 			: undefined;
 
+	const displayWidth = forcedWidth || width || 150;
+	const displayHeight = height || 150;
+
 	const handleContextMenu = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
 		setImageURL(photo?.url ?? '');
 		setPositionShow(SHOW_POSITION.NONE);
@@ -195,29 +205,26 @@ const Photo = <T,>({
 				onClick?.(photo?.url, id);
 			}}
 		>
-			{withBlurredBackground && <canvas ref={blurredBackgroundRef} className="thumbnail blurred-bg" />}
 			{fullMediaData && (
 				<img
 					onContextMenu={handleContextMenu}
 					src={fullMediaData}
-					className={`max-w-full max-h-full w-full h-full block object-cover absolute bottom-0 left-0 z-[1] rounded overflow-hidden cursor-pointer ${withBlurredBackground && 'with-blurred-bg'}`}
+					className={`max-w-full max-h-full w-full h-full block object-cover absolute bottom-0 left-0 z-[1] rounded overflow-hidden cursor-pointer`}
 					alt=""
-					style={{ width: forcedWidth || width || 'auto' }}
+					style={{ width: displayWidth }}
 					draggable={!isProtected}
 				/>
 			)}
-			{!isSending && withThumb && (
-				<canvas
-					style={{ width, height }}
-					ref={thumbRef}
-					className="max-w-full max-h-full block object-cover absolute bottom-0 left-0 rounded overflow-hidden will-change-opacity"
+			{!isSending && shouldRenderSkeleton && (
+				<div
+					style={{ width: displayWidth, height: displayHeight }}
+					className="max-w-full max-h-full absolute bottom-0 left-0 rounded-md bg-[#0000001c] animate-pulse"
 				/>
 			)}
 			{isProtected && <span className="protector" />}
-			{((shouldRenderSpinner && !shouldRenderDownloadButton) || isSending) && (
+			{isSending && (
 				<div
-					ref={spinnerRef as any}
-					style={{ width, height }}
+					style={{ width: displayWidth, height: displayHeight }}
 					className={`${!photo.thumbnail?.dataUri ? 'bg-[#0000001c]' : ''} max-w-full max-h-full absolute bottom-0 left-0 flex items-center justify-center bg-muted/30 backdrop-blur-[2px] rounded-md z-[3]`}
 					aria-hidden="true"
 				></div>
