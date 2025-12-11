@@ -63,6 +63,10 @@ button.bg-button-add-friend {
 	background: var(--bg-tertiary);
 }
 
+.border-color-primary {
+	border-color: var(--border-primary);
+}
+
 .border-base-text-primary {
 	border-color: var(--text-theme-primary);
 }

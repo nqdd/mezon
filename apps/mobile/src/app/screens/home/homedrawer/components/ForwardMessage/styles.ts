@@ -126,7 +126,8 @@ export const style = (colors: Attributes) =>
 		},
 		containerSendMessage: {
 			paddingHorizontal: size.s_16,
-			paddingVertical: size.s_12,
+			paddingTop: size.s_12,
+			paddingBottom: size.s_16,
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
