@@ -10,7 +10,7 @@ import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
 import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
-import { Bounce } from 'react-native-animated-spinkit';
+import { Bounce, Chase } from 'react-native-animated-spinkit';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
 import NotificationPreferences from '../../utils/NotificationPreferences';
@@ -36,6 +36,7 @@ const IncomingHomeScreen = memo(() => {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const [isInCall, setIsInCall] = React.useState(false);
+	const [isLoadingJoinCall, setIsLoadingJoinCall] = React.useState(false);
 	const [isForceAnswer, setIsForceAnswer] = React.useState(false);
 	const [isForceDecline, setIsForceDecline] = React.useState(false);
 	const [isInGroupCall, setIsInGroupCall] = React.useState(false);
@@ -219,6 +220,7 @@ const IncomingHomeScreen = memo(() => {
 	};
 
 	const onJoinCall = async () => {
+		setIsLoadingJoinCall(true);
 		save(STORAGE_LATEST_CALL_CACHE, '{}');
 		if (Platform.OS === 'android') {
 			try {
@@ -227,18 +229,18 @@ const IncomingHomeScreen = memo(() => {
 				console.error('Error calling native methods:', error);
 			}
 		}
-		const tryHandleICECandidate = async () => {
+		const tryHandleOffer = async () => {
 			if (callDetailRef?.current) {
-				await callDetailRef.current?.handleICECandidate?.();
+				await callDetailRef.current?.handleOffer?.();
 				return true;
 			}
 			return false;
 		};
-		const success = await tryHandleICECandidate();
+		const success = await tryHandleOffer();
 		if (!success) {
 			const retryTimer = setInterval(async () => {
 				retryCount++;
-				const retrySuccess = await tryHandleICECandidate();
+				const retrySuccess = await tryHandleOffer();
 
 				if (retrySuccess || retryCount >= maxRetries || !!callDetailRef?.current) {
 					clearInterval(retryTimer);
@@ -256,7 +258,12 @@ const IncomingHomeScreen = memo(() => {
 				onJoinCall();
 			}
 
-			if (signalingData?.[signalingData?.length - 1]?.signalingData.data_type === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+			const latestType = signalingData?.[signalingData.length - 1]?.signalingData?.data_type;
+			if (
+				latestType === WebrtcSignalingType.WEBRTC_SDP_QUIT ||
+				latestType === WebrtcSignalingType.WEBRTC_ICE_CANDIDATE ||
+				latestType === WebrtcSignalingType.WEBRTC_SDP_INIT
+			) {
 				NotificationPreferences?.clearValue?.('notificationDataCalling');
 				stopAndReleaseSound();
 				onKillApp();
@@ -369,7 +376,13 @@ const IncomingHomeScreen = memo(() => {
 							</TouchableOpacity>
 
 							<TouchableOpacity onPress={onJoinCall}>
-								<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
+								{isLoadingJoinCall ? (
+									<View style={styles.answerCallLoading}>
+										<Chase size={size.s_50} color={baseColor.bgSuccess} />
+									</View>
+								) : (
+									<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
+								)}
 							</TouchableOpacity>
 						</View>
 					)}
