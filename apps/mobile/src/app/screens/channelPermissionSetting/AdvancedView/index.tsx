@@ -36,7 +36,7 @@ export const AdvancedView = memo(({ isAdvancedEditMode, channel }: IAdvancedView
 	useEffect(() => {
 		dispatch(rolesClanActions.fetchRolesClan({ clanId: channel?.clan_id }));
 		dispatch(fetchUserChannels({ channelId: channel?.channel_id }));
-	}, [channel?.channel_id, channel?.clan_id]);
+	}, [channel?.channel_id, channel?.clan_id, dispatch]);
 
 	const listOfRoleAndMemberInChannel = useMemo(() => {
 		if ((!listOfChannelRole?.length && !allUserInChannel?.length) || !channel?.channel_private) {

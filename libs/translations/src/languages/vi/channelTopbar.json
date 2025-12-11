@@ -140,7 +140,9 @@
 		"newThread": "Chủ đề mới",
 		"inviteMessage": "Bạn có thể mời người mới bằng cách @nhắc đến họ.",
 		"validation": {
-			"invalidChannelName": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ chữ, số, _ hoặc -)."
+			"invalidChannelName": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ chữ, số, _ hoặc -).",
+			"threadNameRequired": "Tên chủ đề là bắt buộc.",
+			"starterMessageRequired": "Tin nhắn khởi tạo là bắt buộc."
 		},
 		"threadName": "Tên chủ đề",
 		"enterThreadName": "Nhập tên chủ đề",

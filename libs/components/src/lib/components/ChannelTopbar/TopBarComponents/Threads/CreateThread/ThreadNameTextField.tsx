@@ -1,5 +1,5 @@
 import { selectNameThreadError, threadsActions, useAppDispatch } from '@mezon/store';
-import { ValidateSpecialCharacters, generateE2eId, threadError } from '@mezon/utils';
+import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import type { KeyboardEvent } from 'react';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,11 +33,11 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 		(event: KeyboardEvent<HTMLTextAreaElement> | KeyboardEvent<HTMLInputElement>) => {
 			const element = event.target as HTMLInputElement;
 			if (!(element.value || '').trim()) {
-				dispatch(threadsActions.setNameThreadError(threadError.name));
+				dispatch(threadsActions.setNameThreadError(t('createThread.validation.threadNameRequired')));
 			}
 			onKeyDown(event);
 		},
-		[dispatch, onKeyDown]
+		[dispatch, onKeyDown, t]
 	);
 
 	return (
@@ -47,15 +47,15 @@ const ThreadNameTextField = ({ label, placeholder, value, className, onChange, o
 				value={value}
 				onChange={handleInputChange}
 				type="text"
-				placeholder={t('createThread.placeholder.threadName')}
+				placeholder={placeholder ?? t('createThread.placeholder.threadName')}
 				className={className}
 				onKeyDown={handleKeyDown}
 				maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 				data-e2e={generateE2eId('chat.channel_message.thread_box.input.thread_name')}
 			/>
-			{nameThreadError && <span className="mt-1 text-[#e44141] text-xs italic font-thin">{nameThreadError}</span>}
+			{nameThreadError && <span className="mt-1 text-sm font-medium text-[#e44141]">{nameThreadError}</span>}
 			{checkValidate && value.length > 0 && (
-				<span className="mt-1 text-[#e44141] text-xs italic font-thin">{t('createThread.validation.invalidChannelName')}</span>
+				<span className="mt-1 text-sm font-medium text-[#e44141]">{t('createThread.validation.invalidChannelName')}</span>
 			)}
 		</div>
 	);

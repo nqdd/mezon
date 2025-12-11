@@ -1,6 +1,7 @@
 import { size, useTheme } from '@mezon/mobile-ui';
+import { getStore, selectMemberClanByUserId } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import { getSrcEmoji, getSrcSound, UsersClanEntity } from '@mezon/utils';
+import { getSrcEmoji, getSrcSound } from '@mezon/utils';
 import type { VoiceReactionSend } from 'mezon-js';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Platform, Text, View } from 'react-native';
@@ -46,7 +47,6 @@ interface ReactProps {
 	channelId: string;
 	isAnimatedCompleted: boolean;
 	onSoundReaction: (senderId: string, soundId: string) => void;
-	allUserClans: UsersClanEntity[];
 }
 
 // Memoized emoji component for better performance
@@ -75,7 +75,7 @@ const AnimatedEmoji = memo(({ item, styles }: { item: EmojiItem; styles: any }) 
 
 AnimatedEmoji.displayName = 'AnimatedEmoji';
 
-export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSoundReaction, allUserClans }: ReactProps) => {
+export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSoundReaction }: ReactProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [displayedEmojis, setDisplayedEmojis] = useState<EmojiItem[]>([]);
@@ -262,7 +262,8 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 							onSoundReaction(senderId, soundId);
 						}
 					} else {
-						const members = allUserClans.find((item) => item.id === senderId);
+						const store = getStore();
+						const members = selectMemberClanByUserId(store.getState?.(), senderId);
 						const displayName = members?.clan_nick || members?.user?.display_name || members?.user?.username || '';
 
 						createAndAnimateEmoji(emojiId, displayName);
@@ -274,7 +275,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 				displayedCountRef.current = Math.max(0, displayedCountRef.current - 1);
 			}
 		},
-		[allUserClans, channelId, createAndAnimateEmoji, onSoundReaction, playSound]
+		[channelId, createAndAnimateEmoji, onSoundReaction, playSound]
 	);
 
 	// Effect for socket handling with proper cleanup

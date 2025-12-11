@@ -1,31 +1,33 @@
+import type { DirectEntity } from '@mezon/store';
 import { useAppSelector } from '@mezon/store';
-import { ChannelMembersEntity, selectCurrentClanCreatorId } from '@mezon/store-mobile';
-import { UsersClanEntity } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/store-mobile';
+import { selectCurrentClanCreatorId } from '@mezon/store-mobile';
+import type { IChannel, UsersClanEntity } from '@mezon/utils';
 import { memo } from 'react';
 import { Pressable } from 'react-native';
 import { MemberProfile } from '../MemberProfile';
 
-interface IProps {
-	user: ChannelMembersEntity;
-	onPress?: (user: ChannelMembersEntity) => void;
-	creatorChannelId?: string;
-	isDMThread?: boolean;
+interface IMemberItemProps {
+	user: ChannelMembersEntity | UsersClanEntity;
+	isDM: boolean;
+	onPress: (user: ChannelMembersEntity) => void;
+	currentChannel: IChannel | DirectEntity;
 }
 
-type MemberItemProps = {
+interface IMemoizedMemberItemProps {
 	user: ChannelMembersEntity | UsersClanEntity;
-	isDMThread?: boolean;
-	onPress?: (user: ChannelMembersEntity) => void;
-	creatorChannelId?: string;
-};
+	isDM: boolean;
+	onPress: (user: ChannelMembersEntity) => void;
+	currentChannel: IChannel | DirectEntity;
+}
 
-export const MemoizedMemberItem = memo((props: MemberItemProps) => {
+export const MemoizedMemberItem = memo((props: IMemoizedMemberItemProps) => {
 	const { user, ...rest } = props;
 
 	return <MemberItem {...rest} user={user} />;
 });
 
-export const MemberItem = memo(({ user, onPress, creatorChannelId, isDMThread }: IProps) => {
+export const MemberItem = memo(({ user, isDM, onPress, currentChannel }: IMemberItemProps) => {
 	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
 
 	return (
@@ -34,14 +36,7 @@ export const MemberItem = memo(({ user, onPress, creatorChannelId, isDMThread }:
 				onPress(user);
 			}}
 		>
-			<MemberProfile
-				user={user}
-				numCharCollapse={30}
-				nickName={user?.clan_nick}
-				creatorClanId={currentClanCreatorId}
-				creatorDMId={creatorChannelId}
-				isDMThread={isDMThread}
-			/>
+			<MemberProfile user={user} creatorClanId={currentClanCreatorId} currentChannel={currentChannel} isDM={isDM} />
 		</Pressable>
 	);
 });

@@ -63,8 +63,12 @@ button.bg-button-add-friend {
 	background: var(--bg-tertiary);
 }
 
-.border-color-primary {
-	border-color: var(--border-primary);
+.border-base-text-primary {
+	border-color: var(--text-theme-primary);
+}
+
+.border-base-text-primary-active:hover {
+	border-color: var(--text-secondary);
 }
 
 .bg-button-hover {
@@ -377,8 +381,8 @@ input.bg-theme-input-primary::placeholder {
 	background: var(--bg-markdown-code);
 }
 .btn-primary {
-  background: var(--button-theme-primary);
-  color: white;
+	background: var(--button-theme-primary);
+	color: white;
 }
 .btn-primary-hover:hover {
 	background: var(--bg-button-primary-hover);

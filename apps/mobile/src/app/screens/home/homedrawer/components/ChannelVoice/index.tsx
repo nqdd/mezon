@@ -1,7 +1,7 @@
 import type { TrackReference } from '@livekit/react-native';
 import { AudioSession, LiveKitRoom, useConnectionState } from '@livekit/react-native';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { selectAllUserClans, selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
+import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, BackHandler, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -121,7 +121,6 @@ function ChannelVoice({
 	const channelId = useMemo(() => {
 		return voiceInfo?.channelId;
 	}, [voiceInfo]);
-	const allUserClans = useSelector(selectAllUserClans, (_a, _b) => true);
 
 	const { handleSoundReaction, activeSoundReactions } = useSoundReactions();
 	const clanId = useMemo(() => {
@@ -273,12 +272,7 @@ function ChannelVoice({
 					/>
 					<ConnectionMonitor />
 					{!isGroupCall && !isPiPMode && isAnimationComplete && (
-						<CallReactionHandler
-							channelId={channelId}
-							isAnimatedCompleted={isAnimationComplete}
-							onSoundReaction={handleSoundReaction}
-							allUserClans={allUserClans}
-						/>
+						<CallReactionHandler channelId={channelId} isAnimatedCompleted={isAnimationComplete} onSoundReaction={handleSoundReaction} />
 					)}
 					<RoomView
 						channelId={channelId}
@@ -289,7 +283,6 @@ function ChannelVoice({
 						isGroupCall={isGroupCall}
 						participantsCount={participantsCount}
 						activeSoundReactions={activeSoundReactions}
-						allUserClans={allUserClans}
 					/>
 				</LiveKitRoom>
 			</View>

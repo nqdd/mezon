@@ -33,7 +33,8 @@ const style = (colors: Attributes) =>
 		channelRow: {
 			flexDirection: 'row',
 			gap: size.s_10,
-			alignItems: 'center'
+			alignItems: 'center',
+			flexShrink: 1
 		},
 		channelInfo: {
 			flexDirection: 'row',
@@ -46,6 +47,9 @@ const style = (colors: Attributes) =>
 			gap: size.s_10,
 			alignItems: 'center',
 			justifyContent: 'space-between'
+		},
+		channelNameWrapper: {
+			flexShrink: 1
 		}
 	});
 

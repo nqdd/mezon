@@ -35,7 +35,6 @@ type ModalUserProfileProps = {
 	isFooterProfile?: boolean;
 	classWrapper?: string;
 	classBanner?: string;
-	hiddenRole?: boolean;
 	showNote?: boolean;
 	message?: IMessageWithUser;
 	showPopupLeft?: boolean;
@@ -70,7 +69,6 @@ const ModalUserProfile = ({
 	isFooterProfile,
 	classWrapper,
 	classBanner,
-	hiddenRole,
 	showNote,
 	message,
 	showPopupLeft,
@@ -287,10 +285,10 @@ const ModalUserProfile = ({
 					{isFooterProfile ? (
 						<StatusProfile userById={userProfile?.user as ChannelMembersEntity} isDM={isDM} modalRef={modalRef} onClose={onClose} />
 					) : (
-						mode !== 4 && mode !== 3 && !hiddenRole && userById && <RoleUserProfile userID={userID} />
+						mode !== 4 && mode !== 3 && !isDM && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !hiddenRole && !checkAnonymous && !isUserRemoved && !isBlockUser && userById ? (
+					{userID !== '0' && !checkAnonymous && !isUserRemoved && !isBlockUser && userById ? (
 						userById?.user?.username ? (
 							<div className="w-full items-center mt-2">
 								<input
