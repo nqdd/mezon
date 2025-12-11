@@ -45,7 +45,7 @@ import {
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
-import React, { Fragment, useCallback, useMemo, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -276,10 +276,19 @@ const ThreadBox = () => {
 	);
 
 	const handleTyping = useCallback(() => {
+		if (messageThreadError) {
+			dispatch(threadsActions.setMessageThreadError(''));
+		}
+
 		sendMessageTyping();
-	}, [sendMessageTyping]);
+	}, [dispatch, messageThreadError, sendMessageTyping]);
 
 	const handleTypingDebounced = useThrottledCallback(handleTyping, 1000);
+
+	useEffect(() => {
+		dispatch(threadsActions.setMessageThreadError(''));
+		dispatch(threadsActions.setNameThreadError(''));
+	}, [dispatch]);
 
 	const handleChildContextMenu = (event: React.MouseEvent) => {
 		event.stopPropagation();
@@ -333,7 +342,7 @@ const ThreadBox = () => {
 			const mentionInput = threadBoxRef.current?.querySelector<HTMLElement>(`#${CHANNEL_INPUT_ID}`);
 
 			if (!mentionInput?.innerHTML) {
-				toast.warning(t('createThread.toast.initialMessageRequired'));
+				dispatch(threadsActions.setMessageThreadError(t('createThread.validation.starterMessageRequired')));
 				return;
 			}
 
@@ -346,7 +355,7 @@ const ThreadBox = () => {
 				})
 			);
 		},
-		[t]
+		[dispatch, t]
 	);
 
 	return (
@@ -407,7 +416,20 @@ const ThreadBox = () => {
 				</div>
 			)}
 
-			{messageThreadError && !threadCurrentChannel && <span className="text-xs text-[#B91C1C] mt-1 ml-1">{messageThreadError}</span>}
+			{messageThreadError && !threadCurrentChannel && (
+				<div className="mx-4 mb-2">
+					<div className="flex items-center gap-2 text-white px-3 py-2 rounded-md">
+						<div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" color="#e44141" xmlns="http://www.w3.org/2000/svg">
+								<circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+								<path d="M10 6V11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+								<circle cx="10" cy="14" r="1" fill="currentColor" />
+							</svg>
+						</div>
+						<span className="text-sm font-medium text-[#e44141]">{messageThreadError}</span>
+					</div>
+				</div>
+			)}
 
 			{checkAttachment && (
 				<div
@@ -435,7 +457,7 @@ const ThreadBox = () => {
 				className={`flex-shrink-0 flex flex-col ${isElectron() ? 'pb-[36px]' : 'pb-4'} px-3  h-auto relative ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}`}
 			>
 				<div
-					className={`h-fit w-full bg-transparent shadow-md rounded-lg min-h-[45px] ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'}`}
+					className={`h-fit w-full bg-transparent shadow-md rounded-lg min-h-[45px] ${checkAttachment ? 'rounded-t-none' : 'rounded-t-lg'} ${messageThreadError && !threadCurrentChannel ? 'border-[#B91C1C]' : ''}`}
 				>
 					{!threadCurrentChannel ? (
 						<div className={`w-full border-none rounded-r-lg gap-3 relative whitespace-pre-wrap`} onContextMenu={handleChildContextMenu}>
@@ -450,6 +472,7 @@ const ThreadBox = () => {
 								})}
 								isThread={true}
 								isThreadbox={true}
+								allowEmptySend={true}
 							/>
 						</div>
 					) : (

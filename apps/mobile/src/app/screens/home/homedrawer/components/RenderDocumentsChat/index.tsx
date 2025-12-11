@@ -23,7 +23,7 @@ export const RenderDocumentsChat = React.memo(({ document, onLongPress, onPressI
 	const checkIsVideo = isVideo(document?.url?.toLowerCase());
 
 	if (checkIsVideo) {
-		return <RenderVideoChat videoURL={document.url} onLongPress={onLongPress} />;
+		return <RenderVideoChat videoURL={document.url} onLongPress={onLongPress} thumbnailPreview={document?.thumbnail} />;
 	}
 	const checkIsAudio = document.filetype?.includes(EMimeTypes.audio) || isAudio(document?.url?.toLowerCase());
 	if (checkIsAudio) {

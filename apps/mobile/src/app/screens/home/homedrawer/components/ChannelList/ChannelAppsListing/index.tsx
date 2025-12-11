@@ -1,8 +1,9 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectAppChannelsList } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
@@ -15,7 +16,7 @@ import { style } from './styles';
 const ChannelAppsListing = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const [categoryExpandState, setCategoryExpandState] = useState<boolean>(true);
+	const { t } = useTranslation('textchannel');
 	const allChannelApp = useSelector(selectAppChannelsList);
 	const navigation = useNavigation<any>();
 
@@ -40,10 +41,6 @@ const ChannelAppsListing = () => {
 		[openChannelApp]
 	);
 
-	const toggleCollapse = useCallback(() => {
-		setCategoryExpandState((prevState) => !prevState);
-	}, []);
-
 	if (!allChannelApp || allChannelApp.length === 0) {
 		return null;
 	}
@@ -56,33 +53,18 @@ const ChannelAppsListing = () => {
 				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<TouchableOpacity activeOpacity={0.8} onPress={() => toggleCollapse()} style={styles.channelListHeader}>
-				<View style={styles.channelListHeaderItem}>
-					<MezonIconCDN
-						icon={IconCDN.chevronDownSmallIcon}
-						height={size.s_18}
-						width={size.s_18}
-						color={themeValue.text}
-						customStyle={[!categoryExpandState && { transform: [{ rotate: '-90deg' }] }]}
-					/>
-					<Text style={styles.channelListHeaderItemTitle} numberOfLines={1}>
-						CHANNEL APPS
-					</Text>
-				</View>
-				<TouchableOpacity style={styles.btnSeeAll} onPress={handleOpenAll}>
-					<Text style={styles.openAllText}>See all</Text>
-				</TouchableOpacity>
+			<TouchableOpacity style={styles.btnSeeAll} onPress={handleOpenAll}>
+				<Text style={styles.openAllText}>{t('discover.viewAll')}</Text>
+				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_14} width={size.s_14} color={baseColor.blurple} />
 			</TouchableOpacity>
-			{categoryExpandState && (
-				<FlatList
-					data={allChannelApp?.slice(0, 10)}
-					renderItem={renderItem}
-					horizontal
-					showsHorizontalScrollIndicator={false}
-					contentContainerStyle={styles.listContent}
-					keyExtractor={(item) => item.channel_id}
-				/>
-			)}
+			<FlatList
+				data={allChannelApp?.slice(0, 10)}
+				renderItem={renderItem}
+				horizontal
+				showsHorizontalScrollIndicator={false}
+				contentContainerStyle={styles.listContent}
+				keyExtractor={(item) => item.channel_id}
+			/>
 		</View>
 	);
 };

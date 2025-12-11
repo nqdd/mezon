@@ -18,12 +18,25 @@ export const MessageAudio: React.FC<MessageAudioProps> = React.memo(({ audioUrl,
 			audioControlRef.current.togglePlay();
 		}
 	};
-	const handleSaveImage = () => {
-		const link = document.createElement('a');
-		link.href = audioUrl;
-		link.download = 'audio-file.mp3';
-		link.click();
-		link.remove();
+	const handleSaveImage = async () => {
+		try {
+			const res = await fetch(audioUrl);
+			if (!res.ok) throw new Error('Cannot fetch file');
+
+			const blob = await res.blob();
+			const blobUrl = URL.createObjectURL(blob);
+
+			const link = document.createElement('a');
+			link.href = blobUrl;
+			link.download = 'audio-file.mp3';
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+
+			URL.revokeObjectURL(blobUrl);
+		} catch (err) {
+			console.error('Download failed:', err);
+		}
 	};
 
 	return (

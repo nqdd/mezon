@@ -3,7 +3,6 @@ import { selectAppChannelsList } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,7 +16,6 @@ import { style } from './styles';
 const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-	const { t } = useTranslation(['common']);
 	const allChannelApp = useSelector(selectAppChannelsList);
 	const nav = useNavigation<any>();
 
@@ -51,11 +49,7 @@ const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 							<Text style={styles.appItemName} numberOfLines={1}>
 								{item?.app_name || 'Unnamed App'}
 							</Text>
-							{/*{!!item?.app_description && (*/}
-							{/*	<Text style={styles.appItemDescription} numberOfLines={2}>*/}
-							{/*		{item?.app_description}*/}
-							{/*	</Text>*/}
-							{/*)}*/}
+							{/*<Text style={styles.appItemDescription} numberOfLines={2}></Text>*/}
 						</View>
 					</View>
 					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_20} width={size.s_20} color={themeValue.textDisabled} />
@@ -89,7 +83,7 @@ const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 				</TouchableOpacity>
 				<Text style={styles.title}>
 					<Text style={styles.mezonBold}>Mezon</Text>
-					<Text style={styles.subtitle}> channel app</Text>
+					<Text style={styles.subtitle}> Miniapps</Text>
 				</Text>
 			</View>
 			<FlatList
