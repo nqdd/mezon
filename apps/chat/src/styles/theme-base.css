@@ -398,3 +398,6 @@ input.bg-theme-input-primary::placeholder {
 .border-color-avatar {
 	border-color: var(--border-color-avatar);
 }
+.bg-tooltip-channelapp {
+	background: var(--bg-tooltip-app) ;
+}

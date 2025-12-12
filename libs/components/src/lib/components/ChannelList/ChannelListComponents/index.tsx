@@ -26,14 +26,13 @@ import { Icons } from '@mezon/ui';
 import { DONE_ONBOARDING_STATUS, EPermission, generateE2eId } from '@mezon/utils';
 import isElectron from 'is-electron';
 import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
-import Tooltip from 'rc-tooltip';
 import { memo, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { CustomTooltip } from '../../ToolTip';
 import EventModal from '../EventChannelModal';
-
 export const Events = memo(() => {
 	const { t } = useTranslation('channelList');
 	const ongoingEvent = useSelector(selectOngoingEvent);
@@ -328,16 +327,11 @@ const ChannelAppList = memo(() => {
 	return (
 		<>
 			<hr className="w-full ml-[3px] border-t-theme-primary" />
-			<div className="grow w-full flex-row items-center justify-center gap-2 flex py-2">
+			<div className="grow w-full flex-row items-center justify-center gap-2 flex py-1">
 				{showList.map((item) => (
-					<Tooltip
-						key={item.app_id}
-						placement="top"
-						overlay={<span className="text-theme-primary text-sm font-medium block truncate max-w-[100px]">{item.app_name}</span>}
-						overlayClassName="rc-tooltip-channelapp"
-					>
+					<CustomTooltip key={item.app_id} text={item.app_name || ''}>
 						<div
-							className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-11 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
+							className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
 							onClick={() => handleOpenApp(item)}
 						>
 							{item.app_logo ? (
@@ -357,7 +351,7 @@ const ChannelAppList = memo(() => {
 								</svg>
 							)}
 						</div>
-					</Tooltip>
+					</CustomTooltip>
 				))}
 				{allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 && (
 					<div

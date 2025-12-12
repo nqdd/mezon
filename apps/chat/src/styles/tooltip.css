@@ -215,34 +215,3 @@
 .notification-tooltip .rc-tooltip-arrow {
 	display: none !important;
 }
-
-.rc-tooltip-channelapp {
-	opacity: 1 !important;	
-}
-
-.rc-tooltip-channelapp .rc-tooltip-content {
-	background: var(--bg-tooltip-app) !important;
-	border-radius: 8px;
-	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
-}
-
-.rc-tooltip-channelapp .rc-tooltip-inner {
-	background: var(--bg-tooltip-app) !important;
-	border-radius: 8px;
-	padding: 8px 12px;
-	box-shadow: none;
-	font-size: 14px;
-	font-weight: 500;
-	min-height: unset;
-	border-width: 1px;
-	border-style: solid;
-	border-color: var(--border-primary);
-}
-
-.rc-tooltip-channelapp.rc-tooltip-placement-top .rc-tooltip-arrow {
-	border-top-color: var(--bg-tooltip-app) !important;
-}
-
-.rc-tooltip-channelapp .rc-tooltip-arrow-content {
-	background-color: var(--bg-tooltip-app) !important;
-}
