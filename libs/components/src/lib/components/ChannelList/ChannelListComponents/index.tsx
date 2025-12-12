@@ -385,7 +385,7 @@ const ListChannelApp = ({
 	return (
 		<div ref={panelRef} className="w-full h-full flex flex-col">
 			<div className="px-4 py-3 bg-item-theme rounded-tl-lg rounded-tr-lg">
-				<h3 className="text-base font-semibold text-theme-primary">Channel App</h3>
+				<h3 className="text-base font-semibold text-theme-primary">Channel Apps</h3>
 			</div>
 			<div className="flex-1 px-4 py-2 overflow-y-auto bg-theme-setting-primary thread-scroll">
 				<div className="grid grid-cols-4 gap-2">
