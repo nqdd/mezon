@@ -266,7 +266,6 @@ const ChannelAppList = memo(() => {
 	const expandRef = useRef<HTMLDivElement>(null);
 	const dispatch = useAppDispatch();
 	const showList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(0, NUMBER_APPS_SHOW_OFF) : allChannelApp;
-	const menuList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(NUMBER_APPS_SHOW_OFF, allChannelApp.length) : [];
 	const showRef = useRef<boolean>(false);
 
 	const handleCloseListApp = (event: Event) => {
@@ -308,10 +307,10 @@ const ChannelAppList = memo(() => {
 				}}
 				className="fixed w-[360px] h-[420px] bg-theme-setting-primary  border-theme-primary shadow-lg z-50 rounded-lg"
 			>
-				<ListChannelApp menuList={menuList} onClose={handleCloseListApp} handleOpenApp={handleOpenApp} />
+				<ListChannelApp onClose={handleCloseListApp} handleOpenApp={handleOpenApp} />
 			</div>
 		);
-	}, [allChannelApp, menuList, handleCloseListApp, handleOpenApp]);
+	}, [allChannelApp, handleCloseListApp, handleOpenApp]);
 
 	const handleOpenListApp = () => {
 		if (showRef.current) {
@@ -376,15 +375,13 @@ const ChannelAppList = memo(() => {
 
 const ListChannelApp = ({
 	onClose,
-	menuList,
 	handleOpenApp
 }: {
 	onClose: (event: Event) => void;
-	menuList: ApiChannelAppResponse[];
 	handleOpenApp: (appChannel: ApiChannelAppResponse) => Promise<void>;
 }) => {
 	const panelRef = useRef<HTMLDivElement | null>(null);
-
+	const allChannelApp = useSelector(selectAppChannelsList);
 	useOnClickOutside(panelRef, onClose);
 
 	const handleFindChannelApp = () => {
@@ -398,7 +395,7 @@ const ListChannelApp = ({
 			</div>
 			<div className="flex-1 px-4 py-2 overflow-y-auto bg-theme-setting-primary thread-scroll">
 				<div className="grid grid-cols-4 gap-2">
-					{menuList.map((item) => (
+					{allChannelApp.map((item) => (
 						<div
 							key={item.app_id}
 							className="text-theme-primary text-theme-primary-hover rounded-md p-2 flex flex-col items-center justify-center cursor-pointer bg-item-hover gap-1"
