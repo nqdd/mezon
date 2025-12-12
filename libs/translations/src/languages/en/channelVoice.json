@@ -34,5 +34,13 @@
 			"deleted": "The voice channel has been deleted"
 		},
 		"confirm": "Confirm"
+	},
+	"permission": {
+		"cameraTitle": "Grant camera permission",
+		"cameraBody": "We do not have access to your camera. Please enable camera access in your system settings.",
+		"microphoneTitle": "Grant microphone permission",
+		"microphoneBody": "We do not have access to your microphone. Please enable microphone access in your system settings.",
+		"cancel": "Cancel",
+		"deviceSettings": "Device Settings"
 	}
 }

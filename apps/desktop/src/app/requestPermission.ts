@@ -1,35 +1,84 @@
-import { dialog, ipcMain, shell, systemPreferences } from 'electron';
+import { ipcMain, shell, systemPreferences } from 'electron';
 
-import { REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from './events/constants';
+import { CHECK_PERMISSION_CAMERA, CHECK_PERMISSION_MICROPHONE, REQUEST_PERMISSION_CAMERA, REQUEST_PERMISSION_MICROPHONE } from './events/constants';
 
 export default function setupRequestPermission() {
-	ipcMain.handle(REQUEST_PERMISSION_MICROPHONE, async () => {
-		const microphoneAsk = await systemPreferences.askForMediaAccess('microphone');
-		if (!microphoneAsk) {
-			const { response } = await dialog.showMessageBox({
-				type: 'warning',
-				buttons: ['OK'],
-				title: 'Microphone Access',
-				message: 'Microphone access is denied. Please enable it in system preferences.'
-			});
-			if (response === 0) {
-				shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+	const openPrivacySettings = async (type: 'microphone' | 'camera') => {
+		try {
+			if (process.platform === 'darwin') {
+				type OpenSystemPreferences = (pane: string, section?: string) => Promise<boolean>;
+				const openSystemPreferences = (systemPreferences as unknown as { openSystemPreferences?: OpenSystemPreferences })
+					.openSystemPreferences;
+
+				if (typeof openSystemPreferences === 'function') {
+					const pane = 'privacy';
+					const section = type === 'microphone' ? 'Microphone' : 'Camera';
+					const opened = await openSystemPreferences(pane, section);
+					if (opened) {
+						return;
+					}
+				}
+
+				const path =
+					type === 'microphone'
+						? 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'
+						: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Camera';
+				await shell.openExternal(path);
 			}
+		} catch (error) {
+			console.error('Failed to open privacy settings', error);
 		}
+	};
+
+	ipcMain.handle(REQUEST_PERMISSION_MICROPHONE, async () => {
+		if (process.platform === 'darwin') {
+			const beforeStatus = systemPreferences.getMediaAccessStatus('microphone');
+			let status = beforeStatus;
+			if (beforeStatus !== 'granted') {
+				const granted = await systemPreferences.askForMediaAccess('microphone');
+				status = granted ? 'granted' : systemPreferences.getMediaAccessStatus('microphone');
+
+				if (!granted && status !== 'granted') {
+					await openPrivacySettings('microphone');
+				}
+			}
+			return status;
+		}
+		return 'prompt';
 	});
 
 	ipcMain.handle(REQUEST_PERMISSION_CAMERA, async () => {
-		const cameraAsk = await systemPreferences.askForMediaAccess('camera');
-		if (!cameraAsk) {
-			const { response } = await dialog.showMessageBox({
-				type: 'warning',
-				buttons: ['OK'],
-				title: 'Camera Access',
-				message: 'Camera access is denied. Please enable it in system preferences.'
-			});
-			if (response === 0) {
-				shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Camera');
+		if (process.platform === 'darwin') {
+			const beforeStatus = systemPreferences.getMediaAccessStatus('camera');
+			let status = beforeStatus;
+
+			if (beforeStatus !== 'granted') {
+				const granted = await systemPreferences.askForMediaAccess('camera');
+				status = granted ? 'granted' : systemPreferences.getMediaAccessStatus('camera');
+
+				if (!granted && status !== 'granted') {
+					await openPrivacySettings('camera');
+				}
 			}
+
+			return status;
 		}
+		return 'prompt';
+	});
+
+	ipcMain.handle(CHECK_PERMISSION_MICROPHONE, async () => {
+		if (process.platform === 'darwin') {
+			const status = systemPreferences.getMediaAccessStatus('microphone');
+			return status;
+		}
+		return null;
+	});
+
+	ipcMain.handle(CHECK_PERMISSION_CAMERA, async () => {
+		if (process.platform === 'darwin') {
+			const status = systemPreferences.getMediaAccessStatus('camera');
+			return status;
+		}
+		return null;
 	});
 }
