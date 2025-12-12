@@ -69,7 +69,7 @@ const MainPermissionManage: React.FC<MainPermissionManageProps> = ({
 			})),
 			...userIds.map((id) => ({
 				id: usersClanEntities[id]?.id,
-				title: usersClanEntities[id].user?.username,
+				title: usersClanEntities[id]?.user?.username,
 				type: ENTITY_TYPE.USER
 			}))
 		],
