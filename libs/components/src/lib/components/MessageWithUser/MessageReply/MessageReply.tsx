@@ -8,6 +8,7 @@ import { useCallback, useRef } from 'react';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
 
 import { safeJSONParse } from 'mezon-js';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { MessageLine } from '../MessageLine';
 type MessageReplyProps = {
@@ -20,6 +21,7 @@ type MessageReplyProps = {
 
 // TODO: refactor component for message lines
 const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, isAnonymousReplied }) => {
+	const { t } = useTranslation('message');
 	const senderIdMessageRef = message?.references?.[0]?.message_sender_id as string;
 	const messageIdRef = message?.references?.[0]?.message_ref_id;
 	const messageUsernameSenderRef = message?.references?.[0]?.message_sender_username ?? '';
@@ -110,7 +112,7 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 										onClick={getIdMessageToJump}
 										className="text-[14px] pr-1  cursor-pointer italic   w-fit one-line break-all pt-0"
 									>
-										Click to see attachment
+										{t('clickToSeeAttachment')}
 									</div>
 									<Icons.ImageThumbnail />
 								</div>
@@ -137,7 +139,7 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 						<div className="rounded-full dark:bg-bgSurface bg-bgLightModeButton size-4">
 							<Icons.IconReplyMessDeleted />
 						</div>
-						<i className="dark:text-zinc-400 text-colorTextLightMode text-[13px]">Original message was deleted</i>
+						<i className="dark:text-zinc-400 text-colorTextLightMode text-[13px]">{t('messageDeleteReply')}</i>
 					</div>
 				</div>
 			)}

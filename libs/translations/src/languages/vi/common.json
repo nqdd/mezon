@@ -6,9 +6,9 @@
 	"settings": "Cài đặt",
 	"search": "Tìm kiếm",
 	"errorBoundary": {
-		"title": "Ôi, Hơi ngại một chút!",
-		"crashMessage": "Có vẻ như Mezon vừa gặp sự cố bất ngờ....",
-		"trackedMessage": "Chúng tôi đã ghi nhận lỗi và xử lý ngay.",
+		"title": "Ồ, điều này thật khó xử",
+		"crashMessage": "Có vẻ như Mezon đã gặp sự cố bất ngờ...",
+		"trackedMessage": "Chúng tôi đã theo dõi lỗi và sẽ khắc phục ngay lập tức.",
 		"reload": "Tải lại"
 	},
 	"newMessage": "Tin nhắn mới",
@@ -302,7 +302,8 @@
 		"loginTooFast": "Đăng nhập quá nhanh. Vui lòng đợi {{seconds}} giây trước khi thử lại.",
 		"loginFailed": "Đăng nhập thất bại! Đã xảy ra lỗi trong quá trình đăng nhập",
 		"otpSentMessage": "Chúng tôi đã gửi mã OTP đến email {{email}}, hãy kiểm tra hộm thư của bạn",
-		"backToEmailInput": "Thay đổi email?"
+		"backToEmailInput": "Thây đổi email?",
+		"invalidTimeOtp": "OTP đã hết hạn"
 	},
 	"otpVerify": {
 		"loginToMezon": "Đăng nhập tài khoản Mezon",
@@ -461,6 +462,9 @@
 	"successBuyItem": "Mua vật phẩm thành công!",
 	"failedToBuyItem": "Mua vật phẩm thất bại!",
 	"loadingData": "Đang tải dữ liệu, vui lòng chờ trong giây lát.",
+	"loadingInvite": "Đang tải lời mời...",
+	"inviteLoadFailed": "Không thể tải lời mời. Vui lòng kiểm tra liên kết và thử lại.",
+	"locationSharedMessage": "Một vị trí đã được chia sẻ với bạn. Nhấn để mở bản đồ",
 	"close": "Đóng",
 	"cannotJoinClan": "Không thể tham gia clan",
 	"failedToLoad": "Không thể tải dữ liệu",

@@ -14,6 +14,7 @@ import {
 } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +73,7 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 	messageId,
 	onContextMenu
 }) => {
+	const { t } = useTranslation('common');
 	const appearanceTheme = useSelector(selectTheme);
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
@@ -136,13 +138,13 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 					{isLoadingInvite && (
 						<>
 							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-							<p>Loading invite...</p>
+							<p>{t('loadingInvite')}</p>
 						</>
 					)}
 					{inviteError && (
 						<>
 							<div className="text-red-500 text-center mb-4">
-								<p className="font-semibold mb-2">Error</p>
+								<p className="font-semibold mb-2">{t('canvas.error')}</p>
 								<p className="text-sm">{inviteError}</p>
 							</div>
 							<button
@@ -152,7 +154,7 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 								}}
 								className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
 							>
-								Close
+								{t('close')}
 							</button>
 						</>
 					)}
@@ -180,11 +182,11 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 								openInviteModal();
 							} else {
 								setIsLoadingInvite(false);
-								setInviteError('Failed to load invite. Please check the link and try again.');
+								setInviteError(t('inviteLoadFailed'));
 							}
 						} catch (error) {
 							setIsLoadingInvite(false);
-							setInviteError('Failed to load invite. Please check the link and try again.');
+							setInviteError(t('inviteLoadFailed'));
 						}
 					}
 					return;
@@ -255,7 +257,7 @@ export const MarkdownContent: React.FC<MarkdownContentOpt> = ({
 					className="text-blue-500 cursor-pointer break-words underline tagLink"
 					target="_blank"
 				>
-					<span>A location was shared with you. Tap to open the map</span>
+					<span>{t('locationSharedMessage')}</span>
 				</a>
 			) : (
 				isLink && (
