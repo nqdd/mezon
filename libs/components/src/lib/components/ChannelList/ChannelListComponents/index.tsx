@@ -31,8 +31,8 @@ import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { CustomTooltip } from '../../ToolTip';
 import EventModal from '../EventChannelModal';
-
 export const Events = memo(() => {
 	const { t } = useTranslation('channelList');
 	const ongoingEvent = useSelector(selectOngoingEvent);
@@ -260,13 +260,11 @@ const OnboardingGetStart = ({ link, clanId }: { link: string; clanId: string }) 
 };
 
 const NUMBER_APPS_SHOW_OFF = 4;
-const NUMBER_APPS_IN_ROW = 4;
 const ChannelAppList = memo(() => {
 	const allChannelApp = useSelector(selectAppChannelsList);
 	const expandRef = useRef<HTMLDivElement>(null);
 	const dispatch = useAppDispatch();
 	const showList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(0, NUMBER_APPS_SHOW_OFF) : allChannelApp;
-	const menuList = allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 ? allChannelApp.slice(NUMBER_APPS_SHOW_OFF, allChannelApp.length) : [];
 	const showRef = useRef<boolean>(false);
 
 	const handleCloseListApp = (event: Event) => {
@@ -304,19 +302,19 @@ const ChannelAppList = memo(() => {
 			<div
 				style={{
 					top: rect?.top,
-					left: rect?.left && rect?.left + 60,
-					width: menuList.length >= NUMBER_APPS_IN_ROW ? 200 : menuList.length * 40 + (menuList.length - 1) * 8 + 16,
-					height: Math.ceil(menuList.length / NUMBER_APPS_IN_ROW) * 40 + (Math.ceil(menuList.length / NUMBER_APPS_IN_ROW) - 1) * 8 + 16
+					left: rect?.left && rect?.left + 60
 				}}
-				className="fixed h-44 bg-theme-pop rounded-lg"
+				className="fixed w-[360px] h-[420px] bg-theme-setting-primary  border-theme-primary shadow-lg z-50 rounded-lg"
 			>
-				<ListChannelApp menuList={menuList} onClose={handleCloseListApp} handleOpenApp={handleOpenApp} />
+				<ListChannelApp onClose={handleCloseListApp} handleOpenApp={handleOpenApp} />
 			</div>
 		);
-	}, [allChannelApp, menuList, handleCloseListApp, handleOpenApp]);
+	}, [allChannelApp, handleCloseListApp, handleOpenApp]);
 
 	const handleOpenListApp = () => {
 		if (showRef.current) {
+			closeListApp();
+			showRef.current = false;
 			return;
 		}
 		openListApp();
@@ -331,27 +329,29 @@ const ChannelAppList = memo(() => {
 			<hr className="w-full ml-[3px] border-t-theme-primary" />
 			<div className="grow w-full flex-row items-center justify-center gap-2 flex py-1">
 				{showList.map((item) => (
-					<div
-						className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
-						onClick={() => handleOpenApp(item)}
-					>
-						{item.app_logo ? (
-							<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
-						) : (
-							<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-								<g>
-									<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
-									<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
-									<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
-									<path
-										d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
+					<CustomTooltip key={item.app_id} text={item.app_name || ''}>
+						<div
+							className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
+							onClick={() => handleOpenApp(item)}
+						>
+							{item.app_logo ? (
+								<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
+							) : (
+								<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+									<g>
+										<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
+										<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
+										<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
+										<path
+											d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
 		c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l2.1-2.1l2.1,2.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3
 		c0.4-0.4,0.4-1,0-1.4L24.4,23l2.1-2.1C26.9,20.5,26.9,19.9,26.5,19.5z"
-									/>
-								</g>
-							</svg>
-						)}
-					</div>
+										/>
+									</g>
+								</svg>
+							)}
+						</div>
+					</CustomTooltip>
 				))}
 				{allChannelApp.length > NUMBER_APPS_SHOW_OFF + 1 && (
 					<div
@@ -369,42 +369,72 @@ const ChannelAppList = memo(() => {
 
 const ListChannelApp = ({
 	onClose,
-	menuList,
 	handleOpenApp
 }: {
 	onClose: (event: Event) => void;
-	menuList: ApiChannelAppResponse[];
 	handleOpenApp: (appChannel: ApiChannelAppResponse) => Promise<void>;
 }) => {
 	const panelRef = useRef<HTMLDivElement | null>(null);
-
+	const allChannelApp = useSelector(selectAppChannelsList);
 	useOnClickOutside(panelRef, onClose);
 
+	const handleFindChannelApp = () => {
+		window.open('https://top.mezon.ai/', '_blank');
+	};
+
 	return (
-		<div ref={panelRef} className="w-full h-full flex flex-wrap gap-2 p-2">
-			{menuList.map((item) => (
-				<div
-					className="text-theme-primary text-theme-primary-hover rounded-md aspect-square h-10 p-2 flex items-center justify-center cursor-pointer bg-item-hover"
-					onClick={() => handleOpenApp(item)}
-				>
-					{item.app_logo ? (
-						<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
-					) : (
-						<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-							<g>
-								<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
-								<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
-								<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
-								<path
-									d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
+		<div ref={panelRef} className="w-full h-full flex flex-col">
+			<div className="px-4 py-3 bg-item-theme rounded-tl-lg rounded-tr-lg">
+				<h3 className="text-base font-semibold text-theme-primary">Channel App</h3>
+			</div>
+			<div className="flex-1 px-4 py-2 overflow-y-auto bg-theme-setting-primary thread-scroll">
+				<div className="grid grid-cols-4 gap-2">
+					{allChannelApp.map((item) => (
+						<div
+							key={item.app_id}
+							className="text-theme-primary text-theme-primary-hover rounded-md p-2 flex flex-col items-center justify-center cursor-pointer bg-item-hover gap-1"
+							onClick={() => handleOpenApp(item)}
+						>
+							<div className="w-10 h-10 flex items-center justify-center">
+								{item.app_logo ? (
+									<img src={item.app_logo} className="w-full h-full" alt={item.app_name} />
+								) : (
+									<svg className="fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+										<g>
+											<path d="M14,3H4C3.4,3,3,3.4,3,4v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C15,3.4,14.6,3,14,3z" />
+											<path d="M14,17H4c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V18C15,17.4,14.6,17,14,17z" />
+											<path d="M28,3H18c-0.6,0-1,0.4-1,1v10c0,0.6,0.4,1,1,1h10c0.6,0,1-0.4,1-1V4C29,3.4,28.6,3,28,3z" />
+											<path
+												d="M26.5,19.5c-0.4-0.4-1-0.4-1.4,0L23,21.6l-2.1-2.1c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l2.1,2.1l-2.1,2.1
 		c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l2.1-2.1l2.1,2.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3
 		c0.4-0.4,0.4-1,0-1.4L24.4,23l2.1-2.1C26.9,20.5,26.9,19.9,26.5,19.5z"
-								/>
-							</g>
-						</svg>
-					)}
+											/>
+										</g>
+									</svg>
+								)}
+							</div>
+							<span className="text-xs text-center truncate w-full" title={item.app_name}>
+								{item.app_name}
+							</span>
+						</div>
+					))}
 				</div>
-			))}
+			</div>
+			<div>
+				<button
+					onClick={handleFindChannelApp}
+					className="w-full px-4 py-3 flex items-center gap-3 text-theme-primary hover:bg-item-hover transition-colors cursor-pointer bg-item-theme rounded-bl-lg rounded-br-lg"
+				>
+					<div className="w-8 h-8 rounded-full bg-button-secondary flex items-center justify-center">
+						<Icons.SearchIcon className="w-5 h-5" />
+					</div>
+					<div className="flex-1 text-left">
+						<p className="text-sm font-medium">Find Channel App</p>
+						<p className="text-xs opacity-60">Discover more apps</p>
+					</div>
+					<Icons.ArrowRight defaultSize="w-5 h-5" />
+				</button>
+			</div>
 		</div>
 	);
 };
