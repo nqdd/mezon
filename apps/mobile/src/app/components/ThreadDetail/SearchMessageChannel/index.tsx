@@ -74,7 +74,7 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 	}, [optionFilter?.value, userMention, nameChannel, currentChannel?.channel_id, currentChannel?.id]);
 
 	const shouldSearchMessage = useMemo(() => {
-		return (searchText.trim() || (optionFilter && userMention)) && channelId;
+		return (searchText.trim().length > 0 || (optionFilter && userMention)) && channelId;
 	}, [searchText, optionFilter, userMention, channelId]);
 
 	const shouldClearSearch = useMemo(() => {
@@ -82,34 +82,39 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 	}, [channelId, searchText, optionFilter, userMention]);
 
 	const handleSearchMessage = useCallback(() => {
-		const filter: SearchFilter[] = [
-			{ field_name: 'channel_id', field_value: channelId },
-			{ field_name: 'clan_id', field_value: currentClanId }
-		];
+		try {
+			const filter: SearchFilter[] = [
+				{ field_name: 'channel_id', field_value: channelId },
+				{ field_name: 'clan_id', field_value: currentClanId }
+			];
 
-		if (optionFilter && userMention && optionFilter?.value !== 'channel_id') {
-			filter.push({
-				field_name: optionFilter?.value,
-				field_value: optionFilter?.value === 'mention' ? `"user_id":"${userMention?.id}"` : userMention?.subDisplay || userMention?.display
-			});
+			if (optionFilter && userMention && optionFilter?.value !== 'channel_id') {
+				filter.push({
+					field_name: optionFilter?.value,
+					field_value:
+						optionFilter?.value === 'mention' ? `"user_id":"${userMention?.id}"` : userMention?.subDisplay || userMention?.display
+				});
+			}
+
+			if (searchText.trim()) {
+				filter.push({
+					field_name: 'content',
+					field_value: searchText
+				});
+			}
+
+			setFiltersSearch(filter);
+
+			dispatch(
+				searchMessagesActions.fetchListSearchMessage({
+					filters: filter,
+					from: 1,
+					size: SIZE_PAGE_SEARCH
+				})
+			);
+		} catch (error) {
+			console.error('Fetch list search message error', error);
 		}
-
-		if (searchText.trim()) {
-			filter.push({
-				field_name: 'content',
-				field_value: searchText
-			});
-		}
-
-		setFiltersSearch(filter);
-
-		dispatch(
-			searchMessagesActions.fetchListSearchMessage({
-				filters: filter,
-				from: 1,
-				size: SIZE_PAGE_SEARCH
-			})
-		);
 	}, [channelId, currentClanId, optionFilter, userMention, searchText]);
 
 	useEffect(() => {

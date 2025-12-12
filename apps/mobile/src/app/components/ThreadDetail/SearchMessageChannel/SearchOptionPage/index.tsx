@@ -57,17 +57,26 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 	const searchChannelList = useMemo(() => {
 		if (!searchText) return filteredChannels;
 
-		return filteredChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim()));
+		try {
+			return filteredChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim()));
+		} catch (error) {
+			console.error('Filter search channel list error', error);
+			return [];
+		}
 	}, [searchText, filteredChannels]);
 
 	const handleSelectChannel = useCallback(
 		(channel: ChannelUsersEntity) => {
-			onSelect({
-				id: (channel?.channel_id || channel?.id) ?? '',
-				display: channel?.channel_label ?? '',
-				avatarUrl: '',
-				subDisplay: ''
-			});
+			try {
+				onSelect({
+					id: (channel?.channel_id || channel?.id) ?? '',
+					display: channel?.channel_label ?? '',
+					avatarUrl: '',
+					subDisplay: ''
+				});
+			} catch (error) {
+				console.error('Handle select channel error', error);
+			}
 		},
 		[onSelect]
 	);

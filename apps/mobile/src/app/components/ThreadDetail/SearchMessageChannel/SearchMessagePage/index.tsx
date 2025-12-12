@@ -78,11 +78,16 @@ const SearchMessagePage = ({
 		const listChannels = selectAllChannelsByUser(store.getState()) || [];
 		if (!searchText) return listChannels;
 
-		return listChannels
-			.filter((channel) => {
-				return normalizeString(channel?.channel_label).toLowerCase().includes(normalizeString(searchText).toLowerCase());
-			})
-			.sort((a: SearchItemProps, b: SearchItemProps) => compareObjects(a, b, searchText, 'channel_label'));
+		try {
+			return listChannels
+				.filter((channel) => {
+					return normalizeString(channel?.channel_label).toLowerCase().includes(normalizeString(searchText).toLowerCase());
+				})
+				.sort((a: SearchItemProps, b: SearchItemProps) => compareObjects(a, b, searchText, 'channel_label'));
+		} catch (err) {
+			console.error('Filter/sort channelsSearch error', err);
+			return [];
+		}
 	}, [searchText, store, nameChannel]);
 
 	const formatMemberData = useCallback((userChannels: ChannelMembersEntity[]) => {
