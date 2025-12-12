@@ -40,13 +40,15 @@ export default function setupAutoUpdates() {
 	});
 
 	autoUpdater.on('error', (error: Error) => {
-		dialog.showMessageBox({
-			message: `Error: ${error.message} !!`
-		});
+		if (process.platform !== 'win32') {
+			dialog.showMessageBox({
+				message: `Error: ${error.message} !!`
+			});
 
-		BrowserWindow.getAllWindows().forEach((window) => {
-			window.webContents.send(UPDATE_ERROR, error);
-		});
+			BrowserWindow.getAllWindows().forEach((window) => {
+				window.webContents.send(UPDATE_ERROR, error);
+			});
+		}
 	});
 
 	autoUpdater.on('update-downloaded', (info: UpdateInfo) => {

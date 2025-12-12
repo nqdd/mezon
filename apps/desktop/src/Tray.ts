@@ -23,7 +23,7 @@ export class TrayIcon {
 	init = (isQuitting) => {
 		App.application.whenReady().then(() => {
 			//const trayIcon = nativeImage.createFromPath(assetsDir);
-			if (process.platform == 'linux') {
+			if (process.platform === 'linux') {
 				this.tray = new Tray(assetsDirLinux);
 			} else {
 				this.tray = new Tray(assetsDir);
