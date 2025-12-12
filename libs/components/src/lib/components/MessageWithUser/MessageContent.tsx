@@ -1,7 +1,6 @@
 import {
 	selectIsShowCreateThread,
 	selectIsShowCreateTopic,
-	selectLastSentMessageStateByChannelId,
 	selectMemberClanByUserId,
 	selectMessageByMessageId,
 	threadsActions,
@@ -11,9 +10,9 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage, IMessageWithUser } from '@mezon/utils';
-import { EBacktickType, ETypeLinkMedia, addMention, convertTimeDifference, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
+import { EBacktickType, ETypeLinkMedia, addMention, convertTimeMessage, createImgproxyUrl, generateE2eId, isValidEmojiData } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
@@ -67,7 +66,6 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	const { t, i18n } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const latestMessage = useAppSelector((state) => selectMessageByMessageId(state, message.channel_id, message.id));
-	const lastSentMessageState = useAppSelector((state) => selectLastSentMessageStateByChannelId(state, message.channel_id));
 	const rplCount = latestMessage?.content?.rpl || 0;
 	const topicCreator = useAppSelector((state) => selectMemberClanByUserId(state, latestMessage?.content?.cid as string));
 	const avatarToDisplay = topicCreator?.clan_avatar ? topicCreator?.clan_avatar : topicCreator?.user?.avatar_url;
@@ -79,13 +77,6 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 	}, [dispatch, message]);
 	const isShowCreateThread = useSelector((state) => selectIsShowCreateThread(state, message.channel_id as string));
 	const isShowCreateTopic = useSelector(selectIsShowCreateTopic);
-
-	const timeMessage = useMemo(() => {
-		if (!latestMessage?.create_time_seconds || !lastSentMessageState?.timestamp_seconds) return;
-
-		const lastTime = convertTimeDifference(lastSentMessageState.timestamp_seconds, latestMessage?.create_time_seconds, i18n.language);
-		return lastTime;
-	}, [latestMessage, i18n.language, lastSentMessageState.timestamp_seconds]);
 
 	return (
 		<div
@@ -106,7 +97,8 @@ export const TopicViewButton = ({ message }: { message: IMessageWithUser }) => {
 						{rplCount > 0 &&
 							(rplCount === 1 ? t('reply', { number: 1 }) : t('numberReplies', { number: rplCount > 99 ? '99+' : rplCount }))}
 					</p>
-					{timeMessage}
+					{(latestMessage?.content?.lsnt ?? message.content?.lsnt) &&
+						convertTimeMessage(latestMessage?.content?.lsnt ?? message.content?.lsnt ?? 0, i18n.language)}
 				</div>
 			</div>
 			<Icons.ArrowRight className="flex-shrink-0 text-center" />
