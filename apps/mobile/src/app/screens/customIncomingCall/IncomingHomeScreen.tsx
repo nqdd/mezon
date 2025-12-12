@@ -18,7 +18,7 @@ import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
 import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
-import { Bounce, Chase } from 'react-native-animated-spinkit';
+import { Bounce } from 'react-native-animated-spinkit';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
 import NotificationPreferences from '../../utils/NotificationPreferences';
@@ -32,6 +32,7 @@ import LOTTIE_PHONE_RING from './phone-ring.json';
 import { style } from './styles';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
+import { sleep } from '@mezon/utils';
 import BG_CALLING from './bgCalling.png';
 
 registerGlobals();
@@ -44,13 +45,11 @@ const IncomingHomeScreen = memo(() => {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const [isInCall, setIsInCall] = React.useState(false);
-	const [isLoadingJoinCall, setIsLoadingJoinCall] = React.useState(false);
 	const [isForceAnswer, setIsForceAnswer] = React.useState(false);
 	const [isForceDecline, setIsForceDecline] = React.useState(false);
 	const [isInGroupCall, setIsInGroupCall] = React.useState(false);
 	const [dataCalling, setDataCalling] = React.useState<any>();
 	const [isSocketConnected, setIsSocketConnected] = React.useState(false);
-	const [isCallConnected, setIsCallConnected] = React.useState(false);
 	const userId = useSelector(selectCurrentUserId);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
 	const isForceQuitCallNative = useAppSelector((state) => selectIsForceQuitCallNative(state));
@@ -130,13 +129,10 @@ const IncomingHomeScreen = memo(() => {
 
 	const onKillApp = useCallback(async () => {
 		try {
-			if (Platform.OS === 'android') {
-				await notifee.cancelNotification('incoming-call', 'incoming-call');
-				NativeModules?.DeviceUtils?.killApp();
-				BackHandler.exitApp();
-			} else {
-				BackHandler.exitApp();
-			}
+			await NotificationPreferences.clearValue('notificationDataCalling');
+			await notifee.cancelNotification('incoming-call', 'incoming-call');
+			NativeModules?.DeviceUtils?.killApp();
+			BackHandler.exitApp();
 		} catch (e) {
 			BackHandler.exitApp();
 		}
@@ -187,6 +183,7 @@ const IncomingHomeScreen = memo(() => {
 			await notifee.cancelNotification(notifyId, notifyId);
 			await notifee.cancelDisplayedNotification(notifyId, notifyId);
 			await notifee.stopForegroundService();
+			await sleep(500);
 			playVibrationAndSound();
 		} catch (error) {
 			playVibrationAndSound();
@@ -229,7 +226,8 @@ const IncomingHomeScreen = memo(() => {
 	};
 
 	const onJoinCall = async () => {
-		setIsLoadingJoinCall(true);
+		setIsInCall(true);
+		await stopAndReleaseSound();
 		save(STORAGE_LATEST_CALL_CACHE, '{}');
 		if (Platform.OS === 'android') {
 			try {
@@ -257,8 +255,6 @@ const IncomingHomeScreen = memo(() => {
 			}, retryInterval);
 		}
 		dispatch(DMCallActions.setIsInCall(true));
-		stopAndReleaseSound();
-		setIsInCall(true);
 	};
 
 	useEffect(() => {
@@ -317,16 +313,17 @@ const IncomingHomeScreen = memo(() => {
 		stopAndReleaseSound();
 	}, [stopAndReleaseSound]);
 
-	const onIsConnected = useCallback(() => {
-		NotificationPreferences.clearValue('notificationDataCalling');
-		setIsCallConnected(true);
-	}, []);
+	const onIsConnected = useCallback(async () => {
+		await stopAndReleaseSound();
+		await NotificationPreferences.clearValue('notificationDataCalling');
+	}, [stopAndReleaseSound]);
 
 	return (
 		<View style={{ flex: 1 }}>
 			{!!dataCalling?.callerId && isSocketConnected && (
 				<CallDetailNative
 					ref={callDetailRef}
+					isInCall={isInCall}
 					receiverId={dataCalling?.callerId}
 					directMessageId={dataCalling?.channelId}
 					isVideoCall={dataCalling?.isVideoCall}
@@ -335,7 +332,7 @@ const IncomingHomeScreen = memo(() => {
 					receiverName={dataCalling?.callerName || ''}
 				/>
 			)}
-			{!isCallConnected && (
+			{!isInCall && (
 				<ImageBackground
 					source={BG_CALLING}
 					style={[
@@ -386,13 +383,7 @@ const IncomingHomeScreen = memo(() => {
 							</TouchableOpacity>
 
 							<TouchableOpacity onPress={onJoinCall}>
-								{isLoadingJoinCall ? (
-									<View style={styles.answerCallLoading}>
-										<Chase size={size.s_50} color={baseColor.bgSuccess} />
-									</View>
-								) : (
-									<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
-								)}
+								<LottieView source={LOTTIE_PHONE_RING} autoPlay loop style={styles.answerCall} />
 							</TouchableOpacity>
 						</View>
 					)}
