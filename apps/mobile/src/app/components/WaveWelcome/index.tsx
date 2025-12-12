@@ -6,7 +6,7 @@ import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME, createImgproxyUrl } f
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import ImageNative from '../ImageNative';
 import { style } from './styles';
@@ -88,31 +88,16 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 		}
 	};
 
-	if (isDM) {
-		return (
-			<View style={styles.waveContainerDM}>
-				<ImageNative
-					url={createImgproxyUrl(urlIcon, { width: 270, height: 270, resizeType: 'fit' })}
-					style={styles.waveIconDM}
-					resizeMode="contain"
-				/>
-				<TouchableOpacity style={styles.waveButtonDM} onPress={handleSendWaveSticker}>
-					<Text numberOfLines={1} style={styles.waveButtonTextDM}>
-						{t('waveWelcomeDM', { username: displayName })}
-					</Text>
-				</TouchableOpacity>
-			</View>
-		);
-	}
-
 	return (
-		<TouchableOpacity style={styles.waveButton} onPress={handleSendWaveSticker}>
+		<TouchableOpacity style={isDM ? styles.waveButtonDM : styles.waveButton} onPress={handleSendWaveSticker}>
 			<ImageNative
-				url={createImgproxyUrl(urlIcon, { width: 50, height: 50, resizeType: 'fit' })}
+				url={createImgproxyUrl(urlIcon, { width: 100, height: 100, resizeType: 'fit' })}
 				style={styles.waveIcon}
 				resizeMode="contain"
 			/>
-			<Text style={styles.waveButtonText}>{t('waveWelcome')}</Text>
+			<Text numberOfLines={1} style={[styles.waveButtonText, isDM && styles.waveButtonTextDM]}>
+				{isDM ? t('waveWelcomeDM', { username: displayName }) : t('waveWelcome')}
+			</Text>
 		</TouchableOpacity>
 	);
 };
