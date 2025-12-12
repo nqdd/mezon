@@ -74,7 +74,7 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 	}, [optionFilter?.value, userMention, nameChannel, currentChannel?.channel_id, currentChannel?.id]);
 
 	const shouldSearchMessage = useMemo(() => {
-		return (searchText?.trim().length > 0 || (optionFilter && userMention)) && channelId;
+		return (searchText?.trim()?.length > 0 || (optionFilter && userMention)) && channelId;
 	}, [searchText, optionFilter, userMention, channelId]);
 
 	const shouldClearSearch = useMemo(() => {
@@ -99,7 +99,7 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 			if (searchText.trim()) {
 				filter.push({
 					field_name: 'content',
-					field_value: searchText
+					field_value: searchText.trim()
 				});
 			}
 
@@ -119,7 +119,7 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 
 	useEffect(() => {
 		if (shouldSearchMessage) handleSearchMessage();
-	}, [handleSearchMessage, shouldSearchMessage]);
+	}, [shouldSearchMessage, handleSearchMessage]);
 
 	useEffect(() => {
 		if (shouldClearSearch) {
