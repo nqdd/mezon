@@ -55,6 +55,7 @@ const MAX_RAW_TEXT_LENGTH = 2000;
 const ForwardMessageScreen = () => {
 	const [searchText, setSearchText] = useState('');
 	const [personalRawMessages, setPersonalRawMessages] = useState<string>('');
+	const [isReadyToSend, setIsReadyToSend] = useState(false);
 
 	const navigation = useNavigation();
 	const route = useRoute();
@@ -310,6 +311,7 @@ const ForwardMessageScreen = () => {
 		} else {
 			selectedForwardObjectsRef.current = selectedForwardObjectsRef.current.filter((ob) => ob.channelId !== item.channelId);
 		}
+		setIsReadyToSend(selectedForwardObjectsRef?.current?.length > 0);
 	}, []);
 
 	const renderForwardObject = ({ item }: { item: IForwardIObject }) => {
@@ -429,10 +431,7 @@ const ForwardMessageScreen = () => {
 							</TouchableOpacity>
 						)}
 					</View>
-					<TouchableOpacity
-						style={[styles.btn, !selectedForwardObjectsRef.current?.length && { backgroundColor: themeValue.textDisabled }]}
-						onPress={handleForward}
-					>
+					<TouchableOpacity style={[styles.btn, !isReadyToSend && { backgroundColor: themeValue.textDisabled }]} onPress={handleForward}>
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} color={baseColor.white} height={size.s_18} width={size.s_18} />
 					</TouchableOpacity>
 				</View>

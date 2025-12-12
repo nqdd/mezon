@@ -7,25 +7,27 @@ export const style = (colors: Attributes) =>
 		container: {
 			width: '100%',
 			zIndex: 1,
-			marginTop: size.s_4
+			marginVertical: size.s_4
 		},
 		containerAll: {
 			flex: 1,
 			zIndex: 1
 		},
 		btnSeeAll: {
-			paddingVertical: size.s_4,
-			paddingLeft: size.s_20,
-			alignItems: 'center'
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'flex-end',
+			paddingRight: size.s_6,
+			paddingBottom: size.s_4
 		},
 		openAllText: {
-			fontSize: size.s_14,
+			fontSize: size.s_12,
 			fontWeight: '500',
 			color: baseColor.blurple
 		},
 		listContent: {
 			marginTop: size.s_4,
-			paddingHorizontal: size.s_16
+			paddingHorizontal: size.s_12
 		},
 		itemContainer: {
 			width: size.s_40,
@@ -40,11 +42,14 @@ export const style = (colors: Attributes) =>
 			borderWidth: 1,
 			borderColor: colors.textDisabled,
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			overflow: 'hidden'
 		},
 		itemIcon: {
-			width: size.s_30,
-			height: size.s_30
+			width: '100%',
+			height: '100%',
+			justifyContent: 'center',
+			alignItems: 'center'
 		},
 		itemName: {
 			fontSize: size.s_10,
@@ -79,8 +84,7 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'flex-start',
-			padding: size.s_8,
-			paddingHorizontal: size.s_16
+			padding: size.s_8
 		},
 		title: {
 			fontSize: size.s_18,
@@ -101,14 +105,15 @@ export const style = (colors: Attributes) =>
 		},
 		appListContent: {
 			paddingVertical: size.s_16,
+			paddingHorizontal: size.s_8,
 			flexGrow: 1
 		},
 		appItemContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',
-			padding: size.s_6,
-			paddingBottom: size.s_12,
+			padding: size.s_4,
+			paddingBottom: size.s_8,
 			borderBottomWidth: 1,
 			borderBottomColor: colors.border,
 			borderRadius: size.s_8

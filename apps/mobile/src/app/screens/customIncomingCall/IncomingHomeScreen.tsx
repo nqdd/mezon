@@ -1,7 +1,15 @@
 import { registerGlobals } from '@livekit/react-native';
 import { save, STORAGE_LATEST_CALL_CACHE } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { appActions, DMCallActions, selectCurrentUserId, selectSignalingDataByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import {
+	appActions,
+	DMCallActions,
+	selectCurrentUserId,
+	selectIsForceQuitCallNative,
+	selectSignalingDataByUserId,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import notifee from '@notifee/react-native';
 import LottieView from 'lottie-react-native';
@@ -45,6 +53,7 @@ const IncomingHomeScreen = memo(() => {
 	const [isCallConnected, setIsCallConnected] = React.useState(false);
 	const userId = useSelector(selectCurrentUserId);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userId || ''));
+	const isForceQuitCallNative = useAppSelector((state) => selectIsForceQuitCallNative(state));
 	const { socketRef } = useMezon();
 	const ringtoneRef = useRef<Sound | null>(null);
 	const [dataCallGroup, setDataCallGroup] = React.useState<any>(null);
@@ -262,7 +271,8 @@ const IncomingHomeScreen = memo(() => {
 			if (
 				latestType === WebrtcSignalingType.WEBRTC_SDP_QUIT ||
 				latestType === WebrtcSignalingType.WEBRTC_ICE_CANDIDATE ||
-				latestType === WebrtcSignalingType.WEBRTC_SDP_INIT
+				latestType === WebrtcSignalingType.WEBRTC_SDP_INIT ||
+				isForceQuitCallNative
 			) {
 				NotificationPreferences?.clearValue?.('notificationDataCalling');
 				stopAndReleaseSound();
@@ -273,7 +283,7 @@ const IncomingHomeScreen = memo(() => {
 		return () => {
 			NotificationPreferences.clearValue('notificationDataCalling');
 		};
-	}, [isForceAnswer, isInCall, onKillApp, dataCalling, signalingData, stopAndReleaseSound]);
+	}, [isForceAnswer, isInCall, onKillApp, dataCalling, signalingData, stopAndReleaseSound, isForceQuitCallNative]);
 
 	useEffect(() => {
 		if (isForceDecline && isSocketConnected) {

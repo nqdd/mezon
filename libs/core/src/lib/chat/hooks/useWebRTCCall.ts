@@ -69,6 +69,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	const [currentOutputDevice, setCurrentOutputDevice] = useState<MediaDeviceInfo | null>(null);
 	const [isConnected, setIsConnected] = useState<boolean | null>(null);
 	const hasSyncRemoteMediaRef = useRef<boolean>(false);
+	const channelIdRef = useRef<string>('');
 	const isMyCaller = useRef<boolean>(false);
 
 	useEffect(() => {
@@ -133,7 +134,10 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 				dispatch(audioCallActions.setIsJoinedCall(true));
 				dispatch(audioCallActions.setIsDialTone(false));
 				await mezon.socketRef.current?.forwardWebrtcSignaling(dmUserId, WebrtcSignalingType.WEBRTC_SDP_INIT, '', channelId, userId);
-				await cancelCallFCMMobile();
+				// Just cancel call mobile if I'm the caller
+				if (isMyCaller?.current) {
+					await cancelCallFCMMobile('', true);
+				}
 				setIsConnected(true);
 				if (callTimeout.current) {
 					clearTimeout(callTimeout.current);
@@ -285,9 +289,6 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 					remoteScreenStream: null
 				});
 				peerConnection.current = pc;
-			} else {
-				// if is answer call, need to cancel call native on mobile
-				await cancelCallFCMMobile(userId);
 			}
 		} catch (error) {
 			console.error('Error starting call:', error);
@@ -423,13 +424,14 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 	// Handle incoming signaling messages
 	const handleSignalingMessage = async (signalingData: any) => {
 		const dataType = signalingData.data_type;
+		channelIdRef.current = signalingData?.channel_id || '';
 		if ([WebrtcSignalingType.WEBRTC_SDP_QUIT, WebrtcSignalingType.WEBRTC_SDP_TIMEOUT].includes(dataType)) {
 			if (!timeStartConnected?.current && isMyCaller?.current) {
 				const callLogType =
 					dataType === WebrtcSignalingType.WEBRTC_SDP_TIMEOUT ? IMessageTypeCallLog.TIMEOUTCALL : IMessageTypeCallLog.REJECTCALL;
 				dispatch(
 					DMCallActions.updateCallLog({
-						channelId: channelId || '',
+						channelId: channelId || signalingData?.channel_id || '',
 						content: {
 							t:
 								callLogType === IMessageTypeCallLog.TIMEOUTCALL
@@ -438,7 +440,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 							callLog: {
 								isVideo: isShowMeetDM,
 								callLogType,
-								showCallBack: callLogType === IMessageTypeCallLog.TIMEOUTCALL ? true : false // Timeout can retry, reject cannot
+								showCallBack: callLogType === IMessageTypeCallLog.TIMEOUTCALL // Timeout can retry, reject cannot
 							}
 						}
 					})
@@ -500,8 +502,8 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 		);
 	};
 
-	const cancelCallFCMMobile = async (receiverId: string = dmUserId) => {
-		const bodyFCMMobile = { offer: 'CANCEL_CALL' };
+	const cancelCallFCMMobile = async (receiverId: string = dmUserId, isConnected = false) => {
+		const bodyFCMMobile = { offer: 'CANCEL_CALL', isConnected };
 		await mezon.socketRef.current?.makeCallPush(receiverId, JSON.stringify(bodyFCMMobile), channelId, userId);
 	};
 
@@ -569,7 +571,7 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 
 				dispatch(
 					DMCallActions.updateCallLog({
-						channelId,
+						channelId: channelId || channelIdRef?.current || '',
 						content: {
 							t: `Call duration: ${timeCall}`,
 							callLog: {
@@ -580,8 +582,10 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 						}
 					})
 				);
-			} else {
+			} else if (isMyCaller?.current) {
 				await cancelCallFCMMobile();
+			} else {
+				/* empty */
 			}
 		} catch (error) {
 			console.error('Error ending call:', error);
