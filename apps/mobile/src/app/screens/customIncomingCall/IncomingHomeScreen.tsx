@@ -11,13 +11,24 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
+import { sleep } from '@mezon/utils';
 import notifee from '@notifee/react-native';
 import LottieView from 'lottie-react-native';
 import type { WebrtcSignalingFwd } from 'mezon-js';
 import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
-import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import {
+	BackHandler,
+	Image,
+	ImageBackground,
+	NativeModules,
+	Platform,
+	Text,
+	TouchableOpacity,
+	Vibration,
+	View
+} from 'react-native';
 import { Bounce } from 'react-native-animated-spinkit';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
@@ -30,9 +41,9 @@ import { CallDetailNative } from './CallDetailNative';
 import LOTTIE_PHONE_DECLINE from './phone-decline.json';
 import LOTTIE_PHONE_RING from './phone-ring.json';
 import { style } from './styles';
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import { sleep } from '@mezon/utils';
 import BG_CALLING from './bgCalling.png';
 
 registerGlobals();
@@ -141,7 +152,11 @@ const IncomingHomeScreen = memo(() => {
 	const getDataCall = useCallback(async () => {
 		try {
 			const notificationData = await NotificationPreferences.getValue('notificationDataCalling');
-			if (!notificationData) return;
+			if (!notificationData) {
+				stopAndReleaseSound();
+				onKillApp();
+				return;
+			}
 
 			const notificationDataParse = safeJSONParse(notificationData || '{}');
 			const data = safeJSONParse(notificationDataParse?.offer || '{}');
