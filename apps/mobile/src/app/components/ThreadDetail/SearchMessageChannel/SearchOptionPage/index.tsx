@@ -58,7 +58,7 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 		if (!searchText) return filteredChannels;
 
 		try {
-			return filteredChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim()));
+			return filteredChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim())) || [];
 		} catch (error) {
 			console.error('Filter search channel list error', error);
 			return [];

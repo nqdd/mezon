@@ -74,11 +74,11 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 	}, [optionFilter?.value, userMention, nameChannel, currentChannel?.channel_id, currentChannel?.id]);
 
 	const shouldSearchMessage = useMemo(() => {
-		return (searchText.trim().length > 0 || (optionFilter && userMention)) && channelId;
+		return (searchText?.trim().length > 0 || (optionFilter && userMention)) && channelId;
 	}, [searchText, optionFilter, userMention, channelId]);
 
 	const shouldClearSearch = useMemo(() => {
-		return channelId && !searchText.trim() && !(optionFilter && userMention);
+		return channelId && !searchText?.trim() && !(optionFilter && userMention);
 	}, [channelId, searchText, optionFilter, userMention]);
 
 	const handleSearchMessage = useCallback(() => {
