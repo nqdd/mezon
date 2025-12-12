@@ -13,7 +13,10 @@ export default function setupAutoUpdates() {
 		return;
 	}
 	isUpdateCheckStarted = true;
-	if (process.platform !== 'win32') {
+	if (process.platform === 'win32') {
+		autoUpdater.autoDownload = false;
+		autoUpdater.autoInstallOnAppQuit = false;
+	} else {
 		autoUpdater.autoDownload = true;
 		autoUpdater.autoInstallOnAppQuit = true;
 	}
