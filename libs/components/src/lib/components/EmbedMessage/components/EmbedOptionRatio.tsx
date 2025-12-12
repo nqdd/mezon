@@ -19,7 +19,7 @@ export function EmbedOptionRatio({ options, message_id, idRadio, max_options, di
 	const [checked, setChecked] = useState<string[]>(embedData ? (Array.isArray(embedData) ? embedData : [embedData]) : []);
 	const handleCheckedOption = (value: string) => {
 		if (disabled) return;
-		if (!max_options || checked.length < max_options || checked.includes(value)) {
+		if (!max_options || (checkMultiple && checked.length < max_options) || !checkMultiple || checked.includes(value)) {
 			handleAddEmbedRadioValue(value);
 		}
 	};
