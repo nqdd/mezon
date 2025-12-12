@@ -1430,14 +1430,13 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					channel_label: channelCreated.channel_label,
 					channel_private: channelCreated.channel_private,
 					type: channelCreated.channel_type,
-					//status: channelCreated.status,
 					app_id: channelCreated.app_id,
 					clan_id: channelCreated.clan_id
 				};
 				dispatch(listChannelRenderAction.addThreadToListRender({ clanId: channelCreated?.clan_id as string, channel: thread }));
 			}
 
-			if (channelCreated.channel_private === 1 && !channelCreated.parent_id) {
+			if (channelCreated.channel_private === 1 && channelCreated.channel_type === ChannelType.CHANNEL_TYPE_CHANNEL) {
 				dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
 			}
 		}
@@ -1508,6 +1507,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					channel_type: channelCreated.channel_type,
 					creator_id: channelCreated.creator_id,
 					app_id: channelCreated.app_id
+				})
+			);
+		}
+
+		if (channelCreated.channel_type === ChannelType.CHANNEL_TYPE_DM) {
+			dispatch(
+				directActions.upsertOne({
+					id: channelCreated.channel_id,
+					channel_label: channelCreated.channel_label,
+					type: channelCreated.channel_type,
+					active: 1
 				})
 			);
 		}
@@ -2246,8 +2256,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	);
 
 	const onwebrtcsignalingfwd = useCallback(async (event: WebrtcSignalingFwd) => {
+		// Define type 50 for clear call on all platforms
+		const WEBRTC_CLEAR_CALL = 50;
 		// Handle Group Call Events (>= 9)
-		if (event.data_type >= 9) {
+		if (event.data_type >= 9 && event.data_type !== WEBRTC_CLEAR_CALL) {
 			const store = await getStoreAsync();
 			const state = store.getState() as unknown as RootState;
 
@@ -2281,7 +2293,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			);
 			return;
 		}
-		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT) {
+		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_QUIT || event.data_type === WEBRTC_CLEAR_CALL) {
 			dispatch(DMCallActions.removeAll());
 			dispatch(audioCallActions.reset());
 			dispatch(DMCallActions.cancelCall({}));
@@ -2289,6 +2301,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(audioCallActions.setUserCallId(''));
 			dispatch(audioCallActions.setIsJoinedCall(false));
 			dispatch(DMCallActions.setOtherCall({}));
+			if (event.data_type !== WEBRTC_CLEAR_CALL) {
+				socketRef.current?.forwardWebrtcSignaling(event?.caller_id, WEBRTC_CLEAR_CALL, '', event?.channel_id, userId || '');
+			} else if (event.data_type === WEBRTC_CLEAR_CALL) {
+				// Force quit call for android
+				dispatch(DMCallActions.setIsForceQuitCallNative(true));
+			}
 		}
 		if (signalingType === WebrtcSignalingType.WEBRTC_SDP_INIT) {
 			dispatch(audioCallActions.setIsJoinedCall(true));
@@ -2307,7 +2325,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			return;
 		}
 
-		if (signalingType <= 8) {
+		if (signalingType <= 8 || event.data_type === WEBRTC_CLEAR_CALL) {
 			dispatch(
 				DMCallActions.addOrUpdate({
 					calleeId: event?.receiver_id,
@@ -2536,7 +2554,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					clanId: user.clan_id,
 					banner_id: user.banner_id,
 					channelId: user.channel_id,
-					userIds: user?.user_ids
+					userIds: user?.user_ids,
+					ban_time: user?.ban_time
 				})
 			);
 		} else {

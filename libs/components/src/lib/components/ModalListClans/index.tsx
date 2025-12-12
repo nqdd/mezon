@@ -1,5 +1,13 @@
 import { useCustomNavigate } from '@mezon/core';
-import { appActions, getStore, selectBadgeCountByClanId, selectClanHasUnreadMessage, selectIsUseProfileDM, useAppDispatch } from '@mezon/store';
+import {
+	appActions,
+	defaultNotificationActions,
+	getStore,
+	selectBadgeCountByClanId,
+	selectClanHasUnreadMessage,
+	selectIsUseProfileDM,
+	useAppDispatch
+} from '@mezon/store';
 import { Image } from '@mezon/ui';
 import type { IClan } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
@@ -60,6 +68,11 @@ const SidebarClanItem = ({ option, active, onMouseDown, className = '', onClanCl
 		const windowHeight = window.innerHeight;
 		const distanceToBottom = windowHeight - event.clientY;
 		setCoords({ mouseX, mouseY, distanceToBottom });
+		await dispatch(
+			defaultNotificationActions.getDefaultNotificationClan({
+				clanId: option.id || option.clan_id || ''
+			})
+		);
 		openRightClickModal();
 	};
 

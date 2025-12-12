@@ -9,9 +9,9 @@ import {
 	fetchUserChannels,
 	listChannelRenderAction,
 	rolesClanActions,
-	selectAllUserChannel,
 	selectAllUserClans,
 	selectRolesByChannelId,
+	selectUserChannelIds,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { isPublicChannel } from '@mezon/utils';
@@ -44,7 +44,10 @@ export const BasicView = memo(({ channel }: IBasicViewProps) => {
 	const [isChannelPublic, setIsChannelPublic] = useState<boolean>(isPublicChannel(channel));
 
 	const listOfChannelRole = useSelector(selectRolesByChannelId(channel?.channel_id));
-	const listOfChannelMember = useSelector(selectAllUserChannel(channel?.channel_id));
+	const listChannelMemberIds = useSelector((state) => selectUserChannelIds(state, channel.channel_id));
+	const listOfChannelMember = useMemo(() => {
+		return allClanMembers?.filter((member) => listChannelMemberIds?.includes(member?.user?.id));
+	}, [allClanMembers, listChannelMemberIds]);
 
 	useEffect(() => {
 		dispatch(rolesClanActions.fetchRolesClan({ clanId: channel?.clan_id }));

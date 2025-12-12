@@ -84,7 +84,7 @@ export const CreateNewChannelModal = () => {
 			clan_id: currentClanId as string,
 			type: channelType,
 			channel_label: channelName,
-			channel_private: isPrivate,
+			channel_private: channelType !== ChannelType.CHANNEL_TYPE_CHANNEL ? 0 : isPrivate,
 			category_id: currentCategory?.category_id || channelWelcome?.category_id,
 			...(isAppChannel && selectedApp && { app_id: selectedApp.id }),
 			parent_id: '0'

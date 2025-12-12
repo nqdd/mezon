@@ -133,8 +133,8 @@ export default class App {
 			show: false,
 			frame: false,
 			titleBarOverlay: false,
-			titleBarStyle: process.platform == 'darwin' ? 'hiddenInset' : 'default',
-			trafficLightPosition: process.platform == 'darwin' ? { x: -100, y: -100 } : undefined,
+			titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+			trafficLightPosition: process.platform === 'darwin' ? { x: -100, y: -100 } : undefined,
 			fullscreenable: false,
 			webPreferences: {
 				nodeIntegration: false,
@@ -159,7 +159,7 @@ export default class App {
 		const gotTheLock = App.application.requestSingleInstanceLock();
 		if (gotTheLock) {
 			App.application.on('second-instance', (e, argv) => {
-				if (process.platform == 'win32' || process.platform == 'linux') {
+				if (process.platform === 'win32' || process.platform === 'linux') {
 					const url = argv.pop().slice(1);
 
 					if (url) {

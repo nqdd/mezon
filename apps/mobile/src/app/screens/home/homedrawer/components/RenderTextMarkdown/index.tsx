@@ -2,7 +2,17 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
-import { getStore, selectAllChannelMembers, selectAllUserClans, selectChannelsEntities, selectHashtagDmEntities } from '@mezon/store-mobile';
+import {
+	channelsActions,
+	getStore,
+	selectAllChannelMembers,
+	selectAllUserClans,
+	selectChannelById,
+	selectChannelByIdAndClanId,
+	selectClanById,
+	selectCurrentClanId,
+	selectHashtagDmById
+} from '@mezon/store-mobile';
 import type { IExtendedMessage } from '@mezon/utils';
 import { EBacktickType, ETokenMessage, getSrcEmoji, isYouTubeLink } from '@mezon/utils';
 import type { TFunction } from 'i18next';
@@ -18,7 +28,7 @@ import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
-import { getMessageReplyMaxHeight, styles as componentStyles } from './index.styles';
+import { styles as componentStyles, getMessageReplyMaxHeight } from './index.styles';
 
 export default function openUrl(url, customCallback) {
 	if (customCallback) {
@@ -30,6 +40,26 @@ export default function openUrl(url, customCallback) {
 		Linking.openURL(url);
 	}
 }
+
+export const checkUrl = async (url: string, clanId: string, channelId: string) => {
+	const store = getStore();
+	if (!clanId || !channelId) {
+		Linking.openURL(url);
+		return;
+	}
+	const userClan = selectClanById(clanId)(store.getState() as RootState);
+	if (userClan?.id) {
+		const response = await store.dispatch(channelsActions.fetchChannels({ clanId: userClan?.id, noCache: true }));
+		if (response?.meta?.requestStatus === 'fulfilled') {
+			const targetChannel = response?.payload?.channels?.find((channel) => channel?.channel_id === channelId);
+			if (targetChannel?.channel_id) {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_MENTION_MESSAGE_ITEM, targetChannel);
+				return;
+			}
+		}
+	}
+	Linking.openURL(url);
+};
 
 /**
  * Todo: move to helper
@@ -442,14 +472,14 @@ export const RenderTextMarkdownContent = ({
 
 			case ETokenMessage.HASHTAGS: {
 				if (!isHiddenHashtag) {
-					const channelsEntities = selectChannelsEntities(store.getState() as any);
-					const hashtagDmEntities = selectHashtagDmEntities(store.getState() as any);
+					const channelFound = selectChannelById(store.getState() as any, element?.channelid);
+					const hashtagDmFound = selectHashtagDmById(store.getState() as any, currentChannelId);
 					const mention = ChannelHashtag({
 						channelHashtagId: element?.channelid,
 						mode,
 						currentChannelId,
-						channelsEntities,
-						hashtagDmEntities
+						hashtagDmEntity: hashtagDmFound,
+						channelEntity: channelFound
 					});
 
 					const { text, link } = parseMarkdownLink(mention);
@@ -463,7 +493,8 @@ export const RenderTextMarkdownContent = ({
 						clan_id: dataChannel?.[2],
 						status: Number(dataChannel?.[3] || 1),
 						meeting_code: dataChannel?.[4] || '',
-						category_id: dataChannel?.[5]
+						category_id: dataChannel?.[5],
+						channel_label: text || ''
 					};
 
 					textParts.push(
@@ -583,17 +614,17 @@ export const RenderTextMarkdownContent = ({
 							const pathSegments = contentInElement?.split('/') as string[];
 							const channelIdOnLink = pathSegments?.[pathSegments?.indexOf('channels') + 1];
 
-							const channelsEntities = selectChannelsEntities(store.getState() as any);
-							const hashtagDmEntities = selectHashtagDmEntities(store.getState() as any);
-							const channelFound = channelsEntities[channelIdOnLink];
+							const channelFound = selectChannelByIdAndClanId(store.getState() as any, clanId, channelIdOnLink);
+							const hashtagDmFound = selectHashtagDmById(store.getState() as any, currentChannelId);
+							const currentClanId = selectCurrentClanId(store.getState() as any);
 
-							if (channelIdOnLink && channelFound?.id) {
+							if (channelIdOnLink && (channelFound?.id || currentClanId === clanId)) {
 								const mention = ChannelHashtag({
 									channelHashtagId: channelIdOnLink,
 									currentChannelId,
 									mode,
-									hashtagDmEntities,
-									channelsEntities
+									hashtagDmEntity: hashtagDmFound,
+									channelEntity: channelFound
 								});
 
 								const { text, link } = parseMarkdownLink(mention);
@@ -607,7 +638,8 @@ export const RenderTextMarkdownContent = ({
 									clan_id: dataChannel?.[2],
 									status: Number(dataChannel?.[3] || 1),
 									meeting_code: dataChannel?.[4] || '',
-									category_id: dataChannel?.[5]
+									category_id: dataChannel?.[5],
+									channel_label: text || ''
 								};
 
 								textParts.push(
@@ -627,6 +659,17 @@ export const RenderTextMarkdownContent = ({
 									>
 										{renderChannelIcon(payloadChannel?.type, payloadChannel?.channel_id, themeValue)}
 										{payloadChannel?.channel_id === 'undefined' ? 'private-channel' : text}
+									</Text>
+								);
+								break;
+							} else {
+								textParts.push(
+									<Text
+										key={`hashtag-${index}`}
+										style={themeValue ? markdownStyles(themeValue).link : {}}
+										onPress={() => checkUrl(contentInElement, clanId, channelIdOnLink)}
+									>
+										{contentInElement}
 									</Text>
 								);
 								break;

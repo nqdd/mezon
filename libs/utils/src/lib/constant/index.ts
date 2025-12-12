@@ -12,7 +12,7 @@ export const MAX_FILE_ATTACHMENTS = 50; // 50 items
 export const DEBOUNCE_TYPING_TIME = 700;
 export const TIME_OF_SHOWING_FIRST_POPUP = 1000 * 60 * 5;
 export const KEY_KEYBOARD = { BACKSPACE: 8, TAB: 9, ENTER: 13, ESC: 27, UP: 38, DOWN: 40, RIGHT: 39, LEFT: 27 };
-export const GROUP_CHAT_MAXIMUM_MEMBERS = 10;
+export const GROUP_CHAT_MAXIMUM_MEMBERS = 20;
 export const EVERYONE_ROLE_TITLE = 'Everyone';
 export const TITLE_MENTION_HERE = '@here';
 export const RECENT_EMOJI_CATEGORY = 'Recent';
@@ -49,8 +49,8 @@ export const DEFAULT_ID = '0';
 export const LIMIT = 50;
 
 export const threadError: ThreadError = {
-	name: 'Thread Name is required',
-	message: 'Starter Message is required'
+	name: 'channelTopbar:createThread.validation.threadNameRequired',
+	message: 'channelTopbar:createThread.validation.starterMessageRequired'
 };
 
 export const titleMission = ['Send a message in', 'Visit a channel', 'Do anything you want'];
@@ -194,8 +194,11 @@ export const STICKER_WAVE = {
 		'https://cdn.mezon.ai/stickers/d5.gif',
 		'https://cdn.mezon.ai/stickers/whatsapp.gif',
 		'https://cdn.mezon.ai/stickers/zalo.gif',
+		'https://cdn.mezon.ai/stickers/mezon.gif',
 		'https://cdn.mezon.ai/stickers/telegram.gif',
+		'https://cdn.mezon.ai/stickers/mezon.gif',
 		'https://cdn.mezon.ai/stickers/slack.gif',
+		'https://cdn.mezon.ai/stickers/mezon.gif',
 		'https://cdn.mezon.ai/stickers/discord.gif',
 		'https://cdn.mezon.ai/stickers/mezon.gif'
 	]

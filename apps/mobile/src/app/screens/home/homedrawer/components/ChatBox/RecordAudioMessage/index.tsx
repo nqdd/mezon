@@ -16,7 +16,7 @@ import type { ApiSdTopic, ApiSdTopicRequest } from 'mezon-js/api.gen';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImageStyle } from 'react-native';
-import { DeviceEventEmitter, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, DeviceEventEmitter, InteractionManager, Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import Toast from 'react-native-toast-message';
@@ -55,6 +55,7 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isC
 	const [isConfirmRecordModalVisible, setIsConfirmRecordModalVisible] = useState<boolean>(false);
 	const audioRecorderPlayerRef = useRef<AudioRecorderPlayer | null>(null);
 	const dispatch = useAppDispatch();
+	const [isUploading, setIsUploading] = useState<boolean>(false);
 
 	const getAudioRecorderPlayer = useCallback(() => {
 		if (!audioRecorderPlayerRef.current) {
@@ -153,67 +154,11 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isC
 		return topic;
 	}, [currentChannelDM?.channel_id, currentChannelDM?.clan_id, dispatch, initMessageIdOfTopic]);
 
-	const sendMessage = useCallback(async () => {
-		try {
-			let recordingUrl;
-			if (isPreviewRecord) {
-				recordingUrl = recordUrl;
-			} else {
-				recordingUrl = await stopRecording();
-			}
-			if (!recordingUrl) return;
-			const session = sessionRef.current;
-			const client = clientRef.current;
-			const socket = socketRef.current;
-			const clanId = currentChannelDM?.clan_id;
-			const channelId = currentChannelDM?.channel_id;
-			const isPublic = !currentChannelDM?.channel_private;
-
-			let topicIdToUse = topicId;
-			if (isCreateTopic && !topicId && !!initMessageIdOfTopic) {
-				const topic = (await createTopic()) as ApiSdTopic;
-				if (topic) {
-					topicIdToUse = topic?.id;
-				}
-			}
-
-			const attachments = await getAudioFileInfo(recordingUrl);
-			const uploadedFiles = await getMobileUploadedAttachments({
-				attachments,
-				client,
-				session
-			});
-			await socket.writeChatMessage(clanId, channelId, mode, isPublic, { t: '' }, [], uploadedFiles, [], false, false, '', 0, topicIdToUse);
-			if (isCreateTopic && !topicId) {
-				dispatch(topicsActions.setCurrentTopicId(topicIdToUse as string));
-			}
-			setIsDisplay(false);
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-		} catch (error) {
-			console.error('Failed to send message:', error);
-			setIsDisplay(false);
-		}
-	}, [
-		isPreviewRecord,
-		sessionRef,
-		clientRef,
-		socketRef,
-		currentChannelDM?.clan_id,
-		currentChannelDM?.channel_id,
-		currentChannelDM?.channel_private,
-		topicId,
-		isCreateTopic,
-		mode,
-		recordUrl,
-		stopRecording,
-		createTopic
-	]);
-
-	const normalizeFilePath = (path) => {
+	const normalizeFilePath = (path: string) => {
 		return path.replace(/^file:\/*/, 'file:///');
 	};
 
-	const getAudioFileInfo = useCallback(async (uri) => {
+	const getAudioFileInfo = useCallback(async (uri: string) => {
 		try {
 			const fixedPath = normalizeFilePath(uri);
 			const fileInfo = await RNFS.stat(fixedPath);
@@ -233,6 +178,102 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isC
 			return null;
 		}
 	}, []);
+
+	const sendMessage = useCallback(async () => {
+		try {
+			let recordingUrl;
+			if (isPreviewRecord) {
+				recordingUrl = recordUrl;
+			} else {
+				recordingUrl = await stopRecording();
+			}
+			if (!recordingUrl) return;
+			setIsUploading(true);
+			InteractionManager.runAfterInteractions(async () => {
+				try {
+					const session = sessionRef.current;
+					const client = clientRef.current;
+					const socket = socketRef.current;
+					const clanId = currentChannelDM?.clan_id;
+					const channelId = currentChannelDM?.channel_id;
+					const isPublic = !currentChannelDM?.channel_private;
+
+					let topicIdToUse = topicId;
+					if (isCreateTopic && !topicId && !!initMessageIdOfTopic) {
+						const topic = (await createTopic()) as ApiSdTopic;
+						if (topic) {
+							topicIdToUse = topic?.id;
+						}
+					}
+
+					// Perform upload and send message
+					const attachments = await getAudioFileInfo(recordingUrl);
+					const uploadedFiles = await getMobileUploadedAttachments({
+						attachments,
+						client,
+						session
+					});
+					await socket.writeChatMessage(
+						clanId,
+						channelId,
+						mode,
+						isPublic,
+						{ t: '' },
+						[],
+						uploadedFiles,
+						[],
+						false,
+						false,
+						'',
+						0,
+						topicIdToUse
+					);
+					if (isCreateTopic && !topicId) {
+						dispatch(topicsActions.setCurrentTopicId(topicIdToUse as string));
+					}
+					setIsUploading(false);
+					setIsDisplay(false);
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+				} catch (error) {
+					console.error('Failed to send message:', error);
+					setIsUploading(false);
+					setIsDisplay(false);
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+					Toast.show({
+						type: 'error',
+						text1: t('common:error'),
+						text2: t('common:failedToSendMessage')
+					});
+				}
+			});
+		} catch (error) {
+			console.error('Failed to prepare message:', error);
+			setIsUploading(false);
+			Toast.show({
+				type: 'error',
+				text1: t('common:error'),
+				text2: t('common:failedToSendMessage')
+			});
+		}
+	}, [
+		isPreviewRecord,
+		sessionRef,
+		clientRef,
+		socketRef,
+		currentChannelDM?.clan_id,
+		currentChannelDM?.channel_id,
+		currentChannelDM?.channel_private,
+		topicId,
+		isCreateTopic,
+		mode,
+		recordUrl,
+		stopRecording,
+		createTopic,
+		dispatch,
+		initMessageIdOfTopic,
+		t,
+		getAudioFileInfo
+	]);
 
 	const handlePreviewRecord = async () => {
 		meterSoundRef.current?.pause();
@@ -262,7 +303,7 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isC
 		<>
 			<ModalConfirmRecord visible={isConfirmRecordModalVisible} onBack={handleBackRecord} onConfirm={handleQuitRecord} />
 			{/*TODO: Refactor this component*/}
-			<View style={styles.container}>
+			<View style={[styles.container, isUploading && { opacity: 0.7 }]}>
 				{isPreviewRecord && recordUrl ? (
 					<RenderAudioChat audioURL={recordUrl} stylesContainerCustom={styles.containerAudioCustom} styleLottie={styles.customLottie} />
 				) : (
@@ -270,16 +311,39 @@ export const BaseRecordAudioMessage = memo(({ channelId, mode, topicId = '', isC
 				)}
 
 				<View style={styles.textSection}>
-					<Text style={styles.title}>{t('handsFreeMode')}</Text>
+					<Text style={styles.title}>{isUploading ? t('uploading') : t('handsFreeMode')}</Text>
 					<View style={styles.buttonsRow}>
-						<TouchableOpacity onPress={handleRemoveRecord} style={styles.boxIcon}>
+						<TouchableOpacity
+							onPress={handleRemoveRecord}
+							style={[styles.boxIcon, isUploading && { opacity: 0.5 }]}
+							disabled={isUploading}
+						>
 							<MezonIconCDN icon={IconCDN.trashIcon} color={themeValue.white} />
 						</TouchableOpacity>
-						<TouchableOpacity onPress={sendMessage} style={styles.soundContainer}>
-							<MezonIconCDN icon={IconCDN.sendMessageIcon} customStyle={styles.iconOverlay as ImageStyle} color={themeValue.white} />
-							<LottieView ref={meterSoundRef} source={SOUND_WAVES_CIRCLE} resizeMode="cover" style={styles.soundLottie}></LottieView>
+						<TouchableOpacity
+							onPress={sendMessage}
+							style={[styles.soundContainer, isUploading && { opacity: 0.9 }]}
+							disabled={isUploading}
+						>
+							{isUploading ? (
+								<ActivityIndicator size="small" color={themeValue.white} style={styles.iconOverlay as ImageStyle} />
+							) : (
+								<>
+									<MezonIconCDN
+										icon={IconCDN.sendMessageIcon}
+										customStyle={styles.iconOverlay as ImageStyle}
+										color={themeValue.white}
+									/>
+									<LottieView
+										ref={meterSoundRef}
+										source={SOUND_WAVES_CIRCLE}
+										resizeMode="cover"
+										style={styles.soundLottie}
+									></LottieView>
+								</>
+							)}
 						</TouchableOpacity>
-						{!isPreviewRecord && (
+						{!isPreviewRecord && !isUploading && (
 							<TouchableOpacity onPress={handlePreviewRecord} style={styles.boxIcon}>
 								<MezonIconCDN icon={IconCDN.recordIcon} color={themeValue.white} />
 							</TouchableOpacity>

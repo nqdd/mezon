@@ -10,10 +10,21 @@ import {
 	STORAGE_MY_USER_ID,
 	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
-import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
+import {
+	appActions,
+	channelsActions,
+	clansActions,
+	directActions,
+	getFirstMessageOfTopic,
+	getStoreAsync,
+	topicsActions
+} from '@mezon/store-mobile';
 import i18n from '@mezon/translations';
 import { sleep } from '@mezon/utils';
-import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
+import notifee, {
+	AndroidLaunchActivityFlag,
+	AuthorizationStatus as NotifeeAuthorizationStatus
+} from '@notifee/react-native';
 import type { NotificationAndroid } from '@notifee/react-native/src/types/NotificationAndroid';
 import {
 	AndroidBadgeIconType,
@@ -25,7 +36,13 @@ import {
 } from '@notifee/react-native/src/types/NotificationAndroid';
 import { getApp } from '@react-native-firebase/app';
 import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import { AuthorizationStatus, getMessaging, getToken, hasPermission, requestPermission } from '@react-native-firebase/messaging';
+import {
+	AuthorizationStatus,
+	getMessaging,
+	getToken,
+	hasPermission,
+	requestPermission
+} from '@react-native-firebase/messaging';
 import { CommonActions } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import React from 'react';
@@ -672,7 +689,7 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 	const notificationId = 'incoming-call';
 	try {
 		const dataObj = safeJSONParse(data?.offer || '{}');
-		if (dataObj?.offer === 'CANCEL_CALL') {
+		if (dataObj?.offer === 'CANCEL_CALL' && !dataObj?.isConnected) {
 			const latestCallsCacheStr = load(STORAGE_LATEST_CALL_CACHE) || '{}';
 			const latestCallsCache = safeJSONParse(latestCallsCacheStr) || {};
 			await notifee.cancelNotification(notificationId, notificationId);
@@ -697,8 +714,8 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 		save(STORAGE_LATEST_CALL_CACHE, JSON.stringify(dataObj));
 
 		const channel = await notifee.createChannel({
-			id: 'calls',
-			name: 'Incoming Calls',
+			id: notificationId,
+			name: notificationId,
 			importance: AndroidImportance.HIGH,
 			visibility: AndroidVisibility.PUBLIC,
 			sound: appInBackground ? undefined : 'ringing',

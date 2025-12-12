@@ -64,12 +64,11 @@ export const ChannelItem = memo(({ channelData, onSelectChannel, isHideClanName 
 				<View style={styles.voiceChannelContainer}>
 					<View style={styles.channelRow}>
 						<IconChannel channelPrivate={channelData?.channel_private} type={channelData?.type} />
-						<View>
+						<View style={styles.channelNameWrapper}>
 							<View style={styles.channelInfo}>
 								<Text style={styles.channelName} numberOfLines={1}>
 									{channelData?.channel_label}
 								</Text>
-								<MezonIconCDN icon={IconCDN.lockIcon} width={10} height={10} color={'#c7c7c7'} />
 							</View>
 							{!isHideClanName && !!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
 						</View>

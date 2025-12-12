@@ -13,7 +13,10 @@ export default function setupAutoUpdates() {
 		return;
 	}
 	isUpdateCheckStarted = true;
-	if (process.platform !== 'win32') {
+	if (process.platform === 'win32' || process.platform === 'darwin') {
+		autoUpdater.autoDownload = false;
+		autoUpdater.autoInstallOnAppQuit = false;
+	} else {
 		autoUpdater.autoDownload = true;
 		autoUpdater.autoInstallOnAppQuit = true;
 	}
@@ -23,8 +26,8 @@ export default function setupAutoUpdates() {
 			return;
 		}
 		if (process.platform === 'darwin') {
-			//shell.openExternal('macappstore://itunes.apple.com/mezon.desktop');
-			//return;
+			shell.openExternal('macappstore://itunes.apple.com/mezon.desktop');
+			return;
 		}
 		new Notification({
 			icon: 'apps/desktop/src/assets/desktop-taskbar.ico',
@@ -40,13 +43,15 @@ export default function setupAutoUpdates() {
 	});
 
 	autoUpdater.on('error', (error: Error) => {
-		dialog.showMessageBox({
-			message: `Error: ${error.message} !!`
-		});
+		if (process.platform !== 'win32') {
+			dialog.showMessageBox({
+				message: `Error: ${error.message} !!`
+			});
 
-		BrowserWindow.getAllWindows().forEach((window) => {
-			window.webContents.send(UPDATE_ERROR, error);
-		});
+			BrowserWindow.getAllWindows().forEach((window) => {
+				window.webContents.send(UPDATE_ERROR, error);
+			});
+		}
 	});
 
 	autoUpdater.on('update-downloaded', (info: UpdateInfo) => {
@@ -64,7 +69,7 @@ export default function setupAutoUpdates() {
 
 autoUpdater.on('update-available', (info: UpdateInfo) => {
 	log.info(`The current version is ${app.getVersion()}. There is a new update for the app ${info.version}`);
-	if (process.platform === 'win32') {
+	if (process.platform === 'win32' || process.platform === 'darwin') {
 		BrowserWindow.getAllWindows().forEach((window) => {
 			window.webContents.send(UPDATE_AVAILABLE, info);
 		});

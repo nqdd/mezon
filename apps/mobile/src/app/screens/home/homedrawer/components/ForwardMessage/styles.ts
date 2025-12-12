@@ -14,12 +14,13 @@ export const style = (colors: Attributes) =>
 		},
 		btn: {
 			height: size.s_40,
+			width: size.s_40,
 			backgroundColor: baseColor.blurple,
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderStartColor: 'red',
 			borderRadius: size.s_50,
-			paddingHorizontal: size.s_12
+			paddingHorizontal: size.s_10
 		},
 		btnText: {
 			color: 'white',
@@ -95,8 +96,9 @@ export const style = (colors: Attributes) =>
 			flex: 1
 		},
 		containerMessage: {
-			paddingTop: size.s_12,
-			paddingHorizontal: size.s_20,
+			paddingTop: size.s_8,
+			paddingLeft: size.s_20,
+			paddingRight: size.s_16,
 			flexDirection: 'row',
 			alignItems: 'center',
 			backgroundColor: colors.secondary,
@@ -110,7 +112,8 @@ export const style = (colors: Attributes) =>
 			backgroundColor: colors.secondary,
 			paddingHorizontal: size.s_6,
 			borderLeftWidth: size.s_2,
-			borderColor: colors.border
+			borderColor: colors.border,
+			paddingVertical: size.s_2
 		},
 		messageContentContainer: {
 			flex: 1,
@@ -122,7 +125,9 @@ export const style = (colors: Attributes) =>
 			minHeight: size.s_20
 		},
 		containerSendMessage: {
-			padding: size.s_16,
+			paddingHorizontal: size.s_16,
+			paddingTop: size.s_12,
+			paddingBottom: size.s_16,
 			flexDirection: 'row',
 			alignItems: 'center',
 			justifyContent: 'space-between',

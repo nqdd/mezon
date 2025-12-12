@@ -77,9 +77,13 @@ const WelcomeMessage = React.memo(({ channelId, message, messageCount = 0 }: IWe
 
 	const isPrivate = useMemo(() => currenChannel?.channel_private === ChannelStatusEnum.isPrivate, [currenChannel?.channel_private]);
 
+	const isMediaChannel = useMemo(() => {
+		return [ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE, ChannelType.CHANNEL_TYPE_APP].includes(Number(currenChannel?.type));
+	}, [currenChannel?.type]);
+
 	const iconRender = useMemo(() => {
-		return isChannel ? (isPrivate ? IconCDN.channelTextLock : IconCDN.channelText) : isPrivate ? IconCDN.threadLockIcon : IconCDN.threadIcon;
-	}, [isChannel, isPrivate]);
+		return isChannel ? (isPrivate && !isMediaChannel ? IconCDN.channelTextLock : IconCDN.channelText) : isPrivate ? IconCDN.threadLockIcon : IconCDN.threadIcon;
+	}, [isChannel, isPrivate, isMediaChannel]);
 
 	const priorityName = useMemo(() => {
 		return displayName || userName || '';
@@ -262,7 +266,7 @@ const WelcomeMessage = React.memo(({ channelId, message, messageCount = 0 }: IWe
 					<Text style={styles.subTitleWelcomeMessage}>
 						{t('chatWelcome:welcome.startOfChannel', {
 							channelName: currenChannel?.channel_label || '',
-							channelType: currenChannel?.channel_private ? t('chatWelcome:welcome.private') : ''
+							channelType: currenChannel?.channel_private && !isMediaChannel ? t('chatWelcome:welcome.private') : ''
 						})}
 					</Text>
 				</View>

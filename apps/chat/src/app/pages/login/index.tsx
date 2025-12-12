@@ -1,6 +1,6 @@
 import { QRSection } from '@mezon/components';
 import { useAppNavigation, useAuth } from '@mezon/core';
-import { authActions, selectIsLogin } from '@mezon/store';
+import { authActions, selectIsLogin, toastActions } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 
 import { useEffect, useState } from 'react';
@@ -31,6 +31,7 @@ function Login() {
 			sessionRef.current = null;
 		}
 		dispatch(authActions.resetSession());
+		dispatch(toastActions.clearAllToastErrors());
 	}, []);
 
 	useEffect(() => {

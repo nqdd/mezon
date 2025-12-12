@@ -25,7 +25,7 @@ interface IDirectMessageCallProps {
 }
 
 export interface CallDetailNativeRef {
-	handleICECandidate: () => Promise<void>;
+	handleOffer: () => Promise<void>;
 }
 
 const maxRetries = 10;
@@ -42,12 +42,11 @@ export const CallDetailNative = memo(
 			const { t } = useTranslation(['dmMessage']);
 
 			const {
-				peerConnection,
 				callState,
 				localMediaControl,
 				timeStartConnected,
 				isConnected,
-				candidateCache,
+				offerCache,
 				startCall,
 				handleEndCall,
 				toggleSpeaker,
@@ -56,7 +55,7 @@ export const CallDetailNative = memo(
 				handleSignalingMessage,
 				switchCamera,
 				handleToggleIsConnected,
-				handleICECandidate
+				handleOffer
 			} = useWebRTCCallMobile({
 				dmUserId: receiverId,
 				userId: userProfile?.user?.id as string,
@@ -68,11 +67,11 @@ export const CallDetailNative = memo(
 			});
 
 			const retryCountRef = useRef<number>(0);
-			const candidateCacheRef = useRef(candidateCache);
+			const offerCacheRef = useRef(offerCache);
 
 			useEffect(() => {
-				candidateCacheRef.current = candidateCache;
-			}, [candidateCache]);
+				offerCacheRef.current = offerCache;
+			}, [offerCache]);
 
 			useEffect(() => {
 				if (isConnected && onIsConnected) {
@@ -80,11 +79,11 @@ export const CallDetailNative = memo(
 				}
 			}, [isConnected, onIsConnected]);
 
-			const handleICECandidateWithRetry = useCallback(async () => {
+			const handleOfferWithRetry = useCallback(async () => {
 				const executePush = async (attempt: number): Promise<void> => {
-					const currentCandidateCache = candidateCacheRef.current;
-					if (currentCandidateCache && !!peerConnection?.current) {
-						await handleICECandidate(currentCandidateCache);
+					const currentOfferCache = offerCacheRef.current;
+					if (currentOfferCache) {
+						await handleOffer(currentOfferCache);
 						retryCountRef.current = 0;
 						return;
 					}
@@ -98,14 +97,14 @@ export const CallDetailNative = memo(
 				};
 
 				await executePush(retryCountRef.current);
-			}, [handleICECandidate, peerConnection]);
+			}, [handleOffer]);
 
 			useImperativeHandle(
 				ref,
 				() => ({
-					handleICECandidate: handleICECandidateWithRetry
+					handleOffer: handleOfferWithRetry
 				}),
-				[handleICECandidateWithRetry]
+				[handleOfferWithRetry]
 			);
 
 			const onCancelCall = async () => {

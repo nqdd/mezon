@@ -20,6 +20,7 @@ import {
 import { useAuth, useOnClickOutside, usePermissionChecker } from '@mezon/core';
 import { selectMemberClanByUserId, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import type { UsersClanEntity } from '@mezon/utils';
 import { EPermission, createImgproxyUrl } from '@mezon/utils';
 import type { Participant, Room } from 'livekit-client';
 import { ConnectionQuality, Track } from 'livekit-client';
@@ -42,7 +43,7 @@ export function ParticipantContextIfNeeded(
 	return props.participant && !hasContext ? (
 		<ParticipantContext.Provider value={props.participant}>{props.children}</ParticipantContext.Provider>
 	) : (
-		<>{props.children}</>
+		props.children
 	);
 }
 
@@ -55,7 +56,7 @@ export function TrackRefContextIfNeeded(
 	return props.trackRef && !hasContext ? (
 		<TrackRefContext.Provider value={props.trackRef}>{props.children}</TrackRefContext.Provider>
 	) : (
-		<>{props.children}</>
+		props.children
 	);
 }
 
@@ -68,6 +69,7 @@ export interface ParticipantTileProps extends React.HTMLAttributes<HTMLDivElemen
 	activeSoundReactions?: Map<string, ActiveSoundReaction>;
 	roomName?: string;
 	room?: Room;
+	groupMembers?: UsersClanEntity[];
 }
 export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes<HTMLDivElement>) => React.ReactNode = forwardRef<
 	HTMLDivElement,
@@ -82,6 +84,7 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 		isExtCalling,
 		activeSoundReactions,
 		room,
+		groupMembers,
 		...htmlProps
 	}: ParticipantTileProps,
 	ref
@@ -130,7 +133,14 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 
 	const extAvatar = parsedUsername?.extAvatar ? parsedUsername?.extAvatar : undefined;
 
-	const member = useAppSelector((state) => selectMemberClanByUserId(state, participantId));
+	const clanMember = useAppSelector((state) => selectMemberClanByUserId(state, participantId));
+
+	const member = useMemo(() => {
+		if (groupMembers) {
+			return groupMembers.find((m) => m.user?.id === participantId || m.id === participantId);
+		}
+		return clanMember;
+	}, [groupMembers, clanMember, participantId]);
 
 	const voiceUsername = member?.clan_nick || member?.user?.display_name || member?.user?.username || usernameString;
 
@@ -231,10 +241,10 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 		dispatch(
 			voiceActions.kickVoiceMember({
 				room_name: roomName,
-				username: member?.user?.username
+				username: member?.user?.id
 			})
 		);
-	}, [roomName, closeContextVoiceMember]);
+	}, [roomName, closeContextVoiceMember, dispatch, member?.user?.id]);
 
 	const handleMuteMember = useCallback(async () => {
 		closeContextVoiceMember();
@@ -244,10 +254,10 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 		dispatch(
 			voiceActions.muteVoiceMember({
 				room_name: roomName,
-				username: member?.user?.username
+				username: member?.user?.id
 			})
 		);
-	}, [roomName, closeContextVoiceMember]);
+	}, [roomName, closeContextVoiceMember, dispatch, member?.user?.id]);
 
 	const handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
 		event.preventDefault();
