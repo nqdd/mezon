@@ -5,7 +5,7 @@ import { clansActions, getStore, selectChannelById, selectCurrentClanId, useAppS
 import { sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
@@ -16,9 +16,11 @@ import style from './ChannelItem.styles';
 
 type ChannelItemProps = {
 	channelData?: ChannelUsersEntity;
+	onSelectChannel?: (channel: ChannelUsersEntity) => void;
+	isHideClanName?: boolean;
 };
 
-export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
+export const ChannelItem = memo(({ channelData, onSelectChannel, isHideClanName = false }: ChannelItemProps) => {
 	const { t } = useTranslation(['searchMessageChannel']);
 	const { themeValue } = useTheme();
 	const parentChannel = useAppSelector((state) => selectChannelById(state, channelData?.parent_id || ''));
@@ -27,6 +29,10 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 	const navigation = useNavigation<any>();
 	const isTabletLandscape = useTabletLandscape();
 	const handleOnPress = async () => {
+		if (onSelectChannel) {
+			onSelectChannel(channelData);
+			return;
+		}
 		const store = getStore();
 		const clanIdStore = selectCurrentClanId(store.getState());
 
@@ -40,6 +46,7 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 			navigation.goBack();
 		}
 	};
+
 	return (
 		<TouchableOpacity onPress={handleOnPress} style={styles.channelItemContainer}>
 			{[ChannelType.CHANNEL_TYPE_CHANNEL, ChannelType.CHANNEL_TYPE_THREAD, ChannelType.CHANNEL_TYPE_APP].includes(channelData?.type) ? (
@@ -49,7 +56,7 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 						<View style={styles.channelInfo}>
 							<Text style={styles.channelName} numberOfLines={1}>{`${channelData?.channel_label} ${parentLabel}`}</Text>
 						</View>
-						{!!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
+						{!isHideClanName && !!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
 					</View>
 				</View>
 			) : null}
@@ -64,7 +71,7 @@ export const ChannelItem = React.memo(({ channelData }: ChannelItemProps) => {
 								</Text>
 								<MezonIconCDN icon={IconCDN.lockIcon} width={10} height={10} color={'#c7c7c7'} />
 							</View>
-							{!!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
+							{!isHideClanName && !!channelData?.clan_name && <Text style={styles.categoryChannel}>{channelData?.clan_name}</Text>}
 						</View>
 					</View>
 					<View style={styles.joinChannelBtn}>
