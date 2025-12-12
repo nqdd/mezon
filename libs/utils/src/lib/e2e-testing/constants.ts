@@ -692,7 +692,17 @@ export const DATA_E2E_IDENTIFIER = {
 				}
 			},
 			inbox: {
-				mentions: ''
+				mentions: '',
+				topics: {
+					init_message: '',
+					last_reply_message: '',
+					button: {
+						jump: ''
+					}
+				},
+				message: '',
+				for_you: '',
+				action_tabs: ''
 			}
 		},
 		mention: {
