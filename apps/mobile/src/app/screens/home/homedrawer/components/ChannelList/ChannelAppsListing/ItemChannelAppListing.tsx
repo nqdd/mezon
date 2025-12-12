@@ -24,7 +24,7 @@ const ItemChannelAppListing = ({
 					<FastImage source={{ uri: item?.app_logo }} style={styles.itemIcon} />
 				) : (
 					<View style={styles.itemIcon}>
-						<MezonIconCDN icon={IconCDN.channelApp} width={size.s_30} height={size.s_30} color={themeValue.text} />
+						<MezonIconCDN icon={IconCDN.channelApp} width={size.s_30} height={size.s_30} color={themeValue.textDisabled} />
 					</View>
 				)}
 			</View>

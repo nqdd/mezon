@@ -39,7 +39,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_8,
 			marginBottom: size.s_4,
 			backgroundColor: colors.secondaryWeight,
-			borderWidth: 1,
+			borderWidth: 0.5,
 			borderColor: colors.textDisabled,
 			justifyContent: 'center',
 			alignItems: 'center',
