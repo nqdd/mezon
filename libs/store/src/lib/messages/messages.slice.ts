@@ -1512,8 +1512,8 @@ export const messagesSlice = createSlice({
 		setLastMessage: (state, action: PayloadAction<ApiChannelMessageHeaderWithChannel>) => {
 			state.lastMessageByChannel[action.payload.channel_id] = action.payload;
 		},
-		updateTopicRplCount: (state, action: PayloadAction<{ channelId: string; topicId: string; increment: boolean }>) => {
-			const { channelId, topicId, increment } = action.payload;
+		updateTopicRplCount: (state, action: PayloadAction<{ channelId: string; topicId: string; increment: boolean; timestamp?: number }>) => {
+			const { channelId, topicId, increment, timestamp } = action.payload;
 
 			const channelMessages = state.channelMessages[channelId];
 			if (!channelMessages) return;
@@ -1530,6 +1530,9 @@ export const messagesSlice = createSlice({
 				const messageEntity = channelMessages.entities[topicCreatorMessage.id];
 				if (messageEntity?.content) {
 					messageEntity.content.rpl = newRpl;
+					if (timestamp && increment) {
+						messageEntity.content.lsnt = timestamp;
+					}
 				}
 			}
 		},
