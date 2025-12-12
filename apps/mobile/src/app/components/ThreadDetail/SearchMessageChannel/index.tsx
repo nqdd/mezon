@@ -103,7 +103,6 @@ const SearchMessageChannel = ({ route }: ISearchMessageChannelProps) => {
 
 		setFiltersSearch(filter);
 
-		dispatch(searchMessagesActions.setCurrentPage({ channelId, page: 1 }));
 		dispatch(
 			searchMessagesActions.fetchListSearchMessage({
 				filters: filter,
