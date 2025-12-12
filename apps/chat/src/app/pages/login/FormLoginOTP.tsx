@@ -151,7 +151,7 @@ const FormLoginOTP = ({ handleChangeMethod, onStepChange }: { handleChangeMethod
 				</div>
 
 				<div className=" flex flex-col items-center !mt-8">
-					<p className="text-sm">Couldn't access your email inbox?</p>
+					<p className="text-sm">{t('login.cannotAccessYourEmail')}</p>
 					<p className="text-sm text-gray-500 inline-block">
 						<button type="button" className="text-sm text-blue-500 hover:underline" onClick={handleChangeMethod}>
 							{t('login.loginByPassword')}
