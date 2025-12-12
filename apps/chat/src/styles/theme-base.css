@@ -167,6 +167,10 @@ button.bg-button-add-friend {
 	border-left: 3px solid var(--border-left-highlight);
 	background: var(--bg-highlight) !important;
 }
+.bg-channelapp-no-hover {
+	border-bottom: 2px solid var(--border-left-highlight);
+	background: var(--bg-highlight) !important;
+}
 
 /* button */
 .btn-theme-primary {
