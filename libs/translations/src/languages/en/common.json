@@ -302,7 +302,8 @@
 		"loginTooFast": "Login too fast. Please wait {{seconds}} seconds before trying again.",
 		"loginFailed": "Login Failed! An error occurred during login",
 		"otpSentMessage": "Please check your email address at {{email}} for the OTP",
-		"backToEmailInput": "Change email?"
+		"backToEmailInput": "Change email?",
+		"invalidTimeOtp": "Invalid time OTP"
 	},
 	"otpVerify": {
 		"loginToMezon": "Log in to Mezon account",
@@ -461,6 +462,9 @@
 	"successBuyItem": "Buy item successfully!",
 	"failedToBuyItem": "Failed to buy item!",
 	"loadingData": "Loading data, please wait a moment!",
+	"loadingInvite": "Loading invite...",
+	"inviteLoadFailed": "Failed to load invite. Please check the link and try again.",
+	"locationSharedMessage": "A location was shared with you. Tap to open the map",
 	"close": "Close",
 	"cannotJoinClan": "Cannot join clan",
 	"failedToLoad": "Failed to load",

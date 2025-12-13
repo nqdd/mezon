@@ -438,7 +438,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							messagesActions.updateTopicRplCount({
 								topicId: message?.topic_id,
 								channelId: message?.channel_id,
-								increment: true
+								increment: true,
+								timestamp: message.create_time_seconds
 							})
 						);
 					}

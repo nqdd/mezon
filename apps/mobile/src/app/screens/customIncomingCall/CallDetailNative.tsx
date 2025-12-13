@@ -18,6 +18,7 @@ import { style } from './styles';
 interface IDirectMessageCallProps {
 	isVideoCall?: boolean;
 	receiverId: string;
+	isInCall: boolean;
 	directMessageId: string;
 	receiverAvatar: string;
 	receiverName: string;
@@ -32,7 +33,7 @@ const maxRetries = 10;
 const retryDelayMs = 500;
 export const CallDetailNative = memo(
 	forwardRef<CallDetailNativeRef, IDirectMessageCallProps>(
-		({ isVideoCall = false, directMessageId, receiverId, onIsConnected, receiverName, receiverAvatar }, ref) => {
+		({ isVideoCall = false, directMessageId, receiverId, isInCall, onIsConnected, receiverName, receiverAvatar }, ref) => {
 			const { themeValue } = useTheme();
 			const dispatch = useAppDispatch();
 			const styles = style(themeValue);
@@ -188,7 +189,7 @@ export const CallDetailNative = memo(
 				};
 			}, [isVideoCall]);
 
-			if (!isConnected) {
+			if (!isConnected && !isInCall) {
 				return <View />;
 			}
 

@@ -432,6 +432,7 @@ export interface IMessageSendPayload {
 	lky?: ILinkYoutubeOnMessage[];
 	isCard?: boolean;
 	rpl?: number;
+	lsnt?: number;
 }
 
 export type IUser = {

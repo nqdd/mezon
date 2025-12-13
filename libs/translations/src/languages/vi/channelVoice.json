@@ -34,5 +34,13 @@
 			"deleted": "Kênh thoại đã bị xóa"
 		},
 		"confirm": "Xác nhận"
+	},
+	"permission": {
+		"cameraTitle": "Cấp quyền camera",
+		"cameraBody": "Ứng dụng chưa được cấp quyền camera. Vui lòng bật quyền camera trong cài đặt hệ thống.",
+		"microphoneTitle": "Cấp quyền microphone",
+		"microphoneBody": "Ứng dụng chưa được cấp quyền microphone. Vui lòng bật quyền microphone trong cài đặt hệ thống.",
+		"cancel": "Hủy",
+		"deviceSettings": "Cài đặt thiết bị"
 	}
 }

@@ -41,13 +41,13 @@ const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 								<FastImage source={{ uri: item?.app_logo }} style={styles.appItemIcon} resizeMode={FastImage.resizeMode.cover} />
 							) : (
 								<View style={[styles.appItemIcon, styles.appItemIconPlaceholder]}>
-									<MezonIconCDN icon={IconCDN.channelApp} width={size.s_32} height={size.s_32} color={themeValue.text} />
+									<MezonIconCDN icon={IconCDN.channelApp} width={size.s_32} height={size.s_32} color={themeValue.textDisabled} />
 								</View>
 							)}
 						</View>
 						<View style={styles.appItemInfo}>
 							<Text style={styles.appItemName} numberOfLines={1}>
-								{item?.app_name || 'Unnamed App'}
+								{item?.app_name || ''}
 							</Text>
 							{/*<Text style={styles.appItemDescription} numberOfLines={2}></Text>*/}
 						</View>

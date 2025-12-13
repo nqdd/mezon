@@ -10,6 +10,7 @@ export interface TransactionHistoryState {
 	transactionHistory?: Transaction[] | null;
 	count?: number;
 	detailTransaction?: Transaction | null;
+	hasMore?: boolean;
 }
 
 export const fetchListTransactionHistory = createAsyncThunk(
@@ -25,6 +26,26 @@ export const fetchListTransactionHistory = createAsyncThunk(
 				ledgers: response.data || [],
 				count: response.meta.total_items || 0,
 				page: page || 1
+			};
+		} catch (error) {
+			return thunkAPI.rejectWithValue({ error });
+		}
+	}
+);
+
+export const fetchLoadMoreTransaction = createAsyncThunk(
+	'transactionHistory/fetchLoadMore',
+	async ({ address, filter = 0, timeStamp, lastHash }: { address: string; filter?: number; timeStamp?: string; lastHash?: string }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			if (!mezon.indexerClient) {
+				return thunkAPI.rejectWithValue('IndexerClient not initialized');
+			}
+			const response = await mezon.indexerClient.getTransactionsByWalletBeforeTimestamp(address, filter, undefined, timeStamp, lastHash);
+			return {
+				ledgers: response?.data || [],
+				count: response?.meta?.total_items || 0,
+				hasMore: response?.meta?.has_more ?? false
 			};
 		} catch (error) {
 			return thunkAPI.rejectWithValue({ error });
@@ -51,7 +72,8 @@ export const initialTransactionHistoryState: TransactionHistoryState = {
 	error: null,
 	transactionHistory: null,
 	detailTransaction: null,
-	count: 0
+	count: 0,
+	hasMore: false
 };
 
 export const transactionHistorySlice = createSlice({
@@ -61,6 +83,7 @@ export const transactionHistorySlice = createSlice({
 		resetTransactionHistory: (state) => {
 			state.transactionHistory = null;
 			state.count = 0;
+			state.hasMore = false;
 		}
 	},
 	extraReducers: (builder) => {
@@ -88,6 +111,19 @@ export const transactionHistorySlice = createSlice({
 			.addCase(fetchTransactionDetail.rejected, (state: TransactionHistoryState, action) => {
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
+			})
+			.addCase(fetchLoadMoreTransaction.pending, (state: TransactionHistoryState) => {
+				state.loadingStatus = 'loading';
+			})
+			.addCase(fetchLoadMoreTransaction.fulfilled, (state: TransactionHistoryState, action) => {
+				const { ledgers, count, hasMore } = action.payload;
+				state.transactionHistory = [...(state.transactionHistory || []), ...ledgers];
+				state.count = count;
+				state.hasMore = hasMore;
+			})
+			.addCase(fetchLoadMoreTransaction.rejected, (state: TransactionHistoryState, action) => {
+				state.loadingStatus = 'error';
+				state.error = action.error.message;
 			});
 	}
 });
@@ -98,8 +134,10 @@ export const transactionHistoryReducer = transactionHistorySlice.reducer;
 export const transactionHistoryActions = {
 	...transactionHistorySlice.actions,
 	fetchListTransactionHistory,
-	fetchTransactionDetail
+	fetchTransactionDetail,
+	fetchLoadMoreTransaction
 };
 export const selectTransactionHistory = createSelector(getTransactionHistoryState, (state) => state.transactionHistory);
 export const selectCountTransactionHistory = createSelector(getTransactionHistoryState, (state) => state.count);
 export const selectDetailTransaction = createSelector(getTransactionHistoryState, (state) => state.detailTransaction);
+export const selectHasMore = createSelector(getTransactionHistoryState, (state) => state.hasMore);

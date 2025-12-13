@@ -11,7 +11,7 @@ import { Icons, Menu } from '@mezon/ui';
 import type { IMessageSelect, IMessageSelectOption } from '@mezon/utils';
 import { ModeResponsive } from '@mezon/utils';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 type MessageSelectProps = {
@@ -27,9 +27,11 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 	const currentDmId = useSelector(selectDmGroupCurrentId);
 	const modeResponsive = useSelector(selectModeResponsive);
 	const currentUserId = useSelector(selectCurrentUserId);
-	const [selectedOptions, setSelectedOptions] = useState<Array<IMessageSelectOption>>([]);
+	const [selectedOptions, setSelectedOptions] = useState<Array<IMessageSelectOption>>(select?.valueSelected ? [select?.valueSelected] : []);
 
-	const [availableOptions, setAvailableOptions] = useState(select?.options || []);
+	const [availableOptions, setAvailableOptions] = useState(
+		select?.options ? select?.options.filter((item) => item?.value !== select?.valueSelected?.value) : []
+	);
 	const dispatch = useAppDispatch();
 	const handleOptionSelect = (option: { value: string; label: string }) => {
 		if (select?.disabled) {
@@ -97,11 +99,6 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 	const checkMultipleSelect = useMemo(() => {
 		return (!!select?.min_options && select?.min_options > 1) || (!!select?.max_options && select?.max_options >= 2);
 	}, [select?.min_options, select?.max_options]);
-	useEffect(() => {
-		if (select?.valueSelected) {
-			handleOptionSelect(select?.valueSelected);
-		}
-	}, []);
 
 	const handleRemoveOption = (e: React.MouseEvent<HTMLButtonElement>, option: { value: string; label: string }) => {
 		e.stopPropagation();

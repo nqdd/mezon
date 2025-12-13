@@ -7,6 +7,7 @@ import {
 	groupCallActions,
 	selectIsPiPMode,
 	selectIsShowPreCallInterface,
+	selectVoiceFullScreen,
 	selectVoiceInfo,
 	useAppDispatch,
 	useAppSelector,
@@ -178,6 +179,7 @@ const RoomView = ({
 	const [focusedScreenShare, setFocusedScreenShare] = useState<TrackReference | null>(null);
 	const [isHiddenControl, setIsHiddenControl] = useState<boolean>(false);
 	const isPiPMode = useAppSelector((state) => selectIsPiPMode(state));
+	const isVoiceFullScreen = useAppSelector(selectVoiceFullScreen);
 	const screenCaptureRef = React.useRef(null);
 	const isShowPreCallInterface = useSelector(selectIsShowPreCallInterface);
 	const layoutRef = useRef({ width: 0, height: 0 });
@@ -201,6 +203,12 @@ const RoomView = ({
 			subscription && subscription.remove();
 		};
 	}, []);
+
+	useEffect(() => {
+		if (!isVoiceFullScreen) {
+			setFocusedScreenShare(null);
+		}
+	}, [isVoiceFullScreen]);
 
 	useEffect(() => {
 		const subscription = focusedScreenShare

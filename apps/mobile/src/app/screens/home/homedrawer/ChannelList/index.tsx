@@ -18,6 +18,7 @@ import { FlatList, Platform, RefreshControl, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import useTabletLandscape from '../../../../hooks/useTabletLandscape';
+import ChannelAppsListing from '../components/ChannelList/ChannelAppsListing';
 import ChannelListBackground from '../components/ChannelList/ChannelListBackground';
 import ChannelListHeader from '../components/ChannelList/ChannelListHeader';
 import { ChannelListItem } from '../components/ChannelList/ChannelListItem';
@@ -26,7 +27,6 @@ import ChannelListSection from '../components/ChannelList/ChannelListSection';
 import { ChannelOnboarding } from '../components/ChannelList/ChannelOnboarding';
 import ButtonNewUnread from './ButtonNewUnread';
 import { style } from './styles';
-import ChannelAppsListing from '../components/ChannelList/ChannelAppsListing';
 
 const ChannelList = () => {
 	const { themeValue } = useTheme();
