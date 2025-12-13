@@ -379,7 +379,7 @@ const ListChannelApp = ({
 	useOnClickOutside(panelRef, onClose);
 
 	const handleFindChannelApp = () => {
-		window.open('https://top.mezon.ai/', '_blank');
+		window.open('https://top.mezon.ai/search?q=&tags=&type=app', '_blank');
 	};
 
 	return (
