@@ -90,6 +90,9 @@ export const style = (colors: Attributes, isTabletLandscape?: boolean) =>
 			borderBottomColor: '#313338',
 			borderBottomWidth: 1
 		},
+		iconAreaWrapperTwo: {
+			justifyContent: 'space-evenly'
+		},
 		searchInviteFriendWrapper: {
 			padding: size.s_16,
 			paddingBottom: 0
