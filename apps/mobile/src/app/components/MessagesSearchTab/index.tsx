@@ -217,6 +217,10 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 			onEndReachedThreshold={0.7}
 			ListFooterComponent={renderListFooterComponent}
 			ListEmptyComponent={renderListEmptyComponent}
+			maintainVisibleContentPosition={{
+				minIndexForVisible: 0,
+				autoscrollToTopThreshold: isLoadingMore ? undefined : 1000
+			}}
 		/>
 	);
 });
