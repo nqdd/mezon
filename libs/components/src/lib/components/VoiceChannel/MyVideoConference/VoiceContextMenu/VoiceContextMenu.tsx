@@ -3,7 +3,7 @@ import { selectMemberClanByUserId, selectVoiceContextMenu, useAppDispatch, useAp
 import { Icons } from '@mezon/ui';
 import type { UsersClanEntity } from '@mezon/utils';
 import type { Room } from 'livekit-client';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ButtonCopy from '../../../ButtonSwitchCustom/CopyButtonComponent';
 
@@ -21,6 +21,7 @@ export const VoiceContextMenu: React.FC<VoiceContextMenuProps> = ({ roomName, ro
 
 	const [isMuting, setIsMuting] = useState(false);
 	const [isKicking, setIsKicking] = useState(false);
+	const [isMicOn, setIsMicOn] = useState(false);
 
 	const isMutingRef = useRef(false);
 	const isKickingRef = useRef(false);
@@ -37,13 +38,53 @@ export const VoiceContextMenu: React.FC<VoiceContextMenuProps> = ({ roomName, ro
 		return clanMember;
 	}, [groupMembers, clanMember, participantId]);
 
-	const checkOpenMic = useMemo(() => {
-		if (!participantId) return false;
-		const participant = room?.remoteParticipants.get(participantId);
-		const lastPublication = participant ? [...participant.audioTrackPublications.values()].pop() : undefined;
-		const micOn = lastPublication?.track && !lastPublication.track.isMuted;
-		return micOn;
-	}, [room, participantId]);
+	useEffect(() => {
+		if (!participantId || !room || !contextMenu) {
+			setIsMicOn(false);
+			return;
+		}
+
+		const participant = room.remoteParticipants.get(participantId);
+		if (!participant) {
+			setIsMicOn(false);
+			dispatch(voiceActions.closeVoiceContextMenu());
+			return;
+		}
+
+		const updateMicStatus = () => {
+			// Use iterator directly instead of spreading to array
+			for (const publication of participant.audioTrackPublications.values()) {
+				if (publication.kind === 'audio' && publication.track && publication.isSubscribed) {
+					// Mic is on if track exists, is subscribed, and not muted
+					const isMuted = publication.track.isMuted || publication.isMuted;
+					setIsMicOn(!isMuted);
+					return;
+				}
+			}
+			// No valid audio publication found
+			setIsMicOn(false);
+		};
+
+		// Initial check - no timeout needed as we listen to all events
+		updateMicStatus();
+
+		// Listen to track events
+		participant.on('trackMuted', updateMicStatus);
+		participant.on('trackUnmuted', updateMicStatus);
+		participant.on('trackPublished', updateMicStatus);
+		participant.on('trackUnpublished', updateMicStatus);
+		participant.on('trackSubscribed', updateMicStatus);
+		participant.on('trackUnsubscribed', updateMicStatus);
+
+		return () => {
+			participant.off('trackMuted', updateMicStatus);
+			participant.off('trackUnmuted', updateMicStatus);
+			participant.off('trackPublished', updateMicStatus);
+			participant.off('trackUnpublished', updateMicStatus);
+			participant.off('trackSubscribed', updateMicStatus);
+			participant.off('trackUnsubscribed', updateMicStatus);
+		};
+	}, [participantId, room, contextMenu, dispatch]);
 
 	const handleRemoveMember = useCallback(async () => {
 		if (isKickingRef.current) return;
@@ -132,7 +173,7 @@ export const VoiceContextMenu: React.FC<VoiceContextMenuProps> = ({ roomName, ro
 			}
 			ref={focusRef}
 		>
-			{checkOpenMic && (
+			{isMicOn && (
 				<div
 					className={`text-[#E13542] p-2 w-full justify-between bg-item-hover items-center flex hover:bg-[#f67e882a] ${
 						isMuting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'

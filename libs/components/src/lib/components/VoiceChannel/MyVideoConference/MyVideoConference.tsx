@@ -222,6 +222,7 @@ export const MyVideoConference = memo(
 				if (focusTrack && focusTrack?.participant.sid === participant.sid) {
 					layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
 				}
+				dispatch(voiceActions.closeVoiceContextMenu());
 			};
 			const handleTrackUnpublish = async (publication: RemoteTrackPublication, _participant: RemoteParticipant) => {
 				if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureElement) {
