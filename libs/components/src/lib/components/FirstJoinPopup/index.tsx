@@ -6,17 +6,21 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface IFirstJoinPopup {
-	onclose: () => void;
 	openCreateClanModal: () => void;
 }
 
-const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
+const FirstJoinPopup = ({ openCreateClanModal }: IFirstJoinPopup) => {
 	const { t } = useTranslation('common');
+	const [isOpen, setIsOpen] = useState(true);
 	const [inputValue, setInputValue] = useState('');
 	const [error, setError] = useState(false);
 	const navigate = useNavigate();
 	const { inviteUser } = useInvite();
 	const dispatch = useAppDispatch();
+
+	const handleClose = () => {
+		setIsOpen(false);
+	};
 
 	const handleJoinClan = async () => {
 		//mezon.ai
@@ -28,7 +32,7 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 				await inviteUser(idInvite).then((res) => {
 					if (res?.channel_id && res?.clan_id) {
 						navigate(`/chat/clans/${res.clan_id}/channels/${res.channel_id}`);
-						onclose();
+						handleClose();
 					}
 				});
 				dispatch(clansActions.fetchClans({ noCache: true }));
@@ -46,12 +50,16 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 		},
 		[error]
 	);
+
+	if (!isOpen) {
+		return null;
+	}
 	return (
 		<div className="fixed inset-0 flex items-center justify-center z-50 bg-[#000000c9]">
 			<div className="relative z-10 w-[680px] flex max-sm:justify-center">
 				<Image src={`assets/images/first-join-bg.svg`} width={240} className="object-cover rounded-l-md max-sm:hidden" />
 				<div className="text-[#4e5058] bg-white rounded-r-md max-sm:rounded-md relative flex flex-col">
-					<Icons.MenuClose onClick={onclose} className="absolute top-5 right-5 w-[16px] cursor-pointer" />
+					<Icons.MenuClose onClick={handleClose} className="absolute top-5 right-5 w-[16px] cursor-pointer" />
 					<div className="px-[16px] flex flex-col h-full flex-1 gap-4 pt-20">
 						<div className="text-center">
 							<div className="text-black text-[13px]">{t('firstJoinPopup.ifYouHaveInvitation')}</div>
@@ -79,7 +87,7 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 								<span
 									onClick={() => {
 										openCreateClanModal();
-										onclose();
+										handleClose();
 									}}
 									className="font-semibold hover:underline cursor-pointer"
 								>
