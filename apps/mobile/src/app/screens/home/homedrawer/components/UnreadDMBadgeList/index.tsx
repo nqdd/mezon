@@ -1,19 +1,19 @@
-import { useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { directActions, selectDirectById, selectDirectsUnreadlist, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { createImgproxyUrl } from '@mezon/utils';
+import { directActions, selectDirectById, selectDirectsUnreadlist, selectIsLoadDMData, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { createImgproxyUrl, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import React, { memo } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import { Animated, Text, TouchableOpacity, View } from 'react-native';
+import { Flow } from 'react-native-animated-spinkit';
 import FastImage from 'react-native-fast-image';
 import { useSelector } from 'react-redux';
-import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
-import { APP_SCREEN } from '../../../../../../app/navigation/ScreenTypes';
+import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import ImageNative from '../../../../../components/ImageNative';
+import { IconCDN } from '../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
-import { UnreadDMLoading } from './UnreadDMLoading';
+import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { style } from './styles';
 
 const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: number }) => {
@@ -23,6 +23,7 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 	const styles = style(themeValue);
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
+
 	const getBadge = (dm: DirectEntity) => {
 		switch (dm.type) {
 			case ChannelType.CHANNEL_TYPE_DM:
@@ -89,19 +90,76 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 	);
 });
 
-export const UnreadDMBadgeList = React.memo(() => {
+const UnreadDMLoading = memo(() => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
-
 	const unReadDM = useSelector(selectDirectsUnreadlist);
+	const isLoading = useSelector(selectIsLoadDMData);
+	const opacity = useRef(new Animated.Value(!isLoading ? 1 : 0)).current;
+	const containerHeight = useRef(new Animated.Value(!isLoading ? size.s_50 : 0)).current;
+	const listOpacity = useRef(new Animated.Value(0)).current;
+	const listTranslateY = useRef(new Animated.Value(20)).current;
+	const [showData, setShowData] = useState(false);
+
+	useEffect(() => {
+		Animated.timing(opacity, {
+			toValue: isLoading ? 0 : 1,
+			duration: 300,
+			useNativeDriver: true
+		}).start();
+
+		Animated.timing(containerHeight, {
+			toValue: isLoading ? 0 : size.s_50,
+			duration: 300,
+			delay: isLoading ? 150 : 0,
+			useNativeDriver: false
+		}).start(async () => {
+			if (!isLoading) {
+				await sleep(500);
+				setShowData(true);
+			}
+		});
+
+		if (isLoading) {
+			setShowData(false);
+			// Reset list animation values
+			listOpacity.setValue(0);
+			listTranslateY.setValue(20);
+		}
+	}, [isLoading, opacity, containerHeight, listOpacity, listTranslateY]);
+
+	useEffect(() => {
+		if (showData) {
+			Animated.parallel([
+				Animated.timing(listOpacity, {
+					toValue: 1,
+					duration: 400,
+					useNativeDriver: true
+				}),
+				Animated.timing(listTranslateY, {
+					toValue: 0,
+					duration: 400,
+					useNativeDriver: true
+				})
+			]).start();
+		}
+	}, [showData, listOpacity, listTranslateY]);
+
 	return (
 		<View style={[styles.container, !!unReadDM?.length && styles.containerBottom]}>
-			<UnreadDMLoading />
-			{!!unReadDM?.length &&
+			<Animated.View style={[styles.animatedContainer, { height: containerHeight }]}>
+				<Animated.View style={[styles.animatedInner, { opacity }]}>
+					<Flow color={themeValue.textDisabled} size={size.s_30} />
+				</Animated.View>
+			</Animated.View>
+			{showData &&
+				!!unReadDM?.length &&
 				unReadDM?.map((dm: DirectEntity, index) => {
 					return <UnreadDMBadgeItem key={`${dm?.id}_${index}`} dmId={dm?.id} numUnread={dm?.count_mess_unread || 0} />;
 				})}
-			{!!unReadDM?.length && <View style={styles.lineBottom} />}
+			{showData && !!unReadDM?.length && <View style={styles.lineBottom} />}
 		</View>
 	);
 });
+
+export const UnreadDMBadgeList = UnreadDMLoading;
