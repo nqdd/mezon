@@ -52,37 +52,22 @@ export const VoiceContextMenu: React.FC<VoiceContextMenuProps> = ({ roomName, ro
 		}
 
 		const updateMicStatus = () => {
-			// Use iterator directly instead of spreading to array
 			for (const publication of participant.audioTrackPublications.values()) {
 				if (publication.kind === 'audio' && publication.track && publication.isSubscribed) {
-					// Mic is on if track exists, is subscribed, and not muted
 					const isMuted = publication.track.isMuted || publication.isMuted;
 					setIsMicOn(!isMuted);
 					return;
 				}
 			}
-			// No valid audio publication found
 			setIsMicOn(false);
 		};
 
-		// Initial check - no timeout needed as we listen to all events
 		updateMicStatus();
-
-		// Listen to track events
-		participant.on('trackMuted', updateMicStatus);
-		participant.on('trackUnmuted', updateMicStatus);
-		participant.on('trackPublished', updateMicStatus);
-		participant.on('trackUnpublished', updateMicStatus);
-		participant.on('trackSubscribed', updateMicStatus);
-		participant.on('trackUnsubscribed', updateMicStatus);
+		const events = ['trackMuted', 'trackUnmuted', 'trackPublished', 'trackUnpublished', 'trackSubscribed', 'trackUnsubscribed'] as const;
+		events.forEach((event) => participant.on(event, updateMicStatus));
 
 		return () => {
-			participant.off('trackMuted', updateMicStatus);
-			participant.off('trackUnmuted', updateMicStatus);
-			participant.off('trackPublished', updateMicStatus);
-			participant.off('trackUnpublished', updateMicStatus);
-			participant.off('trackSubscribed', updateMicStatus);
-			participant.off('trackUnsubscribed', updateMicStatus);
+			events.forEach((event) => participant.off(event, updateMicStatus));
 		};
 	}, [participantId, room, contextMenu, dispatch]);
 
