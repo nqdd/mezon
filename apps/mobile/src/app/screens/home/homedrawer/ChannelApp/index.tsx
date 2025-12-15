@@ -2,9 +2,9 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
 import { channelAppActions, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
-import { useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Dimensions, Modal, Platform, Text, TouchableOpacity } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Modal, Platform, StatusBar, Text, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../components/StatusBarHeight/StatusBarHeight';
 import WebviewBase from '../../../../components/WebviewBase';
@@ -16,9 +16,11 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	const dispatch = useAppDispatch();
 	const paramsRoute = route?.params;
 	const styles = style(themeValue);
-	const { t } = useTranslation(['common']);
 	const [uri, setUri] = useState<string>('');
 	const [orientation, setOrientation] = useState<'Portrait' | 'Landscape'>('Portrait');
+	const [showCloseButton, setShowCloseButton] = useState<boolean>(true);
+	const animatedHeight = useRef(new Animated.Value(1)).current;
+	const animatedRotation = useRef(new Animated.Value(0)).current;
 	const appChannel = useAppSelector((state) => selectAppChannelById(state, paramsRoute?.channelId || ''));
 
 	const getUrlChannelApp = useCallback(async () => {
@@ -37,16 +39,18 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 	}, [appChannel?.app_id, appChannel?.app_url, dispatch]);
 
 	useEffect(() => {
-		const handleOrientationChange = () => {
-			const { width, height } = Dimensions.get('window');
+		const handleOrientationChange = (handler: { screen: any }) => {
+			const screen = handler?.screen;
+			const width = screen?.width;
+			const height = screen?.height;
+			if (width > height) {
+				StatusBar.setHidden(true, 'fade');
+			} else {
+				StatusBar.setHidden(false, 'fade');
+			}
 			setOrientation(width > height ? 'Landscape' : 'Portrait');
 		};
 		const subscription = Platform.OS === 'ios' ? Dimensions.addEventListener('change', handleOrientationChange) : null;
-
-		if (Platform.OS === 'ios') {
-			handleOrientationChange();
-		}
-
 		return () => {
 			subscription?.remove();
 		};
@@ -60,12 +64,67 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 		navigation.goBack();
 	};
 
+	const toggleCloseButton = () => {
+		const toValue = showCloseButton ? 0 : 1;
+		const rotationValue = showCloseButton ? 1 : 0;
+
+		Animated.parallel([
+			Animated.timing(animatedHeight, {
+				toValue,
+				duration: 300,
+				useNativeDriver: false
+			}),
+			Animated.timing(animatedRotation, {
+				toValue: rotationValue,
+				duration: 300,
+				useNativeDriver: true
+			})
+		]).start();
+
+		setShowCloseButton((prev) => !prev);
+	};
+
+	const heightInterpolate = animatedHeight.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, 50]
+	});
+
+	const rotateInterpolate = animatedRotation.interpolate({
+		inputRange: [0, 1],
+		outputRange: ['0deg', '180deg']
+	});
+
+	const insets = useSafeAreaInsets();
 	return (
-		<Modal style={styles.container} visible={true} supportedOrientations={['portrait', 'landscape']}>
+		<Modal style={styles.container} visible={true} transparent={true} supportedOrientations={['portrait', 'landscape']}>
 			{orientation === 'Portrait' && Platform.OS === 'ios' && <StatusBarHeight />}
-			<TouchableOpacity onPress={onClose} style={styles.backButton}>
-				<MezonIconCDN icon={IconCDN.closeSmallBold} height={size.s_16} width={size.s_16} />
-				<Text style={styles.buttonText}>{t('close')}</Text>
+			<Animated.View
+				style={[
+					styles.backButton,
+					{
+						height: heightInterpolate,
+						opacity: animatedHeight
+					},
+					orientation === 'Landscape' && styles.backButtonLandscape,
+					Platform.OS === 'ios' && { top: insets.top }
+				]}
+			>
+				<TouchableOpacity onPress={onClose} style={{ padding: size.s_8, paddingRight: size.s_2 }}>
+					<MezonIconCDN icon={IconCDN.closeIcon} height={size.s_24} width={size.s_24} color={themeValue.text} />
+				</TouchableOpacity>
+				<Text style={styles.title}>{appChannel?.app_name}</Text>
+			</Animated.View>
+			<TouchableOpacity
+				onPress={toggleCloseButton}
+				style={[
+					styles.toggleButton,
+					{ top: Platform.OS === 'ios' ? (orientation === 'Landscape' ? size.s_6 : insets.top + size.s_2) : size.s_2 },
+					orientation === 'Landscape' && { right: size.s_30 }
+				]}
+			>
+				<Animated.View style={{ transform: [{ rotate: rotateInterpolate }] }}>
+					<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_16} width={size.s_16} color={themeValue.text} />
+				</Animated.View>
 			</TouchableOpacity>
 			<WebviewBase url={uri} incognito={true} style={styles.container} javaScriptEnabled={true} nestedScrollEnabled={true} onGoBack={onClose} />
 		</Modal>

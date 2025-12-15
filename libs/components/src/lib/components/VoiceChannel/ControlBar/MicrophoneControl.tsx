@@ -1,7 +1,7 @@
 import { usePersistentUserChoices } from '@livekit/components-react';
 import { useAppDispatch, voiceActions } from '@mezon/store';
 import { Track } from 'livekit-client';
-import { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback } from 'react';
 import { MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
 import { TrackToggle } from './TrackToggle/TrackToggle';
 
@@ -9,42 +9,52 @@ interface MicrophoneControlProps {
 	isShowMember?: boolean;
 	saveUserChoices?: boolean;
 	onDeviceError?: (error: Error) => void;
+	permissionState?: 'granted' | 'denied' | 'prompt' | null;
+	onPermissionRequest?: () => Promise<void>;
 }
 
-export const MicrophoneControl = memo(({ isShowMember, saveUserChoices = true, onDeviceError }: MicrophoneControlProps) => {
-	const dispatch = useAppDispatch();
-	const { userChoices, saveAudioInputDeviceId, saveAudioInputEnabled } = usePersistentUserChoices({
-		preventSave: !saveUserChoices
-	});
+export const MicrophoneControl = memo(
+	({ isShowMember, saveUserChoices = true, onDeviceError, permissionState, onPermissionRequest }: MicrophoneControlProps) => {
+		const dispatch = useAppDispatch();
+		const { saveAudioInputDeviceId, saveAudioInputEnabled } = usePersistentUserChoices({
+			preventSave: !saveUserChoices
+		});
 
-	useEffect(() => {
-		if (typeof userChoices.audioEnabled === 'boolean') {
-			dispatch(voiceActions.setShowMicrophone(userChoices.audioEnabled));
-		}
-	}, [dispatch, userChoices.audioEnabled]);
+		const handleChange = useCallback(
+			async (enabled: boolean, isUserInitiated: boolean) => {
+				if (!isUserInitiated) return;
 
-	const handleChange = useCallback(
-		(enabled: boolean, isUserInitiated: boolean) => {
-			if (!isUserInitiated) return;
+				if (enabled && permissionState !== 'granted' && onPermissionRequest) {
+					await onPermissionRequest();
+					return;
+				}
 
-			saveAudioInputEnabled(enabled);
-			dispatch(voiceActions.setShowMicrophone(enabled));
-		},
-		[dispatch, saveAudioInputEnabled]
-	);
+				saveAudioInputEnabled(enabled);
+				dispatch(voiceActions.setShowMicrophone(enabled));
+			},
+			[dispatch, saveAudioInputEnabled, permissionState, onPermissionRequest]
+		);
 
-	return (
-		<div className="relative rounded-full bg-gray-300 dark:bg-black">
-			<TrackToggle
-				id="btn-meet-micro"
-				className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none ${isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'}`}
-				source={Track.Source.Microphone}
-				onChange={handleChange}
-				onDeviceError={onDeviceError}
-			/>
-			<div className="lk-button-group-menu">
-				<MediaDeviceMenu kind="audioinput" onActiveDeviceChange={(_kind, deviceId) => saveAudioInputDeviceId(deviceId ?? 'default')} />
+		const showWarning = permissionState === 'denied';
+
+		return (
+			<div className="relative rounded-full bg-gray-300 dark:bg-black">
+				<TrackToggle
+					id="btn-meet-micro"
+					className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none ${isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'}`}
+					source={Track.Source.Microphone}
+					onChange={handleChange}
+					onDeviceError={onDeviceError}
+				/>
+				{showWarning && (
+					<div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center z-10">
+						<span className="text-black text-xs font-bold">!</span>
+					</div>
+				)}
+				<div className="lk-button-group-menu">
+					<MediaDeviceMenu kind="audioinput" onActiveDeviceChange={(_kind, deviceId) => saveAudioInputDeviceId(deviceId ?? 'default')} />
+				</div>
 			</div>
-		</div>
-	);
-});
+		);
+	}
+);

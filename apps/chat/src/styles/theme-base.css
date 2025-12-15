@@ -167,6 +167,10 @@ button.bg-button-add-friend {
 	border-left: 3px solid var(--border-left-highlight);
 	background: var(--bg-highlight) !important;
 }
+.bg-channelapp-no-hover {
+	border-bottom: 2px solid var(--border-left-highlight);
+	background: var(--bg-highlight) !important;
+}
 
 /* button */
 .btn-theme-primary {
@@ -393,4 +397,7 @@ input.bg-theme-input-primary::placeholder {
 }
 .border-color-avatar {
 	border-color: var(--border-color-avatar);
+}
+.bg-tooltip-channelapp {
+	background: var(--bg-tooltip-app) ;
 }

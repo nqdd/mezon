@@ -25,7 +25,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Coords } from '../ChannelLink';
-import { notificationTypesList } from '../PanelChannel';
+import { createNotificationTypesListTranslated } from '../PanelChannel';
 import GroupPanels from '../PanelChannel/GroupPanels';
 import ItemPanel from '../PanelChannel/ItemPanel';
 
@@ -49,6 +49,8 @@ const PanelCategory: React.FC<IPanelCategoryProps> = ({
 	collapseCategory
 }) => {
 	const { t } = useTranslation('contextMenu');
+	const { t: tChannelMenu } = useTranslation('channelMenu');
+	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);
 	const panelRef = useRef<HTMLDivElement | null>(null);
 	const [positionTop, setPositionTop] = useState(false);
 	const [canManageCategory] = usePermissionChecker([EPermission.manageClan]);
