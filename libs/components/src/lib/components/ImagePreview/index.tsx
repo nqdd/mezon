@@ -7,15 +7,19 @@ type ImagePreviewProps = {
 };
 
 export const ImagePreview: React.FC<ImagePreviewProps> = ({ imageUrl, onClose }) => {
-	const imageRef = useRef<HTMLImageElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
-	useOnClickOutside(imageRef, onClose);
+	useOnClickOutside(containerRef, onClose);
 
-	useEscapeKeyClose(imageRef, onClose);
+	useEscapeKeyClose(containerRef, onClose);
 
 	return (
-		<div className="outline-none w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center p-20">
-			<img src={imageUrl} alt="" ref={imageRef} className={'max-h-full w-auto max-w-full'} />
+		<div
+			ref={containerRef}
+			tabIndex={-1}
+			className="outline-none w-[100vw] h-[100vh] overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center p-20"
+		>
+			<img src={imageUrl} alt="" className={'max-h-full w-auto max-w-full'} />
 		</div>
 	);
 };

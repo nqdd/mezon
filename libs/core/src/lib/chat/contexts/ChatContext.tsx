@@ -2507,7 +2507,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				})
 			);
 			dispatch(
-				clansActions.updateClanBadgeCount2({
+				clansActions.updateClanBadgeCountFromChannels({
 					clanId: markAsReadEvent.clan_id as string,
 					channels: relatedChannels.map((channel) => ({
 						channelId: channel.id,
@@ -2564,9 +2564,15 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		}
 	}, []);
 
+	const onreconnect = useCallback((event: any) => {
+		console.log('onreconnect', event);
+	}, []);
+
 	const setCallbackEventFn = React.useCallback(
 		(socket: Socket) => {
 			socket.onvoicejoined = onvoicejoined;
+
+			socket.onreconnect = onreconnect;
 
 			socket.onvoiceended = onvoiceended;
 
