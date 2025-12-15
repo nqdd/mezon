@@ -1,4 +1,4 @@
-import { ActionEmitEvent, inviteLinkRegex } from '@mezon/mobile-components';
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store-mobile';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -75,20 +75,18 @@ export const QRModal = memo(({ inviteLink }: IQRModalProps) => {
 			if (!brandedUri) return;
 
 			const baseDir = `${RNFetchBlob.fs.dirs.CacheDir}/mezon_qr`;
-			const exists = await RNFetchBlob.fs.exists(baseDir);
-			if (!exists) await RNFetchBlob.fs.mkdir(baseDir);
+			const folderExists = await RNFetchBlob.fs.exists(baseDir);
+			if (!folderExists) await RNFetchBlob.fs.mkdir(baseDir);
 
-			const match = inviteLink?.match(inviteLinkRegex);
-			const inviteId = match ? match[1] : Date.now().toString();
-
-			const shareFilePath = `${baseDir}/qr_share_${inviteId}.png`;
+			const shareFilePath = `${baseDir}/qr_share_${currentClanName}.png`;
 			const fileExists = await RNFetchBlob.fs.exists(shareFilePath);
-			if (!fileExists) await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
+			if (fileExists) await RNFetchBlob.fs.unlink(shareFilePath);
+			await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
 
 			await Share.open({
 				url: `file://${shareFilePath}`,
 				type: 'image/png',
-				title: `QR_Invite_${inviteLink}`,
+				title: `QR_Invite_${currentClanName || 'Clan'}`,
 				message: `Join ${currentClanName ? currentClanName : 'Clan'} on Mezon with me: ${inviteLink}`,
 				failOnCancel: false
 			});

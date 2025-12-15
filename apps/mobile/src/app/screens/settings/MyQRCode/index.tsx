@@ -109,17 +109,18 @@ export const MyQRCode = () => {
 			if (!brandedUri) return;
 
 			const baseDir = `${RNFetchBlob.fs.dirs.CacheDir}/mezon_qr`;
-			const exists = await RNFetchBlob.fs.exists(baseDir);
-			if (!exists) await RNFetchBlob.fs.mkdir(baseDir);
+			const folderExists = await RNFetchBlob.fs.exists(baseDir);
+			if (!folderExists) await RNFetchBlob.fs.mkdir(baseDir);
 
 			const shareFilePath = `${baseDir}/qr_share_profile.png`;
 			const fileExists = await RNFetchBlob.fs.exists(shareFilePath);
-			if (!fileExists) await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
+			if (fileExists) await RNFetchBlob.fs.unlink(shareFilePath);
+			await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
 
 			await Share.open({
 				url: `file://${shareFilePath}`,
 				type: 'image/png',
-				title: `QR_Profile`,
+				title: `QR_Profile_${userProfile?.user?.id || 'User'}`,
 				message: 'Scan QR code to chat with me on Mezon',
 				failOnCancel: false
 			});
@@ -130,7 +131,7 @@ export const MyQRCode = () => {
 			});
 			console.error('Error sharing QR code:', error);
 		}
-	}, []);
+	}, [userProfile?.user?.id]);
 
 	useEffect(() => {
 		if (!qrCode?.[activeTab]) {
