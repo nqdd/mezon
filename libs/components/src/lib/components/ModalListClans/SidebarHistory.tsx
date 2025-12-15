@@ -95,7 +95,9 @@ const ListHistory = ({
 				const isDM = !url.includes('clans');
 				const clanId = parts[3];
 				const channelId = isDM ? parts[4] : parts[5];
-				return <ItemHistory url={url} clanId={clanId} channelId={channelId} active={allHistory.current === index} index={index} />;
+				return (
+					<ItemHistory key={index} url={url} clanId={clanId} channelId={channelId} active={allHistory.current === index} index={index} />
+				);
 			})}
 		</div>
 	);
@@ -121,22 +123,25 @@ const ItemHistory = ({
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const logo = useMemo(() => {
-		if (clan) {
-			return clan?.logo ? (
-				<img src={createImgproxyUrl(clan?.logo, { width: 24, height: 24, resizeType: 'fit' })} className="w-6 aspect-square rounded-md" />
-			) : (
-				<div className="h-6 aspect-square flex bg-theme-primary items-center justify-center uppercase rounded-md">
-					{clan?.clan_name?.charAt(0)}
-				</div>
+		if (!clan) {
+			return (
+				<img
+					className="w-6 aspect-square rounded-md"
+					src={
+						logoCustom
+							? createImgproxyUrl(logoCustom, { width: 24, height: 24, resizeType: 'fit' })
+							: 'assets/images/mezon-logo-black.svg'
+					}
+				/>
 			);
 		}
-		return (
-			<img
-				className="w-6 aspect-square rounded-md"
-				src={logoCustom ? createImgproxyUrl(logoCustom, { width: 24, height: 24, resizeType: 'fit' }) : `assets/images/mezon-logo-black.svg`}
-			/>
-		);
-	}, [clan]);
+
+		if (clan.logo) {
+			return <img className="w-6 aspect-square rounded-md" src={createImgproxyUrl(clan.logo, { width: 24, height: 24, resizeType: 'fit' })} />;
+		}
+
+		return <div className="h-6 aspect-square flex items-center justify-center bg-theme-primary uppercase rounded-md">{clan.clan_name?.[0]}</div>;
+	}, [clan, logoCustom]);
 
 	const handleClickHistory = () => {
 		dispatch(appActions.setCurrentHistory(index));
