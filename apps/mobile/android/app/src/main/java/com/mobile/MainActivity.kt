@@ -52,6 +52,25 @@ class MainActivity : ReactActivity() {
     setIntent(intent);
   }
 
+  override fun onResume() {
+    super.onResume();
+    try {
+      val isInCall = CallStateModule.getIsInCall();
+      val prefs = getSharedPreferences("NotificationPrefs", Context.MODE_PRIVATE);
+      val pendingCallData = prefs.getString("notificationDataCalling", null);
+
+      if (isInCall || !pendingCallData.isNullOrEmpty()) {
+        val intent = Intent(this, CallActivity::class.java).apply {
+          addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+          addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        }
+        startActivity(intent);
+      }
+    } catch (e: Exception) {
+      Log.e("MainActivity", "Error bringing CallActivity to front: ${e.message}", e);
+    }
+  }
+
   override fun onWindowFocusChanged(hasFocus: Boolean) {
     try {
         super.onWindowFocusChanged(hasFocus)
