@@ -18,17 +18,7 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
-import {
-	BackHandler,
-	Image,
-	ImageBackground,
-	NativeModules,
-	Platform,
-	Text,
-	TouchableOpacity,
-	Vibration,
-	View
-} from 'react-native';
+import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import { Bounce } from 'react-native-animated-spinkit';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
@@ -329,8 +319,8 @@ const IncomingHomeScreen = memo(() => {
 	}, [stopAndReleaseSound]);
 
 	const onIsConnected = useCallback(async () => {
-		await stopAndReleaseSound();
 		await NotificationPreferences.clearValue('notificationDataCalling');
+		await stopAndReleaseSound();
 	}, [stopAndReleaseSound]);
 
 	return (

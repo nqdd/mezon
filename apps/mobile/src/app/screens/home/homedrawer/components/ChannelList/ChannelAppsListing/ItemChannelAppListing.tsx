@@ -2,8 +2,8 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
 import { memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import FastImage from 'react-native-fast-image';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
+import ImageNative from '../../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { style } from './styles';
 
@@ -21,9 +21,11 @@ const ItemChannelAppListing = ({
 		<TouchableOpacity style={styles.itemContainer} onPress={() => openChannelApp(item)}>
 			<View style={styles.itemLogo}>
 				{item?.app_logo ? (
-					<FastImage source={{ uri: item?.app_logo }} style={styles.itemIcon} />
-				) : (
 					<View style={styles.itemIcon}>
+						<ImageNative url={item?.app_logo} style={styles.itemIconImg} resizeMode={'contain'} />
+					</View>
+				) : (
+					<View style={[styles.itemIcon, styles.itemLogoBorder]}>
 						<MezonIconCDN icon={IconCDN.channelApp} width={size.s_30} height={size.s_30} color={themeValue.textDisabled} />
 					</View>
 				)}

@@ -28,7 +28,7 @@ import { ChannelHashtag } from '../MarkdownFormatText/ChannelHashtag';
 import { MentionUser } from '../MarkdownFormatText/MentionUser';
 import RenderCanvasItem from '../RenderCanvasItem';
 import RenderYoutubeVideo from './components/RenderYoutubeVideo';
-import { styles as componentStyles, getMessageReplyMaxHeight } from './index.styles';
+import { getMessageReplyMaxHeight, styles as componentStyles } from './index.styles';
 
 export default function openUrl(url, customCallback) {
 	if (customCallback) {
@@ -44,7 +44,7 @@ export default function openUrl(url, customCallback) {
 export const checkUrl = async (url: string, clanId: string, channelId: string) => {
 	const store = getStore();
 	if (!clanId || !channelId) {
-		Linking.openURL(url);
+		await Linking.openURL(url);
 		return;
 	}
 	const userClan = selectClanById(clanId)(store.getState() as RootState);
@@ -473,7 +473,7 @@ export const RenderTextMarkdownContent = ({
 			case ETokenMessage.HASHTAGS: {
 				if (!isHiddenHashtag) {
 					const channelFound = selectChannelById(store.getState() as any, element?.channelid);
-					const hashtagDmFound = selectHashtagDmById(store.getState() as any, currentChannelId);
+					const hashtagDmFound = selectHashtagDmById(store.getState() as any, element?.channelid);
 					const mention = ChannelHashtag({
 						channelHashtagId: element?.channelid,
 						mode,
@@ -615,7 +615,7 @@ export const RenderTextMarkdownContent = ({
 							const channelIdOnLink = pathSegments?.[pathSegments?.indexOf('channels') + 1];
 
 							const channelFound = selectChannelByIdAndClanId(store.getState() as any, clanId, channelIdOnLink);
-							const hashtagDmFound = selectHashtagDmById(store.getState() as any, currentChannelId);
+							const hashtagDmFound = selectHashtagDmById(store.getState() as any, channelIdOnLink);
 							const currentClanId = selectCurrentClanId(store.getState() as any);
 
 							if (channelIdOnLink && (channelFound?.id || currentClanId === clanId)) {
