@@ -42,6 +42,8 @@ import { ModalLayout } from '../../components';
 import MessageContent from '../MessageWithUser/MessageContent';
 import ListSearchForwardMessage from './ListSearchForwardMessage';
 
+import { MAX_FORWARD_MESSAGE_LENGTH } from '@mezon/utils';
+
 type ObjectSend = {
 	id: string;
 	type: number;
@@ -71,9 +73,10 @@ const ForwardMessageModal = () => {
 	const [selectedObjectIdSends, setSelectedObjectIdSends] = useState<ObjectSend[]>([]);
 	const [searchText, setSearchText] = useState('');
 	const [forwardMessage, setForwardMessage] = useState('');
+	const [sendingProgress, setSendingProgress] = useState<{ current: number; total: number } | null>(null);
 
-	const remainingChars = 2000 - forwardMessage.length;
-	const isMessageTooLong = forwardMessage.length > 2000;
+	const remainingChars = MAX_FORWARD_MESSAGE_LENGTH - forwardMessage.length;
+	const isMessageTooLong = forwardMessage.length > MAX_FORWARD_MESSAGE_LENGTH;
 
 	const allFriends = useSelector(selectAllFriends);
 	const currentChannel = useSelector(selectCurrentChannel);
@@ -208,10 +211,15 @@ const ForwardMessageModal = () => {
 			index++;
 		}
 
-		for (const selectedObjectIdSend of selectedObjectIdSends) {
-			await forwardAllToSingleDestination(selectedObjectIdSend, combineMessages);
+		const total = selectedObjectIdSends.length;
+		setSendingProgress({ current: 0, total });
+
+		for (let i = 0; i < selectedObjectIdSends.length; i++) {
+			await forwardAllToSingleDestination(selectedObjectIdSends[i], combineMessages);
+			setSendingProgress({ current: i + 1, total });
 		}
 
+		setSendingProgress(null);
 		dispatch(toggleIsShowPopupForwardFalse());
 	};
 
@@ -312,9 +320,15 @@ const ForwardMessageModal = () => {
 	};
 
 	const sentToMessage = async () => {
-		for (const selectedObjectIdSend of selectedObjectIdSends) {
-			await forwardToSingleDestination(selectedObjectIdSend);
+		const total = selectedObjectIdSends.length;
+		setSendingProgress({ current: 0, total });
+
+		for (let i = 0; i < selectedObjectIdSends.length; i++) {
+			await forwardToSingleDestination(selectedObjectIdSends[i]);
+			setSendingProgress({ current: i + 1, total });
 		}
+
+		setSendingProgress(null);
 		dispatch(toggleIsShowPopupForwardFalse());
 	};
 
@@ -608,7 +622,7 @@ const ForwardMessageModal = () => {
 						<label htmlFor="forwardMessage" className="text-xs uppercase font-semibold text-theme-primary">
 							{t('modal.additionalMessage')}
 						</label>
-						{forwardMessage.length > 1800 && (
+						{forwardMessage.length > MAX_FORWARD_MESSAGE_LENGTH - 200 && (
 							<span
 								className={`text-xs font-semibold ${
 									isMessageTooLong ? 'text-red-500' : remainingChars < 100 ? 'text-yellow-500' : 'text-theme-secondary'
@@ -626,7 +640,7 @@ const ForwardMessageModal = () => {
 						placeholder={t('modal.additionalMessagePlaceholder')}
 						value={forwardMessage}
 						onChange={(e) => setForwardMessage(e.target.value)}
-						maxLength={2000}
+						maxLength={MAX_FORWARD_MESSAGE_LENGTH}
 					/>
 					<FooterButtonsModal
 						onClose={handleCloseModal}
@@ -635,6 +649,7 @@ const ForwardMessageModal = () => {
 						hasSelectedDestination={selectedObjectIdSends.length > 0}
 						selectedCount={selectedObjectIdSends.length}
 						isMessageTooLong={isMessageTooLong}
+						sendingProgress={sendingProgress}
 					/>
 				</div>
 			</div>
@@ -646,14 +661,15 @@ export default ForwardMessageModal;
 type FooterButtonsModalProps = {
 	onClose: () => void;
 	sentToMessage: () => Promise<void>;
-	t: (key: string) => string;
+	t: (key: string, options?: Record<string, any>) => string;
 	hasSelectedDestination: boolean;
 	selectedCount: number;
 	isMessageTooLong?: boolean;
+	sendingProgress?: { current: number; total: number } | null;
 };
 
 const FooterButtonsModal = (props: FooterButtonsModalProps) => {
-	const { onClose, sentToMessage, t, hasSelectedDestination, selectedCount, isMessageTooLong = false } = props;
+	const { onClose, sentToMessage, t, hasSelectedDestination, selectedCount, isMessageTooLong = false, sendingProgress } = props;
 	const [loading, setLoading] = useState(false);
 
 	const displayCount = selectedCount > 99 ? '99+' : selectedCount;
@@ -665,6 +681,16 @@ const FooterButtonsModal = (props: FooterButtonsModalProps) => {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const getButtonText = () => {
+		if (sendingProgress) {
+			return t('modal.sendingProgress', { current: sendingProgress.current, total: sendingProgress.total });
+		}
+		if (loading) {
+			return t('modal.sending');
+		}
+		return `${t('modal.send')} ${selectedCount > 0 ? `(${displayCount})` : ''}`;
 	};
 
 	return (
@@ -682,7 +708,7 @@ const FooterButtonsModal = (props: FooterButtonsModalProps) => {
 				className="py-2 h-10 px-4 rounded text-white bg-bgSelectItem hover:!bg-bgSelectItemHover focus:ring-transparent disabled:opacity-50 disabled:cursor-not-allowed"
 				disabled={loading || !hasSelectedDestination || isMessageTooLong}
 			>
-				{loading ? t('modal.sending') : `${t('modal.send')} ${selectedCount > 0 ? `(${displayCount})` : ''}`}
+				{getButtonText()}
 			</button>
 		</div>
 	);

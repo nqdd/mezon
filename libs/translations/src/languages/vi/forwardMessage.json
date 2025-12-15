@@ -9,6 +9,7 @@
 		"cancel": "Hủy",
 		"send": "Gửi",
 		"sending": "Đang gửi...",
+		"sendingProgress": "Đang gửi ({{current}}/{{total}})...",
 		"image": "ảnh",
 		"images": "ảnh",
 		"video": "video",

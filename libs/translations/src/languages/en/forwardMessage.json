@@ -9,6 +9,7 @@
 		"cancel": "Cancel",
 		"send": "Send",
 		"sending": "Sending...",
+		"sendingProgress": "Sending ({{current}}/{{total}})...",
 		"image": "image",
 		"images": "images",
 		"video": "video",

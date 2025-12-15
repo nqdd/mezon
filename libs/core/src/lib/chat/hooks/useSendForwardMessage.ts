@@ -1,6 +1,7 @@
 import { toastActions, useAppDispatch } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 import type { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
+import { MAX_FORWARD_MESSAGE_LENGTH } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -52,8 +53,8 @@ export function useSendForwardMessage() {
 				if (additionalMessage && additionalMessage.trim()) {
 					const trimmedMessage = additionalMessage.trim();
 
-					if (trimmedMessage.length > 2000) {
-						throw new Error('Additional message is too long (max 2000 characters)');
+					if (trimmedMessage.length > MAX_FORWARD_MESSAGE_LENGTH) {
+						throw new Error(`Additional message is too long (max ${MAX_FORWARD_MESSAGE_LENGTH} characters)`);
 					}
 
 					const additionalContent: IMessageSendPayload = {
