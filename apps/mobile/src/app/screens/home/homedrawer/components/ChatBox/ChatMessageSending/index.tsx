@@ -321,7 +321,7 @@ export const ChatMessageSending = memo(
 							simplifiedMentionList || [],
 							attachmentDataRef || [],
 							reference,
-							anonymousMode && !currentDmGroup && !currentTopicId,
+							anonymousMode && !currentDmGroup,
 							isMentionEveryOne,
 							true
 						);

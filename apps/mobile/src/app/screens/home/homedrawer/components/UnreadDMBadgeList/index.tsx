@@ -114,10 +114,8 @@ const UnreadDMLoading = memo(() => {
 			delay: isLoading ? 150 : 0,
 			useNativeDriver: false
 		}).start(async () => {
-			if (!isLoading) {
-				await sleep(500);
-				setShowData(true);
-			}
+			await sleep(500);
+			setShowData(true);
 		});
 
 		if (isLoading) {

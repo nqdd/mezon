@@ -12,8 +12,6 @@ type ShowOngoingCallParams = {
 	androidImportance?: AndroidImportance;
 };
 
-export const getOngoingNotificationId = (directMessageId: string) => `ongoing-call-${directMessageId}`;
-
 export const clearOngoingCallNotification = async (notificationId?: string) => {
 	if (!notificationId) return;
 	try {
@@ -35,13 +33,13 @@ export const showOngoingCallNotification = async ({
 	androidImportance = AndroidImportance.DEFAULT
 }: ShowOngoingCallParams): Promise<string | undefined> => {
 	try {
-		const notificationId = getOngoingNotificationId(directMessageId);
+		const notificationId = 'ongoing-call';
 		const timestamp = startedAt || Date.now();
 
 		const androidChannelId =
 			Platform.OS === 'android'
 				? await notifee.createChannel({
-						id: 'ongoing-call',
+						id: notificationId,
 						name: 'Ongoing Calls',
 						importance: androidImportance
 					})
@@ -60,6 +58,7 @@ export const showOngoingCallNotification = async ({
 							category: AndroidCategory.CALL,
 							smallIcon: 'ic_notification',
 							color: '#7029c1',
+							colorized: true,
 							largeIcon: receiverAvatar || undefined,
 							ongoing: true,
 							onlyAlertOnce: true,
@@ -76,6 +75,21 @@ export const showOngoingCallNotification = async ({
 									AndroidLaunchActivityFlag.CLEAR_TOP
 								]
 							},
+							actions: [
+								{
+									title: 'End call',
+									pressAction: {
+										id: 'reject',
+										launchActivity: pressActivity,
+										launchActivityFlags: [
+											AndroidLaunchActivityFlag.SINGLE_TOP,
+											AndroidLaunchActivityFlag.NEW_TASK,
+											AndroidLaunchActivityFlag.CLEAR_TOP
+										]
+									},
+									icon: 'ic_decline'
+								}
+							],
 							style: {
 								type: AndroidStyle.BIGTEXT,
 								text: isVideoCall ? 'Video call in progress' : 'Voice call in progress'

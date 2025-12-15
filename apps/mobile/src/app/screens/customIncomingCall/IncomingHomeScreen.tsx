@@ -18,7 +18,7 @@ import type { WebrtcSignalingFwd } from 'mezon-js';
 import { safeJSONParse, WebrtcSignalingType } from 'mezon-js';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
-import { BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { AppState, BackHandler, Image, ImageBackground, NativeModules, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import { Bounce } from 'react-native-animated-spinkit';
 import Sound from 'react-native-sound';
 import { useSelector } from 'react-redux';
@@ -59,6 +59,7 @@ const IncomingHomeScreen = memo(() => {
 	const [dataCallGroup, setDataCallGroup] = React.useState<any>(null);
 	const callDetailRef = useRef<CallDetailNativeRef>(null);
 	const buttonAnswerCallGroupRef = useRef<ButtonAnswerCallGroupRef>(null);
+	const appStateRef = useRef(AppState.currentState);
 
 	const stopAndReleaseSound = useCallback(async () => {
 		try {
@@ -100,8 +101,6 @@ const IncomingHomeScreen = memo(() => {
 			setIsForceAnswer(true);
 		} else if (pressActionId === 'reject') {
 			setIsForceDecline(true);
-		} else {
-			//
 		}
 	};
 
@@ -292,6 +291,23 @@ const IncomingHomeScreen = memo(() => {
 			onDeniedCall();
 		}
 	}, [isForceDecline, isSocketConnected, onDeniedCall, signalingData]);
+
+	const handleAppStateChangeListener = useCallback((nextAppState: typeof AppState.currentState) => {
+		if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+			loadDataInit();
+		}
+
+		appStateRef.current = nextAppState;
+	}, []);
+
+	useEffect(() => {
+		const appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+			handleAppStateChangeListener(nextAppState);
+		});
+		return () => {
+			appStateSubscription && appStateSubscription.remove();
+		};
+	}, [handleAppStateChangeListener]);
 
 	useEffect(() => {
 		removeNotifyCalling();
