@@ -168,19 +168,20 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 	}, [availableOptions]);
 
 	useEffect(() => {
-		if (select?.valueSelected) {
-			dispatch(
-				embedActions.addEmbedValue({
-					message_id: messageId,
-					data: {
-						id: buttonId,
-						value: select?.valueSelected.value
-					},
-					multiple: checkMultipleSelect,
-					onlyChooseOne: !checkMultipleSelect
-				})
-			);
+		if (!select?.valueSelected) {
+			return;
 		}
+		dispatch(
+			embedActions.addEmbedValue({
+				message_id: messageId,
+				data: {
+					id: buttonId,
+					value: select?.valueSelected.value
+				},
+				multiple: checkMultipleSelect,
+				onlyChooseOne: !checkMultipleSelect
+			})
+		);
 	}, []);
 
 	return (
