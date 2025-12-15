@@ -11,7 +11,7 @@ import { Icons, Menu } from '@mezon/ui';
 import type { IMessageSelect, IMessageSelectOption } from '@mezon/utils';
 import { ModeResponsive } from '@mezon/utils';
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 type MessageSelectProps = {
@@ -166,6 +166,22 @@ export const MessageSelect: React.FC<MessageSelectProps> = ({ select, messageId,
 		);
 		return <>{menuItems}</>;
 	}, [availableOptions]);
+
+	useEffect(() => {
+		if (select?.valueSelected) {
+			dispatch(
+				embedActions.addEmbedValue({
+					message_id: messageId,
+					data: {
+						id: buttonId,
+						value: select?.valueSelected.value
+					},
+					multiple: checkMultipleSelect,
+					onlyChooseOne: !checkMultipleSelect
+				})
+			);
+		}
+	}, []);
 
 	return (
 		<Menu menu={menu} className="h-fit max-h-[200px] text-xs overflow-y-scroll customSmallScrollLightMode dark:bg-bgTertiary px-2 z-20">
