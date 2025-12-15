@@ -21,6 +21,9 @@
 	"enter": "Enter",
 	"searchOptions": "Search options",
 	"fromUser": "From user",
+	"mentionsUser": "Mentions",
+	"hasContent": "Has",
+	"inChannel": "In channel",
 	"emptySearch": {
 		"title": "We searched far and wide. Unfortunately, no results were found."
 	},
@@ -28,13 +31,16 @@
 	"searchOptionsData": {
 		"fromUserShort": "search by message sender",
 		"mentionsUserShort": "search by mentioned user",
-		"hasContentShort": "search by content with attachments"
+		"hasContentShort": "search by content with attachments",
+		"channelShort": "search in channel"
 	},
 	"prefixes": {
 		"from": "from:",
 		"mentions": "mentions:",
-		"has": "has:"
+		"has": "has:",
+		"in": "in:"
 	},
+	"allChannels": "All Channels",
 	"searching": "Searching...",
 	"noResults": "No Results",
 	"resultsCount": "{{count}} Results",

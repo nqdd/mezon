@@ -3,6 +3,7 @@ import {
 	messagesActions,
 	searchMessagesActions,
 	selectAllAccount,
+	selectAllChannels,
 	selectChannelById,
 	selectMemberClanByUserId,
 	selectTheme,
@@ -14,7 +15,7 @@ import type { IMessageWithUser, UsersClanEntity } from '@mezon/utils';
 import { SIZE_PAGE_SEARCH, convertSearchMessage } from '@mezon/utils';
 import type { ChannelMessage } from 'mezon-js';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +34,7 @@ type searchMessagesProps = {
 
 type GroupedMessages = {
 	label: string;
+	channelId: string;
 	messages: SearchMessageEntity[];
 }[];
 
@@ -48,24 +50,43 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 
 	const searchChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 
+	const allChannels = useSelector(selectAllChannels);
+	const channelLabelMap = useMemo(() => {
+		const map: Record<string, string> = {};
+		allChannels.forEach((channel) => {
+			if (channel.channel_id || channel.id) {
+				map[channel.channel_id || channel.id] = channel.channel_label || '';
+			}
+		});
+		return map;
+	}, [allChannels]);
+
 	const groupedMessages: GroupedMessages = [];
 	let currentGroup: SearchMessageEntity[] = [];
-	let currentLabel: string | null | undefined = null;
+	let currentChannelId: string | null | undefined = null;
 
 	searchMessages.forEach((message) => {
-		const label = message.channel_label ?? '';
-		if (label !== currentLabel) {
-			if (currentGroup.length > 0) {
-				groupedMessages.push({ label: currentLabel ?? '', messages: currentGroup });
+		const msgChannelId = message.channel_id ?? '';
+		if (msgChannelId !== currentChannelId) {
+			if (currentGroup.length > 0 && currentChannelId) {
+				groupedMessages.push({
+					label: channelLabelMap[currentChannelId] || currentChannelId,
+					channelId: currentChannelId,
+					messages: currentGroup
+				});
 				currentGroup = [];
 			}
-			currentLabel = label;
+			currentChannelId = msgChannelId;
 		}
 		currentGroup.push(message);
 	});
 
-	if (currentGroup.length > 0) {
-		groupedMessages.push({ label: currentLabel ?? '', messages: currentGroup });
+	if (currentGroup.length > 0 && currentChannelId) {
+		groupedMessages.push({
+			label: channelLabelMap[currentChannelId] || currentChannelId,
+			channelId: currentChannelId,
+			messages: currentGroup
+		});
 	}
 
 	useEffect(() => {

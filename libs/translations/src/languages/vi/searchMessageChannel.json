@@ -21,6 +21,9 @@
 	"enter": "Enter",
 	"searchOptions": "Tùy chọn tìm kiếm",
 	"fromUser": "Từ người dùng",
+	"inChannel": "Trong kênh",
+	"hasContent": "Có nội dung",
+	"mentionsUser": "Đề cập ai đó",
 	"emptySearch": {
 		"title": "Chúng tôi đã tìm kiếm khắp nơi. Thật không may, không tìm thấy kết quả nào."
 	},
@@ -28,13 +31,16 @@
 	"searchOptionsData": {
 		"fromUserShort": "tìm kiếm theo người gửi",
 		"mentionsUserShort": "tìm kiếm theo người được nhắc đến",
-		"hasContentShort": "tìm kiếm theo nội dung có tệp đính kèm"
+		"hasContentShort": "tìm kiếm theo nội dung có tệp đính kèm",
+		"channelShort": "tìm kiếm trong kênh"
 	},
 	"prefixes": {
 		"from": "từ:",
 		"mentions": "nhắc đến:",
-		"has": "có:"
+		"has": "có:",
+		"in": "trong:"
 	},
+	"allChannels": "Tất cả kênh",
 	"searching": "Đang tìm kiếm...",
 	"noResults": "Không có kết quả",
 	"resultsCount": "{{count}} Kết quả",

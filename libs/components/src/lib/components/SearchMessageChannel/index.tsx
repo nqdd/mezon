@@ -1,4 +1,5 @@
 import { selectTheme } from '@mezon/store';
+import { ChannelStreamMode } from 'mezon-js';
 import { memo } from 'react';
 import { useSelector } from 'react-redux';
 import SearchBar from './SearchBar';
@@ -6,11 +7,12 @@ import SearchMessageChannelModal from './SearchMessageChannelModal';
 import darkMentionsInputStyle from './StyleSearchMessagesDark';
 import lightMentionsInputStyle from './StyleSearchMessagesLight';
 import { hasKeySearch } from './constant';
-import { SearchMessageChannelProps } from './types';
+import type { SearchMessageChannelProps } from './types';
 import { useSearchLogic } from './useSearchLogic';
 
 const SearchMessageChannel = ({ mode }: SearchMessageChannelProps) => {
 	const appearanceTheme = useSelector(selectTheme);
+	const isClanMode = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
 
 	const {
 		expanded,
@@ -59,6 +61,7 @@ const SearchMessageChannel = ({ mode }: SearchMessageChannelProps) => {
 					valueDisplay={valueDisplay}
 					isShowSearchOptions={isShowSearchOptions}
 					onClickSearchOptions={handleClickSearchOptions}
+					isClanMode={isClanMode}
 				/>
 			)}
 		</div>

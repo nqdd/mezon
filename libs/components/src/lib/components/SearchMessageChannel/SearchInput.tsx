@@ -1,14 +1,22 @@
+import { selectAllChannels } from '@mezon/store';
 import { searchMentionsHashtag } from '@mezon/utils';
-import { memo, useCallback, useState } from 'react';
+import { ChannelType } from 'mezon-js';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } from 'react-mentions';
+import { useSelector } from 'react-redux';
 import { UserMentionList } from '../UserMentionList';
 import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
-import type { HasOption, SearchInputProps } from './types';
+import type { ChannelOption, HasOption, SearchInputProps } from './types';
 
 const MentionsInput = MentionsInputComponent as any;
 const Mention = MentionComponent as any;
+const MentionsInputStyle = {
+	background: 'var(--bg-item-hover)',
+	borderRadius: '4px',
+	padding: '0 2px'
+};
 
 const HAS_OPTIONS: HasOption[] = [
 	{ id: 'video', display: 'video' },
@@ -36,15 +44,71 @@ const SearchInput = ({
 		channelMode: mode
 	});
 
-	const [valueHighlight, setValueHighlight] = useState<string>('');
+	const allChannels = useSelector(selectAllChannels);
 
-	const handleSearchUserMention = useCallback(
+	const channelOptions: ChannelOption[] = useMemo(() => {
+		const textChannels = allChannels
+			.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_CHANNEL || channel.type === ChannelType.CHANNEL_TYPE_THREAD)
+			.map((channel) => ({
+				id: channel.channel_id || channel.id,
+				display: channel.channel_label || ''
+			}));
+
+		return [...textChannels];
+	}, [allChannels, t]);
+
+	const [valueHighlight, setValueHighlight] = useState<string>('');
+	const [activeTrigger, setActiveTrigger] = useState<string>('');
+
+	const triggerGroupNames: Record<string, string> = useMemo(
+		() => ({
+			'>': t('fromUser'),
+			'~': t('mentionsUser'),
+			'&': t('hasContent'),
+			'#': t('inChannel')
+		}),
+		[t]
+	);
+
+	const handleSearchUserMentionFrom = useCallback(
 		(search: string, callback: any) => {
+			setActiveTrigger('>');
 			setValueHighlight(search);
 			const results = searchMentionsHashtag(search, userListData || []);
 			callback(results.length > 0 ? results : userListData || []);
 		},
 		[userListData]
+	);
+
+	const handleSearchUserMentionMentions = useCallback(
+		(search: string, callback: any) => {
+			setActiveTrigger('~');
+			setValueHighlight(search);
+			const results = searchMentionsHashtag(search, userListData || []);
+			callback(results.length > 0 ? results : userListData || []);
+		},
+		[userListData]
+	);
+
+	const handleSearchHasOptions = useCallback((search: string, callback: any) => {
+		setActiveTrigger('&');
+		setValueHighlight(search);
+		const filtered = HAS_OPTIONS.filter((opt) => opt.display.toLowerCase().includes(search.toLowerCase()));
+		callback(filtered.length > 0 ? filtered : HAS_OPTIONS);
+	}, []);
+
+	const handleSearchChannel = useCallback(
+		(search: string, callback: any) => {
+			setActiveTrigger('#');
+			setValueHighlight(search);
+			if (!search) {
+				callback(channelOptions);
+				return;
+			}
+			const filtered = channelOptions.filter((channel) => channel.display.toLowerCase().includes(search.toLowerCase()));
+			callback(filtered.length > 0 ? filtered : channelOptions);
+		},
+		[channelOptions]
 	);
 
 	const renderSuggestionsContainer = useCallback(
@@ -65,10 +129,10 @@ const SearchInput = ({
 						</div>
 					</div>
 				)}
-				<SelectGroup groupName={t('fromUser')}>{children}</SelectGroup>
+				<SelectGroup groupName={triggerGroupNames[activeTrigger] || t('fromUser')}>{children}</SelectGroup>
 			</div>
 		),
-		[valueInputSearch, valueDisplay]
+		[valueInputSearch, valueDisplay, activeTrigger, triggerGroupNames, t]
 	);
 
 	return (
@@ -96,7 +160,7 @@ const SearchInput = ({
 			<Mention
 				markup=">[__display__](__id__)"
 				appendSpaceOnAdd={true}
-				data={handleSearchUserMention}
+				data={handleSearchUserMentionFrom}
 				trigger=">"
 				displayTransform={(id: string, display: string) => `from:${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
@@ -108,13 +172,13 @@ const SearchInput = ({
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
-				className=""
+				style={MentionsInputStyle}
 			/>
 
 			<Mention
 				markup="~[__display__](__id__)"
 				appendSpaceOnAdd={true}
-				data={handleSearchUserMention}
+				data={handleSearchUserMentionMentions}
 				trigger="~"
 				displayTransform={(id: string, display: string) => `mentions:${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
@@ -126,13 +190,13 @@ const SearchInput = ({
 						onClick={() => setIsShowSearchOptions('')}
 					/>
 				)}
-				className=""
+				style={MentionsInputStyle}
 			/>
 
 			<Mention
 				markup="&[__display__](__id__)"
 				appendSpaceOnAdd={true}
-				data={HAS_OPTIONS}
+				data={handleSearchHasOptions}
 				trigger="&"
 				displayTransform={(id: string, display: string) => `has:${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
@@ -144,7 +208,25 @@ const SearchInput = ({
 						key={suggestion.id}
 					/>
 				)}
-				className=""
+				style={MentionsInputStyle}
+			/>
+
+			<Mention
+				markup="#[__display__](__id__)"
+				appendSpaceOnAdd={true}
+				data={handleSearchChannel}
+				trigger="#"
+				displayTransform={(id: string, display: string) => `in:${display}`}
+				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
+					<SelectItemUser
+						search={valueHighlight}
+						isFocused={focused}
+						title={t('prefixes.in')}
+						content={t(suggestion.display) || suggestion.display}
+						onClick={() => setIsShowSearchOptions('')}
+					/>
+				)}
+				style={MentionsInputStyle}
 			/>
 		</MentionsInput>
 	);

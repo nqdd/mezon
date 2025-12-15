@@ -1,5 +1,5 @@
-import { SearchMessageEntity } from '@mezon/store-mobile';
-import React from 'react';
+import type { SearchMessageEntity } from '@mezon/store-mobile';
+import type React from 'react';
 
 export interface IOption {
 	title: string;
@@ -36,10 +36,11 @@ export enum ITypeOptionSearch {
 	FROM = '>',
 	MENTIONS = '~',
 	HAS = '&',
+	IN = '#',
 	BEFORE = 'before',
 	DURING = 'during',
 	AFTER = 'after',
-	PINED = 'pinned'
+	PINNED = 'pinned'
 }
 
 export type GroupedMessages = {
