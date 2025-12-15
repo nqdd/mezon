@@ -10,21 +10,10 @@ import {
 	STORAGE_MY_USER_ID,
 	STORAGE_OFFER_HAVE_CALL_CACHE
 } from '@mezon/mobile-components';
-import {
-	appActions,
-	channelsActions,
-	clansActions,
-	directActions,
-	getFirstMessageOfTopic,
-	getStoreAsync,
-	topicsActions
-} from '@mezon/store-mobile';
+import { appActions, channelsActions, clansActions, directActions, getFirstMessageOfTopic, getStoreAsync, topicsActions } from '@mezon/store-mobile';
 import i18n from '@mezon/translations';
 import { sleep } from '@mezon/utils';
-import notifee, {
-	AndroidLaunchActivityFlag,
-	AuthorizationStatus as NotifeeAuthorizationStatus
-} from '@notifee/react-native';
+import notifee, { AndroidLaunchActivityFlag, AuthorizationStatus as NotifeeAuthorizationStatus } from '@notifee/react-native';
 import type { NotificationAndroid } from '@notifee/react-native/src/types/NotificationAndroid';
 import {
 	AndroidBadgeIconType,
@@ -36,13 +25,7 @@ import {
 } from '@notifee/react-native/src/types/NotificationAndroid';
 import { getApp } from '@react-native-firebase/app';
 import type { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import {
-	AuthorizationStatus,
-	getMessaging,
-	getToken,
-	hasPermission,
-	requestPermission
-} from '@react-native-firebase/messaging';
+import { AuthorizationStatus, getMessaging, getToken, hasPermission, requestPermission } from '@react-native-firebase/messaging';
 import { CommonActions } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import React from 'react';
@@ -51,6 +34,7 @@ import MezonConfirm from '../componentUI/MezonConfirm';
 import { APP_SCREEN } from '../navigation/ScreenTypes';
 import { InboxType } from '../screens/Notifications';
 import { clanAndChannelIdLinkRegex, clanDirectMessageLinkRegex } from './helpers';
+import NotificationPreferences from './NotificationPreferences';
 
 const messaging = getMessaging(getApp());
 
@@ -702,8 +686,9 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 
 		const cancelCallsCacheStr = load(STORAGE_OFFER_HAVE_CALL_CACHE) || '[]';
 		const cancelCallsCache = safeJSONParse(cancelCallsCacheStr) || [];
+		const notificationData = await NotificationPreferences.getValue('notificationDataPushed');
 
-		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer))) {
+		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer)) || !notificationData) {
 			return;
 		}
 		cancelCallsCache.push(JSON.stringify(dataObj?.offer));

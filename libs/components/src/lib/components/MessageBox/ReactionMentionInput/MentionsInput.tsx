@@ -14,6 +14,7 @@ import React, {
 	useState
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import type { MentionData, MentionProps, MentionState } from './Mention';
 import parseHtmlAsFormattedText from './parseHtmlAsFormattedText';
 import { preparePastedHtml } from './utils/cleanHtml';
@@ -947,6 +948,8 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 			[disabled, onChange, debouncedDetectMention, onHandlePaste]
 		);
 
+		const { t } = useTranslation('message');
+
 		const handlePasteFromContextMenu = useCallback(async () => {
 			if (!inputRef.current || disabled) return;
 
@@ -1344,7 +1347,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 								className="w-full px-4 text-left text-theme-primary hover:bg-theme-surface-hover flex items-center justify-between gap-8 cursor-pointer transition-colors"
 								onClick={handlePasteFromContextMenu}
 							>
-								<span>Paste</span>
+								<span>{t('pasteOption')}</span>
 								<span className="text-xs text-theme-secondary">Ctrl+V</span>
 							</button>
 						</div>,

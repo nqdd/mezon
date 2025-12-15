@@ -113,5 +113,6 @@
 	/* border left highlight */
 	--border-left-highlight: #f39c12;
 	--text-separator-theme-primary: #bababa32;
+	--bg-tooltip-app: #19191c;
 
 }

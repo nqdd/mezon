@@ -1,11 +1,11 @@
 import {
-    selectChannelById,
-    selectCurrentClanCreatorId,
-    selectCurrentClanId,
-    selectFormOnboarding,
-    selectMemberClanByUserId,
-    selectOnboardingByClan,
-    useAppSelector
+	selectChannelById,
+	selectCurrentClanCreatorId,
+	selectCurrentClanId,
+	selectFormOnboarding,
+	selectMemberClanByUserId,
+	selectOnboardingByClan,
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { generateE2eId, titleMission } from '@mezon/utils';
@@ -206,7 +206,7 @@ const MissionItem = ({ mission, temp, setOpenModalSaveChanges }: MissionItemProp
 		<GuideItemLayout
 			key={mission.title}
 			hightLightIcon={true}
-			icon={<Icons.HashIcon className="w-4 text-white" />}
+			icon={<Icons.HashIcon className="w-4 text-theme-primary" />}
 			gap={16}
 			className="px-3"
 			title={mission.title}

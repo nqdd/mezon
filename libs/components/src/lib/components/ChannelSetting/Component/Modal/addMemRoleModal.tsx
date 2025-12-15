@@ -10,10 +10,9 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { ButtonLoading, Icons, InputField } from '@mezon/ui';
-import type { IChannel } from '@mezon/utils';
+import type { IChannel, UsersClanEntity } from '@mezon/utils';
 import { ChannelStatusEnum, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import type { ApiUser } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -30,7 +29,7 @@ interface AddMemRoleProps {
 }
 type filterItemProps = {
 	listRolesNotAddChannel: RolesClanEntity[];
-	listMembersNotInChannel: (ApiUser | undefined)[];
+	listMembersNotInChannel: UsersClanEntity[];
 };
 
 export const AddMemRole: React.FC<AddMemRoleProps> = ({
@@ -243,7 +242,7 @@ export const AddMemRole: React.FC<AddMemRoleProps> = ({
 							<p className="uppercase font-bold text-xs pb-4">{t('addMembersRoles.members')}</p>
 							<div data-e2e={generateE2eId('channel_setting_page.permissions.section.member_role_management.modal.member_list')}>
 								<ListMembers
-									listItem={listUserInvite}
+									listItem={filterItem.listMembersNotInChannel}
 									selectedUserIds={selectedUserIds}
 									handleCheckboxUserChange={handleCheckboxUserChange}
 								/>

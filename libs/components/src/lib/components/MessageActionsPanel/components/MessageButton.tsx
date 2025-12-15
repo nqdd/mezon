@@ -1,6 +1,7 @@
 import { messagesActions, selectCurrentUserId, selectDataFormEmbedByMessageId, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { EButtonMessageStyle, EIconEmbedButtonMessage, IButtonMessage } from '@mezon/utils';
+import type { IButtonMessage } from '@mezon/utils';
+import { EButtonMessageStyle, EIconEmbedButtonMessage } from '@mezon/utils';
 import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -56,7 +57,7 @@ export const MessageButton: React.FC<MessageButtonProps> = ({ messageId, button,
 	return (
 		<button className={commonClass} onClick={handleClickButton}>
 			{button?.url ? (
-				<a href={button?.url} target="_blank" rel="noopener noreferrer" className={commonClass + ' flex items-center hover:underline'}>
+				<a href={button?.url} target="_blank" rel="noopener noreferrer" className={`${commonClass} flex items-center hover:underline`}>
 					{button?.label}
 					<Icons.ForwardRightClick defaultSize="w-4 h-4 ml-2" defaultFill={'#ffffff'} />
 				</a>

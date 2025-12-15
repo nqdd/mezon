@@ -73,10 +73,8 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			setInitialDescription(description);
 			setInitialAbout(about);
 			setOpenModalSaveChanges(false);
-			toast.success(t('messages.communityEnabledSuccess'));
 		} catch (error) {
 			console.error('Error enabling community:', error);
-			toast.error(t('errors.failedToEnableCommunity'));
 		} finally {
 			setIsSaving(false);
 		}

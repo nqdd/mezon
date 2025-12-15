@@ -48,7 +48,9 @@ class CustomFirebaseMessagingService : ReactNativeFirebaseMessagingService() {
 
             val offer = data["offer"]
             if (offer != null) {
-                if (offer == "{\"offer\":\"CANCEL_CALL\"}") {
+                val jsonObject = JSONObject(offer)
+                val offerType = jsonObject.getString("offer")
+                if (offerType == "CANCEL_CALL") {
                     cancelCallNotification()
                 } else {
                     handleIncomingCall(data)

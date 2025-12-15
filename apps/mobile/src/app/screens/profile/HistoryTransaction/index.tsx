@@ -1,17 +1,18 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import {
-	fetchListTransactionHistory,
+	fetchLoadMoreTransaction,
 	selectAddress,
 	selectAllAccount,
-	selectCountWalletLedger,
+	selectHasMore,
 	selectTransactionHistory,
+	transactionHistoryActions,
 	useAppDispatch,
 	useAppSelector,
 	useWallet
 } from '@mezon/store-mobile';
 import { CURRENCY, formatBalanceToString } from '@mezon/utils';
 import { FlashList } from '@shopify/flash-list';
-import { Transaction } from 'mmn-client-js';
+import type { Transaction } from 'mmn-client-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
@@ -19,7 +20,8 @@ import { Flow } from 'react-native-animated-spinkit';
 import { Pressable } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
-import { API_FILTER_PARAMS, FilterType, LIMIT_WALLET, TRANSACTION_FILTERS } from '../../../constants/transaction';
+import type { FilterType } from '../../../constants/transaction';
+import { API_FILTER_PARAMS, TRANSACTION_FILTERS } from '../../../constants/transaction';
 import { TransactionItem } from './TransactionItem';
 import { style } from './styles';
 
@@ -29,28 +31,47 @@ export const HistoryTransactionScreen = () => {
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
-	const count = useAppSelector((state) => selectCountWalletLedger(state));
-	const [page, setPage] = useState(1);
 	const [activeTab, setActiveTab] = useState<FilterType>(TRANSACTION_FILTERS.ALL);
 	const [isLoadMore, setIsLoadMore] = useState(false);
 	const { walletDetail } = useWallet();
-	const isNextPage = page * LIMIT_WALLET < (count || 0);
 	const walletAddress = useSelector(selectAddress);
 	const walletLedger = useAppSelector((state) => selectTransactionHistory(state));
+	const hasMore = useAppSelector((state) => selectHasMore(state));
 	const refList = useRef<any>(null);
 	const tokenInWallet = useMemo(() => {
 		return walletDetail?.balance || 0;
 	}, [walletDetail?.balance]);
 
-	const fetchTransactions = useCallback(
-		async (filter: FilterType, page = 1) => {
+	const fetchInitial = useCallback(
+		async (filter: FilterType) => {
+			try {
+				dispatch(transactionHistoryActions.resetTransactionHistory());
+				await dispatch(
+					fetchLoadMoreTransaction({
+						address: walletAddress || '',
+						filter: API_FILTER_PARAMS[filter],
+						timeStamp: undefined,
+						lastHash: undefined
+					})
+				);
+			} catch (error) {
+				console.error(`Error loading transactions:`, error);
+			}
+		},
+		[dispatch, walletAddress]
+	);
+
+	const fetchLoadMore = useCallback(async () => {
+		if (hasMore && !isLoadMore && walletLedger && walletLedger?.length > 0) {
 			setIsLoadMore(true);
 			try {
+				const lastItem = walletLedger?.[walletLedger?.length - 1];
 				await dispatch(
-					fetchListTransactionHistory({
+					fetchLoadMoreTransaction({
 						address: walletAddress || '',
-						page,
-						filter: API_FILTER_PARAMS[filter]
+						filter: API_FILTER_PARAMS[activeTab],
+						timeStamp: new Date(lastItem?.transaction_timestamp * 1000).toISOString(),
+						lastHash: lastItem?.hash
 					})
 				);
 			} catch (error) {
@@ -58,21 +79,16 @@ export const HistoryTransactionScreen = () => {
 			} finally {
 				setIsLoadMore(false);
 			}
-		},
-		[dispatch, walletAddress]
-	);
+		}
+	}, [activeTab, dispatch, hasMore, isLoadMore, walletAddress, walletLedger]);
 
 	useEffect(() => {
-		fetchTransactions(activeTab);
-	}, [activeTab]);
+		fetchInitial(activeTab);
+	}, [activeTab, fetchInitial]);
 
-	const loadMore = useCallback(async () => {
-		if (isNextPage && !isLoadMore) {
-			await fetchTransactions(activeTab, page + 1);
-			setPage((prev) => prev + 1);
-			setIsLoadMore(false);
-		}
-	}, [isNextPage, isLoadMore, fetchTransactions, activeTab, page]);
+	const loadMore = useCallback(() => {
+		fetchLoadMore();
+	}, [fetchLoadMore]);
 
 	const renderItem = useCallback(
 		({ item }: { item: Transaction }) => {
@@ -91,7 +107,6 @@ export const HistoryTransactionScreen = () => {
 
 	const onChangeActiveTab = useCallback((tab: FilterType) => {
 		setActiveTab(tab);
-		setPage(1);
 		refList?.current?.scrollToOffset({ offset: 0, animated: false });
 	}, []);
 
@@ -141,7 +156,7 @@ export const HistoryTransactionScreen = () => {
 				<FlashList
 					ref={refList}
 					key={`walletLedger_${userProfile?.user?.id}`}
-					data={walletLedger}
+					data={walletLedger ?? []}
 					renderItem={renderItem}
 					removeClippedSubviews={true}
 					showsVerticalScrollIndicator={false}
