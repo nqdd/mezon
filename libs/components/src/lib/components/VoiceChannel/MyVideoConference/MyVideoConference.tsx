@@ -25,6 +25,7 @@ import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 import { ReactionCallHandler } from './Reaction';
 import { useSoundReactions } from './Reaction/useSoundReactions';
 import { useDeepFilterNet3 } from './useDeepFilterNet3';
+import { VoiceContextMenu } from './VoiceContextMenu/VoiceContextMenu';
 
 const DeepFilterNetInitializer = memo(() => {
 	useDeepFilterNet3({ enabled: true });
@@ -374,6 +375,7 @@ export const MyVideoConference = memo(
 				</LayoutContextProvider>
 				<RoomAudioRenderer />
 				{!propTracks && <ConnectionStateToast />}
+				<VoiceContextMenu roomName={room?.name} room={room} />
 			</div>
 		);
 	},
