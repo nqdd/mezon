@@ -91,10 +91,9 @@ export function useThreadMessage({ channelId, mode, username }: UseThreadMessage
 				references
 			);
 
-			const userIds = uniqueUsers(mentions as ApiMessageMention[], membersOfChild, rolesClan, []).slice(0, -1);
-			const usersNotExistingInThread = mapToMemberIds.filter((userId) => !userIds?.includes(userId as string));
-			if (usersNotExistingInThread.length > 0) {
-				addMemberToThread(thread as ChannelsEntity, usersNotExistingInThread as string[]);
+			const userIds = uniqueUsers(mentions as ApiMessageMention[], mapToMemberIds, rolesClan, []);
+			if (userIds.length) {
+				addMemberToThread(thread as ChannelsEntity, userIds as string[]);
 			}
 
 			const timestamp = Date.now() / 1000;
