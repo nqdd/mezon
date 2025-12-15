@@ -248,6 +248,41 @@ export const listChannelRenderSlice = createSlice({
 			} else {
 				state.listChannelRender[clanId].splice(indexOfNewCategory + 1, 0, ...newChannelWithThreads);
 			}
+
+			const newCategoryIndex = state.listChannelRender[clanId].findIndex((item) => item.id === categoryId);
+			const newCategory = state.listChannelRender[clanId][newCategoryIndex] as ICategoryChannel;
+
+			if (newCategory && newCategory.channels !== undefined) {
+				if (!newCategory.channels) {
+					newCategory.channels = [];
+				}
+
+				const categoryChannels = newCategory.channels as IChannel[];
+
+				newChannelWithThreads.forEach((channel) => {
+					const channelData = channel as IChannel;
+					if (!channelData.parent_id || channelData.parent_id === '0') {
+						const exists = categoryChannels.some((c) => c.id === channelData.id);
+						if (!exists) {
+							categoryChannels.push(channelData);
+						}
+					}
+				});
+
+				newCategory.channels = categoryChannels;
+			}
+			state.listChannelRender[clanId].forEach((item) => {
+				if ((item as ICategoryChannel).channels !== undefined) {
+					const category = item as ICategoryChannel;
+					if (category.id === categoryId) {
+						return;
+					}
+
+					const categoryChannels = category.channels as IChannel[];
+					const filteredChannels = categoryChannels?.filter((c) => c.id !== channelId);
+					category.channels = filteredChannels as IChannel[];
+				}
+			});
 		},
 		addCategoryToListRender: (state, action: PayloadAction<{ clanId: string; cate: ICategoryChannel }>) => {
 			const { clanId, cate } = action.payload;
