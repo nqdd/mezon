@@ -78,15 +78,13 @@ export const QRModal = memo(({ inviteLink }: IQRModalProps) => {
 			const folderExists = await RNFetchBlob.fs.exists(baseDir);
 			if (!folderExists) await RNFetchBlob.fs.mkdir(baseDir);
 
-			const shareFilePath = `${baseDir}/qr_share_${currentClanName}.png`;
-			const fileExists = await RNFetchBlob.fs.exists(shareFilePath);
-			if (fileExists) await RNFetchBlob.fs.unlink(shareFilePath);
+			const shareFilePath = `${baseDir}/qr_share_clan_${currentClanName}_${Date.now()}.png`;
 			await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
 
 			await Share.open({
 				url: `file://${shareFilePath}`,
 				type: 'image/png',
-				title: `QR_Invite_${currentClanName || 'Clan'}`,
+				title: `QR_Invite_${currentClanName}`,
 				message: `Join ${currentClanName ? currentClanName : 'Clan'} on Mezon with me: ${inviteLink}`,
 				failOnCancel: false
 			});
