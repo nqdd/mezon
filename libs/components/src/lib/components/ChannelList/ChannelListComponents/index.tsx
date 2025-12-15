@@ -327,7 +327,7 @@ const ChannelAppList = memo(() => {
 	return (
 		<>
 			<hr className="w-full ml-[3px] border-t-theme-primary" />
-			<div className="grow w-full flex-row items-center justify-center gap-2 flex py-1">
+			<div className={`grow w-full flex-row items-center gap-2 flex py-1 px-2 ${showList.length < 4 ? 'justify-start' : 'justify-center'}`}>
 				{showList.map((item) => (
 					<CustomTooltip key={item.app_id} text={item.app_name || ''}>
 						<div
