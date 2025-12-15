@@ -28,6 +28,7 @@ const FirstJoinPopup = ({ onclose, openCreateClanModal }: IFirstJoinPopup) => {
 				await inviteUser(idInvite).then((res) => {
 					if (res?.channel_id && res?.clan_id) {
 						navigate(`/chat/clans/${res.clan_id}/channels/${res.channel_id}`);
+						onclose();
 					}
 				});
 				dispatch(clansActions.fetchClans({ noCache: true }));
