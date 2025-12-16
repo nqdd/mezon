@@ -40,7 +40,7 @@ export enum ITypeOptionSearch {
 	BEFORE = 'before',
 	DURING = 'during',
 	AFTER = 'after',
-	PINNED = 'pinned'
+	PINED = 'pinned'
 }
 
 export type GroupedMessages = {
