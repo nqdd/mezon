@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useChannelMembers, useChatSending } from '@mezon/core';
 import type { IRoleMention } from '@mezon/mobile-components';
-import { ActionEmitEvent, ID_MENTION_HERE, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, ID_MENTION_HERE, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
@@ -29,13 +29,7 @@ import type {
 	IMentionOnMessage,
 	IMessageSendPayload
 } from '@mezon/utils';
-import {
-	checkIsThread,
-	filterEmptyArrays,
-	THREAD_ARCHIVE_DURATION_SECONDS,
-	ThreadStatus,
-	uniqueUsers
-} from '@mezon/utils';
+import { THREAD_ARCHIVE_DURATION_SECONDS, ThreadStatus, checkIsThread, filterEmptyArrays, uniqueUsers } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
@@ -45,6 +39,7 @@ import { Pressable } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
+import { removeBackticks } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve, IPayloadThreadSendMessage } from '../../../types';
 import { style } from '../ChatBoxBottomBar/style';
@@ -139,10 +134,12 @@ export const ChatMessageSending = memo(
 
 		const removeTags = (text: string) => {
 			if (!text) return '';
-			return text
+			const processed = text
 				?.replace?.(/@\[(.*?)\]/g, '@$1')
 				?.replace?.(/<#(.*?)>/g, '#$1')
 				?.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
+
+			return removeBackticks(processed);
 		};
 
 		const onEditMessage = useCallback(
@@ -189,6 +186,20 @@ export const ChatMessageSending = memo(
 			[dispatch, joinningToThread, userId]
 		);
 
+		const getBlockedRanges = useCallback((markdowns: IMarkdownOnMessage[]) => {
+			const ranges: IMarkdownOnMessage[] = [];
+			if (markdowns) {
+				markdowns?.forEach((markdown) => {
+					ranges.push({ s: markdown?.s, e: markdown?.e });
+				});
+			}
+			return ranges;
+		}, []);
+
+		const isBlocked = useCallback((s: number, e: number, ranges: IMarkdownOnMessage[]) => {
+			return ranges.some((range) => Math.max(s, range.s) < Math.min(e, range.e));
+		}, []);
+
 		const handleSendMessage = async () => {
 			const simplifiedMentionList = !mentionsOnMessage?.current
 				? []
@@ -209,21 +220,29 @@ export const ChatMessageSending = memo(
 							};
 						}
 					});
+
+			const blockedRanges = getBlockedRanges(markdownsOnMessage?.current);
+
+			const filteredMentionList = simplifiedMentionList?.filter((m) => !isBlocked(m.s, m.e, blockedRanges));
+			const filteredHashtags = (hashtagsOnMessage?.current || []).filter((h) => !isBlocked(h.s, h.e, blockedRanges));
+			const filteredBolds = (boldsOnMessage?.current || []).filter((b) => !isBlocked(b.s, b.e, blockedRanges));
+
 			if (checkIsThread(currentChannel as ChannelsEntity) && !!currentChannel) {
-				const usersNotExistingInThread = getUsersNotExistingInThread(simplifiedMentionList);
+				const usersNotExistingInThread = getUsersNotExistingInThread(filteredMentionList);
 
 				if (usersNotExistingInThread?.length > 0) await addMemberToThread(currentChannel, usersNotExistingInThread);
 				await handleThreadActivation(currentChannel);
 			}
+
 			const payloadSendMessage: IMessageSendPayload = {
 				t: removeTags(valueInputRef?.current),
-				hg: hashtagsOnMessage?.current || [],
+				hg: filteredHashtags,
 				ej: emojisOnMessage?.current || [],
 				mk: [
 					...(linksOnMessage?.current || []),
 					...(voiceLinkRoomOnMessage?.current || []),
 					...(markdownsOnMessage?.current || []),
-					...(boldsOnMessage?.current || [])
+					...(filteredBolds || [])
 				],
 				cid: messageActionNeedToResolve?.targetMessage?.content?.cid,
 				tp: messageActionNeedToResolve?.targetMessage?.content?.tp
@@ -312,13 +331,13 @@ export const ChatMessageSending = memo(
 						await onEditMessage(
 							filterEmptyArrays(payloadSendMessage),
 							messageActionNeedToResolve?.targetMessage?.id,
-							simplifiedMentionList || []
+							filteredMentionList || []
 						);
 					} else {
-						const isMentionEveryOne = simplifiedMentionList?.some?.((mention) => mention.user_id === ID_MENTION_HERE);
+						const isMentionEveryOne = filteredMentionList?.some?.((mention) => mention.user_id === ID_MENTION_HERE);
 						await sendMessage(
 							filterEmptyArrays(payloadSendMessage),
-							simplifiedMentionList || [],
+							filteredMentionList || [],
 							attachmentDataRef || [],
 							reference,
 							anonymousMode && !currentDmGroup,
