@@ -35,27 +35,31 @@ import { style } from './JoinStreamingRoomBS.styles';
 function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
+	const dispatch = useAppDispatch();
+	const navigation = useNavigation<any>();
 	const { dismiss } = useBottomSheetModal();
+	const { handleChannelClick } = useWebRTCStream();
 	const { t } = useTranslation(['streamingRoom', 'common']);
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentStreamInfo = useSelector(selectCurrentStreamInfo);
 	const playStream = useSelector(selectStatusStream);
-	const dispatch = useAppDispatch();
-	const { handleChannelClick } = useWebRTCStream();
 	const userProfile = useSelector(selectAllAccount);
 	const sessionUser = useSelector(selectSession);
-	const memberJoin = useSelector((state) => selectStreamMembersByChannelId(state, channel?.channel_id || ''));
-	const badge = useMemo(() => (memberJoin?.length > 3 ? memberJoin?.length - 3 : 0), [memberJoin]);
+	const channelId = useMemo(() => {
+		return channel?.channel_id || channel?.id || '';
+	}, [channel?.channel_id, channel?.id]);
+	const memberJoin = useSelector((state) => selectStreamMembersByChannelId(state, channelId));
+	const badge = useMemo(() => (memberJoin?.length > 3 ? memberJoin.length - 3 : 0), [memberJoin]);
 
 	const handleJoinVoice = () => {
 		requestAnimationFrame(async () => {
 			if (channel?.type === ChannelType.CHANNEL_TYPE_STREAMING) {
-				if (currentStreamInfo?.streamId !== channel?.id || (!playStream && currentStreamInfo?.streamId === channel?.id)) {
+				if (currentStreamInfo?.streamId !== channelId || (!playStream && currentStreamInfo?.streamId === channelId)) {
 					handleChannelClick(
-						channel?.clan_id as string,
-						channel?.channel_id as string,
-						userProfile?.user?.id as string,
-						channel?.channel_id as string,
+						channel?.clan_id,
+						channelId,
+						userProfile?.user?.id,
+						channelId,
 						userProfile?.user?.username,
 						sessionUser?.token as string
 					);
@@ -63,7 +67,7 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 						videoStreamActions.startStream({
 							clanId: channel?.clan_id || '',
 							clanName: '',
-							streamId: channel?.channel_id || '',
+							streamId: channelId,
 							streamName: channel?.channel_label || '',
 							parentId: channel?.parent_id || ''
 						})
@@ -73,8 +77,6 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 			}
 		});
 	};
-
-	const navigation = useNavigation<any>();
 
 	const handleShowChat = async () => {
 		if (channel?.type === ChannelType.CHANNEL_TYPE_STREAMING) {
@@ -86,18 +88,15 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 	};
 
 	const joinChannel = async () => {
-		const clanId = channel?.clan_id;
-		const channelId = channel?.channel_id;
-
-		if (currentClanId !== clanId) {
-			changeClan(clanId);
+		if (currentClanId !== channel?.clan_id) {
+			changeClan(channel.clan_id);
 		}
 		DeviceEventEmitter.emit(ActionEmitEvent.FETCH_MEMBER_CHANNEL_DM, {
 			isFetchMemberChannelDM: true
 		});
-		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
+		const dataSave = getUpdateOrAddClanChannelCache(channel?.clan_id, channelId);
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-		await jumpToChannel(channelId, clanId);
+		await jumpToChannel(channelId, channel?.clan_id);
 		dismiss();
 	};
 
@@ -114,14 +113,14 @@ function JoinStreamingRoomBS({ channel }: { channel: IChannel }) {
 						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 					<Text numberOfLines={2} style={[styles.text, styles.textFlexible]}>
-						{channel?.channel_label}
+						{channel?.channel_label || ''}
 					</Text>
 				</View>
 				<TouchableOpacity
 					onPress={() => {
 						const data = {
 							snapPoints: ['70%', '90%'],
-							children: <InviteToChannel isUnknownChannel={false} />
+							children: <InviteToChannel isUnknownChannel={false} channelId={channelId} />
 						};
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 					}}

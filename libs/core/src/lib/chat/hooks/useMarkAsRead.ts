@@ -87,7 +87,7 @@ export function useMarkAsRead() {
 					})
 				);
 				dispatch(
-					clansActions.updateClanBadgeCount2({
+					clansActions.updateClanBadgeCountFromChannels({
 						clanId: channel.clan_id as string,
 						channels: allThreadsInChannel.map((channel) => ({
 							channelId: channel.id,

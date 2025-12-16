@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow, ipcMain, screen } from 'electron';
 import type { ApiChannelAttachment } from 'mezon-js/api.gen';
 import { join } from 'path';
 import App from '../../app/app';
@@ -57,7 +57,7 @@ export type ImageData = {
 	channelImagesData: IImageWindowProps;
 	isVideo?: boolean;
 };
-function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.mainWindow, params?: Record<string, string>) {
+function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.mainWindow, _params?: Record<string, string>) {
 	const parentBounds = parentWindow.getBounds();
 	const activeIndex = imageData.channelImagesData.selectedImageIndex;
 	const width = Math.floor(parentBounds.width * 1.0);
@@ -121,10 +121,16 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
         <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
-    <div id="maximize-window" class="function-button">
-      <svg viewBox="0 0 448 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-button zoom-button">
+    <div id="maximize-window" class="function-button" aria-label="Toggle maximize">
+      <svg viewBox="0 0 448 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-button zoom-button icon-maximize">
         <path
           d="M384 80c8.8 0 16 7.2 16 16l0 320c0 8.8-7.2 16-16 16L64 432c-8.8 0-16-7.2-16-16L48 96c0-8.8 7.2-16 16-16l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"
+          fill="currentColor"
+        />
+      </svg>
+      <svg viewBox="0 0 448 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="svg-button zoom-button icon-restore" style="display: none;">
+        <path
+          d="M432 48H160c-8.8 0-16 7.2-16 16v48h48V80h224v224h-32v48h48c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16Zm-96 96H80c-8.8 0-16 7.2-16 16v288c0 8.8 7.2 16 16 16h256c8.8 0 16-7.2 16-16V160c0-8.8-7.2-16-16-16Zm-16 288H96V176h224v256Z"
           fill="currentColor"
         />
       </svg>
@@ -263,11 +269,42 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 	});
 	ipcMain.removeHandler('maximize-window');
 	ipcMain.handle('maximize-window', () => {
-		if (popupWindow.isMaximized()) {
-			popupWindow.unmaximize();
+		const windowBounds = popupWindow.getBounds();
+		const display = screen.getDisplayMatching(windowBounds);
+		const isMaximized = windowBounds.width >= display.workArea.width && windowBounds.height >= display.workArea.height;
+		let nextIsMaximized = !isMaximized;
+
+		if (process.platform === 'darwin') {
+			if (isMaximized) {
+				const newWidth = Math.floor(display.workArea.width * 0.8);
+				const newHeight = Math.floor(display.workArea.height * 0.8);
+				const x = Math.floor(display.workArea.x + (display.workArea.width - newWidth) / 2);
+				const y = Math.floor(display.workArea.y + (display.workArea.height - newHeight) / 2);
+				popupWindow.setBounds({ x, y, width: newWidth, height: newHeight }, false);
+				nextIsMaximized = false;
+			} else {
+				popupWindow.setBounds(
+					{
+						x: display.workArea.x,
+						y: display.workArea.y,
+						width: display.workArea.width,
+						height: display.workArea.height
+					},
+					false
+				);
+				nextIsMaximized = true;
+			}
 		} else {
-			popupWindow.maximize();
+			if (isMaximized) {
+				nextIsMaximized = false;
+				popupWindow.unmaximize();
+			} else {
+				nextIsMaximized = true;
+				popupWindow.maximize();
+			}
 		}
+
+		popupWindow.webContents.send('IMAGE_WINDOW_MAXIMIZE_STATE', nextIsMaximized);
 	});
 	popupWindow.once('ready-to-show', () => {
 		popupWindow.show();
@@ -389,8 +426,26 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 		window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::MINIMIZE_WINDOW');
 	});
   document.getElementById('channel-label').textContent = '${imageData.channelImagesData.channelLabel}';
-	document.getElementById('maximize-window').addEventListener('click', () => {
+	const maximizeButton = document.getElementById('maximize-window');
+	const maximizeIcon = maximizeButton ? maximizeButton.querySelector('.icon-maximize') : null;
+	const restoreIcon = maximizeButton ? maximizeButton.querySelector('.icon-restore') : null;
+
+	let isMaximizedState = false;
+	const setMaximizeIcon = (maxed) => {
+		isMaximizedState = Boolean(maxed);
+		if (maximizeIcon) maximizeIcon.style.display = isMaximizedState ? 'none' : 'block';
+		if (restoreIcon) restoreIcon.style.display = isMaximizedState ? 'block' : 'none';
+	};
+
+	setMaximizeIcon(false);
+
+	maximizeButton?.addEventListener('click', () => {
 		window.electron.send('APP::IMAGE_WINDOW_TITLE_BAR_ACTION', 'APP::MAXIMIZE_WINDOW');
+		setMaximizeIcon(!isMaximizedState);
+	});
+
+	window.electron?.on?.('IMAGE_WINDOW_MAXIMIZE_STATE', (_event, maxed) => {
+		setMaximizeIcon(Boolean(maxed));
 	});
  document.getElementById('downloadBtn').addEventListener('click', () => {
 window.electron.handleActionShowImage('saveImage',currentImageUrl.realUrl);
@@ -470,7 +525,7 @@ document.addEventListener('keydown', (e) => {
 }
 
 function formatDateTime(dateString) {
-	const options = {
+	const options: Intl.DateTimeFormatOptions = {
 		year: 'numeric',
 		month: '2-digit',
 		day: '2-digit',
@@ -478,7 +533,7 @@ function formatDateTime(dateString) {
 		minute: '2-digit',
 		hour12: false
 	};
-	return new Date(dateString).toLocaleString('vi-VN');
+	return new Date(dateString).toLocaleString('vi-VN', options);
 }
 const createThumbProxyUrlScript = () => {
 	const base = process.env.NX_IMGPROXY_BASE_URL || 'https://imgproxy.mezon.ai';
@@ -578,9 +633,10 @@ const createVirtualizer = () => {
 				this.isScrolling = false;
 				this.scrollDirection = null;
 				this.useAnimationFrame = options.useAnimationFrame ?? true;
+				this.isProgrammaticScroll = false;
 				this.init();
-			}
-			getItemHeight(index) {
+		}
+		getItemHeight(index) {
 				if (this.itemHeights.has(index)) {
 					return this.itemHeights.get(index);
 				}
@@ -685,18 +741,21 @@ const createVirtualizer = () => {
 					this.render();
 				}
 			}
-			handleScroll() {
-				const currentScrollTop = this.container.scrollTop;
-				if (!approxEqual(currentScrollTop, this.previousScrollTop)) {
-					this.isScrolling = true;
-					this.scrollDirection = currentScrollTop > this.previousScrollTop ? 'forward' : 'backward';
-					this.previousScrollTop = currentScrollTop;
-				}
-				this.scrollTop = currentScrollTop;
-				this.render();
-				this.debouncedCheckLoadMore();
-				this.debouncedScrollEnd();
+		handleScroll() {
+			if (this.isProgrammaticScroll) {
+				return;
 			}
+			const currentScrollTop = this.container.scrollTop;
+			if (!approxEqual(currentScrollTop, this.previousScrollTop)) {
+				this.isScrolling = true;
+				this.scrollDirection = currentScrollTop > this.previousScrollTop ? 'forward' : 'backward';
+				this.previousScrollTop = currentScrollTop;
+			}
+			this.scrollTop = currentScrollTop;
+			this.render();
+			this.debouncedCheckLoadMore();
+			this.debouncedScrollEnd();
+		}
 			checkLoadMore() {
 				if (!this.onLoadMore || this.isLoadingBefore || this.isLoadingAfter) return;
 				const range = this.calculateVisibleRange();
@@ -950,32 +1009,59 @@ const createVirtualizer = () => {
 			}
 			onLoadMore(direction) {
 			}
-			scrollToIndex(index, smooth = false) {
+		scrollToIndex(index, smooth = false) {
+			const itemStart = this.getItemStart(index);
+			const itemHeight = this.getItemHeight(index);
+			const targetScroll = Math.max(
+				0,
+				Math.min(
+					itemStart - (this.containerHeight / 2) + (itemHeight / 2),
+					this.totalHeight - this.containerHeight
+				)
+			);
 
-				const itemStart = this.getItemStart(index);
-				const itemHeight = this.getItemHeight(index);
-				const targetScroll = Math.max(
-					0,
-					Math.min(
-						itemStart - (this.containerHeight / 2) + (itemHeight / 2),
-						this.totalHeight - this.containerHeight
-					)
-				);
-				if (smooth) {
-					this.container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-				} else {
-					this.container.scrollTop = targetScroll;
-				}
+			this.isProgrammaticScroll = true;
+			this.scrollTop = targetScroll;
+
+			if (smooth) {
+				this.container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						this.isProgrammaticScroll = false;
+						this.render();
+					});
+				});
+			} else {
+				this.container.scrollTop = targetScroll;
+				requestAnimationFrame(() => {
+					this.isProgrammaticScroll = false;
+					this.render();
+				});
 			}
-			scrollToBottom(smooth = false) {
-				const maxScroll = this.totalHeight - this.containerHeight;
-				const targetScroll = Math.max(0, maxScroll);
-				if (smooth) {
-					this.container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-				} else {
-					this.container.scrollTop = targetScroll;
-				}
+		}
+		scrollToBottom(smooth = false) {
+			const maxScroll = this.totalHeight - this.containerHeight;
+			const targetScroll = Math.max(0, maxScroll);
+
+			this.isProgrammaticScroll = true;
+			this.scrollTop = targetScroll;
+
+			if (smooth) {
+				this.container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						this.isProgrammaticScroll = false;
+						this.render();
+					});
+				});
+			} else {
+				this.container.scrollTop = targetScroll;
+				requestAnimationFrame(() => {
+					this.isProgrammaticScroll = false;
+					this.render();
+				});
 			}
+		}
 			update(items, selectedItemId, hasMoreBefore, hasMoreAfter) {
 				const previousLength = this.items.length;
 				const wasLoadingBefore = this.isLoadingBefore;
@@ -1003,7 +1089,9 @@ const createVirtualizer = () => {
 				}
 				this.visibleRange = { start: -1, end: -1 };
 				this.render();
-				this.updateActiveState(this.currentItemId);
+				requestAnimationFrame(() => {
+					this.updateActiveState(this.currentItemId);
+				});
 				if (wasLoadingBefore && items.length > previousLength) {
 					requestAnimationFrame(() => {
 						requestAnimationFrame(() => {
@@ -1074,18 +1162,32 @@ const createVirtualizer = () => {
 				}
 				return items;
 			}
-			scrollToOffset(offset, smooth = false) {
-				const maxOffset = Math.max(0, this.totalHeight - this.containerHeight);
-				const targetOffset = Math.max(0, Math.min(offset, maxOffset));
-				if (smooth) {
-					this.container.scrollTo({ top: targetOffset, behavior: 'smooth' });
-				} else {
-					this.container.scrollTop = targetOffset;
-				}
+		scrollToOffset(offset, smooth = false) {
+			const maxOffset = Math.max(0, this.totalHeight - this.containerHeight);
+			const targetOffset = Math.max(0, Math.min(offset, maxOffset));
+
+			this.isProgrammaticScroll = true;
+			this.scrollTop = targetOffset;
+
+			if (smooth) {
+				this.container.scrollTo({ top: targetOffset, behavior: 'smooth' });
+				requestAnimationFrame(() => {
+					requestAnimationFrame(() => {
+						this.isProgrammaticScroll = false;
+						this.render();
+					});
+				});
+			} else {
+				this.container.scrollTop = targetOffset;
+				requestAnimationFrame(() => {
+					this.isProgrammaticScroll = false;
+					this.render();
+				});
 			}
-			scrollBy(delta, smooth = false) {
-				this.scrollToOffset(this.scrollTop + delta, smooth);
-			}
+		}
+		scrollBy(delta, smooth = false) {
+			this.scrollToOffset(this.scrollTop + delta, smooth);
+		}
 		}
 		window.ThumbnailVirtualizer = ThumbnailVirtualizer;
 	`;
@@ -1093,8 +1195,7 @@ const createVirtualizer = () => {
 export const listThumnails = (_listImage: IAttachmentEntityWithUploader[], _indexSelect: number) => {
 	return '';
 };
-export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], indexSelect: number) => {
-	const reversedImages = [...listImage].reverse();
+export const scriptThumnails = (reversedImages: IAttachmentEntityWithUploader[], indexSelect: number) => {
 	const reversedIndexSelect = indexSelect >= 0 ? reversedImages.length - 1 - indexSelect : -1;
 	const initialImagesData = reversedImages.map((image: IAttachmentEntityWithUploader) => ({
 		id: escapeHtml(image.id || image.url || ''),
@@ -1278,23 +1379,21 @@ export const scriptThumnails = (listImage: IAttachmentEntityWithUploader[], inde
 					window.electron.send('APP::LOAD_MORE_ATTACHMENTS', { direction });
 				}
 			};
-				let currentIndex = ${reversedIndexSelect} >= 0 ? ${reversedIndexSelect} : -1;
-				if (currentIndex >= 0 && imagesData[currentIndex]) {
-					currentItemId = imagesData[currentIndex].id || imagesData[currentIndex].url;
-					virtualizer.currentItemId = currentItemId;
-					requestAnimationFrame(() => {
-						requestAnimationFrame(() => {
-							virtualizer.updateActiveState(currentItemId);
-						});
-					});
+
+			let currentIndex = ${reversedIndexSelect} >= 0 ? ${reversedIndexSelect} : -1;
+			if (currentIndex >= 0 && imagesData[currentIndex]) {
+				currentItemId = imagesData[currentIndex].id || imagesData[currentIndex].url;
+				virtualizer.currentItemId = currentItemId;
+			}
+
+			requestAnimationFrame(() => {
+				if (currentIndex >= 0 && currentItemId) {
+					virtualizer.updateActiveState(currentItemId);
+					virtualizer.scrollToIndex(currentIndex, false);
+				} else {
+					virtualizer.scrollToBottom(false);
 				}
-				requestAnimationFrame(() => {
-					if (currentIndex >= 0) {
-						virtualizer.scrollToIndex(currentIndex);
-					} else {
-						virtualizer.scrollToBottom();
-					}
-				});
+			});
 			window.thumbnailVirtualizer = virtualizer;
 			if (window.electron && window.electron.on) {
 				window.electron.on('APP::UPDATE_ATTACHMENTS', (event, { attachments, hasMoreBefore, hasMoreAfter }) => {

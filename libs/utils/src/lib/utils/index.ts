@@ -136,12 +136,7 @@ export const checkSameDay = (startTimeString: string, endTimeString: string) => 
 	return sameDay;
 };
 
-export const uniqueUsers = (
-	mentions: IMentionOnMessage[],
-	userChannels: ChannelMembersEntity[] | null,
-	rolesClan: IRolesClan[],
-	refereceSenderId: string[]
-) => {
+export const uniqueUsers = (mentions: IMentionOnMessage[], memUserIds: string[] | null, rolesClan: IRolesClan[], refereceSenderId: string[]) => {
 	const uniqueUserId1s = Array.from(
 		new Set(
 			mentions.reduce<string[]>((acc, mention) => {
@@ -176,8 +171,7 @@ export const uniqueUsers = (
 		new Set([...(uniqueUserId1s || []), ...(uniqueUserId2s || []), ...(refereceSenderId ? [refereceSenderId] : [])])
 	);
 
-	const memUserIds = userChannels?.map((member) => member?.user?.id) || [];
-	const userIdsNotInChannel = combinedUniqueUserIds.filter((user_id) => Array.isArray(memUserIds) && !memUserIds.includes(user_id as string));
+	const userIdsNotInChannel = combinedUniqueUserIds.filter((user_id) => Array.isArray(memUserIds) && memUserIds.includes(user_id as string));
 
 	return userIdsNotInChannel;
 };

@@ -1,40 +1,41 @@
 {
-  "title": "Mời bạn bè",
-  "iconTitle": {
-    "shareInvite": "Chia sẻ",
-    "copyLink": "Sao chép",
-    "facebook": "Facebook",
-    "youtube": "YouTube",
-    "twitter": "X",
-    "qrcode": "Mã QR"
-  },
-  "copyLink": "Đã sao chép liên kết!",
-  "unknownChannel": "CHANNEL KHÔNG XÁC ĐỊNH",
-  "yourLinkInvite": "Liên kết sẽ hết hạn trong",
-  "inviteFriendToChannel": "Mời bạn bè vào kênh",
-  "editInviteLink": "Chỉnh sửa liên kết mời",
-  "inviteChannel": "MỜI VÀO CHANNEL",
-  "advancedSettings": "CÀI ĐẶT NÂNG CAO",
-  "expireAfter": "HẾT HẠN SAU",
-  "maxUsers": "SỐ NGƯỜI TỐI ĐA",
-  "temporaryMembership": "Thành viên tạm thời",
-  "memberAutoKick": "Thành viên sẽ bị tự động đá ra khi họ ngắt kết nối trừ khi được gán một vai trò.",
-  "btnInvite": "Mời",
-  "btnSent": "Đã mời",
-  "qrModal": {
-    "title": "Mã QR",
-    "scanToJoin": "Quét mã này để tham gia {{clanName}}!",
-    "scanToJoinDefault": "Quét mã này để tham gia clan!",
-    "generating": "Đang tạo mã QR...",
-    "errorGenerating": "Lỗi khi tạo mã QR",
-    "downloadSuccess": "Đã lưu mã QR vào thư viện",
-    "downloadError": "Lỗi khi tải mã QR",
-    "shareError": "Lỗi khi chia sẻ mã QR",
-    "clanDefaultName": "Clan"
-  },
-  "share": {
-    "title": "chia sẻ",
-    "message": "Tham gia Mezon với tôi:",
-    "error": "Lỗi khi chia sẻ: {{error}}"
-  }
+	"title": "Mời bạn bè",
+	"iconTitle": {
+		"shareInvite": "Chia sẻ",
+		"copyLink": "Sao chép",
+		"facebook": "Facebook",
+		"youtube": "YouTube",
+		"twitter": "X",
+		"qrcode": "Mã QR"
+	},
+	"copyLink": "Đã sao chép liên kết!",
+	"unknownChannel": "CHANNEL KHÔNG XÁC ĐỊNH",
+	"yourLinkInvite": "Liên kết sẽ hết hạn trong",
+	"inviteFriendToChannel": "Mời bạn bè vào kênh",
+	"editInviteLink": "Chỉnh sửa liên kết mời",
+	"inviteChannel": "MỜI VÀO CHANNEL",
+	"advancedSettings": "CÀI ĐẶT NÂNG CAO",
+	"expireAfter": "HẾT HẠN SAU",
+	"maxUsers": "SỐ NGƯỜI TỐI ĐA",
+	"temporaryMembership": "Thành viên tạm thời",
+	"memberAutoKick": "Thành viên sẽ bị tự động đá ra khi họ ngắt kết nối trừ khi được gán một vai trò.",
+	"btnInvite": "Mời",
+	"btnSent": "Đã mời",
+	"qrModal": {
+		"title": "Mã QR",
+		"scanToJoin": "Quét mã này để tham gia {{clanName}}!",
+		"scanToJoinDefault": "Quét mã này để tham gia clan!",
+		"generating": "Đang tạo mã QR...",
+		"errorGenerating": "Lỗi khi tạo mã QR",
+		"downloadSuccess": "Đã lưu mã QR vào thư viện",
+		"downloadError": "Lỗi khi tải mã QR",
+		"shareError": "Lỗi khi chia sẻ mã QR",
+		"clanDefaultName": "Clan"
+	},
+	"share": {
+		"title": "chia sẻ",
+		"message": "Tham gia Mezon với tôi:",
+		"error": "Lỗi khi chia sẻ liên kết mời",
+		"errorCreateLink": "Lỗi khi tạo liên kết mời"
+	}
 }

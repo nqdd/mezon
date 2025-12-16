@@ -13,6 +13,7 @@ import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import ItemChannelAppListing from './ItemChannelAppListing';
 import { style } from './styles';
 
+const LIMIT_CHANNEL_APP_DISPLAY = 10;
 const ChannelAppsListing = () => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
@@ -34,17 +35,34 @@ const ChannelAppsListing = () => {
 		navigation.navigate(APP_SCREEN.CHANNEL_APP_SHOW_ALL);
 	}, [navigation]);
 
+	const renderShowAllButton = useCallback(() => {
+		return (
+			<TouchableOpacity style={styles.itemContainer} onPress={handleOpenAll}>
+				<View style={[styles.itemLogo, { borderColor: baseColor.blurple }]}>
+					<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={size.s_30} height={size.s_30} color={baseColor.blurple} />
+				</View>
+				<Text style={[styles.itemName, { color: baseColor.blurple }]} numberOfLines={1}>
+					{t('discover.viewAll')}
+				</Text>
+			</TouchableOpacity>
+		);
+	}, [handleOpenAll, styles, t]);
+
 	const renderItem = useCallback(
-		({ item }: { item: ApiChannelAppResponse }) => {
+		({ item, index }: { item: ApiChannelAppResponse; index: number }) => {
+			if (allChannelApp && allChannelApp.length >= LIMIT_CHANNEL_APP_DISPLAY && index === LIMIT_CHANNEL_APP_DISPLAY - 1) {
+				return renderShowAllButton();
+			}
 			return <ItemChannelAppListing item={item} openChannelApp={openChannelApp} />;
 		},
-		[openChannelApp]
+		[openChannelApp, allChannelApp, renderShowAllButton]
 	);
 
 	if (!allChannelApp || allChannelApp.length === 0) {
 		return null;
 	}
 
+	const displayData = allChannelApp?.length >= LIMIT_CHANNEL_APP_DISPLAY ? allChannelApp?.slice(0, LIMIT_CHANNEL_APP_DISPLAY) : allChannelApp;
 	return (
 		<View style={styles.container}>
 			<LinearGradient
@@ -53,17 +71,13 @@ const ChannelAppsListing = () => {
 				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<TouchableOpacity style={styles.btnSeeAll} onPress={handleOpenAll}>
-				<Text style={styles.openAllText}>{t('discover.viewAll')}</Text>
-				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} height={size.s_14} width={size.s_14} color={baseColor.blurple} />
-			</TouchableOpacity>
 			<FlatList
-				data={allChannelApp?.slice(0, 10)}
+				data={displayData}
 				renderItem={renderItem}
 				horizontal
 				showsHorizontalScrollIndicator={false}
 				contentContainerStyle={styles.listContent}
-				keyExtractor={(item) => item.channel_id}
+				keyExtractor={(item, index) => item?.channel_id || `show-all-${index}`}
 			/>
 		</View>
 	);

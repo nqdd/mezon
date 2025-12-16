@@ -45,7 +45,7 @@ import { SlashCommandSuggestions } from '../../../../../../components/Suggestion
 import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import { resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
+import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
@@ -261,6 +261,17 @@ export const ChatBoxBottomBar = memo(
 			[textChange]
 		);
 
+		const removeMarkdownTags = useCallback((t: string) => {
+			try {
+				if (!t) return '';
+				const processed = t?.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
+				return removeBackticks(processed);
+			} catch (error) {
+				console.error('Error removing markdown tags:', error);
+				return t;
+			}
+		}, []);
+
 		const onSendSuccess = useCallback(() => {
 			textValueInputRef.current = '';
 			setTextChange('');
@@ -329,7 +340,8 @@ export const ChatBoxBottomBar = memo(
 				if (!text) return;
 
 				const rawConvertedHashtag = convertMentionsToText(text);
-				const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
+				const convertedHashtag = convertMentionsToText(removeMarkdownTags(text));
+
 				const words = convertedHashtag?.split?.(mentionRegexSplit);
 
 				const mentionList: Array<{ user_id: string; s: number; e: number }> = [];

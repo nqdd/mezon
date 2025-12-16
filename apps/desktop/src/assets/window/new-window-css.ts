@@ -62,8 +62,6 @@ body {
 
 .functional-bar {
     display: flex;
-	padding : 0 12px;
-	gap:8px;
     height: 21px;
 }
 
@@ -77,6 +75,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 0 8px;
 }
 
 .function-button:hover {
