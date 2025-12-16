@@ -23,9 +23,8 @@ interface IStickerProps {
 	onClickSticker: (sticker: any) => void;
 	forSale?: boolean;
 	isAudio?: boolean;
+	isCallReact?: boolean;
 }
-
-const NUM_COLUMNS = 5;
 
 const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	return (
@@ -62,7 +61,7 @@ const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	);
 });
 
-const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale }: IStickerProps) => {
+const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale, isCallReact = false }: IStickerProps) => {
 	const { themeValue } = useTheme();
 	const widthScreen = useWindowDimensions().width;
 	const isTabletLandscape = useTabletLandscape();
@@ -71,6 +70,10 @@ const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale }
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
 	const [isExpanded, setIsExpanded] = useState(!(categoryName === FOR_SALE_CATE && forSale));
+	const NUM_COLUMNS = useMemo(
+		() => ((isCallReact && isTabletLandscape) || (isAudio && !isTabletLandscape) ? 2 : 5),
+		[isAudio, isCallReact, isTabletLandscape]
+	);
 
 	const displayCategoryName = useMemo(() => {
 		if (!categoryName) return '';
