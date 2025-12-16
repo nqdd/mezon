@@ -107,8 +107,8 @@ function MyApp() {
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
-	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
+	const currentTopicId = useSelector(selectCurrentTopicId);
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
@@ -121,7 +121,7 @@ function MyApp() {
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
 				if (isFocusTopicBox && currentTopicId) {
 					dispatch(accountActions.setTopicAnonymousMode());
-				} else {
+				} else if (!isFocusTopicBox) {
 					dispatch(accountActions.setAnonymousMode());
 				}
 			}
@@ -134,7 +134,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, currentTopicId, dispatch, directId, isFocusTopicBox]
+		[openSearchModal, dispatch, directId, isFocusTopicBox, currentTopicId]
 	);
 
 	useEffect(() => {

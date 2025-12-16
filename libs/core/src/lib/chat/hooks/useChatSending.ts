@@ -110,7 +110,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 							clanId: getClanId as string,
 							channelId: channelIdOrDirectId as string,
 							mode,
-							anonymous: getClanId !== '0' ? topicAnonymousMode : false,
+							anonymous: false,
 							attachments,
 							code: 0,
 							content,
