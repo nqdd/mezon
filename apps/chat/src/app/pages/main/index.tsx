@@ -36,11 +36,13 @@ import {
 	selectClanNumber,
 	selectClanView,
 	selectClansEntities,
+	selectClickedOnTopicStatus,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
+	selectCurrentTopicId,
 	selectDirectsUnreadlist,
 	selectHasKeyE2ee,
 	selectIsShowChatStream,
@@ -105,6 +107,8 @@ function MyApp() {
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
+	const currentTopicId = useSelector(selectCurrentTopicId);
+	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
@@ -115,7 +119,11 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
-				dispatch(accountActions.setAnonymousMode());
+				if (isFocusTopicBox && currentTopicId) {
+					dispatch(accountActions.setTopicAnonymousMode());
+				} else {
+					dispatch(accountActions.setAnonymousMode());
+				}
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();
@@ -126,7 +134,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, currentURL]
+		[openSearchModal, currentTopicId, dispatch, directId, isFocusTopicBox]
 	);
 
 	useEffect(() => {

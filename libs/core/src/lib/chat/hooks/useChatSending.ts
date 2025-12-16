@@ -5,6 +5,7 @@ import {
 	selectCurrentTopicId,
 	selectInitTopicMessageId,
 	selectMemberClanByUserId,
+	selectTopicAnonymousMode,
 	topicsActions,
 	useAppDispatch,
 	useAppSelector
@@ -50,6 +51,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 
 	const currentUserId = userProfile?.user?.id || '';
 	const anonymousMode = useSelector(selectAnonymousMode);
+	const topicAnonymousMode = useSelector(selectTopicAnonymousMode);
 	const initTopicMessageId = useSelector(selectInitTopicMessageId);
 	const { clientRef, sessionRef, socketRef } = useMezon();
 
@@ -108,7 +110,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 							clanId: getClanId as string,
 							channelId: channelIdOrDirectId as string,
 							mode,
-							anonymous: false,
+							anonymous: getClanId !== '0' ? topicAnonymousMode : false,
 							attachments,
 							code: 0,
 							content,
@@ -128,7 +130,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 						clanId: getClanId as string,
 						channelId: channelIdOrDirectId as string,
 						mode,
-						anonymous: false,
+						anonymous: getClanId !== '0' ? topicAnonymousMode : false,
 						attachments,
 						code: 0,
 						content,
@@ -174,7 +176,8 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 			priorityNameToShow,
 			currentTopicId,
 			createTopic,
-			anonymousMode
+			anonymousMode,
+			topicAnonymousMode
 		]
 	);
 
