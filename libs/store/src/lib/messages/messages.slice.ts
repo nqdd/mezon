@@ -1029,7 +1029,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 	try {
 		await fakeItUntilYouMakeIt();
 	} catch (error) {
-		return thunkAPI.rejectWithValue('Error sending message');
+		console.error(error);
 	}
 });
 
@@ -1568,6 +1568,7 @@ export const messagesSlice = createSlice({
 				id: action.payload.messageId,
 				changes: {
 					isError: true,
+					isSending: false,
 					originalSendPayload: action.payload.originalSendPayload
 				}
 			});
