@@ -268,6 +268,7 @@ const RoleClanItem = ({
 						style={buttonStyle}
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
+						data-e2e={generateE2eId('clan_page.channel_list.members.role.role_color')}
 					>
 						<span title={t('labels.removeRole')}>
 							<Icons.IconRemove className="size-2" fill={isHovered ? 'black' : roleColor} />
