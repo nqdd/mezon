@@ -163,3 +163,60 @@ export const getEmojiAndStickerId = (url?: string): string => {
 		return '';
 	}
 };
+
+export const removeBackticks = (text: string) => {
+	let result = '';
+	let i = 0;
+	while (i < text.length) {
+		// 1. Triple Backtick
+		if (text.substring(i, i + 3) === '```') {
+			let j = i + 3;
+			let content = '';
+			while (j < text.length && text.substring(j, j + 3) !== '```') {
+				content += text[j];
+				j++;
+			}
+			if (j < text.length && text.substring(j, j + 3) === '```') {
+				result += content;
+				i = j + 3;
+				continue;
+			}
+		}
+
+		// 3. Single Backtick
+		if (text[i] === '`' && text.substring(i, i + 3) !== '```') {
+			const j = i + 1;
+			let markdown = '';
+			let tempJ = j;
+			while (tempJ < text.length && text[tempJ] !== '`') {
+				markdown += text[tempJ];
+				tempJ++;
+			}
+			if (tempJ < text.length && text[tempJ] === '`') {
+				const content = markdown;
+				let allow = true;
+				if (text.substring(tempJ, tempJ + 3) === '```') {
+					let k = tempJ + 3;
+					let hasClosingTriple = false;
+					while (k < text.length - 2) {
+						if (text.substring(k, k + 3) === '```') {
+							hasClosingTriple = true;
+							break;
+						}
+						k++;
+					}
+					if (hasClosingTriple) allow = false;
+				}
+
+				if (allow && !content.includes('``') && content.trim().length > 0) {
+					result += content;
+					i = tempJ + 1;
+					continue;
+				}
+			}
+		}
+		result += text[i];
+		i++;
+	}
+	return result;
+};
