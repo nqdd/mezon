@@ -4,7 +4,6 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import Sound from 'react-native-sound';
 import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../constants/icon_cdn';
-import useTabletLandscape from '../../../../../../../hooks/useTabletLandscape';
 import { style } from './styles';
 
 const formatTime = (millis: number) => {
@@ -14,9 +13,8 @@ const formatTime = (millis: number) => {
 };
 
 const RenderAudioItem = React.memo(({ audioURL }: { audioURL: string }) => {
-	const isTabletLandscape = useTabletLandscape();
 	const { themeValue } = useTheme();
-	const styles = style(themeValue, isTabletLandscape);
+	const styles = style(themeValue);
 	const recordingWaveRef = useRef(null);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [sound, setSound] = useState<Sound | null>(null);

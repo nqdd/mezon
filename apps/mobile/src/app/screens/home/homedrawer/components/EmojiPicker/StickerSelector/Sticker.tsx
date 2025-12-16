@@ -3,6 +3,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { emojiRecentActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import { FOR_SALE_CATE, ITEM_TYPE } from '@mezon/utils';
+import useTabletLandscape from 'apps/mobile/src/app/hooks/useTabletLandscape';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ImageStyle, ListRenderItem } from 'react-native';
@@ -64,7 +65,8 @@ const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale }: IStickerProps) => {
 	const { themeValue } = useTheme();
 	const widthScreen = useWindowDimensions().width;
-	const styles = style(themeValue, widthScreen);
+	const isTabletLandscape = useTabletLandscape();
+	const styles = style(themeValue, widthScreen, isTabletLandscape);
 	const { t } = useTranslation(['token', 'common']);
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
