@@ -56,6 +56,22 @@ const RemoveNotificationListener = () => {
 		};
 	}, [triggerRemoveByChannelId]);
 
+	const removeOngoingCallAndroid = useCallback(async () => {
+		try {
+			await notifee.deleteChannel('ongoing-call');
+			await notifee.deleteChannelGroup('ongoing-call');
+			await notifee.cancelDisplayedNotification('ongoing-call');
+		} catch (error) {
+			console.error('Error removeOngoingCallAndroid:', error);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (Platform.OS === 'android') {
+			removeOngoingCallAndroid();
+		}
+	}, [removeOngoingCallAndroid]);
+
 	return null;
 };
 

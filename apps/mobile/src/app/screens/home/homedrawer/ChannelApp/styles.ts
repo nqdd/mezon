@@ -1,6 +1,6 @@
 import type { Attributes } from '@mezon/mobile-ui';
 import { size } from '@mezon/mobile-ui';
-import { Dimensions, Platform, StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 
 const height = Dimensions.get('window').height;
 export const style = (colors: Attributes) =>
@@ -24,17 +24,20 @@ export const style = (colors: Attributes) =>
 			gap: size.s_10
 		},
 		backButton: {
-			borderRadius: size.s_30,
-			backgroundColor: 'rgba(0, 0, 0, 0.5)',
-			padding: size.s_6,
-			justifyContent: 'center',
-			alignItems: 'center',
+			backgroundColor: colors.primary,
 			position: 'absolute',
 			flexDirection: 'row',
-			gap: size.s_2,
-			top: Platform.OS === 'ios' ? size.s_50 : size.s_10,
-			left: size.s_10,
-			zIndex: 1000
+			alignItems: 'center',
+			gap: size.s_10,
+			width: '100%',
+			top: 0,
+			zIndex: 1000,
+			overflow: 'hidden'
+		},
+		backButtonLandscape: {
+			top: 0,
+			paddingHorizontal: size.s_10,
+			paddingTop: size.s_10
 		},
 		reloadButton: {
 			borderRadius: size.s_30,
@@ -50,8 +53,8 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row'
 		},
 		title: {
-			fontSize: size.s_20,
-			fontWeight: '500',
+			fontSize: size.s_16,
+			fontWeight: 'bold',
 			color: colors.textStrong
 		},
 
@@ -76,6 +79,18 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_30,
 			top: 0,
 			right: 0,
+			zIndex: 1000
+		},
+		toggleButton: {
+			borderColor: colors.textDisabled,
+			borderWidth: 1,
+			borderRadius: size.s_30,
+			backgroundColor: colors.primary,
+			padding: size.s_8,
+			justifyContent: 'center',
+			alignItems: 'center',
+			position: 'absolute',
+			right: size.s_10,
 			zIndex: 1000
 		}
 	});

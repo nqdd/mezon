@@ -5,7 +5,7 @@ import { DMCallActions, selectAllAccount, selectSignalingDataByUserId, useAppDis
 import { IMessageTypeCallLog } from '@mezon/utils';
 import notifee from '@notifee/react-native';
 import { WebrtcSignalingType } from 'mezon-js';
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, BackHandler, DeviceEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
@@ -16,6 +16,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../../hooks/useWebRTCCallMobile';
+import { clearOngoingCallNotification, showOngoingCallNotification } from '../../../utils/ongoingCallNotification';
 import { RenderMainView } from './RenderMainView';
 import { style } from './styles';
 
@@ -34,10 +35,13 @@ export const DirectMessageCallMain = memo(({ route, onCloseModal }: IDirectMessa
 	const isVideoCall = route?.params?.isVideoCall;
 	const isAnswerCall = route?.params?.isAnswerCall;
 	const isFromNative = route?.params?.isFromNative;
+	const receiverAvatar = route?.params?.receiverAvatar;
+	const receiverName = route?.params?.receiverName;
 	const userProfile = useSelector(selectAllAccount);
 	const signalingData = useAppSelector((state) => selectSignalingDataByUserId(state, userProfile?.user?.id || ''));
 	const [isMirror, setIsMirror] = useState<boolean>(true);
 	const { t } = useTranslation(['dmMessage']);
+	const ongoingNotificationIdRef = useRef<string | null>(null);
 
 	const {
 		callState,
@@ -80,6 +84,45 @@ export const DirectMessageCallMain = memo(({ route, onCloseModal }: IDirectMessa
 		notifee.cancelNotification('incoming-call', 'incoming-call');
 		notifee.cancelDisplayedNotification('incoming-call', 'incoming-call');
 	}, [isAnswerCall]);
+
+	const clearOngoingNotification = useCallback(async () => {
+		if (!ongoingNotificationIdRef.current) return;
+
+		await clearOngoingCallNotification(ongoingNotificationIdRef.current);
+		ongoingNotificationIdRef.current = null;
+	}, []);
+
+	const showOngoingNotification = useCallback(async () => {
+		const notificationId = await showOngoingCallNotification({
+			directMessageId,
+			receiverId,
+			receiverName,
+			receiverAvatar,
+			isVideoCall,
+			startedAt: timeStartConnected?.current ? new Date(timeStartConnected.current).getTime() : undefined,
+			pressActivity: 'com.mezon.mobile.MainActivity'
+		});
+
+		if (notificationId) {
+			ongoingNotificationIdRef.current = notificationId;
+		}
+	}, [directMessageId, isVideoCall, receiverAvatar, receiverId, receiverName, timeStartConnected]);
+
+	useEffect(() => {
+		if (Platform.OS === 'android') {
+			if (isConnected) {
+				showOngoingNotification();
+			} else {
+				clearOngoingNotification();
+			}
+		}
+
+		return () => {
+			if (Platform.OS === 'android') {
+				clearOngoingNotification();
+			}
+		};
+	}, [clearOngoingNotification, isConnected, showOngoingNotification]);
 
 	const onCancelCall = async () => {
 		try {

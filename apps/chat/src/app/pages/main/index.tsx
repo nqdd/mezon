@@ -101,7 +101,7 @@ function MyApp() {
 	const calculateJoinedTime = new Date().getTime() - new Date(userProfile?.user?.create_time ?? '').getTime();
 	const isNewGuy = calculateJoinedTime <= TIME_OF_SHOWING_FIRST_POPUP;
 	const numberOfClanJoined = useSelector(selectClanNumber);
-	const [isShowFirstJoinPopup, setIsShowFirstJoinPopup] = useState(isNewGuy && numberOfClanJoined === 0);
+	const isShowFirstJoinPopup = isNewGuy && numberOfClanJoined === 0;
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
@@ -225,7 +225,7 @@ function MyApp() {
 				<DmCallManager userId={userProfile?.user?.id || ''} directId={directId} />
 				<GroupCallManager /> {openModalE2ee && !hasKeyE2ee && <MultiStepModalE2ee onClose={handleClose} />}
 				{openModalAttachment && <MessageModalImageWrapper />}
-				{isShowFirstJoinPopup && <FirstJoinPopup openCreateClanModal={openCreateClanModal} onclose={() => setIsShowFirstJoinPopup(false)} />}
+				{isShowFirstJoinPopup && <FirstJoinPopup openCreateClanModal={openCreateClanModal} />}
 				{isShowPopupQuickMess && <PopupQuickMess />}
 			</div>
 

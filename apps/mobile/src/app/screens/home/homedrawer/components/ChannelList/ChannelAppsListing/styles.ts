@@ -26,7 +26,7 @@ export const style = (colors: Attributes) =>
 			color: baseColor.blurple
 		},
 		listContent: {
-			marginTop: size.s_4,
+			marginTop: size.s_6,
 			paddingHorizontal: size.s_12
 		},
 		itemContainer: {
@@ -37,19 +37,28 @@ export const style = (colors: Attributes) =>
 			width: size.s_40,
 			height: size.s_40,
 			borderRadius: size.s_8,
-			marginBottom: size.s_4,
-			backgroundColor: colors.secondaryWeight,
+			marginBottom: size.s_2,
 			borderWidth: 0.5,
-			borderColor: colors.textDisabled,
+			borderColor: 'transparent',
 			justifyContent: 'center',
 			alignItems: 'center',
 			overflow: 'hidden'
 		},
+		itemLogoBorder: {
+			borderWidth: 0.5,
+			borderColor: colors.textDisabled
+		},
 		itemIcon: {
-			width: '100%',
-			height: '100%',
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_6,
 			justifyContent: 'center',
-			alignItems: 'center'
+			alignItems: 'center',
+			overflow: 'hidden'
+		},
+		itemIconImg: {
+			width: size.s_30,
+			height: size.s_30
 		},
 		itemName: {
 			fontSize: size.s_10,
@@ -128,9 +137,6 @@ export const style = (colors: Attributes) =>
 			width: size.s_40,
 			height: size.s_40,
 			borderRadius: size.s_10,
-			backgroundColor: colors.secondaryWeight,
-			borderWidth: 1,
-			borderColor: colors.border,
 			justifyContent: 'center',
 			alignItems: 'center',
 			overflow: 'hidden',
