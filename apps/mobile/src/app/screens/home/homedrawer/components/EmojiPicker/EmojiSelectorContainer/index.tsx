@@ -3,7 +3,8 @@ import { useEmojiSuggestionContext } from '@mezon/core';
 import { ActionEmitEvent, debounce } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { emojiSuggestionActions, getStore, selectCurrentChannelId, selectCurrentTopicId, selectDmGroupCurrentId } from '@mezon/store-mobile';
-import { FOR_SALE_CATE, IEmoji, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
+import type { IEmoji } from '@mezon/utils';
+import { FOR_SALE_CATE, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Keyboard, Text, TextInput, View } from 'react-native';
@@ -11,8 +12,10 @@ import { useDispatch } from 'react-redux';
 import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
+import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
 import CategoryList from './components/CategoryList';
-import EmojiCategory from './components/EmojiCategory';
+import EmojiCategoryHeader from './components/EmojiCategoryHeader';
+import EmojisPanel from './components/EmojisPanel';
 import { style } from './styles';
 
 type EmojiSelectorContainerProps = {
@@ -22,6 +25,8 @@ type EmojiSelectorContainerProps = {
 	handleBottomSheetCollapse?: () => void;
 };
 
+const COLUMNS = 9;
+
 export default function EmojiSelectorContainer({
 	onSelected,
 	isReactMessage = false,
@@ -30,14 +35,29 @@ export default function EmojiSelectorContainer({
 }: EmojiSelectorContainerProps) {
 	const store = getStore();
 	const { categoryEmoji, categoriesEmoji, emojis } = useEmojiSuggestionContext();
-	const { themeValue, themeBasic } = useTheme();
-	const styles = style(themeValue);
+	const { themeValue } = useTheme();
+	const isTabletLandscape = useTabletLandscape();
+	const styles = useMemo(() => style(themeValue, isTabletLandscape), [themeValue, isTabletLandscape]);
 	const [emojisSearch, setEmojiSearch] = useState<IEmoji[]>();
 	const [keywordSearch, setKeywordSearch] = useState<string>('');
 	const flatListRef = useRef(null);
-	const timeoutRef = useRef<NodeJS.Timeout>(null);
+	const timeoutRef = useRef<any>(null);
 	const { t } = useTranslation('message');
 	const dispatch = useDispatch();
+
+	const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set([FOR_SALE_CATE]));
+
+	const toggleCategory = useCallback((categoryName: string) => {
+		setCollapsedCategories((prev) => {
+			const next = new Set(prev);
+			if (next.has(categoryName)) {
+				next.delete(categoryName);
+			} else {
+				next.add(categoryName);
+			}
+			return next;
+		});
+	}, []);
 
 	const channelId = useMemo(() => {
 		const currentDirectId = selectDmGroupCurrentId(store.getState());
@@ -47,26 +67,32 @@ export default function EmojiSelectorContainer({
 		const channelId = currentTopicId ? currentTopicId : currentChannelId;
 
 		return currentDirectId ? currentDirectId : channelId;
-	}, []);
+	}, [store]);
 
-	const getEmojisByCategories = useMemo(
-		() => (emojis: IEmoji[], categoryParam: string) => {
-			if (emojis?.length === 0 || !categoryParam) {
-				return [];
-			}
+	const emojisByCategory = useMemo(() => {
+		const map = new Map<string, IEmoji[]>();
+		if (!emojis) return map;
 
-			if (categoryParam?.toLowerCase() === FOR_SALE_CATE) {
-				return emojis.filter((emoji) => emoji?.is_for_sale);
+		categoriesEmoji?.forEach((cat) => map.set(cat, []));
+
+		for (const emoji of emojis) {
+			if (!emoji?.id || emoji?.is_for_sale) continue;
+			if (emoji?.category) {
+				categoriesEmoji.forEach((cat) => {
+					if (cat === FOR_SALE_CATE) return;
+					if (emoji?.category?.includes(cat)) {
+						const list = map.get(cat);
+						if (list) list.push(emoji);
+					}
+				});
 			}
-			return emojis
-				.filter((emoji) => !!emoji?.id && emoji?.category?.includes(categoryParam) && !emoji?.is_for_sale)
-				.map((emoji) => ({
-					...emoji,
-					category: emoji?.category
-				}));
-		},
-		[]
-	);
+		}
+
+		const forSale = emojis.filter((e) => e?.is_for_sale);
+		map.set(FOR_SALE_CATE, forSale);
+
+		return map;
+	}, [emojis, categoriesEmoji]);
 
 	const cateIcon = useMemo(() => {
 		const clanEmojis = categoryEmoji?.length
@@ -83,8 +109,8 @@ export default function EmojiSelectorContainer({
 				)
 			: [];
 		return [
-			<MezonIconCDN icon={IconCDN.starIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />,
+			<MezonIconCDN icon={IconCDN.starIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			...clanEmojis,
 			<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.textStrong} />,
@@ -99,19 +125,13 @@ export default function EmojiSelectorContainer({
 	}, [categoryEmoji, themeValue]);
 
 	const categoriesWithIcons = useMemo(() => {
-		return categoriesEmoji.map((category, index) => ({
+		const categories = [FOR_SALE_CATE, ...(categoriesEmoji.filter((c) => c !== FOR_SALE_CATE) || [])];
+		return categories.map((category, index) => ({
 			name: category,
 			icon: cateIcon[index],
-			emojis: getEmojisByCategories(emojis, category)
+			emojis: emojisByCategory?.get(category) || []
 		}));
-	}, [categoriesEmoji, emojis, cateIcon]);
-
-	const categoryRefs = useRef(
-		categoriesEmoji.reduce((refs, item) => {
-			refs[item] = React.createRef<View>();
-			return refs;
-		}, {})
-	);
+	}, [categoriesEmoji, cateIcon, emojisByCategory]);
 
 	const getEmojiIdFromSrc = (src) => {
 		try {
@@ -158,117 +178,176 @@ export default function EmojiSelectorContainer({
 	);
 
 	const debouncedSetSearchText = useCallback(
-		debounce((text) => onSearchEmoji(text), 300),
+		(text: string) => {
+			debounce(() => onSearchEmoji(text), 300)();
+		},
 		[onSearchEmoji]
 	);
 
-	const ListCategoryArea = useCallback(() => {
-		return (
-			<View style={styles.primaryBackground}>
-				<View style={styles.textInputWrapper}>
-					<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
-					<TextInput
-						onFocus={handleBottomSheetExpand}
-						placeholder={t('findThePerfectReaction')}
-						style={styles.textInput}
-						placeholderTextColor={themeValue.textDisabled}
-						onChangeText={debouncedSetSearchText}
-					/>
-				</View>
+	const flatData = useMemo(() => {
+		const items = [];
 
-				{!isReactMessage && <CategoryList categoriesWithIcons={categoriesWithIcons} setSelectedCategory={handleSelectCategory} />}
-			</View>
-		);
-	}, [themeBasic, isReactMessage, themeValue, categoriesWithIcons]);
+		items.push({ type: 'SEARCH_AREA', id: 'SEARCH_AREA' });
 
-	const data = useMemo(() => {
-		if (emojisSearch?.length > 0 && keywordSearch) {
-			return [
-				{ id: 'listCategoryArea', name: 'listCategoryArea' },
-				{
-					id: 'haveResults',
-					name: t('searchResult'),
-					emojis: emojisSearch
+		if (keywordSearch) {
+			if (emojisSearch?.length > 0) {
+				items.push({ type: 'HEADER_SIMPLE', id: 'HEADER_RESULTS', title: t('searchResult') });
+				for (let i = 0; i < emojisSearch?.length; i += COLUMNS) {
+					const chunk = emojisSearch?.slice(i, i + COLUMNS);
+					if (chunk?.length < COLUMNS) {
+						const paddingCount = COLUMNS - chunk?.length;
+						chunk.push(...Array.from({ length: paddingCount }, (_, idx) => ({ id: `pad-${i}-${idx}`, isEmpty: true }) as any));
+					}
+					items.push({ type: 'ROW', id: `ROW-SEARCH-${i}`, data: chunk });
 				}
-			];
-		} else if (emojisSearch?.length === 0 && keywordSearch) {
-			return [
-				{ id: 'listCategoryArea', name: 'listCategoryArea' },
-				{
-					id: 'noResult',
-					name: t('searchResult'),
-					emojis: []
-				}
-			];
+			} else {
+				items.push({ type: 'HEADER_SIMPLE', id: 'HEADER_NO_RESULTS', title: t('searchResult') });
+				items.push({ type: 'NO_RESULT', id: 'NO_RESULT' });
+			}
+			return items;
 		}
 
-		return [{ id: 'listCategoryArea', name: 'listCategoryArea' }, ...categoriesWithIcons];
-	}, [emojisSearch, categoriesWithIcons]);
+		const processCategory = (category: string) => {
+			items.push({ type: 'HEADER', id: `HEADER-${category}`, category });
 
-	const renderItem = useCallback(
-		({ item, index }) => {
-			if (index === 0) {
-				return <ListCategoryArea />;
-			} else {
-				return (
-					<View ref={categoryRefs?.current?.[item?.name]}>
-						<EmojiCategory emojisData={item?.emojis} onEmojiSelect={handleEmojiSelect} categoryName={item?.name} />
-					</View>
-				);
+			if (!collapsedCategories.has(category)) {
+				const categoryEmojis = emojisByCategory.get(category) || [];
+				if (categoryEmojis?.length > 0) {
+					for (let i = 0; i < categoryEmojis?.length; i += COLUMNS) {
+						const chunk = categoryEmojis?.slice(i, i + COLUMNS);
+						if (chunk?.length < COLUMNS) {
+							const paddingCount = COLUMNS - chunk?.length;
+							chunk?.push(
+								...Array.from({ length: paddingCount }, (_, idx) => ({ id: `pad-${category}-${i}-${idx}`, isEmpty: true }) as any)
+							);
+						}
+						items.push({ type: 'ROW', id: `ROW-${category}-${i}`, data: chunk });
+					}
+				}
 			}
-		},
-		[handleEmojiSelect]
-	);
+		};
+
+		const hasForSaleInList = categoriesEmoji.includes(FOR_SALE_CATE);
+		const forSaleEmojis = emojisByCategory.get(FOR_SALE_CATE) || [];
+
+		if (forSaleEmojis.length > 0) {
+			processCategory(FOR_SALE_CATE);
+		}
+
+		categoriesEmoji.forEach((category) => {
+			if (category === FOR_SALE_CATE && !hasForSaleInList) return;
+			processCategory(category);
+		});
+
+		return items;
+	}, [keywordSearch, emojisSearch, categoriesEmoji, collapsedCategories, emojisByCategory, t]);
 
 	const handleSelectCategory = useCallback(
 		(categoryName: string) => {
-			if (!flatListRef?.current || data?.length === 0) return;
-			const targetIndex = data.findIndex((item) => item?.name === categoryName);
+			const index = flatData.findIndex((item) => item?.type === 'HEADER' && item?.category === categoryName);
 
-			if (targetIndex !== -1) {
+			if (index !== -1) {
 				handleBottomSheetExpand?.();
 
-				if (timeoutRef?.current) {
+				setCollapsedCategories((prev) => {
+					const next = new Set(prev);
+					next.delete(categoryName);
+					return next;
+				});
+
+				if (timeoutRef.current) {
 					clearTimeout(timeoutRef.current);
 				}
 				timeoutRef.current = setTimeout(() => {
-					try {
-						if (flatListRef.current) {
-							flatListRef.current.scrollToIndex({
-								index: targetIndex,
-								animated: true,
-								viewPosition: 0,
-								viewOffset: 120
-							});
-						}
-					} catch (error) {
-						console.warn('Scroll error:', error);
-					}
-				}, 300);
+					flatListRef.current?.scrollToIndex({
+						index,
+						animated: true,
+						viewPosition: 0,
+						viewOffset: 120
+					});
+				}, 100);
 			}
 		},
-		[data]
+		[flatData, handleBottomSheetExpand]
 	);
+
 	useEffect(() => {
 		return () => {
-			if (timeoutRef?.current) {
+			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
 			}
 		};
 	}, []);
 
-	const keyExtractor = useCallback((item) => `${item.name}-emoji-panel`, []);
+	const renderItem = useCallback(
+		({ item }) => {
+			switch (item.type) {
+				case 'SEARCH_AREA':
+					return (
+						<View style={styles.primaryBackground}>
+							<View style={styles.textInputWrapper}>
+								<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
+								<TextInput
+									onFocus={handleBottomSheetExpand}
+									placeholder={t('findThePerfectReaction')}
+									style={styles.textInput}
+									placeholderTextColor={themeValue.textDisabled}
+									onChangeText={debouncedSetSearchText}
+								/>
+							</View>
+							{!isReactMessage && <CategoryList categoriesWithIcons={categoriesWithIcons} setSelectedCategory={handleSelectCategory} />}
+						</View>
+					);
+				case 'HEADER':
+					return (
+						<EmojiCategoryHeader
+							categoryName={item?.category}
+							isExpanded={!collapsedCategories.has(item?.category)}
+							onToggle={() => toggleCategory(item?.category)}
+						/>
+					);
+				case 'HEADER_SIMPLE':
+					return (
+						<View style={styles.categoryHeader}>
+							<Text style={styles.titleCategories}>{item?.title}</Text>
+						</View>
+					);
+				case 'ROW':
+					return <EmojisPanel emojisData={item?.data} onEmojiSelect={handleEmojiSelect} styles={styles} />;
+				case 'NO_RESULT':
+					return null;
+				default:
+					return null;
+			}
+		},
+		[
+			styles,
+			themeValue,
+			isReactMessage,
+			categoriesWithIcons,
+			handleSelectCategory,
+			collapsedCategories,
+			toggleCategory,
+			handleEmojiSelect,
+			t,
+			debouncedSetSearchText,
+			handleBottomSheetExpand
+		]
+	);
+
+	const keyExtractor = useCallback((item) => `${item?.id}-emoji-panel`, []);
 
 	return (
 		<BottomSheetFlatList
 			ref={flatListRef}
-			data={data}
+			data={flatData}
 			keyExtractor={keyExtractor}
 			renderItem={renderItem}
 			stickyHeaderIndices={[0]}
-			initialNumToRender={1}
-			maxToRenderPerBatch={1}
-			windowSize={2}
+			initialNumToRender={10}
+			maxToRenderPerBatch={8}
+			updateCellsBatchingPeriod={16}
+			windowSize={5}
 			removeClippedSubviews={true}
 			showsVerticalScrollIndicator={false}
 			keyboardShouldPersistTaps="handled"
