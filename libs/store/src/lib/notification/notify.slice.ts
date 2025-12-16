@@ -234,6 +234,9 @@ export const notificationSlice = createSlice({
 				state.notifications[category] = { data: [], lastId: '', cache: undefined };
 			}
 			state.notifications[category].cache = createCacheMetadata();
+		},
+		resetAllState() {
+			return initialNotificationState;
 		}
 	},
 

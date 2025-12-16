@@ -7,7 +7,6 @@ import {
 	getStoreAsync,
 	messagesActions,
 	searchMessagesActions,
-	selectAllMessageSearch,
 	selectMessageSearchByChannelId,
 	selectSearchMessagesLoadingStatus,
 	useAppDispatch,
@@ -50,8 +49,7 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 		return currentChannel?.channel_id || currentChannel?.id;
 	}, [channelIdFilter, currentChannel]);
 
-	const searchMessagesChannel = useAppSelector((state) => selectMessageSearchByChannelId(state, channelId));
-	const searchMessagesGlobal = useAppSelector((state) => selectAllMessageSearch(state, channelId));
+	const searchMessages = useAppSelector((state) => selectMessageSearchByChannelId(state, channelId));
 	const loadingStatus = useAppSelector(selectSearchMessagesLoadingStatus);
 
 	const isDM = useMemo(() => {
@@ -60,18 +58,16 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 
 	const searchMessagesData = useMemo(() => {
 		let groupedMessages: GroupedMessages = [];
-		if (typeSearch === ETypeSearch.SearchChannel) {
-			if (searchMessagesChannel?.length > 0) {
-				groupedMessages?.push({
-					label: searchMessagesChannel?.[0]?.channel_label,
-					messages: searchMessagesChannel
-				});
-			}
-		} else {
-			groupedMessages = searchMessagesGlobal?.reduce((acc, message) => {
-				const existingGroup = acc?.find((group) => group?.label === message?.channel_label && group?.channel_id === message?.channel_id);
+		if (typeSearch === ETypeSearch.SearchChannel && searchMessages?.length > 0) {
+			groupedMessages?.push({
+				label: searchMessages?.[0]?.channel_label,
+				messages: searchMessages
+			});
+		} else if (typeSearch === ETypeSearch.SearchAll && searchMessages?.length > 0) {
+			groupedMessages = searchMessages?.reduce((acc, message) => {
+				const existingGroup = acc.find((group) => group?.label === message?.channel_label && group?.channel_id === message?.channel_id);
 				if (existingGroup) {
-					existingGroup.messages.push(message);
+					existingGroup?.messages?.push(message);
 				} else {
 					acc.push({
 						label: message?.channel_label ?? '',
@@ -83,7 +79,7 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 			}, []);
 		}
 		return groupedMessages;
-	}, [searchMessagesChannel, searchMessagesGlobal, typeSearch]);
+	}, [searchMessages, typeSearch]);
 
 	useEffect(() => {
 		setHasLoadMore(true);
@@ -154,7 +150,7 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 		<View>
 			{channelId === '0' && !!item?.label && <Text style={styles.groupMessageLabel}>{`# ${item.label}`}</Text>}
 			{item?.messages?.length > 0 &&
-				item.messages.map((message: MessagesEntity, index: number) => {
+				item.messages.map((message: MessagesEntity) => {
 					return (
 						<Pressable
 							onPress={() => handleJumpMessage(message)}
@@ -183,7 +179,7 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 			);
 		}
 		return null;
-	}, [searchMessagesData?.length, isLoadingMore]);
+	}, [searchMessagesData, isLoadingMore]);
 
 	const renderListEmptyComponent = useMemo(() => {
 		if (loadingStatus === 'loading') {
@@ -197,7 +193,7 @@ const MessagesSearchTab = memo(({ typeSearch, currentChannel, channelIdFilter }:
 			return <EmptySearchPage />;
 		}
 		return null;
-	}, [loadingStatus, filtersSearch?.length, searchMessagesData?.length]);
+	}, [loadingStatus, filtersSearch, searchMessagesData]);
 
 	return (
 		<FlatList

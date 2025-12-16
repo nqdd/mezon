@@ -276,6 +276,9 @@ export const accountSlice = createSlice({
 			if (state?.userProfile) {
 				state.userProfile.email = action.payload;
 			}
+		},
+		resetAllState() {
+			return initialAccountState;
 		}
 	},
 	extraReducers: (builder) => {
