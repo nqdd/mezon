@@ -516,6 +516,16 @@ function MessageContextMenu({
 		}
 	}, [dispatch, message, t]);
 
+	const handleDeleteErrorMessage = useCallback(() => {
+		if (!message?.channel_id || !message?.id) return;
+		dispatch(
+			messagesActions.remove({
+				channelId: message.channel_id,
+				messageId: message.id
+			})
+		);
+	}, [dispatch, message?.channel_id, message?.id]);
+
 	const checkPos = useMemo(() => {
 		if (posShowMenu === SHOW_POSITION.NONE || posShowMenu === SHOW_POSITION.IN_STICKER || posShowMenu === SHOW_POSITION.IN_EMOJI) {
 			return true;
@@ -640,6 +650,12 @@ function MessageContextMenu({
 
 		if (message?.isError) {
 			builder.addMenuItem('resendMessage', t('resendMessage'), handleResendMessage, <Icons.ResendMessageRightClick defaultSize="w-4 h-4" />);
+			builder.addMenuItem(
+				'deleteMessage',
+				t('deleteMessage'),
+				handleDeleteErrorMessage,
+				<Icons.DeleteMessageRightClick defaultSize="w-4 h-4" />
+			);
 			return builder.build();
 		}
 
@@ -919,7 +935,8 @@ function MessageContextMenu({
 		handleAddToNote,
 		isTopic,
 		isErrorMessage,
-		handleResendMessage
+		handleResendMessage,
+		handleDeleteErrorMessage
 	]);
 	/* eslint-disable no-console */
 

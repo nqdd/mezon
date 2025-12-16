@@ -106,7 +106,7 @@ export const initialAppState: AppState = {
 	isShowUpdateUsername: false
 };
 
-export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id: string }, thunkAPI) => {
+export const refreshApp = createAsyncThunk('app/refreshApp', async (_, thunkAPI) => {
 	try {
 		const state = thunkAPI.getState() as RootState;
 
