@@ -15,7 +15,9 @@
 	"accountInformation": "Account Information",
 	"doNotHaveBlockedUser": "You don't have any blocked users",
 	"setPassword": "Set Password",
+	"setEmail": "Set Email",
 	"changePassword": "Change Password",
+	"changeEmail": "Change Email",
 	"setPhoneNumber": "Set Phone Number",
 	"disableAccountAlert": {
 		"title": "Disable Account",
@@ -117,6 +119,12 @@
 		}
 	},
 	"emailSetting": {
+		"currentEmail": "Current Email",
+		"description": "Please enter your email address for your account.",
+		"otpDescription": "Your OTP has been sent to your new email",
+		"fillOTP": "Fill OTP",
+		"send": "Send OTP",
+		"resendOtp": "Resend OTP",
 		"updateEmail": {
 			"newEmail": "New Email",
 			"nextButton": "Next",
