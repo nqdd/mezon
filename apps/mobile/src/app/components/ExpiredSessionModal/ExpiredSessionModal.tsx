@@ -7,6 +7,7 @@ import {
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
 import {
+	accountActions,
 	appActions,
 	authActions,
 	channelsActions,
@@ -42,6 +43,9 @@ const ExpiredSessionModal = () => {
 		store.dispatch(clansActions.collapseAllGroups());
 		store.dispatch(clansActions.clearClanGroups());
 		store.dispatch(clansActions.refreshStatus());
+		store.dispatch(accountActions.resetAllState());
+		store.dispatch(notificationActions.resetAllState());
+
 		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
 		await remove(STORAGE_KEY_TEMPORARY_INPUT_MESSAGES);

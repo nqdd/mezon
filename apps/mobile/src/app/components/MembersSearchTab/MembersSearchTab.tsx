@@ -79,7 +79,9 @@ const MembersSearchTab = ({ listMemberSearch, listDMGroupSearch }: MembersSearch
 	const renderItem = useCallback(
 		({ item, index }) => {
 			if (!item?.type) {
-				return <MemberItem onPress={onDetailMember} user={item} key={`${item?.['id']}_member_search_${index}}`} />;
+				return (
+					<MemberItem isShowUsername isDM={false} onPress={onDetailMember} user={item} key={`${item?.['id']}_member_search_${index}}`} />
+				);
 			}
 
 			return <DMGroupItem dmGroupData={item} navigateToDirectMessage={() => handleNavigateToDMGroup(item.id)} />;

@@ -18,12 +18,12 @@ interface IMemberProfileProps {
 	user: ChannelMembersEntity;
 	creatorClanId: string;
 	isDM: boolean;
-	currentChannel: IChannel | DirectEntity;
+	currentChannel?: IChannel | DirectEntity;
+	isShowUsername?: boolean;
 }
 
-export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel }: IMemberProfileProps) => {
+export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, isShowUsername = false }: IMemberProfileProps) => {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
 	const { t } = useTranslation(['userProfile']);
 	const userId = user?.id || user?.user?.id || '';
 	const { highestPermissionRoleColor } = useColorsRoleById(userId);
@@ -53,23 +53,18 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel }
 		return clanProfile?.clan_avatar || user?.clan_avatar || avatar;
 	}, [isDM, userProfile?.avatar_url, user?.user?.avatar_url, user?.avatar_url, user?.avatars?.[0], clanProfile?.clan_avatar, user?.clan_avatar]);
 
+	const memberUsername = useMemo(() => {
+		return userProfile?.username || user?.username || user?.user?.username || '';
+	}, [userProfile?.username, user?.username, user?.user?.username]);
+
 	const priorityMemberName = useMemo(() => {
-		const name = userProfile?.display_name || user?.display_name || userProfile?.username || user?.username || user?.user?.username || '';
+		const name = userProfile?.display_name || user?.display_name || memberUsername;
 		if (isDM) {
 			return name;
 		}
 
 		return clanProfile?.clan_nick || user?.clan_nick || name;
-	}, [
-		userProfile?.display_name,
-		userProfile?.username,
-		user?.display_name,
-		user?.user?.username,
-		user?.username,
-		user?.clan_nick,
-		isDM,
-		clanProfile?.clan_nick
-	]);
+	}, [userProfile?.display_name, user?.display_name, user?.clan_nick, memberUsername, isDM, clanProfile?.clan_nick]);
 
 	const colorUsername = useMemo(() => {
 		return !isDM
@@ -78,6 +73,8 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel }
 				: themeValue.text
 			: DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR;
 	}, [isDM, highestPermissionRoleColor, themeValue.text]);
+
+	const styles = useMemo(() => style(themeValue, colorUsername), [themeValue, colorUsername]);
 
 	const isShowOwnerIcon = useMemo(() => {
 		return (
@@ -100,13 +97,18 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel }
 			<View style={styles.nameContainer}>
 				<View style={styles.nameItem}>
 					<View style={styles.nameRowContainer}>
-						<Text style={{ color: colorUsername }} numberOfLines={1}>
+						<Text style={styles.displayNameText} numberOfLines={1}>
 							{priorityMemberName}
 						</Text>
 						{isShowOwnerIcon && (
 							<MezonIconCDN icon={IconCDN.ownerIcon} color={themeValue.borderWarning} width={size.s_16} height={size.s_16} />
 						)}
 					</View>
+					{isShowUsername && memberUsername && (
+						<Text style={styles.usernameText} numberOfLines={1}>
+							{memberUsername}
+						</Text>
+					)}
 					{!!userVoiceStatus && !isDM && (
 						<View style={styles.voiceContainer}>
 							<MezonIconCDN icon={IconCDN.channelVoice} color={baseColor.green} width={size.s_12} height={size.s_12} />

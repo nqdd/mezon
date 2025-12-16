@@ -28,7 +28,6 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 
 	const currentChannel = useSelector(selectCurrentChannel);
 	const allChannels = useSelector(selectAllChannels);
-	const filteredChannels = useMemo(() => allChannels?.filter((channel) => channel?.type !== ChannelType.CHANNEL_TYPE_APP) || [], [allChannels]);
 
 	const userListData = UseMentionList({
 		channelDetail: currentChannel,
@@ -55,15 +54,16 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 	}, [searchText, userListDataSearchByMention]);
 
 	const searchChannelList = useMemo(() => {
-		if (!searchText) return filteredChannels;
+		const listChannels = allChannels || [];
+		if (!searchText) return listChannels;
 
 		try {
-			return filteredChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim())) || [];
+			return listChannels.filter((channel) => (channel?.channel_label ?? '').toLowerCase().includes(searchText.toLowerCase().trim())) || [];
 		} catch (error) {
 			console.error('Filter search channel list error', error);
 			return [];
 		}
-	}, [searchText, filteredChannels]);
+	}, [searchText, allChannels]);
 
 	const handleSelectChannel = useCallback(
 		(channel: ChannelUsersEntity) => {
@@ -91,7 +91,7 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 							data={searchUserListByMention}
 							renderItem={({ item }) => <UserInfoSearch userData={item} onSelectUserInfo={onSelect} />}
 							estimatedItemSize={100}
-							removeClippedSubviews={true}
+							removeClippedSubviews
 							keyboardShouldPersistTaps="handled"
 						/>
 					) : (
@@ -108,7 +108,7 @@ function SearchOptionPage({ searchText, onSelect, optionFilter }: ISeachOptionPa
 							data={searchChannelList}
 							renderItem={({ item }) => <ChannelItem channelData={item} onSelectChannel={handleSelectChannel} isHideClanName />}
 							estimatedItemSize={100}
-							removeClippedSubviews={true}
+							removeClippedSubviews
 							keyboardShouldPersistTaps="handled"
 						/>
 					) : (
