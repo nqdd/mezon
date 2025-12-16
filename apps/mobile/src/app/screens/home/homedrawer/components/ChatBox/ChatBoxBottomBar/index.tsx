@@ -262,9 +262,14 @@ export const ChatBoxBottomBar = memo(
 		);
 
 		const removeMarkdownTags = useCallback((t: string) => {
-			if (!t) return '';
-			const processed = t.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
-			return removeBackticks(processed);
+			try {
+				if (!t) return '';
+				const processed = t?.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
+				return removeBackticks(processed);
+			} catch (error) {
+				console.error('Error removing markdown tags:', error);
+				return t;
+			}
 		}, []);
 
 		const onSendSuccess = useCallback(() => {
