@@ -48,9 +48,34 @@ const SideBarHistory = () => {
 		return <ListHistory onClose={closeHistoryList} allHistory={history} />;
 	}, [handleCloseHistory]);
 
+	const checkHold = useRef<boolean>(false);
+	const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+	const handleMouseDown = () => {
+		timerRef.current = setTimeout(() => {
+			checkHold.current = true; // gọi action giống onContextMenu
+		}, 750);
+	};
+
+	const handleMouseUp = () => {
+		if (timerRef.current) {
+			clearTimeout(timerRef.current);
+			if (checkHold.current) {
+				onOpenHistoryList();
+			}
+			checkHold.current = false;
+		}
+	};
+
 	if (!isElectron()) return null;
 	return (
-		<div className="flex pb-1 text-theme-primary-active" onContextMenu={onOpenHistoryList}>
+		<div
+			className="flex pb-1 text-theme-primary-active"
+			onContextMenu={onOpenHistoryList}
+			onMouseDown={handleMouseDown}
+			onMouseUp={handleMouseUp}
+			onMouseLeave={handleMouseUp}
+		>
 			<div
 				className={`rotate-180 rounded-full aspect-square p-1 bg-item-theme-hover cursor-pointer  ${history?.current === 0 || !history?.url?.length ? 'opacity-40' : ''}`}
 				onClick={() => handleHistoryNavigate(true)}
