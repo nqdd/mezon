@@ -90,7 +90,7 @@ export function ClanUserName({ name, userId, isOwner }: { name: string; userId: 
 			<span
 				style={{ color: userRolesClan.highestPermissionRoleColor }}
 				className="one-line text-start "
-				data-e2e={generateE2eId(`chat.direct_message.chat_item.username`, userId)}
+				data-e2e={generateE2eId('chat.direct_message.chat_item.username')}
 			>
 				{name}
 			</span>
