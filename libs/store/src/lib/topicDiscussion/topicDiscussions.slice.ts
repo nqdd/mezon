@@ -176,7 +176,7 @@ export const handleSendTopic = createAsyncThunk('topics/sendTopicMessage', async
 		mentions,
 		uploadedFiles,
 		references,
-		false,
+		anonymous,
 		false,
 		'',
 		0,
