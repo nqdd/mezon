@@ -9,6 +9,7 @@ import {
 	getStore,
 	referencesActions,
 	selectAllAccount,
+	selectAllChannelMemberIds,
 	selectAllRolesClan,
 	selectAttachmentByChannelId,
 	selectChannelById,
@@ -103,10 +104,11 @@ export const ChatMessageSending = memo(
 		const attachmentFilteredByChannelId = useAppSelector((state) => selectAttachmentByChannelId(state, currentTopicId || channelId));
 		const currentChannel = useAppSelector((state) => selectChannelById(state, channelId || ''));
 		const currentDmGroup = useSelector(selectDmGroupCurrent(channelId));
-		const { membersOfChild, membersOfParent, addMemberToThread, joinningToThread } = useChannelMembers({
+		const { addMemberToThread, joinningToThread } = useChannelMembers({
 			channelId,
 			mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0
 		});
+		const parentChannelMemberIds = useAppSelector((state) => selectAllChannelMemberIds(state, currentChannel?.parent_id || ''));
 		const userId = useMemo(() => {
 			return load(STORAGE_MY_USER_ID);
 		}, []);
@@ -157,8 +159,7 @@ export const ChatMessageSending = memo(
 
 		const getUsersNotExistingInThread = (mentions) => {
 			const rolesInClan = selectAllRolesClan(store.getState() as any);
-			const userIds = uniqueUsers(mentions, membersOfChild, rolesInClan, [messageActionNeedToResolve?.targetMessage?.sender_id || '']);
-			const usersNotExistingInThread = userIds?.filter((userId) => membersOfParent?.some((member) => member?.id === userId)) as string[];
+			const usersNotExistingInThread = uniqueUsers(mentions, parentChannelMemberIds, rolesInClan, [messageActionNeedToResolve?.targetMessage?.sender_id || '']) as string[];
 
 			return usersNotExistingInThread || [];
 		};
