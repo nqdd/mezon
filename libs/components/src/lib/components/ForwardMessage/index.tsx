@@ -580,7 +580,6 @@ const ForwardMessageModal = () => {
 									);
 								})()}
 						</div>
-						;|
 						{selectedMessage?.attachments &&
 							selectedMessage.attachments.length > 0 &&
 							(() => {
