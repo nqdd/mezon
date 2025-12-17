@@ -18,6 +18,7 @@ import {
 	selectDataReferences,
 	selectEmojiObjSuggestion,
 	selectIdMessageRefEdit,
+	selectMemberIdsByChannelId,
 	selectOpenEditMessageState,
 	selectOpenThreadMessageState,
 	selectQuickMenuByChannelId,
@@ -49,15 +50,11 @@ import {
 	THREAD_ARCHIVE_DURATION_SECONDS,
 	TITLE_MENTION_HERE,
 	ThreadStatus,
-	addMention,
-	adjustPos,
 	blankReferenceObj,
 	checkIsThread,
 	extractCanvasIdsFromText,
 	filterEmptyArrays,
-	processBoldEntities,
 	processEntitiesDirectly,
-	processMarkdownEntities,
 	searchMentionsHashtag
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
@@ -72,7 +69,6 @@ import SuggestItem from './SuggestItem';
 import { ChatBoxToolbarWrapper } from './components';
 import { useClickUpToEditMessage, useEmojiPicker, useFocusEditor, useFocusManager, useKeyboardHandler } from './hooks';
 import parseHtmlAsFormattedText, { ApiMessageEntityTypes } from './parseHtmlAsFormattedText';
-import processMention from './processMention';
 import { getCanvasTitles } from './utils/canvas';
 
 interface SlashCommand extends MentionData {
@@ -258,7 +254,10 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			const currentTime = Math.floor(Date.now() / 1000);
 			const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
 			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
-			const needsJoin = channel.active === ThreadStatus.activePublic;
+
+			const store = getStore();
+			const userIds = selectMemberIdsByChannelId(store.getState(), channel.id as string);
+			const needsJoin = !userProfile?.user?.id ? false : !userIds.includes(userProfile?.user?.id);
 
 			if (isArchived) {
 				await dispatch(
@@ -361,8 +360,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					payload.cvtt = canvasTitles;
 				}
 
-				const addMentionToPayload = addMention(payload, mentionList);
-				const removeEmptyOnPayload = filterEmptyArrays(addMentionToPayload);
+				const removeEmptyOnPayload = filterEmptyArrays([]);
 
 				const encoder = new TextEncoder();
 				const payloadJson = JSON.stringify(removeEmptyOnPayload);
@@ -492,36 +490,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				return;
 			}
 
-			const mentionsFromEntities = (checkedRequest.entities || [])
-				.filter((entity: EntityWithMention) => entity.type === 'MessageEntityMentionName')
-				.map((entity: EntityWithMention) => {
-					const mentionText = checkedRequest.content.substring(entity.offset, entity.offset + entity.length);
-					return {
-						id: entity.userId || '',
-						display: mentionText,
-						plainTextIndex: entity.offset,
-						index: entity.offset,
-						childIndex: 0,
-						length: entity.length
-					};
-				});
-
-			const mentionsToProcess = mentionsFromEntities.length > 0 ? mentionsFromEntities : [];
-
-			const { mentionList, hashtagList, emojiList, usersNotExistingInThread } = processMention(
-				mentionsToProcess,
-				rolesClan,
-				props.membersOfChild as ChannelMembersEntity[],
-				props.membersOfParent as ChannelMembersEntity[],
-				dataReferences?.message_sender_id || ''
-			);
-
-			const { content: text, entities } = checkedRequest;
-			const mk: IMarkdownOnMessage[] = processMarkdownEntities(text, entities);
-
-			const boldMarkdownArr = processBoldEntities(mentionsToProcess, mk);
-
-			const { adjustedMentionsPos, adjustedHashtagPos, adjustedEmojiPos } = adjustPos(mk, mentionList, hashtagList, emojiList, text);
+			const { content: text } = checkedRequest;
 			const payload: {
 				t: string;
 				hg: IHashtagOnMessage[];
@@ -530,9 +499,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				cvtt?: Record<string, string>;
 			} = {
 				t: text,
-				hg: adjustedHashtagPos as IHashtagOnMessage[],
-				ej: adjustedEmojiPos as IEmojiOnMessage[],
-				mk: [...mk, ...boldMarkdownArr]
+				hg: [],
+				ej: [],
+				mk: []
 			};
 
 			const canvasLinks = extractCanvasIdsFromText(text || '');
@@ -541,8 +510,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				payload.cvtt = canvasTitles;
 			}
 
-			const addMentionToPayload = addMention(payload, adjustedMentionsPos);
-			const removeEmptyOnPayload = filterEmptyArrays(addMentionToPayload);
+			const removeEmptyOnPayload = filterEmptyArrays([]);
 			const encoder = new TextEncoder();
 			const payloadJson = JSON.stringify(removeEmptyOnPayload);
 			const utf8Bytes = encoder.encode(payloadJson);
@@ -587,16 +555,13 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				dispatch(threadsActions.setNameThreadError(t('channelTopbar:createThread.validation.threadNameRequired')));
 				return;
 			}
-			if (checkIsThread(currentChannel as ChannelsEntity) && usersNotExistingInThread.length > 0 && addMemberToThread) {
-				addMemberToThread(currentChannel!, usersNotExistingInThread);
-			}
 
 			handleThreadActivation(currentChannel);
 
 			if (isReplyOnChannel) {
 				props.onSend(
 					filterEmptyArrays(payload),
-					isPasteMulti ? mentionUpdated : adjustedMentionsPos,
+					isPasteMulti ? mentionUpdated : [],
 					attachmentData,
 					[dataReferences],
 					{ nameValueThread, isPrivate },
@@ -641,7 +606,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			} else if (isReplyOnTopic) {
 				props.onSend(
 					filterEmptyArrays(payload),
-					adjustedMentionsPos,
+					[],
 					attachmentData,
 					[dataReferencesTopic],
 					{ nameValueThread, isPrivate },
@@ -664,7 +629,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			} else {
 				props.onSend(
 					filterEmptyArrays(payload),
-					isPasteMulti ? mentionUpdated : adjustedMentionsPos,
+					isPasteMulti ? mentionUpdated : [],
 					attachmentData,
 					undefined,
 					{ nameValueThread, isPrivate },
@@ -706,7 +671,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				})
 			);
 			setMentionUpdated([]);
-			setDisplayPlaintext('');
 			setDisplayPlaintext('');
 			setIsPasteMulti(false);
 			setSubPanelActive(SubPanelName.NONE);

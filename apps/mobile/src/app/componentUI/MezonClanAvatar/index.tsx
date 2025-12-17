@@ -1,7 +1,8 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import { createImgproxyUrl } from '@mezon/utils';
 import React, { memo } from 'react';
-import { StyleProp, Text, TextStyle, View } from 'react-native';
+import type { StyleProp, TextStyle } from 'react-native';
+import { Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Images from '../../../assets/Images';
 import ImageNative from '../../components/ImageNative';

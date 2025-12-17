@@ -589,6 +589,7 @@ export const DATA_E2E_IDENTIFIER = {
 			edit_profile: '',
 			edit_display_name: '',
 			edit_username: '',
+			set_email: '',
 			set_password: '',
 			tab_account: '',
 			info: ''

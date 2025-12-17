@@ -2507,7 +2507,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				})
 			);
 			dispatch(
-				clansActions.updateClanBadgeCount2({
+				clansActions.updateClanBadgeCountFromChannels({
 					clanId: markAsReadEvent.clan_id as string,
 					channels: relatedChannels.map((channel) => ({
 						channelId: channel.id,
@@ -2762,9 +2762,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					);
 					return;
 				}
-
-				const id = Date.now().toString();
-				dispatch(appActions.refreshApp({ id }));
 				setCallbackEventFn(socket as Socket);
 				dispatch(toastActions.removeToast('SOCKET_RECONNECTING'));
 				dispatch(toastActions.removeToast('SOCKET_RECONNECTING_ERROR'));

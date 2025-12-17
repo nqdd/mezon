@@ -126,29 +126,24 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 	const handleShareInviteLink = useCallback(async () => {
 		try {
 			dispatch(appActions.setLoadingMainMobile(true));
-			const shareOptions = {
+
+			await Share.open({
 				title: t('share.title'),
 				message: t('share.message'),
 				url: currentInviteLink || currentInviteLinkRef?.current,
 				failOnCancel: false
-			};
-
-			await Share.open(shareOptions);
+			});
 		} catch (error) {
-			if (error?.message !== 'User did not share') {
-				Toast.show({
-					type: 'success',
-					props: {
-						text2: t('share.error', { error: 'Unknown error' }),
-						leadingIcon: <MezonIconCDN icon={IconCDN.circleXIcon} color={baseColor.red} />
-					}
-				});
-			}
+			Toast.show({
+				type: 'error',
+				text1: t('share.error')
+			});
+			console.error('Error sharing invite link: ', error);
 		} finally {
 			dispatch(appActions.setLoadingMainMobile(false));
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 		}
-	}, [currentInviteLink, dispatch, t]);
+	}, [currentInviteLink, t]);
 
 	const handleShowQRModal = useCallback(() => {
 		const data = {
@@ -192,20 +187,33 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 		}
 	};
 
-	const fetchInviteLink = async (channelId) => {
+	const fetchInviteLink = async (channelId: string) => {
 		try {
+			let linkInvite = '';
+			if (channelId) {
+				linkInvite = `${process.env.NX_CHAT_APP_REDIRECT_URI}/chat/clans/${currentClanId}/channels/${channelId}`;
+				setCurrentInviteLink(linkInvite);
+				currentInviteLinkRef.current = linkInvite;
+				return;
+			}
+
 			const resp = await dispatch(fetchSystemMessageByClanId({ clanId: currentClanId, noCache: true }));
 			const welcomeChannel = resp?.payload as ApiSystemMessage;
-			const response = await createLinkInviteUser(currentClanId ?? '', channelId ? channelId : welcomeChannel?.channel_id, 10);
+			const response = await createLinkInviteUser(currentClanId ?? '', welcomeChannel?.channel_id, 10);
 			if (!response || !response?.invite_link) {
 				return;
 			}
-			const linkInvite = `${process.env.NX_CHAT_APP_REDIRECT_URI}/invite/${response.invite_link}`;
+
+			linkInvite = `${process.env.NX_CHAT_APP_REDIRECT_URI}/invite/${response.invite_link}`;
 			setCurrentInviteLink(linkInvite);
 			currentInviteLinkRef.current = linkInvite;
 			dispatch(clansActions.joinClan({ clanId: '0' }));
-		} catch (e) {
-			Toast.show({ type: 'error', text1: 'Fail to create invite link. Try again' });
+		} catch (error) {
+			Toast.show({
+				type: 'error',
+				text1: t('share.errorCreateLink')
+			});
+			console.error('Failed to create invite link: ', error);
 		}
 	};
 
@@ -234,8 +242,11 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 					<MezonIconCDN icon={IconCDN.linkIcon} color={themeValue.text} />
 				),
 				onPress: () => (!currentInviteLink ? null : addInviteLinkToClipboard())
-			},
-			{
+			}
+		];
+
+		if (!channelId) {
+			iconList.push({
 				title: t('iconTitle.qrcode'),
 				icon: !currentInviteLink ? (
 					<Chase color={themeValue.text} size={size.s_24} />
@@ -243,10 +254,11 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 					<MezonIconCDN icon={IconCDN.scanQR} color={themeValue.text} />
 				),
 				onPress: () => (!currentInviteLink ? null : handleShowQRModal())
-			}
-		];
+			});
+		}
+
 		return iconList;
-	}, [currentInviteLink, addInviteLinkToClipboard, handleShowQRModal, t, themeValue.text]);
+	}, [currentInviteLink, addInviteLinkToClipboard, handleShowQRModal, t, themeValue.text, channelId]);
 
 	const getInviteToChannelIcon = ({ icon, title, onPress }: IInviteToChannelIconProp) => {
 		return (
@@ -269,9 +281,9 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			) : (
 				<>
 					{!isKeyboardVisible && (
-						<View style={styles.iconAreaWrapper}>
+						<View style={[styles.iconAreaWrapper, inviteToChannelIconList.length === 2 && styles.iconAreaWrapperTwo]}>
 							{inviteToChannelIconList.map((icon, index) => {
-								return <View key={index}>{getInviteToChannelIcon(icon)}</View>;
+								return <View key={`invite_option_${icon.title}_${index}`}>{getInviteToChannelIcon(icon)}</View>;
 							})}
 						</View>
 					)}

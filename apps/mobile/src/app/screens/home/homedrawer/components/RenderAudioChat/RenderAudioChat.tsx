@@ -1,8 +1,8 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import LottieView from 'lottie-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewStyle } from 'react-native';
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
 import Sound from 'react-native-sound';
 import { WAY_AUDIO } from '../../../../../../assets/lottie';
@@ -22,8 +22,12 @@ const RenderAudioChat = React.memo(
 		const styles = style(themeValue);
 		const recordingWaveRef = useRef(null);
 		const [isPlaying, setIsPlaying] = useState(false);
+		const [isLoading, setIsLoading] = useState(false);
 		const [sound, setSound] = useState<Sound | null>(null);
 		const [totalTime, setTotalTime] = useState(0);
+		const [remainingTime, setRemainingTime] = useState(0);
+		const soundRef = useRef<Sound | null>(null);
+		const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 		useEffect(() => {
 			recordingWaveRef?.current?.reset();
@@ -35,33 +39,31 @@ const RenderAudioChat = React.memo(
 			};
 		}, []);
 
-		useEffect(() => {
-			const newSound = new Sound(audioURL, '', (error) => {
-				if (error) {
-					console.error('Failed to load sound:', error);
-					return;
-				}
-				setTotalTime(newSound.getDuration() * 1000);
+		const clearTimer = useCallback(() => {
+			if (timerRef.current) {
+				clearInterval(timerRef.current);
+				timerRef.current = null;
+			}
+		}, []);
 
-				// Configure sound settings
-				if (Platform.OS === 'ios') {
-					newSound.setNumberOfLoops(0); // No looping
-					newSound.setVolume(1.0);
-				}
+		const startTimer = useCallback(
+			(duration: number) => {
+				clearTimer();
+				timerRef.current = setInterval(() => {
+					if (soundRef.current) {
+						soundRef.current.getCurrentTime((seconds) => {
+							const currentMs = seconds * 1000;
+							const remaining = Math.max(0, duration - currentMs);
+							setRemainingTime(remaining);
+						});
+					}
+				}, 500);
+			},
+			[clearTimer]
+		);
 
-				setSound(newSound);
-			});
-
-			return () => {
-				if (newSound) {
-					newSound.stop();
-					newSound.release();
-				}
-			};
-		}, [audioURL]);
-
-		const playSound = () => {
-			if (sound) {
+		const playLoadedSound = useCallback(
+			(soundToPlay: Sound, duration: number) => {
 				if (Platform.OS === 'ios') {
 					Sound.setCategory('Playback', true);
 				}
@@ -69,49 +71,119 @@ const RenderAudioChat = React.memo(
 					InCallManager.setSpeakerphoneOn(true);
 					InCallManager.setForceSpeakerphoneOn(true);
 				}
-				sound.play((success) => {
+				soundToPlay.play((success) => {
 					if (success) {
-						sound.setCurrentTime(0);
+						soundToPlay.setCurrentTime(0);
 						recordingWaveRef?.current?.reset();
 						setIsPlaying(false);
+						setRemainingTime(duration);
+						clearTimer();
 					}
 				});
 				setIsPlaying(true);
 				recordingWaveRef?.current?.play(0, 45);
-			}
-		};
+				startTimer(duration);
+			},
+			[clearTimer, startTimer]
+		);
 
-		const pauseSound = () => {
-			if (sound) {
+		const loadAndPlaySound = useCallback(() => {
+			if (soundRef.current) {
+				playLoadedSound(soundRef.current, totalTime);
+				return;
+			}
+
+			setIsLoading(true);
+
+			const newSound = new Sound(audioURL, '', (error) => {
+				setIsLoading(false);
+
+				if (error) {
+					console.error('Failed to load sound:', error);
+					return;
+				}
+
+				const duration = newSound.getDuration() * 1000;
+				setTotalTime(duration);
+				setRemainingTime(duration);
+
+				if (Platform.OS === 'ios') {
+					newSound.setNumberOfLoops(0);
+					newSound.setVolume(1.0);
+				}
+
+				soundRef.current = newSound;
+				setSound(newSound);
+				playLoadedSound(newSound, duration);
+			});
+		}, [audioURL, totalTime, playLoadedSound]);
+
+		const handlePress = useCallback(() => {
+			if (isLoading) return;
+
+			if (isPlaying && sound) {
 				sound.pause();
 				recordingWaveRef?.current?.pause();
 				setIsPlaying(false);
+				clearTimer();
+			} else if (sound) {
+				playLoadedSound(sound, totalTime);
+			} else {
+				loadAndPlaySound();
 			}
-		};
+		}, [isLoading, isPlaying, sound, totalTime, loadAndPlaySound, playLoadedSound, clearTimer]);
 
 		useEffect(() => {
 			return () => {
-				// Cleanup on unmount
-				if (sound) {
-					sound.stop();
-					sound.release();
+				clearTimer();
+				if (soundRef.current) {
+					soundRef.current.stop();
+					soundRef.current.release();
+					soundRef.current = null;
 				}
 			};
-		}, [sound]);
+		}, [clearTimer]);
+
+		useEffect(() => {
+			return () => {
+				clearTimer();
+				if (soundRef.current) {
+					soundRef.current.stop();
+					soundRef.current.release();
+					soundRef.current = null;
+					setSound(null);
+					setTotalTime(0);
+					setRemainingTime(0);
+					setIsPlaying(false);
+				}
+			};
+		}, [audioURL, clearTimer]);
+
+		const renderPlayButton = () => {
+			if (isLoading) {
+				return <ActivityIndicator size="small" color="white" />;
+			}
+			if (isPlaying) {
+				return <MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />;
+			}
+			return <MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />;
+		};
+
+		const getDisplayTime = () => {
+			if (totalTime === 0) return '--:--';
+			if (isPlaying || remainingTime < totalTime) {
+				return formatTime(remainingTime);
+			}
+			return formatTime(totalTime);
+		};
 
 		return (
 			<View style={styles.wrapper}>
-				<TouchableOpacity onPress={isPlaying ? pauseSound : playSound} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]}>
+				<TouchableOpacity onPress={handlePress} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]} disabled={isLoading}>
 					<View style={styles.innerContainer}>
-						<View style={styles.playButton}>
-							{isPlaying ? (
-								<MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />
-							) : (
-								<MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />
-							)}
-						</View>
+						<View style={styles.playButton}>{renderPlayButton()}</View>
 						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={[styles.soundLottie, styleLottie]} />
-						<Text style={[styles.currentTime, isPlaying && styles.currentTimeHidden]}>{`${formatTime(totalTime)}`}</Text>
+						<Text style={styles.currentTime}>{getDisplayTime()}</Text>
 					</View>
 				</TouchableOpacity>
 			</View>

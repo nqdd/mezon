@@ -106,7 +106,7 @@ export const initialAppState: AppState = {
 	isShowUpdateUsername: false
 };
 
-export const refreshApp = createAsyncThunk('app/refreshApp', async ({ id }: { id: string }, thunkAPI) => {
+export const refreshApp = createAsyncThunk('app/refreshApp', async (_, thunkAPI) => {
 	try {
 		const state = thunkAPI.getState() as RootState;
 
@@ -308,6 +308,11 @@ export const appSlice = createSlice({
 				}
 				state.history.current = state.history.current + 1;
 			}
+		},
+		setCurrentHistory: (state, action) => {
+			if (!state.history) return;
+			if (state.history.current === null) return;
+			state.history.current = action.payload;
 		},
 		clearHistory: (state) => {
 			state.history = {

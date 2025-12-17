@@ -11,23 +11,17 @@ interface IMemberItemProps {
 	user: ChannelMembersEntity | UsersClanEntity;
 	isDM: boolean;
 	onPress: (user: ChannelMembersEntity) => void;
-	currentChannel: IChannel | DirectEntity;
+	currentChannel?: IChannel | DirectEntity;
+	isShowUsername?: boolean;
 }
 
-interface IMemoizedMemberItemProps {
-	user: ChannelMembersEntity | UsersClanEntity;
-	isDM: boolean;
-	onPress: (user: ChannelMembersEntity) => void;
-	currentChannel: IChannel | DirectEntity;
-}
-
-export const MemoizedMemberItem = memo((props: IMemoizedMemberItemProps) => {
+export const MemoizedMemberItem = memo((props: IMemberItemProps) => {
 	const { user, ...rest } = props;
 
 	return <MemberItem {...rest} user={user} />;
 });
 
-export const MemberItem = memo(({ user, isDM, onPress, currentChannel }: IMemberItemProps) => {
+export const MemberItem = memo(({ user, isDM, onPress, currentChannel, isShowUsername = false }: IMemberItemProps) => {
 	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
 
 	return (
@@ -36,7 +30,13 @@ export const MemberItem = memo(({ user, isDM, onPress, currentChannel }: IMember
 				onPress(user);
 			}}
 		>
-			<MemberProfile user={user} creatorClanId={currentClanCreatorId} currentChannel={currentChannel} isDM={isDM} />
+			<MemberProfile
+				user={user}
+				creatorClanId={currentClanCreatorId}
+				currentChannel={currentChannel}
+				isDM={isDM}
+				isShowUsername={isShowUsername}
+			/>
 		</Pressable>
 	);
 });

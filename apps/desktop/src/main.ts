@@ -29,7 +29,7 @@ import ElectronEvents from './app/events/electron.events';
 import SquirrelEvents from './app/events/squirrel.events';
 import { forceQuit } from './app/utils';
 import updateImagePopup from './assets/image-window/update_window_image';
-import openImagePopup from './assets/image-window/window_image';
+import openImagePopup, { type ImageData } from './assets/image-window/window_image';
 import openNewWindow from './assets/window/new-window';
 import { environment } from './environments/environment';
 
@@ -134,7 +134,37 @@ const handleWindowAction = async (window: BrowserWindow, action: string) => {
 			break;
 		case UNMAXIMIZE_WINDOW:
 		case MAXIMIZE_WINDOW:
-			if (process.platform !== 'darwin') {
+			if (process.platform === 'darwin') {
+				const windowBounds = window.getBounds();
+				const display = screen.getDisplayMatching(windowBounds);
+				const isMaximized = windowBounds.width >= display.workArea.width && windowBounds.height >= display.workArea.height;
+
+				if (isMaximized) {
+					const newWidth = Math.floor(display.workArea.width * 0.8);
+					const newHeight = Math.floor(display.workArea.height * 0.8);
+					const x = Math.floor(display.workArea.x + (display.workArea.width - newWidth) / 2);
+					const y = Math.floor(display.workArea.y + (display.workArea.height - newHeight) / 2);
+					window.setBounds(
+						{
+							x,
+							y,
+							width: newWidth,
+							height: newHeight
+						},
+						false
+					);
+				} else {
+					window.setBounds(
+						{
+							x: display.workArea.x,
+							y: display.workArea.y,
+							width: display.workArea.width,
+							height: display.workArea.height
+						},
+						false
+					);
+				}
+			} else {
 				if (window.isMaximized()) {
 					window.restore();
 				} else {
@@ -166,14 +196,14 @@ const handleMacWindowsAction = async (window: BrowserWindow, action: string) => 
 			break;
 		case UNMAXIMIZE_WINDOW:
 		case MAXIMIZE_WINDOW: {
-			const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
 			const windowBounds = window.getBounds();
+			const display = screen.getDisplayMatching(windowBounds);
 			const isMaximized = windowBounds.width >= display.workArea.width && windowBounds.height >= display.workArea.height;
 			if (isMaximized) {
 				const newWidth = Math.floor(display.workArea.width * 0.8);
 				const newHeight = Math.floor(display.workArea.height * 0.8);
-				const x = Math.floor((display.workArea.width - newWidth) / 2);
-				const y = Math.floor((display.workArea.height - newHeight) / 2);
+				const x = Math.floor(display.workArea.x + (display.workArea.width - newWidth) / 2);
+				const y = Math.floor(display.workArea.y + (display.workArea.height - newHeight) / 2);
 				window.setBounds(
 					{
 						x,
@@ -209,7 +239,7 @@ const handleMacWindowsAction = async (window: BrowserWindow, action: string) => 
 			break;
 	}
 };
-ipcMain.handle(LAUNCH_APP_WINDOW, (event, props: any) => {
+ipcMain.handle(LAUNCH_APP_WINDOW, (_event: Electron.IpcMainInvokeEvent, props: string) => {
 	const channelApp = openNewWindow(props, App.mainWindow);
 	if (!App.channelAppWindow) {
 		App.channelAppWindow = channelApp;
@@ -230,26 +260,34 @@ ipcMain.on('APP::CLOSE_APP_CHANNEL', (event) => {
 	App.channelAppWindow = null;
 });
 
-ipcMain.handle(OPEN_NEW_WINDOW, (event, props: any, _options?: Electron.BrowserWindowConstructorOptions, _params?: Record<string, string>) => {
-	if (App.imageViewerWindow) {
-		updateImagePopup(props, App.imageViewerWindow);
-		return;
+ipcMain.handle(
+	OPEN_NEW_WINDOW,
+	(
+		_event: Electron.IpcMainInvokeEvent,
+		props: ImageData,
+		_options?: Electron.BrowserWindowConstructorOptions,
+		_params?: Record<string, string>
+	) => {
+		if (App.imageViewerWindow) {
+			updateImagePopup(props, App.imageViewerWindow);
+			return;
+		}
+		const newWindow = openImagePopup(props, App.mainWindow);
+
+		// Remove the existing listener if it exists to prevent memory leaks
+		ipcMain.removeAllListeners(IMAGE_WINDOW_TITLE_BAR_ACTION);
+
+		const imageWindowHandler = (_event: Electron.IpcMainEvent, action: string, _data: unknown) => {
+			handleWindowAction(newWindow, action);
+		};
+
+		ipcMain.on(IMAGE_WINDOW_TITLE_BAR_ACTION, imageWindowHandler);
+
+		newWindow.on('closed', () => {
+			ipcMain.removeListener(IMAGE_WINDOW_TITLE_BAR_ACTION, imageWindowHandler);
+		});
 	}
-	const newWindow = openImagePopup(props, App.mainWindow);
-
-	// Remove the existing listener if it exists to prevent memory leaks
-	ipcMain.removeAllListeners(IMAGE_WINDOW_TITLE_BAR_ACTION);
-
-	const imageWindowHandler = (_event: any, action: string, _data: any) => {
-		handleWindowAction(newWindow, action);
-	};
-
-	ipcMain.on(IMAGE_WINDOW_TITLE_BAR_ACTION, imageWindowHandler);
-
-	newWindow.on('closed', () => {
-		ipcMain.removeListener(IMAGE_WINDOW_TITLE_BAR_ACTION, imageWindowHandler);
-	});
-});
+);
 
 // Single clean IPC listener for macOS window controls
 ipcMain.on(MAC_WINDOWS_ACTION, (event, action) => {

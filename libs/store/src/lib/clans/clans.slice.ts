@@ -782,7 +782,7 @@ export const clansSlice = createSlice({
 				}
 			}
 		},
-		updateClanBadgeCount2: (state, action: PayloadAction<UpdateClanBadgeCountPayload>) => {
+		updateClanBadgeCountFromChannels: (state, action: PayloadAction<UpdateClanBadgeCountPayload>) => {
 			const { clanId, channels } = action.payload;
 			const clan = state.entities[clanId];
 

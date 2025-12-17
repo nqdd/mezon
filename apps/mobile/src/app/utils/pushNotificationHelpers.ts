@@ -686,9 +686,9 @@ export const displayNativeCalling = async (data: any, appInBackground = false) =
 
 		const cancelCallsCacheStr = load(STORAGE_OFFER_HAVE_CALL_CACHE) || '[]';
 		const cancelCallsCache = safeJSONParse(cancelCallsCacheStr) || [];
-		const notificationData = await NotificationPreferences.getValue('notificationDataPushed');
+		const notificationDataCalling = await NotificationPreferences.getValue('notificationDataCalling');
 
-		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer)) || !notificationData) {
+		if (!dataObj?.callerName || cancelCallsCache?.includes?.(JSON.stringify(dataObj?.offer)) || !notificationDataCalling) {
 			return;
 		}
 		cancelCallsCache.push(JSON.stringify(dataObj?.offer));

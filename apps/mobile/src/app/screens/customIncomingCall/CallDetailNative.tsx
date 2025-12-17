@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { useWebRTCCallMobile } from '../../hooks/useWebRTCCallMobile';
+import { clearOngoingCallNotification, showOngoingCallNotification } from '../../utils/ongoingCallNotification';
 import { RenderMainView } from '../messages/DirectMessageCall/RenderMainView';
 import { style } from './styles';
 
@@ -69,6 +70,8 @@ export const CallDetailNative = memo(
 
 			const retryCountRef = useRef<number>(0);
 			const offerCacheRef = useRef(offerCache);
+			const ongoingNotificationIdRef = useRef<string | null>(null);
+			const hasStartedCallRef = useRef<boolean>(false);
 
 			useEffect(() => {
 				offerCacheRef.current = offerCache;
@@ -107,6 +110,43 @@ export const CallDetailNative = memo(
 				}),
 				[handleOfferWithRetry]
 			);
+
+			const clearOngoingNotification = useCallback(async () => {
+				if (!ongoingNotificationIdRef.current) return;
+
+				await clearOngoingCallNotification(ongoingNotificationIdRef.current);
+				ongoingNotificationIdRef.current = null;
+			}, []);
+
+			const showOngoingNotification = useCallback(async () => {
+				if (!isConnected) return;
+
+				const notificationId = await showOngoingCallNotification({
+					directMessageId,
+					receiverId,
+					receiverName,
+					receiverAvatar,
+					isVideoCall,
+					startedAt: timeStartConnected?.current ? new Date(timeStartConnected.current).getTime() : undefined,
+					pressActivity: 'com.mezon.mobile.CallActivity'
+				});
+
+				if (notificationId) {
+					ongoingNotificationIdRef.current = notificationId;
+				}
+			}, [directMessageId, isConnected, isVideoCall, receiverAvatar, receiverId, receiverName, timeStartConnected]);
+
+			useEffect(() => {
+				if (isConnected) {
+					showOngoingNotification();
+				} else {
+					clearOngoingNotification();
+				}
+
+				return () => {
+					clearOngoingNotification();
+				};
+			}, [clearOngoingNotification, isConnected, showOngoingNotification]);
 
 			const onCancelCall = async () => {
 				try {
@@ -176,9 +216,12 @@ export const CallDetailNative = memo(
 				if (lastSignalingData) {
 					handleSignalingMessage(lastSignalingData);
 				}
-			}, [signalingData, timeStartConnected.current]);
+			}, [dispatch, directMessageId, handleEndCall, handleSignalingMessage, isVideoCall, signalingData, timeStartConnected]);
 
 			useEffect(() => {
+				if (hasStartedCallRef.current) return;
+				hasStartedCallRef.current = true;
+
 				dispatch(DMCallActions.setIsInCall(true));
 				InCallManager.start({ media: 'audio' });
 				handleToggleIsConnected(false);
@@ -187,7 +230,7 @@ export const CallDetailNative = memo(
 				return () => {
 					InCallManager.stop();
 				};
-			}, [isVideoCall]);
+			}, [dispatch, handleToggleIsConnected, isVideoCall, startCall]);
 
 			if (!isConnected && !isInCall) {
 				return <View />;

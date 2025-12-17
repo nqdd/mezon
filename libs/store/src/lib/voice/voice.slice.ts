@@ -48,6 +48,10 @@ export interface VoiceState extends EntityState<VoiceEntity, string> {
 		audio: boolean;
 		mode: 'electron';
 	} | null;
+	contextMenu: {
+		openedParticipantId: string | null;
+		position: { x: number; y: number };
+	} | null;
 }
 
 export const voiceAdapter = createEntityAdapter({
@@ -189,7 +193,8 @@ export const initialVoiceState: VoiceState = voiceAdapter.getInitialState({
 	openPopOut: false,
 	openChatBox: false,
 	externalGroup: false,
-	listInVoiceStatus: {}
+	listInVoiceStatus: {},
+	contextMenu: null
 });
 
 export const voiceSlice = createSlice({
@@ -248,6 +253,15 @@ export const voiceSlice = createSlice({
 		},
 		setJoined: (state, action) => {
 			state.isJoined = action.payload;
+		},
+		openVoiceContextMenu: (state, action: PayloadAction<{ participantId: string; position: { x: number; y: number } }>) => {
+			state.contextMenu = {
+				openedParticipantId: action.payload.participantId,
+				position: action.payload.position
+			};
+		},
+		closeVoiceContextMenu: (state) => {
+			state.contextMenu = null;
 		},
 		setGroupCallJoined: (state, action) => {
 			state.isGroupCallJoined = action.payload;
@@ -504,6 +518,8 @@ export const selectScreenSource = createSelector(getVoiceState, (state) => state
 export const selectShowSelectScreenModal = createSelector(getVoiceState, (state) => state.showSelectScreenModal);
 
 export const selectNumberMemberVoiceChannel = createSelector([selectVoiceChannelMembersByChannelId], (members) => members.length);
+
+export const selectVoiceContextMenu = createSelector(getVoiceState, (state) => state.contextMenu);
 
 export const selectVoiceConnectionState = createSelector(getVoiceState, (state) => state.voiceConnectionState);
 

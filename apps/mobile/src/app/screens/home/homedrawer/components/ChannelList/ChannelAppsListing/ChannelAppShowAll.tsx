@@ -38,7 +38,7 @@ const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 					<View style={styles.appItemContent}>
 						<View style={styles.appItemLogo}>
 							{item?.app_logo ? (
-								<FastImage source={{ uri: item?.app_logo }} style={styles.appItemIcon} resizeMode={FastImage.resizeMode.cover} />
+								<FastImage source={{ uri: item?.app_logo }} style={styles.appItemIcon} resizeMode={FastImage.resizeMode.contain} />
 							) : (
 								<View style={[styles.appItemIcon, styles.appItemIconPlaceholder]}>
 									<MezonIconCDN icon={IconCDN.channelApp} width={size.s_32} height={size.s_32} color={themeValue.textDisabled} />
@@ -83,7 +83,7 @@ const ChannelAppShowAll = ({ navigation }: { navigation: any }) => {
 				</TouchableOpacity>
 				<Text style={styles.title}>
 					<Text style={styles.mezonBold}>Mezon</Text>
-					<Text style={styles.subtitle}> Miniapps</Text>
+					<Text style={styles.subtitle}> Channel apps</Text>
 				</Text>
 			</View>
 			<FlatList
