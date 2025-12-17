@@ -833,7 +833,8 @@ export const clansSlice = createSlice({
 					logo: dataUpdate.logo,
 					banner: dataUpdate.banner,
 					is_onboarding: dataUpdate.is_onboarding,
-					welcome_channel_id: dataUpdate.welcome_channel_id !== '-1' ? dataUpdate.welcome_channel_id : currentClanData.welcome_channel_id
+					welcome_channel_id: dataUpdate.welcome_channel_id !== '-1' ? dataUpdate.welcome_channel_id : currentClanData.welcome_channel_id,
+					prevent_anonymous: dataUpdate?.prevent_anonymous ?? currentClanData.prevent_anonymous
 				}
 			});
 		},

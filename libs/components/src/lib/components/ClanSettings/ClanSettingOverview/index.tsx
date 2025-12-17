@@ -3,11 +3,12 @@ import { createSystemMessage, fetchSystemMessageByClanId, selectCurrentClan, upd
 import { unwrapResult } from '@reduxjs/toolkit';
 import type { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ClanBannerBackground from './ClanBannerBackground';
 import ClanLogoName from './ClanLogoName';
 import ModalSaveChanges from './ModalSaveChanges';
-import SystemMessagesManagement from './SystemMessagesManagement';
+import SystemMessagesManagement, { ToggleItem } from './SystemMessagesManagement';
 
 const ClanSettingOverview = () => {
 	const { updateClan } = useClans();
@@ -18,9 +19,10 @@ const ClanSettingOverview = () => {
 		clan_name: currentClan?.clan_name ?? '',
 		creator_id: currentClan?.creator_id ?? '',
 		logo: currentClan?.logo ?? '',
-		welcome_channel_id: currentClan?.welcome_channel_id ?? ''
+		welcome_channel_id: currentClan?.welcome_channel_id ?? '',
+		prevent_anonymous: !!currentClan?.prevent_anonymous
 	});
-
+	const { t } = useTranslation('clanSettings');
 	const [systemMessage, setSystemMessage] = useState<ApiSystemMessage | null>(null);
 	const [updateSystemMessageRequest, setUpdateSystemMessageRequest] = useState<ApiSystemMessageRequest | null>(null);
 	const [resetTrigger, setResetTrigger] = useState<boolean>(false);
@@ -144,13 +146,21 @@ const ClanSettingOverview = () => {
 			creator_id: currentClan?.creator_id ?? '',
 			logo: currentClan?.logo ?? '',
 			is_onboarding: currentClan?.is_onboarding,
-			welcome_channel_id: currentClan?.welcome_channel_id ?? ''
+			welcome_channel_id: currentClan?.welcome_channel_id ?? '',
+			prevent_anonymous: !!currentClan?.prevent_anonymous
 		});
 		setUpdateSystemMessageRequest(systemMessage);
 	};
 
 	const handleResetComplete = () => {
 		setResetTrigger(false);
+	};
+
+	const handleToggleAno = (prevent: boolean) => {
+		setClanRequest({
+			...clanRequest,
+			prevent_anonymous: prevent
+		});
 	};
 	return (
 		<div className="h-full pb-10">
@@ -170,6 +180,11 @@ const ClanSettingOverview = () => {
 					setClanRequest={setClanRequest}
 				/>
 			)}
+
+			<div className={'border-t-theme-primary mt-10 pt-10 flex flex-col '}>
+				<h3 className="text-sm font-bold uppercase mb-2">{t('systemMessages.anoTitle')}</h3>
+				<ToggleItem label={t('systemMessages.anoDesc')} value={!!clanRequest.prevent_anonymous} handleToggle={handleToggleAno} />
+			</div>
 
 			{(hasClanChanges || hasSystemMessageChanges) && <ModalSaveChanges onSave={handleSave} onReset={handleReset} />}
 		</div>

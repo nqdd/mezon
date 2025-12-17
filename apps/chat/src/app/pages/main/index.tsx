@@ -29,6 +29,7 @@ import {
 	e2eeActions,
 	fetchDirectMessage,
 	getIsShowPopupForward,
+	getStore,
 	onboardingActions,
 	selectAllAppChannelsListShowOnPopUp,
 	selectChannelById,
@@ -39,6 +40,7 @@ import {
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
+	selectCurrentClan,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
 	selectDirectsUnreadlist,
@@ -115,7 +117,11 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
-				dispatch(accountActions.setAnonymousMode());
+				const store = getStore();
+				const currentClan = selectCurrentClan(store.getState());
+				if (!currentClan?.prevent_anonymous) {
+					dispatch(accountActions.setAnonymousMode());
+				}
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();
