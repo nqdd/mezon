@@ -87,19 +87,7 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 	}, []);
 
 	const handleSubmit = useCallback(async () => {
-		if (errors.email || errors.password || errors.confirmPassword || (count !== null && count > 0)) {
-			return;
-		}
-		const emailError = validateEmail(email);
-		const passwordError = translatePasswordError(validatePassword(password));
-		const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
-
-		if (emailError || confirmPassword !== password) {
-			setErrors({
-				email: emailError,
-				password: passwordError,
-				confirmPassword: confirmError
-			});
+		if (errors.email || (count !== null && count > 0)) {
 			return;
 		}
 
@@ -126,8 +114,7 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 		setOtp(e);
 	};
 
-	const disabled =
-		!!errors.email || !!errors.password || !!errors.confirmPassword || !email || !password || !confirmPassword || isLoading === 'loading';
+	const disabled = !!errors.email || !email || isLoading === 'loading';
 
 	useEffect(() => {
 		if (!reqId) return;
