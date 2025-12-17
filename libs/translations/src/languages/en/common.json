@@ -469,5 +469,7 @@
 	"cannotJoinClan": "Cannot join clan",
 	"failedToLoad": "Failed to load",
 	"goBack": "Go Back",
-	"refresh": "Refresh"
+	"refresh": "Refresh",
+	"linkPhoneNumber": "Add phone number",
+	"linkEmail": "Add email"
 }

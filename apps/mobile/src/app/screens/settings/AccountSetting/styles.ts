@@ -47,5 +47,13 @@ export const style = (colors: Attributes) =>
 		},
 		textRed: {
 			color: baseColor.redStrong
+		},
+		warningLinkText: {
+			fontStyle: 'italic'
+		},
+		optionDescriptionWrapper: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_4
 		}
 	});

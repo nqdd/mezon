@@ -1,4 +1,4 @@
-import { attachmentActions, channelMembersActions, selectCurrentClanId, useAppDispatch } from '@mezon/store-mobile';
+import { attachmentActions, channelMembersActions, selectCurrentClanId, selectCurrentUserId, useAppDispatch } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +18,20 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 	const currentChannel = useContext(threadDetailContext);
 	const [tabActive, setTabActive] = useState<number>(0);
 	const currentClanId = useSelector(selectCurrentClanId);
+	const currentUserId = useSelector(selectCurrentUserId);
 	const dispatch = useAppDispatch();
+
+	const isChatWithMyself = useMemo(() => {
+		return currentChannel?.type === ChannelType.CHANNEL_TYPE_DM && currentChannel?.user_ids?.[0] === currentUserId;
+	}, [currentChannel?.type, currentChannel?.user_ids?.[0], currentUserId]);
+
+	const actualTabIndex = useMemo(() => {
+		if (isChatWithMyself) {
+			return tabActive + 1;
+		}
+
+		return tabActive;
+	}, [tabActive, isChatWithMyself]);
 
 	const headerTablist = useMemo(() => {
 		const tabList = [
@@ -39,11 +52,16 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 			}
 		];
 
+		if (isChatWithMyself) {
+			return tabList.slice(1, -1);
+		}
+
 		if (currentChannel?.type !== ChannelType.CHANNEL_TYPE_DM && currentChannel?.type !== ChannelType.CHANNEL_TYPE_GROUP) {
 			return tabList;
 		}
+
 		return tabList.slice(0, -1);
-	}, [currentChannel?.type, t]);
+	}, [currentChannel?.type, isChatWithMyself, t]);
 
 	const handelHeaderTabChange = useCallback(
 		(index: number) => {
@@ -60,14 +78,14 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 		<View style={styles.wrapper}>
 			<AssetsHeader tabActive={tabActive} onChange={handelHeaderTabChange} tabList={headerTablist} />
 			<View style={styles.container}>
-				{tabActive === 0 ? (
-					<MemberListStatus currentChannel={currentChannel} />
-				) : tabActive === 1 ? (
+				{actualTabIndex === 0 ? (
+					<MemberListStatus currentChannel={currentChannel} currentUserId={currentUserId} />
+				) : actualTabIndex === 1 ? (
 					<MediaChannel
 						channelId={channelId}
 						isDM={[ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type)}
 					/>
-				) : tabActive === 4 ? (
+				) : actualTabIndex === 4 ? (
 					<Canvas
 						channelId={
 							currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD && currentChannel?.parent_id
@@ -78,7 +96,7 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 						}
 						clanId={currentClanId}
 					/>
-				) : tabActive === 2 ? (
+				) : actualTabIndex === 2 ? (
 					<ChannelFiles
 						currentChannelId={
 							[ChannelType.CHANNEL_TYPE_DM, ChannelType.CHANNEL_TYPE_GROUP].includes(currentChannel?.type)
