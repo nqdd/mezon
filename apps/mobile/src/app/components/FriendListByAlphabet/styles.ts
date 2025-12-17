@@ -25,5 +25,11 @@ export const style = (colors: Attributes) =>
 		friendText: {
 			color: colors.text,
 			paddingVertical: size.s_18
+		},
+		contentContainerStyle: {
+			paddingBottom: size.s_50
+		},
+		searchFriendWrapper: {
+			flex: 1
 		}
 	});
