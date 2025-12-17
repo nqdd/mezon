@@ -1781,7 +1781,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					usersClanActions.updateUserProfileAcrossClans({
 						userId: userUpdated.user_id,
 						...(userUpdated.avatar && { avatar: userUpdated.avatar }),
-						display_name: userUpdated.display_name,
+						...(userUpdated.display_name && { display_name: userUpdated.display_name }),
 						about_me: userUpdated.about_me
 					})
 				);
