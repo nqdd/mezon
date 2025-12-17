@@ -360,7 +360,7 @@ export const SoundPanel: React.FC<ISoundPanelProps> = React.memo(({ soundList, o
 						className="flex-shrink-0 flex items-center justify-center text-theme-primary duration-200  hover:scale-110 active:scale-95"
 						title="Send sound"
 					>
-						<Icons.Send />
+						<Icons.ResendMessageRightClick defaultSize="h-5 w-5" />
 					</button>
 				</div>
 			))}
