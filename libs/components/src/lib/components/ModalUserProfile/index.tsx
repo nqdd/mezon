@@ -288,8 +288,8 @@ const ModalUserProfile = ({
 						mode !== 4 && mode !== 3 && !isDM && userById && <RoleUserProfile userID={userID} />
 					)}
 
-					{userID !== '0' && !checkAnonymous && !isUserRemoved && !isBlockUser && userById ? (
-						userById?.user?.username ? (
+					{userID !== '0' && !checkAnonymous && !isUserRemoved && !isBlockUser && (isFooterProfile ? userProfile : userById) ? (
+						(isFooterProfile ? userProfile?.user?.username : userById?.user?.username) ? (
 							<div className="w-full items-center mt-2">
 								<input
 									type="text"

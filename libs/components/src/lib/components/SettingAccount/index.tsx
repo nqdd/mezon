@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import { getColorAverageFromURL } from '../SettingProfile/AverageColor';
 import QrProfile from './QrProfile';
+import SetEmail from './SettingEmail';
 import SetPassword from './SettingPassword';
 import SettingPhone from './SettingPhone';
 
@@ -82,6 +83,13 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 	const handleOpenSetPassword = () => {
 		openSetPassWordModal();
 	};
+
+	const handleOpenSetEmail = () => {
+		openSetEmail();
+	};
+	const [openSetEmail, closeSetEmail] = useModal(() => {
+		return <SetEmail onClose={closeSetEmail} />;
+	}, []);
 
 	return (
 		<div
@@ -161,6 +169,23 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 						>
 							{t('edit')}
 						</div>
+					</div>
+				</div>
+				<div className="rounded-md bg-theme-setting-primary shadow  m-4 p-4">
+					<div className="flex justify-between items-center">
+						<div>
+							<h4 className="uppercase font-bold text-xs mb-1">{t('email')}</h4>
+							<p>{userProfile?.email ? `***************@${userProfile?.email.split('@')[1]}` : t('email')}</p>
+						</div>
+						{!userProfile?.email ? (
+							<div
+								className=" h-fit rounded-lg px-6 py-1 cursor-pointer border-theme-primary bg-theme-input text-theme-primary-hover bg-secondary-button-hover "
+								onClick={handleOpenSetEmail}
+								data-e2e={generateE2eId(`user_setting.account.set_email`)}
+							>
+								{t('setEmail')}
+							</div>
+						) : null}
 					</div>
 				</div>
 				<div className="rounded-md bg-theme-setting-primary shadow  m-4 p-4">

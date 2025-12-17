@@ -99,7 +99,8 @@ export const style = (colors: Attributes, isTabletLandscape?: boolean) =>
 			minHeight: '100%'
 		},
 		columnWrapper: {
-			justifyContent: 'space-between'
+			justifyContent: 'space-between',
+			flexDirection: 'row'
 		},
 		emojiListContainer: {
 			flex: 1

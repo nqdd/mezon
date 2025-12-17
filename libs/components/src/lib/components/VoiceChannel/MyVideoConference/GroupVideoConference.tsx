@@ -18,6 +18,7 @@ import ControlBar from '../ControlBar/ControlBar';
 import { FocusLayout, FocusLayoutContainer } from './FocusLayout/FocusLayoutContainer';
 import { GridLayout } from './GridLayout/GridLayout';
 import { ParticipantTile } from './ParticipantTile/ParticipantTile';
+import { VoiceContextMenu } from './VoiceContextMenu/VoiceContextMenu';
 
 interface GroupVideoConferenceProps {
 	channelLabel?: string;
@@ -229,6 +230,7 @@ export const GroupVideoConference = memo(
 				</LayoutContextProvider>
 				<RoomAudioRenderer />
 				{!propTracks && <ConnectionStateToast />}
+				<VoiceContextMenu roomName={room?.name} room={room} groupMembers={groupMembers} />
 			</div>
 		);
 	},

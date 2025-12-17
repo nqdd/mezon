@@ -1,7 +1,8 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, colorUsername?: string) =>
 	StyleSheet.create({
 		avatar: {
 			height: 35,
@@ -64,5 +65,13 @@ export const style = (colors: Attributes) =>
 			gap: size.s_12,
 			paddingHorizontal: size.s_12,
 			width: '100%'
+		},
+		usernameText: {
+			opacity: 0.8,
+			color: colors.textDisabled
+		},
+		displayNameText: {
+			fontSize: size.s_12,
+			color: colorUsername
 		}
 	});

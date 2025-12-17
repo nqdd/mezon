@@ -26,23 +26,26 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { dismiss } = useBottomSheetModal();
+	const navigation = useNavigation<any>();
 	const { t } = useTranslation(['channelVoice', 'common']);
 	const currentClanId = useSelector(selectCurrentClanId);
-	const voiceChannelMembers = useAppSelector((state) => selectVoiceChannelMembersByChannelId(state, channel.channel_id));
-	const badge = useMemo(() => (voiceChannelMembers?.length > 3 ? voiceChannelMembers?.length - 3 : 0), [voiceChannelMembers]);
+	const channelId = useMemo(() => {
+		return channel?.channel_id || channel?.id || '';
+	}, [channel?.channel_id, channel?.id]);
+
+	const voiceChannelMembers = useAppSelector((state) => selectVoiceChannelMembersByChannelId(state, channelId));
+	const badge = useMemo(() => (voiceChannelMembers?.length > 3 ? voiceChannelMembers.length - 3 : 0), [voiceChannelMembers]);
 
 	const handleJoinVoice = async () => {
-		if (!channel.meeting_code) return;
-		const data = {
-			channelId: channel?.channel_id || '',
-			roomName: channel?.meeting_code,
+		if (!channel?.meeting_code) return;
+
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
+			channelId: channelId,
+			roomName: channel.meeting_code,
 			clanId: currentClanId
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, data);
+		});
 		dismiss();
 	};
-
-	const navigation = useNavigation<any>();
 
 	const handleShowChat = async () => {
 		if (channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
@@ -54,18 +57,15 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 	};
 
 	const joinChannel = async () => {
-		const clanId = channel?.clan_id;
-		const channelId = channel?.channel_id;
-
-		if (currentClanId !== clanId) {
-			changeClan(clanId);
+		if (currentClanId !== channel?.clan_id) {
+			changeClan(channel.clan_id);
 		}
 		DeviceEventEmitter.emit(ActionEmitEvent.FETCH_MEMBER_CHANNEL_DM, {
 			isFetchMemberChannelDM: true
 		});
-		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
+		const dataSave = getUpdateOrAddClanChannelCache(channel?.clan_id, channelId);
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-		await jumpToChannel(channelId, clanId);
+		await jumpToChannel(channelId, channel?.clan_id);
 		dismiss();
 	};
 
@@ -82,14 +82,14 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 					<Text numberOfLines={2} style={[styles.text, styles.textFlexible]}>
-						{channel?.channel_label}
+						{channel?.channel_label || ''}
 					</Text>
 				</View>
 				<TouchableOpacity
 					onPress={() => {
 						const data = {
 							snapPoints: ['70%', '90%'],
-							children: <InviteToChannel isUnknownChannel={false} />
+							children: <InviteToChannel isUnknownChannel={false} channelId={channelId} />
 						};
 						DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: false, data });
 					}}

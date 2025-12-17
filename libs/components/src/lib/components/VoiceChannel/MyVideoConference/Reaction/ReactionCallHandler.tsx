@@ -1,6 +1,6 @@
 import { getStoreAsync, selectCurrentChannelId, selectMemberClanByUserId } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
-import { getSrcEmoji, getSrcSound } from '@mezon/utils';
+import { getSrcEmoji } from '@mezon/utils';
 import type { VoiceReactionSend } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -91,12 +91,11 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 
 					if (firstEmojiId) {
 						if (firstEmojiId.startsWith('sound:')) {
-							const soundId = firstEmojiId.replace('sound:', '');
-							const soundUrl = getSrcSound(soundId);
+							const soundUrl = firstEmojiId.replace('sound:', '');
 
-							playSound(soundUrl, soundId);
+							playSound(soundUrl, soundUrl);
 							if (onSoundReaction && senderId) {
-								onSoundReaction(senderId, soundId);
+								onSoundReaction(senderId, soundUrl);
 							}
 						} else {
 							const now = Date.now();
