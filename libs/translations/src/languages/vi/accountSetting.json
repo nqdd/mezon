@@ -116,6 +116,7 @@
 		}
 	},
 	"emailSetting": {
+		"cancel": "Hủy",
 		"currentEmail": "Email hiện tại",
 		"description": "Vui lòng nhập email cho tài khoản của bạn",
 		"otpDescription": "Mã OTP đã được gửi tới email mới của bạn",
