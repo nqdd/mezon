@@ -29,6 +29,7 @@ import {
 	e2eeActions,
 	fetchDirectMessage,
 	getIsShowPopupForward,
+	getStore,
 	onboardingActions,
 	selectAllAppChannelsListShowOnPopUp,
 	selectChannelById,
@@ -107,8 +108,6 @@ function MyApp() {
 
 	const { currentURL, directId } = useAppParams();
 	const memberPath = `/chat/clans/${currentClanId}/member-safety`;
-	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
-	const currentTopicId = useSelector(selectCurrentTopicId);
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent) => {
@@ -119,6 +118,9 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
+				const state = getStore().getState();
+				const isFocusTopicBox = selectClickedOnTopicStatus(state);
+				const currentTopicId = selectCurrentTopicId(state);
 				if (isFocusTopicBox && currentTopicId) {
 					dispatch(accountActions.setTopicAnonymousMode());
 				} else if (!isFocusTopicBox) {
@@ -134,7 +136,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, dispatch, directId, isFocusTopicBox, currentTopicId]
+		[openSearchModal, dispatch, directId]
 	);
 
 	useEffect(() => {
