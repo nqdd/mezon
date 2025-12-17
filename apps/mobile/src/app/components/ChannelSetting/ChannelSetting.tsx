@@ -364,8 +364,6 @@ export function ChannelSetting({ navigation, route }: MenuChannelScreenProps<Scr
 					throw new Error(response?.meta?.requestStatus);
 				}
 			}
-			await dispatch(channelsActions.setCurrentChannelId({ clanId: channel?.clan_id || '', channelId: '' }));
-			navigation.navigate(APP_SCREEN.HOME);
 		} catch (error) {
 			Toast.show({ type: 'error', text1: t('confirm.leave.error', { error }) });
 		} finally {
