@@ -1,10 +1,9 @@
-import { selectAllChannels } from '@mezon/store';
+import { getStore, selectAllChannels } from '@mezon/store';
 import { searchMentionsHashtag } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } from 'react-mentions';
-import { useSelector } from 'react-redux';
 import { UserMentionList } from '../UserMentionList';
 import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
@@ -44,9 +43,8 @@ const SearchInput = ({
 		channelMode: mode
 	});
 
-	const allChannels = useSelector(selectAllChannels);
-
 	const channelOptions: ChannelOption[] = useMemo(() => {
+		const allChannels = selectAllChannels(getStore().getState());
 		const textChannels = allChannels
 			.filter((channel) => channel.type === ChannelType.CHANNEL_TYPE_CHANNEL || channel.type === ChannelType.CHANNEL_TYPE_THREAD)
 			.map((channel) => ({
@@ -55,7 +53,7 @@ const SearchInput = ({
 			}));
 
 		return [...textChannels];
-	}, [allChannels, t]);
+	}, []);
 
 	const [valueHighlight, setValueHighlight] = useState<string>('');
 	const [activeTrigger, setActiveTrigger] = useState<string>('');

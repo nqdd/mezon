@@ -165,18 +165,19 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 	const executeSearchWithQueue = useDebouncedCallback(() => {
 		if (searchedRequest && channelId && currentClanId) {
 			const channelIdFilter = searchedRequest.filters?.find((f) => f.field_name === 'channel_id');
-			const isGlobalSearch = channelIdFilter?.field_value === '0';
 			const hasSpecificChannel = channelIdFilter && channelIdFilter.field_value && channelIdFilter.field_value !== '0';
+
+			const hasOtherFilters = searchedRequest.filters?.some((f) => f.field_name !== 'content' && f.field_name !== 'channel_id');
 
 			const filteredFilters = (searchedRequest.filters || []).filter((f) => f.field_name !== 'channel_id');
 
 			let channelIdValue: string;
-			if (isGlobalSearch) {
-				channelIdValue = '0';
-			} else if (hasSpecificChannel && channelIdFilter?.field_value) {
+			if (hasSpecificChannel && channelIdFilter?.field_value) {
 				channelIdValue = channelIdFilter.field_value;
-			} else {
+			} else if (hasOtherFilters) {
 				channelIdValue = channelId;
+			} else {
+				channelIdValue = '0';
 			}
 
 			const requestFilter = [

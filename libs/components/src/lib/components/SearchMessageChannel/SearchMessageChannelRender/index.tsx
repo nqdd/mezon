@@ -1,5 +1,6 @@
 import type { ChannelsEntity, SearchMessageEntity } from '@mezon/store';
 import {
+	getStore,
 	messagesActions,
 	searchMessagesActions,
 	selectAllAccount,
@@ -50,8 +51,8 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 
 	const searchChannel = useAppSelector((state) => selectChannelById(state, channelId ?? '')) || {};
 
-	const allChannels = useSelector(selectAllChannels);
 	const channelLabelMap = useMemo(() => {
+		const allChannels = selectAllChannels(getStore().getState());
 		const map: Record<string, string> = {};
 		allChannels.forEach((channel) => {
 			if (channel.channel_id || channel.id) {
@@ -59,7 +60,7 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 			}
 		});
 		return map;
-	}, [allChannels]);
+	}, []);
 
 	const groupedMessages: GroupedMessages = [];
 	let currentGroup: SearchMessageEntity[] = [];

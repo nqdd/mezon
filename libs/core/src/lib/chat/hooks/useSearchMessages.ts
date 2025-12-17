@@ -27,10 +27,16 @@ export function useSearchMessages() {
 
 	const searchedChannelId = useMemo(() => {
 		const channelIdFilter = searchedRequest?.filters?.find((f) => f.field_name === 'channel_id');
-		if (channelIdFilter?.field_value && channelIdFilter.field_value !== '0') {
+		if (channelIdFilter?.field_value) {
 			return channelIdFilter.field_value;
 		}
-		return currentViewChannelId;
+
+		const hasOtherFilters = searchedRequest?.filters?.some((f) => f.field_name !== 'content' && f.field_name !== 'channel_id');
+
+		if (hasOtherFilters) {
+			return currentViewChannelId;
+		}
+		return '0';
 	}, [searchedRequest, currentViewChannelId]);
 
 	const searchMessages = useAppSelector((state) => selectAllMessageSearch(state, searchedChannelId));
