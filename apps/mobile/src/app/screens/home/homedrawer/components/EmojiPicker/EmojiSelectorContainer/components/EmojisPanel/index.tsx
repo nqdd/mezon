@@ -1,30 +1,22 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { emojiRecentActions, selectAllAccount, useAppDispatch } from '@mezon/store-mobile';
 import type { IEmoji } from '@mezon/utils';
 import { ITEM_TYPE, getSrcEmoji } from '@mezon/utils';
-import { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, FlatList, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../../../constants/icon_cdn';
-import useTabletLandscape from '../../../../../../../../hooks/useTabletLandscape';
-import { style } from '../../styles';
 
-interface IEmojisPanelProps {
-	emojisData: IEmoji[];
-	onEmojiSelect: (emoji: IEmoji) => void;
-}
-
-const EmojiItem = memo(({ item, onPress }: { item: IEmoji; onPress: (emoji: IEmoji) => void }) => {
-	const { themeValue } = useTheme();
-	const isTabletLandscape = useTabletLandscape();
-	const styles = style(themeValue, isTabletLandscape);
-
+const EmojiItem = memo(({ item, onPress, styles }: { item: IEmoji; onPress: (emoji: IEmoji) => void; styles: any }) => {
+	if (item?.isEmpty) {
+		return <View style={styles.wrapperIconEmoji} />;
+	}
 	return (
 		<TouchableOpacity style={styles.wrapperIconEmoji} onPress={() => onPress(item)}>
 			<FastImage source={{ uri: !item.src ? getSrcEmoji(item?.id) : item.src }} style={styles.iconEmoji} resizeMode={'contain'} />
@@ -37,15 +29,17 @@ const EmojiItem = memo(({ item, onPress }: { item: IEmoji; onPress: (emoji: IEmo
 	);
 });
 
-const EmojisPanel = ({ emojisData, onEmojiSelect }: IEmojisPanelProps) => {
+interface IEmojiRowProps {
+	emojisData: IEmoji[];
+	onEmojiSelect: (emoji: IEmoji) => void;
+	styles?: any;
+}
+
+const EmojisPanel = ({ emojisData, onEmojiSelect, styles }: IEmojiRowProps) => {
 	const { t } = useTranslation(['token', 'common']);
 	const dispatch = useAppDispatch();
 	const userProfile = useSelector(selectAllAccount);
-	const COLUMNS = 9;
-	const ITEM_HEIGHT = 40;
-	const { themeValue } = useTheme();
-	const isTabletLandscape = useTabletLandscape();
-	const styles = style(themeValue, isTabletLandscape);
+
 	const onBuyEmoji = useCallback(
 		async (emoji: IEmoji) => {
 			try {
@@ -98,51 +92,12 @@ const EmojisPanel = ({ emojisData, onEmojiSelect }: IEmojisPanelProps) => {
 		[onBuyEmoji, onEmojiSelect, t]
 	);
 
-	const getItemLayout = useCallback(
-		(_, index) => ({
-			length: ITEM_HEIGHT,
-			offset: ITEM_HEIGHT * Math.floor(index / COLUMNS),
-			index
-		}),
-		[]
-	);
-
-	const keyExtractor = useCallback((item: IEmoji) => `emoji-${item.id}`, []);
-
-	const renderItem = useCallback(({ item }: { item: IEmoji }) => <EmojiItem item={item} onPress={onPress} />, [onPress]);
-
-	const padData = useMemo(() => {
-		if (!emojisData?.length) return [];
-		const remainder = emojisData.length % COLUMNS;
-		if (remainder === 0) return emojisData;
-
-		const paddingCount = COLUMNS - remainder;
-		const paddedItems = Array.from({ length: paddingCount }, (_, i) => ({
-			id: `empty-${i}`,
-			title: '',
-			isEmpty: true
-		}));
-
-		return [...emojisData, ...paddedItems];
-	}, [emojisData]);
-
 	return (
-		<FlatList
-			data={padData}
-			renderItem={renderItem}
-			keyExtractor={keyExtractor}
-			numColumns={COLUMNS}
-			getItemLayout={getItemLayout}
-			removeClippedSubviews={true}
-			scrollEnabled={false}
-			columnWrapperStyle={styles.columnWrapper}
-			maxToRenderPerBatch={10}
-			windowSize={10}
-			initialNumToRender={10}
-			keyboardShouldPersistTaps="handled"
-			showsVerticalScrollIndicator={false}
-			style={styles.emojiListContainer}
-		/>
+		<View style={styles.columnWrapper}>
+			{emojisData.map((item) => (
+				<EmojiItem key={item.id || `empty-${Math.random()}`} item={item} onPress={onPress} styles={styles} />
+			))}
+		</View>
 	);
 };
 

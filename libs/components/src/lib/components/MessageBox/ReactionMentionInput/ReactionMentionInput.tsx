@@ -18,6 +18,7 @@ import {
 	selectDataReferences,
 	selectEmojiObjSuggestion,
 	selectIdMessageRefEdit,
+	selectMemberIdsByChannelId,
 	selectOpenEditMessageState,
 	selectOpenThreadMessageState,
 	selectQuickMenuByChannelId,
@@ -253,7 +254,10 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			const currentTime = Math.floor(Date.now() / 1000);
 			const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
 			const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
-			const needsJoin = channel.active === ThreadStatus.activePublic;
+
+			const store = getStore();
+			const userIds = selectMemberIdsByChannelId(store.getState(), channel.id as string);
+			const needsJoin = !userProfile?.user?.id ? false : !userIds.includes(userProfile?.user?.id);
 
 			if (isArchived) {
 				await dispatch(

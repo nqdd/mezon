@@ -119,6 +119,7 @@ const StickerSelector = ({ onSelected }: StickerSelectorProps) => {
 							onClickSticker={handleClickSound}
 							categoryName={item?.type}
 							isAudio
+							isCallReact
 						/>
 					))
 				: [
@@ -128,6 +129,7 @@ const StickerSelector = ({ onSelected }: StickerSelectorProps) => {
 							onClickSticker={handleClickSound}
 							categoryName={selectedCategory}
 							isAudio
+							isCallReact
 						/>
 					]}
 		</ScrollView>

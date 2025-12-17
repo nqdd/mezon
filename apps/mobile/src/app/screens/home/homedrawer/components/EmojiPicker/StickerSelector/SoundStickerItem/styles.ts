@@ -1,6 +1,7 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
-export const style = (colors: Attributes, isTabletLandscape: boolean) =>
+export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		totalTime: {
 			color: colors.text,
@@ -20,7 +21,7 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			justifyContent: 'center'
 		},
 		container: {
-			width: isTabletLandscape ? '35%' : '65%',
+			width: '65%',
 			backgroundColor: baseColor.bgDeepLavender,
 			padding: size.s_6,
 			borderRadius: size.s_30,

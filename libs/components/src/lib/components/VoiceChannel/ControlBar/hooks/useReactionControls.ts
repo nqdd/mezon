@@ -46,7 +46,7 @@ export function useReactionControls() {
 
 	const handleSoundSelect = useCallback(
 		(soundId: string, _soundUrl: string) => {
-			sendSoundReaction(soundId);
+			sendSoundReaction(_soundUrl);
 		},
 		[sendSoundReaction]
 	);

@@ -1,6 +1,7 @@
 import { toastActions, useAppDispatch } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 import type { IMessageSendPayload, IMessageWithUser } from '@mezon/utils';
+import { MAX_FORWARD_MESSAGE_LENGTH } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +15,7 @@ export function useSendForwardMessage() {
 	const client = clientRef.current;
 
 	const sendForwardMessage = React.useCallback(
-		async (clanid: string, channel_id: string, mode: number, isPublic: boolean, message: IMessageWithUser) => {
+		async (clanid: string, channel_id: string, mode: number, isPublic: boolean, message: IMessageWithUser, additionalMessage?: string) => {
 			const session = sessionRef.current;
 			const client = clientRef.current;
 			const socket = socketRef.current;
@@ -48,6 +49,19 @@ export function useSendForwardMessage() {
 					message.channel_id === channel_id ? message.mentions : [],
 					message.attachments
 				);
+
+				if (additionalMessage && additionalMessage.trim()) {
+					const trimmedMessage = additionalMessage.trim();
+
+					if (trimmedMessage.length > MAX_FORWARD_MESSAGE_LENGTH) {
+						throw new Error(`Additional message is too long (max ${MAX_FORWARD_MESSAGE_LENGTH} characters)`);
+					}
+
+					const additionalContent: IMessageSendPayload = {
+						t: trimmedMessage
+					};
+					await socket.writeChatMessage(clanid, channel_id, mode, isPublic, additionalContent, [], []);
+				}
 
 				dispatch(
 					toastActions.addToast({

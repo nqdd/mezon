@@ -112,24 +112,15 @@ export default function InvitePage() {
 					</h1>
 
 					<div className="flex justify-center gap-5 text-sm">
-						<div className="flex items-center">
-							<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-							<span className="">
-								{Number(selectInvite?.member_count || 1).toLocaleString()}{' '}
-								{t('invite.member', { count: selectInvite?.member_count || 1 })}
-							</span>
+						<div className="flex items-center justify-around w-fit gap-2 p-2 bg-item-theme rounded-md">
+							<div className="flex items-center">
+								<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+								<span className="">
+									{Number(selectInvite?.member_count || 1).toLocaleString()}{' '}
+									{t('invite.member', { count: selectInvite?.member_count || 1 })}
+								</span>
+							</div>
 						</div>
-						{/* <div className="flex items-center">
-							<div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-							<span className="text-gray-300">965,376 Members</span>
-						</div> */}
-					</div>
-				</div>
-
-				<div className="w-full bg-input-secondary rounded-md p-3 mb-5 flex items-center">
-					<div>
-						<div className=" text-xs font-medium uppercase tracking-wide">{t('invite.clanSettings')}</div>
-						<div className="text-xs">{t('invite.customizeAnytime')}</div>
 					</div>
 				</div>
 
