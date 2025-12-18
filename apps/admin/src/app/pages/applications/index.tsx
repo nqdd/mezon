@@ -35,7 +35,7 @@ function ApplicationsPage() {
 						<div className="text-2xl font-medium">{t('applicationsPage.title')}</div>
 						<div
 							onClick={toggleCreatePopup}
-							className="text-[15px] py-[10px] px-[16px] text-white bg-[#5865F2] hover:bg-[#4752c4] cursor-pointer rounded-sm text-nowrap"
+							className="text-[15px] py-[10px] px-[16px] text-white bg-[#5865F2] hover:bg-[#4752c4] cursor-pointer rounded-md text-nowrap"
 						>
 							{t('applicationsPage.newApplicationButton')}
 						</div>
