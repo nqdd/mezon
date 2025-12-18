@@ -109,9 +109,9 @@ export default function EmojiSelectorContainer({
 				)
 			: [];
 		return [
+			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.starIcon} color={themeValue.textStrong} />,
-			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			...clanEmojis,
 			<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.leafIcon} color={themeValue.textStrong} />,
@@ -125,8 +125,7 @@ export default function EmojiSelectorContainer({
 	}, [categoryEmoji, themeValue]);
 
 	const categoriesWithIcons = useMemo(() => {
-		const categories = [FOR_SALE_CATE, ...(categoriesEmoji.filter((c) => c !== FOR_SALE_CATE) || [])];
-		return categories.map((category, index) => ({
+		return categoriesEmoji.map((category, index) => ({
 			name: category,
 			icon: cateIcon[index],
 			emojis: emojisByCategory?.get(category) || []
@@ -227,15 +226,7 @@ export default function EmojiSelectorContainer({
 			}
 		};
 
-		const hasForSaleInList = categoriesEmoji.includes(FOR_SALE_CATE);
-		const forSaleEmojis = emojisByCategory.get(FOR_SALE_CATE) || [];
-
-		if (forSaleEmojis.length > 0) {
-			processCategory(FOR_SALE_CATE);
-		}
-
 		categoriesEmoji.forEach((category) => {
-			if (category === FOR_SALE_CATE && !hasForSaleInList) return;
 			processCategory(category);
 		});
 

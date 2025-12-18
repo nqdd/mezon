@@ -1,6 +1,6 @@
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { useThreadMessage, useThreads } from '@mezon/core';
-import { ActionEmitEvent, STORAGE_CLAN_ID, STORAGE_DATA_CLAN_CHANNEL_CACHE, getUpdateOrAddClanChannelCache, save } from '@mezon/mobile-components';
+import { ActionEmitEvent, getUpdateOrAddClanChannelCache, save, STORAGE_CLAN_ID, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
 import {
@@ -285,9 +285,6 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					messageAction={EMessageActionType.CreateThread}
 					channelId={currentChannel?.channel_id}
 					mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-					hiddenIcon={{
-						threadIcon: true
-					}}
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={''}
 				/>

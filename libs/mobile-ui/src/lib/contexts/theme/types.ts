@@ -5,8 +5,8 @@ export enum ThemeModeBase {
 	DARK = 'dark',
 	SUNRISE = 'sunrise',
 	REDDARK = 'redDark',
-	PURPLE_HAZE = 'purpleHaze',
-	ABYSS_DARK = 'abyssDark',
+	PURPLE_HAZE = 'purple_haze',
+	ABYSS_DARK = 'abyss_dark',
 	SUNSET = 'sunset'
 }
 

@@ -9,9 +9,6 @@ interface IChatBoxProps {
 	channelId: string;
 	mode: ChannelStreamMode;
 	messageAction?: EMessageActionType;
-	hiddenIcon?: {
-		threadIcon: boolean;
-	};
 	directMessageId?: string;
 	isPublic: boolean;
 	topicChannelId?: string;

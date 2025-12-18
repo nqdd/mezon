@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useChannelMembers, useChatSending } from '@mezon/core';
 import type { IRoleMention } from '@mezon/mobile-components';
-import { ActionEmitEvent, ID_MENTION_HERE, STORAGE_MY_USER_ID, load } from '@mezon/mobile-components';
+import { ActionEmitEvent, ID_MENTION_HERE, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
@@ -30,7 +30,13 @@ import type {
 	IMentionOnMessage,
 	IMessageSendPayload
 } from '@mezon/utils';
-import { THREAD_ARCHIVE_DURATION_SECONDS, ThreadStatus, checkIsThread, filterEmptyArrays, uniqueUsers } from '@mezon/utils';
+import {
+	checkIsThread,
+	filterEmptyArrays,
+	THREAD_ARCHIVE_DURATION_SECONDS,
+	ThreadStatus,
+	uniqueUsers
+} from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import type { MutableRefObject } from 'react';
@@ -367,7 +373,13 @@ export const ChatMessageSending = memo(
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_18} height={size.s_18} color={baseColor.white} />
 					</Pressable>
 				) : (
-					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} isCreateTopic={isCreateTopic} />
+					<RecordMessageSending
+						anonymousMode={anonymousMode && !currentDmGroup}
+						channelId={channelId}
+						mode={mode}
+						currentTopicId={currentTopicId}
+						isCreateTopic={isCreateTopic}
+					/>
 				)}
 			</View>
 		);

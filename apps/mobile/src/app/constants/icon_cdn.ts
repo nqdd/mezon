@@ -191,5 +191,7 @@ export enum IconCDN {
 	forwardAllIcon = require('./iconPNG/forwardAll.png'),
 	streamBanner = require('./iconPNG/streamBanner.png'),
 	hdIcon = require('./iconPNG/hdIcon.png'),
-	hdFullIcon = require('./iconPNG/hdFullIcon.png')
+	hdFullIcon = require('./iconPNG/hdFullIcon.png'),
+	advancedFunctionIcon = require('./iconPNG/advancedFunction.png'),
+	pollIcon = require('./iconPNG/poll.png')
 }

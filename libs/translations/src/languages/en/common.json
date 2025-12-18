@@ -471,5 +471,9 @@
 	"goBack": "Go Back",
 	"refresh": "Refresh",
 	"linkPhoneNumber": "Add phone number",
-	"linkEmail": "Add email"
+	"linkEmail": "Add email",
+	"poll": "Poll",
+	"ephemeral": "Ephemeral",
+	"threads": "Threads",
+	"anonymous": "Anonymous"
 }

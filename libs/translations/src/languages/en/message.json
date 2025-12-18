@@ -210,5 +210,6 @@
 		"attachment": "Attachment"
 	},
 	"bannedChannel": "You are banned from channel {{channelName}}.",
-	"addAMessage": "Add a message (Optional)"
+	"addAMessage": "Add a message (Optional)",
+	"slideToCancel": "Slide to cancel"
 }
