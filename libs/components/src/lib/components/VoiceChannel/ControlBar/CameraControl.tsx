@@ -3,7 +3,7 @@ import { useAppDispatch, voiceActions } from '@mezon/store';
 import { Track } from 'livekit-client';
 import { memo, useCallback, useMemo } from 'react';
 import { BackgroundEffectsMenu } from './BackgroundEffectMenu';
-import { MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
+import { CAMERA_DEVICE_KINDS, MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
 import { TrackToggle } from './TrackToggle/TrackToggle';
 import { trackSourceToProtocol } from './hooks/useControlBarPermissions';
 
@@ -80,7 +80,10 @@ export const CameraControl = memo(
 					</div>
 				)}
 				<div className="lk-button-group-menu">
-					<MediaDeviceMenu kind="videoinput" onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')} />
+					<MediaDeviceMenu
+						kinds={CAMERA_DEVICE_KINDS}
+						onActiveDeviceChange={(_kind, deviceId) => saveVideoInputDeviceId(deviceId ?? 'default')}
+					/>
 				</div>
 				{isExternalCalling && isSupport && <BackgroundEffectsMenu participant={localParticipant.localParticipant} />}
 			</div>

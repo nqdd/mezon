@@ -2,7 +2,7 @@ import { usePersistentUserChoices } from '@livekit/components-react';
 import { useAppDispatch, voiceActions } from '@mezon/store';
 import { Track } from 'livekit-client';
 import { memo, useCallback } from 'react';
-import { MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
+import { MICROPHONE_DEVICE_KINDS, MediaDeviceMenu } from './MediaDeviceMenu/MediaDeviceMenu';
 import { TrackToggle } from './TrackToggle/TrackToggle';
 
 interface MicrophoneControlProps {
@@ -37,11 +37,22 @@ export const MicrophoneControl = memo(
 
 		const showWarning = permissionState === 'denied';
 
+		const handleActiveDeviceChange = useCallback(
+			(kind: MediaDeviceKind, deviceId: string) => {
+				if (kind === 'audioinput') {
+					saveAudioInputDeviceId(deviceId ?? 'default');
+				}
+			},
+			[saveAudioInputDeviceId]
+		);
+
 		return (
 			<div className="relative rounded-full bg-gray-300 dark:bg-black">
 				<TrackToggle
 					id="btn-meet-micro"
-					className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none ${isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'}`}
+					className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none ${
+						isShowMember ? 'bg-zinc-500 dark:bg-zinc-900' : 'bg-zinc-700'
+					}`}
 					source={Track.Source.Microphone}
 					onChange={handleChange}
 					onDeviceError={onDeviceError}
@@ -52,7 +63,7 @@ export const MicrophoneControl = memo(
 					</div>
 				)}
 				<div className="lk-button-group-menu">
-					<MediaDeviceMenu kind="audioinput" onActiveDeviceChange={(_kind, deviceId) => saveAudioInputDeviceId(deviceId ?? 'default')} />
+					<MediaDeviceMenu kinds={MICROPHONE_DEVICE_KINDS} onActiveDeviceChange={handleActiveDeviceChange} />
 				</div>
 			</div>
 		);

@@ -42,5 +42,10 @@
 		"microphoneBody": "Ứng dụng chưa được cấp quyền microphone. Vui lòng bật quyền microphone trong cài đặt hệ thống.",
 		"cancel": "Hủy",
 		"deviceSettings": "Cài đặt thiết bị"
+	},
+	"device": {
+		"inputDevice": "Microphone",
+		"outputDevice": "Audio",
+		"camera": "Camera"
 	}
 }
