@@ -929,17 +929,16 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
 					dispatch(appActions.cleanHistoryClan(user.clan_id));
-				} else {
-					dispatch(
-						channelMembersActions.removeUserByUserIdAndClan({
-							userId: id,
-							channelIds: channels.map((item) => item.id),
-							clanId: user.clan_id
-						})
-					);
-					dispatch(usersClanActions.remove({ userId: id, clanId: user.clan_id }));
-					dispatch(rolesClanActions.updateRemoveUserRole({ userId: id, clanId: user.clan_id }));
 				}
+				dispatch(
+					channelMembersActions.removeUserByUserIdAndClan({
+						userId: id,
+						channelIds: channels.map((item) => item.id),
+						clanId: user.clan_id
+					})
+				);
+				dispatch(usersClanActions.remove({ userId: id, clanId: user.clan_id }));
+				dispatch(rolesClanActions.updateRemoveUserRole({ userId: id, clanId: user.clan_id }));
 			});
 		},
 		[userId, isMobile]
