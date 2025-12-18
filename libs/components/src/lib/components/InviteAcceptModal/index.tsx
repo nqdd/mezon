@@ -65,7 +65,6 @@ export default function InviteAcceptModal({ inviteId, onClose, showModal }: Invi
 		const clans = selectAllClans(store.getState());
 		const isClanMember = clans.some((item) => item.id === clanId);
 		if (userJoined || isClanMember) {
-			// update later condition to && when backend update success
 			toast.info(t('acceptModal.toast.alreadyMember'));
 			navigate(`/chat/clans/${clanId}/channels/${channelId}`);
 			onClose();
@@ -101,13 +100,6 @@ export default function InviteAcceptModal({ inviteId, onClose, showModal }: Invi
 							<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 							<span>{t('acceptModal.memberCount', { count: Number(selectInvite?.member_count || 1) })}</span>
 						</div>
-					</div>
-				</div>
-
-				<div className="w-full bg-input-secondary rounded-md p-3 mb-5 flex items-center">
-					<div>
-						<div className="text-xs font-medium uppercase tracking-wide">{t('acceptModal.clanSettings')}</div>
-						<div className="text-xs">{t('acceptModal.customizeAnytime')}</div>
 					</div>
 				</div>
 
