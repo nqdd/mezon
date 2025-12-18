@@ -42,5 +42,10 @@
 		"microphoneBody": "We do not have access to your microphone. Please enable microphone access in your system settings.",
 		"cancel": "Cancel",
 		"deviceSettings": "Device Settings"
+	},
+	"device": {
+		"inputDevice": "Input device",
+		"outputDevice": "Output device",
+		"camera": "Camera"
 	}
 }

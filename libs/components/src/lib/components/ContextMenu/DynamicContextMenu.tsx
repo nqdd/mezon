@@ -236,9 +236,9 @@ export default function DynamicContextMenu({ menuId, items, messageId, message, 
 			)
 		);
 
-		reactItems.push(<hr className="border-b-theme-primary" />);
+		reactItems.push(<hr key="separator-hr" className="border-b-theme-primary" />);
 		reactItems.push(
-			<Item className="w-full px-2 py-1">
+			<Item key="view-more" className="w-full px-2 py-1">
 				<div
 					className={`flex justify-between items-center w-full font-['gg_sans','Noto_Sans',sans-serif] text-sm font-medium text-theme-primary text-theme-primary-hover p-1`}
 					onClick={() => {
