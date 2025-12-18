@@ -469,5 +469,7 @@
 	"cannotJoinClan": "Không thể tham gia clan",
 	"failedToLoad": "Không thể tải dữ liệu",
 	"goBack": "Quay lại",
-	"refresh": "Làm mới"
+	"refresh": "Làm mới",
+	"linkPhoneNumber": "Thêm số điện thoại",
+	"linkEmail": "Thêm email"
 }

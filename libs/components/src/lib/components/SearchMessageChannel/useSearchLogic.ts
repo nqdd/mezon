@@ -96,7 +96,7 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			const value = event.target.value;
 			const words = value.split(' ');
 			const cleanedWords = words.filter((word) => {
-				const mentionPrefixes = ['from:', 'mention:', 'has:', '>', '~', '&'];
+				const mentionPrefixes = ['from:', 'mention:', 'has:', 'in:', '>', '~', '&', '#'];
 				const isMentionStart = mentionPrefixes.some((prefix) => word.startsWith(prefix));
 				return !isMentionStart;
 			});
@@ -116,10 +116,29 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			for (const mention of mentions) {
 				const convertMention = mention.display.split(':');
 				const mentionType = convertMention[0];
-				const mappedType = mentionType === '>' ? 'from' : mentionType === '~' ? 'mentions' : mentionType === '&' ? 'has' : mentionType;
+				const mappedType =
+					mentionType === '>'
+						? 'from'
+						: mentionType === '~'
+							? 'mentions'
+							: mentionType === '&'
+								? 'has'
+								: mentionType === 'in'
+									? 'in'
+									: mentionType;
+
+				let fieldValue: string;
+				if (mappedType === 'mentions') {
+					fieldValue = `"user_id":"${mention.id}"`;
+				} else if (mappedType === 'in' || searchFieldName?.[mappedType] === 'channel_id') {
+					fieldValue = mention.id;
+				} else {
+					fieldValue = convertMention?.[1] || mention.id;
+				}
+
 				filter.push({
 					field_name: searchFieldName?.[mappedType] || searchFieldName?.[mentionType],
-					field_value: mappedType === 'mentions' ? `"user_id":"${mention.id}"` : convertMention?.[1] || mention.id
+					field_value: fieldValue
 				});
 			}
 			const search: ApiSearchMessageRequest = { ...searchedRequest, filters: filter };
@@ -145,10 +164,26 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 
 	const executeSearchWithQueue = useDebouncedCallback(() => {
 		if (searchedRequest && channelId && currentClanId) {
+			const channelIdFilter = searchedRequest.filters?.find((f) => f.field_name === 'channel_id');
+			const hasSpecificChannel = channelIdFilter && channelIdFilter.field_value && channelIdFilter.field_value !== '0';
+
+			const hasOtherFilters = searchedRequest.filters?.some((f) => f.field_name !== 'content' && f.field_name !== 'channel_id');
+
+			const filteredFilters = (searchedRequest.filters || []).filter((f) => f.field_name !== 'channel_id');
+
+			let channelIdValue: string;
+			if (hasSpecificChannel && channelIdFilter?.field_value) {
+				channelIdValue = channelIdFilter.field_value;
+			} else if (hasOtherFilters) {
+				channelIdValue = channelId;
+			} else {
+				channelIdValue = '0';
+			}
+
 			const requestFilter = [
-				...(searchedRequest.filters || []),
-				{ field_name: 'channel_id', field_value: channelId },
-				{ field_name: 'clan_id', field_value: currentClanId }
+				{ field_name: 'channel_id', field_value: channelIdValue },
+				{ field_name: 'clan_id', field_value: currentClanId },
+				...filteredFilters
 			];
 
 			const requestBody = {

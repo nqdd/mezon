@@ -1,27 +1,38 @@
+export const GLOBAL_CHANNEL_ID = '0';
+
 export const searchFieldName: Record<string, string> = {
 	from: 'username',
 	mentions: 'mention',
 	has: 'has',
 	before: 'before',
 	after: 'after',
-	in: 'channel_label',
+	in: 'channel_id',
 	pinned: '',
 	content: 'content',
 	'>': 'username',
 	'~': 'mention',
-	'&': 'has'
+	'&': 'has',
+	'#': 'channel_id'
 };
 
-export const getSearchOptions = (t: (key: string) => string) => [
-	{ title: '>', content: t('searchOptionsData.fromUserShort'), value: 'username' },
-	{ title: '~', content: t('searchOptionsData.mentionsUserShort'), value: 'mentions' },
-	{ title: '&', content: t('searchOptionsData.hasContentShort'), value: 'has' }
-];
+export const getSearchOptions = (t: (key: string) => string, isClanMode = true) => {
+	const baseOptions = [
+		{ title: '>', content: t('searchOptionsData.fromUserShort'), value: 'username' },
+		{ title: '~', content: t('searchOptionsData.mentionsUserShort'), value: 'mentions' },
+		{ title: '&', content: t('searchOptionsData.hasContentShort'), value: 'has' }
+	];
 
-// Keep the original for backward compatibility but deprecated
+	if (isClanMode) {
+		baseOptions.push({ title: '#', content: t('searchOptionsData.channelShort'), value: 'in' });
+	}
+
+	return baseOptions;
+};
+
 export const searchOptions = [
 	{ title: '>', content: 'user (from:)', value: 'username' },
 	{ title: '~', content: 'user (mentions:)', value: 'mentions' },
+	{ title: '#', content: 'channel (in:)', value: 'in' },
 	{ title: '&', content: 'link, embed or file (has:)', value: 'has' }
 ];
 

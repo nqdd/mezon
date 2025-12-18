@@ -1,5 +1,7 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { Platform, StyleSheet } from 'react-native';
+
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
@@ -16,7 +18,7 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_40,
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: colors.tertiary
+			overflow: 'hidden'
 		},
 		wrapperInput: {
 			position: 'relative',
@@ -127,5 +129,38 @@ export const style = (colors: Attributes) =>
 			borderLeftColor: 'transparent',
 			borderRightColor: 'transparent',
 			borderTopColor: colors.secondaryLight
+		},
+		recordingProcessing: {
+			backgroundColor: colors.primary,
+			paddingHorizontal: size.s_10,
+			position: 'absolute',
+			flexDirection: 'row',
+			zIndex: 10,
+			height: size.s_70,
+			gap: size.s_40,
+			left: 0,
+			right: 0
+		},
+		micIconContainer: {
+			width: size.s_50,
+			height: size.s_50,
+			borderRadius: size.s_50,
+			backgroundColor: 'rgba(255, 0, 0, 0.1)',
+			justifyContent: 'center',
+			alignItems: 'center'
+		},
+		timerText: {
+			fontSize: size.s_16,
+			color: colors.text,
+			fontWeight: '600'
+		},
+		wrapperMicrophone: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_8
+		},
+		wrapperSlideToCancel: {
+			flexDirection: 'row',
+			alignItems: 'center'
 		}
 	});

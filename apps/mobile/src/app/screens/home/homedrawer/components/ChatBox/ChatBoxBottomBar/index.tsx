@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import {
 	ActionEmitEvent,
-	KEY_SLASH_COMMAND_EPHEMERAL,
-	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES,
 	convertMentionsToText,
 	formatContentEditMessage,
 	getChannelHashtag,
+	KEY_SLASH_COMMAND_EPHEMERAL,
 	load,
 	mentionRegexSplit,
-	save
+	save,
+	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
@@ -42,7 +42,9 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
-import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
+import {
+	SlashCommandMessage
+} from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
@@ -55,6 +57,7 @@ import { ChatBoxListener } from '../ChatBoxListener';
 import type { IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
 import { ChatMessageLeftArea } from '../ChatMessageLeftArea';
 import { ChatMessageSending } from '../ChatMessageSending';
+import { RecordMessageProcessing } from '../ChatMessageSending/RecordMessageProcessing';
 import { ChatBoxTyping } from './ChatBoxTyping';
 import { OptionPasteTooltip } from './OptionPasteTooltip';
 import { style } from './style';
@@ -737,7 +740,7 @@ export const ChatBoxBottomBar = memo(
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
 					/>
-
+					<RecordMessageProcessing />
 					<View style={styles.inputWrapper}>
 						{isEphemeralMode && (
 							<SlashCommandMessage

@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import LottieView from 'lottie-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewStyle } from 'react-native';
@@ -16,179 +16,188 @@ const formatTime = (millis: number) => {
 	return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
-const RenderAudioChat = React.memo(
-	({ audioURL, stylesContainerCustom, styleLottie }: { audioURL: string; stylesContainerCustom?: ViewStyle; styleLottie?: ViewStyle }) => {
-		const { themeValue } = useTheme();
-		const styles = style(themeValue);
-		const recordingWaveRef = useRef(null);
-		const [isPlaying, setIsPlaying] = useState(false);
-		const [isLoading, setIsLoading] = useState(false);
-		const [sound, setSound] = useState<Sound | null>(null);
-		const [totalTime, setTotalTime] = useState(0);
-		const [remainingTime, setRemainingTime] = useState(0);
-		const soundRef = useRef<Sound | null>(null);
-		const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+interface IRenderAudioChatProps {
+	audioURL: string;
+	stylesContainerCustom?: ViewStyle;
+	styleLottie?: ViewStyle;
+	duration?: number; // Duration in seconds (optional)
+}
 
-		useEffect(() => {
-			recordingWaveRef?.current?.reset();
-			return () => {
-				if (Platform.OS === 'android') {
-					InCallManager.setSpeakerphoneOn(false);
-					InCallManager.setForceSpeakerphoneOn(false);
-				}
-			};
-		}, []);
+const RenderAudioChat = React.memo(({ audioURL, stylesContainerCustom, styleLottie, duration }: IRenderAudioChatProps) => {
+	const { themeValue } = useTheme();
+	const styles = style(themeValue);
+	const recordingWaveRef = useRef(null);
+	const [isPlaying, setIsPlaying] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [sound, setSound] = useState<Sound | null>(null);
+	const [totalTime, setTotalTime] = useState(duration ? duration * 1000 : 0); // Initialize with prop if available
+	const [remainingTime, setRemainingTime] = useState(duration ? duration * 1000 : 0);
+	const soundRef = useRef<Sound | null>(null);
+	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const isUploading = !audioURL?.includes('http');
 
-		const clearTimer = useCallback(() => {
-			if (timerRef.current) {
-				clearInterval(timerRef.current);
-				timerRef.current = null;
+	useEffect(() => {
+		recordingWaveRef?.current?.reset();
+		return () => {
+			if (Platform.OS === 'android') {
+				InCallManager.setSpeakerphoneOn(false);
+				InCallManager.setForceSpeakerphoneOn(false);
 			}
-		}, []);
+		};
+	}, []);
 
-		const startTimer = useCallback(
-			(duration: number) => {
-				clearTimer();
-				timerRef.current = setInterval(() => {
-					if (soundRef.current) {
-						soundRef.current.getCurrentTime((seconds) => {
-							const currentMs = seconds * 1000;
-							const remaining = Math.max(0, duration - currentMs);
-							setRemainingTime(remaining);
-						});
-					}
-				}, 500);
-			},
-			[clearTimer]
-		);
+	const clearTimer = useCallback(() => {
+		if (timerRef.current) {
+			clearInterval(timerRef.current);
+			timerRef.current = null;
+		}
+	}, []);
 
-		const playLoadedSound = useCallback(
-			(soundToPlay: Sound, duration: number) => {
-				if (Platform.OS === 'ios') {
-					Sound.setCategory('Playback', true);
+	const startTimer = useCallback(
+		(duration: number) => {
+			clearTimer();
+			timerRef.current = setInterval(() => {
+				if (soundRef.current) {
+					soundRef.current.getCurrentTime((seconds) => {
+						const currentMs = seconds * 1000;
+						const remaining = Math.max(0, duration - currentMs);
+						setRemainingTime(remaining);
+					});
 				}
-				if (Platform.OS === 'android') {
-					InCallManager.setSpeakerphoneOn(true);
-					InCallManager.setForceSpeakerphoneOn(true);
-				}
-				soundToPlay.play((success) => {
-					if (success) {
-						soundToPlay.setCurrentTime(0);
-						recordingWaveRef?.current?.reset();
-						setIsPlaying(false);
-						setRemainingTime(duration);
-						clearTimer();
-					}
-				});
-				setIsPlaying(true);
-				recordingWaveRef?.current?.play(0, 45);
-				startTimer(duration);
-			},
-			[clearTimer, startTimer]
-		);
+			}, 500);
+		},
+		[clearTimer]
+	);
 
-		const loadAndPlaySound = useCallback(() => {
-			if (soundRef.current) {
-				playLoadedSound(soundRef.current, totalTime);
+	const playLoadedSound = useCallback(
+		(soundToPlay: Sound, duration: number) => {
+			if (Platform.OS === 'ios') {
+				Sound.setCategory('Playback', true);
+			}
+			if (Platform.OS === 'android') {
+				InCallManager.setSpeakerphoneOn(true);
+				InCallManager.setForceSpeakerphoneOn(true);
+			}
+			soundToPlay.play((success) => {
+				if (success) {
+					soundToPlay.setCurrentTime(0);
+					recordingWaveRef?.current?.reset();
+					setIsPlaying(false);
+					setRemainingTime(duration);
+					clearTimer();
+				}
+			});
+			setIsPlaying(true);
+			startTimer(duration);
+		},
+		[clearTimer, startTimer]
+	);
+
+	const loadAndPlaySound = useCallback(() => {
+		if (soundRef.current) {
+			playLoadedSound(soundRef.current, totalTime);
+			return;
+		}
+
+		setIsLoading(true);
+
+		const newSound = new Sound(audioURL, '', (error) => {
+			setIsLoading(false);
+
+			if (error) {
+				console.error('Failed to load sound:', error);
 				return;
 			}
 
-			setIsLoading(true);
+			const soundDuration = duration ? duration * 1000 : newSound.getDuration() * 1000;
+			setTotalTime(soundDuration);
+			setRemainingTime(soundDuration);
+			recordingWaveRef?.current?.play(0, 45);
+			if (Platform.OS === 'ios') {
+				newSound.setNumberOfLoops(0);
+				newSound.setVolume(1.0);
+			}
 
-			const newSound = new Sound(audioURL, '', (error) => {
-				setIsLoading(false);
+			soundRef.current = newSound;
+			setSound(newSound);
+			playLoadedSound(newSound, soundDuration);
+		});
+	}, [audioURL, duration, totalTime, playLoadedSound]);
 
-				if (error) {
-					console.error('Failed to load sound:', error);
-					return;
-				}
+	const handlePress = useCallback(() => {
+		if (isLoading) return;
 
-				const duration = newSound.getDuration() * 1000;
-				setTotalTime(duration);
-				setRemainingTime(duration);
+		if (isPlaying && sound) {
+			sound.pause();
+			recordingWaveRef?.current?.pause();
+			setIsPlaying(false);
+			clearTimer();
+		} else if (sound) {
+			playLoadedSound(sound, totalTime);
+		} else {
+			loadAndPlaySound();
+		}
+	}, [isLoading, isPlaying, sound, totalTime, loadAndPlaySound, playLoadedSound, clearTimer]);
 
-				if (Platform.OS === 'ios') {
-					newSound.setNumberOfLoops(0);
-					newSound.setVolume(1.0);
-				}
+	useEffect(() => {
+		return () => {
+			clearTimer();
+			if (soundRef.current) {
+				soundRef.current.stop();
+				soundRef.current.release();
+				soundRef.current = null;
+			}
+		};
+	}, [clearTimer]);
 
-				soundRef.current = newSound;
-				setSound(newSound);
-				playLoadedSound(newSound, duration);
-			});
-		}, [audioURL, totalTime, playLoadedSound]);
-
-		const handlePress = useCallback(() => {
-			if (isLoading) return;
-
-			if (isPlaying && sound) {
-				sound.pause();
-				recordingWaveRef?.current?.pause();
+	useEffect(() => {
+		return () => {
+			clearTimer();
+			if (soundRef.current) {
+				soundRef.current.stop();
+				soundRef.current.release();
+				soundRef.current = null;
+				setSound(null);
+				setTotalTime(0);
+				setRemainingTime(0);
 				setIsPlaying(false);
-				clearTimer();
-			} else if (sound) {
-				playLoadedSound(sound, totalTime);
-			} else {
-				loadAndPlaySound();
 			}
-		}, [isLoading, isPlaying, sound, totalTime, loadAndPlaySound, playLoadedSound, clearTimer]);
-
-		useEffect(() => {
-			return () => {
-				clearTimer();
-				if (soundRef.current) {
-					soundRef.current.stop();
-					soundRef.current.release();
-					soundRef.current = null;
-				}
-			};
-		}, [clearTimer]);
-
-		useEffect(() => {
-			return () => {
-				clearTimer();
-				if (soundRef.current) {
-					soundRef.current.stop();
-					soundRef.current.release();
-					soundRef.current = null;
-					setSound(null);
-					setTotalTime(0);
-					setRemainingTime(0);
-					setIsPlaying(false);
-				}
-			};
-		}, [audioURL, clearTimer]);
-
-		const renderPlayButton = () => {
-			if (isLoading) {
-				return <ActivityIndicator size="small" color="white" />;
-			}
-			if (isPlaying) {
-				return <MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />;
-			}
-			return <MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />;
 		};
+	}, [audioURL, clearTimer]);
 
-		const getDisplayTime = () => {
-			if (totalTime === 0) return '--:--';
-			if (isPlaying || remainingTime < totalTime) {
-				return formatTime(remainingTime);
-			}
-			return formatTime(totalTime);
-		};
+	const renderPlayButton = () => {
+		if (isLoading) {
+			return <ActivityIndicator size="small" color="white" />;
+		}
+		if (isPlaying) {
+			return <MezonIconCDN icon={IconCDN.pauseIcon} width={size.s_16} height={size.s_16} color={'white'} />;
+		}
+		return <MezonIconCDN icon={IconCDN.playIcon} width={size.s_16} height={size.s_16} color={'white'} />;
+	};
 
-		return (
-			<View style={styles.wrapper}>
-				<TouchableOpacity onPress={handlePress} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]} disabled={isLoading}>
-					<View style={styles.innerContainer}>
-						<View style={styles.playButton}>{renderPlayButton()}</View>
-						<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={[styles.soundLottie, styleLottie]} />
+	const getDisplayTime = () => {
+		if (totalTime === 0) return '--:--';
+		if (isPlaying || remainingTime < totalTime) {
+			return formatTime(remainingTime);
+		}
+		return formatTime(totalTime);
+	};
+
+	return (
+		<View style={[styles.wrapper, isUploading && { opacity: 0.6 }]}>
+			<TouchableOpacity onPress={handlePress} activeOpacity={0.6} style={[styles.container, stylesContainerCustom]} disabled={isLoading}>
+				<View style={styles.innerContainer}>
+					<View style={styles.playButton}>{renderPlayButton()}</View>
+					<LottieView source={WAY_AUDIO} ref={recordingWaveRef} resizeMode="cover" style={[styles.soundLottie, styleLottie]} />
+					{isUploading ? (
+						<ActivityIndicator size="small" color={baseColor.blurple} />
+					) : (
 						<Text style={styles.currentTime}>{getDisplayTime()}</Text>
-					</View>
-				</TouchableOpacity>
-			</View>
-		);
-	}
-);
+					)}
+				</View>
+			</TouchableOpacity>
+		</View>
+	);
+});
 
 export default RenderAudioChat;

@@ -119,6 +119,7 @@
 		}
 	},
 	"emailSetting": {
+		"cancel": "Cancel",
 		"currentEmail": "Current Email",
 		"description": "Please enter your email address for your account.",
 		"otpDescription": "Your OTP has been sent to your new email",

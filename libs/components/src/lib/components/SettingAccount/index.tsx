@@ -90,7 +90,6 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 	const [openSetEmail, closeSetEmail] = useModal(() => {
 		return <SetEmail onClose={closeSetEmail} />;
 	}, []);
-
 	return (
 		<div
 			className={`"overflow-y-auto flex flex-col  flex-1 shrink  pt-[94px] pb-7 pr-[10px] sbm:pl-[40px] pl-[10px] overflow-x-hidden ${menuIsOpen === true ? 'min-w-[700px]' : ''} 2xl:min-w-[900px] max-w-[740px] hide-scrollbar text-sm"`}

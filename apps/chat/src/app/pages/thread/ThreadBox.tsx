@@ -88,7 +88,7 @@ const ThreadBox = () => {
 	}, [attachmentFilteredByChannelId]);
 
 	const { sendMessageThread, sendMessageTyping } = useThreadMessage({
-		channelId: threadCurrentChannel?.id || currentChannelId || '',
+		channelId: threadCurrentChannel?.parent_id || currentChannelId || '',
 		mode: ChannelStreamMode.STREAM_MODE_THREAD,
 		username: sessionUser?.username
 	});
