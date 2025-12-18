@@ -91,9 +91,6 @@ export const triggersConfig: TriggersConfig<'mention' | 'hashtag' | 'emoji' | 's
 interface IChatInputProps {
 	mode: ChannelStreamMode;
 	channelId: string;
-	hiddenIcon?: {
-		threadIcon?: boolean;
-	};
 	messageActionNeedToResolve: IMessageActionNeedToResolve | null;
 	messageAction?: EMessageActionType;
 	onDeleteMessageActionNeedToResolve?: () => void;
@@ -161,7 +158,6 @@ export const ChatBoxBottomBar = memo(
 	({
 		mode = 2,
 		channelId = '',
-		hiddenIcon,
 		messageActionNeedToResolve,
 		messageAction,
 		onDeleteMessageActionNeedToResolve,
@@ -262,6 +258,16 @@ export const ChatBoxBottomBar = memo(
 			[textChange]
 		);
 
+		const handleActionFromAdvanced = useCallback(async (action: string) => {
+			if (action === 'ephemeral') {
+				setIsEphemeralMode(true);
+				setTextChange('@');
+				setMentionTextValue('@');
+				textValueInputRef.current = '@';
+				mentionsOnMessage.current = [];
+			}
+		}, []);
+
 		const removeMarkdownTags = useCallback((t: string) => {
 			try {
 				if (!t) return '';
@@ -299,7 +305,7 @@ export const ChatBoxBottomBar = memo(
 
 		const handleKeyboardBottomSheetMode = useCallback((mode: string) => {
 			setModeKeyBoardBottomSheet(mode);
-			if (mode === 'emoji' || mode === 'attachment') {
+			if (mode === 'emoji' || mode === 'attachment' || mode === 'advanced') {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: true,
 					mode
@@ -611,6 +617,18 @@ export const ChatBoxBottomBar = memo(
 			};
 		}, [channelId, handleEventAfterEmojiPicked, topicChannelId]);
 
+		useEffect(() => {
+			const sendActionFromAdvancedListener = DeviceEventEmitter.addListener(
+				ActionEmitEvent.ON_SEND_ACTION_FROM_ADVANCED_MENU,
+				(action: string) => {
+					handleActionFromAdvanced(action);
+				}
+			);
+			return () => {
+				sendActionFromAdvancedListener.remove();
+			};
+		}, [handleActionFromAdvanced]);
+
 		const checkClipboardForImage = useCallback(async (): Promise<boolean> => {
 			try {
 				if (Platform.OS === 'ios') {
@@ -734,7 +752,6 @@ export const ChatBoxBottomBar = memo(
 					<ChatMessageLeftArea
 						ref={chatMessageLeftAreaRef}
 						isAvailableSending={textChange?.length > 0}
-						isShowCreateThread={!hiddenIcon?.threadIcon}
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
 					/>

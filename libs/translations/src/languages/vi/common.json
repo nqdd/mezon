@@ -471,5 +471,9 @@
 	"goBack": "Quay lại",
 	"refresh": "Làm mới",
 	"linkPhoneNumber": "Thêm số điện thoại",
-	"linkEmail": "Thêm email"
+	"linkEmail": "Thêm email",
+	"poll": "Bình chọn",
+	"ephemeral": "Tin nhắn nhất thời",
+	"threads": "Chủ đề",
+	"anonymous": "Ẩn danh"
 }

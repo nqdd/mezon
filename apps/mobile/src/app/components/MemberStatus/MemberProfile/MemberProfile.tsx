@@ -14,6 +14,7 @@ import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
 import { AddedByUser } from '../MemberItem/AddedByUser';
 import { style } from './style';
+
 interface IMemberProfileProps {
 	user: ChannelMembersEntity;
 	creatorClanId: string;

@@ -1,6 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import React, { memo, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
@@ -30,6 +31,7 @@ const RecordingUI = memo(() => {
 	const micScale = useSharedValue(1);
 	const micOpacity = useSharedValue(1);
 	const slideTranslateX = useSharedValue(0);
+	const { t } = useTranslation('message');
 
 	useEffect(() => {
 		const startTime = Date.now();
@@ -97,7 +99,7 @@ const RecordingUI = memo(() => {
 
 			<Animated.View style={[styles.wrapperSlideToCancel, slideAnimatedStyle]}>
 				<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
-				<Text style={[styles.timerText]}>Slide to cancel </Text>
+				<Text style={[styles.timerText]}>{t('slideToCancel')} </Text>
 			</Animated.View>
 		</Animated.View>
 	);

@@ -372,7 +372,13 @@ export const ChatMessageSending = memo(
 					</Pressable>
 				) : (
 					messageAction !== EMessageActionType.CreateThread && (
-						<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} isCreateTopic={isCreateTopic} />
+						<RecordMessageSending
+							anonymousMode={anonymousMode && !currentDmGroup}
+							channelId={channelId}
+							mode={mode}
+							currentTopicId={currentTopicId}
+							isCreateTopic={isCreateTopic}
+						/>
 					)
 				)}
 			</View>
