@@ -7,7 +7,7 @@ import {
 	STORAGE_KEY_TEMPORARY_ATTACHMENT,
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import {
 	accountActions,
 	appActions,
@@ -59,7 +59,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 	const userProfile = useSelector(selectAllAccount);
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
-	const { t } = useTranslation('accountSetting');
+	const { t } = useTranslation(['accountSetting', 'common']);
 	const blockedUsers = useSelector(selectBlockedUsers);
 	const blockedUsersCount = useMemo(() => {
 		if (!blockedUsers?.length) {
@@ -80,6 +80,8 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		store.dispatch(clansActions.collapseAllGroups());
 		store.dispatch(clansActions.clearClanGroups());
 		store.dispatch(clansActions.refreshStatus());
+		store.dispatch(accountActions.resetAllState());
+		store.dispatch(notificationActions.resetAllState());
 
 		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
@@ -98,10 +100,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				await logout();
 				Toast.show({
 					type: 'success',
-					props: {
-						text2: t('toast.deleteAccount.success'),
-						leadingIcon: <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={baseColor.green} width={size.s_20} height={size.s_20} />
-					}
+					text1: t('toast.deleteAccount.success')
 				});
 			} else if (response?.meta?.requestStatus === 'rejected') {
 				Toast.show({
@@ -205,12 +204,12 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			},
 			{
 				title: 'Email',
-				description: maskEmail(userProfile?.email),
+				description: userProfile?.email ? maskEmail(userProfile.email) : t('common:linkEmail'),
 				type: EAccountSettingType.Email
 			},
 			{
 				title: t('phoneNumberSetting.title'),
-				description: maskPhoneNumber(userProfile?.user?.phone_number),
+				description: userProfile?.user?.phone_number ? maskPhoneNumber(userProfile.user.phone_number) : t('common:linkPhoneNumber'),
 				type: EAccountSettingType.PhoneNumber
 			}
 		];
@@ -255,9 +254,28 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 								<Text style={styles.optionTitle}>{item.title}</Text>
 								<View style={styles.optionRightSide}>
 									{item?.description ? (
-										<Text numberOfLines={1} style={styles.optionDescription}>
-											{item.description}
-										</Text>
+										<View style={styles.optionDescriptionWrapper}>
+											{((item.type === EAccountSettingType.PhoneNumber && !userProfile?.user?.phone_number) ||
+												(item.type === EAccountSettingType.Email && !userProfile?.email)) && (
+												<MezonIconCDN
+													icon={IconCDN.circleExlaimionIcon}
+													height={size.s_16}
+													width={size.s_16}
+													color={themeValue?.text}
+												/>
+											)}
+											<Text
+												numberOfLines={1}
+												style={[
+													styles.optionDescription,
+													((item.type === EAccountSettingType.PhoneNumber && !userProfile?.user?.phone_number) ||
+														(item.type === EAccountSettingType.Email && !userProfile?.email)) &&
+														styles.warningLinkText
+												]}
+											>
+												{item.description}
+											</Text>
+										</View>
 									) : null}
 									<MezonIconCDN
 										icon={IconCDN.chevronSmallRightIcon}

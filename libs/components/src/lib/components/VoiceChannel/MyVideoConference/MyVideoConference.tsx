@@ -25,6 +25,7 @@ import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 import { ReactionCallHandler } from './Reaction';
 import { useSoundReactions } from './Reaction/useSoundReactions';
 import { useDeepFilterNet3 } from './useDeepFilterNet3';
+import { VoiceContextMenu } from './VoiceContextMenu/VoiceContextMenu';
 
 const DeepFilterNetInitializer = memo(() => {
 	useDeepFilterNet3({ enabled: true });
@@ -221,6 +222,7 @@ export const MyVideoConference = memo(
 				if (focusTrack && focusTrack?.participant.sid === participant.sid) {
 					layoutContext.pin.dispatch?.({ msg: 'clear_pin' });
 				}
+				dispatch(voiceActions.closeVoiceContextMenu());
 			};
 			const handleTrackUnpublish = async (publication: RemoteTrackPublication, _participant: RemoteParticipant) => {
 				if (focusTrack?.publication?.trackSid === publication?.trackSid && document.pictureInPictureElement) {
@@ -374,6 +376,7 @@ export const MyVideoConference = memo(
 				</LayoutContextProvider>
 				<RoomAudioRenderer />
 				{!propTracks && <ConnectionStateToast />}
+				<VoiceContextMenu roomName={room?.name} room={room} />
 			</div>
 		);
 	},

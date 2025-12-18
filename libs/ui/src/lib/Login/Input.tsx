@@ -3,14 +3,16 @@ import { memo, type InputHTMLAttributes } from 'react';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 	label?: string;
 	error?: string;
+	required?: boolean;
 }
 
-const Input = memo(({ label, error, id, className = '', ...props }: InputProps) => {
+const Input = memo(({ label, error, id, className = '', required, ...props }: InputProps) => {
 	return (
 		<div className="space-y-2 p-1">
 			{label && (
 				<label htmlFor={id} className="block text-sm font-medium">
 					{label}
+					{required && <span className="text-red-500">*</span>}
 				</label>
 			)}
 			<input

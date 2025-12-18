@@ -1780,8 +1780,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				dispatch(
 					usersClanActions.updateUserProfileAcrossClans({
 						userId: userUpdated.user_id,
-						avatar: userUpdated.avatar,
-						display_name: userUpdated.display_name,
+						...(userUpdated.avatar && { avatar: userUpdated.avatar }),
+						...(userUpdated.display_name && { display_name: userUpdated.display_name }),
 						about_me: userUpdated.about_me
 					})
 				);
@@ -2564,15 +2564,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		}
 	}, []);
 
-	const onreconnect = useCallback((event: any) => {
-		console.log('onreconnect', event);
-	}, []);
-
 	const setCallbackEventFn = React.useCallback(
 		(socket: Socket) => {
 			socket.onvoicejoined = onvoicejoined;
-
-			socket.onreconnect = onreconnect;
 
 			socket.onvoiceended = onvoiceended;
 
@@ -2768,9 +2762,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					);
 					return;
 				}
-
-				const id = Date.now().toString();
-				dispatch(appActions.refreshApp({ id }));
 				setCallbackEventFn(socket as Socket);
 				dispatch(toastActions.removeToast('SOCKET_RECONNECTING'));
 				dispatch(toastActions.removeToast('SOCKET_RECONNECTING_ERROR'));

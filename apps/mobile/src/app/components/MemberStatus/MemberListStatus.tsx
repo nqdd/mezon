@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { selectAllChannelMembersClan, selectCurrentUserId, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
+import { selectAllChannelMembersClan, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, IChannel, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +9,6 @@ import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Pressable, SectionList, Text, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
@@ -20,6 +19,7 @@ import style from './style';
 
 interface IMemberListStatusProps {
 	currentChannel: IChannel | DirectEntity;
+	currentUserId: string;
 }
 
 enum EActionButton {
@@ -30,13 +30,12 @@ enum EActionButton {
 export const getName = (user: UsersClanEntity) =>
 	user.clan_nick?.toLowerCase() || user.user?.display_name?.toLowerCase() || user.user?.username?.toLowerCase() || '';
 
-export const MemberListStatus = memo(({ currentChannel }: IMemberListStatusProps) => {
+export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMemberListStatusProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const navigation = useNavigation<any>();
 	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
 	const channelMembers = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannel?.channel_id));
-	const currentUserId = useSelector(selectCurrentUserId);
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
 	const { t } = useTranslation();
@@ -98,6 +97,12 @@ export const MemberListStatus = memo(({ currentChannel }: IMemberListStatusProps
 		};
 	}, [isDM, rawMembers, channelMembers]);
 
+	const shouldShowNewGroupButton = useMemo(() => {
+		return (
+			currentChannel?.type === ChannelType.CHANNEL_TYPE_DM && currentChannel?.usernames?.[0] && currentChannel?.user_ids?.[0] !== currentUserId
+		);
+	}, [currentChannel?.type, currentChannel?.user_ids?.[0], currentChannel?.usernames?.[0], currentUserId]);
+
 	const { online, offline } = listMembersChannelGroupDM;
 
 	const navigateToNewGroupScreen = () => {
@@ -124,7 +129,7 @@ export const MemberListStatus = memo(({ currentChannel }: IMemberListStatusProps
 
 	return (
 		<View style={styles.container}>
-			{currentChannel?.type === ChannelType.CHANNEL_TYPE_DM && currentChannel?.usernames?.[0] ? (
+			{shouldShowNewGroupButton ? (
 				<TouchableOpacity onPress={() => navigateToNewGroupScreen()} style={styles.actionItem}>
 					<View style={[styles.actionIconWrapper]}>
 						<MezonIconCDN icon={IconCDN.groupIcon} height={20} width={20} color={baseColor.white} />

@@ -16,6 +16,8 @@
 	"doNotHaveBlockedUser": "Không có người dùng nào bị chặn",
 	"setPassword": "Đặt mật khẩu",
 	"changePassword": "Đổi mật khẩu",
+	"setEmail": "Set Email",
+	"changeEmail": "Change Email",
 	"setPhoneNumber": "Đặt số điện thoại",
 	"disableAccountAlert": {
 		"title": "Vô hiệu hoá tài khoản",
@@ -114,6 +116,13 @@
 		}
 	},
 	"emailSetting": {
+		"cancel": "Hủy",
+		"currentEmail": "Email hiện tại",
+		"description": "Vui lòng nhập email cho tài khoản của bạn",
+		"otpDescription": "Mã OTP đã được gửi tới email mới của bạn",
+		"fillOTP": "Nhập mã OTP",
+		"send": "Gửi OTP",
+		"resendOtp": "Gửi lại mã OTP!",
 		"updateEmail": {
 			"newEmail": "Email mới",
 			"nextButton": "Tiếp theo",

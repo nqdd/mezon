@@ -14,6 +14,7 @@ type SearchMessageChannelModalProps = {
 	isShowSearchOptions?: string;
 	onClickSearchOptions: (value: string) => void;
 	theme: string;
+	isClanMode?: boolean;
 };
 
 const SearchMessageChannelModal = ({
@@ -22,10 +23,11 @@ const SearchMessageChannelModal = ({
 	hasKeySearch,
 	isShowSearchOptions,
 	onClickSearchOptions,
-	theme
+	theme,
+	isClanMode = true
 }: SearchMessageChannelModalProps) => {
 	const { t } = useTranslation('searchMessageChannel');
-	const translatedSearchOptions = getSearchOptions(t);
+	const translatedSearchOptions = getSearchOptions(t, isClanMode);
 	const usersClan = useSelector(selectAllUserClans);
 
 	const userClanSearch = useMemo(() => {

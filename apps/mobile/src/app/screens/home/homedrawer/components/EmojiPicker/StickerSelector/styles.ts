@@ -2,7 +2,7 @@ import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, Metrics, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes, widthScreen?: number) =>
+export const style = (colors: Attributes, widthScreen?: number, isTabletLandscape?: boolean) =>
 	StyleSheet.create({
 		content: {
 			height: (widthScreen - size.s_6 * size.s_10) / 5.1,
@@ -11,7 +11,7 @@ export const style = (colors: Attributes, widthScreen?: number) =>
 			overflow: 'hidden'
 		},
 		audioContent: {
-			width: (widthScreen - size.s_30) / 2.01,
+			width: ((isTabletLandscape ? widthScreen * 0.4 : widthScreen) - size.s_30) / 2.01,
 			height: size.s_90,
 			borderRadius: 10,
 			overflow: 'hidden',

@@ -1,5 +1,6 @@
 import { ChatContext, ChatContextProvider, ColorRoleProvider, useDragAndDrop, useFriends, useIdleRender } from '@mezon/core';
 import {
+	appActions,
 	e2eeActions,
 	gifsStickerEmojiActions,
 	selectAllAccount,
@@ -7,14 +8,14 @@ import {
 	selectBadgeCountAllClan,
 	useAppDispatch
 } from '@mezon/store';
-import { IS_SAFARI, MessageCrypt, UploadLimitReason } from '@mezon/utils';
+import { IS_SAFARI, MessageCrypt, UploadLimitReason, throttle } from '@mezon/utils';
 
 import { TooManyUpload, WebRTCStreamProvider, useClanLimitModalErrorHandler } from '@mezon/components';
 import { selectTotalUnreadDM, useAppSelector } from '@mezon/store';
 import { MezonSuspense } from '@mezon/transport';
 import { SubPanelName, electronBridge, isLinuxDesktop, isWindowsDesktop } from '@mezon/utils';
 import isElectron from 'is-electron';
-import { memo, useContext, useEffect } from 'react';
+import { memo, useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import ChannelVoice from '../pages/channel/ChannelVoice';
@@ -33,6 +34,14 @@ const GlobalEventListener = () => {
 	const { quantityPendingRequest } = useFriends();
 
 	const hasUnreadChannel = useAppSelector((state) => selectAnyUnreadChannel(state));
+
+	const handleReconnectSuccess = useMemo(
+		() =>
+			throttle(() => {
+				dispatch(appActions.refreshApp());
+			}, 2000),
+		[dispatch]
+	);
 
 	useEffect(() => {
 		const mainLayout = document.getElementById('main-layout');
@@ -71,7 +80,15 @@ const GlobalEventListener = () => {
 			window.removeEventListener('online', reconnectSocket);
 			document.removeEventListener('visibilitychange', reconnectSocket);
 		};
-	}, [handleReconnect]);
+	}, []);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		window.addEventListener('mezon:socket-reconnect', handleReconnectSuccess);
+		return () => {
+			window.removeEventListener('mezon:socket-reconnect', handleReconnectSuccess);
+		};
+	}, [handleReconnectSuccess]);
 
 	useEffect(() => {
 		let notificationCountAllClan = 0;

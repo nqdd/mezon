@@ -67,9 +67,7 @@ const LIGHT_THEMES = ['light', 'sunrise'];
 let currentThemeLink: HTMLLinkElement | null = null;
 let loadingOverlay: HTMLDivElement | null = null;
 
-const DEFAULT_THEME = 'sunrise';
-const THEME_LOAD_TIMEOUT = 10000;
-
+const DEFAULT_THEME = 'purple_haze';
 export class ThemeManager {
 	static isLightTheme(themeName: string): boolean {
 		return LIGHT_THEMES.includes(themeName);

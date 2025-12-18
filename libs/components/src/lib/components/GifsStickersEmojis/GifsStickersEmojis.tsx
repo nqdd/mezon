@@ -55,8 +55,9 @@ export const GifStickerEmojiPopup = ({
 
 	const isFocusTopicBox = useSelector(selectClickedOnTopicStatus);
 	const fromTopic = isTopic || isFocusTopicBox;
-
 	const channelMode = useMemo(() => {
+		if (mode !== undefined) return mode;
+
 		if (!channelOrDirect?.type) return null;
 
 		const modeMap: { [key in number]: ChannelStreamMode } = {
@@ -68,7 +69,7 @@ export const GifStickerEmojiPopup = ({
 		} as const;
 
 		return modeMap[channelOrDirect.type];
-	}, [channelOrDirect?.type]);
+	}, [mode, channelOrDirect?.type]);
 
 	const handleTabClick = useCallback(
 		(tab: SubPanelName) => {

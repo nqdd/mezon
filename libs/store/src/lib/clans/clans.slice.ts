@@ -391,7 +391,7 @@ export const updateUser = createAsyncThunk(
 				body.display_name = display_name || '';
 			}
 
-			if (about_me !== undefined && about_me !== currentUser?.user?.about_me) {
+			if (about_me !== undefined) {
 				body.about_me = about_me || '';
 			}
 

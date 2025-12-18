@@ -13,12 +13,11 @@ const useProcessedContent = (inputText: string) => {
 
 	useEffect(() => {
 		const processInput = () => {
-			const resultString = inputText.replace(/[[\]<>]/g, '');
+			const resultString = inputText.replace(/@\[(.*?)\]/g, '@$1').replace(/<#(.*?)>/g, '#$1');
 			const { bolds } = processBold(resultString);
 			const { emojis, links, markdowns, voiceRooms } = processText(resultString, emojiObjPicked);
 			emojiList.current = emojis;
 			linkList.current = links;
-			markdownList.current = markdowns;
 			markdownList.current = markdowns;
 			voiceLinkRoomList.current = voiceRooms;
 			boldList.current = bolds;
@@ -36,6 +35,9 @@ const processBold = (inputString: string) => {
 	const boldPrefix = '**';
 	let i = 0;
 	let cleanedPosition = 0;
+	const getCleanLen = (str: string) => {
+		return str?.replace(/```([\s\S]*?)```|`([^`]+)`/g, (match, p1, p2) => (p1 !== undefined ? p1 : p2)).length;
+	};
 
 	while (i < inputString.length) {
 		const start = inputString.indexOf(boldPrefix, i);
@@ -45,12 +47,14 @@ const processBold = (inputString: string) => {
 		if (end === -1) break;
 
 		const boldText = inputString.slice(start + boldPrefix.length, end);
+		const segmentBefore = inputString.slice(i, start);
 
-		cleanedPosition += start - i;
+		cleanedPosition += getCleanLen(segmentBefore);
 
 		if (boldText.trim().length > 0) {
+			const boldTextCleanLen = getCleanLen(boldText);
 			const startIndex = cleanedPosition;
-			const endIndex = startIndex + boldText.length;
+			const endIndex = startIndex + boldTextCleanLen;
 
 			bolds.push({
 				type: EBacktickType.BOLD,
@@ -58,7 +62,7 @@ const processBold = (inputString: string) => {
 				e: endIndex
 			} as ILinkOnMessage);
 
-			cleanedPosition += boldText.length;
+			cleanedPosition += boldTextCleanLen;
 		}
 
 		i = end + boldPrefix.length;
@@ -77,7 +81,10 @@ const processText = (rawInputString: string, emojiObjPicked: any) => {
 	const tripleBacktick = '```';
 	const googleMeetPrefix = 'https://meet.google.com/';
 	const colon = ':';
-	const inputString = rawInputString?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1');
+	const inputString = rawInputString;
+
+	let shift = 0;
+	const getCleanLenBold = (str: string) => str?.replace(/\*\*(.*?)\*\*/g, '$1')?.length;
 
 	type Handler = {
 		predicate: (i: number) => boolean;
@@ -109,7 +116,7 @@ const processText = (rawInputString: string, emojiObjPicked: any) => {
 					const preCharFive = inputString.substring(startindex - 5, startindex);
 					const emojiId = emojiObjPicked?.[`:${shortname}:`];
 					if (preCharFour !== 'http' && preCharFive !== 'https' && emojiId) {
-						emojis.push({ emojiid: emojiId, s: startindex, e: endindex });
+						emojis.push({ emojiid: emojiId, s: startindex - shift, e: endindex - shift });
 						return endindex;
 					}
 				}
@@ -137,21 +144,21 @@ const processText = (rawInputString: string, emojiObjPicked: any) => {
 				if (link.startsWith(googleMeetPrefix)) {
 					voiceRooms.push({
 						type: EBacktickType.VOICE_LINK,
-						s: startindex,
-						e: endindex
+						s: startindex - shift,
+						e: endindex - shift
 					} as ILinkVoiceRoomOnMessage);
 				} else {
 					const isYouTube = isYouTubeLink(link);
 					links.push({
 						type: isYouTube ? EBacktickType.LINKYOUTUBE : EBacktickType.LINK,
-						s: startindex,
-						e: endindex
+						s: startindex - shift,
+						e: endindex - shift
 					} as ILinkOnMessage);
 				}
 				return i2;
 			}
 		},
-		// Triple backtick markdown handler
+		// Triple backtick markdown handler (PRE)
 		{
 			predicate: (idx) => inputString.substring(idx, idx + tripleBacktick.length) === tripleBacktick,
 			handler: (idx) => {
@@ -165,39 +172,28 @@ const processText = (rawInputString: string, emojiObjPicked: any) => {
 				if (i2 < inputString.length && inputString.substring(i2, i2 + tripleBacktick.length) === tripleBacktick) {
 					i2 += tripleBacktick.length;
 					const endindex = i2;
+					const content = markdown;
+					const contentCleanLen = getCleanLenBold(content);
+
+					const s = startindex - shift;
+					const e = s + contentCleanLen;
+
 					if (markdown?.length > 0) {
-						markdowns.push({ type: EBacktickType.TRIPLE, s: startindex, e: endindex } as IMarkdownOnMessage);
+						markdowns.push({ type: EBacktickType.PRE, s, e } as IMarkdownOnMessage);
 					}
+
+					shift += 6 + (content?.length - contentCleanLen);
 					return endindex;
 				}
 				return idx + 1;
 			}
 		},
+
 		// Single backtick markdown handler
 		{
-			predicate: (idx) => inputString[idx] === singleBacktick,
+			predicate: (idx) => inputString[idx] === singleBacktick && inputString.substring(idx, idx + tripleBacktick.length) !== tripleBacktick,
 			handler: (idx) => {
 				const startindex = idx;
-				let i2 = idx + 1;
-				let foundTriple = false;
-				let tripleIdx = -1;
-				// Find triple backtick after this point
-				while (i2 < inputString.length) {
-					if (inputString.substring(i2, i2 + tripleBacktick.length) === tripleBacktick) {
-						foundTriple = true;
-						tripleIdx = i2;
-						break;
-					}
-					i2++;
-				}
-				if (foundTriple) {
-					// If there is a triple backtick after, take the part from single backtick to before triple backtick
-					// (including the preceding `, not closing the single backtick)
-					// Do not add to markdownList, just move the pointer past this part
-					// (can handle this part outside if you want to save this string)
-					return tripleIdx; // jump to triple backtick for the triple handler to process next
-				}
-				// If there is no triple backtick, handle single backtick as before
 				let i3 = idx + 1;
 				let markdown = '';
 				while (i3 < inputString.length && inputString[i3] !== singleBacktick) {
@@ -206,13 +202,41 @@ const processText = (rawInputString: string, emojiObjPicked: any) => {
 				}
 				if (i3 < inputString.length && inputString[i3] === singleBacktick) {
 					const endindex = i3 + 1;
-					const nextChar = inputString[endindex];
-					if (!markdown.includes('``') && markdown.trim().length > 0 && nextChar !== singleBacktick) {
-						markdowns.push({ type: EBacktickType.SINGLE, s: startindex, e: endindex } as IMarkdownOnMessage);
+					let allow = true;
+					if (inputString.substring(i3, i3 + tripleBacktick.length) === tripleBacktick) {
+						let k = i3 + tripleBacktick.length;
+						let hasClosingTriple = false;
+						while (k < inputString.length - 2) {
+							if (inputString.substring(k, k + tripleBacktick.length) === tripleBacktick) {
+								hasClosingTriple = true;
+								break;
+							}
+							k++;
+						}
+						if (hasClosingTriple) allow = false;
 					}
-					return endindex;
+
+					if (allow && !markdown.includes('``') && markdown.trim().length > 0) {
+						const content = markdown;
+						const contentCleanLen = getCleanLenBold(content);
+						const s = startindex - shift;
+						const e = s + contentCleanLen;
+
+						markdowns.push({ type: EBacktickType.CODE, s, e } as IMarkdownOnMessage);
+
+						shift += 2 + (content.length - contentCleanLen);
+						return endindex;
+					}
 				}
 				return idx + 1;
+			}
+		},
+		// Bold Ghost Handler (strip **)
+		{
+			predicate: (idx) => inputString.startsWith('**', idx),
+			handler: (idx) => {
+				shift += 2;
+				return idx + 2;
 			}
 		}
 	];

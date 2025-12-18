@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 import {
 	ActionEmitEvent,
-	KEY_SLASH_COMMAND_EPHEMERAL,
-	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES,
 	convertMentionsToText,
 	formatContentEditMessage,
 	getChannelHashtag,
+	KEY_SLASH_COMMAND_EPHEMERAL,
 	load,
 	mentionRegexSplit,
-	save
+	save,
+	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
@@ -42,10 +42,12 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
-import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
+import {
+	SlashCommandMessage
+} from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import { resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
+import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
@@ -55,6 +57,7 @@ import { ChatBoxListener } from '../ChatBoxListener';
 import type { IChatMessageLeftAreaRef } from '../ChatMessageLeftArea';
 import { ChatMessageLeftArea } from '../ChatMessageLeftArea';
 import { ChatMessageSending } from '../ChatMessageSending';
+import { RecordMessageProcessing } from '../ChatMessageSending/RecordMessageProcessing';
 import { ChatBoxTyping } from './ChatBoxTyping';
 import { OptionPasteTooltip } from './OptionPasteTooltip';
 import { style } from './style';
@@ -261,6 +264,17 @@ export const ChatBoxBottomBar = memo(
 			[textChange]
 		);
 
+		const removeMarkdownTags = useCallback((t: string) => {
+			try {
+				if (!t) return '';
+				const processed = t?.replace(/\*\*([\s\S]*?)\*\*/g, '$1');
+				return removeBackticks(processed);
+			} catch (error) {
+				console.error('Error removing markdown tags:', error);
+				return t;
+			}
+		}, []);
+
 		const onSendSuccess = useCallback(() => {
 			textValueInputRef.current = '';
 			setTextChange('');
@@ -329,7 +343,8 @@ export const ChatBoxBottomBar = memo(
 				if (!text) return;
 
 				const rawConvertedHashtag = convertMentionsToText(text);
-				const convertedHashtag = convertMentionsToText(text?.replace?.(/\*\*([\s\S]*?)\*\*/g, '$1'));
+				const convertedHashtag = convertMentionsToText(removeMarkdownTags(text));
+
 				const words = convertedHashtag?.split?.(mentionRegexSplit);
 
 				const mentionList: Array<{ user_id: string; s: number; e: number }> = [];
@@ -725,7 +740,7 @@ export const ChatBoxBottomBar = memo(
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
 					/>
-
+					<RecordMessageProcessing />
 					<View style={styles.inputWrapper}>
 						{isEphemeralMode && (
 							<SlashCommandMessage

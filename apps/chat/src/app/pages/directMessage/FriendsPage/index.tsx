@@ -8,12 +8,11 @@ import {
 	selectCloseMenu,
 	selectCurrentTabStatus,
 	selectStatusMenu,
-	selectTheme,
 	useAppDispatch
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
 import { EUserStatus, generateE2eId } from '@mezon/utils';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityList from './ActivityList';
@@ -174,14 +173,7 @@ const FriendsPage = () => {
 	const statusMenu = useSelector(selectStatusMenu);
 
 	const closeMenuMobile = closeMenu && !statusMenu;
-
-	const appearanceTheme = useSelector(selectTheme);
-	const addFriendImg = useMemo(() => {
-		if (appearanceTheme === 'light') {
-			return 'add-fr-img-light.svg';
-		}
-		return 'add-fr-img-dark.svg';
-	}, [appearanceTheme]);
+	const addFriendImg = 'add-fr-img-dark.webp';
 
 	return (
 		<div className="flex flex-col flex-1 shrink min-w-0  h-[100%]">

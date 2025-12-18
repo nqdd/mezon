@@ -80,7 +80,7 @@ function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow
 		</div>
 	</div>
 	<div class="main-container">
- 		<webview id="webview" src="${url}" style="width:100%; height:100%;" allowpopups></webview>
+ 		<webview id="webview" src="${url}" style="width: 100%; height: calc(100% - 29px);" allowpopups></webview>
 	</div>
 	<div class="footer-bar">
 		@${title}
@@ -118,6 +118,29 @@ function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow
 	`);
 
 		popupWindow.webContents.executeJavaScript(`window.location.url = ${JSON.stringify(sanitizeUrl(url))};`).catch((err) => console.error(err));
+	});
+
+	popupWindow.once('show', () => {
+		popupWindow.webContents.executeJavaScript(`
+			const webview = document.getElementById('webview');
+
+webview.addEventListener('dom-ready', () => {
+  webview.executeJavaScript('
+    (function() {
+      let meta = document.querySelector('meta[name="viewport"]');
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'viewport';
+        document.head.appendChild(meta);
+      }
+      meta.content = 'width=device-width, initial-scale=1.0';
+    })();
+  ');
+});
+
+
+
+	`);
 	});
 
 	return popupWindow;

@@ -20,7 +20,7 @@
 		"alreadyFriends": "You're already friends with that user!",
 		"waitAccept": "You have already sent a friend request to this user!",
 		"invalidInput": "Please only use numbers, letters, underscores _ or full stops.",
-		"waitingMessage": "Komuu is waiting on friends. You don't have to, though!"
+		"waitingMessage": "Mezon is waiting on friends. You don't have to, though!"
 	},
 	"requestFailedPopup": {
 		"title": "Friend request failed",
