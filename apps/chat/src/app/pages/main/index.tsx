@@ -29,6 +29,7 @@ import {
 	e2eeActions,
 	fetchDirectMessage,
 	getIsShowPopupForward,
+	getStore,
 	onboardingActions,
 	selectAllAppChannelsListShowOnPopUp,
 	selectChannelById,
@@ -36,11 +37,13 @@ import {
 	selectClanNumber,
 	selectClanView,
 	selectClansEntities,
+	selectClickedOnTopicStatus,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
+	selectCurrentTopicId,
 	selectDirectsUnreadlist,
 	selectHasKeyE2ee,
 	selectIsShowChatStream,
@@ -115,7 +118,14 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
-				dispatch(accountActions.setAnonymousMode());
+				const state = getStore().getState();
+				const isFocusTopicBox = selectClickedOnTopicStatus(state);
+				const currentTopicId = selectCurrentTopicId(state);
+				if (isFocusTopicBox && currentTopicId) {
+					dispatch(accountActions.setTopicAnonymousMode());
+				} else if (!isFocusTopicBox) {
+					dispatch(accountActions.setAnonymousMode());
+				}
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();
@@ -126,7 +136,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, currentURL]
+		[openSearchModal, dispatch, directId]
 	);
 
 	useEffect(() => {

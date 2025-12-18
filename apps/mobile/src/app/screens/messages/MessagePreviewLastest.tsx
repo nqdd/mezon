@@ -3,8 +3,7 @@ import { useTheme } from '@mezon/mobile-ui';
 import { isContainsUrl } from '@mezon/transport';
 import { EMimeTypes } from '@mezon/utils';
 import { ChannelType, safeJSONParse } from 'mezon-js';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { DmListItemLastMessage } from './DMListItemLastMessage';
@@ -67,50 +66,49 @@ export const MessagePreviewLastest = React.memo(
 			return '';
 		}, [senderId, isYourAccount, senderName, t]);
 
-		const getLastMessageAttachmentContent = useCallback(
-			async (attachment: ApiMessageAttachment, isLinkMessage: boolean, text: string, embed: any) => {
-				if (embed) {
-					return `${embed?.title || embed?.description || ''}`;
-				}
-				const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
-				if (isGoogleMapsLink) {
-					return `[${t('attachments.location')}]`;
-				}
-				if (isLinkMessage) {
-					return `[${t('attachments.link')}] ${text}`;
-				}
+		const lastMessageAttachmentContent = useMemo(() => {
+			const isLinkMessage = contentTextObj?.isLinkMessage;
+			const text = contentTextObj?.text;
+			if (embed) {
+				return `${embed?.title || embed?.description || ''}`;
+			}
+			const isGoogleMapsLink = validLinkGoogleMapRegex.test(text);
+			if (isGoogleMapsLink) {
+				return `[${t('attachments.location')}]`;
+			}
+			if (isLinkMessage) {
+				return `[${t('attachments.link')}] ${text}`;
+			}
 
-				const fileName = attachment?.filename;
-				const fileType = attachment?.filetype;
-				const url = attachment?.url;
+			const fileName = attachment?.filename;
+			const fileType = attachment?.filetype;
+			const url = attachment?.url;
 
-				const type = fileType?.split('/')?.[0];
+			const type = fileType?.split('/')?.[0];
 
-				switch (type) {
-					case 'image': {
-						if (url?.includes(EMimeTypes.tenor)) {
-							return `[${t('attachments.gif')}]`;
-						}
-						if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
-							return `[${t('attachments.sticker')}]`;
-						}
-						return `[${t('attachments.image')}]`;
+			switch (type) {
+				case 'image': {
+					if (url?.includes(EMimeTypes.tenor)) {
+						return `[${t('attachments.gif')}]`;
 					}
-					case 'video': {
-						return `[${t('attachments.video')}]`;
+					if (url?.includes(EMimeTypes.cdnmezon) || url?.includes(EMimeTypes.cdnmezon2) || url?.includes(EMimeTypes.cdnmezon3)) {
+						return `[${t('attachments.sticker')}]`;
 					}
-					case 'audio': {
-						return `[${t('attachments.audio')}]`;
-					}
-					case 'application':
-					case 'text':
-						return `[${t('attachments.file')}] ${fileName || ''}`;
-					default:
-						return `[${t('attachments.file')}]`;
+					return `[${t('attachments.image')}]`;
 				}
-			},
-			[t]
-		);
+				case 'video': {
+					return `[${t('attachments.video')}]`;
+				}
+				case 'audio': {
+					return `[${t('attachments.audio')}]`;
+				}
+				case 'application':
+				case 'text':
+					return `[${t('attachments.file')}] ${fileName || ''}`;
+				default:
+					return `[${t('attachments.file')}]`;
+			}
+		}, [attachment, contentTextObj, embed, t]);
 
 		if (isEmpty(content)) {
 			if (isTypeDMGroup) {
@@ -144,7 +142,7 @@ export const MessagePreviewLastest = React.memo(
 						numberOfLines={1}
 					>
 						{renderLastMessageContent}
-						{getLastMessageAttachmentContent(attachment, contentTextObj?.isLinkMessage, contentTextObj?.text, embed)}
+						{lastMessageAttachmentContent}
 					</Text>
 				</View>
 			);

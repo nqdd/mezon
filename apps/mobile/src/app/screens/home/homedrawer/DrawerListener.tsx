@@ -15,6 +15,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter } from 'react-native';
+import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import ReasonPopup from './components/ChannelVoice/ReasonPopup';
 
@@ -62,6 +63,7 @@ const ChannelSeen = memo(
 
 function DrawerListener({ channelId }: { channelId: string }) {
 	const currentChannel = useAppSelector((state) => selectChannelById(state, channelId));
+	const isTabletLandscape = useTabletLandscape();
 	const prevChannelIdRef = useRef<string>('');
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
@@ -98,26 +100,37 @@ function DrawerListener({ channelId }: { channelId: string }) {
 						channelType === ChannelType.CHANNEL_TYPE_GROUP)) ||
 				isRemoveClan
 			) {
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
-				await sleep(200);
-				const data = {
-					children: (
-						<ReasonPopup
-							title={t('removeFromChannel.title')}
-							confirmText={t('removeFromChannel.button')}
-							content={t('removeFromChannel.content')}
-						/>
-					)
-				};
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-				if (!isRemoveClan) {
-					dispatch(channelsActions.setCurrentChannelId({ clanId: currentChannel.clan_id || '', channelId: '' }));
+				if (channelType === ChannelType.CHANNEL_TYPE_THREAD) {
+					await dispatch(
+						channelsActions.setCurrentChannelId({ clanId: currentChannel?.clan_id || '', channelId: currentChannel?.parent_id || '' })
+					);
+					if (isTabletLandscape) {
+						navigation.navigate(APP_SCREEN.HOME);
+					} else {
+						navigation.navigate(APP_SCREEN.HOME_DEFAULT);
+					}
+				} else {
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
+					await sleep(200);
+					const data = {
+						children: (
+							<ReasonPopup
+								title={t('removeFromChannel.title')}
+								confirmText={t('removeFromChannel.button')}
+								content={t('removeFromChannel.content')}
+							/>
+						)
+					};
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+					if (!isRemoveClan) {
+						dispatch(channelsActions.setCurrentChannelId({ clanId: currentChannel.clan_id || '', channelId: '' }));
+					}
+					navigation.navigate(APP_SCREEN.BOTTOM_BAR);
 				}
-				navigation.navigate(APP_SCREEN.BOTTOM_BAR);
 			}
 		},
-		[channelId, navigation, t]
+		[channelId, navigation, t, isTabletLandscape]
 	);
 
 	useEffect(() => {

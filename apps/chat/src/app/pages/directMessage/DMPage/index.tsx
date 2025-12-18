@@ -117,11 +117,21 @@ const ChannelSeen = memo(({ channelId }: { channelId: string }) => {
 	return null;
 });
 
-function DirectSeenListener({ channelId, mode, currentChannel }: { channelId: string; mode: number; currentChannel: DirectEntity }) {
+function DirectSeenListener({
+	channelId,
+	mode,
+	currentChannel,
+	isBlocked
+}: {
+	channelId: string;
+	mode: number;
+	currentChannel: DirectEntity;
+	isBlocked: boolean;
+}) {
 	return (
 		<>
 			<ChannelSeen channelId={channelId} />
-			<KeyPressListener currentChannel={currentChannel} mode={mode} />
+			<KeyPressListener currentChannel={currentChannel} mode={mode} isBlocked={isBlocked} />
 		</>
 	);
 }
@@ -368,7 +378,7 @@ const DirectMessage = () => {
 					{isSearchMessage && <SearchMessageChannel channelId={directId} />}
 				</div>
 			</div>
-			<DirectSeenListener channelId={directId as string} mode={mode} currentChannel={currentDmGroup} />
+			<DirectSeenListener channelId={directId as string} mode={mode} currentChannel={currentDmGroup} isBlocked={isBlocked} />
 		</>
 	);
 };
@@ -392,29 +402,13 @@ const SearchMessageChannel = ({ channelId }: { channelId: string }) => {
 type KeyPressListenerProps = {
 	currentChannel: DirectEntity | null;
 	mode: ChannelStreamMode;
+	isBlocked: boolean;
 };
 
-const KeyPressListener = ({ currentChannel, mode }: KeyPressListenerProps) => {
+const KeyPressListener = ({ currentChannel, mode, isBlocked }: KeyPressListenerProps) => {
 	const isListenerAttached = useRef(false);
-
-	useEffect(() => {
-		if (isListenerAttached.current) return;
-		isListenerAttached.current = true;
-
-		const handleKeyPress = (event: KeyboardEvent) => {
-			if (event.ctrlKey && (event.key === 'g' || event.key === 'G')) {
-				event.preventDefault();
-				openModalBuzz();
-			}
-		};
-
-		window.addEventListener('keydown', handleKeyPress);
-
-		return () => {
-			window.removeEventListener('keydown', handleKeyPress);
-			isListenerAttached.current = false;
-		};
-	}, []);
+	const isBlockedRef = useRef(isBlocked);
+	isBlockedRef.current = isBlocked;
 
 	const [openModalBuzz, closeModalBuzz] = useModal(
 		() => (
@@ -424,6 +418,27 @@ const KeyPressListener = ({ currentChannel, mode }: KeyPressListenerProps) => {
 		),
 		[currentChannel]
 	);
+
+	useEffect(() => {
+		if (isListenerAttached.current) return;
+		isListenerAttached.current = true;
+
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.ctrlKey && (event.key === 'g' || event.key === 'G')) {
+				event.preventDefault();
+				if (!isBlockedRef.current) {
+					openModalBuzz();
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyPress);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyPress);
+			isListenerAttached.current = false;
+		};
+	}, [openModalBuzz]);
 
 	return null;
 };

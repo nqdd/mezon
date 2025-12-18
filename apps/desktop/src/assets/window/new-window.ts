@@ -7,7 +7,6 @@ import new_window_css from './new-window-css';
 function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow) {
 	const parentBounds = parentWindow.getBounds();
 	const width = Math.floor(parentBounds.width * 0.5);
-	const urlNew = 'https://talent.nccsoft.vn/app/home';
 	const height = Math.floor(parentBounds.height * 1.0);
 	const x = Math.floor(parentBounds.x + (parentBounds.width - width) / 2);
 	const y = Math.floor(parentBounds.y + (parentBounds.height - height) / 2);
@@ -81,7 +80,7 @@ function openNewWindow(url: string, parentWindow: BrowserWindow = App.mainWindow
 		</div>
 	</div>
 	<div class="main-container">
- 		<webview id="webview" src="${urlNew}" style="width: 100%; height: calc(100% - 29px);" allowpopups></webview>
+ 		<webview id="webview" src="${url}" style="width: 100%; height: calc(100% - 29px);" allowpopups></webview>
 	</div>
 	<div class="footer-bar">
 		@${title}

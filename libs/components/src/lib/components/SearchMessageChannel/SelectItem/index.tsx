@@ -19,7 +19,7 @@ const SelectItem = ({ title, content, onClick, className }: SelectItemProps) => 
 			className={`flex flex-row justify-between items-center group w-full cursor-pointer rounded py-1 px-2 ${className} bg-item-hover`} // Apply className
 		>
 			<div>
-				<span className=" font-semibold">{title}</span>
+				<span className=" font-semibold text-theme-primary-active">{`${title} `}</span>
 				<span className="">{content}</span>
 			</div>
 			{className === 'bg-item-theme' || className === 'bg-item-theme' || isHovered ? (
