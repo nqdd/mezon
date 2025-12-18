@@ -595,7 +595,7 @@ const roleStateInitialState: RoleState = {
 	removePermissions: [],
 	removeMemberRoles: [],
 	currentRoleIcon: '',
-	newRoleIcon: null
+	newRoleIcon: ''
 };
 
 export const roleSlice = createSlice({
