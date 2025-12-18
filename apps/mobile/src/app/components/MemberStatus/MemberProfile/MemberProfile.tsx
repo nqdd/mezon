@@ -58,7 +58,7 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 	}, [userProfile?.username, user?.username, user?.user?.username]);
 
 	const priorityMemberName = useMemo(() => {
-		const name = userProfile?.display_name || user?.display_name || memberUsername;
+		const name = userProfile?.display_name || user?.display_name || user?.user?.display_name || memberUsername;
 		if (isDM) {
 			return name;
 		}

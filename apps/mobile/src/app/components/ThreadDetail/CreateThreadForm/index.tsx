@@ -9,6 +9,7 @@ import {
 	createNewChannel,
 	getStoreAsync,
 	messagesActions,
+	selectChannelById,
 	selectCurrentChannel,
 	selectCurrentChannelId,
 	selectCurrentClanId,
@@ -53,8 +54,9 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 	const { channelThreads } = route.params || {};
 	const { t } = useTranslation(['createThread']);
 	const currentClanId = useSelector(selectCurrentClanId);
-	const channelCurrent = useSelector(selectCurrentChannel);
+	const currentChannel = useSelector(selectCurrentChannel);
 	const currentChannelId = useSelector(selectCurrentChannelId);
+	const channelByChannelId = useSelector((state) => selectChannelById(state, channelThreads?.channel_id ?? ''));
 
 	const validateThreadName = (name: string) => {
 		if (!name || name.trim().length === 0 || name?.length > 64) return t('errorMessage');
@@ -69,14 +71,14 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 	const threadCurrentChannel = useSelector(selectThreadCurrentChannel);
 	const { valueThread } = useThreads();
 	const { sendMessageThread } = useThreadMessage({
-		channelId: '',
+		channelId: channelByChannelId?.id || currentChannelId || '',
 		mode: ChannelStreamMode.STREAM_MODE_THREAD
 	});
 	const bottomPickerRef = useRef<BottomSheet>(null);
 
-	const currentChannel = useMemo(() => {
-		return channelThreads || channelCurrent;
-	}, [channelThreads, channelCurrent]);
+	const targetParentChannel = useMemo(() => {
+		return channelThreads ? channelByChannelId : currentChannel;
+	}, [channelByChannelId, currentChannel, channelThreads]);
 
 	const sessionUser = useSelector((state: RootState) => state.auth.session);
 
@@ -86,8 +88,8 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 				clan_id: currentClanId?.toString(),
 				channel_label: value.nameValueThread,
 				channel_private: value.isPrivate,
-				parent_id: (channelThreads ? channelThreads?.id : currentChannelId) || '',
-				category_id: currentChannel?.category_id,
+				parent_id: targetParentChannel?.id || '',
+				category_id: targetParentChannel?.category_id,
 				type: ChannelType.CHANNEL_TYPE_THREAD
 			};
 			try {
@@ -110,7 +112,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 				});
 			}
 		},
-		[currentChannel, currentChannel?.parent_id, currentClanId, dispatch]
+		[currentClanId, targetParentChannel?.id, targetParentChannel?.category_id, dispatch, t]
 	);
 
 	const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -201,21 +203,24 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 		};
 	}, [isPrivate, nameValueThread, valueThread]);
 
-	const handleRouteData = async (thread?: IChannel) => {
-		const store = await getStoreAsync();
-		const channelId = thread?.channel_id;
-		const clanId = thread?.clan_id || currentClanId;
-		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
-		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
-		store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId, noFetchMembers: false }));
-		await sleep(500);
-		if (isTabletLandscape) {
-			navigation.navigate(APP_SCREEN.HOME);
-		} else {
-			navigation.goBack();
-			navigation.navigate(APP_SCREEN.HOME_DEFAULT);
-		}
-	};
+	const handleRouteData = useCallback(
+		async (thread?: IChannel) => {
+			const store = await getStoreAsync();
+			const channelId = thread?.channel_id;
+			const clanId = thread?.clan_id || currentClanId;
+			const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
+			save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
+			store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId, noFetchMembers: false }));
+			await sleep(500);
+			if (isTabletLandscape) {
+				navigation.navigate(APP_SCREEN.HOME);
+			} else {
+				navigation.goBack();
+				navigation.navigate(APP_SCREEN.HOME_DEFAULT);
+			}
+		},
+		[currentClanId, isTabletLandscape, navigation]
+	);
 
 	const handleInputChange = (text: string) => {
 		setNameValueThread(text);
@@ -240,7 +245,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 			/>
 			<StatusBarHeight />
 			<View style={styles.createChannelContent}>
-				<HeaderLeftThreadForm currentChannel={channelThreads || currentChannel} />
+				<HeaderLeftThreadForm currentChannel={targetParentChannel} />
 				<ScrollView contentContainerStyle={styles.scrollview} keyboardShouldPersistTaps="handled">
 					<View style={styles.contentContainer}>
 						<View style={styles.iconContainer}>
@@ -274,8 +279,10 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 								messageId={valueThread?.id}
 								message={valueThread}
 								showUserInformation
-								mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-								channelId={currentChannel?.channel_id}
+								mode={
+									checkIsThread(targetParentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL
+								}
+								channelId={targetParentChannel?.channel_id}
 								preventAction
 							/>
 						</View>
@@ -283,17 +290,17 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 				</ScrollView>
 				<ChatBox
 					messageAction={EMessageActionType.CreateThread}
-					channelId={currentChannel?.channel_id}
-					mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
+					channelId={targetParentChannel?.channel_id}
+					mode={ChannelStreamMode.STREAM_MODE_THREAD}
 					hiddenIcon={{
 						threadIcon: true
 					}}
-					isPublic={isPublicChannel(currentChannel)}
+					isPublic={isPublicChannel(targetParentChannel)}
 					topicChannelId={''}
 				/>
 				<PanelKeyboard
-					currentChannelId={currentChannel?.channel_id}
-					currentClanId={currentChannel?.clan_id}
+					currentChannelId={targetParentChannel?.channel_id}
+					currentClanId={targetParentChannel?.clan_id}
 					messageAction={EMessageActionType.CreateThread}
 				/>
 			</View>

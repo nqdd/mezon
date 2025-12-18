@@ -16,6 +16,7 @@ import {
 	selectDmGroupCurrent,
 	selectIsShowCreateTopic,
 	selectMemberClanByUserId,
+	selectMemberIdsByChannelId,
 	sendEphemeralMessage,
 	threadsActions,
 	useAppDispatch,
@@ -171,7 +172,8 @@ export const ChatMessageSending = memo(
 				const currentTime = Math.floor(Date.now() / 1000);
 				const lastMessageTimestamp = channel.last_sent_message?.timestamp_seconds;
 				const isArchived = lastMessageTimestamp && currentTime - Number(lastMessageTimestamp) > THREAD_ARCHIVE_DURATION_SECONDS;
-				const needsJoin = channel.active === ThreadStatus.activePublic;
+				const userIds = selectMemberIdsByChannelId(store.getState(), channel?.id as string);
+				const needsJoin = !userId ? false : !userIds.includes(userId);
 
 				if (isArchived || (needsJoin && joinningToThread)) {
 					await dispatch(
@@ -369,7 +371,9 @@ export const ChatMessageSending = memo(
 						<MezonIconCDN icon={IconCDN.sendMessageIcon} width={size.s_18} height={size.s_18} color={baseColor.white} />
 					</Pressable>
 				) : (
-					<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} isCreateTopic={isCreateTopic} />
+					messageAction !== EMessageActionType.CreateThread && (
+						<RecordMessageSending channelId={channelId} mode={mode} currentTopicId={currentTopicId} isCreateTopic={isCreateTopic} />
+					)
 				)}
 			</View>
 		);

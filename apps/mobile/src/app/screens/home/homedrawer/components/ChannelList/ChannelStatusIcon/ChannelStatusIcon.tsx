@@ -40,7 +40,7 @@ export const ChannelStatusIcon = memo(({ channel, isUnRead }: { channel: Channel
 						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
 					/>
 				)}
-			{channel?.channel_private !== ChannelStatusEnum.isPrivate && channel?.type === ChannelType.CHANNEL_TYPE_STREAMING && (
+			{channel?.type === ChannelType.CHANNEL_TYPE_STREAMING && (
 				<MezonIconCDN
 					icon={IconCDN.channelStream}
 					height={size.s_18}
