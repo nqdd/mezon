@@ -60,3 +60,8 @@ export interface HasOption {
 	id: string;
 	display: string;
 }
+
+export interface ChannelOption {
+	id: string;
+	display: string;
+}

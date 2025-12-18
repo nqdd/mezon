@@ -16,9 +16,11 @@ import {
 	selectInitTopicMessageId,
 	selectSession,
 	selectStatusMenu,
+	selectTopicAnonymousMode,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
+import { Icons } from '@mezon/ui';
 import type { IMessageSendPayload } from '@mezon/utils';
 import {
 	CREATING_TOPIC,
@@ -62,6 +64,7 @@ const TopicDiscussionBox = () => {
 	const statusMenu = useSelector(selectStatusMenu);
 	const isDesktop = isElectron();
 	const isBanned = useAppSelector((state) => selectBanMeInChannel(state, currentChannelId));
+	const topicAnonymousMode = useSelector(selectTopicAnonymousMode);
 
 	const mode =
 		currentChannelType === ChannelType.CHANNEL_TYPE_THREAD ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL;
@@ -334,6 +337,11 @@ const TopicDiscussionBox = () => {
 									</div>
 								</div>
 							</div>
+							{topicAnonymousMode && currentTopicId && (
+								<div className="absolute -top-3 -right-3 rotate-45 anonymousAnimation">
+									<Icons.HatIcon defaultSize="w-7 h-7" />
+								</div>
+							)}
 						</div>
 						{currentTopicId ? (
 							<ChannelTyping channelId={currentTopicId || ''} mode={mode} isPublic isDM={false} />

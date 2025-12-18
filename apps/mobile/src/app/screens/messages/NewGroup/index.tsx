@@ -233,6 +233,7 @@ export const NewGroupScreen = ({ navigation, route }: { navigation: any; route: 
 								selectMode={true}
 								onSelectedChange={onSelectedChange}
 								selectedFriendDefault={selectedFriendDefault}
+								fromDM={directMessageId && fromUser}
 							/>
 						</View>
 					</View>

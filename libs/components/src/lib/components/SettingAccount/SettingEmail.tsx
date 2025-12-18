@@ -1,6 +1,6 @@
 'use client';
 import { accountActions, authActions, useAppDispatch } from '@mezon/store';
-import { ButtonLoading, Input, PasswordInput } from '@mezon/ui';
+import { Button, ButtonLoading, Input, PasswordInput } from '@mezon/ui';
 import type { LoadingStatus } from '@mezon/utils';
 import { validateEmail, validatePassword } from '@mezon/utils';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -87,19 +87,7 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 	}, []);
 
 	const handleSubmit = useCallback(async () => {
-		if (errors.email || errors.password || errors.confirmPassword || (count !== null && count > 0)) {
-			return;
-		}
-		const emailError = validateEmail(email);
-		const passwordError = translatePasswordError(validatePassword(password));
-		const confirmError = password !== confirmPassword ? t('setPasswordAccount.error.notEqual') : '';
-
-		if (emailError || confirmPassword !== password) {
-			setErrors({
-				email: emailError,
-				password: passwordError,
-				confirmPassword: confirmError
-			});
+		if (errors.email || (count !== null && count > 0)) {
 			return;
 		}
 
@@ -126,8 +114,7 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 		setOtp(e);
 	};
 
-	const disabled =
-		!!errors.email || !!errors.password || !!errors.confirmPassword || !email || !password || !confirmPassword || isLoading === 'loading';
+	const disabled = !!errors.email || !email || isLoading === 'loading';
 
 	useEffect(() => {
 		if (!reqId) return;
@@ -152,6 +139,11 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 		return () => clearInterval(timer);
 	}, [count]);
 
+	const handleOnclose = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		e.preventDefault();
+		e.stopPropagation();
+		onClose?.();
+	};
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
 			<div className="w-full max-w-md rounded-lg shadow-sm relative bg-theme-setting-primary text-theme-primary overflow-hidden">
@@ -193,6 +185,7 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 										value={password}
 										onChange={handlePasswordChange}
 										error={errors.password}
+										className="p-1"
 									/>
 								</div>
 								<PasswordInput
@@ -201,11 +194,15 @@ export default function SetEmail({ submitButtonText, isLoading, onClose }: SetEm
 									value={confirmPassword}
 									onChange={handleConfirmPasswordChange}
 									error={errors.confirmPassword}
+									className="p-1"
 								/>
 							</>
 						)}
 					</div>
-					<div className="p-6">
+					<div className="p-6 flex gap-2 p-1">
+						<Button className="w-full h-10 rounded-md bg-theme-input" onClick={handleOnclose}>
+							{t('emailSetting.cancel')}
+						</Button>
 						<ButtonLoading
 							className="w-full h-10 btn-primary btn-primary-hover"
 							disabled={!reqId ? !!errors.email || errors.email === undefined || disabled : disabled || (count !== null && count > 0)}

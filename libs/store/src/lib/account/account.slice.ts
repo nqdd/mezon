@@ -23,6 +23,7 @@ export interface AccountState {
 	account?: IAccount | null;
 	userProfile?: IUserAccount | null;
 	anonymousMode: boolean;
+	topicAnonymousMode: boolean;
 	cache?: CacheMetadata;
 	avatarVersion: number;
 }
@@ -32,6 +33,7 @@ export const initialAccountState: AccountState = {
 	account: null,
 	userProfile: null,
 	anonymousMode: false,
+	topicAnonymousMode: false,
 	avatarVersion: 0
 };
 
@@ -212,6 +214,9 @@ export const accountSlice = createSlice({
 		setAnonymousMode(state) {
 			state.anonymousMode = !state.anonymousMode;
 		},
+		setTopicAnonymousMode(state) {
+			state.topicAnonymousMode = !state.topicAnonymousMode;
+		},
 		setCustomStatus(state, action: PayloadAction<string>) {
 			if (state?.userProfile?.user) {
 				state.userProfile.user.user_status = action.payload;
@@ -319,6 +324,8 @@ export const selectAllAccount = createSelector(getAccountState, (state: AccountS
 export const selectCurrentUserId = createSelector(getAccountState, (state: AccountState) => state?.userProfile?.user?.id || '');
 
 export const selectAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.anonymousMode);
+
+export const selectTopicAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.topicAnonymousMode);
 
 export const selectAccountCustomStatus = createSelector(getAccountState, (state: AccountState) => state.userProfile?.user?.user_status || '');
 

@@ -17,6 +17,7 @@ export default function MediaSkeleton({ numberSkeleton }: { numberSkeleton: numb
 		<View style={styles.container}>
 			{Array.from({ length: numberSkeleton }).map((_, index) => (
 				<ShimmerPlaceHolder
+					key={`MediaSkeleton_${index}`}
 					shimmerColors={[themeValue.secondaryLight, themeValue.charcoal, themeValue.jet]}
 					shimmerStyle={{ ...styles.normal, width: widthImage, height: widthImage }}
 					LinearGradient={LinearGradient}

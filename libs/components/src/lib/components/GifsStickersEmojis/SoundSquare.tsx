@@ -172,60 +172,72 @@ function SoundSquare({ mode, onClose, isTopic = false, onSoundSelect }: ChannelM
 	);
 
 	return (
-		<div ref={modalRef} tabIndex={-1} className="outline-none flex h-full w-full md:w-[500px] max-sm:ml-1 pt-3">
-			<div className="overflow-y-auto overflow-x-hidden hide-scrollbar h-[25rem]  md:ml-2">
-				<div className="w-16 flex flex-col gap-y-2 bg-theme-setting-nav pt-3 px-1.5 md:items-start pb-3  items-center min-h-[25rem] shadow-sm rounded-l-lg">
-					{categoryLogo.map((cat) => (
-						<button
-							title={cat.type}
-							key={cat.id}
-							onClick={(e) => scrollToClanSidebar(e, cat.type)}
-							className={`flex justify-center items-center w-11 h-11 rounded-full bg-item-hover transition-all duration-200 ${
-								selectedType === cat.type ? 'bg-[#5865f2] dark:shadow-md' : 'bg-item-theme'
-							}`}
-						>
-							{cat.url !== '' ? (
-								<img
-									src={cat.url}
-									alt={cat.type}
-									className={`w-8 h-8 object-cover aspect-square cursor-pointer rounded-full ${
-										selectedType === cat.type ? 'border-2 border-white' : ''
-									}`}
-								/>
-							) : (
-								<div className={`${selectedType === cat.type ? 'text-white' : ' text-[#2e3338]'} font-semibold text-sm`}>
-									{cat?.type?.charAt(0).toUpperCase()}
-								</div>
-							)}
-						</button>
-					))}
-				</div>
-			</div>
-			<div className="flex flex-col h-[400px] overflow-y-auto flex-1 hide-scrollbar bg-theme-setting-primary rounded-r-lg" ref={containerRef}>
-				{valueInputToCheckHandleSearch ? (
-					<SoundPanel soundList={searchedSounds} onClickSendSound={onClickSendSound} />
-				) : (
-					<>
-						{categoryLogo.map((avt) => (
-							<div ref={(el) => (categoryRefs.current[avt.type || ''] = el)} key={avt.id}>
-								<CategorizedSounds
-									valueInputToCheckHandleSearch={valueInputToCheckHandleSearch}
-									soundList={allSounds}
-									onClickSendSound={onClickSendSound}
-									categoryName={avt.type || ''}
-									key={avt.id}
-								/>
+		<div
+			ref={modalRef}
+			tabIndex={-1}
+			className="outline-none flex h-[430px] w-full md:w-[500px] max-h-[430px] bg-theme-setting-primary overflow-hidden rounded-lg shadow-xl"
+		>
+			<div className="flex flex-col gap-y-3 bg-theme-setting-nav py-4 items-center w-[72px] flex-shrink-0 overflow-y-auto hide-scrollbar border-r border-white/5">
+				{categoryLogo.map((cat) => (
+					<button
+						title={cat.type}
+						key={cat.id}
+						onClick={(e) => scrollToClanSidebar(e, cat.type)}
+						className={`group relative flex justify-center items-center w-12 h-12 transition-all duration-300 ${
+							selectedType === cat.type
+								? 'bg-[#5865f2] rounded-[16px] shadow-md text-white'
+								: 'bg-item-theme rounded-[24px] hover:rounded-[16px] hover:bg-[#5865f2] hover:text-white'
+						}`}
+					>
+						{cat.url !== '' ? (
+							<img src={cat.url} alt={cat.type} className="w-full h-full object-cover rounded-[inherit] transition-all duration-300" />
+						) : (
+							<div
+								className={`font-bold text-sm transition-colors duration-200 ${selectedType === cat.type ? 'text-white' : 'text-theme-primary opacity-70 group-hover:text-white group-hover:opacity-100'}`}
+							>
+								{cat?.type?.charAt(0).toUpperCase()}
 							</div>
-						))}
-					</>
-				)}
+						)}
+					</button>
+				))}
+			</div>
+
+			<div className="flex flex-col flex-1 min-w-0 bg-theme-setting-primary overflow-hidden relative" ref={containerRef}>
+				<div className="flex-1 overflow-y-auto hide-scrollbar p-4">
+					{valueInputToCheckHandleSearch ? (
+						<SoundPanel soundList={searchedSounds} onClickSendSound={onClickSendSound} />
+					) : (
+						<div className="flex flex-col gap-6">
+							{categoryLogo.map((avt) => (
+								<div
+									ref={(el) => {
+										categoryRefs.current[avt.type || ''] = el;
+									}}
+									key={avt.id}
+									className="scroll-mt-4"
+								>
+									<CategorizedSounds
+										valueInputToCheckHandleSearch={valueInputToCheckHandleSearch}
+										soundList={allSounds}
+										onClickSendSound={onClickSendSound}
+										categoryName={avt.type || ''}
+										key={avt.id}
+									/>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
 			</div>
 		</div>
 	);
 }
 export default SoundSquare;
 
-interface ExtendedApiMessageAttachment extends ApiMessageAttachment, ClanSound {}
+interface ExtendedApiMessageAttachment extends ApiMessageAttachment, ClanSound {
+	filename?: string;
+	url?: string;
+}
 
 interface ICategorizedSoundProps {
 	soundList: ExtendedApiMessageAttachment[];
@@ -245,62 +257,113 @@ const CategorizedSounds: React.FC<ICategorizedSoundProps> = React.memo(
 		}, []);
 
 		return (
-			<div className="mb-3">
+			<div className="flex flex-col gap-2">
 				<button
 					onClick={handleToggleButton}
-					className=" w-full flex flex-row justify-between items-center px-4 py-2 gap-[2px] sticky top-[-0.5rem]  bg-theme-setting-nav max-h-full z-10"
+					className="flex flex-row items-center gap-2 w-full text-left group sticky top-0 bg-theme-setting-primary z-10 py-1"
 				>
-					<p className="uppercase font-semibold text-xs tracking-wider text-theme-primary-active">
+					<span
+						className={`transition-transform duration-200 text-theme-primary/60 group-hover:text-theme-primary ${isShowSoundList ? 'rotate-90' : ''}`}
+					>
+						<Icons.ArrowRight defaultFill="currentColor" className="w-3 h-3" />
+					</span>
+					<p className="uppercase font-bold text-xs tracking-wide text-theme-primary/60 group-hover:text-theme-primary transition-colors">
 						{categoryName !== 'custom' ? categoryName : currentClanName}
 					</p>
-					<span className={`transition-transform duration-200 text-theme-primary ${isShowSoundList ? 'rotate-90' : ''}`}>
-						<Icons.ArrowRight defaultFill="currentColor" className="w-3.5 h-3.5 opacity-70 " />
-					</span>
+					<div className="h-[1px] flex-1 bg-theme-primary/10 group-hover:bg-theme-primary/20 transition-colors ml-2"></div>
 				</button>
-				{isShowSoundList && <SoundPanel soundList={soundListByCategoryName} onClickSendSound={onClickSendSound} />}
+
+				{isShowSoundList && (
+					<div className="animate-fade-in">
+						<SoundPanel soundList={soundListByCategoryName} onClickSendSound={onClickSendSound} />
+					</div>
+				)}
 			</div>
 		);
 	}
 );
+
 interface ISoundPanelProps {
 	soundList: ExtendedApiMessageAttachment[];
 	onClickSendSound: (sound: ExtendedApiMessageAttachment) => void;
 }
 
 export const SoundPanel: React.FC<ISoundPanelProps> = React.memo(({ soundList, onClickSendSound }) => {
+	const [playingPreview, setPlayingPreview] = useState<string | null>(null);
+	const audioRef = useRef<HTMLAudioElement | null>(null);
+
+	const handlePreview = useCallback(
+		(e: React.MouseEvent, sound: ExtendedApiMessageAttachment) => {
+			e.stopPropagation();
+			if (!sound.url) return;
+
+			if (playingPreview === sound.id && audioRef.current) {
+				if (audioRef.current.paused) {
+					audioRef.current.play().catch(console.error);
+				} else {
+					audioRef.current.pause();
+					setPlayingPreview(null);
+				}
+				return;
+			}
+
+			if (audioRef.current) {
+				audioRef.current.pause();
+			}
+
+			const audio = new Audio(sound.url);
+			audio.onended = () => setPlayingPreview(null);
+			audio.play().catch(console.error);
+			audioRef.current = audio;
+			setPlayingPreview(sound.id || null);
+		},
+		[playingPreview]
+	);
+
+	useEffect(() => {
+		return () => {
+			if (audioRef.current) audioRef.current.pause();
+		};
+	}, []);
+
 	return (
-		<div className="w-full pb-3 px-3 pt-1 bg-theme-setting-primary">
-			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-				{soundList.length === 0 && (
-					<div className="col-span-full flex flex-col items-center justify-center py-10 border-2 border-dashed border-color-primary rounded-lg  text-center">
-						<Icons.Speaker className="w-10 h-10  mb-2" />
-						<p className="t text-sm">No sound effects found.</p>
-					</div>
-				)}
-				{soundList.map((sound) => (
-					<div
-						key={sound.id}
-						className="flex flex-col w-full p-2 rounded-lg  shadow-sm hover:shadow-md transition duration-200 border-theme-primary items-center"
+		<div className="grid grid-cols-2 gap-3">
+			{soundList.length === 0 && (
+				<div className="col-span-full flex flex-col items-center justify-center py-10 opacity-50 border-2 border-dashed border-theme-primary/10 rounded-lg">
+					<Icons.Speaker className="w-8 h-8 mb-2 text-theme-primary" />
+					<p className="text-xs text-theme-primary font-medium">No sounds available</p>
+				</div>
+			)}
+			{soundList.map((sound) => (
+				<div
+					key={sound.id}
+					className="group relative flex items-center gap-3 p-2 h-10 rounded-lg bg-item-theme hover:bg-[#5865f2]/10 transition-all duration-200 hover:shadow-md border border-transparent hover:border-[#5865f2]/30"
+					title={sound.filename}
+				>
+					<button
+						onClick={(e) => handlePreview(e, sound)}
+						className={`flex-shrink-0 flex text-theme-primary items-center justify-center w-8 h-8 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${playingPreview === sound.id ? 'text-green-500 bg-green-500/10' : 'text-theme-primary/60 hover:text-theme-primary hover:bg-theme-primary/10'}`}
+						title="Preview sound"
 					>
-						<div className="flex items-center justify-between mb-3">
-							<p
-								title={sound.filename}
-								className="font-medium truncate w-full text-center  text-ellipsis whitespace-nowrap overflow-hidden max-w-20 px-2 rounded py-1 bg-item-hover transition-colors cursor-pointer text-theme-primary-active"
-							>
-								{sound.filename}
-							</p>
-						</div>
-						<audio controls src={sound.url} className="w-full h-8 rounded-full border-theme-primary mb-2" />
-						<button
-							onClick={() => onClickSendSound(sound)}
-							title="Send sound"
-							className="flex items-center gap-2 px-4 py-1.5 btn-primary btn-primary-hover rounded-full  transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 mt-2"
-						>
-							<Icons.ArrowRight defaultFill="white" className="w-4 h-4" />
-						</button>
-					</div>
-				))}
-			</div>
+						{playingPreview === sound.id ? (
+							<svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+								<rect x="6" y="4" width="4" height="16" rx="1" />
+								<rect x="14" y="4" width="4" height="16" rx="1" />
+							</svg>
+						) : (
+							<Icons.Speaker className="w-4 h-4" />
+						)}
+					</button>
+					<span className="flex-1 text-xs font-bold text-theme-primary truncate select-none">{sound.filename}</span>
+					<button
+						onClick={() => onClickSendSound(sound)}
+						className="flex-shrink-0 flex items-center justify-center text-theme-primary duration-200  hover:scale-110 active:scale-95"
+						title="Send sound"
+					>
+						<Icons.ResendMessageRightClick defaultSize="h-5 w-5" />
+					</button>
+				</div>
+			))}
 		</div>
 	);
 });
