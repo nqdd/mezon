@@ -43,7 +43,7 @@ export function ChannelCreator({ navigation, route }: MenuClanScreenProps<Create
 			clan_id: currentClanId?.toString(),
 			type: channelType,
 			channel_label: channelName?.trim(),
-			channel_private: isChannelPrivate ? 1 : 0,
+			channel_private: channelType !== ChannelType.CHANNEL_TYPE_CHANNEL ? 0 : isChannelPrivate ? 1 : 0,
 			category_id: categoryId,
 			parent_id: '0'
 		};
