@@ -2369,6 +2369,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const onclanupdated = useCallback(async (clanUpdatedEvent: ClanUpdatedEvent) => {
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
+		if (clanUpdatedEvent.prevent_anonymous) {
+			dispatch(accountActions.turnOffAnonymous());
+		}
 	}, []);
 
 	const onJoinChannelAppEvent = useCallback(async (joinChannelAppData: JoinChannelAppData) => {

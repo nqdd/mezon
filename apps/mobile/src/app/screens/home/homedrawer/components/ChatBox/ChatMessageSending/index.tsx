@@ -159,7 +159,9 @@ export const ChatMessageSending = memo(
 
 		const getUsersNotExistingInThread = (mentions) => {
 			const rolesInClan = selectAllRolesClan(store.getState() as any);
-			const usersNotExistingInThread = uniqueUsers(mentions, parentChannelMemberIds, rolesInClan, [messageActionNeedToResolve?.targetMessage?.sender_id || '']) as string[];
+			const usersNotExistingInThread = uniqueUsers(mentions, parentChannelMemberIds, rolesInClan, [
+				messageActionNeedToResolve?.targetMessage?.sender_id || ''
+			]) as string[];
 
 			return usersNotExistingInThread || [];
 		};

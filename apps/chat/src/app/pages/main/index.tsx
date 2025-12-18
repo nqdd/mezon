@@ -37,13 +37,12 @@ import {
 	selectClanNumber,
 	selectClanView,
 	selectClansEntities,
-	selectClickedOnTopicStatus,
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
+	selectCurrentClan,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
-	selectCurrentTopicId,
 	selectDirectsUnreadlist,
 	selectHasKeyE2ee,
 	selectIsShowChatStream,
@@ -118,12 +117,9 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
-				const state = getStore().getState();
-				const isFocusTopicBox = selectClickedOnTopicStatus(state);
-				const currentTopicId = selectCurrentTopicId(state);
-				if (isFocusTopicBox && currentTopicId) {
-					dispatch(accountActions.setTopicAnonymousMode());
-				} else if (!isFocusTopicBox) {
+				const store = getStore();
+				const currentClan = selectCurrentClan(store.getState());
+				if (!currentClan?.prevent_anonymous) {
 					dispatch(accountActions.setAnonymousMode());
 				}
 			}
@@ -136,7 +132,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, dispatch, directId]
+		[openSearchModal, currentURL]
 	);
 
 	useEffect(() => {
