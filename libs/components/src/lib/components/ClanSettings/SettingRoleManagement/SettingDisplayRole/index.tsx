@@ -5,6 +5,7 @@ import {
 	getNewRoleIcon,
 	getNewSelectedPermissions,
 	getSelectedRoleId,
+	selectCurrentRoleIcon,
 	setNameRoleNew,
 	toggleIsShowFalse,
 	toggleIsShowTrue
@@ -51,6 +52,7 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 	const { t } = useTranslation('clanRoles');
 	const nameRole = useSelector(getNewNameRole);
 	const newRoleIcon = useSelector(getNewRoleIcon);
+	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
 	const colorRole = useSelector(getNewColorRole);
 	const selectedPermissions = useSelector(getNewSelectedPermissions);
 	const clickRole = useSelector(getSelectedRoleId);
@@ -68,12 +70,21 @@ const SettingDisplayRole = ({ RolesClan, hasPermissionEdit }: { RolesClan: Roles
 		const isSamePermissions =
 			selectedPermissions.length === permissionIds.length && selectedPermissions.every((id) => permissionIds.includes(id));
 
-		if ((nameRole !== activeRole?.title && nameRole && nameRole.trim()) || colorRole !== activeRole?.color || !isSamePermissions || newRoleIcon) {
+		const originalIcon = activeRole?.role_icon || '';
+		const currentIconInStore = newRoleIcon !== null ? newRoleIcon : currentRoleIcon || '';
+		const hasIconChanged = currentIconInStore !== originalIcon;
+
+		if (
+			(nameRole !== activeRole?.title && nameRole && nameRole.trim()) ||
+			colorRole !== activeRole?.color ||
+			!isSamePermissions ||
+			hasIconChanged
+		) {
 			dispatch(toggleIsShowTrue());
 		} else {
 			dispatch(toggleIsShowFalse());
 		}
-	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch, newRoleIcon]);
+	}, [nameRole, colorRole, selectedPermissions, activeRole, permissionIds, dispatch, newRoleIcon, currentRoleIcon]);
 
 	return (
 		<div className="grid grid-cols-1 gap-4">

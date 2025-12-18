@@ -582,7 +582,7 @@ export type RoleState = {
 	removePermissions: string[];
 	removeMemberRoles: string[];
 	currentRoleIcon: string;
-	newRoleIcon: string;
+	newRoleIcon: string | null;
 };
 
 const roleStateInitialState: RoleState = {
@@ -595,7 +595,7 @@ const roleStateInitialState: RoleState = {
 	removePermissions: [],
 	removeMemberRoles: [],
 	currentRoleIcon: '',
-	newRoleIcon: ''
+	newRoleIcon: null
 };
 
 export const roleSlice = createSlice({

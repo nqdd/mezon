@@ -65,7 +65,7 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 			dispatch(setColorRoleNew(activeRole?.color));
 			dispatch(setSelectedPermissions(permissionIds));
 			dispatch(setCurrentRoleIcon(activeRole?.role_icon || ''));
-			dispatch(roleSlice.actions.setNewRoleIcon(''));
+			dispatch(roleSlice.actions.setNewRoleIcon(null));
 		}
 	};
 
@@ -81,7 +81,7 @@ const ServerSettingRoleManagement = (props: EditNewRole) => {
 			const roleIcon = newRoleIcon || currentRoleIcon || '';
 			await updateRole(currentClanId ?? '', clickRole, nameRole, colorRole, [], addPermissions, [], removePermissions, roleIcon);
 			dispatch(roleSlice.actions.setCurrentRoleIcon(roleIcon));
-			dispatch(roleSlice.actions.setNewRoleIcon(''));
+			dispatch(roleSlice.actions.setNewRoleIcon(null));
 		}
 	};
 

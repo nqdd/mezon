@@ -1,16 +1,4 @@
-import { useRoles } from '@mezon/core';
-import {
-	getNewColorRole,
-	getNewNameRole,
-	getNewRoleIcon,
-	getNewSelectedPermissions,
-	getRemoveMemberRoles,
-	getRemovePermissions,
-	getSelectedRoleId,
-	roleSlice,
-	selectCurrentClanId,
-	selectCurrentRoleIcon
-} from '@mezon/store';
+import { getNewRoleIcon, roleSlice, selectCurrentRoleIcon } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,17 +8,9 @@ import ChooseIconModal from './ChooseIconModal';
 
 const RoleIcon = () => {
 	const { t } = useTranslation('clanRoles');
-	const currentClanId = useSelector(selectCurrentClanId);
-	const currentRoleId = useSelector(getSelectedRoleId);
 	const newRoleIcon = useSelector(getNewRoleIcon);
 	const currentRoleIcon = useSelector(selectCurrentRoleIcon);
-	const nameRoleNew = useSelector(getNewNameRole);
-	const colorRoleNew = useSelector(getNewColorRole);
-	const newSelectedPermissions = useSelector(getNewSelectedPermissions);
-	const removeMemberRoles = useSelector(getRemoveMemberRoles);
-	const removePermissions = useSelector(getRemovePermissions);
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const { updateRole } = useRoles();
 	const dispatch = useDispatch();
 
 	const [openChooseIconModal, closeChooseIconModal] = useModal(() => {
@@ -42,21 +22,9 @@ const RoleIcon = () => {
 		openChooseIconModal();
 	};
 
-	const handleRemoveIcon = async () => {
+	const handleRemoveIcon = () => {
 		dispatch(roleSlice.actions.setNewRoleIcon(''));
 		dispatch(roleSlice.actions.setCurrentRoleIcon(''));
-
-		await updateRole(
-			currentClanId || '',
-			currentRoleId || '',
-			nameRoleNew,
-			colorRoleNew,
-			[],
-			newSelectedPermissions,
-			removeMemberRoles,
-			removePermissions,
-			''
-		);
 	};
 
 	return (
