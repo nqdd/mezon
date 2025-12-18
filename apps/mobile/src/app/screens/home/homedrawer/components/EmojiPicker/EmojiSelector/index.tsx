@@ -6,13 +6,15 @@ type EmojiSelectorProps = {
 	isReactMessage?: boolean;
 	handleBottomSheetExpand?: () => void;
 	handleBottomSheetCollapse?: () => void;
+	currentChannelId?: string;
 };
 
 export default function EmojiSelector({
 	onSelected,
 	isReactMessage = false,
 	handleBottomSheetExpand,
-	handleBottomSheetCollapse
+	handleBottomSheetCollapse,
+	currentChannelId
 }: EmojiSelectorProps) {
 	const [isReadyForUse, setIsReadyForUse] = useState<boolean>(false);
 	useEffect(() => {
@@ -30,6 +32,7 @@ export default function EmojiSelector({
 			handleBottomSheetCollapse={handleBottomSheetCollapse}
 			onSelected={onSelected}
 			isReactMessage={isReactMessage}
+			currentChannelId={currentChannelId}
 		/>
 	);
 }

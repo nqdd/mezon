@@ -40,7 +40,7 @@ export interface MediaDeviceSelectProps extends Omit<React.HTMLAttributes<HTMLUL
  * ```
  * @public
  */
-export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttributes<HTMLUListElement>) => React.ReactNode =
+export const MediaDeviceSelect = React.memo(
 	/* @__PURE__ */ React.forwardRef<HTMLUListElement, MediaDeviceSelectProps>(function MediaDeviceSelect(
 		{
 			kind,
@@ -57,7 +57,13 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 		ref
 	) {
 		const room = useMaybeRoomContext();
-		const previousActiveDeviceId = React.useRef<string>('default');
+		const previousActiveDeviceId = React.useRef<string | undefined>(undefined);
+		const onActiveDeviceChangeRef = React.useRef(onActiveDeviceChange);
+
+		React.useEffect(() => {
+			onActiveDeviceChangeRef.current = onActiveDeviceChange;
+		}, [onActiveDeviceChange]);
+
 		const handleError = React.useCallback(
 			(e: Error) => {
 				if (room) {
@@ -75,11 +81,6 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 			requestPermissions,
 			onError: handleError
 		});
-		React.useEffect(() => {
-			if (initialSelection !== undefined) {
-				setActiveMediaDevice(initialSelection);
-			}
-		}, [setActiveMediaDevice]);
 
 		React.useEffect(() => {
 			if (typeof onDeviceListChange === 'function') {
@@ -88,10 +89,16 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 		}, [onDeviceListChange, devices]);
 
 		React.useEffect(() => {
-			if (activeDeviceId !== previousActiveDeviceId.current) {
-				onActiveDeviceChange?.(activeDeviceId);
+			if (activeDeviceId === previousActiveDeviceId.current) {
+				return;
 			}
+
+			const hasChanged = previousActiveDeviceId.current !== undefined;
 			previousActiveDeviceId.current = activeDeviceId;
+
+			if (hasChanged && activeDeviceId) {
+				onActiveDeviceChangeRef.current?.(activeDeviceId);
+			}
 		}, [activeDeviceId]);
 
 		const handleActiveDeviceChange = async (deviceId: string) => {
@@ -106,7 +113,10 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 			}
 		};
 		// Merge Props
-		const mergedProps = React.useMemo(() => mergeProps(props, { className }, { className: 'lk-list' }), [className, props]);
+		const mergedProps = React.useMemo(
+			() => mergeProps(props, { className }, { className: 'lk-list bg-zinc-800 dark:bg-zinc-900 rounded-lg shadow-lg p-1 min-w-[260px]' }),
+			[className, props]
+		);
 
 		const hasDefault = !!devices.find((info) => info.label.toLowerCase().startsWith('default'));
 
@@ -114,21 +124,44 @@ export const MediaDeviceSelect: (props: MediaDeviceSelectProps & React.RefAttrib
 			return deviceId === activeDeviceId || (!hasDefault && index === 0 && activeDeviceId === 'default');
 		}
 
+		const isDeviceActive = (deviceId: string, currentActiveId: string, index: number) => {
+			return isActive(deviceId, currentActiveId, index);
+		};
+
+		if (!devices?.length) return null;
+
 		return (
 			<ul ref={ref} {...mergedProps}>
-				{devices.map((device, index) => (
-					<li
-						key={device.deviceId}
-						id={device.deviceId}
-						data-lk-active={isActive(device.deviceId, activeDeviceId, index)}
-						aria-selected={isActive(device.deviceId, activeDeviceId, index)}
-						role="option"
-					>
-						<button className="lk-button" onClick={() => handleActiveDeviceChange(device.deviceId)}>
-							{device.label}
-						</button>
-					</li>
-				))}
+				{devices.map((device, index) => {
+					const active = isDeviceActive(device.deviceId, activeDeviceId, index);
+					return (
+						<li
+							key={device.deviceId}
+							id={device.deviceId}
+							data-lk-active={active}
+							aria-selected={active}
+							role="option"
+							className="w-full"
+						>
+							<button
+								className="w-full flex items-center justify-between px-3 py-2 text-sm text-white hover:bg-zinc-700 dark:hover:bg-zinc-800 rounded transition-colors"
+								onClick={() => handleActiveDeviceChange(device.deviceId)}
+							>
+								<span className="flex-1 text-left truncate">{device.label}</span>
+								<div className="ml-3 flex-shrink-0">
+									{active ? (
+										<div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center">
+											<div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+										</div>
+									) : (
+										<div className="w-4 h-4 rounded-full border-2 border-zinc-400 dark:border-zinc-500"></div>
+									)}
+								</div>
+							</button>
+						</li>
+					);
+				})}
 			</ul>
 		);
-	});
+	})
+);

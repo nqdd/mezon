@@ -1081,9 +1081,9 @@ export function EyeOpen(props: React.HTMLAttributes<SVGElement>) {
 	);
 }
 
-export const ArrowRight: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4' }) => {
+export const ArrowRight: React.FC<IconProps> = ({ defaultSize = 'w-5 h-5 min-w-4', className }) => {
 	return (
-		<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={defaultSize}>
+		<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className ? `${defaultSize} ${className}` : defaultSize}>
 			<g id="Live area">
 				<path
 					id="Vector"

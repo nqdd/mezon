@@ -120,6 +120,8 @@ const PanelKeyboard = React.memo((props: IProps) => {
 							bottomSheetRef={bottomPickerRef}
 							directMessageId={props?.directMessageId || ''}
 							messageActionNeedToResolve={messageActionNeedToResolve}
+							channelId={props?.currentChannelId}
+							messageAction={props?.messageAction}
 						/>
 					) : (
 						<View />

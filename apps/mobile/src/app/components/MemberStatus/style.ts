@@ -15,6 +15,9 @@ export const style = (colors: Attributes) =>
 		textInvite: {
 			color: colors.text
 		},
+		textInviteDisabled: {
+			color: colors.textDisabled
+		},
 		box: {
 			backgroundColor: colors.primary,
 			marginTop: size.s_10,
@@ -37,6 +40,9 @@ export const style = (colors: Attributes) =>
 			padding: size.s_10,
 			backgroundColor: baseColor.blurple,
 			borderRadius: 50
+		},
+		iconWrapperDisabled: {
+			backgroundColor: colors.textDisabled
 		},
 
 		iconNameWrapper: {
@@ -67,6 +73,9 @@ export const style = (colors: Attributes) =>
 			padding: size.s_8,
 			borderRadius: 50,
 			backgroundColor: baseColor.blurple
+		},
+		contentContainerStyle: {
+			paddingBottom: size.s_60
 		}
 	});
 

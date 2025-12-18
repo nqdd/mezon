@@ -55,7 +55,9 @@
 		"welcomeSticker": "Nhắc nhở thành viên trả lời tin nhắn chào mừng bằng nhãn dán.",
 		"boostMessage": "Gửi tin nhắn khi có người Boost máy chủ này.",
 		"setupTips": "Gửi mẹo hữu ích cho thiết lập máy chủ.",
-		"auditLog": "Gửi nhật ký khi một hành động được áp dụng cho clan"
+		"auditLog": "Gửi nhật ký khi một hành động được áp dụng cho clan",
+		"anoTitle": "Chế độ ẩn danh",
+		"anoDesc": "Chặn người dùng sử dụng chế độ ẩn danh"
 	},
 	"appDirectory": {
 		"categories": {

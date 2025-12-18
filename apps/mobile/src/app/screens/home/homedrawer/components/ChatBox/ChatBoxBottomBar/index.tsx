@@ -41,17 +41,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
-import {
-	SlashCommandMessage
-} from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
+import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import {
-	removeBackticks,
-	resetCachedChatbox,
-	resetCachedMessageActionNeedToResolve
-} from '../../../../../../utils/helpers';
+import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';

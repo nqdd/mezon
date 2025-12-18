@@ -129,14 +129,14 @@ The application will be available at http://localhost:4200/
 
 ### Download Options
 
-| Platform    | Download Link                   | Status    |
-| ----------- | ------------------------------- | --------- |
-| **Windows** | [Download](https://mezon.ai)    | ✅ Stable |
-| **macOS**   | [Download](https://mezon.ai)    | ✅ Stable |
-| **Linux**   | [Download](https://mezon.ai)    | ✅ Stable |
-| **iOS**     | [App Store](https://mezon.ai)   | ✅ Stable |
-| **Android** | [Google Play](https://mezon.ai) | ✅ Stable |
-| **Web**     | [mezon.ai](https://mezon.ai)    | ✅ Stable |
+| Platform    | Download Link                                                                 | Status    |
+| ----------- | ----------------------------------------------------------------------------- | --------- |
+| **Windows** | [Download](https://apps.microsoft.com/detail/9pf25lf1fj17)                    | ✅ Stable |
+| **macOS**   | [Download](https://cdn.mezon.ai/release/mezon-1.4.60-mac-arm64.dmg)           | ✅ Stable |
+| **Linux**   | [Download](https://cdn.mezon.ai/release/mezon-1.4.60-linux-amd64.deb)         | ✅ Stable |
+| **iOS**     | [App Store](https://apps.apple.com/vn/app/mezon/id6502750046)                 | ✅ Stable |
+| **Android** | [Google Play](https://play.google.com/store/apps/details?id=com.mezon.mobile) | ✅ Stable |
+| **Web**     | [mezon.ai](https://mezon.ai)                                                  | ✅ Stable |
 
 ---
 
