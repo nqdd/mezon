@@ -457,7 +457,7 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 			usernames.push(user.username);
 			avatars.push(user.avatar);
 			onlines.push(user.online);
-			label.push(user.display_name);
+			label.push(user.display_name || user.username);
 		}
 
 		const state = thunkAPI.getState() as RootState;
@@ -581,7 +581,7 @@ export const directSlice = createSlice({
 			directAdapter.updateOne(state, {
 				id: action.payload.channelId,
 				changes: {
-					member_count: (currentDirect.member_count || 0) > 0 ? (currentDirect.member_count || 1) - 1 : 0
+					member_count: (currentDirect?.member_count || 0) > 0 ? (currentDirect?.member_count || 1) - 1 : 0
 				}
 			});
 		},
