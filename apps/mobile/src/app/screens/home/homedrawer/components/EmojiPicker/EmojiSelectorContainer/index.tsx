@@ -1,6 +1,6 @@
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useEmojiSuggestionContext } from '@mezon/core';
-import { ActionEmitEvent, debounce } from '@mezon/mobile-components';
+import { ActionEmitEvent, debounce, isEmpty } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { emojiSuggestionActions, getStore, selectCurrentTopicId, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import type { IEmoji } from '@mezon/utils';
@@ -80,7 +80,6 @@ export default function EmojiSelectorContainer({
 			if (!emoji?.id || emoji?.is_for_sale) continue;
 			if (emoji?.category) {
 				categoriesEmoji.forEach((cat) => {
-					if (cat === FOR_SALE_CATE) return;
 					if (emoji?.category?.includes(cat)) {
 						const list = map.get(cat);
 						if (list) list.push(emoji);
@@ -228,6 +227,7 @@ export default function EmojiSelectorContainer({
 		};
 
 		categoriesEmoji.forEach((category) => {
+			if (isEmpty(emojisByCategory?.get(category))) return;
 			processCategory(category);
 		});
 
