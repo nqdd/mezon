@@ -162,6 +162,8 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 		searchRef.current?.blur();
 	}, [channelId, isShowMemberListBefore, isShowMemberListDMBefore, isUseProfileDMBefore, dispatch]);
 
+	const isDMMode = mode === ChannelStreamMode.STREAM_MODE_DM || mode === ChannelStreamMode.STREAM_MODE_GROUP;
+
 	const executeSearchWithQueue = useDebouncedCallback(() => {
 		if (searchedRequest && channelId && currentClanId) {
 			const channelIdFilter = searchedRequest.filters?.find((f) => f.field_name === 'channel_id');
@@ -172,7 +174,9 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			const filteredFilters = (searchedRequest.filters || []).filter((f) => f.field_name !== 'channel_id');
 
 			let channelIdValue: string;
-			if (hasSpecificChannel && channelIdFilter?.field_value) {
+			if (isDMMode && currentDmGroupId) {
+				channelIdValue = currentDmGroupId;
+			} else if (hasSpecificChannel && channelIdFilter?.field_value) {
 				channelIdValue = channelIdFilter.field_value;
 			} else if (hasOtherFilters) {
 				channelIdValue = channelId;
