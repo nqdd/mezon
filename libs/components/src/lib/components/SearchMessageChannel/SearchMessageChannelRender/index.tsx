@@ -39,7 +39,7 @@ type GroupedMessages = {
 	messages: SearchMessageEntity[];
 }[];
 
-const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm: _isDm, isLoading }: searchMessagesProps) => {
+const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, channelId, isDm, isLoading }: searchMessagesProps) => {
 	const { t } = useTranslation('searchMessageChannel');
 	const dispatch = useAppDispatch();
 	const userId = useSelector(selectAllAccount)?.user?.id;
@@ -131,9 +131,11 @@ const SearchMessageChannelRender = ({ searchMessages, currentPage, totalResult, 
 								{groupedMessages.map((group, groupIndex) => {
 									return (
 										<div key={groupIndex} className="flex flex-col">
-											<h3 className="mb-[8px] text-theme-primary font-medium text-ellipsis whitespace-nowrap overflow-hidden">
-												# {group.label}
-											</h3>
+											{!isDm && (
+												<h3 className="mb-[8px] text-theme-primary font-medium text-ellipsis whitespace-nowrap overflow-hidden">
+													# {group.label}
+												</h3>
+											)}
 											<div key={groupIndex} className="flex flex-col gap-[8px]">
 												{group.messages.map((searchMessage) => (
 													<SearchedItem
