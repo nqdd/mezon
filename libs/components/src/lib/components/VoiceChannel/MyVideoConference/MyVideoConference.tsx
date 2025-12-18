@@ -10,9 +10,16 @@ import {
 	useRoomContext,
 	useTracks
 } from '@livekit/components-react';
-import { useAppDispatch, voiceActions } from '@mezon/store';
+import { getStore, selectCurrentUserId, useAppDispatch, voiceActions } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { LocalParticipant, LocalTrackPublication, RemoteParticipant, RemoteTrackPublication } from 'livekit-client';
+import type {
+	LocalParticipant,
+	LocalTrackPublication,
+	Participant,
+	RemoteParticipant,
+	RemoteTrackPublication,
+	TrackPublication
+} from 'livekit-client';
 import { DisconnectReason, RoomEvent, Track } from 'livekit-client';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NotificationTooltip } from '../../NotificationList/NotificationTooltip';
@@ -229,12 +236,21 @@ export const MyVideoConference = memo(
 					await document.exitPictureInPicture();
 				}
 			};
+
+			const handleTrackMuted = async (publication: TrackPublication, participant: Participant) => {
+				const store = getStore();
+				const userId = selectCurrentUserId(store.getState());
+				if (participant.identity === userId) {
+					dispatch(voiceActions.setShowMicrophone(false));
+				}
+			};
 			room?.on('disconnected', handleDisconnected);
 			room?.on('localTrackPublished', handleLocalTrackPublished);
 			room?.on('localTrackUnpublished', handleLocalTrackUnpublished);
 			room?.on('reconnected', handleReconnectedRoom);
 			room?.on('participantDisconnected', handleUserDisconnect);
 			room?.on('trackUnpublished', handleTrackUnpublish);
+			room?.on('trackMuted', handleTrackMuted);
 
 			return () => {
 				room?.off('disconnected', handleDisconnected);
@@ -243,6 +259,7 @@ export const MyVideoConference = memo(
 				room?.off('reconnected', handleReconnectedRoom);
 				room?.off('participantDisconnected', handleUserDisconnect);
 				room?.off('trackUnpublished', handleTrackUnpublish);
+				room?.off('trackMuted', handleTrackMuted);
 			};
 		}, [room, focusTrack, dispatch, layoutContext.pin, onJoinRoom, onLeaveRoom, token, url]);
 
