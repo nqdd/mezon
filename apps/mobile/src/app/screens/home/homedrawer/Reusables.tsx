@@ -1,11 +1,11 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { createImgproxyUrl } from '@mezon/utils';
-import Images from 'apps/mobile/src/assets/Images';
 import type { User } from 'mezon-js';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
+import Images from '../../../../assets/Images';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonButton from '../../../componentUI/MezonButton';
 import ImageNative from '../../../components/ImageNative';
@@ -45,12 +45,12 @@ export const FriendListItem = memo((props: IFriendListItemProps) => {
 				<TouchableOpacity
 					disabled={isSent}
 					onPress={() => {
-						onPress(dmGroup.channel_id || '', dmGroup.type || 0, dmGroup);
+						onPress(dmGroup.channel_id || '', dmGroup?.type || 0, dmGroup);
 					}}
 					style={[styles.friendItemWrapper, isSent && styles.friendItemWrapperInvited]}
 				>
 					<View style={styles.friendItemContent}>
-						{Number(dmGroup.type) === ChannelType.CHANNEL_TYPE_GROUP ? (
+						{Number(dmGroup?.type) === ChannelType.CHANNEL_TYPE_GROUP ? (
 							isGroupAvatar ? (
 								<View style={styles.groupAvatarWrapper}>
 									<ImageNative
@@ -74,7 +74,7 @@ export const FriendListItem = memo((props: IFriendListItemProps) => {
 						containerStyle={[styles.inviteButton]}
 						disabled={isSent}
 						onPress={() => {
-							onPress(dmGroup.channel_id || '', dmGroup.type || 0, dmGroup);
+							onPress(dmGroup.channel_id || '', dmGroup?.type || 0, dmGroup);
 						}}
 					/>
 				</TouchableOpacity>
