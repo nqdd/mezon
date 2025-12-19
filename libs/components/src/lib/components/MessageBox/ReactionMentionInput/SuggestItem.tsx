@@ -1,5 +1,5 @@
 import type { ChannelsEntity } from '@mezon/store';
-import { selectAllChannelsByUser, selectAllHashtagDm, selectChannelById, selectNumberMemberVoiceChannel, useAppSelector } from '@mezon/store';
+import { selectAllChannelsByUser, selectChannelById, selectNumberMemberVoiceChannel, useAppSelector } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
 import type { SearchItemProps } from '@mezon/utils';
 import { createImgproxyUrl, generateE2eId, getSrcEmoji } from '@mezon/utils';
@@ -7,7 +7,6 @@ import type { HashtagDm } from 'mezon-js';
 import { ChannelType } from 'mezon-js';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
 import { AvatarImage } from '../../AvatarImage/AvatarImage';
 
 type SuggestItemProps = {
@@ -51,8 +50,6 @@ const SuggestItem = ({
 		return channel.channel_id === channelId;
 	});
 
-	const { directId } = useParams();
-	const commonChannels = useSelector(selectAllHashtagDm);
 	const [specificChannel, setSpecificChannel] = useState<ChannelsEntity | HashtagDm | null>(null);
 	const numberMembersVoice = useAppSelector((state) => selectNumberMemberVoiceChannel(state, channelId as string));
 	const checkVoiceStatus = useMemo(() => {
@@ -105,12 +102,6 @@ const SuggestItem = ({
 	useEffect(() => {
 		if (channel) {
 			setSpecificChannel(channel);
-		} else if (directId && !isOpenSearchModal) {
-			commonChannels.map((channel) => {
-				if (channel.channel_id === channelId) {
-					setSpecificChannel(channel);
-				}
-			});
 		} else {
 			allChannels.map((channel) => {
 				if (channel.channel_id === channelId) {
