@@ -358,7 +358,7 @@ const SidebarMenu = memo(
 			>
 				<div className="relative h-full w-full overflow-hidden">
 					<div
-						className={`top-0 left-0 right-0 flex flex-col items-center pt-0 pb-[68px] overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-[calc(100%-80px)] h-[calc(100%-80px)]' : 'h-[calc(100dvh_-_10px_-_80px)]'} `}
+						className={`top-0 left-0 right-0 flex flex-col items-center pt-0 pb-[68px] overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'h-[calc(100%-80px)]' : 'h-[calc(100dvh_-_10px_-_80px)]'} `}
 						onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
 					>
 						<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
