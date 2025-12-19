@@ -369,7 +369,7 @@ const SidebarMenu = memo(
 
 					<div className="pb-12">
 						<ClansList />
-						<div className="mt-3">
+						<div>
 							<NavLinkComponent>
 								<div
 									className="flex items-center justify-between text-theme-primary group"
