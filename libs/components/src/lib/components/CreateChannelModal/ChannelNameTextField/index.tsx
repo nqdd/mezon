@@ -18,6 +18,7 @@ interface ChannelNameModalProps {
 	placeholder: string;
 	shouldValidate: boolean;
 	categoryId?: string;
+	clanId: string;
 }
 
 export type ChannelNameModalRef = {
@@ -25,7 +26,7 @@ export type ChannelNameModalRef = {
 };
 
 export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameModalProps>((props, ref) => {
-	const { channelNameProps, type, onChange, onCheckValidate, onHandleChangeValue, error, placeholder, shouldValidate, categoryId } = props;
+	const { channelNameProps, type, onChange, onCheckValidate, onHandleChangeValue, error, placeholder, shouldValidate, categoryId, clanId } = props;
 	const { t } = useTranslation('createChannel');
 	const [checkValidate, setCheckValidate] = useState(true);
 	const [checkNameChannel, setCheckNameChannel] = useState(true);
@@ -59,7 +60,8 @@ export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameM
 			await dispatch(
 				checkDuplicateChannelInCategory({
 					channelName: value.trim(),
-					categoryId: categoryId ?? ''
+					categoryId: categoryId ?? '',
+					clanId
 				})
 			)
 				.then(unwrapResult)

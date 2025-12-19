@@ -151,7 +151,7 @@ export const checkDuplicateCategoryInClan = createAsyncThunk(
 	async ({ categoryName, clanId }: { categoryName: string; clanId: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(categoryName, clanId, TypeCheck.TYPECATEGORY);
+			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(categoryName, clanId, TypeCheck.TYPECATEGORY, clanId);
 
 			if (isDuplicateName?.type === TypeCheck.TYPECATEGORY) {
 				return isDuplicateName.exist;

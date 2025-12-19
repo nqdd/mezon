@@ -114,7 +114,9 @@ const ThreadBox = () => {
 				return;
 			}
 
-			const isDuplicate = await dispatch(checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string }));
+			const isDuplicate = await dispatch(
+				checkDuplicateThread({ thread_name: value.nameValueThread, channel_id: idParent as string, clan_id: currentClanId as string })
+			);
 			if (isDuplicate?.payload) {
 				toast(t('createThread.toast.threadNameExists'));
 				return;
