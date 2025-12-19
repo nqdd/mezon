@@ -249,10 +249,10 @@ export const initialThreadsState: ThreadsState = threadsAdapter.getInitialState(
 
 export const checkDuplicateThread = createAsyncThunk(
 	'thread/duplicateNameCthread',
-	async ({ thread_name, channel_id }: { thread_name: string; channel_id: string }, thunkAPI) => {
+	async ({ thread_name, channel_id, clan_id }: { thread_name: string; channel_id: string; clan_id: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(thread_name, channel_id, TypeCheck.TYPETHREAD);
+			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(thread_name, channel_id, TypeCheck.TYPETHREAD, clan_id);
 			if (isDuplicateName?.type === TypeCheck.TYPETHREAD) {
 				return isDuplicateName.exist;
 			}
