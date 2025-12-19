@@ -373,8 +373,7 @@ export const AuthenticationLoader = () => {
 						console.error('log => error OPEN ON_TRIGGER_MODAL: ', error);
 					}
 				},
-				(error: any) => {
-					console.error('log => error ReceiveSharingIntent: ', error);
+				() => {
 					/* empty */
 				},
 				'mezon.mobile.sharing'

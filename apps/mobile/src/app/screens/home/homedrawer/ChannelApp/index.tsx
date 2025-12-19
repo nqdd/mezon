@@ -91,7 +91,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 
 	const rotateInterpolate = animatedRotation.interpolate({
 		inputRange: [0, 1],
-		outputRange: ['0deg', '180deg']
+		outputRange: ['180deg', '0deg']
 	});
 
 	const insets = useSafeAreaInsets();
