@@ -1,7 +1,7 @@
 import type { TrackReferenceOrPlaceholder } from '@livekit/components-core';
 import { getScrollBarWidth } from '@livekit/components-core';
 import { TrackLoop, useVisualStableUpdate } from '@livekit/components-react';
-import { useWindowSize } from '@mezon/utils';
+import { useWindowSize, windowSize } from '@mezon/utils';
 import type { HTMLAttributes, ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
@@ -15,6 +15,7 @@ export interface CarouselLayoutProps extends HTMLAttributes<HTMLMediaElement> {
 
 export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 	const asideEl = useRef<HTMLDivElement>(null);
+	const prevAsideEl = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
 	const [prevTiles, setPrevTiles] = useState(0);
 	const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -23,6 +24,12 @@ export function CarouselLayout({ tracks, ...props }: CarouselLayoutProps) {
 			setDimensions({
 				width: asideEl.current.offsetWidth,
 				height: asideEl.current.offsetHeight
+			});
+		} else {
+			const { width, height } = windowSize.get();
+			setDimensions({
+				width,
+				height
 			});
 		}
 	};

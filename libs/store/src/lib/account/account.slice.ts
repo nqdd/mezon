@@ -208,6 +208,9 @@ export const accountSlice = createSlice({
 		setAccount(state, action) {
 			state.account = action.payload;
 		},
+		turnOffAnonymous(state) {
+			state.anonymousMode = false;
+		},
 		setAnonymousMode(state) {
 			state.anonymousMode = !state.anonymousMode;
 		},

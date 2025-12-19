@@ -1,8 +1,8 @@
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { useEmojiSuggestionContext } from '@mezon/core';
-import { ActionEmitEvent, debounce } from '@mezon/mobile-components';
+import { ActionEmitEvent, debounce, isEmpty } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { emojiSuggestionActions, getStore, selectCurrentChannelId, selectCurrentTopicId, selectDmGroupCurrentId } from '@mezon/store-mobile';
+import { emojiSuggestionActions, getStore, selectCurrentTopicId, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import type { IEmoji } from '@mezon/utils';
 import { FOR_SALE_CATE, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,6 +23,7 @@ type EmojiSelectorContainerProps = {
 	isReactMessage?: boolean;
 	handleBottomSheetExpand?: () => void;
 	handleBottomSheetCollapse?: () => void;
+	currentChannelId?: string;
 };
 
 const COLUMNS = 9;
@@ -31,7 +32,8 @@ export default function EmojiSelectorContainer({
 	onSelected,
 	isReactMessage = false,
 	handleBottomSheetExpand,
-	handleBottomSheetCollapse
+	handleBottomSheetCollapse,
+	currentChannelId
 }: EmojiSelectorContainerProps) {
 	const store = getStore();
 	const { categoryEmoji, categoriesEmoji, emojis } = useEmojiSuggestionContext();
@@ -61,13 +63,12 @@ export default function EmojiSelectorContainer({
 
 	const channelId = useMemo(() => {
 		const currentDirectId = selectDmGroupCurrentId(store.getState());
-		const currentChannelId = selectCurrentChannelId(store.getState() as any);
 		const currentTopicId = selectCurrentTopicId(store.getState() as any);
 
 		const channelId = currentTopicId ? currentTopicId : currentChannelId;
 
 		return currentDirectId ? currentDirectId : channelId;
-	}, [store]);
+	}, [currentChannelId, store]);
 
 	const emojisByCategory = useMemo(() => {
 		const map = new Map<string, IEmoji[]>();
@@ -79,7 +80,6 @@ export default function EmojiSelectorContainer({
 			if (!emoji?.id || emoji?.is_for_sale) continue;
 			if (emoji?.category) {
 				categoriesEmoji.forEach((cat) => {
-					if (cat === FOR_SALE_CATE) return;
 					if (emoji?.category?.includes(cat)) {
 						const list = map.get(cat);
 						if (list) list.push(emoji);
@@ -109,9 +109,9 @@ export default function EmojiSelectorContainer({
 				)
 			: [];
 		return [
+			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.shopSparkleIcon} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.starIcon} color={themeValue.textStrong} />,
-			<MezonIconCDN icon={IconCDN.clockIcon} color={themeValue.textStrong} />,
 			...clanEmojis,
 			<MezonIconCDN icon={IconCDN.reactionIcon} height={size.s_24} width={size.s_24} color={themeValue.textStrong} />,
 			<MezonIconCDN icon={IconCDN.leafIcon} color={themeValue.textStrong} />,
@@ -125,8 +125,7 @@ export default function EmojiSelectorContainer({
 	}, [categoryEmoji, themeValue]);
 
 	const categoriesWithIcons = useMemo(() => {
-		const categories = [FOR_SALE_CATE, ...(categoriesEmoji.filter((c) => c !== FOR_SALE_CATE) || [])];
-		return categories.map((category, index) => ({
+		return categoriesEmoji.map((category, index) => ({
 			name: category,
 			icon: cateIcon[index],
 			emojis: emojisByCategory?.get(category) || []
@@ -227,15 +226,8 @@ export default function EmojiSelectorContainer({
 			}
 		};
 
-		const hasForSaleInList = categoriesEmoji.includes(FOR_SALE_CATE);
-		const forSaleEmojis = emojisByCategory.get(FOR_SALE_CATE) || [];
-
-		if (forSaleEmojis.length > 0) {
-			processCategory(FOR_SALE_CATE);
-		}
-
 		categoriesEmoji.forEach((category) => {
-			if (category === FOR_SALE_CATE && !hasForSaleInList) return;
+			if (isEmpty(emojisByCategory?.get(category))) return;
 			processCategory(category);
 		});
 

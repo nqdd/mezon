@@ -15,9 +15,6 @@ interface IChatBoxProps {
 	channelId: string;
 	mode: ChannelStreamMode;
 	messageAction?: EMessageActionType;
-	hiddenIcon?: {
-		threadIcon: boolean;
-	};
 	directMessageId?: string;
 	canSendMessage?: boolean;
 	isPublic: boolean;
@@ -99,7 +96,6 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 					onDeleteMessageActionNeedToResolve={deleteMessageActionNeedToResolve}
 					channelId={props?.channelId}
 					mode={props?.mode}
-					hiddenIcon={props?.hiddenIcon}
 					messageAction={props?.messageAction}
 					isPublic={props?.isPublic}
 					topicChannelId={props?.topicChannelId}

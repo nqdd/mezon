@@ -1,8 +1,8 @@
 import { useAccount } from '@mezon/core';
 import { size } from '@mezon/mobile-ui';
-import { accountActions, appActions } from '@mezon/store';
-import { selectCurrentLanguage, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import React, { memo, useEffect, useState } from 'react';
+import { accountActions, appActions, authActions } from '@mezon/store';
+import { getStoreAsync, selectCurrentLanguage, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Dimensions, Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -72,6 +72,13 @@ const UpdateUserName = () => {
 		}
 	};
 
+	const handleGoBack = async () => {
+		const store = await getStoreAsync();
+		store.dispatch(appActions.setIsShowWelcomeMobile(false));
+		await store.dispatch(authActions.logOut({ device_id: '', platform: Platform.OS }));
+		store.dispatch(appActions.setIsShowUpdateUsername(false));
+	};
+
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
 			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
@@ -125,6 +132,16 @@ const UpdateUserName = () => {
 							/>
 						)}
 					</TouchableOpacity>
+
+					<View style={styles.alternativeSection}>
+						<Text style={styles.alternativeText}>{t('updateUsername.skipUpdateQuestion')}</Text>
+
+						<View style={styles.alternativeOptions}>
+							<TouchableOpacity onPress={handleGoBack}>
+								<Text style={styles.linkText}>{t('updateUsername.skipUpdateBack')}</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
 				</View>
 			</KeyboardAvoidingView>
 		</ScrollView>

@@ -36,6 +36,8 @@ export type IProps = {
 	bottomSheetRef: MutableRefObject<BottomSheetMethods>;
 	directMessageId?: string;
 	messageActionNeedToResolve?: IMessageActionNeedToResolve | null;
+	channelId?: string;
+	messageAction?: EMessageActionType;
 };
 
 interface TextTabProps {
@@ -60,7 +62,7 @@ function TextTab({ selected, title, onPress }: TextTabProps) {
 
 type ExpressionType = 'emoji' | 'gif' | 'sticker';
 
-function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActionNeedToResolve }: IProps) {
+function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActionNeedToResolve, channelId = '', messageAction }: IProps) {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const currentChannel = useSelector(selectCurrentChannel);
@@ -73,6 +75,10 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 	const currentTopicId = useSelector(selectCurrentTopicId);
 	const isCreateTopic = useSelector(selectIsShowCreateTopic);
 	const dispatch = useAppDispatch();
+
+	const isActionCreateThread = useMemo(() => {
+		return messageAction === EMessageActionType.CreateThread;
+	}, [messageAction]);
 
 	const clearSearchInput = () => {
 		setSearchText('');
@@ -146,10 +152,9 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 		bottomSheetRef && bottomSheetRef.current && bottomSheetRef.current.expand();
 	}
 
-	const debouncedSetSearchText = useCallback(
-		debounce((text) => setSearchText(text), 300),
-		[]
-	);
+	const debouncedSetSearchText = useCallback((text: string) => {
+		debounce(() => setSearchText(text), 300)();
+	}, []);
 
 	const handleBottomSheetExpand = useCallback(() => {
 		bottomSheetRef && bottomSheetRef?.current && bottomSheetRef.current.expand();
@@ -184,26 +189,27 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 	return (
 		<View style={styles.container}>
 			<View>
-				<View style={styles.tabContainer}>
-					<TextTab title={t('tab.emoji')} selected={mode === 'emoji'} onPress={() => setMode('emoji')} />
-					<TextTab
-						title={t('tab.gif')}
-						selected={mode === 'gif'}
-						onPress={() => {
-							setMode('gif');
-							clearSearchInput();
-						}}
-					/>
-					<TextTab
-						title={t('tab.sticker')}
-						selected={mode === 'sticker'}
-						onPress={() => {
-							setMode('sticker');
-							clearSearchInput();
-						}}
-					/>
-				</View>
-
+				{!isActionCreateThread && (
+					<View style={styles.tabContainer}>
+						<TextTab title={t('tab.emoji')} selected={mode === 'emoji'} onPress={() => setMode('emoji')} />
+						<TextTab
+							title={t('tab.gif')}
+							selected={mode === 'gif'}
+							onPress={() => {
+								setMode('gif');
+								clearSearchInput();
+							}}
+						/>
+						<TextTab
+							title={t('tab.sticker')}
+							selected={mode === 'sticker'}
+							onPress={() => {
+								setMode('sticker');
+								clearSearchInput();
+							}}
+						/>
+					</View>
+				)}
 				{mode !== 'emoji' && (
 					<View style={styles.searchRow}>
 						<View style={styles.textInputWrapper}>
@@ -245,6 +251,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 					handleBottomSheetExpand={handleBottomSheetExpand}
 					handleBottomSheetCollapse={handleBottomSheetCollapse}
 					onSelected={onSelectEmoji}
+					currentChannelId={channelId}
 				/>
 			) : mode === 'gif' ? (
 				<GifSelector onScroll={onScroll} onSelected={(url) => handleSelected('gif', url)} searchText={searchText} />

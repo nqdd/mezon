@@ -14,6 +14,7 @@ import ChannelMessages from '../../../ChannelMessages';
 import { ChatBox } from '../../../ChatBox';
 import PanelKeyboard from '../../../PanelKeyboard';
 import { style } from './styles';
+
 type ChatBoxStreamScreen = typeof APP_SCREEN.MESSAGES.STACK;
 
 const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>) => {
@@ -55,9 +56,6 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 			</PanGestureHandler>
 
 			<ChatBox
-				hiddenIcon={{
-					threadIcon: true
-				}}
 				channelId={currentChannel?.channel_id}
 				mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
 				isPublic={isPublicChannel(currentChannel)}

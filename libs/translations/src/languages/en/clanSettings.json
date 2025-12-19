@@ -55,7 +55,9 @@
 		"welcomeSticker": "Prompt members to reply to welcome messages with a sticker.",
 		"boostMessage": "Send a message when someone Boosts this clan.",
 		"setupTips": "Send helpful tips for clan setup.",
-		"auditLog": "Send a log when an action is applied to the clan"
+		"auditLog": "Send a log when an action is applied to the clan",
+		"anoTitle": "Prevent Anonymous",
+		"anoDesc": "Prevent users from using anonymous mode"
 	},
 	"appDirectory": {
 		"categories": {

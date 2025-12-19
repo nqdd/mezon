@@ -105,14 +105,14 @@ export default function InvitePage() {
 				<div className="text-center mb-4 w-full">
 					<p className="text-sm mb-1">{t('invite.invitedToJoin')}</p>
 					<h1
-						className="truncate text-theme-primary-active text-3xl font-medium mb-3 truncate max-w-full"
+						className="truncate text-theme-primary-active text-3xl font-medium mb-3 max-w-full"
 						title={selectInvite?.clan_name || t('invite.defaultClanName')}
 					>
 						{selectInvite?.clan_name || t('invite.defaultClanName')}
 					</h1>
 
 					<div className="flex justify-center gap-5 text-sm">
-						<div className="flex items-center justify-around w-fit gap-2 p-2 bg-item-theme rounded-md">
+						<div className="flex items-center justify-around w-fit gap-2 p-2 ">
 							<div className="flex items-center">
 								<div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
 								<span className="">

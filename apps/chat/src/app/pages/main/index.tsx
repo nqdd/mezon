@@ -41,6 +41,7 @@ import {
 	selectCloseMenu,
 	selectCurrentChannelId,
 	selectCurrentChannelType,
+	selectCurrentClan,
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
 	selectCurrentTopicId,
@@ -118,14 +119,17 @@ function MyApp() {
 				openSearchModal();
 			}
 			if (event[prefixKey] && event.shiftKey && event.key === 'Enter' && !directId) {
-				const state = getStore().getState();
-				const isFocusTopicBox = selectClickedOnTopicStatus(state);
-				const currentTopicId = selectCurrentTopicId(state);
+				const store = getStore();
+				const currentClan = selectCurrentClan(store.getState());
+				const isFocusTopicBox = selectClickedOnTopicStatus(store.getState());
+				const currentTopicId = selectCurrentTopicId(store.getState());
+
+				if (currentClan?.prevent_anonymous) return;
 				if (isFocusTopicBox && currentTopicId) {
 					dispatch(accountActions.setTopicAnonymousMode());
-				} else if (!isFocusTopicBox) {
-					dispatch(accountActions.setAnonymousMode());
+					return;
 				}
+				dispatch(accountActions.setAnonymousMode());
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();
@@ -136,7 +140,7 @@ function MyApp() {
 				window.electron.setRatioWindow(true);
 			}
 		},
-		[openSearchModal, dispatch, directId]
+		[openSearchModal, currentURL]
 	);
 
 	useEffect(() => {
