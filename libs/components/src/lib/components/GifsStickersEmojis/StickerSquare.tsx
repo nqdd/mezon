@@ -189,8 +189,8 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 					className="w-11 max-sm:gap-x-1
 				flex flex-col max-sm:flex-row max-sm:justify-end max-sbm:justify-start gap-y-1
 				max-sm:w-full max-sbm:w-11 bg-item-theme pt-1
-				px-1 md:items-start pb-1 rounded max-sbm:flex-col
-				items-center min-h-[25rem]"
+				px-1 md:items-start pb-1  max-sbm:flex-col
+				items-center min-h-[25rem] rounded-tl-lg rounded-tr-lg"
 				>
 					{categoryLogo.map((avt) => (
 						<button
