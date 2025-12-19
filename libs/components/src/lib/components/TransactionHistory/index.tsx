@@ -1,5 +1,5 @@
 import {
-	fetchListTransactionHistory,
+	fetchLoadMoreTransaction,
 	fetchTransactionDetail,
 	selectAddress,
 	selectCountWalletLedger,
@@ -51,16 +51,19 @@ const TransactionHistory = ({ onClose }: IProps) => {
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const hasMoreData = currentPage * LIMIT_WALLET < (count || 0);
+	const currentData = walletLedger || [];
 
 	const fetchTransactions = useCallback(
 		async (filter: FilterType, page = 1, isLoadMore = false) => {
 			isLoadMore ? setIsLoadingMore(true) : setIsLoading(true);
 			try {
+				const lastItem = currentData[currentData.length - 1];
 				await dispatch(
-					fetchListTransactionHistory({
+					fetchLoadMoreTransaction({
 						address: walletAddress || '',
-						page,
-						filter: API_FILTER_PARAMS[filter]
+						filter: API_FILTER_PARAMS[filter],
+						timeStamp: page === 1 ? undefined : new Date(currentData[currentData.length - 1]?.transaction_timestamp * 1000).toISOString(),
+						lastHash: page === 1 ? undefined : lastItem?.hash
 					})
 				);
 			} catch (error) {
@@ -69,7 +72,7 @@ const TransactionHistory = ({ onClose }: IProps) => {
 				isLoadMore ? setIsLoadingMore(false) : setIsLoading(false);
 			}
 		},
-		[dispatch, walletAddress]
+		[dispatch, walletAddress, currentData]
 	);
 
 	const refreshData = () => {
@@ -274,8 +277,6 @@ const TransactionHistory = ({ onClose }: IProps) => {
 			</div>
 		);
 	}
-
-	const currentData = walletLedger || [];
 
 	return (
 		<div className="outline-none justify-center flex overflow-x-hidden items-center overflow-y-auto fixed inset-0 z-30 focus:outline-none bg-black bg-opacity-80 dark:text-white text-black hide-scrollbar overflow-hidden">
