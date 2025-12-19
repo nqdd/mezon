@@ -74,7 +74,6 @@ const Flows = () => {
 				title={t('flows.appTokenModal.title')}
 				onSave={(data: { token: string }) => {
 					handleCreateApplication(data.token);
-					// setHasToken(true);
 				}}
 			/>
 		</div>

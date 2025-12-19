@@ -68,11 +68,6 @@ const OAuth2 = () => {
 			}
 		}
 
-		// if (!uriInputValuesRef.current.length) {
-		// 	toast.warning(t('oauth2.toasts.redirectUriRequired'));
-		// 	return;
-		// }
-
 		if (includeInvalidURI) {
 			return;
 		}
