@@ -106,7 +106,7 @@ const CreateMessageGroup = ({ onClose, classNames, currentDM, rootRef }: CreateM
 			});
 			if (currentDM?.type === ChannelType.CHANNEL_TYPE_DM) {
 				listGroupDM.push(currentDM.user_ids?.at(0) as string);
-				userNameGroup.push(currentDM.display_names?.at(0) as string);
+				userNameGroup.push((currentDM.display_names?.at(0) || currentDM.usernames?.at(0)) as string);
 				avatarGroup.push(currentDM.channel_avatar?.at(0) as string);
 			}
 			const bodyCreateDmGroup: ApiCreateChannelDescRequest = {
