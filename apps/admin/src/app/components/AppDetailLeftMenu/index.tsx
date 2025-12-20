@@ -39,6 +39,14 @@ const AppDetailLeftMenu = ({ tabs, currentAppId }: ISideBarProps) => {
 		return filteredApps.length > 0 && filteredApps[0]?.app_url ? 'APP' : 'BOT';
 	}, [filteredApps]);
 
+	const filteredTabs = useMemo(() => {
+		const isApp = Boolean(currentApp?.app_url);
+		if (isApp) {
+			return tabs.filter((tab) => tab.routerLink !== 'flow' && tab.routerLink !== 'flow-examples');
+		}
+		return tabs;
+	}, [tabs, currentApp?.app_url]);
+
 	useEffect(() => {
 		if (currentApp && filteredApps.find((a) => a.id === currentAppId) && currentApp.appname) {
 			setDropdownValue(currentApp.appname);
@@ -121,7 +129,7 @@ const AppDetailLeftMenu = ({ tabs, currentAppId }: ISideBarProps) => {
 			<div className="w-full">
 				<div className="text-[12px] font-semibold mb-2">{t('settings')}</div>
 				<div className="flex flex-col w-full gap-[10px]">
-					{tabs.map((tab, idx) =>
+					{filteredTabs.map((tab, idx) =>
 						tab && tab.routerLink ? (
 							<NavLink
 								key={idx}
