@@ -257,7 +257,7 @@ const ContentPanel = React.memo(
 
 		if (subPanelActive === SubPanelName.EMOJI || isShowEmojiPicker) {
 			return (
-				<div className={`flex h-full pr-2 w-full sbm:w-[312px] ${contentWidthClass}`}>
+				<div className={`flex h-full px-2 w-full sbm:w-[312px] ${contentWidthClass}`}>
 					<EmojiPickerComp
 						isFocusTopicBox={isFocusTopicBox}
 						currenTopicId={currenTopicId ?? ''}
@@ -278,7 +278,7 @@ const ContentPanel = React.memo(
 		}
 		if (subPanelActive === SubPanelName.SOUNDS) {
 			return (
-				<div className={`flex h-full pr-2 w-full ${contentWidthClass}`}>
+				<div className={`flex h-full px-2 pt-2 w-full ${contentWidthClass}`}>
 					<SoundSquare mode={channelMode as number} onClose={onClose} isTopic={isTopic} />
 				</div>
 			);

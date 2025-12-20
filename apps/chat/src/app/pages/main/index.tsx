@@ -218,7 +218,7 @@ function MyApp() {
 					status={userProfile?.user?.online}
 					avatar={userProfile?.user?.avatar_url || ''}
 					userId={userProfile?.user?.id || ''}
-					isDM={currentClanId !== '0'}
+					isDM={currentClanId === '0'}
 				/>
 				<div
 					className={`fixed ${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'} bottom-0 ${closeMenu ? (statusMenu ? 'hidden' : 'w-full') : isShowChatStream ? 'max-sm:hidden' : 'w-full'} ${currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING && currentClanId !== '0' && memberPath !== currentURL ? 'flex flex-1 justify-center items-center' : 'hidden pointer-events-none'}`}
@@ -356,16 +356,17 @@ const SidebarMenu = memo(
 				onClick={() => handleMenu}
 				id="menu"
 			>
-				<div
-					className={`top-0 left-0 right-0 flex flex-col items-center pt-0 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
-					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
-				>
-					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
-						<SidebarHistory />
-						<SidebarLogoItem />
-						<DirectUnreadList />
-						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
-					</div>
+				<div className="relative h-full w-full overflow-hidden">
+					<div
+						className={`top-0 left-0 right-0 flex flex-col items-center pt-0 pb-[68px] overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'h-[calc(100%-80px)]' : 'h-[calc(100dvh_-_10px_-_80px)]'} `}
+						onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
+					>
+						<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+							<SidebarHistory />
+							<SidebarLogoItem />
+							<DirectUnreadList />
+							{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
+						</div>
 
 					<div className="pb-12">
 						<ClansList />
@@ -398,22 +399,22 @@ const SidebarMenu = memo(
 											</g>
 										</svg>
 									</div>
-								</div>
-							</NavLinkComponent>
-						</div>
-						<div className="mt-3">
-							<NavLinkComponent>
-								<div
-									className="flex items-center justify-between text-theme-primary group"
-									onClick={openCreateClanModal}
-									title={t('createClan')}
-									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
-								>
-									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
-										<p className="text-2xl font-semibold ">+</p>
+								</NavLinkComponent>
+							</div>
+							<div className="mt-3">
+								<NavLinkComponent>
+									<div
+										className="flex items-center justify-between text-theme-primary group"
+										onClick={openCreateClanModal}
+										title={t('createClan')}
+										data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
+									>
+										<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
+											<p className="text-2xl font-semibold ">+</p>
+										</div>
 									</div>
-								</div>
-							</NavLinkComponent>
+								</NavLinkComponent>
+							</div>
 						</div>
 					</div>
 				</div>

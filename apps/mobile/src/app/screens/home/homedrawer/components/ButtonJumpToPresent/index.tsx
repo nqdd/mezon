@@ -29,7 +29,7 @@ const AudioOutputOptions = ({ handleJumpToPresent, lastSeenMessageId, lastSentMe
 					<Text style={styles.badgeCountMessageText}>{replyCount >= 99 ? '99+' : replyCount}</Text>
 				</View>
 			)}
-			<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} color={themeValue.text} height={size.s_26} width={size.s_26} />
+			<MezonIconCDN icon={IconCDN.arrowLargeDownIcon} color={themeValue.text} height={size.s_18} width={size.s_18} />
 		</TouchableOpacity>
 	);
 };

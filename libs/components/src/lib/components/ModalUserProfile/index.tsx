@@ -253,11 +253,13 @@ const ModalUserProfile = ({
 								? t('labels.unknownUser')
 								: checkAnonymous
 									? t('labels.anonymous')
-									: userById?.clan_nick ||
-										userById?.user?.display_name ||
-										userById?.user?.username ||
-										currentUserId?.display_name ||
-										usernameShow}
+									: isFooterProfile
+										? userById?.user?.display_name || userProfile?.user?.display_name || userById?.user?.username
+										: userById?.clan_nick ||
+											userById?.user?.display_name ||
+											userById?.user?.username ||
+											currentUserId?.display_name ||
+											usernameShow}
 						</p>
 						<p className="text-base font-semibold tracking-wide text-theme-primary my-0 truncate">
 							{isUserRemoved ? t('labels.unknownUser') : usernameShow || currentUserId?.username || ''}
@@ -290,8 +292,10 @@ const ModalUserProfile = ({
 									className={`w-full border-theme-primary text-theme-primary color-text-secondary rounded-[5px] bg-theme-contexify p-[5px] `}
 									placeholder={t('placeholders.messageUser', {
 										username: isFooterProfile
-											? userProfile?.user?.display_name
-											: userById?.user?.display_name || userById?.user?.username || usernameShow
+											? userById?.user?.display_name || userProfile?.user?.display_name || userById?.user?.username
+											: !isDM
+												? userById?.clan_nick || userById?.user?.display_name || userById?.user?.username || usernameShow
+												: userById?.user?.display_name || userById?.user?.username || usernameShow
 									})}
 									value={content}
 									onKeyPress={handleOnKeyPress}

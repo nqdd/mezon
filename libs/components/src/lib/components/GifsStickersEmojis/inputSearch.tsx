@@ -90,7 +90,7 @@ export const InputSearch: React.FC = () => {
 			)}
 
 			{!trendingClickingStatus && (
-				<div className={`transition-all duration-300 h-8 pl-4 pr-2 py-3 relative rounded items-center inline-flex w-[97%] text-center`}>
+				<div className={`transition-all duration-300 h-8 px-2 py-3 relative rounded items-center inline-flex w-[97%] text-center`}>
 					<input
 						onChange={handleInputChange}
 						type="text"
