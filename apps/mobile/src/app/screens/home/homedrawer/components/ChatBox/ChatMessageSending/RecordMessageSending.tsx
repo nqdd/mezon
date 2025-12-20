@@ -11,6 +11,7 @@ import { DeviceEventEmitter, InteractionManager, Platform } from 'react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { check, PERMISSIONS } from 'react-native-permissions';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -84,8 +85,9 @@ export const RecordMessageSending = memo(
 
 		const startRecording = async () => {
 			try {
+				const checkStatusPermission = await check(Platform.OS === 'ios' ? PERMISSIONS.IOS.MICROPHONE : PERMISSIONS.ANDROID.RECORD_AUDIO);
 				const isPermissionGranted = await getPermissions();
-				if (!isPermissionGranted) {
+				if (!isPermissionGranted || checkStatusPermission !== 'granted') {
 					return;
 				}
 				isLongPressed.value = true;

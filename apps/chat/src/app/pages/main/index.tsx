@@ -218,7 +218,7 @@ function MyApp() {
 					status={userProfile?.user?.online}
 					avatar={userProfile?.user?.avatar_url || ''}
 					userId={userProfile?.user?.id || ''}
-					isDM={currentClanId !== '0'}
+					isDM={currentClanId === '0'}
 				/>
 				<div
 					className={`fixed ${isWindowsDesktop || isLinuxDesktop ? 'h-heightTitleBarWithoutTopBar' : 'h-heightWithoutTopBar'} bottom-0 ${closeMenu ? (statusMenu ? 'hidden' : 'w-full') : isShowChatStream ? 'max-sm:hidden' : 'w-full'} ${currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING && currentClanId !== '0' && memberPath !== currentURL ? 'flex flex-1 justify-center items-center' : 'hidden pointer-events-none'}`}
@@ -356,64 +356,66 @@ const SidebarMenu = memo(
 				onClick={() => handleMenu}
 				id="menu"
 			>
-				<div
-					className={`top-0 left-0 right-0 flex flex-col items-center pt-0 md:pb-32 pb-4 overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : 'h-[calc(100dvh_-_56px)]'} `}
-					onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
-				>
-					<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
-						<SidebarHistory />
-						<SidebarLogoItem />
-						<DirectUnreadList />
-						{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
-					</div>
-
-					<div className="pb-12">
-						<ClansList />
-						<div className="mt-3">
-							<NavLinkComponent>
-								<div
-									className="flex items-center justify-between text-theme-primary group"
-									onClick={openDiscoverPage}
-									title={t('discover')}
-								>
-									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
-										<svg
-											className="text-theme-primary-active size-5"
-											viewBox="0 0 16 16"
-											fill="currentColor"
-											xmlns="http://www.w3.org/2000/svg"
-											width={40}
-											height={40}
-										>
-											<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-											<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-											<g id="SVGRepo_iconCarrier">
-												{' '}
-												<path d="M8 9C8.55229 9 9 8.55229 9 8C9 7.44772 8.55229 7 8 7C7.44772 7 7 7.44772 7 8C7 8.55229 7.44772 9 8 9Z"></path>{' '}
-												<path
-													fillRule="evenodd"
-													clipRule="evenodd"
-													d="M16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8ZM6 6L4 11L5 12L10 10L12 5L11 4L6 6Z"
-												></path>{' '}
-											</g>
-										</svg>
-									</div>
-								</div>
-							</NavLinkComponent>
+				<div className="relative h-full w-full overflow-hidden">
+					<div
+						className={`top-0 left-0 right-0 flex flex-col items-center pt-0 pb-[68px] overflow-y-auto hide-scrollbar ${isWindowsDesktop || isLinuxDesktop ? 'h-[calc(100%-80px)]' : 'h-[calc(100dvh_-_10px_-_80px)]'} `}
+						onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop === 0)}
+					>
+						<div className={`flex flex-col items-center sticky top-0 z-50 bg-theme-primary w-full ${isAtTop ? 'pt-3' : 'py-3'}`}>
+							<SidebarHistory />
+							<SidebarLogoItem />
+							<DirectUnreadList />
+							{isAtTop && <div className="w-10 border-b border-color-theme mx-auto mt-3" />}
 						</div>
-						<div className="mt-3">
-							<NavLinkComponent>
-								<div
-									className="flex items-center justify-between text-theme-primary group"
-									onClick={openCreateClanModal}
-									title={t('createClan')}
-									data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
-								>
-									<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
-										<p className="text-2xl font-semibold ">+</p>
+
+						<div className="pb-12">
+							<ClansList />
+							<div className="mt-3">
+								<NavLinkComponent>
+									<div
+										className="flex items-center justify-between text-theme-primary group"
+										onClick={openDiscoverPage}
+										title={t('discover')}
+									>
+										<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
+											<svg
+												className="text-theme-primary-active size-5"
+												viewBox="0 0 16 16"
+												fill="currentColor"
+												xmlns="http://www.w3.org/2000/svg"
+												width={40}
+												height={40}
+											>
+												<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+												<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+												<g id="SVGRepo_iconCarrier">
+													{' '}
+													<path d="M8 9C8.55229 9 9 8.55229 9 8C9 7.44772 8.55229 7 8 7C7.44772 7 7 7.44772 7 8C7 8.55229 7.44772 9 8 9Z"></path>{' '}
+													<path
+														fillRule="evenodd"
+														clipRule="evenodd"
+														d="M16 8C16 12.4183 12.4183 16 8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8ZM6 6L4 11L5 12L10 10L12 5L11 4L6 6Z"
+													></path>{' '}
+												</g>
+											</svg>
+										</div>
 									</div>
-								</div>
-							</NavLinkComponent>
+								</NavLinkComponent>
+							</div>
+							<div className="mt-3">
+								<NavLinkComponent>
+									<div
+										className="flex items-center justify-between text-theme-primary group"
+										onClick={openCreateClanModal}
+										title={t('createClan')}
+										data-e2e={generateE2eId('clan_page.side_bar.button.add_clan')}
+									>
+										<div className="w-[40px] h-[40px] rounded-xl theme-base-color flex justify-center items-center  cursor-pointer transition-all bg-add-clan-hover duration-200 size-12">
+											<p className="text-2xl font-semibold ">+</p>
+										</div>
+									</div>
+								</NavLinkComponent>
+							</div>
 						</div>
 					</div>
 				</div>

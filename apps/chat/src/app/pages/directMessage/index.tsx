@@ -22,10 +22,10 @@ const Direct = () => {
 	return (
 		<>
 			<div
-				className={`flex-col flex w-[272px] border-left-theme-primary bg-theme-direct-message  relative min-w-widthMenuMobile ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : ''} sbm:min-w-[272px] ${closeMenu ? (statusMenu ? 'flex' : 'max-sm:hidden') : ''}`}
+				className={`flex-col flex w-[272px]  bg-theme-direct-message  relative min-w-widthMenuMobile ${isWindowsDesktop || isLinuxDesktop ? 'max-h-heightTitleBar h-heightTitleBar' : ''} sbm:min-w-[272px] ${closeMenu ? (statusMenu ? 'flex' : 'max-sm:hidden') : ''}`}
 			>
 				<DirectMessageContextMenuProvider contextMenuId="dm-list-context">
-					<div className="contain-content">
+					<div className="contain-content border-left-theme-primary ">
 						<ClanHeader type={'direct'} />
 						<DirectMessageList />
 					</div>

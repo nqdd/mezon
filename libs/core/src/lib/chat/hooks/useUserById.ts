@@ -7,7 +7,6 @@ import {
 	selectCurrentChannel,
 	selectCurrentDM,
 	selectDmGroupCurrentId,
-	selectHashtagDmById,
 	selectMemberClanByUserId,
 	selectMemberDMByUserId,
 	selectMemberGroupByUserId,
@@ -52,17 +51,14 @@ export const useUserByUserId = (userID: string | undefined): ChannelMembersEntit
 export const useTagById = (tagId: string | undefined): ChannelsEntity | undefined => {
 	return useAppSelector((state) => {
 		if (!tagId) return undefined;
-		const isClanView = selectClanView(state);
-		return isClanView
-			? (selectChannelByChannelId(state, tagId) as unknown as ChannelsEntity)
-			: (selectHashtagDmById(state, tagId) as unknown as ChannelsEntity);
+		return selectChannelByChannelId(state, tagId) as unknown as ChannelsEntity;
 	});
 };
 
 export const getTagByIdOnStored = (clanId: string, tagId: string | undefined): ChannelsEntity | undefined => {
 	const store = getStore();
 	if (!tagId) return undefined;
-	return selectChannelByIdAndClanId(store.getState(), clanId, tagId) || selectHashtagDmById(store.getState(), tagId);
+	return selectChannelByIdAndClanId(store.getState(), clanId, tagId);
 };
 
 export const useCurrentInbox = (): ChannelsEntity | null => {

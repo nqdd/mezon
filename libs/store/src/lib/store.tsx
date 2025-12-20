@@ -38,7 +38,6 @@ import { userChannelsReducer } from './channelmembers/AllUsersChannelByAddChanne
 import { listchannelsByUserReducer } from './channels/channelUser.slice';
 import { CHANNEL_APP, channelAppReducer } from './channels/channelapp.slice';
 import { channelMetaReducer } from './channels/channelmeta.slice';
-import { hashtagDmReducer } from './channels/hashtagDm.slice';
 import { CHANNEL_LIST_RENDER, listChannelRenderReducer } from './channels/listChannelRender.slice';
 import { listUsersByUserReducer } from './channels/listUsers.slice';
 import { integrationClanWebhookReducer } from './clanWebhook/clanWebhook.slide';
@@ -221,14 +220,6 @@ const persistedDefaultNotiCatReducer = persistReducer(
 	defaultNotificationCategoryReducer
 );
 
-const persistedHashTagDmReducer = persistReducer(
-	{
-		key: 'hashtagdm',
-		storage
-	},
-	hashtagDmReducer
-);
-
 const persistedGifsStickerEmojiReducer = persistReducer(
 	{
 		key: 'gifsstickersemojis',
@@ -339,7 +330,6 @@ const reducer = {
 	defaultnotificationclan: defaultNotificationClanReducer,
 	defaultnotificationcategory: persistedDefaultNotiCatReducer,
 	notichannelcategorysetting: persistedChannelCatSettingReducer,
-	hashtagdm: persistedHashTagDmReducer,
 	invite: inviteReducer,
 	isshow: IsShowReducer,
 	forwardmessage: popupForwardReducer,
