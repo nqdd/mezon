@@ -74,7 +74,7 @@ function ChannelList() {
 		<div onContextMenu={(event) => event.preventDefault()} id="channelList" className="contain-strict h-full">
 			<div className={`flex-1 relative`}>
 				<div
-					className={`absolute inset-0 transition-opacity duration-300 ${shouldShowSkeleton ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+					className={`absolute inset-0 transition-opacity duration-300 border-left-theme-primary  ${shouldShowSkeleton ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
 				>
 					<ChannelListSkeleton />
 				</div>
@@ -162,7 +162,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 			const clanFooterEle = document.getElementById('clan-footer');
 			const clanFooterHeight = clanFooterEle?.clientHeight || 0;
 			const mdBottomMargin = window.innerWidth >= 768 ? 16 : 0;
-			const totalHeight = clanTopbarEle + clanFooterHeight + mdBottomMargin + 5;
+			const totalHeight = clanTopbarEle + clanFooterHeight + mdBottomMargin - 3;
 			const outsideHeight = totalHeight;
 			const titleBarHeight = isWindowsDesktop || isLinuxDesktop ? 21 : 0;
 
@@ -332,7 +332,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 			style={{
 				height
 			}}
-			className={`thread-scroll`}
+			className={`thread-scroll border-left-theme-primary`}
 			onWheelCapture={() => {
 				toggleDisableHover(parentRef.current, scrollTimeoutId2);
 			}}
