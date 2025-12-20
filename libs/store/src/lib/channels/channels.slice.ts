@@ -1514,6 +1514,11 @@ export const channelsSlice = createSlice({
 			if (state.byClans[clanId]?.entities) {
 				channelsAdapter.removeMany(state.byClans[clanId].entities, channelIds);
 			}
+		},
+
+		removeByClanId: (state, action: PayloadAction<string>) => {
+			const clanId = action.payload;
+			delete state.byClans[clanId];
 		}
 	},
 	extraReducers: (builder) => {
