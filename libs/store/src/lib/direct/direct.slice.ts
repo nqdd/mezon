@@ -10,9 +10,7 @@ import { toast } from 'react-toastify';
 import { selectAllAccount } from '../account/account.slice';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
-import { channelMembersActions } from '../channelmembers/channel.members';
 import { channelsActions, fetchChannelsCached } from '../channels/channels.slice';
-import { hashtagDmActions } from '../channels/hashtagDm.slice';
 import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
 import type { MessagesEntity } from '../messages/messages.slice';
 import { messagesActions } from '../messages/messages.slice';
@@ -346,24 +344,6 @@ export const joinDirectMessage = createAsyncThunk<void, JoinDirectMessagePayload
 						isClearMessage
 					})
 				);
-
-				// TODO: update e2ee later gg
-				thunkAPI
-					.dispatch(
-						channelMembersActions.fetchChannelMembers({
-							clanId: '',
-							channelId: directMessageId,
-							channelType: ChannelType.CHANNEL_TYPE_CHANNEL,
-							noCache
-						})
-					)
-					.then((data) => {
-						const members = (data.payload as any)?.channel_users as members[];
-						if (type === ChannelType.CHANNEL_TYPE_DM && members?.length > 0) {
-							const userIds = members.map((member) => member?.user_id as string);
-							thunkAPI.dispatch(hashtagDmActions.fetchHashtagDm({ userIds, directId: directMessageId }));
-						}
-					});
 			}
 			thunkAPI.dispatch(
 				channelsActions.joinChat({
