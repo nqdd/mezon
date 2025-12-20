@@ -125,7 +125,7 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 				},
 			!directMessageId && {
 				id: 'anonymous' as const,
-				label: anonymousMode ? t('message:actions:turnOffAnonymous') : t('common:anonymous'),
+				label: anonymousMode ? t('message:turnOffAnonymous') : t('common:anonymous'),
 				icon: IconCDN.anonymous,
 				backgroundColor: FUNCTION_COLORS.ANONYMOUS
 			},
@@ -398,6 +398,10 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 			}
 
 			if (onClose) {
+				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
+					isShow: false,
+					mode: 'text'
+				});
 				onClose(SHOULD_FOCUS_AFTER_ACTION.includes(_item.id));
 			}
 		},

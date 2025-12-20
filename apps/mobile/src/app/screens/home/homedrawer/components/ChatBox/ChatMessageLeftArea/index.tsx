@@ -35,7 +35,13 @@ export const ChatMessageLeftArea = memo(
 			return (
 				<View style={styles.wrapper}>
 					{isAvailableSending && !isShowAttachControl ? (
-						<TouchableOpacity style={[styles.btnIcon]} onPress={() => setIsShowAttachControl(!isShowAttachControl)}>
+						<TouchableOpacity
+							style={[styles.btnIcon]}
+							onPress={() => {
+								handleKeyboardBottomSheetMode('text');
+								setIsShowAttachControl(!isShowAttachControl);
+							}}
+						>
 							<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} width={size.s_22} height={size.s_22} color={themeValue.textStrong} />
 						</TouchableOpacity>
 					) : (

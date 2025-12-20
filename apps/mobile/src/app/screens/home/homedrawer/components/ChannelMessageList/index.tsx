@@ -79,7 +79,7 @@ const ChannelListMessage = React.memo(
 				windowSize={10}
 				onEndReachedThreshold={0.2}
 				maintainVisibleContentPosition={{
-					minIndexForVisible: 1,
+					minIndexForVisible: Platform.OS === 'ios' ? 2 : 1,
 					autoscrollToTopThreshold: isLoadMoreBottom ? undefined : 1000
 				}}
 				ref={flatListRef}
